@@ -308,8 +308,8 @@ var DOMLinkHandler = {
       // ensure that the image loaded always obeys the content policy. There
       // may have been a chance that it was cached and we're trying to load it
       // direct from the cache and not the normal route.
-      let { NetUtil } = ChromeUtils.import(
-        "resource://gre/modules/NetUtil.jsm"
+      let { NetUtil } = ChromeUtils.importESModule(
+        "resource://gre/modules/NetUtil.sys.mjs"
       );
       let tmpChannel = NetUtil.newChannel({
         uri,

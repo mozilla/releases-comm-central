@@ -12,11 +12,9 @@ XPCOMUtils.defineLazyGetter(lazy, "gTextDecoder", () => {
   return new TextDecoder();
 });
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "NetUtil",
-  "resource://gre/modules/NetUtil.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
+});
 
 var kEmoticonsThemePref = "messenger.options.emoticonsTheme";
 var kThemeFile = "theme.json";

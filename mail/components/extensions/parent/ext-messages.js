@@ -4,6 +4,7 @@
 
 ChromeUtils.defineESModuleGetters(this, {
   AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
+  NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
 });
 
 var {
@@ -37,11 +38,6 @@ ChromeUtils.defineModuleGetter(
   this,
   "MimeParser",
   "resource:///modules/mimeParser.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "NetUtil",
-  "resource://gre/modules/NetUtil.jsm"
 );
 
 var { MailStringUtils } = ChromeUtils.import(

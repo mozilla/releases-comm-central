@@ -19,6 +19,11 @@ const { EnigmailConstants } = ChromeUtils.import(
 );
 
 const lazy = {};
+
+ChromeUtils.defineESModuleGetters(lazy, {
+  NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
@@ -33,7 +38,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
-  NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
 
 let l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);

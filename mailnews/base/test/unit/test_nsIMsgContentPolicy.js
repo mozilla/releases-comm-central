@@ -3,7 +3,9 @@
  * Test suite for nsIMsgContentPolicy to check we could add/remove customized protocol to
  * nsMsgContentPolicy.
  */
-const { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+const { NetUtil } = ChromeUtils.importESModule(
+  "resource://gre/modules/NetUtil.sys.mjs"
+);
 
 function makeURI(aURL) {
   return Services.io.newURI(aURL);

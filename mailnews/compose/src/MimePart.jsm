@@ -15,7 +15,9 @@ var { MailServices } = ChromeUtils.import(
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );
-var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+var { NetUtil } = ChromeUtils.importESModule(
+  "resource://gre/modules/NetUtil.sys.mjs"
+);
 
 /**
  * A class to represent a RFC2045 message. MimePart can be nested, each MimePart

@@ -16,11 +16,14 @@ const { MailServices } = ChromeUtils.import(
 );
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MimeParser: "resource:///modules/mimeParser.jsm",
-  NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
 
 function resolveURIInternal(aCmdLine, aArgument) {

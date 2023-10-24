@@ -7,7 +7,9 @@ var { FileUtils } = ChromeUtils.importESModule("resource://gre/modules/FileUtils
 
 var { updateAppInfo } = ChromeUtils.importESModule("resource://testing-common/AppInfo.sys.mjs");
 
-ChromeUtils.defineModuleGetter(this, "NetUtil", "resource://gre/modules/NetUtil.jsm");
+ChromeUtils.defineESModuleGetters(this, {
+  NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
+});
 
 updateAppInfo();
 

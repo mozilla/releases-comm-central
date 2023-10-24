@@ -14,10 +14,10 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   MailConsts: "resource:///modules/MailConsts.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   MimeParser: "resource:///modules/mimeParser.jsm",
-  NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });
 
