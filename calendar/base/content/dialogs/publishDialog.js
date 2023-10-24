@@ -17,7 +17,10 @@ function loadCalendarPublishDialog() {
 
   if (args.publishObject) {
     gPublishObject = args.publishObject;
-    if (args.publishObject.remotePath) {
+    if (
+      args.publishObject.remotePath &&
+      /^(https?|webcals?):\/\//.test(args.publishObject.remotePath)
+    ) {
       document.getElementById("publish-remotePath-textbox").value = args.publishObject.remotePath;
     }
   } else {
@@ -34,7 +37,9 @@ function loadCalendarPublishDialog() {
  * Called when the OK button is clicked.
  */
 function onOKCommand(event) {
-  gPublishObject.remotePath = document.getElementById("publish-remotePath-textbox").value;
+  gPublishObject.remotePath = document
+    .getElementById("publish-remotePath-textbox")
+    .value.replace(/^webcal/, "http");
 
   // call caller's on OK function
   gOnOkFunction(gPublishObject, progressDialog);
