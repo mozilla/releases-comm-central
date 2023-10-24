@@ -517,7 +517,9 @@ nsresult nsCMSMessage::CommonVerifySignature(
 #if defined(__clang__)
       [[clang::fallthrough]];
 #endif
-
+#if defined(__GNUC__)
+      [[fallthrough]];
+#endif
     default:
       MOZ_LOG(
           gCMSLog, LogLevel::Debug,
