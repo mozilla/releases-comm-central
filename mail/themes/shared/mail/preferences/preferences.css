@@ -55,6 +55,7 @@ search-textbox {
 
 #pref-category-box {
   background-color: var(--in-content-categories-background);
+  border-inline-end: 1px solid var(--in-content-categories-border);
   width: 18em;
 }
 
