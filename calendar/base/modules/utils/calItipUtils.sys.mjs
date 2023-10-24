@@ -599,6 +599,249 @@ export var itip = {
   },
 
   /**
+   * Executes an action from a calandar message.
+   *
+   * @param {nsIWindow} aWindow - The current window
+   * @param {string} aParticipantStatus - A partstat string as per RfC 5545
+   * @param {string} aResponse - Either 'AUTO', 'NONE' or 'USER', see
+   *                             calItipItem interface
+   * @param {Function} aActionFunc - The function to call to do the scheduling
+   *                                 operation
+   * @param {calIItipItem} aItipItem - Scheduling item
+   * @param {array} aFoundItems - The items found when looking for the calendar item
+   * @param {Function} aUpdateFunction - A function to call which will update the UI
+   * @returns {boolean} true, if the action succeeded
+   */
+  executeAction(
+    aWindow,
+    aParticipantStatus,
+    aResponse,
+    aActionFunc,
+    aItipItem,
+    aFoundItems,
+    aUpdateFunction
+  ) {
+    // control to avoid processing _execAction on later user changes on the item
+    let isFirstProcessing = true;
+
+    /**
+     * Internal function to trigger an scheduling operation
+     *
+     * @param {Function} aActionFunc - The function to call to do the
+     *                                 scheduling operation
+     * @param {calIItipItem} aItipItem - Scheduling item
+     * @param {nsIWindow} aWindow - The current window
+     * @param {string} aPartStat - partstat string as per RFC 5545
+     * @param {object} aExtResponse - JS object containing at least an responseMode
+     *                                property
+     * @returns {boolean} true, if the action succeeded
+     */
+    function _execAction(aActionFunc, aItipItem, aWindow, aPartStat, aExtResponse) {
+      let method = aActionFunc.method;
+      if (lazy.cal.itip.promptCalendar(aActionFunc.method, aItipItem, aWindow)) {
+        if (
+          method == "REQUEST" &&
+          !lazy.cal.itip.promptInvitedAttendee(aWindow, aItipItem, Ci.calIItipItem[aResponse])
+        ) {
+          return false;
+        }
+
+        let isDeclineCounter = aPartStat == "X-DECLINECOUNTER";
+        // filter out fake partstats
+        if (aPartStat.startsWith("X-")) {
+          aParticipantStatus = "";
+        }
+        // hide the buttons now, to disable pressing them twice...
+        if (aPartStat == aParticipantStatus) {
+          aUpdateFunction({ resetButtons: true });
+        }
+
+        let opListener = {
+          QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
+          onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
+            isFirstProcessing = false;
+            if (Components.isSuccessCode(aStatus) && isDeclineCounter) {
+              // TODO: move the DECLINECOUNTER stuff to actionFunc
+              aItipItem.getItemList().forEach(aItem => {
+                // we can rely on the received itipItem to reply at this stage
+                // already, the checks have been done in cal.itip.processFoundItems
+                // when setting up the respective aActionFunc
+                let attendees = lazy.cal.itip.getAttendeesBySender(
+                  aItem.getAttendees(),
+                  aItipItem.sender
+                );
+                let status = true;
+                if (attendees.length == 1 && aFoundItems?.length) {
+                  // we must return a message with the same sequence number as the
+                  // counterproposal - to make it easy, we simply use the received
+                  // item and just remove a comment, if any
+                  try {
+                    let item = aItem.clone();
+                    item.calendar = aFoundItems[0].calendar;
+                    item.deleteProperty("COMMENT");
+                    // once we have full support to deal with for multiple items
+                    // in a received invitation message, we should send this
+                    // from outside outside of the forEach context
+                    status = lazy.cal.itip.sendDeclineCounterMessage(
+                      item,
+                      "DECLINECOUNTER",
+                      attendees,
+                      {
+                        value: false,
+                      }
+                    );
+                  } catch (e) {
+                    lazy.cal.ERROR(e);
+                    status = false;
+                  }
+                } else {
+                  status = false;
+                }
+                if (!status) {
+                  lazy.cal.ERROR("Failed to send DECLINECOUNTER reply!");
+                }
+              });
+            }
+            // For now, we just state the status for the user something very simple
+            let label = lazy.cal.itip.getCompleteText(aStatus, aOperationType);
+            aUpdateFunction({ label });
+
+            if (!Components.isSuccessCode(aStatus)) {
+              lazy.cal.showError(label);
+              return;
+            }
+
+            if (Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
+              aWindow.dispatchEvent(
+                new CustomEvent("onItipItemActionFinished", { detail: aItipItem })
+              );
+            }
+          },
+          onGetResult(calendar, status, itemType, detail, items) {},
+        };
+
+        try {
+          aActionFunc(opListener, aParticipantStatus, aExtResponse);
+        } catch (exc) {
+          console.error(exc);
+        }
+        return true;
+      }
+      return false;
+    }
+
+    if (aParticipantStatus == null) {
+      aParticipantStatus = "";
+    }
+    if (aParticipantStatus == "X-SHOWDETAILS" || aParticipantStatus == "X-RESCHEDULE") {
+      let counterProposal;
+      if (aFoundItems?.length) {
+        let item = aFoundItems[0].isMutable ? aFoundItems[0] : aFoundItems[0].clone();
+
+        if (aParticipantStatus == "X-RESCHEDULE") {
+          // TODO most of the following should be moved to the actionFunc defined in
+          // calItipUtils
+          let proposedItem = aItipItem.getItemList()[0];
+          let proposedRID = proposedItem.getProperty("RECURRENCE-ID");
+          if (proposedRID) {
+            // if this is a counterproposal for a specific occurrence, we use
+            // that to compare with
+            item = item.recurrenceInfo.getOccurrenceFor(proposedRID).clone();
+          }
+          let parsedProposal = lazy.cal.invitation.parseCounter(proposedItem, item);
+          let potentialProposers = lazy.cal.itip.getAttendeesBySender(
+            proposedItem.getAttendees(),
+            aItipItem.sender
+          );
+          let proposingAttendee = potentialProposers.length == 1 ? potentialProposers[0] : null;
+          if (
+            proposingAttendee &&
+            ["OK", "OUTDATED", "NOTLATESTUPDATE"].includes(parsedProposal.result.type)
+          ) {
+            counterProposal = {
+              attendee: proposingAttendee,
+              proposal: parsedProposal.differences,
+              oldVersion:
+                parsedProposal.result == "OLDVERSION" || parsedProposal.result == "NOTLATESTUPDATE",
+              onReschedule: () => {
+                aUpdateFunction({
+                  label: lazy.cal.l10n.getLtnString("imipBarCounterPreviousVersionText"),
+                });
+                // TODO: should we hide the buttons in this case, too?
+              },
+            };
+          } else {
+            aUpdateFunction({
+              label: lazy.cal.l10n.getLtnString("imipBarCounterErrorText"),
+              resetButtons: true,
+            });
+            if (proposingAttendee) {
+              lazy.cal.LOG(parsedProposal.result.descr);
+            } else {
+              lazy.cal.LOG("Failed to identify the sending attendee of the counterproposal.");
+            }
+
+            return false;
+          }
+        }
+        // if this a rescheduling operation, we suppress the occurrence
+        // prompt here
+        aWindow.modifyEventWithDialog(
+          item,
+          aParticipantStatus != "X-RESCHEDULE",
+          null,
+          counterProposal
+        );
+      }
+    } else {
+      let response;
+      if (aResponse) {
+        if (aResponse == "AUTO" || aResponse == "NONE" || aResponse == "USER") {
+          response = { responseMode: Ci.calIItipItem[aResponse] };
+        }
+        // Open an extended response dialog to enable the user to add a comment, make a
+        // counterproposal, delegate the event or interact in another way.
+        // Instead of a dialog, this might be implemented as a separate container inside the
+        // imip-overlay as proposed in bug 458578
+      }
+      let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+        Ci.calIDeletedItems
+      );
+      let items = aItipItem.getItemList();
+      if (items && items.length) {
+        let delTime = delmgr.getDeletedDate(items[0].id);
+        let dialogText = lazy.cal.l10n.getLtnString("confirmProcessInvitation");
+        let dialogTitle = lazy.cal.l10n.getLtnString("confirmProcessInvitationTitle");
+        if (delTime && !Services.prompt.confirm(aWindow, dialogTitle, dialogText)) {
+          return false;
+        }
+      }
+
+      if (aParticipantStatus == "X-SAVECOPY") {
+        // we create and adopt copies of the respective events
+        let saveitems = aItipItem
+          .getItemList()
+          .map(lazy.cal.itip.getPublishLikeItemCopy.bind(lazy.cal));
+        if (saveitems.length > 0) {
+          let methods = { receivedMethod: "PUBLISH", responseMethod: "PUBLISH" };
+          let newItipItem = lazy.cal.itip.getModifiedItipItem(aItipItem, saveitems, methods);
+          // setup callback and trigger re-processing
+          let storeCopy = function (aItipItem, aRc, aActionFunc, aFoundItems) {
+            if (isFirstProcessing && aActionFunc && Components.isSuccessCode(aRc)) {
+              _execAction(aActionFunc, aItipItem, aWindow, aParticipantStatus);
+            }
+          };
+          lazy.cal.itip.processItipItem(newItipItem, storeCopy);
+        }
+        // we stop here to not process the original item
+        return false;
+      }
+      return _execAction(aActionFunc, aItipItem, aWindow, aParticipantStatus, response);
+    }
+    return false;
+  },
+
+  /**
    * Scope: iTIP message receiver
    *
    * Prompt for the target calendar, if needed for the given method. This calendar will be set on

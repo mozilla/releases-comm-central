@@ -69,6 +69,41 @@ export var window = {
   },
 
   /**
+   * Open (or focus if already open) the calendar tab, even if the imip bar is
+   * in a message window, and even if there is no main three pane Thunderbird
+   * window open. Called when clicking the imip bar's calendar button.
+   */
+  goToCalendar() {
+    let openCal = mainWindow => {
+      mainWindow.focus();
+      mainWindow.document.getElementById("tabmail").openTab("calendar");
+    };
+
+    let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
+
+    if (mainWindow) {
+      openCal(mainWindow);
+    } else {
+      mainWindow = Services.ww.openWindow(
+        null,
+        "chrome://messenger/content/messenger.xhtml",
+        "_blank",
+        "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
+        null
+      );
+
+      // Wait until calendar is set up in the new window.
+      let calStartupObserver = {
+        observe(subject, topic, data) {
+          openCal(mainWindow);
+          Services.obs.removeObserver(calStartupObserver, "calendar-startup-done");
+        },
+      };
+      Services.obs.addObserver(calStartupObserver, "calendar-startup-done");
+    }
+  },
+
+  /**
    * Brings up a dialog prompting the user about the deletion of the passed
    * item(s).
    *
