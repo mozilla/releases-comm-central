@@ -34,7 +34,7 @@ class nsStreamConverter : public nsIStreamConverter,
   // nsIRequestObserver methods
   NS_DECL_NSIREQUESTOBSERVER
 
-// nsIThreadRetargetableStreamListener methods
+  // nsIThreadRetargetableStreamListener methods
   NS_DECL_NSITHREADRETARGETABLESTREAMLISTENER
 
   ////////////////////////////////////////////////////////////////////////////
