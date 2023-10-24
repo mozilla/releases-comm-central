@@ -77,7 +77,7 @@
 :root[uidensity="compact"] {
   --folder-mode-name-padding: 3px;
   --folder-tree-header-gap: 6px;
-  --folder-tree-header-padding: 3px 6px;
+  --folder-tree-header-padding: 4px 6px 3px;
 }
 
 :root[uidensity="touch"] {

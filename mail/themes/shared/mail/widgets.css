@@ -76,7 +76,8 @@
 
   &.icon-only {
     background-position: center;
-    height: calc(var(--button-padding) * 2 + var(--icon-size));
+    /* 2px at the end for the border. */
+    height: calc(var(--button-padding) * 2 + var(--icon-size) + 2px);
     padding: 0;
     aspect-ratio: 1;
   }
@@ -324,7 +325,7 @@
 }
 
 @media (-moz-windows-accent-color-in-titlebar) {
-  :is(.unified-toolbar-button, .toolbar-button):not(:-moz-lwtheme):focus-visible {
+  #navigation-toolbox :is(.unified-toolbar-button, .toolbar-button):not(:-moz-lwtheme):focus-visible {
     outline-color: AccentColorText;
   }
 }

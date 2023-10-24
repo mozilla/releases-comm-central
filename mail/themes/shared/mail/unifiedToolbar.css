@@ -6,25 +6,25 @@
 @import url("chrome://messenger/skin/shared/serverMenuItems.css");
 
 :root {
-  --unified-toolbar-padding: 7px;
+  --unified-toolbar-padding: 4px;
   --unified-drag-space: 30px;
   --unified-customization-padding: 30px;
   --unified-toolbar-content-min-height: 28px;
 }
 
 :root[uidensity="compact"] {
-  --unified-toolbar-padding: 4px;
+  --unified-toolbar-padding: 1px;
   --unified-drag-space: 15px;
   --unified-toolbar-content-min-height: 24px;
 }
 
 :root[uidensity="touch"] {
-  --unified-toolbar-padding: 10px;
+  --unified-toolbar-padding: 7px;
 }
 
 :root[sizemode="fullscreen"],
 :root:not([tabsintitlebar]) {
-  --unified-drag-space: 0;
+  --unified-drag-space: 3px;
 }
 
 unified-toolbar {
@@ -78,8 +78,9 @@ unified-toolbar {
   flex: 1 1 auto;
   min-height: var(--unified-toolbar-content-min-height);
   margin: 0;
-  padding: 0;
-  padding-inline-start: var(--unified-drag-space);
+  /* Padding needed for the children's focus ring. */
+  padding-block: 3px;
+  padding-inline: var(--unified-drag-space) 3px;
 }
 
 #unifiedToolbarContent li {

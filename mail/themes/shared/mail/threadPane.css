@@ -4,7 +4,7 @@
 
 :root {
   --thread-pane-container-gap: 3px;
-  --thread-pane-header-padding: 3px 6px;
+  --thread-pane-header-padding: 3px;
 }
 
 :root[uidensity="compact"] {
@@ -12,7 +12,7 @@
 }
 
 :root[uidensity="touch"] {
-  --thread-pane-header-padding: 6px 9px;
+  --thread-pane-header-padding: 6px;
 }
 
 @media not (prefers-contrast) {
@@ -787,9 +787,9 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 3px;
   color: var(--layout-color-1);
-  padding: var(--thread-pane-header-padding);
+  padding-inline: var(--thread-pane-header-padding);
   background-color: var(--layout-background-1);
   border-bottom: 1px solid var(--layout-border-0);
 }
@@ -809,10 +809,15 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
   align-items: center;
   gap: 6px;
   overflow: hidden;
+  padding: var(--thread-pane-header-padding) 3px;
 }
 
 .list-header-bar-container-start {
   flex-shrink: 1;
+}
+
+.list-header-bar-container-end .button:focus-visible {
+  outline-offset: 1px;
 }
 
 .list-header-title {
