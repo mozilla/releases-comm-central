@@ -4,7 +4,7 @@
 
 var { NetUtil } = ChromeUtils.importESModule("resource://gre/modules/NetUtil.sys.mjs");
 
-var { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
+var { HttpServer } = ChromeUtils.importESModule("resource://testing-common/httpd.sys.mjs");
 var { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );

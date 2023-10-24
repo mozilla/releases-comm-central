@@ -14,7 +14,9 @@ var { localAccountUtils } = ChromeUtils.import(
 const { FeedParser } = ChromeUtils.import("resource:///modules/FeedParser.jsm");
 const { Feed } = ChromeUtils.import("resource:///modules/Feed.jsm");
 const { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-const { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
+const { HttpServer } = ChromeUtils.importESModule(
+  "resource://testing-common/httpd.sys.mjs"
+);
 
 // Set up local web server to serve up test files.
 // We run it on a random port so that other tests can run concurrently

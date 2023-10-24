@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { NetUtil } = ChromeUtils.importESModule("resource://gre/modules/NetUtil.sys.mjs");
-var { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
+var { HttpServer } = ChromeUtils.importESModule("resource://testing-common/httpd.sys.mjs");
 
 function run_test() {
   const httpserv = new HttpServer();

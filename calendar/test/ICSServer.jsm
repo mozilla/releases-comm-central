@@ -6,7 +6,7 @@ const EXPORTED_SYMBOLS = ["ICSServer"];
 
 const { Assert } = ChromeUtils.importESModule("resource://testing-common/Assert.sys.mjs");
 const { CommonUtils } = ChromeUtils.importESModule("resource://services-common/utils.sys.mjs");
-const { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
+const { HttpServer } = ChromeUtils.importESModule("resource://testing-common/httpd.sys.mjs");
 
 var ICSServer = {
   server: null,
