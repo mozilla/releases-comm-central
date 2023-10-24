@@ -16,6 +16,7 @@ def test(mod, path, entity=None):
         "chat",
         "extensions/spellcheck",
         "mail/branding/thunderbird",
+        "mail/branding/tb_beta",
     ):
         return "ignore"
 

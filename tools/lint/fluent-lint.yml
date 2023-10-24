@@ -10,6 +10,7 @@ fluent-lint:
         - 'tools/lint/fluent-lint/*.py'
         - 'comm/tools/lint/fluent-lint/**'
     brand-files:
+        - 'comm/mail/branding/tb_beta/locales/en-US/brand.ftl'
         - 'comm/mail/branding/thunderbird/locales/en-US/brand.ftl'
         - 'toolkit/locales/en-US/toolkit/branding/brandings.ftl'
     type: external

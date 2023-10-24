@@ -91,6 +91,10 @@ locales = [
     reference = "mail/branding/thunderbird/locales/en-US/**"
     l10n = "{l}mail/branding/thunderbird/**"
 
+[[paths]]
+    reference = "mail/branding/tb_beta/locales/en-US/**"
+    l10n = "{l}mail/branding/tb_beta/**"
+
 [[includes]]
     path = "{mozilla}/devtools/client/locales/l10n.toml"
 

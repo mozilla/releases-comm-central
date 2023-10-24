@@ -9,6 +9,7 @@ l10n:
         - browser/locales/en-US/pdfviewer
         - comm/calendar/locales/en-US
         - comm/chat/locales/en-US
+        - comm/mail/branding/tb_beta/locales/en-US
         - comm/mail/branding/thunderbird/locales/en-US
         - comm/mail/locales/en-US
         - comm/tools/lint/l10n.yml
