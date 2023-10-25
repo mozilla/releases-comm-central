@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals getMessagePaneBrowser, gFolderDisplay, addMenuItem, getSelectedCalendar
+/* globals getMessagePaneBrowser, addMenuItem, getSelectedCalendar
    createEventWithDialog*/
 
 var { Extractor } = ChromeUtils.import("resource:///modules/calendar/calExtract.jsm");
@@ -82,14 +82,6 @@ var calendarExtract = {
   },
 
   async extractFromEmail(message, isEvent, fixedLang, fixedLocale) {
-    let tabmail = document.getElementById("tabmail");
-    if (!message) {
-      // Get the message from the 3pane, or from the standalone message window.
-      let aboutMessage =
-        tabmail?.currentAboutMessage || document.getElementById("messageBrowser").contentWindow;
-      message = aboutMessage.gMessage;
-    }
-
     let folder = message.folder;
     let title = message.mime2DecodedSubject;
 
@@ -126,21 +118,21 @@ var calendarExtract = {
     let date = new Date(message.date / 1000);
     let time = new Date().getTime();
 
-    let item;
-    item = isEvent ? new CalEvent() : new CalTodo();
+    let item = isEvent ? new CalEvent() : new CalTodo();
     item.title = message.mime2DecodedSubject;
     item.calendar = getSelectedCalendar();
     item.setProperty("DESCRIPTION", content);
     item.setProperty("URL", `mid:${message.messageId}`);
     cal.dtz.setDefaultStartEndHour(item);
     cal.alarms.setDefaultValues(item);
+    let tabmail = document.getElementById("tabmail");
     let messagePaneBrowser =
       tabmail?.currentTabInfo.chromeBrowser.contentWindow.visibleMessagePaneBrowser?.() ||
       tabmail?.currentAboutMessage?.getMessagePaneBrowser() ||
-      document.getElementById("messageBrowser").contentWindow?.getMessagePaneBrowser();
-    let sel = messagePaneBrowser.contentWindow.getSelection();
+      document.getElementById("messageBrowser")?.contentWindow?.getMessagePaneBrowser();
+    let sel = messagePaneBrowser?.contentWindow?.getSelection();
     // Check if there's an iframe with a selection (e.g. Thunderbird Conversations)
-    if (sel.type !== "Range") {
+    if (sel && sel.type !== "Range") {
       try {
         sel = messagePaneBrowser?.contentDocument
           .querySelector("iframe")
@@ -271,60 +263,4 @@ var calendarExtract = {
         "ms"
     );
   },
-
-  addListeners() {
-    if (window.top.document.location == "chrome://messenger/content/messenger.xhtml") {
-      // covers initial load and folder change
-      let folderTree = document.getElementById("folderTree");
-      folderTree.addEventListener("select", this.setState);
-
-      // covers selection change in a folder
-      let msgTree = window.top.GetThreadTree();
-      msgTree.addEventListener("select", this.setState);
-
-      window.addEventListener("unload", () => {
-        folderTree.removeEventListener("select", this.setState);
-        msgTree.removeEventListener("select", this.setState);
-      });
-    }
-  },
-
-  setState() {
-    let eventButton = document.getElementById("extractEventButton");
-    let taskButton = document.getElementById("extractTaskButton");
-    let contextMenu = document.getElementById("mailContext-calendar-convert-menu");
-    let contextMenuEvent = document.getElementById("mailContext-calendar-convert-event-menuitem");
-    let contextMenuTask = document.getElementById("mailContext-calendar-convert-task-menuitem");
-    let eventDisabled = gFolderDisplay.selectedCount == 0;
-    let taskDisabled = gFolderDisplay.selectedCount == 0;
-    let contextEventDisabled = false;
-    let contextTaskDisabled = false;
-    let newEvent = document.getElementById("calendar_new_event_command");
-    let newTask = document.getElementById("calendar_new_todo_command");
-
-    if (newEvent.getAttribute("disabled") == "true") {
-      eventDisabled = true;
-      contextEventDisabled = true;
-    }
-
-    if (newTask.getAttribute("disabled") == "true") {
-      taskDisabled = true;
-      contextTaskDisabled = true;
-    }
-
-    if (eventButton) {
-      eventButton.disabled = eventDisabled;
-    }
-    if (taskButton) {
-      taskButton.disabled = taskDisabled;
-    }
-
-    contextMenuEvent.disabled = contextEventDisabled;
-    contextMenuTask.disabled = contextTaskDisabled;
-
-    contextMenu.disabled = contextEventDisabled && contextTaskDisabled;
-  },
 };
-
-// TODO: Fix and reinstate this.
-// window.addEventListener("load", calendarExtract.addListeners.bind(calendarExtract));
