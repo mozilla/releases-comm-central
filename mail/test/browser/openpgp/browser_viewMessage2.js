@@ -52,7 +52,8 @@ add_setup(async function () {
       )
     ),
     OpenPGPTestUtils.ACCEPTANCE_PERSONAL,
-    "alice-passphrase"
+    "alice-passphrase",
+    true
   );
 
   aliceIdentity.setUnicharAttribute("openpgp_key_id", id);

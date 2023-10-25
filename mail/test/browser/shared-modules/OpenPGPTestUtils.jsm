@@ -171,13 +171,18 @@ const OpenPGPTestUtils = {
    * @param {string} [passphrase] - The passphrase string that is required
    *   for unlocking the imported private key, or null, if no passphrase
    *   is necessary. The existing passphrase protection is kept.
+   * @param {boolean} [keepPassphrase] - true for keeping the existing
+   *   passphrase. False for removing the existing passphrase and to
+   *   set the automatic protection. If parameter passphrase is null
+   *   then parameter keepPassphrase is ignored.
    * @returns {string[]} - List of imported key ids.
    */
   async importPrivateKey(
     parent,
     file,
     acceptance = OpenPGPTestUtils.ACCEPTANCE_PERSONAL,
-    passphrase = null
+    passphrase = null,
+    keepPassphrase = false
   ) {
     let data = await IOUtils.read(file.path);
     let pgpBlock = lazy.MailStringUtils.uint8ArrayToByteString(data);
@@ -187,10 +192,16 @@ const OpenPGPTestUtils = {
       return passphrase;
     }
 
+    if (passphrase != null && keepPassphrase == undefined) {
+      throw new Error(
+        "must provide true of false for parameter keepPassphrase"
+      );
+    }
+
     let result = await lazy.RNP.importSecKeyBlockImpl(
       parent,
       localPassphraseProvider,
-      passphrase != null, // keepPassphrases = true, if a passphrase is given
+      passphrase != null && keepPassphrase,
       pgpBlock,
       false,
       []
