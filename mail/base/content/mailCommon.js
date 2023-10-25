@@ -813,28 +813,48 @@ var commandController = {
     let resultKey = { value: nsMsgKey_None };
     let resultIndex = { value: nsMsgViewIndex_None };
     let threadIndex = {};
-    gViewWrapper.dbView.viewNavigate(
-      navigationType,
-      resultKey,
-      resultIndex,
-      threadIndex,
-      true
-    );
-    if (resultIndex.value == nsMsgViewIndex_None) {
-      if (CrossFolderNavigation(navigationType)) {
-        this._navigate(navigationType);
-      }
-      return;
-    }
 
-    if (resultKey.value == nsMsgKey_None) {
-      return;
+    let expandCurrentThread = false;
+    let currentIndex = window.threadTree ? window.threadTree.currentIndex : -1;
+
+    // If we're doing next unread, and a collapsed thread is selected, and
+    // the top level message is unread, just set the result manually to
+    // the top level message, without using viewNavigate.
+    if (
+      navigationType == Ci.nsMsgNavigationType.nextUnreadMessage &&
+      currentIndex != -1 &&
+      gViewWrapper.isCollapsedThreadAtIndex(currentIndex) &&
+      !(
+        gViewWrapper.dbView.getFlagsAt(currentIndex) & Ci.nsMsgMessageFlags.Read
+      )
+    ) {
+      expandCurrentThread = true;
+      resultIndex.value = currentIndex;
+      resultKey.value = gViewWrapper.dbView.getKeyAt(currentIndex);
+    } else {
+      gViewWrapper.dbView.viewNavigate(
+        navigationType,
+        resultKey,
+        resultIndex,
+        threadIndex,
+        true
+      );
+      if (resultIndex.value == nsMsgViewIndex_None) {
+        if (CrossFolderNavigation(navigationType)) {
+          this._navigate(navigationType);
+        }
+        return;
+      }
+      if (resultKey.value == nsMsgKey_None) {
+        return;
+      }
     }
 
     if (window.threadTree) {
       if (
         gDBView.selection.count == 1 &&
-        window.threadTree.selectedIndex == resultIndex.value
+        window.threadTree.selectedIndex == resultIndex.value &&
+        !expandCurrentThread
       ) {
         return;
       }

@@ -198,6 +198,15 @@ add_task(async function testNextUnreadMessageInAbout3Pane() {
     [folderCMessages[500], folderCMessages[501], folderCMessages[504]],
     false
   );
+  folderD.markMessagesRead(
+    [
+      folderDMessages[3],
+      folderDMessages[4],
+      folderDMessages[6],
+      folderDMessages[7],
+    ],
+    false
+  );
 
   about3Pane.displayFolder(folderA.URI);
   threadTree.selectedIndex = -1;
@@ -247,6 +256,43 @@ add_task(async function testNextUnreadMessageInAbout3Pane() {
   goDoCommand("cmd_nextUnreadMsg");
   assertSelectedMessage(folderCMessages[504]);
   await assertDisplayedMessage(aboutMessage, folderCMessages[504]);
+
+  // Select the first message in folder D and make sure all threads are
+  // collapsed.
+  about3Pane.displayFolder(folderD.URI);
+  threadTree.selectedIndex = 0;
+  let selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
+  goDoCommand("cmd_collapseAllThreads");
+  await selectPromise;
+  assertSelectedMessage(folderDMessages[0]);
+
+  // Go to the next thread without expanding it.
+  EventUtils.synthesizeKey("KEY_ArrowDown");
+  assertSelectedMessage(folderDMessages[3]);
+
+  // The next displayed message should be the root message of the now expanded
+  // thread.
+  goDoCommand("cmd_nextUnreadMsg");
+  assertSelectedMessage(folderDMessages[3]);
+  await assertDisplayedMessage(aboutMessage, folderDMessages[3]);
+
+  // Select the next unread message in the thread.
+  goDoCommand("cmd_nextUnreadMsg");
+  assertSelectedMessage(folderDMessages[4]);
+  await assertDisplayedMessage(aboutMessage, folderDMessages[4]);
+
+  // Select the next unread message.
+  goDoCommand("cmd_nextUnreadMsg");
+  assertSelectedMessage(folderDMessages[6]);
+  await assertDisplayedMessage(aboutMessage, folderDMessages[6]);
+
+  // Select the next unread message.
+  goDoCommand("cmd_nextUnreadMsg");
+  assertSelectedMessage(folderDMessages[7]);
+  await assertDisplayedMessage(aboutMessage, folderDMessages[7]);
+
+  // Mark folder D read again.
+  folderD.markAllMessagesRead(null);
 
   // Go back to the first folder. The previous selection should be restored.
   about3Pane.displayFolder(folderA.URI);
