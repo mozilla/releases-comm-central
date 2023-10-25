@@ -191,8 +191,8 @@ async function loadPassphraseProtection() {
   if (isSecretForPrimaryAvailable) {
     await primaryKey.unlock();
     canUnlockSecretForPrimary = primaryKey.isUnlocked();
+    gPrivateKeyTrackers.push(primaryKey);
   }
-  gPrivateKeyTrackers.push(primaryKey);
 
   let countSubkeysWithSecretAvailable = 0;
   let countSubkeysCanAutoUnlock = 0;
@@ -216,15 +216,17 @@ async function loadPassphraseProtection() {
     }
   }
 
-  let canUnlockAllKeysWhichHaveMaterialAvailable =
-    (isSecretForPrimaryAvailable || canUnlockSecretForPrimary) &&
-    countSubkeysWithSecretAvailable == countSubkeysCanAutoUnlock;
-
   let userPassphraseMode = "user-passphrase";
-
   let usingPP = LoginHelper.isPrimaryPasswordSet();
   let protectionMode;
-  if (canUnlockAllKeysWhichHaveMaterialAvailable) {
+
+  // Could we use the automatic passphrase to unlock all secret keys for
+  // which the key material is available?
+
+  if (
+    (!isSecretForPrimaryAvailable || canUnlockSecretForPrimary) &&
+    countSubkeysWithSecretAvailable == countSubkeysCanAutoUnlock
+  ) {
     protectionMode = usingPP ? "primary-password" : "unprotected";
   } else {
     protectionMode = userPassphraseMode;

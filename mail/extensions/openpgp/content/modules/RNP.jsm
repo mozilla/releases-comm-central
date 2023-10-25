@@ -2920,14 +2920,21 @@ var RNP = {
           impKeyPub = await this.getKeyHandleByIdentifier(tempFFI, fprStr);
         }
 
-        if (impKeySecTracker && !keepPassphrases) {
-          impKeySecTracker.unprotect();
-          await impKeySecTracker.setAutoPassphrase();
+        if (!keepPassphrases) {
+          // It's possible that the primary key doesn't come with a
+          // secret key (only public key of primary key was imported).
+          // In that scenario, we must still process subkeys that come
+          // with a secret key.
+
+          if (impKeySecTracker) {
+            impKeySecTracker.unprotect();
+            await impKeySecTracker.setAutoPassphrase();
+          }
 
           let sub_count = new lazy.ctypes.size_t();
           if (
             RNPLib.rnp_key_get_subkey_count(
-              impKeySecTracker.getHandle(),
+              impKeySecTracker ? impKeySecTracker.getHandle() : impKeyPub,
               sub_count.address()
             )
           ) {
@@ -2938,7 +2945,7 @@ var RNP = {
             let sub_handle = new RNPLib.rnp_key_handle_t();
             if (
               RNPLib.rnp_key_get_subkey_at(
-                impKeySecTracker.getHandle(),
+                impKeySecTracker ? impKeySecTracker.getHandle() : impKeyPub,
                 i,
                 sub_handle.address()
               )
