@@ -4,14 +4,25 @@
 
 import { html } from "lit";
 import { action } from "@storybook/addon-actions";
-import "mail/components/unifiedtoolbar/content/search-bar.mjs"; //eslint-disable-line import/no-unassigned-import
+/* eslint-disable import/no-unassigned-import */
+import "mail/base/content/widgets/search-bar.mjs";
+import "mail/themes/shared/mail/colors.css";
+import "mail/themes/shared/mail/layout.css";
+import "mail/themes/shared/mail/widgets.css";
+/* eslint-enable import/no-unassigned-import */
 
 export default {
   title: "Widgets/Search Bar",
   component: "search-bar",
+  argTypes: {
+    disabled: {
+      control: "boolean",
+    },
+  },
 };
 
-export const SearchBar = () => html`
+const Template = ({ label, disabled }) => html`
+  <!-- #include mail/base/content/widgets/search-bar.inc.xhtml -->
   <template id="searchBarTemplate">
     <form>
       <input type="search" placeholder="" required="required" />
@@ -24,8 +35,10 @@ export const SearchBar = () => html`
   <search-bar
     @search="${action("search")}"
     @autocomplete="${action("autocomplete")}"
+    label="${label}"
+    ?disabled="${disabled}"
   >
-    <span slot="placeholder"
+    <span slot="placeholder" class="kbd-container"
       >Search Field Placeholder <kbd>Ctrl</kbd> + <kbd>K</kbd>
     </span>
     <img
@@ -36,3 +49,8 @@ export const SearchBar = () => html`
     />
   </search-bar>
 `;
+export const SearchBar = Template.bind({});
+SearchBar.args = {
+  label: "",
+  disabled: false,
+};

@@ -61,10 +61,12 @@
 
 #qfb-qs-textbox {
   flex: 1;
-  height: unset;
   margin: 3px;
-  padding-block: 3px;
   max-width: 450px;
+}
+
+.qfb-search-button-icon {
+  content: var(--icon-search);
 }
 
 @container threadPane (max-width: 499px) {

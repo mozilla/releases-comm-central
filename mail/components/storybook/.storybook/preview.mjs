@@ -46,3 +46,12 @@ window.MozXULElement = {
 
 // Enable props tables documentation.
 setCustomElementsManifest(customElementsManifest);
+
+// Stop typing on a keyboard inside the sandbox from messing with the storybook
+// UI
+const stopEvent = event => {
+  event.stopPropagation();
+};
+document.addEventListener("keydown", stopEvent);
+document.addEventListener("keypress", stopEvent);
+document.addEventListener("keyup", stopEvent);

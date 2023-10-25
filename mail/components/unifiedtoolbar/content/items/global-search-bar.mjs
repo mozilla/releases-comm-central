@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { SearchBar } from "chrome://messenger/content/unifiedtoolbar/search-bar.mjs";
+import { SearchBar } from "chrome://messenger/content/search-bar.mjs";
 
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -101,24 +101,49 @@ class GlobalSearchBar extends SearchBar {
     // Need to call this after the shadow root test, since this will always set
     // up a shadow root.
     super.connectedCallback();
-    this.addEventListener("search", this.#handleSearch);
-    this.addEventListener("autocomplete", this.#handleAutocomplete);
+    this.addEventListener("search", this);
+    this.addEventListener("autocomplete", this);
     // Capturing to avoid the default cursor movements inside the input.
-    this.addEventListener("keydown", this.#handleKeydown, {
+    this.addEventListener("keydown", this, {
       capture: true,
     });
-    this.addEventListener("focus", this.#handleFocus);
+    this.addEventListener("focus", this);
     this.addEventListener("blur", this);
-    this.addEventListener("drop", this.#handleDrop, { capture: true });
+    this.addEventListener("drop", this, { capture: true });
   }
+
+  #popupWasOpenAtDown = false;
 
   handleEvent(event) {
     switch (event.type) {
+      case "search":
+        this.#handleSearch(event);
+        break;
+      case "autocomplete":
+        this.#handleAutocomplete(event);
+        break;
+      case "keydown":
+        this.#handleKeydown(event);
+        this.#popupWasOpenAtDown = this.popup.mPopupOpen;
+        break;
+      case "focus":
+        this.#handleFocus(event);
+        break;
+      case "drop":
+        this.#handleDrop(event);
+        break;
+      case "keyup":
+        if (!this.#popupWasOpenAtDown || event.key !== "Escape") {
+          super.handleEvent(event);
+        }
+        break;
       case "blur":
         if (this.popup.mPopupOpen) {
           this.popup.closePopup();
         }
         break;
+      default:
+        super.handleEvent(event);
     }
   }
 

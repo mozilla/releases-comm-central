@@ -134,7 +134,6 @@ add_task(async function test_escape_rules() {
 add_task(async function test_control_shift_k_shows_quick_filter_bar() {
   let about3Pane = get_about_3pane();
 
-  let dispatcha = document.commandDispatcher;
   let qfbTextbox = about3Pane.document.getElementById("qfb-qs-textbox");
 
   // focus explicitly on the thread pane so we know where the focus is.
@@ -144,37 +143,42 @@ add_task(async function test_control_shift_k_shows_quick_filter_bar() {
 
   // hit control-shift-k to get in the quick filter box
   EventUtils.synthesizeKey("k", { accelKey: true, shiftKey: true });
-  if (dispatcha.focusedElement != qfbTextbox.inputField) {
-    throw new Error("control-shift-k did not focus quick filter textbox");
-  }
+  Assert.strictEqual(
+    about3Pane.document.activeElement,
+    qfbTextbox,
+    "control-shift-k did not focus quick filter textbox"
+  );
 
   await set_filter_text("search string");
 
   // hit control-shift-k to select the text in the quick filter box
   EventUtils.synthesizeKey("k", { accelKey: true, shiftKey: true });
-  if (dispatcha.focusedElement != qfbTextbox.inputField) {
-    throw new Error(
-      "second control-shift-k did not keep focus on filter textbox"
-    );
-  }
-  if (
-    qfbTextbox.inputField.selectionStart != 0 ||
-    qfbTextbox.inputField.selectionEnd != qfbTextbox.inputField.textLength
-  ) {
-    throw new Error(
-      "second control-shift-k did not select text in filter textbox"
-    );
-  }
+  Assert.strictEqual(
+    about3Pane.document.activeElement,
+    qfbTextbox,
+    "second control-shift-k did not keep focus on filter textbox"
+  );
+  const input = qfbTextbox.shadowRoot.querySelector("input");
+  Assert.equal(
+    input.selectionStart,
+    0,
+    "Selection starts at the beginning of the input"
+  );
+  Assert.equal(
+    input.selectionEnd,
+    "search string".length,
+    "Selection ends at the end of the input"
+  );
 
   // hit escape and make sure the text is cleared, but the quick filter bar is
   // still open.
-  EventUtils.synthesizeKey("VK_ESCAPE", {});
+  EventUtils.synthesizeKey("KEY_Escape", {});
   assert_quick_filter_bar_visible(true);
   assert_filter_text("");
 
   // hit escape one more time and make sure we finally collapsed the quick
   // filter bar.
-  EventUtils.synthesizeKey("VK_ESCAPE", {});
+  EventUtils.synthesizeKey("KEY_Escape", {});
   assert_quick_filter_bar_visible(false);
   teardownTest();
 });

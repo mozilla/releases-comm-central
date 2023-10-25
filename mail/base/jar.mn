@@ -103,6 +103,7 @@ messenger.jar:
     content/messenger/header-fields.js              (content/widgets/header-fields.js)
     content/messenger/mailWidgets.js                (content/widgets/mailWidgets.js)
     content/messenger/pane-splitter.js              (content/widgets/pane-splitter.js)
+    content/messenger/search-bar.mjs                (content/widgets/search-bar.mjs)
     content/messenger/statuspanel.js                (content/widgets/statuspanel.js)
     content/messenger/tabmail-tab.js                (content/widgets/tabmail-tab.js)
     content/messenger/tabmail-tabs.js               (content/widgets/tabmail-tabs.js)

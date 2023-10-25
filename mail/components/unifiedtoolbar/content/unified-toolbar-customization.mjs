@@ -96,10 +96,22 @@ class UnifiedToolbarCustomization extends HTMLElement {
     this.initialize();
     this.append(template);
     this.#updateResetToDefault();
-    this.addEventListener("keyup", this.#handleKeyboard);
-    this.addEventListener("keyup", this.#closeByKeyboard);
-    this.addEventListener("keypress", this.#handleKeyboard);
-    this.addEventListener("keydown", this.#handleKeyboard);
+    this.addEventListener("keyup", this);
+    this.addEventListener("keypress", this);
+    this.addEventListener("keydown", this);
+  }
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "keyup":
+        this.#handleKeyboard(event);
+        this.#closeByKeyboard(event);
+        break;
+      case "keypress":
+      case "keydown":
+        this.#handleKeyboard(event);
+        break;
+    }
   }
 
   #handleItemChange = event => {

@@ -2,18 +2,24 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include ./widgets/search-bar.inc.xhtml
     <div id="quick-filter-bar" class="themeable-brighttext" hidden="hidden">
       <div id="quickFilterBarContainer">
         <button is="toggle-button" id="qfb-sticky"
                 class="button icon-button icon-only check-button"
                 data-l10n-id="quick-filter-bar-sticky">
         </button>
-        <xul:search-textbox id="qfb-qs-textbox"
-                            class="themeableSearchBox"
-                            timeout="500"
-                            maxlength="192"
-                            data-l10n-id="quick-filter-bar-textbox"
-                            data-l10n-attrs="placeholder" />
+        <search-bar id="qfb-qs-textbox"
+                    maxlength="192"
+                    data-l10n-id="quick-filter-bar-search"
+                    data-l10n-attrs="label"
+                    aria-keyshortcuts="Control+Shift+K">
+          <span slot="placeholder" data-l10n-id="quick-filter-bar-search-placeholder-with-key" class="kbd-container"></span>
+          <img data-l10n-id="quick-filter-bar-search-button"
+               slot="button"
+               class="qfb-search-button-icon"
+               src="" />
+        </search-bar>
         <button id="qfd-dropdown"
                 class="button button-flat icon-button icon-only"
                 data-l10n-id="quick-filter-bar-dropdown">

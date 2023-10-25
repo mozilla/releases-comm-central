@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import "./search-bar.mjs"; // eslint-disable-line import/no-unassigned-import
+import "chrome://messenger/content/search-bar.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./customization-palette.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./customization-target.mjs"; // eslint-disable-line import/no-unassigned-import
 import {

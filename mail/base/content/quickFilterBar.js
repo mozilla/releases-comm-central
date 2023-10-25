@@ -15,6 +15,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   QuickFilterState: "resource:///modules/QuickFilterManager.jsm",
 });
 
+import("chrome://messenger/content/search-bar.mjs");
+
 class ToggleButton extends HTMLButtonElement {
   constructor() {
     super();
@@ -106,13 +108,13 @@ var quickFilterBar = {
       if (!this.filterer.visible) {
         this._showFilterBar(true);
       }
-      document.getElementById(QuickFilterManager.textBoxDomId).select();
+      document.getElementById(QuickFilterManager.textBoxDomId).focus();
     });
     commandController.registerCallback("cmd_toggleQuickFilterBar", () => {
       let show = !this.filterer.visible;
       this._showFilterBar(show);
       if (show) {
-        document.getElementById(QuickFilterManager.textBoxDomId).select();
+        document.getElementById(QuickFilterManager.textBoxDomId).focus();
       }
     });
     window.addEventListener("keypress", event => {
@@ -317,8 +319,12 @@ var quickFilterBar = {
           }
         };
       }
-
-      if (domNode.namespaceURI == document.documentElement.namespaceURI) {
+      if (domNode.tagName === "search-bar") {
+        domNode.addEventListener("autocomplete", handlerDomId);
+        domNode.addEventListener("search", handlerDomId);
+      } else if (
+        domNode.namespaceURI == document.documentElement.namespaceURI
+      ) {
         domNode.addEventListener("click", handlerDomId);
       } else {
         domNode.addEventListener("command", handlerDomId);

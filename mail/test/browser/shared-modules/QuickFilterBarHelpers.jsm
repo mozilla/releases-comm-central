@@ -333,14 +333,18 @@ function assert_text_constraints_checked(...aArgs) {
 async function set_filter_text(aText) {
   // We're not testing the reliability of the textbox widget; just poke our text
   // in and trigger the command logic.
-  let textbox = about3Pane.document.getElementById("qfb-qs-textbox");
+  let textbox = about3Pane.document
+    .getElementById("qfb-qs-textbox")
+    .shadowRoot.querySelector("input");
   textbox.value = aText;
-  textbox.doCommand();
+  textbox.dispatchEvent(new Event("input"));
   await wait_for_all_messages_to_load(mc);
 }
 
 function assert_filter_text(aText) {
-  let textbox = get_about_3pane().document.getElementById("qfb-qs-textbox");
+  let textbox = get_about_3pane()
+    .document.getElementById("qfb-qs-textbox")
+    .shadowRoot.querySelector("input");
   if (textbox.value != aText) {
     throw new Error(
       "Expected text filter value of '" +

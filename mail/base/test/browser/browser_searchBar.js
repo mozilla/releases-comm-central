@@ -74,8 +74,8 @@ function is_visible(element) {
 }
 
 add_setup(async function () {
-  let tab = tabmail.openTab("contentTab", {
-    url: "chrome://mochitests/content/browser/comm/mail/components/unifiedtoolbar/test/browser/files/searchBar.xhtml",
+  const tab = tabmail.openTab("contentTab", {
+    url: "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/searchBar.xhtml",
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);
@@ -112,6 +112,20 @@ add_task(async function test_focus() {
     input,
     "Input is focused when search bar is focused"
   );
+
+  input.blur();
+  input.value = "foo";
+
+  searchBar.focus();
+  is(
+    searchBar.shadowRoot.activeElement,
+    input,
+    "Input is focused when search bar is focused"
+  );
+  is(input.selectionStart, 0, "Selection at the beginning");
+  is(input.selectionEnd, 3, "Selection to the end");
+
+  searchBar.reset();
 });
 
 add_task(async function test_autocompleteEvent() {
@@ -260,4 +274,18 @@ add_task(async function test_disabled() {
 
   ok(!input.disabled, "Input enabled again");
   ok(!button.disabled, "Button enabled again");
+});
+
+add_task(async function test_clearWithEscape() {
+  const input = searchBar.shadowRoot.querySelector("input");
+
+  searchBar.focus();
+  input.value = "foo bar";
+
+  const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
+  await BrowserTestUtils.synthesizeKey("KEY_Escape", {}, browser);
+  const event = await eventPromise;
+
+  is(event.detail, "", "Autocomplete event with empty value");
+  is(input.value, "", "Input was cleared");
 });

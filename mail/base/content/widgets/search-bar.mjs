@@ -4,18 +4,20 @@
 
 /**
  * Search input with customizable search button and placeholder.
- * Attributes:
- * - label: Search field label for accessibility tree.
- * - disabled: When present, disable the search field and button.
- * Slots in template (#searchBarTemplate):
- * - placeholder: Content displayed as placeholder. When not provided, the value
- *   of the label attribute is shown as placeholder.
- * - button: Content displayed on the search button.
+ * Template ID: #searchBarTemplate (from search-bar.inc.xhtml)
  *
- * @emits search: Event when a search should be executed. detail holds the
- *  search term.
- * @emits autocomplte: Auto complete update. detail holds the current search
- *  term.
+ * @tagname search-bar
+ * @attribute {string} label - Search field label for accessibility tree.
+ * @attribute {boolean} disabled - When present, disable the search field and
+ *   button.
+ * @attribute {number} maxlength - Max length of the input in the search field.
+ * @slot placeholder - Content displayed as placeholder. When not provided, the
+ *   value of the label attribute is shown as placeholder.
+ * @slot button - Content displayed on the search button.
+ * @fires {CustomEvent} search - Event when a search should be executed. detail
+ *   holds the search term.
+ * @fires {CustomEvent} autocomplete - Auto complete update. detail holds the
+ *   current search term.
  */
 export class SearchBar extends HTMLElement {
   static get observedAttributes() {
@@ -71,14 +73,16 @@ export class SearchBar extends HTMLElement {
     this.#input = template.querySelector("input");
     this.#button = template.querySelector("button");
 
-    template.querySelector("form").addEventListener("submit", this.#onSubmit, {
+    template.querySelector("form").addEventListener("submit", this, {
       passive: false,
     });
 
     this.#input.setAttribute("aria-label", this.getAttribute("label"));
+    this.#input.setAttribute("maxlength", this.getAttribute("maxlength"));
     template.querySelector("slot[name=placeholder]").textContent =
       this.getAttribute("label");
-    this.#input.addEventListener("input", this.#onInput);
+    this.#input.addEventListener("input", this);
+    this.#input.addEventListener("keyup", this);
 
     const styles = document.createElement("link");
     styles.setAttribute("rel", "stylesheet");
@@ -107,8 +111,30 @@ export class SearchBar extends HTMLElement {
     }
   }
 
+  handleEvent(event) {
+    switch (event.type) {
+      case "submit":
+        this.#onSubmit(event);
+        break;
+      case "input":
+        this.#onInput(event);
+        break;
+      case "keyup":
+        if (event.key === "Escape" && this.#input.value) {
+          this.reset();
+          this.#onInput();
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        break;
+    }
+  }
+
   focus() {
     this.#input.focus();
+    if (this.#input.value) {
+      this.#input.select();
+    }
   }
 
   /**

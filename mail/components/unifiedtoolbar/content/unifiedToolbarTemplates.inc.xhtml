@@ -3,15 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include ./unifiedToolbarCustomizableItems.inc.xhtml
-
-<html:template id="searchBarTemplate"
-               xmlns="http://www.w3.org/1999/xhtml">
-  <form>
-    <input type="search" placeholder="" required="required" />
-    <div aria-hidden="true"><slot name="placeholder"></slot></div>
-    <button class="button button-flat icon-button"><slot name="button"></slot></button>
-  </form>
-</html:template>
+#include ../../../base/content/widgets/search-bar.inc.xhtml
 
 <html:template id="unifiedToolbarTemplate">
 # Required for placing the window controls in the proper place without having

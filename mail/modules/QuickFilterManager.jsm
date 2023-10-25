@@ -1169,24 +1169,24 @@ var MessageTextFilter = {
   },
 
   onCommand(aState, aNode, aEvent, aDocument) {
-    let text = aNode.value.length ? aNode.value : null;
-    if (text == aState.text) {
+    let text = aEvent.detail || null;
+    const isSearch = aEvent.type === "search";
+    if (isSearch) {
       let upsell = aDocument.getElementById("qfb-text-search-upsell");
       if (upsell.state == "open") {
         upsell.hidePopup();
-        let tabmail =
-          aDocument.ownerGlobal.top.document.getElementById("tabmail");
-        tabmail.openTab("glodaFacet", {
-          searcher: new lazy.GlodaMsgSearcher(null, aState.text),
-        });
       }
-      return [aState, false];
+      let tabmail =
+        aDocument.ownerGlobal.top.document.getElementById("tabmail");
+      tabmail.openTab("glodaFacet", {
+        searcher: new lazy.GlodaMsgSearcher(null, aState.text),
+      });
+      aEvent.preventDefault();
     }
 
     aState.text = text;
-    aDocument.getElementById("quick-filter-bar-filter-text-bar").hidden =
-      text == null;
-    return [aState, true];
+    aDocument.getElementById("quick-filter-bar-filter-text-bar").hidden = !text;
+    return [aState, !isSearch];
   },
 
   reflectInDOM(aNode, aFilterValue, aDocument, aMuxer, aFromPFP) {
@@ -1228,11 +1228,10 @@ var MessageTextFilter = {
       panel.hidePopup();
     }
 
-    // Update the text if it has changed (linux does weird things with empty
-    // text if we're transitioning emptytext to emptytext).
+    // Propagate a cleared text filter to the search bar input.
     let desiredValue = aFilterValue.text || "";
-    if (aNode.value != desiredValue && aNode != aMuxer.activeElement) {
-      aNode.value = desiredValue;
+    if (!desiredValue) {
+      aNode.reset();
     }
 
     // Update our expanded filters buttons.

@@ -167,23 +167,6 @@ global-search-bar:not([hidden]):-moz-lwtheme {
   text-shadow: none;
 }
 
-kbd {
-  background-color: var(--layout-background-3);
-  color: var(--layout-color-2);
-  text-transform: uppercase;
-  font-size: 0.8rem;
-  line-height: 1;
-  font-weight: bold;
-  box-shadow: inset 0px -1px 0px var(--layout-border-2);
-  border-radius: 3px;
-  display: inline-block;
-  padding: 2px 4px;
-}
-
-kbd:first-of-type {
-  margin-inline-start: 6px;
-}
-
 span[slot="placeholder"] {
   display: flex;
   align-items: center;

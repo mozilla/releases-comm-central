@@ -20,7 +20,6 @@ messenger.jar:
     content/messenger/unifiedtoolbar/extension-action-button.mjs       (content/extension-action-button.mjs)
     content/messenger/unifiedtoolbar/list-box-selection.mjs            (content/list-box-selection.mjs)
     content/messenger/unifiedtoolbar/mail-tab-button.mjs               (content/mail-tab-button.mjs)
-    content/messenger/unifiedtoolbar/search-bar.mjs                    (content/search-bar.mjs)
     content/messenger/unifiedtoolbar/unified-toolbar.mjs               (content/unified-toolbar.mjs)
     content/messenger/unifiedtoolbar/unified-toolbar-button.mjs        (content/unified-toolbar-button.mjs)
     content/messenger/unifiedtoolbar/unified-toolbar-customization.mjs (content/unified-toolbar-customization.mjs)
