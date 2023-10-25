@@ -33,7 +33,7 @@ const messageMenuData = {
     disabled: [...nothingSelected, "message", "externalMessage"],
   },
   openConversationMenuitem: {
-    disabled: [...nothingSelected, "externalMessage"],
+    disabled: [...nothingOrMultiSelected, "externalMessage"],
   },
   openFeedMessage: { hidden: true },
   menu_openFeedWebPage: { disabled: nothingSelected },

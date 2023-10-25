@@ -502,9 +502,14 @@ var commandController = {
         }
         return false;
       case "cmd_openConversation":
-        return gDBView
-          .getSelectedMsgHdrs()
-          .some(m => ConversationOpener.isMessageIndexed(m));
+        return (
+          // This (instead of numSelectedMessages) is necessary to be able to
+          // also open a collapsed thread in conversation.
+          gDBView.selection.count == 1 &&
+          ConversationOpener.isMessageIndexed(
+            gDBView.hdrForFirstSelectedMessage
+          )
+        );
       case "cmd_replylist":
         if (hasIdentities && numSelectedMessages == 1) {
           const aboutMessage =
