@@ -6143,6 +6143,11 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           continue;
         }
 
+        // Add tooltips to columns with no child elements.
+        if (["correspondentCol", "dateCol"].includes(column.id)) {
+          cell.title = cell.textContent;
+        }
+
         if (column.id == "threadCol") {
           let buttonL10nId, labelString;
           if (propertiesSet.has("ignore")) {
@@ -6344,6 +6349,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.subjectLine.textContent = cellTexts[0];
       this.subjectLine.title = cellTexts[0];
       this.senderLine.textContent = cellTexts[1];
+      this.senderLine.title = cellTexts[1];
       this.dateLine.textContent = cellTexts[2];
       this.tagIcon.title = cellTexts[3];
 
