@@ -19,39 +19,39 @@ button {
   width: 100%;
   font-size: inherit;
   position: relative;
-}
 
-button[aria-selected="true"] {
-  background-color: var(--layout-background-1);
-  box-shadow: 0 2px 8px -5px var(--color-black);
-}
+  &::before {
+    content: '';
+    height: 2px;
+    margin-top: 3px;
+    margin-inline: 3px;
+    border-radius: 3px;
+    position: absolute;
+    inset-inline: 2px;
+    top: 0;
+  }
 
-button::before {
-  content: '';
-  height: 2px;
-  margin-top: 3px;
-  margin-inline: 3px;
-  border-radius: 3px;
-  position: absolute;
-  inset-inline: 2px;
-  top: 0;
-}
+  &[aria-selected="true"] {
+    background-color: var(--layout-background-1);
+    box-shadow: 0 2px 8px -5px var(--color-black);
+  }
 
-button[aria-selected="true"]::before {
-  background-color: var(--primary);
-}
+  &[aria-selected="true"]::before {
+    background-color: var(--primary);
+  }
 
-button:not([aria-selected="true"]):hover {
-  background-color: color-mix(in srgb, var(--layout-background-1) 50%, transparent);
-}
+  &:not([aria-selected="true"]):hover {
+    background-color: color-mix(in srgb, var(--layout-background-1) 50%, transparent);
 
-button:not([aria-selected="true"]):hover::before {
-  background-color: color-mix(in srgb, var(--layout-color-1) 15%, transparent);
-}
+    &::before {
+      background-color: color-mix(in srgb, var(--layout-color-1) 15%, transparent);
+    }
+  }
 
-button:focus-visible {
-  outline: 2px solid transparent;
-  border-color: var(--primary);
+  &:focus-visible {
+    outline: 2px solid transparent;
+    border-color: var(--primary);
+  }
 }
 
 span {

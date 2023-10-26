@@ -15,29 +15,29 @@
   --badge-inset-block-start: 1px;
   --badge-inset-inline-nudge: 0px;
   --badge-inset-inline-end: 2px;
-}
 
-/* UI Density customization */
-:root[uidensity="compact"] {
-  --badge-inset-block-start: 0px;
-  --badge-inset-inline-nudge: 4px;
-  --badge-inset-inline-end: 0px;
-}
-
-:root[uidensity="touch"] {
-  --badge-inset-block-start: 4px;
-  --badge-inset-inline-nudge: -3px;
-  --badge-inset-inline-end: 3px;
-}
-
-@media (-moz-windows-accent-color-in-titlebar) {
-  /* Apply everywhere */
-  :root {
-    --windows-accent-outline-color: var(--focus-outline-color);
+  /* UI Density customization */
+  &[uidensity="compact"] {
+    --badge-inset-block-start: 0px;
+    --badge-inset-inline-nudge: 4px;
+    --badge-inset-inline-end: 0px;
   }
-  /* Apply only in unified toolbar */
-  .search-bar {
-    --windows-accent-outline-color: accentColorText;
+
+  &[uidensity="touch"] {
+    --badge-inset-block-start: 4px;
+    --badge-inset-inline-nudge: -3px;
+    --badge-inset-inline-end: 3px;
+  }
+
+  @media (-moz-windows-accent-color-in-titlebar) {
+    /* Apply everywhere */
+    & {
+      --windows-accent-outline-color: var(--focus-outline-color);
+    }
+    /* Apply only in unified toolbar */
+    & .search-bar {
+      --windows-accent-outline-color: accentColorText;
+    }
   }
 }
 
@@ -49,335 +49,227 @@
   overflow: hidden;
   flex-wrap: nowrap;
   min-width: 0;
-}
-
-.unified-toolbar li {
-  padding: 0;
-  margin: 0;
-  border-radius: 1px;
-}
-
-.unified-toolbar [is="customizable-element"] .preview {
-  display: none;
-}
-
-.unified-toolbar-button {
-  display: flex;
-  gap: 3px;
-  align-items: center;
-  flex-wrap: nowrap;
-  min-width: initial;
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
-}
-
-.icons-above-text .unified-toolbar-button {
-  flex-direction: column;
-  justify-content: space-around;
-}
-
-.icons-only .unified-toolbar-button .button-label {
-  display: none;
-}
-
-.text-only .unified-toolbar-button .button-icon {
-  display: none;
-}
-
-.unified-toolbar-button[popup] {
-  padding-inline-end: 20px;
-  background-image: var(--icon-nav-down-sm);
-  background-position: calc(100% - 4px) center;
-  background-repeat: no-repeat;
-}
-
-.unified-toolbar-button[popup]:dir(rtl) {
-  background-position-x: 4px;
-}
-
-.unified-toolbar-button[badge] {
-  position: relative;
-}
-
-.unified-toolbar-button[badge]::after {
-  content: attr(badge);
-  background-color: var(--toolbar-button-badge-bg-color);
-  border-radius: 12px;
-  padding: var(--toolbar-button-badge-padding);
-  font-weight: 600;
-  font-size: var(--toolbar-button-badge-font);
-  color: var(--toolbar-button-badge-text-color);
-  line-height: 1em;
-  position: absolute;
-  inset-inline-end: var(--badge-inset-inline-end);
-  inset-block-start: var(--badge-inset-block-start);
-  max-width: 3ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-overflow: clip;
-}
-
-.unified-toolbar-button[popup][badge]::after {
-  inset-inline-end: 14px;
-}
-
-.unified-toolbar-button[badge]:-moz-window-inactive::after {
-  background-color: color-mix(in srgb, var(--toolbar-button-badge-bg-color) 50%, black);
-}
-
-/* If the text is shown after the icon, move the badge to be over the icon */
-.icons-beside-text .unified-toolbar-button[badge]::after {
-  inset-inline-end: unset;
-  inset-inline-start: calc(var(--icon-size) - var(--badge-inset-inline-nudge));
-  inset-block-start: var(--badge-inset-block-start);
-}
-
-/* With text only, just show the badge after the label */
-.text-only .unified-toolbar-button[badge]::after {
-  position: static;
-}
-
-/* If we are showing the text below the icon, move the badge in toward the
- * center of the button. */
-.icons-above-text .unified-toolbar-button[badge]::after {
-  inset-inline-end: unset;
-  inset-inline-start: 51%;
-}
-
-.icons-above-text .unified-toolbar-button[popup][badge]::after {
-  inset-inline-start: unset;
-  inset-inline-end: 38%;
-}
-
-.unified-toolbar-button .button-label {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex-shrink: 1;
-  max-width: 50ch;
-  pointer-events: none;
-}
-
-global-search-bar:not([hidden]) {
-  display: block;
-  color: var(--layout-color-0);
-}
-
-global-search-bar:not([hidden]):-moz-lwtheme {
-  color: var(--toolbar-field-color);
-  text-shadow: none;
-}
-
-span[slot="placeholder"] {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.unified-toolbar .spacer {
-  flex: 1 1 auto;
-}
-
-.unified-toolbar .search-bar {
-  flex: 1 1 33%;
-  min-width: 5em;
-}
-
-.unified-toolbar .button-icon {
-  content: var(--icon-extension);
-}
-
-.unified-toolbar .search-button-icon {
-  content: var(--icon-search);
-}
-
-.unified-toolbar .write-message .button-icon {
-  content: var(--icon-new-mail);
-}
-
-.unified-toolbar .move-to .button-icon {
-  content: var(--icon-file);
-}
-
-.unified-toolbar .unifinder .button-icon {
-  content: var(--icon-search);
-}
-
-.unified-toolbar .folder-location .button-icon {
-  content: var(--icon-folder);
-}
-
-.unified-toolbar .edit-event .button-icon {
-  content: var(--icon-pencil);
-}
-
-.unified-toolbar .get-messages .button-icon {
-  content: var(--icon-cloud-download);
-}
-
-.unified-toolbar .reply .button-icon {
-  content: var(--icon-reply);
-}
-
-.unified-toolbar .reply-all .button-icon {
-  content: var(--icon-reply-all);
-}
-
-.unified-toolbar .reply-to-list .button-icon {
-  content: var(--icon-reply-list);
-}
-
-.unified-toolbar .redirect .button-icon {
-  content: var(--icon-redirect);
-}
-
-.unified-toolbar .archive .button-icon {
-  content: var(--icon-archive);
-}
-
-.unified-toolbar .conversation .button-icon {
-  content: var(--icon-conversation);
-}
-
-.unified-toolbar .previous-unread .button-icon {
-  content: var(--icon-nav-up-unread);
-}
-
-.unified-toolbar .previous .button-icon {
-  content: var(--icon-nav-up);
-}
-
-.unified-toolbar .next-unread .button-icon {
-  content: var(--icon-nav-down-unread);
-}
-
-.unified-toolbar .next .button-icon {
-  content: var(--icon-nav-down);
-}
-
-.unified-toolbar .junk .button-icon {
-  content: var(--icon-spam);
-}
-
-.unified-toolbar .delete .button-icon {
-  content: var(--icon-trash);
-}
-
-.unified-toolbar .compact .button-icon {
-  content: var(--icon-compress);
-}
-
-.unified-toolbar .add-as-event .button-icon {
-  content: var(--icon-new-event);
-}
-
-.unified-toolbar .add-as-task .button-icon {
-  content: var(--icon-new-task);
-}
-
-.unified-toolbar .tag-message .button-icon {
-  content: var(--icon-tag);
-}
-
-.unified-toolbar .forward-inline .button-icon {
-  content: var(--icon-forward);
-}
-
-.unified-toolbar .forward-attachment .button-icon {
-  /* TODO separate icon for forwarding as attachment */
-  content: var(--icon-forward);
-}
-
-.unified-toolbar .mark-as .button-icon {
-  content: var(--icon-unread);
-}
-
-.unified-toolbar .view-picker .button-icon {
-  content: var(--icon-eye);
-}
-
-.unified-toolbar .address-book .button-icon {
-  content: var(--icon-address-book);
-}
-
-.unified-toolbar .chat .button-icon {
-  content: var(--icon-chat)
-}
-
-.unified-toolbar .add-ons-and-themes .button-icon {
-  content: var(--icon-extension);
-}
-
-.unified-toolbar .calendar .button-icon {
-  content: var(--icon-calendar);
-}
-
-.unified-toolbar .tasks .button-icon {
-  content: var(--icon-tasks)
-}
-
-.unified-toolbar .mail .button-icon {
-  content: var(--icon-mail);
-}
-
-.unified-toolbar .print .button-icon {
-  content: var(--icon-print);
-}
-
-.unified-toolbar .quick-filter-bar .button-icon {
-  content: var(--icon-filter);
-}
-
-.unified-toolbar .synchronize .button-icon {
-  content: var(--icon-sync);
-}
-
-.unified-toolbar .new-event .button-icon {
-  content: var(--icon-new-event);
-}
-
-.unified-toolbar .new-task .button-icon {
-  content: var(--icon-new-task);
-}
-
-.unified-toolbar .delete-event .button-icon {
-  content: var(--icon-trash);
-}
-
-.unified-toolbar .print-event .button-icon {
-  content: var(--icon-print);
-}
-
-.unified-toolbar .go-to-today .button-icon {
-  content: var(--icon-calendar-today);
-}
-
-.unified-toolbar .go-back .button-icon {
-  content: var(--icon-nav-back);
-}
-
-.unified-toolbar .go-forward .button-icon {
-  content: var(--icon-nav-forward);
-}
-
-.unified-toolbar .stop .button-icon {
-  content: var(--icon-close);
-}
-
-.unified-toolbar .throbber .throbber-icon {
-  stroke: var(--button-primary-background-color);
-  -moz-context-properties: stroke, fill;
-  width: 16px;
-  height: 16px;
-  visibility: hidden;
-  margin: var(--button-margin);
-  vertical-align: middle;
-  content: var(--icon-loading);
-  object-fit: cover;
-}
-
-.unified-toolbar .throbber.busy .throbber-icon {
-  visibility: visible;
-  object-position: 0px 0;
+
+  & li {
+    padding: 0;
+    margin: 0;
+    border-radius: 1px;
+  }
+
+  & [is="customizable-element"] .preview {
+    display: none;
+  }
+
+  & .spacer {
+    flex: 1 1 auto;
+  }
+
+  & .search-bar {
+    flex: 1 1 33%;
+    min-width: 5em;
+  }
+
+  & .search-button-icon {
+    content: var(--icon-search);
+  }
+
+  & .button-icon {
+    content: var(--icon-extension);
+  }
+
+  & .write-message .button-icon {
+    content: var(--icon-new-mail);
+  }
+
+  & .move-to .button-icon {
+    content: var(--icon-file);
+  }
+
+  & .unifinder .button-icon {
+    content: var(--icon-search);
+  }
+
+  & .folder-location .button-icon {
+    content: var(--icon-folder);
+  }
+
+  & .edit-event .button-icon {
+    content: var(--icon-pencil);
+  }
+
+  & .get-messages .button-icon {
+    content: var(--icon-cloud-download);
+  }
+
+  & .reply .button-icon {
+    content: var(--icon-reply);
+  }
+
+  & .reply-all .button-icon {
+    content: var(--icon-reply-all);
+  }
+
+  & .reply-to-list .button-icon {
+    content: var(--icon-reply-list);
+  }
+
+  & .redirect .button-icon {
+    content: var(--icon-redirect);
+  }
+
+  & .archive .button-icon {
+    content: var(--icon-archive);
+  }
+
+  & .conversation .button-icon {
+    content: var(--icon-conversation);
+  }
+
+  & .previous-unread .button-icon {
+    content: var(--icon-nav-up-unread);
+  }
+
+  & .previous .button-icon {
+    content: var(--icon-nav-up);
+  }
+
+  & .next-unread .button-icon {
+    content: var(--icon-nav-down-unread);
+  }
+
+  & .next .button-icon {
+    content: var(--icon-nav-down);
+  }
+
+  & .junk .button-icon {
+    content: var(--icon-spam);
+  }
+
+  & .delete .button-icon {
+    content: var(--icon-trash);
+  }
+
+  & .compact .button-icon {
+    content: var(--icon-compress);
+  }
+
+  & .add-as-event .button-icon {
+    content: var(--icon-new-event);
+  }
+
+  & .add-as-task .button-icon {
+    content: var(--icon-new-task);
+  }
+
+  & .tag-message .button-icon {
+    content: var(--icon-tag);
+  }
+
+  & .forward-inline .button-icon {
+    content: var(--icon-forward);
+  }
+
+  & .forward-attachment .button-icon {
+    /* TODO separate icon for forwarding as attachment */
+    content: var(--icon-forward);
+  }
+
+  & .mark-as .button-icon {
+    content: var(--icon-unread);
+  }
+
+  & .view-picker .button-icon {
+    content: var(--icon-eye);
+  }
+
+  & .address-book .button-icon {
+    content: var(--icon-address-book);
+  }
+
+  & .chat .button-icon {
+    content: var(--icon-chat)
+  }
+
+  & .add-ons-and-themes .button-icon {
+    content: var(--icon-extension);
+  }
+
+  & .calendar .button-icon {
+    content: var(--icon-calendar);
+  }
+
+  & .tasks .button-icon {
+    content: var(--icon-tasks)
+  }
+
+  & .mail .button-icon {
+    content: var(--icon-mail);
+  }
+
+  & .print .button-icon {
+    content: var(--icon-print);
+  }
+
+  & .quick-filter-bar .button-icon {
+    content: var(--icon-filter);
+  }
+
+  & .synchronize .button-icon {
+    content: var(--icon-sync);
+  }
+
+  & .new-event .button-icon {
+    content: var(--icon-new-event);
+  }
+
+  & .new-task .button-icon {
+    content: var(--icon-new-task);
+  }
+
+  & .delete-event .button-icon {
+    content: var(--icon-trash);
+  }
+
+  & .print-event .button-icon {
+    content: var(--icon-print);
+  }
+
+  & .go-to-today .button-icon {
+    content: var(--icon-calendar-today);
+  }
+
+  & .go-back .button-icon {
+    content: var(--icon-nav-back);
+  }
+
+  & .go-forward .button-icon {
+    content: var(--icon-nav-forward);
+  }
+
+  & .stop .button-icon {
+    content: var(--icon-close);
+  }
+
+  & .throbber .throbber-icon {
+    stroke: var(--button-primary-background-color);
+    -moz-context-properties: stroke, fill;
+    width: 16px;
+    height: 16px;
+    visibility: hidden;
+    margin: var(--button-margin);
+    vertical-align: middle;
+    content: var(--icon-loading);
+    object-fit: cover;
+
+    @media (-moz-windows-accent-color-in-titlebar) {
+      stroke: currentColor;
+    }
+  }
+
+  & .throbber.busy .throbber-icon {
+    visibility: visible;
+    object-position: 0;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -388,4 +280,116 @@ span[slot="placeholder"] {
   @keyframes activity-indicator-throbber {
     100% { object-position: -480px 0; }
   }
+}
+
+.unified-toolbar-button {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex-wrap: nowrap;
+  min-width: initial;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+
+  .icons-above-text & {
+    flex-direction: column;
+    justify-content: space-around;
+  }
+
+  &[popup] {
+    padding-inline-end: 20px;
+    background-image: var(--icon-nav-down-sm);
+    background-position: calc(100% - 4px) center;
+    background-repeat: no-repeat;
+
+    &:dir(rtl) {
+      background-position-x: 4px;
+    }
+  }
+
+  &[badge] {
+    position: relative;
+
+    &::after {
+      content: attr(badge);
+      background-color: var(--toolbar-button-badge-bg-color);
+      border-radius: 12px;
+      padding: var(--toolbar-button-badge-padding);
+      font-weight: 600;
+      font-size: var(--toolbar-button-badge-font);
+      color: var(--toolbar-button-badge-text-color);
+      line-height: 1em;
+      position: absolute;
+      inset-inline-end: var(--badge-inset-inline-end);
+      inset-block-start: var(--badge-inset-block-start);
+      max-width: 3ch;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-overflow: clip;
+
+      /* If the text is shown after the icon, move the badge to be over the icon */
+      .icons-beside-text & {
+        inset-inline-end: unset;
+        inset-inline-start: calc(var(--icon-size) - var(--badge-inset-inline-nudge));
+        inset-block-start: var(--badge-inset-block-start);
+      }
+
+      /* With text only, just show the badge after the label */
+      .text-only & {
+        position: static;
+      }
+
+      /* If we are showing the text below the icon, move the badge in toward the
+       * center of the button. */
+      .icons-above-text & {
+        inset-inline-end: unset;
+        inset-inline-start: 51%;
+      }
+    }
+
+    &:-moz-window-inactive::after {
+      background-color: color-mix(in srgb, var(--toolbar-button-badge-bg-color) 50%, black);
+    }
+  }
+
+  &[popup][badge]::after {
+    inset-inline-end: 14px;
+
+    .icons-above-text & {
+      inset-inline-start: unset;
+      inset-inline-end: 38%;
+    }
+  }
+
+  & .button-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+    max-width: 50ch;
+    pointer-events: none;
+
+    .icons-only & {
+      display: none;
+    }
+  }
+
+  .text-only & .button-icon {
+    display: none;
+  }
+}
+
+global-search-bar:not([hidden]) {
+  display: block;
+  color: var(--layout-color-0);
+
+  &:-moz-lwtheme {
+    color: var(--toolbar-field-color);
+    text-shadow: none;
+  }
+}
+
+span[slot="placeholder"] {
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }

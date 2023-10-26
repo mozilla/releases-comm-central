@@ -28,12 +28,11 @@
   margin: 0;
   padding: 0;
   flex-shrink: 0;
-}
 
-[is="customization-target"]:focus-visible,
-[is="customization-palette"]:focus-visible {
-  outline: var(--focus-outline);
-  outline-color: transparent;
+  &:focus-visible {
+    outline: var(--focus-outline);
+    outline-color: transparent;
+  }
 }
 
 .toolbar-target {
@@ -47,64 +46,68 @@
   border: 1px solid var(--layout-border-0);
   gap: 6px;
   min-height: calc(1rem + 3 * var(--button-padding));
+
+  & .button.unified-toolbar-button {
+    margin-block: 0;
+  }
+
+  & .spacer {
+    color: color-mix(in srgb, var(--layout-color-1) 50%, transparent);
+    background-image: linear-gradient(to left, currentColor 0%, currentColor 50%, transparent 50%, transparent 100%);
+    background-size: 9px 1px;
+    background-position: 5px center;
+    background-repeat: repeat-x;
+    position: relative;
+    height: 100%;
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+
+    &::before,
+    &::after {
+      content: '';
+      width: 16px;
+      position: absolute;
+      height: 100%;
+      background-repeat: no-repeat;
+      background-position-y: center;
+    }
+
+    &::before {
+      background-image: var(--icon-nav-left);
+      left: -5px;
+    }
+
+    &::after {
+      background-image: var(--icon-nav-right);
+      right: -5px;
+    }
+  }
+
+  & .throbber .throbber-icon {
+    visibility: visible;
+  }
+
+  /* buttons are disabled in the preview, but we want them to look active. */
+  & .unified-toolbar-button[disabled] {
+    color: inherit;
+    opacity: 1;
+  }
 }
 
-.toolbar-target .button.unified-toolbar-button {
-  margin-block: 0;
-}
+[is="customization-target"] {
+  & .collapsed {
+    display: none;
+  }
 
-.toolbar-target .spacer {
-  color: color-mix(in srgb, var(--layout-color-1) 50%, transparent);
-  background-image: linear-gradient(to left, currentColor 0%, currentColor 50%, transparent 50%, transparent 100%);
-  background-size: 9px 1px;
-  background-position: 5px center;
-  background-repeat: repeat-x;
-  position: relative;
-  height: 100%;
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-}
+  & [is="customizable-element"] {
+    & .live-content {
+      pointer-events: none;
+    }
 
-.toolbar-target .spacer::before,
-.toolbar-target .spacer::after {
-  content: '';
-  width: 16px;
-  position: absolute;
-  height: 100%;
-  background-repeat: no-repeat;
-  background-position-y: center;
-}
-
-.toolbar-target .spacer::before {
-  background-image: var(--icon-nav-left);
-  left: -5px;
-}
-
-.toolbar-target .spacer::after {
-  background-image: var(--icon-nav-right);
-  right: -5px;
-}
-
-.toolbar-target .throbber .throbber-icon {
-  visibility: visible;
-}
-
-/* buttons are disabled in the preview, but we want them to look active. */
-.toolbar-target .unified-toolbar-button[disabled] {
-  color: inherit;
-  opacity: 1;
-}
-
-[is="customization-target"] [is="customizable-element"] .live-content {
-  pointer-events: none;
-}
-
-[is="customization-target"] [is="customizable-element"] .preview {
-  display: none;
-}
-
-[is="customization-target"] .collapsed {
-  display: none;
+    & .preview {
+      display: none;
+    }
+  }
 }
 
 .customization-palettes {
@@ -115,15 +118,23 @@
   flex-wrap: wrap;
   gap: 1rem;
   margin: 1rem;
-}
 
-[is="customization-palette"]:not(:last-of-type) {
-  margin-block-end: 2.5rem;
-}
+  &:not(:last-of-type) {
+    margin-block-end: 2.5rem;
+  }
 
-h2 {
-  margin-inline: 1rem;
-  user-select: none;
+  & [is="customizable-element"] {
+    width: 96px;
+    height: calc(25px + 2.4rem); /* icon: 16px, gap: 9px, 2.4rem = ~2lh */
+    background: var(--layout-background-3);
+    padding: 9px;
+    border-radius: 6px;
+    overflow: hidden;
+
+    & .live-content {
+      display: none;
+    }
+  }
 }
 
 [is="customizable-element"] {
@@ -137,17 +148,9 @@ h2 {
   outline-offset: var(--focus-outline-offset);
 }
 
-[is="customization-palette"] [is="customizable-element"] {
-  width: 96px;
-  height: calc(25px + 2.4rem); /* icon: 16px, gap: 9px, 2.4rem = ~2lh */
-  background: var(--layout-background-3);
-  padding: 9px;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-[is="customization-palette"] [is="customizable-element"] .live-content {
-  display: none;
+h2 {
+  margin-inline: 1rem;
+  user-select: none;
 }
 
 .preview {

@@ -10,21 +10,21 @@
   --unified-drag-space: 30px;
   --unified-customization-padding: 30px;
   --unified-toolbar-content-min-height: 28px;
-}
 
-:root[uidensity="compact"] {
-  --unified-toolbar-padding: 1px;
-  --unified-drag-space: 15px;
-  --unified-toolbar-content-min-height: 24px;
-}
+  &[uidensity="compact"] {
+    --unified-toolbar-padding: 1px;
+    --unified-drag-space: 15px;
+    --unified-toolbar-content-min-height: 24px;
+  }
 
-:root[uidensity="touch"] {
-  --unified-toolbar-padding: 7px;
-}
+  &[uidensity="touch"] {
+    --unified-toolbar-padding: 7px;
+  }
 
-:root[sizemode="fullscreen"],
-:root:not([tabsintitlebar]) {
-  --unified-drag-space: 3px;
+  &[sizemode="fullscreen"],
+  &:not([tabsintitlebar]) {
+    --unified-drag-space: 3px;
+  }
 }
 
 unified-toolbar {
@@ -38,11 +38,23 @@ unified-toolbar {
   align-items: center;
   -moz-window-dragging: drag;
   width: 100vw;
-}
 
-/* minheight for the macOS titlebar */
-.customizingUnifiedToolbar #unifiedToolbarContainer {
-  min-height: 22px;
+  /* minheight for the macOS titlebar */
+  .customizingUnifiedToolbar & {
+    min-height: 22px;
+  }
+
+  & .titlebar-buttonbox-container {
+    flex: 0 0 auto;
+
+    @media (-moz-platform: windows) {
+      align-self: stretch;
+    }
+  }
+
+  @media (-moz-gtk-csd-reversed-placement) {
+    flex-direction: row-reverse;
+  }
 }
 
 #unifiedToolbar {
@@ -52,25 +64,9 @@ unified-toolbar {
   padding-block: var(--unified-toolbar-padding);
   min-width: 0;
   overflow: hidden;
-}
 
-#unifiedToolbar .button:is(.toolbar-button, .unified-toolbar-button) {
-  margin-block: 0;
-}
-
-#unifiedToolbarContainer .titlebar-buttonbox-container {
-  flex: 0 0 auto;
-}
-
-@media (-moz-platform: windows) {
-  #unifiedToolbarContainer .titlebar-buttonbox-container {
-    align-self: stretch;
-  }
-}
-
-@media (-moz-gtk-csd-reversed-placement) {
-  #unifiedToolbarContainer {
-    flex-direction: row-reverse;
+  & .button:is(.toolbar-button, .unified-toolbar-button) {
+    margin-block: 0;
   }
 }
 
@@ -81,18 +77,18 @@ unified-toolbar {
   /* Padding needed for the children's focus ring. */
   padding-block: 3px;
   padding-inline: var(--unified-drag-space) 3px;
-}
 
-#unifiedToolbarContent li {
-  -moz-window-dragging: no-drag;
-}
+  & li {
+    -moz-window-dragging: no-drag;
+  }
 
-#unifiedToolbarContent .unified-toolbar-button[disabled] {
-  opacity: 0.4;
-}
+  & .unified-toolbar-button[disabled] {
+    opacity: 0.4;
+  }
 
-#unifiedToolbarContent .spacer {
-  -moz-window-dragging: drag;
+  & .spacer {
+    -moz-window-dragging: drag;
+  }
 }
 
 unified-toolbar-customization {
@@ -104,26 +100,25 @@ unified-toolbar-customization {
 /* TODO this approach will have issues with spaces toolbar paddings */
 
 /* we still need the space to be taken up for correct alignment of window decorations */
-.customizingUnifiedToolbar #unifiedToolbar {
-  visibility: hidden;
-}
+.customizingUnifiedToolbar {
+  & #unifiedToolbar {
+    visibility: hidden;
+  }
 
-.customizingUnifiedToolbar #unifiedToolbar > *,
-.customizingUnifiedToolbar #messengerBody,
-.customizingUnifiedToolbar #spacesToolbar,
-.customizingUnifiedToolbar #toolbar-menubar,
-.customizingUnifiedToolbar #tabs-toolbar {
-  display: none;
-}
+  & #unifiedToolbar > *,
+  & :is(#messengerBody, #spacesToolbar, #toolbar-menubar, #tabs-toolbar) {
+    display: none;
+  }
 
-.customizingUnifiedToolbar unified-toolbar-customization {
-  display: flex;
-  height: 100%;
-  background-color: color-mix(in srgb, var(--layout-background-0) 50%, var(--color-black));
-  color: var(--layout-color-1);
-  flex: 1;
-  overflow: hidden;
-  padding: var(--unified-customization-padding);
+  & unified-toolbar-customization {
+    display: flex;
+    height: 100%;
+    background-color: color-mix(in srgb, var(--layout-background-0) 50%, var(--color-black));
+    color: var(--layout-color-1);
+    flex: 1;
+    overflow: hidden;
+    padding: var(--unified-customization-padding);
+  }
 }
 
 #customizationHeading {
@@ -145,10 +140,10 @@ unified-toolbar-customization {
   box-shadow:
     0 2px 12px -3px rgba(0, 0, 0, 0.5),
     0 2px 24px -6px rgba(0, 0, 0, 0.5);
-}
 
-#unifiedToolbarCustomizationContainer div[role="tabpanel"] {
-  flex-grow: 1;
+  & div[role="tabpanel"] {
+    flex-grow: 1;
+  }
 }
 
 #customizationFooter {
@@ -163,16 +158,16 @@ unified-toolbar-customization {
    * #unifiedToolbarCustomizationUnsavedChanges can be displayed in it */
   padding-block: max(calc(var(--customization-footer-padding) * 2), 1rem);
   padding-inline: var(--customization-footer-padding);
+
+  & div:last-child {
+    text-align: end;
+  }
 }
 
 #buttonStyleContainer {
   display: flex;
   align-items: center;
   gap: 3px;
-}
-
-#customizationFooter div:last-child {
-  text-align: end;
 }
 
 #unifiedToolbarCustomizationUnsavedChanges {
@@ -203,15 +198,15 @@ unified-toolbar-tab {
   min-width: 28px;
   overflow-x: hidden;
   display: block;
-}
 
-unified-toolbar-tab::part(icon) {
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-  content: var(--webextension-toolbar-image, var(--icon-extension));
-  max-width: 16px;
-  max-height: 16px;
+  &::part(icon) {
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+    content: var(--webextension-toolbar-image, var(--icon-extension));
+    max-width: 16px;
+    max-height: 16px;
+  }
 }
 
 #unified-toolbar-customization-tab-mail::part(icon) {

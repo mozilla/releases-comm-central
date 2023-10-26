@@ -24,29 +24,33 @@ input {
   border-radius: var(--button-border-radius);
   padding-inline: var(--padding-block) var(--search-icon-clearance);
   background-color: var(--layout-background-0);
-}
 
-input:-moz-lwtheme {
-  color: var(--toolbar-field-color);
-  background-color: var(--toolbar-field-background-color);
-  border-color: var(--toolbar-field-border-color);
-}
-
-input:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: -1px;
-}
-
-@media (-moz-windows-accent-color-in-titlebar) {
-  input:not(:-moz-lwtheme):focus-visible {
-    outline-offset: var(--focus-outline-offset);
-    outline-color: var(--windows-accent-outline-color);
+  &:-moz-lwtheme {
+    color: var(--toolbar-field-color);
+    background-color: var(--toolbar-field-background-color);
+    border-color: var(--toolbar-field-border-color);
   }
-}
 
-input:-moz-lwtheme:focus-visible {
-  color: var(--toolbar-field-focus-color);
-  background-color: var(--toolbar-field-focus-background-color);
+  &:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: -1px;
+  }
+
+  &:-moz-lwtheme:focus-visible {
+    color: var(--toolbar-field-focus-color);
+    background-color: var(--toolbar-field-focus-background-color);
+  }
+
+  @media (-moz-windows-accent-color-in-titlebar) {
+    &:not(:-moz-lwtheme):focus-visible {
+      outline-offset: var(--focus-outline-offset);
+      outline-color: var(--windows-accent-outline-color);
+    }
+
+    & .button-flat.icon-button:not(:-moz-lwtheme):focus-visible {
+      outline-offset: -4px;
+    }
+  }
 }
 
 .button {
@@ -57,15 +61,21 @@ input:-moz-lwtheme:focus-visible {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-}
 
-.button.button-flat.icon-button {
-  padding: 4px;
-  margin: 0;
-}
+  &.button-flat.icon-button {
+    padding: 4px;
+    margin: 0;
 
-.button.button-flat.icon-button:focus-visible {
-  outline-offset: -1px;
+    &:focus-visible {
+      outline-offset: -1px;
+    }
+
+    @media (-moz-windows-accent-color-in-titlebar) {
+      &:not(:-moz-lwtheme):focus-visible {
+        outline-offset: -4px;
+      }
+    }
+  }
 }
 
 div {
@@ -81,8 +91,8 @@ div {
   overflow: hidden;
   white-space: nowrap;
   inset-block: 0;
-}
 
-input:placeholder-shown + div {
-  display: flex;
+  input:placeholder-shown + & {
+    display: flex;
+  }
 }

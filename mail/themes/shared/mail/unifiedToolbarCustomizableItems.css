@@ -6,192 +6,194 @@
  * CustomizableItemsDetails.mjs contains the definitions for the root class
  * names. */
 
-[is="customizable-element"] .preview-icon {
-  content: var(--icon-extension);
-}
+.preview-icon {
+  [is="customizable-element"] & {
+    content: var(--icon-extension);
+  }
 
-.spacer .preview-icon {
-  content: var(--icon-flexible-space);
-}
+  .spacer & {
+    content: var(--icon-flexible-space);
+  }
 
-.search-bar .preview-icon {
-  content: var(--icon-search);
-}
+  .search-bar & {
+    content: var(--icon-search);
+  }
 
-.write-message .preview-icon {
-  content: var(--icon-new-mail);
-}
+  .write-message & {
+    content: var(--icon-new-mail);
+  }
 
-.move-to .preview-icon {
-  content: var(--icon-file);
-}
+  .move-to & {
+    content: var(--icon-file);
+  }
 
-.unifinder .preview-icon {
-  content: var(--icon-search);
-}
+  .unifinder & {
+    content: var(--icon-search);
+  }
 
-.folder-location .preview-icon {
-  content: var(--icon-folder);
-}
+  .folder-location & {
+    content: var(--icon-folder);
+  }
 
-.edit-event .preview-icon {
-  content: var(--icon-pencil);
-}
+  .edit-event & {
+    content: var(--icon-pencil);
+  }
 
-.get-messages .preview-icon {
-  content: var(--icon-cloud-download);
-}
+  .get-messages & {
+    content: var(--icon-cloud-download);
+  }
 
-.reply .preview-icon {
-  content: var(--icon-reply);
-}
+  .reply & {
+    content: var(--icon-reply);
+  }
 
-.reply-all .preview-icon {
-  content: var(--icon-reply-all);
-}
+  .reply-all & {
+    content: var(--icon-reply-all);
+  }
 
-.reply-to-list .preview-icon {
-  content: var(--icon-reply-list);
-}
+  .reply-to-list & {
+    content: var(--icon-reply-list);
+  }
 
-.redirect .preview-icon {
-  content: var(--icon-redirect);
-}
+  .redirect & {
+    content: var(--icon-redirect);
+  }
 
-.archive .preview-icon {
-  content: var(--icon-archive);
-}
+  .archive & {
+    content: var(--icon-archive);
+  }
 
-.conversation .preview-icon {
-  content: var(--icon-conversation);
-}
+  .conversation & {
+    content: var(--icon-conversation);
+  }
 
-.previous-unread .preview-icon {
-  content: var(--icon-nav-up-unread);
-}
+  .previous-unread & {
+    content: var(--icon-nav-up-unread);
+  }
 
-.previous .preview-icon {
-  content: var(--icon-nav-up);
-}
+  .previous & {
+    content: var(--icon-nav-up);
+  }
 
-.next-unread .preview-icon {
-  content: var(--icon-nav-down-unread);
-}
+  .next-unread & {
+    content: var(--icon-nav-down-unread);
+  }
 
-.next .preview-icon {
-  content: var(--icon-nav-down);
-}
+  .next & {
+    content: var(--icon-nav-down);
+  }
 
-.junk .preview-icon {
-  content: var(--icon-spam);
-}
+  .junk & {
+    content: var(--icon-spam);
+  }
 
-.delete .preview-icon {
-  content: var(--icon-trash);
-}
+  .delete & {
+    content: var(--icon-trash);
+  }
 
-.compact .preview-icon {
-  content: var(--icon-compress);
-}
+  .compact & {
+    content: var(--icon-compress);
+  }
 
-.add-as-event .preview-icon {
-  content: var(--icon-new-event);
-}
+  .add-as-event & {
+    content: var(--icon-new-event);
+  }
 
-.add-as-task .preview-icon {
-  content: var(--icon-new-task);
-}
+  .add-as-task & {
+    content: var(--icon-new-task);
+  }
 
-.tag-message .preview-icon {
-  content: var(--icon-tag);
-}
+  .tag-message & {
+    content: var(--icon-tag);
+  }
 
-.forward-inline .preview-icon {
-  content: var(--icon-forward);
-}
+  .forward-inline & {
+    content: var(--icon-forward);
+  }
 
-.forward-attachment .preview-icon {
-  /* TODO separate icon for forwarding as attachment */
-  content: var(--icon-forward);
-}
+  .forward-attachment & {
+    /* TODO separate icon for forwarding as attachment */
+    content: var(--icon-forward);
+  }
 
-.mark-as .preview-icon {
-  content: var(--icon-unread);
-}
+  .mark-as & {
+    content: var(--icon-unread);
+  }
 
-.view-picker .preview-icon {
-  content: var(--icon-eye);
-}
+  .view-picker & {
+    content: var(--icon-eye);
+  }
 
-.address-book .preview-icon {
-  content: var(--icon-address-book);
-}
+  .address-book & {
+    content: var(--icon-address-book);
+  }
 
-.chat .preview-icon {
-  content: var(--icon-chat)
-}
+  .chat & {
+    content: var(--icon-chat)
+  }
 
-.add-ons-and-themes .preview-icon {
-  content: var(--icon-extension);
-}
+  .add-ons-and-themes & {
+    content: var(--icon-extension);
+  }
 
-.calendar .preview-icon {
-  content: var(--icon-calendar);
-}
+  .calendar & {
+    content: var(--icon-calendar);
+  }
 
-.tasks .preview-icon {
-  content: var(--icon-tasks)
-}
+  .tasks & {
+    content: var(--icon-tasks)
+  }
 
-.mail .preview-icon {
-  content: var(--icon-mail);
-}
+  .mail & {
+    content: var(--icon-mail);
+  }
 
-.print .preview-icon {
-  content: var(--icon-print);
-}
+  .print & {
+    content: var(--icon-print);
+  }
 
-.quick-filter-bar .preview-icon {
-  content: var(--icon-filter);
-}
+  .quick-filter-bar & {
+    content: var(--icon-filter);
+  }
 
-.synchronize .preview-icon {
-  content: var(--icon-sync);
-}
+  .synchronize & {
+    content: var(--icon-sync);
+  }
 
-.new-event .preview-icon {
-  content: var(--icon-new-event);
-}
+  .new-event & {
+    content: var(--icon-new-event);
+  }
 
-.new-task .preview-icon {
-  content: var(--icon-new-task);
-}
+  .new-task & {
+    content: var(--icon-new-task);
+  }
 
-.delete-event .preview-icon {
-  content: var(--icon-trash);
-}
+  .delete-event & {
+    content: var(--icon-trash);
+  }
 
-.print-event .preview-icon {
-  content: var(--icon-print);
-}
+  .print-event & {
+    content: var(--icon-print);
+  }
 
-.go-to-today .preview-icon {
-  content: var(--icon-calendar-today);
-}
+  .go-to-today & {
+    content: var(--icon-calendar-today);
+  }
 
-.go-back .preview-icon {
-  content: var(--icon-nav-back);
-}
+  .go-back & {
+    content: var(--icon-nav-back);
+  }
 
-.go-forward .preview-icon {
-  content: var(--icon-nav-forward);
-}
+  .go-forward & {
+    content: var(--icon-nav-forward);
+  }
 
-.stop .preview-icon {
-  content: var(--icon-close);
-}
+  .stop & {
+    content: var(--icon-close);
+  }
 
-.throbber .preview-icon {
-  content: var(--icon-loading);
-  object-fit: cover;
+  .throbber & {
+    content: var(--icon-loading);
+    object-fit: cover;
+  }
 }
