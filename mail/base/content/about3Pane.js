@@ -2463,21 +2463,20 @@ var folderPane = {
   _onSelect(event) {
     threadPane.saveSelection();
     threadPane.hideIgnoredMessageNotification();
+    messagePane.clearAll();
 
     let uri = folderTree.rows[folderTree.selectedIndex]?.uri;
     if (!uri) {
       gFolder = null;
       return;
     }
+
     gFolder = MailServices.folderLookup.getFolderForURL(uri);
 
     // Bail out if this is synthetic view, such as a gloda search.
     if (gViewWrapper?.isSynthetic) {
       return;
     }
-    // Don't clear the message pane for synthetic views, as a message may have
-    // already been selected in restoreState().
-    messagePane.clearAll();
 
     document.head.querySelector(`link[rel="icon"]`).href =
       FolderUtils.getFolderIcon(gFolder);
@@ -5841,17 +5840,6 @@ function restoreState({
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
     gViewWrapper.openSynthetic(syntheticView);
     gDBView = gViewWrapper.dbView;
-
-    if ("selectedMessage" in syntheticView) {
-      threadTree.selectedIndex = gDBView.findIndexOfMsgHdr(
-        syntheticView.selectedMessage,
-        true
-      );
-    } else {
-      // So that nsMsgSearchDBView::GetHdrForFirstSelectedMessage works from
-      // the beginning.
-      threadTree.currentIndex = 0;
-    }
 
     document.title = title;
     document.body.classList.remove("account-central");
