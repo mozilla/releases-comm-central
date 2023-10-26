@@ -231,26 +231,35 @@ class NntpClient {
   _onError = event => {
     this._logger.error(event, event.name, event.message, event.errorCode);
     let errorName;
+    let uri;
     switch (event.errorCode) {
       case Cr.NS_ERROR_UNKNOWN_HOST:
       case Cr.NS_ERROR_UNKNOWN_PROXY_HOST:
         errorName = "unknownHostError";
+        uri = "about:neterror?e=dnsNotFound";
         break;
       case Cr.NS_ERROR_CONNECTION_REFUSED:
+        errorName = "connectionRefusedError";
+        uri = "about:neterror?e=connectionFailure";
+        break;
       case Cr.NS_ERROR_PROXY_CONNECTION_REFUSED:
         errorName = "connectionRefusedError";
+        uri = "about:neterror?e=proxyConnectFailure";
         break;
       case Cr.NS_ERROR_NET_TIMEOUT:
         errorName = "netTimeoutError";
+        uri = "about:neterror?e=netTimeout";
         break;
       case Cr.NS_ERROR_NET_RESET:
         errorName = "netResetError";
+        uri = "about:neterror?e=netReset";
         break;
       case Cr.NS_ERROR_NET_INTERRUPT:
         errorName = "netInterruptError";
+        uri = "about:neterror?e=netInterrupt";
         break;
     }
-    if (errorName) {
+    if (errorName && uri) {
       const bundle = Services.strings.createBundle(
         "chrome://messenger/locale/messenger.properties"
       );
@@ -258,6 +267,9 @@ class NntpClient {
         this._server.hostName,
       ]);
       MailServices.mailSession.alertUser(errorMessage, this.runningUri);
+
+      // If we were going to display an article, instead show an error page.
+      this.runningUri.seeOtherURI = uri;
     }
 
     this._msgWindow?.statusFeedback?.showStatusString("");
