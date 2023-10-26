@@ -1,0 +1,13 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#calendar-uri-redirect-dialog {
+  min-width: 600px;
+  min-height: 220px;
+  height: 100vh;
+}
+
+p {
+  padding-block: 5px;
+}

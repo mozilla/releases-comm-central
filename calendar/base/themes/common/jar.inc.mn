@@ -6,7 +6,7 @@
 # actual theme-specific manifests, so that shared resources need only
 # be specified once. As a result, the source file paths are relative
 # to the location of the actual manifest.
-
+    skin/classic/calendar/dialogs/calendar-uri-redirect-dialog.css               (../common/dialogs/calendar-uri-redirect-dialog.css)
     skin/classic/calendar/shared/calendar.css                                    (../common/calendar.css)
     skin/classic/calendar/shared/calendar-alarms.css                             (../common/calendar-alarms.css)
     skin/classic/calendar/shared/calendar-attendees.css                          (../common/calendar-attendees.css)

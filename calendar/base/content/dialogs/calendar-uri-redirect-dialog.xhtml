@@ -6,12 +6,10 @@
 <html
   id="calendar-uri-redirect-dialog"
   xmlns="http://www.w3.org/1999/xhtml"
-  windowtype="Calendar:URIRedirect"
   lightweightthemes="true"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   width="600"
-  style="min-width: 600px"
   scrolling="false"
 >
   <head>
@@ -24,22 +22,25 @@
     <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
     <script defer="defer" src="chrome://calendar/content/calendar-uri-redirect-dialog.js"></script>
   </head>
-  <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-    <dialog buttons="accept,cancel">
-      <vbox>
-        <description
-          id="calendar-uri-redirect-description"
-          data-l10n-id="calendar-uri-redirect-description"
-          data-l10n-args='{"calendarName": ""}'
-        />
-        <separator />
-        <description data-l10n-id="calendar-uri-redirect-original-uri-label" />
-        <label id="originalURI" />
-        <separator />
-        <description data-l10n-id="calendar-uri-redirect-target-uri-label" />
-        <label id="targetURI" />
-        <separator />
-      </vbox>
-    </dialog>
-  </html:body>
+  <body>
+    <xul:dialog buttons="accept,cancel">
+      <p
+        id="calendar-uri-redirect-description"
+        data-l10n-id="calendar-uri-redirect-description"
+        data-l10n-args='{"calendarName": ""}'
+      ></p>
+
+      <p>
+        <span data-l10n-id="calendar-uri-redirect-original-uri-label"></span>
+        <br />
+        <span id="originalURI"></span>
+      </p>
+
+      <p>
+        <span data-l10n-id="calendar-uri-redirect-target-uri-label"></span>
+        <br />
+        <span id="targetURI"></span>
+      </p>
+    </xul:dialog>
+  </body>
 </html>
