@@ -48,6 +48,10 @@ var {
 var folder, threadedFolder;
 var tabmail = document.getElementById("tabmail");
 
+if (AppConstants.MOZ_CODE_COVERAGE) {
+  requestLongerTimeout(1);
+}
+
 /**
  * The number of messages in the thread we use to test.
  */
