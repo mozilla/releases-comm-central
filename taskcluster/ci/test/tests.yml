@@ -63,9 +63,9 @@ xpcshell:
             msix: 7200
             default:
                 by-test-platform:
-                    windows.*/opt: 5400
                     .*-ccov(-qr)?/.*: 7200
                     .*-tsan.*/opt: 7200
+                    windows.*/opt: 5400
                     default: 2700
     allow-software-gl-layers: false
     mozharness:
