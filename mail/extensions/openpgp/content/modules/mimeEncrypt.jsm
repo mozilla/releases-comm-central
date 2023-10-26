@@ -22,7 +22,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailEncryption: "chrome://openpgp/content/modules/encryption.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
-  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
@@ -54,7 +53,7 @@ function PgpMimeEncrypt(sMimeSecurityInfo) {
   this.recipients = "";
   this.bccRecipients = "";
   this.originalSubject = null;
-  this.keyMap = {};
+  this.autocryptGossipHeaders = "";
 
   try {
     if (sMimeSecurityInfo) {
@@ -316,43 +315,16 @@ PgpMimeEncrypt.prototype = {
       w += "\r\n";
     }
 
-    w += this.getAutocryptGossip() + `\r\n--${this.encHeader}\r\n`;
+    if (this.autocryptGossipHeaders) {
+      w += this.autocryptGossipHeaders;
+    }
+
+    w += `\r\n--${this.encHeader}\r\n`;
     this.appendToCryptoInput(w);
 
     if (this.mimeStructure == MIME_SIGNED) {
       this.appendToMessage(w);
     }
-  },
-
-  getAutocryptGossip() {
-    let gossip = "";
-    if (
-      (this.mimeStructure == MIME_ENCRYPTED ||
-        this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) &&
-      this.msgCompFields.hasHeader("autocrypt") &&
-      this.keyMap &&
-      lazy.EnigmailFuncs.getNumberOfRecipients(this.msgCompFields) > 1
-    ) {
-      for (let email in this.keyMap) {
-        let keyObj = lazy.EnigmailKeyRing.getKeyById(this.keyMap[email]);
-        if (keyObj) {
-          let k = keyObj.getMinimalPubKey(email);
-          if (k.exitCode === 0) {
-            let keyData =
-              " " +
-              k.keyData.replace(/(.{72})/g, "$1\r\n ").replace(/\r\n $/, "");
-            gossip +=
-              "Autocrypt-Gossip: addr=" +
-              email +
-              "; keydata=\r\n" +
-              keyData +
-              "\r\n";
-          }
-        }
-      }
-    }
-
-    return gossip;
   },
 
   encryptedHeaders(isEightBit = false) {

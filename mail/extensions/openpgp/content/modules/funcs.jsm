@@ -450,14 +450,6 @@ var EnigmailFuncs = {
   },
 
   /**
-   * Strip extended email parts such as "+xyz" from "abc+xyz@gmail.com" for known domains
-   * Currently supported domains: gmail.com, googlemail.com
-   */
-  getBaseEmail(emailAddr) {
-    return emailAddr.replace(/\+.{1,999}@(gmail|googlemail).com$/i, "");
-  },
-
-  /**
    * Get a list of all own email addresses, taken from all identities
    * and all reply-to addresses
    */
@@ -467,7 +459,7 @@ var EnigmailFuncs = {
     // Determine all sorts of own email addresses
     for (let id of MailServices.accounts.allIdentities) {
       if (id.email && id.email.length > 0) {
-        ownEmails[this.getBaseEmail(id.email.toLowerCase())] = 1;
+        ownEmails[id.email.toLowerCase()] = 1;
       }
       if (id.replyTo && id.replyTo.length > 0) {
         try {
@@ -475,7 +467,7 @@ var EnigmailFuncs = {
             .toLowerCase()
             .split(/,/);
           for (let j in replyEmails) {
-            ownEmails[this.getBaseEmail(replyEmails[j])] = 1;
+            ownEmails[replyEmails[j]] = 1;
           }
         } catch (ex) {}
       }
@@ -500,8 +492,8 @@ var EnigmailFuncs = {
     let emails = allAddr.split(/,+/);
 
     for (let i = 0; i < emails.length; i++) {
-      let r = this.getBaseEmail(emails[i]);
-      if (r.length > 0 && !(r in ownEmails)) {
+      let r = emails[i];
+      if (r && !(r in ownEmails)) {
         recipients[r] = 1;
       }
     }

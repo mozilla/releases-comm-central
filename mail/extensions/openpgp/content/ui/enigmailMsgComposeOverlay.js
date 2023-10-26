@@ -14,7 +14,6 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-
 var EnigmailCore = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
 ).EnigmailCore;
@@ -796,8 +795,12 @@ Enigmail.msg = {
     }
   },
 
-  getSecurityParams(compFields = null, doQueryInterface = false) {
+  getSecurityParams(compFields = null) {
     if (!compFields) {
+      if (!gMsgCompose) {
+        return null;
+      }
+
       compFields = gMsgCompose.compFields;
     }
 
@@ -817,7 +820,7 @@ Enigmail.msg = {
 
     // reset subject
     let p = Enigmail.msg.getSecurityParams();
-    if (EnigmailMimeEncrypt.isEnigmailCompField(p)) {
+    if (p && EnigmailMimeEncrypt.isEnigmailCompField(p)) {
       let si = p.wrappedJSObject;
       if (si.originalSubject) {
         gMsgCompose.compFields.subject = si.originalSubject;
@@ -1127,7 +1130,7 @@ Enigmail.msg = {
   /*
   preferPgpOverSmime: function(sendFlags) {
 
-    let si = Enigmail.msg.getSecurityParams(null, true);
+    let si = Enigmail.msg.getSecurityParams(null);
     let isSmime = !EnigmailMimeEncrypt.isEnigmailCompField(si);
 
     if (isSmime &&
@@ -1603,7 +1606,13 @@ Enigmail.msg = {
     return true;
   },
 
-  prepareSecurityInfo(sendFlags, uiFlags, rcpt, newSecurityInfo, keyMap = {}) {
+  prepareSecurityInfo(
+    sendFlags,
+    uiFlags,
+    rcpt,
+    newSecurityInfo,
+    autocryptGossipHeaders
+  ) {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.prepareSecurityInfo(): Using PGP/MIME, flags=" +
         sendFlags +
@@ -1640,7 +1649,7 @@ Enigmail.msg = {
     newSecurityInfo.UIFlags = uiFlags;
     newSecurityInfo.senderEmailAddr = rcpt.fromAddr;
     newSecurityInfo.bccRecipients = rcpt.bccAddrStr;
-    newSecurityInfo.keyMap = keyMap;
+    newSecurityInfo.autocryptGossipHeaders = autocryptGossipHeaders;
 
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.prepareSecurityInfo: securityInfo = " +
@@ -1782,11 +1791,12 @@ Enigmail.msg = {
 
       let toAddrStr = rcpt.toAddrList.join(", ");
       let bccAddrStr = rcpt.bccAddrList.join(", ");
-      let keyMap = {};
 
       if (gAttachMyPublicPGPKey) {
         await this.attachOwnKey(senderKeyId);
       }
+
+      let autocryptGossipHeaders = await this.getAutocryptGossip();
 
       /*
       if (this.preferPgpOverSmime(sendFlags) === 0) {
@@ -1845,7 +1855,7 @@ Enigmail.msg = {
           uiFlags,
           rcpt,
           newSecurityInfo,
-          keyMap
+          autocryptGossipHeaders
         );
         newSecurityInfo.recipients = toAddrStr;
         newSecurityInfo.bccRecipients = bccAddrStr;
@@ -2177,6 +2187,71 @@ Enigmail.msg = {
     let account = MailServices.accounts.getAccount(currentAccountKey);
 
     return account.incomingServer; /* returns nsIMsgIncomingServer */
+  },
+
+  /**
+   * Obtain all Autocrypt-Gossip header lines that should be included in
+   * the outgoing message, excluding the sender's (from) email address.
+   * If there is just one recipient (ignoring the from address),
+   * no headers will be returned.
+   *
+   * @returns {string} - All header lines including line endings,
+   *                     could be the empty string.
+   */
+  async getAutocryptGossip() {
+    let fromMail = EnigmailFuncs.stripEmail(gMsgCompose.compFields.from);
+    let replyToMail = EnigmailFuncs.stripEmail(gMsgCompose.compFields.replyTo);
+
+    let optionalReplyToGossip = "";
+    if (replyToMail != fromMail) {
+      optionalReplyToGossip = ", " + gMsgCompose.compFields.replyTo;
+    }
+
+    // Assumes that extractHeaderAddressMailboxes will separate all
+    // entries with the sequence comma-space.
+    let allEmails = MailServices.headerParser
+      .extractHeaderAddressMailboxes(
+        gMsgCompose.compFields.to +
+          ", " +
+          gMsgCompose.compFields.cc +
+          optionalReplyToGossip
+      )
+      .split(/, /);
+
+    // Use a Set to ensure we have each address only once.
+    let uniqueEmails = new Set();
+    for (let e of allEmails) {
+      uniqueEmails.add(e);
+    }
+
+    // Potentially to/cc might contain the sender email address.
+    // Remove it, if it's there.
+    uniqueEmails.delete(fromMail);
+
+    // When sending to yourself, only, allEmails.length is 0.
+    // When sending to exactly one other person (with or without
+    // "from" in to/cc), then allEmails.length is 1. In that scenario,
+    // that recipient obviously already has their own key, and doesn't
+    // need the gossip. The sender's key will be included in the
+    // separate autocrypt (non-gossip) header.
+
+    if (uniqueEmails.size < 2) {
+      return "";
+    }
+
+    let gossip = "";
+    for (const email of uniqueEmails) {
+      let k = await EnigmailKeyRing.getRecipientAutocryptKeyForEmail(email);
+      if (!k) {
+        continue;
+      }
+      let keyData =
+        " " + k.replace(/(.{72})/g, "$1\r\n ").replace(/\r\n $/, "");
+      gossip +=
+        "Autocrypt-Gossip: addr=" + email + "; keydata=\r\n" + keyData + "\r\n";
+    }
+
+    return gossip;
   },
 
   setAutocryptHeader() {
@@ -2885,7 +2960,7 @@ Enigmail.composeStateListener = {
     /*
     if (Enigmail.msg.disableSmime) {
       if (gMsgCompose && gMsgCompose.compFields && Enigmail.msg.getSecurityParams()) {
-        let si = Enigmail.msg.getSecurityParams(null, true);
+        let si = Enigmail.msg.getSecurityParams(null);
         si.signMessage = false;
         si.requireEncryptMessage = false;
       }

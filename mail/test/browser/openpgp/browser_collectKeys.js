@@ -134,8 +134,10 @@ add_task(async function testCollectAutocrypt() {
   );
   await keycollected;
 
+  const carolEmail = "carol@example.com";
+
   let db = await CollectedKeysDB.getInstance();
-  let keys = await db.findKeysForEmail("carol@example.com");
+  let keys = await db.findKeysForEmail(carolEmail);
   Assert.equal(keys.length, 1, "should find one key");
 
   let sources = keys[0].sources;
@@ -148,6 +150,65 @@ add_task(async function testCollectAutocrypt() {
     "mid:b3609461-36e8-0371-1b9d-7ce6864ec66d@example.com"
   );
   Assert.equal(source.description, undefined);
+
+  // Clean up to ensure other tests will not find this key
+  db.deleteKeysForEmail(carolEmail);
+  keys = await db.findKeysForEmail(carolEmail);
+  Assert.equal(keys.length, 0, "should find zero keys after cleanup");
+
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
+/**
+ * Test that an Autocrypt-Gossip header key is collected.
+ */
+add_task(async function testCollectAutocryptGossip() {
+  let keycollected = BrowserTestUtils.waitForEvent(window, "keycollected");
+  let keycollected2 = BrowserTestUtils.waitForEvent(window, "keycollected");
+  let keycollected3 = BrowserTestUtils.waitForEvent(window, "keycollected");
+  let opengpgprocessed = openpgpProcessed();
+  let msgc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/signed-encrypted-autocrypt-gossip.eml")
+    )
+  );
+  await opengpgprocessed;
+  let aboutMessage = get_about_message(msgc);
+
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
+    "signed icon is displayed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon is displayed"
+  );
+
+  await keycollected;
+  await keycollected2;
+  await keycollected3;
+
+  const carolEmail = "carol@example.com";
+
+  let db = await CollectedKeysDB.getInstance();
+  let keys = await db.findKeysForEmail(carolEmail);
+  Assert.equal(keys.length, 1, "should find one key");
+
+  let sources = keys[0].sources;
+  Assert.equal(sources.length, 1, "should have one source");
+  let source = sources[0];
+
+  Assert.equal(source.type, "autocrypt");
+  Assert.equal(
+    source.uri,
+    "mid:e8690528-d187-4d99-b505-9f3d6a2704ca@openpgp.example"
+  );
+  Assert.equal(source.description, undefined);
+
+  // Clean up to ensure other tests will not find this key
+  db.deleteKeysForEmail(carolEmail);
+  keys = await db.findKeysForEmail(carolEmail);
+  Assert.equal(keys.length, 0, "should find zero keys after cleanup");
 
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -192,8 +253,14 @@ add_task(async function testSkipFakeOrUnrelatedKeys() {
     "the attached key for stranger should have been ignored because stranger isn't a participant of this message"
   );
 
-  keys = await db.findKeysForEmail("bob@openpgp.example");
+  let bobEmail = "bob@openpgp.example";
+
+  keys = await db.findKeysForEmail(bobEmail);
   Assert.equal(keys.length, 1, "bob's key should have been collected");
+
+  db.deleteKeysForEmail(bobEmail);
+  keys = await db.findKeysForEmail(bobEmail);
+  Assert.equal(keys.length, 0, "should find zero keys after cleanup");
 
   await BrowserTestUtils.closeWindow(msgc);
 });

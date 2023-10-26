@@ -3297,6 +3297,31 @@ var RNP = {
     return newest_handle;
   },
 
+  /**
+   * Get a minimal Autocrypt-compatible public key, for the given key
+   * that exactly matches the given userId.
+   *
+   * @param {rnp_key_handle_t} key - RNP key handle.
+   * @param {string} uidString - The userID to include.
+   * @returns {string} The encoded key, or the empty string on failure.
+   */
+  getSuitableEncryptKeyAsAutocrypt(key, userId) {
+    // Prefer usable subkeys, because they are always newer
+    // (or same age) as primary key.
+
+    let use_sub = this.getSuitableSubkey(key, str_encrypt);
+    if (!use_sub && !this.isKeyUsableFor(key, str_encrypt)) {
+      return "";
+    }
+
+    let result = this.getAutocryptKeyB64ByHandle(key, use_sub, userId);
+
+    if (use_sub) {
+      RNPLib.rnp_key_handle_destroy(use_sub);
+    }
+    return result;
+  },
+
   addSuitableEncryptKey(key, op) {
     // Prefer usable subkeys, because they are always newer
     // (or same age) as primary key.
@@ -3329,6 +3354,47 @@ var RNP = {
       RNPLib.rnp_key_handle_destroy(key);
     }
     return true;
+  },
+
+  /**
+   * Get a minimal Autocrypt-compatible public key, for the given email
+   * address.
+   *
+   * @param {string} email - Use a userID with this email address.
+   * @returns {string} The encoded key, or the empty string on failure.
+   */
+  async getRecipientAutocryptKeyForEmail(email) {
+    email = email.toLowerCase();
+
+    let key = await this.findKeyByEmail("<" + email + ">", true);
+    if (!key || key.isNull()) {
+      return "";
+    }
+
+    let keyInfo = {};
+    let ok = this.getKeyInfoFromHandle(
+      RNPLib.ffi,
+      key,
+      keyInfo,
+      false,
+      false,
+      false
+    );
+    if (!ok) {
+      throw new Error("getKeyInfoFromHandle failed");
+    }
+
+    let result = "";
+    let userId = keyInfo.userIds.find(
+      uid =>
+        uid.type == "uid" &&
+        lazy.EnigmailFuncs.getEmailFromUserID(uid.userId).toLowerCase() == email
+    );
+    if (userId) {
+      result = this.getSuitableEncryptKeyAsAutocrypt(key, userId.userId);
+    }
+    RNPLib.rnp_key_handle_destroy(key);
+    return result;
   },
 
   async addEncryptionKeyForEmail(email, op) {
@@ -4551,14 +4617,82 @@ var RNP = {
   },
 
   /**
+   * Get a minimal Autocrypt-compatible key for the given key handles.
+   * If subkey is given, it must refer to an existing encryption subkey.
+   * This is a wrapper around RNP function rnp_key_export_autocrypt.
+   *
+   * @param {rnp_key_handle_t} primHandle - The handle of a primary key.
+   * @param {?rnp_key_handle_t} subHandle - The handle of an encryption subkey or null.
+   * @param {string} uidString - The userID to include.
+   * @returns {string} The encoded key, or the empty string on failure.
+   */
+  getAutocryptKeyB64ByHandle(primHandle, subHandle, userId) {
+    if (primHandle.isNull()) {
+      throw new Error("getAutocryptKeyB64ByHandle invalid parameter");
+    }
+
+    let output_to_memory = new RNPLib.rnp_output_t();
+    if (RNPLib.rnp_output_to_memory(output_to_memory.address(), 0)) {
+      throw new Error("rnp_output_to_memory failed");
+    }
+
+    let result = "";
+
+    if (
+      RNPLib.rnp_key_export_autocrypt(
+        primHandle,
+        subHandle,
+        userId,
+        output_to_memory,
+        0
+      )
+    ) {
+      console.debug("rnp_key_export_autocrypt failed");
+    } else {
+      let result_buf = new lazy.ctypes.uint8_t.ptr();
+      let result_len = new lazy.ctypes.size_t();
+      let rv = RNPLib.rnp_output_memory_get_buf(
+        output_to_memory,
+        result_buf.address(),
+        result_len.address(),
+        false
+      );
+
+      if (!rv) {
+        // result_len is of type UInt64, I don't know of a better way
+        // to convert it to an integer.
+        let b_len = parseInt(result_len.value.toString());
+
+        // type casting the pointer type to an array type allows us to
+        // access the elements by index.
+        let uint8_array = lazy.ctypes.cast(
+          result_buf,
+          lazy.ctypes.uint8_t.array(result_len.value).ptr
+        ).contents;
+
+        let str = "";
+        for (let i = 0; i < b_len; i++) {
+          str += String.fromCharCode(uint8_array[i]);
+        }
+
+        result = btoa(str);
+      }
+    }
+
+    RNPLib.rnp_output_destroy(output_to_memory);
+
+    return result;
+  },
+
+  /**
    * Get a minimal Autocrypt-compatible key for the given key ID.
    * If subKeyId is given, it must refer to an existing encryption subkey.
    * This is a wrapper around RNP function rnp_key_export_autocrypt.
    *
-   * @param {string} primaryKeyId - the ID of a primary key
-   * @param {?string} subKeyId - the ID of an encryption subkey or null
-   * @param {string} uidString - the ID of a primary key
-   * @returns {string} - The encoded key, or the empty string on failure.
+   * @param {string} primaryKeyId - The ID of a primary key.
+   * @param {?string} subKeyId - The ID of an encryption subkey or null.
+   * @param {string} uidString - The userID to include.
+   * @returns {string} The encoded key, or the empty string on failure.
    */
   getAutocryptKeyB64(primaryKeyId, subKeyId, uidString) {
     let subHandle = null;
@@ -4576,57 +4710,11 @@ var RNP = {
       primaryKeyId
     );
 
-    let output_to_memory = new RNPLib.rnp_output_t();
-    if (RNPLib.rnp_output_to_memory(output_to_memory.address(), 0)) {
-      throw new Error("rnp_output_to_memory failed");
-    }
-
-    let result = "";
-
-    if (!primHandle.isNull()) {
-      if (
-        RNPLib.rnp_key_export_autocrypt(
-          primHandle,
-          subHandle,
-          uidString,
-          output_to_memory,
-          0
-        )
-      ) {
-        console.debug("rnp_key_export_autocrypt failed");
-      } else {
-        let result_buf = new lazy.ctypes.uint8_t.ptr();
-        let result_len = new lazy.ctypes.size_t();
-        let rv = RNPLib.rnp_output_memory_get_buf(
-          output_to_memory,
-          result_buf.address(),
-          result_len.address(),
-          false
-        );
-
-        if (!rv) {
-          // result_len is of type UInt64, I don't know of a better way
-          // to convert it to an integer.
-          let b_len = parseInt(result_len.value.toString());
-
-          // type casting the pointer type to an array type allows us to
-          // access the elements by index.
-          let uint8_array = lazy.ctypes.cast(
-            result_buf,
-            lazy.ctypes.uint8_t.array(result_len.value).ptr
-          ).contents;
-
-          let str = "";
-          for (let i = 0; i < b_len; i++) {
-            str += String.fromCharCode(uint8_array[i]);
-          }
-
-          result = btoa(str);
-        }
-      }
-    }
-
-    RNPLib.rnp_output_destroy(output_to_memory);
+    let result = this.getAutocryptKeyB64ByHandle(
+      primHandle,
+      subHandle,
+      uidString
+    );
 
     if (!primHandle.isNull()) {
       RNPLib.rnp_key_handle_destroy(primHandle);

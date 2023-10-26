@@ -7,7 +7,6 @@ openpgp.jar:
 % content openpgp %content/openpgp/
   content/openpgp/BondOpenPGP.jsm              (content/BondOpenPGP.jsm)
   content/openpgp/modules/armor.jsm            (content/modules/armor.jsm)
-  content/openpgp/modules/autocrypt.jsm        (content/modules/autocrypt.jsm)
   content/openpgp/modules/CollectedKeysDB.jsm  (content/modules/CollectedKeysDB.jsm)
   content/openpgp/modules/constants.jsm        (content/modules/constants.jsm)
   content/openpgp/modules/core.jsm             (content/modules/core.jsm)

@@ -1637,6 +1637,11 @@ var EnigmailKeyRing = {
     return res;
   },
 
+  // Forward to RNP, to avoid that other modules depend on RNP
+  async getRecipientAutocryptKeyForEmail(email) {
+    return lazy.RNP.getRecipientAutocryptKeyForEmail(email);
+  },
+
   getAutocryptKey(keyId, email) {
     let keyObj = this.getKeyById(keyId);
     if (

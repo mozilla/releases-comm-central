@@ -20,11 +20,11 @@ var { MailServices } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
+var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.jsm",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
-  EnigmailAutocrypt: "chrome://openpgp/content/modules/autocrypt.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
@@ -2950,7 +2950,6 @@ Enigmail.msg = {
     // We have already processed all attached pgp-keys, we're ready
     // to make final decisions on how to notify the user about
     // available or missing keys.
-
     // If we already found a good key for the sender's email
     // in attachments, then don't look at the autocrypt header.
     if (Enigmail.msg.attachedSenderEmailKeysIndex.length) {
@@ -2961,21 +2960,36 @@ Enigmail.msg = {
       Enigmail.msg.savedHeaders.autocrypt.length > 0 &&
       "from" in currentHeaderData
     ) {
-      let senderAutocryptKey = EnigmailAutocrypt.getKeyFromHeader(
-        currentHeaderData.from.headerValue,
-        Enigmail.msg.savedHeaders.autocrypt
-      );
-      if (senderAutocryptKey) {
-        let keyData = EnigmailData.decodeBase64(senderAutocryptKey);
-        // Make sure to let the message load before doing potentially *very*
-        // time consuming auto processing (seconds!?).
-        await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
-        await this.commonProcessAttachedKey(keyData, true);
+      let fromAddr = EnigmailFuncs.stripEmail(
+        currentHeaderData.from.headerValue
+      ).toLowerCase();
+      // There might be multiple headers, we only want the one
+      // matching the sender's address.
+      for (let ac of Enigmail.msg.savedHeaders.autocrypt) {
+        let acAddr = MimeParser.getParameter(ac, "addr");
+        if (fromAddr == acAddr) {
+          let senderAutocryptKey;
+          try {
+            senderAutocryptKey = atob(
+              MimeParser.getParameter(ac.replace(/ /g, ""), "keydata")
+            );
+          } catch {}
+          if (senderAutocryptKey) {
+            // Make sure to let the message load before doing potentially *very*
+            // time consuming auto processing (seconds!?).
+            await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
+            await this.commonProcessAttachedKey(senderAutocryptKey, true);
 
-        if (Enigmail.msg.attachedSenderEmailKeysIndex.length) {
-          this.unhideImportKeyBox();
+            if (Enigmail.msg.attachedSenderEmailKeysIndex.length) {
+              this.unhideImportKeyBox();
+            }
+          }
         }
       }
+    }
+
+    for (let gossipKey of EnigmailSingletons.lastDecryptedMessage.gossip) {
+      await this.commonProcessAttachedKey(gossipKey, true);
     }
 
     if (this.keyCollectCandidates && this.keyCollectCandidates.size) {
