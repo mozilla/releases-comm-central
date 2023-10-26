@@ -406,29 +406,29 @@ add_task(async function test_convert_from_body_paragraph_state() {
   let secondText = "second line";
   // Plus newline break.
   let fullLength = firstText.length + 1 + secondText.length;
+  // The full first + second line as HTML, separater by a <br> tag.
+  const fullTextHTML = firstText + "<BR>" + secondText;
 
   formatHelper.focusMessage();
 
   for (let state of stateSet) {
-    let block = state.toUpperCase();
+    const block = state.toUpperCase();
 
     await formatHelper.selectParagraphState("");
     await formatHelper.typeInMessage(firstText);
     await formatHelper.typeEnterInMessage(true);
     await formatHelper.typeInMessage(secondText);
     formatHelper.assertMessageBodyContent(
-      [firstText + "<BR>" + secondText],
+      [fullTextHTML],
       `body at start (${state})`
     );
 
-    // Changing to a non-body state replaces each line with a block.
+    // Changing to a non-body state surrounds the existing text
+    // with a block.
     await formatHelper.selectTextRange(0, fullLength);
     await formatHelper.selectParagraphState(state);
     formatHelper.assertMessageBodyContent(
-      [
-        { block, content: [firstText] },
-        { block, content: [secondText] },
-      ],
+      [{ block, content: [fullTextHTML] }],
       `${state} at end`
     );
 
