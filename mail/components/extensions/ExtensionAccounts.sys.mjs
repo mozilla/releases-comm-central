@@ -231,7 +231,7 @@ export function folderPathToURI(accountId, path) {
   );
 }
 
-const folderTypeMap = new Map([
+export const folderTypeMap = new Map([
   [Ci.nsMsgFolderFlags.Inbox, "inbox"],
   [Ci.nsMsgFolderFlags.Drafts, "drafts"],
   [Ci.nsMsgFolderFlags.SentMail, "sent"],

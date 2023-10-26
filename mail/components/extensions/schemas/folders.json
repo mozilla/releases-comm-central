@@ -39,7 +39,7 @@
             "type": "array",
             "description": "Subfolders are only included if requested. They will be returned in the same order as used in Thunderbird's folder pane.",
             "items": {
-              "$ref": "MailFolder"
+              "$ref": "folders.MailFolder"
             },
             "optional": true
           },
@@ -133,9 +133,194 @@
           "junk",
           "outbox"
         ]
+      },
+      {
+        "id": "QueryRange",
+        "type": "object",
+        "description": "An object defining a range.",
+        "properties": {
+          "min": {
+            "type": "integer",
+            "optional": true,
+            "description": "The minimum value required to match the query."
+          },
+          "max": {
+            "type": "integer",
+            "optional": true,
+            "description": "The maximum value required to match the query."
+          }
+        }
       }
     ],
     "functions": [
+      {
+        "name": "query",
+        "type": "function",
+        "description": "Gets folders that match the specified properties, or all folders if no properties are specified.",
+        "async": "callback",
+        "parameters": [
+          {
+            "type": "object",
+            "name": "queryInfo",
+            "optional": true,
+            "default": {},
+            "properties": {
+              "canAddMessages": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder supports adding new messages, or not."
+              },
+              "canAddSubfolders": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder supports adding new subfolders, or not."
+              },
+              "canBeDeleted": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder can be deleted, or not."
+              },
+              "canBeRenamed": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder can be renamed, or not."
+              },
+              "canDeleteMessages": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder supports deleting messages, or not."
+              },
+              "favorite": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder is a favorite folder, or not."
+              },
+              "hasMessages": {
+                "choices": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "$ref": "QueryRange"
+                  }
+                ],
+                "optional": true,
+                "description": "Whether the folder (excluding subfolders) contains messages, or not. Supports to specify a :ref:`folders.QueryRange` (min/max) instead of a simple boolean value (none/some)."
+              },
+              "hasUnreadMessages": {
+                "choices": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "$ref": "QueryRange"
+                  }
+                ],
+                "optional": true,
+                "description": "Whether the folder (excluding subfolders) contains unread messages, or not. Supports to specify a :ref:`folders.QueryRange` (min/max) instead of a simple boolean value (none/some)."
+              },
+              "hasNewMessages": {
+                "choices": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "$ref": "QueryRange"
+                  }
+                ],
+                "optional": true,
+                "description": "Whether the folder (excluding subfolders) contains new messages, or not. Supports to specify a :ref:`folders.QueryRange` (min/max) instead of a simple boolean value (none/some)."
+              },
+              "hasSubFolders": {
+                "choices": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "$ref": "QueryRange"
+                  }
+                ],
+                "optional": true,
+                "description": "Whether the folder has subfolders, or not. Supports to specify a :ref:`folders.QueryRange` (min/max) instead of a simple boolean value (none/some)."
+              },
+              "mostRecent": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder (excluding subfolders) has been used within the last month. The returned folders will be sorted by their recentness and limited to the most recent ones, which is controlled by the <value>mail.folder_widget.max_recent</value> preference. A value of <value>false</value> is ignored."
+              },
+              "name": {
+                "choices": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "regexp": {
+                        "type": "string",
+                        "description": "A regular expression, for example <value>^Projects \\d{4}$</value>"
+                      },
+                      "flags": {
+                        "type": "string",
+                        "enum": ["i", "u", "v"],
+                        "description": "RegExp Flags: <value>i</value> = case insensitive, <value>u</value> & <value>v</value> = unicode support",
+                        "optional": true
+                      }
+                    }
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "optional": true,
+                "description": "Return only folders whose name is matched by the provided string or regular expression."
+              },
+              "parent": {
+                "choices": [
+                  {
+                    "$ref": "folders.MailFolder"
+                  },
+                  {
+                    "$ref": "accounts.MailAccount"
+                  }
+                ],
+                "optional": true,
+                "description": "Limits the search to the specified parent folder or account."
+              },
+              "recent": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder (excluding subfolders) has been used within the last month, or not. The returned folders will be sorted by their recentness. Ignored if <value>mostRecent</value> is specified."
+              },
+              "type": {
+                "choices": [
+                  {
+                    "$ref": "folders.MailFolderType"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "folders.MailFolderType"
+                    }
+                  }
+                ],
+                "optional": true,
+                "description": "Match only folders of the specified type or types."
+              }
+            }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolder"
+                }
+              }
+            ]
+          }
+        ]
+      },
       {
         "name": "create",
         "type": "function",

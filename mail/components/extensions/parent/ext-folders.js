@@ -2,16 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "MailServices",
-  "resource:///modules/MailServices.jsm"
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  FolderUtils: "resource:///modules/FolderUtils.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+});
+
 ChromeUtils.defineESModuleGetters(this, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
 });
-var { CachedFolder, folderPathToURI, folderURIToPath, getFolder } =
-  ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
+var {
+  CachedFolder,
+  folderPathToURI,
+  folderURIToPath,
+  getFolder,
+  folderTypeMap,
+} = ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
 
 /**
  * Tracks folder events.
@@ -528,6 +537,212 @@ this.folders = class extends ExtensionAPIPersistent {
           event: "onFolderInfoChanged",
           extensionApi: this,
         }).api(),
+        async query(queryInfo) {
+          // Generator function to flatten the folder structure.
+          function* getFlatFolderStructure(folder, isSubFolder) {
+            if (isSubFolder && !folder.isServer) {
+              yield folder;
+            }
+            if (folder.hasSubFolders) {
+              for (let subFolder of folder.subFolders) {
+                yield* getFlatFolderStructure(subFolder, true);
+              }
+            }
+          }
+
+          // Evaluate query properties which can be specified as boolean
+          // (none/some) or integer (min/max).
+          function matchBooleanOrQueryRange(query, valueCallback) {
+            if (query == null) {
+              return true;
+            }
+            let value = valueCallback();
+
+            if (typeof query == "boolean") {
+              return query == (value != 0);
+            }
+            // If not a boolean, it is an object with min and max members.
+            if (query.min != null && value < query.min) {
+              return false;
+            }
+            if (query.max != null && value > query.max) {
+              return false;
+            }
+            return true;
+          }
+
+          // Prepare folders, which are to be searched.
+          let parentFolders = [];
+          if (queryInfo.parent) {
+            let { folder } = getFolder(queryInfo.parent);
+            if (!folder) {
+              throw new ExtensionError(
+                `Folder not found: ${JSON.stringify(queryInfo.parent)}`
+              );
+            }
+            parentFolders.push(folder);
+          } else {
+            for (let account of MailServices.accounts.accounts) {
+              parentFolders.push(account.incomingServer.rootFolder);
+            }
+          }
+
+          // Prepare type flags.
+          let typeFlags = [];
+          if (queryInfo.type) {
+            let types = Array.isArray(queryInfo.type)
+              ? queryInfo.type
+              : [queryInfo.type];
+            typeFlags = [...folderTypeMap.entries()]
+              .filter(([typeFlag, typeName]) => types.includes(typeName))
+              .map(([typeFlag, typeName]) => typeFlag);
+          }
+
+          // Prepare regular expression.
+          let nameRegExp;
+          if (queryInfo.name != null && queryInfo.name.regexp) {
+            try {
+              nameRegExp = new RegExp(
+                queryInfo.name.regexp,
+                queryInfo.name.flags
+              );
+            } catch (ex) {
+              throw new ExtensionError(
+                `Invalid Regular Expression: ${JSON.stringify(queryInfo.name)}`
+              );
+            }
+          }
+
+          let foundFolders = [];
+          for (let parentFolder of parentFolders) {
+            for (let folder of getFlatFolderStructure(parentFolder)) {
+              // Apply search criteria.
+
+              if (queryInfo.favorite != null) {
+                if (
+                  queryInfo.favorite !=
+                  !!folder.getFlag(Ci.nsMsgFolderFlags.Favorite)
+                ) {
+                  continue;
+                }
+              }
+
+              if (typeFlags.length > 0) {
+                let flags = folder.flags;
+                if (!typeFlags.find(typeFlag => flags & typeFlag)) {
+                  continue;
+                }
+              }
+
+              if (
+                !matchBooleanOrQueryRange(queryInfo.hasMessages, () =>
+                  folder.getTotalMessages(false)
+                )
+              ) {
+                continue;
+              }
+
+              if (
+                !matchBooleanOrQueryRange(
+                  queryInfo.hasNewMessages,
+                  () => folder.msgDatabase.getNewList().length
+                )
+              ) {
+                continue;
+              }
+
+              if (
+                !matchBooleanOrQueryRange(queryInfo.hasUnreadMessages, () =>
+                  folder.getNumUnread(false)
+                )
+              ) {
+                continue;
+              }
+
+              if (
+                !matchBooleanOrQueryRange(
+                  queryInfo.hasSubFolders,
+                  () => folder.subFolders?.length || 0
+                )
+              ) {
+                continue;
+              }
+
+              if (
+                queryInfo.canAddMessages != null &&
+                queryInfo.canAddMessages != folder.canFileMessages
+              ) {
+                continue;
+              }
+
+              if (
+                queryInfo.canAddSubfolders != null &&
+                queryInfo.canAddSubfolders != folder.canCreateSubfolders
+              ) {
+                continue;
+              }
+
+              if (
+                queryInfo.canBeDeleted != null &&
+                queryInfo.canBeDeleted != folder.deletable
+              ) {
+                continue;
+              }
+
+              if (
+                queryInfo.canBeRenamed != null &&
+                queryInfo.canBeRenamed != folder.canRename
+              ) {
+                continue;
+              }
+
+              if (
+                queryInfo.canDeleteMessages != null &&
+                queryInfo.canDeleteMessages != folder.canDeleteMessages
+              ) {
+                continue;
+              }
+
+              if (nameRegExp) {
+                if (!nameRegExp.test(folder.prettyName)) {
+                  continue;
+                }
+              } else if (
+                queryInfo.name &&
+                queryInfo.name != folder.prettyName
+              ) {
+                continue;
+              }
+
+              foundFolders.push(folder);
+            }
+          }
+
+          if (queryInfo.mostRecent) {
+            foundFolders = FolderUtils.getMostRecentFolders(
+              foundFolders,
+              Services.prefs.getIntPref("mail.folder_widget.max_recent"),
+              "MRUTime"
+            );
+          } else if (queryInfo.recent != null) {
+            let recentFolders = FolderUtils.getMostRecentFolders(
+              foundFolders,
+              Infinity,
+              "MRUTime"
+            );
+            if (queryInfo.recent) {
+              foundFolders = recentFolders;
+            } else {
+              foundFolders = foundFolders.filter(
+                x => !recentFolders.includes(x)
+              );
+            }
+          }
+
+          return foundFolders.map(folder =>
+            context.extension.folderManager.convert(folder)
+          );
+        },
         async create(parent, childName) {
           // The schema file allows parent to be either a MailFolder or a
           // MailAccount.

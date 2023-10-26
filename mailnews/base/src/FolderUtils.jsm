@@ -212,7 +212,10 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
     if (recentFolders.length == aMaxHits) {
       recentFolders.sort((a, b) => a.time < b.time);
       recentFolders.pop();
-      oldestTime = recentFolders[recentFolders.length - 1].time;
+      oldestTime =
+        recentFolders.length > 0
+          ? recentFolders[recentFolders.length - 1].time
+          : 0;
     }
     recentFolders.push({ folder: aFolder, time });
   }
