@@ -669,6 +669,23 @@ this.folders = class extends ExtensionAPIPersistent {
             await deletedPromise;
           }
         },
+        async update({ accountId, path }, updateProperties) {
+          let { folder } = getFolder({ accountId, path });
+
+          if (!folder.parent) {
+            throw new ExtensionError(
+              `folders.update() failed, cannot update account root: ${path}`
+            );
+          }
+
+          if (updateProperties.favorite != null) {
+            if (updateProperties.favorite) {
+              folder.setFlag(Ci.nsMsgFolderFlags.Favorite);
+            } else {
+              folder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+            }
+          }
+        },
         async getFolderInfo({ accountId, path }) {
           let { folder } = getFolder({ accountId, path });
 
@@ -718,6 +735,17 @@ this.folders = class extends ExtensionAPIPersistent {
             }
           }
           return subFolders;
+        },
+        markAsRead({ accountId, path }) {
+          let { folder } = getFolder({ accountId, path });
+
+          if (!folder.parent) {
+            throw new ExtensionError(
+              `folders.markAsRead() failed, cannot mark account root as read: ${path}`
+            );
+          }
+
+          folder.markAllMessagesRead(null);
         },
       },
     };

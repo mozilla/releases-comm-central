@@ -244,6 +244,31 @@
         ]
       },
       {
+        "name": "update",
+        "permissions": ["accountsFolders"],
+        "type": "function",
+        "description": "Updates properties of a folder.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "folder",
+            "$ref": "folders.MailFolder"
+          },
+          {
+            "name": "updateProperties",
+            "type": "object",
+            "description": "The properties to update.",
+            "properties": {
+              "favorite": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Sets or clears the favorite status."
+              }
+            }
+          }
+        ]
+      },
+      {
         "name": "getFolderInfo",
         "type": "function",
         "description": "Get additional information about a mail folder.",
@@ -333,6 +358,19 @@
                 }
               }
             ]
+          }
+        ]
+      },
+      {
+        "name": "markAsRead",
+        "permissions": ["accountsFolders"],
+        "type": "function",
+        "description": "Marks all messages in a folder as read.",
+        "async": false,
+        "parameters": [
+          {
+            "name": "folder",
+            "$ref": "folders.MailFolder"
           }
         ]
       }

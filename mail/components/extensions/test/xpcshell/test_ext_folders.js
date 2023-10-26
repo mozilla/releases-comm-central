@@ -474,8 +474,11 @@ add_task(async function test_getFolderInfo() {
       let onFolderInfoChangedPromise = window.waitForEvent(
         "folders.onFolderInfoChanged"
       );
-      await window.sendMessage("markAllAsRead");
-      await window.sendMessage("setFavorite", true);
+      await browser.folders.update(InfoTestFolder, {
+        favorite: true,
+      });
+      await browser.folders.markAsRead(InfoTestFolder);
+
       let [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
       window.assertDeepEqual(
         { unreadMessageCount: 0, favorite: true },
@@ -493,7 +496,7 @@ add_task(async function test_getFolderInfo() {
       onFolderInfoChangedPromise = window.waitForEvent(
         "folders.onFolderInfoChanged"
       );
-      await window.sendMessage("setFavorite", false);
+      await browser.folders.update(InfoTestFolder, { favorite: false });
       [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
       window.assertDeepEqual({ favorite: false }, mailFolderInfo);
       browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
@@ -526,26 +529,12 @@ add_task(async function test_getFolderInfo() {
   );
   await createMessages(InfoTestFolder, 12);
 
-  extension.onMessage("markAllAsRead", () => {
-    InfoTestFolder.markAllMessagesRead(null);
-    extension.sendMessage();
-  });
-
   extension.onMessage("markSomeAsUnread", count => {
     let messages = InfoTestFolder.messages;
     while (messages.hasMoreElements() && count > 0) {
       let msg = messages.getNext();
       msg.markRead(false);
       count--;
-    }
-    extension.sendMessage();
-  });
-
-  extension.onMessage("setFavorite", value => {
-    if (value) {
-      InfoTestFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
-    } else {
-      InfoTestFolder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
     }
     extension.sendMessage();
   });
