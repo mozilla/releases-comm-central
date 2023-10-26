@@ -36,6 +36,7 @@ function GlodaSyntheticView(aArgs) {
     this.query = this.collection.query;
     this.completed = false;
     this.viewType = "conversation";
+    this.selectedMessage = aArgs.message.folderMessage;
   } else {
     throw new Error("You need to pass a query or collection");
   }
