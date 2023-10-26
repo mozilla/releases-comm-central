@@ -6059,17 +6059,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       let ariaLabelPromises = [];
 
       const propertiesSet = new Set(properties.value.split(" "));
-
-      if (propertiesSet.has("dummy")) {
-        const cell = this.querySelector(".subjectcol-column");
-        const textIndex = textColumns.indexOf("subjectCol");
-        const label = cellTexts[textIndex];
-        const span = cell.querySelector(".subject-line span");
-        cell.title = span.textContent = label;
-        this.setAttribute("aria-label", label);
-        this.dataset.properties = "dummy";
-        return;
-      }
+      const isDummyRow = propertiesSet.has("dummy");
 
       this.dataset.properties = properties.value.trim();
 
@@ -6094,7 +6084,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
           let imageFluentID = this.#getMessageIndicatorString(propertiesSet);
           const image = div.querySelector("img");
-          if (imageFluentID) {
+          if (imageFluentID && !isDummyRow) {
             document.l10n.setAttributes(image, imageFluentID);
           } else {
             image.removeAttribute("data-l10n-id");
@@ -6182,6 +6172,10 @@ customElements.whenDefined("tree-view-table-row").then(() => {
         }
 
         if (textIndex >= 0) {
+          if (isDummyRow) {
+            cell.textContent = "";
+            continue;
+          }
           cell.textContent = cellTexts[textIndex];
           ariaLabelPromises.push(cellTexts[textIndex]);
         }
