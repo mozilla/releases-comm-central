@@ -20,7 +20,7 @@ function assertItemsEqual(got, expected) {
   Assert.equal(got.length, expected.length);
   for (let i = 0; i < expected.length; i++) {
     // Only check fields in expected. Means testdata can exclude "description" and other bulky fields.
-    for (let k of Object.keys(expected[i])) {
+    for (const k of Object.keys(expected[i])) {
       Assert.equal(got[i][k], expected[i][k]);
     }
   }
@@ -29,23 +29,23 @@ function assertItemsEqual(got, expected) {
 // Test the rss1 feed parser
 add_task(async function test_rss1() {
   // Boilerplate.
-  let account = FeedUtils.createRssAccount("test_rss1");
-  let rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+  const account = FeedUtils.createRssAccount("test_rss1");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
   );
-  let folder = rootFolder.createLocalSubfolder("folderofeeds");
+  const folder = rootFolder.createLocalSubfolder("folderofeeds");
 
   // These two files yield the same feed, but the second one has a sabotaged
   // <items> to simulate badly-encoded feeds seen in the wild.
-  for (let testFile of [
+  for (const testFile of [
     "resources/rss_7_1.rdf",
     "resources/rss_7_1_BORKED.rdf",
   ]) {
     dump(`checking ${testFile}\n`);
     // Would be nicer to use the test http server to fetch the file, but that
     // would involve XMLHTTPRequest. This is more concise.
-    let doc = await do_parse_document(testFile, "application/xml");
-    let feed = new Feed(
+    const doc = await do_parse_document(testFile, "application/xml");
+    const feed = new Feed(
       "https://www.w3.org/2000/10/rdf-tests/RSS_1.0/rss_7_1.rdf",
       folder
     );
@@ -53,8 +53,8 @@ add_task(async function test_rss1() {
     feed.onParseError = function (f) {
       throw new Error("PARSE ERROR");
     };
-    let parser = new FeedParser();
-    let items = parser.parseAsRSS1(feed, doc);
+    const parser = new FeedParser();
+    const items = parser.parseAsRSS1(feed, doc);
 
     // Check some channel details.
     Assert.equal(feed.title, "XML.com");
@@ -78,15 +78,15 @@ add_task(async function test_rss1() {
 // Mainly checking that it doesn't crash and that the right feed parser is used.
 add_task(async function test_download() {
   // Boilerplate
-  let account = FeedUtils.createRssAccount("test_feed_download");
-  let rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+  const account = FeedUtils.createRssAccount("test_feed_download");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
   );
 
   // load & parse example rss feed
   // Feed object rejects anything other than http and https, so we're
   // running a local http server for testing (see head_feeds.js for it).
-  let feedTests = [
+  const feedTests = [
     {
       url: "http://localhost:" + SERVER_PORT + "/rss_7_1.rdf",
       feedType: "RSS_1.xRDF",
@@ -111,13 +111,13 @@ add_task(async function test_download() {
   ];
 
   let n = 1;
-  for (let test of feedTests) {
-    let folder = rootFolder.createLocalSubfolder("feed" + n);
+  for (const test of feedTests) {
+    const folder = rootFolder.createLocalSubfolder("feed" + n);
     n++;
-    let feed = new Feed(test.url, folder);
+    const feed = new Feed(test.url, folder);
 
-    let dl = new Promise(function (resolve, reject) {
-      let cb = {
+    const dl = new Promise(function (resolve, reject) {
+      const cb = {
         downloaded(f, error, disable) {
           if (error != FeedUtils.kNewsBlogSuccess) {
             reject(
@@ -129,7 +129,7 @@ add_task(async function test_download() {
           Assert.equal(feed.mFeedType, test.feedType, "feed type matching");
           Assert.equal(feed.title, test.title, "title matching");
           // Make sure we're got the expected number of messages in the folder.
-          let cnt = [...folder.messages].length;
+          const cnt = [...folder.messages].length;
           Assert.equal(cnt, test.expectedItems, "itemcount matching");
 
           resolve();

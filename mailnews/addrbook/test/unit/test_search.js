@@ -11,17 +11,17 @@ const { getModelQuery, generateQueryURI } = ChromeUtils.import(
 const jsonFile = do_get_file("data/ldap_contacts.json");
 
 add_task(async () => {
-  let contacts = await IOUtils.readJSON(jsonFile.path);
+  const contacts = await IOUtils.readJSON(jsonFile.path);
 
-  let dirPrefId = MailServices.ab.newAddressBook(
+  const dirPrefId = MailServices.ab.newAddressBook(
     "new book",
     "",
     Ci.nsIAbManager.JS_DIRECTORY_TYPE
   );
-  let book = MailServices.ab.getDirectoryFromId(dirPrefId);
+  const book = MailServices.ab.getDirectoryFromId(dirPrefId);
 
-  for (let [name, { attributes }] of Object.entries(contacts)) {
-    let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+  for (const [name, { attributes }] of Object.entries(contacts)) {
+    const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
       Ci.nsIAbCard
     );
     card.displayName = attributes.cn;
@@ -31,9 +31,9 @@ add_task(async () => {
     contacts[name] = book.addCard(card);
   }
 
-  let doSearch = async function (searchString, ...expectedContacts) {
-    let foundCards = await new Promise(resolve => {
-      let listener = {
+  const doSearch = async function (searchString, ...expectedContacts) {
+    const foundCards = await new Promise(resolve => {
+      const listener = {
         cards: [],
         onSearchFoundCard(card) {
           this.cards.push(card);
@@ -46,14 +46,14 @@ add_task(async () => {
     });
 
     Assert.equal(foundCards.length, expectedContacts.length);
-    for (let name of expectedContacts) {
+    for (const name of expectedContacts) {
       Assert.ok(foundCards.find(c => c.equals(contacts[name])));
     }
   };
 
   await doSearch("(DisplayName,c,watson)", "john", "mary");
 
-  let modelQuery = getModelQuery("mail.addr_book.autocompletequery.format");
+  const modelQuery = getModelQuery("mail.addr_book.autocompletequery.format");
   await doSearch(
     generateQueryURI(modelQuery, ["holmes"]),
     "eurus",

@@ -143,7 +143,7 @@ var MsgUtils = {
       flags |= Ci.nsIDocumentEncoder.OutputFormatFlowed;
     }
 
-    let parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
+    const parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
       Ci.nsIParserUtils
     );
     return parserUtils.convertToPlainText(input, flags, wrapWidth);
@@ -158,15 +158,15 @@ var MsgUtils = {
   getDefaultCustomHeaders(userIdentity) {
     // mail.identity.<id#>.headers pref is a comma separated value of pref names
     // containing headers to add headers are stored in
-    let headerAttributes = userIdentity
+    const headerAttributes = userIdentity
       .getUnicharAttribute("headers")
       .split(",");
-    let headers = [];
-    for (let attr of headerAttributes) {
+    const headers = [];
+    for (const attr of headerAttributes) {
       // mail.identity.<id#>.header.<header name> grab all the headers
-      let attrValue = userIdentity.getUnicharAttribute(`header.${attr}`);
+      const attrValue = userIdentity.getUnicharAttribute(`header.${attr}`);
       if (attrValue) {
-        let colonIndex = attrValue.indexOf(":");
+        const colonIndex = attrValue.indexOf(":");
         headers.push({
           headerName: attrValue.slice(0, colonIndex),
           headerValue: attrValue.slice(colonIndex + 1).trim(),
@@ -194,7 +194,7 @@ var MsgUtils = {
         useDefaultFcc = false;
         fcc = "";
       } else {
-        let folder = MailUtils.getExistingFolder(compFields.fcc);
+        const folder = MailUtils.getExistingFolder(compFields.fcc);
         if (folder) {
           useDefaultFcc = false;
           fcc = compFields.fcc;
@@ -237,7 +237,7 @@ var MsgUtils = {
           );
         }
         if (msgHdr) {
-          let folder = msgHdr.folder;
+          const folder = msgHdr.folder;
           if (
             folder &&
             folder.canFileMessages &&
@@ -252,7 +252,7 @@ var MsgUtils = {
       }
 
       if (useDefaultFcc) {
-        let uri = this.getMsgFolderURIFromPrefs(
+        const uri = this.getMsgFolderURIFromPrefs(
           userIdentity,
           Ci.nsIMsgSend.nsMsgDeliverNow
         );
@@ -264,7 +264,7 @@ var MsgUtils = {
   },
 
   canSaveToFolder(folderUri) {
-    let folder = MailUtils.getOrCreateFolder(folderUri);
+    const folder = MailUtils.getOrCreateFolder(folderUri);
     if (folder.server) {
       return folder.server.canFileMessagesOnServer;
     }
@@ -282,7 +282,7 @@ var MsgUtils = {
    */
   getUndisclosedRecipients(compFields, deliverMode) {
     // Newsgroups count as recipients.
-    let hasDisclosedRecipient =
+    const hasDisclosedRecipient =
       compFields.to || compFields.cc || compFields.newsgroups;
     // If we are saving the message as a draft, don't bother inserting the
     // undisclosed recipients field. We'll take care of that when we really send
@@ -298,13 +298,13 @@ var MsgUtils = {
     ) {
       return "";
     }
-    let composeBundle = Services.strings.createBundle(
+    const composeBundle = Services.strings.createBundle(
       "chrome://messenger/locale/messengercompose/composeMsgs.properties"
     );
-    let undisclosedRecipients = composeBundle.GetStringFromName(
+    const undisclosedRecipients = composeBundle.GetStringFromName(
       "undisclosedRecipients"
     );
-    let recipients = MailServices.headerParser.makeGroupObject(
+    const recipients = MailServices.headerParser.makeGroupObject(
       undisclosedRecipients,
       []
     );
@@ -320,7 +320,7 @@ var MsgUtils = {
    * @returns {string}
    */
   getMailFollowupToHeader(compFields, userIdentity) {
-    let mailLists = userIdentity.getUnicharAttribute(
+    const mailLists = userIdentity.getUnicharAttribute(
       "subscribed_mailing_lists"
     );
     if (!mailLists || !(compFields.to || compFields.cc)) {
@@ -334,9 +334,9 @@ var MsgUtils = {
     } else {
       recipients = compFields.cc;
     }
-    let recipientsDedup =
+    const recipientsDedup =
       MailServices.headerParser.removeDuplicateAddresses(recipients);
-    let recipientsWithoutMailList =
+    const recipientsWithoutMailList =
       MailServices.headerParser.removeDuplicateAddresses(
         recipientsDedup,
         mailLists
@@ -356,7 +356,7 @@ var MsgUtils = {
    * @returns {string}
    */
   getMailReplyToHeader(compFields, userIdentity) {
-    let mailLists = userIdentity.getUnicharAttribute(
+    const mailLists = userIdentity.getUnicharAttribute(
       "replyto_mangling_mailing_lists"
     );
     if (
@@ -374,9 +374,9 @@ var MsgUtils = {
     } else {
       recipients = compFields.cc;
     }
-    let recipientsDedup =
+    const recipientsDedup =
       MailServices.headerParser.removeDuplicateAddresses(recipients);
-    let recipientsWithoutMailList =
+    const recipientsWithoutMailList =
       MailServices.headerParser.removeDuplicateAddresses(
         recipientsDedup,
         mailLists
@@ -394,8 +394,8 @@ var MsgUtils = {
    * @returns {string}
    */
   getXMozillaDraftInfo(compFields) {
-    let getCompField = (property, key) => {
-      let value = compFields[property] ? 1 : 0;
+    const getCompField = (property, key) => {
+      const value = compFields[property] ? 1 : 0;
       return `${key}=${value}; `;
     };
     let draftInfo = "internal/draft; ";
@@ -617,11 +617,11 @@ var MsgUtils = {
     // The References header should be kept under 998 characters: if it's too
     // long, trim out the earliest references to make it smaller.
     let newReferences = "";
-    let firstRef = references.indexOf("<");
-    let secondRef = references.indexOf("<", firstRef + 1);
+    const firstRef = references.indexOf("<");
+    const secondRef = references.indexOf("<", firstRef + 1);
     if (secondRef > 0) {
       newReferences = references.slice(0, secondRef);
-      let bracket = references.indexOf(
+      const bracket = references.indexOf(
         "<",
         references.length + newReferences.length - 986
       );
@@ -640,7 +640,7 @@ var MsgUtils = {
    */
   getInReplyTo(references) {
     // The In-Reply-To header is the last entry in the references header...
-    let bracket = references.lastIndexOf("<");
+    const bracket = references.lastIndexOf("<");
     if (bracket >= 0) {
       return references.slice(bracket);
     }
@@ -655,11 +655,11 @@ var MsgUtils = {
    * @returns {{newsgroups: string, newshost: string}}
    */
   getNewsgroups(deliverMode, newsgroups) {
-    let nntpService = Cc["@mozilla.org/messenger/nntpservice;1"].getService(
+    const nntpService = Cc["@mozilla.org/messenger/nntpservice;1"].getService(
       Ci.nsINntpService
     );
-    let newsgroupsHeaderVal = {};
-    let newshostHeaderVal = {};
+    const newsgroupsHeaderVal = {};
+    const newshostHeaderVal = {};
     nntpService.generateNewsHeaderValsForPosting(
       newsgroups,
       newsgroupsHeaderVal,
@@ -693,7 +693,7 @@ var MsgUtils = {
    * @returns {string}
    */
   getContentLocation(baseUrl) {
-    let lowerBaseUrl = baseUrl.toLowerCase();
+    const lowerBaseUrl = baseUrl.toLowerCase();
     if (
       !baseUrl.includes(":") ||
       lowerBaseUrl.startsWith("news:") ||
@@ -704,14 +704,14 @@ var MsgUtils = {
     ) {
       return "";
     }
-    let transformMap = {
+    const transformMap = {
       " ": "%20",
       "\t": "%09",
       "\n": "%0A",
       "\r": "%0D",
     };
     let value = "";
-    for (let char of baseUrl) {
+    for (const char of baseUrl) {
       value += transformMap[char] || char;
     }
     return value;
@@ -722,10 +722,10 @@ var MsgUtils = {
    * purposes.
    */
   makeFilenameQtext(srcText, stripCRLFs) {
-    let size = srcText.length;
+    const size = srcText.length;
     let ret = "";
     for (let i = 0; i < size; i++) {
-      let char = srcText.charAt(i);
+      const char = srcText.charAt(i);
       if (
         char == "\\" ||
         char == '"' ||
@@ -759,11 +759,11 @@ var MsgUtils = {
    * @returns {string}
    */
   rfc2047EncodeParam(value) {
-    let converter = Cc["@mozilla.org/messenger/mimeconverter;1"].getService(
+    const converter = Cc["@mozilla.org/messenger/mimeconverter;1"].getService(
       Ci.nsIMimeConverter
     );
 
-    let encoded = converter.encodeMimePartIIStr_UTF8(
+    const encoded = converter.encodeMimePartIIStr_UTF8(
       value,
       false,
       0,
@@ -786,7 +786,7 @@ var MsgUtils = {
     const PR_MAX_FOLDING_LEN = 75;
 
     let needsEscape = false;
-    let encoder = new TextEncoder();
+    const encoder = new TextEncoder();
     let dupParamValue = jsmime.mimeutils.typedArrayToString(
       encoder.encode(paramValue)
     );
@@ -887,7 +887,7 @@ var MsgUtils = {
       deliverMode == Ci.nsIMsgSend.nsMsgQueueForLater ||
       deliverMode == Ci.nsIMsgSend.nsMsgDeliverBackground
     ) {
-      let uri = Services.prefs.getCharPref("mail.default_sendlater_uri");
+      const uri = Services.prefs.getCharPref("mail.default_sendlater_uri");
       // check if uri is unescaped, and if so, escape it and reset the pef.
       if (!uri) {
         return "anyfolder://";
@@ -915,7 +915,7 @@ var MsgUtils = {
    * @returns {string}
    */
   getErrorStringName(exitCode) {
-    let codeNameMap = {
+    const codeNameMap = {
       [this.NS_MSG_UNABLE_TO_OPEN_FILE]: "unableToOpenFile",
       [this.NS_MSG_UNABLE_TO_OPEN_TMP_FILE]: "unableToOpenTmpFile",
       [this.NS_MSG_UNABLE_TO_SAVE_TEMPLATE]: "unableToSaveTemplate",
@@ -980,8 +980,8 @@ var MsgUtils = {
    * @returns {string}
    */
   formatStringWithSMTPHostName(userIdentity, composeBundle, errorName) {
-    let smtpServer = MailServices.smtp.getServerByIdentity(userIdentity);
-    let smtpHostname = smtpServer.hostname;
+    const smtpServer = MailServices.smtp.getServerByIdentity(userIdentity);
+    const smtpHostname = smtpServer.hostname;
     return composeBundle.formatStringFromName(errorName, [smtpHostname]);
   },
 
@@ -992,7 +992,7 @@ var MsgUtils = {
    * @returns {string}
    */
   randomString(size) {
-    let length = Math.round((size * 3) / 4);
+    const length = Math.round((size * 3) / 4);
     return btoa(
       String.fromCharCode(
         ...[...Array(length)].map(() => Math.floor(Math.random() * 256))
@@ -1010,7 +1010,7 @@ var MsgUtils = {
    * @returns {string}
    */
   makeContentId(userIdentity, partNum) {
-    let domain = userIdentity.email.split("@")[1];
+    const domain = userIdentity.email.split("@")[1];
     return `part${partNum}.${this.randomString(8)}.${this.randomString(
       8
     )}@${domain}`;
@@ -1028,11 +1028,11 @@ var MsgUtils = {
       return "";
     }
     if (/^data:/i.test(url)) {
-      let matches = /filename=(.*);/.exec(url);
+      const matches = /filename=(.*);/.exec(url);
       if (matches && matches[1]) {
         return decodeURIComponent(matches[1]);
       }
-      let mimeType = url.slice(5, url.indexOf(";"));
+      const mimeType = url.slice(5, url.indexOf(";"));
       let extname = "";
       try {
         extname = Cc["@mozilla.org/mime;1"]

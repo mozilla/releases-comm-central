@@ -96,7 +96,7 @@ class MessageSend {
       originalMsgURI,
       compType
     );
-    let { embeddedAttachments, embeddedObjects } =
+    const { embeddedAttachments, embeddedObjects } =
       this._gatherEmbeddedAttachments(editor);
 
     let bodyText = this._getBodyFromEditor(editor) || body;
@@ -232,14 +232,14 @@ class MessageSend {
 
     // Initialize the error reporting mechanism.
     this.sendReport.reset();
-    let deliverMode = isDraft
+    const deliverMode = isDraft
       ? Ci.nsIMsgSend.nsMsgSaveAsDraft
       : Ci.nsIMsgSend.nsMsgDeliverNow;
     this.sendReport.deliveryMode = deliverMode;
 
     // Convert nsIMsgAttachedFile[] to nsIMsgAttachment[]
-    for (let file of attachedFiles) {
-      let attachment = Cc[
+    for (const file of attachedFiles) {
+      const attachment = Cc[
         "@mozilla.org/messengercompose/attachment;1"
       ].createInstance(Ci.nsIMsgAttachment);
       attachment.name = file.realName;
@@ -249,8 +249,8 @@ class MessageSend {
     }
 
     // Convert nsIMsgEmbeddedImageData[] to nsIMsgAttachment[]
-    let embeddedAttachments = embeddedObjects.map(obj => {
-      let attachment = Cc[
+    const embeddedAttachments = embeddedObjects.map(obj => {
+      const attachment = Cc[
         "@mozilla.org/messengercompose/attachment;1"
       ].createInstance(Ci.nsIMsgAttachment);
       attachment.name = obj.name;
@@ -399,7 +399,7 @@ class MessageSend {
     this._msgCopy = null;
 
     if (!this._isRetry) {
-      let statusMsgEntry = Components.isSuccessCode(status)
+      const statusMsgEntry = Components.isSuccessCode(status)
         ? "copyMessageComplete"
         : "copyMessageFailed";
       this._setStatusMessage(
@@ -414,16 +414,16 @@ class MessageSend {
     }
 
     if (!Components.isSuccessCode(status)) {
-      let localFoldersAccountName =
+      const localFoldersAccountName =
         MailServices.accounts.localFoldersServer.prettyName;
-      let folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
-      let accountName = folder?.server.prettyName;
+      const folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
+      const accountName = folder?.server.prettyName;
       if (!this._fcc || !localFoldersAccountName || !accountName) {
         this.fail(Cr.NS_OK, null);
         return;
       }
 
-      let params = [folder.name, accountName, localFoldersAccountName];
+      const params = [folder.name, accountName, localFoldersAccountName];
       let promptMsg;
       switch (this._deliverMode) {
         case Ci.nsIMsgSend.nsMsgDeliverNow:
@@ -447,16 +447,16 @@ class MessageSend {
           break;
       }
       if (promptMsg) {
-        let showCheckBox = { value: false };
-        let buttonFlags =
+        const showCheckBox = { value: false };
+        const buttonFlags =
           Ci.nsIPrompt.BUTTON_POS_0 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING +
           Ci.nsIPrompt.BUTTON_POS_1 * Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE +
           Ci.nsIPrompt.BUTTON_POS_2 * Ci.nsIPrompt.BUTTON_TITLE_SAVE;
-        let dialogTitle =
+        const dialogTitle =
           this._composeBundle.GetStringFromName("SaveDialogTitle");
-        let buttonLabelRety =
+        const buttonLabelRety =
           this._composeBundle.GetStringFromName("buttonLabelRetry2");
-        let buttonPressed = Services.prompt.confirmEx(
+        const buttonPressed = Services.prompt.confirmEx(
           this._parentWindow,
           dialogTitle,
           promptMsg,
@@ -474,11 +474,11 @@ class MessageSend {
             this._sendProgress.processCanceledByUser &&
             Services.prefs.getBoolPref("mailnews.show_send_progress")
           ) {
-            let progress = Cc[
+            const progress = Cc[
               "@mozilla.org/messenger/progress;1"
             ].createInstance(Ci.nsIMsgProgress);
 
-            let params = Cc[
+            const params = Cc[
               "@mozilla.org/messengercompose/composeprogressparameters;1"
             ].createInstance(Ci.nsIMsgComposeProgressParams);
             params.subject = this._parentWindow.gMsgCompose.compFields.subject;
@@ -608,7 +608,7 @@ class MessageSend {
     );
     if (!Components.isSuccessCode(exitCode)) {
       let isNSSError = false;
-      let errorName = lazy.MsgUtils.getErrorStringName(exitCode);
+      const errorName = lazy.MsgUtils.getErrorStringName(exitCode);
       let errorMsg;
       if (
         [
@@ -632,7 +632,7 @@ class MessageSend {
           errorName
         );
       } else {
-        let nssErrorsService = Cc[
+        const nssErrorsService = Cc[
           "@mozilla.org/nss_errors_service;1"
         ].getService(Ci.nsINSSErrorsService);
         try {
@@ -675,7 +675,7 @@ class MessageSend {
         }
       }
       if (isNSSError) {
-        let u = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
+        const u = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
         this.notifyListenerOnTransportSecurityError(
           null,
           exitCode,
@@ -793,14 +793,14 @@ class MessageSend {
       return;
     }
 
-    let warningSize = Services.prefs.getIntPref(
+    const warningSize = Services.prefs.getIntPref(
       "mailnews.message_warning_size"
     );
     if (warningSize > 0 && file.fileSize > warningSize) {
-      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+      const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
         Ci.nsIMessenger
       );
-      let msg = this._composeBundle.formatStringFromName(
+      const msg = this._composeBundle.formatStringFromName(
         "largeMessageSendWarning",
         [messenger.formatFileSize(file.fileSize)]
       );
@@ -830,11 +830,11 @@ class MessageSend {
     if (!this._compFields.bcc) {
       return this._messageFile;
     }
-    let deliveryFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    const deliveryFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     deliveryFile.append("nsemail.tmp");
     deliveryFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
-    let content = await IOUtils.read(this._messageFile.path);
-    let bodyIndex = content.findIndex(
+    const content = await IOUtils.read(this._messageFile.path);
+    const bodyIndex = content.findIndex(
       (el, index) =>
         // header and body are separated by \r\n\r\n
         el == 13 &&
@@ -842,10 +842,10 @@ class MessageSend {
         content[index + 2] == 13 &&
         content[index + 3] == 10
     );
-    let header = new TextDecoder("UTF-8").decode(content.slice(0, bodyIndex));
+    const header = new TextDecoder("UTF-8").decode(content.slice(0, bodyIndex));
     let lastLinePruned = false;
     let headerToWrite = "";
-    for (let line of header.split("\r\n")) {
+    for (const line of header.split("\r\n")) {
       if (line.startsWith("Bcc") || (line.startsWith(" ") && lastLinePruned)) {
         lastLinePruned = true;
         continue;
@@ -853,10 +853,10 @@ class MessageSend {
       lastLinePruned = false;
       headerToWrite += `${line}\r\n`;
     }
-    let encodedHeader = new TextEncoder().encode(headerToWrite);
+    const encodedHeader = new TextEncoder().encode(headerToWrite);
     // Prevent extra \r\n, which was already added to the last head line.
-    let body = content.slice(bodyIndex + 2);
-    let combinedContent = new Uint8Array(encodedHeader.length + body.length);
+    const body = content.slice(bodyIndex + 2);
+    const combinedContent = new Uint8Array(encodedHeader.length + body.length);
     combinedContent.set(encodedHeader);
     combinedContent.set(body, encodedHeader.length);
     await IOUtils.write(deliveryFile.path, combinedContent);
@@ -878,8 +878,8 @@ class MessageSend {
     // dummy envelope. The date string will be parsed by PR_ParseTimeString.
     // TODO: this should not be added to Maildir, see bug 1686852.
     let contentToWrite = `From - ${new Date().toUTCString()}\r\n`;
-    let xMozillaStatus = lazy.MsgUtils.getXMozillaStatus(this._deliverMode);
-    let xMozillaStatus2 = lazy.MsgUtils.getXMozillaStatus2(this._deliverMode);
+    const xMozillaStatus = lazy.MsgUtils.getXMozillaStatus(this._deliverMode);
+    const xMozillaStatus2 = lazy.MsgUtils.getXMozillaStatus2(this._deliverMode);
     if (xMozillaStatus) {
       contentToWrite += `X-Mozilla-Status: ${xMozillaStatus}\r\n`;
     }
@@ -888,7 +888,7 @@ class MessageSend {
     }
 
     // Create a separate copy file when there are extra headers.
-    let copyFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    const copyFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     copyFile.append("nscopy.tmp");
     copyFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
     await IOUtils.writeUTF8(copyFile.path, contentToWrite);
@@ -946,7 +946,7 @@ class MessageSend {
       // Set fcc_header to a special folder in Local Folders "account" since can't
       // save to Sent mbox, typically because imap connection is down. This
       // folder is created if it doesn't yet exist.
-      let rootFolder = MailServices.accounts.localFoldersServer.rootMsgFolder;
+      const rootFolder = MailServices.accounts.localFoldersServer.rootMsgFolder;
       folderUri = rootFolder.URI + "/";
 
       // Now append the special folder name folder to the local folder uri.
@@ -960,12 +960,12 @@ class MessageSend {
       ) {
         // Typically, this appends "Sent-", "Drafts-" or "Templates-" to folder
         // and then has the account name appended, e.g., .../Sent-MyImapAccount.
-        let folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
+        const folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
         folderUri += folder.name + "-";
       }
       if (this._fcc) {
         // Get the account name where the "save to" failed.
-        let accountName = lazy.MailUtils.getOrCreateFolder(this._fcc).server
+        const accountName = lazy.MailUtils.getOrCreateFolder(this._fcc).server
           .prettyName;
 
         // Now append the imap account name (escaped) to the folder uri.
@@ -984,7 +984,7 @@ class MessageSend {
           this._compFields.templateId)
       ) {
         // Turn the draft/template ID into a folder URI string.
-        let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+        const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
           Ci.nsIMessenger
         );
         try {
@@ -1021,7 +1021,7 @@ class MessageSend {
       );
     }
     folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
-    let statusMsg = this._composeBundle.formatStringFromName(
+    const statusMsg = this._composeBundle.formatStringFromName(
       "copyMessageStart",
       [folder?.name || "?"]
     );
@@ -1087,9 +1087,9 @@ class MessageSend {
    */
   _filterSentMessage() {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_Filter;
-    let folder = lazy.MailUtils.getExistingFolder(this._folderUri);
-    let msgHdr = folder.GetMessageHeader(this._messageKey);
-    let msgWindow = this._sendProgress?.msgWindow;
+    const folder = lazy.MailUtils.getExistingFolder(this._folderUri);
+    const msgHdr = folder.GetMessageHeader(this._messageKey);
+    const msgWindow = this._sendProgress?.msgWindow;
     return MailServices.filters.applyFilters(
       Ci.nsMsgFilterType.PostOutgoing,
       [msgHdr],
@@ -1123,16 +1123,16 @@ class MessageSend {
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("sendingMessage")
     );
-    let recipients = [
+    const recipients = [
       this._compFields.to,
       this._compFields.cc,
       this._compFields.bcc,
     ].filter(Boolean);
     this._collectAddressesToAddressBook(recipients);
-    let converter = Cc["@mozilla.org/messenger/mimeconverter;1"].getService(
+    const converter = Cc["@mozilla.org/messenger/mimeconverter;1"].getService(
       Ci.nsIMimeConverter
     );
-    let encodedRecipients = encodeURIComponent(
+    const encodedRecipients = encodeURIComponent(
       converter.encodeMimePartIIStr_UTF8(
         recipients.join(","),
         true,
@@ -1143,8 +1143,8 @@ class MessageSend {
     lazy.MsgUtils.sendLogger.debug(
       `Delivering mail message <${this._compFields.messageId}>`
     );
-    let deliveryListener = new MsgDeliveryListener(this, false);
-    let msgStatus =
+    const deliveryListener = new MsgDeliveryListener(this, false);
+    const msgStatus =
       this._sendProgress instanceof Ci.nsIMsgStatusFeedback
         ? this._sendProgress
         : this._statusFeedback;
@@ -1171,7 +1171,7 @@ class MessageSend {
   _deliverAsNews() {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_NNTP;
     lazy.MsgUtils.sendLogger.debug("Delivering news message");
-    let deliveryListener = new MsgDeliveryListener(this, true);
+    const deliveryListener = new MsgDeliveryListener(this, true);
     let msgWindow;
     try {
       msgWindow =
@@ -1194,15 +1194,15 @@ class MessageSend {
    * @param {string[]} recipients - Outgoing addresses including to/cc/bcc.
    */
   _collectAddressesToAddressBook(recipients) {
-    let createCard = Services.prefs.getBoolPref(
+    const createCard = Services.prefs.getBoolPref(
       "mail.collect_email_address_outgoing",
       false
     );
 
-    let addressCollector = Cc[
+    const addressCollector = Cc[
       "@mozilla.org/addressbook/services/addressCollector;1"
     ].getService(Ci.nsIAbAddressCollector);
-    for (let recipient of recipients) {
+    for (const recipient of recipients) {
       addressCollector.collectAddress(recipient, createCard);
     }
   }
@@ -1235,22 +1235,22 @@ class MessageSend {
    * @returns {object[]} collected.embeddedObjects objects {element, url}
    */
   _gatherEmbeddedAttachments(editor) {
-    let embeddedAttachments = [];
-    let embeddedObjects = [];
+    const embeddedAttachments = [];
+    const embeddedObjects = [];
 
     if (!editor || !editor.document) {
       return { embeddedAttachments, embeddedObjects };
     }
-    let nodes = [];
+    const nodes = [];
     nodes.push(...editor.document.querySelectorAll("img"));
     nodes.push(...editor.document.querySelectorAll("a"));
-    let body = editor.document.querySelector("body[background]");
+    const body = editor.document.querySelector("body[background]");
     if (body) {
       nodes.push(body);
     }
 
-    let urlCidCache = {};
-    for (let element of nodes) {
+    const urlCidCache = {};
+    for (const element of nodes) {
       if (element.tagName == "A" && element.href) {
         if (this._isLinkFreeText(element.innerHTML, element.href)) {
           // Set this special classname, which is recognized by nsIParserUtils,
@@ -1261,7 +1261,7 @@ class MessageSend {
       let isImage = false;
       let url;
       let name;
-      let mozDoNotSend = element.getAttribute("moz-do-not-send");
+      const mozDoNotSend = element.getAttribute("moz-do-not-send");
       if (mozDoNotSend && mozDoNotSend != "false") {
         // Only empty or moz-do-not-send="false" may be accepted later.
         continue;
@@ -1310,7 +1310,7 @@ class MessageSend {
         );
         urlCidCache[url] = cid;
 
-        let attachment = Cc[
+        const attachment = Cc[
           "@mozilla.org/messengercompose/attachment;1"
         ].createInstance(Ci.nsIMsgAttachment);
         attachment.name = name || lazy.MsgUtils.pickFileNameFromUrl(url);
@@ -1323,7 +1323,7 @@ class MessageSend {
         url,
       });
 
-      let newUrl = `cid:${cid}`;
+      const newUrl = `cid:${cid}`;
       if (element.tagName == "BODY") {
         element.background = newUrl;
       } else if (element.tagName == "IMG") {
@@ -1343,7 +1343,7 @@ class MessageSend {
    * @param {string} embeddedObjects.url
    */
   _restoreEditorContent(embeddedObjects) {
-    for (let { element, url } of embeddedObjects) {
+    for (const { element, url } of embeddedObjects) {
       if (element.tagName == "BODY") {
         element.background = url;
       } else if (element.tagName == "IMG") {
@@ -1365,7 +1365,7 @@ class MessageSend {
       return "";
     }
 
-    let flags =
+    const flags =
       Ci.nsIDocumentEncoder.OutputFormatted |
       Ci.nsIDocumentEncoder.OutputNoFormattingInPre |
       Ci.nsIDocumentEncoder.OutputDisallowLineBreaking;
@@ -1374,7 +1374,7 @@ class MessageSend {
 
     // No need to do conversion if forcing plain text.
     if (!this._compFields.forcePlainText) {
-      let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(
+      const cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(
         Ci.mozITXTToHTMLConv
       );
       let csFlags = Ci.mozITXTToHTMLConv.kURLs;
@@ -1394,7 +1394,7 @@ class MessageSend {
    * @returns {string}
    */
   _accountKeyForIdentity(identity) {
-    let servers = MailServices.accounts.getServersForIdentity(identity);
+    const servers = MailServices.accounts.getServersForIdentity(identity);
     return servers.length
       ? MailServices.accounts.FindAccountForServer(servers[0])?.key
       : null;
@@ -1424,7 +1424,7 @@ class MsgDeliveryListener {
 
   OnStopRunningUrl(url, exitCode) {
     lazy.MsgUtils.sendLogger.debug(`OnStopRunningUrl; exitCode=${exitCode}`);
-    let mailUrl = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
+    const mailUrl = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
     mailUrl.UnRegisterListener(this);
 
     this._msgSend.sendDeliveryCallback(url, this._isNewsDelivery, exitCode);

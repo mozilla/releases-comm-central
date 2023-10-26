@@ -109,7 +109,7 @@ function nextTest() {
     // If Mailnews ever caches server capabilities, delete and re-create the incomingServer here
     var incomingServer = createLocalIMAPServer(server.port);
 
-    let msgServer = incomingServer;
+    const msgServer = incomingServer;
     msgServer.QueryInterface(Ci.nsIMsgIncomingServer);
     msgServer.authMethod = thisTest.clientAuthMethod;
 

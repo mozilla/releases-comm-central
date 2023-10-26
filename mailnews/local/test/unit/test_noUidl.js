@@ -15,9 +15,9 @@ class NoUidlHandler extends POP3_RFC1939_handler {
   }
 }
 
-let daemon = new Pop3Daemon();
-let server = new nsMailServer(d => {
-  let handler = new NoUidlHandler(d);
+const daemon = new Pop3Daemon();
+const server = new nsMailServer(d => {
+  const handler = new NoUidlHandler(d);
   return handler;
 }, daemon);
 server.start();
@@ -33,7 +33,7 @@ registerCleanupFunction(() => {
 async function getNewMail(incomingServer) {
   daemon.setMessages(["message1.eml"]);
 
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
   // Now get the mail.
   MailServices.pop3.GetNewMail(
     null,
@@ -48,7 +48,7 @@ async function getNewMail(incomingServer) {
  * Test that RETR and DELE are correctly sent even if UIDL is not supported.
  */
 add_task(async function testNoUidl() {
-  let incomingServer = createPop3ServerAndLocalFolders(server.port);
+  const incomingServer = createPop3ServerAndLocalFolders(server.port);
   await getNewMail(incomingServer);
   do_check_transaction(server.playTransaction(), [
     "CAPA",
@@ -67,7 +67,7 @@ add_task(async function testNoUidl() {
  * unsupported.
  */
 add_task(async function testNoUidlHeadersOnly() {
-  let incomingServer = createPop3ServerAndLocalFolders(server.port);
+  const incomingServer = createPop3ServerAndLocalFolders(server.port);
   incomingServer.headersOnly = true;
   await Assert.rejects(
     getNewMail(incomingServer),
@@ -80,7 +80,7 @@ add_task(async function testNoUidlHeadersOnly() {
  * UIDL is unsupported.
  */
 add_task(async function testNoUidlLeaveMessagesOnServer() {
-  let incomingServer = createPop3ServerAndLocalFolders(server.port);
+  const incomingServer = createPop3ServerAndLocalFolders(server.port);
   incomingServer.leaveMessagesOnServer = true;
   await Assert.rejects(
     getNewMail(incomingServer),

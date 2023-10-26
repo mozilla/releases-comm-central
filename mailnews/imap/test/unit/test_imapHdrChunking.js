@@ -92,18 +92,18 @@ add_setup(async function () {
 // Upload messages to the imap fake server Inbox.
 add_task(async function uploadImapMessages() {
   // make OVERALL_MESSAGES messages
-  let messageGenerator = new MessageGenerator();
-  let scenarioFactory = new MessageScenarioFactory(messageGenerator);
+  const messageGenerator = new MessageGenerator();
+  const scenarioFactory = new MessageScenarioFactory(messageGenerator);
 
   // build up a list of messages
   let messages = [];
   messages = messages.concat(scenarioFactory.directReply(OVERALL_MESSAGES));
 
   // Add OVERALL_MESSAGES messages with uids 1,2,3...,OVERALL_MESSAGES.
-  let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
+  const imapInbox = IMAPPump.daemon.getMailbox("INBOX");
   // Create the ImapMessages and store them on the mailbox.
   messages.forEach(function (message) {
-    let dataUri = Services.io.newURI(
+    const dataUri = Services.io.newURI(
       "data:text/plain;base64," + btoa(message.toMessageString())
     );
     imapInbox.addMessage(
@@ -136,7 +136,8 @@ add_task(async function testMessageFetched() {
   // If this causes future problems because stuff getting faster,
   //  try to increase the overall message count.
   await TestUtils.waitForCondition(() => {
-    let messagesDBFolder = IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages;
+    const messagesDBFolder =
+      IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages;
     if (messagesDBFolder !== 0) {
       Assert.equal(
         messagesDBFolder % CHUNKING_SIZE,

@@ -109,7 +109,7 @@ function testReentrantClose() {
     OnStartRunningUrl(url) {},
     OnStopRunningUrl(url, rv) {
       // Spin the event loop (entering nsNNTPProtocol::ProcessProtocolState)
-      let thread = gThreadManager.currentThread;
+      const thread = gThreadManager.currentThread;
       while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
       }
@@ -160,14 +160,14 @@ function testManyConnections() {
       }
     },
   };
-  for (let group of _server.rootFolder.subFolders) {
+  for (const group of _server.rootFolder.subFolders) {
     group.getNewMessages(null, listener);
     listener.ran++;
   }
   server.performTest();
   // The last one that is processed is test.filter, so make sure that
   // test.subscribed.simple is not retrieving the data meant for test.filter
-  let folder = _server.rootFolder.getChildNamed("test.subscribe.simple");
+  const folder = _server.rootFolder.getChildNamed("test.subscribe.simple");
   Assert.equal(folder.getTotalMessages(false), 1);
 }
 

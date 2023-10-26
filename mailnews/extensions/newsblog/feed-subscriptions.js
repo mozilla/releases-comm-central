@@ -62,7 +62,7 @@ var FeedSubscriptions = {
     setTimeout(() => {
       FeedSubscriptions.refreshSubscriptionView(folder);
     }, 100);
-    let message = FeedUtils.strings.GetStringFromName("subscribe-loading");
+    const message = FeedUtils.strings.GetStringFromName("subscribe-loading");
     this.updateStatusItem("statusText", message);
 
     FeedUtils.CANCEL_REQUESTED = false;
@@ -78,10 +78,10 @@ var FeedSubscriptions = {
     // If we are in the middle of subscribing to a feed, inform the user that
     // dismissing the dialog right now will abort the feed subscription.
     if (this.mActionMode == this.kSubscribeMode) {
-      let pTitle = FeedUtils.strings.GetStringFromName(
+      const pTitle = FeedUtils.strings.GetStringFromName(
         "subscribe-cancelSubscriptionTitle"
       );
-      let pMessage = FeedUtils.strings.GetStringFromName(
+      const pMessage = FeedUtils.strings.GetStringFromName(
         "subscribe-cancelSubscription"
       );
       dismissDialog = !Services.prompt.confirmEx(
@@ -111,7 +111,7 @@ var FeedSubscriptions = {
   },
 
   refreshSubscriptionView(aSelectFolder, aSelectFeedUrl) {
-    let item = this.mView.currentItem;
+    const item = this.mView.currentItem;
     this.loadSubscriptions();
     this.mTree.view = this.mView;
 
@@ -120,7 +120,7 @@ var FeedSubscriptions = {
     } else if (item) {
       // If no folder to select, try to select the pre rebuild selection, in
       // an existing window.  For folderpane changes in a feed account.
-      let rootFolder = item.container
+      const rootFolder = item.container
         ? item.folder.rootFolder
         : item.parentFolder.rootFolder;
       if (item.container) {
@@ -130,7 +130,7 @@ var FeedSubscriptions = {
           this.selectFolder(rootFolder);
         }
       } else {
-        let url =
+        const url =
           item.parentFolder == aSelectFolder ? aSelectFeedUrl : item.url;
         this.selectFeed({ folder: rootFolder, url }, null);
       }
@@ -145,8 +145,8 @@ var FeedSubscriptions = {
 
     get currentItem() {
       // Get the current selection, if any.
-      let seln = this.selection;
-      let currentSelectionIndex = seln ? seln.currentIndex : null;
+      const seln = this.selection;
+      const currentSelectionIndex = seln ? seln.currentIndex : null;
       let item;
       if (currentSelectionIndex != null) {
         item = this.getItemAtIndex(currentSelectionIndex);
@@ -201,7 +201,7 @@ var FeedSubscriptions = {
     /* eslint-enable no-multi-spaces */
 
     getCellProperties(aRow, aColumn) {
-      let item = this.getItemAtIndex(aRow);
+      const item = this.getItemAtIndex(aRow);
       if (!item) {
         return "";
       }
@@ -218,9 +218,9 @@ var FeedSubscriptions = {
 
       let folder = item.folder;
       let properties = "folderNameCol";
-      let mainWin = FeedSubscriptions.mMainWin;
+      const mainWin = FeedSubscriptions.mMainWin;
       if (!mainWin) {
-        let hasFeeds = FeedUtils.getFeedUrlsInFolder(folder);
+        const hasFeeds = FeedUtils.getFeedUrlsInFolder(folder);
         if (!folder) {
           properties += " isFeed-true";
         } else if (hasFeeds) {
@@ -229,7 +229,7 @@ var FeedSubscriptions = {
           properties += " serverType-rss isServer-true";
         }
       } else {
-        let url = folder ? null : item.url;
+        const url = folder ? null : item.url;
         folder = folder || item.parentFolder;
         properties = mainWin.FolderUtils.getFolderProperties(folder, item.open);
         properties += mainWin.FeedUtils.getFolderProperties(folder, url);
@@ -249,17 +249,17 @@ var FeedSubscriptions = {
     },
 
     isContainer(aRow) {
-      let item = this.getItemAtIndex(aRow);
+      const item = this.getItemAtIndex(aRow);
       return item ? item.container : false;
     },
 
     isContainerOpen(aRow) {
-      let item = this.getItemAtIndex(aRow);
+      const item = this.getItemAtIndex(aRow);
       return item ? item.open : false;
     },
 
     isContainerEmpty(aRow) {
-      let item = this.getItemAtIndex(aRow);
+      const item = this.getItemAtIndex(aRow);
       if (!item) {
         return false;
       }
@@ -282,7 +282,7 @@ var FeedSubscriptions = {
 
       for (let index = 0; index < this.rowCount; index++) {
         // Find the visible folder in the view.
-        let item = this.getItemAtIndex(index);
+        const item = this.getItemAtIndex(index);
         if (item && item.container && item.url == aFolder.URI) {
           return index;
         }
@@ -292,7 +292,7 @@ var FeedSubscriptions = {
     },
 
     removeItemAtIndex(aRow, aNoSelect) {
-      let itemToRemove = this.getItemAtIndex(aRow);
+      const itemToRemove = this.getItemAtIndex(aRow);
       if (!itemToRemove) {
         return;
       }
@@ -302,10 +302,10 @@ var FeedSubscriptions = {
         this.toggleOpenState(aRow);
       }
 
-      let parentIndex = this.getParentIndex(aRow);
-      let hasNextSibling = this.hasNextSibling(aRow, aRow);
+      const parentIndex = this.getParentIndex(aRow);
+      const hasNextSibling = this.hasNextSibling(aRow, aRow);
       if (parentIndex != this.kRowIndexUndefined) {
-        let parent = this.getItemAtIndex(parentIndex);
+        const parent = this.getItemAtIndex(parentIndex);
         if (parent) {
           for (let index = 0; index < parent.children.length; index++) {
             if (parent.children[index] == itemToRemove) {
@@ -339,12 +339,12 @@ var FeedSubscriptions = {
     },
 
     getCellText(aRow, aColumn) {
-      let item = this.getItemAtIndex(aRow);
+      const item = this.getItemAtIndex(aRow);
       return item && aColumn.id == "folderNameCol" ? item.name : "";
     },
 
     getImageSrc(aRow, aCol) {
-      let item = this.getItemAtIndex(aRow);
+      const item = this.getItemAtIndex(aRow);
       if ((item.folder && item.folder.isServer) || item.open) {
         return "";
       }
@@ -361,10 +361,10 @@ var FeedSubscriptions = {
         return item.favicon;
       }
 
-      let callback = iconUrl => {
+      const callback = iconUrl => {
         item.favicon = iconUrl;
         if (item.folder) {
-          for (let child of item.children) {
+          for (const child of item.children) {
             if (!child.container) {
               child.favicon = iconUrl;
               break;
@@ -377,14 +377,14 @@ var FeedSubscriptions = {
 
       // A closed non server folder.
       if (item.folder) {
-        for (let child of item.children) {
+        for (const child of item.children) {
           if (!child.container) {
             if (child.favicon != null) {
               return child.favicon;
             }
 
             setTimeout(async () => {
-              let iconUrl = await FeedUtils.getFavicon(
+              const iconUrl = await FeedUtils.getFavicon(
                 child.parentFolder,
                 child.url
               );
@@ -398,7 +398,10 @@ var FeedSubscriptions = {
       } else {
         // A feed.
         setTimeout(async () => {
-          let iconUrl = await FeedUtils.getFavicon(item.parentFolder, item.url);
+          const iconUrl = await FeedUtils.getFavicon(
+            item.parentFolder,
+            item.url
+          );
           if (iconUrl) {
             callback(iconUrl);
           }
@@ -410,7 +413,7 @@ var FeedSubscriptions = {
     },
 
     canDrop(aRow, aOrientation) {
-      let dropResult = this.extractDragData(aRow);
+      const dropResult = this.extractDragData(aRow);
       return (
         aOrientation == Ci.nsITreeView.DROP_ON &&
         dropResult.canDrop &&
@@ -420,8 +423,8 @@ var FeedSubscriptions = {
     },
 
     drop(aRow, aOrientation) {
-      let win = FeedSubscriptions;
-      let results = this.extractDragData(aRow);
+      const win = FeedSubscriptions;
+      const results = this.extractDragData(aRow);
       if (!results.canDrop) {
         return;
       }
@@ -436,7 +439,7 @@ var FeedSubscriptions = {
           win.addFeed(results.dropUrl, null, true, null, win.kSubscribeMode);
         }, 0);
 
-        let folderItem = this.getItemAtIndex(aRow);
+        const folderItem = this.getItemAtIndex(aRow);
         FeedUtils.log.debug(
           "drop: folder, url - " +
             folderItem.folder.name +
@@ -450,8 +453,8 @@ var FeedSubscriptions = {
 
     // Helper function for drag and drop.
     extractDragData(aRow) {
-      let dt = this._currentDataTransfer;
-      let dragDataResults = {
+      const dt = this._currentDataTransfer;
+      const dragDataResults = {
         canDrop: false,
         dropUrl: null,
         dropOnIndex: this.kRowIndexUndefined,
@@ -463,13 +466,13 @@ var FeedSubscriptions = {
         if (this.selection) {
           dragDataResults.dropOnIndex = this.selection.currentIndex;
 
-          let curItem = this.getItemAtIndex(this.selection.currentIndex);
-          let newItem = this.getItemAtIndex(aRow);
-          let curServer =
+          const curItem = this.getItemAtIndex(this.selection.currentIndex);
+          const newItem = this.getItemAtIndex(aRow);
+          const curServer =
             curItem && curItem.parentFolder
               ? curItem.parentFolder.server
               : null;
-          let newServer =
+          const newServer =
             newItem && newItem.folder ? newItem.folder.server : null;
 
           // No copying within the same account and no moving to the account
@@ -487,7 +490,7 @@ var FeedSubscriptions = {
         }
       } else {
         // Try to get a feed url.
-        let validUri = FeedUtils.getFeedUriFromDataTransfer(dt);
+        const validUri = FeedUtils.getFeedUriFromDataTransfer(dt);
 
         if (validUri) {
           dragDataResults.canDrop = true;
@@ -499,7 +502,7 @@ var FeedSubscriptions = {
     },
 
     getParentIndex(aRow) {
-      let item = this.getItemAtIndex(aRow);
+      const item = this.getItemAtIndex(aRow);
 
       if (item) {
         for (let index = aRow; index >= 0; index--) {
@@ -514,13 +517,13 @@ var FeedSubscriptions = {
 
     isIndexChildOfParentIndex(aRow, aChildRow) {
       // For visible tree rows, not if items are children of closed folders.
-      let item = this.getItemAtIndex(aRow);
+      const item = this.getItemAtIndex(aRow);
       if (!item || aChildRow <= aRow) {
         return false;
       }
 
-      let targetLevel = this.getItemAtIndex(aRow).level;
-      let rows = FeedSubscriptions.mFeedContainers;
+      const targetLevel = this.getItemAtIndex(aRow).level;
+      const rows = FeedSubscriptions.mFeedContainers;
 
       for (let i = aRow + 1; i < rows.length; i++) {
         if (this.getItemAtIndex(i).level <= targetLevel) {
@@ -535,8 +538,8 @@ var FeedSubscriptions = {
     },
 
     hasNextSibling(aRow, aAfterIndex) {
-      let targetLevel = this.getItemAtIndex(aRow).level;
-      let rows = FeedSubscriptions.mFeedContainers;
+      const targetLevel = this.getItemAtIndex(aRow).level;
+      const rows = FeedSubscriptions.mFeedContainers;
       for (let i = aAfterIndex + 1; i < rows.length; i++) {
         if (this.getItemAtIndex(i).level == targetLevel) {
           return true;
@@ -550,7 +553,7 @@ var FeedSubscriptions = {
     },
 
     hasPreviousSibling(aRow) {
-      let item = this.getItemAtIndex(aRow);
+      const item = this.getItemAtIndex(aRow);
       if (item && aRow) {
         return this.getItemAtIndex(aRow - 1).level == item.level;
       }
@@ -559,7 +562,7 @@ var FeedSubscriptions = {
     },
 
     getLevel(aRow) {
-      let item = this.getItemAtIndex(aRow);
+      const item = this.getItemAtIndex(aRow);
       if (!item) {
         return 0;
       }
@@ -568,16 +571,16 @@ var FeedSubscriptions = {
     },
 
     toggleOpenState(aRow) {
-      let item = this.getItemAtIndex(aRow);
+      const item = this.getItemAtIndex(aRow);
       if (!item) {
         return;
       }
 
       // Save off the current selection item.
-      let seln = this.selection;
-      let currentSelectionIndex = seln.currentIndex;
+      const seln = this.selection;
+      const currentSelectionIndex = seln.currentIndex;
 
-      let rowsChanged = this.toggle(aRow);
+      const rowsChanged = this.toggle(aRow);
 
       // Now restore selection, ensuring selection is maintained on toggles.
       if (currentSelectionIndex > aRow) {
@@ -591,19 +594,19 @@ var FeedSubscriptions = {
 
     toggle(aRow) {
       // Collapse the row, or build sub rows based on open states in the map.
-      let item = this.getItemAtIndex(aRow);
+      const item = this.getItemAtIndex(aRow);
       if (!item) {
         return null;
       }
 
-      let rows = FeedSubscriptions.mFeedContainers;
+      const rows = FeedSubscriptions.mFeedContainers;
       let rowCount = 0;
       let multiplier;
 
       function addDescendants(aItem) {
         for (let i = 0; i < aItem.children.length; i++) {
           rowCount++;
-          let child = aItem.children[i];
+          const child = aItem.children[i];
           rows.splice(aRow + rowCount, 0, child);
           if (child.open) {
             addDescendants(child);
@@ -630,7 +633,7 @@ var FeedSubscriptions = {
         addDescendants(item);
       }
 
-      let delta = multiplier * rowCount;
+      const delta = multiplier * rowCount;
       this.mRowCount += delta;
 
       item.open = !item.open;
@@ -643,15 +646,15 @@ var FeedSubscriptions = {
   },
 
   makeFolderObject(aFolder, aCurrentLevel) {
-    let defaultQuickMode = aFolder.server.getBoolValue("quickMode");
-    let optionsAcct = aFolder.isServer
+    const defaultQuickMode = aFolder.server.getBoolValue("quickMode");
+    const optionsAcct = aFolder.isServer
       ? FeedUtils.getOptionsAcct(aFolder.server)
       : null;
-    let open =
+    const open =
       !aFolder.isServer &&
       aFolder.server == this.mRSSServer &&
       this.mActionMode == this.kImportingOPML;
-    let folderObject = {
+    const folderObject = {
       children: [],
       folder: aFolder,
       name: aFolder.prettyName,
@@ -665,7 +668,7 @@ var FeedSubscriptions = {
     };
 
     // If a feed has any sub folders, add them to the list of children.
-    for (let folder of aFolder.subFolders) {
+    for (const folder of aFolder.subFolders) {
       if (
         folder instanceof Ci.nsIMsgFolder &&
         !folder.getFlag(Ci.nsMsgFolderFlags.Trash) &&
@@ -677,8 +680,8 @@ var FeedSubscriptions = {
       }
     }
 
-    let feeds = this.getFeedsInFolder(aFolder);
-    for (let feed of feeds) {
+    const feeds = this.getFeedsInFolder(aFolder);
+    for (const feed of feeds) {
       // Now add any feed urls for the folder.
       folderObject.children.push(
         this.makeFeedObject(feed, aFolder, aCurrentLevel + 1)
@@ -708,15 +711,15 @@ var FeedSubscriptions = {
   },
 
   getFeedsInFolder(aFolder) {
-    let feeds = [];
-    let feedUrlArray = FeedUtils.getFeedUrlsInFolder(aFolder);
+    const feeds = [];
+    const feedUrlArray = FeedUtils.getFeedUrlsInFolder(aFolder);
     if (!feedUrlArray) {
       // No feedUrls in this folder.
       return feeds;
     }
 
-    for (let url of feedUrlArray) {
-      let feed = new Feed(url, aFolder);
+    for (const url of feedUrlArray) {
+      const feed = new Feed(url, aFolder);
       feeds.push(feed);
     }
 
@@ -725,7 +728,7 @@ var FeedSubscriptions = {
 
   makeFeedObject(aFeed, aFolder, aLevel) {
     // Look inside the data source for the feed properties.
-    let feed = {
+    const feed = {
       children: [],
       parentFolder: aFolder,
       name: aFeed.title || aFeed.description || aFeed.url,
@@ -744,9 +747,9 @@ var FeedSubscriptions = {
     // Put together an array of folders.  Each feed account level folder is
     // included as the root.
     let numFolders = 0;
-    let feedContainers = [];
+    const feedContainers = [];
     // Get all the feed account folders.
-    let feedRootFolders = FeedUtils.getAllRssServerRootFolders();
+    const feedRootFolders = FeedUtils.getAllRssServerRootFolders();
 
     feedRootFolders.forEach(function (rootFolder) {
       feedContainers.push(this.makeFolderObject(rootFolder, 0));
@@ -782,17 +785,17 @@ var FeedSubscriptions = {
    * @returns {Boolean} found - true if found, false if not.
    */
   selectFolder(aFolder, aParms) {
-    let folderURI = aFolder.URI;
-    let parentIndex =
+    const folderURI = aFolder.URI;
+    const parentIndex =
       aParms && "parentIndex" in aParms ? aParms.parentIndex : null;
-    let selectIt = aParms && "select" in aParms ? aParms.select : true;
-    let openIt = aParms && "open" in aParms ? aParms.open : true;
+    const selectIt = aParms && "select" in aParms ? aParms.select : true;
+    const openIt = aParms && "open" in aParms ? aParms.open : true;
     let removeIt = aParms && "remove" in aParms ? aParms.remove : false;
     let newFolder = aParms && "newFolder" in aParms ? aParms.newFolder : null;
     let startIndex, startItem;
     let found = false;
 
-    let firstVisRow, curFirstVisRow, curLastVisRow;
+    let firstVisRow;
     if (this.mView.tree) {
       firstVisRow = this.mView.tree.getFirstVisibleRow();
     }
@@ -817,7 +820,7 @@ var FeedSubscriptions = {
       // Get the folder's root parent index.
       let index = 0;
       for (index; index < this.mView.rowCount; index++) {
-        let item = this.mView.getItemAtIndex(index);
+        const item = this.mView.getItemAtIndex(index);
         if (item.url == aFolder.server.rootFolder.URI) {
           break;
         }
@@ -873,7 +876,7 @@ var FeedSubscriptions = {
             return true;
           }
           if (newFolder) {
-            let newItem = FeedSubscriptions.makeFolderObject(
+            const newItem = FeedSubscriptions.makeFolderObject(
               newFolder,
               aItem.level + 1
             );
@@ -933,7 +936,7 @@ var FeedSubscriptions = {
 
     for (let index = 0; index < this.mView.rowCount && selectIt; index++) {
       // The desired folder is now in the view.
-      let item = this.mView.getItemAtIndex(index);
+      const item = this.mView.getItemAtIndex(index);
       if (!item.container) {
         continue;
       }
@@ -953,8 +956,8 @@ var FeedSubscriptions = {
     }
 
     // Ensure tree position does not jump unnecessarily.
-    curFirstVisRow = this.mView.tree.getFirstVisibleRow();
-    curLastVisRow = this.mView.tree.getLastVisibleRow();
+    const curFirstVisRow = this.mView.tree.getFirstVisibleRow();
+    const curLastVisRow = this.mView.tree.getLastVisibleRow();
     if (
       firstVisRow >= 0 &&
       this.mView.rowCount - curLastVisRow > firstVisRow - curFirstVisRow
@@ -991,13 +994,13 @@ var FeedSubscriptions = {
    */
   selectFeed(aFeed, aParentIndex) {
     let folder = aFeed.folder;
-    let server = aFeed.server || aFeed.folder.server;
+    const server = aFeed.server || aFeed.folder.server;
     let found = false;
 
     if (aFeed.folder.isServer) {
       // If passed the root folder, the caller wants to get the feed's folder
       // from the db (for cases of an ancestor folder rename/move).
-      let destFolder = FeedUtils.getSubscriptionAttr(
+      const destFolder = FeedUtils.getSubscriptionAttr(
         aFeed.url,
         server,
         "destFolder"
@@ -1006,8 +1009,8 @@ var FeedSubscriptions = {
     }
 
     if (this.selectFolder(folder, { parentIndex: aParentIndex })) {
-      let seln = this.mView.selection;
-      let item = this.mView.currentItem;
+      const seln = this.mView.selection;
+      const item = this.mView.currentItem;
       if (item) {
         for (let i = seln.currentIndex + 1; i < this.mView.rowCount; i++) {
           if (this.mView.getItemAtIndex(i).url == aFeed.url) {
@@ -1028,12 +1031,12 @@ var FeedSubscriptions = {
       return;
     }
 
-    let nameValue = document.getElementById("nameValue");
-    let locationValue = document.getElementById("locationValue");
-    let locationValidate = document.getElementById("locationValidate");
-    let isServer = aItem.folder && aItem.folder.isServer;
-    let isFolder = aItem.folder && !aItem.folder.isServer;
-    let isFeed = !aItem.container;
+    const nameValue = document.getElementById("nameValue");
+    const locationValue = document.getElementById("locationValue");
+    const locationValidate = document.getElementById("locationValidate");
+    const isServer = aItem.folder && aItem.folder.isServer;
+    const isFolder = aItem.folder && !aItem.folder.isServer;
+    const isFeed = !aItem.container;
     let server, displayFolder;
 
     if (isFeed) {
@@ -1068,12 +1071,12 @@ var FeedSubscriptions = {
     }
 
     // Update items.
-    let updateEnabled = document.getElementById("updateEnabled");
-    let updateValue = document.getElementById("updateValue");
-    let biffUnits = document.getElementById("biffUnits");
-    let recommendedUnits = document.getElementById("recommendedUnits");
-    let recommendedUnitsVal = document.getElementById("recommendedUnitsVal");
-    let updates = aItem.options
+    const updateEnabled = document.getElementById("updateEnabled");
+    const updateValue = document.getElementById("updateValue");
+    const biffUnits = document.getElementById("biffUnits");
+    const recommendedUnits = document.getElementById("recommendedUnits");
+    const recommendedUnitsVal = document.getElementById("recommendedUnitsVal");
+    const updates = aItem.options
       ? aItem.options.updates
       : FeedUtils._optionsDefault.updates;
 
@@ -1081,7 +1084,7 @@ var FeedSubscriptions = {
     updateValue.disabled = !updateEnabled.checked || isFolder;
     biffUnits.disabled = !updateEnabled.checked || isFolder;
     biffUnits.value = updates.updateUnits;
-    let minutes =
+    const minutes =
       updates.updateUnits == FeedUtils.kBiffUnitsMinutes
         ? updates.updateMinutes
         : updates.updateMinutes / (24 * 60);
@@ -1092,15 +1095,15 @@ var FeedSubscriptions = {
       recommendedUnitsVal.value = "";
     }
 
-    let hideRec = recommendedUnitsVal.value == "";
+    const hideRec = recommendedUnitsVal.value == "";
     recommendedUnits.hidden = hideRec;
     recommendedUnitsVal.hidden = hideRec;
 
     // Autotag items.
-    let autotagEnable = document.getElementById("autotagEnable");
-    let autotagUsePrefix = document.getElementById("autotagUsePrefix");
-    let autotagPrefix = document.getElementById("autotagPrefix");
-    let category = aItem.options ? aItem.options.category : null;
+    const autotagEnable = document.getElementById("autotagEnable");
+    const autotagUsePrefix = document.getElementById("autotagUsePrefix");
+    const autotagPrefix = document.getElementById("autotagPrefix");
+    const category = aItem.options ? aItem.options.category : null;
 
     autotagEnable.checked = category && category.enabled;
     autotagUsePrefix.checked = category && category.prefixEnabled;
@@ -1111,14 +1114,14 @@ var FeedSubscriptions = {
   },
 
   setFolderPicker(aFolder, aIsFeed) {
-    let folderPrettyPath = FeedUtils.getFolderPrettyPath(aFolder);
+    const folderPrettyPath = FeedUtils.getFolderPrettyPath(aFolder);
     if (!folderPrettyPath) {
       return;
     }
 
-    let selectFolder = document.getElementById("selectFolder");
-    let selectFolderPopup = document.getElementById("selectFolderPopup");
-    let selectFolderValue = document.getElementById("selectFolderValue");
+    const selectFolder = document.getElementById("selectFolder");
+    const selectFolderPopup = document.getElementById("selectFolderPopup");
+    const selectFolderValue = document.getElementById("selectFolderValue");
 
     selectFolder.setAttribute("hidden", !aIsFeed);
     selectFolder._folder = aFolder;
@@ -1138,7 +1141,7 @@ var FeedSubscriptions = {
   },
 
   onClickSelectFolderValue(aEvent) {
-    let target = aEvent.target;
+    const target = aEvent.target;
     if (
       ("button" in aEvent &&
         (aEvent.button != 0 ||
@@ -1169,23 +1172,23 @@ var FeedSubscriptions = {
     aEvent.stopPropagation();
     this.setFolderPicker(aEvent.target._folder, true);
 
-    let seln = this.mView.selection;
+    const seln = this.mView.selection;
     if (seln.count != 1) {
       return;
     }
 
-    let item = this.mView.getItemAtIndex(seln.currentIndex);
+    const item = this.mView.getItemAtIndex(seln.currentIndex);
     if (!item || item.container || !item.parentFolder) {
       return;
     }
 
-    let selectFolder = document.getElementById("selectFolder");
-    let editFolderURI = selectFolder.getAttribute("uri");
+    const selectFolder = document.getElementById("selectFolder");
+    const editFolderURI = selectFolder.getAttribute("uri");
     if (item.parentFolder.URI == editFolderURI) {
       return;
     }
 
-    let feed = new Feed(item.url, item.parentFolder);
+    const feed = new Feed(item.url, item.parentFolder);
 
     // Make sure the new folderpicked folder is visible.
     this.selectFolder(selectFolder._folder);
@@ -1194,7 +1197,7 @@ var FeedSubscriptions = {
     // We need to find the index of the new parent folder.
     let newParentIndex = this.mView.kRowIndexUndefined;
     for (let index = 0; index < this.mView.rowCount; index++) {
-      let item = this.mView.getItemAtIndex(index);
+      const item = this.mView.getItemAtIndex(index);
       if (item && item.container && item.url == editFolderURI) {
         newParentIndex = index;
         break;
@@ -1207,7 +1210,7 @@ var FeedSubscriptions = {
   },
 
   setSummary(aChecked) {
-    let item = this.mView.currentItem;
+    const item = this.mView.currentItem;
     if (!item || !item.folder) {
       // Not a folder.
       return;
@@ -1227,7 +1230,7 @@ var FeedSubscriptions = {
       // Not a folder with feeds.
       return;
     } else {
-      let feedsInFolder = this.getFeedsInFolder(item.folder);
+      const feedsInFolder = this.getFeedsInFolder(item.folder);
       // Update the feeds database, for each feed in the folder.
       feedsInFolder.forEach(function (feed) {
         feed.quickMode = aChecked;
@@ -1240,24 +1243,26 @@ var FeedSubscriptions = {
 
     // Update the folder in the tree map.
     item.quickMode = aChecked;
-    let message = FeedUtils.strings.GetStringFromName("subscribe-feedUpdated");
+    const message = FeedUtils.strings.GetStringFromName(
+      "subscribe-feedUpdated"
+    );
     this.updateStatusItem("statusText", message);
   },
 
   setPrefs(aNode) {
-    let item = this.mView.currentItem;
+    const item = this.mView.currentItem;
     if (!item) {
       return;
     }
 
-    let isServer = item.folder && item.folder.isServer;
-    let isFolder = item.folder && !item.folder.isServer;
-    let updateEnabled = document.getElementById("updateEnabled");
-    let updateValue = document.getElementById("updateValue");
-    let biffUnits = document.getElementById("biffUnits");
-    let autotagEnable = document.getElementById("autotagEnable");
-    let autotagUsePrefix = document.getElementById("autotagUsePrefix");
-    let autotagPrefix = document.getElementById("autotagPrefix");
+    const isServer = item.folder && item.folder.isServer;
+    const isFolder = item.folder && !item.folder.isServer;
+    const updateEnabled = document.getElementById("updateEnabled");
+    const updateValue = document.getElementById("updateValue");
+    const biffUnits = document.getElementById("biffUnits");
+    const autotagEnable = document.getElementById("autotagEnable");
+    const autotagUsePrefix = document.getElementById("autotagUsePrefix");
+    const autotagPrefix = document.getElementById("autotagPrefix");
     if (
       isFolder ||
       (isServer && document.getElementById("locationValue").value)
@@ -1281,11 +1286,11 @@ var FeedSubscriptions = {
         }
 
         item.name = aNode.value;
-        let seln = this.mView.selection;
+        const seln = this.mView.selection;
         seln.tree.invalidateRow(seln.currentIndex);
         break;
       case "locationValue":
-        let updateFeedButton = document.getElementById("updateFeed");
+        const updateFeedButton = document.getElementById("updateFeed");
         // Change label based on whether feed url has beed edited.
         updateFeedButton.label =
           aNode.value == item.url
@@ -1304,7 +1309,7 @@ var FeedSubscriptions = {
       case "updateValue":
       case "biffUnits":
         item.options.updates.enabled = updateEnabled.checked;
-        let minutes =
+        const minutes =
           biffUnits.value == FeedUtils.kBiffUnitsMinutes
             ? updateValue.value
             : updateValue.value * 24 * 60;
@@ -1326,7 +1331,7 @@ var FeedSubscriptions = {
     if (isServer) {
       FeedUtils.setOptionsAcct(item.folder.server, item.options);
     } else {
-      let feed = new Feed(item.url, item.parentFolder);
+      const feed = new Feed(item.url, item.parentFolder);
       feed.title = item.name;
       feed.options = item.options;
 
@@ -1352,7 +1357,9 @@ var FeedSubscriptions = {
     }
 
     this.updateFeedData(item);
-    let message = FeedUtils.strings.GetStringFromName("subscribe-feedUpdated");
+    const message = FeedUtils.strings.GetStringFromName(
+      "subscribe-feedUpdated"
+    );
     this.updateStatusItem("statusText", message);
   },
 
@@ -1363,9 +1370,9 @@ var FeedSubscriptions = {
       return "";
     }
 
-    let biffUnits = document.getElementById("biffUnits").value;
-    let units = biffUnits == FeedUtils.kBiffUnitsDays ? 1 : 24 * 60;
-    let frequency = aUpdates.updateFrequency;
+    const biffUnits = document.getElementById("biffUnits").value;
+    const units = biffUnits == FeedUtils.kBiffUnitsDays ? 1 : 24 * 60;
+    const frequency = aUpdates.updateFrequency;
     let val;
     switch (aUpdates.updatePeriod) {
       case "hourly":
@@ -1403,16 +1410,16 @@ var FeedSubscriptions = {
   },
 
   onSelect() {
-    let item = this.mView.currentItem;
+    const item = this.mView.currentItem;
     this.updateFeedData(item);
     this.setFocus();
     this.updateButtons(item);
   },
 
   updateButtons(aSelectedItem) {
-    let item = aSelectedItem;
-    let isServer = item && item.folder && item.folder.isServer;
-    let isFeed = item && !item.container;
+    const item = aSelectedItem;
+    const isServer = item && item.folder && item.folder.isServer;
+    const isFeed = item && !item.container;
     document.getElementById("addFeed").hidden = !item || isFeed;
     document.getElementById("updateFeed").hidden = !isFeed;
     document.getElementById("removeFeed").hidden = !isFeed;
@@ -1443,24 +1450,24 @@ var FeedSubscriptions = {
   },
 
   setFocus() {
-    let item = this.mView.currentItem;
+    const item = this.mView.currentItem;
     if (!item || this.mActionMode == this.kImportingOPML) {
       return;
     }
 
-    let locationValue = document.getElementById("locationValue");
-    let updateEnabled = document.getElementById("updateEnabled");
+    const locationValue = document.getElementById("locationValue");
+    const updateEnabled = document.getElementById("updateEnabled");
 
-    let quickMode = document.getElementById("quickMode");
-    let autotagEnable = document.getElementById("autotagEnable");
-    let autotagUsePrefix = document.getElementById("autotagUsePrefix");
-    let autotagPrefix = document.getElementById("autotagPrefix");
+    const quickMode = document.getElementById("quickMode");
+    const autotagEnable = document.getElementById("autotagEnable");
+    const autotagUsePrefix = document.getElementById("autotagUsePrefix");
+    const autotagPrefix = document.getElementById("autotagPrefix");
 
-    let addFeedButton = document.getElementById("addFeed");
-    let updateFeedButton = document.getElementById("updateFeed");
+    const addFeedButton = document.getElementById("addFeed");
+    const updateFeedButton = document.getElementById("updateFeed");
 
-    let isServer = item.folder && item.folder.isServer;
-    let isFolder = item.folder && !item.folder.isServer;
+    const isServer = item.folder && item.folder.isServer;
+    const isFolder = item.folder && !item.folder.isServer;
 
     // Enabled by default.
     updateEnabled.disabled =
@@ -1478,7 +1485,7 @@ var FeedSubscriptions = {
     autotagPrefix.disabled =
       autotagUsePrefix.disabled || !autotagUsePrefix.checked;
 
-    let focusedElement = window.document.commandDispatcher.focusedElement;
+    const focusedElement = window.document.commandDispatcher.focusedElement;
 
     if (isServer) {
       addFeedButton.disabled =
@@ -1486,7 +1493,7 @@ var FeedSubscriptions = {
         locationValue != document.activeElement &&
         !locationValue.value;
     } else if (isFolder) {
-      let disable =
+      const disable =
         locationValue != document.activeElement && !locationValue.value;
       // Summary is enabled for a folder with feeds or if adding a feed.
       quickMode.disabled =
@@ -1524,12 +1531,12 @@ var FeedSubscriptions = {
   },
 
   removeFeed(aPrompt) {
-    let seln = this.mView.selection;
+    const seln = this.mView.selection;
     if (seln.count != 1) {
       return;
     }
 
-    let itemToRemove = this.mView.getItemAtIndex(seln.currentIndex);
+    const itemToRemove = this.mView.getItemAtIndex(seln.currentIndex);
 
     if (!itemToRemove || itemToRemove.container) {
       return;
@@ -1537,10 +1544,10 @@ var FeedSubscriptions = {
 
     if (aPrompt) {
       // Confirm unsubscribe prompt.
-      let pTitle = FeedUtils.strings.GetStringFromName(
+      const pTitle = FeedUtils.strings.GetStringFromName(
         "subscribe-confirmFeedDeletionTitle"
       );
-      let pMessage = FeedUtils.strings.formatStringFromName(
+      const pMessage = FeedUtils.strings.formatStringFromName(
         "subscribe-confirmFeedDeletion",
         [itemToRemove.name]
       );
@@ -1561,17 +1568,19 @@ var FeedSubscriptions = {
       }
     }
 
-    let feed = new Feed(itemToRemove.url, itemToRemove.parentFolder);
+    const feed = new Feed(itemToRemove.url, itemToRemove.parentFolder);
     FeedUtils.deleteFeed(feed);
 
     // Now that we have removed the feed from the datasource, it is time to
     // update our view layer.  Update parent folder's quickMode if necessary
     // and remove the child from its parent folder object.
-    let parentIndex = this.mView.getParentIndex(seln.currentIndex);
-    let parentItem = this.mView.getItemAtIndex(parentIndex);
+    const parentIndex = this.mView.getParentIndex(seln.currentIndex);
+    const parentItem = this.mView.getItemAtIndex(parentIndex);
     this.updateFolderQuickModeInView(itemToRemove, parentItem, true);
     this.mView.removeItemAtIndex(seln.currentIndex, false);
-    let message = FeedUtils.strings.GetStringFromName("subscribe-feedRemoved");
+    const message = FeedUtils.strings.GetStringFromName(
+      "subscribe-feedRemoved"
+    );
     this.updateStatusItem("statusText", message);
   },
 
@@ -1599,14 +1608,14 @@ var FeedSubscriptions = {
    */
   addFeed(aFeedLocation, aFolder, aParse, aParams, aMode) {
     let message;
-    let parse = aParse == null ? true : aParse;
-    let mode = aMode == null ? this.kSubscribeMode : aMode;
-    let locationValue = document.getElementById("locationValue");
-    let quickMode =
+    const parse = aParse == null ? true : aParse;
+    const mode = aMode == null ? this.kSubscribeMode : aMode;
+    const locationValue = document.getElementById("locationValue");
+    const quickMode =
       aParams && "quickMode" in aParams
         ? aParams.quickMode
         : document.getElementById("quickMode").checked;
-    let name =
+    const name =
       aParams && "name" in aParams
         ? aParams.name
         : document.getElementById("nameValue").value;
@@ -1615,7 +1624,7 @@ var FeedSubscriptions = {
     if (aFeedLocation) {
       locationValue.value = aFeedLocation;
     }
-    let feedLocation = locationValue.value.trim();
+    const feedLocation = locationValue.value.trim();
 
     if (!feedLocation) {
       locationValue.focus();
@@ -1639,8 +1648,8 @@ var FeedSubscriptions = {
       }
     } else {
       // A folder must be selected for Add and Drop.
-      let index = this.mView.selection.currentIndex;
-      let item = this.mView.getItemAtIndex(index);
+      const index = this.mView.selection.currentIndex;
+      const item = this.mView.getItemAtIndex(index);
       if (item && item.container) {
         addFolder = item.folder;
       }
@@ -1667,9 +1676,9 @@ var FeedSubscriptions = {
       options = FeedUtils.optionsTemplate;
       options.updates.enabled =
         document.getElementById("updateEnabled").checked;
-      let biffUnits = document.getElementById("biffUnits").value;
-      let units = document.getElementById("updateValue").value;
-      let minutes =
+      const biffUnits = document.getElementById("biffUnits").value;
+      const units = document.getElementById("updateValue").value;
+      const minutes =
         biffUnits == FeedUtils.kBiffUnitsMinutes ? units : units * 24 * 60;
       options.updates.updateUnits = biffUnits;
       options.updates.updateMinutes = Number(minutes);
@@ -1680,7 +1689,7 @@ var FeedSubscriptions = {
       options.category.prefix = document.getElementById("autotagPrefix").value;
     }
 
-    let feedProperties = {
+    const feedProperties = {
       feedName: name,
       feedLocation,
       feedFolder: addFolder,
@@ -1688,7 +1697,7 @@ var FeedSubscriptions = {
       options,
     };
 
-    let feed = this.storeFeed(feedProperties);
+    const feed = this.storeFeed(feedProperties);
     if (!feed) {
       return false;
     }
@@ -1705,7 +1714,10 @@ var FeedSubscriptions = {
 
   // Helper routine used by addFeed and importOPMLFile.
   storeFeed(feedProperties) {
-    let feed = new Feed(feedProperties.feedLocation, feedProperties.feedFolder);
+    const feed = new Feed(
+      feedProperties.feedLocation,
+      feedProperties.feedFolder
+    );
     feed.title = feedProperties.feedName;
     feed.quickMode = feedProperties.quickMode;
     feed.options = feedProperties.options;
@@ -1720,22 +1732,22 @@ var FeedSubscriptions = {
    * @returns {void}
    */
   updateFeed() {
-    let seln = this.mView.selection;
+    const seln = this.mView.selection;
     if (seln.count != 1) {
       return;
     }
 
-    let item = this.mView.getItemAtIndex(seln.currentIndex);
+    const item = this.mView.getItemAtIndex(seln.currentIndex);
     if (!item || item.container || !item.parentFolder) {
       return;
     }
 
-    let feed = new Feed(item.url, item.parentFolder);
+    const feed = new Feed(item.url, item.parentFolder);
 
     // Disable the button.
     document.getElementById("updateFeed").disabled = true;
 
-    let feedLocation = document.getElementById("locationValue").value.trim();
+    const feedLocation = document.getElementById("locationValue").value.trim();
     if (feed.url != feedLocation) {
       // Updating a url.  We need to add the new url and delete the old, to
       // ensure everything is cleaned up correctly.
@@ -1745,7 +1757,7 @@ var FeedSubscriptions = {
 
     // Now we want to verify if the stored feed url still works. If it
     // doesn't, show the error.
-    let message = FeedUtils.strings.GetStringFromName(
+    const message = FeedUtils.strings.GetStringFromName(
       "subscribe-validating-feed"
     );
     this.mActionMode = this.kVerifyUrlMode;
@@ -1764,8 +1776,8 @@ var FeedSubscriptions = {
    * @returns {void}
    */
   moveCopyFeed(aOldFeedIndex, aNewParentIndex, aMoveCopy) {
-    let moveFeed = aMoveCopy == "move";
-    let currentItem = this.mView.getItemAtIndex(aOldFeedIndex);
+    const moveFeed = aMoveCopy == "move";
+    const currentItem = this.mView.getItemAtIndex(aOldFeedIndex);
     if (
       !currentItem ||
       this.mView.getParentIndex(aOldFeedIndex) == aNewParentIndex
@@ -1774,12 +1786,12 @@ var FeedSubscriptions = {
       return;
     }
 
-    let currentParentIndex = this.mView.getParentIndex(aOldFeedIndex);
-    let currentParentItem = this.mView.getItemAtIndex(currentParentIndex);
-    let currentFolder = currentParentItem.folder;
+    const currentParentIndex = this.mView.getParentIndex(aOldFeedIndex);
+    const currentParentItem = this.mView.getItemAtIndex(currentParentIndex);
+    const currentFolder = currentParentItem.folder;
 
-    let newParentItem = this.mView.getItemAtIndex(aNewParentIndex);
-    let newFolder = newParentItem.folder;
+    const newParentItem = this.mView.getItemAtIndex(aNewParentIndex);
+    const newFolder = newParentItem.folder;
 
     let accountMoveCopy = false;
     if (currentFolder.rootFolder.URI == newFolder.rootFolder.URI) {
@@ -1805,8 +1817,8 @@ var FeedSubscriptions = {
       // Moving/copying to a new account.  If dropping on the account folder,
       // a new subfolder is created if necessary.
       accountMoveCopy = true;
-      let mode = moveFeed ? this.kMoveMode : this.kCopyMode;
-      let params = {
+      const mode = moveFeed ? this.kMoveMode : this.kCopyMode;
+      const params = {
         quickMode: currentItem.quickMode,
         name: currentItem.name,
         options: currentItem.options,
@@ -1819,7 +1831,7 @@ var FeedSubscriptions = {
       // Unsubscribe the feed from the old folder, if add to the new folder
       // is successful, and doing a move.
       if (moveFeed) {
-        let feed = new Feed(currentItem.url, currentItem.parentFolder);
+        const feed = new Feed(currentItem.url, currentItem.parentFolder);
         FeedUtils.deleteFeed(feed);
       }
     }
@@ -1860,15 +1872,15 @@ var FeedSubscriptions = {
       aNewParentIndex
     );
 
-    let message = FeedUtils.strings.GetStringFromName("subscribe-feedMoved");
+    const message = FeedUtils.strings.GetStringFromName("subscribe-feedMoved");
     this.updateStatusItem("statusText", message);
   },
 
   updateFolderQuickModeInView(aFeedItem, aParentItem, aRemove) {
-    let feedItem = aFeedItem;
-    let parentItem = aParentItem;
-    let feedUrlArray = FeedUtils.getFeedUrlsInFolder(feedItem.parentFolder);
-    let feedsInFolder = feedUrlArray ? feedUrlArray.length : 0;
+    const feedItem = aFeedItem;
+    const parentItem = aParentItem;
+    const feedUrlArray = FeedUtils.getFeedUrlsInFolder(feedItem.parentFolder);
+    const feedsInFolder = feedUrlArray ? feedUrlArray.length : 0;
 
     if (aRemove && feedsInFolder < 1) {
       // Removed only feed in folder; set quickMode to server default.
@@ -1880,7 +1892,7 @@ var FeedSubscriptions = {
       // folder, the feed must reflect the parent's quickMode.  If it is the
       // only feed, update the parent folder to the feed's quickMode.
       if (feedsInFolder > 1) {
-        let feed = new Feed(feedItem.url, feedItem.parentFolder);
+        const feed = new Feed(feedItem.url, feedItem.parentFolder);
         feed.quickMode = parentItem.quickMode;
         feedItem.quickMode = parentItem.quickMode;
       } else {
@@ -1891,13 +1903,13 @@ var FeedSubscriptions = {
 
   onDragStart(aEvent) {
     // Get the selected feed article (if there is one).
-    let seln = this.mView.selection;
+    const seln = this.mView.selection;
     if (seln.count != 1) {
       return;
     }
 
     // Only initiate a drag if the item is a feed (ignore folders/containers).
-    let item = this.mView.getItemAtIndex(seln.currentIndex);
+    const item = this.mView.getItemAtIndex(seln.currentIndex);
     if (!item || item.container) {
       return;
     }
@@ -1918,7 +1930,7 @@ var FeedSubscriptions = {
       window.focus();
       // Feed is null if our attempt to parse the feed failed.
       let message = "";
-      let win = FeedSubscriptions;
+      const win = FeedSubscriptions;
       if (
         aErrorCode == FeedUtils.kNewsBlogSuccess ||
         aErrorCode == FeedUtils.kNewsBlogNoNewItems
@@ -1942,7 +1954,7 @@ var FeedSubscriptions = {
         }
 
         // Update lastUpdateTime if successful.
-        let options = feed.options;
+        const options = feed.options;
         options.updates.lastUpdateTime = Date.now();
         feed.options = options;
 
@@ -1969,7 +1981,7 @@ var FeedSubscriptions = {
           let parentIndex, parentItem, newItem, level;
           if (curItem.container) {
             // Open the container, if it exists.
-            let folderExists = win.selectFolder(feed.folder, {
+            const folderExists = win.selectFolder(feed.folder, {
               parentIndex: curIndex,
             });
             if (!folderExists) {
@@ -2057,7 +2069,7 @@ var FeedSubscriptions = {
           );
         }
         if (aErrorCode == FeedUtils.kNewsBlogBadCertError) {
-          let host = Services.io.newURI(feed.url).host;
+          const host = Services.io.newURI(feed.url).host;
           message = FeedUtils.strings.formatStringFromName(
             "newsblog-badCertError",
             [host]
@@ -2080,7 +2092,7 @@ var FeedSubscriptions = {
 
       win.mActionMode = null;
       win.clearStatusInfo();
-      let code = feed.url.startsWith("http") ? aErrorCode : null;
+      const code = feed.url.startsWith("http") ? aErrorCode : null;
       win.updateStatusItem("statusText", message, code);
     },
 
@@ -2090,7 +2102,7 @@ var FeedSubscriptions = {
     // corresponding to the total number of feed items to download.
     onFeedItemStored(feed, aCurrentFeedItems, aMaxFeedItems) {
       window.focus();
-      let message = FeedUtils.strings.formatStringFromName(
+      const message = FeedUtils.strings.formatStringFromName(
         "subscribe-gettingFeedItems",
         [aCurrentFeedItems, aMaxFeedItems]
       );
@@ -2153,13 +2165,13 @@ var FeedSubscriptions = {
       return;
     }
 
-    let validationQuery = "http://validator.w3.org/feed/check.cgi?url=";
+    const validationQuery = "http://validator.w3.org/feed/check.cgi?url=";
 
     if (this.mMainWin) {
-      let tabmail = this.mMainWin.document.getElementById("tabmail");
+      const tabmail = this.mMainWin.document.getElementById("tabmail");
       if (tabmail) {
-        let feedLocation = document.getElementById("locationValue").value;
-        let url = validationQuery + encodeURIComponent(feedLocation);
+        const feedLocation = document.getElementById("locationValue").value;
+        const url = validationQuery + encodeURIComponent(feedLocation);
 
         this.mMainWin.focus();
         this.mMainWin.openContentTab(url);
@@ -2170,9 +2182,9 @@ var FeedSubscriptions = {
   },
 
   addCertExceptionDialog() {
-    let locationValue = document.getElementById("locationValue");
-    let feedURL = locationValue.value.trim();
-    let params = {
+    const locationValue = document.getElementById("locationValue");
+    const feedURL = locationValue.value.trim();
+    const params = {
       exceptionAdded: false,
       location: feedURL,
       prefetchCert: true,
@@ -2193,7 +2205,7 @@ var FeedSubscriptions = {
   // Listener for folder pane changes.
   FolderListener: {
     get feedWindow() {
-      let subscriptionsWindow = Services.wm.getMostRecentWindow(
+      const subscriptionsWindow = Services.wm.getMostRecentWindow(
         "Mail:News-BlogSubscriptions"
       );
       return subscriptionsWindow ? subscriptionsWindow.FeedSubscriptions : null;
@@ -2214,7 +2226,7 @@ var FeedSubscriptions = {
         return;
       }
 
-      let parentFolder = aFolder.isServer ? aFolder : aFolder.parent;
+      const parentFolder = aFolder.isServer ? aFolder : aFolder.parent;
       FeedUtils.log.debug(
         "folderAdded: folder:parent - " +
           aFolder.name +
@@ -2226,10 +2238,10 @@ var FeedSubscriptions = {
         return;
       }
 
-      let feedWindow = this.feedWindow;
-      let curSelItem = this.currentSelectedItem;
-      let firstVisRow = feedWindow.mView.tree.getFirstVisibleRow();
-      let indexInView = feedWindow.mView.getItemInViewIndex(parentFolder);
+      const feedWindow = this.feedWindow;
+      const curSelItem = this.currentSelectedItem;
+      const firstVisRow = feedWindow.mView.tree.getFirstVisibleRow();
+      const indexInView = feedWindow.mView.getItemInViewIndex(parentFolder);
       let open = indexInView != null;
 
       if (aFolder.isServer) {
@@ -2294,10 +2306,10 @@ var FeedSubscriptions = {
         return;
       }
 
-      let feedWindow = this.feedWindow;
-      let curSelIndex = this.currentSelectedIndex;
-      let indexInView = feedWindow.mView.getItemInViewIndex(aFolder);
-      let open = indexInView != null;
+      const feedWindow = this.feedWindow;
+      const curSelIndex = this.currentSelectedIndex;
+      const indexInView = feedWindow.mView.getItemInViewIndex(aFolder);
+      const open = indexInView != null;
 
       // Delete the folder from the tree row cache.
       feedWindow.selectFolder(aFolder, {
@@ -2311,7 +2323,7 @@ var FeedSubscriptions = {
         return;
       }
 
-      let select =
+      const select =
         indexInView == curSelIndex ||
         feedWindow.mView.isIndexChildOfParentIndex(indexInView, curSelIndex);
 
@@ -2330,12 +2342,12 @@ var FeedSubscriptions = {
         return;
       }
 
-      let feedWindow = this.feedWindow;
-      let curSelIndex = this.currentSelectedIndex;
-      let curSelItem = this.currentSelectedItem;
-      let firstVisRow = feedWindow.mView.tree.getFirstVisibleRow();
-      let indexInView = feedWindow.mView.getItemInViewIndex(aOrigFolder);
-      let open = indexInView != null;
+      const feedWindow = this.feedWindow;
+      const curSelIndex = this.currentSelectedIndex;
+      const curSelItem = this.currentSelectedItem;
+      const firstVisRow = feedWindow.mView.tree.getFirstVisibleRow();
+      const indexInView = feedWindow.mView.getItemInViewIndex(aOrigFolder);
+      const open = indexInView != null;
 
       // Rebuild the renamed folder's item in the tree row cache.
       feedWindow.selectFolder(aOrigFolder, {
@@ -2349,7 +2361,7 @@ var FeedSubscriptions = {
         return;
       }
 
-      let select =
+      const select =
         indexInView == curSelIndex ||
         feedWindow.mView.isIndexChildOfParentIndex(indexInView, curSelIndex);
 
@@ -2396,17 +2408,17 @@ var FeedSubscriptions = {
         return;
       }
 
-      let feedWindow = this.feedWindow;
-      let curSelIndex = this.currentSelectedIndex;
-      let curSelItem = this.currentSelectedItem;
-      let firstVisRow = feedWindow.mView.tree.getFirstVisibleRow();
-      let indexInView = feedWindow.mView.getItemInViewIndex(aSrcFolder);
-      let destIndexInView = feedWindow.mView.getItemInViewIndex(aDestFolder);
-      let open = indexInView != null || destIndexInView != null;
-      let parentIndex = feedWindow.mView.getItemInViewIndex(
+      const feedWindow = this.feedWindow;
+      const curSelIndex = this.currentSelectedIndex;
+      const curSelItem = this.currentSelectedItem;
+      const firstVisRow = feedWindow.mView.tree.getFirstVisibleRow();
+      const indexInView = feedWindow.mView.getItemInViewIndex(aSrcFolder);
+      const destIndexInView = feedWindow.mView.getItemInViewIndex(aDestFolder);
+      const open = indexInView != null || destIndexInView != null;
+      const parentIndex = feedWindow.mView.getItemInViewIndex(
         aDestFolder.parent || aDestFolder
       );
-      let select =
+      const select =
         indexInView == curSelIndex ||
         feedWindow.mView.isIndexChildOfParentIndex(indexInView, curSelIndex);
 
@@ -2457,7 +2469,7 @@ var FeedSubscriptions = {
   /* *************************************************************** */
 
   get brandShortName() {
-    let brandBundle = document.getElementById("bundle_brand");
+    const brandBundle = document.getElementById("bundle_brand");
     return brandBundle ? brandBundle.getString("brandShortName") : "";
   },
 
@@ -2469,12 +2481,12 @@ var FeedSubscriptions = {
    * @returns {Promise} nsIFile or null.
    */
   opmlPickSaveAsFile(aList) {
-    let accountName = this.mRSSServer.rootFolder.prettyName;
-    let fileName = FeedUtils.strings.formatStringFromName(
+    const accountName = this.mRSSServer.rootFolder.prettyName;
+    const fileName = FeedUtils.strings.formatStringFromName(
       "subscribe-OPMLExportDefaultFileName",
       [this.brandShortName, accountName]
     );
-    let title = aList
+    const title = aList
       ? FeedUtils.strings.formatStringFromName(
           "subscribe-OPMLExportTitleList",
           [accountName]
@@ -2483,7 +2495,7 @@ var FeedSubscriptions = {
           "subscribe-OPMLExportTitleStruct",
           [accountName]
         );
-    let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+    const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     fp.defaultString = fileName;
     fp.defaultExtension = "opml";
@@ -2494,7 +2506,7 @@ var FeedSubscriptions = {
       fp.displayDirectory = this.opmlLastSaveAsDir;
     }
 
-    let opmlFilterText = FeedUtils.strings.GetStringFromName(
+    const opmlFilterText = FeedUtils.strings.GetStringFromName(
       "subscribe-OPMLExportOPMLFilesFilterText"
     );
     fp.appendFilter(opmlFilterText, "*.opml");
@@ -2525,17 +2537,17 @@ var FeedSubscriptions = {
    * @returns {Promise} [{nsIFile} file, {String} fileUrl] or null.
    */
   opmlPickOpenFile() {
-    let title = FeedUtils.strings.GetStringFromName(
+    const title = FeedUtils.strings.GetStringFromName(
       "subscribe-OPMLImportTitle"
     );
-    let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+    const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     fp.defaultString = "";
     if (this.opmlLastOpenDir && this.opmlLastOpenDir instanceof Ci.nsIFile) {
       fp.displayDirectory = this.opmlLastOpenDir;
     }
 
-    let opmlFilterText = FeedUtils.strings.GetStringFromName(
+    const opmlFilterText = FeedUtils.strings.GetStringFromName(
       "subscribe-OPMLExportOPMLFilesFilterText"
     );
     fp.appendFilter(opmlFilterText, "*.opml");
@@ -2558,37 +2570,37 @@ var FeedSubscriptions = {
 
   async exportOPML(aEvent) {
     // Account folder must be selected.
-    let item = this.mView.currentItem;
+    const item = this.mView.currentItem;
     if (!item || !item.folder || !item.folder.isServer) {
       return;
     }
 
     this.mRSSServer = item.folder.server;
-    let rootFolder = this.mRSSServer.rootFolder;
-    let exportAsList = aEvent.ctrlKey;
-    let SPACES2 = "  ";
-    let SPACES4 = "    ";
+    const rootFolder = this.mRSSServer.rootFolder;
+    const exportAsList = aEvent.ctrlKey;
+    const SPACES2 = "  ";
+    const SPACES4 = "    ";
 
     if (this.mRSSServer.rootFolder.hasSubFolders) {
-      let opmlDoc = document.implementation.createDocument("", "opml", null);
-      let opmlRoot = opmlDoc.documentElement;
+      const opmlDoc = document.implementation.createDocument("", "opml", null);
+      const opmlRoot = opmlDoc.documentElement;
       opmlRoot.setAttribute("version", "1.0");
       opmlRoot.setAttribute("xmlns:fz", "urn:forumzilla:");
 
       this.generatePPSpace(opmlRoot, SPACES2);
 
       // Make the <head> element.
-      let head = opmlDoc.createElement("head");
+      const head = opmlDoc.createElement("head");
       this.generatePPSpace(head, SPACES4);
-      let titleText = FeedUtils.strings.formatStringFromName(
+      const titleText = FeedUtils.strings.formatStringFromName(
         "subscribe-OPMLExportFileDialogTitle",
         [this.brandShortName, rootFolder.prettyName]
       );
-      let title = opmlDoc.createElement("title");
+      const title = opmlDoc.createElement("title");
       title.appendChild(opmlDoc.createTextNode(titleText));
       head.appendChild(title);
       this.generatePPSpace(head, SPACES4);
-      let dt = opmlDoc.createElement("dateCreated");
+      const dt = opmlDoc.createElement("dateCreated");
       dt.appendChild(opmlDoc.createTextNode(new Date().toUTCString()));
       head.appendChild(dt);
       this.generatePPSpace(head, SPACES2);
@@ -2597,7 +2609,7 @@ var FeedSubscriptions = {
       this.generatePPSpace(opmlRoot, SPACES2);
 
       // Add <outline>s to the <body>.
-      let body = opmlDoc.createElement("body");
+      const body = opmlDoc.createElement("body");
       if (exportAsList) {
         this.generateOutlineList(rootFolder, body, SPACES4.length + 2);
       } else {
@@ -2615,17 +2627,17 @@ var FeedSubscriptions = {
       this.generatePPSpace(opmlRoot, "");
 
       // Get file to save from filepicker.
-      let saveAsFile = await this.opmlPickSaveAsFile(exportAsList);
+      const saveAsFile = await this.opmlPickSaveAsFile(exportAsList);
       if (!saveAsFile) {
         return;
       }
 
-      let fos = FileUtils.openSafeFileOutputStream(saveAsFile);
-      let serializer = new XMLSerializer();
+      const fos = FileUtils.openSafeFileOutputStream(saveAsFile);
+      const serializer = new XMLSerializer();
       serializer.serializeToStream(opmlDoc, fos, "utf-8");
       FileUtils.closeSafeFileOutputStream(fos);
 
-      let statusReport = FeedUtils.strings.formatStringFromName(
+      const statusReport = FeedUtils.strings.formatStringFromName(
         "subscribe-OPMLExportDone",
         [saveAsFile.path]
       );
@@ -2641,10 +2653,10 @@ var FeedSubscriptions = {
 
   generateOutlineList(baseFolder, parent, indentLevel) {
     // Pretty printing.
-    let indentString = " ".repeat(indentLevel - 2);
+    const indentString = " ".repeat(indentLevel - 2);
 
     let feedOutline;
-    for (let folder of baseFolder.subFolders) {
+    for (const folder of baseFolder.subFolders) {
       FeedUtils.log.debug(
         "generateOutlineList: folder - " + folder.filePath.path
       );
@@ -2669,8 +2681,8 @@ var FeedSubscriptions = {
       }
 
       // Add outline elements with xmlUrls.
-      let feeds = this.getFeedsInFolder(folder);
-      for (let feed of feeds) {
+      const feeds = this.getFeedsInFolder(folder);
+      for (const feed of feeds) {
         FeedUtils.log.debug(
           "generateOutlineList: folder has FEED url - " +
             folder.name +
@@ -2691,7 +2703,7 @@ var FeedSubscriptions = {
     }
 
     let folderOutline, feedOutline;
-    for (let folder of baseFolder.subFolders) {
+    for (const folder of baseFolder.subFolders) {
       FeedUtils.log.debug(
         "generateOutlineStruct: folder - " + folder.filePath.path
       );
@@ -2720,8 +2732,8 @@ var FeedSubscriptions = {
         this.generateOutlineStruct(folder, folderOutline, indentLevel + 2);
       }
 
-      let feeds = this.getFeedsInFolder(folder);
-      for (let feed of feeds) {
+      const feeds = this.getFeedsInFolder(folder);
+      for (const feed of feeds) {
         // Add feed outline elements with xmlUrls.
         FeedUtils.log.debug(
           "generateOutlineStruct: folder has FEED url - " +
@@ -2739,7 +2751,7 @@ var FeedSubscriptions = {
   },
 
   exportOPMLOutline(aFeed, aDoc) {
-    let outRv = aDoc.createElement("outline");
+    const outRv = aDoc.createElement("outline");
     outRv.setAttribute("type", "rss");
     outRv.setAttribute("title", aFeed.title);
     outRv.setAttribute("text", aFeed.title);
@@ -2753,19 +2765,20 @@ var FeedSubscriptions = {
 
   async importOPML() {
     // Account folder must be selected in subscribe dialog.
-    let item = this.mView ? this.mView.currentItem : null;
+    const item = this.mView ? this.mView.currentItem : null;
     if (!item || !item.folder || !item.folder.isServer) {
       return;
     }
 
-    let server = item.folder.server;
+    const server = item.folder.server;
     // Get file and file url to open from filepicker.
-    let [openFile, openFileUrl] = await this.opmlPickOpenFile();
+    const [openFile, openFileUrl] = await this.opmlPickOpenFile();
 
     this.mActionMode = this.kImportingOPML;
     this.updateButtons(null);
     this.selectFolder(item.folder, { select: false, open: true });
-    let statusReport = FeedUtils.strings.GetStringFromName("subscribe-loading");
+    const statusReport =
+      FeedUtils.strings.GetStringFromName("subscribe-loading");
     this.updateStatusItem("statusText", statusReport);
     // If there were a getElementsByAttribute in html, we could go determined...
     this.updateStatusItem("progressMeter", "?");
@@ -2808,7 +2821,7 @@ var FeedSubscriptions = {
     FeedUtils.log.debug(
       "importOPMLFile: fileName:fileUrl - " + aFile.leafName + ":" + aFileUrl
     );
-    let request = new Request(aFileUrl);
+    const request = new Request(aFileUrl);
     await fetch(request)
       .then(function (response) {
         if (!response.ok) {
@@ -2858,15 +2871,15 @@ var FeedSubscriptions = {
       return false;
     }
 
-    let body = opmlDom.querySelector("body");
+    const body = opmlDom.querySelector("body");
     this.importOPMLOutlines(body, this.mRSSServer, aCallback);
     return true;
   },
 
   importOPMLOutlines(aBody, aRSSServer, aCallback) {
-    let win = this;
-    let rssServer = aRSSServer;
-    let callback = aCallback;
+    const win = this;
+    const rssServer = aRSSServer;
+    const callback = aCallback;
     let outline, feedFolder;
     let badTag = false;
     let firstFeedInFolderQuickMode = null;
@@ -2886,7 +2899,7 @@ var FeedSubscriptions = {
       while (true) {
         if (aParentNode.tagName == "body" && !aParentNode.childElementCount) {
           // Finished.
-          let statusReport = win.importOPMLStatus(feedsAdded, rssOutlines);
+          const statusReport = win.importOPMLStatus(feedsAdded, rssOutlines);
           callback(statusReport, lastFolder, win);
           return;
         }
@@ -2903,7 +2916,7 @@ var FeedSubscriptions = {
           break;
         }
 
-        let outlineName =
+        const outlineName =
           outline.getAttribute("text") ||
           outline.getAttribute("title") ||
           outline.getAttribute("xmlUrl");
@@ -2968,7 +2981,7 @@ var FeedSubscriptions = {
             quickMode = firstFeedInFolderQuickMode;
           }
 
-          let feedProperties = {
+          const feedProperties = {
             feedName: outlineName,
             feedLocation: feedUrl,
             feedFolder: folder,
@@ -2983,7 +2996,7 @@ var FeedSubscriptions = {
               feedUrl
           );
 
-          let feed = win.storeFeed(feedProperties);
+          const feed = win.storeFeed(feedProperties);
           if (outline.hasAttribute("htmlUrl")) {
             feed.link = outline.getAttribute("htmlUrl");
           }
@@ -3016,7 +3029,7 @@ var FeedSubscriptions = {
           // A folder outline. If a folder exists in the account structure at
           // the same level as in the opml structure, feeds are placed into the
           // existing folder.
-          let folderName = outlineName;
+          const folderName = outlineName;
           try {
             feedFolder = aParentFolder.getChildNamed(folderName);
           } catch (ex) {
@@ -3044,7 +3057,7 @@ var FeedSubscriptions = {
                   "' in parent folder " +
                   aParentFolder.filePath.path
               );
-              let xfolder = aParentFolder.getChildNamed(folderName);
+              const xfolder = aParentFolder.getChildNamed(folderName);
               aParentFolder.propagateDelete(xfolder, true);
               badTag = true;
               break;

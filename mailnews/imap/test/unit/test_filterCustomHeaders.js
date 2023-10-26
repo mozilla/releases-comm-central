@@ -24,12 +24,12 @@ var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
 add_setup(async function () {
   setupIMAPPump();
   // Create a test filter.
-  let filterList = IMAPPump.incomingServer.getFilterList(null);
-  let filter = filterList.createFilter("test list-id");
-  let searchTerm = filter.createTerm();
+  const filterList = IMAPPump.incomingServer.getFilterList(null);
+  const filter = filterList.createFilter("test list-id");
+  const searchTerm = filter.createTerm();
   searchTerm.attrib = Ci.nsMsgSearchAttrib.OtherHeader + 1;
   searchTerm.op = Ci.nsMsgSearchOp.Contains;
-  let value = searchTerm.value;
+  const value = searchTerm.value;
   value.attrib = Ci.nsMsgSearchAttrib.OtherHeader;
   value.str = "gnupg-users.gnupg.org";
   searchTerm.value = value;
@@ -39,7 +39,7 @@ add_setup(async function () {
   filter.enabled = true;
 
   // create a mark read action
-  let action = filter.createAction();
+  const action = filter.createAction();
   action.type = Ci.nsMsgFilterAction.MarkRead;
   filter.appendAction(action);
   filterList.insertFilterAt(0, filter);
@@ -47,19 +47,19 @@ add_setup(async function () {
     "mail.server.default.autosync_offline_stores",
     false
   );
-  let file = do_get_file("../../../data/bugmail19");
-  let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+  const file = do_get_file("../../../data/bugmail19");
+  const msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
 
   IMAPPump.mailbox.addMessage(
     new ImapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
   );
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(function checkFilterResults() {
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   Assert.ok(msgHdr.isRead);
   IMAPPump.server.performTest("UID STORE");
   teardownIMAPPump();

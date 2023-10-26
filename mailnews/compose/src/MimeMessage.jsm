@@ -7,13 +7,13 @@ const EXPORTED_SYMBOLS = ["MimeMessage"];
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-let { MimeMultiPart, MimePart } = ChromeUtils.import(
+const { MimeMultiPart, MimePart } = ChromeUtils.import(
   "resource:///modules/MimePart.jsm"
 );
-let { MsgUtils } = ChromeUtils.import(
+const { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
-let { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
 /**
  * A class to create a top MimePart and write to a tmp file. It works like this:
@@ -70,12 +70,12 @@ class MimeMessage {
    * @returns {nsIFile}
    */
   async createMessageFile() {
-    let topPart = this._initMimePart();
-    let file = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    const topPart = this._initMimePart();
+    const file = Services.dirsvc.get("TmpD", Ci.nsIFile);
     file.append("nsemail.eml");
     file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 
-    let fstream = Cc[
+    const fstream = Cc[
       "@mozilla.org/network/file-output-stream;1"
     ].createInstance(Ci.nsIFileOutputStream);
     this._fstream = Cc[
@@ -104,9 +104,9 @@ class MimeMessage {
    * @returns {MimePart}
    */
   _initMimePart() {
-    let { plainPart, htmlPart } = this._gatherMainParts();
-    let embeddedParts = this._gatherEmbeddedParts();
-    let attachmentParts = this._gatherAttachmentParts();
+    const { plainPart, htmlPart } = this._gatherMainParts();
+    const embeddedParts = this._gatherEmbeddedParts();
+    const attachmentParts = this._gatherAttachmentParts();
 
     let relatedPart = htmlPart;
     if (htmlPart && embeddedParts.length > 0) {
@@ -114,14 +114,14 @@ class MimeMessage {
       relatedPart.addPart(htmlPart);
       relatedPart.addParts(embeddedParts);
     }
-    let mainParts = [plainPart, relatedPart].filter(Boolean);
+    const mainParts = [plainPart, relatedPart].filter(Boolean);
     let topPart;
     if (attachmentParts.length > 0) {
       // Use multipart/mixed as long as there is at least one attachment.
       topPart = new MimeMultiPart("mixed");
       if (plainPart && relatedPart) {
         // Wrap mainParts inside a multipart/alternative MimePart.
-        let alternativePart = new MimeMultiPart("alternative");
+        const alternativePart = new MimeMultiPart("alternative");
         alternativePart.addParts(mainParts);
         topPart.addPart(alternativePart);
       } else {
@@ -176,7 +176,7 @@ class MimeMessage {
 
       this._compFields.messageId = messageId;
     }
-    let headers = new Map([
+    const headers = new Map([
       ["message-id", messageId],
       ["date", new Date()],
       ["mime-version", "1.0"],
@@ -200,20 +200,20 @@ class MimeMessage {
       }
     }
 
-    for (let headerName of [...this._compFields.headerNames]) {
-      let headerContent = this._compFields.getRawHeader(headerName);
+    for (const headerName of [...this._compFields.headerNames]) {
+      const headerContent = this._compFields.getRawHeader(headerName);
       if (headerContent) {
         headers.set(headerName, headerContent);
       }
     }
-    let isDraft = [
+    const isDraft = [
       Ci.nsIMsgSend.nsMsgQueueForLater,
       Ci.nsIMsgSend.nsMsgDeliverBackground,
       Ci.nsIMsgSend.nsMsgSaveAsDraft,
       Ci.nsIMsgSend.nsMsgSaveAsTemplate,
     ].includes(this._deliverMode);
 
-    let undisclosedRecipients = MsgUtils.getUndisclosedRecipients(
+    const undisclosedRecipients = MsgUtils.getUndisclosedRecipients(
       this._compFields,
       this._deliverMode
     );
@@ -248,13 +248,13 @@ class MimeMessage {
         );
     }
 
-    for (let { headerName, headerValue } of MsgUtils.getDefaultCustomHeaders(
+    for (const { headerName, headerValue } of MsgUtils.getDefaultCustomHeaders(
       this._userIdentity
     )) {
       headers.set(headerName, headerValue);
     }
 
-    let rawMftHeader = headers.get("mail-followup-to");
+    const rawMftHeader = headers.get("mail-followup-to");
     // If there's already a Mail-Followup-To header, don't need to do anything.
     if (!rawMftHeader) {
       headers.set(
@@ -263,7 +263,7 @@ class MimeMessage {
       );
     }
 
-    let rawMrtHeader = headers.get("mail-reply-to");
+    const rawMrtHeader = headers.get("mail-reply-to");
     // If there's already a Mail-Reply-To header, don't need to do anything.
     if (!rawMrtHeader) {
       headers.set(
@@ -276,14 +276,14 @@ class MimeMessage {
       );
     }
 
-    let rawPriority = headers.get("x-priority");
+    const rawPriority = headers.get("x-priority");
     if (rawPriority) {
       headers.set("x-priority", MsgUtils.getXPriority(rawPriority));
     }
 
-    let rawReferences = headers.get("references");
+    const rawReferences = headers.get("references");
     if (rawReferences) {
-      let references = MsgUtils.getReferences(rawReferences);
+      const references = MsgUtils.getReferences(rawReferences);
       // Don't reset "references" header if references is undefined.
       if (references) {
         headers.set("references", references);
@@ -300,9 +300,9 @@ class MimeMessage {
       headers.set("x-forwarded-message-id", rawReferences);
     }
 
-    let rawNewsgroups = headers.get("newsgroups");
+    const rawNewsgroups = headers.get("newsgroups");
     if (rawNewsgroups) {
-      let { newsgroups, newshost } = MsgUtils.getNewsgroups(
+      const { newsgroups, newshost } = MsgUtils.getNewsgroups(
         this._deliverMode,
         rawNewsgroups
       );
@@ -322,7 +322,7 @@ class MimeMessage {
    * @returns {{plainPart: MimePart, htmlPart: MimePart}}
    */
   _gatherMainParts() {
-    let formatFlowed = Services.prefs.getBoolPref(
+    const formatFlowed = Services.prefs.getBoolPref(
       "mailnews.send_plaintext_flowed"
     );
     let formatParam = "";
@@ -333,7 +333,7 @@ class MimeMessage {
 
     let htmlPart = null;
     let plainPart = null;
-    let parts = {};
+    const parts = {};
 
     if (this._bodyType === "text/html") {
       htmlPart = new MimePart(
@@ -374,7 +374,7 @@ class MimeMessage {
         `text/plain; charset=UTF-8${formatParam}`
       );
       // nsIParserUtils.convertToPlainText expects unicode string.
-      let plainUnicode = MsgUtils.convertToPlainText(
+      const plainUnicode = MsgUtils.convertToPlainText(
         new TextDecoder().decode(
           jsmime.mimeutils.stringToTypedArray(this._bodyText)
         ),
@@ -408,19 +408,19 @@ class MimeMessage {
    * @returns {MimePart[]}
    */
   _gatherAttachmentParts() {
-    let attachments = [...this._compFields.attachments];
-    let cloudParts = [];
-    let localParts = [];
+    const attachments = [...this._compFields.attachments];
+    const cloudParts = [];
+    const localParts = [];
 
-    for (let attachment of attachments) {
+    for (const attachment of attachments) {
       let part;
       if (attachment.htmlAnnotation) {
         part = new MimePart();
         part.bodyText = attachment.htmlAnnotation;
         part.setHeader("content-type", "text/html; charset=utf-8");
 
-        let suffix = /\.html$/i.test(attachment.name) ? "" : ".html";
-        let encodedFilename = MsgUtils.rfc2231ParamFolding(
+        const suffix = /\.html$/i.test(attachment.name) ? "" : ".html";
+        const encodedFilename = MsgUtils.rfc2231ParamFolding(
           "filename",
           `${attachment.name}${suffix}`
         );
@@ -430,7 +430,7 @@ class MimeMessage {
         part.setBodyAttachment(attachment);
       }
 
-      let cloudPartHeader = MsgUtils.getXMozillaCloudPart(
+      const cloudPartHeader = MsgUtils.getXMozillaCloudPart(
         this._deliverMode,
         attachment
       );
@@ -452,7 +452,7 @@ class MimeMessage {
    */
   _gatherEmbeddedParts() {
     return this._embeddedAttachments.map(attachment => {
-      let part = new MimePart(null, this._compFields.forceMsgEncoding, false);
+      const part = new MimePart(null, this._compFields.forceMsgEncoding, false);
       part.setBodyAttachment(attachment, "inline", attachment.contentId);
       return part;
     });
@@ -464,7 +464,7 @@ class MimeMessage {
    * @returns {nsIMsgComposeSecure}
    */
   _getComposeSecure() {
-    let secureCompose = this._compFields.composeSecure;
+    const secureCompose = this._compFields.composeSecure;
     if (!secureCompose) {
       return null;
     }
@@ -492,7 +492,7 @@ class MimeMessage {
    * encapsulation.
    */
   _startCryptoEncapsulation() {
-    let recipients = [
+    const recipients = [
       this._compFields.to,
       this._compFields.cc,
       this._compFields.bcc,
@@ -536,7 +536,7 @@ class MimeMessage {
       if (curPart.parts.length > 1) {
         // Move child parts one layer deeper so that the message is still well
         // formed after crypto encapsulation.
-        let newChild = new MimeMultiPart(curPart.subtype);
+        const newChild = new MimeMultiPart(curPart.subtype);
         newChild.parts = curPart._parts;
         curPart.parts = [newChild];
       }
@@ -566,7 +566,7 @@ class MimeMessage {
       }
 
       // multipart message
-      for (let part of curPart.parts) {
+      for (const part of curPart.parts) {
         this._writeString(`--${curPart.separator}\r\n`);
         await this._writePart(part, depth + 1);
       }

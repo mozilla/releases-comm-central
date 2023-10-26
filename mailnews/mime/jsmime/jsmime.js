@@ -33,7 +33,7 @@
     function decode_qp(buffer, more) {
       // Unlike base64, quoted-printable isn't stateful across multiple lines, so
       // there is no need to buffer input, so we can always ignore more.
-      let decoded = buffer.replace(
+      const decoded = buffer.replace(
         // Replace either =<hex><hex> or =<wsp>CRLF
         /=([0-9A-F][0-9A-F]|[ \t]*(\r\n|[\r\n]|$))/gi,
         function (match, param) {
@@ -67,7 +67,7 @@
       sanitize = sanitize.replace(/=+([A-Za-z0-9+\/])/g, "$1");
       // We need to encode in groups of 4 chars. If we don't have enough, leave the
       // excess for later. If there aren't any more, drop enough to make it 4.
-      let excess = sanitize.length % 4;
+      const excess = sanitize.length % 4;
       if (excess != 0 && more) {
         buffer = sanitize.slice(-excess);
       } else {
@@ -159,7 +159,7 @@
     // There is no need to specialize the results for the header, so just pun it
     // back to parseAddressingHeader.
     function parseAddress(value) {
-      let headerparser = this;
+      const headerparser = this;
       return value.reduce(function (results, header) {
         return results.concat(headerparser.parseAddressingHeader(header, true));
       }, []);
@@ -207,17 +207,17 @@
     // RFC 2045
     function parseContentType(value) {
       let params = parseParameterHeader.call(this, value, false, false);
-      let origtype = params.preSemi;
+      const origtype = params.preSemi;
       let parts = origtype.split("/");
       if (parts.length != 2) {
         // Malformed. Return to text/plain. Evil, ain't it?
         params = new Map();
         parts = ["text", "plain"];
       }
-      let mediatype = parts[0].toLowerCase();
-      let subtype = parts[1].toLowerCase();
-      let type = mediatype + "/" + subtype;
-      let structure = new Map();
+      const mediatype = parts[0].toLowerCase();
+      const subtype = parts[1].toLowerCase();
+      const type = mediatype + "/" + subtype;
+      const structure = new Map();
       structure.mediatype = mediatype;
       structure.subtype = subtype;
       structure.type = type;
@@ -291,9 +291,9 @@
     // with spaces, since these are optional according to RFC2822. So here we
     // preprocess these headers (see bug 1154521 and bug 1197686).
     function preprocessMessageIDs(values) {
-      let msgId = /<[^>]*>/g;
-      let match,
-        ids = [];
+      const msgId = /<[^>]*>/g;
+      let match;
+      const ids = [];
       while ((match = msgId.exec(values)) !== null) {
         ids.push(match[0]);
       }
@@ -477,7 +477,7 @@
       // The array of parsed tokens. This method used to be a generator, but it
       // appears that generators are poorly optimized in current engines, so it was
       // converted to not be one.
-      let tokenList = [];
+      const tokenList = [];
 
       // Represents a non-delimiter token.
       function Token(token) {
@@ -491,7 +491,7 @@
       // The start of the current token (e.g., atoms, strings)
       let tokenStart = undefined;
       // The set of whitespace characters, as defined by RFC 5322
-      let wsp = " \t\r\n";
+      const wsp = " \t\r\n";
       // If we are a domain literal ([]) or a quoted string ("), this is set to the
       // character to look for at the end.
       let endQuote = undefined;
@@ -500,9 +500,9 @@
       let commentDepth = 0;
 
       // Iterate over every character one character at a time.
-      let length = value.length;
+      const length = value.length;
       for (let i = 0; i < length; i++) {
-        let ch = value[i];
+        const ch = value[i];
         // If we see a \, no matter what context we are in, ignore the next
         // character.
         if (ch == "\\") {
@@ -545,8 +545,8 @@
         ) {
           // RFC 2047 tokens separated only by whitespace are conceptually part of
           // the same output token, so we need to decode them all at once.
-          let encodedWordsRE = /([ \t\r\n]*=\?[^?]*\?[BbQq]\?[^?]*\?=)+/;
-          let result = encodedWordsRE.exec(value.slice(i));
+          const encodedWordsRE = /([ \t\r\n]*=\?[^?]*\?[BbQq]\?[^?]*\?=)+/;
+          const result = encodedWordsRE.exec(value.slice(i));
           if (result !== null) {
             // If we were in the middle of a prior token (i.e., something like
             // foobar=?UTF-8?Q?blah?=), yield the previous segment as a token.
@@ -556,8 +556,8 @@
             }
 
             // Find out how much we need to decode...
-            let encWordsLen = result[0].length;
-            let string = decodeRFC2047Words(
+            const encWordsLen = result[0].length;
+            const string = decodeRFC2047Words(
               value.slice(i, i + encWordsLen),
               "UTF-8"
             );
@@ -693,21 +693,23 @@
       // characters.
       if (/[\x80-\xff]/.exec(headerValue)) {
         // First convert the value to a typed-array for MimeTextDecoder.
-        let typedarray = mimeutils.stringToTypedArray(headerValue);
+        const typedarray = mimeutils.stringToTypedArray(headerValue);
 
         // Don't try UTF-8 as fallback (redundant), and don't try UTF-16 or UTF-32
         // either, since they radically change header interpretation.
         // If we have a fallback charset, we want to know if decoding will fail;
         // otherwise, we want to replace with substitution chars.
-        let hasFallback =
+        const hasFallback =
           fallbackCharset && !fallbackCharset.toLowerCase().startsWith("utf");
-        let utf8Decoder = new MimeTextDecoder("utf-8", { fatal: hasFallback });
+        const utf8Decoder = new MimeTextDecoder("utf-8", {
+          fatal: hasFallback,
+        });
         try {
           headerValue = utf8Decoder.decode(typedarray);
         } catch (e) {
           // Failed, try the fallback
           try {
-            let decoder = new MimeTextDecoder(fallbackCharset, {
+            const decoder = new MimeTextDecoder(fallbackCharset, {
               fatal: false,
             });
             headerValue = decoder.decode(typedarray);
@@ -743,7 +745,7 @@
        * E.g. =?iso-8859-1?q?this=20is=20some=20text?=
        */
       function decode2047Token(token, isLastToken) {
-        let tokenParts = token.split("?");
+        const tokenParts = token.split("?");
 
         // If it's obviously not a valid token, return false immediately.
         if (tokenParts.length != 5 || tokenParts[4] != "=") {
@@ -753,8 +755,8 @@
         // The charset parameter is defined in RFC 2231 to be charset or
         // charset*language. We only care about the charset here, so ignore any
         // language parameter that gets passed in.
-        let charset = tokenParts[1].split("*", 1)[0];
-        let encoding = tokenParts[2],
+        const charset = tokenParts[1].split("*", 1)[0];
+        const encoding = tokenParts[2],
           text = tokenParts[3];
 
         let buffer;
@@ -783,7 +785,7 @@
         }
 
         // Make the buffer be a typed array for what follows
-        let stringBuffer = buffer;
+        const stringBuffer = buffer;
         buffer = mimeutils.stringToTypedArray(buffer);
 
         // If we cannot reuse the last decoder, flush out whatever remains.
@@ -829,7 +831,7 @@
       // =?charset?c?text?=, where c is one of B, b, Q, and q. The split regex does
       // some amount of semantic checking, so that malformed RFC 2047 tokens will
       // get ignored earlier.
-      let components = headerValue.split(/(=\?[^?]*\?[BQbq]\?[^?]*\?=)/);
+      const components = headerValue.split(/(=\?[^?]*\?[BQbq]\?[^?]*\?=)/);
 
       // Find last RFC 2047 token.
       let lastRFC2047Index = -1;
@@ -840,7 +842,7 @@
       }
       for (let i = 0; i < components.length; i++) {
         if (components[i].substring(0, 2) == "=?") {
-          let decoded = decode2047Token(components[i], i == lastRFC2047Index);
+          const decoded = decode2047Token(components[i], i == lastRFC2047Index);
           if (decoded !== false) {
             // If 2047 decoding succeeded for this bit, rewrite the original value
             // with the proper decoding.
@@ -953,7 +955,7 @@
        */
       function addToAddrList(displayName, addrSpec) {
         // Keep the local-part quoted if it needs to be.
-        let lp = addrSpec.substring(0, addrSpec.lastIndexOf("@"));
+        const lp = addrSpec.substring(0, addrSpec.lastIndexOf("@"));
         if (/[ !()<>\[\]:;@\\,"]/.exec(lp) !== null) {
           addrSpec =
             '"' +
@@ -968,7 +970,7 @@
 
         if (displayName === "" && lastComment !== "") {
           // Take last comment content as the display-name.
-          let offset = lastComment[0] === " " ? 2 : 1;
+          const offset = lastComment[0] === " " ? 2 : 1;
           displayName = lastComment.substr(
             offset,
             lastComment.length - offset - 1
@@ -1161,14 +1163,14 @@
       start = start.trim().split(/[ \t\r\n]/)[0];
 
       // Decode the the parameter tokens.
-      let opts = { qstring: true, rfc2047: doRFC2047 };
+      const opts = { qstring: true, rfc2047: doRFC2047 };
       // Name is the name of the parameter, inName is true iff we don't have a name
       // yet.
       let name = "",
         inName = true;
       // Matches is a list of [name, value] pairs, where we found something that
       // looks like name=value in the input string.
-      let matches = [];
+      const matches = [];
       for (let token of getHeaderTokens(rest, ";=", opts)) {
         if (token === ";") {
           // If we didn't find a name yet (we have ... tokenA; tokenB), push the
@@ -1223,11 +1225,11 @@
       var simpleValues = new Map(),
         charsetValues = new Map(),
         continuationValues = new Map();
-      for (let pair of matches) {
+      for (const pair of matches) {
         let name = pair[0];
-        let value = pair[1];
+        const value = pair[1];
         // Get first index, not last index, so we match param*0*= like param*0=.
-        let star = name.indexOf("*");
+        const star = name.indexOf("*");
         if (star == -1) {
           // This is the case of param=val. Select the first value here, if there
           // are multiple ones.
@@ -1243,7 +1245,7 @@
           }
         } else {
           // This is the case of param*0= or param*0*=.
-          let param = name.substring(0, star);
+          const param = name.substring(0, star);
           let entry = continuationValues.get(param);
           // Did we previously find this one to be bungled? Then ignore it.
           if (continuationValues.has(param) && !entry.valid) {
@@ -1261,7 +1263,7 @@
 
           // When the string ends in *, we need to charset decoding.
           // Note that the star is only meaningful for the *0*= case.
-          let lastStar = name[name.length - 1] == "*";
+          const lastStar = name[name.length - 1] == "*";
           let number = name.substring(
             star + 1,
             name.length - (lastStar ? 1 : 0)
@@ -1296,15 +1298,15 @@
       var values = new Map();
       // Simple values have lowest priority, so just add everything into the result
       // now.
-      for (let pair of simpleValues) {
+      for (const pair of simpleValues) {
         values.set(pair[0], pair[1]);
       }
 
       if (doRFC2231) {
         // Continuation values come next
-        for (let pair of continuationValues) {
-          let name = pair[0];
-          let entry = pair[1];
+        for (const pair of continuationValues) {
+          const name = pair[0];
+          const entry = pair[1];
           // If we never saw a param*0= or param*0*= value, then we can't do any
           // reasoning about what it looks like, so bail out now.
           if (entry.hasCharset === undefined) {
@@ -1336,7 +1338,7 @@
         }
 
         // Highest priority is the charset conversion.
-        for (let pair of charsetValues) {
+        for (const pair of charsetValues) {
           try {
             values.set(pair[0], decode2231Value(pair[1]));
           } catch (e) {
@@ -1345,7 +1347,7 @@
         }
       }
 
-      for (let [key, value] of values.entries()) {
+      for (const [key, value] of values.entries()) {
         values.set(key, cleanToken(value));
       }
 
@@ -1363,17 +1365,17 @@
      * @returns The Unicode version of the string.
      */
     function decode2231Value(value) {
-      let quote1 = value.indexOf("'");
-      let quote2 = quote1 >= 0 ? value.indexOf("'", quote1 + 1) : -1;
+      const quote1 = value.indexOf("'");
+      const quote2 = quote1 >= 0 ? value.indexOf("'", quote1 + 1) : -1;
 
-      let charset = quote1 >= 0 ? value.substring(0, quote1) : "";
+      const charset = quote1 >= 0 ? value.substring(0, quote1) : "";
       // It turns out that the language isn't useful anywhere in our codebase for
       // the present time, so we will safely ignore it.
       // var language = (quote2 >= 0 ? value.substring(quote1 + 2, quote2) : "");
       value = value.substring(Math.max(quote1, quote2) + 1);
 
       // Convert the value into a typed array for decoding
-      let typedarray = mimeutils.stringToTypedArray(value);
+      const typedarray = mimeutils.stringToTypedArray(value);
 
       // Decode the charset. If the charset isn't found, we throw an error. Try to
       // fallback in that case.
@@ -1446,14 +1448,14 @@
       }
 
       // Save off the numeric tokens
-      let day = parseInt(tokens[0]);
+      const day = parseInt(tokens[0]);
       // month is tokens[1]
       let year = parseInt(tokens[2]);
-      let hours = parseInt(tokens[3]);
+      const hours = parseInt(tokens[3]);
       // tokens[4] === ':'
-      let minutes = parseInt(tokens[5]);
+      const minutes = parseInt(tokens[5]);
       // tokens[6] === ':'
-      let seconds = parseInt(tokens[7]);
+      const seconds = parseInt(tokens[7]);
 
       // Compute the month. Check only the first three digits for equality; this
       // allows us to accept, e.g., "January" in lieu of "Jan."
@@ -1488,7 +1490,7 @@
       // How do we make the date at this point? Well, the JS date's constructor
       // builds the time in terms of the local timezone. To account for the offset
       // properly, we need to build in UTC.
-      let finalDate = new Date(
+      const finalDate = new Date(
         Date.UTC(year, month, day, hours, minutes, seconds) -
           tzOffsetInMin * 60 * 1000
       );
@@ -1510,7 +1512,7 @@
     var structuredHeaders = require("./structuredHeaders");
     var preferredSpellings = structuredHeaders.spellings;
     var forbiddenHeaders = new Set();
-    for (let pair of structuredHeaders.decoders) {
+    for (const pair of structuredHeaders.decoders) {
       addStructuredDecoder(pair[0], pair[1]);
       forbiddenHeaders.add(pair[0].toLowerCase());
     }
@@ -1603,7 +1605,7 @@
 
       // Lookup the header in our decoders; if present, use that to decode the
       // header.
-      let lowerHeader = header.toLowerCase();
+      const lowerHeader = header.toLowerCase();
       if (structuredDecoders.has(lowerHeader)) {
         return structuredDecoders.get(lowerHeader).call(headerparser, value);
       }
@@ -1636,7 +1638,7 @@
      *                                               function.
      */
     function addStructuredDecoder(header, decoder) {
-      let lowerHeader = header.toLowerCase();
+      const lowerHeader = header.toLowerCase();
       if (forbiddenHeaders.has(lowerHeader)) {
         throw new Error("Cannot override header: " + header);
       }
@@ -1785,7 +1787,7 @@
       // An individual header is terminated by a CRLF, except if the CRLF is
       // followed by a SP or TAB. Use negative lookahead to capture the latter case,
       // and don't capture the strings or else split results get nasty.
-      let values = rawHeaderText.split(/(?:\r\n|\n)(?![ \t])|\r(?![ \t\n])/);
+      const values = rawHeaderText.split(/(?:\r\n|\n)(?![ \t])|\r(?![ \t\n])/);
 
       // Ignore the first "header" if it begins with an mbox delimiter
       if (values.length > 0 && values[0].substring(0, 5) == "From ") {
@@ -1800,11 +1802,11 @@
         }
       }
 
-      let headers = new Map();
+      const headers = new Map();
       for (let i = 0; i < values.length; i++) {
         // Look for a colon. If it's not present, this header line is malformed,
         // perhaps by premature EOF or similar.
-        let colon = values[i].indexOf(":");
+        const colon = values[i].indexOf(":");
         let header, val;
         if (colon >= 0) {
           header = values[i].substring(0, colon);
@@ -1940,7 +1942,7 @@
       }
 
       // Convert the header to Unicode
-      let charset = this.charset;
+      const charset = this.charset;
       headerValue = headerValue.map(function (value) {
         return headerparser.convert8BitHeader(value, charset);
       });
@@ -1988,7 +1990,7 @@
     StructuredHeaders.prototype[ITERATOR_SYMBOL] = function* () {
       // Iterate over all the raw headers, and use the cached headers to retrieve
       // them.
-      for (let headerName of this.keys()) {
+      for (const headerName of this.keys()) {
         yield [headerName, this.get(headerName)];
       }
     };
@@ -2003,7 +2005,7 @@
      *                                                  the |this| of the callback.
      */
     StructuredHeaders.prototype.forEach = function (callback, thisarg) {
-      for (let [header, value] of this) {
+      for (const [header, value] of this) {
         callback.call(thisarg, value, header, this);
       }
     };
@@ -2026,7 +2028,7 @@
      * An equivalent of Map.keys, applied to the structured header representations.
      */
     StructuredHeaders.prototype.keys = function* () {
-      for (let name of this._rawHeaders.keys()) {
+      for (const name of this._rawHeaders.keys()) {
         yield spellings.get(name) || capitalize(name);
       }
     };
@@ -2036,7 +2038,7 @@
      * representations.
      */
     StructuredHeaders.prototype.values = function* () {
-      for (let [, value] of this) {
+      for (const [, value] of this) {
         yield value;
       }
     };
@@ -2227,9 +2229,9 @@
       // don't want to consider '\r' if it is the very last character, as we need
       // the next packet to tell if the '\r' is the beginning of a CRLF or a line
       // ending by itself.
-      let lastCR = buffer.lastIndexOf("\r", buffer.length - 2);
-      let lastLF = buffer.lastIndexOf("\n");
-      let end = lastLF > lastCR ? lastLF : lastCR;
+      const lastCR = buffer.lastIndexOf("\r", buffer.length - 2);
+      const lastLF = buffer.lastIndexOf("\n");
+      const end = lastLF > lastCR ? lastLF : lastCR;
       return [buffer.substring(0, end + 1), buffer.substring(end + 1)];
     }
 
@@ -2287,8 +2289,8 @@
      */
     MimeParser.prototype._willIgnorePart = function (part) {
       if (this._options.pruneat) {
-        let match = this._options.pruneat;
-        let start = part.substr(0, match.length);
+        const match = this._options.pruneat;
+        const start = part.substr(0, match.length);
         // It needs to start with and follow with a new part indicator
         // (i.e., don't let 10 match with 1, but let 1.1 or 1$ do so)
         if (
@@ -2378,13 +2380,13 @@
         this._headerData += buffer;
         // Find the end of the headers--either it's a CRLF at the beginning (in
         // which case we have no headers), or it's a pair of CRLFs.
-        let result = /(?:^(?:\r\n|[\r\n]))|(\r\n|[\r\n])\1/.exec(
+        const result = /(?:^(?:\r\n|[\r\n]))|(\r\n|[\r\n])\1/.exec(
           this._headerData
         );
         if (result != null) {
           // If we found the end of headers, split the data at this point and send
           // the stuff after the double-CRLF into the later body parsing.
-          let headers = this._headerData.substr(0, result.index);
+          const headers = this._headerData.substr(0, result.index);
           buffer = this._headerData.substring(result.index + result[0].length);
           this._headerData = headers;
           this._headers = this._parseHeaders();
@@ -2398,10 +2400,10 @@
       // We're in the middle of the body. Start by testing the split regex, to see
       // if there are many things that need to be done.
       if (checkSplit && this._splitRegex) {
-        let splitResult = this._splitRegex.exec(buffer);
+        const splitResult = this._splitRegex.exec(buffer);
         if (splitResult) {
           // Pass the text before the split through the current state.
-          let start = splitResult.index,
+          const start = splitResult.index,
             len = splitResult[0].length;
           if (start > 0) {
             this._dispatchData(partNum, buffer.substr(0, start), false);
@@ -2426,7 +2428,7 @@
         // Don't send any data when going to the black hole.
       } else if (this._state == SEND_TO_EMITTER) {
         // Don't pass body data if the format is to be none
-        let passData = this._options.bodyformat != "none";
+        const passData = this._options.bodyformat != "none";
         if (!passData || this._willIgnorePart(partNum)) {
           return;
         }
@@ -2541,7 +2543,7 @@
      *                              block.
      */
     MimeParser.prototype._parseHeaders = function () {
-      let headers = new StructuredHeaders(this._headerData, this._options);
+      const headers = new StructuredHeaders(this._headerData, this._options);
 
       // Fill the headers.contentType parameter of headers.
       let contentType = headers.get("Content-Type");
@@ -2584,7 +2586,7 @@
      * @param partNum {String} The part number being currently parsed.
      */
     MimeParser.prototype._startBody = function (partNum) {
-      let contentType = this._headers.contentType;
+      const contentType = this._headers.contentType;
 
       // Should the bodyformat be raw, we just want to pass through all data without
       // trying to interpret it.
@@ -2653,9 +2655,9 @@
               splitPoint--;
             }
           }
-          let res = conditionToEndOnCRLF(buffer.substring(0, splitPoint));
-          let preLF = res[0];
-          let rest = res[1];
+          const res = conditionToEndOnCRLF(buffer.substring(0, splitPoint));
+          const preLF = res[0];
+          const rest = res[1];
           return [preLF, rest + buffer.substring(splitPoint)];
         };
       } else if (
@@ -2675,7 +2677,7 @@
         // contents properly. There seems to be some evidence that message/rfc822
         // that is illegally-encoded exists in the wild, so be lenient and decode
         // for any message/* type that gets here.
-        let cte = this._extractHeader("content-transfer-encoding", "");
+        const cte = this._extractHeader("content-transfer-encoding", "");
         if (cte in ContentDecoders) {
           this._convertData = ContentDecoders[cte];
         }
@@ -2684,7 +2686,7 @@
         this._state = SEND_TO_EMITTER;
         if (this._options.bodyformat == "decode") {
           // If we wish to decode, look it up in one of our decoders.
-          let cte = this._extractHeader("content-transfer-encoding", "");
+          const cte = this._extractHeader("content-transfer-encoding", "");
           if (cte in ContentDecoders) {
             this._convertData = ContentDecoders[cte];
           }
@@ -2821,7 +2823,7 @@
     var structuredHeaders = require("./structuredHeaders");
     var encoders = new Map();
     var preferredSpellings = structuredHeaders.spellings;
-    for (let [header, encoder] of structuredHeaders.encoders) {
+    for (const [header, encoder] of structuredHeaders.encoders) {
       addStructuredEncoder(header, encoder);
     }
 
@@ -2831,7 +2833,7 @@
       if (!(property in object)) {
         return def;
       }
-      let value = object[property];
+      const value = object[property];
       if (value < min) {
         return min;
       }
@@ -2974,7 +2976,7 @@
      *   include before wrapping.
      */
     HeaderEmitter.prototype._commitLine = function (count) {
-      let isContinuing = typeof count !== "undefined";
+      const isContinuing = typeof count !== "undefined";
 
       // Split at the point, and lop off whitespace immediately before and after.
       let firstN, lastN;
@@ -3168,7 +3170,7 @@
       // If the text is too long, split the quotable string at space boundaries and
       // add each word individually. If we still can't add all those words, there is
       // nothing that we can do.
-      let words = text.split(" ");
+      const words = text.split(" ");
       for (let i = 0; i < words.length; i++) {
         this.addQuotable(
           words[i],
@@ -3206,7 +3208,7 @@
       useQP,
       mayBreakAfter
     ) {
-      let binaryString = mimeutils.typedArrayToString(encodedText);
+      const binaryString = mimeutils.typedArrayToString(encodedText);
       let token;
       if (useQP) {
         token = qpPrelude;
@@ -3216,7 +3218,7 @@
             encodedText[i] >= 0x7f ||
             qpForbidden.includes(binaryString[i])
           ) {
-            let ch = encodedText[i];
+            const ch = encodedText[i];
             token += "=" + hexString[(ch & 0xf0) >> 4] + hexString[ch & 0x0f];
           } else if (binaryString[i] == " ") {
             token += "_";
@@ -3244,10 +3246,10 @@
       mayBreakAfter
     ) {
       // Start by encoding the text into UTF-8 directly.
-      let encodedText = new TextEncoder("UTF-8").encode(text);
+      const encodedText = new TextEncoder("UTF-8").encode(text);
 
       // Make sure there's enough room for a single token.
-      let minLineLen = b64Prelude.length + 10; // Eight base64 characters plus ?=
+      const minLineLen = b64Prelude.length + 10; // Eight base64 characters plus ?=
       if (!this._reserveTokenSpace(minLineLen)) {
         this._commitLine(this._currentLine.length);
       }
@@ -3345,7 +3347,7 @@
      * @param          value The structured value of the header.
      */
     HeaderEmitter.prototype.addStructuredHeader = function (name, value) {
-      let lowerName = name.toLowerCase();
+      const lowerName = name.toLowerCase();
       if (encoders.has(lowerName)) {
         this.addHeaderName(preferredSpellings.get(lowerName));
         encoders.get(lowerName).call(this, value);
@@ -3392,7 +3394,7 @@
       // Find the local-part and domain of the address, since the local-part may
       // need to be quoted separately. Note that the @ goes to the domain, so that
       // the local-part may be quoted if it needs to be.
-      let at = addr.email.lastIndexOf("@");
+      const at = addr.email.lastIndexOf("@");
       let localpart = "",
         domain = "";
       if (at == -1) {
@@ -3423,7 +3425,7 @@
      */
     HeaderEmitter.prototype.addAddresses = function (addresses) {
       let needsComma = false;
-      for (let addr of addresses) {
+      for (const addr of addresses) {
         // Add a comma if this is not the first element.
         if (needsComma) {
           this.addText(", ", true);
@@ -3533,16 +3535,16 @@
       // the the 0-padding is done by hand. Note that the tzoffset we output is in
       // the form ±hhmm, so we need to separate the offset (in minutes) into an hour
       // and minute pair.
-      let tzOffHours = Math.abs(Math.trunc(tzOffset / 60));
-      let tzOffMinutes = Math.abs(tzOffset) % 60;
-      let tzOffsetStr =
+      const tzOffHours = Math.abs(Math.trunc(tzOffset / 60));
+      const tzOffMinutes = Math.abs(tzOffset) % 60;
+      const tzOffsetStr =
         (tzOffset > 0 ? "-" : "+") +
         padTo2Digits(tzOffHours) +
         padTo2Digits(tzOffMinutes);
 
       // Convert the day-time figure into a single value to avoid unwanted line
       // breaks in the middle.
-      let dayTime = [
+      const dayTime = [
         kDaysOfWeek[dayOfWeek] + ",",
         dayOfMonth,
         mimeutils.kMonthNames[month],
@@ -3602,8 +3604,8 @@
      * @see HeaderEmitter.addStructuredHeader
      */
     function emitStructuredHeader(name, value, options) {
-      let handler = new StringHandler();
-      let emitter = new HeaderEmitter(handler, options);
+      const handler = new StringHandler();
+      const emitter = new HeaderEmitter(handler, options);
       emitter.addStructuredHeader(name, value);
       emitter.finish(true);
       return handler.value;
@@ -3625,9 +3627,9 @@
      * @see HeaderEmitter.addStructuredHeader
      */
     function emitStructuredHeaders(headerValues, options) {
-      let handler = new StringHandler();
-      let emitter = new HeaderEmitter(handler, options);
-      for (let instance of headerValues) {
+      const handler = new StringHandler();
+      const emitter = new HeaderEmitter(handler, options);
+      for (const instance of headerValues) {
         instance[1].forEach(function (e) {
           emitter.addStructuredHeader(instance[0], e);
         });
@@ -3655,7 +3657,7 @@
      * @param {Function(Value)} encoder The structured encoder function.
      */
     function addStructuredEncoder(header, encoder) {
-      let lowerName = header.toLowerCase();
+      const lowerName = header.toLowerCase();
       encoders.set(lowerName, encoder);
       if (!preferredSpellings.has(lowerName)) {
         preferredSpellings.set(lowerName, header);

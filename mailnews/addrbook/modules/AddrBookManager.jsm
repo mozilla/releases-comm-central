@@ -33,7 +33,7 @@ const URI_REGEXP = /^([\w-]+):\/\/([\w\.-]*)([/:].*|$)/;
 let store = null;
 
 /** Valid address book types. This differs by operating system. */
-let types = ["jsaddrbook", "jscarddav", "moz-abldapdirectory"];
+const types = ["jsaddrbook", "jscarddav", "moz-abldapdirectory"];
 if (AppConstants.platform == "macosx") {
   types.push("moz-abosxdirectory");
 } else if (AppConstants.platform == "win") {
@@ -63,7 +63,7 @@ function updateSortedDirectoryList() {
  * @returns {nsIAbDirectory}
  */
 function createDirectoryObject(uri, shouldStore = false) {
-  let uriParts = URI_REGEXP.exec(uri);
+  const uriParts = URI_REGEXP.exec(uri);
   if (!uriParts) {
     throw Components.Exception(
       `Unexpected uri: ${uri}`,
@@ -71,8 +71,8 @@ function createDirectoryObject(uri, shouldStore = false) {
     );
   }
 
-  let [, scheme] = uriParts;
-  let dir = Cc[
+  const [, scheme] = uriParts;
+  const dir = Cc[
     `@mozilla.org/addressbook/directory;1?type=${scheme}`
   ].createInstance(Ci.nsIAbDirectory);
 
@@ -112,21 +112,24 @@ function ensureInitialized() {
 
   store = new Map();
 
-  for (let pref of Services.prefs.getChildList("ldap_2.servers.")) {
+  for (const pref of Services.prefs.getChildList("ldap_2.servers.")) {
     try {
       if (pref.endsWith(".uri")) {
         let uri = Services.prefs.getStringPref(pref);
         if (uri.startsWith("ldap://") || uri.startsWith("ldaps://")) {
-          let prefName = pref.substring(0, pref.length - 4);
+          const prefName = pref.substring(0, pref.length - 4);
 
           uri = `moz-abldapdirectory://${prefName}`;
           createDirectoryObject(uri, true);
         }
       } else if (pref.endsWith(".dirType")) {
-        let prefName = pref.substring(0, pref.length - 8);
-        let dirType = Services.prefs.getIntPref(pref);
-        let fileName = Services.prefs.getStringPref(`${prefName}.filename`, "");
-        let uri = Services.prefs.getStringPref(`${prefName}.uri`, "");
+        const prefName = pref.substring(0, pref.length - 8);
+        const dirType = Services.prefs.getIntPref(pref);
+        const fileName = Services.prefs.getStringPref(
+          `${prefName}.filename`,
+          ""
+        );
+        const uri = Services.prefs.getStringPref(`${prefName}.uri`, "");
 
         switch (dirType) {
           case Ci.nsIAbManager.MAPI_DIRECTORY_TYPE:
@@ -147,23 +150,23 @@ function ensureInitialized() {
             if (AppConstants.platform == "macosx") {
               createDirectoryObject(uri, true);
             } else if (AppConstants.platform == "win") {
-              let outlookInterface = Cc[
+              const outlookInterface = Cc[
                 "@mozilla.org/addressbook/outlookinterface;1"
               ].getService(Ci.nsIAbOutlookInterface);
-              for (let folderURI of outlookInterface.getFolderURIs(uri)) {
+              for (const folderURI of outlookInterface.getFolderURIs(uri)) {
                 createDirectoryObject(folderURI, true);
               }
             }
             break;
           case Ci.nsIAbManager.JS_DIRECTORY_TYPE:
             if (fileName) {
-              let uri = `jsaddrbook://${fileName}`;
+              const uri = `jsaddrbook://${fileName}`;
               createDirectoryObject(uri, true);
             }
             break;
           case Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE:
             if (fileName) {
-              let uri = `jscarddav://${fileName}`;
+              const uri = `jscarddav://${fileName}`;
               createDirectoryObject(uri, true);
             }
             break;
@@ -180,7 +183,7 @@ function ensureInitialized() {
 // Force the manager to shut down. For tests only.
 Services.obs.addObserver(async () => {
   // Allow directories to tidy up.
-  for (let directory of store.values()) {
+  for (const directory of store.values()) {
     await directory.cleanUp();
   }
   // Clear the store. The next call to ensureInitialized will recreate it.
@@ -189,7 +192,7 @@ Services.obs.addObserver(async () => {
 }, "addrbook-reload");
 
 /** Cache for the cardForEmailAddress function, and timer to clear it. */
-let addressCache = new Map();
+const addressCache = new Map();
 let addressCacheTimer = null;
 
 // Throw away cached cards if the display name properties change, so we can
@@ -241,14 +244,14 @@ AddrBookManager.prototype = {
       return store.get(uri);
     }
 
-    let uriParts = URI_REGEXP.exec(uri);
+    const uriParts = URI_REGEXP.exec(uri);
     if (!uriParts) {
       throw Components.Exception(
         `Unexpected uri: ${uri}`,
         Cr.NS_ERROR_MALFORMED_URI
       );
     }
-    let [, scheme, fileName, tail] = uriParts;
+    const [, scheme, fileName, tail] = uriParts;
     if (tail && types.includes(scheme)) {
       if (
         (scheme == "jsaddrbook" && tail.startsWith("/")) ||
@@ -260,7 +263,7 @@ AddrBookManager.prototype = {
         } else {
           parent = this.getDirectory(`${scheme}:///${tail.split("/")[1]}`);
         }
-        for (let list of parent.childNodes) {
+        for (const list of parent.childNodes) {
           list.QueryInterface(Ci.nsIAbDirectory);
           if (list.URI == uri) {
             return list;
@@ -286,7 +289,7 @@ AddrBookManager.prototype = {
   },
   getDirectoryFromId(dirPrefId) {
     ensureInitialized();
-    for (let dir of store.values()) {
+    for (const dir of store.values()) {
       if (dir.dirPrefId == dirPrefId) {
         return dir;
       }
@@ -295,7 +298,7 @@ AddrBookManager.prototype = {
   },
   getDirectoryFromUID(uid) {
     ensureInitialized();
-    for (let dir of store.values()) {
+    for (const dir of store.values()) {
       if (dir.UID == uid) {
         return dir;
       }
@@ -304,8 +307,8 @@ AddrBookManager.prototype = {
   },
   getMailListFromName(name) {
     ensureInitialized();
-    for (let dir of store.values()) {
-      let hit = dir.getMailListFromName(name);
+    for (const dir of store.values()) {
+      const hit = dir.getMailListFromName(name);
       if (hit) {
         return hit;
       }
@@ -319,7 +322,7 @@ AddrBookManager.prototype = {
         leafName = "_nonascii";
       }
 
-      let existingNames = Array.from(store.values(), dir => dir.dirPrefId);
+      const existingNames = Array.from(store.values(), dir => dir.dirPrefId);
       let uniqueCount = 0;
       prefName = `ldap_2.servers.${leafName}`;
       while (existingNames.includes(prefName)) {
@@ -345,7 +348,7 @@ AddrBookManager.prototype = {
 
     switch (type) {
       case Ci.nsIAbManager.LDAP_DIRECTORY_TYPE: {
-        let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+        const file = Services.dirsvc.get("ProfD", Ci.nsIFile);
         file.append("ldap.sqlite");
         file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
 
@@ -358,7 +361,7 @@ AddrBookManager.prototype = {
         }
 
         uri = `moz-abldapdirectory://${prefName}`;
-        let dir = createDirectoryObject(uri, true);
+        const dir = createDirectoryObject(uri, true);
         updateSortedDirectoryList();
         Services.obs.notifyObservers(dir, "addrbook-directory-created");
         break;
@@ -403,15 +406,15 @@ AddrBookManager.prototype = {
         }
 
         if (AppConstants.platform == "macosx") {
-          let dir = createDirectoryObject(uri, true);
+          const dir = createDirectoryObject(uri, true);
           updateSortedDirectoryList();
           Services.obs.notifyObservers(dir, "addrbook-directory-created");
         } else if (AppConstants.platform == "win") {
-          let outlookInterface = Cc[
+          const outlookInterface = Cc[
             "@mozilla.org/addressbook/outlookinterface;1"
           ].getService(Ci.nsIAbOutlookInterface);
-          for (let folderURI of outlookInterface.getFolderURIs(uri)) {
-            let dir = createDirectoryObject(folderURI, true);
+          for (const folderURI of outlookInterface.getFolderURIs(uri)) {
+            const dir = createDirectoryObject(folderURI, true);
             updateSortedDirectoryList();
             Services.obs.notifyObservers(dir, "addrbook-directory-created");
           }
@@ -420,7 +423,7 @@ AddrBookManager.prototype = {
       }
       case Ci.nsIAbManager.JS_DIRECTORY_TYPE:
       case Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE: {
-        let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+        const file = Services.dirsvc.get("ProfD", Ci.nsIFile);
         file.append("abook.sqlite");
         file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
 
@@ -432,12 +435,12 @@ AddrBookManager.prototype = {
           Services.prefs.setStringPref(`${prefName}.uid`, uid);
         }
 
-        let scheme =
+        const scheme =
           type == Ci.nsIAbManager.JS_DIRECTORY_TYPE
             ? "jsaddrbook"
             : "jscarddav";
         uri = `${scheme}://${file.leafName}`;
-        let dir = createDirectoryObject(uri, true);
+        const dir = createDirectoryObject(uri, true);
         updateSortedDirectoryList();
         Services.obs.notifyObservers(dir, "addrbook-directory-created");
         break;
@@ -479,7 +482,7 @@ AddrBookManager.prototype = {
     Services.obs.notifyObservers(dir, "addrbook-directory-created");
   },
   deleteAddressBook(uri) {
-    let uriParts = URI_REGEXP.exec(uri);
+    const uriParts = URI_REGEXP.exec(uri);
     if (!uriParts) {
       throw Components.Exception("", Cr.NS_ERROR_MALFORMED_URI);
     }
@@ -492,14 +495,14 @@ AddrBookManager.prototype = {
       } else if (scheme == "moz-aboutlookdirectory") {
         dir = store.get(`${scheme}:///${tail.split("/")[1]}`);
       }
-      let list = this.getDirectory(uri);
+      const list = this.getDirectory(uri);
       if (dir && list) {
         dir.deleteDirectory(list);
         return;
       }
     }
 
-    let dir = store.get(uri);
+    const dir = store.get(uri);
     if (!dir) {
       throw new Components.Exception(
         `Address book not found: ${uri}`,
@@ -507,9 +510,9 @@ AddrBookManager.prototype = {
       );
     }
 
-    let prefName = dir.dirPrefId;
+    const prefName = dir.dirPrefId;
     if (prefName) {
-      let dirType = Services.prefs.getIntPref(`${prefName}.dirType`, 0);
+      const dirType = Services.prefs.getIntPref(`${prefName}.dirType`, 0);
       fileName = dir.fileName;
 
       // Deleting the built-in address books is very bad.
@@ -520,7 +523,7 @@ AddrBookManager.prototype = {
         );
       }
 
-      for (let name of Services.prefs.getChildList(`${prefName}.`)) {
+      for (const name of Services.prefs.getChildList(`${prefName}.`)) {
         Services.prefs.clearUserPref(name);
       }
       if (dirType == Ci.nsIAbManager.MAPI_DIRECTORY_TYPE) {
@@ -540,7 +543,7 @@ AddrBookManager.prototype = {
 
     dir.cleanUp().then(() => {
       if (fileName) {
-        let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+        const file = Services.dirsvc.get("ProfD", Ci.nsIFile);
         file.append(fileName);
         if (file.exists()) {
           file.remove(false);
@@ -552,7 +555,7 @@ AddrBookManager.prototype = {
   },
   mailListNameExists(name) {
     ensureInitialized();
-    for (let dir of store.values()) {
+    for (const dir of store.values()) {
       if (dir.hasMailListWithName(name)) {
         return true;
       }
@@ -566,7 +569,7 @@ AddrBookManager.prototype = {
    */
   directoryNameExists(name) {
     ensureInitialized();
-    for (let dir of store.values()) {
+    for (const dir of store.values()) {
       if (dir.dirName.toLowerCase() === name.toLowerCase()) {
         return true;
       }
@@ -590,9 +593,9 @@ AddrBookManager.prototype = {
       return addressCache.get(emailAddress);
     }
 
-    for (let directory of sortedDirectoryList) {
+    for (const directory of sortedDirectoryList) {
       try {
-        let card = directory.cardForEmailAddress(emailAddress);
+        const card = directory.cardForEmailAddress(emailAddress);
         if (card) {
           addressCache.set(emailAddress, card);
           return card;

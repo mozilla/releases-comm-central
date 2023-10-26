@@ -142,7 +142,7 @@ function testNext() {
     deletePop3Server();
     incomingServer = createPop3Server();
 
-    let msgServer = incomingServer;
+    const msgServer = incomingServer;
     msgServer.QueryInterface(Ci.nsIMsgIncomingServer);
     msgServer.authMethod = thisTest.clientAuthMethod;
 
@@ -161,7 +161,7 @@ function testNext() {
 
 // <copied from="head_maillocal.js::createPop3ServerAndLocalFolders()">
 function createPop3Server() {
-  let incoming = MailServices.accounts.createIncomingServer(
+  const incoming = MailServices.accounts.createIncomingServer(
     "fred",
     "localhost",
     "pop3"
@@ -187,7 +187,7 @@ function run_test() {
   Services.prefs.setBoolPref("mail.biff.show_tray_icon", false);
   Services.prefs.setBoolPref("mail.biff.animate_dock_icon", false);
 
-  let ssd = setupServerDaemon();
+  const ssd = setupServerDaemon();
   server = ssd[1];
   handler = ssd[2];
   server.start();

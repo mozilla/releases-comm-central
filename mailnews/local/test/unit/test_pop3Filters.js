@@ -6,20 +6,20 @@ var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-let [daemon, server, handler] = setupServerDaemon();
+const [daemon, server, handler] = setupServerDaemon();
 server.start();
 registerCleanupFunction(() => {
   server.stop();
 });
 
-let incomingServer = createPop3ServerAndLocalFolders(server.port);
+const incomingServer = createPop3ServerAndLocalFolders(server.port);
 
 /**
  * Inject a message to the server and do a GetNewMail for the incomingServer.
  */
 async function getNewMail() {
   daemon.setMessages(["message1.eml", "message3.eml"]);
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.pop3.GetNewMail(
     null,
     urlListener,
@@ -37,18 +37,18 @@ add_task(async function testDeleteFromPop3Server() {
   incomingServer.leaveMessagesOnServer = true;
 
   // Create a DeleteFromPop3Server filter.
-  let filterList = incomingServer.getFilterList(null);
-  let filter = filterList.createFilter("deleteFromServer");
+  const filterList = incomingServer.getFilterList(null);
+  const filter = filterList.createFilter("deleteFromServer");
 
-  let searchTerm = filter.createTerm();
+  const searchTerm = filter.createTerm();
   searchTerm.attrib = Ci.nsMsgSearchAttrib.Subject;
   searchTerm.op = Ci.nsMsgSearchOp.Contains;
-  let value = searchTerm.value;
+  const value = searchTerm.value;
   value.str = "mail 2";
   searchTerm.value = value;
   filter.appendTerm(searchTerm);
 
-  let action = filter.createAction();
+  const action = filter.createAction();
   action.type = Ci.nsMsgFilterAction.DeleteFromPop3Server;
   filter.appendAction(action);
 
@@ -80,18 +80,18 @@ add_task(async function testFetchBodyFromPop3Server() {
   incomingServer.headersOnly = true;
 
   // Create a FetchBodyFromPop3Server filter.
-  let filterList = incomingServer.getFilterList(null);
-  let filter = filterList.createFilter("fetchBodyFromServer");
+  const filterList = incomingServer.getFilterList(null);
+  const filter = filterList.createFilter("fetchBodyFromServer");
 
-  let searchTerm = filter.createTerm();
+  const searchTerm = filter.createTerm();
   searchTerm.attrib = Ci.nsMsgSearchAttrib.Subject;
   searchTerm.op = Ci.nsMsgSearchOp.Contains;
-  let value = searchTerm.value;
+  const value = searchTerm.value;
   value.str = "mail 2";
   searchTerm.value = value;
   filter.appendTerm(searchTerm);
 
-  let action = filter.createAction();
+  const action = filter.createAction();
   action.type = Ci.nsMsgFilterAction.FetchBodyFromPop3Server;
   filter.appendAction(action);
 

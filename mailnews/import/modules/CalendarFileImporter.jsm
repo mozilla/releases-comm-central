@@ -36,11 +36,11 @@ class CalendarFileImporter {
    */
   async parseIcsFile(file) {
     this._logger.debug(`Getting items from ${file.path}`);
-    let importer = Cc["@mozilla.org/calendar/import;1?type=ics"].getService(
+    const importer = Cc["@mozilla.org/calendar/import;1?type=ics"].getService(
       Ci.calIImporter
     );
 
-    let inputStream = Cc[
+    const inputStream = Cc[
       "@mozilla.org/network/file-input-stream;1"
     ].createInstance(Ci.nsIFileInputStream);
     let items = [];
@@ -68,7 +68,7 @@ class CalendarFileImporter {
    * @returns {calICalendar[]}
    */
   getTargetCalendars() {
-    let calendars = lazy.cal.manager
+    const calendars = lazy.cal.manager
       .getCalendars()
       .filter(
         calendar =>
@@ -76,11 +76,11 @@ class CalendarFileImporter {
           !calendar.readOnly &&
           lazy.cal.acl.userCanAddItemsToCalendar(calendar)
       );
-    let sortOrderPref = Services.prefs.getCharPref(
+    const sortOrderPref = Services.prefs.getCharPref(
       "calendar.list.sortOrder",
       ""
     );
-    let sortOrder = sortOrderPref ? sortOrderPref.split(" ") : [];
+    const sortOrder = sortOrderPref ? sortOrderPref.split(" ") : [];
     return calendars.sort(
       (x, y) => sortOrder.indexOf(x.id) - sortOrder.indexOf(y.id)
     );
@@ -94,11 +94,11 @@ class CalendarFileImporter {
    */
   async startImport(items, targetCalendar) {
     let count = 0;
-    let total = items.length;
+    const total = items.length;
 
     this._logger.debug(`Importing ${total} items into ${targetCalendar.name}`);
 
-    for (let item of items) {
+    for (const item of items) {
       try {
         await targetCalendar.addItem(item);
       } catch (e) {

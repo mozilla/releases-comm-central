@@ -52,7 +52,7 @@ function continue_test() {
   gHdr.setStringProperty("iamnew", "somevalue");
 
   properties = [];
-  for (let property of gHdr.properties) {
+  for (const property of gHdr.properties) {
     // dump("\nProperty 2 is " + property);
     properties.push(property);
   }

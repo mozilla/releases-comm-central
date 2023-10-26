@@ -137,7 +137,7 @@ class Pop3Client {
    * Initiate a connection to the server
    */
   connect() {
-    let hostname = this._server.hostName.toLowerCase();
+    const hostname = this._server.hostName.toLowerCase();
     this._logger.debug(`Connecting to pop://${hostname}:${this._server.port}`);
     this.runningUri
       .QueryInterface(Ci.nsIMsgMailNewsUrl)
@@ -205,7 +205,7 @@ class Pop3Client {
 
     await this._loadUidlState();
 
-    let uidlState = this._uidlMap.get(uidl);
+    const uidlState = this._uidlMap.get(uidl);
     if (!uidlState) {
       // This uidl is no longer on the server, use this._sink to delete the
       // msgHdr.
@@ -255,8 +255,8 @@ class Pop3Client {
         return this._uidlMap;
       }
     );
-    for (let [uidl, status] of uidlsToMark) {
-      let uidlState = this._uidlMap.get(uidl);
+    for (const [uidl, status] of uidlsToMark) {
+      const uidlState = this._uidlMap.get(uidl);
       this._uidlMap.set(uidl, {
         ...uidlState,
         status,
@@ -298,7 +298,7 @@ class Pop3Client {
     this._nextAction = res => {
       // See if there is an APOP timestamp.
       // eslint-disable-next-line no-control-regex
-      let matches = res.statusText.match(/<[\x00-\x7F]+@[\x00-\x7F]+>/);
+      const matches = res.statusText.match(/<[\x00-\x7F]+@[\x00-\x7F]+>/);
       if (matches?.[0]) {
         this._apopTimestamp = matches[0];
       }
@@ -323,9 +323,9 @@ class Pop3Client {
       // it as a new message.
       return { data: str };
     }
-    let matches = /^(\+OK|-ERR|\+) ?(.*)\r\n([^]*)/.exec(str);
+    const matches = /^(\+OK|-ERR|\+) ?(.*)\r\n([^]*)/.exec(str);
     if (matches) {
-      let [, status, statusText, data] = matches;
+      const [, status, statusText, data] = matches;
       return { success: status != "-ERR", status, statusText, data };
     }
     return { data: str };
@@ -352,7 +352,7 @@ class Pop3Client {
     if (stringPayload.includes("\r\n")) {
       // Start parsing if the payload contains at least one line break.
       this._pendingPayload = "";
-      let res = this._parse(stringPayload);
+      const res = this._parse(stringPayload);
       this._nextAction?.(res);
     } else {
       // Save the incomplete payload for the next ondata event.
@@ -369,12 +369,12 @@ class Pop3Client {
     this._logger.error(`${event.name}: a ${event.message} error occurred`);
     this._server.serverBusy = false;
     this.quit();
-    let secInfo =
+    const secInfo =
       await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
       this._logger.error(`SecurityError info: ${secInfo.errorCodeString}`);
       if (secInfo.failedCertChain.length) {
-        let chain = secInfo.failedCertChain.map(c => {
+        const chain = secInfo.failedCertChain.map(c => {
           return c.commonName + "; serial# " + c.serialNumber;
         });
         this._logger.error(`SecurityError cert chain: ${chain.join(" <- ")}`);
@@ -409,22 +409,22 @@ class Pop3Client {
    * Read popstate.dat into this._uidlMap.
    */
   async _loadUidlState() {
-    let stateFile = this._server.localPath;
+    const stateFile = this._server.localPath;
     stateFile.append("popstate.dat");
     if (!(await IOUtils.exists(stateFile.path))) {
       this._uidlMap = new Map();
       return;
     }
 
-    let content = await IOUtils.readUTF8(stateFile.path);
+    const content = await IOUtils.readUTF8(stateFile.path);
     this._uidlMap = new Map();
     let uidlLine = false;
-    for (let line of content.split(this._lineSeparator)) {
+    for (const line of content.split(this._lineSeparator)) {
       if (!line) {
         continue;
       }
       if (uidlLine) {
-        let [status, uidl, receivedAt] = line.split(" ");
+        const [status, uidl, receivedAt] = line.split(" ");
         this._uidlMap.set(uidl, {
           status, // @type {UidlStatus}
           uidl,
@@ -452,20 +452,20 @@ class Pop3Client {
       return;
     }
 
-    let stateFile = this._server.localPath;
+    const stateFile = this._server.localPath;
     stateFile.append("popstate.dat");
-    let content = [
+    const content = [
       "# POP3 State File",
       "# This is a generated file!  Do not edit.",
       "",
       `*${this._server.hostName} ${this._server.username}`,
     ];
-    for (let msg of this._messagesToHandle) {
+    for (const msg of this._messagesToHandle) {
       // _messagesToHandle is not empty means an error happened, put them back
       // to _uidlMap to prevent loss of popstate.
       this._uidlMap.set(msg.uidl, msg);
     }
-    for (let { status, uidl, receivedAt } of this._uidlMap.values()) {
+    for (const { status, uidl, receivedAt } of this._uidlMap.values()) {
       if (receivedAt) {
         content.push(`${status} ${uidl} ${receivedAt}`);
       }
@@ -686,14 +686,14 @@ class Pop3Client {
         this._send("AUTH CRAM-MD5");
         break;
       case "APOP": {
-        let hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
+        const hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
           Ci.nsICryptoHash
         );
         hasher.init(hasher.MD5);
-        let data =
+        const data =
           this._apopTimestamp +
           (await this._authenticator.getByteStringPassword());
-        let digest = CommonUtils.bytesAsHex(
+        const digest = CommonUtils.bytesAsHex(
           CryptoUtils.digestBytes(data, hasher)
         );
         this._send(`APOP ${this._authenticator.username} ${digest}`, true);
@@ -702,7 +702,7 @@ class Pop3Client {
       case "GSSAPI": {
         this._authenticator.initGssapiAuth("pop");
         try {
-          let token = this._authenticator.getNextGssapiToken("");
+          const token = this._authenticator.getNextGssapiToken("");
           this._nextAction = res => this._actionAuthGssapi(res, token);
         } catch (e) {
           this._logger.error(e);
@@ -715,7 +715,7 @@ class Pop3Client {
       case "NTLM": {
         this._authenticator.initNtlmAuth("pop");
         try {
-          let token = this._authenticator.getNextNtlmToken("");
+          const token = this._authenticator.getNextNtlmToken("");
           this._nextAction = res => this._actionAuthNtlm(res, token);
         } catch (e) {
           this._logger.error(e);
@@ -770,7 +770,7 @@ class Pop3Client {
       );
 
       // Ask user what to do.
-      let action = this._authenticator.promptAuthFailed();
+      const action = this._authenticator.promptAuthFailed();
       if (action == 1) {
         // Cancel button pressed.
         this._actionDone(Cr.NS_ERROR_FAILURE);
@@ -943,7 +943,7 @@ class Pop3Client {
       return;
     }
     this._nextAction = this._actionAuthResponse;
-    let token = await this._authenticator.getOAuthToken();
+    const token = await this._authenticator.getOAuthToken();
     this._send(token, true);
   };
 
@@ -966,7 +966,7 @@ class Pop3Client {
       return;
     }
 
-    let numberOfMessages = Number.parseInt(res.statusText);
+    const numberOfMessages = Number.parseInt(res.statusText);
     if (!numberOfMessages) {
       if (this._uidlMap.size) {
         this._uidlMap.clear();
@@ -1033,7 +1033,7 @@ class Pop3Client {
     this._lineReader.read(
       res.data,
       line => {
-        let [messageNumber, messageSize] = line.split(" ");
+        const [messageNumber, messageSize] = line.split(" ");
         this._messageSizeMap.set(messageNumber, Number(messageSize));
       },
       () => {
@@ -1067,7 +1067,7 @@ class Pop3Client {
       line => {
         let [messageNumber, uidl] = line.split(" ");
         uidl = uidl.trim();
-        let uidlState = this._uidlMap.get(uidl);
+        const uidlState = this._uidlMap.get(uidl);
         if (uidlState) {
           if (
             uidlState.status == UIDL_KEEP &&
@@ -1097,7 +1097,7 @@ class Pop3Client {
           this._newMessageTotal++;
           // Fetch the full message or only headers depending on server settings
           // and message size.
-          let status =
+          const status =
             this._server.headersOnly ||
             this._messageSizeMap.get(messageNumber) > this._maxMessageSize
               ? UIDL_TOO_BIG
@@ -1111,7 +1111,7 @@ class Pop3Client {
       },
       () => {
         if (!this._downloadMail) {
-          let numberOfMessages = this._messagesToHandle.filter(
+          const numberOfMessages = this._messagesToHandle.filter(
             // No receivedAt means we're seeing it for the first time.
             msg => !msg.receivedAt
           ).length;
@@ -1142,7 +1142,7 @@ class Pop3Client {
         );
         this._totalReceivedSize = 0;
         try {
-          let localFolder = this._sink.folder.QueryInterface(
+          const localFolder = this._sink.folder.QueryInterface(
             Ci.nsIMsgLocalMailFolder
           );
           if (
@@ -1188,7 +1188,7 @@ class Pop3Client {
       ]);
       return;
     }
-    for (let [messageNumber] of this._messageSizeMap) {
+    for (const [messageNumber] of this._messageSizeMap) {
       // Send RETR for each message.
       this._messagesToHandle.push({
         status: UIDL_FETCH_BODY,
@@ -1258,7 +1258,7 @@ class Pop3Client {
    */
   _actionTop = () => {
     this._nextAction = this._actionTopResponse;
-    let lineNumber = this._server.headersOnly ? 0 : 20;
+    const lineNumber = this._server.headersOnly ? 0 : 20;
     this._send(`TOP ${this._currentMessage.messageNumber} ${lineNumber}`);
     this._updateStatus("receivingMessages", [
       ++this._newMessageDownloaded,
@@ -1315,7 +1315,7 @@ class Pop3Client {
           return;
         }
 
-        let state = this._uidlMap.get(this._currentMessage.uidl);
+        const state = this._uidlMap.get(this._currentMessage.uidl);
         if (state?.status == UIDL_FETCH_BODY) {
           this._actionRetr();
           return;
@@ -1390,7 +1390,7 @@ class Pop3Client {
           return;
         }
         if (this._server.leaveMessagesOnServer) {
-          let state = this._uidlMap.get(this._currentMessage.uidl);
+          const state = this._uidlMap.get(this._currentMessage.uidl);
           if (state?.status == UIDL_DELETE) {
             this._actionDelete();
           } else {
@@ -1450,7 +1450,7 @@ class Pop3Client {
     if (!this._msgWindow) {
       return;
     }
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/localMsgs.properties"
     );
     let errorMsg;
@@ -1460,13 +1460,13 @@ class Pop3Client {
       errorMsg = bundle.GetStringFromName(errorName);
     }
     if (serverErrorMsg) {
-      let serverSaidPrefix = bundle.formatStringFromName("pop3ServerSaid", [
+      const serverSaidPrefix = bundle.formatStringFromName("pop3ServerSaid", [
         this._server.hostName,
       ]);
       errorMsg += ` ${serverSaidPrefix} ${serverErrorMsg}`;
     }
 
-    let errorTitle = bundle.formatStringFromName("pop3ErrorDialogTitle", [
+    const errorTitle = bundle.formatStringFromName("pop3ErrorDialogTitle", [
       this._server.prettyName,
     ]);
     Services.prompt.alert(this._msgWindow.domWindow, errorTitle, errorMsg);
@@ -1543,7 +1543,7 @@ class Pop3Client {
         "chrome://messenger/locale/messenger.properties"
       );
     }
-    let status = params
+    const status = params
       ? this._localBundle.formatStringFromName(statusName, params)
       : this._localBundle.GetStringFromName(statusName);
     this._msgWindow.statusFeedback.showStatusString(

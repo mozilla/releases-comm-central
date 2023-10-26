@@ -28,7 +28,7 @@ localAccountUtils.loadLocalMailAccount();
 add_task(async function run_the_test() {
   do_test_pending();
   localAccountUtils.inboxFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  for (let fileName of gTestFiles) {
+  for (const fileName of gTestFiles) {
     localAccountUtils.inboxFolder.addMessage(
       await IOUtils.readUTF8(do_get_file(fileName).path)
     );
@@ -40,8 +40,8 @@ add_task(async function run_the_test() {
 });
 
 function streamMsg(msgHdr) {
-  let msgURI = localAccountUtils.inboxFolder.getUriForMsg(msgHdr);
-  let msgService = MailServices.messageServiceFromURI(msgURI);
+  const msgURI = localAccountUtils.inboxFolder.getUriForMsg(msgHdr);
+  const msgService = MailServices.messageServiceFromURI(msgURI);
   msgService.streamMessage(
     msgURI,
     gStreamListener,
@@ -80,7 +80,7 @@ var gStreamListener = {
 
 function doNextTest() {
   if (gMessages.length > 0) {
-    let msgHdr = gMessages.shift();
+    const msgHdr = gMessages.shift();
     streamMsg(msgHdr);
   } else {
     do_test_finished();

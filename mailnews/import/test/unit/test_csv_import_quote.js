@@ -6,6 +6,6 @@ function run_test() {
   // to ensure that it is initialized before we start the main test.
   MailServices.ab;
 
-  let file = do_get_file("resources/quote.csv");
+  const file = do_get_file("resources/quote.csv");
   new AbImportHelper(file, "csv", "quote", "quote_csv").beginImport();
 }

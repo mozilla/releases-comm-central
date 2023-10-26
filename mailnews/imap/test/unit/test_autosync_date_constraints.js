@@ -19,7 +19,7 @@ var gMsgImapInboxFolder;
 function addMessagesToServer(messages, mailbox) {
   // Create the ImapMessages and store them on the mailbox
   messages.forEach(function (message) {
-    let dataUri = "data:text/plain," + message.toMessageString();
+    const dataUri = "data:text/plain," + message.toMessageString();
     mailbox.addMessage(new ImapMessage(dataUri, mailbox.uidnext++, []));
   });
 }
@@ -39,7 +39,7 @@ add_setup(function () {
 
   // Add a couple of messages to the INBOX
   // this is synchronous, afaik
-  let messageGenerator = new MessageGenerator();
+  const messageGenerator = new MessageGenerator();
 
   // build up a diverse list of messages
   let messages = [];
@@ -59,19 +59,19 @@ add_setup(function () {
 add_task(async function downloadForOffline() {
   // ...and download for offline use.
   // This downloads all messages, ignoring the autosync age constraints.
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(listener, null);
   await listener.promise;
 });
 
 add_task(function test_applyRetentionSettings() {
   IMAPPump.inbox.applyRetentionSettings();
-  let enumerator = IMAPPump.inbox.msgDatabase.enumerateMessages();
+  const enumerator = IMAPPump.inbox.msgDatabase.enumerateMessages();
   if (enumerator) {
-    let now = new Date();
-    let dateInSeconds = now.getSeconds();
-    let cutOffDateInSeconds = dateInSeconds - 5 * 60 * 24;
-    for (let header of enumerator) {
+    const now = new Date();
+    const dateInSeconds = now.getSeconds();
+    const cutOffDateInSeconds = dateInSeconds - 5 * 60 * 24;
+    for (const header of enumerator) {
       if (header instanceof Ci.nsIMsgDBHdr) {
         if (header.dateInSeconds < cutOffDateInSeconds) {
           Assert.equal(header.getStringProperty("pendingRemoval"), "1");

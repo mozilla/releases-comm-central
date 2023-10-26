@@ -197,7 +197,7 @@ class NntpIncomingServer extends MsgIncomingServer {
   }
 
   setState(path, state) {
-    let changed = this._subscribable.setState(path, state);
+    const changed = this._subscribable.setState(path, state);
     if (changed) {
       if (state) {
         this._tmpSubscribed.add(path);
@@ -224,7 +224,7 @@ class NntpIncomingServer extends MsgIncomingServer {
     this._tree?.beginUpdateBatch();
     this._tree?.rowCountChanged(0, -this._searchResult.length);
 
-    let terms = value.toLowerCase().split(" ");
+    const terms = value.toLowerCase().split(" ");
     this._searchResult = this._groups
       .filter(name => {
         name = name.toLowerCase();
@@ -315,7 +315,7 @@ class NntpIncomingServer extends MsgIncomingServer {
   get offlineSupportLevel() {
     const OFFLINE_SUPPORT_LEVEL_UNDEFINED = -1;
     const OFFLINE_SUPPORT_LEVEL_EXTENDED = 20;
-    let level = this.getIntValue("offline_support_level");
+    const level = this.getIntValue("offline_support_level");
     return level != OFFLINE_SUPPORT_LEVEL_UNDEFINED
       ? level
       : OFFLINE_SUPPORT_LEVEL_EXTENDED;
@@ -326,7 +326,7 @@ class NntpIncomingServer extends MsgIncomingServer {
       return;
     }
 
-    for (let folder of this.rootFolder.subFolders) {
+    for (const folder of this.rootFolder.subFolders) {
       folder.getNewMessages(msgWindow, null);
     }
   }
@@ -336,7 +336,7 @@ class NntpIncomingServer extends MsgIncomingServer {
   }
 
   closeCachedConnections() {
-    for (let client of [...this._idleConnections, ...this._busyConnections]) {
+    for (const client of [...this._idleConnections, ...this._busyConnections]) {
       client.quit();
     }
     this._idleConnections = [];
@@ -446,8 +446,8 @@ class NntpIncomingServer extends MsgIncomingServer {
       return;
     }
 
-    let newsFolder = this.rootFolder.QueryInterface(Ci.nsIMsgNewsFolder);
-    let lines = [];
+    const newsFolder = this.rootFolder.QueryInterface(Ci.nsIMsgNewsFolder);
+    const lines = [];
     for (let folder of newsFolder.subFolders) {
       folder = folder.QueryInterface(Ci.nsIMsgNewsFolder);
       if (folder.newsrcLine) {
@@ -472,22 +472,22 @@ class NntpIncomingServer extends MsgIncomingServer {
   }
 
   forgetPassword() {
-    let newsFolder = this.rootFolder.QueryInterface(Ci.nsIMsgNewsFolder);
+    const newsFolder = this.rootFolder.QueryInterface(Ci.nsIMsgNewsFolder);
     // Clear password of root folder.
     newsFolder.forgetAuthenticationCredentials();
 
     // Clear password of all sub folders.
-    for (let folder of newsFolder.subFolders) {
+    for (const folder of newsFolder.subFolders) {
       folder.QueryInterface(Ci.nsIMsgNewsFolder);
       folder.forgetAuthenticationCredentials();
     }
   }
 
   groupNotFound(msgWindow, groupName, opening) {
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/news.properties"
     );
-    let result = Services.prompt.confirm(
+    const result = Services.prompt.confirm(
       msgWindow,
       null,
       bundle.formatStringFromName("autoUnsubscribeText", [
@@ -536,9 +536,9 @@ class NntpIncomingServer extends MsgIncomingServer {
     if (!this._hostInfoFile.exists()) {
       return false;
     }
-    let content = await IOUtils.readUTF8(this._hostInfoFile.path);
+    const content = await IOUtils.readUTF8(this._hostInfoFile.path);
     let groupLine = false;
-    for (let line of content.split(this._lineSeparator)) {
+    for (const line of content.split(this._lineSeparator)) {
       if (groupLine) {
         this.addTo(line, false, true, true);
       } else if (line == "begingroups") {
@@ -556,7 +556,7 @@ class NntpIncomingServer extends MsgIncomingServer {
       return;
     }
 
-    let lines = [
+    const lines = [
       "# News host information file.",
       "# This is a generated file!  Do not edit.",
       "",
@@ -607,7 +607,7 @@ class NntpIncomingServer extends MsgIncomingServer {
    *   instance, and do some actions.
    */
   async withClient(handler) {
-    let client = await this._getNextClient();
+    const client = await this._getNextClient();
     client.onIdle = () => {
       this._busyConnections = this._busyConnections.filter(c => c != client);
       this._idleConnections.push(client);

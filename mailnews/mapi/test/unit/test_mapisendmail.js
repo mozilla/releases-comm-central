@@ -12,9 +12,9 @@ var { mailTestUtils } = ChromeUtils.import(
 
 // Set up an SMTP server and the MAPI daemon.
 getBasicSmtpServer();
-let [daemon, server] = setupServerDaemon();
+const [daemon, server] = setupServerDaemon();
 server.start(SMTP_PORT);
-let mapi = loadMAPILibrary();
+const mapi = loadMAPILibrary();
 
 registerCleanupFunction(() => {
   server.stop();
@@ -29,19 +29,19 @@ function testMapiSendMail(offline) {
   Services.io.offline = offline;
 
   // Build a message using the MAPI interface.
-  let message = new mapi.MapiMessage();
+  const message = new mapi.MapiMessage();
   message.lpszSubject = ctypes.char.array()(`Hello, MAPI offline=${offline}!`);
   message.lpszNoteText = ctypes.char.array()("I successfully sent a message!");
   message.lpszMessageType = ctypes.char.array()("");
 
-  let file = do_get_file("../../../compose/test/unit/data/message1.eml");
-  let attachment = new mapi.MapiFileDesc();
+  const file = do_get_file("../../../compose/test/unit/data/message1.eml");
+  const attachment = new mapi.MapiFileDesc();
   attachment.lpszFileName = ctypes.char.array()(file.leafName);
   attachment.lpszPathName = ctypes.char.array()(file.path);
   message.nFileCount = 1;
   message.lpFiles = attachment.address();
 
-  let recipient = new mapi.MapiRecipDesc();
+  const recipient = new mapi.MapiRecipDesc();
   recipient.ulRecipClass = 1; /* MAPI_TO */
   recipient.lpszName = ctypes.char.array()("John Doe");
   recipient.lpszAddress = ctypes.char.array()("SMTP:john.doe@example.com");
@@ -67,7 +67,7 @@ add_task(function mapiSendMailOnline() {
   testMapiSendMail(false);
 
   // Check that the post has the correct information.
-  let [headers, body] = MimeParser.extractHeadersAndBody(daemon.post);
+  const [headers, body] = MimeParser.extractHeadersAndBody(daemon.post);
   Assert.equal(headers.get("from")[0].email, "tinderbox@tinderbox.invalid");
   Assert.equal(headers.get("to")[0].email, "john.doe@example.com");
   Assert.equal(headers.get("subject"), "Hello, MAPI offline=false!");
@@ -82,13 +82,13 @@ add_task(function mapiSendMailOffline() {
   server.resetTest();
   testMapiSendMail(true);
 
-  let outbox = localAccountUtils.rootFolder.getChildNamed("Outbox");
-  let msgData = mailTestUtils.loadMessageToString(
+  const outbox = localAccountUtils.rootFolder.getChildNamed("Outbox");
+  const msgData = mailTestUtils.loadMessageToString(
     outbox,
     mailTestUtils.firstMsgHdr(outbox)
   );
   // Check that the post has the correct information.
-  let [headers, body] = MimeParser.extractHeadersAndBody(msgData);
+  const [headers, body] = MimeParser.extractHeadersAndBody(msgData);
   Assert.equal(headers.get("from")[0].email, "tinderbox@tinderbox.invalid");
   Assert.equal(headers.get("to")[0].email, "john.doe@example.com");
   Assert.equal(headers.get("subject"), "Hello, MAPI offline=true!");

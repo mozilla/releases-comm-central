@@ -49,7 +49,7 @@ var GlodaUtils = {
    * This method is a convenience wrapper around nsIMsgHeaderParser.
    */
   parseMailAddresses(aMailAddresses) {
-    let addresses = this._headerParser.parseEncodedHeader(aMailAddresses);
+    const addresses = this._headerParser.parseEncodedHeader(aMailAddresses);
     return {
       names: addresses.map(a => a.name || null),
       addresses: addresses.map(a => a.email),
@@ -63,14 +63,14 @@ var GlodaUtils = {
    *  docs.
    */
   md5HashString(aString) {
-    let data = [...new TextEncoder().encode(aString)];
+    const data = [...new TextEncoder().encode(aString)];
 
-    let hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
+    const hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
       Ci.nsICryptoHash
     );
     hasher.init(Ci.nsICryptoHash.MD5);
     hasher.update(data, data.length);
-    let hash = hasher.finish(false);
+    const hash = hasher.finish(false);
 
     // return the two-digit hexadecimal code for a byte
     function toHexString(charCode) {
@@ -78,7 +78,7 @@ var GlodaUtils = {
     }
 
     // convert the binary hash data to a hex string.
-    let hex = Object.keys(hash).map(i => toHexString(hash.charCodeAt(i)));
+    const hex = Object.keys(hash).map(i => toHexString(hash.charCodeAt(i)));
     return hex.join("");
   },
 };

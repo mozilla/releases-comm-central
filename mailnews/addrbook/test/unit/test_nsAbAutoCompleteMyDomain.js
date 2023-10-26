@@ -25,23 +25,23 @@ function run_test() {
   );
 
   var obs = new acObserver();
-  let obsNews = new acObserver();
-  let obsFollowup = new acObserver();
+  const obsNews = new acObserver();
+  const obsFollowup = new acObserver();
 
   // Set up an identity in the account manager with the default settings
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
 
   // Initially disable autocomplete
   identity.autocompleteToMyDomain = false;
   identity.email = "myemail@foo.invalid";
 
   // Set up autocomplete parameters
-  let params = JSON.stringify({ idKey: identity.key, type: "addr_to" });
-  let paramsNews = JSON.stringify({
+  const params = JSON.stringify({ idKey: identity.key, type: "addr_to" });
+  const paramsNews = JSON.stringify({
     idKey: identity.key,
     type: "addr_newsgroups",
   });
-  let paramsFollowup = JSON.stringify({
+  const paramsFollowup = JSON.stringify({
     idKey: identity.key,
     type: "addr_followup",
   });

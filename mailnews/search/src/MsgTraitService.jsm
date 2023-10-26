@@ -72,7 +72,7 @@ MsgTraitService.prototype = {
   },
 
   getId(aIndex) {
-    for (let id in _traits) {
+    for (const id in _traits) {
       if (_traits[id].index == aIndex) {
         return id;
       }
@@ -99,8 +99,8 @@ MsgTraitService.prototype = {
   },
 
   getEnabledProIndices() {
-    let proIndices = [];
-    for (let id in _traits) {
+    const proIndices = [];
+    for (const id in _traits) {
       if (_traits[id].enabled) {
         proIndices.push(_traits[id].index);
       }
@@ -109,8 +109,8 @@ MsgTraitService.prototype = {
   },
 
   getEnabledAntiIndices() {
-    let antiIndices = [];
-    for (let id in _traits) {
+    const antiIndices = [];
+    for (const id in _traits) {
       if (_traits[id].enabled) {
         antiIndices.push(_traits[_traits[id].antiId].index);
       }
@@ -119,7 +119,10 @@ MsgTraitService.prototype = {
   },
 
   addAlias(aTraitIndex, aTraitAliasIndex) {
-    let aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex, "");
+    const aliasesString = traitsBranch.getCharPref(
+      "aliases." + aTraitIndex,
+      ""
+    );
     let aliases;
     if (aliasesString.length) {
       aliases = aliasesString.split(",");
@@ -133,14 +136,17 @@ MsgTraitService.prototype = {
   },
 
   removeAlias(aTraitIndex, aTraitAliasIndex) {
-    let aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex, "");
+    const aliasesString = traitsBranch.getCharPref(
+      "aliases." + aTraitIndex,
+      ""
+    );
     let aliases;
     if (aliasesString.length) {
       aliases = aliasesString.split(",");
     } else {
       aliases = [];
     }
-    let location = aliases.indexOf(aTraitAliasIndex.toString());
+    const location = aliases.indexOf(aTraitAliasIndex.toString());
     if (location != -1) {
       aliases.splice(location, 1);
       traitsBranch.setCharPref("aliases." + aTraitIndex, aliases.join());
@@ -148,7 +154,10 @@ MsgTraitService.prototype = {
   },
 
   getAliases(aTraitIndex) {
-    let aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex, "");
+    const aliasesString = traitsBranch.getCharPref(
+      "aliases." + aTraitIndex,
+      ""
+    );
     let aliases;
     if (aliasesString.length) {
       aliases = aliasesString.split(",");

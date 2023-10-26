@@ -4,9 +4,9 @@
  */
 
 let gMsgCompose = null;
-let numSendListenerFunctions = 7;
+const numSendListenerFunctions = 7;
 
-let gSLAll = new Array(numSendListenerFunctions + 1);
+const gSLAll = new Array(numSendListenerFunctions + 1);
 
 function sendListener() {}
 
@@ -72,7 +72,7 @@ function run_test() {
   gMsgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
     Ci.nsIMsgCompose
   );
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   gMsgCompose.initialize(params);

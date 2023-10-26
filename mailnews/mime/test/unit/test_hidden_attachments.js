@@ -178,17 +178,17 @@ add_task(
 );
 
 async function test_message_attachments(info) {
-  let synMsg = messageGenerator.makeMessage(info);
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synMsg = messageGenerator.makeMessage(info);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders([inbox], [synSet]);
 
-  let msgURI = synSet.getMsgURI(0);
-  let msgService = MailServices.messageServiceFromURI(msgURI);
+  const msgURI = synSet.getMsgURI(0);
+  const msgService = MailServices.messageServiceFromURI(msgURI);
 
-  let streamListener = new PromiseTestUtils.PromiseStreamListener({
+  const streamListener = new PromiseTestUtils.PromiseStreamListener({
     onStopRequest(request, status) {
       request.QueryInterface(Ci.nsIMailChannel);
-      let expectedAttachments = (info.attachments || [])
+      const expectedAttachments = (info.attachments || [])
         .filter(i => i.shouldShow)
         .map(i => i.filename);
       Assert.equal(request.attachments.length, expectedAttachments.length);

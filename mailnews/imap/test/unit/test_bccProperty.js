@@ -24,7 +24,7 @@ add_setup(async function () {
    * Ok, prelude done. Read the original message from disk
    * (through a file URI), and add it to the Inbox.
    */
-  let msgfileuri = Services.io
+  const msgfileuri = Services.io
     .newFileURI(gMsgFile)
     .QueryInterface(Ci.nsIFileURL);
 
@@ -33,14 +33,14 @@ add_setup(async function () {
   );
 
   // ...and download for offline use.
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(listener, null);
   await listener.promise;
 });
 
 add_task(function checkBccs() {
   // locate the new message by enumerating through the database
-  for (let hdr of IMAPPump.inbox.msgDatabase.enumerateMessages()) {
+  for (const hdr of IMAPPump.inbox.msgDatabase.enumerateMessages()) {
     Assert.ok(hdr.bccList.includes("Another Person"));
     Assert.ok(hdr.bccList.includes("<u1@example.com>"));
     Assert.ok(!hdr.bccList.includes("IDoNotExist"));

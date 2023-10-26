@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
+const { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
 
 add_task(async () => {
   function check(vCardLines, expectedProps) {
@@ -25,19 +25,19 @@ add_task(async () => {
       vCard = vCard.toLowerCase();
     }
     info(vCard);
-    let abCard = VCardUtils.vCardToAbCard(vCard);
-    for (let propertyEntry of abCard.vCardProperties.entries) {
-      let index = expectedProps.findIndex(
+    const abCard = VCardUtils.vCardToAbCard(vCard);
+    for (const propertyEntry of abCard.vCardProperties.entries) {
+      const index = expectedProps.findIndex(
         p =>
           p.name == propertyEntry.name &&
           p.value.toString() == propertyEntry.value.toString()
       );
       Assert.greater(index, -1);
-      let [prop] = expectedProps.splice(index, 1);
+      const [prop] = expectedProps.splice(index, 1);
       Assert.deepEqual(propertyEntry.params, prop.params ?? {});
     }
 
-    for (let { name, value } of expectedProps) {
+    for (const { name, value } of expectedProps) {
       ok(false, `expected ${name}=${value} not found`);
     }
   }

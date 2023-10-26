@@ -116,7 +116,7 @@ add_task(async function () {
 
     dump("Send\n");
 
-    let urlListener = new PromiseTestUtils.PromiseUrlListener();
+    const urlListener = new PromiseTestUtils.PromiseUrlListener();
     MailServices.smtp.sendMailMessage(
       testFile,
       kTo,
@@ -155,7 +155,7 @@ add_task(async function () {
     ]);
 
     // Now check the new one has been saved.
-    let logins = Services.logins.findLogins(
+    const logins = Services.logins.findLogins(
       "smtp://localhost",
       null,
       "smtp://localhost"

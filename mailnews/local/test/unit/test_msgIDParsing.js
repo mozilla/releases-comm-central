@@ -12,12 +12,12 @@ function testMsgID() {
   localAccountUtils.inboxFolder.addMessage(
     "From \r\n" + headers + "\r\nhello\r\n"
   );
-  let msgHdr = localAccountUtils.inboxFolder.firstNewMessage;
+  const msgHdr = localAccountUtils.inboxFolder.firstNewMessage;
   Assert.equal(msgHdr.messageId, "abcmessageid");
 }
 
 function run_test() {
-  for (let storeID of localAccountUtils.pluggableStores) {
+  for (const storeID of localAccountUtils.pluggableStores) {
     localAccountUtils.loadLocalMailAccount(storeID);
     testMsgID();
   }

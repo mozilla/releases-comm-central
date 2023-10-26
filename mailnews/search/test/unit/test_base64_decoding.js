@@ -54,9 +54,9 @@ var copyListener = {
   SetMessageKey(aKey) {},
   SetMessageId(aMessageId) {},
   OnStopCopy(aStatus) {
-    let fileName = Files.shift();
+    const fileName = Files.shift();
     if (fileName) {
-      let file = do_get_file(fileName);
+      const file = do_get_file(fileName);
       MailServices.copy.copyFileMessage(
         file,
         localAccountUtils.inboxFolder,

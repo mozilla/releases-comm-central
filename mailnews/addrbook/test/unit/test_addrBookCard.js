@@ -21,7 +21,7 @@ var kEmailValue2 = "test@test.foo.invalid";
 var kEmailReducedValue = "testEmail\u00D2";
 
 add_task(function testAddrBookCard() {
-  let card = new AddrBookCard();
+  const card = new AddrBookCard();
 
   // Test - Set First, Last and Display Names and Email Address
   // via setProperty, and check correctly saved via their
@@ -107,7 +107,7 @@ add_task(function testAddrBookCard() {
   card.firstName = kFNValue;
   card.lastName = kLNValue;
 
-  let bundle = Services.strings.createBundle(
+  const bundle = Services.strings.createBundle(
     "chrome://messenger/locale/addressbook/addressBook.properties"
   );
 

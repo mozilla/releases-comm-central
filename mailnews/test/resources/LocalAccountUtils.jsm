@@ -92,13 +92,14 @@ var localAccountUtils = {
     aPassword,
     aHostname = "localhost"
   ) {
-    let serverAndAccount = localAccountUtils.create_incoming_server_and_account(
-      aType,
-      aPort,
-      aUsername,
-      aPassword,
-      aHostname
-    );
+    const serverAndAccount =
+      localAccountUtils.create_incoming_server_and_account(
+        aType,
+        aPort,
+        aUsername,
+        aPassword,
+        aHostname
+      );
     return serverAndAccount.server;
   },
 
@@ -122,7 +123,7 @@ var localAccountUtils = {
     aPassword,
     aHostname = "localhost"
   ) {
-    let server = MailServices.accounts.createIncomingServer(
+    const server = MailServices.accounts.createIncomingServer(
       aUsername,
       aHostname,
       aType
@@ -137,7 +138,7 @@ var localAccountUtils = {
 
     server.valid = false;
 
-    let account = MailServices.accounts.createAccount();
+    const account = MailServices.accounts.createAccount();
     account.incomingServer = server;
     if (aType == "pop3") {
       // Several tests expect that mail is deferred to the local folders account,
@@ -161,7 +162,7 @@ var localAccountUtils = {
    * @returns {nsISmtpServer} The newly-created nsISmtpServer.
    */
   create_outgoing_server(aPort, aUsername, aPassword, aHostname = "localhost") {
-    let server = MailServices.smtp.createServer();
+    const server = MailServices.smtp.createServer();
     server.hostname = aHostname;
     server.port = aPort;
     server.authMethod = Ci.nsMsgAuthMethod.none;
@@ -183,7 +184,7 @@ var localAccountUtils = {
       throw new Error("aIncoming isn't an account");
     }
 
-    let identity = MailServices.accounts.createIdentity();
+    const identity = MailServices.accounts.createIdentity();
     identity.smtpServerKey = aOutgoingServer.key;
 
     aIncoming.addIdentity(identity);

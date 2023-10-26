@@ -47,7 +47,7 @@ var illegalMessageTemplates = [
 var messageInjection;
 
 add_setup(function () {
-  let msgGen = new MessageGenerator();
+  const msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   glodaTestHelperInitialize(messageInjection);
 });
@@ -66,7 +66,7 @@ add_task(async function test_streaming_failure() {
   configureGlodaIndexing({ injectFaultIn: "streaming" });
 
   // Inject the messages.
-  let [msgSet] = await messageInjection.makeNewSetsInFolders(
+  const [msgSet] = await messageInjection.makeNewSetsInFolders(
     [messageInjection.getInboxFolder()],
     [{ count: 1 }]
   );
@@ -83,7 +83,7 @@ add_task(async function test_streaming_failure() {
   );
 
   // Make sure the header has the expected gloda bad message state.
-  let msgHdr = msgSet.getMsgHdr(0);
+  const msgHdr = msgSet.getMsgHdr(0);
   Assert.equal(msgHdr.getUint32Property("gloda-id"), GLODA_BAD_MESSAGE_ID);
 
   // Make sure gloda does not think the message is indexed
@@ -98,7 +98,7 @@ add_task(async function test_streaming_failure() {
  *  we should not attempt to index the message again.
  */
 add_task(async function test_recovery_and_no_second_attempts() {
-  let [, goodSet] = await messageInjection.makeNewSetsInFolders(
+  const [, goodSet] = await messageInjection.makeNewSetsInFolders(
     [messageInjection.getInboxFolder()],
     [{ count: 1, clobberHeaders: { From: "" } }, { count: 1 }]
   );
@@ -126,7 +126,7 @@ add_task(async function test_recovery_and_no_second_attempts() {
  */
 add_task(async function test_reindex_on_dirty_clear_dirty_on_fail() {
   // Inject a new illegal message
-  let [msgSet] = await messageInjection.makeNewSetsInFolders(
+  const [msgSet] = await messageInjection.makeNewSetsInFolders(
     [messageInjection.getInboxFolder()],
     [
       {
@@ -148,7 +148,7 @@ add_task(async function test_reindex_on_dirty_clear_dirty_on_fail() {
   );
 
   // Mark the message dirty, force the folder to be indexed.
-  let msgHdr = msgSet.getMsgHdr(0);
+  const msgHdr = msgSet.getMsgHdr(0);
   msgHdr.setUint32Property("gloda-dirty", 1);
   GlodaMsgIndexer.indexFolder(messageInjection.getInboxFolder());
   await waitForGlodaIndexer();
@@ -185,7 +185,7 @@ add_task(async function test_reindex_on_dirty_clear_dirty_on_fail() {
  */
 async function illegal_message(aInfo) {
   // Inject the messages.
-  let [msgSet] = await messageInjection.makeNewSetsInFolders(
+  const [msgSet] = await messageInjection.makeNewSetsInFolders(
     [messageInjection.getInboxFolder()],
     [{ count: 1, clobberHeaders: aInfo.clobberHeaders }]
   );
@@ -202,7 +202,7 @@ async function illegal_message(aInfo) {
   );
 
   // Make sure the header has the expected gloda bad message state.
-  let msgHdr = msgSet.getMsgHdr(0);
+  const msgHdr = msgSet.getMsgHdr(0);
   Assert.equal(msgHdr.getUint32Property("gloda-id"), GLODA_BAD_MESSAGE_ID);
 
   // Make sure gloda does not think the message is indexed.

@@ -15,7 +15,7 @@ var kEmailReducedValue = "testEmail\u00D2";
 var kCompanyValue = "Test\u00D0 Company";
 
 add_task(function testAbCardProperty() {
-  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+  const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
 
@@ -109,7 +109,7 @@ add_task(function testAbCardProperty() {
   card.firstName = kFNValue;
   card.lastName = kLNValue;
 
-  let bundle = Services.strings.createBundle(
+  const bundle = Services.strings.createBundle(
     "chrome://messenger/locale/addressbook/addressBook.properties"
   );
 

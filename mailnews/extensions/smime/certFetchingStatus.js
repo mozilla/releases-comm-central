@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let USER_CERT_ATTRIBUTE = "usercertificate;binary";
+const USER_CERT_ATTRIBUTE = "usercertificate;binary";
 
 let gEmailAddresses;
 let gDirectoryPref;
@@ -44,7 +44,7 @@ function search() {
   gLogin = Services.prefs.getStringPref(gDirectoryPref + ".auth.dn", undefined);
 
   try {
-    let url = Services.prefs.getCharPref(gDirectoryPref + ".uri");
+    const url = Services.prefs.getCharPref(gDirectoryPref + ".uri");
 
     gLdapServerURL = Services.io.newURI(url).QueryInterface(Ci.nsILDAPURL);
 
@@ -81,7 +81,7 @@ function importCert(ber_value) {
   }
 
   // ber_value has type nsILDAPBERValue
-  let cert_bytes = ber_value.get();
+  const cert_bytes = ber_value.get();
   if (cert_bytes) {
     gCertDB.importEmailCertificate(cert_bytes, cert_bytes.length, null);
   }
@@ -100,9 +100,9 @@ async function getPassword() {
   if (!gLogin) {
     return null;
   }
-  let authPrompter = Services.ww.getNewAuthPrompter(window);
-  let strBundle = document.getElementById("bundle_ldap");
-  let password = { value: "" };
+  const authPrompter = Services.ww.getNewAuthPrompter(window);
+  const strBundle = document.getElementById("bundle_ldap");
+  const password = { value: "" };
 
   // nsLDAPAutocompleteSession uses asciiHost instead of host for the prompt
   // text, I think we should be consistent.
@@ -171,7 +171,7 @@ class LDAPMessageListener {
       let prefix1 = "";
       let suffix1 = "";
 
-      let urlFilter = gLdapServerURL.filter;
+      const urlFilter = gLdapServerURL.filter;
       if (
         urlFilter != null &&
         urlFilter.length > 0 &&
@@ -195,11 +195,11 @@ class LDAPMessageListener {
 
       let mailFilter = "";
 
-      for (let email of gEmailAddresses) {
+      for (const email of gEmailAddresses) {
         mailFilter += "(mail=" + email + ")";
       }
 
-      let filter = prefix1 + prefix2 + mailFilter + suffix2 + suffix1;
+      const filter = prefix1 + prefix2 + mailFilter + suffix2 + suffix1;
 
       // Max search results =>
       // Double number of email addresses, because each person might have
@@ -208,7 +208,7 @@ class LDAPMessageListener {
       // Maybe that number should be larger, to allow for deployments,
       // where even more certs can be stored per user???
 
-      let maxEntriesWanted = gEmailAddresses.length * 2;
+      const maxEntriesWanted = gEmailAddresses.length * 2;
 
       getLDAPOperation();
       gLdapOperation.searchExt(

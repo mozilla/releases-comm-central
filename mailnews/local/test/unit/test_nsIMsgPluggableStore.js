@@ -7,27 +7,27 @@
  */
 
 function test_discoverSubFolders() {
-  let mailbox = setup_mailbox("none", create_temporary_directory());
+  const mailbox = setup_mailbox("none", create_temporary_directory());
   mailbox.msgStore.discoverSubFolders(mailbox, true);
 }
 
 function test_sliceStream() {
-  let mailbox = setup_mailbox("none", create_temporary_directory());
+  const mailbox = setup_mailbox("none", create_temporary_directory());
 
-  let str = "Just a test string.";
-  let strStream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
+  const str = "Just a test string.";
+  const strStream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
     Ci.nsIStringInputStream
   );
   strStream.setData(str, str.length);
 
-  let sliced = mailbox.msgStore.sliceStream(strStream, 7, 4);
+  const sliced = mailbox.msgStore.sliceStream(strStream, 7, 4);
 
-  let s = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+  const s = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
     Ci.nsIScriptableInputStream
   );
   s.init(sliced);
 
-  let chunk = s.read(1024);
+  const chunk = s.read(1024);
   Assert.equal(chunk, "test", "Check we got the expected subset.");
   Assert.equal(s.available(), 0, "Check no more bytes available.");
   Assert.equal(s.read(1024), "", "Check read() returns EOF.");
@@ -46,7 +46,7 @@ const pluggableStores = [
   "@mozilla.org/msgstore/maildirstore;1",
 ];
 
-for (let store of pluggableStores) {
+for (const store of pluggableStores) {
   add_task(withStore(store, test_discoverSubFolders));
   add_task(withStore(store, test_sliceStream));
 }

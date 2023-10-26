@@ -65,7 +65,7 @@ function setupIMAPPump(extensions) {
   }
 
   function createLocalIMAPServer() {
-    let server = localAccountUtils.create_incoming_server(
+    const server = localAccountUtils.create_incoming_server(
       "imap",
       IMAPPump.server.port,
       "user",
@@ -87,14 +87,14 @@ function setupIMAPPump(extensions) {
   }
 
   // We need an identity so that updateFolder doesn't fail
-  let localAccount = MailServices.accounts.createAccount();
-  let identity = MailServices.accounts.createIdentity();
+  const localAccount = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
   localAccount.addIdentity(identity);
   localAccount.defaultIdentity = identity;
   localAccount.incomingServer = localAccountUtils.incomingServer;
 
   // Let's also have another account, using the same identity
-  let imapAccount = MailServices.accounts.createAccount();
+  const imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(identity);
   imapAccount.defaultIdentity = identity;
   imapAccount.incomingServer = IMAPPump.incomingServer;
@@ -120,14 +120,14 @@ function setupIMAPPump(extensions) {
 // This will clear not only the imap accounts but also local accounts.
 function teardownIMAPPump() {
   // try to finish any pending operations
-  let thread = gThreadManager.currentThread;
+  const thread = gThreadManager.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }
 
   IMAPPump.inbox = null;
   try {
-    let serverSink = IMAPPump.incomingServer.QueryInterface(
+    const serverSink = IMAPPump.incomingServer.QueryInterface(
       Ci.nsIImapServerSink
     );
     serverSink.abortQueuedUrls();

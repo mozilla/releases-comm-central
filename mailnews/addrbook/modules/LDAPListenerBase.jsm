@@ -13,14 +13,14 @@ class LDAPListenerBase {
    * @see nsILDAPMessageListener
    */
   async onLDAPInit() {
-    let outPassword = {};
+    const outPassword = {};
     if (this._directory.authDn && this._directory.saslMechanism != "GSSAPI") {
       // If authDn is set, we're expected to use it to get a password.
-      let bundle = Services.strings.createBundle(
+      const bundle = Services.strings.createBundle(
         "chrome://mozldap/locale/ldap.properties"
       );
 
-      let authPrompt = Services.ww.getNewAuthPrompter(
+      const authPrompt = Services.ww.getNewAuthPrompter(
         Services.wm.getMostRecentWindow(null)
       );
       await authPrompt.asyncPromptPassword(
@@ -54,19 +54,19 @@ class LDAPListenerBase {
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
   _onLDAPBind(msg) {
-    let errCode = msg.errorCode;
+    const errCode = msg.errorCode;
     if (
       errCode == Ci.nsILDAPErrors.INAPPROPRIATE_AUTH ||
       errCode == Ci.nsILDAPErrors.INVALID_CREDENTIALS
     ) {
       // Login failed, remove any existing login(s).
-      let ldapUrl = this._directory.lDAPURL;
-      let logins = Services.logins.findLogins(
+      const ldapUrl = this._directory.lDAPURL;
+      const logins = Services.logins.findLogins(
         ldapUrl.prePath,
         "",
         ldapUrl.spec
       );
-      for (let login of logins) {
+      for (const login of logins) {
         Services.logins.removeLogin(login);
       }
       // Trigger the auth prompt.

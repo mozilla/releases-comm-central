@@ -15,8 +15,8 @@ class ImapProtocolHandler {
   scheme = "imap";
 
   newChannel(uri, loadInfo) {
-    let channel = new ImapChannel(uri, loadInfo);
-    let spec = uri.spec;
+    const channel = new ImapChannel(uri, loadInfo);
+    const spec = uri.spec;
     if (
       spec.includes("part=") &&
       !spec.includes("type=message/rfc822") &&

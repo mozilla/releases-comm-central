@@ -39,7 +39,7 @@ add_setup(async function () {
  */
 add_task(async function test_reparse_of_local_folder_works() {
   // Index a folder.
-  let [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1 },
   ]);
   await waitForGlodaIndexer();
@@ -71,7 +71,7 @@ add_task(async function test_reparse_of_local_folder_works() {
  */
 add_task(async function test_fromjson_of_removed_tag() {
   // -- Inject
-  let [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
+  const [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1 },
   ]);
   await waitForGlodaIndexer();
@@ -79,7 +79,7 @@ add_task(async function test_fromjson_of_removed_tag() {
   let gmsg = msgSet.glodaMessages[0];
 
   // -- Tag
-  let tag = TagNoun.getTag("$label4");
+  const tag = TagNoun.getTag("$label4");
   msgSet.addTag(tag.key);
   await waitForGlodaIndexer();
   Assert.ok(...assertExpectedMessagesIndexed([msgSet]));
@@ -89,7 +89,7 @@ add_task(async function test_fromjson_of_removed_tag() {
   // -- Forget about the tag, TagNoun!
   delete TagNoun._tagMap[tag.key];
   // This also means we have to replace the tag service with a liar.
-  let realTagService = TagNoun._msgTagService;
+  const realTagService = TagNoun._msgTagService;
   TagNoun._msgTagService = {
     isValidKey() {
       return false;
@@ -97,13 +97,13 @@ add_task(async function test_fromjson_of_removed_tag() {
   };
 
   // -- Forget about the message, gloda!
-  let glodaId = gmsg.id;
+  const glodaId = gmsg.id;
   nukeGlodaCachesAndCollections();
 
   // -- Re-load the message.
-  let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
+  const query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
   query.id(glodaId);
-  let coll = await queryExpect(query, msgSet);
+  const coll = await queryExpect(query, msgSet);
 
   // -- Put the tag back in TagNoun before we check and possibly explode.
   TagNoun._tagMap[tag.key] = tag;

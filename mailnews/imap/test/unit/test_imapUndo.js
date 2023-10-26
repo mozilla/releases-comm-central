@@ -38,7 +38,7 @@ var gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
 function addMessagesToServer(messages, mailbox) {
   // For every message we have, we need to convert it to a file:/// URI
   messages.forEach(function (message) {
-    let URI = Services.io
+    const URI = Services.io
       .newFileURI(message.file)
       .QueryInterface(Ci.nsIFileURL);
     // Create the ImapMessage and store it on the mailbox.
@@ -95,14 +95,14 @@ add_setup(function () {
 });
 
 add_task(async function updateFolder() {
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function deleteMessage() {
-  let msgToDelete = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const msgToDelete = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   gMessages.push(msgToDelete);
   IMAPPump.inbox.deleteMessages(
     gMessages,
@@ -116,7 +116,7 @@ add_task(async function deleteMessage() {
 });
 
 add_task(async function expunge() {
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.expunge(listener, gMsgWindow);
   await listener.promise;
 
@@ -129,8 +129,8 @@ add_task(async function undoDelete() {
   // after undo, we select the trash and then the inbox, so that we sync
   // up with the server, and clear out the effects of having done the
   // delete offline.
-  let listener = new PromiseTestUtils.PromiseUrlListener();
-  let trash = gRootFolder.getChildNamed("Trash");
+  const listener = new PromiseTestUtils.PromiseUrlListener();
+  const trash = gRootFolder.getChildNamed("Trash");
   trash
     .QueryInterface(Ci.nsIMsgImapMailFolder)
     .updateFolderWithListener(null, listener);
@@ -138,13 +138,13 @@ add_task(async function undoDelete() {
 });
 
 add_task(async function goBackToInbox() {
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(gMsgWindow, listener);
   await listener.promise;
 });
 
 add_task(function verifyFolders() {
-  let msgRestored = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
+  const msgRestored = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
   Assert.ok(msgRestored !== null);
   Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 4);
 });

@@ -27,13 +27,13 @@ function run_test() {
 function continueTest() {
   dump("temp file path = " + gExpectedFiles[0].path + "\n");
   dump("temp file path = " + gExpectedFiles[1].path + "\n");
-  for (let expectedFile of gExpectedFiles) {
+  for (const expectedFile of gExpectedFiles) {
     Assert.ok(!expectedFile.exists());
   }
 
   // get message headers for the inbox folder
   var msgCount = 0;
-  for (let hdr of localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()) {
+  for (const hdr of localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()) {
     Assert.equal(hdr.subject, testSubjects[msgCount++]);
   }
   Assert.equal(msgCount, 2);
@@ -43,18 +43,18 @@ function continueTest() {
 
 function createExpectedTemporaryFiles(numFiles) {
   function createTemporaryFile() {
-    let file = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    const file = Services.dirsvc.get("TmpD", Ci.nsIFile);
     file.append("newmsg");
     file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
     return file;
   }
 
-  let expectedFiles = [];
+  const expectedFiles = [];
   for (let i = 0; i < numFiles; i++) {
     expectedFiles.push(createTemporaryFile());
   }
 
-  for (let expectedFile of expectedFiles) {
+  for (const expectedFile of expectedFiles) {
     expectedFile.remove(false);
   }
 

@@ -15,11 +15,11 @@ add_task(async function testQP() {
   // Together with fields.forceMsgEncoding, force quote-printable encoding.
   Services.prefs.setBoolPref("mail.strictly_mime", true);
 
-  let identity = getSmtpIdentity(
+  const identity = getSmtpIdentity(
     "from@tinderbox.invalid",
     getBasicSmtpServer()
   );
-  let CompFields = CC(
+  const CompFields = CC(
     "@mozilla.org/messengercompose/composefields;1",
     Ci.nsIMsgCompFields
   );
@@ -73,8 +73,8 @@ add_task(async function testQP() {
     gDraftFolder,
     mailTestUtils.firstMsgHdr(gDraftFolder)
   );
-  let endOfHeaders = msgData.indexOf("\r\n\r\n");
-  let body = msgData.slice(endOfHeaders + 4);
+  const endOfHeaders = msgData.indexOf("\r\n\r\n");
+  const body = msgData.slice(endOfHeaders + 4);
 
   Assert.equal(
     body.trimRight("\r\n"),
@@ -91,11 +91,11 @@ add_task(async function testNoQPWithFormatFlowed() {
   // Together with fields.forceMsgEncoding, force quote-printable encoding.
   Services.prefs.setBoolPref("mail.strictly_mime", true);
 
-  let identity = getSmtpIdentity(
+  const identity = getSmtpIdentity(
     "from@tinderbox.invalid",
     getBasicSmtpServer()
   );
-  let fields = Cc[
+  const fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   fields.forceMsgEncoding = true;
@@ -105,7 +105,7 @@ add_task(async function testNoQPWithFormatFlowed() {
   fields.body = "A line with trailing whitespace\t ";
   await richCreateMessage(fields, [], identity);
 
-  let msgData = mailTestUtils.loadMessageToString(
+  const msgData = mailTestUtils.loadMessageToString(
     gDraftFolder,
     mailTestUtils.firstMsgHdr(gDraftFolder)
   );
@@ -128,19 +128,19 @@ add_task(async function testNoQPWithFormatFlowed() {
  * pref value.
  */
 add_task(async function testWrapLength() {
-  let identity = getSmtpIdentity(
+  const identity = getSmtpIdentity(
     "from@tinderbox.invalid",
     getBasicSmtpServer()
   );
-  let CompFields = CC(
+  const CompFields = CC(
     "@mozilla.org/messengercompose/composefields;1",
     Ci.nsIMsgCompFields
   );
 
-  let word = "abcd ";
-  let body = word.repeat(20);
+  const word = "abcd ";
+  const body = word.repeat(20);
 
-  let fields = new CompFields();
+  const fields = new CompFields();
   fields.to = "Nobody <nobody@tinderbox.invalid>";
   fields.subject = "Test text wrapping";
   fields.body = `<html><body>${body}</body></html>`;
@@ -180,11 +180,11 @@ add_task(async function testWrapLength() {
  * Test handling of trailing NBSP.
  */
 add_task(async function testNBSP() {
-  let identity = getSmtpIdentity(
+  const identity = getSmtpIdentity(
     "from@tinderbox.invalid",
     getBasicSmtpServer()
   );
-  let fields = Cc[
+  const fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   fields.to = "Nobody <nobody@tinderbox.invalid>";
@@ -194,7 +194,7 @@ add_task(async function testNBSP() {
   fields.forcePlainText = true;
   await richCreateMessage(fields, [], identity);
 
-  let msgData = mailTestUtils.loadMessageToUTF16String(
+  const msgData = mailTestUtils.loadMessageToUTF16String(
     gDraftFolder,
     mailTestUtils.firstMsgHdr(gDraftFolder)
   );

@@ -84,11 +84,11 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
   ];
 
   async getSourceProfiles() {
-    let profileService = Cc[
+    const profileService = Cc[
       "@mozilla.org/toolkit/profile-service;1"
     ].getService(Ci.nsIToolkitProfileService);
-    let sourceProfiles = [];
-    for (let profile of profileService.profiles) {
+    const sourceProfiles = [];
+    for (const profile of profileService.profiles) {
       if (profile == profileService.currentProfile) {
         continue;
       }
@@ -172,12 +172,12 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     ]);
     this._otherPrefs = [];
 
-    let sourcePrefsFile = this._sourceProfileDir.clone();
+    const sourcePrefsFile = this._sourceProfileDir.clone();
     sourcePrefsFile.append("prefs.js");
-    let sourcePrefsBuffer = await IOUtils.read(sourcePrefsFile.path);
+    const sourcePrefsBuffer = await IOUtils.read(sourcePrefsFile.path);
 
-    let savePref = (type, name, value) => {
-      for (let [branchName, branchPrefs] of this._branchPrefsMap) {
+    const savePref = (type, name, value) => {
+      for (const [branchName, branchPrefs] of this._branchPrefsMap) {
         if (name.startsWith(branchName)) {
           branchPrefs.push([type, name.slice(branchName.length), value]);
           return;
@@ -205,22 +205,22 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    */
   async _importServersAndAccounts() {
     // Import SMTP servers first, the importing order is important.
-    let smtpServerKeyMap = this._importSmtpServers(
+    const smtpServerKeyMap = this._importSmtpServers(
       this._branchPrefsMap.get(SMTP_SERVER),
       this._collectPrefsToObject(this._branchPrefsMap.get(MAIL_SMTP))
         .defaultserver
     );
 
     // mail.identity.idN.smtpServer depends on transformed smtp server key.
-    let identityKeyMap = this._importIdentities(
+    const identityKeyMap = this._importIdentities(
       this._branchPrefsMap.get(MAIL_IDENTITY),
       smtpServerKeyMap
     );
-    let imAccountKeyMap = await this._importIMAccounts(
+    const imAccountKeyMap = await this._importIMAccounts(
       this._branchPrefsMap.get(IM_ACCOUNT)
     );
 
-    let accountManager = this._collectPrefsToObject(
+    const accountManager = this._collectPrefsToObject(
       this._branchPrefsMap.get(ACCOUNT_MANAGER)
     );
     // Officially we only support one Local Folders account, if we already have
@@ -231,7 +231,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     this._sourceLocalServerAttrs = {};
 
     // mail.server.serverN.imAccount depends on transformed im account key.
-    let incomingServerKeyMap = await this._importIncomingServers(
+    const incomingServerKeyMap = await this._importIncomingServers(
       this._branchPrefsMap.get(MAIL_SERVER),
       imAccountKeyMap
     );
@@ -262,8 +262,8 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * @returns {object} An object mapping pref name to pref value.
    */
   _collectPrefsToObject(prefs) {
-    let obj = {};
-    for (let [, name, value] of prefs) {
+    const obj = {};
+    for (const [, name, value] of prefs) {
       obj[name] = value;
     }
     return obj;
@@ -278,14 +278,14 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * @returns {smtpServerKeyMap} A map from source server key to new server key.
    */
   _importSmtpServers(prefs, sourceDefaultServer) {
-    let smtpServerKeyMap = new Map();
-    let branch = Services.prefs.getBranch(SMTP_SERVER);
-    for (let [type, name, value] of prefs) {
-      let key = name.split(".")[0];
+    const smtpServerKeyMap = new Map();
+    const branch = Services.prefs.getBranch(SMTP_SERVER);
+    for (const [type, name, value] of prefs) {
+      const key = name.split(".")[0];
       let newServerKey = smtpServerKeyMap.get(key);
       if (!newServerKey) {
         // For every smtp server, create a new one to avoid conflicts.
-        let server = MailServices.smtp.createServer();
+        const server = MailServices.smtp.createServer();
         newServerKey = server.key;
         smtpServerKeyMap.set(key, newServerKey);
         this._logger.debug(
@@ -293,12 +293,12 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         );
       }
 
-      let newName = `${newServerKey}${name.slice(key.length)}`;
+      const newName = `${newServerKey}${name.slice(key.length)}`;
       branch[`set${type}Pref`](newName, value);
     }
 
     // Set defaultserver if it doesn't already exist.
-    let defaultServer = Services.prefs.getCharPref(
+    const defaultServer = Services.prefs.getCharPref(
       "mail.smtp.defaultserver",
       ""
     );
@@ -321,20 +321,20 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    *   key.
    */
   _importIdentities(prefs, smtpServerKeyMap) {
-    let identityKeyMap = new Map();
-    let branch = Services.prefs.getBranch(MAIL_IDENTITY);
-    for (let [type, name, value] of prefs) {
-      let key = name.split(".")[0];
+    const identityKeyMap = new Map();
+    const branch = Services.prefs.getBranch(MAIL_IDENTITY);
+    for (const [type, name, value] of prefs) {
+      const key = name.split(".")[0];
       let newIdentityKey = identityKeyMap.get(key);
       if (!newIdentityKey) {
         // For every identity, create a new one to avoid conflicts.
-        let identity = MailServices.accounts.createIdentity();
+        const identity = MailServices.accounts.createIdentity();
         newIdentityKey = identity.key;
         identityKeyMap.set(key, newIdentityKey);
         this._logger.debug(`Mapping identity from ${key} to ${newIdentityKey}`);
       }
 
-      let newName = `${newIdentityKey}${name.slice(key.length)}`;
+      const newName = `${newIdentityKey}${name.slice(key.length)}`;
       let newValue = value;
       if (name.endsWith(".smtpServer")) {
         newValue = smtpServerKeyMap.get(value) || newValue;
@@ -353,20 +353,20 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    *   key.
    */
   async _importIMAccounts(prefs) {
-    let imAccountKeyMap = new Map();
-    let branch = Services.prefs.getBranch(IM_ACCOUNT);
+    const imAccountKeyMap = new Map();
+    const branch = Services.prefs.getBranch(IM_ACCOUNT);
 
     let lastKey = 1;
     function _getUniqueAccountKey() {
-      let key = `account${lastKey++}`;
+      const key = `account${lastKey++}`;
       if (Services.prefs.getCharPref(`messenger.account.${key}.name`, "")) {
         return _getUniqueAccountKey();
       }
       return key;
     }
 
-    for (let [type, name, value] of prefs) {
-      let key = name.split(".")[0];
+    for (const [type, name, value] of prefs) {
+      const key = name.split(".")[0];
       let newAccountKey = imAccountKeyMap.get(key);
       if (!newAccountKey) {
         // For every account, create a new one to avoid conflicts.
@@ -377,7 +377,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         );
       }
 
-      let newName = `${newAccountKey}${name.slice(key.length)}`;
+      const newName = `${newAccountKey}${name.slice(key.length)}`;
       branch[`set${type}Pref`](newName, value);
     }
 
@@ -394,20 +394,20 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    *   server key.
    */
   async _importIncomingServers(prefs, imAccountKeyMap) {
-    let incomingServerKeyMap = new Map();
-    let branch = Services.prefs.getBranch(MAIL_SERVER);
+    const incomingServerKeyMap = new Map();
+    const branch = Services.prefs.getBranch(MAIL_SERVER);
 
     let lastKey = 1;
     function _getUniqueIncomingServerKey() {
-      let key = `server${lastKey++}`;
+      const key = `server${lastKey++}`;
       if (branch.getCharPref(`${key}.type`, "")) {
         return _getUniqueIncomingServerKey();
       }
       return key;
     }
 
-    for (let [type, name, value] of prefs) {
-      let [key, attr] = name.split(".");
+    for (const [type, name, value] of prefs) {
+      const [key, attr] = name.split(".");
       if (key == this._sourceLocalServerKeyToSkip) {
         if (["directory", "directory-rel"].includes(attr)) {
           this._sourceLocalServerAttrs[attr] = value;
@@ -428,7 +428,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         this._logger.debug(`Mapping server from ${key} to ${newServerKey}`);
       }
 
-      let newName = `${newServerKey}${name.slice(key.length)}`;
+      const newName = `${newServerKey}${name.slice(key.length)}`;
       let newValue = value;
       if (newName.endsWith(".imAccount")) {
         newValue = imAccountKeyMap.get(value);
@@ -458,10 +458,10 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     identityKeyMap,
     incomingServerKeyMap
   ) {
-    let accountKeyMap = new Map();
-    let branch = Services.prefs.getBranch(MAIL_ACCOUNT);
-    for (let [type, name, value] of prefs) {
-      let key = name.split(".")[0];
+    const accountKeyMap = new Map();
+    const branch = Services.prefs.getBranch(MAIL_ACCOUNT);
+    for (const [type, name, value] of prefs) {
+      const key = name.split(".")[0];
       if (key == "lastKey" || value == this._sourceLocalServerKeyToSkip) {
         continue;
       }
@@ -472,7 +472,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         accountKeyMap.set(key, newAccountKey);
       }
 
-      let newName = `${newAccountKey}${name.slice(key.length)}`;
+      const newName = `${newAccountKey}${name.slice(key.length)}`;
       let newValue = value;
       if (name.endsWith(".identities")) {
         // An account can have multiple identities.
@@ -488,11 +488,11 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     }
 
     // Append newly create accounts to mail.accountmanager.accounts.
-    let accounts = Services.prefs
+    const accounts = Services.prefs
       .getCharPref("mail.accountmanager.accounts", "")
       .split(",");
     if (sourceAccounts) {
-      for (let sourceAccountKey of sourceAccounts.split(",")) {
+      for (const sourceAccountKey of sourceAccounts.split(",")) {
         accounts.push(accountKeyMap.get(sourceAccountKey));
       }
       Services.prefs.setCharPref(
@@ -502,7 +502,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     }
 
     // Set defaultaccount if it doesn't already exist.
-    let defaultAccount = Services.prefs.getCharPref(
+    const defaultAccount = Services.prefs.getCharPref(
       "mail.accountmanager.defaultaccount",
       ""
     );
@@ -523,12 +523,12 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * @returns {nsIFile}
    */
   _getSourceFileFromPaths(relValue, absValue) {
-    let relPath = relValue.slice("[ProfD]".length);
-    let parts = relPath.split("/");
+    const relPath = relValue.slice("[ProfD]".length);
+    const parts = relPath.split("/");
     if (!relValue.startsWith("[ProfD]") || parts.includes("..")) {
       // If we don't recognize this path or if it's a path outside the ProfD,
       // use absValue instead.
-      let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+      const file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
       try {
         file.initWithPath(absValue);
       } catch (e) {
@@ -538,8 +538,8 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       return file;
     }
 
-    let sourceFile = this._sourceProfileDir.clone();
-    for (let part of parts) {
+    const sourceFile = this._sourceProfileDir.clone();
+    for (const part of parts) {
       sourceFile.append(part);
     }
     return sourceFile;
@@ -552,18 +552,18 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    *   to new server key.
    */
   async _importMailMessages(incomingServerKeyMap) {
-    for (let key of incomingServerKeyMap.values()) {
-      let branch = Services.prefs.getBranch(`${MAIL_SERVER}${key}.`);
+    for (const key of incomingServerKeyMap.values()) {
+      const branch = Services.prefs.getBranch(`${MAIL_SERVER}${key}.`);
       if (!branch) {
         continue;
       }
-      let type = branch.getCharPref("type", "");
-      let hostname = branch.getCharPref("hostname", "");
+      const type = branch.getCharPref("type", "");
+      const hostname = branch.getCharPref("hostname", "");
       if (!type || !hostname) {
         continue;
       }
 
-      let targetDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
+      const targetDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
       if (type == "imap") {
         targetDir.append("ImapMail");
       } else if (type == "nntp") {
@@ -576,7 +576,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
 
       this._logger.debug("Importing mail messages for", key);
 
-      let sourceDir = this._getSourceFileFromPaths(
+      const sourceDir = this._getSourceFileFromPaths(
         branch.getCharPref("directory-rel", ""),
         branch.getCharPref("directory", "")
       );
@@ -592,12 +592,12 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       }
 
       if (type == "nntp") {
-        let targetNewsrc = Services.dirsvc.get("ProfD", Ci.nsIFile);
+        const targetNewsrc = Services.dirsvc.get("ProfD", Ci.nsIFile);
         targetNewsrc.append("News");
         targetNewsrc.append(`newsrc-${hostname}`);
         targetNewsrc.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
 
-        let sourceNewsrc = this._getSourceFileFromPaths(
+        const sourceNewsrc = this._getSourceFileFromPaths(
           branch.getCharPref("newsrc.file-rel", ""),
           branch.getCharPref("newsrc.file", "")
         );
@@ -620,20 +620,20 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * Source Local Folders become a subfoler of the current Local Folders.
    */
   _mergeLocalFolders() {
-    let sourceDir = this._getSourceFileFromPaths(
+    const sourceDir = this._getSourceFileFromPaths(
       this._sourceLocalServerAttrs["directory-rel"],
       this._sourceLocalServerAttrs.directory
     );
     if (!sourceDir?.exists()) {
       return;
     }
-    let rootMsgFolder = this._localServer.rootMsgFolder;
-    let folderName = rootMsgFolder.generateUniqueSubfolderName(
+    const rootMsgFolder = this._localServer.rootMsgFolder;
+    const folderName = rootMsgFolder.generateUniqueSubfolderName(
       "Local Folders",
       null
     );
     rootMsgFolder.createSubfolder(folderName, null);
-    let targetDir = rootMsgFolder.filePath;
+    const targetDir = rootMsgFolder.filePath;
     targetDir.append(folderName + ".sbd");
     this._logger.debug(
       `Copying ${sourceDir.path} to ${targetDir.path} in Local Folders`
@@ -660,15 +660,15 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       return;
     }
 
-    for (let entry of sourceDir.directoryEntries) {
+    for (const entry of sourceDir.directoryEntries) {
       if (entry.isDirectory()) {
-        let newFolder = targetDir.clone();
+        const newFolder = targetDir.clone();
         newFolder.append(entry.leafName);
         newFolder.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
         this._recursivelyCopyMsgFolder(entry, newFolder);
       } else {
-        let leafName = entry.leafName;
-        let extName = leafName.slice(leafName.lastIndexOf(".") + 1);
+        const leafName = entry.leafName;
+        const extName = leafName.slice(leafName.lastIndexOf(".") + 1);
         if (isTargetLocal) {
           // When copying to Local Folders, drop database files so that special
           // folders (Inbox, Trash) become normal folders. Otherwise, imported
@@ -699,35 +699,35 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       MailServices.accounts.createLocalMailAccount();
       this._localServer = MailServices.accounts.localFoldersServer;
     }
-    let localMsgFolder = this._localServer.rootMsgFolder;
-    let localRootDir = this._localServer.rootMsgFolder.filePath;
-    let bundle = Services.strings.createBundle(
+    const localMsgFolder = this._localServer.rootMsgFolder;
+    const localRootDir = this._localServer.rootMsgFolder.filePath;
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/importMsgs.properties"
     );
 
     // Create a "Thunderbird Import" folder, and import into it.
-    let wrapFolderName = localMsgFolder.generateUniqueSubfolderName(
+    const wrapFolderName = localMsgFolder.generateUniqueSubfolderName(
       bundle.formatStringFromName("ImportModuleFolderName", [this.NAME]),
       null
     );
     localMsgFolder.createSubfolder(wrapFolderName, null);
-    let targetRootMsgFolder = localMsgFolder.getChildNamed(wrapFolderName);
+    const targetRootMsgFolder = localMsgFolder.getChildNamed(wrapFolderName);
 
     // Import mail folders.
-    for (let name of ["ImapMail", "News", "Mail"]) {
-      let sourceDir = this._sourceProfileDir.clone();
+    for (const name of ["ImapMail", "News", "Mail"]) {
+      const sourceDir = this._sourceProfileDir.clone();
       sourceDir.append(name);
       if (!sourceDir.exists()) {
         continue;
       }
 
-      for (let entry of sourceDir.directoryEntries) {
+      for (const entry of sourceDir.directoryEntries) {
         if (entry.isDirectory()) {
           if (name == "Mail" && entry.leafName == "Feeds") {
             continue;
           }
-          let targetDir = localRootDir.clone();
-          let folderName = targetRootMsgFolder.generateUniqueSubfolderName(
+          const targetDir = localRootDir.clone();
+          const folderName = targetRootMsgFolder.generateUniqueSubfolderName(
             entry.leafName,
             null
           );
@@ -748,10 +748,10 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * @param {PrefItem[]} prefs - All source prefs to try to import.
    */
   _importOtherPrefs(prefs) {
-    let tags = {};
-    for (let [type, name, value] of prefs) {
+    const tags = {};
+    for (const [type, name, value] of prefs) {
       if (name.startsWith("mailnews.tags.")) {
-        let [, , key, attr] = name.split(".");
+        const [, , key, attr] = name.split(".");
         if (!tags[key]) {
           tags[key] = {};
         }
@@ -764,10 +764,10 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     }
 
     // Import tags, but do not overwrite existing customized tags.
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messenger.properties"
     );
-    for (let [key, { color, tag }] of Object.entries(tags)) {
+    for (const [key, { color, tag }] of Object.entries(tags)) {
       if (!color || !tag) {
         continue;
       }
@@ -786,11 +786,11 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       if (
         ["$label1", "$label2", "$label3", "$label4", "$label5"].includes(key)
       ) {
-        let seq = key.at(-1);
-        let defaultColor = Services.prefs.getCharPref(
+        const seq = key.at(-1);
+        const defaultColor = Services.prefs.getCharPref(
           `mailnews.labels.color.${seq}`
         );
-        let defaultTag = bundle.GetStringFromName(
+        const defaultTag = bundle.GetStringFromName(
           `mailnews.labels.description.${seq}`
         );
         if (currentTagColor == defaultColor && currentTagTag == defaultTag) {
@@ -811,10 +811,10 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * @param {string} ldapAutoComplete.directoryServer
    */
   async _importAddressBooks(prefs, ldapAutoComplete) {
-    let keyMap = new Map();
-    let branch = Services.prefs.getBranch(ADDRESS_BOOK);
+    const keyMap = new Map();
+    const branch = Services.prefs.getBranch(ADDRESS_BOOK);
     for (let [type, name, value] of prefs) {
-      let [key, attr] = name.split(".");
+      const [key, attr] = name.split(".");
       if (["pab", "history"].includes(key)) {
         continue;
       }
@@ -837,7 +837,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         keyMap.set(key, newKey);
       }
 
-      let newName = `${newKey}${name.slice(key.length)}`;
+      const newName = `${newKey}${name.slice(key.length)}`;
       if (newName.endsWith(".dirType") && value == 2) {
         // dirType=2 is a Mab file, we will migrate it in _copyAddressBookDatabases.
         value = Ci.nsIAbManager.JS_DIRECTORY_TYPE;
@@ -851,8 +851,8 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       ldapAutoComplete.directoryServer &&
       !Services.prefs.getBoolPref(`${LDAP_AUTO_COMPLETE}useDirectory`, false)
     ) {
-      let key = ldapAutoComplete.directoryServer.split("/").slice(-1)[0];
-      let newKey = keyMap.get(key);
+      const key = ldapAutoComplete.directoryServer.split("/").slice(-1)[0];
+      const newKey = keyMap.get(key);
       if (newKey) {
         Services.prefs.setBoolPref(`${LDAP_AUTO_COMPLETE}useDirectory`, true);
         Services.prefs.setCharPref(
@@ -875,13 +875,13 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
     let hasMabFile = false;
 
     // Copy user created address books.
-    for (let key of keyMap.values()) {
-      let branch = Services.prefs.getBranch(`${ADDRESS_BOOK}${key}.`);
-      let filename = branch.getCharPref("filename", "");
+    for (const key of keyMap.values()) {
+      const branch = Services.prefs.getBranch(`${ADDRESS_BOOK}${key}.`);
+      const filename = branch.getCharPref("filename", "");
       if (!filename) {
         continue;
       }
-      let sourceFile = this._sourceProfileDir.clone();
+      const sourceFile = this._sourceProfileDir.clone();
       sourceFile.append(filename);
       if (!sourceFile.exists()) {
         this._logger.debug(
@@ -891,12 +891,12 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       }
 
       let leafName = sourceFile.leafName;
-      let isMabFile = leafName.endsWith(".mab");
+      const isMabFile = leafName.endsWith(".mab");
       if (isMabFile) {
         leafName = leafName.slice(0, -4) + ".sqlite";
         hasMabFile = true;
       }
-      let targetFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+      const targetFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
       targetFile.append(leafName);
       targetFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
       branch.setCharPref("filename", targetFile.leafName);
@@ -907,7 +907,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         sourceFile.copyTo(targetFile.parent, targetFile.leafName);
         // Write-Ahead Logging file contains changes not written to .sqlite file
         // yet.
-        let sourceWalFile = this._sourceProfileDir.clone();
+        const sourceWalFile = this._sourceProfileDir.clone();
         sourceWalFile.append(filename + "-wal");
         if (sourceWalFile.exists()) {
           sourceWalFile.copyTo(targetFile.parent, targetFile.leafName + "-wal");
@@ -932,13 +932,13 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * @param {string} filename - The name of the sqlite file.
    */
   async _importAddressBookDatabase(filename) {
-    let sourceFile = this._sourceProfileDir.clone();
+    const sourceFile = this._sourceProfileDir.clone();
     sourceFile.append(filename);
     if (!sourceFile.exists()) {
       return;
     }
 
-    let targetDirectory = MailServices.ab.getDirectory(
+    const targetDirectory = MailServices.ab.getDirectory(
       `jsaddrbook://${filename}`
     );
     if (!targetDirectory) {
@@ -946,7 +946,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       return;
     }
 
-    let importer = new AddrBookFileImporter("sqlite");
+    const importer = new AddrBookFileImporter("sqlite");
     await importer.startImport(sourceFile, targetDirectory);
   }
 
@@ -960,12 +960,12 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
   async _migrateMabToSqlite(sourceMabFile, targetSqliteFile) {
     // It's better to use MailServices.ab.getDirectory, but we need to refresh
     // AddrBookManager first.
-    let targetDirectory = Cc[
+    const targetDirectory = Cc[
       "@mozilla.org/addressbook/directory;1?type=jsaddrbook"
     ].createInstance(Ci.nsIAbDirectory);
     targetDirectory.init(`jsaddrbook://${targetSqliteFile.leafName}`);
 
-    let importer = new AddrBookFileImporter("mab");
+    const importer = new AddrBookFileImporter("mab");
     await importer.startImport(sourceMabFile, targetDirectory);
   }
 
@@ -978,7 +978,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
   async _importMorkDatabase(basename) {
     this._logger.debug(`Importing ${basename}.mab into ${basename}.sqlite`);
 
-    let sourceMabFile = this._sourceProfileDir.clone();
+    const sourceMabFile = this._sourceProfileDir.clone();
     sourceMabFile.append(`${basename}.mab`);
     if (!sourceMabFile.exists()) {
       return;
@@ -994,7 +994,7 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
       return;
     }
 
-    let importer = new AddrBookFileImporter("mab");
+    const importer = new AddrBookFileImporter("mab");
     await importer.startImport(sourceMabFile, targetDirectory);
   }
 
@@ -1009,14 +1009,14 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
    * @param {object} calendarList - Pref values of CALENDAR_LIST branch.
    */
   _importCalendars(prefs, calendarList) {
-    let branch = Services.prefs.getBranch(CALENDAR);
-    for (let [type, name, value] of prefs) {
+    const branch = Services.prefs.getBranch(CALENDAR);
+    for (const [type, name, value] of prefs) {
       branch[`set${type}Pref`](name, value);
     }
 
     if (calendarList.sortOrder) {
-      let prefName = `${CALENDAR_LIST}sortOrder`;
-      let prefValue =
+      const prefName = `${CALENDAR_LIST}sortOrder`;
+      const prefValue =
         Services.prefs.getCharPref(prefName, "") + " " + calendarList.sortOrder;
       Services.prefs.setCharPref(prefName, prefValue.trim());
     }

@@ -20,7 +20,7 @@ var gAddressBookAbListener = {
   ]),
 
   init() {
-    for (let topic of [
+    for (const topic of [
       "addrbook-directory-created",
       "addrbook-directory-updated",
       "addrbook-directory-deleted",
@@ -57,8 +57,8 @@ function fillDirectoryList(aItem = null) {
   }
 
   // Init the address book list
-  let holdingArray = [];
-  for (let ab of MailServices.ab.directories) {
+  const holdingArray = [];
+  for (const ab of MailServices.ab.directories) {
     if (ab.isRemote) {
       holdingArray.push(ab);
     }
@@ -69,8 +69,8 @@ function fillDirectoryList(aItem = null) {
   });
 
   holdingArray.forEach(function (ab) {
-    let item = document.createXULElement("richlistitem");
-    let label = document.createXULElement("label");
+    const item = document.createXULElement("richlistitem");
+    const label = document.createXULElement("label");
     label.setAttribute("value", ab.dirName);
     item.appendChild(label);
     item.setAttribute("value", ab.URI);
@@ -98,8 +98,8 @@ function selectDirectory() {
 
     // If the disable delete button pref for the selected directory is set,
     // disable the delete button for that directory.
-    let ab = MailServices.ab.getDirectory(abList.value);
-    let disable = Services.prefs.getBoolPref(
+    const ab = MailServices.ab.getDirectory(abList.value);
+    const disable = Services.prefs.getBoolPref(
       ab.dirPrefId + ".disable_delete",
       false
     );
@@ -134,8 +134,8 @@ function editDirectory() {
   var abList = document.getElementById("directoriesList");
 
   if (abList && abList.selectedItem) {
-    let abURI = abList.value;
-    let ab = MailServices.ab.getDirectory(abURI);
+    const abURI = abList.value;
+    const ab = MailServices.ab.getDirectory(abURI);
 
     parent.gSubDialog.open(
       "chrome://messenger/content/addressbook/pref-directory-add.xhtml",
@@ -146,13 +146,13 @@ function editDirectory() {
 }
 
 async function removeDirectory() {
-  let abList = document.getElementById("directoriesList");
+  const abList = document.getElementById("directoriesList");
 
   if (!abList.selectedItem) {
     return;
   }
 
-  let directory = GetDirectoryFromURI(abList.value);
+  const directory = GetDirectoryFromURI(abList.value);
   if (
     !directory ||
     ["ldap_2.servers.history", "ldap_2.servers.pab"].includes(
@@ -174,7 +174,7 @@ async function removeDirectory() {
     action = "remove-remote-book";
   }
 
-  let [title, message] = await document.l10n.formatValues([
+  const [title, message] = await document.l10n.formatValues([
     { id: `about-addressbook-confirm-${action}-title`, args: { count: 1 } },
     {
       id: `about-addressbook-confirm-${action}`,

@@ -5,7 +5,7 @@
  * Test telemetry related to mails read.
  */
 
-let { TelemetryTestUtils } = ChromeUtils.importESModule(
+const { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
 
@@ -18,7 +18,7 @@ add_task(async function test_mails_read() {
   localAccountUtils.loadLocalMailAccount();
 
   const NUM_MAILS = 5;
-  let headers =
+  const headers =
     "from: alice@t1.example.com\r\n" +
     "to: bob@t2.example.net\r\n" +
     "return-path: alice@t1.example.com\r\n" +

@@ -80,7 +80,7 @@ var CardDAVServer = {
 
     // Address book interaction.
 
-    for (let path of Object.keys(this.books)) {
+    for (const path of Object.keys(this.books)) {
       this.server.registerPathHandler(path, this.directoryHandler.bind(this));
       this.server.registerPrefixHandler(path, this.cardHandler.bind(this));
     }
@@ -130,14 +130,14 @@ var CardDAVServer = {
       return false;
     }
 
-    let value = request.getHeader("Authorization");
+    const value = request.getHeader("Authorization");
     if (!value.startsWith("Basic ")) {
       response.setStatusLine("1.1", 401, "Unauthorized");
       response.setHeader("WWW-Authenticate", `Basic realm="test"`);
       return false;
     }
 
-    let [username, password] = atob(value.substring(6)).split(":");
+    const [username, password] = atob(value.substring(6)).split(":");
     if (username != this.username || password != this.password) {
       response.setStatusLine("1.1", 401, "Unauthorized");
       response.setHeader("WWW-Authenticate", `Basic realm="test"`);
@@ -163,13 +163,13 @@ var CardDAVServer = {
       return;
     }
 
-    let input = new DOMParser().parseFromString(
+    const input = new DOMParser().parseFromString(
       CommonUtils.readBytesFromInputStream(request.bodyInputStream),
       "text/xml"
     );
 
-    let propNames = this._inputProps(input);
-    let propValues = {
+    const propNames = this._inputProps(input);
+    const propValues = {
       "d:current-user-principal": "<href>/principals/me/</href>",
     };
 
@@ -190,13 +190,13 @@ var CardDAVServer = {
       return;
     }
 
-    let input = new DOMParser().parseFromString(
+    const input = new DOMParser().parseFromString(
       CommonUtils.readBytesFromInputStream(request.bodyInputStream),
       "text/xml"
     );
 
-    let propNames = this._inputProps(input);
-    let propValues = {
+    const propNames = this._inputProps(input);
+    const propValues = {
       "d:resourcetype": "<principal/>",
       "card:addressbook-home-set": "<href>/addressbooks/me/</href>",
     };
@@ -218,12 +218,12 @@ var CardDAVServer = {
       return;
     }
 
-    let input = new DOMParser().parseFromString(
+    const input = new DOMParser().parseFromString(
       CommonUtils.readBytesFromInputStream(request.bodyInputStream),
       "text/xml"
     );
 
-    let propNames = this._inputProps(input);
+    const propNames = this._inputProps(input);
 
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
@@ -237,7 +237,7 @@ var CardDAVServer = {
           })}
         </response>`;
 
-    for (let [path, name] of Object.entries(this.books)) {
+    for (const [path, name] of Object.entries(this.books)) {
       output += `<response>
           <href>${path}</href>
           ${this._outputProps(propNames, {
@@ -260,8 +260,8 @@ var CardDAVServer = {
       return;
     }
 
-    let isRealDirectory = request.path == this.path;
-    let input = new DOMParser().parseFromString(
+    const isRealDirectory = request.path == this.path;
+    const input = new DOMParser().parseFromString(
       CommonUtils.readBytesFromInputStream(request.bodyInputStream),
       "text/xml"
     );
@@ -306,10 +306,10 @@ var CardDAVServer = {
       return;
     }
 
-    let propNames = this._inputProps(input);
+    const propNames = this._inputProps(input);
     let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
     if (isRealDirectory) {
-      for (let [href, card] of this.cards) {
+      for (const [href, card] of this.cards) {
         output += this._cardResponse(href, card, propNames);
       }
     }
@@ -321,7 +321,7 @@ var CardDAVServer = {
   },
 
   addressBookMultiGet(input, response, isRealDirectory) {
-    let propNames = this._inputProps(input);
+    const propNames = this._inputProps(input);
     let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
     if (isRealDirectory) {
       for (let href of input.querySelectorAll("href")) {
@@ -329,7 +329,7 @@ var CardDAVServer = {
         if (this.movedCards.has(href)) {
           href = this.movedCards.get(href);
         }
-        let card = this.cards.get(href);
+        const card = this.cards.get(href);
         if (card) {
           output += this._cardResponse(href, card, propNames);
         }
@@ -343,14 +343,14 @@ var CardDAVServer = {
   },
 
   propFind(input, depth, response, isRealDirectory) {
-    let propNames = this._inputProps(input);
+    const propNames = this._inputProps(input);
 
     if (this.mimicYahoo && !propNames.includes("cs:getctag")) {
       response.setStatusLine("1.1", 400, "Bad Request");
       return;
     }
 
-    let propValues = {
+    const propValues = {
       "cs:getctag": this.changeCount,
       "d:displayname": isRealDirectory ? "CardDAV Test" : "Not This One",
       "d:resourcetype": "<collection/><card:addressbook/>",
@@ -366,7 +366,7 @@ var CardDAVServer = {
         ${this._outputProps(propNames, propValues)}
       </response>`;
     if (depth == 1 && isRealDirectory) {
-      for (let [href, card] of this.cards) {
+      for (const [href, card] of this.cards) {
         output += this._cardResponse(href, card, propNames);
       }
     }
@@ -378,18 +378,18 @@ var CardDAVServer = {
   },
 
   syncCollection(input, response, isRealDirectory) {
-    let token = input
+    const token = input
       .querySelector("sync-token")
       .textContent.replace(/\D/g, "");
     if (!token) {
       response.setStatusLine("1.1", 400, "Bad Request");
       return;
     }
-    let propNames = this._inputProps(input);
+    const propNames = this._inputProps(input);
 
     let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
     if (isRealDirectory) {
-      for (let [href, card] of this.cards) {
+      for (const [href, card] of this.cards) {
         if (card.changed > token) {
           output += this._cardResponse(
             href,
@@ -399,7 +399,7 @@ var CardDAVServer = {
           );
         }
       }
-      for (let [href, deleted] of this.deletedCards) {
+      for (const [href, deleted] of this.deletedCards) {
         if (deleted > token) {
           output += `<response>
             <status>HTTP/1.1 404 Not Found</status>
@@ -421,7 +421,7 @@ var CardDAVServer = {
   },
 
   _cardResponse(href, card, propNames, includeAddressData = true) {
-    let propValues = {
+    const propValues = {
       "d:getetag": card.etag,
       "d:resourcetype": null,
     };
@@ -430,7 +430,7 @@ var CardDAVServer = {
       propValues["card:address-data"] = card.vCard;
     }
 
-    let outString = `<response>
+    const outString = `<response>
       <href>${href}</href>
       ${this._outputProps(propNames, propValues)}
     </response>`;
@@ -438,10 +438,10 @@ var CardDAVServer = {
   },
 
   _inputProps(input) {
-    let props = input.querySelectorAll("prop > *");
-    let propNames = [];
+    const props = input.querySelectorAll("prop > *");
+    const propNames = [];
 
-    for (let p of props) {
+    for (const p of props) {
       Assert.equal(p.childElementCount, 0);
       switch (p.localName) {
         case "address-data":
@@ -479,9 +479,9 @@ var CardDAVServer = {
   _outputProps(propNames, propValues) {
     let output = "";
 
-    let found = [];
-    let notFound = [];
-    for (let p of propNames) {
+    const found = [];
+    const notFound = [];
+    for (const p of propNames) {
       if (p in propValues && propValues[p] !== undefined) {
         found.push(`<${p}>${propValues[p]}</${p}>`);
       } else {
@@ -516,7 +516,7 @@ var CardDAVServer = {
       return;
     }
 
-    let isRealDirectory = request.path.startsWith(this.path);
+    const isRealDirectory = request.path.startsWith(this.path);
     if (!isRealDirectory || !/\/[\w-]+\.vcf$/.test(request.path)) {
       response.setStatusLine("1.1", 404, "Not Found");
       response.setHeader("Content-Type", "text/plain");
@@ -543,7 +543,7 @@ var CardDAVServer = {
   },
 
   getCard(request, response) {
-    let card = this.cards.get(request.path);
+    const card = this.cards.get(request.path);
     if (!card) {
       response.setStatusLine("1.1", 404, "Not Found");
       response.setHeader("Content-Type", "text/plain");
@@ -559,14 +559,14 @@ var CardDAVServer = {
 
   putCard(request, response) {
     if (request.hasHeader("If-Match")) {
-      let card = this.cards.get(request.path);
+      const card = this.cards.get(request.path);
       if (!card || card.etag != request.getHeader("If-Match")) {
         response.setStatusLine("1.1", 412, "Precondition Failed");
         return;
       }
     }
 
-    let vCard = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
+    const vCard = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
     if (this.mimicGoogle && !/^N[;:]/im.test(vCard)) {
       response.setStatusLine("1.1", 400, "Bad Request");
       return;
@@ -590,17 +590,17 @@ var CardDAVServer = {
     }
     if (this.modifyCardOnPut && !this.cards.has(name)) {
       vCard = vCard.replace(/UID:(\S+)/, (match, uid) => {
-        let newUID = [...uid].reverse().join("");
-        let newName = this.path + newUID + ".vcf";
+        const newUID = [...uid].reverse().join("");
+        const newName = this.path + newUID + ".vcf";
         this.movedCards.set(name, newName);
         name = newName;
         return "UID:" + newUID + "\r\nX-MODIFIED-BY-SERVER:1";
       });
     }
     if (this.mimicGoogle && vCard.includes("\nPHOTO")) {
-      let [, version] = vCard.match(/VERSION:([34]\.0)/);
+      const [, version] = vCard.match(/VERSION:([34]\.0)/);
       if (version && version != "3.0") {
-        let start = vCard.indexOf("\nPHOTO") + 1;
+        const start = vCard.indexOf("\nPHOTO") + 1;
         let end = vCard.indexOf("\n", start) + 1;
         while (vCard[end] == " ") {
           end = vCard.indexOf("\n", end) + 1;
@@ -608,7 +608,7 @@ var CardDAVServer = {
         vCard = vCard.substring(0, start) + vCard.substring(end);
       }
     }
-    let etag = "" + vCard.length;
+    const etag = "" + vCard.length;
     this.cards.set(name, { etag, vCard, changed: ++this.changeCount });
     this.deletedCards.delete(name);
   },

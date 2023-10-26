@@ -14,10 +14,10 @@ if (typeof gDEPTH == "undefined") {
  * @returns {Promise} Promive for when the storage database is usable.
  */
 function setupForPassword(storageName) {
-  let keyDB = do_get_file(gDEPTH + "mailnews/data/key4.db");
+  const keyDB = do_get_file(gDEPTH + "mailnews/data/key4.db");
   keyDB.copyTo(do_get_profile(), "key4.db");
 
-  let signons = do_get_file(gDEPTH + "mailnews/data/" + storageName);
+  const signons = do_get_file(gDEPTH + "mailnews/data/" + storageName);
   signons.copyTo(do_get_profile(), "logins.json");
   return Services.logins.initializationPromise;
 }

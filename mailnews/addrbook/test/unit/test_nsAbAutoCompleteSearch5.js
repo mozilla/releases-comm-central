@@ -42,11 +42,11 @@ add_task(async () => {
 
   // Test - Create a new search component
 
-  let acs = Cc["@mozilla.org/autocomplete/search;1?name=addrbook"].getService(
+  const acs = Cc["@mozilla.org/autocomplete/search;1?name=addrbook"].getService(
     Ci.nsIAutoCompleteSearch
   );
 
-  let obs = new acObserver();
+  const obs = new acObserver();
 
   // Ensure we've got the comment column set up for extra checking.
   Services.prefs.setIntPref("mail.autoComplete.commentColumn", 1);
@@ -56,7 +56,7 @@ add_task(async () => {
   // Now check multiple matches
   async function checkInputItem(element, index) {
     print("Search #" + index + ": search=" + element.search);
-    let resultPromise = obs.waitForResult();
+    const resultPromise = obs.waitForResult();
     acs.startSearch(
       element.search,
       JSON.stringify({ type: "addr_to" }),
@@ -103,7 +103,7 @@ add_task(async () => {
       // in the file, so check that we're now setting the popularity to 10
       // and hence future tests don't have to convert it.
       if (element.expected[i] == 4) {
-        let result = obs._result.QueryInterface(Ci.nsIAbAutoCompleteResult);
+        const result = obs._result.QueryInterface(Ci.nsIAbAutoCompleteResult);
         Assert.equal(
           result.getCardAt(i).getProperty("PopularityIndex", -1),
           10
@@ -112,7 +112,7 @@ add_task(async () => {
     }
   }
 
-  for (let inputSet of inputs) {
+  for (const inputSet of inputs) {
     for (let i = 0; i < inputSet.length; i++) {
       await checkInputItem(inputSet[i], i);
     }

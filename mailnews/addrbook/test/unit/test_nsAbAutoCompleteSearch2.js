@@ -152,7 +152,7 @@ add_task(async () => {
 
   // Now check multiple matches
   async function checkInputItem(element, index) {
-    let resultPromise = obs.waitForResult();
+    const resultPromise = obs.waitForResult();
     acs.startSearch(
       element.search,
       JSON.stringify({ type: "addr_to", idKey: "" }),
@@ -185,7 +185,7 @@ add_task(async () => {
     }
   }
 
-  for (let inputSet of inputs) {
+  for (const inputSet of inputs) {
     for (let i = 0; i < inputSet.length; i++) {
       await checkInputItem(inputSet[i], i);
     }

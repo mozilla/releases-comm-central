@@ -36,13 +36,13 @@ var GlodaABIndexer = {
       });
     }
 
-    for (let topic of this._notifications) {
+    for (const topic of this._notifications) {
       Services.obs.addObserver(this, topic);
     }
   },
 
   disable() {
-    for (let topic of this._notifications) {
+    for (const topic of this._notifications) {
       Services.obs.removeObserver(this, topic);
     }
   },
@@ -60,19 +60,19 @@ var GlodaABIndexer = {
   },
 
   *_worker_index_card(aJob, aCallbackHandle) {
-    let card = aJob.id;
+    const card = aJob.id;
 
     if (card.primaryEmail) {
       // load the identity
-      let query = Gloda.newQuery(GlodaConstants.NOUN_IDENTITY);
+      const query = Gloda.newQuery(GlodaConstants.NOUN_IDENTITY);
       query.kind("email");
       // we currently normalize all e-mail addresses to be lowercase
       query.value(card.primaryEmail.toLowerCase());
-      let identityCollection = query.getCollection(aCallbackHandle);
+      const identityCollection = query.getCollection(aCallbackHandle);
       yield GlodaConstants.kWorkAsync;
 
       if (identityCollection.items.length) {
-        let identity = identityCollection.items[0];
+        const identity = identityCollection.items[0];
         // force the identity to know it has an associated ab card.
         identity._hasAddressBookCard = true;
 
@@ -104,7 +104,7 @@ var GlodaABIndexer = {
         // object's cached idea of whether the identity has an ab card.
         this._log.debug("Received Card Add Notification");
 
-        let identity = GlodaCollectionManager.cacheLookupOneByUniqueValue(
+        const identity = GlodaCollectionManager.cacheLookupOneByUniqueValue(
           GlodaConstants.NOUN_IDENTITY,
           "email@" + subject.primaryEmail.toLowerCase()
         );
@@ -116,7 +116,7 @@ var GlodaABIndexer = {
       case "addrbook-contact-updated": {
         this._log.debug("Received Card Change Notification");
 
-        let job = new IndexingJob("ab-card", subject);
+        const job = new IndexingJob("ab-card", subject);
         GlodaIndexer.indexJob(job);
         break;
       }
@@ -125,7 +125,7 @@ var GlodaABIndexer = {
         // object's cached idea of whether the identity has an ab card.
         this._log.debug("Received Card Removal Notification");
 
-        let identity = GlodaCollectionManager.cacheLookupOneByUniqueValue(
+        const identity = GlodaCollectionManager.cacheLookupOneByUniqueValue(
           GlodaConstants.NOUN_IDENTITY,
           "email@" + subject.primaryEmail.toLowerCase()
         );
@@ -269,7 +269,7 @@ var GlodaABAttrs = {
     // we need to find any existing bound freetag attributes, and use them to
     //  populate to FreeTagNoun's understanding
     if ("parameterBindings" in this._attrFreeTag) {
-      for (let freeTagName in this._attrFreeTag.parameterBindings) {
+      for (const freeTagName in this._attrFreeTag.parameterBindings) {
         this._log.debug("Telling FreeTagNoun about: " + freeTagName);
         FreeTagNoun.getFreeTag(freeTagName);
       }
@@ -277,7 +277,7 @@ var GlodaABAttrs = {
   },
 
   *process(aContact, aRawReps, aIsNew, aCallbackHandle) {
-    let card = aRawReps.card;
+    const card = aRawReps.card;
     if (aContact.NOUN_ID != GlodaConstants.NOUN_CONTACT) {
       this._log.warn("Somehow got a non-contact: " + aContact);
       return; // this will produce an exception; we like.

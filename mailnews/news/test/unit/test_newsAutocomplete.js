@@ -26,25 +26,25 @@ function run_test() {
   setupLocalServer(119);
 
   // create identity
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   _account.addIdentity(identity);
 
-  let acs = Cc["@mozilla.org/autocomplete/search;1?name=news"].getService(
+  const acs = Cc["@mozilla.org/autocomplete/search;1?name=news"].getService(
     Ci.nsIAutoCompleteSearch
   );
   let obs;
 
-  let paramsN = JSON.stringify({
+  const paramsN = JSON.stringify({
     idKey: identity.key,
     accountKey: _account.key,
     type: "addr_newsgroups",
   });
-  let paramsF = JSON.stringify({
+  const paramsF = JSON.stringify({
     idKey: identity.key,
     accountKey: _account.key,
     type: "addr_followup",
   });
-  let paramsMail = JSON.stringify({
+  const paramsMail = JSON.stringify({
     idKey: identity.key,
     accountKey: _account.key,
     type: "addr_to",
@@ -100,7 +100,7 @@ function run_test() {
   acs.startSearch("empty", paramsF, null, obs);
   Assert.equal(obs._result.matchCount, 1);
 
-  let thread = gThreadManager.currentThread;
+  const thread = gThreadManager.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

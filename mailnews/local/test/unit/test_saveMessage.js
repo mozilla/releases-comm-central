@@ -25,15 +25,15 @@ function run_test() {
 }
 
 async function save_message(aMessageHeaderKeys, aStatus) {
-  let headerKeys = aMessageHeaderKeys;
+  const headerKeys = aMessageHeaderKeys;
   Assert.notEqual(headerKeys, null);
 
-  let message = localAccountUtils.inboxFolder.GetMessageHeader(headerKeys[0]);
-  let msgURI = localAccountUtils.inboxFolder.getUriForMsg(message);
-  let messageService = Cc[
+  const message = localAccountUtils.inboxFolder.GetMessageHeader(headerKeys[0]);
+  const msgURI = localAccountUtils.inboxFolder.getUriForMsg(message);
+  const messageService = Cc[
     "@mozilla.org/messenger/messageservice;1?type=mailbox-message"
   ].getService(Ci.nsIMsgMessageService);
-  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   messageService.SaveMessageToDisk(
     msgURI,
     saveFile,
@@ -52,8 +52,8 @@ async function save_message(aMessageHeaderKeys, aStatus) {
 }
 
 function check_each_line(aExpectedLines, aActualLines) {
-  let expectedStrings = aExpectedLines.split(MSG_LINEBREAK);
-  let actualStrings = aActualLines.split(MSG_LINEBREAK);
+  const expectedStrings = aExpectedLines.split(MSG_LINEBREAK);
+  const actualStrings = aActualLines.split(MSG_LINEBREAK);
 
   expectedStrings.shift();
   Assert.equal(expectedStrings.length, actualStrings.length);

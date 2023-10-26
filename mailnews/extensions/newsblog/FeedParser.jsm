@@ -50,17 +50,17 @@ FeedParser.prototype = {
       return [];
     }
 
-    let doc = aDOM.documentElement;
+    const doc = aDOM.documentElement;
     if (doc.namespaceURI == lazy.FeedUtils.MOZ_PARSERERROR_NS) {
       // Gecko caught a basic parsing error.
-      let errStr =
+      const errStr =
         doc.firstChild.textContent + "\n" + doc.firstElementChild.textContent;
       lazy.FeedUtils.log.info("FeedParser.parseFeed: - " + errStr);
       aFeed.onParseError(aFeed);
       return [];
     } else if (aDOM.querySelector("redirect")) {
       // Check for RSS2.0 redirect document.
-      let channel = aDOM.querySelector("redirect");
+      const channel = aDOM.querySelector("redirect");
       if (this.isPermanentRedirect(aFeed, channel, null)) {
         return [];
       }
@@ -113,7 +113,7 @@ FeedParser.prototype = {
 
     // Parse as RSS 0.9x.  In theory even RSS 1.0 feeds could be parsed by
     // the 0.9x parser if the RSS namespace were the default.
-    let rssVer = doc.localName == "rss" ? doc.getAttribute("version") : null;
+    const rssVer = doc.localName == "rss" ? doc.getAttribute("version") : null;
     if (rssVer) {
       aFeed.mFeedType = "RSS_" + rssVer;
     } else {
@@ -127,14 +127,14 @@ FeedParser.prototype = {
 
   parseAsRSS2(aFeed, aDOM) {
     // Get the first channel (assuming there is only one per RSS File).
-    let channel = aDOM.querySelector("channel");
+    const channel = aDOM.querySelector("channel");
     if (!channel) {
       aFeed.onParseError(aFeed);
       return [];
     }
 
     // Usually the empty string, unless this is RSS .90.
-    let nsURI = channel.namespaceURI || "";
+    const nsURI = channel.namespaceURI || "";
 
     if (this.isPermanentRedirect(aFeed, null, channel)) {
       return [];
@@ -173,12 +173,12 @@ FeedParser.prototype = {
       "FeedParser.parseAsRSS2: items to parse - " + itemNodes.length
     );
 
-    for (let itemNode of itemNodes) {
+    for (const itemNode of itemNodes) {
       if (!itemNode.childElementCount) {
         continue;
       }
 
-      let item = new lazy.FeedItem();
+      const item = new lazy.FeedItem();
       item.feed = aFeed;
       item.enclosures = [];
       item.keywords = [];
@@ -194,7 +194,7 @@ FeedParser.prototype = {
         link = this.validLink(this.getNodeValue(tags ? tags[0] : null));
       }
       tags = this.childrenByTagNameNS(itemNode, nsURI, "guid");
-      let guidNode = tags ? tags[0] : null;
+      const guidNode = tags ? tags[0] : null;
 
       let guid;
       let isPermaLink = false;
@@ -225,7 +225,7 @@ FeedParser.prototype = {
         item.id = guid;
       }
 
-      let guidLink = this.validLink(guid);
+      const guidLink = this.validLink(guid);
       if (isPermaLink && guidLink) {
         item.url = guidLink;
       } else if (link) {
@@ -315,13 +315,13 @@ FeedParser.prototype = {
       // Handle <enclosures> and <media:content>, which may be in a
       // <media:group> (if present).
       tags = this.childrenByTagNameNS(itemNode, nsURI, "enclosure");
-      let encUrls = [];
+      const encUrls = [];
       if (tags) {
-        for (let tag of tags) {
-          let url = this.validLink(tag.getAttribute("url"));
+        for (const tag of tags) {
+          const url = this.validLink(tag.getAttribute("url"));
           if (url && !encUrls.includes(url)) {
-            let type = this.removeUnprintableASCII(tag.getAttribute("type"));
-            let length = this.removeUnprintableASCII(
+            const type = this.removeUnprintableASCII(tag.getAttribute("type"));
+            const length = this.removeUnprintableASCII(
               tag.getAttribute("length")
             );
             item.enclosures.push(new lazy.FeedEnclosure(url, type, length));
@@ -332,11 +332,11 @@ FeedParser.prototype = {
 
       tags = itemNode.getElementsByTagNameNS(lazy.FeedUtils.MRSS_NS, "content");
       if (tags) {
-        for (let tag of tags) {
-          let url = this.validLink(tag.getAttribute("url"));
+        for (const tag of tags) {
+          const url = this.validLink(tag.getAttribute("url"));
           if (url && !encUrls.includes(url)) {
-            let type = this.removeUnprintableASCII(tag.getAttribute("type"));
-            let fileSize = this.removeUnprintableASCII(
+            const type = this.removeUnprintableASCII(tag.getAttribute("type"));
+            const fileSize = this.removeUnprintableASCII(
               tag.getAttribute("fileSize")
             );
             item.enclosures.push(new lazy.FeedEnclosure(url, type, fileSize));
@@ -356,7 +356,9 @@ FeedParser.prototype = {
         lazy.FeedUtils.FEEDBURNER_NS,
         "origEnclosureLink"
       );
-      let origEncUrl = this.validLink(this.getNodeValue(tags ? tags[0] : null));
+      const origEncUrl = this.validLink(
+        this.getNodeValue(tags ? tags[0] : null)
+      );
       if (origEncUrl) {
         if (item.enclosures.length) {
           item.enclosures[0].mURL = origEncUrl;
@@ -368,7 +370,7 @@ FeedParser.prototype = {
       // Support <category> and autotagging.
       tags = this.childrenByTagNameNS(itemNode, nsURI, "category");
       if (tags) {
-        for (let tag of tags) {
+        for (const tag of tags) {
           let term = this.getNodeValue(tag);
           term = term ? this.xmlUnescape(term.replace(/,/g, ";")) : null;
           if (term && !item.keywords.includes(term)) {
@@ -399,7 +401,7 @@ FeedParser.prototype = {
    *                    nothing to do condition (ie unset feed.parseItems).
    */
   parseAsRSS1(feed, doc) {
-    let channel = doc.querySelector("channel");
+    const channel = doc.querySelector("channel");
     if (!channel) {
       feed.onParseError(feed);
       return [];
@@ -409,7 +411,7 @@ FeedParser.prototype = {
       return [];
     }
 
-    let titleNode = this.childByTagNameNS(
+    const titleNode = this.childByTagNameNS(
       channel,
       lazy.FeedUtils.RSS_NS,
       "title"
@@ -417,14 +419,14 @@ FeedParser.prototype = {
     // If user entered a title manually, retain it.
     feed.title = feed.title || this.getNodeValue(titleNode) || feed.url;
 
-    let descNode = this.childByTagNameNS(
+    const descNode = this.childByTagNameNS(
       channel,
       lazy.FeedUtils.RSS_NS,
       "description"
     );
     feed.description = this.getNodeValueFormatted(descNode) || "";
 
-    let linkNode = this.childByTagNameNS(
+    const linkNode = this.childByTagNameNS(
       channel,
       lazy.FeedUtils.RSS_NS,
       "link"
@@ -453,15 +455,15 @@ FeedParser.prototype = {
     let itemNodes = doc.getElementsByTagNameNS(lazy.FeedUtils.RSS_NS, "item");
     itemNodes = itemNodes ? itemNodes : [];
 
-    for (let itemNode of itemNodes) {
-      let item = new lazy.FeedItem();
+    for (const itemNode of itemNodes) {
+      const item = new lazy.FeedItem();
       item.feed = feed;
 
       // Prefer the value of the link tag to the item URI since the URI could be
       // a relative URN.
       let itemURI = itemNode.getAttribute("about") || "";
       itemURI = this.removeUnprintableASCII(itemURI.trim());
-      let linkNode = this.childByTagNameNS(
+      const linkNode = this.childByTagNameNS(
         itemNode,
         lazy.FeedUtils.RSS_NS,
         "link"
@@ -469,19 +471,19 @@ FeedParser.prototype = {
       item.id = this.getNodeValue(linkNode) || itemURI;
       item.url = this.validLink(item.id);
 
-      let descNode = this.childByTagNameNS(
+      const descNode = this.childByTagNameNS(
         itemNode,
         lazy.FeedUtils.RSS_NS,
         "description"
       );
       item.description = this.getNodeValueFormatted(descNode);
 
-      let titleNode = this.childByTagNameNS(
+      const titleNode = this.childByTagNameNS(
         itemNode,
         lazy.FeedUtils.RSS_NS,
         "title"
       );
-      let subjectNode = this.childByTagNameNS(
+      const subjectNode = this.childByTagNameNS(
         itemNode,
         lazy.FeedUtils.DC_NS,
         "subject"
@@ -502,12 +504,12 @@ FeedParser.prototype = {
       }
 
       // TODO XXX: ignores multiple authors.
-      let authorNode = this.childByTagNameNS(
+      const authorNode = this.childByTagNameNS(
         itemNode,
         lazy.FeedUtils.DC_NS,
         "creator"
       );
-      let channelCreatorNode = this.childByTagNameNS(
+      const channelCreatorNode = this.childByTagNameNS(
         channel,
         lazy.FeedUtils.DC_NS,
         "creator"
@@ -519,14 +521,14 @@ FeedParser.prototype = {
       author = this.cleanAuthorName(author);
       item.author = author ? ["<" + author + ">"] : item.author;
 
-      let dateNode = this.childByTagNameNS(
+      const dateNode = this.childByTagNameNS(
         itemNode,
         lazy.FeedUtils.DC_NS,
         "date"
       );
       item.date = this.getNodeValue(dateNode) || item.date;
 
-      let contentNode = this.childByTagNameNS(
+      const contentNode = this.childByTagNameNS(
         itemNode,
         lazy.FeedUtils.RSS_CONTENT_NS,
         "encoded"
@@ -545,7 +547,7 @@ FeedParser.prototype = {
   // TODO: deprecate ATOM_03_NS.
   parseAsAtom(aFeed, aDOM) {
     // Get the first channel (assuming there is only one per Atom File).
-    let channel = aDOM.querySelector("feed");
+    const channel = aDOM.querySelector("feed");
     if (!channel) {
       aFeed.onParseError(aFeed);
       return [];
@@ -596,12 +598,12 @@ FeedParser.prototype = {
       "FeedParser.parseAsAtom: items to parse - " + items.length
     );
 
-    for (let itemNode of items) {
+    for (const itemNode of items) {
       if (!itemNode.childElementCount) {
         continue;
       }
 
-      let item = new lazy.FeedItem();
+      const item = new lazy.FeedItem();
       item.feed = aFeed;
 
       tags = this.childrenByTagNameNS(
@@ -660,7 +662,7 @@ FeedParser.prototype = {
         );
       }
 
-      let authorEl = tags ? tags[0] : null;
+      const authorEl = tags ? tags[0] : null;
 
       let author = "";
       if (authorEl) {
@@ -669,13 +671,13 @@ FeedParser.prototype = {
           lazy.FeedUtils.ATOM_03_NS,
           "name"
         );
-        let name = this.getNodeValue(tags ? tags[0] : null);
+        const name = this.getNodeValue(tags ? tags[0] : null);
         tags = this.childrenByTagNameNS(
           authorEl,
           lazy.FeedUtils.ATOM_03_NS,
           "email"
         );
-        let email = this.getNodeValue(tags ? tags[0] : null);
+        const email = this.getNodeValue(tags ? tags[0] : null);
         if (name) {
           author = name + (email ? " <" + email + ">" : "");
         } else if (email) {
@@ -720,12 +722,12 @@ FeedParser.prototype = {
         lazy.FeedUtils.ATOM_03_NS,
         "content"
       );
-      let contentNode = tags ? tags[0] : null;
+      const contentNode = tags ? tags[0] : null;
 
       let content;
       if (contentNode) {
         content = "";
-        for (let node of contentNode.childNodes) {
+        for (const node of contentNode.childNodes) {
           if (node.nodeType == node.CDATA_SECTION_NODE) {
             content += node.data;
           } else {
@@ -753,7 +755,7 @@ FeedParser.prototype = {
 
   parseAsAtomIETF(aFeed, aDOM) {
     // Get the first channel (assuming there is only one per Atom File).
-    let channel = this.childrenByTagNameNS(
+    const channel = this.childrenByTagNameNS(
       aDOM,
       lazy.FeedUtils.ATOM_IETF_NS,
       "feed"
@@ -824,12 +826,12 @@ FeedParser.prototype = {
       "FeedParser.parseAsAtomIETF: items to parse - " + items.length
     );
 
-    for (let itemNode of items) {
+    for (const itemNode of items) {
       if (!itemNode.childElementCount) {
         continue;
       }
 
-      let item = new lazy.FeedItem();
+      const item = new lazy.FeedItem();
       item.feed = aFeed;
       item.enclosures = [];
       item.keywords = [];
@@ -841,7 +843,7 @@ FeedParser.prototype = {
         lazy.FeedUtils.ATOM_IETF_NS,
         "source"
       );
-      let source = tags ? tags[0] : null;
+      const source = tags ? tags[0] : null;
 
       // Per spec, item.link and contentBase may both end up null here.
       // If <content> is also not present, then <link rel="alternate"> is MUST
@@ -924,9 +926,9 @@ FeedParser.prototype = {
         );
       }
 
-      let authorTags = tags || [];
-      let authors = [];
-      for (let authorTag of authorTags) {
+      const authorTags = tags || [];
+      const authors = [];
+      for (const authorTag of authorTags) {
         let author = "";
         tags = this.childrenByTagNameNS(
           authorTag,
@@ -1029,20 +1031,22 @@ FeedParser.prototype = {
         lazy.FeedUtils.ATOM_IETF_NS,
         "link"
       );
-      let encUrls = [];
+      const encUrls = [];
       if (tags) {
-        for (let tag of tags) {
+        for (const tag of tags) {
           let url =
             tag.getAttribute("rel") == "enclosure"
               ? (tag.getAttribute("href") || "").trim()
               : null;
           url = this.validLink(url);
           if (url && !encUrls.includes(url)) {
-            let type = this.removeUnprintableASCII(tag.getAttribute("type"));
-            let length = this.removeUnprintableASCII(
+            const type = this.removeUnprintableASCII(tag.getAttribute("type"));
+            const length = this.removeUnprintableASCII(
               tag.getAttribute("length")
             );
-            let title = this.removeUnprintableASCII(tag.getAttribute("title"));
+            const title = this.removeUnprintableASCII(
+              tag.getAttribute("title")
+            );
             item.enclosures.push(
               new lazy.FeedEnclosure(url, type, length, title)
             );
@@ -1056,7 +1060,9 @@ FeedParser.prototype = {
         lazy.FeedUtils.FEEDBURNER_NS,
         "origEnclosureLink"
       );
-      let origEncUrl = this.validLink(this.getNodeValue(tags ? tags[0] : null));
+      const origEncUrl = this.validLink(
+        this.getNodeValue(tags ? tags[0] : null)
+      );
       if (origEncUrl) {
         if (item.enclosures.length) {
           item.enclosures[0].mURL = origEncUrl;
@@ -1074,8 +1080,8 @@ FeedParser.prototype = {
         "in-reply-to"
       );
       if (tags) {
-        for (let tag of tags) {
-          let ref = this.removeUnprintableASCII(tag.getAttribute("ref"));
+        for (const tag of tags) {
+          const ref = this.removeUnprintableASCII(tag.getAttribute("ref"));
           if (ref) {
             item.inReplyTo += item.normalizeMessageID(ref) + " ";
           }
@@ -1090,7 +1096,7 @@ FeedParser.prototype = {
         "category"
       );
       if (tags) {
-        for (let tag of tags) {
+        for (const tag of tags) {
           let term = this.removeUnprintableASCII(tag.getAttribute("term"));
           term = term ? this.xmlUnescape(term.replace(/,/g, ";")).trim() : null;
           if (term && !item.keywords.includes(term)) {
@@ -1112,7 +1118,7 @@ FeedParser.prototype = {
     }
 
     let tags, tagName, newUrl;
-    let oldUrl = aFeed.url;
+    const oldUrl = aFeed.url;
 
     // Check for RSS2.0 redirect document <newLocation> tag.
     if (aRedirDocChannel) {
@@ -1171,7 +1177,7 @@ FeedParser.prototype = {
         return null;
       }
 
-      for (let node of textElement.childNodes) {
+      for (const node of textElement.childNodes) {
         if (node.nodeType == node.CDATA_SECTION_NODE) {
           content += this.xmlEscape(node.data);
         } else {
@@ -1243,7 +1249,7 @@ FeedParser.prototype = {
    * @returns {String} - A clean string value or null.
    */
   getNodeValueFormatted(node) {
-    let nodeValue = this.getNodeValueRaw(node);
+    const nodeValue = this.getNodeValueRaw(node);
     if (!nodeValue) {
       return null;
     }
@@ -1266,7 +1272,7 @@ FeedParser.prototype = {
     if (node && node.firstChild) {
       let ret = "";
       for (let child = node.firstChild; child; child = child.nextSibling) {
-        let value = this.getNodeValueRaw(child);
+        const value = this.getNodeValueRaw(child);
         if (value) {
           ret += value;
         }
@@ -1286,9 +1292,9 @@ FeedParser.prototype = {
       return null;
     }
 
-    let matches = aElement.getElementsByTagNameNS(aNamespace, aTagName);
-    let matchingChildren = [];
-    for (let match of matches) {
+    const matches = aElement.getElementsByTagNameNS(aNamespace, aTagName);
+    const matchingChildren = [];
+    for (const match of matches) {
       if (match.parentNode == aElement) {
         matchingChildren.push(match);
       }
@@ -1350,7 +1356,7 @@ FeedParser.prototype = {
     }
 
     // XXX Need to check for MIME type and hreflang.
-    for (let alink of linkElements) {
+    for (const alink of linkElements) {
       if (
         alink &&
         // If there's a link rel.
@@ -1360,7 +1366,7 @@ FeedParser.prototype = {
         alink.getAttribute("href")
       ) {
         // Atom links are interpreted relative to xml:base.
-        let href = alink.getAttribute("href");
+        const href = alink.getAttribute("href");
         baseURI = alink.getAttribute("xml:base") || baseURI || href;
         try {
           return Services.io.newURI(baseURI).resolve(href);
@@ -1380,7 +1386,7 @@ FeedParser.prototype = {
    * @returns {void}
    */
   findSyUpdateTags(aFeed, aChannel) {
-    let tag, updatePeriod, updateFrequency, updateBase;
+    let tag, updatePeriod, updateFrequency;
     tag = this.childrenByTagNameNS(
       aChannel,
       lazy.FeedUtils.RSS_SY_NS,
@@ -1398,7 +1404,7 @@ FeedParser.prototype = {
       lazy.FeedUtils.RSS_SY_NS,
       "updateBase"
     );
-    updateBase = this.getNodeValue(tag ? tag[0] : null) || "";
+    const updateBase = this.getNodeValue(tag ? tag[0] : null) || "";
     lazy.FeedUtils.log.debug(
       "FeedParser.findSyUpdateTags: updatePeriod:updateFrequency - " +
         updatePeriod +
@@ -1416,7 +1422,7 @@ FeedParser.prototype = {
 
     updateFrequency = isNaN(updateFrequency) ? 1 : updateFrequency;
 
-    let options = aFeed.options;
+    const options = aFeed.options;
     if (
       options.updates.updatePeriod == updatePeriod &&
       options.updates.updateFrequency == updateFrequency &&
@@ -1475,9 +1481,9 @@ FeedParser.prototype = {
     // Deal with various kinds of invalid dates.
     if (!isNaN(parseInt(dateString))) {
       // It's an integer, so maybe it's a timestamp.
-      let d = new Date(parseInt(dateString) * 1000);
-      let now = new Date();
-      let yeardiff = now.getFullYear() - d.getFullYear();
+      const d = new Date(parseInt(dateString) * 1000);
+      const now = new Date();
+      const yeardiff = now.getFullYear() - d.getFullYear();
       lazy.FeedUtils.log.trace(
         "FeedParser.dateRescue: Rescue Timestamp date - " +
           d.toString() +

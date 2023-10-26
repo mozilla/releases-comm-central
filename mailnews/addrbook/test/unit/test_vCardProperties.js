@@ -12,7 +12,7 @@ var { VCardProperties, VCardPropertyEntry } = ChromeUtils.import(
 );
 
 function propertyEqual(actual, expected, message) {
-  let actualAsObject = {
+  const actualAsObject = {
     name: actual.name,
     params: actual.params,
     type: actual.type,
@@ -40,7 +40,7 @@ function propertyArrayEqual(actual, expected, message) {
  * Tests that AddrBookCard supports vCard.
  */
 add_task(function testAddrBookCard() {
-  let card = new AddrBookCard();
+  const card = new AddrBookCard();
   Assert.equal(card.supportsVCard, true, "AddrBookCard supports vCard");
   Assert.ok(card.vCardProperties, "AddrBookCard has vCardProperties");
   Assert.equal(card.vCardProperties.constructor.name, "VCardProperties");
@@ -50,7 +50,7 @@ add_task(function testAddrBookCard() {
  * Tests that nsAbCardProperty does not support vCard.
  */
 add_task(function testABCardProperty() {
-  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+  const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
   Assert.equal(
@@ -70,8 +70,8 @@ add_task(function testABCardProperty() {
  * simple value type.
  */
 add_task(function testPropertyEntrySingleValue() {
-  let entry = new VCardPropertyEntry("fn", {}, "text", "Juliet");
-  let clone = entry.clone();
+  const entry = new VCardPropertyEntry("fn", {}, "text", "Juliet");
+  const clone = entry.clone();
 
   Assert.ok(entry.equals(entry), "original is equal to itself");
   Assert.ok(entry.equals(clone), "original is equal to cloned object");
@@ -80,7 +80,7 @@ add_task(function testPropertyEntrySingleValue() {
 
   Assert.equal(clone.value, entry.value, "values are identical");
 
-  let other = new VCardPropertyEntry("n", {}, "text", "Romeo");
+  const other = new VCardPropertyEntry("n", {}, "text", "Romeo");
   Assert.ok(!entry.equals(other), "original is not equal to another object");
   Assert.ok(!other.equals(entry), "another object is not equal to original");
 });
@@ -91,14 +91,14 @@ add_task(function testPropertyEntrySingleValue() {
  */
 add_task(function testPropertyEntryMultiValue() {
   // A name entry for somebody named "Mr One Two Three Four Senior".
-  let entry = new VCardPropertyEntry("n", {}, "text", [
+  const entry = new VCardPropertyEntry("n", {}, "text", [
     "Four",
     "One",
     ["Two", "Three"],
     "Mr",
     "Senior",
   ]);
-  let clone = entry.clone();
+  const clone = entry.clone();
 
   Assert.ok(entry.equals(entry), "original is equal to itself");
   Assert.ok(entry.equals(clone), "original is equal to cloned object");
@@ -119,7 +119,7 @@ add_task(function testPropertyEntryMultiValue() {
   );
 
   // A name entry for somebody named "Mr One Two Three Four Junior".
-  let other = new VCardPropertyEntry("n", {}, "text", [
+  const other = new VCardPropertyEntry("n", {}, "text", [
     "Four",
     "One",
     ["Two", "Three"],
@@ -135,7 +135,7 @@ add_task(function testPropertyEntryMultiValue() {
  * then recreating the vCard.
  */
 add_task(function testFromToVCard() {
-  let inVCard = formatVCard`
+  const inVCard = formatVCard`
     BEGIN:VCARD
     VERSION:3.0
     FN:Mike Test
@@ -144,7 +144,7 @@ add_task(function testFromToVCard() {
     NICKNAME:Testing Mike
     CATEGORIES:testers,quality control,QA
     END:VCARD`;
-  let properties = VCardProperties.fromVCard(inVCard);
+  const properties = VCardProperties.fromVCard(inVCard);
 
   Assert.equal(properties.entries.length, 6, "entry count");
   propertyEqual(
@@ -208,7 +208,7 @@ add_task(function testFromToVCard() {
     "multivalue entry with multiple values"
   );
 
-  let outVCard = properties.toVCard();
+  const outVCard = properties.toVCard();
   Assert.equal(outVCard, inVCard, "vCard reproduction");
 });
 
@@ -217,7 +217,7 @@ add_task(function testFromToVCard() {
  * properties, then recreating the Map.
  */
 add_task(function testFromToPropertyMap() {
-  let inProperties = [
+  const inProperties = [
     ["DisplayName", "Mike Test"],
     ["LastName", "Test"],
     ["FirstName", "Mike"],
@@ -314,9 +314,9 @@ add_task(function testFromToPropertyMap() {
     "custom4 entry"
   );
 
-  let outProperties = properties.toPropertyMap();
+  const outProperties = properties.toPropertyMap();
   Assert.equal(outProperties.size, 8, "property count");
-  for (let [key, value] of inProperties) {
+  for (const [key, value] of inProperties) {
     Assert.equal(outProperties.get(key), value, `${key} property`);
   }
 
@@ -341,19 +341,19 @@ add_task(function testFromToPropertyMap() {
 add_task(function testEntryMethods() {
   // Sanity check.
 
-  let props = new VCardProperties();
+  const props = new VCardProperties();
   Assert.deepEqual(props.entries, [], "props has no entries");
 
   // Add property entries.
 
   // Real VCardPropertyEntry objects.
-  let charlie = new VCardPropertyEntry(
+  const charlie = new VCardPropertyEntry(
     "email",
     { type: "home" },
     "text",
     "charlie@invalid"
   );
-  let delta = new VCardPropertyEntry(
+  const delta = new VCardPropertyEntry(
     "email",
     { type: "work" },
     "text",
@@ -362,7 +362,7 @@ add_task(function testEntryMethods() {
 
   // Ordinary objects for Assert.deepEqual comparison. Use these objects to be
   // sure of the values being tested.
-  let data = {
+  const data = {
     charlie: {
       name: "email",
       params: { type: "home" },
@@ -456,7 +456,7 @@ add_task(function testEntryMethods() {
 
   // Clone a property entry.
 
-  let juliet = charlie.clone();
+  const juliet = charlie.clone();
   Assert.notEqual(
     juliet,
     charlie,
@@ -499,11 +499,11 @@ add_task(function testEntryMethods() {
  * Uses the vCard 3 default entry types.
  */
 add_task(function testValueMethods3() {
-  let props = new VCardProperties();
+  const props = new VCardProperties();
 
   // Add a value.
 
-  let first = props.addValue("tel", "1234567");
+  const first = props.addValue("tel", "1234567");
   propertyEqual(first, {
     name: "tel",
     params: {},
@@ -516,7 +516,7 @@ add_task(function testValueMethods3() {
 
   // Add a second value.
 
-  let second = props.addValue("tel", "2345678");
+  const second = props.addValue("tel", "2345678");
   propertyEqual(second, {
     name: "tel",
     params: {},
@@ -530,7 +530,7 @@ add_task(function testValueMethods3() {
 
   // Add a value that already exists. The existing property should be returned.
 
-  let secondCopy = props.addValue("tel", "2345678");
+  const secondCopy = props.addValue("tel", "2345678");
   Assert.equal(secondCopy, second);
   propertyArrayEqual(props.entries, [
     { name: "tel", params: {}, type: "phone-number", value: "1234567" },
@@ -539,7 +539,7 @@ add_task(function testValueMethods3() {
 
   // Add a third value.
 
-  let third = props.addValue("tel", "3456789");
+  const third = props.addValue("tel", "3456789");
   propertyEqual(third, {
     name: "tel",
     params: {},
@@ -594,11 +594,11 @@ add_task(function testValueMethods3() {
  * Uses the vCard 4 default entry types.
  */
 add_task(function testValueMethods4() {
-  let props = new VCardProperties("4.0");
+  const props = new VCardProperties("4.0");
 
   // Add a value.
 
-  let first = props.addValue("tel", "tel:1234567");
+  const first = props.addValue("tel", "tel:1234567");
   propertyEqual(first, {
     name: "tel",
     params: {},
@@ -612,7 +612,7 @@ add_task(function testValueMethods4() {
 
   // Add a second value.
 
-  let second = props.addValue("tel", "tel:2345678");
+  const second = props.addValue("tel", "tel:2345678");
   propertyEqual(second, {
     name: "tel",
     params: {},
@@ -627,7 +627,7 @@ add_task(function testValueMethods4() {
 
   // Add a value that already exists. The existing property should be returned.
 
-  let secondCopy = props.addValue("tel", "tel:2345678");
+  const secondCopy = props.addValue("tel", "tel:2345678");
   Assert.equal(secondCopy, second);
   propertyArrayEqual(props.entries, [
     { name: "version", params: {}, type: "text", value: "4.0" },
@@ -637,7 +637,7 @@ add_task(function testValueMethods4() {
 
   // Add a third value.
 
-  let third = props.addValue("tel", "tel:3456789");
+  const third = props.addValue("tel", "tel:3456789");
   propertyEqual(third, {
     name: "tel",
     params: {},
@@ -698,7 +698,7 @@ add_task(function testValueMethods4() {
  * Tests retrieving entries and values in preference order.
  */
 add_task(function testSortMethods() {
-  let props = new VCardProperties();
+  const props = new VCardProperties();
   props.addEntry(new VCardPropertyEntry("email", {}, "text", "third@invalid"));
   props.addEntry(
     new VCardPropertyEntry("email", { pref: 2 }, "text", "second@invalid")
@@ -737,7 +737,7 @@ add_task(function testSortMethods() {
  * Tests the `clone` method of VCardProperties.
  */
 add_task(function testClone() {
-  let properties = VCardProperties.fromVCard(
+  const properties = VCardProperties.fromVCard(
     formatVCard`
       BEGIN:VCARD
       FN:this is a test
@@ -746,7 +746,7 @@ add_task(function testClone() {
       EMAIL:test@test.invalid
       END:VCARD`
   );
-  let clone = properties.clone();
+  const clone = properties.clone();
 
   Assert.deepEqual(clone.entries, properties.entries);
   Assert.notEqual(clone.entries, properties.entries);
@@ -765,16 +765,16 @@ add_task(function testClone() {
  * `getGroupedEntries` method of VCardProperties.
  */
 add_task(function testGroupEntries() {
-  let vCard = formatVCard`
+  const vCard = formatVCard`
       BEGIN:VCARD
       GROUP1.FN:test
       GROUP1.X-FOO:bar
       NOTE:this doesn't have a group
       END:VCARD`;
 
-  let properties = VCardProperties.fromVCard(vCard);
+  const properties = VCardProperties.fromVCard(vCard);
 
-  let data = [
+  const data = [
     {
       name: "fn",
       params: {
@@ -803,7 +803,7 @@ add_task(function testGroupEntries() {
   Assert.equal(properties.toVCard(), vCard);
   propertyArrayEqual(properties.getGroupedEntries("group1"), data.slice(0, 2));
 
-  let clone = properties.clone();
+  const clone = properties.clone();
   propertyArrayEqual(clone.entries, data);
   Assert.equal(clone.toVCard(), vCard);
   propertyArrayEqual(clone.getGroupedEntries("group1"), data.slice(0, 2));
@@ -814,7 +814,7 @@ add_task(function testGroupEntries() {
  * other characters in URI values.
  */
 add_task(function testGoogleEscaping() {
-  let vCard = formatVCard`
+  const vCard = formatVCard`
     BEGIN:VCARD
     VERSION:3.0
     N:test;en\\\\c\\:oding;;;
@@ -826,7 +826,7 @@ add_task(function testGoogleEscaping() {
     URL:http\\://host/url\\:url\\;url\\,url\\\\url
     END:VCARD`;
 
-  let goodVCard = formatVCard`
+  const goodVCard = formatVCard`
     BEGIN:VCARD
     VERSION:3.0
     N:test;en\\\\c:oding;;;
@@ -838,7 +838,7 @@ add_task(function testGoogleEscaping() {
     URL:http://host/url:url;url,url\\url
     END:VCARD`;
 
-  let data = [
+  const data = [
     {
       name: "version",
       params: {},
@@ -889,11 +889,13 @@ add_task(function testGoogleEscaping() {
     },
   ];
 
-  let properties = VCardProperties.fromVCard(vCard, { isGoogleCardDAV: true });
+  const properties = VCardProperties.fromVCard(vCard, {
+    isGoogleCardDAV: true,
+  });
   propertyArrayEqual(properties.entries, data);
   Assert.equal(properties.toVCard(), goodVCard);
 
-  let goodProperties = VCardProperties.fromVCard(goodVCard);
+  const goodProperties = VCardProperties.fromVCard(goodVCard);
   propertyArrayEqual(goodProperties.entries, data);
   Assert.equal(goodProperties.toVCard(), goodVCard);
 });

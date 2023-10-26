@@ -9,13 +9,13 @@ const kNumExpectedMatches = 10;
 function setupGlobals() {
   localAccountUtils.loadLocalMailAccount();
   // Create a message generator
-  let messageGenerator = new MessageGenerator();
-  let localInbox = localAccountUtils.inboxFolder.QueryInterface(
+  const messageGenerator = new MessageGenerator();
+  const localInbox = localAccountUtils.inboxFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
   );
 
   for (let i = 0; i < kSetCount; i++) {
-    let message = messageGenerator.makeMessage();
+    const message = messageGenerator.makeMessage();
     gMessages.push(message);
     localInbox.addMessage(message.toMboxString());
   }
@@ -24,21 +24,21 @@ function setupGlobals() {
 function run_test() {
   setupGlobals();
   do_test_pending();
-  let inboxDB = localAccountUtils.inboxFolder.msgDatabase;
+  const inboxDB = localAccountUtils.inboxFolder.msgDatabase;
 
   // give messages 1,3,5 gloda-ids. These won't end up in our search hits.
-  let msgHdr1 = inboxDB.getMsgHdrForMessageID(gMessages[0].messageId);
+  const msgHdr1 = inboxDB.getMsgHdrForMessageID(gMessages[0].messageId);
   msgHdr1.setUint32Property("gloda-id", 11111);
-  let msgHdr3 = inboxDB.getMsgHdrForMessageID(gMessages[2].messageId);
+  const msgHdr3 = inboxDB.getMsgHdrForMessageID(gMessages[2].messageId);
   msgHdr3.setUint32Property("gloda-id", 33333);
-  let msgHdr5 = inboxDB.getMsgHdrForMessageID(gMessages[4].messageId);
+  const msgHdr5 = inboxDB.getMsgHdrForMessageID(gMessages[4].messageId);
   msgHdr5.setUint32Property("gloda-id", 5555);
   // set up a search term array that will give us the array of messages
   // that gloda should index, as defined by this function:
-  let searchSession = Cc[
+  const searchSession = Cc[
     "@mozilla.org/messenger/searchSession;1"
   ].createInstance(Ci.nsIMsgSearchSession);
-  let searchTerms = [];
+  const searchTerms = [];
 
   searchSession.addScopeTerm(
     Ci.nsMsgSearchScope.offlineMail,

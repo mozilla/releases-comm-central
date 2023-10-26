@@ -164,9 +164,9 @@ class LDAPOperation {
    */
   _searchReference(urlStr) {
     this._searchingReference = true;
-    let urlParser = Cc["@mozilla.org/network/ldap-url-parser;1"].createInstance(
-      Ci.nsILDAPURLParser
-    );
+    const urlParser = Cc[
+      "@mozilla.org/network/ldap-url-parser;1"
+    ].createInstance(Ci.nsILDAPURLParser);
     let url;
     try {
       url = urlParser.parse(urlStr);

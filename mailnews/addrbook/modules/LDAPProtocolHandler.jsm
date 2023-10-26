@@ -13,7 +13,7 @@ class LDAPProtocolHandler {
   scheme = "ldap";
 
   newChannel(aURI, aLoadInfo) {
-    let channel = Cc["@mozilla.org/network/ldap-channel;1"].createInstance(
+    const channel = Cc["@mozilla.org/network/ldap-channel;1"].createInstance(
       Ci.nsIChannel
     );
     channel.init(aURI);

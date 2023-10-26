@@ -105,7 +105,7 @@ define(function (require) {
     });
     if (eol !== undefined) {
       results = results.then(function (results_) {
-        for (let part of results_) {
+        for (const part of results_) {
           part[1] = part[1].replace(/\r\n/g, eol);
         }
         return results_;
@@ -149,12 +149,12 @@ define(function (require) {
           assert.ok(partNum in uncheckedValues);
           // Headers is a map, convert it to an object.
           var objmap = {};
-          for (let pair of headers) {
+          for (const pair of headers) {
             objmap[pair[0]] = pair[1];
           }
           var expected = uncheckedValues[partNum];
           var convresults = {};
-          for (let key in expected) {
+          for (const key in expected) {
             try {
               convresults[key] = jsmime.headerparser.parseStructuredHeader(
                 key,
@@ -177,7 +177,7 @@ define(function (require) {
           if (fusingParts) {
             this.partData += data;
           } else {
-            let check = uncheckedValues.shift();
+            const check = uncheckedValues.shift();
             assert.equal(partNum, check[0]);
             assert.equal(data, check[1]);
           }
@@ -185,7 +185,7 @@ define(function (require) {
       },
       endPart: function emitter_endPart(partNum) {
         if (this.partData != "") {
-          let check = uncheckedValues.shift();
+          const check = uncheckedValues.shift();
           assert.equal(partNum, check[0]);
           assert.equal(this.partData, check[1]);
           this.partData = "";
@@ -205,7 +205,7 @@ define(function (require) {
         checkingHeaders = false;
       } else {
         uncheckedValues = {};
-        for (let key in results_) {
+        for (const key in results_) {
           uncheckedValues[key] = results_[key];
         }
         checkingHeaders = true;
@@ -230,7 +230,7 @@ define(function (require) {
   suite("MimeParser", function () {
     // This is the expected part specifier for the multipart-complex1 test file,
     // specified here because it is used in several cases.
-    let mpart_complex1 = [
+    const mpart_complex1 = [
       ["1", 8, 10],
       ["2", 14, 16],
       ["3.1", 22, 24],
@@ -239,7 +239,7 @@ define(function (require) {
     ];
 
     suite("Simple tests", function () {
-      let parser_tests = [
+      const parser_tests = [
         // The following tests are either degenerate or error cases that should
         // work
         ["Empty string", "", {}, { "": {} }],
@@ -290,7 +290,7 @@ define(function (require) {
     });
 
     suite("Body tests", function () {
-      let parser_tests = [
+      const parser_tests = [
         // Body tests from data
         // (Note: line numbers are 1-based. Also, to capture trailing EOF, add 2
         // to the last line number of the file).
@@ -422,7 +422,7 @@ define(function (require) {
       for (let i = 0; i < 16; i++) {
         teststr += teststr;
       }
-      let parser_tests = [
+      const parser_tests = [
         [
           "Base64 very long decode",
           "Content-Transfer-Encoding: base64\r\n\r\n" + btoa(teststr) + "\r\n",
@@ -507,7 +507,7 @@ define(function (require) {
     });
 
     suite("Header tests", function () {
-      let parser_tests = [
+      const parser_tests = [
         // Basic cases for headers
         [
           "Multiparts get headers",

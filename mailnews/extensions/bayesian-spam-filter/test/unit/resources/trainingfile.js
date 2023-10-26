@@ -42,7 +42,7 @@ function TrainingData() {
     if (oFile && oFile.exists()) {
       var oUri = Services.io.newFileURI(oFile);
       // open stream (channel)
-      let channel = Services.io.newChannelFromURI(
+      const channel = Services.io.newChannelFromURI(
         oUri,
         null,
         Services.scriptSecurityManager.getSystemPrincipal(),

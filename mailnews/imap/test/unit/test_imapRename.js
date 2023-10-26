@@ -20,23 +20,23 @@ add_setup(async function () {
   IMAPPump.incomingServer.rootFolder.createSubfolder("folder 1", null);
   await PromiseTestUtils.promiseFolderAdded("folder 1");
 
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function test_rename() {
-  let rootFolder = IMAPPump.incomingServer.rootFolder;
-  let targetFolder = rootFolder.getChildNamed("folder 1");
+  const rootFolder = IMAPPump.incomingServer.rootFolder;
+  const targetFolder = rootFolder.getChildNamed("folder 1");
 
   targetFolder.rename("folder \u00e1", null);
 
   IMAPPump.server.performTest("RENAME");
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 
-  let folder = rootFolder.getChildNamed("folder \u00e1");
+  const folder = rootFolder.getChildNamed("folder \u00e1");
   Assert.ok(folder.msgDatabase.summaryValid);
   Assert.equal("folder &AOE-", folder.filePath.leafName);
   Assert.equal("folder \u00e1", folder.prettyName);

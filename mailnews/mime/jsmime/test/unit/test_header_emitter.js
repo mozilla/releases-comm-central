@@ -18,7 +18,7 @@ define(function (require) {
 
   suite("headeremitter", function () {
     suite("addAddresses", function () {
-      let handler = {
+      const handler = {
         reset(expected) {
           this.output = "";
           this.expected = expected;
@@ -28,12 +28,12 @@ define(function (require) {
         },
         deliverEOF() {
           assert.equal(this.output, this.expected + "\r\n");
-          for (let line of this.output.split("\r\n")) {
+          for (const line of this.output.split("\r\n")) {
             assert.ok(line.length <= 30, "Line is too long");
           }
         },
       };
-      let header_tests = [
+      const header_tests = [
         [[{ name: "", email: "" }], ""],
         [[{ name: "", email: "a@example.com" }], "a@example.com"],
         [
@@ -150,7 +150,7 @@ define(function (require) {
       ];
       header_tests.forEach(function (data) {
         arrayTest(data, function () {
-          let emitter = headeremitter.makeStreamingEmitter(handler, {
+          const emitter = headeremitter.makeStreamingEmitter(handler, {
             softMargin: 30,
             useASCII: false,
           });
@@ -161,7 +161,7 @@ define(function (require) {
       });
     });
     suite("addAddresses (RFC 2047)", function () {
-      let handler = {
+      const handler = {
         reset(expected) {
           this.output = "";
           this.expected = expected;
@@ -171,12 +171,12 @@ define(function (require) {
         },
         deliverEOF() {
           assert.equal(this.output, this.expected + "\r\n");
-          for (let line of this.output.split("\r\n")) {
+          for (const line of this.output.split("\r\n")) {
             assert.ok(line.length <= 30, "Line is too long");
           }
         },
       };
-      let header_tests = [
+      const header_tests = [
         [[{ name: "\u0436", email: "a@a.c" }], "=?UTF-8?B?0LY=?= <a@a.c>"],
         [
           [{ name: "dioxyg\u00e8ne", email: "a@a.c" }],
@@ -207,7 +207,7 @@ define(function (require) {
       ];
       header_tests.forEach(function (data) {
         arrayTest(data, function () {
-          let emitter = headeremitter.makeStreamingEmitter(handler, {
+          const emitter = headeremitter.makeStreamingEmitter(handler, {
             softMargin: 30,
             useASCII: true,
           });
@@ -218,7 +218,7 @@ define(function (require) {
       });
     });
     suite("addUnstructured (RFC 2047)", function () {
-      let handler = {
+      const handler = {
         reset(expected) {
           this.output = "";
           this.expected = expected;
@@ -228,12 +228,12 @@ define(function (require) {
         },
         deliverEOF() {
           assert.equal(this.output, this.expected + "\r\n");
-          for (let line of this.output.split("\r\n")) {
+          for (const line of this.output.split("\r\n")) {
             assert.ok(line.length <= 30, "Line is too long");
           }
         },
       };
-      let header_tests = [
+      const header_tests = [
         ["My house   burned down!", "My house burned down!"],
 
         // Which of the 32 "special" characters need to be encoded in QP encoding?
@@ -313,7 +313,7 @@ define(function (require) {
       ];
       header_tests.forEach(function (data) {
         arrayTest(data, function () {
-          let emitter = headeremitter.makeStreamingEmitter(handler, {
+          const emitter = headeremitter.makeStreamingEmitter(handler, {
             softMargin: 30,
             useASCII: true,
           });
@@ -324,7 +324,7 @@ define(function (require) {
       });
     });
     suite("addDate", function () {
-      let handler = {
+      const handler = {
         reset(expected) {
           this.output = "";
           this.expected = expected;
@@ -336,7 +336,7 @@ define(function (require) {
           assert.equal(this.output, this.expected + "\r\n");
         },
       };
-      let header_tests = [
+      const header_tests = [
         // Test basic day/month names
         ["2000-01-01T00:00:00Z", "Sat, 1 Jan 2000 00:00:00 +0000"],
         ["2000-02-01T00:00:00Z", "Tue, 1 Feb 2000 00:00:00 +0000"],
@@ -405,7 +405,7 @@ define(function (require) {
       ];
       header_tests.forEach(function (data) {
         arrayTest(data, function () {
-          let emitter = headeremitter.makeStreamingEmitter(handler, {});
+          const emitter = headeremitter.makeStreamingEmitter(handler, {});
           handler.reset(data[1]);
           emitter.addDate(new MockDate(data[0]));
           emitter.finish(true);
@@ -414,7 +414,7 @@ define(function (require) {
 
       // An invalid date should throw an error instead of make a malformed header.
       test("Invalid dates", function () {
-        let emitter = headeremitter.makeStreamingEmitter(handler, {});
+        const emitter = headeremitter.makeStreamingEmitter(handler, {});
         assert.throws(function () {
           emitter.addDate(new Date(NaN));
         }, /Cannot encode an invalid date/);
@@ -428,7 +428,7 @@ define(function (require) {
 
       // Test preferred breaking for the date header.
       test("Break spot", function () {
-        let emitter = headeremitter.makeStreamingEmitter(handler, {
+        const emitter = headeremitter.makeStreamingEmitter(handler, {
           softMargin: 30,
         });
         handler.reset("Overly-Long-Date:\r\n Sat, 1 Jan 2000 00:00:00 +0000");
@@ -438,13 +438,13 @@ define(function (require) {
       });
 
       test("Correctness of date", function () {
-        let emitter = headeremitter.makeStreamingEmitter(handler, {});
+        const emitter = headeremitter.makeStreamingEmitter(handler, {});
         handler.reset();
-        let now = new Date();
+        const now = new Date();
         emitter.addDate(now);
         emitter.finish();
         // All engines can parse the date strings we produce
-        let reparsed = new Date(handler.output);
+        const reparsed = new Date(handler.output);
 
         // Now and reparsed should be correct to second-level precision.
         assert.equal(reparsed.getMilliseconds(), 0);
@@ -453,7 +453,7 @@ define(function (require) {
     });
 
     suite("Header lengths", function () {
-      let handler = {
+      const handler = {
         reset(expected) {
           this.output = "";
           this.expected = expected;
@@ -465,7 +465,7 @@ define(function (require) {
           assert.equal(this.output, this.expected + "\r\n");
         },
       };
-      let header_tests = [
+      const header_tests = [
         [
           [{ name: "Supercalifragilisticexpialidocious", email: "a@b.c" }],
           "Supercalifragilisticexpialidocious\r\n <a@b.c>",
@@ -496,7 +496,7 @@ define(function (require) {
       ];
       header_tests.forEach(function (data) {
         arrayTest(data, function () {
-          let emitter = headeremitter.makeStreamingEmitter(handler, {
+          const emitter = headeremitter.makeStreamingEmitter(handler, {
             softMargin: 30,
             hardMargin: 50,
             useASCII: false,

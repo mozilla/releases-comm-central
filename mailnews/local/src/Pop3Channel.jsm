@@ -79,8 +79,8 @@ class Pop3Channel {
 
   asyncOpen(listener) {
     this._logger.debug(`asyncOpen ${this.URI.spec}`);
-    let match = this.URI.spec.match(/pop3?:\/\/.+\/(?:\?|&)uidl=([^&]+)/);
-    let uidl = decodeURIComponent(match?.[1] || "");
+    const match = this.URI.spec.match(/pop3?:\/\/.+\/(?:\?|&)uidl=([^&]+)/);
+    const uidl = decodeURIComponent(match?.[1] || "");
     if (!uidl) {
       throw Components.Exception(
         `Unrecognized url=${this.URI.spec}`,
@@ -88,7 +88,7 @@ class Pop3Channel {
       );
     }
 
-    let client = new lazy.Pop3Client(this._server);
+    const client = new lazy.Pop3Client(this._server);
     client.runningUri = this.URI;
     client.connect();
     client.onOpen = () => {

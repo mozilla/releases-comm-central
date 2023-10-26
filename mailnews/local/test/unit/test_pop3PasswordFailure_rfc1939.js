@@ -79,7 +79,7 @@ add_setup(async function () {
 
 add_task(async function getMail1() {
   // Now get the mail.
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.pop3.GetNewMail(
     gDummyMsgWindow,
     urlListener,
@@ -100,7 +100,7 @@ add_task(async function getMail1() {
   Assert.equal(attempt, 2);
 
   // Check that we haven't forgotten the login even though we've retried and cancelled.
-  let logins = Services.logins.findLogins(
+  const logins = Services.logins.findLogins(
     "mailbox://localhost",
     null,
     "mailbox://localhost"
@@ -115,7 +115,7 @@ add_task(async function getMail1() {
 
 add_task(async function getMail2() {
   // Now get the mail
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.pop3.GetNewMail(
     gDummyMsgWindow,
     urlListener,
@@ -129,7 +129,7 @@ add_task(async function getMail2() {
   Assert.equal(localAccountUtils.inboxFolder.getTotalMessages(false), 1);
 
   // Now check the new one has been saved.
-  let logins = Services.logins.findLogins(
+  const logins = Services.logins.findLogins(
     "mailbox://localhost",
     null,
     "mailbox://localhost"

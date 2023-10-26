@@ -31,7 +31,7 @@ var { MessageInjection } = ChromeUtils.import(
 );
 
 var messageInjection = new MessageInjection({ mode: "local" });
-let gInbox = messageInjection.getInboxFolder();
+const gInbox = messageInjection.getInboxFolder();
 
 const keyDir = "../../../../mail/test/browser/openpgp/data/keys/";
 const browserEMLDir = "../../../../mail/test/browser/openpgp/data/eml/";
@@ -280,7 +280,7 @@ add_setup(async function () {
     do_get_file(`${keyDir}bob@openpgp.example-0xfbfcc82a015e7330-pub.asc`)
   );
 
-  for (let test of tests) {
+  for (const test of tests) {
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
 
     MailServices.copy.copyFileMessage(
@@ -306,7 +306,7 @@ add_setup(async function () {
  */
 add_task(async function testMimeDecryptOpenPGPMessages() {
   let hdrIndex = 0;
-  for (let test of tests) {
+  for (const test of tests) {
     if (test.skip) {
       info(`Skipped test: ${test.description}`);
       continue;
@@ -314,22 +314,22 @@ add_task(async function testMimeDecryptOpenPGPMessages() {
 
     info(`Running test: ${test.description}`);
 
-    let testPrefix = `${test.filename}:`;
-    let expectedResultCount =
+    const testPrefix = `${test.filename}:`;
+    const expectedResultCount =
       test.resultCount || (test.enc && test.sig) ? 2 : 1;
-    let hdr = mailTestUtils.getMsgHdrN(gInbox, hdrIndex);
-    let uri = hdr.folder.getUriForMsg(hdr);
-    let sinkPromise = headerSink.expectResults(expectedResultCount);
+    const hdr = mailTestUtils.getMsgHdrN(gInbox, hdrIndex);
+    const uri = hdr.folder.getUriForMsg(hdr);
+    const sinkPromise = headerSink.expectResults(expectedResultCount);
 
     // Stub this function so verifyDetached() can get the correct email.
     EnigmailDecryption.getFromAddr = () => test.from;
 
     // Trigger the actual mime work.
-    let conversion = apply_mime_conversion(uri, headerSink);
+    const conversion = apply_mime_conversion(uri, headerSink);
 
     await conversion.promise;
 
-    let msgBody = conversion._data;
+    const msgBody = conversion._data;
 
     if (!test.sig || test.flags.indexOf("GOOD_SIGNATURE")) {
       Assert.ok(
@@ -346,7 +346,7 @@ add_task(async function testMimeDecryptOpenPGPMessages() {
     await sinkPromise;
 
     let idx = 0;
-    let { results } = headerSink;
+    const { results } = headerSink;
 
     Assert.equal(
       results.length,
@@ -387,8 +387,8 @@ add_task(async function testMimeDecryptOpenPGPMessages() {
     // test in one place.
     if (test.flags) {
       for (let flag of test.flags) {
-        let flags = results.reduce((prev, curr) => prev | curr.status, 0);
-        let negative = flag[0] === "-";
+        const flags = results.reduce((prev, curr) => prev | curr.status, 0);
+        const negative = flag[0] === "-";
         flag = negative ? flag.slice(1) : flag;
 
         if (negative) {

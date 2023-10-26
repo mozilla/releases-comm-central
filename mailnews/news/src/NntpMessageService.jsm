@@ -41,7 +41,7 @@ class BaseMessageService {
   ) {
     this._logger.debug("loadMessage", messageURI);
 
-    let uri = this.getUrlForUri(messageURI, msgWindow);
+    const uri = this.getUrlForUri(messageURI, msgWindow);
     if (urlListener) {
       uri.RegisterListener(urlListener);
     }
@@ -51,8 +51,10 @@ class BaseMessageService {
         Ci.nsIWebNavigation.LOAD_FLAGS_NONE
       );
     } else {
-      let streamListener = displayConsumer.QueryInterface(Ci.nsIStreamListener);
-      let channel = new lazy.NntpChannel(uri);
+      const streamListener = displayConsumer.QueryInterface(
+        Ci.nsIStreamListener
+      );
+      const channel = new lazy.NntpChannel(uri);
       channel.asyncOpen(streamListener);
     }
   }
@@ -63,7 +65,7 @@ class BaseMessageService {
    * @returns {nsIURI}
    */
   getUrlForUri(messageURI, msgWindow) {
-    let uri = Services.io
+    const uri = Services.io
       .newURI(this._createMessageIdUrl(messageURI))
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
     uri.msgWindow = msgWindow;
@@ -78,7 +80,7 @@ class BaseMessageService {
    * @returns {?nsIMsgDBHdr} The message for the URI, or null.
    */
   messageURIToMsgHdr(uri) {
-    let [folder, key] = this._decomposeNewsMessageURI(uri);
+    const [folder, key] = this._decomposeNewsMessageURI(uri);
     return folder?.GetMessageHeader(key);
   }
 
@@ -97,7 +99,7 @@ class BaseMessageService {
     msgWindow
   ) {
     this._logger.debug("SaveMessageToDisk", messageUri);
-    let url = this.getUrlForUri(messageUri, msgWindow);
+    const url = this.getUrlForUri(messageUri, msgWindow);
     if (urlListener) {
       url.RegisterListener(urlListener);
     }
@@ -105,7 +107,7 @@ class BaseMessageService {
     url.AddDummyEnvelope = addDummyEnvelope;
     url.canonicalLineEnding = canonicalLineEnding;
 
-    let [folder, key] = this._decomposeNewsMessageURI(messageUri);
+    const [folder, key] = this._decomposeNewsMessageURI(messageUri);
     if (folder && folder.QueryInterface(Ci.nsIMsgNewsFolder)) {
       url.msgIsInLocalCache = folder.hasMsgOffline(key);
     }
@@ -120,9 +122,9 @@ class BaseMessageService {
   }
 
   Search(searchSession, msgWindow, msgFolder, searchUri) {
-    let slashIndex = searchUri.indexOf("/");
-    let xpatLines = searchUri.slice(slashIndex + 1).split("/");
-    let server = msgFolder.server.QueryInterface(Ci.nsINntpIncomingServer);
+    const slashIndex = searchUri.indexOf("/");
+    const xpatLines = searchUri.slice(slashIndex + 1).split("/");
+    const server = msgFolder.server.QueryInterface(Ci.nsINntpIncomingServer);
 
     server.wrappedJSObject.withClient(client => {
       client.startRunningUrl(
@@ -148,14 +150,14 @@ class BaseMessageService {
     additionalHeader
   ) {
     this._logger.debug("streamMessage", messageUri);
-    let [folder, key] = this._decomposeNewsMessageURI(messageUri);
+    const [folder, key] = this._decomposeNewsMessageURI(messageUri);
 
     let uri = this.getUrlForUri(messageUri, msgWindow);
     if (additionalHeader) {
       // NOTE: jsmimeemitter relies on this.
-      let url = new URL(uri.spec);
-      let params = new URLSearchParams(`?header=${additionalHeader}`);
-      for (let [key, value] of params.entries()) {
+      const url = new URL(uri.spec);
+      const params = new URLSearchParams(`?header=${additionalHeader}`);
+      for (const [key, value] of params.entries()) {
         url.searchParams.set(key, value);
       }
       uri = uri.mutate().setQuery(url.search).finalize();
@@ -167,11 +169,11 @@ class BaseMessageService {
       uri.RegisterListener(urlListener);
     }
 
-    let streamListener = consumer.QueryInterface(Ci.nsIStreamListener);
-    let channel = new lazy.NntpChannel(uri.QueryInterface(Ci.nsINntpUrl));
+    const streamListener = consumer.QueryInterface(Ci.nsIStreamListener);
+    const channel = new lazy.NntpChannel(uri.QueryInterface(Ci.nsINntpUrl));
     let listener = streamListener;
     if (convertData) {
-      let converter = Cc["@mozilla.org/streamConverters;1"].getService(
+      const converter = Cc["@mozilla.org/streamConverters;1"].getService(
         Ci.nsIStreamConverterService
       );
       listener = converter.asyncConvertData(
@@ -194,7 +196,7 @@ class BaseMessageService {
   _decomposeNewsMessageURI(uri) {
     let host, groupName, key;
     if (uri.startsWith("news-message://")) {
-      let matches = /news-message:\/\/([^:]+)\/(.+)#(\d+)/.exec(uri);
+      const matches = /news-message:\/\/([^:]+)\/(.+)#(\d+)/.exec(uri);
       if (!matches) {
         throw Components.Exception(
           `Failed to parse message url: ${uri}`,
@@ -206,13 +208,13 @@ class BaseMessageService {
         host = host.slice(host.indexOf("@") + 1);
       }
     } else {
-      let url = new URL(uri);
+      const url = new URL(uri);
       host = url.hostname;
       groupName = url.searchParams.get("group");
       key = url.searchParams.get("key");
     }
     groupName = groupName ? decodeURIComponent(groupName) : null;
-    let server = MailServices.accounts
+    const server = MailServices.accounts
       .findServer("", host, "nntp")
       .QueryInterface(Ci.nsINntpIncomingServer);
     let folder;
@@ -234,10 +236,10 @@ class BaseMessageService {
     if (messageURI.startsWith("news://")) {
       return messageURI;
     }
-    let [folder, key] = this._decomposeNewsMessageURI(messageURI);
-    let host = folder.rootFolder.URI;
-    let messageId = folder.getMessageIdForKey(key);
-    let url = new URL(`${host}/${encodeURIComponent(messageId)}`);
+    const [folder, key] = this._decomposeNewsMessageURI(messageURI);
+    const host = folder.rootFolder.URI;
+    const messageId = folder.getMessageIdForKey(key);
+    const url = new URL(`${host}/${encodeURIComponent(messageId)}`);
     url.searchParams.set("group", folder.name);
     url.searchParams.set("key", key);
     if (!url.port) {

@@ -63,7 +63,7 @@ function Startup() {
       );
     }
 
-    let oldListName = gCurrentDirectory.dirName;
+    const oldListName = gCurrentDirectory.dirName;
     document.title = gReplicationBundle.getFormattedString(
       "directoryTitleEdit",
       [oldListName]
@@ -284,7 +284,9 @@ function DisableElementIfPrefIsLocked(aPrefName, aElementId) {
 // disables all the text fields corresponding to the .uri pref.
 function DisableUriFields(aPrefName) {
   if (Services.prefs.prefIsLocked(aPrefName)) {
-    let lockedElements = document.querySelectorAll('[disableiflocked="true"]');
+    const lockedElements = document.querySelectorAll(
+      '[disableiflocked="true"]'
+    );
     for (let i = 0; i < lockedElements.length; i++) {
       lockedElements[i].setAttribute("disabled", "true");
     }
@@ -322,18 +324,18 @@ function hasCharacters(number) {
 
 function onAccept(event) {
   try {
-    let description = document.getElementById("description").value.trim();
+    const description = document.getElementById("description").value.trim();
     let hostname = cleanUpHostName(document.getElementById("hostname").value);
     let port = document.getElementById("port").value;
-    let secure = document.getElementById("secure");
-    let results = document.getElementById("results").value;
+    const secure = document.getElementById("secure");
+    const results = document.getElementById("results").value;
     let errorValue = null;
     let errorArg = null;
     let saslMechanism = "";
 
-    let findDupeName = function (newName) {
+    const findDupeName = function (newName) {
       // Do not allow an already existing name.
-      for (let ab of MailServices.ab.directories) {
+      for (const ab of MailServices.ab.directories) {
         if (
           ab.dirName.toLowerCase() == newName.toLowerCase() &&
           (!gCurrentDirectory || ab.URI != gCurrentDirectory.URI)
@@ -365,7 +367,7 @@ function onAccept(event) {
         // Wrap IPv6 address in [].
         hostname = `[${hostname}]`;
       }
-      let ldapUrl = Services.io
+      const ldapUrl = Services.io
         .newURI(`${secure.checked ? "ldaps" : "ldap"}://${hostname}:${port}`)
         .QueryInterface(Ci.nsILDAPURL);
 
@@ -414,7 +416,7 @@ function onAccept(event) {
         window.arguments[0].onNewDirectory(theDirectory);
       }
     } else {
-      let addressBookBundle = document.getElementById("bundle_addressBook");
+      const addressBookBundle = document.getElementById("bundle_addressBook");
 
       let errorText;
       if (errorArg) {

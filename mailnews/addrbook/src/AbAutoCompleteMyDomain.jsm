@@ -19,8 +19,8 @@ AbAutoCompleteMyDomain.prototype = {
   applicableHeaders: new Set(["addr_to", "addr_cc", "addr_bcc", "addr_reply"]),
 
   startSearch(aString, aSearchParam, aResult, aListener) {
-    let params = aSearchParam ? JSON.parse(aSearchParam) : {};
-    let applicable =
+    const params = aSearchParam ? JSON.parse(aSearchParam) : {};
+    const applicable =
       "type" in params && this.applicableHeaders.has(params.type);
     const ACR = Ci.nsIAutoCompleteResult;
     var address = null;

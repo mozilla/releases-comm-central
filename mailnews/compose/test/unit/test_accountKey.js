@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let MockNntpService = {
+const MockNntpService = {
   QueryInterface: ChromeUtils.generateQI(["nsINntpService"]),
   postMessage(messageFile, groupNames, accountKey, urlListener, msgWindow) {
     this.messageFile = messageFile;
@@ -11,14 +11,14 @@ let MockNntpService = {
   },
 };
 
-let MockNntpServiceFactory = {
+const MockNntpServiceFactory = {
   createInstance(aIID) {
     return MockNntpService;
   },
 };
 
 add_setup(async function () {
-  let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+  const registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
   registrar.registerFactory(
     Components.ID("{4816dd44-fe15-4719-8cfb-a2f8ee46d787}"),
     "Mock NntpService",
@@ -33,12 +33,12 @@ add_setup(async function () {
  */
 add_task(async function testAccountKey() {
   // Set up the servers.
-  let server = setupServerDaemon();
+  const server = setupServerDaemon();
   localAccountUtils.loadLocalMailAccount();
   server.start();
-  let smtpServer = getBasicSmtpServer(server.port);
-  let identity = getSmtpIdentity("from@foo.invalid", smtpServer);
-  let account = MailServices.accounts.createAccount();
+  const smtpServer = getBasicSmtpServer(server.port);
+  const identity = getSmtpIdentity("from@foo.invalid", smtpServer);
+  const account = MailServices.accounts.createAccount();
   account.addIdentity(identity);
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "test",
@@ -47,17 +47,17 @@ add_task(async function testAccountKey() {
   );
 
   // Init nsIMsgSend and fields.
-  let msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
+  const msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
     Ci.nsIMsgSend
   );
-  let compFields = Cc[
+  const compFields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   compFields.from = identity.email;
   // Set the newsgroups filed so that the message will be passed to NntpService.
   compFields.newsgroups = "foo.test";
 
-  let testFile = do_get_file("data/message1.eml");
+  const testFile = do_get_file("data/message1.eml");
   // Notice the second argument is accountKey.
   await msgSend.sendMessageFile(
     identity,

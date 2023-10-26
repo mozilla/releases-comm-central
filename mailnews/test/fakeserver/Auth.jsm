@@ -31,7 +31,7 @@ var AuthPLAIN = {
   decodeLine(line) {
     dump("AUTH PLAIN line -" + line + "-\n");
     line = atob(line); // base64 decode
-    let aap = line.split("\u0000"); // 0-charater is delimiter
+    const aap = line.split("\u0000"); // 0-charater is delimiter
     if (aap.length != 3) {
       throw new Error("Expected three parts");
     }

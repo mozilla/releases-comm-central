@@ -35,7 +35,7 @@ class ImapResponse {
     this._response += str;
     if (this._pendingMessage) {
       // We have an unfinished message in the last chunk.
-      let remaining =
+      const remaining =
         this._pendingMessage.bodySize - this._pendingMessage.body.length;
       if (remaining + ")\r\n".length <= this._response.length) {
         // Consume the message together with the ending ")\r\n".
@@ -71,16 +71,16 @@ class ImapResponse {
       this.done = true;
       return;
     }
-    let index = this._response.indexOf("\r\n");
+    const index = this._response.indexOf("\r\n");
     if (index == -1) {
       // Expect more string in the next chunk.
       this.done = false;
       return;
     }
 
-    let line = this._response.slice(0, index);
+    const line = this._response.slice(0, index);
     this._advance(index + 2); // Consume the line and "\r\n".
-    let tokens = this._parseLine(line);
+    const tokens = this._parseLine(line);
     this.tag = tokens[0];
     this.status = tokens[1];
     if (this.tag == "+") {
@@ -98,7 +98,7 @@ class ImapResponse {
       switch (tokens[1].toUpperCase()) {
         case "CAPABILITY":
           // * CAPABILITY IMAP4rev1 IDLE STARTTLS AUTH=LOGIN AUTH=PLAIN
-          let { capabilities, authMethods } = new CapabilityData(
+          const { capabilities, authMethods } = new CapabilityData(
             tokens.slice(2)
           );
           this.capabilities = capabilities;
@@ -153,12 +153,12 @@ class ImapResponse {
       }
     }
     if (!parsed && Array.isArray(tokens[2])) {
-      let type = tokens[2][0].toUpperCase();
-      let data = tokens[2].slice(1);
+      const type = tokens[2][0].toUpperCase();
+      const data = tokens[2].slice(1);
       switch (type) {
         case "CAPABILITY":
           // 32 OK [CAPABILITY IMAP4rev1 IDLE STARTTLS AUTH=LOGIN AUTH=PLAIN]
-          let { capabilities, authMethods } = new CapabilityData(data);
+          const { capabilities, authMethods } = new CapabilityData(data);
           this.capabilities = capabilities;
           this.authMethods = authMethods;
           break;
@@ -174,7 +174,7 @@ class ImapResponse {
           }
           break;
         default:
-          let field = type.toLowerCase();
+          const field = type.toLowerCase();
           if (tokens[2].length == 1) {
             // A boolean attribute, e.g. 12 OK [READ-WRITE]
             this[field] = true;
@@ -196,12 +196,12 @@ class ImapResponse {
    * @params {Array<string|string[]>} tokens - The tokens of the line.
    */
   _parseNumbered(tokens) {
-    let intValue = +tokens[1];
-    let type = tokens[2].toUpperCase();
+    const intValue = +tokens[1];
+    const type = tokens[2].toUpperCase();
     switch (type) {
       case "FETCH":
         // * 1 FETCH (UID 5 FLAGS (\SEEN) BODY[HEADER.FIELDS (FROM TO)] {12}
-        let message = new MessageData(intValue, tokens[3]);
+        const message = new MessageData(intValue, tokens[3]);
         this.messages.push(message);
         if (message.bodySize) {
           if (message.bodySize + ")\r\n".length <= this._response.length) {
@@ -247,7 +247,7 @@ class ImapResponse {
    */
   _tokenize(line) {
     const SEPARATORS = /[()\[\]" ]/;
-    let tokens = [];
+    const tokens = [];
     while (line) {
       // Find the first separator.
       let index = line.search(SEPARATORS);
@@ -255,8 +255,8 @@ class ImapResponse {
         tokens.push(line);
         break;
       }
-      let sep = line[index];
-      let token = line.slice(0, index);
+      const sep = line[index];
+      const token = line.slice(0, index);
       if (token) {
         tokens.push(token);
       }
@@ -297,10 +297,10 @@ class ImapResponse {
    * @returns {Array<string|string[]>}
    */
   _parseLine(line) {
-    let tokens = [];
+    const tokens = [];
     let arrayDepth = 0;
 
-    for (let token of this._tokenize(line)) {
+    for (const token of this._tokenize(line)) {
       let depth = arrayDepth;
       let arr = tokens;
       while (depth-- > 0) {
@@ -359,7 +359,7 @@ class MessageData {
     this.sequence = sequence;
     this.customAttributes = {};
     for (let i = 0; i < tokens.length; i += 2) {
-      let name = tokens[i].toUpperCase();
+      const name = tokens[i].toUpperCase();
       switch (name) {
         case "UID":
           this.uid = +tokens[i + 1];
@@ -375,7 +375,7 @@ class MessageData {
           this.bodySection = tokens[i + 1];
           i++;
           // {123} means the following 123 bytes are the body.
-          let matches = tokens[i + 1].match(/{(\d+)}/);
+          const matches = tokens[i + 1].match(/{(\d+)}/);
           if (matches) {
             this.bodySize = +matches[1];
             this.body = "";
@@ -399,7 +399,7 @@ class MessageData {
  */
 class MailboxData {
   constructor(tokens) {
-    let [, , attributes, delimiter, name] = tokens;
+    const [, , attributes, delimiter, name] = tokens;
     this.flags = this._stringsToFlags(attributes);
     this.delimiter = unwrapString(delimiter);
     this.name = unwrapString(name);
@@ -412,7 +412,7 @@ class MailboxData {
    * @returns {number} An internal flag number.
    */
   _stringsToFlags(arr) {
-    let stringToFlag = {
+    const stringToFlag = {
       "\\MARKED": ImapUtils.FLAG_MARKED,
       "\\UNMARKED": ImapUtils.FLAG_UNMARKED,
       "\\NOINFERIORS":
@@ -437,7 +437,7 @@ class MailboxData {
       "\\HASNOCHILDREN": ImapUtils.FLAG_HAS_NO_CHILDREN,
     };
     let flags = 0;
-    for (let str of arr) {
+    for (const str of arr) {
       flags |= stringToFlag[str.toUpperCase()] || 0;
     }
     return flags;
@@ -459,9 +459,9 @@ class StatusData {
     // list, the middle part is the mailbox name.
     this.attributes.mailbox = unwrapString(tokens[2]);
 
-    let attributes = tokens.at(-1);
+    const attributes = tokens.at(-1);
     for (let i = 0; i < attributes.length; i += 2) {
-      let type = attributes[i].toLowerCase();
+      const type = attributes[i].toLowerCase();
       this.attributes[type] = attributes[i + 1];
     }
   }

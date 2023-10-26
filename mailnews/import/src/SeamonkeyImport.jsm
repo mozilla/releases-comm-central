@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let { MailServices } = ChromeUtils.import(
+const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-let seamonkeyImportMsgs = Services.strings.createBundle(
+const seamonkeyImportMsgs = Services.strings.createBundle(
   "chrome://messenger/locale/seamonkeyImportMsgs.properties"
 );
 
@@ -88,12 +88,12 @@ SeamonkeyImportMail.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIImportMail"]),
 
   GetDefaultLocation(location, found, userVerify) {
-    let migrator = Cc[
+    const migrator = Cc[
       "@mozilla.org/profile/migrator;1?app=mail&type=seamonkey"
     ].createInstance(Ci.nsIMailProfileMigrator);
 
     try {
-      let sourceProfile = migrator.sourceProfileLocations[0];
+      const sourceProfile = migrator.sourceProfileLocations[0];
       location.value = sourceProfile;
       found.value = true;
     } catch (e) {
@@ -103,10 +103,10 @@ SeamonkeyImportMail.prototype = {
   },
 
   _createMailboxDescriptor(path, name, depth) {
-    let importService = Cc[
+    const importService = Cc[
       "@mozilla.org/import/import-service;1"
     ].createInstance(Ci.nsIImportService);
-    let descriptor = importService.CreateNewMailboxDescriptor();
+    const descriptor = importService.CreateNewMailboxDescriptor();
     descriptor.size = 100;
     descriptor.depth = depth;
     descriptor.SetDisplayName(name);
@@ -116,13 +116,13 @@ SeamonkeyImportMail.prototype = {
   },
 
   _collectMailboxesInDirectory(directory, depth) {
-    let result = [];
+    const result = [];
     let name = directory.leafName;
     if (depth > 0 && !name.endsWith(".msf") && !name.endsWith(".dat")) {
       if (name.endsWith(".sbd")) {
         name = name.slice(0, name.lastIndexOf("."));
       }
-      let descriptor = this._createMailboxDescriptor(
+      const descriptor = this._createMailboxDescriptor(
         directory.path,
         name,
         depth
@@ -130,7 +130,7 @@ SeamonkeyImportMail.prototype = {
       result.push(descriptor);
     }
     if (directory.isDirectory()) {
-      for (let entry of directory.directoryEntries) {
+      for (const entry of directory.directoryEntries) {
         if (
           (depth == 0 &&
             entry.leafName != "ImapMail" &&
@@ -234,12 +234,12 @@ SeamonkeyImport.prototype = {
     if (type == "addressbook") {
       return new SeamonkeyImportAddressbook();
     } else if (type == "mail") {
-      let importService = Cc[
+      const importService = Cc[
         "@mozilla.org/import/import-service;1"
       ].createInstance(Ci.nsIImportService);
-      let genericInterface = importService.CreateNewGenericMail();
+      const genericInterface = importService.CreateNewGenericMail();
       genericInterface.SetData("mailInterface", new SeamonkeyImportMail());
-      let name = Cc["@mozilla.org/supports-string;1"].createInstance(
+      const name = Cc["@mozilla.org/supports-string;1"].createInstance(
         Ci.nsISupportsString
       );
       name.data = "SeaMonkey";

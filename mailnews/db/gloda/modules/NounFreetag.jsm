@@ -37,16 +37,16 @@ var FreeTagNoun = {
     this._listeners.push(aListener);
   },
   removeListener(aListener) {
-    let index = this._listeners.indexOf(aListener);
+    const index = this._listeners.indexOf(aListener);
     if (index >= 0) {
       this._listeners.splice(index, 1);
     }
   },
 
   populateKnownFreeTags() {
-    for (let attr of this.objectNounOfAttributes) {
-      let attrDB = attr.dbDef;
-      for (let param in attrDB.parameterBindings) {
+    for (const attr of this.objectNounOfAttributes) {
+      const attrDB = attr.dbDef;
+      for (const param in attrDB.parameterBindings) {
         this.getFreeTag(param);
       }
     }
@@ -57,7 +57,7 @@ var FreeTagNoun = {
     let tag = this.knownFreeTags[aTagName];
     if (!tag) {
       tag = this.knownFreeTags[aTagName] = new FreeTag(aTagName);
-      for (let listener of this._listeners) {
+      for (const listener of this._listeners) {
         listener.onFreeTagAdded(tag);
       }
     }

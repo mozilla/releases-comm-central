@@ -100,8 +100,8 @@ class NntpClient {
     } else {
       // Start a new connection.
       this._authenticated = false;
-      let hostname = this._server.hostName.toLowerCase();
-      let useSecureTransport = this._server.isSecure;
+      const hostname = this._server.hostName.toLowerCase();
+      const useSecureTransport = this._server.isSecure;
       this._logger.debug(
         `Connecting to ${useSecureTransport ? "snews" : "news"}://${hostname}:${
           this._server.port
@@ -169,12 +169,12 @@ class NntpClient {
    * @param {TCPSocketEvent} event - The data event.
    */
   _onData = event => {
-    let stringPayload = CommonUtils.arrayBufferToByteString(
+    const stringPayload = CommonUtils.arrayBufferToByteString(
       new Uint8Array(event.data)
     );
     this._logger.debug(`S: ${stringPayload}`);
 
-    let res = this._parse(stringPayload);
+    const res = this._parse(stringPayload);
     switch (res.status) {
       case AUTH_REQUIRED:
         this._currentGroupName = null;
@@ -195,7 +195,7 @@ class NntpClient {
             if (this._messageId) {
               uri += `&m=${encodeURIComponent(this._messageId)}`;
             } else {
-              let msgId = this._newsFolder?.getMessageIdForKey(
+              const msgId = this._newsFolder?.getMessageIdForKey(
                 this._articleNumber
               );
               if (msgId) {
@@ -251,10 +251,10 @@ class NntpClient {
         break;
     }
     if (errorName) {
-      let bundle = Services.strings.createBundle(
+      const bundle = Services.strings.createBundle(
         "chrome://messenger/locale/messenger.properties"
       );
-      let errorMessage = bundle.formatStringFromName(errorName, [
+      const errorMessage = bundle.formatStringFromName(errorName, [
         this._server.hostName,
       ]);
       MailServices.mailSession.alertUser(errorMessage, this.runningUri);
@@ -282,9 +282,9 @@ class NntpClient {
       // When processing multi-line response, no parsing should happen.
       return { data: str };
     }
-    let matches = /^(\d{3}) (.+)\r\n([^]*)/.exec(str);
+    const matches = /^(\d{3}) (.+)\r\n([^]*)/.exec(str);
     if (matches) {
-      let [, status, statusText, data] = matches;
+      const [, status, statusText, data] = matches;
       return { status: Number(status), statusText, data };
     }
     return { data: str };
@@ -418,8 +418,8 @@ class NntpClient {
    */
   loadNewsUrl(uri, msgWindow, streamListener) {
     this._logger.debug(`Loading ${uri}`);
-    let url = new URL(uri);
-    let path = url.pathname.slice(1);
+    const url = new URL(uri);
+    const path = url.pathname.slice(1);
     let action;
     if (path == "*") {
       action = () => this.getListOfGroups();
@@ -435,10 +435,10 @@ class NntpClient {
       return;
     }
     this._msgWindow = msgWindow;
-    let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
+    const pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
     pipe.init(true, true, 0, 0);
-    let inputStream = pipe.inputStream;
-    let outputStream = pipe.outputStream;
+    const inputStream = pipe.inputStream;
+    const outputStream = pipe.outputStream;
     this.onOpen = () => {
       streamListener.onStartRequest(null, Cr.NS_OK);
       action();
@@ -468,7 +468,7 @@ class NntpClient {
    * Send `POST` request to the server.
    */
   post() {
-    let action = () => {
+    const action = () => {
       this._nextAction = this._actionHandlePost;
       this._sendCommand("POST");
     };
@@ -628,9 +628,9 @@ class NntpClient {
    * Send `XOVER` request to the server.
    */
   _actionXOver = res => {
-    let [count, low, high] = res.statusText.split(" ");
+    const [count, low, high] = res.statusText.split(" ");
     this._newsFolder.updateSummaryFromNNTPInfo(low, high, count);
-    let [start, end] = this._newsGroup.getArticlesRangeToFetch(
+    const [start, end] = this._newsGroup.getArticlesRangeToFetch(
       this._msgWindow,
       Number(low),
       Number(high)
@@ -768,7 +768,7 @@ class NntpClient {
    * @param {NntpResponse} res - ARTICLE response received from the server.
    */
   _actionArticleResponse = ({ data }) => {
-    let lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
+    const lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
 
     this._lineReader.read(
       data,
@@ -824,7 +824,7 @@ class NntpClient {
       );
     }
     if (!this._newsFolder.groupUsername) {
-      let gotPassword = this._newsFolder.getAuthenticationCredentials(
+      const gotPassword = this._newsFolder.getAuthenticationCredentials(
         this._msgWindow,
         true,
         forcePrompt
@@ -862,7 +862,7 @@ class NntpClient {
         this._actionAuthPassword();
         return;
       case AUTH_FAILED:
-        let action = this._authenticator.promptAuthFailed();
+        const action = this._authenticator.promptAuthFailed();
         if (action == 1) {
           // Cancel button pressed.
           this._actionDone();
@@ -881,7 +881,7 @@ class NntpClient {
    * Send `XPAT <header> <message-id> <pattern>` to the server.
    */
   _actionXPat = () => {
-    let xptLine = this._xpatLines.shift();
+    const xptLine = this._xpatLines.shift();
     if (!xptLine) {
       this._actionDone();
       return;
@@ -909,7 +909,7 @@ class NntpClient {
    * @param {number} status - See NS_NET_STATUS_* in nsISocketTransport.idl.
    */
   _showNetworkStatus(status) {
-    let statusMessage = Services.strings.formatStatusMessage(
+    const statusMessage = Services.strings.formatStatusMessage(
       status,
       this._server.hostName
     );
@@ -925,13 +925,13 @@ class NntpClient {
    */
   _actionError(errorId, serverErrorMsg) {
     this._logger.error(`Got an error id=${errorId}`);
-    let msgWindow = this._msgWindow;
+    const msgWindow = this._msgWindow;
 
     if (!msgWindow) {
       this._actionDone(Cr.NS_ERROR_FAILURE);
       return;
     }
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/news.properties"
     );
     let errorMsg = bundle.GetStringFromID(errorId);

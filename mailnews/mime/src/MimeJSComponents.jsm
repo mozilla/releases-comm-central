@@ -41,7 +41,7 @@ StringEnumerator.prototype = {
   },
   getNext() {
     this._setNext();
-    let result = this._next;
+    const result = this._next;
     this._next = undefined;
     if (result.done) {
       throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
@@ -79,7 +79,7 @@ function fixXpconnectAddresses(addrs) {
 function MimeStructuredHeaders() {}
 MimeStructuredHeaders.prototype = {
   getHeader(aHeaderName) {
-    let name = aHeaderName.toLowerCase();
+    const name = aHeaderName.toLowerCase();
     return this._headers.get(name);
   },
 
@@ -88,7 +88,7 @@ MimeStructuredHeaders.prototype = {
   },
 
   getUnstructuredHeader(aHeaderName) {
-    let result = this.getHeader(aHeaderName);
+    const result = this.getHeader(aHeaderName);
     if (result === undefined || typeof result == "string") {
       return result;
     }
@@ -106,7 +106,7 @@ MimeStructuredHeaders.prototype = {
   },
 
   getRawHeader(aHeaderName) {
-    let result = this.getHeader(aHeaderName);
+    const result = this.getHeader(aHeaderName);
     if (result === undefined) {
       return result;
     }
@@ -131,12 +131,12 @@ MimeStructuredHeaders.prototype = {
     if (this._headers.size == 0) {
       return "";
     }
-    let handler = new HeaderHandler();
-    let emitter = jsmime.headeremitter.makeStreamingEmitter(handler, {
+    const handler = new HeaderHandler();
+    const emitter = jsmime.headeremitter.makeStreamingEmitter(handler, {
       useASCII: true,
       sanitizeDate,
     });
-    for (let [value, header] of this._headers) {
+    for (const [value, header] of this._headers) {
       emitter.addStructuredHeader(value, header);
     }
     emitter.finish();
@@ -197,7 +197,7 @@ MimeWritableStructuredHeaders.prototype = {
   },
 
   addAllHeaders(aHeaders) {
-    for (let header of aHeaders.headerNames) {
+    for (const header of aHeaders.headerNames) {
       this.setHeader(header, aHeaders.getHeader(header));
     }
   },
@@ -242,8 +242,8 @@ var EmailGroup = {
 // XPIDL output.
 function fixArray(addresses, preserveGroups, count) {
   function resetPrototype(obj, prototype) {
-    let prototyped = Object.create(prototype);
-    for (let key of Object.getOwnPropertyNames(obj)) {
+    const prototyped = Object.create(prototype);
+    for (const key of Object.getOwnPropertyNames(obj)) {
       if (typeof obj[key] == "string") {
         // eslint-disable-next-line no-control-regex
         prototyped[key] = obj[key].replace(/\x00/g, "");
@@ -284,7 +284,7 @@ MimeAddressParser.prototype = {
 
   parseEncodedHeader(aHeader, aCharset, aPreserveGroups) {
     aHeader = aHeader || "";
-    let value = MimeParser.parseHeaderField(
+    const value = MimeParser.parseHeaderField(
       aHeader,
       MimeParser.HEADER_ADDRESS | MimeParser.HEADER_OPTION_ALL_I18N,
       aCharset
@@ -293,7 +293,7 @@ MimeAddressParser.prototype = {
   },
   parseEncodedHeaderW(aHeader) {
     aHeader = aHeader || "";
-    let value = MimeParser.parseHeaderField(
+    const value = MimeParser.parseHeaderField(
       aHeader,
       MimeParser.HEADER_ADDRESS |
         MimeParser.HEADER_OPTION_DECODE_2231 |
@@ -304,7 +304,10 @@ MimeAddressParser.prototype = {
   },
   parseDecodedHeader(aHeader, aPreserveGroups) {
     aHeader = aHeader || "";
-    let value = MimeParser.parseHeaderField(aHeader, MimeParser.HEADER_ADDRESS);
+    const value = MimeParser.parseHeaderField(
+      aHeader,
+      MimeParser.HEADER_ADDRESS
+    );
     return fixArray(value, aPreserveGroups);
   },
 
@@ -312,13 +315,13 @@ MimeAddressParser.prototype = {
     addresses = fixXpconnectAddresses(addresses);
     // Don't output any necessary continuations, so make line length as large as
     // possible first.
-    let options = {
+    const options = {
       softMargin: 900,
       hardMargin: 900,
       useASCII: false, // We don't want RFC 2047 encoding here.
     };
-    let handler = new HeaderHandler();
-    let emitter = new jsmime.headeremitter.makeStreamingEmitter(
+    const handler = new HeaderHandler();
+    const emitter = new jsmime.headeremitter.makeStreamingEmitter(
       handler,
       options
     );
@@ -328,7 +331,7 @@ MimeAddressParser.prototype = {
   },
 
   extractFirstName(aHeader) {
-    let addresses = this.parseDecodedHeader(aHeader, false);
+    const addresses = this.parseDecodedHeader(aHeader, false);
     return addresses.length > 0 ? addresses[0].name || addresses[0].email : "";
   },
 
@@ -350,7 +353,7 @@ MimeAddressParser.prototype = {
       if ("email" in e) {
         // If we've seen the address, don't keep this one; otherwise, add it to
         // the list.
-        let key = normalize(e.email);
+        const key = normalize(e.email);
         if (allAddresses.has(key)) {
           return false;
         }
@@ -363,25 +366,25 @@ MimeAddressParser.prototype = {
     }
 
     // First, collect all of the emails to forcibly delete.
-    let allAddresses = new Set();
-    for (let element of this.parseDecodedHeader(aOtherAddrs, false)) {
+    const allAddresses = new Set();
+    for (const element of this.parseDecodedHeader(aOtherAddrs, false)) {
       allAddresses.add(normalize(element.email));
     }
 
     // The actual data to filter
-    let filtered = this.parseDecodedHeader(aAddrs, true).filter(filterAccept);
+    const filtered = this.parseDecodedHeader(aAddrs, true).filter(filterAccept);
     return this.makeMimeHeader(filtered);
   },
 
   makeMailboxObject(aName, aEmail) {
-    let object = Object.create(Mailbox);
+    const object = Object.create(Mailbox);
     object.name = aName;
     object.email = aEmail ? aEmail.trim() : aEmail;
     return object;
   },
 
   makeGroupObject(aName, aMembers) {
-    let object = Object.create(EmailGroup);
+    const object = Object.create(EmailGroup);
     object.name = aName;
     object.group = aMembers;
     return object;
@@ -400,11 +403,11 @@ MimeAddressParser.prototype = {
 
     // The basic idea is to split on every comma, so long as there is a
     // preceding @ or <> pair.
-    let output = [];
+    const output = [];
     while (aDisplay.length > 0) {
-      let lt = aDisplay.indexOf("<");
-      let gt = aDisplay.indexOf(">");
-      let at = aDisplay.indexOf("@");
+      const lt = aDisplay.indexOf("<");
+      const gt = aDisplay.indexOf(">");
+      const at = aDisplay.indexOf("@");
       let start = 0;
       // An address doesn't always contain both <> and @, the goal is to find
       // the first comma after <> or @.
@@ -451,13 +454,13 @@ MimeAddressParser.prototype = {
     if (/<.*>/.test(aInput)) {
       // We don't want to look for the address within quotes, so first remove
       // all quoted strings containing angle chars.
-      let cleanedInput = aInput.replace(/".*[<>]+.*"/g, "");
+      const cleanedInput = aInput.replace(/".*[<>]+.*"/g, "");
 
       // Extract the address from within the quotes.
-      let addrMatch = cleanedInput.match(/<([^><]*)>/);
+      const addrMatch = cleanedInput.match(/<([^><]*)>/);
 
-      let addr = addrMatch ? addrMatch[1] : "";
-      let addrIdx = aInput.indexOf("<" + addr + ">");
+      const addr = addrMatch ? addrMatch[1] : "";
+      const addrIdx = aInput.indexOf("<" + addr + ">");
       return this.makeMailboxObject(aInput.slice(0, addrIdx).trim(), addr);
     }
     return this.makeMailboxObject("", aInput);
@@ -470,7 +473,7 @@ MimeAddressParser.prototype = {
   },
 
   makeMimeAddress(aName, aEmail) {
-    let object = this.makeMailboxObject(aName, aEmail);
+    const object = this.makeMailboxObject(aName, aEmail);
     return this.makeMimeHeader([object]);
   },
 };
@@ -484,13 +487,13 @@ MimeConverter.prototype = {
     // method is really horrendous and does not align with the way that JSMime
     // handles it. Instead, we'll need to create a fake header to take into
     // account the aFieldNameLen parameter.
-    let fakeHeader = "-".repeat(aFieldNameLen);
-    let options = {
+    const fakeHeader = "-".repeat(aFieldNameLen);
+    const options = {
       softMargin: aLineLength,
       useASCII: true,
     };
-    let handler = new HeaderHandler();
-    let emitter = new jsmime.headeremitter.makeStreamingEmitter(
+    const handler = new HeaderHandler();
+    const emitter = new jsmime.headeremitter.makeStreamingEmitter(
       handler,
       options
     );
@@ -499,7 +502,7 @@ MimeConverter.prototype = {
     emitter.addHeaderName(fakeHeader);
     if (aStructured) {
       // Structured really means "this is an addressing header"
-      let addresses = MimeParser.parseHeaderField(
+      const addresses = MimeParser.parseHeaderField(
         aHeader,
         MimeParser.HEADER_ADDRESS | MimeParser.HEADER_OPTION_DECODE_2047
       );

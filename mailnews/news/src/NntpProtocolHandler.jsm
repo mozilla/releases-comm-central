@@ -15,8 +15,8 @@ class NewsProtocolHandler {
   scheme = "news";
 
   newChannel(uri, loadInfo) {
-    let channel = new NntpChannel(uri, loadInfo);
-    let spec = uri.spec;
+    const channel = new NntpChannel(uri, loadInfo);
+    const spec = uri.spec;
     if (
       spec.includes("part=") &&
       !spec.includes("type=message/rfc822") &&

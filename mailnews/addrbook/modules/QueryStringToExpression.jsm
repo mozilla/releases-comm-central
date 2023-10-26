@@ -28,12 +28,12 @@ var QueryStringToExpression = {
    * @returns {nsIAbBooleanExpression}
    */
   convert(qs) {
-    let tokens = this.parse(qs);
+    const tokens = this.parse(qs);
 
     // An array of nsIAbBooleanExpression, the first element is the root exp,
     // the last element is the current operating exp.
-    let stack = [];
-    for (let { type, depth, value } of tokens) {
+    const stack = [];
+    for (const { type, depth, value } of tokens) {
       while (depth < stack.length) {
         // We are done with the current exp, go one level up.
         stack.pop();
@@ -44,16 +44,16 @@ var QueryStringToExpression = {
           stack.pop();
         }
         // Found a new exp, go one level down.
-        let parent = stack.slice(-1)[0];
-        let exp = this.createBooleanExpression(value);
+        const parent = stack.slice(-1)[0];
+        const exp = this.createBooleanExpression(value);
         stack.push(exp);
         if (parent) {
           parent.expressions = [...parent.expressions, exp];
         }
       } else if (type == "field") {
         // Add a new nsIAbBooleanConditionString to the current exp.
-        let condition = this.createBooleanConditionString(...value);
-        let exp = stack.slice(-1)[0];
+        const condition = this.createBooleanConditionString(...value);
+        const exp = stack.slice(-1)[0];
         exp.expressions = [...exp.expressions, condition];
       }
     }
@@ -90,8 +90,8 @@ var QueryStringToExpression = {
       );
     }
     qs = qs.slice(1);
-    let nextOpen = qs.indexOf("(");
-    let nextClose = qs.indexOf(")");
+    const nextOpen = qs.indexOf("(");
+    const nextClose = qs.indexOf(")");
 
     if (nextOpen != -1 && nextOpen < nextClose) {
       // Case: "OP("
@@ -121,7 +121,7 @@ var QueryStringToExpression = {
    * @returns {nsIAbBooleanExpression}
    */
   createBooleanExpression(operation) {
-    let op = {
+    const op = {
       and: Ci.nsIAbBooleanOperationTypes.AND,
       or: Ci.nsIAbBooleanOperationTypes.OR,
       not: Ci.nsIAbBooleanOperationTypes.NOT,
@@ -132,7 +132,7 @@ var QueryStringToExpression = {
         Cr.NS_ERROR_ILLEGAL_VALUE
       );
     }
-    let exp = Cc["@mozilla.org/boolean-expression/n-peer;1"].createInstance(
+    const exp = Cc["@mozilla.org/boolean-expression/n-peer;1"].createInstance(
       Ci.nsIAbBooleanExpression
     );
     exp.operation = op;
@@ -149,7 +149,7 @@ var QueryStringToExpression = {
    */
   createBooleanConditionString(name, condition, value) {
     value = decodeURIComponent(value);
-    let cond = {
+    const cond = {
       "=": Ci.nsIAbBooleanConditionTypes.Is,
       "!=": Ci.nsIAbBooleanConditionTypes.IsNot,
       lt: Ci.nsIAbBooleanConditionTypes.LessThan,
@@ -169,7 +169,7 @@ var QueryStringToExpression = {
         Cr.NS_ERROR_ILLEGAL_VALUE
       );
     }
-    let cs = Cc[
+    const cs = Cc[
       "@mozilla.org/boolean-expression/condition-string;1"
     ].createInstance(Ci.nsIAbBooleanConditionString);
     cs.condition = cond;

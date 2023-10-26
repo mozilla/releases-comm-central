@@ -140,13 +140,13 @@ var listener = {
     }
 
     // we should have these tokens
-    for (let value of gTest.tokens) {
+    for (const value of gTest.tokens) {
       print("We should have '" + value + "'? ");
       Assert.ok(aTokenString.includes(value));
     }
 
     // should not have these tokens
-    for (let value of gTest.nottokens) {
+    for (const value of gTest.nottokens) {
       print("We should not have '" + value + "'? ");
       Assert.ok(!aTokenString.includes(value));
     }

@@ -22,12 +22,12 @@ add_task(async function clearPref() {
     "jsaddrbook://history.sqlite"
   );
 
-  let dirPrefId = MailServices.ab.newAddressBook(
+  const dirPrefId = MailServices.ab.newAddressBook(
     "delete me",
     "",
     Ci.nsIAbManager.JS_DIRECTORY_TYPE
   );
-  let book = MailServices.ab.getDirectoryFromId(dirPrefId);
+  const book = MailServices.ab.getDirectoryFromId(dirPrefId);
 
   Assert.deepEqual(getExistingDirectories(), [
     "ldap_2.servers.pab",

@@ -17,17 +17,17 @@ const { MailMigrator } = ChromeUtils.import(
  */
 async function migrationTest(testDataDir) {
   // Set up an RSS account/server.
-  let account = FeedUtils.createRssAccount("rss_migration_test");
-  let rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
+  const account = FeedUtils.createRssAccount("rss_migration_test");
+  const rootFolder = account.incomingServer.rootMsgFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
   );
   // Note, we don't create any folders to hold downloaded feed items,
   // that's OK here, because we're only migrating the config files, not
   // downloading feeds. The migration doesn't check destFolder existence.
-  let rootDir = rootFolder.filePath.path;
+  const rootDir = rootFolder.filePath.path;
 
   // Install legacy feeds.rdf/feeditems.rdf
-  for (let f of ["feeds.rdf", "feeditems.rdf"]) {
+  for (const f of ["feeds.rdf", "feeditems.rdf"]) {
     await IOUtils.copy(
       PathUtils.join(testDataDir, f),
       PathUtils.join(rootDir, f)
@@ -38,9 +38,9 @@ async function migrationTest(testDataDir) {
   await MailMigrator._migrateRSSServer(account.incomingServer);
 
   // Check actual results against expectations.
-  for (let f of ["feeds.json", "feeditems.json"]) {
-    let got = await IOUtils.readJSON(PathUtils.join(rootDir, f));
-    let expected = await IOUtils.readJSON(PathUtils.join(testDataDir, f));
+  for (const f of ["feeds.json", "feeditems.json"]) {
+    const got = await IOUtils.readJSON(PathUtils.join(rootDir, f));
+    const expected = await IOUtils.readJSON(PathUtils.join(testDataDir, f));
     Assert.deepEqual(got, expected, `match ${testDataDir}/${f}`);
   }
 
@@ -49,13 +49,13 @@ async function migrationTest(testDataDir) {
 }
 
 add_task(async function test_rdfmigration() {
-  let testDataDirs = [
+  const testDataDirs = [
     "feeds-simple",
     "feeds-empty",
     "feeds-missing-timestamp",
     "feeds-bad",
   ];
-  for (let d of testDataDirs) {
+  for (const d of testDataDirs) {
     await migrationTest(do_get_file("resources/" + d).path);
   }
 });

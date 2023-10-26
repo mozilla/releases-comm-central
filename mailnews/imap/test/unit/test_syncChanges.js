@@ -28,24 +28,24 @@ add_setup(async function () {
   IMAPPump.daemon.createMailbox("secondFolder", { subscribed: true });
 
   let messages = [];
-  let gMessageGenerator = new MessageGenerator();
+  const gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());
   gSynthMessage = messages[0];
 
-  let msgURI = Services.io.newURI(
+  const msgURI = Services.io.newURI(
     "data:text/plain;base64," + btoa(gSynthMessage.toMessageString())
   );
   gMessage = new ImapMessage(msgURI.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(gMessage);
 
   // update folder to download header.
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function switchAwayFromInbox() {
-  let rootFolder = IMAPPump.incomingServer.rootFolder;
+  const rootFolder = IMAPPump.incomingServer.rootFolder;
   gSecondFolder = rootFolder
     .getChildNamed("secondFolder")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
@@ -56,17 +56,17 @@ add_task(async function switchAwayFromInbox() {
   // simulates the user changing the message from a different machine,
   // and Thunderbird discovering the change when it does a flag sync
   // upon reselecting the Inbox.
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gSecondFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function simulateMailboxEmptied() {
   gMessage.setFlag("\\Deleted");
-  let expungeListener = new PromiseTestUtils.PromiseUrlListener();
+  const expungeListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.expunge(expungeListener, null);
   await expungeListener.promise;
-  let updateListener = new PromiseTestUtils.PromiseUrlListener();
+  const updateListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, updateListener);
   await updateListener.promise;
 });

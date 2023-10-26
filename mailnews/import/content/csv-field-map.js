@@ -34,11 +34,11 @@ class CsvFieldMap extends HTMLElement {
    * Init internal states.
    */
   _init() {
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/importMsgs.properties"
     );
     this._supportedFields = [];
-    for (let [, stringId] of exportAttributes) {
+    for (const [, stringId] of exportAttributes) {
       if (stringId) {
         this._supportedFields.push(bundle.GetStringFromID(stringId));
       }
@@ -66,9 +66,9 @@ class CsvFieldMap extends HTMLElement {
     }
 
     let i = 0;
-    for (let select of this.querySelectorAll("select")) {
+    for (const select of this.querySelectorAll("select")) {
       if (fields[i]) {
-        let option = document.createElement("option");
+        const option = document.createElement("option");
         option.value = fieldIndexes[i];
         option.textContent = fields[i];
         select.add(option);
@@ -91,13 +91,13 @@ class CsvFieldMap extends HTMLElement {
    * @param {HTMLSelectElement} select - The <select> element.
    */
   _enableSelect(select) {
-    let selects = [...this._elTbody.querySelectorAll("select")];
-    let selectedFieldIndexes = selects.map(select => select.value);
-    let availableFieldIndexes = this._allFieldIndexes.filter(
+    const selects = [...this._elTbody.querySelectorAll("select")];
+    const selectedFieldIndexes = selects.map(select => select.value);
+    const availableFieldIndexes = this._allFieldIndexes.filter(
       index => !selectedFieldIndexes.includes(index)
     );
     for (let i = 0; i < availableFieldIndexes.length; i++) {
-      let option = document.createElement("option");
+      const option = document.createElement("option");
       option.value = availableFieldIndexes[i];
       option.textContent = this._supportedFields[option.value];
       select.add(option);
@@ -114,13 +114,13 @@ class CsvFieldMap extends HTMLElement {
    * <select> element.
    */
   _updateSelectOptions(changedSelect) {
-    let selects = [...this._elTbody.querySelectorAll("select")];
-    let selectedFieldIndexes = selects.map(select => select.value);
-    let availableFieldIndexes = this._allFieldIndexes.filter(
+    const selects = [...this._elTbody.querySelectorAll("select")];
+    const selectedFieldIndexes = selects.map(select => select.value);
+    const availableFieldIndexes = this._allFieldIndexes.filter(
       index => !selectedFieldIndexes.includes(index)
     );
 
-    for (let select of selects) {
+    for (const select of selects) {
       if (select.disabled || select == changedSelect) {
         continue;
       }
@@ -132,7 +132,7 @@ class CsvFieldMap extends HTMLElement {
       }
       for (let i = 0; i < availableFieldIndexes.length; i++) {
         // Add all available options.
-        let option = document.createElement("option");
+        const option = document.createElement("option");
         option.value = availableFieldIndexes[i];
         option.textContent = this._supportedFields[option.value];
         select.add(option);
@@ -145,11 +145,11 @@ class CsvFieldMap extends HTMLElement {
    */
   _bindEvents() {
     this._elTbody.addEventListener("change", e => {
-      let el = e.target;
+      const el = e.target;
       if (el.tagName == "select") {
         this._updateSelectOptions(el);
       } else if (el.tagName == "input" && el.type == "checkbox") {
-        let select = el.closest("tr").querySelector("select");
+        const select = el.closest("tr").querySelector("select");
         select.disabled = !el.checked;
         if (select.disabled) {
           // Because it's disabled, remove all the options.
@@ -169,7 +169,7 @@ class CsvFieldMap extends HTMLElement {
    */
   async _renderLayout() {
     this.innerHTML = "";
-    let [
+    const [
       firstRowContainsHeaders,
       sourceField,
       sourceFirstRecord,
@@ -183,27 +183,27 @@ class CsvFieldMap extends HTMLElement {
       "csv-target-field",
     ]);
 
-    let label = document.createElement("label");
+    const label = document.createElement("label");
     label.className = "toggle-container-with-text";
-    let checkbox = document.createElement("input");
+    const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = Services.prefs.getBoolPref(
       "mail.import.csv.skipfirstrow",
       true
     );
-    let labelText = document.createElement("span");
+    const labelText = document.createElement("span");
     labelText.textContent = firstRowContainsHeaders;
     label.appendChild(checkbox);
     label.appendChild(labelText);
     this.appendChild(label);
 
-    let table = document.createElement("table");
+    const table = document.createElement("table");
 
-    let thead = document.createElement("thead");
-    let tr = document.createElement("tr");
-    let headers = [];
-    for (let colName of [sourceField, sourceFirstRecord, targetField, ""]) {
-      let th = document.createElement("th");
+    const thead = document.createElement("thead");
+    const tr = document.createElement("tr");
+    const headers = [];
+    for (const colName of [sourceField, sourceFirstRecord, targetField, ""]) {
+      const th = document.createElement("th");
       th.textContent = colName;
       tr.appendChild(th);
       headers.push(th);
@@ -237,26 +237,26 @@ class CsvFieldMap extends HTMLElement {
    *   Source field | Source Data | Address book field | <checkbox>
    */
   _renderTable() {
-    let colCount = this._rows[0].length;
+    const colCount = this._rows[0].length;
     for (let i = 0; i < colCount; i++) {
-      let tr = document.createElement("tr");
+      const tr = document.createElement("tr");
 
       // Render the source field name and source data.
       for (let j = 0; j < this.DATA_ROWS_LIMIT; j++) {
-        let td = document.createElement("td");
+        const td = document.createElement("td");
         td.textContent = this._rows[j]?.[i] || "";
         tr.appendChild(td);
       }
 
       // Render a <select> for target field name.
       let td = document.createElement("td");
-      let select = document.createElement("select");
+      const select = document.createElement("select");
       td.appendChild(select);
       tr.appendChild(td);
 
       // Render a checkbox.
       td = document.createElement("td");
-      let checkbox = document.createElement("input");
+      const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = true;
       td.appendChild(checkbox);

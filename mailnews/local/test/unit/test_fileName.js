@@ -5,7 +5,7 @@
 
 function run_test() {
   let testFolderName = "";
-  let OSname = Services.sysinfo.getProperty("name");
+  const OSname = Services.sysinfo.getProperty("name");
   if (OSname == "Windows_NT") {
     // On Windows test file with ' ' in the name.
     testFolderName = "bugmail 1";
@@ -21,11 +21,11 @@ function run_test() {
   }
 
   let bugmail = do_get_file("../../../data/bugmail-1");
-  let bugmailmsf = do_get_file("../../../data/bugmail-1.msf");
-  let localMailDir = do_get_profile().clone();
+  const bugmailmsf = do_get_file("../../../data/bugmail-1.msf");
+  const localMailDir = do_get_profile().clone();
   localMailDir.append("Mail");
   localMailDir.append("Local Folders");
-  let pop3dir = do_get_profile().clone();
+  const pop3dir = do_get_profile().clone();
   pop3dir.append("Mail");
   pop3dir.append("poptest");
   // Copy the file to the local mail directory
@@ -72,12 +72,16 @@ function run_test() {
   // force load of accounts.
   MailServices.accounts.defaultAccount;
 
-  let pop3Server = MailServices.accounts.findServer("user", "poptest", "pop3");
+  const pop3Server = MailServices.accounts.findServer(
+    "user",
+    "poptest",
+    "pop3"
+  );
   let rootFolder =
     localAccountUtils.incomingServer.rootMsgFolder.QueryInterface(
       Ci.nsIMsgLocalMailFolder
     );
-  let pop3Root = pop3Server.rootMsgFolder;
+  const pop3Root = pop3Server.rootMsgFolder;
 
   // Note: Inbox is not created automatically when there is no deferred server,
   // so we need to create it.

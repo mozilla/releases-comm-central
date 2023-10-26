@@ -15,10 +15,10 @@ setupIMAPPump();
  */
 
 function run_test() {
-  let imapS = Cc[
+  const imapS = Cc[
     "@mozilla.org/messenger/messageservice;1?type=imap"
   ].getService(Ci.nsIMsgMessageService);
-  let uri = imapS.getUrlForUri(
+  const uri = imapS.getUrlForUri(
     "imap-message://user@localhost/INBOX#4294967168"
   );
   Assert.equal(

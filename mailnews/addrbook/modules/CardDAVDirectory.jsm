@@ -53,7 +53,7 @@ class CardDAVDirectory extends SQLiteDirectory {
   init(uri) {
     super.init(uri);
 
-    let serverURL = this._serverURL;
+    const serverURL = this._serverURL;
     if (serverURL) {
       // Google's server enforces some vCard 3.0-isms (or just fails badly if
       // you don't provide exactly what it wants) so we use this property to
@@ -78,7 +78,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       }
     }
 
-    let uidsToSync = this.getStringValue("carddav.uidsToSync", "");
+    const uidsToSync = this.getStringValue("carddav.uidsToSync", "");
     if (uidsToSync) {
       this._uidsToSync = new Set(uidsToSync.split(" ").filter(Boolean));
       this.setStringValue("carddav.uidsToSync", "");
@@ -87,7 +87,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       this._uidsToSync = new Set();
     }
 
-    let hrefsToRemove = this.getStringValue("carddav.hrefsToRemove", "");
+    const hrefsToRemove = this.getStringValue("carddav.hrefsToRemove", "");
     if (hrefsToRemove) {
       this._hrefsToRemove = new Set(hrefsToRemove.split(" ").filter(Boolean));
       this.setStringValue("carddav.hrefsToRemove", "");
@@ -105,12 +105,12 @@ class CardDAVDirectory extends SQLiteDirectory {
     }
 
     if (this._uidsToSync.size) {
-      let uidsToSync = [...this._uidsToSync].join(" ");
+      const uidsToSync = [...this._uidsToSync].join(" ");
       this.setStringValue("carddav.uidsToSync", uidsToSync);
       log.debug(`Stored list of cards to sync: ${uidsToSync}`);
     }
     if (this._hrefsToRemove.size) {
-      let hrefsToRemove = [...this._hrefsToRemove].join(" ");
+      const hrefsToRemove = [...this._hrefsToRemove].join(" ");
       this.setStringValue("carddav.hrefsToRemove", hrefsToRemove);
       log.debug(`Stored list of cards to remove: ${hrefsToRemove}`);
     }
@@ -129,7 +129,7 @@ class CardDAVDirectory extends SQLiteDirectory {
   modifyCard(card) {
     // Well this is awkward. Because it's defined in nsIAbDirectory,
     // modifyCard must not be async, but we need to do async operations.
-    let newCard = super.modifyCard(card);
+    const newCard = super.modifyCard(card);
     this._modifyCard(newCard);
   }
   async _modifyCard(card) {
@@ -144,7 +144,7 @@ class CardDAVDirectory extends SQLiteDirectory {
     this._deleteCards(cards);
   }
   async _deleteCards(cards) {
-    for (let card of cards) {
+    for (const card of cards) {
       try {
         await this._deleteCardFromServer(card);
       } catch (ex) {
@@ -153,14 +153,14 @@ class CardDAVDirectory extends SQLiteDirectory {
       }
     }
 
-    for (let card of cards) {
+    for (const card of cards) {
       this._uidsToSync.delete(card.UID);
     }
   }
   dropCard(card, needToCopyCard) {
     // Ideally, we'd not add the card until it was on the server, but we have
     // to return newCard synchronously.
-    let newCard = super.dropCard(card, needToCopyCard);
+    const newCard = super.dropCard(card, needToCopyCard);
     this._sendCardToServer(newCard).catch(console.error);
     return newCard;
   }
@@ -203,8 +203,8 @@ class CardDAVDirectory extends SQLiteDirectory {
    * @returns {Promise<object>} - See CardDAVUtils.makeRequest.
    */
   async _makeRequest(path, details = {}) {
-    let serverURI = Services.io.newURI(this._serverURL);
-    let uri = serverURI.resolve(path);
+    const serverURI = Services.io.newURI(this._serverURL);
+    const uri = serverURI.resolve(path);
 
     if (!("_oAuth" in this)) {
       if (lazy.OAuth2Providers.getHostnameDetails(serverURI.host)) {
@@ -216,8 +216,8 @@ class CardDAVDirectory extends SQLiteDirectory {
     }
     details.oAuth = this._oAuth;
 
-    let username = this.getStringValue("carddav.username", "");
-    let callbacks = new lazy.NotificationCallbacks(username);
+    const username = this.getStringValue("carddav.username", "");
+    const callbacks = new lazy.NotificationCallbacks(username);
     details.callbacks = callbacks;
 
     details.userContextId =
@@ -276,7 +276,7 @@ class CardDAVDirectory extends SQLiteDirectory {
     hrefsToFetch = hrefsToFetch.map(
       href => `      <d:href>${xmlEncode(href)}</d:href>`
     );
-    let data = `<card:addressbook-multiget ${NAMESPACE_STRING}>
+    const data = `<card:addressbook-multiget ${NAMESPACE_STRING}>
       <d:prop>
         <d:getetag/>
         <card:address-data/>
@@ -305,7 +305,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       return;
     }
 
-    let response = await this._multigetRequest(hrefsToFetch);
+    const response = await this._multigetRequest(hrefsToFetch);
 
     // If this directory is set to read-only, the following operations would
     // throw NS_ERROR_FAILURE, but sync operations are allowed on a read-only
@@ -316,17 +316,17 @@ class CardDAVDirectory extends SQLiteDirectory {
 
     try {
       this._overrideReadOnly = true;
-      for (let { href, properties } of this._readResponse(response.dom)) {
+      for (const { href, properties } of this._readResponse(response.dom)) {
         if (!properties) {
           continue;
         }
 
-        let etag = properties.querySelector("getetag")?.textContent;
-        let vCard = normalizeLineEndings(
+        const etag = properties.querySelector("getetag")?.textContent;
+        const vCard = normalizeLineEndings(
           properties.querySelector("address-data")?.textContent
         );
 
-        let abCard = lazy.VCardUtils.vCardToAbCard(vCard);
+        const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
         abCard.setProperty("_etag", etag);
         abCard.setProperty("_href", href);
 
@@ -360,20 +360,20 @@ class CardDAVDirectory extends SQLiteDirectory {
       );
     }
 
-    for (let r of dom.querySelectorAll("response")) {
-      let response = {
+    for (const r of dom.querySelectorAll("response")) {
+      const response = {
         href: r.querySelector("href")?.textContent,
       };
 
-      let responseStatus = r.querySelector("response > status");
+      const responseStatus = r.querySelector("response > status");
       if (responseStatus?.textContent.startsWith("HTTP/1.1 404")) {
         response.notFound = true;
         yield response;
         continue;
       }
 
-      for (let p of r.querySelectorAll("response > propstat")) {
-        let status = p.querySelector("propstat > status").textContent;
+      for (const p of r.querySelectorAll("response > propstat")) {
+        const status = p.querySelector("propstat > status").textContent;
         if (status == "HTTP/1.1 200 OK") {
           response.properties = p.querySelector("propstat > prop");
         }
@@ -395,16 +395,16 @@ class CardDAVDirectory extends SQLiteDirectory {
    *     conflict status code.
    */
   async _sendCardToServer(card) {
-    let href = this._getCardHref(card);
-    let requestDetails = {
+    const href = this._getCardHref(card);
+    const requestDetails = {
       method: "PUT",
       contentType: "text/vcard",
     };
 
-    let vCard = card.getProperty("_vCard", "");
+    const vCard = card.getProperty("_vCard", "");
     if (this._isGoogleCardDAV) {
       // There must be an `N` property, even if empty.
-      let vCardProperties = lazy.VCardProperties.fromVCard(vCard);
+      const vCardProperties = lazy.VCardProperties.fromVCard(vCard);
       if (!vCardProperties.getFirstEntry("n")) {
         vCardProperties.addValue("n", ["", "", "", "", ""]);
       }
@@ -437,17 +437,17 @@ class CardDAVDirectory extends SQLiteDirectory {
 
     response = await this._multigetRequest([href]);
 
-    for (let { href, properties } of this._readResponse(response.dom)) {
+    for (const { href, properties } of this._readResponse(response.dom)) {
       if (!properties) {
         continue;
       }
 
-      let etag = properties.querySelector("getetag")?.textContent;
-      let vCard = normalizeLineEndings(
+      const etag = properties.querySelector("getetag")?.textContent;
+      const vCard = normalizeLineEndings(
         properties.querySelector("address-data")?.textContent
       );
 
-      let abCard = lazy.VCardUtils.vCardToAbCard(vCard);
+      const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
       abCard.setProperty("_etag", etag);
       abCard.setProperty("_href", href);
 
@@ -499,7 +499,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       this._syncTimer = null;
     }
 
-    let interval = this.getIntValue("carddav.syncinterval", 30);
+    const interval = this.getIntValue("carddav.syncinterval", 30);
     if (interval <= 0) {
       return;
     }
@@ -520,7 +520,7 @@ class CardDAVDirectory extends SQLiteDirectory {
     log.log("Fetching all cards from the server.");
     this._syncInProgress = true;
 
-    let data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+    const data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <prop>
         <resourcetype/>
         <getetag/>
@@ -539,20 +539,20 @@ class CardDAVDirectory extends SQLiteDirectory {
 
     // A map of all existing hrefs and etags. If the etag for an href matches
     // what we already have, we won't fetch it.
-    let currentHrefs = new Map(
+    const currentHrefs = new Map(
       Array.from(this.cards.values(), c => [c.get("_href"), c.get("_etag")])
     );
 
-    let hrefsToFetch = [];
-    for (let { href, properties } of this._readResponse(response.dom)) {
+    const hrefsToFetch = [];
+    for (const { href, properties } of this._readResponse(response.dom)) {
       if (!properties || properties.querySelector("resourcetype collection")) {
         continue;
       }
 
-      let currentEtag = currentHrefs.get(href);
+      const currentEtag = currentHrefs.get(href);
       currentHrefs.delete(href);
 
-      let etag = properties.querySelector("getetag")?.textContent;
+      const etag = properties.querySelector("getetag")?.textContent;
       if (etag && currentEtag == etag) {
         continue;
       }
@@ -562,8 +562,8 @@ class CardDAVDirectory extends SQLiteDirectory {
 
     // Delete any existing cards we didn't see. They're not on the server so
     // they shouldn't be on the client.
-    let cardsToDelete = [];
-    for (let href of currentHrefs.keys()) {
+    const cardsToDelete = [];
+    for (const href of currentHrefs.keys()) {
       cardsToDelete.push(this.getCardFromProperty("_href", href, true));
     }
     if (cardsToDelete.length > 0) {
@@ -574,20 +574,20 @@ class CardDAVDirectory extends SQLiteDirectory {
     if (hrefsToFetch.length > 0) {
       response = await this._multigetRequest(hrefsToFetch);
 
-      let abCards = [];
+      const abCards = [];
 
-      for (let { href, properties } of this._readResponse(response.dom)) {
+      for (const { href, properties } of this._readResponse(response.dom)) {
         if (!properties) {
           continue;
         }
 
-        let etag = properties.querySelector("getetag")?.textContent;
-        let vCard = normalizeLineEndings(
+        const etag = properties.querySelector("getetag")?.textContent;
+        const vCard = normalizeLineEndings(
           properties.querySelector("address-data")?.textContent
         );
 
         try {
-          let abCard = lazy.VCardUtils.vCardToAbCard(vCard);
+          const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
           abCard.setProperty("_etag", etag);
           abCard.setProperty("_href", href);
           abCards.push(abCard);
@@ -627,14 +627,14 @@ class CardDAVDirectory extends SQLiteDirectory {
     try {
       // First perform all pending removals. We don't want to have deleted cards
       // reappearing when we sync.
-      for (let href of this._hrefsToRemove) {
+      for (const href of this._hrefsToRemove) {
         await this._deleteCardFromServer(href);
       }
       this._hrefsToRemove.clear();
 
       // Now update any cards that were modified while not connected to the server.
-      for (let uid of this._uidsToSync) {
-        let card = this.getCard(uid);
+      for (const uid of this._uidsToSync) {
+        const card = this.getCard(uid);
         // The card may no longer exist. It shouldn't still be listed to send,
         // but it might be.
         if (card) {
@@ -664,7 +664,7 @@ class CardDAVDirectory extends SQLiteDirectory {
    * directory to match what is on the server.
    */
   async updateAllFromServerV1() {
-    let data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+    const data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <prop>
         <resourcetype/>
         <getetag/>
@@ -672,7 +672,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       </prop>
     </propfind>`;
 
-    let response = await this._makeRequest("", {
+    const response = await this._makeRequest("", {
       method: "PROPFIND",
       body: data,
       headers: {
@@ -681,8 +681,8 @@ class CardDAVDirectory extends SQLiteDirectory {
       expectedStatuses: [207],
     });
 
-    let hrefMap = new Map();
-    for (let { href, properties } of this._readResponse(response.dom)) {
+    const hrefMap = new Map();
+    for (const { href, properties } of this._readResponse(response.dom)) {
       if (
         !properties ||
         !properties.querySelector("resourcetype") ||
@@ -691,16 +691,16 @@ class CardDAVDirectory extends SQLiteDirectory {
         continue;
       }
 
-      let etag = properties.querySelector("getetag").textContent;
+      const etag = properties.querySelector("getetag").textContent;
       hrefMap.set(href, etag);
     }
 
-    let cardMap = new Map();
-    let hrefsToFetch = [];
-    let cardsToDelete = [];
-    for (let card of this.childCards) {
-      let href = card.getProperty("_href", "");
-      let etag = card.getProperty("_etag", "");
+    const cardMap = new Map();
+    const hrefsToFetch = [];
+    const cardsToDelete = [];
+    for (const card of this.childCards) {
+      const href = card.getProperty("_href", "");
+      const etag = card.getProperty("_etag", "");
 
       if (!href || !etag) {
         // Not sure how we got here. Ignore it.
@@ -718,7 +718,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       }
     }
 
-    for (let href of hrefMap.keys()) {
+    for (const href of hrefMap.keys()) {
       if (!cardMap.has(href)) {
         // The card is new on the server.
         hrefsToFetch.push(href);
@@ -755,7 +755,7 @@ class CardDAVDirectory extends SQLiteDirectory {
   async _getSyncToken() {
     log.log("Fetching new sync token");
 
-    let data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+    const data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <prop>
          <displayname/>
          <cs:getctag/>
@@ -763,7 +763,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       </prop>
     </propfind>`;
 
-    let response = await this._makeRequest("", {
+    const response = await this._makeRequest("", {
       method: "PROPFIND",
       body: data,
       headers: {
@@ -772,8 +772,8 @@ class CardDAVDirectory extends SQLiteDirectory {
     });
 
     if (response.status == 207) {
-      for (let { properties } of this._readResponse(response.dom)) {
-        let token = properties?.querySelector("prop sync-token");
+      for (const { properties } of this._readResponse(response.dom)) {
+        const token = properties?.querySelector("prop sync-token");
         if (token) {
           this._syncToken = token.textContent;
           return;
@@ -792,12 +792,12 @@ class CardDAVDirectory extends SQLiteDirectory {
    * @see RFC 6578
    */
   async updateAllFromServerV2() {
-    let syncToken = this._syncToken;
+    const syncToken = this._syncToken;
     if (!syncToken) {
       throw new Components.Exception("No sync token", Cr.NS_ERROR_UNEXPECTED);
     }
 
-    let data = `<sync-collection xmlns="${
+    const data = `<sync-collection xmlns="${
       PREFIX_BINDINGS.d
     }" ${NAMESPACE_STRING}>
       <sync-token>${xmlEncode(syncToken)}</sync-token>
@@ -808,7 +808,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       </prop>
     </sync-collection>`;
 
-    let response = await this._makeRequest("", {
+    const response = await this._makeRequest("", {
       method: "REPORT",
       body: data,
       headers: {
@@ -825,7 +825,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       return;
     }
 
-    let dom = response.dom;
+    const dom = response.dom;
 
     // If this directory is set to read-only, the following operations would
     // throw NS_ERROR_FAILURE, but sync operations are allowed on a read-only
@@ -834,12 +834,12 @@ class CardDAVDirectory extends SQLiteDirectory {
     // Do not use await while it is set, and use a try/finally block to ensure
     // it is cleared.
 
-    let hrefsToFetch = [];
+    const hrefsToFetch = [];
     try {
       this._overrideReadOnly = true;
-      let cardsToDelete = [];
-      for (let { href, notFound, properties } of this._readResponse(dom)) {
-        let card = this.getCardFromProperty("_href", href, true);
+      const cardsToDelete = [];
+      for (const { href, notFound, properties } of this._readResponse(dom)) {
+        const card = this.getCardFromProperty("_href", href, true);
         if (notFound) {
           if (card) {
             cardsToDelete.push(card);
@@ -850,7 +850,7 @@ class CardDAVDirectory extends SQLiteDirectory {
           continue;
         }
 
-        let etag = properties.querySelector("getetag")?.textContent;
+        const etag = properties.querySelector("getetag")?.textContent;
         if (!etag) {
           continue;
         }
@@ -861,7 +861,7 @@ class CardDAVDirectory extends SQLiteDirectory {
         }
         vCard = normalizeLineEndings(vCard);
 
-        let abCard = lazy.VCardUtils.vCardToAbCard(vCard);
+        const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
         abCard.setProperty("_etag", etag);
         abCard.setProperty("_href", href);
 
@@ -890,7 +890,7 @@ class CardDAVDirectory extends SQLiteDirectory {
   }
 
   static forFile(fileName) {
-    let directory = super.forFile(fileName);
+    const directory = super.forFile(fileName);
     if (directory instanceof CardDAVDirectory) {
       return directory;
     }

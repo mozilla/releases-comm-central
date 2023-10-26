@@ -25,7 +25,7 @@ class LDAPConnection {
   }
 
   init(url, bindName, listener, closure, version) {
-    let useSecureTransport = url.scheme == "ldaps";
+    const useSecureTransport = url.scheme == "ldaps";
     let port = url.port;
     if (port == -1) {
       // -1 corresponds to the protocol's default port.

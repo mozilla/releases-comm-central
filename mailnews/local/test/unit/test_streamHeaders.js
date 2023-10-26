@@ -25,7 +25,7 @@ var gHdr;
 
 add_task(async function loadMessages() {
   let pop3Resolve;
-  let pop3Promise = new Promise(resolve => {
+  const pop3Promise = new Promise(resolve => {
     pop3Resolve = resolve;
   });
   gPOP3Pump.files = ["../../../data/draft1"];
@@ -45,12 +45,12 @@ add_task(async function loadMessages() {
 
 add_task(async function goodStreaming() {
   // Try to stream the headers of the last message.
-  let uri = gHdr.folder.getUriForMsg(gHdr);
-  let messageService = MailServices.messageServiceFromURI(uri);
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  const uri = gHdr.folder.getUriForMsg(gHdr);
+  const messageService = MailServices.messageServiceFromURI(uri);
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
   messageService.streamHeaders(uri, streamListener, null, true);
   // The message contains this header.
-  let streamData = await streamListener.promise;
+  const streamData = await streamListener.promise;
   Assert.ok(
     streamData.includes(
       "X-Mozilla-Draft-Info: internal/draft; vcard=0; receipt=0; DSN=0; uuencode=0"
@@ -63,19 +63,19 @@ add_task(async function goodStreaming() {
  */
 add_task(async function badStreaming() {
   // Try to stream the headers of the last message.
-  let folder = gHdr.folder;
-  let uri = folder.getUriForMsg(gHdr);
+  const folder = gHdr.folder;
+  const uri = folder.getUriForMsg(gHdr);
 
-  let dbFile = folder.summaryFile;
+  const dbFile = folder.summaryFile;
   // Force an invalid database.
   folder.msgDatabase.forceClosed();
   dbFile.remove(false);
   folder.msgDatabase = null;
 
-  let messageService = MailServices.messageServiceFromURI(uri);
+  const messageService = MailServices.messageServiceFromURI(uri);
   let haveError = false;
   try {
-    let streamListener = new PromiseTestUtils.PromiseStreamListener();
+    const streamListener = new PromiseTestUtils.PromiseStreamListener();
     messageService.streamHeaders(uri, streamListener, null, true);
     await streamListener.promise;
   } catch (e) {

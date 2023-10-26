@@ -16,11 +16,11 @@ add_task(function testGetMailListFromName() {
   loadABFile("../../../data/abLists1", kPABData.fileName);
 
   // Test all top level lists are returned.
-  let root = MailServices.ab.getDirectory(kPABData.URI);
-  for (let listName of ["TestList1", "TestList2", "TestList3"]) {
+  const root = MailServices.ab.getDirectory(kPABData.URI);
+  for (const listName of ["TestList1", "TestList2", "TestList3"]) {
     Assert.ok(root.hasMailListWithName(listName), `parent has "${listName}"`);
 
-    let list = root.getMailListFromName(listName);
+    const list = root.getMailListFromName(listName);
     Assert.ok(list, `"${listName}" is not null`);
     Assert.equal(
       list.dirName,

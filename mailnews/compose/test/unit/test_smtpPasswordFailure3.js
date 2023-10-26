@@ -132,7 +132,7 @@ var URLListener = {
     // Check for ok status.
     Assert.equal(rc, 0);
     // Now check the new password has been saved.
-    let logins = Services.logins.findLogins(
+    const logins = Services.logins.findLogins(
       "smtp://localhost",
       null,
       "smtp://localhost"

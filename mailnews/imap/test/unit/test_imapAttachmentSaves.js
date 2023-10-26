@@ -76,29 +76,29 @@ add_setup(function () {
 
 // load and update a message in the imap fake server
 add_task(async function loadImapMessage() {
-  let gMessageGenerator = new MessageGenerator();
+  const gMessageGenerator = new MessageGenerator();
   // create a synthetic message with attachment
-  let smsg = gMessageGenerator.makeMessage({
+  const smsg = gMessageGenerator.makeMessage({
     attachments: [{ filename: kAttachFileName, body: "I like cheese!" }],
   });
 
-  let msgURI = Services.io.newURI(
+  const msgURI = Services.io.newURI(
     "data:text/plain;base64," + btoa(smsg.toMessageString())
   );
-  let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
-  let message = new ImapMessage(msgURI.spec, imapInbox.uidnext++, []);
+  const imapInbox = IMAPPump.daemon.getMailbox("INBOX");
+  const message = new ImapMessage(msgURI.spec, imapInbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(message);
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
   Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
 });
 
 // process the message through mime
 add_task(async function startMime() {
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
 
   MsgHdrToMimeMessage(
     msgHdr,
@@ -111,13 +111,13 @@ add_task(async function startMime() {
 
 // detach any found attachments
 add_task(async function startDetach() {
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  let msgURI = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const msgURI = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
 
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+  const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
-  let attachment = gCallbackObject.attachments[0];
+  const attachment = gCallbackObject.attachments[0];
 
   messenger.detachAttachmentsWOPrompts(
     do_get_profile(),
@@ -135,7 +135,7 @@ add_task(async function startDetach() {
 add_task(async function testDetach() {
   // Check that the file attached to the message now exists in the profile
   // directory.
-  let checkFile = do_get_profile().clone();
+  const checkFile = do_get_profile().clone();
   checkFile.append(kAttachFileName);
   Assert.ok(checkFile.exists());
 
@@ -143,9 +143,9 @@ add_task(async function testDetach() {
   //  and search for "AttachmentDetached" which is added on detachment.
 
   // Get the message header - detached copy has UID 2.
-  let msgHdr = IMAPPump.inbox.GetMessageHeader(2);
+  const msgHdr = IMAPPump.inbox.GetMessageHeader(2);
   Assert.ok(msgHdr !== null);
-  let messageContent = await getContentFromMessage(msgHdr);
+  const messageContent = await getContentFromMessage(msgHdr);
   Assert.ok(messageContent.includes("AttachmentDetached"));
 });
 
@@ -161,11 +161,11 @@ add_task(function endTest() {
  * @returns {Promise<string>} full message contents.
  */
 function getContentFromMessage(aMsgHdr) {
-  let msgFolder = aMsgHdr.folder;
-  let msgUri = msgFolder.getUriForMsg(aMsgHdr);
+  const msgFolder = aMsgHdr.folder;
+  const msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
   return new Promise((resolve, reject) => {
-    let streamListener = {
+    const streamListener = {
       QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
       sis: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
         Ci.nsIScriptableInputStream

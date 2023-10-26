@@ -24,7 +24,7 @@ var gAccount,
 function onInit() {
   setAccountTitle();
 
-  let optionsAcct = FeedUtils.getOptionsAcct(gAccount.incomingServer);
+  const optionsAcct = FeedUtils.getOptionsAcct(gAccount.incomingServer);
   document.getElementById("doBiff").checked = optionsAcct.doBiff;
 
   gUpdateEnabled = document.getElementById("updateEnabled");
@@ -36,7 +36,7 @@ function onInit() {
 
   gUpdateEnabled.checked = optionsAcct.updates.enabled;
   gBiffUnits.value = optionsAcct.updates.updateUnits;
-  let minutes =
+  const minutes =
     optionsAcct.updates.updateUnits == FeedUtils.kBiffUnitsMinutes
       ? optionsAcct.updates.updateMinutes
       : optionsAcct.updates.updateMinutes / (24 * 60);
@@ -75,8 +75,10 @@ function serverPrettyNameOnBlur(event) {
  * @returns {void}
  */
 function setAccountTitle() {
-  let accountName = document.getElementById("server.prettyName");
-  let title = document.querySelector("#am-newsblog-title .dialogheader-title");
+  const accountName = document.getElementById("server.prettyName");
+  const title = document.querySelector(
+    "#am-newsblog-title .dialogheader-title"
+  );
   let titleValue = title.getAttribute("defaultTitle");
   if (accountName.value) {
     titleValue += " - " + accountName.value;
@@ -87,7 +89,7 @@ function setAccountTitle() {
 }
 
 function setPrefs(aNode) {
-  let optionsAcct = FeedUtils.getOptionsAcct(gAccount.incomingServer);
+  const optionsAcct = FeedUtils.getOptionsAcct(gAccount.incomingServer);
   switch (aNode.id) {
     case "doBiff":
       FeedUtils.pauseFeedFolderUpdates(
@@ -103,7 +105,7 @@ function setPrefs(aNode) {
       onCheckItem("updateValue", ["updateEnabled"]);
       onCheckItem("biffMinutes", ["updateEnabled"]);
       onCheckItem("biffDays", ["updateEnabled"]);
-      let minutes =
+      const minutes =
         gBiffUnits.value == FeedUtils.kBiffUnitsMinutes
           ? gUpdateValue.value
           : gUpdateValue.value * 24 * 60;

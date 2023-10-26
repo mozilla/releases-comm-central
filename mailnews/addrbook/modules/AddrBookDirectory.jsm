@@ -92,7 +92,7 @@ class AddrBookDirectory {
   }
 
   getCard(uid) {
-    let card = new lazy.AddrBookCard();
+    const card = new lazy.AddrBookCard();
     card.directoryUID = this.UID;
     card._uid = uid;
     card._properties = this.loadCardProperties(uid);
@@ -143,10 +143,10 @@ class AddrBookDirectory {
    * @returns {Map<string, string>}
    */
   prepareToSaveCard(card, uid) {
-    let propertyMap = new Map(
+    const propertyMap = new Map(
       Array.from(card.properties, p => [p.name, p.value])
     );
-    let newProperties = new Map();
+    const newProperties = new Map();
 
     // Get a VCardProperties object for the card.
     let vCardProperties;
@@ -166,7 +166,7 @@ class AddrBookDirectory {
     }
 
     // Collect only the properties we intend to keep.
-    for (let [name, value] of propertyMap) {
+    for (const [name, value] of propertyMap) {
       if (lazy.BANISHED_PROPERTIES.includes(name)) {
         continue;
       }
@@ -178,23 +178,23 @@ class AddrBookDirectory {
     // Add the vCard and the properties from it we want to cache.
     newProperties.set("_vCard", vCardProperties.toVCard());
 
-    let displayName = vCardProperties.getFirstValue("fn");
+    const displayName = vCardProperties.getFirstValue("fn");
     newProperties.set("DisplayName", displayName || "");
 
-    let flatten = value => {
+    const flatten = value => {
       if (Array.isArray(value)) {
         return value.join(" ");
       }
       return value;
     };
 
-    let name = vCardProperties.getFirstValue("n");
+    const name = vCardProperties.getFirstValue("n");
     if (Array.isArray(name)) {
       newProperties.set("FirstName", flatten(name[1]));
       newProperties.set("LastName", flatten(name[0]));
     }
 
-    let email = vCardProperties.getAllValuesSorted("email");
+    const email = vCardProperties.getAllValuesSorted("email");
     if (email[0]) {
       newProperties.set("PrimaryEmail", email[0]);
     }
@@ -202,7 +202,7 @@ class AddrBookDirectory {
       newProperties.set("SecondEmail", email[1]);
     }
 
-    let nickname = vCardProperties.getFirstValue("nickname");
+    const nickname = vCardProperties.getFirstValue("nickname");
     if (nickname) {
       newProperties.set("NickName", flatten(nickname));
     }
@@ -264,7 +264,7 @@ class AddrBookDirectory {
     return this._prefBranch.getIntPref("position", 1);
   }
   get childNodes() {
-    let lists = Array.from(
+    const lists = Array.from(
       this.lists.values(),
       list =>
         new lazy.AddrBookMailingList(
@@ -286,7 +286,7 @@ class AddrBookDirectory {
     );
   }
   get childCards() {
-    let results = Array.from(
+    const results = Array.from(
       this.lists.values(),
       list =>
         new lazy.AddrBookMailingList(
@@ -329,13 +329,13 @@ class AddrBookDirectory {
     ).concat(Array.from(this.cards.keys(), this.getCard, this));
 
     // Process the query string into a tree of conditions to match.
-    let lispRegexp = /^\((and|or|not|([^\)]*)(\)+))/;
+    const lispRegexp = /^\((and|or|not|([^\)]*)(\)+))/;
     let index = 0;
-    let rootQuery = { children: [], op: "or" };
+    const rootQuery = { children: [], op: "or" };
     let currentQuery = rootQuery;
 
     while (true) {
-      let match = lispRegexp.exec(query.substring(index));
+      const match = lispRegexp.exec(query.substring(index));
       if (!match) {
         break;
       }
@@ -343,7 +343,7 @@ class AddrBookDirectory {
 
       if (["and", "or", "not"].includes(match[1])) {
         // For the opening bracket, step down a level.
-        let child = {
+        const child = {
           parent: currentQuery,
           children: [],
           op: match[1],
@@ -351,7 +351,7 @@ class AddrBookDirectory {
         currentQuery.children.push(child);
         currentQuery = child;
       } else {
-        let [name, condition, value] = match[2].split(",");
+        const [name, condition, value] = match[2].split(",");
         currentQuery.children.push({
           name,
           condition,
@@ -381,7 +381,7 @@ class AddrBookDirectory {
           console.error(ex);
           properties = new Map();
         }
-        for (let [key, value] of card._properties) {
+        for (const [key, value] of card._properties) {
           if (!properties.has(key)) {
             properties.set(key, value);
           }
@@ -389,9 +389,9 @@ class AddrBookDirectory {
       } else {
         properties = card._properties;
       }
-      let matches = b => {
+      const matches = b => {
         if ("condition" in b) {
-          let { name, condition, value } = b;
+          const { name, condition, value } = b;
           if (name == "IsMailList" && condition == "=") {
             return card.isMailList == (value == "true");
           }
@@ -442,7 +442,7 @@ class AddrBookDirectory {
       return matches(rootQuery);
     }, this);
 
-    for (let card of results) {
+    for (const card of results) {
       listener.onSearchFoundCard(card);
     }
     listener.onSearchFinished(Cr.NS_OK, true, null, "");
@@ -469,8 +469,8 @@ class AddrBookDirectory {
     // Nothing so far? Go through all the cards checking all of the addresses.
     // This could be slow.
     emailAddress = emailAddress.toLowerCase();
-    for (let [uid, properties] of this.cards) {
-      let vCard = properties.get("_vCard");
+    for (const [uid, properties] of this.cards) {
+      const vCard = properties.get("_vCard");
       // If the vCard string doesn't include the email address, the parsed
       // vCard won't include it either, so don't waste time parsing it.
       if (!vCard?.toLowerCase().includes(emailAddress)) {
@@ -499,7 +499,7 @@ class AddrBookDirectory {
     );
   }
   getMailListFromName(name) {
-    for (let list of this.lists.values()) {
+    for (const list of this.lists.values()) {
       if (list.name.toLowerCase() == name.toLowerCase()) {
         return new lazy.AddrBookMailingList(
           list.uid,
@@ -557,11 +557,11 @@ class AddrBookDirectory {
       );
     }
 
-    let oldProperties = this.loadCardProperties(card.UID);
-    let newProperties = this.prepareToSaveCard(card);
+    const oldProperties = this.loadCardProperties(card.UID);
+    const newProperties = this.prepareToSaveCard(card);
 
-    let allProperties = new Set(oldProperties.keys());
-    for (let key of newProperties.keys()) {
+    const allProperties = new Set(oldProperties.keys());
+    for (const key of newProperties.keys()) {
       allProperties.add(key);
     }
 
@@ -570,14 +570,14 @@ class AddrBookDirectory {
     }
     this.saveCardProperties(card.UID, newProperties);
 
-    let changeData = {};
-    for (let name of allProperties) {
+    const changeData = {};
+    for (const name of allProperties) {
       if (name == "LastModifiedDate") {
         continue;
       }
 
-      let oldValue = oldProperties.get(name) || null;
-      let newValue = newProperties.get(name) || null;
+      const oldValue = oldProperties.get(name) || null;
+      const newValue = newProperties.get(name) || null;
       if (oldValue != newValue) {
         changeData[name] = { oldValue, newValue };
       }
@@ -593,7 +593,7 @@ class AddrBookDirectory {
     }
 
     // Send the card as it is in this directory, not as passed to this function.
-    let newCard = this.getCard(card.UID);
+    const newCard = this.getCard(card.UID);
     Services.obs.notifyObservers(newCard, "addrbook-contact-updated", this.UID);
 
     Services.obs.notifyObservers(
@@ -619,7 +619,7 @@ class AddrBookDirectory {
     }
 
     let updateDisplayNameVersion = false;
-    for (let card of cards) {
+    for (const card of cards) {
       updateDisplayNameVersion = updateDisplayNameVersion || card.displayName;
       // TODO: delete photo if there is one
       this.deleteCard(card.UID);
@@ -637,14 +637,14 @@ class AddrBookDirectory {
       );
     }
 
-    for (let card of cards) {
+    for (const card of cards) {
       Services.obs.notifyObservers(card, "addrbook-contact-deleted", this.UID);
       card.directoryUID = null;
     }
 
     // We could just delete all non-existent cards from list_cards, but a
     // notification should be fired for each one. Let the list handle that.
-    for (let list of this.childNodes) {
+    for (const list of this.childNodes) {
       list.deleteCards(cards);
     }
   }
@@ -660,8 +660,8 @@ class AddrBookDirectory {
       throw new Error("Card must have a UID to be added to this directory.");
     }
 
-    let uid = needToCopyCard ? lazy.newUID() : card.UID;
-    let newProperties = this.prepareToSaveCard(card, uid);
+    const uid = needToCopyCard ? lazy.newUID() : card.UID;
+    const newProperties = this.prepareToSaveCard(card, uid);
     if (card.directoryUID && card.directoryUID != this._uid) {
       // These properties belong to a different directory. Don't keep them.
       newProperties.delete("_etag");
@@ -682,7 +682,7 @@ class AddrBookDirectory {
       );
     }
 
-    let newCard = this.getCard(uid);
+    const newCard = this.getCard(uid);
     Services.obs.notifyObservers(newCard, "addrbook-contact-created", this.UID);
     return newCard;
   }
@@ -724,7 +724,7 @@ class AddrBookDirectory {
     }
 
     // Check if the new name contains the following special characters.
-    for (let char of ',;"<>') {
+    for (const char of ',;"<>') {
       if (list.dirName.includes(char)) {
         throw new Components.Exception(
           `Invalid mail list name: ${list.dirName}`,
@@ -733,7 +733,7 @@ class AddrBookDirectory {
       }
     }
 
-    let newList = new lazy.AddrBookMailingList(
+    const newList = new lazy.AddrBookMailingList(
       lazy.newUID(),
       this,
       list.dirName || "",
@@ -742,7 +742,7 @@ class AddrBookDirectory {
     );
     this.saveList(newList);
 
-    let newListDirectory = newList.asDirectory;
+    const newListDirectory = newList.asDirectory;
     Services.obs.notifyObservers(
       newListDirectory,
       "addrbook-list-created",
@@ -804,7 +804,7 @@ class AddrBookDirectory {
     this._prefBranch.setStringPref(name, value);
   }
   setLocalizedStringValue(name, value) {
-    let valueLocal = Cc["@mozilla.org/pref-localizedstring;1"].createInstance(
+    const valueLocal = Cc["@mozilla.org/pref-localizedstring;1"].createInstance(
       Ci.nsIPrefLocalizedString
     );
     valueLocal.data = value;

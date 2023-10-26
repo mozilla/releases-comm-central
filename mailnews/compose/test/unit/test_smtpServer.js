@@ -10,7 +10,7 @@
  */
 add_task(async function test_passwordmgr_change() {
   // Create an nsISmtpServer instance and set a password.
-  let server = Cc["@mozilla.org/messenger/smtp/server;1"].createInstance(
+  const server = Cc["@mozilla.org/messenger/smtp/server;1"].createInstance(
     Ci.nsISmtpServer
   );
   server.password = "smtp-pass";
@@ -26,7 +26,7 @@ add_task(async function test_passwordmgr_change() {
  */
 add_task(async function test_attributes() {
   // Create an nsISmtpServer instance and set a password.
-  let server = Cc["@mozilla.org/messenger/smtp/server;1"].createInstance(
+  const server = Cc["@mozilla.org/messenger/smtp/server;1"].createInstance(
     Ci.nsISmtpServer
   );
 
@@ -46,7 +46,7 @@ add_task(async function testUID() {
 
   // Create a server and check it the UID is set when accessed.
 
-  let serverA = MailServices.smtp.createServer();
+  const serverA = MailServices.smtp.createServer();
   Assert.stringMatches(
     serverA.UID,
     UUID_REGEXP,
@@ -65,7 +65,7 @@ add_task(async function testUID() {
 
   // Create a second server and check the two UIDs don't match.
 
-  let serverB = MailServices.smtp.createServer();
+  const serverB = MailServices.smtp.createServer();
   Assert.stringMatches(
     serverB.UID,
     UUID_REGEXP,
@@ -84,7 +84,7 @@ add_task(async function testUID() {
 
   // Create a third server and set the UID before it is accessed.
 
-  let serverC = MailServices.smtp.createServer();
+  const serverC = MailServices.smtp.createServer();
   serverC.UID = "11112222-3333-4444-5555-666677778888";
   Assert.equal(
     serverC.UID,

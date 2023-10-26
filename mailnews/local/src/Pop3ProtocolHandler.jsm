@@ -15,8 +15,8 @@ class Pop3ProtocolHandler {
   scheme = "pop3";
 
   newChannel(uri, loadInfo) {
-    let channel = new Pop3Channel(uri, loadInfo);
-    let spec = uri.spec;
+    const channel = new Pop3Channel(uri, loadInfo);
+    const spec = uri.spec;
     if (
       spec.includes("part=") &&
       !spec.includes("type=message/rfc822") &&

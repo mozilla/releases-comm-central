@@ -29,8 +29,8 @@ var passResults = [];
 var curPassResults;
 
 add_setup(async function () {
-  let msgGen = new MessageGenerator();
-  let messageInjection = new MessageInjection({ mode: "local" }, msgGen);
+  const msgGen = new MessageGenerator();
+  const messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   glodaTestHelperInitialize(messageInjection);
 });
 
@@ -64,7 +64,7 @@ add_task(function verify_passes_are_the_same() {
 });
 
 add_task(function test_parameters() {
-  let plain = MimeTypeNoun.getMimeType("text/plain");
+  const plain = MimeTypeNoun.getMimeType("text/plain");
   Assert.equal(plain, MimeTypeNoun.getMimeType('text/plain; charset="UTF-8"'));
 });
 
@@ -100,16 +100,16 @@ function test_basics() {
     python = MimeTypeNoun.getMimeType("text/x-python");
   }
 
-  let jpeg = MimeTypeNoun.getMimeType("image/jpeg");
+  const jpeg = MimeTypeNoun.getMimeType("image/jpeg");
   curPassResults.push(jpeg);
 
-  let png = MimeTypeNoun.getMimeType("image/png");
+  const png = MimeTypeNoun.getMimeType("image/png");
   curPassResults.push(png);
 
-  let html = MimeTypeNoun.getMimeType("text/html");
+  const html = MimeTypeNoun.getMimeType("text/html");
   curPassResults.push(html);
 
-  let plain = MimeTypeNoun.getMimeType("text/plain");
+  const plain = MimeTypeNoun.getMimeType("text/plain");
   curPassResults.push(plain);
 
   // If this is for the first time, check for python now (see above).

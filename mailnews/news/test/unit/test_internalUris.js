@@ -45,7 +45,7 @@ add_setup(function setupTest() {
   localserver = setupLocalServer(server.port);
 
   // Set up an identity for posting.
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.fullName = "Normal Person";
   identity.email = "fake@acme.invalid";
   MailServices.accounts.FindAccountForServer(localserver).addIdentity(identity);
@@ -55,9 +55,9 @@ add_setup(function setupTest() {
 
 add_task(async function test_newMsgs() {
   // This tests nsMsgNewsFolder::GetNewsMessages via getNewMessages.
-  let folder = localserver.rootFolder.getChildNamed("test.filter");
+  const folder = localserver.rootFolder.getChildNamed("test.filter");
   Assert.equal(folder.getTotalMessages(false), 0);
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
   folder.getNewMessages(null, urlListener);
   await urlListener.promise;
   Assert.equal(folder.getTotalMessages(false), 8);
@@ -65,9 +65,9 @@ add_task(async function test_newMsgs() {
 
 add_task(async function test_cancel() {
   // This tests nsMsgNewsFolder::CancelMessage.
-  let folder = localserver.rootFolder.getChildNamed("test.filter");
-  let db = folder.msgDatabase;
-  let hdr = db.getMsgHdrForKey(4);
+  const folder = localserver.rootFolder.getChildNamed("test.filter");
+  const db = folder.msgDatabase;
+  const hdr = db.getMsgHdrForKey(4);
 
   folder.QueryInterface(Ci.nsIMsgNewsFolder).cancelMessage(hdr, dummyMsgWindow);
   await dummyMsgWindow.promise;
@@ -78,7 +78,7 @@ add_task(async function test_cancel() {
   Assert.equal(folder.getTotalMessages(false), 7);
 
   // Check the content of the CancelMessage itself.
-  let article = daemon.getGroup("test.filter")[9];
+  const article = daemon.getGroup("test.filter")[9];
   // Since the cancel message includes the brand name (Daily, Thunderbird), we
   // only check the beginning of the string.
   Assert.ok(article.fullText.startsWith(kCancelArticle));
@@ -86,7 +86,7 @@ add_task(async function test_cancel() {
 
 function generateLongArticle() {
   // After converting to base64, the message body will be 65536 * 4 = 256KB.
-  let arr = new Uint8Array(65536);
+  const arr = new Uint8Array(65536);
   crypto.getRandomValues(arr);
   return `Date: Mon, 23 Jun 2008 19:58:07 +0400
 From: Normal Person <fake@acme.invalid>
@@ -111,36 +111,36 @@ add_task(async function test_fetchMessage() {
   );
 
   // Tests nsNntpService::CreateMessageIDURL via FetchMessage.
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
-  let folder = localserver.rootFolder.getChildNamed("test.filter");
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
+  const folder = localserver.rootFolder.getChildNamed("test.filter");
   MailServices.nntp.fetchMessage(folder, 2, null, streamListener, urlListener);
   await urlListener.promise;
-  let data = await streamListener.promise;
+  const data = await streamListener.promise;
   // To point out that the streamListener Promise shouldn't reject.
   Assert.ok(data);
 });
 
 add_task(async function test_fetchMessageNoStreamListener() {
   // Tests nsNntpService::CreateMessageIDURL via FetchMessage.
-  let streamListener = null;
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
-  let folder = localserver.rootFolder.getChildNamed("test.filter");
+  const streamListener = null;
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
+  const folder = localserver.rootFolder.getChildNamed("test.filter");
   MailServices.nntp.fetchMessage(folder, 2, null, streamListener, urlListener);
   await urlListener.promise;
 });
 
 add_task(async function test_search() {
   // This tests nsNntpService::Search.
-  let folder = localserver.rootFolder.getChildNamed("test.filter");
+  const folder = localserver.rootFolder.getChildNamed("test.filter");
   var searchSession = Cc[
     "@mozilla.org/messenger/searchSession;1"
   ].createInstance(Ci.nsIMsgSearchSession);
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.news, folder);
 
-  let searchTerm = searchSession.createTerm();
+  const searchTerm = searchSession.createTerm();
   searchTerm.attrib = Ci.nsMsgSearchAttrib.Subject;
-  let value = searchTerm.value;
+  const value = searchTerm.value;
   value.str = "First";
   searchTerm.value = value;
   searchTerm.op = Ci.nsMsgSearchOp.Contains;
@@ -148,14 +148,17 @@ add_task(async function test_search() {
   searchSession.appendTerm(searchTerm);
 
   let hitCount;
-  let searchListener = new PromiseTestUtils.PromiseSearchNotify(searchSession, {
-    onSearchHit() {
-      hitCount++;
-    },
-    onNewSearch() {
-      hitCount = 0;
-    },
-  });
+  const searchListener = new PromiseTestUtils.PromiseSearchNotify(
+    searchSession,
+    {
+      onSearchHit() {
+        hitCount++;
+      },
+      onNewSearch() {
+        hitCount = 0;
+      },
+    }
+  );
 
   searchSession.search(null);
   await searchListener.promise;
@@ -165,9 +168,9 @@ add_task(async function test_search() {
 
 add_task(async function test_grouplist() {
   // This tests nsNntpService::GetListOfGroupsOnServer.
-  let subserver = localserver.QueryInterface(Ci.nsISubscribableServer);
-  let subscribablePromise = PromiseUtils.defer();
-  let subscribeListener = {
+  const subserver = localserver.QueryInterface(Ci.nsISubscribableServer);
+  const subscribablePromise = PromiseUtils.defer();
+  const subscribeListener = {
     OnDonePopulating() {
       subscribablePromise.resolve();
     },
@@ -175,9 +178,9 @@ add_task(async function test_grouplist() {
   subserver.subscribeListener = subscribeListener;
 
   function enumGroups(rootUri) {
-    let hierarchy = subserver.getChildURIs(rootUri);
+    const hierarchy = subserver.getChildURIs(rootUri);
     let groups = [];
-    for (let name of hierarchy) {
+    for (const name of hierarchy) {
       if (subserver.isSubscribable(name)) {
         groups.push(name);
       }
@@ -191,9 +194,9 @@ add_task(async function test_grouplist() {
   MailServices.nntp.getListOfGroupsOnServer(localserver, null, false);
   await subscribablePromise.promise;
 
-  let groups = enumGroups("");
+  const groups = enumGroups("");
   Assert.equal(groups.length, Object.keys(daemon._groups).length);
-  for (let group in daemon._groups) {
+  for (const group in daemon._groups) {
     Assert.ok(groups.includes(group));
   }
 
@@ -207,7 +210,7 @@ add_task(async function test_grouplist() {
 
 add_task(async function test_postMessage() {
   // This tests nsNntpService::SetUpNntpUrlForPosting via PostMessage.
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.nntp.postMessage(
     do_get_file("postings/post2.eml"),
     "misc.test",
@@ -231,21 +234,21 @@ add_task(async function test_postMessage() {
 add_task(async function test_escapedName() {
   // This does a few tests to make sure our internal URIs work for newsgroups
   // with names that need escaping.
-  let evilName = "test.malformed&name";
+  const evilName = "test.malformed&name";
   daemon.addGroup(evilName);
   daemon.addArticle(make_article(do_get_file("postings/bug670935.eml")));
   localserver.subscribeToNewsgroup(evilName);
 
   // Can we access it?
-  let folder = localserver.rootFolder.getChildNamed(evilName);
-  let newMessageUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const folder = localserver.rootFolder.getChildNamed(evilName);
+  const newMessageUrlListener = new PromiseTestUtils.PromiseUrlListener();
   folder.getNewMessages(null, newMessageUrlListener);
   await newMessageUrlListener.promise;
 
   // If we get here, we didn't crash--newsgroups unescape properly.
   // Load a message, to test news-message: URI unescaping.
-  let streamlistener = new PromiseTestUtils.PromiseStreamListener();
-  let fetchMessageUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const streamlistener = new PromiseTestUtils.PromiseStreamListener();
+  const fetchMessageUrlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.nntp.fetchMessage(
     folder,
     1,
@@ -254,7 +257,7 @@ add_task(async function test_escapedName() {
     fetchMessageUrlListener
   );
   await fetchMessageUrlListener.promise;
-  let data = await streamlistener.promise;
+  const data = await streamlistener.promise;
   // To point out that the streamListener Promise shouldn't reject.
   Assert.ok(data);
 });
@@ -274,7 +277,7 @@ class DummyMsgWindow {
   }
 
   get statusFeedback() {
-    let scopedThis = this;
+    const scopedThis = this;
     return {
       startMeteors() {},
       stopMeteors() {

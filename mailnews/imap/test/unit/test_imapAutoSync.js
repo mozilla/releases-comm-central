@@ -66,19 +66,19 @@ add_task(function test_triggerAutoSyncIdle() {
   gAutoSyncListener._waitingForDiscoveryList.push(IMAPPump.inbox);
   gAutoSyncListener._waitingForDiscoveryList.push(gTargetFolder);
   gAutoSyncListener._waitingForDiscovery = true;
-  let observer = gAutoSyncManager.QueryInterface(Ci.nsIObserver);
+  const observer = gAutoSyncManager.QueryInterface(Ci.nsIObserver);
   observer.observe(null, "mail-startup-done", "");
   observer.observe(null, "mail:appIdle", "idle");
 });
 
 // move the message to a diffent folder
 add_task(async function test_moveMessageToTargetFolder() {
-  let observer = gAutoSyncManager.QueryInterface(Ci.nsIObserver);
+  const observer = gAutoSyncManager.QueryInterface(Ci.nsIObserver);
   observer.observe(null, "mail:appIdle", "back");
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   Assert.ok(msgHdr !== null);
 
-  let listener = new PromiseTestUtils.PromiseCopyListener();
+  const listener = new PromiseTestUtils.PromiseCopyListener();
   // Now move this message to the target folder.
   MailServices.copy.copyMessages(
     IMAPPump.inbox,
@@ -107,7 +107,7 @@ add_task(async function test_waitForTargetUpdate() {
 // Cleanup
 add_task(function endTest() {
   let numMsgs = 0;
-  for (let header of gTargetFolder.messages) {
+  for (const header of gTargetFolder.messages) {
     numMsgs++;
     Assert.notEqual(header.flags & Ci.nsMsgMessageFlags.Offline, 0);
   }
@@ -154,7 +154,7 @@ autoSyncListenerPromise.prototype = {
   onDownloadCompleted(folder) {
     dump("Folder download completed" + folder.URI + "\n");
     if (folder instanceof Ci.nsIMsgFolder) {
-      let index = mailTestUtils.non_strict_index_of(
+      const index = mailTestUtils.non_strict_index_of(
         this._waitingForUpdateList,
         folder
       );
@@ -177,7 +177,7 @@ autoSyncListenerPromise.prototype = {
 
   onDiscoveryQProcessed(folder, numOfHdrsProcessed, leftToProcess) {
     dump("onDiscoveryQProcessed: " + folder.prettyName + "\n");
-    let index = mailTestUtils.non_strict_index_of(
+    const index = mailTestUtils.non_strict_index_of(
       this._waitingForDiscoveryList,
       folder
     );
@@ -223,16 +223,18 @@ var gAutoSyncListener = new autoSyncListenerPromise();
 // load and update a message in the imap fake server
 function addMessageToFolder(folder) {
   let messages = [];
-  let gMessageGenerator = new MessageGenerator();
+  const gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());
 
-  let msgURI = Services.io.newURI(
+  const msgURI = Services.io.newURI(
     "data:text/plain;base64," + btoa(messages[0].toMessageString())
   );
-  let ImapMailbox = IMAPPump.daemon.getMailbox(folder.name);
+  const ImapMailbox = IMAPPump.daemon.getMailbox(folder.name);
   // We add messages with \Seen flag set so that we won't accidentally
   // trigger the code that updates imap folders that have unread messages moved
   // into them.
-  let message = new ImapMessage(msgURI.spec, ImapMailbox.uidnext++, ["\\Seen"]);
+  const message = new ImapMessage(msgURI.spec, ImapMailbox.uidnext++, [
+    "\\Seen",
+  ]);
   ImapMailbox.addMessage(message);
 }

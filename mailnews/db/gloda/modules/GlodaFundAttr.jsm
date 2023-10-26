@@ -473,8 +473,8 @@ var GlodaFundAttr = {
    * - Newsgroups.  Same deal as mailing lists.
    */
   *process(aGlodaMessage, aRawReps, aIsNew, aCallbackHandle) {
-    let aMsgHdr = aRawReps.header;
-    let aMimeMsg = aRawReps.mime;
+    const aMsgHdr = aRawReps.header;
+    const aMimeMsg = aRawReps.mime;
 
     // -- From
     // Let's use replyTo if available.
@@ -495,7 +495,7 @@ var GlodaFundAttr = {
 
     let normalizedListPost = "";
     if (aMimeMsg && aMimeMsg.has("list-post")) {
-      let match = this.RE_LIST_POST.exec(aMimeMsg.get("list-post"));
+      const match = this.RE_LIST_POST.exec(aMimeMsg.get("list-post"));
       if (match) {
         normalizedListPost = "<" + match[1] + ">";
       }
@@ -504,7 +504,7 @@ var GlodaFundAttr = {
     // Do not use the MIME decoded variants of any of the email addresses
     //  because if name is encoded and has a comma in it, it will break the
     //  address parser (which already knows how to do the decoding anyways).
-    let [
+    const [
       authorIdentities,
       toIdentities,
       ccIdentities,
@@ -528,7 +528,7 @@ var GlodaFundAttr = {
           "' somehow lacks a valid author.  Bailing."
       );
     }
-    let authorIdentity = authorIdentities[0];
+    const authorIdentity = authorIdentities[0];
     aGlodaMessage.from = authorIdentity;
 
     // -- To, Cc, Bcc
@@ -541,7 +541,7 @@ var GlodaFundAttr = {
       aGlodaMessage.mailingLists = listIdentities;
     }
 
-    let findIsEncrypted = x =>
+    const findIsEncrypted = x =>
       x.isEncrypted || (x.parts ? x.parts.some(findIsEncrypted) : false);
 
     // -- Encryption
@@ -557,8 +557,8 @@ var GlodaFundAttr = {
       // out the part has no filename, then we don't treat it as an attachment.
       // We just streamed the message, and we have all the information to figure
       // that out, so now is a good place to clear the flag if needed.
-      let attachmentTypes = new Set();
-      for (let attachment of aMimeMsg.allAttachments) {
+      const attachmentTypes = new Set();
+      for (const attachment of aMimeMsg.allAttachments) {
         // getMimeType expects the content type to contain at least a "/".
         if (!attachment.contentType.includes("/")) {
           continue;
@@ -569,8 +569,8 @@ var GlodaFundAttr = {
         aGlodaMessage.attachmentTypes = Array.from(attachmentTypes);
       }
 
-      let aMsgHdr = aRawReps.header;
-      let wasStreamed =
+      const aMsgHdr = aRawReps.header;
+      const wasStreamed =
         aMsgHdr &&
         !aGlodaMessage.isEncrypted &&
         (aMsgHdr.flags & Ci.nsMsgMessageFlags.Offline ||
@@ -588,8 +588,8 @@ var GlodaFundAttr = {
       // through the list of attachments of a given message, to possibly build a
       // visualization on top of it. We still reject bogus mime types, which
       // means yencode won't be supported. Oh, I feel really bad.
-      let attachmentInfos = [];
-      for (let att of aMimeMsg.allUserAttachments) {
+      const attachmentInfos = [];
+      for (const att of aMimeMsg.allUserAttachments) {
         attachmentInfos.push(
           this.glodaAttFromMimeAtt(aRawReps.trueGlodaRep, att)
         );
@@ -614,7 +614,7 @@ var GlodaFundAttr = {
     if (aAtt.isExternal) {
       externalUrl = aAtt.url;
     } else {
-      let matches = aAtt.url.match(GlodaUtils.PART_RE);
+      const matches = aAtt.url.match(GlodaUtils.PART_RE);
       if (matches && matches.length) {
         part = matches[1];
       } else {
@@ -633,20 +633,20 @@ var GlodaFundAttr = {
   },
 
   *optimize(aGlodaMessage, aRawReps, aIsNew, aCallbackHandle) {
-    let aMsgHdr = aRawReps.header;
+    const aMsgHdr = aRawReps.header;
 
     // for simplicity this is used for both involves and recipients
-    let involvesIdentities = {};
-    let involves = aGlodaMessage.involves || [];
-    let recipients = aGlodaMessage.recipients || [];
+    const involvesIdentities = {};
+    const involves = aGlodaMessage.involves || [];
+    const recipients = aGlodaMessage.recipients || [];
 
     // 'me' specialization optimizations
-    let toMe = aGlodaMessage.toMe || [];
-    let fromMe = aGlodaMessage.fromMe || [];
+    const toMe = aGlodaMessage.toMe || [];
+    const fromMe = aGlodaMessage.fromMe || [];
 
-    let myIdentities = Gloda.myIdentities; // needless optimization?
-    let authorIdentity = aGlodaMessage.from;
-    let isFromMe = authorIdentity.id in myIdentities;
+    const myIdentities = Gloda.myIdentities; // needless optimization?
+    const authorIdentity = aGlodaMessage.from;
+    const isFromMe = authorIdentity.id in myIdentities;
 
     // The fulltext search column for the author.  We want to have in here:
     // - The e-mail address and display name as enclosed on the message.
@@ -659,7 +659,7 @@ var GlodaFundAttr = {
     if (isFromMe) {
       aGlodaMessage.notability += this.NOTABILITY_FROM_ME;
     } else {
-      let authorDisplayName = MailServices.ab.cardForEmailAddress(
+      const authorDisplayName = MailServices.ab.cardForEmailAddress(
         authorIdentity.value
       )?.displayName;
       if (authorDisplayName !== null) {
@@ -674,12 +674,12 @@ var GlodaFundAttr = {
 
     let involvedAddrBookCount = 0;
 
-    for (let toIdentity of aGlodaMessage.to) {
+    for (const toIdentity of aGlodaMessage.to) {
       if (!(toIdentity.id in involvesIdentities)) {
         involves.push(toIdentity);
         recipients.push(toIdentity);
         involvesIdentities[toIdentity.id] = true;
-        let toDisplayName = MailServices.ab.cardForEmailAddress(
+        const toDisplayName = MailServices.ab.cardForEmailAddress(
           toIdentity.value
         )?.displayName;
         if (toDisplayName !== null) {
@@ -705,12 +705,12 @@ var GlodaFundAttr = {
         }
       }
     }
-    for (let ccIdentity of aGlodaMessage.cc) {
+    for (const ccIdentity of aGlodaMessage.cc) {
       if (!(ccIdentity.id in involvesIdentities)) {
         involves.push(ccIdentity);
         recipients.push(ccIdentity);
         involvesIdentities[ccIdentity.id] = true;
-        let ccDisplayName = MailServices.ab.cardForEmailAddress(
+        const ccDisplayName = MailServices.ab.cardForEmailAddress(
           ccIdentity.value
         )?.displayName;
         if (ccDisplayName !== null) {
@@ -737,12 +737,12 @@ var GlodaFundAttr = {
     }
     // just treat bcc like cc; the intent is the same although the exact
     //  semantics differ.
-    for (let bccIdentity of aGlodaMessage.bcc) {
+    for (const bccIdentity of aGlodaMessage.bcc) {
       if (!(bccIdentity.id in involvesIdentities)) {
         involves.push(bccIdentity);
         recipients.push(bccIdentity);
         involvesIdentities[bccIdentity.id] = true;
-        let bccDisplayName = MailServices.ab.cardForEmailAddress(
+        const bccDisplayName = MailServices.ab.cardForEmailAddress(
           bccIdentity.value
         )?.displayName;
         if (bccDisplayName !== null) {
@@ -805,7 +805,7 @@ var GlodaFundAttr = {
   score(aMessage, aContext) {
     let score = 0;
 
-    let authorIdentity = aMessage.from;
+    const authorIdentity = aMessage.from;
     if (authorIdentity.id in Gloda.myIdentities) {
       score += this.NOTABILITY_FROM_ME;
     } else if (authorIdentity.inAddressBook) {
@@ -816,12 +816,12 @@ var GlodaFundAttr = {
     }
 
     let involvedAddrBookCount = 0;
-    for (let identity of aMessage.to) {
+    for (const identity of aMessage.to) {
       if (identity.inAddressBook) {
         involvedAddrBookCount++;
       }
     }
-    for (let identity of aMessage.cc) {
+    for (const identity of aMessage.cc) {
       if (identity.inAddressBook) {
         involvedAddrBookCount++;
       }
@@ -839,7 +839,7 @@ var GlodaFundAttr = {
     let lastStartOffset = 0;
 
     for (let i = 0; i < aLine.length; i++) {
-      let c = aLine[i];
+      const c = aLine[i];
       if (c == ">") {
         count++;
         lastStartOffset = i + 1;
@@ -866,7 +866,7 @@ var GlodaFundAttr = {
     }
 
     // duplicate the list; we mutate somewhat...
-    let bodyLines = aBodyLines.concat();
+    const bodyLines = aBodyLines.concat();
 
     // lastNonBlankLine originally was just for detecting quoting idioms where
     //  the "wrote" line was separated from the quoted block by a blank line.

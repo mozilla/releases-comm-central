@@ -54,7 +54,7 @@ function createFilter(list, trigger, value, action) {
   var searchTerm = filter.createTerm();
   searchTerm.matchAll = false;
   if (trigger in ATTRIB_MAP) {
-    let information = ATTRIB_MAP[trigger];
+    const information = ATTRIB_MAP[trigger];
     searchTerm.attrib = information[0];
     if (information[3] != null) {
       searchTerm.arbitraryHeader = information[3];
@@ -72,7 +72,7 @@ function createFilter(list, trigger, value, action) {
 
   var filterAction = filter.createAction();
   if (action in ACTION_MAP) {
-    let information = ACTION_MAP[action];
+    const information = ACTION_MAP[action];
     filterAction.type = information[0];
     if (1 in information) {
       filterAction[information[1]] = information[2];

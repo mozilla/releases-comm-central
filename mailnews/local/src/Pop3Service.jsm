@@ -25,7 +25,7 @@ class Pop3Service {
   }
 
   verifyLogon(server, urlListener, msgWindow) {
-    let client = new Pop3Client(server);
+    const client = new Pop3Client(server);
     client.urlListener = urlListener;
     client.connect();
     client.onOpen = () => {
@@ -43,25 +43,25 @@ class Pop3Service {
   }
 
   notifyDownloadStarted(folder) {
-    for (let listener of this._listeners) {
+    for (const listener of this._listeners) {
       listener.onDownloadStarted(folder);
     }
   }
 
   notifyDownloadProgress(folder, numMessages, numTotalMessages) {
-    for (let listener of this._listeners) {
+    for (const listener of this._listeners) {
       listener.onDownloadProgress(folder, numMessages, numTotalMessages);
     }
   }
 
   notifyDownloadCompleted(folder, numMessages) {
-    for (let listener of this._listeners) {
+    for (const listener of this._listeners) {
       listener.onDownloadCompleted(folder, numMessages);
     }
   }
 
   _getMail(downloadNewMail, msgWindow, urlListener, inbox, server) {
-    let client = new Pop3Client(server);
+    const client = new Pop3Client(server);
     client.runningUri.msgWindow = msgWindow;
     client.urlListener = urlListener;
     client.connect();

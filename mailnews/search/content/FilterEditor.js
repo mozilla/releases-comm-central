@@ -74,7 +74,7 @@ function filterEditorOnLoad() {
       gFilterList = args.filterList;
       // the postPlugin filters cannot be applied to servers that are
       // deferred, (you must define them on the deferredTo server instead).
-      let server = gFilterList.folder.server;
+      const server = gFilterList.folder.server;
       if (server.rootFolder != server.rootMsgFolder) {
         gFilterTypeSelector.disableDeferredAccount();
       }
@@ -138,22 +138,22 @@ function filterEditorOnLoad() {
         initializeDialog(gFilter);
       } else if ("copiedFilter" in args) {
         // we are copying a filter
-        let copiedFilter = args.copiedFilter;
-        let copiedName = gFilterBundle.getFormattedString(
+        const copiedFilter = args.copiedFilter;
+        const copiedName = gFilterBundle.getFormattedString(
           "copyToNewFilterName",
           [copiedFilter.filterName]
         );
-        let newFilter = gFilterList.createFilter(copiedName);
+        const newFilter = gFilterList.createFilter(copiedName);
 
         // copy the actions
         for (let i = 0; i < copiedFilter.actionCount; i++) {
-          let filterAction = copiedFilter.getActionAt(i);
+          const filterAction = copiedFilter.getActionAt(i);
           newFilter.appendAction(filterAction);
         }
 
         // copy the search terms
-        for (let searchTerm of copiedFilter.searchTerms) {
-          let newTerm = newFilter.createTerm();
+        for (const searchTerm of copiedFilter.searchTerms) {
+          const newTerm = newFilter.createTerm();
           newTerm.attrib = searchTerm.attrib;
           newTerm.op = searchTerm.op;
           newTerm.booleanAnd = searchTerm.booleanAnd;
@@ -370,11 +370,11 @@ function initializeDialog(filter) {
   gFilterNameElement.value = filter.filterName;
   gFilterTypeSelector.setType(filter.filterType);
 
-  let numActions = filter.actionCount;
+  const numActions = filter.actionCount;
   for (let actionIndex = 0; actionIndex < numActions; actionIndex++) {
-    let filterAction = filter.getActionAt(actionIndex);
+    const filterAction = filter.getActionAt(actionIndex);
 
-    let newActionRow = document.createXULElement("richlistitem", {
+    const newActionRow = document.createXULElement("richlistitem", {
       is: "ruleaction-richlistitem",
     });
     newActionRow.setAttribute("initialActionIndex", actionIndex);
@@ -401,7 +401,7 @@ function initializeDialog(filter) {
 function ensureActionRow() {
   // make sure we have at least one action row visible to the user
   if (!gFilterActionList.getRowCount()) {
-    let newActionRow = document.createXULElement("richlistitem", {
+    const newActionRow = document.createXULElement("richlistitem", {
       is: "ruleaction-richlistitem",
     });
     newActionRow.className = "ruleaction";
@@ -422,7 +422,7 @@ function saveFilter() {
     return false;
   }
 
-  let filterName = gFilterNameElement.value;
+  const filterName = gFilterNameElement.value;
   // If we think have a duplicate, then we need to check that if we
   // have an original filter name (i.e. we are editing a filter), then
   // we must check that the original is not the current as that is what
@@ -454,21 +454,21 @@ function saveFilter() {
 
   let invalidRule = false;
   for (let index = 0; index < gSearchTerms.length; index++) {
-    let obj = gSearchTerms[index].obj;
+    const obj = gSearchTerms[index].obj;
     // We don't need to check validity of matchAll terms
     if (obj.matchAll) {
       continue;
     }
 
     // the term might be an offscreen one that we haven't initialized yet
-    let searchTerm = obj.searchTerm;
+    const searchTerm = obj.searchTerm;
     if (!searchTerm && !gSearchTerms[index].initialized) {
       continue;
     }
 
     if (isNaN(obj.searchattribute.value)) {
       // is this a custom term?
-      let customTerm = MailServices.filters.getCustomTerm(
+      const customTerm = MailServices.filters.getCustomTerm(
         obj.searchattribute.value
       );
       if (!customTerm) {
@@ -493,8 +493,8 @@ function saveFilter() {
         );
       }
     } else {
-      let otherHeader = Ci.nsMsgSearchAttrib.OtherHeader;
-      let attribValue =
+      const otherHeader = Ci.nsMsgSearchAttrib.OtherHeader;
+      const attribValue =
         obj.searchattribute.value > otherHeader
           ? otherHeader
           : obj.searchattribute.value;
@@ -610,7 +610,7 @@ function _checkActionsReorder() {
   gActionListOrdered = gTempFilter.sortedActionList;
 
   // Compare the two lists.
-  let statusBar = document.getElementById("statusbar");
+  const statusBar = document.getElementById("statusbar");
   for (let index = 0; index < gActionListOrdered.length; index++) {
     if (index != gTempFilter.getActionIndex(gActionListOrdered[index])) {
       // If the lists are not the same unhide the status bar and show warning.
@@ -630,14 +630,14 @@ function _checkActionsReorder() {
  */
 function showActionsOrder() {
   // Fetch the actions and arguments as a string.
-  let actionStrings = [];
+  const actionStrings = [];
   for (let i = 0; i < gFilterActionList.itemCount; i++) {
-    let ruleAction = gFilterActionList.getItemAtIndex(i);
-    let actionTarget = ruleAction.children[1];
-    let actionItem = actionTarget.ruleactiontargetElement;
-    let actionItemLabel = actionItem && actionItem.children[0].label;
+    const ruleAction = gFilterActionList.getItemAtIndex(i);
+    const actionTarget = ruleAction.children[1];
+    const actionItem = actionTarget.ruleactiontargetElement;
+    const actionItemLabel = actionItem && actionItem.children[0].label;
 
-    let actionString = {
+    const actionString = {
       label: ruleAction.mRuleActionType.label,
       argument: "",
     };
@@ -654,8 +654,8 @@ function showActionsOrder() {
   // Present a nicely formatted list of action names and arguments.
   let actionList = gFilterBundle.getString("filterActionOrderExplanation");
   for (let i = 0; i < gActionListOrdered.length; i++) {
-    let actionIndex = gTempFilter.getActionIndex(gActionListOrdered[i]);
-    let action = actionStrings[actionIndex];
+    const actionIndex = gTempFilter.getActionIndex(gActionListOrdered[i]);
+    const action = actionStrings[actionIndex];
     actionList += gFilterBundle.getFormattedString("filterActionItem", [
       i + 1,
       action.label,
@@ -678,7 +678,7 @@ function showActionsOrder() {
 
 function AssignMeaningfulName() {
   // termRoot points to the first search object, which is the one we care about.
-  let termRoot = gSearchTerms[0].obj;
+  const termRoot = gSearchTerms[0].obj;
   // stub is used as the base name for a filter.
   let stub;
 
@@ -687,9 +687,9 @@ function AssignMeaningfulName() {
     stub = gFilterBundle.getString("matchAllFilterName");
   } else {
     // Assign a name based on the first search term.
-    let term = termRoot.searchattribute.label;
-    let operator = termRoot.searchoperator.label;
-    let value = termRoot.searchvalue.getReadableValue();
+    const term = termRoot.searchattribute.label;
+    const operator = termRoot.searchoperator.label;
+    const value = termRoot.searchvalue.getReadableValue();
     stub = gFilterBundle.getFormattedString("filterAutoNameStr", [
       term,
       operator,
@@ -753,7 +753,7 @@ function updateFilterType() {
 
 // Given a filter type, set the global search scope to the filter scope
 function setFilterScope(aFilterType, aFilterList) {
-  let filterScope = getFilterScope(
+  const filterScope = getFilterScope(
     getScopeFromFilterList(aFilterList),
     aFilterType,
     aFilterList

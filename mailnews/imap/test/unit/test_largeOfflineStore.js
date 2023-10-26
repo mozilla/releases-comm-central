@@ -25,13 +25,13 @@ add_setup(async function () {
   setupIMAPPump();
 
   // Figure out the name of the IMAP inbox
-  let inboxFile = IMAPPump.incomingServer.rootMsgFolder.filePath;
+  const inboxFile = IMAPPump.incomingServer.rootMsgFolder.filePath;
   inboxFile.append("INBOX");
   if (!inboxFile.exists()) {
     inboxFile.create(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0644", 8));
   }
 
-  let neededFreeSpace = 0x200000000;
+  const neededFreeSpace = 0x200000000;
   // On Windows, check whether the drive is NTFS. If it is, mark the file as
   // sparse. If it isn't, then bail out now, because in all probability it is
   // FAT32, which doesn't support file sizes greater than 4 GB.
@@ -42,12 +42,12 @@ add_setup(async function () {
     throw new Error("On Windows, this test only works on NTFS volumes.\n");
   }
 
-  let isFileSparse = mailTestUtils.mark_file_region_sparse(
+  const isFileSparse = mailTestUtils.mark_file_region_sparse(
     inboxFile,
     0,
     0x10000000f
   );
-  let freeDiskSpace = inboxFile.diskSpaceAvailable;
+  const freeDiskSpace = inboxFile.diskSpaceAvailable;
   Assert.ok(
     isFileSparse && freeDiskSpace > neededFreeSpace,
     "This test needs " +
@@ -59,8 +59,8 @@ add_setup(async function () {
 add_task(async function addOfflineMessages() {
   // Create a couple test messages on the IMAP server.
   let messages = [];
-  let messageGenerator = new MessageGenerator();
-  let scenarioFactory = new MessageScenarioFactory(messageGenerator);
+  const messageGenerator = new MessageGenerator();
+  const scenarioFactory = new MessageScenarioFactory(messageGenerator);
 
   messages = messages.concat(scenarioFactory.directReply(2));
   let dataUri = Services.io.newURI(
@@ -76,7 +76,7 @@ add_task(async function addOfflineMessages() {
   IMAPPump.mailbox.addMessage(imapMsg);
 
   // Extend local IMAP inbox to over 4 GiB.
-  let outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
+  const outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
     .createInstance(Ci.nsIFileOutputStream)
     .QueryInterface(Ci.nsISeekableStream);
   // Open in write-only mode, no truncate.
@@ -96,19 +96,19 @@ add_task(async function addOfflineMessages() {
   );
 
   // Download for offline use, to append created messages to local IMAP inbox.
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(listener, null);
   await listener.promise;
 });
 
 add_task(async function check_result() {
   // Call downloadAllForOffline() a second time.
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(listener, null);
   await listener.promise;
 
   // Make sure offline store grew (i.e., we were not writing over data).
-  let offlineStoreSize = IMAPPump.inbox.filePath.fileSize;
+  const offlineStoreSize = IMAPPump.inbox.filePath.fileSize;
   dump(
     "Offline store size (after 2nd downloadAllForOffline()): " +
       offlineStoreSize +
@@ -117,7 +117,7 @@ add_task(async function check_result() {
   Assert.ok(offlineStoreSize > gOfflineStoreSize);
 
   // Verify that the message headers have the offline flag set.
-  for (let header of IMAPPump.inbox.msgDatabase.enumerateMessages()) {
+  for (const header of IMAPPump.inbox.msgDatabase.enumerateMessages()) {
     // Verify that each message has been downloaded and looks OK.
     Assert.ok(
       header instanceof Ci.nsIMsgDBHdr &&

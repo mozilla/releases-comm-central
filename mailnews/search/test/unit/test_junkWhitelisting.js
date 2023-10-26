@@ -54,7 +54,7 @@ function run_test() {
 
 function continueTest() {
   // get the message headers
-  for (let header of localAccountUtils.inboxFolder.messages) {
+  for (const header of localAccountUtils.inboxFolder.messages) {
     hdrs.push(header);
   }
 
@@ -68,7 +68,7 @@ function continueTest() {
 }
 
 function doChecks(server) {
-  let spamSettings = server.spamSettings;
+  const spamSettings = server.spamSettings;
 
   // default is to use the whitelist
   Assert.ok(spamSettings.useWhiteList);
@@ -134,16 +134,16 @@ function doChecks(server) {
    */
 
   // setup
-  let account = MailServices.accounts.FindAccountForServer(server);
-  let identity = MailServices.accounts.createIdentity();
+  const account = MailServices.accounts.FindAccountForServer(server);
+  const identity = MailServices.accounts.createIdentity();
   // start with an email that does not match
   identity.email = "iAmNotTheSender@test.invalid";
   account.addIdentity(identity);
 
   // setup account and identify for the deferred-from fake server
-  let fakeAccount = MailServices.accounts.createAccount();
+  const fakeAccount = MailServices.accounts.createAccount();
   fakeAccount.incomingServer = gPOP3Pump.fakeServer;
-  let fakeIdentity = MailServices.accounts.createIdentity();
+  const fakeIdentity = MailServices.accounts.createIdentity();
   // start with an email that does not match
   fakeIdentity.email = "iAmNotTheSender@wrong.invalid";
   fakeAccount.addIdentity(fakeIdentity);

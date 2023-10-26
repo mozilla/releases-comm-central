@@ -12,16 +12,16 @@ var { PromiseTestUtils } = ChromeUtils.import(
  */
 add_task(async function test_nntpPost() {
   // Setup test server.
-  let daemon = setupNNTPDaemon();
-  let handler = new NNTP_RFC977_handler(daemon);
-  let server = new nsMailServer(() => handler, daemon);
+  const daemon = setupNNTPDaemon();
+  const handler = new NNTP_RFC977_handler(daemon);
+  const server = new nsMailServer(() => handler, daemon);
   server.start();
   registerCleanupFunction(() => server.stop());
 
   // Send post3.eml to the server.
-  let localServer = setupLocalServer(server.port);
-  let testFile = do_get_file("postings/post3.eml");
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
+  const localServer = setupLocalServer(server.port);
+  const testFile = do_get_file("postings/post3.eml");
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.nntp.postMessage(
     testFile,
     "test.empty",

@@ -18,7 +18,7 @@ document.addEventListener("dialogextra1", onAddHeader);
 document.addEventListener("dialogextra2", onRemoveHeader);
 
 function onLoad() {
-  let hdrs = Services.prefs.getCharPref("mailnews.customHeaders");
+  const hdrs = Services.prefs.getCharPref("mailnews.customHeaders");
   gHeaderInputElement = document.getElementById("headerInput");
   gHeaderInputElement.focus();
 

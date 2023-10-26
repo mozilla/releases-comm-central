@@ -239,7 +239,7 @@ var messageInfos = [
 ];
 
 add_task(async function test_message_attachments() {
-  for (let messageInfo of messageInfos) {
+  for (const messageInfo of messageInfos) {
     await message_attachments(messageInfo);
   }
 });
@@ -278,29 +278,29 @@ var bogusMessageInfos = [
 ];
 
 add_task(async function test_bogus_messages(info) {
-  for (let bogusMessageInfo of bogusMessageInfos) {
+  for (const bogusMessageInfo of bogusMessageInfos) {
     await bogus_messages(bogusMessageInfo);
   }
 });
 
 add_task(async function test_have_attachments() {
   // The goal here is to explicitly check that these messages have attachments.
-  let number = 1;
-  let synMsg = msgGen.makeMessage({
+  const number = 1;
+  const synMsg = msgGen.makeMessage({
     name: "multipart/related",
     bodyPart: new SyntheticPartMultiMixed([partHtml, partTachVCard]),
     number,
   });
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders(
     [messageInjection.getInboxFolder()],
     [synSet]
   );
 
-  let msgHdr = synSet.getMsgHdr(0);
+  const msgHdr = synSet.getMsgHdr(0);
 
   let promiseResolve;
-  let promise = new Promise(resolve => {
+  const promise = new Promise(resolve => {
     promiseResolve = resolve;
   });
   MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
@@ -316,17 +316,17 @@ add_task(async function test_have_attachments() {
 });
 
 async function message_attachments(info) {
-  let synMsg = msgGen.makeMessage(info);
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synMsg = msgGen.makeMessage(info);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders(
     [messageInjection.getInboxFolder()],
     [synSet]
   );
 
-  let msgHdr = synSet.getMsgHdr(0);
+  const msgHdr = synSet.getMsgHdr(0);
 
   let promiseResolve;
-  let promise = new Promise(resolve => {
+  const promise = new Promise(resolve => {
     promiseResolve = resolve;
   });
 
@@ -373,7 +373,7 @@ function check_attachments(aMimeMsg, epsilon, checkTotalSize) {
 
   let totalSize = htmlText.length;
 
-  for (let att of aMimeMsg.allUserAttachments) {
+  for (const att of aMimeMsg.allUserAttachments) {
     dump("*** Attachment now is " + att.name + " " + att.size + "\n");
     Assert.ok(Math.abs(att.size - originalTextByteCount) <= epsilon);
     totalSize += att.size;
@@ -394,17 +394,17 @@ function check_bogus_parts(aMimeMsg, { epsilon, checkSize }) {
   }
 
   // First make sure the size is computed properly
-  let x = parseInt(aMimeMsg.size);
+  const x = parseInt(aMimeMsg.size);
   Assert.ok(!isNaN(x));
 
-  let sep = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
+  const sep = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
   if (checkSize) {
     let partSize = 0;
     // The attachment, although a MimeUnknown part, is actually plain/text that
     // contains the whole attached message, including headers. Count them.
-    for (let k in bogusMessage.headers) {
-      let v = bogusMessage.headers[k];
+    for (const k in bogusMessage.headers) {
+      const v = bogusMessage.headers[k];
       partSize += (k + ": " + v + sep).length;
     }
     // That's the newline between the headers and the message body.
@@ -412,24 +412,24 @@ function check_bogus_parts(aMimeMsg, { epsilon, checkSize }) {
     // That's the message body.
     partSize += originalTextByteCount;
     // That's the total length that's to be returned by the MimeMessage abstraction.
-    let totalSize = htmlText.length + partSize;
+    const totalSize = htmlText.length + partSize;
     dump(totalSize + " vs " + aMimeMsg.size + "\n");
     Assert.ok(Math.abs(aMimeMsg.size - totalSize) <= epsilon);
   }
 }
 
 async function bogus_messages(info) {
-  let synMsg = msgGen.makeMessage(info);
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synMsg = msgGen.makeMessage(info);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders(
     [messageInjection.getInboxFolder()],
     [synSet]
   );
 
-  let msgHdr = synSet.getMsgHdr(0);
+  const msgHdr = synSet.getMsgHdr(0);
 
   let promiseResolve;
-  let promise = new Promise(resolve => {
+  const promise = new Promise(resolve => {
     promiseResolve = resolve;
   });
   MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {

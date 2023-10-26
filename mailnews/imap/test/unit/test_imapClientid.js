@@ -30,7 +30,7 @@ var gTests = [
 ];
 
 add_task(async function () {
-  let daemon = new ImapDaemon();
+  const daemon = new ImapDaemon();
   server = makeServer(daemon, "", {
     // Make username of server match the singons.txt file
     // (pw there is intentionally invalid)

@@ -83,7 +83,7 @@ GlodaAttributeDBDef.prototype = {
       return this._parameterBindings[aValue];
     }
     // no database entry exists if we are here, so we must create it...
-    let id = this._datastore._createAttributeDef(
+    const id = this._datastore._createAttributeDef(
       this._attrType,
       this._pluginName,
       this._attrName,
@@ -104,18 +104,18 @@ GlodaAttributeDBDef.prototype = {
    *     whether or not the attribute is singular.
    */
   convertValuesToDBAttributes(aInstanceValues) {
-    let nounDef = this.attrDef.objectNounDef;
-    let dbAttributes = [];
+    const nounDef = this.attrDef.objectNounDef;
+    const dbAttributes = [];
     if (nounDef.usesParameter) {
-      for (let instanceValue of aInstanceValues) {
-        let [param, dbValue] = nounDef.toParamAndValue(instanceValue);
+      for (const instanceValue of aInstanceValues) {
+        const [param, dbValue] = nounDef.toParamAndValue(instanceValue);
         dbAttributes.push([this.bindParameter(param), dbValue]);
       }
     } else if ("toParamAndValue" in nounDef) {
       // Not generating any attributes is ok. This basically means the noun is
       // just an informative property on the Gloda Message and has no real
       // indexing purposes.
-      for (let instanceValue of aInstanceValues) {
+      for (const instanceValue of aInstanceValues) {
         dbAttributes.push([
           this._id,
           nounDef.toParamAndValue(instanceValue)[1],
@@ -132,10 +132,10 @@ GlodaAttributeDBDef.prototype = {
 
 var GlodaHasAttributesMixIn = {
   *enumerateAttributes() {
-    let nounDef = this.NOUN_DEF;
-    for (let key in this) {
-      let value = this[key];
-      let attrDef = nounDef.attribsByBoundName[key];
+    const nounDef = this.NOUN_DEF;
+    for (const key in this) {
+      const value = this[key];
+      const attrDef = nounDef.attribsByBoundName[key];
       // we expect to not have attributes for underscore prefixed values (those
       //  are managed by the instance's logic.  we also want to not explode
       //  should someone crap other values in there, we get both birds with this
@@ -156,9 +156,9 @@ var GlodaHasAttributesMixIn = {
   },
 
   domContribute(aDomNode) {
-    let nounDef = this.NOUN_DEF;
-    for (let attrName in nounDef.domExposeAttribsByBoundName) {
-      let attr = nounDef.domExposeAttribsByBoundName[attrName];
+    const nounDef = this.NOUN_DEF;
+    for (const attrName in nounDef.domExposeAttribsByBoundName) {
+      const attr = nounDef.domExposeAttribsByBoundName[attrName];
       if (this[attrName]) {
         aDomNode.setAttribute(attr.domExpose, this[attrName]);
       }
@@ -167,8 +167,8 @@ var GlodaHasAttributesMixIn = {
 };
 
 function MixIn(aConstructor, aMixIn) {
-  let proto = aConstructor.prototype;
-  for (let [name, func] of Object.entries(aMixIn)) {
+  const proto = aConstructor.prototype;
+  for (const [name, func] of Object.entries(aMixIn)) {
     if (name.startsWith("get_")) {
       proto.__defineGetter__(name.substring(4), func);
     } else {
@@ -239,7 +239,7 @@ GlodaConversation.prototype = {
   },
 
   getMessagesCollection(aListener, aData) {
-    let query = new GlodaMessage.prototype.NOUN_DEF.queryClass();
+    const query = new GlodaMessage.prototype.NOUN_DEF.queryClass();
     query.conversation(this._id).orderBy("date");
     return query.getCollection(aListener, aData);
   },
@@ -391,7 +391,7 @@ GlodaFolder.prototype = {
   },
 
   toLocaleString() {
-    let xpcomFolder = this.getXPCOMFolder(this.kActivityFolderOnlyNoData);
+    const xpcomFolder = this.getXPCOMFolder(this.kActivityFolderOnlyNoData);
     if (!xpcomFolder) {
       return this._prettyName;
     }
@@ -462,7 +462,7 @@ GlodaFolder.prototype = {
    */
   getAccount() {
     if (!this._account) {
-      let msgFolder = this.getXPCOMFolder(this.kActivityFolderOnlyNoData);
+      const msgFolder = this.getXPCOMFolder(this.kActivityFolderOnlyNoData);
       this._account = new GlodaAccount(msgFolder.server);
     }
     return this._account;
@@ -581,7 +581,7 @@ GlodaMessage.prototype = {
       if (this._folderID == null) {
         return null;
       }
-      let folder = this._datastore._mapFolderID(this._folderID);
+      const folder = this._datastore._mapFolderID(this._folderID);
       return folder.getAccount();
     } catch (ex) {}
     return null;
@@ -717,7 +717,7 @@ GlodaMessage.prototype = {
     } catch (ex) {
       return null;
     }
-    let folder = glodaFolder.getXPCOMFolder(
+    const folder = glodaFolder.getXPCOMFolder(
       glodaFolder.kActivityHeaderRetrieval
     );
     if (folder) {
@@ -760,7 +760,7 @@ GlodaMessage.prototype = {
     return null;
   },
   get folderMessageURI() {
-    let folderMessage = this.folderMessage;
+    const folderMessage = this.folderMessage;
     if (folderMessage) {
       return folderMessage.folder.getUriForMsg(folderMessage);
     }
@@ -933,7 +933,7 @@ GlodaIdentity.prototype = {
     if (this._kind != "email") {
       return false;
     }
-    let card = MailServices.ab.cardForEmailAddress(this._value);
+    const card = MailServices.ab.cardForEmailAddress(this._value);
     this._hasAddressBookCard = card != null;
     return card;
   },
@@ -990,17 +990,17 @@ GlodaAttachment.prototype = {
       return this._externalUrl;
     }
 
-    let uri = this._glodaMessage.folderMessageURI;
+    const uri = this._glodaMessage.folderMessageURI;
     if (!uri) {
       throw new Error(
         "The message doesn't exist anymore, unable to rebuild attachment URL"
       );
     }
-    let msgService = MailServices.messageServiceFromURI(uri);
-    let neckoURL = msgService.getUrlForUri(uri);
-    let url = neckoURL.spec;
-    let hasParamAlready = url.match(/\?[a-z]+=[^\/]+$/);
-    let sep = hasParamAlready ? "&" : "?";
+    const msgService = MailServices.messageServiceFromURI(uri);
+    const neckoURL = msgService.getUrlForUri(uri);
+    const url = neckoURL.spec;
+    const hasParamAlready = url.match(/\?[a-z]+=[^\/]+$/);
+    const sep = hasParamAlready ? "&" : "?";
     return (
       url +
       sep +

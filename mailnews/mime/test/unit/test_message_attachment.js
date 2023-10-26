@@ -119,14 +119,14 @@ add_task(async function test_no_named_email_attachment_with_subject_header() {
 });
 
 async function test_message_attachments(info) {
-  let synMsg = msgGen.makeMessage(info);
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synMsg = msgGen.makeMessage(info);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders([inbox], [synSet]);
 
-  let msgURI = synSet.getMsgURI(0);
-  let msgService = MailServices.messageServiceFromURI(msgURI);
+  const msgURI = synSet.getMsgURI(0);
+  const msgService = MailServices.messageServiceFromURI(msgURI);
 
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
 
   msgService.streamMessage(
     msgURI,
@@ -138,25 +138,25 @@ async function test_message_attachments(info) {
     false
   );
 
-  let streamedData = await streamListener.promise;
+  const streamedData = await streamListener.promise;
 
   // Check that the attachments' filenames are as expected. Just use a regex
   // here because it's simple.
-  let regex1 =
+  const regex1 =
     /<legend class="moz-mime-attachment-header-name">(.*?)<\/legend>/gi;
 
-  for (let attachment of info.attachments) {
-    let match = regex1.exec(streamedData);
+  for (const attachment of info.attachments) {
+    const match = regex1.exec(streamedData);
     Assert.notEqual(match, null);
     Assert.equal(match[1], attachment.expectedFilename || attachment.filename);
   }
   Assert.equal(regex1.exec(streamedData), null);
 
   // Check the attachments' filenames are listed for printing.
-  let regex2 = /<td class="moz-mime-attachment-file">(.*?)<\/td>/gi;
+  const regex2 = /<td class="moz-mime-attachment-file">(.*?)<\/td>/gi;
 
-  for (let attachment of info.attachments) {
-    let match = regex2.exec(streamedData);
+  for (const attachment of info.attachments) {
+    const match = regex2.exec(streamedData);
     Assert.notEqual(match, null);
     Assert.equal(match[1], attachment.expectedFilename || attachment.filename);
   }

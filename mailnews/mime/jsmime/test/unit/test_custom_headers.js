@@ -5,7 +5,7 @@ define(function (require) {
 
   suite("Custom decoder support", function () {
     function customDecoder(values) {
-      let value = values.join("");
+      const value = values.join("");
       return atob(value);
     }
     function customEncoder(value) {

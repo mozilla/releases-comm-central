@@ -351,9 +351,14 @@ var GlodaIndexer = {
     Services.obs.addObserver(this, "quit-application");
 
     // figure out if event-driven indexing should be enabled...
-    let branch = Services.prefs.getBranch("mailnews.database.global.indexer.");
-    let eventDrivenEnabled = branch.getBoolPref("enabled", false);
-    let performInitialSweep = branch.getBoolPref("perform_initial_sweep", true);
+    const branch = Services.prefs.getBranch(
+      "mailnews.database.global.indexer."
+    );
+    const eventDrivenEnabled = branch.getBoolPref("enabled", false);
+    const performInitialSweep = branch.getBoolPref(
+      "perform_initial_sweep",
+      true
+    );
     // pretend we have already performed an initial sweep...
     if (!performInitialSweep) {
       this._initialSweepPerformed = true;
@@ -402,7 +407,7 @@ var GlodaIndexer = {
 
     // If there is an active job and it has a cleanup handler, run it.
     if (this._curIndexingJob) {
-      let workerDef = this._curIndexingJob._workerDef;
+      const workerDef = this._curIndexingJob._workerDef;
       try {
         if (workerDef.cleanup) {
           workerDef.cleanup.call(workerDef.indexer, this._curIndexingJob);
@@ -460,9 +465,9 @@ var GlodaIndexer = {
     this._indexers.push(aIndexer);
 
     try {
-      for (let workerInfo of aIndexer.workers) {
-        let workerCode = workerInfo[0];
-        let workerDef = workerInfo[1];
+      for (const workerInfo of aIndexer.workers) {
+        const workerCode = workerInfo[0];
+        const workerDef = workerInfo[1];
         workerDef.name = workerCode;
         workerDef.indexer = aIndexer;
         this._indexerWorkerDefs[workerCode] = workerDef;
@@ -509,7 +514,7 @@ var GlodaIndexer = {
 
       this._enabled = true;
 
-      for (let indexer of this._indexers) {
+      for (const indexer of this._indexers) {
         try {
           indexer.enable();
         } catch (ex) {
@@ -532,7 +537,7 @@ var GlodaIndexer = {
         );
       }
     } else if (this._enabled && !aEnable) {
-      for (let indexer of this._indexers) {
+      for (const indexer of this._indexers) {
         try {
           indexer.disable();
         } catch (ex) {
@@ -638,7 +643,7 @@ var GlodaIndexer = {
       return;
     }
     GlodaIndexer._initialSweepPerformed = true;
-    for (let indexer of GlodaIndexer._indexers) {
+    for (const indexer of GlodaIndexer._indexers) {
       indexer.initialSweep();
     }
   },
@@ -701,7 +706,7 @@ var GlodaIndexer = {
    *  updates.
    */
   removeListener(aListener) {
-    let index = this._indexListeners.indexOf(aListener);
+    const index = this._indexListeners.indexOf(aListener);
     if (index != -1) {
       this._indexListeners.splice(index, 1);
     }
@@ -720,10 +725,10 @@ var GlodaIndexer = {
     let status, prettyName, jobIndex, jobItemIndex, jobItemGoal, jobType;
 
     if (this.indexing && this._curIndexingJob) {
-      let job = this._curIndexingJob;
+      const job = this._curIndexingJob;
       status = GlodaConstants.kIndexerIndexing;
 
-      let indexer = this._indexerWorkerDefs[job.jobType].indexer;
+      const indexer = this._indexerWorkerDefs[job.jobType].indexer;
       if ("_indexingFolder" in indexer) {
         prettyName =
           indexer._indexingFolder != null
@@ -757,7 +762,7 @@ var GlodaIndexer = {
       iListener >= 0;
       iListener--
     ) {
-      let listener = this._indexListeners[iListener];
+      const listener = this._indexListeners[iListener];
       try {
         listener(
           status,
@@ -966,7 +971,7 @@ var GlodaIndexer = {
      */
     popWithResult() {
       this.pop();
-      let result = this._result;
+      const result = this._result;
       this._result = null;
       return result;
     },
@@ -1049,7 +1054,7 @@ var GlodaIndexer = {
       this._perfIndexStopwatch.start();
       // For telemetry purposes, we want to know how many messages we've been
       //  processing during that batch, and how long it took, pauses included.
-      let t0 = Date.now();
+      const t0 = Date.now();
       this._indexedMessageCount = 0;
       batchCount = 0;
       while (batchCount < this._indexTokens) {
@@ -1088,7 +1093,7 @@ var GlodaIndexer = {
           }
         } catch (ex) {
           this._log.debug("Exception in batch processing:", ex);
-          let workerDef = this._curIndexingJob._workerDef;
+          const workerDef = this._curIndexingJob._workerDef;
           if (workerDef.recover) {
             let recoverToDepth;
             try {
@@ -1222,10 +1227,10 @@ var GlodaIndexer = {
       // XXX: there's possibly a lot of fluctuation since we go through here
       // every 5 messages or even less
       if (this._indexedMessageCount > 0) {
-        let delta = (Date.now() - t0) / 1000; // in seconds
-        let v = Math.round(this._indexedMessageCount / delta);
+        const delta = (Date.now() - t0) / 1000; // in seconds
+        const v = Math.round(this._indexedMessageCount / delta);
         try {
-          let h = Services.telemetry.getHistogramById(
+          const h = Services.telemetry.getHistogramById(
             "THUNDERBIRD_INDEXING_RATE_MSG_PER_S"
           );
           h.add(v);
@@ -1235,8 +1240,8 @@ var GlodaIndexer = {
       }
 
       if (batchCount > 0) {
-        let totalTime = this._perfIndexStopwatch.realTimeSeconds * 1000;
-        let timePerToken = totalTime / batchCount;
+        const totalTime = this._perfIndexStopwatch.realTimeSeconds * 1000;
+        const timePerToken = totalTime / batchCount;
         // Damp the average time since it is a rough estimate only.
         this._cpuAverageTimePerToken =
           (totalTime +
@@ -1245,7 +1250,7 @@ var GlodaIndexer = {
         // We use the larger of the recent or the average time per token, so
         //  that we can respond quickly to slow down indexing if there
         //  is a sudden increase in time per token.
-        let bestTimePerToken = Math.max(
+        const bestTimePerToken = Math.max(
           timePerToken,
           this._cpuAverageTimePerToken
         );
@@ -1263,11 +1268,11 @@ var GlodaIndexer = {
       }
 
       // Should we try to commit now?
-      let elapsed = Date.now() - this._lastCommitTime;
+      const elapsed = Date.now() - this._lastCommitTime;
       // Commit tends to cause a brief UI pause, so we try to delay it (but not
       //  forever) if the user is active. If we're done and idling, we'll also
       //  commit, otherwise we'll let the idle callback do it.
-      let doCommit =
+      const doCommit =
         transactionToCommit &&
         (elapsed > this._MAXIMUM_COMMIT_TIME ||
           (inIdle && (elapsed > this._MINIMUM_COMMIT_TIME || !haveMoreWork)));
@@ -1332,13 +1337,13 @@ var GlodaIndexer = {
       return false;
     }
 
-    let job = (this._curIndexingJob = this._indexQueue.shift());
+    const job = (this._curIndexingJob = this._indexQueue.shift());
     this._indexingJobCount++;
 
     let generator = null;
 
     if (job.jobType in this._indexerWorkerDefs) {
-      let workerDef = this._indexerWorkerDefs[job.jobType];
+      const workerDef = this._indexerWorkerDefs[job.jobType];
       job._workerDef = workerDef;
 
       // Prior to creating the worker, call the scheduling trigger function
@@ -1410,7 +1415,7 @@ var GlodaIndexer = {
     }
 
     // -- Blow away the stack with cleanup.
-    let workerDef = this._curIndexingJob._workerDef;
+    const workerDef = this._curIndexingJob._workerDef;
     if (this._unitTestSuperVerbose) {
       this._log.debug("Killing job of type: " + this._curIndexingJob.jobType);
     }
@@ -1443,7 +1448,7 @@ var GlodaIndexer = {
    */
   purgeJobsUsingFilter(aFilterElimFunc) {
     for (let iJob = 0; iJob < this._indexQueue.length; iJob++) {
-      let job = this._indexQueue[iJob];
+      const job = this._indexQueue[iJob];
 
       // If the filter says to, splice the job out of existence (and make sure
       //  to fixup iJob to compensate.)
@@ -1452,7 +1457,7 @@ var GlodaIndexer = {
           this._log.debug("Purging job of type: " + job.jobType);
         }
         this._indexQueue.splice(iJob--, 1);
-        let workerDef = this._indexerWorkerDefs[job.jobType];
+        const workerDef = this._indexerWorkerDefs[job.jobType];
         if (workerDef.jobCanceled) {
           workerDef.jobCanceled.call(workerDef.indexer, job);
         }

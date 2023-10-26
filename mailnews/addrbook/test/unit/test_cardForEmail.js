@@ -24,7 +24,7 @@ function run_test() {
   loadABFile("data/cardForEmail", kPABData.fileName);
 
   // Test - Get the directory
-  let AB = MailServices.ab.getDirectory(kPABData.URI);
+  const AB = MailServices.ab.getDirectory(kPABData.URI);
 
   // Test - Check that a null string succeeds and does not
   // return a card (bug 404264)

@@ -26,7 +26,7 @@ function boolExpressionToFilter(attrMap, exp) {
     }[exp.operation] || "";
 
   if (exp.expressions) {
-    for (let childExp of exp.expressions) {
+    for (const childExp of exp.expressions) {
       if (childExp instanceof Ci.nsIAbBooleanExpression) {
         filter += boolExpressionToFilter(attrMap, childExp);
       } else if (childExp instanceof Ci.nsIAbBooleanConditionString) {
@@ -48,7 +48,7 @@ function boolExpressionToFilter(attrMap, exp) {
  * @returns {string}
  */
 function boolConditionToFilter(attrMap, exp) {
-  let attr = attrMap.getFirstAttribute(exp.name);
+  const attr = attrMap.getFirstAttribute(exp.name);
   if (!attr) {
     return "";
   }
@@ -161,7 +161,7 @@ class LDAPDirectoryQuery extends LDAPListenerBase {
    * @see LDAPListenerBase
    */
   _actionOnBindSuccess() {
-    let ldapUrl = this._directory.lDAPURL;
+    const ldapUrl = this._directory.lDAPURL;
     this._operation.searchExt(
       ldapUrl.dn,
       ldapUrl.scope,
@@ -185,9 +185,9 @@ class LDAPDirectoryQuery extends LDAPListenerBase {
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
   _onLDAPSearchEntry(msg) {
-    let newCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-      Ci.nsIAbCard
-    );
+    const newCard = Cc[
+      "@mozilla.org/addressbook/cardproperty;1"
+    ].createInstance(Ci.nsIAbCard);
     this._attrMap.setCardPropertiesFromLDAPMessage(msg, newCard);
     newCard.directoryUID = this._directory.UID;
     this._listener.onSearchFoundCard(newCard);

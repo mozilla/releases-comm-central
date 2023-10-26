@@ -10,7 +10,7 @@
 var gExpectedFiles;
 
 function create_temporary_files_for(name) {
-  let file = Services.dirsvc.get("TmpD", Ci.nsIFile);
+  const file = Services.dirsvc.get("TmpD", Ci.nsIFile);
   file.append(name);
   file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 
@@ -18,7 +18,7 @@ function create_temporary_files_for(name) {
 }
 
 function collect_expected_temporary_files() {
-  let files = [];
+  const files = [];
 
   files.push(create_temporary_files_for("nsmail.tmp"));
   files.push(create_temporary_files_for("nsmail.tmp"));

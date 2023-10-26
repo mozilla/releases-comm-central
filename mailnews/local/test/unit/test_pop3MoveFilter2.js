@@ -28,7 +28,7 @@ var gTestArray = [
     gFilterList = gPOP3Pump.fakeServer.getFilterList(null);
     // create a cc filter which will match the first message but not the second.
     gFilter = gFilterList.createFilter("MoveCc");
-    let searchTerm = gFilter.createTerm();
+    const searchTerm = gFilter.createTerm();
     searchTerm.attrib = Ci.nsMsgSearchAttrib.CC;
     searchTerm.op = Ci.nsMsgSearchOp.Contains;
     var oldValue = searchTerm.value;
@@ -36,7 +36,7 @@ var gTestArray = [
     oldValue.str = "invalid@example.com";
     searchTerm.value = oldValue;
     gFilter.appendTerm(searchTerm);
-    let moveAction = gFilter.createAction();
+    const moveAction = gFilter.createAction();
     moveAction.type = Ci.nsMsgFilterAction.MoveToFolder;
     moveAction.targetFolderUri = gMoveFolder.URI;
     gFilter.appendAction(moveAction);
@@ -92,7 +92,7 @@ function setup_store(storeID) {
 }
 
 function run_test() {
-  for (let store of gPluggableStores) {
+  for (const store of gPluggableStores) {
     add_task(setup_store(store));
     gTestArray.forEach(x => add_task(x));
   }

@@ -43,10 +43,10 @@ class CertVerificationResultCallback {
 }
 
 function testCertValidity(cert, date) {
-  let prom = new Promise((resolve, reject) => {
+  const prom = new Promise((resolve, reject) => {
     const certificateUsageEmailRecipient = 0x0020;
-    let result = new CertVerificationResultCallback(resolve);
-    let flags = Ci.nsIX509CertDB.FLAG_LOCAL_ONLY;
+    const result = new CertVerificationResultCallback(resolve);
+    const flags = Ci.nsIX509CertDB.FLAG_LOCAL_ONLY;
     const certdb = Cc["@mozilla.org/security/x509certdb;1"].getService(
       Ci.nsIX509CertDB
     );
@@ -63,7 +63,7 @@ function testCertValidity(cert, date) {
 }
 
 add_setup(async function () {
-  let messageInjection = new MessageInjection({ mode: "local" });
+  const messageInjection = new MessageInjection({ mode: "local" });
   gInbox = messageInjection.getInboxFolder();
   SmimeUtils.ensureNSS();
 
@@ -85,7 +85,7 @@ var gInbox;
 
 var smimeDataDirectory = "../../../data/smime/";
 
-let smimeHeaderSink = {
+const smimeHeaderSink = {
   expectResults(maxLen) {
     // dump("Restarting for next test\n");
     this._deferred = PromiseUtils.defer();
@@ -184,7 +184,7 @@ var gMessages = [{ filename: "alice.env.eml", enc: true }];
 var gDecFolder;
 
 add_task(async function copy_messages() {
-  for (let msg of gMessages) {
+  for (const msg of gMessages) {
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
 
     MailServices.copy.copyFileMessage(
@@ -208,10 +208,10 @@ add_task(async function copy_messages() {
 add_task(async function check_smime_message() {
   let hdrIndex = 0;
 
-  for (let msg of gMessages) {
+  for (const msg of gMessages) {
     console.log("checking " + msg.filename);
 
-    let numExpected = 1;
+    const numExpected = 1;
 
     let eventsExpected = numExpected;
 
@@ -230,7 +230,7 @@ add_task(async function check_smime_message() {
 
     await sinkPromise;
 
-    let r = smimeHeaderSink._results;
+    const r = smimeHeaderSink._results;
     Assert.equal(r.length, numExpected);
 
     if (msg.enc) {

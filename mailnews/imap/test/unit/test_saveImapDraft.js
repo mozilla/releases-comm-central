@@ -29,34 +29,34 @@ add_task(async function createDraftsFolder() {
   await PromiseTestUtils.promiseFolderAdded("Drafts");
   gDraftsFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Drafts");
   Assert.ok(gDraftsFolder instanceof Ci.nsIMsgImapMailFolder);
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gDraftsFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function saveDraft() {
-  let msgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
-    Ci.nsIMsgCompose
-  );
-  let fields = Cc[
+  const msgCompose = Cc[
+    "@mozilla.org/messengercompose/compose;1"
+  ].createInstance(Ci.nsIMsgCompose);
+  const fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   fields.from = "Nobody <nobody@tinderbox.test>";
 
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = fields;
   msgCompose.initialize(params);
 
   // Set up the identity
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.draftFolder = gDraftsFolder.URI;
 
-  let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+  const progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
     Ci.nsIMsgProgress
   );
-  let progressListener = new ProgressListener();
+  const progressListener = new ProgressListener();
   progress.registerListener(progressListener);
   msgCompose.sendMsg(
     Ci.nsIMsgSend.nsMsgSaveAsDraft,
@@ -69,7 +69,7 @@ add_task(async function saveDraft() {
 });
 
 add_task(async function updateDrafts() {
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gDraftsFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });

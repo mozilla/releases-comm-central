@@ -10,7 +10,7 @@
 add_task(async () => {
   CardDAVServer.modifyCardOnPut = true;
 
-  let directory = await initDirectory();
+  const directory = await initDirectory();
   await directory.fetchAllFromServer();
 
   observer.init();
@@ -34,7 +34,7 @@ add_task(async () => {
 
   // Wait for notifications. Both arrive at once so we listen for the first.
 
-  let newUID = await observer.waitFor("addrbook-contact-created");
+  const newUID = await observer.waitFor("addrbook-contact-created");
   Assert.equal(newUID, "drac-wen-a");
 
   // Check the original card was deleted.
@@ -48,7 +48,7 @@ add_task(async () => {
   // Check we have the card as modified by the server.
 
   Assert.equal(directory.childCards.length, 1);
-  let modifiedCard = directory.childCards[0];
+  const modifiedCard = directory.childCards[0];
   Assert.equal(modifiedCard.UID, "drac-wen-a");
   Assert.equal(modifiedCard.getProperty("_etag", ""), "92");
   Assert.equal(

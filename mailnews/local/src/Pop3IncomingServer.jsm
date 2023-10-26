@@ -75,7 +75,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
       return this._rootMsgFolder;
     }
 
-    let incomingServer = MailServices.accounts.getAccount(
+    const incomingServer = MailServices.accounts.getAccount(
       this.deferredToAccount
     ).incomingServer;
     if (incomingServer.equals(this)) {
@@ -95,11 +95,11 @@ class Pop3IncomingServer extends MsgIncomingServer {
   }
 
   getNewMessages(folder, msgWindow, urlListener) {
-    let inbox = this.rootMsgFolder.getFolderWithFlags(
+    const inbox = this.rootMsgFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Inbox
     );
     if (!this.deferredToAccount) {
-      let deferredServers = this._getDeferedServers(folder.server);
+      const deferredServers = this._getDeferedServers(folder.server);
       if (deferredServers.length) {
         // If other servers are deferred to this server, get new mail for them
         // as well.
@@ -120,10 +120,10 @@ class Pop3IncomingServer extends MsgIncomingServer {
 
   performBiff(msgWindow) {
     this.performingBiff = true;
-    let inbox = this.rootMsgFolder.getFolderWithFlags(
+    const inbox = this.rootMsgFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Inbox
     );
-    let urlListener = inbox.QueryInterface(Ci.nsIUrlListener);
+    const urlListener = inbox.QueryInterface(Ci.nsIUrlListener);
     if (this.downloadOnBiff) {
       MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
     } else {
@@ -133,8 +133,8 @@ class Pop3IncomingServer extends MsgIncomingServer {
 
   /** @see nsILocalMailIncomingServer */
   createDefaultMailboxes() {
-    for (let name of ["Inbox", "Trash"]) {
-      let folderUri = this.rootFolder.URI + "/" + name;
+    for (const name of ["Inbox", "Trash"]) {
+      const folderUri = this.rootFolder.URI + "/" + name;
       // Check by URI instead of by name, because folder name can be localized.
       if (!this.rootFolder.getChildWithURI(folderUri, false, false)) {
         this.msgStore.createFolder(this.rootFolder, name);
@@ -162,7 +162,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
       return "";
     }
 
-    let account = MailServices.accounts.getAccount(accountKey);
+    const account = MailServices.accounts.getAccount(accountKey);
     // If currently deferred to an invalid or hidden server, change to defer to
     // the local folders inbox.
     if (!account || !account.incomingServer || account.incomingServer.hidden) {
@@ -185,12 +185,12 @@ class Pop3IncomingServer extends MsgIncomingServer {
   set deferredToAccount(accountKey) {
     this._rootMsgFolder = null;
 
-    let wasDeferred = Boolean(this.deferredToAccount);
+    const wasDeferred = Boolean(this.deferredToAccount);
     this.setCharValue("deferred_to_account", accountKey);
 
     // If isDeferred state has changed, send notification.
     if (Boolean(accountKey) != wasDeferred) {
-      let folderListenerManager = MailServices.mailSession.QueryInterface(
+      const folderListenerManager = MailServices.mailSession.QueryInterface(
         Ci.nsIFolderListener
       );
       folderListenerManager.onFolderBoolPropertyChanged(
@@ -211,7 +211,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
       return;
     }
     // Check if we are deferred to the local folders, and create INBOX if needed.
-    let server = MailServices.accounts.getAccount(accountKey).incomingServer;
+    const server = MailServices.accounts.getAccount(accountKey).incomingServer;
     if (server instanceof Ci.nsILocalMailIncomingServer) {
       // Check by URI instead of by name, because folder name can be localized.
       if (
@@ -244,7 +244,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
       return;
     }
 
-    let client = this.runningClient || new lazy.Pop3Client(this);
+    const client = this.runningClient || new lazy.Pop3Client(this);
     // Pass a clone of this._uidlsToMark to client.markMessages, because
     // this._uidlsToMark may be changed before markMessages finishes.
     client.markMessages(new Map(this._uidlsToMark));
@@ -252,7 +252,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
   }
 
   downloadMailFromServers(servers, msgWindow, folder, urlListener) {
-    let server = servers.shift();
+    const server = servers.shift();
     if (!server) {
       urlListener?.OnStopRunningUrl(null, Cr.NS_OK);
       return;
@@ -291,7 +291,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
    *   are deferred to.
    */
   _getDeferedServers(dstServer) {
-    let dstAccount = MailServices.accounts.FindAccountForServer(dstServer);
+    const dstAccount = MailServices.accounts.FindAccountForServer(dstServer);
     if (!dstAccount) {
       return [];
     }

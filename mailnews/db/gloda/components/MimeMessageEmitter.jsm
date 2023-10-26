@@ -79,7 +79,7 @@ MimeMessageEmitter.prototype = {
     this._partMap[""] = this._curPart;
 
     // pull options across...
-    let options = this._mimeMsg.MsgHdrToMimeMessage.OPTION_TUNNEL;
+    const options = this._mimeMsg.MsgHdrToMimeMessage.OPTION_TUNNEL;
     this._saneBodySize =
       options && "saneBodySize" in options ? options.saneBodySize : false;
 
@@ -109,7 +109,7 @@ MimeMessageEmitter.prototype = {
   },
 
   _stripParams(aValue) {
-    let indexSemi = aValue.indexOf(";");
+    const indexSemi = aValue.indexOf(";");
     if (indexSemi >= 0) {
       aValue = aValue.substring(0, indexSemi);
     }
@@ -117,7 +117,7 @@ MimeMessageEmitter.prototype = {
   },
 
   _beginPayload(aContentType) {
-    let contentTypeNoParams = this._stripParams(aContentType).toLowerCase();
+    const contentTypeNoParams = this._stripParams(aContentType).toLowerCase();
     if (
       contentTypeNoParams == "text/plain" ||
       contentTypeNoParams == "text/html" ||
@@ -197,7 +197,7 @@ MimeMessageEmitter.prototype = {
         // This is either naming the current part, or referring to an already
         //  existing part (in the case of multipart/related on its second pass).
         // As such, check if the name already exists in our part map.
-        let partName = this._stripParams(aValue);
+        const partName = this._stripParams(aValue);
         // if it does, then make the already-existing part at that path current
         if (partName in this._partMap) {
           this._curPart = this._partMap[partName];
@@ -214,7 +214,7 @@ MimeMessageEmitter.prototype = {
       //  ones we just handled.  (They were explicitly added for the js
       //  emitter.)
     } else if (this._state == kStateInHeaders) {
-      let lowerField = aField.toLowerCase();
+      const lowerField = aField.toLowerCase();
       if (lowerField in this._curPart.headers) {
         this._curPart.headers[lowerField].push(aValue);
       } else {
@@ -257,13 +257,13 @@ MimeMessageEmitter.prototype = {
    * @param {MimeMessage} aPart - Part to place.
    */
   _placePart(aPart) {
-    let partName = aPart.partName;
+    const partName = aPart.partName;
     this._partMap[partName] = aPart;
 
-    let [storagePartName, , parentPart] = this._findOrCreateParent(partName);
-    let lastDotIndex = storagePartName.lastIndexOf(".");
+    const [storagePartName, , parentPart] = this._findOrCreateParent(partName);
+    const lastDotIndex = storagePartName.lastIndexOf(".");
     if (parentPart !== undefined) {
-      let indexInParent =
+      const indexInParent =
         parseInt(storagePartName.substring(lastDotIndex + 1)) - 1;
       // handle out-of-order notification...
       if (indexInParent < parentPart.parts.length) {
@@ -290,13 +290,13 @@ MimeMessageEmitter.prototype = {
    * This function fills the missing bits.
    */
   _findOrCreateParent(aPartName) {
-    let partName = aPartName + "";
-    let parentName = partName.substring(0, partName.lastIndexOf("."));
+    const partName = aPartName + "";
+    const parentName = partName.substring(0, partName.lastIndexOf("."));
     let parentPart;
     if (parentName in this._partMap) {
       parentPart = this._partMap[parentName];
-      let lastDotIndex = partName.lastIndexOf(".");
-      let indexInParent = parseInt(partName.substring(lastDotIndex + 1)) - 1;
+      const lastDotIndex = partName.lastIndexOf(".");
+      const indexInParent = parseInt(partName.substring(lastDotIndex + 1)) - 1;
       if (
         "parts" in parentPart &&
         indexInParent == parentPart.parts.length - 1
@@ -307,7 +307,7 @@ MimeMessageEmitter.prototype = {
     }
 
     // Find the grandparent
-    let [, , grandParentPart] = this._findOrCreateParent(parentName);
+    const [, , grandParentPart] = this._findOrCreateParent(parentName);
     // Create the missing part.
     parentPart = new this._mimeMsg.MimeContainer("multipart/fake-container");
     // Add it to the grandparent, remember we added it in the hierarchy.
@@ -336,8 +336,8 @@ MimeMessageEmitter.prototype = {
       parentName = parentName.substring(0, parentName.lastIndexOf("."));
       parentPart = this._partMap[parentName];
     }
-    let childIndex = parentPart.parts.length;
-    let fallbackPartName =
+    const childIndex = parentPart.parts.length;
+    const fallbackPartName =
       (parentName ? parentName + "." : "") + (childIndex + 1);
     return (this._bogusPartTranslation[aPartName] = [
       fallbackPartName,
@@ -354,21 +354,21 @@ MimeMessageEmitter.prototype = {
    */
   _replacePart(aPart) {
     // _partMap always maps the libmime names to parts
-    let partName = aPart.partName;
+    const partName = aPart.partName;
     this._partMap[partName] = aPart;
 
-    let [storagePartName, , parentPart] = this._findOrCreateParent(partName);
+    const [storagePartName, , parentPart] = this._findOrCreateParent(partName);
 
-    let childNamePart = storagePartName.substring(
+    const childNamePart = storagePartName.substring(
       storagePartName.lastIndexOf(".") + 1
     );
-    let childIndex = parseInt(childNamePart) - 1;
+    const childIndex = parseInt(childNamePart) - 1;
 
     // The attachment has been encapsulated properly in a MIME part (most of
     // the cases). This does not hold for UUencoded-parts for instance (see
     // test_mime_attachments_size.js for instance).
     if (childIndex < parentPart.parts.length) {
-      let oldPart = parentPart.parts[childIndex];
+      const oldPart = parentPart.parts[childIndex];
       parentPart.parts[childIndex] = aPart;
       // copy over information from the original part
       aPart.parts = oldPart.parts;
@@ -422,7 +422,7 @@ MimeMessageEmitter.prototype = {
         this._partMap[partName].name = aName;
       }
     } else if (partName) {
-      let part = new this._mimeMsg.MimeMessageAttachment(
+      const part = new this._mimeMsg.MimeMessageAttachment(
         partName,
         aName,
         aContentType,
@@ -463,7 +463,7 @@ MimeMessageEmitter.prototype = {
   startBody(aIsBodyOnly, aMsgID, aOutCharset) {
     this._state = kStateInBody;
 
-    let subPartName =
+    const subPartName =
       this._curPart.partName == "" ? "1" : this._curPart.partName + ".1";
     this._beginPayload(this._curPart.get("content-type", "text/plain"));
     this._curPart.partName = subPartName;

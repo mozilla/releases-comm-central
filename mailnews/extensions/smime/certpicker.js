@@ -24,8 +24,8 @@ function onLoad() {
   }
 
   for (let i = 0; i < itemCount; i++) {
-    let menuItemNode = document.createXULElement("menuitem");
-    let nick = dialogParams.GetString(i);
+    const menuItemNode = document.createXULElement("menuitem");
+    const nick = dialogParams.GetString(i);
     menuItemNode.setAttribute("value", i);
     menuItemNode.setAttribute("label", nick); // This is displayed.
     selectElement.menupopup.appendChild(menuItemNode);
@@ -40,13 +40,13 @@ function onLoad() {
 }
 
 function setDetails() {
-  let selItem = document.getElementById("nicknames").value;
+  const selItem = document.getElementById("nicknames").value;
   if (selItem.length == 0) {
     return;
   }
 
-  let index = parseInt(selItem);
-  let details = dialogParams.GetString(index + itemCount);
+  const index = parseInt(selItem);
+  const details = dialogParams.GetString(index + itemCount);
   document.getElementById("details").value = details;
 }
 
@@ -60,7 +60,7 @@ function doOK() {
 
   // Signal the index of the selected cert in the list of cert nicknames
   // provided.
-  let index = parseInt(document.getElementById("nicknames").value);
+  const index = parseInt(document.getElementById("nicknames").value);
   dialogParams.SetInt(1, index);
 }
 

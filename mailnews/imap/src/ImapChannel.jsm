@@ -97,10 +97,10 @@ class ImapChannel extends MailChannel {
         return;
       }
       // It's a new entry, needs to read from the server.
-      let tee = Cc["@mozilla.org/network/stream-listener-tee;1"].createInstance(
-        Ci.nsIStreamListenerTee
-      );
-      let outStream = entry.openOutputStream(0, -1);
+      const tee = Cc[
+        "@mozilla.org/network/stream-listener-tee;1"
+      ].createInstance(Ci.nsIStreamListenerTee);
+      const outStream = entry.openOutputStream(0, -1);
       // When the tee stream receives data from the server, it writes to both
       // the original listener and outStream (memory cache).
       tee.init(this._listener, outStream, null);
@@ -148,17 +148,17 @@ class ImapChannel extends MailChannel {
   asyncOpen(listener) {
     this._logger.debug(`asyncOpen ${this.URI.spec}`);
     if (this._isFolderURL) {
-      let handler = Cc[
+      const handler = Cc[
         "@mozilla.org/uriloader/content-handler;1?type=x-application-imapfolder"
       ].createInstance(Ci.nsIContentHandler);
       handler.handleContent("x-application-imapfolder", null, this);
       return;
     }
 
-    let url = new URL(this.URI.spec);
+    const url = new URL(this.URI.spec);
     this._listener = listener;
     if (url.searchParams.get("part")) {
-      let converter = Cc["@mozilla.org/streamConverters;1"].getService(
+      const converter = Cc["@mozilla.org/streamConverters;1"].getService(
         Ci.nsIStreamConverterService
       );
       this._listener = converter.asyncConvertData(
@@ -169,7 +169,7 @@ class ImapChannel extends MailChannel {
       );
     }
 
-    let msgIds = this.URI.QueryInterface(Ci.nsIImapUrl).QueryInterface(
+    const msgIds = this.URI.QueryInterface(Ci.nsIImapUrl).QueryInterface(
       Ci.nsIMsgMailNewsUrl
     ).listOfMessageIds;
     this._msgKey = parseInt(msgIds);
@@ -225,8 +225,8 @@ class ImapChannel extends MailChannel {
       return false;
     }
 
-    let hdr = this.URI.folder.GetMessageHeader(this._msgKey);
-    let stream = this.URI.folder.getLocalMsgStream(hdr);
+    const hdr = this.URI.folder.GetMessageHeader(this._msgKey);
+    const stream = this.URI.folder.getLocalMsgStream(hdr);
     this._readFromCacheStream(stream);
     return true;
   }
@@ -237,7 +237,7 @@ class ImapChannel extends MailChannel {
    * @param {nsIInputStream} cacheStream - The input stream to read.
    */
   _readFromCacheStream(stream) {
-    let pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
+    const pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
       Ci.nsIInputStreamPump
     );
     this._contentType = "";
@@ -273,10 +273,10 @@ class ImapChannel extends MailChannel {
    */
   _readFromServer() {
     this._logger.debug("Read from server");
-    let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
+    const pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
     pipe.init(true, true, 0, 0);
-    let inputStream = pipe.inputStream;
-    let outputStream = pipe.outputStream;
+    const inputStream = pipe.inputStream;
+    const outputStream = pipe.outputStream;
 
     this._server.wrappedJSObject.withClient(this.URI.folder, client => {
       client.startRunningUrl(null, null, this.URI);

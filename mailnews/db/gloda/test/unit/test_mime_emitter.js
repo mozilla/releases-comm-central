@@ -344,7 +344,7 @@ add_setup(async function () {
 });
 
 add_task(async function test_stream_message() {
-  for (let messageInfo of messageInfos) {
+  for (const messageInfo of messageInfos) {
     await stream_message(messageInfo);
   }
 });
@@ -363,19 +363,19 @@ add_task(async function test_sane_bodies() {
   // This will come out to be 60k, of course.
   Assert.equal(hugeString.length, 60 * Math.pow(2, powahsOfTwo));
 
-  let synMsg = msgGen.makeMessage({
+  const synMsg = msgGen.makeMessage({
     body: { body: hugeString, contentType: "text/plain" },
   });
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders(
     [messageInjection.getInboxFolder()],
     [synSet]
   );
 
-  let msgHdr = synSet.getMsgHdr(0);
+  const msgHdr = synSet.getMsgHdr(0);
 
   let promiseResolve;
-  let promise = new Promise(resolve => {
+  const promise = new Promise(resolve => {
     promiseResolve = resolve;
   });
 
@@ -383,7 +383,7 @@ add_task(async function test_sane_bodies() {
     msgHdr,
     null,
     function (aMsgHdr, aMimeMsg) {
-      let bodyPart = aMimeMsg.parts[0];
+      const bodyPart = aMimeMsg.parts[0];
       // (the \r gets gone, so it's only 59 per line)
       if (bodyPart.body.length > 20 * 1024 + 59) {
         do_throw(
@@ -485,18 +485,18 @@ var expectedAttachmentsInfo = [
 ];
 
 add_task(async function test_attachments_correctness() {
-  for (let [i, params] of attMessagesParams.entries()) {
-    let synMsg = msgGen.makeMessage(params);
-    let synSet = new SyntheticMessageSet([synMsg]);
+  for (const [i, params] of attMessagesParams.entries()) {
+    const synMsg = msgGen.makeMessage(params);
+    const synSet = new SyntheticMessageSet([synMsg]);
     await messageInjection.addSetsToFolders(
       [messageInjection.getInboxFolder()],
       [synSet]
     );
 
-    let msgHdr = synSet.getMsgHdr(0);
+    const msgHdr = synSet.getMsgHdr(0);
 
     let promiseResolve;
-    let promise = new Promise(resolve => {
+    const promise = new Promise(resolve => {
       promiseResolve = resolve;
     });
 
@@ -505,9 +505,9 @@ add_task(async function test_attachments_correctness() {
       null,
       function (aMsgHdr, aMimeMsg) {
         try {
-          let expected = expectedAttachmentsInfo[i];
+          const expected = expectedAttachmentsInfo[i];
           if ("firstAttachmentName" in expected) {
-            let att = aMimeMsg.allUserAttachments[0];
+            const att = aMimeMsg.allUserAttachments[0];
             Assert.equal(att.name.length, expected.firstAttachmentName.length);
             for (let j = 0; j < att.name.length; ++j) {
               Assert.equal(
@@ -521,7 +521,7 @@ add_task(async function test_attachments_correctness() {
             aMimeMsg.allAttachments.length,
             expected.allAttachmentsContentTypes.length
           );
-          for (let [j, att] of aMimeMsg.allAttachments.entries()) {
+          for (const [j, att] of aMimeMsg.allAttachments.entries()) {
             Assert.equal(
               att.contentType,
               expected.allAttachmentsContentTypes[j]
@@ -532,7 +532,7 @@ add_task(async function test_attachments_correctness() {
             aMimeMsg.allUserAttachments.length,
             expected.allUserAttachmentsContentTypes.length
           );
-          for (let [j, att] of aMimeMsg.allUserAttachments.entries()) {
+          for (const [j, att] of aMimeMsg.allUserAttachments.entries()) {
             Assert.equal(
               att.contentType,
               expected.allUserAttachmentsContentTypes[j]
@@ -540,9 +540,9 @@ add_task(async function test_attachments_correctness() {
           }
 
           // Test
-          for (let att of aMimeMsg.allUserAttachments) {
-            let uri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
-            let glodaAttachment = GlodaFundAttr.glodaAttFromMimeAtt(
+          for (const att of aMimeMsg.allUserAttachments) {
+            const uri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
+            const glodaAttachment = GlodaFundAttr.glodaAttFromMimeAtt(
               { folderMessageURI: uri },
               att
             );
@@ -586,17 +586,17 @@ var weirdMessageInfos = [
 ];
 
 add_task(async function test_part12_not_an_attachment() {
-  let synMsg = msgGen.makeMessage(weirdMessageInfos[0]);
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synMsg = msgGen.makeMessage(weirdMessageInfos[0]);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders(
     [messageInjection.getInboxFolder()],
     [synSet]
   );
 
-  let msgHdr = synSet.getMsgHdr(0);
+  const msgHdr = synSet.getMsgHdr(0);
 
   let promiseResolve;
-  let promise = new Promise(resolve => {
+  const promise = new Promise(resolve => {
     promiseResolve = resolve;
   });
 
@@ -614,17 +614,17 @@ add_task(async function test_part12_not_an_attachment() {
 });
 
 async function stream_message(info) {
-  let synMsg = msgGen.makeMessage(info);
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synMsg = msgGen.makeMessage(info);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders(
     [messageInjection.getInboxFolder()],
     [synSet]
   );
 
-  let msgHdr = synSet.getMsgHdr(0);
+  const msgHdr = synSet.getMsgHdr(0);
 
   let promiseResolve;
-  let promise = new Promise(resolve => {
+  const promise = new Promise(resolve => {
     promiseResolve = resolve;
   });
   MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
@@ -718,14 +718,14 @@ function verify_body_part_equivalence(aSynBodyPart, aMimePart) {
     let iPart;
     let realPartOffsetCompensator = 0;
     for (iPart = 0; iPart < aSynBodyPart.parts.length; iPart++) {
-      let subSyn = aSynBodyPart.parts[iPart];
+      const subSyn = aSynBodyPart.parts[iPart];
       // If this is a degenerate empty, it should not produce output, so
       //  compensate for the offset drift and get on with our lives.
       if (subSyn instanceof SyntheticDegeneratePartEmpty) {
         realPartOffsetCompensator--;
         continue;
       }
-      let subMime = aMimePart.parts[iPart + realPartOffsetCompensator];
+      const subMime = aMimePart.parts[iPart + realPartOffsetCompensator];
       // Our special case is the signature, which libmime does not expose to us.
       // Ignore! (Also, have our too-many-part checker below not trip on this.)
       if (subSyn._contentType != "application/x-pkcs7-signature") {

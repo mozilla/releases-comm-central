@@ -81,7 +81,7 @@ add_task(async function moveCardToLocal() {
  * CardDAV directory.
  */
 add_task(async function () {
-  let deletedPromise = observer.waitFor("addrbook-contact-deleted");
+  const deletedPromise = observer.waitFor("addrbook-contact-deleted");
   cardDAVDirectory.deleteCards(cardDAVDirectory.childCards);
   await deletedPromise;
   Assert.equal(cardDAVDirectory.childCards.length, 0);
@@ -92,7 +92,7 @@ add_task(async function copyCardToCardDAV() {
   cardDAVDirectory.dropCard(localCard, true);
   Assert.equal(cardDAVDirectory.childCards.length, 1);
 
-  let newCard = cardDAVDirectory.childCards[0];
+  const newCard = cardDAVDirectory.childCards[0];
   Assert.notEqual(newCard.UID, "copyme");
   Assert.equal(localCard.getProperty("_etag", "EMPTY"), "EMPTY");
   Assert.equal(localCard.getProperty("_href", "EMPTY"), "EMPTY");
@@ -102,7 +102,7 @@ add_task(async function copyCardToCardDAV() {
   );
 
   await observer.waitFor("addrbook-contact-updated");
-  let newCardAfterSync = cardDAVDirectory.childCards[0];
+  const newCardAfterSync = cardDAVDirectory.childCards[0];
   Assert.equal(newCardAfterSync.getProperty("_etag", "EMPTY"), "85");
   Assert.equal(
     newCardAfterSync.getProperty("_href", "EMPTY"),
@@ -116,7 +116,7 @@ add_task(async function copyCardToCardDAV() {
 
 /** Remove the card from the CardDAV directory again. */
 add_task(async function () {
-  let deletedPromise = observer.waitFor("addrbook-contact-deleted");
+  const deletedPromise = observer.waitFor("addrbook-contact-deleted");
   cardDAVDirectory.deleteCards(cardDAVDirectory.childCards);
   await deletedPromise;
   Assert.equal(cardDAVDirectory.childCards.length, 0);
@@ -127,7 +127,7 @@ add_task(async function moveCardToCardDAV() {
   cardDAVDirectory.addCard(localCard);
   Assert.equal(cardDAVDirectory.childCards.length, 1);
 
-  let newCard = cardDAVDirectory.childCards[0];
+  const newCard = cardDAVDirectory.childCards[0];
   // UID should not change
   Assert.equal(newCard.UID, "copyme");
   Assert.equal(localCard.getProperty("_etag", "EMPTY"), "EMPTY");
@@ -136,7 +136,7 @@ add_task(async function moveCardToCardDAV() {
   vCardEqual(localCard.getProperty("_vCard", "EMPTY"), initialVCard);
 
   await observer.waitFor("addrbook-contact-updated");
-  let newCardAfterSync = cardDAVDirectory.childCards[0];
+  const newCardAfterSync = cardDAVDirectory.childCards[0];
   Assert.equal(newCardAfterSync.getProperty("_etag", "EMPTY"), "55");
   Assert.equal(
     newCardAfterSync.getProperty("_href", "EMPTY"),

@@ -28,8 +28,8 @@ add_setup(function () {
   gNotEmptyLocal4 =
     localAccountUtils.rootFolder.createLocalSubfolder("not empty 4");
 
-  let messageGenerator = new MessageGenerator();
-  let message = messageGenerator.makeMessage();
+  const messageGenerator = new MessageGenerator();
+  const message = messageGenerator.makeMessage();
   gNotEmptyLocal4.QueryInterface(Ci.nsIMsgLocalMailFolder);
   gNotEmptyLocal4.addMessage(message.toMboxString());
 
@@ -42,7 +42,7 @@ add_setup(function () {
 });
 
 add_task(async function copyFolder1() {
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFolder(
     gEmptyLocal1,
     IMAPPump.inbox,
@@ -54,7 +54,7 @@ add_task(async function copyFolder1() {
 });
 
 add_task(async function copyFolder2() {
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFolder(
     gEmptyLocal2,
     IMAPPump.inbox,
@@ -66,7 +66,7 @@ add_task(async function copyFolder2() {
 });
 
 add_task(async function copyFolder3() {
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFolder(
     gEmptyLocal3,
     IMAPPump.inbox,
@@ -78,34 +78,34 @@ add_task(async function copyFolder3() {
 });
 
 add_task(function verifyFolders() {
-  let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
-  let folder2 = IMAPPump.inbox.getChildNamed("empty 2");
-  let folder3 = IMAPPump.inbox.getChildNamed("empty 3");
+  const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
+  const folder2 = IMAPPump.inbox.getChildNamed("empty 2");
+  const folder3 = IMAPPump.inbox.getChildNamed("empty 3");
   Assert.ok(folder1 !== null);
   Assert.ok(folder2 !== null);
   Assert.ok(folder3 !== null);
 });
 
 add_task(async function moveImapFolder1() {
-  let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
-  let folder2 = IMAPPump.inbox.getChildNamed("empty 2");
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
+  const folder2 = IMAPPump.inbox.getChildNamed("empty 2");
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFolder(folder2, folder1, true, copyListener, null);
   await copyListener.promise;
 });
 
 add_task(async function moveImapFolder2() {
-  let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
-  let folder3 = IMAPPump.inbox.getChildNamed("empty 3");
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
+  const folder3 = IMAPPump.inbox.getChildNamed("empty 3");
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFolder(folder3, folder1, true, copyListener, null);
   await copyListener.promise;
 });
 
 add_task(function verifyImapFolders() {
-  let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
-  let folder2 = folder1.getChildNamed("empty 2");
-  let folder3 = folder1.getChildNamed("empty 3");
+  const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
+  const folder2 = folder1.getChildNamed("empty 2");
+  const folder3 = folder1.getChildNamed("empty 3");
   Assert.ok(folder1 !== null);
   Assert.ok(folder2 !== null);
   Assert.ok(folder3 !== null);
@@ -115,7 +115,7 @@ add_task(async function testImapFolderCopyFailure() {
   IMAPPump.daemon.commandToFail = "APPEND";
   // we expect NS_MSG_ERROR_IMAP_COMMAND_FAILED;
   const NS_MSG_ERROR_IMAP_COMMAND_FAILED = 0x80550021;
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFolder(
     gNotEmptyLocal4,
     IMAPPump.inbox,

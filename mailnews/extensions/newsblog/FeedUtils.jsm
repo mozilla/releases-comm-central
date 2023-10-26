@@ -70,7 +70,7 @@ var FeedUtils = {
   // Maximum number of concurrent in progress feeds, across all accounts.
   kMaxConcurrentFeeds: 25,
   get MAX_CONCURRENT_FEEDS() {
-    let pref = "rss.max_concurrent_feeds";
+    const pref = "rss.max_concurrent_feeds";
     if (Services.prefs.prefHasUserValue(pref)) {
       return Services.prefs.getIntPref(pref);
     }
@@ -84,7 +84,7 @@ var FeedUtils = {
   // file. The default delay is one day.
   kInvalidItemPurgeDelayDays: 1,
   get INVALID_ITEM_PURGE_DELAY() {
-    let pref = "rss.invalid_item_purge_delay_days";
+    const pref = "rss.invalid_item_purge_delay_days";
     if (Services.prefs.prefHasUserValue(pref)) {
       return Services.prefs.getIntPref(pref) * this.MILLISECONDS_PER_DAY;
     }
@@ -121,8 +121,8 @@ var FeedUtils = {
    * @returns {nsIMsgIncomingServer}[] - Array of servers (empty array if none).
    */
   getAllRssServerRootFolders() {
-    let rssRootFolders = [];
-    for (let server of MailServices.accounts.allServers) {
+    const rssRootFolders = [];
+    for (const server of MailServices.accounts.allServers) {
       if (server && server.type == "rss") {
         rssRootFolders.push(server.rootFolder);
       }
@@ -144,19 +144,19 @@ var FeedUtils = {
    * @returns {nsIMsgAccount} - The creaged account.
    */
   createRssAccount(aName) {
-    let userName = "nobody";
+    const userName = "nobody";
     let hostName = "Feeds";
-    let hostNamePref = hostName;
-    let server;
-    let serverType = "rss";
-    let defaultName = FeedUtils.strings.GetStringFromName("feeds-accountname");
+    const hostNamePref = hostName;
+    const serverType = "rss";
+    const defaultName =
+      FeedUtils.strings.GetStringFromName("feeds-accountname");
     let i = 2;
     while (MailServices.accounts.findServer(userName, hostName, serverType)) {
       // If "Feeds" exists, try "Feeds-2", then "Feeds-3", etc.
       hostName = hostNamePref + "-" + i++;
     }
 
-    server = MailServices.accounts.createIncomingServer(
+    const server = MailServices.accounts.createIncomingServer(
       userName,
       hostName,
       serverType
@@ -164,7 +164,7 @@ var FeedUtils = {
     server.biffMinutes = FeedUtils.kBiffPollMinutes;
     server.prettyName = aName ? aName : defaultName;
     server.valid = true;
-    let account = MailServices.accounts.createAccount();
+    const account = MailServices.accounts.createAccount();
     account.incomingServer = server;
     // Initialize the feed_options now.
     this.getOptionsAcct(server);
@@ -200,12 +200,12 @@ var FeedUtils = {
    * @returns {Boolean} - true if exists else false.
    */
   feedAlreadyExists(aUrl, aServer) {
-    let ds = this.getSubscriptionsDS(aServer);
-    let sub = ds.data.find(x => x.url == aUrl);
+    const ds = this.getSubscriptionsDS(aServer);
+    const sub = ds.data.find(x => x.url == aUrl);
     if (sub === undefined) {
       return false;
     }
-    let folder = sub.destFolder;
+    const folder = sub.destFolder;
     this.log.info(
       "FeedUtils.feedAlreadyExists: feed url " +
         aUrl +
@@ -258,7 +258,7 @@ var FeedUtils = {
       return;
     }
 
-    let forceDownload = !aIsBiff;
+    const forceDownload = !aIsBiff;
     let inStartup = false;
     if (aFolder.isServer) {
       // The lastUpdateTime is |null| only at session startup/initialization.
@@ -295,7 +295,7 @@ var FeedUtils = {
             folder.filePath.path
         );
 
-        let feedUrlArray = FeedUtils.getFeedUrlsInFolder(folder);
+        const feedUrlArray = FeedUtils.getFeedUrlsInFolder(folder);
         // Continue if there are no feedUrls for the folder in the feeds
         // database.  All folders in Trash are skipped.
         if (!feedUrlArray) {
@@ -310,11 +310,11 @@ var FeedUtils = {
         );
 
         // We need to kick off a download for each feed.
-        let now = Date.now();
-        for (let url of feedUrlArray) {
+        const now = Date.now();
+        for (const url of feedUrlArray) {
           // Check whether this feed should be updated; if forceDownload is true
           // skip the per feed check.
-          let status = FeedUtils.getStatus(folder, url);
+          const status = FeedUtils.getStatus(folder, url);
           if (!forceDownload) {
             // Also skip if user paused, or error paused (but not inStartup;
             // go check the feed again), or update interval hasn't expired.
@@ -346,7 +346,7 @@ var FeedUtils = {
           }
 
           // Create a feed object.
-          let feed = new lazy.Feed(url, folder);
+          const feed = new lazy.Feed(url, folder);
 
           // init can be called multiple times. Checks if it should actually
           // init itself.
@@ -390,7 +390,7 @@ var FeedUtils = {
 
           Services.tm.mainThread.dispatch(function () {
             try {
-              let done = getFeed.next().done;
+              const done = getFeed.next().done;
               if (done) {
                 // Finished with all feeds in base aFolder and its subfolders.
                 FeedUtils.log.debug(
@@ -413,9 +413,9 @@ var FeedUtils = {
       }
     }
 
-    let getFeed = await feeder();
+    const getFeed = await feeder();
     try {
-      let done = getFeed.next().done;
+      const done = getFeed.next().done;
       if (done) {
         // Nothing to do.
         FeedUtils.log.debug(
@@ -470,7 +470,7 @@ var FeedUtils = {
     aUrl = aUrl.replace(/^feed:\x2f\x2f/i, "http://");
     aUrl = aUrl.replace(/^feed:/i, "");
 
-    let msgWindow = Services.wm.getMostRecentWindow("mail:3pane").msgWindow;
+    const msgWindow = Services.wm.getMostRecentWindow("mail:3pane").msgWindow;
 
     // Make sure we aren't already subscribed to this feed before we attempt
     // to subscribe to it.
@@ -481,7 +481,7 @@ var FeedUtils = {
       return;
     }
 
-    let feed = new lazy.Feed(aUrl, aFolder);
+    const feed = new lazy.Feed(aUrl, aFolder);
     // Default setting for new feeds per account settings.
     feed.quickMode = feed.server.getBoolValue("quickMode");
     feed.options = FeedUtils.getOptionsAcct(feed.server);
@@ -504,7 +504,7 @@ var FeedUtils = {
    */
   pauseFeedFolderUpdates(aFolder, aPause, aBiffNow) {
     if (aFolder.isServer) {
-      let serverFolder = aFolder.server.rootFolder;
+      const serverFolder = aFolder.server.rootFolder;
       // Remove server from biff first. If enabling biff, this will make the
       // latest biffMinutes take effect now rather than waiting for the timer
       // to expire.
@@ -521,14 +521,14 @@ var FeedUtils = {
       return;
     }
 
-    let feedUrls = FeedUtils.getFeedUrlsInFolder(aFolder);
+    const feedUrls = FeedUtils.getFeedUrlsInFolder(aFolder);
     if (!feedUrls) {
       return;
     }
 
-    for (let feedUrl of feedUrls) {
-      let feed = new lazy.Feed(feedUrl, aFolder);
-      let options = feed.options;
+    for (const feedUrl of feedUrls) {
+      const feed = new lazy.Feed(feedUrl, aFolder);
+      const options = feed.options;
       options.updates.enabled = !aPause;
       feed.options = options;
       FeedUtils.setStatus(aFolder, feedUrl, "enabled", !aPause);
@@ -537,14 +537,14 @@ var FeedUtils = {
       );
     }
 
-    let win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
+    const win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
     if (win) {
-      let curItem = win.FeedSubscriptions.mView.currentItem;
+      const curItem = win.FeedSubscriptions.mView.currentItem;
       win.FeedSubscriptions.refreshSubscriptionView();
       if (curItem.container) {
         win.FeedSubscriptions.selectFolder(curItem.folder);
       } else {
-        let feed = new lazy.Feed(curItem.url, curItem.parentFolder);
+        const feed = new lazy.Feed(curItem.url, curItem.parentFolder);
         win.FeedSubscriptions.selectFeed(feed);
       }
     }
@@ -560,7 +560,7 @@ var FeedUtils = {
    */
   addFeed(aFeed) {
     // Find or create subscription entry.
-    let ds = this.getSubscriptionsDS(aFeed.server);
+    const ds = this.getSubscriptionsDS(aFeed.server);
     let sub = ds.data.find(x => x.url == aFeed.url);
     if (sub === undefined) {
       sub = {};
@@ -591,7 +591,7 @@ var FeedUtils = {
     aFeed.removeInvalidItems(true);
 
     // Remove the entry in the subscriptions db.
-    let ds = this.getSubscriptionsDS(aFeed.server);
+    const ds = this.getSubscriptionsDS(aFeed.server);
     ds.data = ds.data.filter(x => x.url != aFeed.url);
     ds.saveSoon();
 
@@ -622,10 +622,10 @@ var FeedUtils = {
       return false;
     }
 
-    let title = aFeed.title;
-    let link = aFeed.link;
-    let quickMode = aFeed.quickMode;
-    let options = aFeed.options;
+    const title = aFeed.title;
+    const link = aFeed.link;
+    const quickMode = aFeed.quickMode;
+    const options = aFeed.options;
 
     this.deleteFeed(aFeed);
     aFeed.url = aNewUrl;
@@ -635,7 +635,7 @@ var FeedUtils = {
     aFeed.options = options;
     this.addFeed(aFeed);
 
-    let win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
+    const win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
     if (win) {
       win.FeedSubscriptions.refreshSubscriptionView(aFeed.folder, aNewUrl);
     }
@@ -698,11 +698,11 @@ var FeedUtils = {
       return null;
     }
 
-    let feedUrlArray = [];
+    const feedUrlArray = [];
 
     // Get the list from the feeds database.
     try {
-      let ds = this.getSubscriptionsDS(aFolder.server);
+      const ds = this.getSubscriptionsDS(aFolder.server);
       for (const sub of ds.data) {
         if (sub.destFolder == aFolder.URI) {
           feedUrlArray.push(sub.url);
@@ -773,13 +773,13 @@ var FeedUtils = {
    * @returns {string} - Space separated properties.
    */
   getFolderProperties(aFolder, aFeedUrl) {
-    let folder = aFolder;
-    let feedUrls = aFeedUrl ? [aFeedUrl] : this.getFeedUrlsInFolder(aFolder);
+    const folder = aFolder;
+    const feedUrls = aFeedUrl ? [aFeedUrl] : this.getFeedUrlsInFolder(aFolder);
     if (!feedUrls && !folder.isServer) {
       return "";
     }
 
-    let serverEnabled = this.getStatus(
+    const serverEnabled = this.getStatus(
       folder.server.rootFolder,
       folder.server.rootFolder.URI
     ).enabled;
@@ -791,8 +791,8 @@ var FeedUtils = {
     let hasError,
       isBusy,
       numPaused = 0;
-    for (let feedUrl of feedUrls) {
-      let feedStatus = this.getStatus(folder, feedUrl);
+    for (const feedUrl of feedUrls) {
+      const feedStatus = this.getStatus(folder, feedUrl);
       if (
         feedStatus.code == FeedUtils.kNewsBlogInvalidFeed ||
         feedStatus.code == FeedUtils.kNewsBlogRequestFailure ||
@@ -829,7 +829,7 @@ var FeedUtils = {
       return null;
     }
 
-    let serverKey = aFolder.server.serverURI;
+    const serverKey = aFolder.server.serverURI;
     if (!this[serverKey]) {
       this[serverKey] = {};
     }
@@ -849,7 +849,7 @@ var FeedUtils = {
         feed = null;
       } else {
         // Seed persisted status properties for servers.
-        let optionsAcct = FeedUtils.getOptionsAcct(aFolder.server);
+        const optionsAcct = FeedUtils.getOptionsAcct(aFolder.server);
         this[serverKey][aUrl].status.enabled = optionsAcct.doBiff;
       }
       FeedUtils.log.debug("getStatus: seed url - " + aUrl);
@@ -885,7 +885,7 @@ var FeedUtils = {
 
     Services.obs.notifyObservers(aFolder, "folder-properties-changed");
 
-    let win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
+    const win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
     if (win) {
       win.FeedSubscriptions.mView.tree.invalidate();
     }
@@ -922,7 +922,7 @@ var FeedUtils = {
     }
 
     if (folder) {
-      let feed = new lazy.Feed(url, folder);
+      const feed = new lazy.Feed(url, folder);
       url = feed.link && feed.link.startsWith("http") ? feed.link : url;
     }
 
@@ -931,9 +931,9 @@ var FeedUtils = {
      * @param {Blob} blob - Blob to convert.
      * @returns {string} data URL.
      */
-    let blobToBase64 = blob => {
+    const blobToBase64 = blob => {
       return new Promise((resolve, reject) => {
-        let reader = new FileReader();
+        const reader = new FileReader();
         reader.onloadend = () => {
           if (reader.result.endsWith("base64,")) {
             reject(new Error(`Invalid blob encountered.`));
@@ -957,8 +957,8 @@ var FeedUtils = {
      * @param {string} url - The favicon url.
      * @returns {Blob} - Existing favicon.
      */
-    let fetchFavicon = async url => {
-      let response = await fetch(url);
+    const fetchFavicon = async url => {
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`No favicon for url ${url}`);
       }
@@ -973,19 +973,19 @@ var FeedUtils = {
      * @param {string} page - The page url to check.
      * @returns {Blob} - Found favicon.
      */
-    let discoverFaviconURL = async page => {
-      let response = await fetch(page);
+    const discoverFaviconURL = async page => {
+      const response = await fetch(page);
       if (!response.ok) {
         throw new Error(`No favicon for page ${page}`);
       }
       if (!/^text\/html/i.test(response.headers.get("Content-Type"))) {
         throw new Error(`No page to get favicon from for ${page}`);
       }
-      let doc = new DOMParser().parseFromString(
+      const doc = new DOMParser().parseFromString(
         await response.text(),
         "text/html"
       );
-      let iconLink = doc.querySelector(
+      const iconLink = doc.querySelector(
         `link[href][rel~='icon']:is([sizes~='any'],[sizes~='16x16' i],[sizes~='32x32' i],:not([sizes])`
       );
       if (!iconLink) {
@@ -1000,8 +1000,8 @@ var FeedUtils = {
       return new URL(page).origin + iconLink.href;
     };
 
-    let uri = Services.io.newURI(url);
-    let iconURL = await fetchFavicon(uri.prePath + "/favicon.ico")
+    const uri = Services.io.newURI(url);
+    const iconURL = await fetchFavicon(uri.prePath + "/favicon.ico")
       .then(blobToBase64)
       .catch(e => {
         return discoverFaviconURL(url)
@@ -1071,7 +1071,7 @@ var FeedUtils = {
     }
 
     let newFolder = aFolder;
-    let newParentURI = aFolder.URI;
+    const newParentURI = aFolder.URI;
     let origParentURI = aOrigFolder.URI;
     if (aAction == "move" || aAction == "copy") {
       // Get the new folder. Don't process the entire parent (new dest folder)!
@@ -1085,7 +1085,7 @@ var FeedUtils = {
 
     // There may be subfolders, but we only get a single notification; iterate
     // over all descendent folders of the folder whose location has changed.
-    for (let newSubFolder of newFolder.descendants) {
+    for (const newSubFolder of newFolder.descendants) {
       FeedUtils.updateFolderChangeInFeedsDS(
         newSubFolder,
         aOrigFolder,
@@ -1128,16 +1128,16 @@ var FeedUtils = {
     );
 
     // Get the original folder's URI.
-    let folderURI = aFolder.URI;
-    let origURI =
+    const folderURI = aFolder.URI;
+    const origURI =
       aNewAncestorURI && aOrigAncestorURI
         ? folderURI.replace(aNewAncestorURI, aOrigAncestorURI)
         : aOrigFolder.URI;
     this.log.debug("updateFolderChangeInFeedsDS: urls origURI  - " + origURI);
 
     // Get affected feed subscriptions - all the ones in the original folder.
-    let origDS = this.getSubscriptionsDS(aOrigFolder.server);
-    let affectedSubs = origDS.data.filter(sub => sub.destFolder == origURI);
+    const origDS = this.getSubscriptionsDS(aOrigFolder.server);
+    const affectedSubs = origDS.data.filter(sub => sub.destFolder == origURI);
     if (affectedSubs.length == 0) {
       this.log.debug("updateFolderChangeInFeedsDS: no feedUrls in this folder");
       return;
@@ -1146,20 +1146,20 @@ var FeedUtils = {
     if (this.isInTrash(aFolder)) {
       // Moving to trash. Unsubscribe.
       affectedSubs.forEach(function (sub) {
-        let feed = new lazy.Feed(sub.url, aFolder);
+        const feed = new lazy.Feed(sub.url, aFolder);
         FeedUtils.deleteFeed(feed);
       });
       // note: deleteFeed() calls saveSoon(), so we don't need to.
     } else if (aFolder.server == aOrigFolder.server) {
       // Staying in same account - just update destFolder as required
-      for (let sub of affectedSubs) {
+      for (const sub of affectedSubs) {
         sub.destFolder = folderURI;
       }
       origDS.saveSoon();
     } else {
       // Moving between accounts.
-      let destDS = this.getSubscriptionsDS(aFolder.server);
-      for (let sub of affectedSubs) {
+      const destDS = this.getSubscriptionsDS(aFolder.server);
+      for (const sub of affectedSubs) {
         // Move to the new subscription db (replacing any existing entry).
         origDS.data = origDS.data.filter(x => x.url != sub.url);
         destDS.data = destDS.data.filter(x => x.url != sub.url);
@@ -1227,7 +1227,7 @@ var FeedUtils = {
     }
 
     // Now ensure the folder name is not a dupe; if so append index.
-    let folderNameBase = folderName;
+    const folderNameBase = folderName;
     let i = 2;
     while (aParentFolder.containsChildNamed(folderName)) {
       folderName = folderNameBase + "-" + i++;
@@ -1289,9 +1289,9 @@ var FeedUtils = {
 
   getOptionsAcct(aServer) {
     let optionsAcct;
-    let optionsAcctPref = "mail.server." + aServer.key + ".feed_options";
-    let check_new_mail = "mail.server." + aServer.key + ".check_new_mail";
-    let check_time = "mail.server." + aServer.key + ".check_time";
+    const optionsAcctPref = "mail.server." + aServer.key + ".feed_options";
+    const check_new_mail = "mail.server." + aServer.key + ".check_new_mail";
+    const check_time = "mail.server." + aServer.key + ".check_time";
 
     // Biff enabled or not. Make sure pref exists.
     if (!Services.prefs.prefHasUserValue(check_new_mail)) {
@@ -1319,20 +1319,20 @@ var FeedUtils = {
       this.initAcct(aServer);
     }
 
-    let newOptions = this.newOptions(optionsAcct);
+    const newOptions = this.newOptions(optionsAcct);
     this.setOptionsAcct(aServer, newOptions);
     newOptions.doBiff = Services.prefs.getBoolPref(check_new_mail);
     return newOptions;
   },
 
   setOptionsAcct(aServer, aOptions) {
-    let optionsAcctPref = "mail.server." + aServer.key + ".feed_options";
+    const optionsAcctPref = "mail.server." + aServer.key + ".feed_options";
     aOptions = aOptions || this.optionsTemplate;
     Services.prefs.setCharPref(optionsAcctPref, JSON.stringify(aOptions));
   },
 
   initAcct(aServer) {
-    let serverPrefStr = "mail.server." + aServer.key;
+    const serverPrefStr = "mail.server." + aServer.key;
     // System polling interval. Effective after current interval expires on
     // change; no user facing ui.
     Services.prefs.setIntPref(
@@ -1345,7 +1345,9 @@ var FeedUtils = {
     // (Pause All Updates). Checking Enable updates or unchecking Pause takes
     // effect immediately. Here on startup, we just ensure the polling interval
     // above is reset immediately.
-    let doBiff = Services.prefs.getBoolPref(serverPrefStr + ".check_new_mail");
+    const doBiff = Services.prefs.getBoolPref(
+      serverPrefStr + ".check_new_mail"
+    );
     FeedUtils.log.debug(
       "initAcct: " + aServer.prettyName + " doBiff - " + doBiff
     );
@@ -1360,7 +1362,7 @@ var FeedUtils = {
     // Options version has changed; meld current template with existing
     // aCurrentOptions settings, removing items gone from the template while
     // preserving user settings for retained template items.
-    let newOptions = this.optionsTemplate;
+    const newOptions = this.optionsTemplate;
     this.Mixins.meld(aCurrentOptions, false, true).into(newOptions);
     newOptions.version = this.optionsTemplate.version;
     return newOptions;
@@ -1372,7 +1374,7 @@ var FeedUtils = {
   Mixins: {
     meld(source, keep, replace) {
       function meldin(source, target, keep, replace) {
-        for (let attribute in source) {
+        for (const attribute in source) {
           // Recurse for objects.
           if (
             typeof source[attribute] == "object" &&
@@ -1417,10 +1419,10 @@ var FeedUtils = {
       return this[aServer.serverURI].FeedsDS;
     }
 
-    let rssServer = aServer.QueryInterface(Ci.nsIRssIncomingServer);
-    let feedsFile = rssServer.subscriptionsPath; // Path to feeds.json
-    let exists = feedsFile.exists();
-    let ds = new lazy.JSONFile({
+    const rssServer = aServer.QueryInterface(Ci.nsIRssIncomingServer);
+    const feedsFile = rssServer.subscriptionsPath; // Path to feeds.json
+    const exists = feedsFile.exists();
+    const ds = new lazy.JSONFile({
       path: feedsFile.path,
       backupTo: feedsFile.path + ".backup",
     });
@@ -1448,8 +1450,8 @@ var FeedUtils = {
    *                        subscription or attribute doesn't exist).
    */
   getSubscriptionAttr(feedURL, server, attrName, defaultValue) {
-    let ds = this.getSubscriptionsDS(server);
-    let sub = ds.data.find(feed => feed.url == feedURL);
+    const ds = this.getSubscriptionsDS(server);
+    const sub = ds.data.find(feed => feed.url == feedURL);
     if (sub === undefined || sub[attrName] === undefined) {
       return defaultValue;
     }
@@ -1469,7 +1471,7 @@ var FeedUtils = {
    * @returns {void}
    */
   setSubscriptionAttr(feedURL, server, attrName, value) {
-    let ds = this.getSubscriptionsDS(server);
+    const ds = this.getSubscriptionsDS(server);
     let sub = ds.data.find(feed => feed.url == feedURL);
     if (sub === undefined) {
       // Add a new entry.
@@ -1493,10 +1495,10 @@ var FeedUtils = {
       return this[aServer.serverURI].FeedItemsDS;
     }
 
-    let rssServer = aServer.QueryInterface(Ci.nsIRssIncomingServer);
-    let itemsFile = rssServer.feedItemsPath; // Path to feeditems.json
-    let exists = itemsFile.exists();
-    let ds = new lazy.JSONFile({
+    const rssServer = aServer.QueryInterface(Ci.nsIRssIncomingServer);
+    const itemsFile = rssServer.feedItemsPath; // Path to feeditems.json
+    const exists = itemsFile.exists();
+    const ds = new lazy.JSONFile({
       path: itemsFile.path,
       backupTo: itemsFile.path + ".backup",
     });
@@ -1522,8 +1524,8 @@ var FeedUtils = {
    * @returns {nsIURI} or null           - A uri if valid, null if none.
    */
   getFeedUriFromDataTransfer(aDataTransfer) {
-    let dt = aDataTransfer;
-    let types = ["text/x-moz-url-data", "text/x-moz-url"];
+    const dt = aDataTransfer;
+    const types = ["text/x-moz-url-data", "text/x-moz-url"];
     let validUri = false;
     let uri;
 
@@ -1554,7 +1556,7 @@ var FeedUtils = {
     } else {
       // Go through the types and see if there's a url; get the first one.
       for (let i = 0; i < dt.types.length; i++) {
-        let spec = dt.mozGetDataAt(dt.types[i], 0);
+        const spec = dt.mozGetDataAt(dt.types[i], 0);
         this.log.trace(
           "getFeedUriFromDataTransfer: dropEffect:index:type:value - " +
             dt.dropEffect +
@@ -1588,15 +1590,15 @@ var FeedUtils = {
    *          - Array with 2 error codes, (nulls if not determined).
    */
   createTCPErrorFromFailedXHR(xhr) {
-    let status = xhr.channel.QueryInterface(Ci.nsIRequest).status;
+    const status = xhr.channel.QueryInterface(Ci.nsIRequest).status;
 
     let errType = null;
     let errName = null;
     if ((status & 0xff0000) === 0x5a0000) {
       // Security module.
-      let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
-        Ci.nsINSSErrorsService
-      );
+      const nssErrorsService = Cc[
+        "@mozilla.org/nss_errors_service;1"
+      ].getService(Ci.nsINSSErrorsService);
       let errorClass;
 
       // getErrorClass()) will throw a generic NS_ERROR_FAILURE if the error
@@ -1621,7 +1623,7 @@ var FeedUtils = {
       ) {
         // The bases are actually negative, so in our positive numeric space,
         // we need to subtract the base off our value.
-        let nssErr =
+        const nssErr =
           Math.abs(Ci.nsINSSErrorsService.NSS_SEC_ERROR_BASE) -
           (status & 0xffff);
 
@@ -1653,7 +1655,7 @@ var FeedUtils = {
         }
       } else {
         // Calculating the difference.
-        let sslErr =
+        const sslErr =
           Math.abs(Ci.nsINSSErrorsService.NSS_SSL_ERROR_BASE) -
           (status & 0xffff);
 
@@ -1733,7 +1735,7 @@ var FeedUtils = {
    * @returns {Boolean} - true if folder is Trash else false.
    */
   isInTrash(aFolder) {
-    let trashFolder = aFolder.rootFolder.getFolderWithFlags(
+    const trashFolder = aFolder.rootFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Trash
     );
     if (
@@ -1766,7 +1768,7 @@ var FeedUtils = {
     }
 
     // Server part first.
-    let pathParts = [msgFolder.server.prettyName];
+    const pathParts = [msgFolder.server.prettyName];
     let rawPathParts = msgFolder.URI.split(msgFolder.server.serverURI + "/");
     let folderURI = msgFolder.server.serverURI;
     rawPathParts = rawPathParts[1].split("/");
@@ -1795,7 +1797,7 @@ var FeedUtils = {
       " +((Jan)|(Feb)|(Mar)|(Apr)|(May)|(Jun)|(Jul)|(Aug)|(Sep)|(Oct)|(Nov)|(Dec))" +
       " +\\d\\d(\\d\\d)? +\\d\\d:\\d\\d(:\\d\\d)? +(([+-]?\\d\\d\\d\\d)|(UT)|(GMT)" +
       "|(EST)|(EDT)|(CST)|(CDT)|(MST)|(MDT)|(PST)|(PDT)|\\w)$";
-    let regex = new RegExp(FZ_RFC822_RE);
+    const regex = new RegExp(FZ_RFC822_RE);
     return regex.test(aDate);
   },
 
@@ -1871,7 +1873,7 @@ var FeedUtils = {
      * @returns {void}
      */
     downloaded(feed, aErrorCode, aDisable) {
-      let folderName = feed.folder
+      const folderName = feed.folder
         ? feed.folder.name
         : feed.server.rootFolder.prettyName;
       FeedUtils.log.debug(
@@ -1896,7 +1898,7 @@ var FeedUtils = {
           Services.obs.notifyObservers(feed.folder, "folder-subscribed");
 
           // Check for an existing feed subscriptions window and update it.
-          let subscriptionsWindow = Services.wm.getMostRecentWindow(
+          const subscriptionsWindow = Services.wm.getMostRecentWindow(
             "Mail:News-BlogSubscriptions"
           );
           if (subscriptionsWindow) {
@@ -1916,8 +1918,8 @@ var FeedUtils = {
           aErrorCode == FeedUtils.kNewsBlogNoNewItems
         ) {
           // Update lastUpdateTime only if successful normal processing.
-          let options = feed.options;
-          let now = Date.now();
+          const options = feed.options;
+          const now = Date.now();
           options.updates.lastUpdateTime = now;
           if (feed.itemsStored) {
             options.updates.lastDownloadTime = now;
@@ -1939,7 +1941,7 @@ var FeedUtils = {
             // Do not keep retrying feeds with error states. Set persisted state
             // to |null| to indicate error disable (and not user disable), but
             // only if the feed is user enabled.
-            let options = feed.options;
+            const options = feed.options;
             if (options.updates.enabled) {
               options.updates.enabled = null;
             }
@@ -2010,7 +2012,7 @@ var FeedUtils = {
           );
           break;
         case FeedUtils.kNewsBlogBadCertError:
-          let host = Services.io.newURI(feed.url).host;
+          const host = Services.io.newURI(feed.url).host;
           message = FeedUtils.strings.formatStringFromName(
             "newsblog-badCertError",
             [host]
@@ -2025,7 +2027,7 @@ var FeedUtils = {
       }
 
       if (message) {
-        let location =
+        const location =
           FeedUtils.getFolderPrettyPath(feed.folder || feed.server.rootFolder) +
           " -> ";
         FeedUtils.log.info(
@@ -2105,7 +2107,7 @@ var FeedUtils = {
     updateProgressBar() {
       let currentProgress = 0;
       let maxProgress = 0;
-      for (let index in this.mFeeds) {
+      for (const index in this.mFeeds) {
         currentProgress += this.mFeeds[index].currentProgress;
         maxProgress += this.mFeeds[index].maxProgress;
       }
@@ -2118,7 +2120,7 @@ var FeedUtils = {
       // often.  For the most part all of our request have initial progress
       // before the UI actually picks up a progress value.
       if (this.mStatusFeedback) {
-        let progress = (currentProgress * 100) / maxProgress;
+        const progress = (currentProgress * 100) / maxProgress;
         this.mStatusFeedback.showProgress(progress);
       }
     },

@@ -30,24 +30,24 @@ add_setup(async function () {
 
   // build up a diverse list of messages
   let messages = [];
-  let gMessageGenerator = new MessageGenerator();
+  const gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());
   gSynthMessage = messages[0];
 
-  let msgURI = Services.io.newURI(
+  const msgURI = Services.io.newURI(
     "data:text/plain;base64," + btoa(gSynthMessage.toMessageString())
   );
   gMessage = new ImapMessage(msgURI.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(gMessage);
 
   // update folder to download header.
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function switchAwayFromInbox() {
-  let rootFolder = IMAPPump.incomingServer.rootFolder;
+  const rootFolder = IMAPPump.incomingServer.rootFolder;
   gSecondFolder = rootFolder
     .getChildNamed("secondFolder")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
@@ -58,102 +58,102 @@ add_task(async function switchAwayFromInbox() {
   // simulates the user changing the message from a different machine,
   // and Thunderbird discovering the change when it does a flag sync
   // upon reselecting the Inbox.
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gSecondFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function simulateForwardFlagSet() {
   gMessage.setFlag("$Forwarded");
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function checkForwardedFlagSet() {
-  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+  const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
     gSynthMessage.messageId
   );
   Assert.equal(
     msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded,
     Ci.nsMsgMessageFlags.Forwarded
   );
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gSecondFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function clearForwardedFlag() {
   gMessage.clearFlag("$Forwarded");
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function checkForwardedFlagCleared() {
-  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+  const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
     gSynthMessage.messageId
   );
   Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded, 0);
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gSecondFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function setSeenFlag() {
   gMessage.setFlag("\\Seen");
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function checkSeenFlagSet() {
-  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+  const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
     gSynthMessage.messageId
   );
   Assert.equal(
     msgHdr.flags & Ci.nsMsgMessageFlags.Read,
     Ci.nsMsgMessageFlags.Read
   );
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gSecondFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function simulateRepliedFlagSet() {
   gMessage.setFlag("\\Answered");
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function checkRepliedFlagSet() {
-  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+  const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
     gSynthMessage.messageId
   );
   Assert.equal(
     msgHdr.flags & Ci.nsMsgMessageFlags.Replied,
     Ci.nsMsgMessageFlags.Replied
   );
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gSecondFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function simulateTagAdded() {
   gMessage.setFlag("randomtag");
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function checkTagSet() {
-  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+  const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
     gSynthMessage.messageId
   );
-  let keywords = msgHdr.getStringProperty("keywords");
+  const keywords = msgHdr.getStringProperty("keywords");
   Assert.ok(keywords.includes("randomtag"));
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gSecondFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
@@ -162,14 +162,14 @@ add_task(async function checkTagSet() {
 add_task(async function checkNonJunkTagSet() {
   gMessage.clearFlag("NotJunk");
   gMessage.setFlag("NonJunk");
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 
-  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+  const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
     gSynthMessage.messageId
   );
-  let junkScore = msgHdr.getStringProperty("junkscore");
+  const junkScore = msgHdr.getStringProperty("junkscore");
   Assert.equal(
     junkScore,
     Ci.nsIJunkMailPlugin.IS_HAM_SCORE,
@@ -181,14 +181,14 @@ add_task(async function checkNonJunkTagSet() {
 add_task(async function checkNotJunkTagSet() {
   gMessage.clearFlag("NonJunk");
   gMessage.setFlag("NotJunk");
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 
-  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+  const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
     gSynthMessage.messageId
   );
-  let junkScore = msgHdr.getStringProperty("junkscore");
+  const junkScore = msgHdr.getStringProperty("junkscore");
   Assert.equal(
     junkScore,
     Ci.nsIJunkMailPlugin.IS_HAM_SCORE,
@@ -198,16 +198,16 @@ add_task(async function checkNotJunkTagSet() {
 
 add_task(async function clearTag() {
   gMessage.clearFlag("randomtag");
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(function checkTagCleared() {
-  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+  const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
     gSynthMessage.messageId
   );
-  let keywords = msgHdr.getStringProperty("keywords");
+  const keywords = msgHdr.getStringProperty("keywords");
   Assert.ok(!keywords.includes("randomtag"));
 });
 

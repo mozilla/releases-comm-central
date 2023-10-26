@@ -33,7 +33,7 @@ class NntpDaemon {
   }
   addArticle(article) {
     this._messages[article.messageID] = article;
-    for (let group of article.groups) {
+    for (const group of article.groups) {
       if (group in this._groups) {
         var key = this._groups[group].nextKey++;
         this._groups[group][key] = article;
@@ -50,7 +50,7 @@ class NntpDaemon {
     }
   }
   removeArticleFromGroup(groupName, key) {
-    let group = this._groups[groupName];
+    const group = this._groups[groupName];
     delete group[key];
     group.keys = group.keys.filter(x => x != key);
   }
@@ -114,7 +114,7 @@ function NewsArticle(text) {
 
   // Add in non-existent fields
   if (!this.headers.has("lines")) {
-    let lines = this.body.split("\n").length;
+    const lines = this.body.split("\n").length;
     this.headers.set("lines", lines);
   }
 }
@@ -235,7 +235,7 @@ class NNTP_RFC977_handler {
     }
 
     var response = info[1] + "\n";
-    for (let [header, value] of info[0].headers) {
+    for (const [header, value] of info[0].headers) {
       response += header + ": " + value + "\n";
     }
     response += ".";
@@ -273,9 +273,9 @@ class NNTP_RFC977_handler {
   }
   LIST(args) {
     var response = "215 list of newsgroup follows\n";
-    for (let groupname in this._daemon._groups) {
-      let group = this._daemon._groups[groupname];
-      let stats = this._daemon.getGroupStats(group);
+    for (const groupname in this._daemon._groups) {
+      const group = this._daemon._groups[groupname];
+      const stats = this._daemon.getGroupStats(group);
       response +=
         groupname +
         " " +
@@ -326,7 +326,7 @@ class NNTP_RFC977_handler {
     }
 
     var response = "211 Articles follow:\n";
-    for (let key of group.keys) {
+    for (const key of group.keys) {
       response += key + "\n";
     }
     response += ".\n";
@@ -451,7 +451,7 @@ class NNTP_RFC2980_handler extends NNTP_RFC977_handler {
     var header = args[0].toLowerCase();
     var found = false;
     var response = "221 Headers abound\n";
-    for (let key of this._filterRange(args[1], this.group.keys)) {
+    for (const key of this._filterRange(args[1], this.group.keys)) {
       if (!this.group[key].headers.has(header)) {
         continue;
       }
@@ -471,7 +471,7 @@ class NNTP_RFC2980_handler extends NNTP_RFC977_handler {
 
     args = args.split(/ +/, 3);
     var response = "224 List of articles\n";
-    for (let key of this._filterRange(args[0], this.group.keys)) {
+    for (const key of this._filterRange(args[0], this.group.keys)) {
       response += key + "\t";
       var article = this.group[key];
       response +=
@@ -502,12 +502,12 @@ class NNTP_RFC2980_handler extends NNTP_RFC977_handler {
 
     /* XPAT header range ... */
     args = args.split(/ +/, 3);
-    let header = args[0].toLowerCase();
-    let regex = wildmat2regex(args[2]);
+    const header = args[0].toLowerCase();
+    const regex = wildmat2regex(args[2]);
 
     let response = "221 Results follow\n";
-    for (let key of this._filterRange(args[1], this.group.keys)) {
-      let article = this.group[key];
+    for (const key of this._filterRange(args[1], this.group.keys)) {
+      const article = this.group[key];
       if (
         article.headers.has(header) &&
         regex.test(article.headers.get(header))
@@ -519,7 +519,7 @@ class NNTP_RFC2980_handler extends NNTP_RFC977_handler {
   }
 
   _filterRange(range, keys) {
-    let dash = range.indexOf("-");
+    const dash = range.indexOf("-");
     let low, high;
     if (dash < 0) {
       low = high = parseInt(range);

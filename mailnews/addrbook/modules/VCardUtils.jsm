@@ -32,7 +32,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 
 var VCardUtils = {
   _decodeQuotedPrintable(value) {
-    let bytes = [];
+    const bytes = [];
     for (let b = 0; b < value.length; b++) {
       if (value[b] == "=") {
         bytes.push(parseInt(value.substr(b + 1, 2), 16));
@@ -44,7 +44,7 @@ var VCardUtils = {
     return new TextDecoder().decode(new Uint8Array(bytes));
   },
   _parse(vProps) {
-    let vPropMap = new Map();
+    const vPropMap = new Map();
     for (let index = 0; index < vProps.length; index++) {
       let { name, params, value } = vProps[index];
 
@@ -67,7 +67,7 @@ var VCardUtils = {
       }
       if (name == "tel") {
         name = "tel.work";
-        for (let t of type) {
+        for (const t of type) {
           if (["home", "work", "cell", "pager", "fax"].includes(t)) {
             name = `tel.${t}`;
             break;
@@ -87,7 +87,7 @@ var VCardUtils = {
 
       // The preference param is 1-100, lower numbers indicate higher
       // preference. If not specified, the value is least preferred.
-      let pref = parseInt(params.pref, 10) || 101;
+      const pref = parseInt(params.pref, 10) || 101;
 
       if (!vPropMap.has(name)) {
         vPropMap.set(name, []);
@@ -102,7 +102,7 @@ var VCardUtils = {
     // AbCard only supports Work Web Page or Home Web Page. Get rid of the URL without type.
     vPropMap.delete("url");
 
-    for (let props of vPropMap.values()) {
+    for (const props of vPropMap.values()) {
       // Sort the properties by preference, or by the order they appeared.
       props.sort((a, b) => {
         if (a.pref == b.pref) {
@@ -129,8 +129,8 @@ var VCardUtils = {
 
     // Convert known type parameters to valid vCard 4.0, ignore unknown ones.
     vCard = vCard.replace(/\n(([A-Z]+)(;[\w-]*)+):/gi, (match, key) => {
-      let parts = key.split(";");
-      let newParts = [parts[0]];
+      const parts = key.split(";");
+      const newParts = [parts[0]];
       for (let i = 1; i < parts.length; i++) {
         if (parts[i] == "") {
           continue;
@@ -152,7 +152,8 @@ var VCardUtils = {
 
     // Join quoted-printable wrapped lines together. This regular expression
     // only matches lines that are quoted-printable and end with `=`.
-    let quotedNewLineRegExp = /(;ENCODING=QUOTED-PRINTABLE[;:][^\r\n]*)=\r?\n/i;
+    const quotedNewLineRegExp =
+      /(;ENCODING=QUOTED-PRINTABLE[;:][^\r\n]*)=\r?\n/i;
     while (vCard.match(quotedNewLineRegExp)) {
       vCard = vCard.replace(quotedNewLineRegExp, "$1");
     }
@@ -171,10 +172,10 @@ var VCardUtils = {
   vCardToAbCard(vCard, uid) {
     vCard = this.translateVCard21(vCard);
 
-    let abCard = new lazy.AddrBookCard();
+    const abCard = new lazy.AddrBookCard();
     abCard.setProperty("_vCard", vCard);
 
-    let vCardUID = abCard.vCardProperties.getFirstValue("uid");
+    const vCardUID = abCard.vCardProperties.getFirstValue("uid");
     if (uid || vCardUID) {
       abCard.UID = uid || vCardUID;
       if (abCard.UID != vCardUID) {
@@ -191,7 +192,7 @@ var VCardUtils = {
     }
 
     // Collect all of the AB card properties into a Map.
-    let abProps = new Map(
+    const abProps = new Map(
       Array.from(abCard.properties, p => [p.name, p.value])
     );
     abProps.set("UID", abCard.UID);
@@ -199,11 +200,11 @@ var VCardUtils = {
     return this.propertyMapToVCard(abProps, version);
   },
   propertyMapToVCard(abProps, version = "4.0") {
-    let vProps = [["version", {}, "text", version]];
+    const vProps = [["version", {}, "text", version]];
 
     // Add the properties to the vCard.
-    for (let vPropName of Object.keys(typeMap)) {
-      for (let vProp of typeMap[vPropName].fromAbCard(abProps, vPropName)) {
+    for (const vPropName of Object.keys(typeMap)) {
+      for (const vProp of typeMap[vPropName].fromAbCard(abProps, vPropName)) {
         if (vProp[3] !== null && vProp[3] !== undefined && vProp[3] !== "") {
           vProps.push(vProp);
         }
@@ -211,11 +212,11 @@ var VCardUtils = {
     }
 
     // If there's only one address or telephone number, don't specify type.
-    let adrProps = vProps.filter(p => p[0] == "adr");
+    const adrProps = vProps.filter(p => p[0] == "adr");
     if (adrProps.length == 1) {
       delete adrProps[0][1].type;
     }
-    let telProps = vProps.filter(p => p[0] == "tel");
+    const telProps = vProps.filter(p => p[0] == "tel");
     if (telProps.length == 1) {
       delete telProps[0][1].type;
     }
@@ -252,7 +253,7 @@ VCardMimeConverter.prototype = {
   uri: null,
   convertToHTML(contentType, data) {
     function escapeHTML(template, ...parts) {
-      let arr = [];
+      const arr = [];
       for (let i = 0; i < parts.length; i++) {
         arr.push(template[i]);
         arr.push(
@@ -275,7 +276,7 @@ VCardMimeConverter.prototype = {
       return "";
     }
 
-    let escapedVCard = encodeURIComponent(data);
+    const escapedVCard = encodeURIComponent(data);
 
     let propertiesTable = `<table class="moz-vcard-properties-table">`;
     propertiesTable += escapeHTML`<tr><td class="moz-vcard-title-property">${abCard.displayName}`;
@@ -283,8 +284,8 @@ VCardMimeConverter.prototype = {
       propertiesTable += escapeHTML`&nbsp;&lt;<a href="mailto:${abCard.primaryEmail}" private>${abCard.primaryEmail}</a>&gt;`;
     }
     propertiesTable += `</td></tr>`;
-    for (let propName of ["JobTitle", "Department", "Company"]) {
-      let propValue = abCard.getProperty(propName, "");
+    for (const propName of ["JobTitle", "Department", "Company"]) {
+      const propValue = abCard.getProperty(propName, "");
       if (propValue) {
         propertiesTable += escapeHTML`<tr><td class="moz-vcard-property">${propValue}</td></tr>`;
       }
@@ -391,15 +392,15 @@ function singleTextProperty(
 function dateProperty(abCardPrefix, vPropName) {
   return {
     *fromAbCard(map) {
-      let year = map.get(`${abCardPrefix}Year`);
-      let month = map.get(`${abCardPrefix}Month`);
-      let day = map.get(`${abCardPrefix}Day`);
+      const year = map.get(`${abCardPrefix}Year`);
+      const month = map.get(`${abCardPrefix}Month`);
+      const day = map.get(`${abCardPrefix}Day`);
 
       if (!year && !month && !day) {
         return;
       }
 
-      let dateValue = new ICAL.VCardTime({}, null, "date");
+      const dateValue = new ICAL.VCardTime({}, null, "date");
       // Set the properties directly instead of using the VCardTime
       // constructor argument, which causes null values to become 0.
       dateValue.year = year ? Number(year) : null;
@@ -410,7 +411,7 @@ function dateProperty(abCardPrefix, vPropName) {
     },
     *toAbCard(value) {
       try {
-        let dateValue = ICAL.VCardTime.fromDateAndOrTimeString(value);
+        const dateValue = ICAL.VCardTime.fromDateAndOrTimeString(value);
         yield [`${abCardPrefix}Year`, String(dateValue.year ?? "")];
         yield [`${abCardPrefix}Month`, String(dateValue.month ?? "")];
         yield [`${abCardPrefix}Day`, String(dateValue.day ?? "")];
@@ -426,15 +427,15 @@ function multiTextProperty(abPropNames, vPropName, vPropParams = {}) {
       if (abPropNames.every(name => !map.has(name))) {
         return;
       }
-      let vPropValues = abPropNames.map(name => map.get(name) || "");
+      const vPropValues = abPropNames.map(name => map.get(name) || "");
       if (vPropValues.some(Boolean)) {
         yield [vPropName, { ...vPropParams }, "text", vPropValues];
       }
     },
     *toAbCard(value) {
       if (Array.isArray(value)) {
-        for (let abPropName of abPropNames) {
-          let valuePart = value.shift();
+        for (const abPropName of abPropNames) {
+          const valuePart = value.shift();
           if (abPropName && valuePart) {
             yield [
               abPropName,
@@ -613,7 +614,7 @@ class VCardPropertyEntry {
       cloneValue = this.#value;
     }
 
-    let clone = new VCardPropertyEntry(
+    const clone = new VCardPropertyEntry(
       this.#name,
       { ...this.#params },
       this.#type,
@@ -667,9 +668,9 @@ class VCardProperties {
   static fromVCard(vCard, { isGoogleCardDAV = false } = {}) {
     vCard = VCardUtils.translateVCard21(vCard);
 
-    let rv = new VCardProperties();
-    let [, properties] = ICAL.parse(vCard);
-    for (let property of properties) {
+    const rv = new VCardProperties();
+    const [, properties] = ICAL.parse(vCard);
+    for (const property of properties) {
       let [name, params, type, value] = property;
       if (property.length > 4) {
         // The jCal format stores multiple values as the 4th...nth items.
@@ -704,10 +705,13 @@ class VCardProperties {
    * @returns {VCardProperties}
    */
   static fromPropertyMap(propertyMap, version = "4.0") {
-    let rv = new VCardProperties(version);
+    const rv = new VCardProperties(version);
 
-    for (let vPropName of Object.keys(typeMap)) {
-      for (let vProp of typeMap[vPropName].fromAbCard(propertyMap, vPropName)) {
+    for (const vPropName of Object.keys(typeMap)) {
+      for (const vProp of typeMap[vPropName].fromAbCard(
+        propertyMap,
+        vPropName
+      )) {
         if (vProp[3] !== null && vProp[3] !== undefined && vProp[3] !== "") {
           rv.addEntry(new VCardPropertyEntry(...vProp));
         }
@@ -767,13 +771,13 @@ class VCardProperties {
    * @returns {VCardPropertyEntry}
    */
   addValue(name, value) {
-    for (let entry of this.getAllEntries(name)) {
+    for (const entry of this.getAllEntries(name)) {
       if (entry.value == value) {
         return entry;
       }
     }
 
-    let newEntry = new VCardPropertyEntry(
+    const newEntry = new VCardPropertyEntry(
       name,
       {},
       this.designSet.property[name].defaultType,
@@ -794,7 +798,7 @@ class VCardProperties {
       throw new Error("Not a VCardPropertyEntry");
     }
 
-    let index = this.entries.findIndex(e => e.equals(entry));
+    const index = this.entries.findIndex(e => e.equals(entry));
     if (index >= 0) {
       this.entries.splice(index, 1);
       return true;
@@ -810,7 +814,7 @@ class VCardProperties {
    * @param {string} value
    */
   removeValue(name, value) {
-    for (let entry of this.getAllEntries(name)) {
+    for (const entry of this.getAllEntries(name)) {
       if (entry.value == value) {
         this.removeEntry(entry);
       }
@@ -824,7 +828,7 @@ class VCardProperties {
    * @param {string} name
    */
   clearValues(name) {
-    for (let entry of this.getAllEntries(name)) {
+    for (const entry of this.getAllEntries(name)) {
       this.removeEntry(entry);
     }
   }
@@ -836,7 +840,7 @@ class VCardProperties {
    * @returns {?vCardValue}
    */
   getFirstValue(name) {
-    let entry = this.entries.find(e => e.name == name);
+    const entry = this.entries.find(e => e.name == name);
     if (entry) {
       return entry.value;
     }
@@ -895,7 +899,7 @@ class VCardProperties {
    */
   getAllEntriesSorted(name) {
     let nextPref = 101;
-    let entries = this.getAllEntries(name).map(e => {
+    const entries = this.getAllEntries(name).map(e => {
       return { entry: e, pref: e.params.pref || nextPref++ };
     });
     entries.sort((a, b) => a.pref - b.pref);
@@ -918,7 +922,7 @@ class VCardProperties {
    * @returns {VCardProperties}
    */
   clone() {
-    let copy = new VCardProperties();
+    const copy = new VCardProperties();
     copy.entries = this.entries.map(e => e.clone());
     return copy;
   }
@@ -929,12 +933,12 @@ class VCardProperties {
    * @returns {Map<string, string>} propertyMap
    */
   toPropertyMap() {
-    let vPropMap = VCardUtils._parse(this.entries.map(e => e.clone()));
-    let propertyMap = new Map();
+    const vPropMap = VCardUtils._parse(this.entries.map(e => e.clone()));
+    const propertyMap = new Map();
 
-    for (let [name, props] of vPropMap) {
+    for (const [name, props] of vPropMap) {
       // Store the value(s) on the abCard.
-      for (let [abPropName, abPropValue] of typeMap[name].toAbCard(
+      for (const [abPropName, abPropValue] of typeMap[name].toAbCard(
         props[0].value
       )) {
         if (abPropValue) {
@@ -956,9 +960,9 @@ class VCardProperties {
    * @returns {string} vCard
    */
   toVCard() {
-    let jCal = this.entries.map(e => {
+    const jCal = this.entries.map(e => {
       if (Array.isArray(e.value)) {
-        let design = this.designSet.property[e.name];
+        const design = this.designSet.property[e.name];
         if (design.multiValue == "," && !design.structuredValue) {
           // The jCal format stores multiple values as the 4th...nth items,
           // but VCardPropertyEntry stores them as an array. This applies to

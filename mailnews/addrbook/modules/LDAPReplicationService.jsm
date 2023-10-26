@@ -95,7 +95,7 @@ class LDAPReplicationService extends LDAPListenerBase {
    */
   _actionOnBindSuccess() {
     this._openABForReplicationDir();
-    let ldapUrl = this._directory.lDAPURL;
+    const ldapUrl = this._directory.lDAPURL;
     this._operation.init(this._connection, this, null);
     this._listener.onStateChange(
       null,
@@ -126,9 +126,9 @@ class LDAPReplicationService extends LDAPListenerBase {
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
   async _onLDAPSearchEntry(msg) {
-    let newCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-      Ci.nsIAbCard
-    );
+    const newCard = Cc[
+      "@mozilla.org/addressbook/cardproperty;1"
+    ].createInstance(Ci.nsIAbCard);
     this._attrMap.setCardPropertiesFromLDAPMessage(msg, newCard);
     this._cards.push(newCard);
     this._count++;

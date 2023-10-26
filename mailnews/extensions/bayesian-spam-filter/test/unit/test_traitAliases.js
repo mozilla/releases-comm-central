@@ -142,8 +142,8 @@ function startCommand() {
   var proArray = [kProTrait];
 
   // remove any existing aliases
-  let proAliases = traitService.getAliases(kProTrait);
-  let antiAliases = traitService.getAliases(kAntiTrait);
+  const proAliases = traitService.getAliases(kProTrait);
+  const antiAliases = traitService.getAliases(kAntiTrait);
   let proAlias;
   let antiAlias;
   while ((proAlias = proAliases.pop())) {

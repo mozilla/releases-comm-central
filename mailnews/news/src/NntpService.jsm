@@ -28,11 +28,11 @@ class NntpService {
     outNewsgroupsHeader,
     outNewsHostHeader
   ) {
-    let groups = newsgroupsList.split(",");
+    const groups = newsgroupsList.split(",");
     outNewsgroupsHeader.value = newsgroupsList;
     let hosts = groups.map(name => this._findHostFromGroupName(name));
     hosts = [...new Set(hosts)].filter(Boolean);
-    let host = hosts[0];
+    const host = hosts[0];
     if (!host) {
       outNewsHostHeader.value = "";
       return;
@@ -62,15 +62,15 @@ class NntpService {
       };
 
       client.onReadyToPost = () => {
-        let fstream = Cc[
+        const fstream = Cc[
           "@mozilla.org/network/file-input-stream;1"
         ].createInstance(Ci.nsIFileInputStream);
         // PR_RDONLY
         fstream.init(messageFile, 0x01, 0, 0);
-        let lineInputStream = fstream.QueryInterface(Ci.nsILineInputStream);
+        const lineInputStream = fstream.QueryInterface(Ci.nsILineInputStream);
         let hasMore;
         do {
-          let outLine = {};
+          const outLine = {};
           hasMore = lineInputStream.readLine(outLine);
           let line = outLine.value;
           if (line.startsWith(".")) {
@@ -95,10 +95,10 @@ class NntpService {
       );
     }
     // The uri is in the form of news://news.mozilla.org/mozilla.accessibility
-    let matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)?/.exec(uri);
-    let groupName = decodeURIComponent(matches[3]);
+    const matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)?/.exec(uri);
+    const groupName = decodeURIComponent(matches[3]);
 
-    let runningUri = Services.io
+    const runningUri = Services.io
       .newURI(uri)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
     server.wrappedJSObject.withClient(client => {
@@ -128,13 +128,13 @@ class NntpService {
     let streamListener, inputStream, outputStream;
     if (consumer instanceof Ci.nsIStreamListener) {
       streamListener = consumer;
-      let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
+      const pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
       pipe.init(true, true, 0, 0);
       inputStream = pipe.inputStream;
       outputStream = pipe.outputStream;
     }
 
-    let server = folder.server.QueryInterface(Ci.nsINntpIncomingServer);
+    const server = folder.server.QueryInterface(Ci.nsINntpIncomingServer);
     server.wrappedJSObject.withClient(client => {
       client.startRunningUrl(urlListener, msgWindow);
 
@@ -154,10 +154,10 @@ class NntpService {
 
   cancelMessage(cancelUrl, messageUri, consumer, urlListener, msgWindow) {
     if (Services.prefs.getBoolPref("news.cancel.confirm")) {
-      let bundle = Services.strings.createBundle(
+      const bundle = Services.strings.createBundle(
         "chrome://messenger/locale/news.properties"
       );
-      let result = Services.prompt.confirmEx(
+      const result = Services.prompt.confirmEx(
         msgWindow?.domWindow,
         null,
         bundle.GetStringFromName("cancelConfirm"),
@@ -174,21 +174,21 @@ class NntpService {
       }
     }
     // The cancelUrl is in the form of "news://host/message-id?cancel"
-    let url = new URL(cancelUrl);
-    let messageId = "<" + decodeURIComponent(url.pathname.slice(1)) + ">";
-    let server = MailServices.accounts
+    const url = new URL(cancelUrl);
+    const messageId = "<" + decodeURIComponent(url.pathname.slice(1)) + ">";
+    const server = MailServices.accounts
       .findServer("", url.host, "nntp")
       .QueryInterface(Ci.nsINntpIncomingServer);
-    let groupName = new URL(messageUri).pathname.slice(1);
-    let messageKey = messageUri.split("#")[1];
-    let newsFolder = server.findGroup(groupName);
-    let from = MailServices.accounts.getFirstIdentityForServer(server).email;
-    let bundle = Services.strings.createBundle(
+    const groupName = new URL(messageUri).pathname.slice(1);
+    const messageKey = messageUri.split("#")[1];
+    const newsFolder = server.findGroup(groupName);
+    const from = MailServices.accounts.getFirstIdentityForServer(server).email;
+    const bundle = Services.strings.createBundle(
       "chrome://branding/locale/brand.properties"
     );
 
     server.wrappedJSObject.withClient(client => {
-      let runningUrl = client.startRunningUrl(urlListener, msgWindow);
+      const runningUrl = client.startRunningUrl(urlListener, msgWindow);
       runningUrl.msgWindow = msgWindow;
 
       client.onOpen = () => {
@@ -196,7 +196,7 @@ class NntpService {
       };
 
       client.onReadyToPost = () => {
-        let content = [
+        const content = [
           `From: ${from}`,
           `Newsgroups: ${groupName}`,
           `Subject: cancel ${messageId}`,
@@ -219,10 +219,10 @@ class NntpService {
   }
 
   downloadNewsgroupsForOffline(msgWindow, urlListener) {
-    let { NewsDownloader } = ChromeUtils.importESModule(
+    const { NewsDownloader } = ChromeUtils.importESModule(
       "resource:///modules/NewsDownloader.sys.mjs"
     );
-    let downloader = new NewsDownloader(msgWindow, urlListener);
+    const downloader = new NewsDownloader(msgWindow, urlListener);
     downloader.start();
   }
 
@@ -233,7 +233,7 @@ class NntpService {
    * @returns {string} The corresponding server host.
    */
   _findHostFromGroupName(groupName) {
-    for (let server of MailServices.accounts.allServers) {
+    for (const server of MailServices.accounts.allServers) {
       if (
         server instanceof Ci.nsINntpIncomingServer &&
         server.containsNewsgroup(groupName)

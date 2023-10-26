@@ -21,12 +21,12 @@ var { VCardPropertyEntry } = ChromeUtils.import(
 );
 
 async function subtest(cardConstructor) {
-  let dirPrefId = MailServices.ab.newAddressBook(
+  const dirPrefId = MailServices.ab.newAddressBook(
     "new book",
     "",
     Ci.nsIAbManager.JS_DIRECTORY_TYPE
   );
-  let book = MailServices.ab.getDirectoryFromId(dirPrefId);
+  const book = MailServices.ab.getDirectoryFromId(dirPrefId);
 
   let contact1 = cardConstructor();
   contact1.UID = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
@@ -104,7 +104,7 @@ async function compareAgainstFile(fileName, actual) {
   // exportDirectoryTo* functions are platform-dependent, except for VCard
   // which always uses Windows line endings.
 
-  let file = do_get_file(`data/${fileName}`);
+  const file = do_get_file(`data/${fileName}`);
   let expected = await IOUtils.readUTF8(file.path);
 
   if (AppConstants.platform != "win" && fileName != "export.vcf") {
@@ -113,8 +113,8 @@ async function compareAgainstFile(fileName, actual) {
 
   // From here on, \r is just another character. It will be the last character
   // on lines where Windows line endings exist.
-  let expectedLines = expected.split("\n");
-  let actualLines = actual.split("\n");
+  const expectedLines = expected.split("\n");
+  const actualLines = actual.split("\n");
   info(actual);
   Assert.deepEqual(actualLines.sort(), expectedLines.sort());
   // equal(actualLines.length, expectedLines.length, "correct number of lines");

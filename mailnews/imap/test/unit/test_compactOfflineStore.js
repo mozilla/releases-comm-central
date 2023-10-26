@@ -43,7 +43,7 @@ var gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
 function addMessagesToServer(messages, mailbox) {
   // For every message we have, we need to convert it to a file:/// URI
   messages.forEach(function (message) {
-    let URI = Services.io
+    const URI = Services.io
       .newFileURI(message.file)
       .QueryInterface(Ci.nsIFileURL);
     // Create the ImapMessage and store it on the mailbox.
@@ -54,7 +54,7 @@ function addMessagesToServer(messages, mailbox) {
 function addGeneratedMessagesToServer(messages, mailbox) {
   // Create the ImapMessages and store them on the mailbox
   messages.forEach(function (message) {
-    let dataUri = Services.io.newURI(
+    const dataUri = Services.io.newURI(
       "data:text/plain;base64," + btoa(message.toMessageString())
     );
     mailbox.addMessage(new ImapMessage(dataUri.spec, mailbox.uidnext++, []));
@@ -62,9 +62,9 @@ function addGeneratedMessagesToServer(messages, mailbox) {
 }
 
 function checkOfflineStore(prevOfflineStoreSize) {
-  let enumerator = IMAPPump.inbox.msgDatabase.enumerateMessages();
+  const enumerator = IMAPPump.inbox.msgDatabase.enumerateMessages();
   if (enumerator) {
-    for (let header of enumerator) {
+    for (const header of enumerator) {
       // this will verify that the message in the offline store
       // starts with "From " - otherwise, it returns an error.
       if (
@@ -91,7 +91,7 @@ add_setup(function () {
   IMAPPump.inbox.hierarchyDelimiter = "/";
   IMAPPump.inbox.verifiedAsOnlineFolder = true;
 
-  let messageGenerator = new MessageGenerator();
+  const messageGenerator = new MessageGenerator();
   let messages = [];
   for (let i = 0; i < 50; i++) {
     messages = messages.concat(messageGenerator.makeMessage());
@@ -113,7 +113,7 @@ add_setup(function () {
 });
 
 add_task(async function downloadForOffline() {
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(listener, null);
   await listener.promise;
 });
@@ -121,29 +121,29 @@ add_task(async function downloadForOffline() {
 add_task(async function markOneMsgDeleted() {
   // mark a message deleted, and then do a compact of just
   // that folder.
-  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId5);
+  const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId5);
   // store the deleted flag
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.storeImapFlags(0x0008, true, [msgHdr.messageKey], listener);
   await listener.promise;
 });
 
 add_task(async function compactOneFolder() {
   IMAPPump.incomingServer.deleteModel = Ci.nsMsgImapDeleteModels.IMAPDelete;
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.compact(listener, null);
   await listener.promise;
 });
 
 add_task(async function test_deleteOneMessage() {
   // check that nstmp file has been cleaned up.
-  let tmpFile = gRootFolder.filePath;
+  const tmpFile = gRootFolder.filePath;
   tmpFile.append("nstmp");
   Assert.ok(!tmpFile.exists());
   // Deleting one message.
   IMAPPump.incomingServer.deleteModel = Ci.nsMsgImapDeleteModels.MoveToTrash;
-  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   IMAPPump.inbox.deleteMessages(
     [msgHdr],
     null,
@@ -154,14 +154,14 @@ add_task(async function test_deleteOneMessage() {
   );
   await copyListener.promise;
 
-  let trashFolder = gRootFolder.getChildNamed("Trash");
+  const trashFolder = gRootFolder.getChildNamed("Trash");
   // hack to force uid validity to get initialized for trash.
   trashFolder.updateFolder(null);
 });
 
 add_task(async function compactOfflineStore() {
   gImapInboxOfflineStoreSize = IMAPPump.inbox.filePath.fileSize;
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gRootFolder.compactAll(listener, null);
   await listener.promise;
 });
@@ -171,20 +171,20 @@ add_task(function test_checkCompactionResult1() {
 });
 
 add_task(async function pendingRemoval() {
-  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId2);
+  const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId2);
   IMAPPump.inbox.markPendingRemoval(msgHdr, true);
   gImapInboxOfflineStoreSize = IMAPPump.inbox.filePath.fileSize;
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gRootFolder.compactAll(listener, null);
   await listener.promise;
 });
 
 add_task(function test_checkCompactionResult2() {
-  let tmpFile = gRootFolder.filePath;
+  const tmpFile = gRootFolder.filePath;
   tmpFile.append("nstmp");
   Assert.ok(!tmpFile.exists());
   checkOfflineStore(gImapInboxOfflineStoreSize);
-  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId2);
+  const msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId2);
   Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Offline, 0);
 });
 

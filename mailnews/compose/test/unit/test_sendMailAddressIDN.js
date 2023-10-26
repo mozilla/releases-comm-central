@@ -127,7 +127,7 @@ MsgSendListener.prototype = {
 
 async function doSendTest(aRecipient, aRecipientExpected, waitForPrompt) {
   info(`Testing send to ${aRecipient} will get sent to ${aRecipientExpected}`);
-  let promiseAlertReceived = new Promise(resolve => {
+  const promiseAlertReceived = new Promise(resolve => {
     resolveAlert = resolve;
   });
   test = aRecipient;

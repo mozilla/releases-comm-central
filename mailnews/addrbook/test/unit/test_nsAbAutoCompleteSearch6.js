@@ -175,7 +175,7 @@ add_task(async () => {
   // Ensure all the directories are initialised.
   MailServices.ab.directories;
 
-  let ab = MailServices.ab.getDirectory(kPABData.URI);
+  const ab = MailServices.ab.getDirectory(kPABData.URI);
 
   function createAndAddCard(element) {
     var card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
@@ -206,7 +206,7 @@ add_task(async () => {
 
   async function checkInputItem(element, index) {
     print("Search #" + index + ": search=" + element.search);
-    let resultPromise = obs.waitForResult();
+    const resultPromise = obs.waitForResult();
     acs.startSearch(
       element.search,
       JSON.stringify({ type: "addr_to" }),

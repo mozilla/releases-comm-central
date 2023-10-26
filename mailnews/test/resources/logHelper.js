@@ -76,16 +76,16 @@ var _errorConsoleTunnel = {
         // An XPCOM error aMessage looks like this:
         //   [JavaScript Error: "uncaught exception: 2147500037"]
         // Capture the number, and allow known XPCOM results.
-        let matches = /JavaScript Error: "(\w+)/.exec(aMessage);
+        const matches = /JavaScript Error: "(\w+)/.exec(aMessage);
         let XPCOMresult = null;
         if (matches) {
-          for (let result in Cr) {
+          for (const result in Cr) {
             if (matches[1] == Cr[result]) {
               XPCOMresult = result;
               break;
             }
           }
-          let message = XPCOMresult || aMessage;
+          const message = XPCOMresult || aMessage;
           if (logHelperAllowedErrors.some(e => e == matches[1])) {
             if (XPCOMresult) {
               info("Ignoring XPCOM error: " + message);
@@ -176,7 +176,7 @@ function mark_test_start(aName, aParameter, aDepth) {
   // clear out any existing contexts
   mark_test_end(aDepth);
 
-  let term = aDepth == 0 ? "test" : "subtest";
+  const term = aDepth == 0 ? "test" : "subtest";
   _testLoggerActiveContext = {
     type: term,
     name: aName,
@@ -205,7 +205,7 @@ function mark_test_end(aPopTo) {
   }
   // clear out any existing contexts
   while (_testLoggerContexts.length > aPopTo) {
-    let context = _testLoggerContexts.pop();
+    const context = _testLoggerContexts.pop();
     _mailnewsTestLogger.info(
       context._id,
       "Finished " +
@@ -231,7 +231,7 @@ function mark_test_end(aPopTo) {
  *   support code.
  */
 function mark_sub_test_start(aName, aParameter, aNest) {
-  let depth = aNest ? _testLoggerContexts.length : 1;
+  const depth = aNest ? _testLoggerContexts.length : 1;
   mark_test_start(aName, aParameter, depth);
 }
 
@@ -261,10 +261,10 @@ function mark_all_tests_run() {
 }
 
 function _explode_flags(aFlagWord, aFlagDefs) {
-  let flagList = [];
+  const flagList = [];
 
-  for (let flagName in aFlagDefs) {
-    let flagVal = aFlagDefs[flagName];
+  for (const flagName in aFlagDefs) {
+    const flagVal = aFlagDefs[flagName];
     if (flagVal & aFlagWord) {
       flagList.push(flagName);
     }
@@ -294,15 +294,15 @@ function __value_copy(aObj, aDepthAllowed) {
  *   call ourselves.
  */
 function __simple_obj_copy(aObj, aDepthAllowed) {
-  let oot = {};
-  let nextDepth = aDepthAllowed - 1;
-  for (let key in aObj) {
+  const oot = {};
+  const nextDepth = aDepthAllowed - 1;
+  for (const key in aObj) {
     // avoid triggering getters
     if (aObj.__lookupGetter__(key)) {
       oot[key] = "*getter*";
       continue;
     }
-    let value = aObj[key];
+    const value = aObj[key];
 
     if (value == null) {
       oot[key] = null;
@@ -371,9 +371,9 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
       flags: _explode_flags(aObj.flags, Ci.nsMsgFolderFlags),
     };
   } else if (aObj instanceof Ci.nsIMsgDBHdr) {
-    let properties = {};
-    for (let name in _INTERESTING_MESSAGE_HEADER_PROPERTIES) {
-      let propType = _INTERESTING_MESSAGE_HEADER_PROPERTIES[name];
+    const properties = {};
+    for (const name in _INTERESTING_MESSAGE_HEADER_PROPERTIES) {
+      const propType = _INTERESTING_MESSAGE_HEADER_PROPERTIES[name];
       if (propType === 0) {
         properties[name] =
           aObj.getStringProperty(name) != ""
@@ -398,14 +398,14 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
     // === Generic ===
     // DOM nodes, including elements
     let name = aObj.nodeName;
-    let objAttrs = {};
+    const objAttrs = {};
 
     if (Element.isInstance(aObj)) {
       name += "#" + aObj.getAttribute("id");
     }
 
     if ("attributes" in aObj) {
-      let nodeAttrs = aObj.attributes;
+      const nodeAttrs = aObj.attributes;
       for (let iAttr = 0; iAttr < nodeAttrs.length; iAttr++) {
         objAttrs[nodeAttrs[iAttr].name] = nodeAttrs[iAttr].value;
       }
@@ -483,7 +483,7 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
     };
   }
 
-  for (let [checkType, handler] of _registered_json_normalizers) {
+  for (const [checkType, handler] of _registered_json_normalizers) {
     if (aObj instanceof checkType) {
       return handler(aObj);
     }
@@ -498,7 +498,7 @@ function _normalize_for_json(aObj, aDepthAllowed, aJsonMeNotNeeded) {
     };
   }
 
-  let simple_obj = __simple_obj_copy(aObj, aDepthAllowed);
+  const simple_obj = __simple_obj_copy(aObj, aDepthAllowed);
   if (!aJsonMeNotNeeded) {
     simple_obj._jsonMe = true;
   }

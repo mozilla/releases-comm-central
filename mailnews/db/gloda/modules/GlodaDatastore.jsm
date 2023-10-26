@@ -60,7 +60,7 @@ PostCommitHandler.prototype = {
     }
 
     if (aReason == Ci.mozIStorageStatementCallback.REASON_FINISHED) {
-      for (let callback of this.callbacks) {
+      for (const callback of this.callbacks) {
         try {
           callback();
         } catch (ex) {
@@ -103,7 +103,7 @@ var QFQ_LOG = console.createInstance({
  */
 var QueryFromQueryResolver = {
   onItemsAdded(aIgnoredItems, aCollection, aFake) {
-    let originColl = aCollection.dataStack
+    const originColl = aCollection.dataStack
       ? aCollection.dataStack.pop()
       : aCollection.data;
     // QFQ_LOG.debug("QFQR: originColl: " + originColl);
@@ -124,12 +124,12 @@ var QueryFromQueryResolver = {
       return;
     }
 
-    let referencesByNounID = originColl.masterCollection.referencesByNounID;
-    let inverseReferencesByNounID =
+    const referencesByNounID = originColl.masterCollection.referencesByNounID;
+    const inverseReferencesByNounID =
       originColl.masterCollection.inverseReferencesByNounID;
 
     if (originColl.pendingItems) {
-      for (let item of originColl.pendingItems) {
+      for (const item of originColl.pendingItems) {
         // QFQ_LOG.debug("QFQR: loading deferred " + item.NOUN_ID + ":" + item.id);
         GlodaDatastore.loadNounDeferredDeps(
           item,
@@ -160,7 +160,7 @@ var QueryFromQueryResolver = {
   onItemsModified() {},
   onItemsRemoved() {},
   onQueryCompleted(aCollection) {
-    let originColl = aCollection.completionShifter
+    const originColl = aCollection.completionShifter
       ? aCollection.completionShifter.shift()
       : aCollection.data;
     // QFQ_LOG.debug(" QFQR about to trigger completion with collection: " +
@@ -231,21 +231,21 @@ QueryFromQueryCallback.prototype = {
         return;
       }
 
-      let pendingItems = this.collection.pendingItems;
-      let pendingIdMap = this.collection._pendingIdMap;
+      const pendingItems = this.collection.pendingItems;
+      const pendingIdMap = this.collection._pendingIdMap;
       let row;
-      let nounDef = this.nounDef;
-      let nounID = nounDef.id;
+      const nounDef = this.nounDef;
+      const nounID = nounDef.id;
       while ((row = aResultSet.getNextRow())) {
         let item = nounDef.objFromRow.call(nounDef.datastore, row);
         if (this.collection.stashedColumns) {
-          let stashed = (this.collection.stashedColumns[item.id] = []);
-          for (let iCol of this.collection.query.options.stashColumns) {
+          const stashed = (this.collection.stashedColumns[item.id] = []);
+          for (const iCol of this.collection.query.options.stashColumns) {
             stashed.push(GlodaDatastore._getVariant(row, iCol));
           }
         }
         // try and replace the item with one from the cache, if we can
-        let cachedItem = GlodaCollectionManager.cacheLookupOne(
+        const cachedItem = GlodaCollectionManager.cacheLookupOne(
           nounID,
           item.id,
           false
@@ -280,7 +280,8 @@ QueryFromQueryCallback.prototype = {
         // if we're tracking it, add ourselves to our parent's list of children
         //  too
         if (this.selfInverseReferences) {
-          let parentID = item[nounDef.parentColumnAttr.idStorageAttributeName];
+          const parentID =
+            item[nounDef.parentColumnAttr.idStorageAttributeName];
           let childrenList = this.selfInverseReferences[parentID];
           if (childrenList === undefined) {
             childrenList = this.selfInverseReferences[parentID] = [];
@@ -316,12 +317,12 @@ QueryFromQueryCallback.prototype = {
         // QFQ_LOG.debug("handleCompletion: " + this.collection._nounDef.name);
 
         if (this.needsLoads) {
-          for (let nounID in this.referencesByNounID) {
-            let references = this.referencesByNounID[nounID];
+          for (const nounID in this.referencesByNounID) {
+            const references = this.referencesByNounID[nounID];
             if (nounID == this.nounDef.id) {
               continue;
             }
-            let nounDef = GlodaDatastore._nounIDToDef[nounID];
+            const nounDef = GlodaDatastore._nounIDToDef[nounID];
             // QFQ_LOG.debug("  have references for noun: " + nounDef.name);
             // try and load them out of the cache/existing collections.  items in the
             //  cache will be fully formed, which is nice for us.
@@ -341,7 +342,7 @@ QueryFromQueryCallback.prototype = {
             } else {
               outReferences = masterReferences;
             }
-            let [, notFoundCount, notFound] =
+            const [, notFoundCount, notFound] =
               GlodaCollectionManager.cacheLookupMany(
                 nounDef.id,
                 references,
@@ -359,10 +360,10 @@ QueryFromQueryCallback.prototype = {
                 ] = {};
               }
 
-              for (let key in outReferences) {
-                let item = outReferences[key];
+              for (const key in outReferences) {
+                const item = outReferences[key];
                 masterReferences[item.id] = item;
-                let parentID =
+                const parentID =
                   item[nounDef.parentColumnAttr.idStorageAttributeName];
                 let childrenList = inverseReferences[parentID];
                 if (childrenList === undefined) {
@@ -377,11 +378,11 @@ QueryFromQueryCallback.prototype = {
               this.collection.resolvedCount++;
             } else {
               this.collection.deferredCount++;
-              let query = new nounDef.queryClass();
+              const query = new nounDef.queryClass();
               query.id.apply(query, Object.keys(notFound));
 
               // we fully expect/allow for there being no such subcollection yet.
-              let subCollection =
+              const subCollection =
                 nounDef.id in this.collection.masterCollection.subCollections
                   ? this.collection.masterCollection.subCollections[nounDef.id]
                   : undefined;
@@ -397,19 +398,19 @@ QueryFromQueryCallback.prototype = {
             }
           }
 
-          for (let nounID in this.inverseReferencesByNounID) {
-            let inverseReferences = this.inverseReferencesByNounID[nounID];
+          for (const nounID in this.inverseReferencesByNounID) {
+            const inverseReferences = this.inverseReferencesByNounID[nounID];
             this.collection.deferredCount++;
-            let nounDef = GlodaDatastore._nounIDToDef[nounID];
+            const nounDef = GlodaDatastore._nounIDToDef[nounID];
 
             // QFQ_LOG.debug("Want to load inverse via " + nounDef.parentColumnAttr.boundName);
 
-            let query = new nounDef.queryClass();
+            const query = new nounDef.queryClass();
             // we want to constrain using the parent column
-            let queryConstrainer = query[nounDef.parentColumnAttr.boundName];
+            const queryConstrainer = query[nounDef.parentColumnAttr.boundName];
             queryConstrainer.apply(query, Object.keys(inverseReferences));
             // we fully expect/allow for there being no such subcollection yet.
-            let subCollection =
+            const subCollection =
               nounDef.id in this.collection.masterCollection.subCollections
                 ? this.collection.masterCollection.subCollections[nounDef.id]
                 : undefined;
@@ -571,7 +572,7 @@ function ExplainedStatementProcessor(aDumpPath) {
   this._curOps = [];
   this._objsWritten = 0;
 
-  let filePath = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  const filePath = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   filePath.initWithPath(aDumpPath);
 
   this._ostream = Cc[
@@ -579,7 +580,7 @@ function ExplainedStatementProcessor(aDumpPath) {
   ].createInstance(Ci.nsIFileOutputStream);
   this._ostream.init(filePath, -1, -1, 0);
 
-  let s = '{"queries": [';
+  const s = '{"queries": [';
   this._ostream.write(s, s.length);
 }
 ExplainedStatementProcessor.prototype = {
@@ -606,11 +607,11 @@ ExplainedStatementProcessor.prototype = {
     console.error("Unexpected error in EXPLAIN handler: " + aError);
   },
   handleCompletion(aReason) {
-    let obj = {
+    const obj = {
       sql: this._sqlStack.shift(),
       operations: this._curOps,
     };
-    let s = (this._objsWritten++ ? ", " : "") + JSON.stringify(obj, null, 2);
+    const s = (this._objsWritten++ ? ", " : "") + JSON.stringify(obj, null, 2);
     this._ostream.write(s, s.length);
 
     this._curOps = [];
@@ -623,7 +624,7 @@ ExplainedStatementProcessor.prototype = {
   },
 
   shutdown() {
-    let s = "]}";
+    const s = "]}";
     this._ostream.write(s, s.length);
     this._ostream.close();
 
@@ -1061,7 +1062,7 @@ var GlodaDatastore = {
 
     this._nounIDToDef = aNounIDToDef;
 
-    let branch = Services.prefs.getBranch(
+    const branch = Services.prefs.getBranch(
       "mailnews.database.global.datastore."
     );
     this._prefBranch = branch;
@@ -1082,7 +1083,7 @@ var GlodaDatastore = {
     // database, naturally).
     if (dbFile.exists()) {
       try {
-        let h = Services.telemetry.getHistogramById(
+        const h = Services.telemetry.getHistogramById(
           "THUNDERBIRD_GLODA_SIZE_MB"
         );
         h.add(dbFile.fileSize / 1048576);
@@ -1100,7 +1101,7 @@ var GlodaDatastore = {
       // (Exceptions may be thrown if the database is corrupt)
       try {
         dbConnection = Services.storage.openUnsharedDatabase(dbFile);
-        let cacheSize = this._determineCachePages(dbConnection);
+        const cacheSize = this._determineCachePages(dbConnection);
         // see _createDB...
         dbConnection.executeSimpleSQL("PRAGMA cache_size = " + cacheSize);
         dbConnection.executeSimpleSQL("PRAGMA synchronous = FULL");
@@ -1112,7 +1113,7 @@ var GlodaDatastore = {
         tokenizer.registerTokenizer(dbConnection);
 
         // -- database schema changes
-        let dbSchemaVersion = (this._actualSchemaVersion =
+        const dbSchemaVersion = (this._actualSchemaVersion =
           dbConnection.schemaVersion);
         // - database from the future!
         if (dbSchemaVersion > this._schemaVersion) {
@@ -1129,7 +1130,7 @@ var GlodaDatastore = {
             dbSchemaVersion >= DB_SCHEMA_ACCEPT_DOWNGRADE_LOW &&
             dbSchemaVersion <= DB_SCHEMA_ACCEPT_DOWNGRADE_HIGH
           ) {
-            let newVersion = dbSchemaVersion - DB_SCHEMA_DOWNGRADE_DELTA;
+            const newVersion = dbSchemaVersion - DB_SCHEMA_DOWNGRADE_DELTA;
             this._log.debug(
               "db from the future in downgrade range; setting " +
                 "version to " +
@@ -1307,7 +1308,7 @@ var GlodaDatastore = {
    * @returns a UUID as a string, ex: "c4dd0159-9287-480f-a648-a4613e147fdb"
    */
   _generateDatastoreID() {
-    let uuid = Services.uuid.generateUUID().toString();
+    const uuid = Services.uuid.generateUUID().toString();
     // We snip off the { and } from each end of the UUID.
     return uuid.substring(1, uuid.length - 2);
   },
@@ -1318,9 +1319,9 @@ var GlodaDatastore = {
       //  nsNavHistory::InitDB. We're slightly diverging from them in the sense
       //  that we won't allow gloda to use insane amounts of memory cache, and
       //  we start with 1% instead of 6% like them.
-      let pageStmt = aDBConn.createStatement("PRAGMA page_size");
+      const pageStmt = aDBConn.createStatement("PRAGMA page_size");
       pageStmt.executeStep();
-      let pageSize = pageStmt.row.page_size;
+      const pageSize = pageStmt.row.page_size;
       pageStmt.finalize();
       let cachePermillage = this._prefBranch.getIntPref(
         "cache_to_memory_permillage"
@@ -1334,7 +1335,7 @@ var GlodaDatastore = {
       let cacheSize = Math.round((physMem * cachePermillage) / 1000);
       cacheSize = Math.max(cacheSize, MIN_CACHE_SIZE);
       cacheSize = Math.min(cacheSize, MAX_CACHE_SIZE);
-      let cachePages = Math.round(cacheSize / pageSize);
+      const cachePages = Math.round(cacheSize / pageSize);
       return cachePages;
     } catch (ex) {
       this._log.warn("Error determining cache size: " + ex);
@@ -1352,7 +1353,7 @@ var GlodaDatastore = {
     //  picking a default 32k page size, and then figuring out the amount of
     //  cache accordingly. The default 32k come from mozilla/toolkit/storage,
     //  but let's get it directly from sqlite in case they change it.
-    let cachePages = this._determineCachePages(dbConnection);
+    const cachePages = this._determineCachePages(dbConnection);
     // This is a maximum number of pages to be used.  If the database does not
     //  get this large, then the memory does not get used.
     // Do not forget to update the code in _init if you change this value.
@@ -1393,19 +1394,19 @@ var GlodaDatastore = {
   _createTableSchema(aDBConnection, aTableName, aTableDef) {
     // - Create the table
     this._log.info("Creating table: " + aTableName);
-    let columnDefs = [];
-    for (let [column, type] of aTableDef.columns) {
+    const columnDefs = [];
+    for (const [column, type] of aTableDef.columns) {
       columnDefs.push(column + " " + type);
     }
     aDBConnection.createTable(aTableName, columnDefs.join(", "));
 
     // - Create the fulltext table if applicable
     if (aTableDef.fulltextColumns) {
-      let columnDefs = [];
-      for (let [column, type] of aTableDef.fulltextColumns) {
+      const columnDefs = [];
+      for (const [column, type] of aTableDef.fulltextColumns) {
         columnDefs.push(column + " " + type);
       }
-      let createFulltextSQL =
+      const createFulltextSQL =
         "CREATE VIRTUAL TABLE " +
         aTableName +
         "Text" +
@@ -1418,8 +1419,8 @@ var GlodaDatastore = {
 
     // - Create its indices
     if (aTableDef.indices) {
-      for (let indexName in aTableDef.indices) {
-        let indexColumns = aTableDef.indices[indexName];
+      for (const indexName in aTableDef.indices) {
+        const indexColumns = aTableDef.indices[indexName];
         aDBConnection.executeSimpleSQL(
           "CREATE INDEX " +
             indexName +
@@ -1464,8 +1465,8 @@ var GlodaDatastore = {
    */
   _createSchema(aDBConnection) {
     // -- For each table...
-    for (let tableName in this._schema.tables) {
-      let tableDef = this._schema.tables[tableName];
+    for (const tableName in this._schema.tables) {
+      const tableDef = this._schema.tables[tableName];
       this._createTableSchema(aDBConnection, tableName, tableDef);
     }
 
@@ -1604,7 +1605,7 @@ var GlodaDatastore = {
    */
   _updateSchemaVersion(newSchemaVersion) {
     this._actualSchemaVersion = newSchemaVersion;
-    let stmt = this._createAsyncStatement(
+    const stmt = this._createAsyncStatement(
       // we need to concat; pragmas don't like "?1" binds
       "PRAGMA user_version = " + newSchemaVersion,
       true
@@ -1660,7 +1661,7 @@ var GlodaDatastore = {
    *  controlled by the explainToPath preference (see |_init|).
    */
   _createExplainedAsyncStatement(aSQLString, aWillFinalize) {
-    let realStatement = this._realCreateAsyncStatement(
+    const realStatement = this._realCreateAsyncStatement(
       aSQLString,
       aWillFinalize
     );
@@ -1673,8 +1674,8 @@ var GlodaDatastore = {
       return realStatement;
     }
 
-    let explainSQL = "EXPLAIN " + aSQLString;
-    let explainStatement = this._realCreateAsyncStatement(explainSQL);
+    const explainSQL = "EXPLAIN " + aSQLString;
+    const explainStatement = this._realCreateAsyncStatement(explainSQL);
 
     return new ExplainedStatementWrapper(
       realStatement,
@@ -1763,7 +1764,7 @@ var GlodaDatastore = {
    *  mooted once we move to 1.9.2 and can use built-in variant support.
    */
   _getVariant(aRow, aIndex) {
-    let typeOfIndex = aRow.getTypeOfIndex(aIndex);
+    const typeOfIndex = aRow.getTypeOfIndex(aIndex);
     if (typeOfIndex == Ci.mozIStorageValueArray.VALUE_TYPE_NULL) {
       // XPConnect would just end up going through an intermediary double stage
       // for the int64 case anyways...
@@ -1787,7 +1788,7 @@ var GlodaDatastore = {
    * Self-memoizing BEGIN TRANSACTION statement.
    */
   get _beginTransactionStatement() {
-    let statement = this._createAsyncStatement("BEGIN TRANSACTION");
+    const statement = this._createAsyncStatement("BEGIN TRANSACTION");
     this.__defineGetter__("_beginTransactionStatement", () => statement);
     return this._beginTransactionStatement;
   },
@@ -1796,7 +1797,7 @@ var GlodaDatastore = {
    * Self-memoizing COMMIT statement.
    */
   get _commitTransactionStatement() {
-    let statement = this._createAsyncStatement("COMMIT");
+    const statement = this._createAsyncStatement("COMMIT");
     this.__defineGetter__("_commitTransactionStatement", () => statement);
     return this._commitTransactionStatement;
   },
@@ -1805,7 +1806,7 @@ var GlodaDatastore = {
    * Self-memoizing ROLLBACK statement.
    */
   get _rollbackTransactionStatement() {
-    let statement = this._createAsyncStatement("ROLLBACK");
+    const statement = this._createAsyncStatement("ROLLBACK");
     this.__defineGetter__("_rollbackTransactionStatement", () => statement);
     return this._rollbackTransactionStatement;
   },
@@ -1937,14 +1938,14 @@ var GlodaDatastore = {
   _nextAttributeId: 32,
 
   _populateAttributeDefManagedId() {
-    let stmt = this._createSyncStatement(
+    const stmt = this._createSyncStatement(
       "SELECT MAX(id) FROM attributeDefinitions",
       true
     );
     if (stmt.executeStep()) {
       // no chance of this SQLITE_BUSY on this call
       // 0 gets returned even if there are no messages...
-      let highestSeen = stmt.getInt64(0);
+      const highestSeen = stmt.getInt64(0);
       if (highestSeen != 0) {
         this._nextAttributeId = highestSeen + 1;
       }
@@ -1953,7 +1954,7 @@ var GlodaDatastore = {
   },
 
   get _insertAttributeDefStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "INSERT INTO attributeDefinitions (id, attributeType, extensionName, \
                                   name, parameter) \
               VALUES (?1, ?2, ?3, ?4, ?5)"
@@ -1971,9 +1972,9 @@ var GlodaDatastore = {
    * @returns The attribute id allocated to this attribute.
    */
   _createAttributeDef(aAttrType, aExtensionName, aAttrName, aParameter) {
-    let attributeId = this._nextAttributeId++;
+    const attributeId = this._nextAttributeId++;
 
-    let iads = this._insertAttributeDefStatement;
+    const iads = this._insertAttributeDefStatement;
     iads.bindByIndex(0, attributeId);
     iads.bindByIndex(1, aAttrType);
     iads.bindByIndex(2, aExtensionName);
@@ -1992,29 +1993,29 @@ var GlodaDatastore = {
    *  underlying database.)
    */
   getAllAttributes() {
-    let stmt = this._createSyncStatement(
+    const stmt = this._createSyncStatement(
       "SELECT id, attributeType, extensionName, name, parameter \
          FROM attributeDefinitions",
       true
     );
 
     // map compound name to the attribute
-    let attribs = {};
+    const attribs = {};
     // map the attribute id to [attribute, parameter] where parameter is null
     //  in cases where parameter is unused.
-    let idToAttribAndParam = {};
+    const idToAttribAndParam = {};
 
     this._log.info("loading all attribute defs");
 
     while (stmt.executeStep()) {
       // no chance of this SQLITE_BUSY on this call
-      let rowId = stmt.getInt64(0);
-      let rowAttributeType = stmt.getInt64(1);
-      let rowExtensionName = stmt.getString(2);
-      let rowName = stmt.getString(3);
-      let rowParameter = this._getVariant(stmt, 4);
+      const rowId = stmt.getInt64(0);
+      const rowAttributeType = stmt.getInt64(1);
+      const rowExtensionName = stmt.getString(2);
+      const rowName = stmt.getString(3);
+      const rowParameter = this._getVariant(stmt, 4);
 
-      let compoundName = rowExtensionName + ":" + rowName;
+      const compoundName = rowExtensionName + ":" + rowName;
 
       let attrib;
       if (compoundName in attribs) {
@@ -2067,7 +2068,7 @@ var GlodaDatastore = {
   _nextFolderId: 1,
 
   get _insertFolderLocationStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "INSERT INTO folderLocations (id, folderURI, dirtyStatus, name, \
                                     indexingPriority) VALUES \
         (?1, ?2, ?3, ?4, ?5)"
@@ -2087,7 +2088,7 @@ var GlodaDatastore = {
 
   /** Initialize our _folderByURI/_folderByID mappings, called by _init(). */
   _getAllFolderMappings() {
-    let stmt = this._createSyncStatement(
+    const stmt = this._createSyncStatement(
       "SELECT id, folderURI, dirtyStatus, name, indexingPriority \
         FROM folderLocations",
       true
@@ -2095,13 +2096,13 @@ var GlodaDatastore = {
 
     while (stmt.executeStep()) {
       // no chance of this SQLITE_BUSY on this call
-      let folderID = stmt.getInt64(0);
-      let folderURI = stmt.getString(1);
-      let dirtyStatus = stmt.getInt32(2);
-      let folderName = stmt.getString(3);
-      let indexingPriority = stmt.getInt32(4);
+      const folderID = stmt.getInt64(0);
+      const folderURI = stmt.getString(1);
+      const dirtyStatus = stmt.getInt32(2);
+      const folderName = stmt.getString(3);
+      const indexingPriority = stmt.getInt32(4);
 
-      let folder = new GlodaFolder(
+      const folder = new GlodaFolder(
         this,
         folderID,
         folderURI,
@@ -2121,7 +2122,7 @@ var GlodaDatastore = {
   },
 
   _folderKnown(aFolder) {
-    let folderURI = aFolder.URI;
+    const folderURI = aFolder.URI;
     return folderURI in this._folderByURI;
   },
 
@@ -2142,7 +2143,7 @@ var GlodaDatastore = {
     let indexingPriority = GlodaFolder.prototype.kIndexingDefaultPriority;
     // Do not walk into trash/junk folders, unless the user is explicitly
     //  telling us to do so.
-    let specialFolderFlags =
+    const specialFolderFlags =
       Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.Junk;
     if (aFolder.isSpecialFolder(specialFolderFlags, true)) {
       indexingPriority = aAllowSpecialFolderIndexing
@@ -2186,18 +2187,18 @@ var GlodaDatastore = {
    * @returns The existing or newly created GlodaFolder instance.
    */
   _mapFolder(aFolder) {
-    let folderURI = aFolder.URI;
+    const folderURI = aFolder.URI;
     if (folderURI in this._folderByURI) {
       return this._folderByURI[folderURI];
     }
 
-    let folderID = this._nextFolderId++;
+    const folderID = this._nextFolderId++;
 
     // If there's an indexingPriority stored on the folder, just use that.
     // Otherwise, fall back to the default for folders of this type.
     let indexingPriority = NaN;
     try {
-      let pri = aFolder.getStringProperty("indexingPriority"); // Might throw.
+      const pri = aFolder.getStringProperty("indexingPriority"); // Might throw.
       indexingPriority = parseInt(pri); // Might return NaN.
     } catch (ex) {}
     if (isNaN(indexingPriority)) {
@@ -2206,10 +2207,10 @@ var GlodaDatastore = {
 
     // If there are messages in the folder, it is filthy.  If there are no
     //  messages, it can be clean.
-    let dirtyStatus = aFolder.getTotalMessages(false)
+    const dirtyStatus = aFolder.getTotalMessages(false)
       ? GlodaFolder.prototype.kFolderFilthy
       : GlodaFolder.prototype.kFolderClean;
-    let folder = new GlodaFolder(
+    const folder = new GlodaFolder(
       this,
       folderID,
       folderURI,
@@ -2263,7 +2264,7 @@ var GlodaDatastore = {
   },
 
   get _updateFolderDirtyStatusStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "UPDATE folderLocations SET dirtyStatus = ?1 \
               WHERE id = ?2"
     );
@@ -2272,14 +2273,14 @@ var GlodaDatastore = {
   },
 
   updateFolderDirtyStatus(aFolder) {
-    let ufds = this._updateFolderDirtyStatusStatement;
+    const ufds = this._updateFolderDirtyStatusStatement;
     ufds.bindByIndex(1, aFolder.id);
     ufds.bindByIndex(0, aFolder.dirtyStatus);
     ufds.executeAsync(this.trackAsync());
   },
 
   get _updateFolderIndexingPriorityStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "UPDATE folderLocations SET indexingPriority = ?1 \
               WHERE id = ?2"
     );
@@ -2291,14 +2292,14 @@ var GlodaDatastore = {
   },
 
   updateFolderIndexingPriority(aFolder) {
-    let ufip = this._updateFolderIndexingPriorityStatement;
+    const ufip = this._updateFolderIndexingPriorityStatement;
     ufip.bindByIndex(1, aFolder.id);
     ufip.bindByIndex(0, aFolder.indexingPriority);
     ufip.executeAsync(this.trackAsync());
   },
 
   get _updateFolderLocationStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "UPDATE folderLocations SET folderURI = ?1 \
               WHERE id = ?2"
     );
@@ -2316,8 +2317,8 @@ var GlodaDatastore = {
     if (!(aOldFolder.URI in this._folderByURI)) {
       return;
     }
-    let folder = this._mapFolder(aOldFolder); // ensure the folder is mapped
-    let oldURI = folder.uri;
+    const folder = this._mapFolder(aOldFolder); // ensure the folder is mapped
+    const oldURI = folder.uri;
     this._folderByURI[aNewURI] = folder;
     folder._uri = aNewURI;
     this._log.info("renaming folder URI " + oldURI + " to " + aNewURI);
@@ -2329,7 +2330,7 @@ var GlodaDatastore = {
   },
 
   get _deleteFolderByIDStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "DELETE FROM folderLocations WHERE id = ?1"
     );
     this.__defineGetter__("_deleteFolderByIDStatement", () => statement);
@@ -2337,7 +2338,7 @@ var GlodaDatastore = {
   },
 
   deleteFolderByID(aFolderID) {
-    let dfbis = this._deleteFolderByIDStatement;
+    const dfbis = this._deleteFolderByIDStatement;
     dfbis.bindByIndex(0, aFolderID);
     dfbis.executeAsync(this.trackAsync());
   },
@@ -2347,7 +2348,7 @@ var GlodaDatastore = {
   _nextConversationId: 1,
 
   _populateConversationManagedId() {
-    let stmt = this._createSyncStatement(
+    const stmt = this._createSyncStatement(
       "SELECT MAX(id) FROM conversations",
       true
     );
@@ -2359,7 +2360,7 @@ var GlodaDatastore = {
   },
 
   get _insertConversationStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "INSERT INTO conversations (id, subject, oldestMessageDate, \
                                   newestMessageDate) \
               VALUES (?1, ?2, ?3, ?4)"
@@ -2369,7 +2370,7 @@ var GlodaDatastore = {
   },
 
   get _insertConversationTextStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "INSERT INTO conversationsText (docid, subject) \
               VALUES (?1, ?2)"
     );
@@ -2382,8 +2383,8 @@ var GlodaDatastore = {
    */
   createConversation(aSubject, aOldestMessageDate, aNewestMessageDate) {
     // create the data row
-    let conversationID = this._nextConversationId++;
-    let ics = this._insertConversationStatement;
+    const conversationID = this._nextConversationId++;
+    const ics = this._insertConversationStatement;
     ics.bindByIndex(0, conversationID);
     ics.bindByIndex(1, aSubject);
     if (aOldestMessageDate == null) {
@@ -2399,13 +2400,13 @@ var GlodaDatastore = {
     ics.executeAsync(this.trackAsync());
 
     // create the fulltext row, using the same rowid/docid
-    let icts = this._insertConversationTextStatement;
+    const icts = this._insertConversationTextStatement;
     icts.bindByIndex(0, conversationID);
     icts.bindByIndex(1, aSubject);
     icts.executeAsync(this.trackAsync());
 
     // create it
-    let conversation = new GlodaConversation(
+    const conversation = new GlodaConversation(
       this,
       conversationID,
       aSubject,
@@ -2419,7 +2420,7 @@ var GlodaDatastore = {
   },
 
   get _deleteConversationByIDStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "DELETE FROM conversations WHERE id = ?1"
     );
     this.__defineGetter__("_deleteConversationByIDStatement", () => statement);
@@ -2430,7 +2431,7 @@ var GlodaDatastore = {
    * Asynchronously delete a conversation given its ID.
    */
   deleteConversationByID(aConversationID) {
-    let dcbids = this._deleteConversationByIDStatement;
+    const dcbids = this._deleteConversationByIDStatement;
     dcbids.bindByIndex(0, aConversationID);
     dcbids.executeAsync(this.trackAsync());
 
@@ -2471,11 +2472,14 @@ var GlodaDatastore = {
   _nextMessageId: 32,
 
   _populateMessageManagedId() {
-    let stmt = this._createSyncStatement("SELECT MAX(id) FROM messages", true);
+    const stmt = this._createSyncStatement(
+      "SELECT MAX(id) FROM messages",
+      true
+    );
     if (stmt.executeStep()) {
       // no chance of this SQLITE_BUSY on this call
       // 0 gets returned even if there are no messages...
-      let highestSeen = stmt.getInt64(0);
+      const highestSeen = stmt.getInt64(0);
       if (highestSeen != 0) {
         this._nextMessageId = highestSeen + 1;
       }
@@ -2484,7 +2488,7 @@ var GlodaDatastore = {
   },
 
   get _insertMessageStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "INSERT INTO messages (id, folderID, messageKey, conversationID, date, \
                              headerMessageID, jsonAttributes, notability) \
               VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)"
@@ -2494,7 +2498,7 @@ var GlodaDatastore = {
   },
 
   get _insertMessageTextStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "INSERT INTO messagesText (docid, subject, body, attachmentNames, \
                                  author, recipients) \
               VALUES (?1, ?2, ?3, ?4, ?5, ?6)"
@@ -2527,9 +2531,9 @@ var GlodaDatastore = {
       folderID = null;
     }
 
-    let messageID = this._nextMessageId++;
+    const messageID = this._nextMessageId++;
 
-    let message = new GlodaMessage(
+    const message = new GlodaMessage(
       this,
       messageID,
       folderID,
@@ -2553,7 +2557,7 @@ var GlodaDatastore = {
 
   insertMessage(aMessage) {
     this._log.debug("insertMessage " + aMessage);
-    let ims = this._insertMessageStatement;
+    const ims = this._insertMessageStatement;
     ims.bindByIndex(0, aMessage.id);
     if (aMessage.folderID == null) {
       ims.bindByIndex(1, null);
@@ -2612,7 +2616,7 @@ var GlodaDatastore = {
       aMessage._indexedBodyText = null;
     }
 
-    let imts = this._insertMessageTextStatement;
+    const imts = this._insertMessageTextStatement;
     imts.bindByIndex(0, aMessage.id);
     imts.bindByIndex(1, aMessage._subject);
     if (aMessage._indexedBodyText == null) {
@@ -2646,7 +2650,7 @@ var GlodaDatastore = {
   },
 
   get _updateMessageStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "UPDATE messages SET folderID = ?1, \
                            messageKey = ?2, \
                            conversationID = ?3, \
@@ -2662,7 +2666,7 @@ var GlodaDatastore = {
   },
 
   get _updateMessageTextStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "UPDATE messagesText SET body = ?1, \
                                attachmentNames = ?2 \
               WHERE docid = ?3"
@@ -2683,7 +2687,7 @@ var GlodaDatastore = {
    */
   updateMessage(aMessage) {
     this._log.debug("updateMessage " + aMessage);
-    let ums = this._updateMessageStatement;
+    const ums = this._updateMessageStatement;
     ums.bindByIndex(8, aMessage.id);
     if (aMessage.folderID === null) {
       ums.bindByIndex(0, null);
@@ -2745,7 +2749,7 @@ var GlodaDatastore = {
     }
 
     aMessage._indexedBodyText = newIndexedBodyText;
-    let umts = this._updateMessageTextStatement;
+    const umts = this._updateMessageTextStatement;
     umts.bindByIndex(2, aMessage.id);
 
     if (aMessage._indexedBodyText == null) {
@@ -2775,7 +2779,7 @@ var GlodaDatastore = {
   },
 
   get _updateMessageLocationStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "UPDATE messages SET folderID = ?1, messageKey = ?2 WHERE id = ?3"
     );
     this.__defineGetter__("_updateMessageLocationStatement", () => statement);
@@ -2808,17 +2812,17 @@ var GlodaDatastore = {
         aDoNotNotify +
         "\n"
     );
-    let statement = this._updateMessageLocationStatement;
-    let destFolderID =
+    const statement = this._updateMessageLocationStatement;
+    const destFolderID =
       typeof aDestFolder == "number"
         ? aDestFolder
         : this._mapFolder(aDestFolder).id;
 
     // map gloda id to the new message key for in-memory rep transform below
-    let cacheLookupMap = {};
+    const cacheLookupMap = {};
 
     for (let iMsg = 0; iMsg < aMessageIds.length; iMsg++) {
-      let id = aMessageIds[iMsg],
+      const id = aMessageIds[iMsg],
         msgKey = aNewMessageKeys[iMsg];
       statement.bindByIndex(0, destFolderID);
       statement.bindByIndex(1, msgKey);
@@ -2830,7 +2834,7 @@ var GlodaDatastore = {
 
     // - perform the cache lookup so we can update in-memory representations
     // found in memory items, and converted to list form for notification
-    let inMemoryItems = {},
+    const inMemoryItems = {},
       modifiedItems = [];
     GlodaCollectionManager.cacheLookupMany(
       GlodaMessage.prototype.NOUN_ID,
@@ -2838,8 +2842,8 @@ var GlodaDatastore = {
       inMemoryItems,
       /* do not cache */ false
     );
-    for (let glodaId in inMemoryItems) {
-      let glodaMsg = inMemoryItems[glodaId];
+    for (const glodaId in inMemoryItems) {
+      const glodaMsg = inMemoryItems[glodaId];
       glodaMsg._folderID = destFolderID;
       glodaMsg._messageKey = cacheLookupMap[glodaId];
       modifiedItems.push(glodaMsg);
@@ -2856,7 +2860,7 @@ var GlodaDatastore = {
   },
 
   get _updateMessageKeyStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "UPDATE messages SET messageKey = ?1 WHERE id = ?2"
     );
     this.__defineGetter__("_updateMessageKeyStatement", () => statement);
@@ -2880,13 +2884,13 @@ var GlodaDatastore = {
         aNewMessageKeys +
         "\n"
     );
-    let statement = this._updateMessageKeyStatement;
+    const statement = this._updateMessageKeyStatement;
 
     // map gloda id to the new message key for in-memory rep transform below
-    let cacheLookupMap = {};
+    const cacheLookupMap = {};
 
     for (let iMsg = 0; iMsg < aMessageIds.length; iMsg++) {
-      let id = aMessageIds[iMsg],
+      const id = aMessageIds[iMsg],
         msgKey = aNewMessageKeys[iMsg];
       statement.bindByIndex(0, msgKey);
       statement.bindByIndex(1, id);
@@ -2896,15 +2900,15 @@ var GlodaDatastore = {
     }
 
     // - perform the cache lookup so we can update in-memory representations
-    let inMemoryItems = {};
+    const inMemoryItems = {};
     GlodaCollectionManager.cacheLookupMany(
       GlodaMessage.prototype.NOUN_ID,
       cacheLookupMap,
       inMemoryItems,
       /* do not cache */ false
     );
-    for (let glodaId in inMemoryItems) {
-      let glodaMsg = inMemoryItems[glodaId];
+    for (const glodaId in inMemoryItems) {
+      const glodaMsg = inMemoryItems[glodaId];
       glodaMsg._messageKey = cacheLookupMap[glodaId];
     }
   },
@@ -2917,26 +2921,26 @@ var GlodaDatastore = {
    * Updates in-memory representations too.
    */
   updateMessageFoldersByKeyPurging(aGlodaIds, aDestFolder) {
-    let destFolderID = this._mapFolder(aDestFolder).id;
+    const destFolderID = this._mapFolder(aDestFolder).id;
 
-    let sqlStr =
+    const sqlStr =
       "UPDATE messages SET folderID = ?1, \
                                       messageKey = ?2 \
                    WHERE id IN (" +
       aGlodaIds.join(", ") +
       ")";
-    let statement = this._createAsyncStatement(sqlStr, true);
+    const statement = this._createAsyncStatement(sqlStr, true);
     statement.bindByIndex(0, destFolderID);
     statement.bindByIndex(1, null);
     statement.executeAsync(this.trackAsync());
     statement.finalize();
 
-    let cached = GlodaCollectionManager.cacheLookupManyList(
+    const cached = GlodaCollectionManager.cacheLookupManyList(
       GlodaMessage.prototype.NOUN_ID,
       aGlodaIds
     );
-    for (let id in cached) {
-      let glodaMsg = cached[id];
+    for (const id in cached) {
+      const glodaMsg = cached[id];
       glodaMsg._folderID = destFolderID;
       glodaMsg._messageKey = null;
     }
@@ -3017,7 +3021,7 @@ var GlodaDatastore = {
   get _updateMessagesMarkDeletedByFolderID() {
     // When marking deleted clear the folderID and messageKey so that the
     //  indexing process can reuse it without any location constraints.
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "UPDATE messages SET folderID = NULL, messageKey = NULL, \
               deleted = 1 WHERE folderID = ?1"
     );
@@ -3039,7 +3043,7 @@ var GlodaDatastore = {
    *  in-memory traversal.
    */
   markMessagesDeletedByFolderID(aFolderID) {
-    let statement = this._updateMessagesMarkDeletedByFolderID;
+    const statement = this._updateMessagesMarkDeletedByFolderID;
     statement.bindByIndex(0, aFolderID);
     statement.executeAsync(this.trackAsync());
 
@@ -3059,13 +3063,13 @@ var GlodaDatastore = {
   markMessagesDeletedByIDs(aMessageIDs) {
     // When marking deleted clear the folderID and messageKey so that the
     //  indexing process can reuse it without any location constraints.
-    let sqlString =
+    const sqlString =
       "UPDATE messages SET folderID = NULL, messageKey = NULL, " +
       "deleted = 1 WHERE id IN (" +
       aMessageIDs.join(",") +
       ")";
 
-    let statement = this._createAsyncStatement(sqlString, true);
+    const statement = this._createAsyncStatement(sqlString, true);
     statement.executeAsync(this.trackAsync());
     statement.finalize();
 
@@ -3076,7 +3080,7 @@ var GlodaDatastore = {
   },
 
   get _countDeletedMessagesStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "SELECT COUNT(*) FROM messages WHERE deleted = 1"
     );
     this.__defineGetter__("_countDeletedMessagesStatement", () => statement);
@@ -3087,12 +3091,12 @@ var GlodaDatastore = {
    * Count how many messages are currently marked as deleted in the database.
    */
   countDeletedMessages(aCallback) {
-    let cms = this._countDeletedMessagesStatement;
+    const cms = this._countDeletedMessagesStatement;
     cms.executeAsync(new SingletonResultValueHandler(aCallback));
   },
 
   get _deleteMessageByIDStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "DELETE FROM messages WHERE id = ?1"
     );
     this.__defineGetter__("_deleteMessageByIDStatement", () => statement);
@@ -3100,7 +3104,7 @@ var GlodaDatastore = {
   },
 
   get _deleteMessageTextByIDStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "DELETE FROM messagesText WHERE docid = ?1"
     );
     this.__defineGetter__("_deleteMessageTextByIDStatement", () => statement);
@@ -3113,7 +3117,7 @@ var GlodaDatastore = {
    *  collection manager and so nothing needs to be done about that.
    */
   deleteMessageByID(aMessageID) {
-    let dmbids = this._deleteMessageByIDStatement;
+    const dmbids = this._deleteMessageByIDStatement;
     dmbids.bindByIndex(0, aMessageID);
     dmbids.executeAsync(this.trackAsync());
 
@@ -3121,13 +3125,13 @@ var GlodaDatastore = {
   },
 
   deleteMessageTextByID(aMessageID) {
-    let dmt = this._deleteMessageTextByIDStatement;
+    const dmt = this._deleteMessageTextByIDStatement;
     dmt.bindByIndex(0, aMessageID);
     dmt.executeAsync(this.trackAsync());
   },
 
   get _folderCompactionStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "SELECT id, messageKey, headerMessageID FROM messages \
         WHERE folderID = ?1 AND \
           messageKey >= ?2 AND +deleted = 0 ORDER BY messageKey LIMIT ?3"
@@ -3142,7 +3146,7 @@ var GlodaDatastore = {
     aLimit,
     aCallback
   ) {
-    let fcs = this._folderCompactionStatement;
+    const fcs = this._folderCompactionStatement;
     fcs.bindByIndex(0, aFolderID);
     fcs.bindByIndex(1, aStartingMessageKey);
     fcs.bindByIndex(2, aLimit);
@@ -3151,7 +3155,7 @@ var GlodaDatastore = {
 
   /* ********** Message Attributes ********** */
   get _insertMessageAttributeStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "INSERT INTO messageAttributes (conversationID, messageID, attributeID, \
                              value) \
               VALUES (?1, ?2, ?3, ?4)"
@@ -3161,7 +3165,7 @@ var GlodaDatastore = {
   },
 
   get _deleteMessageAttributeStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "DELETE FROM messageAttributes WHERE attributeID = ?1 AND value = ?2 \
          AND conversationID = ?3 AND messageID = ?4"
     );
@@ -3190,12 +3194,12 @@ var GlodaDatastore = {
    * @param aRemoveDBAttributes A list of attribute tuples to remove.
    */
   adjustMessageAttributes(aMessage, aAddDBAttributes, aRemoveDBAttributes) {
-    let imas = this._insertMessageAttributeStatement;
-    let dmas = this._deleteMessageAttributeStatement;
+    const imas = this._insertMessageAttributeStatement;
+    const dmas = this._deleteMessageAttributeStatement;
     this._beginTransaction();
     try {
       for (let iAttrib = 0; iAttrib < aAddDBAttributes.length; iAttrib++) {
-        let attribValueTuple = aAddDBAttributes[iAttrib];
+        const attribValueTuple = aAddDBAttributes[iAttrib];
 
         imas.bindByIndex(0, aMessage.conversationID);
         imas.bindByIndex(1, aMessage.id);
@@ -3213,7 +3217,7 @@ var GlodaDatastore = {
       }
 
       for (let iAttrib = 0; iAttrib < aRemoveDBAttributes.length; iAttrib++) {
-        let attribValueTuple = aRemoveDBAttributes[iAttrib];
+        const attribValueTuple = aRemoveDBAttributes[iAttrib];
 
         dmas.bindByIndex(0, attribValueTuple[0]);
         // use 0 instead of null, otherwise the db gets upset.  (and we don't
@@ -3239,7 +3243,7 @@ var GlodaDatastore = {
   },
 
   get _deleteMessageAttributesByMessageIDStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "DELETE FROM messageAttributes WHERE messageID = ?1"
     );
     this.__defineGetter__(
@@ -3278,8 +3282,8 @@ var GlodaDatastore = {
 
   /* ===== Generic Attribute Support ===== */
   adjustAttributes(aItem, aAddDBAttributes, aRemoveDBAttributes) {
-    let nounDef = aItem.NOUN_DEF;
-    let dbMeta = nounDef._dbMeta;
+    const nounDef = aItem.NOUN_DEF;
+    const dbMeta = nounDef._dbMeta;
     if (dbMeta.insertAttrStatement === undefined) {
       dbMeta.insertAttrStatement = this._createAsyncStatement(
         "INSERT INTO " +
@@ -3300,12 +3304,12 @@ var GlodaDatastore = {
       );
     }
 
-    let ias = dbMeta.insertAttrStatement;
-    let das = dbMeta.deleteAttrStatement;
+    const ias = dbMeta.insertAttrStatement;
+    const das = dbMeta.deleteAttrStatement;
     this._beginTransaction();
     try {
       for (let iAttr = 0; iAttr < aAddDBAttributes.length; iAttr++) {
-        let attribValueTuple = aAddDBAttributes[iAttr];
+        const attribValueTuple = aAddDBAttributes[iAttr];
 
         ias.bindByIndex(0, aItem.id);
         ias.bindByIndex(1, attribValueTuple[0]);
@@ -3322,7 +3326,7 @@ var GlodaDatastore = {
       }
 
       for (let iAttr = 0; iAttr < aRemoveDBAttributes.length; iAttr++) {
-        let attribValueTuple = aRemoveDBAttributes[iAttr];
+        const attribValueTuple = aRemoveDBAttributes[iAttr];
 
         das.bindByIndex(0, attribValueTuple[0]);
         // use 0 instead of null, otherwise the db gets upset.  (and we don't
@@ -3347,8 +3351,8 @@ var GlodaDatastore = {
   },
 
   clearAttributes(aItem) {
-    let nounDef = aItem.NOUN_DEF;
-    let dbMeta = nounDef._dbMeta;
+    const nounDef = aItem.NOUN_DEF;
+    const dbMeta = nounDef._dbMeta;
     if (dbMeta.clearAttrStatement === undefined) {
       dbMeta.clearAttrStatement = this._createAsyncStatement(
         "DELETE FROM " +
@@ -3371,17 +3375,17 @@ var GlodaDatastore = {
    *  for this reason.
    */
   get _escapeLikeStatement() {
-    let statement = this._createAsyncStatement("SELECT 0");
+    const statement = this._createAsyncStatement("SELECT 0");
     this.__defineGetter__("_escapeLikeStatement", () => statement);
     return this._escapeLikeStatement;
   },
 
   *_convertToDBValuesAndGroupByAttributeID(aAttrDef, aValues) {
-    let objectNounDef = aAttrDef.objectNounDef;
+    const objectNounDef = aAttrDef.objectNounDef;
     if (!objectNounDef.usesParameter) {
-      let dbValues = [];
+      const dbValues = [];
       for (let iValue = 0; iValue < aValues.length; iValue++) {
-        let value = aValues[iValue];
+        const value = aValues[iValue];
         // If the empty set is significant and it's an empty signifier, emit
         //  the appropriate dbvalue.
         if (value == null && aAttrDef.emptySetIsSignificant) {
@@ -3393,7 +3397,7 @@ var GlodaDatastore = {
           }
           continue;
         }
-        let dbValue = objectNounDef.toParamAndValue(value)[1];
+        const dbValue = objectNounDef.toParamAndValue(value)[1];
         if (dbValue != null) {
           dbValues.push(dbValue);
         }
@@ -3403,9 +3407,9 @@ var GlodaDatastore = {
     }
 
     let curParam, attrID, dbValues;
-    let attrDBDef = aAttrDef.dbDef;
+    const attrDBDef = aAttrDef.dbDef;
     for (let iValue = 0; iValue < aValues.length; iValue++) {
-      let value = aValues[iValue];
+      const value = aValues[iValue];
       // If the empty set is significant and it's an empty signifier, emit
       //  the appropriate dbvalue.
       if (value == null && aAttrDef.emptySetIsSignificant) {
@@ -3417,7 +3421,7 @@ var GlodaDatastore = {
         }
         continue;
       }
-      let [dbParam, dbValue] = objectNounDef.toParamAndValue(value);
+      const [dbParam, dbValue] = objectNounDef.toParamAndValue(value);
       if (curParam === undefined) {
         curParam = dbParam;
         attrID = attrDBDef.bindParameter(curParam);
@@ -3451,11 +3455,11 @@ var GlodaDatastore = {
     aValues,
     aValueColumnName
   ) {
-    let objectNounDef = aAttrDef.objectNounDef;
+    const objectNounDef = aAttrDef.objectNounDef;
     if (!objectNounDef.usesParameter) {
-      let dbStrings = [];
+      const dbStrings = [];
       for (let iValue = 0; iValue < aValues.length; iValue++) {
-        let [lowerVal, upperVal] = aValues[iValue];
+        const [lowerVal, upperVal] = aValues[iValue];
         // they both can't be null.  that is the law.
         if (lowerVal == null) {
           dbStrings.push(
@@ -3485,9 +3489,9 @@ var GlodaDatastore = {
     }
 
     let curParam, attrID, dbStrings;
-    let attrDBDef = aAttrDef.dbDef;
+    const attrDBDef = aAttrDef.dbDef;
     for (let iValue = 0; iValue < aValues.length; iValue++) {
-      let [lowerVal, upperVal] = aValues[iValue];
+      const [lowerVal, upperVal] = aValues[iValue];
 
       let dbString, dbParam, lowerDBVal, upperDBVal;
       // they both can't be null.  that is the law.
@@ -3548,11 +3552,11 @@ var GlodaDatastore = {
   ) {
     // when changing this method, be sure that GlodaQuery's testMatch function
     //  likewise has its changes made.
-    let nounDef = aQuery._nounDef;
+    const nounDef = aQuery._nounDef;
 
-    let whereClauses = [];
-    let unionQueries = [aQuery].concat(aQuery._unions);
-    let boundArgs = [];
+    const whereClauses = [];
+    const unionQueries = [aQuery].concat(aQuery._unions);
+    const boundArgs = [];
 
     // Use the dbQueryValidityConstraintSuffix to provide constraints that
     //  filter items down to those that are valid for the query mechanism to
@@ -3570,8 +3574,8 @@ var GlodaDatastore = {
     }
 
     for (let iUnion = 0; iUnion < unionQueries.length; iUnion++) {
-      let curQuery = unionQueries[iUnion];
-      let selects = [];
+      const curQuery = unionQueries[iUnion];
+      const selects = [];
 
       let lastConstraintWasSpecial = false;
       let curConstraintIsSpecial;
@@ -3581,9 +3585,9 @@ var GlodaDatastore = {
         iConstraint < curQuery._constraints.length;
         iConstraint++
       ) {
-        let constraint = curQuery._constraints[iConstraint];
-        let [constraintType, attrDef] = constraint;
-        let constraintValues = constraint.slice(2);
+        const constraint = curQuery._constraints[iConstraint];
+        const [constraintType, attrDef] = constraint;
+        const constraintValues = constraint.slice(2);
 
         let tableName, idColumnName, valueColumnName;
         if (constraintType == GlodaConstants.kConstraintIdIn) {
@@ -3612,8 +3616,8 @@ var GlodaDatastore = {
           select = constraintValues.join(",");
         } else if (constraintType === GlodaConstants.kConstraintIn) {
           // @testpoint gloda.datastore.sqlgen.kConstraintIn
-          let clauses = [];
-          for (let [
+          const clauses = [];
+          for (const [
             attrID,
             values,
           ] of this._convertToDBValuesAndGroupByAttributeID(
@@ -3655,8 +3659,8 @@ var GlodaDatastore = {
           test = clauses.join(" OR ");
         } else if (constraintType === GlodaConstants.kConstraintRanges) {
           // @testpoint gloda.datastore.sqlgen.kConstraintRanges
-          let clauses = [];
-          for (let [
+          const clauses = [];
+          for (const [
             attrID,
             dbStrings,
           ] of this._convertRangesToDBStringsAndGroupByAttributeID(
@@ -3679,8 +3683,8 @@ var GlodaDatastore = {
           test = clauses.join(" OR ");
         } else if (constraintType === GlodaConstants.kConstraintEquals) {
           // @testpoint gloda.datastore.sqlgen.kConstraintEquals
-          let clauses = [];
-          for (let [
+          const clauses = [];
+          for (const [
             attrID,
             values,
           ] of this._convertToDBValuesAndGroupByAttributeID(
@@ -3708,7 +3712,7 @@ var GlodaDatastore = {
         } else if (constraintType === GlodaConstants.kConstraintStringLike) {
           // @testpoint gloda.datastore.sqlgen.kConstraintStringLike
           let likePayload = "";
-          for (let valuePart of constraintValues) {
+          for (const valuePart of constraintValues) {
             if (typeof valuePart == "string") {
               likePayload += this._escapeLikeStatement.escapeStringForLIKE(
                 valuePart,
@@ -3722,7 +3726,7 @@ var GlodaDatastore = {
           boundArgs.push(likePayload);
         } else if (constraintType === GlodaConstants.kConstraintFulltext) {
           // @testpoint gloda.datastore.sqlgen.kConstraintFulltext
-          let matchStr = constraintValues[0];
+          const matchStr = constraintValues[0];
           select =
             "SELECT docid FROM " +
             nounDef.tableName +
@@ -3793,8 +3797,8 @@ var GlodaDatastore = {
     }
 
     if (aQuery._order.length) {
-      let orderClauses = [];
-      for (let colName of aQuery._order) {
+      const orderClauses = [];
+      for (const colName of aQuery._order) {
         if (colName.startsWith("-")) {
           orderClauses.push(colName.substring(1) + " DESC");
         } else {
@@ -3850,8 +3854,8 @@ var GlodaDatastore = {
     aExistingCollection,
     aMasterCollection
   ) {
-    let statement = this._createAsyncStatement(aSqlString, true);
-    for (let [iBinding, bindingValue] of aBoundArgs.entries()) {
+    const statement = this._createAsyncStatement(aSqlString, true);
+    for (const [iBinding, bindingValue] of aBoundArgs.entries()) {
       this._bindVariant(statement, iBinding, bindingValue);
     }
 
@@ -3891,14 +3895,14 @@ var GlodaDatastore = {
 
   /* eslint-disable complexity */
   loadNounItem(aItem, aReferencesByNounID, aInverseReferencesByNounID) {
-    let attribIDToDBDefAndParam = this._attributeIDToDBDefAndParam;
+    const attribIDToDBDefAndParam = this._attributeIDToDBDefAndParam;
 
-    let hadDeps = aItem._deps != null;
-    let deps = aItem._deps || {};
+    const hadDeps = aItem._deps != null;
+    const deps = aItem._deps || {};
     let hasDeps = false;
 
-    for (let attrib of aItem.NOUN_DEF.specialLoadAttribs) {
-      let objectNounDef = attrib.objectNounDef;
+    for (const attrib of aItem.NOUN_DEF.specialLoadAttribs) {
+      const objectNounDef = attrib.objectNounDef;
 
       if (
         "special" in attrib &&
@@ -3933,7 +3937,7 @@ var GlodaDatastore = {
           !(attrib.id in deps) &&
           aItem[attrib.valueStorageAttributeName] == null
         ) {
-          let parentID = aItem[attrib.idStorageAttributeName];
+          const parentID = aItem[attrib.idStorageAttributeName];
           if (!(parentID in references)) {
             references[parentID] = null;
           }
@@ -3961,12 +3965,12 @@ var GlodaDatastore = {
     }
 
     // this._log.debug(" load json: " + aItem._jsonText);
-    let jsonDict = JSON.parse(aItem._jsonText);
+    const jsonDict = JSON.parse(aItem._jsonText);
     delete aItem._jsonText;
 
     // Iterate over the attributes on the item
-    for (let attribId in jsonDict) {
-      let jsonValue = jsonDict[attribId];
+    for (const attribId in jsonDict) {
+      const jsonValue = jsonDict[attribId];
       // It is technically impossible for attribute ids to go away at this
       //  point in time.  This would require someone to monkey around with
       //  our schema.  But we will introduce this functionality one day, so
@@ -3975,9 +3979,9 @@ var GlodaDatastore = {
         continue;
       }
       // find the attribute definition that corresponds to this key
-      let dbAttrib = attribIDToDBDefAndParam[attribId][0];
+      const dbAttrib = attribIDToDBDefAndParam[attribId][0];
 
-      let attrib = dbAttrib.attrDef;
+      const attrib = dbAttrib.attrDef;
       // The attribute definition will fail to exist if no one defines the
       //  attribute anymore.  This can happen for many reasons: an extension
       //  was uninstalled, an extension was changed and no longer defines the
@@ -3986,7 +3990,7 @@ var GlodaDatastore = {
       if (attrib == null) {
         continue;
       }
-      let objectNounDef = attrib.objectNounDef;
+      const objectNounDef = attrib.objectNounDef;
 
       // If it has a tableName member but no fromJSON, then it's a persistent
       //  object that needs to be loaded, which also means we need to hold it in
@@ -4006,8 +4010,8 @@ var GlodaDatastore = {
             references[jsonValue] = null;
           }
         } else {
-          for (let key in jsonValue) {
-            let anID = jsonValue[key];
+          for (const key in jsonValue) {
+            const anID = jsonValue[key];
             if (!(anID in references)) {
               references[anID] = null;
             }
@@ -4036,17 +4040,17 @@ var GlodaDatastore = {
         if (attrib.singular) {
           // For consistency with the non-singular case, we don't assign the
           //  attribute if undefined is returned.
-          let deserialized = objectNounDef.fromJSON(jsonValue, aItem);
+          const deserialized = objectNounDef.fromJSON(jsonValue, aItem);
           if (deserialized !== undefined) {
             aItem[attrib.boundName] = deserialized;
           }
         } else {
           // Convert all the entries in the list filtering out any undefined
           //  values. (TagNoun will do this if the tag is now dead.)
-          let outList = [];
-          for (let key in jsonValue) {
-            let val = jsonValue[key];
-            let deserialized = objectNounDef.fromJSON(val, aItem);
+          const outList = [];
+          for (const key in jsonValue) {
+            const val = jsonValue[key];
+            const deserialized = objectNounDef.fromJSON(val, aItem);
             if (deserialized !== undefined) {
               outList.push(deserialized);
             }
@@ -4075,17 +4079,18 @@ var GlodaDatastore = {
       return;
     }
 
-    let attribIDToDBDefAndParam = this._attributeIDToDBDefAndParam;
+    const attribIDToDBDefAndParam = this._attributeIDToDBDefAndParam;
 
-    for (let [attribId, jsonValue] of Object.entries(aItem._deps)) {
-      let dbAttrib = attribIDToDBDefAndParam[attribId][0];
-      let attrib = dbAttrib.attrDef;
+    for (const [attribId, jsonValue] of Object.entries(aItem._deps)) {
+      const dbAttrib = attribIDToDBDefAndParam[attribId][0];
+      const attrib = dbAttrib.attrDef;
 
-      let objectNounDef = attrib.objectNounDef;
-      let references = aReferencesByNounID[objectNounDef.id];
+      const objectNounDef = attrib.objectNounDef;
+      const references = aReferencesByNounID[objectNounDef.id];
       if (attrib.special) {
         if (attrib.special === GlodaConstants.kSpecialColumnChildren) {
-          let inverseReferences = aInverseReferencesByNounID[objectNounDef.id];
+          const inverseReferences =
+            aInverseReferencesByNounID[objectNounDef.id];
           // this._log.info("inverse assignment: " + objectNounDef.id +
           //    " of " + aItem.id)
           aItem[attrib.storageAttributeName] = inverseReferences[aItem.id];
@@ -4120,7 +4125,10 @@ var GlodaDatastore = {
   _nextContactId: 1,
 
   _populateContactManagedId() {
-    let stmt = this._createSyncStatement("SELECT MAX(id) FROM contacts", true);
+    const stmt = this._createSyncStatement(
+      "SELECT MAX(id) FROM contacts",
+      true
+    );
     if (stmt.executeStep()) {
       // no chance of this SQLITE_BUSY on this call
       this._nextContactId = stmt.getInt64(0) + 1;
@@ -4129,7 +4137,7 @@ var GlodaDatastore = {
   },
 
   get _insertContactStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "INSERT INTO contacts (id, directoryUUID, contactUUID, name, popularity,\
                              frecency, jsonAttributes) \
               VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)"
@@ -4139,8 +4147,8 @@ var GlodaDatastore = {
   },
 
   createContact(aDirectoryUUID, aContactUUID, aName, aPopularity, aFrecency) {
-    let contactID = this._nextContactId++;
-    let contact = new GlodaContact(
+    const contactID = this._nextContactId++;
+    const contact = new GlodaContact(
       this,
       contactID,
       aDirectoryUUID,
@@ -4153,7 +4161,7 @@ var GlodaDatastore = {
   },
 
   insertContact(aContact) {
-    let ics = this._insertContactStatement;
+    const ics = this._insertContactStatement;
     ics.bindByIndex(0, aContact.id);
     if (aContact.directoryUUID == null) {
       ics.bindByIndex(1, null);
@@ -4180,7 +4188,7 @@ var GlodaDatastore = {
   },
 
   get _updateContactStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "UPDATE contacts SET directoryUUID = ?1, \
                            contactUUID = ?2, \
                            name = ?3, \
@@ -4194,7 +4202,7 @@ var GlodaDatastore = {
   },
 
   updateContact(aContact) {
-    let ucs = this._updateContactStatement;
+    const ucs = this._updateContactStatement;
     ucs.bindByIndex(6, aContact.id);
     ucs.bindByIndex(0, aContact.directoryUUID);
     ucs.bindByIndex(1, aContact.contactUUID);
@@ -4241,7 +4249,7 @@ var GlodaDatastore = {
   },
 
   get _selectContactByIDStatement() {
-    let statement = this._createSyncStatement(
+    const statement = this._createSyncStatement(
       "SELECT * FROM contacts WHERE id = ?1"
     );
     this.__defineGetter__("_selectContactByIDStatement", () => statement);
@@ -4261,7 +4269,7 @@ var GlodaDatastore = {
     );
 
     if (contact === null) {
-      let scbi = this._selectContactByIDStatement;
+      const scbi = this._selectContactByIDStatement;
       scbi.bindByIndex(0, aContactID);
       if (this._syncStep(scbi)) {
         contact = this._contactFromRow(scbi);
@@ -4277,7 +4285,7 @@ var GlodaDatastore = {
   /** next identity id, managed for async use reasons. */
   _nextIdentityId: 1,
   _populateIdentityManagedId() {
-    let stmt = this._createSyncStatement(
+    const stmt = this._createSyncStatement(
       "SELECT MAX(id) FROM identities",
       true
     );
@@ -4289,7 +4297,7 @@ var GlodaDatastore = {
   },
 
   get _insertIdentityStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "INSERT INTO identities (id, contactID, kind, value, description, relay) \
               VALUES (?1, ?2, ?3, ?4, ?5, ?6)"
     );
@@ -4298,8 +4306,8 @@ var GlodaDatastore = {
   },
 
   createIdentity(aContactID, aContact, aKind, aValue, aDescription, aIsRelay) {
-    let identityID = this._nextIdentityId++;
-    let iis = this._insertIdentityStatement;
+    const identityID = this._nextIdentityId++;
+    const iis = this._insertIdentityStatement;
     iis.bindByIndex(0, identityID);
     iis.bindByIndex(1, aContactID);
     iis.bindByIndex(2, aKind);
@@ -4308,7 +4316,7 @@ var GlodaDatastore = {
     iis.bindByIndex(5, aIsRelay ? 1 : 0);
     iis.executeAsync(this.trackAsync());
 
-    let identity = new GlodaIdentity(
+    const identity = new GlodaIdentity(
       this,
       identityID,
       aContactID,
@@ -4323,7 +4331,7 @@ var GlodaDatastore = {
   },
 
   get _updateIdentityStatement() {
-    let statement = this._createAsyncStatement(
+    const statement = this._createAsyncStatement(
       "UPDATE identities SET contactID = ?1, \
                              kind = ?2, \
                              value = ?3, \
@@ -4336,7 +4344,7 @@ var GlodaDatastore = {
   },
 
   updateIdentity(aIdentity) {
-    let ucs = this._updateIdentityStatement;
+    const ucs = this._updateIdentityStatement;
     ucs.bindByIndex(5, aIdentity.id);
     ucs.bindByIndex(0, aIdentity.contactID);
     ucs.bindByIndex(1, aIdentity.kind);
@@ -4361,7 +4369,7 @@ var GlodaDatastore = {
   },
 
   get _selectIdentityByKindValueStatement() {
-    let statement = this._createSyncStatement(
+    const statement = this._createSyncStatement(
       "SELECT * FROM identities WHERE kind = ?1 AND value = ?2"
     );
     this.__defineGetter__(
@@ -4382,7 +4390,7 @@ var GlodaDatastore = {
       aKind + "@" + aValue
     );
 
-    let ibkv = this._selectIdentityByKindValueStatement;
+    const ibkv = this._selectIdentityByKindValueStatement;
     ibkv.bindByIndex(0, aKind);
     ibkv.bindByIndex(1, aValue);
     if (this._syncStep(ibkv)) {

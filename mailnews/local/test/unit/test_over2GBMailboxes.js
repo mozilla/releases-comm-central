@@ -9,7 +9,7 @@ const { PromiseTestUtils } = ChromeUtils.import(
 // Find hdr for message whose offset is over 2 GiB.
 function findHugeMessageHdr(folder) {
   //getMessageHdr() {
-  for (let header of folder.msgDatabase.enumerateMessages()) {
+  for (const header of folder.msgDatabase.enumerateMessages()) {
     if (header.messageOffset >= 0x80000000) {
       return header;
     }
@@ -21,7 +21,7 @@ function findHugeMessageHdr(folder) {
 
 let gInboxFile;
 let gInbox;
-let gSmallMsgFile = do_get_file("../../../data/bugmail10");
+const gSmallMsgFile = do_get_file("../../../data/bugmail10");
 
 add_setup(async function () {
   // Make sure we're using mbox.
@@ -35,8 +35,8 @@ add_setup(async function () {
   gInbox = localAccountUtils.inboxFolder;
   gInboxFile = gInbox.filePath;
 
-  let neededFreeSpace = 0x100000000;
-  let freeDiskSpace = gInboxFile.diskSpaceAvailable;
+  const neededFreeSpace = 0x100000000;
+  const freeDiskSpace = gInboxFile.diskSpaceAvailable;
   info("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
   if (freeDiskSpace < neededFreeSpace) {
     throw new Error(
@@ -49,7 +49,7 @@ add_setup(async function () {
 
 // Extend mbox file to over 2 GiB.
 add_task(async function extendPast2GiB() {
-  let outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
+  const outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
     .createInstance(Ci.nsIFileOutputStream)
     .QueryInterface(Ci.nsISeekableStream);
   // Open in write-only mode, no truncate.
@@ -65,10 +65,10 @@ add_task(async function extendPast2GiB() {
 // This message should be past the 2GiB position.
 add_task(async function appendSmallMessage() {
   // Remember initial mbox file size.
-  let initialInboxSize = gInbox.filePath.fileSize;
+  const initialInboxSize = gInbox.filePath.fileSize;
   info(`Local inbox size (before copyFileMessage()) = ${initialInboxSize}`);
 
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFileMessage(
     gSmallMsgFile,
     gInbox,
@@ -82,7 +82,7 @@ add_task(async function appendSmallMessage() {
   await copyListener.promise;
 
   // Make sure inbox file grew (i.e., we were not writing over data).
-  let localInboxSize = gInbox.filePath.fileSize;
+  const localInboxSize = gInbox.filePath.fileSize;
   info(
     "Local inbox size (after copyFileMessageInLocalFolder()) = " +
       localInboxSize
@@ -92,9 +92,9 @@ add_task(async function appendSmallMessage() {
 
 // Copy the huge message into a subfolder.
 add_task(async function copyHugeMessage() {
-  let trash =
+  const trash =
     localAccountUtils.incomingServer.rootMsgFolder.getChildNamed("Trash");
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     gInbox,
     [findHugeMessageHdr(gInbox)],
@@ -110,15 +110,15 @@ add_task(async function copyHugeMessage() {
 // Read out the smaller message beyond the 2 GiB offset and make sure
 // it matches what we expect.
 add_task(async function verifySmallMessage() {
-  let msghdr = findHugeMessageHdr(gInbox);
-  let msgURI = msghdr.folder.getUriForMsg(msghdr);
-  let msgServ = MailServices.messageServiceFromURI(msgURI);
+  const msghdr = findHugeMessageHdr(gInbox);
+  const msgURI = msghdr.folder.getUriForMsg(msghdr);
+  const msgServ = MailServices.messageServiceFromURI(msgURI);
 
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
   msgServ.streamMessage(msgURI, streamListener, null, null, false, "", true);
-  let got = await streamListener.promise;
+  const got = await streamListener.promise;
 
-  let expected = await IOUtils.readUTF8(gSmallMsgFile.path);
+  const expected = await IOUtils.readUTF8(gSmallMsgFile.path);
   Assert.equal(got, expected);
 });
 

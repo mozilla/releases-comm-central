@@ -96,7 +96,7 @@ async function subtestCreateCard() {
   await CardDAVServer.close();
 
   let contactPromise = TestUtils.topicObserved("addrbook-contact-created");
-  let syncFailedPromise = promiseSyncFailed();
+  const syncFailedPromise = promiseSyncFailed();
   let newCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
@@ -132,10 +132,10 @@ async function subtestCreateCard() {
   );
 
   contactPromise = TestUtils.topicObserved("addrbook-contact-updated");
-  let syncSucceededPromise = promiseSyncSucceeded();
+  const syncSucceededPromise = promiseSyncSucceeded();
   await directory.syncWithServer();
   await syncSucceededPromise;
-  let [notificationCard] = await contactPromise;
+  const [notificationCard] = await contactPromise;
   notificationCard.QueryInterface(Ci.nsIAbCard);
   Assert.equal(
     notificationCard.UID,
@@ -194,7 +194,7 @@ async function subtestUpdateCard() {
   await CardDAVServer.close();
 
   let contactPromise = TestUtils.topicObserved("addrbook-contact-updated");
-  let syncFailedPromise = promiseSyncFailed();
+  const syncFailedPromise = promiseSyncFailed();
   let cardToChange = directory.childCards.find(c => c.UID == "change-me");
   cardToChange.displayName = "I'm a new man!";
   cardToChange = directory.modifyCard(cardToChange);
@@ -223,10 +223,10 @@ async function subtestUpdateCard() {
   );
 
   contactPromise = TestUtils.topicObserved("addrbook-contact-updated");
-  let syncSucceededPromise = promiseSyncSucceeded();
+  const syncSucceededPromise = promiseSyncSucceeded();
   await directory.syncWithServer();
   await syncSucceededPromise;
-  let [notificationCard] = await contactPromise;
+  const [notificationCard] = await contactPromise;
   notificationCard.QueryInterface(Ci.nsIAbCard);
   Assert.equal(
     notificationCard.UID,
@@ -284,9 +284,9 @@ async function subtestDeleteCard() {
   info("Going offline, deleting a card.");
   await CardDAVServer.close();
 
-  let contactPromise = TestUtils.topicObserved("addrbook-contact-deleted");
-  let syncFailedPromise = promiseSyncFailed();
-  let cardToDelete = directory.childCards.find(c => c.UID == "delete-me");
+  const contactPromise = TestUtils.topicObserved("addrbook-contact-deleted");
+  const syncFailedPromise = promiseSyncFailed();
+  const cardToDelete = directory.childCards.find(c => c.UID == "delete-me");
   directory.deleteCards([cardToDelete]);
   await contactPromise;
   await syncFailedPromise;
@@ -316,7 +316,7 @@ async function subtestDeleteCard() {
     "card should NOT have been removed on server before syncing"
   );
 
-  let syncSucceededPromise = promiseSyncSucceeded();
+  const syncSucceededPromise = promiseSyncSucceeded();
   await directory.syncWithServer();
   await syncSucceededPromise;
 
@@ -349,7 +349,7 @@ async function subtestCreateDeleteCard() {
   await CardDAVServer.close();
 
   let contactPromise = TestUtils.topicObserved("addrbook-contact-created");
-  let syncFailedPromise = promiseSyncFailed();
+  const syncFailedPromise = promiseSyncFailed();
   let newCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
@@ -404,7 +404,7 @@ async function subtestCreateDeleteCard() {
   await pretendToRestart(directory);
   CardDAVServer.reopen();
 
-  let syncSucceededPromise = promiseSyncSucceeded();
+  const syncSucceededPromise = promiseSyncSucceeded();
   await directory.syncWithServer();
   await syncSucceededPromise;
 
@@ -470,7 +470,7 @@ async function subtestStillOffline() {
   );
 
   info("Still offline, deleting a card.");
-  let cardToDelete = directory.childCards.find(c => c.UID == "a-new-card");
+  const cardToDelete = directory.childCards.find(c => c.UID == "a-new-card");
   contactPromise = TestUtils.topicObserved("addrbook-contact-deleted");
   syncFailedPromise = promiseSyncFailed();
   directory.deleteCards([cardToDelete]);
@@ -505,7 +505,7 @@ async function subtestStillOffline() {
   await pretendToRestart(directory);
   CardDAVServer.reopen();
 
-  let syncSucceededPromise = promiseSyncSucceeded();
+  const syncSucceededPromise = promiseSyncSucceeded();
   await directory.syncWithServer();
   await syncSucceededPromise;
 

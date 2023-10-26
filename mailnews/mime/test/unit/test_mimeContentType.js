@@ -61,13 +61,13 @@ function run_test() {
     },
   ];
 
-  let mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+  const mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
     Ci.nsIMimeHeaders
   );
 
   for (let i = 0; i < headers.length; i++) {
     mimeHdr.initialize(headers[i].header);
-    let receivedHeader = mimeHdr.extractHeader("Content-Type", false);
+    const receivedHeader = mimeHdr.extractHeader("Content-Type", false);
 
     dump(
       "\nTesting Content-Type: " +

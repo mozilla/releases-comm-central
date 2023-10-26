@@ -36,7 +36,7 @@ var gTestArray = [
   function createFilters() {
     gFilterList = gPOP3Pump.fakeServer.getFilterList(null);
     gFilter = gFilterList.createFilter("AddKeyword");
-    let searchTerm = gFilter.createTerm();
+    const searchTerm = gFilter.createTerm();
     searchTerm.matchAll = true;
     gFilter.appendTerm(searchTerm);
     let tagAction = gFilter.createAction();
@@ -66,7 +66,7 @@ var gTestArray = [
     localAccountUtils.inboxFolder.msgDatabase.summaryValid = false;
     localAccountUtils.inboxFolder.msgDatabase = null;
     localAccountUtils.inboxFolder.ForceDBClosed();
-    let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+    const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
     try {
       localAccountUtils.inboxFolder.getDatabaseWithReparse(
         promiseUrlListener,
@@ -82,15 +82,15 @@ var gTestArray = [
     Assert.ok(false);
   },
   function verifyMessages() {
-    let hdrs = [];
-    let keys = [];
-    for (let hdr of localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()) {
+    const hdrs = [];
+    const keys = [];
+    for (const hdr of localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()) {
       keys.push(hdr.messageKey);
       hdrs.push(hdr);
     }
     Assert.ok(!localAccountUtils.inboxFolder.fetchMsgPreviewText(keys, null));
-    let preview1 = hdrs[0].getStringProperty("preview");
-    let preview2 = hdrs[1].getStringProperty("preview");
+    const preview1 = hdrs[0].getStringProperty("preview");
+    const preview2 = hdrs[1].getStringProperty("preview");
     Assert.equal(preview1, previews[hdrs[0].subject]);
     Assert.equal(preview2, previews[hdrs[1].subject]);
     Assert.equal(hdrs[0].getStringProperty("keywords"), "TheTag");
@@ -128,7 +128,7 @@ function setup_store(storeID) {
 }
 
 function run_test() {
-  for (let store of gPluggableStores) {
+  for (const store of gPluggableStores) {
     add_task(setup_store(store));
     gTestArray.forEach(x => add_task(x));
   }

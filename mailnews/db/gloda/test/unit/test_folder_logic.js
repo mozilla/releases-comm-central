@@ -33,8 +33,8 @@ add_setup(function () {
  *  nothing in them.)
  */
 add_task(async function test_newly_created_folders_start_clean() {
-  let msgFolder = await messageInjection.makeEmptyFolder();
-  let glodaFolder = Gloda.getFolderForFolder(msgFolder);
+  const msgFolder = await messageInjection.makeEmptyFolder();
+  const glodaFolder = Gloda.getFolderForFolder(msgFolder);
   Assert.equal(glodaFolder.dirtyStatus, glodaFolder.kFolderClean);
 });
 
@@ -44,15 +44,15 @@ add_task(async function test_newly_created_folders_start_clean() {
  *  name.
  */
 add_task(async function test_deleted_folder_tombstones_get_forgotten() {
-  let oldFolder = await messageInjection.makeEmptyFolder("volver");
-  let oldGlodaFolder = Gloda.getFolderForFolder(oldFolder);
+  const oldFolder = await messageInjection.makeEmptyFolder("volver");
+  const oldGlodaFolder = Gloda.getFolderForFolder(oldFolder);
   messageInjection.deleteFolder(oldFolder);
 
   // The tombstone needs to know it is deleted.
   Assert.ok(oldGlodaFolder._deleted);
 
-  let newFolder = await messageInjection.makeEmptyFolder("volver");
-  let newGlodaFolder = Gloda.getFolderForFolder(newFolder);
+  const newFolder = await messageInjection.makeEmptyFolder("volver");
+  const newGlodaFolder = Gloda.getFolderForFolder(newFolder);
 
   // This folder better not be the same and better not think it is deleted.
   Assert.notEqual(oldGlodaFolder, newGlodaFolder);

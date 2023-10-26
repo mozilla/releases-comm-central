@@ -134,9 +134,9 @@ class ImapDaemon {
       }
 
       // Now we continue like normal
-      let names = name.split(mailbox.delimiter);
+      const names = name.split(mailbox.delimiter);
       names.splice(0, 1);
-      for (let part of names) {
+      for (const part of names) {
         mailbox = mailbox.getChild(part);
         if (!mailbox || mailbox.nonExistent) {
           return null;
@@ -144,10 +144,10 @@ class ImapDaemon {
       }
     } else {
       // This is easy, just split it up using the inbox's delimiter
-      let names = name.split(this.inbox.delimiter);
+      const names = name.split(this.inbox.delimiter);
       mailbox = this.root;
 
-      for (let part of names) {
+      for (const part of names) {
         mailbox = mailbox.getChild(part);
         if (!mailbox || mailbox.nonExistent) {
           return null;
@@ -181,7 +181,7 @@ class ImapDaemon {
       // Only delete now so we don't screw ourselves up if creation fails
       this.deleteMailbox(oldBox);
       oldBox._parent = box == this.root ? null : box;
-      let newBox = new ImapMailbox(subName, box, this.uidvalidity++);
+      const newBox = new ImapMailbox(subName, box, this.uidvalidity++);
       newBox._messages = oldBox._messages;
       box.addMailbox(newBox);
 
@@ -195,7 +195,7 @@ class ImapDaemon {
       // oldBox is a regular {} object, so it contains mailbox data but is not
       // a mailbox itself. Pass it into the constructor and let that deal with
       // it...
-      let childBox = new ImapMailbox(
+      const childBox = new ImapMailbox(
         subName,
         box == this.root ? null : box,
         oldBox
@@ -208,7 +208,7 @@ class ImapDaemon {
       var creatable = hasFlag(this._flags, IMAP_FLAG_NEEDS_DELIMITER)
         ? name[name.length - 1] == namespace.delimiter
         : true;
-      let childBox = new ImapMailbox(subName, box == this.root ? null : box, {
+      const childBox = new ImapMailbox(subName, box == this.root ? null : box, {
         flags: creatable ? [] : ["\\NoInferiors"],
         uidvalidity: this.uidvalidity++,
       });
@@ -299,8 +299,8 @@ class ImapMailbox {
         continue;
       }
 
-      let generator = folder.includes("*") ? "allChildren" : "_children";
-      let possible = matching.reduce(function (arr, elem) {
+      const generator = folder.includes("*") ? "allChildren" : "_children";
+      const possible = matching.reduce(function (arr, elem) {
         return arr.concat(elem[generator]);
       }, []);
 
@@ -309,12 +309,12 @@ class ImapMailbox {
         continue;
       }
 
-      let parts = folder.split(/[*%]/).filter(function (str) {
+      const parts = folder.split(/[*%]/).filter(function (str) {
         return str.length > 0;
       });
       matching = possible.filter(function (mailbox) {
-        let index = 0,
-          name = mailbox.fullName;
+        let index = 0;
+        const name = mailbox.fullName;
         for (var part of parts) {
           index = name.indexOf(part, index);
           if (index == -1) {
@@ -332,7 +332,7 @@ class ImapMailbox {
     );
   }
   get displayName() {
-    let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+    const manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
       Ci.nsICharsetConverterManager
     );
     // Escape backslash and double-quote with another backslash before encoding.
@@ -397,7 +397,7 @@ class ImapMessage {
     this.uid = uid;
     this.size = 0;
     this.flags = [];
-    for (let flag in flags) {
+    for (const flag in flags) {
       this.flags.push(flag);
     }
     this.recent = false;
@@ -424,7 +424,7 @@ class ImapMessage {
     this.size = size;
   }
   clearFlag(flag) {
-    let index = this.flags.indexOf(flag);
+    const index = this.flags.indexOf(flag);
     if (index != -1) {
       this.flags.splice(index, 1);
     }
@@ -530,7 +530,7 @@ function parseCommand(text, partial) {
   }
   var atom = "";
   while (text.length > 0) {
-    let c = text[0];
+    const c = text[0];
 
     if (c == '"') {
       let index = 1;
@@ -551,14 +551,14 @@ function parseCommand(text, partial) {
       text = text.substring(index + 1);
       continue;
     } else if (c == "{") {
-      let end = text.indexOf("}");
+      const end = text.indexOf("}");
       if (end == -1) {
         throw new Error("Expected CLOSE_BRACKET");
       }
       if (end + 1 != text.length) {
         throw new Error("Expected CRLF");
       }
-      let length = parseInt(text.substring(1, end));
+      const length = parseInt(text.substring(1, end));
       // Usable state
       // eslint-disable-next-line no-throw-literal
       throw { length, current, args, stack, text: "" };
@@ -570,7 +570,7 @@ function parseCommand(text, partial) {
         current.push(atom);
         atom = "";
       }
-      let hold = current;
+      const hold = current;
       current = stack.pop();
       if (current == undefined) {
         throw new Error("Unexpected CLOSE_PAREN");
@@ -650,7 +650,7 @@ function formatArg(argument, spec) {
   if (spec == "atom") {
     argument = argument.toUpperCase();
   } else if (spec == "mailbox") {
-    let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+    const manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
       Ci.nsICharsetConverterManager
     );
     argument = manager.mutf7ToUnicode(argument);
@@ -978,7 +978,7 @@ class IMAP_RFC3501_handler {
 
     var lines = response.split("\0");
     response = "";
-    for (let line of lines) {
+    for (const line of lines) {
       if (!line.startsWith("+") && !line.startsWith("*")) {
         response += this._tag + " ";
       }
@@ -1226,7 +1226,7 @@ class IMAP_RFC3501_handler {
       let selectionOptions = args.shift();
       selectionOptions = selectionOptions.toString().split(" ");
       selectionOptions.sort();
-      for (let option of selectionOptions) {
+      for (const option of selectionOptions) {
         listFunctionName += "_" + option.replace(/-/g, "_");
       }
     }
@@ -1237,7 +1237,7 @@ class IMAP_RFC3501_handler {
       this.kCapabilities.includes("CHILDREN")
     ) {
       listFunctionName += "_RETURN";
-      let returnOptions = args[3] ? args[3].toString().split(" ") : [];
+      const returnOptions = args[3] ? args[3].toString().split(" ") : [];
       if (
         this.kCapabilities.includes("CHILDREN") &&
         !returnOptions.includes("CHILDREN")
@@ -1245,7 +1245,7 @@ class IMAP_RFC3501_handler {
         returnOptions.push("CHILDREN");
       }
       returnOptions.sort();
-      for (let option of returnOptions) {
+      for (const option of returnOptions) {
         listFunctionName += "_" + option.replace(/-/g, "_");
       }
     }
@@ -1253,7 +1253,7 @@ class IMAP_RFC3501_handler {
       return "BAD unknown LIST request options";
     }
 
-    let base = this._daemon.getMailbox(args[0]);
+    const base = this._daemon.getMailbox(args[0]);
     if (!base) {
       return "NO no such mailbox";
     }
@@ -1266,9 +1266,9 @@ class IMAP_RFC3501_handler {
       requestedBoxes = [args[1]];
     }
     let response = "";
-    for (let requestedBox of requestedBoxes) {
-      let people = base.matchKids(requestedBox);
-      for (let box of people) {
+    for (const requestedBox of requestedBoxes) {
+      const people = base.matchKids(requestedBox);
+      for (const box of people) {
         response += this[listFunctionName](box);
       }
     }
@@ -1404,7 +1404,7 @@ class IMAP_RFC3501_handler {
   SEARCH(args, uid) {
     if (args[0] == "UNDELETED") {
       let response = "* SEARCH";
-      let messages = this._selectedMailbox._messages;
+      const messages = this._selectedMailbox._messages;
       for (let i = 0; i < messages.length; i++) {
         if (!messages[i].flags.includes("\\Deleted")) {
           response += " " + messages[i].uid;
@@ -1463,7 +1463,7 @@ class IMAP_RFC3501_handler {
     for (var i = 0; i < messages.length; i++) {
       response += "* " + ids[i] + " FETCH (";
       var parts = [];
-      for (let item of items) {
+      for (const item of items) {
         // Brief explanation: an item like BODY[]<> can't be hardcoded easily,
         // so we go for the initial alphanumeric substring, passing in the
         // actual string as an optional second part.
@@ -1505,12 +1505,12 @@ class IMAP_RFC3501_handler {
           message.flags = args[2];
           break;
         case "+FLAGS":
-          for (let flag of args[2]) {
+          for (const flag of args[2]) {
             message.setFlag(flag);
           }
           break;
         case "-FLAGS":
-          for (let flag of args[2]) {
+          for (const flag of args[2]) {
             var index;
             if ((index = message.flags.indexOf(flag)) != -1) {
               message.flags.splice(index, 1);
@@ -1538,7 +1538,7 @@ class IMAP_RFC3501_handler {
     }
 
     for (var message of messages) {
-      let newMessage = new ImapMessage(
+      const newMessage = new ImapMessage(
         message._URI,
         dest.uidnext++,
         message.flags
@@ -1548,9 +1548,9 @@ class IMAP_RFC3501_handler {
     }
     if (this._daemon.copySleep > 0) {
       // spin rudely for copyTimeout milliseconds.
-      let now = new Date();
+      const now = new Date();
       let alarm;
-      let startingMSeconds = now.getTime();
+      const startingMSeconds = now.getTime();
       while (true) {
         alarm = new Date();
         if (alarm.getTime() - startingMSeconds > this._daemon.copySleep) {
@@ -1627,8 +1627,8 @@ class IMAP_RFC3501_handler {
         }
         return daemon._selectedMailbox._messages.length;
       }
-      let re = /[0-9]/g;
-      let num = part.match(re);
+      const re = /[0-9]/g;
+      const num = part.match(re);
       if (!num || num.length != part.length) {
         throw new Error("BAD invalid UID " + part);
       }
@@ -1645,7 +1645,7 @@ class IMAP_RFC3501_handler {
         range[0] = part2num(range[0]);
         range[1] = part2num(range[1]);
         if (range[0] > range[1]) {
-          let temp = range[1];
+          const temp = range[1];
           range[1] = range[0];
           range[0] = temp;
         }
@@ -1764,8 +1764,8 @@ class IMAP_RFC3501_handler {
         data += message.getPartHeaders(partNum).rawHeaderText + "\r\n\r\n";
         break;
       case "HEADER.FIELDS": {
-        let joinList = [];
-        let headers = message.getPartHeaders(partNum);
+        const joinList = [];
+        const headers = message.getPartHeaders(partNum);
         for (let header of queryArgs) {
           header = header.toLowerCase();
           if (headers.has(header)) {
@@ -1781,9 +1781,9 @@ class IMAP_RFC3501_handler {
         break;
       }
       case "HEADER.FIELDS.NOT": {
-        let joinList = [];
-        let headers = message.getPartHeaders(partNum);
-        for (let header of headers) {
+        const joinList = [];
+        const headers = message.getPartHeaders(partNum);
+        for (const header of headers) {
           if (!(header in queryArgs)) {
             joinList.push(
               headers
@@ -1819,18 +1819,19 @@ class IMAP_RFC3501_handler {
     return response;
   }
   _FETCH_INTERNALDATE(message) {
-    let date = message.date;
+    const date = message.date;
     // Format timestamp as: "%d-%b-%Y %H:%M:%S %z" (%b in English).
-    let year = date.getFullYear().toString();
-    let month = date.toLocaleDateString("en-US", { month: "short" });
-    let day = date.getDate().toString();
-    let hours = date.getHours().toString().padStart(2, "0");
-    let minutes = date.getMinutes().toString().padStart(2, "0");
-    let seconds = date.getSeconds().toString().padStart(2, "0");
-    let offset = date.getTimezoneOffset();
-    let tzoff =
+    const year = date.getFullYear().toString();
+    const month = date.toLocaleDateString("en-US", { month: "short" });
+    const day = date.getDate().toString();
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const seconds = date.getSeconds().toString().padStart(2, "0");
+    const offset = date.getTimezoneOffset();
+    const tzoff =
       Math.floor(Math.abs(offset) / 60) * 100 + (Math.abs(offset) % 60);
-    let timeZone = (offset < 0 ? "+" : "-") + tzoff.toString().padStart(4, "0");
+    const timeZone =
+      (offset < 0 ? "+" : "-") + tzoff.toString().padStart(4, "0");
 
     let response = 'INTERNALDATE "';
     response += `${day}-${month}-${year} ${hours}:${minutes}:${seconds} ${timeZone}`;
@@ -1970,7 +1971,7 @@ var IMAP_GMAIL_extension = {
     return result;
   },
   STORE(args, uid) {
-    let regex = /[+-]?FLAGS.*/;
+    const regex = /[+-]?FLAGS.*/;
     if (regex.test(args[1])) {
       // if we are storing flags, use the method that was overridden
       this._argFormat = this._preGMAIL_STORE_argFormat;
@@ -1978,8 +1979,8 @@ var IMAP_GMAIL_extension = {
       return this._preGMAIL_STORE(args, uid);
     }
     // otherwise, handle gmail specific cases
-    let ids = [];
-    let messages = this._parseSequenceSet(args[0], uid, ids);
+    const ids = [];
+    const messages = this._parseSequenceSet(args[0], uid, ids);
     args[2] = formatArg(args[2], "string|(string)");
     for (let i = 0; i < args[2].length; i++) {
       if (args[2][i].includes(" ")) {
@@ -1988,7 +1989,7 @@ var IMAP_GMAIL_extension = {
     }
     let response = "";
     for (let i = 0; i < messages.length; i++) {
-      let message = messages[i];
+      const message = messages[i];
       switch (args[1]) {
         case "X-GM-LABELS":
           if (message.xGmLabels) {
@@ -2007,7 +2008,7 @@ var IMAP_GMAIL_extension = {
         case "-X-GM-LABELS":
           if (message.xGmLabels) {
             for (let i = 0; i < args[2].length; i++) {
-              let idx = message.xGmLabels.indexOf(args[2][i]);
+              const idx = message.xGmLabels.indexOf(args[2][i]);
               if (idx != -1) {
                 message.xGmLabels.splice(idx, 1);
               }
@@ -2051,15 +2052,15 @@ var IMAP_GMAIL_extension = {
 
 var IMAP_MOVE_extension = {
   MOVE(args, uid) {
-    let messages = this._parseSequenceSet(args[0], uid);
+    const messages = this._parseSequenceSet(args[0], uid);
 
-    let dest = this._daemon.getMailbox(args[1]);
+    const dest = this._daemon.getMailbox(args[1]);
     if (!dest) {
       return "NO [TRYCREATE] what mailbox?";
     }
 
     for (var message of messages) {
-      let newMessage = new ImapMessage(
+      const newMessage = new ImapMessage(
         message._URI,
         dest.uidnext++,
         message.flags
@@ -2067,10 +2068,10 @@ var IMAP_MOVE_extension = {
       newMessage.recent = false;
       dest.addMessage(newMessage);
     }
-    let mailbox = this._selectedMailbox;
+    const mailbox = this._selectedMailbox;
     let response = "";
     for (let i = messages.length - 1; i >= 0; i--) {
-      let msgIndex = mailbox._messages.indexOf(messages[i]);
+      const msgIndex = mailbox._messages.indexOf(messages[i]);
       if (msgIndex != -1) {
         response += "* " + (msgIndex + 1) + " EXPUNGE\0";
         mailbox._messages.splice(msgIndex, 1);
@@ -2097,7 +2098,7 @@ var IMAP_CUSTOM_extension = {
     toBeThis._argFormat.STORE = ["number", "atom", "..."];
   },
   STORE(args, uid) {
-    let regex = /[+-]?FLAGS.*/;
+    const regex = /[+-]?FLAGS.*/;
     if (regex.test(args[1])) {
       // if we are storing flags, use the method that was overridden
       this._argFormat = this._preCUSTOM_STORE_argFormat;
@@ -2105,8 +2106,8 @@ var IMAP_CUSTOM_extension = {
       return this._preCUSTOM_STORE(args, uid);
     }
     // otherwise, handle custom attribute
-    let ids = [];
-    let messages = this._parseSequenceSet(args[0], uid, ids);
+    const ids = [];
+    const messages = this._parseSequenceSet(args[0], uid, ids);
     args[2] = formatArg(args[2], "string|(string)");
     for (let i = 0; i < args[2].length; i++) {
       if (args[2][i].includes(" ")) {
@@ -2115,7 +2116,7 @@ var IMAP_CUSTOM_extension = {
     }
     let response = "";
     for (let i = 0; i < messages.length; i++) {
-      let message = messages[i];
+      const message = messages[i];
       switch (args[1]) {
         case "X-CUSTOM-VALUE":
           if (message.xCustomValue && args[2].length == 1) {
@@ -2141,7 +2142,7 @@ var IMAP_CUSTOM_extension = {
         case "-X-CUSTOM-LIST":
           if (message.xCustomList) {
             for (let i = 0; i < args[2].length; i++) {
-              let idx = message.xCustomList.indexOf(args[2][i]);
+              const idx = message.xCustomList.indexOf(args[2][i]);
               if (idx != -1) {
                 message.xCustomList.splice(idx, 1);
               }
@@ -2178,14 +2179,14 @@ var IMAP_CUSTOM_extension = {
 var IMAP_RFC2197_extension = {
   ID(args) {
     let clientID = "(";
-    for (let i of args) {
+    for (const i of args) {
       clientID += '"' + i + '"';
     }
 
     clientID += ")";
-    let clientStrings = clientID.split(",");
+    const clientStrings = clientID.split(",");
     clientID = "";
-    for (let i of clientStrings) {
+    for (const i of clientStrings) {
       clientID += '"' + i + '" ';
     }
     clientID = clientID.slice(1, clientID.length - 3);
@@ -2202,7 +2203,7 @@ var IMAP_RFC2197_extension = {
 var IMAP_RFC2342_extension = {
   NAMESPACE(args) {
     var namespaces = [[], [], []];
-    for (let namespace of this._daemon.namespaces) {
+    for (const namespace of this._daemon.namespaces) {
       namespaces[namespace.type].push(namespace);
     }
 
@@ -2213,7 +2214,7 @@ var IMAP_RFC2342_extension = {
         continue;
       }
       response += " (";
-      for (let namespace of type) {
+      for (const namespace of type) {
         response += '("';
         response += namespace.displayName;
         response += '" "';
@@ -2251,8 +2252,8 @@ var IMAP_RFC4315_extension = {
   APPEND(args) {
     let response = this._preRFC4315APPEND(args);
     if (response.indexOf("OK") == 0) {
-      let mailbox = this._daemon.getMailbox(args[0]);
-      let uid = mailbox.uidnext - 1;
+      const mailbox = this._daemon.getMailbox(args[0]);
+      const uid = mailbox.uidnext - 1;
       response =
         "OK [APPENDUID " +
         mailbox.uidvalidity +
@@ -2264,13 +2265,13 @@ var IMAP_RFC4315_extension = {
     return response;
   },
   COPY(args) {
-    let mailbox = this._daemon.getMailbox(args[0]);
+    const mailbox = this._daemon.getMailbox(args[0]);
     if (mailbox) {
       var first = mailbox.uidnext;
     }
     let response = this._preRFC4315COPY(args);
     if (response.indexOf("OK") == 0) {
-      let last = mailbox.uidnext - 1;
+      const last = mailbox.uidnext - 1;
       response =
         "OK [COPYUID " +
         this._selectedMailbox.uidvalidity +
@@ -2286,13 +2287,13 @@ var IMAP_RFC4315_extension = {
     return response;
   },
   MOVE(args) {
-    let mailbox = this._daemon.getMailbox(args[1]);
+    const mailbox = this._daemon.getMailbox(args[1]);
     if (mailbox) {
       var first = mailbox.uidnext;
     }
     let response = this._preRFC4315MOVE(args);
     if (response.includes("OK MOVE")) {
-      let last = mailbox.uidnext - 1;
+      const last = mailbox.uidnext - 1;
       response = response.replace(
         "OK MOVE",
         "OK [COPYUID " +
@@ -2470,8 +2471,8 @@ function bodystructure(msg, extension) {
   // 2. MESSAGE is missing the ENVELOPE and the lines at the end.
   var bodystruct = "";
   function paramToString(params) {
-    let paramList = [];
-    for (let [param, value] of params) {
+    const paramList = [];
+    for (const [param, value] of params) {
       paramList.push('"' + param.toUpperCase() + '" "' + value + '"');
     }
     return paramList.length == 0 ? "NIL" : "(" + paramList.join(" ") + ")";
@@ -2490,8 +2491,8 @@ function bodystructure(msg, extension) {
     },
     endPart(partNum) {
       // Grab the headers from before
-      let headers = headerStack.pop();
-      let contentType = headers.contentType;
+      const headers = headerStack.pop();
+      const contentType = headers.contentType;
       if (contentType.mediatype == "multipart") {
         bodystruct += ' "' + contentType.subtype.toUpperCase() + '"';
         if (extension) {
@@ -2511,7 +2512,7 @@ function bodystructure(msg, extension) {
         // XXX: Content ID, Content description
         bodystruct += " NIL NIL";
 
-        let cte = headers.has("content-transfer-encoding")
+        const cte = headers.has("content-transfer-encoding")
           ? headers.get("content-transfer-encoding")
           : "7BIT";
         bodystruct += ' "' + cte + '"';

@@ -67,7 +67,7 @@ class ImapService {
   }
 
   discoverAllFolders(folder, urlListener, msgWindow) {
-    let server = folder.QueryInterface(
+    const server = folder.QueryInterface(
       Ci.nsIMsgImapMailFolder
     ).imapIncomingServer;
     if (server.wrappedJSObject.hasDiscoveredFolders) {
@@ -84,7 +84,7 @@ class ImapService {
 
   discoverAllAndSubscribedFolders(folder, urlListener, msgWindow) {
     this._withClient(folder, client => {
-      let runningUrl = client.startRunningUrl(urlListener, msgWindow);
+      const runningUrl = client.startRunningUrl(urlListener, msgWindow);
       runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
         Ci.nsIImapUrl.nsImapDiscoverAllAndSubscribedBoxesUrl;
       client.onReady = () => {
@@ -188,8 +188,10 @@ class ImapService {
           Ci.nsIWebNavigation.LOAD_FLAGS_NONE
         );
     } else {
-      let streamListener = displayConsumer.QueryInterface(Ci.nsIStreamListener);
-      let channel = new lazy.ImapChannel(imapUrl, {
+      const streamListener = displayConsumer.QueryInterface(
+        Ci.nsIStreamListener
+      );
+      const channel = new lazy.ImapChannel(imapUrl, {
         QueryInterface: ChromeUtils.generateQI(["nsILoadInfo"]),
         loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
         securityFlags:
@@ -198,7 +200,7 @@ class ImapService {
       });
       let listener = streamListener;
       if (convertDataToText) {
-        let converter = Cc["@mozilla.org/streamConverters;1"].getService(
+        const converter = Cc["@mozilla.org/streamConverters;1"].getService(
           Ci.nsIStreamConverterService
         );
         listener = converter.asyncConvertData(
@@ -242,7 +244,7 @@ class ImapService {
     msgWindow
   ) {
     this._withClient(folder, client => {
-      let runningUrl = client.startRunningUrl(urlListener, msgWindow);
+      const runningUrl = client.startRunningUrl(urlListener, msgWindow);
       runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction = isMove
         ? Ci.nsIImapUrl.nsImapOnlineMove
         : Ci.nsIImapUrl.nsImapOnlineCopy;
@@ -262,8 +264,8 @@ class ImapService {
     copyState,
     msgWindow
   ) {
-    let server = dstFolder.server;
-    let imapUrl = Services.io
+    const server = dstFolder.server;
+    const imapUrl = Services.io
       .newURI(
         `imap://${server.hostName}:${server.port}/fetch>UID>/${dstFolder.name}>${messageId}`
       )
@@ -305,8 +307,10 @@ class ImapService {
       );
     }
 
-    let db = dstFolder.msgDatabase.QueryInterface(Ci.nsIMsgOfflineOpsDatabase);
-    let fakeKey = db.nextFakeOfflineMsgKey;
+    const db = dstFolder.msgDatabase.QueryInterface(
+      Ci.nsIMsgOfflineOpsDatabase
+    );
+    const fakeKey = db.nextFakeOfflineMsgKey;
     let op = db.getOfflineOpForKey(fakeKey, true);
     op.operation = Ci.nsIMsgOfflineImapOperation.kAppendDraft;
     op.destinationFolderURI = dstFolder.URI;
@@ -314,14 +318,14 @@ class ImapService {
     op = null;
     Cu.forceGC();
 
-    let server = dstFolder.server;
-    let newMsgHdr = db.createNewHdr(fakeKey);
-    let outputStream = dstFolder.getOfflineStoreOutputStream(newMsgHdr);
-    let content = lazy.MailStringUtils.uint8ArrayToByteString(
+    const server = dstFolder.server;
+    const newMsgHdr = db.createNewHdr(fakeKey);
+    const outputStream = dstFolder.getOfflineStoreOutputStream(newMsgHdr);
+    const content = lazy.MailStringUtils.uint8ArrayToByteString(
       await IOUtils.read(file.path)
     );
 
-    let msgParser = Cc[
+    const msgParser = Cc[
       "@mozilla.org/messenger/messagestateparser;1"
     ].createInstance(Ci.nsIMsgParseMailMsgState);
     msgParser.SetMailDB(db);
@@ -351,7 +355,7 @@ class ImapService {
 
   ensureFolderExists(parent, folderName, msgWindow, urlListener) {
     this._withClient(parent, client => {
-      let runningUrl = client.startRunningUrl(urlListener, msgWindow);
+      const runningUrl = client.startRunningUrl(urlListener, msgWindow);
       runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
         Ci.nsIImapUrl.nsImapEnsureExistsFolder;
       client.onReady = () => {
@@ -362,7 +366,7 @@ class ImapService {
 
   updateFolderStatus(folder, urlListener) {
     this._withClient(folder, client => {
-      let runningUrl = client.startRunningUrl(urlListener);
+      const runningUrl = client.startRunningUrl(urlListener);
       runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
         Ci.nsIImapUrl.nsImapFolderStatus;
       client.onReady = () => {
@@ -384,7 +388,7 @@ class ImapService {
 
   moveFolder(srcFolder, dstFolder, urlListener, msgWindow) {
     this._withClient(srcFolder, client => {
-      let runningUrl = client.startRunningUrl(urlListener, msgWindow);
+      const runningUrl = client.startRunningUrl(urlListener, msgWindow);
       runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
         Ci.nsIImapUrl.nsImapMoveFolderHierarchy;
       client.onReady = () => {
@@ -395,7 +399,7 @@ class ImapService {
 
   listFolder(folder, urlListener) {
     this._withClient(folder, client => {
-      let runningUrl = client.startRunningUrl(urlListener);
+      const runningUrl = client.startRunningUrl(urlListener);
       runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =
         Ci.nsIImapUrl.nsImapListFolder;
       client.onReady = () => {
@@ -425,10 +429,10 @@ class ImapService {
   }
 
   downloadMessagesForOffline(messageIds, folder, urlListener, msgWindow) {
-    let server = folder.QueryInterface(
+    const server = folder.QueryInterface(
       Ci.nsIMsgImapMailFolder
     ).imapIncomingServer;
-    let imapUrl = Services.io
+    const imapUrl = Services.io
       .newURI(
         `imap://${server.hostName}:${server.port}/fetch>UID>/${folder.name}>${messageIds}`
       )
@@ -448,7 +452,7 @@ class ImapService {
   }
 
   playbackAllOfflineOperations(msgWindow, urlListener) {
-    let offlineSync = Cc["@mozilla.org/imap/offlinesync;1"].createInstance(
+    const offlineSync = Cc["@mozilla.org/imap/offlinesync;1"].createInstance(
       Ci.nsIImapOfflineSync
     );
     offlineSync.init(msgWindow, urlListener, null, false);
@@ -502,8 +506,8 @@ class ImapService {
    *   instance, and do some actions.
    */
   _withClient(folder, handler) {
-    let server = folder.server.QueryInterface(Ci.nsIMsgIncomingServer);
-    let runningUrl = Services.io
+    const server = folder.server.QueryInterface(Ci.nsIMsgIncomingServer);
+    const runningUrl = Services.io
       .newURI(`imap://${server.hostName}:${server.port}`)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
     server.wrappedJSObject.withClient(folder, client =>

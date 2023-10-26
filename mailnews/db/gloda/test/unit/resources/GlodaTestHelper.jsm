@@ -63,7 +63,7 @@ var indexMessageState;
  *  function needs to be called prior to gloda startup.
  */
 function createMeIdentity() {
-  let identity = MailServices.accounts.createIdentity;
+  const identity = MailServices.accounts.createIdentity;
   identity.email = "me@localhost";
   identity.fullName = "Me";
 }
@@ -87,7 +87,7 @@ var ENVIRON_MAPPINGS = [
 ];
 
 // Propagate environment variables to prefs as appropriate:
-for (let { envVar, prefName } of ENVIRON_MAPPINGS) {
+for (const { envVar, prefName } of ENVIRON_MAPPINGS) {
   if (Services.env.exists(envVar)) {
     Services.prefs.setCharPref(prefName, Services.env.get(envVar));
   }
@@ -131,7 +131,7 @@ function glodaTestHelperInitialize(messageInjection) {
         `onRealFolderCreated through MessageInjection received. ` +
           `Make folder: ${aRealFolder.name} clean for Gloda.`
       );
-      let glodaFolder = Gloda.getFolderForFolder(aRealFolder);
+      const glodaFolder = Gloda.getFolderForFolder(aRealFolder);
       glodaFolder._downgradeDirtyStatus(glodaFolder.kFolderClean);
     },
 
@@ -321,7 +321,7 @@ function prepareIndexerForTesting() {
   GlodaIndexer._INDEX_INTERVAL = 0;
   // The indexer already registered for the idle service; we must remove this
   //  or "idle" notifications will still get sent via the observer mechanism.
-  let realIdleService = GlodaIndexer._idleService;
+  const realIdleService = GlodaIndexer._idleService;
   realIdleService.removeIdleObserver(
     GlodaIndexer,
     GlodaIndexer._indexIdleThresholdSecs
@@ -395,7 +395,7 @@ class GlodaIndexerData {
  *  calling us.  This is reasonable.
  */
 async function waitForGlodaIndexer() {
-  let eventsPending = TestUtils.waitForCondition(() => {
+  const eventsPending = TestUtils.waitForCondition(() => {
     if (indexMessageState.interestingEvents.length > 1) {
       // Events still pending. See msgClassified event and
       //  messageInjection.registerMessageInjectionListener.
@@ -404,7 +404,7 @@ async function waitForGlodaIndexer() {
     // Events finished.
     return true;
   });
-  let indexerRunning = TestUtils.waitForCondition(() => {
+  const indexerRunning = TestUtils.waitForCondition(() => {
     if (GlodaIndexer.indexing) {
       // Still indexing.
       return false;
@@ -445,7 +445,7 @@ class MsgsClassifiedListener {
    */
   msgsClassified(aMsgHdrs, aJunkClassified, aTraitClassified) {
     log.debug("MsgsClassifiedListener msgsClassified received.");
-    let idx = indexMessageState.interestingEvents.indexOf("msgsClassified");
+    const idx = indexMessageState.interestingEvents.indexOf("msgsClassified");
     if (idx != -1) {
       log.debug("Remove intrestingEvent through msgsClassified.");
       // Remove the interesting Event as we received it here.
@@ -506,7 +506,7 @@ class GlodaCollectionListener {
    */
   onItemsAdded(aItems) {
     log.debug("GlodaCollectionListener onItemsAdded received.");
-    for (let item of aItems) {
+    for (const item of aItems) {
       if (item.headerMessageID in indexMessageState._glodaMessagesByMessageId) {
         throw new Error(
           "Gloda message" +
@@ -530,7 +530,7 @@ class GlodaCollectionListener {
 
   onItemsModified(aItems) {
     log.debug("GlodaCollectionListener onItemsModified received.");
-    for (let item of aItems) {
+    for (const item of aItems) {
       if (item.headerMessageID in indexMessageState._glodaMessagesByMessageId) {
         throw new Error(
           "Gloda message" +
@@ -547,7 +547,7 @@ class GlodaCollectionListener {
 
   onItemsRemoved(aItems) {
     log.debug("GlodaCollectionListener onItemsRemoved received.");
-    for (let item of aItems) {
+    for (const item of aItems) {
       if (
         item.headerMessageID in indexMessageState._glodaDeletionsByMessageId
       ) {
@@ -606,13 +606,13 @@ function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
   indexMessageState.applyGlodaIndexerData(aConfig);
 
   // Check that we have a gloda message for every syn message and verify.
-  for (let msgSet of indexMessageState.synMessageSets) {
+  for (const msgSet of indexMessageState.synMessageSets) {
     if (indexMessageState.augmentSynSets()) {
       msgSet.glodaMessages = [];
     }
-    for (let [iSynMsg, synMsg] of msgSet.synMessages.entries()) {
+    for (const [iSynMsg, synMsg] of msgSet.synMessages.entries()) {
       if (!(synMsg.messageId in indexMessageState._glodaMessagesByMessageId)) {
-        let msgHdr = msgSet.getMsgHdr(iSynMsg);
+        const msgHdr = msgSet.getMsgHdr(iSynMsg);
         throw new Error(
           "Header " +
             msgHdr.messageId +
@@ -622,7 +622,7 @@ function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
         );
       }
 
-      let glodaMsg =
+      const glodaMsg =
         indexMessageState._glodaMessagesByMessageId[synMsg.messageId];
       if (indexMessageState.augmentSynSets()) {
         msgSet.glodaMessages.push(glodaMsg);
@@ -630,7 +630,7 @@ function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
 
       indexMessageState._glodaMessagesByMessageId[synMsg.messageId] = null;
 
-      let verifier = indexMessageState.verifier();
+      const verifier = indexMessageState.verifier();
       let previousValue = undefined;
       if (verifier) {
         try {
@@ -651,8 +651,8 @@ function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
   }
 
   // Check that we don't have any extra gloda messages. (lacking syn msgs)
-  for (let messageId in indexMessageState._glodaMessagesByMessageId) {
-    let glodaMsg = indexMessageState._glodaMessagesByMessageId[messageId];
+  for (const messageId in indexMessageState._glodaMessagesByMessageId) {
+    const glodaMsg = indexMessageState._glodaMessagesByMessageId[messageId];
     if (glodaMsg != null) {
       throw new Error(
         "Gloda message:\n" +
@@ -665,8 +665,8 @@ function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
   }
 
   if (indexMessageState.deletionSynSets()) {
-    for (let msgSet of indexMessageState.deletionSynSets()) {
-      for (let synMsg of msgSet.synMessages) {
+    for (const msgSet of indexMessageState.deletionSynSets()) {
+      for (const synMsg of msgSet.synMessages) {
         if (
           !(synMsg.messageId in indexMessageState._glodaDeletionsByMessageId)
         ) {
@@ -681,8 +681,8 @@ function assertExpectedMessagesIndexed(aSynMessageSets, aConfig) {
   }
 
   // Check that we don't have unexpected deletions.
-  for (let messageId in indexMessageState._glodaDeletionsByMessageId) {
-    let glodaMsg = indexMessageState._glodaDeletionsByMessageId[messageId];
+  for (const messageId in indexMessageState._glodaDeletionsByMessageId) {
+    const glodaMsg = indexMessageState._glodaDeletionsByMessageId[messageId];
     if (glodaMsg != null) {
       throw new Error(
         "Gloda message with message id " +
@@ -838,10 +838,10 @@ function nukeGlodaCachesAndCollections() {
 
   // Caches aren't intended to be cleared, but we also don't want to lose our
   //  caches, so we need to create new ones from the ashes of the old ones.
-  let oldCaches = GlodaCollectionManager._cachesByNoun;
+  const oldCaches = GlodaCollectionManager._cachesByNoun;
   GlodaCollectionManager._cachesByNoun = {};
-  for (let nounId in oldCaches) {
-    let cache = oldCaches[nounId];
+  for (const nounId in oldCaches) {
+    const cache = oldCaches[nounId];
     GlodaCollectionManager.defineCache(cache._nounDef, cache._maxCacheSize);
   }
 }

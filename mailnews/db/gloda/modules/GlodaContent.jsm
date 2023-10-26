@@ -19,11 +19,11 @@ const EXPORTED_SYMBOLS = [
  */
 
 function mimeMsgToContentAndMeta(aMimeMsg, folder) {
-  let content = new GlodaContent();
-  let meta = { subject: aMimeMsg.get("subject") };
-  let bodyLines = aMimeMsg.coerceBodyToPlaintext(folder).split(/\r?\n/);
+  const content = new GlodaContent();
+  const meta = { subject: aMimeMsg.get("subject") };
+  const bodyLines = aMimeMsg.coerceBodyToPlaintext(folder).split(/\r?\n/);
 
-  for (let whittler of whittlerRegistry.getWhittlers()) {
+  for (const whittler of whittlerRegistry.getWhittlers()) {
     whittler.contentWhittle(meta, bodyLines, content);
   }
 
@@ -44,7 +44,7 @@ function mimeMsgToContentAndMeta(aMimeMsg, folder) {
  */
 
 function mimeMsgToContentSnippetAndMeta(aMimeMsg, folder, length) {
-  let [content, meta] = mimeMsgToContentAndMeta(aMimeMsg, folder);
+  const [content, meta] = mimeMsgToContentAndMeta(aMimeMsg, folder);
 
   let text = content.getContentSnippet(length + 1);
   if (length && text.length > length) {
@@ -124,7 +124,7 @@ GlodaContent.prototype = {
 
   getContentString(aIndexingPurposes) {
     let data = "";
-    for (let hunk of this._hunks) {
+    for (const hunk of this._hunks) {
       if (hunk.hunkType == this.kHunkContent) {
         if (data) {
           data += "\n" + hunk.data;
@@ -138,10 +138,10 @@ GlodaContent.prototype = {
       // append the values for indexing.  we assume the keywords are cruft.
       // this may be crazy, but things that aren't a science aren't an exact
       // science.
-      for (let kv of this._keysAndValues) {
+      for (const kv of this._keysAndValues) {
         data += "\n" + kv[1];
       }
-      for (let kon of this._keysAndValues) {
+      for (const kon of this._keysAndValues) {
         data += "\n" + kon[1] + "\n" + kon[2];
       }
     }

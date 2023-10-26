@@ -40,10 +40,10 @@ var gTestArray = [
   function createFilters() {
     gFilterList = gPOP3Pump.fakeServer.getFilterList(null);
     gFilter = gFilterList.createFilter("MoveAll");
-    let searchTerm = gFilter.createTerm();
+    const searchTerm = gFilter.createTerm();
     searchTerm.matchAll = true;
     gFilter.appendTerm(searchTerm);
-    let moveAction = gFilter.createAction();
+    const moveAction = gFilter.createAction();
     moveAction.type = Ci.nsMsgFilterAction.MoveToFolder;
     moveAction.targetFolderUri = gMoveFolder.URI;
     gFilter.appendAction(moveAction);
@@ -66,7 +66,7 @@ var gTestArray = [
     localAccountUtils.inboxFolder.msgDatabase.summaryValid = false;
     localAccountUtils.inboxFolder.msgDatabase = null;
     localAccountUtils.inboxFolder.ForceDBClosed();
-    let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+    const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
     try {
       localAccountUtils.inboxFolder.getDatabaseWithReparse(
         promiseUrlListener,
@@ -81,9 +81,9 @@ var gTestArray = [
     Assert.ok(false);
   },
   function verifyMessages() {
-    let hdrs = [];
-    let keys = [];
-    for (let hdr of gMoveFolder.msgDatabase.enumerateMessages()) {
+    const hdrs = [];
+    const keys = [];
+    for (const hdr of gMoveFolder.msgDatabase.enumerateMessages()) {
       keys.push(hdr.messageKey);
       hdrs.push(hdr);
     }
@@ -121,7 +121,7 @@ function setup_store(storeID) {
 }
 
 function run_test() {
-  for (let store of gPluggableStores) {
+  for (const store of gPluggableStores) {
     add_task(setup_store(store));
     gTestArray.forEach(x => add_task(x));
   }

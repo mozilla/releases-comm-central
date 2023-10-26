@@ -30,12 +30,12 @@ add_setup(function () {
 
 // Adds some messages directly to a mailbox (eg new mail)
 add_task(async function addMessageToServer() {
-  let URI = Services.io.newFileURI(gFile).QueryInterface(Ci.nsIFileURL);
+  const URI = Services.io.newFileURI(gFile).QueryInterface(Ci.nsIFileURL);
   IMAPPump.mailbox.addMessage(
     new ImapMessage(URI.spec, IMAPPump.mailbox.uidnext++, [])
   );
 
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
@@ -58,16 +58,16 @@ var msgAddedListener = new MsgAddedListener();
 
 add_task(async function verifyContentLength() {
   await msgAddedListener.promise;
-  let messageUri = IMAPPump.inbox.getUriForMsg(gMsgHdr);
+  const messageUri = IMAPPump.inbox.getUriForMsg(gMsgHdr);
   // Convert this to a URI that necko can run
-  let messageService = MailServices.messageServiceFromURI(messageUri);
-  let neckoURL = messageService.getUrlForUri(messageUri);
+  const messageService = MailServices.messageServiceFromURI(messageUri);
+  const neckoURL = messageService.getUrlForUri(messageUri);
   // Don't use the necko URL directly. Instead, get the spec and create a new
   // URL using the IO service
-  let urlToRun = Services.io.newURI(neckoURL.spec);
+  const urlToRun = Services.io.newURI(neckoURL.spec);
 
   // Get a channel from this URI, and check its content length
-  let channel = Services.io.newChannelFromURI(
+  const channel = Services.io.newChannelFromURI(
     urlToRun,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
@@ -78,8 +78,8 @@ add_task(async function verifyContentLength() {
   Assert.equal(channel.contentLength, gFile.fileSize);
 
   // Now try an attachment. &part=1.2
-  let attachmentURL = Services.io.newURI(neckoURL.spec + "&part=1.2");
-  let attachmentChannel = Services.io.newChannelFromURI(
+  const attachmentURL = Services.io.newURI(neckoURL.spec + "&part=1.2");
+  const attachmentChannel = Services.io.newChannelFromURI(
     attachmentURL,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),

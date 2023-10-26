@@ -126,7 +126,7 @@ function doUpdateFolder(test) {
 function addMessagesToServer(messages, mailbox, localFolder) {
   // For every message we have, we need to convert it to a file:/// URI
   messages.forEach(function (message) {
-    let URI = Services.io
+    const URI = Services.io
       .newFileURI(message.file)
       .QueryInterface(Ci.nsIFileURL);
     // Create the ImapMessage and store it on the mailbox.
@@ -274,14 +274,14 @@ function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
   // We need an identity so that updateFolder doesn't fail
-  let localAccount = MailServices.accounts.createAccount();
-  let identity = MailServices.accounts.createIdentity();
+  const localAccount = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
   localAccount.addIdentity(identity);
   localAccount.defaultIdentity = identity;
   localAccount.incomingServer = localAccountUtils.incomingServer;
 
   // Let's also have another account, using the same identity
-  let imapAccount = MailServices.accounts.createAccount();
+  const imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(identity);
   imapAccount.defaultIdentity = identity;
   imapAccount.incomingServer = gIMAPIncomingServer;
@@ -321,7 +321,7 @@ function run_test() {
 function doTest(test) {
   // eslint-disable-line no-unused-vars
   if (test <= gTestArray.length) {
-    let testFn = gTestArray[test - 1];
+    const testFn = gTestArray[test - 1];
 
     dump(`Doing test ${test} (${testFn.name})\n`);
 
@@ -354,7 +354,7 @@ function endTest() {
   gIMAPIncomingServer.closeCachedConnections();
   gServer.performTest();
   gServer.stop();
-  let thread = gThreadManager.currentThread;
+  const thread = gThreadManager.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

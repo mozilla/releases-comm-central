@@ -131,7 +131,7 @@ function testNext() {
     deletePop3Server();
     incomingServer = createPop3Server();
 
-    let msgServer = incomingServer;
+    const msgServer = incomingServer;
     msgServer.QueryInterface(Ci.nsIMsgIncomingServer);
     msgServer.authMethod = thisTest.clientAuthMethod;
 
@@ -150,7 +150,7 @@ function testNext() {
 
 // <copied from="head_maillocal.js::createPop3ServerAndLocalFolders()">
 function createPop3Server() {
-  let incoming = MailServices.accounts.createIncomingServer(
+  const incoming = MailServices.accounts.createIncomingServer(
     "fred",
     "localhost",
     "pop3"

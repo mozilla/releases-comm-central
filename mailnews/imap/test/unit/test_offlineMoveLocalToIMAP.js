@@ -51,7 +51,7 @@ async function goOnline() {
   Services.io.offline = false;
   IMAPPump.server.start();
 
-  let offlineManager = Cc[
+  const offlineManager = Cc[
     "@mozilla.org/messenger/offline-manager;1"
   ].getService(Ci.nsIMsgOfflineManager);
   offlineManager.goOnline(
@@ -65,8 +65,8 @@ async function goOnline() {
 }
 
 async function loadTestMessage(folder) {
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
-  let file = do_get_file("../../../data/bugmail1");
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const file = do_get_file("../../../data/bugmail1");
   MailServices.copy.copyFileMessage(
     file,
     folder,
@@ -91,8 +91,10 @@ add_task(async function testOfflineMoveLocalToIMAP() {
   // Move messages in local folder to the IMAP inbox.
   // We're offline so this should result in a queued-up offline IMAP
   // operation, which will execute when we go back online.
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
-  let msgs = [...localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()];
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const msgs = [
+    ...localAccountUtils.inboxFolder.msgDatabase.enumerateMessages(),
+  ];
   MailServices.copy.copyMessages(
     localAccountUtils.inboxFolder,
     msgs,
@@ -108,16 +110,16 @@ add_task(async function testOfflineMoveLocalToIMAP() {
 
   await goOnline();
 
-  let imapINBOX = IMAPPump.inbox.QueryInterface(Ci.nsIMsgImapMailFolder);
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const imapINBOX = IMAPPump.inbox.QueryInterface(Ci.nsIMsgImapMailFolder);
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   imapINBOX.updateFolderWithListener(null, listener);
   await listener.promise;
 
   // Local folder should be empty, contents now in IMAP inbox.
-  let localCount = [
+  const localCount = [
     ...localAccountUtils.inboxFolder.msgDatabase.enumerateMessages(),
   ].length;
-  let imapCount = [...IMAPPump.inbox.msgDatabase.enumerateMessages()].length;
+  const imapCount = [...IMAPPump.inbox.msgDatabase.enumerateMessages()].length;
   Assert.equal(imapCount, msgs.length);
   Assert.equal(localCount, 0);
 

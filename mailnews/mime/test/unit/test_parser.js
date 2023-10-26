@@ -14,7 +14,7 @@ function compare_objects(real, expected) {
   // real is a Map; convert it into an object for uneval purposes
   if (typeof real == "object") {
     var newreal = {};
-    for (let [k, v] of real) {
+    for (const [k, v] of real) {
       newreal[k] = v;
     }
     real = newreal;
@@ -79,17 +79,17 @@ async function read_file(file, start, end) {
  *                 of the file from [line start, line end) [1-based lines]
  */
 async function make_body_test(test, file, opts, partspec) {
-  let results = [];
-  for (let p of partspec) {
+  const results = [];
+  for (const p of partspec) {
     results.push([p[0], await read_file(file, p[1], p[2])]);
   }
 
-  let msgcontents = await read_file(file);
+  const msgcontents = await read_file(file);
   return [test, msgcontents, opts, results];
 }
 
 async function make_bodydecode_test(test, file, opts, expected) {
-  let msgcontents = await read_file(file);
+  const msgcontents = await read_file(file);
   return [test, msgcontents, opts, expected];
 }
 
@@ -300,7 +300,7 @@ var header_tests = [
 ];
 
 function test_header(headerValue, flags, expected) {
-  let result = MimeParser.parseHeaderField(headerValue, flags);
+  const result = MimeParser.parseHeaderField(headerValue, flags);
   Assert.equal(result.preSemi, expected[0]);
   compare_objects(result, expected[1]);
 }
@@ -315,7 +315,7 @@ add_task(async function testit() {
     dump("\n");
     test_parser(test[1], test[2], test[3]);
   }
-  for (let test of header_tests) {
+  for (const test of header_tests) {
     dump("Testing value ->" + test[0] + "<- with flags " + test[1] + "\n");
     test_header(test[0], test[1], test[2]);
   }

@@ -147,7 +147,7 @@ add_task(async () => {
   // Ensure all the directories are initialised.
   MailServices.ab.directories;
 
-  let ab = MailServices.ab.getDirectory(kPABData.URI);
+  const ab = MailServices.ab.getDirectory(kPABData.URI);
 
   function createAndAddCard(element) {
     var card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
@@ -179,7 +179,7 @@ add_task(async () => {
 
   async function checkSearch(element, index) {
     print("Search #" + index + ": search=" + element);
-    let resultPromise = obs.waitForResult();
+    const resultPromise = obs.waitForResult();
     acs.startSearch(
       element,
       JSON.stringify({ type: "addr_to", idKey: "" }),
@@ -217,7 +217,7 @@ add_task(async () => {
   var lastResult = null;
 
   async function checkReductionSearch(element, index) {
-    let resultPromise = obs.waitForResult();
+    const resultPromise = obs.waitForResult();
     acs.startSearch(
       element,
       JSON.stringify({ type: "addr_to", idKey: "" }),

@@ -95,7 +95,7 @@ function run_test() {
   ];
 
   for (let i = 0; i < headers.length; ++i) {
-    let decoded = MailServices.mimeConverter.decodeMimeHeader(
+    const decoded = MailServices.mimeConverter.decodeMimeHeader(
       headers[i].encoded,
       headers[i].defaultCharset,
       headers[i].overrideCharset,

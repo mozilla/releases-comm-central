@@ -35,7 +35,7 @@ var GlodaCollectionManager = {
    */
   registerCollection(aCollection) {
     let collections;
-    let nounID = aCollection.query._nounDef.id;
+    const nounID = aCollection.query._nounDef.id;
     if (!(nounID in this._collectionsByNoun)) {
       collections = this._collectionsByNoun[nounID] = [];
     } else {
@@ -53,10 +53,10 @@ var GlodaCollectionManager = {
 
     // generator would be nice, but I suspect get() is too expensive to use
     //  twice (guard/predicate and value)
-    let weakCollections = this._collectionsByNoun[aNounID];
-    let collections = [];
+    const weakCollections = this._collectionsByNoun[aNounID];
+    const collections = [];
     for (let iColl = 0; iColl < weakCollections.length; iColl++) {
-      let collection = weakCollections[iColl].get();
+      const collection = weakCollections[iColl].get();
       if (collection) {
         collections.push(collection);
       }
@@ -81,7 +81,7 @@ var GlodaCollectionManager = {
 
     if (cache) {
       if (aID in cache._idMap) {
-        let item = cache._idMap[aID];
+        const item = cache._idMap[aID];
         return cache.hit(item);
       }
     }
@@ -90,9 +90,9 @@ var GlodaCollectionManager = {
       cache = null;
     }
 
-    for (let collection of this.getCollectionsForNounID(aNounID)) {
+    for (const collection of this.getCollectionsForNounID(aNounID)) {
       if (aID in collection._idMap) {
-        let item = collection._idMap[aID];
+        const item = collection._idMap[aID];
         if (cache) {
           cache.add([item]);
         }
@@ -125,14 +125,14 @@ var GlodaCollectionManager = {
    */
   cacheLookupMany(aNounID, aIDMap, aTargetMap, aDoCache) {
     let foundCount = 0,
-      notFoundCount = 0,
-      notFound = {};
+      notFoundCount = 0;
+    const notFound = {};
 
     let cache = this._cachesByNoun[aNounID];
 
     if (cache) {
-      for (let key in aIDMap) {
-        let cacheValue = cache._idMap[key];
+      for (const key in aIDMap) {
+        const cacheValue = cache._idMap[key];
         if (cacheValue === undefined) {
           notFoundCount++;
           notFound[key] = null;
@@ -148,9 +148,9 @@ var GlodaCollectionManager = {
       cache = null;
     }
 
-    for (let collection of this.getCollectionsForNounID(aNounID)) {
-      for (let key in notFound) {
-        let collValue = collection._idMap[key];
+    for (const collection of this.getCollectionsForNounID(aNounID)) {
+      for (const key in notFound) {
+        const collValue = collection._idMap[key];
         if (collValue !== undefined) {
           aTargetMap[key] = collValue;
           delete notFound[key];
@@ -174,9 +174,9 @@ var GlodaCollectionManager = {
    *  to tweak what is in memory.
    */
   cacheLookupManyList(aNounID, aIds) {
-    let checkMap = {},
+    const checkMap = {},
       targetMap = {};
-    for (let id of aIds) {
+    for (const id of aIds) {
       checkMap[id] = null;
     }
     // do not promote found items into the cache
@@ -194,7 +194,7 @@ var GlodaCollectionManager = {
 
     if (cache) {
       if (aUniqueValue in cache._uniqueValueMap) {
-        let item = cache._uniqueValueMap[aUniqueValue];
+        const item = cache._uniqueValueMap[aUniqueValue];
         return cache.hit(item);
       }
     }
@@ -203,9 +203,9 @@ var GlodaCollectionManager = {
       cache = null;
     }
 
-    for (let collection of this.getCollectionsForNounID(aNounID)) {
+    for (const collection of this.getCollectionsForNounID(aNounID)) {
       if (aUniqueValue in collection._uniqueValueMap) {
-        let item = collection._uniqueValueMap[aUniqueValue];
+        const item = collection._uniqueValueMap[aUniqueValue];
         if (cache) {
           cache.add([item]);
         }
@@ -223,7 +223,7 @@ var GlodaCollectionManager = {
    *  is not, the passed-in instance is added to the cache and returned.
    */
   cacheLoadUnifyOne(aItem) {
-    let items = [aItem];
+    const items = [aItem];
     this.cacheLoadUnify(aItem.NOUN_ID, items);
     return items[0];
   },
@@ -236,7 +236,7 @@ var GlodaCollectionManager = {
    *  to the cache and left intact.
    */
   cacheLoadUnify(aNounID, aItems, aCacheIfMissing) {
-    let cache = this._cachesByNoun[aNounID];
+    const cache = this._cachesByNoun[aNounID];
     if (aCacheIfMissing === undefined) {
       aCacheIfMissing = true;
     }
@@ -247,15 +247,15 @@ var GlodaCollectionManager = {
     //  it allows random-access deletion theoretically without cost.  (Since
     //  we delete during iteration, that may be wrong, but it sounds like the
     //  semantics still work?)
-    let unresolvedIndexToItem = {};
+    const unresolvedIndexToItem = {};
     let numUnresolved = 0;
 
     if (cache) {
       for (let iItem = 0; iItem < aItems.length; iItem++) {
-        let item = aItems[iItem];
+        const item = aItems[iItem];
 
         if (item.id in cache._idMap) {
-          let realItem = cache._idMap[item.id];
+          const realItem = cache._idMap[item.id];
           // update the caller's array with the reference to the 'real' item
           aItems[iItem] = realItem;
           cache.hit(realItem);
@@ -276,12 +276,12 @@ var GlodaCollectionManager = {
       numUnresolved = aItems.length;
     }
 
-    let needToCache = [];
+    const needToCache = [];
     // next, let's fall back to our collections
-    for (let collection of this.getCollectionsForNounID(aNounID)) {
-      for (let [iItem, item] of Object.entries(unresolvedIndexToItem)) {
+    for (const collection of this.getCollectionsForNounID(aNounID)) {
+      for (const [iItem, item] of Object.entries(unresolvedIndexToItem)) {
         if (item.id in collection._idMap) {
-          let realItem = collection._idMap[item.id];
+          const realItem = collection._idMap[item.id];
           // update the caller's array to now have the 'real' object
           aItems[iItem] = realItem;
           // flag that we need to cache this guy (we use an inclusive cache)
@@ -310,8 +310,8 @@ var GlodaCollectionManager = {
   },
 
   cacheCommitDirty() {
-    for (let id in this._cachesByNoun) {
-      let cache = this._cachesByNoun[id];
+    for (const id in this._cachesByNoun) {
+      const cache = this._cachesByNoun[id];
       cache.commitDirty();
     }
   },
@@ -321,7 +321,7 @@ var GlodaCollectionManager = {
    *  be cached, assuming caching is active.
    */
   itemLoaded(aItem) {
-    let cache = this._cachesByNoun[aItem.NOUN_ID];
+    const cache = this._cachesByNoun[aItem.NOUN_ID];
     if (cache) {
       cache.add([aItem]);
     }
@@ -332,7 +332,7 @@ var GlodaCollectionManager = {
    *  should be cached, assuming caching is active.
    */
   itemsLoaded(aNounID, aItems) {
-    let cache = this._cachesByNoun[aNounID];
+    const cache = this._cachesByNoun[aNounID];
     if (cache) {
       cache.add(aItems);
     }
@@ -346,13 +346,13 @@ var GlodaCollectionManager = {
    *  to the collection if the item meets the query that defines the collection.
    */
   itemsAdded(aNounID, aItems) {
-    let cache = this._cachesByNoun[aNounID];
+    const cache = this._cachesByNoun[aNounID];
     if (cache) {
       cache.add(aItems);
     }
 
-    for (let collection of this.getCollectionsForNounID(aNounID)) {
-      let addItems = aItems.filter(item => collection.query.test(item));
+    for (const collection of this.getCollectionsForNounID(aNounID)) {
+      const addItems = aItems.filter(item => collection.query.test(item));
       if (addItems.length) {
         collection._onItemsAdded(addItems);
       }
@@ -370,11 +370,11 @@ var GlodaCollectionManager = {
    *  generate onItemsModified events.
    */
   itemsModified(aNounID, aItems) {
-    for (let collection of this.getCollectionsForNounID(aNounID)) {
-      let added = [],
+    for (const collection of this.getCollectionsForNounID(aNounID)) {
+      const added = [],
         modified = [],
         removed = [];
-      for (let item of aItems) {
+      for (const item of aItems) {
         if (item.id in collection._idMap) {
           // currently in... but should it still be there?
           if (collection.query.test(item)) {
@@ -416,9 +416,9 @@ var GlodaCollectionManager = {
    */
   itemsDeleted(aNounID, aItemIds) {
     // cache
-    let cache = this._cachesByNoun[aNounID];
+    const cache = this._cachesByNoun[aNounID];
     if (cache) {
-      for (let itemId of aItemIds) {
+      for (const itemId of aItemIds) {
         if (itemId in cache._idMap) {
           cache.deleted(cache._idMap[itemId]);
         }
@@ -426,8 +426,8 @@ var GlodaCollectionManager = {
     }
 
     // collections
-    for (let collection of this.getCollectionsForNounID(aNounID)) {
-      let removeItems = aItemIds
+    for (const collection of this.getCollectionsForNounID(aNounID)) {
+      const removeItems = aItemIds
         .filter(itemId => itemId in collection._idMap)
         .map(itemId => collection._idMap[itemId]);
       if (removeItems.length) {
@@ -454,10 +454,10 @@ var GlodaCollectionManager = {
    */
   itemsDeletedByAttribute(aNounID, aFilter) {
     // cache
-    let cache = this._cachesByNoun[aNounID];
+    const cache = this._cachesByNoun[aNounID];
     if (cache) {
-      for (let id in cache._idMap) {
-        let item = cache._idMap[id];
+      for (const id in cache._idMap) {
+        const item = cache._idMap[id];
         if (aFilter(item)) {
           cache.deleted(item);
         }
@@ -465,8 +465,8 @@ var GlodaCollectionManager = {
     }
 
     // collections
-    for (let collection of this.getCollectionsForNounID(aNounID)) {
-      let removeItems = collection.items.filter(aFilter);
+    for (const collection of this.getCollectionsForNounID(aNounID)) {
+      const removeItems = collection.items.filter(aFilter);
       if (removeItems.length) {
         collection._onItemsRemoved(removeItems);
       }
@@ -590,12 +590,12 @@ GlodaCollection.prototype = {
   _onItemsAdded(aItems) {
     this.items.push.apply(this.items, aItems);
     if (this._uniqueValueMap) {
-      for (let item of this.items) {
+      for (const item of this.items) {
         this._idMap[item.id] = item;
         this._uniqueValueMap[item.uniqueValue] = item;
       }
     } else {
-      for (let item of this.items) {
+      for (const item of this.items) {
         this._idMap[item.id] = item;
       }
     }
@@ -641,20 +641,20 @@ GlodaCollection.prototype = {
     // we want to avoid the O(n^2) deletion performance case, and deletion
     //  should be rare enough that the extra cost of building the deletion map
     //  should never be a real problem.
-    let deleteMap = {};
+    const deleteMap = {};
     // build the delete map while also nuking from our id map/unique value map
-    for (let item of aItems) {
+    for (const item of aItems) {
       deleteMap[item.id] = true;
       delete this._idMap[item.id];
       if (this._uniqueValueMap) {
         delete this._uniqueValueMap[item.uniqueValue];
       }
     }
-    let items = this.items;
+    const items = this.items;
     // in-place filter.  probably needless optimization.
     let iWrite = 0;
     for (let iRead = 0; iRead < items.length; iRead++) {
-      let item = items[iRead];
+      const item = items[iRead];
       if (!(item.id in deleteMap)) {
         items[iWrite++] = item;
       }
@@ -711,7 +711,7 @@ function GlodaLRUCacheCollection(aNounDef, aCacheSize) {
  */
 GlodaLRUCacheCollection.prototype = new GlodaCollection();
 GlodaLRUCacheCollection.prototype.add = function (aItems) {
-  for (let item of aItems) {
+  for (const item of aItems) {
     if (item.id in this._idMap) {
       // DEBUGME so, we're dealing with this, but it shouldn't happen.  need
       //  trace-debuggage.
@@ -737,7 +737,7 @@ GlodaLRUCacheCollection.prototype.add = function (aItems) {
   }
 
   while (this._size > this._maxCacheSize) {
-    let item = this._head;
+    const item = this._head;
 
     // we never have to deal with the possibility of needing to make _head/_tail
     //  null.
@@ -825,8 +825,8 @@ GlodaLRUCacheCollection.prototype.commitDirty = function () {
     return;
   }
 
-  for (let iItem in this._idMap) {
-    let item = this._idMap[iItem];
+  for (const iItem in this._idMap) {
+    const item = this._idMap[iItem];
     if (item.dirty) {
       LOG.debug("flushing dirty: " + item);
       this._nounDef.objUpdate.call(this._nounDef.datastore, item);

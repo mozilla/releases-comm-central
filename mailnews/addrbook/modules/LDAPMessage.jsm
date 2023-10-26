@@ -28,7 +28,7 @@ class LDAPMessage {
    * @returns {ArrayBuffer} BER encoded message.
    */
   toBER(messageId = this.messageId) {
-    let msg = new asn1js.Sequence({
+    const msg = new asn1js.Sequence({
       value: [new asn1js.Integer({ value: messageId }), this.protocolOp],
     });
     return msg.toBER();
@@ -220,10 +220,10 @@ class SearchRequest extends LDAPMessage {
    *   [number, string, string]
    */
   _parseFilterValue(filter) {
-    for (let cond of [">=", "<=", "~=", ":=", "="]) {
-      let index = filter.indexOf(cond);
+    for (const cond of [">=", "<=", "~=", ":=", "="]) {
+      const index = filter.indexOf(cond);
       if (index > 0) {
-        let k = filter.slice(0, index);
+        const k = filter.slice(0, index);
         let v = filter.slice(index + cond.length);
         let filterId = {
           ">=": this.FILTER_GREATER_OR_EQUAL,
@@ -276,8 +276,8 @@ class SearchRequest extends LDAPMessage {
       );
     }
     filter = filter.slice(1);
-    let nextOpen = filter.indexOf("(");
-    let nextClose = filter.indexOf(")");
+    const nextOpen = filter.indexOf("(");
+    const nextClose = filter.indexOf(")");
 
     if (nextOpen != -1 && nextOpen < nextClose) {
       // Case: "OP("
@@ -315,9 +315,9 @@ class SearchRequest extends LDAPMessage {
       // Make sure filter is wrapped in parens, see rfc2254#section-4.
       filter = `(${filter})`;
     }
-    let tokens = this._parseFilter(filter);
-    let stack = [];
-    for (let { type, depth, value } of tokens) {
+    const tokens = this._parseFilter(filter);
+    const stack = [];
+    for (const { type, depth, value } of tokens) {
       while (depth < stack.length) {
         // We are done with the current block, go one level up.
         stack.pop();
@@ -328,8 +328,8 @@ class SearchRequest extends LDAPMessage {
           stack.pop();
         }
         // Found a new block, go one level down.
-        let parent = stack.slice(-1)[0];
-        let curBlock = new asn1js.Constructed({
+        const parent = stack.slice(-1)[0];
+        const curBlock = new asn1js.Constructed({
           idBlock: this._getContextId(value),
         });
         stack.push(curBlock);
@@ -337,9 +337,9 @@ class SearchRequest extends LDAPMessage {
           parent.valueBlock.value.push(curBlock);
         }
       } else if (type == "field") {
-        let [tagNumber, field, fieldValue] = value;
+        const [tagNumber, field, fieldValue] = value;
         let block;
-        let idBlock = this._getContextId(tagNumber);
+        const idBlock = this._getContextId(tagNumber);
         if (tagNumber == this.FILTER_PRESENT) {
           // A present filter.
           block = new asn1js.Primitive({
@@ -349,7 +349,7 @@ class SearchRequest extends LDAPMessage {
         } else if (tagNumber == this.FILTER_EXTENSIBLE_MATCH) {
           // An extensibleMatch filter is in the form of
           // <type>:dn:<rule>:=<value>. We need to further parse the field.
-          let parts = field.split(":");
+          const parts = field.split(":");
           let value = [];
           if (parts.length == 3) {
             // field is <type>:dn:<rule>.
@@ -367,7 +367,7 @@ class SearchRequest extends LDAPMessage {
               this._contextStringBlock(this.MATCHING_VALUE, fieldValue)
             );
             if (parts[1] == "dn") {
-              let dn = new asn1js.Boolean({
+              const dn = new asn1js.Boolean({
                 value: true,
               });
               dn.idBlock.tagClass = LDAPMessage.TAG_CLASS_CONTEXT;
@@ -416,7 +416,7 @@ class SearchRequest extends LDAPMessage {
           });
         } else {
           // A substrings filter.
-          let substringsSeq = new asn1js.Sequence();
+          const substringsSeq = new asn1js.Sequence();
           block = new asn1js.Constructed({
             idBlock,
             value: [
@@ -427,7 +427,7 @@ class SearchRequest extends LDAPMessage {
             ],
           });
           for (let i = 0; i < fieldValue.length; i++) {
-            let v = fieldValue[i];
+            const v = fieldValue[i];
             if (!v.length) {
               // Case: *
               continue;
@@ -452,7 +452,7 @@ class SearchRequest extends LDAPMessage {
             }
           }
         }
-        let curBlock = stack.slice(-1)[0];
+        const curBlock = stack.slice(-1)[0];
         if (curBlock) {
           curBlock.valueBlock.value.push(block);
         } else {
@@ -534,22 +534,22 @@ class LDAPResponse extends LDAPMessage {
    * @returns {LDAPResponse} A concrete instance of LDAPResponse subclass.
    */
   static fromBER(buffer) {
-    let decoded = asn1js.fromBER(buffer);
+    const decoded = asn1js.fromBER(buffer);
     if (decoded.offset == -1 || decoded.result.error) {
       throw Components.Exception(
         decoded.result.error,
         Cr.NS_ERROR_CANNOT_CONVERT_DATA
       );
     }
-    let value = decoded.result.valueBlock.value;
-    let protocolOp = value[1];
+    const value = decoded.result.valueBlock.value;
+    const protocolOp = value[1];
     if (protocolOp.idBlock.tagClass != this.TAG_CLASS_APPLICATION) {
       throw Components.Exception(
         `Unexpected tagClass ${protocolOp.idBlock.tagClass}`,
         Cr.NS_ERROR_ILLEGAL_VALUE
       );
     }
-    let ProtocolOp = this._getResponseClassFromTagNumber(
+    const ProtocolOp = this._getResponseClassFromTagNumber(
       protocolOp.idBlock.tagNumber
     );
     if (!ProtocolOp) {
@@ -558,7 +558,7 @@ class LDAPResponse extends LDAPMessage {
         Cr.NS_ERROR_ILLEGAL_VALUE
       );
     }
-    let op = new ProtocolOp(
+    const op = new ProtocolOp(
       value[0].valueBlock.valueDec,
       protocolOp,
       decoded.offset
@@ -573,10 +573,10 @@ class LDAPResponse extends LDAPMessage {
    * need to implement this function.
    */
   parse() {
-    let value = this.protocolOp.valueBlock.value;
-    let resultCode = value[0].valueBlock.valueDec;
-    let matchedDN = new TextDecoder().decode(value[1].valueBlock.valueHex);
-    let diagnosticMessage = new TextDecoder().decode(
+    const value = this.protocolOp.valueBlock.value;
+    const resultCode = value[0].valueBlock.valueDec;
+    const matchedDN = new TextDecoder().decode(value[1].valueBlock.valueHex);
+    const diagnosticMessage = new TextDecoder().decode(
       value[2].valueBlock.valueHex
     );
     this.result = new LDAPResult(resultCode, matchedDN, diagnosticMessage);
@@ -588,7 +588,7 @@ class BindResponse extends LDAPResponse {
 
   parse() {
     super.parse();
-    let serverSaslCredsBlock = this.protocolOp.valueBlock.value[3];
+    const serverSaslCredsBlock = this.protocolOp.valueBlock.value[3];
     if (serverSaslCredsBlock) {
       this.result.serverSaslCreds = serverSaslCredsBlock.valueBlock.valueHex;
     }
@@ -599,13 +599,15 @@ class SearchResultEntry extends LDAPResponse {
   static APPLICATION = 4;
 
   parse() {
-    let value = this.protocolOp.valueBlock.value;
-    let objectName = new TextDecoder().decode(value[0].valueBlock.valueHex);
-    let attributes = {};
-    for (let attr of value[1].valueBlock.value) {
-      let attrValue = attr.valueBlock.value;
-      let type = new TextDecoder().decode(attrValue[0].valueBlock.valueHex);
-      let vals = attrValue[1].valueBlock.value.map(v => v.valueBlock.valueHex);
+    const value = this.protocolOp.valueBlock.value;
+    const objectName = new TextDecoder().decode(value[0].valueBlock.valueHex);
+    const attributes = {};
+    for (const attr of value[1].valueBlock.value) {
+      const attrValue = attr.valueBlock.value;
+      const type = new TextDecoder().decode(attrValue[0].valueBlock.valueHex);
+      const vals = attrValue[1].valueBlock.value.map(
+        v => v.valueBlock.valueHex
+      );
       attributes[type] = vals;
     }
     this.result = { objectName, attributes };
@@ -620,7 +622,7 @@ class SearchResultReference extends LDAPResponse {
   static APPLICATION = 19;
 
   parse() {
-    let value = this.protocolOp.valueBlock.value;
+    const value = this.protocolOp.valueBlock.value;
     this.result = value.map(block =>
       new TextDecoder().decode(block.valueBlock.valueHex)
     );

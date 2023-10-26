@@ -26,7 +26,7 @@ add_setup(async function () {
   // picking up the necessary initialisation.
   Services.io.manageOfflineStatus = false;
   Services.io.offline = true;
-  let msgGen = new MessageGenerator();
+  const msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   glodaTestHelperInitialize(messageInjection);
 });
@@ -37,7 +37,7 @@ add_setup(async function () {
  */
 add_task(async function test_gloda_offline_startup() {
   // Set up a folder for indexing and check the message doesn't get indexed.
-  let [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
+  const [, msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1 },
   ]);
 

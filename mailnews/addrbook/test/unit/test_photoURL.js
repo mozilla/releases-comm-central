@@ -8,10 +8,10 @@ var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
  * Tests that vCard photo data is correctly translated into a URL for display.
  */
 add_task(async function testVCardPhotoURL() {
-  let jpegPrefix = "data:image/jpeg;base64,/9j/4AAQSkZJRgABA";
-  let pngPrefix = "data:image/png;base64,iVBORw0KGgoAAAANSU";
+  const jpegPrefix = "data:image/jpeg;base64,/9j/4AAQSkZJRgABA";
+  const pngPrefix = "data:image/png;base64,iVBORw0KGgoAAAANSU";
 
-  for (let [fileName, expectedURL] of [
+  for (const [fileName, expectedURL] of [
     // Version 3, binary data, binary value type
     ["v3-binary-jpeg.vcf", jpegPrefix],
     ["v3-binary-png.vcf", pngPrefix],
@@ -26,9 +26,9 @@ add_task(async function testVCardPhotoURL() {
     ["v4-uri-png.vcf", pngPrefix],
   ]) {
     info(`testing ${fileName}`);
-    let file = do_get_file(`data/${fileName}`);
-    let vCard = await IOUtils.readUTF8(file.path);
-    let card = VCardUtils.vCardToAbCard(vCard);
+    const file = do_get_file(`data/${fileName}`);
+    const vCard = await IOUtils.readUTF8(file.path);
+    const card = VCardUtils.vCardToAbCard(vCard);
 
     Assert.equal(card.photoURL.substring(0, 40), expectedURL);
   }

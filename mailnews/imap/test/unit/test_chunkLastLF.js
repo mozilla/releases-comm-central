@@ -20,8 +20,8 @@ var gIMAPDaemon, gIMAPServer, gIMAPIncomingServer;
 
 // Adds some messages directly to a mailbox (eg new mail)
 function addMessageToServer(file, mailbox) {
-  let URI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
-  let msg = new ImapMessage(URI.spec, mailbox.uidnext++, []);
+  const URI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+  const msg = new ImapMessage(URI.spec, mailbox.uidnext++, []);
   // underestimate the actual file size, like some IMAP servers do
   msg.setSize(file.fileSize - 55);
   mailbox.addMessage(msg);
@@ -58,14 +58,14 @@ add_task(async function verifyContentLength() {
   // Add a message to the IMAP server
   addMessageToServer(gFile, gIMAPDaemon.getMailbox("INBOX"));
 
-  let imapS = Cc[
+  const imapS = Cc[
     "@mozilla.org/messenger/messageservice;1?type=imap"
   ].getService(Ci.nsIMsgMessageService);
 
-  let uri = imapS.getUrlForUri("imap-message://user@localhost/INBOX#1");
+  const uri = imapS.getUrlForUri("imap-message://user@localhost/INBOX#1");
 
   // Get a channel from this URI, and check its content length
-  let channel = Services.io.newChannelFromURI(
+  const channel = Services.io.newChannelFromURI(
     uri,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
@@ -74,15 +74,18 @@ add_task(async function verifyContentLength() {
     Ci.nsIContentPolicy.TYPE_OTHER
   );
 
-  let promiseStreamListener = new PromiseTestUtils.PromiseStreamListener();
+  const promiseStreamListener = new PromiseTestUtils.PromiseStreamListener();
 
   // Read all the contents
   channel.asyncOpen(promiseStreamListener, null);
-  let streamData = (await promiseStreamListener.promise).replace(/\r\n/g, "\n");
+  const streamData = (await promiseStreamListener.promise).replace(
+    /\r\n/g,
+    "\n"
+  );
 
   // Now check whether our stream listener got the right bytes
   // First, clean up line endings to avoid CRLF vs. LF differences
-  let origData = (await IOUtils.readUTF8(gFile.path)).replace(/\r\n/g, "\n");
+  const origData = (await IOUtils.readUTF8(gFile.path)).replace(/\r\n/g, "\n");
   Assert.equal(origData.length, streamData.length);
   Assert.equal(origData, streamData);
 
@@ -101,7 +104,7 @@ add_task(async function verifyContentLength() {
 
   gIMAPIncomingServer.closeCachedConnections();
   gIMAPServer.stop();
-  let thread = gThreadManager.currentThread;
+  const thread = gThreadManager.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

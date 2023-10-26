@@ -53,7 +53,7 @@ add_setup(async function () {
   IMAPPump.daemon.createMailbox("folder2", { subscribed: true });
 
   // select the inbox to force folder discovery, etc.
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
@@ -64,23 +64,23 @@ add_setup(async function () {
 add_task(function testGeneralFoldersOffline() {
   Assert.ok(IMAPPump.inbox.getFlag(Ci.nsMsgFolderFlags.Offline));
 
-  let gmail = IMAPPump.incomingServer.rootFolder.getChildNamed("[Gmail]");
+  const gmail = IMAPPump.incomingServer.rootFolder.getChildNamed("[Gmail]");
 
-  let allmail = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Archive);
+  const allmail = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Archive);
   Assert.ok(allmail.getFlag(Ci.nsMsgFolderFlags.Offline));
 
-  let drafts = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
+  const drafts = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Drafts);
   Assert.ok(drafts.getFlag(Ci.nsMsgFolderFlags.Offline));
 
-  let sent = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.SentMail);
+  const sent = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.SentMail);
   Assert.ok(sent.getFlag(Ci.nsMsgFolderFlags.Offline));
 
-  let rootFolder = IMAPPump.incomingServer.rootFolder;
+  const rootFolder = IMAPPump.incomingServer.rootFolder;
 
-  let folder1 = rootFolder.getChildNamed("folder1");
+  const folder1 = rootFolder.getChildNamed("folder1");
   Assert.ok(folder1.getFlag(Ci.nsMsgFolderFlags.Offline));
 
-  let folder2 = rootFolder.getChildNamed("folder2");
+  const folder2 = rootFolder.getChildNamed("folder2");
   Assert.ok(folder2.getFlag(Ci.nsMsgFolderFlags.Offline));
 });
 
@@ -88,8 +88,8 @@ add_task(function testGeneralFoldersOffline() {
  * Test that Trash isn't flagged for offline use by default.
  */
 add_task(function testTrashNotOffline() {
-  let gmail = IMAPPump.incomingServer.rootFolder.getChildNamed("[Gmail]");
-  let trash = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+  const gmail = IMAPPump.incomingServer.rootFolder.getChildNamed("[Gmail]");
+  const trash = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
   Assert.ok(!trash.getFlag(Ci.nsMsgFolderFlags.Offline));
 });
 
@@ -97,8 +97,8 @@ add_task(function testTrashNotOffline() {
  * Test that Junk isn't flagged for offline use by default.
  */
 add_task(function testJunkNotOffline() {
-  let gmail = IMAPPump.incomingServer.rootFolder.getChildNamed("[Gmail]");
-  let spam = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk);
+  const gmail = IMAPPump.incomingServer.rootFolder.getChildNamed("[Gmail]");
+  const spam = gmail.getFolderWithFlags(Ci.nsMsgFolderFlags.Junk);
   Assert.ok(!spam.getFlag(Ci.nsMsgFolderFlags.Offline));
 });
 

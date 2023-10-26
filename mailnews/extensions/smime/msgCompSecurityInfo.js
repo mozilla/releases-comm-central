@@ -12,7 +12,7 @@ window.addEventListener("DOMContentLoaded", onLoad);
 window.addEventListener("resize", resizeColumns);
 
 function onLoad() {
-  let params = window.arguments[0];
+  const params = window.arguments[0];
   if (!params) {
     return;
   }
@@ -21,14 +21,14 @@ function onLoad() {
   gViewButton = document.getElementById("viewCertButton");
   gBundle = document.getElementById("bundle_smime_comp_info");
 
-  let certdb = Cc["@mozilla.org/security/x509certdb;1"].getService(
+  const certdb = Cc["@mozilla.org/security/x509certdb;1"].getService(
     Ci.nsIX509CertDB
   );
 
-  let missing = [];
+  const missing = [];
   for (let i = 0; i < params.recipients.length; i++) {
-    let email = params.recipients[i];
-    let dbKey = params.compFields.composeSecure.getCertDBKeyForEmail(email);
+    const email = params.recipients[i];
+    const dbKey = params.compFields.composeSecure.getCertDBKeyForEmail(email);
 
     if (dbKey) {
       gCerts.push(certdb.findCertByDBKey(dbKey));
@@ -42,16 +42,16 @@ function onLoad() {
   }
 
   for (let i = 0; i < params.recipients.length; ++i) {
-    let email = document.createXULElement("label");
+    const email = document.createXULElement("label");
     email.setAttribute("value", params.recipients[i]);
     email.setAttribute("crop", "end");
     email.setAttribute("style", "width: var(--recipientWidth)");
 
-    let listitem = document.createXULElement("richlistitem");
+    const listitem = document.createXULElement("richlistitem");
     listitem.appendChild(email);
 
-    let cert = gCerts[i];
-    let statusItem = document.createXULElement("label");
+    const cert = gCerts[i];
+    const statusItem = document.createXULElement("label");
     statusItem.setAttribute(
       "value",
       gBundle.getString(cert ? "StatusValid" : "StatusNotFound")
@@ -65,8 +65,8 @@ function onLoad() {
 }
 
 function resizeColumns() {
-  let list = document.getElementById("infolist");
-  let cols = list.getElementsByTagName("treecol");
+  const list = document.getElementById("infolist");
+  const cols = list.getElementsByTagName("treecol");
   list.style.setProperty(
     "--recipientWidth",
     cols[0].getBoundingClientRect().width + "px"
@@ -103,10 +103,10 @@ function onSelectionChange(event) {
 }
 
 function viewCertHelper(parent, cert) {
-  let url = `about:certificate?cert=${encodeURIComponent(
+  const url = `about:certificate?cert=${encodeURIComponent(
     cert.getBase64DERString()
   )}`;
-  let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  const mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
   mail3PaneWindow.switchToTabHavingURI(url, true, {});
   parent.close();
 }

@@ -32,12 +32,12 @@ class OutlookProfileImporter extends BaseProfileImporter {
     this._importMailGeneric = this._importModule
       .GetImportInterface("mail")
       .QueryInterface(Ci.nsIImportGeneric);
-    let importMail = this._importMailGeneric
+    const importMail = this._importMailGeneric
       .GetData("mailInterface")
       .QueryInterface(Ci.nsIImportMail);
-    let outLocation = {};
-    let outFound = {};
-    let outUserVerify = {};
+    const outLocation = {};
+    const outFound = {};
+    const outUserVerify = {};
     importMail.GetDefaultLocation(outLocation, outFound, outUserVerify);
     if (outLocation.value) {
       return [{ dir: outLocation.value }];
@@ -55,25 +55,25 @@ class OutlookProfileImporter extends BaseProfileImporter {
     this._itemsImportedCount = 0;
 
     if (items.accounts) {
-      let importSettings = this._importModule
+      const importSettings = this._importModule
         .GetImportInterface("settings")
         .QueryInterface(Ci.nsIImportSettings);
-      let outLocalAccount = {};
+      const outLocalAccount = {};
       importSettings.Import(outLocalAccount);
       await this._updateProgress();
       this._onImportAccounts();
     }
 
-    let successStr = Cc["@mozilla.org/supports-string;1"].createInstance(
+    const successStr = Cc["@mozilla.org/supports-string;1"].createInstance(
       Ci.nsISupportsString
     );
-    let errorStr = Cc["@mozilla.org/supports-string;1"].createInstance(
+    const errorStr = Cc["@mozilla.org/supports-string;1"].createInstance(
       Ci.nsISupportsString
     );
 
     if (items.mailMessages) {
       // @see nsIImportGeneric.
-      let wantsProgress = this._importMailGeneric.WantsProgress();
+      const wantsProgress = this._importMailGeneric.WantsProgress();
       this._importMailGeneric.BeginImport(successStr, errorStr);
       if (wantsProgress) {
         while (this._importMailGeneric.GetProgress() < 100) {
@@ -102,18 +102,18 @@ class OutlookProfileImporter extends BaseProfileImporter {
       successStr.data = "";
       errorStr.data = "";
 
-      let importABGeneric = this._importModule
+      const importABGeneric = this._importModule
         .GetImportInterface("addressbook")
         .QueryInterface(Ci.nsIImportGeneric);
       // Set import destination to the personal address book.
-      let addressDestination = Cc[
+      const addressDestination = Cc[
         "@mozilla.org/supports-string;1"
       ].createInstance(Ci.nsISupportsString);
       addressDestination.data = "jsaddrbook://abooks.sqlite";
       importABGeneric.SetData("addressDestination", addressDestination);
 
       // @see nsIImportGeneric.
-      let wantsProgress = importABGeneric.WantsProgress();
+      const wantsProgress = importABGeneric.WantsProgress();
       importABGeneric.BeginImport(successStr, errorStr);
       if (wantsProgress) {
         while (importABGeneric.GetProgress() < 100) {

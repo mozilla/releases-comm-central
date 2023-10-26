@@ -11,7 +11,7 @@ function run_test() {
 
   // Import incoming filters.
   let file = do_get_file("resources/becky/filters/IFilter.def");
-  let helper1 = new FiltersImportHelper(file, "Becky!", {
+  const helper1 = new FiltersImportHelper(file, "Becky!", {
     count: 3,
     enabled: 2,
     incoming: 3,
@@ -21,7 +21,7 @@ function run_test() {
 
   // Import outgoing filters.
   file = do_get_file("resources/becky/filters/OFilter.def");
-  let helper2 = new FiltersImportHelper(file, "Becky!", {
+  const helper2 = new FiltersImportHelper(file, "Becky!", {
     count: 6,
     enabled: 4,
     incoming: 3,
@@ -31,7 +31,7 @@ function run_test() {
 
   // Import both filter types automatically.
   file = do_get_file("resources/becky/filters");
-  let helper3 = new FiltersImportHelper(file, "Becky!", {
+  const helper3 = new FiltersImportHelper(file, "Becky!", {
     count: 12,
     enabled: 8,
     incoming: 6,

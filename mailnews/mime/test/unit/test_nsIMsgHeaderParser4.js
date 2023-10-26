@@ -186,10 +186,10 @@ function run_test() {
   // Test -  strings
 
   for (let i = 0; i < checks.length; ++i) {
-    let addrs = MailServices.headerParser.makeFromDisplayAddress(
+    const addrs = MailServices.headerParser.makeFromDisplayAddress(
       checks[i].displayString
     );
-    let checkaddrs = checks[i].addresses;
+    const checkaddrs = checks[i].addresses;
     Assert.equal(addrs.length, checkaddrs.length, "Number of parsed addresses");
     for (let j = 0; j < addrs.length; j++) {
       Assert.equal(addrs[j].name, checkaddrs[j][0], "Parsed name");

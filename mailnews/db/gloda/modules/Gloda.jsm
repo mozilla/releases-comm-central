@@ -197,7 +197,7 @@ var Gloda = {
    * @testpoint gloda.ns.getMessageCollectionForHeader()
    */
   getMessageCollectionForHeader(aMsgHdr, aListener, aData) {
-    let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
+    const query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
     query.folder(aMsgHdr.folder).messageKey(aMsgHdr.messageKey);
     return query.getCollection(aListener, aData);
   },
@@ -222,10 +222,10 @@ var Gloda = {
    */
   getMessageCollectionForHeaders(aHeaders, aListener, aData) {
     // group the headers by the folder they are found in
-    let headersByFolder = {};
-    for (let header of aHeaders) {
-      let folderURI = header.folder.URI;
-      let headersForFolder = headersByFolder[folderURI];
+    const headersByFolder = {};
+    for (const header of aHeaders) {
+      const folderURI = header.folder.URI;
+      const headersForFolder = headersByFolder[folderURI];
       if (headersForFolder === undefined) {
         headersByFolder[folderURI] = [header];
       } else {
@@ -233,12 +233,12 @@ var Gloda = {
       }
     }
 
-    let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
+    const query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
     let clause;
     // build a query, using a separate union clause for each folder.
-    for (let folderURI in headersByFolder) {
-      let headersForFolder = headersByFolder[folderURI];
-      let folder = this.getFolderForFolder(headersForFolder[0].folder);
+    for (const folderURI in headersByFolder) {
+      const headersForFolder = headersByFolder[folderURI];
+      const folder = this.getFolderForFolder(headersForFolder[0].folder);
       // if this is the first or clause, just use the query itself
       if (!clause) {
         clause = query;
@@ -248,7 +248,7 @@ var Gloda = {
       }
 
       clause.folder(folder);
-      let messageKeys = headersForFolder.map(hdr => hdr.messageKey);
+      const messageKeys = headersForFolder.map(hdr => hdr.messageKey);
       clause.messageKey.apply(clause, messageKeys);
     }
 
@@ -298,18 +298,18 @@ var Gloda = {
    *   GlodaIdentity instances corresponding to the addresses provided.
    */
   *getOrCreateMailIdentities(aCallbackHandle, ...aAddrGroups) {
-    let addresses = {};
-    let resultLists = [];
+    const addresses = {};
+    const resultLists = [];
 
     // parse the strings
-    for (let aMailAddresses of aAddrGroups) {
-      let parsed = GlodaUtils.parseMailAddresses(aMailAddresses);
+    for (const aMailAddresses of aAddrGroups) {
+      const parsed = GlodaUtils.parseMailAddresses(aMailAddresses);
 
-      let resultList = [];
+      const resultList = [];
       resultLists.push(resultList);
 
       for (let iAddress = 0; iAddress < parsed.count; iAddress++) {
-        let address = parsed.addresses[iAddress].toLowerCase();
+        const address = parsed.addresses[iAddress].toLowerCase();
         if (address in addresses) {
           addresses[address].push(resultList);
         } else {
@@ -318,22 +318,22 @@ var Gloda = {
       }
     }
 
-    let addressList = Object.keys(addresses);
+    const addressList = Object.keys(addresses);
     if (addressList.length == 0) {
       yield aCallbackHandle.doneWithResult(resultLists);
       // we should be stopped before we reach this point, but safety first.
       return;
     }
 
-    let query = this.newQuery(GlodaConstants.NOUN_IDENTITY);
+    const query = this.newQuery(GlodaConstants.NOUN_IDENTITY);
     query.kind("email");
     query.value.apply(query, addressList);
-    let collection = query.getCollection(aCallbackHandle);
+    const collection = query.getCollection(aCallbackHandle);
     yield GlodaConstants.kWorkAsync;
 
     // put the identities in the appropriate result lists
-    for (let identity of collection.items) {
-      let nameAndResultLists = addresses[identity.value];
+    for (const identity of collection.items) {
+      const nameAndResultLists = addresses[identity.value];
       this._log.debug(
         " found identity for '" +
           nameAndResultLists[0] +
@@ -349,14 +349,14 @@ var Gloda = {
     }
 
     // create the identities that did not exist yet
-    for (let address in addresses) {
-      let nameAndResultLists = addresses[address];
+    for (const address in addresses) {
+      const nameAndResultLists = addresses[address];
       let name = nameAndResultLists[0];
 
       this._log.debug(" creating contact for '" + name + "' (" + address + ")");
 
       // try and find an existing address book contact.
-      let card = MailServices.ab.cardForEmailAddress(address);
+      const card = MailServices.ab.cardForEmailAddress(address);
       // XXX when we have the address book GUID stuff, we need to use that to
       //  find existing contacts... (this will introduce a new query phase
       //  where we batch all the GUIDs for an async query)
@@ -370,7 +370,7 @@ var Gloda = {
         name = address;
       }
 
-      let contact = GlodaDatastore.createContact(null, null, name, 0, 0);
+      const contact = GlodaDatastore.createContact(null, null, name, 0, 0);
 
       // we must create the identity.  use a blank description because there's
       //  nothing to differentiate it from other identities, as this contact
@@ -382,7 +382,7 @@ var Gloda = {
       //  exposing it to the address-book indexer, but we could get our id's
       //  in a bad way from not deferring the identity insertion until after
       //  the contact insertion.
-      let identity = GlodaDatastore.createIdentity(
+      const identity = GlodaDatastore.createIdentity(
         contact.id,
         contact,
         "email",
@@ -438,19 +438,19 @@ var Gloda = {
    */
   _initMyIdentities() {
     let myContact = null;
-    let myIdentities = {};
+    const myIdentities = {};
     // Process each email at most once; stored here.
-    let myEmailAddresses = new Set();
+    const myEmailAddresses = new Set();
 
     let fullName, fallbackName;
-    let existingIdentities = [];
-    let identitiesToCreate = [];
+    const existingIdentities = [];
+    const identitiesToCreate = [];
 
-    let allIdentities = MailServices.accounts.allIdentities;
-    let defaultMsgIdentity = MailServices.accounts.defaultAccount
+    const allIdentities = MailServices.accounts.allIdentities;
+    const defaultMsgIdentity = MailServices.accounts.defaultAccount
       ? MailServices.accounts.defaultAccount.defaultIdentity
       : null;
-    let defaultMsgIdentityKey = defaultMsgIdentity
+    const defaultMsgIdentityKey = defaultMsgIdentity
       ? defaultMsgIdentity.key
       : null;
     let defaultIdentity;
@@ -460,11 +460,11 @@ var Gloda = {
       return;
     }
 
-    for (let msgIdentity of allIdentities) {
-      let emailAddress = msgIdentity.email;
-      let replyTo = msgIdentity.replyTo;
-      let msgIdentityDescription = msgIdentity.fullName || msgIdentity.email;
-      let isDefaultMsgIdentity = msgIdentity.key == defaultMsgIdentityKey;
+    for (const msgIdentity of allIdentities) {
+      const emailAddress = msgIdentity.email;
+      const replyTo = msgIdentity.replyTo;
+      const msgIdentityDescription = msgIdentity.fullName || msgIdentity.email;
+      const isDefaultMsgIdentity = msgIdentity.key == defaultMsgIdentityKey;
 
       if (!fullName || isDefaultMsgIdentity) {
         fullName = msgIdentity.fullName;
@@ -474,15 +474,18 @@ var Gloda = {
       }
 
       // Find the identities if they exist, flag to create them if they don't.
-      for (let address of [emailAddress, replyTo]) {
+      for (const address of [emailAddress, replyTo]) {
         if (!address) {
           continue;
         }
-        let parsed = GlodaUtils.parseMailAddresses(address);
+        const parsed = GlodaUtils.parseMailAddresses(address);
         if (myEmailAddresses.has(parsed.addresses[0])) {
           continue;
         }
-        let identity = GlodaDatastore.getIdentity("email", parsed.addresses[0]);
+        const identity = GlodaDatastore.getIdentity(
+          "email",
+          parsed.addresses[0]
+        );
         if (identity) {
           if (identity.description != msgIdentityDescription) {
             // If the user changed the identity name, update the db.
@@ -503,7 +506,7 @@ var Gloda = {
       }
     }
     // We need to establish the identity.contact portions of the relationship.
-    for (let identity of existingIdentities) {
+    for (const identity of existingIdentities) {
       identity._contact = GlodaDatastore.getContactByID(identity.contactID);
       if (defaultIdentity && defaultIdentity.id == identity.id) {
         if (identity.contact.name != (fullName || fallbackName)) {
@@ -533,9 +536,9 @@ var Gloda = {
       GlodaDatastore.insertContact(myContact);
     }
 
-    for (let emailAndDescription of identitiesToCreate) {
+    for (const emailAndDescription of identitiesToCreate) {
       // XXX This won't always be of type "email" as we add new account types.
-      let identity = GlodaDatastore.createIdentity(
+      const identity = GlodaDatastore.createIdentity(
         myContact.id,
         myContact,
         "email",
@@ -546,7 +549,7 @@ var Gloda = {
       existingIdentities.push(identity);
     }
 
-    for (let identity of existingIdentities) {
+    for (const identity of existingIdentities) {
       myIdentities[identity.id] = identity;
     }
 
@@ -708,17 +711,17 @@ var Gloda = {
       aNounDef.specialLoadAttribs = [];
 
       // - define the 'id' constrainer
-      let idConstrainer = function (...aArgs) {
-        let constraint = [GlodaConstants.kConstraintIdIn, null, ...aArgs];
+      const idConstrainer = function (...aArgs) {
+        const constraint = [GlodaConstants.kConstraintIdIn, null, ...aArgs];
         this._constraints.push(constraint);
         return this;
       };
       aNounDef.queryClass.prototype.id = idConstrainer;
     }
     if (aNounDef.cache) {
-      let cacheCost = aNounDef.cacheCost || 1024;
-      let cacheBudget = aNounDef.cacheBudget || 128 * 1024;
-      let cacheSize = Math.floor(cacheBudget / cacheCost);
+      const cacheCost = aNounDef.cacheCost || 1024;
+      const cacheBudget = aNounDef.cacheBudget || 128 * 1024;
+      const cacheSize = Math.floor(cacheBudget / cacheCost);
       if (cacheSize) {
         GlodaCollectionManager.defineCache(aNounDef, cacheSize);
       }
@@ -804,7 +807,7 @@ var Gloda = {
    *   to pass in the query instance that constraints should be contributed to.
    */
   defineNounAction(aNounID, aActionMeta) {
-    let nounDef = this._nounIDToDef[aNounID];
+    const nounDef = this._nounIDToDef[aNounID];
     nounDef.actions.push(aActionMeta);
   },
 
@@ -813,7 +816,7 @@ var Gloda = {
    *  given noun type (via noun ID) with the given action type (ex: filter).
    */
   getNounActions(aNounID, aActionType) {
-    let nounDef = this._nounIDToDef[aNounID];
+    const nounDef = this._nounIDToDef[aNounID];
     if (!nounDef) {
       return [];
     }
@@ -979,14 +982,14 @@ var Gloda = {
            *     encoding on folder-id's like we use for MIME types and friends.
            */
           Account(aAttrDef, aArguments) {
-            let folderValues = [];
-            let seenRootFolders = {};
+            const folderValues = [];
+            const seenRootFolders = {};
             for (let iArg = 0; iArg < aArguments.length; iArg++) {
-              let givenFolder = aArguments[iArg];
-              let givenMsgFolder = givenFolder.getXPCOMFolder(
+              const givenFolder = aArguments[iArg];
+              const givenMsgFolder = givenFolder.getXPCOMFolder(
                 givenFolder.kActivityFolderOnlyNoData
               );
-              let rootFolder = givenMsgFolder.rootFolder;
+              const rootFolder = givenMsgFolder.rootFolder;
 
               // skip processing this folder if we have already processed its
               //  root folder.
@@ -995,8 +998,8 @@ var Gloda = {
               }
               seenRootFolders[rootFolder.URI] = true;
 
-              for (let folder of rootFolder.descendants) {
-                let folderFlags = folder.flags;
+              for (const folder of rootFolder.descendants) {
+                const folderFlags = folder.flags;
 
                 // Ignore virtual folders, non-mail folders.
                 // XXX this is derived from GlodaIndexer's shouldIndexFolder.
@@ -1015,7 +1018,7 @@ var Gloda = {
                   continue;
                 }
 
-                let glodaFolder = Gloda.getFolderForFolder(folder);
+                const glodaFolder = Gloda.getFolderForFolder(folder);
                 folderValues.push(glodaFolder);
               }
             }
@@ -1241,7 +1244,7 @@ var Gloda = {
           ];
         },
         fromJSON(x, aGlodaMessage) {
-          let [name, contentType, size, _part, _externalUrl, isExternal] = x;
+          const [name, contentType, size, _part, _externalUrl, isExternal] = x;
           return new GlodaAttachment(
             aGlodaMessage,
             name,
@@ -1277,7 +1280,7 @@ var Gloda = {
           // First sort by the first identity in the tuple
           // Since our general use-case is for the first guy to be "me", we only
           //  compare the identity value, not the name.
-          let fic = a[0].value.localeCompare(b[0].value);
+          const fic = a[0].value.localeCompare(b[0].value);
           if (fic) {
             return fic;
           }
@@ -1286,9 +1289,9 @@ var Gloda = {
           return a[1].contact.name.localeCompare(b[1].contact.name);
         },
         computeDelta(aCurValues, aOldValues) {
-          let oldMap = {};
-          for (let tupe of aOldValues) {
-            let [originIdentity, targetIdentity] = tupe;
+          const oldMap = {};
+          for (const tupe of aOldValues) {
+            const [originIdentity, targetIdentity] = tupe;
             let targets = oldMap[originIdentity];
             if (targets === undefined) {
               targets = oldMap[originIdentity] = {};
@@ -1296,11 +1299,11 @@ var Gloda = {
             targets[targetIdentity] = true;
           }
 
-          let added = [],
+          const added = [],
             removed = [];
-          for (let tupe of aCurValues) {
-            let [originIdentity, targetIdentity] = tupe;
-            let targets = oldMap[originIdentity];
+          for (const tupe of aCurValues) {
+            const [originIdentity, targetIdentity] = tupe;
+            const targets = oldMap[originIdentity];
             if (targets === undefined || !(targetIdentity in targets)) {
               added.push(tupe);
             } else {
@@ -1308,9 +1311,9 @@ var Gloda = {
             }
           }
 
-          for (let originIdentity in oldMap) {
-            let targets = oldMap[originIdentity];
-            for (let targetIdentity in targets) {
+          for (const originIdentity in oldMap) {
+            const targets = oldMap[originIdentity];
+            for (const targetIdentity in targets) {
               removed.push([originIdentity, targetIdentity]);
             }
           }
@@ -1327,15 +1330,15 @@ var Gloda = {
             return false;
           }
 
-          let nounIdentityDef =
+          const nounIdentityDef =
             Gloda._nounIDToDef[GlodaConstants.NOUN_IDENTITY];
           let references = aReferencesByNounID[nounIdentityDef.id];
           if (references === undefined) {
             references = aReferencesByNounID[nounIdentityDef.id] = {};
           }
 
-          for (let tupe of aJsonValues) {
-            let [originIdentityID, targetIdentityID] = tupe;
+          for (const tupe of aJsonValues) {
+            const [originIdentityID, targetIdentityID] = tupe;
             if (!(originIdentityID in references)) {
               references[originIdentityID] = null;
             }
@@ -1351,11 +1354,11 @@ var Gloda = {
           aReferencesByNounID,
           aInverseReferencesByNounID
         ) {
-          let references = aReferencesByNounID[GlodaConstants.NOUN_IDENTITY];
+          const references = aReferencesByNounID[GlodaConstants.NOUN_IDENTITY];
 
-          let results = [];
-          for (let tupe of aJsonValues) {
-            let [originIdentityID, targetIdentityID] = tupe;
+          const results = [];
+          for (const tupe of aJsonValues) {
+            const [originIdentityID, targetIdentityID] = tupe;
             results.push([
               references[originIdentityID],
               references[targetIdentityID],
@@ -1388,7 +1391,7 @@ var Gloda = {
    * @XXX potentially rename to not suggest binding is required.
    */
   _bindAttribute(aAttrDef, aSubjectNounDef) {
-    let objectNounDef = aAttrDef.objectNounDef;
+    const objectNounDef = aAttrDef.objectNounDef;
 
     // -- the query constraint helpers
     if (aSubjectNounDef.queryClass !== undefined) {
@@ -1399,7 +1402,7 @@ var Gloda = {
         aAttrDef.special == GlodaConstants.kSpecialFulltext
       ) {
         constrainer = function (...aArgs) {
-          let constraint = [
+          const constraint = [
             GlodaConstants.kConstraintFulltext,
             aAttrDef,
             ...aArgs,
@@ -1409,7 +1412,7 @@ var Gloda = {
         };
       } else if (aAttrDef.canQuery || aAttrDef.attributeName.startsWith("_")) {
         constrainer = function (...aArgs) {
-          let constraint = [GlodaConstants.kConstraintIn, aAttrDef, ...aArgs];
+          const constraint = [GlodaConstants.kConstraintIn, aAttrDef, ...aArgs];
           this._constraints.push(constraint);
           return this;
         };
@@ -1437,8 +1440,8 @@ var Gloda = {
       // - ranged value helper: fooRange
       if (objectNounDef.continuous) {
         // takes one or more tuples of [lower bound, upper bound]
-        let rangedConstrainer = function (...aArgs) {
-          let constraint = [
+        const rangedConstrainer = function (...aArgs) {
+          const constraint = [
             GlodaConstants.kConstraintRanges,
             aAttrDef,
             ...aArgs,
@@ -1458,8 +1461,8 @@ var Gloda = {
         "special" in aAttrDef &&
         aAttrDef.special == GlodaConstants.kSpecialString
       ) {
-        let likeConstrainer = function (...aArgs) {
-          let constraint = [
+        const likeConstrainer = function (...aArgs) {
+          const constraint = [
             GlodaConstants.kConstraintStringLike,
             aAttrDef,
             ...aArgs,
@@ -1474,10 +1477,10 @@ var Gloda = {
 
       // - Custom helpers provided by the noun type...
       if ("queryHelpers" in objectNounDef) {
-        for (let name in objectNounDef.queryHelpers) {
-          let helper = objectNounDef.queryHelpers[name];
+        for (const name in objectNounDef.queryHelpers) {
+          const helper = objectNounDef.queryHelpers[name];
           // we need a new closure...
-          let helperFunc = helper;
+          const helperFunc = helper;
           aSubjectNounDef.queryClass.prototype[aAttrDef.boundName + name] =
             function (...aArgs) {
               return helperFunc.call(this, aAttrDef, ...aArgs);
@@ -1592,7 +1595,7 @@ var Gloda = {
       }
     }
 
-    let compoundName = aAttrDef.extensionName + ":" + aAttrDef.attributeName;
+    const compoundName = aAttrDef.extensionName + ":" + aAttrDef.attributeName;
     // -- Database Definition
     let attrDBDef;
     if (compoundName in GlodaDatastore._attributeDBDefs) {
@@ -1666,14 +1669,14 @@ var Gloda = {
       normalizeFacetDef(aAttrDef.facet);
     }
     if ("extraFacets" in aAttrDef) {
-      for (let facetDef of aAttrDef.extraFacets) {
+      for (const facetDef of aAttrDef.extraFacets) {
         normalizeFacetDef(facetDef);
       }
     }
 
     function gatherLocalizedStrings(aBundle, aPropRoot, aStickIn) {
-      for (let propName in Gloda._ATTR_LOCALIZED_STRINGS) {
-        let attrName = Gloda._ATTR_LOCALIZED_STRINGS[propName];
+      for (const propName in Gloda._ATTR_LOCALIZED_STRINGS) {
+        const attrName = Gloda._ATTR_LOCALIZED_STRINGS[propName];
         try {
           aStickIn[attrName] = aBundle.GetStringFromName(aPropRoot + propName);
         } catch (ex) {
@@ -1686,16 +1689,16 @@ var Gloda = {
     // If the provider has a string bundle, populate a "strings" attribute with
     //  our standard attribute strings that can be UI exposed.
     if ("strings" in aAttrDef.provider && aAttrDef.facet) {
-      let bundle = aAttrDef.provider.strings;
+      const bundle = aAttrDef.provider.strings;
 
       // -- attribute strings
-      let attrStrings = (aAttrDef.facet.strings = {});
+      const attrStrings = (aAttrDef.facet.strings = {});
       // we use the first subject the attribute applies to as the basis of
       //  where to get the string from.  Mainly because we currently don't have
       //  any attributes with multiple subjects nor a use-case where we expose
       //  multiple noun types via the UI.  (Just messages right now.)
-      let canonicalSubject = this._nounIDToDef[aAttrDef.subjectNouns[0]];
-      let propRoot =
+      const canonicalSubject = this._nounIDToDef[aAttrDef.subjectNouns[0]];
+      const propRoot =
         "gloda." +
         canonicalSubject.name +
         ".attr." +
@@ -1705,9 +1708,9 @@ var Gloda = {
 
       // -- alias strings for synthetic facets
       if ("extraFacets" in aAttrDef) {
-        for (let facetDef of aAttrDef.extraFacets) {
+        for (const facetDef of aAttrDef.extraFacets) {
           facetDef.strings = {};
-          let aliasPropRoot =
+          const aliasPropRoot =
             "gloda." + canonicalSubject.name + ".attr." + facetDef.alias + ".";
           gatherLocalizedStrings(bundle, aliasPropRoot, facetDef.strings);
         }
@@ -1720,8 +1723,8 @@ var Gloda = {
       iSubject < aAttrDef.subjectNouns.length;
       iSubject++
     ) {
-      let subjectType = aAttrDef.subjectNouns[iSubject];
-      let subjectNounDef = this._nounIDToDef[subjectType];
+      const subjectType = aAttrDef.subjectNouns[iSubject];
+      const subjectNounDef = this._nounIDToDef[subjectType];
       this._bindAttribute(aAttrDef, subjectNounDef);
 
       // update the provider maps...
@@ -1785,7 +1788,7 @@ var Gloda = {
    * @TODO consider removing the extension name argument parameter requirement
    */
   getAttrDef(aPluginName, aAttrName) {
-    let compoundName = aPluginName + ":" + aAttrName;
+    const compoundName = aPluginName + ":" + aAttrName;
     return GlodaDatastore._attributeDBDefs[compoundName];
   },
 
@@ -1828,7 +1831,7 @@ var Gloda = {
    *     class documentation.
    */
   newQuery(aNounID, aOptions) {
-    let nounDef = this._nounIDToDef[aNounID];
+    const nounDef = this._nounIDToDef[aNounID];
     return new nounDef.queryClass(aOptions);
   },
 
@@ -1838,9 +1841,9 @@ var Gloda = {
    *  that you would still like to receive updates for.
    */
   explicitCollection(aNounID, aItems) {
-    let nounDef = this._nounIDToDef[aNounID];
-    let collection = new GlodaCollection(nounDef, aItems, null, null);
-    let query = new nounDef.explicitQueryClass(collection);
+    const nounDef = this._nounIDToDef[aNounID];
+    const collection = new GlodaCollection(nounDef, aItems, null, null);
+    const query = new nounDef.explicitQueryClass(collection);
     collection.query = query;
     GlodaCollectionManager.registerCollection(collection);
     return collection;
@@ -1858,9 +1861,9 @@ var Gloda = {
    *  weakly held.)
    */
   _wildcardCollection(aNounID, aItems) {
-    let nounDef = this._nounIDToDef[aNounID];
-    let collection = new GlodaCollection(nounDef, aItems, null, null);
-    let query = new nounDef.wildcardQueryClass(collection);
+    const nounDef = this._nounIDToDef[aNounID];
+    const collection = new GlodaCollection(nounDef, aItems, null, null);
+    const query = new nounDef.wildcardQueryClass(collection);
     collection.query = query;
     GlodaCollectionManager.registerCollection(collection);
     return collection;
@@ -1923,15 +1926,15 @@ var Gloda = {
     aCallbackHandle,
     aDoCache
   ) {
-    let itemNounDef = aItem.NOUN_DEF;
-    let attribsByBoundName = itemNounDef.attribsByBoundName;
+    const itemNounDef = aItem.NOUN_DEF;
+    const attribsByBoundName = itemNounDef.attribsByBoundName;
 
     this._log.info(" ** grokNounItem: " + itemNounDef.name);
 
-    let addDBAttribs = [];
-    let removeDBAttribs = [];
+    const addDBAttribs = [];
+    const removeDBAttribs = [];
 
-    let jsonDict = {};
+    const jsonDict = {};
 
     let aOldItem;
     aRawReps.trueGlodaRep = aItem;
@@ -1946,7 +1949,7 @@ var Gloda = {
     }
 
     // Have the attribute providers directly set properties on the aItem
-    let attrProviders = this._attrProviderOrderByNoun[itemNounDef.id];
+    const attrProviders = this._attrProviderOrderByNoun[itemNounDef.id];
     for (let iProvider = 0; iProvider < attrProviders.length; iProvider++) {
       this._log.info("  * provider: " + attrProviders[iProvider].providerName);
       yield aCallbackHandle.pushAndGo(
@@ -1959,7 +1962,7 @@ var Gloda = {
       );
     }
 
-    let attrOptimizers = this._attrOptimizerOrderByNoun[itemNounDef.id];
+    const attrOptimizers = this._attrOptimizerOrderByNoun[itemNounDef.id];
     for (let iProvider = 0; iProvider < attrOptimizers.length; iProvider++) {
       this._log.info(
         "  * optimizer: " + attrOptimizers[iProvider].providerName
@@ -1976,7 +1979,7 @@ var Gloda = {
     this._log.info(" ** done with providers.");
 
     // Iterate over the attributes on the item
-    for (let key of Object.keys(aItem)) {
+    for (const key of Object.keys(aItem)) {
       let value = aItem[key];
       // ignore keys that start with underscores, they are private and not
       //  persisted by our attribute mechanism.  (they are directly handled by
@@ -1985,15 +1988,15 @@ var Gloda = {
         continue;
       }
       // find the attribute definition that corresponds to this key
-      let attrib = attribsByBoundName[key];
+      const attrib = attribsByBoundName[key];
       // if there's no attribute, that's not good, but not horrible.
       if (attrib === undefined) {
         this._log.warn("new proc ignoring attrib: " + key);
         continue;
       }
 
-      let attribDB = attrib.dbDef;
-      let objectNounDef = attrib.objectNounDef;
+      const attribDB = attrib.dbDef;
+      const objectNounDef = attrib.objectNounDef;
 
       // - translate for our JSON rep
       if (attrib.singular) {
@@ -2003,16 +2006,16 @@ var Gloda = {
           jsonDict[attrib.id] = value;
         }
       } else if (objectNounDef.toJSON) {
-        let toJSON = objectNounDef.toJSON;
+        const toJSON = objectNounDef.toJSON;
         jsonDict[attrib.id] = [];
-        for (let subValue of value) {
+        for (const subValue of value) {
           jsonDict[attrib.id].push(toJSON(subValue));
         }
       } else {
         jsonDict[attrib.id] = value;
       }
 
-      let oldValue = aOldItem[key];
+      const oldValue = aOldItem[key];
 
       // the 'old' item is still the canonical one; update it
       // do the update now, because we may skip operations on addDBAttribs and
@@ -2053,7 +2056,7 @@ var Gloda = {
           //  indexing perspective)
           // some nouns may not meet === equivalence needs, so must provide a
           //  custom computeDelta method to help us out
-          let [valuesAdded, valuesRemoved] = objectNounDef.computeDelta(
+          const [valuesAdded, valuesRemoved] = objectNounDef.computeDelta(
             value,
             oldValue
           );
@@ -2070,15 +2073,15 @@ var Gloda = {
           // build a map of the previous values; we will delete the values as
           //  we see them so that we will know what old values are no longer
           //  present in the current set of values.
-          let oldValueMap = {};
-          for (let anOldValue of oldValue) {
+          const oldValueMap = {};
+          for (const anOldValue of oldValue) {
             // remember, the key is just the toString'ed value, so we need to
             //  store and use the actual value as the value!
             oldValueMap[anOldValue] = anOldValue;
           }
           // traverse the current values...
-          let valuesAdded = [];
-          for (let curValue of value) {
+          const valuesAdded = [];
+          for (const curValue of value) {
             if (curValue in oldValueMap) {
               delete oldValueMap[curValue];
             } else {
@@ -2086,7 +2089,7 @@ var Gloda = {
             }
           }
           // anything still on oldValueMap was removed.
-          let valuesRemoved = Object.keys(oldValueMap).map(
+          const valuesRemoved = Object.keys(oldValueMap).map(
             key => oldValueMap[key]
           );
           // convert the values to database-style attribute rows
@@ -2128,7 +2131,7 @@ var Gloda = {
     }
 
     // Iterate over any remaining values in old items for purge purposes.
-    for (let key of Object.keys(aOldItem)) {
+    for (const key of Object.keys(aOldItem)) {
       let value = aOldItem[key];
       // ignore keys that start with underscores, they are private and not
       //  persisted by our attribute mechanism.  (they are directly handled by
@@ -2142,7 +2145,7 @@ var Gloda = {
       }
 
       // find the attribute definition that corresponds to this key
-      let attrib = attribsByBoundName[key];
+      const attrib = attribsByBoundName[key];
       // if there's no attribute, that's not good, but not horrible.
       if (attrib === undefined) {
         continue;
@@ -2164,7 +2167,7 @@ var Gloda = {
       if (attrib.singular) {
         value = [value];
       }
-      let attribDB = attrib.dbDef;
+      const attribDB = attrib.dbDef;
       removeDBAttribs.push.apply(
         removeDBAttribs,
         attribDB.convertValuesToDBAttributes(value)
@@ -2227,27 +2230,27 @@ var Gloda = {
    * @returns A list of integer scores equal in length to aItems.
    */
   scoreNounItems(aItems, aContext, aExtraScoreFuncs) {
-    let scores = [];
+    const scores = [];
     // bail if there is nothing to score
     if (!aItems.length) {
       return scores;
     }
 
-    let itemNounDef = aItems[0].NOUN_DEF;
+    const itemNounDef = aItems[0].NOUN_DEF;
     if (aExtraScoreFuncs == null) {
       aExtraScoreFuncs = [];
     }
 
-    for (let item of aItems) {
+    for (const item of aItems) {
       let score = 0;
-      let attrProviders = this._attrProviderOrderByNoun[itemNounDef.id];
+      const attrProviders = this._attrProviderOrderByNoun[itemNounDef.id];
       for (let iProvider = 0; iProvider < attrProviders.length; iProvider++) {
-        let provider = attrProviders[iProvider];
+        const provider = attrProviders[iProvider];
         if (provider.score) {
           score += provider.score(item);
         }
       }
-      for (let extraScoreFunc of aExtraScoreFuncs) {
+      for (const extraScoreFunc of aExtraScoreFuncs) {
         score += extraScoreFunc(item, aContext);
       }
       scores.push(score);

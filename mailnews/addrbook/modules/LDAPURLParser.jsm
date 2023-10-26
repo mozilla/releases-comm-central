@@ -13,7 +13,7 @@ class LDAPURLParser {
   parse(spec) {
     // The url is in the form of scheme://hostport/dn?attributes?scope?filter,
     // see RFC2255.
-    let matches =
+    const matches =
       /^(ldaps?):\/\/\[?([^\s\]/]+)\]?:?(\d*)\/([^\s?]*)\??(.*)$/.exec(spec);
     if (!matches) {
       throw Components.Exception(
@@ -21,9 +21,9 @@ class LDAPURLParser {
         Cr.NS_ERROR_ILLEGAL_VALUE
       );
     }
-    let [, scheme, host, port, dn, query] = matches;
-    let [attributes, scopeString, filter] = query.split("?");
-    let scope =
+    const [, scheme, host, port, dn, query] = matches;
+    const [attributes, scopeString, filter] = query.split("?");
+    const scope =
       {
         one: Ci.nsILDAPURL.SCOPE_ONELEVEL,
         sub: Ci.nsILDAPURL.SCOPE_SUBTREE,

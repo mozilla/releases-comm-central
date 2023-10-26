@@ -33,7 +33,7 @@ async function setup() {
   IMAPPump.mailbox.addMessage(
     new ImapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
   );
-  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
   await promiseUrlListener.promise;
 
@@ -51,7 +51,7 @@ async function setup() {
   //                        in boolean canonicalLineEnding,
   //                        in nsIMsgWindow aMsgWindow);
   // Enforcing canonicalLineEnding (i.e., CRLF) makes sure that the
-  let promiseUrlListener2 = new PromiseTestUtils.PromiseUrlListener();
+  const promiseUrlListener2 = new PromiseTestUtils.PromiseUrlListener();
   gIMAPService.SaveMessageToDisk(
     "imap-message://user@localhost/INBOX#" + (IMAPPump.mailbox.uidnext - 1),
     gSavedMsgFile,

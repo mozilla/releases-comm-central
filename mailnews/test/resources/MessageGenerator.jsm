@@ -212,7 +212,7 @@ SyntheticPart.prototype = {
       s += ';\r\n name="' + this._filename + '"';
     }
     if (this._contentTypeExtra) {
-      for (let [key, value] of Object.entries(this._contentTypeExtra)) {
+      for (const [key, value] of Object.entries(this._contentTypeExtra)) {
         s += ";\r\n " + key + '="' + value + '"';
       }
     }
@@ -303,7 +303,7 @@ SyntheticPartMulti.prototype = {
   BOUNDARY_COUNTER: 0,
   toMessageString() {
     let s = "This is a multi-part message in MIME format.\r\n";
-    for (let part of this.parts) {
+    for (const part of this.parts) {
       s += "--" + this._boundary + "\r\n";
       if (part instanceof SyntheticDegeneratePartEmpty) {
         continue;
@@ -323,8 +323,8 @@ SyntheticPartMulti.prototype = {
         s += "Content-ID: " + part.contentIdHeaderValue + "\r\n";
       }
       if (part.hasExtraHeaders) {
-        for (let k in part.extraHeaders) {
-          let v = part.extraHeaders[k];
+        for (const k in part.extraHeaders) {
+          const v = part.extraHeaders[k];
           s += k + ": " + v + "\r\n";
         }
       }
@@ -335,12 +335,12 @@ SyntheticPartMulti.prototype = {
     return s;
   },
   prettyString(aIndent) {
-    let nextIndent = aIndent != null ? aIndent + "  " : "";
+    const nextIndent = aIndent != null ? aIndent + "  " : "";
 
     let s = "Container: " + this._contentType;
 
     for (let iPart = 0; iPart < this.parts.length; iPart++) {
-      let part = this.parts[iPart];
+      const part = this.parts[iPart];
       s +=
         "\n" + nextIndent + (iPart + 1) + " " + part.prettyString(nextIndent);
     }
@@ -493,8 +493,8 @@ function SyntheticMessage(aHeaders, aBodyPart, aMetaState) {
   this.headers = aHeaders || {};
   this.bodyPart = aBodyPart || new SyntheticPartLeaf("");
   this.metaState = aMetaState || {};
-  for (let key in _DEFAULT_META_STATES) {
-    let value = _DEFAULT_META_STATES[key];
+  for (const key in _DEFAULT_META_STATES) {
+    const value = _DEFAULT_META_STATES[key];
     if (!(key in this.metaState)) {
       this.metaState[key] = value;
     }
@@ -534,7 +534,7 @@ SyntheticMessage.prototype = {
    */
   set date(aDate) {
     this._date = aDate;
-    let dateParts = aDate.toString().split(" ");
+    const dateParts = aDate.toString().split(" ");
     this.headers.Date =
       dateParts[0] +
       ", " +
@@ -588,14 +588,14 @@ SyntheticMessage.prototype = {
    * @returns {string[]} A tuple of name, email.
    */
   _parseMailbox(mailbox) {
-    let matcher = mailbox.match(/(.*)<(.+@.+)>/);
+    const matcher = mailbox.match(/(.*)<(.+@.+)>/);
     if (!matcher) {
       // no match -> second form
       return ["", mailbox];
     }
 
-    let name = matcher[1].trim();
-    let email = matcher[2].trim();
+    const name = matcher[1].trim();
+    const email = matcher[2].trim();
     return [name, email];
   },
 
@@ -664,7 +664,7 @@ SyntheticMessage.prototype = {
   set to(aNameAndAddresses) {
     if (typeof aNameAndAddresses === "string") {
       this._to = [];
-      let people = aNameAndAddresses.split(",");
+      const people = aNameAndAddresses.split(",");
       for (let i = 0; i < people.length; i++) {
         this._to.push(this._parseMailbox(people[i]));
       }
@@ -708,7 +708,7 @@ SyntheticMessage.prototype = {
   set cc(aNameAndAddresses) {
     if (typeof aNameAndAddresses === "string") {
       this._cc = [];
-      let people = aNameAndAddresses.split(",");
+      const people = aNameAndAddresses.split(",");
       for (let i = 0; i < people.length; i++) {
         this._cc.push(this._parseMailbox(people[i]));
       }
@@ -770,7 +770,7 @@ SyntheticMessage.prototype = {
     if (aIndent === undefined) {
       aIndent = "";
     }
-    let nextIndent = aIndent + "  ";
+    const nextIndent = aIndent + "  ";
 
     let s = "Message: " + this.subject;
     s += "\n" + nextIndent + "1 " + this.bodyPart.prettyString(nextIndent);
@@ -782,7 +782,7 @@ SyntheticMessage.prototype = {
    * @returns {string} This messages in rfc822 format, or something close enough.
    */
   toMessageString() {
-    let lines = Object.keys(this.headers).map(
+    const lines = Object.keys(this.headers).map(
       headerKey =>
         headerKey + ": " + this._formatHeaderValues(this.headers[headerKey])
     );
@@ -798,10 +798,10 @@ SyntheticMessage.prototype = {
    * @returns {nsIStringInputStream} This message in rfc822 format in a string stream.
    */
   toStream() {
-    let stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
+    const stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
       Ci.nsIStringInputStream
     );
-    let str = this.toMessageString();
+    const str = this.toMessageString();
     stream.setData(str, str.length);
     return stream;
   },
@@ -811,7 +811,7 @@ SyntheticMessage.prototype = {
    *  and making sure we've got a trailing newline.
    */
   writeToMboxStream(aStream) {
-    let str = this.toMboxString();
+    const str = this.toMboxString();
     aStream.write(str, str.length);
   },
 };
@@ -823,8 +823,8 @@ SyntheticMessage.prototype = {
  * @param {nsIMsgFolder} aFolder - The folder to write to.
  */
 function addMessagesToFolder(aMessages, aFolder) {
-  let localFolder = aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  for (let message of aMessages) {
+  const localFolder = aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  for (const message of aMessages) {
     localFolder.addMessage(message.toMboxString());
   }
 }
@@ -884,7 +884,7 @@ SyntheticMessageSet.prototype = {
    *  all the messages from aOldFolder to aNewFolder.
    */
   _folderSwap(aOldFolder, aNewFolder) {
-    let folderIndex = this.msgFolders.indexOf(aOldFolder);
+    const folderIndex = this.msgFolders.indexOf(aOldFolder);
     this.msgFolders[folderIndex] = aNewFolder;
   },
 
@@ -896,21 +896,21 @@ SyntheticMessageSet.prototype = {
    *   union of this set and the other set.
    */
   union(aOtherSet) {
-    let messages = this.synMessages.concat(aOtherSet.synMessages);
-    let folders = this.msgFolders.concat();
-    let indices = this.folderIndices.concat();
+    const messages = this.synMessages.concat(aOtherSet.synMessages);
+    const folders = this.msgFolders.concat();
+    const indices = this.folderIndices.concat();
 
-    let folderUrisToIndices = {};
-    for (let [iFolder, folder] of this.msgFolders.entries()) {
+    const folderUrisToIndices = {};
+    for (const [iFolder, folder] of this.msgFolders.entries()) {
       folderUrisToIndices[folder.URI] = iFolder;
     }
 
     for (let iOther = 0; iOther < aOtherSet.synMessages.length; iOther++) {
-      let folderIndex = aOtherSet.folderIndices[iOther];
+      const folderIndex = aOtherSet.folderIndices[iOther];
       if (folderIndex == null) {
         indices.push(folderIndex);
       } else {
-        let folder = aOtherSet.msgFolders[folderIndex];
+        const folder = aOtherSet.msgFolders[folderIndex];
         if (!(folder.URI in folderUrisToIndices)) {
           folderUrisToIndices[folder.URI] = folders.length;
           folders.push(folder);
@@ -929,8 +929,8 @@ SyntheticMessageSet.prototype = {
    * @param {integer} aIndex
    */
   getMsgHdr(aIndex) {
-    let folder = this.msgFolders[this.folderIndices[aIndex]];
-    let synMsg = this.synMessages[aIndex];
+    const folder = this.msgFolders[this.folderIndices[aIndex]];
+    const synMsg = this.synMessages[aIndex];
     return folder.msgDatabase.getMsgHdrForMessageID(synMsg.messageId);
   },
 
@@ -940,7 +940,7 @@ SyntheticMessageSet.prototype = {
    * @param {integer} aIndex
    */
   getMsgURI(aIndex) {
-    let msgHdr = this.getMsgHdr(aIndex);
+    const msgHdr = this.getMsgHdr(aIndex);
     return msgHdr.folder.getUriForMsg(msgHdr);
   },
 
@@ -950,9 +950,9 @@ SyntheticMessageSet.prototype = {
    */
   *msgHdrs() {
     // get the databases
-    let msgDatabases = this.msgFolders.map(folder => folder.msgDatabase);
-    for (let [iMsg, synMsg] of this.synMessages.entries()) {
-      let folderIndex = this.folderIndices[iMsg];
+    const msgDatabases = this.msgFolders.map(folder => folder.msgDatabase);
+    for (const [iMsg, synMsg] of this.synMessages.entries()) {
+      const folderIndex = this.folderIndices[iMsg];
       if (folderIndex != null) {
         yield msgDatabases[folderIndex].getMsgHdrForMessageID(synMsg.messageId);
       }
@@ -972,11 +972,11 @@ SyntheticMessageSet.prototype = {
    *   for the synthetic messages in the set inserted into that folder.
    */
   get foldersWithMsgHdrs() {
-    let results = this.msgFolders.map(folder => [folder, []]);
-    for (let [iMsg, synMsg] of this.synMessages.entries()) {
-      let folderIndex = this.folderIndices[iMsg];
+    const results = this.msgFolders.map(folder => [folder, []]);
+    for (const [iMsg, synMsg] of this.synMessages.entries()) {
+      const folderIndex = this.folderIndices[iMsg];
       if (folderIndex != null) {
-        let [folder, msgHdrs] = results[folderIndex];
+        const [folder, msgHdrs] = results[folderIndex];
         msgHdrs.push(
           folder.msgDatabase.getMsgHdrForMessageID(synMsg.messageId)
         );
@@ -992,8 +992,8 @@ SyntheticMessageSet.prototype = {
    *    specified, mark all messages in the current set.
    */
   setRead(aRead, aMsgHdr) {
-    let msgHdrs = aMsgHdr ? [aMsgHdr] : this.msgHdrList;
-    for (let msgHdr of msgHdrs) {
+    const msgHdrs = aMsgHdr ? [aMsgHdr] : this.msgHdrList;
+    for (const msgHdr of msgHdrs) {
       msgHdr.markRead(aRead);
     }
   },
@@ -1003,7 +1003,7 @@ SyntheticMessageSet.prototype = {
    * @param {boolean} aStarred - Starred status.
    */
   setStarred(aStarred) {
-    for (let msgHdr of this.msgHdrs()) {
+    for (const msgHdr of this.msgHdrs()) {
       msgHdr.markFlagged(aStarred);
     }
   },
@@ -1013,7 +1013,7 @@ SyntheticMessageSet.prototype = {
    * @param {string} aTagName - Tag to add
    */
   addTag(aTagName) {
-    for (let [folder, msgHdrs] of this.foldersWithMsgHdrs) {
+    for (const [folder, msgHdrs] of this.foldersWithMsgHdrs) {
       folder.addKeywordsToMessages(msgHdrs, aTagName);
     }
   },
@@ -1023,7 +1023,7 @@ SyntheticMessageSet.prototype = {
    * @param {string} aTagName - Tag to remove
    */
   removeTag(aTagName) {
-    for (let [folder, msgHdrs] of this.foldersWithMsgHdrs) {
+    for (const [folder, msgHdrs] of this.foldersWithMsgHdrs) {
       folder.removeKeywordsFromMessages(msgHdrs, aTagName);
     }
   },
@@ -1040,9 +1040,9 @@ SyntheticMessageSet.prototype = {
    * Generates a msgsJunkStatusChanged nsIMsgFolderListener notification.
    */
   setJunk(aIsJunk, aMsgHdr) {
-    let junkscore = aIsJunk ? "100" : "0";
-    let msgHdrs = aMsgHdr ? [aMsgHdr] : this.msgHdrList;
-    for (let msgHdr of msgHdrs) {
+    const junkscore = aIsJunk ? "100" : "0";
+    const msgHdrs = aMsgHdr ? [aMsgHdr] : this.msgHdrList;
+    for (const msgHdr of msgHdrs) {
       msgHdr.setStringProperty("junkscore", junkscore);
     }
     MailServices.mfn.notifyMsgsJunkStatusChanged(msgHdrs);
@@ -1053,9 +1053,9 @@ SyntheticMessageSet.prototype = {
    * (because we call Array.prototype.slice).
    */
   slice(...aArgs) {
-    let slicedMessages = this.synMessages.slice(...aArgs);
-    let slicedIndices = this.folderIndices.slice(...aArgs);
-    let sliced = new SyntheticMessageSet(
+    const slicedMessages = this.synMessages.slice(...aArgs);
+    const slicedIndices = this.folderIndices.slice(...aArgs);
+    const sliced = new SyntheticMessageSet(
       slicedMessages,
       this.msgFolders,
       slicedIndices
@@ -1104,8 +1104,8 @@ MessageGenerator.prototype = {
    * @returns {string} The unique name corresponding to the name number.
    */
   makeName(aNameNumber) {
-    let iFirst = aNameNumber % FIRST_NAMES.length;
-    let iLast =
+    const iFirst = aNameNumber % FIRST_NAMES.length;
+    const iLast =
       (iFirst + Math.floor(aNameNumber / FIRST_NAMES.length)) %
       LAST_NAMES.length;
 
@@ -1123,8 +1123,8 @@ MessageGenerator.prototype = {
    * @returns {string} The unique name corresponding to the name mail address.
    */
   makeMailAddress(aNameNumber) {
-    let iFirst = aNameNumber % FIRST_NAMES.length;
-    let iLast =
+    const iFirst = aNameNumber % FIRST_NAMES.length;
+    const iLast =
       (iFirst + Math.floor(aNameNumber / FIRST_NAMES.length)) %
       LAST_NAMES.length;
 
@@ -1169,7 +1169,7 @@ MessageGenerator.prototype = {
    * @returns {string[][]} A list of aCount name-and-address tuples.
    */
   makeNamesAndAddresses(aCount) {
-    let namesAndAddresses = [];
+    const namesAndAddresses = [];
     for (let i = 0; i < aCount; i++) {
       namesAndAddresses.push(this.makeNameAndAddress());
     }
@@ -1188,11 +1188,11 @@ MessageGenerator.prototype = {
     if (aSubjectNumber === undefined) {
       aSubjectNumber = this._nextSubjectNumber++;
     }
-    let iAdjective = aSubjectNumber % SUBJECT_ADJECTIVES.length;
-    let iNoun =
+    const iAdjective = aSubjectNumber % SUBJECT_ADJECTIVES.length;
+    const iNoun =
       (iAdjective + Math.floor(aSubjectNumber / SUBJECT_ADJECTIVES.length)) %
       SUBJECT_NOUNS.length;
-    let iSuffix =
+    const iSuffix =
       (iNoun +
         Math.floor(
           aSubjectNumber / (SUBJECT_ADJECTIVES.length * SUBJECT_NOUNS.length)
@@ -1219,7 +1219,7 @@ MessageGenerator.prototype = {
    * @returns {string} A Message-Id suitable for the given message.
    */
   makeMessageId(aSynthMessage) {
-    let msgId = this._nextMessageIdNum + "@made.up.invalid";
+    const msgId = this._nextMessageIdNum + "@made.up.invalid";
     this._nextMessageIdNum++;
     return msgId;
   },
@@ -1234,7 +1234,7 @@ MessageGenerator.prototype = {
    * @returns {Date} - A made-up time in JavaScript Date object form.
    */
   makeDate() {
-    let date = this._clock;
+    const date = this._clock;
     // advance time by an hour
     this._clock = new Date(date.valueOf() + 60 * 60 * 1000);
     return date;
@@ -1299,12 +1299,12 @@ MessageGenerator.prototype = {
    */
   makeMessage(aArgs) {
     aArgs = aArgs || {};
-    let msg = new SyntheticMessage();
+    const msg = new SyntheticMessage();
 
     if (aArgs.inReplyTo) {
       // If inReplyTo is a SyntheticMessageSet, just use the first message in
       //  the set because the caller may be using them.
-      let srcMsg = aArgs.inReplyTo.synMessages
+      const srcMsg = aArgs.inReplyTo.synMessages
         ? aArgs.inReplyTo.synMessages[0]
         : aArgs.inReplyTo;
 
@@ -1340,7 +1340,7 @@ MessageGenerator.prototype = {
     msg.children = [];
     msg.messageId = this.makeMessageId(msg);
     if (aArgs.age) {
-      let age = aArgs.age;
+      const age = aArgs.age;
       // start from 'now'
       let ts = new Date().valueOf();
       if (age.minutes) {
@@ -1361,8 +1361,8 @@ MessageGenerator.prototype = {
     }
 
     if ("clobberHeaders" in aArgs) {
-      for (let key in aArgs.clobberHeaders) {
-        let value = aArgs.clobberHeaders[key];
+      for (const key in aArgs.clobberHeaders) {
+        const value = aArgs.clobberHeaders[key];
         if (value === null) {
           delete msg.headers[key];
         } else {
@@ -1401,8 +1401,8 @@ MessageGenerator.prototype = {
     // if it has any attachments, create a multipart/mixed to be the body and
     //  have it be the parent of the existing body and all the attachments
     if (aArgs.attachments) {
-      let parts = [bodyPart];
-      for (let attachDesc of aArgs.attachments) {
+      const parts = [bodyPart];
+      for (const attachDesc of aArgs.attachments) {
         parts.push(new SyntheticPartLeaf(attachDesc.body, attachDesc));
       }
       bodyPart = new SyntheticPartMultiMixed(parts);
@@ -1434,7 +1434,7 @@ MessageGenerator.prototype = {
       aOptions.body = {};
     }
     aOptions.body.contentType = 'application/pkcs7-mime; name="smime.p7m"';
-    let msg = this.makeMessage(aOptions);
+    const msg = this.makeMessage(aOptions);
     return msg;
   },
 
@@ -1457,7 +1457,7 @@ MessageGenerator.prototype = {
     }
     aOptions.body.contentType =
       'multipart/encrypted; protocol="application/pgp-encrypted"';
-    let msg = this.makeMessage(aOptions);
+    const msg = this.makeMessage(aOptions);
     return msg;
   },
 
@@ -1499,32 +1499,32 @@ MessageGenerator.prototype = {
    * - count: 10
    */
   makeMessages(aSetDef) {
-    let messages = [];
+    const messages = [];
 
-    let args = {};
+    const args = {};
     // zero out all the age_incr fields in age (if present)
     if (aSetDef.age_incr) {
       args.age = {};
-      for (let unit of Object.keys(aSetDef.age_incr)) {
+      for (const unit of Object.keys(aSetDef.age_incr)) {
         args.age[unit] = 0;
       }
     }
     // copy over the initial values from age (if present)
     if (aSetDef.age) {
       args.age = args.age || {};
-      for (let [unit, value] of Object.entries(aSetDef.age)) {
+      for (const [unit, value] of Object.entries(aSetDef.age)) {
         args.age[unit] = value;
       }
     }
     // just copy over any attributes found from MAKE_MESSAGES_PROPAGATE
-    for (let propAttrName of this.MAKE_MESSAGES_PROPAGATE) {
+    for (const propAttrName of this.MAKE_MESSAGES_PROPAGATE) {
       if (aSetDef[propAttrName]) {
         args[propAttrName] = aSetDef[propAttrName];
       }
     }
 
-    let count = aSetDef.count || this.MAKE_MESSAGES_DEFAULTS.count;
-    let messagsPerThread = aSetDef.msgsPerThread || 1;
+    const count = aSetDef.count || this.MAKE_MESSAGES_DEFAULTS.count;
+    const messagsPerThread = aSetDef.msgsPerThread || 1;
     let lastMessage = null;
     for (let iMsg = 0; iMsg < count; iMsg++) {
       // primitive threading support...
@@ -1537,7 +1537,7 @@ MessageGenerator.prototype = {
       messages.push(lastMessage);
 
       if (aSetDef.age_incr) {
-        for (let [unit, delta] of Object.entries(aSetDef.age_incr)) {
+        for (const [unit, delta] of Object.entries(aSetDef.age_incr)) {
           args.age[unit] += delta;
         }
       }
@@ -1573,7 +1573,7 @@ MessageScenarioFactory.prototype = {
   /** Create a chain of direct-reply messages of the given length. */
   directReply(aNumMessages) {
     aNumMessages = aNumMessages || 2;
-    let messages = [this._msgGen.makeMessage()];
+    const messages = [this._msgGen.makeMessage()];
     for (let i = 1; i < aNumMessages; i++) {
       messages.push(this._msgGen.makeMessage({ inReplyTo: messages[i - 1] }));
     }
@@ -1582,17 +1582,17 @@ MessageScenarioFactory.prototype = {
 
   /** Two siblings (present), one parent (missing). */
   siblingsMissingParent() {
-    let missingParent = this._msgGen.makeMessage();
-    let msg1 = this._msgGen.makeMessage({ inReplyTo: missingParent });
-    let msg2 = this._msgGen.makeMessage({ inReplyTo: missingParent });
+    const missingParent = this._msgGen.makeMessage();
+    const msg1 = this._msgGen.makeMessage({ inReplyTo: missingParent });
+    const msg2 = this._msgGen.makeMessage({ inReplyTo: missingParent });
     return [msg1, msg2];
   },
 
   /** Present parent, missing child, present grand-child. */
   missingIntermediary() {
-    let msg1 = this._msgGen.makeMessage();
-    let msg2 = this._msgGen.makeMessage({ inReplyTo: msg1 });
-    let msg3 = this._msgGen.makeMessage({ inReplyTo: msg2 });
+    const msg1 = this._msgGen.makeMessage();
+    const msg2 = this._msgGen.makeMessage({ inReplyTo: msg1 });
+    const msg3 = this._msgGen.makeMessage({ inReplyTo: msg2 });
     return [msg1, msg3];
   },
 
@@ -1602,12 +1602,12 @@ MessageScenarioFactory.prototype = {
    *  if aHeight is 2, the root and his aChildrePerParent children.)
    */
   fullPyramid(aChildrenPerParent, aHeight) {
-    let msgGen = this._msgGen;
-    let root = msgGen.makeMessage();
-    let messages = [root];
+    const msgGen = this._msgGen;
+    const root = msgGen.makeMessage();
+    const messages = [root];
     function helper(aParent, aRemDepth) {
       for (let iChild = 0; iChild < aChildrenPerParent; iChild++) {
-        let child = msgGen.makeMessage({ inReplyTo: aParent });
+        const child = msgGen.makeMessage({ inReplyTo: aParent });
         messages.push(child);
         if (aRemDepth) {
           helper(child, aRemDepth - 1);
@@ -1636,9 +1636,9 @@ MessageScenarioFactory.prototype = {
  *   This should probably be your prototype object.
  */
 function bindMethods(aObj) {
-  for (let [name, ubfunc] of Object.entries(aObj)) {
+  for (const [name, ubfunc] of Object.entries(aObj)) {
     // the variable binding needs to get captured...
-    let realFunc = ubfunc;
+    const realFunc = ubfunc;
     delete aObj[name];
     Object.defineProperty(aObj, name, {
       get() {

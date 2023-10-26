@@ -24,7 +24,7 @@ var gFolder1, gRootFolder;
 function addMessagesToServer(messages, mailbox) {
   // Create the ImapMessages and store them on the mailbox
   messages.forEach(function (message) {
-    let dataUri = Services.io.newURI(
+    const dataUri = Services.io.newURI(
       "data:text/plain;base64," + btoa(message.toMessageString())
     );
     mailbox.addMessage(new ImapMessage(dataUri.spec, mailbox.uidnext++, []));
@@ -44,14 +44,14 @@ add_setup(function () {
   gIMAPIncomingServer.maximumConnectionsNumber = 1;
 
   // We need an identity so that updateFolder doesn't fail
-  let localAccount = MailServices.accounts.createAccount();
-  let identity = MailServices.accounts.createIdentity();
+  const localAccount = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
   localAccount.addIdentity(identity);
   localAccount.defaultIdentity = identity;
   localAccount.incomingServer = localAccountUtils.incomingServer;
 
   // Let's also have another account, using the same identity
-  let imapAccount = MailServices.accounts.createAccount();
+  const imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(identity);
   imapAccount.defaultIdentity = identity;
   imapAccount.incomingServer = gIMAPIncomingServer;
@@ -72,15 +72,15 @@ add_setup(function () {
 
 add_setup(function () {
   // make 10 messages
-  let messageGenerator = new MessageGenerator();
-  let scenarioFactory = new MessageScenarioFactory(messageGenerator);
+  const messageGenerator = new MessageGenerator();
+  const scenarioFactory = new MessageScenarioFactory(messageGenerator);
 
   // build up a list of messages
   let messages = [];
   messages = messages.concat(scenarioFactory.directReply(10));
 
   // Add 10 messages with uids 1-10.
-  let imapInbox = gIMAPDaemon.getMailbox("INBOX");
+  const imapInbox = gIMAPDaemon.getMailbox("INBOX");
   addMessagesToServer(messages, imapInbox);
   messages = [];
   messages = messages.concat(messageGenerator.makeMessage());
@@ -96,19 +96,19 @@ add_setup(function () {
 
 add_task(async function doMoves() {
   // update folders to download headers.
-  let urlListenerInbox = new PromiseTestUtils.PromiseUrlListener();
+  const urlListenerInbox = new PromiseTestUtils.PromiseUrlListener();
   gIMAPInbox.updateFolderWithListener(null, urlListenerInbox);
   await urlListenerInbox.promise;
   gFolder1 = gRootFolder
     .getChildNamed("folder 1")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
-  let urlListenerFolder1 = new PromiseTestUtils.PromiseUrlListener();
+  const urlListenerFolder1 = new PromiseTestUtils.PromiseUrlListener();
   gFolder1.updateFolderWithListener(null, urlListenerFolder1);
   await urlListenerFolder1.promise;
   // get five messages to move from Inbox to folder 1.
   let headers1 = [];
   let count = 0;
-  for (let header of gIMAPInbox.msgDatabase.enumerateMessages()) {
+  for (const header of gIMAPInbox.msgDatabase.enumerateMessages()) {
     if (count >= 5) {
       break;
     }
@@ -118,7 +118,7 @@ add_task(async function doMoves() {
     count++;
   }
   // this will add dummy headers with keys > 0xffffff80
-  let copyListenerDummyHeaders = new PromiseTestUtils.PromiseCopyListener();
+  const copyListenerDummyHeaders = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     gIMAPInbox,
     headers1,
@@ -130,11 +130,12 @@ add_task(async function doMoves() {
   );
   await copyListenerDummyHeaders.promise;
 
-  let urlListenerInboxAfterDummy = new PromiseTestUtils.PromiseUrlListener();
+  const urlListenerInboxAfterDummy = new PromiseTestUtils.PromiseUrlListener();
   gIMAPInbox.updateFolderWithListener(null, urlListenerInboxAfterDummy);
   await urlListenerInboxAfterDummy.promise;
 
-  let urlListenerFolder1AfterDummy = new PromiseTestUtils.PromiseUrlListener();
+  const urlListenerFolder1AfterDummy =
+    new PromiseTestUtils.PromiseUrlListener();
   gFolder1.updateFolderWithListener(
     gDummyMsgWindow,
     urlListenerFolder1AfterDummy
@@ -146,7 +147,7 @@ add_task(async function doMoves() {
   Assert.equal(gFolder1.msgDatabase.dBFolderInfo.highWater, 6);
   headers1 = [];
   count = 0;
-  for (let header of gIMAPInbox.msgDatabase.enumerateMessages()) {
+  for (const header of gIMAPInbox.msgDatabase.enumerateMessages()) {
     if (count >= 5) {
       break;
     }
@@ -157,9 +158,9 @@ add_task(async function doMoves() {
   }
   // Check that copyMessages will handle having a high highwater mark.
   // It will thrown an exception if it can't.
-  let msgHdr = gFolder1.msgDatabase.createNewHdr(0xfffffffd);
+  const msgHdr = gFolder1.msgDatabase.createNewHdr(0xfffffffd);
   gFolder1.msgDatabase.addNewHdrToDB(msgHdr, false);
-  let copyListenerHighWater = new PromiseTestUtils.PromiseCopyListener();
+  const copyListenerHighWater = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     gIMAPInbox,
     headers1,
@@ -173,11 +174,12 @@ add_task(async function doMoves() {
   gServer.performTest("UID COPY");
 
   gFolder1.msgDatabase.deleteHeader(msgHdr, null, true, false);
-  let urlListenerInboxAfterDelete = new PromiseTestUtils.PromiseUrlListener();
+  const urlListenerInboxAfterDelete = new PromiseTestUtils.PromiseUrlListener();
   gIMAPInbox.updateFolderWithListener(null, urlListenerInboxAfterDelete);
   await urlListenerInboxAfterDelete.promise;
   // this should clear the dummy headers.
-  let urlListenerFolder1AfterDelete = new PromiseTestUtils.PromiseUrlListener();
+  const urlListenerFolder1AfterDelete =
+    new PromiseTestUtils.PromiseUrlListener();
   gFolder1.updateFolderWithListener(
     gDummyMsgWindow,
     urlListenerFolder1AfterDelete

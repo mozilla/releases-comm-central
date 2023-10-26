@@ -75,7 +75,7 @@ AbLDAPAttributeMap.prototype = {
 
   getAllCardAttributes() {
     var attrs = [];
-    for (let attrArray of Object.entries(this.mPropertyMap)) {
+    for (const attrArray of Object.entries(this.mPropertyMap)) {
       for (let attrName of attrArray) {
         attrName = attrName.toString().replace(/\[(\d+)\]$/, "");
         if (attrs.includes(attrName)) {
@@ -102,7 +102,7 @@ AbLDAPAttributeMap.prototype = {
 
   setFromPrefs(aPrefBranchName) {
     // get the right pref branch
-    let branch = Services.prefs.getBranch(aPrefBranchName + ".");
+    const branch = Services.prefs.getBranch(aPrefBranchName + ".");
 
     // get the list of children
     var children = branch.getChildList("");
@@ -171,7 +171,7 @@ AbLDAPAttributeMap.prototype = {
     var attrsSeen = [];
 
     for (var prop in this.mPropertyMap) {
-      let attrArray = this.mPropertyMap[prop];
+      const attrArray = this.mPropertyMap[prop];
       for (var attr of attrArray) {
         // multiple attributes that mapped to the empty string are permitted
         if (!attr.length) {

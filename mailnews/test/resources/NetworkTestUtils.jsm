@@ -168,12 +168,12 @@ SocksClient.prototype = {
     // At this point, we contact the local server on that port and then we feed
     // the data back and forth. Easiest way to do that is to open the connection
     // and use the async copy to do it in a background thread.
-    let sts = Cc["@mozilla.org/network/socket-transport-service;1"].getService(
-      Ci.nsISocketTransportService
-    );
-    let trans = sts.createTransport([], "localhost", foundPort, null, null);
-    let tunnelInput = trans.openInputStream(0, 1024, 1024);
-    let tunnelOutput = trans.openOutputStream(0, 1024, 1024);
+    const sts = Cc[
+      "@mozilla.org/network/socket-transport-service;1"
+    ].getService(Ci.nsISocketTransportService);
+    const trans = sts.createTransport([], "localhost", foundPort, null, null);
+    const tunnelInput = trans.openInputStream(0, 1024, 1024);
+    const tunnelOutput = trans.openOutputStream(0, 1024, 1024);
     this.sub_transport = trans;
     NetUtil.asyncCopy(tunnelInput, this.client_out);
     NetUtil.asyncCopy(this.client_in, tunnelOutput);
@@ -209,7 +209,7 @@ SocksTestServer.prototype = {
   onStopListening(socket) {},
 
   close() {
-    for (let client of this.client_connections) {
+    for (const client of this.client_connections) {
       client.close();
     }
     this.client_connections = [];
@@ -255,10 +255,10 @@ var NetworkTestUtils = {
       */
 
       // Until then, we'll serve the actual proxy via a proxy filter.
-      let pps = Cc["@mozilla.org/network/protocol-proxy-service;1"].getService(
-        Ci.nsIProtocolProxyService
-      );
-      let filter = {
+      const pps = Cc[
+        "@mozilla.org/network/protocol-proxy-service;1"
+      ].getService(Ci.nsIProtocolProxyService);
+      const filter = {
         QueryInterface: ChromeUtils.generateQI(["nsIProtocolProxyFilter"]),
         applyFilter(aURI, aProxyInfo, aCallback) {
           if (aURI.host != "localhost" && aURI.host != "127.0.0.1") {

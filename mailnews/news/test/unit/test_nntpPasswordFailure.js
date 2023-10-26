@@ -68,7 +68,7 @@ add_setup(function () {
 
 add_task(async function getMail1() {
   // Now get mail.
-  let urlListener = new PromiseTestUtils.PromiseUrlListener({
+  const urlListener = new PromiseTestUtils.PromiseUrlListener({
     OnStopRunningUrl(url, result) {
       // On the last attempt, we should have successfully got one mail.
       Assert.equal(folder.getTotalMessages(false), attempt == 4 ? 1 : 0);
@@ -99,7 +99,7 @@ add_task(async function getMail1() {
 });
 
 add_task(async function getMail2() {
-  let urlListener = new PromiseTestUtils.PromiseUrlListener({
+  const urlListener = new PromiseTestUtils.PromiseUrlListener({
     OnStopRunningUrl(url, result) {
       // On the last attempt, we should have successfully got one mail.
       Assert.equal(folder.getTotalMessages(false), attempt == 4 ? 1 : 0);

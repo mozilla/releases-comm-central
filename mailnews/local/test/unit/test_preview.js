@@ -15,7 +15,7 @@ function copy_next_message(aMessageHeaderKeys, aStatus) {
 }
 
 function test_preview(aMessageHeaderKeys, aStatus) {
-  let headerKeys = aMessageHeaderKeys;
+  const headerKeys = aMessageHeaderKeys;
   Assert.notEqual(headerKeys, null);
   Assert.equal(headerKeys.length, 2);
   try {

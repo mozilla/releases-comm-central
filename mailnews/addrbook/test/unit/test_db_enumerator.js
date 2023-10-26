@@ -15,7 +15,7 @@ function bug_537815_fixture_setup() {
   let i, key;
 
   for (i = 1; i <= max_addressbooks; i++) {
-    let ab_name = ab_prefix + i;
+    const ab_name = ab_prefix + i;
     MailServices.ab.newAddressBook(
       ab_name,
       "",
@@ -24,9 +24,9 @@ function bug_537815_fixture_setup() {
     dump("created: " + ab_name + "\n");
 
     for (var j = 1; j < 2; j++) {
-      for (let elem of MailServices.ab.directories) {
-        let uri = elem.URI;
-        let dir = MailServices.ab.getDirectory(uri);
+      for (const elem of MailServices.ab.directories) {
+        const uri = elem.URI;
+        const dir = MailServices.ab.getDirectory(uri);
 
         dump("considering: j: " + j + " " + elem.dirName + "\n");
 
@@ -50,12 +50,12 @@ function bug_537815_fixture_setup() {
 }
 
 function bug_537815_test() {
-  for (let elem of MailServices.ab.directories) {
-    let uri = elem.URI;
-    let dir = MailServices.ab.getDirectory(uri);
+  for (const elem of MailServices.ab.directories) {
+    const uri = elem.URI;
+    const dir = MailServices.ab.getDirectory(uri);
     if (elem.dirName.startsWith(ab_prefix)) {
-      for (let abCard of dir.childCards) {
-        for (let key in card_properties) {
+      for (const abCard of dir.childCards) {
+        for (const key in card_properties) {
           abCard.getProperty(key, null);
         }
       }
@@ -71,15 +71,15 @@ function test_bug_537815() {
 }
 
 function bug_537815_fixture_tear_down() {
-  let a_uri = {};
-  for (let elem of MailServices.ab.directories) {
+  const a_uri = {};
+  for (const elem of MailServices.ab.directories) {
     if (elem.dirName.startsWith(ab_prefix)) {
       a_uri[elem.URI] = true;
       dump("to be deleted: " + elem.dirName + "\n");
     }
   }
 
-  for (let uri in a_uri) {
+  for (const uri in a_uri) {
     MailServices.ab.deleteAddressBook(uri);
   }
 }

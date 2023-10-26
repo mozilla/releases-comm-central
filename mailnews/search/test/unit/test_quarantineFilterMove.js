@@ -28,10 +28,10 @@ var gTestArray = [
   function createFilters() {
     gFilterList = gPOP3Pump.fakeServer.getFilterList(null);
     gFilter = gFilterList.createFilter("MoveAll");
-    let searchTerm = gFilter.createTerm();
+    const searchTerm = gFilter.createTerm();
     searchTerm.matchAll = true;
     gFilter.appendTerm(searchTerm);
-    let moveAction = gFilter.createAction();
+    const moveAction = gFilter.createAction();
     moveAction.type = Ci.nsMsgFilterAction.MoveToFolder;
     moveAction.targetFolderUri = gMoveFolder.URI;
     gFilter.appendAction(moveAction);
@@ -42,11 +42,11 @@ var gTestArray = [
   // just get a message into the local folder
   async function getLocalMessages1() {
     gPOP3Pump.files = gFiles;
-    let promise1 = PromiseTestUtils.promiseFolderNotification(
+    const promise1 = PromiseTestUtils.promiseFolderNotification(
       gMoveFolder,
       "msgsClassified"
     );
-    let promise2 = gPOP3Pump.run();
+    const promise2 = gPOP3Pump.run();
     await Promise.all([promise1, promise2]);
   },
   async function verifyFolders1() {
@@ -55,9 +55,9 @@ var gTestArray = [
     // operation was a move
     Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
 
-    let msgs = [...gMoveFolder.msgDatabase.enumerateMessages()];
-    let firstMsgHdr = msgs[0];
-    let secondMsgHdr = msgs[1];
+    const msgs = [...gMoveFolder.msgDatabase.enumerateMessages()];
+    const firstMsgHdr = msgs[0];
+    const secondMsgHdr = msgs[1];
     // Check that the messages have content
     let messageContent = await getContentFromMessage(firstMsgHdr);
     Assert.ok(
@@ -71,10 +71,10 @@ var gTestArray = [
     );
   },
   async function copyMovedMessages() {
-    let msgs = [...gMoveFolder.msgDatabase.enumerateMessages()];
-    let firstMsgHdr = msgs[0];
-    let secondMsgHdr = msgs[1];
-    let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+    const msgs = [...gMoveFolder.msgDatabase.enumerateMessages()];
+    const firstMsgHdr = msgs[0];
+    const secondMsgHdr = msgs[1];
+    const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
     MailServices.copy.copyMessages(
       gMoveFolder,
       [firstMsgHdr, secondMsgHdr],
@@ -84,7 +84,7 @@ var gTestArray = [
       null,
       false
     );
-    let promiseMoveMsg = PromiseTestUtils.promiseFolderEvent(
+    const promiseMoveMsg = PromiseTestUtils.promiseFolderEvent(
       gMoveFolder,
       "DeleteOrMoveMsgCompleted"
     );
@@ -93,9 +93,9 @@ var gTestArray = [
   async function verifyFolders2() {
     Assert.equal(folderCount(gMoveFolder2), 2);
 
-    let msgs = [...gMoveFolder2.msgDatabase.enumerateMessages()];
-    let firstMsgHdr = msgs[0];
-    let secondMsgHdr = msgs[1];
+    const msgs = [...gMoveFolder2.msgDatabase.enumerateMessages()];
+    const firstMsgHdr = msgs[0];
+    const secondMsgHdr = msgs[1];
     // Check that the messages have content
     let messageContent = await getContentFromMessage(firstMsgHdr);
     Assert.ok(
@@ -144,11 +144,11 @@ function run_test() {
  * @returns {Promise<string>} full message contents.
  */
 function getContentFromMessage(aMsgHdr) {
-  let msgFolder = aMsgHdr.folder;
-  let msgUri = msgFolder.getUriForMsg(aMsgHdr);
+  const msgFolder = aMsgHdr.folder;
+  const msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
   return new Promise((resolve, reject) => {
-    let streamListener = {
+    const streamListener = {
       QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
       sis: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
         Ci.nsIScriptableInputStream

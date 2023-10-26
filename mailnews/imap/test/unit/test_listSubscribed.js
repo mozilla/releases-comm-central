@@ -43,7 +43,7 @@ add_setup(async function () {
   IMAPPump.daemon.createMailbox("folder3", {});
 
   // select the inbox to force folder discovery, etc.
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
@@ -52,13 +52,13 @@ add_setup(async function () {
 add_task(async function testListSubscribed() {
   // check that we have \Noselect and \Noinferiors flags - these would not have
   // been returned if we had used LSUB instead of LIST(SUBSCRIBED)
-  let rootFolder = IMAPPump.incomingServer.rootFolder;
-  let folder1 = rootFolder.getChildNamed("folder1");
+  const rootFolder = IMAPPump.incomingServer.rootFolder;
+  const folder1 = rootFolder.getChildNamed("folder1");
   Assert.ok(folder1.getFlag(Ci.nsMsgFolderFlags.ImapNoselect));
   Assert.ok(!folder1.getFlag(Ci.nsMsgFolderFlags.ImapNoinferiors));
 
   // make sure the above test was not a fluke
-  let folder11 = folder1.getChildNamed("folder11");
+  const folder11 = folder1.getChildNamed("folder11");
   Assert.ok(!folder11.getFlag(Ci.nsMsgFolderFlags.ImapNoselect));
   Assert.ok(folder11.getFlag(Ci.nsMsgFolderFlags.ImapNoinferiors));
 
@@ -83,7 +83,7 @@ add_task(async function testZimbraServerVersions() {
   // older versions of Zimbra can crash if we send LIST (SUBSCRIBED) so we want
   // to make sure that we are checking for versions
 
-  let testValues = [
+  const testValues = [
     { version: "6.3.1_GA_2790", expectedResult: false },
     { version: "7.2.2_GA_2790", expectedResult: false },
     { version: "7.2.3_GA_2790", expectedResult: true },
@@ -104,12 +104,12 @@ add_task(async function testZimbraServerVersions() {
     IMAPPump.incomingServer.closeCachedConnections();
     IMAPPump.incomingServer.performExpand(null);
     // select inbox is just to wait on performExpand since performExpand does not have listener
-    let listener = new PromiseTestUtils.PromiseUrlListener();
+    const listener = new PromiseTestUtils.PromiseUrlListener();
     IMAPPump.inbox.updateFolderWithListener(null, listener);
     await listener.promise;
     // if we send LSUB instead of LIST(SUBSCRIBED), then we should not have \NoSelect flag
-    let rootFolder = IMAPPump.incomingServer.rootFolder;
-    let folder1 = rootFolder.getChildNamed("folder1");
+    const rootFolder = IMAPPump.incomingServer.rootFolder;
+    const folder1 = rootFolder.getChildNamed("folder1");
     Assert.equal(
       folder1.getFlag(Ci.nsMsgFolderFlags.ImapNoselect),
       testValues[i].expectedResult

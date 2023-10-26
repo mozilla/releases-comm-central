@@ -96,7 +96,7 @@ add_task(async function () {
     smtpServer.socketType = Ci.nsMsgSocketType.plain;
     smtpServer.username = kUsername;
 
-    let urlListener = new PromiseTestUtils.PromiseUrlListener();
+    const urlListener = new PromiseTestUtils.PromiseUrlListener();
     MailServices.smtp.sendMailMessage(
       testFile,
       kTo,

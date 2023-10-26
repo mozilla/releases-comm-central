@@ -23,7 +23,7 @@ Services.prefs.setCharPref(
 
 add_task(async function runPump() {
   // Test for multiple message copy for maildir.
-  let storeID = "@mozilla.org/msgstore/maildirstore;1";
+  const storeID = "@mozilla.org/msgstore/maildirstore;1";
   gPOP3Pump.resetPluggableStore(storeID);
   // Set the default mailbox store.
   Services.prefs.setCharPref("mail.serverDefaultStoreContractID", storeID);
@@ -35,7 +35,7 @@ add_task(async function runPump() {
   await gPOP3Pump.run();
 
   // get message headers for the inbox folder
-  let inbox = gPOP3Pump.fakeServer.rootMsgFolder.getFolderWithFlags(
+  const inbox = gPOP3Pump.fakeServer.rootMsgFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Inbox
   );
   dump("inbox is at " + inbox.filePath.path + "\n");
@@ -43,7 +43,7 @@ add_task(async function runPump() {
   // Accumulate messages to copy.
   let messages = [];
   let msgCount = 0;
-  for (let hdr of inbox.msgDatabase.enumerateMessages()) {
+  for (const hdr of inbox.msgDatabase.enumerateMessages()) {
     msgCount++;
     messages.push(hdr);
     Assert.equal(hdr.subject, testSubjects[msgCount - 1]);
@@ -51,13 +51,13 @@ add_task(async function runPump() {
   Assert.equal(messages.length, 2);
 
   // Create a test folder on the Local Folders account.
-  let testFolder = localAccountUtils.rootFolder
+  const testFolder = localAccountUtils.rootFolder
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
     .createLocalSubfolder("test");
   dump("testFolder is at " + testFolder.filePath.path + "\n");
 
   // Copy messages to that folder.
-  let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+  const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     inbox,
     messages,
@@ -72,8 +72,8 @@ add_task(async function runPump() {
   // Check the destination headers.
   messages = [];
   msgCount = 0;
-  let subjects = [];
-  for (let hdr of testFolder.msgDatabase.enumerateMessages()) {
+  const subjects = [];
+  for (const hdr of testFolder.msgDatabase.enumerateMessages()) {
     msgCount++;
     messages.push(hdr);
     dump("Subject: " + hdr.subject + "\n");
@@ -83,13 +83,13 @@ add_task(async function runPump() {
 
   // Check for subjects. maildir order for messages may not match
   // order for creation, hence the array.includes.
-  for (let subject of testSubjects) {
+  for (const subject of testSubjects) {
     Assert.ok(subjects.includes(subject));
   }
 
   // Make sure the body matches the message.
-  for (let hdr of testFolder.msgDatabase.enumerateMessages()) {
-    let body = mailTestUtils.loadMessageToString(testFolder, hdr);
+  for (const hdr of testFolder.msgDatabase.enumerateMessages()) {
+    const body = mailTestUtils.loadMessageToString(testFolder, hdr);
     Assert.ok(body.includes(hdr.subject));
   }
 

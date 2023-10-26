@@ -6,7 +6,7 @@ const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-let server = setupServerDaemon();
+const server = setupServerDaemon();
 server.start();
 registerCleanupFunction(() => {
   server.stop();
@@ -18,14 +18,14 @@ registerCleanupFunction(() => {
  */
 add_task(async function testAbort() {
   server.resetTest();
-  let smtpServer = getBasicSmtpServer(server.port);
-  let identity = getSmtpIdentity("identity@foo.invalid", smtpServer);
+  const smtpServer = getBasicSmtpServer(server.port);
+  const identity = getSmtpIdentity("identity@foo.invalid", smtpServer);
   // Set to always use STARTTLS.
   smtpServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
 
   do_test_pending();
 
-  let urlListener = {
+  const urlListener = {
     OnStartRunningUrl(url) {},
     OnStopRunningUrl(url, status) {
       // Test sending is aborted with NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS.
@@ -35,7 +35,7 @@ add_task(async function testAbort() {
   };
 
   // Send a message.
-  let testFile = do_get_file("data/message1.eml");
+  const testFile = do_get_file("data/message1.eml");
   MailServices.smtp.sendMailMessage(
     testFile,
     "to@foo.invalid",
@@ -58,15 +58,15 @@ add_task(async function testAbort() {
  */
 add_task(async function testClientIdentityExtension() {
   server.resetTest();
-  let smtpServer = getBasicSmtpServer(server.port);
-  let identity = getSmtpIdentity("identity@foo.invalid", smtpServer);
+  const smtpServer = getBasicSmtpServer(server.port);
+  const identity = getSmtpIdentity("identity@foo.invalid", smtpServer);
   // Enable and set clientid to the smtp server.
   smtpServer.clientidEnabled = true;
   smtpServer.clientid = "uuid-111";
 
   // Send a message.
-  let asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  let testFile = do_get_file("data/message1.eml");
+  const asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const testFile = do_get_file("data/message1.eml");
   MailServices.smtp.sendMailMessage(
     testFile,
     "to@foo.invalid",
@@ -85,7 +85,7 @@ add_task(async function testClientIdentityExtension() {
   await asyncUrlListener.promise;
 
   // Check CLIENTID command is sent.
-  let transaction = server.playTransaction();
+  const transaction = server.playTransaction();
   do_check_transaction(transaction, [
     "EHLO test",
     "CLIENTID UUID uuid-111",
@@ -101,12 +101,12 @@ add_task(async function testClientIdentityExtension() {
  */
 add_task(async function testDeduplicateRecipients() {
   server.resetTest();
-  let smtpServer = getBasicSmtpServer(server.port);
-  let identity = getSmtpIdentity("identity@foo.invalid", smtpServer);
+  const smtpServer = getBasicSmtpServer(server.port);
+  const identity = getSmtpIdentity("identity@foo.invalid", smtpServer);
 
   // Send a message, notice to1 appears twice in the recipients argument.
-  let asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  let testFile = do_get_file("data/message1.eml");
+  const asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const testFile = do_get_file("data/message1.eml");
   MailServices.smtp.sendMailMessage(
     testFile,
     "to1@foo.invalid,to2@foo.invalid,to1@foo.invalid",
@@ -125,7 +125,7 @@ add_task(async function testDeduplicateRecipients() {
   await asyncUrlListener.promise;
 
   // Check only one RCPT TO is sent for to1.
-  let transaction = server.playTransaction();
+  const transaction = server.playTransaction();
   do_check_transaction(transaction, [
     "EHLO test",
     "MAIL FROM:<from@foo.invalid> BODY=8BITMIME SIZE=159",

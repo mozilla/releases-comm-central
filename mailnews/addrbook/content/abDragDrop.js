@@ -45,27 +45,27 @@ var abFlavorDataProvider = {
   },
 };
 
-let abResultsPaneObserver = {
+const abResultsPaneObserver = {
   onDragStart(event) {
-    let selectedRows = GetSelectedRows();
+    const selectedRows = GetSelectedRows();
 
     if (!selectedRows) {
       return;
     }
 
-    let selectedAddresses = GetSelectedAddresses();
+    const selectedAddresses = GetSelectedAddresses();
 
     event.dataTransfer.setData("moz/abcard", selectedRows);
     event.dataTransfer.setData("moz/abcard", selectedRows);
     event.dataTransfer.setData("text/x-moz-address", selectedAddresses);
     event.dataTransfer.setData("text/plain", selectedAddresses);
 
-    let card = GetSelectedCard();
+    const card = GetSelectedCard();
     if (card && card.displayName && !card.isMailList) {
       try {
         // A card implementation may throw NS_ERROR_NOT_IMPLEMENTED.
         // Don't break drag-and-drop if that happens.
-        let vCard = card.translateTo("vcard");
+        const vCard = card.translateTo("vcard");
         event.dataTransfer.setData("text/vcard", decodeURIComponent(vCard));
         event.dataTransfer.setData(
           "application/x-moz-file-promise-dest-filename",

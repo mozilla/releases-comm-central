@@ -33,7 +33,7 @@ Services.prefs.setCharPref(kDatastoreIDPref, kOriginalDatastoreID);
  */
 add_task(function test_corrupt_databases_get_reported_and_blown_away() {
   // - Get the file path.
-  let dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  const dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   dbFile.append("global-messages-db.sqlite");
 
   // - Protect dangerous people from themselves.
@@ -47,11 +47,11 @@ add_task(function test_corrupt_databases_get_reported_and_blown_away() {
 
   // - Create the file.
   dump("Creating gibberish file\n");
-  let ostream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
-    Ci.nsIFileOutputStream
-  );
+  const ostream = Cc[
+    "@mozilla.org/network/file-output-stream;1"
+  ].createInstance(Ci.nsIFileOutputStream);
   ostream.init(dbFile, -1, -1, 0);
-  let fileContents = "I'm in ur database not being a database.\n";
+  const fileContents = "I'm in ur database not being a database.\n";
   ostream.write(fileContents, fileContents.length);
   ostream.close();
 
@@ -63,14 +63,14 @@ add_task(function test_corrupt_databases_get_reported_and_blown_away() {
   dump("Gloda inited, checking\n");
 
   // - Make sure the datastore has an actual database.
-  let { GlodaDatastore } = ChromeUtils.import(
+  const { GlodaDatastore } = ChromeUtils.import(
     "resource:///modules/gloda/GlodaDatastore.jsm"
   );
 
   // Make sure that the datastoreID was overwritten
   Assert.notEqual(Gloda.datastoreID, kOriginalDatastoreID);
   // And for good measure, make sure that the pref was also overwritten
-  let currentDatastoreID = Services.prefs.getCharPref(kDatastoreIDPref);
+  const currentDatastoreID = Services.prefs.getCharPref(kDatastoreIDPref);
   Assert.notEqual(currentDatastoreID, kOriginalDatastoreID);
   // We'll also ensure that the Gloda.datastoreID matches the one stashed
   // in prefs...

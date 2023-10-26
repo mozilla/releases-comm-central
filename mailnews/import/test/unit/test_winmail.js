@@ -165,7 +165,7 @@ function _test(registry) {
 }
 
 function teardown() {
-  for (let server of MailServices.smtp.servers) {
+  for (const server of MailServices.smtp.servers) {
     MailServices.smtp.deleteServer(server);
   }
 
@@ -173,6 +173,6 @@ function teardown() {
 }
 
 function run_test() {
-  let root = do_get_file("resources/WindowsLiveMail");
+  const root = do_get_file("resources/WindowsLiveMail");
   _test(new WinLiveMailRegistry(root.path));
 }

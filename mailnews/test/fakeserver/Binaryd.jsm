@@ -89,17 +89,17 @@ class BinaryServer {
       );
     }
 
-    let socket = new ServerSocket(
+    const socket = new ServerSocket(
       port,
       true, // Loopback only.
       -1 // Default max pending connections.
     );
 
-    let server = this;
+    const server = this;
 
     socket.asyncListen({
       async onSocketAccepted(socket, transport) {
-        let conn = new Connection(transport);
+        const conn = new Connection(transport);
         server._connections.add(conn);
         try {
           await server._handlerFn(conn, server._daemon);
@@ -162,7 +162,7 @@ class Connection {
   constructor(transport) {
     this._transport = transport;
     this._input = transport.openInputStream(0, 0, 0);
-    let outStream = transport.openOutputStream(0, 0, 0);
+    const outStream = transport.openOutputStream(0, 0, 0);
     this._output = new BinaryOutputStream(outStream);
   }
 
@@ -197,10 +197,10 @@ class Connection {
    * @returns {Array.<number>} - An array containing the requested bytes.
    */
   async read(nBytes) {
-    let conn = this;
-    let buf = [];
+    const conn = this;
+    const buf = [];
     while (buf.length < nBytes) {
-      let want = nBytes - buf.length;
+      const want = nBytes - buf.length;
       // A slightly odd-looking construct to wrap the listener-based
       // asyncwait() into a javascript async function.
       await new Promise((resolve, reject) => {
@@ -219,7 +219,7 @@ class Connection {
                 if (n > want) {
                   n = want;
                 }
-                let chunk = new BinaryInputStream(stream).readByteArray(n);
+                const chunk = new BinaryInputStream(stream).readByteArray(n);
                 Array.prototype.push.apply(buf, chunk);
                 resolve();
               },

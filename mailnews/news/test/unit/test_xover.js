@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let daemon = setupNNTPDaemon();
-let server = makeServer(NNTP_RFC2980_handler, daemon);
+const daemon = setupNNTPDaemon();
+const server = makeServer(NNTP_RFC2980_handler, daemon);
 server.start();
 registerCleanupFunction(() => {
   server.stop();
 });
 
-let incomingServer = setupLocalServer(server.port);
+const incomingServer = setupLocalServer(server.port);
 
 /**
  * Test nsIDBFolderInfo.knownArtsSet is correctly updated after XOVER response.
@@ -22,10 +22,10 @@ add_task(function test_updateKnownKeySetAfterXOver() {
   daemon.removeArticleFromGroup("test.filter", 6);
 
   // Trigger a get new messages request.
-  let prefix = "news://localhost:" + server.port + "/";
+  const prefix = "news://localhost:" + server.port + "/";
   setupProtocolTest(server.port, prefix + "test.filter", incomingServer);
   server.performTest();
-  let transaction = server.playTransaction();
+  const transaction = server.playTransaction();
 
   // Test XOVER was sent correctly.
   do_check_transaction(transaction, [
@@ -35,8 +35,8 @@ add_task(function test_updateKnownKeySetAfterXOver() {
   ]);
 
   // Test knownArtsSet was updated correctly.
-  let folder = incomingServer.rootFolder.getChildNamed("test.filter");
-  let groupInfo = folder.msgDatabase.dBFolderInfo;
+  const folder = incomingServer.rootFolder.getChildNamed("test.filter");
+  const groupInfo = folder.msgDatabase.dBFolderInfo;
   // knownArtsSet should be "1-8", not "1-4,7-8".
   equal(groupInfo.knownArtsSet, "1-8");
 });

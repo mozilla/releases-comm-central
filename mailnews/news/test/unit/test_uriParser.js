@@ -189,12 +189,12 @@ var invalid_uris = [
 function run_test() {
   // We're not running the server, just setting it up
   localserver = setupLocalServer(119);
-  for (let test of tests) {
+  for (const test of tests) {
     dump("Checking URL " + test.uri + "\n");
-    let url = Services.io.newURI(test.uri);
+    const url = Services.io.newURI(test.uri);
     url.QueryInterface(Ci.nsIMsgMailNewsUrl);
     url.QueryInterface(Ci.nsINntpUrl);
-    for (let prop in test) {
+    for (const prop in test) {
       if (prop == "uri") {
         continue;
       }
@@ -202,7 +202,7 @@ function run_test() {
     }
   }
 
-  for (let fail of invalid_uris) {
+  for (const fail of invalid_uris) {
     try {
       dump("Checking URL " + fail + " for failure\n");
       Services.io.newURI(fail);
@@ -214,7 +214,7 @@ function run_test() {
 
   // The password migration is async, so trigger an event to prevent the logon
   // manager from trying to migrate after shutdown has started.
-  let thread = Services.tm.currentThread;
+  const thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

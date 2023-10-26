@@ -46,7 +46,7 @@ var uniqueCounter = 0;
 var messageInjection;
 
 add_setup(async function () {
-  let msgGen = new MessageGenerator();
+  const msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   glodaTestHelperInitialize(messageInjection);
 });
@@ -56,8 +56,8 @@ add_setup(async function () {
  *  need to test all the permutations
  */
 add_task(async function test_fulltext_weighting_by_column() {
-  let ustr = unique_string();
-  let [, subjSet, bodySet] = await messageInjection.makeFoldersWithSets(1, [
+  const ustr = unique_string();
+  const [, subjSet, bodySet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1, subject: ustr },
     { count: 1, body: { body: ustr } },
   ]);
@@ -72,10 +72,10 @@ add_task(async function test_fulltext_weighting_by_column() {
  * body does not saturate until 10, each worth 1.0.)
  */
 add_task(async function test_fulltext_weighting_saturation() {
-  let ustr = unique_string();
-  let double_ustr = ustr + " " + ustr;
-  let thrice_ustr = ustr + " " + ustr + " " + ustr;
-  let [, subjSet, bodySet] = await messageInjection.makeFoldersWithSets(1, [
+  const ustr = unique_string();
+  const double_ustr = ustr + " " + ustr;
+  const thrice_ustr = ustr + " " + ustr + " " + ustr;
+  const [, subjSet, bodySet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1, subject: double_ustr },
     { count: 1, body: { body: thrice_ustr } },
   ]);
@@ -90,11 +90,14 @@ add_task(async function test_fulltext_weighting_saturation() {
  * message be the older message for safety.
  */
 add_task(async function test_static_interestingness_boost_works() {
-  let ustr = unique_string();
-  let [, starred, notStarred] = await messageInjection.makeFoldersWithSets(1, [
-    { count: 1, subject: ustr },
-    { count: 1, subject: ustr },
-  ]);
+  const ustr = unique_string();
+  const [, starred, notStarred] = await messageInjection.makeFoldersWithSets(
+    1,
+    [
+      { count: 1, subject: ustr },
+      { count: 1, subject: ustr },
+    ]
+  );
   // Index in their native state.
   await waitForGlodaIndexer();
   Assert.ok(...assertExpectedMessagesIndexed([starred, notStarred]));
@@ -110,8 +113,8 @@ add_task(async function test_static_interestingness_boost_works() {
  * Make sure that the query does not retrieve more than actually matches.
  */
 add_task(async function test_joins_do_not_return_everybody() {
-  let ustr = unique_string();
-  let [, subjSet] = await messageInjection.makeFoldersWithSets(1, [
+  const ustr = unique_string();
+  const [, subjSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1, subject: ustr },
   ]);
   await waitForGlodaIndexer();
@@ -125,8 +128,8 @@ add_task(async function test_joins_do_not_return_everybody() {
  * collapses things.
  */
 function unique_string() {
-  let uval = uniqueCounter++;
-  let s =
+  const uval = uniqueCounter++;
+  const s =
     String.fromCharCode(97 + Math.floor(uval / (26 * 26))) +
     String.fromCharCode(97 + (Math.floor(uval / 26) % 26)) +
     String.fromCharCode(97 + (uval % 26)) +
@@ -148,8 +151,8 @@ function unique_string() {
  *  await asyncMsgSearchExpect("foo bar", someSynMsgSet);
  */
 async function asyncMsgSearcherExpect(aFulltextStr, aExpectedSet, aLimit) {
-  let limit = aLimit ? aLimit : 1;
+  const limit = aLimit ? aLimit : 1;
   Services.prefs.setIntPref("mailnews.database.global.search.msg.limit", limit);
-  let searcher = new GlodaMsgSearcher(null, aFulltextStr);
+  const searcher = new GlodaMsgSearcher(null, aFulltextStr);
   await queryExpect(searcher.buildFulltextQuery(), aExpectedSet);
 }

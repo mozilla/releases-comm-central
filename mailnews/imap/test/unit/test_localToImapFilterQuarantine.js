@@ -34,24 +34,24 @@ add_setup(function () {
 });
 
 add_task(async function createSubfolder() {
-  let folderAddedListener = PromiseTestUtils.promiseFolderAdded("subfolder");
+  const folderAddedListener = PromiseTestUtils.promiseFolderAdded("subfolder");
   IMAPPump.incomingServer.rootFolder.createSubfolder("subfolder", null);
   await folderAddedListener;
   gSubfolder = IMAPPump.incomingServer.rootFolder.getChildNamed("subfolder");
   Assert.ok(gSubfolder instanceof Ci.nsIMsgImapMailFolder);
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gSubfolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function getLocalMessages() {
   // setup copy then move mail filters on the inbox
-  let filterList = gPOP3Pump.fakeServer.getFilterList(null);
-  let filter = filterList.createFilter("copyThenMoveAll");
-  let searchTerm = filter.createTerm();
+  const filterList = gPOP3Pump.fakeServer.getFilterList(null);
+  const filter = filterList.createFilter("copyThenMoveAll");
+  const searchTerm = filter.createTerm();
   searchTerm.matchAll = true;
   filter.appendTerm(searchTerm);
-  let copyAction = filter.createAction();
+  const copyAction = filter.createAction();
   copyAction.type = Ci.nsMsgFilterAction.CopyToFolder;
   copyAction.targetFolderUri = gSubfolder.URI;
   filter.appendAction(copyAction);
@@ -59,7 +59,7 @@ add_task(async function getLocalMessages() {
   filterList.insertFilterAt(0, filter);
 
   let resolveDone;
-  let promise = new Promise(resolve => {
+  const promise = new Promise(resolve => {
     resolveDone = resolve;
   });
   gPOP3Pump.files = ["../../../data/bugmail1"];
@@ -69,8 +69,8 @@ add_task(async function getLocalMessages() {
 });
 
 add_task(async function updateSubfolderAndTest() {
-  let listener = new PromiseTestUtils.PromiseUrlListener();
-  let folderLoaded = PromiseTestUtils.promiseFolderEvent(
+  const listener = new PromiseTestUtils.PromiseUrlListener();
+  const folderLoaded = PromiseTestUtils.promiseFolderEvent(
     gSubfolder,
     "FolderLoaded"
   );
@@ -84,7 +84,7 @@ add_task(async function updateSubfolderAndTest() {
 
 add_task(async function get2Messages() {
   let resolveDone;
-  let promise = new Promise(resolve => {
+  const promise = new Promise(resolve => {
     resolveDone = resolve;
   });
   gPOP3Pump.files = ["../../../data/bugmail10", "../../../data/draft1"];
@@ -94,8 +94,8 @@ add_task(async function get2Messages() {
 });
 
 add_task(async function updateSubfolderAndTest2() {
-  let listener = new PromiseTestUtils.PromiseUrlListener();
-  let folderLoaded = PromiseTestUtils.promiseFolderEvent(
+  const listener = new PromiseTestUtils.PromiseUrlListener();
+  const folderLoaded = PromiseTestUtils.promiseFolderEvent(
     gSubfolder,
     "FolderLoaded"
   );

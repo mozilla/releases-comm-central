@@ -23,7 +23,7 @@ add_task(async function runPump() {
 
   // get message headers for the inbox folder
   var msgCount = 0;
-  for (let hdr of localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()) {
+  for (const hdr of localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()) {
     msgCount++;
     Assert.equal(hdr.subject, testSubjects[msgCount - 1]);
   }

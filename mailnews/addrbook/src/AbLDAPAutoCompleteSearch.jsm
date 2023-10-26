@@ -115,7 +115,7 @@ AbLDAPAutoCompleteSearch.prototype = {
   },
 
   _addToResult(card, address) {
-    let mbox = this._parser.makeMailboxObject(
+    const mbox = this._parser.makeMailboxObject(
       card.displayName,
       card.isMailList
         ? card.getProperty("Notes", "") || card.displayName
@@ -125,7 +125,7 @@ AbLDAPAutoCompleteSearch.prototype = {
       return;
     }
 
-    let emailAddress = mbox.toString();
+    const emailAddress = mbox.toString();
 
     // If it is a duplicate, then just return and don't add it. The
     // _checkDuplicate function deals with it all for us.
@@ -171,8 +171,8 @@ AbLDAPAutoCompleteSearch.prototype = {
   // nsIAutoCompleteSearch
 
   startSearch(aSearchString, aParam, aPreviousResult, aListener) {
-    let params = JSON.parse(aParam) || {};
-    let applicable =
+    const params = JSON.parse(aParam) || {};
+    const applicable =
       !("type" in params) || this.applicableHeaders.has(params.type);
 
     this._result = new nsAbLDAPAutoCompleteResult(aSearchString);
@@ -340,7 +340,7 @@ AbLDAPAutoCompleteSearch.prototype = {
       return;
     }
 
-    for (let emailAddress of aCard.emailAddresses) {
+    for (const emailAddress of aCard.emailAddresses) {
       this._addToResult(aCard, emailAddress);
     }
 

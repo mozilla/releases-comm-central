@@ -57,7 +57,7 @@ async function waitForGlodaDBFlush() {
   }
 
   let promiseResolve;
-  let promise = new Promise(resolve => {
+  const promise = new Promise(resolve => {
     promiseResolve = resolve;
   });
   GlodaDatastore.runPostCommit(promiseResolve);
@@ -128,7 +128,7 @@ async function waitForIndexingHang() {
  *   You must omit hangWhile if you use injectFaultIn.
  */
 function configureGlodaIndexing(aArgs) {
-  let shouldSuppress = "event" in aArgs ? !aArgs.event : false;
+  const shouldSuppress = "event" in aArgs ? !aArgs.event : false;
   if (shouldSuppress != GlodaIndexer.suppressIndexing) {
     log.debug(`Setting suppress indexing to ${shouldSuppress}.`);
     GlodaIndexer.suppressIndexing = shouldSuppress;
@@ -182,7 +182,7 @@ async function resumeFromSimulatedHang(aJustResumeExecution) {
     log.debug("Resuming from simulated hang with direct wrapper callback.");
     GlodaIndexer._wrapCallbackDriver();
   } else {
-    let [func, dis, args] = await hangPromise;
+    const [func, dis, args] = await hangPromise;
     log.debug(`Resuming from simulated hang with call to: ${func.name}.`);
     func.apply(dis, args);
   }
@@ -215,13 +215,13 @@ async function resumeFromSimulatedHang(aJustResumeExecution) {
  *   Wait for each element for the Indexer and assert afterwards.
  */
 async function permuteMessages(aScenarioMaker, messageInjection) {
-  let folder = await messageInjection.makeEmptyFolder();
+  const folder = await messageInjection.makeEmptyFolder();
 
   // To calculate the permutations, we need to actually see what gets produced.
   let scenarioMessages = aScenarioMaker();
-  let numPermutations = Math.min(factorial(scenarioMessages.length), 32);
+  const numPermutations = Math.min(factorial(scenarioMessages.length), 32);
 
-  let permutations = [];
+  const permutations = [];
   for (let iPermutation = 0; iPermutation < numPermutations; iPermutation++) {
     permutations.push(async () => {
       log.debug(`Run permutation: ${iPermutation + 1} / ${numPermutations}`);
@@ -230,7 +230,7 @@ async function permuteMessages(aScenarioMaker, messageInjection) {
         scenarioMessages = aScenarioMaker();
       }
       scenarioMessages = permute(scenarioMessages, iPermutation);
-      let scenarioSet = new SyntheticMessageSet(scenarioMessages);
+      const scenarioSet = new SyntheticMessageSet(scenarioMessages);
       await messageInjection.addSetsToFolders([folder], [scenarioSet]);
       return scenarioSet;
     });
@@ -259,9 +259,9 @@ function factorial(i, rv) {
  *   results in the original array's sequence being maintained.
  */
 function permute(aArray, aPermutationId) {
-  let out = [];
+  const out = [];
   for (let i = aArray.length; i > 0; i--) {
-    let offset = aPermutationId % i;
+    const offset = aPermutationId % i;
     out.push(aArray[offset]);
     aArray.splice(offset, 1);
     aPermutationId = Math.floor(aPermutationId / i);
@@ -280,12 +280,12 @@ function makeABCardForAddressPair(nameAndAddress) {
   MailServices.ab.directories;
 
   // kPABData is copied from abSetup.js
-  let kPABData = {
+  const kPABData = {
     URI: "jsaddrbook://abook.sqlite",
   };
-  let addressBook = MailServices.ab.getDirectory(kPABData.URI);
+  const addressBook = MailServices.ab.getDirectory(kPABData.URI);
 
-  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+  const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
   card.displayName = nameAndAddress[0];

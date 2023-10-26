@@ -139,7 +139,7 @@ var gTestArray = [
     await setupTest(gFilter, gAction);
 
     testCounts(false, 0, 0, 0);
-    let thread = db().getThreadContainingMsgHdr(gHeader);
+    const thread = db().getThreadContainingMsgHdr(gHeader);
     Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Ignored);
   },
   async function KillThreadBody() {
@@ -147,7 +147,7 @@ var gTestArray = [
     await setupTest(gBodyFilter, gAction);
 
     testCounts(false, 0, 0, 0);
-    let thread = db().getThreadContainingMsgHdr(gHeader);
+    const thread = db().getThreadContainingMsgHdr(gHeader);
     Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Ignored);
   },
   async function KillSubthread() {
@@ -218,7 +218,7 @@ var gTestArray = [
     await setupTest(gFilter, gAction);
 
     testCounts(true, 1, 1, 1);
-    let thread = db().getThreadContainingMsgHdr(gHeader);
+    const thread = db().getThreadContainingMsgHdr(gHeader);
     Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Watched);
   },
   async function WatchThreadBody() {
@@ -226,7 +226,7 @@ var gTestArray = [
     await setupTest(gBodyFilter, gAction);
 
     testCounts(true, 1, 1, 1);
-    let thread = db().getThreadContainingMsgHdr(gHeader);
+    const thread = db().getThreadContainingMsgHdr(gHeader);
     Assert.notEqual(0, thread.flags & Ci.nsMsgMessageFlags.Watched);
   },
   async function MarkFlagged() {
@@ -335,7 +335,7 @@ function run_test() {
 
 function setupFilters() {
   // Create a non-body filter.
-  let filterList = IMAPPump.incomingServer.getFilterList(null);
+  const filterList = IMAPPump.incomingServer.getFilterList(null);
   gFilter = filterList.createFilter("subject");
   let searchTerm = gFilter.createTerm();
   searchTerm.attrib = Subject;
@@ -386,7 +386,7 @@ function setupFilters() {
 
 // basic preparation done for each test
 async function setupTest(aFilter, aAction) {
-  let filterList = IMAPPump.incomingServer.getFilterList(null);
+  const filterList = IMAPPump.incomingServer.getFilterList(null);
   while (filterList.filterCount) {
     filterList.removeFilterAt(0);
   }
@@ -408,7 +408,7 @@ async function setupTest(aFilter, aAction) {
   IMAPPump.mailbox.addMessage(
     new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
-  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
   await promiseUrlListener.promise;
   await PromiseTestUtils.promiseDelay(200);
@@ -444,7 +444,7 @@ var FolderListener = {
 // in javascript).
 function DBListener() {
   this.counts = {};
-  let counts = this.counts;
+  const counts = this.counts;
   counts.onHdrFlagsChanged = 0;
   counts.onHdrDeleted = 0;
   counts.onHdrAdded = 0;
@@ -510,10 +510,10 @@ DBListener.prototype = {
 // folder counts match the database counts)
 function folderCount(folder) {
   // count using the database
-  let dbCount = [...folder.msgDatabase.enumerateMessages()].length;
+  const dbCount = [...folder.msgDatabase.enumerateMessages()].length;
 
   // count using the folder
-  let count = folder.getTotalMessages(false);
+  const count = folder.getTotalMessages(false);
 
   // compare the two
   Assert.equal(dbCount, count);
@@ -522,8 +522,8 @@ function folderCount(folder) {
 
 // given a test file, return the file uri spec
 function specForFileName(aFileName) {
-  let file = do_get_file("../../../data/" + aFileName);
-  let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+  const file = do_get_file("../../../data/" + aFileName);
+  const msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
 }
 
@@ -544,11 +544,11 @@ var gPreviousUnread = 0;
 //
 function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta) {
   try {
-    let folderNew = IMAPPump.inbox.getNumNewMessages(false);
-    let hasNew = IMAPPump.inbox.hasNewMessages;
-    let unread = IMAPPump.inbox.getNumUnread(false);
-    let arrayOut = db().getNewList();
-    let dbNew = arrayOut.length;
+    const folderNew = IMAPPump.inbox.getNumNewMessages(false);
+    const hasNew = IMAPPump.inbox.hasNewMessages;
+    const unread = IMAPPump.inbox.getNumUnread(false);
+    const arrayOut = db().getNewList();
+    const dbNew = arrayOut.length;
     dump(
       " hasNew: " +
         hasNew +
@@ -591,7 +591,7 @@ async function testForward(mode) {
   gAction.type = Ci.nsMsgFilterAction.Forward;
   gAction.strValue = "to@local";
   await setupTest(gFilter, gAction);
-  let msgData = gSmtpServerD._daemon.post;
+  const msgData = gSmtpServerD._daemon.post;
   Assert.ok(msgData.includes(`Subject: Fwd: ${gMessageSubject}`));
   Assert.ok(msgData.includes(`${gMessageInBody}`));
 }

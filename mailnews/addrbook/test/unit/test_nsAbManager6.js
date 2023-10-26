@@ -10,13 +10,13 @@
 add_task(function testGetMailListFromName() {
   loadABFile("../../../data/abLists1", kPABData.fileName);
 
-  for (let listName of ["TestList1", "TestList2", "TestList3"]) {
+  for (const listName of ["TestList1", "TestList2", "TestList3"]) {
     Assert.ok(
       MailServices.ab.mailListNameExists(listName),
       `AddrBookManager has ${listName}`
     );
 
-    let list = MailServices.ab.getMailListFromName(listName);
+    const list = MailServices.ab.getMailListFromName(listName);
     Assert.ok(list, `"${listName}" is not null`);
     Assert.equal(
       list.dirName,

@@ -44,12 +44,12 @@ var PeriodicFilterManager = {
   init() {
     log.info("PeriodicFilterManager init()");
     // set the next filter time
-    for (let server of MailServices.accounts.allServers) {
-      let nowTime = parseInt(Date.now() / 60000);
+    for (const server of MailServices.accounts.allServers) {
+      const nowTime = parseInt(Date.now() / 60000);
       // Make sure that the last filter time of all servers was in the past.
-      let lastFilterTime = server.getIntValue("lastFilterTime");
+      const lastFilterTime = server.getIntValue("lastFilterTime");
       // Schedule next filter run.
-      let nextFilterTime =
+      const nextFilterTime =
         lastFilterTime < nowTime
           ? lastFilterTime + this.getServerPeriod(server)
           : nowTime;
@@ -82,8 +82,8 @@ var PeriodicFilterManager = {
       return;
     }
     this._running = true;
-    let nowTime = parseInt(Date.now() / 60000);
-    for (let server of MailServices.accounts.allServers) {
+    const nowTime = parseInt(Date.now() / 60000);
+    for (const server of MailServices.accounts.allServers) {
       if (!server.canHaveFilters) {
         continue;
       }
@@ -103,16 +103,16 @@ var PeriodicFilterManager = {
 
       // Build a temporary list of periodic filters.
       // XXX TODO: make applyFiltersToFolders() take a filterType instead (bug 1551043).
-      let curFilterList = server.getFilterList(null);
-      let tempFilterList = MailServices.filters.getTempFilterList(
+      const curFilterList = server.getFilterList(null);
+      const tempFilterList = MailServices.filters.getTempFilterList(
         server.rootFolder
       );
-      let numFilters = curFilterList.filterCount;
+      const numFilters = curFilterList.filterCount;
       tempFilterList.loggingEnabled = curFilterList.loggingEnabled;
       tempFilterList.logStream = curFilterList.logStream;
       let newFilterIndex = 0;
       for (let i = 0; i < numFilters; i++) {
-        let curFilter = curFilterList.getFilterAt(i);
+        const curFilter = curFilterList.getFilterAt(i);
         // Only add enabled, UI visible filters that are of the Periodic type.
         if (
           curFilter.enabled &&
@@ -126,7 +126,7 @@ var PeriodicFilterManager = {
       if (newFilterIndex == 0) {
         continue;
       }
-      let foldersToFilter = server.rootFolder.getFoldersWithFlags(
+      const foldersToFilter = server.rootFolder.getFoldersWithFlags(
         Ci.nsMsgFolderFlags.Inbox
       );
       if (foldersToFilter.length == 0) {
@@ -154,7 +154,7 @@ var PeriodicFilterManager = {
    */
   getServerPeriod(server) {
     const minimumPeriodMinutes = 1;
-    let serverRateMinutes = server.getIntValue("periodicFilterRateMinutes");
+    const serverRateMinutes = server.getIntValue("periodicFilterRateMinutes");
     // Check if period is too short.
     if (serverRateMinutes < minimumPeriodMinutes) {
       // If the server.default pref is too low, clear that one first.

@@ -42,7 +42,7 @@ define(function (require) {
     ]);
 
     // Non-ad-hoc header tests
-    let addressing_headers = [
+    const addressing_headers = [
       "From",
       "To",
       "Cc",
@@ -62,7 +62,7 @@ define(function (require) {
       "Mail-Reply-To",
       "Mail-Followup-To",
     ];
-    let address_tests = [
+    const address_tests = [
       [{ name: "", email: "" }, ""],
       [
         { name: "John Doe", email: "john.doe@test.invalid" },
@@ -81,14 +81,14 @@ define(function (require) {
       testHeader(header, address_tests);
     });
 
-    let date_headers = [
+    const date_headers = [
       "Date",
       "Expires",
       "Injection-Date",
       "NNTP-Posting-Date",
       "Resent-Date",
     ];
-    let date_tests = [
+    const date_tests = [
       [
         new MockDate("2012-09-06T08:08:21-0700"),
         "Thu, 6 Sep 2012 08:08:21 -0700",
@@ -98,13 +98,13 @@ define(function (require) {
       testHeader(header, date_tests);
     });
 
-    let unstructured_headers = [
+    const unstructured_headers = [
       "Comments",
       "Content-Description",
       "Keywords",
       "Subject",
     ];
-    let unstructured_tests = [
+    const unstructured_tests = [
       ["", ""],
       ["This is a subject", "This is a subject"],
       [
@@ -117,11 +117,11 @@ define(function (require) {
     });
 
     test("emitStructuredHeaders", function () {
-      let headers = new Map();
+      const headers = new Map();
       headers.set("From", [{ name: "", email: "bugzilla-daemon@mozilla.org" }]);
       headers.set("subject", ["[Bug 939557] browsercomps.dll failed to build"]);
       headers.set("x-capitalization-test", ["should capitalize"]);
-      let str = headeremitter.emitStructuredHeaders(headers, {});
+      const str = headeremitter.emitStructuredHeaders(headers, {});
       assert.equal(
         str,
         "From: bugzilla-daemon@mozilla.org\r\n" +

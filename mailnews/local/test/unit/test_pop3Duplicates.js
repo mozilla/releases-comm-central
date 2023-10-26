@@ -31,7 +31,7 @@ function run_test() {
 function continueTest() {
   // get message headers for the inbox folder
   var msgCount = 0;
-  for (let hdr of localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()) {
+  for (const hdr of localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()) {
     Assert.equal(hdr.subject, testSubjects[msgCount++]);
   }
   Assert.equal(msgCount, 2);

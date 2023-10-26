@@ -32,8 +32,8 @@ function checkPopulate(aTo, aCheckTo) {
   msgCompose.initialize(params);
 
   msgCompose.expandMailingLists();
-  let addresses = fields.getHeader("To");
-  let checkEmails = MailServices.headerParser.parseDecodedHeader(aCheckTo);
+  const addresses = fields.getHeader("To");
+  const checkEmails = MailServices.headerParser.parseDecodedHeader(aCheckTo);
   Assert.equal(addresses.length, checkEmails.length);
   for (let i = 0; i < addresses.length; i++) {
     Assert.equal(addresses[i].name, checkEmails[i].name);

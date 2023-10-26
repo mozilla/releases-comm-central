@@ -8,7 +8,7 @@ function checkDirs(aDirs, aDirArray) {
   // Don't modify the passed in array.
   var dirArray = aDirArray.concat();
 
-  for (let dir of aDirs) {
+  for (const dir of aDirs) {
     var loc = dirArray.indexOf(dir.URI);
 
     Assert.equal(MailServices.ab.getDirectory(dir.URI), dir);
@@ -29,7 +29,11 @@ function checkDirs(aDirs, aDirArray) {
 
 function addDirectory(dirName) {
   // Add the directory
-  let dirPrefId = MailServices.ab.newAddressBook(dirName, "", kPABData.dirType);
+  const dirPrefId = MailServices.ab.newAddressBook(
+    dirName,
+    "",
+    kPABData.dirType
+  );
   return MailServices.ab.getDirectoryFromId(dirPrefId);
 }
 

@@ -63,14 +63,14 @@ add_task(async function test_message_attachments_no_inline_text() {
 });
 
 async function test_message_attachments(info) {
-  let synMsg = msgGen.makeMessage(info);
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synMsg = msgGen.makeMessage(info);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders([inbox], [synSet]);
 
-  let msgURI = synSet.getMsgURI(0);
-  let msgService = MailServices.messageServiceFromURI(msgURI);
+  const msgURI = synSet.getMsgURI(0);
+  const msgService = MailServices.messageServiceFromURI(msgURI);
 
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
 
   msgService.streamMessage(
     msgURI,
@@ -83,7 +83,7 @@ async function test_message_attachments(info) {
     false
   );
 
-  let data = await streamListener.promise;
+  const data = await streamListener.promise;
   // check that text attachment contents didn't end up inline.
   Assert.ok(!data.includes(TEXT_ATTACHMENT));
 }

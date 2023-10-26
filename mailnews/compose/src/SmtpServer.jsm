@@ -94,7 +94,7 @@ class SmtpServer {
   }
 
   get UID() {
-    let uid = this._prefs.getStringPref("uid", "");
+    const uid = this._prefs.getStringPref("uid", "");
     if (uid) {
       return uid;
     }
@@ -206,7 +206,7 @@ class SmtpServer {
   }
 
   get maximumConnectionsNumber() {
-    let maxConnections = this._getIntPrefWithDefault(
+    const maxConnections = this._getIntPrefWithDefault(
       "max_cached_connections",
       3
     );
@@ -221,16 +221,16 @@ class SmtpServer {
     if (this._password) {
       return this._password;
     }
-    let incomingAccountKey = this._prefs.getCharPref("incomingAccount", "");
+    const incomingAccountKey = this._prefs.getCharPref("incomingAccount", "");
     let incomingServer;
     if (incomingAccountKey) {
       incomingServer =
         MailServices.accounts.getIncomingServer(incomingAccountKey);
     } else {
-      let useMatchingHostNameServer = Services.prefs.getBoolPref(
+      const useMatchingHostNameServer = Services.prefs.getBoolPref(
         "mail.smtp.useMatchingHostNameServer"
       );
-      let useMatchingDomainServer = Services.prefs.getBoolPref(
+      const useMatchingDomainServer = Services.prefs.getBoolPref(
         "mail.smtp.useMatchingDomainServer"
       );
       if (useMatchingHostNameServer || useMatchingDomainServer) {
@@ -248,10 +248,13 @@ class SmtpServer {
           useMatchingDomainServer &&
           this.hostname.includes(".")
         ) {
-          let newHostname = this.hostname.slice(0, this.hostname.indexOf("."));
-          for (let server of MailServices.accounts.allServers) {
+          const newHostname = this.hostname.slice(
+            0,
+            this.hostname.indexOf(".")
+          );
+          for (const server of MailServices.accounts.allServers) {
             if (server.username == this.username) {
-              let serverHostName = server.hostName;
+              const serverHostName = server.hostName;
               if (
                 serverHostName.includes(".") &&
                 serverHostName.slice(0, serverHostName.indexOf(".")) ==
@@ -283,13 +286,13 @@ class SmtpServer {
       // Often happens in tests. This prompt has no checkbox for saving password.
       authPrompt = Services.ww.getNewAuthPrompter(null);
     }
-    let password = this._getPasswordWithoutUI();
+    const password = this._getPasswordWithoutUI();
     if (password) {
       this.password = password;
       return this.password;
     }
-    let outUsername = {};
-    let outPassword = {};
+    const outUsername = {};
+    const outPassword = {};
     let ok;
     if (this.username) {
       ok = authPrompt.promptPassword(
@@ -321,9 +324,9 @@ class SmtpServer {
   }
 
   forgetPassword() {
-    let serverURI = this._getServerURI();
-    let logins = Services.logins.findLogins(serverURI, "", serverURI);
-    for (let login of logins) {
+    const serverURI = this._getServerURI();
+    const logins = Services.logins.findLogins(serverURI, "", serverURI);
+    for (const login of logins) {
       if (login.username == this.username) {
         Services.logins.removeLogin(login);
       }
@@ -336,7 +339,7 @@ class SmtpServer {
   }
 
   clearAllValues() {
-    for (let prefName of this._prefs.getChildList("")) {
+    for (const prefName of this._prefs.getChildList("")) {
       this._prefs.clearUserPref(prefName);
     }
   }
@@ -345,9 +348,9 @@ class SmtpServer {
    * @returns {string}
    */
   _getPasswordWithoutUI() {
-    let serverURI = this._getServerURI();
-    let logins = Services.logins.findLogins(serverURI, "", serverURI);
-    for (let login of logins) {
+    const serverURI = this._getServerURI();
+    const logins = Services.logins.findLogins(serverURI, "", serverURI);
+    for (const login of logins) {
       if (login.username == this.username) {
         return login.password;
       }
@@ -363,7 +366,7 @@ class SmtpServer {
    */
   _getServerURI(includeUsername) {
     // When constructing nsIURI, need to wrap IPv6 address in [].
-    let hostname = this.hostname.includes(":")
+    const hostname = this.hostname.includes(":")
       ? `[${this.hostname}]`
       : this.hostname;
     return (
@@ -440,11 +443,11 @@ class SmtpServer {
 
   closeCachedConnections() {
     // Close all connections.
-    for (let client of [...this._freeConnections, ...this._busyConnections]) {
+    for (const client of [...this._freeConnections, ...this._busyConnections]) {
       client.quit();
     }
     // Cancel all waitings in queue.
-    for (let resolve of this._connectionWaitingQueue) {
+    for (const resolve of this._connectionWaitingQueue) {
       resolve(false);
     }
     this._freeConnections = [];
@@ -483,7 +486,7 @@ class SmtpServer {
    *   instance, and do some actions.
    */
   async withClient(handler) {
-    let client = await this._getNextClient();
+    const client = await this._getNextClient();
     client.onFree = () => {
       this._busyConnections = this._busyConnections.filter(c => c != client);
       this._freeConnections.push(client);

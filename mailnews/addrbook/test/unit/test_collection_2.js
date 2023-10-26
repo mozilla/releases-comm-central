@@ -27,7 +27,7 @@ function run_test() {
 
   addressCollect.collectAddress("Other Book <other@book.invalid>", true);
 
-  let PAB = MailServices.ab.getDirectory(kPABData.URI);
+  const PAB = MailServices.ab.getDirectory(kPABData.URI);
 
   var cards = PAB.childCards;
 
@@ -37,6 +37,6 @@ function run_test() {
   Assert.equal(cards[0].primaryEmail, "other@book.invalid");
 
   // Check the CAB has no cards.
-  let CAB = MailServices.ab.getDirectory(kCABData.URI);
+  const CAB = MailServices.ab.getDirectory(kCABData.URI);
   Assert.equal(CAB.childCards.length, 0);
 }

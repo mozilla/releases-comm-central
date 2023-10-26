@@ -16,7 +16,7 @@ document.addEventListener("dialogaccept", OkButtonCallback);
 document.addEventListener("dialogcancel", CancelButtonCallback);
 
 function OnLoad() {
-  let newsBundle = document.getElementById("bundle_news");
+  const newsBundle = document.getElementById("bundle_news");
 
   if ("arguments" in window && window.arguments[0]) {
     args = window.arguments[0].QueryInterface(Ci.nsINewsDownloadDialogArgs);
@@ -31,12 +31,12 @@ function OnLoad() {
 
     document.title = newsBundle.getString("downloadHeadersTitlePrefix");
 
-    let infotext = newsBundle.getFormattedString("downloadHeadersInfoText", [
+    const infotext = newsBundle.getFormattedString("downloadHeadersInfoText", [
       args.articleCount,
     ]);
     setText("info", infotext);
-    let okButtonText = newsBundle.getString("okButtonText");
-    let okbutton = document.querySelector("dialog").getButton("accept");
+    const okButtonText = newsBundle.getString("okButtonText");
+    const okbutton = document.querySelector("dialog").getButton("accept");
     okbutton.setAttribute("label", okButtonText);
     okbutton.focus();
     setText("newsgroupLabel", args.groupName);
@@ -54,7 +54,7 @@ function OnLoad() {
 }
 
 function setText(id, value) {
-  let element = document.getElementById(id);
+  const element = document.getElementById(id);
   if (!element) {
     return;
   }
@@ -62,7 +62,7 @@ function setText(id, value) {
   while (element.lastChild) {
     element.lastChild.remove();
   }
-  let textNode = document.createTextNode(value);
+  const textNode = document.createTextNode(value);
   element.appendChild(textNode);
 }
 
@@ -70,7 +70,7 @@ function OkButtonCallback() {
   nntpServer.maxArticles = numberElement.value;
   nntpServer.markOldRead = markreadElement.checked;
 
-  let radio = document.getElementById("all");
+  const radio = document.getElementById("all");
   if (radio) {
     args.downloadAll = radio.selected;
   }
@@ -83,8 +83,8 @@ function CancelButtonCallback() {
 }
 
 function setupDownloadUI(enable) {
-  let checkbox = document.getElementById("markread");
-  let numberFld = document.getElementById("number");
+  const checkbox = document.getElementById("markread");
+  const numberFld = document.getElementById("number");
 
   checkbox.disabled = !enable;
   numberFld.disabled = !enable;

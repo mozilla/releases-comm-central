@@ -122,7 +122,7 @@ AbAutoCompleteSearch.prototype = {
    * @param {nsIAbCard} aCard - The card to return the popularity index for.
    */
   _getPopularityIndex(aDirectory, aCard) {
-    let popularityValue = aCard.getProperty("PopularityIndex", "0");
+    const popularityValue = aCard.getProperty("PopularityIndex", "0");
     let popularityIndex = parseInt(popularityValue);
 
     // If we haven't parsed it the first time round, parse it as hexadecimal
@@ -164,7 +164,7 @@ AbAutoCompleteSearch.prototype = {
 
     // We will firstly check if the search term provided by the user
     // is the nick name for the card or at least in the beginning of it.
-    let nick = aCard.getProperty("NickName", "").toLocaleLowerCase();
+    const nick = aCard.getProperty("NickName", "").toLocaleLowerCase();
     aSearchString = aSearchString.toLocaleLowerCase();
     if (nick == aSearchString) {
       return BEST + 1;
@@ -174,12 +174,12 @@ AbAutoCompleteSearch.prototype = {
     }
 
     // We'll do this case-insensitively and ignore the domain.
-    let atIdx = aAddress.lastIndexOf("@");
+    const atIdx = aAddress.lastIndexOf("@");
     if (atIdx != -1) {
       // mail lists don't have an @
       aAddress = aAddress.substr(0, atIdx);
     }
-    let idx = aAddress.indexOf(aSearchString);
+    const idx = aAddress.indexOf(aSearchString);
     if (idx == 0) {
       return BEST;
     }
@@ -191,7 +191,7 @@ AbAutoCompleteSearch.prototype = {
     // the email address the same. E.g. for "John Doe (:xx) <jd.who@example.com>"
     // all of these should score the same: "John", "Doe", "xx",
     // ":xx", "jd", "who".
-    let prevCh = aAddress.charAt(idx - 1);
+    const prevCh = aAddress.charAt(idx - 1);
     if (/[ :."'(\-_<&]/.test(prevCh)) {
       return BEST;
     }
@@ -213,7 +213,7 @@ AbAutoCompleteSearch.prototype = {
    */
   _searchCards(searchQuery, searchString, directory, result) {
     // Cache this values to save going through xpconnect each time
-    let commentColumn = this._commentColumn == 1 ? directory.dirName : "";
+    const commentColumn = this._commentColumn == 1 ? directory.dirName : "";
 
     if (searchQuery[0] == "?") {
       searchQuery = searchQuery.substring(1);
@@ -225,7 +225,7 @@ AbAutoCompleteSearch.prototype = {
             this._addToResult(commentColumn, directory, card, "", true, result);
           } else {
             let first = true;
-            for (let emailAddress of card.emailAddresses) {
+            for (const emailAddress of card.emailAddresses) {
               this._addToResult(
                 commentColumn,
                 directory,
@@ -297,12 +297,12 @@ AbAutoCompleteSearch.prototype = {
    * @param {nsIAbAutoCompleteResult} currentResults - The current results list.
    */
   _checkDuplicate(directory, card, lcEmailAddress, currentResults) {
-    let existingResult = currentResults._collectedValues.get(lcEmailAddress);
+    const existingResult = currentResults._collectedValues.get(lcEmailAddress);
     if (!existingResult) {
       return false;
     }
 
-    let popIndex = this._getPopularityIndex(directory, card);
+    const popIndex = this._getPopularityIndex(directory, card);
     // It's a duplicate, is the new one more popular?
     if (popIndex > existingResult.popularity) {
       // Yes it is, so delete this element, return false and allow
@@ -337,7 +337,7 @@ AbAutoCompleteSearch.prototype = {
     isPrimaryEmail,
     result
   ) {
-    let mbox = this._parser.makeMailboxObject(
+    const mbox = this._parser.makeMailboxObject(
       card.displayName,
       card.isMailList
         ? card.getProperty("Notes", "") || card.displayName
@@ -347,8 +347,8 @@ AbAutoCompleteSearch.prototype = {
       return;
     }
 
-    let emailAddress = mbox.toString();
-    let lcEmailAddress = emailAddress.toLocaleLowerCase();
+    const emailAddress = mbox.toString();
+    const lcEmailAddress = emailAddress.toLocaleLowerCase();
 
     // If it is a duplicate, then just return and don't add it. The
     // _checkDuplicate function deals with it all for us.
@@ -379,7 +379,7 @@ AbAutoCompleteSearch.prototype = {
    * for determining if an address book should be autocompleted against.
    */
   async startSearch(aSearchString, aSearchParam, aPreviousResult, aListener) {
-    let params = aSearchParam ? JSON.parse(aSearchParam) : {};
+    const params = aSearchParam ? JSON.parse(aSearchParam) : {};
     var result = new nsAbAutoCompleteResult(aSearchString);
     if ("type" in params && !this.applicableHeaders.has(params.type)) {
       result.searchResult = ACR.RESULT_IGNORED;
@@ -387,7 +387,8 @@ AbAutoCompleteSearch.prototype = {
       return;
     }
 
-    let fullString = aSearchString && aSearchString.trim().toLocaleLowerCase();
+    const fullString =
+      aSearchString && aSearchString.trim().toLocaleLowerCase();
 
     // If the search string is empty, or the user hasn't enabled autocomplete,
     // then just return no matches or the result ignored.
@@ -400,7 +401,7 @@ AbAutoCompleteSearch.prototype = {
     // Array of all the terms from the fullString search query
     // (separated on the basis of spaces or exact terms on the
     // basis of quotes).
-    let searchWords = getSearchTokens(fullString);
+    const searchWords = getSearchTokens(fullString);
 
     // Find out about the comment column
     this._commentColumn = Services.prefs.getIntPref(
@@ -430,8 +431,8 @@ AbAutoCompleteSearch.prototype = {
       // At least we now allow users to customize their autocomplete model query...
       for (let i = 0; i < aPreviousResult.matchCount; ++i) {
         if (aPreviousResult.isCompleteResult(i)) {
-          let card = aPreviousResult.getCardAt(i);
-          let email = aPreviousResult.getEmailToUse(i);
+          const card = aPreviousResult.getCardAt(i);
+          const email = aPreviousResult.getEmailToUse(i);
           if (this._checkEntry(card, email, searchWords)) {
             // Add matches into the results array. We re-sort as needed later.
             result._searchResults.push({
@@ -463,15 +464,15 @@ AbAutoCompleteSearch.prototype = {
       // (see bug 558931 for explanations).
       // Use helper method to split up search query to multi-word search
       // query against multiple fields.
-      let searchWords = getSearchTokens(fullString);
-      let searchQuery = generateQueryURI(result.modelQuery, searchWords);
+      const searchWords = getSearchTokens(fullString);
+      const searchQuery = generateQueryURI(result.modelQuery, searchWords);
 
       // Now do the searching
       // We're not going to bother searching sub-directories, currently the
       // architecture forces all cards that are in mailing lists to be in ABs as
       // well, therefore by searching sub-directories (aka mailing lists) we're
       // just going to find duplicates.
-      for (let dir of this._abManager.directories) {
+      for (const dir of this._abManager.directories) {
         // A failure in one address book should no break the whole search.
         try {
           if (dir.useForAutocomplete("idKey" in params ? params.idKey : null)) {
@@ -491,7 +492,7 @@ AbAutoCompleteSearch.prototype = {
 
       result._searchResults = [...result._collectedValues.values()];
       // Make sure a result with direct email match will be the one used.
-      for (let sr of result._searchResults) {
+      for (const sr of result._searchResults) {
         if (sr.emailToUse == fullString.replace(/.*<(.+@.+)>$/, "$1")) {
           sr.score = 100;
         }
@@ -538,11 +539,11 @@ AbAutoCompleteSearch.prototype = {
 
     // Start searching our asynchronous autocomplete directories.
     this._result = result;
-    let searches = new Set();
-    for (let dir of asyncDirectories) {
-      let comment = this._commentColumn == 1 ? dir.dirName : "";
-      let cards = [];
-      let searchListener = {
+    const searches = new Set();
+    for (const dir of asyncDirectories) {
+      const comment = this._commentColumn == 1 ? dir.dirName : "";
+      const cards = [];
+      const searchListener = {
         onSearchFoundCard: card => {
           cards.push(card);
         },
@@ -560,9 +561,9 @@ AbAutoCompleteSearch.prototype = {
             }
             // We can't guarantee to score the extension's results accurately so
             // we assume that the extension has sorted the results appropriately
-            for (let card of cards) {
-              let emailToUse = card.primaryEmail;
-              let value = MailServices.headerParser
+            for (const card of cards) {
+              const emailToUse = card.primaryEmail;
+              const value = MailServices.headerParser
                 .makeMailboxObject(card.displayName, emailToUse)
                 .toString();
               result._searchResults.push({

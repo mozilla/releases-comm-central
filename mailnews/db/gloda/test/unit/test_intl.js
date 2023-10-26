@@ -224,7 +224,7 @@ add_setup(function () {
 });
 
 add_task(async function test_index_all_phrases() {
-  for (let phrase of intlPhrases) {
+  for (const phrase of intlPhrases) {
     await indexPhrase(phrase);
   }
 });
@@ -235,7 +235,7 @@ add_task(async function flush_db() {
 });
 
 add_task(async function test_fulltextsearch_all_phrases() {
-  for (let phrase of intlPhrases) {
+  for (const phrase of intlPhrases) {
     await fulltextsearchPhrase(phrase);
   }
 });
@@ -246,14 +246,14 @@ add_task(async function test_fulltextsearch_all_phrases() {
  *  parsing.
  */
 add_task(async function test_encoding_complications_with_mail_addresses() {
-  let basePair = msgGen.makeNameAndAddress();
+  const basePair = msgGen.makeNameAndAddress();
   // The =2C encodes a comma!
-  let encodedCommaPair = ["=?iso-8859-1?Q?=DFnake=2C_=DFammy?=", basePair[1]];
+  const encodedCommaPair = ["=?iso-8859-1?Q?=DFnake=2C_=DFammy?=", basePair[1]];
   // "Snake, Sammy", but with a much cooler looking S-like character!
-  let decodedName = "\u00dfnake, \u00dfammy";
+  const decodedName = "\u00dfnake, \u00dfammy";
   // Use the thing with the comma in it for all cases; previously there was an
   //  asymmetry between to and cc...
-  let smsg = msgGen.makeMessage({
+  const smsg = msgGen.makeMessage({
     from: encodedCommaPair,
     to: [encodedCommaPair],
     cc: [encodedCommaPair],
@@ -266,7 +266,7 @@ add_task(async function test_encoding_complications_with_mail_addresses() {
     Assert.equal(gmsg.cc[0].id, gmsg.from.id);
   }
 
-  let synSet = new SyntheticMessageSet([smsg]);
+  const synSet = new SyntheticMessageSet([smsg]);
   await messageInjection.addSetsToFolders(
     [messageInjection.getInboxFolder()],
     [synSet]
@@ -290,12 +290,12 @@ add_task(async function test_encoding_complications_with_mail_addresses() {
  */
 async function indexPhrase(aPhrase) {
   // Create a synthetic message for each of the delightful encoding types.
-  let messages = [];
+  const messages = [];
   aPhrase.resultList = [];
-  for (let charset in aPhrase.encodings) {
-    let [quoted, bodyEncoded] = aPhrase.encodings[charset];
+  for (const charset in aPhrase.encodings) {
+    const [quoted, bodyEncoded] = aPhrase.encodings[charset];
 
-    let smsg = msgGen.makeMessage({
+    const smsg = msgGen.makeMessage({
       subject: quoted,
       body: { charset, encoding: "8bit", body: bodyEncoded },
       attachments: [{ filename: quoted, body: "gabba gabba hey" }],
@@ -306,7 +306,7 @@ async function indexPhrase(aPhrase) {
     messages.push(smsg);
     aPhrase.resultList.push(smsg);
   }
-  let synSet = new SyntheticMessageSet(messages);
+  const synSet = new SyntheticMessageSet(messages);
   await messageInjection.addSetsToFolders(
     [messageInjection.getInboxFolder()],
     [synSet]
@@ -323,10 +323,10 @@ async function indexPhrase(aPhrase) {
  *  each message because of the callerData attribute on the synthetic message.
  */
 function verify_index(smsg, gmsg) {
-  let [charset, actual] = smsg.callerData;
-  let subject = gmsg.subject;
-  let indexedBodyText = gmsg.indexedBodyText.trim();
-  let attachmentName = gmsg.attachmentNames[0];
+  const [charset, actual] = smsg.callerData;
+  const subject = gmsg.subject;
+  const indexedBodyText = gmsg.indexedBodyText.trim();
+  const attachmentName = gmsg.attachmentNames[0];
   dump("using character set: " + charset + " actual: " + actual + "\n");
   dump("subject: " + subject + " (len: " + subject.length + ")\n");
   Assert.equal(actual, subject);
@@ -347,8 +347,8 @@ function verify_index(smsg, gmsg) {
  *  to match as appropriate.
  */
 async function fulltextsearchPhrase(aPhrase) {
-  for (let searchPhrase of aPhrase.searchPhrases) {
-    let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
+  for (const searchPhrase of aPhrase.searchPhrases) {
+    const query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
     query.bodyMatches(searchPhrase.body);
     await queryExpect(query, searchPhrase.match ? aPhrase.resultList : []);
   }

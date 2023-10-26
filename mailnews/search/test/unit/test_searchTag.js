@@ -434,7 +434,7 @@ function run_test() {
   testValidityTable(news, IsBefore, Keywords, false);
 
   // delete any existing tags
-  let tagArray = MailServices.tags.getAllTags();
+  const tagArray = MailServices.tags.getAllTags();
   for (var i = 0; i < tagArray.length; i++) {
     MailServices.tags.deleteKey(tagArray[i].key);
   }

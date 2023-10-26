@@ -18,7 +18,7 @@ load("../../../resources/passwordStorage.js");
 var daemon = setupNNTPDaemon();
 
 add_task(async function () {
-  let server = makeServer(NNTP_RFC4643_extension, daemon);
+  const server = makeServer(NNTP_RFC4643_extension, daemon);
   server.start();
 
   // These preferences set up a local news server that has had its hostname

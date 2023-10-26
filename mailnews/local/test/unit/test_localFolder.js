@@ -23,7 +23,7 @@ var gPluggableStores = [
  * @param actual    actual subfolders enumerator
  */
 function check_sub_folders(expected, actual) {
-  for (let actualFolder of actual) {
+  for (const actualFolder of actual) {
     let index;
     for (index = 0; index < expected.length; index++) {
       if (expected[index].name == actualFolder.name) {
@@ -33,7 +33,7 @@ function check_sub_folders(expected, actual) {
     // If index goes out of bounds, probably we didn't find the name.
     Assert.ok(index < expected.length);
 
-    let pluggableStore = actualFolder.msgStore;
+    const pluggableStore = actualFolder.msgStore;
     pluggableStore.discoverSubFolders(actualFolder, true);
     Assert.equal(!!expected[index].subFolders, actualFolder.hasSubFolders);
     if (actualFolder.hasSubFolders) {
@@ -50,7 +50,7 @@ function check_sub_folders(expected, actual) {
  * Test default mailbox without creating any subfolders.
  */
 function test_default_mailbox(expected, type) {
-  let mailbox = setup_mailbox(type, create_temporary_directory());
+  const mailbox = setup_mailbox(type, create_temporary_directory());
 
   check_sub_folders(expected, mailbox.subFolders);
 }
@@ -66,7 +66,7 @@ function test_default_mailbox(expected, type) {
  *                       aFolderArray are to be added.
  */
 function add_sub_folders(aFolderArray, aParentFolder) {
-  for (let msgFolder of aFolderArray) {
+  for (const msgFolder of aFolderArray) {
     if (!aParentFolder.containsChildNamed(msgFolder.name)) {
       aParentFolder.createSubfolder(msgFolder.name, null);
     }
@@ -86,10 +86,10 @@ function add_sub_folders(aFolderArray, aParentFolder) {
  * folders based on that filePath.
  */
 function test_mailbox(expected, type) {
-  let mailboxRootFolder = setup_mailbox(type, create_temporary_directory());
+  const mailboxRootFolder = setup_mailbox(type, create_temporary_directory());
   add_sub_folders(expected, mailboxRootFolder);
 
-  let actualFolder = setup_mailbox(type, mailboxRootFolder.filePath);
+  const actualFolder = setup_mailbox(type, mailboxRootFolder.filePath);
   check_sub_folders(expected, actualFolder.subFolders);
 }
 
@@ -154,7 +154,7 @@ function run_all_tests() {
 }
 
 function run_test() {
-  for (let store in gPluggableStores) {
+  for (const store in gPluggableStores) {
     Services.prefs.setCharPref(
       "mail.serverDefaultStoreContractID",
       gPluggableStores[store]

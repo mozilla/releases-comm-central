@@ -23,7 +23,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 });
 
 XPCOMUtils.defineLazyGetter(lazy, "d3", () => {
-  let d3Scope = Cu.Sandbox(null);
+  const d3Scope = Cu.Sandbox(null);
   Services.scriptloader.loadSubScript(
     "chrome://global/content/third_party/d3/d3.js",
     d3Scope
@@ -104,11 +104,11 @@ class AddrBookFileImporter {
    * @returns {string[][]}
    */
   async parseCsvFile(sourceFile) {
-    let content = await lazy.MailStringUtils.readEncoded(sourceFile.path);
+    const content = await lazy.MailStringUtils.readEncoded(sourceFile.path);
 
-    let csvRows = lazy.d3.csv.parseRows(content);
-    let tsvRows = lazy.d3.tsv.parseRows(content);
-    let dsvRows = lazy.d3.dsv(";").parseRows(content);
+    const csvRows = lazy.d3.csv.parseRows(content);
+    const tsvRows = lazy.d3.tsv.parseRows(content);
+    const dsvRows = lazy.d3.dsv(";").parseRows(content);
     if (!csvRows.length && !tsvRows.length && !dsvRows.length) {
       this._csvRows = [];
       return [];
@@ -120,14 +120,14 @@ class AddrBookFileImporter {
       this._csvRows = dsvRows;
     }
 
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/importMsgs.properties"
     );
-    let supportedFieldNames = [];
+    const supportedFieldNames = [];
     this._supportedCsvProperties = [];
     // Collect field names in an exported CSV file, and their corresponding
     // nsIAbCard property names.
-    for (let [property, stringId] of lazy.exportAttributes) {
+    for (const [property, stringId] of lazy.exportAttributes) {
       if (stringId) {
         this._supportedCsvProperties.push(property);
         supportedFieldNames.push(
@@ -138,7 +138,7 @@ class AddrBookFileImporter {
     this._csvSkipFirstRow = true;
     this._csvProperties = [];
     // Get the nsIAbCard properties corresponding to the user supplied file.
-    for (let field of this._csvRows[0]) {
+    for (const field of this._csvRows[0]) {
       if (
         !field &&
         this._csvRows[0].length > 1 &&
@@ -148,7 +148,7 @@ class AddrBookFileImporter {
         // is OK.
         return [];
       }
-      let index = supportedFieldNames.indexOf(field.toLowerCase());
+      const index = supportedFieldNames.indexOf(field.toLowerCase());
       if (index == -1) {
         return this._csvRows;
       }
@@ -183,17 +183,17 @@ class AddrBookFileImporter {
    * Import the .csv/.tsv source file into the target directory.
    */
   async _importCsvFile() {
-    let totalLines = this._csvRows.length - 1;
+    const totalLines = this._csvRows.length - 1;
     let currentLine = 0;
 
-    let startRow = this._csvSkipFirstRow ? 1 : 0;
-    for (let row of this._csvRows.slice(startRow)) {
+    const startRow = this._csvSkipFirstRow ? 1 : 0;
+    for (const row of this._csvRows.slice(startRow)) {
       currentLine++;
-      let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+      const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
         Ci.nsIAbCard
       );
       for (let i = 0; i < row.length; i++) {
-        let property = this._csvProperties[i];
+        const property = this._csvProperties[i];
         if (!property) {
           continue;
         }
@@ -215,10 +215,10 @@ class AddrBookFileImporter {
    */
   async _importLdifFile() {
     this.onProgress(2, 10);
-    let ldifService = Cc["@mozilla.org/addressbook/abldifservice;1"].getService(
-      Ci.nsIAbLDIFService
-    );
-    let progress = {};
+    const ldifService = Cc[
+      "@mozilla.org/addressbook/abldifservice;1"
+    ].getService(Ci.nsIAbLDIFService);
+    const progress = {};
     ldifService.importLDIFFile(
       this._targetDirectory,
       this._sourceFile,
@@ -232,20 +232,20 @@ class AddrBookFileImporter {
    * Import the .vcf source file into the target directory.
    */
   async _importVCardFile() {
-    let vcardService = Cc[
+    const vcardService = Cc[
       "@mozilla.org/addressbook/msgvcardservice;1"
     ].getService(Ci.nsIMsgVCardService);
 
-    let content = await IOUtils.readUTF8(this._sourceFile.path);
+    const content = await IOUtils.readUTF8(this._sourceFile.path);
     // According to rfc6350, \r\n should be used as line break.
-    let sep = content.includes("\r\n") ? "\r\n" : "\n";
-    let lines = content.trim().split(sep);
+    const sep = content.includes("\r\n") ? "\r\n" : "\n";
+    const lines = content.trim().split(sep);
 
-    let totalLines = lines.length;
+    const totalLines = lines.length;
     let currentLine = 0;
     let record = [];
 
-    for (let line of lines) {
+    for (const line of lines) {
       currentLine++;
       if (!line) {
         continue;
@@ -288,7 +288,7 @@ class AddrBookFileImporter {
   async _importSqliteFile() {
     this.onProgress(2, 10);
     // Create a temporary address book.
-    let dirId = MailServices.ab.newAddressBook(
+    const dirId = MailServices.ab.newAddressBook(
       "tmp",
       "",
       Ci.nsIAbManager.JS_DIRECTORY_TYPE
@@ -305,7 +305,7 @@ class AddrBookFileImporter {
       );
       // Write-Ahead Logging file contains changes not written to .sqlite file
       // yet.
-      let sourceWalFile = this._sourceFile.parent.clone();
+      const sourceWalFile = this._sourceFile.parent.clone();
       sourceWalFile.append(this._sourceFile.leafName + "-wal");
       if (sourceWalFile.exists()) {
         sourceWalFile.copyTo(
@@ -314,25 +314,25 @@ class AddrBookFileImporter {
         );
       }
       // Open a new connection to use the new database file.
-      let uri = tmpDirectory.URI;
+      const uri = tmpDirectory.URI;
       tmpDirectory = Cc[
         "@mozilla.org/addressbook/directory;1?type=jsaddrbook"
       ].createInstance(Ci.nsIAbDirectory);
       tmpDirectory.init(uri);
 
-      for (let card of tmpDirectory.childCards) {
+      for (const card of tmpDirectory.childCards) {
         this._targetDirectory.addCard(card);
       }
       this.onProgress(8, 10);
 
-      for (let sourceList of tmpDirectory.childNodes) {
+      for (const sourceList of tmpDirectory.childNodes) {
         let targetList = this._targetDirectory.getMailListFromName(
           sourceList.dirName
         );
         if (!targetList) {
           targetList = this._targetDirectory.addMailList(sourceList);
         }
-        for (let card of sourceList.childCards) {
+        for (const card of sourceList.childCards) {
           targetList.addCard(card);
         }
       }
@@ -347,7 +347,7 @@ class AddrBookFileImporter {
    */
   async _importMabFile() {
     this.onProgress(2, 10);
-    let importMab = Cc[
+    const importMab = Cc[
       "@mozilla.org/import/import-ab-file;1?type=mab"
     ].createInstance(Ci.nsIImportABFile);
     importMab.readFileToDirectory(this._sourceFile, this._targetDirectory);

@@ -185,12 +185,12 @@ function fixFile(file) {
   sstream.close();
   fstream.close();
 
-  let targetFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  const targetFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   targetFile.initWithFile(do_get_profile());
   targetFile.append(file.leafName);
-  let ostream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
-    Ci.nsIFileOutputStream
-  );
+  const ostream = Cc[
+    "@mozilla.org/network/file-output-stream;1"
+  ].createInstance(Ci.nsIFileOutputStream);
   ostream.init(targetFile, -1, -1, 0);
   ostream.write(data, data.length);
   ostream.close();

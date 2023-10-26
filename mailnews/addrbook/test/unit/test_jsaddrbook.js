@@ -31,12 +31,12 @@ var observer = {
     "addrbook-list-member-removed",
   ],
   setUp() {
-    for (let topic of this.topics) {
+    for (const topic of this.topics) {
       Services.obs.addObserver(observer, topic);
     }
   },
   cleanUp() {
-    for (let topic of this.topics) {
+    for (const topic of this.topics) {
       Services.obs.removeObserver(observer, topic);
     }
   },
@@ -64,12 +64,12 @@ var observer = {
     );
     equal(observer.events.length, events.length);
 
-    let actualEvents = observer.events.slice();
+    const actualEvents = observer.events.slice();
     observer.events.length = 0;
 
     for (let j = 0; j < events.length; j++) {
-      let expectedEvent = events[j];
-      let actualEvent = actualEvents[j];
+      const expectedEvent = events[j];
+      const actualEvent = actualEvents[j];
 
       for (let i = 0; i < expectedEvent.length; i++) {
         try {
@@ -94,10 +94,10 @@ var observer = {
 var baseAddressBookCount;
 
 add_setup(function () {
-  let profileDir = do_get_profile();
+  const profileDir = do_get_profile();
   observer.setUp();
 
-  let dirs = MailServices.ab.directories;
+  const dirs = MailServices.ab.directories;
   // On Mac we might be loading the OS X Address Book. If we are, then we
   // need to take acccount of that here, so that the test still pass on
   // development machines.
@@ -118,18 +118,18 @@ add_setup(function () {
   baseAddressBookCount = dirs.length;
 
   // Check the PAB file was created.
-  let pabFile = profileDir.clone();
+  const pabFile = profileDir.clone();
   pabFile.append(kPABData.fileName);
   ok(pabFile.exists());
 
   // Check the CAB file was created.
-  let cabFile = profileDir.clone();
+  const cabFile = profileDir.clone();
   cabFile.append(kCABData.fileName);
   ok(cabFile.exists());
 });
 
 add_task(async function createAddressBook() {
-  let dirPrefId = MailServices.ab.newAddressBook(
+  const dirPrefId = MailServices.ab.newAddressBook(
     "new book",
     "",
     Ci.nsIAbManager.JS_DIRECTORY_TYPE
@@ -171,7 +171,7 @@ add_task(async function createAddressBook() {
   equal(MailServices.ab.directories.length, baseAddressBookCount + 1);
 
   // Check the file was created.
-  let dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  const dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   dbFile.append(FILE_NAME);
   ok(dbFile.exists());
 });
@@ -198,7 +198,7 @@ add_task(async function createContact() {
   contact = book.addCard(contact);
   observer.checkEvents(["addrbook-contact-created", contact, book.UID]);
 
-  let cards = book.childCards;
+  const cards = book.childCards;
   equal(cards.length, 1);
   ok(cards[0].equals(contact));
 
@@ -211,7 +211,10 @@ add_task(async function createContact() {
   equal(contact.primaryEmail, "test@invalid");
   equal(contact.getProperty("Foo", ""), "This will be deleted later.");
   equal(contact.isMailList, false);
-  let modifiedDate = parseInt(contact.getProperty("LastModifiedDate", ""), 10);
+  const modifiedDate = parseInt(
+    contact.getProperty("LastModifiedDate", ""),
+    10
+  );
   Assert.lessOrEqual(modifiedDate, Date.now() / 1000);
   Assert.greater(modifiedDate, Date.now() / 1000 - 10);
 
@@ -239,7 +242,7 @@ add_task(async function editContact() {
   contact.setProperty("Bar2", "");
   contact.setProperty("LastModifiedDate", 0);
   book.modifyCard(contact);
-  let [, propertyEvent] = observer.checkEvents(
+  const [, propertyEvent] = observer.checkEvents(
     ["addrbook-contact-updated", contact, book.UID],
     ["addrbook-contact-properties-updated", contact]
   );
@@ -286,7 +289,10 @@ add_task(async function editContact() {
   equal(contact.getProperty("Foo", "empty"), "empty");
   equal(contact.getProperty("Bar1", ""), "a new property");
   equal(contact.getProperty("Bar2", "no value"), "no value");
-  let modifiedDate = parseInt(contact.getProperty("LastModifiedDate", ""), 10);
+  const modifiedDate = parseInt(
+    contact.getProperty("LastModifiedDate", ""),
+    10
+  );
   Assert.lessOrEqual(modifiedDate, Date.now() / 1000);
   Assert.greater(modifiedDate, Date.now() / 1000 - 10);
 });
@@ -301,10 +307,10 @@ add_task(async function createMailingList() {
   // Skip checking events temporarily, until listCard is defined.
 
   // Check enumerations.
-  let childNodes = book.childNodes;
+  const childNodes = book.childNodes;
   equal(childNodes.length, 1);
   equal(childNodes[0].UID, list.UID); // TODO Object equality doesn't work because of XPCOM.
-  let childCards = book.childCards;
+  const childCards = book.childCards;
   equal(childCards.length, 2);
   if (childCards[0].isMailList) {
     listCard = childCards[0];
@@ -348,7 +354,7 @@ add_task(async function addMailingListMember() {
 
   // Check list enumerations.
   equal(Array.from(list.childNodes).length, 0);
-  let childCards = list.childCards;
+  const childCards = list.childCards;
   equal(childCards.length, 1);
   ok(childCards[0].equals(contact));
 });
@@ -405,7 +411,7 @@ add_task(async function deleteAddressBook() {
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.description"));
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.filename"));
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.uid"));
-  let dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  const dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   dbFile.append(FILE_NAME);
   ok(!dbFile.exists());
   equal(MailServices.ab.directories.length, baseAddressBookCount);

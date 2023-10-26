@@ -31,7 +31,7 @@ add_setup(async function () {
     false
   );
   // Load and update a message in the imap fake server.
-  let message = new ImapMessage(
+  const message = new ImapMessage(
     specForFileName(gMessage),
     IMAPPump.mailbox.uidnext++,
     []
@@ -39,7 +39,7 @@ add_setup(async function () {
   message.xCustomValue = gCustomValue;
   message.xCustomList = gCustomList;
   IMAPPump.mailbox.addMessage(message);
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
@@ -47,15 +47,15 @@ add_setup(async function () {
 // Used to verify that nsIServerResponseParser.msg_fetch() can handle
 // not in a parenthesis group - Bug 750012
 add_task(async function testFetchCustomValue() {
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  let uri = IMAPPump.inbox.fetchCustomMsgAttribute(
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const uri = IMAPPump.inbox.fetchCustomMsgAttribute(
     "X-CUSTOM-VALUE",
     msgHdr.messageKey,
     gMsgWindow
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   // Listens for response from fetchCustomMsgAttribute request for X-CUSTOM-VALUE.
-  let fetchCustomValueListener = new PromiseTestUtils.PromiseUrlListener({
+  const fetchCustomValueListener = new PromiseTestUtils.PromiseUrlListener({
     OnStopRunningUrl(aUrl, aExitCode) {
       aUrl.QueryInterface(Ci.nsIImapUrl);
       Assert.equal(aUrl.customAttributeResult, gCustomValue);
@@ -67,15 +67,15 @@ add_task(async function testFetchCustomValue() {
 
 // Used to verify that nsIServerResponseParser.msg_fetch() can handle a parenthesis group - Bug 735542
 add_task(async function testFetchCustomList() {
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  let uri = IMAPPump.inbox.fetchCustomMsgAttribute(
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const uri = IMAPPump.inbox.fetchCustomMsgAttribute(
     "X-CUSTOM-LIST",
     msgHdr.messageKey,
     gMsgWindow
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   // Listens for response from fetchCustomMsgAttribute request for X-CUSTOM-VALUE.
-  let fetchCustomListListener = new PromiseTestUtils.PromiseUrlListener({
+  const fetchCustomListListener = new PromiseTestUtils.PromiseUrlListener({
     OnStopRunningUrl(aUrl, aExitCode) {
       aUrl.QueryInterface(Ci.nsIImapUrl);
       Assert.equal(
@@ -99,7 +99,7 @@ add_task(function endTest() {
 
 // given a test file, return the file uri spec
 function specForFileName(aFileName) {
-  let file = do_get_file("../../../data/" + aFileName);
-  let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+  const file = do_get_file("../../../data/" + aFileName);
+  const msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
 }

@@ -129,7 +129,7 @@ add_task(async function () {
     Assert.equal(attempt, 2);
 
     // Check that we haven't forgetton the login even though we've retried and cancelled.
-    let logins = Services.logins.findLogins(
+    const logins = Services.logins.findLogins(
       "smtp://localhost",
       null,
       "smtp://localhost"

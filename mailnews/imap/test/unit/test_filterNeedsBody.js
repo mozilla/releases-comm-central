@@ -37,9 +37,9 @@ var tests = [
 
 function setup() {
   // Create a test filter.
-  let filterList = IMAPPump.incomingServer.getFilterList(null);
+  const filterList = IMAPPump.incomingServer.getFilterList(null);
   gFilter = filterList.createFilter("test offline");
-  let searchTerm = gFilter.createTerm();
+  const searchTerm = gFilter.createTerm();
   searchTerm.matchAll = true;
 
   gFilter.appendTerm(searchTerm);
@@ -54,7 +54,7 @@ function setup() {
 
 // basic preparation done for each test
 async function runFilterAction() {
-  let filterList = IMAPPump.incomingServer.getFilterList(null);
+  const filterList = IMAPPump.incomingServer.getFilterList(null);
   while (filterList.filterCount) {
     filterList.removeFilterAt(0);
   }
@@ -68,7 +68,7 @@ async function runFilterAction() {
   IMAPPump.mailbox.addMessage(
     new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 }
@@ -83,8 +83,8 @@ var actionTestOffline = {
   id: "mailnews@mozilla.org#testOffline",
   name: "test if offline",
   applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
-    for (let msgHdr of aMsgHdrs) {
-      let isOffline = msgHdr.flags & Ci.nsMsgMessageFlags.Offline;
+    for (const msgHdr of aMsgHdrs) {
+      const isOffline = msgHdr.flags & Ci.nsMsgMessageFlags.Offline;
       Assert.equal(!!isOffline, aActionValue == "true");
     }
   },
@@ -107,7 +107,7 @@ var actionTestOffline = {
 
 // given a test file, return the file uri spec
 function specForFileName(aFileName) {
-  let file = do_get_file(gDEPTH + "mailnews/data/" + aFileName);
-  let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+  const file = do_get_file(gDEPTH + "mailnews/data/" + aFileName);
+  const msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
 }

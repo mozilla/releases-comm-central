@@ -17,14 +17,14 @@ var { PromiseTestUtils } = ChromeUtils.import(
 );
 
 // Globals
-let gMsgFile1 = do_get_file("../../../data/bugmail10");
-let gTestMsgs = [gMsgFile1, gMsgFile1, gMsgFile1, gMsgFile1];
+const gMsgFile1 = do_get_file("../../../data/bugmail10");
+const gTestMsgs = [gMsgFile1, gMsgFile1, gMsgFile1, gMsgFile1];
 
 function checkConversion(aSource, aTarget) {
-  for (let sourceContent of aSource.directoryEntries) {
-    let sourceContentName = sourceContent.leafName;
-    let ext = sourceContentName.slice(-4);
-    let targetFile = FileUtils.File(
+  for (const sourceContent of aSource.directoryEntries) {
+    const sourceContentName = sourceContent.leafName;
+    const ext = sourceContentName.slice(-4);
+    const targetFile = FileUtils.File(
       PathUtils.join(aTarget.path, sourceContentName)
     );
 
@@ -36,12 +36,12 @@ function checkConversion(aSource, aTarget) {
       checkConversion(sourceContent, targetFile);
     } else {
       Assert.ok(targetFile.exists());
-      let cur = FileUtils.File(PathUtils.join(targetFile.path, "cur"));
+      const cur = FileUtils.File(PathUtils.join(targetFile.path, "cur"));
       Assert.ok(cur.exists());
-      let tmp = FileUtils.File(PathUtils.join(targetFile.path, "tmp"));
+      const tmp = FileUtils.File(PathUtils.join(targetFile.path, "tmp"));
       Assert.ok(tmp.exists());
       if (targetFile.leafName == "INBOX") {
-        let curContentsCount = [...cur.directoryEntries].length;
+        const curContentsCount = [...cur.directoryEntries].length;
         Assert.equal(curContentsCount, 8);
       }
     }
@@ -73,35 +73,35 @@ add_setup(async function () {
   IMAPPump.inbox.verifiedAsOnlineFolder = true;
 
   // Add our test messages to the INBOX.
-  let mailbox = IMAPPump.daemon.getMailbox("INBOX");
-  for (let file of gTestMsgs) {
-    let URI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+  const mailbox = IMAPPump.daemon.getMailbox("INBOX");
+  for (const file of gTestMsgs) {
+    const URI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
     mailbox.addMessage(new ImapMessage(URI.spec, mailbox.uidnext++, []));
   }
 });
 
 add_task(async function downloadForOffline() {
   // Download for offline use.
-  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
   await promiseUrlListener.promise;
 });
 
 add_task(async function convert() {
-  let mailstoreContractId = Services.prefs.getCharPref(
+  const mailstoreContractId = Services.prefs.getCharPref(
     "mail.server." + IMAPPump.incomingServer.key + ".storeContractID"
   );
-  let eventTarget = new EventTarget();
-  let originalRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
+  const eventTarget = new EventTarget();
+  const originalRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
   await convertMailStoreTo(
     mailstoreContractId,
     IMAPPump.incomingServer,
     eventTarget
   );
   // Conversion done.
-  let newRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
+  const newRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
   checkConversion(originalRootFolder, newRootFolder);
-  let newRootFolderMsf = FileUtils.File(newRootFolder.path + ".msf");
+  const newRootFolderMsf = FileUtils.File(newRootFolder.path + ".msf");
   Assert.ok(newRootFolderMsf.exists());
 });
 

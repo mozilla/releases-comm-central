@@ -26,14 +26,14 @@ add_setup(async function () {
 
   IMAPPump.incomingServer.usingSubscription = false;
 
-  let rootFolder = IMAPPump.incomingServer.rootFolder.QueryInterface(
+  const rootFolder = IMAPPump.incomingServer.rootFolder.QueryInterface(
     Ci.nsIMsgImapMailFolder
   );
   rootFolder.hierarchyDelimiter = "/";
   IMAPPump.inbox.hierarchyDelimiter = "/";
-  let folder1 = rootFolder.addSubfolder("folder1");
-  let sub1 = folder1.addSubfolder("sub1");
-  let sub2 = sub1.addSubfolder("sub2");
+  const folder1 = rootFolder.addSubfolder("folder1");
+  const sub1 = folder1.addSubfolder("sub1");
+  const sub2 = sub1.addSubfolder("sub2");
   gSub3 = sub2.addSubfolder("sub3");
   IMAPPump.server.performTest("LIST");
 
@@ -41,7 +41,7 @@ add_setup(async function () {
 });
 
 add_task(async function updateInbox() {
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });

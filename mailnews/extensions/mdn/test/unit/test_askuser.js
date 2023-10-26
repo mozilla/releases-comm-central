@@ -15,11 +15,11 @@ function run_test() {
     "return-path: alice@t1.example.com\r\n" +
     "Disposition-Notification-To: alice@t1.example.com\r\n";
 
-  let mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+  const mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
     Ci.nsIMimeHeaders
   );
   mimeHdr.initialize(headers);
-  let receivedHeader = mimeHdr.extractHeader("To", false);
+  const receivedHeader = mimeHdr.extractHeader("To", false);
   dump(receivedHeader + "\n");
 
   localAccountUtils.inboxFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);

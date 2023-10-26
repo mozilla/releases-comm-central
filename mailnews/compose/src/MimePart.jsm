@@ -4,9 +4,11 @@
 
 const EXPORTED_SYMBOLS = ["MimePart", "MimeMultiPart"];
 
-let { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
-let { MimeEncoder } = ChromeUtils.import("resource:///modules/MimeEncoder.jsm");
-let { MsgUtils } = ChromeUtils.import(
+const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+const { MimeEncoder } = ChromeUtils.import(
+  "resource:///modules/MimeEncoder.jsm"
+);
+const { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
 var { MailServices } = ChromeUtils.import(
@@ -117,7 +119,7 @@ class MimePart {
    * @param {Iterable.<string, string>} entries - The header entries.
    */
   setHeaders(entries) {
-    for (let [name, content] of entries) {
+    for (const [name, content] of entries) {
       this.setHeader(name, content);
     }
   }
@@ -182,7 +184,7 @@ class MimePart {
       }
     }
     if (bodyString) {
-      let encoder = new MimeEncoder(
+      const encoder = new MimeEncoder(
         this._charset,
         this._contentType,
         this._forceMsgEncoding,
@@ -219,11 +221,11 @@ class MimePart {
    * @returns {string}
    */
   async _fetchMsgAttachment() {
-    let msgService = MailServices.messageServiceFromURI(
+    const msgService = MailServices.messageServiceFromURI(
       this._bodyAttachment.url
     );
     return new Promise((resolve, reject) => {
-      let streamListener = {
+      const streamListener = {
         _data: "",
         _stream: null,
         onDataAvailable(request, inputStream, offset, count) {
@@ -268,7 +270,7 @@ class MimePart {
    * @returns {string}
    */
   async _fetchAttachment() {
-    let url = this._bodyAttachment.url;
+    const url = this._bodyAttachment.url;
     MsgUtils.sendLogger.debug(`Fetching ${url}`);
 
     let content = "";
@@ -280,7 +282,7 @@ class MimePart {
       }
       this._contentType = "message/rfc822";
     } else {
-      let channel = Services.io.newChannelFromURI(
+      const channel = Services.io.newChannelFromURI(
         Services.io.newURI(url),
         null,
         Services.scriptSecurityManager.getSystemPrincipal(),
@@ -307,7 +309,7 @@ class MimePart {
         this._bodyAttachment.contentType || channel.contentType;
     }
 
-    let parmFolding = Services.prefs.getIntPref(
+    const parmFolding = Services.prefs.getIntPref(
       "mail.strictly_mime.parm_folding",
       2
     );
@@ -342,7 +344,7 @@ class MimePart {
       this.setHeader("content-id", `<${this._contentId}>`);
     }
     if (this._contentType == "text/html") {
-      let contentLocation = MsgUtils.getContentLocation(
+      const contentLocation = MsgUtils.getContentLocation(
         this._bodyAttachment.url
       );
       this.setHeader("content-location", contentLocation);

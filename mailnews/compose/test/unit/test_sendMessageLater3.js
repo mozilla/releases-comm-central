@@ -84,7 +84,7 @@ function OnStopCopy(aStatus) {
   // Check this is false before we start sending
   Assert.equal(msgSendLater.sendingMessages, false);
 
-  let folder = msgSendLater.getUnsentMessagesFolder(identity);
+  const folder = msgSendLater.getUnsentMessagesFolder(identity);
 
   // Check that the send later service thinks we have messages to send.
   Assert.equal(msgSendLater.hasUnsentMessages(identity), true);
@@ -136,8 +136,8 @@ add_task(async function run_the_test() {
 
   MailServices.accounts.setSpecialFolders();
 
-  let account = MailServices.accounts.createAccount();
-  let incomingServer = MailServices.accounts.createIncomingServer(
+  const account = MailServices.accounts.createAccount();
+  const incomingServer = MailServices.accounts.createIncomingServer(
     "test",
     "localhost",
     "pop3"

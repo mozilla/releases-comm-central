@@ -327,14 +327,14 @@ var MimeTypeNoun = {
    * Load the contents of MimeTypeCategories and populate
    */
   _loadCategoryMapping() {
-    let mimeTypeToCategory = this._mimeTypeToCategory;
+    const mimeTypeToCategory = this._mimeTypeToCategory;
 
     function procMapObj(aSubTree, aCategories) {
-      for (let key in aSubTree) {
-        let value = aSubTree[key];
+      for (const key in aSubTree) {
+        const value = aSubTree[key];
         // Add this category to our nested categories list.  Use concat since
         //  the list will be long-lived and each list needs to be distinct.
-        let categories = aCategories.concat();
+        const categories = aCategories.concat();
         categories.push(key);
 
         if (categories.length == 1) {
@@ -345,7 +345,7 @@ var MimeTypeNoun = {
 
         // Is it an array? If so, just process this depth
         if (Array.isArray(value)) {
-          for (let mimeTypeStr of value) {
+          for (const mimeTypeStr of value) {
             mimeTypeToCategory[mimeTypeStr] = categories;
           }
         } else {
@@ -365,7 +365,7 @@ var MimeTypeNoun = {
     if (aFullType in this._mimeTypeToCategory) {
       return this._mimeTypeToCategory[aFullType][0];
     }
-    let wildType = aType + "/*";
+    const wildType = aType + "/*";
     if (wildType in this._mimeTypeToCategory) {
       return this._mimeTypeToCategory[wildType][0];
     }
@@ -388,8 +388,8 @@ var MimeTypeNoun = {
    */
   _loadMimeTypes() {
     // get all the existing mime types!
-    let query = Gloda.newQuery(this.id);
-    let nullFunc = function () {};
+    const query = Gloda.newQuery(this.id);
+    const nullFunc = function () {};
     this._universalCollection = query.getCollection(
       {
         onItemsAdded: nullFunc,
@@ -415,8 +415,8 @@ var MimeTypeNoun = {
    *  just have to deal with then.)
    */
   _createCategoryDummies(aId, aCategory) {
-    let blockBottom = aId - (aId % this.TYPE_BLOCK_SIZE);
-    let blockTop = blockBottom + this.TYPE_BLOCK_SIZE - 1;
+    const blockBottom = aId - (aId % this.TYPE_BLOCK_SIZE);
+    const blockTop = blockBottom + this.TYPE_BLOCK_SIZE - 1;
     this._mimeTypeRangeDummyObjects[aCategory] = [
       new MimeType(
         blockBottom,
@@ -436,14 +436,14 @@ var MimeTypeNoun = {
   },
 
   _processMimeTypes(aMimeTypes) {
-    for (let mimeType of aMimeTypes) {
+    for (const mimeType of aMimeTypes) {
       if (mimeType.id > this._highID) {
         this._highID = mimeType.id;
       }
       this._mimeTypes[mimeType] = mimeType;
       this._mimeTypesByID[mimeType.id] = mimeType;
 
-      let blockHighID =
+      const blockHighID =
         mimeType.category in this._mimeTypeHighID
           ? this._mimeTypeHighID[mimeType.category]
           : undefined;
@@ -458,11 +458,11 @@ var MimeTypeNoun = {
   },
 
   _addNewMimeType(aMimeTypeName) {
-    let [typeName, subTypeName] = aMimeTypeName.split("/");
-    let category = this._getCategoryForMimeType(aMimeTypeName, typeName);
+    const [typeName, subTypeName] = aMimeTypeName.split("/");
+    const category = this._getCategoryForMimeType(aMimeTypeName, typeName);
 
     if (!(category in this._mimeTypeHighID)) {
-      let nextID =
+      const nextID =
         this._highID -
         (this._highID % this.TYPE_BLOCK_SIZE) +
         this.TYPE_BLOCK_SIZE;
@@ -470,9 +470,9 @@ var MimeTypeNoun = {
       this._createCategoryDummies(nextID, category);
     }
 
-    let nextID = ++this._mimeTypeHighID[category];
+    const nextID = ++this._mimeTypeHighID[category];
 
-    let mimeType = new MimeType(
+    const mimeType = new MimeType(
       nextID,
       typeName,
       subTypeName,
@@ -507,7 +507,7 @@ var MimeTypeNoun = {
    */
   getMimeType(aMimeTypeName) {
     // first, lose any parameters
-    let semiIndex = aMimeTypeName.indexOf(";");
+    const semiIndex = aMimeTypeName.indexOf(";");
     if (semiIndex >= 0) {
       aMimeTypeName = aMimeTypeName.substring(0, semiIndex);
     }
@@ -535,7 +535,7 @@ var MimeTypeNoun = {
      * @param aArguments The actual arguments object that
      */
     Category(aAttrDef, aArguments) {
-      let rangePairs = [];
+      const rangePairs = [];
       // If there are no arguments then we want to fall back to the 'in'
       //  constraint which matches on any attachment.
       if (!aArguments || aArguments.length == 0) {
@@ -543,7 +543,7 @@ var MimeTypeNoun = {
       }
 
       for (let iArg = 0; iArg < aArguments.length; iArg++) {
-        let arg = aArguments[iArg];
+        const arg = aArguments[iArg];
         rangePairs.push(MimeTypeNoun._mimeTypeRangeDummyObjects[arg.category]);
       }
       return this._rangedConstraintHelper(aAttrDef, rangePairs);

@@ -59,7 +59,7 @@ var ImapCapFlags = {
    */
   stringsToFlags(arr) {
     let flags = 0;
-    for (let str of arr) {
+    for (const str of arr) {
       switch (str) {
         case "QUOTA":
           flags |= this.Quota;
@@ -136,8 +136,8 @@ var ImapUtils = {
    * @returns {string} Flags string that can be sent to the server.
    */
   flagsToString(flags, supportedFlags) {
-    let arr = [];
-    let strFlags = [
+    const arr = [];
+    const strFlags = [
       ["\\Seen", this.FLAG_SEEN],
       ["\\Answered", this.FLAG_ANSWERED],
       ["\\Flagged", this.FLAG_FLAGGED],
@@ -146,7 +146,7 @@ var ImapUtils = {
       ["$Forwarded", this.FLAG_FORWARDED],
       ["$MDNSent", this.FLAG_MDN_SENT],
     ];
-    for (let [str, flag] of strFlags) {
+    for (const [str, flag] of strFlags) {
       if (flags & flag && supportedFlags & flag) {
         arr.push(str);
       }
@@ -189,7 +189,7 @@ var ImapUtils = {
    */
   stringsToFlags(arr) {
     let flags = 0;
-    for (let str of arr) {
+    for (const str of arr) {
       flags |= this.stringToFlag(str);
     }
     return flags;

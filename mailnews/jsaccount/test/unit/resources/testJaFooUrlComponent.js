@@ -59,7 +59,7 @@ FooUrl.prototype = {
   // InterfaceRequestor override, needed if extraInterfaces.
 
   getInterface(iid) {
-    for (let iface of FooUrlProperties.extraInterfaces) {
+    for (const iface of FooUrlProperties.extraInterfaces) {
       if (iid.equals(iface)) {
         return this;
       }
@@ -82,7 +82,7 @@ FooUrl.prototype = {
   // readonly attribute boolean isAttachment;
   get isAttachment() {
     // We look to see if the URL has an attachment query
-    let query = this.QueryInterface(Ci.nsIURL).query;
+    const query = this.QueryInterface(Ci.nsIURL).query;
     return query && query.includes(ATTACHMENT_QUERY);
   },
 };

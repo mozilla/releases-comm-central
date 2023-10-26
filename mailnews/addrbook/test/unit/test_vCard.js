@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let { VCardProperties, VCardUtils } = ChromeUtils.import(
+const { VCardProperties, VCardUtils } = ChromeUtils.import(
   "resource:///modules/VCardUtils.jsm"
 );
 
@@ -10,12 +10,12 @@ const ANY_UID = "UID:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
 
 add_task(function testVCardToPropertyMap() {
   function check(vCardLine, expectedProps) {
-    let vCard = `BEGIN:VCARD\r\n${vCardLine}\r\nEND:VCARD\r\n`;
+    const vCard = `BEGIN:VCARD\r\n${vCardLine}\r\nEND:VCARD\r\n`;
     info(vCard);
-    let properties = VCardProperties.fromVCard(vCard).toPropertyMap();
+    const properties = VCardProperties.fromVCard(vCard).toPropertyMap();
     // Check that every property in expectedProps is present in `properties`.
     // No other property can be present unless it is in `propWhitelist`.
-    for (let [name, value] of properties) {
+    for (const [name, value] of properties) {
       if (name in expectedProps) {
         Assert.equal(value, expectedProps[name], `expected ${name}`);
         delete expectedProps[name];
@@ -24,7 +24,7 @@ add_task(function testVCardToPropertyMap() {
       }
     }
 
-    for (let name of Object.keys(expectedProps)) {
+    for (const name of Object.keys(expectedProps)) {
       Assert.ok(false, `expected ${name} not found`);
     }
   }
@@ -292,10 +292,10 @@ add_task(function testVCardToPropertyMap() {
 
 add_task(function testAbCardToVCard() {
   function check(abCardProps, ...expectedLines) {
-    let abCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    const abCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
       Ci.nsIAbCard
     );
-    for (let [name, value] of Object.entries(abCardProps)) {
+    for (const [name, value] of Object.entries(abCardProps)) {
       if (name == "UID") {
         abCard.UID = abCardProps.UID;
         continue;
@@ -303,9 +303,9 @@ add_task(function testAbCardToVCard() {
       abCard.setProperty(name, value);
     }
 
-    let vCard = VCardUtils.abCardToVCard(abCard);
+    const vCard = VCardUtils.abCardToVCard(abCard);
     info(vCard);
-    let vCardLines = vCard.split("\r\n");
+    const vCardLines = vCard.split("\r\n");
     if (expectedLines.includes(ANY_UID)) {
       for (let i = 0; i < vCardLines.length; i++) {
         if (vCardLines[i].startsWith("UID:")) {
@@ -314,7 +314,7 @@ add_task(function testAbCardToVCard() {
       }
     }
 
-    for (let line of expectedLines) {
+    for (const line of expectedLines) {
       Assert.ok(vCardLines.includes(line), line);
     }
   }

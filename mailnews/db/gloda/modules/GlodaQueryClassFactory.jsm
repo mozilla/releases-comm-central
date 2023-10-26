@@ -69,8 +69,8 @@ GlodaQueryClass.prototype = {
   },
 
   or() {
-    let owner = this._owner || this;
-    let orQuery = new this._queryClass();
+    const owner = this._owner || this;
+    const orQuery = new this._queryClass();
     orQuery._owner = owner;
     owner._unions.push(orQuery);
     return orQuery;
@@ -129,10 +129,10 @@ GlodaQueryClass.prototype = {
   test(aObj) {
     // when changing this method, be sure that GlodaDatastore's queryFromQuery
     //  method likewise has any required changes made.
-    let unionQueries = [this].concat(this._unions);
+    const unionQueries = [this].concat(this._unions);
 
     for (let iUnion = 0; iUnion < unionQueries.length; iUnion++) {
-      let curQuery = unionQueries[iUnion];
+      const curQuery = unionQueries[iUnion];
 
       // assume success until a specific (or) constraint proves us wrong
       let querySatisfied = true;
@@ -141,9 +141,9 @@ GlodaQueryClass.prototype = {
         iConstraint < curQuery._constraints.length;
         iConstraint++
       ) {
-        let constraint = curQuery._constraints[iConstraint];
-        let [constraintType, attrDef] = constraint;
-        let boundName = attrDef ? attrDef.boundName : "id";
+        const constraint = curQuery._constraints[iConstraint];
+        const [constraintType, attrDef] = constraint;
+        const boundName = attrDef ? attrDef.boundName : "id";
         if (
           boundName in aObj &&
           aObj[boundName] === GlodaConstants.IGNORE_FACET
@@ -152,7 +152,7 @@ GlodaQueryClass.prototype = {
           break;
         }
 
-        let constraintValues = constraint.slice(2);
+        const constraintValues = constraint.slice(2);
 
         if (constraintType === GlodaConstants.kConstraintIdIn) {
           if (!constraintValues.includes(aObj.id)) {
@@ -164,7 +164,7 @@ GlodaQueryClass.prototype = {
           constraintType === GlodaConstants.kConstraintEquals
         ) {
           // @testpoint gloda.query.test.kConstraintIn
-          let objectNounDef = attrDef.objectNounDef;
+          const objectNounDef = attrDef.objectNounDef;
 
           // if they provide an equals comparator, use that.
           // (note: the next case has better optimization possibilities than
@@ -195,7 +195,7 @@ GlodaQueryClass.prototype = {
             //  empty indicator.)
             if (testValues.length == 0 && attrDef.emptySetIsSignificant) {
               let foundEmptySetSignifier = false;
-              for (let constraintValue of constraintValues) {
+              for (const constraintValue of constraintValues) {
                 if (constraintValue == null) {
                   foundEmptySetSignifier = true;
                   break;
@@ -207,8 +207,8 @@ GlodaQueryClass.prototype = {
             }
 
             let foundMatch = false;
-            for (let testValue of testValues) {
-              for (let value of constraintValues) {
+            for (const testValue of testValues) {
+              for (const value of constraintValues) {
                 if (objectNounDef.equals(testValue, value)) {
                   foundMatch = true;
                   break;
@@ -251,7 +251,7 @@ GlodaQueryClass.prototype = {
             //  empty indicator.)
             if (testValues.length == 0 && attrDef.emptySetIsSignificant) {
               let foundEmptySetSignifier = false;
-              for (let constraintValue of constraintValues) {
+              for (const constraintValue of constraintValues) {
                 if (constraintValue == null) {
                   foundEmptySetSignifier = true;
                   break;
@@ -263,14 +263,14 @@ GlodaQueryClass.prototype = {
             }
 
             let foundMatch = false;
-            for (let testValue of testValues) {
-              let [aParam, aValue] = objectNounDef.toParamAndValue(testValue);
-              for (let value of constraintValues) {
+            for (const testValue of testValues) {
+              const [aParam, aValue] = objectNounDef.toParamAndValue(testValue);
+              for (const value of constraintValues) {
                 // skip empty set check sentinel values
                 if (value == null && attrDef.emptySetIsSignificant) {
                   continue;
                 }
-                let [bParam, bValue] = objectNounDef.toParamAndValue(value);
+                const [bParam, bValue] = objectNounDef.toParamAndValue(value);
                 if (aParam == bParam && aValue == bValue) {
                   foundMatch = true;
                   break;
@@ -287,7 +287,7 @@ GlodaQueryClass.prototype = {
           }
         } else if (constraintType === GlodaConstants.kConstraintRanges) {
           // @testpoint gloda.query.test.kConstraintRanges
-          let objectNounDef = attrDef.objectNounDef;
+          const objectNounDef = attrDef.objectNounDef;
 
           let testValues;
           if (!(boundName in aObj)) {
@@ -299,19 +299,19 @@ GlodaQueryClass.prototype = {
           }
 
           let foundMatch = false;
-          for (let testValue of testValues) {
-            let [tParam, tValue] = objectNounDef.toParamAndValue(testValue);
-            for (let rangeTuple of constraintValues) {
-              let [lowerRValue, upperRValue] = rangeTuple;
+          for (const testValue of testValues) {
+            const [tParam, tValue] = objectNounDef.toParamAndValue(testValue);
+            for (const rangeTuple of constraintValues) {
+              const [lowerRValue, upperRValue] = rangeTuple;
               if (lowerRValue == null) {
-                let [upperParam, upperValue] =
+                const [upperParam, upperValue] =
                   objectNounDef.toParamAndValue(upperRValue);
                 if (tParam == upperParam && tValue <= upperValue) {
                   foundMatch = true;
                   break;
                 }
               } else if (upperRValue == null) {
-                let [lowerParam, lowerValue] =
+                const [lowerParam, lowerValue] =
                   objectNounDef.toParamAndValue(lowerRValue);
                 if (tParam == lowerParam && tValue >= lowerValue) {
                   foundMatch = true;
@@ -319,9 +319,9 @@ GlodaQueryClass.prototype = {
                 }
               } else {
                 // no one is null
-                let [upperParam, upperValue] =
+                const [upperParam, upperValue] =
                   objectNounDef.toParamAndValue(upperRValue);
-                let [lowerParam, lowerValue] =
+                const [lowerParam, lowerValue] =
                   objectNounDef.toParamAndValue(lowerRValue);
                 if (
                   tParam == lowerParam &&
@@ -345,11 +345,11 @@ GlodaQueryClass.prototype = {
         } else if (constraintType === GlodaConstants.kConstraintStringLike) {
           // @testpoint gloda.query.test.kConstraintStringLike
           let curIndex = 0;
-          let value = boundName in aObj ? aObj[boundName] : "";
+          const value = boundName in aObj ? aObj[boundName] : "";
           // the attribute must be singular, we don't support arrays of strings.
-          for (let valuePart of constraintValues) {
+          for (const valuePart of constraintValues) {
             if (typeof valuePart == "string") {
-              let index = value.indexOf(valuePart);
+              const index = value.indexOf(valuePart);
               // if curIndex is null, we just need any match
               // if it's not null, it must match the offset of our found match
               if (curIndex === null) {
@@ -409,7 +409,7 @@ GlodaQueryClass.prototype = {
    * @protected
    */
   _inConstraintHelper(aAttrDef, aValues) {
-    let constraint = [GlodaConstants.kConstraintIn, aAttrDef].concat(aValues);
+    const constraint = [GlodaConstants.kConstraintIn, aAttrDef].concat(aValues);
     this._constraints.push(constraint);
     return this;
   },
@@ -423,7 +423,7 @@ GlodaQueryClass.prototype = {
    * @protected
    */
   _rangedConstraintHelper(aAttrDef, aRanges) {
-    let constraint = [GlodaConstants.kConstraintRanges, aAttrDef].concat(
+    const constraint = [GlodaConstants.kConstraintRanges, aAttrDef].concat(
       aRanges
     );
     this._constraints.push(constraint);
@@ -607,14 +607,14 @@ GlodaWildcardQueryClass.prototype = {
  *  the 'class'.
  */
 function GlodaQueryClassFactory(aNounDef) {
-  let newQueryClass = function (aOptions) {
+  const newQueryClass = function (aOptions) {
     GlodaQueryClass.call(this, aOptions);
   };
   newQueryClass.prototype = new GlodaQueryClass();
   newQueryClass.prototype._queryClass = newQueryClass;
   newQueryClass.prototype._nounDef = aNounDef;
 
-  let newNullClass = function (aCollection) {
+  const newNullClass = function (aCollection) {
     GlodaNullQueryClass.call(this);
     this.collection = aCollection;
   };
@@ -622,7 +622,7 @@ function GlodaQueryClassFactory(aNounDef) {
   newNullClass.prototype._queryClass = newNullClass;
   newNullClass.prototype._nounDef = aNounDef;
 
-  let newExplicitClass = function (aCollection) {
+  const newExplicitClass = function (aCollection) {
     GlodaExplicitQueryClass.call(this);
     this.collection = aCollection;
   };
@@ -630,7 +630,7 @@ function GlodaQueryClassFactory(aNounDef) {
   newExplicitClass.prototype._queryClass = newExplicitClass;
   newExplicitClass.prototype._nounDef = aNounDef;
 
-  let newWildcardClass = function (aCollection) {
+  const newWildcardClass = function (aCollection) {
     GlodaWildcardQueryClass.call(this);
     this.collection = aCollection;
   };

@@ -131,7 +131,7 @@ var expectedImapAccount = {
 };
 
 function teardown() {
-  for (let server of MailServices.smtp.servers) {
+  for (const server of MailServices.smtp.servers) {
     MailServices.smtp.deleteServer(server);
   }
 

@@ -7,14 +7,14 @@ function run_test() {
   // to ensure that it is initialized before we start the main test.
   MailServices.ab;
 
-  let file = do_get_file("resources/becky/addressbooks");
-  let helper = new AbImportHelper(
+  const file = do_get_file("resources/becky/addressbooks");
+  const helper = new AbImportHelper(
     file,
     "Becky!",
     "addressbooks",
     "becky_addressbook"
   );
-  let vcfSupportedAttributes = [
+  const vcfSupportedAttributes = [
     "FirstName",
     "LastName",
     "DisplayName",

@@ -30,12 +30,12 @@ class BeckyProfileImporter extends BaseProfileImporter {
     this._importMailGeneric = this._importModule
       .GetImportInterface("mail")
       .QueryInterface(Ci.nsIImportGeneric);
-    let importMail = this._importMailGeneric
+    const importMail = this._importMailGeneric
       .GetData("mailInterface")
       .QueryInterface(Ci.nsIImportMail);
-    let outLocation = {};
-    let outFound = {};
-    let outUserVerify = {};
+    const outLocation = {};
+    const outFound = {};
+    const outUserVerify = {};
     importMail.GetDefaultLocation(outLocation, outFound, outUserVerify);
     if (outLocation.value) {
       return [{ dir: outLocation.value }];
@@ -52,17 +52,17 @@ class BeckyProfileImporter extends BaseProfileImporter {
     this._itemsTotalCount = Object.values(items).filter(Boolean).length;
     this._itemsImportedCount = 0;
 
-    let successStr = Cc["@mozilla.org/supports-string;1"].createInstance(
+    const successStr = Cc["@mozilla.org/supports-string;1"].createInstance(
       Ci.nsISupportsString
     );
-    let errorStr = Cc["@mozilla.org/supports-string;1"].createInstance(
+    const errorStr = Cc["@mozilla.org/supports-string;1"].createInstance(
       Ci.nsISupportsString
     );
 
     if (items.mailMessages) {
       // @see nsIImportGeneric.
       this._importMailGeneric.SetData("mailLocation", sourceProfileDir);
-      let wantsProgress = this._importMailGeneric.WantsProgress();
+      const wantsProgress = this._importMailGeneric.WantsProgress();
       this._importMailGeneric.BeginImport(successStr, errorStr);
       if (wantsProgress) {
         while (this._importMailGeneric.GetProgress() < 100) {
@@ -91,13 +91,13 @@ class BeckyProfileImporter extends BaseProfileImporter {
       successStr.data = "";
       errorStr.data = "";
 
-      let importABGeneric = this._importModule
+      const importABGeneric = this._importModule
         .GetImportInterface("addressbook")
         .QueryInterface(Ci.nsIImportGeneric);
       importABGeneric.SetData("addressLocation", sourceProfileDir);
 
       // @see nsIImportGeneric.
-      let wantsProgress = importABGeneric.WantsProgress();
+      const wantsProgress = importABGeneric.WantsProgress();
       importABGeneric.BeginImport(successStr, errorStr);
       if (wantsProgress) {
         while (importABGeneric.GetProgress() < 100) {

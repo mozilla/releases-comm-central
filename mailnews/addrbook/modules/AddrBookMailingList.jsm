@@ -18,7 +18,7 @@ function AddrBookMailingList(uid, parent, name, nickName, description) {
 }
 AddrBookMailingList.prototype = {
   get asDirectory() {
-    let self = this;
+    const self = this;
     return {
       QueryInterface: ChromeUtils.generateQI(["nsIAbDirectory"]),
       classID: Components.ID("{e96ee804-0bd3-472f-81a6-8a9d65277ad3}"),
@@ -66,11 +66,11 @@ AddrBookMailingList.prototype = {
         return [];
       },
       get childCards() {
-        let selectStatement = self._parent._dbConnection.createStatement(
+        const selectStatement = self._parent._dbConnection.createStatement(
           "SELECT card FROM list_cards WHERE list = :list ORDER BY oid"
         );
         selectStatement.params.list = self._uid;
-        let results = [];
+        const results = [];
         while (selectStatement.executeStep()) {
           results.push(self._parent.getCard(selectStatement.row.card));
         }
@@ -96,13 +96,13 @@ AddrBookMailingList.prototype = {
         let results = this.childCards;
 
         // Process the query string into a tree of conditions to match.
-        let lispRegexp = /^\((and|or|not|([^\)]*)(\)+))/;
+        const lispRegexp = /^\((and|or|not|([^\)]*)(\)+))/;
         let index = 0;
-        let rootQuery = { children: [], op: "or" };
+        const rootQuery = { children: [], op: "or" };
         let currentQuery = rootQuery;
 
         while (true) {
-          let match = lispRegexp.exec(query.substring(index));
+          const match = lispRegexp.exec(query.substring(index));
           if (!match) {
             break;
           }
@@ -110,7 +110,7 @@ AddrBookMailingList.prototype = {
 
           if (["and", "or", "not"].includes(match[1])) {
             // For the opening bracket, step down a level.
-            let child = {
+            const child = {
               parent: currentQuery,
               children: [],
               op: match[1],
@@ -118,7 +118,7 @@ AddrBookMailingList.prototype = {
             currentQuery.children.push(child);
             currentQuery = child;
           } else {
-            let [name, condition, value] = match[2].split(",");
+            const [name, condition, value] = match[2].split(",");
             currentQuery.children.push({
               name,
               condition,
@@ -133,10 +133,10 @@ AddrBookMailingList.prototype = {
         }
 
         results = results.filter(card => {
-          let properties = card._properties;
-          let matches = b => {
+          const properties = card._properties;
+          const matches = b => {
             if ("condition" in b) {
-              let { name, condition, value } = b;
+              const { name, condition, value } = b;
               if (name == "IsMailList" && condition == "=") {
                 return value == "true";
               }
@@ -148,7 +148,7 @@ AddrBookMailingList.prototype = {
                 return true;
               }
 
-              let cardValue = properties.get(name).toLowerCase();
+              const cardValue = properties.get(name).toLowerCase();
               switch (condition) {
                 case "=":
                   return cardValue == value;
@@ -187,7 +187,7 @@ AddrBookMailingList.prototype = {
           return matches(rootQuery);
         }, this);
 
-        for (let card of results) {
+        for (const card of results) {
           listener.onSearchFoundCard(card);
         }
         listener.onSearchFinished(Cr.NS_OK, true, null, "");
@@ -206,7 +206,7 @@ AddrBookMailingList.prototype = {
         if (!self._parent.hasCard(card)) {
           card = self._parent.addCard(card);
         }
-        let insertStatement = self._parent._dbConnection.createStatement(
+        const insertStatement = self._parent._dbConnection.createStatement(
           "REPLACE INTO list_cards (list, card) VALUES (:list, :card)"
         );
         insertStatement.params.list = self._uid;
@@ -228,10 +228,10 @@ AddrBookMailingList.prototype = {
           );
         }
 
-        let deleteCardStatement = self._parent._dbConnection.createStatement(
+        const deleteCardStatement = self._parent._dbConnection.createStatement(
           "DELETE FROM list_cards WHERE list = :list AND card = :card"
         );
-        for (let card of cards) {
+        for (const card of cards) {
           deleteCardStatement.params.list = self._uid;
           deleteCardStatement.params.card = card.UID;
           deleteCardStatement.execute();
@@ -289,7 +289,7 @@ AddrBookMailingList.prototype = {
         }
 
         // Check if the new name contains the following special characters.
-        for (let char of ',;"<>') {
+        for (const char of ',;"<>') {
           if (self._name.includes(char)) {
             throw new Components.Exception(
               "Invalid mailing list name",
@@ -314,7 +314,7 @@ AddrBookMailingList.prototype = {
     };
   },
   get asCard() {
-    let self = this;
+    const self = this;
     return {
       QueryInterface: ChromeUtils.generateQI(["nsIAbCard"]),
       classID: Components.ID("{1143991d-31cd-4ea6-9c97-c587d990d724}"),
@@ -386,7 +386,7 @@ AddrBookMailingList.prototype = {
           ["NickName", this.getProperty("NickName", "")],
           ["Notes", this.getProperty("Notes", "")],
         ];
-        let props = [];
+        const props = [];
         for (const [name, value] of entries) {
           props.push({
             get name() {
@@ -408,7 +408,7 @@ AddrBookMailingList.prototype = {
       },
       translateTo(type) {
         // Get nsAbCardProperty to do the work, the code is in C++ anyway.
-        let cardCopy = Cc[
+        const cardCopy = Cc[
           "@mozilla.org/addressbook/cardproperty;1"
         ].createInstance(Ci.nsIAbCard);
         cardCopy.UID = this.UID;

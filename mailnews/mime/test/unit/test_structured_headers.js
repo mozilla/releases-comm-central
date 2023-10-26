@@ -22,13 +22,13 @@ var StructuredHeaders = CC(
 );
 
 add_task(async function check_addressing() {
-  let headers = new StructuredHeaders();
+  const headers = new StructuredHeaders();
   headers.setHeader("To", [{ name: "undisclosed-recipients", group: [] }]);
   Assert.ok(Array.isArray(headers.getHeader("To")));
-  let flat = headers.getAddressingHeader("To", false);
+  const flat = headers.getAddressingHeader("To", false);
   Assert.ok(Array.isArray(flat));
   Assert.equal(flat.length, 0);
-  let full = headers.getAddressingHeader("To", true);
+  const full = headers.getAddressingHeader("To", true);
   Assert.ok(Array.isArray(full));
   Assert.equal(full.length, 1);
   Assert.equal(full[0].name, "undisclosed-recipients");
@@ -48,8 +48,8 @@ add_task(async function check_addressing() {
 
 add_task(async function check_custom_header() {
   // Load an extension for our custom header.
-  let url = Services.io.newFileURI(do_get_file("custom_header.js")).spec;
-  let promise = new Promise((resolve, reject) => {
+  const url = Services.io.newFileURI(do_get_file("custom_header.js")).spec;
+  const promise = new Promise((resolve, reject) => {
     function observer(subject, topic, data) {
       Assert.equal(topic, "xpcom-category-entry-added");
       Assert.equal(data, "custom-mime-encoder");
@@ -67,7 +67,7 @@ add_task(async function check_custom_header() {
   );
   // The category manager doesn't fire until a later timestep.
   await promise;
-  let headers = new StructuredHeaders();
+  const headers = new StructuredHeaders();
   headers.setRawHeader("X-Unusual", "10");
   Assert.equal(headers.getHeader("X-Unusual"), 16);
   headers.setHeader("X-Unusual", 32);
@@ -75,9 +75,9 @@ add_task(async function check_custom_header() {
 });
 
 add_task(async function check_raw() {
-  let headers = new StructuredHeaders();
+  const headers = new StructuredHeaders();
   Assert.ok(!headers.hasHeader("Date"));
-  let day = new Date("2000-01-01T00:00:00Z");
+  const day = new Date("2000-01-01T00:00:00Z");
   headers.setHeader("Date", day);
   Assert.ok(headers.hasHeader("Date"));
   Assert.ok(headers.hasHeader("date"));
@@ -138,20 +138,20 @@ add_task(async function check_raw() {
 
   // Check the enumeration of header values.
   headers.setHeader("unabashed-random-header", false);
-  let headerList = [
+  const headerList = [
     "Date",
     "Content-Description",
     "Subject",
     "Unabashed-Random-Header",
   ];
-  for (let value of headers.headerNames) {
+  for (const value of headers.headerNames) {
     Assert.equal(value.toLowerCase(), headerList.shift().toLowerCase());
   }
 
   // Check that copying works
-  let moreHeaders = new StructuredHeaders();
+  const moreHeaders = new StructuredHeaders();
   moreHeaders.addAllHeaders(headers);
-  for (let value of headers.headerNames) {
+  for (const value of headers.headerNames) {
     Assert.equal(moreHeaders.getHeader(value), headers.getHeader(value));
   }
   headers.deleteHeader("Date");
@@ -159,7 +159,7 @@ add_task(async function check_raw() {
 });
 
 add_task(async function check_nsIMimeHeaders() {
-  let headers = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+  const headers = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
     Ci.nsIMimeHeaders
   );
   Assert.ok(headers instanceof Ci.msgIStructuredHeaders);
@@ -172,7 +172,7 @@ add_task(async function check_nsIMimeHeaders() {
   Assert.equal(headers.getAddressingHeader("To").length, 1);
   Assert.equal(headers.getHeader("Content-Type").type, "text/html");
 
-  let headerList = [
+  const headerList = [
     "X-Mozilla-Status",
     "X-Mozilla-Status2",
     "X-Mozilla-Keys",
@@ -190,7 +190,7 @@ add_task(async function check_nsIMimeHeaders() {
     "Content-Type",
     "Content-Transfer-Encoding",
   ];
-  for (let value of headers.headerNames) {
+  for (const value of headers.headerNames) {
     Assert.equal(value.toLowerCase(), headerList.shift().toLowerCase());
   }
 });
@@ -221,8 +221,8 @@ add_task(async function checkBuildMimeText() {
 
   // Check the version used for the nsIMimeHeaders implementation. This requires
   // initializing with a UTF-8 version.
-  let utf8Text = mimeText.replace("☃", "\xe2\x98\x83");
-  let mimeHeaders = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+  const utf8Text = mimeText.replace("☃", "\xe2\x98\x83");
+  const mimeHeaders = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
     Ci.nsIMimeHeaders
   );
   mimeHeaders.initialize(utf8Text);
@@ -241,9 +241,9 @@ add_task(async function checkBuildMimeText() {
  * Test that very long message id can be encoded without error.
  */
 add_task(async function test_longMessageId() {
-  let msgId =
+  const msgId =
     "<loqrvrxAUJXbUjUpqbrOJ8nHnJ49hmTREaUhehHZQv0AELQUM7ym6MUklPkt13aw4UD81bYIwO91pQL2OaeKMYVYD5hvZiRT2lSUmGtJkthgb3p5-y03p9bkxbnixgary7va1z0rv6hmd0yy69dm9exwga43h5k6266uwwchtjuxail7ipjhu6307yuft5bm186nu9vejf2joegwtq309cz9m-o3gwPZsvyB4qDpaAkxaj8iyh4OHc0kJsbQPQG8c5z6l3mmtwJuFHC4PxJnzAx9TyQzfnxhiXetQqFaNfvjNYetmNGMd4oq-sihw-d26z-bmdkvy47cloy2vwrnEYPKxtmjXtsmyFJGNxL7d1CeFIAOloSFAwccA6Onq6zPC9lfwWcAOFFje5XqkGVK2XNsUsFao5PR51WsOZStvoCzkqPuWB5PpJ791D9gzPXvGVa45ahuwgpmr1v8g1h5dalaytuxtpettthl506s7l4odqnkhufkvqkja56ulbd4ukgpbd88o3msjz3qk906pbfq6cahdecxoidplpbtsm-673718934717750999799265953521388769563044829819888815300763892678635939321303281062602679958225188.n050jeqcu1blxrm38i58q9dsws108c2m3xcc1tfmlgx8ya2wjyvzxyikgaaed3q6r@ZGCDPKIGJZGEPNVFFMXMTCMUFOPRMBFLIIPXSXECXKGNXBSDNPPHRBCXQRPCTUOCDDZVBEXYODLMFEQTUGBMHDJYUYus-575687677-2.673718934717750999799265953521388769563044829819888815300763892678635939321303281062602679958225188.invalid>";
-  let headers = new StructuredHeaders();
+  const headers = new StructuredHeaders();
   headers.setHeader("Message-ID", msgId);
   Assert.equal(headers.getRawHeader("message-id"), msgId);
 });

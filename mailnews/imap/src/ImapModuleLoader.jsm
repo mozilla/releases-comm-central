@@ -66,18 +66,18 @@ ImapModuleLoader.prototype = {
 
   loadModule() {
     if (Services.prefs.getBoolPref("mailnews.imap.jsmodule", false)) {
-      let registrar = Components.manager.QueryInterface(
+      const registrar = Components.manager.QueryInterface(
         Ci.nsIComponentRegistrar
       );
 
-      for (let [
+      for (const [
         moduleName,
         interfaceId,
         contractId,
         fileName,
       ] of imapJSModules) {
         // Register a module.
-        let classId = Components.ID(interfaceId);
+        const classId = Components.ID(interfaceId);
         registrar.registerFactory(
           classId,
           "",
@@ -91,7 +91,7 @@ ImapModuleLoader.prototype = {
       const { ImapProtocolHandler } = ChromeUtils.import(
         `resource:///modules/ImapProtocolHandler.jsm`
       );
-      let protocolFlags =
+      const protocolFlags =
         Ci.nsIProtocolHandler.URI_NORELATIVE |
         Ci.nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT |
         Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD |
@@ -112,14 +112,14 @@ ImapModuleLoader.prototype = {
 };
 
 function lazyFactoryFor(fileName, constructorName) {
-  let factory = {
+  const factory = {
     get scope() {
       delete this.scope;
       this.scope = ChromeUtils.import(`resource:///modules/${fileName}.jsm`);
       return this.scope;
     },
     createInstance(interfaceID) {
-      let componentConstructor = this.scope[constructorName];
+      const componentConstructor = this.scope[constructorName];
       return new componentConstructor().QueryInterface(interfaceID);
     },
   };

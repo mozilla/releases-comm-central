@@ -22,19 +22,19 @@ function run_test() {
 function verifyContentLength(aMessageHeaderKeys, aStatus) {
   Assert.notEqual(aMessageHeaderKeys, null);
   // First get the message URI
-  let msgHdr = localAccountUtils.inboxFolder.GetMessageHeader(
+  const msgHdr = localAccountUtils.inboxFolder.GetMessageHeader(
     aMessageHeaderKeys[0]
   );
-  let messageUri = localAccountUtils.inboxFolder.getUriForMsg(msgHdr);
+  const messageUri = localAccountUtils.inboxFolder.getUriForMsg(msgHdr);
   // Convert this to a URI that necko can run
-  let messageService = MailServices.messageServiceFromURI(messageUri);
-  let neckoURL = messageService.getUrlForUri(messageUri);
+  const messageService = MailServices.messageServiceFromURI(messageUri);
+  const neckoURL = messageService.getUrlForUri(messageUri);
   // Don't use the necko URL directly. Instead, get the spec and create a new
   // URL using the IO service
-  let urlToRun = Services.io.newURI(neckoURL.spec);
+  const urlToRun = Services.io.newURI(neckoURL.spec);
 
   // Get a channel from this URI, and check its content length
-  let channel = Services.io.newChannelFromURI(
+  const channel = Services.io.newChannelFromURI(
     urlToRun,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
@@ -45,7 +45,7 @@ function verifyContentLength(aMessageHeaderKeys, aStatus) {
   Assert.equal(channel.contentLength, gFile.fileSize);
 
   // Now try an attachment. &part=1.2
-  let attachmentURL = Services.io.newURI(neckoURL.spec + "&part=1.2");
+  const attachmentURL = Services.io.newURI(neckoURL.spec + "&part=1.2");
   Services.io.newChannelFromURI(
     attachmentURL,
     null,

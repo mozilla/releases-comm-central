@@ -211,7 +211,7 @@ function startCommand() {
   switch (gTest.command) {
     case kTrain: {
       // train message
-      let proArray = [];
+      const proArray = [];
       for (let i = 0; i < gTest.traitIds.length; i++) {
         proArray.push(gTest.traitIds[i]);
       }
@@ -230,7 +230,7 @@ function startCommand() {
     case kClass: {
       // classify message
       var antiArray = [];
-      let proArray = [];
+      const proArray = [];
       for (let i = 0; i < gTest.traitIds.length; i++) {
         antiArray.push(gTest.traitAntiIds[i]);
         proArray.push(gTest.traitIds[i]);

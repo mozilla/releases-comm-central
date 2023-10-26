@@ -12,28 +12,28 @@ const { BinaryServer } = ChromeUtils.import(
 );
 
 function getLDAPAttributes(urlSpec) {
-  let url = Services.io.newURI(urlSpec).QueryInterface(Ci.nsILDAPURL);
-  let ldapquery = Cc["@mozilla.org/ldapsyncquery;1"].createInstance(
+  const url = Services.io.newURI(urlSpec).QueryInterface(Ci.nsILDAPURL);
+  const ldapquery = Cc["@mozilla.org/ldapsyncquery;1"].createInstance(
     Ci.nsILDAPSyncQuery
   );
-  let payload = ldapquery.getQueryResults(url, Ci.nsILDAPConnection.VERSION3);
+  const payload = ldapquery.getQueryResults(url, Ci.nsILDAPConnection.VERSION3);
   // Returns a string with one attr per line.
   return payload;
 }
 
 add_task(async function test_LDAPSyncQuery() {
   // Set up fake LDAP server, loaded with some contacts.
-  let daemon = new LDAPDaemon();
-  let raw = await IOUtils.readUTF8(
+  const daemon = new LDAPDaemon();
+  const raw = await IOUtils.readUTF8(
     do_get_file(
       "../../../../mailnews/addrbook/test/unit/data/ldap_contacts.json"
     ).path
   );
-  let testContacts = JSON.parse(raw);
+  const testContacts = JSON.parse(raw);
   daemon.add(...Object.values(testContacts));
   // daemon.setDebug(true);
 
-  let server = new BinaryServer(LDAPHandlerFn, daemon);
+  const server = new BinaryServer(LDAPHandlerFn, daemon);
   server.start();
 
   // Fetch only the Holmes family.

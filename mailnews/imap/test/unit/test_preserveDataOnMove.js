@@ -28,7 +28,7 @@ add_task(async function createSubfolder() {
   await PromiseTestUtils.promiseFolderAdded("Subfolder");
   gSubfolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Subfolder");
   Assert.ok(gSubfolder instanceof Ci.nsIMsgImapMailFolder);
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gSubfolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
@@ -41,7 +41,7 @@ add_task(async function loadImapMessage() {
   IMAPPump.inbox.updateFolder(null);
   await PromiseTestUtils.promiseFolderNotification(IMAPPump.inbox, "msgAdded");
   Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
 
   // set an arbitrary property
@@ -50,8 +50,8 @@ add_task(async function loadImapMessage() {
 
 // move the message to a subfolder
 add_task(async function moveMessageToSubfolder() {
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     IMAPPump.inbox, // srcFolder
     [msgHdr], // messages
@@ -65,11 +65,11 @@ add_task(async function moveMessageToSubfolder() {
 });
 
 add_task(async function testPropertyOnMove() {
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gSubfolder.updateFolderWithListener(null, listener);
   await PromiseTestUtils.promiseFolderNotification(gSubfolder, "msgAdded");
   await listener.promise;
-  let msgHdr = mailTestUtils.firstMsgHdr(gSubfolder);
+  const msgHdr = mailTestUtils.firstMsgHdr(gSubfolder);
   Assert.equal(msgHdr.getStringProperty("testprop"), "somevalue");
 });
 
@@ -84,7 +84,7 @@ add_task(function endTest() {
 
 // given a test file, return the file uri spec
 function specForFileName(aFileName) {
-  let file = do_get_file("../../../data/" + aFileName);
-  let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+  const file = do_get_file("../../../data/" + aFileName);
+  const msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
 }

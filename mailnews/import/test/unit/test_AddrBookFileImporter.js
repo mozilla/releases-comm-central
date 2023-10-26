@@ -17,18 +17,18 @@ var { AddrBookFileImporter } = ChromeUtils.import(
  */
 async function test_importAbFile(type, filePath, refDataKey, csvFieldMap) {
   // Create an address book and init the importer.
-  let dirId = MailServices.ab.newAddressBook(
+  const dirId = MailServices.ab.newAddressBook(
     `tmp-${type}`,
     "",
     Ci.nsIAbManager.JS_DIRECTORY_TYPE
   );
-  let targetDir = MailServices.ab.getDirectoryFromId(dirId);
-  let importer = new AddrBookFileImporter(type);
+  const targetDir = MailServices.ab.getDirectoryFromId(dirId);
+  const importer = new AddrBookFileImporter(type);
 
   // Start importing.
-  let sourceFile = do_get_file(filePath);
+  const sourceFile = do_get_file(filePath);
   if (type == "csv") {
-    let unmatched = await importer.parseCsvFile(sourceFile);
+    const unmatched = await importer.parseCsvFile(sourceFile);
     if (unmatched.length) {
       importer.setCsvFields(csvFieldMap);
     }
@@ -36,13 +36,13 @@ async function test_importAbFile(type, filePath, refDataKey, csvFieldMap) {
   await importer.startImport(sourceFile, targetDir);
 
   // Read in the reference data.
-  let refFile = do_get_file("resources/addressbook.json");
-  let refData = JSON.parse(await IOUtils.readUTF8(refFile.path))[refDataKey];
+  const refFile = do_get_file("resources/addressbook.json");
+  const refData = JSON.parse(await IOUtils.readUTF8(refFile.path))[refDataKey];
 
   // Compare with the reference data.
   for (let i = 0; i < refData.length; i++) {
-    let card = targetDir.childCards[i];
-    for (let [key, value] of Object.entries(refData[i])) {
+    const card = targetDir.childCards[i];
+    for (const [key, value] of Object.entries(refData[i])) {
       if (key == "LastModifiedDate") {
         continue;
       }

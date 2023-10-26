@@ -59,7 +59,7 @@ ResultRowMulti.prototype = {
   fullText: false,
   onItemsAdded(aItems) {
     if (this.renderer) {
-      for (let [, item] of aItems.entries()) {
+      for (const [, item] of aItems.entries()) {
         this.renderer.renderItem(item);
       }
     }
@@ -132,7 +132,7 @@ nsAutoCompleteGlodaResult.prototype = {
   // this is the lower text, (shows the url in firefox)
   // we try and show the contact's name here.
   getValueAt(aIndex) {
-    let thing = this._results[aIndex];
+    const thing = this._results[aIndex];
     return thing.name || thing.value || thing.subject || null;
   },
   getLabelAt(aIndex) {
@@ -141,7 +141,7 @@ nsAutoCompleteGlodaResult.prototype = {
   // rich uses this to be the "title".  it is the upper text
   // we try and show the identity here.
   getCommentAt(aIndex) {
-    let thing = this._results[aIndex];
+    const thing = this._results[aIndex];
     if (thing.value) {
       // identity
       return thing.contact.name;
@@ -150,12 +150,12 @@ nsAutoCompleteGlodaResult.prototype = {
   },
   // rich uses this to be the "type"
   getStyleAt(aIndex) {
-    let row = this._results[aIndex];
+    const row = this._results[aIndex];
     return row.typeForStyle;
   },
   // rich uses this to be the icon
   getImageAt(aIndex) {
-    let thing = this._results[aIndex];
+    const thing = this._results[aIndex];
     if (!thing.value) {
       return null;
     }
@@ -184,7 +184,7 @@ var MAX_POPULAR_CONTACTS = 200;
  */
 function ContactIdentityCompleter() {
   // get all the contacts
-  let contactQuery = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
+  const contactQuery = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
   contactQuery.orderBy("-popularity").limit(MAX_POPULAR_CONTACTS);
   this.contactCollection = contactQuery.getCollection(this, null);
   this.contactCollection.becomeExplicit();
@@ -218,9 +218,9 @@ ContactIdentityCompleter.prototype = {
     //  establishing a map based on the contact id for these guys.
     // let's also favor identities as we do it, because that gets us the
     //  most accurate gravat, potentially
-    let contactToThing = {};
+    const contactToThing = {};
     for (let iMatch = 0; iMatch < matches.length; iMatch++) {
-      let thing = matches[iMatch];
+      const thing = matches[iMatch];
       if (
         thing.NOUN_ID == GlodaConstants.NOUN_CONTACT &&
         !(thing.id in contactToThing)
@@ -238,15 +238,15 @@ ContactIdentityCompleter.prototype = {
         val.NOUN_ID == GlodaConstants.NOUN_IDENTITY ? val : val.identities[0]
       );
 
-    let rows = matches.map(
+    const rows = matches.map(
       match => new ResultRowSingle(match, "text", aResult.searchString)
     );
     aResult.addRows(rows);
 
     // - match against database contacts / identities
-    let pending = { contactToThing, pendingCount: 2 };
+    const pending = { contactToThing, pendingCount: 2 };
 
-    let contactQuery = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
+    const contactQuery = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
     contactQuery.nameLike(
       contactQuery.WILDCARD,
       aString,
@@ -255,7 +255,7 @@ ContactIdentityCompleter.prototype = {
     pending.contactColl = contactQuery.getCollection(this, aResult);
     pending.contactColl.becomeExplicit();
 
-    let identityQuery = Gloda.newQuery(GlodaConstants.NOUN_IDENTITY);
+    const identityQuery = Gloda.newQuery(GlodaConstants.NOUN_IDENTITY);
     identityQuery
       .kind("email")
       .valueLike(identityQuery.WILDCARD, aString, identityQuery.WILDCARD);
@@ -286,7 +286,7 @@ ContactIdentityCompleter.prototype = {
       this.identityCollection =
         this.contactCollection.subCollections[GlodaConstants.NOUN_IDENTITY];
 
-      let contactNames = this.contactCollection.items.map(
+      const contactNames = this.contactCollection.items.map(
         c => c.name.replace(" ", "").toLowerCase() || "x"
       );
       // if we had no contacts, we will have no identity collection!
@@ -315,13 +315,13 @@ ContactIdentityCompleter.prototype = {
     }
 
     // handle the completion case
-    let result = aCollection.data;
-    let pending = result._contactCompleterPending;
+    const result = aCollection.data;
+    const pending = result._contactCompleterPending;
 
     if (--pending.pendingCount == 0) {
-      let possibleDudes = [];
+      const possibleDudes = [];
 
-      let contactToThing = pending.contactToThing;
+      const contactToThing = pending.contactToThing;
 
       let items;
 
@@ -329,7 +329,7 @@ ContactIdentityCompleter.prototype = {
       //  of display
       items = pending.identityColl.items;
       for (let iIdentity = 0; iIdentity < items.length; iIdentity++) {
-        let identity = items[iIdentity];
+        const identity = items[iIdentity];
         if (!(identity.contactID in contactToThing)) {
           contactToThing[identity.contactID] = identity;
           possibleDudes.push(identity);
@@ -339,7 +339,7 @@ ContactIdentityCompleter.prototype = {
       }
       items = pending.contactColl.items;
       for (let iContact = 0; iContact < items.length; iContact++) {
-        let contact = items[iContact];
+        const contact = items[iContact];
         if (!(contact.id in contactToThing)) {
           contactToThing[contact.id] = contact;
           possibleDudes.push(contact.identities[0]);
@@ -348,7 +348,7 @@ ContactIdentityCompleter.prototype = {
 
       // sort in order of descending popularity
       possibleDudes.sort(this._popularitySorter);
-      let rows = possibleDudes.map(
+      const rows = possibleDudes.map(
         dude => new ResultRowSingle(dude, "text", result.searchString)
       );
       result.addRows(rows);
@@ -373,9 +373,9 @@ function ContactTagCompleter() {
 }
 ContactTagCompleter.prototype = {
   _buildSuffixTree() {
-    let tagNames = [],
+    const tagNames = [],
       tags = [];
-    for (let [tagName, tag] of Object.entries(FreeTagNoun.knownFreeTags)) {
+    for (const [tagName, tag] of Object.entries(FreeTagNoun.knownFreeTags)) {
       tagNames.push(tagName.toLowerCase());
       tags.push(tag);
     }
@@ -396,12 +396,12 @@ ContactTagCompleter.prototype = {
       return false;
     }
 
-    let tags = this._suffixTree.findMatches(aString.toLowerCase());
-    let rows = [];
-    for (let tag of tags) {
-      let query = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
+    const tags = this._suffixTree.findMatches(aString.toLowerCase());
+    const rows = [];
+    for (const tag of tags) {
+      const query = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
       query.freeTags(tag);
-      let resRow = new ResultRowMulti(
+      const resRow = new ResultRowMulti(
         GlodaConstants.NOUN_CONTACT,
         "tag",
         tag.name,
@@ -423,11 +423,11 @@ function MessageTagCompleter() {
 }
 MessageTagCompleter.prototype = {
   _buildSuffixTree() {
-    let tagNames = [],
+    const tagNames = [],
       tags = [];
-    let tagArray = TagNoun.getAllTags();
+    const tagArray = TagNoun.getAllTags();
     for (let iTag = 0; iTag < tagArray.length; iTag++) {
-      let tag = tagArray[iTag];
+      const tag = tagArray[iTag];
       tagNames.push(tag.tag.toLowerCase());
       tags.push(tag);
     }
@@ -439,10 +439,10 @@ MessageTagCompleter.prototype = {
       return false;
     }
 
-    let tags = this._suffixTree.findMatches(aString.toLowerCase());
-    let rows = [];
-    for (let tag of tags) {
-      let resRow = new ResultRowSingle(tag, "tag", tag.tag, TagNoun.id);
+    const tags = this._suffixTree.findMatches(aString.toLowerCase());
+    const rows = [];
+    for (const tag of tags) {
+      const resRow = new ResultRowSingle(tag, "tag", tag.tag, TagNoun.id);
       rows.push(resRow);
     }
     aResult.addRows(rows);
@@ -463,12 +463,12 @@ FullTextCompleter.prototype = {
     // We use code very similar to that in GlodaMsgSearcher.jsm, except that we
     // need to detect when we found phrases, as well as strip commas.
     aSearchString = aSearchString.trim();
-    let terms = [];
+    const terms = [];
     let phraseFound = false;
     while (aSearchString) {
       let term = "";
       if (aSearchString.startsWith('"')) {
-        let endIndex = aSearchString.indexOf(aSearchString[0], 1);
+        const endIndex = aSearchString.indexOf(aSearchString[0], 1);
         // eat the quote if it has no friend
         if (endIndex == -1) {
           aSearchString = aSearchString.substring(1);
@@ -483,7 +483,7 @@ FullTextCompleter.prototype = {
         continue;
       }
 
-      let spaceIndex = aSearchString.indexOf(" ");
+      const spaceIndex = aSearchString.indexOf(" ");
       if (spaceIndex == -1) {
         terms.push(aSearchString.replace(/,/g, ""));
         break;
@@ -542,7 +542,7 @@ GlodaAutoComplete.prototype = {
 
   startSearch(aString, aParam, aResult, aListener) {
     try {
-      let result = new nsAutoCompleteGlodaResult(aListener, this, aString);
+      const result = new nsAutoCompleteGlodaResult(aListener, this, aString);
       // save this for hacky access to the search.  I somewhat suspect we simply
       //  should not be using the formal autocomplete mechanism at all.
       // Used in glodacomplete.xml.
@@ -552,7 +552,7 @@ GlodaAutoComplete.prototype = {
       this.curResult.active = true;
 
       if (aParam == "global") {
-        for (let completer of this.completers) {
+        for (const completer of this.completers) {
           // they will return true if they have something pending.
           if (completer.complete(result, aString)) {
             result.markPending(completer);

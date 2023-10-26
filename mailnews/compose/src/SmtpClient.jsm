@@ -118,8 +118,8 @@ class SmtpClient {
       this.logger.debug("Reusing a connection");
       this.onidle();
     } else {
-      let hostname = this._server.hostname.toLowerCase();
-      let port = this._server.port || (this.options.requireTLS ? 465 : 587);
+      const hostname = this._server.hostname.toLowerCase();
+      const port = this._server.port || (this.options.requireTLS ? 465 : 587);
       this.logger.debug(`Connecting to smtp://${hostname}:${port}`);
       this._secureTransport = this.options.requireTLS;
       this.socket = new TCPSocket(hostname, port, {
@@ -189,14 +189,14 @@ class SmtpClient {
       // If server doesn't support SMTPUTF8, check if addresses contain invalid
       // characters.
 
-      let recipients = this._envelope.to;
+      const recipients = this._envelope.to;
       this._envelope.to = [];
 
       for (let recipient of recipients) {
         let lastAt = null;
         let firstInvalid = null;
         for (let i = 0; i < recipient.length; i++) {
-          let ch = recipient[i];
+          const ch = recipient[i];
           if (ch == "@") {
             lastAt = i;
           } else if ((ch < " " || ch > "~") && ch != "\t") {
@@ -211,10 +211,12 @@ class SmtpClient {
             return;
           }
           // Invalid char found in the domainpart, convert it to ACE.
-          let idnService = Cc["@mozilla.org/network/idn-service;1"].getService(
-            Ci.nsIIDNService
+          const idnService = Cc[
+            "@mozilla.org/network/idn-service;1"
+          ].getService(Ci.nsIIDNService);
+          const domain = idnService.convertUTF8toACE(
+            recipient.slice(lastAt + 1)
           );
-          let domain = idnService.convertUTF8toACE(recipient.slice(lastAt + 1));
           recipient = `${recipient.slice(0, lastAt)}@${domain}`;
         }
         this._envelope.to.push(recipient);
@@ -242,7 +244,7 @@ class SmtpClient {
     if (this._capabilities.includes("SMTPUTF8")) {
       // Should not send SMTPUTF8 if all ascii, see RFC6531.
       // eslint-disable-next-line no-control-regex
-      let ascii = /^[\x00-\x7F]+$/;
+      const ascii = /^[\x00-\x7F]+$/;
       if ([envelope.from, ...envelope.to].some(x => !ascii.test(x))) {
         cmd += " SMTPUTF8";
       }
@@ -251,7 +253,7 @@ class SmtpClient {
       cmd += ` SIZE=${this._envelope.size}`;
     }
     if (this._capabilities.includes("DSN") && this._envelope.requestDSN) {
-      let ret = Services.prefs.getBoolPref("mail.dsn.ret_full_on")
+      const ret = Services.prefs.getBoolPref("mail.dsn.ret_full_on")
         ? "FULL"
         : "HDRS";
       cmd += ` RET=${ret} ENVID=${envelope.messageId}`;
@@ -411,7 +413,7 @@ class SmtpClient {
    * @param {Event} evt - Event object. See `evt.data` for the chunk received
    */
   _onData = async evt => {
-    let stringPayload = new TextDecoder("UTF-8").decode(
+    const stringPayload = new TextDecoder("UTF-8").decode(
       new Uint8Array(evt.data)
     );
     // "S: " to denote that this is data from the Server.
@@ -457,7 +459,7 @@ class SmtpClient {
       if (secInfo) {
         this.logger.error(`SecurityError info: ${secInfo.errorCodeString}`);
         if (secInfo.failedCertChain.length) {
-          let chain = secInfo.failedCertChain.map(c => {
+          const chain = secInfo.failedCertChain.map(c => {
             return c.commonName + "; serial# " + c.serialNumber;
           });
           this.logger.error(`SecurityError cert chain: ${chain.join(" <- ")}`);
@@ -479,7 +481,7 @@ class SmtpClient {
    * @param {string} [extra] - Some messages take two arguments to format.
    */
   _onNsError(nsError, errorParam, extra) {
-    let errorName = MsgUtils.getErrorStringName(nsError);
+    const errorName = MsgUtils.getErrorStringName(nsError);
     let errorMessage = "";
     if (
       [
@@ -493,7 +495,7 @@ class SmtpClient {
         MsgUtils.NS_ERROR_ILLEGAL_LOCALPART,
       ].includes(nsError)
     ) {
-      let bundle = Services.strings.createBundle(
+      const bundle = Services.strings.createBundle(
         "chrome://messenger/locale/messengercompose/composeMsgs.properties"
       );
       if (nsError == MsgUtils.NS_ERROR_ILLEGAL_LOCALPART) {
@@ -690,7 +692,7 @@ class SmtpClient {
         // See https://developers.google.com/gmail/xoauth2_protocol#smtp_protocol_exchange
         this.logger.debug("Authentication via AUTH XOAUTH2");
         this._currentAction = this._actionAUTH_XOAUTH2;
-        let oauthToken = await this._authenticator.getOAuthToken();
+        const oauthToken = await this._authenticator.getOAuthToken();
         this._sendCommand("AUTH XOAUTH2 " + oauthToken, true);
         return;
       case "GSSAPI": {
@@ -769,7 +771,7 @@ class SmtpClient {
     }
 
     // Ask user what to do.
-    let action = this._authenticator.promptAuthFailed();
+    const action = this._authenticator.promptAuthFailed();
     if (action == 1) {
       // Cancel button pressed.
       this.logger.error(`Authentication failed: ${command.data}`);
@@ -796,15 +798,15 @@ class SmtpClient {
   }
 
   _getHelloArgument() {
-    let helloArgument = this._server.helloArgument;
+    const helloArgument = this._server.helloArgument;
     if (helloArgument) {
       return helloArgument;
     }
 
     try {
       // The address format follows rfc5321#section-4.1.3.
-      let netAddr = this.socket?.transport.getScriptableSelfAddr();
-      let address = netAddr.address;
+      const netAddr = this.socket?.transport.getScriptableSelfAddr();
+      const address = netAddr.address;
       if (netAddr.family === Ci.nsINetAddr.FAMILY_INET6) {
         return `[IPV6:${address}]`;
       }
@@ -880,9 +882,9 @@ class SmtpClient {
 
     this._supportedAuthMethods = [];
 
-    let lines = command.data.toUpperCase().split("\n");
+    const lines = command.data.toUpperCase().split("\n");
     // Skip the first greeting line.
-    for (let line of lines.slice(1)) {
+    for (const line of lines.slice(1)) {
       if (line.startsWith("AUTH ")) {
         this._supportedAuthMethods = line.slice(5).split(" ");
       } else {
@@ -1090,7 +1092,7 @@ class SmtpClient {
       this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_GSSAPI, command.data);
       return;
     }
-    let token = this._authenticator.getNextGssapiToken(command.data);
+    const token = this._authenticator.getNextGssapiToken(command.data);
     this._currentAction = this._actionAUTH_GSSAPI;
     this._sendCommand(token, true);
   }
@@ -1111,7 +1113,7 @@ class SmtpClient {
       this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
       return;
     }
-    let token = this._authenticator.getNextNtlmToken(command.data);
+    const token = this._authenticator.getNextNtlmToken(command.data);
     this._currentAction = this._actionAUTH_NTLM;
     this._sendCommand(token, true);
   }
@@ -1182,7 +1184,7 @@ class SmtpClient {
    */
   _getRCPTParameters() {
     if (this._capabilities.includes("DSN") && this._envelope.requestDSN) {
-      let notify = [];
+      const notify = [];
       if (Services.prefs.getBoolPref("mail.dsn.request_never_on")) {
         notify.push("NEVER");
       } else {

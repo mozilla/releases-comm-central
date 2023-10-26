@@ -40,7 +40,7 @@ export class ImapFolderContentHandler {
     }
     request = request.QueryInterface(Ci.nsIChannel);
 
-    let imapFolderURL = Services.io.unescapeString(
+    const imapFolderURL = Services.io.unescapeString(
       request.URI.spec,
       Ci.nsINetUtil.ESCAPE_URL_PATH
     );

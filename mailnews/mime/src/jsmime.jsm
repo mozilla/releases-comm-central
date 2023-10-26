@@ -30,7 +30,7 @@ function UTF7TextDecoder(options = {}, manager) {
 UTF7TextDecoder.prototype = {
   // Since the constructor checked, this will only be called for UTF-7.
   decode(input, options = {}) {
-    let more = "stream" in options ? options.stream : false;
+    const more = "stream" in options ? options.stream : false;
     // There are cases where this is called without input.
     if (!input) {
       return "";
@@ -45,11 +45,11 @@ UTF7TextDecoder.prototype = {
 
 /* exported MimeTextDecoder */
 function MimeTextDecoder(charset, options) {
-  let manager = Cc["@mozilla.org/charset-converter-manager;1"].createInstance(
+  const manager = Cc["@mozilla.org/charset-converter-manager;1"].createInstance(
     Ci.nsICharsetConverterManager
   );
   // The following will throw if the charset is unknown.
-  let newCharset = manager.getCharsetAlias(charset);
+  const newCharset = manager.getCharsetAlias(charset);
   if (newCharset.toLowerCase() == "utf-7") {
     return new UTF7TextDecoder(options, manager);
   }
@@ -61,12 +61,12 @@ var CATEGORY_NAME = "custom-mime-encoder";
 Services.obs.addObserver(function (subject, topic, data) {
   subject = subject.QueryInterface(Ci.nsISupportsCString).data;
   if (data == CATEGORY_NAME) {
-    let url = Services.catMan.getCategoryEntry(CATEGORY_NAME, subject);
+    const url = Services.catMan.getCategoryEntry(CATEGORY_NAME, subject);
     Services.scriptloader.loadSubScript(url, {}, "UTF-8");
   }
 }, "xpcom-category-entry-added");
 
-for (let { data } of Services.catMan.enumerateCategory(CATEGORY_NAME)) {
-  let url = Services.catMan.getCategoryEntry(CATEGORY_NAME, data);
+for (const { data } of Services.catMan.enumerateCategory(CATEGORY_NAME)) {
+  const url = Services.catMan.getCategoryEntry(CATEGORY_NAME, data);
   Services.scriptloader.loadSubScript(url, {}, "UTF-8");
 }

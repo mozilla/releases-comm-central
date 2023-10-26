@@ -114,7 +114,7 @@ FeedItem.prototype = {
     // this.mUrl and this.contentBase contain plain text.
 
     let stored = false;
-    let ds = lazy.FeedUtils.getItemsDS(this.feed.server);
+    const ds = lazy.FeedUtils.getItemsDS(this.feed.server);
     let resource = this.findStoredResource();
     if (!this.feed.folder) {
       return stored;
@@ -159,8 +159,8 @@ FeedItem.prototype = {
       "FeedItem.findStoredResource: checking if stored - " + this.identity
     );
 
-    let server = this.feed.server;
-    let folder = this.feed.folder;
+    const server = this.feed.server;
+    const folder = this.feed.folder;
 
     if (!folder) {
       lazy.FeedUtils.log.debug(
@@ -174,8 +174,8 @@ FeedItem.prototype = {
       return null;
     }
 
-    let ds = lazy.FeedUtils.getItemsDS(server);
-    let item = ds.data[this.id];
+    const ds = lazy.FeedUtils.getItemsDS(server);
+    const item = ds.data[this.id];
     if (!item || !item.stored) {
       lazy.FeedUtils.log.trace("FeedItem.findStoredResource: not stored");
       return null;
@@ -231,7 +231,7 @@ FeedItem.prototype = {
     }
 
     // If there is an inreplyto value, create the headers.
-    let inreplytoHdrsStr = this.inReplyTo
+    const inreplytoHdrsStr = this.inReplyTo
       ? "References: " +
         this.inReplyTo +
         "\n" +
@@ -241,10 +241,10 @@ FeedItem.prototype = {
       : "";
 
     // Support multiple authors in From.
-    let fromStr = this.createHeaderStrFromArray("From: ", this.author);
+    const fromStr = this.createHeaderStrFromArray("From: ", this.author);
 
     // If there are keywords (categories), create the headers.
-    let keywordsStr = this.createHeaderStrFromArray(
+    const keywordsStr = this.createHeaderStrFromArray(
       "Keywords: ",
       this.keywords
     );
@@ -286,7 +286,7 @@ FeedItem.prototype = {
       "\n";
 
     if (this.enclosures.length) {
-      let boundaryID = source.length;
+      const boundaryID = source.length;
       source +=
         'Content-Type: multipart/mixed; boundary="' +
         this.ENCLOSURE_HEADER_BOUNDARY_PREFIX +
@@ -324,13 +324,13 @@ FeedItem.prototype = {
     );
 
     // Get the folder and database storing the feed's messages and headers.
-    let folder = this.feed.folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-    let msgFolder = folder.QueryInterface(Ci.nsIMsgFolder);
+    const folder = this.feed.folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+    const msgFolder = folder.QueryInterface(Ci.nsIMsgFolder);
     msgFolder.gettingNewMessages = true;
     // Source is a unicode js string, as UTF-16, and we want to save a
     // char * cpp |string| as UTF-8 bytes. The source xml doc encoding is utf8.
     source = unescape(encodeURIComponent(source));
-    let msgDBHdr = folder.addMessage(source);
+    const msgDBHdr = folder.addMessage(source);
     msgDBHdr.orFlags(Ci.nsMsgMessageFlags.FeedMsg);
     msgFolder.gettingNewMessages = false;
     this.tagItem(msgDBHdr, this.keywords);
@@ -356,11 +356,11 @@ FeedItem.prototype = {
     const HEADER = headerName;
     const LINELENGTH = 78;
     const MAXLINELENGTH = 990;
-    let items = [].concat(headerItemsArray);
-    let lines = [];
+    const items = [].concat(headerItemsArray);
+    const lines = [];
     headerStr = HEADER;
     while (items.length) {
-      let item = items.shift();
+      const item = items.shift();
       if (
         headerStr.length + item.length > LINELENGTH &&
         headerStr.length > HEADER.length
@@ -390,15 +390,15 @@ FeedItem.prototype = {
    * @returns {void}
    */
   tagItem(aMsgDBHdr, aKeywords) {
-    let category = this.feed.options.category;
+    const category = this.feed.options.category;
     if (!aKeywords.length || !category.enabled) {
       return;
     }
 
-    let prefix = category.prefixEnabled ? category.prefix : "";
-    let rtl = Services.prefs.getIntPref("bidi.direction") == 2;
+    const prefix = category.prefixEnabled ? category.prefix : "";
+    const rtl = Services.prefs.getIntPref("bidi.direction") == 2;
 
-    let keys = [];
+    const keys = [];
     for (let keyword of aKeywords) {
       keyword = rtl ? keyword + prefix : prefix + keyword;
       let keyForTag = MailServices.tags.getKeyForTag(keyword);
@@ -440,11 +440,11 @@ function FeedEnclosure(aURL, aContentType, aLength, aTitle) {
   // Generate a fileName from the URL.
   if (this.mURL) {
     try {
-      let uri = Services.io.newURI(this.mURL).QueryInterface(Ci.nsIURL);
+      const uri = Services.io.newURI(this.mURL).QueryInterface(Ci.nsIURL);
       this.mFileName = uri.fileName;
       // Determine mimetype from extension if content-type is not present.
       if (!aContentType) {
-        let contentType = Cc["@mozilla.org/mime;1"]
+        const contentType = Cc["@mozilla.org/mime;1"]
           .getService(Ci.nsIMIMEService)
           .getTypeFromExtension(uri.fileExtension);
         this.mContentType = contentType;

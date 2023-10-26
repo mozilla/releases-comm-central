@@ -25,14 +25,14 @@ var gTestArray = [
     // setup manual copy then move mail filters on the inbox
     gFilterList = localAccountUtils.incomingServer.getFilterList(null);
     gFilter = gFilterList.createFilter("copyThenMoveAll");
-    let searchTerm = gFilter.createTerm();
+    const searchTerm = gFilter.createTerm();
     searchTerm.matchAll = true;
     gFilter.appendTerm(searchTerm);
-    let copyAction = gFilter.createAction();
+    const copyAction = gFilter.createAction();
     copyAction.type = Ci.nsMsgFilterAction.CopyToFolder;
     copyAction.targetFolderUri = gCopyFolder.URI;
     gFilter.appendAction(copyAction);
-    let moveAction = gFilter.createAction();
+    const moveAction = gFilter.createAction();
     moveAction.type = Ci.nsMsgFilterAction.MoveToFolder;
     moveAction.targetFolderUri = gMoveFolder.URI;
     gFilter.appendAction(moveAction);
@@ -47,7 +47,7 @@ var gTestArray = [
   },
   // test applying filters to a message header
   async function applyFilters() {
-    let promiseFolderEvent = PromiseTestUtils.promiseFolderEvent(
+    const promiseFolderEvent = PromiseTestUtils.promiseFolderEvent(
       localAccountUtils.inboxFolder,
       "DeleteOrMoveMsgCompleted"
     );
@@ -74,8 +74,8 @@ var gTestArray = [
   },
   // use the alternate call into the filter service
   async function applyFiltersToFolders() {
-    let folders = [localAccountUtils.inboxFolder];
-    let promiseFolderEvent = PromiseTestUtils.promiseFolderEvent(
+    const folders = [localAccountUtils.inboxFolder];
+    const promiseFolderEvent = PromiseTestUtils.promiseFolderEvent(
       localAccountUtils.inboxFolder,
       "DeleteOrMoveMsgCompleted"
     );

@@ -21,19 +21,19 @@ add_task(async function () {
    * cleared when the preference changes.
    */
   function getDisplayNameInAddressBook() {
-    let card = MailServices.ab.cardForEmailAddress("first.last@invalid");
+    const card = MailServices.ab.cardForEmailAddress("first.last@invalid");
     if (!card) {
       return null;
     }
 
-    let preferDisplayName = card.getPropertyAsBool("PreferDisplayName", true);
+    const preferDisplayName = card.getPropertyAsBool("PreferDisplayName", true);
     return preferDisplayName ? card.displayName : card.primaryEmail;
   }
 
   Assert.equal(getPrefValue(), -999, "pref has no initial value");
   Assert.equal(getDisplayNameInAddressBook(), null, "card doesn't exist yet");
 
-  let book = MailServices.ab.getDirectory(kPABData.URI);
+  const book = MailServices.ab.getDirectory(kPABData.URI);
   let card = new AddrBookCard();
   card.firstName = "first";
   card.lastName = "last";

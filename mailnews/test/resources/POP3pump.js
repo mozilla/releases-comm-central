@@ -184,7 +184,7 @@ POP3Pump.prototype._checkBusy = function () {
 };
 
 POP3Pump.prototype._testNext = function () {
-  let thisFiles = this._tests.shift();
+  const thisFiles = this._tests.shift();
   if (!thisFiles) {
     // Exit.
     this._checkBusy();
@@ -210,7 +210,7 @@ POP3Pump.prototype._testNext = function () {
     this._daemon.setMessages(thisFiles);
 
     // Now get the mail, get inbox in case it got un-deferred.
-    let inbox = this._incomingServer.rootMsgFolder.getFolderWithFlags(
+    const inbox = this._incomingServer.rootMsgFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Inbox
     );
     MailServices.pop3.GetNewMail(null, this, inbox, this._incomingServer);

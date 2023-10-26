@@ -29,7 +29,7 @@ book.init("jsaddrbook://conversion.sqlite");
 
 /** Tests an instance of nsAbCardProperty. */
 add_task(function testCardProperty() {
-  let cardProperty = Cc[
+  const cardProperty = Cc[
     "@mozilla.org/addressbook/cardproperty;1"
   ].createInstance(Ci.nsIAbCard);
   cardProperty.UID = "99999999-8888-7777-6666-555555555555";
@@ -55,7 +55,7 @@ add_task(function testCardProperty() {
  * is therefore the same as a card that hasn't yet been migrated to vCard.
  */
 add_task(function testABCard() {
-  let abCard = new AddrBookCard();
+  const abCard = new AddrBookCard();
   abCard._uid = "99999999-8888-7777-6666-555555555555";
   abCard._properties = new Map([
     ["PopularityIndex", 0], // NO
@@ -81,7 +81,7 @@ add_task(function testABCard() {
  * created from storage. This instance *does* contain a vCard.
  */
 add_task(function testABCardWithVCard() {
-  let abCard = new AddrBookCard();
+  const abCard = new AddrBookCard();
   abCard._uid = "99999999-8888-7777-6666-555555555555";
   abCard._properties = new Map([
     ["PopularityIndex", 0], // NO
@@ -119,7 +119,7 @@ add_task(function testABCardWithVCard() {
  * created from storage. This instance *does* contain a vCard.
  */
 add_task(function testABCardWithVCardOnly() {
-  let abCard = new AddrBookCard();
+  const abCard = new AddrBookCard();
   abCard._uid = "99999999-8888-7777-6666-555555555555";
   abCard._properties = new Map([
     ["FakeProperty", "fake value"], // NO
@@ -152,7 +152,7 @@ add_task(function testABCardWithVCardOnly() {
  * properties that shouldn't exist because their value is stored in the vCard.
  */
 add_task(function testABCardWithVCardAndExtraProps() {
-  let abCard = new AddrBookCard();
+  const abCard = new AddrBookCard();
   abCard._uid = "99999999-8888-7777-6666-555555555555";
   abCard._properties = new Map([
     ["PopularityIndex", 0], // NO
@@ -191,7 +191,7 @@ add_task(function testABCardWithVCardAndExtraProps() {
 
 /** Tests an instance of AddrBookCard, created from scratch. */
 add_task(function testABCardConstructed() {
-  let abCard = new AddrBookCard();
+  const abCard = new AddrBookCard();
   abCard.UID = "99999999-8888-7777-6666-555555555555";
   abCard.displayName = "display name";
   abCard.firstName = "first";
@@ -213,7 +213,7 @@ add_task(function testABCardConstructed() {
 
 /** Tests an instance of AddrBookCard, created from scratch. */
 add_task(function testABCardConstructionThrows() {
-  let abCard = new AddrBookCard();
+  const abCard = new AddrBookCard();
   abCard.UID = "99999999-8888-7777-6666-555555555555";
   abCard.displayName = "display name";
   abCard.firstName = "first";
@@ -252,7 +252,7 @@ function saveCardAndTest(card, useNewUID) {
 
   Assert.equal(book.childCardCount, 0);
 
-  let savedCard = book.dropCard(card, useNewUID);
+  const savedCard = book.dropCard(card, useNewUID);
   Assert.deepEqual(Array.from(savedCard.properties, p => p.name).sort(), [
     "DisplayName",
     "FakeProperty",
@@ -281,7 +281,7 @@ function saveCardAndTest(card, useNewUID) {
   Assert.equal(savedCard.getProperty("FakeProperty", "WRONG"), "fake value");
   Assert.equal(savedCard.getProperty("PopularityIndex", "WRONG"), "0");
 
-  let vCard = savedCard.getProperty("_vCard", "WRONG");
+  const vCard = savedCard.getProperty("_vCard", "WRONG");
   Assert.stringContains(vCard, "\r\nEMAIL;PREF=1:primary@email\r\n");
   Assert.stringContains(vCard, "\r\nEMAIL:second@email\r\n");
   Assert.stringContains(vCard, "\r\nFN:display name\r\n");
@@ -291,7 +291,7 @@ function saveCardAndTest(card, useNewUID) {
   Assert.stringContains(vCard, "\r\nTEL;TYPE=fax;VALUE=TEXT:1234567\r\n");
   Assert.stringContains(vCard, `\r\nUID:${savedCard.UID}\r\n`);
 
-  let modifiedDate = parseInt(
+  const modifiedDate = parseInt(
     savedCard.getProperty("LastModifiedDate", ""),
     10
   );

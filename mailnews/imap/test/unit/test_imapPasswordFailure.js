@@ -78,7 +78,7 @@ add_task(async function () {
 
   registerAlertTestUtils();
 
-  let daemon = new ImapDaemon();
+  const daemon = new ImapDaemon();
   daemon.createMailbox("Subscribed", { subscribed: true });
   server = makeServer(daemon, "", {
     // Make username of server match the singons.txt file
@@ -95,7 +95,7 @@ add_task(async function () {
   // out of the signons file (first removing the value that
   // createLocalIMAPServer puts in there).
   incomingServer.password = "";
-  let password = incomingServer.getPasswordWithUI(
+  const password = incomingServer.getPasswordWithUI(
     "Prompt Message",
     "Prompt Title"
   );
@@ -115,7 +115,7 @@ add_task(async function () {
 
   Assert.equal(attempt, 2);
 
-  let rootFolder = incomingServer.rootFolder;
+  const rootFolder = incomingServer.rootFolder;
   Assert.ok(rootFolder.containsChildNamed("Inbox"));
   Assert.ok(!rootFolder.containsChildNamed("Subscribed"));
 

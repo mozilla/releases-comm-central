@@ -64,17 +64,17 @@ add_task(function endTest() {
 });
 
 async function test_message_attachments(info) {
-  let synMsg = messageGenerator.makeMessage(info);
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synMsg = messageGenerator.makeMessage(info);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders([inbox], [synSet]);
 
-  let msgURI = synSet.getMsgURI(0);
-  let msgService = MailServices.messageServiceFromURI(msgURI);
+  const msgURI = synSet.getMsgURI(0);
+  const msgService = MailServices.messageServiceFromURI(msgURI);
 
-  let streamListener = new PromiseTestUtils.PromiseStreamListener({
+  const streamListener = new PromiseTestUtils.PromiseStreamListener({
     onStopRequest(request, statusCode) {
       request.QueryInterface(Ci.nsIMailChannel);
-      let msgHdrSinkContentType =
+      const msgHdrSinkContentType =
         request.attachments[0].getProperty("contentType");
       Assert.equal(msgHdrSinkContentType, info.testContentType);
     },

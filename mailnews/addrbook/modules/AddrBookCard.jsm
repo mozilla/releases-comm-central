@@ -39,16 +39,16 @@ function AddrBookCard() {
 
     this._hasVCard = true;
 
-    let vCard = this.getProperty("_vCard", "");
+    const vCard = this.getProperty("_vCard", "");
     try {
       if (vCard) {
-        let vCardProperties = lazy.VCardProperties.fromVCard(vCard, {
+        const vCardProperties = lazy.VCardProperties.fromVCard(vCard, {
           isGoogleCardDAV: this._isGoogleCardDAV,
         });
         // Custom1..4 properties could still exist as nsIAbCard properties.
         // Migrate them now.
-        for (let key of ["Custom1", "Custom2", "Custom3", "Custom4"]) {
-          let value = this.getProperty(key, "");
+        for (const key of ["Custom1", "Custom2", "Custom3", "Custom4"]) {
+          const value = this.getProperty(key, "");
           if (
             value &&
             vCardProperties.getFirstEntry(`x-${key.toLowerCase()}`) === null
@@ -91,7 +91,7 @@ AddrBookCard.prototype = {
 
       case Ci.nsIAbCard.GENERATE_LAST_FIRST_ORDER:
         if (this.lastName) {
-          let otherNames = [
+          const otherNames = [
             this.prefixName,
             this.firstName,
             this.middleName,
@@ -114,10 +114,10 @@ AddrBookCard.prototype = {
         break;
 
       default:
-        let startNames = [this.prefixName, this.firstName, this.middleName]
+        const startNames = [this.prefixName, this.firstName, this.middleName]
           .filter(Boolean)
           .join(" ");
-        let endNames = [this.lastName, this.suffixName]
+        const endNames = [this.lastName, this.suffixName]
           .filter(Boolean)
           .join(" ");
         result =
@@ -184,7 +184,7 @@ AddrBookCard.prototype = {
     this._uid = value;
   },
   get properties() {
-    let props = [];
+    const props = [];
     for (const [name, value] of this._properties) {
       props.push({
         get name() {
@@ -219,7 +219,7 @@ AddrBookCard.prototype = {
     return name;
   },
   set firstName(value) {
-    let n = this._vCardProperties.getFirstEntry("n");
+    const n = this._vCardProperties.getFirstEntry("n");
     if (n) {
       n.value[1] = value;
     } else {
@@ -243,7 +243,7 @@ AddrBookCard.prototype = {
     return name;
   },
   set lastName(value) {
-    let n = this._vCardProperties.getFirstEntry("n");
+    const n = this._vCardProperties.getFirstEntry("n");
     if (n) {
       n.value[0] = value;
     } else {
@@ -259,7 +259,7 @@ AddrBookCard.prototype = {
     return this._vCardProperties.getFirstValue("fn") || "";
   },
   set displayName(value) {
-    let fn = this._vCardProperties.getFirstEntry("fn");
+    const fn = this._vCardProperties.getFirstEntry("fn");
     if (fn) {
       fn.value = value;
     } else {
@@ -275,14 +275,14 @@ AddrBookCard.prototype = {
     return this._vCardProperties.getAllValuesSorted("email")[0] ?? "";
   },
   set primaryEmail(value) {
-    let entries = this._vCardProperties.getAllEntriesSorted("email");
+    const entries = this._vCardProperties.getAllEntriesSorted("email");
     if (entries.length && entries[0].value != value) {
       this._vCardProperties.removeEntry(entries[0]);
       entries.shift();
     }
 
     if (value) {
-      let existing = entries.find(e => e.value == value);
+      const existing = entries.find(e => e.value == value);
       if (existing) {
         existing.params.pref = "1";
       } else {
@@ -304,7 +304,7 @@ AddrBookCard.prototype = {
     return this._vCardProperties.getAllValuesSorted("email");
   },
   get photoURL() {
-    let photoEntry = this.vCardProperties.getFirstEntry("photo");
+    const photoEntry = this.vCardProperties.getFirstEntry("photo");
     if (photoEntry?.value) {
       if (photoEntry.value?.startsWith("data:image/")) {
         // This is a version 4.0 card
@@ -328,9 +328,9 @@ AddrBookCard.prototype = {
       }
     }
 
-    let photoName = this.getProperty("PhotoName", "");
+    const photoName = this.getProperty("PhotoName", "");
     if (photoName) {
-      let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+      const file = Services.dirsvc.get("ProfD", Ci.nsIFile);
       file.append("Photos");
       file.append(photoName);
       return Services.io.newFileURI(file).spec;
@@ -358,7 +358,7 @@ AddrBookCard.prototype = {
     return this.getProperty(name);
   },
   getPropertyAsUint32(name) {
-    let value = this.getProperty(name);
+    const value = this.getProperty(name);
     if (!isNaN(parseInt(value, 10))) {
       return parseInt(value, 10);
     }
@@ -371,7 +371,7 @@ AddrBookCard.prototype = {
     );
   },
   getPropertyAsBool(name, defaultValue) {
-    let value = this.getProperty(name);
+    const value = this.getProperty(name);
     switch (value) {
       case false:
       case 0:
@@ -432,9 +432,9 @@ AddrBookCard.prototype = {
       return encodeURIComponent(this._vCardProperties.toVCard());
     }
     // Get nsAbCardProperty to do the work, the code is in C++ anyway.
-    let cardCopy = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-      Ci.nsIAbCard
-    );
+    const cardCopy = Cc[
+      "@mozilla.org/addressbook/cardproperty;1"
+    ].createInstance(Ci.nsIAbCard);
     cardCopy.UID = this.UID;
     cardCopy.copy(this);
     return cardCopy.translateTo(type);
@@ -452,7 +452,7 @@ AddrBookCard.prototype = {
     );
   },
   generateChatName() {
-    for (let name of [
+    for (const name of [
       "_GoogleTalk",
       "_AimScreenName",
       "_Yahoo",

@@ -50,7 +50,7 @@ OfflineStartup.prototype = {
 
     var manageOfflineStatus = Services.prefs.getBoolPref("offline.autoDetect");
     gOfflineStartupMode = Services.prefs.getIntPref(kOfflineStartupPref);
-    let wasOffline = !Services.prefs.getBoolPref("network.online");
+    const wasOffline = !Services.prefs.getBoolPref("network.online");
 
     if (gOfflineStartupMode == kAutomatic) {
       // Offline state should be managed automatically

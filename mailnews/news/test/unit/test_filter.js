@@ -101,7 +101,7 @@ function testAction(handler, daemon, localserver) {
   });
   server.performTest();
 
-  let headers = [...folder.messages];
+  const headers = [...folder.messages];
 
   try {
     Assert.equal(headers.length, 7);

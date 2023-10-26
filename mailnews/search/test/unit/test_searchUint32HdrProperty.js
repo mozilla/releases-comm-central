@@ -35,7 +35,7 @@ var Tests = [
   // add a property and test its value
   {
     setup: function setupProperty() {
-      for (let msgHdr of localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()) {
+      for (const msgHdr of localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()) {
         msgHdr.setUint32Property("iam23", 23);
       }
     },

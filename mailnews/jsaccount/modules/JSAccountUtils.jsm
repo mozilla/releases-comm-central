@@ -71,12 +71,12 @@ var log = console.createInstance({
  */
 
 JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor) {
-  let factory = {};
+  const factory = {};
   factory.QueryInterface = ChromeUtils.generateQI([Ci.nsIFactory]);
 
   factory.createInstance = function (iid) {
     // C++ delegator class.
-    let delegator = Cc[aProperties.baseContractID].createInstance(
+    const delegator = Cc[aProperties.baseContractID].createInstance(
       Ci.msgIOverride
     );
 
@@ -84,7 +84,7 @@ JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor) {
     aProperties.baseInterfaces.forEach(iface => delegator instanceof iface);
 
     // JavaScript overrides of base class functions.
-    let jsDelegate = new aJsDelegateConstructor(
+    const jsDelegate = new aJsDelegateConstructor(
       delegator,
       aProperties.baseInterfaces
     );
@@ -104,14 +104,14 @@ JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor) {
       log.info(
         "creating delegate list for contractID " + aProperties.contractID
       );
-      let delegateList = delegator.methodsToDelegate;
+      const delegateList = delegator.methodsToDelegate;
       Object.keys(delegator).forEach(name => {
         log.debug("delegator has key " + name);
       });
 
       // jsMethods contains the methods that may be targets of the C++ delegation to JS.
-      let jsMethods = Object.getPrototypeOf(jsDelegate);
-      for (let name in jsMethods) {
+      const jsMethods = Object.getPrototypeOf(jsDelegate);
+      for (const name in jsMethods) {
         log.debug("processing jsDelegate method: " + name);
         if (name[0] == "_") {
           // don't bother with methods explicitly marked as internal.
@@ -133,19 +133,19 @@ JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor) {
           continue;
         }
 
-        let jsDescriptor = getPropertyDescriptor(jsMethods, name);
+        const jsDescriptor = getPropertyDescriptor(jsMethods, name);
         if (!jsDescriptor) {
           log.debug("no jsDescriptor for " + name);
           continue;
         }
-        let cppDescriptor = Object.getOwnPropertyDescriptor(delegator, name);
+        const cppDescriptor = Object.getOwnPropertyDescriptor(delegator, name);
         if (!cppDescriptor) {
           log.debug("no cppDescriptor found for " + name);
           // It is OK for jsMethods to have methods that are not used in override of C++.
           continue;
         }
 
-        let upperCaseName = name[0].toUpperCase() + name.substr(1);
+        const upperCaseName = name[0].toUpperCase() + name.substr(1);
         if ("value" in jsDescriptor) {
           log.info("delegating " + upperCaseName);
           delegateList.add(upperCaseName);
@@ -165,7 +165,7 @@ JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor) {
       Object.getPrototypeOf(jsDelegate).delegateList = delegateList;
     }
 
-    for (let iface of aProperties.baseInterfaces) {
+    for (const iface of aProperties.baseInterfaces) {
       if (iid.equals(iface)) {
         log.debug("Successfully returning delegator " + delegator);
         return delegator;
@@ -189,14 +189,16 @@ JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor) {
  */
 JSAccountUtils.makeCppDelegator = function (aProperties) {
   log.info("Making cppDelegator for contractID " + aProperties.contractID);
-  let cppDelegator = {};
-  let cppDummy = Cc[aProperties.baseContractID].createInstance(Ci.nsISupports);
+  const cppDelegator = {};
+  const cppDummy = Cc[aProperties.baseContractID].createInstance(
+    Ci.nsISupports
+  );
   // Add methods from all interfaces.
-  for (let iface of aProperties.baseInterfaces) {
+  for (const iface of aProperties.baseInterfaces) {
     cppDummy instanceof Ci[iface];
   }
 
-  for (let method in cppDummy) {
+  for (const method in cppDummy) {
     // skip nsISupports and msgIOverride methods
     if (
       [
@@ -211,8 +213,8 @@ JSAccountUtils.makeCppDelegator = function (aProperties) {
       continue;
     }
     log.debug("Processing " + method);
-    let descriptor = Object.getOwnPropertyDescriptor(cppDummy, method);
-    let property = { enumerable: true };
+    const descriptor = Object.getOwnPropertyDescriptor(cppDummy, method);
+    const property = { enumerable: true };
     // We must use Immediately Invoked Function Expressions to pass method, otherwise it is
     // a closure containing just the last value it was set to.
     if ("value" in descriptor) {

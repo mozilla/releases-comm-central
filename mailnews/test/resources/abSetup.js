@@ -50,31 +50,31 @@ var kNormalPropertiesURI =
  * @param {string} dest - Final file name in the profile, with extension
  */
 function loadABFile(source, dest) {
-  let sourceFile = do_get_file(`${source}.sql`);
-  let destFile = do_get_profile();
+  const sourceFile = do_get_file(`${source}.sql`);
+  const destFile = do_get_profile();
   destFile.append(dest);
 
   info(`Creating ${destFile.path} from ${sourceFile.path}`);
 
-  let fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+  const fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
     Ci.nsIFileInputStream
   );
-  let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(
-    Ci.nsIConverterInputStream
-  );
+  const cstream = Cc[
+    "@mozilla.org/intl/converter-input-stream;1"
+  ].createInstance(Ci.nsIConverterInputStream);
   fstream.init(sourceFile, -1, 0, 0);
   cstream.init(fstream, "UTF-8", 0, 0);
 
   let data = "";
   let read = 0;
   do {
-    let str = {};
+    const str = {};
     read = cstream.readString(0xffffffff, str);
     data += str.value;
   } while (read != 0);
   cstream.close();
 
-  let conn = Services.storage.openDatabase(destFile);
+  const conn = Services.storage.openDatabase(destFile);
   conn.executeSimpleSQL(data);
   conn.close();
 }

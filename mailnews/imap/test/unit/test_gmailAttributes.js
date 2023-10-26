@@ -41,7 +41,7 @@ add_setup(async function () {
     specialUseFlag: "\\AllMail",
   });
   // Load and update a message in the imap fake server.
-  let message = new ImapMessage(
+  const message = new ImapMessage(
     specForFileName(gMessage),
     IMAPPump.mailbox.uidnext++,
     []
@@ -50,26 +50,26 @@ add_setup(async function () {
   message.xGmThrid = gXGmThrid;
   message.xGmLabels = gXGmLabels;
   IMAPPump.mailbox.addMessage(message);
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(function testFetchXGmMsgid() {
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  let val = msgHdr.getStringProperty("X-GM-MSGID");
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const val = msgHdr.getStringProperty("X-GM-MSGID");
   Assert.equal(val, gXGmMsgid);
 });
 
 add_task(function testFetchXGmThrid() {
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  let val = msgHdr.getStringProperty("X-GM-THRID");
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const val = msgHdr.getStringProperty("X-GM-THRID");
   Assert.equal(val, gXGmThrid);
 });
 
 add_task(function testFetchXGmLabels() {
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  let val = msgHdr.getStringProperty("X-GM-LABELS");
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const val = msgHdr.getStringProperty("X-GM-LABELS");
   // We need to remove the starting "(" and ending ")" from gXGmLabels while comparing
   Assert.equal(val, gXGmLabels.substring(1, gXGmLabels.length - 1));
 });
@@ -85,7 +85,7 @@ add_task(function endTest() {
 
 // given a test file, return the file uri spec
 function specForFileName(aFileName) {
-  let file = do_get_file("../../../data/" + aFileName);
-  let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+  const file = do_get_file("../../../data/" + aFileName);
+  const msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
 }

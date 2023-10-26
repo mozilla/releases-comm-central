@@ -38,7 +38,7 @@ class LDAPDirectory extends AddrBookDirectory {
   init(uri) {
     this._uri = uri;
 
-    let searchIndex = uri.indexOf("?");
+    const searchIndex = uri.indexOf("?");
     this._dirPrefId = uri.substr(
       "moz-abldapdirectory://".length,
       searchIndex == -1 ? undefined : searchIndex
@@ -119,14 +119,14 @@ class LDAPDirectory extends AddrBookDirectory {
   }
 
   get attributeMap() {
-    let mapSvc = Cc[
+    const mapSvc = Cc[
       "@mozilla.org/addressbook/ldap-attribute-map-service;1"
     ].createInstance(Ci.nsIAbLDAPAttributeMapService);
     return mapSvc.getMapForPrefBranch(this._dirPrefId);
   }
 
   get lDAPURL() {
-    let uri = this.getStringValue("uri") || `ldap://${this._uri.slice(22)}`;
+    const uri = this.getStringValue("uri") || `ldap://${this._uri.slice(22)}`;
     return Services.io.newURI(uri).QueryInterface(Ci.nsILDAPURL);
   }
 
@@ -181,7 +181,7 @@ class LDAPDirectory extends AddrBookDirectory {
       "@mozilla.org/addressbook/ldap-directory-query;1"
     ].createInstance(Ci.nsIAbDirectoryQuery);
 
-    let args = Cc[
+    const args = Cc[
       "@mozilla.org/addressbook/directory/query-arguments;1"
     ].createInstance(Ci.nsIAbDirectoryQueryArguments);
     args.expression = lazy.QueryStringToExpression.convert(queryString);
@@ -194,7 +194,7 @@ class LDAPDirectory extends AddrBookDirectory {
   useForAutocomplete(identityKey) {
     // If we're online, then don't allow search during local autocomplete - must
     // use the separate LDAP autocomplete session due to the current interfaces
-    let useDirectory = Services.prefs.getBoolPref(
+    const useDirectory = Services.prefs.getBoolPref(
       "ldap_2.autoComplete.useDirectory",
       false
     );
@@ -206,7 +206,7 @@ class LDAPDirectory extends AddrBookDirectory {
     if (identityKey) {
       // If we have an identity string, try and find out the required directory
       // server.
-      let identity = MailServices.accounts.getIdentity(identityKey);
+      const identity = MailServices.accounts.getIdentity(identityKey);
       if (identity.overrideGlobalPref) {
         prefName = identity.directoryServer;
       }

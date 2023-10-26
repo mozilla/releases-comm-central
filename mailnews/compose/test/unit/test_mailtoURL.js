@@ -53,7 +53,7 @@ function run_test() {
   }
 
   // Test cloning reparses the url by checking the to field.
-  let uri = Services.io.newURI(tests[0].url).QueryInterface(Ci.nsIMailtoUrl);
+  const uri = Services.io.newURI(tests[0].url).QueryInterface(Ci.nsIMailtoUrl);
   var to = {},
     cc = {},
     bcc = {},

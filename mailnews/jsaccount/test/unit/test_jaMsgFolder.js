@@ -17,7 +17,7 @@ var { MailServices } = ChromeUtils.import(
 );
 
 function run_test() {
-  let server = MailServices.accounts.createIncomingServer(
+  const server = MailServices.accounts.createIncomingServer(
     "foouser",
     "foohost",
     "testja"
@@ -26,7 +26,7 @@ function run_test() {
 
   // If you create a folder object directly, it will complain about not being registered.
   // Use folder-lookup-service instead.
-  let testJaMsgFolder = MailUtils.getOrCreateFolder(
+  const testJaMsgFolder = MailUtils.getOrCreateFolder(
     "testja://foouser@foohost/somefolder"
   );
   // let testJaMsgFolder = Cc[JaBaseMsgFolderProperties.contractID]
@@ -42,10 +42,10 @@ function run_test() {
   Assert.ok(db instanceof Ci.nsIMsgDatabase);
 
   // Make sure the DB actually works.
-  let dbFolder = db.folder;
+  const dbFolder = db.folder;
   Assert.ok(dbFolder instanceof Ci.nsIMsgFolder);
   Assert.equal(dbFolder.URI, "testja://foouser@foohost/somefolder");
-  let fi = db.dBFolderInfo;
+  const fi = db.dBFolderInfo;
   Assert.ok(fi instanceof Ci.nsIDBFolderInfo);
   fi.setCharProperty("testProperty", "foobar");
   Assert.equal(fi.getCharProperty("testProperty"), "foobar");

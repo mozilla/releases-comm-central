@@ -18,7 +18,7 @@ var ExtractMimeMsgEmitter = {
     }
 
     if (part.headers.hasOwnProperty("content-disposition")) {
-      let filename = MimeParser.getParameter(
+      const filename = MimeParser.getParameter(
         part.headers["content-disposition"][0],
         "filename"
       );
@@ -28,7 +28,7 @@ var ExtractMimeMsgEmitter = {
     }
 
     if (part.headers.hasOwnProperty("content-type")) {
-      let name = MimeParser.getParameter(
+      const name = MimeParser.getParameter(
         part.headers["content-type"][0],
         "name"
       );
@@ -48,7 +48,7 @@ var ExtractMimeMsgEmitter = {
       return false;
     }
 
-    let contentType = part.contentType || "text/plain";
+    const contentType = part.contentType || "text/plain";
     if (contentType.search(/^multipart\//i) === 0) {
       return false;
     }
@@ -109,14 +109,16 @@ var ExtractMimeMsgEmitter = {
   },
 
   startPart(partNum, headerMap) {
-    let contentType = headerMap.contentType?.type
+    const contentType = headerMap.contentType?.type
       ? headerMap.contentType.type
       : "text/plain";
 
     let headers = {};
-    for (let [headerName, headerValue] of headerMap._rawHeaders) {
+    for (const [headerName, headerValue] of headerMap._rawHeaders) {
       // MsgHdrToMimeMessage always returns an array, even for single values.
-      let valueArray = Array.isArray(headerValue) ? headerValue : [headerValue];
+      const valueArray = Array.isArray(headerValue)
+        ? headerValue
+        : [headerValue];
       // Return a binary string, to mimic MsgHdrToMimeMessage.
       headers[headerName] = valueArray.map(value => {
         return MailStringUtils.stringToByteString(value);
@@ -125,17 +127,17 @@ var ExtractMimeMsgEmitter = {
 
     // Get the most recent part from the hierarchical parts stack, which is the
     // parent of the new part to by added.
-    let parentPart = this.partsPath[this.partsPath.length - 1];
+    const parentPart = this.partsPath[this.partsPath.length - 1];
 
     // Add a leading 1 to the partNum and convert the "$" sub-message deliminator.
-    let partName = "1" + (partNum ? "." : "") + partNum.replaceAll("$", ".1");
+    const partName = "1" + (partNum ? "." : "") + partNum.replaceAll("$", ".1");
 
     // MsgHdrToMimeMessage differentiates between the message headers and the
     // headers of the first part. jsmime.js however returns all headers of
     // the message in the first multipart/* part: Merge all headers into the
     // parent part and only keep content-* headers.
     if (parentPart.contentType.startsWith("message/")) {
-      for (let [k, v] of Object.entries(headers)) {
+      for (const [k, v] of Object.entries(headers)) {
         if (!parentPart.headers[k]) {
           parentPart.headers[k] = v;
         }
@@ -150,7 +152,7 @@ var ExtractMimeMsgEmitter = {
       headers["content-type"] = ["text/plain"];
     }
 
-    let newPart = {
+    const newPart = {
       partName,
       body: "",
       headers,
@@ -173,9 +175,9 @@ var ExtractMimeMsgEmitter = {
     let currentPart = this.partsPath[this.partsPath.length - 1];
 
     // Add size.
-    let size = currentPart.body.length;
+    const size = currentPart.body.length;
     currentPart.size += size;
-    let partSize = currentPart.size;
+    const partSize = currentPart.size;
 
     if (this.isAttachment(currentPart)) {
       currentPart.name = this.getAttachmentName(currentPart);
@@ -208,7 +210,7 @@ var ExtractMimeMsgEmitter = {
    */
   deliverPartData(partNum, data) {
     // Get the most recent part from the hierarchical parts stack.
-    let currentPart = this.partsPath[this.partsPath.length - 1];
+    const currentPart = this.partsPath[this.partsPath.length - 1];
 
     if (typeof data === "string") {
       currentPart.body += data;
@@ -260,13 +262,13 @@ var MimeParser = {
     parameter = parameter.toLowerCase();
     headerStr = headerStr.replace(/[\r\n]+[ \t]+/g, "");
 
-    let hdrMap = jsmime.headerparser.parseParameterHeader(
+    const hdrMap = jsmime.headerparser.parseParameterHeader(
       ";" + headerStr,
       true,
       true
     );
 
-    for (let [key, value] of hdrMap.entries()) {
+    for (const [key, value] of hdrMap.entries()) {
       if (parameter == key.toLowerCase()) {
         return value;
       }
@@ -407,7 +409,7 @@ var MimeParser = {
       decodeSubMessages: true,
     };
     // Override default options.
-    for (let option of Object.keys(options)) {
+    for (const option of Object.keys(options)) {
       emitter.options[option] = options[option];
     }
 

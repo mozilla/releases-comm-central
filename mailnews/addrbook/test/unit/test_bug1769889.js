@@ -12,14 +12,14 @@ var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
 
 add_task(async function testMultiValueLast() {
   // Multiple last names.
-  let vCard = formatVCard`
+  const vCard = formatVCard`
     BEGIN:VCARD
     N:second-last,last;first;;;
     END:VCARD
   `;
 
-  let book = MailServices.ab.getDirectory(kPABData.URI);
-  let card = book.addCard(VCardUtils.vCardToAbCard(vCard));
+  const book = MailServices.ab.getDirectory(kPABData.URI);
+  const card = book.addCard(VCardUtils.vCardToAbCard(vCard));
 
   Assert.deepEqual(card.vCardProperties.getFirstValue("n"), [
     ["second-last", "last"],
@@ -36,14 +36,14 @@ add_task(async function testMultiValueLast() {
 
 add_task(async function testMultiValueFirst() {
   // Multiple first names.
-  let vCard = formatVCard`
+  const vCard = formatVCard`
     BEGIN:VCARD
     N:last;first,second;;;
     END:VCARD
   `;
 
-  let book = MailServices.ab.getDirectory(kPABData.URI);
-  let card = book.addCard(VCardUtils.vCardToAbCard(vCard));
+  const book = MailServices.ab.getDirectory(kPABData.URI);
+  const card = book.addCard(VCardUtils.vCardToAbCard(vCard));
 
   Assert.deepEqual(card.vCardProperties.getFirstValue("n"), [
     "last",
@@ -60,14 +60,14 @@ add_task(async function testMultiValueFirst() {
 
 add_task(async function testNotEnoughValues() {
   // The name field doesn't have enough components. That's okay.
-  let vCard = formatVCard`
+  const vCard = formatVCard`
     BEGIN:VCARD
     N:last;first
     END:VCARD
   `;
 
-  let book = MailServices.ab.getDirectory(kPABData.URI);
-  let card = book.addCard(VCardUtils.vCardToAbCard(vCard));
+  const book = MailServices.ab.getDirectory(kPABData.URI);
+  const card = book.addCard(VCardUtils.vCardToAbCard(vCard));
 
   Assert.deepEqual(card.vCardProperties.getFirstValue("n"), ["last", "first"]);
   Assert.equal(card.firstName, "first");
@@ -78,14 +78,14 @@ add_task(async function testNotEnoughValues() {
 
 add_task(async function testStringValue() {
   // This is a bad value. Let's just ignore it for first/last name purposes.
-  let vCard = formatVCard`
+  const vCard = formatVCard`
     BEGIN:VCARD
     N:first last
     END:VCARD
   `;
 
-  let book = MailServices.ab.getDirectory(kPABData.URI);
-  let card = book.addCard(VCardUtils.vCardToAbCard(vCard));
+  const book = MailServices.ab.getDirectory(kPABData.URI);
+  const card = book.addCard(VCardUtils.vCardToAbCard(vCard));
 
   Assert.deepEqual(card.vCardProperties.getFirstValue("n"), "first last");
   Assert.equal(card.firstName, "");

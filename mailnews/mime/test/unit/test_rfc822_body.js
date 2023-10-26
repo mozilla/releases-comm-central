@@ -66,14 +66,14 @@ add_task(async function test_rfc822_body_no_display_inline() {
 });
 
 async function help_test_rfc822_body(info) {
-  let synMsg = msgGen.makeMessage(info);
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synMsg = msgGen.makeMessage(info);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders([inbox], [synSet]);
 
-  let msgURI = synSet.getMsgURI(0);
-  let msgService = MailServices.messageServiceFromURI(msgURI);
+  const msgURI = synSet.getMsgURI(0);
+  const msgService = MailServices.messageServiceFromURI(msgURI);
 
-  let streamListener = new PromiseTestUtils.PromiseStreamListener({
+  const streamListener = new PromiseTestUtils.PromiseStreamListener({
     onStopRequest(request, statusCode) {
       request.QueryInterface(Ci.nsIMailChannel);
       Assert.equal(request.attachments.length, info.attachmentCount);

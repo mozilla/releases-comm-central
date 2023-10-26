@@ -13,7 +13,7 @@ function run_test() {
   // to ensure that it is initialized before we start the main test.
   MailServices.ab;
 
-  let file = do_get_file("resources/basic_csv_addressbook.csv");
+  const file = do_get_file("resources/basic_csv_addressbook.csv");
   new AbImportHelper(
     file,
     "csv",

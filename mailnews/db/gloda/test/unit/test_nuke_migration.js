@@ -54,7 +54,7 @@ function run_test() {
   // - tickle gloda
   // GlodaPublic.jsm loads Gloda.jsm which self-initializes and initializes the datastore
   ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
-  let { GlodaDatastore } = ChromeUtils.import(
+  const { GlodaDatastore } = ChromeUtils.import(
     "resource:///modules/gloda/GlodaDatastore.jsm"
   );
 

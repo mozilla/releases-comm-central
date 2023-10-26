@@ -61,7 +61,7 @@ class NntpChannel extends MailChannel {
     // Two forms of the uri:
     // - news://news.mozilla.org:119/mailman.30.1608649442.1056.accessibility%40lists.mozilla.org?group=mozilla.accessibility&key=378
     // - news://news.mozilla.org:119/id@mozilla.org
-    let url = new URL(uri.spec);
+    const url = new URL(uri.spec);
     this._groupName = url.searchParams.get("group");
     if (this._groupName) {
       this._newsFolder = this._server.rootFolder.getChildNamed(
@@ -128,10 +128,10 @@ class NntpChannel extends MailChannel {
         return;
       }
       // It's a new entry, needs to read from the server.
-      let tee = Cc["@mozilla.org/network/stream-listener-tee;1"].createInstance(
-        Ci.nsIStreamListenerTee
-      );
-      let outStream = entry.openOutputStream(0, -1);
+      const tee = Cc[
+        "@mozilla.org/network/stream-listener-tee;1"
+      ].createInstance(Ci.nsIStreamListenerTee);
+      const outStream = entry.openOutputStream(0, -1);
       // When the tee stream receives data from the server, it writes to both
       // the original listener and outStream (memory cache).
       tee.init(this._listener, outStream, null);
@@ -173,7 +173,7 @@ class NntpChannel extends MailChannel {
 
   asyncOpen(listener) {
     this._logger.debug("asyncOpen", this.URI.spec);
-    let url = new URL(this.URI.spec);
+    const url = new URL(this.URI.spec);
     this._listener = listener;
     if (url.searchParams.has("list-ids")) {
       // Triggered by newsError.js.
@@ -182,11 +182,11 @@ class NntpChannel extends MailChannel {
     }
 
     if (this._groupName && !this._server.containsNewsgroup(this._groupName)) {
-      let bundle = Services.strings.createBundle(
+      const bundle = Services.strings.createBundle(
         "chrome://messenger/locale/news.properties"
       );
-      let win = Services.wm.getMostRecentWindow("mail:3pane");
-      let result = Services.prompt.confirm(
+      const win = Services.wm.getMostRecentWindow("mail:3pane");
+      const result = Services.prompt.confirm(
         win,
         null,
         bundle.formatStringFromName("autoSubscribeText", [this._groupName])
@@ -195,18 +195,18 @@ class NntpChannel extends MailChannel {
         return;
       }
       this._server.subscribeToNewsgroup(this._groupName);
-      let folder = this._server.findGroup(this._groupName);
+      const folder = this._server.findGroup(this._groupName);
       lazy.MailUtils.displayFolderIn3Pane(folder.URI);
     }
 
     if (this._groupName && !this._articleNumber && !this._messageId) {
-      let folder = this._server.findGroup(this._groupName);
+      const folder = this._server.findGroup(this._groupName);
       lazy.MailUtils.displayFolderIn3Pane(folder.URI);
       return;
     }
 
     if (url.searchParams.has("part")) {
-      let converter = Cc["@mozilla.org/streamConverters;1"].getService(
+      const converter = Cc["@mozilla.org/streamConverters;1"].getService(
         Ci.nsIStreamConverterService
       );
       this._listener = converter.asyncConvertData(
@@ -265,8 +265,8 @@ class NntpChannel extends MailChannel {
     if (!this._newsFolder.hasMsgOffline(this._articleNumber)) {
       return false;
     }
-    let hdr = this._newsFolder.GetMessageHeader(this._articleNumber);
-    let stream = this._newsFolder.getLocalMsgStream(hdr);
+    const hdr = this._newsFolder.GetMessageHeader(this._articleNumber);
+    const stream = this._newsFolder.getLocalMsgStream(hdr);
     this._readFromCacheStream(stream);
     return true;
   }
@@ -277,7 +277,7 @@ class NntpChannel extends MailChannel {
    * @param {nsIInputStream} cacheStream - The input stream to read.
    */
   _readFromCacheStream(cacheStream) {
-    let pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
+    const pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
       Ci.nsIInputStreamPump
     );
     this.contentLength = 0;
@@ -312,10 +312,10 @@ class NntpChannel extends MailChannel {
    */
   _readFromServer() {
     this._logger.debug("Read from server");
-    let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
+    const pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
     pipe.init(true, true, 0, 0);
-    let inputStream = pipe.inputStream;
-    let outputStream = pipe.outputStream;
+    const inputStream = pipe.inputStream;
+    const outputStream = pipe.outputStream;
     if (this._newsFolder) {
       this._newsFolder.QueryInterface(Ci.nsIMsgNewsFolder).saveArticleOffline =
         this._newsFolder.shouldStoreMsgOffline(this._articleNumber);
@@ -374,8 +374,8 @@ class NntpChannel extends MailChannel {
    */
   _removeExpired(groupName) {
     this._logger.debug("_removeExpired", groupName);
-    let newsFolder = this._server.findGroup(groupName);
-    let allKeys = new Set(newsFolder.msgDatabase.listAllKeys());
+    const newsFolder = this._server.findGroup(groupName);
+    const allKeys = new Set(newsFolder.msgDatabase.listAllKeys());
     this._server.wrappedJSObject.withClient(client => {
       let msgWindow;
       try {

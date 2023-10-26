@@ -12,12 +12,12 @@ load("../../../resources/MessageGenerator.jsm");
  */
 function subtest_folder_deletion(root) {
   // Now we only have <root> and some default subfolders, like Trash.
-  let trash = root.getChildNamed("Trash");
+  const trash = root.getChildNamed("Trash");
   Assert.ok(!trash.hasSubFolders);
 
   // Create new "folder" in root.
   let folder = root.createLocalSubfolder("folder");
-  let path = folder.filePath;
+  const path = folder.filePath;
   Assert.ok(path.exists());
 
   // Delete "folder" into Trash.
@@ -47,7 +47,7 @@ function subtest_folder_deletion(root) {
   Assert.equal(trash.numSubFolders, 3);
   // The folder should be automatically renamed as the same name already is in Trash
   // but the subfolder should be untouched.
-  let folderDeleted3 = trash.getChildNamed("folder(3)");
+  const folderDeleted3 = trash.getChildNamed("folder(3)");
   Assert.notEqual(folderDeleted3, null);
   Assert.ok(folderDeleted3.containsChildNamed("subfolder"));
   // Now we have <root>
@@ -159,9 +159,9 @@ function subtest_folder_operations(root) {
   var folder1Local = folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   // put a single message in folder1.
-  let messageGenerator = new MessageGenerator();
-  let message = messageGenerator.makeMessage();
-  let hdr = folder1Local.addMessage(message.toMboxString());
+  const messageGenerator = new MessageGenerator();
+  const message = messageGenerator.makeMessage();
+  const hdr = folder1Local.addMessage(message.toMboxString());
   Assert.equal(message.messageId, hdr.messageId);
 
   folder3Local.copyFolderLocal(folder, true, null, null);
@@ -280,15 +280,15 @@ var gPluggableStores = [
 ];
 
 function run_all_tests(aHostName) {
-  let server = MailServices.accounts.createIncomingServer(
+  const server = MailServices.accounts.createIncomingServer(
     "nobody",
     aHostName,
     "none"
   );
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = server;
 
-  let root = server.rootMsgFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const root = server.rootMsgFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   subtest_folder_operations(root);
   subtest_folder_deletion(root);
   test_store_rename(root);

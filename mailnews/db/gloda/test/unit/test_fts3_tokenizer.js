@@ -162,12 +162,12 @@ add_task(async function test_query_builder() {
  */
 async function indexPhrase(aPhrase) {
   // Create a synthetic message for each of the delightful encoding types.
-  let messages = [];
+  const messages = [];
   aPhrase.resultList = [];
-  for (let charset in aPhrase.encodings) {
-    let [quoted, bodyEncoded] = aPhrase.encodings[charset];
+  for (const charset in aPhrase.encodings) {
+    const [quoted, bodyEncoded] = aPhrase.encodings[charset];
 
-    let smsg = msgGen.makeMessage({
+    const smsg = msgGen.makeMessage({
       subject: quoted,
       body: { charset, encoding: "8bit", body: bodyEncoded },
       attachments: [{ filename: quoted, body: "gabba gabba hey" }],
@@ -178,7 +178,7 @@ async function indexPhrase(aPhrase) {
     messages.push(smsg);
     aPhrase.resultList.push(smsg);
   }
-  let synSet = new SyntheticMessageSet(messages);
+  const synSet = new SyntheticMessageSet(messages);
   await messageInjection.addSetsToFolders(
     [messageInjection.getInboxFolder()],
     [synSet]
@@ -195,10 +195,10 @@ async function indexPhrase(aPhrase) {
  *  each message because of the callerData attribute on the synthetic message.
  */
 function verify_index(smsg, gmsg) {
-  let [charset, actual] = smsg.callerData;
-  let subject = gmsg.subject;
-  let indexedBodyText = gmsg.indexedBodyText.trim();
-  let attachmentName = gmsg.attachmentNames[0];
+  const [charset, actual] = smsg.callerData;
+  const subject = gmsg.subject;
+  const indexedBodyText = gmsg.indexedBodyText.trim();
+  const attachmentName = gmsg.attachmentNames[0];
   dump("Using character set:\n" + charset + "\nActual:\n" + actual + "\n");
   dump("Subject:\n" + subject + "\nSubject length:\n" + subject.length + "\n");
   Assert.equal(actual, subject);
@@ -219,8 +219,8 @@ function verify_index(smsg, gmsg) {
  *  to match as appropriate.
  */
 async function test_fulltextsearch(aPhrase) {
-  for (let searchPhrase of aPhrase.searchPhrases) {
-    let query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
+  for (const searchPhrase of aPhrase.searchPhrases) {
+    const query = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
     query.bodyMatches(searchPhrase.body);
     await queryExpect(query, searchPhrase.match ? aPhrase.resultList : []);
   }
@@ -235,13 +235,13 @@ async function test_fulltextsearch(aPhrase) {
  */
 async function msgSearchExpectCount(aCount, aFulltextStr) {
   // Let the GlodaMsgSearcher build its query
-  let searcher = new GlodaMsgSearcher(null, aFulltextStr);
-  let conn = GlodaDatastore.asyncConnection;
-  let query = searcher.buildFulltextQuery();
+  const searcher = new GlodaMsgSearcher(null, aFulltextStr);
+  const conn = GlodaDatastore.asyncConnection;
+  const query = searcher.buildFulltextQuery();
 
   // Brace yourself, brutal monkey-patching NOW
   let sql, args;
-  let oldFunc = GlodaDatastore._queryFromSQLString;
+  const oldFunc = GlodaDatastore._queryFromSQLString;
   GlodaDatastore._queryFromSQLString = function (aSql, aArgs) {
     sql = aSql;
     args = aArgs;
@@ -250,13 +250,13 @@ async function msgSearchExpectCount(aCount, aFulltextStr) {
   GlodaDatastore._queryFromSQLString = oldFunc;
 
   // Bind the parameters
-  let stmt = conn.createStatement(sql);
-  for (let [iBinding, bindingValue] of args.entries()) {
+  const stmt = conn.createStatement(sql);
+  for (const [iBinding, bindingValue] of args.entries()) {
     GlodaDatastore._bindVariant(stmt, iBinding, bindingValue);
   }
 
   let promiseResolve;
-  let promise = new Promise(resolve => {
+  const promise = new Promise(resolve => {
     promiseResolve = resolve;
   });
 

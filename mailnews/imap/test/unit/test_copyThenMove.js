@@ -49,7 +49,7 @@ add_setup(function () {
 });
 
 add_task(async function copyFolder1() {
-  let copyListener = new PromiseTestUtils.PromiseCopyListener({
+  const copyListener = new PromiseTestUtils.PromiseCopyListener({
     SetMessageKey(aKey) {
       gLastKey = aKey;
     },
@@ -65,7 +65,7 @@ add_task(async function copyFolder1() {
 });
 
 add_task(async function copyFolder2() {
-  let copyListener = new PromiseTestUtils.PromiseCopyListener({
+  const copyListener = new PromiseTestUtils.PromiseCopyListener({
     SetMessageKey(aKey) {
       gLastKey = aKey;
     },
@@ -81,12 +81,12 @@ add_task(async function copyFolder2() {
 });
 
 add_task(async function getLocalMessage1() {
-  let copyListener = new PromiseTestUtils.PromiseCopyListener({
+  const copyListener = new PromiseTestUtils.PromiseCopyListener({
     SetMessageKey(aKey) {
       gLastKey = aKey;
     },
   });
-  let file = do_get_file("../../../data/bugmail1");
+  const file = do_get_file("../../../data/bugmail1");
   MailServices.copy.copyFileMessage(
     file,
     localAccountUtils.inboxFolder,
@@ -102,8 +102,8 @@ add_task(async function getLocalMessage1() {
 
 add_task(async function getLocalMessage2() {
   gMessages.push(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
-  let file = do_get_file("../../../data/draft1");
-  let copyListener = new PromiseTestUtils.PromiseCopyListener({
+  const file = do_get_file("../../../data/draft1");
+  const copyListener = new PromiseTestUtils.PromiseCopyListener({
     SetMessageKey(aKey) {
       gLastKey = aKey;
     },
@@ -123,8 +123,8 @@ add_task(async function getLocalMessage2() {
 
 add_task(async function copyMessages() {
   gMessages.push(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
-  let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
-  let copyListener = new PromiseTestUtils.PromiseCopyListener({
+  const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
+  const copyListener = new PromiseTestUtils.PromiseCopyListener({
     SetMessageKey(aKey) {
       gLastKey = aKey;
     },
@@ -142,8 +142,8 @@ add_task(async function copyMessages() {
 });
 
 add_task(async function moveMessages() {
-  let folder2 = IMAPPump.inbox.getChildNamed("empty 2");
-  let copyListener = new PromiseTestUtils.PromiseCopyListener({
+  const folder2 = IMAPPump.inbox.getChildNamed("empty 2");
+  const copyListener = new PromiseTestUtils.PromiseCopyListener({
     SetMessageKey(aKey) {
       gLastKey = aKey;
     },
@@ -161,27 +161,27 @@ add_task(async function moveMessages() {
 });
 
 add_task(async function update1() {
-  let folder1 = IMAPPump.inbox
+  const folder1 = IMAPPump.inbox
     .getChildNamed("empty 1")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   folder1.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function update2() {
-  let folder2 = IMAPPump.inbox
+  const folder2 = IMAPPump.inbox
     .getChildNamed("empty 2")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   folder2.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(function verifyFolders() {
-  let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
+  const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
   Assert.equal(folderCount(folder1), 2);
-  let folder2 = IMAPPump.inbox.getChildNamed("empty 2");
+  const folder2 = IMAPPump.inbox.getChildNamed("empty 2");
   Assert.ok(folder2 !== null);
   // folder 1 and 2 should each now have two messages in them.
   Assert.ok(folder1 !== null);

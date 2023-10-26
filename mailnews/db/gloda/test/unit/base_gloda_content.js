@@ -162,8 +162,10 @@ async function setup_inject_messages() {
   messageInfos.forEach(info => {
     setup_create_message(info);
   });
-  let msgSet = new SyntheticMessageSet(messageInfos.map(info => info._synMsg));
-  let folder = await messageInjection.makeEmptyFolder();
+  const msgSet = new SyntheticMessageSet(
+    messageInfos.map(info => info._synMsg)
+  );
+  const folder = await messageInjection.makeEmptyFolder();
   await messageInjection.addSetsToFolders([folder], [msgSet]);
   await waitForGlodaIndexer();
   Assert.ok(
@@ -174,7 +176,7 @@ async function setup_inject_messages() {
 function test_stream_message(info) {
   // Currying the function for simpler usage with `base_gloda_content_tests`.
   return () => {
-    let msgHdr = info._glodaMsg.folderMessage;
+    const msgHdr = info._glodaMsg.folderMessage;
 
     MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
       verify_message_content(
@@ -204,7 +206,7 @@ function verify_message_content(aInfo, aSynMsg, aGlodaMsg, aMsgHdr, aMimeMsg) {
   }
 
   whittleCount = 0;
-  let content = Gloda.getMessageContent(aGlodaMsg, aMimeMsg);
+  const content = Gloda.getMessageContent(aGlodaMsg, aMimeMsg);
   if (whittleCount != 1) {
     throw new Error("Whittle count is " + whittleCount + " but should be 1!");
   }

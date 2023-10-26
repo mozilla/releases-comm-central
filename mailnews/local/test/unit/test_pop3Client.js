@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let [daemon, server, handler] = setupServerDaemon();
+const [daemon, server, handler] = setupServerDaemon();
 handler.kCapabilities = ["uidl", "top"]; // CAPA response is case-insensitive.
 server.start();
 registerCleanupFunction(() => {
@@ -16,15 +16,15 @@ registerCleanupFunction(() => {
 add_task(async function testSTARTTLS() {
   server.resetTest();
 
-  let incomingServer = createPop3ServerAndLocalFolders(server.port);
+  const incomingServer = createPop3ServerAndLocalFolders(server.port);
   // Set to always use STARTTLS.
   incomingServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
 
-  let urlListener = {
+  const urlListener = {
     OnStartRunningUrl() {},
     OnStopRunningUrl(url, result) {
       try {
-        let transaction = server.playTransaction();
+        const transaction = server.playTransaction();
         do_check_transaction(transaction, ["AUTH", "CAPA"]);
         Assert.equal(result, Cr.NS_ERROR_FAILURE);
       } catch (e) {
@@ -59,7 +59,7 @@ async function testTopOrRetr(incomingServer, transaction) {
   // Any message file larger than 50KB is good for this test.
   daemon.setMessages(["mailformed_subject.eml"]);
 
-  let urlListener = {
+  const urlListener = {
     OnStartRunningUrl() {},
     OnStopRunningUrl(url, result) {
       try {
@@ -90,7 +90,7 @@ async function testTopOrRetr(incomingServer, transaction) {
  * Turn off server.limitOfflineMessageSize, test RETR is used.
  */
 add_task(async function testNoOfflineMessageSizeLimit() {
-  let incomingServer = createPop3ServerAndLocalFolders(server.port);
+  const incomingServer = createPop3ServerAndLocalFolders(server.port);
   incomingServer.limitOfflineMessageSize = false;
   incomingServer.maxMessageSize = 1;
 
@@ -111,7 +111,7 @@ add_task(async function testNoOfflineMessageSizeLimit() {
  * TOP is used.
  */
 add_task(async function testMaxMessageSize() {
-  let incomingServer = createPop3ServerAndLocalFolders(server.port);
+  const incomingServer = createPop3ServerAndLocalFolders(server.port);
   incomingServer.limitOfflineMessageSize = true;
   incomingServer.maxMessageSize = 1;
 
@@ -130,7 +130,7 @@ add_task(async function testMaxMessageSize() {
  * Turn on server.headersOnly, test TOP is used.
  */
 add_task(async function testHeadersOnly() {
-  let incomingServer = createPop3ServerAndLocalFolders(server.port);
+  const incomingServer = createPop3ServerAndLocalFolders(server.port);
   incomingServer.headersOnly = true;
 
   testTopOrRetr(incomingServer, [

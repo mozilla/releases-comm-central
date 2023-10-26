@@ -24,7 +24,9 @@ function run_test() {
 
   try {
     // Get the folder and new mail
-    let folder = localserver.rootFolder.getChildNamed("test.subscribe.simple");
+    const folder = localserver.rootFolder.getChildNamed(
+      "test.subscribe.simple"
+    );
     folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
     folder.getNewMessages(null, {
       OnStopRunningUrl() {
@@ -39,17 +41,17 @@ function run_test() {
     server.resetTest();
 
     // Get the message URI
-    let msgHdr = folder.firstNewMessage;
-    let messageUri = folder.getUriForMsg(msgHdr);
+    const msgHdr = folder.firstNewMessage;
+    const messageUri = folder.getUriForMsg(msgHdr);
     // Convert this to a URI that necko can run
-    let messageService = MailServices.messageServiceFromURI(messageUri);
-    let neckoURL = messageService.getUrlForUri(messageUri);
+    const messageService = MailServices.messageServiceFromURI(messageUri);
+    const neckoURL = messageService.getUrlForUri(messageUri);
     // Don't use the necko URL directly. Instead, get the spec and create a new
     // URL using the IO service
-    let urlToRun = Services.io.newURI(neckoURL.spec);
+    const urlToRun = Services.io.newURI(neckoURL.spec);
 
     // Get a channel from this URI, and check its content length
-    let channel = Services.io.newChannelFromURI(
+    const channel = Services.io.newChannelFromURI(
       urlToRun,
       null,
       Services.scriptSecurityManager.getSystemPrincipal(),
@@ -61,7 +63,7 @@ function run_test() {
 
     // Now try an attachment. &part=1.2
     // XXX the message doesn't really have an attachment
-    let attachmentURL = Services.io.newURI(neckoURL.spec + "&part=1.2");
+    const attachmentURL = Services.io.newURI(neckoURL.spec + "&part=1.2");
     Services.io.newChannelFromURI(
       attachmentURL,
       null,

@@ -24,7 +24,7 @@ function run_test() {
   );
 
   // Test - Check we have the directory.
-  let abDir = MailServices.ab
+  const abDir = MailServices.ab
     .getDirectory(kLDAPUriPrefix + abUri)
     .QueryInterface(Ci.nsIAbLDAPDirectory);
 

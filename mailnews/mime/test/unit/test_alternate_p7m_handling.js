@@ -20,7 +20,7 @@ var msgHdr;
 
 add_setup(async function () {
   // Create a message with a p7m attachment.
-  let synMsg = messageGenerator.makeMessage({
+  const synMsg = messageGenerator.makeMessage({
     attachments: [
       {
         body: P7M_ATTACHMENT,
@@ -31,7 +31,7 @@ add_setup(async function () {
       },
     ],
   });
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders([inbox], [synSet]);
   msgHdr = synSet.getMsgHdr(0);
 });

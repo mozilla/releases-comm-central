@@ -39,8 +39,8 @@ var shutdownCleanupObserver = {
     if (aTopic == "quit-application") {
       Services.obs.removeObserver(this, "quit-application");
 
-      for (let uri in activeStreamListeners) {
-        let streamListener = activeStreamListeners[uri];
+      for (const uri in activeStreamListeners) {
+        const streamListener = activeStreamListeners[uri];
         if (streamListener._request) {
           streamListener._request.cancel(Cr.NS_BINDING_ABORTED);
         }
@@ -195,21 +195,21 @@ function MsgHdrToMimeMessage(
 ) {
   shutdownCleanupObserver.ensureInitialized();
 
-  let requireOffline = !aAllowDownload;
+  const requireOffline = !aAllowDownload;
   // Messages opened from file or attachments do not have a folder property, but
   // have their url stored as a string property.
-  let msgURI = aMsgHdr.folder
+  const msgURI = aMsgHdr.folder
     ? aMsgHdr.folder.getUriForMsg(aMsgHdr)
     : aMsgHdr.getStringProperty("dummyMsgUrl");
 
-  let msgService = MailServices.messageServiceFromURI(msgURI);
+  const msgService = MailServices.messageServiceFromURI(msgURI);
 
   MsgHdrToMimeMessage.OPTION_TUNNEL = aOptions;
   // By default, Enigmail only decrypts a message streamed via libmime if it's
   // the one currently on display in the message reader. With this option, we're
   // letting Enigmail know that it should decrypt the message since the client
   // explicitly asked for it.
-  let encryptedStr =
+  const encryptedStr =
     aOptions && aOptions.examineEncryptedParts
       ? "&examineEncryptedParts=true"
       : "";
@@ -219,7 +219,7 @@ function MsgHdrToMimeMessage(
   // Gloda), unless the client asked for encrypted data, we pass to the client
   // callback a stripped-down version of the MIME structure where encrypted
   // parts have been removed.
-  let wrapCallback = function (aCallback, aCallbackThis) {
+  const wrapCallback = function (aCallback, aCallbackThis) {
     if (aOptions && aOptions.examineEncryptedParts) {
       return aCallback;
     }
@@ -229,18 +229,18 @@ function MsgHdrToMimeMessage(
 
   // Apparently there used to be an old syntax where the callback was the second
   // argument...
-  let callback = aCallback ? aCallback : aCallbackThis;
-  let callbackThis = aCallback ? aCallbackThis : null;
+  const callback = aCallback ? aCallback : aCallbackThis;
+  const callbackThis = aCallback ? aCallbackThis : null;
 
   // if we're already streaming this msg, just add the callback
   // to the listener.
-  let listenerForURI = activeStreamListeners[msgURI];
+  const listenerForURI = activeStreamListeners[msgURI];
   if (listenerForURI != undefined) {
     listenerForURI._callbacks.push(wrapCallback(callback, callbackThis));
     listenerForURI._callbacksThis.push(callbackThis);
     return;
   }
-  let streamListener = new CallbackStreamListener(
+  const streamListener = new CallbackStreamListener(
     aMsgHdr,
     callbackThis,
     wrapCallback(callback, callbackThis)
@@ -311,7 +311,7 @@ var HeaderHandlerBase = {
     if (aDefaultValue === undefined) {
       aDefaultValue = null;
     }
-    let lowerHeader = aHeaderName.toLowerCase();
+    const lowerHeader = aHeaderName.toLowerCase();
     if (lowerHeader in this.headers) {
       // we require that the list cannot be empty if present
       return this.headers[lowerHeader][0];
@@ -327,7 +327,7 @@ var HeaderHandlerBase = {
    *     length array.
    */
   getAll(aHeaderName) {
-    let lowerHeader = aHeaderName.toLowerCase();
+    const lowerHeader = aHeaderName.toLowerCase();
     if (lowerHeader in this.headers) {
       return this.headers[lowerHeader];
     }
@@ -339,7 +339,7 @@ var HeaderHandlerBase = {
    *     name.
    */
   has(aHeaderName) {
-    let lowerHeader = aHeaderName.toLowerCase();
+    const lowerHeader = aHeaderName.toLowerCase();
     return lowerHeader in this.headers;
   },
   _prettyHeaderString(aIndent) {
@@ -347,8 +347,8 @@ var HeaderHandlerBase = {
       aIndent = "";
     }
     let s = "";
-    for (let header in this.headers) {
-      let values = this.headers[header];
+    for (const header in this.headers) {
+      const values = this.headers[header];
       s += "\n        " + aIndent + header + ": " + values;
     }
     return s;
@@ -387,7 +387,7 @@ MimeMessage.prototype = {
   get allAttachments() {
     let results = []; // messages are not attachments, don't include self
     for (let iChild = 0; iChild < this.parts.length; iChild++) {
-      let child = this.parts[iChild];
+      const child = this.parts[iChild];
       results = results.concat(child.allAttachments);
     }
     return results;
@@ -401,7 +401,7 @@ MimeMessage.prototype = {
     // Do not include the top message, but only sub-messages.
     let results = this.partName ? [this] : [];
     for (let iChild = 0; iChild < this.parts.length; iChild++) {
-      let child = this.parts[iChild];
+      const child = this.parts[iChild];
       results = results.concat(child.allInlineAttachments);
     }
     return results;
@@ -454,10 +454,10 @@ MimeMessage.prototype = {
    *    that to text.
    */
   coerceBodyToPlaintext(aMsgFolder) {
-    let bodies = [];
-    for (let part of this.parts) {
+    const bodies = [];
+    for (const part of this.parts) {
       // an undefined value for something not having the method is fine
-      let body =
+      const body =
         part.coerceBodyToPlaintext && part.coerceBodyToPlaintext(aMsgFolder);
       if (body) {
         bodies.push(body);
@@ -482,7 +482,7 @@ MimeMessage.prototype = {
     if (aIndent === undefined) {
       aIndent = "";
     }
-    let nextIndent = aIndent + "  ";
+    const nextIndent = aIndent + "  ";
 
     let s =
       "Message " +
@@ -499,7 +499,7 @@ MimeMessage.prototype = {
     }
 
     for (let iPart = 0; iPart < this.parts.length; iPart++) {
-      let part = this.parts[iPart];
+      const part = this.parts[iPart];
       s +=
         "\n" +
         nextIndent +
@@ -530,7 +530,7 @@ MimeContainer.prototype = {
   get allAttachments() {
     let results = [];
     for (let iChild = 0; iChild < this.parts.length; iChild++) {
-      let child = this.parts[iChild];
+      const child = this.parts[iChild];
       results = results.concat(child.allAttachments);
     }
     return results;
@@ -538,7 +538,7 @@ MimeContainer.prototype = {
   get allInlineAttachments() {
     let results = [];
     for (let iChild = 0; iChild < this.parts.length; iChild++) {
-      let child = this.parts[iChild];
+      const child = this.parts[iChild];
       results = results.concat(child.allInlineAttachments);
     }
     return results;
@@ -560,7 +560,7 @@ MimeContainer.prototype = {
     if (this.contentType == "multipart/alternative") {
       let htmlPart;
       // pick the text/plain if we can find one, otherwise remember the HTML one
-      for (let part of this.parts) {
+      for (const part of this.parts) {
         if (part.contentType == "text/plain") {
           return part.body;
         }
@@ -581,7 +581,7 @@ MimeContainer.prototype = {
     return MimeMessage.prototype.coerceBodyToPlaintext.call(this, aMsgFolder);
   },
   prettyString(aVerbose, aIndent, aDumpBody) {
-    let nextIndent = aIndent + "  ";
+    const nextIndent = aIndent + "  ";
 
     let s =
       "Container " +
@@ -595,7 +595,7 @@ MimeContainer.prototype = {
     }
 
     for (let iPart = 0; iPart < this.parts.length; iPart++) {
-      let part = this.parts[iPart];
+      const part = this.parts[iPart];
       s +=
         "\n" +
         nextIndent +
@@ -737,7 +737,7 @@ MimeUnknown.prototype = {
     this._size = aSize;
   },
   prettyString(aVerbose, aIndent, aDumpBody) {
-    let nextIndent = aIndent + "  ";
+    const nextIndent = aIndent + "  ";
 
     let s =
       "Unknown: " +
@@ -752,7 +752,7 @@ MimeUnknown.prototype = {
     }
 
     for (let iPart = 0; iPart < this.parts.length; iPart++) {
-      let part = this.parts[iPart];
+      const part = this.parts[iPart];
       s +=
         "\n" +
         nextIndent +

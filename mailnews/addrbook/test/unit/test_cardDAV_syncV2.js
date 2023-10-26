@@ -18,7 +18,7 @@ async function subtest() {
     "BEGIN:VCARD\r\nUID:delete-me\r\nFN:I'm going to be deleted.\r\nEND:VCARD\r\n"
   );
 
-  let directory = await initDirectory();
+  const directory = await initDirectory();
 
   // We'll only use this for the initial sync, so I think it's okay to use
   // bulkAddCards and not get a notification for every contact.
@@ -29,9 +29,9 @@ async function subtest() {
   info(`Token is: ${lastSyncToken}`);
 
   info("Cards:");
-  let cardMap = new Map();
-  let oldETags = new Map();
-  for (let card of directory.childCards) {
+  const cardMap = new Map();
+  const oldETags = new Map();
+  for (const card of directory.childCards) {
     info(
       ` ${card.displayName} [${card.getProperty(
         "_href",
@@ -82,7 +82,7 @@ async function subtest() {
 
   info("Cards:");
   cardMap.clear();
-  for (let card of directory.childCards) {
+  for (const card of directory.childCards) {
     info(
       ` ${card.displayName} [${card.getProperty(
         "_href",
@@ -318,7 +318,7 @@ add_task(async function testExpiredToken() {
     "BEGIN:VCARD\r\nUID:third\r\nFN:Third Person\r\nEND:VCARD\r\n"
   );
 
-  let directory = await initDirectory();
+  const directory = await initDirectory();
 
   info("Initial sync with server.");
   await directory.fetchAllFromServer();
@@ -326,7 +326,7 @@ add_task(async function testExpiredToken() {
   info(`Token is: ${directory._syncToken}`);
 
   info("Cards:");
-  for (let card of directory.childCards) {
+  for (const card of directory.childCards) {
     info(
       ` ${card.displayName} [${card.getProperty(
         "_href",
@@ -363,7 +363,7 @@ add_task(async function testExpiredToken() {
 
   info("Sync with server.");
 
-  let notificationPromise = TestUtils.topicObserved(
+  const notificationPromise = TestUtils.topicObserved(
     "addrbook-directory-invalidated"
   );
   observer.init();
@@ -381,7 +381,7 @@ add_task(async function testExpiredToken() {
   info(`Token is now: ${directory._syncToken}`);
 
   info("Cards:");
-  for (let card of directory.childCards) {
+  for (const card of directory.childCards) {
     info(
       ` ${card.displayName} [${card.getProperty(
         "_href",

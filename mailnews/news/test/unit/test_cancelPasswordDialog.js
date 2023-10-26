@@ -9,8 +9,8 @@ var { PromiseTestUtils } = ChromeUtils.import(
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/alertTestUtils.js");
 
-let daemon = setupNNTPDaemon();
-let server = makeServer(NNTP_RFC4643_extension, daemon);
+const daemon = setupNNTPDaemon();
+const server = makeServer(NNTP_RFC4643_extension, daemon);
 server.start();
 registerCleanupFunction(() => {
   server.stop();
@@ -24,9 +24,9 @@ add_task(async function cancelPasswordDialog() {
   registerAlertTestUtils();
 
   // Enforce server auth and trigger a list group request.
-  let incomingServer = setupLocalServer(server.port);
+  const incomingServer = setupLocalServer(server.port);
   incomingServer.pushAuth = true;
-  let listener = new PromiseTestUtils.PromiseStreamListener();
+  const listener = new PromiseTestUtils.PromiseStreamListener();
   incomingServer.loadNewsUrl(
     Services.io.newURI(`news://localhost:${server.port}/*`),
     null,
@@ -41,7 +41,7 @@ add_task(async function cancelPasswordDialog() {
   }
 
   // Should send nothing after canceling the password dialog.
-  let transaction = server.playTransaction();
+  const transaction = server.playTransaction();
   do_check_transaction(transaction, ["MODE READER"]);
 });
 

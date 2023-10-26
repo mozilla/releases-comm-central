@@ -27,18 +27,18 @@ add_task(async function loadImapMessage() {
   IMAPPump.mailbox.addMessage(
     new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
-  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(gDummyMsgWindow, promiseUrlListener);
   await promiseUrlListener.promise;
 
   Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
-  let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
 });
 
 add_task(async function downloadOffline() {
   // ...and download for offline use.
-  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
   await promiseUrlListener.promise;
 });
@@ -48,7 +48,7 @@ var folderName2 = "sub2";
 
 // use a folder method to add a subfolder
 add_task(async function addSubfolder() {
-  let promiseFolder1 = PromiseTestUtils.promiseFolderAdded(folderName1);
+  const promiseFolder1 = PromiseTestUtils.promiseFolderAdded(folderName1);
   IMAPPump.inbox.createSubfolder(folderName1, null);
   await promiseFolder1;
 });
@@ -60,8 +60,8 @@ add_task(function storeAddSubfolder() {
 
 // test that folders created with store and folder have the same parent
 add_task(function testSubfolder() {
-  let subfolder1 = IMAPPump.inbox.getChildNamed(folderName1);
-  let subfolder2 = IMAPPump.inbox.getChildNamed(folderName2);
+  const subfolder1 = IMAPPump.inbox.getChildNamed(folderName1);
+  const subfolder2 = IMAPPump.inbox.getChildNamed(folderName2);
   Assert.equal(
     subfolder1.filePath.parent.path,
     subfolder2.filePath.parent.path
@@ -77,7 +77,7 @@ add_task(teardownIMAPPump);
 
 // given a test file, return the file uri spec
 function specForFileName(aFileName) {
-  let file = do_get_file("../../../data/" + aFileName);
-  let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+  const file = do_get_file("../../../data/" + aFileName);
+  const msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
 }

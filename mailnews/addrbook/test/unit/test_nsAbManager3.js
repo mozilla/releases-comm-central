@@ -7,7 +7,11 @@
  */
 
 function addDirectory(dirName) {
-  let dirPrefId = MailServices.ab.newAddressBook(dirName, "", kPABData.dirType);
+  const dirPrefId = MailServices.ab.newAddressBook(
+    dirName,
+    "",
+    kPABData.dirType
+  );
   return MailServices.ab.getDirectoryFromId(dirPrefId);
 }
 
@@ -20,23 +24,23 @@ function renameDirectory(directory, newName) {
  * the third one. Check if their names are still correct. (bug 745664)
  */
 async function run_test() {
-  let dirNames = ["testAb0", "testAb1", "testAb2", "testAb3"];
-  let directories = [];
+  const dirNames = ["testAb0", "testAb1", "testAb2", "testAb3"];
+  const directories = [];
 
-  for (let dirName of dirNames) {
+  for (const dirName of dirNames) {
     directories.push(addDirectory(dirName));
   }
 
   dirNames[1] = "newTestAb1";
   renameDirectory(directories[1], dirNames[1]);
-  for (let dir in dirNames) {
+  for (const dir in dirNames) {
     Assert.equal(dirNames[dir], directories[dir].dirName);
   }
   await promiseDirectoryRemoved(directories[2].URI);
   dirNames.splice(2, 1);
   directories.splice(2, 1);
 
-  for (let dir in dirNames) {
+  for (const dir in dirNames) {
     Assert.equal(dirNames[dir], directories[dir].dirName);
   }
 }

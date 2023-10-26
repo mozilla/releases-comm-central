@@ -16,7 +16,7 @@ var aliases = [
 ];
 
 function run_test() {
-  let converter = CreateScriptableConverter();
+  const converter = CreateScriptableConverter();
   for (let i = 0; i < aliases.length; ++i) {
     checkDecode(converter, aliases[i], inString, expectedString);
   }

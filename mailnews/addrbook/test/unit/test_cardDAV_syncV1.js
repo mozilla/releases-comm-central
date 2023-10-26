@@ -18,7 +18,7 @@ async function subtest() {
     "BEGIN:VCARD\r\nUID:delete-me\r\nFN:I'm going to be deleted.\r\nEND:VCARD\r\n"
   );
 
-  let directory = await initDirectory();
+  const directory = await initDirectory();
 
   // We'll only use this for the initial sync, so I think it's okay to use
   // bulkAddCards and not get a notification for every contact.
@@ -26,9 +26,9 @@ async function subtest() {
   await directory.fetchAllFromServer();
 
   info("Cards:");
-  let cardMap = new Map();
-  let oldETags = new Map();
-  for (let card of directory.childCards) {
+  const cardMap = new Map();
+  const oldETags = new Map();
+  for (const card of directory.childCards) {
     info(card.displayName);
     info(card.getProperty("_href", ""));
     info(card.getProperty("_etag", ""));
@@ -74,7 +74,7 @@ async function subtest() {
 
   info("Cards:");
   cardMap.clear();
-  for (let card of directory.childCards) {
+  for (const card of directory.childCards) {
     info(card.displayName);
     info(card.getProperty("_href", ""));
     info(card.getProperty("_etag", ""));

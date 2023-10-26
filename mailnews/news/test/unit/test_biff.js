@@ -10,20 +10,20 @@ var { MailServices } = ChromeUtils.import(
 
 function run_test() {
   // Set up the server and add in filters
-  let daemon = setupNNTPDaemon();
-  let server = makeServer(NNTP_RFC2980_handler, daemon);
+  const daemon = setupNNTPDaemon();
+  const server = makeServer(NNTP_RFC2980_handler, daemon);
   server.start();
-  let localserver = setupLocalServer(server.port);
+  const localserver = setupLocalServer(server.port);
   // Remove all but the test.filter folder
-  let rootFolder = localserver.rootFolder;
-  for (let folder of rootFolder.subFolders) {
+  const rootFolder = localserver.rootFolder;
+  for (const folder of rootFolder.subFolders) {
     if (folder.name != "test.filter") {
       rootFolder.propagateDelete(folder, true);
     }
   }
 
   // Create a filter to mark one message read.
-  let filters = localserver.getFilterList(null);
+  const filters = localserver.getFilterList(null);
   filters.loggingEnabled = true;
   createFilter(filters, "subject", "Odd", "read");
   localserver.setFilterList(filters);
@@ -31,9 +31,9 @@ function run_test() {
   // This is a bit hackish, but we don't have any really functional callbacks
   // for biff. Instead, we use the notifier to look for all 7 messages to be
   // added and take that as our sign that the download is finished.
-  let expectCount = 7,
-    seen = 0;
-  let listener = {
+  const expectCount = 7;
+  let seen = 0;
+  const listener = {
     msgAdded() {
       if (++seen == expectCount) {
         localserver.closeCachedConnections();
@@ -51,7 +51,7 @@ function run_test() {
   // We marked, via our filters, one of the messages read. So if we do not
   // have 1 read message, either we're not running the filters on biff, or the
   // filters aren't working. This is disambiguated by the test_filter.js test.
-  let folder = localserver.rootFolder.getChildNamed("test.filter");
+  const folder = localserver.rootFolder.getChildNamed("test.filter");
   Assert.equal(folder.getTotalMessages(false), folder.getNumUnread(false) + 1);
   server.stop();
 }

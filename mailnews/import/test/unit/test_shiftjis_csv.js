@@ -7,8 +7,8 @@ function run_test() {
   // to ensure that it is initialized before we start the main test.
   MailServices.ab;
 
-  let file = do_get_file("resources/shiftjis_addressbook.csv");
-  let helper = new AbImportHelper(
+  const file = do_get_file("resources/shiftjis_addressbook.csv");
+  const helper = new AbImportHelper(
     file,
     "csv",
     "shiftjis_addressbook",

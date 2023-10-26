@@ -178,7 +178,7 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
  */
 PromiseTestUtils.promiseFolderEvent = function (folder, event) {
   return new Promise((resolve, reject) => {
-    let folderListener = {
+    const folderListener = {
       QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
       onFolderEvent(aEventFolder, aEvent) {
         if (folder === aEventFolder && event == aEvent) {
@@ -204,11 +204,11 @@ PromiseTestUtils.promiseFolderEvent = function (folder, event) {
  */
 PromiseTestUtils.promiseFolderNotification = function (folder, listenerMethod) {
   return new Promise((resolve, reject) => {
-    let mfnListener = {};
+    const mfnListener = {};
     mfnListener[listenerMethod] = function () {
-      let args = Array.from(arguments);
+      const args = Array.from(arguments);
       let flag = true;
-      for (let arg of args) {
+      for (const arg of args) {
         if (folder && arg instanceof Ci.nsIMsgFolder) {
           if (arg == folder) {
             flag = true;
@@ -264,7 +264,7 @@ PromiseTestUtils.promiseFolderAdded = function (folderName) {
  */
 PromiseTestUtils.promiseDelay = function (aDelay) {
   return new Promise((resolve, reject) => {
-    let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+    const timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     timer.initWithCallback(resolve, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
   });
 };

@@ -42,11 +42,11 @@ async function createTmpProfileWithPrefs(prefs) {
   info(`Created a temporary profile at ${tmpProfileDir.path}`);
 
   // Write prefs to prefs.js.
-  let prefsFile = tmpProfileDir.clone();
+  const prefsFile = tmpProfileDir.clone();
   prefsFile.append("prefs.js");
-  let prefsContent = prefs
+  const prefsContent = prefs
     .map(([name, value]) => {
-      let prefValue = typeof value == "string" ? `"${value}"` : value;
+      const prefValue = typeof value == "string" ? `"${value}"` : value;
       return `user_pref("${name}", ${prefValue});`;
     })
     .join("\n");
@@ -63,7 +63,7 @@ add_task(async function test_importAccountsIntoEmptyProfile() {
     "",
     "Should have no accounts at first"
   );
-  let charPrefs = [
+  const charPrefs = [
     ["mail.smtpserver.smtp1.username", "smtp-user-1"],
     ["mail.smtpserver.smtp3.username", "smtp-user-2"],
     ["mail.smtpservers", "smtp1,smtp3"],
@@ -81,12 +81,12 @@ add_task(async function test_importAccountsIntoEmptyProfile() {
   ];
   await createTmpProfileWithPrefs(charPrefs);
 
-  let importer = new ThunderbirdProfileImporter();
+  const importer = new ThunderbirdProfileImporter();
 
   await importer.startImport(tmpProfileDir, importer.SUPPORTED_ITEMS);
   // Server/identity/account keys should be changed and remapped correctly after
   // import.
-  let expectedCharPrefs = [
+  const expectedCharPrefs = [
     ["mail.smtpserver.smtp1.username", "smtp-user-1"],
     ["mail.smtpserver.smtp2.username", "smtp-user-2"],
     ["mail.smtpservers", "smtp1,smtp2"],
@@ -102,7 +102,7 @@ add_task(async function test_importAccountsIntoEmptyProfile() {
     ["mail.account.account3.server", "server3"],
     ["mail.accountmanager.accounts", "account2,account3,account1"],
   ];
-  for (let [name, value] of expectedCharPrefs) {
+  for (const [name, value] of expectedCharPrefs) {
     equal(
       Services.prefs.getCharPref(name, ""),
       value,
@@ -137,15 +137,15 @@ add_task(async function test_importAccountsIntoEmptyProfile() {
  * directory can happen after clicking a news url.
  */
 add_task(async function test_serverWithoutDirectory() {
-  let prefs = [
+  const prefs = [
     ["mail.server.server1.type", "nntp"],
     ["mail.server.server1.hostname", "news.invalid"],
   ];
   await createTmpProfileWithPrefs(prefs);
 
-  let importer = new ThunderbirdProfileImporter();
+  const importer = new ThunderbirdProfileImporter();
   await importer.startImport(tmpProfileDir, importer.SUPPORTED_ITEMS);
-  for (let [name, value] of prefs) {
+  for (const [name, value] of prefs) {
     equal(
       Services.prefs.getCharPref(name, ""),
       value,
@@ -159,7 +159,7 @@ add_task(async function test_serverWithoutDirectory() {
  * the source Local Folders will be merged into the current Local Folders.
  */
 add_task(async function test_mergeLocalFolders() {
-  let prefs = [
+  const prefs = [
     ["mail.smtpserver.smtp1.username", "smtp-user-1"],
     ["mail.smtpservers", "smtp1"],
     ["mail.identity.id1.smtpServer", "smtp1"],
@@ -176,7 +176,7 @@ add_task(async function test_mergeLocalFolders() {
   await createTmpProfileWithPrefs(prefs);
 
   // Create a physical file in tmpProfileDir.
-  let sourceLocalFolder = tmpProfileDir.clone();
+  const sourceLocalFolder = tmpProfileDir.clone();
   sourceLocalFolder.append("Mail");
   sourceLocalFolder.append("Local Folders");
   sourceLocalFolder.append("folder-xpcshell");
@@ -185,17 +185,17 @@ add_task(async function test_mergeLocalFolders() {
   // Create Local Folders in the current profile.
   MailServices.accounts.createLocalMailAccount();
 
-  let importer = new ThunderbirdProfileImporter();
+  const importer = new ThunderbirdProfileImporter();
   await importer.startImport(tmpProfileDir, importer.SUPPORTED_ITEMS);
 
   // Test that sub msg folders are created in the current Local Folders.
-  let localFolders = MailServices.accounts.localFoldersServer.rootMsgFolder;
+  const localFolders = MailServices.accounts.localFoldersServer.rootMsgFolder;
   ok(localFolders.containsChildNamed("Local Folders"));
-  let msgFolder = localFolders.getChildNamed("Local Folders");
+  const msgFolder = localFolders.getChildNamed("Local Folders");
   ok(msgFolder.containsChildNamed("folder-xpcshell"));
 
   // Test that folder-xpcshell is copied into current Local Folders.
-  let importedFolder = localFolders.filePath;
+  const importedFolder = localFolders.filePath;
   importedFolder.append("Local Folders.sbd");
   importedFolder.append("folder-xpcshell");
   ok(importedFolder.exists(), "Source Local Folders should be merged in.");
@@ -208,7 +208,7 @@ add_task(async function test_importCalendars() {
   // Set sortOrder to contain a fake calendar id.
   Services.prefs.setCharPref("calendar.list.sortOrder", "uuid-x");
 
-  let prefs = [
+  const prefs = [
     ["calendar.registry.uuid-1.name", "Home"],
     ["calendar.registry.uuid-1.type", "Storage"],
     ["calendar.registry.uuid-3.name", "cal1"],
@@ -218,12 +218,12 @@ add_task(async function test_importCalendars() {
 
   await createTmpProfileWithPrefs(prefs);
 
-  let importer = new ThunderbirdProfileImporter();
+  const importer = new ThunderbirdProfileImporter();
 
   await importer.startImport(tmpProfileDir, { calendars: true });
 
   // Test calendar.registry.* are imported correctly.
-  for (let [name, value] of prefs.slice(0, -1)) {
+  for (const [name, value] of prefs.slice(0, -1)) {
     equal(
       Services.prefs.getCharPref(name, ""),
       value,
@@ -245,7 +245,7 @@ add_task(async function test_importCalendars() {
  * Test that tags can be correctly imported.
  */
 add_task(async function test_importTags() {
-  let prefs = [
+  const prefs = [
     ["mailnews.tags.$label1.color", "#CC0011"],
     ["mailnews.tags.$label1.tag", "tag1"],
     ["mailnews.tags.$label2.color", "#CC0022"],
@@ -253,11 +253,11 @@ add_task(async function test_importTags() {
   ];
   await createTmpProfileWithPrefs(prefs);
 
-  let importer = new ThunderbirdProfileImporter();
+  const importer = new ThunderbirdProfileImporter();
   await importer.startImport(tmpProfileDir, importer.SUPPORTED_ITEMS);
 
   // Test mailnews.tags.* are imported because existing tags are in default state.
-  for (let [name, value] of prefs) {
+  for (const [name, value] of prefs) {
     equal(
       Services.prefs.getCharPref(name, ""),
       value,
@@ -265,7 +265,7 @@ add_task(async function test_importTags() {
     );
   }
 
-  let prefs2 = [
+  const prefs2 = [
     ["mailnews.tags.$label1.color", "#DD0011"],
     ["mailnews.tags.$label1.tag", "tag11"],
     ["mailnews.tags.$label2.color", "#DD0022"],
@@ -278,7 +278,7 @@ add_task(async function test_importTags() {
   await importer.startImport(tmpProfileDir, importer.SUPPORTED_ITEMS);
 
   // $label1 and $label2 should not be imported, only $tag3 should be imported.
-  for (let [name, value] of [...prefs, ...prefs2.slice(4)]) {
+  for (const [name, value] of [...prefs, ...prefs2.slice(4)]) {
     equal(
       Services.prefs.getCharPref(name, ""),
       value,

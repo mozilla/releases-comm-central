@@ -27,7 +27,7 @@
 function check_ab(abConfig) {
   // Test - Get the directory
 
-  let AB = MailServices.ab.getDirectory(abConfig.URI);
+  const AB = MailServices.ab.getDirectory(abConfig.URI);
 
   // Test - Is it the right type?
 

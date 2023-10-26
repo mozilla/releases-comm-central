@@ -39,8 +39,8 @@ add_setup(async function () {
   localAccountUtils.loadLocalMailAccount();
 
   // We need an identity so that updateFolder doesn't fail.
-  let imapAccount = MailServices.accounts.createAccount();
-  let identity = MailServices.accounts.createIdentity();
+  const imapAccount = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
   imapAccount.addIdentity(identity);
   imapAccount.defaultIdentity = identity;
   imapAccount.incomingServer = IMAPPump.incomingServer;
@@ -57,7 +57,7 @@ add_setup(async function () {
 
   registerAlertTestUtils();
 
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(gDummyMsgWindow, listener);
   await listener.promise
     .then(res => {
@@ -69,7 +69,7 @@ add_setup(async function () {
 });
 
 add_task(async function check_alert() {
-  let alertText = await gGotAlert;
+  const alertText = await gGotAlert;
   Assert.ok(alertText.startsWith("Server localhost has disconnected"));
 });
 

@@ -40,7 +40,7 @@ add_task(async function downloadEmail() {
   equal(localAccountUtils.inboxFolder.getTotalMessages(false), 0);
 
   // Now get the mail
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.pop3.GetNewMail(
     null,
     urlListener,

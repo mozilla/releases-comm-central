@@ -6,7 +6,7 @@
 
 function parseNewsgroups(headers) {
   let ng = [];
-  for (let header of headers) {
+  for (const header of headers) {
     ng = ng.concat(header.split(/\s*,\s*/));
   }
   return ng;

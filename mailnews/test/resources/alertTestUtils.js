@@ -345,7 +345,7 @@ var alertUtilsWindowWatcher = {
 // promptPasswordPS/promptUsernameAndPasswordPS directly, rather than through
 // the prompt service, because the function signature changed and no longer
 // allows a "save password" check box.
-let alertUtilsMsgAuthPrompt = {
+const alertUtilsMsgAuthPrompt = {
   QueryInterface: ChromeUtils.generateQI(["nsIAuthPrompt"]),
 
   _getFormattedOrigin(aURI) {
@@ -414,7 +414,7 @@ let alertUtilsMsgAuthPrompt = {
       return ok;
     }
 
-    let newLogin = new LoginInfo(
+    const newLogin = new LoginInfo(
       origin,
       null,
       realm,
@@ -455,7 +455,7 @@ let alertUtilsMsgAuthPrompt = {
     );
 
     if (ok && checkBox.value && origin && aPassword.value) {
-      let newLogin = new LoginInfo(
+      const newLogin = new LoginInfo(
         origin,
         null,
         realm,

@@ -18,7 +18,7 @@ var gServer;
 var gSentFolder;
 
 function cleanUpSent() {
-  let messages = [...gSentFolder.msgDatabase.enumerateMessages()];
+  const messages = [...gSentFolder.msgDatabase.enumerateMessages()];
   if (messages.length) {
     gSentFolder.deleteMessages(messages, null, true, false, null, false);
   }
@@ -43,13 +43,13 @@ add_setup(async function setup() {
  */
 add_task(async function testBcc() {
   gServer.resetTest();
-  let identity = getSmtpIdentity(
+  const identity = getSmtpIdentity(
     "from@tinderbox.invalid",
     getBasicSmtpServer(gServer.port)
   );
 
   // Prepare the comp fields, including the bcc field.
-  let fields = Cc[
+  const fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   fields.to = "Nobody <to@tinderbox.invalid>";
@@ -57,18 +57,18 @@ add_task(async function testBcc() {
   fields.bcc = "bcc@tinderbox.invalid";
   fields.body = "A\r\nBcc: \r\n mail body\r\n.";
 
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = fields;
 
   // Send the mail.
-  let msgCompose = MailServices.compose.initCompose(params);
+  const msgCompose = MailServices.compose.initCompose(params);
   msgCompose.type = Ci.nsIMsgCompType.New;
-  let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+  const progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
     Ci.nsIMsgProgress
   );
-  let promise = new Promise((resolve, reject) => {
+  const promise = new Promise((resolve, reject) => {
     progressListener.resolve = resolve;
     progressListener.reject = reject;
   });
@@ -82,9 +82,9 @@ add_task(async function testBcc() {
   );
   await promise;
 
-  let expectedBody = `\r\n\r\n${fields.body}`;
+  const expectedBody = `\r\n\r\n${fields.body}`;
   // Should not contain extra \r\n between head and body.
-  let notExpectedBody = `\r\n\r\n\r\n${fields.body}`;
+  const notExpectedBody = `\r\n\r\n\r\n${fields.body}`;
 
   Assert.ok(gServer._daemon.post.includes("Subject: Test bcc"));
   // Check that bcc header doesn't exist in the sent mail.
@@ -92,7 +92,7 @@ add_task(async function testBcc() {
   Assert.ok(gServer._daemon.post.includes(expectedBody));
   Assert.ok(!gServer._daemon.post.includes(notExpectedBody));
 
-  let msgData = mailTestUtils.loadMessageToString(
+  const msgData = mailTestUtils.loadMessageToString(
     gSentFolder,
     mailTestUtils.getMsgHdrN(gSentFolder, 0)
   );
@@ -109,21 +109,21 @@ add_task(async function testBcc() {
  */
 add_task(async function testBccWithNonUtf8EmlAttachment() {
   gServer.resetTest();
-  let identity = getSmtpIdentity(
+  const identity = getSmtpIdentity(
     "from@tinderbox.invalid",
     getBasicSmtpServer(gServer.port)
   );
 
   // Prepare the comp fields, including the bcc field.
-  let fields = Cc[
+  const fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   fields.to = "Nobody <to@tinderbox.invalid>";
   fields.subject = "Test bcc with non-utf8 eml attachment";
   fields.bcc = "bcc@tinderbox.invalid";
 
-  let testFile = do_get_file("data/shift-jis.eml");
-  let attachment = Cc[
+  const testFile = do_get_file("data/shift-jis.eml");
+  const attachment = Cc[
     "@mozilla.org/messengercompose/attachment;1"
   ].createInstance(Ci.nsIMsgAttachment);
   attachment.url = "file://" + testFile.path;
@@ -131,18 +131,18 @@ add_task(async function testBccWithNonUtf8EmlAttachment() {
   attachment.name = testFile.leafName;
   fields.addAttachment(attachment);
 
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = fields;
 
   // Send the mail.
-  let msgCompose = MailServices.compose.initCompose(params);
+  const msgCompose = MailServices.compose.initCompose(params);
   msgCompose.type = Ci.nsIMsgCompType.New;
-  let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+  const progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
     Ci.nsIMsgProgress
   );
-  let promise = new Promise((resolve, reject) => {
+  const promise = new Promise((resolve, reject) => {
     progressListener.resolve = resolve;
     progressListener.reject = reject;
   });
@@ -168,15 +168,15 @@ add_task(async function testBccWithNonUtf8EmlAttachment() {
 add_task(async function testBccWithSendLater() {
   gServer.resetTest();
   cleanUpSent();
-  let identity = getSmtpIdentity(
+  const identity = getSmtpIdentity(
     "from@tinderbox.invalid",
     getBasicSmtpServer(gServer.port)
   );
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.addIdentity(identity);
 
   // Prepare the comp fields, including the bcc field.
-  let fields = Cc[
+  const fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   fields.to = "Nobody <to@tinderbox.invalid>";
@@ -184,18 +184,18 @@ add_task(async function testBccWithSendLater() {
   fields.bcc = "bcc@tinderbox.invalid";
   fields.body = "A\r\nBcc: \r\n mail body\r\n.";
 
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = fields;
 
   // Queue the mail to send later.
-  let msgCompose = MailServices.compose.initCompose(params);
+  const msgCompose = MailServices.compose.initCompose(params);
   msgCompose.type = Ci.nsIMsgCompType.New;
-  let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+  const progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
     Ci.nsIMsgProgress
   );
-  let promise = new Promise((resolve, reject) => {
+  const promise = new Promise((resolve, reject) => {
     progressListener.resolve = resolve;
     progressListener.reject = reject;
   });
@@ -209,19 +209,19 @@ add_task(async function testBccWithSendLater() {
   );
   await promise;
 
-  let onStopSendingPromise = PromiseUtils.defer();
-  let msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
-    Ci.nsIMsgSendLater
-  );
-  let sendLaterListener = {
+  const onStopSendingPromise = PromiseUtils.defer();
+  const msgSendLater = Cc[
+    "@mozilla.org/messengercompose/sendlater;1"
+  ].getService(Ci.nsIMsgSendLater);
+  const sendLaterListener = {
     onStartSending() {},
     onMessageStartSending() {},
     onMessageSendProgress() {},
     onMessageSendError() {},
     onStopSending() {
-      let expectedBody = `\r\n\r\n${fields.body}`;
+      const expectedBody = `\r\n\r\n${fields.body}`;
       // Should not contain extra \r\n between head and body.
-      let notExpectedBody = `\r\n\r\n\r\n${fields.body}`;
+      const notExpectedBody = `\r\n\r\n\r\n${fields.body}`;
 
       Assert.ok(gServer._daemon.post.includes(`Subject: ${fields.subject}`));
       // Check that bcc header doesn't exist in the sent mail.
@@ -229,7 +229,7 @@ add_task(async function testBccWithSendLater() {
       Assert.ok(gServer._daemon.post.includes(expectedBody));
       Assert.ok(!gServer._daemon.post.includes(notExpectedBody));
 
-      let msgData = mailTestUtils.loadMessageToString(
+      const msgData = mailTestUtils.loadMessageToString(
         gSentFolder,
         mailTestUtils.getMsgHdrN(gSentFolder, 0)
       );
@@ -259,33 +259,33 @@ add_task(async function testBccWithSendLater() {
  */
 add_task(async function testBccOnlyWithSendLater() {
   gServer.resetTest();
-  let identity = getSmtpIdentity(
+  const identity = getSmtpIdentity(
     "from@tinderbox.invalid",
     getBasicSmtpServer(gServer.port)
   );
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.addIdentity(identity);
 
   // Prepare the comp fields, including the bcc field.
-  let fields = Cc[
+  const fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   fields.subject = "Test bcc only with send later";
   fields.bcc = "bcc@tinderbox.invalid";
   fields.body = "A\r\nBcc: \r\n mail body\r\n.";
 
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = fields;
 
   // Queue the mail to send later.
-  let msgCompose = MailServices.compose.initCompose(params);
+  const msgCompose = MailServices.compose.initCompose(params);
   msgCompose.type = Ci.nsIMsgCompType.New;
-  let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+  const progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
     Ci.nsIMsgProgress
   );
-  let promise = new Promise((resolve, reject) => {
+  const promise = new Promise((resolve, reject) => {
     progressListener.resolve = resolve;
     progressListener.reject = reject;
   });
@@ -299,11 +299,11 @@ add_task(async function testBccOnlyWithSendLater() {
   );
   await promise;
 
-  let onStopSendingPromise = PromiseUtils.defer();
-  let msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
-    Ci.nsIMsgSendLater
-  );
-  let sendLaterListener = {
+  const onStopSendingPromise = PromiseUtils.defer();
+  const msgSendLater = Cc[
+    "@mozilla.org/messengercompose/sendlater;1"
+  ].getService(Ci.nsIMsgSendLater);
+  const sendLaterListener = {
     onStartSending() {},
     onMessageStartSending() {},
     onMessageSendProgress() {},

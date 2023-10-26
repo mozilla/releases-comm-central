@@ -28,9 +28,9 @@ class BaseMessageService {
 
   copyMessage(messageUri, copyListener, moveMessage, urlListener, msgWindow) {
     this._logger.debug("copyMessage", messageUri, moveMessage);
-    let { serverURI, folder, folderName, key } =
+    const { serverURI, folder, folderName, key } =
       this._decomposeMessageUri(messageUri);
-    let imapUrl = Services.io
+    const imapUrl = Services.io
       .newURI(`${serverURI}/fetch>UID>/${folderName}>${key}`)
       .QueryInterface(Ci.nsIImapUrl);
 
@@ -63,13 +63,13 @@ class BaseMessageService {
     autodetectCharset
   ) {
     this._logger.debug("loadMessage", messageUri);
-    let { serverURI, folder, folderName, key } =
+    const { serverURI, folder, folderName, key } =
       this._decomposeMessageUri(messageUri);
-    let imapUrl = Services.io
+    const imapUrl = Services.io
       .newURI(`${serverURI}/fetch>UID>/${folderName}>${key}`)
       .QueryInterface(Ci.nsIImapUrl);
 
-    let mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
+    const mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
     if (urlListener) {
       mailnewsUrl.RegisterListener(urlListener);
     }
@@ -97,17 +97,17 @@ class BaseMessageService {
     msgWindow
   ) {
     this._logger.debug("SaveMessageToDisk", messageUri);
-    let { serverURI, folder, folderName, key } =
+    const { serverURI, folder, folderName, key } =
       this._decomposeMessageUri(messageUri);
-    let imapUrl = Services.io
+    const imapUrl = Services.io
       .newURI(`${serverURI}/fetch>UID>/${folderName}>${key}`)
       .QueryInterface(Ci.nsIImapUrl);
 
-    let msgUrl = imapUrl.QueryInterface(Ci.nsIMsgMessageUrl);
+    const msgUrl = imapUrl.QueryInterface(Ci.nsIMsgMessageUrl);
     msgUrl.messageFile = file;
     msgUrl.AddDummyEnvelope = addDummyEnvelope;
     msgUrl.canonicalLineEnding = canonicalLineEnding;
-    let mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
+    const mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
     mailnewsUrl.RegisterListener(urlListener);
     mailnewsUrl.msgIsInLocalCache = folder.hasMsgOffline(key, null, 10);
 
@@ -129,11 +129,11 @@ class BaseMessageService {
       return Services.io.newURI(messageUri);
     }
 
-    let { serverURI, folder, folderName, key } =
+    const { serverURI, folder, folderName, key } =
       this._decomposeMessageUri(messageUri);
-    let delimiter =
+    const delimiter =
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
-    let imapUrl = Services.io
+    const imapUrl = Services.io
       .newURI(
         `${serverURI}:${folder.server.port}/fetch>UID>${delimiter}${folderName}>${key}`
       )
@@ -152,16 +152,16 @@ class BaseMessageService {
     localOnly
   ) {
     this._logger.debug("streamMessage", messageUri);
-    let { serverURI, folder, folderName, key } =
+    const { serverURI, folder, folderName, key } =
       this._decomposeMessageUri(messageUri);
     let url = `${serverURI}/fetch>UID>/${folderName}>${key}`;
     if (additionalHeader) {
       url += `?header=${additionalHeader}`;
     }
-    let imapUrl = Services.io.newURI(url).QueryInterface(Ci.nsIImapUrl);
+    const imapUrl = Services.io.newURI(url).QueryInterface(Ci.nsIImapUrl);
     imapUrl.localFetchOnly = localOnly;
 
-    let mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
+    const mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
     mailnewsUrl.folder = folder;
     mailnewsUrl.msgWindow = msgWindow;
     mailnewsUrl.msgIsInLocalCache = folder.hasMsgOffline(key);
@@ -184,15 +184,17 @@ class BaseMessageService {
 
   streamHeaders(messageUri, consumer, urlListener, localOnly) {
     this._logger.debug("streamHeaders", messageUri);
-    let { folder, key } = this._decomposeMessageUri(messageUri);
+    const { folder, key } = this._decomposeMessageUri(messageUri);
 
-    let hasMsgOffline = folder.hasMsgOffline(key);
+    const hasMsgOffline = folder.hasMsgOffline(key);
     if (!hasMsgOffline) {
       return;
     }
 
-    let localMsgStream = folder.getLocalMsgStream(folder.GetMessageHeader(key));
-    let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    const localMsgStream = folder.getLocalMsgStream(
+      folder.GetMessageHeader(key)
+    );
+    const sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
       Ci.nsIScriptableInputStream
     );
     sstream.init(localMsgStream);
@@ -200,7 +202,7 @@ class BaseMessageService {
     let str = "";
     do {
       str = sstream.read(4096);
-      let index = str.indexOf("\r\n\r\n");
+      const index = str.indexOf("\r\n\r\n");
       if (index != -1) {
         headers += str.slice(0, index) + "\r\n";
         break;
@@ -209,11 +211,11 @@ class BaseMessageService {
       }
     } while (str.length);
 
-    let headersStream = Cc[
+    const headersStream = Cc[
       "@mozilla.org/io/string-input-stream;1"
     ].createInstance(Ci.nsIStringInputStream);
     headersStream.setData(headers, headers.length);
-    let pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
+    const pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
       Ci.nsIInputStreamPump
     );
     pump.init(headersStream, 0, 0, true);
@@ -228,7 +230,7 @@ class BaseMessageService {
    */
   messageURIToMsgHdr(uri) {
     try {
-      let { folder, key } = this._decomposeMessageUri(uri);
+      const { folder, key } = this._decomposeMessageUri(uri);
       return folder.GetMessageHeader(key);
     } catch (e) {
       return null;
@@ -236,7 +238,7 @@ class BaseMessageService {
   }
 
   Search(searchSession, msgWindow, folder, searchUri) {
-    let server = folder.server.QueryInterface(Ci.nsIMsgIncomingServer);
+    const server = folder.server.QueryInterface(Ci.nsIMsgIncomingServer);
     server.wrappedJSObject.withClient(folder, client => {
       client.startRunningUrl(
         searchSession.QueryInterface(Ci.nsIUrlListener),
@@ -246,8 +248,8 @@ class BaseMessageService {
         client.search(folder, searchUri);
       };
       client.onData = uids => {
-        for (let uid of uids) {
-          let msgHdr = folder.msgDatabase.getMsgHdrForKey(uid);
+        for (const uid of uids) {
+          const msgHdr = folder.msgDatabase.getMsgHdrForKey(uid);
           searchSession.runningAdapter.AddResultElement(msgHdr);
         }
       };
@@ -261,12 +263,12 @@ class BaseMessageService {
    * @returns {serverURI: string, folder: nsIMsgFolder, folderName: string, key: string}
    */
   _decomposeMessageUri(messageUri) {
-    let matches = /imap-message:\/\/([^:/]+)\/(.+)#(\d+)/.exec(messageUri);
+    const matches = /imap-message:\/\/([^:/]+)\/(.+)#(\d+)/.exec(messageUri);
     if (!matches) {
       throw new Error(`Unexpected IMAP URL: ${messageUri}`);
     }
-    let [, host, folderName, key] = matches;
-    let folder = lazy.MailUtils.getOrCreateFolder(
+    const [, host, folderName, key] = matches;
+    const folder = lazy.MailUtils.getOrCreateFolder(
       `imap://${host}/${folderName}`
     );
     return { serverURI: folder.server.serverURI, folder, folderName, key };

@@ -30,7 +30,7 @@ add_task(function test_CapabilityResponse() {
  * Test flags from a FETCH response can be correctly parsed.
  */
 add_task(function test_FetchResponse_flags() {
-  let response = new ImapResponse();
+  const response = new ImapResponse();
   response.parse(
     [
       "* 1 FETCH (UID 500 FLAGS (\\Answered \\Seen $Forwarded))",
@@ -73,7 +73,7 @@ add_task(function test_FetchResponse_flags() {
  * Test body from a FETCH response can be correctly parsed.
  */
 add_task(function test_messageBody() {
-  let response = new ImapResponse();
+  const response = new ImapResponse();
   response.parse(
     [
       "* 1 FETCH (UID 500 FLAGS (\\Answered \\Seen $Forwarded) BODY[HEADER.FIELDS (FROM TO)] {12}",
@@ -97,7 +97,7 @@ add_task(function test_messageBody() {
  * Test msg body spanning multiple chuncks can be correctly parsed.
  */
 add_task(function test_messageBodyIncremental() {
-  let response = new ImapResponse();
+  const response = new ImapResponse();
   // Chunk 1.
   response.parse(
     [
@@ -126,7 +126,7 @@ add_task(function test_messageBodyIncremental() {
  * Test FLAGS response can be correctly parsed.
  */
 add_task(function test_FlagsResponse() {
-  let response = new ImapResponse();
+  const response = new ImapResponse();
   response.parse(
     [
       "* FLAGS (\\Seen \\Draft $Forwarded)",
@@ -163,7 +163,7 @@ add_task(function test_FlagsResponse() {
  * Test mailbox updates can be correctly parsed.
  */
 add_task(function test_MailboxResponse() {
-  let response = new ImapResponse();
+  const response = new ImapResponse();
   response.parse("* 7 EXISTS\r\n");
   response.parse("* 1 EXPUNGE\r\n* 3 EXPUNGE\r\n");
   equal(response.exists, 7);
@@ -174,7 +174,7 @@ add_task(function test_MailboxResponse() {
  * Test LIST response can be correctly parsed.
  */
 add_task(function test_ListResponse() {
-  let response = new ImapResponse();
+  const response = new ImapResponse();
   response.parse(
     [
       '* LIST (\\Subscribed \\NoInferiors \\Marked \\Trash) "/" "Trash"',
@@ -212,7 +212,7 @@ add_task(function test_ListResponse() {
  * Test folder names containg [] or () or "" can be correctly parsed.
  */
 add_task(function test_parseFolderNames() {
-  let response = new ImapResponse();
+  const response = new ImapResponse();
   response.parse(
     [
       '* LSUB () "/" "[Gmail]"',
@@ -235,7 +235,7 @@ add_task(function test_parseFolderNames() {
  * Test STATUS response can be correctly parsed.
  */
 add_task(function test_StatusResponse() {
-  let response = new ImapResponse();
+  const response = new ImapResponse();
   response.parse(
     '* STATUS "sub folder 2" (UIDNEXT 2 MESSAGES 1 UNSEEN 1 RECENT 0)\r\n'
   );
@@ -252,7 +252,7 @@ add_task(function test_StatusResponse() {
  * Test GETQUOTAROOT response can be correctly parsed.
  */
 add_task(function test_QuotaResponse() {
-  let response = new ImapResponse();
+  const response = new ImapResponse();
   response.parse(
     ["* QUOTAROOT Sent INBOX", "* QUOTA INBOX (STORAGE 123 456)", ""].join(
       "\r\n"
@@ -282,7 +282,7 @@ add_task(function test_IdleDoneResponse() {
  * Test SEARCH response can be correctly parsed.
  */
 add_task(function test_SearchResponse() {
-  let response = new ImapResponse();
+  const response = new ImapResponse();
   response.parse("* SEARCH 1 4 9\r\n90 OK SEARCH COMPLETED\r\n");
   deepEqual(response.search, [1, 4, 9]);
 });

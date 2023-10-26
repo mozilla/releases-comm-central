@@ -11,7 +11,7 @@ class LDAPService {
   QueryInterface = ChromeUtils.generateQI(["nsILDAPService"]);
 
   createFilter(maxSize, pattern, prefix, suffix, attr, value) {
-    let words = value.split(" ");
+    const words = value.split(" ");
     // Get the Mth to Nth words.
     function getMtoN(m, n) {
       n = n || m;
@@ -21,14 +21,14 @@ class LDAPService {
     let filter = prefix;
     pattern.replaceAll("%a", attr);
     while (pattern) {
-      let index = pattern.indexOf("%v");
+      const index = pattern.indexOf("%v");
       if (index == -1) {
         filter += pattern;
         pattern = "";
       } else {
         filter += pattern.slice(0, index);
         // Get the three characters after %v.
-        let [c1, c2, c3] = pattern.slice(index + 2, index + 5);
+        const [c1, c2, c3] = pattern.slice(index + 2, index + 5);
         if (c1 >= "1" && c1 <= "9") {
           if (c2 == "$") {
             // %v$: means the last word

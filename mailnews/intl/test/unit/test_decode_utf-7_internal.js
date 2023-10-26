@@ -15,10 +15,10 @@ var aliases = [
   "csunicode11utf7",
 ];
 function run_test() {
-  let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+  const manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
     Ci.nsICharsetConverterManager
   );
-  let converter = CreateScriptableConverter();
+  const converter = CreateScriptableConverter();
   converter.isInternal = true;
   for (let i = 0; i < aliases.length; ++i) {
     if (manager.getCharsetAlias(aliases[i]).toLowerCase() == "utf-7") {

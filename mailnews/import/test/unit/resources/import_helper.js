@@ -286,7 +286,7 @@ AbImportHelper.prototype = {
       Assert.ok(newAb.QueryInterface(Ci.nsIAbDirectory));
       // get the imported card(s) and check each one
       var count = 0;
-      for (let importedCard of newAb.childCards) {
+      for (const importedCard of newAb.childCards) {
         this.compareCards(this.mJsonCards[count], importedCard);
         count++;
       }
@@ -309,7 +309,7 @@ AbImportHelper.prototype = {
   getAbByName(aName) {
     Assert.ok(aName && aName.length > 0);
 
-    for (let data of MailServices.ab.directories) {
+    for (const data of MailServices.ab.directories) {
       if (data.dirName == aName) {
         return data;
       }
@@ -325,7 +325,7 @@ AbImportHelper.prototype = {
    * @param aCard     The imported card to compare with.
    */
   compareCards(aJsonCard, aCard) {
-    for (let [key, value] of Object.entries(aJsonCard)) {
+    for (const [key, value] of Object.entries(aJsonCard)) {
       if (!this.mSupportedAttributes.includes(key)) {
         continue;
       }
@@ -420,13 +420,13 @@ MailImportHelper.prototype = {
   _checkEqualFolder(expectedFolder, actualFolder) {
     Assert.equal(expectedFolder.leafName, actualFolder.name);
 
-    let expectedSubFolders = [];
-    for (let entry of expectedFolder.directoryEntries) {
+    const expectedSubFolders = [];
+    for (const entry of expectedFolder.directoryEntries) {
       if (entry.isDirectory()) {
         expectedSubFolders.push(entry);
       }
     }
-    let actualSubFolders = actualFolder.subFolders;
+    const actualSubFolders = actualFolder.subFolders;
     Assert.equal(expectedSubFolders.length, actualSubFolders.length);
     for (let i = 0; i < expectedSubFolders.length; i++) {
       this._checkEqualFolder(expectedSubFolders[i], actualSubFolders[i]);
@@ -434,9 +434,9 @@ MailImportHelper.prototype = {
   },
 
   checkResults() {
-    let rootFolder = MailServices.accounts.localFoldersServer.rootFolder;
+    const rootFolder = MailServices.accounts.localFoldersServer.rootFolder;
     Assert.ok(rootFolder.containsChildNamed(this.mFile.leafName));
-    let importedFolder = rootFolder.getChildNamed(this.mFile.leafName);
+    const importedFolder = rootFolder.getChildNamed(this.mFile.leafName);
     Assert.notEqual(importedFolder, null);
 
     this._checkEqualFolder(this.mExpected, importedFolder);
@@ -482,7 +482,7 @@ SettingsImportHelper.prototype = {
   },
 
   _ensureNoAccounts() {
-    for (let account of MailServices.accounts.accounts) {
+    for (const account of MailServices.accounts.accounts) {
       MailServices.accounts.removeAccount(account);
     }
   },
@@ -538,11 +538,11 @@ SettingsImportHelper.prototype = {
     this._checkIncomingServer(expected.incomingServer, actual.incomingServer);
 
     Assert.equal(1, actual.identities.length);
-    let actualIdentity = actual.identities[0];
+    const actualIdentity = actual.identities[0];
     this._checkIdentity(expected.identity, actualIdentity);
 
     if (expected.incomingServer.type != "nntp") {
-      let actualSmtpServer = MailServices.smtp.getServerByKey(
+      const actualSmtpServer = MailServices.smtp.getServerByKey(
         actualIdentity.smtpServerKey
       );
       this._checkSmtpServer(expected.smtpServer, actualSmtpServer);
@@ -570,11 +570,11 @@ SettingsImportHelper.prototype = {
   },
 
   checkResults() {
-    for (let actualAccount of MailServices.accounts.accounts) {
+    for (const actualAccount of MailServices.accounts.accounts) {
       if (this._isLocalMailAccount(actualAccount)) {
         continue;
       }
-      let expectedAccounts = this._findExpectedAccount(actualAccount);
+      const expectedAccounts = this._findExpectedAccount(actualAccount);
       Assert.notEqual(null, expectedAccounts);
       Assert.equal(1, expectedAccounts.length);
       this._checkAccount(expectedAccounts[0], actualAccount);
@@ -622,7 +622,7 @@ FiltersImportHelper.prototype = {
   _loopOverFilters(aFilterList, aCondition) {
     let result = 0;
     for (let i = 0; i < aFilterList.filterCount; i++) {
-      let filter = aFilterList.getFilterAt(i);
+      const filter = aFilterList.getFilterAt(i);
       if (aCondition(filter)) {
         result++;
       }
@@ -631,9 +631,9 @@ FiltersImportHelper.prototype = {
   },
 
   checkResults() {
-    let expected = this.mExpected;
-    let server = MailServices.accounts.localFoldersServer;
-    let filterList = server.getFilterList(null);
+    const expected = this.mExpected;
+    const server = MailServices.accounts.localFoldersServer;
+    const filterList = server.getFilterList(null);
     if ("count" in expected) {
       Assert.equal(filterList.filterCount, expected.count);
     }

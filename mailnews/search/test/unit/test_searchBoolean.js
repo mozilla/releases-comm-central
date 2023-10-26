@@ -158,10 +158,10 @@ function run_test() {
 
   // add a search term HdrProperty (some string) Is "T", with grouping
   function addSearchTerm(aHdrProperty, aBeginGrouping, aEndGrouping, aBoolAnd) {
-    let searchTerm = gSearchSession.createTerm();
+    const searchTerm = gSearchSession.createTerm();
     searchTerm.attrib = Ci.nsMsgSearchAttrib.HdrProperty;
 
-    let value = searchTerm.value;
+    const value = searchTerm.value;
     // This is tricky - value.attrib must be set before actual values
     value.attrib = Ci.nsMsgSearchAttrib.HdrProperty;
     value.str = "T";

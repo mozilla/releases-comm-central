@@ -123,7 +123,7 @@ function checkAttachment(expectedCD, expectedCT) {
 }
 
 async function testInput0() {
-  for (let folding in ParamFoldingPref) {
+  for (const folding in ParamFoldingPref) {
     Services.prefs.setIntPref(
       "mail.strictly_mime.parm_folding",
       ParamFoldingPref[folding]
@@ -134,7 +134,7 @@ async function testInput0() {
 }
 
 async function testInput1() {
-  for (let folding in ParamFoldingPref) {
+  for (const folding in ParamFoldingPref) {
     Services.prefs.setIntPref(
       "mail.strictly_mime.parm_folding",
       ParamFoldingPref[folding]
@@ -156,9 +156,9 @@ function run_test() {
  * Test that the full attachment content is used to pick the CTE.
  */
 add_task(async function testBinaryAfterPlainTextAttachment() {
-  let testFile = do_get_file("data/binary-after-plain.txt");
+  const testFile = do_get_file("data/binary-after-plain.txt");
   await createMessage(testFile);
-  let msgData = mailTestUtils.loadMessageToString(
+  const msgData = mailTestUtils.loadMessageToString(
     gDraftFolder,
     mailTestUtils.firstMsgHdr(gDraftFolder)
   );

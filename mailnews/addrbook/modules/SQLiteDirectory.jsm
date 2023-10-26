@@ -48,11 +48,11 @@ function openConnectionTo(file) {
   let connection = connections.get(file.path);
   if (!connection) {
     connection = Services.storage.openDatabase(file);
-    let fileVersion = connection.schemaVersion;
+    const fileVersion = connection.schemaVersion;
 
     // If we're upgrading the version, first create a backup.
     if (fileVersion > 0 && fileVersion < CURRENT_VERSION) {
-      let backupFile = file.clone();
+      const backupFile = file.clone();
       backupFile.leafName = backupFile.leafName.replace(
         /\.sqlite$/,
         `.v${fileVersion}.sqlite`
@@ -104,7 +104,7 @@ function openConnectionTo(file) {
  * Closes the SQLite connection to `file` and removes it from the cache.
  */
 function closeConnectionTo(file) {
-  let connection = connections.get(file.path);
+  const connection = connections.get(file.path);
   if (connection) {
     return new Promise(resolve => {
       connection.asyncClose({
@@ -122,8 +122,8 @@ function closeConnectionTo(file) {
 AsyncShutdown.profileBeforeChange.addBlocker(
   "Address Book: closing databases",
   async () => {
-    let promises = [];
-    for (let directory of directories.values()) {
+    const promises = [];
+    for (const directory of directories.values()) {
       promises.push(directory.cleanUp());
     }
     await Promise.allSettled(promises);
@@ -142,7 +142,7 @@ Services.obs.addObserver(async file => {
  */
 class SQLiteDirectory extends AddrBookDirectory {
   init(uri) {
-    let uriParts = /^[\w-]+:\/\/([\w\.-]+\.\w+)$/.exec(uri);
+    const uriParts = /^[\w-]+:\/\/([\w\.-]+\.\w+)$/.exec(uri);
     if (!uriParts) {
       throw new Components.Exception(
         `Unexpected uri: ${uri}`,
@@ -156,7 +156,7 @@ class SQLiteDirectory extends AddrBookDirectory {
       fileName = fileName.substring(0, fileName.indexOf("/"));
     }
 
-    for (let child of Services.prefs.getChildList("ldap_2.servers.")) {
+    for (const child of Services.prefs.getChildList("ldap_2.servers.")) {
       if (
         child.endsWith(".filename") &&
         Services.prefs.getStringPref(child) == fileName
@@ -174,7 +174,7 @@ class SQLiteDirectory extends AddrBookDirectory {
 
     // Make sure we always have a file. If a file is not created, the
     // filename may be accidentally reused.
-    let file = new lazy.FileUtils.File(
+    const file = new lazy.FileUtils.File(
       PathUtils.join(PathUtils.profileDir, fileName)
     );
     if (!file.exists()) {
@@ -204,7 +204,7 @@ class SQLiteDirectory extends AddrBookDirectory {
     this._file = new lazy.FileUtils.File(
       PathUtils.join(PathUtils.profileDir, this.fileName)
     );
-    let connection = openConnectionTo(this._file);
+    const connection = openConnectionTo(this._file);
 
     // SQLite cache size can be set by the cacheSize preference, in KiB.
     // The default is 5 MiB but this can be lowered to 1 MiB if wanted.
@@ -221,8 +221,8 @@ class SQLiteDirectory extends AddrBookDirectory {
     return connection;
   }
   get lists() {
-    let listCache = new Map();
-    let selectStatement = this._dbConnection.createStatement(
+    const listCache = new Map();
+    const selectStatement = this._dbConnection.createStatement(
       "SELECT uid, name, nickName, description FROM lists"
     );
     while (selectStatement.executeStep()) {
@@ -243,16 +243,16 @@ class SQLiteDirectory extends AddrBookDirectory {
     return listCache;
   }
   get cards() {
-    let cardCache = new Map();
-    let propertiesStatement = this._dbConnection.createStatement(
+    const cardCache = new Map();
+    const propertiesStatement = this._dbConnection.createStatement(
       "SELECT card, name, value FROM properties"
     );
     while (propertiesStatement.executeStep()) {
-      let uid = propertiesStatement.row.card;
+      const uid = propertiesStatement.row.card;
       if (!cardCache.has(uid)) {
         cardCache.set(uid, new Map());
       }
-      let card = cardCache.get(uid);
+      const card = cardCache.get(uid);
       if (card) {
         card.set(propertiesStatement.row.name, propertiesStatement.row.value);
       }
@@ -269,13 +269,13 @@ class SQLiteDirectory extends AddrBookDirectory {
 
   loadCardProperties(uid) {
     if (this.hasOwnProperty("cards")) {
-      let cachedCard = this.cards.get(uid);
+      const cachedCard = this.cards.get(uid);
       if (cachedCard) {
         return new Map(cachedCard);
       }
     }
-    let properties = new Map();
-    let propertyStatement = this._dbConnection.createStatement(
+    const properties = new Map();
+    const propertyStatement = this._dbConnection.createStatement(
       "SELECT name, value FROM properties WHERE card = :card"
     );
     propertyStatement.params.card = uid;
@@ -288,16 +288,16 @@ class SQLiteDirectory extends AddrBookDirectory {
   saveCardProperties(uid, properties) {
     try {
       this._dbConnection.beginTransaction();
-      let deleteStatement = this._dbConnection.createStatement(
+      const deleteStatement = this._dbConnection.createStatement(
         "DELETE FROM properties WHERE card = :card"
       );
       deleteStatement.params.card = uid;
       deleteStatement.execute();
-      let insertStatement = this._dbConnection.createStatement(
+      const insertStatement = this._dbConnection.createStatement(
         "INSERT INTO properties VALUES (:card, :name, :value)"
       );
 
-      for (let [name, value] of properties) {
+      for (const [name, value] of properties) {
         if (value !== null && value !== undefined && value !== "") {
           insertStatement.params.card = uid;
           insertStatement.params.name = name;
@@ -316,7 +316,7 @@ class SQLiteDirectory extends AddrBookDirectory {
     }
   }
   deleteCard(uid) {
-    let deleteStatement = this._dbConnection.createStatement(
+    const deleteStatement = this._dbConnection.createStatement(
       "DELETE FROM properties WHERE card = :cardUID"
     );
     deleteStatement.params.cardUID = uid;
@@ -327,7 +327,7 @@ class SQLiteDirectory extends AddrBookDirectory {
     // Ensure list cache exists.
     this.lists;
 
-    let replaceStatement = this._dbConnection.createStatement(
+    const replaceStatement = this._dbConnection.createStatement(
       "REPLACE INTO lists (uid, name, nickName, description) " +
         "VALUES (:uid, :name, :nickName, :description)"
     );
@@ -346,7 +346,7 @@ class SQLiteDirectory extends AddrBookDirectory {
     });
   }
   deleteList(uid) {
-    let deleteListStatement = this._dbConnection.createStatement(
+    const deleteListStatement = this._dbConnection.createStatement(
       "DELETE FROM lists WHERE uid = :uid"
     );
     deleteListStatement.params.uid = uid;
@@ -366,12 +366,12 @@ class SQLiteDirectory extends AddrBookDirectory {
       return;
     }
 
-    let usedUIDs = new Set();
-    let propertiesStatement = this._dbConnection.createStatement(
+    const usedUIDs = new Set();
+    const propertiesStatement = this._dbConnection.createStatement(
       "INSERT INTO properties VALUES (:card, :name, :value)"
     );
-    let propertiesArray = propertiesStatement.newBindingParamsArray();
-    for (let card of cards) {
+    const propertiesArray = propertiesStatement.newBindingParamsArray();
+    for (const card of cards) {
       let uid = card.UID;
       if (!uid || usedUIDs.has(uid)) {
         // A card cannot have the same UID as one that already exists.
@@ -386,8 +386,8 @@ class SQLiteDirectory extends AddrBookDirectory {
         this.cards.set(uid, cachedCard);
       }
 
-      for (let [name, value] of this.prepareToSaveCard(card)) {
-        let propertiesParams = propertiesArray.newBindingParams();
+      for (const [name, value] of this.prepareToSaveCard(card)) {
+        const propertiesParams = propertiesArray.newBindingParams();
         propertiesParams.bindByName("card", uid);
         propertiesParams.bindByName("name", name);
         propertiesParams.bindByName("value", value);
@@ -432,19 +432,19 @@ class SQLiteDirectory extends AddrBookDirectory {
   /* nsIAbDirectory */
 
   get childCardCount() {
-    let countStatement = this._dbConnection.createStatement(
+    const countStatement = this._dbConnection.createStatement(
       "SELECT COUNT(DISTINCT card) AS card_count FROM properties"
     );
     countStatement.executeStep();
-    let count = countStatement.row.card_count;
+    const count = countStatement.row.card_count;
     countStatement.finalize();
     return count;
   }
   getCardFromProperty(property, value, caseSensitive) {
-    let sql = caseSensitive
+    const sql = caseSensitive
       ? "SELECT card FROM properties WHERE name = :name AND value = :value LIMIT 1"
       : "SELECT card FROM properties WHERE name = :name AND LOWER(value) = LOWER(:value) LIMIT 1";
-    let selectStatement = this._dbConnection.createStatement(sql);
+    const selectStatement = this._dbConnection.createStatement(sql);
     selectStatement.params.name = property;
     selectStatement.params.value = value;
     let result = null;
@@ -455,13 +455,13 @@ class SQLiteDirectory extends AddrBookDirectory {
     return result;
   }
   getCardsFromProperty(property, value, caseSensitive) {
-    let sql = caseSensitive
+    const sql = caseSensitive
       ? "SELECT card FROM properties WHERE name = :name AND value = :value"
       : "SELECT card FROM properties WHERE name = :name AND LOWER(value) = LOWER(:value)";
-    let selectStatement = this._dbConnection.createStatement(sql);
+    const selectStatement = this._dbConnection.createStatement(sql);
     selectStatement.params.name = property;
     selectStatement.params.value = value;
-    let results = [];
+    const results = [];
     while (selectStatement.executeStep()) {
       results.push(this.getCard(selectStatement.row.card));
     }

@@ -48,7 +48,7 @@ function encodeLength(i) {
   }
 
   let temp = i;
-  let bytes = [];
+  const bytes = [];
 
   while (temp >= 128) {
     bytes.unshift(temp & 255);
@@ -82,7 +82,7 @@ class BERValue {
   encode() {
     let bytes = [];
     if (this.isConstructed()) {
-      for (let c of this.children) {
+      for (const c of this.children) {
         bytes = bytes.concat(c.encode());
       }
     } else {
@@ -148,7 +148,7 @@ class BERValue {
   asInteger() {
     let i = 0;
     // TODO: handle negative numbers!
-    for (let b of this.data) {
+    for (const b of this.data) {
       i = (i << 8) | b;
     }
     return i;
@@ -169,19 +169,19 @@ class BERValue {
 
   // Static helpers to construct specific types of BERValue.
   static newNull() {
-    let ber = new BERValue(0x05);
+    const ber = new BERValue(0x05);
     ber.data = [];
     return ber;
   }
 
   static newBoolean(b) {
-    let ber = new BERValue(0x01);
+    const ber = new BERValue(0x01);
     ber.data = [b ? 0xff : 0x00];
     return ber;
   }
 
   static newInteger(i) {
-    let ber = new BERValue(0x02);
+    const ber = new BERValue(0x02);
     // TODO: does this handle negative correctly?
     while (i >= 128) {
       ber.data.unshift(i & 255);
@@ -192,13 +192,13 @@ class BERValue {
   }
 
   static newEnumerated(i) {
-    let ber = BERValue.newInteger(i);
+    const ber = BERValue.newInteger(i);
     ber.type = 0x0a; // sneaky but valid.
     return ber;
   }
 
   static newOctetString(bytes) {
-    let ber = new BERValue(0x04);
+    const ber = new BERValue(0x04);
     ber.data = bytes;
     return ber;
   }
@@ -207,7 +207,7 @@ class BERValue {
    * Create an octet string from an ASCII string.
    */
   static newString(str) {
-    let ber = new BERValue(0x04);
+    const ber = new BERValue(0x04);
     if (str.length > 0) {
       ber.data = Array.from(str, c => c.charCodeAt(0));
     }
@@ -221,7 +221,7 @@ class BERValue {
    * @param {Array.<BERValue>} children - The contents of the sequence.
    */
   static newSequence(type, children) {
-    let ber = new BERValue(type);
+    const ber = new BERValue(type);
     ber.children = children;
     return ber;
   }
@@ -290,7 +290,7 @@ class BERValue {
 
     dump(`${prefix}${desc} ${rawdump}\n`);
 
-    for (let c of this.children) {
+    for (const c of this.children) {
       c.dbug(prefix + "  ");
     }
   }
@@ -310,7 +310,7 @@ class BERParser {
    * @returns {number} - The byte.
    */
   async _nextByte() {
-    let buf = await this._conn.read(1);
+    const buf = await this._conn.read(1);
     return buf[0];
   }
 
@@ -342,15 +342,15 @@ class BERParser {
     // BER values always encoded as TLV (type, length, value) triples,
     // where type is a single byte, length can be a variable number of bytes
     // and value is a byte string, of size length.
-    let type = await this._nextByte();
-    let [length, lensize] = await this._readLength();
+    const type = await this._nextByte();
+    const [length, lensize] = await this._readLength();
 
-    let ber = new BERValue(type);
+    const ber = new BERValue(type);
     if (type & 0x20) {
       // it's a sequence
       let cnt = 0;
       while (cnt < length) {
-        let [child, consumed] = await this.decodeBERValue();
+        const [child, consumed] = await this.decodeBERValue();
         cnt += consumed;
         ber.children.push(child);
       }
@@ -406,14 +406,14 @@ class LDAPDaemon {
    */
   add(...entries) {
     // Clone the data before munging it.
-    let entriesCopy = JSON.parse(JSON.stringify(entries));
-    for (let e of entriesCopy) {
+    const entriesCopy = JSON.parse(JSON.stringify(entries));
+    for (const e of entriesCopy) {
       if (e.dn === undefined || e.attributes === undefined) {
         throw new Error("bad entry");
       }
 
       // Convert attr values to arrays, if required.
-      for (let [attr, val] of Object.entries(e.attributes)) {
+      for (const [attr, val] of Object.entries(e.attributes)) {
         if (!Array.isArray(val)) {
           e.attributes[attr] = [val];
         }
@@ -429,7 +429,7 @@ class LDAPDaemon {
    * @returns {Array} - The matching entries.
    */
   search(berFilter) {
-    let f = this.buildFilter(berFilter);
+    const f = this.buildFilter(berFilter);
     return Object.values(this.entries).filter(f);
   }
 
@@ -452,7 +452,7 @@ class LDAPDaemon {
         if (ber.children.length < 1) {
           throw new Error("Bad 'and' filter");
         }
-        let subFilters = ber.children.map(this.buildFilter);
+        const subFilters = ber.children.map(this.buildFilter);
         return function (e) {
           return subFilters.every(filt => filt(e));
         };
@@ -462,7 +462,7 @@ class LDAPDaemon {
         if (ber.children.length < 1) {
           throw new Error("Bad 'or' filter");
         }
-        let subFilters = ber.children.map(this.buildFilter);
+        const subFilters = ber.children.map(this.buildFilter);
         return function (e) {
           return subFilters.some(filt => filt(e));
         };
@@ -472,7 +472,7 @@ class LDAPDaemon {
         if (ber.children.length != 1) {
           throw new Error("Bad 'not' filter");
         }
-        let subFilter = this.buildFilter(ber.children[0]); // one child
+        const subFilter = this.buildFilter(ber.children[0]); // one child
         return function (e) {
           return !subFilter(e);
         };
@@ -482,10 +482,10 @@ class LDAPDaemon {
         if (ber.children.length != 2) {
           throw new Error("Bad 'equality' filter");
         }
-        let attrName = ber.children[0].asString().toLowerCase();
-        let attrVal = ber.children[1].asString().toLowerCase();
+        const attrName = ber.children[0].asString().toLowerCase();
+        const attrVal = ber.children[1].asString().toLowerCase();
         return function (e) {
-          let attrs = Object.keys(e.attributes).reduce(function (c, key) {
+          const attrs = Object.keys(e.attributes).reduce(function (c, key) {
             c[key.toLowerCase()] = e.attributes[key];
             return c;
           }, {});
@@ -497,9 +497,9 @@ class LDAPDaemon {
       }
       case 7: {
         // present
-        let attrName = ber.asString().toLowerCase();
+        const attrName = ber.asString().toLowerCase();
         return function (e) {
-          let attrs = Object.keys(e.attributes).reduce(function (c, key) {
+          const attrs = Object.keys(e.attributes).reduce(function (c, key) {
             c[key.toLowerCase()] = e.attributes[key];
             return c;
           }, {});
@@ -534,10 +534,10 @@ class LDAPHandler {
 
   // handler run() should exit when done, or throw exception to crash out.
   async run() {
-    let parser = new BERParser(this._conn);
+    const parser = new BERParser(this._conn);
 
     while (1) {
-      let [msg] = await parser.decodeBERValue();
+      const [msg] = await parser.decodeBERValue();
       if (this._daemon.debug) {
         dump("=== received ===\n");
         msg.dbug("C: ");
@@ -552,8 +552,8 @@ class LDAPHandler {
         throw new Error("Bad message..");
       }
 
-      let msgID = msg.children[0].asInteger();
-      let req = msg.children[1];
+      const msgID = msg.children[0].asInteger();
+      const req = msg.children[1];
 
       // Handle a teeny tiny subset of requests.
       switch (req.type) {
@@ -576,7 +576,10 @@ class LDAPHandler {
    * @param {BERValue} payload - The message content.
    */
   async sendLDAPMessage(msgID, payload) {
-    let msg = BERValue.newSequence(0x30, [BERValue.newInteger(msgID), payload]);
+    const msg = BERValue.newSequence(0x30, [
+      BERValue.newInteger(msgID),
+      payload,
+    ]);
     if (this._daemon.debug) {
       msg.dbug("S: ");
     }
@@ -586,7 +589,7 @@ class LDAPHandler {
   async handleBindRequest(msgID, req) {
     // Ignore the details, just say "OK!"
     // TODO: Add some auth support here, would be handy for testing.
-    let bindResponse = new BERValue(0x61);
+    const bindResponse = new BERValue(0x61);
     bindResponse.children = [
       BERValue.newEnumerated(0), // resultCode 0=success
       BERValue.newString(""), // matchedDN
@@ -614,16 +617,16 @@ class LDAPHandler {
     }
 
     // Perform search
-    let filt = req.children[6];
-    let matches = this._daemon.search(filt);
+    const filt = req.children[6];
+    const matches = this._daemon.search(filt);
 
     // Send a searchResultEntry for each match
-    for (let match of matches) {
-      let dn = BERValue.newString(match.dn);
-      let attrList = new BERValue(0x30);
-      for (let [key, values] of Object.entries(match.attributes)) {
-        let valueSet = new BERValue(0x31);
-        for (let v of values) {
+    for (const match of matches) {
+      const dn = BERValue.newString(match.dn);
+      const attrList = new BERValue(0x30);
+      for (const [key, values] of Object.entries(match.attributes)) {
+        const valueSet = new BERValue(0x31);
+        for (const v of values) {
           valueSet.children.push(BERValue.newString(v));
         }
 
@@ -633,7 +636,7 @@ class LDAPHandler {
       }
 
       // 0x64 = searchResultEntry
-      let searchResultEntry = BERValue.newSequence(0x64, [dn, attrList]);
+      const searchResultEntry = BERValue.newSequence(0x64, [dn, attrList]);
 
       if (this._daemon.debug) {
         dump(`=== send searchResultEntry ===\n`);
@@ -642,7 +645,7 @@ class LDAPHandler {
     }
 
     //SearchResultDone ::= [APPLICATION 5] LDAPResult
-    let searchResultDone = new BERValue(0x65);
+    const searchResultDone = new BERValue(0x65);
     searchResultDone.children = [
       BERValue.newEnumerated(0), // resultCode 0=success
       BERValue.newString(""), // matchedDN
@@ -660,6 +663,6 @@ class LDAPHandler {
  * Handler function to deal with a connection to our LDAP server.
  */
 async function LDAPHandlerFn(conn, daemon) {
-  let handler = new LDAPHandler(conn, daemon);
+  const handler = new LDAPHandler(conn, daemon);
   await handler.run();
 }

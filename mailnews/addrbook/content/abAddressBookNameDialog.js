@@ -36,7 +36,7 @@ function abNameOnLoad() {
   var bundle = document.getElementById("bundle_addressBook");
 
   if (gDirectory) {
-    let oldListName = gDirectory.dirName;
+    const oldListName = gDirectory.dirName;
     document.title = bundle.getFormattedString("addressBookTitleEdit", [
       oldListName,
     ]);
@@ -62,7 +62,7 @@ function abNameOnLoad() {
 }
 
 function abNameOKButton(event) {
-  let newDirName = gNameInput.value.trim();
+  const newDirName = gNameInput.value.trim();
 
   // Do not allow an already existing name.
   if (
@@ -85,12 +85,12 @@ function abNameOKButton(event) {
   if (gDirectory) {
     gDirectory.dirName = newDirName;
   } else {
-    let dirPrefId = MailServices.ab.newAddressBook(
+    const dirPrefId = MailServices.ab.newAddressBook(
       newDirName,
       "",
       Ci.nsIAbManager.JS_DIRECTORY_TYPE
     );
-    let directory = MailServices.ab.getDirectoryFromId(dirPrefId);
+    const directory = MailServices.ab.getDirectoryFromId(dirPrefId);
     window.arguments[0].newDirectoryUID = directory.UID;
     if ("onNewDirectory" in window.arguments[0]) {
       window.arguments[0].onNewDirectory(directory);

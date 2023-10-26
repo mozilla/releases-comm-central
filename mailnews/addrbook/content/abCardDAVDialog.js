@@ -25,7 +25,7 @@ var userContextId;
 window.addEventListener(
   "DOMContentLoaded",
   () => {
-    for (let id of [
+    for (const id of [
       "username",
       "location",
       "statusArea",
@@ -55,8 +55,8 @@ window.addEventListener(
  * the default placeholder.
  */
 function fillLocationPlaceholder() {
-  let parts = uiElements.username.value.split("@");
-  let domain = parts.length == 2 && parts[1] ? parts[1] : null;
+  const parts = uiElements.username.value.split("@");
+  const domain = parts.length == 2 && parts[1] ? parts[1] : null;
 
   if (domain) {
     uiElements.location.setAttribute("placeholder", domain);
@@ -90,7 +90,7 @@ async function check() {
   // We might be accepting the dialog by pressing Enter in the URL input.
   handleCardDAVURLBlur();
 
-  let username = uiElements.username.value;
+  const username = uiElements.username.value;
 
   if (!uiElements.location.validity.valid && !username.split("@")[1]) {
     log.error(`Invalid URL: "${uiElements.location.value}"`);
@@ -128,8 +128,8 @@ async function check() {
   }
 
   // Create a list of CardDAV directories that already exist.
-  let existing = [];
-  for (let d of MailServices.ab.directories) {
+  const existing = [];
+  for (const d of MailServices.ab.directories) {
     if (d.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE) {
       existing.push(d.getStringValue("carddav.url", ""));
     }
@@ -137,12 +137,12 @@ async function check() {
 
   // Display a checkbox for each directory that doesn't already exist.
   let alreadyAdded = 0;
-  for (let book of foundBooks) {
+  for (const book of foundBooks) {
     if (existing.includes(book.url.href)) {
       alreadyAdded++;
       continue;
     }
-    let checkbox = uiElements.availableBooks.appendChild(
+    const checkbox = uiElements.availableBooks.appendChild(
       document.createXULElement("checkbox")
     );
     checkbox.setAttribute("label", book.name);
@@ -217,9 +217,9 @@ window.addEventListener("dialogaccept", async event => {
     return;
   }
 
-  for (let checkbox of uiElements.availableBooks.children) {
+  for (const checkbox of uiElements.availableBooks.children) {
     if (checkbox.checked) {
-      let book = await checkbox._book.create();
+      const book = await checkbox._book.create();
       if (window.arguments[0]) {
         // Pass the UID of the book back to the opening window.
         window.arguments[0].newDirectoryUID = book.UID;

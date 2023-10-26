@@ -73,7 +73,7 @@ function run_test() {
       MailServices.headerParser.extractHeaderAddressMailboxes(checks[i][0]),
       checks[i][1]
     );
-    let _names = MailServices.headerParser
+    const _names = MailServices.headerParser
       .parseDecodedHeader(checks[i][0])
       .map(addr => addr.name || addr.email)
       .join(", ");

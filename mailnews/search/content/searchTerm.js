@@ -192,7 +192,7 @@ function initializeBooleanWidgets() {
 
 function initializeSearchRows(scope, searchTerms) {
   for (let i = 0; i < searchTerms.length; i++) {
-    let searchTerm = searchTerms[i];
+    const searchTerm = searchTerms[i];
     createSearchRow(i, scope, searchTerm, false);
     gTotalSearchTerms++;
   }
@@ -450,15 +450,15 @@ function initializeTermFromIndex(index) {
  *                   all of them are put into the same listcell.
  */
 function constructRow(aChildren) {
-  let cols = gSearchTermList.firstElementChild.children; // treecol elements
-  let listitem = document.createXULElement("richlistitem");
+  const cols = gSearchTermList.firstElementChild.children; // treecol elements
+  const listitem = document.createXULElement("richlistitem");
   listitem.setAttribute("allowevents", "true");
   for (let i = 0; i < aChildren.length; i++) {
-    let listcell = document.createXULElement("hbox");
+    const listcell = document.createXULElement("hbox");
     if (cols[i].hasAttribute("style")) {
       listcell.setAttribute("style", cols[i].getAttribute("style"));
     }
-    let child = aChildren[i];
+    const child = aChildren[i];
 
     if (child instanceof Array) {
       for (let j = 0; j < child.length; j++) {

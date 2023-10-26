@@ -28,7 +28,7 @@ var FeedCache = {
   },
 
   getFeed(aUrl) {
-    let index = this.normalizeHost(aUrl);
+    const index = this.normalizeHost(aUrl);
     if (index in this.mFeeds) {
       return this.mFeeds[index];
     }
@@ -37,7 +37,7 @@ var FeedCache = {
   },
 
   removeFeed(aUrl) {
-    let index = this.normalizeHost(aUrl);
+    const index = this.normalizeHost(aUrl);
     if (index in this.mFeeds) {
       delete this.mFeeds[index];
     }
@@ -46,7 +46,7 @@ var FeedCache = {
   normalizeHost(aUrl) {
     try {
       let normalizedUrl = Services.io.newURI(aUrl);
-      let newHost = normalizedUrl.host.toLowerCase();
+      const newHost = normalizedUrl.host.toLowerCase();
       normalizedUrl = normalizedUrl.mutate().setHost(newHost).finalize();
       return normalizedUrl.spec;
     } catch (ex) {
@@ -99,7 +99,7 @@ Feed.prototype = {
 
   get name() {
     // Used for the feed's title in Subscribe dialog and opml export.
-    let name = this.title || this.description || this.url;
+    const name = this.title || this.description || this.url;
     /* eslint-disable-next-line no-control-regex */
     return name.replace(/[\n\r\t]+/g, " ").replace(/[\x00-\x1F]+/g, "");
   },
@@ -111,8 +111,8 @@ Feed.prototype = {
 
     // Get a unique sanitized name. Use title or description as a base;
     // these are mandatory by spec. Length of 80 is plenty.
-    let folderName = (this.title || this.description || "").substr(0, 80);
-    let defaultName =
+    const folderName = (this.title || this.description || "").substr(0, 80);
+    const defaultName =
       lazy.FeedUtils.strings.GetStringFromName("ImportFeedsNew");
     return (this.mFolderName = lazy.FeedUtils.getSanitizedFolderName(
       this.server.rootMsgFolder,
@@ -162,7 +162,7 @@ Feed.prototype = {
       // it can be verified later (the folder name will be the url if not adding
       // to an existing folder). Only for subscribe actions; passive biff and
       // active get new messages are handled prior to getting here.
-      let win = Services.wm.getMostRecentWindow("mail:3pane");
+      const win = Services.wm.getMostRecentWindow("mail:3pane");
       if (!win.MailOfflineMgr.getNewMail()) {
         this.storeNextItem();
         return;
@@ -180,7 +180,7 @@ Feed.prototype = {
     // not sent If-Modified-Since, as in the case of an unsubscribe and new
     // subscribe.  Send start of century date to force a download; some servers
     // will 304 on older dates (such as epoch 1970).
-    let lastModified = this.lastModified || "Sat, 01 Jan 2000 00:00:00 GMT";
+    const lastModified = this.lastModified || "Sat, 01 Jan 2000 00:00:00 GMT";
     this.request.setRequestHeader("If-Modified-Since", lastModified);
 
     // Only order what you're going to eat...
@@ -199,16 +199,16 @@ Feed.prototype = {
   onReadyStateChange(aEvent) {
     // Once a server responds with data, reset the timeout to allow potentially
     // large files to complete the download.
-    let request = aEvent.target;
+    const request = aEvent.target;
     if (request.timeout && request.readyState == request.LOADING) {
       request.timeout = 0;
     }
   },
 
   onDownloaded(aEvent) {
-    let request = aEvent.target;
-    let isHttp = request.channel.originalURI.scheme.startsWith("http");
-    let url = request.channel.originalURI.spec;
+    const request = aEvent.target;
+    const isHttp = request.channel.originalURI.scheme.startsWith("http");
+    const url = request.channel.originalURI.spec;
     if (isHttp && (request.status < 200 || request.status >= 300)) {
       Feed.prototype.onDownloadError(aEvent);
       return;
@@ -220,7 +220,7 @@ Feed.prototype = {
         " : " +
         url
     );
-    let feed = FeedCache.getFeed(url);
+    const feed = FeedCache.getFeed(url);
     if (!feed) {
       throw new Error(
         "Feed.onDownloaded: error - couldn't retrieve feed from cache"
@@ -233,7 +233,7 @@ Feed.prototype = {
     // the url, as for subscribe move/copy, as a subsequent refresh may get a 304.
     // Save the response and persist it only upon successful completion of the
     // refresh cycle (i.e. not if the request is cancelled).
-    let lastModifiedHeader = request.getResponseHeader("Last-Modified");
+    const lastModifiedHeader = request.getResponseHeader("Last-Modified");
     feed.mLastModified =
       lastModifiedHeader && feed.parseItems ? lastModifiedHeader : null;
 
@@ -244,9 +244,9 @@ Feed.prototype = {
   },
 
   onProgress(aEvent) {
-    let request = aEvent.target;
-    let url = request.channel.originalURI.spec;
-    let feed = FeedCache.getFeed(url);
+    const request = aEvent.target;
+    const url = request.channel.originalURI.spec;
+    const feed = FeedCache.getFeed(url);
 
     if (feed.downloadCallback) {
       feed.downloadCallback.onProgress(
@@ -259,9 +259,9 @@ Feed.prototype = {
   },
 
   onDownloadError(aEvent) {
-    let request = aEvent.target;
-    let url = request.channel.originalURI.spec;
-    let feed = FeedCache.getFeed(url);
+    const request = aEvent.target;
+    const url = request.channel.originalURI.spec;
+    const feed = FeedCache.getFeed(url);
     if (feed.downloadCallback) {
       // Generic network or 'not found' error initially.
       let error = lazy.FeedUtils.kNewsBlogRequestFailure;
@@ -273,7 +273,7 @@ Feed.prototype = {
         // since we last downloaded it and does not need to be parsed.
         error = lazy.FeedUtils.kNewsBlogNoNewItems;
       } else {
-        let [errType, errName] =
+        const [errType, errName] =
           lazy.FeedUtils.createTCPErrorFromFailedXHR(request);
         lazy.FeedUtils.log.info(
           "Feed.onDownloaded: request errType:errName:statusCode - " +
@@ -405,7 +405,7 @@ Feed.prototype = {
   },
 
   get quickMode() {
-    let defaultValue = this.server.getBoolValue("quickMode");
+    const defaultValue = this.server.getBoolValue("quickMode");
     return lazy.FeedUtils.getSubscriptionAttr(
       this.url,
       this.server,
@@ -424,7 +424,7 @@ Feed.prototype = {
   },
 
   get options() {
-    let options = lazy.FeedUtils.getSubscriptionAttr(
+    const options = lazy.FeedUtils.getSubscriptionAttr(
       this.url,
       this.server,
       "options",
@@ -434,13 +434,13 @@ Feed.prototype = {
       return options;
     }
 
-    let newOptions = lazy.FeedUtils.newOptions(options);
+    const newOptions = lazy.FeedUtils.newOptions(options);
     this.options = newOptions;
     return newOptions;
   },
 
   set options(aOptions) {
-    let newOptions = aOptions ? aOptions : lazy.FeedUtils.optionsTemplate;
+    const newOptions = aOptions ? aOptions : lazy.FeedUtils.optionsTemplate;
     lazy.FeedUtils.setSubscriptionAttr(
       this.url,
       this.server,
@@ -503,9 +503,9 @@ Feed.prototype = {
    * @returns {void}
    */
   invalidateItems() {
-    let ds = lazy.FeedUtils.getItemsDS(this.server);
-    for (let id in ds.data) {
-      let item = ds.data[id];
+    const ds = lazy.FeedUtils.getItemsDS(this.server);
+    for (const id in ds.data) {
+      const item = ds.data[id];
       if (item.feedURLs.includes(this.url)) {
         item.valid = false;
         lazy.FeedUtils.log.trace("Feed.invalidateItems: item - " + id);
@@ -524,17 +524,17 @@ Feed.prototype = {
    * @returns {void}
    */
   removeInvalidItems(aDeleteFeed) {
-    let ds = lazy.FeedUtils.getItemsDS(this.server);
+    const ds = lazy.FeedUtils.getItemsDS(this.server);
     lazy.FeedUtils.log.debug("Feed.removeInvalidItems: for url - " + this.url);
 
-    let currentTime = new Date().getTime();
-    for (let id in ds.data) {
-      let item = ds.data[id];
+    const currentTime = new Date().getTime();
+    for (const id in ds.data) {
+      const item = ds.data[id];
       // skip valid items and ones not part of this feed.
       if (!item.feedURLs.includes(this.url) || item.valid) {
         continue;
       }
-      let lastSeenTime = item.lastSeenTime || 0;
+      const lastSeenTime = item.lastSeenTime || 0;
 
       if (
         currentTime - lastSeenTime < lazy.FeedUtils.INVALID_ITEM_PURGE_DELAY &&
@@ -581,7 +581,7 @@ Feed.prototype = {
           ex
       );
       // But its remnants are still there, clean up.
-      let xfolder = this.server.rootMsgFolder.getChildNamed(this.folderName);
+      const xfolder = this.server.rootMsgFolder.getChildNamed(this.folderName);
       this.server.rootMsgFolder.propagateDelete(xfolder, true);
     }
   },
@@ -607,7 +607,7 @@ Feed.prototype = {
       return;
     }
 
-    let item = this.itemsToStore[this.itemsToStoreIndex];
+    const item = this.itemsToStore[this.itemsToStoreIndex];
 
     if (item.store()) {
       this.itemsStored++;
@@ -674,7 +674,7 @@ Feed.prototype = {
       }
 
       // Flush any feed item changes to disk.
-      let ds = lazy.FeedUtils.getItemsDS(aFeed.server);
+      const ds = lazy.FeedUtils.getItemsDS(aFeed.server);
       ds.saveSoon();
       lazy.FeedUtils.log.debug(
         "Feed.cleanupParsingState: items stored - " + this.itemsStored

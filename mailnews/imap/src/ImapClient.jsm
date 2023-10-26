@@ -118,7 +118,7 @@ class ImapClient {
       this.onReady();
       this._setSocketTimeout(this._prefs.tcpTimeout);
     } else {
-      let hostname = this._server.hostName.toLowerCase();
+      const hostname = this._server.hostName.toLowerCase();
       this._logger.debug(`Connecting to ${hostname}:${this._server.port}`);
       this._greeted = false;
       this._capabilities = null;
@@ -189,13 +189,13 @@ class ImapClient {
   discoverAllFolders(folder) {
     this._logger.debug("discoverAllFolders", folder.URI);
 
-    let handleListResponse = res => {
+    const handleListResponse = res => {
       this._hasTrash = res.mailboxes.some(
         mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_TRASH
       );
       if (!this._hasTrash) {
-        let trashFolderName = this._server.trashFolderName.toLowerCase();
-        let trashMailbox = res.mailboxes.find(
+        const trashFolderName = this._server.trashFolderName.toLowerCase();
+        const trashMailbox = res.mailboxes.find(
           mailbox => mailbox.name.toLowerCase() == trashFolderName
         );
         if (trashMailbox) {
@@ -203,7 +203,7 @@ class ImapClient {
           trashMailbox.flags |= ImapUtils.FLAG_IMAP_TRASH;
         }
       }
-      for (let mailbox of res.mailboxes) {
+      for (const mailbox of res.mailboxes) {
         this._serverSink.possibleImapMailbox(
           mailbox.name.replaceAll(mailbox.delimiter, "/"),
           mailbox.delimiter,
@@ -229,8 +229,10 @@ class ImapClient {
       this._nextAction = res2 => {
         // Per rfc3501#section-6.3.9, if LSUB returns different flags from LIST,
         // use the LIST responses.
-        for (let mailbox of res2.mailboxes) {
-          let mailboxFromList = res.mailboxes.find(x => x.name == mailbox.name);
+        for (const mailbox of res2.mailboxes) {
+          const mailboxFromList = res.mailboxes.find(
+            x => x.name == mailbox.name
+          );
           if (
             mailboxFromList?.flags &&
             mailboxFromList?.flags != mailbox.flags
@@ -257,8 +259,8 @@ class ImapClient {
    */
   discoverAllAndSubscribedFolders(folder) {
     this._logger.debug("discoverAllAndSubscribedFolders", folder.URI);
-    let handleListResponse = res => {
-      for (let mailbox of res.mailboxes) {
+    const handleListResponse = res => {
+      for (const mailbox of res.mailboxes) {
         this._serverSink.possibleImapMailbox(
           mailbox.name.replaceAll(mailbox.delimiter, "/"),
           mailbox.delimiter,
@@ -273,8 +275,10 @@ class ImapClient {
       this._nextAction = res2 => {
         // Per rfc3501#section-6.3.9, if LSUB returns different flags from LIST,
         // use the LIST responses.
-        for (let mailbox of res2.mailboxes) {
-          let mailboxFromList = res.mailboxes.find(x => x.name == mailbox.name);
+        for (const mailbox of res2.mailboxes) {
+          const mailboxFromList = res.mailboxes.find(
+            x => x.name == mailbox.name
+          );
           if (
             mailboxFromList?.flags &&
             mailboxFromList?.flags != mailbox.flags
@@ -315,10 +319,10 @@ class ImapClient {
    */
   renameFolder(folder, newName) {
     this._logger.debug("renameFolder", folder.URI, newName);
-    let delimiter =
+    const delimiter =
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
-    let names = this._getAncestorFolderNames(folder);
-    let oldName = this._getServerFolderName(folder);
+    const names = this._getAncestorFolderNames(folder);
+    const oldName = this._getServerFolderName(folder);
     newName = this._encodeMailboxName([...names, newName].join(delimiter));
 
     this._nextAction = this._actionRenameResponse(oldName, newName);
@@ -333,8 +337,8 @@ class ImapClient {
    */
   moveFolder(srcFolder, dstFolder) {
     this._logger.debug("moveFolder", srcFolder.URI, dstFolder.URI);
-    let oldName = this._getServerFolderName(srcFolder);
-    let newName = this._getServerSubFolderName(dstFolder, srcFolder.name);
+    const oldName = this._getServerFolderName(srcFolder);
+    const newName = this._getServerSubFolderName(dstFolder, srcFolder.name);
     this._nextAction = this._actionRenameResponse(oldName, newName, true);
     this._sendTagged(`RENAME "${oldName}" "${newName}"`);
   }
@@ -361,13 +365,13 @@ class ImapClient {
     this._nextAction = res => {
       // Leaves have longer names than parent mailbox, sort them by the name
       // length, so that leaf mailbox will be deleted first.
-      let mailboxes = res.mailboxes.sort(
+      const mailboxes = res.mailboxes.sort(
         (x, y) => y.name.length - x.name.length
       );
-      let selfName = this._getServerFolderName(folder);
+      const selfName = this._getServerFolderName(folder);
       let selfIncluded = false;
       this._nextAction = () => {
-        let mailbox = mailboxes.shift();
+        const mailbox = mailboxes.shift();
         if (mailbox) {
           this._sendTagged(`DELETE "${mailbox.name}"`);
           if (!selfIncluded && selfName == mailbox.name) {
@@ -393,7 +397,7 @@ class ImapClient {
    */
   ensureFolderExists(parent, folderName) {
     this._logger.debug("ensureFolderExists", parent.URI, folderName);
-    let mailboxName = this._getServerSubFolderName(parent, folderName);
+    const mailboxName = this._getServerSubFolderName(parent, folderName);
     this._nextAction = res => {
       if (res.mailboxes.length) {
         // Already exists.
@@ -416,7 +420,7 @@ class ImapClient {
    */
   createFolder(parent, folderName) {
     this._logger.debug("createFolder", parent.URI, folderName);
-    let mailboxName = this._getServerSubFolderName(parent, folderName);
+    const mailboxName = this._getServerSubFolderName(parent, folderName);
     this._actionCreateAndSubscribe(mailboxName, res => {
       this._actionList(mailboxName, () => this._actionDone());
     });
@@ -457,7 +461,7 @@ class ImapClient {
     this._logger.debug("fetchMsgAttribute", folder.URI, uids, attribute);
     this._nextAction = res => {
       if (res.done) {
-        let resultAttributes = res.messages
+        const resultAttributes = res.messages
           .map(m => m.customAttributes[attribute])
           .flat();
         this.runningUri.QueryInterface(Ci.nsIImapUrl).customAttributeResult =
@@ -514,7 +518,7 @@ class ImapClient {
    * @returns {string[]}
    */
   _getAncestorFolderNames(folder) {
-    let matches = /imap:\/\/[^/]+\/(.+)/.exec(folder.URI);
+    const matches = /imap:\/\/[^/]+\/(.+)/.exec(folder.URI);
     return matches[1].split("/").slice(0, -1);
   }
 
@@ -541,9 +545,9 @@ class ImapClient {
     if (folder.onlineName) {
       return folder.onlineName.replaceAll('"', '\\"');
     }
-    let delimiter =
+    const delimiter =
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
-    let names = this._getAncestorFolderNames(folder);
+    const names = this._getAncestorFolderNames(folder);
     return this._encodeMailboxName(
       [...names, folder.name].join(delimiter)
     ).replaceAll('"', '\\"');
@@ -559,7 +563,7 @@ class ImapClient {
    */
   _getServerSubFolderName(parent, folderName) {
     folderName = this._encodeMailboxName(folderName);
-    let mailboxName = this._getServerFolderName(parent);
+    const mailboxName = this._getServerFolderName(parent);
     if (mailboxName) {
       let delimiter = parent.QueryInterface(
         Ci.nsIMsgImapMailFolder
@@ -613,7 +617,7 @@ class ImapClient {
     this._actionInFolder(folder, () => {
       this._nextAction = () => this._actionDone();
       // _supportedFlags is available after _actionSelectResponse.
-      let flagsStr = ImapUtils.flagsToString(flags, this._supportedFlags);
+      const flagsStr = ImapUtils.flagsToString(flags, this._supportedFlags);
       this._sendTagged(`UID STORE ${messageIds} ${action}FLAGS (${flagsStr})`);
     });
   }
@@ -663,8 +667,8 @@ class ImapClient {
    */
   async uploadMessageFromFile(file, dstFolder, copyState, isDraft) {
     this._logger.debug("uploadMessageFromFile", file.path, dstFolder.URI);
-    let mailbox = this._getServerFolderName(dstFolder);
-    let content = MailStringUtils.uint8ArrayToByteString(
+    const mailbox = this._getServerFolderName(dstFolder);
+    const content = MailStringUtils.uint8ArrayToByteString(
       await IOUtils.read(file.path)
     );
     this._nextAction = res => {
@@ -699,8 +703,8 @@ class ImapClient {
       };
       this._send(content + (this._utf8Enabled ? ")" : ""));
     };
-    let outKeywords = {};
-    let flags = dstFolder
+    const outKeywords = {};
+    const flags = dstFolder
       .QueryInterface(Ci.nsIImapMessageSink)
       .getCurMoveCopyMessageInfo(this.runningUri, {}, outKeywords);
     let flagString = ImapUtils.flagsToString(flags, this._supportedFlags);
@@ -710,8 +714,8 @@ class ImapClient {
     if (outKeywords.value) {
       flagString += " " + outKeywords.value;
     }
-    let open = this._utf8Enabled ? "UTF8 (~{" : "{";
-    let command = `APPEND "${mailbox}" (${flagString.trim()}) ${open}${
+    const open = this._utf8Enabled ? "UTF8 (~{" : "{";
+    const command = `APPEND "${mailbox}" (${flagString.trim()}) ${open}${
       content.length
     }}`;
     this._sendTagged(command);
@@ -766,7 +770,7 @@ class ImapClient {
       flagsToSubtract,
       uids
     );
-    let subtractFlags = () => {
+    const subtractFlags = () => {
       if (flagsToSubtract) {
         this._nextAction = () => {
           this._actionDone();
@@ -888,7 +892,7 @@ class ImapClient {
     // on the same process. We also have this in Pop3Client.
     await new Promise(resolve => setTimeout(resolve));
 
-    let stringPayload = this._utf8Enabled
+    const stringPayload = this._utf8Enabled
       ? new TextDecoder().decode(event.data)
       : MailStringUtils.uint8ArrayToByteString(new Uint8Array(event.data));
     this._logger.debug(`S: ${stringPayload}`);
@@ -925,12 +929,12 @@ class ImapClient {
       return;
     }
 
-    let secInfo =
+    const secInfo =
       await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
       this._logger.error(`SecurityError info: ${secInfo.errorCodeString}`);
       if (secInfo.failedCertChain.length) {
-        let chain = secInfo.failedCertChain.map(c => {
+        const chain = secInfo.failedCertChain.map(c => {
           return c.commonName + "; serial# " + c.serialNumber;
         });
         this._logger.error(`SecurityError cert chain: ${chain.join(" <- ")}`);
@@ -978,7 +982,7 @@ class ImapClient {
       return;
     }
 
-    let encode = this._utf8Enabled
+    const encode = this._utf8Enabled
       ? x => new TextEncoder().encode(x)
       : MailStringUtils.byteStringToUint8Array;
     this._socket.send(encode(str + "\r\n").buffer);
@@ -989,7 +993,7 @@ class ImapClient {
    */
   _sendTagged(str, suppressLogging) {
     if (this._idling) {
-      let nextAction = this._nextAction;
+      const nextAction = this._nextAction;
       this.endIdle(() => {
         this._nextAction = nextAction;
         this._sendTagged(str, suppressLogging);
@@ -1123,7 +1127,7 @@ class ImapClient {
     switch (this._currentAuthMethod) {
       case "OLDLOGIN":
         this._nextAction = this._actionAuthResponse;
-        let password = await this._getPassword();
+        const password = await this._getPassword();
         this._sendTagged(
           `LOGIN ${this._authenticator.username} ${password}`,
           true
@@ -1171,7 +1175,7 @@ class ImapClient {
       }
       case "XOAUTH2":
         this._nextAction = this._actionAuthResponse;
-        let token = await this._authenticator.getOAuthToken();
+        const token = await this._authenticator.getOAuthToken();
         this._sendTagged(`AUTHENTICATE XOAUTH2 ${token}`, true);
         break;
       case "EXTERNAL":
@@ -1217,7 +1221,7 @@ class ImapClient {
       )
     ) {
       // Ask user what to do.
-      let action = this._authenticator.promptAuthFailed();
+      const action = this._authenticator.promptAuthFailed();
       if (action == 1) {
         // Cancel button pressed.
         this._socket.close();
@@ -1246,7 +1250,7 @@ class ImapClient {
    */
   async _getPassword() {
     try {
-      let password = await this._authenticator.getPassword();
+      const password = await this._authenticator.getPassword();
       return password;
     } catch (e) {
       if (e.result == Cr.NS_ERROR_ABORT) {
@@ -1283,7 +1287,7 @@ class ImapClient {
    */
   _actionAuthLoginPass = async res => {
     this._nextAction = this._actionAuthResponse;
-    let password = MailStringUtils.stringToByteString(
+    const password = MailStringUtils.stringToByteString(
       await this._getPassword()
     );
     this._send(btoa(password), true);
@@ -1296,7 +1300,7 @@ class ImapClient {
    */
   _actionAuthCramMd5 = async res => {
     this._nextAction = this._actionAuthResponse;
-    let password = await this._getPassword();
+    const password = await this._getPassword();
     this._send(
       this._authenticator.getCramMd5Token(password, res.statusText),
       true
@@ -1441,7 +1445,7 @@ class ImapClient {
           mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_INBOX
         );
       }
-      for (let mailbox of res.mailboxes) {
+      for (const mailbox of res.mailboxes) {
         this._serverSink.possibleImapMailbox(
           mailbox.name.replaceAll(mailbox.delimiter, "/"),
           mailbox.delimiter,
@@ -1486,7 +1490,7 @@ class ImapClient {
    * If Trash folder is not found on server, create one and subscribe to it.
    */
   _actionCreateTrashFolderIfNeeded() {
-    let trashFolderName = this._server.trashFolderName;
+    const trashFolderName = this._server.trashFolderName;
     this._actionList(trashFolderName, res => {
       this._hasTrash = res.mailboxes.length > 0;
       if (this._hasTrash) {
@@ -1547,10 +1551,10 @@ class ImapClient {
       const INVALIDATE_QUOTA = 0;
       const STORE_QUOTA = 1;
       const VALIDATE_QUOTA = 2;
-      for (let root of res.quotaRoots || []) {
+      for (const root of res.quotaRoots || []) {
         this._folderSink.setFolderQuotaData(INVALIDATE_QUOTA, root, 0, 0);
       }
-      for (let [mailbox, resource, usage, limit] of res.quotas || []) {
+      for (const [mailbox, resource, usage, limit] of res.quotas || []) {
         this._folderSink.setFolderQuotaData(
           STORE_QUOTA,
           mailbox ? `${mailbox} / ${resource}` : resource,
@@ -1577,7 +1581,7 @@ class ImapClient {
    */
   _actionRenameResponse = (oldName, newName, isMove) => res => {
     // Step 3: Rename the local folder and send LIST command to re-sync folders.
-    let actionAfterUnsubscribe = () => {
+    const actionAfterUnsubscribe = () => {
       this._serverSink.onlineFolderRename(this._msgWindow, oldName, newName);
       if (isMove) {
         this._actionDone();
@@ -1612,15 +1616,15 @@ class ImapClient {
    * @param {ImapResponse} res - Response received from the server.
    */
   _actionUidFetchResponse(res) {
-    let outFolderInfo = {};
+    const outFolderInfo = {};
     this.folder.getDBFolderInfoAndDB(outFolderInfo);
-    let highestUid = outFolderInfo.value.getUint32Property(
+    const highestUid = outFolderInfo.value.getUint32Property(
       "highestRecordedUID",
       0
     );
     this._folderSink = this.folder.QueryInterface(Ci.nsIImapMailFolderSink);
     this._folderSink.UpdateImapMailboxInfo(this, this._getMailboxSpec());
-    let latestUid = this._messageUids.at(-1);
+    const latestUid = this._messageUids.at(-1);
     if (latestUid > highestUid) {
       let extraItems = "";
       if (this._server.isGMailServer) {
@@ -1635,7 +1639,7 @@ class ImapClient {
     } else {
       this._folderSink.headerFetchCompleted(this);
       if (this._bodysToDownload.length) {
-        let uids = this._bodysToDownload.join(",");
+        const uids = this._bodysToDownload.join(",");
         this._nextAction = this._actionUidFetchBodyResponse;
         this._sendTagged(
           `UID FETCH ${uids} (UID RFC822.SIZE FLAGS BODY.PEEK[])`
@@ -1676,7 +1680,7 @@ class ImapClient {
     if (this._bodysToDownload.length) {
       // nsImapMailFolder decides to fetch the full body by calling
       // NotifyBodysToDownload.
-      let uids = this._bodysToDownload.join(",");
+      const uids = this._bodysToDownload.join(",");
       this._nextAction = this._actionUidFetchBodyResponse;
       this._sendTagged(`UID FETCH ${uids} (UID RFC822.SIZE FLAGS BODY.PEEK[])`);
       return;
@@ -1732,14 +1736,14 @@ class ImapClient {
         this._messageUids[msg.sequence] = msg.uid;
         this._messages.set(msg.uid, msg);
         this._folderSink.StartMessage(this.runningUri);
-        let hdrXferInfo = {
+        const hdrXferInfo = {
           numHeaders: 1,
           getHeader() {
             return {
               msgUid: msg.uid,
               msgSize: msg.size,
               get msgHdrs() {
-                let sepIndex = msg.body.indexOf("\r\n\r\n");
+                const sepIndex = msg.body.indexOf("\r\n\r\n");
                 return sepIndex == -1
                   ? msg.body + "\r\n"
                   : msg.body.slice(0, sepIndex + 2);
@@ -1804,13 +1808,13 @@ class ImapClient {
         this._messageUids = [];
         this._messages.clear();
       }
-      let folder = this.folder;
+      const folder = this.folder;
       this.folder = null;
       this.selectFolder(folder);
     } else if (res.messages.length || res.exists) {
-      let outFolderInfo = {};
+      const outFolderInfo = {};
       this.folder.getDBFolderInfoAndDB(outFolderInfo);
-      let highestUid = outFolderInfo.value.getUint32Property(
+      const highestUid = outFolderInfo.value.getUint32Property(
         "highestRecordedUID",
         0
       );
@@ -1840,10 +1844,10 @@ class ImapClient {
     if (!this._msgWindow) {
       return;
     }
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/imapMsgs.properties"
     );
-    let errorMsg = bundle.formatStringFromName(errorName, [
+    const errorMsg = bundle.formatStringFromName(errorName, [
       this._server.hostName,
     ]);
     Services.prompt.alert(this._msgWindow.domWindow, null, errorMsg);
@@ -1875,8 +1879,8 @@ class ImapClient {
 
   get flagAndUidState() {
     // The server sequence is 1 based, nsIImapFlagAndUidState sequence is 0 based.
-    let getUidOfMessage = index => this._messageUids[index + 1];
-    let getMessageFlagsByUid = uid => this._messages.get(uid)?.flags;
+    const getUidOfMessage = index => this._messageUids[index + 1];
+    const getMessageFlagsByUid = uid => this._messages.get(uid)?.flags;
 
     return {
       QueryInterface: ChromeUtils.generateQI(["nsIImapFlagAndUidState"]),
@@ -1887,7 +1891,7 @@ class ImapClient {
       getMessageFlagsByUid,
       getCustomFlags: uid => this._messages.get(uid)?.keywords,
       getCustomAttribute: (uid, name) => {
-        let value = this._messages.get(uid)?.customAttributes[name];
+        const value = this._messages.get(uid)?.customAttributes[name];
         return Array.isArray(value) ? value.join(" ") : value;
       },
     };

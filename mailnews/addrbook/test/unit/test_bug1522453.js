@@ -42,7 +42,7 @@ add_task(async function () {
   list.addCard(contact3);
 
   // book.childCards should contain the list and all three contacts.
-  let bookCards = book.childCards;
+  const bookCards = book.childCards;
   equal(bookCards.length, 1 + 3);
   equal(list.UID, bookCards[0].UID);
   equal(contact1.UID, bookCards[1].UID);
@@ -56,7 +56,7 @@ add_task(async function () {
   equal(contact3.UID, listCards[1].UID);
 
   // Reload the address book manager.
-  let reloadPromise = TestUtils.topicObserved("addrbook-reloaded");
+  const reloadPromise = TestUtils.topicObserved("addrbook-reloaded");
   Services.obs.notifyObservers(null, "addrbook-reload");
   await reloadPromise;
 

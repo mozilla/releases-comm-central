@@ -27,7 +27,7 @@ add_task(async function runPump() {
   Assert.equal(hdrs.length, 5, "Check initial db count");
 
   // Deletes 2 middle messages.
-  let deletes = [hdrs[1], hdrs[2]];
+  const deletes = [hdrs[1], hdrs[2]];
 
   // Note the listener won't work because this is a sync delete,
   // but it should!
@@ -67,7 +67,7 @@ add_task(async function runPump() {
 
 function showMessages(folder) {
   var hdrs = [];
-  for (let hdr of folder.msgDatabase.enumerateMessages()) {
+  for (const hdr of folder.msgDatabase.enumerateMessages()) {
     hdrs.push(hdr);
     dump(
       "key " +

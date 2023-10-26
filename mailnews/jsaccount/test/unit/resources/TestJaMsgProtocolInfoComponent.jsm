@@ -24,7 +24,7 @@ TestJaMsgProtocolInfo.prototype = {
     }
     // Setup a default location, "TestFoo" directory in profile.
     const NS_APP_USER_PROFILE_50_DIR = "ProfD";
-    let typedir = Services.dirsvc.get(NS_APP_USER_PROFILE_50_DIR, Ci.nsIFile);
+    const typedir = Services.dirsvc.get(NS_APP_USER_PROFILE_50_DIR, Ci.nsIFile);
     typedir.append("TestFoo");
     if (!typedir.exists()) {
       typedir.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0700", 8));

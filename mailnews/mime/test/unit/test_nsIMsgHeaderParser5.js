@@ -91,7 +91,7 @@ function run_test() {
     ],
   ];
 
-  for (let check of checks) {
+  for (const check of checks) {
     equalArrays(
       MailServices.headerParser.parseDecodedHeader(check[0]),
       check[1]

@@ -126,7 +126,7 @@ var GlodaExplicitAttr = {
   },
 
   *process(aGlodaMessage, aRawReps, aIsNew, aCallbackHandle) {
-    let aMsgHdr = aRawReps.header;
+    const aMsgHdr = aRawReps.header;
 
     aGlodaMessage.starred = aMsgHdr.isFlagged;
     if (aGlodaMessage.starred) {
@@ -135,25 +135,25 @@ var GlodaExplicitAttr = {
 
     aGlodaMessage.read = aMsgHdr.isRead;
 
-    let flags = aMsgHdr.flags;
+    const flags = aMsgHdr.flags;
     aGlodaMessage.repliedTo = Boolean(flags & Ci.nsMsgMessageFlags.Replied);
     aGlodaMessage.forwarded = Boolean(flags & Ci.nsMsgMessageFlags.Forwarded);
 
-    let tags = (aGlodaMessage.tags = []);
+    const tags = (aGlodaMessage.tags = []);
 
     // -- Tag
     // build a map of the keywords
-    let keywords = aMsgHdr.getStringProperty("keywords");
-    let keywordList = keywords.split(" ");
-    let keywordMap = {};
+    const keywords = aMsgHdr.getStringProperty("keywords");
+    const keywordList = keywords.split(" ");
+    const keywordMap = {};
     for (let iKeyword = 0; iKeyword < keywordList.length; iKeyword++) {
-      let keyword = keywordList[iKeyword];
+      const keyword = keywordList[iKeyword];
       keywordMap[keyword] = true;
     }
 
-    let tagArray = TagNoun.getAllTags();
+    const tagArray = TagNoun.getAllTags();
     for (let iTag = 0; iTag < tagArray.length; iTag++) {
-      let tag = tagArray[iTag];
+      const tag = tagArray[iTag];
       if (tag.key in keywordMap) {
         tags.push(tag);
       }

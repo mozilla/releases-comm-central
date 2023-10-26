@@ -33,19 +33,19 @@ var TESTS = [
 ];
 
 function checkPopulate(aTo, aCheckTo) {
-  let msgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
-    Ci.nsIMsgCompose
-  );
+  const msgCompose = Cc[
+    "@mozilla.org/messengercompose/compose;1"
+  ].createInstance(Ci.nsIMsgCompose);
 
   // Set up some basic fields for compose.
-  let fields = Cc[
+  const fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
   fields.to = aTo;
 
   // Set up some params
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
 
@@ -62,7 +62,7 @@ function run_test() {
   loadABFile("../../../data/tb2hexpopularity", kPABData.fileName);
 
   // Check the popularity index on a couple of cards.
-  let AB = MailServices.ab.getDirectory(kPABData.URI);
+  const AB = MailServices.ab.getDirectory(kPABData.URI);
 
   for (let i = 0; i < TESTS.length; ++i) {
     let card = AB.cardForEmailAddress(TESTS[i].email);

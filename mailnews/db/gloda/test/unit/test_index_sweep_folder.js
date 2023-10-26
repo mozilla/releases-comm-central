@@ -74,7 +74,7 @@ GlodaMsgIndexer._indexerGetEnumerator = function (...aArgs) {
 var messageInjection;
 
 add_setup(function () {
-  let msgGen = new MessageGenerator();
+  const msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   // We do not want the event-driven indexer crimping our style.
   configureGlodaIndexing({ event: false });
@@ -93,14 +93,14 @@ var arbitraryGlodaId = 4096;
  */
 add_task(async function test_propagate_filthy_from_folder_to_messages() {
   // Mark the folder as filthy.
-  let [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 3 },
   ]);
-  let glodaFolder = Gloda.getFolderForFolder(folder);
+  const glodaFolder = Gloda.getFolderForFolder(folder);
   glodaFolder._dirtyStatus = glodaFolder.kFolderFilthy;
 
   // Mark each header with a gloda-id so they can get marked filthy.
-  for (let msgHdr of msgSet.msgHdrs()) {
+  for (const msgHdr of msgSet.msgHdrs()) {
     msgHdr.setUint32Property("gloda-id", arbitraryGlodaId);
   }
 
@@ -132,7 +132,7 @@ add_task(async function test_propagate_filthy_from_folder_to_messages() {
 
   // The messages should be filthy per the headers.
   //  We force a commit of the database.
-  for (let msgHdr of msgSet.msgHdrs()) {
+  for (const msgHdr of msgSet.msgHdrs()) {
     Assert.equal(
       msgHdr.getUint32Property("gloda-dirty"),
       GlodaMsgIndexer.kMessageFilthy
@@ -145,11 +145,11 @@ add_task(async function test_propagate_filthy_from_folder_to_messages() {
  *  with 0,1,2 messages matching.
  */
 add_task(async function test_count_pass() {
-  let [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 2 },
   ]);
 
-  let hdrs = msgSet.msgHdrList;
+  const hdrs = msgSet.msgHdrList;
 
   // - (clean) messages with gloda-id's do not get indexed
   // Nothing is indexed at this point, so all 2.
@@ -190,18 +190,18 @@ add_task(async function test_count_pass() {
  * GlodaMsgIndexer._indexerGetEnumerator
  */
 async function spin_folder_indexer(aFolderHandle, aExpectedJobGoal) {
-  let msgFolder = messageInjection.getRealInjectionFolder(aFolderHandle);
+  const msgFolder = messageInjection.getRealInjectionFolder(aFolderHandle);
 
   // Cheat and use indexFolder to build the job for us.
   GlodaMsgIndexer.indexFolder(msgFolder);
   // Steal that job.
-  let job = GlodaIndexer._indexQueue.pop();
+  const job = GlodaIndexer._indexQueue.pop();
   GlodaIndexer._indexingJobGoal--;
 
   // Create the callbackHandle.
-  let callbackHandle = new CallbackHandle();
+  const callbackHandle = new CallbackHandle();
   // Create the worker.
-  let worker = GlodaMsgIndexer._worker_folderIndex(job, callbackHandle);
+  const worker = GlodaMsgIndexer._worker_folderIndex(job, callbackHandle);
   try {
     callbackHandle.pushAndGo(worker, null);
     await Promise.race([

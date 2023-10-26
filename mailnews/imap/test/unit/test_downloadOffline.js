@@ -24,7 +24,7 @@ async function setup() {
    * Ok, prelude done. Read the original message from disk
    * (through a file URI), and add it to the Inbox.
    */
-  let msgfileuri = Services.io
+  const msgfileuri = Services.io
     .newFileURI(gMsgFile)
     .QueryInterface(Ci.nsIFileURL);
 
@@ -33,30 +33,30 @@ async function setup() {
   );
 
   let messages = [];
-  let gMessageGenerator = new MessageGenerator();
+  const gMessageGenerator = new MessageGenerator();
   messages = messages.concat(gMessageGenerator.makeMessage());
-  let dataUri = Services.io.newURI(
+  const dataUri = Services.io.newURI(
     "data:text/plain;base64," + btoa(messages[0].toMessageString())
   );
-  let imapMsg = new ImapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
+  const imapMsg = new ImapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   imapMsg.setSize(5000);
   IMAPPump.mailbox.addMessage(imapMsg);
 
   // ...and download for offline use.
-  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
   await promiseUrlListener.promise;
 }
 
 async function downloadAllForOffline() {
-  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
   await promiseUrlListener.promise;
 }
 
 function verifyDownloaded() {
   // verify that the message headers have the offline flag set.
-  for (let header of IMAPPump.inbox.msgDatabase.enumerateMessages()) {
+  for (const header of IMAPPump.inbox.msgDatabase.enumerateMessages()) {
     // Verify that each message has been downloaded and looks OK.
     if (
       header instanceof Ci.nsIMsgDBHdr &&

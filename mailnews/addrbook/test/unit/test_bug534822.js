@@ -17,13 +17,13 @@ function run_test() {
   Services.prefs.readUserPrefsFromFile(specialPrefs);
 
   // Now load the ABs and check we've got all of them.
-  let results = [
+  const results = [
     { name: "extension", result: false },
     { name: kPABData.dirName, result: false },
     { name: kCABData.dirName, result: false },
   ];
 
-  for (let dir of MailServices.ab.directories) {
+  for (const dir of MailServices.ab.directories) {
     for (let i = 0; i < results.length; ++i) {
       if (results[i].name == dir.dirName) {
         Assert.ok(!results[i].result);

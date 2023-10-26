@@ -9,7 +9,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-let [daemon, server] = setupServerDaemon();
+const [daemon, server] = setupServerDaemon();
 server.start();
 registerCleanupFunction(() => {
   server.stop();
@@ -23,14 +23,14 @@ add_task(async function test_fetchPartialMessage() {
   daemon.setMessages(["message1.eml"]);
 
   // Set up the incoming server to fetch headers only.
-  let incomingServer = createPop3ServerAndLocalFolders(server.port);
+  const incomingServer = createPop3ServerAndLocalFolders(server.port);
   incomingServer
     .QueryInterface(Ci.nsILocalMailIncomingServer)
     .createDefaultMailboxes();
   incomingServer.headersOnly = true;
 
   // Use GetNewMail to fetch the headers.
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.pop3.GetNewMail(
     null,
     urlListener,
@@ -50,11 +50,11 @@ add_task(async function test_fetchPartialMessage() {
     "TOP 1 0",
   ]);
 
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
   // A nsIPop3URL instance is needed to construct a Pop3Channel, but we can't
   // create a nsIPop3URL instance in JS directly. A workaround is constructing a
   // mailbox: url with a uidl query, then newChannel will return a Pop3Channel.
-  let channel = NetUtil.newChannel({
+  const channel = NetUtil.newChannel({
     uri: `${incomingServer.serverURI}/Inbox?uidl=UIDL1`,
     loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
     securityFlags: Ci.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_INHERITS_SEC_CONTEXT,

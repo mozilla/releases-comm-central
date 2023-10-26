@@ -71,7 +71,7 @@ var CardDAVUtils = {
     }
 
     // This could be any 32-bit integer, as long as it isn't already in use.
-    let nextId = 25000 + CardDAVUtils._contextMap.size;
+    const nextId = 25000 + CardDAVUtils._contextMap.size;
     lazy.ContextualIdentityService.remove(nextId);
     CardDAVUtils._contextMap.set(username, nextId);
     return nextId;
@@ -103,7 +103,7 @@ var CardDAVUtils = {
     if (typeof uri == "string") {
       uri = Services.io.newURI(uri);
     }
-    let {
+    const {
       method = "GET",
       headers = {},
       body = null,
@@ -130,12 +130,12 @@ var CardDAVUtils = {
     }
 
     return new Promise((resolve, reject) => {
-      let principal = Services.scriptSecurityManager.createContentPrincipal(
+      const principal = Services.scriptSecurityManager.createContentPrincipal(
         uri,
         { userContextId }
       );
 
-      let channel = Services.io.newChannelFromURI(
+      const channel = Services.io.newChannelFromURI(
         uri,
         null,
         principal,
@@ -144,13 +144,13 @@ var CardDAVUtils = {
         Ci.nsIContentPolicy.TYPE_OTHER
       );
       channel.QueryInterface(Ci.nsIHttpChannel);
-      for (let [name, value] of Object.entries(headers)) {
+      for (const [name, value] of Object.entries(headers)) {
         channel.setRequestHeader(name, value, false);
       }
       if (body !== null) {
-        let stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
-          Ci.nsIStringInputStream
-        );
+        const stream = Cc[
+          "@mozilla.org/io/string-input-stream;1"
+        ].createInstance(Ci.nsIStringInputStream);
         stream.setUTF8Data(body, body.length);
 
         channel.QueryInterface(Ci.nsIUploadChannel);
@@ -159,16 +159,16 @@ var CardDAVUtils = {
       channel.requestMethod = method; // Must go after setUploadStream.
       channel.notificationCallbacks = callbacks;
 
-      let listener = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
-        Ci.nsIStreamLoader
-      );
+      const listener = Cc[
+        "@mozilla.org/network/stream-loader;1"
+      ].createInstance(Ci.nsIStreamLoader);
       listener.init({
         onStreamComplete(loader, context, status, resultLength, result) {
-          let finalChannel = loader.request.QueryInterface(Ci.nsIHttpChannel);
+          const finalChannel = loader.request.QueryInterface(Ci.nsIHttpChannel);
           if (!Components.isSuccessCode(status)) {
             let isCertError = false;
             try {
-              let errorType = lazy.nssErrorsService.getErrorClass(status);
+              const errorType = lazy.nssErrorsService.getErrorClass(status);
               if (errorType == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
                 isCertError = true;
               }
@@ -178,10 +178,10 @@ var CardDAVUtils = {
             }
 
             if (isCertError && finalChannel.securityInfo) {
-              let secInfo = finalChannel.securityInfo.QueryInterface(
+              const secInfo = finalChannel.securityInfo.QueryInterface(
                 Ci.nsITransportSecurityInfo
               );
-              let params = {
+              const params = {
                 exceptionAdded: false,
                 securityInfo: secInfo,
                 prefetchCert: true,
@@ -266,14 +266,14 @@ var CardDAVUtils = {
    * @returns {foundBook[]} - An array of found address books.
    */
   async detectAddressBooks(username, password, location, forcePrompt = false) {
-    let log = console.createInstance({
+    const log = console.createInstance({
       prefix: "carddav.setup",
       maxLogLevel: "Warn",
       maxLogLevelPref: "carddav.setup.loglevel",
     });
 
     // Use a unique context for each attempt, so a prompt is always shown.
-    let userContextId = Math.floor(Date.now() / 1000);
+    const userContextId = Math.floor(Date.now() / 1000);
 
     let url = new URL(location);
 
@@ -290,8 +290,8 @@ var CardDAVUtils = {
 
     if (url.pathname == "/" && !(url.hostname in PRESETS)) {
       log.log(`Looking up DNS record for ${url.hostname}`);
-      let domain = `_carddavs._tcp.${url.hostname}`;
-      let srvRecords = await DNS.srv(domain);
+      const domain = `_carddavs._tcp.${url.hostname}`;
+      const srvRecords = await DNS.srv(domain);
       srvRecords.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
 
       if (srvRecords[0]) {
@@ -309,7 +309,7 @@ var CardDAVUtils = {
           log.log(`Found a DNS TXT record pointing to ${url.href}`);
         }
       } else {
-        let mxRecords = await DNS.mx(url.hostname);
+        const mxRecords = await DNS.mx(url.hostname);
         if (mxRecords.some(r => /\bgoogle\.com$/.test(r.host))) {
           log.log(
             `Found a DNS MX record for Google, using preset URL for ${url}`
@@ -320,9 +320,13 @@ var CardDAVUtils = {
     }
 
     let oAuth = null;
-    let callbacks = new NotificationCallbacks(username, password, forcePrompt);
+    const callbacks = new NotificationCallbacks(
+      username,
+      password,
+      forcePrompt
+    );
 
-    let requestParams = {
+    const requestParams = {
       method: "PROPFIND",
       callbacks,
       userContextId,
@@ -339,16 +343,16 @@ var CardDAVUtils = {
         </propfind>`,
     };
 
-    let details = lazy.OAuth2Providers.getHostnameDetails(url.host);
+    const details = lazy.OAuth2Providers.getHostnameDetails(url.host);
     if (details) {
-      let [issuer, scope] = details;
-      let issuerDetails = lazy.OAuth2Providers.getIssuerDetails(issuer);
+      const [issuer, scope] = details;
+      const issuerDetails = lazy.OAuth2Providers.getIssuerDetails(issuer);
 
       oAuth = new lazy.OAuth2(scope, issuerDetails);
       oAuth._isNew = true;
       oAuth._loginOrigin = `oauth://${issuer}`;
       oAuth._scope = scope;
-      for (let login of Services.logins.findLogins(
+      for (const login of Services.logins.findLogins(
         oAuth._loginOrigin,
         null,
         ""
@@ -387,7 +391,7 @@ var CardDAVUtils = {
     }
 
     let response;
-    let triedURLs = new Set();
+    const triedURLs = new Set();
     async function tryURL(url) {
       if (triedURLs.has(url)) {
         return;
@@ -438,7 +442,7 @@ var CardDAVUtils = {
     }
 
     if (!response.dom.querySelector("resourcetype addressbook")) {
-      let userPrincipal = response.dom.querySelector(
+      const userPrincipal = response.dom.querySelector(
         "current-user-principal href"
       );
       if (!userPrincipal) {
@@ -475,8 +479,8 @@ var CardDAVUtils = {
 
     // Find any directories in the response.
 
-    let foundBooks = [];
-    for (let r of response.dom.querySelectorAll("response")) {
+    const foundBooks = [];
+    for (const r of response.dom.querySelectorAll("response")) {
       if (r.querySelector("status")?.textContent != "HTTP/1.1 200 OK") {
         continue;
       }
@@ -486,13 +490,13 @@ var CardDAVUtils = {
 
       // If the server provided ACL information, skip address books that we do
       // not have read privileges to.
-      let privNode = r.querySelector("current-user-privilege-set");
+      const privNode = r.querySelector("current-user-privilege-set");
       let isWritable = false;
       let isReadable = false;
       if (privNode) {
-        let privs = Array.from(privNode.querySelectorAll("privilege > *")).map(
-          node => node.localName
-        );
+        const privs = Array.from(
+          privNode.querySelectorAll("privilege > *")
+        ).map(node => node.localName);
 
         isWritable = writePrivs.some(priv => privs.includes(priv));
         isReadable = readPrivs.some(priv => privs.includes(priv));
@@ -516,13 +520,13 @@ var CardDAVUtils = {
         url,
         name,
         async create() {
-          let dirPrefId = MailServices.ab.newAddressBook(
+          const dirPrefId = MailServices.ab.newAddressBook(
             this.name,
             null,
             Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE,
             null
           );
-          let book = MailServices.ab.getDirectoryFromId(dirPrefId);
+          const book = MailServices.ab.getDirectoryFromId(dirPrefId);
           book.setStringValue("carddav.url", this.url);
 
           if (!isWritable && isReadable) {
@@ -532,7 +536,7 @@ var CardDAVUtils = {
           if (oAuth) {
             if (oAuth._isNew) {
               log.log(`Saving refresh token for ${username}`);
-              let newLoginInfo = Cc[
+              const newLoginInfo = Cc[
                 "@mozilla.org/login-manager/loginInfo;1"
               ].createInstance(Ci.nsILoginInfo);
               newLoginInfo.init(
@@ -561,7 +565,7 @@ var CardDAVUtils = {
             callbacks.saveAuth();
           }
 
-          let dir = lazy.CardDAVDirectory.forFile(book.fileName);
+          const dir = lazy.CardDAVDirectory.forFile(book.fileName);
           // Pass the context to the created address book. This prevents asking
           // for a username/password again in the case that we didn't save it.
           // The user won't be prompted again until Thunderbird is restarted.
@@ -623,8 +627,8 @@ class NotificationCallbacks {
         return true;
       }
 
-      let logins = Services.logins.findLogins(channel.URI.prePath, null, "");
-      for (let l of logins) {
+      const logins = Services.logins.findLogins(channel.URI.prePath, null, "");
+      for (const l of logins) {
         if (l.username == this.username) {
           authInfo.username = l.username;
           authInfo.password = l.password;
@@ -637,7 +641,7 @@ class NotificationCallbacks {
     authInfo.password = this.password;
 
     let savePasswordLabel = null;
-    let savePassword = {};
+    const savePassword = {};
     if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
       savePasswordLabel = Services.strings
         .createBundle("chrome://passwordmgr/locale/passwordmgr.properties")
@@ -645,7 +649,7 @@ class NotificationCallbacks {
       savePassword.value = true;
     }
 
-    let returnValue = new lazy.MsgAuthPrompt().promptAuth(
+    const returnValue = new lazy.MsgAuthPrompt().promptAuth(
       channel,
       level,
       authInfo,
@@ -659,7 +663,7 @@ class NotificationCallbacks {
   }
   async saveAuth() {
     if (this.shouldSaveAuth) {
-      let newLoginInfo = Cc[
+      const newLoginInfo = Cc[
         "@mozilla.org/login-manager/loginInfo;1"
       ].createInstance(Ci.nsILoginInfo);
       newLoginInfo.init(
@@ -686,7 +690,7 @@ class NotificationCallbacks {
      */
     function copyHeader(header) {
       try {
-        let headerValue = oldChannel.getRequestHeader(header);
+        const headerValue = oldChannel.getRequestHeader(header);
         if (headerValue) {
           newChannel.setRequestHeader(header, headerValue, false);
         }

@@ -94,8 +94,8 @@ class LDAPSyncQuery {
    * @param {nsILDAPMessage} msg - The received LDAP message.
    */
   _onLDAPSearchEntry(msg) {
-    for (let attr of msg.getAttributes()) {
-      for (let value of msg.getValues(attr)) {
+    for (const attr of msg.getAttributes()) {
+      for (const value of msg.getValues(attr)) {
         this._result += `\n${attr}=${value}`;
       }
     }

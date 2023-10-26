@@ -54,7 +54,7 @@ const Steps = {
    */
   updateSteps(currentStep, plannedSteps) {
     this._pastSteps.push(currentStep);
-    let confirm = document.getElementById("navConfirm");
+    const confirm = document.getElementById("navConfirm");
     const isConfirmStep = plannedSteps === 0;
     confirm.classList.toggle("current", isConfirmStep);
     confirm.toggleAttribute("disabled", isConfirmStep);
@@ -115,7 +115,7 @@ const Steps = {
       // Make relative step index absolute
       stepIndex = this._pastSteps.length + stepIndex - 1;
     }
-    let targetStep = this._pastSteps[stepIndex];
+    const targetStep = this._pastSteps[stepIndex];
     this._pastSteps = this._pastSteps.slice(0, stepIndex);
     targetStep.returnTo();
     return true;
@@ -163,7 +163,7 @@ class ImporterController {
   showPane(id) {
     this._currentPane = id;
     id = `${this._paneIdPrefix}-${id}`;
-    for (let pane of this._el.querySelectorAll(":scope > section")) {
+    for (const pane of this._el.querySelectorAll(":scope > section")) {
       pane.hidden = pane.id != id;
     }
   }
@@ -262,7 +262,7 @@ class ImporterController {
       this._inProgress = false;
     }
     ImporterController.notificationBox.removeAllNotifications();
-    let notification = ImporterController.notificationBox.appendNotification(
+    const notification = ImporterController.notificationBox.appendNotification(
       "error",
       {
         label: {
@@ -314,7 +314,7 @@ class ProfileImporterController extends ImporterController {
     document.getElementById("appItemsList").addEventListener(
       "input",
       () => {
-        let state = this._getItemsChecked(true);
+        const state = this._getItemsChecked(true);
         document.getElementById("profileNextButton").disabled = Object.values(
           state
         ).every(isChecked => !isChecked);
@@ -372,12 +372,14 @@ class ProfileImporterController extends ImporterController {
    */
   async _onSelectSource(source) {
     this._sourceAppName = this._sourceL10nIds[source];
-    let sourceModule = this._sourceModules[source];
+    const sourceModule = this._sourceModules[source];
 
-    let module = ChromeUtils.import(`resource:///modules/${sourceModule}.jsm`);
+    const module = ChromeUtils.import(
+      `resource:///modules/${sourceModule}.jsm`
+    );
     this._importer = new module[sourceModule]();
 
-    let sourceProfiles = await this._importer.getSourceProfiles();
+    const sourceProfiles = await this._importer.getSourceProfiles();
     if (sourceProfiles.length > 1 || this._importer.USE_FILE_PICKER) {
       // Let the user pick a profile if there are multiple options.
       this._showProfiles(sourceProfiles, this._importer.USE_FILE_PICKER);
@@ -415,22 +417,22 @@ class ProfileImporterController extends ImporterController {
       document.getElementById("profilesPaneSubtitle"),
       `profiles-pane-title-${this._sourceAppName}`
     );
-    let elProfileList = document.getElementById("profileList");
+    const elProfileList = document.getElementById("profileList");
     elProfileList.hidden = !profiles.length;
     elProfileList.innerHTML = "";
     document.getElementById("filePickerList").hidden = !useFilePicker;
 
-    for (let profile of profiles) {
-      let label = document.createElement("label");
+    for (const profile of profiles) {
+      const label = document.createElement("label");
       label.className = "toggle-container-with-text";
 
-      let input = document.createElement("input");
+      const input = document.createElement("input");
       input.type = "radio";
       input.name = "appProfile";
       input.value = profile.dir.path;
       label.append(input);
 
-      let name = document.createElement("p");
+      const name = document.createElement("p");
       if (profile.name) {
         document.l10n.setAttributes(name, "profile-source-named", {
           profileName: profile.name,
@@ -440,11 +442,11 @@ class ProfileImporterController extends ImporterController {
       }
       label.append(name);
 
-      let profileDetails = document.createElement("dl");
+      const profileDetails = document.createElement("dl");
       profileDetails.className = "result-indent tip-caption";
-      let profilePathLabel = document.createElement("dt");
+      const profilePathLabel = document.createElement("dt");
       document.l10n.setAttributes(profilePathLabel, "items-pane-directory");
-      let profilePath = document.createElement("dd");
+      const profilePath = document.createElement("dd");
       profilePath.textContent = profile.dir.path;
       profileDetails.append(profilePathLabel, profilePath);
       label.append(profileDetails);
@@ -461,7 +463,7 @@ class ProfileImporterController extends ImporterController {
    * Handler for the Continue button on the profiles pane.
    */
   _onSelectProfile() {
-    let index = [
+    const index = [
       ...document.querySelectorAll("input[name=appProfile]"),
     ].findIndex(el => el.checked);
     if (this._sourceProfiles[index]) {
@@ -479,10 +481,10 @@ class ProfileImporterController extends ImporterController {
    * @param {'dir' | 'zip'} type - Whether to pick a folder or a zip file.
    */
   async _openFilePicker(type) {
-    let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
+    const filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
     );
-    let [filePickerTitleDir, filePickerTitleZip] =
+    const [filePickerTitleDir, filePickerTitleZip] =
       await document.l10n.formatValues([
         "profile-file-picker-directory",
         "profile-file-picker-archive-title",
@@ -493,11 +495,11 @@ class ProfileImporterController extends ImporterController {
     } else {
       filePicker.init(window, filePickerTitleDir, filePicker.modeGetFolder);
     }
-    let rv = await new Promise(resolve => filePicker.open(resolve));
+    const rv = await new Promise(resolve => filePicker.open(resolve));
     if (rv != Ci.nsIFilePicker.returnOK) {
       return;
     }
-    let selectedFile = filePicker.file;
+    const selectedFile = filePicker.file;
     if (!selectedFile.isDirectory()) {
       if (selectedFile.fileSize > 2147483647) {
         // nsIZipReader only supports zip file less than 2GB.
@@ -572,9 +574,9 @@ class ProfileImporterController extends ImporterController {
    * @param {ImportItems} items.
    */
   _setItemsChecked(items) {
-    for (let [id, field] of Object.entries(this._itemCheckboxes)) {
-      let supported = items[field];
-      let checkbox = document.getElementById(id);
+    for (const [id, field] of Object.entries(this._itemCheckboxes)) {
+      const supported = items[field];
+      const checkbox = document.getElementById(id);
       checkbox.checked = supported;
       checkbox.disabled = !supported;
     }
@@ -587,9 +589,9 @@ class ProfileImporterController extends ImporterController {
    * @returns {ImportItems}
    */
   _getItemsChecked(onlySupported = false) {
-    let items = {};
-    for (let id in this._itemCheckboxes) {
-      let checkbox = document.getElementById(id);
+    const items = {};
+    for (const id in this._itemCheckboxes) {
+      const checkbox = document.getElementById(id);
       if (!onlySupported || !checkbox.disabled) {
         items[this._itemCheckboxes[id]] = checkbox.checked;
       }
@@ -601,7 +603,7 @@ class ProfileImporterController extends ImporterController {
    * Handler for the Continue button on the items pane.
    */
   _onSelectItems() {
-    let checkedItems = this._getItemsChecked(true);
+    const checkedItems = this._getItemsChecked(true);
     if (Object.values(checkedItems).some(isChecked => isChecked)) {
       this._showSummary();
     }
@@ -626,8 +628,8 @@ class ProfileImporterController extends ImporterController {
       ...Object.entries(this._getItemsChecked(true))
         .filter(([item, checked]) => checked)
         .map(([item]) => {
-          let li = document.createElement("li");
-          let fluentId = this._importItemFluentId[item] ?? item;
+          const li = document.createElement("li");
+          const fluentId = this._importItemFluentId[item] ?? item;
           document.l10n.setAttributes(li, `items-pane-checkbox-${fluentId}`);
           return li;
         })
@@ -640,17 +642,17 @@ class ProfileImporterController extends ImporterController {
    */
   async _extractZipFile() {
     // Extract the zip file to a tmp dir.
-    let targetDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    const targetDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
     targetDir.append("tmp-profile");
     targetDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
-    let ZipReader = Components.Constructor(
+    const ZipReader = Components.Constructor(
       "@mozilla.org/libjar/zip-reader;1",
       "nsIZipReader",
       "open"
     );
-    let zip = ZipReader(this._sourceProfile.dir);
-    for (let entry of zip.findEntries(null)) {
-      let parts = entry.split("/");
+    const zip = ZipReader(this._sourceProfile.dir);
+    for (const entry of zip.findEntries(null)) {
+      const parts = entry.split("/");
       if (
         this._importer.IGNORE_DIRS.includes(parts[1]) ||
         entry.endsWith("/")
@@ -659,8 +661,8 @@ class ProfileImporterController extends ImporterController {
       }
       // Folders can not be unzipped recursively, have to iterate and
       // extract all file entries one by one.
-      let target = targetDir.clone();
-      for (let part of parts.slice(1)) {
+      const target = targetDir.clone();
+      for (const part of parts.slice(1)) {
         // Drop the root folder name in the zip file.
         target.append(part);
       }
@@ -672,7 +674,10 @@ class ProfileImporterController extends ImporterController {
         zip.extract(entry, target);
         this._extractedFileCount++;
         if (this._extractedFileCount % 10 == 0) {
-          let progress = Math.min((this._extractedFileCount / 200) * 0.2, 0.2);
+          const progress = Math.min(
+            (this._extractedFileCount / 200) * 0.2,
+            0.2
+          );
           this.updateProgress(progress);
           await new Promise(resolve => setTimeout(resolve));
         }
@@ -780,14 +785,14 @@ class AddrBookImporterController extends ImporterController {
     ).value;
     this._importer = new AddrBookFileImporter(this._fileType);
 
-    let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
+    const filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
     );
-    let [filePickerTitle] = await document.l10n.formatValues([
+    const [filePickerTitle] = await document.l10n.formatValues([
       "addr-book-file-picker",
     ]);
     filePicker.init(window, filePickerTitle, filePicker.modeOpen);
-    let filter = {
+    const filter = {
       csv: "*.csv; *.tsv; *.tab",
       ldif: "*.ldif",
       vcard: "*.vcf",
@@ -798,7 +803,7 @@ class AddrBookImporterController extends ImporterController {
       filePicker.appendFilter("", filter);
     }
     filePicker.appendFilters(Ci.nsIFilePicker.filterAll);
-    let rv = await new Promise(resolve => filePicker.open(resolve));
+    const rv = await new Promise(resolve => filePicker.open(resolve));
     if (rv != Ci.nsIFilePicker.returnOK) {
       return;
     }
@@ -808,7 +813,7 @@ class AddrBookImporterController extends ImporterController {
       filePicker.file.path;
 
     if (this._fileType == "csv") {
-      let unmatchedRows = await this._importer.parseCsvFile(filePicker.file);
+      const unmatchedRows = await this._importer.parseCsvFile(filePicker.file);
       if (unmatchedRows.length) {
         document.getElementById("csvFieldMap").data = unmatchedRows;
         this._showCsvFieldMap();
@@ -860,7 +865,7 @@ class AddrBookImporterController extends ImporterController {
     );
     document.getElementById("addrBookBackButton").hidden = false;
     this._el.classList.remove("final-step", "progress");
-    let sourceFileName = this._sourceFile.leafName;
+    const sourceFileName = this._sourceFile.leafName;
     this._fallbackABName = sourceFileName.slice(
       0,
       sourceFileName.lastIndexOf(".") == -1
@@ -874,22 +879,22 @@ class AddrBookImporterController extends ImporterController {
         addressBookName: this._fallbackABName,
       }
     );
-    let elList = document.getElementById("directoryList");
+    const elList = document.getElementById("directoryList");
     elList.innerHTML = "";
     this._directories = MailServices.ab.directories.filter(
       dir => dir.dirType == Ci.nsIAbManager.JS_DIRECTORY_TYPE
     );
-    for (let directory of this._directories) {
-      let label = document.createElement("label");
+    for (const directory of this._directories) {
+      const label = document.createElement("label");
       label.className = "toggle-container-with-text";
 
-      let input = document.createElement("input");
+      const input = document.createElement("input");
       input.type = "radio";
       input.name = "addrBookDirectory";
       input.value = directory.dirPrefId;
       label.append(input);
 
-      let name = document.createElement("div");
+      const name = document.createElement("div");
       name.className = "strong";
       name.textContent = directory.dirName;
       label.append(name);
@@ -905,7 +910,7 @@ class AddrBookImporterController extends ImporterController {
    * Handler for the Continue button on the directories pane.
    */
   _onSelectDirectory() {
-    let index = [
+    const index = [
       ...document.querySelectorAll("input[name=addrBookDirectory]"),
     ].findIndex(el => el.checked);
     this._selectedAddressBook = this._directories[index];
@@ -923,7 +928,9 @@ class AddrBookImporterController extends ImporterController {
       targetAddressBook = this._fallbackABName;
       newAddressBook = true;
     }
-    let description = this._el.querySelector("#addr-book-summary .description");
+    const description = this._el.querySelector(
+      "#addr-book-summary .description"
+    );
     description.hidden = !newAddressBook;
     if (newAddressBook) {
       document.l10n.setAttributes(
@@ -949,7 +956,7 @@ class AddrBookImporterController extends ImporterController {
     if (!targetDirectory) {
       // User selected to create a new address book and import into it. Create
       // one based on the file name.
-      let dirId = MailServices.ab.newAddressBook(
+      const dirId = MailServices.ab.newAddressBook(
         this._fallbackABName,
         "",
         Ci.nsIAbManager.JS_DIRECTORY_TYPE
@@ -1009,10 +1016,10 @@ class CalendarImporterController extends ImporterController {
    * @param {HTMLInputElement} filterInput - The filter input.
    */
   onFilterChange(filterInput) {
-    let term = filterInput.value.toLowerCase();
+    const term = filterInput.value.toLowerCase();
     this._filteredItems = [];
-    for (let item of this._items) {
-      let element = this._itemElements[item.id];
+    for (const item of this._items) {
+      const element = this._itemElements[item.id];
       if (item.title.toLowerCase().includes(term)) {
         element.hidden = false;
         this._filteredItems.push(item);
@@ -1028,8 +1035,8 @@ class CalendarImporterController extends ImporterController {
    * @param {boolean} selected - Select all if true, otherwise deselect all.
    */
   selectAllItems(selected) {
-    for (let item of this._filteredItems) {
-      let element = this._itemElements[item.id];
+    for (const item of this._filteredItems) {
+      const element = this._itemElements[item.id];
       element.querySelector("input").checked = selected;
       if (selected) {
         this._selectedItems.add(item);
@@ -1063,7 +1070,7 @@ class CalendarImporterController extends ImporterController {
    * Handler for the Continue button on the sources pane.
    */
   async _onSelectSource() {
-    let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
+    const filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
     );
     filePicker.appendFilter("", "*.ics");
@@ -1073,7 +1080,7 @@ class CalendarImporterController extends ImporterController {
       await document.l10n.formatValue("file-calendar-description"),
       filePicker.modeOpen
     );
-    let rv = await new Promise(resolve => filePicker.open(resolve));
+    const rv = await new Promise(resolve => filePicker.open(resolve));
     if (rv != Ci.nsIFilePicker.returnOK) {
       return;
     }
@@ -1101,7 +1108,7 @@ class CalendarImporterController extends ImporterController {
       2
     );
     document.getElementById("calendarBackButton").hidden = false;
-    let elItemList = document.getElementById("calendar-item-list");
+    const elItemList = document.getElementById("calendar-item-list");
     document.getElementById("calendarItemsTools").hidden = true;
     document.l10n.setAttributes(elItemList, "calendar-items-loading");
     this.showPane("items");
@@ -1123,18 +1130,18 @@ class CalendarImporterController extends ImporterController {
     this._selectedItems = new Set(this._items);
     this._itemElements = {};
 
-    for (let item of this._items) {
-      let wrapper = document.createElement("div");
+    for (const item of this._items) {
+      const wrapper = document.createElement("div");
       wrapper.className = "calendar-item-wrapper";
       elItemList.appendChild(wrapper);
       this._itemElements[item.id] = wrapper;
 
-      let summary = document.createXULElement("calendar-item-summary");
+      const summary = document.createXULElement("calendar-item-summary");
       wrapper.appendChild(summary);
       summary.item = item;
       summary.updateItemDetails();
 
-      let input = document.createElement("input");
+      const input = document.createElement("input");
       input.type = "checkbox";
       input.checked = true;
       wrapper.appendChild(input);
@@ -1178,10 +1185,10 @@ class CalendarImporterController extends ImporterController {
     this._el.classList.remove("final-step", "progress");
     document.getElementById("calendarCalPath").textContent =
       this._sourceFile.path;
-    let elList = document.getElementById("calendarList");
+    const elList = document.getElementById("calendarList");
     elList.innerHTML = "";
 
-    let sourceFileName = this._sourceFile.leafName;
+    const sourceFileName = this._sourceFile.leafName;
     this._fallbackCalendarName = sourceFileName.slice(
       0,
       sourceFileName.lastIndexOf(".") == -1
@@ -1198,17 +1205,17 @@ class CalendarImporterController extends ImporterController {
     );
 
     this._calendars = this._importer.getTargetCalendars();
-    for (let calendar of this._calendars) {
-      let label = document.createElement("label");
+    for (const calendar of this._calendars) {
+      const label = document.createElement("label");
       label.className = "toggle-container-with-text";
 
-      let input = document.createElement("input");
+      const input = document.createElement("input");
       input.type = "radio";
       input.name = "targetCalendar";
       input.value = calendar.id;
       label.append(input);
 
-      let name = document.createElement("div");
+      const name = document.createElement("div");
       name.className = "strong";
       name.textContent = calendar.name;
       label.append(name);
@@ -1221,7 +1228,7 @@ class CalendarImporterController extends ImporterController {
   }
 
   _onSelectCalendar() {
-    let index = [
+    const index = [
       ...document.querySelectorAll("input[name=targetCalendar]"),
     ].findIndex(el => el.checked);
     this._selectedCalendar = this._calendars[index];
@@ -1239,7 +1246,9 @@ class CalendarImporterController extends ImporterController {
       targetCalendar = this._fallbackCalendarName;
       newCalendar = true;
     }
-    let description = this._el.querySelector("#calendar-summary .description");
+    const description = this._el.querySelector(
+      "#calendar-summary .description"
+    );
     description.hidden = !newCalendar;
     if (newCalendar) {
       document.l10n.setAttributes(description, "calendar-summary-description", {
@@ -1303,25 +1312,25 @@ class ExportController extends ImporterController {
 
   async next() {
     super.next();
-    let [filePickerTitle, brandName] = await document.l10n.formatValues([
+    const [filePickerTitle, brandName] = await document.l10n.formatValues([
       "export-file-picker2",
       "export-brand-name",
     ]);
-    let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
+    const filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
     );
     filePicker.init(window, filePickerTitle, Ci.nsIFilePicker.modeSave);
     filePicker.defaultString = `${brandName}_profile_backup.zip`;
     filePicker.defaultExtension = "zip";
     filePicker.appendFilter("", "*.zip");
-    let rv = await new Promise(resolve => filePicker.open(resolve));
+    const rv = await new Promise(resolve => filePicker.open(resolve));
     if (
       ![Ci.nsIFilePicker.returnOK, Ci.nsIFilePicker.returnReplace].includes(rv)
     ) {
       return;
     }
 
-    let exporter = new ProfileExporter();
+    const exporter = new ProfileExporter();
     this.showProgress("progress-pane-exporting2");
     exporter.onProgress = (current, total) => {
       this.updateProgress(current / total);
@@ -1383,7 +1392,9 @@ class StartController extends ImporterController {
    * Handler for the Continue button on the sources pane.
    */
   async _onSelectSource() {
-    let checkedInput = document.querySelector("input[name=appSource]:checked");
+    const checkedInput = document.querySelector(
+      "input[name=appSource]:checked"
+    );
 
     switch (checkedInput.value) {
       case "file":
@@ -1414,7 +1425,9 @@ class StartController extends ImporterController {
   }
 
   async _onSelectFile() {
-    let checkedInput = document.querySelector("input[name=startFile]:checked");
+    const checkedInput = document.querySelector(
+      "input[name=startFile]:checked"
+    );
     switch (checkedInput.value) {
       case "profile":
         // Go to the import profile from zip file step in profile flow for TB.
@@ -1452,8 +1465,8 @@ function showTab(tabId, reset = false) {
     Steps.reset();
     restart();
   }
-  let selectedPaneId = `tabPane-${tabId.split("-")[1]}`;
-  let isExport = tabId === "tab-export";
+  const selectedPaneId = `tabPane-${tabId.split("-")[1]}`;
+  const isExport = tabId === "tab-export";
   document.getElementById("importDocs").hidden = isExport;
   document.getElementById("exportDocs").hidden = !isExport;
   Steps.toggle(!isExport);
@@ -1465,10 +1478,10 @@ function showTab(tabId, reset = false) {
     ? "chrome://messenger/skin/icons/new/compact/export.svg"
     : "chrome://messenger/skin/icons/new/compact/import.svg";
   location.hash = isExport ? "export" : "";
-  for (let tabPane of document.querySelectorAll("[id^=tabPane-]")) {
+  for (const tabPane of document.querySelectorAll("[id^=tabPane-]")) {
     tabPane.hidden = tabPane.id != selectedPaneId;
   }
-  for (let el of document.querySelectorAll("[id^=tab-]")) {
+  for (const el of document.querySelectorAll("[id^=tab-]")) {
     el.classList.toggle("is-selected", el.id == tabId);
   }
   if (!Steps.hasStepHistory()) {

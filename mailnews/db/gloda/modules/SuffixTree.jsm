@@ -14,7 +14,7 @@ function MultiSuffixTree(aStrings, aItems) {
   }
 
   let s = "";
-  let offsetsToItems = [];
+  const offsetsToItems = [];
   let lastLength = 0;
   for (let i = 0; i < aStrings.length; i++) {
     s += aStrings[i];
@@ -86,10 +86,10 @@ SuffixTree.prototype = {
    * Find all items matching the provided substring.
    */
   findMatches(aSubstring) {
-    let results = [];
+    const results = [];
     let state = this._root;
     let index = 0;
-    let end = aSubstring.length;
+    const end = aSubstring.length;
     while (index < end) {
       state = state[aSubstring[index]];
       // bail if there was no edge
@@ -98,7 +98,7 @@ SuffixTree.prototype = {
       }
       // bail if the portion of the edge we traversed is not equal to that
       //  portion of our pattern
-      let actualTraverseLength = Math.min(state.length, end - index);
+      const actualTraverseLength = Math.min(state.length, end - index);
       if (
         this._str.substring(state.start, state.start + actualTraverseLength) !=
         aSubstring.substring(index, index + actualTraverseLength)
@@ -117,13 +117,12 @@ SuffixTree.prototype = {
     //  that matched, not just the first letter beyond it
     // However, if this state is a leaf node (end == 'infinity'), then 'end'
     //  isn't describing an edge at all and we want to avoid accounting for it.
-    let delta;
     /*
     if (state.end != this._infinity)
       //delta = index - end + 1;
       delta = end - (index - state.length);
     else */
-    delta = index - state.length - end + 1;
+    const delta = index - state.length - end + 1;
 
     this._resultGather(state, results, {}, end, delta, true);
     return results;
@@ -145,13 +144,13 @@ SuffixTree.prototype = {
     let high = this._numItems - 1;
     let mid, stringStart, stringEnd;
 
-    let patternLast = aState.start - aDelta;
+    const patternLast = aState.start - aDelta;
     while (low <= high) {
       mid = low + Math.floor((high - low) / 2); // excessive, especially with js nums
       stringStart = this._offsetsToItems[mid * 3];
-      let startDelta = stringStart - patternLast;
+      const startDelta = stringStart - patternLast;
       stringEnd = this._offsetsToItems[mid * 3 + 1];
-      let endDelta = stringEnd - patternLast;
+      const endDelta = stringEnd - patternLast;
       if (startDelta > 0) {
         high = mid - 1;
       } else if (endDelta <= 0) {
@@ -172,7 +171,7 @@ SuffixTree.prototype = {
     //   serving as a unique terminal.
     // - The
 
-    let patternFirst = patternLast - (aPatLength - 1);
+    const patternFirst = patternLast - (aPatLength - 1);
 
     if (patternFirst >= stringStart) {
       if (!(stringStart in aPresence)) {
@@ -192,10 +191,10 @@ dump("  bailing! (bail was: " + bail + ")\n");
     }
 */
     // process our children...
-    for (let key in aState) {
+    for (const key in aState) {
       // edges have attributes of length 1...
       if (key.length == 1) {
-        let statePrime = aState[key];
+        const statePrime = aState[key];
         this._resultGather(
           statePrime,
           aResults,
@@ -255,14 +254,14 @@ dump("  bailing! (bail was: " + bail + ")\n");
   _testAndSplit(aState, aStart, aEnd, aChar) {
     if (aStart < aEnd) {
       // it's not explicit
-      let statePrime = aState[this._str[aStart]];
-      let length = aEnd - aStart;
+      const statePrime = aState[this._str[aStart]];
+      const length = aEnd - aStart;
       if (aChar == this._str[statePrime.start + length]) {
         return [true, aState];
       }
 
       // do splitting... aState -> rState -> statePrime
-      let rState = new State(statePrime.start, statePrime.start + length);
+      const rState = new State(statePrime.start, statePrime.start + length);
       aState[this._str[statePrime.start]] = rState;
       statePrime.start += length;
       rState[this._str[statePrime.start]] = statePrime;
@@ -279,7 +278,7 @@ dump("  bailing! (bail was: " + bail + ")\n");
 
   _update(aState, aStart, aIndex) {
     let oldR = this._root;
-    let textAtIndex = this._str[aIndex]; // T sub i (0-based corrected...)
+    const textAtIndex = this._str[aIndex]; // T sub i (0-based corrected...)
     // because of the way we store the 'end' value as a one-past form, we do
     //  not need to subtract 1 off of aIndex.
     let [endPoint, rState] = this._testAndSplit(
@@ -289,7 +288,7 @@ dump("  bailing! (bail was: " + bail + ")\n");
       textAtIndex
     );
     while (!endPoint) {
-      let rPrime = new State(aIndex, this._infinity);
+      const rPrime = new State(aIndex, this._infinity);
       rState[textAtIndex] = rPrime;
       if (oldR !== this._root) {
         oldR.suffix = rState;
@@ -371,9 +370,9 @@ dump("  bailing! (bail was: " + bail + ")\n");
           ")\n"
       );
     }
-    let nextIndent = aIndent + "  ";
-    let keys = Object.keys(aState).filter(c => c.length == 1);
-    for (let key of keys) {
+    const nextIndent = aIndent + "  ";
+    const keys = Object.keys(aState).filter(c => c.length == 1);
+    for (const key of keys) {
       this.dump(aState[key], nextIndent, key);
     }
   },

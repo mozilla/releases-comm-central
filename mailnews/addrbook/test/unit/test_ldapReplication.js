@@ -16,14 +16,14 @@ const replicationService = Cc[
 
 add_task(async () => {
   LDAPServer.open();
-  let ldapContacts = await IOUtils.readJSON(jsonFile.path);
+  const ldapContacts = await IOUtils.readJSON(jsonFile.path);
 
-  let bookPref = MailServices.ab.newAddressBook(
+  const bookPref = MailServices.ab.newAddressBook(
     "XPCShell",
     `ldap://localhost:${LDAPServer.port}/people??sub?(objectclass=*)`,
     0
   );
-  let book = MailServices.ab.getDirectoryFromId(bookPref);
+  const book = MailServices.ab.getDirectoryFromId(bookPref);
   book.QueryInterface(Ci.nsIAbLDAPDirectory);
   equal(book.replicationFileName, "ldap.sqlite");
 
@@ -36,7 +36,7 @@ add_task(async () => {
 
   let progressResolve;
   let progressPromise = new Promise(resolve => (progressResolve = resolve));
-  let progressListener = {
+  const progressListener = {
     onStateChange(webProgress, request, stateFlags, status) {
       if (stateFlags & Ci.nsIWebProgressListener.STATE_START) {
         info("replication started");
@@ -66,7 +66,7 @@ add_task(async () => {
   LDAPServer.writeBindResponse();
 
   await LDAPServer.read(LDAPServer.SearchRequest);
-  for (let contact of Object.values(ldapContacts)) {
+  for (const contact of Object.values(ldapContacts)) {
     LDAPServer.writeSearchResultEntry(contact);
   }
   LDAPServer.writeSearchResultDone();

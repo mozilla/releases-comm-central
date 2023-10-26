@@ -209,14 +209,14 @@ class ImapIncomingServer extends MsgIncomingServer {
   get offlineSupportLevel() {
     const OFFLINE_SUPPORT_LEVEL_UNDEFINED = -1;
     const OFFLINE_SUPPORT_LEVEL_REGULAR = 10;
-    let level = this.getIntValue("offline_support_level");
+    const level = this.getIntValue("offline_support_level");
     return level != OFFLINE_SUPPORT_LEVEL_UNDEFINED
       ? level
       : OFFLINE_SUPPORT_LEVEL_REGULAR;
   }
 
   get constructedPrettyName() {
-    let identity = MailServices.accounts.getFirstIdentityForServer(this);
+    const identity = MailServices.accounts.getFirstIdentityForServer(this);
     let email;
     if (identity) {
       email = identity.email;
@@ -226,7 +226,7 @@ class ImapIncomingServer extends MsgIncomingServer {
         email += `@${this.hostName}`;
       }
     }
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/imapMsgs.properties"
     );
     return bundle.formatStringFromName("imapDefaultAccountName", [email]);
@@ -256,18 +256,18 @@ class ImapIncomingServer extends MsgIncomingServer {
     folder.QueryInterface(
       Ci.nsIMsgImapMailFolder
     ).verifiedAsOnlineFolder = false;
-    for (let child of folder.subFolders) {
+    for (const child of folder.subFolders) {
       this._setFolderToUnverified(child);
     }
   }
 
   closeCachedConnections() {
     // Close all connections.
-    for (let client of this._connections) {
+    for (const client of this._connections) {
       client.logout();
     }
     // Cancel all waitings in queue.
-    for (let resolve of this._connectionWaitingQueue) {
+    for (const resolve of this._connectionWaitingQueue) {
       resolve(false);
     }
     this._connections = [];
@@ -282,7 +282,7 @@ class ImapIncomingServer extends MsgIncomingServer {
   }
 
   subscribeToFolder(name, subscribe) {
-    let folder = this.rootMsgFolder.findSubFolder(name);
+    const folder = this.rootMsgFolder.findSubFolder(name);
     if (subscribe) {
       return MailServices.imap.subscribeFolder(folder, name, null);
     }
@@ -319,7 +319,7 @@ class ImapIncomingServer extends MsgIncomingServer {
 
     if (this.hasDiscoveredFolders && this._loadingInSubscribeDialog) {
       // Populate the subscribe dialog.
-      let noSelect = boxFlags & lazy.ImapUtils.FLAG_NO_SELECT;
+      const noSelect = boxFlags & lazy.ImapUtils.FLAG_NO_SELECT;
       this.addTo(
         folderPath,
         this.doingLsub && !noSelect,
@@ -329,7 +329,7 @@ class ImapIncomingServer extends MsgIncomingServer {
       return false;
     }
 
-    let slashIndex = folderPath.indexOf("/");
+    const slashIndex = folderPath.indexOf("/");
     let token = folderPath;
     let rest = "";
     if (slashIndex > 0) {
@@ -343,7 +343,7 @@ class ImapIncomingServer extends MsgIncomingServer {
     let parentName = folderPath;
     let parentUri = uri;
     let hasParent = false;
-    let lastSlashIndex = folderPath.lastIndexOf("/");
+    const lastSlashIndex = folderPath.lastIndexOf("/");
     if (lastSlashIndex > 0) {
       parentName = parentName.slice(0, lastSlashIndex);
       hasParent = true;
@@ -364,10 +364,10 @@ class ImapIncomingServer extends MsgIncomingServer {
       /^inbox/i.test(folderPath)
     );
 
-    let isNewFolder = !child;
+    const isNewFolder = !child;
     if (isNewFolder) {
       if (hasParent) {
-        let parent = this.rootFolder.getChildWithURI(
+        const parent = this.rootFolder.getChildWithURI(
           parentUri,
           true,
           /^inbox/i.test(parentName)
@@ -395,7 +395,7 @@ class ImapIncomingServer extends MsgIncomingServer {
       );
     }
     if (child) {
-      let imapFolder = child.QueryInterface(Ci.nsIMsgImapMailFolder);
+      const imapFolder = child.QueryInterface(Ci.nsIMsgImapMailFolder);
       imapFolder.verifiedAsOnlineFolder = true;
       imapFolder.hierarchyDelimiter = delimiter;
       if (boxFlags & lazy.ImapUtils.FLAG_IMAP_TRASH) {
@@ -405,7 +405,7 @@ class ImapIncomingServer extends MsgIncomingServer {
       }
       imapFolder.boxFlags = boxFlags;
       imapFolder.explicitlyVerify = explicitlyVerify;
-      let onlineName = imapFolder.onlineName;
+      const onlineName = imapFolder.onlineName;
       folderPath = folderPath.replaceAll("/", delimiter);
       if (delimiter != "/") {
         folderPath = decodeURIComponent(folderPath);
@@ -435,16 +435,16 @@ class ImapIncomingServer extends MsgIncomingServer {
     this.rootFolder.QueryInterface(
       Ci.nsIMsgImapMailFolder
     ).verifiedAsOnlineFolder = true;
-    let unverified = this._getUnverifiedFolders(this.rootFolder);
+    const unverified = this._getUnverifiedFolders(this.rootFolder);
     this._logger.debug(
       `discoveryDone, unverified folders count=${unverified.length}.`
     );
-    for (let folder of unverified) {
+    for (const folder of unverified) {
       if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
         // Do not remove virtual folders.
         continue;
       }
-      let imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
+      const imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
       if (
         !this.usingSubscription ||
         imapFolder.explicitlyVerify ||
@@ -466,12 +466,12 @@ class ImapIncomingServer extends MsgIncomingServer {
    * @returns {nsIMsgFolder[]}
    */
   _getUnverifiedFolders(parentFolder) {
-    let folders = [];
-    let imapFolder = parentFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
+    const folders = [];
+    const imapFolder = parentFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
     if (!imapFolder.verifiedAsOnlineFolder || imapFolder.explicitlyVerify) {
       folders.push(imapFolder);
     }
-    for (let folder of parentFolder.subFolders) {
+    for (const folder of parentFolder.subFolders) {
       folders.push(...this._getUnverifiedFolders(folder));
     }
     return folders;
@@ -484,8 +484,8 @@ class ImapIncomingServer extends MsgIncomingServer {
    * @returns {nsIMsgFolder[]}
    */
   _noDescendentsAreVerified(parentFolder) {
-    for (let folder of parentFolder.subFolders) {
-      let imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
+    for (const folder of parentFolder.subFolders) {
+      const imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
       if (
         imapFolder.verifiedAsOnlineFolder ||
         !this._noDescendentsAreVerified(folder)
@@ -497,11 +497,11 @@ class ImapIncomingServer extends MsgIncomingServer {
   }
 
   onlineFolderRename(msgWindow, oldName, newName) {
-    let folder = this._getFolder(oldName).QueryInterface(
+    const folder = this._getFolder(oldName).QueryInterface(
       Ci.nsIMsgImapMailFolder
     );
-    let index = newName.lastIndexOf("/");
-    let parent =
+    const index = newName.lastIndexOf("/");
+    const parent =
       index > 0 ? this._getFolder(newName.slice(0, index)) : this.rootFolder;
     folder.renameLocal(newName, parent);
     if (parent instanceof Ci.nsIMsgImapMailFolder) {
@@ -545,7 +545,7 @@ class ImapIncomingServer extends MsgIncomingServer {
 
   set deleteModel(value) {
     this.setIntValue("delete_model", value);
-    let trashFolder = this._getFolder(this.trashFolderName);
+    const trashFolder = this._getFolder(this.trashFolderName);
     if (trashFolder) {
       if (value == Ci.nsMsgImapDeleteModels.MoveToTrash) {
         trashFolder.setFlag(Ci.nsMsgFolderFlags.Trash);
@@ -585,7 +585,7 @@ class ImapIncomingServer extends MsgIncomingServer {
     forceAllFolders,
     performingBiff
   ) {
-    let flags = folder.flags;
+    const flags = folder.flags;
 
     if (
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).canOpenFolder &&
@@ -614,7 +614,7 @@ class ImapIncomingServer extends MsgIncomingServer {
       folder.updateFolder(msgWindow);
     }
 
-    for (let subFolder of folder.subFolders) {
+    for (const subFolder of folder.subFolders) {
       this.GetNewMessagesForNonInboxFolders(
         subFolder,
         msgWindow,
@@ -625,7 +625,7 @@ class ImapIncomingServer extends MsgIncomingServer {
   }
 
   CloseConnectionForFolder(folder) {
-    for (let client of this._connections) {
+    for (const client of this._connections) {
       if (client.folder == folder) {
         client.logout();
       }
@@ -653,7 +653,7 @@ class ImapIncomingServer extends MsgIncomingServer {
   async _waitForNextClient(folder) {
     // Wait until a connection is available. canGetNext is false when
     // closeCachedConnections is called.
-    let canGetNext = await new Promise(resolve =>
+    const canGetNext = await new Promise(resolve =>
       this._connectionWaitingQueue.push(resolve)
     );
     if (canGetNext) {
@@ -701,7 +701,7 @@ class ImapIncomingServer extends MsgIncomingServer {
       return client;
     }
 
-    let freeConnections = this._connections.filter(c => !c.busy);
+    const freeConnections = this._connections.filter(c => !c.busy);
 
     // Wait if no free connection.
     if (!freeConnections.length) {
@@ -735,20 +735,20 @@ class ImapIncomingServer extends MsgIncomingServer {
    *   instance, and do some actions.
    */
   async withClient(folder, handler) {
-    let client = await this._getNextClient(folder);
+    const client = await this._getNextClient(folder);
     if (!client) {
       return;
     }
-    let startIdle = async () => {
+    const startIdle = async () => {
       if (!this.useIdle || !this._capabilities.includes("IDLE")) {
         return;
       }
 
       // IDLE is configed and supported, use IDLE to receive server pushes.
-      let hasInboxConnection = this._connections.some(c =>
+      const hasInboxConnection = this._connections.some(c =>
         this._isInboxConnection(c)
       );
-      let alreadyIdling =
+      const alreadyIdling =
         client.folder &&
         this._connections.find(
           c => c != client && !c.busy && c.folder == client.folder
@@ -765,7 +765,7 @@ class ImapIncomingServer extends MsgIncomingServer {
     };
     client.onFree = () => {
       client.busy = false;
-      let resolve = this._connectionWaitingQueue.shift();
+      const resolve = this._connectionWaitingQueue.shift();
       if (resolve) {
         // Resolve the first waiting in queue.
         resolve(true);

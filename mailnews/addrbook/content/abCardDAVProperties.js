@@ -53,18 +53,19 @@ window.addEventListener(
 );
 
 window.addEventListener("dialogaccept", event => {
-  let newDirName = gNameInput.value.trim();
-  let newSyncInterval = gRefreshActiveInput.checked
+  const newDirName = gNameInput.value.trim();
+  const newSyncInterval = gRefreshActiveInput.checked
     ? gRefreshMenulist.value
     : 0;
 
   if (newDirName != gDirectory.dirName) {
     // Do not allow an already existing name.
     if (MailServices.ab.directoryNameExists(newDirName)) {
-      let alertTitle = gStringBundle.GetStringFromName("duplicateNameTitle");
-      let alertText = gStringBundle.formatStringFromName("duplicateNameText", [
-        newDirName,
-      ]);
+      const alertTitle = gStringBundle.GetStringFromName("duplicateNameTitle");
+      const alertText = gStringBundle.formatStringFromName(
+        "duplicateNameText",
+        [newDirName]
+      );
       Services.prompt.alert(window, alertTitle, alertText);
       event.preventDefault();
       return;
@@ -84,7 +85,7 @@ window.addEventListener("dialogaccept", event => {
 
 function initRefreshInterval() {
   function createMenuItem(minutes) {
-    let menuitem = document.createXULElement("menuitem");
+    const menuitem = document.createXULElement("menuitem");
     menuitem.setAttribute("value", minutes);
     menuitem.setAttribute("data-l10n-attrs", "label");
     if (minutes < 60) {
@@ -121,7 +122,7 @@ function initRefreshInterval() {
 
   let foundValue = false;
 
-  for (let min of [1, 5, 15, 30, 60, 120, 240, 360, 720, 1440]) {
+  for (const min of [1, 5, 15, 30, 60, 120, 240, 360, 720, 1440]) {
     createMenuItem(min);
   }
 

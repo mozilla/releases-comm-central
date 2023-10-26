@@ -32,14 +32,14 @@ var gUIDLCount = 1;
  *                 the cwd.
  */
 function readFile(fileName) {
-  let cwd = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
+  const cwd = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
 
   // Try to find the file relative to either the data directory or to the
   // current working directory.
   let file = cwd.clone();
   if (fileName.includes("/")) {
-    let parts = fileName.split("/");
-    for (let part of parts) {
+    const parts = fileName.split("/");
+    for (const part of parts) {
       if (part == "..") {
         file = file.parent;
       } else {
@@ -193,17 +193,17 @@ class POP3_RFC1939_handler {
     return result;
   }
   TOP(args) {
-    let [messageNumber, numberOfBodyLines] = args.split(" ");
+    const [messageNumber, numberOfBodyLines] = args.split(" ");
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
     }
     let result = "+OK\r\n";
-    let msg = this._daemon._messages[messageNumber - 1].fileData;
-    let index = msg.indexOf("\r\n\r\n");
+    const msg = this._daemon._messages[messageNumber - 1].fileData;
+    const index = msg.indexOf("\r\n\r\n");
     result += msg.slice(0, index);
     if (numberOfBodyLines) {
       result += "\r\n\r\n";
-      let bodyLines = msg.slice(index + 4).split("\r\n");
+      const bodyLines = msg.slice(index + 4).split("\r\n");
       result += bodyLines.slice(0, numberOfBodyLines).join("\r\n");
     }
     result += "\r\n.";

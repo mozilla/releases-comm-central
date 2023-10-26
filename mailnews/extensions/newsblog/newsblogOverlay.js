@@ -93,9 +93,9 @@ var FeedMessageHandler = {
     // Thunderbird 2 rss messages with 'Show article summary' not selected,
     // ie message body constructed to show web page in an iframe, can't show
     // a summary - notify user.
-    let browser = getMessagePaneBrowser();
-    let contentDoc = browser ? browser.contentDocument : null;
-    let rssIframe = contentDoc
+    const browser = getMessagePaneBrowser();
+    const contentDoc = browser ? browser.contentDocument : null;
+    const rssIframe = contentDoc
       ? contentDoc.getElementById("_mailrssiframe")
       : null;
     if (rssIframe) {
@@ -111,10 +111,10 @@ var FeedMessageHandler = {
       return (gShowFeedSummary = this.gShowSummary = !this.gShowSummary);
     }
 
-    let wintype = document.documentElement.getAttribute("windowtype");
-    let tabMail = document.getElementById("tabmail");
-    let messageTab = tabMail && tabMail.currentTabInfo.mode.type == "message";
-    let messageWindow = wintype == "mail:messageWindow";
+    const wintype = document.documentElement.getAttribute("windowtype");
+    const tabMail = document.getElementById("tabmail");
+    const messageTab = tabMail && tabMail.currentTabInfo.mode.type == "message";
+    const messageWindow = wintype == "mail:messageWindow";
 
     switch (this.onSelectPref) {
       case this.kSelectOverrideWebPage:
@@ -130,10 +130,10 @@ var FeedMessageHandler = {
         // For the former, toggle or global override is necessary; for the
         // latter, a show summary checkbox toggle in Subscribe dialog will set
         // one on the path to bliss.
-        let folder = aMsgHdr.folder;
+        const folder = aMsgHdr.folder;
         showSummary = true;
         const ds = FeedUtils.getSubscriptionsDS(folder.server);
-        for (let sub of ds.data) {
+        for (const sub of ds.data) {
           if (sub.destFolder == folder.URI) {
             showSummary = sub.quickMode;
             break;
@@ -213,7 +213,7 @@ var FeedMessageHandler = {
             .getService(Ci.nsIExternalProtocolService)
             .loadURI(uri);
         } else if (aWhere.messagepane) {
-          let browser = getMessagePaneBrowser();
+          const browser = getMessagePaneBrowser();
           // Load about:blank in the browser before (potentially) switching
           // to a remote process. This prevents sandbox flags being carried
           // over to the web document.
@@ -249,7 +249,7 @@ var FeedMessageHandler = {
         ReloadMessage();
       }
     } else {
-      let browser = getMessagePaneBrowser();
+      const browser = getMessagePaneBrowser();
       if (browser && browser.contentDocument && browser.contentDocument.body) {
         browser.contentDocument.body.hidden = true;
       }
@@ -265,7 +265,7 @@ var FeedMessageHandler = {
 
 function openSubscriptionsDialog(aFolder) {
   // Check for an existing feed subscriptions window and focus it.
-  let subscriptionsWindow = Services.wm.getMostRecentWindow(
+  const subscriptionsWindow = Services.wm.getMostRecentWindow(
     "Mail:News-BlogSubscriptions"
   );
 
@@ -304,12 +304,12 @@ function openComposeWindowForRSSArticle(
   aMsgWindow
 ) {
   // Ensure right content is handled for web pages in window/tab.
-  let tabmail = document.getElementById("tabmail");
-  let is3pane =
+  const tabmail = document.getElementById("tabmail");
+  const is3pane =
     tabmail && tabmail.selectedTab && tabmail.selectedTab.mode
       ? tabmail.selectedTab.mode.type == "folder"
       : false;
-  let showingwebpage =
+  const showingwebpage =
     "FeedMessageHandler" in window &&
     !is3pane &&
     FeedMessageHandler.onOpenPref == FeedMessageHandler.kOpenWebPage;
@@ -328,17 +328,17 @@ function openComposeWindowForRSSArticle(
     );
   } else {
     // Set up the compose message and get the feed message's web page link.
-    let msgHdr = aMsgHdr;
-    let type = aType;
+    const msgHdr = aMsgHdr;
+    const type = aType;
     let subject = msgHdr.mime2DecodedSubject;
     let fwdPrefix = Services.prefs.getCharPref("mail.forward_subject_prefix");
     fwdPrefix = fwdPrefix ? fwdPrefix + ": " : "";
 
-    let params = Cc[
+    const params = Cc[
       "@mozilla.org/messengercompose/composeparams;1"
     ].createInstance(Ci.nsIMsgComposeParams);
 
-    let composeFields = Cc[
+    const composeFields = Cc[
       "@mozilla.org/messengercompose/composefields;1"
     ].createInstance(Ci.nsIMsgCompFields);
 
@@ -375,7 +375,7 @@ function openComposeWindowForRSSArticle(
             aMimeMsg.headers["content-base"] &&
             aMimeMsg.headers["content-base"][0]
           ) {
-            let url = decodeURIComponent(
+            const url = decodeURIComponent(
               escape(aMimeMsg.headers["content-base"])
             );
             params.composeFields.body = url;

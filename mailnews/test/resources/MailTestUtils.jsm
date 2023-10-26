@@ -43,7 +43,7 @@ var mailTestUtils = {
         "@mozilla.org/intl/converter-input-stream;1"
       ].createInstance(Ci.nsIConverterInputStream);
       cstream.init(fstream, aCharset, 4096, 0x0000);
-      let str = {};
+      const str = {};
       while (cstream.readString(4096, str) != 0) {
         data += str.value;
       }
@@ -74,15 +74,15 @@ var mailTestUtils = {
   // If aCharset is specified, treats the file as being of that charset
   loadMessageToString(aFolder, aMsgHdr, aCharset) {
     var data = "";
-    let reusable = {};
+    const reusable = {};
     let bytesLeft = aMsgHdr.messageSize;
-    let stream = aFolder.getMsgInputStream(aMsgHdr, reusable);
+    const stream = aFolder.getMsgInputStream(aMsgHdr, reusable);
     if (aCharset) {
-      let cstream = Cc[
+      const cstream = Cc[
         "@mozilla.org/intl/converter-input-stream;1"
       ].createInstance(Ci.nsIConverterInputStream);
       cstream.init(stream, aCharset, 4096, 0x0000);
-      let str = {};
+      const str = {};
       let bytesToRead = Math.min(bytesLeft, 4096);
       while (cstream.readString(bytesToRead, str) != 0) {
         data += str.value;
@@ -121,22 +121,22 @@ var mailTestUtils = {
 
   // Loads a message to a UTF-16 string.
   loadMessageToUTF16String(folder, msgHdr, charset) {
-    let str = this.loadMessageToString(folder, msgHdr, charset);
-    let arr = new Uint8Array(Array.from(str, x => x.charCodeAt(0)));
+    const str = this.loadMessageToString(folder, msgHdr, charset);
+    const arr = new Uint8Array(Array.from(str, x => x.charCodeAt(0)));
     return new TextDecoder().decode(arr);
   },
 
   // Gets the first message header in a folder.
   firstMsgHdr(folder) {
-    let enumerator = folder.msgDatabase.enumerateMessages();
-    let first = enumerator[Symbol.iterator]().next();
+    const enumerator = folder.msgDatabase.enumerateMessages();
+    const first = enumerator[Symbol.iterator]().next();
     return first.done ? null : first.value;
   },
 
   // Gets message header number N (0 based index) in a folder.
   getMsgHdrN(folder, n) {
     let i = 0;
-    for (let next of folder.msgDatabase.enumerateMessages()) {
+    for (const next of folder.msgDatabase.enumerateMessages()) {
       if (i == n) {
         return next;
       }
@@ -163,11 +163,11 @@ var mailTestUtils = {
     const BOOL = ctypes.int32_t;
     const MAX_PATH = 260;
 
-    let kernel32 = ctypes.open("kernel32.dll");
+    const kernel32 = ctypes.open("kernel32.dll");
 
     try {
       // Returns the path of the volume a file is on.
-      let GetVolumePathName = kernel32.declare(
+      const GetVolumePathName = kernel32.declare(
         "GetVolumePathNameW",
         ctypes.winapi_abi,
         BOOL, // return type: 1 indicates success, 0 failure
@@ -176,12 +176,12 @@ var mailTestUtils = {
         ctypes.uint32_t // in: cchBufferLength
       );
 
-      let filePath = aFile.path;
+      const filePath = aFile.path;
       // The volume path should be at most 1 greater than than the length of the
       // path -- add 1 for a trailing backslash if necessary, and 1 for the
       // terminating null character. Note that the parentheses around the type are
       // necessary for new to apply correctly.
-      let volumePath = new (ctypes.char16_t.array(filePath.length + 2))();
+      const volumePath = new (ctypes.char16_t.array(filePath.length + 2))();
 
       if (!GetVolumePathName(filePath, volumePath, volumePath.length)) {
         throw new Error(
@@ -194,7 +194,7 @@ var mailTestUtils = {
 
       // Returns information about the file system for the given volume path. We just need
       // the file system name.
-      let GetVolumeInformation = kernel32.declare(
+      const GetVolumeInformation = kernel32.declare(
         "GetVolumeInformationW",
         ctypes.winapi_abi,
         BOOL, // return type: 1 indicates success, 0 failure
@@ -209,7 +209,7 @@ var mailTestUtils = {
       );
 
       // We're only interested in the name of the file system.
-      let fsName = new (ctypes.char16_t.array(MAX_PATH + 1))();
+      const fsName = new (ctypes.char16_t.array(MAX_PATH + 1))();
 
       if (
         !GetVolumeInformation(
@@ -258,7 +258,7 @@ var mailTestUtils = {
    *
    */
   mark_file_region_sparse(aFile, aRegionStart, aRegionBytes) {
-    let fileSystem = this.get_file_system(aFile);
+    const fileSystem = this.get_file_system(aFile);
     dump(
       "[mark_file_region_sparse()] File system = " +
         (fileSystem || "(unknown)") +
@@ -302,10 +302,10 @@ var mailTestUtils = {
       const FSCTL_SET_ZERO_DATA = 0x980c8;
       const FILE_BEGIN = 0;
 
-      let kernel32 = ctypes.open("kernel32.dll");
+      const kernel32 = ctypes.open("kernel32.dll");
 
       try {
-        let CreateFile = kernel32.declare(
+        const CreateFile = kernel32.declare(
           "CreateFileW",
           ctypes.winapi_abi,
           HANDLE, // return type: handle to the file
@@ -321,8 +321,8 @@ var mailTestUtils = {
           HANDLE // in, optional: hTemplateFile
         );
 
-        let filePath = aFile.path;
-        let hFile = CreateFile(
+        const filePath = aFile.path;
+        const hFile = CreateFile(
           filePath,
           GENERIC_WRITE,
           0,
@@ -331,7 +331,7 @@ var mailTestUtils = {
           FILE_ATTRIBUTE_NORMAL,
           null
         );
-        let hFileInt = ctypes.cast(hFile, ctypes.intptr_t);
+        const hFileInt = ctypes.cast(hFile, ctypes.intptr_t);
         if (ctypes.Int64.compare(hFileInt.value, INVALID_HANDLE_VALUE) == 0) {
           throw new Error(
             "CreateFile failed for " +
@@ -342,7 +342,7 @@ var mailTestUtils = {
         }
 
         try {
-          let DeviceIoControl = kernel32.declare(
+          const DeviceIoControl = kernel32.declare(
             "DeviceIoControl",
             ctypes.winapi_abi,
             BOOL, // return type: 1 indicates success, 0 failure
@@ -358,8 +358,8 @@ var mailTestUtils = {
             // OVERLAPPED structure
           );
           // bytesReturned needs to be passed in, even though it's meaningless
-          let bytesReturned = new ctypes.uint32_t();
-          let sparseBuffer = new FILE_SET_SPARSE_BUFFER();
+          const bytesReturned = new ctypes.uint32_t();
+          const sparseBuffer = new FILE_SET_SPARSE_BUFFER();
           sparseBuffer.SetSparse = 1;
 
           // Mark the file as sparse
@@ -380,9 +380,9 @@ var mailTestUtils = {
             );
           }
 
-          let zdInfo = new FILE_ZERO_DATA_INFORMATION();
+          const zdInfo = new FILE_ZERO_DATA_INFORMATION();
           zdInfo.FileOffset = aRegionStart;
-          let regionEnd = aRegionStart + aRegionBytes;
+          const regionEnd = aRegionStart + aRegionBytes;
           zdInfo.BeyondFinalZero = regionEnd;
           // Mark the region as a sparse region
           if (
@@ -404,7 +404,7 @@ var mailTestUtils = {
 
           // Move to past the sparse region and mark it as the end of the file. The
           // above DeviceIoControl call is useless unless followed by this.
-          let SetFilePointerEx = kernel32.declare(
+          const SetFilePointerEx = kernel32.declare(
             "SetFilePointerEx",
             ctypes.winapi_abi,
             BOOL, // return type: 1 indicates success, 0 failure
@@ -419,7 +419,7 @@ var mailTestUtils = {
             );
           }
 
-          let SetEndOfFile = kernel32.declare(
+          const SetEndOfFile = kernel32.declare(
             "SetEndOfFile",
             ctypes.winapi_abi,
             BOOL, // return type: 1 indicates success, 0 failure
@@ -433,7 +433,7 @@ var mailTestUtils = {
 
           return true;
         } finally {
-          let CloseHandle = kernel32.declare(
+          const CloseHandle = kernel32.declare(
             "CloseHandle",
             ctypes.winapi_abi,
             BOOL, // return type: 1 indicates success, 0 failure
@@ -478,7 +478,7 @@ var mailTestUtils = {
   _timer: null,
   do_timeout_function(aDelayInMS, aFunc, aFuncThis, aFuncArgs) {
     this._timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-    let wrappedFunc = function () {
+    const wrappedFunc = function () {
       try {
         aFunc.apply(aFuncThis, aFuncArgs);
       } catch (ex) {
@@ -521,7 +521,7 @@ var mailTestUtils = {
   ) {
     // register for the folder loaded notification ahead of time... even though
     //  we may not need it...
-    let folderListener = {
+    const folderListener = {
       onFolderEvent(aEventFolder, aEvent) {
         if (aEvent == "FolderLoaded" && aFolder.URI == aEventFolder.URI) {
           MailServices.mailSession.RemoveFolderListener(this);
@@ -544,7 +544,7 @@ var mailTestUtils = {
    * For when you want to compare elements non-strictly.
    */
   non_strict_index_of(aArray, aElem) {
-    for (let [i, elem] of aArray.entries()) {
+    for (const [i, elem] of aArray.entries()) {
       if (elem == aElem) {
         return i;
       }
@@ -566,8 +566,8 @@ var mailTestUtils = {
    * @param {object} event - The mouse event to synthesize, e.g. `{ clickCount: 2 }`.
    */
   treeClick(EventUtils, win, tree, row, column, event) {
-    let coords = tree.getCoordsForCellItem(row, tree.columns[column], "cell");
-    let treeChildren = tree.lastElementChild;
+    const coords = tree.getCoordsForCellItem(row, tree.columns[column], "cell");
+    const treeChildren = tree.lastElementChild;
     EventUtils.synthesizeMouse(
       treeChildren,
       coords.x + coords.width / 2,
@@ -590,10 +590,10 @@ var mailTestUtils = {
    */
   awaitElementExistence(MutationObserver, doc, observedNodeId, awaitedNodeId) {
     return new Promise(resolve => {
-      let outerObserver = new MutationObserver((mutationsList, observer) => {
-        for (let mutation of mutationsList) {
+      const outerObserver = new MutationObserver((mutationsList, observer) => {
+        for (const mutation of mutationsList) {
           if (mutation.type == "childList" && mutation.addedNodes.length) {
-            let element = doc.getElementById(awaitedNodeId);
+            const element = doc.getElementById(awaitedNodeId);
 
             if (element) {
               observer.disconnect();
@@ -604,7 +604,7 @@ var mailTestUtils = {
         }
       });
 
-      let nodeToObserve = doc.getElementById(observedNodeId);
+      const nodeToObserve = doc.getElementById(observedNodeId);
       outerObserver.observe(nodeToObserve, { childList: true });
     });
   },

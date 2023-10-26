@@ -25,8 +25,8 @@ var gJunkFolder;
 
 add_setup(function () {
   setupIMAPPump();
-  let server = IMAPPump.incomingServer;
-  let spamSettings = server.spamSettings;
+  const server = IMAPPump.incomingServer;
+  const spamSettings = server.spamSettings;
   server.setBoolValue("useServerFilter", true);
   server.setCharValue("serverFilterName", "SpamAssassin");
   server.setIntValue(
@@ -48,7 +48,7 @@ add_task(async function createJunkFolder() {
   await PromiseTestUtils.promiseFolderAdded("Junk");
   gJunkFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Junk");
   Assert.ok(gJunkFolder instanceof Ci.nsIMsgImapMailFolder);
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gJunkFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
@@ -70,7 +70,7 @@ add_task(async function loadImapMessage() {
     gJunkFolder,
     "msgsMoveCopyCompleted"
   );
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   gJunkFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
@@ -88,7 +88,7 @@ add_task(async function markMessageAsGood() {
    *  filters. So I will simply simulate the operations that would typically
    *  be done by a manual marking of the messages.
    */
-  let msgHdr = mailTestUtils.firstMsgHdr(gJunkFolder);
+  const msgHdr = mailTestUtils.firstMsgHdr(gJunkFolder);
   msgHdr.setStringProperty("junkscoreorigin", "user");
   msgHdr.setStringProperty("junkpercent", "0"); // good percent
   msgHdr.setStringProperty("junkscore", "0"); // good score
@@ -114,10 +114,10 @@ add_task(async function markMessageAsGood() {
 });
 
 add_task(async function updateFoldersAndCheck() {
-  let inboxUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const inboxUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, inboxUrlListener);
   await inboxUrlListener.promise;
-  let junkUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const junkUrlListener = new PromiseTestUtils.PromiseUrlListener();
   gJunkFolder.updateFolderWithListener(null, junkUrlListener);
   await junkUrlListener.promise;
   // bug 540385 causes this test to fail
@@ -135,8 +135,8 @@ add_task(function endTest() {
 
 // given a test file, return the file uri spec
 function specForFileName(aFileName) {
-  let file = do_get_file("../../../data/" + aFileName);
-  let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+  const file = do_get_file("../../../data/" + aFileName);
+  const msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
 }
 

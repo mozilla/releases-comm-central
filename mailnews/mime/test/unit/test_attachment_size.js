@@ -270,18 +270,18 @@ add_task(function endTest() {
 });
 
 async function test_message_attachments(info) {
-  let synMsg = msgGen.makeMessage(info);
-  let synSet = new SyntheticMessageSet([synMsg]);
+  const synMsg = msgGen.makeMessage(info);
+  const synSet = new SyntheticMessageSet([synMsg]);
   await messageInjection.addSetsToFolders([inbox], [synSet]);
 
-  let msgURI = synSet.getMsgURI(0);
-  let msgService = MailServices.messageServiceFromURI(msgURI);
+  const msgURI = synSet.getMsgURI(0);
+  const msgService = MailServices.messageServiceFromURI(msgURI);
   await PromiseTestUtils.promiseDelay(200);
-  let streamListener = new PromiseTestUtils.PromiseStreamListener({
+  const streamListener = new PromiseTestUtils.PromiseStreamListener({
     onStopRequest(request) {
       request.QueryInterface(Ci.nsIMailChannel);
-      for (let attachment of request.attachments) {
-        let attachmentSize = parseInt(attachment.get("X-Mozilla-PartSize"));
+      for (const attachment of request.attachments) {
+        const attachmentSize = parseInt(attachment.get("X-Mozilla-PartSize"));
         dump(
           "*** Size is " + attachmentSize + " (expecting " + info.size + ")\n"
         );
@@ -313,7 +313,7 @@ async function test_message_attachments(info) {
  * @returns the message's size in bytes
  */
 function get_message_size(message) {
-  let messageString = message.toMessageString();
+  const messageString = message.toMessageString();
   if (EPSILON == 4) {
     // Windows
     return messageString.length;

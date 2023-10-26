@@ -4,7 +4,7 @@
  */
 function run_test() {
   // get the Personal Address Book
-  let pab = MailServices.ab.getDirectory(kPABData.URI);
+  const pab = MailServices.ab.getDirectory(kPABData.URI);
   Assert.ok(pab instanceof Ci.nsIAbDirectory);
   try {
     pab.deleteCards(null); // this should throw an error

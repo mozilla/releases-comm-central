@@ -186,7 +186,7 @@ add_task(function setup_test_noun_and_attributes() {
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 add_task(async function test_lots_of_string_constraints() {
-  let stringConstraints = [];
+  const stringConstraints = [];
   for (let i = 0; i < 2049; i++) {
     stringConstraints.push(
       ALPHABET[Math.floor(i / (ALPHABET.length * 2)) % ALPHABET.length] +
@@ -199,7 +199,7 @@ add_task(async function test_lots_of_string_constraints() {
     );
   }
 
-  let query = Gloda.newQuery(WidgetNoun.id);
+  const query = Gloda.newQuery(WidgetNoun.id);
   query.str.apply(query, stringConstraints);
 
   await queryExpect(query, []);
@@ -226,7 +226,7 @@ var singularWidgets;
 
 add_task(async function setup_non_singular_values() {
   testUnique++;
-  let origin = new Date("2007/01/01");
+  const origin = new Date("2007/01/01");
   nonSingularWidgets = [
     new Widget(testUnique, origin, "ns1", 0, "", ""),
     new Widget(testUnique, origin, "ns2", 0, "", ""),
@@ -250,7 +250,7 @@ add_task(async function setup_non_singular_values() {
 });
 
 add_task(async function test_query_has_value_for_non_singular() {
-  let query = Gloda.newQuery(WidgetNoun.id);
+  const query = Gloda.newQuery(WidgetNoun.id);
   query.inum(testUnique);
   query.multiIntAttr();
   await queryExpect(query, nonSingularWidgets);
@@ -337,9 +337,9 @@ add_task(async function setup_search_ranking_idiom() {
   // --- Build some widgets for testing.
   // Use inum to represent the expected result sequence
   // Setup a base date.
-  let origin = new Date("2008/01/01");
-  let daymore = new Date("2008/01/02");
-  let monthmore = new Date("2008/02/01");
+  const origin = new Date("2008/01/01");
+  const daymore = new Date("2008/01/02");
+  const monthmore = new Date("2008/02/01");
   fooWidgets = [
     // -- Setup the term "foo" to do frequency tests.
     new Widget(5, origin, "", 0, "", "foo"),
@@ -410,7 +410,7 @@ function verify_widget_order_and_stashing(
  *  is primarily a simplified
  */
 add_task(async function test_search_ranking_idiom_offsets() {
-  let query = Gloda.newQuery(WidgetNoun.id, {
+  const query = Gloda.newQuery(WidgetNoun.id, {
     explicitSQL: WIDGET_FULLTEXT_QUERY_EXPLICIT_SQL,
     // osets becomes 0-based column number 7.
     // dascore becomes 0-based column number 8.
@@ -430,7 +430,7 @@ add_task(async function test_search_ranking_idiom_offsets() {
 });
 
 add_task(async function test_search_ranking_idiom_score() {
-  let query = Gloda.newQuery(WidgetNoun.id, {
+  const query = Gloda.newQuery(WidgetNoun.id, {
     explicitSQL: WIDGET_FULLTEXT_QUERY_EXPLICIT_SQL,
     // osets becomes 0-based column number 7
     // dascore becomes 0-based column number 8
@@ -501,7 +501,7 @@ var GenericIndexer = {
     this._log.debug(
       "Beginning indexing " + aJob.items.length + " generic items"
     );
-    for (let item of aJob.items) {
+    for (const item of aJob.items) {
       this._log.debug("Indexing: " + item);
       yield aCallbackHandle.pushAndGo(
         Gloda.grokNounItem(
@@ -559,7 +559,7 @@ function Widget(inum, date, str, notability, text1, text2) {
 }
 Widget.prototype = {
   _clone() {
-    let clonus = new Widget(
+    const clonus = new Widget(
       this._inum,
       this._date,
       this._str,
@@ -570,8 +570,8 @@ Widget.prototype = {
     clonus._id = this._id;
     clonus._iAmAClone = true;
 
-    for (let key of Object.keys(this)) {
-      let value = this[key];
+    for (const key of Object.keys(this)) {
+      const value = this[key];
       if (key.startsWith("_")) {
         continue;
       }
@@ -585,8 +585,8 @@ Widget.prototype = {
   },
   _stash() {
     this._indexStash = {};
-    for (let key of Object.keys(this)) {
-      let value = this[key];
+    for (const key of Object.keys(this)) {
+      const value = this[key];
       if (key[0].startsWith("_")) {
         continue;
       }

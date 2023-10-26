@@ -45,7 +45,7 @@ class LDAPClient {
   }
 
   connect() {
-    let hostname = this._host.toLowerCase();
+    const hostname = this._host.toLowerCase();
     this._logger.debug(
       `Connecting to ${
         this._useSecureTransport ? "ldaps" : "ldap"
@@ -69,7 +69,7 @@ class LDAPClient {
    */
   bind(dn, password, callback) {
     this._logger.debug(`Binding ${dn}`);
-    let req = new BindRequest(dn || "", password || "");
+    const req = new BindRequest(dn || "", password || "");
     return this._send(req, callback);
   }
 
@@ -102,7 +102,7 @@ class LDAPClient {
       );
     }
     // getNextToken expects a base64 string.
-    let token = this._authModule.getNextToken(
+    const token = this._authModule.getNextToken(
       serverCredentials
         ? btoa(
             CommonUtils.arrayBufferToByteString(
@@ -112,8 +112,8 @@ class LDAPClient {
         : ""
     );
     // token is a base64 string, convert it to Uint8Array.
-    let credentials = CommonUtils.byteStringToArrayBuffer(atob(token));
-    let req = new BindRequest("", "", { mechanism, credentials });
+    const credentials = CommonUtils.byteStringToArrayBuffer(atob(token));
+    const req = new BindRequest("", "", { mechanism, credentials });
     return this._send(req, callback);
   }
 
@@ -138,7 +138,14 @@ class LDAPClient {
    */
   search(dn, scope, filter, attributes, timeout, limit, callback) {
     this._logger.debug(`Searching dn="${dn}" filter="${filter}"`);
-    let req = new SearchRequest(dn, scope, filter, attributes, timeout, limit);
+    const req = new SearchRequest(
+      dn,
+      scope,
+      filter,
+      attributes,
+      timeout,
+      limit
+    );
     return this._send(req, callback);
   }
 
@@ -150,7 +157,7 @@ class LDAPClient {
   abandon(messageId) {
     this._logger.debug(`Abandoning ${messageId}`);
     this._callbackMap.delete(messageId);
-    let req = new AbandonRequest(messageId);
+    const req = new AbandonRequest(messageId);
     this._send(req);
   }
 
@@ -179,7 +186,7 @@ class LDAPClient {
     let data = event.data;
     if (this._buffer) {
       // Concatenate left over data from the last event with the new data.
-      let arr = new Uint8Array(this._buffer.byteLength + data.byteLength);
+      const arr = new Uint8Array(this._buffer.byteLength + data.byteLength);
       arr.set(new Uint8Array(this._buffer));
       arr.set(new Uint8Array(data), this._buffer.byteLength);
       data = arr.buffer;
@@ -215,7 +222,7 @@ class LDAPClient {
       if (res.constructor.name == "SearchResultReference") {
         this._logger.debug("References=", res.result);
       }
-      let callback = this._callbackMap.get(res.messageId);
+      const callback = this._callbackMap.get(res.messageId);
       if (callback) {
         callback(res);
         if (
@@ -240,7 +247,7 @@ class LDAPClient {
    */
   _handleNextDataEvent() {
     this._processingData = false;
-    let next = this._dataEventsQueue.shift();
+    const next = this._dataEventsQueue.shift();
     if (next) {
       this._onData(next);
     }

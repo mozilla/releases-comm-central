@@ -37,7 +37,7 @@ class SmtpService {
    * @see nsISmtpService
    */
   get defaultServer() {
-    let defaultServerKey = Services.prefs.getCharPref(
+    const defaultServerKey = Services.prefs.getCharPref(
       "mail.smtp.defaultserver",
       ""
     );
@@ -86,11 +86,11 @@ class SmtpService {
     outRequest
   ) {
     this._logger.debug(`Sending message ${messageId}`);
-    let server = this.getServerByIdentity(userIdentity);
+    const server = this.getServerByIdentity(userIdentity);
     if (password) {
       server.password = password;
     }
-    let runningUrl = this._getRunningUri(server);
+    const runningUrl = this._getRunningUri(server);
     server.wrappedJSObject.withClient(client => {
       deliveryListener?.OnStartRunningUrl(runningUrl, 0);
       let fresh = true;
@@ -102,7 +102,7 @@ class SmtpService {
         }
         fresh = false;
         let from = sender;
-        let to = MailServices.headerParser
+        const to = MailServices.headerParser
           .parseEncodedHeaderW(decodeURIComponent(recipients))
           .map(rec => rec.email);
 
@@ -131,26 +131,26 @@ class SmtpService {
       };
       let socketOnDrain;
       client.onready = async () => {
-        let fstream = Cc[
+        const fstream = Cc[
           "@mozilla.org/network/file-input-stream;1"
         ].createInstance(Ci.nsIFileInputStream);
         // PR_RDONLY
         fstream.init(messageFile, 0x01, 0, 0);
 
-        let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-          Ci.nsIScriptableInputStream
-        );
+        const sstream = Cc[
+          "@mozilla.org/scriptableinputstream;1"
+        ].createInstance(Ci.nsIScriptableInputStream);
         sstream.init(fstream);
 
         let sentSize = 0;
-        let totalSize = messageFile.fileSize;
-        let progressListener = statusListener?.QueryInterface(
+        const totalSize = messageFile.fileSize;
+        const progressListener = statusListener?.QueryInterface(
           Ci.nsIWebProgressListener
         );
 
         while (sstream.available()) {
-          let chunk = sstream.read(65536);
-          let canSendMore = client.send(chunk);
+          const chunk = sstream.read(65536);
+          const canSendMore = client.send(chunk);
           if (!canSendMore) {
             // Socket buffer is full, wait for the ondrain event.
             await new Promise(resolve => (socketOnDrain = resolve));
@@ -207,9 +207,9 @@ class SmtpService {
    * @see nsISmtpService
    */
   verifyLogon(server, urlListener, msgWindow) {
-    let client = new lazy.SmtpClient(server);
+    const client = new lazy.SmtpClient(server);
     client.connect();
-    let runningUrl = this._getRunningUri(server);
+    const runningUrl = this._getRunningUri(server);
     client.onerror = (nsError, errorMessage, secInfo) => {
       runningUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
       if (secInfo) {
@@ -245,7 +245,7 @@ class SmtpService {
    * @see nsISmtpService
    */
   createServer() {
-    let serverKeys = this._getSmtpServerKeys();
+    const serverKeys = this._getSmtpServerKeys();
     let i = 1;
     let key;
     do {
@@ -262,7 +262,7 @@ class SmtpService {
    * @see nsISmtpService
    */
   deleteServer(server) {
-    let serverKeys = this._getSmtpServerKeys().filter(k => k != server.key);
+    const serverKeys = this._getSmtpServerKeys().filter(k => k != server.key);
     this._servers = this.servers.filter(s => s.key != server.key);
     this._saveSmtpServerKeys(serverKeys);
   }
@@ -312,7 +312,7 @@ class SmtpService {
    * @returns {nsISmtpServer}
    */
   _keyToServer(key) {
-    let server = Cc["@mozilla.org/messenger/smtp/server;1"].createInstance(
+    const server = Cc["@mozilla.org/messenger/smtp/server;1"].createInstance(
       Ci.nsISmtpServer
     );
     // Setting the server key will set up all of its other properties by
@@ -328,7 +328,7 @@ class SmtpService {
    * @returns {nsIURI}
    */
   _getRunningUri(server) {
-    let spec = server.serverURI + (server.port ? `:${server.port}` : "");
+    const spec = server.serverURI + (server.port ? `:${server.port}` : "");
     return Services.io.newURI(spec);
   }
 }

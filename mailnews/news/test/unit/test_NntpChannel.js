@@ -10,9 +10,9 @@ var { PromiseTestUtils } = ChromeUtils.import(
 let server;
 
 add_setup(function setup() {
-  let daemon = setupNNTPDaemon();
+  const daemon = setupNNTPDaemon();
   server = new nsMailServer(() => {
-    let handler = new NNTP_RFC977_handler(daemon);
+    const handler = new NNTP_RFC977_handler(daemon);
     // Test NntpClient works with 201 response.
     handler.onStartup = () => {
       return "201 posting prohibited";
@@ -32,18 +32,18 @@ add_setup(function setup() {
  */
 add_task(async function test_listIds() {
   // Init the uri and streamListener.
-  let uri = Services.io.newURI(
+  const uri = Services.io.newURI(
     `news://localhost:${NNTP_PORT}/test.filter?list-ids`
   );
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
 
   // Run the uri with NntpChannel.
-  let channel = new NntpChannel(uri);
+  const channel = new NntpChannel(uri);
   channel.asyncOpen(streamListener);
   await streamListener.promise;
 
   // Test LISTGROUP request was sent correctly.
-  let transaction = server.playTransaction();
+  const transaction = server.playTransaction();
   do_check_transaction(transaction, ["MODE READER", "LISTGROUP test.filter"]);
 });
 
@@ -54,18 +54,18 @@ add_task(async function test_fetchArticle() {
   _server.closeCachedConnections();
 
   // Init the uri and streamListener.
-  let uri = Services.io.newURI(
+  const uri = Services.io.newURI(
     `news://localhost:${NNTP_PORT}?group=test.filter&key=1`
   );
-  let streamListener = new PromiseTestUtils.PromiseStreamListener();
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
 
   // Run the uri with NntpChannel.
-  let channel = new NntpChannel(uri);
+  const channel = new NntpChannel(uri);
   channel.asyncOpen(streamListener);
   await streamListener.promise;
 
   // Test ARTICLE request was sent correctly.
-  let transaction = server.playTransaction();
+  const transaction = server.playTransaction();
   do_check_transaction(transaction, [
     "MODE READER",
     "GROUP test.filter",

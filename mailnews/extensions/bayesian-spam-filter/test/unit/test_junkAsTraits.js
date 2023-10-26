@@ -449,11 +449,11 @@ var traitListener = {
       Assert.equal(aTraits.length, 0);
     } else if (command == kClassJ || command == kClassT) {
       // classification just returns the tested "Pro" trait (junk)
-      let trait = aTraits[0];
+      const trait = aTraits[0];
       Assert.equal(trait, kJunkTrait);
     } else {
       // training returns the actual trait trained
-      let trait = aTraits[0];
+      const trait = aTraits[0];
       Assert.equal(trait, junkPercent < 90 ? kGoodTrait : kJunkTrait);
     }
 
@@ -553,13 +553,13 @@ function startCommand() {
 
     case kCounts:
       // test counts
-      let msgCount = {};
-      let nsIMsgCorpus = MailServices.junk.QueryInterface(Ci.nsIMsgCorpus);
-      let tokenCount = nsIMsgCorpus.corpusCounts(null, {});
+      const msgCount = {};
+      const nsIMsgCorpus = MailServices.junk.QueryInterface(Ci.nsIMsgCorpus);
+      const tokenCount = nsIMsgCorpus.corpusCounts(null, {});
       nsIMsgCorpus.corpusCounts(kJunkTrait, msgCount);
-      let junkCount = msgCount.value;
+      const junkCount = msgCount.value;
       nsIMsgCorpus.corpusCounts(kGoodTrait, msgCount);
-      let goodCount = msgCount.value;
+      const goodCount = msgCount.value;
       print(
         "tokenCount, junkCount, goodCount is " + tokenCount,
         junkCount,

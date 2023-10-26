@@ -56,15 +56,15 @@ add_task(async function test_fix_missing_contacts_and_fallout() {
 
   // - Create 4 e-mail addresses, 2 of which are in the address book.  (We want
   //    to make sure we have to iterate, hence >1).
-  let abPeeps = msgGen.makeNamesAndAddresses(2);
-  let nonAbPeeps = msgGen.makeNamesAndAddresses(2);
+  const abPeeps = msgGen.makeNamesAndAddresses(2);
+  const nonAbPeeps = msgGen.makeNamesAndAddresses(2);
   makeABCardForAddressPair(abPeeps[0]);
   makeABCardForAddressPair(abPeeps[1]);
 
   // - Create messages of the genres [from, to]: [inAB, inAB], [inAB, !inAB],
   //    [!inAB, inAB], [!inAB, !inAB].  The permutations are black box overkill.
   // Smear the messages over multiple folders for realism.
-  let [, yesyesMsgSet, yesnoMsgSet, noyesMsgSet, nonoMsgSet] =
+  const [, yesyesMsgSet, yesnoMsgSet, noyesMsgSet, nonoMsgSet] =
     await messageInjection.makeFoldersWithSets(3, [
       { count: 2, from: abPeeps[0], to: [abPeeps[1]] },
       { count: 2, from: abPeeps[1], to: nonAbPeeps },
@@ -73,7 +73,7 @@ add_task(async function test_fix_missing_contacts_and_fallout() {
     ]);
 
   // Union the yeses together; we don't care about their composition.
-  let yesMsgSet = yesyesMsgSet.union(yesnoMsgSet).union(noyesMsgSet),
+  const yesMsgSet = yesyesMsgSet.union(yesnoMsgSet).union(noyesMsgSet),
     noMsgSet = nonoMsgSet;
 
   // - Let gloda index the messages so the identities get created.
@@ -106,7 +106,7 @@ add_task(async function test_fix_missing_contacts_and_fallout() {
 
   // - Manually mark the messages involving the inAB people with the _old_ bad
   //    id marker so that our scan will see them.
-  for (let msgHdr of yesMsgSet.msgHdrs()) {
+  for (const msgHdr of yesMsgSet.msgHdrs()) {
     msgHdr.setUint32Property("gloda-id", GLODA_OLD_BAD_MESSAGE_ID);
   }
 

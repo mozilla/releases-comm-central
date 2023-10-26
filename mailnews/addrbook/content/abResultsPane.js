@@ -84,9 +84,9 @@ function SetAbView(aURI, aSearchQuery, aSearchString) {
 
   // If the selected address book is LDAP and the search box is empty,
   // inform the user of the empty results pane.
-  let abResultsTree = document.getElementById("abResultsTree");
-  let cardViewOuterBox = document.getElementById("CardViewOuterBox");
-  let blankResultsPaneMessageBox = document.getElementById(
+  const abResultsTree = document.getElementById("abResultsTree");
+  const cardViewOuterBox = document.getElementById("CardViewOuterBox");
+  const blankResultsPaneMessageBox = document.getElementById(
     "blankResultsPaneMessageBox"
   );
   if (aURI.startsWith("moz-abldapdirectory://") && !aSearchQuery) {
@@ -204,17 +204,17 @@ function GetSelectedAbCards() {
     return [];
   }
 
-  let cards = [];
+  const cards = [];
   var count = abView.selection.getRangeCount();
   for (let i = 0; i < count; ++i) {
-    let start = {};
-    let end = {};
+    const start = {};
+    const end = {};
 
     abView.selection.getRangeAt(i, start, end);
 
     for (let j = start.value; j <= end.value; ++j) {
       // avoid inserting null element into the list. GetRangeAt() may be buggy.
-      let tmp = abView.getCardFromRow(j);
+      const tmp = abView.getCardFromRow(j);
       if (tmp) {
         cards.push(tmp);
       }
@@ -389,7 +389,7 @@ var ResultsPaneController = {
         // cmd_print is currently only used in SeaMonkey.
         // Prevent printing when we don't have an opener (browserDOMWindow is
         // null).
-        let enabled = window.browserDOMWindow && GetNumSelectedCards() > 0;
+        const enabled = window.browserDOMWindow && GetNumSelectedCards() > 0;
         document.querySelectorAll("[command=cmd_print]").forEach(e => {
           e.disabled = !enabled;
         });
@@ -426,12 +426,12 @@ function updateDeleteControls(
   goSetAccessKey("cmd_delete", accessKeyAttribute);
 
   // The toolbar button doesn't update itself from the command. Do that now.
-  let button = document.getElementById("button-abdelete");
+  const button = document.getElementById("button-abdelete");
   if (!button) {
     return;
   }
 
-  let command = document.getElementById("cmd_delete");
+  const command = document.getElementById("cmd_delete");
   button.label = command.getAttribute("label");
   button.setAttribute(
     "tooltiptext",
@@ -473,7 +473,7 @@ function makeMimeAddressFromCard(card) {
 
   let email;
   if (card.isMailList) {
-    let directory = GetDirectoryFromURI(card.mailListURI);
+    const directory = GetDirectoryFromURI(card.mailListURI);
     email = directory.description || card.displayName;
   } else {
     email = card.emailAddresses[0];

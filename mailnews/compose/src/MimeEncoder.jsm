@@ -58,13 +58,13 @@ class MimeEncoder {
   pickEncoding() {
     this._analyzeBody();
 
-    let strictlyMime = Services.prefs.getBoolPref("mail.strictly_mime");
+    const strictlyMime = Services.prefs.getBoolPref("mail.strictly_mime");
     let needsB64 = false;
     let isUsingQP = false;
 
     // Allow users to override our percentage-wise guess on whether
     // the file is text or binary.
-    let forceB64 = Services.prefs.getBoolPref("mail.file_attach_binary");
+    const forceB64 = Services.prefs.getBoolPref("mail.file_attach_binary");
 
     // If the content-type is "image/" or something else known to be binary or
     // several flavors of newlines are present, use base64 unless we're attaching
@@ -110,7 +110,7 @@ class MimeEncoder {
         encodeP = false;
       }
 
-      let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+      const manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
         Ci.nsICharsetConverterManager
       );
       let isCharsetMultiByte = false;
@@ -195,8 +195,8 @@ class MimeEncoder {
     let prevCharWasCr = false;
 
     for (let i = 0; i < this._bodySize; i++) {
-      let ch = this._body.charAt(i);
-      let charCode = this._body.charCodeAt(i);
+      const ch = this._body.charAt(i);
+      const charCode = this._body.charCodeAt(i);
       if (charCode > 126) {
         this._highBitCount++;
         this._unPrintableCount++;
@@ -328,11 +328,11 @@ class MimeEncoder {
    * line width is no more than 72.
    */
   _encodeBase64() {
-    let encoded = btoa(this._body);
+    const encoded = btoa(this._body);
     let ret = "";
-    let length = encoded.length;
+    const length = encoded.length;
     let i = 0;
-    let limit = 72;
+    const limit = 72;
     while (true) {
       if (i * limit > length) {
         break;
@@ -348,12 +348,12 @@ class MimeEncoder {
    */
   _encodeQP() {
     let currentColumn = 0;
-    let hexdigits = "0123456789ABCDEF";
+    const hexdigits = "0123456789ABCDEF";
     let white = false;
     let out = "";
 
     function encodeChar(ch) {
-      let charCode = ch.charCodeAt(0);
+      const charCode = ch.charCodeAt(0);
       let ret = "=";
       ret += hexdigits[charCode >> 4];
       ret += hexdigits[charCode & 0xf];
@@ -361,8 +361,8 @@ class MimeEncoder {
     }
 
     for (let i = 0; i < this._bodySize; i++) {
-      let ch = this._body.charAt(i);
-      let charCode = this._body.charCodeAt(i);
+      const ch = this._body.charAt(i);
+      const charCode = this._body.charCodeAt(i);
       if (ch == "\r" || ch == "\n") {
         // If it's CRLF, swallow two chars instead of one.
         if (i + 1 < this._bodySize && ch == "\r" && this._body[i + 1] == "\n") {
@@ -372,7 +372,7 @@ class MimeEncoder {
         // Whitespace cannot be allowed to occur at the end of the line, so we
         // back up and replace the whitespace with its code.
         if (white) {
-          let whiteChar = out.slice(-1);
+          const whiteChar = out.slice(-1);
           out = out.slice(0, -1);
           out += encodeChar(whiteChar);
         }

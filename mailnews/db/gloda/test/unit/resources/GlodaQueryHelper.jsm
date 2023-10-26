@@ -77,7 +77,7 @@ class QueryExpectationListener {
   }
   onItemsAdded(aItems, aCollection) {
     log.debug("QueryExpectationListener onItemsAdded received.");
-    for (let item of aItems) {
+    for (const item of aItems) {
       let glodaStringRep;
       try {
         glodaStringRep = this.glodaExtractor(item);
@@ -119,7 +119,7 @@ class QueryExpectationListener {
           // If the order was wrong, we could probably go for an output of what
           //  we actually got...
           dump("Order Problem detected. Dump of data:\n");
-          for (let [iThing, thing] of aItems.entries()) {
+          for (const [iThing, thing] of aItems.entries()) {
             dump(
               iThing +
                 ": " +
@@ -167,8 +167,8 @@ class QueryExpectationListener {
     aCollection.becomeExplicit();
 
     // `expectedSet` should now be empty.
-    for (let key in this.expectedSet) {
-      let value = this.expectedSet[key];
+    for (const key in this.expectedSet) {
+      const value = this.expectedSet[key];
       this._reject(
         new Error(
           "Query should have returned:\n" +
@@ -267,8 +267,8 @@ async function queryExpect(
   }
 
   // - build the expected set
-  let expectedSet = {};
-  for (let item of aExpectedSet) {
+  const expectedSet = {};
+  for (const item of aExpectedSet) {
     try {
       expectedSet[aExpectedExtractor(item)] = item;
     } catch (ex) {
@@ -282,14 +282,14 @@ async function queryExpect(
   }
 
   // - create the listener...
-  let listener = new QueryExpectationListener(
+  const listener = new QueryExpectationListener(
     expectedSet,
     aGlodaExtractor,
     aOrderVerifier,
     Components.stack.caller
   );
   aQuery.args.push(listener);
-  let queryValue = aQuery.queryFunc.apply(aQuery.queryThis, aQuery.args);
+  const queryValue = aQuery.queryFunc.apply(aQuery.queryThis, aQuery.args);
   // Wait for the QueryListener to finish.
   await listener.promise;
   return queryValue;
@@ -302,13 +302,13 @@ async function queryExpect(
  * We run the statement asynchronously to get a consistent view of the database.
  */
 async function sqlRun(sql) {
-  let conn = GlodaDatastore.asyncConnection;
-  let stmt = conn.createAsyncStatement(sql);
+  const conn = GlodaDatastore.asyncConnection;
+  const stmt = conn.createAsyncStatement(sql);
   let rows = null;
 
   let promiseResolve;
   let promiseReject;
-  let promise = new Promise((resolve, reject) => {
+  const promise = new Promise((resolve, reject) => {
     promiseResolve = resolve;
     promiseReject = reject;
   });
@@ -344,16 +344,16 @@ async function sqlRun(sql) {
  * We run the statement asynchronously to get a consistent view of the database.
  */
 async function sqlExpectCount(aExpectedCount, aSQLString, ...params) {
-  let conn = GlodaDatastore.asyncConnection;
-  let stmt = conn.createStatement(aSQLString);
+  const conn = GlodaDatastore.asyncConnection;
+  const stmt = conn.createStatement(aSQLString);
 
   for (let iArg = 0; iArg < params.length; iArg++) {
     GlodaDatastore._bindVariant(stmt, iArg, params[iArg]);
   }
 
-  let desc = [aSQLString, ...params];
+  const desc = [aSQLString, ...params];
   // Running SQL count.
-  let listener = new SqlExpectationListener(
+  const listener = new SqlExpectationListener(
     aExpectedCount,
     desc,
     Components.stack.caller
@@ -378,7 +378,7 @@ class SqlExpectationListener {
     });
   }
   handleResult(aResultSet) {
-    let row = aResultSet.getNextRow();
+    const row = aResultSet.getNextRow();
     if (!row) {
       this._reject(
         new Error(

@@ -600,7 +600,7 @@ function testSearch() {
   if (test && test.dbHeader) {
     //  test of a custom db header
     dump("testing dbHeader " + test.dbHeader + "\n");
-    let customValue = mailTestUtils
+    const customValue = mailTestUtils
       .firstMsgHdr(localAccountUtils.inboxFolder)
       .getStringProperty(test.dbHeader);
     Assert.equal(customValue, test.testString);

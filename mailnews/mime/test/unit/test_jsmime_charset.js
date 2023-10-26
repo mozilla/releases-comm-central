@@ -29,7 +29,7 @@ var tests = [
 ];
 
 function run_test() {
-  for (let test of tests) {
+  for (const test of tests) {
     dump("Testing message " + test[0]);
     let value = test[0];
     if (test.length > 2) {

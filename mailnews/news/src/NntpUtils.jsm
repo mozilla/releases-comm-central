@@ -31,19 +31,19 @@ var NntpUtils = {
    * @returns {nsINntpIncomingServer|null}
    */
   findServer(hostname) {
-    let branch = Services.prefs.getBranch("mail.server.");
+    const branch = Services.prefs.getBranch("mail.server.");
 
     // Collect all the server keys.
-    let keySet = new Set();
-    for (let name of branch.getChildList("")) {
+    const keySet = new Set();
+    for (const name of branch.getChildList("")) {
       keySet.add(name.split(".")[0]);
     }
 
     // Find the NNTP server that matches the hostname.
     hostname = hostname.toLowerCase();
-    for (let key of keySet) {
-      let type = branch.getCharPref(`${key}.type`, "");
-      let hostnameValue = branch
+    for (const key of keySet) {
+      const type = branch.getCharPref(`${key}.type`, "");
+      const hostnameValue = branch
         .getCharPref(`${key}.hostname`, "")
         .toLowerCase();
       if (type == "nntp" && hostnameValue == hostname) {

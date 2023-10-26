@@ -17,7 +17,7 @@ var gTestArray = [
       Ci.nsIMsgDBService
     );
     // Get the root folder
-    let root = localAccountUtils.incomingServer.rootFolder;
+    const root = localAccountUtils.incomingServer.rootFolder;
     root.createSubfolder("dbTest", null);
     gTestFolder = root.getChildNamed("dbTest");
     let db = dbService.openFolderDB(gTestFolder, true);

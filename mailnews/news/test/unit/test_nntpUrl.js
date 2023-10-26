@@ -11,7 +11,7 @@ var { MailServices } = ChromeUtils.import(
 );
 
 function getMessageHeaderFromUrl(aUrl) {
-  let msgUrl = Services.io.newURI(aUrl).QueryInterface(Ci.nsIMsgMessageUrl);
+  const msgUrl = Services.io.newURI(aUrl).QueryInterface(Ci.nsIMsgMessageUrl);
   return msgUrl.messageHeader;
 }
 

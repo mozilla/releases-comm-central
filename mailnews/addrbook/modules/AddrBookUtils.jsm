@@ -35,14 +35,14 @@ function newUID() {
   return Services.uuid.generateUUID().toString().substring(1, 37);
 }
 
-let abSortOrder = {
+const abSortOrder = {
   [Ci.nsIAbManager.JS_DIRECTORY_TYPE]: 1,
   [Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE]: 2,
   [Ci.nsIAbManager.LDAP_DIRECTORY_TYPE]: 3,
   [Ci.nsIAbManager.ASYNC_DIRECTORY_TYPE]: 3,
   [Ci.nsIAbManager.MAPI_DIRECTORY_TYPE]: 4,
 };
-let abNameComparer = new Intl.Collator(undefined, { numeric: true });
+const abNameComparer = new Intl.Collator(undefined, { numeric: true });
 
 /**
  * Comparator for address books. Any UI that lists address books should use
@@ -70,8 +70,8 @@ function compareAddressBooks(a, b) {
   }
 
   // The Personal Address Book is first and Collected Addresses last.
-  let aPrefId = a.dirPrefId;
-  let bPrefId = b.dirPrefId;
+  const aPrefId = a.dirPrefId;
+  const bPrefId = b.dirPrefId;
 
   if (aPrefId == "ldap_2.servers.pab" || bPrefId == "ldap_2.servers.history") {
     return -1;
@@ -81,8 +81,8 @@ function compareAddressBooks(a, b) {
   }
 
   // Order remaining directories by type.
-  let aType = a.dirType;
-  let bType = b.dirType;
+  const aType = a.dirType;
+  const bType = b.dirType;
 
   if (aType != bType) {
     return abSortOrder[aType] - abSortOrder[bType];
@@ -152,7 +152,7 @@ var AddrBookUtils = {
       // Some Windows applications (notably Outlook) still don't understand
       // UTF-8 encoding when importing address books and instead use the current
       // operating system encoding. We can get that encoding from the registry.
-      let registryKey = Cc[
+      const registryKey = Cc[
         "@mozilla.org/windows-registry-key;1"
       ].createInstance(Ci.nsIWindowsRegKey);
       registryKey.open(
@@ -160,7 +160,7 @@ var AddrBookUtils = {
         "SYSTEM\\CurrentControlSet\\Control\\Nls\\CodePage",
         Ci.nsIWindowsRegKey.ACCESS_READ
       );
-      let acpValue = registryKey.readStringValue("ACP");
+      const acpValue = registryKey.readStringValue("ACP");
 
       // This data converts the registry key value into encodings that
       // nsIConverterOutputStream understands. It is from
@@ -207,14 +207,14 @@ var AddrBookUtils = {
         }[acpValue] || systemCharset;
     }
 
-    let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
+    const filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
     );
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/addressbook/addressBook.properties"
     );
 
-    let title = bundle.formatStringFromName("ExportAddressBookNameTitle", [
+    const title = bundle.formatStringFromName("ExportAddressBookNameTitle", [
       directory.dirName,
     ]);
     filePicker.init(Services.ww.activeWindow, title, Ci.nsIFilePicker.modeSave);
@@ -223,7 +223,7 @@ var AddrBookUtils = {
     let filterString;
     // Since the list of file picker filters isn't fixed, keep track of which
     // ones are added, so we can use them in the switch block below.
-    let activeFilters = [];
+    const activeFilters = [];
 
     // CSV
     if (systemCharset != "utf-8") {
@@ -255,7 +255,7 @@ var AddrBookUtils = {
     filePicker.appendFilter(filterString, "*.ldi; *.ldif");
     activeFilters.push("LDIFFiles");
 
-    let rv = await new Promise(resolve => filePicker.open(resolve));
+    const rv = await new Promise(resolve => filePicker.open(resolve));
     if (
       rv == Ci.nsIFilePicker.returnCancel ||
       !filePicker.file ||
@@ -270,8 +270,8 @@ var AddrBookUtils = {
       }
     }
 
-    let exportFile = filePicker.file.clone();
-    let leafName = exportFile.leafName;
+    const exportFile = filePicker.file.clone();
+    const leafName = exportFile.leafName;
     let output = "";
     let charset = "utf-8";
 
@@ -312,11 +312,11 @@ var AddrBookUtils = {
       await IOUtils.writeUTF8(exportFile.path, output);
     } else {
       // Main thread file IO!
-      let outputFileStream = Cc[
+      const outputFileStream = Cc[
         "@mozilla.org/network/file-output-stream;1"
       ].createInstance(Ci.nsIFileOutputStream);
       outputFileStream.init(exportFile, -1, -1, 0);
-      let outputStream = Cc[
+      const outputStream = Cc[
         "@mozilla.org/intl/converter-output-stream;1"
       ].createInstance(Ci.nsIConverterOutputStream);
       outputStream.init(outputFileStream, charset);
@@ -331,12 +331,12 @@ var AddrBookUtils = {
     );
   },
   exportDirectoryToDelimitedText(directory, delimiter) {
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/importMsgs.properties"
     );
     let output = "";
     for (let i = 0; i < exportAttributes.length; i++) {
-      let [, plainTextStringID] = exportAttributes[i];
+      const [, plainTextStringID] = exportAttributes[i];
       if (plainTextStringID != 0) {
         if (i != 0) {
           output += delimiter;
@@ -345,17 +345,17 @@ var AddrBookUtils = {
       }
     }
     output += LINEBREAK;
-    for (let card of directory.childCards) {
+    for (const card of directory.childCards) {
       if (card.isMailList) {
         // .tab, .txt and .csv aren't able to export mailing lists.
         // Use LDIF for that.
         continue;
       }
-      let propertyMap = card.supportsVCard
+      const propertyMap = card.supportsVCard
         ? card.vCardProperties.toPropertyMap()
         : null;
       for (let i = 0; i < exportAttributes.length; i++) {
-        let [abPropertyName, plainTextStringID] = exportAttributes[i];
+        const [abPropertyName, plainTextStringID] = exportAttributes[i];
         if (plainTextStringID == 0) {
           continue;
         }
@@ -406,7 +406,7 @@ var AddrBookUtils = {
       ) {
         // Convert 16bit JavaScript string to a byteString, to make it work with
         // btoa().
-        let byteString = MailStringUtils.stringToByteString(value);
+        const byteString = MailStringUtils.stringToByteString(value);
         output += name + ":: " + btoa(byteString) + LINEBREAK;
       } else {
         output += name + ": " + value + LINEBREAK;
@@ -430,11 +430,11 @@ var AddrBookUtils = {
     }
 
     let output = "";
-    let attrMap = lazy.attrMapService.getMapForPrefBranch(
+    const attrMap = lazy.attrMapService.getMapForPrefBranch(
       "ldap_2.servers.default.attrmap"
     );
 
-    for (let card of directory.childCards) {
+    for (const card of directory.childCards) {
       if (card.isMailList) {
         appendDNForCard("dn", card, attrMap);
         appendProperty("objectclass", "top");
@@ -455,8 +455,8 @@ var AddrBookUtils = {
             card.getProperty("Notes", "")
           );
         }
-        let listAsDirectory = MailServices.ab.getDirectory(card.mailListURI);
-        for (let childCard of listAsDirectory.childCards) {
+        const listAsDirectory = MailServices.ab.getDirectory(card.mailListURI);
+        for (const childCard of listAsDirectory.childCards) {
           appendDNForCard("member", childCard, attrMap);
         }
       } else {
@@ -467,11 +467,11 @@ var AddrBookUtils = {
         appendProperty("objectclass", "inetOrgPerson");
         appendProperty("objectclass", "mozillaAbPersonAlpha");
 
-        let propertyMap = card.supportsVCard
+        const propertyMap = card.supportsVCard
           ? card.vCardProperties.toPropertyMap()
           : null;
-        for (let [abPropertyName] of exportAttributes) {
-          let attrName = attrMap.getFirstAttribute(abPropertyName);
+        for (const [abPropertyName] of exportAttributes) {
+          const attrName = attrMap.getFirstAttribute(abPropertyName);
           if (attrName) {
             let attrValue;
             if (propertyMap) {
@@ -491,7 +491,7 @@ var AddrBookUtils = {
   },
   exportDirectoryToVCard(directory) {
     let output = "";
-    for (let card of directory.childCards) {
+    for (const card of directory.childCards) {
       if (!card.isMailList) {
         // We don't know how to export mailing lists to vcf.
         // Use LDIF for that.

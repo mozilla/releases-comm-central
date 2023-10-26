@@ -10,7 +10,7 @@
 function checkLists(childNodes, number) {
   let count = 0;
   // See comment above for matching requirements
-  for (let list of childNodes) {
+  for (const list of childNodes) {
     if (list.isMailList && list.dirName.startsWith("TestList")) {
       Assert.equal(list.URI, `${kPABData.URI}/${list.UID}`);
       count++;
@@ -29,7 +29,7 @@ function run_test() {
   // lists need help initialising themselves
   MailServices.ab.directories;
 
-  let AB = MailServices.ab.getDirectory(kPABData.URI);
+  const AB = MailServices.ab.getDirectory(kPABData.URI);
 
   // Test - Check all the expected mailing lists exist.
 

@@ -31,14 +31,14 @@ export class NewsDownloader {
    */
   async start() {
     this._logger.debug("Start downloading articles for offline use");
-    let servers = MailServices.accounts.allServers.filter(
+    const servers = MailServices.accounts.allServers.filter(
       x => x.type == "nntp"
     );
     // Download all servers concurrently.
     await Promise.all(
       servers.map(async server => {
-        let folders = server.rootFolder.descendants;
-        for (let folder of folders) {
+        const folders = server.rootFolder.descendants;
+        for (const folder of folders) {
           if (folder.flags & Ci.nsMsgFolderFlags.Offline) {
             // Download newsgroups set for offline use in a server one by one.
             await this._downloadFolder(folder);
@@ -62,11 +62,11 @@ export class NewsDownloader {
     this._logger.debug(`Start downloading ${folder.URI}`);
 
     folder.QueryInterface(Ci.nsIMsgNewsFolder).saveArticleOffline = true;
-    let keysToDownload = await this._getKeysToDownload(folder);
+    const keysToDownload = await this._getKeysToDownload(folder);
 
     let i = 0;
-    let total = keysToDownload.size;
-    for (let key of keysToDownload) {
+    const total = keysToDownload.size;
+    for (const key of keysToDownload) {
       await new Promise(resolve => {
         MailServices.nntp.fetchMessage(folder, key, this._msgWindow, null, {
           OnStartRunningUrl() {},
@@ -95,12 +95,12 @@ export class NewsDownloader {
    * @returns {Set<number>}
    */
   async _getKeysToDownload(folder) {
-    let searchSession = Cc[
+    const searchSession = Cc[
       "@mozilla.org/messenger/searchSession;1"
     ].createInstance(Ci.nsIMsgSearchSession);
-    let termValue = searchSession.createTerm().value;
+    const termValue = searchSession.createTerm().value;
 
-    let downloadSettings = folder.downloadSettings;
+    const downloadSettings = folder.downloadSettings;
     if (downloadSettings.downloadUnreadOnly) {
       termValue.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
       termValue.status = Ci.nsMsgMessageFlags.Read;
@@ -133,7 +133,7 @@ export class NewsDownloader {
       null
     );
 
-    let keysToDownload = new Set();
+    const keysToDownload = new Set();
     await new Promise(resolve => {
       searchSession.registerListener(
         {

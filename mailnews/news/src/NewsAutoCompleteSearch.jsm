@@ -80,7 +80,7 @@ NewsAutoCompleteSearch.prototype = {
    * @returns The incoming news server (or null if one does not exist).
    */
   _findServer(accountKey) {
-    let account = MailServices.accounts.getAccount(accountKey);
+    const account = MailServices.accounts.getAccount(accountKey);
 
     if (account.incomingServer.type == "nntp") {
       return account.incomingServer;
@@ -90,8 +90,8 @@ NewsAutoCompleteSearch.prototype = {
 
   // nsIAutoCompleteSearch
   startSearch(aSearchString, aSearchParam, aPreviousResult, aListener) {
-    let params = aSearchParam ? JSON.parse(aSearchParam) : {};
-    let result = new NewsAutoCompleteResult(aSearchString);
+    const params = aSearchParam ? JSON.parse(aSearchParam) : {};
+    const result = new NewsAutoCompleteResult(aSearchString);
     if (
       !("type" in params) ||
       !("accountKey" in params) ||
@@ -108,7 +108,7 @@ NewsAutoCompleteSearch.prototype = {
     }
 
     if (this.cachedServer) {
-      for (let curr of this.cachedServer.rootFolder.subFolders) {
+      for (const curr of this.cachedServer.rootFolder.subFolders) {
         if (curr.prettyName.includes(aSearchString)) {
           result._searchResults.push({
             value: curr.prettyName,

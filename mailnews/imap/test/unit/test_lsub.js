@@ -38,7 +38,7 @@ add_setup(async function () {
   IMAPPump.daemon.createMailbox("folder3", {});
 
   // select the inbox to force folder discovery, etc.
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
@@ -47,13 +47,13 @@ add_setup(async function () {
 add_task(function testLsub() {
   // Check that we have \Noselect and \Noinferiors flags - these would not have
   // been returned if we had used LSUB instead of LIST(SUBSCRIBED).
-  let rootFolder = IMAPPump.incomingServer.rootFolder;
-  let folder1 = rootFolder.getChildNamed("folder1");
+  const rootFolder = IMAPPump.incomingServer.rootFolder;
+  const folder1 = rootFolder.getChildNamed("folder1");
   Assert.ok(folder1.getFlag(Ci.nsMsgFolderFlags.ImapNoselect));
   Assert.ok(!folder1.getFlag(Ci.nsMsgFolderFlags.ImapNoinferiors));
 
   // Make sure the above test was not a fluke.
-  let folder11 = folder1.getChildNamed("folder11");
+  const folder11 = folder1.getChildNamed("folder11");
   Assert.ok(!folder11.getFlag(Ci.nsMsgFolderFlags.ImapNoselect));
   Assert.ok(folder11.getFlag(Ci.nsMsgFolderFlags.ImapNoinferiors));
 

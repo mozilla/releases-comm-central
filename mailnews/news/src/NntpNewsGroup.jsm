@@ -60,7 +60,7 @@ class NntpNewsGroup {
         .filter(Boolean)
     );
 
-    let groupInfo = this._db.dBFolderInfo;
+    const groupInfo = this._db.dBFolderInfo;
     if (groupInfo) {
       if (lastPossible < groupInfo.highWater) {
         groupInfo.highWater = lastPossible;
@@ -74,10 +74,10 @@ class NntpNewsGroup {
       );
     }
     if (this._knownKeySet.has(lastPossible)) {
-      let bundle = Services.strings.createBundle(
+      const bundle = Services.strings.createBundle(
         "chrome://messenger/locale/news.properties"
       );
-      let messengerBundle = Services.strings.createBundle(
+      const messengerBundle = Services.strings.createBundle(
         "chrome://messenger/locale/messenger.properties"
       );
       msgWindow?.statusFeedback.showStatusString(
@@ -102,7 +102,7 @@ class NntpNewsGroup {
         this._server.notifyOn
       ) {
         // Show a dialog to let user decide how many articles to download.
-        let args = Cc[
+        const args = Cc[
           "@mozilla.org/messenger/newsdownloaddialogargs;1"
         ].createInstance(Ci.nsINewsDownloadDialogArgs);
         args.articleCount = end - start + 1;
@@ -138,7 +138,7 @@ class NntpNewsGroup {
    * @param {string} subject - The unprocessed subject
    */
   setSubject(msgHdr, subject) {
-    let prefixes = Services.prefs
+    const prefixes = Services.prefs
       .getComplexValue("mailnews.localizedRe", Ci.nsIPrefLocalizedString)
       .data.split(",")
       .filter(Boolean);
@@ -146,7 +146,7 @@ class NntpNewsGroup {
       prefixes.push("Re");
     }
     // Construct a regular expression like this: ^(Re: |Aw: )+
-    let newSubject = subject.replace(
+    const newSubject = subject.replace(
       new RegExp(`^(${prefixes.join(": |")}: )+`, "i"),
       ""
     );
@@ -162,11 +162,11 @@ class NntpNewsGroup {
    * @param {string} line - An XOVER response line.
    */
   processXOverLine(line) {
-    let parts = line.split("\t");
+    const parts = line.split("\t");
     if (parts.length < 8) {
       return;
     }
-    let [
+    const [
       articleNumber,
       subject,
       from,
@@ -176,7 +176,7 @@ class NntpNewsGroup {
       bytes,
       lines,
     ] = parts;
-    let msgHdr = this._db.createNewHdr(articleNumber);
+    const msgHdr = this._db.createNewHdr(articleNumber);
     msgHdr.orFlags(Ci.nsMsgMessageFlags.New);
     this.setSubject(msgHdr, subject);
     msgHdr.author = from;
@@ -200,7 +200,7 @@ class NntpNewsGroup {
    */
   finishProcessingXOver() {
     this._runFilters();
-    let groupInfo = this._db.dBFolderInfo;
+    const groupInfo = this._db.dBFolderInfo;
     if (groupInfo) {
       groupInfo.knownArtsSet = this._knownKeySet.toString();
     }
@@ -222,10 +222,10 @@ class NntpNewsGroup {
    * @param {string} line - A XHDR response line.
    */
   processXHdrLine(header, line) {
-    let spaceIndex = line.indexOf(" ");
-    let articleNumber = line.slice(0, spaceIndex);
-    let value = line.slice(spaceIndex).trim();
-    let msgHdr = this._db.getMsgHdrForKey(articleNumber);
+    const spaceIndex = line.indexOf(" ");
+    const articleNumber = line.slice(0, spaceIndex);
+    const value = line.slice(spaceIndex).trim();
+    const msgHdr = this._db.getMsgHdrForKey(articleNumber);
     msgHdr.setStringProperty(header, value);
   }
 
@@ -250,9 +250,9 @@ class NntpNewsGroup {
    * @param {string} line - A HEAD response line.
    */
   processHeadLine(line) {
-    let colonIndex = line.indexOf(":");
-    let name = line.slice(0, colonIndex);
-    let value = line.slice(colonIndex + 1).trim();
+    const colonIndex = line.indexOf(":");
+    const name = line.slice(0, colonIndex);
+    const value = line.slice(colonIndex + 1).trim();
     switch (name) {
       case "from":
         this._msgHdr.author = value;
@@ -287,16 +287,16 @@ class NntpNewsGroup {
    * Run filters to all newly added msg hdrs.
    */
   _runFilters() {
-    let folderFilterCount = this._folderFilterList.filterCount;
-    let serverFilterCount = this._serverFilterList.filterCount;
+    const folderFilterCount = this._folderFilterList.filterCount;
+    const serverFilterCount = this._serverFilterList.filterCount;
 
-    for (let msgHdr of this._msgHdrs) {
+    for (const msgHdr of this._msgHdrs) {
       this._filteringHdr = msgHdr;
       this._addHdrToDB = true;
       let headers = "";
       if (folderFilterCount || serverFilterCount) {
-        let author = this._filteringHdr.author;
-        let subject = this._filteringHdr.subject;
+        const author = this._filteringHdr.author;
+        const subject = this._filteringHdr.subject;
         if (author) {
           headers += `From: ${author}\0`;
         }
@@ -343,10 +343,10 @@ class NntpNewsGroup {
    * @see nsIMsgFilterHitNotify
    */
   applyFilterHit(filter, msgWindow) {
-    let loggingEnabled = filter.filterList.loggingEnabled;
+    const loggingEnabled = filter.filterList.loggingEnabled;
     let applyMore = true;
 
-    for (let action of filter.sortedActionList) {
+    for (const action of filter.sortedActionList) {
       if (loggingEnabled) {
         filter.logRuleHit(action, this._filteringHdr);
       }

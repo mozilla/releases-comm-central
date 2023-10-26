@@ -13,20 +13,20 @@ function run_test() {
     return;
   }
 
-  let abCountBeforeStart = MailServices.ab.directories.length;
+  const abCountBeforeStart = MailServices.ab.directories.length;
 
   // Test - Create an LDAP directory
-  let abUri = MailServices.ab.newAddressBook(
+  const abUri = MailServices.ab.newAddressBook(
     "test",
     kLDAPTestSpec,
     Ci.nsIAbManager.LDAP_DIRECTORY_TYPE
   );
 
-  let abCountAfterCreate = MailServices.ab.directories.length;
+  const abCountAfterCreate = MailServices.ab.directories.length;
   Assert.equal(abCountAfterCreate, abCountBeforeStart + 1);
 
   // Test - Check we have the directory.
-  let abDir = MailServices.ab
+  const abDir = MailServices.ab
     .getDirectory(kLDAPUriPrefix + abUri)
     .QueryInterface(Ci.nsIAbLDAPDirectory);
 
@@ -43,7 +43,7 @@ function run_test() {
   // Test - searchDuringLocalAutocomplete
 
   // Set up an account and identity in the account manager
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
 
   const localAcTests = [
     // Online checks
@@ -200,6 +200,6 @@ function run_test() {
 
   MailServices.ab.deleteAddressBook(abDir.URI);
 
-  let abCountAfterDelete = MailServices.ab.directories.length;
+  const abCountAfterDelete = MailServices.ab.directories.length;
   Assert.equal(abCountAfterDelete, abCountBeforeStart);
 }

@@ -79,7 +79,7 @@ var doTestingListener = {
 
     // Have we completed a classification? If so, test
     if (haveClassification) {
-      let test = tests.shift();
+      const test = tests.shift();
       Assert.equal(getSpec(test.fileName), aMsgURI);
       Assert.equal(test.junkPercent, aJunkPercent);
     }

@@ -16,7 +16,7 @@ var aliases = [
 ];
 
 function run_test() {
-  let converter = CreateScriptableConverter();
+  const converter = CreateScriptableConverter();
   converter.isInternal = true;
   for (let i = 0; i < aliases.length; ++i) {
     checkEncode(converter, aliases[i], inString, expectedString);

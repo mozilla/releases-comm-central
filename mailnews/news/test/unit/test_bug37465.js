@@ -9,15 +9,15 @@ var { MailServices } = ChromeUtils.import(
 );
 
 add_task(async function textChannelAsync() {
-  let daemon = setupNNTPDaemon();
-  let server = makeServer(NNTP_RFC2980_handler, daemon);
+  const daemon = setupNNTPDaemon();
+  const server = makeServer(NNTP_RFC2980_handler, daemon);
   server.start();
 
   // Correct URI?
-  let uri = Services.io.newURI(
+  const uri = Services.io.newURI(
     "news://localhost:" + server.port + "/1@regular.invalid"
   );
-  let newsUri = uri
+  const newsUri = uri
     .QueryInterface(Ci.nsINntpUrl)
     .QueryInterface(Ci.nsIMsgMailNewsUrl);
   Assert.equal(uri.port, server.port);
@@ -26,7 +26,7 @@ add_task(async function textChannelAsync() {
   Assert.equal(newsUri.folder, null);
 
   // Run the URI and make sure we get the message
-  let channel = Services.io.newChannelFromURI(
+  const channel = Services.io.newChannelFromURI(
     uri,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
@@ -34,9 +34,9 @@ add_task(async function textChannelAsync() {
     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
     Ci.nsIContentPolicy.TYPE_OTHER
   );
-  let listener = new PromiseTestUtils.PromiseStreamListener();
+  const listener = new PromiseTestUtils.PromiseStreamListener();
   channel.asyncOpen(listener, null);
-  let msgText = await listener.promise;
+  const msgText = await listener.promise;
   // Correct text? (original file uses LF only, so strip CR)
   Assert.equal(
     msgText.replaceAll("\r", ""),

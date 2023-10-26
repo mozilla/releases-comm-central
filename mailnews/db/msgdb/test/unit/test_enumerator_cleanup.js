@@ -13,7 +13,7 @@ var anyOldMessage = do_get_file("../../../../data/bugmail1");
  */
 function test_enumerator_cleanup() {
   let db = localAccountUtils.inboxFolder.msgDatabase;
-  let enumerator = db.enumerateMessages();
+  const enumerator = db.enumerateMessages();
   Cc["@mozilla.org/msgDatabase/msgDBService;1"]
     .getService(Ci.nsIMsgDBService)
     .forceFolderDBClosed(localAccountUtils.inboxFolder);

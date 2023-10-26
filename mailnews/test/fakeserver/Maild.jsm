@@ -203,7 +203,7 @@ class nsMailServer {
     this._socket.close();
     this._socket = null;
 
-    for (let reader of this._readers) {
+    for (const reader of this._readers) {
       reader._realCloseSocket();
     }
 
@@ -212,7 +212,7 @@ class nsMailServer {
     }
 
     // spin an event loop and wait for the socket-close notification
-    let thr = Services.tm.currentThread;
+    const thr = Services.tm.currentThread;
     while (!this._socketClosed) {
       // Don't wait for the next event, just in case there isn't one.
       thr.processNextEvent(false);
@@ -253,7 +253,7 @@ class nsMailServer {
   performTest(watchWord) {
     this._watchWord = watchWord;
 
-    let thread = Services.tm.currentThread;
+    const thread = Services.tm.currentThread;
     while (!this.isTestFinished()) {
       thread.processNextEvent(false);
     }
@@ -449,7 +449,7 @@ class nsMailReader {
           // Find the command and splice it out...
           var splitter = line.indexOf(" ");
           command = splitter == -1 ? line : line.substring(0, splitter);
-          let args = splitter == -1 ? "" : line.substring(splitter + 1);
+          const args = splitter == -1 ? "" : line.substring(splitter + 1);
 
           // By convention, commands are uppercase
           command = command.toUpperCase();

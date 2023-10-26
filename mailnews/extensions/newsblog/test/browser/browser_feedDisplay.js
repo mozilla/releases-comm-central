@@ -29,7 +29,7 @@ add_task(async () => {
   }
 
   /** @implements {nsIExternalProtocolService} */
-  let mockExternalProtocolService = {
+  const mockExternalProtocolService = {
     QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
     _loadedURLs: [],
     loadURI(uri, windowContext) {
@@ -43,7 +43,7 @@ add_task(async () => {
     },
   };
 
-  let mockExternalProtocolServiceCID = MockRegistrar.register(
+  const mockExternalProtocolServiceCID = MockRegistrar.register(
     "@mozilla.org/uriloader/external-protocol-service;1",
     mockExternalProtocolService
   );
@@ -56,19 +56,19 @@ add_task(async () => {
     Services.focus.focusedWindow = about3Pane;
   });
 
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
-  let { folderTree, threadTree, messageBrowser } = about3Pane;
-  let menu = about3Pane.document.getElementById("folderPaneContext");
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
+  const { folderTree, threadTree, messageBrowser } = about3Pane;
+  const menu = about3Pane.document.getElementById("folderPaneContext");
   let menuItem = about3Pane.document.getElementById(
     "folderPaneContext-subscribe"
   );
   // Not `currentAboutMessage` as that's null right now.
-  let aboutMessage = messageBrowser.contentWindow;
-  let messagePane = aboutMessage.getMessagePaneBrowser();
+  const aboutMessage = messageBrowser.contentWindow;
+  const messagePane = aboutMessage.getMessagePaneBrowser();
 
-  let account = MailServices.accounts.getAccount("account1");
-  let rootFolder = account.incomingServer.rootFolder;
+  const account = MailServices.accounts.getAccount("account1");
+  const rootFolder = account.incomingServer.rootFolder;
   about3Pane.displayFolder(rootFolder.URI);
   let index = about3Pane.folderTree.selectedIndex;
   Assert.equal(index, 0);
@@ -78,16 +78,16 @@ add_task(async () => {
   await shownPromise;
 
   let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://messenger-newsblog/content/feed-subscriptions.xhtml",
     {
       async callback(dialogWindow) {
-        let dialogDocument = dialogWindow.document;
+        const dialogDocument = dialogWindow.document;
 
-        let list = dialogDocument.getElementById("rssSubscriptionsList");
-        let locationInput = dialogDocument.getElementById("locationValue");
-        let addFeedButton = dialogDocument.getElementById("addFeed");
+        const list = dialogDocument.getElementById("rssSubscriptionsList");
+        const locationInput = dialogDocument.getElementById("locationValue");
+        const addFeedButton = dialogDocument.getElementById("addFeed");
 
         await BrowserTestUtils.waitForEvent(list, "select");
 
@@ -102,7 +102,7 @@ add_task(async () => {
         // There's no good way to know if we're ready to continue.
         await new Promise(r => dialogWindow.setTimeout(r, 250));
 
-        let hiddenPromise = BrowserTestUtils.waitForAttribute(
+        const hiddenPromise = BrowserTestUtils.waitForAttribute(
           "hidden",
           addFeedButton,
           "true"
@@ -121,7 +121,7 @@ add_task(async () => {
   menu.activateItem(menuItem);
   await Promise.all([hiddenPromise, dialogPromise]);
 
-  let folder = rootFolder.subFolders.find(f => f.name == "Test Feed");
+  const folder = rootFolder.subFolders.find(f => f.name == "Test Feed");
   Assert.ok(folder);
 
   about3Pane.displayFolder(folder.URI);
@@ -136,15 +136,15 @@ add_task(async () => {
 
   Assert.notEqual(messagePane.currentURI.spec, "about:blank");
   await SpecialPowers.spawn(messagePane, [], () => {
-    let doc = content.document;
+    const doc = content.document;
 
-    let p = doc.querySelector("p");
+    const p = doc.querySelector("p");
     Assert.equal(p.textContent, "This is the description.");
 
     let style = content.getComputedStyle(doc.body);
     Assert.equal(style.backgroundColor, "rgba(0, 0, 0, 0)");
 
-    let noscript = doc.querySelector("noscript");
+    const noscript = doc.querySelector("noscript");
     style = content.getComputedStyle(noscript);
     Assert.equal(style.display, "inline");
   });
@@ -188,15 +188,15 @@ add_task(async () => {
   await loadedPromise;
 
   await SpecialPowers.spawn(messagePane, [], () => {
-    let doc = content.document;
+    const doc = content.document;
 
-    let p = doc.querySelector("p");
+    const p = doc.querySelector("p");
     Assert.equal(p.textContent, "This is the article.");
 
     let style = content.getComputedStyle(doc.body);
     Assert.equal(style.backgroundColor, "rgb(0, 128, 0)");
 
-    let noscript = doc.querySelector("noscript");
+    const noscript = doc.querySelector("noscript");
     style = content.getComputedStyle(noscript);
     Assert.equal(style.display, "none");
   });
@@ -217,7 +217,7 @@ add_task(async () => {
   await shownPromise;
 
   hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-  let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   menuItem = about3Pane.document.getElementById("folderPaneContext-remove");
   menu.activateItem(menuItem);
   await Promise.all([hiddenPromise, promptPromise]);

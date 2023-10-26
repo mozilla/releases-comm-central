@@ -17,13 +17,13 @@ function run_test() {
   }
 
   // Test set-up
-  let abUri = MailServices.ab.newAddressBook(
+  const abUri = MailServices.ab.newAddressBook(
     "test",
     kLDAPTestSpec,
     Ci.nsIAbManager.LDAP_DIRECTORY_TYPE
   );
 
-  let abDir = MailServices.ab
+  const abDir = MailServices.ab
     .getDirectory(kLDAPUriPrefix + abUri)
     .QueryInterface(Ci.nsIAbLDAPDirectory);
 

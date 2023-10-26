@@ -13,10 +13,10 @@ define(function (require) {
   function MockDate(iso8601String) {
     // Find the timezone offset (Z or ±hhmm) from the ISO-8601 date string, and
     // then convert that into a number of minutes.
-    let parse = /\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(Z|[+-]\d{4})/.exec(
+    const parse = /\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(Z|[+-]\d{4})/.exec(
       iso8601String
     );
-    let tzOffsetStr = parse[1];
+    const tzOffsetStr = parse[1];
     if (tzOffsetStr == "Z") {
       this._tzOffset = 0;
     } else {
@@ -52,7 +52,7 @@ define(function (require) {
 
   // Provide an implementation of Date methods that will be need in JSMime. For
   // the time being, we only need .get* methods.
-  for (let name of Object.getOwnPropertyNames(Date.prototype)) {
+  for (const name of Object.getOwnPropertyNames(Date.prototype)) {
     // Only copy getters, not setters or x.toString.
     if (!name.startsWith("get")) {
       continue;
@@ -66,14 +66,14 @@ define(function (require) {
       // 'name' is already supposed to be freshly bound per newest ES6 drafts, but
       // current ES6 implementations reuse the bindings. Until implementations
       // catch up, use a new let to bind it freshly.
-      let boundName = name;
+      const boundName = name;
       Object.defineProperty(MockDate.prototype, name, {
         value(...aArgs) {
           return Date.prototype[boundName].call(this._realDate, aArgs);
         },
       });
     } else {
-      let newName = "getUTC" + name.substr(3);
+      const newName = "getUTC" + name.substr(3);
       Object.defineProperty(MockDate.prototype, name, {
         value(...aArgs) {
           return Date.prototype[newName].call(this._shiftedDate, aArgs);

@@ -34,10 +34,10 @@ var gFiles = ["../../../data/bugmail1", "../../../data/draft1"];
 
 add_setup(async function () {
   setupIMAPPump();
-  let emptyFolder1Listener = PromiseTestUtils.promiseFolderAdded("empty 1");
+  const emptyFolder1Listener = PromiseTestUtils.promiseFolderAdded("empty 1");
   gEmptyLocal1 = localAccountUtils.rootFolder.createLocalSubfolder("empty 1");
   await emptyFolder1Listener;
-  let emptyFolder2Listener = PromiseTestUtils.promiseFolderAdded("empty 2");
+  const emptyFolder2Listener = PromiseTestUtils.promiseFolderAdded("empty 2");
   gEmptyLocal2 = localAccountUtils.rootFolder.createLocalSubfolder("empty 2");
   await emptyFolder2Listener;
 
@@ -50,7 +50,7 @@ add_setup(async function () {
 });
 
 add_task(async function copyFolder1() {
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFolder(
     gEmptyLocal1,
     IMAPPump.inbox,
@@ -62,17 +62,17 @@ add_task(async function copyFolder1() {
 });
 
 add_task(async function updateTrash() {
-  let trashFolder = IMAPPump.incomingServer.rootFolder
+  const trashFolder = IMAPPump.incomingServer.rootFolder
     .getChildNamed("Trash")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   // hack to force uid validity to get initialized for trash.
   trashFolder.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 add_task(async function copyFolder2() {
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFolder(
     gEmptyLocal2,
     IMAPPump.inbox,
@@ -85,23 +85,23 @@ add_task(async function copyFolder2() {
 
 add_task(async function getLocalMessages() {
   // setup copy then move mail filters on the inbox
-  let filterList = gPOP3Pump.fakeServer.getFilterList(null);
-  let filter = filterList.createFilter("copyThenMoveAll");
-  let searchTerm = filter.createTerm();
+  const filterList = gPOP3Pump.fakeServer.getFilterList(null);
+  const filter = filterList.createFilter("copyThenMoveAll");
+  const searchTerm = filter.createTerm();
   searchTerm.matchAll = true;
   filter.appendTerm(searchTerm);
-  let copyAction = filter.createAction();
+  const copyAction = filter.createAction();
   copyAction.type = Ci.nsMsgFilterAction.CopyToFolder;
   copyAction.targetFolderUri = IMAPPump.inbox.getChildNamed("empty 1").URI;
   filter.appendAction(copyAction);
-  let moveAction = filter.createAction();
+  const moveAction = filter.createAction();
   moveAction.type = Ci.nsMsgFilterAction.MoveToFolder;
   moveAction.targetFolderUri = IMAPPump.inbox.getChildNamed("empty 2").URI;
   filter.appendAction(moveAction);
   filter.enabled = true;
   filterList.insertFilterAt(0, filter);
   let resolveOnDone;
-  let promiseOnDone = new Promise(resolve => {
+  const promiseOnDone = new Promise(resolve => {
     resolveOnDone = resolve;
   });
   gPOP3Pump.files = gFiles;
@@ -112,8 +112,8 @@ add_task(async function getLocalMessages() {
 });
 
 add_task(async function test_update1_copyFilter() {
-  let listener = new PromiseTestUtils.PromiseUrlListener();
-  let folder1 = IMAPPump.inbox
+  const listener = new PromiseTestUtils.PromiseUrlListener();
+  const folder1 = IMAPPump.inbox
     .getChildNamed("empty 1")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   folder1.updateFolderWithListener(null, listener);
@@ -127,8 +127,8 @@ add_task(async function test_update1_copyFilter() {
 });
 
 add_task(async function test_update2_moveFilter() {
-  let listener = new PromiseTestUtils.PromiseUrlListener();
-  let folder2 = IMAPPump.inbox
+  const listener = new PromiseTestUtils.PromiseUrlListener();
+  const folder2 = IMAPPump.inbox
     .getChildNamed("empty 2")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
   folder2.updateFolderWithListener(null, listener);

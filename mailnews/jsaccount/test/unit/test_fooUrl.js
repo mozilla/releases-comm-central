@@ -20,24 +20,24 @@ function newURL() {
 var tests = [
   function testExists() {
     // test the existence of components and their interfaces.
-    let url = newURL();
-    for (let iface of JaBaseUrlProperties.baseInterfaces) {
+    const url = newURL();
+    for (const iface of JaBaseUrlProperties.baseInterfaces) {
       Assert.ok(url instanceof iface);
-      let urlQI = url.QueryInterface(iface);
+      const urlQI = url.QueryInterface(iface);
       // Since the URL wasn't properly initialised, that is, it has no spec
       // the following will crash. The underlying nsMsgMailNewsUrl
       // has no m_baseURL yet and hence GetSpec() triggered by the
       // Assert.uk(urlQI) will crash. So use this instead:
       Assert.ok(urlQI != null);
     }
-    for (let iface of extraInterfaces) {
-      let fooUrl = url.getInterface(iface);
+    for (const iface of extraInterfaces) {
+      const fooUrl = url.getInterface(iface);
       Assert.ok(fooUrl instanceof iface);
       Assert.ok(fooUrl.QueryInterface(iface) != null);
     }
   },
   function test_msgIOverride() {
-    let url = newURL().QueryInterface(Ci.msgIOverride);
+    const url = newURL().QueryInterface(Ci.msgIOverride);
 
     // test of access to wrapped JS object.
 
@@ -52,16 +52,16 @@ var tests = [
   // We used to test nsIURI, nsIURL, and nsIMsgMailNewsUrl overrides, but those
   // can no longer be overridden.
   function test_nsIMsgMessageUrl() {
-    let url = newURL().QueryInterface(Ci.nsIMsgMessageUrl);
+    const url = newURL().QueryInterface(Ci.nsIMsgMessageUrl);
     Assert.ok("originalSpec" in url);
-    let appDir = Services.dirsvc.get("GreD", Ci.nsIFile);
+    const appDir = Services.dirsvc.get("GreD", Ci.nsIFile);
     Assert.ok(appDir.path);
     // test attributes
     url.messageFile = appDir;
     Assert.equal(url.messageFile.path, appDir.path);
   },
   function test_msgIJaUrl() {
-    let url = newURL().QueryInterface(Ci.msgIJaUrl);
+    const url = newURL().QueryInterface(Ci.msgIJaUrl);
     url.setUrlType(Ci.nsIMsgMailNewsUrl.eMove);
     Assert.ok(
       url
@@ -70,8 +70,8 @@ var tests = [
     );
   },
   function test_msgIFooUrl() {
-    let url = newURL().QueryInterface(Ci.nsIInterfaceRequestor);
-    let fooUrl = url.getInterface(Ci.msgIFooUrl);
+    const url = newURL().QueryInterface(Ci.nsIInterfaceRequestor);
+    const fooUrl = url.getInterface(Ci.msgIFooUrl);
     Assert.ok(fooUrl instanceof Ci.msgIFooUrl);
 
     fooUrl.itemId = "theItemId";

@@ -89,7 +89,7 @@ var LDAPServer = {
     this._lastMessageID = data[index];
 
     if (expectedOperation) {
-      let actualOperation = data[index + 1];
+      const actualOperation = data[index + 1];
 
       // Unbind and abandon requests can happen at any point, when an
       // nsLDAPConnection is destroyed. This is unpredictable, and irrelevant
@@ -132,8 +132,8 @@ var LDAPServer = {
    * See section 4.2.2 of the RFC.
    */
   writeBindResponse() {
-    let message = new Sequence(0x30, new IntegerValue(this._lastMessageID));
-    let person = new Sequence(
+    const message = new Sequence(0x30, new IntegerValue(this._lastMessageID));
+    const person = new Sequence(
       0x61,
       new EnumeratedValue(0),
       new StringValue(""),
@@ -152,20 +152,20 @@ var LDAPServer = {
    *   object representing the person.
    */
   writeSearchResultEntry({ dn, attributes }) {
-    let message = new Sequence(0x30, new IntegerValue(this._lastMessageID));
+    const message = new Sequence(0x30, new IntegerValue(this._lastMessageID));
 
-    let person = new Sequence(0x64, new StringValue(dn));
+    const person = new Sequence(0x64, new StringValue(dn));
     message.children.push(person);
 
-    let attributeSequence = new Sequence(0x30);
+    const attributeSequence = new Sequence(0x30);
     person.children.push(attributeSequence);
 
     for (let [key, value] of Object.entries(attributes)) {
-      let seq = new Sequence(0x30, new StringValue(key), new Sequence(0x31));
+      const seq = new Sequence(0x30, new StringValue(key), new Sequence(0x31));
       if (typeof value == "string") {
         value = [value];
       }
-      for (let v of value) {
+      for (const v of value) {
         seq.children[1].children.push(new StringValue(v));
       }
       attributeSequence.children.push(seq);
@@ -178,8 +178,8 @@ var LDAPServer = {
    * See RFC 4511 section 4.5.2.
    */
   writeSearchResultDone() {
-    let message = new Sequence(0x30, new IntegerValue(this._lastMessageID));
-    let person = new Sequence(
+    const message = new Sequence(0x30, new IntegerValue(this._lastMessageID));
+    const person = new Sequence(
       0x65,
       new EnumeratedValue(0),
       new StringValue(""),
@@ -193,11 +193,11 @@ var LDAPServer = {
    * nsIServerSocketListener.onSocketAccepted
    */
   onSocketAccepted(socket, transport) {
-    let inputStream = transport
+    const inputStream = transport
       .openInputStream(0, 8192, 1024)
       .QueryInterface(Ci.nsIAsyncInputStream);
 
-    let outputStream = transport.openOutputStream(0, 0, 0);
+    const outputStream = transport.openOutputStream(0, 0, 0);
     this._outputStream = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(
       Ci.nsIBinaryOutputStream
     );
@@ -232,11 +232,11 @@ var LDAPServer = {
       throw ex;
     }
 
-    let binaryInputStream = Cc[
+    const binaryInputStream = Cc[
       "@mozilla.org/binaryinputstream;1"
     ].createInstance(Ci.nsIBinaryInputStream);
     binaryInputStream.setInputStream(stream);
-    let data = binaryInputStream.readByteArray(available);
+    const data = binaryInputStream.readByteArray(available);
     if (PRINT_DEBUG) {
       console.log(
         "<<< " + data.map(b => b.toString(16).padStart(2, 0)).join(" ")
@@ -265,7 +265,7 @@ class Sequence {
   }
   getBytes() {
     let bytes = [];
-    for (let c of this.children) {
+    for (const c of this.children) {
       bytes = bytes.concat(c.getBytes());
     }
     return [this.number].concat(getLengthBytes(bytes.length), bytes);
@@ -278,7 +278,7 @@ class IntegerValue {
   }
   getBytes() {
     let temp = this.int;
-    let bytes = [];
+    const bytes = [];
 
     while (temp >= 128) {
       bytes.unshift(temp & 255);
@@ -312,7 +312,7 @@ function getLengthBytes(int) {
   }
 
   let temp = int;
-  let bytes = [];
+  const bytes = [];
 
   while (temp >= 128) {
     bytes.unshift(temp & 255);

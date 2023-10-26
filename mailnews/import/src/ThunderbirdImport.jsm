@@ -37,10 +37,10 @@ class ThunderbirdImportMail {
    * @returns {nsIImportMailboxDescriptor}
    */
   _createMailboxDescriptor(path, name, depth) {
-    let importService = Cc[
+    const importService = Cc[
       "@mozilla.org/import/import-service;1"
     ].createInstance(Ci.nsIImportService);
-    let descriptor = importService.CreateNewMailboxDescriptor();
+    const descriptor = importService.CreateNewMailboxDescriptor();
     descriptor.size = 100;
     descriptor.depth = depth;
     descriptor.SetDisplayName(name);
@@ -57,13 +57,13 @@ class ThunderbirdImportMail {
    * @returns {nsIImportMailboxDescriptor[]} - All mailboxes found.
    */
   _collectMailboxesInDirectory(directory, depth) {
-    let result = [];
+    const result = [];
     let name = directory.leafName;
     if (depth > 0 && !name.endsWith(".msf") && !name.endsWith(".dat")) {
       if (name.endsWith(".sbd")) {
         name = name.slice(0, name.lastIndexOf("."));
       }
-      let descriptor = this._createMailboxDescriptor(
+      const descriptor = this._createMailboxDescriptor(
         directory.path,
         name,
         depth
@@ -71,7 +71,7 @@ class ThunderbirdImportMail {
       result.push(descriptor);
     }
     if (directory.isDirectory()) {
-      for (let entry of directory.directoryEntries) {
+      for (const entry of directory.directoryEntries) {
         if (
           (depth == 0 &&
             entry.leafName != "ImapMail" &&
@@ -128,12 +128,12 @@ class ThunderbirdImport {
 
   GetImportInterface(type) {
     if (type == "mail") {
-      let importService = Cc[
+      const importService = Cc[
         "@mozilla.org/import/import-service;1"
       ].createInstance(Ci.nsIImportService);
-      let genericInterface = importService.CreateNewGenericMail();
+      const genericInterface = importService.CreateNewGenericMail();
       genericInterface.SetData("mailInterface", new ThunderbirdImportMail());
-      let name = Cc["@mozilla.org/supports-string;1"].createInstance(
+      const name = Cc["@mozilla.org/supports-string;1"].createInstance(
         Ci.nsISupportsString
       );
       name.data = "Thunderbird";

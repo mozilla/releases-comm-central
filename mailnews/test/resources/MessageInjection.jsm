@@ -61,7 +61,7 @@ class MessageInjection {
     },
     listeners: [],
     notifyListeners(handlerName, args) {
-      for (let listener of this.listeners) {
+      for (const listener of this.listeners) {
         if (handlerName in listener) {
           listener[handlerName].apply(listener, args);
         }
@@ -137,12 +137,12 @@ class MessageInjection {
         //  case.
       }
 
-      let localAccount = MailServices.accounts.FindAccountForServer(
+      const localAccount = MailServices.accounts.FindAccountForServer(
         MailServices.accounts.localFoldersServer
       );
 
       // We need an identity or we get angry warnings.
-      let identity = MailServices.accounts.createIdentity();
+      const identity = MailServices.accounts.createIdentity();
       // We need an email to protect against random code assuming it exists and
       // throwing exceptions.
       identity.email = "sender@nul.invalid";
@@ -190,10 +190,10 @@ class MessageInjection {
       this._mis.server._logTransactions = false;
 
       // We need an identity so that updateFolder doesn't fail
-      let localAccount = MailServices.accounts.defaultAccount;
+      const localAccount = MailServices.accounts.defaultAccount;
       // We need an email to protect against random code assuming it exists and
       // throwing exceptions.
-      let identity = localAccount.defaultIdentity;
+      const identity = localAccount.defaultIdentity;
       identity.email = "sender@nul.invalid";
 
       // The server doesn't support more than one connection
@@ -261,7 +261,7 @@ class MessageInjection {
 
     // Clean out this.#mis; we don't just null the global because it's conceivable we
     //  might still have some closures floating about.
-    for (let key in this._mis) {
+    for (const key in this._mis) {
       delete this._mis[key];
     }
   }
@@ -296,25 +296,25 @@ class MessageInjection {
     let testFolder;
 
     if (this._mis.injectionConfig.mode == "local") {
-      let localRoot = this._mis.rootFolder.QueryInterface(
+      const localRoot = this._mis.rootFolder.QueryInterface(
         Ci.nsIMsgLocalMailFolder
       );
       testFolder = localRoot.createLocalSubfolder(folderName);
       // it seems dumb that we have to set this.
       testFolder.setFlag(Ci.nsMsgFolderFlags.Mail);
       if (specialFlags) {
-        for (let flag of specialFlags) {
+        for (const flag of specialFlags) {
           testFolder.setFlag(flag);
         }
       }
       this._mis.notifyListeners("onRealFolderCreated", [testFolder]);
     } else if (this._mis.injectionConfig.mode == "imap") {
       // Circumvent this scoping.
-      let mis = this._mis;
-      let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener({
+      const mis = this._mis;
+      const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener({
         OnStopRunningUrl: (url, exitCode) => {
           // get the newly created nsIMsgFolder folder
-          let msgFolder = mis.rootFolder.getChildNamed(folderName);
+          const msgFolder = mis.rootFolder.getChildNamed(folderName);
 
           // XXX there is a bug that causes folders to be reported as ImapPublic
           //  when there is no namespace support by the IMAP server.  This is
@@ -323,13 +323,13 @@ class MessageInjection {
           msgFolder.setFlag(Ci.nsMsgFolderFlags.ImapPersonal);
 
           if (specialFlags) {
-            for (let flag of specialFlags) {
+            for (const flag of specialFlags) {
               msgFolder.setFlag(flag);
             }
           }
 
           // get a reference to the fake server folder
-          let fakeFolder = this._mis.daemon.getMailbox(folderName);
+          const fakeFolder = this._mis.daemon.getMailbox(folderName);
           // establish the mapping
           mis.handleUriToRealFolder[testFolder] = msgFolder;
           mis.handleUriToFakeFolder[testFolder] = fakeFolder;
@@ -415,7 +415,7 @@ class MessageInjection {
       );
       if (this._mis.trashFolder) {
         this._mis.trashHandle = this._mis.rootFolder.URI + "/Trash";
-        let fakeFolder = this._mis.daemon.getMailbox("Trash");
+        const fakeFolder = this._mis.daemon.getMailbox("Trash");
         this._mis.handleUriToRealFolder[this._mis.trashHandle] =
           this._mis.trashFolder;
         this._mis.handleUriToFakeFolder[this._mis.trashHandle] = fakeFolder;
@@ -444,18 +444,18 @@ class MessageInjection {
    *     in imap usage returns a Folder URI.
    */
   makeVirtualFolder(folders, searchDef, booleanAnd, folderName) {
-    let name = folderName
+    const name = folderName
       ? folderName
       : "virt" + this._mis._nextUniqueFolderId++;
 
-    let terms = [];
-    let termCreator = Cc[
+    const terms = [];
+    const termCreator = Cc[
       "@mozilla.org/messenger/searchSession;1"
     ].createInstance(Ci.nsIMsgSearchSession);
-    for (let key in searchDef) {
-      let val = searchDef[key];
-      let term = termCreator.createTerm();
-      let value = term.value;
+    for (const key in searchDef) {
+      const val = searchDef[key];
+      const term = termCreator.createTerm();
+      const value = term.value;
       value.str = val;
       term.value = value;
       term.attrib = SEARCH_TERM_MAP_HELPER[key];
@@ -468,12 +468,12 @@ class MessageInjection {
     }
     // create an ALL case if we didn't add any terms
     if (terms.length == 0) {
-      let term = termCreator.createTerm();
+      const term = termCreator.createTerm();
       term.matchAll = true;
       terms.push(term);
     }
 
-    let wrapped = VirtualFolderHelper.createNewVirtualFolder(
+    const wrapped = VirtualFolderHelper.createNewVirtualFolder(
       name,
       this._mis.rootFolder,
       folders,
@@ -497,9 +497,9 @@ class MessageInjection {
       return;
     }
 
-    let msgFolder = this.getRealInjectionFolder(folderHandle);
+    const msgFolder = this.getRealInjectionFolder(folderHandle);
     msgFolder.setFlag(Ci.nsMsgFolderFlags.Offline);
-    let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+    const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
     msgFolder.downloadAllForOffline(promiseUrlListener, null);
     await promiseUrlListener.promise;
   }
@@ -527,7 +527,7 @@ class MessageInjection {
    *     such pain.
    */
   async makeFoldersWithSets(folderCount, synSetDefs) {
-    let msgFolders = [];
+    const msgFolders = [];
     for (let i = 0; i < folderCount; i++) {
       msgFolders.push(await this.makeEmptyFolder());
     }
@@ -555,10 +555,10 @@ class MessageInjection {
    */
   async makeNewSetsInFolders(msgFolders, synSetDefs, doNotForceUpdate) {
     // - create the synthetic message sets
-    let messageSets = [];
-    for (let synSetDef of synSetDefs) {
+    const messageSets = [];
+    for (const synSetDef of synSetDefs) {
       // Using the getter of the MessageGenerator for error handling.
-      let messages = this.messageGenerator.makeMessages(synSetDef);
+      const messages = this.messageGenerator.makeMessages(synSetDef);
       messageSets.push(new SyntheticMessageSet(messages));
     }
 
@@ -603,7 +603,7 @@ class MessageInjection {
 
     // -- Pre-loop
     if (this._mis.injectionConfig.mode == "local") {
-      for (let folder of msgFolders) {
+      for (const folder of msgFolders) {
         if (!(folder instanceof Ci.nsIMsgLocalMailFolder)) {
           throw new Error("All folders in msgFolders must be local folders!");
         }
@@ -620,7 +620,7 @@ class MessageInjection {
       //  approach.  In the first pass we just allocate messages to the folder
       //  we are going to insert them into.  In the second pass we insert the
       //  messages into folders in batches and perform any mutations.
-      let folderBatches = msgFolders.map(folder => {
+      const folderBatches = msgFolders.map(folder => {
         return { folder, messages: [] };
       });
       iterFolders = this._looperator([...folderBatches.keys()]);
@@ -633,9 +633,9 @@ class MessageInjection {
       do {
         didSomething = false;
         // for each message set, if it is not out of messages, add the message
-        for (let messageSet of messageSets) {
+        for (const messageSet of messageSets) {
           if (iPerSet < messageSet.synMessages.length) {
-            let synMsg = messageSet._trackMessageAddition(
+            const synMsg = messageSet._trackMessageAddition(
               folderBatches[folderNext.value].folder,
               iPerSet
             );
@@ -652,21 +652,21 @@ class MessageInjection {
       } while (didSomething);
 
       // - inject messages
-      for (let folderBatch of folderBatches) {
+      for (const folderBatch of folderBatches) {
         // it is conceivable some folders might not get any messages, skip them.
         if (!folderBatch.messages.length) {
           continue;
         }
 
-        let folder = folderBatch.folder;
+        const folder = folderBatch.folder;
         folder.gettingNewMessages = true;
-        let messageStrings = folderBatch.messages.map(message =>
+        const messageStrings = folderBatch.messages.map(message =>
           message.synMsg.toMboxString()
         );
         folder.addMessageBatch(messageStrings);
 
-        for (let message of folderBatch.messages) {
-          let synMsgState = message.synMsg.metaState;
+        for (const message of folderBatch.messages) {
+          const synMsgState = message.synMsg.metaState;
           // If we need to mark the message as junk grab the header and do so.
           if (synMsgState.junk) {
             message.messageSet.setJunk(
@@ -685,7 +685,7 @@ class MessageInjection {
           }
         }
         if (folderBatch.messages.length) {
-          let lastMRUTime = Math.floor(
+          const lastMRUTime = Math.floor(
             Number(folderBatch.messages[0].synMsg.date) / 1000
           );
           folder.setStringProperty("MRUTime", lastMRUTime);
@@ -702,7 +702,7 @@ class MessageInjection {
       // XXX we probably need to be doing more in terms of filters here,
       //  although since filters really want to be run on the inbox, there
       //  are separate potential semantic issues involved.
-      for (let folder of msgFolders) {
+      for (const folder of msgFolders) {
         folder.callFilterPlugins(null);
       }
     } else if (this._mis.injectionConfig.mode == "imap") {
@@ -714,17 +714,20 @@ class MessageInjection {
       let didSomething;
       do {
         didSomething = false;
-        for (let messageSet of messageSets) {
+        for (const messageSet of messageSets) {
           if (iPerSet < messageSet.synMessages.length) {
             didSomething = true;
 
-            let realFolder = this._mis.handleUriToRealFolder[folder.value];
-            let fakeFolder = this._mis.handleUriToFakeFolder[folder.value];
-            let synMsg = messageSet._trackMessageAddition(realFolder, iPerSet);
-            let msgURI = Services.io.newURI(
+            const realFolder = this._mis.handleUriToRealFolder[folder.value];
+            const fakeFolder = this._mis.handleUriToFakeFolder[folder.value];
+            const synMsg = messageSet._trackMessageAddition(
+              realFolder,
+              iPerSet
+            );
+            const msgURI = Services.io.newURI(
               "data:text/plain;base64," + btoa(synMsg.toMessageString())
             );
-            let imapMsg = new ImapMessage(
+            const imapMsg = new ImapMessage(
               msgURI.spec,
               fakeFolder.uidnext++,
               []
@@ -752,14 +755,14 @@ class MessageInjection {
       }
 
       for (let iFolder = 0; iFolder < msgFolders.length; iFolder++) {
-        let realFolder = this._mis.handleUriToRealFolder[msgFolders[iFolder]];
+        const realFolder = this._mis.handleUriToRealFolder[msgFolders[iFolder]];
         await new Promise(resolve => {
           mailTestUtils.updateFolderAndNotify(realFolder, resolve);
         });
 
         // compel download of the messages if appropriate
         if (realFolder.flags & Ci.nsMsgFolderFlags.Offline) {
-          let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+          const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
           realFolder.downloadAllForOffline(promiseUrlListener, null);
           await promiseUrlListener.promise;
         }
@@ -799,9 +802,9 @@ class MessageInjection {
    *     pseudo-offline operations instead of trying to do things online.)
    */
   async moveMessages(synMessageSet, destFolder, allowUndo) {
-    let realDestFolder = this.getRealInjectionFolder(destFolder);
+    const realDestFolder = this.getRealInjectionFolder(destFolder);
 
-    for (let [folder, msgs] of synMessageSet.foldersWithMsgHdrs) {
+    for (const [folder, msgs] of synMessageSet.foldersWithMsgHdrs) {
       // In the IMAP case tell listeners we are moving messages without
       //  destination headers.
       if (!this.messageInjectionIsLocal()) {
@@ -809,7 +812,7 @@ class MessageInjection {
           realDestFolder,
         ]);
       }
-      let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+      const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
       MailServices.copy.copyMessages(
         folder,
         msgs,
@@ -837,7 +840,7 @@ class MessageInjection {
 
         // compel download of messages in dest folder if appropriate
         if (realDestFolder.flags & Ci.nsMsgFolderFlags.Offline) {
-          let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+          const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
           realDestFolder.downloadAllForOffline(promiseUrlListener, null);
           await promiseUrlListener.promise;
         }
@@ -853,13 +856,13 @@ class MessageInjection {
    *     but we have to trash them folder by folder if they are not.
    */
   async trashMessages(synMessageSet) {
-    for (let [folder, msgs] of synMessageSet.foldersWithMsgHdrs) {
+    for (const [folder, msgs] of synMessageSet.foldersWithMsgHdrs) {
       // In the IMAP case tell listeners we are moving messages without
       //  destination headers, since that's what trashing amounts to.
       if (!this.messageInjectionIsLocal()) {
         this._mis.notifyListeners("onMovingMessagesWithoutDestHeaders", []);
       }
-      let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+      const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
       folder.deleteMessages(
         msgs,
         null,
@@ -879,7 +882,7 @@ class MessageInjection {
 
         // trash folder may not have existed at startup but the deletion
         //  will have created it.
-        let trashFolder = this.getRealInjectionFolder(
+        const trashFolder = this.getRealInjectionFolder(
           await this.getTrashFolder()
         );
 
@@ -890,7 +893,7 @@ class MessageInjection {
 
         // compel download of messages in dest folder if appropriate
         if (trashFolder.flags & Ci.nsMsgFolderFlags.Offline) {
-          let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+          const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
           trashFolder.downloadAllForOffline(promiseUrlListener, null);
           await promiseUrlListener.promise;
         }
@@ -906,8 +909,8 @@ class MessageInjection {
    *     delete them folder by folder if they are not.
    */
   static async deleteMessages(synMessageSet) {
-    for (let [folder, msgs] of synMessageSet.foldersWithMsgHdrs) {
-      let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+    for (const [folder, msgs] of synMessageSet.foldersWithMsgHdrs) {
+      const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
       folder.deleteMessages(
         msgs,
         null,
@@ -923,9 +926,9 @@ class MessageInjection {
    * Empty the trash.
    */
   async emptyTrash() {
-    let trashHandle = await this.getTrashFolder();
-    let trashFolder = this.getRealInjectionFolder(trashHandle);
-    let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+    const trashHandle = await this.getTrashFolder();
+    const trashFolder = this.getRealInjectionFolder(trashHandle);
+    const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
     trashFolder.emptyTrash(promiseUrlListener);
     await promiseUrlListener.promise;
   }
@@ -934,7 +937,7 @@ class MessageInjection {
    *  trash.
    */
   deleteFolder(folder) {
-    let realFolder = this.getRealInjectionFolder(folder);
+    const realFolder = this.getRealInjectionFolder(folder);
     realFolder.parent.propagateDelete(realFolder, true);
   }
 
@@ -958,8 +961,8 @@ class MessageInjection {
       throw new Error("list must have at least one item!");
     }
 
-    let i = 0,
-      length = list.length;
+    let i = 0;
+    const length = list.length;
     while (true) {
       yield list[i];
       i = (i + 1) % length;

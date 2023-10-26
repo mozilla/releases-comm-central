@@ -21,17 +21,17 @@ var { MailServices } = ChromeUtils.import(
  * @param {string} aCheckTo - The expected To addresses (after possible list population).
  */
 function checkPopulate(aTo, aCheckTo) {
-  let msgCompose = Cc[MsgComposeContractID].createInstance(Ci.nsIMsgCompose);
+  const msgCompose = Cc[MsgComposeContractID].createInstance(Ci.nsIMsgCompose);
 
   // Set up some basic fields for compose.
-  let fields = Cc[MsgComposeFieldsContractID].createInstance(
+  const fields = Cc[MsgComposeFieldsContractID].createInstance(
     Ci.nsIMsgCompFields
   );
 
   fields.to = aTo;
 
   // Set up some params
-  let params = Cc[MsgComposeParamsContractID].createInstance(
+  const params = Cc[MsgComposeParamsContractID].createInstance(
     Ci.nsIMsgComposeParams
   );
 

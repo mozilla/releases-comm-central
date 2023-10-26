@@ -26,7 +26,7 @@ define(function (require) {
   }
   suite("headerparser", function () {
     suite("parseParameterHeader", function () {
-      let header_tests = [
+      const header_tests = [
         ["multipart/related", ["multipart/related", {}]],
         ["a ; b=v", ["a", { b: "v" }]],
         ["a ; b='v'", ["a", { b: "'v'" }]],
@@ -43,8 +43,8 @@ define(function (require) {
       ];
       header_tests.forEach(function (data) {
         arrayTest(data, function () {
-          let testMap = new Map();
-          for (let key in data[1][1]) {
+          const testMap = new Map();
+          for (const key in data[1][1]) {
             testMap.set(key, data[1][1][key]);
           }
           testMap.preSemi = data[1][0];
@@ -56,7 +56,7 @@ define(function (require) {
       });
     });
     suite("parseParameterHeader (2231/2047 support)", function () {
-      let header_tests = [
+      const header_tests = [
         // Copied from test_MIME_params.js and adapted
         ["attachment;", ["attachment", {}]],
         ["attachment; filename=basic", ["attachment", { filename: "basic" }]],
@@ -308,8 +308,8 @@ define(function (require) {
       ];
       header_tests.forEach(function (data) {
         arrayTest(data, function () {
-          let testMap = new Map();
-          for (let key in data[1][1]) {
+          const testMap = new Map();
+          for (const key in data[1][1]) {
             testMap.set(key, data[1][1][key]);
           }
           testMap.preSemi = data[1][0];
@@ -321,7 +321,7 @@ define(function (require) {
       });
     });
     suite("parseAddressingHeader", function () {
-      let header_tests = [
+      const header_tests = [
         ["", []],
         [
           "Joe Schmoe <jschmoe@invalid.invalid>",
@@ -758,7 +758,7 @@ define(function (require) {
       });
     });
     suite("parseAddressingHeader (RFC 2047 support)", function () {
-      let header_tests = [
+      const header_tests = [
         ["Simple <a@b.c>", [{ name: "Simple", email: "a@b.c" }]],
         ["=?UTF-8?Q?Simple?= <a@b.c>", [{ name: "Simple", email: "a@b.c" }]],
         ["=?UTF-8?Q?=3C@b.c?= <a@b.c>", [{ name: "<@b.c", email: "a@b.c" }]],
@@ -902,7 +902,7 @@ define(function (require) {
       });
     });
     suite("parseDateHeader", function () {
-      let header_tests = [
+      const header_tests = [
         // Some basic tests, derived from searching for Date headers in a mailing
         // list archive.
         ["Thu, 06 Sep 2012 08:08:21 -0700", "2012-09-06T08:08:21-0700"],
@@ -999,7 +999,7 @@ define(function (require) {
     });
 
     suite("decodeRFC2047Words", function () {
-      let header_tests = [
+      const header_tests = [
         // Some basic sanity tests for the test process
         ["Test", "Test"],
         ["Test 2", "Test 2"],
@@ -1184,7 +1184,7 @@ define(function (require) {
       });
     });
     suite("8-bit header processing", function () {
-      let header_tests = [
+      const header_tests = [
         // Non-ASCII header values
         ["oxyg\xc3\xa8ne", "oxyg\u00e8ne", "UTF-8"],
         ["oxyg\xc3\xa8ne", "oxyg\u00e8ne", "ISO-8859-1"], // UTF-8 overrides

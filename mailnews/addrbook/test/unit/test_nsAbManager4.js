@@ -7,16 +7,16 @@
  * always produce a unique preference branch. Check that it does.
  */
 add_task(function testSameName() {
-  let name0 = MailServices.ab.newAddressBook("name", null, kPABData.dirType);
+  const name0 = MailServices.ab.newAddressBook("name", null, kPABData.dirType);
   equal(name0, "ldap_2.servers.name");
 
-  let name1 = MailServices.ab.newAddressBook("name", null, kPABData.dirType);
+  const name1 = MailServices.ab.newAddressBook("name", null, kPABData.dirType);
   equal(name1, "ldap_2.servers.name_1");
 
-  let name2 = MailServices.ab.newAddressBook("name", null, kPABData.dirType);
+  const name2 = MailServices.ab.newAddressBook("name", null, kPABData.dirType);
   equal(name2, "ldap_2.servers.name_2");
 
-  let name3 = MailServices.ab.newAddressBook("name", null, kPABData.dirType);
+  const name3 = MailServices.ab.newAddressBook("name", null, kPABData.dirType);
   equal(name3, "ldap_2.servers.name_3");
 });
 
@@ -25,7 +25,7 @@ add_task(function testSameName() {
  * that book and stores it in the preferences.
  */
 function subtestCreateWithUID(type, uidValue) {
-  let prefID = MailServices.ab.newAddressBook(
+  const prefID = MailServices.ab.newAddressBook(
     "Got a UID",
     null,
     type,
@@ -37,7 +37,7 @@ function subtestCreateWithUID(type, uidValue) {
     "UID is saved to the preferences"
   );
 
-  let book = MailServices.ab.getDirectoryFromId(prefID);
+  const book = MailServices.ab.getDirectoryFromId(prefID);
   Assert.equal(book.UID, uidValue, "created book has the right UID");
 }
 
