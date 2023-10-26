@@ -192,6 +192,7 @@ constexpr nsLiteralCString kIsSecure = "isSecure"_ns;
 constexpr nsLiteralCString kJunkStatusChanged = "JunkStatusChanged"_ns;
 constexpr nsLiteralCString kKeywords = "Keywords"_ns;
 constexpr nsLiteralCString kMRMTimeChanged = "MRMTimeChanged"_ns;
+constexpr nsLiteralCString kMRUTimeChanged = "MRUTimeChanged"_ns;
 constexpr nsLiteralCString kMsgLoaded = "msgLoaded"_ns;
 constexpr nsLiteralCString kName = "Name"_ns;
 constexpr nsLiteralCString kNewMailReceived = "NewMailReceived"_ns;
@@ -5357,6 +5358,7 @@ nsresult nsMsgDBFolder::GetMsgPreviewTextFromStream(nsIMsgDBHdr* msgHdr,
 void nsMsgDBFolder::UpdateTimestamps(bool allowUndo) {
   if (!(mFlags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Junk))) {
     SetMRUTime();
+    NotifyFolderEvent(kMRUTimeChanged);
     if (allowUndo)  // This is a proxy for a user-initiated act.
     {
       bool isArchive;

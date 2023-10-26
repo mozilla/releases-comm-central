@@ -67,10 +67,45 @@
         "type": "object",
         "description": "An object containing additional information about a mail folder.",
         "properties": {
+          "canAddMessages": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether this folder supports adding new messages."
+          },
+          "canAddSubfolders": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether this folder supports adding new subfolders."
+          },
+          "canBeDeleted": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether this folder can be deleted."
+          },
+          "canBeRenamed": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether this folder can be renamed."
+          },
+          "canDeleteMessages": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether this folder supports deleting messages."
+          },
           "favorite": {
             "type": "boolean",
             "optional": true,
             "description": "Whether this folder is a favorite folder."
+          },
+          "lastUsed": {
+            "$ref": "extensionTypes.Date",
+            "optional": true,
+            "description": "Date the folder was last used (precision: seconds)."
+          },
+          "newMessageCount": {
+            "type": "integer",
+            "optional": true,
+            "description": "Number of new messages in this folder."
           },
           "totalMessageCount": {
             "type": "integer",

@@ -456,58 +456,121 @@ add_task(async function test_getParentFolders_getSubFolders() {
 add_task(async function test_getFolderInfo() {
   let files = {
     "background.js": async () => {
-      let [accountId, IS_NNTP] = await window.waitForMessage();
+      let [accountId, IS_NNTP, startTime] = await window.waitForMessage();
 
       let account = await browser.accounts.get(accountId);
       browser.test.assertEq(IS_NNTP ? 1 : 3, account.folders.length);
       let folders = await browser.folders.getSubFolders(account, false);
       let InfoTestFolder = folders.find(f => f.name == "InfoTest");
 
-      // Verify initial state.
-      let info = await browser.folders.getFolderInfo(InfoTestFolder);
-      window.assertDeepEqual(
-        { totalMessageCount: 12, unreadMessageCount: 12, favorite: false },
-        info
-      );
+      // Verify initial state of the InfoTestFolder.
+      {
+        let info = await browser.folders.getFolderInfo(InfoTestFolder);
+        window.assertDeepEqual(
+          {
+            totalMessageCount: 12,
+            unreadMessageCount: 12,
+            newMessageCount: 12,
+            favorite: false,
+            canAddMessages: !IS_NNTP,
+            canAddSubfolders: !IS_NNTP,
+            canBeDeleted: !IS_NNTP,
+            canBeRenamed: !IS_NNTP,
+            canDeleteMessages: true,
+          },
+          info
+        );
 
-      // Test flipping favorite to true and marking all messages as read.
-      let onFolderInfoChangedPromise = window.waitForEvent(
-        "folders.onFolderInfoChanged"
-      );
-      await browser.folders.update(InfoTestFolder, {
-        favorite: true,
-      });
-      await browser.folders.markAsRead(InfoTestFolder);
+        // Verify lastUsed.
+        let lastUsedSeconds = Math.floor(info.lastUsed.getTime() / 1000);
+        let startTimeSeconds = Math.floor(startTime.getTime() / 1000);
+        browser.test.assertTrue(
+          lastUsedSeconds >= startTimeSeconds,
+          `Should be correct: MailFolder.lastUsed (${lastUsedSeconds}) >= startTime (${startTimeSeconds})`
+        );
+      }
 
-      let [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
-      window.assertDeepEqual(
-        { unreadMessageCount: 0, favorite: true },
-        mailFolderInfo
-      );
-      browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
+      // Clear new messages and check FolderInfo and onFolderInfoChanged event.
+      {
+        let onFolderInfoChangedPromise = window.waitForEvent(
+          "folders.onFolderInfoChanged"
+        );
+        await window.sendMessage("clearNewMessages");
+        let [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
+        window.assertDeepEqual(
+          {
+            newMessageCount: 0,
+          },
+          mailFolderInfo
+        );
+        browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
 
-      info = await browser.folders.getFolderInfo(InfoTestFolder);
-      window.assertDeepEqual(
-        { totalMessageCount: 12, unreadMessageCount: 0, favorite: true },
-        info
-      );
+        let info = await browser.folders.getFolderInfo(InfoTestFolder);
+        window.assertDeepEqual(
+          {
+            totalMessageCount: 12,
+            unreadMessageCount: 12,
+            newMessageCount: 0,
+            favorite: false,
+          },
+          info
+        );
+      }
+
+      // Flip favorite to true and mark all messages as read. Check FolderInfo
+      // and onFolderInfoChanged event.
+      {
+        let onFolderInfoChangedPromise = window.waitForEvent(
+          "folders.onFolderInfoChanged"
+        );
+        await browser.folders.update(InfoTestFolder, {
+          favorite: true,
+        });
+        await browser.folders.markAsRead(InfoTestFolder);
+
+        let [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
+        window.assertDeepEqual(
+          {
+            unreadMessageCount: 0,
+            favorite: true,
+          },
+          mailFolderInfo
+        );
+        browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
+
+        let info = await browser.folders.getFolderInfo(InfoTestFolder);
+        window.assertDeepEqual(
+          {
+            totalMessageCount: 12,
+            unreadMessageCount: 0,
+            newMessageCount: 0,
+            favorite: true,
+          },
+          info
+        );
+      }
 
       // Test flipping favorite back to false.
-      onFolderInfoChangedPromise = window.waitForEvent(
-        "folders.onFolderInfoChanged"
-      );
-      await browser.folders.update(InfoTestFolder, { favorite: false });
-      [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
-      window.assertDeepEqual({ favorite: false }, mailFolderInfo);
-      browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
+      {
+        let onFolderInfoChangedPromise = window.waitForEvent(
+          "folders.onFolderInfoChanged"
+        );
+        await browser.folders.update(InfoTestFolder, { favorite: false });
+        let [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
+        window.assertDeepEqual({ favorite: false }, mailFolderInfo);
+        browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
+      }
 
       // Test setting some messages back to unread.
-      onFolderInfoChangedPromise = window.waitForEvent(
-        "folders.onFolderInfoChanged"
-      );
-      await window.sendMessage("markSomeAsUnread", 5);
-      [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
-      window.assertDeepEqual({ unreadMessageCount: 5 }, mailFolderInfo);
+      {
+        let onFolderInfoChangedPromise = window.waitForEvent(
+          "folders.onFolderInfoChanged"
+        );
+        await window.sendMessage("markSomeAsUnread", 5);
+        let [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
+        window.assertDeepEqual({ unreadMessageCount: 5 }, mailFolderInfo);
+        browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
+      }
 
       browser.test.notifyPass("finished");
     },
@@ -521,6 +584,7 @@ add_task(async function test_getFolderInfo() {
     },
   });
 
+  let startTime = new Date();
   let account = createAccount();
   // Not all folders appear immediately on IMAP. Creating a new one causes them to appear.
   let InfoTestFolder = await createSubfolder(
@@ -539,11 +603,16 @@ add_task(async function test_getFolderInfo() {
     extension.sendMessage();
   });
 
+  extension.onMessage("clearNewMessages", count => {
+    InfoTestFolder.clearNewMessages();
+    extension.sendMessage();
+  });
+
   // We should now have three folders. For IMAP accounts they are Inbox, Trash,
   // and InfoTest. Otherwise they are Trash, Unsent Messages and InfoTest.
 
   await extension.startup();
-  extension.sendMessage(account.key, IS_NNTP);
+  extension.sendMessage(account.key, IS_NNTP, startTime);
   await extension.awaitFinish("finished");
   await extension.unload();
 });

@@ -57,7 +57,9 @@ var folderTracker = new (class extends EventEmitter {
       // nsIFolderListener
       MailServices.mailSession.AddFolderListener(
         this,
-        Ci.nsIFolderListener.intPropertyChanged
+        Ci.nsIFolderListener.intPropertyChanged |
+          Ci.nsIFolderListener.boolPropertyChanged |
+          Ci.nsIFolderListener.event
       );
     }
   }
@@ -94,6 +96,39 @@ var folderTracker = new (class extends EventEmitter {
         break;
       case "TotalUnreadMessages":
         this.addPendingInfoNotification(item, "unreadMessageCount", newValue);
+        break;
+    }
+  }
+
+  onFolderBoolPropertyChanged(folder, property, oldValue, newValue) {
+    if (!(folder instanceof Ci.nsIMsgFolder)) {
+      return;
+    }
+
+    switch (property) {
+      case "NewMessages":
+        this.addPendingInfoNotification(
+          folder,
+          "newMessageCount",
+          folder.msgDatabase.getNewList().length
+        );
+        break;
+    }
+  }
+
+  onFolderEvent(folder, event) {
+    if (!(folder instanceof Ci.nsIMsgFolder)) {
+      return;
+    }
+
+    switch (event) {
+      case "MRUTimeChanged":
+        try {
+          let time = Number(folder.getStringProperty("MRUTime")) * 1000;
+          if (time) {
+            this.addPendingInfoNotification(folder, "lastUsed", new Date(time));
+          }
+        } catch (e) {}
         break;
     }
   }
@@ -675,7 +710,20 @@ this.folders = class extends ExtensionAPIPersistent {
             favorite: folder.getFlag(Ci.nsMsgFolderFlags.Favorite),
             totalMessageCount: folder.getTotalMessages(false),
             unreadMessageCount: folder.getNumUnread(false),
+            newMessageCount: folder.msgDatabase.getNewList().length,
+            canAddMessages: !!folder.canFileMessages,
+            canAddSubfolders: !!folder.canCreateSubfolders,
+            canBeDeleted: !!folder.deletable,
+            canBeRenamed: !!folder.canRename,
+            canDeleteMessages: !!folder.canDeleteMessages,
           };
+
+          try {
+            let time = Number(folder.getStringProperty("MRUTime")) * 1000;
+            if (time) {
+              mailFolderInfo.lastUsed = new Date(time);
+            }
+          } catch (e) {}
 
           return mailFolderInfo;
         },
