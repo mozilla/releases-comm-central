@@ -20,7 +20,6 @@ var { MailServices } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.jsm",
@@ -51,6 +50,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   // EnigmailWks: "chrome://openpgp/content/modules/webKey.jsm",
   KeyLookupHelper: "chrome://openpgp/content/modules/keyLookupHelper.jsm",
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
+  MimeParser: "resource:///modules/mimeParser.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
