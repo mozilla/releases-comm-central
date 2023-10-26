@@ -6,7 +6,6 @@ l10n:
     # Paths that are not part of Thunderbird (editor/browser/devtools/etc)
     # are included to
     include:
-        - browser/locales/en-US/pdfviewer
         - comm/calendar/locales/en-US
         - comm/chat/locales/en-US
         - comm/mail/branding/tb_beta/locales/en-US

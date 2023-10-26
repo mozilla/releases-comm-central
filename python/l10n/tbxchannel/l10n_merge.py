@@ -10,7 +10,6 @@ COMM_STRINGS_QUARANTINE_PUSH = f"ssh{COMM_STRINGS_QUARANTINE[5:]}"
 
 
 GECKO_STRINGS_PATTERNS = (
-    "{lang}/browser/pdfviewer/**",
     "{lang}/devtools/**",
     "{lang}/dom/**",
     "{lang}/extensions/spellcheck/**",
