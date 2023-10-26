@@ -357,6 +357,7 @@ registerCleanupFunction(function () {
     }
 
     resetSmartMailboxes();
+    ensure_cards_view();
 
     // Some tests that open new windows don't return focus to the main window
     // in a way that satisfies mochitest, and the test times out.

@@ -136,7 +136,7 @@ ABView.prototype = {
 
     // Restore what was selected.
     if (this._tree) {
-      this._tree.invalidate();
+      this._tree.reset();
       if (selectionExists) {
         for (let i = 0; i < this._rowMap.length; i++) {
           this._tree.toggleSelectionAtIndex(
@@ -249,7 +249,7 @@ ABView.prototype = {
             this._rowMap[i].wasCurrent = currentIndex == i;
           }
 
-          this._tree.invalidate();
+          this._tree.reset();
           for (let i = 0; i < this._rowMap.length; i++) {
             this._tree.toggleSelectionAtIndex(
               i,

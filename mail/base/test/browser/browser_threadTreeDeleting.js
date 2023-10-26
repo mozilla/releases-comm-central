@@ -228,6 +228,136 @@ add_task(async function testSortBySubject() {
   await subtest();
 });
 
+/**
+ * Tests that deleting the selected row while smooth-scrolling does not break
+ * the scrolling and leave the tree in a bad scroll position.
+ */
+add_task(async function testDeletionWhileScrolling() {
+  let folderI = rootFolder
+    .createLocalSubfolder("threadTreeDeletingI")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderI.addMessageBatch(
+    generator
+      .makeMessages({ count: 500 })
+      .map(message => message.toMboxString())
+  );
+
+  await ensure_table_view();
+  about3Pane.restoreState({
+    messagePaneVisible: false,
+    folderURI: folderI.URI,
+  });
+
+  const scrollListener = {
+    async promiseScrollingStopped() {
+      this.lastTime = Date.now();
+      await TestUtils.waitForCondition(
+        () => Date.now() - this.lastTime > 1000,
+        "waiting for scrolling to stop"
+      );
+      delete this.direction;
+      delete this.lastPosition;
+    },
+    setScrollExpectation(direction) {
+      this.direction = direction;
+      this.lastPosition = threadTree.scrollTop;
+    },
+    setNoScrollExpectation() {
+      this.direction = 0;
+    },
+    handleEvent(event) {
+      if (this.direction === 0) {
+        Assert.report(true, undefined, undefined, "unexpected scroll event");
+        return;
+      }
+
+      const position = threadTree.scrollTop;
+      if (this.direction == -1) {
+        Assert.lessOrEqual(position, this.lastPosition);
+      } else if (this.direction == 1) {
+        Assert.greaterOrEqual(position, this.lastPosition);
+      }
+      this.lastPosition = position;
+      this.lastTime = Date.now();
+    },
+  };
+
+  async function delayThenPress(millis, key) {
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, millis));
+    if (key) {
+      EventUtils.synthesizeKey(key, {}, about3Pane);
+      await TestUtils.waitForTick();
+    }
+  }
+
+  threadTree.addEventListener("scroll", scrollListener);
+  threadTree.table.body.focus();
+  threadTree.selectedIndex = 299;
+  await scrollListener.promiseScrollingStopped();
+
+  let stopPromise = scrollListener.promiseScrollingStopped();
+  scrollListener.setScrollExpectation(-1);
+
+  // Page up a few times then delete some messages.
+
+  await delayThenPress(0, "VK_PAGE_UP");
+  await delayThenPress(60, "VK_PAGE_UP");
+  await delayThenPress(60, "VK_PAGE_UP");
+  await delayThenPress(400, "VK_DELETE");
+  await delayThenPress(80, "VK_DELETE");
+
+  await stopPromise;
+  Assert.equal(
+    threadTree.getFirstVisibleIndex(),
+    threadTree.selectedIndex,
+    "selected row should be the first visible row"
+  );
+
+  // Page down a few times then delete some messages.
+
+  stopPromise = scrollListener.promiseScrollingStopped();
+  scrollListener.setScrollExpectation(1);
+
+  await delayThenPress(60, "VK_PAGE_DOWN");
+  await delayThenPress(60, "VK_PAGE_DOWN");
+  await delayThenPress(60, "VK_PAGE_DOWN");
+  await delayThenPress(300, "VK_DELETE");
+  await delayThenPress(80, "VK_DELETE");
+  await delayThenPress(80, "VK_DELETE");
+  await delayThenPress(80, "VK_DELETE");
+  await delayThenPress(80, "VK_DELETE");
+
+  await stopPromise;
+  Assert.equal(
+    threadTree.getLastVisibleIndex(),
+    threadTree.selectedIndex,
+    "selected row should be the last visible row"
+  );
+
+  // Select a message somewhere in the middle then delete it.
+
+  scrollListener.setNoScrollExpectation();
+  threadTree.selectedIndex -= 10;
+  await delayThenPress(80, "VK_DELETE");
+  await delayThenPress(80, "VK_DELETE");
+  await delayThenPress(80, "VK_DELETE");
+
+  await delayThenPress(1000);
+  Assert.less(
+    threadTree.getFirstVisibleIndex(),
+    threadTree.selectedIndex,
+    "selected row should be below the first visible row"
+  );
+  Assert.greater(
+    threadTree.getLastVisibleIndex(),
+    threadTree.selectedIndex,
+    "selected row should be above the last visible row"
+  );
+
+  threadTree.removeEventListener("scroll", scrollListener);
+});
+
 async function subtest() {
   await TestUtils.waitForCondition(
     () => threadTree.table.body.rows.length == 15,

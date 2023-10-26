@@ -995,7 +995,7 @@ var dbViewWrapperListener = {
         }
         window.threadPane.scrollToNewMessage = false;
       }
-      window.threadTree?.invalidate();
+      window.threadTree?.reset();
     }
     window.quickFilterBar?.onMessagesChanged();
   },
