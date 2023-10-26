@@ -10,7 +10,7 @@ ChromeUtils.defineModuleGetter(
 ChromeUtils.defineESModuleGetters(this, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
 });
-var { CachedFolder, folderPathToURI, folderURIToPath } =
+var { CachedFolder, folderPathToURI, folderURIToPath, getFolder } =
   ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
 
 /**
@@ -175,24 +175,6 @@ var folderTracker = new (class extends EventEmitter {
     );
   }
 })();
-
-/**
- * Accepts a MailFolder or a MailAccount and returns the actual folder and its
- * accountId. Throws if the requested folder does not exist.
- */
-function getFolder({ accountId, path, id }) {
-  if (id && !path && !accountId) {
-    accountId = id;
-    path = "/";
-  }
-
-  let uri = folderPathToURI(accountId, path);
-  let folder = MailServices.folderLookup.getFolderForURL(uri);
-  if (!folder) {
-    throw new ExtensionError(`Folder not found: ${path}`);
-  }
-  return { folder, accountId };
-}
 
 /**
  * Copy or Move a folder.

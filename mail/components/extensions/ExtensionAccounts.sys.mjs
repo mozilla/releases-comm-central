@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
+
+var { ExtensionError } = ExtensionUtils;
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -363,4 +366,22 @@ export class CachedFolder {
   QueryInterface() {
     return this;
   }
+}
+
+/**
+ * Accepts a MailFolder or a MailAccount and returns the actual folder and its
+ * accountId. Throws if the requested folder does not exist.
+ */
+export function getFolder({ accountId, path, id }) {
+  if (id && !path && !accountId) {
+    accountId = id;
+    path = "/";
+  }
+
+  let uri = folderPathToURI(accountId, path);
+  let folder = MailServices.folderLookup.getFolderForURL(uri);
+  if (!folder) {
+    throw new ExtensionError(`Folder not found: ${path}`);
+  }
+  return { folder, accountId };
 }
