@@ -27,9 +27,6 @@ var { EnigmailWindows } = ChromeUtils.import(
 var { EnigmailKeyServer } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyserver.jsm"
 );
-var { EnigmailWks } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/webKey.jsm"
-);
 var { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
@@ -722,40 +719,6 @@ async function enigmailUploadKey() {
       EnigmailDialog.alert(window, value);
     });
 }
-
-/*
-function enigmailUploadToWkd() {
-  let selKeyList = getSelectedKeys();
-  let keyList = [];
-  for (let i = 0; i < selKeyList.length; i++) {
-    keyList.push(gKeyList[selKeyList[i]]);
-  }
-
-  EnigmailWks.wksUpload(keyList, window)
-    .then(result => {
-      if (result.length > 0) {
-        EnigmailDialog.info(window, "Key(s) sent successfully");
-      } else if (keyList.length === 1) {
-        EnigmailDialog.alert(
-          window,
-          "Sending of keys failed" +
-            "\n\n" +
-            "The key %S does not have a WKS identity.".replace("%S", keyList[0].userId)
-        );
-      } else {
-        EnigmailDialog.alert(
-          window,
-          "The upload was not successful - your provider does not seem to support WKS."
-        );
-      }
-    })
-    .catch(error => {
-      EnigmailDialog.alert(
-        "Sending of keys failed" + "\n" + error
-      );
-    });
-}
-*/
 
 function enigmailImportKeysFromUrl() {
   var result = {

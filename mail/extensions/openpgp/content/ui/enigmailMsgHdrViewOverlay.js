@@ -26,7 +26,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
-  // EnigmailWks: "chrome://openpgp/content/modules/webKey.jsm",
 });
 
 Enigmail.hdrView = {
@@ -267,63 +266,6 @@ Enigmail.hdrView = {
     this.updateStatusFlags(mimePartNumber);
     this.updateMsgDb();
   },
-
-  /**
-   * Check whether we got a WKS request
-   */
-  /*
-  checkWksConfirmRequest(jsonStr) {
-    let requestObj;
-    try {
-      requestObj = JSON.parse(jsonStr);
-    } catch (ex) {
-      EnigmailLog.DEBUG(
-        "enigmailMsgHdrViewOverlay.js: checkWksConfirmRequest parsing JSON failed\n"
-      );
-      return;
-    }
-
-    if (
-      "type" in requestObj &&
-      requestObj.type.toLowerCase() === "confirmation-request"
-    ) {
-      EnigmailWks.getWksClientPathAsync(window, function(wksClientPath) {
-        if (!wksClientPath) {
-          return;
-        }
-
-        Enigmail.hdrView.displayFlexAction(
-          "Web Key Directory Confirmation Request",
-          "Confirm Request",
-          "wks-request"
-        );
-        Enigmail.hdrView.displayWksMessage();
-      });
-    } else {
-      EnigmailLog.DEBUG(
-        "enigmailMsgHdrViewOverlay.js: checkWksConfirmRequest failed condition\n"
-      );
-    }
-  },
-  */
-
-  /**
-   * Display a localized message in lieu of the original message text
-   */
-  /*
-  displayWksMessage() {
-    EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: displayWksMessage()\n");
-
-    if (Enigmail.msg.securityInfo.xtraStatus === "wks-request") {
-      let enigMsgPane = document.getElementById("enigmailMsgDisplay");
-      let bodyElement = document.getElementById("messagepane");
-      bodyElement.setAttribute("collapsed", true);
-      enigMsgPane.removeAttribute("collapsed");
-      enigMsgPane.textContent = "This message has been sent by your email provider to confirm deployment of your OpenPGP public key\nin their Web Key Directory.\nProviding your public key helps others to discover your key and thus being able to encrypt messages to you.\n\nIf you want to deploy your key in the Web Key Directory now, please click on the button "Confirm Request" in the status bar.\nOtherwise, simply ignore this message."
-      );
-    }
-  },
-  */
 
   /**
    * Update the various variables that track the OpenPGP status of
