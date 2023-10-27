@@ -26,14 +26,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailMimeDecrypt: "chrome://openpgp/content/modules/mimeDecrypt.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
-  EnigmailWksMimeHandler: "chrome://openpgp/content/modules/wksMimeHandler.jsm",
 });
-
-const PGPMIME_JS_DECRYPTOR_CONTRACTID =
-  "@mozilla.org/mime/pgp-mime-js-decrypt;1";
-const PGPMIME_JS_DECRYPTOR_CID = Components.ID(
-  "{7514cbeb-2bfd-4b2c-829b-1a4691fa0ac8}"
-);
 
 ////////////////////////////////////////////////////////////////////
 // handler for PGP/MIME encrypted and PGP/MIME signed messages
@@ -147,8 +140,8 @@ function PgpMimeHandler() {
 
 PgpMimeHandler.prototype = {
   classDescription: "Enigmail JS Decryption Handler",
-  classID: PGPMIME_JS_DECRYPTOR_CID,
-  contractID: PGPMIME_JS_DECRYPTOR_CONTRACTID,
+  classID: Components.ID("{7514cbeb-2bfd-4b2c-829b-1a4691fa0ac8}"),
+  contractID: "@mozilla.org/mime/pgp-mime-js-decrypt;1",
   QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
   inStream: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
     Ci.nsIScriptableInputStream
@@ -207,8 +200,6 @@ PgpMimeHandler.prototype = {
           "application/(x-)?pkcs7-signature"
         );
       }
-    } else if (ct.search(/application\/vnd.gnupg.wks/i) === 0) {
-      cth = lazy.EnigmailWksMimeHandler.newHandler();
     }
 
     if (!cth) {

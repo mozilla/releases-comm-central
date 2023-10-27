@@ -45,7 +45,6 @@ var EnigmailCore = {
     this.factories = [];
 
     lazy.EnigmailVerify.registerPGPMimeHandler();
-    //EnigmailWksMimeHandler.registerContentTypeHandler();
     //EnigmailFiltersWrapper.onStartup();
 
     lazy.EnigmailMimeEncrypt.startup(reason);
