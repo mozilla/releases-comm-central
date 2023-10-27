@@ -946,15 +946,9 @@ var dbViewWrapperListener = {
   onCreatedView() {
     if (window.threadTree) {
       window.threadPane.setTreeView(gViewWrapper.dbView);
-
-      if (
-        gViewWrapper.sortImpliesTemporalOrdering &&
-        gViewWrapper.isSortedAscending
-      ) {
-        window.threadTree.scrollToIndex(gDBView.rowCount - 1, true);
-      } else {
-        window.threadTree.scrollToIndex(0, true);
-      }
+      window.threadPane.isFirstScroll = true;
+      window.threadPane.scrollDetected = false;
+      window.threadPane.scrollToLatestRowIfNoSelection();
     }
   },
   onDestroyingView(folderIsComingBack) {
@@ -979,23 +973,31 @@ var dbViewWrapperListener = {
   onDisplayingFolder() {},
   onLeavingFolder() {},
   onMessagesLoaded(all) {
+    if (!window.threadPane) {
+      return;
+    }
     // Try to restore what was selected. Keep the saved selection (if there is
     // one) until we have all of the messages.
-    window.threadPane?.restoreSelection(all);
+    window.threadPane.restoreSelection(all);
 
     if (all) {
-      if (window.threadPane?.scrollToNewMessage) {
+      let newMessageFound = false;
+      if (window.threadPane.scrollToNewMessage) {
         try {
           let index = gDBView.findIndexOfMsgHdr(gFolder.firstNewMessage, true);
           if (index != nsMsgViewIndex_None) {
             window.threadTree.scrollToIndex(index, true);
+            newMessageFound = true;
           }
         } catch (ex) {
           console.error(ex);
         }
         window.threadPane.scrollToNewMessage = false;
       }
-      window.threadTree?.reset();
+      if (!newMessageFound && !window.threadPane.scrollDetected) {
+        window.threadPane.scrollToLatestRowIfNoSelection();
+      }
+      window.threadTree.reset();
     }
     window.quickFilterBar?.onMessagesChanged();
   },
@@ -1003,17 +1005,8 @@ var dbViewWrapperListener = {
     window.dispatchEvent(new CustomEvent("MailViewChanged"));
   },
   onSortChanged() {
-    if (window.threadTree && gDBView.selection.count == 0) {
-      // If there is no selection, scroll to the most relevant end.
-      if (
-        gViewWrapper.sortImpliesTemporalOrdering &&
-        gViewWrapper.isSortedAscending
-      ) {
-        window.threadTree.scrollToIndex(gDBView.rowCount - 1, true);
-      } else {
-        window.threadTree.scrollToIndex(0, true);
-      }
-    }
+    // If there is no selection, scroll to the most relevant end.
+    window.threadPane?.scrollToLatestRowIfNoSelection();
   },
   onMessagesRemoved() {
     window.quickFilterBar?.onMessagesChanged();

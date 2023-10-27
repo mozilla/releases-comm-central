@@ -4283,6 +4283,22 @@ var threadPane = {
    */
   scrollToNewMessage: false,
 
+  /**
+   * Set to true when a scrolling event (presumably by the user) is detected
+   * while messages are still loading in a newly created view.
+   *
+   * @type {boolean}
+   */
+  scrollDetected: false,
+
+  /**
+   * The first detected scrolling event is triggered by creating the view
+   * itself. This property is then set to false.
+   *
+   * @type {boolean}
+   */
+  isFirstScroll: true,
+
   columns: getDefaultColumns(gFolder),
 
   cardColumns: getDefaultColumnsForCardsView(gFolder),
@@ -4399,6 +4415,7 @@ var threadPane = {
     threadTree.addEventListener("drop", this);
     threadTree.addEventListener("expanded", this);
     threadTree.addEventListener("collapsed", this);
+    threadTree.addEventListener("scroll", this);
   },
 
   uninit() {
@@ -4442,6 +4459,13 @@ var threadPane = {
           // multiple messages, so for our purposes the selection has changed.
           threadTree.dispatchEvent(new CustomEvent("select"));
         }
+        break;
+      case "scroll":
+        if (this.isFirstScroll) {
+          this.isFirstScroll = false;
+          break;
+        }
+        this.scrollDetected = true;
         break;
     }
   },
@@ -4835,6 +4859,11 @@ var threadPane = {
     invalidate() {
       if (!this._inBatch) {
         threadTree.reset();
+        if (threadPane) {
+          threadPane.isFirstScroll = true;
+          threadPane.scrollDetected = false;
+          threadPane.scrollToLatestRowIfNoSelection();
+        }
       }
     },
     invalidateRange(startIndex, endIndex) {
@@ -4991,6 +5020,24 @@ var threadPane = {
 
     if (discard) {
       this._savedSelections.delete(gFolder.URI);
+    }
+  },
+
+  /**
+   * Scroll to the most relevant end of the tree, but only if no rows are
+   * selected.
+   */
+  scrollToLatestRowIfNoSelection() {
+    if (gDBView.selection.count > 0 || gDBView.rowCount <= 0) {
+      return;
+    }
+    if (
+      gViewWrapper.sortImpliesTemporalOrdering &&
+      gViewWrapper.isSortedAscending
+    ) {
+      threadTree.scrollToIndex(gDBView.rowCount - 1, true);
+    } else {
+      threadTree.scrollToIndex(0, true);
     }
   },
 
