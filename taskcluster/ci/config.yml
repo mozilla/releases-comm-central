@@ -160,9 +160,10 @@ partner-urls:
 
 task-priority:
     by-project:
-        'comm-esr.*': 'very-high'
-        'comm-beta': 'high'
         'comm-central': 'medium'
+        'comm-beta': 'high'
+        'comm-release': 'highest'
+        'comm-esr.*': 'very-high'
         'default': 'low'
 
 taskgraph:

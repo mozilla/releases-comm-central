@@ -32,7 +32,7 @@ jobs:
             group-by: platform
         locales-file:
             by-release-type:
-                beta|release: comm/mail/locales/shipped-locales
+                beta|release|esr.*: comm/mail/locales/shipped-locales
                 default: comm/mail/locales/all-locales
         locales-per-chunk: 5
         run-on-projects: ['release']

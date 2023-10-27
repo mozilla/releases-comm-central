@@ -56,6 +56,7 @@ jobs:
                 by-release-type:
                     beta.*: beta
                     release.*: official
+                    esr.*: official
                     default: nightly
             identity-name:
                 by-package-format:
@@ -63,11 +64,13 @@ jobs:
                         by-release-type:
                             beta.*: MozillaThunderbirdBeta
                             release.*: MozillaThunderbird
+                            esr.*: MozillaThunderbird
                             default: MozillaThunderbirdDaily
                     msix-store:
                         by-release-type:
                             beta.*: ThunderbirdBeta
                             release.*: MZLA
+                            esr.*: MZLA
                             default: ThunderbirdDaily
             publisher:
                 by-package-format:

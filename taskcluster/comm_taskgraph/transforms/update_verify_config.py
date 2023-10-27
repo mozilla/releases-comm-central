@@ -26,8 +26,10 @@ transforms = TransformSequence()
 INCLUDE_VERSION_REGEXES = {
     "beta": r"'^(\d+\.\d+b\d+)$'",
     "nonbeta": r"'^\d+\.\d+(\.\d+)?$'",
-    # Previous major versions, for update testing before we update users to a new esr
-    "release-next": r"'^(91|102)\.\d+(\.\d+)?$'",
+    # Same as nonbeta, except for the esr suffix
+    "esr": r"'^\d+\.\d+(\.\d+)?esr$'",
+    # Previous esr versions, for update testing before we update users to a new esr
+    "esr115-next": r"'^(91|102)\.\d+(\.\d+)?$'",
 }
 
 MAR_CHANNEL_ID_OVERRIDE_REGEXES = {

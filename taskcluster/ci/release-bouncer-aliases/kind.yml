@@ -41,12 +41,24 @@ jobs:
                     thunderbird-beta-latest: installer
                     thunderbird-beta-msi-latest-ssl: msi
                     thunderbird-beta-msix-latest-ssl: msix
-                release:
-                    # Disable on comm-esr115 when the next esr is released
+                release.*:
                     thunderbird-latest-ssl: installer-ssl
                     thunderbird-latest: installer
                     thunderbird-msi-latest-ssl: msi
                     thunderbird-msix-latest-ssl: msix
+                esr115:
+                    # when there is one ESR branch both sets of aliases work
+                    # when there are two ESR branches ...
+                    # ... these always point to the older branch
+                    thunderbird-esr-latest-ssl: installer-ssl
+                    thunderbird-esr-latest: installer
+                    thunderbird-esr-msi-latest-ssl: msi
+                    thunderbird-esr-msix-latest-ssl: msix
+                esrXXX:  # XXX - to change when we branch next ESR
+                    thunderbird-esr-next-latest-ssl: installer-ssl
+                    thunderbird-esr-next-latest: installer
+                    thunderbird-esr-next-msi-latest-ssl: msi
+                    thunderbird-esr-next-msix-latest-ssl: msix
                 default: {}
         shipping-product: thunderbird
         treeherder:

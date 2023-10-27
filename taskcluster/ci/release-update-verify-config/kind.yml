@@ -46,12 +46,14 @@ job-defaults:
         include-version:
             by-release-type:
                 beta: beta
-                release: nonbeta
+                release(-rc)?: nonbeta
+                esr.*: esr
                 default: beta
         last-watershed:
             by-release-type:
                 beta: "79.0b2"
-                release: "115.0"
+                release(-rc)?: "115.0"
+                esr115: "115.0"
                 default: "default"
 
 jobs:
@@ -71,7 +73,8 @@ jobs:
             channel:
                 by-release-type:
                     beta: "beta-localtest"
-                    release: "release-localtest"
+                    release(-rc)?: "release-localtest"
+                    esr.*: "esr-localtest"
                     default: "default"
             mar-channel-id-override:
                 by-release-type:
@@ -94,7 +97,8 @@ jobs:
             channel:
                 by-release-type:
                     beta: "beta-localtest"
-                    release: "release-localtest"
+                    release(-rc)?: "release-localtest"
+                    esr.*: "esr-localtest"
                     default: "default"
             mar-channel-id-override:
                 by-release-type:
@@ -117,7 +121,8 @@ jobs:
             channel:
                 by-release-type:
                     beta: "beta-localtest"
-                    release: "release-localtest"
+                    release(-rc)?: "release-localtest"
+                    esr.*: "esr-localtest"
                     default: "default"
             mar-channel-id-override:
                 by-release-type:
@@ -140,7 +145,8 @@ jobs:
             channel:
                 by-release-type:
                     beta: "beta-localtest"
-                    release: "release-localtest"
+                    release(-rc)?: "release-localtest"
+                    esr.*: "esr-localtest"
                     default: "default"
             mar-channel-id-override:
                 by-release-type:
@@ -163,7 +169,8 @@ jobs:
             channel:
                 by-release-type:
                     beta: "beta-localtest"
-                    release: "release-localtest"
+                    release(-rc)?: "release-localtest"
+                    esr.*: "esr-localtest"
                     default: "default"
             mar-channel-id-override:
                 by-release-type:

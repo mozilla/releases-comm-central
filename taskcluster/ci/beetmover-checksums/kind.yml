@@ -25,5 +25,5 @@ jobs:
             artifact_prefix: public
             artifact_map:
                 by-release-type:
-                    beta|release: comm/taskcluster/comm_taskgraph/manifests/thunderbird_candidates_checksums.yml
+                    beta|release.*|esr.*: comm/taskcluster/comm_taskgraph/manifests/thunderbird_candidates_checksums.yml
                     default: comm/taskcluster/comm_taskgraph/manifests/thunderbird_nightly_checksums.yml

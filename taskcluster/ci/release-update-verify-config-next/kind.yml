@@ -51,8 +51,8 @@ job-defaults:
                 production: null
         updater-platform: linux-x86_64
         product: thunderbird
-        channel: "release-localtest-next"
-        include-version: release-next
+        channel: "esr-localtest-next"
+        include-version: esr115-next
         last-watershed: "91.9.0"
 
 jobs:

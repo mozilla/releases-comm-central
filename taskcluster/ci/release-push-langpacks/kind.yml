@@ -34,6 +34,11 @@ jobs:
                             # ja-JP-mac is only langpack on mac, and is unlisted always
                             macosx64.*: unlisted
                             default: listed
+                    comm-release:
+                        by-platform:
+                            # ja-JP-mac is only langpack on mac, and is unlisted always
+                            macosx64.*: unlisted
+                            default: listed
                     comm-beta:
                         by-platform:
                             # ja-JP-mac is only langpack on mac, and is unlisted always

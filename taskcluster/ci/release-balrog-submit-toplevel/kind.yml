@@ -38,12 +38,14 @@ jobs:
             channel-names:
                 by-release-type:
                     beta: ["beta", "beta-localtest", "beta-cdntest"]
-                    release: ["release", "release-localtest", "release-cdntest", "release-localtest-next"]
+                    release(-rc)?: ["release", "release-localtest", "release-cdntest"]
+                    esr.*: ["esr", "esr-localtest", "esr-cdntest", "esr-localtest-next", "esr-cdntest-next"]
                     default: []
             rules-to-update:
                 by-release-type:
                     beta: ["thunderbird-beta-cdntest", "thunderbird-beta-localtest"]
-                    release: ["thunderbird-release115-cdntest", "thunderbird-release115-localtest", "thunderbird-release115-localtest-next"]
+                    release(-rc)?: ["thunderbird-release-cdntest", "thunderbird-release-localtest"]
+                    esr115: ["thunderbird-release115-cdntest", "thunderbird-release115-localtest"]
                     default: []
             platforms: ["linux", "linux64", "macosx64", "win32", "win64"]
         treeherder:

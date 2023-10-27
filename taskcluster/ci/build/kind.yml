@@ -32,6 +32,7 @@ job-defaults:
             by-release-type:
                 beta: release
                 release.*: release
+                esr.*: release
                 default: nightly
         # Note: These settings are only honored by nightly (i.e. shipping) builds
         update-channel:
@@ -39,14 +40,17 @@ job-defaults:
                 nightly: nightly
                 beta: beta
                 release.*: release
+                esr.*: esr
                 default: null
         mar-channel-id:
             by-release-type:
-                release: thunderbird-comm-release
                 beta: thunderbird-comm-beta
+                release.*: thunderbird-comm-release
+                esr.*: thunderbird-comm-esr
                 default: thunderbird-comm-central
         accepted-mar-channel-ids:
             by-release-type:
-                release: thunderbird-comm-release
                 beta: thunderbird-comm-beta,thunderbird-comm-release
+                release.*: thunderbird-comm-release
+                esr.*: thunderbird-comm-esr
                 default: thunderbird-comm-central
