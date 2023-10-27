@@ -44,10 +44,8 @@ openpgp.jar:
   content/openpgp/modules/streams.jsm          (content/modules/streams.jsm)
   content/openpgp/modules/trust.jsm            (content/modules/trust.jsm)
   content/openpgp/modules/uris.jsm             (content/modules/uris.jsm)
-  content/openpgp/modules/webKey.jsm           (content/modules/webKey.jsm)
   content/openpgp/modules/windows.jsm          (content/modules/windows.jsm)
   content/openpgp/modules/wkdLookup.jsm        (content/modules/wkdLookup.jsm)
-  content/openpgp/modules/wksMimeHandler.jsm   (content/modules/wksMimeHandler.jsm)
   content/openpgp/modules/zbase32.jsm          (content/modules/zbase32.jsm)
 
   content/openpgp/modules/cryptoAPI/RNPCryptoAPI.jsm    (content/modules/cryptoAPI/RNPCryptoAPI.jsm)
