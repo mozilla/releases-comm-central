@@ -201,12 +201,6 @@ tr[data-properties~="tagged"] .tag-icon {
   color: var(--tag-contrast-color, var(--listbox-selected-color));
 }
 
-[is="tree-view-table-body"] tr.context-menu-target {
-  background-color: color-mix(in srgb, var(--treeitem-background-active) 10%, transparent);
-  outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
-  outline-offset: -1px;
-}
-
 /* Thread column */
 
 .tree-view-header-thread img {

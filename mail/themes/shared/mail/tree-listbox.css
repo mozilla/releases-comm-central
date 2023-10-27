@@ -13,6 +13,7 @@
   --table-header-cell-icon-min-width: 24px;
   --table-row-cell-img-margin-inline-start: 6px;
   --table-row-cell-button-margin-inline-start: 4px;
+  --card-outline-offset: -2px;
 }
 
 :root[uidensity="compact"] {
@@ -37,6 +38,7 @@
   --table-header-cell-icon-min-width: 33px;
   --table-row-cell-img-margin-inline-start: 11px;
   --table-row-cell-button-margin-inline-start: 9px;
+  --card-outline-offset: -3px;
 }
 
 @media not (prefers-contrast) {
@@ -124,6 +126,10 @@
     outline: var(--listbox-selected-outline);
     outline-offset: -2px;
   }
+
+  [is="tree-view-table-body"] > [is="thread-card"]:hover {
+    outline-offset: var(--card-outline-offset);
+  }
 }
 
 [is="tree-view-table-body"] > .selected {
@@ -141,6 +147,15 @@
   outline-offset: -1px;
 }
 
+[is="tree-view-table-body"] {
+  &:focus,
+  &:focus-within {
+    & > [is="thread-card"].current:not(.selected) {
+      outline-offset: var(--card-outline-offset);
+    }
+  }
+}
+
 [is="tree-view-table-body"]:focus > .selected,
 [is="tree-view-table-body"]:focus-within > .selected,
 [is="tree-view-table-body"] > .selected:focus-within {
@@ -148,10 +163,29 @@
   background-color: var(--listbox-focused-selected-bg);
 }
 
-.multi-selected [is="tree-view-table-body"] > .selected.current,
-.multi-selected [is="tree-view-table-body"]:focus > .selected.current {
-  outline: 1px var(--listbox-border-type) var(--listbox-selected-color);
-  outline-offset: -1px;
+[is="tree-view-table-body"] {
+  tr.context-menu-target {
+    background-color: color-mix(in srgb, var(--treeitem-background-active) 10%, transparent);
+    outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
+    outline-offset: -1px;
+
+    &[is="thread-card"] {
+      outline-offset: var(--card-outline-offset);
+    }
+  }
+}
+
+.multi-selected [is="tree-view-table-body"] {
+  &,
+  &:focus {
+    & > .selected.current {
+      outline: 1px var(--listbox-border-type) var(--listbox-selected-color);
+      outline-offset: -1px;
+    }
+    & > [is="thread-card"].selected.current {
+      outline-offset: var(--card-outline-offset);
+    }
+  }
 }
 
 [is="tree-view-table-body"]:focus > .selected img,
