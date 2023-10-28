@@ -36,11 +36,6 @@ menulist {
   padding-inline-end: 0;
 }
 
-menulist::part(dropmarker) {
-  display: flex;
-  width: 20px;
-}
-
 html|input {
   padding: 4px;
 }
@@ -48,6 +43,10 @@ html|input {
 html|input[type="number"]::-moz-number-spin-up,
 html|input[type="number"]::-moz-number-spin-down {
   min-height: 0.7em;
+}
+
+menulist::part(dropmarker) {
+  margin-inline-end: 6px;
 }
 
 menulist[is="menulist-editable"][editable="true"] {
@@ -61,10 +60,7 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
 }
 
 menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
-  display: flex;
   width: initial;
-  min-width: 0;
-  margin-block: 0;
   margin-inline-end: 3px;
 }
 

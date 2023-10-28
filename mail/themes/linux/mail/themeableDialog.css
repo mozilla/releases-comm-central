@@ -24,13 +24,9 @@ button > .button-box {
   padding: 0;
   border: none;
   background-color: transparent;
-  list-style-image: var(--icon-nav-down-sm);
+  content: var(--icon-nav-down-sm);
   -moz-context-properties: stroke;
   stroke: currentColor;
-}
-
-menulist::part(dropmarker) {
-  display: flex;
 }
 
 html|input {
@@ -56,8 +52,6 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
 
 menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
   width: initial;
-  min-width: 0;
-  margin-block: 0;
   margin-inline-end: 3px;
 }
 

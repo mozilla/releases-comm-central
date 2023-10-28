@@ -4,7 +4,7 @@
 
 @import url("chrome://messenger/skin/shared/contextMenu.css");
 
-:host {
+:host(:is(.anonymous-content-host, notification-message)) {
   --icon-size: 16px;
   --close-icon-size: 32px;
   --in-content-button-color: #0c0c0d;
@@ -33,7 +33,7 @@
 }
 
 @media (prefers-contrast) {
-  :host {
+  :host(:is(.anonymous-content-host, notification-message)) {
     --in-content-box-info-background: -moz-Dialog;
     --in-content-button-color: ButtonText;
     --in-content-button-border: ThreeDLightShadow;
@@ -200,12 +200,7 @@
 
 /* Close icon styles */
 
-:host(:not([dismissable])) .close {
-  display: none;
-}
-
 .close {
-  color: inherit !important; /* Override common.css */
   background-image: var(--icon-close);
   background-repeat: no-repeat;
   background-position: center center;
@@ -219,17 +214,25 @@
   margin: 0;
   padding: 0;
   flex-shrink: 0;
-}
 
-button.ghost-button:not(.semi-transparent):enabled:hover {
-  background-color: color-mix(in srgb, currentColor 15%, transparent);
-}
-
-button.ghost-button:not(.semi-transparent):enabled:hover:active {
-  background-color: color-mix(in srgb, currentColor 25%, transparent);
+  :host(:not([dismissable])) & {
+    display: none;
+  }
 }
 
 @media not (prefers-contrast) {
+  .close {
+    color: inherit !important; /* Override common.css */
+  }
+
+  button.ghost-button:not(.semi-transparent):enabled:hover {
+    background-color: color-mix(in srgb, currentColor 15%, transparent);
+  }
+
+  button.ghost-button:not(.semi-transparent):enabled:hover:active {
+    background-color: color-mix(in srgb, currentColor 25%, transparent);
+  }
+
   .container.infobar {
     box-shadow: 0 1px 2px rgba(58, 57, 68, 0.3);
   }
@@ -362,7 +365,7 @@ toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > toolbarbutto
 
 toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > dropmarker {
   appearance: none;
-  list-style-image: var(--icon-nav-down-sm);
+  content: var(--icon-nav-down-sm);
   -moz-context-properties: stroke;
   stroke: currentColor;
   margin-inline-end: -5px;

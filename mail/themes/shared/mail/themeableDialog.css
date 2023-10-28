@@ -325,16 +325,9 @@ menulist[is="menulist-addrbooks"]::part(icon) {
 
 menulist::part(dropmarker) {
   appearance: none;
-  width: 16px;
   padding: 0;
   border: none;
   background-color: transparent;
-}
-
-menulist::part(dropmarker-icon) {
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-  width: 16px;
 }
 
 menulist[is="menulist-editable"][editable="true"]::part(text-input) {

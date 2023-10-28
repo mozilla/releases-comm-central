@@ -376,7 +376,8 @@ toolbar[customizing="true"][collapsed="true"] {
 
   & .toolbarbutton-menu-dropmarker,
   & > .toolbarbutton-menubutton-dropmarker {
-    list-style-image: var(--icon-nav-down-sm);
+    flex: 0;
+    content: var(--icon-nav-down-sm);
     -moz-context-properties: stroke;
     stroke: currentColor;
   }
@@ -384,12 +385,6 @@ toolbar[customizing="true"][collapsed="true"] {
   & .toolbarbutton-menu-dropmarker::part(icon),
   & > .toolbarbutton-menubutton-dropmarker::part(icon) {
     width: 12px;
-  }
-
-  /* Separator between menu and split type buttons */
-  &:not(:hover,:active,[open],[checked]) > .toolbarbutton-menubutton-dropmarker::before,
-  &[disabled="true"] > .toolbarbutton-menubutton-dropmarker::before {
-    margin-inline: -6px 5px;
   }
 
   & > .toolbarbutton-menubutton-button {
@@ -441,17 +436,9 @@ toolbar[customizing="true"][collapsed="true"] {
   }
 
   /* Separator between menu and split type buttons */
-  &:not(:hover,:active,[open],[checked]) > .toolbarbutton-menubutton-dropmarker::before,
-  &[disabled="true"] > .toolbarbutton-menubutton-dropmarker::before {
-    content: "";
-    display: flex;
-    width: 1px;
-    height: 18px;
-    background-image: linear-gradient(currentColor 0, currentColor 100%);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 1px 18px;
-    opacity: .2;
+  &:not(:hover,:active,[open],[checked]) > .toolbarbutton-menubutton-dropmarker,
+  &[disabled="true"] > .toolbarbutton-menubutton-dropmarker {
+    border-inline-start-color: color-mix(in srgb, currentColor 20%, transparent);
   }
 
   toolbox:not([labelalign="end"]) > toolbar[mode="full"]
@@ -482,8 +469,8 @@ toolbar[customizing="true"][collapsed="true"] {
     }
   }
 
-  toolbar[brighttext] &:not(:hover,:active,[open]) > .toolbarbutton-menubutton-dropmarker::before {
-    opacity: .3;
+  toolbar[brighttext] &:not(:hover,:active,[open]) > .toolbarbutton-menubutton-dropmarker {
+    border-inline-start-color: color-mix(in srgb, currentColor 30%, transparent);
   }
 
   #palette-box & {
@@ -678,7 +665,7 @@ button[is="toolbarbutton-menu-button"] {
 
 button > .button-box > dropmarker {
   appearance: none;
-  list-style-image: var(--icon-nav-down-sm);
+  content: var(--icon-nav-down-sm);
   -moz-context-properties: stroke;
   stroke: currentColor;
 }

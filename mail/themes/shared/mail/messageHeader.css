@@ -185,16 +185,6 @@ mail-tagfield[collapsed="true"] {
   border-color: var(--toolbarbutton-active-bordercolor);
 }
 
-/* Separator between menu and split type buttons */
-#messageHeader:not(.message-header-buttons-only-icons)
-  .toolbarbutton-1.message-header-view-button:not(:hover,:active,[open],[checked]) >
-  .toolbarbutton-menubutton-dropmarker::before,
-#messageHeader:not(.message-header-buttons-only-icons)
-  .toolbarbutton-1.message-header-view-button[disabled="true"] >
-  .toolbarbutton-menubutton-dropmarker::before {
-  background-image: none;
-}
-
 .message-header-view-button .toolbarbutton-text {
   padding-inline-start: 2px;
 }
