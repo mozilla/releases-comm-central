@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
 });
 
 async function withTab(callback) {
-  let tab = tabmail.openTab("contentTab", {
+  const tab = tabmail.openTab("contentTab", {
     url: "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeListbox.xhtml",
   });
   await BrowserTestUtils.browserLoaded(tab.browser);
@@ -45,12 +45,12 @@ add_task(async function testUnselectable() {
  * Tests keyboard navigation up and down the list.
  */
 async function subtestKeyboard() {
-  let doc = content.document;
+  const doc = content.document;
 
-  let list = doc.querySelector(`ul[is="tree-listbox"]`);
+  const list = doc.querySelector(`ul[is="tree-listbox"]`);
   Assert.ok(!!list, "the list exists");
 
-  let initialRowIds = [
+  const initialRowIds = [
     "row-1",
     "row-2",
     "row-2-1",
@@ -68,7 +68,7 @@ async function subtestKeyboard() {
   );
   Assert.equal(list.selectedIndex, 0, "selectedIndex is set to 0");
 
-  let selectHandler = {
+  const selectHandler = {
     seenEvent: null,
     selectedAtEvent: null,
 
@@ -169,10 +169,10 @@ async function subtestKeyboard() {
  * the event loop.
  */
 async function subtestMutation() {
-  let doc = content.document;
-  let list = doc.querySelector(`ul[is="tree-listbox"]`);
-  let idsWithChildren = ["row-2", "row-3", "row-3-1"];
-  let idsWithoutChildren = [
+  const doc = content.document;
+  const list = doc.querySelector(`ul[is="tree-listbox"]`);
+  const idsWithChildren = ["row-2", "row-3", "row-3-1"];
+  const idsWithoutChildren = [
     "row-1",
     "row-2-1",
     "row-2-2",
@@ -183,12 +183,12 @@ async function subtestMutation() {
   // Check the initial state.
 
   function createNewRow() {
-    let template = doc.getElementById("rowToAdd");
+    const template = doc.getElementById("rowToAdd");
     return template.content.cloneNode(true).firstElementChild;
   }
 
   function checkHasClass(id, shouldHaveClass = true) {
-    let row = doc.getElementById(id);
+    const row = doc.getElementById(id);
     if (shouldHaveClass) {
       Assert.ok(
         row.classList.contains("children"),
@@ -202,10 +202,10 @@ async function subtestMutation() {
     }
   }
 
-  for (let id of idsWithChildren) {
+  for (const id of idsWithChildren) {
     checkHasClass(id, true);
   }
-  for (let id of idsWithoutChildren) {
+  for (const id of idsWithoutChildren) {
     checkHasClass(id, false);
   }
 
@@ -221,8 +221,8 @@ async function subtestMutation() {
 
   // Add and remove a single row to rows with existing children.
 
-  for (let id of idsWithChildren) {
-    let row = doc.getElementById(id);
+  for (const id of idsWithChildren) {
+    const row = doc.getElementById(id);
 
     info(`adding new row to ${id}`);
     newRow = row.querySelector("ul").appendChild(createNewRow());
@@ -244,9 +244,9 @@ async function subtestMutation() {
 
   // Add and remove a single row to rows without existing children.
 
-  for (let id of idsWithoutChildren) {
-    let row = doc.getElementById(id);
-    let childList = row.appendChild(doc.createElement("ul"));
+  for (const id of idsWithoutChildren) {
+    const row = doc.getElementById(id);
+    const childList = row.appendChild(doc.createElement("ul"));
 
     info(`adding new row to ${id}`);
     newRow = childList.appendChild(createNewRow());
@@ -289,7 +289,7 @@ async function subtestMutation() {
   // should be given the "children" class. I think it's safe to assume this
   // works no matter where in the tree it's added.
 
-  let template = doc.getElementById("rowsToAdd");
+  const template = doc.getElementById("rowsToAdd");
   newRow = template.content.cloneNode(true).firstElementChild;
   list.appendChild(newRow);
   // Wait for mutation observer.
@@ -328,9 +328,9 @@ async function subtestMutation() {
  * you may want to make changes there too.
  */
 async function subtestExpandCollapse() {
-  let doc = content.document;
-  let list = doc.querySelector(`ul[is="tree-listbox"]`);
-  let allIds = [
+  const doc = content.document;
+  const list = doc.querySelector(`ul[is="tree-listbox"]`);
+  const allIds = [
     "row-1",
     "row-2",
     "row-2-1",
@@ -340,7 +340,7 @@ async function subtestExpandCollapse() {
     "row-3-1-1",
     "row-3-1-2",
   ];
-  let idsWithoutChildren = [
+  const idsWithoutChildren = [
     "row-1",
     "row-2-1",
     "row-2-2",
@@ -348,7 +348,7 @@ async function subtestExpandCollapse() {
     "row-3-1-2",
   ];
 
-  let listener = {
+  const listener = {
     reset() {
       this.collapsedRow = null;
       this.expandedRow = null;
@@ -364,7 +364,7 @@ async function subtestExpandCollapse() {
   list.addEventListener("collapsed", listener);
   list.addEventListener("expanded", listener);
 
-  let selectHandler = {
+  const selectHandler = {
     seenEvent: null,
     selectedAtEvent: null,
 
@@ -401,7 +401,7 @@ async function subtestExpandCollapse() {
 
   function checkSelected(expectedIndex, expectedId) {
     Assert.equal(list.selectedIndex, expectedIndex, "selectedIndex is correct");
-    let selected = [...list.querySelectorAll(".selected")].map(row => row.id);
+    const selected = [...list.querySelectorAll(".selected")].map(row => row.id);
     Assert.deepEqual(
       selected,
       [expectedId],
@@ -415,8 +415,8 @@ async function subtestExpandCollapse() {
 
   function performChange(id, expectedChange, changeCallback) {
     listener.reset();
-    let row = doc.getElementById(id);
-    let before = row.classList.contains("collapsed");
+    const row = doc.getElementById(id);
+    const before = row.classList.contains("collapsed");
 
     changeCallback(row);
 
@@ -457,7 +457,7 @@ async function subtestExpandCollapse() {
     );
   }
 
-  for (let id of idsWithoutChildren) {
+  for (const id of idsWithoutChildren) {
     clickTwisty(id, null);
     Assert.equal(list.querySelector(".selected").id, id);
   }
@@ -467,9 +467,9 @@ async function subtestExpandCollapse() {
   // Click the twisties of rows with children.
 
   function checkRowsAreHidden(...hiddenIds) {
-    let remainingIds = allIds.slice();
+    const remainingIds = allIds.slice();
 
-    for (let id of allIds) {
+    for (const id of allIds) {
       if (hiddenIds.includes(id)) {
         Assert.equal(doc.getElementById(id).clientHeight, 0, `${id} is hidden`);
         remainingIds.splice(remainingIds.indexOf(id), 1);
@@ -868,8 +868,8 @@ async function subtestExpandCollapse() {
  * Tests what happens to selection when a row is removed.
  */
 async function subtestSelectOnRemoval1() {
-  let doc = content.document;
-  let list = doc.getElementById("deleteTree");
+  const doc = content.document;
+  const list = doc.getElementById("deleteTree");
 
   let selectPromise;
   function promiseSelectEvent() {
@@ -1097,7 +1097,7 @@ async function subtestSelectOnRemoval1() {
   Assert.equal(list.selectedRow.id, "dRow-3-1-1");
 
   promiseSelectEvent();
-  let rowToReplace = list.querySelector("#dRow-3-1");
+  const rowToReplace = list.querySelector("#dRow-3-1");
   rowToReplace.remove();
   Assert.deepEqual(
     await selectPromise,
@@ -1152,8 +1152,8 @@ async function subtestSelectOnRemoval1() {
  * Tests what happens to selection when a row is removed.
  */
 async function subtestSelectOnRemoval2() {
-  let doc = content.document;
-  let list = doc.querySelector(`ul[is="tree-listbox"]`);
+  const doc = content.document;
+  const list = doc.querySelector(`ul[is="tree-listbox"]`);
 
   let selectPromise;
   function promiseSelectEvent() {
@@ -1187,8 +1187,8 @@ async function subtestSelectOnRemoval2() {
  * Tests what happens to selection when elements above it are removed.
  */
 async function subtestSelectOnRemoval3() {
-  let doc = content.document;
-  let list = doc.querySelector(`ul[is="tree-listbox"]`);
+  const doc = content.document;
+  const list = doc.querySelector(`ul[is="tree-listbox"]`);
 
   // Delete a row.
 
@@ -1239,12 +1239,12 @@ async function subtestSelectOnRemoval3() {
  * Tests that rows marked as unselectable cannot be selected.
  */
 async function subtestUnselectable() {
-  let doc = content.document;
+  const doc = content.document;
 
-  let list = doc.querySelector(`ul#unselectableTree`);
+  const list = doc.querySelector(`ul#unselectableTree`);
   Assert.ok(!!list, "the list exists");
 
-  let initialRowIds = [
+  const initialRowIds = [
     "uRow-2-1",
     "uRow-2-2",
     "uRow-3-1",

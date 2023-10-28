@@ -8,7 +8,7 @@
  */
 add_task(async function test_additions_and_removals() {
   async function deleteRowWithPrompt(index) {
-    let promptPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
+    const promptPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
     EventUtils.synthesizeMouseAtCenter(
       cardsList.getRowAtIndex(index),
       {},
@@ -20,13 +20,13 @@ add_task(async function test_additions_and_removals() {
     await new Promise(r => abWindow.setTimeout(r));
   }
 
-  let bookA = createAddressBook("book A");
-  let contactA1 = bookA.addCard(createContact("contact", "A1"));
-  let bookB = createAddressBook("book B");
-  let contactB1 = bookB.addCard(createContact("contact", "B1"));
+  const bookA = createAddressBook("book A");
+  const contactA1 = bookA.addCard(createContact("contact", "A1"));
+  const bookB = createAddressBook("book B");
+  const contactB1 = bookB.addCard(createContact("contact", "B1"));
 
-  let abWindow = await openAddressBookWindow();
-  let cardsList = abWindow.cardsPane.cardsList;
+  const abWindow = await openAddressBookWindow();
+  const cardsList = abWindow.cardsPane.cardsList;
 
   await openAllAddressBooks();
   info("Performing check #1");
@@ -35,9 +35,9 @@ add_task(async function test_additions_and_removals() {
   // While in bookA, add a contact and list. Check that they show up.
   openDirectory(bookA);
   checkCardsListed(contactA1);
-  let contactA2 = bookA.addCard(createContact("contact", "A2")); // Add A2.
+  const contactA2 = bookA.addCard(createContact("contact", "A2")); // Add A2.
   checkCardsListed(contactA1, contactA2);
-  let listC = bookA.addMailList(createMailingList("list C")); // Add C.
+  const listC = bookA.addMailList(createMailingList("list C")); // Add C.
   checkDirectoryDisplayed(bookA);
   checkCardsListed(contactA1, contactA2, listC);
   listC.addCard(contactA1);
@@ -68,9 +68,9 @@ add_task(async function test_additions_and_removals() {
   checkCardsListed(contactA2, listC);
   Assert.equal(cardsList.currentIndex, 0);
   // Now do some things in an unrelated book. Check nothing changes here.
-  let contactB2 = bookB.addCard(createContact("contact", "B2")); // Add B2.
+  const contactB2 = bookB.addCard(createContact("contact", "B2")); // Add B2.
   checkCardsListed(contactA2, listC);
-  let listD = bookB.addMailList(createMailingList("list D")); // Add D.
+  const listD = bookB.addMailList(createMailingList("list D")); // Add D.
   checkDirectoryDisplayed(bookA);
   checkCardsListed(contactA2, listC);
   listD.addCard(contactB1);
@@ -110,7 +110,7 @@ add_task(async function test_additions_and_removals() {
   await openAllAddressBooks();
   info("Performing check #6");
   checkCardsListed(contactA2, contactB2);
-  let listE = bookB.addMailList(createMailingList("list E")); // Add E.
+  const listE = bookB.addMailList(createMailingList("list E")); // Add E.
   checkDirectoryDisplayed(null);
   checkCardsListed(contactA2, contactB2, listE);
   listE.addCard(contactB2);
@@ -129,9 +129,9 @@ add_task(async function test_additions_and_removals() {
 
   // While in "All Address Books", delete a directory that has contacts and
   // mailing lists. They should disappear.
-  let contactA3 = bookA.addCard(createContact("contact", "A3")); // Add A3.
+  const contactA3 = bookA.addCard(createContact("contact", "A3")); // Add A3.
   checkCardsListed(contactA3);
-  let listF = bookA.addMailList(createMailingList("list F")); // Add F.
+  const listF = bookA.addMailList(createMailingList("list F")); // Add F.
   checkCardsListed(contactA3, listF);
   await promiseDirectoryRemoved(bookA.URI);
   checkCardsListed();
@@ -147,25 +147,25 @@ add_task(async function test_additions_and_removals() {
 add_task(async function test_insertion_order() {
   await openAddressBookWindow();
 
-  let bookA = createAddressBook("book A");
+  const bookA = createAddressBook("book A");
   openDirectory(bookA);
   checkCardsListed();
-  let contactA2 = bookA.addCard(createContact("contact", "A2"));
+  const contactA2 = bookA.addCard(createContact("contact", "A2"));
   checkCardsListed(contactA2);
-  let contactA1 = bookA.addCard(createContact("contact", "A1")); // Add first.
+  const contactA1 = bookA.addCard(createContact("contact", "A1")); // Add first.
   checkCardsListed(contactA1, contactA2);
-  let contactA5 = bookA.addCard(createContact("contact", "A5")); // Add last.
+  const contactA5 = bookA.addCard(createContact("contact", "A5")); // Add last.
   checkCardsListed(contactA1, contactA2, contactA5);
-  let contactA3 = bookA.addCard(createContact("contact", "A3")); // Add in the middle.
+  const contactA3 = bookA.addCard(createContact("contact", "A3")); // Add in the middle.
   checkCardsListed(contactA1, contactA2, contactA3, contactA5);
 
   // Flip sort direction.
   await showSortMenu("sort", "GeneratedName descending");
 
   checkCardsListed(contactA5, contactA3, contactA2, contactA1);
-  let contactA4 = bookA.addCard(createContact("contact", "A4")); // Add in the middle.
+  const contactA4 = bookA.addCard(createContact("contact", "A4")); // Add in the middle.
   checkCardsListed(contactA5, contactA4, contactA3, contactA2, contactA1);
-  let contactA7 = bookA.addCard(createContact("contact", "A7")); // Add first.
+  const contactA7 = bookA.addCard(createContact("contact", "A7")); // Add first.
   checkCardsListed(
     contactA7,
     contactA5,
@@ -174,7 +174,7 @@ add_task(async function test_insertion_order() {
     contactA2,
     contactA1
   );
-  let contactA0 = bookA.addCard(createContact("contact", "A0")); // Add last.
+  const contactA0 = bookA.addCard(createContact("contact", "A0")); // Add last.
   checkCardsListed(
     contactA7,
     contactA5,
@@ -226,15 +226,15 @@ add_task(async function test_name_column() {
     GENERATE_FIRST_LAST_ORDER,
   } = Ci.nsIAbCard;
 
-  let book = createAddressBook("book");
+  const book = createAddressBook("book");
   book.addCard(createContact("alpha", "tango", "kilo"));
   book.addCard(createContact("bravo", "zulu", "quebec"));
   book.addCard(createContact("charlie", "mike", "whiskey"));
   book.addCard(createContact("delta", "foxtrot", "sierra"));
   book.addCard(createContact("echo", "november", "uniform"));
 
-  let abWindow = await openAddressBookWindow();
-  let cardsList = abWindow.cardsPane.cardsList;
+  const abWindow = await openAddressBookWindow();
+  const cardsList = abWindow.cardsPane.cardsList;
 
   // Check the format is display name, ascending.
   Assert.equal(
@@ -347,7 +347,7 @@ add_task(async function test_name_column() {
  * Tests that sort order and name format survive closing and reopening.
  */
 add_task(async function test_persistence() {
-  let book = createAddressBook("book");
+  const book = createAddressBook("book");
   book.addCard(createContact("alpha", "tango", "kilo"));
   book.addCard(createContact("bravo", "zulu", "quebec"));
   book.addCard(createContact("charlie", "mike", "whiskey"));
@@ -412,15 +412,15 @@ add_task(async function test_persistence() {
  */
 add_task(async function test_context_menu_compose() {
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
 
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(account, true);
   });
 
-  let book = createAddressBook("Book");
-  let contactA = book.addCard(createContact("Contact", "A"));
+  const book = createAddressBook("Book");
+  const contactA = book.addCard(createContact("Contact", "A"));
   let contactB = createContact("Contact", "B");
   contactB.setProperty("SecondEmail", "b.contact@invalid");
   contactB = book.addCard(contactB);
@@ -431,18 +431,18 @@ add_task(async function test_context_menu_compose() {
   let contactD = createContact("Contact", "D");
   contactD.primaryEmail = null;
   contactD = book.addCard(contactD);
-  let list = book.addMailList(createMailingList("List"));
+  const list = book.addMailList(createMailingList("List"));
   list.addCard(contactA);
   list.addCard(contactB);
 
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
-  let cardsList = abWindow.cardsPane.cardsList;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
+  const cardsList = abWindow.cardsPane.cardsList;
 
-  let menu = abDocument.getElementById("cardContext");
-  let writeMenuItem = abDocument.getElementById("cardContextWrite");
-  let writeMenu = abDocument.getElementById("cardContextWriteMenu");
-  let writeMenuSeparator = abDocument.getElementById(
+  const menu = abDocument.getElementById("cardContext");
+  const writeMenuItem = abDocument.getElementById("cardContextWrite");
+  const writeMenu = abDocument.getElementById("cardContextWriteMenu");
+  const writeMenuSeparator = abDocument.getElementById(
     "cardContextWriteSeparator"
   );
 
@@ -603,28 +603,28 @@ add_task(async function test_context_menu_compose() {
  * Tests the context menu edit items.
  */
 add_task(async function test_context_menu_edit() {
-  let normalBook = createAddressBook("Normal Book");
-  let normalList = normalBook.addMailList(createMailingList("Normal List"));
-  let normalContact = normalBook.addCard(createContact("Normal", "Contact"));
+  const normalBook = createAddressBook("Normal Book");
+  const normalList = normalBook.addMailList(createMailingList("Normal List"));
+  const normalContact = normalBook.addCard(createContact("Normal", "Contact"));
   normalList.addCard(normalContact);
 
-  let readOnlyBook = createAddressBook("Read-Only Book");
-  let readOnlyList = readOnlyBook.addMailList(
+  const readOnlyBook = createAddressBook("Read-Only Book");
+  const readOnlyList = readOnlyBook.addMailList(
     createMailingList("Read-Only List")
   );
-  let readOnlyContact = readOnlyBook.addCard(
+  const readOnlyContact = readOnlyBook.addCard(
     createContact("Read-Only", "Contact")
   );
   readOnlyList.addCard(readOnlyContact);
   readOnlyBook.setBoolValue("readOnly", true);
 
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
-  let cardsList = abWindow.cardsPane.cardsList;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
+  const cardsList = abWindow.cardsPane.cardsList;
 
-  let menu = abDocument.getElementById("cardContext");
-  let editMenuItem = abDocument.getElementById("cardContextEdit");
-  let exportMenuItem = abDocument.getElementById("cardContextExport");
+  const menu = abDocument.getElementById("cardContext");
+  const editMenuItem = abDocument.getElementById("cardContextEdit");
+  const exportMenuItem = abDocument.getElementById("cardContextExport");
 
   async function checkEditItems(index, hidden, isMailList = false) {
     await showCardsContext(index);
@@ -647,7 +647,7 @@ add_task(async function test_context_menu_edit() {
       args: null,
     });
 
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.hidePopup();
     await hiddenPromise;
   }
@@ -703,28 +703,28 @@ add_task(async function test_context_menu_edit() {
  * Tests the context menu delete items.
  */
 add_task(async function test_context_menu_delete() {
-  let normalBook = createAddressBook("Normal Book");
-  let normalList = normalBook.addMailList(createMailingList("Normal List"));
-  let normalContact = normalBook.addCard(createContact("Normal", "Contact"));
+  const normalBook = createAddressBook("Normal Book");
+  const normalList = normalBook.addMailList(createMailingList("Normal List"));
+  const normalContact = normalBook.addCard(createContact("Normal", "Contact"));
   normalList.addCard(normalContact);
 
-  let readOnlyBook = createAddressBook("Read-Only Book");
-  let readOnlyList = readOnlyBook.addMailList(
+  const readOnlyBook = createAddressBook("Read-Only Book");
+  const readOnlyList = readOnlyBook.addMailList(
     createMailingList("Read-Only List")
   );
-  let readOnlyContact = readOnlyBook.addCard(
+  const readOnlyContact = readOnlyBook.addCard(
     createContact("Read-Only", "Contact")
   );
   readOnlyList.addCard(readOnlyContact);
   readOnlyBook.setBoolValue("readOnly", true);
 
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
-  let cardsList = abWindow.cardsPane.cardsList;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
+  const cardsList = abWindow.cardsPane.cardsList;
 
-  let menu = abDocument.getElementById("cardContext");
-  let deleteMenuItem = abDocument.getElementById("cardContextDelete");
-  let removeMenuItem = abDocument.getElementById("cardContextRemove");
+  const menu = abDocument.getElementById("cardContext");
+  const deleteMenuItem = abDocument.getElementById("cardContextDelete");
+  const removeMenuItem = abDocument.getElementById("cardContextRemove");
 
   async function checkDeleteItems(index, deleteHidden, removeHidden, disabled) {
     await showCardsContext(index);
@@ -750,7 +750,7 @@ add_task(async function test_context_menu_delete() {
       `removeMenuItem.disabled on index ${index}`
     );
 
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.hidePopup();
     await hiddenPromise;
   }
@@ -804,7 +804,7 @@ add_task(async function test_context_menu_delete() {
 
 add_task(async function test_layout() {
   function checkColumns(visibleColumns, sortColumn, sortDirection) {
-    let visibleHeaders = cardsHeader.querySelectorAll(
+    const visibleHeaders = cardsHeader.querySelectorAll(
       `th[is="tree-view-table-header-cell"]:not([hidden])`
     );
     Assert.deepEqual(
@@ -813,8 +813,8 @@ add_task(async function test_layout() {
       "visible columns are correct"
     );
 
-    for (let header of visibleHeaders) {
-      let button = header.querySelector("button");
+    for (const header of visibleHeaders) {
+      const button = header.querySelector("button");
       Assert.equal(
         button.classList.contains("ascending"),
         header.id == sortColumn && sortDirection == "ascending",
@@ -1056,12 +1056,12 @@ add_task(async function test_layout() {
 });
 
 add_task(async function test_placeholders() {
-  let writableBook = createAddressBook("Writable Book");
-  let readOnlyBook = createAddressBook("Read-Only Book");
+  const writableBook = createAddressBook("Writable Book");
+  const readOnlyBook = createAddressBook("Read-Only Book");
   readOnlyBook.setBoolValue("readOnly", true);
 
-  let abWindow = await openAddressBookWindow();
-  let placeholderCreateContact = abWindow.document.getElementById(
+  const abWindow = await openAddressBookWindow();
+  const placeholderCreateContact = abWindow.document.getElementById(
     "placeholderCreateContact"
   );
 
@@ -1073,7 +1073,7 @@ add_task(async function test_placeholders() {
   await openDirectory(writableBook);
   checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
 
-  let writableList = writableBook.addMailList(
+  const writableList = writableBook.addMailList(
     createMailingList("Writable List")
   );
   checkPlaceholders();
@@ -1093,7 +1093,7 @@ add_task(async function test_placeholders() {
 
   // This wouldn't happen but we need to check the state in a read-only list.
   readOnlyBook.setBoolValue("readOnly", false);
-  let readOnlyList = readOnlyBook.addMailList(
+  const readOnlyList = readOnlyBook.addMailList(
     createMailingList("Read-Only List")
   );
   readOnlyBook.setBoolValue("readOnly", true);
@@ -1129,14 +1129,14 @@ add_task(async function test_placeholders() {
  * Checks that mailling lists address books are shown in the table layout.
  */
 add_task(async function test_list_table_layout() {
-  let book = createAddressBook("Book");
+  const book = createAddressBook("Book");
   book.addCard(createContact("contact", "one"));
-  let list = createMailingList("list one");
+  const list = createMailingList("list one");
   book.addMailList(list);
 
-  let abWindow = await openAddressBookWindow();
-  let cardsList = abWindow.cardsPane.cardsList;
-  let cardsHeader = abWindow.cardsPane.table.header;
+  const abWindow = await openAddressBookWindow();
+  const cardsList = abWindow.cardsPane.cardsList;
+  const cardsHeader = abWindow.cardsPane.table.header;
 
   // Switch layout to table.
 
@@ -1179,16 +1179,16 @@ add_task(async function test_list_table_layout() {
  * list view (vertical layout).
  */
 add_task(async function test_list_all_address_book() {
-  let firstBook = createAddressBook("First Book");
-  let secondBook = createAddressBook("Second Book");
+  const firstBook = createAddressBook("First Book");
+  const secondBook = createAddressBook("Second Book");
   firstBook.addCard(createContact("contact", "one"));
   secondBook.addCard(createContact("contact", "two"));
-  let list = createMailingList("list two");
+  const list = createMailingList("list two");
   secondBook.addMailList(list);
 
-  let abWindow = await openAddressBookWindow();
-  let cardsList = abWindow.cardsPane.cardsList;
-  let cardsHeader = abWindow.cardsPane.table.header;
+  const abWindow = await openAddressBookWindow();
+  const cardsList = abWindow.cardsPane.cardsList;
+  const cardsHeader = abWindow.cardsPane.table.header;
 
   info("Check that no address book suffix is present.");
   Assert.ok(

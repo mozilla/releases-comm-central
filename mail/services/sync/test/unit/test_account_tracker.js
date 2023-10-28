@@ -48,9 +48,9 @@ add_task(async function testAccount() {
   Assert.equal(tracker.score, 0);
   Assert.deepEqual(await tracker.getChangedIDs(), {});
 
-  let id = newUID();
+  const id = newUID();
   info(id);
-  let newAccount = MailServices.accounts.createAccount();
+  const newAccount = MailServices.accounts.createAccount();
   newAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "username",
     "hostname",
@@ -86,7 +86,7 @@ add_task(async function testAccount() {
  * Test the store methods on calendars. The tracker should ignore them.
  */
 add_task(async function testIncomingChanges() {
-  let id = newUID();
+  const id = newUID();
 
   tracker.ignoreAll = true;
   await store.applyIncoming({

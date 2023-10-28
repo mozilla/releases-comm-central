@@ -10,7 +10,7 @@ Services.scriptloader.loadSubScript(
 
 registerCleanupFunction(async () => {
   // Reset the menubar visibility.
-  let menubar = document.getElementById("toolbar-menubar");
+  const menubar = document.getElementById("toolbar-menubar");
   menubar.removeAttribute("autohide");
   menubar.removeAttribute("inactive");
   await new Promise(resolve => requestAnimationFrame(resolve));

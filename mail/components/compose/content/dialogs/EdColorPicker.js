@@ -51,7 +51,7 @@ function Startup() {
     ColorType = gColorObj.Type;
     // Get string for dialog title from passed-in type
     //   (note constraint on editor.properties string name)
-    let IsCSSPrefChecked = Services.prefs.getBoolPref("editor.use_css");
+    const IsCSSPrefChecked = Services.prefs.getBoolPref("editor.use_css");
 
     if (GetCurrentEditor()) {
       if (ColorType == "Page" && IsCSSPrefChecked && IsHTMLEditor()) {

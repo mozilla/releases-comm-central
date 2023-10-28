@@ -34,13 +34,13 @@ const {
 const PREF_EM_CHECK_UPDATE_SECURITY = "extensions.checkUpdateSecurity";
 Services.prefs.setBoolPref(PREF_EM_CHECK_UPDATE_SECURITY, false);
 
-let gProfD = do_get_profile();
-let profileDir = gProfD.clone();
+const gProfD = do_get_profile();
+const profileDir = gProfD.clone();
 profileDir.append("extensions");
 const stageDir = profileDir.clone();
 stageDir.append("staged");
 
-let server = createHttpServer({
+const server = createHttpServer({
   hosts: ["example.com"],
 });
 
@@ -58,7 +58,7 @@ async function enforceState(state) {
 }
 
 function check(testType, expectedCache, expectedMail, expectedCalendar) {
-  let extensionId = `browser_action_spaces_${testType}@mochi.test`;
+  const extensionId = `browser_action_spaces_${testType}@mochi.test`;
 
   Assert.equal(
     getCachedAllowedSpaces().has(extensionId),
@@ -119,7 +119,7 @@ function addXPI(testType, thisVersion, nextVersion, browser_action) {
 }
 
 function addUpdateJSON(testType, nextVersion) {
-  let extensionId = `browser_action_spaces_${testType}@mochi.test`;
+  const extensionId = `browser_action_spaces_${testType}@mochi.test`;
 
   AddonTestUtils.registerJSON(
     server,
@@ -145,8 +145,8 @@ function addUpdateJSON(testType, nextVersion) {
 }
 
 async function checkForExtensionUpdate(testType, extension) {
-  let update = await promiseFindAddonUpdates(extension.addon);
-  let install = update.updateAvailable;
+  const update = await promiseFindAddonUpdates(extension.addon);
+  const install = update.updateAvailable;
   await promiseCompleteAllInstalls([install]);
 
   if (testType == "normal") {
@@ -180,7 +180,7 @@ async function runTest(testType) {
   // Add the required update JSON to our test server, to be able to update to v2.
   addUpdateJSON(testType, 2);
   // Install addon v1 without a browserAction.
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     files: {
       "background.js": function () {

@@ -18,26 +18,28 @@ var { get_about_message, open_message_from_file } = ChromeUtils.import(
 );
 
 add_task(async function testMMS() {
-  let file = new FileUtils.File(
+  const file = new FileUtils.File(
     getTestFilePath("data/bug1774805_android_mms.eml")
   );
-  let msgc = await open_message_from_file(file);
+  const msgc = await open_message_from_file(file);
 
-  let imgs = msgc.content.document.querySelectorAll("img");
+  const imgs = msgc.content.document.querySelectorAll("img");
   // There are dottedline600.gif, tbmobilespace.gif x 3, footer.gif.
   Assert.equal(imgs.length, 5, "body should show all images");
 
-  let lines = msgc.content.document.querySelectorAll(
+  const lines = msgc.content.document.querySelectorAll(
     `img[src$="dottedline600.gif"]`
   );
   Assert.equal(lines.length, 1, "should have one dottedline600.gif");
 
-  let spacers = msgc.content.document.querySelectorAll(
+  const spacers = msgc.content.document.querySelectorAll(
     `img[src$="tmobilespace.gif"]`
   );
   Assert.equal(spacers.length, 3, "should have three tmobilespace.gif");
 
-  let footer = msgc.content.document.querySelectorAll(`img[src$="footer.gif"]`);
+  const footer = msgc.content.document.querySelectorAll(
+    `img[src$="footer.gif"]`
+  );
   Assert.equal(footer.length, 1, "should have one footer.gif");
 
   for (var img of imgs) {
@@ -55,8 +57,8 @@ add_task(async function testMMS() {
     "Body should have the right text"
   );
 
-  let aboutMessage = get_about_message(msgc);
-  let attachmentList = aboutMessage.document.getElementById("attachmentList");
+  const aboutMessage = get_about_message(msgc);
+  const attachmentList = aboutMessage.document.getElementById("attachmentList");
   Assert.equal(
     attachmentList.childNodes.length,
     1,

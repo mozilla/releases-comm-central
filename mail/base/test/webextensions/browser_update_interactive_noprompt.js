@@ -29,7 +29,7 @@ async function testUpdateNoPrompt(
   is(addon.version, initialVersion, "Version 1 of the addon is installed");
 
   // Go to Extensions in about:addons
-  let win = await openAddonsMgr("addons://list/extension");
+  const win = await openAddonsMgr("addons://list/extension");
 
   await waitAboutAddonsViewLoaded(win.document);
 
@@ -40,7 +40,7 @@ async function testUpdateNoPrompt(
   PopupNotifications.panel.addEventListener("popupshown", popupListener);
 
   // Trigger an update check, we should see the update get applied
-  let updatePromise = waitForUpdate(addon);
+  const updatePromise = waitForUpdate(addon);
   triggerPageOptionsAction(win, "check-for-updates");
   await updatePromise;
 
@@ -50,7 +50,7 @@ async function testUpdateNoPrompt(
   ok(!sawPopup, "Should not have seen a permission notification");
   PopupNotifications.panel.removeEventListener("popupshown", popupListener);
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTabInfo);
   await addon.uninstall();
 }

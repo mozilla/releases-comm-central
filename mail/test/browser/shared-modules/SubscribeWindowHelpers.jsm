@@ -32,10 +32,10 @@ var { TestUtils } = ChromeUtils.importESModule(
  *   for the subscribe dialogue as parameter.
  */
 async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
-  let win = get_about_3pane();
+  const win = get_about_3pane();
 
   await right_click_on_folder(aFolder);
-  let callback = async function (win) {
+  const callback = async function (win) {
     // When the "stop button" is disabled, the panel is populated.
     await TestUtils.waitForCondition(
       () => win.document.getElementById("stopButton").disabled
@@ -58,7 +58,7 @@ async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
  * @param {string} text - The text to enter.
  */
 function enter_text_in_search_box(swc, text) {
-  let textbox = swc.document.getElementById("namefield");
+  const textbox = swc.document.getElementById("namefield");
   delete_all_existing(swc, textbox);
   input_value(swc, text, textbox);
 }
@@ -71,13 +71,13 @@ function enter_text_in_search_box(swc, text) {
  * @returns {boolean} Result of the check.
  */
 function check_newsgroup_displayed(swc, name) {
-  let tree = swc.document.getElementById("searchTree");
+  const tree = swc.document.getElementById("searchTree");
   if (!tree.columns) {
     // Maybe not yet available.
     return false;
   }
-  let treeview = tree.view;
-  let nameCol = tree.columns.getNamedColumn("nameColumn2");
+  const treeview = tree.view;
+  const nameCol = tree.columns.getNamedColumn("nameColumn2");
   for (let i = 0; i < treeview.rowCount; i++) {
     if (treeview.getCellText(i, nameCol) == name) {
       return true;

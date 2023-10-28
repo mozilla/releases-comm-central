@@ -36,7 +36,7 @@ function setupServerDaemon(handler) {
 }
 
 function getBasicSmtpServer(port = 1, hostname = "localhost") {
-  let server = localAccountUtils.create_outgoing_server(
+  const server = localAccountUtils.create_outgoing_server(
     port,
     "user",
     "password",
@@ -52,7 +52,7 @@ function getBasicSmtpServer(port = 1, hostname = "localhost") {
 
 function getSmtpIdentity(senderName, smtpServer) {
   // Set up the identity.
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.email = senderName;
   identity.smtpServerKey = smtpServer.key;
 
@@ -73,7 +73,7 @@ add_setup(() => {
   gLocalAccount = createAccount("local");
   MailServices.accounts.defaultAccount = gPopAccount;
 
-  let identity = getSmtpIdentity(
+  const identity = getSmtpIdentity(
     "identity@foo.invalid",
     getBasicSmtpServer(gServer.port)
   );
@@ -96,21 +96,21 @@ add_setup(() => {
 
 // Helper function to test saving messages.
 async function runTest(config) {
-  let files = {
+  const files = {
     "background.js": async () => {
-      let [config] = await window.sendMessage("getConfig");
+      const [config] = await window.sendMessage("getConfig");
 
-      let accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
-      let localAccount = accounts.find(a => a.type == "none");
-      let fccFolder = localAccount.folders.find(f => f.name == "Fcc");
+      const localAccount = accounts.find(a => a.type == "none");
+      const fccFolder = localAccount.folders.find(f => f.name == "Fcc");
       browser.test.assertTrue(
         !!fccFolder,
         "should find the additional fcc folder"
       );
 
       // Prepare test data.
-      let allDetails = [];
+      const allDetails = [];
       for (let i = 0; i < 5; i++) {
         allDetails.push({
           to: [`test${i}@test.invalid`],
@@ -121,31 +121,31 @@ async function runTest(config) {
       }
 
       // Open multiple compose windows.
-      for (let details of allDetails) {
+      for (const details of allDetails) {
         details.tab = await browser.compose.beginNew(details);
       }
 
       // Add onAfterSave listener
-      let collectedEventsMap = new Map();
+      const collectedEventsMap = new Map();
       function onAfterSaveListener(tab, info) {
         collectedEventsMap.set(tab.id, info);
       }
       browser.compose.onAfterSave.addListener(onAfterSaveListener);
 
       // Initiate saving of all compose windows at the same time.
-      let allPromises = [];
-      for (let details of allDetails) {
+      const allPromises = [];
+      for (const details of allDetails) {
         allPromises.push(
           browser.compose.saveMessage(details.tab.id, config.mode)
         );
       }
 
       // Wait until all messages have been saved.
-      let allRv = await Promise.all(allPromises);
+      const allRv = await Promise.all(allPromises);
 
       for (let i = 0; i < allDetails.length; i++) {
-        let rv = allRv[i];
-        let details = allDetails[i];
+        const rv = allRv[i];
+        const details = allDetails[i];
         // Find the message with a matching headerMessageId.
 
         browser.test.assertEq(
@@ -162,12 +162,12 @@ async function runTest(config) {
         // Check expected FCC folders.
         for (let i = 0; i < config.expected.fcc.length; i++) {
           // Read the actual messages in the fcc folder.
-          let savedMessages = await window.sendMessage(
+          const savedMessages = await window.sendMessage(
             "getMessagesInFolder",
             `${config.expected.fcc[i]}`
           );
           // Find the currently processed message.
-          let savedMessage = savedMessages.find(
+          const savedMessage = savedMessages.find(
             m => m.messageId == rv.messages[i].headerMessageId
           );
           // Compare saved message to original message.
@@ -195,7 +195,7 @@ async function runTest(config) {
           );
         }
 
-        let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+        const removedWindowPromise = window.waitForEvent("windows.onRemoved");
         browser.tabs.remove(details.tab.id);
         await removedWindowPromise;
       }
@@ -207,9 +207,9 @@ async function runTest(config) {
         collectedEventsMap.size,
         "Should have received the correct number of onAfterSave events"
       );
-      let collectedEvents = [...collectedEventsMap.values()];
-      for (let detail of allDetails) {
-        let msg = collectedEvents.find(
+      const collectedEvents = [...collectedEventsMap.values()];
+      for (const detail of allDetails) {
+        const msg = collectedEvents.find(
           e => e.messages[0].subject == detail.subject
         );
         browser.test.assertTrue(
@@ -224,7 +224,7 @@ async function runTest(config) {
       );
 
       // Remove all saved messages.
-      for (let fcc of config.expected.fcc) {
+      for (const fcc of config.expected.fcc) {
         await window.sendMessage("clearMessagesInFolder", fcc);
       }
 
@@ -232,7 +232,7 @@ async function runTest(config) {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -245,17 +245,17 @@ async function runTest(config) {
   });
 
   extension.onMessage("getMessagesInFolder", async folderName => {
-    let folder = gLocalRootFolder.getChildNamed(folderName);
-    let messages = [...folder.messages].map(m => {
-      let { subject, messageId, recipients } = m;
+    const folder = gLocalRootFolder.getChildNamed(folderName);
+    const messages = [...folder.messages].map(m => {
+      const { subject, messageId, recipients } = m;
       return { subject, messageId, recipients };
     });
     extension.sendMessage(...messages);
   });
 
   extension.onMessage("clearMessagesInFolder", async folderName => {
-    let folder = gLocalRootFolder.getChildNamed(folderName);
-    let messages = [...folder.messages];
+    const folder = gLocalRootFolder.getChildNamed(folderName);
+    const messages = [...folder.messages];
     await new Promise(resolve => {
       folder.deleteMessages(
         messages,
@@ -328,7 +328,7 @@ add_task(async function test_saveAsDraft_with_additional_fcc() {
 
 // Test onAfterSave when saving drafts for MV3
 add_task(async function test_onAfterSave_MV3_event_pages() {
-  let files = {
+  const files = {
     "background.js": async () => {
       // Whenever the extension starts or wakes up, hasFired is set to false. In
       // case of a wake-up, the first fired event is the one that woke up the background.
@@ -347,7 +347,7 @@ add_task(async function test_onAfterSave_MV3_event_pages() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       manifest_version: 3,
@@ -364,15 +364,15 @@ add_task(async function test_onAfterSave_MV3_event_pages() {
     // ext-mails.json, not by its actual namespace.
     const persistent_events = ["compose.onAfterSave"];
 
-    for (let event of persistent_events) {
-      let [moduleName, eventName] = event.split(".");
+    for (const event of persistent_events) {
+      const [moduleName, eventName] = event.split(".");
       assertPersistentListeners(extension, moduleName, eventName, {
         primed,
       });
     }
   }
 
-  let composeWindow = await openComposeWindow(gPopAccount);
+  const composeWindow = await openComposeWindow(gPopAccount);
   await focusWindow(composeWindow);
 
   await extension.startup();
@@ -384,7 +384,7 @@ add_task(async function test_onAfterSave_MV3_event_pages() {
 
   composeWindow.SetComposeDetails({ to: "first@invalid.net" });
   composeWindow.SaveAsDraft();
-  let firstSaveInfo = await extension.awaitMessage("onAfterSave received");
+  const firstSaveInfo = await extension.awaitMessage("onAfterSave received");
   Assert.equal(
     "draft",
     firstSaveInfo.mode,
@@ -399,7 +399,7 @@ add_task(async function test_onAfterSave_MV3_event_pages() {
 
   composeWindow.SetComposeDetails({ to: "second@invalid.net" });
   composeWindow.SaveAsDraft();
-  let secondSaveInfo = await extension.awaitMessage("onAfterSave received");
+  const secondSaveInfo = await extension.awaitMessage("onAfterSave received");
   Assert.equal(
     "draft",
     secondSaveInfo.mode,

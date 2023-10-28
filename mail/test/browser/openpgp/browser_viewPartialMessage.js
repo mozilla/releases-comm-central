@@ -24,7 +24,7 @@ const { MailServices } = ChromeUtils.import(
 );
 
 function getMsgBodyTxt(msgc) {
-  let msgPane = get_about_message(msgc).getMessagePaneBrowser();
+  const msgPane = get_about_message(msgc).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 
@@ -40,12 +40,12 @@ add_setup(async function () {
     "openpgp.example",
     "pop3"
   );
-  let aliceIdentity = MailServices.accounts.createIdentity();
+  const aliceIdentity = MailServices.accounts.createIdentity();
   aliceIdentity.email = "alice@openpgp.example";
   aliceAcct.addIdentity(aliceIdentity);
 
   // Set up the alice's private key.
-  let [id] = await OpenPGPTestUtils.importPrivateKey(
+  const [id] = await OpenPGPTestUtils.importPrivateKey(
     window,
     new FileUtils.File(
       getTestFilePath(
@@ -67,7 +67,7 @@ add_setup(async function () {
   );
 });
 
-let partialInlineTests = [
+const partialInlineTests = [
   {
     filename: "partial-encrypt-for-carol-plaintext.eml",
     expectDecryption: true,
@@ -123,7 +123,7 @@ let partialInlineTests = [
  * encrypted/signed inline PGP messages.
  */
 add_task(async function testPartialInlinePGPDecrypt() {
-  for (let test of partialInlineTests) {
+  for (const test of partialInlineTests) {
     if (!test.filename) {
       continue;
     }
@@ -131,13 +131,13 @@ add_task(async function testPartialInlinePGPDecrypt() {
     info(`Testing partial inline; filename=${test.filename}`);
 
     // Setup the message.
-    let msgc = await open_message_from_file(
+    const msgc = await open_message_from_file(
       new FileUtils.File(getTestFilePath("data/eml/" + test.filename))
     );
-    let aboutMessage = get_about_message(msgc);
+    const aboutMessage = get_about_message(msgc);
 
-    let notificationBox = "mail-notification-top";
-    let notificationValue = "decryptInlinePG";
+    const notificationBox = "mail-notification-top";
+    const notificationValue = "decryptInlinePG";
 
     // Ensure the "partially encrypted notification" is visible.
     await wait_for_notification_to_show(
@@ -157,7 +157,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
     Assert.ok(body.includes("suffix"), "suffix should still be shown");
 
     // Click on the button to process the message subset.
-    let processButton = get_notification_button(
+    const processButton = get_notification_button(
       aboutMessage,
       notificationBox,
       notificationValue,
@@ -182,7 +182,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
     Assert.ok(!body.includes("suffix"), "suffix should not be shown");
 
     if (test.expectDecryption) {
-      let containsSecret = body.includes(
+      const containsSecret = body.includes(
         "Insert a coin to play your personal lucky melody."
       );
       if (test.expectSuccess) {

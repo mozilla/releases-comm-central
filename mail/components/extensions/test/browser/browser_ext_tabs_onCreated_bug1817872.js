@@ -5,11 +5,11 @@ var gFolder;
 add_setup(() => {
   gAccount = createAccount();
   addIdentity(gAccount);
-  let rootFolder = gAccount.incomingServer.rootFolder;
+  const rootFolder = gAccount.incomingServer.rootFolder;
   rootFolder.createSubfolder("test0", null);
 
-  let subFolders = {};
-  for (let folder of rootFolder.subFolders) {
+  const subFolders = {};
+  for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
   createMessages(subFolders.test0, 5);
@@ -19,11 +19,11 @@ add_setup(() => {
 });
 
 async function getTestExtension() {
-  let files = {
+  const files = {
     "background.js": async () => {
-      let [location] = await window.waitForMessage();
+      const [location] = await window.waitForMessage();
 
-      let [mailTab] = await browser.tabs.query({
+      const [mailTab] = await browser.tabs.query({
         active: true,
         currentWindow: true,
       });
@@ -34,7 +34,7 @@ async function getTestExtension() {
       );
 
       // Get displayed message.
-      let message1 = await browser.messageDisplay.getDisplayedMessage(
+      const message1 = await browser.messageDisplay.getDisplayedMessage(
         mailTab.id
       );
       browser.test.assertTrue(
@@ -43,8 +43,8 @@ async function getTestExtension() {
       );
 
       // Open message in a new tab, wait for onCreated and for onUpdated.
-      let messageTab = await new Promise(resolve => {
-        let createListener = tab => {
+      const messageTab = await new Promise(resolve => {
+        const createListener = tab => {
           browser.tabs.onCreated.removeListener(createListener);
           browser.test.assertEq(
             "loading",
@@ -55,7 +55,7 @@ async function getTestExtension() {
             tabId: tab.id,
           });
         };
-        let updateListener = (tabId, changeInfo, tab) => {
+        const updateListener = (tabId, changeInfo, tab) => {
           if (changeInfo.status) {
             browser.test.assertEq(
               tab.status,
@@ -76,7 +76,7 @@ async function getTestExtension() {
       });
 
       // We should now be able to get the message.
-      let message2 = await browser.messageDisplay.getDisplayedMessage(
+      const message2 = await browser.messageDisplay.getDisplayedMessage(
         messageTab.id
       );
       browser.test.assertTrue(
@@ -90,7 +90,7 @@ async function getTestExtension() {
 
       // We should be able to get the message later as well.
       await new Promise(resolve => window.setTimeout(resolve));
-      let message3 = await browser.messageDisplay.getDisplayedMessage(
+      const message3 = await browser.messageDisplay.getDisplayedMessage(
         messageTab.id
       );
       browser.test.assertTrue(
@@ -121,9 +121,9 @@ async function getTestExtension() {
  * Open a message tab and check its status, wait till loaded and get the message.
  */
 add_task(async function test_onCreated_message_tab() {
-  let extension = await getTestExtension();
+  const extension = await getTestExtension();
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(gFolder);
   about3Pane.threadTree.selectedIndex = 0;
 
@@ -138,9 +138,9 @@ add_task(async function test_onCreated_message_tab() {
  * Open a message window and check its status, wait till loaded and get the message.
  */
 add_task(async function test_onCreated_message_window() {
-  let extension = await getTestExtension();
+  const extension = await getTestExtension();
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(gFolder);
   about3Pane.threadTree.selectedIndex = 0;
 
@@ -155,9 +155,9 @@ add_task(async function test_onCreated_message_window() {
  * Open an address book tab and check its status.
  */
 add_task(async function test_onCreated_addressBook_tab() {
-  let files = {
+  const files = {
     "background.js": async () => {
-      let [mailTab] = await browser.tabs.query({
+      const [mailTab] = await browser.tabs.query({
         active: true,
         currentWindow: true,
       });
@@ -168,8 +168,8 @@ add_task(async function test_onCreated_addressBook_tab() {
       );
 
       // Open ab tab, wait for onCreated and for onUpdated.
-      let abTab = await new Promise(resolve => {
-        let createListener = tab => {
+      const abTab = await new Promise(resolve => {
+        const createListener = tab => {
           browser.test.assertEq(
             "loading",
             tab.status,
@@ -179,7 +179,7 @@ add_task(async function test_onCreated_addressBook_tab() {
             tabId: tab.id,
           });
         };
-        let updateListener = (tabId, changeInfo, tab) => {
+        const updateListener = (tabId, changeInfo, tab) => {
           if (changeInfo.status) {
             browser.test.assertEq(
               tab.status,
@@ -206,7 +206,7 @@ add_task(async function test_onCreated_addressBook_tab() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -214,7 +214,7 @@ add_task(async function test_onCreated_addressBook_tab() {
     },
   });
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(gFolder);
   about3Pane.threadTree.selectedIndex = 0;
 

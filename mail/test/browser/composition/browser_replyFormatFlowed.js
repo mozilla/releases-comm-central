@@ -34,12 +34,12 @@ add_setup(async function () {
 });
 
 async function subtest_reply_format_flowed(aFlowed) {
-  let file = new FileUtils.File(getTestFilePath("data/format-flowed.eml"));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath("data/format-flowed.eml"));
+  const msgc = await open_message_from_file(file);
 
   Services.prefs.setBoolPref("mailnews.send_plaintext_flowed", aFlowed);
 
-  let cwc = await open_compose_with_reply(msgc);
+  const cwc = await open_compose_with_reply(msgc);
 
   await BrowserTestUtils.closeWindow(msgc);
 
@@ -54,8 +54,8 @@ async function subtest_reply_format_flowed(aFlowed) {
 
   // Now check the message content in the drafts folder.
   await be_in_folder(gDrafts);
-  let message = await select_click_row(0);
-  let messageContent = await get_msg_source(message);
+  const message = await select_click_row(0);
+  const messageContent = await get_msg_source(message);
 
   // Check for a single line that contains text and make sure there is a
   // space at the end for a flowed reply.

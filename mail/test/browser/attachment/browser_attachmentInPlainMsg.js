@@ -16,10 +16,10 @@ var { get_about_message, open_message_from_file } = ChromeUtils.import(
 add_task(async function test_attachment_not_empty() {
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", true);
 
-  let file = new FileUtils.File(getTestFilePath("data/bug1358565.eml"));
+  const file = new FileUtils.File(getTestFilePath("data/bug1358565.eml"));
 
-  let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc);
+  const msgc = await open_message_from_file(file);
+  const aboutMessage = get_about_message(msgc);
 
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("attachmentToggle"),
@@ -31,7 +31,7 @@ add_task(async function test_attachment_not_empty() {
     1
   );
 
-  let attachmentElem = aboutMessage.document
+  const attachmentElem = aboutMessage.document
     .getElementById("attachmentList")
     .getItemAtIndex(0);
   Assert.equal(attachmentElem.attachment.contentType, "image/jpeg");

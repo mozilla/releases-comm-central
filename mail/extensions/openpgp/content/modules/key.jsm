@@ -67,7 +67,7 @@ var EnigmailKey = {
    * message in case of failures.
    */
   importRevocationCert(keyId, keyBlockStr) {
-    let key = lazy.EnigmailKeyRing.getKeyById(keyId);
+    const key = lazy.EnigmailKeyRing.getKeyById(keyId);
 
     if (key) {
       if (key.keyTrust === "r") {
@@ -80,7 +80,7 @@ var EnigmailKey = {
             lazy.EnigmailDialog.info(null, value);
           });
       } else {
-        let userId = key.userId + " - 0x" + key.keyId;
+        const userId = key.userId + " - 0x" + key.keyId;
         if (
           !lazy.EnigmailDialog.confirmDlg(
             null,
@@ -91,7 +91,7 @@ var EnigmailKey = {
           return;
         }
 
-        let errorMsgObj = {};
+        const errorMsgObj = {};
         // TODO this will certainly not work yet, because RNP requires
         // calling a different function for importing revocation
         // signatures, see RNP.importRevImpl
@@ -150,7 +150,7 @@ var EnigmailKey = {
     lazy.EnigmailLog.DEBUG("key.jsm: getKeyListFromKeyBlock\n");
     errorMsgObj.value = "";
 
-    let cacheEntry = this._keyListCache.get(keyBlockStr);
+    const cacheEntry = this._keyListCache.get(keyBlockStr);
     if (cacheEntry) {
       // Remove and re-insert to move entry to the end of insertion order,
       // so we know which entry was used least recently.
@@ -167,7 +167,7 @@ var EnigmailKey = {
     // We primarily want to cache single keys that are found in email
     // attachments. We shouldn't attempt to cache larger key blocks
     // that are likely arriving from explicit import attempts.
-    let updateCache = keyBlockStr.length < this._keyListCacheMaxKeySize;
+    const updateCache = keyBlockStr.length < this._keyListCacheMaxKeySize;
 
     if (
       updateCache &&
@@ -243,8 +243,8 @@ var EnigmailKey = {
     seckey,
     withPubKey = false
   ) {
-    let data = await IOUtils.read(file.path);
-    let contents = lazy.MailStringUtils.uint8ArrayToByteString(data);
+    const data = await IOUtils.read(file.path);
+    const contents = lazy.MailStringUtils.uint8ArrayToByteString(data);
     return this.getKeyListFromKeyBlock(
       contents,
       errorMsgObj,

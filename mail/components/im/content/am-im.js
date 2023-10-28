@@ -35,8 +35,8 @@ function onBeforeUnload() {
 
 var account = {
   async init(aAccount) {
-    let title = document.querySelector(".dialogheader .dialogheader-title");
-    let defaultTitle = title.getAttribute("defaultTitle");
+    const title = document.querySelector(".dialogheader .dialogheader-title");
+    const defaultTitle = title.getAttribute("defaultTitle");
     let titleValue;
 
     if (aAccount.name) {
@@ -58,8 +58,8 @@ var account = {
       48
     );
 
-    let password = document.getElementById("server.password");
-    let passwordBox = document.getElementById("passwordBox");
+    const password = document.getElementById("server.password");
+    const passwordBox = document.getElementById("passwordBox");
     if (this.proto.noPassword) {
       passwordBox.hidden = true;
       password.removeAttribute("wsm_persist");
@@ -89,8 +89,8 @@ var account = {
         document.getElementById("server.otrRequireEncryption").value =
           this.account.otrRequireEncryption;
 
-        let fpa = this.account.normalizedName;
-        let fpp = this.account.protocol.normalizedName;
+        const fpa = this.account.normalizedName;
+        const fpp = this.account.protocol.normalizedName;
         let fp = OTR.privateKeyFingerprint(fpa, fpp);
         if (!fp) {
           fp = await document.l10n.formatValue("otr-not-yet-available");
@@ -141,13 +141,13 @@ var account = {
       }
     }
 
-    let protoId = this.proto.id;
-    let canAutoJoin =
+    const protoId = this.proto.id;
+    const canAutoJoin =
       protoId == "prpl-irc" ||
       protoId == "prpl-jabber" ||
       protoId == "prpl-gtalk";
     document.getElementById("autojoinBox").hidden = !canAutoJoin;
-    let autojoin = document.getElementById("server.autojoin");
+    const autojoin = document.getElementById("server.autojoin");
     if (canAutoJoin) {
       autojoin.setAttribute("wsm_persist", "true");
     } else {
@@ -231,7 +231,7 @@ var account = {
   },
 
   populateProtoSpecificBox() {
-    let attributes = {};
+    const attributes = {};
     attributes[Ci.prplIPref.typeBool] = [
       { name: "wsm_persist", value: "true" },
       { name: "preftype", value: "bool" },
@@ -247,12 +247,12 @@ var account = {
       { name: "preftype", value: "wstring" },
       { name: "genericattr", value: "true" },
     ];
-    let haveOptions = accountOptionsHelper.addOptions(
+    const haveOptions = accountOptionsHelper.addOptions(
       "server.",
       this.proto.getOptions(),
       attributes
     );
-    let advanced = document.getElementById("advanced");
+    const advanced = document.getElementById("advanced");
     if (advanced.hidden && haveOptions) {
       advanced.hidden = false;
       // Force textbox XBL binding attachment by forcing layout,
@@ -262,12 +262,12 @@ var account = {
     } else if (!haveOptions) {
       advanced.hidden = true;
     }
-    let inputElements = document.querySelectorAll(
+    const inputElements = document.querySelectorAll(
       "#protoSpecific :is(checkbox, input, menulist)"
     );
     // Because the elements are added after the document loaded we have to
     // notify the parent document that there are prefs to save.
-    for (let input of inputElements) {
+    for (const input of inputElements) {
       if (input.localName == "input" || input.localName == "textarea") {
         input.addEventListener("change", event => {
           document.dispatchEvent(new CustomEvent("prefchange"));
@@ -281,7 +281,7 @@ var account = {
   },
 
   viewFingerprintKeys() {
-    let otrAccount = { account: this.account };
+    const otrAccount = { account: this.account };
     parent.gSubDialog.open(
       "chrome://chat/content/otr-finger.xhtml",
       undefined,

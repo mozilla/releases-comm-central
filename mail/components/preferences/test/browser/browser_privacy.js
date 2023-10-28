@@ -171,15 +171,15 @@ add_task(async function testRemoteContentDialog() {
       },
     }
   );
-  let remoteContentExceptions = prefsDocument.getElementById(
+  const remoteContentExceptions = prefsDocument.getElementById(
     "remoteContentExceptions"
   );
   EventUtils.synthesizeMouseAtCenter(remoteContentExceptions, {}, prefsWindow);
   await dialogPromise;
 
   // eslint-disable-next-line @microsoft/sdl/no-insecure-url
-  let acceptURI = Services.io.newURI("http://accept.invalid/");
-  let acceptPrincipal = Services.scriptSecurityManager.createContentPrincipal(
+  const acceptURI = Services.io.newURI("http://accept.invalid/");
+  const acceptPrincipal = Services.scriptSecurityManager.createContentPrincipal(
     acceptURI,
     {}
   );
@@ -190,8 +190,8 @@ add_task(async function testRemoteContentDialog() {
   );
 
   // eslint-disable-next-line @microsoft/sdl/no-insecure-url
-  let blockURI = Services.io.newURI("http://block.invalid/");
-  let blockPrincipal = Services.scriptSecurityManager.createContentPrincipal(
+  const blockURI = Services.io.newURI("http://block.invalid/");
+  const blockPrincipal = Services.scriptSecurityManager.createContentPrincipal(
     blockURI,
     {}
   );
@@ -339,13 +339,13 @@ add_task(async function testCookiesDialog() {
       },
     }
   );
-  let cookieExceptions = prefsDocument.getElementById("cookieExceptions");
+  const cookieExceptions = prefsDocument.getElementById("cookieExceptions");
   EventUtils.synthesizeMouseAtCenter(cookieExceptions, {}, prefsWindow);
   await dialogPromise;
 
   // eslint-disable-next-line @microsoft/sdl/no-insecure-url
-  let acceptURI = Services.io.newURI("http://accept.invalid/");
-  let acceptPrincipal = Services.scriptSecurityManager.createContentPrincipal(
+  const acceptURI = Services.io.newURI("http://accept.invalid/");
+  const acceptPrincipal = Services.scriptSecurityManager.createContentPrincipal(
     acceptURI,
     {}
   );
@@ -356,11 +356,9 @@ add_task(async function testCookiesDialog() {
   );
 
   // eslint-disable-next-line @microsoft/sdl/no-insecure-url
-  let sessionURI = Services.io.newURI("http://session.invalid/");
-  let sessionPrincipal = Services.scriptSecurityManager.createContentPrincipal(
-    sessionURI,
-    {}
-  );
+  const sessionURI = Services.io.newURI("http://session.invalid/");
+  const sessionPrincipal =
+    Services.scriptSecurityManager.createContentPrincipal(sessionURI, {});
   Assert.equal(
     Services.perms.testPermissionFromPrincipal(sessionPrincipal, "cookie"),
     Ci.nsICookiePermission.ACCESS_SESSION,
@@ -368,8 +366,8 @@ add_task(async function testCookiesDialog() {
   );
 
   // eslint-disable-next-line @microsoft/sdl/no-insecure-url
-  let blockURI = Services.io.newURI("http://block.invalid/");
-  let blockPrincipal = Services.scriptSecurityManager.createContentPrincipal(
+  const blockURI = Services.io.newURI("http://block.invalid/");
+  const blockPrincipal = Services.scriptSecurityManager.createContentPrincipal(
     blockURI,
     {}
   );

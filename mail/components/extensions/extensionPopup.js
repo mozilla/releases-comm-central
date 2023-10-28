@@ -78,14 +78,14 @@ var contentController = {
     if (!this.supportsCommand(command)) {
       return false;
     }
-    let cmd = this.commands[command];
+    const cmd = this.commands[command];
     return cmd.isEnabled();
   },
   doCommand(command) {
     if (!this.supportsCommand(command)) {
       return;
     }
-    let cmd = this.commands[command];
+    const cmd = this.commands[command];
     if (!cmd.isEnabled()) {
       return;
     }
@@ -112,19 +112,19 @@ class nsBrowserAccess {
   ) {
     // This is a popup which must not have more than one tab, so open the new tab
     // in the most recent mail window.
-    let win = Services.wm.getMostRecentWindow("mail:3pane", true);
+    const win = Services.wm.getMostRecentWindow("mail:3pane", true);
 
     if (!win) {
       // We couldn't find a suitable window, a new one needs to be opened.
       return null;
     }
 
-    let loadInBackground = Services.prefs.getBoolPref(
+    const loadInBackground = Services.prefs.getBoolPref(
       "browser.tabs.loadDivertedInBackground"
     );
 
-    let tabmail = win.document.getElementById("tabmail");
-    let newTab = tabmail.openTab("contentTab", {
+    const tabmail = win.document.getElementById("tabmail");
+    const newTab = tabmail.openTab("contentTab", {
       background: loadInBackground,
       csp: aCsp,
       linkHandler: aMessageManagerGroup,
@@ -206,7 +206,7 @@ class nsBrowserAccess {
       return null;
     }
 
-    let isExternal = !!(aFlags & Ci.nsIBrowserDOMWindow.OPEN_EXTERNAL);
+    const isExternal = !!(aFlags & Ci.nsIBrowserDOMWindow.OPEN_EXTERNAL);
 
     return this._openURIInNewTab(
       aURI,
@@ -230,7 +230,7 @@ class nsBrowserAccess {
 }
 
 function loadRequestedUrl() {
-  let browser = document.getElementById("requestFrame");
+  const browser = document.getElementById("requestFrame");
   browser.addProgressListener(reporterListener, Ci.nsIWebProgress.NOTIFY_ALL);
   browser.addEventListener(
     "DOMWindowClose",
@@ -260,7 +260,7 @@ function loadRequestedUrl() {
     if (window.arguments[1].wrappedJSObject.allowScriptsToClose) {
       browser.setAttribute("allowscriptstoclose", "true");
     }
-    let tabParams = window.arguments[1].wrappedJSObject.tabs[0].tabParams;
+    const tabParams = window.arguments[1].wrappedJSObject.tabs[0].tabParams;
     if (tabParams.userContextId) {
       browser.setAttribute("usercontextid", tabParams.userContextId);
       // The usercontextid is only read on frame creation, so recreate it.
@@ -314,7 +314,7 @@ var gBrowser = {
     }
 
     // Add preface, if defined.
-    let docElement = document.documentElement;
+    const docElement = document.documentElement;
     if (docElement.hasAttribute("titlepreface")) {
       docTitle = docElement.getAttribute("titlepreface") + docTitle;
     }
@@ -346,14 +346,14 @@ var gBrowserInit = {
     };
 
     window.onclose = event => {
-      let { permitUnload } = gBrowser.selectedBrowser.permitUnload();
+      const { permitUnload } = gBrowser.selectedBrowser.permitUnload();
       return permitUnload;
     };
 
     window.browserDOMWindow = new nsBrowserAccess();
 
-    let initiallyFocusedElement = document.commandDispatcher.focusedElement;
-    let promise = gBrowser.selectedBrowser.isRemoteBrowser
+    const initiallyFocusedElement = document.commandDispatcher.focusedElement;
+    const promise = gBrowser.selectedBrowser.isRemoteBrowser
       ? PromiseUtils.defer().promise
       : Promise.resolve();
 
@@ -425,7 +425,7 @@ var XULBrowserWindow = {
       return;
     }
 
-    let elt = document.getElementById("remoteBrowserTooltip");
+    const elt = document.getElementById("remoteBrowserTooltip");
     elt.label = tooltip;
     elt.style.direction = direction;
     elt.openPopupAtScreen(
@@ -438,7 +438,7 @@ var XULBrowserWindow = {
 
   // Called by BrowserParent::RecvHideTooltip.
   hideTooltip() {
-    let elt = document.getElementById("remoteBrowserTooltip");
+    const elt = document.getElementById("remoteBrowserTooltip");
     elt.hidePopup();
   },
 
@@ -468,7 +468,7 @@ var contentProgress = {
   },
 
   callListeners(method, args) {
-    for (let listener of this._listeners.values()) {
+    for (const listener of this._listeners.values()) {
       if (method in listener) {
         try {
           listener[method](...args);

@@ -26,7 +26,7 @@ var { openAccountProvisioner, openAccountSetup } = ChromeUtils.import(
 var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
-let { TelemetryTestUtils } = ChromeUtils.importESModule(
+const { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
 var { click_through_appmenu, click_menus_in_sequence } = ChromeUtils.import(
@@ -88,7 +88,7 @@ function nAccounts() {
  * @param {object} tab - The opened account provisioner tab.
  */
 async function waitForLoadedProviders(tab) {
-  let gProvisioner = await TestUtils.waitForCondition(
+  const gProvisioner = await TestUtils.waitForCondition(
     () => tab.browser.contentWindow.gAccountProvisioner
   );
 
@@ -110,9 +110,9 @@ add_task(async function test_account_creation_from_provisioner() {
   Services.telemetry.clearScalars();
 
   let tab = await openAccountProvisioner();
-  let tabDocument = tab.browser.contentWindow.document;
+  const tabDocument = tab.browser.contentWindow.document;
 
-  let mailInput = tabDocument.getElementById("mailName");
+  const mailInput = tabDocument.getElementById("mailName");
   // The focus is on the email input.
   await BrowserTestUtils.waitForCondition(
     () => tabDocument.activeElement == mailInput,
@@ -137,7 +137,7 @@ add_task(async function test_account_creation_from_provisioner() {
   // Since we're focused inside a form, pressing "Enter" should submit it.
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
-  let mailResults = tabDocument.getElementById("mailResultsArea");
+  const mailResults = tabDocument.getElementById("mailResultsArea");
 
   // Wait for the results to be loaded.
   await BrowserTestUtils.waitForCondition(
@@ -160,13 +160,13 @@ add_task(async function test_account_creation_from_provisioner() {
   );
 
   // Go back and fill the domain input.
-  let backButton = tabDocument.getElementById("backButton");
+  const backButton = tabDocument.getElementById("backButton");
   backButton.scrollIntoView();
   EventUtils.synthesizeMouseAtCenter(backButton, {}, tab.browser.contentWindow);
 
   Assert.ok(tabDocument.getElementById("mailSearchResults").hidden);
 
-  let domainName = tabDocument.getElementById("domainName");
+  const domainName = tabDocument.getElementById("domainName");
   domainName.focus();
   domainName.select();
   // Fill the domain input.
@@ -174,7 +174,7 @@ add_task(async function test_account_creation_from_provisioner() {
   // Since we're focused inside a form, pressing "Enter" should submit it.
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
-  let domainResults = tabDocument.getElementById("domainResultsArea");
+  const domainResults = tabDocument.getElementById("domainResultsArea");
   // Wait for the results to be loaded.
   await BrowserTestUtils.waitForCondition(
     () => domainResults.hasChildNodes(),
@@ -311,7 +311,7 @@ add_task(async function test_switch_between_account_provisioner_and_setup() {
   await waitForLoadedProviders(tab);
 
   // Close the tab.
-  let closeButton = tabDocument.getElementById("cancelButton");
+  const closeButton = tabDocument.getElementById("cancelButton");
   closeButton.scrollIntoView();
   EventUtils.synthesizeMouseAtCenter(
     closeButton,
@@ -335,7 +335,7 @@ add_task(async function test_switch_between_account_provisioner_and_setup() {
   );
 
   // Click on the "Use existing account" button.
-  let existingAccountButton = tabDocument.getElementById("existingButton");
+  const existingAccountButton = tabDocument.getElementById("existingButton");
   existingAccountButton.scrollIntoView();
   EventUtils.synthesizeMouseAtCenter(
     existingAccountButton,
@@ -430,8 +430,8 @@ add_task(async function open_provisioner_from_app_menu() {
  * to the user.
  */
 add_task(async function test_html_characters_and_ampersands() {
-  let tab = await openAccountProvisioner();
-  let tabDocument = tab.browser.contentWindow.document;
+  const tab = await openAccountProvisioner();
+  const tabDocument = tab.browser.contentWindow.document;
 
   await waitForLoadedProviders(tab);
 
@@ -445,7 +445,7 @@ add_task(async function test_html_characters_and_ampersands() {
   // Since we're focused inside a form, pressing "Enter" should submit it.
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
-  let mailResults = tabDocument.getElementById("mailResultsArea");
+  const mailResults = tabDocument.getElementById("mailResultsArea");
 
   // Wait for the results to be loaded.
   await BrowserTestUtils.waitForCondition(
@@ -453,7 +453,7 @@ add_task(async function test_html_characters_and_ampersands() {
     "Mail results loaded"
   );
 
-  let searchedTerms =
+  const searchedTerms =
     tabDocument.getElementById("mailResultsTitle").textContent;
   Assert.notEqual(
     `One available address found for: "${CLEVER_STRING}"`,
@@ -485,17 +485,17 @@ add_task(async function test_html_characters_and_ampersands() {
  * Test that if the search goes bad on the server-side we show an error.
  */
 add_task(async function test_shows_error_on_bad_suggest_from_name() {
-  let original = Services.prefs.getCharPref(kSuggestFromNamePref);
+  const original = Services.prefs.getCharPref(kSuggestFromNamePref);
   Services.prefs.setCharPref(kSuggestFromNamePref, url + "badSuggestFromName");
 
-  let tab = await openAccountProvisioner();
+  const tab = await openAccountProvisioner();
 
   await waitForLoadedProviders(tab);
 
-  let notificationBox =
+  const notificationBox =
     tab.browser.contentWindow.gAccountProvisioner.notificationBox;
 
-  let notificationShowed = BrowserTestUtils.waitForCondition(
+  const notificationShowed = BrowserTestUtils.waitForCondition(
     () =>
       notificationBox.getNotificationWithValue("accountProvisionerError") !=
       null,
@@ -526,7 +526,7 @@ add_task(async function test_error_on_corrupt_XML() {
   gMockPromptService.register();
 
   let tab = await openAccountProvisioner();
-  let tabDocument = tab.browser.contentWindow.document;
+  const tabDocument = tab.browser.contentWindow.document;
 
   // Record how many accounts we start with.
   gNumAccounts = nAccounts();
@@ -538,7 +538,7 @@ add_task(async function test_error_on_corrupt_XML() {
   // Since we're focused inside a form, pressing "Enter" should submit it.
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
-  let mailResults = tabDocument.getElementById("mailResultsArea");
+  const mailResults = tabDocument.getElementById("mailResultsArea");
 
   // Wait for the results to be loaded.
   await BrowserTestUtils.waitForCondition(
@@ -551,7 +551,7 @@ add_task(async function test_error_on_corrupt_XML() {
     "All suggested emails were correctly loaded"
   );
 
-  let priceButton = tabDocument.querySelector(
+  const priceButton = tabDocument.querySelector(
     `.result-item[data-label="corrupt@corrupt.invalid"] .result-price`
   );
   priceButton.scrollIntoView();
@@ -583,7 +583,7 @@ add_task(async function test_error_on_corrupt_XML() {
     "The Account Provisioner Tab was opened"
   );
 
-  let promptState = gMockPromptService.promptState;
+  const promptState = gMockPromptService.promptState;
   Assert.equal("alert", promptState.method, "An alert was showed");
 
   Assert.equal(gNumAccounts, nAccounts(), "No new accounts have been created");

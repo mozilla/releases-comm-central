@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 let account, rootFolder, subFolders;
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 
 add_setup(async () => {
   account = createAccount();
@@ -11,7 +11,7 @@ add_setup(async () => {
   rootFolder.createSubfolder("test1", null);
   rootFolder.createSubfolder("test2", null);
   subFolders = {};
-  for (let folder of rootFolder.subFolders) {
+  for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
   createMessages(subFolders.test1, 10);
@@ -32,22 +32,22 @@ add_setup(async () => {
 add_task(async function test_update() {
   async function background() {
     async function checkCurrent(expected) {
-      let [current] = await browser.mailTabs.query({
+      const [current] = await browser.mailTabs.query({
         active: true,
         currentWindow: true,
       });
       window.assertDeepEqual(expected, current);
 
       // Check if getCurrent() returns the same.
-      let current2 = await browser.mailTabs.getCurrent();
+      const current2 = await browser.mailTabs.getCurrent();
       window.assertDeepEqual(expected, current2);
     }
 
-    let [accountId] = await window.waitForMessage();
-    let { folders } = await browser.accounts.get(accountId);
+    const [accountId] = await window.waitForMessage();
+    const { folders } = await browser.accounts.get(accountId);
 
     await browser.mailTabs.update({ displayedFolder: folders[0] });
-    let expected = {
+    const expected = {
       sortType: "date",
       sortOrder: "descending",
       viewType: "groupedByThread",
@@ -64,7 +64,7 @@ add_task(async function test_update() {
     await window.sendMessage("checkRealView", expected);
 
     expected.sortOrder = "ascending";
-    for (let value of ["date", "subject", "author"]) {
+    for (const value of ["date", "subject", "author"]) {
       await browser.mailTabs.update({
         sortType: value,
         sortOrder: "ascending",
@@ -74,7 +74,7 @@ add_task(async function test_update() {
       await window.sendMessage("checkRealView", expected);
     }
     expected.sortOrder = "descending";
-    for (let value of ["author", "subject", "date"]) {
+    for (const value of ["author", "subject", "date"]) {
       await browser.mailTabs.update({
         sortType: value,
         sortOrder: "descending",
@@ -84,8 +84,8 @@ add_task(async function test_update() {
       await window.sendMessage("checkRealView", expected);
     }
 
-    for (let key of ["folderPaneVisible", "messagePaneVisible"]) {
-      for (let value of [false, true]) {
+    for (const key of ["folderPaneVisible", "messagePaneVisible"]) {
+      for (const value of [false, true]) {
         await browser.mailTabs.update({ [key]: value });
         expected[key] = value;
         await checkCurrent(expected);
@@ -93,7 +93,7 @@ add_task(async function test_update() {
         await window.sendMessage("checkRealView", expected);
       }
     }
-    for (let value of ["wide", "vertical", "standard"]) {
+    for (const value of ["wide", "vertical", "standard"]) {
       await browser.mailTabs.update({ layout: value });
       expected.layout = value;
       await checkCurrent(expected);
@@ -102,7 +102,7 @@ add_task(async function test_update() {
     }
 
     // Test all possible switch combination.
-    for (let viewType of [
+    for (const viewType of [
       "ungrouped",
       "groupedByThread",
       "ungrouped",
@@ -119,14 +119,14 @@ add_task(async function test_update() {
       await window.sendMessage("checkRealView", expected);
     }
 
-    let selectedMessages = await browser.mailTabs.getSelectedMessages();
+    const selectedMessages = await browser.mailTabs.getSelectedMessages();
     browser.test.assertEq(null, selectedMessages.id);
     browser.test.assertEq(0, selectedMessages.messages.length);
 
     browser.test.notifyPass("mailTabs");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -138,7 +138,7 @@ add_task(async function test_update() {
   });
 
   extension.onMessage("checkRealLayout", async expected => {
-    let intValue = ["standard", "wide", "vertical"].indexOf(expected.layout);
+    const intValue = ["standard", "wide", "vertical"].indexOf(expected.layout);
     is(Services.prefs.getIntPref("mail.pane_config.dynamic"), intValue);
     await check3PaneState(
       expected.folderPaneVisible,
@@ -159,7 +159,7 @@ add_task(async function test_update() {
       author: Ci.nsMsgViewSortType.byAuthor,
     };
 
-    let { primarySortType, primarySortOrder } =
+    const { primarySortType, primarySortOrder } =
       tabmail.currentAbout3Pane.gViewWrapper;
 
     Assert.equal(
@@ -195,7 +195,7 @@ add_task(async function test_update() {
       },
     };
 
-    let { showThreaded, showUnthreaded, showGroupedBySort } =
+    const { showThreaded, showUnthreaded, showGroupedBySort } =
       tabmail.currentAbout3Pane.gViewWrapper;
 
     Assert.equal(
@@ -228,9 +228,9 @@ add_task(async function test_update() {
 
 add_task(async function test_displayedFolderChanged() {
   async function background() {
-    let [accountId] = await window.waitForMessage();
+    const [accountId] = await window.waitForMessage();
 
-    let [current] = await browser.mailTabs.query({
+    const [current] = await browser.mailTabs.query({
       active: true,
       currentWindow: true,
     });
@@ -238,11 +238,11 @@ add_task(async function test_displayedFolderChanged() {
     browser.test.assertEq("/", current.displayedFolder.path);
 
     async function selectFolder(newFolderPath) {
-      let changeListener = window.waitForEvent(
+      const changeListener = window.waitForEvent(
         "mailTabs.onDisplayedFolderChanged"
       );
       browser.test.sendMessage("selectFolder", newFolderPath);
-      let [tab, folder] = await changeListener;
+      const [tab, folder] = await changeListener;
       browser.test.assertEq(current.id, tab.id);
       browser.test.assertEq(accountId, folder.accountId);
       browser.test.assertEq(newFolderPath, folder.path);
@@ -252,13 +252,13 @@ add_task(async function test_displayedFolderChanged() {
     await selectFolder("/");
 
     async function selectFolderByUpdate(newFolderPath) {
-      let changeListener = window.waitForEvent(
+      const changeListener = window.waitForEvent(
         "mailTabs.onDisplayedFolderChanged"
       );
       browser.mailTabs.update({
         displayedFolder: { accountId, path: newFolderPath },
       });
-      let [tab, folder] = await changeListener;
+      const [tab, folder] = await changeListener;
       browser.test.assertEq(current.id, tab.id);
       browser.test.assertEq(accountId, folder.accountId);
       browser.test.assertEq(newFolderPath, folder.path);
@@ -272,13 +272,13 @@ add_task(async function test_displayedFolderChanged() {
     browser.test.notifyPass("mailTabs");
   }
 
-  let folderMap = new Map([
+  const folderMap = new Map([
     ["/", rootFolder],
     ["/test1", subFolders.test1],
     ["/test2", subFolders.test2],
   ]);
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -320,11 +320,11 @@ add_task(async function test_selectedMessagesChanged() {
     await browser.mailTabs.query({});
 
     async function selectMessages(...newMessages) {
-      let selectPromise = window.waitForEvent(
+      const selectPromise = window.waitForEvent(
         "mailTabs.onSelectedMessagesChanged"
       );
       browser.test.sendMessage("selectMessage", newMessages);
-      let [, messageList] = await selectPromise;
+      const [, messageList] = await selectPromise;
       return messageList;
     }
 
@@ -363,7 +363,7 @@ add_task(async function test_selectedMessagesChanged() {
     browser.test.notifyPass("mailTabs");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -391,10 +391,10 @@ add_task(async function test_selectedMessagesChanged() {
 
 add_task(async function test_background_tab() {
   async function background() {
-    let [accountId] = await window.waitForMessage();
-    let { folders } = await browser.accounts.get(accountId);
-    let allTabs = await browser.tabs.query({});
-    let queryTabs = await browser.tabs.query({ mailTab: true });
+    const [accountId] = await window.waitForMessage();
+    const { folders } = await browser.accounts.get(accountId);
+    const allTabs = await browser.tabs.query({});
+    const queryTabs = await browser.tabs.query({ mailTab: true });
     let allMailTabs = await browser.mailTabs.query({});
 
     browser.test.assertEq(4, allTabs.length);
@@ -471,7 +471,7 @@ add_task(async function test_background_tab() {
     browser.test.notifyPass("mailTabs");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -518,19 +518,19 @@ add_task(async function test_get_and_query() {
   async function background() {
     async function checkTab(expected) {
       // Check mailTabs.get().
-      let mailTab = await browser.mailTabs.get(expected.tab.id);
+      const mailTab = await browser.mailTabs.get(expected.tab.id);
       browser.test.assertEq(expected.tab.id, mailTab.id);
 
       // Check if a query for all tabs in the same window included the expected tab.
-      let mailTabs = await browser.mailTabs.query({
+      const mailTabs = await browser.mailTabs.query({
         windowId: expected.tab.windowId,
       });
-      let filteredMailTabs = mailTabs.filter(e => e.id == expected.tab.id);
+      const filteredMailTabs = mailTabs.filter(e => e.id == expected.tab.id);
       browser.test.assertEq(1, filteredMailTabs.length);
 
       // Check if a query for the current tab in the given window returns the current tab.
       if (expected.isCurrentTab) {
-        let currentTabs = await browser.mailTabs.query({
+        const currentTabs = await browser.mailTabs.query({
           active: true,
           windowId: expected.tab.windowId,
         });
@@ -540,10 +540,10 @@ add_task(async function test_get_and_query() {
 
       // Check if a query for all tabs in the currentWindow includes the expected tab.
       if (expected.isCurrentWindow) {
-        let mailTabsCurrentWindow = await browser.mailTabs.query({
+        const mailTabsCurrentWindow = await browser.mailTabs.query({
           currentWindow: true,
         });
-        let filteredMailTabsCurrentWindow = mailTabsCurrentWindow.filter(
+        const filteredMailTabsCurrentWindow = mailTabsCurrentWindow.filter(
           e => e.id == expected.tab.id
         );
         browser.test.assertEq(1, filteredMailTabsCurrentWindow.length);
@@ -551,10 +551,10 @@ add_task(async function test_get_and_query() {
 
       // Check mailTabs.getCurrent() and mailTabs.query({ active: true, currentWindow: true })
       if (expected.isCurrentTab && expected.isCurrentWindow) {
-        let currentTab = await browser.mailTabs.getCurrent();
+        const currentTab = await browser.mailTabs.getCurrent();
         browser.test.assertEq(expected.tab.id, currentTab.id);
 
-        let currentTabs = await browser.mailTabs.query({
+        const currentTabs = await browser.mailTabs.query({
           active: true,
           currentWindow: true,
         });
@@ -563,10 +563,10 @@ add_task(async function test_get_and_query() {
       }
     }
 
-    let [accountId] = await window.waitForMessage();
-    let allTabs = await browser.tabs.query({});
-    let queryMailTabs = await browser.tabs.query({ mailTab: true });
-    let allMailTabs = await browser.mailTabs.query({});
+    const [accountId] = await window.waitForMessage();
+    const allTabs = await browser.tabs.query({});
+    const queryMailTabs = await browser.tabs.query({ mailTab: true });
+    const allMailTabs = await browser.mailTabs.query({});
 
     browser.test.assertEq(8, allTabs.length);
     browser.test.assertEq(6, queryMailTabs.length);
@@ -591,7 +591,7 @@ add_task(async function test_get_and_query() {
     browser.test.assertEq(accountId, allMailTabs[5].displayedFolder.accountId);
     browser.test.assertEq("/test2", allMailTabs[5].displayedFolder.path);
 
-    for (let mailTab of allMailTabs) {
+    for (const mailTab of allMailTabs) {
       await checkTab({
         tab: mailTab,
         isCurrentTab: [allMailTabs[2].id, allMailTabs[5].id].includes(
@@ -602,7 +602,7 @@ add_task(async function test_get_and_query() {
     }
 
     // get(id) should throw if id does not belong to a mail tab.
-    for (let tab of [allTabs[1], allTabs[5]]) {
+    for (const tab of [allTabs[1], allTabs[5]]) {
       await browser.test.assertRejects(
         browser.mailTabs.get(tab.id),
         `Invalid mail tab ID: ${tab.id}`,
@@ -611,7 +611,7 @@ add_task(async function test_get_and_query() {
     }
 
     // Switch to the second mail tab in both windows.
-    for (let tab of [allMailTabs[1], allMailTabs[4]]) {
+    for (const tab of [allMailTabs[1], allMailTabs[4]]) {
       await browser.tabs.update(tab.id, { active: true });
       // Check if the new active tab is returned.
       await checkTab({
@@ -623,7 +623,7 @@ add_task(async function test_get_and_query() {
 
     // Switch active window to a non-mailtab, getCurrent() and a query for active tab should not return anything.
     await browser.tabs.update(allTabs[5].id, { active: true });
-    let activeMailTab = await browser.mailTabs.getCurrent();
+    const activeMailTab = await browser.mailTabs.getCurrent();
     browser.test.assertEq(undefined, activeMailTab);
     let activeMailTabs = await browser.mailTabs.query({
       active: true,
@@ -641,7 +641,7 @@ add_task(async function test_get_and_query() {
     browser.test.notifyPass("mailTabs");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -652,9 +652,9 @@ add_task(async function test_get_and_query() {
     },
   });
 
-  let window2 = await openNewMailWindow();
-  for (let win of [window, window2]) {
-    let winTabmail = win.document.getElementById("tabmail");
+  const window2 = await openNewMailWindow();
+  for (const win of [window, window2]) {
+    const winTabmail = win.document.getElementById("tabmail");
     winTabmail.currentTabInfo.folder = rootFolder;
     win.openContentTab("about:mozilla");
     winTabmail.openTab("mail3PaneTab", { folderURI: subFolders.test1.URI });
@@ -686,13 +686,13 @@ add_task(async function test_get_and_query() {
 
 add_task(async function test_setSelectedMessages() {
   async function background() {
-    let [accountId] = await window.waitForMessage();
-    let { folders } = await browser.accounts.get(accountId);
-    let allTabs = await browser.tabs.query({});
-    let queryTabs = await browser.tabs.query({ mailTab: true });
-    let allMailTabs = await browser.mailTabs.query({});
+    const [accountId] = await window.waitForMessage();
+    const { folders } = await browser.accounts.get(accountId);
+    const allTabs = await browser.tabs.query({});
+    const queryTabs = await browser.tabs.query({ mailTab: true });
+    const allMailTabs = await browser.mailTabs.query({});
 
-    let { messages: messages1 } = await browser.messages.list(
+    const { messages: messages1 } = await browser.messages.list(
       folders.find(f => f.path == "/test1")
     );
     browser.test.assertTrue(
@@ -700,7 +700,7 @@ add_task(async function test_setSelectedMessages() {
       "There should be more than 7 messages in /test1"
     );
 
-    let { messages: messages2 } = await browser.messages.list(
+    const { messages: messages2 } = await browser.messages.list(
       folders.find(f => f.path == "/test2")
     );
     browser.test.assertTrue(
@@ -712,12 +712,12 @@ add_task(async function test_setSelectedMessages() {
     browser.test.assertEq(5, allTabs.length);
     browser.test.assertEq(3, queryTabs.length);
 
-    let foregroundTab = allMailTabs[1].id;
+    const foregroundTab = allMailTabs[1].id;
     browser.test.assertEq(accountId, allMailTabs[1].displayedFolder.accountId);
     browser.test.assertEq("/test1", allMailTabs[1].displayedFolder.path);
     browser.test.assertTrue(allMailTabs[1].active);
 
-    let backgroundTab = allMailTabs[2].id;
+    const backgroundTab = allMailTabs[2].id;
     browser.test.assertEq(accountId, allMailTabs[2].displayedFolder.accountId);
     browser.test.assertEq("/", allMailTabs[2].displayedFolder.path);
 
@@ -740,7 +740,7 @@ add_task(async function test_setSelectedMessages() {
       displayedFolder: "/test1",
     });
     // Check API return value of the foreground tab.
-    let { messages: readMessagesA } =
+    const { messages: readMessagesA } =
       await browser.mailTabs.getSelectedMessages(foregroundTab);
     window.assertDeepEqual(
       [messages1.at(-7).id, messages1.at(-8).id],
@@ -759,14 +759,14 @@ add_task(async function test_setSelectedMessages() {
       displayedFolder: "/test1",
     });
     // Check unchanged API return value of the foreground tab.
-    let { messages: readMessagesB } =
+    const { messages: readMessagesB } =
       await browser.mailTabs.getSelectedMessages(foregroundTab);
     window.assertDeepEqual(
       [messages1.at(-7).id, messages1.at(-8).id],
       readMessagesB.map(m => m.id)
     );
     // Check API return value of the inactive background tab.
-    let { messages: readMessagesC } =
+    const { messages: readMessagesC } =
       await browser.mailTabs.getSelectedMessages(backgroundTab);
     window.assertDeepEqual(
       [messages2.at(-1).id, messages2.at(-4).id],
@@ -775,7 +775,7 @@ add_task(async function test_setSelectedMessages() {
     // Switch to the background tab.
     await browser.tabs.update(backgroundTab, { active: true });
     // Check API return value of the background tab (now active).
-    let { messages: readMessagesD } =
+    const { messages: readMessagesD } =
       await browser.mailTabs.getSelectedMessages(backgroundTab);
     window.assertDeepEqual(
       [messages2.at(-1).id, messages2.at(-4).id],
@@ -788,7 +788,7 @@ add_task(async function test_setSelectedMessages() {
       displayedFolder: "/test2",
     });
     // Check unchanged API return value of the foreground tab (now inactive).
-    let { messages: readMessagesE } =
+    const { messages: readMessagesE } =
       await browser.mailTabs.getSelectedMessages(foregroundTab);
     window.assertDeepEqual(
       [messages1.at(-7).id, messages1.at(-8).id],
@@ -803,7 +803,7 @@ add_task(async function test_setSelectedMessages() {
       messages2.at(-5).id,
     ]);
     // Check API return value of the foreground tab.
-    let { messages: readMessagesF } =
+    const { messages: readMessagesF } =
       await browser.mailTabs.getSelectedMessages(foregroundTab);
     window.assertDeepEqual(
       [messages2.at(-3).id, messages2.at(-5).id],
@@ -816,7 +816,7 @@ add_task(async function test_setSelectedMessages() {
       displayedFolder: "/test2",
     });
     // Check API return value of the inactive background tab.
-    let { messages: readMessagesG } =
+    const { messages: readMessagesG } =
       await browser.mailTabs.getSelectedMessages(backgroundTab);
     window.assertDeepEqual(
       [messages2.at(-1).id, messages2.at(-4).id],
@@ -826,14 +826,14 @@ add_task(async function test_setSelectedMessages() {
     // Clear selection in background tab.
     await browser.mailTabs.setSelectedMessages(backgroundTab, []);
     // Check API return value of the inactive background tab.
-    let { messages: readMessagesH } =
+    const { messages: readMessagesH } =
       await browser.mailTabs.getSelectedMessages(backgroundTab);
     browser.test.assertEq(0, readMessagesH.length);
 
     // Clear selection in foreground tab.
     await browser.mailTabs.setSelectedMessages(foregroundTab, []);
     // Check API return value of the foreground tab.
-    let { messages: readMessagesI } =
+    const { messages: readMessagesI } =
       await browser.mailTabs.getSelectedMessages(foregroundTab);
     browser.test.assertEq(0, readMessagesI.length);
 
@@ -852,7 +852,7 @@ add_task(async function test_setSelectedMessages() {
     browser.test.notifyPass("mailTabs");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),

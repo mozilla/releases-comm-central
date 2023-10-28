@@ -86,7 +86,7 @@ add_task(async function testItemExists() {
 });
 
 add_task(async function testCreateIMAPRecord() {
-  let record = await store.createRecord(imapServer.UID);
+  const record = await store.createRecord(imapServer.UID);
   Assert.ok(record instanceof AccountRecord);
   Assert.equal(record.id, imapServer.UID);
   Assert.equal(record.username, "username");
@@ -110,7 +110,7 @@ add_task(async function testCreateIMAPRecord() {
 });
 
 add_task(async function testCreatePOP3Record() {
-  let record = await store.createRecord(pop3Server.UID);
+  const record = await store.createRecord(pop3Server.UID);
   Assert.ok(record instanceof AccountRecord);
   Assert.equal(record.id, pop3Server.UID);
   Assert.equal(record.username, "username");
@@ -134,9 +134,9 @@ add_task(async function testCreatePOP3Record() {
 });
 
 add_task(async function testCreateSMTPRecord() {
-  let smtpServerID = smtpServer.UID;
+  const smtpServerID = smtpServer.UID;
 
-  let record = await store.createRecord(smtpServerID);
+  const record = await store.createRecord(smtpServerID);
   Assert.ok(record instanceof AccountRecord);
   Assert.equal(record.id, smtpServerID);
   Assert.equal(record.username, "username");
@@ -152,15 +152,15 @@ add_task(async function testCreateSMTPRecord() {
 });
 
 add_task(async function testCreateDeletedRecord() {
-  let fakeID = "12345678-1234-1234-1234-123456789012";
-  let record = await store.createRecord(fakeID);
+  const fakeID = "12345678-1234-1234-1234-123456789012";
+  const record = await store.createRecord(fakeID);
   Assert.ok(record instanceof AccountRecord);
   Assert.equal(record.id, fakeID);
   Assert.equal(record.deleted, true);
 });
 
 add_task(async function testSyncIMAPRecords() {
-  let newID = newUID();
+  const newID = newUID();
   await store.applyIncoming({
     id: newID,
     username: "username",
@@ -184,7 +184,7 @@ add_task(async function testSyncIMAPRecords() {
 
   Assert.equal(MailServices.accounts.accounts.length, 4);
 
-  let newServer = MailServices.accounts.allServers.find(s => s.UID == newID);
+  const newServer = MailServices.accounts.allServers.find(s => s.UID == newID);
   Assert.equal(newServer.username, "username");
   Assert.equal(newServer.hostName, "new.hostname");
   Assert.equal(newServer.prettyName, "New IMAP Server");
@@ -233,7 +233,7 @@ add_task(async function testSyncIMAPRecords() {
 });
 
 add_task(async function testSyncPOP3Records() {
-  let newID = newUID();
+  const newID = newUID();
   await store.applyIncoming({
     id: newID,
     username: "username",
@@ -257,7 +257,7 @@ add_task(async function testSyncPOP3Records() {
 
   Assert.equal(MailServices.accounts.accounts.length, 4);
 
-  let newServer = MailServices.accounts.allServers.find(s => s.UID == newID);
+  const newServer = MailServices.accounts.allServers.find(s => s.UID == newID);
   Assert.equal(newServer.username, "username");
   Assert.equal(newServer.hostName, "new.hostname");
   Assert.equal(newServer.prettyName, "New POP3 Server");
@@ -306,7 +306,7 @@ add_task(async function testSyncPOP3Records() {
 });
 
 add_task(async function testSyncSMTPRecords() {
-  let newSMTPServerID = newUID();
+  const newSMTPServerID = newUID();
   await store.applyIncoming({
     id: newSMTPServerID,
     username: "username",
@@ -323,7 +323,7 @@ add_task(async function testSyncSMTPRecords() {
 
   Assert.equal(MailServices.smtp.servers.length, 2);
 
-  let newSMTPServer = MailServices.smtp.servers.find(
+  const newSMTPServer = MailServices.smtp.servers.find(
     s => s.UID == newSMTPServerID
   );
   Assert.equal(newSMTPServer.username, "username");

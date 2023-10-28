@@ -39,8 +39,8 @@ add_setup(async function () {
 });
 
 add_task(async function testSecretKeys() {
-  let pass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
-  let newKeyId = await RNP.genKey(
+  const pass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+  const newKeyId = await RNP.genKey(
     "Erin <erin@example.com>",
     "ECC",
     0,
@@ -59,37 +59,37 @@ add_task(async function testSecretKeys() {
     "EnigmailKeyRing.getKeyById should return an object with a secret key"
   );
 
-  let fpr = keyObj.fpr;
+  const fpr = keyObj.fpr;
 
   Assert.ok(
     keyObj.iSimpleOneSubkeySameExpiry(),
     "check iSimpleOneSubkeySameExpiry should succeed"
   );
 
-  let allFingerprints = [fpr, keyObj.subKeys[0].fpr];
+  const allFingerprints = [fpr, keyObj.subKeys[0].fpr];
 
-  let keyTrackers = [];
-  for (let fp of allFingerprints) {
-    let tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(fp);
+  const keyTrackers = [];
+  for (const fp of allFingerprints) {
+    const tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(fp);
     await tracker.unlock();
     keyTrackers.push(tracker);
   }
 
-  let expiryChanged = await RNP.changeExpirationDate(
+  const expiryChanged = await RNP.changeExpirationDate(
     allFingerprints,
     100 * 24 * 60 * 60
   );
   Assert.ok(expiryChanged, "changeExpirationDate should return success");
 
-  for (let t of keyTrackers) {
+  for (const t of keyTrackers) {
     t.release();
   }
 
-  let backupPassword = "new-password-1234";
+  const backupPassword = "new-password-1234";
 
-  let backupKeyBlock = await RNP.backupSecretKeys([fpr], backupPassword);
+  const backupKeyBlock = await RNP.backupSecretKeys([fpr], backupPassword);
 
-  let expectedString = "END PGP PRIVATE KEY BLOCK";
+  const expectedString = "END PGP PRIVATE KEY BLOCK";
 
   Assert.ok(
     backupKeyBlock.includes(expectedString),
@@ -108,7 +108,7 @@ add_task(async function testSecretKeys() {
 
   let alreadyProvidedWrongPassword = false;
 
-  let getWrongPassword = function (win, keyId, resultFlags) {
+  const getWrongPassword = function (win, keyId, resultFlags) {
     if (alreadyProvidedWrongPassword) {
       resultFlags.canceled = true;
       return "";
@@ -127,7 +127,7 @@ add_task(async function testSecretKeys() {
 
   Assert.ok(importResult.exitCode != 0, "import should have failed");
 
-  let getGoodPassword = function (win, keyId, resultFlags) {
+  const getGoodPassword = function (win, keyId, resultFlags) {
     return backupPassword;
   };
 
@@ -149,13 +149,13 @@ add_task(async function testSecretKeys() {
 });
 
 add_task(async function testImportSecretKeyIsProtected() {
-  let carolFile = do_get_file(
+  const carolFile = do_get_file(
     `${keyDir}/carol@example.com-0x3099ff1238852b9f-secret.asc`
   );
-  let carolSec = await IOUtils.readUTF8(carolFile.path);
+  const carolSec = await IOUtils.readUTF8(carolFile.path);
 
   // Carol's secret key is protected with password "x".
-  let getCarolPassword = function (win, keyId, resultFlags) {
+  const getCarolPassword = function (win, keyId, resultFlags) {
     return "x";
   };
 
@@ -172,10 +172,10 @@ add_task(async function testImportSecretKeyIsProtected() {
     "Should be able to import Carol's secret key"
   );
 
-  let aliceFile = do_get_file(
+  const aliceFile = do_get_file(
     `${keyDir}/alice@openpgp.example-0xf231550c4f47e38e-secret.asc`
   );
-  let aliceSec = await IOUtils.readUTF8(aliceFile.path);
+  const aliceSec = await IOUtils.readUTF8(aliceFile.path);
 
   // Alice's secret key is unprotected.
   importResult = await RNP.importSecKeyBlockImpl(null, null, false, aliceSec);
@@ -186,13 +186,13 @@ add_task(async function testImportSecretKeyIsProtected() {
     "Should be able to import Alice's secret key"
   );
 
-  let [prot, unprot] = OpenPGPTestUtils.getProtectedKeysCount();
+  const [prot, unprot] = OpenPGPTestUtils.getProtectedKeysCount();
   Assert.notEqual(prot, 0, "Should have protected secret keys");
   Assert.equal(unprot, 0, "Should not have any unprotected secret keys");
 });
 
 add_task(async function testImportOfflinePrimaryKey() {
-  let importResult = await OpenPGPTestUtils.importPrivateKey(
+  const importResult = await OpenPGPTestUtils.importPrivateKey(
     null,
     do_get_file(`${keyDir}/ofelia-secret-subkeys.asc`)
   );
@@ -203,18 +203,21 @@ add_task(async function testImportOfflinePrimaryKey() {
     "expected key id should have been reported"
   );
 
-  let primaryKey = await RNP.findKeyByEmail("<ofelia@openpgp.example>", false);
+  const primaryKey = await RNP.findKeyByEmail(
+    "<ofelia@openpgp.example>",
+    false
+  );
 
-  let encSubKey = RNP.getSuitableSubkey(primaryKey, "encrypt");
-  let keyId = RNP.getKeyIDFromHandle(encSubKey);
+  const encSubKey = RNP.getSuitableSubkey(primaryKey, "encrypt");
+  const keyId = RNP.getKeyIDFromHandle(encSubKey);
   Assert.equal(
     keyId,
     "31C31DF1DFB67601",
     "should obtain key ID of encryption subkey"
   );
 
-  let sigSubKey = RNP.getSuitableSubkey(primaryKey, "sign");
-  let keyIdSig = RNP.getKeyIDFromHandle(sigSubKey);
+  const sigSubKey = RNP.getSuitableSubkey(primaryKey, "sign");
+  const keyIdSig = RNP.getKeyIDFromHandle(sigSubKey);
   Assert.equal(
     keyIdSig,
     "1BC8F5764D348FE1",
@@ -226,10 +229,10 @@ add_task(async function testImportOfflinePrimaryKey() {
   // Ofelia's key has no secret key for the primary key available,
   // which further ensures that signing used the subkey.
 
-  let sourceText = "we-sign-this-text";
-  let signResult = {};
+  const sourceText = "we-sign-this-text";
+  const signResult = {};
 
-  let signArgs = {
+  const signArgs = {
     aliasKeys: new Map(),
     armor: true,
     bcc: [],
@@ -250,13 +253,13 @@ add_task(async function testImportOfflinePrimaryKey() {
 });
 
 add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
-  let secBlock = await IOUtils.readUTF8(
+  const secBlock = await IOUtils.readUTF8(
     do_get_file(
       `${keyDir}/secret-for-preferred-sign-subkey-is-missing--a-without-second-sub--sec.asc`
     ).path
   );
 
-  let cancelPassword = function (win, keyId, resultFlags) {
+  const cancelPassword = function (win, keyId, resultFlags) {
     resultFlags.canceled = true;
     return "";
   };
@@ -270,7 +273,7 @@ add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
 
   Assert.ok(importResult.exitCode == 0);
 
-  let pubBlock = await IOUtils.readUTF8(
+  const pubBlock = await IOUtils.readUTF8(
     do_get_file(
       `${keyDir}/secret-for-preferred-sign-subkey-is-missing--b-with-second-sub--pub.asc`
     ).path
@@ -284,13 +287,13 @@ add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
 
   Assert.ok(importResult.exitCode == 0);
 
-  let primaryKey = await RNP.findKeyByEmail(
+  const primaryKey = await RNP.findKeyByEmail(
     "<secret-for-preferred-sign-subkey-is-missing@example.com>",
     false
   );
 
-  let signSubKey = RNP.getSuitableSubkey(primaryKey, "sign");
-  let keyId = RNP.getKeyIDFromHandle(signSubKey);
+  const signSubKey = RNP.getSuitableSubkey(primaryKey, "sign");
+  const keyId = RNP.getKeyIDFromHandle(signSubKey);
   Assert.equal(
     keyId,
     "625D4819F02EE727",
@@ -302,7 +305,7 @@ add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
 // import the secret key, but one of the existing public subkeys is
 // missing, test that we don't fail to import (bug 1795698).
 add_task(async function testNoSecretForExistingPublicSubkey() {
-  let pubBlock = await IOUtils.readUTF8(
+  const pubBlock = await IOUtils.readUTF8(
     do_get_file(`${keyDir}/two-enc-subkeys-still-both.pub.asc`).path
   );
 
@@ -314,11 +317,11 @@ add_task(async function testNoSecretForExistingPublicSubkey() {
 
   Assert.ok(importResult.exitCode == 0);
 
-  let secBlock = await IOUtils.readUTF8(
+  const secBlock = await IOUtils.readUTF8(
     do_get_file(`${keyDir}/two-enc-subkeys-one-deleted.sec.asc`).path
   );
 
-  let cancelPassword = function (win, keyId, resultFlags) {
+  const cancelPassword = function (win, keyId, resultFlags) {
     resultFlags.canceled = true;
     return "";
   };
@@ -341,9 +344,9 @@ add_task(async function testNoSecretForExistingPublicSubkey() {
 // data again from disk (which will run the consistency checks and
 // could potentially execute the repair code).
 add_task(async function testRereadingPassphrase() {
-  let pass1 = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+  const pass1 = await OpenPGPMasterpass.retrieveOpenPGPPassword();
   OpenPGPMasterpass.cachedPassword = null;
-  let pass2 = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+  const pass2 = await OpenPGPMasterpass.retrieveOpenPGPPassword();
   Assert.equal(
     pass1,
     pass2,

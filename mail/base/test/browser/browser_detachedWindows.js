@@ -6,21 +6,21 @@ var { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 
-let manager = Cc["@mozilla.org/memory-reporter-manager;1"].getService(
+const manager = Cc["@mozilla.org/memory-reporter-manager;1"].getService(
   Ci.nsIMemoryReporterManager
 );
 
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 let testFolder;
 let testMessages;
 
 add_setup(async function () {
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("detachedWindows", null);
   testFolder = rootFolder
     .getChildNamed("detachedWindows")
@@ -115,13 +115,13 @@ add_task(async function testMessageWindow() {
 
 add_task(async function testSearchMessagesDialog() {
   info("Opening the search messages dialog");
-  let about3Pane = tabmail.currentAbout3Pane;
-  let context = about3Pane.document.getElementById("folderPaneContext");
-  let searchMessagesItem = about3Pane.document.getElementById(
+  const about3Pane = tabmail.currentAbout3Pane;
+  const context = about3Pane.document.getElementById("folderPaneContext");
+  const searchMessagesItem = about3Pane.document.getElementById(
     "folderPaneContext-searchMessages"
   );
 
-  let shownPromise = BrowserTestUtils.waitForEvent(context, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(context, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     about3Pane.folderPane.getRowForFolder(testFolder).querySelector(".name"),
     { type: "contextmenu" },
@@ -170,7 +170,7 @@ add_task(async function testAddressBookTab() {
 async function getWindows() {
   await new Promise(resolve => manager.minimizeMemoryUsage(resolve));
 
-  let windows = new Set();
+  const windows = new Set();
   await new Promise(resolve =>
     manager.getReports(
       (process, path, kind, units, amount, description) => {
@@ -188,7 +188,7 @@ async function getWindows() {
     )
   );
 
-  for (let win of windows) {
+  for (const win of windows) {
     info(win);
   }
 
@@ -197,13 +197,13 @@ async function getWindows() {
 
 async function assertNoDetachedWindows() {
   info("Remaining windows:");
-  let windows = await getWindows();
+  const windows = await getWindows();
 
   let noDetachedWindows = true;
-  for (let win of windows) {
+  for (const win of windows) {
     if (win.includes("detached")) {
       noDetachedWindows = false;
-      let url = win.substring(win.indexOf("(") + 1, win.indexOf(")"));
+      const url = win.substring(win.indexOf("(") + 1, win.indexOf(")"));
       Assert.report(true, undefined, undefined, `detached window: ${url}`);
     }
   }
@@ -214,20 +214,20 @@ async function assertNoDetachedWindows() {
 }
 
 async function openMessageFromFile(file) {
-  let fileURL = Services.io
+  const fileURL = Services.io
     .newFileURI(file)
     .mutate()
     .setQuery("type=application/x-message-display")
     .finalize();
 
-  let winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   window.openDialog(
     "chrome://messenger/content/messageWindow.xhtml",
     "_blank",
     "all,chrome,dialog=no,status,toolbar",
     fileURL
   );
-  let win = await winPromise;
+  const win = await winPromise;
   await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
   await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
   return win;

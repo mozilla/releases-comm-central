@@ -23,14 +23,14 @@ const { Schemas } = ChromeUtils.importESModule(
   "resource://gre/modules/Schemas.sys.mjs"
 );
 
-let getContext = ExtensionContent.getContext;
-let initExtensionContext = ExtensionContent.initExtensionContext;
-let initPageChildExtensionContext = ExtensionPageChild.initExtensionContext;
+const getContext = ExtensionContent.getContext;
+const initExtensionContext = ExtensionContent.initExtensionContext;
+const initPageChildExtensionContext = ExtensionPageChild.initExtensionContext;
 
 // This patches constructor of ContentScriptContextChild adding the object to
 // the sandbox.
 ExtensionContent.getContext = function (extension, window) {
-  let context = getContext.apply(ExtensionContent, arguments);
+  const context = getContext.apply(ExtensionContent, arguments);
   if (!("messenger" in context.sandbox)) {
     Schemas.exportLazyGetter(
       context.sandbox,
@@ -45,7 +45,7 @@ ExtensionContent.getContext = function (extension, window) {
 // web page that points to a moz-extension:// page exposed via
 // web_accessible_content.
 ExtensionContent.initExtensionContext = function (extension, window) {
-  let context = extension.getContext(window);
+  const context = extension.getContext(window);
   Schemas.exportLazyGetter(window, "messenger", () => context.chromeObj);
 
   return initExtensionContext.apply(ExtensionContent, arguments);
@@ -53,16 +53,16 @@ ExtensionContent.initExtensionContext = function (extension, window) {
 
 // This patches privileged pages such as the background script.
 ExtensionPageChild.initExtensionContext = function (extension, window) {
-  let retval = initPageChildExtensionContext.apply(
+  const retval = initPageChildExtensionContext.apply(
     ExtensionPageChild,
     arguments
   );
 
-  let windowId = ExtensionUtils.getInnerWindowID(window);
-  let context = ExtensionPageChild.extensionContexts.get(windowId);
+  const windowId = ExtensionUtils.getInnerWindowID(window);
+  const context = ExtensionPageChild.extensionContexts.get(windowId);
 
   Schemas.exportLazyGetter(window, "messenger", () => {
-    let messengerObj = Cu.createObjectIn(window);
+    const messengerObj = Cu.createObjectIn(window);
     context.childManager.inject(messengerObj);
     return messengerObj;
   });

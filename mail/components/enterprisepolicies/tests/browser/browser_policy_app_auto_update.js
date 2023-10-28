@@ -7,14 +7,14 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 async function test_app_update_auto(expectedEnabled, expectedLocked) {
-  let actualEnabled = await UpdateUtils.getAppUpdateAutoEnabled();
+  const actualEnabled = await UpdateUtils.getAppUpdateAutoEnabled();
   is(
     actualEnabled,
     expectedEnabled,
     `Actual auto update enabled setting should match the expected value of ${expectedEnabled}`
   );
 
-  let actualLocked = UpdateUtils.appUpdateAutoSettingIsLocked();
+  const actualLocked = UpdateUtils.appUpdateAutoSettingIsLocked();
   is(
     actualLocked,
     expectedLocked,
@@ -35,10 +35,10 @@ async function test_app_update_auto(expectedEnabled, expectedLocked) {
     `Setting auto update ${expectedLocked ? "should" : "should not"} fail`
   );
 
-  let tabmail = document.getElementById("tabmail");
-  let prefsTabMode = tabmail.tabModes.preferencesTab;
+  const tabmail = document.getElementById("tabmail");
+  const prefsTabMode = tabmail.tabModes.preferencesTab;
 
-  let prefsDocument = await new Promise(resolve => {
+  const prefsDocument = await new Promise(resolve => {
     Services.obs.addObserver(function documentLoaded(subject) {
       if (subject.URL == "about:preferences") {
         Services.obs.removeObserver(documentLoaded, "chrome-document-loaded");
@@ -64,7 +64,7 @@ async function test_app_update_auto(expectedEnabled, expectedLocked) {
 }
 
 add_task(async function test_app_auto_update_policy() {
-  let originalUpdateAutoValue = await UpdateUtils.getAppUpdateAutoEnabled();
+  const originalUpdateAutoValue = await UpdateUtils.getAppUpdateAutoEnabled();
   registerCleanupFunction(async () => {
     await UpdateUtils.setAppUpdateAutoEnabled(originalUpdateAutoValue);
   });

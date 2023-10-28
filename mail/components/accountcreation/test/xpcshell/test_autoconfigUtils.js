@@ -60,8 +60,8 @@ function assert_equal_host_entries(hostEntry, expected) {
  */
 function assert_equal_try_orders(aA, aB) {
   assert_equal(aA.length, aB.length, "tryOrders have different length");
-  for (let [i, subA] of aA.entries()) {
-    let subB = aB[i];
+  for (const [i, subA] of aA.entries()) {
+    const subB = aB[i];
     assert_equal_host_entries(subA, subB);
   }
 }
@@ -234,8 +234,8 @@ function test_getIncomingTryOrder() {
   checkImap("imap.example.com", UNKNOWN);
   checkImap("pop.example.com", IMAP);
 
-  let domain = "example.com";
-  let protocol = UNKNOWN;
+  const domain = "example.com";
+  const protocol = UNKNOWN;
   let ssl = UNKNOWN;
   let port = UNKNOWN;
   let tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
@@ -281,8 +281,8 @@ function test_getIncomingTryOrder() {
 function test_getOutgoingTryOrder() {
   // The list of protocol+ssl+port configurations should match
   // getOutgoingTryOrder() in guessConfig.js.
-  let domain = "example.com";
-  let protocol = SMTP;
+  const domain = "example.com";
+  const protocol = SMTP;
   let ssl = UNKNOWN;
   let port = UNKNOWN;
   let tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);

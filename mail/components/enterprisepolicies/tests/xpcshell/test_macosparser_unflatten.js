@@ -3,7 +3,7 @@
 
 "use strict";
 
-let { macOSPoliciesParser } = ChromeUtils.importESModule(
+const { macOSPoliciesParser } = ChromeUtils.importESModule(
   "resource://gre/modules/policies/macOSPoliciesParser.sys.mjs"
 );
 
@@ -11,7 +11,7 @@ add_task(async function test_object_unflatten() {
   // Note: these policies are just examples and they won't actually
   // run through the policy engine on this test. We're just testing
   // that the unflattening algorithm produces the correct output.
-  let input = {
+  const input = {
     DisplayBookmarksToolbar: true,
 
     Homepage__URL: "https://www.mozilla.org",
@@ -40,7 +40,7 @@ add_task(async function test_object_unflatten() {
     Bookmarks__1__Folder: "Folder",
   };
 
-  let expected = {
+  const expected = {
     DisplayBookmarksToolbar: true,
 
     Homepage: {
@@ -83,13 +83,13 @@ add_task(async function test_object_unflatten() {
     ],
   };
 
-  let unflattened = macOSPoliciesParser.unflatten(input);
+  const unflattened = macOSPoliciesParser.unflatten(input);
 
   deepEqual(unflattened, expected, "Input was unflattened correctly.");
 });
 
 add_task(async function test_array_unflatten() {
-  let input = {
+  const input = {
     Foo__1: 1,
     Foo__5: 5,
     Foo__10: 10,
@@ -97,10 +97,10 @@ add_task(async function test_array_unflatten() {
     Foo__51: 51, // This one should not be included as the limit is 50
   };
 
-  let unflattened = macOSPoliciesParser.unflatten(input);
+  const unflattened = macOSPoliciesParser.unflatten(input);
   equal(unflattened.Foo.length, 31, "Array size is correct");
 
-  let expected = {
+  const expected = {
     Foo: [, 1, , , , 5], // eslint-disable-line no-sparse-arrays
   };
   expected.Foo[10] = 10;

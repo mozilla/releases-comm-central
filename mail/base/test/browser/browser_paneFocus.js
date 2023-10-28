@@ -6,20 +6,22 @@ const { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 
-let mailButton = document.getElementById("mailButton");
-let globalSearch = document.querySelector("#unifiedToolbar global-search-bar");
-let addressBookButton = document.getElementById("addressBookButton");
-let calendarButton = document.getElementById("calendarButton");
-let tasksButton = document.getElementById("tasksButton");
-let tabmail = document.getElementById("tabmail");
+const mailButton = document.getElementById("mailButton");
+const globalSearch = document.querySelector(
+  "#unifiedToolbar global-search-bar"
+);
+const addressBookButton = document.getElementById("addressBookButton");
+const calendarButton = document.getElementById("calendarButton");
+const tasksButton = document.getElementById("tasksButton");
+const tabmail = document.getElementById("tabmail");
 
 let rootFolder, testFolder, testMessages, addressBook;
 
 add_setup(async function () {
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
@@ -35,13 +37,13 @@ add_setup(async function () {
   );
   testMessages = [...testFolder.messages];
 
-  let prefName = MailServices.ab.newAddressBook(
+  const prefName = MailServices.ab.newAddressBook(
     "paneFocus",
     null,
     Ci.nsIAbManager.JS_DIRECTORY_TYPE
   );
   addressBook = MailServices.ab.getDirectoryFromId(prefName);
-  let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+  const contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
   contact.displayName = "contact 1";
@@ -52,7 +54,7 @@ add_setup(async function () {
 
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(account, false);
-    let removePromise = TestUtils.topicObserved("addrbook-directory-deleted");
+    const removePromise = TestUtils.topicObserved("addrbook-directory-deleted");
     MailServices.ab.deleteAddressBook(addressBook.URI);
     await removePromise;
   });
@@ -61,12 +63,12 @@ add_setup(async function () {
 add_task(async function testMail3PaneTab() {
   document.body.focus();
 
-  let about3Pane = tabmail.currentAbout3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({
     folderPaneVisible: true,
     messagePaneVisible: true,
   });
-  let {
+  const {
     folderTree,
     threadTree,
     webBrowser,
@@ -196,19 +198,19 @@ add_task(async function testAddressBookTab() {
   EventUtils.synthesizeMouseAtCenter(addressBookButton, {});
   await BrowserTestUtils.browserLoaded(tabmail.currentTabInfo.browser);
 
-  let abWindow = tabmail.currentTabInfo.browser.contentWindow;
-  let abDocument = abWindow.document;
-  let booksList = abDocument.getElementById("books");
-  let searchInput = abDocument.getElementById("searchInput");
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
-  let editButton = abDocument.getElementById("editButton");
+  const abWindow = tabmail.currentTabInfo.browser.contentWindow;
+  const abDocument = abWindow.document;
+  const booksList = abDocument.getElementById("books");
+  const searchInput = abDocument.getElementById("searchInput");
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
+  const editButton = abDocument.getElementById("editButton");
 
   // Switch to the table view so the edit button isn't falling off the window.
   abWindow.cardsPane.toggleLayout(true);
 
   // Check what happens with a contact selected.
-  let row = booksList.getRowForUID(addressBook.UID);
+  const row = booksList.getRowForUID(addressBook.UID);
   EventUtils.synthesizeMouseAtCenter(row.querySelector("span"), {}, abWindow);
 
   Assert.ok(BrowserTestUtils.is_hidden(detailsPane));

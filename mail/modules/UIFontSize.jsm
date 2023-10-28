@@ -23,8 +23,8 @@ var registeredWindows = new Set();
  * @param {Window} win - The window to be registered.
  */
 function updateWindow(win) {
-  let tabmail = win.document.getElementById("tabmail");
-  let browser =
+  const tabmail = win.document.getElementById("tabmail");
+  const browser =
     tabmail?.getBrowserForSelectedTab() ||
     win.document.getElementById("messagepane");
 
@@ -65,7 +65,7 @@ function updateWindow(win) {
  * Loop through all registered windows and update the font size.
  */
 function updateAllWindows() {
-  for (let win of registeredWindows) {
+  for (const win of registeredWindows) {
     updateWindow(win);
   }
 }
@@ -125,13 +125,13 @@ var UIFontSize = {
    */
   browserSize(isPlainText) {
     if (isPlainText) {
-      let monospaceSize = Services.prefs.getIntPref(
+      const monospaceSize = Services.prefs.getIntPref(
         "font.size.monospace." + langGroup,
         this.size
       );
       return monospaceSize + (this.size - this.user_value);
     }
-    let variableSize = Services.prefs.getIntPref(
+    const variableSize = Services.prefs.getIntPref(
       "font.size.variable." + langGroup,
       this.size
     );
@@ -156,7 +156,7 @@ var UIFontSize = {
     // Fetch the default font size defined by the OS as soon as we register the
     // first window. Don't do it again if we already have a value.
     if (!this.user_value) {
-      let style = win
+      const style = win
         .getComputedStyle(win.document.documentElement)
         .getPropertyValue("font-size");
 
@@ -183,7 +183,7 @@ var UIFontSize = {
    * @param {Window} win - The window from where the app menu is visible.
    */
   updateAppMenuButton(win) {
-    let panelButton = win.document.getElementById(
+    const panelButton = win.document.getElementById(
       "appMenu-fontSizeReset-button"
     );
     if (panelButton) {
@@ -245,7 +245,7 @@ var UIFontSize = {
     }
 
     // Check if the current message is in plain text.
-    let isPlainText = browser.contentDocument?.querySelector(
+    const isPlainText = browser.contentDocument?.querySelector(
       ".moz-text-plain, .moz-text-flowed"
     );
 
@@ -296,20 +296,20 @@ var UIFontSize = {
     if (this.prefValue == this.DEFAULT) {
       return;
     }
-    let docEl = dialog._frame.contentDocument.documentElement;
+    const docEl = dialog._frame.contentDocument.documentElement;
 
     // These are deduced from styles which we don't change, so it's safe to get
     // them now:
-    let boxHorizontalBorder =
+    const boxHorizontalBorder =
       2 *
       parseFloat(dialog._window.getComputedStyle(dialog._box).borderLeftWidth);
-    let frameHorizontalMargin =
+    const frameHorizontalMargin =
       2 * parseFloat(dialog._window.getComputedStyle(dialog._frame).marginLeft);
 
     // Then determine and set a bunch of width stuff:
-    let { scrollWidth } = docEl.ownerDocument.body || docEl;
-    let frameMinWidth = docEl.style.width || scrollWidth + "px";
-    let frameWidth = docEl.getAttribute("width")
+    const { scrollWidth } = docEl.ownerDocument.body || docEl;
+    const frameMinWidth = docEl.style.width || scrollWidth + "px";
+    const frameWidth = docEl.getAttribute("width")
       ? docEl.getAttribute("width") + "px"
       : frameMinWidth;
 

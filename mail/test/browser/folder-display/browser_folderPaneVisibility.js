@@ -35,7 +35,7 @@ add_setup(async function () {
  * menus, splitters, etc. are set up right.
  */
 function assert_folder_pane_visible() {
-  let win = get_about_3pane();
+  const win = get_about_3pane();
 
   Assert.equal(
     win.paneLayout.folderPaneVisible,
@@ -53,7 +53,7 @@ function assert_folder_pane_visible() {
   );
 
   window.view_init(); // Force the view menu to update.
-  let paneMenuItem = document.getElementById("menu_showFolderPane");
+  const paneMenuItem = document.getElementById("menu_showFolderPane");
   Assert.equal(
     paneMenuItem.getAttribute("checked"),
     "true",
@@ -66,7 +66,7 @@ function assert_folder_pane_visible() {
  * menus, splitters, etc. are set up right.
  */
 function assert_folder_pane_hidden() {
-  let win = get_about_3pane();
+  const win = get_about_3pane();
 
   Assert.equal(
     win.paneLayout.folderPaneVisible,
@@ -84,7 +84,7 @@ function assert_folder_pane_hidden() {
   );
 
   window.view_init(); // Force the view menu to update.
-  let paneMenuItem = document.getElementById("menu_showFolderPane");
+  const paneMenuItem = document.getElementById("menu_showFolderPane");
   Assert.notEqual(
     paneMenuItem.getAttribute("checked"),
     "true",
@@ -129,19 +129,19 @@ add_task(function test_toggle_folder_pane_on() {
  */
 add_task(async function test_folder_pane_is_sticky() {
   Assert.equal(document.getElementById("tabmail").tabInfo.length, 1);
-  let tabFolderA = await be_in_folder(folder);
+  const tabFolderA = await be_in_folder(folder);
   assert_folder_pane_visible();
 
   // [folder+ => (new) message]
   await select_click_row(0);
-  let tabMessage = await open_selected_message_in_new_tab();
+  const tabMessage = await open_selected_message_in_new_tab();
 
   // [message => folder+]
   await switch_tab(tabFolderA);
   assert_folder_pane_visible();
 
   // [folder+ => (new) folder+]
-  let tabFolderB = await open_folder_in_new_tab(folder);
+  const tabFolderB = await open_folder_in_new_tab(folder);
   assert_folder_pane_visible();
 
   // [folder pane toggle + => -]
@@ -189,12 +189,12 @@ add_task(async function test_folder_pane_is_sticky() {
 add_task(async function test_folder_pane_persistence_generally_works() {
   await be_in_folder(folder);
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
 
   // helper to open tabs with the folder pane in the desired states (1 for
   //  visible, 0 for hidden)
   async function openTabs(aConfig) {
-    for (let [iTab, folderPaneVisible] of aConfig.entries()) {
+    for (const [iTab, folderPaneVisible] of aConfig.entries()) {
       if (iTab != 0) {
         await open_folder_in_new_tab(folder);
       }
@@ -215,7 +215,7 @@ add_task(async function test_folder_pane_persistence_generally_works() {
   }
 
   async function verifyTabs(aConfig) {
-    for (let [iTab, folderPaneVisible] of aConfig.entries()) {
+    for (const [iTab, folderPaneVisible] of aConfig.entries()) {
       info("tab " + iTab);
 
       await switch_tab(iTab);
@@ -234,17 +234,17 @@ add_task(async function test_folder_pane_persistence_generally_works() {
     }
   }
 
-  let configs = [
+  const configs = [
     // 1st time: [+ - - + +]
     [1, 0, 0, 1, 1],
     // 2nd time: [- + + - -]
     [0, 1, 1, 0, 0],
   ];
 
-  for (let config of configs) {
+  for (const config of configs) {
     await openTabs(config);
     await verifyTabs(config); // make sure openTabs did its job right
-    let state = tabmail.persistTabs();
+    const state = tabmail.persistTabs();
     closeTabs();
 
     Assert.equal(state.tabs[0].state.folderPaneVisible, config[0]);

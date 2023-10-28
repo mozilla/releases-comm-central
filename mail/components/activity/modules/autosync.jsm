@@ -74,10 +74,11 @@ var autosyncModule = {
   createSyncMailProcess(folder) {
     try {
       // create an activity process for this folder
-      let msg = this.bundle.formatStringFromName("autosyncProcessDisplayText", [
-        folder.prettyName,
-      ]);
-      let process = new nsActProcess(msg, this.autoSyncManager);
+      const msg = this.bundle.formatStringFromName(
+        "autosyncProcessDisplayText",
+        [folder.prettyName]
+      );
+      const process = new nsActProcess(msg, this.autoSyncManager);
       // we want to use default auto-sync icon
       process.iconClass = "syncMail";
       process.addSubject(folder);
@@ -100,17 +101,17 @@ var autosyncModule = {
   createSyncMailEvent(syncItem) {
     try {
       // extract the relevant parts
-      let process = syncItem.activity;
-      let folder = syncItem.syncFolder;
+      const process = syncItem.activity;
+      const folder = syncItem.syncFolder;
 
       // create an activity event
 
-      let msg = this.bundle.formatStringFromName("autosyncEventDisplayText", [
+      const msg = this.bundle.formatStringFromName("autosyncEventDisplayText", [
         folder.server.prettyName,
       ]);
 
       let statusMsg;
-      let numOfMessages = this._syncInfoPerServer.get(
+      const numOfMessages = this._syncInfoPerServer.get(
         folder.server
       ).totalDownloads;
       if (numOfMessages) {
@@ -122,7 +123,7 @@ var autosyncModule = {
         statusMsg = this.getString("autosyncEventStatusTextNoMsgs");
       }
 
-      let event = new nsActEvent(
+      const event = new nsActEvent(
         msg,
         this.autoSyncManager,
         statusMsg,
@@ -142,8 +143,8 @@ var autosyncModule = {
 
       // transfer all subjects.
       // same as above, not mandatory
-      let subjects = process.getSubjects();
-      for (let subject of subjects) {
+      const subjects = process.getSubjects();
+      for (const subject of subjects) {
         event.addSubject(subject);
       }
 
@@ -182,11 +183,11 @@ var autosyncModule = {
             folder.server.prettyName
         );
         // create an activity process for this folder
-        let process = this.createSyncMailProcess(folder);
+        const process = this.createSyncMailProcess(folder);
 
         // create a sync object to keep track of the process of this folder
-        let imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
-        let syncItem = {
+        const imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
+        const syncItem = {
           syncFolder: folder,
           activity: process,
           percentComplete: 0,
@@ -218,7 +219,7 @@ var autosyncModule = {
         folder instanceof Ci.nsIMsgFolder &&
         queue == Ci.nsIAutoSyncMgrListener.PriorityQueue
       ) {
-        let i = this._inQFolderList.indexOf(folder);
+        const i = this._inQFolderList.indexOf(folder);
         if (i > -1) {
           this._inQFolderList.splice(i, 1);
         }
@@ -233,8 +234,8 @@ var autosyncModule = {
             "\n"
         );
 
-        let syncItem = this._syncInfoPerFolder.get(folder.URI);
-        let process = syncItem.activity;
+        const syncItem = this._syncInfoPerFolder.get(folder.URI);
+        const process = syncItem.activity;
         let canceled = false;
         if (process instanceof Ci.nsIActivityProcess) {
           canceled = process.state == Ci.nsIActivityProcess.STATE_CANCELED;
@@ -261,7 +262,7 @@ var autosyncModule = {
         // if this is the last folder of this server in the queue
         // create a sync event and clean the sync start time
         let found = false;
-        for (let value of this._syncInfoPerFolder.values()) {
+        for (const value of this._syncInfoPerFolder.values()) {
           if (value.syncFolder.server == folder.server) {
             found = true;
             break;
@@ -273,7 +274,7 @@ var autosyncModule = {
         if (!found) {
           // create an sync event for the completed process if it's not canceled
           if (!canceled) {
-            let key = folder.server.prettyName;
+            const key = folder.server.prettyName;
             if (
               this._lastMessage.has(key) &&
               this.activityMgr.containsActivity(this._lastMessage.get(key))
@@ -308,8 +309,8 @@ var autosyncModule = {
             "\n"
         );
 
-        let syncItem = this._syncInfoPerFolder.get(folder.URI);
-        let process = syncItem.activity;
+        const syncItem = this._syncInfoPerFolder.get(folder.URI);
+        const process = syncItem.activity;
 
         // Update the totalPending number. if new messages have been discovered in the folder
         // after we added the folder into the q, totalPending might be greater than what we have
@@ -330,13 +331,13 @@ var autosyncModule = {
           syncItem.totalDownloaded += numOfMessages;
 
           process.state = Ci.nsIActivityProcess.STATE_INPROGRESS;
-          let percent =
+          const percent =
             (syncItem.totalDownloaded / syncItem.pendingMsgCount) * 100;
           if (percent > syncItem.percentComplete) {
             syncItem.percentComplete = percent;
           }
 
-          let msg = this.bundle.formatStringFromName(
+          const msg = this.bundle.formatStringFromName(
             "autosyncProcessProgress2",
             [
               syncItem.totalDownloaded,
@@ -352,7 +353,7 @@ var autosyncModule = {
             syncItem.pendingMsgCount
           );
 
-          let serverInfo = this._syncInfoPerServer.get(
+          const serverInfo = this._syncInfoPerServer.get(
             syncItem.syncFolder.server
           );
           serverInfo.totalDownloads += numOfMessages;
@@ -375,7 +376,7 @@ var autosyncModule = {
             folder.server.prettyName
         );
 
-        let process = this._syncInfoPerFolder.get(folder.URI).activity;
+        const process = this._syncInfoPerFolder.get(folder.URI).activity;
         if (process instanceof Ci.nsIActivityProcess && !this._running) {
           this.log.info(
             "OnDownloadCompleted: Auto-Sync Manager is paused, pausing the process"

@@ -28,16 +28,16 @@ add_task(async function test_updates_post_policy() {
   await expectErrorPage("about:debugging");
 
   info("Check that devtools menu items are hidden");
-  let devtoolsMenu = window.document.getElementById("devtoolsMenu");
+  const devtoolsMenu = window.document.getElementById("devtoolsMenu");
   ok(devtoolsMenu.hidden, "The Web Developer item of the tools menu is hidden");
 });
 
 const expectErrorPage = async function (url) {
-  let tabmail = document.getElementById("tabmail");
-  let index = tabmail.tabInfo.length;
+  const tabmail = document.getElementById("tabmail");
+  const index = tabmail.tabInfo.length;
   window.openContentTab("about:blank");
-  let tab = tabmail.tabInfo[index];
-  let browser = tab.browser;
+  const tab = tabmail.tabInfo[index];
+  const browser = tab.browser;
 
   BrowserTestUtils.startLoadingURIString(browser, url);
   await BrowserTestUtils.browserLoaded(browser, false, url, true);

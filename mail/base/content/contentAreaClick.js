@@ -35,7 +35,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
  * @returns [href, linkText] the url and the text for the link being clicked.
  */
 function hRefForClickEvent(aEvent, aDontCheckInputElement) {
-  let target =
+  const target =
     aEvent.type == "command"
       ? document.commandDispatcher.focusedElement
       : aEvent.target;
@@ -90,7 +90,7 @@ function hRefForClickEvent(aEvent, aDontCheckInputElement) {
  * @returns - true if link pointing to anchor.
  */
 function isLinkToAnchorOnPage(aTargetNode) {
-  let url = aTargetNode.ownerDocument.URL;
+  const url = aTargetNode.ownerDocument.URL;
   if (!url.startsWith("http")) {
     return false;
   }
@@ -116,7 +116,7 @@ function isLinkToAnchorOnPage(aTargetNode) {
 // Called whenever the user clicks in the content area,
 // should always return true for click to go through.
 function contentAreaClick(aEvent) {
-  let target = aEvent.target;
+  const target = aEvent.target;
   if (target.localName == "browser") {
     // This is a remote browser. Nothing useful can happen in this process.
     return true;
@@ -129,7 +129,7 @@ function contentAreaClick(aEvent) {
     return true;
   }
 
-  let [href, linkText] = hRefForClickEvent(aEvent);
+  const [href, linkText] = hRefForClickEvent(aEvent);
 
   if (!href && !aEvent.button) {
     // Is this an image that we might want to scale?
@@ -164,7 +164,7 @@ function contentAreaClick(aEvent) {
   // We want all about, http and https links in the message pane to be loaded
   // externally in a browser, therefore we need to detect that here and redirect
   // as necessary.
-  let uri = makeURI(href);
+  const uri = makeURI(href);
   if (
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
@@ -186,7 +186,7 @@ function contentAreaClick(aEvent) {
   aEvent.preventDefault();
 
   // Let the phishing detector check the link.
-  let urlPhishCheckResult = PhishingDetector.warnOnSuspiciousLinkClick(
+  const urlPhishCheckResult = PhishingDetector.warnOnSuspiciousLinkClick(
     window,
     href,
     linkText

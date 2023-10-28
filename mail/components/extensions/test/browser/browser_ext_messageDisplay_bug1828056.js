@@ -5,11 +5,11 @@ var gFolder;
 add_setup(() => {
   gAccount = createAccount();
   addIdentity(gAccount);
-  let rootFolder = gAccount.incomingServer.rootFolder;
+  const rootFolder = gAccount.incomingServer.rootFolder;
   rootFolder.createSubfolder("test0", null);
 
-  let subFolders = {};
-  for (let folder of rootFolder.subFolders) {
+  const subFolders = {};
+  for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
   createMessages(subFolders.test0, 5);
@@ -19,11 +19,11 @@ add_setup(() => {
 });
 
 async function getTestExtension_open_msg() {
-  let files = {
+  const files = {
     "background.js": async () => {
-      let [location] = await window.waitForMessage();
+      const [location] = await window.waitForMessage();
 
-      let [mailTab] = await browser.tabs.query({
+      const [mailTab] = await browser.tabs.query({
         active: true,
         currentWindow: true,
       });
@@ -34,7 +34,7 @@ async function getTestExtension_open_msg() {
       );
 
       // Get displayed message.
-      let message1 = await browser.messageDisplay.getDisplayedMessage(
+      const message1 = await browser.messageDisplay.getDisplayedMessage(
         mailTab.id
       );
       browser.test.assertTrue(
@@ -44,11 +44,11 @@ async function getTestExtension_open_msg() {
 
       // Open a message in the specified location and request the displayed
       // message immediately.
-      let { message: message2, tab: messageTab } = await new Promise(
+      const { message: message2, tab: messageTab } = await new Promise(
         resolve => {
-          let createListener = async tab => {
+          const createListener = async tab => {
             browser.tabs.onCreated.removeListener(createListener);
-            let message = await browser.messageDisplay.getDisplayedMessage(
+            const message = await browser.messageDisplay.getDisplayedMessage(
               tab.id
             );
             resolve({ tab, message });
@@ -87,9 +87,9 @@ async function getTestExtension_open_msg() {
  * Open a message tab and request its message immediately.
  */
 add_task(async function test_message_tab() {
-  let extension = await getTestExtension_open_msg();
+  const extension = await getTestExtension_open_msg();
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(gFolder);
   about3Pane.threadTree.selectedIndex = 0;
 
@@ -104,9 +104,9 @@ add_task(async function test_message_tab() {
  * Open a message window and request its message immediately.
  */
 add_task(async function test_message_window() {
-  let extension = await getTestExtension_open_msg();
+  const extension = await getTestExtension_open_msg();
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(gFolder);
   about3Pane.threadTree.selectedIndex = 0;
 
@@ -118,11 +118,11 @@ add_task(async function test_message_window() {
 });
 
 async function getTestExtension_select_msg() {
-  let files = {
+  const files = {
     "background.js": async () => {
-      let [expected] = await window.waitForMessage();
+      const [expected] = await window.waitForMessage();
 
-      let [mailTab] = await browser.tabs.query({
+      const [mailTab] = await browser.tabs.query({
         active: true,
         currentWindow: true,
       });
@@ -133,13 +133,13 @@ async function getTestExtension_select_msg() {
       );
 
       // Get displayed message.
-      let message = await browser.messageDisplay.getDisplayedMessage(
+      const message = await browser.messageDisplay.getDisplayedMessage(
         mailTab.id
       );
       browser.test.assertTrue(!!message, "We should have a displayed message.");
 
       await window.sendMessage("select");
-      let messages = await browser.messageDisplay.getDisplayedMessages(
+      const messages = await browser.messageDisplay.getDisplayedMessages(
         mailTab.id
       );
       browser.test.assertEq(
@@ -147,7 +147,7 @@ async function getTestExtension_select_msg() {
         messages.length,
         "The returned number of messages should be correct."
       );
-      for (let msg of messages) {
+      for (const msg of messages) {
         browser.test.assertTrue(
           message.id != msg.id,
           "The returned message must not be the original selected message."
@@ -171,9 +171,9 @@ async function getTestExtension_select_msg() {
  * Select a single message in a mail tab and request it immediately.
  */
 add_task(async function test_single_message() {
-  let extension = await getTestExtension_select_msg();
+  const extension = await getTestExtension_select_msg();
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(gFolder);
   about3Pane.threadTree.selectedIndex = 0;
 
@@ -193,9 +193,9 @@ add_task(async function test_single_message() {
  * Select multiple messages in a mail tab and request them immediately.
  */
 add_task(async function test_multiple_message() {
-  let extension = await getTestExtension_select_msg();
+  const extension = await getTestExtension_select_msg();
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(gFolder);
   about3Pane.threadTree.selectedIndex = 0;
 

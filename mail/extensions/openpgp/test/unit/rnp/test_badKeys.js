@@ -37,7 +37,7 @@ add_setup(async function () {
 // because it doesn't have a valid signature.
 // Our code should reject the attempt to import the key.
 add_task(async function testFailToImport() {
-  let ids = await OpenPGPTestUtils.importKey(
+  const ids = await OpenPGPTestUtils.importKey(
     null,
     do_get_file(`${KEY_DIR}/invalid-pubkey-nosigs.pgp`),
     true
@@ -49,7 +49,7 @@ add_task(async function testFailToImport() {
 // has an invalid signature. When attempting to encrypt, our code should
 // skip the bad subkey, and should use the expected good subkey.
 add_task(async function testAvoidBadSubkey() {
-  let ids = await OpenPGPTestUtils.importKey(
+  const ids = await OpenPGPTestUtils.importKey(
     null,
     do_get_file(`${KEY_DIR}/encryption-subkey-bad.pgp`),
     true
@@ -59,11 +59,11 @@ add_task(async function testAvoidBadSubkey() {
     OpenPGPTestUtils.ACCEPTANCE_VERIFIED
   );
 
-  let primaryKey = await RNP.findKeyByEmail(
+  const primaryKey = await RNP.findKeyByEmail(
     "<encryption-subkey@example.org>",
     true
   );
-  let encSubKey = RNP.getSuitableSubkey(primaryKey, "encrypt");
-  let keyId = RNP.getKeyIDFromHandle(encSubKey);
+  const encSubKey = RNP.getSuitableSubkey(primaryKey, "encrypt");
+  const keyId = RNP.getKeyIDFromHandle(encSubKey);
   Assert.ok(keyId == "BC63472A109D5859", "should obtain key ID of good subkey");
 });

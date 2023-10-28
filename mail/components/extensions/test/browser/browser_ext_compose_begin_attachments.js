@@ -6,27 +6,27 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-let account = createAccount("pop3");
+const account = createAccount("pop3");
 createAccount("local");
 MailServices.accounts.defaultAccount = account;
 
 addIdentity(account);
 
-let rootFolder = account.incomingServer.rootFolder;
+const rootFolder = account.incomingServer.rootFolder;
 rootFolder.createSubfolder("test", null);
-let folder = rootFolder.getChildNamed("test");
+const folder = rootFolder.getChildNamed("test");
 createMessages(folder, 4);
 
 add_task(async function testAttachments() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
-      let accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
-      let popAccount = accounts.find(a => a.type == "pop3");
-      let folder = popAccount.folders.find(f => f.name == "test");
-      let { messages } = await browser.messages.list(folder);
+      const popAccount = accounts.find(a => a.type == "pop3");
+      const folder = popAccount.folders.find(f => f.name == "test");
+      const { messages } = await browser.messages.list(folder);
 
-      let newTab = await browser.compose.beginNew({
+      const newTab = await browser.compose.beginNew({
         attachments: [
           { file: new File(["one"], "attachment1.txt") },
           { file: new File(["two"], "attachment-två.txt") },
@@ -38,7 +38,7 @@ add_task(async function testAttachments() {
       browser.test.assertEq("attachment1.txt", attachments[0].name);
       browser.test.assertEq("attachment-två.txt", attachments[1].name);
 
-      let replyTab = await browser.compose.beginReply(messages[0].id, {
+      const replyTab = await browser.compose.beginReply(messages[0].id, {
         attachments: [
           { file: new File(["three"], "attachment3.txt") },
           { file: new File(["four"], "attachment4.txt") },
@@ -50,7 +50,7 @@ add_task(async function testAttachments() {
       browser.test.assertEq("attachment3.txt", attachments[0].name);
       browser.test.assertEq("attachment4.txt", attachments[1].name);
 
-      let forwardTab = await browser.compose.beginForward(
+      const forwardTab = await browser.compose.beginForward(
         messages[1].id,
         "forwardAsAttachment",
         {
@@ -69,7 +69,7 @@ add_task(async function testAttachments() {
 
       // Forward inline adds attachments differently, so check it works too.
 
-      let forwardTab2 = await browser.compose.beginForward(
+      const forwardTab2 = await browser.compose.beginForward(
         messages[2].id,
         "forwardInline",
         {
@@ -85,7 +85,7 @@ add_task(async function testAttachments() {
       browser.test.assertEq("attachment7.txt", attachments[0].name);
       browser.test.assertEq("attachment-åtta.txt", attachments[1].name);
 
-      let newTab2 = await browser.compose.beginNew(messages[3].id, {
+      const newTab2 = await browser.compose.beginNew(messages[3].id, {
         attachments: [
           { file: new File(["nine"], "attachment9.txt") },
           { file: new File(["ten"], "attachment10.txt") },

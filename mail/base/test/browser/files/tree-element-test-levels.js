@@ -25,7 +25,7 @@ window.addEventListener("load", () => {
       super.connectedCallback();
 
       this.cell = this.appendChild(document.createElement("td"));
-      let container = this.cell.appendChild(document.createElement("div"));
+      const container = this.cell.appendChild(document.createElement("div"));
 
       this.threader = container.appendChild(document.createElement("button"));
       this.threader.textContent = "↳";
@@ -90,7 +90,7 @@ window.addEventListener("load", () => {
     }
   }
 
-  let testView = new PROTO_TREE_VIEW();
+  const testView = new PROTO_TREE_VIEW();
   testView._rowMap.push(new TreeItem("row-1", "Item with no children"));
   testView._rowMap.push(new TreeItem("row-2", "Item with children"));
   testView._rowMap.push(new TreeItem("row-3", "Item with grandchildren"));
@@ -107,7 +107,7 @@ window.addEventListener("load", () => {
   testView.toggleOpenState(4);
   testView.toggleOpenState(5);
 
-  let tree = document.getElementById("testTree");
+  const tree = document.getElementById("testTree");
   tree.table.setBodyID("testBody");
   tree.setAttribute("rows", "test-row");
   tree.table.setColumns(TestCardRow.COLUMNS);

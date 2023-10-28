@@ -134,18 +134,20 @@ async function init() {
 }
 
 function onProtectionChange() {
-  let pw1Element = document.getElementById("passwordInput");
-  let pw2Element = document.getElementById("passwordConfirm");
+  const pw1Element = document.getElementById("passwordInput");
+  const pw2Element = document.getElementById("passwordConfirm");
 
-  let pw1 = pw1Element.value;
-  let pw2 = pw2Element.value;
+  const pw1 = pw1Element.value;
+  const pw2 = pw2Element.value;
 
-  let inputDisabled = document.getElementById("keygenAutoProtection").selected;
+  const inputDisabled = document.getElementById(
+    "keygenAutoProtection"
+  ).selected;
   pw1Element.disabled = inputDisabled;
   pw2Element.disabled = inputDisabled;
 
-  let buttonEnabled = inputDisabled || (!inputDisabled && pw1 == pw2 && pw1);
-  let ok = kDialog.getButton("accept");
+  const buttonEnabled = inputDisabled || (!inputDisabled && pw1 == pw2 && pw1);
+  const ok = kDialog.getButton("accept");
   ok.disabled = !buttonEnabled;
 }
 
@@ -154,21 +156,21 @@ function onProtectionChange() {
  * and autoselect the current identity if available.
  */
 async function initIdentity() {
-  let identityListPopup = document.getElementById("userIdentityPopup");
+  const identityListPopup = document.getElementById("userIdentityPopup");
 
-  for (let identity of MailServices.accounts.allIdentities) {
+  for (const identity of MailServices.accounts.allIdentities) {
     // Skip invalid and non-email identities.
     if (!identity.valid || !identity.email) {
       continue;
     }
 
     // Interrupt if no server was defined for this identity.
-    let servers = MailServices.accounts.getServersForIdentity(identity);
+    const servers = MailServices.accounts.getServersForIdentity(identity);
     if (servers.length == 0) {
       continue;
     }
 
-    let item = document.createXULElement("menuitem");
+    const item = document.createXULElement("menuitem");
     item.setAttribute(
       "label",
       `${identity.identityName} - ${servers[0].prettyName}`
@@ -300,7 +302,7 @@ async function wizardNextStep() {
  * Go back to the initial view of the wizard.
  */
 function goBack() {
-  let section = document.querySelector(".wizard-section:not([hidden])");
+  const section = document.querySelector(".wizard-section:not([hidden])");
   section.addEventListener("transitionend", backToStart, { once: true });
   section.classList.add("hide-reverse");
 }
@@ -340,28 +342,28 @@ function backToStart(event) {
  * @returns {XULElement} - The description element inside the notification.
  */
 async function addImportWarningNotification() {
-  let notification = document.createXULElement("hbox");
+  const notification = document.createXULElement("hbox");
   notification.classList.add(
     "inline-notification-container",
     "error-container"
   );
 
-  let wrapper = document.createXULElement("hbox");
+  const wrapper = document.createXULElement("hbox");
   wrapper.classList.add("inline-notification-wrapper", "align-center");
 
-  let image = document.createElement("img");
+  const image = document.createElement("img");
   image.classList.add("notification-image");
   image.setAttribute("src", "chrome://global/skin/icons/warning.svg");
   image.setAttribute("alt", "");
 
-  let description = document.createXULElement("description");
+  const description = document.createXULElement("description");
 
   wrapper.appendChild(image);
   wrapper.appendChild(description);
 
   notification.appendChild(wrapper);
 
-  let container = document.getElementById("openPgpImportWarning");
+  const container = document.getElementById("openPgpImportWarning");
   container.appendChild(notification);
 
   // Show the notification container.
@@ -374,10 +376,10 @@ async function addImportWarningNotification() {
  * Remove all inline errors from the notification area of the import section.
  */
 function clearImportWarningNotifications() {
-  let container = document.getElementById("openPgpImportWarning");
+  const container = document.getElementById("openPgpImportWarning");
 
   // Remove any existing notification.
-  for (let notification of container.querySelectorAll(
+  for (const notification of container.querySelectorAll(
     ".inline-notification-container"
   )) {
     notification.remove();
@@ -408,15 +410,15 @@ async function wizardCreateKey() {
     return;
   }
 
-  let sepPassphraseEnabled = Services.prefs.getBoolPref(
+  const sepPassphraseEnabled = Services.prefs.getBoolPref(
     "mail.openpgp.passphrases.enabled"
   );
   document.getElementById("keygenPassphraseSection").hidden =
     !sepPassphraseEnabled;
 
   if (sepPassphraseEnabled) {
-    let usingPP = LoginHelper.isPrimaryPasswordSet();
-    let autoProt = document.getElementById("keygenAutoProtection");
+    const usingPP = LoginHelper.isPrimaryPasswordSet();
+    const autoProt = document.getElementById("keygenAutoProtection");
 
     document.l10n.setAttributes(
       autoProt,
@@ -442,10 +444,10 @@ function wizardImportKey() {
   kCurrentSection = "import";
   revealSection("wizardImportKey");
 
-  let sepPassphraseEnabled = Services.prefs.getBoolPref(
+  const sepPassphraseEnabled = Services.prefs.getBoolPref(
     "mail.openpgp.passphrases.enabled"
   );
-  let keepPassphrasesItem = document.getElementById(
+  const keepPassphrasesItem = document.getElementById(
     "openPgpKeygenKeepPassphrases"
   );
   keepPassphrasesItem.hidden = !sepPassphraseEnabled;
@@ -483,7 +485,7 @@ async function wizardExternalKey() {
  * @param {string} id - The id of the section to reveal.
  */
 function revealSection(id) {
-  let section = document.getElementById(id);
+  const section = document.getElementById(id);
   section.removeAttribute("hidden");
 
   // Timeout to animate after the hidden attribute has been removed.
@@ -547,7 +549,7 @@ async function validateExpiration() {
   }
 
   // Calculate the selected expiration date.
-  let expiryTime =
+  const expiryTime =
     Number(document.getElementById("expireInput").value) *
     Number(document.getElementById("timeScale").value);
 
@@ -598,14 +600,16 @@ function resizeDialog() {
  * Start the generation of a new OpenPGP Key.
  */
 async function openPgpKeygenStart() {
-  let openPgpWarning = document.getElementById("openPgpWarning");
-  let openPgpWarningText = document.getElementById("openPgpWarningDescription");
+  const openPgpWarning = document.getElementById("openPgpWarning");
+  const openPgpWarningText = document.getElementById(
+    "openPgpWarningDescription"
+  );
   openPgpWarning.collapsed = true;
 
   // If a key generation request is already pending, warn the user and
   // don't proceed.
   if (gKeygenRequest) {
-    let req = gKeygenRequest.QueryInterface(Ci.nsIRequest);
+    const req = gKeygenRequest.QueryInterface(Ci.nsIRequest);
 
     if (req.isPending()) {
       openPgpWarning.collapsed = false;
@@ -618,7 +622,7 @@ async function openPgpKeygenStart() {
   gGeneratedKey = null;
   gAllData = "";
 
-  let enigmailSvc = GetEnigmailSvc();
+  const enigmailSvc = GetEnigmailSvc();
   if (!enigmailSvc) {
     openPgpWarning.collapsed = false;
     document.l10n.setAttributes(
@@ -635,7 +639,7 @@ async function openPgpKeygenStart() {
   // We need to show the overlay before it, otherwise it would flash and freeze.
   // This should be moved after the Services.prompt.confirmEx() method
   // once Bug 1617444 is implemented.
-  let overlay = document.getElementById("wizardOverlay");
+  const overlay = document.getElementById("wizardOverlay");
   overlay.removeAttribute("hidden");
   overlay.classList.remove("hide");
 
@@ -658,17 +662,19 @@ async function openPgpKeygenConfirm() {
   document.getElementById("openPgpKeygenConfirm").collapsed = true;
   document.getElementById("openPgpKeygenProcess").removeAttribute("collapsed");
 
-  let openPgpWarning = document.getElementById("openPgpWarning");
-  let openPgpWarningText = document.getElementById("openPgpWarningDescription");
+  const openPgpWarning = document.getElementById("openPgpWarning");
+  const openPgpWarningText = document.getElementById(
+    "openPgpWarningDescription"
+  );
   openPgpWarning.collapsed = true;
 
   kGenerating = true;
 
   let password;
-  let cApi = EnigmailCryptoAPI();
+  const cApi = EnigmailCryptoAPI();
   let newId = null;
 
-  let sepPassphraseEnabled = Services.prefs.getBoolPref(
+  const sepPassphraseEnabled = Services.prefs.getBoolPref(
     "mail.openpgp.passphrases.enabled"
   );
 
@@ -718,7 +724,7 @@ async function openPgpKeygenConfirm() {
   closeOverlay();
   EnigmailKeyRing.clearCache();
 
-  let rev = await cApi.unlockAndGetNewRevocation(
+  const rev = await cApi.unlockAndGetNewRevocation(
     `0x${gGeneratedKey}`,
     password
   );
@@ -736,7 +742,7 @@ async function openPgpKeygenConfirm() {
     throw new Error("failed to obtain revocation for key " + gGeneratedKey);
   }
 
-  let revFull =
+  const revFull =
     revocationFilePrefix1 +
     "\n\n" +
     gGeneratedKey +
@@ -744,7 +750,7 @@ async function openPgpKeygenConfirm() {
     revocationFilePrefix2 +
     rev;
 
-  let revFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  const revFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   revFile.append(`0x${gGeneratedKey}_rev.asc`);
 
   // Create a revokation cert in the Thunderbird profile directory.
@@ -761,7 +767,7 @@ async function openPgpKeygenConfirm() {
  * Cancel the keygen process, ask for confirmation before proceeding.
  */
 async function openPgpKeygenCancel() {
-  let [abortTitle, abortText] = await document.l10n.formatValues([
+  const [abortTitle, abortText] = await document.l10n.formatValues([
     { id: "openpgp-keygen-abort-title" },
     { id: "openpgp-keygen-abort" },
   ]);
@@ -795,7 +801,7 @@ function closeOverlay() {
   document.getElementById("openPgpKeygenConfirm").removeAttribute("collapsed");
   document.getElementById("openPgpKeygenProcess").collapsed = true;
 
-  let overlay = document.getElementById("wizardOverlay");
+  const overlay = document.getElementById("wizardOverlay");
 
   overlay.addEventListener("transitionend", hideOverlay, { once: true });
   overlay.classList.add("hide");
@@ -813,7 +819,7 @@ function hideOverlay(event) {
 }
 
 async function importSecretKey() {
-  let [importTitle, importType] = await document.l10n.formatValues([
+  const [importTitle, importType] = await document.l10n.formatValues([
     { id: "import-key-file" },
     { id: "gnupg-file" },
   ]);
@@ -821,7 +827,7 @@ async function importSecretKey() {
   // Reset the array of selected files.
   gFiles = [];
 
-  let files = EnigmailDialog.filePicker(
+  const files = EnigmailDialog.filePicker(
     window,
     importTitle,
     "",
@@ -840,13 +846,13 @@ async function importSecretKey() {
   clearImportWarningNotifications();
 
   // Clear the key list from any previously listed key.
-  let keyList = document.getElementById("importKeyList");
+  const keyList = document.getElementById("importKeyList");
   while (keyList.lastChild) {
     keyList.lastChild.remove();
   }
 
   let keyCount = 0;
-  for (let file of files) {
+  for (const file of files) {
     // Skip the file and show a warning message if larger than 5MB.
     if (file.fileSize > 5000000) {
       document.l10n.setAttributes(
@@ -856,9 +862,9 @@ async function importSecretKey() {
       continue;
     }
 
-    let errorMsgObj = {};
+    const errorMsgObj = {};
     // Fetch the list of all the available keys inside the selected file.
-    let importKeys = await EnigmailKey.getKeyListFromKeyFile(
+    const importKeys = await EnigmailKey.getKeyListFromKeyFile(
       file,
       errorMsgObj,
       false,
@@ -913,20 +919,20 @@ async function importSecretKey() {
  * @param {string[]} importKeys - The array of keys fetched from a single file.
  */
 async function appendFetchedKeys(importKeys) {
-  let keyList = document.getElementById("importKeyList");
+  const keyList = document.getElementById("importKeyList");
 
   // List all the keys fetched from the file.
-  for (let key of importKeys) {
-    let container = document.createXULElement("hbox");
+  for (const key of importKeys) {
+    const container = document.createXULElement("hbox");
     container.classList.add("key-import-row", "selected");
 
-    let titleContainer = document.createXULElement("vbox");
+    const titleContainer = document.createXULElement("vbox");
 
-    let id = document.createXULElement("label");
+    const id = document.createXULElement("label");
     id.classList.add("openpgp-key-id");
     id.value = `0x${key.id}`;
 
-    let name = document.createXULElement("label");
+    const name = document.createXULElement("label");
     name.classList.add("openpgp-key-name");
     name.value = key.name;
 
@@ -934,7 +940,7 @@ async function appendFetchedKeys(importKeys) {
     titleContainer.appendChild(name);
 
     // Allow users to treat imported keys as "Personal".
-    let checkbox = document.createXULElement("checkbox");
+    const checkbox = document.createXULElement("checkbox");
     checkbox.setAttribute("id", `${key.id}-set-personal`);
     document.l10n.setAttributes(checkbox, "import-key-personal-checkbox");
     checkbox.checked = true;
@@ -954,7 +960,7 @@ async function openPgpImportStart() {
   kGenerating = true;
 
   // Show the overlay.
-  let overlay = document.getElementById("wizardImportOverlay");
+  const overlay = document.getElementById("wizardImportOverlay");
   overlay.removeAttribute("hidden");
   overlay.classList.remove("hide");
 
@@ -962,21 +968,21 @@ async function openPgpImportStart() {
   clearImportWarningNotifications();
 
   // Clear the list of any previously improted keys from the DOM.
-  let keyList = document.getElementById("importKeyListRecap");
+  const keyList = document.getElementById("importKeyListRecap");
   while (keyList.lastChild) {
     keyList.lastChild.remove();
   }
 
   let keyCount = 0;
-  for (let file of gFiles) {
-    let resultKeys = {};
-    let errorMsgObj = {};
+  for (const file of gFiles) {
+    const resultKeys = {};
+    const errorMsgObj = {};
 
     // keepPassphrases false is the classic behavior.
     let keepPassphrases = false;
 
     // If the pref is on, we allow the user to decide what to do.
-    let allowSeparatePassphrases = Services.prefs.getBoolPref(
+    const allowSeparatePassphrases = Services.prefs.getBoolPref(
       "mail.openpgp.passphrases.enabled"
     );
     if (allowSeparatePassphrases) {
@@ -985,7 +991,7 @@ async function openPgpImportStart() {
       ).checked;
     }
 
-    let exitCode = await EnigmailKeyRing.importSecKeyFromFile(
+    const exitCode = await EnigmailKeyRing.importSecKeyFromFile(
       window,
       passphrasePromptCallback,
       keepPassphrases,
@@ -1046,14 +1052,14 @@ async function openPgpImportStart() {
  * @param {string[]} resultKeys - The array of keys imported from a single file.
  */
 async function appendImportedKeys(resultKeys) {
-  let keyList = document.getElementById("importKeyListRecap");
+  const keyList = document.getElementById("importKeyListRecap");
 
   for (let keyId of resultKeys.keys) {
     if (keyId.search(/^0x/) === 0) {
       keyId = keyId.substr(2).toUpperCase();
     }
 
-    let key = EnigmailKeyRing.getKeyById(keyId);
+    const key = EnigmailKeyRing.getKeyById(keyId);
 
     if (key && key.fpr) {
       // If the checkbox was checked, update the acceptance of the key.
@@ -1061,65 +1067,65 @@ async function appendImportedKeys(resultKeys) {
         PgpSqliteDb2.acceptAsPersonalKey(key.fpr);
       }
 
-      let container = document.createXULElement("hbox");
+      const container = document.createXULElement("hbox");
       container.classList.add("key-import-row");
 
       // Start key info section.
-      let grid = document.createXULElement("hbox");
+      const grid = document.createXULElement("hbox");
       grid.classList.add("extra-information-label");
 
       // Key identity.
-      let identityLabel = document.createXULElement("label");
+      const identityLabel = document.createXULElement("label");
       identityLabel.classList.add("extra-information-label-type");
       document.l10n.setAttributes(
         identityLabel,
         "openpgp-import-identity-label"
       );
 
-      let identityValue = document.createXULElement("label");
+      const identityValue = document.createXULElement("label");
       identityValue.value = key.userId;
 
       grid.appendChild(identityLabel);
       grid.appendChild(identityValue);
 
       // Key fingerprint.
-      let fingerprintLabel = document.createXULElement("label");
+      const fingerprintLabel = document.createXULElement("label");
       document.l10n.setAttributes(
         fingerprintLabel,
         "openpgp-import-fingerprint-label"
       );
       fingerprintLabel.classList.add("extra-information-label-type");
 
-      let fingerprintInput = document.createXULElement("label");
+      const fingerprintInput = document.createXULElement("label");
       fingerprintInput.value = EnigmailKey.formatFpr(key.fpr);
 
       grid.appendChild(fingerprintLabel);
       grid.appendChild(fingerprintInput);
 
       // Key creation date.
-      let createdLabel = document.createXULElement("label");
+      const createdLabel = document.createXULElement("label");
       document.l10n.setAttributes(createdLabel, "openpgp-import-created-label");
       createdLabel.classList.add("extra-information-label-type");
 
-      let createdValue = document.createXULElement("label");
+      const createdValue = document.createXULElement("label");
       createdValue.value = key.created;
 
       grid.appendChild(createdLabel);
       grid.appendChild(createdValue);
 
       // Key bits.
-      let bitsLabel = document.createXULElement("label");
+      const bitsLabel = document.createXULElement("label");
       bitsLabel.classList.add("extra-information-label-type");
       document.l10n.setAttributes(bitsLabel, "openpgp-import-bits-label");
 
-      let bitsValue = document.createXULElement("label");
+      const bitsValue = document.createXULElement("label");
       bitsValue.value = key.keySize;
 
       grid.appendChild(bitsLabel);
       grid.appendChild(bitsValue);
       // End key info section.
 
-      let info = document.createXULElement("button");
+      const info = document.createXULElement("button");
       info.classList.add("openpgp-image-btn", "openpgp-props-btn");
       document.l10n.setAttributes(info, "openpgp-import-key-props");
       info.addEventListener("command", () => {
@@ -1149,13 +1155,13 @@ function openPgpImportComplete() {
  * @returns {string} The entered passphrase or empty.
  */
 function passphrasePromptCallback(win, promptString, resultFlags) {
-  let passphrase = { value: "" };
+  const passphrase = { value: "" };
 
   // We need to fetch these strings synchronously in order to properly work with
   // the RNP key import method, which is not async.
-  let title = syncl10n.formatValueSync("openpgp-passphrase-prompt-title");
+  const title = syncl10n.formatValueSync("openpgp-passphrase-prompt-title");
 
-  let prompt = Services.prompt.promptPassword(
+  const prompt = Services.prompt.promptPassword(
     win,
     title,
     promptString,
@@ -1165,7 +1171,7 @@ function passphrasePromptCallback(win, promptString, resultFlags) {
   );
 
   if (!prompt) {
-    let overlay = document.getElementById("wizardImportOverlay");
+    const overlay = document.getElementById("wizardImportOverlay");
     overlay.addEventListener("transitionend", hideOverlay, { once: true });
     overlay.classList.add("hide");
     kGenerating = false;
@@ -1187,7 +1193,7 @@ function toggleSaveButton(event) {
 function openPgpExternalComplete() {
   gIdentity.setBoolAttribute("is_gnupg_key_id", true);
 
-  let externalKey = document.getElementById("externalKey").value;
+  const externalKey = document.getElementById("externalKey").value;
   gIdentity.setUnicharAttribute("openpgp_key_id", externalKey);
 
   window.arguments[0].okExternalCallback(externalKey);

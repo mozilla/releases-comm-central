@@ -199,7 +199,7 @@ add_setup(async function () {
 
   folder = await create_folder("DisplayNameA");
 
-  for (let message of messages) {
+  for (const message of messages) {
     await add_message_to_folder(
       [folder],
       create_message({
@@ -208,7 +208,7 @@ add_setup(async function () {
     );
   }
 
-  for (let contact of contacts) {
+  for (const contact of contacts) {
     ensure_card_exists(contact.email, contact.name, contact.pdn);
   }
 
@@ -232,12 +232,12 @@ async function check_display_name(index, columnName, expectedName) {
       throw new Error("unknown column name: " + columnName);
   }
 
-  let cellText = get_about_3pane().gDBView.cellTextForColumn(index, columnId);
+  const cellText = get_about_3pane().gDBView.cellTextForColumn(index, columnId);
   Assert.equal(cellText, expectedName, columnName);
 }
 
 // Generate a test for each message in |messages|.
-for (let [i, message] of messages.entries()) {
+for (const [i, message] of messages.entries()) {
   this["test_" + message.name] = async function (i, message) {
     await check_display_name(
       i,

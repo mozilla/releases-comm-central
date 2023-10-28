@@ -204,9 +204,9 @@ var SearchSupport = {
           MailServices.mfn.folderRenamed
       );
       Services.obs.addObserver(this, "MsgMsgDisplayed");
-      let idleService = Cc["@mozilla.org/widget/useridleservice;1"].getService(
-        Ci.nsIUserIdleService
-      );
+      const idleService = Cc[
+        "@mozilla.org/widget/useridleservice;1"
+      ].getService(Ci.nsIUserIdleService);
       idleService.addIdleObserver(this, this._idleThresholdSecs);
     } else {
       // We want to observe moves, deletes and renames in case we're disabled
@@ -240,9 +240,9 @@ var SearchSupport = {
 
     if (this.enabled) {
       Services.obs.removeObserver(this, "MsgMsgDisplayed");
-      let idleService = Cc["@mozilla.org/widget/useridleservice;1"].getService(
-        Ci.nsIUserIdleService
-      );
+      const idleService = Cc[
+        "@mozilla.org/widget/useridleservice;1"
+      ].getService(Ci.nsIUserIdleService);
       idleService.removeIdleObserver(this, this._idleThresholdSecs);
 
       // in case there's a background sweep going on
@@ -300,14 +300,14 @@ var SearchSupport = {
     // if the last folder indexed is empty, this needs to be true initially
     let afterLastFolderIndexed = this._lastFolderIndexedUri.length == 0;
 
-    for (let server of MailServices.accounts.allServers) {
+    for (const server of MailServices.accounts.allServers) {
       this._log.debug(
         "in find next folder, lastFolderIndexedUri = " +
           this._lastFolderIndexedUri
       );
 
       for (var folder of server.rootFolder.descendants) {
-        let searchPath = this._getSearchPathForFolder(folder);
+        const searchPath = this._getSearchPathForFolder(folder);
         searchPath.leafName = searchPath.leafName + ".mozmsgs";
         // If after the last folder indexed, definitely index this
         if (afterLastFolderIndexed) {
@@ -372,27 +372,27 @@ var SearchSupport = {
 
   _findNextHdrToIndex() {
     try {
-      let reindexTime = this._getLastReindexTime(this._currentFolderToIndex);
+      const reindexTime = this._getLastReindexTime(this._currentFolderToIndex);
       this._log.debug("Reindex time for this folder is " + reindexTime);
       if (!this._headerEnumerator) {
         //  we need to create search terms for messages to index
-        let searchSession = Cc[
+        const searchSession = Cc[
           "@mozilla.org/messenger/searchSession;1"
         ].createInstance(Ci.nsIMsgSearchSession);
-        let searchTerms = [];
+        const searchTerms = [];
 
         searchSession.addScopeTerm(
           Ci.nsMsgSearchScope.offlineMail,
           this._currentFolderToIndex
         );
-        let nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-        let nsMsgSearchOp = Ci.nsMsgSearchOp;
+        const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
+        const nsMsgSearchOp = Ci.nsMsgSearchOp;
         // first term: (_hdrIndexProperty < reindexTime)
-        let searchTerm = searchSession.createTerm();
+        const searchTerm = searchSession.createTerm();
         searchTerm.booleanAnd = false; // actually don't care here
         searchTerm.attrib = nsMsgSearchAttrib.Uint32HdrProperty;
         searchTerm.op = nsMsgSearchOp.IsLessThan;
-        let value = searchTerm.value;
+        const value = searchTerm.value;
         value.attrib = searchTerm.attrib;
         searchTerm.hdrProperty = this._hdrIndexedProperty;
         value.status = reindexTime;
@@ -405,7 +405,7 @@ var SearchSupport = {
       }
 
       // iterate over the folder finding the next message to index
-      for (let msgHdr of this._headerEnumerator) {
+      for (const msgHdr of this._headerEnumerator) {
         // Check if the file exists. If it does, then assume indexing to be
         // complete for this file
         if (this._getSupportFile(msgHdr).exists()) {
@@ -449,7 +449,7 @@ var SearchSupport = {
     }
 
     if (folderReindexTime.length > 0) {
-      let folderReindexTimeInt = parseInt(folderReindexTime);
+      const folderReindexTimeInt = parseInt(folderReindexTime);
       if (folderReindexTimeInt > reindexTime) {
         reindexTime = folderReindexTimeInt;
       }
@@ -532,8 +532,8 @@ var SearchSupport = {
       this._cancelTimer();
     } else if (aTopic == "MsgMsgDisplayed") {
       this._log.debug("topic = " + aTopic + " uri = " + aData);
-      let msgHdr = this._messenger.msgHdrFromURI(aData);
-      let reindexTime = this._getLastReindexTime(msgHdr.folder);
+      const msgHdr = this._messenger.msgHdrFromURI(aData);
+      const reindexTime = this._getLastReindexTime(msgHdr.folder);
       this._log.debug("Reindex time for this folder is " + reindexTime);
       if (msgHdr.getUint32Property(this._hdrIndexedProperty) < reindexTime) {
         // Check if the file exists. If it does, then assume indexing to be
@@ -550,7 +550,7 @@ var SearchSupport = {
         }
       }
     } else if (aTopic == "nsPref:changed" && aData == "enable") {
-      let prefEnabled = this.prefEnabled;
+      const prefEnabled = this.prefEnabled;
       // Search integration turned on
       if (prefEnabled && this.register()) {
         this.enabled = true;
@@ -560,7 +560,7 @@ var SearchSupport = {
       } else {
         // The call to register or deregister has failed.
         // This is a hack to handle this case
-        let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+        const timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
         timer.initWithCallback(
           function () {
             SearchIntegration._handleRegisterFailure(!prefEnabled);
@@ -588,7 +588,7 @@ var SearchSupport = {
     msgAdded(aMsg) {
       SearchIntegration._log.info("in msgAdded");
       // The message already being there is an expected case
-      let file = SearchIntegration._getSupportFile(aMsg);
+      const file = SearchIntegration._getSupportFile(aMsg);
       if (!file.exists()) {
         SearchIntegration._queueMessage(
           aMsg,
@@ -599,8 +599,8 @@ var SearchSupport = {
 
     msgsDeleted(aMsgs) {
       SearchIntegration._log.info("in msgsDeleted");
-      for (let msgHdr of aMsgs) {
-        let file = SearchIntegration._getSupportFile(msgHdr);
+      for (const msgHdr of aMsgs) {
+        const file = SearchIntegration._getSupportFile(msgHdr);
         if (file.exists()) {
           file.remove(false);
         }
@@ -614,11 +614,12 @@ var SearchSupport = {
         return;
       }
 
-      let count = aSrcMsgs.length;
+      const count = aSrcMsgs.length;
       for (let i = 0; i < count; i++) {
-        let srcFile = SearchIntegration._getSupportFile(aSrcMsgs[i]);
+        const srcFile = SearchIntegration._getSupportFile(aSrcMsgs[i]);
         if (srcFile && srcFile.exists()) {
-          let destFile = SearchIntegration._getSearchPathForFolder(aDestFolder);
+          const destFile =
+            SearchIntegration._getSearchPathForFolder(aDestFolder);
           destFile.leafName = destFile.leafName + ".mozmsgs";
           if (!destFile.exists()) {
             try {
@@ -646,7 +647,7 @@ var SearchSupport = {
       SearchIntegration._log.info(
         "in folderDeleted, folder name = " + aFolder.prettyName
       );
-      let srcFile = SearchIntegration._getSearchPathForFolder(aFolder);
+      const srcFile = SearchIntegration._getSearchPathForFolder(aFolder);
       srcFile.leafName = srcFile.leafName + ".mozmsgs";
       if (srcFile.exists()) {
         srcFile.remove(true);
@@ -663,8 +664,8 @@ var SearchSupport = {
         return;
       }
 
-      let srcFile = SearchIntegration._getSearchPathForFolder(aSrcFolder);
-      let destFile = SearchIntegration._getSearchPathForFolder(aDestFolder);
+      const srcFile = SearchIntegration._getSearchPathForFolder(aSrcFolder);
+      const destFile = SearchIntegration._getSearchPathForFolder(aDestFolder);
       srcFile.leafName = srcFile.leafName + ".mozmsgs";
       destFile.leafName += ".sbd";
       SearchIntegration._log.debug("src file path = " + srcFile.path);
@@ -686,9 +687,9 @@ var SearchSupport = {
           ", aNewFolder = " +
           aNewFolder.prettyName
       );
-      let srcFile = SearchIntegration._getSearchPathForFolder(aOrigFolder);
+      const srcFile = SearchIntegration._getSearchPathForFolder(aOrigFolder);
       srcFile.leafName = srcFile.leafName + ".mozmsgs";
-      let destName = aNewFolder.name + ".mozmsgs";
+      const destName = aNewFolder.name + ".mozmsgs";
       SearchIntegration._log.debug("src file path = " + srcFile.path);
       SearchIntegration._log.debug("dst name = " + destName);
       if (srcFile.exists()) {
@@ -721,25 +722,25 @@ var SearchSupport = {
   handleResult(aFile) {
     // The file path has two components -- the search path, which needs to be
     // converted into a folder, and the message ID.
-    let searchPath = aFile.parent;
+    const searchPath = aFile.parent;
     // Strip off ".mozmsgs" from the end (8 characters)
     searchPath.leafName = searchPath.leafName.slice(0, -8);
 
-    let folder = this._getFolderForSearchPath(searchPath);
+    const folder = this._getFolderForSearchPath(searchPath);
 
     // Get rid of the file extension at the end (7 characters), and unescape
-    let messageID = decodeURIComponent(aFile.leafName.slice(0, -7));
+    const messageID = decodeURIComponent(aFile.leafName.slice(0, -7));
 
     // Look for the message ID in the folder
     return folder.msgDatabase.getMsgHdrForMessageID(messageID);
   },
 
   _getSupportFile(msgHdr) {
-    let folder = msgHdr.folder;
+    const folder = msgHdr.folder;
     if (folder) {
-      let messageId = encodeURIComponent(msgHdr.messageId);
+      const messageId = encodeURIComponent(msgHdr.messageId);
       this._log.debug("encoded message id = " + messageId);
-      let file = this._getSearchPathForFolder(folder);
+      const file = this._getSearchPathForFolder(folder);
       file.leafName = file.leafName + ".mozmsgs";
       file.appendRelativePath(messageId + this._fileExt);
       this._log.debug("getting support file path = " + file.path);
@@ -780,7 +781,7 @@ var SearchSupport = {
     _onDoneStreaming(successful) {
       this._outputStream = null;
       if (!successful && this._msgHdr) {
-        let file = SearchIntegration._getSupportFile(this._msgHdr);
+        const file = SearchIntegration._getSupportFile(this._msgHdr);
         if (file && file.exists()) {
           file.remove(false);
         }
@@ -789,7 +790,7 @@ var SearchSupport = {
       SearchIntegration._msgHdrsToIndex.shift();
 
       if (SearchIntegration._msgHdrsToIndex.length > 0) {
-        let [msgHdr, reindexTime] = SearchIntegration._msgHdrsToIndex[0];
+        const [msgHdr, reindexTime] = SearchIntegration._msgHdrsToIndex[0];
         this.startStreaming(msgHdr, reindexTime);
       }
     },
@@ -797,13 +798,13 @@ var SearchSupport = {
     // "Start" function
     startStreaming(msgHdr, reindexTime) {
       try {
-        let folder = msgHdr.folder;
+        const folder = msgHdr.folder;
         if (folder) {
-          let messageId = encodeURIComponent(msgHdr.messageId);
+          const messageId = encodeURIComponent(msgHdr.messageId);
           SearchIntegration._log.info(
             "generating support file, id = " + messageId
           );
-          let file = SearchIntegration._getSearchPathForFolder(folder);
+          const file = SearchIntegration._getSearchPathForFolder(folder);
 
           file.leafName = file.leafName + ".mozmsgs";
           SearchIntegration._log.debug("file leafname = " + file.leafName);
@@ -819,8 +820,8 @@ var SearchSupport = {
           file.appendRelativePath(messageId + SearchIntegration._fileExt);
           SearchIntegration._log.debug("file path = " + file.path);
           file.create(0, PERM_FILE);
-          let uri = folder.getUriForMsg(msgHdr);
-          let msgService = MailServices.messageServiceFromURI(uri);
+          const uri = folder.getUriForMsg(msgHdr);
+          const msgService = MailServices.messageServiceFromURI(uri);
           this._msgHdr = msgHdr;
           this._outputFile = file;
           this._reindexTime = reindexTime;

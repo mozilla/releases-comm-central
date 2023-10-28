@@ -51,7 +51,7 @@ function messagePaneOnResize() {
     return;
   }
 
-  for (let img of doc.images) {
+  for (const img of doc.images) {
     img.toggleAttribute(
       "overflowing",
       img.clientWidth - doc.body.offsetWidth >= 0 &&
@@ -68,7 +68,7 @@ function ReloadMessage() {
 }
 
 function MailSetCharacterSet() {
-  let messageService = MailServices.messageServiceFromURI(gMessageURI);
+  const messageService = MailServices.messageServiceFromURI(gMessageURI);
   gMessage = messageService.messageURIToMsgHdr(gMessageURI);
   messageService.loadMessage(
     gMessageURI,
@@ -154,7 +154,7 @@ function displayMessage(uri, viewWrapper) {
     return;
   }
 
-  let messageService = MailServices.messageServiceFromURI(uri);
+  const messageService = MailServices.messageServiceFromURI(uri);
   gMessage = messageService.messageURIToMsgHdr(uri);
   gFolder = gMessage.folder;
 
@@ -175,9 +175,9 @@ function displayMessage(uri, viewWrapper) {
     }
   }
   gDBView = gViewWrapper.dbView;
-  let selection = (gDBView.selection = new TreeSelection());
+  const selection = (gDBView.selection = new TreeSelection());
   selection.view = gDBView;
-  let index = gDBView.findIndexOfMsgHdr(gMessage, true);
+  const index = gDBView.findIndexOfMsgHdr(gMessage, true);
   selection.select(index == nsMsgViewIndex_None ? -1 : index);
   gDBView?.setJSTree({
     QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
@@ -192,7 +192,7 @@ function displayMessage(uri, viewWrapper) {
     invalidate() {},
     invalidateRange(startIndex, endIndex) {},
     rowCountChanged(index, count) {
-      let wasSuppressed = gDBView.selection.selectEventsSuppressed;
+      const wasSuppressed = gDBView.selection.selectEventsSuppressed;
       gDBView.selection.selectEventsSuppressed = true;
       gDBView.selection.adjustSelection(index, count);
       gDBView.selection.selectEventsSuppressed = wasSuppressed;
@@ -206,13 +206,13 @@ function displayMessage(uri, viewWrapper) {
     document.title = gMessage.mime2DecodedSubject;
   }
 
-  let browser = getMessagePaneBrowser();
+  const browser = getMessagePaneBrowser();
   MailE10SUtils.changeRemoteness(browser, null);
   browser.docShell.allowAuth = false;
   browser.docShell.allowDNSPrefetch = false;
 
   // @implements {nsIUrlListener}
-  let urlListener = {
+  const urlListener = {
     OnStartRunningUrl(url) {},
     OnStopRunningUrl(url, status) {
       window.msgLoading = true;
@@ -237,7 +237,7 @@ function displayMessage(uri, viewWrapper) {
     let title = messengerBundle.GetStringFromName("nocachedbodytitle");
     // This string includes some HTML! Get rid of it.
     title = title.replace(/<\/?title>/gi, "");
-    let body = messengerBundle.GetStringFromName("nocachedbodybody2");
+    const body = messengerBundle.GetStringFromName("nocachedbodybody2");
     HideMessageHeaderPane();
     MailE10SUtils.loadURI(
       getMessagePaneBrowser(),
@@ -302,13 +302,13 @@ var preferenceObserver = {
   _reloadTimeout: null,
 
   init() {
-    for (let topic of this._topics) {
+    for (const topic of this._topics) {
       Services.prefs.addObserver(topic, this);
     }
   },
 
   cleanUp() {
-    for (let topic of this._topics) {
+    for (const topic of this._topics) {
       Services.prefs.removeObserver(topic, this);
     }
   },
@@ -406,8 +406,8 @@ var messageHistory = {
     if (!messageURI) {
       return;
     }
-    let currentItem = this._history[this._currentIndex];
-    let currentFolder = gFolder?.URI;
+    const currentItem = this._history[this._currentIndex];
+    const currentFolder = gFolder?.URI;
     if (
       currentItem &&
       messageURI === currentItem.messageURI &&
@@ -415,10 +415,10 @@ var messageHistory = {
     ) {
       return;
     }
-    let nextMessageIndex = this._currentIndex + 1;
+    const nextMessageIndex = this._currentIndex + 1;
     let erasedFuture = false;
     if (nextMessageIndex < this._history.length) {
-      let nextMessage = this._history[nextMessageIndex];
+      const nextMessage = this._history[nextMessageIndex];
       if (
         nextMessage &&
         messageURI === nextMessage.messageURI &&
@@ -439,7 +439,8 @@ var messageHistory = {
     this._history.push({ messageURI, folderURI: currentFolder });
     this._currentIndex = nextMessageIndex;
     if (this._history.length > this.MAX_HISTORY_SIZE) {
-      let amountOfItemsToRemove = this._history.length - this.MAX_HISTORY_SIZE;
+      const amountOfItemsToRemove =
+        this._history.length - this.MAX_HISTORY_SIZE;
       this._history.splice(0, amountOfItemsToRemove);
       this._currentIndex -= amountOfItemsToRemove;
     }
@@ -459,7 +460,7 @@ var messageHistory = {
    *   taken.
    */
   pop(delta) {
-    let targetIndex = this._getAbsoluteIndex(delta);
+    const targetIndex = this._getAbsoluteIndex(delta);
     if (this._currentIndex == targetIndex && gMessage) {
       return null;
     }
@@ -501,7 +502,7 @@ var messageHistory = {
    *   current history.
    */
   canPop(delta) {
-    let resultIndex = this._currentIndex + delta;
+    const resultIndex = this._currentIndex + delta;
     return (
       resultIndex >= 0 &&
       resultIndex < this._history.length &&

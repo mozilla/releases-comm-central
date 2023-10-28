@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async function test_sessions_data() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
-      let [mailTab] = await browser.tabs.query({ mailTab: true });
-      let contentTab = await browser.tabs.create({
+      const [mailTab] = await browser.tabs.query({ mailTab: true });
+      const contentTab = await browser.tabs.create({
         url: "https://www.example.com",
       });
 

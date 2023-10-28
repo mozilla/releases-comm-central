@@ -28,7 +28,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
  *
  * @type {WeakMap<BrowsingContext, Prompt>}
  */
-let gBrowserPrompts = new WeakMap();
+const gBrowserPrompts = new WeakMap();
 
 class PromptParent extends JSWindowActorParent {
   didDestroy() {
@@ -59,7 +59,7 @@ class PromptParent extends JSWindowActorParent {
       gBrowserPrompts.set(this.browsingContext, prompts);
     }
 
-    let promise = new Promise(resolve => {
+    const promise = new Promise(resolve => {
       prompts.set(id, {
         tabModalPrompt,
         resolver: resolve,
@@ -78,7 +78,7 @@ class PromptParent extends JSWindowActorParent {
    *        BrowsingContext.
    */
   unregisterPrompt(id) {
-    let prompts = gBrowserPrompts.get(this.browsingContext);
+    const prompts = gBrowserPrompts.get(this.browsingContext);
     if (prompts) {
       prompts.delete(id);
     }
@@ -88,15 +88,15 @@ class PromptParent extends JSWindowActorParent {
    * Programmatically closes all Prompts for the current BrowsingContext.
    */
   forceClosePrompts() {
-    let prompts = gBrowserPrompts.get(this.browsingContext) || [];
+    const prompts = gBrowserPrompts.get(this.browsingContext) || [];
 
-    for (let [, prompt] of prompts) {
+    for (const [, prompt] of prompts) {
       prompt.tabModalPrompt && prompt.tabModalPrompt.abortPrompt();
     }
   }
 
   receiveMessage(message) {
-    let args = message.data;
+    const args = message.data;
 
     switch (message.name) {
       case "Prompt:Open": {
@@ -122,11 +122,11 @@ class PromptParent extends JSWindowActorParent {
   async openWindowPrompt(args) {
     const COMMON_DIALOG = "chrome://global/content/commonDialog.xhtml";
     const SELECT_DIALOG = "chrome://global/content/selectDialog.xhtml";
-    let uri = args.promptType == "select" ? SELECT_DIALOG : COMMON_DIALOG;
+    const uri = args.promptType == "select" ? SELECT_DIALOG : COMMON_DIALOG;
 
-    let browsingContext = this.browsingContext.top;
+    const browsingContext = this.browsingContext.top;
 
-    let browser = browsingContext.embedderElement;
+    const browser = browsingContext.embedderElement;
     let win;
 
     // If we are a chrome actor we can use the associated chrome win.
@@ -158,7 +158,7 @@ class PromptParent extends JSWindowActorParent {
         );
       }
 
-      let bag = lazy.PromptUtils.objectToPropBag(args);
+      const bag = lazy.PromptUtils.objectToPropBag(args);
 
       Services.ww.openWindow(
         win,

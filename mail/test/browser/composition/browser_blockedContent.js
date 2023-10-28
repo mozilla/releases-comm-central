@@ -28,7 +28,7 @@ add_setup(async function () {
 });
 
 function putHTMLOnClipboard(html) {
-  let trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+  const trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
 
@@ -36,7 +36,7 @@ function putHTMLOnClipboard(html) {
   trans.init(null);
   trans.addDataFlavor("text/html");
 
-  let wapper = Cc["@mozilla.org/supports-string;1"].createInstance(
+  const wapper = Cc["@mozilla.org/supports-string;1"].createInstance(
     Ci.nsISupportsString
   );
   wapper.data = html;
@@ -50,7 +50,7 @@ function putHTMLOnClipboard(html) {
  * the content when appropriate.
  */
 add_task(async function test_paste_file_urls() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   await setup_msg_contents(
     cwc,
     "someone@example.com",
@@ -59,12 +59,12 @@ add_task(async function test_paste_file_urls() {
   );
 
   const fname = "data/tb-logo.png";
-  let file = new FileUtils.File(getTestFilePath(fname));
-  let fileHandler = Services.io
+  const file = new FileUtils.File(getTestFilePath(fname));
+  const fileHandler = Services.io
     .getProtocolHandler("file")
     .QueryInterface(Ci.nsIFileProtocolHandler);
 
-  let dest = PathUtils.join(
+  const dest = PathUtils.join(
     Services.dirsvc.get("TmpD", Ci.nsIFile).path,
     file.leafName
   );
@@ -101,7 +101,7 @@ add_task(async function test_paste_file_urls() {
   // Now wait for the paste, and for the file: based image to get converted
   // to data:.
   await TestUtils.waitForCondition(function () {
-    let img = cwc.document
+    const img = cwc.document
       .getElementById("messageEditor")
       .contentDocument.getElementById("tmp-img");
     return img && img.naturalHeight == 84 && img.src.startsWith("data:");
@@ -115,8 +115,8 @@ add_task(async function test_paste_file_urls() {
   await closePromise;
 
   await be_in_folder(gOutboxFolder);
-  let outMsg = await select_click_row(0);
-  let outMsgContent = await get_msg_source(outMsg);
+  const outMsg = await select_click_row(0);
+  const outMsgContent = await get_msg_source(outMsg);
 
   Assert.ok(
     outMsgContent.includes("file://foo/non-existent"),

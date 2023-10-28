@@ -30,7 +30,7 @@ var { TestUtils } = ChromeUtils.importESModule(
  *     mail/components/preferences/preferences.xhtml for valid IDs.)
  */
 async function open_pref_tab(aPaneID, aScrollTo) {
-  let tab = await open_content_tab_with_click(
+  const tab = await open_content_tab_with_click(
     function () {
       mc.openOptionsDialog(aPaneID, aScrollTo);
     },

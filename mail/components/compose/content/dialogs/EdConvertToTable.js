@@ -141,7 +141,7 @@ function onAccept() {
     if (start >= 0) {
       end = str.indexOf(">", start + 1);
       if (end > start) {
-        let tagContent = str.slice(start + 1, end).trim();
+        const tagContent = str.slice(start + 1, end).trim();
 
         if (/^ol|^ul|^dl/.test(tagContent)) {
           //  Replace list tag with <BR> to start new row

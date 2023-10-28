@@ -94,7 +94,7 @@ var gPermissionManager = {
         stringKey = "permission-can-session-label";
         break;
     }
-    let string = await document.l10n.formatValue(stringKey);
+    const string = await document.l10n.formatValue(stringKey);
     return string;
   },
 
@@ -120,7 +120,7 @@ var gPermissionManager = {
         // If we have ended up with an unknown scheme, the following will throw.
         principal.origin;
       } catch (ex) {
-        let scheme =
+        const scheme =
           this._type != "image" || !input_url.includes("@")
             ? "http://"
             : MAILURI_BASE;
@@ -133,7 +133,7 @@ var gPermissionManager = {
         principal.origin;
       }
     } catch (ex) {
-      let [title, message] = await document.l10n.formatValues([
+      const [title, message] = await document.l10n.formatValues([
         { id: "invalid-uri-title" },
         { id: "invalid-uri-message" },
       ]);
@@ -158,7 +158,7 @@ var gPermissionManager = {
       }
     }
 
-    let permissionParams = {
+    const permissionParams = {
       principal,
       type: this._type,
       capability: aCapability,
@@ -188,7 +188,7 @@ var gPermissionManager = {
     // If this permission was added during this session, let's remove
     // it from the pending adds list to prevent calls to the
     // permission manager.
-    let isNewPermission = this._permissionsToAdd.delete(
+    const isNewPermission = this._permissionsToAdd.delete(
       aPermission.principal.origin
     );
 
@@ -283,13 +283,13 @@ var gPermissionManager = {
     var urlLabel = document.getElementById("urlLabel");
     urlLabel.hidden = !urlFieldVisible;
 
-    let treecols = document.getElementsByTagName("treecols")[0];
+    const treecols = document.getElementsByTagName("treecols")[0];
     treecols.addEventListener("click", event => {
       if (event.target.nodeName != "treecol" || event.button != 0) {
         return;
       }
 
-      let sortField = event.target.getAttribute("data-field-name");
+      const sortField = event.target.getAttribute("data-field-name");
       if (!sortField) {
         return;
       }
@@ -425,7 +425,7 @@ var gPermissionManager = {
     // to update the UI
     this.uninit();
 
-    for (let permissionParams of this._permissionsToAdd.values()) {
+    for (const permissionParams of this._permissionsToAdd.values()) {
       Services.perms.addFromPrincipal(
         permissionParams.principal,
         permissionParams.type,
@@ -433,7 +433,7 @@ var gPermissionManager = {
       );
     }
 
-    for (let p of this._permissionsToDelete.values()) {
+    for (const p of this._permissionsToDelete.values()) {
       Services.perms.removeFromPrincipal(p.principal, p.type);
     }
 
@@ -444,7 +444,7 @@ var gPermissionManager = {
     this._tree = document.getElementById("permissionsTree");
     this._permissions = [];
 
-    for (let perm of Services.perms.all) {
+    for (const perm of Services.perms.all) {
       await this._addPermissionToList(perm);
     }
 

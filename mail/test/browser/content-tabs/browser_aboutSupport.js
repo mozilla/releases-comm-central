@@ -33,7 +33,7 @@ var warningText = new Map();
 add_setup(function () {
   // The wording of the warning message when private data is being exported
   // from the about:support page.
-  let bundle = Services.strings.createBundle(
+  const bundle = Services.strings.createBundle(
     "chrome://messenger/locale/aboutSupportMail.properties"
   );
   // In HTML the warning label and text comprise the textContent of a single element.
@@ -80,20 +80,20 @@ const ABOUT_SUPPORT_ERROR_STRINGS = new Map([
  * @returns the about:support tab.
  */
 async function open_about_support() {
-  let openAboutSupport = async function () {
+  const openAboutSupport = async function () {
     if (AppConstants.platform == "macosx") {
       document.getElementById("aboutsupport_open").click();
     } else {
       // Show menubar so we can click it.
       document.getElementById("toolbar-menubar").removeAttribute("autohide");
-      let helpMenu = document.getElementById("helpMenu");
+      const helpMenu = document.getElementById("helpMenu");
       EventUtils.synthesizeMouseAtCenter(helpMenu, {}, helpMenu.ownerGlobal);
       await click_menus_in_sequence(document.getElementById("menu_HelpPopup"), [
         { id: "aboutsupport_open" },
       ]);
     }
   };
-  let tab = await open_content_tab_with_click(
+  const tab = await open_content_tab_with_click(
     openAboutSupport,
     "about:support"
   );
@@ -141,14 +141,14 @@ async function open_about_support() {
  * @param aTab The about:support tab.
  */
 async function open_send_via_email(aTab) {
-  let button = content_tab_e(aTab, "send-via-email");
+  const button = content_tab_e(aTab, "send-via-email");
   const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeMouseAtCenter(
     button,
     { clickCount: 1 },
     button.ownerGlobal
   );
-  let cwc = await compose_window_ready(composePromise);
+  const cwc = await compose_window_ready(composePromise);
   return cwc;
 }
 
@@ -159,7 +159,7 @@ function find_private_element(aTab) {
   // We use the identity name as an example of a private-only element.
   // It is currently the second td element with class="data-private" in the table.
   // The content string must be something unique that is not found anywhere else.
-  let elem = aTab.browser.contentDocument.querySelector(
+  const elem = aTab.browser.contentDocument.querySelector(
     "#accounts-table td.data-private~td.data-private"
   );
   Assert.ok(elem != null);
@@ -178,15 +178,15 @@ function find_private_element(aTab) {
  * comprehensive.
  */
 add_task(async function test_display_about_support() {
-  let tab = await open_about_support();
+  const tab = await open_about_support();
   // Check that the document has a few strings that indicate that we've loaded
   // the right page.
-  for (let str of ABOUT_SUPPORT_STRINGS) {
+  for (const str of ABOUT_SUPPORT_STRINGS) {
     assert_content_tab_text_present(tab, str);
   }
 
   // Check that error strings aren't present anywhere
-  for (let str of ABOUT_SUPPORT_ERROR_STRINGS.get("text/html")) {
+  for (const str of ABOUT_SUPPORT_ERROR_STRINGS.get("text/html")) {
     assert_content_tab_text_absent(tab, str);
   }
 
@@ -194,8 +194,8 @@ add_task(async function test_display_about_support() {
   // Test that the tables in the page are all populated with at least one row
   // in the tbody element.
   // An exception in the code could cause some to be empty.
-  let tables = tab.browser.contentDocument.querySelectorAll("tbody");
-  let emptyTables = [
+  const tables = tab.browser.contentDocument.querySelectorAll("tbody");
+  const emptyTables = [
     "graphics-failures-tbody",
     "graphics-tbody",
     "locked-prefs-tbody",
@@ -205,7 +205,7 @@ add_task(async function test_display_about_support() {
     "support-printing-prefs-tbody",
     "chat-tbody",
   ]; // some tables may be empty
-  for (let table of tables) {
+  for (const table of tables) {
     if (!emptyTables.includes(table.id)) {
       Assert.ok(
         table.querySelectorAll("tr").length > 0,
@@ -216,7 +216,7 @@ add_task(async function test_display_about_support() {
 
   // Mozmill uses a user.js file in the profile, so the warning about the file
   // should be visible here.
-  let userjsElem = tab.browser.contentDocument.getElementById(
+  const userjsElem = tab.browser.contentDocument.getElementById(
     "prefs-user-js-section"
   );
   Assert.ok(userjsElem.hasChildNodes);
@@ -236,12 +236,12 @@ add_task(async function test_display_about_support() {
  * Test that our accounts are displayed in order.
  */
 add_task(async function test_accounts_in_order() {
-  let tab = await open_about_support();
+  const tab = await open_about_support();
   // This is a really simple test and by no means comprehensive -- test that
   // "account1" appears before "account2" in the HTML content.
   assert_content_tab_text_present(tab, "account1");
   assert_content_tab_text_present(tab, "account2");
-  let html = tab.browser.contentDocument.documentElement.innerHTML;
+  const html = tab.browser.contentDocument.documentElement.innerHTML;
   if (html.indexOf("account1") > html.indexOf("account2")) {
     Assert.report(
       true,
@@ -261,9 +261,9 @@ var UNIQUE_ID = "3a9e1694-7115-4237-8b1e-1cabe6e35073";
  */
 add_task(async function test_modified_pref_on_whitelist() {
   const PREFIX = "accessibility.";
-  let prefName = PREFIX + UNIQUE_ID;
+  const prefName = PREFIX + UNIQUE_ID;
   Services.prefs.setBoolPref(prefName, true);
-  let tab = await open_about_support();
+  const tab = await open_about_support();
 
   assert_content_tab_text_present(tab, prefName);
   close_tab(tab);
@@ -275,7 +275,7 @@ add_task(async function test_modified_pref_on_whitelist() {
  */
 add_task(async function test_modified_pref_not_on_whitelist() {
   Services.prefs.setBoolPref(UNIQUE_ID, true);
-  let tab = await open_about_support();
+  const tab = await open_about_support();
   assert_content_tab_text_absent(tab, UNIQUE_ID);
   close_tab(tab);
   Services.prefs.clearUserPref(UNIQUE_ID);
@@ -286,9 +286,9 @@ add_task(async function test_modified_pref_not_on_whitelist() {
  */
 add_task(async function test_modified_pref_on_blacklist() {
   const PREFIX = "network.proxy.";
-  let prefName = PREFIX + UNIQUE_ID;
+  const prefName = PREFIX + UNIQUE_ID;
   Services.prefs.setBoolPref(prefName, true);
-  let tab = await open_about_support();
+  const tab = await open_about_support();
 
   assert_content_tab_text_absent(tab, prefName);
   close_tab(tab);
@@ -300,15 +300,15 @@ add_task(async function test_modified_pref_on_blacklist() {
  * displayed, it actually shows up.
  */
 add_task(async function test_private_data() {
-  let tab = await open_about_support();
-  let checkbox = content_tab_e(tab, "check-show-private-data");
+  const tab = await open_about_support();
+  const checkbox = content_tab_e(tab, "check-show-private-data");
 
   // We use the profile path and some other element as an example
   // of a private-only element.
-  let privateElem1 = find_private_element(tab);
-  let privateElem2 = content_tab_e(tab, "profile-dir-box");
+  const privateElem1 = find_private_element(tab);
+  const privateElem2 = content_tab_e(tab, "profile-dir-box");
   // We use the profile button as an example of a public element.
-  let publicElem = content_tab_e(tab, "profile-dir-button");
+  const publicElem = content_tab_e(tab, "profile-dir-button");
 
   Assert.ok(
     !checkbox.checked,
@@ -348,24 +348,24 @@ function check_text_in_body(aDocument, aText) {
  * Test (well, sort of) the copy to clipboard function with public data.
  */
 add_task(async function test_copy_to_clipboard_public() {
-  let tab = await open_about_support();
-  let privateElem = find_private_element(tab);
+  const tab = await open_about_support();
+  const privateElem = find_private_element(tab);
   // To avoid destroying the current contents of the clipboard, instead of
   // actually copying to it, we just retrieve what would have been copied to it
-  let transferable = tab.browser.contentWindow.getClipboardTransferable();
-  for (let flavor of ["text/html", "text/plain"]) {
-    let data = {};
+  const transferable = tab.browser.contentWindow.getClipboardTransferable();
+  for (const flavor of ["text/html", "text/plain"]) {
+    const data = {};
     transferable.getTransferData(flavor, data);
-    let text = data.value.QueryInterface(Ci.nsISupportsString).data;
+    const text = data.value.QueryInterface(Ci.nsISupportsString).data;
     let contentBody;
     if (flavor == "text/html") {
-      let parser = new DOMParser();
+      const parser = new DOMParser();
       contentBody = parser.parseFromString(text, "text/html").body;
     } else {
       contentBody = text;
     }
 
-    for (let str of ABOUT_SUPPORT_STRINGS) {
+    for (const str of ABOUT_SUPPORT_STRINGS) {
       if (!check_text_in_body(contentBody, str)) {
         Assert.report(
           true,
@@ -376,7 +376,7 @@ add_task(async function test_copy_to_clipboard_public() {
       }
     }
 
-    for (let str of ABOUT_SUPPORT_ERROR_STRINGS.get(flavor)) {
+    for (const str of ABOUT_SUPPORT_ERROR_STRINGS.get(flavor)) {
       if (check_text_in_body(contentBody, str)) {
         Assert.report(
           true,
@@ -404,30 +404,30 @@ add_task(async function test_copy_to_clipboard_public() {
  * Test (well, sort of) the copy to clipboard function with private data.
  */
 add_task(async function test_copy_to_clipboard_private() {
-  let tab = await open_about_support();
+  const tab = await open_about_support();
 
   // Display private data.
-  let privateElem = find_private_element(tab);
-  let show = content_tab_e(tab, "check-show-private-data");
+  const privateElem = find_private_element(tab);
+  const show = content_tab_e(tab, "check-show-private-data");
   EventUtils.synthesizeMouseAtCenter(show, { clickCount: 1 }, show.ownerGlobal);
   await promise_content_tab_element_display(tab, privateElem);
 
   // To avoid destroying the current contents of the clipboard, instead of
   // actually copying to it, we just retrieve what would have been copied to it
-  let transferable = tab.browser.contentWindow.getClipboardTransferable();
-  for (let flavor of ["text/html", "text/plain"]) {
-    let data = {};
+  const transferable = tab.browser.contentWindow.getClipboardTransferable();
+  for (const flavor of ["text/html", "text/plain"]) {
+    const data = {};
     transferable.getTransferData(flavor, data);
-    let text = data.value.QueryInterface(Ci.nsISupportsString).data;
+    const text = data.value.QueryInterface(Ci.nsISupportsString).data;
     let contentBody;
     if (flavor == "text/html") {
-      let parser = new DOMParser();
+      const parser = new DOMParser();
       contentBody = parser.parseFromString(text, "text/html").body;
     } else {
       contentBody = text;
     }
 
-    for (let str of ABOUT_SUPPORT_STRINGS) {
+    for (const str of ABOUT_SUPPORT_STRINGS) {
       if (!check_text_in_body(contentBody, str)) {
         Assert.report(
           true,
@@ -438,7 +438,7 @@ add_task(async function test_copy_to_clipboard_private() {
       }
     }
 
-    for (let str of ABOUT_SUPPORT_ERROR_STRINGS.get(flavor)) {
+    for (const str of ABOUT_SUPPORT_ERROR_STRINGS.get(flavor)) {
       if (check_text_in_body(contentBody, str)) {
         Assert.report(
           true,
@@ -476,15 +476,15 @@ add_task(async function test_copy_to_clipboard_private() {
  * Test opening the compose window with public data.
  */
 add_task(async function test_send_via_email_public() {
-  let tab = await open_about_support();
-  let privateElem = find_private_element(tab);
+  const tab = await open_about_support();
+  const privateElem = find_private_element(tab);
 
-  let cwc = await open_send_via_email(tab);
+  const cwc = await open_send_via_email(tab);
 
-  let contentBody =
+  const contentBody =
     cwc.document.getElementById("messageEditor").contentDocument.body;
 
-  for (let str of ABOUT_SUPPORT_STRINGS) {
+  for (const str of ABOUT_SUPPORT_STRINGS) {
     if (!check_text_in_body(contentBody, str)) {
       Assert.report(
         true,
@@ -495,7 +495,7 @@ add_task(async function test_send_via_email_public() {
     }
   }
 
-  for (let str of ABOUT_SUPPORT_ERROR_STRINGS.get("text/html")) {
+  for (const str of ABOUT_SUPPORT_ERROR_STRINGS.get("text/html")) {
     if (check_text_in_body(contentBody, str)) {
       Assert.report(
         true,
@@ -524,20 +524,20 @@ add_task(async function test_send_via_email_public() {
  * Test opening the compose window with private data.
  */
 add_task(async function test_send_via_email_private() {
-  let tab = await open_about_support();
+  const tab = await open_about_support();
 
   // Display private data.
-  let privateElem = find_private_element(tab);
-  let show = content_tab_e(tab, "check-show-private-data");
+  const privateElem = find_private_element(tab);
+  const show = content_tab_e(tab, "check-show-private-data");
   EventUtils.synthesizeMouseAtCenter(show, { clickCount: 1 }, show.ownerGlobal);
   await promise_content_tab_element_display(tab, privateElem);
 
-  let cwc = await open_send_via_email(tab);
+  const cwc = await open_send_via_email(tab);
 
-  let contentBody =
+  const contentBody =
     cwc.document.getElementById("messageEditor").contentDocument.body;
 
-  for (let str of ABOUT_SUPPORT_STRINGS) {
+  for (const str of ABOUT_SUPPORT_STRINGS) {
     if (!check_text_in_body(contentBody, str)) {
       Assert.report(
         true,
@@ -548,7 +548,7 @@ add_task(async function test_send_via_email_private() {
     }
   }
 
-  for (let str of ABOUT_SUPPORT_ERROR_STRINGS.get("text/html")) {
+  for (const str of ABOUT_SUPPORT_ERROR_STRINGS.get("text/html")) {
     if (check_text_in_body(contentBody, str)) {
       Assert.report(
         true,

@@ -62,7 +62,7 @@ var quickFilterBar = {
 
     // Enable any filters set by the user.
     // If keep filters applied/sticky setting is enabled, enable sticky.
-    let xulStickyVal = Services.xulStore.getValue(
+    const xulStickyVal = Services.xulStore.getValue(
       XULSTORE_URL,
       "quickFilterBarSticky",
       "enabled"
@@ -74,7 +74,7 @@ var quickFilterBar = {
       // Otherwise do not display saved filters on load.
       if (xulStickyVal == "true") {
         // If any filter settings are enabled, retrieve the enabled filters.
-        let enabledTopFiltersVal = Services.xulStore.getValue(
+        const enabledTopFiltersVal = Services.xulStore.getValue(
           XULSTORE_URL,
           "quickFilter",
           "enabledTopFilters"
@@ -82,8 +82,8 @@ var quickFilterBar = {
 
         // Set any enabled filters to enabled in the UI.
         if (enabledTopFiltersVal) {
-          let enabledTopFilters = JSON.parse(enabledTopFiltersVal);
-          for (let filterName of enabledTopFilters) {
+          const enabledTopFilters = JSON.parse(enabledTopFiltersVal);
+          for (const filterName of enabledTopFilters) {
             this.activeTopLevelFilters.add(filterName);
             this.filterer.setFilterValue(filterName, true);
           }
@@ -111,7 +111,7 @@ var quickFilterBar = {
       document.getElementById(QuickFilterManager.textBoxDomId).focus();
     });
     commandController.registerCallback("cmd_toggleQuickFilterBar", () => {
-      let show = !this.filterer.visible;
+      const show = !this.filterer.visible;
       this._showFilterBar(show);
       if (show) {
         document.getElementById(QuickFilterManager.textBoxDomId).focus();
@@ -138,14 +138,14 @@ var quickFilterBar = {
         .openPopup(event.target, { triggerEvent: event });
     });
 
-    for (let buttonGroup of this.rovingGroups) {
+    for (const buttonGroup of this.rovingGroups) {
       buttonGroup.addEventListener("keypress", event => {
         this.triggerQFTRovingTab(event);
       });
     }
 
     document.getElementById("qfb-sticky").addEventListener("click", event => {
-      let stickyValue = event.target.pressed ? "true" : "false";
+      const stickyValue = event.target.pressed ? "true" : "false";
       Services.xulStore.setValue(
         XULSTORE_URL,
         "quickFilterBarSticky",
@@ -168,8 +168,8 @@ var quickFilterBar = {
    * Update the `tabindex` attribute of the buttons.
    */
   updateRovingTab() {
-    for (let buttonGroup of this.rovingGroups) {
-      for (let button of buttonGroup.querySelectorAll("button")) {
+    for (const buttonGroup of this.rovingGroups) {
+      for (const button of buttonGroup.querySelectorAll("button")) {
         button.tabIndex = -1;
       }
       // Allow focus on the first available button.
@@ -187,16 +187,16 @@ var quickFilterBar = {
       return;
     }
 
-    let buttonGroup = [
+    const buttonGroup = [
       ...event.target
         .closest(".roving-group")
         .querySelectorAll(`[is="toggle-button"]`),
     ];
-    let focusableButton = buttonGroup.find(b => b.tabIndex != -1);
+    const focusableButton = buttonGroup.find(b => b.tabIndex != -1);
     let elementIndex = buttonGroup.indexOf(focusableButton);
 
     // Find the adjacent focusable element based on the pressed key.
-    let isRTL = document.dir == "rtl";
+    const isRTL = document.dir == "rtl";
     if (
       (isRTL && event.key == "ArrowLeft") ||
       (!isRTL && event.key == "ArrowRight")
@@ -216,7 +216,7 @@ var quickFilterBar = {
     }
 
     // Move the focus to a button and update the tabindex attribute.
-    let newFocusableButton = buttonGroup[elementIndex];
+    const newFocusableButton = buttonGroup[elementIndex];
     if (newFocusableButton) {
       focusableButton.tabIndex = -1;
       newFocusableButton.tabIndex = 0;
@@ -248,16 +248,16 @@ var quickFilterBar = {
    * - reflect filter state
    */
   _bindUI() {
-    for (let filterDef of QuickFilterManager.filterDefs) {
-      let domNode = document.getElementById(filterDef.domId);
-      let menuItemNode = document.getElementById(filterDef.menuItemID);
+    for (const filterDef of QuickFilterManager.filterDefs) {
+      const domNode = document.getElementById(filterDef.domId);
+      const menuItemNode = document.getElementById(filterDef.menuItemID);
 
       let handlerDomId, handlerMenuItems;
 
       if (!("onCommand" in filterDef)) {
         handlerDomId = event => {
           try {
-            let postValue = domNode.pressed ? true : null;
+            const postValue = domNode.pressed ? true : null;
             this.filterer.setFilterValue(filterDef.name, postValue);
             this.updateFiltersSettings(filterDef.name, postValue);
             this.deferredUpdateSearch(domNode);
@@ -267,7 +267,9 @@ var quickFilterBar = {
         };
         handlerMenuItems = event => {
           try {
-            let postValue = menuItemNode.hasAttribute("checked") ? true : null;
+            const postValue = menuItemNode.hasAttribute("checked")
+              ? true
+              : null;
             this.filterer.setFilterValue(filterDef.name, postValue);
             this.updateFiltersSettings(filterDef.name, postValue);
             this.deferredUpdateSearch();
@@ -280,12 +282,12 @@ var quickFilterBar = {
           if (filterDef.name == "tags") {
             filterDef.callID = "button";
           }
-          let filterValues = this.filterer.filterValues;
-          let preValue =
+          const filterValues = this.filterer.filterValues;
+          const preValue =
             filterDef.name in filterValues
               ? filterValues[filterDef.name]
               : null;
-          let [postValue, update] = filterDef.onCommand(
+          const [postValue, update] = filterDef.onCommand(
             preValue,
             domNode,
             event,
@@ -301,12 +303,12 @@ var quickFilterBar = {
           if (filterDef.name == "tags") {
             filterDef.callID = "menuItem";
           }
-          let filterValues = this.filterer.filterValues;
-          let preValue =
+          const filterValues = this.filterer.filterValues;
+          const preValue =
             filterDef.name in filterValues
               ? filterValues[filterDef.name]
               : null;
-          let [postValue, update] = filterDef.onCommand(
+          const [postValue, update] = filterDef.onCommand(
             preValue,
             menuItemNode,
             event,
@@ -372,7 +374,7 @@ var quickFilterBar = {
    * checked to reflect their current state.
    */
   updateCheckedStateQuickFilterButtons() {
-    for (let item of document.querySelectorAll(".quick-filter-menuitem")) {
+    for (const item of document.querySelectorAll(".quick-filter-menuitem")) {
       if (Object.hasOwn(this.filterer.filterValues, `${item.value}`)) {
         item.setAttribute("checked", true);
         continue;
@@ -389,16 +391,16 @@ var quickFilterBar = {
   reflectFiltererState(aFilterName) {
     // If we aren't visible then there is no need to update the widgets.
     if (this.filterer.visible) {
-      let filterValues = this.filterer.filterValues;
-      for (let filterDef of QuickFilterManager.filterDefs) {
+      const filterValues = this.filterer.filterValues;
+      for (const filterDef of QuickFilterManager.filterDefs) {
         // If we only need to update one state, check and skip as appropriate.
         if (aFilterName && filterDef.name != aFilterName) {
           continue;
         }
 
-        let domNode = document.getElementById(filterDef.domId);
+        const domNode = document.getElementById(filterDef.domId);
 
-        let value =
+        const value =
           filterDef.name in filterValues ? filterValues[filterDef.name] : null;
         if (!("reflectInDOM" in filterDef)) {
           domNode.pressed = value;
@@ -423,7 +425,7 @@ var quickFilterBar = {
    * - A filter is active and we are still searching; filterActive=searching.
    */
   reflectFiltererResults() {
-    let threadPane = document.getElementById("threadTree");
+    const threadPane = document.getElementById("threadTree");
 
     // bail early if the view is in the process of being created
     if (!gDBView) {
@@ -496,11 +498,11 @@ var quickFilterBar = {
     this.activeElement = activeElement;
     this.filterer.displayedFolder = gFolder;
 
-    let [terms, listeners] = this.filterer.createSearchTerms(
+    const [terms, listeners] = this.filterer.createSearchTerms(
       gViewWrapper.search.session
     );
 
-    for (let [listener, filterDef] of listeners) {
+    for (const [listener, filterDef] of listeners) {
       // it registers itself with the search session.
       new QuickFilterSearchListener(
         gViewWrapper,
@@ -548,30 +550,27 @@ var quickFilterBar = {
    * Called by the view wrapper so we can update the results count.
    */
   onMessagesChanged() {
-    let filtering = gViewWrapper?.search?.userTerms != null;
-    let newCount = filtering ? gDBView.numMsgsInView : null;
+    const filtering = gViewWrapper?.search?.userTerms != null;
+    const newCount = filtering ? gDBView.numMsgsInView : null;
     this.filterer.setFilterValue("results", newCount, true);
 
     // - postFilterProcess everyone who cares
     // This may need to be converted into an asynchronous process at some point.
-    for (let filterDef of QuickFilterManager.filterDefs) {
+    for (const filterDef of QuickFilterManager.filterDefs) {
       if ("postFilterProcess" in filterDef) {
-        let preState =
+        const preState =
           filterDef.name in this.filterer.filterValues
             ? this.filterer.filterValues[filterDef.name]
             : null;
-        let [newState, update, treatAsUserAction] = filterDef.postFilterProcess(
-          preState,
-          gViewWrapper,
-          filtering
-        );
+        const [newState, update, treatAsUserAction] =
+          filterDef.postFilterProcess(preState, gViewWrapper, filtering);
         this.filterer.setFilterValue(
           filterDef.name,
           newState,
           !treatAsUserAction
         );
         if (update) {
-          let domNode = document.getElementById(filterDef.domId);
+          const domNode = document.getElementById(filterDef.domId);
           // We are passing update as a super-secret data propagation channel
           //  exclusively for one-off cases like the text filter gloda upsell.
           filterDef.reflectInDOM(domNode, newState, document, this, update);

@@ -15,7 +15,7 @@ function restartApp() {
 
 function deleteLocalstore() {
   // Delete the xulstore file.
-  let xulstoreFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  const xulstoreFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   xulstoreFile.append("xulstore.json");
   if (xulstoreFile.exists()) {
     xulstoreFile.remove(false);
@@ -24,8 +24,8 @@ function deleteLocalstore() {
 
 async function disableAddons() {
   XPIDatabase.syncLoadDB(false);
-  let addons = XPIDatabase.getAddons();
-  for (let addon of addons) {
+  const addons = XPIDatabase.getAddons();
+  for (const addon of addons) {
     if (addon.type == "theme") {
       // Setting userDisabled to false on the default theme activates it,
       // disables all other themes and deactivates the applied persona, if

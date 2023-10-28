@@ -40,7 +40,7 @@ export function readFromXML(clientConfigXML, subSource) {
     dump(
       `client config xml = ${JSON.stringify(clientConfigXML).substr(0, 50)} \n`
     );
-    let stringBundle = lazy.AccountCreationUtils.getStringBundle(
+    const stringBundle = lazy.AccountCreationUtils.getStringBundle(
       "chrome://messenger/locale/accountCreationModel.properties"
     );
     throw stringBundle.GetStringFromName("no_emailProvider.error");
@@ -72,9 +72,9 @@ export function readFromXML(clientConfigXML, subSource) {
   exception = null;
 
   // incoming server
-  for (let iX of array_or_undef(xml.$incomingServer)) {
+  for (const iX of array_or_undef(xml.$incomingServer)) {
     // input (XML)
-    let iO = d.createNewIncoming(); // output (object)
+    const iO = d.createNewIncoming(); // output (object)
     try {
       // throws if not supported
       iO.type = lazy.Sanitizer.enum(iX["@type"], [
@@ -93,7 +93,7 @@ export function readFromXML(clientConfigXML, subSource) {
         iO.password = lazy.Sanitizer.string(iX.password);
       }
 
-      for (let iXsocketType of array_or_undef(iX.$socketType)) {
+      for (const iXsocketType of array_or_undef(iX.$socketType)) {
         try {
           iO.socketType = lazy.Sanitizer.translate(iXsocketType, {
             plain: Ci.nsMsgSocketType.plain,
@@ -110,7 +110,7 @@ export function readFromXML(clientConfigXML, subSource) {
       }
       exception = null;
 
-      for (let iXauth of array_or_undef(iX.$authentication)) {
+      for (const iXauth of array_or_undef(iX.$authentication)) {
         try {
           iO.auth = lazy.Sanitizer.translate(iXauth, {
             "password-cleartext": Ci.nsMsgAuthMethod.passwordCleartext,
@@ -213,12 +213,12 @@ export function readFromXML(clientConfigXML, subSource) {
   exception = null;
 
   // outgoing server
-  for (let oX of array_or_undef(xml.$outgoingServer)) {
+  for (const oX of array_or_undef(xml.$outgoingServer)) {
     // input (XML)
-    let oO = d.createNewOutgoing(); // output (object)
+    const oO = d.createNewOutgoing(); // output (object)
     try {
       if (oX["@type"] != "smtp") {
-        let stringBundle = lazy.AccountCreationUtils.getStringBundle(
+        const stringBundle = lazy.AccountCreationUtils.getStringBundle(
           "chrome://messenger/locale/accountCreationModel.properties"
         );
         throw stringBundle.GetStringFromName("outgoing_not_smtp.error");
@@ -226,7 +226,7 @@ export function readFromXML(clientConfigXML, subSource) {
       oO.hostname = lazy.Sanitizer.hostname(oX.hostname);
       oO.port = lazy.Sanitizer.integerRange(oX.port, 1, 65535);
 
-      for (let oXsocketType of array_or_undef(oX.$socketType)) {
+      for (const oXsocketType of array_or_undef(oX.$socketType)) {
         try {
           oO.socketType = lazy.Sanitizer.translate(oXsocketType, {
             plain: Ci.nsMsgSocketType.plain,
@@ -243,7 +243,7 @@ export function readFromXML(clientConfigXML, subSource) {
       }
       exception = null;
 
-      for (let oXauth of array_or_undef(oX.$authentication)) {
+      for (const oXauth of array_or_undef(oX.$authentication)) {
         try {
           oO.auth = lazy.Sanitizer.translate(oXauth, {
             // open relay
@@ -321,9 +321,9 @@ export function readFromXML(clientConfigXML, subSource) {
   exception = null;
 
   d.inputFields = [];
-  for (let inputField of array_or_undef(xml.$inputField)) {
+  for (const inputField of array_or_undef(xml.$inputField)) {
     try {
-      let fieldset = {
+      const fieldset = {
         varname: lazy.Sanitizer.alphanumdash(inputField["@key"]).toUpperCase(),
         displayName: lazy.Sanitizer.label(inputField["@label"]),
         exampleValue: lazy.Sanitizer.label(inputField.value),

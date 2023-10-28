@@ -59,8 +59,8 @@ XPCOMUtils.defineLazyGetter(this, "SubDialog", function () {
 
         // Resize the dialog to fit the content with edited font size.
         requestAnimationFrame(() => {
-          let dialogs = frame.ownerGlobal.SubDialog._dialogs;
-          let dialog = dialogs.find(
+          const dialogs = frame.ownerGlobal.SubDialog._dialogs;
+          const dialog = dialogs.find(
             d => d._frame.contentDocument == frame.contentDocument
           );
           if (dialog) {
@@ -81,7 +81,7 @@ window.addEventListener("load", () => {
   document
     .getElementById("toolbarCreateBook")
     .addEventListener("command", event => {
-      let type = event.target.value || "JS_DIRECTORY_TYPE";
+      const type = event.target.value || "JS_DIRECTORY_TYPE";
       createBook(Ci.nsIAbManager[type]);
     });
   document
@@ -133,13 +133,13 @@ window.addEventListener("load", () => {
 
   // Once the old Address Book has gone away, this should be changed to use
   // UIDs instead of URIs. It's just easier to keep as-is for now.
-  let startupURI = Services.prefs.getStringPref(
+  const startupURI = Services.prefs.getStringPref(
     "mail.addr_book.view.startupURI",
     ""
   );
   if (startupURI) {
     for (let index = 0; index < booksList.rows.length; index++) {
-      let row = booksList.rows[index];
+      const row = booksList.rows[index];
       if (row._book?.URI == startupURI || row._list?.URI == startupURI) {
         booksList.selectedIndex = index;
         break;
@@ -161,12 +161,12 @@ window.addEventListener("unload", () => {
   // Once the old Address Book has gone away, this should be changed to use
   // UIDs instead of URIs. It's just easier to keep as-is for now.
   if (!Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault")) {
-    let pref = "mail.addr_book.view.startupURI";
+    const pref = "mail.addr_book.view.startupURI";
     if (booksList.selectedIndex === 0) {
       Services.prefs.clearUserPref(pref);
     } else {
-      let row = booksList.getRowAtIndex(booksList.selectedIndex);
-      let directory = row._book || row._list;
+      const row = booksList.getRowAtIndex(booksList.selectedIndex);
+      const directory = row._book || row._list;
       Services.prefs.setCharPref(pref, directory.URI);
     }
   }
@@ -192,7 +192,7 @@ window.addEventListener("keypress", event => {
  * Add a keydown document event listener for international keyboard shortcuts.
  */
 async function setKeyboardShortcuts() {
-  let [newContactKey] = await document.l10n.formatValues([
+  const [newContactKey] = await document.l10n.formatValues([
     { id: "about-addressbook-new-contact-key" },
   ]);
 
@@ -243,7 +243,7 @@ function externalAction({ action, address, card, vCard } = {}) {
       return;
     }
 
-    let book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
+    const book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
     if (!book) {
       return;
     }
@@ -287,7 +287,7 @@ function createBook(type = Ci.nsIAbManager.JS_DIRECTORY_TYPE) {
       "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
   };
 
-  let url = typeURLs[type];
+  const url = typeURLs[type];
   if (!url) {
     throw new Components.Exception(
       `Unexpected type: ${type}`,
@@ -295,7 +295,7 @@ function createBook(type = Ci.nsIAbManager.JS_DIRECTORY_TYPE) {
     );
   }
 
-  let params = {};
+  const params = {};
   SubDialog.open(
     url,
     {
@@ -317,11 +317,11 @@ function createBook(type = Ci.nsIAbManager.JS_DIRECTORY_TYPE) {
  * Show UI to create a new contact in the current address book.
  */
 function createContact() {
-  let row = booksList.getRowAtIndex(booksList.selectedIndex);
-  let bookUID = row.dataset.book ?? row.dataset.uid;
+  const row = booksList.getRowAtIndex(booksList.selectedIndex);
+  const bookUID = row.dataset.book ?? row.dataset.uid;
 
   if (bookUID) {
-    let book = MailServices.ab.getDirectoryFromUID(bookUID);
+    const book = MailServices.ab.getDirectoryFromUID(bookUID);
     if (book.readOnly) {
       throw new Components.Exception(
         "Address book is read-only",
@@ -340,12 +340,12 @@ function createContact() {
  * @param {nsIAbCard[]} cards - The contacts, if any, to add to the list.
  */
 function createList(cards) {
-  let row = booksList.getRowAtIndex(booksList.selectedIndex);
-  let bookUID = row.dataset.book ?? row.dataset.uid;
+  const row = booksList.getRowAtIndex(booksList.selectedIndex);
+  const bookUID = row.dataset.book ?? row.dataset.uid;
 
-  let params = { cards };
+  const params = { cards };
   if (bookUID) {
-    let book = MailServices.ab.getDirectoryFromUID(bookUID);
+    const book = MailServices.ab.getDirectoryFromUID(bookUID);
     if (book.readOnly) {
       throw new Components.Exception(
         "Address book is read-only",
@@ -381,7 +381,7 @@ function createList(cards) {
  */
 function importBook() {
   let createdDirectory;
-  let observer = function (subject) {
+  const observer = function (subject) {
     // It might be possible for more than one directory to be imported, select
     // the first one.
     if (!createdDirectory) {
@@ -404,8 +404,8 @@ function importBook() {
  * of the address book view.
  */
 async function updateAddressBookCount() {
-  let cardCount = document.getElementById("cardCount");
-  let { rowCount: count, directory } = cardsPane.cardsList.view;
+  const cardCount = document.getElementById("cardCount");
+  const { rowCount: count, directory } = cardsPane.cardsList.view;
 
   if (directory) {
     document.l10n.setAttributes(cardCount, "about-addressbook-card-count", {
@@ -426,7 +426,7 @@ async function updateAddressBookCount() {
  * @param {boolean} isTableLayout - If the current body layout is a table.
  */
 function updateSharedSplitter(isTableLayout) {
-  let splitter = document.getElementById("sharedSplitter");
+  const splitter = document.getElementById("sharedSplitter");
   splitter.resizeDirection = isTableLayout ? "vertical" : "horizontal";
   splitter.resizeElement = document.getElementById(
     isTableLayout ? "detailsPane" : "cardsPane"
@@ -461,12 +461,12 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     this.addEventListener("dragleave", this);
     this.addEventListener("drop", this);
 
-    for (let book of MailServices.ab.directories) {
+    for (const book of MailServices.ab.directories) {
       this.appendChild(this._createBookRow(book));
     }
 
     this._abObserver.observe = this._abObserver.observe.bind(this);
-    for (let topic of this._abObserver._notifications) {
+    for (const topic of this._abObserver._notifications) {
       Services.obs.addObserver(this._abObserver, topic, true);
     }
 
@@ -492,7 +492,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     this.removeEventListener("dragleave", this);
     this.removeEventListener("drop", this);
 
-    for (let topic of this._abObserver._notifications) {
+    for (const topic of this._abObserver._notifications) {
       Services.obs.removeObserver(this._abObserver, topic);
     }
   }
@@ -532,7 +532,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
   }
 
   _createBookRow(book) {
-    let row = document
+    const row = document
       .getElementById("bookRow")
       .content.firstElementChild.cloneNode(true);
     row.id = `book-${book.UID}`;
@@ -561,14 +561,14 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     row._book = book;
     row.querySelector("span").textContent = book.dirName;
 
-    for (let list of book.childNodes) {
+    for (const list of book.childNodes) {
       row.querySelector("ul").appendChild(this._createListRow(book.UID, list));
     }
     return row;
   }
 
   _createListRow(bookUID, list) {
-    let row = document
+    const row = document
       .getElementById("listRow")
       .content.firstElementChild.cloneNode(true);
     row.id = `list-${list.UID}`;
@@ -620,11 +620,11 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       );
     }
 
-    let row = this.rows[this.selectedIndex];
+    const row = this.rows[this.selectedIndex];
 
     if (row.classList.contains("listRow")) {
-      let book = MailServices.ab.getDirectoryFromUID(row.dataset.book);
-      let list = book.childNodes.find(l => l.UID == row.dataset.uid);
+      const book = MailServices.ab.getDirectoryFromUID(row.dataset.book);
+      const list = book.childNodes.find(l => l.UID == row.dataset.uid);
 
       SubDialog.open(
         "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
@@ -634,7 +634,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       return;
     }
 
-    let book = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
+    const book = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
 
     SubDialog.open(
       book.propertiesChromeURI,
@@ -647,7 +647,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
    * Synchronize the selected address book. (CardDAV only.)
    */
   synchronizeSelected() {
-    let row = this.rows[this.selectedIndex];
+    const row = this.rows[this.selectedIndex];
     if (!row.classList.contains("carddav")) {
       throw new Components.Exception(
         "Attempting to synchronize a non-CardDAV book.",
@@ -671,13 +671,13 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       return;
     }
 
-    let row = this.rows[this.selectedIndex];
+    const row = this.rows[this.selectedIndex];
     if (row.classList.contains("listRow")) {
-      let book = MailServices.ab.getDirectoryFromUID(row.dataset.book);
-      let list = book.childNodes.find(l => l.UID == row.dataset.uid);
+      const book = MailServices.ab.getDirectoryFromUID(row.dataset.book);
+      const list = book.childNodes.find(l => l.UID == row.dataset.uid);
       printHandler.printDirectory(list);
     } else {
-      let book = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
+      const book = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
       printHandler.printDirectory(book);
     }
   }
@@ -690,8 +690,8 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       return;
     }
 
-    let row = this.getRowAtIndex(this.selectedIndex);
-    let directory = row._book || row._list;
+    const row = this.getRowAtIndex(this.selectedIndex);
+    const directory = row._book || row._list;
     AddrBookUtils.exportDirectory(directory);
   }
 
@@ -706,7 +706,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       );
     }
 
-    let row = this.rows[this.selectedIndex];
+    const row = this.rows[this.selectedIndex];
     if (row.classList.contains("noDelete")) {
       throw new Components.Exception(
         "Refusing to delete a built-in address book",
@@ -735,7 +735,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       uri = row._book.URI;
     }
 
-    let [title, message] = await document.l10n.formatValues([
+    const [title, message] = await document.l10n.formatValues([
       { id: `about-addressbook-confirm-${action}-title`, args: { count: 1 } },
       {
         id: `about-addressbook-confirm-${action}`,
@@ -772,8 +772,8 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       return;
     }
 
-    let row = this.rows[this.selectedIndex];
-    let directory = row._book || row._list;
+    const row = this.rows[this.selectedIndex];
+    const directory = row._book || row._list;
     Services.prefs.setStringPref(
       "mail.addr_book.view.startupURI",
       directory.URI
@@ -792,7 +792,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
   }
 
   _onSelect() {
-    let row = this.rows[this.selectedIndex];
+    const row = this.rows[this.selectedIndex];
     if (row.classList.contains("listRow")) {
       cardsPane.displayList(row.dataset.book, row.dataset.uid);
     } else {
@@ -805,8 +805,8 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       document.getElementById("toolbarCreateList").disabled = false;
       document.body.classList.add("all-ab-selected");
     } else {
-      let bookUID = row.dataset.book ?? row.dataset.uid;
-      let book = MailServices.ab.getDirectoryFromUID(bookUID);
+      const bookUID = row.dataset.book ?? row.dataset.uid;
+      const book = MailServices.ab.getDirectoryFromUID(bookUID);
 
       document.getElementById("toolbarCreateContact").disabled = book.readOnly;
       document.getElementById("toolbarCreateList").disabled =
@@ -860,7 +860,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
   }
 
   _onDragOver(event) {
-    let cards = event.dataTransfer.mozGetDataAt("moz/abcard-array", 0);
+    const cards = event.dataTransfer.mozGetDataAt("moz/abcard-array", 0);
     if (!cards) {
       return;
     }
@@ -870,25 +870,25 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
 
     // TODO: Handle dropping a vCard here.
 
-    let row = event.target.closest("li");
+    const row = event.target.closest("li");
     if (!row || row.classList.contains("readOnly")) {
       return;
     }
 
-    let rowIsList = row.classList.contains("listRow");
+    const rowIsList = row.classList.contains("listRow");
     event.dataTransfer.effectAllowed = rowIsList ? "link" : "copyMove";
 
     if (rowIsList) {
-      let bookUID = row.dataset.book;
-      for (let card of cards) {
+      const bookUID = row.dataset.book;
+      for (const card of cards) {
         if (card.directoryUID != bookUID) {
           return;
         }
       }
       event.dataTransfer.dropEffect = "link";
     } else {
-      let bookUID = row.dataset.uid;
-      for (let card of cards) {
+      const bookUID = row.dataset.uid;
+      for (const card of cards) {
         // Prevent dropping a card where it already is.
         if (card.directoryUID == bookUID) {
           return;
@@ -914,21 +914,21 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       return;
     }
 
-    let cards = event.dataTransfer.mozGetDataAt("moz/abcard-array", 0);
-    let row = event.target.closest("li");
+    const cards = event.dataTransfer.mozGetDataAt("moz/abcard-array", 0);
+    const row = event.target.closest("li");
 
     if (row.classList.contains("listRow")) {
-      for (let card of cards) {
+      for (const card of cards) {
         row._list.addCard(card);
       }
     } else if (event.dataTransfer.dropEffect == "copy") {
-      for (let card of cards) {
+      for (const card of cards) {
         row._book.dropCard(card, true);
       }
     } else {
-      let booksMap = new Map();
-      let bookUID = row.dataset.uid;
-      for (let card of cards) {
+      const booksMap = new Map();
+      const bookUID = row.dataset.uid;
+      for (const card of cards) {
         if (bookUID == card.directoryUID) {
           continue;
         }
@@ -940,7 +940,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
         }
         bookSet.add(card);
       }
-      for (let [uid, bookSet] of booksMap) {
+      for (const [uid, bookSet] of booksMap) {
         MailServices.ab.getDirectoryFromUID(uid).deleteCards([...bookSet]);
       }
     }
@@ -949,7 +949,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
   }
 
   _showContextMenu(event) {
-    let row =
+    const row =
       event.target == this
         ? this.rows[this.selectedIndex]
         : event.target.closest("li");
@@ -957,12 +957,12 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       return;
     }
 
-    let popup = document.getElementById("bookContext");
-    let synchronizeItem = document.getElementById("bookContextSynchronize");
-    let exportItem = document.getElementById("bookContextExport");
-    let deleteItem = document.getElementById("bookContextDelete");
-    let removeItem = document.getElementById("bookContextRemove");
-    let startupDefaultItem = document.getElementById(
+    const popup = document.getElementById("bookContext");
+    const synchronizeItem = document.getElementById("bookContextSynchronize");
+    const exportItem = document.getElementById("bookContextExport");
+    const deleteItem = document.getElementById("bookContextDelete");
+    const removeItem = document.getElementById("bookContextRemove");
+    const startupDefaultItem = document.getElementById(
       "bookContextStartupDefault"
     );
 
@@ -974,7 +974,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     this.focus();
     if (this.selectedIndex === 0) {
       // All Address Books - only the startup default item is relevant.
-      for (let item of popup.children) {
+      for (const item of popup.children) {
         item.hidden = item != startupDefaultItem;
       }
 
@@ -982,7 +982,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
         isDefault &&
         !Services.prefs.prefHasUserValue("mail.addr_book.view.startupURI");
     } else {
-      for (let item of popup.children) {
+      for (const item of popup.children) {
         item.hidden = false;
       }
 
@@ -1002,7 +1002,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       removeItem.disabled = row.classList.contains("noDelete");
       removeItem.hidden = !row.classList.contains("carddav");
 
-      let directory = row._book || row._list;
+      const directory = row._book || row._list;
       isDefault =
         isDefault &&
         Services.prefs.getStringPref("mail.addr_book.view.startupURI") ==
@@ -1057,7 +1057,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
 
       switch (topic) {
         case "addrbook-directory-created": {
-          let row = this._createBookRow(subject);
+          const row = this._createBookRow(subject);
           let next = this.children[1];
           while (next) {
             if (
@@ -1075,7 +1075,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
         }
         case "addrbook-directory-updated":
         case "addrbook-list-updated": {
-          let row = this.getRowForUID(subject.UID);
+          const row = this.getRowForUID(subject.UID);
           row.querySelector(".bookRow-name, .listRow-name").textContent =
             subject.dirName;
           row.setAttribute("aria-label", subject.dirName);
@@ -1099,13 +1099,13 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
           this.getRowForUID(data).classList.remove("requesting");
           break;
         case "addrbook-list-created": {
-          let row = this.getRowForUID(data);
+          const row = this.getRowForUID(data);
           let childList = row.querySelector("ul");
           if (!childList) {
             childList = row.appendChild(document.createElement("ul"));
           }
 
-          let listRow = this._createListRow(data, subject);
+          const listRow = this._createListRow(data, subject);
           let next = childList.firstElementChild;
           while (next) {
             if (AddrBookUtils.compareAddressBooks(subject, next._list) < 0) {
@@ -1117,9 +1117,11 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
           break;
         }
         case "addrbook-list-deleted": {
-          let row = this.getRowForUID(data);
-          let childList = row.querySelector("ul");
-          let listRow = childList.querySelector(`[data-uid="${subject.UID}"]`);
+          const row = this.getRowForUID(data);
+          const childList = row.querySelector("ul");
+          const listRow = childList.querySelector(
+            `[data-uid="${subject.UID}"]`
+          );
           listRow.remove();
           if (childList.childElementCount == 0) {
             setTimeout(() => childList.remove());
@@ -1229,12 +1231,14 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
       this.cell = document.createElement("td");
 
-      let container = this.cell.appendChild(document.createElement("div"));
+      const container = this.cell.appendChild(document.createElement("div"));
       container.classList.add("card-container");
 
       this.avatar = container.appendChild(document.createElement("div"));
       this.avatar.classList.add("recipient-avatar");
-      let dataContainer = container.appendChild(document.createElement("div"));
+      const dataContainer = container.appendChild(
+        document.createElement("div")
+      );
       dataContainer.classList.add("ab-card-row-data");
 
       this.firstLine = dataContainer.appendChild(document.createElement("p"));
@@ -1242,7 +1246,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.name = this.firstLine.appendChild(document.createElement("span"));
       this.name.classList.add("name");
 
-      let secondLine = dataContainer.appendChild(document.createElement("p"));
+      const secondLine = dataContainer.appendChild(document.createElement("p"));
       secondLine.classList.add("ab-card-second-line");
       this.address = secondLine.appendChild(document.createElement("span"));
       this.address.classList.add("address");
@@ -1263,7 +1267,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
     set index(index) {
       super.index = index;
 
-      let card = this.view.getCardFromRow(index);
+      const card = this.view.getCardFromRow(index);
       this.name.textContent = this.view.getCellText(index, {
         id: "GeneratedName",
       });
@@ -1293,14 +1297,14 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       // Don't try to fetch the avatar or show the parent AB if this is a list.
       if (!card.isMailList) {
         this.classList.remove("MailList");
-        let photoURL = card.photoURL;
+        const photoURL = card.photoURL;
         if (photoURL) {
-          let img = document.createElement("img");
+          const img = document.createElement("img");
           img.alt = this.name.textContent;
           img.src = photoURL;
           this.avatar.replaceChildren(img);
         } else {
-          let letter = document.createElement("span");
+          const letter = document.createElement("span");
           letter.textContent = Array.from(
             this.name.textContent
           )[0]?.toUpperCase();
@@ -1310,7 +1314,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
         this.address.textContent = card.primaryEmail;
       } else {
         this.classList.add("MailList");
-        let img = document.createElement("img");
+        const img = document.createElement("img");
         img.alt = "";
         img.src = "chrome://messenger/skin/icons/new/compact/user-list-alt.svg";
         this.avatar.replaceChildren(img);
@@ -1340,7 +1344,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
       this.setAttribute("draggable", "true");
 
-      for (let column of cardsPane.COLUMNS) {
+      for (const column of cardsPane.COLUMNS) {
         this.appendChild(document.createElement("td")).classList.add(
           `${column.id.toLowerCase()}-column`
         );
@@ -1360,11 +1364,11 @@ customElements.whenDefined("tree-view-table-row").then(() => {
     set index(index) {
       super.index = index;
 
-      let card = this.view.getCardFromRow(index);
+      const card = this.view.getCardFromRow(index);
       this.classList.toggle("MailList", card.isMailList);
 
-      for (let column of cardsPane.COLUMNS) {
-        let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
+      for (const column of cardsPane.COLUMNS) {
+        const cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
         if (!column.hidden) {
           cell.textContent = this.view.getCellText(index, { id: column.id });
           continue;
@@ -1469,8 +1473,8 @@ var cardsPane = {
    * Make the list rows density aware.
    */
   densityChange() {
-    let rowClass = customElements.get("ab-card-row");
-    let tableRowClass = customElements.get("ab-table-card-row");
+    const rowClass = customElements.get("ab-card-row");
+    const tableRowClass = customElements.get("ab-table-card-row");
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
         rowClass.ROW_HEIGHT = 36;
@@ -1511,7 +1515,7 @@ var cardsPane = {
       this.toggleLayout(true);
     }
 
-    let nameFormat = Services.prefs.getIntPref(
+    const nameFormat = Services.prefs.getIntPref(
       "mail.addr_book.lastnamefirst",
       0
     );
@@ -1522,7 +1526,7 @@ var cardsPane = {
     let columns = Services.xulStore.getValue(cardsPane.URL, "cards", "columns");
     if (columns) {
       columns = columns.split(",");
-      for (let column of cardsPane.COLUMNS) {
+      for (const column of cardsPane.COLUMNS) {
         column.hidden = !columns.includes(column.id);
       }
     }
@@ -1532,8 +1536,8 @@ var cardsPane = {
 
     // Only add the address book toggle to the filter button outside the table
     // layout view. All other toggles are only for a table context.
-    let abColumn = cardsPane.COLUMNS.find(c => c.id == "addrbook");
-    let menuitem = this.sortContext.insertBefore(
+    const abColumn = cardsPane.COLUMNS.find(c => c.id == "addrbook");
+    const menuitem = this.sortContext.insertBefore(
       document.createXULElement("menuitem"),
       this.sortContext.querySelector("menuseparator:last-of-type")
     );
@@ -1642,10 +1646,10 @@ var cardsPane = {
   },
 
   _onColumnsChanged(data) {
-    let column = data.value;
-    let checked = data.target.hasAttribute("checked");
+    const column = data.value;
+    const checked = data.target.hasAttribute("checked");
 
-    for (let columnDef of cardsPane.COLUMNS) {
+    for (const columnDef of cardsPane.COLUMNS) {
       if (columnDef.id == column) {
         columnDef.hidden = !checked;
         break;
@@ -1717,8 +1721,8 @@ var cardsPane = {
       return null;
     }
 
-    let searchWords = ABQueryUtils.getSearchTokens(this.searchInput.value);
-    let queryURIFormat = ABQueryUtils.getModelQuery(
+    const searchWords = ABQueryUtils.getSearchTokens(this.searchInput.value);
+    const queryURIFormat = ABQueryUtils.getModelQuery(
       "mail.addr_book.quicksearchquery.format"
     );
     return ABQueryUtils.generateQueryURI(queryURIFormat, searchWords);
@@ -1731,7 +1735,7 @@ var cardsPane = {
    *   for All Address Books.
    */
   displayBook(uid) {
-    let book = uid ? MailServices.ab.getDirectoryFromUID(uid) : null;
+    const book = uid ? MailServices.ab.getDirectoryFromUID(uid) : null;
     if (book) {
       document.l10n.setAttributes(
         this.searchInput,
@@ -1744,10 +1748,10 @@ var cardsPane = {
         "about-addressbook-search-all"
       );
     }
-    let sortColumn =
+    const sortColumn =
       Services.xulStore.getValue(cardsPane.URL, "cards", "sortColumn") ||
       "GeneratedName";
-    let sortDirection =
+    const sortDirection =
       Services.xulStore.getValue(cardsPane.URL, "cards", "sortDirection") ||
       "ascending";
     this.cardsList.view = new ABView(
@@ -1770,15 +1774,15 @@ var cardsPane = {
    * @param {string} uid - The UID of the list to display.
    */
   displayList(bookUID, uid) {
-    let book = MailServices.ab.getDirectoryFromUID(bookUID);
-    let list = book.childNodes.find(l => l.UID == uid);
+    const book = MailServices.ab.getDirectoryFromUID(bookUID);
+    const list = book.childNodes.find(l => l.UID == uid);
     document.l10n.setAttributes(this.searchInput, "about-addressbook-search", {
       name: list.dirName,
     });
-    let sortColumn =
+    const sortColumn =
       Services.xulStore.getValue(cardsPane.URL, "cards", "sortColumn") ||
       "GeneratedName";
-    let sortDirection =
+    const sortDirection =
       Services.xulStore.getValue(cardsPane.URL, "cards", "sortDirection") ||
       "ascending";
     this.cardsList.view = new ABView(
@@ -1807,7 +1811,7 @@ var cardsPane = {
    * the list.
    */
   _updatePlaceholder() {
-    let { directory, searchState } = this.cardsList.view;
+    const { directory, searchState } = this.cardsList.view;
 
     let idsToShow;
     switch (searchState) {
@@ -1897,7 +1901,7 @@ var cardsPane = {
    * @param {string[]} addresses
    */
   writeTo(addresses) {
-    let params = Cc[
+    const params = Cc[
       "@mozilla.org/messengercompose/composeparams;1"
     ].createInstance(Ci.nsIMsgComposeParams);
     params.type = Ci.nsIMsgCompType.New;
@@ -1914,9 +1918,9 @@ var cardsPane = {
    * Start a new message to the selected contact(s) and/or mailing list(s).
    */
   writeToSelected() {
-    let selectedAddresses = [];
+    const selectedAddresses = [];
 
-    for (let card of this.selectedCards) {
+    for (const card of this.selectedCards) {
       let email;
       if (card.isMailList) {
         email = card.getProperty("Notes", "") || card.displayName;
@@ -1938,14 +1942,14 @@ var cardsPane = {
    * Print delete the selected card(s).
    */
   printSelected() {
-    let selectedCards = this.selectedCards;
+    const selectedCards = this.selectedCards;
     if (selectedCards.length) {
       // Some cards are selected. Print them.
       printHandler.printCards(selectedCards);
     } else if (this.cardsList.view.searchString) {
       // Nothing's selected, so print everything. But this is a search, so we
       // can't just print the selected book/list.
-      let allCards = [];
+      const allCards = [];
       for (let i = 0; i < this.cardsList.view.rowCount; i++) {
         allCards.push(this.cardsList.view.getCardFromRow(i));
       }
@@ -1960,11 +1964,11 @@ var cardsPane = {
    * Export the selected mailing list to a file.
    */
   exportSelected() {
-    let card = this.selectedCards[0];
+    const card = this.selectedCards[0];
     if (!card || !card.isMailList) {
       return;
     }
-    let row = booksList.getRowForUID(card.UID);
+    const row = booksList.getRowForUID(card.UID);
     AddrBookUtils.exportDirectory(row._list);
   },
 
@@ -1973,9 +1977,9 @@ var cardsPane = {
       return false;
     }
 
-    let seenDirectories = new Set();
-    for (let index of this.cardsList.selectedIndices) {
-      let { directoryUID } = this.cardsList.view.getCardFromRow(index);
+    const seenDirectories = new Set();
+    for (const index of this.cardsList.selectedIndices) {
+      const { directoryUID } = this.cardsList.view.getCardFromRow(index);
       if (seenDirectories.has(directoryUID)) {
         continue;
       }
@@ -1995,11 +1999,11 @@ var cardsPane = {
       return;
     }
 
-    let selectedLists = [];
-    let selectedContacts = [];
+    const selectedLists = [];
+    const selectedContacts = [];
 
-    for (let index of this.cardsList.selectedIndices) {
-      let card = this.cardsList.view.getCardFromRow(index);
+    for (const index of this.cardsList.selectedIndices) {
+      const card = this.cardsList.view.getCardFromRow(index);
       if (card.isMailList) {
         selectedLists.push(card);
       } else {
@@ -2014,8 +2018,8 @@ var cardsPane = {
     // Determine strings for smart and context-sensitive user prompts
     // for confirming deletion.
     let action, name, list;
-    let count = selectedLists.length + selectedContacts.length;
-    let selectedDir = this.cardsList.view.directory;
+    const count = selectedLists.length + selectedContacts.length;
+    const selectedDir = this.cardsList.view.directory;
 
     if (selectedLists.length && selectedContacts.length) {
       action = "delete-mixed";
@@ -2023,7 +2027,7 @@ var cardsPane = {
       action = "delete-lists";
       name = selectedLists[0].displayName;
     } else {
-      let nameFormatFromPref = Services.prefs.getIntPref(
+      const nameFormatFromPref = Services.prefs.getIntPref(
         "mail.addr_book.lastnamefirst"
       );
       name = selectedContacts[0].generateName(nameFormatFromPref);
@@ -2051,7 +2055,7 @@ var cardsPane = {
         break;
     }
 
-    let [title, message] = await document.l10n.formatValues([
+    const [title, message] = await document.l10n.formatValues([
       { id: `about-addressbook-confirm-${action}-title`, args: { count } },
       {
         id: `about-addressbook-confirm-${actionString}`,
@@ -2078,7 +2082,7 @@ var cardsPane = {
     }
 
     // TODO: Setting the index should be unnecessary.
-    let indexAfterDelete = this.cardsList.currentIndex;
+    const indexAfterDelete = this.cardsList.currentIndex;
     // Delete cards from address books or mailing lists.
     this.cardsList.view.deleteSelectedCards();
     this.cardsList.currentIndex = Math.min(
@@ -2111,20 +2115,20 @@ var cardsPane = {
 
     this.cardsList.table.body.focus();
 
-    let writeMenuItem = document.getElementById("cardContextWrite");
-    let writeMenu = document.getElementById("cardContextWriteMenu");
-    let writeMenuSeparator = document.getElementById(
+    const writeMenuItem = document.getElementById("cardContextWrite");
+    const writeMenu = document.getElementById("cardContextWriteMenu");
+    const writeMenuSeparator = document.getElementById(
       "cardContextWriteSeparator"
     );
-    let editItem = document.getElementById("cardContextEdit");
+    const editItem = document.getElementById("cardContextEdit");
     // Always reset the edit item to its default string.
     document.l10n.setAttributes(
       editItem,
       "about-addressbook-books-context-edit"
     );
-    let exportItem = document.getElementById("cardContextExport");
+    const exportItem = document.getElementById("cardContextExport");
     if (this.cardsList.selectedIndices.length == 1) {
-      let card = this.cardsList.view.getCardFromRow(
+      const card = this.cardsList.view.getCardFromRow(
         this.cardsList.selectedIndex
       );
       if (card.isMailList) {
@@ -2137,7 +2141,7 @@ var cardsPane = {
         );
         exportItem.hidden = false;
       } else {
-        let addresses = card.emailAddresses;
+        const addresses = card.emailAddresses;
 
         if (addresses.length == 0) {
           writeMenuItem.hidden =
@@ -2152,8 +2156,8 @@ var cardsPane = {
             writeMenu.menupopup.lastChild.remove();
           }
 
-          for (let address of addresses) {
-            let menuitem = document.createXULElement("menuitem");
+          for (const address of addresses) {
+            const menuitem = document.createXULElement("menuitem");
             menuitem.label = MailServices.headerParser.makeMimeAddress(
               card.displayName,
               address
@@ -2178,10 +2182,10 @@ var cardsPane = {
       exportItem.hidden = true;
     }
 
-    let deleteItem = document.getElementById("cardContextDelete");
-    let removeItem = document.getElementById("cardContextRemove");
+    const deleteItem = document.getElementById("cardContextDelete");
+    const removeItem = document.getElementById("cardContextRemove");
 
-    let inMailList = this.cardsList.view.directory?.isMailList;
+    const inMailList = this.cardsList.view.directory?.isMailList;
     deleteItem.hidden = inMailList;
     removeItem.hidden = !inMailList;
     deleteItem.disabled = removeItem.disabled = !this._canModifySelected();
@@ -2242,7 +2246,7 @@ var cardsPane = {
       this.setNameFormat(event);
     }
     if (event.target.getAttribute("name") == "sort") {
-      let [column, direction] = event.target.value.split(" ");
+      const [column, direction] = event.target.value.split(" ");
       this.sortRows(column, direction);
     }
   },
@@ -2307,7 +2311,7 @@ var cardsPane = {
     ) {
       return;
     }
-    let row = event.target.closest(
+    const row = event.target.closest(
       `tr[is="ab-card-row"], tr[is="ab-table-card-row"]`
     );
     if (row) {
@@ -2340,7 +2344,7 @@ var cardsPane = {
 
       let email;
       if (card.isMailList) {
-        let directory = MailServices.ab.getDirectory(card.mailListURI);
+        const directory = MailServices.ab.getDirectory(card.mailListURI);
         email = directory.description || card.displayName;
       } else {
         email = card.emailAddresses[0];
@@ -2351,7 +2355,7 @@ var cardsPane = {
       return MailServices.headerParser.makeMimeAddress(card.displayName, email);
     }
 
-    let row = event.target.closest(
+    const row = event.target.closest(
       `tr[is="ab-card-row"], tr[is="ab-table-card-row"]`
     );
     if (!row) {
@@ -2363,19 +2367,21 @@ var cardsPane = {
     if (!indices.includes(row.index)) {
       indices = [row.index];
     }
-    let cards = indices.map(index => this.cardsList.view.getCardFromRow(index));
+    const cards = indices.map(index =>
+      this.cardsList.view.getCardFromRow(index)
+    );
 
-    let addresses = cards.map(makeMimeAddressFromCard);
+    const addresses = cards.map(makeMimeAddressFromCard);
     event.dataTransfer.mozSetDataAt("moz/abcard-array", cards, 0);
     event.dataTransfer.setData("text/x-moz-address", addresses);
     event.dataTransfer.setData("text/plain", addresses);
 
-    let card = this.cardsList.view.getCardFromRow(row.index);
+    const card = this.cardsList.view.getCardFromRow(row.index);
     if (card && card.displayName && !card.isMailList) {
       try {
         // A card implementation may throw NS_ERROR_NOT_IMPLEMENTED.
         // Don't break drag-and-drop if that happens.
-        let vCard = card.translateTo("vcard");
+        const vCard = card.translateTo("vcard");
         event.dataTransfer.setData("text/vcard", decodeURIComponent(vCard));
         event.dataTransfer.setData(
           "application/x-moz-file-promise-dest-filename",
@@ -2395,7 +2401,7 @@ var cardsPane = {
     }
 
     event.dataTransfer.effectAllowed = "all";
-    let bcr = row.getBoundingClientRect();
+    const bcr = row.getBoundingClientRect();
     event.dataTransfer.setDragImage(
       row,
       event.clientX - bcr.x,
@@ -2408,28 +2414,28 @@ var cardsPane = {
 
     getFlavorData(transferable, flavor, data) {
       if (flavor == "application/x-moz-file-promise") {
-        let primitive = {};
+        const primitive = {};
         transferable.getTransferData("text/vcard", primitive);
-        let vCard = primitive.value.QueryInterface(Ci.nsISupportsString).data;
+        const vCard = primitive.value.QueryInterface(Ci.nsISupportsString).data;
         transferable.getTransferData(
           "application/x-moz-file-promise-dest-filename",
           primitive
         );
-        let leafName = primitive.value.QueryInterface(
+        const leafName = primitive.value.QueryInterface(
           Ci.nsISupportsString
         ).data;
         transferable.getTransferData(
           "application/x-moz-file-promise-dir",
           primitive
         );
-        let localFile = primitive.value.QueryInterface(Ci.nsIFile).clone();
+        const localFile = primitive.value.QueryInterface(Ci.nsIFile).clone();
         localFile.append(leafName);
 
-        let ofStream = Cc[
+        const ofStream = Cc[
           "@mozilla.org/network/file-output-stream;1"
         ].createInstance(Ci.nsIFileOutputStream);
         ofStream.init(localFile, -1, -1, 0);
-        let converter = Cc[
+        const converter = Cc[
           "@mozilla.org/intl/converter-output-stream;1"
         ].createInstance(Ci.nsIConverterOutputStream);
         converter.init(ofStream, null);
@@ -2460,8 +2466,8 @@ var detailsPane = {
   ],
 
   init() {
-    let booksSplitter = document.getElementById("booksSplitter");
-    let booksSplitterWidth = Services.xulStore.getValue(
+    const booksSplitter = document.getElementById("booksSplitter");
+    const booksSplitterWidth = Services.xulStore.getValue(
       cardsPane.URL,
       "booksSplitter",
       "width"
@@ -2478,11 +2484,11 @@ var detailsPane = {
       )
     );
 
-    let isTableLayout = document.body.classList.contains("layout-table");
+    const isTableLayout = document.body.classList.contains("layout-table");
     updateSharedSplitter(isTableLayout);
 
     this.splitter = document.getElementById("sharedSplitter");
-    let sharedSplitterWidth = Services.xulStore.getValue(
+    const sharedSplitterWidth = Services.xulStore.getValue(
       cardsPane.URL,
       "sharedSplitter",
       "width"
@@ -2490,7 +2496,7 @@ var detailsPane = {
     if (sharedSplitterWidth) {
       this.splitter.width = sharedSplitterWidth;
     }
-    let sharedSplitterHeight = Services.xulStore.getValue(
+    const sharedSplitterHeight = Services.xulStore.getValue(
       cardsPane.URL,
       "sharedSplitter",
       "height"
@@ -2534,14 +2540,14 @@ var detailsPane = {
     this.actions.addEventListener("click", this);
     document.getElementById("detailsFooter").addEventListener("click", this);
 
-    let photoImage = document.getElementById("viewContactPhoto");
+    const photoImage = document.getElementById("viewContactPhoto");
     photoImage.addEventListener("error", event => {
       if (!detailsPane.currentCard) {
         return;
       }
 
-      let vCard = detailsPane.currentCard.getProperty("_vCard", "");
-      let match = /^PHOTO.*/im.exec(vCard);
+      const vCard = detailsPane.currentCard.getProperty("_vCard", "");
+      const match = /^PHOTO.*/im.exec(vCard);
       if (match) {
         console.warn(
           `Broken contact photo, vCard data starts with: ${match[0]}`
@@ -2552,7 +2558,7 @@ var detailsPane = {
     });
 
     this.form.addEventListener("input", event => {
-      let { type, checked, value, _originalValue } = event.target;
+      const { type, checked, value, _originalValue } = event.target;
       let changed;
       if (type == "checkbox") {
         changed = checked != _originalValue;
@@ -2588,12 +2594,12 @@ var detailsPane = {
     this.form.addEventListener("reset", async event => {
       event.preventDefault();
       if (this.isDirty) {
-        let [title, message] = await document.l10n.formatValues([
+        const [title, message] = await document.l10n.formatValues([
           { id: `about-addressbook-unsaved-changes-prompt-title` },
           { id: `about-addressbook-unsaved-changes-prompt` },
         ]);
 
-        let buttonPressed = Services.prompt.confirmEx(
+        const buttonPressed = Services.prompt.confirmEx(
           window,
           title,
           message,
@@ -2617,10 +2623,10 @@ var detailsPane = {
       this.isEditing = false;
       if (this.currentCard) {
         // Refresh the card from the book to get exactly what was saved.
-        let book = MailServices.ab.getDirectoryFromUID(
+        const book = MailServices.ab.getDirectoryFromUID(
           this.currentCard.directoryUID
         );
-        let card = book.childCards.find(c => c.UID == this.currentCard.UID);
+        const card = book.childCards.find(c => c.UID == this.currentCard.UID);
         this.displayContact(card);
         if (this._focusOnCardsList) {
           cardsPane.cardsList.table.body.focus();
@@ -2648,7 +2654,7 @@ var detailsPane = {
     this.photoInput.addEventListener("dragover", photoDialog);
     this.photoInput.addEventListener("drop", photoDialog);
 
-    let photoButton = document.getElementById("photoButton");
+    const photoButton = document.getElementById("photoButton");
     photoButton.addEventListener("click", () => {
       if (this._photoDetails.sourceURL) {
         photoDialog.showWithURL(
@@ -2674,13 +2680,13 @@ var detailsPane = {
       }
     });
 
-    for (let topic of this._notifications) {
+    for (const topic of this._notifications) {
       Services.obs.addObserver(this, topic);
     }
   },
 
   uninit() {
-    for (let topic of this._notifications) {
+    for (const topic of this._notifications) {
       Services.obs.removeObserver(this, topic);
     }
   },
@@ -2694,7 +2700,7 @@ var detailsPane = {
   },
 
   async observe(subject, topic, data) {
-    let hadFocus =
+    const hadFocus =
       this.node.contains(document.activeElement) ||
       document.activeElement == document.body;
 
@@ -2758,7 +2764,7 @@ var detailsPane = {
             });
           }
         } else if (!this.selectedCardsSection.hidden) {
-          for (let li of this.selectedCardsSection.querySelectorAll("li")) {
+          for (const li of this.selectedCardsSection.querySelectorAll("li")) {
             if (li._card.directoryUID == data && li._card.equals(subject)) {
               // A selected card was deleted.
               this.displayCards(cardsPane.selectedCards);
@@ -2787,7 +2793,7 @@ var detailsPane = {
             }
           }
         } else if (!this.selectedCardsSection.hidden) {
-          for (let li of this.selectedCardsSection.querySelectorAll("li")) {
+          for (const li of this.selectedCardsSection.querySelectorAll("li")) {
             if (
               li._card.directoryUID == data &&
               li._card.mailListURI == subject.URI
@@ -2820,7 +2826,7 @@ var detailsPane = {
 
     // Disable the toolbar buttons when starting to edit. Remember their state
     // to restore it when editing stops.
-    for (let toolbarButton of document.querySelectorAll(
+    for (const toolbarButton of document.querySelectorAll(
       "#toolbox > toolbar > toolbarbutton"
     )) {
       if (editing) {
@@ -2833,7 +2839,7 @@ var detailsPane = {
     }
 
     // Remove these elements from (or add them back to) the tab focus cycle.
-    for (let id of ["books", "searchInput", "displayButton", "cardsBody"]) {
+    for (const id of ["books", "searchInput", "displayButton", "cardsBody"]) {
       document.getElementById(id).tabIndex = editing ? -1 : 0;
     }
 
@@ -2842,7 +2848,7 @@ var detailsPane = {
       this.addContactBookList.previousElementSibling.hidden =
         !!this.currentCard;
 
-      let book = booksList
+      const book = booksList
         .getRowAtIndex(booksList.selectedIndex)
         .closest(".bookRow")._book;
       if (book) {
@@ -2874,7 +2880,7 @@ var detailsPane = {
     this.currentCard = null;
     this.currentList = null;
 
-    for (let section of document.querySelectorAll(
+    for (const section of document.querySelectorAll(
       "#viewContact :is(.contact-header, .list-header, .selection-header), #detailsBody > section"
     )) {
       section.hidden = true;
@@ -2903,9 +2909,9 @@ var detailsPane = {
       return;
     }
 
-    let contacts = cards.filter(c => !c.isMailList);
-    let contactsWithAddresses = contacts.filter(c => c.primaryEmail);
-    let lists = cards.filter(c => c.isMailList);
+    const contacts = cards.filter(c => !c.isMailList);
+    const contactsWithAddresses = contacts.filter(c => c.primaryEmail);
+    const lists = cards.filter(c => c.isMailList);
 
     document.querySelector("#viewContact .selection-header").hidden = false;
     let headerString;
@@ -2937,29 +2943,29 @@ var detailsPane = {
 
     this.actions.hidden = this.writeButton.hidden;
 
-    let list = this.selectedCardsSection.querySelector("ul");
+    const list = this.selectedCardsSection.querySelector("ul");
     list.replaceChildren();
-    let template =
+    const template =
       document.getElementById("selectedCard").content.firstElementChild;
-    for (let card of cards) {
-      let li = list.appendChild(template.cloneNode(true));
+    for (const card of cards) {
+      const li = list.appendChild(template.cloneNode(true));
       li._card = card;
-      let avatar = li.querySelector(".recipient-avatar");
-      let name = li.querySelector(".name");
-      let address = li.querySelector(".address");
+      const avatar = li.querySelector(".recipient-avatar");
+      const name = li.querySelector(".name");
+      const address = li.querySelector(".address");
 
       if (!card.isMailList) {
         name.textContent = card.generateName(ABView.nameFormat);
         address.textContent = card.primaryEmail;
 
-        let photoURL = card.photoURL;
+        const photoURL = card.photoURL;
         if (photoURL) {
-          let img = document.createElement("img");
+          const img = document.createElement("img");
           img.alt = name.textContent;
           img.src = photoURL;
           avatar.appendChild(img);
         } else {
-          let letter = document.createElement("span");
+          const letter = document.createElement("span");
           letter.textContent = Array.from(name.textContent)[0]?.toUpperCase();
           letter.setAttribute("aria-hidden", "true");
           avatar.appendChild(letter);
@@ -2967,7 +2973,7 @@ var detailsPane = {
       } else {
         name.textContent = card.displayName;
 
-        let img = avatar.appendChild(document.createElement("img"));
+        const img = avatar.appendChild(document.createElement("img"));
         img.alt = "";
         img.src = "chrome://messenger/skin/icons/new/compact/user-list-alt.svg";
         avatar.classList.add("is-mail-list");
@@ -3011,7 +3017,7 @@ var detailsPane = {
         .filter(cal.acl.userCanAddItemsToCalendar).length;
     this.newListButton.hidden = true;
 
-    let book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
+    const book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
     this.editButton.hidden = book.readOnly;
     this.actions.hidden = this.writeButton.hidden && this.editButton.hidden;
 
@@ -3029,7 +3035,7 @@ var detailsPane = {
    *   mailing list card.
    */
   fillContactDetails(element, card) {
-    let vCardProperties = card.supportsVCard
+    const vCardProperties = card.supportsVCard
       ? card.vCardProperties
       : VCardProperties.fromPropertyMap(
           new Map(card.properties.map(p => [p.name, p.value]))
@@ -3039,16 +3045,16 @@ var detailsPane = {
       card.photoURL || "chrome://messenger/skin/icons/new/compact/user.svg";
     element.querySelector(".contact-heading-name").textContent =
       card.generateName(ABView.nameFormat);
-    let nickname = element.querySelector(".contact-heading-nickname");
-    let nicknameValue = vCardProperties.getFirstValue("nickname");
+    const nickname = element.querySelector(".contact-heading-nickname");
+    const nicknameValue = vCardProperties.getFirstValue("nickname");
     nickname.hidden = !nicknameValue;
     nickname.textContent = nicknameValue;
     element.querySelector(".contact-heading-email").textContent =
       card.primaryEmail;
 
-    let template = document.getElementById("entryItem");
-    let createEntryItem = function (name) {
-      let li = template.content.firstElementChild.cloneNode(true);
+    const template = document.getElementById("entryItem");
+    const createEntryItem = function (name) {
+      const li = template.content.firstElementChild.cloneNode(true);
       if (name) {
         document.l10n.setAttributes(
           li.querySelector(".entry-type"),
@@ -3057,14 +3063,14 @@ var detailsPane = {
       }
       return li;
     };
-    let setEntryType = function (li, entry, allowed = ["work", "home"]) {
+    const setEntryType = function (li, entry, allowed = ["work", "home"]) {
       if (!entry.params.type) {
         return;
       }
-      let lowerTypes = Array.isArray(entry.params.type)
+      const lowerTypes = Array.isArray(entry.params.type)
         ? entry.params.type.map(t => t.toLowerCase())
         : [entry.params.type.toLowerCase()];
-      let lowerType = lowerTypes.find(t => allowed.includes(t));
+      const lowerType = lowerTypes.find(t => allowed.includes(t));
       if (!lowerType) {
         return;
       }
@@ -3078,14 +3084,14 @@ var detailsPane = {
     let section = element.querySelector(".details-email-addresses");
     let list = section.querySelector("ul");
     list.replaceChildren();
-    for (let entry of vCardProperties.getAllEntries("email")) {
-      let li = list.appendChild(createEntryItem());
+    for (const entry of vCardProperties.getAllEntries("email")) {
+      const li = list.appendChild(createEntryItem());
       setEntryType(li, entry);
-      let addr = MailServices.headerParser.makeMimeAddress(
+      const addr = MailServices.headerParser.makeMimeAddress(
         card.displayName,
         entry.value
       );
-      let a = document.createElement("a");
+      const a = document.createElement("a");
       a.href = "mailto:" + encodeURIComponent(addr);
       a.textContent = entry.value;
       li.querySelector(".entry-value").appendChild(a);
@@ -3095,13 +3101,13 @@ var detailsPane = {
     section = element.querySelector(".details-phone-numbers");
     list = section.querySelector("ul");
     list.replaceChildren();
-    for (let entry of vCardProperties.getAllEntries("tel")) {
-      let li = list.appendChild(createEntryItem());
+    for (const entry of vCardProperties.getAllEntries("tel")) {
+      const li = list.appendChild(createEntryItem());
       setEntryType(li, entry, ["work", "home", "fax", "cell", "pager"]);
-      let a = document.createElement("a");
+      const a = document.createElement("a");
       // Handle tel: uri, some other scheme, or plain text number.
-      let number = entry.value.replace(/^[a-z\+]{3,}:/, "");
-      let scheme = entry.value.split(/([a-z\+]{3,}):/)[1] || "tel";
+      const number = entry.value.replace(/^[a-z\+]{3,}:/, "");
+      const scheme = entry.value.split(/([a-z\+]{3,}):/)[1] || "tel";
       a.href = `${scheme}:${number.replaceAll(/[^\d\+]/g, "")}`;
       a.textContent = number;
       li.querySelector(".entry-value").appendChild(a);
@@ -3111,15 +3117,15 @@ var detailsPane = {
     section = element.querySelector(".details-addresses");
     list = section.querySelector("ul");
     list.replaceChildren();
-    for (let entry of vCardProperties.getAllEntries("adr")) {
-      let parts = entry.value.flat();
+    for (const entry of vCardProperties.getAllEntries("adr")) {
+      const parts = entry.value.flat();
       // Put extended address after street address.
       parts[2] = parts.splice(1, 1, parts[2])[0];
 
-      let li = list.appendChild(createEntryItem());
+      const li = list.appendChild(createEntryItem());
       setEntryType(li, entry);
-      let span = li.querySelector(".entry-value");
-      for (let part of parts.filter(Boolean)) {
+      const span = li.querySelector(".entry-value");
+      for (const part of parts.filter(Boolean)) {
         if (span.firstChild) {
           span.appendChild(document.createElement("br"));
         }
@@ -3129,7 +3135,7 @@ var detailsPane = {
     section.hidden = list.childElementCount == 0;
 
     section = element.querySelector(".details-notes");
-    let note = vCardProperties.getFirstValue("note");
+    const note = vCardProperties.getFirstValue("note");
     if (note) {
       section.querySelector("div").textContent = note;
       section.hidden = false;
@@ -3141,17 +3147,17 @@ var detailsPane = {
     list = section.querySelector("ul");
     list.replaceChildren();
 
-    for (let entry of vCardProperties.getAllEntries("url")) {
-      let value = entry.value;
+    for (const entry of vCardProperties.getAllEntries("url")) {
+      const value = entry.value;
       if (!/https?:\/\//.test(value)) {
         continue;
       }
 
-      let li = list.appendChild(createEntryItem());
+      const li = list.appendChild(createEntryItem());
       setEntryType(li, entry);
-      let a = document.createElement("a");
+      const a = document.createElement("a");
       a.href = value;
-      let url = new URL(value);
+      const url = new URL(value);
       a.textContent =
         url.pathname == "/" && !url.search
           ? url.host
@@ -3165,8 +3171,8 @@ var detailsPane = {
     list.replaceChildren();
 
     this._screenNamesToIMPPs(card);
-    for (let entry of vCardProperties.getAllEntries("impp")) {
-      let li = list.appendChild(createEntryItem());
+    for (const entry of vCardProperties.getAllEntries("impp")) {
+      const li = list.appendChild(createEntryItem());
       let url;
       try {
         url = new URL(entry.value);
@@ -3174,7 +3180,7 @@ var detailsPane = {
         li.querySelector(".entry-value").textContent = entry.value;
         continue;
       }
-      let a = document.createElement("a");
+      const a = document.createElement("a");
       a.href = entry.value;
       a.target = "_blank";
       a.textContent = url.toString();
@@ -3186,7 +3192,7 @@ var detailsPane = {
     list = section.querySelector("ul");
     list.replaceChildren();
 
-    let formatDate = function (date) {
+    const formatDate = function (date) {
       try {
         date = ICAL.VCardTime.fromDateAndOrTimeString(date);
       } catch (ex) {
@@ -3226,54 +3232,54 @@ var detailsPane = {
       return "";
     };
 
-    let bday = vCardProperties.getFirstValue("bday");
+    const bday = vCardProperties.getFirstValue("bday");
     if (bday) {
-      let value = formatDate(bday);
+      const value = formatDate(bday);
       if (value) {
-        let li = list.appendChild(createEntryItem("birthday"));
+        const li = list.appendChild(createEntryItem("birthday"));
         li.querySelector(".entry-value").textContent = value;
       }
     }
 
-    let anniversary = vCardProperties.getFirstValue("anniversary");
+    const anniversary = vCardProperties.getFirstValue("anniversary");
     if (anniversary) {
-      let value = formatDate(anniversary);
+      const value = formatDate(anniversary);
       if (value) {
-        let li = list.appendChild(createEntryItem("anniversary"));
+        const li = list.appendChild(createEntryItem("anniversary"));
         li.querySelector(".entry-value").textContent = value;
       }
     }
 
-    let title = vCardProperties.getFirstValue("title");
+    const title = vCardProperties.getFirstValue("title");
     if (title) {
-      let li = list.appendChild(createEntryItem("title"));
+      const li = list.appendChild(createEntryItem("title"));
       li.querySelector(".entry-value").textContent = title;
     }
 
-    let role = vCardProperties.getFirstValue("role");
+    const role = vCardProperties.getFirstValue("role");
     if (role) {
-      let li = list.appendChild(createEntryItem("role"));
+      const li = list.appendChild(createEntryItem("role"));
       li.querySelector(".entry-value").textContent = role;
     }
 
-    let org = vCardProperties.getFirstValue("org");
+    const org = vCardProperties.getFirstValue("org");
     if (Array.isArray(org)) {
-      let li = list.appendChild(createEntryItem("organization"));
-      let span = li.querySelector(".entry-value");
-      for (let part of org.filter(Boolean).reverse()) {
+      const li = list.appendChild(createEntryItem("organization"));
+      const span = li.querySelector(".entry-value");
+      for (const part of org.filter(Boolean).reverse()) {
         if (span.firstChild) {
           span.append(" • ");
         }
         span.appendChild(document.createTextNode(part));
       }
     } else if (org) {
-      let li = list.appendChild(createEntryItem("organization"));
+      const li = list.appendChild(createEntryItem("organization"));
       li.querySelector(".entry-value").textContent = org;
     }
 
-    let tz = vCardProperties.getFirstValue("tz");
+    const tz = vCardProperties.getFirstValue("tz");
     if (tz) {
-      let li = list.appendChild(createEntryItem("time-zone"));
+      const li = list.appendChild(createEntryItem("time-zone"));
       try {
         li.querySelector(".entry-value").textContent =
           cal.timezoneService.getTimezone(tz).displayName;
@@ -3284,15 +3290,15 @@ var detailsPane = {
         document.createElement("br")
       );
 
-      let time = document.createElement("span", { is: "active-time" });
+      const time = document.createElement("span", { is: "active-time" });
       time.setAttribute("tz", tz);
       li.querySelector(".entry-value").appendChild(time);
     }
 
-    for (let key of ["custom1", "custom2", "custom3", "custom4"]) {
-      let value = vCardProperties.getFirstValue(`x-${key}`);
+    for (const key of ["custom1", "custom2", "custom3", "custom4"]) {
+      const value = vCardProperties.getFirstValue(`x-${key}`);
       if (value) {
-        let li = list.appendChild(createEntryItem(key));
+        const li = list.appendChild(createEntryItem(key));
         li.querySelector(".entry-type").style.setProperty(
           "white-space",
           "nowrap"
@@ -3360,8 +3366,8 @@ var detailsPane = {
       return;
     }
 
-    let existingIMPPValues = card.vCardProperties.getAllValues("impp");
-    for (let key of [
+    const existingIMPPValues = card.vCardProperties.getAllValues("impp");
+    for (const key of [
       "_GoogleTalk",
       "_AimScreenName",
       "_Yahoo",
@@ -3403,7 +3409,7 @@ var detailsPane = {
           break;
         case "_IRC":
           // Guess host, in case we have an irc account configured.
-          let host =
+          const host =
             IMServices.accounts
               .getAccounts()
               .find(a => a.protocol.normalizedName == "irc")
@@ -3478,7 +3484,7 @@ var detailsPane = {
    */
   handleInvalidForm() {
     // FIXME: Drop this in favor of an inline notification with fluent strings.
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/addressbook/addressBook.properties"
     );
     Services.prompt.alert(
@@ -3553,7 +3559,7 @@ var detailsPane = {
     );
 
     // Old screen names should by now be on the vCard. Delete them.
-    for (let key of [
+    for (const key of [
       "_GoogleTalk",
       "_AimScreenName",
       "_Yahoo",
@@ -3569,9 +3575,9 @@ var detailsPane = {
 
     // No photo or a new photo. Delete the old one.
     if (this._photoChanged) {
-      let oldLeafName = card.getProperty("PhotoName", "");
+      const oldLeafName = card.getProperty("PhotoName", "");
       if (oldLeafName) {
-        let oldPath = PathUtils.join(
+        const oldPath = PathUtils.join(
           PathUtils.profileDir,
           "Photos",
           oldLeafName
@@ -3583,7 +3589,7 @@ var detailsPane = {
         card.setProperty("PhotoURI", "");
       }
       if (card.supportsVCard) {
-        for (let entry of card.vCardProperties.getAllEntries("photo")) {
+        for (const entry of card.vCardProperties.getAllEntries("photo")) {
           card.vCardProperties.removeEntry(entry);
         }
       }
@@ -3592,7 +3598,7 @@ var detailsPane = {
     // Save the new photo.
     if (this._photoChanged && this._photoDetails.blob) {
       if (book.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE) {
-        let reader = new FileReader();
+        const reader = new FileReader();
         await new Promise(resolve => {
           reader.onloadend = resolve;
           reader.readAsDataURL(this._photoDetails.blob);
@@ -3612,9 +3618,9 @@ var detailsPane = {
           );
         }
       } else {
-        let leafName = `${AddrBookUtils.newUID()}.jpg`;
-        let path = PathUtils.join(PathUtils.profileDir, "Photos", leafName);
-        let buffer = await this._photoDetails.blob.arrayBuffer();
+        const leafName = `${AddrBookUtils.newUID()}.jpg`;
+        const path = PathUtils.join(PathUtils.profileDir, "Photos", leafName);
+        const buffer = await this._photoDetails.blob.arrayBuffer();
         await IOUtils.write(path, new Uint8Array(buffer));
         card.setProperty("PhotoName", leafName);
       }
@@ -3643,8 +3649,8 @@ var detailsPane = {
    * Delete the currently displayed card.
    */
   async deleteCurrentContact() {
-    let card = this.currentCard;
-    let book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
+    const card = this.currentCard;
+    const book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
 
     if (!book) {
       throw new Components.Exception(
@@ -3660,8 +3666,8 @@ var detailsPane = {
       );
     }
 
-    let name = card.displayName;
-    let [title, message] = await document.l10n.formatValues([
+    const name = card.displayName;
+    const [title, message] = await document.l10n.formatValues([
       {
         id: "about-addressbook-confirm-delete-contacts-title",
         args: { count: 1 },
@@ -3686,7 +3692,7 @@ var detailsPane = {
       ) === 0
     ) {
       // TODO: Setting the index should be unnecessary.
-      let indexAfterDelete = cardsPane.cardsList.currentIndex;
+      const indexAfterDelete = cardsPane.cardsList.currentIndex;
       book.deleteCards([card]);
       cardsPane.cardsList.currentIndex = Math.min(
         indexAfterDelete,
@@ -3707,22 +3713,22 @@ var detailsPane = {
     }
     this.currentList = listCard;
 
-    let listDirectory = MailServices.ab.getDirectory(listCard.mailListURI);
+    const listDirectory = MailServices.ab.getDirectory(listCard.mailListURI);
 
     document.querySelector("#viewContact .list-header").hidden = false;
     document.querySelector(
       "#viewContact .list-header > h1"
     ).textContent = `${listDirectory.dirName}`;
 
-    let cards = Array.from(listDirectory.childCards, card => {
+    const cards = Array.from(listDirectory.childCards, card => {
       return {
         name: card.generateName(ABView.nameFormat),
         email: card.primaryEmail,
         photoURL: card.photoURL,
       };
     });
-    let { sortColumn, sortDirection } = cardsPane.cardsList.view;
-    let key = sortColumn == "EmailAddresses" ? "email" : "name";
+    const { sortColumn, sortDirection } = cardsPane.cardsList.view;
+    const key = sortColumn == "EmailAddresses" ? "email" : "name";
     cards.sort((a, b) => {
       if (sortDirection == "descending") {
         [b, a] = [a, b];
@@ -3730,27 +3736,27 @@ var detailsPane = {
       return ABView.prototype.collator.compare(a[key], b[key]);
     });
 
-    let list = this.selectedCardsSection.querySelector("ul");
+    const list = this.selectedCardsSection.querySelector("ul");
     list.replaceChildren();
-    let template =
+    const template =
       document.getElementById("selectedCard").content.firstElementChild;
-    for (let card of cards) {
-      let li = list.appendChild(template.cloneNode(true));
+    for (const card of cards) {
+      const li = list.appendChild(template.cloneNode(true));
       li._card = card;
-      let avatar = li.querySelector(".recipient-avatar");
-      let name = li.querySelector(".name");
-      let address = li.querySelector(".address");
+      const avatar = li.querySelector(".recipient-avatar");
+      const name = li.querySelector(".name");
+      const address = li.querySelector(".address");
       name.textContent = card.name;
       address.textContent = card.email;
 
-      let photoURL = card.photoURL;
+      const photoURL = card.photoURL;
       if (photoURL) {
-        let img = document.createElement("img");
+        const img = document.createElement("img");
         img.alt = name.textContent;
         img.src = photoURL;
         avatar.appendChild(img);
       } else {
-        let letter = document.createElement("span");
+        const letter = document.createElement("span");
         letter.textContent = Array.from(name.textContent)[0]?.toUpperCase();
         letter.setAttribute("aria-hidden", "true");
         avatar.appendChild(letter);
@@ -3758,7 +3764,7 @@ var detailsPane = {
     }
     this.selectedCardsSection.hidden = list.childElementCount == 0;
 
-    let book = MailServices.ab.getDirectoryFromUID(listCard.directoryUID);
+    const book = MailServices.ab.getDirectoryFromUID(listCard.directoryUID);
     this.writeButton.hidden = list.childElementCount == 0;
     this.eventButton.hidden = this.writeButton.hidden;
     this.searchButton.hidden = true;
@@ -3772,7 +3778,7 @@ var detailsPane = {
   },
 
   _onClick(event) {
-    let selectedContacts = cardsPane.selectedCards.filter(
+    const selectedContacts = cardsPane.selectedCards.filter(
       card => !card.isMailList && card.primaryEmail
     );
 
@@ -3783,15 +3789,15 @@ var detailsPane = {
       case "detailsEventButton": {
         let contacts;
         if (this.currentList) {
-          let directory = MailServices.ab.getDirectory(
+          const directory = MailServices.ab.getDirectory(
             this.currentList.mailListURI
           );
           contacts = directory.childCards;
         } else {
           contacts = selectedContacts;
         }
-        let attendees = contacts.map(card => {
-          let attendee = new CalAttendee();
+        const attendees = contacts.map(card => {
+          const attendee = new CalAttendee();
           attendee.id = `mailto:${card.primaryEmail}`;
           attendee.commonName = card.displayName;
           return attendee;
@@ -3811,7 +3817,7 @@ var detailsPane = {
       }
       case "detailsSearchButton":
         if (this.currentCard.primaryEmail) {
-          let searchString = this.currentCard.emailAddresses.join(" ");
+          const searchString = this.currentCard.emailAddresses.join(" ");
           window.browsingContext.topChromeWindow.tabmail.openTab("glodaFacet", {
             searcher: new GlodaMsgSearcher(null, searchString, false),
           });
@@ -3953,8 +3959,8 @@ var photoDialog = {
       }
 
       onMouseMove(event) {
-        let { width, height } = photoDialog._previewRect;
-        let { top, right, bottom, left } = photoDialog._cropRect;
+        const { width, height } = photoDialog._previewRect;
+        const { top, right, bottom, left } = photoDialog._cropRect;
         let { x, y } = this._dragPosition;
 
         // New coordinates of the dragged corner, constrained to the image size.
@@ -3962,9 +3968,9 @@ var photoDialog = {
         y = Math.max(0, Math.min(height, event.clientY - y));
 
         // New size based on the dragged corner and a minimum size of 80px.
-        let newWidth = this.xEdge == "right" ? x - left : right - x;
-        let newHeight = this.yEdge == "bottom" ? y - top : bottom - y;
-        let newSize = Math.max(80, Math.min(newWidth, newHeight));
+        const newWidth = this.xEdge == "right" ? x - left : right - x;
+        const newHeight = this.yEdge == "bottom" ? y - top : bottom - y;
+        const newSize = Math.max(80, Math.min(newWidth, newHeight));
 
         photoDialog._cropRect.width = newSize;
         if (this.xEdge == "left") {
@@ -4041,20 +4047,20 @@ var photoDialog = {
    */
   showWithURL(url, cropRect, showDiscard = false) {
     // Load the image from the URL, to figure out the scale factor.
-    let img = document.createElement("img");
+    const img = document.createElement("img");
     img.addEventListener("load", () => {
       const PREVIEW_SIZE = 500;
 
-      let { naturalWidth, naturalHeight } = img;
+      const { naturalWidth, naturalHeight } = img;
       this._scale = Math.max(
         1,
         img.naturalWidth / PREVIEW_SIZE,
         img.naturalHeight / PREVIEW_SIZE
       );
 
-      let previewWidth = naturalWidth / this._scale;
-      let previewHeight = naturalHeight / this._scale;
-      let smallDimension = Math.min(previewWidth, previewHeight);
+      const previewWidth = naturalWidth / this._scale;
+      const previewHeight = naturalHeight / this._scale;
+      const smallDimension = Math.min(previewWidth, previewHeight);
 
       this._previewRect = new DOMRect(0, 0, previewWidth, previewHeight);
       if (cropRect) {
@@ -4098,7 +4104,7 @@ var photoDialog = {
    * Resize the crop controls to match the current _cropRect.
    */
   _redrawCropRect() {
-    let { top, right, bottom, left, width, height } = this._cropRect;
+    const { top, right, bottom, left, width, height } = this._cropRect;
 
     this._cropMask.setAttribute(
       "d",
@@ -4139,9 +4145,9 @@ var photoDialog = {
     // If the image is much larger than our target size, draw an intermediate
     // version at twice the size first. This produces better-looking results.
     if (width > DOUBLE_SIZE) {
-      let canvas1 = document.createElement("canvas");
+      const canvas1 = document.createElement("canvas");
       canvas1.width = canvas1.height = DOUBLE_SIZE;
-      let context1 = canvas1.getContext("2d");
+      const context1 = canvas1.getContext("2d");
       context1.drawImage(
         source,
         x,
@@ -4159,9 +4165,9 @@ var photoDialog = {
       width = height = DOUBLE_SIZE;
     }
 
-    let canvas2 = document.createElement("canvas");
+    const canvas2 = document.createElement("canvas");
     canvas2.width = canvas2.height = FINAL_SIZE;
-    let context2 = canvas2.getContext("2d");
+    const context2 = canvas2.getContext("2d");
     context2.drawImage(
       source,
       x,
@@ -4174,7 +4180,7 @@ var photoDialog = {
       FINAL_SIZE
     );
 
-    let blob = await new Promise(resolve =>
+    const blob = await new Promise(resolve =>
       canvas2.toBlob(resolve, "image/jpeg")
     );
 
@@ -4243,7 +4249,7 @@ var photoDialog = {
    * @returns {string|null}
    */
   _getUseableURL(dataTransfer) {
-    let data = dataTransfer.getData("text/plain");
+    const data = dataTransfer.getData("text/plain");
 
     return data.startsWith("https://") ? data : null;
   },
@@ -4259,12 +4265,12 @@ var photoDialog = {
   },
 
   _onDrop(event) {
-    let file = this._getUseableFile(event.dataTransfer);
+    const file = this._getUseableFile(event.dataTransfer);
     if (file) {
       this.showWithFile(file);
       event.preventDefault();
     } else {
-      let url = this._getUseableURL(event.clipboardData);
+      const url = this._getUseableURL(event.clipboardData);
       if (url) {
         this.showWithURL(url);
         event.preventDefault();
@@ -4273,11 +4279,11 @@ var photoDialog = {
   },
 
   _onPaste(event) {
-    let file = this._getUseableFile(event.clipboardData);
+    const file = this._getUseableFile(event.clipboardData);
     if (file) {
       this.showWithFile(file);
     } else {
-      let url = this._getUseableURL(event.clipboardData);
+      const url = this._getUseableURL(event.clipboardData);
       if (url) {
         this.showWithURL(url);
       }
@@ -4289,11 +4295,11 @@ var photoDialog = {
    * Show a file picker to choose an image.
    */
   async _showFilePicker() {
-    let title = await document.l10n.formatValue(
+    const title = await document.l10n.formatValue(
       "about-addressbook-photo-filepicker-title"
     );
 
-    let picker = Cc["@mozilla.org/filepicker;1"].createInstance(
+    const picker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
     );
     picker.init(
@@ -4302,7 +4308,7 @@ var photoDialog = {
       Ci.nsIFilePicker.modeOpen
     );
     picker.appendFilters(Ci.nsIFilePicker.filterImages);
-    let result = await new Promise(resolve => picker.open(resolve));
+    const result = await new Promise(resolve => picker.open(resolve));
 
     if (result != Ci.nsIFilePicker.returnOK) {
       return;
@@ -4316,14 +4322,14 @@ var photoDialog = {
 
 var printHandler = {
   printDirectory(directory) {
-    let title = directory ? directory.dirName : document.title;
+    const title = directory ? directory.dirName : document.title;
 
     let cards;
     if (directory) {
       cards = directory.childCards;
     } else {
       cards = [];
-      for (let directory of MailServices.ab.directories) {
+      for (const directory of MailServices.ab.directories) {
         cards = cards.concat(directory.childCards);
       }
     }
@@ -4336,40 +4342,40 @@ var printHandler = {
   },
 
   async _printCards(title, cards) {
-    let collator = new Intl.Collator(undefined, { numeric: true });
-    let nameFormat = Services.prefs.getIntPref(
+    const collator = new Intl.Collator(undefined, { numeric: true });
+    const nameFormat = Services.prefs.getIntPref(
       "mail.addr_book.lastnamefirst",
       0
     );
 
     cards.sort((a, b) => {
-      let aName = a.generateName(nameFormat);
-      let bName = b.generateName(nameFormat);
+      const aName = a.generateName(nameFormat);
+      const bName = b.generateName(nameFormat);
       return collator.compare(aName, bName);
     });
 
-    let printDocument = document.implementation.createHTMLDocument();
+    const printDocument = document.implementation.createHTMLDocument();
     printDocument.title = title;
     printDocument.head
       .appendChild(printDocument.createElement("meta"))
       .setAttribute("charset", "utf-8");
-    let link = printDocument.head.appendChild(
+    const link = printDocument.head.appendChild(
       printDocument.createElement("link")
     );
     link.setAttribute("rel", "stylesheet");
     link.setAttribute("href", "chrome://messagebody/skin/abPrint.css");
 
-    let printTemplate = document.getElementById("printTemplate");
+    const printTemplate = document.getElementById("printTemplate");
 
-    for (let card of cards) {
+    for (const card of cards) {
       if (card.isMailList) {
         continue;
       }
 
-      let div = printDocument.createElement("div");
+      const div = printDocument.createElement("div");
       div.append(printTemplate.content.cloneNode(true));
       detailsPane.fillContactDetails(div, card);
-      let photo = div.querySelector(".contact-photo");
+      const photo = div.querySelector(".contact-photo");
       if (photo.src.startsWith("chrome:")) {
         photo.hidden = true;
       }
@@ -4377,12 +4383,12 @@ var printHandler = {
       printDocument.body.appendChild(div);
     }
 
-    let html = new XMLSerializer().serializeToString(printDocument);
+    const html = new XMLSerializer().serializeToString(printDocument);
     this._printURL(URL.createObjectURL(new File([html], "text/html")));
   },
 
   async _printURL(url) {
-    let topWindow = window.browsingContext.topChromeWindow;
+    const topWindow = window.browsingContext.topChromeWindow;
     await topWindow.PrintUtils.loadPrintBrowser(url);
     topWindow.PrintUtils.startPrintWindow(
       topWindow.PrintUtils.printBrowser.browsingContext,

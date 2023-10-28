@@ -8,12 +8,12 @@ Cu.importGlobalProperties(["fetch"]);
 var { MailGlue } = ChromeUtils.import("resource:///modules/MailGlue.jsm");
 
 add_task(async () => {
-  let expectedURL = `"${MailGlue.BROWSER_TOOLBOX_WINDOW_URL}"`;
-  let containingFile =
+  const expectedURL = `"${MailGlue.BROWSER_TOOLBOX_WINDOW_URL}"`;
+  const containingFile =
     "resource://devtools/client/framework/browser-toolbox/Launcher.sys.mjs";
 
-  let response = await fetch(containingFile);
-  let text = await response.text();
+  const response = await fetch(containingFile);
+  const text = await response.text();
 
   Assert.ok(
     text.includes(expectedURL),

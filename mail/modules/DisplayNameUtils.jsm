@@ -19,8 +19,8 @@ var gMessengerBundle = Services.strings.createBundle(
 );
 
 function _getIdentityForAddress(aEmailAddress) {
-  let emailAddress = aEmailAddress.toLowerCase();
-  for (let identity of MailServices.accounts.allIdentities) {
+  const emailAddress = aEmailAddress.toLowerCase();
+  for (const identity of MailServices.accounts.allIdentities) {
     if (!identity.email) {
       continue;
     }
@@ -44,8 +44,8 @@ function _getIdentityForAddress(aEmailAddress) {
  */
 function formatDisplayName(emailAddress, headerDisplayName, context) {
   let displayName = null;
-  let identity = _getIdentityForAddress(emailAddress);
-  let card = MailServices.ab.cardForEmailAddress(emailAddress);
+  const identity = _getIdentityForAddress(emailAddress);
+  const card = MailServices.ab.cardForEmailAddress(emailAddress);
 
   // If this address is one of the user's identities...
   if (identity) {
@@ -99,9 +99,9 @@ function formatDisplayName(emailAddress, headerDisplayName, context) {
  * @returns The formatted display name.
  */
 function formatDisplayNameList(aHeaderValue, aContext) {
-  let addresses = MailServices.headerParser.parseDecodedHeader(aHeaderValue);
+  const addresses = MailServices.headerParser.parseDecodedHeader(aHeaderValue);
   if (addresses.length > 0) {
-    let displayName = formatDisplayName(
+    const displayName = formatDisplayName(
       addresses[0].email,
       addresses[0].name,
       aContext

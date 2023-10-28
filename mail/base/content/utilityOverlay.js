@@ -53,7 +53,7 @@ function goUpdatePasteMenuItems() {
 function goCopyImage() {
   // Always copy the image data. It doesn't make sense to insert an image
   // as a http(s) reference since the recipient might block it.
-  let param = Cu.createCommandParams();
+  const param = Cu.createCommandParams();
   param.setLongValue("imageCopy", Ci.nsIContentViewerEdit.COPY_IMAGE_DATA);
   document.commandDispatcher
     .getControllerForCommand("cmd_copyImage")
@@ -257,7 +257,7 @@ function openTab(tabType, tabParams, where) {
     let tabmail = document.getElementById("tabmail");
     if (!tabmail) {
       // Try opening new tabs in an existing 3pane window
-      let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
+      const mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
       if (mail3PaneWindow) {
         tabmail = mail3PaneWindow.document.getElementById("tabmail");
         mail3PaneWindow.focus();
@@ -321,7 +321,7 @@ function openPreferencesTab(paneID, scrollPaneTo, otherArgs) {
  *        'window'). See openContentTab for more details.
  */
 function openDictionaryList(where) {
-  let dictUrl = Services.urlFormatter.formatURLPref(
+  const dictUrl = Services.urlFormatter.formatURLPref(
     "spellchecker.dictionaries.download.url"
   );
 
@@ -337,7 +337,7 @@ function openDictionaryList(where) {
  */
 function openPrivacyPolicy(where) {
   const kTelemetryInfoUrl = "toolkit.telemetry.infoURL";
-  let url = Services.prefs.getCharPref(kTelemetryInfoUrl);
+  const url = Services.prefs.getCharPref(kTelemetryInfoUrl);
   openContentTab(url, where);
 }
 
@@ -432,14 +432,14 @@ function openLinkIn(url, where, openParams) {
   // the developer tools window and therefore a completely separate program
   // from the rest of Thunderbird. Be careful what you do here.
 
-  let args = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  let uri = Cc["@mozilla.org/supports-string;1"].createInstance(
+  const args = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  const uri = Cc["@mozilla.org/supports-string;1"].createInstance(
     Ci.nsISupportsString
   );
   uri.data = url;
   args.appendElement(uri);
 
-  let win = Services.ww.openWindow(
+  const win = Services.ww.openWindow(
     window,
     AppConstants.BROWSER_CHROME_URL,
     null,
@@ -508,14 +508,14 @@ function goSetAccessKey(aCommand, aAccessKeyAttribute) {
 }
 
 function buildHelpMenu() {
-  let helpTroubleshootModeItem = document.getElementById(
+  const helpTroubleshootModeItem = document.getElementById(
     "helpTroubleshootMode"
   );
   if (helpTroubleshootModeItem) {
     helpTroubleshootModeItem.disabled =
       !Services.policies.isAllowed("safeMode");
   }
-  let appmenu_troubleshootModeItem = document.getElementById(
+  const appmenu_troubleshootModeItem = document.getElementById(
     "appmenu_troubleshootMode"
   );
   if (appmenu_troubleshootModeItem) {

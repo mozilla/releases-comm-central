@@ -44,12 +44,12 @@ add_task(
     // select the first message
     await select_click_row(0);
     // display it
-    let msgc = await open_selected_message_in_new_window();
+    const msgc = await open_selected_message_in_new_window();
 
     await select_click_row(1);
-    let msgc2 = await open_selected_message_in_new_window();
+    const msgc2 = await open_selected_message_in_new_window();
 
-    let preCount = folder.getTotalMessages(false);
+    const preCount = folder.getTotalMessages(false);
     msgc.focus();
     const closePromise = BrowserTestUtils.domWindowClosed(msgc);
     await press_delete(msgc);
@@ -80,13 +80,13 @@ add_task(
     // select the first message
     await select_click_row(0);
     // display it
-    let msgc = await open_selected_message_in_new_window();
-    let msgcA = await open_selected_message_in_new_window();
+    const msgc = await open_selected_message_in_new_window();
+    const msgcA = await open_selected_message_in_new_window();
 
     await select_click_row(1);
-    let msgc2 = await open_selected_message_in_new_window();
+    const msgc2 = await open_selected_message_in_new_window();
 
-    let preCount = folder.getTotalMessages(false);
+    const preCount = folder.getTotalMessages(false);
     msgc.focus();
     const closePromise = BrowserTestUtils.domWindowClosed(msgc);
     const closePromiseA = BrowserTestUtils.domWindowClosed(msgcA);
@@ -120,13 +120,13 @@ add_task(
     // select the first message
     await select_click_row(0);
     // display it
-    let msgc = await open_selected_message_in_new_window();
-    let msgcA = await open_selected_message_in_new_window();
+    const msgc = await open_selected_message_in_new_window();
+    const msgcA = await open_selected_message_in_new_window();
 
     await select_click_row(1);
-    let msgc2 = await open_selected_message_in_new_window();
+    const msgc2 = await open_selected_message_in_new_window();
 
-    let preCount = folder.getTotalMessages(false);
+    const preCount = folder.getTotalMessages(false);
     window.focus();
     const closePromise = BrowserTestUtils.domWindowClosed(msgc);
     const closePromiseA = BrowserTestUtils.domWindowClosed(msgcA);
@@ -160,12 +160,12 @@ add_task(async function test_close_message_tab_on_delete_from_message_tab() {
   // select the first message
   await select_click_row(0);
   // display it
-  let msgc = await open_selected_message_in_new_tab(true);
+  const msgc = await open_selected_message_in_new_tab(true);
 
   await select_click_row(1);
-  let msgc2 = await open_selected_message_in_new_tab(true);
+  const msgc2 = await open_selected_message_in_new_tab(true);
 
-  let preCount = folder.getTotalMessages(false);
+  const preCount = folder.getTotalMessages(false);
   await switch_tab(msgc);
   await press_delete();
 
@@ -196,13 +196,13 @@ add_task(
     // select the first message
     await select_click_row(0);
     // display it
-    let msgc = await open_selected_message_in_new_tab(true);
+    const msgc = await open_selected_message_in_new_tab(true);
     await open_selected_message_in_new_tab(true);
 
     await select_click_row(1);
-    let msgc2 = await open_selected_message_in_new_tab(true);
+    const msgc2 = await open_selected_message_in_new_tab(true);
 
-    let preCount = folder.getTotalMessages(false);
+    const preCount = folder.getTotalMessages(false);
     await switch_tab(msgc);
     await press_delete();
 
@@ -238,9 +238,9 @@ add_task(
     await open_selected_message_in_new_tab(true);
 
     await select_click_row(1);
-    let msgc2 = await open_selected_message_in_new_tab(true);
+    const msgc2 = await open_selected_message_in_new_tab(true);
 
-    let preCount = folder.getTotalMessages(false);
+    const preCount = folder.getTotalMessages(false);
     window.focus();
     await select_click_row(0);
     await press_delete(window);
@@ -274,13 +274,13 @@ add_task(
     await select_click_row(0);
     // display it
     await open_selected_message_in_new_tab(true);
-    let msgcA = await open_selected_message_in_new_window();
+    const msgcA = await open_selected_message_in_new_window();
 
     await select_click_row(1);
-    let msgc2 = await open_selected_message_in_new_tab(true);
-    let msgc2A = await open_selected_message_in_new_window();
+    const msgc2 = await open_selected_message_in_new_tab(true);
+    const msgc2A = await open_selected_message_in_new_window();
 
-    let preCount = folder.getTotalMessages(false);
+    const preCount = folder.getTotalMessages(false);
     window.focus();
     const closePromise = BrowserTestUtils.domWindowClosed(msgcA);
     await select_click_row(0);

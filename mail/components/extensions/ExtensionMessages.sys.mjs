@@ -54,7 +54,7 @@ export function getMsgStreamUrl(msgHdr) {
     return msgHdr.folder.getUriForMsg(msgHdr);
   }
 
-  let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
+  const url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
   url.searchParams.set("type", "application/x-message-display");
   return url.toString();
 }
@@ -85,13 +85,13 @@ export function getMsgStreamUrl(msgHdr) {
  * @returns {Promise<MimeMessagePart[]>}
  */
 export async function getAttachments(msgHdr, includeNestedAttachments = false) {
-  let mimeMsg = await getMimeMessage(msgHdr);
+  const mimeMsg = await getMimeMessage(msgHdr);
   if (!mimeMsg) {
     return null;
   }
 
   // Reduce returned attachments according to includeNestedAttachments.
-  let level = mimeMsg.partName ? mimeMsg.partName.split(".").length : 0;
+  const level = mimeMsg.partName ? mimeMsg.partName.split(".").length : 0;
   return mimeMsg.attachments.filter(
     a => includeNestedAttachments || a.partName.split(".").length == level + 2
   );
@@ -111,13 +111,13 @@ export async function getAttachment(msgHdr, partName, options = {}) {
   // It's not ideal to have to call MsgHdrToMimeMessage here again, but we need
   // the name of the attached file, plus this also gives us the URI without having
   // to jump through a lot of hoops.
-  let attachment = await getMimeMessage(msgHdr, partName);
+  const attachment = await getMimeMessage(msgHdr, partName);
   if (!attachment) {
     return null;
   }
 
   if (options.includeRaw) {
-    let channel = Services.io.newChannelFromURI(
+    const channel = Services.io.newChannelFromURI(
       Services.io.newURI(attachment.url),
       null,
       Services.scriptSecurityManager.getSystemPrincipal(),
@@ -127,9 +127,9 @@ export async function getAttachment(msgHdr, partName, options = {}) {
     );
 
     attachment.raw = await new Promise((resolve, reject) => {
-      let listener = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
-        Ci.nsIStreamLoader
-      );
+      const listener = Cc[
+        "@mozilla.org/network/stream-loader;1"
+      ].createInstance(Ci.nsIStreamLoader);
       listener.init({
         onStreamComplete(loader, context, status, resultLength, result) {
           if (Components.isSuccessCode(status)) {
@@ -179,10 +179,10 @@ function getParentMsgHdr(msgHdr) {
     return null;
   }
 
-  let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
+  const url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
 
   if (url.protocol == "news:") {
-    let newsUrl = `news-message://${url.hostname}/${url.searchParams.get(
+    const newsUrl = `news-message://${url.hostname}/${url.searchParams.get(
       "group"
     )}#${url.searchParams.get("key")}`;
     return MailServices.messageServiceFromURI("news:").messageURIToMsgHdr(
@@ -191,10 +191,10 @@ function getParentMsgHdr(msgHdr) {
   }
 
   // Everything else should be a mailbox:// or an imap:// url.
-  let params = Array.from(url.searchParams, p => p[0]).filter(
+  const params = Array.from(url.searchParams, p => p[0]).filter(
     p => !["number"].includes(p)
   );
-  for (let param of params) {
+  for (const param of params) {
     url.searchParams.delete(param);
   }
   return Services.io.newURI(url.href).QueryInterface(Ci.nsIMsgMessageUrl)
@@ -210,10 +210,10 @@ function getParentMsgHdr(msgHdr) {
 export async function getRawMessage(msgHdr) {
   // If this message is a sub-message (an attachment of another message), get it
   // as an attachment from the parent message and return its raw content.
-  let subMsgPartName = getSubMessagePartName(msgHdr);
+  const subMsgPartName = getSubMessagePartName(msgHdr);
   if (subMsgPartName) {
-    let parentMsgHdr = getParentMsgHdr(msgHdr);
-    let attachment = await getAttachment(parentMsgHdr, subMsgPartName, {
+    const parentMsgHdr = getParentMsgHdr(msgHdr);
+    const attachment = await getAttachment(parentMsgHdr, subMsgPartName, {
       includeRaw: true,
     });
     return attachment.raw.reduce(
@@ -222,10 +222,10 @@ export async function getRawMessage(msgHdr) {
     );
   }
 
-  let msgUri = getMsgStreamUrl(msgHdr);
-  let service = MailServices.messageServiceFromURI(msgUri);
+  const msgUri = getMsgStreamUrl(msgHdr);
+  const service = MailServices.messageServiceFromURI(msgUri);
   return new Promise((resolve, reject) => {
-    let streamlistener = {
+    const streamlistener = {
       _data: [],
       _stream: null,
       onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
@@ -278,14 +278,14 @@ export async function getRawMessage(msgHdr) {
 export async function getMimeMessage(msgHdr, partName = "") {
   // If this message is a sub-message (an attachment of another message), get the
   // mime parts of the parent message and return the part of the sub-message.
-  let subMsgPartName = getSubMessagePartName(msgHdr);
+  const subMsgPartName = getSubMessagePartName(msgHdr);
   if (subMsgPartName) {
-    let parentMsgHdr = getParentMsgHdr(msgHdr);
+    const parentMsgHdr = getParentMsgHdr(msgHdr);
     if (!parentMsgHdr) {
       return null;
     }
 
-    let mimeMsg = await getMimeMessage(parentMsgHdr, partName);
+    const mimeMsg = await getMimeMessage(parentMsgHdr, partName);
     if (!mimeMsg) {
       return null;
     }
@@ -300,8 +300,8 @@ export async function getMimeMessage(msgHdr, partName = "") {
     }
 
     // Limit mimeMsg and attachments to the requested <subMessagePart>.
-    let findSubPart = (parts, partName) => {
-      let match = parts.find(a => partName.startsWith(a.partName));
+    const findSubPart = (parts, partName) => {
+      const match = parts.find(a => partName.startsWith(a.partName));
       if (!match) {
         throw new ExtensionError(
           `Unexpected Error: Part ${partName} not found.`
@@ -311,7 +311,7 @@ export async function getMimeMessage(msgHdr, partName = "") {
         ? match
         : findSubPart(match.parts, partName);
     };
-    let subMimeMsg = findSubPart(mimeMsg.parts, subMsgPartName);
+    const subMimeMsg = findSubPart(mimeMsg.parts, subMsgPartName);
 
     if (mimeMsg.attachments) {
       subMimeMsg.attachments = mimeMsg.attachments.filter(
@@ -323,7 +323,7 @@ export async function getMimeMessage(msgHdr, partName = "") {
   }
 
   try {
-    let mimeMsg = await new Promise((resolve, reject) => {
+    const mimeMsg = await new Promise((resolve, reject) => {
       lazy.MsgHdrToMimeMessage(
         msgHdr,
         null,
@@ -528,7 +528,7 @@ export class MessageTracker extends EventEmitter {
    *   retrieved later (for example an attached message)
    */
   _set(id, msgIdentifier, msgHdr) {
-    let hash = this.getHash(msgIdentifier);
+    const hash = this.getHash(msgIdentifier);
     this._messageIds.set(hash, id);
     this._messages.set(id, msgIdentifier);
     if (
@@ -552,7 +552,7 @@ export class MessageTracker extends EventEmitter {
    * @returns {integer} The messageTracker id of the message.
    */
   _get(msgIdentifier) {
-    let hash = this.getHash(msgIdentifier);
+    const hash = this.getHash(msgIdentifier);
     if (this._messageIds.has(hash)) {
       return this._messageIds.get(hash);
     }
@@ -565,8 +565,8 @@ export class MessageTracker extends EventEmitter {
    * @param {object} msgIdentifier - msgIdentifier of the message
    */
   _remove(msgIdentifier) {
-    let hash = this.getHash(msgIdentifier);
-    let id = this._get(msgIdentifier);
+    const hash = this.getHash(msgIdentifier);
+    const id = this._get(msgIdentifier);
     this._messages.delete(id);
     this._messageIds.delete(hash);
     this._dummyMessageHeaders.delete(msgIdentifier.dummyMsgUrl);
@@ -588,11 +588,11 @@ export class MessageTracker extends EventEmitter {
     } else {
       // Normalize the dummyMsgUrl by sorting its parameters and striping them
       // to a minimum.
-      let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
-      let parameters = Array.from(url.searchParams, p => p[0]).filter(
+      const url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
+      const parameters = Array.from(url.searchParams, p => p[0]).filter(
         p => !["group", "number", "key", "part"].includes(p)
       );
-      for (let parameter of parameters) {
+      for (const parameter of parameters) {
         url.searchParams.delete(parameter);
       }
       url.searchParams.sort();
@@ -627,7 +627,7 @@ export class MessageTracker extends EventEmitter {
     }
 
     try {
-      let file = Services.io
+      const file = Services.io
         .newURI(msgIdentifier.dummyMsgUrl)
         .QueryInterface(Ci.nsIFileURL).file;
       if (!file?.exists()) {
@@ -655,17 +655,17 @@ export class MessageTracker extends EventEmitter {
    * @returns {nsIMsgDBHdr} The identifier of the message.
    */
   getMessage(id) {
-    let msgIdentifier = this._messages.get(id);
+    const msgIdentifier = this._messages.get(id);
     if (!msgIdentifier) {
       return null;
     }
 
     if (msgIdentifier.folderURI) {
-      let folder = MailServices.folderLookup.getFolderForURL(
+      const folder = MailServices.folderLookup.getFolderForURL(
         msgIdentifier.folderURI
       );
       if (folder) {
-        let msgHdr = folder.msgDatabase.getMsgHdrForKey(
+        const msgHdr = folder.msgDatabase.getMsgHdrForKey(
           msgIdentifier.messageKey
         );
         if (msgHdr) {
@@ -673,7 +673,7 @@ export class MessageTracker extends EventEmitter {
         }
       }
     } else if (msgIdentifier.dummyMsgUrl.startsWith("file://")) {
-      let msgHdr = MailServices.messageServiceFromURI(
+      const msgHdr = MailServices.messageServiceFromURI(
         "file:"
       ).messageURIToMsgHdr(msgIdentifier.dummyMsgUrl);
       if (msgHdr && !this.isModifiedFileMsg(msgIdentifier)) {
@@ -690,7 +690,7 @@ export class MessageTracker extends EventEmitter {
   // nsIFolderListener
 
   onFolderPropertyFlagChanged(item, property, oldFlag, newFlag) {
-    let changes = {};
+    const changes = {};
     switch (property) {
       case "Status":
         if ((oldFlag ^ newFlag) & Ci.nsMsgMessageFlags.Read) {
@@ -738,10 +738,10 @@ export class MessageTracker extends EventEmitter {
    * @see MailNotificationManager._getFirstRealFolderWithNewMail()
    */
   findNewMessages(changedFolder) {
-    let folders = changedFolder.descendants;
+    const folders = changedFolder.descendants;
     folders.unshift(changedFolder);
-    for (let folder of folders) {
-      let flags = folder.flags;
+    for (const folder of folders) {
+      const flags = folder.flags;
       if (
         !(flags & Ci.nsMsgFolderFlags.Inbox) &&
         flags & (Ci.nsMsgFolderFlags.SpecialUse | Ci.nsMsgFolderFlags.Virtual)
@@ -750,12 +750,12 @@ export class MessageTracker extends EventEmitter {
         // Drafts|Trash|SentMail|Templates|Junk|Archive|Queue or Virtual.
         continue;
       }
-      let numNewMessages = folder.getNumNewMessages(false);
+      const numNewMessages = folder.getNumNewMessages(false);
       if (!numNewMessages) {
         continue;
       }
-      let msgDb = folder.msgDatabase;
-      let newMsgKeys = msgDb.getNewList().slice(-numNewMessages);
+      const msgDb = folder.msgDatabase;
+      const newMsgKeys = msgDb.getNewList().slice(-numNewMessages);
       if (newMsgKeys.length == 0) {
         continue;
       }
@@ -770,8 +770,9 @@ export class MessageTracker extends EventEmitter {
   // nsIMsgFolderListener
 
   msgsJunkStatusChanged(messages) {
-    for (let msgHdr of messages) {
-      let junkScore = parseInt(msgHdr.getStringProperty("junkscore"), 10) || 0;
+    for (const msgHdr of messages) {
+      const junkScore =
+        parseInt(msgHdr.getStringProperty("junkscore"), 10) || 0;
       this.emit("message-updated", new CachedMsgHeader(msgHdr), {
         junk: junkScore >= lazy.gJunkThreshold,
       });
@@ -789,7 +790,7 @@ export class MessageTracker extends EventEmitter {
 
   msgsMoveCopyCompleted(move, srcMsgs, dstFolder, dstMsgs) {
     if (srcMsgs.length > 0 && dstMsgs.length > 0) {
-      let emitMsg = move ? "messages-moved" : "messages-copied";
+      const emitMsg = move ? "messages-moved" : "messages-copied";
       this.emit(
         emitMsg,
         srcMsgs.map(msgHdr => new CachedMsgHeader(msgHdr)),
@@ -802,11 +803,11 @@ export class MessageTracker extends EventEmitter {
     // For IMAP messages there is a delayed update of database keys and if those
     // keys change, the messageTracker needs to update its maps, otherwise wrong
     // messages will be returned. Key changes are replayed in multi-step swaps.
-    let newKey = newMsgHdr.messageKey;
+    const newKey = newMsgHdr.messageKey;
 
     // Replay pending swaps.
     while (this._pendingKeyChanges.has(oldKey)) {
-      let next = this._pendingKeyChanges.get(oldKey);
+      const next = this._pendingKeyChanges.get(oldKey);
       this._pendingKeyChanges.delete(oldKey);
       oldKey = next;
 
@@ -822,11 +823,11 @@ export class MessageTracker extends EventEmitter {
       this._pendingKeyChanges.set(newKey, oldKey);
 
       // Swap tracker entries.
-      let oldId = this._get({
+      const oldId = this._get({
         folderURI: newMsgHdr.folder.URI,
         messageKey: oldKey,
       });
-      let newId = this._get({
+      const newId = this._get({
         folderURI: newMsgHdr.folder.URI,
         messageKey: newKey,
       });
@@ -846,7 +847,7 @@ export class MessageTracker extends EventEmitter {
       data = JSON.parse(data);
 
       if (data && data.folderURI && data.oldMessageKey && data.newMessageKey) {
-        let id = this._get({
+        const id = this._get({
           folderURI: data.folderURI,
           messageKey: data.oldMessageKey,
         });
@@ -920,7 +921,7 @@ export class MessageList {
     }
 
     // Adding a page will make this.currentPage point to the new page.
-    let previousPage = this.currentPage;
+    const previousPage = this.currentPage;
 
     // If the current page has no messages, there is no need to add a page.
     if (previousPage && previousPage.messages.length == 0) {
@@ -959,7 +960,7 @@ export class MessageList {
       await this.addPage();
     }
 
-    let messageHeader = this.extension.messageManager.convert(msgHdr, {
+    const messageHeader = this.extension.messageManager.convert(msgHdr, {
       skipFolder: true,
     });
 
@@ -995,12 +996,12 @@ export class MessageList {
    * @see /mail/components/extensions/schemas/messages.json
    */
   async getNextUnreadPage() {
-    let page = this.pages.find(p => !p.read);
+    const page = this.pages.find(p => !p.read);
     if (!page) {
       return null;
     }
 
-    let messages = await page.promise;
+    const messages = await page.promise;
     page.read = true;
 
     return {
@@ -1034,7 +1035,7 @@ export class MessageListTracker {
    * @see /mail/components/extensions/schemas/messages.json
    */
   async startList(messages, extension) {
-    let messageList = this.createList(extension);
+    const messageList = this.createList(extension);
     // Do not await _addMessages() here, to let the function return the Promise
     // for the first page as soon as possible and not after all messages have
     // been added.
@@ -1058,7 +1059,7 @@ export class MessageListTracker {
       messages = this._createEnumerator(messages);
     }
     while (messages.hasMoreElements()) {
-      let next = messages.getNext();
+      const next = messages.getNext();
       await messageList.addMessage(next.QueryInterface(Ci.nsIMsgDBHdr));
     }
     messageList.done();
@@ -1085,7 +1086,7 @@ export class MessageListTracker {
    * @returns {MessageList}
    */
   createList(extension, messagesPerPage) {
-    let messageList = new MessageList(
+    const messageList = new MessageList(
       extension,
       this._messageTracker,
       messagesPerPage
@@ -1105,8 +1106,8 @@ export class MessageListTracker {
    * @returns {MessageList}
    */
   getList(messageListId, extension) {
-    let lists = this._contextLists.get(extension);
-    let messageList = lists ? lists.get(messageListId, null) : null;
+    const lists = this._contextLists.get(extension);
+    const messageList = lists ? lists.get(messageListId, null) : null;
     if (!messageList) {
       throw new ExtensionError(
         `No message list for id ${messageListId}. Have you reached the end of a list?`
@@ -1122,7 +1123,7 @@ export class MessageListTracker {
    * @see /mail/components/extensions/schemas/messages.json
    */
   async getNextPage(messageList) {
-    let page = await messageList.getNextUnreadPage();
+    const page = await messageList.getNextUnreadPage();
     if (!page) {
       return null;
     }
@@ -1130,7 +1131,7 @@ export class MessageListTracker {
     // If the page does not have an id, the list has been retrieved completely
     // and can be removed.
     if (!page.id) {
-      let lists = this._contextLists.get(messageList.extension);
+      const lists = this._contextLists.get(messageList.extension);
       if (lists && lists.has(messageList.id)) {
         lists.delete(messageList.id);
       }
@@ -1166,15 +1167,16 @@ export class MessageManager {
       return null;
     }
 
-    let composeFields = Cc[
+    const composeFields = Cc[
       "@mozilla.org/messengercompose/composefields;1"
     ].createInstance(Ci.nsIMsgCompFields);
 
     // Cache msgHdr to reduce XPCOM requests.
-    let cachedHdr = new CachedMsgHeader(msgHdr);
+    const cachedHdr = new CachedMsgHeader(msgHdr);
 
-    let junkScore = parseInt(cachedHdr.getStringProperty("junkscore"), 10) || 0;
-    let tags = (cachedHdr.getStringProperty("keywords") || "")
+    const junkScore =
+      parseInt(cachedHdr.getStringProperty("junkscore"), 10) || 0;
+    const tags = (cachedHdr.getStringProperty("keywords") || "")
       .split(" ")
       .filter(MailServices.tags.isValidKey);
 
@@ -1183,11 +1185,13 @@ export class MessageManager {
     // file:// messages the returned size is always the total file size
     // Be consistent here and always return 0. The user can obtain the message size
     // from the size of the associated attachment file.
-    let size = isAttachedMessageUrl(cachedHdr.getStringProperty("dummyMsgUrl"))
+    const size = isAttachedMessageUrl(
+      cachedHdr.getStringProperty("dummyMsgUrl")
+    )
       ? 0
       : cachedHdr.messageSize;
 
-    let messageObject = {
+    const messageObject = {
       id: this._messageTracker.getId(cachedHdr),
       date: new Date(Math.round(cachedHdr.date / 1000)),
       author: cachedHdr.mime2DecodedAuthor,
@@ -1301,7 +1305,7 @@ export class MessageQuery {
     this.requiredTags = null;
     this.forbiddenTags = null;
     if (this.queryInfo.tags) {
-      let availableTags = MailServices.tags.getAllTags();
+      const availableTags = MailServices.tags.getAllTags();
       this.requiredTags = availableTags.filter(
         tag =>
           tag.key in this.queryInfo.tags.tags &&
@@ -1325,7 +1329,7 @@ export class MessageQuery {
     }
 
     // Limit search to a given folder, or search all folders.
-    let folders = [];
+    const folders = [];
     let includeSubFolders = false;
     if (this.queryInfo.folder) {
       includeSubFolders = !!this.queryInfo.includeSubFolders;
@@ -1334,7 +1338,7 @@ export class MessageQuery {
           'Querying by folder requires the "accountsRead" permission'
         );
       }
-      let folder = MailServices.folderLookup.getFolderForURL(
+      const folder = MailServices.folderLookup.getFolderForURL(
         folderPathToURI(
           this.queryInfo.folder.accountId,
           this.queryInfo.folder.path
@@ -1348,7 +1352,7 @@ export class MessageQuery {
       folders.push(folder);
     } else {
       includeSubFolders = true;
-      for (let account of MailServices.accounts.accounts) {
+      for (const account of MailServices.accounts.accounts) {
         folders.push(account.incomingServer.rootFolder);
       }
     }
@@ -1425,7 +1429,7 @@ export class MessageQuery {
 
     // Check tags.
     if (this.requiredTags || this.forbiddenTags) {
-      let messageTags = msgHdr.getStringProperty("keywords").split(" ");
+      const messageTags = msgHdr.getStringProperty("keywords").split(" ");
       if (this.requiredTags.length > 0) {
         if (
           this.queryInfo.tags.mode == "all" &&
@@ -1458,7 +1462,7 @@ export class MessageQuery {
 
     // Check toMe (case insensitive email address match).
     if (this.queryInfo.toMe !== null) {
-      let recipients = [].concat(
+      const recipients = [].concat(
         this.composeFields.splitRecipients(msgHdr.recipients, true),
         this.composeFields.splitRecipients(msgHdr.ccList, true),
         this.composeFields.splitRecipients(msgHdr.bccList, true)
@@ -1476,7 +1480,7 @@ export class MessageQuery {
 
     // Check fromMe (case insensitive email address match).
     if (this.queryInfo.fromMe !== null) {
-      let authors = this.composeFields.splitRecipients(
+      const authors = this.composeFields.splitRecipients(
         msgHdr.mime2DecodedAuthor,
         true
       );
@@ -1515,10 +1519,10 @@ export class MessageQuery {
     // Check if fullText is already partially fulfilled.
     let fullTextBodySearchNeeded = false;
     if (this.queryInfo.fullText) {
-      let subjectMatches = msgHdr.mime2DecodedSubject.includes(
+      const subjectMatches = msgHdr.mime2DecodedSubject.includes(
         this.queryInfo.fullText
       );
-      let authorMatches = msgHdr.mime2DecodedAuthor.includes(
+      const authorMatches = msgHdr.mime2DecodedAuthor.includes(
         this.queryInfo.fullText
       );
       fullTextBodySearchNeeded = !(subjectMatches || authorMatches);
@@ -1526,7 +1530,7 @@ export class MessageQuery {
 
     // Check body.
     if (this.queryInfo.body || fullTextBodySearchNeeded) {
-      let mimeMsg = await getMimeMessage(msgHdr);
+      const mimeMsg = await getMimeMessage(msgHdr);
       if (
         this.queryInfo.body &&
         !includesContent(folder, [mimeMsg], this.queryInfo.body)
@@ -1543,7 +1547,7 @@ export class MessageQuery {
 
     // Check attachments.
     if (this.queryInfo.attachment != null) {
-      let attachments = await getAttachments(
+      const attachments = await getAttachments(
         msgHdr,
         true // includeNestedAttachments
       );
@@ -1562,7 +1566,7 @@ export class MessageQuery {
     }
 
     if (messages) {
-      for (let msg of [...messages]) {
+      for (const msg of [...messages]) {
         if (this.messageList.isDone) {
           return;
         }
@@ -1583,7 +1587,7 @@ export class MessageQuery {
     }
 
     if (includeSubFolders) {
-      for (let subFolder of folder.subFolders) {
+      for (const subFolder of folder.subFolders) {
         if (this.messageList.isDone) {
           return;
         }
@@ -1593,7 +1597,7 @@ export class MessageQuery {
   }
 
   async searchFolders(folders, includeSubFolders = false) {
-    for (let folder of folders) {
+    for (const folder of folders) {
       if (this.messageList.isDone) {
         return;
       }
@@ -1607,7 +1611,7 @@ function includesContent(folder, parts, searchTerm) {
   if (!parts || parts.length == 0) {
     return false;
   }
-  for (let part of parts) {
+  for (const part of parts) {
     if (
       coerceBodyToPlaintext(folder, part).includes(searchTerm) ||
       includesContent(folder, part.parts, searchTerm)
@@ -1658,8 +1662,8 @@ function prepareAddress(displayAddr) {
  */
 function searchInMultipleAddresses(searchAddress, addresses) {
   // Return on first positive match.
-  for (let address of addresses) {
-    let nameMatched =
+  for (const address of addresses) {
+    const nameMatched =
       searchAddress.name &&
       address.name &&
       address.name.includes(searchAddress.name);
@@ -1691,19 +1695,19 @@ function searchInMultipleAddresses(searchAddress, addresses) {
  * @returns A boolean indicating if search was successful.
  */
 function isAddressMatch(searchTerm, addressObjects) {
-  let searchAddresses =
+  const searchAddresses =
     MailServices.headerParser.makeFromDisplayAddress(searchTerm);
   if (!searchAddresses || searchAddresses.length == 0) {
     return false;
   }
 
   // Prepare addresses.
-  let addresses = [];
-  for (let addressObject of addressObjects) {
-    let decodedAddressString = addressObject.doRfc2047
+  const addresses = [];
+  for (const addressObject of addressObjects) {
+    const decodedAddressString = addressObject.doRfc2047
       ? lazy.jsmime.headerparser.decodeRFC2047Words(addressObject.addr)
       : addressObject.addr;
-    for (let address of MailServices.headerParser.makeFromDisplayAddress(
+    for (const address of MailServices.headerParser.makeFromDisplayAddress(
       decodedAddressString
     )) {
       addresses.push(prepareAddress(address));
@@ -1714,7 +1718,7 @@ function isAddressMatch(searchTerm, addressObjects) {
   }
 
   let success = false;
-  for (let searchAddress of searchAddresses) {
+  for (const searchAddress of searchAddresses) {
     // Exit early if this search was not successfully, but all search
     // addresses have to be matched.
     if (!searchInMultipleAddresses(prepareAddress(searchAddress), addresses)) {

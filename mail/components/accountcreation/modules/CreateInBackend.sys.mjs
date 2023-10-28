@@ -24,7 +24,7 @@ const { MailServices } = ChromeUtils.import(
  */
 async function createAccountInBackend(config) {
   // incoming server
-  let inServer = MailServices.accounts.createIncomingServer(
+  const inServer = MailServices.accounts.createIncomingServer(
     config.incoming.username,
     config.incoming.hostname,
     config.incoming.type
@@ -37,7 +37,7 @@ async function createAccountInBackend(config) {
   // We must generate this unconditionally because we cannot determine whether
   // the outgoing server has clientid enabled yet or not, and we need to do it
   // here in order to populate the incoming server if the outgoing matches.
-  let newOutgoingClientid = Services.uuid
+  const newOutgoingClientid = Services.uuid
     .generateUUID()
     .toString()
     .replace(/[{}]/g, "");
@@ -131,7 +131,7 @@ async function createAccountInBackend(config) {
   }
   inServer.valid = true;
 
-  let username =
+  const username =
     config.outgoing.auth != Ci.nsMsgAuthMethod.none
       ? config.outgoing.username
       : null;
@@ -168,7 +168,7 @@ async function createAccountInBackend(config) {
     }
 
     if (outServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
-      let prefBranch = "mail.smtpserver." + outServer.key + ".";
+      const prefBranch = "mail.smtpserver." + outServer.key + ".";
       Services.prefs.setCharPref(
         prefBranch + "oauth2.scope",
         config.outgoing.oauthSettings.scope
@@ -193,7 +193,7 @@ async function createAccountInBackend(config) {
 
   // identity
   // TODO accounts without identity?
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.fullName = config.identity.realname;
   identity.email = config.identity.emailAddress;
 
@@ -207,8 +207,8 @@ async function createAccountInBackend(config) {
       MailServices.accounts.accounts.length &&
       MailServices.accounts.defaultAccount
     ) {
-      let defAccount = MailServices.accounts.defaultAccount;
-      let defIdentity = defAccount.defaultIdentity;
+      const defAccount = MailServices.accounts.defaultAccount;
+      const defIdentity = defAccount.defaultIdentity;
       if (
         defAccount.incomingServer.canBeDefaultServer &&
         defIdentity &&
@@ -243,7 +243,7 @@ async function createAccountInBackend(config) {
   // itself, which could be a problem if we came from it and we haven't set
   // the identity (see bug 521955), so make sure everything else on the
   // account is set up before you set the incomingServer.
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.addIdentity(identity);
   account.incomingServer = inServer;
   if (
@@ -301,7 +301,7 @@ async function rememberPassword(server, password) {
     throw new lazy.AccountCreationUtils.NotReached("Server type not supported");
   }
 
-  let login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+  const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
   login.init(passwordURI, null, passwordURI, server.username, password, "", "");
@@ -329,7 +329,7 @@ async function rememberPassword(server, password) {
  */
 function checkIncomingServerAlreadyExists(config) {
   lazy.AccountCreationUtils.assert(config instanceof lazy.AccountConfig);
-  let incoming = config.incoming;
+  const incoming = config.incoming;
   let existing = MailServices.accounts.findServer(
     incoming.username,
     incoming.hostname,
@@ -362,7 +362,7 @@ function checkIncomingServerAlreadyExists(config) {
  */
 function checkOutgoingServerAlreadyExists(config) {
   lazy.AccountCreationUtils.assert(config instanceof lazy.AccountConfig);
-  for (let existingServer of MailServices.smtp.servers) {
+  for (const existingServer of MailServices.smtp.servers) {
     // TODO check username with full email address, too, like for incoming
     if (
       existingServer.hostname == config.outgoing.hostname &&

@@ -128,10 +128,10 @@ var glodaIndexerActivity = {
   },
 
   onJobBegun(aFolder, aJobNumber, aTotalItemNum, aJobType) {
-    let displayText = aFolder
+    const displayText = aFolder
       ? this.getString("indexingFolder").replace("#1", aFolder)
       : this.getString("indexing");
-    let process = new nsActProcess(displayText, lazy.Gloda);
+    const process = new nsActProcess(displayText, lazy.Gloda);
 
     process.iconClass = "indexMail";
     process.contextType = "account";
@@ -164,7 +164,7 @@ var glodaIndexerActivity = {
         ? this.getString("indexingFolderStatusVague").replace("#1", aFolder)
         : this.getString("indexingStatusVague");
     } else {
-      let percentComplete =
+      const percentComplete =
         aTotalItemNum == 0
           ? 100
           : parseInt((aItemNumber / aTotalItemNum) * 100);
@@ -192,7 +192,7 @@ var glodaIndexerActivity = {
     // this.currentJob.totalItemNum might still be null at this point
     // if we were first notified about the job before the indexer determined
     // the number of messages to index and then it didn't find any to index.
-    let totalItemNum = this.currentJob.totalItemNum || 0;
+    const totalItemNum = this.currentJob.totalItemNum || 0;
 
     // We only create activity events when specific folders get indexed,
     // since event-driven indexing jobs are too numerous.  We also only create
@@ -209,24 +209,24 @@ var glodaIndexerActivity = {
       // Note: we must replace the folder name placeholder last; otherwise,
       // if the name happens to contain another one of the placeholders, we'll
       // hork the name when replacing it.
-      let displayText = lazy.PluralForm.get(
+      const displayText = lazy.PluralForm.get(
         totalItemNum,
         this.getString("indexedFolder")
       )
         .replace("#1", totalItemNum)
         .replace("#2", this.currentJob.folder);
 
-      let endTime = new Date();
-      let secondsElapsed = parseInt(
+      const endTime = new Date();
+      const secondsElapsed = parseInt(
         (endTime - this.currentJob.startTime) / 1000
       );
 
-      let statusText = lazy.PluralForm.get(
+      const statusText = lazy.PluralForm.get(
         secondsElapsed,
         this.getString("indexedFolderStatus")
       ).replace("#1", secondsElapsed);
 
-      let event = new nsActEvent(
+      const event = new nsActEvent(
         displayText,
         lazy.Gloda,
         statusText,
@@ -238,8 +238,8 @@ var glodaIndexerActivity = {
       event.iconClass = "indexMail";
 
       // Transfer subjects.
-      let subjects = this.currentJob.process.getSubjects();
-      for (let subject of subjects) {
+      const subjects = this.currentJob.process.getSubjects();
+      for (const subject of subjects) {
         event.addSubject(subject);
       }
 

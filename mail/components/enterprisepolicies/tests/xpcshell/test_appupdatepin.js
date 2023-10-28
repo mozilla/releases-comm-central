@@ -30,25 +30,25 @@ async function test_update_pin(pinString, pinIsValid = true) {
     "Engine is active"
   );
 
-  let policies = Services.policies.getActivePolicies();
+  const policies = Services.policies.getActivePolicies();
   equal(
     "AppUpdatePin" in policies,
     pinIsValid,
     "AppUpdatePin policy should only be active if the pin was valid."
   );
 
-  let checker = Cc["@mozilla.org/updates/update-checker;1"].getService(
+  const checker = Cc["@mozilla.org/updates/update-checker;1"].getService(
     Ci.nsIUpdateChecker
   );
-  let updateURL = await checker.getUpdateURL(checker.BACKGROUND_CHECK);
+  const updateURL = await checker.getUpdateURL(checker.BACKGROUND_CHECK);
 
-  let expected = pinIsValid
+  const expected = pinIsValid
     ? `https://www.example.com/update.xml?pin=${pinString}`
     : "https://www.example.com/update.xml";
 
   equal(updateURL, expected, "App Update URL should match expected URL.");
 
-  let scalars = TelemetryTestUtils.getProcessScalars("parent", false, true);
+  const scalars = TelemetryTestUtils.getProcessScalars("parent", false, true);
   if (pinIsValid) {
     TelemetryTestUtils.assertScalar(
       scalars,

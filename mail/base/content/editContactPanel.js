@@ -85,15 +85,15 @@ var editContactInlineUI = {
     // The panel is initially stored in a template for performance reasons.
     // Load it into the DOM now.
     delete this.panel;
-    let template = document.getElementById("editContactPanelTemplate");
+    const template = document.getElementById("editContactPanelTemplate");
     template.replaceWith(template.content);
-    let element = document.getElementById("editContactPanel");
+    const element = document.getElementById("editContactPanel");
     return (this.panel = element);
   },
 
   showEditContactPanel(aCardDetails, aAnchorElement) {
     this._cardDetails = aCardDetails;
-    let position = "after_start";
+    const position = "after_start";
     this._doShowEditContactPanel(aAnchorElement, position);
   },
 
@@ -147,12 +147,12 @@ var editContactInlineUI = {
     if (this._cardDetails.book.supportsMailingLists) {
       // We only have to look in one book here, because cards currently have
       // to be in the address book they belong to.
-      for (let list of this._cardDetails.book.childNodes) {
+      for (const list of this._cardDetails.book.childNodes) {
         if (!list.isMailList) {
           continue;
         }
 
-        for (let card of list.childCards) {
+        for (const card of list.childCards) {
           if (card.primaryEmail == this._cardDetails.card.primaryEmail) {
             inMailList = true;
             break;
@@ -215,9 +215,9 @@ var editContactInlineUI = {
       return;
     }
 
-    let originalBook = this._cardDetails.book;
+    const originalBook = this._cardDetails.book;
 
-    let abURI = document.getElementById("editContactAddressBookList").value;
+    const abURI = document.getElementById("editContactAddressBookList").value;
     if (abURI != originalBook.URI) {
       this._cardDetails.book = MailServices.ab.getDirectory(abURI);
     }

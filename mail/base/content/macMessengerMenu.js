@@ -13,14 +13,14 @@ var { MailServices } = ChromeUtils.import(
 addEventListener(
   "load",
   function () {
-    let dockMenuElement = document.getElementById("menu_mac_dockmenu");
-    let nativeMenu = Cc[
+    const dockMenuElement = document.getElementById("menu_mac_dockmenu");
+    const nativeMenu = Cc[
       "@mozilla.org/widget/standalonenativemenu;1"
     ].createInstance(Ci.nsIStandaloneNativeMenu);
 
     nativeMenu.init(dockMenuElement);
 
-    let dockSupport = Cc["@mozilla.org/widget/macdocksupport;1"].getService(
+    const dockSupport = Cc["@mozilla.org/widget/macdocksupport;1"].getService(
       Ci.nsIMacDockSupport
     );
     dockSupport.dockMenu = nativeMenu;
@@ -34,7 +34,7 @@ addEventListener(
  */
 function loadListener(event) {
   setTimeout(function () {
-    let prefWin = Services.wm.getMostRecentWindow("Mail:Preferences");
+    const prefWin = Services.wm.getMostRecentWindow("Mail:Preferences");
     prefWin.gSubDialog.open(
       "chrome://messenger/content/preferences/dockoptions.xhtml"
     );
@@ -63,7 +63,7 @@ function PrefWindowObserver() {
  * opening Dock Options sub-dialog.
  */
 function openDockOptions() {
-  let win = Services.wm.getMostRecentWindow("Mail:Preferences");
+  const win = Services.wm.getMostRecentWindow("Mail:Preferences");
 
   if (win) {
     openOptionsDialog("paneGeneral");

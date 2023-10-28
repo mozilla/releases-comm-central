@@ -24,7 +24,7 @@ function indexOfArmorDelimiter(text, str, offset) {
   let currentOffset = offset;
 
   while (currentOffset < text.length) {
-    let loc = text.indexOf(str, currentOffset);
+    const loc = text.indexOf(str, currentOffset);
 
     if (loc === -1 || loc === 0 || text.charAt(loc - 1) == "\n") {
       return loc;
@@ -137,7 +137,7 @@ var EnigmailArmor = {
 
     var blockHeader = text.substr(beginIndex, offset - beginIndex + 1);
 
-    let escapedIndentStr = indentStr.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
+    const escapedIndentStr = indentStr.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
     var blockRegex = new RegExp(
       "^" + escapedIndentStr + "-----BEGIN PGP (.{1,30})-----\\s*\\r?\\n"
     );
@@ -284,7 +284,7 @@ var EnigmailArmor = {
    * @returns String - new armored message
    */
   replaceArmorHeaders(armorText, headers) {
-    let text = armorText.replace(/\r\n/g, "\n");
+    const text = armorText.replace(/\r\n/g, "\n");
     let i = text.search(/\n/);
 
     if (i < 0) {
@@ -292,7 +292,7 @@ var EnigmailArmor = {
     }
     let m = text.substr(0, i + 1);
 
-    for (let j in headers) {
+    for (const j in headers) {
       m += j + ": " + headers[j] + "\n";
     }
 
@@ -313,29 +313,29 @@ var EnigmailArmor = {
    * @returns Object: key/value pairs of headers. All keys are in lowercase.
    */
   getArmorHeaders(text) {
-    let headers = {};
-    let b = this.locateArmoredBlocks(text);
+    const headers = {};
+    const b = this.locateArmoredBlocks(text);
 
     if (b.length === 0) {
       return headers;
     }
 
-    let msg = text.substr(b[0].begin);
+    const msg = text.substr(b[0].begin);
 
     // Escape regex chars.
-    let indent = b[0].indent.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
-    let lx = new RegExp("\\n" + indent + "\\r?\\n");
-    let hdrEnd = msg.search(lx);
+    const indent = b[0].indent.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
+    const lx = new RegExp("\\n" + indent + "\\r?\\n");
+    const hdrEnd = msg.search(lx);
     if (hdrEnd < 0) {
       return headers;
     }
 
-    let lines = msg.substr(0, hdrEnd).split(/\r?\n/);
+    const lines = msg.substr(0, hdrEnd).split(/\r?\n/);
 
-    let rx = new RegExp("^" + b[0].indent + "([^: ]+)(: )(.*)");
+    const rx = new RegExp("^" + b[0].indent + "([^: ]+)(: )(.*)");
     // skip 1st line (ARMOR-line)
     for (let i = 1; i < lines.length; i++) {
-      let m = lines[i].match(rx);
+      const m = lines[i].match(rx);
       if (m && m.length >= 4) {
         headers[m[1].toLowerCase()] = m[3];
       }
@@ -348,13 +348,13 @@ var EnigmailArmor = {
    * Split armored blocks into an array of strings
    */
   splitArmoredBlocks(keyBlockStr) {
-    let myRe = /-----BEGIN PGP (PUBLIC|PRIVATE) KEY BLOCK-----/g;
+    const myRe = /-----BEGIN PGP (PUBLIC|PRIVATE) KEY BLOCK-----/g;
     let myArray;
-    let retArr = [];
+    const retArr = [];
     let startIndex = -1;
     while ((myArray = myRe.exec(keyBlockStr)) !== null) {
       if (startIndex >= 0) {
-        let s = keyBlockStr.substring(startIndex, myArray.index);
+        const s = keyBlockStr.substring(startIndex, myArray.index);
         retArr.push(s);
       }
       startIndex = myArray.index;

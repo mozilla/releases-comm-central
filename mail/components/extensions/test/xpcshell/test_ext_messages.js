@@ -31,7 +31,7 @@ add_setup(
 );
 
 add_task(async function non_canonical_permission_description_mapping() {
-  let { msgs } = ExtensionsUI._buildStrings({
+  const { msgs } = ExtensionsUI._buildStrings({
     addon: { name: "FakeExtension" },
     permissions: {
       origins: [],
@@ -56,15 +56,15 @@ add_task(
     skip_if: () => IS_NNTP,
   },
   async function test_pagination() {
-    let files = {
+    const files = {
       "background.js": async () => {
         // Test a response of 99 messages at 10 messages per page.
-        let [folder] = await window.waitForMessage();
+        const [folder] = await window.waitForMessage();
         let page = await browser.messages.list(folder);
         browser.test.assertEq(36, page.id.length);
         browser.test.assertEq(10, page.messages.length);
 
-        let originalPageId = page.id;
+        const originalPageId = page.id;
         let numPages = 1;
         let numMessages = 10;
         while (page.id) {
@@ -97,7 +97,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
@@ -124,13 +124,13 @@ add_task(
     skip_if: () => IS_NNTP,
   },
   async function test_delete_without_permission() {
-    let files = {
+    const files = {
       "background.js": async () => {
-        let [accountId] = await window.waitForMessage();
-        let { folders } = await browser.accounts.get(accountId);
-        let testFolder4 = folders.find(f => f.name == "test4");
+        const [accountId] = await window.waitForMessage();
+        const { folders } = await browser.accounts.get(accountId);
+        const testFolder4 = folders.find(f => f.name == "test4");
 
-        let { messages: folder4Messages } = await browser.messages.list(
+        const { messages: folder4Messages } = await browser.messages.list(
           testFolder4
         );
 
@@ -145,7 +145,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
@@ -168,14 +168,14 @@ add_task(
     skip_if: () => IS_NNTP,
   },
   async function test_move_and_copy_without_permission() {
-    let files = {
+    const files = {
       "background.js": async () => {
-        let [accountId] = await window.waitForMessage();
-        let { folders } = await browser.accounts.get(accountId);
-        let testFolder4 = folders.find(f => f.name == "test4");
-        let testFolder3 = folders.find(f => f.name == "test3");
+        const [accountId] = await window.waitForMessage();
+        const { folders } = await browser.accounts.get(accountId);
+        const testFolder4 = folders.find(f => f.name == "test4");
+        const testFolder3 = folders.find(f => f.name == "test3");
 
-        let { messages: folder4Messages } = await browser.messages.list(
+        const { messages: folder4Messages } = await browser.messages.list(
           testFolder4
         );
 
@@ -197,7 +197,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
@@ -220,16 +220,16 @@ add_task(
     skip_if: () => IS_NNTP,
   },
   async function test_tags() {
-    let files = {
+    const files = {
       "background.js": async () => {
-        let [accountId] = await window.waitForMessage();
-        let { folders } = await browser.accounts.get(accountId);
-        let testFolder4 = folders.find(f => f.name == "test4");
-        let { messages: folder4Messages } = await browser.messages.list(
+        const [accountId] = await window.waitForMessage();
+        const { folders } = await browser.accounts.get(accountId);
+        const testFolder4 = folders.find(f => f.name == "test4");
+        const { messages: folder4Messages } = await browser.messages.list(
           testFolder4
         );
 
-        let tags1 = await browser.messages.listTags();
+        const tags1 = await browser.messages.listTags();
         window.assertDeepEqual(
           [
             {
@@ -268,7 +268,7 @@ add_task(
 
         // Test some allowed special chars and that the key is created as lower
         // case.
-        let goodKeys = [
+        const goodKeys = [
           "TestKey",
           "Test_Key",
           "Test\\Key",
@@ -280,9 +280,9 @@ add_task(
           "Test=Key",
           "Test?Key",
         ];
-        for (let key of goodKeys) {
+        for (const key of goodKeys) {
           await browser.messages.createTag(key, "Test Tag", "#123456");
-          let goodTags = await browser.messages.listTags();
+          const goodTags = await browser.messages.listTags();
           window.assertDeepEqual(
             [
               {
@@ -328,7 +328,7 @@ add_task(
         }
 
         await browser.messages.createTag("custom_tag", "Custom Tag", "#123456");
-        let tags2 = await browser.messages.listTags();
+        const tags2 = await browser.messages.listTags();
         window.assertDeepEqual(
           [
             {
@@ -375,7 +375,7 @@ add_task(
           tag: "Much Later",
           color: "#225599",
         });
-        let tags3 = await browser.messages.listTags();
+        const tags3 = await browser.messages.listTags();
         window.assertDeepEqual(
           [
             {
@@ -419,7 +419,7 @@ add_task(
         );
 
         // Test rejects for createTag().
-        let badKeys = [
+        const badKeys = [
           "Bad Key",
           "Bad%Key",
           "Bad/Key",
@@ -429,7 +429,7 @@ add_task(
           "Bad(Key)",
           "Bad<Key>",
         ];
-        for (let badKey of badKeys) {
+        for (const badKey of badKeys) {
           await browser.test.assertThrows(
             () =>
               browser.messages.createTag(badKey, "Important Stuff", "#223344"),
@@ -525,20 +525,20 @@ add_task(
         await browser.messages.update(folder4Messages[0].id, {
           tags: ["custom_tag"],
         });
-        let message1 = await browser.messages.get(folder4Messages[0].id);
+        const message1 = await browser.messages.get(folder4Messages[0].id);
         window.assertDeepEqual(["custom_tag"], message1.tags);
 
         await browser.messages.deleteTag("custom_tag");
-        let message2 = await browser.messages.get(folder4Messages[0].id);
+        const message2 = await browser.messages.get(folder4Messages[0].id);
         window.assertDeepEqual([], message2.tags);
 
         await browser.messages.createTag("custom_tag", "Custom Tag", "#123456");
-        let message3 = await browser.messages.get(folder4Messages[0].id);
+        const message3 = await browser.messages.get(folder4Messages[0].id);
         window.assertDeepEqual(["custom_tag"], message3.tags);
 
         // Test deleting built-in tag.
         await browser.messages.deleteTag("$label5");
-        let tags4 = await browser.messages.listTags();
+        const tags4 = await browser.messages.listTags();
         window.assertDeepEqual(
           [
             {
@@ -583,7 +583,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
@@ -603,7 +603,7 @@ add_task(
     skip_if: () => IS_NNTP,
   },
   async function test_tags_no_permission() {
-    let files = {
+    const files = {
       "background.js": async () => {
         await browser.test.assertThrows(
           () =>
@@ -632,7 +632,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
@@ -649,34 +649,34 @@ add_task(
 
 // The IMAP fakeserver just can't handle this.
 add_task({ skip_if: () => IS_IMAP || IS_NNTP }, async function test_archive() {
-  let account2 = createAccount();
+  const account2 = createAccount();
   account2.addIdentity(MailServices.accounts.createIdentity());
-  let inbox2 = await createSubfolder(
+  const inbox2 = await createSubfolder(
     account2.incomingServer.rootFolder,
     "test"
   );
   await createMessages(inbox2, 15);
 
   let month = 10;
-  for (let message of inbox2.messages) {
+  for (const message of inbox2.messages) {
     message.date = new Date(2018, month++, 15) * 1000;
   }
 
-  let files = {
+  const files = {
     "background.js": async () => {
-      let [accountId] = await window.waitForMessage();
+      const [accountId] = await window.waitForMessage();
 
-      let accountBefore = await browser.accounts.get(accountId);
+      const accountBefore = await browser.accounts.get(accountId);
       browser.test.assertEq(3, accountBefore.folders.length);
       browser.test.assertEq("/test", accountBefore.folders[2].path);
 
-      let messagesBefore = await browser.messages.list(
+      const messagesBefore = await browser.messages.list(
         accountBefore.folders[2]
       );
       browser.test.assertEq(15, messagesBefore.messages.length);
       await browser.messages.archive(messagesBefore.messages.map(m => m.id));
 
-      let accountAfter = await browser.accounts.get(accountId);
+      const accountAfter = await browser.accounts.get(accountId);
       browser.test.assertEq(4, accountAfter.folders.length);
       browser.test.assertEq("/test", accountAfter.folders[3].path);
       browser.test.assertEq("/Archives", accountAfter.folders[0].path);
@@ -694,20 +694,22 @@ add_task({ skip_if: () => IS_IMAP || IS_NNTP }, async function test_archive() {
         accountAfter.folders[0].subFolders[2].path
       );
 
-      let messagesAfter = await browser.messages.list(accountAfter.folders[3]);
+      const messagesAfter = await browser.messages.list(
+        accountAfter.folders[3]
+      );
       browser.test.assertEq(0, messagesAfter.messages.length);
 
-      let messages2018 = await browser.messages.list(
+      const messages2018 = await browser.messages.list(
         accountAfter.folders[0].subFolders[0]
       );
       browser.test.assertEq(2, messages2018.messages.length);
 
-      let messages2019 = await browser.messages.list(
+      const messages2019 = await browser.messages.list(
         accountAfter.folders[0].subFolders[1]
       );
       browser.test.assertEq(12, messages2019.messages.length);
 
-      let messages2020 = await browser.messages.list(
+      const messages2020 = await browser.messages.list(
         accountAfter.folders[0].subFolders[2]
       );
       browser.test.assertEq(1, messages2020.messages.length);
@@ -716,7 +718,7 @@ add_task({ skip_if: () => IS_IMAP || IS_NNTP }, async function test_archive() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -737,12 +739,12 @@ add_task(
     skip_if: () => IS_IMAP || IS_NNTP,
   },
   async function test_list_auto_early_page_return() {
-    let files = {
+    const files = {
       "background.js": async () => {
-        let [folder] = await window.waitForMessage();
+        const [folder] = await window.waitForMessage();
 
         let page = await browser.messages.list(folder);
-        let listId = page.id;
+        const listId = page.id;
         // This test uses 10 messages per page. The first page should have been
         // returned before all 99 messages have been added to 10 pages.
         // Aborting the list prevents further additions. Therefore, we should not
@@ -781,7 +783,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
@@ -807,15 +809,15 @@ add_task(
     skip_if: () => IS_IMAP || IS_NNTP,
   },
   async function test_query_auto_early_page_return() {
-    let files = {
+    const files = {
       "background.js": async () => {
-        let [folder] = await window.waitForMessage();
+        const [folder] = await window.waitForMessage();
 
         let page = await browser.messages.query({
           folder,
           messagesPerPage: 10,
         });
-        let listId = page.id;
+        const listId = page.id;
         // This test uses 10 messages per page. The first page should have been
         // returned before all 99 messages have been added to 10 pages.
         // Aborting the list prevents further additions. Therefore, we should not
@@ -854,7 +856,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
@@ -876,7 +878,7 @@ add_task(
     skip_if: () => IS_IMAP || IS_NNTP,
   },
   async function test_query_auto_pagination() {
-    let files = {
+    const files = {
       "schema.json": [
         {
           namespace: "PaginationTest",
@@ -917,22 +919,22 @@ add_task(
               PaginationTest: {
                 async throttledQuery(queryInfo) {
                   let msgCounter = 1;
-                  let messageDelays = new Map();
+                  const messageDelays = new Map();
                   messageDelays.set(2, 1500);
                   messageDelays.set(6, 1500);
 
-                  let messageQuery = new MessageQuery(
+                  const messageQuery = new MessageQuery(
                     queryInfo,
                     messageListTracker,
                     extension,
                     async () => {
                       // This is a dummy checkSearchCriteriaFn().
-                      let delay = messageDelays.get(msgCounter) || 0;
+                      const delay = messageDelays.get(msgCounter) || 0;
                       if (delay) {
                         console.log(
                           `Simulating a prolonged synchronous search for message #${msgCounter}`
                         );
-                        let start = Date.now();
+                        const start = Date.now();
                         while (Date.now() - start < delay) {
                           // No Op.
                         }
@@ -949,7 +951,7 @@ add_task(
         };
       },
       "background.js": async () => {
-        let [folder] = await window.waitForMessage();
+        const [folder] = await window.waitForMessage();
 
         // Test the auto-pagination mechanism and the ability to retrieve pages
         // as soon as they are available.
@@ -965,11 +967,11 @@ add_task(
         // create early pages and the enforced interruption will allow the
         // WebExtension to receive the pages before the entire message-add-process
         // has finished.
-        let firstPage = await browser.PaginationTest.throttledQuery({
+        const firstPage = await browser.PaginationTest.throttledQuery({
           folder,
         });
-        let firstPageCreationTime = Date.now();
-        let listId = firstPage.id;
+        const firstPageCreationTime = Date.now();
+        const listId = firstPage.id;
         browser.test.assertEq(
           36,
           listId.length,
@@ -981,8 +983,8 @@ add_task(
           "The first page should be correct"
         );
 
-        let secondPage = await browser.messages.continueList(listId);
-        let secondPageCreationTime = Date.now();
+        const secondPage = await browser.messages.continueList(listId);
+        const secondPageCreationTime = Date.now();
         browser.test.assertEq(
           listId,
           secondPage.id,
@@ -994,7 +996,7 @@ add_task(
           "The second page should be correct"
         );
 
-        let thirdPage = await browser.messages.continueList(listId);
+        const thirdPage = await browser.messages.continueList(listId);
         browser.test.assertEq(
           null,
           thirdPage.id,
@@ -1017,7 +1019,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
@@ -1049,7 +1051,7 @@ add_task(
     skip_if: () => IS_IMAP || IS_NNTP,
   },
   async function test_query_auto_pagination_custom_timeout() {
-    let files = {
+    const files = {
       "schema.json": [
         {
           namespace: "PaginationTest",
@@ -1093,22 +1095,22 @@ add_task(
               PaginationTest: {
                 async throttledQuery(queryInfo) {
                   let msgCounter = 1;
-                  let messageDelays = new Map();
+                  const messageDelays = new Map();
                   messageDelays.set(2, 500);
                   messageDelays.set(6, 500);
 
-                  let messageQuery = new MessageQuery(
+                  const messageQuery = new MessageQuery(
                     queryInfo,
                     messageListTracker,
                     extension,
                     async () => {
                       // This is a dummy checkSearchCriteriaFn().
-                      let delay = messageDelays.get(msgCounter) || 0;
+                      const delay = messageDelays.get(msgCounter) || 0;
                       if (delay) {
                         console.log(
                           `Simulating a prolonged synchronous search for message #${msgCounter}`
                         );
-                        let start = Date.now();
+                        const start = Date.now();
                         while (Date.now() - start < delay) {
                           // No Op.
                         }
@@ -1125,19 +1127,19 @@ add_task(
         };
       },
       "background.js": async () => {
-        let [folder] = await window.waitForMessage();
+        const [folder] = await window.waitForMessage();
 
         // This test will return 99 messages, but will need 500ms to find the
         // 2nd and 6th message. The auto-pagination after the custom 250ms will
         // create early pages and the enforced interruption will allow the
         // WebExtension to receive the pages before the entire message-add-process
         // has finished.
-        let firstPage = await browser.PaginationTest.throttledQuery({
+        const firstPage = await browser.PaginationTest.throttledQuery({
           folder,
           autoPaginationTimeout: 250,
         });
-        let firstPageCreationTime = Date.now();
-        let listId = firstPage.id;
+        const firstPageCreationTime = Date.now();
+        const listId = firstPage.id;
         browser.test.assertEq(
           36,
           listId.length,
@@ -1149,8 +1151,8 @@ add_task(
           "The first page should be correct"
         );
 
-        let secondPage = await browser.messages.continueList(listId);
-        let secondPageCreationTime = Date.now();
+        const secondPage = await browser.messages.continueList(listId);
+        const secondPageCreationTime = Date.now();
         browser.test.assertEq(
           listId,
           secondPage.id,
@@ -1162,7 +1164,7 @@ add_task(
           "The second page should be correct"
         );
 
-        let thirdPage = await browser.messages.continueList(listId);
+        const thirdPage = await browser.messages.continueList(listId);
         browser.test.assertEq(
           null,
           thirdPage.id,
@@ -1185,7 +1187,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
@@ -1217,7 +1219,7 @@ add_task(
     skip_if: () => IS_IMAP || IS_NNTP,
   },
   async function test_query_disabled_auto_pagination() {
-    let files = {
+    const files = {
       "schema.json": [
         {
           namespace: "PaginationTest",
@@ -1261,24 +1263,24 @@ add_task(
               PaginationTest: {
                 async throttledQuery(queryInfo) {
                   let msgCounter = 1;
-                  let messageDelays = new Map();
+                  const messageDelays = new Map();
                   messageDelays.set(2, 500);
                   messageDelays.set(6, 500);
                   messageDelays.set(10, 500);
                   messageDelays.set(30, 500);
 
-                  let messageQuery = new MessageQuery(
+                  const messageQuery = new MessageQuery(
                     queryInfo,
                     messageListTracker,
                     extension,
                     async () => {
                       // This is a dummy checkSearchCriteriaFn().
-                      let delay = messageDelays.get(msgCounter) || 0;
+                      const delay = messageDelays.get(msgCounter) || 0;
                       if (delay) {
                         console.log(
                           `Simulating a prolonged synchronous search for message #${msgCounter}`
                         );
-                        let start = Date.now();
+                        const start = Date.now();
                         while (Date.now() - start < delay) {
                           // No Op.
                         }
@@ -1295,13 +1297,13 @@ add_task(
         };
       },
       "background.js": async () => {
-        let [folder] = await window.waitForMessage();
+        const [folder] = await window.waitForMessage();
 
         // This test will return 99 messages, but will need 500ms to find the
         // 2nd, 6th, 10th and 30th message. Since auto-pagination is disabled,
         // the query will return a single page with all messages after the entire
         // message-add-process has finished.
-        let firstPage = await browser.PaginationTest.throttledQuery({
+        const firstPage = await browser.PaginationTest.throttledQuery({
           folder,
           autoPaginationTimeout: 0,
         });
@@ -1320,7 +1322,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
@@ -1352,7 +1354,7 @@ add_task(
     skip_if: () => IS_IMAP || IS_NNTP,
   },
   async function test_query_returnMessageListId() {
-    let files = {
+    const files = {
       "schema.json": [
         {
           namespace: "PaginationTest",
@@ -1399,21 +1401,21 @@ add_task(
               PaginationTest: {
                 async throttledQuery(queryInfo) {
                   let msgCounter = 1;
-                  let searchResults = new Map();
+                  const searchResults = new Map();
                   searchResults.set(6, true);
                   searchResults.set(55, true);
 
-                  let messageQuery = new MessageQuery(
+                  const messageQuery = new MessageQuery(
                     queryInfo,
                     messageListTracker,
                     extension,
                     async () => {
                       // This is a dummy checkSearchCriteriaFn().
-                      let result = searchResults.has(msgCounter);
+                      const result = searchResults.has(msgCounter);
                       console.log(
                         `Simulating a prolonged synchronous search for message #${msgCounter}`
                       );
-                      let start = Date.now();
+                      const start = Date.now();
                       while (Date.now() - start < 20) {
                         // No Op.
                       }
@@ -1429,27 +1431,27 @@ add_task(
         };
       },
       "background.js": async () => {
-        let [folder] = await window.waitForMessage();
+        const [folder] = await window.waitForMessage();
 
         // This test will return message #6 and message #55, and will need 20ms
         // to check each of the 99 messages in the specified folder.
         // Since autoPagination is disabled and returnMessageListId is enabled,
         // the query should return the listId immediately, and one page with two
         // messages after all 99 messages have been processed.
-        let listId = await browser.PaginationTest.throttledQuery({
+        const listId = await browser.PaginationTest.throttledQuery({
           folder,
           autoPaginationTimeout: 0,
           returnMessageListId: true,
         });
-        let listCreationTime = Date.now();
+        const listCreationTime = Date.now();
         browser.test.assertEq(
           36,
           listId.length,
           "The listId should have the correct length"
         );
 
-        let firstPage = await browser.messages.continueList(listId);
-        let firstPageCreationTime = Date.now();
+        const firstPage = await browser.messages.continueList(listId);
+        const firstPageCreationTime = Date.now();
         browser.test.assertEq(
           null,
           firstPage.id,
@@ -1472,7 +1474,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },

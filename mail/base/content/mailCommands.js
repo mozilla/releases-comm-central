@@ -52,7 +52,7 @@ function GetMsgKeyFromURI(uri) {
   //   ex : mailbox-message://john%2Edoe@pop.isp.invalid/Drafts#12345
   // We keep only the part after '#' and before an optional '?'.
   // The regexp expects 'key' to be an integer (a series of digits) : '\d+'.
-  let match = /.+#(\d+)/.exec(uri);
+  const match = /.+#(\d+)/.exec(uri);
   return match ? match[1] : null;
 }
 
@@ -78,10 +78,10 @@ async function ComposeMessage(
   selection = null,
   autodetectCharset = false
 ) {
-  let aboutMessage =
+  const aboutMessage =
     document.getElementById("tabmail")?.currentAboutMessage ||
     document.getElementById("messageBrowser")?.contentWindow;
-  let currentHeaderData = aboutMessage?.currentHeaderData;
+  const currentHeaderData = aboutMessage?.currentHeaderData;
 
   function isCurrentlyDisplayed(hdr) {
     return (
@@ -100,7 +100,7 @@ async function ComposeMessage(
 
     // Get the delivered-to headers.
     let key = "delivered-to";
-    let deliveredTos = [];
+    const deliveredTos = [];
     let index = 0;
     let header = "";
     while ((header = currentHeaderData[key])) {
@@ -112,7 +112,7 @@ async function ComposeMessage(
     deliveredTos.reverse();
 
     for (let i = 0; i < deliveredTos.length; i++) {
-      for (let identity of MailServices.accounts.allIdentities) {
+      for (const identity of MailServices.accounts.allIdentities) {
         if (!identity.email) {
           continue;
         }
@@ -136,13 +136,13 @@ async function ComposeMessage(
   // Check if the draft is already open in another window. If it is, just focus the window.
   if (type == Ci.nsIMsgCompType.Draft && messageArray.length == 1) {
     // We'll search this uri in the opened windows.
-    for (let win of Services.wm.getEnumerator("")) {
+    for (const win of Services.wm.getEnumerator("")) {
       // Check if it is a compose window.
       if (
         win.document.defaultView.gMsgCompose &&
         win.document.defaultView.gMsgCompose.compFields.draftId
       ) {
-        let wKey = GetMsgKeyFromURI(
+        const wKey = GetMsgKeyFromURI(
           win.document.defaultView.gMsgCompose.compFields.draftId
         );
         if (wKey == msgKey) {
@@ -263,9 +263,9 @@ async function ComposeMessage(
             Ci.nsIMsgCompType.ReplyToList,
           ].includes(type)
         ) {
-          let replyTo = hdr.getStringProperty("replyTo");
-          let from = replyTo || hdr.author;
-          let fromAddrs = MailServices.headerParser.parseEncodedHeader(
+          const replyTo = hdr.getStringProperty("replyTo");
+          const from = replyTo || hdr.author;
+          const fromAddrs = MailServices.headerParser.parseEncodedHeader(
             from,
             null
           );
@@ -277,7 +277,7 @@ async function ComposeMessage(
             // ReplyToList is only enabled for current message (if at all), so
             // using currentHeaderData is ok.
             // List-Post value is of the format <mailto:list@example.com>
-            let listPost = currentHeaderData["list-post"]?.headerValue;
+            const listPost = currentHeaderData["list-post"]?.headerValue;
             if (listPost) {
               email = listPost.replace(/.*<mailto:(.+)>.*/, "$1");
             }
@@ -286,14 +286,14 @@ async function ComposeMessage(
           if (
             /^(.*[._-])?(do[._-]?not|no)[._-]?reply([._-].*)?@/i.test(email)
           ) {
-            let [title, message, replyAnywayButton] =
+            const [title, message, replyAnywayButton] =
               await document.l10n.formatValues([
                 { id: "no-reply-title" },
                 { id: "no-reply-message", args: { email } },
                 { id: "no-reply-reply-anyway-button" },
               ]);
 
-            let buttonFlags =
+            const buttonFlags =
               Ci.nsIPrompt.BUTTON_TITLE_IS_STRING * Ci.nsIPrompt.BUTTON_POS_0 +
               Ci.nsIPrompt.BUTTON_TITLE_CANCEL * Ci.nsIPrompt.BUTTON_POS_1 +
               Ci.nsIPrompt.BUTTON_POS_1_DEFAULT;
@@ -352,15 +352,15 @@ async function ComposeMessage(
               hdr,
               null,
               function (hdr, mimeMsg) {
-                let catchAllHeaders = Services.prefs
+                const catchAllHeaders = Services.prefs
                   .getStringPref("mail.compose.catchAllHeaders")
                   .split(",")
                   .map(header => header.toLowerCase().trim());
                 // Collect catchAll hints from given headers.
                 let collectedHeaderAddresses = "";
-                for (let header of catchAllHeaders) {
+                for (const header of catchAllHeaders) {
                   if (mimeMsg.has(header)) {
-                    for (let mimeMsgHeader of mimeMsg.headers[header]) {
+                    for (const mimeMsgHeader of mimeMsg.headers[header]) {
                       collectedHeaderAddresses +=
                         MailServices.headerParser
                           .parseEncodedHeaderW(mimeMsgHeader)
@@ -379,7 +379,7 @@ async function ComposeMessage(
                 if (identity.catchAll && matchingHint) {
                   // If name is not set in matchingHint, search trough other hints.
                   if (matchingHint.email && !matchingHint.name) {
-                    let hints =
+                    const hints =
                       MailServices.headerParser.makeFromDisplayAddress(
                         hdr.recipients +
                           "," +
@@ -387,7 +387,7 @@ async function ComposeMessage(
                           "," +
                           collectedHeaderAddresses
                       );
-                    for (let hint of hints) {
+                    for (const hint of hints) {
                       if (
                         hint.name &&
                         hint.email.toLowerCase() ==
@@ -428,7 +428,7 @@ async function ComposeMessage(
             );
           } else {
             // Fall back to traditional behavior.
-            let [hdrIdentity] = MailUtils.getIdentityForHeader(
+            const [hdrIdentity] = MailUtils.getIdentityForHeader(
               hdr,
               type,
               findDeliveredToIdentityEmail(hdr)
@@ -495,12 +495,12 @@ function SubscribeOKCallback(changeTable) {
 }
 
 function SaveAsFile(uris) {
-  let filenames = [];
+  const filenames = [];
 
-  for (let uri of uris) {
-    let msgHdr =
+  for (const uri of uris) {
+    const msgHdr =
       MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
-    let nameBase = GenerateFilenameFromMsgHdr(msgHdr);
+    const nameBase = GenerateFilenameFromMsgHdr(msgHdr);
     let name = GenerateValidFilename(nameBase, ".eml");
 
     let number = 2;
@@ -568,15 +568,15 @@ saveAsUrlListener.prototype = {
 
 function SaveAsTemplate(uri) {
   if (uri) {
-    let hdr = messenger.msgHdrFromURI(uri);
-    let [identity] = MailUtils.getIdentityForHeader(
+    const hdr = messenger.msgHdrFromURI(uri);
+    const [identity] = MailUtils.getIdentityForHeader(
       hdr,
       Ci.nsIMsgCompType.Template
     );
-    let templates = MailUtils.getOrCreateFolder(identity.stationeryFolder);
+    const templates = MailUtils.getOrCreateFolder(identity.stationeryFolder);
     if (!templates.parent) {
       templates.setFlag(Ci.nsMsgFolderFlags.Templates);
-      let isAsync = templates.server.protocolInfo.foldersCreatedAsync;
+      const isAsync = templates.server.protocolInfo.foldersCreatedAsync;
       templates.createStorageIfMissing(new saveAsUrlListener(uri, identity));
       if (isAsync) {
         return;
@@ -605,12 +605,12 @@ function viewEncryptedPart(message) {
    *
    * @param {string} data - The message data.
    */
-  let msgOpenMessageFromString = function (data) {
-    let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+  const msgOpenMessageFromString = function (data) {
+    const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     tempFile.append("subPart.eml");
     tempFile.createUnique(0, 0o600);
 
-    let outputStream = Cc[
+    const outputStream = Cc[
       "@mozilla.org/network/file-output-stream;1"
     ].createInstance(Ci.nsIFileOutputStream);
     outputStream.init(tempFile, 2, 0x200, false); // open as "write only"
@@ -618,12 +618,12 @@ function viewEncryptedPart(message) {
     outputStream.close();
 
     // Delete file on exit, because Windows locks the file
-    let extAppLauncher = Cc[
+    const extAppLauncher = Cc[
       "@mozilla.org/uriloader/external-helper-app-service;1"
     ].getService(Ci.nsPIExternalAppLauncher);
     extAppLauncher.deleteTemporaryFileOnExit(tempFile);
 
-    let url = Services.io
+    const url = Services.io
       .getProtocolHandler("file")
       .QueryInterface(Ci.nsIFileProtocolHandler)
       .newFileURI(tempFile);
@@ -632,12 +632,12 @@ function viewEncryptedPart(message) {
   };
 
   function recursiveEmitEncryptedParts(mimeTree) {
-    for (let part of mimeTree.subParts) {
+    for (const part of mimeTree.subParts) {
       const ct = part.headers.contentType.type;
       if (ct == "multipart/encrypted") {
         const boundary = part.headers.contentType.get("boundary");
         let full = `${part.headers.rawHeaderText}\n\n`;
-        for (let subPart of part.subParts) {
+        for (const subPart of part.subParts) {
           full += `${boundary}\n${subPart.headers.rawHeaderText}\n\n${subPart.body}\n`;
         }
         full += `${boundary}--\n`;

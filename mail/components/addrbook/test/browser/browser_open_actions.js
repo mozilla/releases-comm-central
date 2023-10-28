@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 let writableBook, writableCard, readOnlyBook, readOnlyCard;
 
 add_setup(function () {
@@ -20,7 +20,7 @@ add_setup(function () {
 });
 
 async function inEditingMode() {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
   await TestUtils.waitForCondition(
     () => abWindow.detailsPane.isEditing,
     "entering editing mode"
@@ -28,7 +28,7 @@ async function inEditingMode() {
 }
 
 async function notInEditingMode() {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
   await TestUtils.waitForCondition(
     () => !abWindow.detailsPane.isEditing,
     "leaving editing mode"
@@ -40,12 +40,12 @@ async function notInEditingMode() {
  * Then call it again with the tab open and check that it doesn't reload.
  */
 add_task(async function testNoAction() {
-  let abWindow1 = await window.toAddressBook();
+  const abWindow1 = await window.toAddressBook();
   Assert.equal(tabmail.tabInfo.length, 2);
   Assert.equal(tabmail.currentTabInfo.mode.name, "addressBookTab");
   await notInEditingMode();
 
-  let abWindow2 = await window.toAddressBook();
+  const abWindow2 = await window.toAddressBook();
   Assert.equal(tabmail.tabInfo.length, 2);
   Assert.equal(tabmail.currentTabInfo.mode.name, "addressBookTab");
   Assert.equal(
@@ -56,7 +56,7 @@ add_task(async function testNoAction() {
   await notInEditingMode();
 
   tabmail.selectTabByIndex(undefined, 1);
-  let abWindow3 = await window.toAddressBook();
+  const abWindow3 = await window.toAddressBook();
   Assert.equal(tabmail.tabInfo.length, 2);
   Assert.equal(tabmail.currentTabInfo.mode.name, "addressBookTab");
   Assert.equal(

@@ -45,7 +45,7 @@ const { getDefaultItemIdsForSpace } = ChromeUtils.importESModule(
   "resource:///modules/CustomizableItems.sys.mjs"
 );
 
-let about3Pane = get_about_3pane();
+const about3Pane = get_about_3pane();
 about3Pane.quickFilterBar.deferredUpdateSearch =
   about3Pane.quickFilterBar.updateSearch;
 
@@ -118,7 +118,7 @@ async function assert_quick_filter_button_enabled(aEnabled) {
 }
 
 function assert_quick_filter_bar_visible(aVisible) {
-  let bar = about3Pane.document.getElementById("quick-filter-bar");
+  const bar = about3Pane.document.getElementById("quick-filter-bar");
   if (aVisible) {
     Assert.ok(
       BrowserTestUtils.is_visible(bar),
@@ -151,10 +151,10 @@ async function toggle_quick_filter_bar() {
  * that the search constraints are in effect.  Check that elsewhere.
  */
 function assert_constraints_expressed(aConstraints) {
-  for (let name in nameToBarDomId) {
-    let domId = nameToBarDomId[name];
-    let expectedValue = name in aConstraints ? aConstraints[name] : false;
-    let domNode = about3Pane.document.getElementById(domId);
+  for (const name in nameToBarDomId) {
+    const domId = nameToBarDomId[name];
+    const expectedValue = name in aConstraints ? aConstraints[name] : false;
+    const domNode = about3Pane.document.getElementById(domId);
     Assert.equal(
       domNode.pressed,
       expectedValue,
@@ -183,8 +183,8 @@ async function toggle_boolean_constraints(...aArgs) {
  */
 async function toggle_tag_constraints(...aArgs) {
   aArgs.forEach(function (arg) {
-    let tagId = "qfb-tag-" + arg;
-    let button = about3Pane.document.getElementById(tagId);
+    const tagId = "qfb-tag-" + arg;
+    const button = about3Pane.document.getElementById(tagId);
     button.scrollIntoView();
     EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, about3Pane);
   });
@@ -195,7 +195,7 @@ async function toggle_tag_constraints(...aArgs) {
  * Set the tag filtering mode. Wait for messages after.
  */
 async function toggle_tag_mode() {
-  let qbm = about3Pane.document.getElementById("qfb-boolean-mode");
+  const qbm = about3Pane.document.getElementById("qfb-boolean-mode");
   if (qbm.value === "AND") {
     qbm.selectedIndex--; // = move to "OR";
     Assert.equal(qbm.value, "OR", "qfb-boolean-mode has wrong state");
@@ -214,7 +214,7 @@ async function toggle_tag_mode() {
  */
 function assert_tag_constraints_visible(...aArgs) {
   // the stupid bar should be visible if any arguments are specified
-  let tagBar = get_about_3pane().document.getElementById(
+  const tagBar = get_about_3pane().document.getElementById(
     "quickFilterBarTagsContainer"
   );
   if (aArgs.length > 0) {
@@ -224,8 +224,8 @@ function assert_tag_constraints_visible(...aArgs) {
     );
   }
 
-  let kids = tagBar.children;
-  let tagLength = kids.length - 1; // -1 for the qfb-boolean-mode widget
+  const kids = tagBar.children;
+  const tagLength = kids.length - 1; // -1 for the qfb-boolean-mode widget
   // this is bad error reporting in here for now.
   if (tagLength != aArgs.length) {
     throw new Error(
@@ -237,7 +237,7 @@ function assert_tag_constraints_visible(...aArgs) {
     );
   }
   for (let iArg = 0; iArg < aArgs.length; iArg++) {
-    let nodeId = "qfb-tag-" + aArgs[iArg];
+    const nodeId = "qfb-tag-" + aArgs[iArg];
     if (nodeId != kids[iArg + 1].id) {
       throw new Error(
         "Mismatch at tag " +
@@ -256,15 +256,17 @@ function assert_tag_constraints_visible(...aArgs) {
  * checked.
  */
 function assert_tag_constraints_checked(...aArgs) {
-  let expected = {};
-  for (let arg of aArgs) {
-    let nodeId = "qfb-tag-" + arg;
+  const expected = {};
+  for (const arg of aArgs) {
+    const nodeId = "qfb-tag-" + arg;
     expected[nodeId] = true;
   }
 
-  let kids = mc.document.getElementById("quickFilterBarTagsContainer").children;
+  const kids = mc.document.getElementById(
+    "quickFilterBarTagsContainer"
+  ).children;
   for (let iNode = 0; iNode < kids.length; iNode++) {
-    let node = kids[iNode];
+    const node = kids[iNode];
     if (node.pressed != node.id in expected) {
       throw new Error(
         "node " +
@@ -300,17 +302,17 @@ async function toggle_text_constraints(...aArgs) {
  *  support where the arguments are one of sender/recipients/subject/body.
  */
 function assert_text_constraints_checked(...aArgs) {
-  let expected = {};
-  for (let arg of aArgs) {
-    let nodeId = nameToTextDomId[arg];
+  const expected = {};
+  for (const arg of aArgs) {
+    const nodeId = nameToTextDomId[arg];
     expected[nodeId] = true;
   }
 
-  let kids = about3Pane.document.querySelectorAll(
+  const kids = about3Pane.document.querySelectorAll(
     "#quick-filter-bar-filter-text-bar button"
   );
   for (let iNode = 0; iNode < kids.length; iNode++) {
-    let node = kids[iNode];
+    const node = kids[iNode];
     if (node.tagName == "label") {
       continue;
     }
@@ -333,7 +335,7 @@ function assert_text_constraints_checked(...aArgs) {
 async function set_filter_text(aText) {
   // We're not testing the reliability of the textbox widget; just poke our text
   // in and trigger the command logic.
-  let textbox = about3Pane.document
+  const textbox = about3Pane.document
     .getElementById("qfb-qs-textbox")
     .shadowRoot.querySelector("input");
   textbox.value = aText;
@@ -342,7 +344,7 @@ async function set_filter_text(aText) {
 }
 
 function assert_filter_text(aText) {
-  let textbox = get_about_3pane()
+  const textbox = get_about_3pane()
     .document.getElementById("qfb-qs-textbox")
     .shadowRoot.querySelector("input");
   if (textbox.value != aText) {
@@ -361,8 +363,8 @@ function assert_filter_text(aText) {
  *  using the appropriate string.
  */
 function assert_results_label_count(aCount) {
-  let resultsLabel = about3Pane.document.getElementById("qfb-results-label");
-  let attributes = about3Pane.document.l10n.getAttributes(resultsLabel);
+  const resultsLabel = about3Pane.document.getElementById("qfb-results-label");
+  const attributes = about3Pane.document.l10n.getAttributes(resultsLabel);
   if (aCount == 0) {
     Assert.deepEqual(
       attributes,

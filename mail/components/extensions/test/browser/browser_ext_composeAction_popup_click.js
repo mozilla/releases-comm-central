@@ -11,8 +11,8 @@ add_setup(async () => {
 
 // This test clicks on the action button to open the popup.
 add_task(async function test_popup_open_with_click() {
-  for (let area of [null, "formattoolbar"]) {
-    let composeWindow = await openComposeWindow(account);
+  for (const area of [null, "formattoolbar"]) {
+    const composeWindow = await openComposeWindow(account);
     await focusWindow(composeWindow);
 
     await run_popup_test({
@@ -45,12 +45,12 @@ add_task(async function test_popup_open_with_click() {
   }
 });
 
-let background_for_openPopup_tests = async () => {
-  let composeTab = await browser.compose.beginNew();
+const background_for_openPopup_tests = async () => {
+  const composeTab = await browser.compose.beginNew();
   browser.test.assertTrue(!!composeTab, "should have found a compose tab");
 
-  let windows = await browser.windows.getAll();
-  let composeWindow = windows.find(window => window.type == "messageCompose");
+  const windows = await browser.windows.getAll();
+  const composeWindow = windows.find(window => window.type == "messageCompose");
   browser.test.assertTrue(
     !!composeWindow,
     "should have found a compose window"
@@ -85,7 +85,7 @@ let background_for_openPopup_tests = async () => {
 
   // Create a popup window, which does not have a compose_action, openPopup()
   // should fail.
-  let popupWindow = await browser.windows.create({
+  const popupWindow = await browser.windows.create({
     type: "popup",
     url: "https://www.example.com",
   });
@@ -143,7 +143,7 @@ let background_for_openPopup_tests = async () => {
 // This test uses openPopup() to open the popup in a compose window.
 add_task(
   async function test_popup_open_with_openPopup_in_compose_maintoolbar() {
-    let files = {
+    const files = {
       "background.js": background_for_openPopup_tests,
       "utils.js": await getUtilsJS(),
       "popup.html": `<!DOCTYPE html>
@@ -161,7 +161,7 @@ add_task(
         window.close();
       },
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       useAddonManager: "temporary",
       manifest: {
@@ -186,8 +186,8 @@ add_task(
     });
 
     extension.onMessage("collapseToolbar", state => {
-      let window = Services.wm.getMostRecentWindow("msgcompose");
-      let toolbar = window.document.getElementById("composeToolbar2");
+      const window = Services.wm.getMostRecentWindow("msgcompose");
+      const toolbar = window.document.getElementById("composeToolbar2");
       if (state) {
         toolbar.setAttribute("collapsed", "true");
       } else {
@@ -205,7 +205,7 @@ add_task(
 // This test uses openPopup() to open the popup in a compose window.
 add_task(
   async function test_popup_open_with_openPopup_in_compose_formatoolbar() {
-    let files = {
+    const files = {
       "background.js": background_for_openPopup_tests,
       "utils.js": await getUtilsJS(),
       "popup.html": `<!DOCTYPE html>
@@ -223,7 +223,7 @@ add_task(
         window.close();
       },
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       useAddonManager: "temporary",
       manifest: {
@@ -249,8 +249,8 @@ add_task(
     });
 
     extension.onMessage("collapseToolbar", state => {
-      let window = Services.wm.getMostRecentWindow("msgcompose");
-      let toolbar = window.document.getElementById("FormatToolbar");
+      const window = Services.wm.getMostRecentWindow("msgcompose");
+      const toolbar = window.document.getElementById("FormatToolbar");
       if (state) {
         toolbar.setAttribute("collapsed", "true");
       } else {

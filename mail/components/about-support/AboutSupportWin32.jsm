@@ -19,11 +19,11 @@ var AboutSupportPlatform = {
    * string. Possible values are "network", "local", "unknown" and null.
    */
   getFileSystemType(aFile) {
-    let kernel32 = ctypes.open("kernel32.dll");
+    const kernel32 = ctypes.open("kernel32.dll");
 
     try {
       // Returns the path of the volume a file is on.
-      let GetVolumePathName = kernel32.declare(
+      const GetVolumePathName = kernel32.declare(
         "GetVolumePathNameW",
         ctypes.winapi_abi,
         BOOL, // return type: 1 indicates success, 0 failure
@@ -33,18 +33,18 @@ var AboutSupportPlatform = {
       );
 
       // Returns the last error.
-      let GetLastError = kernel32.declare(
+      const GetLastError = kernel32.declare(
         "GetLastError",
         ctypes.winapi_abi,
         ctypes.uint32_t // return type: the last error
       );
 
-      let filePath = aFile.path;
+      const filePath = aFile.path;
       // The volume path should be at most 1 greater than than the length of the
       // path -- add 1 for a trailing backslash if necessary, and 1 for the
       // terminating null character. Note that the parentheses around the type are
       // necessary for new to apply correctly.
-      let volumePath = new (ctypes.char16_t.array(filePath.length + 2))();
+      const volumePath = new (ctypes.char16_t.array(filePath.length + 2))();
 
       if (!GetVolumePathName(filePath, volumePath, volumePath.length)) {
         throw new Error(
@@ -56,13 +56,13 @@ var AboutSupportPlatform = {
       }
 
       // Returns the type of the drive.
-      let GetDriveType = kernel32.declare(
+      const GetDriveType = kernel32.declare(
         "GetDriveTypeW",
         ctypes.winapi_abi,
         ctypes.uint32_t, // return type: the drive type
         ctypes.char16_t.ptr // in: lpRootPathName
       );
-      let type = GetDriveType(volumePath);
+      const type = GetDriveType(volumePath);
       // http://msdn.microsoft.com/en-us/library/aa364939
       if (type == DRIVE_UNKNOWN) {
         return "unknown";

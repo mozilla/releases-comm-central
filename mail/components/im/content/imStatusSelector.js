@@ -24,7 +24,7 @@ var statusSelector = {
   },
 
   displayUserIcon() {
-    let icon = IMServices.core.globalUserStatus.getUserIcon();
+    const icon = IMServices.core.globalUserStatus.getUserIcon();
     ChatIcons.setUserIconSrc(
       document.getElementById("userIcon"),
       icon?.spec,
@@ -34,11 +34,11 @@ var statusSelector = {
 
   displayUserDisplayName() {
     let displayName = IMServices.core.globalUserStatus.displayName;
-    let elt = document.getElementById("displayName");
+    const elt = document.getElementById("displayName");
     if (displayName) {
       elt.removeAttribute("usingDefault");
     } else {
-      let bundle = Services.strings.createBundle(
+      const bundle = Services.strings.createBundle(
         "chrome://messenger/locale/chat.properties"
       );
       displayName = bundle.GetStringFromName("displayNameEmptyText");
@@ -51,18 +51,18 @@ var statusSelector = {
     document
       .getElementById("statusMessageLabel")
       .setAttribute("statusType", aStatusType);
-    let statusString = Status.toLabel(aStatusType);
-    let statusTypeIcon = document.getElementById("statusTypeIcon");
+    const statusString = Status.toLabel(aStatusType);
+    const statusTypeIcon = document.getElementById("statusTypeIcon");
     statusTypeIcon.setAttribute("status", aStatusType);
     statusTypeIcon.setAttribute("tooltiptext", statusString);
     return statusString;
   },
 
   displayCurrentStatus() {
-    let us = IMServices.core.globalUserStatus;
-    let status = Status.toAttribute(us.statusType);
+    const us = IMServices.core.globalUserStatus;
+    const status = Status.toAttribute(us.statusType);
     let message = status == "offline" ? "" : us.statusText;
-    let statusMessage = document.getElementById("statusMessageLabel");
+    const statusMessage = document.getElementById("statusMessageLabel");
     if (!statusMessage) {
       // Chat toolbar not in the DOM yet
       return;
@@ -70,7 +70,7 @@ var statusSelector = {
     if (message) {
       statusMessage.removeAttribute("usingDefault");
     } else {
-      let statusString = this.displayStatusType(status);
+      const statusString = this.displayStatusType(status);
       statusMessage.setAttribute("usingDefault", statusString);
       message = statusString;
     }
@@ -79,7 +79,7 @@ var statusSelector = {
   },
 
   editStatus(aEvent) {
-    let status = aEvent.target.getAttribute("status");
+    const status = aEvent.target.getAttribute("status");
     if (status == "offline") {
       IMServices.core.globalUserStatus.setStatus(
         Ci.imIStatusInfo.STATUS_OFFLINE,
@@ -91,7 +91,7 @@ var statusSelector = {
   },
 
   startEditStatus(aStatusType) {
-    let currentStatusType = document
+    const currentStatusType = document
       .getElementById("statusTypeIcon")
       .getAttribute("status");
     if (aStatusType != currentStatusType) {
@@ -103,11 +103,11 @@ var statusSelector = {
   },
 
   statusMessageClick() {
-    let statusMessage = document.getElementById("statusMessageLabel");
-    let statusMessageInput = document.getElementById("statusMessageInput");
+    const statusMessage = document.getElementById("statusMessageLabel");
+    const statusMessageInput = document.getElementById("statusMessageInput");
     statusMessage.setAttribute("hidden", "true");
     statusMessageInput.removeAttribute("hidden");
-    let statusType = document
+    const statusType = document
       .getElementById("statusTypeIcon")
       .getAttribute("status");
     if (statusType == "offline" || statusMessage.disabled) {
@@ -167,7 +167,7 @@ var statusSelector = {
   statusMessageKeyPress(aEvent) {
     if (!this.hasAttribute("editing")) {
       if (aEvent.keyCode == aEvent.DOM_VK_DOWN) {
-        let button = document.getElementById("statusTypeIcon");
+        const button = document.getElementById("statusTypeIcon");
         document.getElementById("setStatusTypeMenupopup").openPopup(button);
       }
       return;
@@ -190,14 +190,14 @@ var statusSelector = {
   finishEditStatusMessage(aSave) {
     clearTimeout(this._stopEditStatusTimeout);
     delete this._stopEditStatusTimeout;
-    let statusMessage = document.getElementById("statusMessageLabel");
-    let statusMessageInput = document.getElementById("statusMessageInput");
+    const statusMessage = document.getElementById("statusMessageLabel");
+    const statusMessageInput = document.getElementById("statusMessageInput");
     statusMessage.removeAttribute("hidden");
     statusMessageInput.toggleAttribute("hidden", "true");
     if (aSave) {
       let newStatus = Ci.imIStatusInfo.STATUS_UNKNOWN;
       if ("_statusTypeEditing" in this) {
-        let statusType = this._statusTypeEditing;
+        const statusType = this._statusTypeEditing;
         if (statusType == "available") {
           newStatus = Ci.imIStatusInfo.STATUS_AVAILABLE;
         } else if (statusType == "unavailable") {
@@ -245,8 +245,8 @@ var statusSelector = {
   },
 
   userIconClick() {
-    let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-    let bundle = Services.strings.createBundle(
+    const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/chat.properties"
     );
     fp.init(
@@ -264,8 +264,8 @@ var statusSelector = {
   },
 
   displayNameClick() {
-    let displayName = document.getElementById("displayName");
-    let displayNameInput = document.getElementById("displayNameInput");
+    const displayName = document.getElementById("displayName");
+    const displayNameInput = document.getElementById("displayNameInput");
     displayName.setAttribute("hidden", "true");
     displayNameInput.removeAttribute("hidden");
     if (!displayNameInput.hasAttribute("editing")) {
@@ -318,8 +318,8 @@ var statusSelector = {
 
   finishEditDisplayName(aSave) {
     clearTimeout(this._stopEditDisplayNameTimeout);
-    let displayName = document.getElementById("displayName");
-    let displayNameInput = document.getElementById("displayNameInput");
+    const displayName = document.getElementById("displayName");
+    const displayNameInput = document.getElementById("displayNameInput");
     displayName.removeAttribute("hidden");
     displayNameInput.toggleAttribute("hidden", "true");
     // Apply the new display name only if it is different from the current one.
@@ -343,7 +343,7 @@ var statusSelector = {
   },
 
   init() {
-    let events = ["status-changed"];
+    const events = ["status-changed"];
     statusSelector.displayCurrentStatus();
 
     if (document.getElementById("displayName")) {
@@ -356,8 +356,8 @@ var statusSelector = {
       statusSelector.displayUserIcon();
     }
 
-    let statusMessage = document.getElementById("statusMessageLabel");
-    let statusMessageInput = document.getElementById("statusMessageInput");
+    const statusMessage = document.getElementById("statusMessageLabel");
+    const statusMessageInput = document.getElementById("statusMessageInput");
     if (statusMessage && statusMessageInput) {
       statusMessage.addEventListener("keypress", this.statusMessageKeyPress);
       statusMessageInput.addEventListener(
@@ -366,7 +366,7 @@ var statusSelector = {
       );
     }
 
-    for (let event of events) {
+    for (const event of events) {
       Services.obs.addObserver(statusSelector, event);
     }
     statusSelector._events = events;
@@ -375,7 +375,7 @@ var statusSelector = {
   },
 
   unload() {
-    for (let event of statusSelector._events) {
+    for (const event of statusSelector._events) {
       Services.obs.removeObserver(statusSelector, event);
     }
   },

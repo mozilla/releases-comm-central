@@ -144,12 +144,12 @@ ActivityProcess.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
 
-    let oldState = this._state;
+    const oldState = this._state;
     this._state = val;
 
     // let the listeners know about the change
     this.log.debug("Notifying onStateChanged listeners");
-    for (let value of this._listeners) {
+    for (const value of this._listeners) {
       try {
         value.onStateChanged(this, oldState);
       } catch (e) {
@@ -173,7 +173,7 @@ ActivityProcess.prototype = {
     this.lastStatusText = aStatusText;
 
     // notify listeners
-    for (let value of this._listeners) {
+    for (const value of this._listeners) {
       try {
         value.onProgressChanged(
           this,
@@ -196,7 +196,7 @@ ActivityProcess.prototype = {
 
     // let the listeners know about the change
     this.log.debug("Notifying onHandlerChanged listeners");
-    for (let value of this._listeners) {
+    for (const value of this._listeners) {
       try {
         value.onHandlerChanged(this);
       } catch (e) {
@@ -214,7 +214,7 @@ ActivityProcess.prototype = {
 
     // let the listeners know about the change
     this.log.debug("Notifying onHandlerChanged listeners");
-    for (let value of this._listeners) {
+    for (const value of this._listeners) {
       value.onHandlerChanged(this);
     }
   },
@@ -228,7 +228,7 @@ ActivityProcess.prototype = {
 
     // let the listeners know about the change
     this.log.debug("Notifying onHandlerChanged listeners");
-    for (let value of this._listeners) {
+    for (const value of this._listeners) {
       value.onHandlerChanged(this);
     }
   },
@@ -272,7 +272,7 @@ ActivityEvent.prototype = {
 
     // let the listeners know about the change
     this.log.debug("Notifying onHandlerChanged listeners");
-    for (let value of this._listeners) {
+    for (const value of this._listeners) {
       value.onHandlerChanged(this);
     }
   },
@@ -309,7 +309,7 @@ ActivityWarning.prototype = {
 
     // let the listeners know about the change
     this.log.debug("Notifying onHandlerChanged listeners");
-    for (let value of this._listeners) {
+    for (const value of this._listeners) {
       value.onHandlerChanged(this);
     }
   },

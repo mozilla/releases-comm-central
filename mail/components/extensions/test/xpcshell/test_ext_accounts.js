@@ -11,9 +11,9 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
 add_task(async function test_accounts() {
   // Here all the accounts are local but the first account will behave as
   // an actual local account and will be kept last always.
-  let files = {
+  const files = {
     "background.js": async () => {
-      let [account1Id, account1Name] = await window.waitForMessage();
+      const [account1Id, account1Name] = await window.waitForMessage();
 
       let defaultAccount = await browser.accounts.getDefault();
       browser.test.assertEq(
@@ -22,7 +22,7 @@ add_task(async function test_accounts() {
         "The default account should be null, as none is defined."
       );
 
-      let result1 = await browser.accounts.list();
+      const result1 = await browser.accounts.list();
       browser.test.assertEq(1, result1.length);
       window.assertDeepEqual(
         {
@@ -48,16 +48,16 @@ add_task(async function test_accounts() {
       );
 
       // Test that excluding folders works.
-      let result1WithOutFolders = await browser.accounts.list(false);
-      for (let account of result1WithOutFolders) {
+      const result1WithOutFolders = await browser.accounts.list(false);
+      for (const account of result1WithOutFolders) {
         browser.test.assertEq(null, account.folders, "Folders not included");
       }
 
-      let [account2Id, account2Name] = await window.sendMessage(
+      const [account2Id, account2Name] = await window.sendMessage(
         "create account 2"
       );
       // The new account is defined as default and should be returned first.
-      let result2 = await browser.accounts.list();
+      const result2 = await browser.accounts.list();
       browser.test.assertEq(2, result2.length);
       window.assertDeepEqual(
         [
@@ -97,18 +97,24 @@ add_task(async function test_accounts() {
         result2
       );
 
-      let result3 = await browser.accounts.get(account1Id);
+      const result3 = await browser.accounts.get(account1Id);
       window.assertDeepEqual(result1[0], result3);
-      let result4 = await browser.accounts.get(account2Id);
+      const result4 = await browser.accounts.get(account2Id);
       window.assertDeepEqual(result2[0], result4);
 
-      let result3WithoutFolders = await browser.accounts.get(account1Id, false);
+      const result3WithoutFolders = await browser.accounts.get(
+        account1Id,
+        false
+      );
       browser.test.assertEq(
         null,
         result3WithoutFolders.folders,
         "Folders not included"
       );
-      let result4WithoutFolders = await browser.accounts.get(account2Id, false);
+      const result4WithoutFolders = await browser.accounts.get(
+        account2Id,
+        false
+      );
       browser.test.assertEq(
         null,
         result4WithoutFolders.folders,
@@ -116,8 +122,8 @@ add_task(async function test_accounts() {
       );
 
       await window.sendMessage("create folders");
-      let result5 = await browser.accounts.get(account1Id);
-      let platformInfo = await browser.runtime.getPlatformInfo();
+      const result5 = await browser.accounts.get(account1Id);
+      const platformInfo = await browser.runtime.getPlatformInfo();
       window.assertDeepEqual(
         [
           {
@@ -151,11 +157,11 @@ add_task(async function test_accounts() {
       );
 
       // Check we can access the folders through folderPathToURI.
-      for (let folder of result5.folders) {
+      for (const folder of result5.folders) {
         await browser.messages.list(folder);
       }
 
-      let result6 = await browser.accounts.get(account2Id);
+      const result6 = await browser.accounts.get(account2Id);
       window.assertDeepEqual(
         [
           {
@@ -189,7 +195,7 @@ add_task(async function test_accounts() {
       );
 
       // Check we can access the folders through folderPathToURI.
-      for (let folder of result6.folders) {
+      for (const folder of result6.folders) {
         await browser.messages.list(folder);
       }
 
@@ -200,7 +206,7 @@ add_task(async function test_accounts() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -209,11 +215,11 @@ add_task(async function test_accounts() {
   });
 
   await extension.startup();
-  let account1 = createAccount();
+  const account1 = createAccount();
   extension.sendMessage(account1.key, account1.incomingServer.prettyName);
 
   await extension.awaitMessage("create account 2");
-  let account2 = createAccount("imap");
+  const account2 = createAccount("imap");
   IMAPServer.open();
   account2.incomingServer.port = IMAPServer.port;
   account2.incomingServer.username = "user";
@@ -222,12 +228,12 @@ add_task(async function test_accounts() {
   extension.sendMessage(account2.key, account2.incomingServer.prettyName);
 
   await extension.awaitMessage("create folders");
-  let inbox1 = account1.incomingServer.rootFolder.subFolders[0];
+  const inbox1 = account1.incomingServer.rootFolder.subFolders[0];
   // Test our code can handle characters that might be escaped.
   inbox1.createSubfolder("%foo %test% 'bar'(!)+", null);
   inbox1.createSubfolder("Ϟ", null); // Test our code can handle unicode.
 
-  let inbox2 = account2.incomingServer.rootFolder.subFolders[0];
+  const inbox2 = account2.incomingServer.rootFolder.subFolders[0];
   inbox2.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter = "/";
   // Test our code can handle characters that might be escaped.
   inbox2.createSubfolder("%foo %test% 'bar'(!)+", null);
@@ -245,12 +251,12 @@ add_task(async function test_accounts() {
 });
 
 add_task(async function test_identities() {
-  let account1 = createAccount();
-  let account2 = createAccount("imap");
-  let identity0 = addIdentity(account1, "id0@invalid");
-  let identity1 = addIdentity(account1, "id1@invalid");
-  let identity2 = addIdentity(account1, "id2@invalid");
-  let identity3 = addIdentity(account2, "id3@invalid");
+  const account1 = createAccount();
+  const account2 = createAccount("imap");
+  const identity0 = addIdentity(account1, "id0@invalid");
+  const identity1 = addIdentity(account1, "id1@invalid");
+  const identity2 = addIdentity(account1, "id2@invalid");
+  const identity3 = addIdentity(account2, "id3@invalid");
   addIdentity(account2, "id4@invalid");
   identity2.label = "A label";
   identity2.fullName = "Identity 2!";
@@ -262,24 +268,24 @@ add_task(async function test_identities() {
 
   equal(account1.defaultIdentity.key, identity0.key);
   equal(account2.defaultIdentity.key, identity3.key);
-  let files = {
+  const files = {
     "background.js": async () => {
-      let accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length);
 
       const localAccount = accounts.find(account => account.type == "none");
       const imapAccount = accounts.find(account => account.type == "imap");
 
       // Register event listener.
-      let onCreatedLog = [];
+      const onCreatedLog = [];
       browser.identities.onCreated.addListener((id, created) => {
         onCreatedLog.push({ id, created });
       });
-      let onUpdatedLog = [];
+      const onUpdatedLog = [];
       browser.identities.onUpdated.addListener((id, changed) => {
         onUpdatedLog.push({ id, changed });
       });
-      let onDeletedLog = [];
+      const onDeletedLog = [];
       browser.identities.onDeleted.addListener(id => {
         onDeletedLog.push(id);
       });
@@ -307,10 +313,10 @@ add_task(async function test_identities() {
 
       // Testing browser.identities.list().
 
-      let allIdentities = await browser.identities.list();
+      const allIdentities = await browser.identities.list();
       browser.test.assertEq(5, allIdentities.length);
 
-      let localIdentities = await browser.identities.list(localAccount.id);
+      const localIdentities = await browser.identities.list(localAccount.id);
       browser.test.assertEq(
         3,
         localIdentities.length,
@@ -340,12 +346,12 @@ add_task(async function test_identities() {
 
       // Testing browser.identities.get().
 
-      let badIdentity = await browser.identities.get("funny");
+      const badIdentity = await browser.identities.get("funny");
       browser.test.assertEq(null, badIdentity);
 
-      for (let identity of identities) {
-        let testIdentity = await browser.identities.get(identity.id);
-        for (let prop of Object.keys(identity)) {
+      for (const identity of identities) {
+        const testIdentity = await browser.identities.get(identity.id);
+        for (const prop of Object.keys(identity)) {
           browser.test.assertEq(
             identity[prop],
             testIdentity[prop],
@@ -356,10 +362,10 @@ add_task(async function test_identities() {
 
       // Testing browser.identities.delete().
 
-      let imapDefaultIdentity = await browser.identities.getDefault(
+      const imapDefaultIdentity = await browser.identities.getDefault(
         imapAccount.id
       );
-      let imapNonDefaultIdentity = imapIdentities.find(
+      const imapNonDefaultIdentity = imapIdentities.find(
         identity => identity.id != imapDefaultIdentity.id
       );
 
@@ -390,7 +396,7 @@ add_task(async function test_identities() {
 
       // Testing browser.identities.create().
 
-      let createTests = [
+      const createTests = [
         {
           // Set all.
           accountId: imapAccount.id,
@@ -456,7 +462,7 @@ add_task(async function test_identities() {
           expectedThrow: `Setting the id property of a MailIdentity is not supported.`,
         },
       ];
-      for (let createTest of createTests) {
+      for (const createTest of createTests) {
         if (createTest.expectedThrow) {
           await browser.test.assertRejects(
             browser.identities.create(createTest.accountId, createTest.details),
@@ -464,21 +470,21 @@ add_task(async function test_identities() {
             `It rejects as expected: ${createTest.expectedThrow}.`
           );
         } else {
-          let createPromise = new Promise(resolve => {
+          const createPromise = new Promise(resolve => {
             const callback = (id, identity) => {
               browser.identities.onCreated.removeListener(callback);
               resolve(identity);
             };
             browser.identities.onCreated.addListener(callback);
           });
-          let createdIdentity = await browser.identities.create(
+          const createdIdentity = await browser.identities.create(
             createTest.accountId,
             createTest.details
           );
-          let createdIdentity2 = await createPromise;
+          const createdIdentity2 = await createPromise;
 
-          let expected = createTest.details;
-          for (let prop of Object.keys(expected)) {
+          const expected = createTest.details;
+          for (const prop of Object.keys(expected)) {
             browser.test.assertEq(
               expected[prop],
               createdIdentity[prop],
@@ -493,7 +499,7 @@ add_task(async function test_identities() {
           await browser.identities.delete(createdIdentity.id);
         }
 
-        let foundIdentities = await browser.identities.list(imapAccount.id);
+        const foundIdentities = await browser.identities.list(imapAccount.id);
         browser.test.assertEq(
           1,
           foundIdentities.length,
@@ -503,7 +509,7 @@ add_task(async function test_identities() {
 
       // Testing browser.identities.update().
 
-      let updateTests = [
+      const updateTests = [
         {
           // Set all.
           identityId: identities[2].id,
@@ -590,7 +596,7 @@ add_task(async function test_identities() {
             "Setting the id property of a MailIdentity is not supported.",
         },
       ];
-      for (let updateTest of updateTests) {
+      for (const updateTest of updateTests) {
         if (updateTest.expectedThrow) {
           await browser.test.assertRejects(
             browser.identities.update(
@@ -603,25 +609,25 @@ add_task(async function test_identities() {
           continue;
         }
 
-        let updatePromise = new Promise(resolve => {
+        const updatePromise = new Promise(resolve => {
           const callback = (id, changed) => {
             browser.identities.onUpdated.removeListener(callback);
             resolve(changed);
           };
           browser.identities.onUpdated.addListener(callback);
         });
-        let updatedIdentity = await browser.identities.update(
+        const updatedIdentity = await browser.identities.update(
           updateTest.identityId,
           updateTest.details
         );
         await updatePromise;
 
-        let returnedIdentity = await browser.identities.get(
+        const returnedIdentity = await browser.identities.get(
           updateTest.identityId
         );
 
-        let expected = updateTest.expected || updateTest.details;
-        for (let prop of Object.keys(expected)) {
+        const expected = updateTest.expected || updateTest.details;
+        for (const prop of Object.keys(expected)) {
           browser.test.assertEq(
             expected[prop],
             updatedIdentity[prop],
@@ -766,7 +772,7 @@ add_task(async function test_identities() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -785,14 +791,14 @@ add_task(async function test_identities() {
 });
 
 add_task(async function test_identities_without_write_permissions() {
-  let account = createAccount();
-  let identity0 = addIdentity(account, "id0@invalid");
+  const account = createAccount();
+  const identity0 = addIdentity(account, "id0@invalid");
 
   equal(account.defaultIdentity.key, identity0.key);
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     async background() {
-      let accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list();
       browser.test.assertEq(1, accounts.length);
 
       const [{ identities }] = accounts;
@@ -829,23 +835,23 @@ add_task(async function test_identities_without_write_permissions() {
 });
 
 add_task(async function test_accounts_events() {
-  let account1 = createAccount();
+  const account1 = createAccount();
   addIdentity(account1, "id1@invalid");
 
-  let files = {
+  const files = {
     "background.js": async () => {
       // Register event listener.
-      let onCreatedLog = [];
-      let onUpdatedLog = [];
-      let onDeletedLog = [];
+      const onCreatedLog = [];
+      const onUpdatedLog = [];
+      const onDeletedLog = [];
 
-      let createListener = (id, created) => {
+      const createListener = (id, created) => {
         onCreatedLog.push({ id, created });
       };
-      let updateListener = (id, changed) => {
+      const updateListener = (id, changed) => {
         onUpdatedLog.push({ id, changed });
       };
-      let deleteListener = id => {
+      const deleteListener = id => {
         onDeletedLog.push(id);
       };
 
@@ -854,36 +860,36 @@ add_task(async function test_accounts_events() {
       await browser.accounts.onDeleted.addListener(deleteListener);
 
       // Create accounts.
-      let imapAccountKey = await window.sendMessage("createAccount", {
+      const imapAccountKey = await window.sendMessage("createAccount", {
         type: "imap",
         identity: "user@invalidImap",
       });
-      let localAccountKey = await window.sendMessage("createAccount", {
+      const localAccountKey = await window.sendMessage("createAccount", {
         type: "none",
         identity: "user@invalidLocal",
       });
-      let popAccountKey = await window.sendMessage("createAccount", {
+      const popAccountKey = await window.sendMessage("createAccount", {
         type: "pop3",
         identity: "user@invalidPop",
       });
 
       // Update account identities.
-      let accounts = await browser.accounts.list();
-      let imapAccount = accounts.find(a => a.id == imapAccountKey);
-      let localAccount = accounts.find(a => a.id == localAccountKey);
-      let popAccount = accounts.find(a => a.id == popAccountKey);
+      const accounts = await browser.accounts.list();
+      const imapAccount = accounts.find(a => a.id == imapAccountKey);
+      const localAccount = accounts.find(a => a.id == localAccountKey);
+      const popAccount = accounts.find(a => a.id == popAccountKey);
 
-      let id1 = await browser.identities.create(imapAccount.id, {
+      const id1 = await browser.identities.create(imapAccount.id, {
         composeHtml: true,
         email: "user1@inter.net",
         name: "user1",
       });
-      let id2 = await browser.identities.create(localAccount.id, {
+      const id2 = await browser.identities.create(localAccount.id, {
         composeHtml: false,
         email: "user2@inter.net",
         name: "user2",
       });
-      let id3 = await browser.identities.create(popAccount.id, {
+      const id3 = await browser.identities.create(popAccount.id, {
         composeHtml: false,
         email: "user3@inter.net",
         name: "user3",
@@ -1057,7 +1063,7 @@ add_task(async function test_accounts_events() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -1066,17 +1072,17 @@ add_task(async function test_accounts_events() {
   });
 
   extension.onMessage("createAccount", details => {
-    let account = createAccount(details.type);
+    const account = createAccount(details.type);
     addIdentity(account, details.identity);
     extension.sendMessage(account.key);
   });
   extension.onMessage("updateAccountName", details => {
-    let account = MailServices.accounts.getAccount(details.accountKey);
+    const account = MailServices.accounts.getAccount(details.accountKey);
     account.incomingServer.prettyName = details.name;
     extension.sendMessage();
   });
   extension.onMessage("removeAccount", details => {
-    let account = MailServices.accounts.getAccount(details.accountKey);
+    const account = MailServices.accounts.getAccount(details.accountKey);
     cleanUpAccount(account);
     extension.sendMessage();
   });

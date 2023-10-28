@@ -7,7 +7,7 @@ let subFolders;
 
 add_setup(async () => {
   account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
   subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
   await TestUtils.waitForCondition(
@@ -17,7 +17,7 @@ add_setup(async () => {
 });
 
 function getMessage() {
-  let messages = subFolders[0].messages;
+  const messages = subFolders[0].messages;
   ok(messages.hasMoreElements(), "Should have messages to iterate to");
   return messages.getNext();
 }
@@ -26,7 +26,7 @@ async function subtest_popup_open_with_click_MV3_event_pages(
   terminateBackground
 ) {
   info("3-pane tab");
-  let testConfig = {
+  const testConfig = {
     actionType: "action",
     manifest_version: 3,
     terminateBackground,
@@ -48,8 +48,8 @@ async function subtest_popup_open_with_click_MV3_event_pages(
 
   info("Message window");
   {
-    let messageWindow = await openMessageInWindow(getMessage());
-    let testConfig = {
+    const messageWindow = await openMessageInWindow(getMessage());
+    const testConfig = {
       actionType: "action",
       manifest_version: 3,
       terminateBackground,

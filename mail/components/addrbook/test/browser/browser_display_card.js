@@ -17,7 +17,7 @@ var { AddrBookCard } = ChromeUtils.import(
 );
 
 /** @implements {nsIExternalProtocolService} */
-let mockExternalProtocolService = {
+const mockExternalProtocolService = {
   _loadedURLs: [],
   externalProtocolHandlerExists(aProtocolScheme) {},
   getApplicationDescription(aScheme) {},
@@ -76,12 +76,12 @@ add_setup(async function () {
   );
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
 
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
 
-  let mockExternalProtocolServiceCID = MockRegistrar.register(
+  const mockExternalProtocolServiceCID = MockRegistrar.register(
     "@mozilla.org/uriloader/external-protocol-service;1",
     mockExternalProtocolService
   );
@@ -98,25 +98,25 @@ add_setup(async function () {
  * Checks basic display.
  */
 add_task(async function testDisplay() {
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
   openDirectory(personalBook);
 
-  let abDocument = abWindow.document;
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
 
-  let viewContactName = abDocument.getElementById("viewContactName");
-  let viewPrimaryEmail = abDocument.getElementById("viewPrimaryEmail");
-  let editButton = abDocument.getElementById("editButton");
+  const viewContactName = abDocument.getElementById("viewContactName");
+  const viewPrimaryEmail = abDocument.getElementById("viewPrimaryEmail");
+  const editButton = abDocument.getElementById("editButton");
 
-  let emailAddressesSection = abDocument.getElementById("emailAddresses");
-  let phoneNumbersSection = abDocument.getElementById("phoneNumbers");
-  let addressesSection = abDocument.getElementById("addresses");
-  let notesSection = abDocument.getElementById("notes");
-  let websitesSection = abDocument.getElementById("websites");
-  let imppSection = abDocument.getElementById("instantMessaging");
-  let otherInfoSection = abDocument.getElementById("otherInfo");
-  let selectedCardsSection = abDocument.getElementById("selectedCards");
+  const emailAddressesSection = abDocument.getElementById("emailAddresses");
+  const phoneNumbersSection = abDocument.getElementById("phoneNumbers");
+  const addressesSection = abDocument.getElementById("addresses");
+  const notesSection = abDocument.getElementById("notes");
+  const websitesSection = abDocument.getElementById("websites");
+  const imppSection = abDocument.getElementById("instantMessaging");
+  const otherInfoSection = abDocument.getElementById("otherInfo");
+  const selectedCardsSection = abDocument.getElementById("selectedCards");
 
   Assert.equal(cardsList.view.rowCount, personalBook.childCardCount);
   Assert.ok(detailsPane.hidden);
@@ -404,12 +404,12 @@ add_task(async function testDisplay() {
  * Test the display of dates with various components missing.
  */
 add_task(async function testDates() {
-  let abWindow = await openAddressBookWindow();
-  let otherInfoSection = abWindow.document.getElementById("otherInfo");
+  const abWindow = await openAddressBookWindow();
+  const otherInfoSection = abWindow.document.getElementById("otherInfo");
 
   // Year only.
 
-  let yearCard = await addAndDisplayCard(formatVCard`
+  const yearCard = await addAndDisplayCard(formatVCard`
     BEGIN:VCARD
     EMAIL:xbasic3@invalid
     ANNIVERSARY:2005
@@ -426,7 +426,7 @@ add_task(async function testDates() {
 
   // Year and month.
 
-  let yearMonthCard = await addAndDisplayCard(formatVCard`
+  const yearMonthCard = await addAndDisplayCard(formatVCard`
     BEGIN:VCARD
     EMAIL:xbasic4@invalid
     ANNIVERSARY:2006-06
@@ -442,7 +442,7 @@ add_task(async function testDates() {
   Assert.equal(items[0].children[1].textContent, "June 2006");
 
   // Month only.
-  let monthCard = await addAndDisplayCard(formatVCard`
+  const monthCard = await addAndDisplayCard(formatVCard`
     BEGIN:VCARD
     EMAIL:xbasic5@invalid
     ANNIVERSARY:--12
@@ -458,7 +458,7 @@ add_task(async function testDates() {
   Assert.equal(items[0].children[1].textContent, "December");
 
   // Month and day.
-  let monthDayCard = await addAndDisplayCard(formatVCard`
+  const monthDayCard = await addAndDisplayCard(formatVCard`
     BEGIN:VCARD
     EMAIL:xbasic6@invalid
     ANNIVERSARY;VALUE=DATE:--0704
@@ -474,7 +474,7 @@ add_task(async function testDates() {
   Assert.equal(items[0].children[1].textContent, "July 4");
 
   // Day only.
-  let dayCard = await addAndDisplayCard(formatVCard`
+  const dayCard = await addAndDisplayCard(formatVCard`
     BEGIN:VCARD
     EMAIL:xbasic7@invalid
     ANNIVERSARY:---30
@@ -503,7 +503,7 @@ add_task(async function testDates() {
  * Only an organisation name.
  */
 add_task(async function testOrganisationNameOnly() {
-  let card = await addAndDisplayCard(
+  const card = await addAndDisplayCard(
     VCardUtils.vCardToAbCard(formatVCard`
       BEGIN:VCARD
       ORG:organisation
@@ -511,8 +511,8 @@ add_task(async function testOrganisationNameOnly() {
     `)
   );
 
-  let abWindow = await getAddressBookWindow();
-  let viewContactName = abWindow.document.getElementById("viewContactName");
+  const abWindow = await getAddressBookWindow();
+  const viewContactName = abWindow.document.getElementById("viewContactName");
   Assert.equal(viewContactName.textContent, "organisation");
 
   await closeAddressBookWindow();
@@ -541,12 +541,12 @@ add_task(async function testCustomProperties() {
   ]);
   card = await addAndDisplayCard(card);
 
-  let abWindow = await getAddressBookWindow();
-  let otherInfoSection = abWindow.document.getElementById("otherInfo");
+  const abWindow = await getAddressBookWindow();
+  const otherInfoSection = abWindow.document.getElementById("otherInfo");
 
   Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
 
-  let items = otherInfoSection.querySelectorAll("li");
+  const items = otherInfoSection.querySelectorAll("li");
   Assert.equal(items.length, 3);
   // Custom 1 has no value, should not display.
   // Custom 2 has an old property value, should display that.
@@ -572,8 +572,8 @@ add_task(async function testCustomProperties() {
  * Checks that the edit button is hidden for read-only contacts.
  */
 add_task(async function testReadOnlyActions() {
-  let readOnlyBook = createAddressBook("Read-Only Book");
-  let readOnlyList = readOnlyBook.addMailList(
+  const readOnlyBook = createAddressBook("Read-Only Book");
+  const readOnlyList = readOnlyBook.addMailList(
     createMailingList("Read-Only List")
   );
   readOnlyBook.addCard(
@@ -595,18 +595,18 @@ add_task(async function testReadOnlyActions() {
   );
   readOnlyBook.setBoolValue("readOnly", true);
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
 
-  let abDocument = abWindow.document;
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
-  let contactView = abDocument.getElementById("viewContact");
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
+  const contactView = abDocument.getElementById("viewContact");
 
-  let actions = abDocument.getElementById("detailsActions");
-  let editButton = abDocument.getElementById("editButton");
-  let editForm = abDocument.getElementById("editContactForm");
+  const actions = abDocument.getElementById("detailsActions");
+  const editButton = abDocument.getElementById("editButton");
+  const editForm = abDocument.getElementById("editContactForm");
 
-  let selectHandler = {
+  const selectHandler = {
     seenEvent: null,
     selectedAtEvent: null,
 
@@ -771,7 +771,7 @@ add_task(async function testReadOnlyActions() {
  * other characters in URI values.
  */
 add_task(async function testGoogleEscaping() {
-  let googleBook = createAddressBook("Google Book");
+  const googleBook = createAddressBook("Google Book");
   googleBook.wrappedJSObject._isGoogleCardDAV = true;
   googleBook.addCard(
     VCardUtils.vCardToAbCard(formatVCard`
@@ -787,24 +787,24 @@ add_task(async function testGoogleEscaping() {
     `)
   );
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
 
-  let abDocument = abWindow.document;
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
 
-  let viewContactName = abDocument.getElementById("viewContactName");
-  let viewPrimaryEmail = abDocument.getElementById("viewPrimaryEmail");
-  let editButton = abDocument.getElementById("editButton");
+  const viewContactName = abDocument.getElementById("viewContactName");
+  const viewPrimaryEmail = abDocument.getElementById("viewPrimaryEmail");
+  const editButton = abDocument.getElementById("editButton");
 
-  let emailAddressesSection = abDocument.getElementById("emailAddresses");
-  let phoneNumbersSection = abDocument.getElementById("phoneNumbers");
-  let addressesSection = abDocument.getElementById("addresses");
-  let notesSection = abDocument.getElementById("notes");
-  let websitesSection = abDocument.getElementById("websites");
-  let imppSection = abDocument.getElementById("instantMessaging");
-  let otherInfoSection = abDocument.getElementById("otherInfo");
-  let selectedCardsSection = abDocument.getElementById("selectedCards");
+  const emailAddressesSection = abDocument.getElementById("emailAddresses");
+  const phoneNumbersSection = abDocument.getElementById("phoneNumbers");
+  const addressesSection = abDocument.getElementById("addresses");
+  const notesSection = abDocument.getElementById("notes");
+  const websitesSection = abDocument.getElementById("websites");
+  const imppSection = abDocument.getElementById("instantMessaging");
+  const otherInfoSection = abDocument.getElementById("otherInfo");
+  const selectedCardsSection = abDocument.getElementById("selectedCards");
 
   openDirectory(googleBook);
   Assert.equal(cardsList.view.rowCount, 1);
@@ -896,12 +896,12 @@ async function addAndDisplayCard(card) {
   }
   card = personalBook.addCard(card);
 
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
 
-  let index = cardsList.view.getIndexForUID(card.UID);
+  const index = cardsList.view.getIndexForUID(card.UID);
   EventUtils.synthesizeMouseAtCenter(
     cardsList.getRowAtIndex(index),
     {},
@@ -918,14 +918,14 @@ async function checkActionButtons(
   displayName,
   searchString = primaryEmail
 ) {
-  let tabmail = document.getElementById("tabmail");
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const tabmail = document.getElementById("tabmail");
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let writeButton = abDocument.getElementById("detailsWriteButton");
-  let eventButton = abDocument.getElementById("detailsEventButton");
-  let searchButton = abDocument.getElementById("detailsSearchButton");
-  let newListButton = abDocument.getElementById("detailsNewListButton");
+  const writeButton = abDocument.getElementById("detailsWriteButton");
+  const eventButton = abDocument.getElementById("detailsEventButton");
+  const searchButton = abDocument.getElementById("detailsSearchButton");
+  const newListButton = abDocument.getElementById("detailsNewListButton");
 
   if (primaryEmail) {
     // Write.
@@ -934,7 +934,7 @@ async function checkActionButtons(
       "write button is visible"
     );
 
-    let composeWindowPromise = BrowserTestUtils.domWindowOpened();
+    const composeWindowPromise = BrowserTestUtils.domWindowOpened();
     EventUtils.synthesizeMouseAtCenter(writeButton, {}, abWindow);
     await checkComposeWindow(
       await composeWindowPromise,
@@ -949,11 +949,11 @@ async function checkActionButtons(
 
     let searchTabPromise = BrowserTestUtils.waitForEvent(window, "TabOpen");
     EventUtils.synthesizeMouseAtCenter(searchButton, {}, abWindow);
-    let {
+    const {
       detail: { tabInfo: searchTab },
     } = await searchTabPromise;
 
-    let searchBox = tabmail.selectedTab.panel.querySelector(".searchBox");
+    const searchBox = tabmail.selectedTab.panel.querySelector(".searchBox");
     Assert.equal(searchBox.value, searchString);
 
     searchTabPromise = BrowserTestUtils.waitForEvent(window, "TabClose");
@@ -968,15 +968,15 @@ async function checkActionButtons(
 
     let eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
     EventUtils.synthesizeMouseAtCenter(eventButton, {}, abWindow);
-    let eventWindow = await eventWindowPromise;
+    const eventWindow = await eventWindowPromise;
 
-    let iframe = eventWindow.document.getElementById(
+    const iframe = eventWindow.document.getElementById(
       "calendar-item-panel-iframe"
     );
-    let tabPanels = iframe.contentDocument.getElementById(
+    const tabPanels = iframe.contentDocument.getElementById(
       "event-grid-tabpanels"
     );
-    let attendeesTabPanel = iframe.contentDocument.getElementById(
+    const attendeesTabPanel = iframe.contentDocument.getElementById(
       "event-grid-tabpanel-attendees"
     );
     Assert.equal(
@@ -984,7 +984,7 @@ async function checkActionButtons(
       attendeesTabPanel,
       "attendees are displayed"
     );
-    let attendeeNames = attendeesTabPanel.querySelectorAll(
+    const attendeeNames = attendeesTabPanel.querySelectorAll(
       ".attendee-list .attendee-name"
     );
     Assert.deepEqual(

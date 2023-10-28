@@ -34,7 +34,7 @@ registerCleanupFunction(function () {
  */
 add_task(async function test_open_unified_by_context() {
   // First, ensure that the context menu is closed.
-  let contextPopup = document.getElementById("toolbar-context-menu");
+  const contextPopup = document.getElementById("toolbar-context-menu");
   Assert.notEqual(
     contextPopup.state,
     "open",
@@ -91,7 +91,7 @@ add_task(async function test_open_unified_by_context() {
  */
 add_task(async function test_open_unified_by_menu() {
   // First, ensure that the menu is closed.
-  let appMenu = document.getElementById("appMenu-popup");
+  const appMenu = document.getElementById("appMenu-popup");
   Assert.notEqual(
     appMenu.getAttribute("panelopen"),
     "true",

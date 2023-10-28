@@ -3,22 +3,21 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_setup(async () => {
-  let account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
+  const account = createAccount();
+  const rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("testFolder", null);
   await createMessages(rootFolder.getChildNamed("testFolder"), 5);
 });
 
 add_task(async function test_tabs_move() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
         // Works as intended only if tabs are created one after the other.
         async function createTab(url) {
-          let createdTab;
-          let loadPromise = new Promise(resolve => {
+          const loadPromise = new Promise(resolve => {
             let urlSeen = false;
-            let listener = (tabId, changeInfo) => {
+            const listener = (tabId, changeInfo) => {
               if (changeInfo.url && changeInfo.url == url) {
                 urlSeen = true;
               }
@@ -29,20 +28,19 @@ add_task(async function test_tabs_move() {
             };
             browser.tabs.onUpdated.addListener(listener);
           });
-          createdTab = await browser.tabs.create({ url });
+          const createdTab = await browser.tabs.create({ url });
           await loadPromise;
           return createdTab;
         }
 
         // Works as intended only if windows are created one after the other.
         async function createWindow({ url, type }) {
-          let createdWindow;
-          let loadPromise = new Promise(resolve => {
+          const loadPromise = new Promise(resolve => {
             if (!url) {
               resolve();
             } else {
               let urlSeen = false;
-              let listener = async (tabId, changeInfo) => {
+              const listener = async (tabId, changeInfo) => {
                 if (changeInfo.url && changeInfo.url == url) {
                   urlSeen = true;
                 }
@@ -54,17 +52,17 @@ add_task(async function test_tabs_move() {
               browser.tabs.onUpdated.addListener(listener);
             }
           });
-          createdWindow = await browser.windows.create({ type, url });
+          const createdWindow = await browser.windows.create({ type, url });
           await loadPromise;
           return createdWindow;
         }
 
-        let mailWindow = await browser.windows.getCurrent();
+        const mailWindow = await browser.windows.getCurrent();
 
-        let tab1 = await createTab(browser.runtime.getURL("test1.html"));
-        let tab2 = await createTab(browser.runtime.getURL("test2.html"));
-        let tab3 = await createTab(browser.runtime.getURL("test3.html"));
-        let tab4 = await createTab(browser.runtime.getURL("test4.html"));
+        const tab1 = await createTab(browser.runtime.getURL("test1.html"));
+        const tab2 = await createTab(browser.runtime.getURL("test2.html"));
+        const tab3 = await createTab(browser.runtime.getURL("test3.html"));
+        const tab4 = await createTab(browser.runtime.getURL("test4.html"));
 
         let tabs = await browser.tabs.query({ windowId: mailWindow.id });
         browser.test.assertEq(5, tabs.length, "Number of tabs is correct");
@@ -194,7 +192,7 @@ add_task(async function test_tabs_move() {
         );
 
         // Moving tabs to a popup should fail.
-        let popupWindow = await createWindow({
+        const popupWindow = await createWindow({
           url: browser.runtime.getURL("test1.html"),
           type: "popup",
         });
@@ -208,7 +206,9 @@ add_task(async function test_tabs_move() {
         );
 
         // Moving a tab from a popup should fail.
-        let [popupTab] = await browser.tabs.query({ windowId: popupWindow.id });
+        const [popupTab] = await browser.tabs.query({
+          windowId: popupWindow.id,
+        });
         await browser.test.assertRejects(
           browser.tabs.move(popupTab.id, {
             windowId: mailWindow.id,
@@ -226,8 +226,8 @@ add_task(async function test_tabs_move() {
         );
 
         // Move tab between windows.
-        let secondMailWindow = await createWindow({ type: "normal" });
-        let [movedTab] = await browser.tabs.move(tab3.id, {
+        const secondMailWindow = await createWindow({ type: "normal" });
+        const [movedTab] = await browser.tabs.move(tab3.id, {
           windowId: secondMailWindow.id,
           index: -1,
         });

@@ -55,7 +55,7 @@ add_setup(async function () {
   aliceIdentity.email = "alice@openpgp.example";
   aliceAcct.addIdentity(aliceIdentity);
 
-  let [id] = await OpenPGPTestUtils.importPrivateKey(
+  const [id] = await OpenPGPTestUtils.importPrivateKey(
     window,
     new FileUtils.File(
       getTestFilePath(
@@ -84,7 +84,7 @@ add_setup(async function () {
  * reply for an encrypted message. See bug 1661510.
  */
 add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
-  let draftsFolder = await get_special_folder(
+  const draftsFolder = await get_special_folder(
     Ci.nsMsgFolderFlags.Drafts,
     true,
     aliceAcct.incomingServer.localFoldersServer
@@ -96,7 +96,7 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
   registerCleanupFunction(
     async () =>
       new Promise(resolve => {
-        let msgs = [...draftsFolder.msgDatabase.enumerateMessages()];
+        const msgs = [...draftsFolder.msgDatabase.enumerateMessages()];
 
         draftsFolder.deleteMessages(
           msgs,
@@ -110,22 +110,22 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
   );
 
   // Test signed-encrypted and unsigned-encrypted messages.
-  let msgFiles = [
+  const msgFiles = [
     "data/eml/signed-by-0xfbfcc82a015e7330-encrypted-to-0xf231550c4f47e38e.eml",
     "data/eml/unsigned-encrypted-to-0xf231550c4f47e38e-from-0xfbfcc82a015e7330.eml",
   ];
   let wantedRow = 0;
 
-  for (let msg of msgFiles) {
-    let msgc = await open_message_from_file(
+  for (const msg of msgFiles) {
+    const msgc = await open_message_from_file(
       new FileUtils.File(getTestFilePath(msg))
     );
 
-    let replyWindowPromise = waitForComposeWindow();
+    const replyWindowPromise = waitForComposeWindow();
     get_about_message(msgc).document.querySelector("#hdrReplyButton").click();
     await BrowserTestUtils.closeWindow(msgc);
 
-    let replyWindow = await replyWindowPromise;
+    const replyWindow = await replyWindowPromise;
     await save_compose_message(replyWindow);
     replyWindow.close();
 
@@ -134,12 +134,12 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
       "message saved to drafts folder"
     );
 
-    let draftWindowPromise = waitForComposeWindow();
+    const draftWindowPromise = waitForComposeWindow();
     await select_click_row(wantedRow);
     ++wantedRow;
     open_selected_message();
 
-    let draftWindow = await draftWindowPromise;
+    const draftWindow = await draftWindowPromise;
 
     Assert.ok(
       draftWindow.document.querySelector("#msgSubject").value.startsWith("Re:"),

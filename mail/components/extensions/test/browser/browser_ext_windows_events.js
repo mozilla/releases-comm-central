@@ -3,40 +3,40 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  let account = createAccount();
+  const account = createAccount();
   addIdentity(account);
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("windowsEvents", null);
-  let testFolder = rootFolder.findSubFolder("windowsEvents");
+  const testFolder = rootFolder.findSubFolder("windowsEvents");
   createMessages(testFolder, 5);
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
         // Executes a command, but first loads a second extension with terminated
         // background and waits for it to be restarted due to the executed command.
         async function capturePrimedEvent(eventName, callback) {
-          let eventPageExtensionReadyPromise = window.waitForMessage();
+          const eventPageExtensionReadyPromise = window.waitForMessage();
           browser.test.sendMessage("capturePrimedEvent", eventName);
           await eventPageExtensionReadyPromise;
-          let eventPageExtensionFinishedPromise = window.waitForMessage();
+          const eventPageExtensionFinishedPromise = window.waitForMessage();
           callback();
           return eventPageExtensionFinishedPromise;
         }
 
-        let listener = {
+        const listener = {
           tabEvents: [],
           windowEvents: [],
           currentPromise: null,
 
           pushEvent(...args) {
             browser.test.log(JSON.stringify(args));
-            let queue = args[0].startsWith("windows.")
+            const queue = args[0].startsWith("windows.")
               ? this.windowEvents
               : this.tabEvents;
             queue.push(args);
             if (queue.currentPromise) {
-              let p = queue.currentPromise;
+              const p = queue.currentPromise;
               queue.currentPromise = null;
               p.resolve();
             }
@@ -54,7 +54,7 @@ add_task(async () => {
             this.pushEvent("tabs.onRemoved", ...args);
           },
           async checkEvent(expectedEvent, ...expectedArgs) {
-            let queue = expectedEvent.startsWith("windows.")
+            const queue = expectedEvent.startsWith("windows.")
               ? this.windowEvents
               : this.tabEvents;
             if (queue.length == 0) {
@@ -62,7 +62,7 @@ add_task(async () => {
                 resolve => (queue.currentPromise = { resolve })
               );
             }
-            let [actualEvent, ...actualArgs] = queue.shift();
+            const [actualEvent, ...actualArgs] = queue.shift();
             browser.test.assertEq(expectedEvent, actualEvent);
             browser.test.assertEq(expectedArgs.length, actualArgs.length);
 
@@ -72,7 +72,7 @@ add_task(async () => {
                 typeof actualArgs[i]
               );
               if (typeof expectedArgs[i] == "object") {
-                for (let key of Object.keys(expectedArgs[i])) {
+                for (const key of Object.keys(expectedArgs[i])) {
                   browser.test.assertEq(
                     expectedArgs[i][key],
                     actualArgs[i][key]
@@ -103,22 +103,22 @@ add_task(async () => {
           "Collect the ID of the initial window (there must be only one) and tab."
         );
 
-        let initialWindows = await browser.windows.getAll({ populate: true });
+        const initialWindows = await browser.windows.getAll({ populate: true });
         browser.test.assertEq(1, initialWindows.length);
-        let [{ id: initialWindow, tabs: initialTabs }] = initialWindows;
+        const [{ id: initialWindow, tabs: initialTabs }] = initialWindows;
         browser.test.assertEq(1, initialTabs.length);
         browser.test.assertEq(0, initialTabs[0].index);
         browser.test.assertTrue(initialTabs[0].mailTab);
-        let [{ id: initialTab }] = initialTabs;
+        const [{ id: initialTab }] = initialTabs;
 
         browser.test.log("Open a new main window (messenger.xhtml).");
 
-        let primedMainWindowInfo = await window.sendMessage("openMainWindow");
-        let [{ id: mainWindow }] = await listener.checkEvent(
+        const primedMainWindowInfo = await window.sendMessage("openMainWindow");
+        const [{ id: mainWindow }] = await listener.checkEvent(
           "windows.onCreated",
           { type: "normal" }
         );
-        let [{ id: mainTab }] = await listener.checkEvent("tabs.onCreated", {
+        const [{ id: mainTab }] = await listener.checkEvent("tabs.onCreated", {
           index: 0,
           windowId: mainWindow,
           active: true,
@@ -136,22 +136,25 @@ add_task(async () => {
 
         browser.test.log("Open a compose window (messengercompose.xhtml).");
 
-        let primedComposeWindowInfo = await capturePrimedEvent(
+        const primedComposeWindowInfo = await capturePrimedEvent(
           "onCreated",
           () => browser.compose.beginNew()
         );
-        let [{ id: composeWindow }] = await listener.checkEvent(
+        const [{ id: composeWindow }] = await listener.checkEvent(
           "windows.onCreated",
           {
             type: "messageCompose",
           }
         );
-        let [{ id: composeTab }] = await listener.checkEvent("tabs.onCreated", {
-          index: 0,
-          windowId: composeWindow,
-          active: true,
-          mailTab: false,
-        });
+        const [{ id: composeTab }] = await listener.checkEvent(
+          "tabs.onCreated",
+          {
+            index: 0,
+            windowId: composeWindow,
+            active: true,
+            mailTab: false,
+          }
+        );
         window.assertDeepEqual(
           [
             {
@@ -164,21 +167,24 @@ add_task(async () => {
 
         browser.test.log("Open a message in a window (messageWindow.xhtml).");
 
-        let primedDisplayWindowInfo = await window.sendMessage(
+        const primedDisplayWindowInfo = await window.sendMessage(
           "openDisplayWindow"
         );
-        let [{ id: displayWindow }] = await listener.checkEvent(
+        const [{ id: displayWindow }] = await listener.checkEvent(
           "windows.onCreated",
           {
             type: "messageDisplay",
           }
         );
-        let [{ id: displayTab }] = await listener.checkEvent("tabs.onCreated", {
-          index: 0,
-          windowId: displayWindow,
-          active: true,
-          mailTab: false,
-        });
+        const [{ id: displayTab }] = await listener.checkEvent(
+          "tabs.onCreated",
+          {
+            index: 0,
+            windowId: displayWindow,
+            active: true,
+            mailTab: false,
+          }
+        );
         window.assertDeepEqual(
           [
             {
@@ -191,15 +197,17 @@ add_task(async () => {
 
         browser.test.log("Open a page in a popup window.");
 
-        let primedPopupWindowInfo = await capturePrimedEvent("onCreated", () =>
-          browser.windows.create({
-            url: "test.html",
-            type: "popup",
-            width: 800,
-            height: 500,
-          })
+        const primedPopupWindowInfo = await capturePrimedEvent(
+          "onCreated",
+          () =>
+            browser.windows.create({
+              url: "test.html",
+              type: "popup",
+              width: 800,
+              height: 500,
+            })
         );
-        let [{ id: popupWindow }] = await listener.checkEvent(
+        const [{ id: popupWindow }] = await listener.checkEvent(
           "windows.onCreated",
           {
             type: "popup",
@@ -207,7 +215,7 @@ add_task(async () => {
             height: 500,
           }
         );
-        let [{ id: popupTab }] = await listener.checkEvent("tabs.onCreated", {
+        const [{ id: popupTab }] = await listener.checkEvent("tabs.onCreated", {
           index: 0,
           windowId: popupWindow,
           active: true,
@@ -231,20 +239,21 @@ add_task(async () => {
 
         browser.test.log("Change focused window.");
 
-        let focusInfoPromise = new Promise(resolve => {
-          let listener = windowId => {
+        const focusInfoPromise = new Promise(resolve => {
+          const listener = windowId => {
             browser.windows.onFocusChanged.removeListener(listener);
             resolve(windowId);
           };
           browser.windows.onFocusChanged.addListener(listener);
         });
-        let [primedFocusInfo] = await capturePrimedEvent("onFocusChanged", () =>
-          browser.windows.update(composeWindow, { focused: true })
+        const [primedFocusInfo] = await capturePrimedEvent(
+          "onFocusChanged",
+          () => browser.windows.update(composeWindow, { focused: true })
         );
-        let focusInfo = await focusInfoPromise;
-        let platformInfo = await browser.runtime.getPlatformInfo();
+        const focusInfo = await focusInfoPromise;
+        const platformInfo = await browser.runtime.getPlatformInfo();
 
-        let expectedWindow = ["mac", "win"].includes(platformInfo.os)
+        const expectedWindow = ["mac", "win"].includes(platformInfo.os)
           ? composeWindow
           : browser.windows.WINDOW_ID_NONE;
         window.assertDeepEqual(expectedWindow, primedFocusInfo);
@@ -252,7 +261,7 @@ add_task(async () => {
 
         browser.test.log("Close the new main window.");
 
-        let primedMainWindowRemoveInfo = await capturePrimedEvent(
+        const primedMainWindowRemoveInfo = await capturePrimedEvent(
           "onRemoved",
           () => browser.windows.remove(mainWindow)
         );
@@ -265,7 +274,7 @@ add_task(async () => {
 
         browser.test.log("Close the compose window.");
 
-        let primedComposWindowRemoveInfo = await capturePrimedEvent(
+        const primedComposWindowRemoveInfo = await capturePrimedEvent(
           "onRemoved",
           () => browser.windows.remove(composeWindow)
         );
@@ -278,7 +287,7 @@ add_task(async () => {
 
         browser.test.log("Close the message window.");
 
-        let primedDisplayWindowRemoveInfo = await capturePrimedEvent(
+        const primedDisplayWindowRemoveInfo = await capturePrimedEvent(
           "onRemoved",
           () => browser.windows.remove(displayWindow)
         );
@@ -291,7 +300,7 @@ add_task(async () => {
 
         browser.test.log("Close the popup window.");
 
-        let primedPopupWindowRemoveInfo = await capturePrimedEvent(
+        const primedPopupWindowRemoveInfo = await capturePrimedEvent(
           "onRemoved",
           () => browser.windows.remove(popupWindow)
         );
@@ -302,7 +311,7 @@ add_task(async () => {
         });
         window.assertDeepEqual([popupWindow], primedPopupWindowRemoveInfo);
 
-        let finalWindows = await browser.windows.getAll({ populate: true });
+        const finalWindows = await browser.windows.getAll({ populate: true });
         browser.test.assertEq(1, finalWindows.length);
         browser.test.assertEq(initialWindow, finalWindows[0].id);
         browser.test.assertEq(1, finalWindows[0].tabs.length);
@@ -324,13 +333,13 @@ add_task(async () => {
   // the main test is about to trigger an event. The extension terminates its
   // background and listens for that single event, verifying it is waking up correctly.
   async function event_page_extension(eventName, actionCallback) {
-    let ext = ExtensionTestUtils.loadExtension({
+    const ext = ExtensionTestUtils.loadExtension({
       files: {
         "background.js": async () => {
           // Whenever the extension starts or wakes up, hasFired is set to false. In
           // case of a wake-up, the first fired event is the one that woke up the background.
           let hasFired = false;
-          let eventName = browser.runtime.getManifest().description;
+          const eventName = browser.runtime.getManifest().description;
 
           if (
             ["onCreated", "onFocusChanged", "onRemoved"].includes(eventName)
@@ -367,7 +376,7 @@ add_task(async () => {
     assertPersistentListeners(ext, "windows", eventName, { primed: true });
 
     await actionCallback();
-    let rv = await ext.awaitMessage(`${eventName} received`);
+    const rv = await ext.awaitMessage(`${eventName} received`);
     await ext.awaitMessage("background started");
     // The listener should be persistent, but not primed.
     assertPersistentListeners(ext, "windows", eventName, { primed: false });
@@ -377,21 +386,21 @@ add_task(async () => {
   }
 
   extension.onMessage("openMainWindow", async () => {
-    let primedEventData = await event_page_extension("onCreated", () => {
+    const primedEventData = await event_page_extension("onCreated", () => {
       return window.MsgOpenNewWindowForFolder(testFolder.URI);
     });
     extension.sendMessage(...primedEventData);
   });
 
   extension.onMessage("openDisplayWindow", async () => {
-    let primedEventData = await event_page_extension("onCreated", () => {
+    const primedEventData = await event_page_extension("onCreated", () => {
       return openMessageInWindow([...testFolder.messages][0]);
     });
     extension.sendMessage(...primedEventData);
   });
 
   extension.onMessage("capturePrimedEvent", async eventName => {
-    let primedEventData = await event_page_extension(eventName, () => {
+    const primedEventData = await event_page_extension(eventName, () => {
       // Resume execution of the main test, after the event page extension has
       // primed its event listeners.
       extension.sendMessage();

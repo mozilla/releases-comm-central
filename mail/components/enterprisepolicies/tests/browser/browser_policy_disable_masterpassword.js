@@ -9,14 +9,14 @@ const mpToken = Cc["@mozilla.org/security/pk11tokendb;1"]
   .getInternalKeyToken();
 
 async function checkDeviceManager({ buttonIsDisabled }) {
-  let deviceManagerWindow = window.openDialog(
+  const deviceManagerWindow = window.openDialog(
     "chrome://pippki/content/device_manager.xhtml",
     "",
     ""
   );
   await BrowserTestUtils.waitForEvent(deviceManagerWindow, "load");
 
-  let tree = deviceManagerWindow.document.getElementById("device_tree");
+  const tree = deviceManagerWindow.document.getElementById("device_tree");
   ok(tree, "The device tree exists");
 
   // Find and select the item related to the internal key token
@@ -24,7 +24,7 @@ async function checkDeviceManager({ buttonIsDisabled }) {
     tree.view.selection.select(i);
 
     try {
-      let selected_token = deviceManagerWindow.selected_slot.getToken();
+      const selected_token = deviceManagerWindow.selected_slot.getToken();
       if (selected_token.isInternalKeyToken) {
         break;
       }
@@ -32,7 +32,7 @@ async function checkDeviceManager({ buttonIsDisabled }) {
   }
 
   // Check to see if the button was updated correctly
-  let changePwButton =
+  const changePwButton =
     deviceManagerWindow.document.getElementById("change_pw_button");
   is(
     changePwButton.getAttribute("disabled") == "true",

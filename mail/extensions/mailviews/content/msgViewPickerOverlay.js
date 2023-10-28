@@ -36,8 +36,8 @@ var gMailViewList = null;
 // perform the view/action requested by the aValue string
 // and set the view picker label to the aLabel string
 function ViewChange(aValue) {
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-  let viewWrapper = about3Pane.gViewWrapper;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const viewWrapper = about3Pane.gViewWrapper;
   if (!viewWrapper) {
     return;
   }
@@ -95,8 +95,8 @@ var ViewPickerBinding = {
    * everything but tags.  for tags it's the ":"-prefixed tagname.
    */
   get currentViewValue() {
-    let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-    let viewWrapper = about3Pane.gViewWrapper;
+    const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+    const viewWrapper = about3Pane.gViewWrapper;
     if (!viewWrapper) {
       return "";
     }
@@ -133,7 +133,7 @@ function LaunchCustomizeDialog() {
  */
 function RefreshAllViewPopups(viewPopup) {
   RefreshViewPopup(viewPopup);
-  let menupopups = viewPopup.getElementsByTagName("menupopup");
+  const menupopups = viewPopup.getElementsByTagName("menupopup");
   if (menupopups.length > 1) {
     // When we have menupopups, we assume both tags and custom views are there.
     RefreshTagsPopup(menupopups[0]);
@@ -149,19 +149,21 @@ function RefreshAllViewPopups(viewPopup) {
  */
 function RefreshViewPopup(viewPopup) {
   // Mark default views if selected.
-  let currentViewValue = ViewPickerBinding.currentViewValue;
+  const currentViewValue = ViewPickerBinding.currentViewValue;
 
-  let viewAll = viewPopup.querySelector('[value="' + kViewItemAll + '"]');
+  const viewAll = viewPopup.querySelector('[value="' + kViewItemAll + '"]');
   viewAll.setAttribute("checked", currentViewValue == kViewItemAll);
 
-  let viewUnread = viewPopup.querySelector('[value="' + kViewItemUnread + '"]');
+  const viewUnread = viewPopup.querySelector(
+    '[value="' + kViewItemUnread + '"]'
+  );
   viewUnread.setAttribute("checked", currentViewValue == kViewItemUnread);
 
-  let viewNotDeleted = viewPopup.querySelector(
+  const viewNotDeleted = viewPopup.querySelector(
     '[value="' + kViewItemNotDeleted + '"]'
   );
 
-  let folderArray = GetSelectedMsgFolders();
+  const folderArray = GetSelectedMsgFolders();
   if (folderArray.length == 0) {
     return;
   }
@@ -172,7 +174,7 @@ function RefreshViewPopup(viewPopup) {
   var msgFolder = folderArray[0];
   var server = msgFolder.server;
   if (server.type == "imap") {
-    let imapServer = server.QueryInterface(Ci.nsIImapIncomingServer);
+    const imapServer = server.QueryInterface(Ci.nsIImapIncomingServer);
 
     if (imapServer.deleteModel == Ci.nsMsgImapDeleteModels.IMAPDelete) {
       viewNotDeleted.setAttribute("hidden", false);
@@ -246,8 +248,8 @@ function RefreshTagsPopup(parent, elementName = "menuitem", classes) {
   }
 
   // Create tag menu items.
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-  let viewWrapper = about3Pane.gViewWrapper;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const viewWrapper = about3Pane.gViewWrapper;
   if (!viewWrapper) {
     return;
   }

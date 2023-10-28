@@ -103,7 +103,7 @@ async function buildFontList() {
   gFontEnumerator = Cc["@mozilla.org/gfx/fontenumerator;1"].createInstance(
     Ci.nsIFontEnumerator
   );
-  for (let fontType of kFontTypes) {
+  for (const fontType of kFontTypes) {
     gRealFontLists[fontType] = await gFontEnumerator.EnumerateFontsAsync(
       kLanguage,
       fontType
@@ -152,15 +152,15 @@ async function _verify_fonts_displayed(
   aMonospace
 ) {
   // Bring up the preferences window.
-  let prefTab = await open_pref_tab("paneGeneral");
-  let contentDoc = prefTab.browser.contentDocument;
-  let prefsWindow = contentDoc.ownerGlobal;
+  const prefTab = await open_pref_tab("paneGeneral");
+  const contentDoc = prefTab.browser.contentDocument;
+  const prefsWindow = contentDoc.ownerGlobal;
   prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
 
-  let isSansDefault =
+  const isSansDefault =
     Services.prefs.getCharPref("font.default." + kLanguage) == "sans-serif";
-  let displayPaneExpected = isSansDefault ? aSansSerif : aSerif;
-  let displayPaneActual = content_tab_e(prefTab, "defaultFont");
+  const displayPaneExpected = isSansDefault ? aSansSerif : aSerif;
+  const displayPaneActual = content_tab_e(prefTab, "defaultFont");
   await TestUtils.waitForCondition(
     () => displayPaneActual.itemCount > 0,
     "No font names were populated in the font picker."
@@ -171,19 +171,19 @@ async function _verify_fonts_displayed(
     displayPaneActual.value
   );
 
-  let advancedFonts = contentDoc.getElementById("advancedFonts");
+  const advancedFonts = contentDoc.getElementById("advancedFonts");
   advancedFonts.scrollIntoView(false);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
   // Now open the advanced dialog.
   EventUtils.synthesizeMouseAtCenter(advancedFonts, {}, prefsWindow);
-  let fontc = await wait_for_frame_load(
+  const fontc = await wait_for_frame_load(
     prefsWindow.gSubDialog._topDialog._frame,
     "chrome://messenger/content/preferences/fonts.xhtml"
   );
 
   // The font pickers are populated async so we need to wait for it.
-  for (let fontElemId of ["serif", "sans-serif", "monospace"]) {
+  for (const fontElemId of ["serif", "sans-serif", "monospace"]) {
     await TestUtils.waitForCondition(
       () => fontc.document.getElementById(fontElemId).label != "",
       "Timeout waiting for font picker '" + fontElemId + "' to populate."
@@ -262,12 +262,12 @@ add_task(async function test_font_name_displayed() {
   Services.prefs.setCharPref("font.language.group", kLanguage);
 
   // Pick the first font for each font type and set it.
-  let expected = {};
-  for (let [fontType, fontList] of Object.entries(gRealFontLists)) {
+  const expected = {};
+  for (const [fontType, fontList] of Object.entries(gRealFontLists)) {
     // Work around bug 698238 (on Windows, Courier is returned by the enumerator but
     // substituted with Courier New) by getting the standard (substituted) family
     // name for each font.
-    let standardFamily = gFontEnumerator.getStandardFamilyName(fontList[0]);
+    const standardFamily = gFontEnumerator.getStandardFamilyName(fontList[0]);
     Services.prefs.setCharPref(
       "font.name." + fontType + "." + kLanguage,
       standardFamily
@@ -275,7 +275,7 @@ add_task(async function test_font_name_displayed() {
     expected[fontType] = standardFamily;
   }
 
-  let fontTypes = kFontTypes.map(fontType => expected[fontType]);
+  const fontTypes = kFontTypes.map(fontType => expected[fontType]);
   await _verify_fonts_displayed(false, ...fontTypes);
   teardownTest();
 });
@@ -298,13 +298,13 @@ add_task(async function test_font_name_not_present() {
 
   // The fonts we're expecting to see selected in the font chooser for
   // test_font_name_not_present.
-  let expected = {};
-  for (let [fontType, fakeFont] of Object.entries(kFakeFonts)) {
+  const expected = {};
+  for (const [fontType, fakeFont] of Object.entries(kFakeFonts)) {
     // Look at the font.name-list. We need to verify that the first font is the
     // fake one, and that the second one is present on the user's computer.
-    let listPref = "font.name-list." + fontType + "." + kLanguage;
-    let fontList = Services.prefs.getCharPref(listPref);
-    let fonts = fontList.split(",").map(font => font.trim());
+    const listPref = "font.name-list." + fontType + "." + kLanguage;
+    const fontList = Services.prefs.getCharPref(listPref);
+    const fonts = fontList.split(",").map(font => font.trim());
     if (fonts.length != 2) {
       throw new Error(
         listPref +
@@ -345,7 +345,7 @@ add_task(async function test_font_name_not_present() {
     );
   }
 
-  let fontTypes = kFontTypes.map(fontType => expected[fontType]);
+  const fontTypes = kFontTypes.map(fontType => expected[fontType]);
   await _verify_fonts_displayed(true, ...fontTypes);
   teardownTest();
 });

@@ -6,13 +6,13 @@ var { ExtensionSupport } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSupport.sys.mjs"
 );
 
-let account = createAccount();
-let defaultIdentity = addIdentity(account);
-let nonDefaultIdentity = addIdentity(account, "nondefault@invalid");
+const account = createAccount();
+const defaultIdentity = addIdentity(account);
+const nonDefaultIdentity = addIdentity(account, "nondefault@invalid");
 
 // A local outbox is needed so we can use "send later".
-let localAccount = createAccount("local");
-let outbox = localAccount.incomingServer.rootFolder.getChildNamed("outbox");
+const localAccount = createAccount("local");
+const outbox = localAccount.incomingServer.rootFolder.getChildNamed("outbox");
 
 function messagesInOutbox(count) {
   info(`Checking for ${count} messages in outbox`);
@@ -39,7 +39,7 @@ function messagesInOutbox(count) {
 }
 
 add_task(async function testCancel() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function beginSend(sendExpected, lockExpected) {
         await window.sendMessage("beginSend");
@@ -58,17 +58,17 @@ add_task(async function testCancel() {
       // because we removed the sending function, so we can attempt to send
       // it over and over.
 
-      let createdWindowPromise = window.waitForEvent("windows.onCreated");
+      const createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         to: ["test@test.invalid"],
         subject: "Test",
       });
-      let [createdWindow] = await createdWindowPromise;
+      const [createdWindow] = await createdWindowPromise;
       browser.test.assertEq("messageCompose", createdWindow.type);
 
       await checkWindow({ to: ["test@test.invalid"], subject: "Test" });
 
-      let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
+      const [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
       // Send the message. No listeners exist, so sending should continue.
 
@@ -76,7 +76,7 @@ add_task(async function testCancel() {
 
       // Add a non-cancelling listener. Sending should continue.
 
-      let listener1 = tab => {
+      const listener1 = tab => {
         listener1.tab = tab;
         return {};
       };
@@ -88,7 +88,7 @@ add_task(async function testCancel() {
 
       // Add a cancelling listener. Sending should not continue.
 
-      let listener2 = tab => {
+      const listener2 = tab => {
         listener2.tab = tab;
         return { cancel: true };
       };
@@ -102,7 +102,7 @@ add_task(async function testCancel() {
       // Add a listener returning a Promise. Resolve the Promise to unblock.
       // Sending should continue.
 
-      let listener3 = tab => {
+      const listener3 = tab => {
         listener3.tab = tab;
         return new Promise(resolve => {
           listener3.resolve = resolve;
@@ -119,7 +119,7 @@ add_task(async function testCancel() {
       // Add a listener returning a Promise. Resolve the Promise to cancel.
       // Sending should not continue.
 
-      let listener4 = tab => {
+      const listener4 = tab => {
         listener4.tab = tab;
         return new Promise(resolve => {
           listener4.resolve = resolve;
@@ -136,7 +136,7 @@ add_task(async function testCancel() {
 
       // Clean up.
 
-      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      const removedWindowPromise = window.waitForEvent("windows.onRemoved");
       browser.windows.remove(createdWindow.id);
       await removedWindowPromise;
 
@@ -161,7 +161,7 @@ add_task(async function testCancel() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -197,7 +197,7 @@ add_task(async function testCancel() {
   });
 
   extension.onMessage("beginSend", async () => {
-    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
 
     composeWindows[0]
@@ -217,7 +217,7 @@ add_task(async function testCancel() {
     is(didTryToSendMessage, sendExpected, "did try to send a message");
 
     if (lockExpected !== null) {
-      let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+      const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
       is(composeWindows.length, 1);
       is(composeWindows[0].gWindowLocked, lockExpected, "window is locked");
     }
@@ -240,7 +240,7 @@ add_task(async function testCancel() {
 });
 
 add_task(async function testChangeDetails() {
-  let files = {
+  const files = {
     "background.js": async () => {
       function beginSend() {
         return window.sendMessage("beginSend");
@@ -250,11 +250,11 @@ add_task(async function testChangeDetails() {
         return window.sendMessage("checkWindow", expected);
       }
 
-      let accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list();
       // If this test is run alone, the order of accounts is different compared
       // to running all tests. We need the account with the 2 added identities.
-      let account = accounts.find(a => a.identities.length == 2);
-      let [defaultIdentity, nonDefaultIdentity] = account.identities;
+      const account = accounts.find(a => a.identities.length == 2);
+      const [defaultIdentity, nonDefaultIdentity] = account.identities;
 
       // Add a listener that changes the headers and body. Sending should
       // continue and the headers should change. This is largely the same code
@@ -278,7 +278,7 @@ add_task(async function testChangeDetails() {
 
       let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
-      let listener5 = (tab, details) => {
+      const listener5 = (tab, details) => {
         listener5.tab = tab;
         listener5.details = details;
         return {
@@ -328,7 +328,7 @@ add_task(async function testChangeDetails() {
 
       [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
-      let listener6 = (tab, details) => {
+      const listener6 = (tab, details) => {
         listener6.tab = tab;
         listener6.details = details;
         return new Promise(resolve => {
@@ -375,7 +375,7 @@ add_task(async function testChangeDetails() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -384,7 +384,7 @@ add_task(async function testChangeDetails() {
   });
 
   extension.onMessage("beginSend", async () => {
-    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
 
     composeWindows[0]
@@ -400,8 +400,8 @@ add_task(async function testChangeDetails() {
   extension.onMessage("checkWindow", async expected => {
     await checkComposeHeaders(expected);
 
-    let composeWindow = Services.wm.getMostRecentWindow("msgcompose");
-    let body = composeWindow
+    const composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+    const body = composeWindow
       .GetCurrentEditor()
       .outputToString("text/plain", Ci.nsIDocumentEncoder.OutputRaw);
     is(body, expected.body);
@@ -415,9 +415,9 @@ add_task(async function testChangeDetails() {
 
   await messagesInOutbox(2);
 
-  let outboxMessages = [...outbox.messages];
+  const outboxMessages = [...outbox.messages];
   ok(outboxMessages.length > 0);
-  let sentMessage5 = outboxMessages.shift();
+  const sentMessage5 = outboxMessages.shift();
   is(sentMessage5.author, "nondefault@invalid", "author was changed");
   is(sentMessage5.subject, "Changed by listener5", "subject was changed");
   is(sentMessage5.recipients, "to@test5.invalid", "to was changed");
@@ -435,7 +435,7 @@ add_task(async function testChangeDetails() {
   });
 
   ok(outboxMessages.length > 0);
-  let sentMessage6 = outboxMessages.shift();
+  const sentMessage6 = outboxMessages.shift();
   is(sentMessage6.author, "nondefault@invalid", "author was changed");
   is(sentMessage6.subject, "Changed by listener6", "subject was changed");
   is(sentMessage6.recipients, "to@test6.invalid", "to was changed");
@@ -467,12 +467,12 @@ add_task(async function testChangeDetails() {
 });
 
 add_task(async function testChangeAttachments() {
-  let files = {
+  const files = {
     "background.js": async () => {
       // Add a listener that changes attachments. Sending should continue and
       // the attachments should change.
 
-      let tab = await browser.compose.beginNew({
+      const tab = await browser.compose.beginNew({
         to: ["test@test.invalid"],
         subject: "Test",
         body: "Original body.",
@@ -482,7 +482,7 @@ add_task(async function testChangeAttachments() {
         ],
       });
 
-      let listener12 = async (tab, details) => {
+      const listener12 = async (tab, details) => {
         let attachments = await browser.compose.listAttachments(tab.id);
         browser.test.assertEq("remove.txt", attachments[0].name);
         browser.test.assertEq("change.txt", attachments[1].name);
@@ -511,7 +511,7 @@ add_task(async function testChangeAttachments() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -520,10 +520,10 @@ add_task(async function testChangeAttachments() {
   });
 
   extension.onMessage("beginSend", async () => {
-    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
 
-    let sendPromise = BrowserTestUtils.waitForEvent(
+    const sendPromise = BrowserTestUtils.waitForEvent(
       composeWindows[0],
       "aftersend"
     );
@@ -544,9 +544,9 @@ add_task(async function testChangeAttachments() {
 
   await messagesInOutbox(1);
 
-  let outboxMessages = [...outbox.messages];
+  const outboxMessages = [...outbox.messages];
   ok(outboxMessages.length > 0);
-  let sentMessage12 = outboxMessages.shift();
+  const sentMessage12 = outboxMessages.shift();
 
   await new Promise(resolve => {
     window.MsgHdrToMimeMessage(sentMessage12, null, (msgHdr, mimeMessage) => {
@@ -573,7 +573,7 @@ add_task(async function testChangeAttachments() {
 });
 
 add_task(async function testListExpansion() {
-  let files = {
+  const files = {
     "background.js": async () => {
       function beginSend() {
         return window.sendMessage("beginSend");
@@ -583,10 +583,10 @@ add_task(async function testListExpansion() {
         return window.sendMessage("checkWindow", expected);
       }
 
-      let addressBook = await browser.addressBooks.create({
+      const addressBook = await browser.addressBooks.create({
         name: "Baker Street",
       });
-      let contacts = {
+      const contacts = {
         sherlock: await browser.contacts.create(addressBook, {
           DisplayName: "Sherlock Holmes",
           PrimaryEmail: "sherlock@bakerstreet.invalid",
@@ -596,7 +596,7 @@ add_task(async function testListExpansion() {
           PrimaryEmail: "john@bakerstreet.invalid",
         }),
       };
-      let list = await browser.mailingLists.create(addressBook, {
+      const list = await browser.mailingLists.create(addressBook, {
         name: "Holmes and Watson",
         description: "Tenants221B",
       });
@@ -622,7 +622,7 @@ add_task(async function testListExpansion() {
 
       let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
-      let listener7 = (tab, details) => {
+      const listener7 = (tab, details) => {
         listener7.tab = tab;
         listener7.details = details;
         return {
@@ -665,7 +665,7 @@ add_task(async function testListExpansion() {
 
       [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
-      let listener8 = (tab, details) => {
+      const listener8 = (tab, details) => {
         listener8.tab = tab;
         listener8.details = details;
       };
@@ -690,7 +690,7 @@ add_task(async function testListExpansion() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -699,7 +699,7 @@ add_task(async function testListExpansion() {
   });
 
   extension.onMessage("beginSend", async () => {
-    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
 
     composeWindows[0]
@@ -723,9 +723,9 @@ add_task(async function testListExpansion() {
 
   await messagesInOutbox(2);
 
-  let outboxMessages = [...outbox.messages];
+  const outboxMessages = [...outbox.messages];
   ok(outboxMessages.length > 0);
-  let sentMessage7 = outboxMessages.shift();
+  const sentMessage7 = outboxMessages.shift();
   is(sentMessage7.subject, "Changed by listener7", "subject was changed");
   is(
     sentMessage7.recipients,
@@ -739,7 +739,7 @@ add_task(async function testListExpansion() {
   );
 
   ok(outboxMessages.length > 0);
-  let sentMessage8 = outboxMessages.shift();
+  const sentMessage8 = outboxMessages.shift();
   is(sentMessage8.subject, "Test", "subject was not changed");
   is(
     sentMessage8.recipients,
@@ -762,9 +762,9 @@ add_task(async function testListExpansion() {
 });
 
 add_task(async function testMultipleListeners() {
-  let extensionA = ExtensionTestUtils.loadExtension({
+  const extensionA = ExtensionTestUtils.loadExtension({
     background: async () => {
-      let listener9 = (tab, details) => {
+      const listener9 = (tab, details) => {
         browser.test.log("listener9 was fired");
         browser.test.sendMessage("listener9", details);
         browser.compose.onBeforeSend.removeListener(listener9);
@@ -786,9 +786,9 @@ add_task(async function testMultipleListeners() {
     manifest: { permissions: ["compose"] },
   });
 
-  let extensionB = ExtensionTestUtils.loadExtension({
+  const extensionB = ExtensionTestUtils.loadExtension({
     background: async () => {
-      let listener10 = (tab, details) => {
+      const listener10 = (tab, details) => {
         browser.test.log("listener10 was fired");
         browser.test.sendMessage("listener10", details);
         browser.compose.onBeforeSend.removeListener(listener10);
@@ -801,7 +801,7 @@ add_task(async function testMultipleListeners() {
       };
       browser.compose.onBeforeSend.addListener(listener10);
 
-      let listener11 = (tab, details) => {
+      const listener11 = (tab, details) => {
         browser.test.log("listener11 was fired");
         browser.test.sendMessage("listener11", details);
         browser.compose.onBeforeSend.removeListener(listener11);
@@ -824,7 +824,7 @@ add_task(async function testMultipleListeners() {
   await extensionA.awaitMessage("ready");
   await extensionB.awaitMessage("ready");
 
-  let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+  const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
   Assert.equal(composeWindows.length, 1);
   Assert.equal(composeWindows[0].document.readyState, "complete");
   composeWindows[0]
@@ -835,7 +835,7 @@ add_task(async function testMultipleListeners() {
       // check if onBeforeSend aborted the send process.
     });
 
-  let listener9Details = await extensionA.awaitMessage("listener9");
+  const listener9Details = await extensionA.awaitMessage("listener9");
   Assert.equal(listener9Details.to.length, 1);
   Assert.equal(
     listener9Details.to[0],
@@ -848,7 +848,7 @@ add_task(async function testMultipleListeners() {
     "listener9 subject correct"
   );
 
-  let listener10Details = await extensionB.awaitMessage("listener10");
+  const listener10Details = await extensionB.awaitMessage("listener10");
   Assert.equal(listener10Details.to.length, 1);
   Assert.equal(
     listener10Details.to[0],
@@ -861,7 +861,7 @@ add_task(async function testMultipleListeners() {
     "listener10 subject correct"
   );
 
-  let listener11Details = await extensionB.awaitMessage("listener11");
+  const listener11Details = await extensionB.awaitMessage("listener11");
   Assert.equal(listener11Details.to.length, 1);
   Assert.equal(
     listener11Details.to[0],
@@ -879,9 +879,9 @@ add_task(async function testMultipleListeners() {
 
   await messagesInOutbox(1);
 
-  let outboxMessages = [...outbox.messages];
+  const outboxMessages = [...outbox.messages];
   Assert.ok(outboxMessages.length > 0);
-  let sentMessage = outboxMessages.shift();
+  const sentMessage = outboxMessages.shift();
   Assert.equal(
     sentMessage.subject,
     "Changed by listener11",
@@ -908,7 +908,7 @@ add_task(async function testMultipleListeners() {
 });
 
 add_task(async function test_MV3_event_pages() {
-  let files = {
+  const files = {
     "background.js": async () => {
       // Whenever the extension starts or wakes up, hasFired is set to false. In
       // case of a wake-up, the first fired event is the one that woke up the background.
@@ -933,7 +933,7 @@ add_task(async function test_MV3_event_pages() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       manifest_version: 3,
@@ -950,8 +950,8 @@ add_task(async function test_MV3_event_pages() {
     // ext-mails.json, not by its actual namespace.
     const persistent_events = ["compose.onBeforeSend"];
 
-    for (let event of persistent_events) {
-      let [moduleName, eventName] = event.split(".");
+    for (const event of persistent_events) {
+      const [moduleName, eventName] = event.split(".");
       assertPersistentListeners(extension, moduleName, eventName, {
         primed,
       });
@@ -966,7 +966,7 @@ add_task(async function test_MV3_event_pages() {
     });
   }
 
-  let composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(account);
   await focusWindow(composeWindow);
 
   await extension.startup();
@@ -978,7 +978,7 @@ add_task(async function test_MV3_event_pages() {
 
   composeWindow.SetComposeDetails({ to: "first@invalid.net" });
   beginSend();
-  let firstDetails = await extension.awaitMessage("onBeforeSend received");
+  const firstDetails = await extension.awaitMessage("onBeforeSend received");
   Assert.equal(
     "first@invalid.net",
     firstDetails.to,
@@ -993,7 +993,7 @@ add_task(async function test_MV3_event_pages() {
 
   composeWindow.SetComposeDetails({ to: "second@invalid.net" });
   beginSend();
-  let secondDetails = await extension.awaitMessage("onBeforeSend received");
+  const secondDetails = await extension.awaitMessage("onBeforeSend received");
   Assert.equal(
     "second@invalid.net",
     secondDetails.to,

@@ -39,7 +39,7 @@ var gSystemIntegrationDialog = {
       this._shellSvc.MAIL
     );
 
-    let calledFromPrefs =
+    const calledFromPrefs =
       "arguments" in window && window.arguments[0] == "calledFromPrefs";
 
     if (!calledFromPrefs) {
@@ -118,7 +118,7 @@ var gSystemIntegrationDialog = {
 
     // If the search checkbox is exposed, the user had the chance to make his choice.
     // So do not ask next time.
-    let searchIntegPossible = !this._searchCheckbox.hidden;
+    const searchIntegPossible = !this._searchCheckbox.hidden;
     if (searchIntegPossible) {
       SearchIntegration.firstRunDone = true;
     }

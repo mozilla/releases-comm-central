@@ -23,7 +23,7 @@ const { MailServices } = ChromeUtils.import(
 const MSG_TEXT = "Sundays are nothing without callaloo.";
 
 function getMsgBodyTxt(msgc) {
-  let msgPane = get_about_message(msgc).getMessagePaneBrowser();
+  const msgPane = get_about_message(msgc).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 
@@ -39,12 +39,12 @@ add_setup(async function () {
     "openpgp.example",
     "pop3"
   );
-  let aliceIdentity = MailServices.accounts.createIdentity();
+  const aliceIdentity = MailServices.accounts.createIdentity();
   aliceIdentity.email = "alice@openpgp.example";
   aliceAcct.addIdentity(aliceIdentity);
 
   // Set up the alice's private key, which has a passphrase set
-  let [id] = await OpenPGPTestUtils.importPrivateKey(
+  const [id] = await OpenPGPTestUtils.importPrivateKey(
     window,
     new FileUtils.File(
       getTestFilePath(
@@ -73,9 +73,9 @@ add_setup(async function () {
  * Test that opening an unsigned encrypted message shows as such.
  */
 add_task(async function testOpenVerifiedUnsignedEncrypted2() {
-  let passPromptPromise = BrowserTestUtils.promiseAlertDialogOpen();
+  const passPromptPromise = BrowserTestUtils.promiseAlertDialogOpen();
 
-  let openMessagePromise = open_message_from_file(
+  const openMessagePromise = open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/unsigned-encrypted-to-0xf231550c4f47e38e-from-0xfbfcc82a015e7330.eml"
@@ -83,22 +83,22 @@ add_task(async function testOpenVerifiedUnsignedEncrypted2() {
     )
   );
 
-  let ppWin = await passPromptPromise;
+  const ppWin = await passPromptPromise;
 
   // We'll enter a wrong pp, so we expect another prompt
-  let passPromptPromise2 = BrowserTestUtils.promiseAlertDialogOpen();
+  const passPromptPromise2 = BrowserTestUtils.promiseAlertDialogOpen();
 
   ppWin.document.getElementById("password1Textbox").value = "WRONG-passphrase";
   ppWin.document.querySelector("dialog").getButton("accept").click();
 
-  let ppWin2 = await passPromptPromise2;
+  const ppWin2 = await passPromptPromise2;
 
   ppWin2.document.getElementById("password1Textbox").value = "alice-passphrase";
   ppWin2.document.querySelector("dialog").getButton("accept").click();
 
-  let msgc = await openMessagePromise;
+  const msgc = await openMessagePromise;
 
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(

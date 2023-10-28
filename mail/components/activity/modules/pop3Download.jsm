@@ -62,7 +62,7 @@ var pop3DownloadModule = {
   onDownloadStarted(aFolder) {
     this.log.info("in onDownloadStarted");
 
-    let displayText = this.bundle.formatStringFromName(
+    const displayText = this.bundle.formatStringFromName(
       "pop3EventStartDisplayText2",
       [
         aFolder.server.prettyName, // account name
@@ -74,10 +74,10 @@ var pop3DownloadModule = {
       aFolder.URI,
       this._mostRecentActivityForFolder.get(aFolder.URI)
     );
-    let statusText = aFolder.server.prettyName;
+    const statusText = aFolder.server.prettyName;
 
     // create an activity event
-    let event = new nsActEvent(
+    const event = new nsActEvent(
       displayText,
       aFolder,
       statusText,
@@ -87,7 +87,7 @@ var pop3DownloadModule = {
 
     event.iconClass = "syncMail";
 
-    let downloadItem = {};
+    const downloadItem = {};
     downloadItem.eventID = this.activityMgr.addActivity(event);
     this._mostRecentActivityForFolder.set(aFolder.URI, downloadItem);
   },
@@ -103,7 +103,7 @@ var pop3DownloadModule = {
     // It can happen that download never started (e.g. couldn't connect to server),
     // with onDownloadStarted, but we still get a onDownloadCompleted event
     // when the connection is given up.
-    let recentActivity = this._mostRecentActivityForFolder.get(aFolder.URI);
+    const recentActivity = this._mostRecentActivityForFolder.get(aFolder.URI);
     if (recentActivity) {
       this.activityMgr.removeActivity(recentActivity.eventID);
     }
@@ -119,10 +119,10 @@ var pop3DownloadModule = {
       displayText = this.getString("pop3EventStatusTextNoMsgs");
     }
 
-    let statusText = aFolder.server.prettyName;
+    const statusText = aFolder.server.prettyName;
 
     // create an activity event
-    let event = new nsActEvent(
+    const event = new nsActEvent(
       displayText,
       aFolder,
       statusText,
@@ -132,14 +132,14 @@ var pop3DownloadModule = {
 
     event.iconClass = "syncMail";
 
-    let downloadItem = { numMsgsDownloaded: aNumMsgsDownloaded };
+    const downloadItem = { numMsgsDownloaded: aNumMsgsDownloaded };
     this._mostRecentActivityForFolder.set(aFolder.URI, downloadItem);
     downloadItem.eventID = this.activityMgr.addActivity(event);
     if (!aNumMsgsDownloaded) {
       // If we didn't download any messages this time, and the prev event
       // for this folder also didn't download any messages, remove the
       // prev event from the activity manager.
-      let prevItem = this._prevActivityForFolder.get(aFolder.URI);
+      const prevItem = this._prevActivityForFolder.get(aFolder.URI);
       if (prevItem != undefined && !prevItem.numMsgsDownloaded) {
         if (this.activityMgr.containsActivity(prevItem.eventID)) {
           this.activityMgr.removeActivity(prevItem.eventID);

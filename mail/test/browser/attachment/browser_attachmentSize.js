@@ -264,12 +264,12 @@ add_setup(async function () {
  * @param expectedSize the expected size of the attachment, in bytes
  */
 function check_attachment_size(index, expectedSize) {
-  let win = get_about_message();
-  let list = win.document.getElementById("attachmentList");
-  let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
+  const win = get_about_message();
+  const list = win.document.getElementById("attachmentList");
+  const node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
   // First, let's check that the attachment size is correct
-  let size = node.attachment.size;
+  const size = node.attachment.size;
   Assert.ok(
     Math.abs(size - expectedSize) <= epsilon,
     `Attachment "${node.attachment.name}" size should be within ${epsilon} ` +
@@ -290,9 +290,9 @@ function check_attachment_size(index, expectedSize) {
  * @param index the attachment's index, starting at 0
  */
 function check_no_attachment_size(index) {
-  let win = get_about_message();
-  let list = win.document.getElementById("attachmentList");
-  let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
+  const win = get_about_message();
+  const list = win.document.getElementById("attachmentList");
+  const node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
   Assert.equal(
     node.attachment.size,
@@ -301,7 +301,7 @@ function check_no_attachment_size(index) {
   );
 
   // If there's no size, the size attribute is the zero-width space.
-  let nodeSize = node.getAttribute("size");
+  const nodeSize = node.getAttribute("size");
   Assert.equal(
     nodeSize,
     "",
@@ -317,10 +317,10 @@ function check_no_attachment_size(index) {
  * @param exact true if the size of all attachments is known, false otherwise
  */
 function check_total_attachment_size(count, expectedSize, exact) {
-  let win = get_about_message();
-  let list = win.document.getElementById("attachmentList");
-  let nodes = list.querySelectorAll("richlistitem.attachmentItem");
-  let sizeNode = win.document.getElementById("attachmentSize");
+  const win = get_about_message();
+  const list = win.document.getElementById("attachmentList");
+  const nodes = list.querySelectorAll("richlistitem.attachmentItem");
+  const sizeNode = win.document.getElementById("attachmentSize");
 
   Assert.equal(
     nodes.length,
@@ -331,10 +331,10 @@ function check_total_attachment_size(count, expectedSize, exact) {
   let lastPartID;
   let size = 0;
   for (let i = 0; i < nodes.length; i++) {
-    let attachment = nodes[i].attachment;
+    const attachment = nodes[i].attachment;
     if (!lastPartID || attachment.partID.indexOf(lastPartID) != 0) {
       lastPartID = attachment.partID;
-      let currSize = attachment.size;
+      const currSize = attachment.size;
       if (currSize > 0 && !isNaN(currSize)) {
         size += Number(currSize);
       }
@@ -348,9 +348,9 @@ function check_total_attachment_size(count, expectedSize, exact) {
   );
 
   // Next, make sure that the formatted size in the label is correct
-  let formattedSize = sizeNode.getAttribute("value");
+  const formattedSize = sizeNode.getAttribute("value");
   let expectedFormattedSize = messenger.formatFileSize(size);
-  let messengerBundle = document.getElementById("bundle_messenger");
+  const messengerBundle = document.getElementById("bundle_messenger");
 
   if (!exact) {
     if (size == 0) {
@@ -381,12 +381,12 @@ async function help_test_attachment_size(index) {
   await be_in_folder(folder);
   await select_click_row(index);
   info(`Testing message ${index}: ${messages[index].name}`);
-  let expectedSizes = messages[index].attachmentSizes;
+  const expectedSizes = messages[index].attachmentSizes;
 
-  let aboutMessage = get_about_message();
+  const aboutMessage = get_about_message();
   aboutMessage.toggleAttachmentList(true);
 
-  let attachmentList = aboutMessage.document.getElementById("attachmentList");
+  const attachmentList = aboutMessage.document.getElementById("attachmentList");
   await TestUtils.waitForCondition(
     () => !attachmentList.collapsed,
     "Attachment list is shown"
@@ -400,7 +400,7 @@ async function help_test_attachment_size(index) {
     }
   }
 
-  let totalSize = messages[index].attachmentTotalSize;
+  const totalSize = messages[index].attachmentTotalSize;
   check_total_attachment_size(
     expectedSizes.length,
     totalSize.size,

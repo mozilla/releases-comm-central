@@ -31,7 +31,7 @@ add_setup(function () {
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 
   // Create a POP server
-  let popServer = MailServices.accounts
+  const popServer = MailServices.accounts
     .createIncomingServer("nobody", "pop.invalid", "pop3")
     .QueryInterface(Ci.nsIPop3IncomingServer);
 
@@ -43,7 +43,7 @@ add_setup(function () {
   gPopAccount.addIdentity(identity);
 
   // Create an IMAP server
-  let imapServer = MailServices.accounts
+  const imapServer = MailServices.accounts
     .createIncomingServer("nobody", "imap.invalid", "imap")
     .QueryInterface(Ci.nsIImapIncomingServer);
 
@@ -216,8 +216,8 @@ async function subtest_check_locked_prefs_addressing(tab) {
   Assert.ok(!LDAPeditButton.disabled);
 
   // Lock the pref for the server selector.
-  let prefstring = LDAPdirectory.getAttribute("prefstring");
-  let controlPref = prefstring.replace(
+  const prefstring = LDAPdirectory.getAttribute("prefstring");
+  const controlPref = prefstring.replace(
     "%identitykey%",
     gPopAccount.defaultIdentity.key
   );
@@ -310,8 +310,8 @@ async function subtest_check_locked_prefs_server(tab) {
   Assert.ok(!daysToLeave.disabled);
 
   // Lock the pref deleteByAge checkbox (middle of the element hierarchy).
-  let prefstring = deleteByAge.getAttribute("prefstring");
-  let controlPref = prefstring.replace(
+  const prefstring = deleteByAge.getAttribute("prefstring");
+  const controlPref = prefstring.replace(
     "%serverkey%",
     gPopAccount.incomingServer.key
   );
@@ -382,7 +382,7 @@ async function subtest_check_replyTo_leak(tab) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
   await click_account_tree_row(tab, accountRow);
 
-  let iframe =
+  const iframe =
     tab.browser.contentWindow.document.getElementById(
       "contentFrame"
     ).contentDocument;
@@ -396,12 +396,12 @@ async function subtest_check_replyTo_leak(tab) {
 
   // This test expects the following POP account to exist by default
   // in the test profile with port number 110 and no security.
-  let firstServer = MailServices.accounts.findServer(
+  const firstServer = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  let firstAccount = MailServices.accounts.FindAccountForServer(firstServer);
+  const firstAccount = MailServices.accounts.FindAccountForServer(firstServer);
 
   accountRow = get_account_tree_row(firstAccount.key, null, tab);
   await click_account_tree_row(tab, accountRow);
@@ -446,7 +446,7 @@ async function subtest_check_onchange_handler(tab) {
   Assert.equal(autoSyncInterval.value, 1);
 
   // Now type in 35 (days).
-  let byAge = iframe.getElementById("useAutosync.ByAge");
+  const byAge = iframe.getElementById("useAutosync.ByAge");
   EventUtils.synthesizeMouseAtCenter(byAge, {}, byAge.ownerGlobal);
   autoSync.select();
   autoSync.focus();

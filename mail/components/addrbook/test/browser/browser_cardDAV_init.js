@@ -30,12 +30,12 @@ async function wrappedTest(testInitCallback, ...attemptArgs) {
     await testInitCallback();
   }
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
 
-  let dialogPromise = promiseLoadSubDialog(
+  const dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
   ).then(async function (dialogWindow) {
-    for (let args of attemptArgs) {
+    for (const args of attemptArgs) {
       if (args.url?.startsWith("/")) {
         args.url = CardDAVServer.origin + args.url;
       }
@@ -50,7 +50,7 @@ async function wrappedTest(testInitCallback, ...attemptArgs) {
   await closeAddressBookWindow();
   await CardDAVServer.close();
 
-  let logins = await Services.logins.getAllLogins();
+  const logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, 0, "no faulty logins were saved");
 }
 
@@ -66,13 +66,17 @@ async function attemptInit(
     expectedBooks = [],
   }
 ) {
-  let dialogDocument = dialogWindow.document;
-  let acceptButton = dialogDocument.querySelector("dialog").getButton("accept");
+  const dialogDocument = dialogWindow.document;
+  const acceptButton = dialogDocument
+    .querySelector("dialog")
+    .getButton("accept");
 
-  let usernameInput = dialogDocument.getElementById("carddav-username");
-  let urlInput = dialogDocument.getElementById("carddav-location");
-  let statusMessage = dialogDocument.getElementById("carddav-statusMessage");
-  let availableBooks = dialogDocument.getElementById("carddav-availableBooks");
+  const usernameInput = dialogDocument.getElementById("carddav-username");
+  const urlInput = dialogDocument.getElementById("carddav-location");
+  const statusMessage = dialogDocument.getElementById("carddav-statusMessage");
+  const availableBooks = dialogDocument.getElementById(
+    "carddav-availableBooks"
+  );
 
   if (username) {
     usernameInput.select();
@@ -83,9 +87,9 @@ async function attemptInit(
     EventUtils.sendString(url, dialogWindow);
   }
 
-  let certPromise =
+  const certPromise =
     certError === undefined ? Promise.resolve() : handleCertError();
-  let promptPromise =
+  const promptPromise =
     password === undefined
       ? Promise.resolve()
       : handlePasswordPrompt(username, password, savePassword);
@@ -157,7 +161,7 @@ function handlePasswordPrompt(expectedUsername, password, savePassword = true) {
       }
       prompt.document.getElementById("password1Textbox").value = password;
 
-      let checkbox = prompt.document.getElementById("checkbox");
+      const checkbox = prompt.document.getElementById("checkbox");
       Assert.greater(checkbox.getBoundingClientRect().width, 0);
       Assert.ok(checkbox.checked);
 
@@ -282,8 +286,8 @@ add_task(function testEmailBadPreset() {
  * can't speak HTTPS, and we only do DNS discovery for HTTPS.
  */
 add_task(async function testDNS() {
-  let _srv = DNS.srv;
-  let _txt = DNS.txt;
+  const _srv = DNS.srv;
+  const _txt = DNS.txt;
 
   DNS.srv = function (name) {
     Assert.equal(name, "_carddavs._tcp.dnstest.invalid");
@@ -298,8 +302,8 @@ add_task(async function testDNS() {
     ];
   };
 
-  let abWindow = await openAddressBookWindow();
-  let dialogPromise = promiseLoadSubDialog(
+  const abWindow = await openAddressBookWindow();
+  const dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
   ).then(async function (dialogWindow) {
     await attemptInit(dialogWindow, {
@@ -330,11 +334,11 @@ add_task(async function testDNS() {
 add_task(async function testEveryThingOK() {
   CardDAVServer.open("alice", "alice");
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
 
   Assert.equal(abWindow.booksList.rowCount, 3);
 
-  let dialogPromise = promiseLoadSubDialog(
+  const dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
   ).then(async function (dialogWindow) {
     await attemptInit(dialogWindow, {
@@ -344,15 +348,15 @@ add_task(async function testEveryThingOK() {
       expectedBooks: DEFAULT_BOOKS,
     });
 
-    let availableBooks = dialogWindow.document.getElementById(
+    const availableBooks = dialogWindow.document.getElementById(
       "carddav-availableBooks"
     );
     availableBooks.children[0].checked = false;
 
     dialogWindow.document.querySelector("dialog").getButton("accept").click();
   });
-  let syncPromise = new Promise(resolve => {
-    let observer = {
+  const syncPromise = new Promise(resolve => {
+    const observer = {
       observe(directory) {
         Services.obs.removeObserver(this, "addrbook-directory-synced");
         resolve(directory);
@@ -364,8 +368,8 @@ add_task(async function testEveryThingOK() {
   abWindow.createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
 
   await dialogPromise;
-  let directory = await syncPromise;
-  let davDirectory = CardDAVDirectory.forFile(directory.fileName);
+  const directory = await syncPromise;
+  const davDirectory = CardDAVDirectory.forFile(directory.fileName);
 
   Assert.equal(
     Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.url`, ""),
@@ -381,7 +385,7 @@ add_task(async function testEveryThingOK() {
   );
   Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
 
-  let logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  const logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
   Assert.equal(logins.length, 1, "login was saved");
   Assert.equal(logins[0].username, "alice");
   Assert.equal(logins[0].password, "alice");
@@ -409,11 +413,11 @@ add_task(async function testEveryThingOKAgain() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(r => setTimeout(r, 1000));
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
 
   Assert.equal(abWindow.booksList.rowCount, 4);
 
-  let dialogPromise = promiseLoadSubDialog(
+  const dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
   ).then(async function (dialogWindow) {
     await attemptInit(dialogWindow, {
@@ -425,13 +429,13 @@ add_task(async function testEveryThingOKAgain() {
 
     dialogWindow.document.querySelector("dialog").getButton("accept").click();
   });
-  let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
+  const syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
 
   abWindow.createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
 
   await dialogPromise;
-  let [directory] = await syncPromise;
-  let davDirectory = CardDAVDirectory.forFile(directory.fileName);
+  const [directory] = await syncPromise;
+  const davDirectory = CardDAVDirectory.forFile(directory.fileName);
 
   Assert.equal(
     Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.url`, ""),
@@ -447,7 +451,7 @@ add_task(async function testEveryThingOKAgain() {
   );
   Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
 
-  let logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  const logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
   Assert.equal(logins.length, 1, "login was saved");
   Assert.equal(logins[0].username, "alice");
   Assert.equal(logins[0].password, "alice");
@@ -468,7 +472,7 @@ add_task(async function testEveryThingOKAgain() {
   await closeAddressBookWindow();
   await CardDAVServer.close();
 
-  let otherDirectory = MailServices.ab.getDirectoryFromId(
+  const otherDirectory = MailServices.ab.getDirectoryFromId(
     "ldap_2.servers.CardDAVTest"
   );
   await promiseDirectoryRemoved(directory.URI);
@@ -486,11 +490,11 @@ add_task(async function testEveryThingOKAgain() {
 add_task(async function testNoSavePassword() {
   CardDAVServer.open("alice", "alice");
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
 
   Assert.equal(abWindow.booksList.rowCount, 3);
 
-  let dialogPromise = promiseLoadSubDialog(
+  const dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
   ).then(async function (dialogWindow) {
     await attemptInit(dialogWindow, {
@@ -501,19 +505,19 @@ add_task(async function testNoSavePassword() {
       expectedBooks: DEFAULT_BOOKS,
     });
 
-    let availableBooks = dialogWindow.document.getElementById(
+    const availableBooks = dialogWindow.document.getElementById(
       "carddav-availableBooks"
     );
     availableBooks.children[0].checked = false;
 
     dialogWindow.document.querySelector("dialog").getButton("accept").click();
   });
-  let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
+  const syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
 
   abWindow.createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
   await dialogPromise;
-  let [directory] = await syncPromise;
-  let davDirectory = CardDAVDirectory.forFile(directory.fileName);
+  const [directory] = await syncPromise;
+  const davDirectory = CardDAVDirectory.forFile(directory.fileName);
 
   Assert.equal(
     Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.url`, ""),
@@ -529,7 +533,7 @@ add_task(async function testNoSavePassword() {
   );
   Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
 
-  let logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  const logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
   Assert.equal(logins.length, 0, "login was NOT saved");
 
   Assert.equal(abWindow.booksList.rowCount, 4);
@@ -553,18 +557,18 @@ add_task(async function testNoSavePassword() {
  * the previous test and simulates a restart of the address book manager.
  */
 add_task(async function testSavePasswordLater() {
-  let reloadPromise = TestUtils.topicObserved("addrbook-reloaded");
+  const reloadPromise = TestUtils.topicObserved("addrbook-reloaded");
   Services.obs.notifyObservers(null, "addrbook-reload");
   await reloadPromise;
 
   Assert.equal(MailServices.ab.directories.length, 3);
-  let directory = MailServices.ab.getDirectoryFromId(
+  const directory = MailServices.ab.getDirectoryFromId(
     "ldap_2.servers.CardDAVTest"
   );
-  let davDirectory = CardDAVDirectory.forFile(directory.fileName);
+  const davDirectory = CardDAVDirectory.forFile(directory.fileName);
 
-  let promptPromise = handlePasswordPrompt("alice", "alice");
-  let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
+  const promptPromise = handlePasswordPrompt("alice", "alice");
+  const syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
   davDirectory.fetchAllFromServer();
   await promptPromise;
   await syncPromise;
@@ -575,7 +579,7 @@ add_task(async function testSavePasswordLater() {
     "username was saved"
   );
 
-  let logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  const logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
   Assert.equal(logins.length, 1, "login was saved");
   Assert.equal(logins[0].username, "alice");
   Assert.equal(logins[0].password, "alice");
@@ -596,11 +600,11 @@ add_task(async function testNoName() {
   CardDAVServer.books = { "/addressbooks/me/noname/": undefined };
   CardDAVServer.open("alice", "alice");
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
 
   Assert.equal(abWindow.booksList.rowCount, 3);
 
-  let dialogPromise = promiseLoadSubDialog(
+  const dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
   ).then(async function (dialogWindow) {
     await attemptInit(dialogWindow, {
@@ -612,8 +616,8 @@ add_task(async function testNoName() {
 
     dialogWindow.document.querySelector("dialog").getButton("accept").click();
   });
-  let syncPromise = new Promise(resolve => {
-    let observer = {
+  const syncPromise = new Promise(resolve => {
+    const observer = {
       observe(directory) {
         Services.obs.removeObserver(this, "addrbook-directory-synced");
         resolve(directory);
@@ -625,8 +629,8 @@ add_task(async function testNoName() {
   abWindow.createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
 
   await dialogPromise;
-  let directory = await syncPromise;
-  let davDirectory = CardDAVDirectory.forFile(directory.fileName);
+  const directory = await syncPromise;
+  const davDirectory = CardDAVDirectory.forFile(directory.fileName);
 
   Assert.equal(
     Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.url`, ""),
@@ -642,7 +646,7 @@ add_task(async function testNoName() {
   );
   Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
 
-  let logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  const logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
   Assert.equal(logins.length, 1, "login was saved");
   Assert.equal(logins[0].username, "alice");
   Assert.equal(logins[0].password, "alice");

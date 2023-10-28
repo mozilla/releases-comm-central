@@ -41,13 +41,13 @@ var account = null;
 add_setup(async function () {
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
-  let server = MailServices.accounts.findServer(
+  const server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
   account = MailServices.accounts.FindAccountForServer(server);
-  let inbox = await get_special_folder(
+  const inbox = await get_special_folder(
     Ci.nsMsgFolderFlags.Inbox,
     false,
     server
@@ -98,9 +98,9 @@ function check_send_commands_state(aCwc, aEnabled) {
  * by the user.
  */
 add_task(async function test_send_enabled_manual_address() {
-  let cwc = await open_compose_new_mail();
-  let menu = cwc.document.getElementById("extraAddressRowsMenu"); // extra recipients menu
-  let menuButton = cwc.document.getElementById("extraAddressRowsMenuButton");
+  const cwc = await open_compose_new_mail();
+  const menu = cwc.document.getElementById("extraAddressRowsMenu"); // extra recipients menu
+  const menuButton = cwc.document.getElementById("extraAddressRowsMenuButton");
 
   // On an empty window, Send must be disabled.
   check_send_commands_state(cwc, false);
@@ -135,7 +135,7 @@ add_task(async function test_send_enabled_manual_address() {
   await setup_msg_contents(cwc, " recipient@", "", "");
   check_send_commands_state(cwc, false);
 
-  let ccShow = cwc.document.getElementById("addr_ccShowAddressRowButton");
+  const ccShow = cwc.document.getElementById("addr_ccShowAddressRowButton");
   EventUtils.synthesizeMouseAtCenter(ccShow, {}, ccShow.ownerGlobal);
   await new Promise(resolve => setTimeout(resolve));
   check_send_commands_state(cwc, false);
@@ -167,8 +167,8 @@ add_task(async function test_send_enabled_manual_address() {
 
   // - a mailinglist in addressbook
   // Button is enabled without checking whether it contains valid addresses.
-  let defaultAB = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
-  let ml = create_mailing_list("emptyList");
+  const defaultAB = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  const ml = create_mailing_list("emptyList");
   defaultAB.addMailList(ml);
 
   await setup_msg_contents(cwc, " emptyList", "", "");
@@ -184,7 +184,7 @@ add_task(async function test_send_enabled_manual_address() {
   check_send_commands_state(cwc, false);
 
   // Hack to reveal the newsgroup button.
-  let newsgroupsButton = cwc.document.getElementById(
+  const newsgroupsButton = cwc.document.getElementById(
     "addr_newsgroupsShowAddressRowButton"
   );
   newsgroupsButton.hidden = false;
@@ -209,12 +209,12 @@ add_task(async function test_send_enabled_manual_address() {
  */
 add_task(async function test_send_enabled_prefilled_address() {
   // Set the prefs to prefill a default CC address when Compose is opened.
-  let identity = account.defaultIdentity;
+  const identity = account.defaultIdentity;
   identity.doCc = true;
   identity.doCcList = "Auto@recipient.invalid";
 
   // In that case the recipient is input, enabled Send.
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   check_send_commands_state(cwc, true);
 
   // Clear the CC list.
@@ -234,20 +234,20 @@ add_task(async function test_send_enabled_prefilled_address() {
  */
 add_task(async function test_send_enabled_prefilled_address_from_identity() {
   // The first identity will have an automatic CC enabled.
-  let identityWithCC = account.defaultIdentity;
+  const identityWithCC = account.defaultIdentity;
   identityWithCC.doCc = true;
   identityWithCC.doCcList = "Auto@recipient.invalid";
 
   // CC is prefilled, Send enabled.
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   check_send_commands_state(cwc, true);
 
-  let identityPicker = cwc.document.getElementById("msgIdentity");
+  const identityPicker = cwc.document.getElementById("msgIdentity");
   Assert.equal(identityPicker.selectedIndex, 0);
 
   // Switch to the second identity that has no CC. Send should be disabled.
   Assert.ok(account.identities.length >= 2);
-  let identityWithoutCC = account.identities[1];
+  const identityWithoutCC = account.identities[1];
   Assert.ok(!identityWithoutCC.doCc);
   await chooseIdentity(cwc, identityWithoutCC.key);
   check_send_commands_state(cwc, false);
@@ -268,11 +268,11 @@ add_task(async function test_send_enabled_prefilled_address_from_identity() {
  */
 add_task(async function test_send_enabled_address_contacts_sidebar() {
   // Create some contact address book card in the Personal addressbook.
-  let defaultAB = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
-  let contact = create_contact("test@example.com", "Sammy Jenkis", true);
+  const defaultAB = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  const contact = create_contact("test@example.com", "Sammy Jenkis", true);
   load_contacts_into_address_book(defaultAB, [contact]);
 
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   // On an empty window, Send must be disabled.
   check_send_commands_state(cwc, false);
 
@@ -280,13 +280,14 @@ add_task(async function test_send_enabled_address_contacts_sidebar() {
   // FIXME: Use UI to open contacts sidebar.
   cwc.toggleContactsSidebar();
 
-  let contactsBrowser = cwc.document.getElementById("contactsBrowser");
+  const contactsBrowser = cwc.document.getElementById("contactsBrowser");
   await wait_for_frame_load(
     contactsBrowser,
     "chrome://messenger/content/addressbook/abContactsPanel.xhtml?focus"
   );
 
-  let abTree = contactsBrowser.contentDocument.getElementById("abResultsTree");
+  const abTree =
+    contactsBrowser.contentDocument.getElementById("abResultsTree");
   // The results are loaded async so wait for the population of the tree.
   await TestUtils.waitForCondition(
     () => abTree.view.rowCount > 0,
@@ -309,16 +310,16 @@ add_task(async function test_send_enabled_address_contacts_sidebar() {
  * the pill gets updated before the send of the email.
  */
 add_task(async function test_update_pill_before_send() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   await setup_msg_contents(cwc, "recipient@fake.invalid", "Subject", "");
 
-  let pill = get_first_pill(cwc);
+  const pill = get_first_pill(cwc);
 
   // Edit the first pill.
   // First, we need to get into the edit mode by clicking the pill twice.
   EventUtils.synthesizeMouseAtCenter(pill, { clickCount: 1 }, cwc);
-  let clickPromise = BrowserTestUtils.waitForEvent(pill, "click");
+  const clickPromise = BrowserTestUtils.waitForEvent(pill, "click");
   // We do not want a double click, but two separate clicks.
   EventUtils.synthesizeMouseAtCenter(pill, { clickCount: 1 }, cwc);
   await clickPromise;

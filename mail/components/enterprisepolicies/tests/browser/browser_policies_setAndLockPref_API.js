@@ -3,7 +3,7 @@
 
 "use strict";
 
-let { Policies, setAndLockPref, PoliciesUtils } = ChromeUtils.importESModule(
+const { Policies, setAndLockPref, PoliciesUtils } = ChromeUtils.importESModule(
   "resource:///modules/policies/Policies.sys.mjs"
 );
 
@@ -123,7 +123,7 @@ add_task(async function test_pref_tracker() {
   // Tests the test harness functionality that tracks usage of
   // the setAndLockPref and setDefualtPref APIs.
 
-  let defaults = Services.prefs.getDefaultBranch("");
+  const defaults = Services.prefs.getDefaultBranch("");
 
   // Test prefs that had a default value and got changed to another
   defaults.setIntPref("test1.pref1", 10);

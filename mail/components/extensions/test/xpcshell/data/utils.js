@@ -11,7 +11,7 @@ function assertDeepEqual(
   options = {}
 ) {
   let ok;
-  let strict = !!options?.strict;
+  const strict = !!options?.strict;
   try {
     ok = assertDeepEqualNested(expected, actual, strict);
   } catch (e) {
@@ -60,17 +60,17 @@ function assertDeepEqualNested(expected, actual, strict) {
     );
   }
 
-  let expectedKeys = Object.keys(expected);
-  let actualKeys = Object.keys(actual);
+  const expectedKeys = Object.keys(expected);
+  const actualKeys = Object.keys(actual);
   // Ignore any extra keys on the actual object in non-strict mode (default).
-  let lengthOk = strict
+  const lengthOk = strict
     ? expectedKeys.length == actualKeys.length
     : expectedKeys.length <= actualKeys.length;
   browser.test.assertTrue(lengthOk);
 
   let ok = 0;
   let all = 0;
-  for (let key of expectedKeys) {
+  for (const key of expectedKeys) {
     all++;
     browser.test.assertTrue(actualKeys.includes(key), `Key ${key} exists`);
     if (assertDeepEqualNested(expected[key], actual[key], strict)) {
@@ -85,7 +85,7 @@ function waitForMessage() {
 }
 
 function waitForEvent(eventName) {
-  let [namespace, name] = eventName.split(".");
+  const [namespace, name] = eventName.split(".");
   return new Promise(resolve => {
     browser[namespace][name].addListener(function listener(...args) {
       browser[namespace][name].removeListener(listener);
@@ -118,7 +118,7 @@ async function waitForCondition(condition, msg, interval = 100, maxTries = 50) {
 }
 
 function sendMessage(...args) {
-  let replyPromise = waitForMessage();
+  const replyPromise = waitForMessage();
   browser.test.sendMessage(...args);
   return replyPromise;
 }

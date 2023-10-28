@@ -143,9 +143,9 @@ registerCleanupFunction(() => {
  * is clicked.
  */
 async function assert_ignore_works(aWin) {
-  let aboutMessage = get_about_message(aWin);
+  const aboutMessage = get_about_message(aWin);
   await wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
-  let prefButton = get_notification_button(
+  const prefButton = get_notification_button(
     aboutMessage,
     kBoxId,
     kNotificationValue,
@@ -163,7 +163,7 @@ async function assert_ignore_works(aWin) {
  * Helper function to click the first link in a message if one is available.
  */
 function click_link_if_available() {
-  let msgBody =
+  const msgBody =
     get_about_message().getMessagePaneBrowser().contentDocument.body;
   if (msgBody.getElementsByTagName("a").length > 0) {
     msgBody.getElementsByTagName("a")[0].click();
@@ -175,7 +175,7 @@ function click_link_if_available() {
  * notification.
  */
 add_task(async function test_ignore_phishing_warning_from_message() {
-  let aboutMessage = get_about_message();
+  const aboutMessage = get_about_message();
 
   await be_in_folder(folder);
   await select_click_row(-1);
@@ -205,9 +205,9 @@ add_task(async function test_ignore_phishing_warning_from_message() {
  * notification.
  */
 add_task(async function test_ignore_phishing_warning_from_eml() {
-  let file = new FileUtils.File(getTestFilePath("data/evil.eml"));
+  const file = new FileUtils.File(getTestFilePath("data/evil.eml"));
 
-  let msgc = await open_message_from_file(file);
+  const msgc = await open_message_from_file(file);
   await assert_ignore_works(msgc);
   await BrowserTestUtils.closeWindow(msgc);
 }).skip();
@@ -216,21 +216,21 @@ add_task(async function test_ignore_phishing_warning_from_eml() {
  * Test that when viewing an attached eml file, the phishing notification works.
  */
 add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
-  let file = new FileUtils.File(getTestFilePath("data/evil-attached.eml"));
+  const file = new FileUtils.File(getTestFilePath("data/evil-attached.eml"));
 
-  let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc);
+  const msgc = await open_message_from_file(file);
+  const aboutMessage = get_about_message(msgc);
 
   // Make sure the root message shows the phishing bar.
   await wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
 
   // Open the attached message.
-  let newWindowPromise = promise_new_window("mail:messageWindow");
+  const newWindowPromise = promise_new_window("mail:messageWindow");
   aboutMessage.document
     .getElementById("attachmentList")
     .getItemAtIndex(0)
     .attachment.open();
-  let msgc2 = await newWindowPromise;
+  const msgc2 = await newWindowPromise;
   await wait_for_message_display_completion(msgc2, true);
 
   // Now make sure the attached message shows the phishing bar.
@@ -267,7 +267,7 @@ add_task(async function test_no_phishing_warning_for_ip_sameish_text() {
  * http://google.com/), we don't get a warning if the link is pressed.
  */
 add_task(async function test_no_phishing_warning_for_subdomain() {
-  let aboutMessage = get_about_message();
+  const aboutMessage = get_about_message();
   await be_in_folder(folder);
   await select_click_row(-4);
   click_link_if_available();

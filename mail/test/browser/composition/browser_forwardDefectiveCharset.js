@@ -36,12 +36,14 @@ add_setup(async function () {
 });
 
 add_task(async function test_forward_direct() {
-  let file = new FileUtils.File(getTestFilePath("data/defective-charset.eml"));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(
+    getTestFilePath("data/defective-charset.eml")
+  );
+  const msgc = await open_message_from_file(file);
 
-  let cwc = await open_compose_with_forward(msgc);
+  const cwc = await open_compose_with_forward(msgc);
 
-  let mailText =
+  const mailText =
     cwc.document.getElementById("messageEditor").contentDocument.body
       .textContent;
 
@@ -57,12 +59,14 @@ add_task(async function test_forward_direct() {
 add_task(async function test_forward_from_folder() {
   await be_in_folder(folder);
 
-  let file = new FileUtils.File(getTestFilePath("data/defective-charset.eml"));
-  let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc);
+  const file = new FileUtils.File(
+    getTestFilePath("data/defective-charset.eml")
+  );
+  const msgc = await open_message_from_file(file);
+  const aboutMessage = get_about_message(msgc);
 
   // Copy the message to a folder.
-  let documentChild =
+  const documentChild =
     aboutMessage.document.getElementById("messagepane").contentDocument
       .documentElement;
   EventUtils.synthesizeMouseAtCenter(
@@ -80,7 +84,7 @@ add_task(async function test_forward_from_folder() {
   );
   await BrowserTestUtils.closeWindow(msgc);
 
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
   Assert.ok(
@@ -89,9 +93,9 @@ add_task(async function test_forward_from_folder() {
       .contentDocument.body.textContent.includes(SOME_SPANISH)
   );
 
-  let cwc = await open_compose_with_forward();
+  const cwc = await open_compose_with_forward();
 
-  let mailText =
+  const mailText =
     cwc.document.getElementById("messageEditor").contentDocument.body
       .textContent;
 

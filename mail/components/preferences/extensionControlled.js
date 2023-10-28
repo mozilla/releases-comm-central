@@ -41,7 +41,7 @@ const API_PROXY_PREFS = [
  */
 async function getControllingProxyExtensionAddon() {
   await ExtensionSettingsStore.initialize();
-  let id = ExtensionSettingsStore.getSetting("prefs", "proxy.settings")?.id;
+  const id = ExtensionSettingsStore.getSetting("prefs", "proxy.settings")?.id;
   if (id) {
     return AddonManager.getAddonByID(id);
   }
@@ -56,7 +56,7 @@ async function getControllingProxyExtensionAddon() {
  *   extension.
  */
 async function handleControllingProxyExtension() {
-  let addon = await getControllingProxyExtensionAddon();
+  const addon = await getControllingProxyExtensionAddon();
   if (addon) {
     showControllingProxyExtension(addon);
   } else {
@@ -74,7 +74,7 @@ async function handleControllingProxyExtension() {
  * @param {string} [addon.iconUrl] - The addon icon source.
  */
 function showControllingProxyExtension(addon) {
-  let description = document.getElementById("proxyExtensionDescription");
+  const description = document.getElementById("proxyExtensionDescription");
   description
     .querySelector("img")
     .setAttribute(
@@ -112,10 +112,10 @@ function disableControllingProxyExtension() {
  *   whenever the proxy settings change.
  */
 function initializeProxyUI(container) {
-  let deferredUpdate = new DeferredTask(() => {
+  const deferredUpdate = new DeferredTask(() => {
     container.updateProxySettingsUI();
   }, 10);
-  let proxyObserver = {
+  const proxyObserver = {
     observe: (subject, topic, data) => {
       if (API_PROXY_PREFS.includes(data)) {
         deferredUpdate.arm();

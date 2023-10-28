@@ -14,7 +14,7 @@ const ID_ORIGINS = "update_origins@tests.mozilla.org";
 const ID_EXPERIMENT = "experiment_test@tests.mozilla.org";
 
 function getBadgeStatus() {
-  let menuButton = document.getElementById("button-appmenu");
+  const menuButton = document.getElementById("button-appmenu");
   return menuButton.getAttribute("badge-status");
 }
 
@@ -59,7 +59,7 @@ async function testNoPrompt(origUrl, id) {
   );
 
   // Trigger an update check and wait for the update to be applied.
-  let updatePromise = waitForUpdate(addon);
+  const updatePromise = waitForUpdate(addon);
   AddonManagerPrivate.backgroundUpdateCheck();
   await updatePromise;
 
@@ -67,7 +67,7 @@ async function testNoPrompt(origUrl, id) {
   is(getBadgeStatus(), "", "Should not have addon alert badge");
 
   await gCUITestUtils.openMainMenu();
-  let addons = PanelUI.addonNotificationContainer;
+  const addons = PanelUI.addonNotificationContainer;
   is(addons.children.length, 0, "Have 0 updates in the PanelUI menu");
   await gCUITestUtils.hideMainMenu();
 

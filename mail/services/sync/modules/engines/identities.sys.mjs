@@ -98,17 +98,17 @@ IdentityStore.prototype = {
    *        The store record to create an item from
    */
   async create(record) {
-    let identity = MailServices.accounts.createIdentity();
+    const identity = MailServices.accounts.createIdentity();
     identity.UID = record.id;
 
-    for (let key of Object.keys(SYNCED_IDENTITY_PROPERTIES)) {
+    for (const key of Object.keys(SYNCED_IDENTITY_PROPERTIES)) {
       if (key in record.prefs) {
         identity[key] = record.prefs[key];
       }
     }
 
     if (record.smtpID) {
-      let smtpServer = MailServices.smtp.servers.find(
+      const smtpServer = MailServices.smtp.servers.find(
         s => s.UID == record.smtpID
       );
       if (smtpServer) {
@@ -120,8 +120,8 @@ IdentityStore.prototype = {
       }
     }
 
-    for (let { id, isDefault } of record.accounts) {
-      let account = MailServices.accounts.accounts.find(
+    for (const { id, isDefault } of record.accounts) {
+      const account = MailServices.accounts.accounts.find(
         a => a.incomingServer?.UID == id
       );
       if (account) {
@@ -145,7 +145,7 @@ IdentityStore.prototype = {
    *        The store record to delete an item from
    */
   async remove(record) {
-    let identity = MailServices.accounts.allIdentities.find(
+    const identity = MailServices.accounts.allIdentities.find(
       i => i.UID == record.id
     );
     if (!identity) {
@@ -153,8 +153,10 @@ IdentityStore.prototype = {
       return;
     }
 
-    for (let server of MailServices.accounts.getServersForIdentity(identity)) {
-      let account = MailServices.accounts.FindAccountForServer(server);
+    for (const server of MailServices.accounts.getServersForIdentity(
+      identity
+    )) {
+      const account = MailServices.accounts.FindAccountForServer(server);
       account.removeIdentity(identity);
       // Removing the identity from one account should destroy it.
       // No need to continue.
@@ -172,7 +174,7 @@ IdentityStore.prototype = {
    *        The record to use to update an item from
    */
   async update(record) {
-    let identity = MailServices.accounts.allIdentities.find(
+    const identity = MailServices.accounts.allIdentities.find(
       i => i.UID == record.id
     );
     if (!identity) {
@@ -180,14 +182,14 @@ IdentityStore.prototype = {
       return;
     }
 
-    for (let key of Object.keys(SYNCED_IDENTITY_PROPERTIES)) {
+    for (const key of Object.keys(SYNCED_IDENTITY_PROPERTIES)) {
       if (key in record.prefs) {
         identity[key] = record.prefs[key];
       }
     }
 
     if (record.smtpID) {
-      let smtpServer = MailServices.smtp.servers.find(
+      const smtpServer = MailServices.smtp.servers.find(
         s => s.UID == record.smtpID
       );
       if (smtpServer) {
@@ -201,8 +203,8 @@ IdentityStore.prototype = {
       identity.smtpServerKey = null;
     }
 
-    for (let { id, isDefault } of record.accounts) {
-      let account = MailServices.accounts.accounts.find(
+    for (const { id, isDefault } of record.accounts) {
+      const account = MailServices.accounts.accounts.find(
         a => a.incomingServer?.UID == id
       );
       if (account) {
@@ -239,9 +241,9 @@ IdentityStore.prototype = {
    *         are ignored.
    */
   async getAllIDs() {
-    let ids = {};
-    for (let i of MailServices.accounts.allIdentities) {
-      let servers = MailServices.accounts.getServersForIdentity(i);
+    const ids = {};
+    for (const i of MailServices.accounts.allIdentities) {
+      const servers = MailServices.accounts.getServersForIdentity(i);
       if (servers.find(s => ["imap", "pop3"].includes(s.type))) {
         ids[i.UID] = true;
       }
@@ -264,9 +266,9 @@ IdentityStore.prototype = {
    * @return record type for this engine
    */
   async createRecord(id, collection) {
-    let record = new IdentityRecord(collection, id);
+    const record = new IdentityRecord(collection, id);
 
-    let identity = MailServices.accounts.allIdentities.find(i => i.UID == id);
+    const identity = MailServices.accounts.allIdentities.find(i => i.UID == id);
 
     // If we don't know about this ID, mark the record as deleted.
     if (!identity) {
@@ -275,8 +277,10 @@ IdentityStore.prototype = {
     }
 
     record.accounts = [];
-    for (let server of MailServices.accounts.getServersForIdentity(identity)) {
-      let account = MailServices.accounts.FindAccountForServer(server);
+    for (const server of MailServices.accounts.getServersForIdentity(
+      identity
+    )) {
+      const account = MailServices.accounts.FindAccountForServer(server);
       if (account) {
         record.accounts.push({
           id: server.UID,
@@ -286,12 +290,12 @@ IdentityStore.prototype = {
     }
 
     record.prefs = {};
-    for (let key of Object.keys(SYNCED_IDENTITY_PROPERTIES)) {
+    for (const key of Object.keys(SYNCED_IDENTITY_PROPERTIES)) {
       record.prefs[key] = identity[key];
     }
 
     if (identity.smtpServerKey) {
-      let smtpServer = MailServices.smtp.getServerByIdentity(identity);
+      const smtpServer = MailServices.smtp.getServerByIdentity(identity);
       record.smtpID = smtpServer.UID;
     }
 
@@ -309,8 +313,8 @@ IdentityTracker.prototype = {
   _ignoreAll: false,
 
   async getChangedIDs() {
-    let changes = {};
-    for (let id of this._changedIDs) {
+    const changes = {};
+    for (const id of this._changedIDs) {
       changes[id] = 0;
     }
     return changes;
@@ -347,7 +351,7 @@ IdentityTracker.prototype = {
       return;
     }
 
-    let markAsChanged = identity => {
+    const markAsChanged = identity => {
       if (identity && !this._changedIDs.has(identity.UID)) {
         this._changedIDs.add(identity.UID);
         this.score = SCORE_INCREMENT_XLARGE;
@@ -364,7 +368,7 @@ IdentityTracker.prototype = {
     if (topic == "account-default-identity-changed") {
       // The default identity has changed, update the default identity and
       // the previous one, which will now be second on the list.
-      let [newDefault, oldDefault] = Services.prefs
+      const [newDefault, oldDefault] = Services.prefs
         .getStringPref(`mail.account.${data}.identities`)
         .split(",");
       if (newDefault) {
@@ -376,8 +380,8 @@ IdentityTracker.prototype = {
       return;
     }
 
-    let idKey = data.split(".")[2];
-    let prefName = data.substring(idKey.length + 15);
+    const idKey = data.split(".")[2];
+    const prefName = data.substring(idKey.length + 15);
     if (
       prefName != "smtpServer" &&
       !Object.values(SYNCED_IDENTITY_PROPERTIES).includes(prefName)

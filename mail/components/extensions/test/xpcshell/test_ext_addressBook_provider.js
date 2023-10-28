@@ -7,10 +7,10 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
 );
 
 add_task(async function () {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
       let id = "9b9074ff-8fa4-4c58-9c3b-bc9ea2e17db1";
-      let dummy = async (node, searchString, query) => {
+      const dummy = async (node, searchString, query) => {
         await browser.test.assertTrue(
           false,
           "Should have removed this address book"
@@ -100,7 +100,7 @@ add_task(async function () {
     });
   });
 
-  let autoCompleteSearch = Cc[
+  const autoCompleteSearch = Cc[
     "@mozilla.org/autocomplete/search;1?name=addrbook"
   ].createInstance(Ci.nsIAutoCompleteSearch);
   await new Promise(resolve => {

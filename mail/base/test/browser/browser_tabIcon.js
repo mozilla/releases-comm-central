@@ -15,12 +15,12 @@ const { PromiseTestUtils } = ChromeUtils.import(
 const TEST_DOCUMENT_URL =
   "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.html";
 
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 let rootFolder, testFolder, testMessages;
 
 add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
@@ -29,11 +29,11 @@ add_setup(async function () {
     .getChildNamed("tabIcon")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  let messageFile = new FileUtils.File(
+  const messageFile = new FileUtils.File(
     getTestFilePath("files/sampleContent.eml")
   );
   Assert.ok(messageFile.exists(), "test data file should exist");
-  let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+  const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile into the Inbox.
   MailServices.copy.copyFileMessage(
     messageFile,
@@ -60,7 +60,7 @@ add_task(async function testMsgInFolder() {
   await BrowserTestUtils.browserLoaded(
     tabmail.currentAboutMessage.getMessagePaneBrowser()
   );
-  let icon = tabmail.tabInfo[0].tabNode.querySelector(".tab-icon-image");
+  const icon = tabmail.tabInfo[0].tabNode.querySelector(".tab-icon-image");
   await TestUtils.waitForCondition(() => icon.complete, "Icon loaded");
   Assert.equal(
     icon.src,
@@ -74,20 +74,20 @@ add_task(async function testMsgInTab() {
     tabmail.tabInfo[1].chromeBrowser,
     "MsgLoaded"
   );
-  let tab = tabmail.tabInfo[1];
-  let icon = tab.tabNode.querySelector(".tab-icon-image");
+  const tab = tabmail.tabInfo[1];
+  const icon = tab.tabNode.querySelector(".tab-icon-image");
   await TestUtils.waitForCondition(() => icon.complete, "Icon loaded");
   Assert.equal(icon.src, "chrome://messenger/skin/icons/new/compact/draft.svg");
 });
 
 add_task(async function testContentTab() {
-  let tab = window.openTab("contentTab", {
+  const tab = window.openTab("contentTab", {
     url: TEST_DOCUMENT_URL,
     background: false,
   });
   await BrowserTestUtils.browserLoaded(tab.browser);
 
-  let icon = tab.tabNode.querySelector(".tab-icon-image");
+  const icon = tab.tabNode.querySelector(".tab-icon-image");
   // Start of TEST_IMAGE_URL as data url.
   await BrowserTestUtils.waitForMutationCondition(
     icon,

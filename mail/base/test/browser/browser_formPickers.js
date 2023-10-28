@@ -28,8 +28,8 @@ async function checkABrowser(browser) {
     );
   }
 
-  let win = browser.ownerGlobal;
-  let doc = browser.ownerDocument;
+  const win = browser.ownerGlobal;
+  const doc = browser.ownerDocument;
 
   // Date picker
 
@@ -55,7 +55,7 @@ async function checkABrowser(browser) {
 
   // Click in the middle of the picker. This should always land on a date and
   // close the picker.
-  let frame = picker.querySelector("#dateTimePopupFrame");
+  const frame = picker.querySelector("#dateTimePopupFrame");
   EventUtils.synthesizeMouseAtCenter(
     frame.contentDocument.querySelector(".days-view td"),
     {},
@@ -73,7 +73,7 @@ async function checkABrowser(browser) {
 
   // Select drop-down
 
-  let menulist = win.top.document.getElementById("ContentSelectDropdown");
+  const menulist = win.top.document.getElementById("ContentSelectDropdown");
 
   // Click on the select control to open the popup.
   const selectPromise = BrowserTestUtils.waitForSelectPopupShown(win.top);
@@ -105,7 +105,7 @@ async function checkABrowser(browser) {
 
   // Input auto-complete
 
-  let popup = doc.getElementById(browser.getAttribute("autocompletepopup"));
+  const popup = doc.getElementById(browser.getAttribute("autocompletepopup"));
   Assert.ok(popup, "auto-complete popup exists");
 
   // Click on the input box and type some letters to open the popup.
@@ -113,7 +113,7 @@ async function checkABrowser(browser) {
   browser.focus();
   await SimpleTest.promiseFocus(browser);
   await SpecialPowers.spawn(browser, [], () => {
-    let input = content.document.querySelector(`input[list="letters"]`);
+    const input = content.document.querySelector(`input[list="letters"]`);
     input.focus();
     EventUtils.synthesizeKey("e", {}, content);
     EventUtils.synthesizeKey("t", {}, content);
@@ -125,7 +125,7 @@ async function checkABrowser(browser) {
   // Allow the popup time to initialise.
   await new Promise(r => win.setTimeout(r, 500));
 
-  let list = popup.querySelector("richlistbox");
+  const list = popup.querySelector("richlistbox");
   Assert.ok(list, "list added to popup");
   Assert.equal(list.itemCount, 4);
   Assert.equal(list.itemChildren[0].getAttribute("title"), "beta");
@@ -167,9 +167,9 @@ async function checkABrowser(browser) {
 
 add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("formPickerFolder", null);
   testFolder = rootFolder
     .getChildNamed("formPickerFolder")
@@ -207,7 +207,7 @@ add_task(async function testMessagePaneMessageBrowser() {
 });
 
 add_task(async function testMessagePaneWebBrowser() {
-  let about3Pane = tabmail.currentAbout3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({
     folderURI: testFolder.URI,
     messagePaneVisible: true,
@@ -219,7 +219,7 @@ add_task(async function testMessagePaneWebBrowser() {
 });
 
 add_task(async function testContentTab() {
-  let tab = window.openContentTab(TEST_DOCUMENT_URL);
+  const tab = window.openContentTab(TEST_DOCUMENT_URL);
   await checkABrowser(tab.browser);
 
   tabmail.closeTab(tab);
@@ -253,7 +253,7 @@ add_task(async function testMessageWindow() {
 });
 
 add_task(async function testExtensionPopupWindow() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
       await browser.windows.create({
         url: "formContent.html",
@@ -273,7 +273,7 @@ add_task(async function testExtensionPopupWindow() {
   await extension.startup();
   await extension.awaitFinish("ready");
 
-  let extensionPopup = Services.wm.getMostRecentWindow("mail:extensionPopup");
+  const extensionPopup = Services.wm.getMostRecentWindow("mail:extensionPopup");
   // extensionPopup.xhtml needs time to initialise properly.
   await new Promise(resolve => extensionPopup.setTimeout(resolve, 500));
   await checkABrowser(extensionPopup.document.getElementById("requestFrame"));
@@ -283,7 +283,7 @@ add_task(async function testExtensionPopupWindow() {
 });
 
 add_task(async function testExtensionBrowserAction() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "formContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
         response.text()
@@ -303,7 +303,7 @@ add_task(async function testExtensionBrowserAction() {
 
   await extension.startup();
 
-  let { panel, browser } = await openExtensionPopup(
+  const { panel, browser } = await openExtensionPopup(
     window,
     "ext-formpickers\\@mochi.test"
   );
@@ -314,7 +314,7 @@ add_task(async function testExtensionBrowserAction() {
 });
 
 add_task(async function testExtensionComposeAction() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "formContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
         response.text()
@@ -334,19 +334,19 @@ add_task(async function testExtensionComposeAction() {
 
   await extension.startup();
 
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
-  let composeWindowPromise = BrowserTestUtils.domWindowOpened();
+  const composeWindowPromise = BrowserTestUtils.domWindowOpened();
   MailServices.compose.OpenComposeWindowWithParams(null, params);
-  let composeWindow = await composeWindowPromise;
+  const composeWindow = await composeWindowPromise;
   await BrowserTestUtils.waitForEvent(composeWindow, "load");
 
-  let { panel, browser } = await openExtensionPopup(
+  const { panel, browser } = await openExtensionPopup(
     composeWindow,
     "formpickers_mochi_test-composeAction-toolbarbutton"
   );
@@ -358,7 +358,7 @@ add_task(async function testExtensionComposeAction() {
 });
 
 add_task(async function testExtensionMessageDisplayAction() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "formContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
         response.text()
@@ -378,15 +378,15 @@ add_task(async function testExtensionMessageDisplayAction() {
 
   await extension.startup();
 
-  let messageWindowPromise = BrowserTestUtils.domWindowOpened();
+  const messageWindowPromise = BrowserTestUtils.domWindowOpened();
   window.MsgOpenNewWindowForMessage([...testFolder.messages][0]);
-  let messageWindow = await messageWindowPromise;
-  let { target: aboutMessage } = await BrowserTestUtils.waitForEvent(
+  const messageWindow = await messageWindowPromise;
+  const { target: aboutMessage } = await BrowserTestUtils.waitForEvent(
     messageWindow,
     "aboutMessageLoaded"
   );
 
-  let { panel, browser } = await openExtensionPopup(
+  const { panel, browser } = await openExtensionPopup(
     aboutMessage,
     "formpickers_mochi_test-messageDisplayAction-toolbarbutton"
   );
@@ -398,7 +398,7 @@ add_task(async function testExtensionMessageDisplayAction() {
 });
 
 add_task(async function testBrowserRequestWindow() {
-  let requestWindow = await new Promise(resolve => {
+  const requestWindow = await new Promise(resolve => {
     Services.ww.openWindow(
       null,
       "chrome://messenger/content/browserRequest.xhtml",

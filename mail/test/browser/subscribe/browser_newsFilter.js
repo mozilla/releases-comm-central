@@ -29,8 +29,8 @@ var {
 add_task(async function test_subscribe_newsgroup_filter() {
   var daemon = setupNNTPDaemon();
   var remoteServer = startupNNTPServer(daemon, NNTP_PORT);
-  let server = setupLocalServer(NNTP_PORT);
-  let rootFolder = server.rootFolder;
+  const server = setupLocalServer(NNTP_PORT);
+  const rootFolder = server.rootFolder;
   await new Promise(r => setTimeout(r));
   await open_subscribe_window_from_context_menu(rootFolder, filter_test_helper);
   shutdownNNTPServer(remoteServer);

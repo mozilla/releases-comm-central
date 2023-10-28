@@ -47,7 +47,7 @@ init();
  * @returns true if the uri should be skipped, false otherwise.
  */
 function uriIsWhiteListed(uri) {
-  for (let whitelistItem of kWhitelist) {
+  for (const whitelistItem of kWhitelist) {
     if (whitelistItem.test(uri.spec)) {
       return true;
     }
@@ -62,7 +62,7 @@ function uriIsWhiteListed(uri) {
  * @returns true if the uri should be parsed as a module, otherwise parse it as a script.
  */
 function uriIsESModule(uri) {
-  for (let whitelistItem of kESModuleList) {
+  for (const whitelistItem of kESModuleList) {
     if (whitelistItem.test(uri.spec)) {
       return true;
     }
@@ -71,22 +71,22 @@ function uriIsESModule(uri) {
 }
 
 function parsePromise(uri, parseTarget) {
-  let promise = new Promise((resolve, reject) => {
-    let xhr = new XMLHttpRequest();
+  const promise = new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
     xhr.open("GET", uri, true);
     xhr.onreadystatechange = function () {
       if (this.readyState == this.DONE) {
-        let scriptText = this.responseText;
+        const scriptText = this.responseText;
         try {
           info(`Checking ${parseTarget} ${uri}`);
-          let parseOpts = {
+          const parseOpts = {
             source: uri,
             target: parseTarget,
           };
           Reflect.parse(scriptText, parseOpts);
           resolve(true);
         } catch (ex) {
-          let errorMsg = "Script error reading " + uri + ": " + ex;
+          const errorMsg = "Script error reading " + uri + ": " + ex;
           ok(false, errorMsg);
           resolve(false);
         }
@@ -110,8 +110,8 @@ add_task(async function checkAllTheJS() {
   //  - A case-sensitive substring of the file name to test (slow).
   //  - A single absolute URI printed out by a previous run (fast).
   //  - An empty string to run the test on all files (slowest).
-  let parseRequested = Services.prefs.prefHasUserValue("parse");
-  let parseValue = parseRequested && Services.prefs.getCharPref("parse");
+  const parseRequested = Services.prefs.prefHasUserValue("parse");
+  const parseValue = parseRequested && Services.prefs.getCharPref("parse");
   if (SpecialPowers.isDebugBuild) {
     if (!parseRequested) {
       ok(
@@ -131,11 +131,11 @@ add_task(async function checkAllTheJS() {
   if (parseValue && parseValue.includes(":")) {
     uris = [NetUtil.newURI(parseValue)];
   } else {
-    let appDir = Services.dirsvc.get("GreD", Ci.nsIFile);
+    const appDir = Services.dirsvc.get("GreD", Ci.nsIFile);
     // This asynchronously produces a list of URLs (sadly, mostly sync on our
     // test infrastructure because it runs against jarfiles there, and
     // our zipreader APIs are all sync)
-    let startTimeMs = Date.now();
+    const startTimeMs = Date.now();
     info("Collecting URIs");
     uris = await generateURIsFromDirTree(appDir, [".js", ".jsm"]);
     info("Collected URIs in " + (Date.now() - startTimeMs) + "ms");

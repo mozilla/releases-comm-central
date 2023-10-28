@@ -26,12 +26,14 @@ var {
  * Tests that a message containing an invalid vcard can be displayed.
  */
 add_task(async function testMarkedAsRead() {
-  let folder = await create_folder("SpecialMsgs");
+  const folder = await create_folder("SpecialMsgs");
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", true);
 
-  let file = new FileUtils.File(getTestFilePath("data/test-invalid-vcard.eml"));
+  const file = new FileUtils.File(
+    getTestFilePath("data/test-invalid-vcard.eml")
+  );
   Assert.ok(file.exists(), "test data file should exist");
-  let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+  const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile into the Inbox.
   MailServices.copy.copyFileMessage(
     file,
@@ -45,7 +47,7 @@ add_task(async function testMarkedAsRead() {
   );
   await promiseCopyListener.promise;
   await be_in_folder(folder);
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(0);
   // Make sure it's the msg we want.
   Assert.equal(msg.subject, "this contains an invalid vcard");

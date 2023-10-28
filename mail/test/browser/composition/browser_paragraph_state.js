@@ -12,12 +12,12 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 add_task(async function test_newline_p() {
-  let win = await open_compose_new_mail();
-  let formatHelper = new FormatHelper(win);
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
 
-  let firstText = "first line";
-  let secondText = "second line";
-  let thirdText = "third line";
+  const firstText = "first line";
+  const secondText = "second line";
+  const thirdText = "third line";
 
   formatHelper.focusMessage();
 
@@ -70,18 +70,18 @@ add_task(async function test_newline_p() {
 });
 
 add_task(async function test_newline_headers() {
-  let win = await open_compose_new_mail();
-  let formatHelper = new FormatHelper(win);
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
 
-  let firstText = "first line";
-  let secondText = "second line";
-  let thirdText = "third line";
+  const firstText = "first line";
+  const secondText = "second line";
+  const thirdText = "third line";
 
   formatHelper.focusMessage();
 
   for (let num = 1; num <= 6; num++) {
-    let state = `h${num}`;
-    let block = `H${num}`;
+    const state = `h${num}`;
+    const block = `H${num}`;
 
     await formatHelper.selectParagraphState(state);
     await formatHelper.typeInMessage(firstText);
@@ -129,17 +129,17 @@ add_task(async function test_newline_headers() {
 });
 
 add_task(async function test_newline_pre_and_address() {
-  let win = await open_compose_new_mail();
-  let formatHelper = new FormatHelper(win);
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
 
-  let firstText = "first line";
-  let secondText = "second line";
-  let thirdText = "third line";
+  const firstText = "first line";
+  const secondText = "second line";
+  const thirdText = "third line";
 
   formatHelper.focusMessage();
 
-  for (let state of ["pre", "address"]) {
-    let block = state.toUpperCase();
+  for (const state of ["pre", "address"]) {
+    const block = state.toUpperCase();
 
     await formatHelper.selectParagraphState(state);
     await formatHelper.typeInMessage(firstText);
@@ -181,12 +181,12 @@ add_task(async function test_newline_pre_and_address() {
 });
 
 add_task(async function test_newline_body() {
-  let win = await open_compose_new_mail();
-  let formatHelper = new FormatHelper(win);
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
 
-  let firstText = "first line";
-  let secondText = "second line";
-  let thirdText = "third line";
+  const firstText = "first line";
+  const secondText = "second line";
+  const thirdText = "third line";
 
   formatHelper.focusMessage();
 
@@ -235,10 +235,10 @@ add_task(async function test_newline_body() {
 });
 
 async function initialiseParagraphs(formatHelper) {
-  let blockSet = [];
+  const blockSet = [];
   let start = 0;
   let first = true;
-  for (let text of ["first block", "second block", "third block"]) {
+  for (const text of ["first block", "second block", "third block"]) {
     if (first) {
       first = false;
     } else {
@@ -246,7 +246,7 @@ async function initialiseParagraphs(formatHelper) {
     }
     await formatHelper.typeInMessage(text);
 
-    let end = start + text.length;
+    const end = start + text.length;
     blockSet.push({ text, start, end });
     start = end + 1; // Plus newline.
   }
@@ -255,12 +255,12 @@ async function initialiseParagraphs(formatHelper) {
 }
 
 add_task(async function test_non_body_paragraph_state() {
-  let win = await open_compose_new_mail();
-  let formatHelper = new FormatHelper(win);
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
 
   // NOTE: we don't start with the default paragraph state because we want to
   // detect a *change* in the paragraph state from the previous state.
-  let stateSet = ["address", "pre"];
+  const stateSet = ["address", "pre"];
   for (let i = 1; i <= 6; i++) {
     stateSet.push(`h${i}`);
   }
@@ -281,7 +281,7 @@ add_task(async function test_non_body_paragraph_state() {
   // Initially in the paragraph state.
   await formatHelper.assertShownParagraphState("p", "Initial paragraph");
 
-  let blockSet = await initialiseParagraphs(formatHelper);
+  const blockSet = await initialiseParagraphs(formatHelper);
   formatHelper.assertMessageBodyContent(
     [
       { block: "P", content: [blockSet[0].text] },
@@ -292,10 +292,10 @@ add_task(async function test_non_body_paragraph_state() {
   );
 
   let prevState = "p";
-  for (let state of stateSet) {
+  for (const state of stateSet) {
     // Select end.
-    let prevBlock = prevState.toUpperCase();
-    let block = state.toUpperCase();
+    const prevBlock = prevState.toUpperCase();
+    const block = state.toUpperCase();
     await formatHelper.selectTextRange(blockSet[2].end);
     // Select through menu.
     await formatHelper.selectParagraphState(state);
@@ -359,12 +359,12 @@ add_task(async function test_non_body_paragraph_state() {
 });
 
 add_task(async function test_body_paragraph_state() {
-  let win = await open_compose_new_mail();
-  let formatHelper = new FormatHelper(win);
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
 
-  let blockSet = await initialiseParagraphs(formatHelper);
+  const blockSet = await initialiseParagraphs(formatHelper);
 
   await formatHelper.selectTextRange(0);
   // Body state has value "".
@@ -394,24 +394,24 @@ add_task(async function test_body_paragraph_state() {
 });
 
 add_task(async function test_convert_from_body_paragraph_state() {
-  let win = await open_compose_new_mail();
-  let formatHelper = new FormatHelper(win);
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
 
-  let stateSet = ["p", "address", "pre"];
+  const stateSet = ["p", "address", "pre"];
   for (let i = 1; i <= 6; i++) {
     stateSet.push(`h${i}`);
   }
 
-  let firstText = "first line";
-  let secondText = "second line";
+  const firstText = "first line";
+  const secondText = "second line";
   // Plus newline break.
-  let fullLength = firstText.length + 1 + secondText.length;
+  const fullLength = firstText.length + 1 + secondText.length;
   // The full first + second line as HTML, separater by a <br> tag.
   const fullTextHTML = firstText + "<BR>" + secondText;
 
   formatHelper.focusMessage();
 
-  for (let state of stateSet) {
+  for (const state of stateSet) {
     const block = state.toUpperCase();
 
     await formatHelper.selectParagraphState("");
@@ -439,17 +439,17 @@ add_task(async function test_convert_from_body_paragraph_state() {
 });
 
 add_task(async function test_heading_implies_bold() {
-  let win = await open_compose_new_mail();
-  let formatHelper = new FormatHelper(win);
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
 
-  let boldItem = formatHelper.getStyleMenuItem("bold");
-  let strongItem = formatHelper.getStyleMenuItem("strong");
+  const boldItem = formatHelper.getStyleMenuItem("bold");
+  const strongItem = formatHelper.getStyleMenuItem("strong");
 
   for (let num = 1; num <= 6; num++) {
-    let state = `h${num}`;
-    let block = `H${num}`;
+    const state = `h${num}`;
+    const block = `H${num}`;
     let text = "some text";
 
     await formatHelper.selectParagraphState(state);
@@ -507,7 +507,7 @@ add_task(async function test_heading_implies_bold() {
     );
 
     // Can still add and remove a style that implies bold.
-    let strongText = " Strong ";
+    const strongText = " Strong ";
     await formatHelper.selectFromFormatSubMenu(
       strongItem,
       formatHelper.styleMenu
@@ -533,7 +533,7 @@ add_task(async function test_heading_implies_bold() {
     //   `UnSelecting strong in ${state} state`
     // );
 
-    let moreText = "more";
+    const moreText = "more";
     await formatHelper.typeInMessage(moreText);
     await formatHelper.assertShownStyles(
       "bold",
@@ -576,18 +576,18 @@ add_task(async function test_heading_implies_bold() {
 });
 
 add_task(async function test_address_implies_italic() {
-  let win = await open_compose_new_mail();
-  let formatHelper = new FormatHelper(win);
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
 
-  let italicItem = formatHelper.getStyleMenuItem("italic");
+  const italicItem = formatHelper.getStyleMenuItem("italic");
 
-  let otherStyles = Array.from(formatHelper.styleDataMap.values()).filter(
+  const otherStyles = Array.from(formatHelper.styleDataMap.values()).filter(
     data => data.implies?.name === "italic" || data.linked?.name === "italic"
   );
 
-  let block = "ADDRESS";
+  const block = "ADDRESS";
   let text = "some text";
 
   await formatHelper.selectParagraphState("address");
@@ -644,11 +644,11 @@ add_task(async function test_address_implies_italic() {
     "Still italic when selecting italic in the address state and typing"
   );
 
-  let content = [text];
+  const content = [text];
   // Can still add and remove a style that implies italic.
-  for (let style of otherStyles) {
-    let { name, item, tag } = style;
-    let otherText = name;
+  for (const style of otherStyles) {
+    const { name, item, tag } = style;
+    const otherText = name;
     await formatHelper.selectFromFormatSubMenu(item, formatHelper.styleMenu);
     // See Bug 1716840
     // await formatHelper.assertShownStyles(
@@ -668,7 +668,7 @@ add_task(async function test_address_implies_italic() {
     //   `UnSelecting ${name} in address state`
     // );
 
-    let moreText = "more";
+    const moreText = "more";
     await formatHelper.typeInMessage(moreText);
     await formatHelper.assertShownStyles(
       "italic",
@@ -701,14 +701,14 @@ add_task(async function test_address_implies_italic() {
 });
 
 add_task(async function test_preformat_implies_fixed_width() {
-  let win = await open_compose_new_mail();
-  let formatHelper = new FormatHelper(win);
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
 
-  let ttItem = formatHelper.getStyleMenuItem("tt");
+  const ttItem = formatHelper.getStyleMenuItem("tt");
 
-  let otherStyles = Array.from(formatHelper.styleDataMap.values()).filter(
+  const otherStyles = Array.from(formatHelper.styleDataMap.values()).filter(
     data => data.implies?.name === "tt" || data.linked?.name === "tt"
   );
 
@@ -723,7 +723,7 @@ add_task(async function test_preformat_implies_fixed_width() {
     );
   }
 
-  let block = "PRE";
+  const block = "PRE";
   let text = "some text";
 
   await formatHelper.selectParagraphState("pre");
@@ -763,9 +763,9 @@ add_task(async function test_preformat_implies_fixed_width() {
     "Still fixed width when selecting Variable Width font and typing"
   );
 
-  let content = [text];
+  const content = [text];
   // Can still set other fonts.
-  let font = "Helvetica, Arial, sans-serif";
+  const font = "Helvetica, Arial, sans-serif";
   await formatHelper.selectFont(font);
   // See Bug 1716840 (comment 3).
   // await assertFontAndStyle(
@@ -828,9 +828,9 @@ add_task(async function test_preformat_implies_fixed_width() {
   );
 
   // Can still add and remove a style that implies tt.
-  for (let style of otherStyles) {
-    let { name, item, tag } = style;
-    let otherText = name;
+  for (const style of otherStyles) {
+    const { name, item, tag } = style;
+    const otherText = name;
     await formatHelper.selectFromFormatSubMenu(item, formatHelper.styleMenu);
     // See Bug 1716840
     // await assertFontAndStyle(
@@ -853,7 +853,7 @@ add_task(async function test_preformat_implies_fixed_width() {
     //   `UnSelecting ${name} in preformat state`
     // );
 
-    let moreText = "more";
+    const moreText = "more";
     await formatHelper.typeInMessage(moreText);
     await assertFontAndStyle(
       "monospace",

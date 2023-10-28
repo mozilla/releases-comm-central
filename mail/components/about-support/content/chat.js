@@ -11,14 +11,14 @@ var { IMServices } = ChromeUtils.importESModule(
  * the chat accounts.
  */
 function populateChatSection() {
-  let table = document.getElementById("chat-table");
-  let rowTmpl = document.getElementById("chat-table-row-template");
-  let dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
+  const table = document.getElementById("chat-table");
+  const rowTmpl = document.getElementById("chat-table-row-template");
+  const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
     dateStyle: "short",
     timeStyle: "long",
   });
-  let formatDebugMessage = dbgMsg => {
-    let m = dbgMsg.message;
+  const formatDebugMessage = dbgMsg => {
+    const m = dbgMsg.message;
     let time = new Date(m.timeStamp);
     time = dateTimeFormatter.format(time);
     let level = dbgMsg.logLevel;
@@ -50,7 +50,7 @@ function populateChatSection() {
     );
   };
 
-  let chatAccounts = IMServices.accounts.getAccounts();
+  const chatAccounts = IMServices.accounts.getAccounts();
   if (!chatAccounts.length) {
     return;
   }

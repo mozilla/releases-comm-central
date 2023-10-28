@@ -21,8 +21,8 @@ export class VCardNickNameComponent extends HTMLElement {
 
   constructor() {
     super();
-    let template = document.getElementById("template-vcard-edit-nickname");
-    let clonedTemplate = template.content.cloneNode(true);
+    const template = document.getElementById("template-vcard-edit-nickname");
+    const clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
   }
 

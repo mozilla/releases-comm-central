@@ -11,7 +11,7 @@ async function testExecuteComposeActionWithOptions(options = {}) {
     )}`
   );
 
-  let extensionOptions = {};
+  const extensionOptions = {};
   extensionOptions.manifest = {
     permissions: ["accountsRead"],
     commands: {
@@ -55,7 +55,7 @@ async function testExecuteComposeActionWithOptions(options = {}) {
   }
 
   extensionOptions.background = async () => {
-    let accounts = await browser.accounts.list();
+    const accounts = await browser.accounts.list();
     browser.test.assertEq(1, accounts.length, "number of accounts");
 
     browser.test.onMessage.addListener((message, withPopup) => {
@@ -87,10 +87,10 @@ async function testExecuteComposeActionWithOptions(options = {}) {
     });
   };
 
-  let extension = ExtensionTestUtils.loadExtension(extensionOptions);
+  const extension = ExtensionTestUtils.loadExtension(extensionOptions);
   await extension.startup();
 
-  let composeWindow = await openComposeWindow(gAccount);
+  const composeWindow = await openComposeWindow(gAccount);
   await focusWindow(composeWindow);
 
   // trigger setup of listeners in background and the send-keys msg
@@ -98,7 +98,7 @@ async function testExecuteComposeActionWithOptions(options = {}) {
 
   await extension.awaitMessage("send-keys");
   info("Simulating ALT+SHIFT+J");
-  let modifiers =
+  const modifiers =
     AppConstants.platform == "macosx"
       ? { metaKey: true, shiftKey: true }
       : { altKey: true, shiftKey: true };
@@ -123,11 +123,11 @@ add_setup(async () => {
   addIdentity(gAccount);
 });
 
-let popupJobs = [true, false];
-let formatToolbarJobs = [true, false];
+const popupJobs = [true, false];
+const formatToolbarJobs = [true, false];
 
-for (let popupJob of popupJobs) {
-  for (let formatToolbarJob of formatToolbarJobs) {
+for (const popupJob of popupJobs) {
+  for (const formatToolbarJob of formatToolbarJobs) {
     add_task(async () => {
       await testExecuteComposeActionWithOptions({
         withPopup: popupJob,

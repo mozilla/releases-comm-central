@@ -215,7 +215,7 @@ add_task(
  *  (advancing to the next message).
  */
 add_task(async function test_delete_in_folder_tab() {
-  let about3Pane = get_about_3pane();
+  const about3Pane = get_about_3pane();
   // - plan to end up on the guy who is currently at index 1
   curMessage = about3Pane.gDBView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
@@ -317,7 +317,7 @@ add_task(
  * (advancing to the next message).
  */
 add_task(async function test_delete_last_message_in_folder_tab() {
-  let about3Pane = get_about_3pane();
+  const about3Pane = get_about_3pane();
   // - plan to end up on the guy who is currently at index 2
   curMessage = about3Pane.gDBView.getMsgHdrAt(2);
   // while we're at it, figure out who is at 1 for the next step
@@ -382,7 +382,7 @@ add_task(async function test_delete_one_before_message_in_folder_tab() {
   // Open up message 4 in message tabs and a window (we'll delete message 3).
   await _open_message_in_all_four_display_mechanisms_helper(oneBeforeFolder, 4);
 
-  let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(4);
+  const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(4);
   await select_click_row(3);
   await press_delete();
 
@@ -407,7 +407,7 @@ add_task(async function test_delete_one_before_message_in_message_tab() {
   // and window.
   await select_click_row(3);
   tabMessage = await open_selected_message_in_new_tab(true);
-  let expectedMessage = await select_click_row(4);
+  const expectedMessage = await select_click_row(4);
   tabMessageBackground = await open_selected_message_in_new_tab(true);
   msgc = await open_selected_message_in_new_window(true);
 
@@ -436,7 +436,7 @@ add_task(async function test_delete_one_before_message_in_message_window() {
   // and a foreground tab.
   await select_click_row(3);
   msgc = await open_selected_message_in_new_window();
-  let expectedMessage = await select_click_row(4);
+  const expectedMessage = await select_click_row(4);
   tabMessage = await open_selected_message_in_new_tab();
   await switch_tab(tabFolder);
   tabMessageBackground = await open_selected_message_in_new_tab(true);
@@ -469,7 +469,7 @@ add_task(async function test_delete_one_after_message_in_folder_tab() {
   // Open up message 4 in message tabs and a window (we'll delete message 5).
   await _open_message_in_all_four_display_mechanisms_helper(oneAfterFolder, 4);
 
-  let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(4);
+  const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(4);
   await select_click_row(5);
   await press_delete();
 
@@ -494,7 +494,7 @@ add_task(async function test_delete_one_after_message_in_message_tab() {
   // and window.
   await select_click_row(5);
   tabMessage = await open_selected_message_in_new_tab(true);
-  let expectedMessage = await select_click_row(4);
+  const expectedMessage = await select_click_row(4);
   tabMessageBackground = await open_selected_message_in_new_tab(true);
   msgc = await open_selected_message_in_new_window(true);
 
@@ -523,7 +523,7 @@ add_task(async function test_delete_one_after_message_in_message_window() {
   // and a foreground tab.
   await select_click_row(5);
   msgc = await open_selected_message_in_new_window();
-  let expectedMessage = await select_click_row(4);
+  const expectedMessage = await select_click_row(4);
   tabMessage = await open_selected_message_in_new_tab();
   await switch_tab(tabFolder);
   tabMessageBackground = await open_selected_message_in_new_tab(true);
@@ -569,7 +569,7 @@ add_task(
     await select_control_click_row(8);
     await select_control_click_row(9);
     await select_control_click_row(10);
-    let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(6);
+    const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(6);
 
     // Delete the selected messages
     await press_delete();
@@ -604,7 +604,7 @@ add_task(
     await select_control_click_row(8);
     await select_control_click_row(9);
     await select_control_click_row(10);
-    let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(11);
+    const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(11);
 
     // Delete the selected messages
     await press_delete();
@@ -647,7 +647,7 @@ add_task(
     await select_control_click_row(8);
     await select_control_click_row(9);
     await select_control_click_row(10);
-    let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(11);
+    const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(11);
 
     // Delete the selected messages
     await press_delete();
@@ -688,7 +688,7 @@ add_task(
     await select_control_click_row(7);
     await select_control_click_row(8);
     await select_control_click_row(9);
-    let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(5);
+    const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(5);
 
     // Delete the selected messages
     await press_delete();
@@ -722,7 +722,7 @@ add_task(
     await select_control_click_row(7);
     await select_control_click_row(8);
     await select_control_click_row(9);
-    let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(6);
+    const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(6);
 
     // Delete the selected messages
     await press_delete();
@@ -764,7 +764,7 @@ add_task(
     await select_control_click_row(7);
     await select_control_click_row(8);
     await select_control_click_row(9);
-    let expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(6);
+    const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(6);
 
     // Delete the selected messages
     await press_delete();

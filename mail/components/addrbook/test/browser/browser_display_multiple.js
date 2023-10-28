@@ -9,21 +9,21 @@ var { CalendarTestUtils } = ChromeUtils.import(
 var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
 
 add_setup(async function () {
-  let card1 = personalBook.addCard(createContact("victor", "test"));
+  const card1 = personalBook.addCard(createContact("victor", "test"));
   personalBook.addCard(createContact("romeo", "test", undefined, ""));
-  let card3 = personalBook.addCard(createContact("oscar", "test"));
+  const card3 = personalBook.addCard(createContact("oscar", "test"));
   personalBook.addCard(createContact("mike", "test", undefined, ""));
-  let list1 = personalBook.addMailList(createMailingList("list 1"));
+  const list1 = personalBook.addMailList(createMailingList("list 1"));
   list1.addCard(card1);
   list1.addCard(card3);
-  let list2 = personalBook.addMailList(createMailingList("list 2"));
+  const list2 = personalBook.addMailList(createMailingList("list 2"));
   list2.addCard(card3);
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
 
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
 
   registerCleanupFunction(async () => {
     personalBook.deleteDirectory(list1);
@@ -35,12 +35,12 @@ add_setup(async function () {
 });
 
 add_task(async function testDisplayMultiple() {
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
   openDirectory(personalBook);
 
-  let abDocument = abWindow.document;
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
 
   // In order; list 1, list 2, mike, oscar, romeo, victor.
   Assert.equal(cardsList.view.rowCount, 6);
@@ -151,13 +151,13 @@ add_task(async function testDisplayMultiple() {
 });
 
 function checkHeader({ listName, selectionCount, selectionType } = {}) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let contactPhoto = abDocument.getElementById("viewContactPhoto");
-  let contactName = abDocument.getElementById("viewContactName");
-  let listHeader = abDocument.getElementById("viewListName");
-  let selectionHeader = abDocument.getElementById("viewSelectionCount");
+  const contactPhoto = abDocument.getElementById("viewContactPhoto");
+  const contactName = abDocument.getElementById("viewContactName");
+  const listHeader = abDocument.getElementById("viewListName");
+  const selectionHeader = abDocument.getElementById("viewSelectionCount");
 
   Assert.ok(
     BrowserTestUtils.is_hidden(contactPhoto),
@@ -204,13 +204,13 @@ async function checkActionButtons(
   cardAddresses = [],
   eventAddresses = cardAddresses
 ) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let writeButton = abDocument.getElementById("detailsWriteButton");
-  let eventButton = abDocument.getElementById("detailsEventButton");
-  let searchButton = abDocument.getElementById("detailsSearchButton");
-  let newListButton = abDocument.getElementById("detailsNewListButton");
+  const writeButton = abDocument.getElementById("detailsWriteButton");
+  const eventButton = abDocument.getElementById("detailsEventButton");
+  const searchButton = abDocument.getElementById("detailsSearchButton");
+  const newListButton = abDocument.getElementById("detailsNewListButton");
 
   if (cardAddresses.length || listAddresses.length) {
     // Write.
@@ -219,7 +219,7 @@ async function checkActionButtons(
       "write button is visible"
     );
 
-    let composeWindowPromise = BrowserTestUtils.domWindowOpened();
+    const composeWindowPromise = BrowserTestUtils.domWindowOpened();
     EventUtils.synthesizeMouseAtCenter(writeButton, {}, abWindow);
     await checkComposeWindow(
       await composeWindowPromise,
@@ -237,15 +237,15 @@ async function checkActionButtons(
 
     let eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
     EventUtils.synthesizeMouseAtCenter(eventButton, {}, abWindow);
-    let eventWindow = await eventWindowPromise;
+    const eventWindow = await eventWindowPromise;
 
-    let iframe = eventWindow.document.getElementById(
+    const iframe = eventWindow.document.getElementById(
       "calendar-item-panel-iframe"
     );
-    let tabPanels = iframe.contentDocument.getElementById(
+    const tabPanels = iframe.contentDocument.getElementById(
       "event-grid-tabpanels"
     );
-    let attendeesTabPanel = iframe.contentDocument.getElementById(
+    const attendeesTabPanel = iframe.contentDocument.getElementById(
       "event-grid-tabpanel-attendees"
     );
     Assert.equal(
@@ -253,7 +253,7 @@ async function checkActionButtons(
       attendeesTabPanel,
       "attendees are displayed"
     );
-    let attendeeNames = attendeesTabPanel.querySelectorAll(
+    const attendeeNames = attendeesTabPanel.querySelectorAll(
       ".attendee-list .attendee-name"
     );
     Assert.deepEqual(
@@ -281,12 +281,12 @@ async function checkActionButtons(
       BrowserTestUtils.is_visible(newListButton),
       "new list button is visible"
     );
-    let listWindowPromise = promiseLoadSubDialog(
+    const listWindowPromise = promiseLoadSubDialog(
       "chrome://messenger/content/addressbook/abMailListDialog.xhtml"
     );
     EventUtils.synthesizeMouseAtCenter(newListButton, {}, abWindow);
-    let listWindow = await listWindowPromise;
-    let memberNames = listWindow.document.querySelectorAll(
+    const listWindow = await listWindowPromise;
+    const memberNames = listWindow.document.querySelectorAll(
       ".textbox-addressingWidget"
     );
     Assert.deepEqual(
@@ -310,16 +310,16 @@ async function checkActionButtons(
 }
 
 function checkList(names) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let selectedCardsSection = abDocument.getElementById("selectedCards");
-  let otherSections = abDocument.querySelectorAll(
+  const selectedCardsSection = abDocument.getElementById("selectedCards");
+  const otherSections = abDocument.querySelectorAll(
     "#detailsBody > section:not(#detailsActions, #selectedCards)"
   );
 
   Assert.ok(BrowserTestUtils.is_visible(selectedCardsSection));
-  for (let section of otherSections) {
+  for (const section of otherSections) {
     Assert.ok(BrowserTestUtils.is_hidden(section), `${section.id} is hidden`);
   }
 
@@ -338,16 +338,16 @@ function checkList(names) {
  * shows the deleted contacts.
  */
 add_task(async function testLastContactsViaSelectionRemoved() {
-  let book1 = createAddressBook("Book 1");
+  const book1 = createAddressBook("Book 1");
   book1.addCard(createContact("daniel", "test"));
   book1.addCard(createContact("jonathan", "test"));
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
   openDirectory(book1);
 
-  let abDocument = abWindow.document;
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
 
   // Select all contacts.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
@@ -359,7 +359,7 @@ add_task(async function testLastContactsViaSelectionRemoved() {
   await checkList(["daniel test", "jonathan test"]);
 
   // Delete all selected contacts.
-  let deletePromise = BrowserTestUtils.promiseAlertDialog("accept");
+  const deletePromise = BrowserTestUtils.promiseAlertDialog("accept");
   EventUtils.synthesizeKey("VK_DELETE", {}, window);
   await deletePromise;
 

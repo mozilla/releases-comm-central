@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
+const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
 );
 
 function doDrag(sourceIndex, destIndex, modifiers, expectedEffect) {
-  let abWindow = getAddressBookWindow();
-  let booksList = abWindow.document.getElementById("books");
-  let cardsList = abWindow.document.getElementById("cards");
+  const abWindow = getAddressBookWindow();
+  const booksList = abWindow.document.getElementById("books");
+  const cardsList = abWindow.document.getElementById("cards");
 
   let destElement = abWindow.document.body;
   if (destIndex !== null) {
     destElement = booksList.getRowAtIndex(destIndex);
   }
 
-  let [result, dataTransfer] = EventUtils.synthesizeDragOver(
+  const [result, dataTransfer] = EventUtils.synthesizeDragOver(
     cardsList.getRowAtIndex(sourceIndex),
     destElement,
     null,
@@ -33,12 +33,12 @@ function doDrag(sourceIndex, destIndex, modifiers, expectedEffect) {
 }
 
 function doDragToBooksList(sourceIndex, destIndex, modifiers, expectedEffect) {
-  let abWindow = getAddressBookWindow();
-  let booksList = abWindow.document.getElementById("books");
+  const abWindow = getAddressBookWindow();
+  const booksList = abWindow.document.getElementById("books");
 
   dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
 
-  let [result, dataTransfer] = doDrag(
+  const [result, dataTransfer] = doDrag(
     sourceIndex,
     destIndex,
     modifiers,
@@ -57,28 +57,28 @@ function doDragToBooksList(sourceIndex, destIndex, modifiers, expectedEffect) {
 }
 
 async function doDragToComposeWindow(sourceIndices, expectedPills) {
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
-  let composeWindowPromise = BrowserTestUtils.domWindowOpened();
+  const composeWindowPromise = BrowserTestUtils.domWindowOpened();
   MailServices.compose.OpenComposeWindowWithParams(null, params);
-  let composeWindow = await composeWindowPromise;
+  const composeWindow = await composeWindowPromise;
   await BrowserTestUtils.waitForEvent(composeWindow, "load");
-  let composeDocument = composeWindow.document;
-  let toAddrInput = composeDocument.getElementById("toAddrInput");
-  let toAddrRow = composeDocument.getElementById("addressRowTo");
+  const composeDocument = composeWindow.document;
+  const toAddrInput = composeDocument.getElementById("toAddrInput");
+  const toAddrRow = composeDocument.getElementById("addressRowTo");
 
-  let abWindow = getAddressBookWindow();
-  let cardsList = abWindow.document.getElementById("cards");
+  const abWindow = getAddressBookWindow();
+  const cardsList = abWindow.document.getElementById("cards");
 
   dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
 
   cardsList.selectedIndices = sourceIndices;
-  let [result, dataTransfer] = EventUtils.synthesizeDragOver(
+  const [result, dataTransfer] = EventUtils.synthesizeDragOver(
     cardsList.getRowAtIndex(sourceIndices[0]),
     toAddrInput,
     null,
@@ -95,22 +95,22 @@ async function doDragToComposeWindow(sourceIndices, expectedPills) {
 
   dragService.endDragSession(true);
 
-  let pills = toAddrRow.querySelectorAll("mail-address-pill");
+  const pills = toAddrRow.querySelectorAll("mail-address-pill");
   Assert.equal(pills.length, expectedPills.length);
   for (let i = 0; i < expectedPills.length; i++) {
     Assert.equal(pills[i].label, expectedPills[i]);
   }
 
-  let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   composeWindow.goDoCommand("cmd_close");
   await promptPromise;
 }
 
 function checkCardsInDirectory(directory, expectedCards = [], copiedCard) {
-  let actualCards = directory.childCards.slice();
+  const actualCards = directory.childCards.slice();
 
-  for (let card of expectedCards) {
-    let index = actualCards.findIndex(c => c.UID == card.UID);
+  for (const card of expectedCards) {
+    const index = actualCards.findIndex(c => c.UID == card.UID);
     Assert.greaterOrEqual(index, 0);
     actualCards.splice(index, 1);
   }
@@ -127,14 +127,14 @@ function checkCardsInDirectory(directory, expectedCards = [], copiedCard) {
 }
 
 add_task(async function test_drag() {
-  let sourceBook = createAddressBook("Source Book");
+  const sourceBook = createAddressBook("Source Book");
 
-  let contact1 = sourceBook.addCard(createContact("contact", "1"));
-  let contact2 = sourceBook.addCard(createContact("contact", "2"));
-  let contact3 = sourceBook.addCard(createContact("contact", "3"));
+  const contact1 = sourceBook.addCard(createContact("contact", "1"));
+  const contact2 = sourceBook.addCard(createContact("contact", "2"));
+  const contact3 = sourceBook.addCard(createContact("contact", "3"));
 
-  let abWindow = await openAddressBookWindow();
-  let cardsList = abWindow.document.getElementById("cards");
+  const abWindow = await openAddressBookWindow();
+  const cardsList = abWindow.document.getElementById("cards");
 
   // Drag just contact1.
 
@@ -207,18 +207,18 @@ add_task(async function test_drag() {
 });
 
 add_task(async function test_drop_on_books_list() {
-  let sourceBook = createAddressBook("Source Book");
-  let sourceList = sourceBook.addMailList(createMailingList("Source List"));
-  let destBook = createAddressBook("Destination Book");
-  let destList = destBook.addMailList(createMailingList("Destination List"));
+  const sourceBook = createAddressBook("Source Book");
+  const sourceList = sourceBook.addMailList(createMailingList("Source List"));
+  const destBook = createAddressBook("Destination Book");
+  const destList = destBook.addMailList(createMailingList("Destination List"));
 
-  let contact1 = sourceBook.addCard(createContact("contact", "1"));
-  let contact2 = sourceBook.addCard(createContact("contact", "2"));
-  let contact3 = sourceBook.addCard(createContact("contact", "3"));
+  const contact1 = sourceBook.addCard(createContact("contact", "1"));
+  const contact2 = sourceBook.addCard(createContact("contact", "2"));
+  const contact3 = sourceBook.addCard(createContact("contact", "3"));
 
-  let abWindow = await openAddressBookWindow();
-  let booksList = abWindow.document.getElementById("books");
-  let cardsList = abWindow.document.getElementById("cards");
+  const abWindow = await openAddressBookWindow();
+  const booksList = abWindow.document.getElementById("books");
+  const cardsList = abWindow.document.getElementById("cards");
 
   checkCardsInDirectory(sourceBook, [contact1, contact2, contact3, sourceList]);
   checkCardsInDirectory(sourceList);
@@ -365,25 +365,25 @@ add_task(async function test_drop_on_books_list() {
 
 add_task(async function test_drop_on_compose() {
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
 
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(account, true);
   });
 
-  let sourceBook = createAddressBook("Source Book");
-  let sourceList = sourceBook.addMailList(createMailingList("Source List"));
+  const sourceBook = createAddressBook("Source Book");
+  const sourceList = sourceBook.addMailList(createMailingList("Source List"));
 
-  let contact1 = sourceBook.addCard(createContact("contact", "1"));
-  let contact2 = sourceBook.addCard(createContact("contact", "2"));
-  let contact3 = sourceBook.addCard(createContact("contact", "3"));
+  const contact1 = sourceBook.addCard(createContact("contact", "1"));
+  const contact2 = sourceBook.addCard(createContact("contact", "2"));
+  const contact3 = sourceBook.addCard(createContact("contact", "3"));
   sourceList.addCard(contact1);
   sourceList.addCard(contact2);
   sourceList.addCard(contact3);
 
-  let abWindow = await openAddressBookWindow();
-  let cardsList = abWindow.document.getElementById("cards");
+  const abWindow = await openAddressBookWindow();
+  const cardsList = abWindow.document.getElementById("cards");
   Assert.equal(cardsList.view.rowCount, 4);
 
   // One contact.

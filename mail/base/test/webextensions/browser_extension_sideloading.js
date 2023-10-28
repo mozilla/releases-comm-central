@@ -14,7 +14,7 @@ AddonTestUtils.hookAMTelemetryEvents();
 const kSideloaded = true;
 
 async function createWebExtension(details) {
-  let options = {
+  const options = {
     manifest: {
       applications: { gecko: { id: details.id } },
 
@@ -28,7 +28,7 @@ async function createWebExtension(details) {
     options.manifest.icons = { 64: details.iconURL };
   }
 
-  let xpi = AddonTestUtils.createTempWebExtensionFile(options);
+  const xpi = AddonTestUtils.createTempWebExtensionFile(options);
 
   await AddonTestUtils.manuallyInstall(xpi);
 }
@@ -104,7 +104,7 @@ add_task(async function test_sideloading() {
     ExtensionsUI.emit("change");
   };
 
-  let changePromise = new Promise(resolve => {
+  const changePromise = new Promise(resolve => {
     ExtensionsUI.on("change", function listener() {
       ExtensionsUI.off("change", listener);
       resolve();
@@ -114,7 +114,7 @@ add_task(async function test_sideloading() {
   await changePromise;
 
   // Check for the addons badge on the hamburger menu
-  let menuButton = document.getElementById("button-appmenu");
+  const menuButton = document.getElementById("button-appmenu");
   is(
     menuButton.getAttribute("badge-status"),
     "addon-alert",
@@ -218,7 +218,7 @@ add_task(async function test_sideloading() {
   panel = await popupPromise;
   panel.button.click();
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTabInfo);
 
   // Should still have 1 entry in the hamburger menu
@@ -269,7 +269,7 @@ add_task(async function test_sideloading() {
 
   await new Promise(resolve => setTimeout(resolve, 100));
 
-  for (let addon of [addon1, addon2, addon3]) {
+  for (const addon of [addon1, addon2, addon3]) {
     await addon.uninstall();
   }
 
@@ -306,7 +306,7 @@ add_task(async function test_sideloading() {
   ];
 
   let i = 0;
-  for (let event of collectedEventsAddon1) {
+  for (const event of collectedEventsAddon1) {
     Assert.deepEqual(
       event,
       expectedEventsAddon1[i++],
@@ -336,7 +336,7 @@ add_task(async function test_sideloading() {
   ];
 
   i = 0;
-  for (let event of collectedEventsAddon2) {
+  for (const event of collectedEventsAddon2) {
     Assert.deepEqual(
       event,
       expectedEventsAddon2[i++],

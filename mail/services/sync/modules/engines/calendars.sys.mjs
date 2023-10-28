@@ -107,13 +107,13 @@ CalendarStore.prototype = {
       return;
     }
 
-    let calendar = cal.manager.createCalendar(
+    const calendar = cal.manager.createCalendar(
       record.type,
       Services.io.newURI(record.uri)
     );
     calendar.name = record.name;
 
-    for (let [key, realKey] of Object.entries(SYNCED_PROPERTIES)) {
+    for (const [key, realKey] of Object.entries(SYNCED_PROPERTIES)) {
       if (key in record.prefs) {
         calendar.setProperty(realKey, record.prefs[key]);
       }
@@ -137,7 +137,7 @@ CalendarStore.prototype = {
    *        The store record to delete an item from
    */
   async remove(record) {
-    let calendar = cal.manager.getCalendarById(record.id);
+    const calendar = cal.manager.getCalendarById(record.id);
     if (!calendar) {
       this._log.trace("Asked to remove record that doesn't exist, ignoring");
       return;
@@ -155,7 +155,7 @@ CalendarStore.prototype = {
    *        The record to use to update an item from
    */
   async update(record) {
-    let calendar = cal.manager.getCalendarById(record.id);
+    const calendar = cal.manager.getCalendarById(record.id);
     if (!calendar) {
       this._log.trace("Skipping update for unknown item: " + record.id);
       return;
@@ -177,7 +177,7 @@ CalendarStore.prototype = {
     if (calendar.uri.spec != record.uri) {
       calendar.uri = Services.io.newURI(record.uri); // Should this be allowed?
     }
-    for (let [key, realKey] of Object.entries(SYNCED_PROPERTIES)) {
+    for (const [key, realKey] of Object.entries(SYNCED_PROPERTIES)) {
       if (key in record.prefs) {
         calendar.setProperty(realKey, record.prefs[key]);
       } else if (calendar.getProperty(key)) {
@@ -208,8 +208,8 @@ CalendarStore.prototype = {
    *         are ignored.
    */
   async getAllIDs() {
-    let ids = {};
-    for (let c of cal.manager.getCalendars()) {
+    const ids = {};
+    for (const c of cal.manager.getCalendars()) {
       if (shouldSyncCalendar(c)) {
         ids[c.id] = true;
       }
@@ -232,9 +232,9 @@ CalendarStore.prototype = {
    * @return record type for this engine
    */
   async createRecord(id, collection) {
-    let record = new CalendarRecord(collection, id);
+    const record = new CalendarRecord(collection, id);
 
-    let calendar = cal.manager.getCalendarById(id);
+    const calendar = cal.manager.getCalendarById(id);
 
     // If we don't know about this ID, mark the record as deleted.
     if (!calendar) {
@@ -247,8 +247,8 @@ CalendarStore.prototype = {
     record.uri = calendar.uri.spec;
     record.prefs = {};
 
-    for (let [key, realKey] of Object.entries(SYNCED_PROPERTIES)) {
-      let value = calendar.getProperty(realKey);
+    for (const [key, realKey] of Object.entries(SYNCED_PROPERTIES)) {
+      const value = calendar.getProperty(realKey);
       if (value !== null) {
         record.prefs[key] = value;
       }
@@ -273,8 +273,8 @@ CalendarTracker.prototype = {
   _ignoreAll: false,
 
   async getChangedIDs() {
-    let changes = {};
-    for (let id of this._changedIDs) {
+    const changes = {};
+    for (const id of this._changedIDs) {
       changes[id] = 0;
     }
     return changes;
@@ -307,8 +307,8 @@ CalendarTracker.prototype = {
       return;
     }
 
-    let id = data.split(".")[2];
-    let prefName = data.substring(id.length + 19);
+    const id = data.split(".")[2];
+    const prefName = data.substring(id.length + 19);
     if (
       prefName != "name" &&
       !Object.values(SYNCED_PROPERTIES).includes(prefName)
@@ -316,7 +316,7 @@ CalendarTracker.prototype = {
       return;
     }
 
-    let calendar = cal.manager.getCalendarById(id);
+    const calendar = cal.manager.getCalendarById(id);
     if (calendar && shouldSyncCalendar(calendar) && !this._changedIDs.has(id)) {
       this._changedIDs.add(id);
       this.score += SCORE_INCREMENT_XLARGE;

@@ -7,13 +7,13 @@
 Cu.importGlobalProperties(["URLSearchParams"]);
 
 function handleRequest(request, response) {
-  let stream = Cc["@mozilla.org/binaryinputstream;1"].createInstance(
+  const stream = Cc["@mozilla.org/binaryinputstream;1"].createInstance(
     Ci.nsIBinaryInputStream
   );
   stream.setInputStream(request.bodyInputStream);
 
-  let input = stream.readBytes(request.bodyInputStream.available());
-  let params = new URLSearchParams(input);
+  const input = stream.readBytes(request.bodyInputStream.available());
+  const params = new URLSearchParams(input);
 
   response.setHeader("Content-Type", "application/json", false);
 
@@ -23,7 +23,7 @@ function handleRequest(request, response) {
     return;
   }
 
-  let data = { access_token: "bobs_access_token" };
+  const data = { access_token: "bobs_access_token" };
 
   if (params.get("code") == "success") {
     // Authorisation just happened, set a different access token so the test

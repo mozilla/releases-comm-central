@@ -155,7 +155,7 @@ const OpenPGPTestUtils = {
     file,
     acceptance = OpenPGPTestUtils.ACCEPTANCE_VERIFIED
   ) {
-    let ids = await OpenPGPTestUtils.importKey(parent, file, false);
+    const ids = await OpenPGPTestUtils.importKey(parent, file, false);
     if (!ids.length) {
       throw new Error(`No public key imported from ${file.leafName}`);
     }
@@ -184,8 +184,8 @@ const OpenPGPTestUtils = {
     passphrase = null,
     keepPassphrase = false
   ) {
-    let data = await IOUtils.read(file.path);
-    let pgpBlock = lazy.MailStringUtils.uint8ArrayToByteString(data);
+    const data = await IOUtils.read(file.path);
+    const pgpBlock = lazy.MailStringUtils.uint8ArrayToByteString(data);
 
     function localPassphraseProvider(win, promptString, resultFlags) {
       resultFlags.canceled = false;
@@ -198,7 +198,7 @@ const OpenPGPTestUtils = {
       );
     }
 
-    let result = await lazy.RNP.importSecKeyBlockImpl(
+    const result = await lazy.RNP.importSecKeyBlockImpl(
       parent,
       localPassphraseProvider,
       passphrase != null && keepPassphrase,
@@ -233,12 +233,12 @@ const OpenPGPTestUtils = {
    * @returns {Promise<string[]>} - A list of ids for the key(s) imported.
    */
   async importKey(parent, file, isBinary) {
-    let data = await IOUtils.read(file.path);
-    let txt = lazy.MailStringUtils.uint8ArrayToByteString(data);
-    let errorObj = {};
-    let fingerPrintObj = {};
+    const data = await IOUtils.read(file.path);
+    const txt = lazy.MailStringUtils.uint8ArrayToByteString(data);
+    const errorObj = {};
+    const fingerPrintObj = {};
 
-    let result = lazy.EnigmailKeyRing.importKey(
+    const result = lazy.EnigmailKeyRing.importKey(
       parent,
       false,
       txt,
@@ -268,10 +268,10 @@ const OpenPGPTestUtils = {
    * @returns {string[]} - A list of the key ids processed.
    */
   async updateKeyIdAcceptance(id, acceptance) {
-    let ids = Array.isArray(id) ? id : [id];
-    for (let id of ids) {
-      let key = lazy.EnigmailKeyRing.getKeyById(id);
-      let email = lazy.EnigmailFuncs.getEmailFromUserID(key.userId);
+    const ids = Array.isArray(id) ? id : [id];
+    for (const id of ids) {
+      const key = lazy.EnigmailKeyRing.getKeyById(id);
+      const email = lazy.EnigmailFuncs.getEmailFromUserID(key.userId);
       await lazy.PgpSqliteDb2.updateAcceptance(key.fpr, [email], acceptance);
     }
     lazy.EnigmailKeyRing.clearCache();
@@ -290,9 +290,9 @@ const OpenPGPTestUtils = {
    * @param {boolean} [deleteSecret=false] - If true, secret keys will be removed too.
    */
   async removeKeyById(id, deleteSecret = false) {
-    let ids = Array.isArray(id) ? id : [id];
-    for (let id of ids) {
-      let key = lazy.EnigmailKeyRing.getKeyById(id);
+    const ids = Array.isArray(id) ? id : [id];
+    for (const id of ids) {
+      const key = lazy.EnigmailKeyRing.getKeyById(id);
       await lazy.RNP.deleteKey(key.fpr, deleteSecret);
       await lazy.PgpSqliteDb2.deleteAcceptance(key.fpr);
     }
@@ -309,8 +309,8 @@ async function clickToolbarButtonMenuItem(
   buttonSelector,
   menuitemSelectors
 ) {
-  let menupopup = win.document.querySelector(`${buttonSelector} > menupopup`);
-  let popupshown = BrowserTestUtils.waitForEvent(menupopup, "popupshown");
+  const menupopup = win.document.querySelector(`${buttonSelector} > menupopup`);
+  const popupshown = BrowserTestUtils.waitForEvent(menupopup, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     win.document.querySelector(`${buttonSelector} > dropmarker`),
     {},
@@ -319,11 +319,11 @@ async function clickToolbarButtonMenuItem(
   await popupshown;
 
   if (menuitemSelectors.length > 1) {
-    let submenuSelector = menuitemSelectors.shift();
+    const submenuSelector = menuitemSelectors.shift();
     menupopup.querySelector(submenuSelector).openMenu(true);
   }
 
-  let popuphidden = BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
+  const popuphidden = BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
   menupopup.activateItem(win.document.querySelector(menuitemSelectors[0]));
   await popuphidden;
 }

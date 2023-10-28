@@ -94,7 +94,7 @@ function subtest_save_mail_view(savc) {
     baseFolder.prettyName + "-Important"
   );
 
-  let selector = savc.document.querySelector("#searchVal0 menulist");
+  const selector = savc.document.querySelector("#searchVal0 menulist");
   Assert.ok(selector, "Should have a tag selector");
 
   // Check the value of the search-value.

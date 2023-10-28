@@ -62,7 +62,7 @@ var MailViewManager = {
    *  caches a potential issue.
    */
   _wrapCustomView(aCustomViewIndex) {
-    let mailView = this._customMailViews.getMailViewAt(aCustomViewIndex);
+    const mailView = this._customMailViews.getMailViewAt(aCustomViewIndex);
     return {
       name: mailView.prettyName, // since the user created it it's localized
       index: aCustomViewIndex,
@@ -73,9 +73,9 @@ var MailViewManager = {
   },
 
   _findCustomViewByName(aName) {
-    let count = this._customMailViews.mailViewCount;
+    const count = this._customMailViews.mailViewCount;
     for (let i = 0; i < count; i++) {
-      let mailView = this._customMailViews.getMailViewAt(i);
+      const mailView = this._customMailViews.getMailViewAt(i);
       if (mailView.mailViewName == aName) {
         return this._wrapCustomView(i);
       }
@@ -118,8 +118,8 @@ MailViewManager.defineView({
   name: "new mail / unread", // debugging assistance only! not localized!
   index: MailViewConstants.kViewItemUnread,
   makeTerms(aSession, aData) {
-    let term = aSession.createTerm();
-    let value = term.value;
+    const term = aSession.createTerm();
+    const value = term.value;
 
     value.status = Ci.nsMsgMessageFlags.Read;
     value.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
@@ -136,8 +136,8 @@ MailViewManager.defineView({
   name: "tags", // debugging assistance only! not localized!
   index: MailViewConstants.kViewItemTags,
   makeTerms(aSession, aKeyword) {
-    let term = aSession.createTerm();
-    let value = term.value;
+    const term = aSession.createTerm();
+    const value = term.value;
 
     value.str = aKeyword;
     value.attrib = Ci.nsMsgSearchAttrib.Keywords;
@@ -154,8 +154,8 @@ MailViewManager.defineView({
   name: "not deleted", // debugging assistance only! not localized!
   index: MailViewConstants.kViewItemNotDeleted,
   makeTerms(aSession, aKeyword) {
-    let term = aSession.createTerm();
-    let value = term.value;
+    const term = aSession.createTerm();
+    const value = term.value;
 
     value.status = Ci.nsMsgMessageFlags.IMAPDeleted;
     value.attrib = Ci.nsMsgSearchAttrib.MsgStatus;

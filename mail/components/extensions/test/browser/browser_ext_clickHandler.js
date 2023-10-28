@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let { MockRegistrar } = ChromeUtils.importESModule(
+const { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
 /** @implements {nsIExternalProtocolService} */
-let mockExternalProtocolService = {
+const mockExternalProtocolService = {
   _loadedURLs: [],
   externalProtocolHandlerExists(protocolScheme) {},
   getApplicationDescription(scheme) {},
@@ -19,18 +19,18 @@ let mockExternalProtocolService = {
   },
   setProtocolHandlerDefaults(handlerInfo, osHandlerExists) {},
   urlLoaded(url) {
-    let rv = this._loadedURLs.length == 1 && this._loadedURLs[0] == url;
+    const rv = this._loadedURLs.length == 1 && this._loadedURLs[0] == url;
     this._loadedURLs = [];
     return rv;
   },
   hasAnyUrlLoaded() {
-    let rv = this._loadedURLs.length > 0;
+    const rv = this._loadedURLs.length > 0;
     this._loadedURLs = [];
     return rv;
   },
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };
-let mockExternalProtocolServiceCID = MockRegistrar.register(
+const mockExternalProtocolServiceCID = MockRegistrar.register(
   "@mozilla.org/uriloader/external-protocol-service;1",
   mockExternalProtocolService
 );
@@ -46,7 +46,7 @@ const getCommonFiles = async () => {
       window.CreateTabPromise = class {
         constructor() {
           this.promise = new Promise(resolve => {
-            let createListener = tab => {
+            const createListener = tab => {
               browser.tabs.onCreated.removeListener(createListener);
               resolve(tab);
             };
@@ -62,7 +62,7 @@ const getCommonFiles = async () => {
         constructor() {
           this.promise = new Promise(resolve => {
             let log = {};
-            let updateListener = (tabId, changes, tab) => {
+            const updateListener = (tabId, changes, tab) => {
               if (changes.url == "about:blank") {
                 // Reset whatever we have seen so far.
                 log = {};
@@ -97,7 +97,7 @@ const getCommonFiles = async () => {
         async verify(id, url) {
           // The updatePromise resolves after we have seen both states (loading
           // and complete) and a url.
-          let updateLog = await this.promise;
+          const updateLog = await this.promise;
           browser.test.assertEq(
             id,
             updateLog.id,
@@ -112,7 +112,9 @@ const getCommonFiles = async () => {
       };
     },
     "background.js": async () => {
-      let expectedLinkHandler = await window.sendMessage("expectedLinkHandler");
+      const expectedLinkHandler = await window.sendMessage(
+        "expectedLinkHandler"
+      );
 
       // Open local file and click link to a different site.
       await window.expectLinkOpenInExternalBrowser(
@@ -219,7 +221,7 @@ const subtest_clickInBrowser = async (
 
   // Wait for click on #link1 (external)
   {
-    let { linkId, expectedUrl } = await extension.awaitMessage("click");
+    const { linkId, expectedUrl } = await extension.awaitMessage("click");
     Assert.equal("#link1", linkId, `Test should click on the correct link.`);
     Assert.equal(
       "https://www.example.de/",
@@ -236,7 +238,7 @@ const subtest_clickInBrowser = async (
 
   // Wait for click on #link2 (same tab)
   {
-    let { linkId } = await extension.awaitMessage("click");
+    const { linkId } = await extension.awaitMessage("click");
     Assert.equal("#link2", linkId, `Test should click on the correct link.`);
     await clickLink(linkId, getBrowser());
     Assert.ok(
@@ -248,7 +250,7 @@ const subtest_clickInBrowser = async (
 
   // Wait for click on #link3 (same tab)
   {
-    let { linkId } = await extension.awaitMessage("click");
+    const { linkId } = await extension.awaitMessage("click");
     Assert.equal("#link3", linkId, `Test should click on the correct link.`);
     await clickLink(linkId, getBrowser());
     Assert.ok(
@@ -260,7 +262,7 @@ const subtest_clickInBrowser = async (
 
   // Wait for click on #link4 (new tab)
   {
-    let { linkId } = await extension.awaitMessage("click");
+    const { linkId } = await extension.awaitMessage("click");
     Assert.equal("#link4", linkId, `Test should click on the correct link.`);
     await clickLink(linkId, getBrowser());
     Assert.ok(
@@ -272,7 +274,7 @@ const subtest_clickInBrowser = async (
 
   // Wait for click on #link5 (new tab)
   {
-    let { linkId } = await extension.awaitMessage("click");
+    const { linkId } = await extension.awaitMessage("click");
     Assert.equal("#link5", linkId, `Test should click on the correct link.`);
     await clickLink(linkId, getBrowser());
     Assert.ok(
@@ -285,7 +287,7 @@ const subtest_clickInBrowser = async (
   // Wait for click on #linkExt1
   if (expectedLinkHandler == "single-page") {
     // Should open extern with single-page link handler.
-    let { linkId, expectedUrl } = await extension.awaitMessage("click");
+    const { linkId, expectedUrl } = await extension.awaitMessage("click");
     Assert.equal("#linkExt1", linkId, `Test should click on the correct link.`);
     Assert.equal(
       "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html",
@@ -300,7 +302,7 @@ const subtest_clickInBrowser = async (
     await extension.sendMessage();
   } else {
     // Should open in same tab with single-site link handler.
-    let { linkId } = await extension.awaitMessage("click");
+    const { linkId } = await extension.awaitMessage("click");
     Assert.equal("#linkExt1", linkId, `Test should click on the correct link.`);
     await clickLink(linkId, getBrowser());
     Assert.ok(
@@ -312,7 +314,7 @@ const subtest_clickInBrowser = async (
 
   // Wait for click on #linkExt2 (external)
   {
-    let { linkId, expectedUrl } = await extension.awaitMessage("click");
+    const { linkId, expectedUrl } = await extension.awaitMessage("click");
     Assert.equal("#linkExt2", linkId, `Test should click on the correct link.`);
     Assert.equal(
       "https://mozilla.org/",
@@ -332,13 +334,13 @@ const subtest_clickInBrowser = async (
 };
 
 add_task(async function test_tabs() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "tabFunctions.js": async () => {
-        let openTestTab = async url => {
-          let createdTestTab = new window.CreateTabPromise();
-          let updatedTestTab = new window.UpdateTabPromise();
-          let testTab = await browser.tabs.create({ url });
+        const openTestTab = async url => {
+          const createdTestTab = new window.CreateTabPromise();
+          const updatedTestTab = new window.UpdateTabPromise();
+          const testTab = await browser.tabs.create({ url });
           await createdTestTab.done();
           await updatedTestTab.verify(testTab.id, url);
           return testTab;
@@ -349,13 +351,13 @@ add_task(async function test_tabs() {
           linkId,
           expectedUrl
         ) => {
-          let testTab = await openTestTab(testUrl);
+          const testTab = await openTestTab(testUrl);
 
           // Click a link in testTab to open a new tab.
-          let createdNewTab = new window.CreateTabPromise();
-          let updatedNewTab = new window.UpdateTabPromise();
+          const createdNewTab = new window.CreateTabPromise();
+          const updatedNewTab = new window.UpdateTabPromise();
           await window.sendMessage("click", { linkId });
-          let createdTab = await createdNewTab.done();
+          const createdTab = await createdNewTab.done();
           await updatedNewTab.verify(createdTab.id, expectedUrl);
 
           await browser.tabs.remove(createdTab.id);
@@ -367,10 +369,10 @@ add_task(async function test_tabs() {
           linkId,
           expectedUrl
         ) => {
-          let testTab = await openTestTab(testUrl);
+          const testTab = await openTestTab(testUrl);
 
           // Click a link in testTab to open in self.
-          let updatedTab = new window.UpdateTabPromise();
+          const updatedTab = new window.UpdateTabPromise();
           await window.sendMessage("click", { linkId });
           await updatedTab.verify(testTab.id, expectedUrl);
 
@@ -382,7 +384,7 @@ add_task(async function test_tabs() {
           linkId,
           expectedUrl
         ) => {
-          let testTab = await openTestTab(testUrl);
+          const testTab = await openTestTab(testUrl);
           await window.sendMessage("click", { linkId, expectedUrl });
           await browser.tabs.remove(testTab.id);
         };
@@ -405,16 +407,21 @@ add_task(async function test_tabs() {
 }).skip(AppConstants.DEBUG); // Disabled until Bug 1770105 is fully fixed.
 
 add_task(async function test_windows() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "windowFunctions.js": async () => {
-        let openTestTab = async url => {
-          let createdTestTab = new window.CreateTabPromise();
-          let updatedTestTab = new window.UpdateTabPromise();
-          let testWindow = await browser.windows.create({ type: "popup", url });
+        const openTestTab = async url => {
+          const createdTestTab = new window.CreateTabPromise();
+          const updatedTestTab = new window.UpdateTabPromise();
+          const testWindow = await browser.windows.create({
+            type: "popup",
+            url,
+          });
           await createdTestTab.done();
 
-          let [testTab] = await browser.tabs.query({ windowId: testWindow.id });
+          const [testTab] = await browser.tabs.query({
+            windowId: testWindow.id,
+          });
           await updatedTestTab.verify(testTab.id, url);
           return testTab;
         };
@@ -424,13 +431,13 @@ add_task(async function test_windows() {
           linkId,
           expectedUrl
         ) => {
-          let testTab = await openTestTab(testUrl);
+          const testTab = await openTestTab(testUrl);
 
           // Click a link in testWindow to open a new tab.
-          let createdNewTab = new window.CreateTabPromise();
-          let updatedNewTab = new window.UpdateTabPromise();
+          const createdNewTab = new window.CreateTabPromise();
+          const updatedNewTab = new window.UpdateTabPromise();
           await window.sendMessage("click", { linkId });
-          let createdTab = await createdNewTab.done();
+          const createdTab = await createdNewTab.done();
           await updatedNewTab.verify(createdTab.id, expectedUrl);
 
           await browser.tabs.remove(createdTab.id);
@@ -442,10 +449,10 @@ add_task(async function test_windows() {
           linkId,
           expectedUrl
         ) => {
-          let testTab = await openTestTab(testUrl);
+          const testTab = await openTestTab(testUrl);
 
           // Click a link in testWindow to open in self.
-          let updatedTab = new window.UpdateTabPromise();
+          const updatedTab = new window.UpdateTabPromise();
           await window.sendMessage("click", { linkId });
           await updatedTab.verify(testTab.id, expectedUrl);
           await browser.tabs.remove(testTab.id);
@@ -456,7 +463,7 @@ add_task(async function test_windows() {
           linkId,
           expectedUrl
         ) => {
-          let testTab = await openTestTab(testUrl);
+          const testTab = await openTestTab(testUrl);
           await window.sendMessage("click", { linkId, expectedUrl });
           await browser.tabs.remove(testTab.id);
         };
@@ -484,28 +491,28 @@ add_task(async function test_windows() {
 }).skip(AppConstants.DEBUG); // Disabled until Bug 1770105 is fully fixed.
 
 add_task(async function test_mail3pane() {
-  let account = createAccount();
-  let subFolders = account.incomingServer.rootFolder.subFolders;
+  const account = createAccount();
+  const subFolders = account.incomingServer.rootFolder.subFolders;
   createMessages(subFolders[0], 1);
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   Assert.ok(Boolean(about3Pane), "about:3pane should be the current tab");
   about3Pane.restoreState({
     folderPaneVisible: true,
     folderURI: subFolders[0],
     messagePaneVisible: true,
   });
-  let loadedPromise = BrowserTestUtils.browserLoaded(
+  const loadedPromise = BrowserTestUtils.browserLoaded(
     about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser()
   );
   about3Pane.threadTree.selectedIndex = 0;
   await loadedPromise;
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "mail3paneFunctions.js": async () => {
-        let updateTestTab = async url => {
-          let updatedTestTab = new window.UpdateTabPromise();
-          let mailTabs = await browser.tabs.query({ type: "mail" });
+        const updateTestTab = async url => {
+          const updatedTestTab = new window.UpdateTabPromise();
+          const mailTabs = await browser.tabs.query({ type: "mail" });
           browser.test.assertEq(
             1,
             mailTabs.length,
@@ -524,10 +531,10 @@ add_task(async function test_mail3pane() {
           await updateTestTab(testUrl);
 
           // Click a link in testTab to open a new tab.
-          let createdNewTab = new window.CreateTabPromise();
-          let updatedNewTab = new window.UpdateTabPromise();
+          const createdNewTab = new window.CreateTabPromise();
+          const updatedNewTab = new window.UpdateTabPromise();
           await window.sendMessage("click", { linkId });
-          let createdTab = await createdNewTab.done();
+          const createdTab = await createdNewTab.done();
           await updatedNewTab.verify(createdTab.id, expectedUrl);
 
           await browser.tabs.remove(createdTab.id);
@@ -538,10 +545,10 @@ add_task(async function test_mail3pane() {
           linkId,
           expectedUrl
         ) => {
-          let testTab = await updateTestTab(testUrl);
+          const testTab = await updateTestTab(testUrl);
 
           // Click a link in testTab to open in self.
-          let updatedTab = new window.UpdateTabPromise();
+          const updatedTab = new window.UpdateTabPromise();
           await window.sendMessage("click", { linkId });
           await updatedTab.verify(testTab.id, expectedUrl);
         };
@@ -580,12 +587,12 @@ add_task(async function test_mail3pane() {
 // This is actually not an extension test, but everything we need is here already
 // and we only want to simulate a click on a link in a message.
 add_task(async function test_message() {
-  let gAccount = createAccount();
-  let gRootFolder = gAccount.incomingServer.rootFolder;
+  const gAccount = createAccount();
+  const gRootFolder = gAccount.incomingServer.rootFolder;
   gRootFolder.createSubfolder("test0", null);
 
-  let subFolders = {};
-  for (let folder of gRootFolder.subFolders) {
+  const subFolders = {};
+  for (const folder of gRootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
   await createMessageFromFile(
@@ -594,12 +601,12 @@ add_task(async function test_message() {
   );
 
   // Select the message which has a link.
-  let gFolder = subFolders.test0;
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const gFolder = subFolders.test0;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(gFolder.URI);
-  let messagePane =
+  const messagePane =
     about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
-  let loadedPromise = BrowserTestUtils.browserLoaded(messagePane);
+  const loadedPromise = BrowserTestUtils.browserLoaded(messagePane);
   about3Pane.threadTree.selectedIndex = 0;
   await loadedPromise;
 

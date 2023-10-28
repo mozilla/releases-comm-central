@@ -97,7 +97,7 @@ add_task(async function test_escape_rules() {
     await toggle_quick_filter_bar();
   }
 
-  let about3Pane = get_about_3pane();
+  const about3Pane = get_about_3pane();
 
   // 1) focus in the thread pane
   about3Pane.document.getElementById("threadTree").focus();
@@ -132,9 +132,9 @@ add_task(async function test_escape_rules() {
  * already expanded, it focuses the text box and selects its text.
  */
 add_task(async function test_control_shift_k_shows_quick_filter_bar() {
-  let about3Pane = get_about_3pane();
+  const about3Pane = get_about_3pane();
 
-  let qfbTextbox = about3Pane.document.getElementById("qfb-qs-textbox");
+  const qfbTextbox = about3Pane.document.getElementById("qfb-qs-textbox");
 
   // focus explicitly on the thread pane so we know where the focus is.
   about3Pane.document.getElementById("threadTree").focus();

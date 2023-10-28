@@ -11,10 +11,10 @@
  */
 async function openBrowserRequestWindow() {
   let onCancelled;
-  let cancelledPromise = new Promise(resolve => {
+  const cancelledPromise = new Promise(resolve => {
     onCancelled = resolve;
   });
-  let requestWindow = await new Promise(resolve => {
+  const requestWindow = await new Promise(resolve => {
     Services.ww.openWindow(
       null,
       "chrome://messenger/content/browserRequest.xhtml",
@@ -35,16 +35,16 @@ async function openBrowserRequestWindow() {
 }
 
 add_task(async function test_urlBar() {
-  let { requestWindow, cancelledPromise } = await openBrowserRequestWindow();
+  const { requestWindow, cancelledPromise } = await openBrowserRequestWindow();
 
-  let browser = requestWindow.getBrowser();
+  const browser = requestWindow.getBrowser();
   await BrowserTestUtils.browserLoaded(browser);
   ok(browser, "Got a browser from global getBrowser function");
 
-  let urlBar = requestWindow.document.getElementById("headerMessage");
+  const urlBar = requestWindow.document.getElementById("headerMessage");
   is(urlBar.value, browser.currentURI.spec, "Initial page is shown in URL bar");
 
-  let redirect = BrowserTestUtils.browserLoaded(browser);
+  const redirect = BrowserTestUtils.browserLoaded(browser);
   BrowserTestUtils.startLoadingURIString(browser, "about:blank");
   await redirect;
   is(urlBar.value, "about:blank", "URL bar value follows browser");
@@ -56,14 +56,14 @@ add_task(async function test_urlBar() {
 });
 
 add_task(async function test_cancelWithEsc() {
-  let { requestWindow, cancelledPromise } = await openBrowserRequestWindow();
+  const { requestWindow, cancelledPromise } = await openBrowserRequestWindow();
 
   EventUtils.synthesizeKey("VK_ESCAPE", {}, requestWindow);
   await cancelledPromise;
 });
 
 add_task(async function test_cancelWithAccelW() {
-  let { requestWindow, cancelledPromise } = await openBrowserRequestWindow();
+  const { requestWindow, cancelledPromise } = await openBrowserRequestWindow();
 
   EventUtils.synthesizeKey(
     "w",

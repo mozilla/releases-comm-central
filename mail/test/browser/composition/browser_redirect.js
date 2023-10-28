@@ -41,7 +41,7 @@ var { MailServices } = ChromeUtils.import(
 
 add_setup(function () {
   // Now set up an account with some identities.
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "nobody",
     "Redirect Addresses Testing",
@@ -72,14 +72,14 @@ add_setup(function () {
  * Helper to check that the compose window has the expected address fields.
  */
 function checkAddresses(win, expectedFields) {
-  let rows = win.document.querySelectorAll(
+  const rows = win.document.querySelectorAll(
     "#recipientsContainer .address-row:not(.hidden)"
   );
 
-  let obtainedFields = [];
-  for (let row of rows) {
-    let addresses = [];
-    for (let pill of row.querySelectorAll("mail-address-pill")) {
+  const obtainedFields = [];
+  for (const row of rows) {
+    const addresses = [];
+    for (const pill of row.querySelectorAll("mail-address-pill")) {
       addresses.push(pill.fullAddress);
     }
 
@@ -87,9 +87,9 @@ function checkAddresses(win, expectedFields) {
   }
 
   // Check what we expect is there.
-  for (let type in expectedFields) {
-    let expected = expectedFields[type];
-    let obtained = obtainedFields[type];
+  for (const type in expectedFields) {
+    const expected = expectedFields[type];
+    const obtained = obtainedFields[type];
 
     for (let i = 0; i < expected.length; i++) {
       if (!obtained || !obtained.includes(expected[i])) {
@@ -116,9 +116,9 @@ function checkAddresses(win, expectedFields) {
   }
 
   // Check there's no "extra" fields either.
-  for (let type in obtainedFields) {
-    let expected = expectedFields[type];
-    let obtained = obtainedFields[type];
+  for (const type in obtainedFields) {
+    const expected = expectedFields[type];
+    const obtained = obtainedFields[type];
     if (!expected) {
       throw new Error(
         "Didn't expect a field for type=" + type + "; obtained=" + obtained
@@ -127,11 +127,13 @@ function checkAddresses(win, expectedFields) {
   }
 
   // Check if the input "aria-label" attribute was properly updated.
-  for (let row of rows) {
-    let addrLabel = row.querySelector(".address-label-container > label").value;
-    let addrTextbox = row.querySelector(".address-row-input");
-    let ariaLabel = addrTextbox.getAttribute("aria-label");
-    let pillCount = row.querySelectorAll("mail-address-pill").length;
+  for (const row of rows) {
+    const addrLabel = row.querySelector(
+      ".address-label-container > label"
+    ).value;
+    const addrTextbox = row.querySelector(".address-row-input");
+    const ariaLabel = addrTextbox.getAttribute("aria-label");
+    const pillCount = row.querySelectorAll("mail-address-pill").length;
 
     switch (pillCount) {
       case 0:
@@ -161,7 +163,7 @@ function checkAddresses(win, expectedFields) {
  * w/ Reply-To.
  */
 add_task(async function testRedirectToMe() {
-  let msg0 = create_message({
+  const msg0 = create_message({
     from: "Homer <homer@example.com>",
     to: myEmail2,
     cc: "Lisa <lisa@example.com>",
@@ -170,31 +172,31 @@ add_task(async function testRedirectToMe() {
   await add_message_to_folder([folder], msg0);
 
   await be_in_folder(folder);
-  let msg = await select_click_row(i++);
+  const msg = await select_click_row(i++);
   await assert_selected_and_displayed(window, msg);
 
   // Open Other Actions.
-  let aboutMessage = get_about_message();
-  let otherActionsButton =
+  const aboutMessage = get_about_message();
+  const otherActionsButton =
     aboutMessage.document.getElementById("otherActionsButton");
   EventUtils.synthesizeMouseAtCenter(otherActionsButton, {}, aboutMessage);
-  let otherActionsPopup =
+  const otherActionsPopup =
     aboutMessage.document.getElementById("otherActionsPopup");
-  let popupshown = BrowserTestUtils.waitForEvent(
+  const popupshown = BrowserTestUtils.waitForEvent(
     otherActionsPopup,
     "popupshown"
   );
   await popupshown;
   info("otherActionsButton popup shown");
 
-  let compWinPromise = promise_new_window("msgcompose");
+  const compWinPromise = promise_new_window("msgcompose");
   // Click the Redirect menu item
   EventUtils.synthesizeMouseAtCenter(
     otherActionsPopup.firstElementChild,
     {},
     aboutMessage
   );
-  let cwc = await compose_window_ready(compWinPromise);
+  const cwc = await compose_window_ready(compWinPromise);
   Assert.equal(
     cwc.getCurrentIdentityKey(),
     identity2.key,

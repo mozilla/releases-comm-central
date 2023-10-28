@@ -1,7 +1,7 @@
 "use strict";
 
 add_task(async function () {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       browser_specific_settings: { gecko: { id: "commands@mochi.test" } },
@@ -19,7 +19,7 @@ add_task(async function () {
 
       const originalFoo = commands.foo;
 
-      let resolver = {};
+      const resolver = {};
       resolver.promise = new Promise(resolve => (resolver.resolve = resolve));
 
       browser.commands.onChanged.addListener(update => {

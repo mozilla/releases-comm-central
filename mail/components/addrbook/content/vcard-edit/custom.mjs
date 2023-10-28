@@ -16,14 +16,14 @@ export class VCardCustomComponent extends HTMLElement {
     }
     this.hasConnected = true;
 
-    let template = document.getElementById("template-vcard-edit-custom");
-    let clonedTemplate = template.content.cloneNode(true);
+    const template = document.getElementById("template-vcard-edit-custom");
+    const clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
 
     this.inputEls = this.querySelectorAll("input");
-    let labelEls = this.querySelectorAll("label");
+    const labelEls = this.querySelectorAll("label");
     for (let i = 0; i < 4; i++) {
-      let inputId = vCardIdGen.next().value;
+      const inputId = vCardIdGen.next().value;
       document.l10n.setAttributes(
         labelEls[i],
         `about-addressbook-entry-name-custom${i + 1}`

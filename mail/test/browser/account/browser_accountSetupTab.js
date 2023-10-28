@@ -14,7 +14,7 @@ var { MailServices } = ChromeUtils.import(
  */
 add_task(async function test_use_thunderbird_without_email() {
   // Delete all accounts to start clean.
-  for (let account of MailServices.accounts.accounts) {
+  for (const account of MailServices.accounts.accounts) {
     MailServices.accounts.removeAccount(account, true);
   }
 
@@ -25,21 +25,21 @@ add_task(async function test_use_thunderbird_without_email() {
     "No account currently configured"
   );
 
-  let spacesToolbar = document.getElementById("spacesToolbar");
+  const spacesToolbar = document.getElementById("spacesToolbar");
   Assert.ok(spacesToolbar, "The spaces toolbar exists");
 
-  let spacesVisiblePromise = BrowserTestUtils.waitForCondition(
+  const spacesVisiblePromise = BrowserTestUtils.waitForCondition(
     () => !spacesToolbar.hidden,
     "The spaces toolbar is visible"
   );
 
   // Get the current tab, which should be the account setup tab.
-  let tab = document.getElementById("tabmail").selectedTab;
+  const tab = document.getElementById("tabmail").selectedTab;
   Assert.equal(tab.browser.currentURI?.spec, "about:accountsetup");
 
-  let tabDocument = tab.browser.contentWindow.document;
+  const tabDocument = tab.browser.contentWindow.document;
 
-  let closeButton = tabDocument.getElementById("cancelButton");
+  const closeButton = tabDocument.getElementById("cancelButton");
   closeButton.scrollIntoView();
 
   // Close the account setup tab by clicking on the Cancel button.

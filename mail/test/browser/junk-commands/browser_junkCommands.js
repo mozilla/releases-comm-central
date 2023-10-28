@@ -37,7 +37,7 @@ var NUM_MESSAGES_TO_JUNK = 8;
  * @param aNumMessages the number of messages the folder should contain.
  */
 function _assert_folder_total_messages(aFolder, aNumMessages) {
-  let curMessages = aFolder.getTotalMessages(false);
+  const curMessages = aFolder.getTotalMessages(false);
   if (curMessages != aNumMessages) {
     throw new Error(
       "The folder " +
@@ -55,7 +55,7 @@ function _assert_folder_total_messages(aFolder, aNumMessages) {
  * Test deleting junk messages with no messages marked as junk.
  */
 add_task(async function test_delete_no_junk_messages() {
-  let initialNumMessages = folder.getTotalMessages(false);
+  const initialNumMessages = folder.getTotalMessages(false);
   await be_in_folder(folder);
   await select_none();
   await delete_mail_marked_as_junk(0);
@@ -67,10 +67,10 @@ add_task(async function test_delete_no_junk_messages() {
  * Test deleting junk messages with some messages marked as junk.
  */
 add_task(async function test_delete_junk_messages() {
-  let initialNumMessages = folder.getTotalMessages(false);
+  const initialNumMessages = folder.getTotalMessages(false);
   await be_in_folder(folder);
   await select_click_row(1);
-  let selectedMessages = await select_shift_click_row(NUM_MESSAGES_TO_JUNK);
+  const selectedMessages = await select_shift_click_row(NUM_MESSAGES_TO_JUNK);
   Assert.equal(
     selectedMessages.length,
     NUM_MESSAGES_TO_JUNK,
@@ -86,9 +86,9 @@ add_task(async function test_delete_junk_messages() {
     initialNumMessages - NUM_MESSAGES_TO_JUNK
   );
   // Check that none of the message keys exist any more
-  let db = folder.getDBFolderInfoAndDB({});
-  for (let msgHdr of selectedMessages) {
-    let key = msgHdr.messageKey;
+  const db = folder.getDBFolderInfoAndDB({});
+  for (const msgHdr of selectedMessages) {
+    const key = msgHdr.messageKey;
     if (db.containsKey(key)) {
       throw new Error(
         "The database shouldn't contain key " + key + ", but does."

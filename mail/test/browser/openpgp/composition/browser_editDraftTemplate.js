@@ -52,7 +52,7 @@ async function waitForComposeWindow() {
 
 function clearFolder(folder) {
   return new Promise(resolve => {
-    let msgs = [...folder.msgDatabase.enumerateMessages()];
+    const msgs = [...folder.msgDatabase.enumerateMessages()];
 
     folder.deleteMessages(
       msgs,
@@ -76,7 +76,7 @@ add_setup(async function () {
   aliceIdentity.email = "alice@openpgp.example";
   aliceAcct.addIdentity(aliceIdentity);
 
-  let [id] = await OpenPGPTestUtils.importPrivateKey(
+  const [id] = await OpenPGPTestUtils.importPrivateKey(
     window,
     new FileUtils.File(
       getTestFilePath(
@@ -128,15 +128,15 @@ add_task(async function testTemplSec() {
  */
 async function doTestSecState(isDraft, secure) {
   // Make sure to compose from alice.
-  let inbox = aliceAcct.incomingServer.rootFolder.getFolderWithFlags(
+  const inbox = aliceAcct.incomingServer.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Inbox
   );
   await be_in_folder(inbox);
 
-  let cwc = await open_compose_new_mail();
-  let type = isDraft ? "draft" : "template";
-  let theFolder = isDraft ? draftsFolder : templatesFolder;
-  let subject = `test ${type}; 🤐; secure=${secure}`;
+  const cwc = await open_compose_new_mail();
+  const type = isDraft ? "draft" : "template";
+  const theFolder = isDraft ? draftsFolder : templatesFolder;
+  const subject = `test ${type}; 🤐; secure=${secure}`;
   await setup_msg_contents(
     cwc,
     "test@example.invalid",
@@ -169,12 +169,12 @@ async function doTestSecState(isDraft, secure) {
   await select_click_row(0);
 
   info(`Will open the ${type}`);
-  let draftWindowPromise = waitForComposeWindow();
+  const draftWindowPromise = waitForComposeWindow();
   await select_click_row(0);
   await right_click_on_row(0);
 
-  let about3Pane = get_about_3pane();
-  let mailContext = about3Pane.document.getElementById("mailContext");
+  const about3Pane = get_about_3pane();
+  const mailContext = about3Pane.document.getElementById("mailContext");
   if (isDraft) {
     mailContext.activateItem(
       about3Pane.document.getElementById("mailContext-editDraftMsg")
@@ -185,7 +185,7 @@ async function doTestSecState(isDraft, secure) {
     );
   }
 
-  let draftWindow = await draftWindowPromise;
+  const draftWindow = await draftWindowPromise;
 
   Assert.equal(
     draftWindow.document.getElementById("msgSubject").value,

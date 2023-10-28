@@ -79,14 +79,14 @@ add_task(async function testExpiredKeyShowsNotificationBar() {
     "openpgp_key_id",
     gExpiredKeyId.replace(/^0x/, "")
   );
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   await wait_for_notification_to_show(
     cwc,
     "compose-notification-bottom",
     "openpgpSenderKeyExpired"
   );
-  let notification = get_notification(
+  const notification = get_notification(
     cwc,
     "compose-notification-bottom",
     "openpgpSenderKeyExpired"
@@ -118,12 +118,12 @@ add_task(async function testKeyWithoutExpiryDoesNotShowNotification() {
     "openpgp_key_id",
     gNotExpiredKeyId.replace(/^0x/, "")
   );
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   // Give it some time to potentially start showing.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 200));
-  let notification = get_notification(
+  const notification = get_notification(
     cwc,
     "compose-notification-bottom",
     "openpgpSenderKeyExpired"

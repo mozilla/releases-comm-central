@@ -35,8 +35,8 @@ var gSync = {
    * Update the app menu items to match the current state.
    */
   updateFxAPanel() {
-    let state = UIState.get();
-    let isSignedIn = state.status == UIState.STATUS_SIGNED_IN;
+    const state = UIState.get();
+    const isSignedIn = state.status == UIState.STATUS_SIGNED_IN;
     document.getElementById("appmenu_signin").hidden = isSignedIn;
     document.getElementById("appmenu_sync").hidden = !isSignedIn;
     document.getElementById("syncSeparator").hidden = false;
@@ -44,7 +44,7 @@ var gSync = {
       el.value = state.email;
       el.removeAttribute("data-l10n-id");
     });
-    let button = document.getElementById("appmenu-submenu-sync-now");
+    const button = document.getElementById("appmenu-submenu-sync-now");
     if (button) {
       if (state.syncing) {
         button.setAttribute("syncstatus", "active");
@@ -61,7 +61,7 @@ var gSync = {
    */
   async initFxA() {
     EnsureFxAccountsWebChannel();
-    let url = await FxAccounts.config.promiseConnectAccountURI("");
+    const url = await FxAccounts.config.promiseConnectAccountURI("");
     openContentTab(url);
   },
 
@@ -114,12 +114,12 @@ var gSync = {
         ]);
       }
 
-      let flags =
+      const flags =
         Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
         Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1;
 
       // buttonPressed will be 0 for disconnect, 1 for cancel.
-      let buttonPressed = Services.prompt.confirmEx(
+      const buttonPressed = Services.prompt.confirmEx(
         window,
         title,
         body,
@@ -135,7 +135,7 @@ var gSync = {
       }
     }
 
-    let fxAccounts = ChromeUtils.importESModule(
+    const fxAccounts = ChromeUtils.importESModule(
       "resource://gre/modules/FxAccounts.sys.mjs"
     ).getFxAccountsSingleton();
 

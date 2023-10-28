@@ -17,7 +17,7 @@ add_task(async function test_defaultdownload() {
     undefined,
     url => url.startsWith("about:preferences")
   );
-  let { contentDocument } = window.preferencesTabType.tab.browser;
+  const { contentDocument } = window.preferencesTabType.tab.browser;
   await TestUtils.waitForCondition(() =>
     contentDocument.getElementById("alwaysAsk")
   );
@@ -45,7 +45,7 @@ add_task(async function test_defaultdownload() {
     true,
     "saveTo should be disabled."
   );
-  let home = Services.dirsvc.get("Home", Ci.nsIFile).path;
+  const home = Services.dirsvc.get("Home", Ci.nsIFile).path;
   is(
     Services.prefs.getStringPref("browser.download.dir"),
     home + "/Downloads",
@@ -62,7 +62,7 @@ add_task(async function test_defaultdownload() {
     "browser.download.useDownloadDir should be locked."
   );
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(window.preferencesTabType.tab);
 });
 
@@ -79,7 +79,7 @@ add_task(async function test_download() {
     undefined,
     url => url.startsWith("about:preferences")
   );
-  let { contentDocument } = window.preferencesTabType.tab.browser;
+  const { contentDocument } = window.preferencesTabType.tab.browser;
   await TestUtils.waitForCondition(() =>
     contentDocument.getElementById("alwaysAsk")
   );
@@ -121,7 +121,7 @@ add_task(async function test_download() {
     true,
     "chooseFolder should be disabled."
   );
-  let home = Services.dirsvc.get("Home", Ci.nsIFile).path;
+  const home = Services.dirsvc.get("Home", Ci.nsIFile).path;
   is(
     Services.prefs.getStringPref("browser.download.dir"),
     home + "/Documents",
@@ -138,6 +138,6 @@ add_task(async function test_download() {
     "browser.download.useDownloadDir should be locked."
   );
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(window.preferencesTabType.tab);
 });

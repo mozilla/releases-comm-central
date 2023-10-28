@@ -6,7 +6,7 @@
   // Animation variables for expanding and collapsing child lists.
   const ANIMATION_DURATION_MS = 200;
   const ANIMATION_EASING = "ease";
-  let reducedMotionMedia = matchMedia("(prefers-reduced-motion)");
+  const reducedMotionMedia = matchMedia("(prefers-reduced-motion)");
 
   /**
    * Provides keyboard and mouse interaction to a (possibly nested) list.
@@ -24,7 +24,7 @@
    *
    * This class fires "collapsed", "expanded" and "select" events.
    */
-  let TreeListboxMixin = Base =>
+  const TreeListboxMixin = Base =>
     class extends Base {
       /**
        * The selected and focused item, or null if there is none.
@@ -56,7 +56,7 @@
 
         this.domChanged();
         this._initRows();
-        let rows = this.rows;
+        const rows = this.rows;
         if (!this.selectedRow && rows.length) {
           // TODO: This should only really happen on "focus".
           this.selectedRow = rows[0];
@@ -86,7 +86,7 @@
           return;
         }
 
-        let row = event.target.closest("li:not(.unselectable)");
+        const row = event.target.closest("li:not(.unselectable)");
         if (!row) {
           return;
         }
@@ -133,11 +133,11 @@
               break;
             }
             // Get the top of the selected row, and remove the page height.
-            let selectedBox = this.selectedRow.getBoundingClientRect();
-            let y = selectedBox.top - this.clientHeight;
+            const selectedBox = this.selectedRow.getBoundingClientRect();
+            const y = selectedBox.top - this.clientHeight;
 
             // Find the last row below there.
-            let rows = this.rows;
+            const rows = this.rows;
             let i = this.selectedIndex - 1;
             while (i > 0 && rows[i].getBoundingClientRect().top >= y) {
               i--;
@@ -150,11 +150,11 @@
               break;
             }
             // Get the top of the selected row, and add the page height.
-            let selectedBox = this.selectedRow.getBoundingClientRect();
-            let y = selectedBox.top + this.clientHeight;
+            const selectedBox = this.selectedRow.getBoundingClientRect();
+            const y = selectedBox.top + this.clientHeight;
 
             // Find the last row below there.
-            let rows = this.rows;
+            const rows = this.rows;
             let i = rows.length - 1;
             while (
               i > this.selectedIndex &&
@@ -167,15 +167,15 @@
           }
           case "ArrowLeft":
           case "ArrowRight": {
-            let selected = this.selectedRow;
+            const selected = this.selectedRow;
             if (!selected) {
               break;
             }
 
-            let isArrowRight = event.key == "ArrowRight";
-            let isRTL = this.matches(":dir(rtl)");
+            const isArrowRight = event.key == "ArrowRight";
+            const isRTL = this.matches(":dir(rtl)");
             if (isArrowRight == isRTL) {
-              let parent = selected.parentNode.closest(
+              const parent = selected.parentNode.closest(
                 ".children:not(.unselectable)"
               );
               if (
@@ -241,7 +241,7 @@
        */
       domChanged() {
         this._rowsData = Array.from(this.querySelectorAll("li"), row => {
-          let ancestors = [];
+          const ancestors = [];
           for (
             let parentRow = row.parentNode.closest("li");
             this.contains(parentRow);
@@ -254,8 +254,8 @@
       }
 
       _mutationObserver = new MutationObserver(mutations => {
-        for (let mutation of mutations) {
-          for (let node of mutation.addedNodes) {
+        for (const mutation of mutations) {
+          for (const node of mutation.addedNodes) {
             if (node.nodeType != Node.ELEMENT_NODE || !node.matches("li")) {
               continue;
             }
@@ -263,7 +263,7 @@
             node.classList.remove("selected");
           }
         }
-        let oldRowsData = this._rowsData;
+        const oldRowsData = this._rowsData;
         this.domChanged();
         this._initRows();
         let newRows = this.rows;
@@ -280,7 +280,7 @@
           // Selected row is still visible.
           return;
         }
-        let oldSelectedIndex = oldRowsData.findIndex(
+        const oldSelectedIndex = oldRowsData.findIndex(
           entry => entry.row == this.selectedRow
         );
         if (oldSelectedIndex < 0) {
@@ -289,7 +289,7 @@
           return;
         }
         // Find the closest ancestor that is still shown.
-        let existingAncestor = oldRowsData[oldSelectedIndex].ancestors.find(
+        const existingAncestor = oldRowsData[oldSelectedIndex].ancestors.find(
           row => newRows.includes(row)
         );
         if (existingAncestor) {
@@ -334,11 +334,11 @@
        * Set the role attribute and classes for all descendants of the widget.
        */
       _initRows() {
-        let descendantItems = this.querySelectorAll("li");
-        let descendantLists = this.querySelectorAll("ol, ul");
+        const descendantItems = this.querySelectorAll("li");
+        const descendantLists = this.querySelectorAll("ol, ul");
 
         for (let i = 0; i < descendantItems.length; i++) {
-          let row = descendantItems[i];
+          const row = descendantItems[i];
           row.setAttribute("role", this.isTree ? "treeitem" : "option");
           if (
             i + 1 < descendantItems.length &&
@@ -360,12 +360,12 @@
         }
 
         if (this.isTree) {
-          for (let list of descendantLists) {
+          for (const list of descendantLists) {
             list.setAttribute("role", "group");
           }
         }
 
-        for (let childList of this.querySelectorAll(
+        for (const childList of this.querySelectorAll(
           "li.collapsed > :is(ol, ul)"
         )) {
           childList.style.height = "0";
@@ -380,7 +380,7 @@
       get rows() {
         return [...this.querySelectorAll("li:not(.unselectable)")].filter(
           row => {
-            let collapsed = row.parentNode.closest("li.collapsed");
+            const collapsed = row.parentNode.closest("li.collapsed");
             if (collapsed && this.contains(collapsed)) {
               return false;
             }
@@ -550,7 +550,7 @@
        * @param {HTMLLIElement} row - The parent row element.
        */
       _animateCollapseRow(row) {
-        let childList = row.querySelector("ol, ul");
+        const childList = row.querySelector("ol, ul");
 
         if (reducedMotionMedia.matches) {
           if (childList) {
@@ -559,9 +559,9 @@
           return;
         }
 
-        let childListHeight = childList.scrollHeight;
+        const childListHeight = childList.scrollHeight;
 
-        let animation = childList.animate(
+        const animation = childList.animate(
           [{ height: `${childListHeight}px` }, { height: "0" }],
           {
             duration: ANIMATION_DURATION_MS,
@@ -581,7 +581,7 @@
        * @param {HTMLLIElement} row - The parent row element.
        */
       _animateExpandRow(row) {
-        let childList = row.querySelector("ol, ul");
+        const childList = row.querySelector("ol, ul");
 
         if (reducedMotionMedia.matches) {
           if (childList) {
@@ -590,9 +590,9 @@
           return;
         }
 
-        let childListHeight = childList.scrollHeight;
+        const childListHeight = childList.scrollHeight;
 
-        let animation = childList.animate(
+        const animation = childList.animate(
           [{ height: "0" }, { height: `${childListHeight}px` }],
           {
             duration: ANIMATION_DURATION_MS,
@@ -679,7 +679,7 @@
         return;
       }
 
-      let row = this.selectedRow;
+      const row = this.selectedRow;
       if (!row || row.parentElement != this) {
         return;
       }
@@ -695,12 +695,12 @@
       }
 
       // Check we can move these rows.
-      let orderable = this._orderableChildren;
+      const orderable = this._orderableChildren;
       if (!orderable.includes(row) || !orderable.includes(otherRow)) {
         return;
       }
 
-      let reducedMotion = reducedMotionMedia.matches;
+      const reducedMotion = reducedMotionMedia.matches;
 
       this.scrollToIndex(this.rows.indexOf(otherRow));
 
@@ -708,17 +708,19 @@
       this._mutationObserver.disconnect();
       if (event.key == "ArrowUp") {
         if (!reducedMotion) {
-          let { top: otherTop } = otherRow.getBoundingClientRect();
-          let { top: rowTop, height: rowHeight } = row.getBoundingClientRect();
+          const { top: otherTop } = otherRow.getBoundingClientRect();
+          const { top: rowTop, height: rowHeight } =
+            row.getBoundingClientRect();
           OrderableTreeListbox._animateTranslation(otherRow, 0 - rowHeight);
           OrderableTreeListbox._animateTranslation(row, rowTop - otherTop);
         }
         this.insertBefore(row, otherRow);
       } else {
         if (!reducedMotion) {
-          let { top: otherTop, height: otherHeight } =
+          const { top: otherTop, height: otherHeight } =
             otherRow.getBoundingClientRect();
-          let { top: rowTop, height: rowHeight } = row.getBoundingClientRect();
+          const { top: rowTop, height: rowHeight } =
+            row.getBoundingClientRect();
           OrderableTreeListbox._animateTranslation(otherRow, rowHeight);
           OrderableTreeListbox._animateTranslation(
             row,
@@ -741,14 +743,14 @@
         return;
       }
 
-      let orderable = this._orderableChildren;
+      const orderable = this._orderableChildren;
       if (orderable.length < 2) {
         return;
       }
 
-      for (let topLevelRow of orderable) {
+      for (const topLevelRow of orderable) {
         if (topLevelRow.contains(event.target)) {
-          let rect = topLevelRow.getBoundingClientRect();
+          const rect = topLevelRow.getBoundingClientRect();
           this._dragInfo = {
             row: topLevelRow,
             // How far can we move `topLevelRow` upwards?
@@ -779,19 +781,19 @@
         return;
       }
 
-      let { row, min, max, scrollY, offsetY } = this._dragInfo;
+      const { row, min, max, scrollY, offsetY } = this._dragInfo;
 
       // Move `row` with the mouse pointer.
-      let dragY = Math.min(
+      const dragY = Math.min(
         max,
         Math.max(min, event.clientY + this.scrollTop - scrollY)
       );
       row.style.transform = `translateY(${dragY}px)`;
 
-      let thisRect = this.getBoundingClientRect();
+      const thisRect = this.getBoundingClientRect();
       // How much space is there above `row`? We'll see how many rows fit in
       // the space and put `row` in after them.
-      let spaceAbove = Math.max(
+      const spaceAbove = Math.max(
         0,
         event.clientY + this.scrollTop - offsetY - thisRect.top
       );
@@ -803,14 +805,14 @@
       // happen at the start of the list.
       let targetRow = null;
 
-      for (let topLevelRow of this._orderableChildren) {
+      for (const topLevelRow of this._orderableChildren) {
         if (topLevelRow == row) {
           afterDraggedRow = true;
           continue;
         }
 
-        let rect = topLevelRow.getBoundingClientRect();
-        let enoughSpace = spaceAbove > totalHeight + rect.height / 2;
+        const rect = topLevelRow.getBoundingClientRect();
+        const enoughSpace = spaceAbove > totalHeight + rect.height / 2;
 
         let multiplier = 0;
         if (enoughSpace) {
@@ -838,7 +840,7 @@
         return;
       }
 
-      let { row, dropTarget } = this._dragInfo;
+      const { row, dropTarget } = this._dragInfo;
 
       let targetRow;
       if (dropTarget) {
@@ -865,7 +867,7 @@
       this._dragInfo.row.classList.remove("dragging");
       delete this._dragInfo;
 
-      for (let topLevelRow of this.children) {
+      for (const topLevelRow of this.children) {
         topLevelRow.style.transition = null;
         topLevelRow.style.transform = null;
       }
@@ -881,7 +883,7 @@
      *   its current position.
      */
     static _animateTranslation(element, from) {
-      let animation = element.animate(
+      const animation = element.animate(
         [
           { transform: `translateY(${from}px)` },
           { transform: "translateY(0px)" },

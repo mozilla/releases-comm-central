@@ -17,7 +17,7 @@ let gKeyCreated;
 
 window.addEventListener("DOMContentLoaded", onLoad);
 function onLoad() {
-  let keyId = window.arguments[0].keyId;
+  const keyId = window.arguments[0].keyId;
   let keyObj = EnigmailKeyRing.getKeyById(window.arguments[0].keyId);
   if (!keyObj) {
     throw new Error(`Key not found: ${keyId}`);
@@ -35,12 +35,12 @@ function onLoad() {
   gFingerprints = [keyObj.fpr, keyObj.subKeys[0].fpr];
   gKeyCreated = keyObj.keyCreated;
 
-  let currentExpiryInfo = document.getElementById("info-current-expiry");
+  const currentExpiryInfo = document.getElementById("info-current-expiry");
 
   if (!keyObj.expiryTime) {
     document.l10n.setAttributes(currentExpiryInfo, "info-does-not-expire");
   } else {
-    let nowSeconds = Math.floor(Date.now() / 1000);
+    const nowSeconds = Math.floor(Date.now() / 1000);
     if (keyObj.expiryTime < nowSeconds) {
       document.l10n.setAttributes(currentExpiryInfo, "info-already-expired");
     } else {
@@ -53,30 +53,30 @@ function onLoad() {
   // Don't explain how to use longer, if this key already never expires.
   document.getElementById("longerUsage").hidden = !keyObj.expiryTime;
 
-  let popup = document.getElementById("expiry-in");
-  let rtf = new Intl.RelativeTimeFormat(undefined, {
+  const popup = document.getElementById("expiry-in");
+  const rtf = new Intl.RelativeTimeFormat(undefined, {
     numeric: "always",
     style: "long",
   });
-  let today = new Date();
+  const today = new Date();
   for (let i = 1; i < 24; i++) {
-    let d = new Date(
+    const d = new Date(
       today.getFullYear(),
       today.getMonth() + i,
       today.getDate()
     );
-    let option = document.createElement("option");
+    const option = document.createElement("option");
     option.value = Math.floor(d.getTime() / 1000); // In seconds.
     option.label = rtf.format(i, "month");
     popup.appendChild(option);
   }
   for (let i = 2; i <= 10; i++) {
-    let d = new Date(
+    const d = new Date(
       today.getFullYear() + i,
       today.getMonth(),
       today.getDate()
     );
-    let option = document.createElement("option");
+    const option = document.createElement("option");
     option.value = Math.floor(d.getTime() / 1000); // In seconds.
     option.label = rtf.format(i, "year");
     popup.appendChild(option);
@@ -97,7 +97,7 @@ function onLoad() {
 }
 
 async function onAccept() {
-  let expirySecs = +document.querySelector("input[name='expiry']:checked")
+  const expirySecs = +document.querySelector("input[name='expiry']:checked")
     .value;
   if (expirySecs < 0) {
     // Keep.
@@ -105,16 +105,16 @@ async function onAccept() {
   }
   // Key Expiration Time - this is the number of seconds after the key creation
   // time that the key expires.
-  let keyExpirationTime = expirySecs ? expirySecs - gKeyCreated : 0;
+  const keyExpirationTime = expirySecs ? expirySecs - gKeyCreated : 0;
 
-  let pwCache = {
+  const pwCache = {
     passwords: [],
   };
 
   let unlockFailed = false;
-  let keyTrackers = [];
-  for (let fp of gFingerprints) {
-    let tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(fp);
+  const keyTrackers = [];
+  for (const fp of gFingerprints) {
+    const tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(fp);
     tracker.setAllowPromptingUserForPassword(true);
     tracker.setAllowAutoUnlockWithCachedPasswords(true);
     tracker.setPasswordCache(pwCache);
@@ -131,7 +131,7 @@ async function onAccept() {
     rv = RNP.changeExpirationDate(gFingerprints, keyExpirationTime);
   }
 
-  for (let t of keyTrackers) {
+  for (const t of keyTrackers) {
     t.release();
   }
   return rv;
@@ -141,7 +141,7 @@ document.addEventListener("dialogaccept", async function (event) {
   // Prevent the closing of the dialog to wait until the call
   // to onAccept() has properly returned.
   event.preventDefault();
-  let result = await onAccept();
+  const result = await onAccept();
   // If the change was unsuccessful, leave this dialog open.
   if (!result) {
     return;

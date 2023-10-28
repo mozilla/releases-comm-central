@@ -3,13 +3,13 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async function check_focus() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
         // Create a promise which waits until the script in the window is loaded
         // and the email field has focus, so we can send our fake keystrokes.
-        let loadPromise = new Promise(resolve => {
-          let listener = async (msg, sender) => {
+        const loadPromise = new Promise(resolve => {
+          const listener = async (msg, sender) => {
             if (msg == "loaded") {
               browser.runtime.onMessage.removeListener(listener);
               resolve(sender.tab.windowId);
@@ -18,12 +18,12 @@ add_task(async function check_focus() {
           browser.runtime.onMessage.addListener(listener);
         });
 
-        let openedWin = await browser.windows.create({
+        const openedWin = await browser.windows.create({
           url: "focus.html",
           type: "popup",
           allowScriptsToClose: true,
         });
-        let loadedWinId = await loadPromise;
+        const loadedWinId = await loadPromise;
 
         browser.test.assertEq(
           openedWin.id,
@@ -31,7 +31,7 @@ add_task(async function check_focus() {
           "The correct window should have been loaded"
         );
 
-        let removePromise = new Promise(resolve => {
+        const removePromise = new Promise(resolve => {
           browser.windows.onRemoved.addListener(id => {
             if (id == openedWin.id) {
               resolve();
@@ -58,7 +58,7 @@ add_task(async function check_focus() {
       </html>`,
       "focus.js": () => {
         async function load() {
-          let email = document.getElementById("email");
+          const email = document.getElementById("email");
           email.focus();
 
           await new Promise(r => window.setTimeout(r));
@@ -83,7 +83,7 @@ add_task(async function check_focus() {
   });
 
   extension.onMessage("sendKeyStrokes", id => {
-    let window = Services.wm.getOuterWindowWithId(id);
+    const window = Services.wm.getOuterWindowWithId(id);
     EventUtils.sendString("happy typing", window);
     extension.sendMessage("happy typing");
   });

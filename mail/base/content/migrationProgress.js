@@ -7,20 +7,20 @@ var { MigrationTasks } = ChromeUtils.import(
 );
 
 window.addEventListener("load", async function () {
-  let list = document.getElementById("tasks");
-  let itemTemplate = document.getElementById("taskItem");
-  let progress = document.querySelector("progress");
-  let l10nElements = [];
+  const list = document.getElementById("tasks");
+  const itemTemplate = document.getElementById("taskItem");
+  const progress = document.querySelector("progress");
+  const l10nElements = [];
 
-  for (let task of MigrationTasks.tasks) {
+  for (const task of MigrationTasks.tasks) {
     if (!task.fluentID) {
       continue;
     }
 
-    let item = itemTemplate.content.firstElementChild.cloneNode(true);
+    const item = itemTemplate.content.firstElementChild.cloneNode(true);
     item.classList.add(task.status);
 
-    let name = item.querySelector(".task-name");
+    const name = item.querySelector(".task-name");
     document.l10n.setAttributes(name, task.fluentID);
     l10nElements.push(name);
 

@@ -31,12 +31,12 @@ add_setup(async () => {
 });
 
 async function subtest_compose(manifest) {
-  let extension = await getMenuExtension(manifest);
+  const extension = await getMenuExtension(manifest);
 
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = Cc[
@@ -47,8 +47,8 @@ async function subtest_compose(manifest) {
     r => r.text()
   );
 
-  for (let ordinal of ["first", "second", "third", "fourth"]) {
-    let attachment = Cc[
+  for (const ordinal of ["first", "second", "third", "fourth"]) {
+    const attachment = Cc[
       "@mozilla.org/messengercompose/attachment;1"
     ].createInstance(Ci.nsIMsgAttachment);
     attachment.name = `${ordinal}.txt`;
@@ -57,16 +57,16 @@ async function subtest_compose(manifest) {
     params.composeFields.addAttachment(attachment);
   }
 
-  let composeWindowPromise = BrowserTestUtils.domWindowOpened();
+  const composeWindowPromise = BrowserTestUtils.domWindowOpened();
   MailServices.compose.OpenComposeWindowWithParams(null, params);
-  let composeWindow = await composeWindowPromise;
+  const composeWindow = await composeWindowPromise;
   await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
-  let composeDocument = composeWindow.document;
+  const composeDocument = composeWindow.document;
   await focusWindow(composeWindow);
 
   info("Test the message being composed.");
 
-  let messagePane = composeWindow.GetCurrentEditorElement();
+  const messagePane = composeWindow.GetCurrentEditorElement();
 
   await subtest_compose_body(
     extension,
@@ -84,7 +84,7 @@ async function subtest_compose(manifest) {
     msgSubject: "composeSubject",
     toAddrInput: "composeTo",
   };
-  for (let elementId of Object.keys(chromeElementsMap)) {
+  for (const elementId of Object.keys(chromeElementsMap)) {
     info(`Test element ${elementId}.`);
     await subtest_element(
       extension,
@@ -103,8 +103,10 @@ async function subtest_compose(manifest) {
   info("Test the attachments context menu.");
 
   composeWindow.toggleAttachmentPane("show");
-  let menu = composeDocument.getElementById("msgComposeAttachmentItemContext");
-  let attachmentBucket = composeDocument.getElementById("attachmentBucket");
+  const menu = composeDocument.getElementById(
+    "msgComposeAttachmentItemContext"
+  );
+  const attachmentBucket = composeDocument.getElementById("attachmentBucket");
 
   EventUtils.synthesizeMouseAtCenter(
     attachmentBucket.itemChildren[0],

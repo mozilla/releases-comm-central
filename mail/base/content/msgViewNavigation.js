@@ -37,7 +37,7 @@ function FindNextChildFolder(aParent, aAfter) {
       folder = subFolders[i++];
     }
 
-    let ignoreFlags =
+    const ignoreFlags =
       Ci.nsMsgFolderFlags.Trash |
       Ci.nsMsgFolderFlags.SentMail |
       Ci.nsMsgFolderFlags.Drafts |
@@ -120,10 +120,10 @@ function FindNextFolder() {
 }
 
 function GetRootFoldersInFolderPaneOrder() {
-  let accounts = FolderUtils.allAccountsSorted(false);
+  const accounts = FolderUtils.allAccountsSorted(false);
 
-  let serversMsgFolders = [];
-  for (let account of accounts) {
+  const serversMsgFolders = [];
+  for (const account of accounts) {
     serversMsgFolders.push(account.incomingServer.rootMsgFolder);
   }
 
@@ -146,7 +146,7 @@ function CrossFolderNavigation(type) {
     return false;
   }
 
-  let nextMode = Services.prefs.getIntPref("mailnews.nav_crosses_folders");
+  const nextMode = Services.prefs.getIntPref("mailnews.nav_crosses_folders");
   // 0: "next" goes to the next folder, without prompting
   // 1: "next" goes to the next folder, and prompts (the default)
   // 2: "next" does nothing when there are no unread messages
@@ -156,20 +156,21 @@ function CrossFolderNavigation(type) {
     return false;
   }
 
-  let folder = FindNextFolder();
+  const folder = FindNextFolder();
   if (!folder || gDBView.msgFolder.URI == folder.URI) {
     return false;
   }
 
   if (nextMode == 1) {
-    let messengerBundle =
+    const messengerBundle =
       window.messengerBundle ||
       Services.strings.createBundle(
         "chrome://messenger/locale/messenger.properties"
       );
-    let promptText = messengerBundle.formatStringFromName("advanceNextPrompt", [
-      folder.name,
-    ]);
+    const promptText = messengerBundle.formatStringFromName(
+      "advanceNextPrompt",
+      [folder.name]
+    );
     if (
       Services.prompt.confirmEx(
         window,
@@ -198,7 +199,7 @@ function CrossFolderNavigation(type) {
     gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
     gViewWrapper.open(folder);
     gDBView = gViewWrapper.dbView;
-    let selection = (gDBView.selection = new TreeSelection());
+    const selection = (gDBView.selection = new TreeSelection());
     selection.view = gDBView;
     // We're now in a bit of a weird state until `displayMessage` is called,
     // but being here means we have everything we need for that to happen.

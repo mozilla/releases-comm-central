@@ -31,16 +31,16 @@ add_setup(async function () {
 add_task(async function test_quoteMessage() {
   await be_in_folder(folderToStoreMessages);
 
-  let file = new FileUtils.File(getTestFilePath("data/iso-2022-jp.eml"));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath("data/iso-2022-jp.eml"));
+  const msgc = await open_message_from_file(file);
   // Copy the message to a folder, so that Quote Message menu item is enabled.
-  let documentChild = msgc.content.document.documentElement;
+  const documentChild = msgc.content.document.documentElement;
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },
     documentChild.ownerGlobal
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
   await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),
     [
@@ -53,7 +53,7 @@ add_task(async function test_quoteMessage() {
 
   // Select message and click reply.
   await select_click_row(0);
-  let cwc = await open_compose_with_reply();
+  const cwc = await open_compose_with_reply();
   let composeBody = get_compose_body(cwc).textContent;
   Assert.equal(
     composeBody.match(/世界/g).length,

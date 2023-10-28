@@ -7,7 +7,7 @@ add_task(async function testCollapse() {
     "testuser",
     "prpl-mochitest"
   );
-  let passwordPromise = TestUtils.topicObserved("account-updated");
+  const passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
   await passwordPromise;
   account.connect();
@@ -76,7 +76,7 @@ add_task(async function testGrouping() {
     "testuser",
     "prpl-mochitest"
   );
-  let passwordPromise = TestUtils.topicObserved("account-updated");
+  const passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
   await passwordPromise;
   account.connect();
@@ -131,7 +131,7 @@ add_task(async function testGrouping() {
     );
   } while (chatConv.convBrowser.getPendingMessagesCount() > 0);
 
-  for (let child of messageParent.children) {
+  for (const child of messageParent.children) {
     isnot(child.id, "insert", "Message element is not the insert point");
   }
   is(
@@ -150,7 +150,7 @@ add_task(async function testSystemMessageReplacement() {
     "testuser",
     "prpl-mochitest"
   );
-  let passwordPromise = TestUtils.topicObserved("account-updated");
+  const passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
   await passwordPromise;
   account.connect();

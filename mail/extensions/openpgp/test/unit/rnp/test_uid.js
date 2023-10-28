@@ -122,10 +122,10 @@ add_setup(async function () {
 });
 
 add_task(async function testAlias() {
-  for (let test of tests) {
+  for (const test of tests) {
     console.debug("testing input: " + test.input);
 
-    let email = EnigmailFuncs.getEmailFromUserID(test.input);
+    const email = EnigmailFuncs.getEmailFromUserID(test.input);
 
     Assert.equal(test.email, email);
   }

@@ -22,7 +22,7 @@ add_setup(async () => {
   });
   gMessage = [...gFolders[0].messages][0];
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.restoreState({
     folderPaneVisible: true,
     folderURI: gFolders[0],
@@ -41,13 +41,13 @@ async function subtest_action_popup_menu(
   expectedTab,
   manifest
 ) {
-  let extension = await getMenuExtension(manifest);
+  const extension = await getMenuExtension(manifest);
 
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
-  let element = testWindow.document.querySelector(target.elementSelector);
-  let menu = element.querySelector("menupopup");
+  const element = testWindow.document.querySelector(target.elementSelector);
+  const menu = element.querySelector("menupopup");
 
   await leftClick(menu, element);
   await checkShownEvent(
@@ -56,8 +56,12 @@ async function subtest_action_popup_menu(
     expectedTab
   );
 
-  let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-  let clickedPromise = checkClickedEvent(extension, expectedInfo, expectedTab);
+  const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  const clickedPromise = checkClickedEvent(
+    extension,
+    expectedInfo,
+    expectedTab
+  );
   menu.activateItem(
     menu.querySelector(`#menus_mochi_test-menuitem-_${target.context}`)
   );
@@ -89,7 +93,7 @@ add_task(async function test_browser_action_menu_popup_mv2() {
   );
 });
 add_task(async function test_browser_action_menu_popup_message_window_mv2() {
-  let testWindow = await openMessageInWindow(gMessage);
+  const testWindow = await openMessageInWindow(gMessage);
   await focusWindow(testWindow);
   await subtest_action_popup_menu(
     testWindow,
@@ -114,8 +118,8 @@ add_task(async function test_browser_action_menu_popup_message_window_mv2() {
   await BrowserTestUtils.closeWindow(testWindow);
 });
 add_task(async function test_message_display_action_menu_popup_pane_mv2() {
-  let tabmail = document.getElementById("tabmail");
-  let aboutMessage = tabmail.currentAboutMessage;
+  const tabmail = document.getElementById("tabmail");
+  const aboutMessage = tabmail.currentAboutMessage;
   await SimpleTest.promiseFocus(aboutMessage);
 
   await subtest_action_popup_menu(
@@ -139,7 +143,7 @@ add_task(async function test_message_display_action_menu_popup_pane_mv2() {
   );
 });
 add_task(async function test_message_display_action_menu_popup_tab_mv2() {
-  let tab = await openMessageInTab(gMessage);
+  const tab = await openMessageInTab(gMessage);
   await subtest_action_popup_menu(
     tab.chromeBrowser.contentWindow,
     {
@@ -162,7 +166,7 @@ add_task(async function test_message_display_action_menu_popup_tab_mv2() {
   window.document.getElementById("tabmail").closeTab(tab);
 });
 add_task(async function test_message_display_action_menu_popup_window_mv2() {
-  let testWindow = await openMessageInWindow(gMessage);
+  const testWindow = await openMessageInWindow(gMessage);
   await focusWindow(testWindow);
   await subtest_action_popup_menu(
     testWindow.messageBrowser.contentWindow,
@@ -186,7 +190,7 @@ add_task(async function test_message_display_action_menu_popup_window_mv2() {
   await BrowserTestUtils.closeWindow(testWindow);
 });
 add_task(async function test_compose_action_menu_popup_mv2() {
-  let testWindow = await openComposeWindow(gAccount);
+  const testWindow = await openComposeWindow(gAccount);
   await focusWindow(testWindow);
   await subtest_action_popup_menu(
     testWindow,
@@ -210,7 +214,7 @@ add_task(async function test_compose_action_menu_popup_mv2() {
   await BrowserTestUtils.closeWindow(testWindow);
 });
 add_task(async function test_compose_action_menu_popup_formattoolbar_mv2() {
-  let testWindow = await openComposeWindow(gAccount);
+  const testWindow = await openComposeWindow(gAccount);
   await focusWindow(testWindow);
   await subtest_action_popup_menu(
     testWindow,
@@ -257,7 +261,7 @@ add_task(async function test_browser_action_menu_popup_mv3() {
   );
 });
 add_task(async function test_browser_action_menu_popup_message_window_mv3() {
-  let testWindow = await openMessageInWindow(gMessage);
+  const testWindow = await openMessageInWindow(gMessage);
   await focusWindow(testWindow);
   await subtest_action_popup_menu(
     testWindow,
@@ -282,8 +286,8 @@ add_task(async function test_browser_action_menu_popup_message_window_mv3() {
   await BrowserTestUtils.closeWindow(testWindow);
 });
 add_task(async function test_message_display_action_menu_popup_pane_mv3() {
-  let tabmail = document.getElementById("tabmail");
-  let aboutMessage = tabmail.currentAboutMessage;
+  const tabmail = document.getElementById("tabmail");
+  const aboutMessage = tabmail.currentAboutMessage;
   await SimpleTest.promiseFocus(aboutMessage);
 
   await subtest_action_popup_menu(
@@ -307,7 +311,7 @@ add_task(async function test_message_display_action_menu_popup_pane_mv3() {
   );
 });
 add_task(async function test_message_display_action_menu_popup_tab_mv3() {
-  let tab = await openMessageInTab(gMessage);
+  const tab = await openMessageInTab(gMessage);
   await subtest_action_popup_menu(
     tab.chromeBrowser.contentWindow,
     {
@@ -330,7 +334,7 @@ add_task(async function test_message_display_action_menu_popup_tab_mv3() {
   window.document.getElementById("tabmail").closeTab(tab);
 });
 add_task(async function test_message_display_action_menu_popup_window_mv3() {
-  let testWindow = await openMessageInWindow(gMessage);
+  const testWindow = await openMessageInWindow(gMessage);
   await focusWindow(testWindow);
   await subtest_action_popup_menu(
     testWindow.messageBrowser.contentWindow,
@@ -354,7 +358,7 @@ add_task(async function test_message_display_action_menu_popup_window_mv3() {
   await BrowserTestUtils.closeWindow(testWindow);
 });
 add_task(async function test_compose_action_menu_popup_mv3() {
-  let testWindow = await openComposeWindow(gAccount);
+  const testWindow = await openComposeWindow(gAccount);
   await focusWindow(testWindow);
   await subtest_action_popup_menu(
     testWindow,
@@ -379,7 +383,7 @@ add_task(async function test_compose_action_menu_popup_mv3() {
   await BrowserTestUtils.closeWindow(testWindow);
 });
 add_task(async function test_compose_action_menu_popup_formattoolbar_mv3() {
-  let testWindow = await openComposeWindow(gAccount);
+  const testWindow = await openComposeWindow(gAccount);
   await focusWindow(testWindow);
   await subtest_action_popup_menu(
     testWindow,

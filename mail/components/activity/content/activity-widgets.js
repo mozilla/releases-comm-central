@@ -12,7 +12,7 @@
     "resource:///modules/TemplateUtils.jsm"
   );
 
-  let activityStrings = Services.strings.createBundle(
+  const activityStrings = Services.strings.createBundle(
     "chrome://messenger/locale/activity.properties"
   );
 
@@ -33,14 +33,14 @@
           maxLogLevel: "Warn",
           maxLogLevelPref: "mail.activity.loglevel",
         });
-        let actID = this.getAttribute("actID");
+        const actID = this.getAttribute("actID");
         this._activity = activityManager.getActivity(actID);
         this._activity.QueryInterface(this.constructor.activityInterface);
 
         // Construct the children.
         this.classList.add("activityitem");
 
-        let icon = document.createElement("img");
+        const icon = document.createElement("img");
         icon.setAttribute(
           "src",
           this._activity.iconClass
@@ -50,25 +50,25 @@
         icon.setAttribute("alt", "");
         this.appendChild(icon);
 
-        let display = document.createElement("span");
+        const display = document.createElement("span");
         display.classList.add("displayText");
         this.appendChild(display);
 
         if (this.isEvent || this.isWarning) {
-          let time = document.createElement("time");
+          const time = document.createElement("time");
           time.classList.add("dateTime");
           this.appendChild(time);
         }
 
         if (this.isProcess) {
-          let progress = document.createElement("progress");
+          const progress = document.createElement("progress");
           progress.setAttribute("value", "0");
           progress.setAttribute("max", "100");
           progress.classList.add("progressmeter");
           this.appendChild(progress);
         }
 
-        let statusText = document.createElement("span");
+        const statusText = document.createElement("span");
         statusText.setAttribute("role", "note");
         statusText.classList.add("statusText");
         this.appendChild(statusText);
@@ -124,7 +124,7 @@
      * @type {number} - The time in milliseconds since the epoch.
      */
     set dateTime(time) {
-      let element = this.querySelector(".dateTime");
+      const element = this.querySelector(".dateTime");
       if (!element) {
         return;
       }
@@ -203,11 +203,11 @@
     constructor() {
       super();
 
-      let heading = document.createElement("h2");
+      const heading = document.createElement("h2");
       heading.classList.add("contextDisplayText");
       this.appendChild(heading);
 
-      let list = document.createElement("ul");
+      const list = document.createElement("ul");
       list.classList.add("activitygroup-list", "activityview");
       this.appendChild(list);
 
@@ -291,7 +291,7 @@
           }
 
           // Set the visibility
-          let meter = this.querySelector(".progressmeter");
+          const meter = this.querySelector(".progressmeter");
           meter.hidden = hideProgressMeter;
 
           // Ensure progress meter not active when hidden
@@ -310,11 +310,12 @@
           workUnitsComplete,
           totalWorkUnits
         ) => {
-          let element = document.querySelector(".progressmeter");
+          const element = document.querySelector(".progressmeter");
           if (totalWorkUnits == 0) {
             element.removeAttribute("value");
           } else {
-            let _percentComplete = (100.0 * workUnitsComplete) / totalWorkUnits;
+            const _percentComplete =
+              (100.0 * workUnitsComplete) / totalWorkUnits;
             element.value = _percentComplete;
           }
           this.statusText = statusText;

@@ -71,7 +71,7 @@ async function readFile2() {
  * So use the sync file reading for now...
  */
 function readFile() {
-  let data = mailTestUtils.loadFileToString(SessionStoreManager.sessionFile);
+  const data = mailTestUtils.loadFileToString(SessionStoreManager.sessionFile);
   return JSON.parse(data);
 }
 
@@ -129,14 +129,14 @@ registerCleanupFunction(function () {
   Services.focus.focusedWindow = window;
   // Focus an element in the main window, then blur it again to avoid it
   // hijacking keypresses.
-  let mainWindowElement = document.getElementById("button-appmenu");
+  const mainWindowElement = document.getElementById("button-appmenu");
   mainWindowElement.focus();
   mainWindowElement.blur();
 });
 
 add_task(async function test_periodic_session_persistence_simple() {
   // delete the session file if it exists
-  let sessionFile = SessionStoreManager.sessionFile;
+  const sessionFile = SessionStoreManager.sessionFile;
   if (sessionFile.exists()) {
     sessionFile.remove(false);
   }
@@ -164,7 +164,7 @@ add_task(async function test_periodic_nondirty_session_persistence() {
   await waitForFileRefresh();
 
   // delete the session file
-  let sessionFile = SessionStoreManager.sessionFile;
+  const sessionFile = SessionStoreManager.sessionFile;
   sessionFile.remove(false);
 
   // Since the state of the session hasn't changed since last _saveState(),
@@ -187,18 +187,18 @@ add_task(async function test_single_3pane_periodic_session_persistence() {
 
   // get the state object. this assumes there is one and only one
   // 3pane window.
-  let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
-  let state = mail3PaneWindow.getWindowStateForSessionPersistence();
+  const mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  const state = mail3PaneWindow.getWindowStateForSessionPersistence();
 
   SessionStoreManager._saveState();
   await waitForFileRefresh();
 
   // load the saved state from disk
-  let loadedState = readFile();
+  const loadedState = readFile();
   Assert.ok(loadedState, "previously saved state should be non-null");
 
   // get the state object for the one and only one 3pane window
-  let windowState = loadedState.windows[0];
+  const windowState = loadedState.windows[0];
   Assert.ok(
     JSON.stringify(windowState) == JSON.stringify(state),
     "saved state and loaded state should be equal"
@@ -212,11 +212,11 @@ async function test_restore_single_3pane_persistence() {
 
   // get the state object. this assumes there is one and only one
   // 3pane window.
-  let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  const mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
 
   // make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed
-  let amWin = await openActivityManager();
+  const amWin = await openActivityManager();
 
   // close the 3pane window
   mail3PaneWindow.close();
@@ -251,14 +251,16 @@ add_task(async function test_message_pane_height_persistence() {
 
   // Get the state object. This assumes there is one and only one
   // 3pane window.
-  let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  const mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
 
-  let oldHeight = document.getElementById("messagepaneboxwrapper").clientHeight;
-  let minHeight = Math.floor(
+  const oldHeight = document.getElementById(
+    "messagepaneboxwrapper"
+  ).clientHeight;
+  const minHeight = Math.floor(
     document.getElementById("messagepaneboxwrapper").getAttribute("minheight")
   );
-  let newHeight = Math.floor((minHeight + oldHeight) / 2);
-  let diffHeight = oldHeight - newHeight;
+  const newHeight = Math.floor((minHeight + oldHeight) / 2);
+  const diffHeight = oldHeight - newHeight;
 
   Assert.notEqual(
     oldHeight,
@@ -288,7 +290,7 @@ add_task(async function test_message_pane_height_persistence() {
 
   // Make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed.
-  let amWin = await openActivityManager();
+  const amWin = await openActivityManager();
 
   // The 3pane window is closed.
   mail3PaneWindow.close();
@@ -360,14 +362,14 @@ add_task(async function test_message_pane_width_persistence() {
 
   // Get the state object. This assumes there is one and only one
   // 3pane window.
-  let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  const mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
 
   let oldWidth = document.getElementById("messagepaneboxwrapper").clientWidth;
-  let minWidth = Math.floor(
+  const minWidth = Math.floor(
     document.getElementById("messagepaneboxwrapper").getAttribute("minwidth")
   );
   let newWidth = Math.floor((minWidth + oldWidth) / 2);
-  let diffWidth = oldWidth - newWidth;
+  const diffWidth = oldWidth - newWidth;
 
   Assert.notEqual(
     newWidth,
@@ -404,7 +406,7 @@ add_task(async function test_message_pane_width_persistence() {
 
   // Make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed
-  let amWin = await openActivityManager();
+  const amWin = await openActivityManager();
 
   // The 3pane window is closed.
   mail3PaneWindow.close();
@@ -486,8 +488,8 @@ add_task(async function test_multiple_3pane_periodic_session_persistence() {
   }
 
   // then get the state objects for each window
-  let state = [];
-  for (let window of Services.wm.getEnumerator("mail:3pane")) {
+  const state = [];
+  for (const window of Services.wm.getEnumerator("mail:3pane")) {
     state.push(window.getWindowStateForSessionPersistence());
   }
 
@@ -495,7 +497,7 @@ add_task(async function test_multiple_3pane_periodic_session_persistence() {
   await waitForFileRefresh();
 
   // load the saved state from disk
-  let loadedState = readFile();
+  const loadedState = readFile();
 
   Assert.ok(loadedState, "previously saved state should be non-null");
 
@@ -513,16 +515,18 @@ add_task(async function test_multiple_3pane_periodic_session_persistence() {
   }
 
   // close all but one 3pane window
-  let windows = Services.wm.getEnumerator("mail:3pane");
-  for (let win of windows) {
+  const windows = Services.wm.getEnumerator("mail:3pane");
+  for (const win of windows) {
     win.close();
   }
 }).skip(); // Bug 1753963.
 
 add_task(async function test_bad_session_file_simple() {
   // forcefully write a bad session file
-  let data = "BAD SESSION FILE";
-  let fos = FileUtils.openSafeFileOutputStream(SessionStoreManager.sessionFile);
+  const data = "BAD SESSION FILE";
+  const fos = FileUtils.openSafeFileOutputStream(
+    SessionStoreManager.sessionFile
+  );
   fos.write(data, data.length);
   FileUtils.closeSafeFileOutputStream(fos);
 
@@ -553,12 +557,12 @@ add_task(async function test_clean_shutdown_session_persistence_simple() {
 
   // make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed
-  let amWin = await openActivityManager();
+  const amWin = await openActivityManager();
 
   // close all the 3pane windows
   let lastWindowState = null;
-  let enumerator = Services.wm.getEnumerator("mail:3pane");
-  for (let window of enumerator) {
+  const enumerator = Services.wm.getEnumerator("mail:3pane");
+  for (const window of enumerator) {
     if (!enumerator.hasMoreElements()) {
       lastWindowState = window.getWindowStateForSessionPersistence();
     }
@@ -570,7 +574,7 @@ add_task(async function test_clean_shutdown_session_persistence_simple() {
   await waitForFileRefresh();
 
   // load the saved state from disk
-  let loadedState = readFile();
+  const loadedState = readFile();
   Assert.ok(loadedState, "previously saved state should be non-null");
 
   Assert.equal(
@@ -580,7 +584,7 @@ add_task(async function test_clean_shutdown_session_persistence_simple() {
   );
 
   // get the state object for the one and only one 3pane window
-  let windowState = loadedState.windows[0];
+  const windowState = loadedState.windows[0];
   Assert.ok(
     JSON.stringify(windowState) == JSON.stringify(lastWindowState),
     "saved state and loaded state should be equal"
@@ -601,9 +605,9 @@ add_task(async function test_clean_shutdown_session_persistence_simple() {
 
 function _move_splitter(aSplitter, aDiffX, aDiffY) {
   // catch the splitter in the middle
-  let rect = aSplitter.getBoundingClientRect();
-  let middleX = Math.round(rect.width / 2);
-  let middleY = Math.round(rect.height / 2);
+  const rect = aSplitter.getBoundingClientRect();
+  const middleX = Math.round(rect.width / 2);
+  const middleY = Math.round(rect.height / 2);
   EventUtils.synthesizeMouse(
     aSplitter,
     middleX,

@@ -28,24 +28,24 @@ const OPENPGP_KEY_PATH = PathUtils.join(
  * implementations, we don't compare exactly with a reference message.
  */
 add_task(async function test_plain_mv2() {
-  let _account = createAccount();
-  let _folder = await createSubfolder(
+  const _account = createAccount();
+  const _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
     "test1"
   );
   await createMessages(_folder, 1);
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
-      let accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list();
       browser.test.assertEq(1, accounts.length);
 
-      for (let account of accounts) {
-        let folder = account.folders.find(f => f.name == "test1");
-        let { messages } = await browser.messages.list(folder);
+      for (const account of accounts) {
+        const folder = account.folders.find(f => f.name == "test1");
+        const { messages } = await browser.messages.list(folder);
         browser.test.assertEq(1, messages.length);
 
-        let [message] = messages;
+        const [message] = messages;
 
         // Expected message content:
         // -------------------------
@@ -74,20 +74,20 @@ add_task(async function test_plain_mv2() {
           );
         }
 
-        let strMessage_1 = await browser.messages.getRaw(message.id);
+        const strMessage_1 = await browser.messages.getRaw(message.id);
         browser.test.assertEq("string", typeof strMessage_1);
-        let strMessage_2 = await browser.messages.getRaw(message.id, {
+        const strMessage_2 = await browser.messages.getRaw(message.id, {
           data_format: "BinaryString",
         });
         browser.test.assertEq("string", typeof strMessage_2);
-        let fileMessage_3 = await browser.messages.getRaw(message.id, {
+        const fileMessage_3 = await browser.messages.getRaw(message.id, {
           data_format: "File",
         });
         // eslint-disable-next-line mozilla/use-isInstance
         browser.test.assertTrue(fileMessage_3 instanceof File);
         // Since we do not have utf-8 chars in the test message, the returned BinaryString is
         // identical to the return value of File.text().
-        let strMessage_3 = await fileMessage_3.text();
+        const strMessage_3 = await fileMessage_3.text();
 
         for (let strMessage of [strMessage_1, strMessage_2, strMessage_3]) {
           // Fold Windows line-endings \r\n to \n.
@@ -129,13 +129,13 @@ add_task(async function test_plain_mv2() {
         //   ]
         // }
 
-        let fullMessage = await browser.messages.getFull(message.id);
+        const fullMessage = await browser.messages.getFull(message.id);
         browser.test.log(JSON.stringify(fullMessage));
         browser.test.assertEq("object", typeof fullMessage);
         browser.test.assertEq("message/rfc822", fullMessage.contentType);
 
         browser.test.assertEq("object", typeof fullMessage.headers);
-        for (let header of [
+        for (const header of [
           "content-type",
           "date",
           "from",
@@ -181,24 +181,24 @@ add_task(async function test_plain_mv2() {
 });
 
 add_task(async function test_plain_mv3() {
-  let _account = createAccount();
-  let _folder = await createSubfolder(
+  const _account = createAccount();
+  const _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
     "test1"
   );
   await createMessages(_folder, 1);
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
-      let accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list();
       browser.test.assertEq(1, accounts.length);
 
-      for (let account of accounts) {
-        let folder = account.folders.find(f => f.name == "test1");
-        let { messages } = await browser.messages.list(folder);
+      for (const account of accounts) {
+        const folder = account.folders.find(f => f.name == "test1");
+        const { messages } = await browser.messages.list(folder);
         browser.test.assertEq(1, messages.length);
 
-        let [message] = messages;
+        const [message] = messages;
 
         // Expected message content:
         // -------------------------
@@ -227,24 +227,24 @@ add_task(async function test_plain_mv3() {
           );
         }
 
-        let fileMessage_1 = await browser.messages.getRaw(message.id);
+        const fileMessage_1 = await browser.messages.getRaw(message.id);
         // eslint-disable-next-line mozilla/use-isInstance
         browser.test.assertTrue(fileMessage_1 instanceof File);
         // Since we do not have utf-8 chars in the test message, the returned
         // BinaryString is identical to the return value of File.text().
-        let strMessage_1 = await fileMessage_1.text();
+        const strMessage_1 = await fileMessage_1.text();
 
-        let strMessage_2 = await browser.messages.getRaw(message.id, {
+        const strMessage_2 = await browser.messages.getRaw(message.id, {
           data_format: "BinaryString",
         });
         browser.test.assertEq("string", typeof strMessage_2);
 
-        let fileMessage_3 = await browser.messages.getRaw(message.id, {
+        const fileMessage_3 = await browser.messages.getRaw(message.id, {
           data_format: "File",
         });
         // eslint-disable-next-line mozilla/use-isInstance
         browser.test.assertTrue(fileMessage_3 instanceof File);
-        let strMessage_3 = await fileMessage_3.text();
+        const strMessage_3 = await fileMessage_3.text();
 
         for (let strMessage of [strMessage_1, strMessage_2, strMessage_3]) {
           // Fold Windows line-endings \r\n to \n.
@@ -286,13 +286,13 @@ add_task(async function test_plain_mv3() {
         //   ]
         // }
 
-        let fullMessage = await browser.messages.getFull(message.id);
+        const fullMessage = await browser.messages.getFull(message.id);
         browser.test.log(JSON.stringify(fullMessage));
         browser.test.assertEq("object", typeof fullMessage);
         browser.test.assertEq("message/rfc822", fullMessage.contentType);
 
         browser.test.assertEq("object", typeof fullMessage.headers);
-        for (let header of [
+        for (const header of [
           "content-type",
           "date",
           "from",
@@ -346,8 +346,8 @@ add_task(async function test_plain_mv3() {
  * Sizes are not checked for.
  */
 add_task(async function test_encoding() {
-  let _account = createAccount();
-  let _folder = await createSubfolder(
+  const _account = createAccount();
+  const _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
     "test1"
   );
@@ -392,12 +392,12 @@ add_task(async function test_encoding() {
     do_get_file("messages/sample07.eml").path
   );
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
-      let accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list();
       browser.test.assertEq(1, accounts.length);
 
-      let expectedData = {
+      const expectedData = {
         "01.eml@mime.sample": {
           msgHeaders: {
             subject: "αλφάβητο",
@@ -704,7 +704,7 @@ add_task(async function test_encoding() {
 
       function checkMsgHeaders(expected, actual) {
         // Check if all expected properties are there.
-        for (let property of Object.keys(expected)) {
+        for (const property of Object.keys(expected)) {
           browser.test.assertEq(
             expected.hasOwnProperty(property),
             actual.hasOwnProperty(property),
@@ -721,7 +721,7 @@ add_task(async function test_encoding() {
 
       function checkMsgParts(expected, actual) {
         // Check if all expected properties are there.
-        for (let property of Object.keys(expected)) {
+        for (const property of Object.keys(expected)) {
           browser.test.assertEq(
             expected.hasOwnProperty(property),
             actual.hasOwnProperty(property),
@@ -742,7 +742,7 @@ add_task(async function test_encoding() {
         }
 
         // Check for unexpected properties.
-        for (let property of Object.keys(actual)) {
+        for (const property of Object.keys(actual)) {
           browser.test.assertEq(
             expected.hasOwnProperty(property),
             actual.hasOwnProperty(property),
@@ -752,7 +752,7 @@ add_task(async function test_encoding() {
 
         // Check if all expected headers are there.
         if (expected.headers) {
-          for (let header of Object.keys(expected.headers)) {
+          for (const header of Object.keys(expected.headers)) {
             browser.test.assertEq(
               expected.headers.hasOwnProperty(header),
               actual.headers.hasOwnProperty(header),
@@ -767,7 +767,7 @@ add_task(async function test_encoding() {
             );
           }
           // Check for unexpected headers.
-          for (let header of Object.keys(actual.headers)) {
+          for (const header of Object.keys(actual.headers)) {
             browser.test.assertEq(
               expected.headers.hasOwnProperty(header),
               actual.headers.hasOwnProperty(header),
@@ -788,22 +788,22 @@ add_task(async function test_encoding() {
             actual.parts.length,
             "number of parts"
           );
-          for (let i in expected.parts) {
+          for (const i in expected.parts) {
             checkMsgParts(expected.parts[i], actual.parts[i]);
           }
         }
       }
 
-      for (let account of accounts) {
-        let folder = account.folders.find(f => f.name == "test1");
-        let { messages } = await browser.messages.list(folder);
+      for (const account of accounts) {
+        const folder = account.folders.find(f => f.name == "test1");
+        const { messages } = await browser.messages.list(folder);
         browser.test.assertEq(7, messages.length);
 
-        for (let message of messages) {
-          let fullMessage = await browser.messages.getFull(message.id);
+        for (const message of messages) {
+          const fullMessage = await browser.messages.getFull(message.id);
           browser.test.assertEq("object", typeof fullMessage);
 
-          let expected = expectedData[message.headerMessageId];
+          const expected = expectedData[message.headerMessageId];
           checkMsgHeaders(expected.msgHeaders, message);
           checkMsgParts(expected.msgParts, fullMessage);
         }
@@ -826,16 +826,16 @@ add_task(
     skip_if: () => IS_NNTP,
   },
   async function test_openpgp() {
-    let _account = createAccount();
-    let _identity = addIdentity(_account);
-    let _folder = await createSubfolder(
+    const _account = createAccount();
+    const _identity = addIdentity(_account);
+    const _folder = await createSubfolder(
       _account.incomingServer.rootFolder,
       "test1"
     );
 
     // Load an encrypted message.
 
-    let messagePath = PathUtils.join(
+    const messagePath = PathUtils.join(
       OPENPGP_TEST_DIR.path,
       "data",
       "eml",
@@ -843,11 +843,11 @@ add_task(
     );
     await createMessageFromFile(_folder, messagePath);
 
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files: {
         "background.js": async () => {
-          let [account] = await browser.accounts.list();
-          let folder = account.folders.find(f => f.name == "test1");
+          const [account] = await browser.accounts.list();
+          const folder = account.folders.find(f => f.name == "test1");
 
           // Read the message, without the key set up. The headers should be
           // readable, but not the message itself.
@@ -869,7 +869,7 @@ add_task(
           browser.test.assertEq("message/rfc822", fullMessage.contentType);
 
           browser.test.assertEq("object", typeof fullMessage.headers);
-          for (let header of [
+          for (const header of [
             "content-type",
             "date",
             "from",
@@ -919,7 +919,7 @@ add_task(
           browser.test.assertEq("message/rfc822", fullMessage.contentType);
 
           browser.test.assertEq("object", typeof fullMessage.headers);
-          for (let header of [
+          for (const header of [
             "content-type",
             "date",
             "from",
@@ -978,7 +978,7 @@ add_task(
     await extension.awaitMessage("load key");
     info(`Adding key from ${OPENPGP_KEY_PATH}`);
     await OpenPGPTestUtils.initOpenPGP();
-    let [id] = await OpenPGPTestUtils.importPrivateKey(
+    const [id] = await OpenPGPTestUtils.importPrivateKey(
       null,
       new FileUtils.File(OPENPGP_KEY_PATH)
     );
@@ -993,8 +993,8 @@ add_task(
 );
 
 add_task(async function test_attached_message_with_missing_headers() {
-  let _account = createAccount();
-  let _folder = await createSubfolder(
+  const _account = createAccount();
+  const _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
     "test1"
   );
@@ -1004,26 +1004,26 @@ add_task(async function test_attached_message_with_missing_headers() {
     do_get_file("messages/attachedMessageWithMissingHeaders.eml").path
   );
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let accounts = await browser.accounts.list();
+        const accounts = await browser.accounts.list();
         browser.test.assertEq(1, accounts.length);
 
-        for (let account of accounts) {
-          let folder = account.folders.find(f => f.name == "test1");
-          let { messages } = await browser.messages.list(folder);
+        for (const account of accounts) {
+          const folder = account.folders.find(f => f.name == "test1");
+          const { messages } = await browser.messages.list(folder);
           browser.test.assertEq(1, messages.length);
 
-          let msg = messages[0];
-          let attachments = await browser.messages.listAttachments(msg.id);
+          const msg = messages[0];
+          const attachments = await browser.messages.listAttachments(msg.id);
           browser.test.assertEq(
             attachments.length,
             1,
             "Should have found the correct number of attachments"
           );
 
-          let attachedMessage = attachments[0].message;
+          const attachedMessage = attachments[0].message;
           browser.test.assertTrue(
             !!attachedMessage,
             "Should have found an attached message"

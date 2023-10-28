@@ -43,7 +43,7 @@ function assert_equal(aA, aB, aWhy) {
  */
 
 function test_getAttachmentKeywords(desc, mailData, keywords, expected) {
-  let result = AttachmentChecker.getAttachmentKeywords(mailData, keywords);
+  const result = AttachmentChecker.getAttachmentKeywords(mailData, keywords);
   assert_equal(result, expected, desc + " not equal!");
 }
 

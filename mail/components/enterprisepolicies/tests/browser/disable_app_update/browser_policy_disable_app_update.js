@@ -21,10 +21,10 @@ add_task(async function test_updates_post_policy() {
 });
 
 add_task(async function test_update_preferences_ui() {
-  let tabmail = document.getElementById("tabmail");
-  let prefsTabMode = tabmail.tabModes.preferencesTab;
+  const tabmail = document.getElementById("tabmail");
+  const prefsTabMode = tabmail.tabModes.preferencesTab;
 
-  let prefsDocument = await new Promise(resolve => {
+  const prefsDocument = await new Promise(resolve => {
     Services.obs.addObserver(function documentLoaded(subject) {
       if (subject.URL == "about:preferences") {
         Services.obs.removeObserver(documentLoaded, "chrome-document-loaded");
@@ -36,7 +36,7 @@ add_task(async function test_update_preferences_ui() {
 
   await new Promise(resolve => setTimeout(resolve));
 
-  let setting = prefsDocument.getElementById("updateSettingsContainer");
+  const setting = prefsDocument.getElementById("updateSettingsContainer");
   is(
     setting.hidden,
     true,
@@ -47,8 +47,8 @@ add_task(async function test_update_preferences_ui() {
 });
 
 add_task(async function test_update_about_ui() {
-  let aboutDialog = await waitForAboutDialog();
-  let panelId = "policyDisabled";
+  const aboutDialog = await waitForAboutDialog();
+  const panelId = "policyDisabled";
 
   await BrowserTestUtils.waitForCondition(
     () =>
@@ -88,7 +88,7 @@ function waitForAboutDialog() {
 
         async function aboutDialogOnLoad() {
           domwindow.removeEventListener("load", aboutDialogOnLoad, true);
-          let chromeURI = "chrome://messenger/content/aboutDialog.xhtml";
+          const chromeURI = "chrome://messenger/content/aboutDialog.xhtml";
           is(
             domwindow.document.location.href,
             chromeURI,

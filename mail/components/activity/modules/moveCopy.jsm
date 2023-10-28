@@ -67,9 +67,9 @@ var moveCopyModule = {
 
     let displayCount = aMsgList.length;
     // get the folder of the deleted messages
-    let folder = aMsgList[0].folder;
+    const folder = aMsgList[0].folder;
 
-    let activities = this.activityMgr.getActivities();
+    const activities = this.activityMgr.getActivities();
     if (
       activities.length > 0 &&
       activities[activities.length - 1].id == this.lastMessage.id &&
@@ -90,10 +90,10 @@ var moveCopyModule = {
     displayText = displayText.replace("#2", folder.prettyName);
     this.lastMessage.folder = folder.prettyName;
 
-    let statusText = folder.server.prettyName;
+    const statusText = folder.server.prettyName;
 
     // create an activity event
-    let event = new nsActEvent(
+    const event = new nsActEvent(
       displayText,
       folder,
       statusText,
@@ -104,7 +104,7 @@ var moveCopyModule = {
     event.iconClass = "deleteMail";
     this.lastMessage.type = event.iconClass;
 
-    for (let msgHdr of aMsgList) {
+    for (const msgHdr of aMsgList) {
       event.addSubject(msgHdr.messageId);
     }
 
@@ -115,18 +115,18 @@ var moveCopyModule = {
     try {
       this.log.info("in msgsMoveCopyCompleted");
 
-      let count = aSrcMsgList.length;
+      const count = aSrcMsgList.length;
       if (count <= 0) {
         return;
       }
 
       // get the folder of the moved/copied messages
-      let folder = aSrcMsgList[0].folder;
+      const folder = aSrcMsgList[0].folder;
       this.log.info("got folder");
 
       let displayCount = count;
 
-      let activities = this.activityMgr.getActivities();
+      const activities = this.activityMgr.getActivities();
       if (
         activities.length > 0 &&
         activities[activities.length - 1].id == this.lastMessage.id &&
@@ -169,7 +169,7 @@ var moveCopyModule = {
       this.lastMessage.destFolder = aDestFolder.prettyName;
 
       // create an activity event
-      let event = new nsActEvent(
+      const event = new nsActEvent(
         displayText,
         folder,
         statusText,
@@ -179,7 +179,7 @@ var moveCopyModule = {
       event.iconClass = aMove ? "moveMail" : "copyMail";
       this.lastMessage.type = event.iconClass;
 
-      for (let msgHdr of aSrcMsgList) {
+      for (const msgHdr of aSrcMsgList) {
         event.addSubject(msgHdr.messageId);
       }
       this.lastMessage.id = this.activityMgr.addActivity(event);
@@ -194,7 +194,7 @@ var moveCopyModule = {
     // When a new account is created we get this notification with an empty named
     // folder that can't return its server. Ignore it.
     // TODO: find out what it is.
-    let server = aFolder.server;
+    const server = aFolder.server;
     // If the account has been removed, we're going to ignore this notification.
     if (
       !MailServices.accounts.findServer(
@@ -207,7 +207,7 @@ var moveCopyModule = {
     }
 
     let displayText;
-    let statusText = server.prettyName;
+    const statusText = server.prettyName;
 
     // Display a different message depending on whether we emptied the trash
     // or actually deleted a folder
@@ -221,7 +221,7 @@ var moveCopyModule = {
     }
 
     // create an activity event
-    let event = new nsActEvent(
+    const event = new nsActEvent(
       displayText,
       server,
       statusText,
@@ -261,7 +261,7 @@ var moveCopyModule = {
       statusText = aSrcFolder.server.prettyName;
     }
     // create an activity event
-    let event = new nsActEvent(
+    const event = new nsActEvent(
       displayText,
       aSrcFolder.server,
       statusText,
@@ -285,7 +285,7 @@ var moveCopyModule = {
     );
 
     let displayText;
-    let statusText = aNewFolder.server.prettyName;
+    const statusText = aNewFolder.server.prettyName;
 
     // Display a different message depending on whether we moved the folder
     // to the trash or actually renamed the folder.
@@ -304,7 +304,7 @@ var moveCopyModule = {
     }
 
     // create an activity event
-    let event = new nsActEvent(
+    const event = new nsActEvent(
       displayText,
       aOrigFolder.server,
       statusText,
@@ -323,12 +323,12 @@ var moveCopyModule = {
       this.log.info("in msgUnincorporatedMoved");
 
       // get the folder of the moved/copied messages
-      let destFolder = msgHdr.folder;
+      const destFolder = msgHdr.folder;
       this.log.info("got folder");
 
       let displayCount = 1;
 
-      let activities = this.activityMgr.getActivities();
+      const activities = this.activityMgr.getActivities();
       if (
         activities.length > 0 &&
         activities[activities.length - 1].id == this.lastMessage.id &&
@@ -364,7 +364,7 @@ var moveCopyModule = {
       this.lastMessage.destFolder = destFolder.prettyName;
 
       // create an activity event
-      let event = new nsActEvent(
+      const event = new nsActEvent(
         displayText,
         srcFolder,
         statusText,

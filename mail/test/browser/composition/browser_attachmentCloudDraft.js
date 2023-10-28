@@ -60,22 +60,24 @@ registerCleanupFunction(async function () {
  */
 add_task(async function test_draft_with_cloudFile_attachment() {
   // Prepare the mock file picker.
-  let files = collectFiles(kFiles);
+  const files = collectFiles(kFiles);
   MockFilePicker.setFiles(files);
 
-  let cloudFileAccount = await gCloudFileProvider.createAccount("validAccount");
-  let draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
-  let expectedUpload = { ...draft.upload };
+  const cloudFileAccount = await gCloudFileProvider.createAccount(
+    "validAccount"
+  );
+  const draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
+  const expectedUpload = { ...draft.upload };
 
-  let cwc = await openDraft();
+  const cwc = await openDraft();
 
-  let bucket = cwc.document.getElementById("attachmentBucket");
+  const bucket = cwc.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
     "Should find correct number of attachments."
   );
-  let itemFromDraft = [...bucket.children].find(
+  const itemFromDraft = [...bucket.children].find(
     e => e.attachment.name == "attachment.txt"
   );
   Assert.ok(itemFromDraft, "Should have found the attachment item");
@@ -150,29 +152,29 @@ add_task(async function test_draft_with_cloudFile_attachment() {
  */
 add_task(async function test_draft_with_unknown_cloudFile_attachment() {
   // Prepare the mock file picker.
-  let files = collectFiles(kFiles);
+  const files = collectFiles(kFiles);
   MockFilePicker.setFiles(files);
 
-  let cloudFileAccount = await gCloudFileProvider.createAccount(
+  const cloudFileAccount = await gCloudFileProvider.createAccount(
     "validAccountUnknownUpload"
   );
-  let draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
-  let expectedUpload = { ...draft.upload };
+  const draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
+  const expectedUpload = { ...draft.upload };
 
   // Change the known upload, so the draft comes back as unknown.
-  let id1 = cloudFileAccount._uploads.get(1);
+  const id1 = cloudFileAccount._uploads.get(1);
   id1.serviceName = "wrongService";
   cloudFileAccount._uploads.set(1, id1);
 
-  let cwc = await openDraft();
+  const cwc = await openDraft();
 
-  let bucket = cwc.document.getElementById("attachmentBucket");
+  const bucket = cwc.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
     "Should find correct number of attachments."
   );
-  let itemFromDraft = [...bucket.children].find(
+  const itemFromDraft = [...bucket.children].find(
     e => e.attachment.name == "attachment.txt"
   );
   Assert.ok(itemFromDraft, "Should have found the attachment item");
@@ -248,28 +250,28 @@ add_task(async function test_draft_with_unknown_cloudFile_attachment() {
  */
 add_task(async function test_draft_with_cloudFile_attachment_no_account() {
   // Prepare the mock file picker.
-  let files = collectFiles(kFiles);
+  const files = collectFiles(kFiles);
   MockFilePicker.setFiles(files);
 
-  let cloudFileAccount = await gCloudFileProvider.createAccount(
+  const cloudFileAccount = await gCloudFileProvider.createAccount(
     "invalidAccount"
   );
-  let draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
-  let expectedUpload = { ...draft.upload };
+  const draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
+  const expectedUpload = { ...draft.upload };
 
   // Remove account.
   await gCloudFileProvider.removeAccount(cloudFileAccount);
 
-  let cwc = await openDraft();
+  const cwc = await openDraft();
 
   // Check that the draft has a cloudFile attachment.
-  let bucket = cwc.document.getElementById("attachmentBucket");
+  const bucket = cwc.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
     "Should find correct number of attachments."
   );
-  let itemFromDraft = [...bucket.children].find(
+  const itemFromDraft = [...bucket.children].find(
     e => e.attachment.name == "attachment.txt"
   );
   Assert.ok(itemFromDraft, "Should have found the attachment item");
@@ -341,31 +343,31 @@ add_task(async function test_draft_with_cloudFile_attachment_no_account() {
  */
 add_task(async function test_draft_with_cloudFile_attachment_no_file() {
   // Prepare the mock file picker.
-  let tempFile = await createAttachmentFile(
+  const tempFile = await createAttachmentFile(
     "attachment.txt",
     "This is a sample text."
   );
   MockFilePicker.setFiles([tempFile.file]);
 
-  let cloudFileAccount = await gCloudFileProvider.createAccount(
+  const cloudFileAccount = await gCloudFileProvider.createAccount(
     "validAccountNoFile"
   );
-  let draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
-  let expectedUpload = { ...draft.upload };
+  const draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
+  const expectedUpload = { ...draft.upload };
 
   // Remove local file of cloudFile attachment.
   await IOUtils.remove(tempFile.path);
 
-  let cwc = await openDraft();
+  const cwc = await openDraft();
 
   // Check that the draft has a cloudFile attachment.
-  let bucket = cwc.document.getElementById("attachmentBucket");
+  const bucket = cwc.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
     "Should find correct number of attachments."
   );
-  let itemFromDraft = [...bucket.children].find(
+  const itemFromDraft = [...bucket.children].find(
     e => e.attachment.name == "attachment.txt"
   );
   Assert.ok(itemFromDraft, "Should have found the attachment item");
@@ -459,7 +461,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
 
 async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
   // Open a sample message.
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   await setup_msg_contents(
     cwc,
     "test@example.invalid",
@@ -469,13 +471,13 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
 
   await cwc.attachToCloudNew(cloudFileAccount);
 
-  let bucket = cwc.document.getElementById("attachmentBucket");
+  const bucket = cwc.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
     "Should find correct number of attachments."
   );
-  let item = [...bucket.children].find(
+  const item = [...bucket.children].find(
     e => e.attachment.name == "attachment.txt"
   );
   Assert.ok(item, "Should have found the attachment item");
@@ -491,11 +493,11 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
     "Should have the correct cloudFileAccount."
   );
 
-  let url = item.attachment.url;
-  let upload = item.cloudFileUpload;
-  let itemIcon = item.querySelector("img.attachmentcell-icon").src;
-  let itemSize = item.querySelector(".attachmentcell-size").textContent;
-  let totalSize = cwc.document.getElementById(
+  const url = item.attachment.url;
+  const upload = item.cloudFileUpload;
+  const itemIcon = item.querySelector("img.attachmentcell-icon").src;
+  const itemSize = item.querySelector(".attachmentcell-size").textContent;
+  const totalSize = cwc.document.getElementById(
     "attachmentBucketSize"
   ).textContent;
 
@@ -517,7 +519,7 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
 
 async function openDraft() {
   await select_click_row(0);
-  let aboutMessage = get_about_message();
+  const aboutMessage = get_about_message();
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(
     aboutMessage,
@@ -526,7 +528,7 @@ async function openDraft() {
   );
   // Edit the draft again...
   const composePromise = promise_new_window("msgcompose");
-  let box = get_notification(
+  const box = get_notification(
     aboutMessage,
     "mail-notification-top",
     "draftMsgContent"
@@ -545,7 +547,7 @@ function collectFiles(files) {
 }
 
 async function createAttachmentFile(filename, content) {
-  let tempPath = PathUtils.join(PathUtils.tempDir, filename);
+  const tempPath = PathUtils.join(PathUtils.tempDir, filename);
   await IOUtils.writeUTF8(tempPath, content);
   return {
     path: tempPath,

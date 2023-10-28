@@ -221,7 +221,7 @@ var gCookiesWindow = {
       }
 
       for (let i = start; i < gCookiesWindow._hostOrder.length; ++i) {
-        let currHost = gCookiesWindow._hosts[gCookiesWindow._hostOrder[i]];
+        const currHost = gCookiesWindow._hosts[gCookiesWindow._hostOrder[i]];
         if (!currHost) {
           continue;
         }
@@ -230,7 +230,7 @@ var gCookiesWindow = {
         }
         hostIndex = count;
 
-        let cacheEntry = { start: i, count };
+        const cacheEntry = { start: i, count };
         var cacheStart = count;
 
         if (currHost.open) {
@@ -240,7 +240,7 @@ var gCookiesWindow = {
             ++count;
             for (let j = 0; j < currHost.cookies.length; ++j) {
               if (count == aIndex) {
-                let cookie = currHost.cookies[j];
+                const cookie = currHost.cookies[j];
                 cookie.parentIndex = hostIndex;
                 return cookie;
               }
@@ -271,8 +271,8 @@ var gCookiesWindow = {
         // remove the cookies from the unfiltered set so that they
         // don't reappear when the filter is changed. See bug 410863.
         for (let i = aIndex; i < aIndex + removeCount; ++i) {
-          let item = this._filterSet[i];
-          let parent = gCookiesWindow._hosts[item.rawHost];
+          const item = this._filterSet[i];
+          const parent = gCookiesWindow._hosts[item.rawHost];
           for (var j = 0; j < parent.cookies.length; ++j) {
             if (item == parent.cookies[j]) {
               parent.cookies.splice(j, 1);
@@ -284,7 +284,7 @@ var gCookiesWindow = {
         return;
       }
 
-      let item = this._getItemAtIndex(aIndex);
+      const item = this._getItemAtIndex(aIndex);
       if (!item) {
         return;
       }
@@ -292,7 +292,7 @@ var gCookiesWindow = {
       if (item.container) {
         gCookiesWindow._hosts[item.rawHost] = null;
       } else {
-        let parent = this._getItemAtIndex(item.parentIndex);
+        const parent = this._getItemAtIndex(item.parentIndex);
         for (let i = 0; i < parent.cookies.length; ++i) {
           var cookie = parent.cookies[i];
           if (
@@ -425,7 +425,7 @@ var gCookiesWindow = {
             }
             return false;
           }
-          let parent = this._getItemAtIndex(item.parentIndex);
+          const parent = this._getItemAtIndex(item.parentIndex);
           if (parent && parent.container) {
             return aIndex < item.parentIndex + parent.cookies.length;
           }
@@ -486,7 +486,7 @@ var gCookiesWindow = {
   },
 
   _makeStrippedHost(aHost) {
-    let formattedHost = aHost.startsWith(".")
+    const formattedHost = aHost.startsWith(".")
       ? aHost.substring(1, aHost.length)
       : aHost;
     return formattedHost.startsWith("www.")
@@ -512,7 +512,7 @@ var gCookiesWindow = {
   },
 
   _makeCookieObject(aStrippedHost, aCookie) {
-    let c = {
+    const c = {
       name: aCookie.name,
       value: aCookie.value,
       isDomain: aCookie.isDomain,
@@ -532,7 +532,7 @@ var gCookiesWindow = {
     var hostCount = { value: 0 };
     this._hosts = {};
     this._hostOrder = [];
-    for (let cookie of Services.cookies.cookies) {
+    for (const cookie of Services.cookies.cookies) {
       var strippedHost = this._makeStrippedHost(cookie.host);
       this._addCookie(strippedHost, cookie, hostCount);
     }
@@ -646,8 +646,8 @@ var gCookiesWindow = {
       selectedCookieCount += 2;
     }
 
-    let buttonLabel = this._bundle.getString("removeSelectedCookies");
-    let removeSelectedCookies = document.getElementById(
+    const buttonLabel = this._bundle.getString("removeSelectedCookies");
+    const removeSelectedCookies = document.getElementById(
       "removeSelectedCookies"
     );
     removeSelectedCookies.label = PluralForm.get(
@@ -722,7 +722,7 @@ var gCookiesWindow = {
       var ci = seln.currentIndex;
       nextSelected = ci;
       var invalidateRow = -1;
-      let item = this._view._getItemAtIndex(ci);
+      const item = this._view._getItemAtIndex(ci);
       if (item.container) {
         rowCountImpact -= (item.open ? item.cookies.length : 0) + 1;
         deleteItems = deleteItems.concat(item.cookies);
@@ -778,7 +778,7 @@ var gCookiesWindow = {
       }
     }
 
-    for (let item of deleteItems) {
+    for (const item of deleteItems) {
       Services.cookies.remove(
         item.host,
         item.name,
@@ -908,7 +908,7 @@ var gCookiesWindow = {
     this._view._filterValue = aFilterValue;
     var cookies = [];
     for (let i = 0; i < gCookiesWindow._hostOrder.length; ++i) {
-      let currHost = gCookiesWindow._hosts[gCookiesWindow._hostOrder[i]];
+      const currHost = gCookiesWindow._hosts[gCookiesWindow._hostOrder[i]];
       if (!currHost) {
         continue;
       }

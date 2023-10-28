@@ -78,12 +78,12 @@ AboutRedirector.prototype = {
    */
   _getModuleName(aURI) {
     // Strip out the first ? or #, and anything following it
-    let name = /[^?#]+/.exec(aURI.pathQueryRef)[0];
+    const name = /[^?#]+/.exec(aURI.pathQueryRef)[0];
     return name.toLowerCase();
   },
 
   getURIFlags(aURI) {
-    let name = this._getModuleName(aURI);
+    const name = this._getModuleName(aURI);
     if (!(name in this._redirMap)) {
       throw Components.Exception(`no about:${name}`, Cr.NS_ERROR_ILLEGAL_VALUE);
     }
@@ -91,20 +91,23 @@ AboutRedirector.prototype = {
   },
 
   newChannel(aURI, aLoadInfo) {
-    let name = this._getModuleName(aURI);
+    const name = this._getModuleName(aURI);
     if (!(name in this._redirMap)) {
       throw Components.Exception(`no about:${name}`, Cr.NS_ERROR_ILLEGAL_VALUE);
     }
 
-    let newURI = Services.io.newURI(this._redirMap[name].url);
-    let channel = Services.io.newChannelFromURIWithLoadInfo(newURI, aLoadInfo);
+    const newURI = Services.io.newURI(this._redirMap[name].url);
+    const channel = Services.io.newChannelFromURIWithLoadInfo(
+      newURI,
+      aLoadInfo
+    );
     channel.originalURI = aURI;
 
     if (
       this._redirMap[name].flags &
       Ci.nsIAboutModule.URI_SAFE_FOR_UNTRUSTED_CONTENT
     ) {
-      let principal = Services.scriptSecurityManager.createContentPrincipal(
+      const principal = Services.scriptSecurityManager.createContentPrincipal(
         aURI,
         {}
       );
@@ -115,7 +118,7 @@ AboutRedirector.prototype = {
   },
 
   getChromeURI(aURI) {
-    let name = this._getModuleName(aURI);
+    const name = this._getModuleName(aURI);
     if (!(name in this._redirMap)) {
       throw Components.Exception(`no about:${name}`, Cr.NS_ERROR_ILLEGAL_VALUE);
     }

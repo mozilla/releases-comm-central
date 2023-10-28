@@ -12,7 +12,7 @@ var { MessageGenerator } = ChromeUtils.import(
 );
 
 registerCleanupFunction(() => {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   is(tabmail.tabInfo.length, 1);
 
   while (tabmail.tabInfo.length > 1) {
@@ -24,7 +24,7 @@ registerCleanupFunction(() => {
   Services.focus.focusedWindow = window;
   // Focus an element in the main window, then blur it again to avoid it
   // hijacking keypresses.
-  let mainWindowElement = document.getElementById("button-appmenu");
+  const mainWindowElement = document.getElementById("button-appmenu");
   mainWindowElement.focus();
   mainWindowElement.blur();
 
@@ -70,8 +70,9 @@ function createMessages(folder, makeMessagesArg) {
     createMessages.messageGenerator = new MessageGenerator();
   }
 
-  let messages = createMessages.messageGenerator.makeMessages(makeMessagesArg);
-  let messageStrings = messages.map(message => message.toMboxString());
+  const messages =
+    createMessages.messageGenerator.makeMessages(makeMessagesArg);
+  const messageStrings = messages.map(message => message.toMboxString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch(messageStrings);
 }
@@ -83,7 +84,7 @@ async function openMessageInTab(msgHdr) {
 
   // Ensure the behaviour pref is set to open a new tab. It is the default,
   // but you never know.
-  let oldPrefValue = Services.prefs.getIntPref("mail.openMessageBehavior");
+  const oldPrefValue = Services.prefs.getIntPref("mail.openMessageBehavior");
   Services.prefs.setIntPref(
     "mail.openMessageBehavior",
     MailConsts.OpenMessageBehavior.NEW_TAB
@@ -91,9 +92,9 @@ async function openMessageInTab(msgHdr) {
   MailUtils.displayMessages([msgHdr]);
   Services.prefs.setIntPref("mail.openMessageBehavior", oldPrefValue);
 
-  let win = Services.wm.getMostRecentWindow("mail:3pane");
-  let tab = win.document.getElementById("tabmail").currentTabInfo;
-  let browser = tab.browser;
+  const win = Services.wm.getMostRecentWindow("mail:3pane");
+  const tab = win.document.getElementById("tabmail").currentTabInfo;
+  const browser = tab.browser;
 
   await promiseMessageLoaded(browser, msgHdr);
   return tab;
@@ -104,7 +105,7 @@ async function openMessageInWindow(msgHdr) {
     throw new Error("No message passed to openMessageInWindow");
   }
 
-  let messageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+  const messageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
     undefined,
     async win =>
       win.document.documentURI ==
@@ -112,8 +113,8 @@ async function openMessageInWindow(msgHdr) {
   );
   MailUtils.openMessageInNewWindow(msgHdr);
 
-  let messageWindow = await messageWindowPromise;
-  let browser = messageWindow.document.getElementById("messagepane");
+  const messageWindow = await messageWindowPromise;
+  const browser = messageWindow.document.getElementById("messagepane");
 
   await promiseMessageLoaded(browser, msgHdr);
   return messageWindow;

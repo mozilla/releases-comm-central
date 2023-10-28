@@ -26,7 +26,7 @@ var whatsUrl = url + "whatsnew.html";
 add_task(async function test_content_tab_open() {
   // Need to open the thread pane to load the appropriate context menus.
   await be_in_folder(inboxFolder);
-  let tab = await open_content_tab_with_url(whatsUrl);
+  const tab = await open_content_tab_with_url(whatsUrl);
 
   assert_tab_has_title(tab, "What's New Content Test");
   // Check the location of the what's new image, this is via the link element
@@ -49,7 +49,7 @@ add_task(async function test_content_tab_open() {
  * spell checking options.
  */
 add_task(async function test_spellcheck_in_content_tabs() {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
 
   // Test a few random items
   BrowserTestUtils.synthesizeMouseAtCenter(
@@ -68,7 +68,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
     { type: "contextmenu" },
     tabmail.selectedTab.browser
   );
-  let browserContext = document.getElementById("browserContext");
+  const browserContext = document.getElementById("browserContext");
   await wait_for_popup_to_open(browserContext);
   assert_element_visible("browserContext-spell-dictionaries");
   assert_element_visible("browserContext-spell-check-enabled");
@@ -96,7 +96,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
   await wait_for_popup_to_open(browserContext);
   let suggestions = document.getElementsByClassName("spell-suggestion");
   Assert.ok(suggestions.length > 0, "What, is zombocom a registered word now?");
-  let addToDict = document.getElementById(
+  const addToDict = document.getElementById(
     "browserContext-spell-add-to-dictionary"
   );
   if (AppConstants.platform == "macosx") {
@@ -124,7 +124,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
 
 add_task(async function test_content_tab_default_favicon() {
   const whatsUrl2 = url + "whatsnew1.html";
-  let tab = await open_content_tab_with_url(whatsUrl2);
+  const tab = await open_content_tab_with_url(whatsUrl2);
 
   assert_tab_has_title(tab, "What's New Content Test 1");
   // Check the location of the favicon, this should be the site favicon in this
@@ -133,9 +133,9 @@ add_task(async function test_content_tab_default_favicon() {
 });
 
 add_task(async function test_content_tab_onbeforeunload() {
-  let tabmail = document.getElementById("tabmail");
-  let count = tabmail.tabContainer.allTabs.length;
-  let tab = tabmail.tabInfo[count - 1];
+  const tabmail = document.getElementById("tabmail");
+  const count = tabmail.tabContainer.allTabs.length;
+  const tab = tabmail.tabInfo[count - 1];
   await SpecialPowers.spawn(tab.browser, [], () => {
     content.addEventListener("beforeunload", function (event) {
       event.returnValue = "Green llama in your car";
@@ -145,7 +145,7 @@ add_task(async function test_content_tab_onbeforeunload() {
   const interactionPref = "dom.require_user_interaction_for_beforeunload";
   Services.prefs.setBoolPref(interactionPref, false);
 
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   tabmail.closeTab(tab);
   await dialogPromise;
 
@@ -158,7 +158,7 @@ add_task(async function test_content_tab_onbeforeunload() {
 // - zoom?
 
 registerCleanupFunction(function () {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   while (tabmail.tabInfo.length > 1) {
     tabmail.closeTab(1);
   }

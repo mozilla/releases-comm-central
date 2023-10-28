@@ -49,7 +49,7 @@ class MailLinkParent extends JSWindowActorParent {
 
   _handleMailboxLink({ data, target }) {
     // AttachmentInfo is defined in msgHdrView.js.
-    let url = new URL(data);
+    const url = new URL(data);
     new lazy.AttachmentInfo({
       contentType: "",
       url: data,
@@ -64,7 +64,7 @@ class MailLinkParent extends JSWindowActorParent {
 
     // If the document with the link is a message, try to get the identity
     // from the message and use it when composing.
-    let documentURI = target.windowContext.documentURI;
+    const documentURI = target.windowContext.documentURI;
     if (documentURI instanceof Ci.nsIMsgMessageUrl) {
       documentURI.QueryInterface(Ci.nsIMsgMessageUrl);
       [identity] = lazy.MailUtils.getIdentityForHeader(

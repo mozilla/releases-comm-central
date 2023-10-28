@@ -100,7 +100,7 @@ export const Sanitizer = {
    * Currently does not support IDN (international domain names).
    */
   hostname(unchecked) {
-    let str = cleanUpHostName(this.nonemptystring(unchecked));
+    const str = cleanUpHostName(this.nonemptystring(unchecked));
 
     // Allow placeholders. TODO move to a new hostnameOrPlaceholder()
     // The regex is "anything, followed by one or more (placeholders than
@@ -121,7 +121,7 @@ export const Sanitizer = {
    * A value which resembles an email address.
    */
   emailAddress(unchecked) {
-    let str = this.nonemptystring(unchecked);
+    const str = this.nonemptystring(unchecked);
     if (!/^[a-z0-9\-%+_\.\*]+@[a-z0-9\-\.]+\.[a-z]+$/i.test(str)) {
       throw new MalformedException("emailaddress_syntax.error", unchecked);
     }
@@ -186,7 +186,7 @@ export const Sanitizer = {
    * @throws MalformedException
    */
   enum(unchecked, allowedValues, defaultValue) {
-    for (let allowedValue of allowedValues) {
+    for (const allowedValue of allowedValues) {
       if (allowedValue == unchecked) {
         return allowedValue;
       }

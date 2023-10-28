@@ -11,12 +11,12 @@ const engineItems = {
 };
 
 window.addEventListener("load", function () {
-  for (let [id, prefName] of Object.entries(engineItems)) {
-    let element = document.getElementById(id);
+  for (const [id, prefName] of Object.entries(engineItems)) {
+    const element = document.getElementById(id);
     element.checked = Services.prefs.getBoolPref(prefName, false);
   }
 
-  let options = window.arguments[0];
+  const options = window.arguments[0];
   if (options.disconnectFun) {
     window.addEventListener("dialogextra2", function () {
       options.disconnectFun().then(disconnected => {
@@ -31,8 +31,8 @@ window.addEventListener("load", function () {
 });
 
 window.addEventListener("dialogaccept", function () {
-  for (let [id, prefName] of Object.entries(engineItems)) {
-    let element = document.getElementById(id);
+  for (const [id, prefName] of Object.entries(engineItems)) {
+    const element = document.getElementById(id);
     Services.prefs.setBoolPref(prefName, element.checked);
   }
 });

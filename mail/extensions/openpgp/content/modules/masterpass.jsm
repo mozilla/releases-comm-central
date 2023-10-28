@@ -40,13 +40,13 @@ var OpenPGPMasterpass = {
   secringFilename: "secring.gpg",
 
   getPassPath() {
-    let path = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    const path = Services.dirsvc.get("ProfD", Ci.nsIFile);
     path.append(this.filename);
     return path;
   },
 
   getSecretKeyRingFile() {
-    let path = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    const path = Services.dirsvc.get("ProfD", Ci.nsIFile);
     path.append(this.secringFilename);
     return path;
   },
@@ -56,8 +56,8 @@ var OpenPGPMasterpass = {
   },
 
   async _repairOrWarn() {
-    let [prot, unprot] = lazy.RNP.getProtectedKeysCount();
-    let haveAtLeastOneSecretKey = prot || unprot;
+    const [prot, unprot] = lazy.RNP.getProtectedKeysCount();
+    const haveAtLeastOneSecretKey = prot || unprot;
 
     if (
       !(await IOUtils.exists(this.getPassPath().path)) &&
@@ -71,8 +71,8 @@ var OpenPGPMasterpass = {
       // but the user failed to enter it correctly,
       // or we are facing the consequences of multiple password prompts.
 
-      let secFileName = this.getSecretKeyRingFile().path;
-      let title = "OpenPGP corruption detected";
+      const secFileName = this.getSecretKeyRingFile().path;
+      const title = "OpenPGP corruption detected";
 
       if (prot) {
         let info;
@@ -100,7 +100,7 @@ var OpenPGPMasterpass = {
       } else {
         // only unprotected keys
         // maybe https://bugzilla.mozilla.org/show_bug.cgi?id=1656287
-        let info =
+        const info =
           "Your Thunderbird Profile contains inconsistent or corrupted OpenPGP data. You have secret keys, " +
           "but file encrypted-openpgp-passphrase.txt is missing. " +
           "If you have recently used Enigmail version 2.2 to migrate your old keys, an incomplete migration is probably the cause of the corruption. " +
@@ -111,15 +111,16 @@ var OpenPGPMasterpass = {
           " that contains your secret keys. " +
           "After repairing, you may run the Enigmail migration again, or use OpenPGP Key Manager to accept your keys as personal keys.";
 
-        let button = "I confirm I created a backup. Perform automatic repair.";
+        const button =
+          "I confirm I created a backup. Perform automatic repair.";
 
-        let promptFlags =
+        const promptFlags =
           Services.prompt.BUTTON_POS_0 *
             Services.prompt.BUTTON_TITLE_IS_STRING +
           Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL +
           Services.prompt.BUTTON_POS_1_DEFAULT;
 
-        let confirm = Services.prompt.confirmEx(
+        const confirm = Services.prompt.confirmEx(
           null, // window
           title,
           info,
@@ -149,7 +150,7 @@ var OpenPGPMasterpass = {
       return;
     }
 
-    let sdr = this.getSDR();
+    const sdr = this.getSDR();
     if (!sdr) {
       throw new Error("Failed to obtain the SDR service.");
     }
@@ -175,10 +176,10 @@ var OpenPGPMasterpass = {
         // reaches this code path.
 
         // Is a primary password set?
-        let tokenDB = Cc["@mozilla.org/security/pk11tokendb;1"].getService(
+        const tokenDB = Cc["@mozilla.org/security/pk11tokendb;1"].getService(
           Ci.nsIPK11TokenDB
         );
-        let token = tokenDB.getInternalKeyToken();
+        const token = tokenDB.getInternalKeyToken();
         if (token.hasPassword && !token.isLoggedIn()) {
           // Yes, primary password is set, but user is not logged in.
           // Let's throw now, a future action will result in trying again.
@@ -189,7 +190,7 @@ var OpenPGPMasterpass = {
         // key to decrypt file encrypted-openpgp-passphrase.txt
         // Move to backup file and create a fresh file to fix the situation.
 
-        let backup = await IOUtils.createUniqueFile(
+        const backup = await IOUtils.createUniqueFile(
           Services.dirsvc.get("ProfD", Ci.nsIFile).path,
           this.filename + ".corrupt"
         );
@@ -226,8 +227,8 @@ var OpenPGPMasterpass = {
     // in encrypting and storing it to disk.
     // (This may fail if the user has a primary password set,
     // but refuses to enter it.)
-    let newPass = this.generatePassword();
-    let encryptedPass = sdr.encryptString(newPass);
+    const newPass = this.generatePassword();
+    const encryptedPass = sdr.encryptString(newPass);
     if (!encryptedPass) {
       throw new Error("cannot create OpenPGP password");
     }

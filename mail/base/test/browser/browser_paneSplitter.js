@@ -5,13 +5,13 @@
 // This test frequently takes longer than the allowed time.
 requestLongerTimeout(2);
 
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
 });
 
 // Increase this value to slow the test down if you want to see what it is doing.
-let MOUSE_DELAY = 0;
+const MOUSE_DELAY = 0;
 
 let win, doc;
 
@@ -22,7 +22,7 @@ let expandedEvents = 0;
 
 // This object keeps the test simple by removing the differences between
 // horizontal and vertical, and which pane is controlled by the splitter.
-let testRunner = {
+const testRunner = {
   outer: null, // The container for the splitter and panes.
   splitter: null, // The splitter.
   resizedIsBefore: null, // Whether resized is before the splitter.
@@ -103,7 +103,7 @@ let testRunner = {
 };
 
 add_setup(async function () {
-  let tab = tabmail.openTab("contentTab", {
+  const tab = tabmail.openTab("contentTab", {
     url: "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/paneSplitter.xhtml",
   });
 
@@ -120,10 +120,10 @@ add_setup(async function () {
 });
 
 add_task(async function testHorizontalBefore() {
-  let outer = doc.getElementById("horizontal-before");
-  let resized = outer.querySelector(".resized");
-  let splitter = outer.querySelector(`hr[is="pane-splitter"]`);
-  let fill = outer.querySelector(".fill");
+  const outer = doc.getElementById("horizontal-before");
+  const resized = outer.querySelector(".resized");
+  const splitter = outer.querySelector(`hr[is="pane-splitter"]`);
+  const fill = outer.querySelector(".fill");
 
   Assert.equal(resized.clientWidth, 200);
   Assert.equal(fill.clientWidth, 300);
@@ -143,10 +143,10 @@ add_task(async function testHorizontalBefore() {
 });
 
 add_task(async function testHorizontalAfter() {
-  let outer = doc.getElementById("horizontal-after");
-  let fill = outer.querySelector(".fill");
-  let splitter = outer.querySelector(`hr[is="pane-splitter"]`);
-  let resized = outer.querySelector(".resized");
+  const outer = doc.getElementById("horizontal-after");
+  const fill = outer.querySelector(".fill");
+  const splitter = outer.querySelector(`hr[is="pane-splitter"]`);
+  const resized = outer.querySelector(".resized");
 
   Assert.equal(fill.clientWidth, 300);
   Assert.equal(resized.clientWidth, 200);
@@ -166,10 +166,10 @@ add_task(async function testHorizontalAfter() {
 });
 
 add_task(async function testVerticalBefore() {
-  let outer = doc.getElementById("vertical-before");
-  let resized = outer.querySelector(".resized");
-  let splitter = outer.querySelector(`hr[is="pane-splitter"]`);
-  let fill = outer.querySelector(".fill");
+  const outer = doc.getElementById("vertical-before");
+  const resized = outer.querySelector(".resized");
+  const splitter = outer.querySelector(`hr[is="pane-splitter"]`);
+  const fill = outer.querySelector(".fill");
 
   Assert.equal(resized.clientHeight, 200);
   Assert.equal(fill.clientHeight, 300);
@@ -189,10 +189,10 @@ add_task(async function testVerticalBefore() {
 });
 
 add_task(async function testVerticalAfter() {
-  let outer = doc.getElementById("vertical-after");
-  let fill = outer.querySelector(".fill");
-  let splitter = outer.querySelector(`hr[is="pane-splitter"]`);
-  let resized = outer.querySelector(".resized");
+  const outer = doc.getElementById("vertical-after");
+  const fill = outer.querySelector(".fill");
+  const splitter = outer.querySelector(`hr[is="pane-splitter"]`);
+  const resized = outer.querySelector(".resized");
 
   testRunner.outer = outer;
   testRunner.splitter = splitter;
@@ -216,7 +216,7 @@ async function subtestDrag() {
   resizingEvents = 0;
   resizedEvents = 0;
 
-  let originalPosition = testRunner.getSize(testRunner.resized);
+  const originalPosition = testRunner.getSize(testRunner.resized);
   let position = 200;
 
   await testRunner.synthMouse(position, "mousedown");
@@ -290,7 +290,7 @@ async function subtestDrag() {
 async function subtestDragSizeBounds() {
   info("subtestDragSizeBounds");
 
-  let { splitter, resized, fill, minSizeProperty, maxSizeProperty } =
+  const { splitter, resized, fill, minSizeProperty, maxSizeProperty } =
     testRunner;
 
   // Various min or max sizes to set on the resized and fill elements.
@@ -301,26 +301,26 @@ async function subtestDragSizeBounds() {
   // respective min-max bounds.
   // NOTE: We do not set a max size on the fill element. The grid layout does
   // not handle this. Nor is it an expected usage of the splitter.
-  for (let [minResized, min] of [
+  for (const [minResized, min] of [
     [null, 0],
     ["100.5px", 100.5],
   ]) {
-    for (let [maxResized, expectMax1] of [
+    for (const [maxResized, expectMax1] of [
       [null, 500],
       ["360px", 360],
     ]) {
-      for (let [minFill, expectMax2] of [
+      for (const [minFill, expectMax2] of [
         [null, 500],
         ["148px", 352],
       ]) {
         info(`Bounds [${minResized}, ${maxResized}] and [${minFill}, none]`);
-        let max = Math.min(expectMax1, expectMax2);
+        const max = Math.min(expectMax1, expectMax2);
         info(`Overall bound [${min}px, ${max}px]`);
 
         // Construct a set of positions we are interested in.
-        let roundMin = Math.floor(min);
-        let roundMax = Math.ceil(max);
-        let positionSet = [-50, 150, 350, 550];
+        const roundMin = Math.floor(min);
+        const roundMax = Math.ceil(max);
+        const positionSet = [-50, 150, 350, 550];
         // Include specific positions around the minimum and maximum points.
         positionSet.push(roundMin - 1, roundMin, roundMin + 1);
         positionSet.push(roundMax - 1, roundMax, roundMax + 1);
@@ -337,9 +337,9 @@ async function subtestDragSizeBounds() {
         testRunner.assertElementSizes(200, "initial position");
         await testRunner.synthMouse(200, "mousedown");
 
-        for (let position of positionSet) {
+        for (const position of positionSet) {
           await testRunner.synthMouse(position);
-          let size = Math.min(Math.max(position, min), max);
+          const size = Math.min(Math.max(position, min), max);
           testRunner.assertElementSizes(size, `Moved forward to ${position}`);
           testRunner.assertSplitterSize(size, `Moved forward to ${position}`);
         }
@@ -352,9 +352,9 @@ async function subtestDragSizeBounds() {
         // Reverse.
         await testRunner.synthMouse(max, "mousedown");
 
-        for (let position of positionSet.reverse()) {
+        for (const position of positionSet.reverse()) {
           await testRunner.synthMouse(position);
-          let size = Math.min(Math.max(position, min), max);
+          const size = Math.min(Math.max(position, min), max);
           testRunner.assertElementSizes(size, `Moved backward to ${position}`);
           testRunner.assertSplitterSize(size, `Moved backward to ${position}`);
         }
@@ -382,13 +382,13 @@ async function subtestDragAutoCollapse() {
   collapsedEvents = 0;
   expandedEvents = 0;
 
-  let { splitter } = testRunner;
+  const { splitter } = testRunner;
 
-  let originalPosition = 200;
+  const originalPosition = 200;
 
   // Drag in steps toward the left-hand/top end.
   await testRunner.synthMouse(200, "mousedown");
-  for (let position of [180, 160, 140, 120, 100, 80, 78]) {
+  for (const position of [180, 160, 140, 120, 100, 80, 78]) {
     await testRunner.synthMouse(position);
     testRunner.assertElementSizes(
       position,
@@ -398,7 +398,7 @@ async function subtestDragAutoCollapse() {
   }
 
   // For the first 20 pixels inside the minimum size, nothing happens.
-  for (let position of [74, 68, 64, 60, 58]) {
+  for (const position of [74, 68, 64, 60, 58]) {
     await testRunner.synthMouse(position);
     testRunner.assertElementSizes(
       78,
@@ -410,7 +410,7 @@ async function subtestDragAutoCollapse() {
   // Then the pane collapses.
   await testRunner.synthMouse(57);
   Assert.equal(collapsedEvents, 1, "collapsed event fired");
-  for (let position of [57, 55, 51, 40, 20, 0, -20]) {
+  for (const position of [57, 55, 51, 40, 20, 0, -20]) {
     await testRunner.synthMouse(position);
     testRunner.assertElementSizes(0, `Should have no size at ${position}`);
     Assert.ok(splitter.isCollapsed, `Should be collapsed at ${position}`);
@@ -425,7 +425,7 @@ async function subtestDragAutoCollapse() {
 
   // Drag it from the collapsed state.
   await testRunner.synthMouse(0, "mousedown");
-  for (let position of [0, 8, 16, 19]) {
+  for (const position of [0, 8, 16, 19]) {
     await testRunner.synthMouse(position);
     testRunner.assertElementSizes(
       0,
@@ -437,7 +437,7 @@ async function subtestDragAutoCollapse() {
   // Then the pane expands. For the first 20 pixels, nothing happens.
   await testRunner.synthMouse(20);
   Assert.equal(expandedEvents, 1, "expanded event fired");
-  for (let position of [40, 60, 78]) {
+  for (const position of [40, 60, 78]) {
     await testRunner.synthMouse(position);
     testRunner.assertElementSizes(
       78,
@@ -449,7 +449,7 @@ async function subtestDragAutoCollapse() {
     );
   }
 
-  for (let position of [79, 100, 120, 200, 250, 300, 400, 450]) {
+  for (const position of [79, 100, 120, 200, 250, 300, 400, 450]) {
     await testRunner.synthMouse(position);
     testRunner.assertElementSizes(
       position,
@@ -528,9 +528,9 @@ async function subtestCollapseExpand() {
   collapsedEvents = 0;
   expandedEvents = 0;
 
-  let { splitter } = testRunner;
+  const { splitter } = testRunner;
 
-  let originalSize = testRunner.getSize(testRunner.resized);
+  const originalSize = testRunner.getSize(testRunner.resized);
 
   // Collapse.
   Assert.ok(!splitter.isCollapsed, "splitter is not collapsed");

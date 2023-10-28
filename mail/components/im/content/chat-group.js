@@ -88,8 +88,8 @@
       if (contactA.statusType != contactB.statusType) {
         return contactB.statusType - contactA.statusType;
       }
-      let a = contactA.displayName.toLowerCase();
-      let b = contactB.displayName.toLowerCase();
+      const a = contactA.displayName.toLowerCase();
+      const b = contactB.displayName.toLowerCase();
       return a.localeCompare(b);
     }
 
@@ -120,7 +120,7 @@
       ) {
         let start = 0;
         while (start < end) {
-          let middle = start + Math.floor((end - start) / 2);
+          const middle = start + Math.floor((end - start) / 2);
           if (this.sortComparator(contact, this.contacts[middle].contact) < 0) {
             end = middle;
           } else {
@@ -128,7 +128,7 @@
           }
         }
       }
-      let last = end == 0 ? this : this.contacts[end - 1];
+      const last = end == 0 ? this : this.contacts[end - 1];
       this.parentNode.insertBefore(contactElt, last.nextElementSibling);
       contactElt.build(contact);
       contactElt.group = this;
@@ -140,8 +140,8 @@
     }
 
     updateContactPosition(subject, tagName) {
-      let contactElt = this.contactsById[subject.id];
-      let index = this.contacts.indexOf(contactElt);
+      const contactElt = this.contactsById[subject.id];
+      const index = this.contacts.indexOf(contactElt);
       if (index == -1) {
         // Sometimes we get a display-name-changed notification for
         // an offline contact, if it's not in the list, just ignore it.
@@ -160,10 +160,10 @@
             this.contacts[index + 1].contact
           ) > 0)
       ) {
-        let list = this.parentNode;
-        let selectedItem = list.selectedItem;
-        let oldItem = this.removeContact(subject);
-        let newItem = this.addContact(subject, tagName);
+        const list = this.parentNode;
+        const selectedItem = list.selectedItem;
+        const oldItem = this.removeContact(subject);
+        const newItem = this.addContact(subject, tagName);
         if (selectedItem == oldItem) {
           list.selectedItem = newItem;
         }
@@ -171,7 +171,7 @@
     }
 
     removeContact(contactForID) {
-      let contact = this.contactsById[contactForID.id];
+      const contact = this.contactsById[contactForID.id];
       if (!contact) {
         throw new Error("Can't remove contact for id=" + contactForID.id);
       }
@@ -193,7 +193,7 @@
     }
 
     _updateClosedState(closed) {
-      for (let contact of this.contacts) {
+      for (const contact of this.contacts) {
         contact.collapsed = closed;
       }
     }

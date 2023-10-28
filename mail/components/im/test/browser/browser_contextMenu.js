@@ -7,7 +7,7 @@ add_task(async function testContextMenu() {
     "context",
     "prpl-mochitest"
   );
-  let passwordPromise = TestUtils.topicObserved("account-updated");
+  const passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
   await passwordPromise;
   account.connect();
@@ -59,7 +59,7 @@ add_task(async function testMessageContextMenuOnLink() {
     "context",
     "prpl-mochitest"
   );
-  let passwordPromise = TestUtils.topicObserved("account-updated");
+  const passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
   await passwordPromise;
   account.connect();
@@ -170,7 +170,7 @@ add_task(async function testMessageAction() {
     "context",
     "prpl-mochitest"
   );
-  let passwordPromise = TestUtils.topicObserved("account-updated");
+  const passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
   await passwordPromise;
   account.connect();

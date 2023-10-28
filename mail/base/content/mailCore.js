@@ -27,7 +27,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function () {
-  let scope = {};
+  const scope = {};
   Services.scriptloader.loadSubScript(
     "chrome://global/content/viewSourceUtils.js",
     scope
@@ -54,7 +54,7 @@ XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function () {
 
 Object.defineProperty(this, "BrowserConsoleManager", {
   get() {
-    let { loader } = ChromeUtils.importESModule(
+    const { loader } = ChromeUtils.importESModule(
       "resource://devtools/shared/loader/Loader.sys.mjs"
     );
     return loader.require("devtools/client/webconsole/browser-console-manager")
@@ -74,9 +74,9 @@ function overlayRestoreDefaultSet() {
     toolbox = window.frameElement.toolbox;
   }
 
-  let mode = toolbox.getAttribute("defaultmode");
-  let align = toolbox.getAttribute("defaultlabelalign");
-  let menulist = document.getElementById("modelist");
+  const mode = toolbox.getAttribute("defaultmode");
+  const align = toolbox.getAttribute("defaultlabelalign");
+  const menulist = document.getElementById("modelist");
 
   if (mode == "full" && align == "end") {
     toolbox.setAttribute("mode", "textbesideicon");
@@ -115,7 +115,7 @@ function overlayUpdateToolbarMode(aModeValue) {
 }
 
 function overlayOnLoad() {
-  let restoreButton = document
+  const restoreButton = document
     .getElementById("main-box")
     .querySelector("[oncommand*='restore']");
   restoreButton.setAttribute("oncommand", "overlayRestoreDefaultSet();");
@@ -123,8 +123,8 @@ function overlayOnLoad() {
   // Add the textBesideIcon menu item if it's not already there.
   let menuitem = document.getElementById("textbesideiconItem");
   if (!menuitem) {
-    let menulist = document.getElementById("modelist");
-    let label = document
+    const menulist = document.getElementById("modelist");
+    const label = document
       .getElementById("iconsBesideText.label")
       .getAttribute("value");
     menuitem = menulist.appendItem(label, "textbesideicon");
@@ -140,12 +140,12 @@ function overlayOnLoad() {
     toolbox = window.frameElement.toolbox;
   }
 
-  let toolbarWindow = document.getElementById("CustomizeToolbarWindow");
+  const toolbarWindow = document.getElementById("CustomizeToolbarWindow");
   toolbarWindow.setAttribute("toolboxId", toolbox.id);
   toolbox.setAttribute("doCustomization", "true");
 
-  let mode = toolbox.getAttribute("mode");
-  let align = toolbox.getAttribute("labelalign");
+  const mode = toolbox.getAttribute("mode");
+  const align = toolbox.getAttribute("labelalign");
   if (mode == "full" && align == "end") {
     toolbox.setAttribute("mode", "textbesideicon");
   }
@@ -203,7 +203,7 @@ function CustomizeMailToolbar(toolboxId, customizePopupId) {
     "toolbar.customization.usesheet"
   );
 
-  let externalToolbars = [];
+  const externalToolbars = [];
   if (toolbox.getAttribute("id") == "mail-toolbox") {
     if (
       AppConstants.platform != "macosx" &&
@@ -274,7 +274,7 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
   var customizePopup = document.getElementById(customizePopupId);
   customizePopup.removeAttribute("disabled");
 
-  let toolbox = document.querySelector('[doCustomization="true"]');
+  const toolbox = document.querySelector('[doCustomization="true"]');
   if (toolbox) {
     toolbox.removeAttribute("doCustomization");
 
@@ -286,7 +286,7 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
     // TODO bug 904223: try to fix folderWidgets.xml to not do this.
     // See Bug 520457 and Bug 534448 and Bug 709733.
     // Fix Bug 565045: Only treat "Get Message Button" if it is in our toolbox
-    for (let popup of [
+    for (const popup of [
       toolbox.querySelector("#button-getMsgPopup"),
       document.getElementById("menu_getAllNewMsgPopup"),
       document.getElementById("appmenu_getAllNewMsgPopup"),
@@ -305,7 +305,7 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
         popup._teardown();
       } else {
         for (let i = popup.children.length - 1; i >= 0; i--) {
-          let child = popup.children[i];
+          const child = popup.children[i];
           if (child.getAttribute("generated") != "true") {
             continue;
           }
@@ -345,7 +345,8 @@ function onViewToolbarsPopupShowing(
     toolboxIds = [toolboxIds];
   }
 
-  let popup = event.target.querySelector(".panel-subview-body") || event.target;
+  const popup =
+    event.target.querySelector(".panel-subview-body") || event.target;
   // Limit the toolbar menu entries to the first level of context menus.
   if (
     popup != event.currentTarget &&
@@ -356,7 +357,7 @@ function onViewToolbarsPopupShowing(
 
   // Remove all collapsible nodes from the menu.
   for (let i = popup.children.length - 1; i >= 0; --i) {
-    let deadItem = popup.children[i];
+    const deadItem = popup.children[i];
 
     if (deadItem.hasAttribute("iscollapsible")) {
       deadItem.remove();
@@ -364,11 +365,11 @@ function onViewToolbarsPopupShowing(
   }
 
   // We insert menuitems before the first child if no insert point is given.
-  let firstMenuItem = insertPoint || popup.firstElementChild;
+  const firstMenuItem = insertPoint || popup.firstElementChild;
 
-  for (let toolboxId of toolboxIds) {
+  for (const toolboxId of toolboxIds) {
     let toolbars = [];
-    let toolbox = document.getElementById(toolboxId);
+    const toolbox = document.getElementById(toolboxId);
 
     if (toolbox) {
       // We consider child nodes that have a toolbarname attribute.
@@ -391,14 +392,14 @@ function onViewToolbarsPopupShowing(
       }
     }
 
-    for (let toolbar of toolbars) {
-      let toolbarName = toolbar.getAttribute("toolbarname");
+    for (const toolbar of toolbars) {
+      const toolbarName = toolbar.getAttribute("toolbarname");
       if (!toolbarName) {
         continue;
       }
 
-      let menuItem = document.createXULElement(elementName);
-      let hidingAttribute =
+      const menuItem = document.createXULElement(elementName);
+      const hidingAttribute =
         toolbar.getAttribute("type") == "menubar" ? "autohide" : "collapsed";
 
       menuItem.setAttribute("type", "checkbox");
@@ -439,7 +440,7 @@ function toJavaScriptConsole() {
 }
 
 function openAboutDebugging(hash) {
-  let url = "about:debugging" + (hash ? "#" + hash : "");
+  const url = "about:debugging" + (hash ? "#" + hash : "");
   document.getElementById("tabmail").openTab("contentTab", { url });
 }
 
@@ -491,7 +492,7 @@ function focusOnMail(tabNo, event) {
  *   opened.
  */
 async function toAddressBook(openArgs) {
-  let messengerWindow = toMessengerWindow();
+  const messengerWindow = toMessengerWindow();
   if (messengerWindow.document.readyState != "complete") {
     await new Promise(resolve => {
       Services.obs.addObserver(
@@ -529,7 +530,7 @@ async function toAddressBook(openArgs) {
  * Open the calendar.
  */
 async function toCalendar() {
-  let messengerWindow = toMessengerWindow();
+  const messengerWindow = toMessengerWindow();
   if (messengerWindow.document.readyState != "complete") {
     await new Promise(resolve => {
       Services.obs.addObserver(
@@ -557,7 +558,7 @@ async function toCalendar() {
 }
 
 function showChatTab() {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   if (gChatTab) {
     tabmail.switchToTab(gChatTab);
   } else {
@@ -572,7 +573,7 @@ function showChatTab() {
  *  to open in about:import.
  */
 function toImport(tabId = "start") {
-  let tab = toMessengerWindow().openTab("contentTab", {
+  const tab = toMessengerWindow().openTab("contentTab", {
     url: "about:import",
     onLoad(event, browser) {
       if (tabId) {
@@ -596,7 +597,7 @@ function toExport() {
 }
 
 function toSanitize() {
-  let sanitizerScope = {};
+  const sanitizerScope = {};
   Services.scriptloader.loadSubScript(
     "chrome://messenger/content/sanitize.js",
     sanitizerScope
@@ -620,8 +621,8 @@ function openAddonsMgr(aView) {
     let emWindow;
     let browserWindow;
 
-    let receivePong = function (aSubject, aTopic, aData) {
-      let browserWin = aSubject.browsingContext.topChromeWindow;
+    const receivePong = function (aSubject, aTopic, aData) {
+      const browserWin = aSubject.browsingContext.topChromeWindow;
       if (!emWindow || browserWin == window /* favor the current window */) {
         emWindow = aSubject;
         browserWindow = browserWin;
@@ -635,7 +636,7 @@ function openAddonsMgr(aView) {
       if (aView) {
         emWindow.loadView(aView);
       }
-      let tabmail = browserWindow.document.getElementById("tabmail");
+      const tabmail = browserWindow.document.getElementById("tabmail");
       tabmail.switchToTab(tabmail.getBrowserForDocument(emWindow));
       emWindow.focus();
       resolve(emWindow);
@@ -644,7 +645,7 @@ function openAddonsMgr(aView) {
 
     // This must be a new load, else the ping/pong would have
     // found the window above.
-    let tab = openContentTab("about:addons");
+    const tab = openContentTab("about:addons");
     // Also in `contentTabType.restoreTab` in specialTabs.js.
     tab.browser.droppedLinkHandler = event =>
       tab.browser.contentWindow.gDragDrop.onDrop(event);
@@ -699,7 +700,7 @@ function openIMAccountWizard() {
   if (AppConstants.platform == "macosx") {
     // On Mac, avoid using the hidden window as a parent as that would
     // make it visible.
-    let hiddenWindowUrl = Services.prefs.getCharPref(
+    const hiddenWindowUrl = Services.prefs.getCharPref(
       "browser.hiddenWindowChromeURL"
     );
     if (window.location.href == hiddenWindowUrl) {
@@ -738,7 +739,7 @@ function SetBusyCursor(window, enable) {
 }
 
 function openAboutDialog() {
-  for (let win of Services.wm.getEnumerator("Mail:About")) {
+  for (const win of Services.wm.getEnumerator("Mail:About")) {
     // Only open one about window
     win.focus();
     return;
@@ -788,7 +789,7 @@ function openFormattedURL(aPrefName) {
  * Opens the Troubleshooting page in a new tab.
  */
 function openAboutSupport() {
-  let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  const mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
   if (mailWindow) {
     mailWindow.focus();
     mailWindow.document.getElementById("tabmail").openTab("contentTab", {
@@ -815,7 +816,7 @@ function openAboutSupport() {
 function safeModeRestart() {
   // Is TB in safe mode?
   if (Services.appinfo.inSafeMode) {
-    let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
       Ci.nsISupportsPRBool
     );
     Services.obs.notifyObservers(
@@ -834,22 +835,22 @@ function safeModeRestart() {
     return;
   }
   // prompt the user to confirm
-  let bundle = Services.strings.createBundle(
+  const bundle = Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );
-  let promptTitle = bundle.GetStringFromName(
+  const promptTitle = bundle.GetStringFromName(
     "troubleshootModeRestartPromptTitle"
   );
-  let promptMessage = bundle.GetStringFromName(
+  const promptMessage = bundle.GetStringFromName(
     "troubleshootModeRestartPromptMessage"
   );
-  let restartText = bundle.GetStringFromName("troubleshootModeRestartButton");
-  let buttonFlags =
+  const restartText = bundle.GetStringFromName("troubleshootModeRestartButton");
+  const buttonFlags =
     Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
     Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL +
     Services.prompt.BUTTON_POS_0_DEFAULT;
 
-  let rv = Services.prompt.confirmEx(
+  const rv = Services.prompt.confirmEx(
     window,
     promptTitle,
     promptMessage,
@@ -862,7 +863,9 @@ function safeModeRestart() {
   );
   if (rv == 0) {
     Services.env.set("MOZ_SAFE_MODE_RESTART", "1");
-    let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+    const { MailUtils } = ChromeUtils.import(
+      "resource:///modules/MailUtils.jsm"
+    );
     MailUtils.restartApplication();
   }
 }
@@ -876,7 +879,7 @@ function getMostRecentMailWindow() {
   if (win && win.document.documentElement.getAttribute("chromehidden")) {
     win = null;
     // This is oldest to newest, so this gets a bit ugly.
-    for (let nextWin of Services.wm.getEnumerator("mail:3pane", true)) {
+    for (const nextWin of Services.wm.getEnumerator("mail:3pane", true)) {
       if (!nextWin.document.documentElement.getAttribute("chromehidden")) {
         win = nextWin;
       }
@@ -913,12 +916,12 @@ function SanitizeAttachmentDisplayName(aAttachment) {
  */
 function setupDataTransfer(event, attachments) {
   let index = 0;
-  for (let attachment of attachments) {
+  for (const attachment of attachments) {
     if (attachment.contentType == "text/x-moz-deleted") {
       return;
     }
 
-    let name = attachment.name || attachment.displayName;
+    const name = attachment.name || attachment.displayName;
 
     if (!attachment.url || !name) {
       continue;
@@ -926,7 +929,7 @@ function setupDataTransfer(event, attachments) {
 
     // Only add type/filename info for non-file URLs that don't already
     // have it.
-    let info = [];
+    const info = [];
     if (/(^file:|&filename=)/.test(attachment.url)) {
       info.push(attachment.url);
     } else {
@@ -974,10 +977,10 @@ function setupDataTransfer(event, attachments) {
  */
 function updateTroubleshootMenuItem() {
   if (Services.appinfo.inSafeMode) {
-    let safeMode = document.getElementById("helpTroubleshootMode");
+    const safeMode = document.getElementById("helpTroubleshootMode");
     document.l10n.setAttributes(safeMode, "menu-help-exit-troubleshoot-mode");
 
-    let appSafeMode = document.getElementById("appmenu_troubleshootMode");
+    const appSafeMode = document.getElementById("appmenu_troubleshootMode");
     if (appSafeMode) {
       document.l10n.setAttributes(
         appSafeMode,
@@ -1019,7 +1022,7 @@ nsFlavorDataProvider.prototype = {
       // cheat and scan through them
 
       var attachment = null;
-      for (let index of currentAttachments.keys()) {
+      for (const index of currentAttachments.keys()) {
         attachment = currentAttachments[index];
         if (attachment.url == srcUrlPrimitive) {
           break;
@@ -1028,11 +1031,11 @@ nsFlavorDataProvider.prototype = {
 
       // call our code for saving attachments
       if (attachment) {
-        let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+        const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
           Ci.nsIMessenger
         );
-        let name = attachment.name || attachment.displayName;
-        let destFilePath = messenger.saveAttachmentToFolder(
+        const name = attachment.name || attachment.displayName;
+        const destFilePath = messenger.saveAttachmentToFolder(
           attachment.contentType,
           attachment.url,
           name.replace(/(.{74}).*(.{10})$/u, "$1...$2"),

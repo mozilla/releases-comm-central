@@ -37,7 +37,7 @@ var { TestUtils } = ChromeUtils.importESModule(
 var WINDOW_FOCUS_TIMEOUT_MS = 10000;
 
 function getWindowTypeOrID(win) {
-  let docElement = win.document.documentElement;
+  const docElement = win.document.documentElement;
   return docElement.getAttribute("windowtype") || docElement.id;
 }
 
@@ -65,7 +65,7 @@ function wait_for_existing_window(aWindowType) {
  * @returns {Promise} A promise resolved when a window of the right type opens.
  */
 async function promise_new_window(aWindowType) {
-  let domWindow = await BrowserTestUtils.domWindowOpenedAndLoaded(
+  const domWindow = await BrowserTestUtils.domWindowOpenedAndLoaded(
     null,
     win => getWindowTypeOrID(win) == aWindowType
   );
@@ -89,7 +89,7 @@ async function promise_new_window(aWindowType) {
  *   argument, the modal dialog.
  */
 async function promise_modal_dialog(aWindowType, aSubTestFunction) {
-  let domWindow = await BrowserTestUtils.domWindowOpenedAndLoaded(
+  const domWindow = await BrowserTestUtils.domWindowOpenedAndLoaded(
     null,
     win => getWindowTypeOrID(win) == aWindowType
   );
@@ -172,7 +172,7 @@ async function wait_for_frame_load(aFrame, aURLOrPredicate) {
 async function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   let predicate;
   if (typeof aURLOrPredicate == "string") {
-    let expectedURL = NetUtil.newURI(aURLOrPredicate);
+    const expectedURL = NetUtil.newURI(aURLOrPredicate);
     predicate = url => expectedURL.equals(url);
   } else {
     predicate = aURLOrPredicate;
@@ -197,7 +197,7 @@ async function _wait_for_generic_load(aDetails, aURLOrPredicate) {
 
   // Lie to mozmill to convince it to not explode because these frames never
   // get a mozmillDocumentLoaded attribute (bug 666438).
-  let contentWindow = aDetails.contentWindow;
+  const contentWindow = aDetails.contentWindow;
   if (contentWindow) {
     return contentWindow;
   }
@@ -234,11 +234,11 @@ async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
    * @param {object} actionObj - Contains attribute-value pairs to match.
    * @returns {Element|null} The matched node or null if no match.
    */
-  let findMatch = function (node, actionObj) {
+  const findMatch = function (node, actionObj) {
     // Ignore some elements and just use their children instead.
     if (node.localName == "hbox" || node.localName == "vbox") {
       for (let i = 0; i < node.children.length; i++) {
-        let childMatch = findMatch(node.children[i]);
+        const childMatch = findMatch(node.children[i]);
         if (childMatch) {
           return childMatch;
         }
@@ -247,8 +247,8 @@ async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
     }
 
     let matchedAll = true;
-    for (let name in actionObj) {
-      let value = actionObj[name];
+    for (const name in actionObj) {
+      const value = actionObj[name];
       if (!node.hasAttribute(name) || node.getAttribute(name) != value) {
         matchedAll = false;
         break;
@@ -259,14 +259,14 @@ async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
 
   // These popups sadly do not close themselves, so we need to keep track
   // of them so we can make sure they end up closed.
-  let closeStack = [aRootPopup];
+  const closeStack = [aRootPopup];
 
   let curPopup = aRootPopup;
-  for (let [iAction, actionObj] of aActions.entries()) {
+  for (const [iAction, actionObj] of aActions.entries()) {
     let matchingNode = null;
-    let kids = curPopup.children;
+    const kids = curPopup.children;
     for (let iKid = 0; iKid < kids.length; iKid++) {
-      let node = kids[iKid];
+      const node = kids[iKid];
       matchingNode = findMatch(node, actionObj);
       if (matchingNode) {
         break;
@@ -318,7 +318,7 @@ async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
  */
 function close_popup_sequence(aCloseStack) {
   while (aCloseStack.length) {
-    let curPopup = aCloseStack.pop();
+    const curPopup = aCloseStack.pop();
     if (curPopup.state == "open") {
       curPopup.focus();
       curPopup.hidePopup();
@@ -374,12 +374,12 @@ async function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
     if (clickTarget) {
       const kids = Array.from(subview.children);
       const findFunction = node => {
-        let selectors = [];
-        for (let name in clickTarget) {
-          let value = clickTarget[name];
+        const selectors = [];
+        for (const name in clickTarget) {
+          const value = clickTarget[name];
           selectors.push(`[${name}="${value}"]`);
         }
-        let s = selectors.join(",");
+        const s = selectors.join(",");
         return node.matches(s) || node.querySelector(s);
       };
 
@@ -445,7 +445,7 @@ async function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
  *                    the last shown <panelview>.
  */
 async function click_through_appmenu(navTargets, nonNavTarget, win) {
-  let appmenu = win.document.getElementById("button-appmenu");
+  const appmenu = win.document.getElementById("button-appmenu");
   EventUtils.synthesizeMouseAtCenter(appmenu, {}, appmenu.ownerGlobal);
   return _click_appmenu_in_sequence(navTargets, nonNavTarget, win);
 }

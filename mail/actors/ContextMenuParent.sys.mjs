@@ -9,21 +9,21 @@ export class ContextMenuParent extends JSWindowActorParent {
       return;
     }
 
-    let browser = this.manager.rootFrameLoader.ownerElement;
-    let win = browser.ownerGlobal.top;
+    const browser = this.manager.rootFrameLoader.ownerElement;
+    const win = browser.ownerGlobal.top;
 
     // Send events from a message display browser to about:3pane or
     // about:message if possible.
-    let tabmail = win.document.getElementById("tabmail");
+    const tabmail = win.document.getElementById("tabmail");
     if (tabmail) {
-      let chromeBrowser = tabmail.currentTabInfo.chromeBrowser;
+      const chromeBrowser = tabmail.currentTabInfo.chromeBrowser;
       if (
         chromeBrowser?.contentWindow.openContextMenu(message, browser, this)
       ) {
         return;
       }
     }
-    let messageBrowser = win.document.getElementById("messageBrowser");
+    const messageBrowser = win.document.getElementById("messageBrowser");
     if (messageBrowser?.contentWindow.openContextMenu(message, browser, this)) {
       return;
     }

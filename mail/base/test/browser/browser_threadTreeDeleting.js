@@ -8,20 +8,20 @@ const { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 
-let tabmail = document.getElementById("tabmail");
-let about3Pane = tabmail.currentAbout3Pane;
-let threadTree = about3Pane.threadTree;
+const tabmail = document.getElementById("tabmail");
+const about3Pane = tabmail.currentAbout3Pane;
+const threadTree = about3Pane.threadTree;
 // Not `currentAboutMessage` as (a) that's null right now, and (b) we'll be
 // testing things that happen when about:message is hidden.
-let aboutMessage = about3Pane.messageBrowser.contentWindow;
-let messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
-let multiMessageView = about3Pane.multiMessageBrowser.contentWindow;
-let generator = new MessageGenerator();
+const aboutMessage = about3Pane.messageBrowser.contentWindow;
+const messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
+const multiMessageView = about3Pane.multiMessageBrowser.contentWindow;
+const generator = new MessageGenerator();
 let rootFolder, sourceMessageIDs;
 
 add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
@@ -34,7 +34,7 @@ add_setup(async function () {
 
 /** Test a real folder, unthreaded. */
 add_task(async function testUnthreaded() {
-  let folderA = rootFolder
+  const folderA = rootFolder
     .createLocalSubfolder("threadTreeDeletingA")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderA.addMessageBatch(
@@ -55,7 +55,7 @@ add_task(async function testUnthreaded() {
 
 /** Test a real folder with threads. */
 add_task(async function testThreaded() {
-  let folderB = rootFolder
+  const folderB = rootFolder
     .createLocalSubfolder("threadTreeDeletingB")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderB.addMessageBatch(
@@ -83,18 +83,18 @@ add_task(async function testThreaded() {
 
 /** Test a virtual folder with a single backing folder. */
 add_task(async function testSingleVirtual() {
-  let folderC = rootFolder
+  const folderC = rootFolder
     .createLocalSubfolder("threadTreeDeletingC")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderC.addMessageBatch(
     generator.makeMessages({ count: 15 }).map(message => message.toMboxString())
   );
 
-  let virtualFolderC = rootFolder.createLocalSubfolder(
+  const virtualFolderC = rootFolder.createLocalSubfolder(
     "threadTreeDeletingVirtualC"
   );
   virtualFolderC.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  let folderInfoC = virtualFolderC.msgDatabase.dBFolderInfo;
+  const folderInfoC = virtualFolderC.msgDatabase.dBFolderInfo;
   // Search for something instead of all messages, as the "ALL" search could
   // detected and the backing folder displayed instead, defeating the point of
   // this test.
@@ -113,14 +113,14 @@ add_task(async function testSingleVirtual() {
 
 /** Test a virtual folder with multiple backing folders. */
 add_task(async function testXFVirtual() {
-  let folderD = rootFolder
+  const folderD = rootFolder
     .createLocalSubfolder("threadTreeDeletingD")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderD.addMessageBatch(
     generator.makeMessages({ count: 4 }).map(message => message.toMboxString())
   );
 
-  let folderE = rootFolder
+  const folderE = rootFolder
     .createLocalSubfolder("threadTreeDeletingE")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderE.addMessageBatch(
@@ -129,11 +129,11 @@ add_task(async function testXFVirtual() {
       .map(message => message.toMboxString())
   );
 
-  let virtualFolderDE = rootFolder.createLocalSubfolder(
+  const virtualFolderDE = rootFolder.createLocalSubfolder(
     "threadTreeDeletingVirtualDE"
   );
   virtualFolderDE.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  let folderInfoY = virtualFolderDE.msgDatabase.dBFolderInfo;
+  const folderInfoY = virtualFolderDE.msgDatabase.dBFolderInfo;
   folderInfoY.setCharProperty("searchStr", "AND (date,is after,31-Dec-1999)");
   folderInfoY.setCharProperty(
     "searchFolderUri",
@@ -157,15 +157,15 @@ add_task(async function testXFVirtual() {
 
 /** Test a real folder with a quick filter applied. */
 add_task(async function testQuickFiltered() {
-  let folderF = rootFolder
+  const folderF = rootFolder
     .createLocalSubfolder("threadTreeDeletingF")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderF.addMessageBatch(
     generator.makeMessages({ count: 30 }).map(message => message.toMboxString())
   );
-  let flaggedMessages = [];
+  const flaggedMessages = [];
   let i = 0;
-  for (let message of folderF.messages) {
+  for (const message of folderF.messages) {
     if (i++ % 2) {
       flaggedMessages.push(message);
     }
@@ -177,7 +177,7 @@ add_task(async function testQuickFiltered() {
     messagePaneVisible: true,
     folderURI: folderF.URI,
   });
-  let filterer = about3Pane.quickFilterBar.filterer;
+  const filterer = about3Pane.quickFilterBar.filterer;
   filterer.clear();
   filterer.visible = true;
   filterer.setFilterValue("starred", true);
@@ -188,7 +188,7 @@ add_task(async function testQuickFiltered() {
 
 /** Test a folder sorted by date descending. */
 add_task(async function testSortDescending() {
-  let folderG = rootFolder
+  const folderG = rootFolder
     .createLocalSubfolder("threadTreeDeletingG")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderG.addMessageBatch(
@@ -208,7 +208,7 @@ add_task(async function testSortDescending() {
 
 /** Test a folder sorted by subject. */
 add_task(async function testSortBySubject() {
-  let folderH = rootFolder
+  const folderH = rootFolder
     .createLocalSubfolder("threadTreeDeletingH")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderH.addMessageBatch(
@@ -233,7 +233,7 @@ add_task(async function testSortBySubject() {
  * the scrolling and leave the tree in a bad scroll position.
  */
 add_task(async function testDeletionWhileScrolling() {
-  let folderI = rootFolder
+  const folderI = rootFolder
     .createLocalSubfolder("threadTreeDeletingI")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderI.addMessageBatch(
@@ -364,8 +364,8 @@ async function subtest() {
     "waiting for all of the table rows"
   );
 
-  let dbView = about3Pane.gDBView;
-  let subjects = [];
+  const dbView = about3Pane.gDBView;
+  const subjects = [];
   for (let i = 0; i < 15; i++) {
     subjects.push(dbView.cellTextForColumn(i, "subjectCol"));
   }
@@ -447,7 +447,7 @@ async function messageLoaded(index) {
 
 async function _doDelete(callback, index, expectedLoad) {
   let selectCount = 0;
-  let onSelect = () => selectCount++;
+  const onSelect = () => selectCount++;
   threadTree.addEventListener("select", onSelect);
 
   let selectPromise;
@@ -483,7 +483,7 @@ async function doDeleteCommand(expectedLoad) {
 async function doDeleteClick(expectedLoad) {
   await _doDelete(
     function () {
-      let messageView =
+      const messageView =
         threadTree.selectedIndices.length == 1
           ? aboutMessage
           : multiMessageView;
@@ -501,7 +501,7 @@ async function doDeleteClick(expectedLoad) {
 async function doDeleteExternal(index, expectedLoad) {
   await _doDelete(
     function () {
-      let message = about3Pane.gDBView.getMsgHdrAt(index);
+      const message = about3Pane.gDBView.getMsgHdrAt(index);
       message.folder.deleteMessages(
         [message], // messages
         null, // msgWindow
@@ -528,14 +528,14 @@ async function verifySelection(rowCount, selectedIndices, currentIndex) {
     selectedIndices,
     "table's selected indices"
   );
-  let selectedRows = Array.from(threadTree.querySelectorAll(".selected"));
+  const selectedRows = Array.from(threadTree.querySelectorAll(".selected"));
   Assert.equal(
     selectedRows.length,
     selectedIndices.length,
     "number of rows with .selected class"
   );
-  for (let index of selectedIndices) {
-    let row = threadTree.getRowAtIndex(index);
+  for (const index of selectedIndices) {
+    const row = threadTree.getRowAtIndex(index);
     Assert.ok(
       selectedRows.includes(row),
       `.selected row at ${index} is expected`
@@ -543,7 +543,7 @@ async function verifySelection(rowCount, selectedIndices, currentIndex) {
   }
 
   Assert.equal(threadTree.currentIndex, currentIndex, "table's current index");
-  let currentRows = threadTree.querySelectorAll(".current");
+  const currentRows = threadTree.querySelectorAll(".current");
   Assert.equal(currentRows.length, 1, "one row should have .current");
   Assert.equal(
     currentRows[0],
@@ -551,7 +551,7 @@ async function verifySelection(rowCount, selectedIndices, currentIndex) {
     `.current row at ${currentIndex} is expected`
   );
 
-  let contextTargetRows = threadTree.querySelectorAll(".context-menu-target");
+  const contextTargetRows = threadTree.querySelectorAll(".context-menu-target");
   Assert.equal(
     contextTargetRows.length,
     0,
@@ -560,7 +560,7 @@ async function verifySelection(rowCount, selectedIndices, currentIndex) {
 }
 
 function verifySubjects(expectedSubjects) {
-  let actualSubjects = Array.from(
+  const actualSubjects = Array.from(
     threadTree.table.body.rows,
     row =>
       row.querySelector(".thread-card-subject-container > .subject").textContent

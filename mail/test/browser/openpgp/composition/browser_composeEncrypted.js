@@ -38,7 +38,7 @@ let bobIdentity;
 let gOutbox;
 let gDrafts;
 
-let aboutMessage = get_about_message();
+const aboutMessage = get_about_message();
 
 function setAutoPrefs(autoEnable, autoDisable, notifyOnDisable) {
   Services.prefs.setBoolPref("mail.e2ee.auto_enable", autoEnable);
@@ -80,7 +80,7 @@ add_setup(async function () {
   bobIdentity.email = "bob@openpgp.example";
   bobAcct.addIdentity(bobIdentity);
 
-  let [id] = await OpenPGPTestUtils.importPrivateKey(
+  const [id] = await OpenPGPTestUtils.importPrivateKey(
     window,
     new FileUtils.File(
       getTestFilePath(
@@ -123,8 +123,8 @@ async function testEncryptedMessageComposition(
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = await open_compose_new_mail();
-  let composeWin = cwc;
+  const cwc = await open_compose_new_mail();
+  const composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -209,8 +209,8 @@ async function testEncryptedMessageWithKeyComposition(
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = await open_compose_new_mail();
-  let composeWin = cwc;
+  const cwc = await open_compose_new_mail();
+  const composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -243,7 +243,7 @@ async function testEncryptedMessageWithKeyComposition(
     "message should have encrypted icon"
   );
 
-  let attachmentList = aboutMessage.document.querySelector("#attachmentList");
+  const attachmentList = aboutMessage.document.querySelector("#attachmentList");
 
   await TestUtils.waitForCondition(
     () => attachmentList.itemChildren.length == 1,
@@ -300,8 +300,8 @@ async function testEncryptedRecipientKeyNotAvailabeMessageComposition(
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = await open_compose_new_mail();
-  let composeWin = cwc;
+  const cwc = await open_compose_new_mail();
+  const composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -320,7 +320,7 @@ async function testEncryptedRecipientKeyNotAvailabeMessageComposition(
   await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
   await checkDonePromise;
 
-  let kaShown = BrowserTestUtils.waitForCondition(
+  const kaShown = BrowserTestUtils.waitForCondition(
     () => composeWin.document.getElementById("keyAssistant").open,
     "Timeout waiting for the #keyAssistant to be visible"
   );
@@ -371,8 +371,8 @@ add_task(async function testEncryptedRecipientKeyNotAvailabeAutoDisable() {
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = await open_compose_new_mail();
-  let composeWin = cwc;
+  const cwc = await open_compose_new_mail();
+  const composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -431,7 +431,7 @@ async function testEncryptedRecipientKeyNotAcceptedMessageComposition(
     OpenPGPTestUtils.ACCEPTANCE_UNDECIDED
   );
 
-  for (let level of [
+  for (const level of [
     OpenPGPTestUtils.ACCEPTANCE_UNDECIDED,
     OpenPGPTestUtils.ACCEPTANCE_REJECTED,
   ]) {
@@ -443,8 +443,8 @@ async function testEncryptedRecipientKeyNotAcceptedMessageComposition(
 
     await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-    let cwc = await open_compose_new_mail();
-    let composeWin = cwc;
+    const cwc = await open_compose_new_mail();
+    const composeWin = cwc;
 
     // setup_msg_contents will trigger checkEncryptionState.
     let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -463,7 +463,7 @@ async function testEncryptedRecipientKeyNotAcceptedMessageComposition(
     await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
     await checkDonePromise;
 
-    let kaShown = BrowserTestUtils.waitForCondition(
+    const kaShown = BrowserTestUtils.waitForCondition(
       () => composeWin.document.getElementById("keyAssistant").open,
       "Timeout waiting for the #keyAssistant to be visible"
     );
@@ -534,8 +534,8 @@ async function testEncryptedRecipientKeyUnverifiedMessageComposition(
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = await open_compose_new_mail();
-  let composeWin = cwc;
+  const cwc = await open_compose_new_mail();
+  const composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -619,8 +619,8 @@ async function testEncryptedOneRecipientKeyNotAvailableMessageComposition(
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = await open_compose_new_mail();
-  let composeWin = cwc;
+  const cwc = await open_compose_new_mail();
+  const composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -639,7 +639,7 @@ async function testEncryptedOneRecipientKeyNotAvailableMessageComposition(
   await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
   await checkDonePromise;
 
-  let kaShown = BrowserTestUtils.waitForCondition(
+  const kaShown = BrowserTestUtils.waitForCondition(
     () => composeWin.document.getElementById("keyAssistant").open,
     "Timeout waiting for the #keyAssistant to be visible"
   );
@@ -706,7 +706,7 @@ async function testEncryptedOneRecipientKeyNotAcceptedMessageComposition(
     OpenPGPTestUtils.ACCEPTANCE_UNDECIDED
   );
 
-  for (let level of [
+  for (const level of [
     OpenPGPTestUtils.ACCEPTANCE_UNDECIDED,
     OpenPGPTestUtils.ACCEPTANCE_REJECTED,
   ]) {
@@ -718,8 +718,8 @@ async function testEncryptedOneRecipientKeyNotAcceptedMessageComposition(
 
     await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-    let cwc = await open_compose_new_mail();
-    let composeWin = cwc;
+    const cwc = await open_compose_new_mail();
+    const composeWin = cwc;
 
     // setup_msg_contents will trigger checkEncryptionState.
     let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -738,7 +738,7 @@ async function testEncryptedOneRecipientKeyNotAcceptedMessageComposition(
     await OpenPGPTestUtils.toggleMessageEncryption(composeWin);
     await checkDonePromise;
 
-    let kaShown = BrowserTestUtils.waitForCondition(
+    const kaShown = BrowserTestUtils.waitForCondition(
       () => composeWin.document.getElementById("keyAssistant").open,
       "Timeout waiting for the #keyAssistant to be visible"
     );
@@ -810,8 +810,8 @@ async function testEncryptedOneRecipientKeyUnverifiedMessageComposition(
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = await open_compose_new_mail();
-  let composeWin = cwc;
+  const cwc = await open_compose_new_mail();
+  const composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -896,7 +896,7 @@ async function testEncryptedMessageReplyIsEncrypted(
   setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
 
   await be_in_folder(gDrafts);
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "../data/eml/signed-by-0xfbfcc82a015e7330-encrypted-to-0xf231550c4f47e38e.eml"
@@ -904,10 +904,10 @@ async function testEncryptedMessageReplyIsEncrypted(
     )
   );
 
-  let cwc = await open_compose_with_reply(msgc);
+  const cwc = await open_compose_with_reply(msgc);
   await BrowserTestUtils.closeWindow(msgc);
 
-  let replyWindow = cwc;
+  const replyWindow = cwc;
 
   await save_compose_message(replyWindow);
   await close_compose_window(cwc);

@@ -131,7 +131,7 @@ function GenerateDataURL(url) {
   while (stream.available() > 0) {
     data += stream.readBytes(stream.available());
   }
-  let encoded = btoa(data);
+  const encoded = btoa(data);
   stream.close();
   return (
     "data:" +

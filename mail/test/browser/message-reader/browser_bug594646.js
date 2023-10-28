@@ -16,12 +16,12 @@ var { open_message_from_file } = ChromeUtils.import(
 );
 
 async function extract_eml_body_textcontent(eml) {
-  let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath(`data/${eml}`));
+  const msgc = await open_message_from_file(file);
 
   // Be sure to view message body as Original HTML
   msgc.MsgBodyAllowHTML();
-  let textContent = msgc.content.document.documentElement.textContent;
+  const textContent = msgc.content.document.documentElement.textContent;
 
   await BrowserTestUtils.closeWindow(msgc);
   return textContent;
@@ -31,7 +31,7 @@ async function extract_eml_body_textcontent(eml) {
  * Checks that the text content is equal for the .eml files.
  */
 async function check_eml_textcontent(eml) {
-  let textContent = await extract_eml_body_textcontent(eml);
+  const textContent = await extract_eml_body_textcontent(eml);
   Assert.stringContains(textContent, "árvíztűrő tükörfúrógép");
   Assert.stringContains(textContent, "ÁRVÍZTŰRŐ TÜKÖRFÚRÓGÉP");
 }

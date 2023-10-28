@@ -40,12 +40,12 @@ add_setup(async function () {
 
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
-  let server = MailServices.accounts.findServer(
+  const server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  let inbox = await get_special_folder(
+  const inbox = await get_special_folder(
     Ci.nsMsgFolderFlags.Inbox,
     false,
     server
@@ -82,8 +82,8 @@ async function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   );
   const cwc = await open_compose_new_mail();
 
-  let contentFrame = cwc.document.getElementById("messageEditor");
-  let mailBody = contentFrame.contentDocument.body;
+  const contentFrame = cwc.document.getElementById("messageEditor");
+  const mailBody = contentFrame.contentDocument.body;
 
   // The first node in the body should be a BR node, which allows the user
   // to insert text before / outside of the signature.
@@ -115,7 +115,7 @@ async function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
 
   if (!suppressSigSep) {
     Assert.equal(sigNode.textContent, kSeparator);
-    let brNode = sigNode.nextSibling;
+    const brNode = sigNode.nextSibling;
     Assert.equal(brNode.localName, "br");
     sigNode = brNode.nextSibling;
   }
@@ -141,7 +141,7 @@ async function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   if (!suppressSigSep) {
     expectedText = "-- ";
     Assert.equal(sigNode.textContent, kSeparator);
-    let brNode = sigNode.nextSibling;
+    const brNode = sigNode.nextSibling;
     Assert.equal(brNode.localName, "br");
     sigNode = brNode.nextSibling;
   }
@@ -151,11 +151,11 @@ async function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
 
   // Now check that the original signature has been removed by ensuring
   // that there's only one node with class moz-signature.
-  let sigs = contentFrame.contentDocument.querySelectorAll("." + kSigClass);
+  const sigs = contentFrame.contentDocument.querySelectorAll("." + kSigClass);
   Assert.equal(sigs.length, 1);
 
   // And ensure that the text we wrote wasn't altered
-  let bodyFirstChild = contentFrame.contentDocument.body.firstChild;
+  const bodyFirstChild = contentFrame.contentDocument.body.firstChild;
 
   while (node != bodyFirstChild) {
     node = node.previousSibling;
@@ -201,7 +201,7 @@ async function HTMLComposeWindowSwitchSignatures(
 
   await setup_msg_contents(cwc, "", "HTML compose window", "Body, first line.");
 
-  let contentFrame = cwc.document.getElementById("messageEditor");
+  const contentFrame = cwc.document.getElementById("messageEditor");
   let node = contentFrame.contentDocument.body.lastChild;
 
   // In html compose, the signature is inside the last node, which has a

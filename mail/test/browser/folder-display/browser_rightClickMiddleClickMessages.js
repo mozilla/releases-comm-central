@@ -68,7 +68,7 @@ add_setup(async function () {
   // determines where the thread is placed. We want it placed right at the
   // end.)
   await make_message_sets_in_folders([threadedFolder], [{ count: 50 }]);
-  let thread = create_thread(NUM_MESSAGES_IN_THREAD);
+  const thread = create_thread(NUM_MESSAGES_IN_THREAD);
   await add_message_sets_to_folders([threadedFolder], [thread]);
 
   registerCleanupFunction(function () {
@@ -109,13 +109,13 @@ add_task(async function test_right_click_column_header_shows_col_picker() {
   //  treadCols
   //   |- hbox                item 0
   //   |- treecolpicker   <-- item 1 this is the one we want
-  let threadCols = document.getElementById("threadCols");
-  let treeColPicker = threadCols.querySelector("treecolpicker");
-  let popup = treeColPicker.querySelector("[anonid=popup]");
+  const threadCols = document.getElementById("threadCols");
+  const treeColPicker = threadCols.querySelector("treecolpicker");
+  const popup = treeColPicker.querySelector("[anonid=popup]");
 
   // Right click the subject column header
   // This should show the column picker popup.
-  let subjectCol = document.getElementById("subjectCol");
+  const subjectCol = document.getElementById("subjectCol");
   EventUtils.synthesizeMouseAtCenter(
     subjectCol,
     { type: "contextmenu", button: 2 },
@@ -204,11 +204,11 @@ async function _middle_click_with_nothing_selected_helper(aBackground) {
 
   await select_none();
   await assert_nothing_selected();
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
   // Focus the thread tree -- we're going to make sure it's focused when we
   // come back
   focus_thread_tree();
-  let [tabMessage, curMessage] = await middle_click_on_row(1);
+  const [tabMessage, curMessage] = await middle_click_on_row(1);
   if (aBackground) {
     await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
     // Make sure we haven't switched to the new tab.
@@ -246,8 +246,8 @@ async function _middle_click_with_one_thing_selected_helper(aBackground) {
   await select_click_row(0);
   await assert_selected_and_displayed(0);
 
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
-  let [tabMessage, curMessage] = await middle_click_on_row(1);
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
+  const [tabMessage, curMessage] = await middle_click_on_row(1);
   if (aBackground) {
     await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
     // Make sure we haven't switched to the new tab.
@@ -287,8 +287,8 @@ async function _middle_click_with_many_things_selected_helper(aBackground) {
   await select_shift_click_row(5);
   await assert_selected_and_displayed([0, 5]);
 
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
-  let [tabMessage] = await middle_click_on_row(6);
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
+  const [tabMessage] = await middle_click_on_row(6);
   if (aBackground) {
     await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
     // Make sure we haven't switched to the new tab.
@@ -325,8 +325,8 @@ async function _middle_click_on_existing_single_selection_helper(aBackground) {
   await select_click_row(3);
   await assert_selected_and_displayed(3);
 
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
-  let [tabMessage, curMessage] = await middle_click_on_row(3);
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
+  const [tabMessage, curMessage] = await middle_click_on_row(3);
   if (aBackground) {
     await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
     // Make sure we haven't switched to the new tab.
@@ -365,8 +365,8 @@ async function _middle_click_on_existing_multi_selection_helper(aBackground) {
   await select_shift_click_row(6);
   await assert_selected_and_displayed([3, 6]);
 
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
-  let [tabMessage, curMessage] = await middle_click_on_row(6);
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
+  const [tabMessage, curMessage] = await middle_click_on_row(6);
   await Promise.all(
     tabmail.tabInfo
       .slice(1)
@@ -408,11 +408,11 @@ async function _middle_click_on_collapsed_thread_root_helper(aBackground) {
   await make_display_threaded();
   await collapse_all_threads();
 
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
 
-  let tree = get_about_3pane().threadTree;
+  const tree = get_about_3pane().threadTree;
   // Note the first visible row
-  let preFirstRow = tree.getFirstVisibleIndex();
+  const preFirstRow = tree.getFirstVisibleIndex();
 
   // Since reflowing a tree (eg when switching tabs) ensures that the current
   // index is brought into view, we need to set the current index so that we
@@ -462,11 +462,11 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
   await make_display_threaded();
   await expand_all_threads();
 
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
 
-  let tree = get_about_3pane().threadTree;
+  const tree = get_about_3pane().threadTree;
   // Note the first visible row
-  let preFirstRow = tree.getFirstVisibleIndex();
+  const preFirstRow = tree.getFirstVisibleIndex();
 
   // Since reflowing a tree (eg when switching tabs) ensures that the current
   // index is brought into view, we need to set the current index so that we
@@ -475,7 +475,7 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
 
   // Middle-click on the root of the expanded thread, which is the row with
   // index (number of rows - number of messages in thread).
-  let [tabMessage] = await middle_click_on_row(
+  const [tabMessage] = await middle_click_on_row(
     tree.view.rowCount - NUM_MESSAGES_IN_THREAD
   );
   await Promise.all(
@@ -523,7 +523,7 @@ add_task(async function test_right_click_deletion_nothing_selected() {
   await select_none();
   await assert_selected_and_displayed();
 
-  let delMessage = await right_click_on_row(3);
+  const delMessage = await right_click_on_row(3);
   await delete_via_popup();
   // eh, might as well make sure the deletion worked while we are here
   assert_message_not_in_view(delMessage);
@@ -540,9 +540,9 @@ add_task(async function test_right_click_deletion_nothing_selected() {
 add_task(async function test_right_click_deletion_one_other_thing_selected() {
   await be_in_folder(folder);
 
-  let curMessage = await select_click_row(5);
+  const curMessage = await select_click_row(5);
 
-  let delMessage = await right_click_on_row(3);
+  const delMessage = await right_click_on_row(3);
   await delete_via_popup();
   assert_message_not_in_view(delMessage);
 
@@ -553,9 +553,9 @@ add_task(async function test_right_click_deletion_many_other_things_selected() {
   await be_in_folder(folder);
 
   await select_click_row(4);
-  let messages = await select_shift_click_row(6);
+  const messages = await select_shift_click_row(6);
 
-  let delMessage = await right_click_on_row(2);
+  const delMessage = await right_click_on_row(2);
   await delete_via_popup();
   assert_message_not_in_view(delMessage);
 
@@ -565,7 +565,7 @@ add_task(async function test_right_click_deletion_many_other_things_selected() {
 add_task(async function test_right_click_deletion_of_one_selected_thing() {
   await be_in_folder(folder);
 
-  let curMessage = await select_click_row(2);
+  const curMessage = await select_click_row(2);
 
   await right_click_on_row(2);
   await delete_via_popup();
@@ -582,7 +582,7 @@ add_task(async function test_right_click_deletion_of_many_selected_things() {
   await be_in_folder(folder);
 
   await select_click_row(2);
-  let messages = await select_shift_click_row(4);
+  const messages = await select_shift_click_row(4);
 
   await right_click_on_row(3);
   await delete_via_popup();

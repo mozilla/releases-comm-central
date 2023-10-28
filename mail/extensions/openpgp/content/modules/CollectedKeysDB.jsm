@@ -52,12 +52,12 @@ class CollectedKeysDB {
   static async getInstance() {
     return new Promise((resolve, reject) => {
       const VERSION = 1;
-      let DBOpenRequest = indexedDB.open("openpgp_cache", VERSION);
+      const DBOpenRequest = indexedDB.open("openpgp_cache", VERSION);
       DBOpenRequest.onupgradeneeded = event => {
-        let db = event.target.result;
+        const db = event.target.result;
         if (event.oldVersion < 1) {
           // Create an objectStore for this database
-          let objectStore = db.createObjectStore("seen_keys", {
+          const objectStore = db.createObjectStore("seen_keys", {
             keyPath: "fingerprint",
           });
           objectStore.createIndex("emails", "emails", {
@@ -75,7 +75,7 @@ class CollectedKeysDB {
         reject(DBOpenRequest.error);
       };
       DBOpenRequest.onsuccess = event => {
-        let keyDb = new CollectedKeysDB(DBOpenRequest.result);
+        const keyDb = new CollectedKeysDB(DBOpenRequest.result);
         resolve(keyDb);
       };
     });
@@ -107,10 +107,10 @@ class CollectedKeysDB {
       throw new Error(`Invalid fingerprint: ${key.fingerprint}`);
     }
     return new Promise((resolve, reject) => {
-      let transaction = this.db.transaction(["seen_keys"], "readwrite");
+      const transaction = this.db.transaction(["seen_keys"], "readwrite");
       transaction.oncomplete = () => {
         log.debug(`Stored key 0x${key.id} for ${key.emails}`);
-        let window = Services.wm.getMostRecentWindow("mail:3pane");
+        const window = Services.wm.getMostRecentWindow("mail:3pane");
         window.dispatchEvent(
           new CustomEvent("keycollected", { detail: { key } })
         );
@@ -137,7 +137,7 @@ class CollectedKeysDB {
       throw new Error(`Invalid fingerprint: ${fingerprint}`);
     }
     return new Promise((resolve, reject) => {
-      let request = this.db
+      const request = this.db
         .transaction("seen_keys")
         .objectStore("seen_keys")
         .get(fingerprint);
@@ -163,13 +163,13 @@ class CollectedKeysDB {
   async findKeysForEmail(email) {
     email = email.toLowerCase();
     return new Promise((resolve, reject) => {
-      let keys = [];
-      let index = this.db
+      const keys = [];
+      const index = this.db
         .transaction("seen_keys")
         .objectStore("seen_keys")
         .index("emails");
       index.openCursor(IDBKeyRange.only(email)).onsuccess = function (event) {
-        let cursor = event.target.result;
+        const cursor = event.target.result;
         if (!cursor) {
           // All results done.
           resolve(keys);
@@ -197,8 +197,8 @@ class CollectedKeysDB {
    * @returns {CollectedKey} merged key - not yet stored in the database
    */
   async mergeExisting(keyobj, keyBlock, source) {
-    let fpr = keyobj.fpr;
-    let existing = await this.findKeyForFingerprint(fpr);
+    const fpr = keyobj.fpr;
+    const existing = await this.findKeyForFingerprint(fpr);
     let newKey;
     let pubKey;
     if (existing) {
@@ -211,7 +211,7 @@ class CollectedKeysDB {
       // Use low level API for obtaining key list, we don't want to
       // poison the app key cache.
       // We also don't want to obtain any additional revocation certs.
-      let keys = await lazy.RNP.getKeyListFromKeyBlockImpl(
+      const keys = await lazy.RNP.getKeyListFromKeyBlockImpl(
         pubKey,
         true,
         false,
@@ -230,7 +230,7 @@ class CollectedKeysDB {
       newKey = keyobj;
     }
 
-    let key = {
+    const key = {
       emails: newKey.userIds.map(uid =>
         MailServices.headerParser
           .makeFromDisplayAddress(uid.userId)[0]
@@ -247,9 +247,9 @@ class CollectedKeysDB {
     };
     if (existing) {
       // Keep existing sources meta information.
-      let sourceType = source.type;
-      let sourceURI = source.uri;
-      for (let oldSource of existing.sources.filter(
+      const sourceType = source.type;
+      const sourceURI = source.uri;
+      for (const oldSource of existing.sources.filter(
         s => !(s.type == sourceType && s.uri == sourceURI)
       )) {
         key.sources.push(oldSource);
@@ -266,11 +266,11 @@ class CollectedKeysDB {
   async deleteKeysForEmail(email) {
     email = email.toLowerCase();
     return new Promise((resolve, reject) => {
-      let transaction = this.db.transaction(["seen_keys"], "readwrite");
-      let objectStore = transaction.objectStore("seen_keys");
-      let request = objectStore.index("emails").openKeyCursor();
+      const transaction = this.db.transaction(["seen_keys"], "readwrite");
+      const objectStore = transaction.objectStore("seen_keys");
+      const request = objectStore.index("emails").openKeyCursor();
       request.onsuccess = event => {
-        let cursor = request.result;
+        const cursor = request.result;
         if (cursor) {
           objectStore.delete(cursor.primaryKey);
           cursor.continue();
@@ -301,8 +301,8 @@ class CollectedKeysDB {
       throw new Error(`Invalid fingerprint: ${fingerprint}`);
     }
     return new Promise((resolve, reject) => {
-      let transaction = this.db.transaction(["seen_keys"], "readwrite");
-      let request = transaction.objectStore("seen_keys").delete(fingerprint);
+      const transaction = this.db.transaction(["seen_keys"], "readwrite");
+      const request = transaction.objectStore("seen_keys").delete(fingerprint);
       request.onsuccess = () => {
         log.debug(`Keys gone for fingerprint ${fingerprint}.`);
         resolve(fingerprint);
@@ -321,8 +321,8 @@ class CollectedKeysDB {
    */
   async reset() {
     return new Promise((resolve, reject) => {
-      let transaction = this.db.transaction(["seen_keys"], "readwrite");
-      let objectStore = transaction.objectStore("seen_keys");
+      const transaction = this.db.transaction(["seen_keys"], "readwrite");
+      const objectStore = transaction.objectStore("seen_keys");
       transaction.oncomplete = () => {
         log.debug(`Objectstore cleared.`);
         resolve();
@@ -341,7 +341,7 @@ class CollectedKeysDB {
    */
   static async deleteDb() {
     return new Promise((resolve, reject) => {
-      let DBOpenRequest = indexedDB.deleteDatabase("seen_keys");
+      const DBOpenRequest = indexedDB.deleteDatabase("seen_keys");
       DBOpenRequest.onsuccess = () => {
         log.debug(`Success deleting database.`);
         resolve();

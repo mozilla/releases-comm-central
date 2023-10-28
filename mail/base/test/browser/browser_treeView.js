@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
 });
@@ -48,9 +48,9 @@ add_task(async function testKeyboardAndMouse() {
 });
 
 async function subtestKeyboardAndMouse(variant) {
-  let doc = content.document;
+  const doc = content.document;
 
-  let list = doc.getElementById("testTree");
+  const list = doc.getElementById("testTree");
   Assert.ok(!!list, "the list exists");
 
   async function doListActionAndWaitForRowBuffer(actionFn) {
@@ -147,7 +147,7 @@ async function subtestKeyboardAndMouse(variant) {
 
   // Check initial selection.
 
-  let selectHandler = {
+  const selectHandler = {
     seenEvent: null,
     currentAtEvent: null,
     selectedAtEvent: null,
@@ -176,7 +176,7 @@ async function subtestKeyboardAndMouse(variant) {
    * simulating their height allocation.
    */
   function checkTopSpacerHeight(rows) {
-    let table = doc.querySelector(`[is="tree-view-table"]`);
+    const table = doc.querySelector(`[is="tree-view-table"]`);
     // -26 to account for the tolerance buffer.
     Assert.equal(
       table.spacerTop.clientHeight,
@@ -195,7 +195,7 @@ async function subtestKeyboardAndMouse(variant) {
       );
     }
 
-    let current = list.querySelectorAll(".current");
+    const current = list.querySelectorAll(".current");
     if (expectedIndex == -1) {
       Assert.equal(current.length, 0, "no rows have the 'current' class");
     } else {
@@ -224,7 +224,7 @@ async function subtestKeyboardAndMouse(variant) {
       );
     }
 
-    let selected = [...list.querySelectorAll(".selected")].map(
+    const selected = [...list.querySelectorAll(".selected")].map(
       row => row.index
     );
     expectedIndices.sort((a, b) => a - b);
@@ -256,8 +256,8 @@ async function subtestKeyboardAndMouse(variant) {
       info(`clicking on row ${index}`);
     }
 
-    let x = list.clientWidth / 2;
-    let y = list.table.header.clientHeight + index * 50 + 25;
+    const x = list.clientWidth / 2;
+    const y = list.table.header.clientHeight + index * 50 + 25;
 
     selectHandler.reset();
     list.addEventListener("select", selectHandler, { once: true });
@@ -340,7 +340,7 @@ async function subtestKeyboardAndMouse(variant) {
       `'select' event should ${expectEvent ? "" : "not "}get fired`
     );
     // We don't enforce any delay on multiselection.
-    let multiselect =
+    const multiselect =
       (AppConstants.platform == "macosx" && key == " ") ||
       modifiers.shiftKey ||
       modifiers.accelKey;
@@ -720,10 +720,10 @@ add_task(async function testRowCountChange() {
 });
 
 async function subtestRowCountChange() {
-  let doc = content.document;
+  const doc = content.document;
 
-  let ROW_HEIGHT = 50;
-  let list = doc.getElementById("testTree");
+  const ROW_HEIGHT = 50;
+  const list = doc.getElementById("testTree");
 
   async function doListActionAndWaitForRowBuffer(actionFn) {
     // Filling the row buffer is fiddly timing, so provide an event to indicate
@@ -741,13 +741,13 @@ async function subtestRowCountChange() {
     list._rowBufferReadyEvent = null;
   }
 
-  let view = list.view;
+  const view = list.view;
   let rows;
 
   // Check the initial state.
 
   function checkRows(first, last) {
-    let expectedIndices = [];
+    const expectedIndices = [];
     for (let i = first; i <= last; i++) {
       expectedIndices.push(i);
     }
@@ -766,7 +766,7 @@ async function subtestRowCountChange() {
 
   function checkSelected(indices, existingIndices) {
     Assert.deepEqual(list.selectedIndices, indices);
-    let selectedRows = list.querySelectorAll(`tr[is="test-row"].selected`);
+    const selectedRows = list.querySelectorAll(`tr[is="test-row"].selected`);
     Assert.deepEqual(
       Array.from(selectedRows, r => r.index),
       existingIndices
@@ -807,7 +807,7 @@ async function subtestRowCountChange() {
   }
 
   async function removeValues(index, count, expectedRemoved) {
-    let values = view.values.splice(index, count);
+    const values = view.values.splice(index, count);
     info(`Removed ${values.join(", ")} from ${index}`);
     info(view.values);
 
@@ -1189,9 +1189,9 @@ add_task(async function testExpandCollapse() {
 });
 
 async function subtestExpandCollapse() {
-  let doc = content.document;
-  let list = doc.getElementById("testTree");
-  let allIds = [
+  const doc = content.document;
+  const list = doc.getElementById("testTree");
+  const allIds = [
     "row-1",
     "row-2",
     "row-2-1",
@@ -1201,7 +1201,7 @@ async function subtestExpandCollapse() {
     "row-3-1-1",
     "row-3-1-2",
   ];
-  let idsWithoutChildren = [
+  const idsWithoutChildren = [
     "row-1",
     "row-2-1",
     "row-2-2",
@@ -1209,7 +1209,7 @@ async function subtestExpandCollapse() {
     "row-3-1-2",
   ];
 
-  let listener = {
+  const listener = {
     reset() {
       this.collapsedIndex = null;
       this.expandedIndex = null;
@@ -1225,7 +1225,7 @@ async function subtestExpandCollapse() {
   list.addEventListener("collapsed", listener);
   list.addEventListener("expanded", listener);
 
-  let selectHandler = {
+  const selectHandler = {
     seenEvent: null,
     selectedAtEvent: null,
 
@@ -1261,13 +1261,13 @@ async function subtestExpandCollapse() {
   );
 
   function checkMultiSelect(...expectedIds) {
-    let selected = [...list.querySelectorAll(".selected")].map(row => row.id);
+    const selected = [...list.querySelectorAll(".selected")].map(row => row.id);
     Assert.deepEqual(selected, expectedIds, "selection should be correct");
   }
 
   function checkSelected(expectedIndex, expectedId) {
     Assert.equal(list.selectedIndex, expectedIndex, "selectedIndex is correct");
-    let selected = [...list.querySelectorAll(".selected")].map(row => row.id);
+    const selected = [...list.querySelectorAll(".selected")].map(row => row.id);
     Assert.deepEqual(
       selected,
       [expectedId],
@@ -1283,7 +1283,7 @@ async function subtestExpandCollapse() {
   function performChange(id, expectedChange, changeCallback) {
     listener.reset();
     let row = doc.getElementById(id);
-    let before = row.classList.contains("collapsed");
+    const before = row.classList.contains("collapsed");
 
     changeCallback(row);
 
@@ -1340,7 +1340,7 @@ async function subtestExpandCollapse() {
     });
   }
 
-  for (let id of idsWithoutChildren) {
+  for (const id of idsWithoutChildren) {
     clickTwisty(id, null);
     Assert.equal(list.querySelector(".selected").id, id);
   }
@@ -1350,9 +1350,9 @@ async function subtestExpandCollapse() {
   // Click the twisties of rows with children.
 
   function checkRowsAreHidden(...hiddenIds) {
-    let remainingIds = allIds.slice();
+    const remainingIds = allIds.slice();
 
-    for (let id of allIds) {
+    for (const id of allIds) {
       if (hiddenIds.includes(id)) {
         Assert.ok(!doc.getElementById(id), `${id} is hidden`);
         remainingIds.splice(remainingIds.indexOf(id), 1);
@@ -1745,12 +1745,12 @@ add_task(async function testRowClassChange() {
 });
 
 async function subtestRowClassChange() {
-  let doc = content.document;
-  let list = doc.getElementById("testTree");
-  let indices = (list.selectedIndices = [1, 2, 3, 5, 8, 13, 21, 34]);
+  const doc = content.document;
+  const list = doc.getElementById("testTree");
+  const indices = (list.selectedIndices = [1, 2, 3, 5, 8, 13, 21, 34]);
   list.currentIndex = 5;
 
-  for (let row of list.table.body.children) {
+  for (const row of list.table.body.children) {
     Assert.equal(row.getAttribute("is"), "test-row");
     Assert.equal(row.clientHeight, 50);
     Assert.equal(
@@ -1765,7 +1765,7 @@ async function subtestRowClassChange() {
   Assert.deepEqual(list.selectedIndices, indices);
   Assert.equal(list.currentIndex, 5);
 
-  for (let row of list.table.body.children) {
+  for (const row of list.table.body.children) {
     Assert.equal(row.getAttribute("is"), "alternative-row");
     Assert.equal(row.clientHeight, 80);
     Assert.equal(
@@ -1784,7 +1784,7 @@ async function subtestRowClassChange() {
   Assert.deepEqual(list.selectedIndices, []);
   Assert.equal(list.currentIndex, -1);
 
-  for (let row of list.table.body.children) {
+  for (const row of list.table.body.children) {
     Assert.equal(row.getAttribute("is"), "test-row");
     Assert.equal(row.clientHeight, 50);
     Assert.ok(!row.classList.contains("selected"));
@@ -1803,9 +1803,9 @@ add_task(async function testResize() {
 });
 
 async function subtestResize() {
-  let doc = content.document;
+  const doc = content.document;
 
-  let list = doc.getElementById("testTree");
+  const list = doc.getElementById("testTree");
   Assert.ok(!!list, "the list exists");
 
   async function doListActionAndWaitForRowBuffer(actionFn) {
@@ -1836,11 +1836,11 @@ async function subtestResize() {
     });
   }
 
-  let rowCount = function () {
+  const rowCount = function () {
     return list.querySelectorAll(`tr[is="test-row"]`).length;
   };
 
-  let originalHeight = list.clientHeight;
+  const originalHeight = list.clientHeight;
 
   // We should already be at the top, but this will force us to have finished
   // loading before we trigger another scroll. Otherwise, we may get back a fill

@@ -32,25 +32,25 @@ add_setup(async function () {
   folder = await create_folder("ReturnReceiptTest");
 
   // Create a message that requests a return receipt.
-  let msg0 = create_message({
+  const msg0 = create_message({
     from: ["Ake", "ake@example.com"],
     clobberHeaders: { "Disposition-Notification-To": "ake@example.com" },
   });
   await add_message_to_folder([folder], msg0);
 
   // ... and one that doesn't request a return receipt.
-  let msg1 = create_message();
+  const msg1 = create_message();
   await add_message_to_folder([folder], msg1);
 
   // Create a message that requests a return receipt to a different address.
-  let msg2 = create_message({
+  const msg2 = create_message({
     from: ["Mimi", "me@example.org"],
     clobberHeaders: { "Disposition-Notification-To": "other@example.com" },
   });
   await add_message_to_folder([folder], msg2);
 
   // Create a message that requests a return receipt to different addresses.
-  let msg3 = create_message({
+  const msg3 = create_message({
     from: ["Bobby", "bob@example.org"],
     clobberHeaders: {
       "Disposition-Notification-To": "ex1@example.com, ex2@example.com",
@@ -59,7 +59,7 @@ add_setup(async function () {
   await add_message_to_folder([folder], msg3);
 
   // Create a message that requests a return receipt using non-standard header.
-  let msg4 = create_message({
+  const msg4 = create_message({
     from: ["Ake", "ake@example.com"],
     clobberHeaders: { "Return-Receipt-To": "ake@example.com" },
   });
@@ -67,7 +67,7 @@ add_setup(async function () {
 
   // Create a message that requests a return receipt to a different address
   // using non-standard header.
-  let msg5 = create_message({
+  const msg5 = create_message({
     from: ["Mimi", "me@example.org"],
     clobberHeaders: { "Return-Receipt-To": "other@example.com" },
   });
@@ -75,7 +75,7 @@ add_setup(async function () {
 
   // Create a message that requests a return receipt to different addresses
   // using non-standard header.
-  let msg6 = create_message({
+  const msg6 = create_message({
     from: ["Bobby", "bob@example.org"],
     clobberHeaders: { "Return-Receipt-To": "ex1@example.com, ex2@example.com" },
   });
@@ -86,7 +86,7 @@ add_setup(async function () {
 
 /** Utility to select a message. */
 async function gotoMsg(row) {
-  let curMessage = await select_click_row(row);
+  const curMessage = await select_click_row(row);
   await assert_selected_and_displayed(window, curMessage);
 }
 
@@ -106,9 +106,9 @@ function assert_mdn_shown(shouldShow) {
  * Utility function to make sure the notification contains a certain text.
  */
 function assert_mdn_text_contains(text, shouldContain) {
-  let nb = get_about_message().document.getElementById(kBoxId);
-  let box = nb.querySelector(".notificationbox-stack")._notificationBox;
-  let notificationText = box.currentNotification.messageText.textContent;
+  const nb = get_about_message().document.getElementById(kBoxId);
+  const box = nb.querySelector(".notificationbox-stack")._notificationBox;
+  const notificationText = box.currentNotification.messageText.textContent;
   if (shouldContain && !notificationText.includes(text)) {
     throw new Error(
       "mdnBar should contain text=" +

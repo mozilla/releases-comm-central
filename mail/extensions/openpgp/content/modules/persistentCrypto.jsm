@@ -57,14 +57,14 @@ var EnigmailPersistentCrypto = {
    **/
   async cryptMessage(hdr, destFolder, move, targetKey) {
     return new Promise(function (resolve, reject) {
-      let msgUriSpec = hdr.folder.getUriForMsg(hdr);
-      let msgUrl = lazy.EnigmailFuncs.getUrlFromUriSpec(msgUriSpec);
+      const msgUriSpec = hdr.folder.getUriForMsg(hdr);
+      const msgUrl = lazy.EnigmailFuncs.getUrlFromUriSpec(msgUriSpec);
 
       const crypt = new CryptMessageIntoFolder(destFolder, move, targetKey);
 
       lazy.EnigmailMime.getMimeTreeFromUrl(msgUrl, true, async function (mime) {
         try {
-          let newMsgKey = await crypt.messageParseCallback(mime, hdr);
+          const newMsgKey = await crypt.messageParseCallback(mime, hdr);
           resolve(newMsgKey);
         } catch (ex) {
           reject(ex);
@@ -84,9 +84,9 @@ var EnigmailPersistentCrypto = {
 
     headerData = undefined;
 
-    let regExpMsgId = new RegExp("^message-id: <(.*)>", "mi");
+    const regExpMsgId = new RegExp("^message-id: <(.*)>", "mi");
     let msgId;
-    let match = newHeaders.match(regExpMsgId);
+    const match = newHeaders.match(regExpMsgId);
 
     if (match) {
       msgId = match[1];
@@ -96,12 +96,15 @@ var EnigmailPersistentCrypto = {
       );
 
       // Match the references header across multiple lines
-      // eslint-disable-next-line no-control-regex
-      let regExpReferences = new RegExp("^references: .*([\r\n]*^ .*$)*", "mi");
-      let refLines = newHeaders.match(regExpReferences);
+      const regExpReferences = new RegExp(
+        // eslint-disable-next-line no-control-regex
+        "^references: .*([\r\n]*^ .*$)*",
+        "mi"
+      );
+      const refLines = newHeaders.match(regExpReferences);
       if (refLines) {
         // Take the full match of the existing header
-        let newRef = refLines[0] + " <" + msgId + ">";
+        const newRef = refLines[0] + " <" + msgId + ">";
         newHeaders = newHeaders.replace(regExpReferences, newRef);
       } else {
         newHeaders += "References: <" + msgId + ">\r\n";
@@ -138,11 +141,11 @@ var EnigmailPersistentCrypto = {
       }
 
       // Create the temporary file where the new message will be stored.
-      let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+      const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
       tempFile.append("message.eml");
       tempFile.createUnique(0, 0o600);
 
-      let outputStream = Cc[
+      const outputStream = Cc[
         "@mozilla.org/network/file-output-stream;1"
       ].createInstance(Ci.nsIFileOutputStream);
       outputStream.init(tempFile, 2, 0x200, false); // open as "write only"
@@ -150,12 +153,12 @@ var EnigmailPersistentCrypto = {
       outputStream.close();
 
       // Delete file on exit, because Windows locks the file
-      let extAppLauncher = Cc[
+      const extAppLauncher = Cc[
         "@mozilla.org/uriloader/external-helper-app-service;1"
       ].getService(Ci.nsPIExternalAppLauncher);
       extAppLauncher.deleteTemporaryFileOnExit(tempFile);
 
-      let msgFolder = originalMsgHdr.folder;
+      const msgFolder = originalMsgHdr.folder;
 
       // The following technique was copied from AttachmentDeleter in Thunderbird's
       // nsMessenger.cpp. There is a "unified" listener which serves as copy and delete
@@ -165,13 +168,13 @@ var EnigmailPersistentCrypto = {
       // and in `OnStopRunningUrl()` for IMAP messages if the folder is displayed since
       // otherwise `OnStopRunningUrl()` doesn't run.
 
-      let copyListener, newKey;
+      let newKey;
       let statusCode = 0;
-      let destFolder = targetFolderUri
+      const destFolder = targetFolderUri
         ? lazy.MailUtils.getExistingFolder(targetFolderUri)
         : msgFolder;
 
-      copyListener = {
+      const copyListener = {
         QueryInterface: ChromeUtils.generateQI([
           "nsIMsgCopyServiceListener",
           "nsIUrlListener",
@@ -187,7 +190,7 @@ var EnigmailPersistentCrypto = {
           newKey = key;
         },
         applyFlags() {
-          let newHdr = destFolder.GetMessageHeader(newKey);
+          const newHdr = destFolder.GetMessageHeader(newKey);
           newHdr.markRead(originalMsgHdr.isRead);
           newHdr.markFlagged(originalMsgHdr.isFlagged);
           newHdr.subject = originalMsgHdr.subject;
@@ -300,12 +303,12 @@ CryptMessageIntoFolder.prototype = {
   },
 
   encryptToKey(mimeTree) {
-    let exitCodeObj = {};
-    let statusFlagsObj = {};
-    let errorMsgObj = {};
+    const exitCodeObj = {};
+    const statusFlagsObj = {};
+    const errorMsgObj = {};
     lazy.EnigmailLog.DEBUG("persistentCrypto.jsm: Encrypting message.\n");
 
-    let inputMsg = this.mimeToString(mimeTree, false);
+    const inputMsg = this.mimeToString(mimeTree, false);
 
     let encmsg = "";
     try {
@@ -332,10 +335,10 @@ CryptMessageIntoFolder.prototype = {
     // Build the pgp-encrypted mime structure
     let msg = "";
 
-    let rfc822Headers = []; // FIXME
+    const rfc822Headers = []; // FIXME
 
     // First the original headers
-    for (let header in rfc822Headers) {
+    for (const header in rfc822Headers) {
       if (
         header != "content-type" &&
         header != "content-transfer-encoding" &&
@@ -345,7 +348,7 @@ CryptMessageIntoFolder.prototype = {
       }
     }
     // Then multipart/encrypted ct
-    let boundary = lazy.EnigmailMime.createBoundary();
+    const boundary = lazy.EnigmailMime.createBoundary();
     msg += "Content-Transfer-Encoding: 7Bit\n";
     msg += "Content-Type: multipart/encrypted; ";
     msg +=
@@ -396,7 +399,7 @@ CryptMessageIntoFolder.prototype = {
       this.decryptINLINE(mimePart);
     }
 
-    for (let i in mimePart.subParts) {
+    for (const i in mimePart.subParts) {
       await this.decryptMimeTree(mimePart.subParts[i]);
     }
   },
@@ -449,14 +452,14 @@ CryptMessageIntoFolder.prototype = {
   },
 
   decryptSMIME(mimePart) {
-    let encrypted = lazy.MailCryptoUtils.binaryStringToTypedArray(
+    const encrypted = lazy.MailCryptoUtils.binaryStringToTypedArray(
       mimePart.body
     );
 
-    let cmsDecoderJS = Cc["@mozilla.org/nsCMSDecoderJS;1"].createInstance(
+    const cmsDecoderJS = Cc["@mozilla.org/nsCMSDecoderJS;1"].createInstance(
       Ci.nsICMSDecoderJS
     );
-    let decrypted = cmsDecoderJS.decrypt(encrypted);
+    const decrypted = cmsDecoderJS.decrypt(encrypted);
 
     if (decrypted.length === 0) {
       // fail if no data found
@@ -465,7 +468,7 @@ CryptMessageIntoFolder.prototype = {
     }
 
     let data = "";
-    for (let c of decrypted) {
+    for (const c of decrypted) {
       data += String.fromCharCode(c);
     }
 
@@ -482,7 +485,7 @@ CryptMessageIntoFolder.prototype = {
       bodyIndex = 0;
     } else {
       // found, body starts after the headers.
-      let wsSize = data.match(/\n\s*\r?\n/);
+      const wsSize = data.match(/\n\s*\r?\n/);
       bodyIndex += wsSize[0].length;
     }
 
@@ -490,7 +493,7 @@ CryptMessageIntoFolder.prototype = {
       return;
     }
 
-    let m = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+    const m = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
       Ci.nsIMimeHeaders
     );
     // headers are found from the beginning up to the start of the body
@@ -556,20 +559,20 @@ CryptMessageIntoFolder.prototype = {
       lazy.EnigmailConstants.UI_INTERACTIVE |
       lazy.EnigmailConstants.UI_UNVERIFIED_ENC_OK |
       lazy.EnigmailConstants.UI_IGNORE_MDC_ERROR;
-    let exitCodeObj = {};
-    let statusFlagsObj = {};
-    let userIdObj = {};
-    let sigDetailsObj = {};
-    let errorMsgObj = {};
-    let keyIdObj = {};
-    let blockSeparationObj = {
+    const exitCodeObj = {};
+    const statusFlagsObj = {};
+    const userIdObj = {};
+    const sigDetailsObj = {};
+    const errorMsgObj = {};
+    const keyIdObj = {};
+    const blockSeparationObj = {
       value: "",
     };
-    let encToDetailsObj = {};
+    const encToDetailsObj = {};
     var signatureObj = {};
     signatureObj.value = "";
 
-    let data = lazy.EnigmailDecryption.decryptMessage(
+    const data = lazy.EnigmailDecryption.decryptMessage(
       null,
       uiFlags,
       mimePart.subParts[1].body,
@@ -614,7 +617,7 @@ CryptMessageIntoFolder.prototype = {
     if (bodyIndex < 0) {
       bodyIndex = 0;
     } else {
-      let wsSize = data.match(/\n\s*\r?\n/);
+      const wsSize = data.match(/\n\s*\r?\n/);
       bodyIndex += wsSize[0].length;
     }
 
@@ -622,12 +625,12 @@ CryptMessageIntoFolder.prototype = {
       return;
     }
 
-    let m = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+    const m = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
       Ci.nsIMimeHeaders
     );
     m.initialize(data.substr(0, bodyIndex));
     let ct = m.extractHeader("content-type", false) || "";
-    let part = mimePart.partNum;
+    const part = mimePart.partNum;
 
     if (part.length > 0 && part.search(/[^01.]/) < 0) {
       if (ct.search(/protected-headers/i) >= 0) {
@@ -647,10 +650,10 @@ CryptMessageIntoFolder.prototype = {
         /^multipart\/signed/i.test(ct)
       ) {
         // RFC 3156, Section 6.1 message
-        let innerMsg = lazy.EnigmailMime.getMimeTree(data, false);
+        const innerMsg = lazy.EnigmailMime.getMimeTree(data, false);
         if (innerMsg.subParts.length > 0) {
           ct = innerMsg.subParts[0].fullContentType;
-          let hdrMap = innerMsg.subParts[0].headers._rawHeaders;
+          const hdrMap = innerMsg.subParts[0].headers._rawHeaders;
           if (ct.search(/protected-headers/i) >= 0 && hdrMap.has("subject")) {
             let subject = innerMsg.subParts[0].headers._rawHeaders
               .get("subject")
@@ -695,7 +698,7 @@ CryptMessageIntoFolder.prototype = {
 
   pgpDecryptAttachment(mimePart) {
     lazy.EnigmailLog.DEBUG("persistentCrypto.jsm: pgpDecryptAttachment()\n");
-    let attachmentHead = mimePart.body.substr(0, 30);
+    const attachmentHead = mimePart.body.substr(0, 30);
     if (attachmentHead.search(/-----BEGIN PGP \w{5,10} KEY BLOCK-----/) >= 0) {
       // attachment appears to be a PGP key file, skip
       return;
@@ -705,16 +708,16 @@ CryptMessageIntoFolder.prototype = {
       lazy.EnigmailConstants.UI_INTERACTIVE |
       lazy.EnigmailConstants.UI_UNVERIFIED_ENC_OK |
       lazy.EnigmailConstants.UI_IGNORE_MDC_ERROR;
-    let exitCodeObj = {};
-    let statusFlagsObj = {};
-    let userIdObj = {};
-    let sigDetailsObj = {};
-    let errorMsgObj = {};
-    let keyIdObj = {};
-    let blockSeparationObj = {
+    const exitCodeObj = {};
+    const statusFlagsObj = {};
+    const userIdObj = {};
+    const sigDetailsObj = {};
+    const errorMsgObj = {};
+    const keyIdObj = {};
+    const blockSeparationObj = {
       value: "",
     };
-    let encToDetailsObj = {};
+    const encToDetailsObj = {};
     var signatureObj = {};
     signatureObj.value = "";
 
@@ -723,7 +726,7 @@ CryptMessageIntoFolder.prototype = {
       ? attachmentName.replace(/\.(pgp|asc|gpg)$/, "")
       : "";
 
-    let data = lazy.EnigmailDecryption.decryptMessage(
+    const data = lazy.EnigmailDecryption.decryptMessage(
       null,
       uiFlags,
       mimePart.body,
@@ -790,10 +793,10 @@ CryptMessageIntoFolder.prototype = {
       `attachment; filename="${attachmentName}"`
     );
     mimePart.headers._rawHeaders.set("content-transfer-encoding", ["base64"]);
-    let origCt = mimePart.headers.get("content-type");
+    const origCt = mimePart.headers.get("content-type");
     let ct = origCt.type;
 
-    for (let i of origCt.entries()) {
+    for (const i of origCt.entries()) {
       if (i[0].toLowerCase() === "name") {
         i[1] = i[1].replace(/\.(pgp|asc|gpg)$/, "");
       }
@@ -811,7 +814,7 @@ CryptMessageIntoFolder.prototype = {
     }
 
     if ("body" in mimePart && mimePart.body.length > 0) {
-      let ct = getContentType(mimePart);
+      const ct = getContentType(mimePart);
 
       if (ct === "text/html") {
         mimePart.body = this.stripHTMLFromArmoredBlocks(mimePart.body);
@@ -856,7 +859,7 @@ CryptMessageIntoFolder.prototype = {
       for (let i = 0; i < blocks.length; i++) {
         let plaintext = null;
         do {
-          let ciphertext = mimePart.body.substring(
+          const ciphertext = mimePart.body.substring(
             blocks[i].begin,
             blocks[i].end + 1
           );
@@ -865,9 +868,9 @@ CryptMessageIntoFolder.prototype = {
             break;
           }
 
-          let hdr = ciphertext.search(/(\r\r|\n\n|\r\n\r\n)/);
+          const hdr = ciphertext.search(/(\r\r|\n\n|\r\n\r\n)/);
           if (hdr > 0) {
-            let chset = ciphertext.substr(0, hdr).match(/^(charset:)(.*)$/im);
+            const chset = ciphertext.substr(0, hdr).match(/^(charset:)(.*)$/im);
             if (chset && chset.length == 3) {
               charset = chset[2].trim();
             }
@@ -909,7 +912,7 @@ CryptMessageIntoFolder.prototype = {
             ) {
               // since we cannot find out if the user wants to cancel
               // we should ask
-              let msg = await lazy.l10n.formatValue(
+              const msg = await lazy.l10n.formatValue(
                 "converter-decrypt-body-failed",
                 {
                   subject: this.subject,
@@ -955,7 +958,7 @@ CryptMessageIntoFolder.prototype = {
             mimePart.partNum.length > 0 &&
             mimePart.partNum.search(/[^01.]/) < 0
           ) {
-            let m = lazy.EnigmailMime.extractSubjectFromBody(plaintext);
+            const m = lazy.EnigmailMime.extractSubjectFromBody(plaintext);
             if (m) {
               plaintext = m.messageBody;
               this.mimeTree.headers._rawHeaders.set("subject", [m.subject]);
@@ -981,7 +984,7 @@ CryptMessageIntoFolder.prototype = {
       );
 
       // enable base64 encoding if non-ASCII character(s) found
-      let j = decryptedMessage.search(/[^\x01-\x7F]/); // eslint-disable-line no-control-regex
+      const j = decryptedMessage.search(/[^\x01-\x7F]/); // eslint-disable-line no-control-regex
       if (j >= 0) {
         mimePart.headers._rawHeaders.set("content-transfer-encoding", [
           "base64",
@@ -991,7 +994,7 @@ CryptMessageIntoFolder.prototype = {
       }
       mimePart.body = decryptedMessage;
 
-      let origCharset = getCharset(mimePart, "content-type");
+      const origCharset = getCharset(mimePart, "content-type");
       if (origCharset) {
         mimePart.headers_rawHeaders.set(
           "content-type",
@@ -1008,7 +1011,7 @@ CryptMessageIntoFolder.prototype = {
       return 1;
     }
 
-    let ct = getContentType(mimePart);
+    const ct = getContentType(mimePart);
     lazy.EnigmailLog.DEBUG(
       "persistentCrypto.jsm: Decryption skipped:  " + ct + "\n"
     );
@@ -1052,11 +1055,11 @@ CryptMessageIntoFolder.prototype = {
     );
 
     let msg = "";
-    let rawHdr = mimePart.headers._rawHeaders;
+    const rawHdr = mimePart.headers._rawHeaders;
 
     if (includeHeaders && rawHdr.size > 0) {
-      for (let hdr of rawHdr.keys()) {
-        let formatted = formatMimeHeader(hdr, rawHdr.get(hdr));
+      for (const hdr of rawHdr.keys()) {
+        const formatted = formatMimeHeader(hdr, rawHdr.get(hdr));
         msg += formatted;
         if (!formatted.endsWith("\r\n")) {
           msg += "\r\n";
@@ -1075,7 +1078,7 @@ CryptMessageIntoFolder.prototype = {
       if (encoding === "base64") {
         msg += lazy.EnigmailData.encodeBase64(mimePart.body);
       } else {
-        let charset = getCharset(mimePart, "content-type");
+        const charset = getCharset(mimePart, "content-type");
         if (charset) {
           msg += lazy.EnigmailData.convertFromUnicode(mimePart.body, charset);
         } else {
@@ -1085,11 +1088,11 @@ CryptMessageIntoFolder.prototype = {
     }
 
     if (mimePart.subParts.length > 0) {
-      let boundary = lazy.EnigmailMime.getBoundary(
+      const boundary = lazy.EnigmailMime.getBoundary(
         rawHdr.get("content-type").join("")
       );
 
-      for (let i in mimePart.subParts) {
+      for (const i in mimePart.subParts) {
         msg += `--${boundary}\r\n`;
         msg += this.mimeToString(mimePart.subParts[i], true);
         if (msg.search(/[\r\n]$/) < 0) {
@@ -1106,13 +1109,13 @@ CryptMessageIntoFolder.prototype = {
   fixExchangeMessage(mimePart) {
     lazy.EnigmailLog.DEBUG("persistentCrypto.jsm: fixExchangeMessage()\n");
 
-    let msg = this.mimeToString(mimePart, true);
+    const msg = this.mimeToString(mimePart, true);
 
     try {
-      let fixedMsg = lazy.EnigmailFixExchangeMsg.getRepairedMessage(msg);
-      let replacement = lazy.EnigmailMime.getMimeTree(fixedMsg, true);
+      const fixedMsg = lazy.EnigmailFixExchangeMsg.getRepairedMessage(msg);
+      const replacement = lazy.EnigmailMime.getMimeTree(fixedMsg, true);
 
-      for (let i in replacement) {
+      for (const i in replacement) {
         mimePart[i] = replacement[i];
       }
     } catch (ex) {}
@@ -1142,8 +1145,8 @@ function formatMimeHeader(headerLabel, headerValue) {
 
 function prettyPrintHeader(headerLabel, headerData) {
   if (Array.isArray(headerData)) {
-    let h = [];
-    for (let i in headerData) {
+    const h = [];
+    for (const i in headerData) {
       h.push(
         formatMimeHeader(headerLabel, lazy.GlodaUtils.deMime(headerData[i]))
       );
@@ -1163,7 +1166,7 @@ function getHeaderValue(mimeStruct, header) {
 
   try {
     if (mimeStruct.headers.has(header)) {
-      let hdrVal = mimeStruct.headers.get(header);
+      const hdrVal = mimeStruct.headers.get(header);
       if (typeof hdrVal == "string") {
         return hdrVal;
       }
@@ -1204,7 +1207,7 @@ function getBoundary(mime) {
 function getCharset(mime) {
   try {
     if (mime && "headers" in mime && mime.headers.has("content-type")) {
-      let c = mime.headers.get("content-type").get("charset");
+      const c = mime.headers.get("content-type").get("charset");
       if (c) {
         return c.toLowerCase();
       }
@@ -1222,7 +1225,7 @@ function getTransferEncoding(mime) {
       "headers" in mime &&
       mime.headers._rawHeaders.has("content-transfer-encoding")
     ) {
-      let c = mime.headers._rawHeaders.get("content-transfer-encoding")[0];
+      const c = mime.headers._rawHeaders.get("content-transfer-encoding")[0];
       if (c) {
         return c.toLowerCase();
       }
@@ -1246,7 +1249,7 @@ function isAttachment(mime) {
       }
 
       if (mime.headers.has("content-disposition")) {
-        let c = mime.headers.get("content-disposition")[0];
+        const c = mime.headers.get("content-disposition")[0];
         if (c) {
           if (c.search(/^attachment/i) === 0) {
             return true;
@@ -1266,7 +1269,7 @@ function isAttachment(mime) {
  */
 function getAttachmentName(mime) {
   if ("headers" in mime && mime.headers.has("content-disposition")) {
-    let c = mime.headers.get("content-disposition")[0];
+    const c = mime.headers.get("content-disposition")[0];
     if (/^attachment/i.test(c)) {
       return lazy.EnigmailMime.getParameter(c, "filename");
     }
@@ -1279,7 +1282,7 @@ function getPepSubject(mimeString) {
 
   let subject = null;
 
-  let emitter = {
+  const emitter = {
     ct: "",
     firstPlainText: false,
     startPart(partNum, headers) {
@@ -1291,7 +1294,7 @@ function getPepSubject(mimeString) {
       try {
         this.ct = String(headers.getRawHeader("content-type")).toLowerCase();
         if (!subject && !this.firstPlainText) {
-          let s = headers.getRawHeader("subject");
+          const s = headers.getRawHeader("subject");
           if (s) {
             subject = String(s);
             this.firstPlainText = true;
@@ -1316,7 +1319,7 @@ function getPepSubject(mimeString) {
         // check data
         this.firstPlainText = true;
 
-        let o = lazy.EnigmailMime.extractSubjectFromBody(data);
+        const o = lazy.EnigmailMime.extractSubjectFromBody(data);
         if (o) {
           subject = o.subject;
         }
@@ -1324,13 +1327,13 @@ function getPepSubject(mimeString) {
     },
   };
 
-  let opt = {
+  const opt = {
     strformat: "unicode",
     bodyformat: "decode",
   };
 
   try {
-    let p = new lazy.jsmime.MimeParser(emitter, opt);
+    const p = new lazy.jsmime.MimeParser(emitter, opt);
     p.deliverData(mimeString);
   } catch (ex) {}
 

@@ -65,7 +65,7 @@ add_setup(async function () {
   filePrefix = AppConstants.platform == "win" ? "file:///C:/" : "file:///";
 
   // create some messages that have various types of attachments
-  let messages = [
+  const messages = [
     // no attachment
     {},
     // raw attachment
@@ -99,11 +99,11 @@ add_setup(async function () {
  * @param {integer} expectedSize - The expected size of the attachment, in bytes.
  */
 function check_attachment_size(win, index, expectedSize) {
-  let bucket = win.document.getElementById("attachmentBucket");
-  let node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
+  const bucket = win.document.getElementById("attachmentBucket");
+  const node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
 
   // First, let's check that the attachment size is correct
-  let size = node.attachment.size;
+  const size = node.attachment.size;
   if (Math.abs(size - expectedSize) > epsilon) {
     throw new Error(
       "Reported attachment size (" +
@@ -116,8 +116,8 @@ function check_attachment_size(win, index, expectedSize) {
   }
 
   // Next, make sure that the formatted size in the label is correct
-  let formattedSize = node.getAttribute("size");
-  let expectedFormattedSize = messenger.formatFileSize(size);
+  const formattedSize = node.getAttribute("size");
+  const expectedFormattedSize = messenger.formatFileSize(size);
   if (formattedSize != expectedFormattedSize) {
     throw new Error(
       "Formatted attachment size (" +
@@ -137,8 +137,8 @@ function check_attachment_size(win, index, expectedSize) {
  * @param {integer} index - The attachment to examine, as an index into the listbox.
  */
 function check_no_attachment_size(win, index) {
-  let bucket = win.document.getElementById("attachmentBucket");
-  let node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
+  const bucket = win.document.getElementById("attachmentBucket");
+  const node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
 
   if (node.attachment.size != -1) {
     throw new Error("attachment.size attribute should be -1!");
@@ -157,9 +157,9 @@ function check_no_attachment_size(win, index) {
  * @param {integer} count - The expected number of attachments.
  */
 function check_total_attachment_size(win, count) {
-  let bucket = win.document.getElementById("attachmentBucket");
-  let nodes = bucket.querySelectorAll("richlistitem.attachmentItem");
-  let sizeNode = win.document.getElementById("attachmentBucketSize");
+  const bucket = win.document.getElementById("attachmentBucket");
+  const nodes = bucket.querySelectorAll("richlistitem.attachmentItem");
+  const sizeNode = win.document.getElementById("attachmentBucketSize");
 
   if (nodes.length != count) {
     throw new Error(
@@ -169,14 +169,14 @@ function check_total_attachment_size(win, count) {
 
   let size = 0;
   for (let i = 0; i < nodes.length; i++) {
-    let currSize = nodes[i].attachment.size;
+    const currSize = nodes[i].attachment.size;
     if (currSize != -1) {
       size += currSize;
     }
   }
 
   // Next, make sure that the formatted size in the label is correct
-  let expectedFormattedSize = messenger.formatFileSize(size);
+  const expectedFormattedSize = messenger.formatFileSize(size);
   if (sizeNode.textContent != expectedFormattedSize) {
     throw new Error(
       "Formatted attachment size (" +
@@ -190,10 +190,10 @@ function check_total_attachment_size(win, count) {
 }
 
 add_task(async function test_file_attachment() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
-  let url = filePrefix + "some/file/here.txt";
-  let size = 1234;
+  const url = filePrefix + "some/file/here.txt";
+  const size = 1234;
 
   await add_attachments(cwc, url, size);
   check_attachment_size(cwc, 0, size);
@@ -203,7 +203,7 @@ add_task(async function test_file_attachment() {
 });
 
 add_task(async function test_webpage_attachment() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   await add_attachments(cwc, "https://www.mozilla.org/");
   check_no_attachment_size(cwc, 0);
@@ -213,9 +213,9 @@ add_task(async function test_webpage_attachment() {
 });
 
 add_task(async function test_multiple_attachments() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
-  let files = [
+  const files = [
     { name: "foo.txt", size: 1234 },
     { name: "bar.txt", size: 5678 },
     { name: "baz.txt", size: 9012 },
@@ -230,9 +230,9 @@ add_task(async function test_multiple_attachments() {
 });
 
 add_task(async function test_delete_attachments() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
-  let files = [
+  const files = [
     { name: "foo.txt", size: 1234 },
     { name: "bar.txt", size: 5678 },
     { name: "baz.txt", size: 9012 },
@@ -254,16 +254,16 @@ function subtest_rename_attachment(cwc) {
 }
 
 add_task(async function test_rename_attachment() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
-  let url = filePrefix + "some/file/here.txt";
-  let size = 1234;
+  const url = filePrefix + "some/file/here.txt";
+  const size = 1234;
 
   await add_attachments(cwc, url, size);
 
   // Now, rename the attachment.
-  let bucket = cwc.document.getElementById("attachmentBucket");
-  let node = bucket.querySelector("richlistitem.attachmentItem");
+  const bucket = cwc.document.getElementById("attachmentBucket");
+  const node = bucket.querySelector("richlistitem.attachmentItem");
   EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);
   const dialogPromise = promise_modal_dialog(
     "commonDialogWindow",
@@ -285,21 +285,21 @@ function subtest_open_attachment(cwc) {
 }
 
 add_task(async function test_open_attachment() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   // set up our external file for attaching
-  let file = new FileUtils.File(getTestFilePath("data/attachment.txt"));
-  let fileHandler = Services.io
+  const file = new FileUtils.File(getTestFilePath("data/attachment.txt"));
+  const fileHandler = Services.io
     .getProtocolHandler("file")
     .QueryInterface(Ci.nsIFileProtocolHandler);
-  let url = fileHandler.getURLSpecFromActualFile(file);
-  let size = file.fileSize;
+  const url = fileHandler.getURLSpecFromActualFile(file);
+  const size = file.fileSize;
 
   await add_attachments(cwc, url, size);
 
   // Now, open the attachment.
-  let bucket = cwc.document.getElementById("attachmentBucket");
-  let node = bucket.querySelector("richlistitem.attachmentItem");
+  const bucket = cwc.document.getElementById("attachmentBucket");
+  const node = bucket.querySelector("richlistitem.attachmentItem");
   const dialogPromise = promise_modal_dialog(
     "unknownContentTypeWindow",
     subtest_open_attachment
@@ -314,7 +314,7 @@ add_task(async function test_forward_raw_attachment() {
   await be_in_folder(folder);
   await select_click_row(-2);
 
-  let cwc = await open_compose_with_forward();
+  const cwc = await open_compose_with_forward();
   check_attachment_size(cwc, 0, rawAttachment.length);
   check_total_attachment_size(cwc, 1);
 
@@ -325,7 +325,7 @@ add_task(async function test_forward_b64_attachment() {
   await be_in_folder(folder);
   await select_click_row(-3);
 
-  let cwc = await open_compose_with_forward();
+  const cwc = await open_compose_with_forward();
   check_attachment_size(cwc, 0, b64Size);
   check_total_attachment_size(cwc, 1);
 
@@ -334,9 +334,9 @@ add_task(async function test_forward_b64_attachment() {
 
 add_task(async function test_forward_message_as_attachment() {
   await be_in_folder(folder);
-  let curMessage = await select_click_row(-1);
+  const curMessage = await select_click_row(-1);
 
-  let cwc = await open_compose_with_forward_as_attachments();
+  const cwc = await open_compose_with_forward_as_attachments();
   check_attachment_size(cwc, 0, curMessage.messageSize);
   check_total_attachment_size(cwc, 1);
 
@@ -345,9 +345,9 @@ add_task(async function test_forward_message_as_attachment() {
 
 add_task(async function test_forward_message_with_attachments_as_attachment() {
   await be_in_folder(folder);
-  let curMessage = await select_click_row(-2);
+  const curMessage = await select_click_row(-2);
 
-  let cwc = await open_compose_with_forward_as_attachments();
+  const cwc = await open_compose_with_forward_as_attachments();
   check_attachment_size(cwc, 0, curMessage.messageSize);
   check_total_attachment_size(cwc, 1);
 
@@ -361,7 +361,7 @@ add_task(async function test_forward_message_with_attachments_as_attachment() {
  * @param {string[]} aNames - An array of attachment names that are expected.
  */
 function check_attachment_names(aWin, aNames) {
-  let bucket = aWin.document.getElementById("attachmentBucket");
+  const bucket = aWin.document.getElementById("attachmentBucket");
   Assert.equal(aNames.length, bucket.itemCount);
   for (let i = 0; i < aNames.length; i++) {
     Assert.equal(bucket.getItemAtIndex(i).getAttribute("name"), aNames[i]);
@@ -389,12 +389,12 @@ async function subtest_reordering(
   aReorder_actions,
   aOpenPanel = true
 ) {
-  let bucket = aCwc.document.getElementById("attachmentBucket");
+  const bucket = aCwc.document.getElementById("attachmentBucket");
   let panel;
 
   // Create a set of attachments for the test.
   const size = 1234;
-  for (let name of aInitialAttachmentNames) {
+  for (const name of aInitialAttachmentNames) {
     await add_attachments(aCwc, filePrefix + name, size);
   }
   await new Promise(resolve => setTimeout(resolve));
@@ -409,10 +409,10 @@ async function subtest_reordering(
     await wait_for_popup_to_open(panel);
   }
 
-  for (let action of aReorder_actions) {
+  for (const action of aReorder_actions) {
     // Ensure selection.
     bucket.clearSelection();
-    for (let itemIndex of action.select) {
+    for (const itemIndex of action.select) {
       bucket.addItemToSelection(bucket.getItemAtIndex(itemIndex));
     }
     // Take action.
@@ -449,10 +449,10 @@ async function subtest_reordering(
  * This is the main function of this test.
  */
 add_task(async function test_attachment_reordering() {
-  let cwc = await open_compose_new_mail();
-  let editorEl = cwc.GetCurrentEditorElement();
-  let bucket = cwc.document.getElementById("attachmentBucket");
-  let panel = cwc.document.getElementById("reorderAttachmentsPanel");
+  const cwc = await open_compose_new_mail();
+  const editorEl = cwc.GetCurrentEditorElement();
+  const bucket = cwc.document.getElementById("attachmentBucket");
+  const panel = cwc.document.getElementById("reorderAttachmentsPanel");
   // const openReorderPanelModifiers =
   //   (AppConstants.platform == "macosx") ? { controlKey: true }
   //                                       : { altKey: true };
@@ -463,7 +463,7 @@ add_task(async function test_attachment_reordering() {
   // Create two attachments as otherwise the reordering panel won't open.
   const size = 1234;
   const initialAttachmentNames_0 = ["A1", "A2"];
-  for (let name of initialAttachmentNames_0) {
+  for (const name of initialAttachmentNames_0) {
     await add_attachments(cwc, filePrefix + name, size);
     await new Promise(resolve => setTimeout(resolve));
   }
@@ -471,10 +471,10 @@ add_task(async function test_attachment_reordering() {
   check_attachment_names(cwc, initialAttachmentNames_0);
 
   // Show 'Reorder Attachments' panel via mouse clicks.
-  let contextMenu = cwc.document.getElementById(
+  const contextMenu = cwc.document.getElementById(
     "msgComposeAttachmentItemContext"
   );
-  let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     bucket.getItemAtIndex(1),
     { type: "contextmenu" },
@@ -938,10 +938,10 @@ add_task(async function test_attachment_reordering() {
 });
 
 add_task(async function test_restore_attachment_bucket_height() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
-  let attachmentArea = cwc.document.getElementById("attachmentArea");
-  let attachmentBucket = cwc.document.getElementById("attachmentBucket");
+  const attachmentArea = cwc.document.getElementById("attachmentArea");
+  const attachmentBucket = cwc.document.getElementById("attachmentBucket");
 
   Assert.ok(
     BrowserTestUtils.is_hidden(attachmentArea),
@@ -949,7 +949,7 @@ add_task(async function test_restore_attachment_bucket_height() {
   );
 
   // Add 9 attachments to open a pane least 2 rows height.
-  let files = [
+  const files = [
     { name: "foo.txt", size: 1234 },
     { name: "bar.txt", size: 5678 },
     { name: "baz.txt", size: 9012 },
@@ -965,14 +965,14 @@ add_task(async function test_restore_attachment_bucket_height() {
   }
 
   // Store the height of the attachment bucket.
-  let heightBefore = attachmentBucket.getBoundingClientRect().height;
+  const heightBefore = attachmentBucket.getBoundingClientRect().height;
 
-  let modifiers =
+  const modifiers =
     AppConstants.platform == "macosx"
       ? { accelKey: true, shiftKey: true }
       : { ctrlKey: true, shiftKey: true };
 
-  let collapsedPromise = BrowserTestUtils.waitForCondition(
+  const collapsedPromise = BrowserTestUtils.waitForCondition(
     () => BrowserTestUtils.is_visible(attachmentArea) && !attachmentArea.open,
     "The attachment area should be visible but closed."
   );
@@ -981,7 +981,7 @@ add_task(async function test_restore_attachment_bucket_height() {
   EventUtils.synthesizeKey("M", modifiers, cwc);
   await collapsedPromise;
 
-  let visiblePromise = BrowserTestUtils.waitForCondition(
+  const visiblePromise = BrowserTestUtils.waitForCondition(
     () => BrowserTestUtils.is_visible(attachmentArea) && attachmentArea.open,
     "The attachment area should be visible and open."
   );

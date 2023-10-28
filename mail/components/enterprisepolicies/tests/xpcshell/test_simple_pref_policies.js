@@ -358,18 +358,20 @@ const POLICIES_TESTS = [
 ];
 
 add_task(async function test_policy_simple_prefs() {
-  for (let test of POLICIES_TESTS) {
+  for (const test of POLICIES_TESTS) {
     await setupPolicyEngineWithJson({
       policies: test.policies,
     });
 
     info("Checking policy: " + Object.keys(test.policies)[0]);
 
-    for (let [prefName, prefValue] of Object.entries(test.lockedPrefs || {})) {
+    for (const [prefName, prefValue] of Object.entries(
+      test.lockedPrefs || {}
+    )) {
       checkLockedPref(prefName, prefValue);
     }
 
-    for (let [prefName, prefValue] of Object.entries(
+    for (const [prefName, prefValue] of Object.entries(
       test.unlockedPrefs || {}
     )) {
       checkUnlockedPref(prefName, prefValue);

@@ -51,12 +51,12 @@ add_task(async function test_batch_archiver() {
   await expand_all_threads();
 
   /* Select the first (expanded) thread */
-  let root = await select_click_row(0);
+  const root = await select_click_row(0);
   await assert_selected_and_displayed(root);
 
   /* Get a grip on the first and the second sub-message */
-  let m1 = await select_click_row(1);
-  let m2 = await select_click_row(2);
+  const m1 = await select_click_row(1);
+  const m2 = await select_click_row(2);
   await select_click_row(0);
   await assert_selected_and_displayed(root);
 
@@ -82,7 +82,7 @@ add_task(async function test_batch_archiver() {
   await toggle_thread_row(0);
 
   /* Get a grip on the second thread */
-  let root2 = await select_click_row(1);
+  const root2 = await select_click_row(1);
   await select_click_row(0);
   assert_selected(root);
 
@@ -101,15 +101,15 @@ add_task(async function test_batch_archiver() {
   await expand_all_threads();
 
   /* Archive the head of the thread, check that it still works fine */
-  let child1 = await select_click_row(1);
+  const child1 = await select_click_row(1);
   await select_click_row(0);
   await archive_messages([root2]);
   await select_click_row(0); // TODO This should be unnecessary.
   await assert_selected_and_displayed(child1);
 
   /* Test archiving a partial selection */
-  let child2 = await select_click_row(1);
-  let child3 = await select_click_row(2);
+  const child2 = await select_click_row(1);
+  const child3 = await select_click_row(2);
   await select_click_row(3);
 
   await select_shift_click_row(2);

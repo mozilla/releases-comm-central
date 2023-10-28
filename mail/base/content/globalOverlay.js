@@ -9,7 +9,7 @@
  */
 function canQuitApplication() {
   try {
-    let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
       Ci.nsISupportsPRBool
     );
     Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
@@ -44,7 +44,7 @@ function goQuitApplication() {
  */
 function getEnabledControllerForCommand(command) {
   // The first controller for which `supportsCommand` returns true.
-  let controllerA =
+  const controllerA =
     top.document.commandDispatcher.getControllerForCommand(command);
   if (controllerA?.isCommandEnabled(command)) {
     return controllerA;
@@ -54,7 +54,7 @@ function getEnabledControllerForCommand(command) {
   // Try the other controllers. Note this isn't exactly the same set
   // of controllers as `commandDispatcher` has.
   for (let i = 0; i < top.controllers.getControllerCount(); i++) {
-    let controllerB = top.controllers.getControllerAt(i);
+    const controllerB = top.controllers.getControllerAt(i);
     if (
       controllerB !== controllerA &&
       controllerB.supportsCommand(command) &&
@@ -110,7 +110,7 @@ function goDoCommand(command, ...args) {
  * @param {boolean} enabled
  */
 function goSetCommandEnabled(id, enabled) {
-  let node = document.getElementById(id);
+  const node = document.getElementById(id);
 
   if (node) {
     if (enabled) {

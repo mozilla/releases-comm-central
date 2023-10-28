@@ -27,10 +27,10 @@ const BOOLEAN_SCALAR = "tb.test.boolean_kind";
  * @param {boolean} clearScalars - Whether to clear out data after snapshotting.
  */
 function checkEventSummary(summaries, clearScalars) {
-  let scalars = Telemetry.getSnapshotForKeyedScalars("main", clearScalars);
+  const scalars = Telemetry.getSnapshotForKeyedScalars("main", clearScalars);
 
-  for (let [process, [category, eObject, method], count] of summaries) {
-    let uniqueEventName = `${category}#${eObject}#${method}`;
+  for (const [process, [category, eObject, method], count] of summaries) {
+    const uniqueEventName = `${category}#${eObject}#${method}`;
     let summaryCount;
     if (process === "dynamic") {
       summaryCount =
@@ -79,17 +79,17 @@ add_task(async function test_recording_state() {
  * Test Thunderbird histograms are included in the build.
  */
 add_task(async function test_categorical_histogram() {
-  let h1 = Telemetry.getHistogramById("TELEMETRY_TEST_TB_CATEGORICAL");
-  for (let v of ["CommonLabel", "CommonLabel", "Label2", "Label3"]) {
+  const h1 = Telemetry.getHistogramById("TELEMETRY_TEST_TB_CATEGORICAL");
+  for (const v of ["CommonLabel", "CommonLabel", "Label2", "Label3"]) {
     h1.add(v);
   }
-  for (let s of ["", "Label4", "1234"]) {
+  for (const s of ["", "Label4", "1234"]) {
     // The |add| method should not throw for unexpected values, but rather
     // print an error message in the console.
     h1.add(s);
   }
 
-  let snapshot = h1.snapshot();
+  const snapshot = h1.snapshot();
   Assert.deepEqual(snapshot.values, { 0: 2, 1: 1, 2: 1, 3: 0 });
   // sum is a little meaningless for categorical histograms, but hey.
   // (CommonLabel is 0, Label2 is 1, Label3 is 2)

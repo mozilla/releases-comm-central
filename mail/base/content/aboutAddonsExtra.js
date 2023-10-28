@@ -35,7 +35,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
   // Consume clicks on a-tags and let openTrustedLinkIn() decide how to open them.
   window.addEventListener("click", event => {
     if (event.target.matches("a[href]") && event.target.href) {
-      let uri = Services.io.newURI(event.target.href);
+      const uri = Services.io.newURI(event.target.href);
       if (uri.scheme == "http" || uri.scheme == "https") {
         event.preventDefault();
         event.stopPropagation();
@@ -45,11 +45,11 @@ XPCOMUtils.defineLazyPreferenceGetter(
   });
 
   // Fix the "Search on addons.mozilla.org" placeholder text in the searchbox.
-  let textbox = document.querySelector("search-addons > search-textbox");
+  const textbox = document.querySelector("search-addons > search-textbox");
   document.l10n.setAttributes(textbox, "atn-addons-heading-search-input");
 
   // Add our stylesheet.
-  let contentStylesheet = document.createElement("link");
+  const contentStylesheet = document.createElement("link");
   contentStylesheet.rel = "stylesheet";
   contentStylesheet.href = "chrome://messenger/skin/aboutAddonsExtra.css";
   document.head.appendChild(contentStylesheet);
@@ -60,7 +60,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
   };
 
   // Load our theme screenshots.
-  let _getScreenshotUrlForAddon = getScreenshotUrlForAddon;
+  const _getScreenshotUrlForAddon = getScreenshotUrlForAddon;
   getScreenshotUrlForAddon = function (addon) {
     if (THUNDERBIRD_THEME_PREVIEWS.has(addon.id)) {
       return THUNDERBIRD_THEME_PREVIEWS.get(addon.id);
@@ -69,12 +69,12 @@ XPCOMUtils.defineLazyPreferenceGetter(
   };
 
   // Add logic to detect add-ons using the unsupported legacy API.
-  let getMozillaAddonMessageInfo = window.getAddonMessageInfo;
+  const getMozillaAddonMessageInfo = window.getAddonMessageInfo;
   window.getAddonMessageInfo = async function (addon) {
     const { name } = addon;
     const { STATE_SOFTBLOCKED } = Ci.nsIBlocklistService;
 
-    let data = new ExtensionData(addon.getResourceURI());
+    const data = new ExtensionData(addon.getResourceURI());
     await data.loadManifest();
     if (
       addon.type == "extension" &&
@@ -103,7 +103,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
   // to add a dedicated button for extension preferences.
   await customElements.whenDefined("addon-card");
   AddonCard.prototype.addOptionsButton = async function () {
-    let { addon, optionsButton } = this;
+    const { addon, optionsButton } = this;
     if (addon.type != "extension") {
       return;
     }
@@ -121,7 +121,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
     // Upon fresh install the manifest has not been parsed and optionsType
     // is not known, manually trigger parsing.
     if (addon.isActive && !addon.optionsType) {
-      let data = new ExtensionData(addon.getResourceURI());
+      const data = new ExtensionData(addon.getResourceURI());
       await data.loadManifest();
     }
 
@@ -138,12 +138,12 @@ XPCOMUtils.defineLazyPreferenceGetter(
   await customElements.whenDefined("addon-permissions-list");
   AddonPermissionsList.prototype.renderExperimentOnly = function () {
     this.textContent = "";
-    let frag = importTemplate("addon-permissions-list");
-    let section = frag.querySelector(".addon-permissions-required");
+    const frag = importTemplate("addon-permissions-list");
+    const section = frag.querySelector(".addon-permissions-required");
     section.hidden = false;
-    let list = section.querySelector(".addon-permissions-list");
+    const list = section.querySelector(".addon-permissions-list");
 
-    let item = document.createElement("li");
+    const item = document.createElement("li");
     document.l10n.setAttributes(item, "webext-perms-description-experiment");
     item.classList.add("permission-info", "permission-checked");
     list.appendChild(item);
@@ -154,7 +154,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
   // It calls this.render() which is async without awaiting it anyway.
   AddonPermissionsList.prototype.setAddon = async function (addon) {
     this.addon = addon;
-    let data = new ExtensionData(addon.getResourceURI());
+    const data = new ExtensionData(addon.getResourceURI());
     await data.loadManifest();
     if (data.manifest.experiment_apis) {
       this.renderExperimentOnly();
@@ -185,7 +185,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
       return;
     }
 
-    let url = new URL(
+    const url = new URL(
       formatUTMParams(
         "addons-manager-search",
         AddonRepository.getSearchURL(query)
@@ -199,8 +199,8 @@ XPCOMUtils.defineLazyPreferenceGetter(
       url.searchParams.set("cat", "themes");
     }
 
-    let browser = getBrowserElement();
-    let chromewin = browser.ownerGlobal;
+    const browser = getBrowserElement();
+    const chromewin = browser.ownerGlobal;
     chromewin.openLinkIn(url.href, "tab", {
       fromChrome: true,
       triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal(

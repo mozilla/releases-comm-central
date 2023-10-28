@@ -5,14 +5,14 @@ add_task(async function test_request_permissions_without_prompt() {
     window.addEventListener(
       "keypress",
       async () => {
-        let permGranted = await browser.permissions.request({
+        const permGranted = await browser.permissions.request({
           permissions: [NO_PROMPT_PERM],
         });
         browser.test.assertTrue(
           permGranted,
           `${NO_PROMPT_PERM} permission was granted.`
         );
-        let perms = await browser.permissions.getAll();
+        const perms = await browser.permissions.getAll();
         browser.test.assertTrue(
           perms.permissions.includes(NO_PROMPT_PERM),
           `${NO_PROMPT_PERM} permission exists.`
@@ -24,7 +24,7 @@ add_task(async function test_request_permissions_without_prompt() {
     browser.test.sendMessage("pageReady");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background() {
       browser.test.sendMessage("ready", browser.runtime.getURL("page.html"));
     },
@@ -38,9 +38,9 @@ add_task(async function test_request_permissions_without_prompt() {
   });
   await extension.startup();
 
-  let url = await extension.awaitMessage("ready");
+  const url = await extension.awaitMessage("ready");
 
-  let tab = openContentTab(url, undefined, null);
+  const tab = openContentTab(url, undefined, null);
   await extension.awaitMessage("pageReady");
   await new Promise(resolve => requestAnimationFrame(resolve));
   await BrowserTestUtils.synthesizeMouseAtCenter(tab.browser, {}, tab.browser);
@@ -48,6 +48,6 @@ add_task(async function test_request_permissions_without_prompt() {
   await extension.awaitMessage("permsGranted");
   await extension.unload();
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tab);
 });

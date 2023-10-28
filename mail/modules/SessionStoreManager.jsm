@@ -61,7 +61,7 @@ var SessionStoreManager = {
    * Gets the nsIFile used for session storage.
    */
   get sessionFile() {
-    let sessionFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    const sessionFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
     sessionFile.append("session.json");
     return sessionFile;
   },
@@ -132,8 +132,8 @@ var SessionStoreManager = {
       return;
     }
 
-    let currentStateString = JSON.stringify(aStateObj);
-    let storedStateString =
+    const currentStateString = JSON.stringify(aStateObj);
+    const storedStateString =
       this.store.dataReady && this.store.data
         ? JSON.stringify(this.store.data)
         : null;
@@ -162,11 +162,11 @@ var SessionStoreManager = {
    * Writes the state of all currently open 3pane windows to disk.
    */
   _saveState() {
-    let state = this._createStateObject();
+    const state = this._createStateObject();
 
     // XXX we'd like to support other window types in future, but for now
     // only get the 3pane windows.
-    for (let win of Services.wm.getEnumerator("mail:3pane")) {
+    for (const win of Services.wm.getEnumerator("mail:3pane")) {
       if (
         win &&
         "complete" == win.document.readyState &&
@@ -212,7 +212,7 @@ var SessionStoreManager = {
    *         session restoration, null otherwise.
    */
   async loadingWindow(aWindow) {
-    let firstWindow = !this._initialized || this._shutdownStateSaved;
+    const firstWindow = !this._initialized || this._shutdownStateSaved;
     if (firstWindow) {
       await this._init();
     }
@@ -248,7 +248,7 @@ var SessionStoreManager = {
     if (!this._shutdownStateSaved) {
       // determine whether aWindow is the last open window
       let lastWindow = true;
-      for (let win of Services.wm.getEnumerator("mail:3pane")) {
+      for (const win of Services.wm.getEnumerator("mail:3pane")) {
         if (win != aWindow) {
           lastWindow = false;
         }
@@ -260,7 +260,7 @@ var SessionStoreManager = {
         // event is observed AFTER this.
         this.stopPeriodicSave();
 
-        let state = this._createStateObject();
+        const state = this._createStateObject();
         state.windows.push(aWindow.getWindowStateForSessionPersistence());
         this._saveStateObject(state);
 

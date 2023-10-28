@@ -34,7 +34,7 @@ var glodaFacetTabType = {
     );
 
     // First clone the page and set up the basics.
-    let clone = document
+    const clone = document
       .getElementById("glodaTab")
       .firstElementChild.cloneNode(true);
 
@@ -60,7 +60,7 @@ var glodaFacetTabType = {
         aTab.IMQuery = aTab.IMSearcher.query;
       }
 
-      let searchString = aTab.searcher.searchString;
+      const searchString = aTab.searcher.searchString;
       aTab.searchInputValue = aTab.searchString = searchString;
       aTab.title = searchString
         ? searchString
@@ -83,7 +83,7 @@ var glodaFacetTabType = {
       );
 
       // Wire up the search input icon click event
-      let searchInput = aTab.panel.querySelector(".remote-gloda-search");
+      const searchInput = aTab.panel.querySelector(".remote-gloda-search");
       searchInput.focus();
     }
 

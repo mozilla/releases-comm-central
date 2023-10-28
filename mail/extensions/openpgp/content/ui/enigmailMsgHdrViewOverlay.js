@@ -56,7 +56,7 @@ Enigmail.hdrView = {
     this.msgEncryptionKeyId = null;
     this.msgEncryptionAllKeyIds = null;
     this.msgHasKeyAttached = false;
-    for (let value of ["decryptionFailed", "brokenExchange"]) {
+    for (const value of ["decryptionFailed", "brokenExchange"]) {
       Enigmail.msg.removeNotification(value);
     }
     this.ignoreStatusFromMimePart = "";
@@ -68,7 +68,7 @@ Enigmail.hdrView = {
 
     this.msgHdrViewLoad();
 
-    let addrPopup = document.getElementById("emailAddressPopup");
+    const addrPopup = document.getElementById("emailAddressPopup");
     if (addrPopup) {
       addrPopup.addEventListener(
         "popupshowing",
@@ -77,7 +77,7 @@ Enigmail.hdrView = {
     }
 
     // Thunderbird
-    let attCtx = document.getElementById("attachmentItemContext");
+    const attCtx = document.getElementById("attachmentItemContext");
     if (attCtx) {
       attCtx.addEventListener(
         "popupshowing",
@@ -87,7 +87,7 @@ Enigmail.hdrView = {
   },
 
   displayAddressPopup(event) {
-    let target = event.target;
+    const target = event.target;
     EnigmailFuncs.collapseAdvanced(target, "hidden");
   },
 
@@ -101,7 +101,7 @@ Enigmail.hdrView = {
         Enigmail.msg.securityInfo.statusFlags = 0;
       }
 
-      let bodyElement = document.getElementById("messagepane");
+      const bodyElement = document.getElementById("messagepane");
       bodyElement.removeAttribute("collapsed");
     } catch (ex) {
       console.debug(ex);
@@ -243,7 +243,7 @@ Enigmail.hdrView = {
 
     this.msgSignatureDate = sigDetails?.sigDate;
 
-    let tmp = {
+    const tmp = {
       statusFlags,
       extStatusFlags,
       keyId,
@@ -275,9 +275,9 @@ Enigmail.hdrView = {
    *   was processed and has triggered this status update request.
    */
   async updateStatusFlags(triggeredByMimePartNumber) {
-    let secInfo = Enigmail.msg.securityInfo;
-    let statusFlags = secInfo.statusFlags;
-    let extStatusFlags =
+    const secInfo = Enigmail.msg.securityInfo;
+    const statusFlags = secInfo.statusFlags;
+    const extStatusFlags =
       "extStatusFlags" in secInfo ? secInfo.extStatusFlags : 0;
 
     let signed;
@@ -444,7 +444,7 @@ Enigmail.hdrView = {
   },
 
   editKeyTrust() {
-    let key = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
+    const key = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
 
     EnigmailWindows.editKeyTrust(
       window,
@@ -455,7 +455,7 @@ Enigmail.hdrView = {
   },
 
   signKey() {
-    let key = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
+    const key = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
 
     EnigmailWindows.signKey(
       window,
@@ -479,7 +479,8 @@ Enigmail.hdrView = {
           Enigmail.hdrView.statusBarHide();
           EnigmailVerify.setLastMsgUri(Enigmail.msg.getCurrentMsgUriSpec());
 
-          let msgFrame = document.getElementById("messagepane").contentDocument;
+          const msgFrame =
+            document.getElementById("messagepane").contentDocument;
 
           if (msgFrame) {
             msgFrame.addEventListener(
@@ -552,7 +553,7 @@ Enigmail.hdrView = {
       return;
     }
 
-    let key = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
+    const key = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
 
     EnigmailWindows.openKeyDetails(window, key.keyId, false);
   },
@@ -570,15 +571,15 @@ Enigmail.hdrView = {
   },
 
   onShowAttachmentContextMenu(event) {
-    let contextMenu = document.getElementById("attachmentItemContext");
-    let separator = document.getElementById("openpgpCtxItemsSeparator");
-    let decryptOpenMenu = document.getElementById("enigmail_ctxDecryptOpen");
-    let decryptSaveMenu = document.getElementById("enigmail_ctxDecryptSave");
-    let importMenu = document.getElementById("enigmail_ctxImportKey");
-    let verifyMenu = document.getElementById("enigmail_ctxVerifyAtt");
+    const contextMenu = document.getElementById("attachmentItemContext");
+    const separator = document.getElementById("openpgpCtxItemsSeparator");
+    const decryptOpenMenu = document.getElementById("enigmail_ctxDecryptOpen");
+    const decryptSaveMenu = document.getElementById("enigmail_ctxDecryptSave");
+    const importMenu = document.getElementById("enigmail_ctxImportKey");
+    const verifyMenu = document.getElementById("enigmail_ctxVerifyAtt");
 
     if (contextMenu.attachments.length == 1) {
-      let attachment = contextMenu.attachments[0];
+      const attachment = contextMenu.attachments[0];
 
       if (/^application\/pgp-keys/i.test(attachment.contentType)) {
         importMenu.hidden = false;
@@ -686,7 +687,7 @@ Enigmail.hdrView = {
 
   setSubject(subject) {
     // Strip multiple localized Re: prefixes. This emulates NS_MsgStripRE().
-    let prefixes = Services.prefs
+    const prefixes = Services.prefs
       .getComplexValue("mailnews.localizedRe", Ci.nsIPrefLocalizedString)
       .data.split(",")
       .filter(Boolean);
@@ -698,11 +699,11 @@ Enigmail.hdrView = {
       new RegExp(`^(${prefixes.join(": |")}: )+`, "i"),
       ""
     );
-    let hadRe = newSubject != subject;
+    const hadRe = newSubject != subject;
 
     // Update the message.
     gMessage.subject = newSubject;
-    let oldFlags = gMessage.flags;
+    const oldFlags = gMessage.flags;
     if (hadRe) {
       gMessage.flags |= Ci.nsMsgMessageFlags.HasRe;
       newSubject = "Re: " + newSubject;
@@ -720,7 +721,7 @@ Enigmail.hdrView = {
   },
 
   updateHdrBox(header, value) {
-    let e = document.getElementById("expanded" + header + "Box");
+    const e = document.getElementById("expanded" + header + "Box");
     if (e) {
       e.headerValue = value;
     }
@@ -728,7 +729,7 @@ Enigmail.hdrView = {
 
   headerPane: {
     isCurrentMessage(uri) {
-      let uriSpec = uri ? uri.spec : null;
+      const uriSpec = uri ? uri.spec : null;
 
       EnigmailLog.DEBUG(
         "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.isCurrentMessage: uri.spec=" +
@@ -754,7 +755,7 @@ Enigmail.hdrView = {
           return true;
         }
 
-        for (let i in mimePart.subParts) {
+        for (const i in mimePart.subParts) {
           if (this.isMultipartRelated(mimePart.subParts[i], searchPartNum)) {
             return true;
           }
@@ -776,7 +777,7 @@ Enigmail.hdrView = {
       if (!mimePartNumber || !uriSpec) {
         return true;
       }
-      let part = EnigmailMime.getMimePartNumber(uriSpec);
+      const part = EnigmailMime.getMimePartNumber(uriSpec);
 
       if (part.length === 0) {
         // only display header if 1st message part
@@ -784,7 +785,7 @@ Enigmail.hdrView = {
           return false;
         }
       } else {
-        let r = EnigmailFuncs.compareMimePartLevel(mimePartNumber, part);
+        const r = EnigmailFuncs.compareMimePartLevel(mimePartNumber, part);
 
         // analyzed mime part is contained in viewed message part
         if (r === 2) {
@@ -836,7 +837,7 @@ Enigmail.hdrView = {
           return true;
         }
 
-        for (let i in mimeSubTree.subParts) {
+        for (const i in mimeSubTree.subParts) {
           if (
             hasUnauthenticatedSiblings(
               mimeSubTree.subParts[i],
@@ -914,7 +915,7 @@ Enigmail.hdrView = {
           "\n"
       );
 
-      let uriSpec = uri ? uri.spec : null;
+      const uriSpec = uri ? uri.spec : null;
 
       if (this.isCurrentMessage(uri)) {
         if (statusFlags & EnigmailConstants.DECRYPTION_OKAY) {
@@ -941,7 +942,7 @@ Enigmail.hdrView = {
 
         if (extraDetails && extraDetails.length > 0) {
           try {
-            let o = JSON.parse(extraDetails);
+            const o = JSON.parse(extraDetails);
             if ("encryptedTo" in o) {
               encToDetails = o.encryptedTo;
             }
@@ -978,7 +979,7 @@ Enigmail.hdrView = {
           "\n"
       );
 
-      let msg = gMessage;
+      const msg = gMessage;
       if (!msg) {
         return;
       }
@@ -1002,7 +1003,7 @@ Enigmail.hdrView = {
         "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.modifyMessageHeaders:\n"
       );
 
-      let msg = gMessage;
+      const msg = gMessage;
       if (!msg) {
         return;
       }
@@ -1010,7 +1011,7 @@ Enigmail.hdrView = {
         return;
       }
 
-      let uriSpec = uri ? uri.spec : null;
+      const uriSpec = uri ? uri.spec : null;
       let hdr;
 
       try {

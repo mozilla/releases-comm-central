@@ -69,7 +69,7 @@ var addressBookTabType = {
     );
 
     // First clone the page and set up the basics.
-    let clone = document
+    const clone = document
       .getElementById("preferencesTab")
       .firstElementChild.cloneNode(true);
 
@@ -140,7 +140,7 @@ var addressBookTabType = {
     aTab.title = this.loadingTabString;
 
     ExtensionParent.apiManager.emit("extension-browser-inserted", aTab.browser);
-    let params = {
+    const params = {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
       postData: aArgs.postData || null,
     };

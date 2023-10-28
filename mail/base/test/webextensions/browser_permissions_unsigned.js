@@ -15,11 +15,11 @@ add_task(async function test_unsigned() {
     ],
   });
 
-  let testURI = makeURI("https://example.com/");
+  const testURI = makeURI("https://example.com/");
   PermissionTestUtils.add(testURI, "install", Services.perms.ALLOW_ACTION);
   registerCleanupFunction(() => PermissionTestUtils.remove(testURI, "install"));
 
-  let tab = openContentTab("about:blank");
+  const tab = openContentTab("about:blank");
   BrowserTestUtils.startLoadingURIString(
     tab.linkedBrowser,
     `${BASE}/file_install_extensions.html`
@@ -34,16 +34,16 @@ add_task(async function test_unsigned() {
     }
   );
 
-  let panel = await promisePopupNotificationShown("addon-webext-permissions");
+  const panel = await promisePopupNotificationShown("addon-webext-permissions");
 
   // cancel the install
-  let promise = promiseInstallEvent({ id: ID }, "onInstallCancelled");
+  const promise = promiseInstallEvent({ id: ID }, "onInstallCancelled");
   panel.secondaryButton.click();
   await promise;
 
-  let addon = await AddonManager.getAddonByID(ID);
+  const addon = await AddonManager.getAddonByID(ID);
   is(addon, null, "Extension is not installed");
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tab);
 });

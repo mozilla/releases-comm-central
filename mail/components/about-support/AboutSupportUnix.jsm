@@ -55,7 +55,7 @@ var AboutSupportPlatform = {
 
     try {
       // Given a UTF-8 string, converts it to the current Glib locale.
-      let g_filename_from_utf8 = glib.declare(
+      const g_filename_from_utf8 = glib.declare(
         "g_filename_from_utf8",
         ctypes.default_abi,
         ctypes.char.ptr, // return type: glib locale string
@@ -76,7 +76,7 @@ var AboutSupportPlatform = {
       }
 
       // Given a path, creates a new GFile for it.
-      let g_file_new_for_path = gio.declare(
+      const g_file_new_for_path = gio.declare(
         "g_file_new_for_path",
         ctypes.default_abi,
         GFile.ptr, // return type: a newly-allocated GFile
@@ -86,7 +86,7 @@ var AboutSupportPlatform = {
 
       // Given a GFile, queries the given attributes and returns them
       // as a GFileInfo.
-      let g_file_query_filesystem_info = gio.declare(
+      const g_file_query_filesystem_info = gio.declare(
         "g_file_query_filesystem_info",
         ctypes.default_abi,
         GFileInfo.ptr, // return type
@@ -105,14 +105,14 @@ var AboutSupportPlatform = {
         throw new Error("Unabled to retrieve GLib file info for " + aFile.path);
       }
 
-      let g_file_info_get_attribute_string = gio.declare(
+      const g_file_info_get_attribute_string = gio.declare(
         "g_file_info_get_attribute_string",
         ctypes.default_abi,
         ctypes.char.ptr, // return type: file system type (do not free)
         GFileInfo.ptr, // in: info
         ctypes.char.ptr // in: attribute
       );
-      let fsType = g_file_info_get_attribute_string(
+      const fsType = g_file_info_get_attribute_string(
         glibFileInfo,
         G_FILE_ATTRIBUTE_FILESYSTEM_TYPE
       );

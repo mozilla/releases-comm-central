@@ -62,10 +62,10 @@ add_setup(async function () {
   await promise_account_tree_load(gTab);
 
   // Open the End-to-End Encryption page.
-  let accountRow = get_account_tree_row(gAccount.key, "am-e2e.xhtml", gTab);
+  const accountRow = get_account_tree_row(gAccount.key, "am-e2e.xhtml", gTab);
   await click_account_tree_row(gTab, accountRow);
 
-  let iframe =
+  const iframe =
     gTab.browser.contentWindow.document.getElementById("contentFrame");
 
   tabDocument = iframe.contentDocument;
@@ -104,17 +104,17 @@ add_task(async function check_clean_keylist() {
  */
 add_task(async function generate_new_key() {
   // Open the key wizard from the "Add Key" button.
-  let button = tabDocument.getElementById("addOpenPgpButton");
+  const button = tabDocument.getElementById("addOpenPgpButton");
   EventUtils.synthesizeMouseAtCenter(button, {}, tabWindow);
 
-  let wizard = await wait_for_frame_load(
+  const wizard = await wait_for_frame_load(
     gTab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://openpgp/content/ui/keyWizard.xhtml"
   );
-  let doc = wizard.document;
-  let dialog = doc.documentElement.querySelector("dialog");
+  const doc = wizard.document;
+  const dialog = doc.documentElement.querySelector("dialog");
 
-  let keyGenView = doc.getElementById("wizardCreateKey");
+  const keyGenView = doc.getElementById("wizardCreateKey");
 
   // Accept the dialog since the first option should be automatically selected.
   dialog.acceptDialog();
@@ -130,7 +130,7 @@ add_task(async function generate_new_key() {
     dialog.ownerGlobal
   );
 
-  let wizardOverlay = doc.getElementById("wizardOverlay");
+  const wizardOverlay = doc.getElementById("wizardOverlay");
 
   // Move to the next screen.
   dialog.acceptDialog();
@@ -141,14 +141,14 @@ add_task(async function generate_new_key() {
 
   // Store the wait event here before the SubDialog is destroyed and we can't
   // access it anymore.
-  let frameWinUnload = BrowserTestUtils.waitForEvent(
+  const frameWinUnload = BrowserTestUtils.waitForEvent(
     gTab.browser.contentWindow.gSubDialog._topDialog._frame.contentWindow,
     "unload",
     true
   );
 
   // Confirm the generation of the new key.
-  let confirmButton = doc.getElementById("openPgpKeygenConfirmButton");
+  const confirmButton = doc.getElementById("openPgpKeygenConfirmButton");
   EventUtils.synthesizeMouseAtCenter(confirmButton, {}, dialog.ownerGlobal);
 
   // Wait for the subdialog to close.
@@ -183,15 +183,15 @@ add_task(async function generate_new_key() {
  */
 add_task(async function import_secret_key() {
   // Open the key wizard from the "Add Key" button.
-  let button = tabDocument.getElementById("addOpenPgpButton");
+  const button = tabDocument.getElementById("addOpenPgpButton");
   EventUtils.synthesizeMouseAtCenter(button, {}, tabWindow);
 
-  let wizard = await wait_for_frame_load(
+  const wizard = await wait_for_frame_load(
     gTab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://openpgp/content/ui/keyWizard.xhtml"
   );
-  let doc = wizard.document;
-  let dialog = doc.documentElement.querySelector("dialog");
+  const doc = wizard.document;
+  const dialog = doc.documentElement.querySelector("dialog");
 
   // Change the selection to import a key.
   EventUtils.synthesizeMouseAtCenter(
@@ -200,7 +200,7 @@ add_task(async function import_secret_key() {
     dialog.ownerGlobal
   );
 
-  let importView = doc.getElementById("wizardImportKey");
+  const importView = doc.getElementById("wizardImportKey");
 
   // Accept the dialog to move to the next screen.
   dialog.acceptDialog();
@@ -209,22 +209,22 @@ add_task(async function import_secret_key() {
     "Timeout waiting for the #wizardImportKey to appear"
   );
 
-  let ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(
+  const ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(
     Ci.nsIChromeRegistry
   );
-  let chromeUrl = Services.io.newURI(
+  const chromeUrl = Services.io.newURI(
     getRootDirectory(gTestPath) +
       "data/keys/alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
   );
   gImportedKeyId = "0xf231550c4f47e38e";
-  let fileUrl = ChromeRegistry.convertChromeURL(chromeUrl);
-  let file = fileUrl.QueryInterface(Ci.nsIFileURL).file;
+  const fileUrl = ChromeRegistry.convertChromeURL(chromeUrl);
+  const file = fileUrl.QueryInterface(Ci.nsIFileURL).file;
 
   MockFilePicker.init(window);
   MockFilePicker.setFiles([file]);
   MockFilePicker.returnValue = MockFilePicker.returnOK;
 
-  let importButton = doc
+  const importButton = doc
     .getElementById("importKeyIntro")
     .querySelector("button");
   EventUtils.synthesizeMouseAtCenter(importButton, {}, dialog.ownerGlobal);
@@ -235,7 +235,7 @@ add_task(async function import_secret_key() {
     "Timeout waiting for the #importKeyListContainer to appear"
   );
 
-  let keyList = doc.getElementById("importKeyList");
+  const keyList = doc.getElementById("importKeyList");
 
   // The dialog should display 1 key ready to be imported.
   Assert.equal(
@@ -258,7 +258,7 @@ add_task(async function import_secret_key() {
     "Timeout waiting for the #importKeyListSuccess to appear"
   );
 
-  let keyListRecap = doc.getElementById("importKeyListRecap");
+  const keyListRecap = doc.getElementById("importKeyListRecap");
 
   // The dialog should display 1 key ready to be imported.
   Assert.equal(
@@ -267,7 +267,7 @@ add_task(async function import_secret_key() {
     "Only 1 imported key is listed in the #importKeyListRecap container"
   );
 
-  let keyListRadio = tabDocument.getElementById("openPgpKeyListRadio");
+  const keyListRadio = tabDocument.getElementById("openPgpKeyListRadio");
 
   // Accept the dialog to close it.
   dialog.acceptDialog();
@@ -291,15 +291,15 @@ add_task(async function import_secret_key() {
  */
 add_task(async function add_external_key() {
   // Open the key wizard from the "Add Key" button.
-  let button = tabDocument.getElementById("addOpenPgpButton");
+  const button = tabDocument.getElementById("addOpenPgpButton");
   EventUtils.synthesizeMouseAtCenter(button, {}, tabWindow);
 
-  let wizard = await wait_for_frame_load(
+  const wizard = await wait_for_frame_load(
     gTab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://openpgp/content/ui/keyWizard.xhtml"
   );
-  let doc = wizard.document;
-  let dialog = doc.documentElement.querySelector("dialog");
+  const doc = wizard.document;
+  const dialog = doc.documentElement.querySelector("dialog");
 
   // Change the selection to import a key.
   EventUtils.synthesizeMouseAtCenter(
@@ -308,7 +308,7 @@ add_task(async function add_external_key() {
     dialog.ownerGlobal
   );
 
-  let externalView = doc.getElementById("wizardExternalKey");
+  const externalView = doc.getElementById("wizardExternalKey");
 
   // Accept the dialog to move to the next screen.
   dialog.acceptDialog();
@@ -320,7 +320,7 @@ add_task(async function add_external_key() {
   doc.getElementById("externalKey").focus();
   EventUtils.sendString(EXTERNAL_GNUP_KEY, wizard);
 
-  let keyListRadio = tabDocument.getElementById("openPgpKeyListRadio");
+  const keyListRadio = tabDocument.getElementById("openPgpKeyListRadio");
 
   // Accept the dialog to close it.
   dialog.acceptDialog();

@@ -71,7 +71,7 @@ var FolderTreeProperties = {
     ensureReady();
     jsonFile.data.open = jsonFile.data.open ?? {};
     jsonFile.data.open[mode] = jsonFile.data.open[mode] ?? [];
-    let index = jsonFile.data.open[mode].indexOf(folderURI);
+    const index = jsonFile.data.open[mode].indexOf(folderURI);
     if (isExpanded) {
       if (index < 0) {
         jsonFile.data.open[mode].push(folderURI);

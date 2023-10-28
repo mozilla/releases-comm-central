@@ -43,7 +43,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
     if (!item) {
       return;
     }
-    let control = await ExtensionSettingsStore.getLevelOfControl(
+    const control = await ExtensionSettingsStore.getLevelOfControl(
       id,
       DEFAULT_SEARCH_STORE_TYPE,
       DEFAULT_SEARCH_SETTING_NAME
@@ -55,7 +55,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
     );
     if (item && control == "controlled_by_this_extension") {
       try {
-        let engine = Services.search.getEngineByName(
+        const engine = Services.search.getEngineByName(
           item.value || item.initialValue
         );
         if (engine) {
@@ -88,7 +88,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   }
 
   static async onUninstall(id) {
-    let searchStartupPromise = pendingSearchSetupTasks.get(id);
+    const searchStartupPromise = pendingSearchSetupTasks.get(id);
     if (searchStartupPromise) {
       await searchStartupPromise.catch(console.error);
     }
@@ -98,7 +98,8 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   }
 
   static async onUpdate(id, manifest) {
-    let search_provider = manifest?.chrome_settings_overrides?.search_provider;
+    const search_provider =
+      manifest?.chrome_settings_overrides?.search_provider;
 
     if (!search_provider) {
       // Remove setting and engine from search if necessary.
@@ -118,13 +119,13 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   }
 
   async onManifestEntry(entryName) {
-    let { extension } = this;
-    let { manifest } = extension;
+    const { extension } = this;
+    const { manifest } = extension;
     if (manifest.chrome_settings_overrides.search_provider) {
       // Registering a search engine can potentially take a long while,
       // or not complete at all (when searchInitialized is never resolved),
       // so we are deliberately not awaiting the returned promise here.
-      let searchStartupPromise =
+      const searchStartupPromise =
         this.processSearchProviderManifestEntry().finally(() => {
           if (
             pendingSearchSetupTasks.get(extension.id) === searchStartupPromise
@@ -142,7 +143,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   }
 
   async ensureSetting(engineName, disable = false) {
-    let { extension } = this;
+    const { extension } = this;
     // Ensure the addon always has a setting
     await ExtensionSettingsStore.initialize();
     let item = ExtensionSettingsStore.getSetting(
@@ -151,7 +152,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
       extension.id
     );
     if (!item) {
-      let defaultEngine = await Services.search.getDefault();
+      const defaultEngine = await Services.search.getDefault();
       item = await ExtensionSettingsStore.addSetting(
         extension.id,
         DEFAULT_SEARCH_STORE_TYPE,
@@ -181,10 +182,10 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   }
 
   async promptDefaultSearch(engineName) {
-    let { extension } = this;
+    const { extension } = this;
     // Don't ask if it is already the current engine
-    let engine = Services.search.getEngineByName(engineName);
-    let defaultEngine = await Services.search.getDefault();
+    const engine = Services.search.getEngineByName(engineName);
+    const defaultEngine = await Services.search.getDefault();
     if (defaultEngine.name == engine.name) {
       return;
     }
@@ -193,7 +194,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
     // setting enabled for this extension.
     await this.ensureSetting(engineName, true);
 
-    let subject = {
+    const subject = {
       wrappedJSObject: {
         // This is a hack because we don't have the browser of
         // the actual install. This means the popup might show
@@ -229,9 +230,9 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   }
 
   async processSearchProviderManifestEntry() {
-    let { extension } = this;
-    let { manifest } = extension;
-    let searchProvider = manifest.chrome_settings_overrides.search_provider;
+    const { extension } = this;
+    const { manifest } = extension;
+    const searchProvider = manifest.chrome_settings_overrides.search_provider;
 
     // If we're not being requested to be set as default, then all we need
     // to do is to add the engine to the service. The search service can cope
@@ -251,8 +252,8 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
       return;
     }
 
-    let engineName = searchProvider.name.trim();
-    let result = await Services.search.maybeSetAndOverrideDefault(extension);
+    const engineName = searchProvider.name.trim();
+    const result = await Services.search.maybeSetAndOverrideDefault(extension);
     // This will only be set to true when the specified engine is an app-provided
     // engine, or when it is an allowed add-on defined in the list stored in
     // SearchDefaultOverrideAllowlistHandler.
@@ -274,12 +275,12 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   }
 
   async setDefault(engineName, skipEnablePrompt = false) {
-    let { extension } = this;
+    const { extension } = this;
     if (extension.startupReason === "ADDON_INSTALL") {
       // We should only get here if an extension is setting an app-provided
       // engine to default and we are ignoring the addons other engine settings.
       // In this case we do not show the prompt to the user.
-      let item = await this.ensureSetting(engineName);
+      const item = await this.ensureSetting(engineName);
       await Services.search.setDefault(
         Services.search.getEngineByName(item.value),
         Ci.nsISearchService.CHANGE_REASON_ADDON_INSTALL
@@ -353,7 +354,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   }
 
   async addSearchEngine() {
-    let { extension } = this;
+    const { extension } = this;
     try {
       await Services.search.addEnginesFromExtension(extension);
     } catch (e) {

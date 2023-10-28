@@ -18,7 +18,7 @@ class AccountHubEmailAdded extends HTMLElement {
 
     this.classList.add("account-hub-view");
 
-    let template = document.getElementById("accountHubEmailAdded");
+    const template = document.getElementById("accountHubEmailAdded");
     this.appendChild(template.content.cloneNode(true));
 
     this.#finishButton = this.querySelector("#emailFinishButton");

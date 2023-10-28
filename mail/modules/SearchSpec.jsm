@@ -30,7 +30,7 @@ SearchSpec.prototype = {
    * Clone this SearchSpec; intended to be used by DBViewWrapper.clone().
    */
   clone(aViewWrapper) {
-    let doppel = new SearchSpec(aViewWrapper);
+    const doppel = new SearchSpec(aViewWrapper);
 
     // we can just copy the terms since we never mutate them
     doppel._viewTerms = this._viewTerms;
@@ -109,7 +109,7 @@ SearchSpec.prototype = {
     } else if (this.owner.isSynthetic) {
       // If it's synthetic but we have no search terms, hook the output of the
       // synthetic view directly up to the search nsIMsgDBView.
-      let owner = this.owner;
+      const owner = this.owner;
       owner.searching = true;
       this.owner._syntheticView.search(
         aDBView.QueryInterface(Ci.nsIMsgSearchNotify),
@@ -153,10 +153,10 @@ SearchSpec.prototype = {
   _flattenGroupifyTerms(aTerms, aCloneTerms) {
     let iTerm = 0,
       term;
-    let outTerms = aCloneTerms ? [] : aTerms;
+    const outTerms = aCloneTerms ? [] : aTerms;
     for (term of aTerms) {
       if (aCloneTerms) {
-        let cloneTerm = this.session.createTerm();
+        const cloneTerm = this.session.createTerm();
         cloneTerm.value = term.value;
         cloneTerm.attrib = term.attrib;
         cloneTerm.arbitraryHeader = term.arbitraryHeader;
@@ -199,7 +199,7 @@ SearchSpec.prototype = {
    */
   _groupifyTerms(aTerms, aCloneTerms) {
     let term;
-    let outTerms = aCloneTerms ? [] : aTerms;
+    const outTerms = aCloneTerms ? [] : aTerms;
     let inGroup = false;
     for (term of aTerms) {
       // If we're in a group, all that is forbidden is the creation of new
@@ -224,7 +224,7 @@ SearchSpec.prototype = {
       }
 
       if (aCloneTerms) {
-        let cloneTerm = this.session.createTerm();
+        const cloneTerm = this.session.createTerm();
         cloneTerm.attrib = term.attrib;
         cloneTerm.value = term.value;
         cloneTerm.arbitraryHeader = term.arbitraryHeader;
@@ -356,7 +356,7 @@ SearchSpec.prototype = {
    *  everything else.
    */
   updateSession() {
-    let session = this.session;
+    const session = this.session;
 
     // clear out our current terms and scope
     session.searchTerms = [];
@@ -364,19 +364,19 @@ SearchSpec.prototype = {
 
     // -- apply terms
     if (this._virtualFolderTerms) {
-      for (let term of this._virtualFolderTerms) {
+      for (const term of this._virtualFolderTerms) {
         session.appendTerm(term);
       }
     }
 
     if (this._viewTerms) {
-      for (let term of this._viewTerms) {
+      for (const term of this._viewTerms) {
         session.appendTerm(term);
       }
     }
 
     if (this._userTerms) {
-      for (let term of this._userTerms) {
+      for (const term of this._userTerms) {
         session.appendTerm(term);
       }
     }
@@ -391,16 +391,16 @@ SearchSpec.prototype = {
       return;
     }
 
-    let filtering = this._userTerms != null || this._viewTerms != null;
-    let validityManager = Cc[
+    const filtering = this._userTerms != null || this._viewTerms != null;
+    const validityManager = Cc[
       "@mozilla.org/mail/search/validityManager;1"
     ].getService(Ci.nsIMsgSearchValidityManager);
-    for (let folder of this.owner._underlyingFolders) {
+    for (const folder of this.owner._underlyingFolders) {
       // we do not need to check isServer here because _underlyingFolders
       //  filtered it out when it was initialized.
 
       let scope;
-      let serverScope = folder.server.searchScope;
+      const serverScope = folder.server.searchScope;
       // If we're offline, or this is a local folder, or there's no separate
       //  online scope, use server scope.
       if (
@@ -411,7 +411,7 @@ SearchSpec.prototype = {
         scope = serverScope;
       } else {
         // we need to test the validity in online and offline tables
-        let onlineValidityTable = validityManager.getTable(serverScope);
+        const onlineValidityTable = validityManager.getTable(serverScope);
 
         let offlineScope;
         if (folder.flags & Ci.nsMsgFolderFlags.Offline) {
@@ -422,14 +422,14 @@ SearchSpec.prototype = {
           offlineScope = Ci.nsMsgSearchScope.onlineManual;
         }
 
-        let offlineValidityTable = validityManager.getTable(offlineScope);
+        const offlineValidityTable = validityManager.getTable(offlineScope);
         let offlineAvailable = true;
         let onlineAvailable = true;
-        for (let term of session.searchTerms) {
+        for (const term of session.searchTerms) {
           if (!term.matchAll) {
             // for custom terms, we need to getAvailable from the custom term
             if (term.attrib == Ci.nsMsgSearchAttrib.Custom) {
-              let customTerm = MailServices.filters.getCustomTerm(
+              const customTerm = MailServices.filters.getCustomTerm(
                 term.customId
               );
               if (customTerm) {
@@ -479,7 +479,7 @@ SearchSpec.prototype = {
 
     let s = "";
 
-    for (let term of aSearchTerms) {
+    for (const term of aSearchTerms) {
       s += "      " + term.termAsString + "\n";
     }
 
@@ -495,7 +495,7 @@ SearchSpec.prototype = {
     s += "    User Terms:\n";
     s += this.prettyStringOfSearchTerms(this._userTerms);
     s += "    Scope (Folders):\n";
-    for (let folder of this.owner._underlyingFolders) {
+    for (const folder of this.owner._underlyingFolders) {
       s += "      " + folder.prettyName + "\n";
     }
     return s;

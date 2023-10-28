@@ -22,7 +22,7 @@ const emptyTheme = {
 
 let defaultTheme = emptyTheme;
 // Map[windowId -> Theme instance]
-let windowOverrides = new Map();
+const windowOverrides = new Map();
 
 /**
  * Class representing either a global theme affecting all windows or an override on a specific window.
@@ -170,8 +170,8 @@ class Theme {
    * @param {object} styles - Styles object in which to store the colors.
    */
   loadColors(colors, styles) {
-    for (let color of Object.keys(colors)) {
-      let val = colors[color];
+    for (const color of Object.keys(colors)) {
+      const val = colors[color];
 
       if (!val) {
         continue;
@@ -264,8 +264,8 @@ class Theme {
   loadImages(images, styles) {
     const { logger } = this.extension;
 
-    for (let image of Object.keys(images)) {
-      let val = images[image];
+    for (const image of Object.keys(images)) {
+      const val = images[image];
 
       if (!val) {
         continue;
@@ -273,12 +273,12 @@ class Theme {
 
       switch (image) {
         case "additional_backgrounds": {
-          let backgroundImages = val.map(img => this.getFileUrl(img));
+          const backgroundImages = val.map(img => this.getFileUrl(img));
           styles.additionalBackgrounds = backgroundImages;
           break;
         }
         case "theme_frame": {
-          let resolvedURL = this.getFileUrl(val);
+          const resolvedURL = this.getFileUrl(val);
           styles.headerURL = resolvedURL;
           break;
         }
@@ -307,7 +307,7 @@ class Theme {
    * @param {object} - styles Styles object in which to store the colors.
    */
   loadProperties(properties, styles) {
-    let additionalBackgroundsCount =
+    const additionalBackgroundsCount =
       (styles.additionalBackgrounds && styles.additionalBackgrounds.length) ||
       0;
     const assertValidAdditionalBackgrounds = (property, valueCount) => {
@@ -329,8 +329,8 @@ class Theme {
       return true;
     };
 
-    for (let property of Object.getOwnPropertyNames(properties)) {
-      let val = properties[property];
+    for (const property of Object.getOwnPropertyNames(properties)) {
+      const val = properties[property];
 
       if (!val) {
         continue;
@@ -350,7 +350,7 @@ class Theme {
             break;
           }
 
-          let tiling = [];
+          const tiling = [];
           for (let i = 0, l = styles.additionalBackgrounds.length; i < l; ++i) {
             tiling.push(val[i] || "no-repeat");
           }
@@ -394,7 +394,7 @@ class Theme {
   }
 
   static unload(windowId) {
-    let lwtData = {
+    const lwtData = {
       theme: null,
     };
 
@@ -419,7 +419,7 @@ this.theme = class extends ExtensionAPIPersistent {
     // has been called).
 
     onUpdated({ fire, context }) {
-      let callback = async (event, theme, windowId) => {
+      const callback = async (event, theme, windowId) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -447,8 +447,8 @@ this.theme = class extends ExtensionAPIPersistent {
   };
 
   onManifestEntry(entryName) {
-    let { extension } = this;
-    let { manifest } = extension;
+    const { extension } = this;
+    const { manifest } = extension;
 
     defaultTheme = new Theme({
       extension,
@@ -464,8 +464,8 @@ this.theme = class extends ExtensionAPIPersistent {
       return;
     }
 
-    let { extension } = this;
-    for (let [windowId, theme] of windowOverrides) {
+    const { extension } = this;
+    for (const [windowId, theme] of windowOverrides) {
       if (theme.extension === extension) {
         Theme.unload(windowId);
       }
@@ -477,7 +477,7 @@ this.theme = class extends ExtensionAPIPersistent {
   }
 
   getAPI(context) {
-    let { extension } = context;
+    const { extension } = context;
 
     return {
       theme: {
@@ -520,7 +520,7 @@ this.theme = class extends ExtensionAPIPersistent {
               return Promise.reject(`Invalid window ID: ${windowId}`);
             }
 
-            let theme = windowOverrides.get(windowId) || defaultTheme;
+            const theme = windowOverrides.get(windowId) || defaultTheme;
             if (theme.extension !== extension) {
               return Promise.resolve();
             }

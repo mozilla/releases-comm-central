@@ -3,11 +3,11 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  let account = createAccount();
+  const account = createAccount();
   addIdentity(account);
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
 
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkProperty(property, expectedDefault, ...expected) {
         browser.test.log(
@@ -32,9 +32,9 @@ add_task(async () => {
         await window.sendMessage(whichTest, property, expected);
       }
 
-      let tabs = await browser.mailTabs.query({});
+      const tabs = await browser.mailTabs.query({});
       browser.test.assertEq(3, tabs.length);
-      let tabIDs = tabs.map(t => t.id);
+      const tabIDs = tabs.map(t => t.id);
 
       let whichTest = "checkProperty";
 
@@ -247,7 +247,7 @@ add_task(async () => {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     useAddonManager: "temporary",
     manifest: {
@@ -263,7 +263,7 @@ add_task(async () => {
     },
   });
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.openTab("mail3PaneTab", {
     folderURI: rootFolder.URI,
     background: false,
@@ -273,13 +273,13 @@ add_task(async () => {
     background: false,
   });
 
-  let mailTabs = tabmail.tabInfo;
+  const mailTabs = tabmail.tabInfo;
   is(mailTabs.length, 3, "Expect 3 tabs");
   tabmail.switchToTab(mailTabs[0]);
 
   await extension.startup();
 
-  let button = document.querySelector(
+  const button = document.querySelector(
     `.unified-toolbar [extension="browser_action_properties@mochi.test"]`
   );
 

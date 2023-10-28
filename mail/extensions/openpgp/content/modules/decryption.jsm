@@ -300,7 +300,7 @@ var EnigmailDecryption = {
 
     // limit output to 100 times message size to avoid DoS attack
     var maxOutput = pgpBlock.length * 100;
-    let options = {
+    const options = {
       fromAddr: EnigmailDecryption.getFromAddr(parent),
       verifyOnly,
       noOutput: false,
@@ -309,7 +309,7 @@ var EnigmailDecryption = {
       msgDate,
     };
     const cApi = lazy.EnigmailCryptoAPI();
-    let result = cApi.sync(cApi.decrypt(pgpBlock, options));
+    const result = cApi.sync(cApi.decrypt(pgpBlock, options));
     lazy.EnigmailLog.DEBUG(
       "decryption.jsm: decryptMessage: decryption finished\n"
     );
@@ -338,7 +338,7 @@ var EnigmailDecryption = {
     if (exitCodeObj.value === 0) {
       // Normal return
 
-      let doubleDashSeparator = Services.prefs.getBoolPref(
+      const doubleDashSeparator = Services.prefs.getBoolPref(
         "doubleDashSeparator",
         false
       );
@@ -548,7 +548,7 @@ var EnigmailDecryption = {
         ")\n"
     );
 
-    let attachmentHead = byteData.substr(0, 200);
+    const attachmentHead = byteData.substr(0, 200);
     if (attachmentHead.match(/-----BEGIN PGP \w{5,10} KEY BLOCK-----/)) {
       // attachment appears to be a PGP key file
 
@@ -562,7 +562,7 @@ var EnigmailDecryption = {
           lazy.l10n.formatValueSync("dlg-button-view")
         )
       ) {
-        let preview = await lazy.EnigmailKey.getKeyListFromKeyBlock(
+        const preview = await lazy.EnigmailKey.getKeyListFromKeyBlock(
           byteData,
           errorMsgObj,
           true,
@@ -573,7 +573,7 @@ var EnigmailDecryption = {
         if (preview && errorMsgObj.value === "") {
           if (preview.length > 0) {
             let confirmImport = false;
-            let outParam = {};
+            const outParam = {};
             confirmImport = lazy.EnigmailDialog.confirmPubkeyImport(
               parent,
               preview,
@@ -614,7 +614,7 @@ var EnigmailDecryption = {
     }
 
     const cApi = lazy.EnigmailCryptoAPI();
-    let result = await cApi.decryptAttachment(byteData);
+    const result = await cApi.decryptAttachment(byteData);
     if (!result) {
       console.debug(
         "EnigmailCryptoAPI.decryptAttachment() failed with empty result"

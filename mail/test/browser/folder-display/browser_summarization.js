@@ -98,13 +98,13 @@ add_task(async function test_summarization_goes_away() {
  */
 add_task(async function test_folder_tabs_update_correctly() {
   // tab with summary
-  let tabA = await be_in_folder(folder);
+  const tabA = await be_in_folder(folder);
   await select_click_row(0);
   await select_control_click_row(2);
   await assert_selected_and_displayed(0, 2);
 
   // tab with nothing
-  let tabB = await open_folder_in_new_tab(folder);
+  const tabB = await open_folder_in_new_tab(folder);
   await wait_for_blank_content_pane();
   await assert_nothing_selected();
 
@@ -136,11 +136,11 @@ add_task(async function test_folder_tabs_update_correctly() {
 });
 
 add_task(async function test_message_tabs_update_correctly() {
-  let tabFolder = await be_in_folder(folder);
-  let message = await select_click_row(0);
+  const tabFolder = await be_in_folder(folder);
+  const message = await select_click_row(0);
   await assert_selected_and_displayed(0);
 
-  let tabMessage = await open_selected_message_in_new_tab();
+  const tabMessage = await open_selected_message_in_new_tab();
   await assert_selected_and_displayed(message);
 
   await switch_tab(tabFolder);
@@ -170,7 +170,7 @@ add_task(async function test_selection_stabilization_logic() {
   // verify that things were summarized...
   await assert_selected_and_displayed([0, 1]);
   // save the set of messages so we can verify the summary sticks to this.
-  let messages = window.gFolderDisplay.selectedMessages;
+  const messages = window.gFolderDisplay.selectedMessages;
 
   // make sure the
 
@@ -195,7 +195,7 @@ add_task(async function test_summarization_thread_detection() {
   await make_display_threaded();
   await select_click_row(0);
   await select_shift_click_row(9);
-  let messages = window.gFolderDisplay.selectedMessages;
+  const messages = window.gFolderDisplay.selectedMessages;
   await toggle_thread_row(0);
   await assert_messages_summarized(window, messages);
   // count the number of messages represented
@@ -225,7 +225,7 @@ add_task(async function test_new_thread_that_was_not_summarized_expands() {
   await be_in_folder(folder);
   await make_display_threaded();
   // - create the base messages
-  let [willMoveMsg, willNotMoveMsg] = await make_message_sets_in_folders(
+  const [willMoveMsg, willNotMoveMsg] = await make_message_sets_in_folders(
     [folder],
     [{ count: 1 }, { count: 1 }]
   );
@@ -268,7 +268,7 @@ add_task(
     await collapse_all_threads();
 
     // - select the thread root, thereby summarizing it
-    let thread1Root = await select_click_row(thread1); // this just uses the root msg
+    const thread1Root = await select_click_row(thread1); // this just uses the root msg
     assert_collapsed(thread1Root);
     // just the thread root should be selected
     assert_selected(thread1Root);
@@ -276,11 +276,11 @@ add_task(
     await assert_messages_summarized(window, thread1);
 
     // - add a new message, make sure it's in the summary now.
-    let [thread1Extra] = await make_message_sets_in_folders(
+    const [thread1Extra] = await make_message_sets_in_folders(
       [folder],
       [{ count: 1, inReplyTo: thread1 }]
     );
-    let thread1All = thread1.union(thread1Extra);
+    const thread1All = thread1.union(thread1Extra);
     assert_selected(thread1Root);
     await assert_messages_summarized(window, thread1All);
   }
@@ -289,19 +289,19 @@ add_task(
 add_task(async function test_summary_when_multiple_identities() {
   // First half of the test, makes sure messageDisplay.js understands there's
   // only one thread
-  let folder1 = await create_folder("Search1");
+  const folder1 = await create_folder("Search1");
   await be_in_folder(folder1);
   let thread1 = create_thread(1);
   await add_message_sets_to_folders([folder1], [thread1]);
 
-  let folder2 = await create_folder("Search2");
+  const folder2 = await create_folder("Search2");
   await be_in_folder(folder2);
   await make_message_sets_in_folders(
     [folder2],
     [{ count: 1, inReplyTo: thread1 }]
   );
 
-  let folderVirtual = create_virtual_folder(
+  const folderVirtual = create_virtual_folder(
     [folder1, folder2],
     {},
     true,
@@ -352,15 +352,15 @@ add_task(async function test_summary_when_multiple_identities() {
 });
 
 function extract_first_address(thread) {
-  let addresses = MailServices.headerParser.parseEncodedHeader(
+  const addresses = MailServices.headerParser.parseEncodedHeader(
     thread1.getMsgHdr(0).mime2DecodedAuthor
   );
   return addresses[0];
 }
 
 function check_address_name(name) {
-  let htmlframe = document.getElementById("multimessage");
-  let match = htmlframe.contentDocument.querySelector(".author");
+  const htmlframe = document.getElementById("multimessage");
+  const match = htmlframe.contentDocument.querySelector(".author");
   if (match.textContent != name) {
     throw new Error(
       "Expected to find sender named '" +
@@ -375,7 +375,7 @@ function check_address_name(name) {
 add_task(async function test_display_name_no_abook() {
   await be_in_folder(folder);
 
-  let address = extract_first_address(thread1);
+  const address = extract_first_address(thread1);
   ensure_no_card_exists(address.email);
 
   await collapse_all_threads();
@@ -388,7 +388,7 @@ add_task(async function test_display_name_no_abook() {
 add_task(async function test_display_name_abook() {
   await be_in_folder(folder);
 
-  let address = extract_first_address(thread1);
+  const address = extract_first_address(thread1);
   ensure_card_exists(address.email, "My Friend", true);
 
   await collapse_all_threads();
@@ -400,7 +400,7 @@ add_task(async function test_display_name_abook() {
 add_task(async function test_display_name_abook_no_pdn() {
   await be_in_folder(folder);
 
-  let address = extract_first_address(thread1);
+  const address = extract_first_address(thread1);
   ensure_card_exists(address.email, "My Friend", false);
 
   await collapse_all_threads();
@@ -427,7 +427,7 @@ add_task(async function test_archive_and_delete_messages() {
   await select_shift_click_row(2);
   let messages = window.gFolderDisplay.selectedMessages;
 
-  let contentWindow = document.getElementById("multimessage").contentWindow;
+  const contentWindow = document.getElementById("multimessage").contentWindow;
   // Archive selected messages.
   plan_to_wait_for_folder_events(
     "DeleteOrMoveMsgCompleted",

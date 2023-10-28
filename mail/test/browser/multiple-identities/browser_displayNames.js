@@ -43,7 +43,7 @@ add_setup(async function () {
 
   // We need to make sure we have only one identity:
   // 1) Delete all accounts except for Local Folders
-  for (let account of MailServices.accounts.accounts) {
+  for (const account of MailServices.accounts.accounts) {
     if (account != localAccount) {
       MailServices.accounts.removeAccount(account);
     }
@@ -51,7 +51,7 @@ add_setup(async function () {
 
   // 2) Delete all identities except for one
   for (let i = localAccount.identities.length - 1; i >= 0; i--) {
-    let identity = localAccount.identities[i];
+    const identity = localAccount.identities[i];
     if (identity.email != myEmail) {
       localAccount.removeIdentity(identity);
     }
@@ -88,7 +88,7 @@ add_setup(async function () {
   // Ensure all the directories are initialised.
   MailServices.ab.directories;
 
-  let bundle = Services.strings.createBundle(
+  const bundle = Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );
   headertoFieldMe = bundle.GetStringFromName("headertoFieldMe");

@@ -19,32 +19,35 @@ var { click_menus_in_sequence, close_window } = ChromeUtils.import(
 );
 
 add_task(async function test_reply_w_selection_direct() {
-  let file = new FileUtils.File(getTestFilePath("data/non-flowed-plain.eml"));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath("data/non-flowed-plain.eml"));
+  const msgc = await open_message_from_file(file);
 
-  let aboutMessage = get_about_message(msgc);
-  let win = aboutMessage.document.getElementById("messagepane").contentWindow;
-  let doc = aboutMessage.document.getElementById("messagepane").contentDocument;
-  let selection = win.getSelection();
+  const aboutMessage = get_about_message(msgc);
+  const win = aboutMessage.document.getElementById("messagepane").contentWindow;
+  const doc =
+    aboutMessage.document.getElementById("messagepane").contentDocument;
+  const selection = win.getSelection();
 
-  let text = doc.querySelector("body > div.moz-text-plain > pre.moz-quote-pre");
+  const text = doc.querySelector(
+    "body > div.moz-text-plain > pre.moz-quote-pre"
+  );
 
   // Lines 2-3 of the text.
-  let range1 = doc.createRange();
+  const range1 = doc.createRange();
   range1.setStart(text.firstChild, 6);
   range1.setEnd(text.firstChild, 20);
 
   // The <pre> node itself.
-  let range2 = doc.createRange();
+  const range2 = doc.createRange();
   range2.setStart(text, 0);
   range2.setEnd(text, 1);
 
-  for (let range of [range1, range2]) {
+  for (const range of [range1, range2]) {
     selection.removeAllRanges();
     selection.addRange(range);
 
-    let cwc = await open_compose_with_reply(msgc);
-    let blockquote = cwc.document
+    const cwc = await open_compose_with_reply(msgc);
+    const blockquote = cwc.document
       .getElementById("messageEditor")
       .contentDocument.body.querySelector("blockquote");
 

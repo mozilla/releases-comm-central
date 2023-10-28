@@ -14,7 +14,7 @@ DevToolsStartup.prototype = {
     this.initialize();
 
     // We want to overwrite the -devtools flag and open the toolbox instead
-    let devtoolsFlag = cmdLine.handleFlag("devtools", false);
+    const devtoolsFlag = cmdLine.handleFlag("devtools", false);
     if (devtoolsFlag) {
       this.handleDevToolsFlag(cmdLine);
     }
@@ -32,11 +32,11 @@ DevToolsStartup.prototype = {
   },
 
   initialize() {
-    let { loader, require, DevToolsLoader } = ChromeUtils.importESModule(
+    const { loader, require, DevToolsLoader } = ChromeUtils.importESModule(
       "resource://devtools/shared/loader/Loader.sys.mjs"
     );
-    let { DevToolsServer } = require("devtools/server/devtools-server");
-    let { gDevTools } = require("devtools/client/framework/devtools");
+    const { DevToolsServer } = require("devtools/server/devtools-server");
+    const { gDevTools } = require("devtools/client/framework/devtools");
 
     // Set up the client and server chrome window type, make sure it can't be set
     Object.defineProperty(DevToolsServer, "chromeWindowType", {
@@ -51,7 +51,7 @@ DevToolsStartup.prototype = {
     });
 
     // Make sure our root actor is always registered, no matter how devtools are called.
-    let devtoolsRegisterActors =
+    const devtoolsRegisterActors =
       DevToolsServer.registerActors.bind(DevToolsServer);
     DevToolsServer.registerActors = function (options) {
       devtoolsRegisterActors(options);

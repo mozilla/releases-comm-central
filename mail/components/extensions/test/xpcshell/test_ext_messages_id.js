@@ -14,8 +14,8 @@ add_task(
     skip_if: () => IS_NNTP,
   },
   async function setup() {
-    let account = createAccount();
-    let rootFolder = account.incomingServer.rootFolder;
+    const account = createAccount();
+    const rootFolder = account.incomingServer.rootFolder;
     subFolders = {
       test1: await createSubfolder(rootFolder, "test1"),
       test2: await createSubfolder(rootFolder, "test2"),
@@ -23,7 +23,7 @@ add_task(
       attachment: await createSubfolder(rootFolder, "attachment"),
     };
     await createMessages(subFolders.test1, 5);
-    let textAttachment = {
+    const textAttachment = {
       body: "textAttachment",
       filename: "test.txt",
       contentType: "text/plain",
@@ -44,13 +44,13 @@ add_task(
     skip_if: () => IS_NNTP,
   },
   async function test_identifiers() {
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files: {
         "background.js": async () => {
-          let [{ folders }] = await browser.accounts.list();
-          let testFolder1 = folders.find(f => f.name == "test1");
-          let testFolder2 = folders.find(f => f.name == "test2");
-          let testFolder3 = folders.find(f => f.name == "test3");
+          const [{ folders }] = await browser.accounts.list();
+          const testFolder1 = folders.find(f => f.name == "test1");
+          const testFolder2 = folders.find(f => f.name == "test2");
+          const testFolder3 = folders.find(f => f.name == "test3");
 
           let { messages } = await browser.messages.list(testFolder1);
           browser.test.assertEq(
@@ -64,7 +64,7 @@ add_task(
           browser.test.assertEq(4, messages[3].id);
           browser.test.assertEq(5, messages[4].id);
 
-          let subjects = messages.map(m => m.subject);
+          const subjects = messages.map(m => m.subject);
 
           // Move two messages. We could do this in one operation, but to be
           // sure of the order, do it in separate operations.
@@ -170,16 +170,14 @@ add_task(
     skip_if: () => IS_NNTP || IS_IMAP,
   },
   async function test_attachments() {
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files: {
         "background.js": async () => {
-          let id;
-
           browser.test.onMessage.addListener(async () => {
             // This listener gets called once the attachment has been removed.
             // Make sure we still get the message and it no longer has the
             // attachment.
-            let modifiedMessage = await browser.messages.getFull(id);
+            const modifiedMessage = await browser.messages.getFull(id);
             browser.test.assertEq(
               "Msg with text attachment",
               modifiedMessage.headers.subject[0]
@@ -195,13 +193,13 @@ add_task(
             browser.test.notifyPass("finished");
           });
 
-          let [{ folders }] = await browser.accounts.list();
-          let testFolder = folders.find(f => f.name == "attachment");
-          let { messages } = await browser.messages.list(testFolder);
+          const [{ folders }] = await browser.accounts.list();
+          const testFolder = folders.find(f => f.name == "attachment");
+          const { messages } = await browser.messages.list(testFolder);
           browser.test.assertEq(1, messages.length);
-          id = messages[0].id;
+          const id = messages[0].id;
 
-          let originalMessage = await browser.messages.getFull(id);
+          const originalMessage = await browser.messages.getFull(id);
           browser.test.assertEq(
             "Msg with text attachment",
             originalMessage.headers.subject[0]
@@ -224,7 +222,7 @@ add_task(
       },
     });
 
-    let observer = {
+    const observer = {
       observe(aSubject, aTopic, aData) {
         if (aTopic == "attachment-delete-msgkey-changed") {
           extension.sendMessage();
@@ -234,9 +232,9 @@ add_task(
     Services.obs.addObserver(observer, "attachment-delete-msgkey-changed");
 
     extension.onMessage("removeAttachment", () => {
-      let msgHdr = subFolders.attachment.messages.getNext();
-      let msgUri = msgHdr.folder.getUriForMsg(msgHdr);
-      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+      const msgHdr = subFolders.attachment.messages.getNext();
+      const msgUri = msgHdr.folder.getUriForMsg(msgHdr);
+      const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
         Ci.nsIMessenger
       );
       messenger.detachAttachment(

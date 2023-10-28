@@ -27,7 +27,7 @@ const LAYOUTS = ["standard", "wide", "vertical"];
 const SORT_TYPE_MAP = new Map(
   Object.keys(Ci.nsMsgViewSortType).map(key => {
     // Change "byFoo" to "foo".
-    let shortKey = key[2].toLowerCase() + key.substring(3);
+    const shortKey = key[2].toLowerCase() + key.substring(3);
     return [Ci.nsMsgViewSortType[key], shortKey];
   })
 );
@@ -44,7 +44,7 @@ const SORT_ORDER_MAP = new Map(
  * @returns {object}
  */
 function convertMailTab(tab, context) {
-  let mailTabObject = {
+  const mailTabObject = {
     id: tab.id,
     windowId: tab.windowId,
     active: tab.active,
@@ -56,8 +56,8 @@ function convertMailTab(tab, context) {
     messagePaneVisible: null,
   };
 
-  let about3Pane = tab.nativeTab.chromeBrowser.contentWindow;
-  let { gViewWrapper, paneLayout } = about3Pane;
+  const about3Pane = tab.nativeTab.chromeBrowser.contentWindow;
+  const { gViewWrapper, paneLayout } = about3Pane;
   mailTabObject.folderPaneVisible = paneLayout.folderPaneVisible;
   mailTabObject.messagePaneVisible = paneLayout.messagePaneVisible;
   mailTabObject.sortType = SORT_TYPE_MAP.get(gViewWrapper?.primarySortType);
@@ -89,9 +89,9 @@ var uiListener = new (class extends EventEmitter {
   }
 
   handleEvent(event) {
-    let browser = event.target.browsingContext.embedderElement;
-    let tabmail = browser.ownerGlobal.top.document.getElementById("tabmail");
-    let nativeTab = tabmail.tabInfo.find(
+    const browser = event.target.browsingContext.embedderElement;
+    const tabmail = browser.ownerGlobal.top.document.getElementById("tabmail");
+    const nativeTab = tabmail.tabInfo.find(
       t =>
         t.chromeBrowser == browser ||
         t.chromeBrowser == browser.browsingContext.parent.embedderElement
@@ -101,19 +101,19 @@ var uiListener = new (class extends EventEmitter {
       return;
     }
 
-    let tabId = tabTracker.getId(nativeTab);
-    let tab = tabTracker.getTab(tabId);
+    const tabId = tabTracker.getId(nativeTab);
+    const tab = tabTracker.getTab(tabId);
 
     if (event.type == "folderURIChanged") {
-      let folderURI = event.detail;
-      let folder = MailServices.folderLookup.getFolderForURL(folderURI);
+      const folderURI = event.detail;
+      const folder = MailServices.folderLookup.getFolderForURL(folderURI);
       if (this.lastSelected.get(tab) == folder) {
         return;
       }
       this.lastSelected.set(tab, folder);
       this.emit("folder-changed", tab, folder);
     } else if (event.type == "messageURIChanged") {
-      let messages =
+      const messages =
         nativeTab.chromeBrowser.contentWindow.gDBView?.getSelectedMsgHdrs();
       if (messages) {
         this.emit("messages-changed", tab, messages);
@@ -173,7 +173,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        let page = await messageListTracker.startList(messages, extension);
+        const page = await messageListTracker.startList(messages, extension);
         fire.sync(tabManager.convert(tab), page);
       }
       uiListener.on("messages-changed", listener);
@@ -192,8 +192,8 @@ this.mailTabs = class extends ExtensionAPIPersistent {
   };
 
   getAPI(context) {
-    let { extension } = context;
-    let { tabManager } = extension;
+    const { extension } = context;
+    const { tabManager } = extension;
 
     /**
      * Gets the tab for the given tab id, or the active tab if the id is null.
@@ -211,7 +211,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
       }
 
       if (tab && tab.type == "mail") {
-        let windowId = windowTracker.getId(getTabWindow(tab.nativeTab));
+        const windowId = windowTracker.getId(getTabWindow(tab.nativeTab));
         // Before doing anything with the mail tab, ensure its outer window is
         // fully loaded.
         await getNormalWindowReady(context, windowId);
@@ -228,10 +228,10 @@ this.mailTabs = class extends ExtensionAPIPersistent {
      *   messages of the folder, after it has been set.
      */
     async function setFolder(nativeTabInfo, folder, restorePreviousSelection) {
-      let about3Pane = nativeTabInfo.chromeBrowser.contentWindow;
+      const about3Pane = nativeTabInfo.chromeBrowser.contentWindow;
       if (!nativeTabInfo.folder || nativeTabInfo.folder.URI != folder.URI) {
         await new Promise(resolve => {
-          let listener = event => {
+          const listener = event => {
             if (event.detail == folder.URI) {
               about3Pane.removeEventListener("folderURIChanged", listener);
               resolve();
@@ -278,12 +278,12 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         },
 
         async get(tabId) {
-          let tab = await getTabOrActive(tabId);
+          const tab = await getTabOrActive(tabId);
           return convertMailTab(tab, context);
         },
         async getCurrent() {
           try {
-            let tab = await getTabOrActive();
+            const tab = await getTabOrActive();
             return convertMailTab(tab, context);
           } catch (e) {
             // Do not throw, if the active tab is not a mail tab, but return undefined.
@@ -292,9 +292,9 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         },
 
         async update(tabId, args) {
-          let tab = await getTabOrActive(tabId);
-          let { nativeTab } = tab;
-          let about3Pane = nativeTab.chromeBrowser.contentWindow;
+          const tab = await getTabOrActive(tabId);
+          const { nativeTab } = tab;
+          const about3Pane = nativeTab.chromeBrowser.contentWindow;
 
           let {
             displayedFolder,
@@ -313,11 +313,11 @@ this.mailTabs = class extends ExtensionAPIPersistent {
               );
             }
 
-            let folderUri = folderPathToURI(
+            const folderUri = folderPathToURI(
               displayedFolder.accountId,
               displayedFolder.path
             );
-            let folder = MailServices.folderLookup.getFolderForURL(folderUri);
+            const folder = MailServices.folderLookup.getFolderForURL(folderUri);
             if (!folder) {
               throw new ExtensionError(
                 `Folder "${displayedFolder.path}" for account ` +
@@ -371,9 +371,9 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         },
 
         async getSelectedMessages(tabId) {
-          let tab = await getTabOrActive(tabId);
-          let dbView = tab.nativeTab.chromeBrowser.contentWindow?.gDBView;
-          let messageList = dbView ? dbView.getSelectedMsgHdrs() : [];
+          const tab = await getTabOrActive(tabId);
+          const dbView = tab.nativeTab.chromeBrowser.contentWindow?.gDBView;
+          const messageList = dbView ? dbView.getSelectedMsgHdrs() : [];
           return messageListTracker.startList(messageList, extension);
         },
 
@@ -387,11 +387,11 @@ this.mailTabs = class extends ExtensionAPIPersistent {
             );
           }
 
-          let tab = await getTabOrActive(tabId);
+          const tab = await getTabOrActive(tabId);
           let refFolder, refMsgId;
-          let msgHdrs = [];
-          for (let messageId of messageIds) {
-            let msgHdr = extension.messageManager.get(messageId);
+          const msgHdrs = [];
+          for (const messageId of messageIds) {
+            const msgHdr = extension.messageManager.get(messageId);
             if (!refFolder) {
               refFolder = msgHdr.folder;
               refMsgId = messageId;
@@ -408,7 +408,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           if (refFolder) {
             await setFolder(tab.nativeTab, refFolder, false);
           }
-          let about3Pane = tab.nativeTab.chromeBrowser.contentWindow;
+          const about3Pane = tab.nativeTab.chromeBrowser.contentWindow;
           about3Pane.threadTree.selectedIndices = msgHdrs.map(
             about3Pane.gViewWrapper.getViewIndexForMsgHdr,
             about3Pane.gViewWrapper
@@ -416,15 +416,15 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         },
 
         async setQuickFilter(tabId, state) {
-          let tab = await getTabOrActive(tabId);
-          let nativeTab = tab.nativeTab;
-          let about3Pane = nativeTab.chromeBrowser.contentWindow;
+          const tab = await getTabOrActive(tabId);
+          const nativeTab = tab.nativeTab;
+          const about3Pane = nativeTab.chromeBrowser.contentWindow;
 
-          let filterer = about3Pane.quickFilterBar.filterer;
+          const filterer = about3Pane.quickFilterBar.filterer;
           filterer.clear();
 
           // Map of QuickFilter state names to possible WebExtensions state names.
-          let stateMap = {
+          const stateMap = {
             unread: "unread",
             starred: "flagged",
             addrBook: "contact",
@@ -432,7 +432,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           };
 
           filterer.visible = state.show !== false;
-          for (let [key, name] of Object.entries(stateMap)) {
+          for (const [key, name] of Object.entries(stateMap)) {
             filterer.setFilterValue(key, state[name]);
           }
 
@@ -441,13 +441,13 @@ this.mailTabs = class extends ExtensionAPIPersistent {
               mode: "OR",
               tags: {},
             };
-            for (let tag of MailServices.tags.getAllTags()) {
+            for (const tag of MailServices.tags.getAllTags()) {
               filterer.filterValues.tags[tag.key] = null;
             }
             if (typeof state.tags == "object") {
               filterer.filterValues.tags.mode =
                 state.tags.mode == "any" ? "OR" : "AND";
-              for (let [key, value] of Object.entries(state.tags.tags)) {
+              for (const [key, value] of Object.entries(state.tags.tags)) {
                 filterer.filterValues.tags.tags[key] = value;
               }
             }

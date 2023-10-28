@@ -150,8 +150,8 @@ let MailUsageTelemetry = {
     Services.obs.addObserver(this, DOMWINDOW_OPENED_TOPIC, true);
 
     // Attach the handlers to the existing Windows.
-    for (let winType of WINDOW_TYPES) {
-      for (let win of Services.wm.getEnumerator(winType)) {
+    for (const winType of WINDOW_TYPES) {
+      for (const win of Services.wm.getEnumerator(winType)) {
         this._registerWindow(win);
       }
     }
@@ -198,7 +198,7 @@ let MailUsageTelemetry = {
     }
 
     // One of these will at least let us know what the widget is for.
-    let possibleAttributes = [
+    const possibleAttributes = [
       "preference",
       "command",
       "observes",
@@ -210,7 +210,7 @@ let MailUsageTelemetry = {
       possibleAttributes.unshift("key");
     }
 
-    for (let idAttribute of possibleAttributes) {
+    for (const idAttribute of possibleAttributes) {
       if (node.hasAttribute(idAttribute)) {
         return node.getAttribute(idAttribute);
       }
@@ -221,8 +221,8 @@ let MailUsageTelemetry = {
 
   _getBrowserWidgetContainer(node) {
     // Find the container holding this element.
-    for (let containerId of Object.keys(MESSENGER_UI_CONTAINER_IDS)) {
-      let container = node.ownerDocument.getElementById(containerId);
+    for (const containerId of Object.keys(MESSENGER_UI_CONTAINER_IDS)) {
+      const container = node.ownerDocument.getElementById(containerId);
       if (container && container.contains(node)) {
         return MESSENGER_UI_CONTAINER_IDS[containerId];
       }
@@ -245,14 +245,14 @@ let MailUsageTelemetry = {
   lastClickTarget: null,
 
   _recordCommand(event) {
-    let types = [event.type];
+    const types = [event.type];
     let sourceEvent = event;
     while (sourceEvent.sourceEvent) {
       sourceEvent = sourceEvent.sourceEvent;
       types.push(sourceEvent.type);
     }
 
-    let lastTarget = this.lastClickTarget?.get();
+    const lastTarget = this.lastClickTarget?.get();
     if (
       lastTarget &&
       sourceEvent.type == "command" &&
@@ -278,7 +278,7 @@ let MailUsageTelemetry = {
 
     // We should never see events from web content as they are fired in a
     // content process, but let's be safe.
-    let url = sourceEvent.target.ownerDocument.documentURIObject;
+    const url = sourceEvent.target.ownerDocument.documentURIObject;
     if (!url.schemeIs("chrome") && !url.schemeIs("about")) {
       return;
     }
@@ -298,11 +298,11 @@ let MailUsageTelemetry = {
       }
     }
 
-    let item = this._getWidgetID(node);
-    let source = this._getWidgetContainer(node);
+    const item = this._getWidgetID(node);
+    const source = this._getWidgetContainer(node);
 
     if (item && source) {
-      let scalar = `tb.ui.interaction.${source.replace("-", "_")}`;
+      const scalar = `tb.ui.interaction.${source.replace("-", "_")}`;
       Services.telemetry.keyedScalarAdd(scalar, telemetryId(item), 1);
     }
   },
@@ -343,7 +343,7 @@ let MailUsageTelemetry = {
       return;
     }
 
-    let onLoad = () => {
+    const onLoad = () => {
       win.removeEventListener("load", onLoad);
 
       // Ignore non browser windows.

@@ -75,7 +75,7 @@ function BuildJSEAttributeTable() {
   if (nodeMap.length > 0) {
     var added = false;
     for (var i = 0; i < nodeMap.length; i++) {
-      let name = nodeMap[i].nodeName.toLowerCase();
+      const name = nodeMap[i].nodeName.toLowerCase();
       if (CheckAttributeNameSimilarity(nodeMap[i].nodeName, JSEAttrs)) {
         // Repeated or non-JS handler, ignore this one and go to next.
         continue;

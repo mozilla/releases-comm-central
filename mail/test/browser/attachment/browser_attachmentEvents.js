@@ -31,13 +31,13 @@ add_task(async function test_attachments_added_on_single() {
   // Prepare to listen for attachments-added
   let eventCount = 0;
   let lastEvent;
-  let listener = function (event) {
+  const listener = function (event) {
     eventCount++;
     lastEvent = event;
   };
 
   // Open up the compose window
-  let cw = await open_compose_new_mail(window);
+  const cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsAdded, listener);
@@ -79,7 +79,7 @@ add_task(async function test_attachments_added_on_multiple() {
   // Prepare to listen for attachments-added
   let eventCount = 0;
   let lastEvent;
-  let listener = function (event) {
+  const listener = function (event) {
     eventCount++;
     lastEvent = event;
   };
@@ -104,7 +104,7 @@ add_task(async function test_attachments_added_on_multiple() {
   let subjects = lastEvent.detail;
   Assert.equal(2, subjects.length);
 
-  for (let attachment of subjects) {
+  for (const attachment of subjects) {
     Assert.ok(attachmentUrls.includes(attachment.url));
   }
 
@@ -134,7 +134,7 @@ add_task(async function test_attachments_added_on_multiple() {
   subjects = lastEvent.detail;
   Assert.equal(3, subjects.length);
 
-  for (let attachment of subjects) {
+  for (const attachment of subjects) {
     Assert.ok(attachmentUrls.includes(attachment.url));
   }
 
@@ -157,13 +157,13 @@ add_task(async function test_attachments_removed_on_single() {
   // Prepare to listen for attachments-removed
   let eventCount = 0;
   let lastEvent;
-  let listener = function (event) {
+  const listener = function (event) {
     eventCount++;
     lastEvent = event;
   };
 
   // Open up the compose window, attach a file...
-  let cw = await open_compose_new_mail(window);
+  const cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsRemoved, listener);
@@ -208,13 +208,13 @@ add_task(async function test_attachments_removed_on_multiple() {
   // Prepare to listen for attachments-removed
   let eventCount = 0;
   let lastEvent;
-  let listener = function (event) {
+  const listener = function (event) {
     eventCount++;
     lastEvent = event;
   };
 
   // Open up the compose window and attach some files...
-  let cw = await open_compose_new_mail(window);
+  const cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsRemoved, listener);
@@ -226,9 +226,9 @@ add_task(async function test_attachments_removed_on_multiple() {
   ]);
 
   // Select all three attachments, and remove them.
-  let removedAttachmentItems = select_attachments(cw, 0, 2);
+  const removedAttachmentItems = select_attachments(cw, 0, 2);
 
-  let removedAttachmentUrls = removedAttachmentItems.map(
+  const removedAttachmentUrls = removedAttachmentItems.map(
     aAttachment => aAttachment.attachment.url
   );
 
@@ -239,10 +239,10 @@ add_task(async function test_attachments_removed_on_multiple() {
 
   // Now let's make sure we got passed back the right attachment items
   // as the event subject
-  let subjects = lastEvent.detail;
+  const subjects = lastEvent.detail;
   Assert.equal(3, subjects.length);
 
-  for (let attachment of subjects) {
+  for (const attachment of subjects) {
     Assert.ok(removedAttachmentUrls.includes(attachment.url));
   }
 
@@ -269,12 +269,12 @@ add_task(async function test_attachments_removed_on_multiple() {
 add_task(async function test_no_attachments_removed_on_none() {
   // Prepare to listen for attachments-removed
   let eventCount = 0;
-  let listener = function (event) {
+  const listener = function (event) {
     eventCount++;
   };
 
   // Open the compose window and add some attachments.
-  let cw = await open_compose_new_mail(window);
+  const cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsRemoved, listener);
@@ -311,7 +311,7 @@ add_task(async function test_attachment_renamed() {
   // Prepare to listen for attachment-renamed
   let eventCount = 0;
   let lastEvent;
-  let listener = function (event) {
+  const listener = function (event) {
     eventCount++;
     lastEvent = event;
   };
@@ -325,7 +325,7 @@ add_task(async function test_attachment_renamed() {
 
   // Open up the compose window, attach some files, choose the first
   // attachment, and choose to rename it.
-  let cw = await open_compose_new_mail(window);
+  const cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentRenamed, listener);
@@ -344,8 +344,8 @@ add_task(async function test_attachment_renamed() {
   await TestUtils.waitForCondition(() => eventCount == 1);
 
   // Ensure that the event mentions the right attachment
-  let renamedAttachment1 = lastEvent.target.attachment;
-  let originalAttachment1 = lastEvent.detail;
+  const renamedAttachment1 = lastEvent.target.attachment;
+  const originalAttachment1 = lastEvent.detail;
   Assert.ok(renamedAttachment1 instanceof Ci.nsIMsgAttachment);
   Assert.equal(kRenameTo1, renamedAttachment1.name);
   Assert.ok(renamedAttachment1.url.includes("http://www.example.com/1"));
@@ -363,8 +363,8 @@ add_task(async function test_attachment_renamed() {
   // Wait until we saw the attachment-renamed event.
   await TestUtils.waitForCondition(() => eventCount == 2);
 
-  let renamedAttachment2 = lastEvent.target.attachment;
-  let originalAttachment2 = lastEvent.detail;
+  const renamedAttachment2 = lastEvent.target.attachment;
+  const originalAttachment2 = lastEvent.detail;
   Assert.ok(renamedAttachment2 instanceof Ci.nsIMsgAttachment);
   Assert.equal(kRenameTo2, renamedAttachment2.name);
   Assert.ok(renamedAttachment2.url.includes("http://www.example.com/1"));
@@ -384,8 +384,8 @@ add_task(async function test_attachment_renamed() {
   await TestUtils.waitForCondition(() => eventCount == 3);
 
   // Ensure that the event mentions the right attachment
-  let renamedAttachment3 = lastEvent.target.attachment;
-  let originalAttachment3 = lastEvent.detail;
+  const renamedAttachment3 = lastEvent.target.attachment;
+  const originalAttachment3 = lastEvent.detail;
   Assert.ok(renamedAttachment3 instanceof Ci.nsIMsgAttachment);
   Assert.equal(kRenameTo3, renamedAttachment3.name);
   Assert.ok(renamedAttachment3.url.includes("http://www.example.com/2"));
@@ -407,7 +407,7 @@ add_task(async function test_attachment_renamed() {
 add_task(async function test_no_attachment_renamed_on_blank() {
   // Prepare to listen for attachment-renamed
   let eventCount = 0;
-  let listener = function (event) {
+  const listener = function (event) {
     eventCount++;
   };
 
@@ -420,7 +420,7 @@ add_task(async function test_no_attachment_renamed_on_blank() {
 
   // Open the compose window, attach some files, select one, and chooes to
   // rename it.
-  let cw = await open_compose_new_mail(window);
+  const cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentRenamed, listener);
@@ -448,15 +448,15 @@ add_task(async function test_no_attachment_renamed_on_blank() {
  */
 add_task(async function test_attachments_pane_toggle() {
   // Open the compose window.
-  let cw = await open_compose_new_mail(window);
+  const cw = await open_compose_new_mail(window);
 
   // Use the hotkey to try to toggle attachmentsArea open.
-  let opts =
+  const opts =
     AppConstants.platform == "macosx"
       ? { metaKey: true, shiftKey: true }
       : { ctrlKey: true, shiftKey: true };
   EventUtils.synthesizeKey("m", opts, cw);
-  let attachmentArea = cw.document.getElementById("attachmentArea");
+  const attachmentArea = cw.document.getElementById("attachmentArea");
 
   // Since we don't have any uploaded attachment, assert that the box remains
   // closed.

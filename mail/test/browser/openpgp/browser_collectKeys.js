@@ -30,7 +30,7 @@ var aliceAcct;
  * then we need to wait for the automatic processing to complete.
  */
 async function openpgpProcessed() {
-  let [subject] = await TestUtils.topicObserved(
+  const [subject] = await TestUtils.topicObserved(
     "document-element-inserted",
     document => {
       return document.ownerGlobal?.location == "about:message";
@@ -50,13 +50,13 @@ add_setup(async function () {
     "openpgp.example",
     "pop3"
   );
-  let aliceIdentity = MailServices.accounts.createIdentity();
+  const aliceIdentity = MailServices.accounts.createIdentity();
   aliceIdentity.email = "alice@openpgp.example";
   aliceAcct.addIdentity(aliceIdentity);
 
   // Set up the alice's private key.
   // We need one key set up for use. Otherwise we do not process OpenPGP data.
-  let [id] = await OpenPGPTestUtils.importPrivateKey(
+  const [id] = await OpenPGPTestUtils.importPrivateKey(
     window,
     new FileUtils.File(
       getTestFilePath(
@@ -71,9 +71,9 @@ add_setup(async function () {
  * Test that an attached key is collected.
  */
 add_task(async function testCollectKeyAttachment() {
-  let keycollected = BrowserTestUtils.waitForEvent(window, "keycollected");
-  let opengpgprocessed = openpgpProcessed();
-  let msgc = await open_message_from_file(
+  const keycollected = BrowserTestUtils.waitForEvent(window, "keycollected");
+  const opengpgprocessed = openpgpProcessed();
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/unsigned-unencrypted-key-0x1f10171bfb881b1c-attached.eml"
@@ -81,7 +81,7 @@ add_task(async function testCollectKeyAttachment() {
     )
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
@@ -93,13 +93,13 @@ add_task(async function testCollectKeyAttachment() {
   );
   await keycollected;
 
-  let db = await CollectedKeysDB.getInstance();
-  let keys = await db.findKeysForEmail("jdoe@invalid");
+  const db = await CollectedKeysDB.getInstance();
+  const keys = await db.findKeysForEmail("jdoe@invalid");
   Assert.equal(keys.length, 1, "should find one key");
 
-  let sources = keys[0].sources;
+  const sources = keys[0].sources;
   Assert.equal(sources.length, 1, "should have one source");
-  let source = sources[0];
+  const source = sources[0];
 
   Assert.equal(source.type, "attachment");
   Assert.equal(source.uri, "mid:4a735c72-dc19-48ff-4fa5-2c1f65513b27@invalid");
@@ -112,9 +112,9 @@ add_task(async function testCollectKeyAttachment() {
  * Test that an Autocrypt header key is collected.
  */
 add_task(async function testCollectAutocrypt() {
-  let keycollected = BrowserTestUtils.waitForEvent(window, "keycollected");
-  let opengpgprocessed = openpgpProcessed();
-  let msgc = await open_message_from_file(
+  const keycollected = BrowserTestUtils.waitForEvent(window, "keycollected");
+  const opengpgprocessed = openpgpProcessed();
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/unsigned-unencrypted-0x3099ff1238852b9f-autocrypt.eml"
@@ -122,7 +122,7 @@ add_task(async function testCollectAutocrypt() {
     )
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
@@ -136,13 +136,13 @@ add_task(async function testCollectAutocrypt() {
 
   const carolEmail = "carol@example.com";
 
-  let db = await CollectedKeysDB.getInstance();
+  const db = await CollectedKeysDB.getInstance();
   let keys = await db.findKeysForEmail(carolEmail);
   Assert.equal(keys.length, 1, "should find one key");
 
-  let sources = keys[0].sources;
+  const sources = keys[0].sources;
   Assert.equal(sources.length, 1, "should have one source");
-  let source = sources[0];
+  const source = sources[0];
 
   Assert.equal(source.type, "autocrypt");
   Assert.equal(
@@ -163,17 +163,17 @@ add_task(async function testCollectAutocrypt() {
  * Test that an Autocrypt-Gossip header key is collected.
  */
 add_task(async function testCollectAutocryptGossip() {
-  let keycollected = BrowserTestUtils.waitForEvent(window, "keycollected");
-  let keycollected2 = BrowserTestUtils.waitForEvent(window, "keycollected");
-  let keycollected3 = BrowserTestUtils.waitForEvent(window, "keycollected");
-  let opengpgprocessed = openpgpProcessed();
-  let msgc = await open_message_from_file(
+  const keycollected = BrowserTestUtils.waitForEvent(window, "keycollected");
+  const keycollected2 = BrowserTestUtils.waitForEvent(window, "keycollected");
+  const keycollected3 = BrowserTestUtils.waitForEvent(window, "keycollected");
+  const opengpgprocessed = openpgpProcessed();
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/signed-encrypted-autocrypt-gossip.eml")
     )
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
@@ -190,13 +190,13 @@ add_task(async function testCollectAutocryptGossip() {
 
   const carolEmail = "carol@example.com";
 
-  let db = await CollectedKeysDB.getInstance();
+  const db = await CollectedKeysDB.getInstance();
   let keys = await db.findKeysForEmail(carolEmail);
   Assert.equal(keys.length, 1, "should find one key");
 
-  let sources = keys[0].sources;
+  const sources = keys[0].sources;
   Assert.equal(sources.length, 1, "should have one source");
-  let source = sources[0];
+  const source = sources[0];
 
   Assert.equal(source.type, "autocrypt");
   Assert.equal(
@@ -219,14 +219,14 @@ add_task(async function testCollectAutocryptGossip() {
  * if we already have a personal key for an email address.
  */
 add_task(async function testSkipFakeOrUnrelatedKeys() {
-  let opengpgprocessed = openpgpProcessed();
-  let msgc = await open_message_from_file(
+  const opengpgprocessed = openpgpProcessed();
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/unrelated-and-fake-keys-attached.eml")
     )
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
@@ -237,7 +237,7 @@ add_task(async function testSkipFakeOrUnrelatedKeys() {
     "encrypted icon is not displayed"
   );
 
-  let db = await CollectedKeysDB.getInstance();
+  const db = await CollectedKeysDB.getInstance();
 
   let keys = await db.findKeysForEmail("alice@openpgp.example");
   Assert.equal(
@@ -253,7 +253,7 @@ add_task(async function testSkipFakeOrUnrelatedKeys() {
     "the attached key for stranger should have been ignored because stranger isn't a participant of this message"
   );
 
-  let bobEmail = "bob@openpgp.example";
+  const bobEmail = "bob@openpgp.example";
 
   keys = await db.findKeysForEmail(bobEmail);
   Assert.equal(keys.length, 1, "bob's key should have been collected");
@@ -270,12 +270,12 @@ add_task(async function testSkipFakeOrUnrelatedKeys() {
  * don't import any keys for that email address.
  */
 add_task(async function testSkipDuplicateKeys() {
-  let opengpgprocessed = openpgpProcessed();
-  let msgc = await open_message_from_file(
+  const opengpgprocessed = openpgpProcessed();
+  const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/eve-duplicate.eml"))
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
@@ -286,9 +286,9 @@ add_task(async function testSkipDuplicateKeys() {
     "encrypted icon is not displayed"
   );
 
-  let db = await CollectedKeysDB.getInstance();
+  const db = await CollectedKeysDB.getInstance();
 
-  let keys = await db.findKeysForEmail("eve@example.com");
+  const keys = await db.findKeysForEmail("eve@example.com");
   Assert.equal(
     keys.length,
     0,

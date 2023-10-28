@@ -41,7 +41,7 @@ const MSG_TEXT = "Sundays are nothing without callaloo.";
 //const MSG_TEXT_SMIME = "This is a test message from Alice to Bob.";
 
 function getMsgBodyTxt(msgc) {
-  let msgPane = get_about_message(msgc).getMessagePaneBrowser();
+  const msgPane = get_about_message(msgc).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 
@@ -65,12 +65,12 @@ add_setup(async function () {
     "openpgp.example",
     "pop3"
   );
-  let aliceIdentity = MailServices.accounts.createIdentity();
+  const aliceIdentity = MailServices.accounts.createIdentity();
   aliceIdentity.email = "alice@openpgp.example";
   aliceAcct.addIdentity(aliceIdentity);
 
   // Set up the alice's private key.
-  let [id] = await OpenPGPTestUtils.importPrivateKey(
+  const [id] = await OpenPGPTestUtils.importPrivateKey(
     window,
     new FileUtils.File(
       getTestFilePath(
@@ -108,12 +108,12 @@ add_setup(async function () {
  * Test that an unsigned unencrypted message do not show as signed nor encrypted.
  */
 add_task(async function testOpenNoPGPSecurity() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/unsigned-unencrypted-from-bob-to-alice.eml")
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -131,14 +131,14 @@ add_task(async function testOpenNoPGPSecurity() {
  * Test that a signed (only) message, signed by a verified key, shows as such.
  */
 add_task(async function testOpenSignedByVerifiedUnencrypted() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/signed-by-0xfbfcc82a015e7330-to-0xf231550c4f47e38e-unencrypted.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -157,12 +157,12 @@ add_task(async function testOpenSignedByVerifiedUnencrypted() {
  * but with an mismatching email date, is shown with invalid signature.
  */
 add_task(async function testOpenSignedDateMismatch() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/signed-mismatch-email-date.eml")
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -180,14 +180,14 @@ add_task(async function testOpenSignedDateMismatch() {
  * Test that opening an unsigned encrypted message shows as such.
  */
 add_task(async function testOpenVerifiedUnsignedEncrypted() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/unsigned-encrypted-to-0xf231550c4f47e38e-from-0xfbfcc82a015e7330.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -206,10 +206,10 @@ add_task(async function testOpenVerifiedUnsignedEncrypted() {
  * on security status icons of the parent message window.
  */
 add_task(async function testOpenForwardedEncrypted() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/fwd-unsigned-encrypted.eml"))
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     getMsgBodyTxt(msgc).includes("wrapper message with plain text"),
@@ -228,16 +228,16 @@ add_task(async function testOpenForwardedEncrypted() {
     "encrypted icon is not displayed"
   );
 
-  let newWindowPromise = promise_new_window("mail:messageWindow");
+  const newWindowPromise = promise_new_window("mail:messageWindow");
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("attachmentName"),
     { clickCount: 1 },
     aboutMessage
   );
-  let mc2 = await newWindowPromise;
+  const mc2 = await newWindowPromise;
   await wait_for_message_display_completion(mc2, true);
   await wait_for_window_focused(mc2);
-  let aboutMessage2 = get_about_message(mc2);
+  const aboutMessage2 = get_about_message(mc2);
 
   // Check properties of the opened attachment window.
   Assert.ok(
@@ -273,14 +273,14 @@ add_task(async function testOpenForwardedEncrypted() {
  * Test that opening a message that is signed by a verified key shows as such.
  */
 add_task(async function testOpenSignedByVerifiedEncrypted() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/signed-by-0xfbfcc82a015e7330-encrypted-to-0xf231550c4f47e38e.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -302,14 +302,14 @@ add_task(async function testOpenSignedByVerifiedEncrypted() {
  * be used for verification.
  */
 add_task(async function testOpenSignedEncryptedMultiFrom() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/signed-by-0xfbfcc82a015e7330-encrypted-to-0xf231550c4f47e38e-multi-from.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -327,14 +327,14 @@ add_task(async function testOpenSignedEncryptedMultiFrom() {
  * Test that opening a message signed (only) by an unverified key shows as such.
  */
 add_task(async function testOpenSignedByUnverifiedUnencrypted() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/signed-by-0x3099ff1238852b9f-to-0xf231550c4f47e38e-unencrypted.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -353,12 +353,12 @@ add_task(async function testOpenSignedByUnverifiedUnencrypted() {
  * doesn't show signature state.
  */
 add_task(async function testOpenSignedWithOuterLayer() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/signed-with-mailman-footer.eml")
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -372,14 +372,14 @@ add_task(async function testOpenSignedWithOuterLayer() {
  * Test that opening a message encrypted (only) shows as such.
  */
 add_task(async function testOpenUnverifiedUnsignedEncrypted() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/unsigned-encrypted-to-0xf231550c4f47e38e-from-0x3099ff1238852b9f.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -427,12 +427,12 @@ add_task(async function testOuterSmimeSigInnerSmimeUnsignedEncrypted() {
  * (with outer S/MIME signature that is ignored).
  */
 add_task(async function testOuterSmimeSigInnerPgpUnverifiedUnsignedEncrypted() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/outer-smime-bad-sig-inner-pgp-enc.eml")
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -480,12 +480,12 @@ add_task(async function testOuterPgpSigInnerSmimeUnsignedEncrypted() {
  * (with outer OpenPGP signature that is ignored).
  */
 add_task(async function testOuterPgpSigInnerPgpUnverifiedUnsignedEncrypted() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc.eml")
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -506,12 +506,12 @@ add_task(async function testOuterPgpSigInnerPgpUnverifiedUnsignedEncrypted() {
  * We should not ignore the outer signature in this scenario.
  */
 add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc-with-mixed.eml")
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(!getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -530,14 +530,14 @@ add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
  * as it should.
  */
 add_task(async function testOpenSignedByUnverifiedEncrypted() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/signed-by-0x3099ff1238852b9f-encrypted-to-0xf231550c4f47e38e.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -585,12 +585,12 @@ add_task(async function testOuterSmimeSigInnerSmimeSignedEncrypted() {
  * (with outer S/MIME signature that is ignored).
  */
 add_task(async function testOuterSmimeSigInnerPgpSignedByUnverifiedEncrypted() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/outer-smime-bad-sig-inner-pgp-enc-sig.eml")
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -611,14 +611,14 @@ add_task(async function testOuterSmimeSigInnerPgpSignedByUnverifiedEncrypted() {
  * We should not ignore the outer signature in this scenario.
  */
 add_task(async function testOuterSmimeSigInnerPgpEncryptedInsideMixed() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/outer-smime-bad-sig-inner-pgp-enc-sig-with-mixed.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(!getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -666,12 +666,12 @@ add_task(async function testOuterPgpSigInnerSmimeSignedEncrypted() {
  * (with outer OpenPGP signature that is ignored).
  */
 add_task(async function testOuterPgpSigOpenSignedByUnverifiedEncrypted() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc-sig.eml")
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -691,14 +691,14 @@ add_task(async function testOuterPgpSigOpenSignedByUnverifiedEncrypted() {
  */
 add_task(async function testUpdateMessageSignature() {
   // Setup the message.
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/signed-by-0xfbfcc82a015e7330-to-0xf231550c4f47e38e-unencrypted.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   // Verify current signature acceptance.
   Assert.ok(
@@ -706,7 +706,7 @@ add_task(async function testUpdateMessageSignature() {
     "signed verified icon is displayed"
   );
 
-  let popupshown = BrowserTestUtils.waitForEvent(
+  const popupshown = BrowserTestUtils.waitForEvent(
     aboutMessage.document.getElementById("messageSecurityPanel"),
     "popupshown"
   );
@@ -720,7 +720,7 @@ add_task(async function testUpdateMessageSignature() {
   await popupshown;
 
   // Open the Key Properties dialog and change the signature acceptance.
-  let dialogPromise = BrowserTestUtils.domWindowOpened(null, async win => {
+  const dialogPromise = BrowserTestUtils.domWindowOpened(null, async win => {
     await BrowserTestUtils.waitForEvent(win, "load");
 
     if (
@@ -740,7 +740,7 @@ add_task(async function testUpdateMessageSignature() {
       win
     );
 
-    let closedPromise = BrowserTestUtils.domWindowClosed(win);
+    const closedPromise = BrowserTestUtils.domWindowClosed(win);
     win.document.documentElement.querySelector("dialog").acceptDialog();
     await closedPromise;
     return true;
@@ -776,10 +776,10 @@ add_task(async function testUpdateMessageSignature() {
  * can be correctly verified.
  */
 add_task(async function testOpenSignedInlineWithUTF8() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/alice-utf.eml"))
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     getMsgBodyTxt(msgc).includes("£35.00"),
@@ -802,10 +802,10 @@ add_task(async function testOpenSignedInlineWithUTF8() {
  * can be correctly verified.
  */
 add_task(async function testOpenSignedInlineWithLeadingWS() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/signed-inline-indented.eml"))
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     getMsgBodyTxt(msgc).includes("indent test with £"),
@@ -828,10 +828,10 @@ add_task(async function testOpenSignedInlineWithLeadingWS() {
  * in the PGP separator line, is trimmed and decrypted.
  */
 add_task(async function testDecryptInlineWithNBSPasQP() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/bob-enc-inline-nbsp-qp.eml"))
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     getMsgBodyTxt(msgc).includes("My real name is not Bob."),
@@ -849,10 +849,10 @@ add_task(async function testDecryptInlineWithNBSPasQP() {
  * encoded as qp in the PGP separator line, is trimmed and decrypted.
  */
 add_task(async function testDecryptHtmlWithNBSP() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/bob-enc-html-nbsp.eml"))
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     getMsgBodyTxt(msgc).includes("My real name is not Bob."),
@@ -870,12 +870,12 @@ add_task(async function testDecryptHtmlWithNBSP() {
  * and body works.
  */
 add_task(async function testOpenSignedByUnverifiedEncrypted() {
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/encrypted-and-signed-alice-to-bob-nonascii.eml")
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   // Check the subject was properly updated (from ...) in the message header.
   Assert.equal(
@@ -909,12 +909,12 @@ add_task(async function testOpenEncryptedForRevokedKey() {
     )
   );
 
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/enc-to-carol@pgp.icu-revoked.eml")
     )
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     getMsgBodyTxt(msgc).includes("billie-jean"),

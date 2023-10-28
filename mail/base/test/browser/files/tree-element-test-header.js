@@ -29,7 +29,7 @@ window.addEventListener("load", () => {
       super.connectedCallback();
 
       this.cell = this.appendChild(document.createElement("td"));
-      let container = this.cell.appendChild(document.createElement("div"));
+      const container = this.cell.appendChild(document.createElement("div"));
 
       this.d1 = container.appendChild(document.createElement("div"));
       this.d1.classList.add("d1");

@@ -750,7 +750,7 @@ function _emulateToActivateModifiers(aTIP, aKeyEvent, aWindow) {
     if (aTIP.getModifierState(modifiers.normal[i].key)) {
       continue; // already activated.
     }
-    let event = new KeyboardEvent("", { key: modifiers.normal[i].key });
+    const event = new KeyboardEvent("", { key: modifiers.normal[i].key });
     aTIP.keydown(
       event,
       aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
@@ -764,7 +764,7 @@ function _emulateToActivateModifiers(aTIP, aKeyEvent, aWindow) {
     if (aTIP.getModifierState(modifiers.lockable[i].key)) {
       continue; // already activated.
     }
-    let event = new KeyboardEvent("", { key: modifiers.lockable[i].key });
+    const event = new KeyboardEvent("", { key: modifiers.lockable[i].key });
     aTIP.keydown(
       event,
       aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
@@ -787,7 +787,7 @@ function _emulateToInactivateModifiers(aTIP, aModifiers, aWindow) {
     if (!aModifiers.normal[i].activated) {
       continue;
     }
-    let event = new KeyboardEvent("", { key: aModifiers.normal[i].key });
+    const event = new KeyboardEvent("", { key: aModifiers.normal[i].key });
     aTIP.keyup(
       event,
       aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
@@ -800,7 +800,7 @@ function _emulateToInactivateModifiers(aTIP, aModifiers, aWindow) {
     if (!aTIP.getModifierState(aModifiers.lockable[i].key)) {
       continue; // who already inactivated this?
     }
-    let event = new KeyboardEvent("", { key: aModifiers.lockable[i].key });
+    const event = new KeyboardEvent("", { key: aModifiers.lockable[i].key });
     aTIP.keydown(
       event,
       aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT

@@ -9,7 +9,7 @@
 const EXPORTED_SYMBOLS = ["EnigmailKeyserverURIs"];
 
 function getKeyServers() {
-  let keyservers = Services.prefs
+  const keyservers = Services.prefs
     .getCharPref("mail.openpgp.keyserver_list")
     .split(/\s*[,;]\s*/g);
   return keyservers.filter(
@@ -21,10 +21,10 @@ function getKeyServers() {
 }
 
 function getUploadKeyServer() {
-  let keyservers = Services.prefs
+  const keyservers = Services.prefs
     .getCharPref("mail.openpgp.keyserver_list")
     .split(/\s*[,;]\s*/g);
-  for (let ks of keyservers) {
+  for (const ks of keyservers) {
     if (
       !ks.startsWith("vks://") &&
       !ks.startsWith("hkp://") &&

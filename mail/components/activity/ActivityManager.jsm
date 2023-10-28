@@ -21,7 +21,7 @@ ActivityManager.prototype = {
 
   get processCount() {
     let count = 0;
-    for (let value of this._activities.values()) {
+    for (const value of this._activities.values()) {
       if (value instanceof Ci.nsIActivityProcess) {
         count++;
       }
@@ -31,8 +31,8 @@ ActivityManager.prototype = {
   },
 
   getProcessesByContext(aContextType, aContextObj) {
-    let list = [];
-    for (let activity of this._activities.values()) {
+    const list = [];
+    for (const activity of this._activities.values()) {
       if (
         activity instanceof Ci.nsIActivityProcess &&
         activity.contextType == aContextType &&
@@ -56,13 +56,13 @@ ActivityManager.prototype = {
     try {
       this.log.info("adding Activity");
       // get the next valid id for this activity
-      let id = this.nextId;
+      const id = this.nextId;
       aActivity.id = id;
 
       // add activity into the activities table
       this._activities.set(id, aActivity);
       // notify all the listeners
-      for (let value of this._listeners) {
+      for (const value of this._listeners) {
         try {
           value.onAddedActivity(id, aActivity);
         } catch (e) {
@@ -79,7 +79,7 @@ ActivityManager.prototype = {
   },
 
   removeActivity(aID) {
-    let activity = this.getActivity(aID);
+    const activity = this.getActivity(aID);
     if (!activity) {
       return; // Nothing to remove.
     }
@@ -96,7 +96,7 @@ ActivityManager.prototype = {
     this._activities.delete(aID);
 
     // notify all the listeners
-    for (let value of this._listeners) {
+    for (const value of this._listeners) {
       try {
         value.onRemovedActivity(aID);
       } catch (e) {
@@ -108,11 +108,11 @@ ActivityManager.prototype = {
   cleanUp() {
     // Get the list of aIDs.
     this.log.info("cleanUp\n");
-    for (let [id, activity] of this._activities) {
+    for (const [id, activity] of this._activities) {
       if (activity instanceof Ci.nsIActivityProcess) {
         // Note: The .state property will return undefined if you aren't in
         //       this if-instanceof block.
-        let state = activity.state;
+        const state = activity.state;
         if (
           state != Ci.nsIActivityProcess.STATE_INPROGRESS &&
           state != Ci.nsIActivityProcess.STATE_PAUSED &&

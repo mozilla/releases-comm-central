@@ -32,7 +32,7 @@ var EnigmailMsgRead = {
 
     if (hdr !== "*") {
       // do nothing if extraAddonHeaders is "*" (all headers)
-      for (let h of ["autocrypt", "openpgp"]) {
+      for (const h of ["autocrypt", "openpgp"]) {
         if (hdr.search(h) < 0) {
           if (hdr.length > 0) {
             hdr += " ";
@@ -101,7 +101,7 @@ var EnigmailMsgRead = {
       findFile = new RegExp(escapeRegex(attName) + "\\.(sig|asc)$");
     }
 
-    for (let i in attachmentList) {
+    for (const i in attachmentList) {
       if (
         i != index &&
         this.getAttachmentName(attachmentList[i])
@@ -245,12 +245,12 @@ var EnigmailMsgRead = {
       console.debug(ex);
     }
 
-    let keyObj = lazy.EnigmailKeyRing.getKeyById(keyId);
+    const keyObj = lazy.EnigmailKeyRing.getKeyById(keyId);
     if (!keyObj) {
       return null;
     }
 
-    let userIdList = keyObj.userIds;
+    const userIdList = keyObj.userIds;
 
     try {
       for (let i = 0; i < userIdList.length; i++) {
@@ -258,7 +258,7 @@ var EnigmailMsgRead = {
           fromAddr ==
           lazy.EnigmailFuncs.stripEmail(userIdList[i].userId).toLowerCase()
         ) {
-          let result = lazy.EnigmailFuncs.stripEmail(userIdList[i].userId);
+          const result = lazy.EnigmailFuncs.stripEmail(userIdList[i].userId);
           return result;
         }
       }

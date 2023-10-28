@@ -41,13 +41,13 @@ function mark_selected_messages_as_junk() {
  * @param aNumDeletesExpected The number of deletes expected.
  */
 async function delete_mail_marked_as_junk(aNumDeletesExpected) {
-  let about3Pane = get_about_3pane();
+  const about3Pane = get_about_3pane();
 
   // Monkey patch and wrap around the deleteJunkInFolder function, mainly for
   // the case where deletes aren't expected.
-  let realDeleteJunkInFolder = about3Pane.deleteJunkInFolder;
+  const realDeleteJunkInFolder = about3Pane.deleteJunkInFolder;
   let numMessagesDeleted = null;
-  let fakeDeleteJunkInFolder = function () {
+  const fakeDeleteJunkInFolder = function () {
     numMessagesDeleted = realDeleteJunkInFolder();
     return numMessagesDeleted;
   };

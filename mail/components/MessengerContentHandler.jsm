@@ -63,7 +63,7 @@ function handleIndexerResult(aFile) {
   const { SearchIntegration } = ChromeUtils.import(
     "resource:///modules/SearchIntegration.jsm"
   );
-  let msgHdr = SearchIntegration.handleResult(aFile);
+  const msgHdr = SearchIntegration.handleResult(aFile);
 
   // If we found a message header, open it, otherwise throw an exception
   if (msgHdr) {
@@ -187,7 +187,7 @@ MailDefaultHandler.prototype = {
         return win;
       }
 
-      let startupPromise = new Promise(resolve => {
+      const startupPromise = new Promise(resolve => {
         Services.obs.addObserver(
           {
             observe(subject) {
@@ -203,7 +203,7 @@ MailDefaultHandler.prototype = {
 
       // Bug 277798 - we have to pass an argument to openWindow(), or
       // else it won't honor the dialog=no instruction.
-      let argstring = Cc["@mozilla.org/supports-string;1"].createInstance(
+      const argstring = Cc["@mozilla.org/supports-string;1"].createInstance(
         Ci.nsISupportsString
       );
       win = Services.ww.openWindow(
@@ -231,12 +231,12 @@ MailDefaultHandler.prototype = {
 
         switch (remoteVerb) {
           case "openurl": {
-            let xuri = cmdLine.resolveURI(remoteParams[0]);
+            const xuri = cmdLine.resolveURI(remoteParams[0]);
             openURI(xuri);
             break;
           }
           case "mailto": {
-            let xuri = cmdLine.resolveURI("mailto:" + remoteParams[0]);
+            const xuri = cmdLine.resolveURI("mailto:" + remoteParams[0]);
             openURI(xuri);
             break;
           }
@@ -248,12 +248,12 @@ MailDefaultHandler.prototype = {
                 break;
               }
               case "composemessage": {
-                let argstring = Cc[
+                const argstring = Cc[
                   "@mozilla.org/supports-string;1"
                 ].createInstance(Ci.nsISupportsString);
                 remoteParams.shift();
                 argstring.data = remoteParams.join(",");
-                let args = Cc["@mozilla.org/array;1"].createInstance(
+                const args = Cc["@mozilla.org/array;1"].createInstance(
                   Ci.nsIMutableArray
                 );
                 args.appendElement(argstring);
@@ -294,10 +294,10 @@ MailDefaultHandler.prototype = {
     var chromeParam = cmdLine.handleFlagWithParam("chrome", false);
     if (chromeParam) {
       try {
-        let argstring = Cc["@mozilla.org/supports-string;1"].createInstance(
+        const argstring = Cc["@mozilla.org/supports-string;1"].createInstance(
           Ci.nsISupportsString
         );
-        let _uri = resolveURIInternal(cmdLine, chromeParam);
+        const _uri = resolveURIInternal(cmdLine, chromeParam);
         // only load URIs which do not inherit chrome privs
         if (
           !Services.io.URIChainHasFlags(
@@ -404,7 +404,7 @@ MailDefaultHandler.prototype = {
 
     if (!uri && cmdLine.state != Ci.nsICommandLine.STATE_INITIAL_LAUNCH) {
       try {
-        for (let window of Services.wm.getEnumerator("mail:3pane")) {
+        for (const window of Services.wm.getEnumerator("mail:3pane")) {
           window.focus();
           return;
         }
@@ -415,7 +415,7 @@ MailDefaultHandler.prototype = {
     if (uri) {
       if (/^file:/i.test(uri)) {
         // Turn file URL into a file path so `resolveFile()` will work.
-        let fileURL = cmdLine.resolveURI(uri);
+        const fileURL = cmdLine.resolveURI(uri);
         uri = fileURL.QueryInterface(Ci.nsIFileURL).file.path;
       }
       // Check for protocols first then look at the file ending.
@@ -438,7 +438,7 @@ MailDefaultHandler.prototype = {
         lazy.MailUtils.openMessageByMessageId(uri.slice(4));
       } else if (/^(mailbox|imap|news)-message:\/\//.test(uri)) {
         getOrOpen3PaneWindow().then(win => {
-          let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+          const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
             Ci.nsIMessenger
           );
           lazy.MailUtils.displayMessage(messenger.msgHdrFromURI(uri));
@@ -471,7 +471,7 @@ MailDefaultHandler.prototype = {
         cmdLine.preventDefault = true;
       } else if (uri.toLowerCase().endsWith(".eml")) {
         // Open this eml in a new message window
-        let file = cmdLine.resolveFile(uri);
+        const file = cmdLine.resolveFile(uri);
         // No point in trying to open a file if it doesn't exist or is empty
         if (file.exists() && file.fileSize > 0) {
           // Read this eml and extract its headers to check for X-Unsent.
@@ -482,7 +482,7 @@ MailDefaultHandler.prototype = {
               "@mozilla.org/network/file-input-stream;1"
             ].createInstance(Ci.nsIFileInputStream);
             fstream.init(file, -1, 0, 0);
-            let data = lazy.NetUtil.readInputStreamToString(
+            const data = lazy.NetUtil.readInputStreamToString(
               fstream,
               fstream.available()
             );
@@ -508,7 +508,7 @@ MailDefaultHandler.prototype = {
 
           if (headers.get("X-Unsent") == "1") {
             getOrOpen3PaneWindow();
-            let msgWindow = Cc[
+            const msgWindow = Cc[
               "@mozilla.org/messenger/msgwindow;1"
             ].createInstance(Ci.nsIMsgWindow);
             MailServices.compose.OpenComposeWindow(
@@ -532,7 +532,7 @@ MailDefaultHandler.prototype = {
           }
           cmdLine.preventDefault = true;
         } else {
-          let bundle = Services.strings.createBundle(
+          const bundle = Services.strings.createBundle(
             "chrome://messenger/locale/messenger.properties"
           );
           let title, message;
@@ -551,7 +551,7 @@ MailDefaultHandler.prototype = {
         }
       } else if (uri.toLowerCase().endsWith(".ics")) {
         // An .ics calendar file! Open the ics file dialog.
-        let file = cmdLine.resolveFile(uri);
+        const file = cmdLine.resolveFile(uri);
         if (file.exists() && file.fileSize > 0) {
           Services.ww.openWindow(
             null,
@@ -563,10 +563,10 @@ MailDefaultHandler.prototype = {
         }
       } else if (uri.toLowerCase().endsWith(".vcf")) {
         // A VCard! Be smart and open the "add contact" dialog.
-        let file = cmdLine.resolveFile(uri);
+        const file = cmdLine.resolveFile(uri);
         if (file.exists() && file.fileSize > 0) {
-          let winPromise = getOrOpen3PaneWindow();
-          let uriSpec = Services.io.newFileURI(file).spec;
+          const winPromise = getOrOpen3PaneWindow();
+          const uriSpec = Services.io.newFileURI(file).spec;
           lazy.NetUtil.asyncFetch(
             { uri: uriSpec, loadUsingSystemPrincipal: true },
             function (inputStream, status) {
@@ -581,10 +581,10 @@ MailDefaultHandler.prototype = {
               // Try to detect the character set and decode. Only UTF-8 is
               // valid from vCard 4.0, but we support older versions, so other
               // charsets are possible.
-              let charset = Cc["@mozilla.org/messengercompose/computils;1"]
+              const charset = Cc["@mozilla.org/messengercompose/computils;1"]
                 .createInstance(Ci.nsIMsgCompUtils)
                 .detectCharset(data);
-              let buffer = new Uint8Array(
+              const buffer = new Uint8Array(
                 Array.from(data, c => c.charCodeAt(0))
               );
               data = new TextDecoder(charset).decode(buffer);
@@ -602,19 +602,19 @@ MailDefaultHandler.prototype = {
         getOrOpen3PaneWindow().then(() => {
           // This must be a regular filename. Use it to create a new message
           // with attachment.
-          let msgParams = Cc[
+          const msgParams = Cc[
             "@mozilla.org/messengercompose/composeparams;1"
           ].createInstance(Ci.nsIMsgComposeParams);
-          let composeFields = Cc[
+          const composeFields = Cc[
             "@mozilla.org/messengercompose/composefields;1"
           ].createInstance(Ci.nsIMsgCompFields);
-          let attachment = Cc[
+          const attachment = Cc[
             "@mozilla.org/messengercompose/attachment;1"
           ].createInstance(Ci.nsIMsgAttachment);
-          let localFile = Cc["@mozilla.org/file/local;1"].createInstance(
+          const localFile = Cc["@mozilla.org/file/local;1"].createInstance(
             Ci.nsIFile
           );
-          let fileHandler = Services.io
+          const fileHandler = Services.io
             .getProtocolHandler("file")
             .QueryInterface(Ci.nsIFileProtocolHandler);
 
@@ -747,7 +747,7 @@ class MessageDisplayContentHandler {
   QueryInterface = ChromeUtils.generateQI(["nsIContentHandler"]);
 
   handleContent(contentType, windowContext, request) {
-    let channel = request.QueryInterface(Ci.nsIChannel);
+    const channel = request.QueryInterface(Ci.nsIChannel);
     if (!channel) {
       throw Components.Exception(
         "Expecting an nsIChannel",
@@ -760,7 +760,7 @@ class MessageDisplayContentHandler {
       mailnewsUrl = uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
     } catch (e) {}
     if (mailnewsUrl) {
-      let queryPart = mailnewsUrl.query.replace(
+      const queryPart = mailnewsUrl.query.replace(
         "type=message/rfc822",
         "type=application/x-message-display"
       );

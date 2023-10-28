@@ -69,7 +69,7 @@ const listeners = {
   observers: {},
 
   observe(subject, topic, data) {
-    for (let module of this.observers[topic]) {
+    for (const module of this.observers[topic]) {
       try {
         lazy[module].observe(subject, topic, data);
       } catch (e) {
@@ -79,7 +79,7 @@ const listeners = {
   },
 
   init() {
-    for (let observer of Object.keys(this.observers)) {
+    for (const observer of Object.keys(this.observers)) {
       Services.obs.addObserver(this, observer);
     }
   },
@@ -95,7 +95,7 @@ if (AppConstants.MOZ_UPDATER) {
 
 const PREF_PDFJS_ISDEFAULT_CACHE_STATE = "pdfjs.enabledCache.state";
 
-let JSWINDOWACTORS = {
+const JSWINDOWACTORS = {
   ChatAction: {
     matches: ["chrome://chat/content/conv.html"],
     parent: {
@@ -380,8 +380,8 @@ MailGlue.prototype = {
         // is, stop MailGlue from doing anything more. Also sets a flag that
         // can be checked to see if this is the toolbox process.
         let isToolboxProcess = false;
-        let commandLine = aSubject.QueryInterface(Ci.nsICommandLine);
-        let flagIndex = commandLine.findFlag("chrome", true) + 1;
+        const commandLine = aSubject.QueryInterface(Ci.nsICommandLine);
+        const flagIndex = commandLine.findFlag("chrome", true) + 1;
         if (
           flagIndex > 0 &&
           flagIndex < commandLine.length &&
@@ -434,13 +434,13 @@ MailGlue.prototype = {
         Cc["@mozilla.org/msgDBView/msgDBViewService;1"]
           .getService(Ci.nsIMsgDBViewService)
           .initializeDBViewStrings();
-        let windows = Services.wm.getEnumerator("mail:3pane");
+        const windows = Services.wm.getEnumerator("mail:3pane");
         while (windows.hasMoreElements()) {
-          let win = windows.getNext();
+          const win = windows.getNext();
           win.document.getElementById("threadTree")?.invalidate();
         }
         // Refresh the folder tree.
-        let fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
+        const fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
           Ci.nsIFolderLookupService
         );
         fls.setPrettyNameFromOriginalAllFolders();
@@ -466,7 +466,7 @@ MailGlue.prototype = {
         );
         break;
       case "document-element-inserted":
-        let doc = aSubject;
+        const doc = aSubject;
         if (
           doc.nodePrincipal.isSystemPrincipal &&
           (doc.contentType == "application/xhtml+xml" ||
@@ -563,10 +563,10 @@ MailGlue.prototype = {
       AppConstants.MOZ_UPDATER &&
       Services.prefs.getBoolPref("app.update.checkInstallTime")
     ) {
-      let buildID = Services.appinfo.appBuildID;
-      let today = new Date().getTime();
+      const buildID = Services.appinfo.appBuildID;
+      const today = new Date().getTime();
       /* eslint-disable no-multi-spaces */
-      let buildDate = new Date(
+      const buildDate = new Date(
         buildID.slice(0, 4), // year
         buildID.slice(4, 6) - 1, // months are zero-based.
         buildID.slice(6, 8), // day
@@ -578,7 +578,7 @@ MailGlue.prototype = {
       /* eslint-enable no-multi-spaces */
 
       const millisecondsIn24Hours = 86400000;
-      let acceptableAge =
+      const acceptableAge =
         Services.prefs.getIntPref("app.update.checkInstallTime.days") *
         millisecondsIn24Hours;
 
@@ -613,16 +613,16 @@ MailGlue.prototype = {
 
     // If the application has been updated, check all installed extensions for
     // updates.
-    let currentVersion = Services.appinfo.version;
+    const currentVersion = Services.appinfo.version;
     if (this.previousVersion != "0" && this.previousVersion != currentVersion) {
-      let { AddonManager } = ChromeUtils.importESModule(
+      const { AddonManager } = ChromeUtils.importESModule(
         "resource://gre/modules/AddonManager.sys.mjs"
       );
-      let { XPIDatabase } = ChromeUtils.import(
+      const { XPIDatabase } = ChromeUtils.import(
         "resource://gre/modules/addons/XPIDatabase.jsm"
       );
-      let addons = XPIDatabase.getAddons();
-      for (let addon of addons) {
+      const addons = XPIDatabase.getAddons();
+      for (const addon of addons) {
         if (addon.permissions() & AddonManager.PERM_CAN_UPGRADE) {
           AddonManager.getAddonByID(addon.id).then(addon => {
             if (!AddonManager.shouldAutoUpdate(addon)) {
@@ -723,7 +723,7 @@ MailGlue.prototype = {
       },
       {
         task() {
-          let { setTimeout } = ChromeUtils.importESModule(
+          const { setTimeout } = ChromeUtils.importESModule(
             "resource://gre/modules/Timer.sys.mjs"
           );
           setTimeout(function () {
@@ -738,15 +738,15 @@ MailGlue.prototype = {
         task: async () => {
           // Register our sync engines.
           await lazy.WeaveService.whenLoaded();
-          let Weave = lazy.WeaveService.Weave;
+          const Weave = lazy.WeaveService.Weave;
 
-          for (let [moduleName, engineName] of [
+          for (const [moduleName, engineName] of [
             ["accounts", "AccountsEngine"],
             ["addressBooks", "AddressBooksEngine"],
             ["calendars", "CalendarsEngine"],
             ["identities", "IdentitiesEngine"],
           ]) {
-            let ns = ChromeUtils.importESModule(
+            const ns = ChromeUtils.importESModule(
               `resource://services-sync/engines/${moduleName}.sys.mjs`
             );
             await Weave.Service.engineManager.register(ns[engineName]);
@@ -811,7 +811,7 @@ MailGlue.prototype = {
       // Do NOT add anything after idle tasks finished.
     ];
 
-    for (let task of idleTasks) {
+    for (const task of idleTasks) {
       if ("condition" in task && !task.condition) {
         continue;
       }
@@ -819,7 +819,7 @@ MailGlue.prototype = {
       ChromeUtils.idleDispatch(
         () => {
           if (!Services.startup.shuttingDown) {
-            let startTime = Cu.now();
+            const startTime = Cu.now();
             try {
               task.task();
             } catch (ex) {
@@ -866,10 +866,10 @@ MailGlue.prototype = {
       },
     ];
 
-    for (let task of idleTasks) {
+    for (const task of idleTasks) {
       ChromeUtils.idleDispatch(async () => {
         if (!Services.startup.shuttingDown) {
-          let startTime = Cu.now();
+          const startTime = Cu.now();
           try {
             await task();
           } catch (ex) {
@@ -883,13 +883,13 @@ MailGlue.prototype = {
   },
 
   _handleLink(aSubject, aData) {
-    let linkHandled = aSubject.QueryInterface(Ci.nsISupportsPRBool);
+    const linkHandled = aSubject.QueryInterface(Ci.nsISupportsPRBool);
     if (!linkHandled.data) {
-      let win = Services.wm.getMostRecentWindow("mail:3pane");
+      const win = Services.wm.getMostRecentWindow("mail:3pane");
       aData = JSON.parse(aData);
-      let tabParams = { url: aData.href, linkHandler: null };
+      const tabParams = { url: aData.href, linkHandler: null };
       if (win) {
-        let tabmail = win.document.getElementById("tabmail");
+        const tabmail = win.document.getElementById("tabmail");
         if (tabmail) {
           tabmail.openTab("contentTab", tabParams);
           win.focus();
@@ -924,7 +924,7 @@ MailGlue.prototype = {
 function reportAccountTypes() {
   // Init all count with 0, so that when an account was set up before but
   // removed now, we reset it in telemetry report.
-  let report = {
+  const report = {
     pop3: 0,
     imap: 0,
     nntp: 0,
@@ -944,7 +944,7 @@ function reportAccountTypes() {
     other: 0,
   };
 
-  for (let account of lazy.MailServices.accounts.accounts) {
+  for (const account of lazy.MailServices.accounts.accounts) {
     const incomingServer = account.incomingServer;
 
     let type = incomingServer.type;
@@ -954,7 +954,7 @@ function reportAccountTypes() {
     }
 
     if (type === "im") {
-      let protocol =
+      const protocol =
         incomingServer.wrappedJSObject.imAccount.protocol.normalizedName;
       type = `im_${protocol}`;
     }
@@ -998,7 +998,7 @@ function reportAccountTypes() {
     }
   }
 
-  for (let [type, count] of Object.entries(report)) {
+  for (const [type, count] of Object.entries(report)) {
     Services.telemetry.keyedScalarSet("tb.account.count", type, count);
   }
 
@@ -1015,7 +1015,7 @@ function reportAccountTypes() {
  * Report size on disk and messages count of each type of folder to telemetry.
  */
 function reportAccountSizes() {
-  let keys = [
+  const keys = [
     "Inbox",
     "Drafts",
     "Trash",
@@ -1025,13 +1025,13 @@ function reportAccountSizes() {
     "Archive",
     "Queue",
   ];
-  for (let key of keys) {
+  for (const key of keys) {
     Services.telemetry.keyedScalarSet("tb.account.total_messages", key, 0);
   }
   Services.telemetry.keyedScalarSet("tb.account.total_messages", "Other", 0);
   Services.telemetry.keyedScalarSet("tb.account.total_messages", "Total", 0);
 
-  for (let server of lazy.MailServices.accounts.allServers) {
+  for (const server of lazy.MailServices.accounts.allServers) {
     if (
       server instanceof Ci.nsIPop3IncomingServer &&
       server.deferredToAccount
@@ -1040,10 +1040,10 @@ function reportAccountSizes() {
       continue;
     }
 
-    for (let folder of server.rootFolder.descendants) {
-      let key =
+    for (const folder of server.rootFolder.descendants) {
+      const key =
         keys.find(x => folder.getFlag(Ci.nsMsgFolderFlags[x])) || "Other";
-      let totalMessages = folder.getTotalMessages(false);
+      const totalMessages = folder.getTotalMessages(false);
       if (totalMessages > 0) {
         Services.telemetry.keyedScalarAdd(
           "tb.account.total_messages",
@@ -1056,7 +1056,7 @@ function reportAccountSizes() {
           totalMessages
         );
       }
-      let sizeOnDisk = folder.sizeOnDisk;
+      const sizeOnDisk = folder.sizeOnDisk;
       if (sizeOnDisk > 0) {
         Services.telemetry.keyedScalarAdd(
           "tb.account.size_on_disk",
@@ -1082,9 +1082,9 @@ function reportAccountSizes() {
  * use the scheme of `dir.URI` as the type.
  */
 function reportAddressBookTypes() {
-  let report = {};
-  for (let dir of lazy.MailServices.ab.directories) {
-    let type = dir.URI.split(":")[0];
+  const report = {};
+  for (const dir of lazy.MailServices.ab.directories) {
+    const type = dir.URI.split(":")[0];
 
     if (!report[type]) {
       report[type] = { count: 0, contactCount: 0 };
@@ -1098,7 +1098,7 @@ function reportAddressBookTypes() {
     }
   }
 
-  for (let [type, { count, contactCount }] of Object.entries(report)) {
+  for (const [type, { count, contactCount }] of Object.entries(report)) {
     Services.telemetry.keyedScalarSet(
       "tb.addressbook.addressbook_count",
       type,
@@ -1116,17 +1116,17 @@ function reportAddressBookTypes() {
  * A telemetry probe to report calendar count and read only calendar count.
  */
 async function reportCalendars() {
-  let telemetryReport = {};
-  let home = lazy.cal.l10n.getCalString("homeCalendarName");
+  const telemetryReport = {};
+  const home = lazy.cal.l10n.getCalString("homeCalendarName");
 
-  for (let calendar of lazy.cal.manager.getCalendars()) {
+  for (const calendar of lazy.cal.manager.getCalendars()) {
     if (calendar.name == home && calendar.type == "storage") {
       // Ignore the "Home" calendar if it is disabled or unused as it's
       // automatically added.
       if (calendar.getProperty("disabled")) {
         continue;
       }
-      let items = await calendar.getItemsAsArray(
+      const items = await calendar.getItemsAsArray(
         Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
         1,
         null,
@@ -1145,7 +1145,7 @@ async function reportCalendars() {
     }
   }
 
-  for (let [type, { count, readOnlyCount }] of Object.entries(
+  for (const [type, { count, readOnlyCount }] of Object.entries(
     telemetryReport
   )) {
     Services.telemetry.keyedScalarSet(
@@ -1162,7 +1162,7 @@ async function reportCalendars() {
 }
 
 function reportPreferences() {
-  let booleanPrefs = [
+  const booleanPrefs = [
     // General
     "browser.cache.disk.smart_size.enabled",
     "privacy.clearOnShutdown.cache",
@@ -1277,7 +1277,7 @@ function reportPreferences() {
     "mail.operate_on_msgs_in_collapsed_threads",
   ];
 
-  let integerPrefs = [
+  const integerPrefs = [
     // Mail UI
     "mail.pane_config.dynamic",
     "mail.ui.display.dateformat.default",
@@ -1324,8 +1324,8 @@ function reportPreferences() {
   }
 
   // Fetch and report preference values
-  for (let prefName of booleanPrefs) {
-    let prefValue = Services.prefs.getBoolPref(prefName, false);
+  for (const prefName of booleanPrefs) {
+    const prefValue = Services.prefs.getBoolPref(prefName, false);
 
     Services.telemetry.keyedScalarSet(
       "tb.preferences.boolean",
@@ -1334,8 +1334,8 @@ function reportPreferences() {
     );
   }
 
-  for (let prefName of integerPrefs) {
-    let prefValue = Services.prefs.getIntPref(prefName, 0);
+  for (const prefName of integerPrefs) {
+    const prefValue = Services.prefs.getIntPref(prefName, 0);
 
     Services.telemetry.keyedScalarSet(
       "tb.preferences.integer",
@@ -1346,11 +1346,11 @@ function reportPreferences() {
 }
 
 function reportUIConfiguration() {
-  let docURL = "chrome://messenger/content/messenger.xhtml";
+  const docURL = "chrome://messenger/content/messenger.xhtml";
 
   let folderTreeMode = Services.xulStore.getValue(docURL, "folderTree", "mode");
   if (folderTreeMode) {
-    let folderTreeCompact = Services.xulStore.getValue(
+    const folderTreeCompact = Services.xulStore.getValue(
       docURL,
       "folderTree",
       "compact"

@@ -27,7 +27,7 @@ export class AccountManager {
 
     account = account.QueryInterface(Ci.nsIMsgAccount);
 
-    let server = account.incomingServer;
+    const server = account.incomingServer;
     if (server.type == "im") {
       return null;
     }
@@ -183,8 +183,8 @@ export function convertMailIdentity(account, identity) {
  * @returns {string}
  */
 export function folderURIToPath(accountId, uri) {
-  let server = MailServices.accounts.getAccount(accountId).incomingServer;
-  let rootURI = server.rootFolder.URI;
+  const server = MailServices.accounts.getAccount(accountId).incomingServer;
+  const rootURI = server.rootFolder.URI;
   if (rootURI == uri) {
     return "/";
   }
@@ -195,7 +195,7 @@ export function folderURIToPath(accountId, uri) {
   if (server.type == "imap") {
     return uri.substring(rootURI.length);
   }
-  let path = Services.io.newURI(uri).filePath;
+  const path = Services.io.newURI(uri).filePath;
   return path.split("/").map(decodeURIComponent).join("/");
 }
 
@@ -206,8 +206,8 @@ export function folderURIToPath(accountId, uri) {
  * @returns {string}
  */
 export function folderPathToURI(accountId, path) {
-  let server = MailServices.accounts.getAccount(accountId).incomingServer;
-  let rootURI = server.rootFolder.URI;
+  const server = MailServices.accounts.getAccount(accountId).incomingServer;
+  const rootURI = server.rootFolder.URI;
   if (path == "/") {
     return rootURI;
   }
@@ -261,12 +261,12 @@ export class FolderManager {
       return null;
     }
     if (!accountId) {
-      let server = folder.server;
-      let account = MailServices.accounts.FindAccountForServer(server);
+      const server = folder.server;
+      const account = MailServices.accounts.FindAccountForServer(server);
       accountId = account.key;
     }
 
-    let folderObject = {
+    const folderObject = {
       accountId,
       name: folder.prettyName,
       path: folderURIToPath(accountId, folder.URI),
@@ -279,8 +279,8 @@ export class FolderManager {
       folderObject.type = [];
     }
 
-    let flags = folder.flags;
-    for (let [flag, typeName] of folderTypeMap.entries()) {
+    const flags = folder.flags;
+    for (const [flag, typeName] of folderTypeMap.entries()) {
       if (flags & flag) {
         if (this.extension.manifestVersion > 2) {
           folderObject.type.push(typeName);
@@ -306,16 +306,16 @@ export class FolderManager {
    * @see mail/components/extensions/schemas/folders.json
    */
   traverseSubfolders(folder, accountId) {
-    let f = this.convert(folder, accountId);
+    const f = this.convert(folder, accountId);
     f.subFolders = [];
     if (folder.hasSubFolders) {
       // Use the same order as used by Thunderbird.
-      let subFolders = [...folder.subFolders].sort((a, b) =>
+      const subFolders = [...folder.subFolders].sort((a, b) =>
         a.sortOrder == b.sortOrder
           ? a.name.localeCompare(b.name)
           : a.sortOrder - b.sortOrder
       );
-      for (let subFolder of subFolders) {
+      for (const subFolder of subFolders) {
         f.subFolders.push(
           this.traverseSubfolders(subFolder, accountId || f.accountId)
         );
@@ -378,8 +378,8 @@ export function getFolder({ accountId, path, id }) {
     path = "/";
   }
 
-  let uri = folderPathToURI(accountId, path);
-  let folder = MailServices.folderLookup.getFolderForURL(uri);
+  const uri = folderPathToURI(accountId, path);
+  const folder = MailServices.folderLookup.getFolderForURL(uri);
   if (!folder) {
     throw new ExtensionError(`Folder not found: ${path}`);
   }

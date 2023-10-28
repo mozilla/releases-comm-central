@@ -38,15 +38,15 @@ add_setup(async function () {
 });
 
 function createThreadWithTerm(msgCount, term) {
-  let thread = create_thread(msgCount);
-  for (let msg of thread.synMessages) {
+  const thread = create_thread(msgCount);
+  for (const msg of thread.synMessages) {
     msg.bodyPart = new SyntheticPartLeaf(term);
   }
   return thread;
 }
 
 async function waitForThreadIndexed(thread) {
-  let dbView = window.gFolderDisplay.view.dbView;
+  const dbView = window.gFolderDisplay.view.dbView;
   await TestUtils.waitForCondition(
     () =>
       thread.synMessages.every((_, i) =>
@@ -57,17 +57,17 @@ async function waitForThreadIndexed(thread) {
 }
 
 function doGlobalSearch(term) {
-  let searchInput = window.document.querySelector("#searchInput");
+  const searchInput = window.document.querySelector("#searchInput");
   searchInput.value = term;
   EventUtils.synthesizeMouseAtCenter(searchInput, {}, window);
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 }
 
 async function clickShowResultsAsList(tab) {
-  let iframe = tab.querySelector("iframe");
+  const iframe = tab.querySelector("iframe");
   await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");
 
-  let browser = iframe.contentDocument.querySelector("browser");
+  const browser = iframe.contentDocument.querySelector("browser");
   await TestUtils.waitForCondition(
     () =>
       browser.contentWindow.FacetContext &&
@@ -75,7 +75,7 @@ async function clickShowResultsAsList(tab) {
     "reachOutAndTouchFrame() did not run in time"
   );
 
-  let anchor = browser.contentDocument.querySelector("#gloda-showall");
+  const anchor = browser.contentDocument.querySelector("#gloda-showall");
   anchor.click();
 }
 
@@ -90,24 +90,24 @@ async function clickMarkThreadAsRead(row, col) {
 }
 
 async function clickSubMenuItem(menuId, itemId) {
-  let menu = window.document.querySelector(menuId);
-  let item = menu.querySelector(itemId);
+  const menu = window.document.querySelector(menuId);
+  const item = menu.querySelector(itemId);
 
-  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   menu.openMenu(true);
   await shownPromise;
 
-  let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   menu.menupopup.activateItem(item);
   await hiddenPromise;
 }
 
 async function openConversationView(row, col) {
-  let menu = window.document.querySelector("#mailContext");
-  let item = window.document.querySelector("#mailContext-openConversation");
-  let prevTab = window.document.getElementById("tabmail").selectedTab;
+  const menu = window.document.querySelector("#mailContext");
+  const item = window.document.querySelector("#mailContext-openConversation");
+  const prevTab = window.document.getElementById("tabmail").selectedTab;
 
-  let loadedPromise = BrowserTestUtils.waitForEvent(window, "MsgsLoaded");
+  const loadedPromise = BrowserTestUtils.waitForEvent(window, "MsgsLoaded");
   await openContextMenu(row, col);
   menu.activateItem(item);
   await loadedPromise;
@@ -118,10 +118,10 @@ async function openConversationView(row, col) {
 }
 
 async function openContextMenu(row, column) {
-  let menu = window.document.getElementById("mailContext");
-  let tree = window.document.getElementById("threadTree");
+  const menu = window.document.getElementById("mailContext");
+  const tree = window.document.getElementById("threadTree");
 
-  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   mailTestUtils.treeClick(EventUtils, window, tree, row, column, {});
   mailTestUtils.treeClick(EventUtils, window, tree, row, column, {
     type: "contextmenu",
@@ -130,7 +130,7 @@ async function openContextMenu(row, column) {
 }
 
 function closeTabs() {
-  let tabmail = document.querySelector("tabmail");
+  const tabmail = document.querySelector("tabmail");
   while (tabmail.tabInfo.length > 1) {
     tabmail.closeTab(1);
   }
@@ -141,15 +141,17 @@ function closeTabs() {
  * search results.
  */
 add_task(async function testListViewMarkRead() {
-  let folder = await create_folder("ListViewMarkReadFolder");
-  let term = "listviewmarkread";
-  let thread = createThreadWithTerm(2, term);
+  const folder = await create_folder("ListViewMarkReadFolder");
+  const term = "listviewmarkread";
+  const thread = createThreadWithTerm(2, term);
 
   registerCleanupFunction(async () => {
     await be_in_folder(inboxFolder);
     await delete_messages(thread);
 
-    let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+    const trash = folder.rootFolder.getFolderWithFlags(
+      Ci.nsMsgFolderFlags.Trash
+    );
     folder.deleteSelf(null);
     trash.emptyTrash(null);
   });
@@ -164,13 +166,13 @@ add_task(async function testListViewMarkRead() {
   await waitForThreadIndexed(thread);
   doGlobalSearch(term);
 
-  let tab = document.querySelector(
+  const tab = document.querySelector(
     "tabmail>tabbox>tabpanels>vbox[selected=true]"
   );
   await clickShowResultsAsList(tab);
   await clickMarkRead(0, 4);
 
-  let dbView = window.gFolderDisplay.view.dbView;
+  const dbView = window.gFolderDisplay.view.dbView;
   Assert.ok(dbView.getMsgHdrAt(0).isRead, "Message 0 is read");
   Assert.ok(!dbView.getMsgHdrAt(1).isRead, "Message 1 is not read");
 
@@ -182,14 +184,16 @@ add_task(async function testListViewMarkRead() {
  * search results.
  */
 add_task(async function testListViewMarkThreadAsRead() {
-  let folder = await create_folder("ListViewMarkThreadAsReadFolder");
-  let term = "listviewmarkthreadasread ";
-  let thread = createThreadWithTerm(3, term);
+  const folder = await create_folder("ListViewMarkThreadAsReadFolder");
+  const term = "listviewmarkthreadasread ";
+  const thread = createThreadWithTerm(3, term);
 
   registerCleanupFunction(async () => {
     await be_in_folder(inboxFolder);
     await delete_messages(thread);
-    let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+    const trash = folder.rootFolder.getFolderWithFlags(
+      Ci.nsMsgFolderFlags.Trash
+    );
     folder.deleteSelf(null);
     trash.emptyTrash(null);
   });
@@ -204,13 +208,13 @@ add_task(async function testListViewMarkThreadAsRead() {
   await waitForThreadIndexed(thread);
   doGlobalSearch(term);
 
-  let tab = document.querySelector(
+  const tab = document.querySelector(
     "tabmail>tabbox>tabpanels>vbox[selected=true]"
   );
   await clickShowResultsAsList(tab);
   await clickMarkThreadAsRead(0, 4);
 
-  let dbView = window.gFolderDisplay.view.dbView;
+  const dbView = window.gFolderDisplay.view.dbView;
   thread.synMessages.forEach((_, i) => {
     Assert.ok(dbView.getMsgHdrAt(i).isRead, `Message ${i} is read`);
   });
@@ -222,14 +226,16 @@ add_task(async function testListViewMarkThreadAsRead() {
  * Test we can mark a message as read in a conversation view.
  */
 add_task(async function testConversationViewMarkRead() {
-  let folder = await create_folder("ConversationViewMarkReadFolder");
-  let thread = create_thread(2);
+  const folder = await create_folder("ConversationViewMarkReadFolder");
+  const thread = create_thread(2);
 
   registerCleanupFunction(async () => {
     await be_in_folder(inboxFolder);
     await delete_messages(thread);
 
-    let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+    const trash = folder.rootFolder.getFolderWithFlags(
+      Ci.nsMsgFolderFlags.Trash
+    );
     folder.deleteSelf(null);
     trash.emptyTrash(null);
   });
@@ -248,7 +254,7 @@ add_task(async function testConversationViewMarkRead() {
   await openConversationView(1, 1);
   await clickMarkRead(0, 4);
 
-  let dbView = window.gFolderDisplay.view.dbView;
+  const dbView = window.gFolderDisplay.view.dbView;
   Assert.ok(dbView.getMsgHdrAt(0).isRead, "Message 0 is read");
   Assert.ok(!dbView.getMsgHdrAt(1).isRead, "Message 1 is not read");
 
@@ -259,14 +265,16 @@ add_task(async function testConversationViewMarkRead() {
  * Test we can mark a thread as read in a conversation view.
  */
 add_task(async function testConversationViewMarkThreadAsRead() {
-  let folder = await create_folder("ConversationViewMarkThreadAsReadFolder");
-  let thread = create_thread(3);
+  const folder = await create_folder("ConversationViewMarkThreadAsReadFolder");
+  const thread = create_thread(3);
 
   registerCleanupFunction(async () => {
     await be_in_folder(inboxFolder);
     await delete_messages(thread);
 
-    let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+    const trash = folder.rootFolder.getFolderWithFlags(
+      Ci.nsMsgFolderFlags.Trash
+    );
     folder.deleteSelf(null);
     trash.emptyTrash(null);
   });
@@ -282,7 +290,7 @@ add_task(async function testConversationViewMarkThreadAsRead() {
   await openConversationView(1, 1);
   await clickMarkThreadAsRead(0, 4);
 
-  let dbView = window.gFolderDisplay.view.dbView;
+  const dbView = window.gFolderDisplay.view.dbView;
   thread.synMessages.forEach((_, i) => {
     Assert.ok(dbView.getMsgHdrAt(i).isRead, `Message ${i} is read.`);
   });

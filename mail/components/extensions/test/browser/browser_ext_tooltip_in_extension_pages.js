@@ -46,7 +46,7 @@ async function showTooltip(elementSelector, tooltip, browser, description) {
 add_setup(async () => {
   account = createAccount();
   addIdentity(account);
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
   subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
   await TestUtils.waitForCondition(
@@ -55,7 +55,7 @@ add_setup(async () => {
   );
   messages = subFolders[0].messages;
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.restoreState({
     folderPaneVisible: true,
     folderURI: subFolders[0],
@@ -68,11 +68,11 @@ add_setup(async () => {
 });
 
 add_task(async function test_browserAction_in_about3pane() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkTooltip() {
         // Trigger the tooltip and wait for the status.
-        let [state] = await window.sendMessage("check tooltip");
+        const [state] = await window.sendMessage("check tooltip");
         browser.test.assertEq("open", state, "Should find the tooltip open");
         browser.test.notifyPass("finished");
       }
@@ -104,7 +104,7 @@ add_task(async function test_browserAction_in_about3pane() {
       </html>`,
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     files,
     manifest: {
@@ -117,8 +117,8 @@ add_task(async function test_browserAction_in_about3pane() {
   });
 
   extension.onMessage("check tooltip", async () => {
-    let popupBrowser = document.querySelector(".webextension-popup-browser");
-    let tooltip = document.getElementById("remoteBrowserTooltip");
+    const popupBrowser = document.querySelector(".webextension-popup-browser");
+    const tooltip = document.getElementById("remoteBrowserTooltip");
     await showTooltip(
       "p",
       tooltip,
@@ -134,15 +134,15 @@ add_task(async function test_browserAction_in_about3pane() {
 });
 
 add_task(async function test_browserAction_in_message_window() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkTooltip() {
         // Trigger the tooltip and wait for the status.
-        let [state] = await window.sendMessage("check tooltip");
+        const [state] = await window.sendMessage("check tooltip");
         browser.test.assertEq("open", state, "Should find the tooltip open");
 
         // Close the message window.
-        let [tab] = await browser.tabs.query({
+        const [tab] = await browser.tabs.query({
           active: true,
           currentWindow: true,
         });
@@ -167,7 +167,7 @@ add_task(async function test_browserAction_in_message_window() {
       );
 
       // Open a message in a window.
-      let { messages } = await browser.messages.query({
+      const { messages } = await browser.messages.query({
         autoPaginationTimeout: 0,
       });
       browser.messageDisplay.open({
@@ -191,7 +191,7 @@ add_task(async function test_browserAction_in_message_window() {
       </html>`,
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     files,
     manifest: {
@@ -206,11 +206,13 @@ add_task(async function test_browserAction_in_message_window() {
   });
 
   extension.onMessage("check tooltip", async () => {
-    let messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
-    let popupBrowser = messageWindow.document.querySelector(
+    const messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
+    const popupBrowser = messageWindow.document.querySelector(
       ".webextension-popup-browser"
     );
-    let tooltip = messageWindow.document.getElementById("remoteBrowserTooltip");
+    const tooltip = messageWindow.document.getElementById(
+      "remoteBrowserTooltip"
+    );
     await showTooltip(
       "p",
       tooltip,
@@ -226,15 +228,15 @@ add_task(async function test_browserAction_in_message_window() {
 });
 
 add_task(async function test_composeAction() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkTooltip() {
         // Trigger the tooltip and wait for the status.
-        let [state] = await window.sendMessage("check tooltip");
+        const [state] = await window.sendMessage("check tooltip");
         browser.test.assertEq("open", state, "Should find the tooltip open");
 
         // Close the compose window.
-        let [tab] = await browser.tabs.query({
+        const [tab] = await browser.tabs.query({
           active: true,
           currentWindow: true,
         });
@@ -249,7 +251,7 @@ add_task(async function test_composeAction() {
         }
       });
 
-      let composeTab = await browser.compose.beginNew();
+      const composeTab = await browser.compose.beginNew();
       // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
       await new Promise(resolve => window.setTimeout(resolve, 125));
       browser.composeAction.openPopup({ windowId: composeTab.windowId });
@@ -270,7 +272,7 @@ add_task(async function test_composeAction() {
       </html>`,
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     files,
     manifest: {
@@ -284,11 +286,13 @@ add_task(async function test_composeAction() {
   });
 
   extension.onMessage("check tooltip", async () => {
-    let composeWindow = Services.wm.getMostRecentWindow("msgcompose");
-    let popupBrowser = composeWindow.document.querySelector(
+    const composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+    const popupBrowser = composeWindow.document.querySelector(
       ".webextension-popup-browser"
     );
-    let tooltip = composeWindow.document.getElementById("remoteBrowserTooltip");
+    const tooltip = composeWindow.document.getElementById(
+      "remoteBrowserTooltip"
+    );
     await showTooltip(
       "p",
       tooltip,
@@ -304,11 +308,11 @@ add_task(async function test_composeAction() {
 });
 
 add_task(async function test_messageDisplayAction_in_about3pane() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkTooltip() {
         // Trigger the tooltip and wait for the status.
-        let [state] = await window.sendMessage("check tooltip");
+        const [state] = await window.sendMessage("check tooltip");
         browser.test.assertEq("open", state, "Should find the tooltip open");
         browser.test.notifyPass("finished");
       }
@@ -340,7 +344,7 @@ add_task(async function test_messageDisplayAction_in_about3pane() {
       </html>`,
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     files,
     manifest: {
@@ -356,8 +360,8 @@ add_task(async function test_messageDisplayAction_in_about3pane() {
   extension.onMessage("check tooltip", async () => {
     // The tooltip and the popup panel are defined in the top level messenger
     // window, not in about:message.
-    let popupBrowser = document.querySelector(".webextension-popup-browser");
-    let tooltip = document.getElementById("remoteBrowserTooltip");
+    const popupBrowser = document.querySelector(".webextension-popup-browser");
+    const tooltip = document.getElementById("remoteBrowserTooltip");
     await showTooltip(
       "p",
       tooltip,
@@ -373,15 +377,15 @@ add_task(async function test_messageDisplayAction_in_about3pane() {
 });
 
 add_task(async function test_messageDisplayAction_in_message_tab() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkTooltip() {
         // Trigger the tooltip and wait for the status.
-        let [state] = await window.sendMessage("check tooltip");
+        const [state] = await window.sendMessage("check tooltip");
         browser.test.assertEq("open", state, "Should find the tooltip open");
 
         // Close the message tab.
-        let [tab] = await browser.tabs.query({
+        const [tab] = await browser.tabs.query({
           active: true,
           currentWindow: true,
         });
@@ -406,7 +410,7 @@ add_task(async function test_messageDisplayAction_in_message_tab() {
       );
 
       // Open a message in a tab.
-      let { messages } = await browser.messages.query({
+      const { messages } = await browser.messages.query({
         autoPaginationTimeout: 0,
       });
       browser.messageDisplay.open({
@@ -430,7 +434,7 @@ add_task(async function test_messageDisplayAction_in_message_tab() {
       </html>`,
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     files,
     manifest: {
@@ -446,8 +450,8 @@ add_task(async function test_messageDisplayAction_in_message_tab() {
   extension.onMessage("check tooltip", async () => {
     // The tooltip and the popup panel are defined in the top level messenger
     // window, not in about:message.
-    let popupBrowser = document.querySelector(".webextension-popup-browser");
-    let tooltip = document.getElementById("remoteBrowserTooltip");
+    const popupBrowser = document.querySelector(".webextension-popup-browser");
+    const tooltip = document.getElementById("remoteBrowserTooltip");
     await showTooltip(
       "p",
       tooltip,
@@ -463,15 +467,15 @@ add_task(async function test_messageDisplayAction_in_message_tab() {
 });
 
 add_task(async function test_messageDisplayAction_in_message_window() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkTooltip() {
         // Trigger the tooltip and wait for the status.
-        let [state] = await window.sendMessage("check tooltip");
+        const [state] = await window.sendMessage("check tooltip");
         browser.test.assertEq("open", state, "Should find the tooltip open");
 
         // Close the message window.
-        let [tab] = await browser.tabs.query({
+        const [tab] = await browser.tabs.query({
           active: true,
           currentWindow: true,
         });
@@ -496,7 +500,7 @@ add_task(async function test_messageDisplayAction_in_message_window() {
       );
 
       // Open a message in a window.
-      let { messages } = await browser.messages.query({
+      const { messages } = await browser.messages.query({
         autoPaginationTimeout: 0,
       });
       browser.messageDisplay.open({
@@ -520,7 +524,7 @@ add_task(async function test_messageDisplayAction_in_message_window() {
       </html>`,
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     files,
     manifest: {
@@ -534,11 +538,13 @@ add_task(async function test_messageDisplayAction_in_message_window() {
   });
 
   extension.onMessage("check tooltip", async () => {
-    let messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
-    let popupBrowser = messageWindow.document.querySelector(
+    const messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
+    const popupBrowser = messageWindow.document.querySelector(
       ".webextension-popup-browser"
     );
-    let tooltip = messageWindow.document.getElementById("remoteBrowserTooltip");
+    const tooltip = messageWindow.document.getElementById(
+      "remoteBrowserTooltip"
+    );
     await showTooltip(
       "p",
       tooltip,
@@ -554,15 +560,15 @@ add_task(async function test_messageDisplayAction_in_message_window() {
 });
 
 add_task(async function test_extension_window() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkTooltip() {
         // Trigger the tooltip and wait for the status.
-        let [state] = await window.sendMessage("check tooltip");
+        const [state] = await window.sendMessage("check tooltip");
         browser.test.assertEq("open", state, "Should find the tooltip open");
 
         // Close the extension window.
-        let [tab] = await browser.tabs.query({
+        const [tab] = await browser.tabs.query({
           active: true,
           currentWindow: true,
         });
@@ -597,7 +603,7 @@ add_task(async function test_extension_window() {
       </html>`,
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     files,
     manifest: {
@@ -606,10 +612,10 @@ add_task(async function test_extension_window() {
   });
 
   extension.onMessage("check tooltip", async () => {
-    let extensionWindow = Services.wm.getMostRecentWindow(
+    const extensionWindow = Services.wm.getMostRecentWindow(
       "mail:extensionPopup"
     );
-    let tooltip = extensionWindow.document.getElementById(
+    const tooltip = extensionWindow.document.getElementById(
       "remoteBrowserTooltip"
     );
     await showTooltip(
@@ -627,15 +633,15 @@ add_task(async function test_extension_window() {
 });
 
 add_task(async function test_extension_tab() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkTooltip() {
         // Trigger the tooltip and wait for the status.
-        let [state] = await window.sendMessage("check tooltip");
+        const [state] = await window.sendMessage("check tooltip");
         browser.test.assertEq("open", state, "Should find the tooltip open");
 
         // Close the extension tab.
-        let [tab] = await browser.tabs.query({
+        const [tab] = await browser.tabs.query({
           active: true,
           currentWindow: true,
         });
@@ -670,7 +676,7 @@ add_task(async function test_extension_tab() {
       </html>`,
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     files,
     manifest: {
@@ -679,8 +685,8 @@ add_task(async function test_extension_tab() {
   });
 
   extension.onMessage("check tooltip", async () => {
-    let tooltip = window.document.getElementById("remoteBrowserTooltip");
-    let browser = window.gTabmail.currentTabInfo.browser;
+    const tooltip = window.document.getElementById("remoteBrowserTooltip");
+    const browser = window.gTabmail.currentTabInfo.browser;
     await showTooltip("p", tooltip, browser, "extension tab");
     extension.sendMessage(tooltip.state);
   });

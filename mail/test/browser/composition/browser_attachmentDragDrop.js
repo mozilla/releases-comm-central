@@ -109,10 +109,10 @@ function initDragSession({ dragData, dropEffect }) {
  */
 async function simulateDragAndDrop(win, dragData, type) {
   let dropTarget = getDropTarget(win);
-  let dragOverTarget = getDragOverTarget(win);
-  let dropEffect = "move";
+  const dragOverTarget = getDragOverTarget(win);
+  const dropEffect = "move";
 
-  let session = initDragSession({ dragData, dropEffect });
+  const session = initDragSession({ dragData, dropEffect });
 
   info("Simulate drag over and wait for the drop target to be visible");
 
@@ -165,7 +165,7 @@ async function simulateDragAndDrop(win, dragData, type) {
   );
 
   if (type == "inline") {
-    let editor = win.GetCurrentEditor();
+    const editor = win.GetCurrentEditor();
 
     await BrowserTestUtils.waitForCondition(() => {
       editor.selectAll();
@@ -195,8 +195,8 @@ async function simulateDragAndDrop(win, dragData, type) {
  * the message compose window.
  */
 add_task(async function test_image_file_drag() {
-  let file = new FileUtils.File(getTestFilePath("data/tb-logo.png"));
-  let cwc = await open_compose_new_mail();
+  const file = new FileUtils.File(getTestFilePath("data/tb-logo.png"));
+  const cwc = await open_compose_new_mail();
 
   await simulateDragAndDrop(
     cwc,
@@ -212,8 +212,8 @@ add_task(async function test_image_file_drag() {
  * the message compose window and dropped above the inline container.
  */
 add_task(async function test_image_file_drag() {
-  let file = new FileUtils.File(getTestFilePath("data/tb-logo.png"));
-  let cwc = await open_compose_new_mail();
+  const file = new FileUtils.File(getTestFilePath("data/tb-logo.png"));
+  const cwc = await open_compose_new_mail();
 
   await simulateDragAndDrop(
     cwc,
@@ -229,8 +229,8 @@ add_task(async function test_image_file_drag() {
  * the message compose window.
  */
 add_task(async function test_text_file_drag() {
-  let file = new FileUtils.File(getTestFilePath("data/attachment.txt"));
-  let cwc = await open_compose_new_mail();
+  const file = new FileUtils.File(getTestFilePath("data/attachment.txt"));
+  const cwc = await open_compose_new_mail();
 
   await simulateDragAndDrop(
     cwc,
@@ -242,9 +242,9 @@ add_task(async function test_text_file_drag() {
 });
 
 add_task(async function test_message_drag() {
-  let folder = await create_folder("dragondrop");
-  let subject = "Dragons don't drop from the sky";
-  let body = "Dragons can fly after all.";
+  const folder = await create_folder("dragondrop");
+  const subject = "Dragons don't drop from the sky";
+  const body = "Dragons can fly after all.";
   await be_in_folder(folder);
   await add_message_to_folder(
     [folder],
@@ -252,11 +252,12 @@ add_task(async function test_message_drag() {
   );
   await select_click_row(0);
 
-  let msgStr = get_about_message().gMessageURI;
-  let msgUrl = MailServices.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
+  const msgStr = get_about_message().gMessageURI;
+  const msgUrl =
+    MailServices.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
 
-  let cwc = await open_compose_new_mail();
-  let attachmentBucket = cwc.document.getElementById("attachmentBucket");
+  const cwc = await open_compose_new_mail();
+  const attachmentBucket = cwc.document.getElementById("attachmentBucket");
 
   await simulateDragAndDrop(
     cwc,
@@ -277,7 +278,7 @@ add_task(async function test_message_drag() {
     "message"
   );
 
-  let attachment = attachmentBucket.childNodes[0].attachment;
+  const attachment = attachmentBucket.childNodes[0].attachment;
   Assert.equal(
     attachment.name,
     "Dragons don't drop from the sky.eml",
@@ -315,7 +316,7 @@ add_task(async function test_message_drag() {
     "message"
   );
 
-  let attachment2 = attachmentBucket.childNodes[0].attachment;
+  const attachment2 = attachmentBucket.childNodes[0].attachment;
   Assert.equal(
     attachment2.name,
     "Dragons don't drop from the sky",
@@ -336,7 +337,7 @@ add_task(async function test_message_drag() {
 });
 
 add_task(async function test_link_drag() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   await simulateDragAndDrop(
     cwc,
     [
@@ -355,7 +356,7 @@ add_task(async function test_link_drag() {
     "link"
   );
 
-  let attachment =
+  const attachment =
     cwc.document.getElementById("attachmentBucket").childNodes[0].attachment;
   Assert.equal(
     attachment.name,
@@ -378,7 +379,7 @@ add_task(async function test_link_drag() {
  * @param {Element[]} selectedItems - The expected selected items in the bucket.
  */
 function assertSelection(bucket, selectedItems) {
-  for (let child of bucket.childNodes) {
+  for (const child of bucket.childNodes) {
     if (selectedItems.includes(child)) {
       Assert.ok(
         child.selected,
@@ -401,9 +402,9 @@ function assertSelection(bucket, selectedItems) {
  *   contain at least one item.
  */
 function selectAttachments(bucket, itemSet) {
-  let win = bucket.ownerGlobal;
+  const win = bucket.ownerGlobal;
   let first = true;
-  for (let item of itemSet) {
+  for (const item of itemSet) {
     item.scrollIntoView();
     EventUtils.synthesizeMouseAtCenter(item, { ctrlKey: !first }, win);
     first = false;
@@ -421,12 +422,12 @@ function selectAttachments(bucket, itemSet) {
  *   attachments as well as the expected gained attachments.
  */
 async function moveAttachments(dragSrc, destBucket, expectUrls) {
-  let srcWindow = dragSrc.ownerGlobal;
-  let destWindow = destBucket.ownerGlobal;
-  let dragOverTarget = getDragOverTarget(destWindow);
-  let dropTarget = getDropTarget(destWindow);
+  const srcWindow = dragSrc.ownerGlobal;
+  const destWindow = destBucket.ownerGlobal;
+  const dragOverTarget = getDragOverTarget(destWindow);
+  const dropTarget = getDropTarget(destWindow);
 
-  let [dragOverResult, dataTransfer] = EventUtils.synthesizeDragOver(
+  const [dragOverResult, dataTransfer] = EventUtils.synthesizeDragOver(
     dragSrc,
     dragOverTarget,
     null,
@@ -446,7 +447,7 @@ async function moveAttachments(dragSrc, destBucket, expectUrls) {
     () => destBucket.itemCount == expectUrls.length,
     `Destination bucket has ${expectUrls.length} attachments`
   );
-  let items = Array.from(destBucket.childNodes);
+  const items = Array.from(destBucket.childNodes);
   for (let i = 0; i < items.length; i++) {
     Assert.ok(
       items[i].attachment.url.startsWith("file://") &&
@@ -478,11 +479,11 @@ async function drag_between_buckets(srcBucket, destBucket) {
     "Dest bucket starts with no attachments"
   );
 
-  let attachmentSet = Array.from(srcBucket.childNodes, item => {
+  const attachmentSet = Array.from(srcBucket.childNodes, item => {
     return { url: item.attachment.url, srcItem: item };
   });
 
-  let dragSession = Cc["@mozilla.org/widget/dragservice;1"].getService(
+  const dragSession = Cc["@mozilla.org/widget/dragservice;1"].getService(
     Ci.nsIDragService
   );
   dragSession.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
@@ -490,7 +491,7 @@ async function drag_between_buckets(srcBucket, destBucket) {
   // NOTE: Attachment #4 is never dragged from the source to the destination
   // bucket as part of this test.
 
-  let destUrls = [];
+  const destUrls = [];
 
   // Select attachment #2, and drag it.
   selectAttachments(srcBucket, [attachmentSet[2].srcItem]);
@@ -534,13 +535,13 @@ async function drag_between_buckets(srcBucket, destBucket) {
  * Test dragging regular attachments from one composition window to another.
  */
 add_task(async function test_drag_and_drop_between_composition_windows() {
-  let ctrlSrc = await open_compose_new_mail();
-  let ctrlDest = await open_compose_new_mail();
+  const ctrlSrc = await open_compose_new_mail();
+  const ctrlDest = await open_compose_new_mail();
 
   // Add attachments (via mocked file picker).
   await ctrlSrc.AttachFile();
 
-  let srcAttachmentArea = ctrlSrc.document.getElementById("attachmentArea");
+  const srcAttachmentArea = ctrlSrc.document.getElementById("attachmentArea");
 
   // Wait for attachment area to be visible and open in response.
   await TestUtils.waitForCondition(
@@ -549,8 +550,8 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
     "Attachment area is visible and open"
   );
 
-  let srcBucket = ctrlSrc.document.getElementById("attachmentBucket");
-  let dstBucket = ctrlDest.document.getElementById("attachmentBucket");
+  const srcBucket = ctrlSrc.document.getElementById("attachmentBucket");
+  const dstBucket = ctrlDest.document.getElementById("attachmentBucket");
   await drag_between_buckets(srcBucket, dstBucket);
 
   // Make sure a dragged attachment can be converted to a cloudFile attachment.
@@ -577,13 +578,13 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
  * Test dragging cloudFile attachments from one composition window to another.
  */
 add_task(async function test_cloud_drag_and_drop_between_composition_windows() {
-  let ctrlSrc = await open_compose_new_mail();
-  let ctrlDest = await open_compose_new_mail();
+  const ctrlSrc = await open_compose_new_mail();
+  const ctrlDest = await open_compose_new_mail();
 
   // Add cloudFile attachments (via mocked file picker).
   await ctrlSrc.attachToCloudNew(gCloudFileAccount);
 
-  let srcAttachmentArea = ctrlSrc.document.getElementById("attachmentArea");
+  const srcAttachmentArea = ctrlSrc.document.getElementById("attachmentArea");
 
   // Wait for attachment area to be visible and open in response.
   await TestUtils.waitForCondition(
@@ -592,8 +593,8 @@ add_task(async function test_cloud_drag_and_drop_between_composition_windows() {
     "Attachment area is visible and open"
   );
 
-  let srcBucket = ctrlSrc.document.getElementById("attachmentBucket");
-  let dstBucket = ctrlDest.document.getElementById("attachmentBucket");
+  const srcBucket = ctrlSrc.document.getElementById("attachmentBucket");
+  const dstBucket = ctrlDest.document.getElementById("attachmentBucket");
   await drag_between_buckets(srcBucket, dstBucket);
 
   // Make sure a dragged cloudFile attachment can be converted to a regular
@@ -621,9 +622,9 @@ add_task(async function test_cloud_drag_and_drop_between_composition_windows() {
  * Test dragging attachments from a message into a composition window.
  */
 add_task(async function test_drag_and_drop_between_composition_windows() {
-  let ctrlDest = await open_compose_new_mail();
+  const ctrlDest = await open_compose_new_mail();
 
-  let folder = await create_folder("AttachmentsForComposition");
+  const folder = await create_folder("AttachmentsForComposition");
   await add_message_to_folder(
     [folder],
     create_message({
@@ -638,12 +639,12 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
   );
   await be_in_folder(folder);
   await select_click_row(0);
-  let aboutMessage = get_about_message();
-  let srcAttachmentArea =
+  const aboutMessage = get_about_message();
+  const srcAttachmentArea =
     aboutMessage.document.getElementById("attachmentView");
   Assert.ok(!srcAttachmentArea.collapsed, "Attachment area is visible");
 
-  let srcBucket = aboutMessage.document.getElementById("attachmentList");
+  const srcBucket = aboutMessage.document.getElementById("attachmentList");
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("attachmentBar"),
     {},

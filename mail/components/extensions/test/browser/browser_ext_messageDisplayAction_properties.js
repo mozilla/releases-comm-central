@@ -3,16 +3,16 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  let account = createAccount();
+  const account = createAccount();
   addIdentity(account);
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("test", null);
-  let folder = rootFolder.getChildNamed("test");
+  const folder = rootFolder.getChildNamed("test");
   createMessages(folder, 1);
-  let [message] = [...folder.messages];
+  const [message] = [...folder.messages];
 
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({
     folderPaneVisible: true,
     folderURI: folder.URI,
@@ -27,7 +27,7 @@ add_task(async () => {
   await openMessageInWindow(message);
   await new Promise(resolve => executeSoon(resolve));
 
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkProperty(property, expectedDefault, ...expected) {
         browser.test.log(
@@ -48,9 +48,9 @@ add_task(async () => {
         await window.sendMessage("checkProperty", property, expected);
       }
 
-      let tabs = await browser.tabs.query({});
+      const tabs = await browser.tabs.query({});
       browser.test.assertEq(3, tabs.length);
-      let tabIDs = tabs.map(t => t.id);
+      const tabIDs = tabs.map(t => t.id);
 
       await checkProperty("isEnabled", true, true, true, true);
       await browser.messageDisplayAction.disable();
@@ -111,7 +111,7 @@ add_task(async () => {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       applications: {
@@ -128,11 +128,11 @@ add_task(async () => {
 
   await extension.startup();
 
-  let mainWindowTabs = tabmail.tabInfo;
+  const mainWindowTabs = tabmail.tabInfo;
   is(mainWindowTabs.length, 2);
 
-  let messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
-  let messageWindowButton =
+  const messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
+  const messageWindowButton =
     messageWindow.messageBrowser.contentDocument.getElementById(
       "message_display_action_properties_mochi_test-messageDisplayAction-toolbarbutton"
     );

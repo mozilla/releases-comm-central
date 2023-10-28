@@ -45,14 +45,14 @@ MessageArchiver.canArchive = function (messages, isSingleFolder) {
     messages.length > MessageArchiver.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK &&
     isSingleFolder
   ) {
-    let folder = messages[0].folder;
-    let folderIdentity = folder.customIdentity;
+    const folder = messages[0].folder;
+    const folderIdentity = folder.customIdentity;
     if (folderIdentity) {
       return folderIdentity.archiveEnabled;
     }
 
     if (folder.server) {
-      let serverIdentities = MailServices.accounts.getIdentitiesForServer(
+      const serverIdentities = MailServices.accounts.getIdentitiesForServer(
         folder.server
       );
 
@@ -70,7 +70,7 @@ MessageArchiver.canArchive = function (messages, isSingleFolder) {
   // Either we've selected a small number of messages or we just can't
   // fast-path the result; examine all the messages.
   return messages.every(function (msg) {
-    let [identity] = lazy.MailUtils.getIdentityForHeader(msg);
+    const [identity] = lazy.MailUtils.getIdentityForHeader(msg);
     return Boolean(identity && identity.archiveEnabled);
   });
 };
@@ -93,26 +93,26 @@ MessageArchiver.prototype = {
     gIsArchiving = true;
 
     for (let i = 0; i < aMsgHdrs.length; i++) {
-      let msgHdr = aMsgHdrs[i];
+      const msgHdr = aMsgHdrs[i];
 
-      let server = msgHdr.folder.server;
+      const server = msgHdr.folder.server;
 
       // Convert date to JS date object.
-      let msgDate = new Date(msgHdr.date / 1000);
-      let msgYear = msgDate.getFullYear().toString();
-      let monthFolderName =
+      const msgDate = new Date(msgHdr.date / 1000);
+      const msgYear = msgDate.getFullYear().toString();
+      const monthFolderName =
         msgYear + "-" + (msgDate.getMonth() + 1).toString().padStart(2, "0");
 
       let archiveFolderURI;
       let archiveGranularity;
       let archiveKeepFolderStructure;
 
-      let [identity] = lazy.MailUtils.getIdentityForHeader(msgHdr);
+      const [identity] = lazy.MailUtils.getIdentityForHeader(msgHdr);
       if (!identity || msgHdr.folder.server.type == "rss") {
         // If no identity, or a server (RSS) which doesn't have an identity
         // and doesn't want the default unrelated identity value, figure
         // this out based on the default identity prefs.
-        let enabled = Services.prefs.getBoolPref(
+        const enabled = Services.prefs.getBoolPref(
           "mail.identity.default.archive_enabled"
         );
         if (!enabled) {
@@ -171,7 +171,7 @@ MessageArchiver.prototype = {
 
   processNextBatch() {
     // get the first defined key and value
-    for (let key in this._batches) {
+    for (const key in this._batches) {
       this._currentBatch = this._batches[key];
       delete this._batches[key];
       this.filterBatch();
@@ -188,7 +188,7 @@ MessageArchiver.prototype = {
   },
 
   filterBatch() {
-    let batch = this._currentBatch;
+    const batch = this._currentBatch;
     // Apply filters to this batch.
     MailServices.filters.applyFilters(
       Ci.nsMsgFilterType.Archive,
@@ -212,15 +212,15 @@ MessageArchiver.prototype = {
 
   // continue processing of default archive operations
   continueBatch() {
-    let batch = this._currentBatch;
-    let srcFolder = batch.srcFolder;
+    const batch = this._currentBatch;
+    const srcFolder = batch.srcFolder;
     let archiveFolderURI = batch.archiveFolderURI;
-    let archiveFolder = lazy.MailUtils.getOrCreateFolder(archiveFolderURI);
+    const archiveFolder = lazy.MailUtils.getOrCreateFolder(archiveFolderURI);
     let dstFolder = archiveFolder;
 
-    let moveArray = [];
+    const moveArray = [];
     // Don't move any items that the filter moves or deleted
-    for (let item of batch.messages) {
+    for (const item of batch.messages) {
       if (
         srcFolder.msgDatabase.containsKey(item.messageKey) &&
         !(
@@ -241,7 +241,7 @@ MessageArchiver.prototype = {
     // sub-folders asynchronously, so we chain the urls using the listener
     // called back from createStorageIfMissing. For local,
     // createStorageIfMissing is synchronous.
-    let isAsync = archiveFolder.server.protocolInfo.foldersCreatedAsync;
+    const isAsync = archiveFolder.server.protocolInfo.foldersCreatedAsync;
     if (!archiveFolder.parent) {
       archiveFolder.setFlag(Ci.nsMsgFolderFlags.Archive);
       archiveFolder.createStorageIfMissing(this);
@@ -293,9 +293,9 @@ MessageArchiver.prototype = {
     if (archiveFolder.canCreateSubfolders && batch.keepFolderStructure) {
       // Collect in-order list of folders of source folder structure,
       // excluding top-level INBOX folder
-      let folderNames = [];
-      let rootFolder = srcFolder.server.rootFolder;
-      let inboxFolder = lazy.MailUtils.getInboxFolder(srcFolder.server);
+      const folderNames = [];
+      const rootFolder = srcFolder.server.rootFolder;
+      const inboxFolder = lazy.MailUtils.getInboxFolder(srcFolder.server);
       let folder = srcFolder;
       while (folder != rootFolder && folder != inboxFolder) {
         folderNames.unshift(folder.name);
@@ -303,7 +303,7 @@ MessageArchiver.prototype = {
       }
       // Determine Archive folder structure.
       for (let i = 0; i < folderNames.length; ++i) {
-        let folderName = folderNames[i];
+        const folderName = folderNames[i];
         if (!dstFolder.containsChildNamed(folderName)) {
           // Create Archive sub-folder (IMAP: async).
           if (isAsync) {
@@ -321,7 +321,7 @@ MessageArchiver.prototype = {
     }
 
     if (dstFolder != srcFolder) {
-      let isNews = srcFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
+      const isNews = srcFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
       // If the source folder doesn't support deleting messages, we
       // make archive a copy, not a move.
       MailServices.copy.copyMessages(

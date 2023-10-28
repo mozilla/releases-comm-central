@@ -13,12 +13,12 @@ var { get_about_message, open_message_from_file } = ChromeUtils.import(
 );
 
 add_task(async function test_cp932_display() {
-  let file = new FileUtils.File(getTestFilePath("data/charset-cp932.eml"));
-  let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc);
-  let subjectText =
+  const file = new FileUtils.File(getTestFilePath("data/charset-cp932.eml"));
+  const msgc = await open_message_from_file(file);
+  const aboutMessage = get_about_message(msgc);
+  const subjectText =
     aboutMessage.document.getElementById("expandedsubjectBox").textContent;
-  let bodyText = aboutMessage.document
+  const bodyText = aboutMessage.document
     .getElementById("messagepane")
     .contentDocument.querySelector("body").textContent;
   Assert.ok(

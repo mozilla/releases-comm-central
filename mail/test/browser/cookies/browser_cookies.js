@@ -23,12 +23,12 @@ var url = "http://mochi.test:8888/browser/comm/mail/test/browser/cookies/html/";
  */
 add_task(async function test_load_cookie_page() {
   await open_content_tab_with_url(url + "cookietest1.html");
-  let tab2 = await open_content_tab_with_url(url + "cookietest2.html");
+  const tab2 = await open_content_tab_with_url(url + "cookietest2.html");
 
   await SpecialPowers.spawn(tab2.browser, [], () => {
     Assert.equal(content.document.title, "Cookie Test 2");
 
-    let cookie = content.wrappedJSObject.theCookie;
+    const cookie = content.wrappedJSObject.theCookie;
 
     dump("Cookie is: " + cookie + "\n");
 

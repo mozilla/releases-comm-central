@@ -32,9 +32,9 @@ var abi = ctypes.default_abi;
 var librnp, librnpPath;
 
 function tryLoadRNP(name, suffix) {
-  let filename = ctypes.libraryName(name) + suffix;
-  let binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
-  let binDir = PathUtils.parent(binPath);
+  const filename = ctypes.libraryName(name) + suffix;
+  const binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
+  const binDir = PathUtils.parent(binPath);
   librnpPath = PathUtils.join(binDir, filename);
 
   try {
@@ -80,7 +80,7 @@ var RNPLibLoader = {
   init() {
     const required_version_str = `${MIN_RNP_VERSION[0]}.${MIN_RNP_VERSION[1]}.${MIN_RNP_VERSION[2]}`;
 
-    let dummyRNPLib = {
+    const dummyRNPLib = {
       loaded: false,
       loadedOfficial: false,
       loadStatus: "libs-rnp-status-load-failed",
@@ -115,7 +115,7 @@ var RNPLibLoader = {
     RNPLib.loadedVersion = rnp_version_str;
     RNPLib.expectedVersion = required_version_str;
 
-    let hasRequiredVersion = RNPLib.check_required_version();
+    const hasRequiredVersion = RNPLib.check_required_version();
 
     if (!hasRequiredVersion) {
       RNPLib.loadErrorReason = `RNP version ${rnp_version_str} does not meet minimum required ${required_version_str}.`;
@@ -125,7 +125,7 @@ var RNPLibLoader = {
 
     RNPLib.loaded = true;
 
-    let hasOfficialVersion =
+    const hasOfficialVersion =
       rnp_version_str.includes(".MZLA") ||
       rnp_version_str.match("^[0-9]+.[0-9]+.[0-9]+(.[0-9]+)?$");
     if (!hasOfficialVersion) {
@@ -207,12 +207,12 @@ function enableRNPLibJS() {
     // returns rnp_input_t, destroy using rnp_input_destroy
     async createInputFromPath(path) {
       // IOUtils.read always returns an array.
-      let u8 = await IOUtils.read(path);
+      const u8 = await IOUtils.read(path);
       if (!u8.length) {
         return null;
       }
 
-      let input_from_memory = new this.rnp_input_t();
+      const input_from_memory = new this.rnp_input_t();
       try {
         this.rnp_input_from_memory(
           input_from_memory.address(),
@@ -227,13 +227,13 @@ function enableRNPLibJS() {
     },
 
     getFilenames() {
-      let secFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+      const secFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
       secFile.append("secring.gpg");
-      let pubFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+      const pubFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
       pubFile.append("pubring.gpg");
 
-      let secRingPath = secFile.path;
-      let pubRingPath = pubFile.path;
+      const secRingPath = secFile.path;
+      const pubRingPath = pubFile.path;
 
       return { pubRingPath, secRingPath };
     },
@@ -246,7 +246,7 @@ function enableRNPLibJS() {
      *                      or RNP_LOAD_SAVE_SECRET_KEYS
      */
     async loadFile(filename, keyringFlag) {
-      let in_file = await this.createInputFromPath(filename);
+      const in_file = await this.createInputFromPath(filename);
       if (in_file) {
         this.rnp_load_keys(this.ffi, "GPG", in_file, keyringFlag);
         this.rnp_input_destroy(in_file);
@@ -292,13 +292,13 @@ function enableRNPLibJS() {
       let canRepair = false;
       try {
         console.log("Trying to automatically protect the unprotected keys.");
-        let mp = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
+        const mp = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
         if (mp) {
           await RNPLib.protectUnprotectedKeys();
           await RNPLib.saveKeys();
           canRepair = true;
           console.log("Successfully protected the unprotected keys.");
-          let [prot, unprot] = RNPLib.getProtectedKeysCount();
+          const [prot, unprot] = RNPLib.getProtectedKeysCount();
           console.debug(
             `Found (${prot} protected and ${unprot} unprotected secret keys.`
           );
@@ -326,7 +326,7 @@ function enableRNPLibJS() {
      * but obtain an RNP library handle from this function.
      */
     prepare_ffi() {
-      let ffi = new rnp_ffi_t();
+      const ffi = new rnp_ffi_t();
       if (this._rnp_ffi_create(ffi.address(), "GPG", "GPG")) {
         return null;
       }
@@ -430,8 +430,8 @@ function enableRNPLibJS() {
      *  is allowed for signatures on data.
      */
     _confirmSecurityRule(hashAlg, time, keySigAllowed, dataSigAllowed) {
-      let level = new ctypes.uint32_t();
-      let flag = new ctypes.uint32_t();
+      const level = new ctypes.uint32_t();
+      const flag = new ctypes.uint32_t();
 
       flag.value = this.RNP_SECURITY_VERIFY_DATA;
       let testDataSuccess = false;
@@ -488,9 +488,9 @@ function enableRNPLibJS() {
      * If a problem is found, the function throws an error.
      */
     _sanityCheckSecurityRules() {
-      let time_t_now = Math.round(Date.now() / 1000);
-      let ten_years_in_seconds = 10 * 365 * 24 * 60 * 60;
-      let ten_years_future = time_t_now + ten_years_in_seconds;
+      const time_t_now = Math.round(Date.now() / 1000);
+      const ten_years_in_seconds = 10 * 365 * 24 * 60 * 60;
+      const ten_years_future = time_t_now + ten_years_in_seconds;
 
       this._confirmSecurityRule(this.RNP_ALGNAME_MD5, time_t_now, false, false);
       this._confirmSecurityRule(
@@ -528,7 +528,7 @@ function enableRNPLibJS() {
         null
       );
 
-      let { pubRingPath, secRingPath } = this.getFilenames();
+      const { pubRingPath, secRingPath } = this.getFilenames();
 
       try {
         this._sanityCheckSecurityRules();
@@ -541,13 +541,13 @@ function enableRNPLibJS() {
       await this.loadWithFallback(pubRingPath, this.RNP_LOAD_SAVE_PUBLIC_KEYS);
       await this.loadWithFallback(secRingPath, this.RNP_LOAD_SAVE_SECRET_KEYS);
 
-      let pubnum = new ctypes.size_t();
+      const pubnum = new ctypes.size_t();
       this.rnp_get_public_key_count(this.ffi, pubnum.address());
 
-      let secnum = new ctypes.size_t();
+      const secnum = new ctypes.size_t();
       this.rnp_get_secret_key_count(this.ffi, secnum.address());
 
-      let [prot, unprot] = this.getProtectedKeysCount();
+      const [prot, unprot] = this.getProtectedKeysCount();
       console.debug(
         `Found ${pubnum.value} public keys and ${secnum.value} secret keys (${prot} protected, ${unprot} unprotected)`
       );
@@ -574,8 +574,8 @@ function enableRNPLibJS() {
       let prot = 0;
       let unprot = 0;
 
-      let iter = new RNPLib.rnp_identifier_iterator_t();
-      let grip = new ctypes.char.ptr();
+      const iter = new RNPLib.rnp_identifier_iterator_t();
+      const grip = new ctypes.char.ptr();
 
       if (
         RNPLib.rnp_identifier_iterator_create(
@@ -591,13 +591,13 @@ function enableRNPLibJS() {
         !RNPLib.rnp_identifier_iterator_next(iter, grip.address()) &&
         !grip.isNull()
       ) {
-        let handle = new RNPLib.rnp_key_handle_t();
+        const handle = new RNPLib.rnp_key_handle_t();
         if (RNPLib.rnp_locate_key(RNPLib.ffi, "grip", grip, handle.address())) {
           throw new Error("rnp_locate_key failed");
         }
 
         if (this.getSecretAvailableFromHandle(handle)) {
-          let is_protected = new ctypes.bool();
+          const is_protected = new ctypes.bool();
           if (RNPLib.rnp_key_is_protected(handle, is_protected.address())) {
             throw new Error("rnp_key_is_protected failed");
           }
@@ -616,7 +616,7 @@ function enableRNPLibJS() {
     },
 
     getSecretAvailableFromHandle(handle) {
-      let have_secret = new ctypes.bool();
+      const have_secret = new ctypes.bool();
       if (RNPLib.rnp_key_have_secret(handle, have_secret.address())) {
         throw new Error("rnp_key_have_secret failed");
       }
@@ -636,7 +636,7 @@ function enableRNPLibJS() {
      *
      */
     isSecretKeyMaterialAvailable(handle) {
-      let protection_type = new ctypes.char.ptr();
+      const protection_type = new ctypes.char.ptr();
       if (
         RNPLib.rnp_key_get_protection_type(handle, protection_type.address())
       ) {
@@ -658,10 +658,10 @@ function enableRNPLibJS() {
     },
 
     async protectUnprotectedKeys() {
-      let iter = new RNPLib.rnp_identifier_iterator_t();
-      let grip = new ctypes.char.ptr();
+      const iter = new RNPLib.rnp_identifier_iterator_t();
+      const grip = new ctypes.char.ptr();
 
-      let newPass = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
+      const newPass = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
 
       if (
         RNPLib.rnp_identifier_iterator_create(
@@ -677,13 +677,13 @@ function enableRNPLibJS() {
         !RNPLib.rnp_identifier_iterator_next(iter, grip.address()) &&
         !grip.isNull()
       ) {
-        let handle = new RNPLib.rnp_key_handle_t();
+        const handle = new RNPLib.rnp_key_handle_t();
         if (RNPLib.rnp_locate_key(RNPLib.ffi, "grip", grip, handle.address())) {
           throw new Error("rnp_locate_key failed");
         }
 
         if (RNPLib.getSecretAvailableFromHandle(handle)) {
-          let is_protected = new ctypes.bool();
+          const is_protected = new ctypes.bool();
           if (RNPLib.rnp_key_is_protected(handle, is_protected.address())) {
             throw new Error("rnp_key_is_protected failed");
           }
@@ -705,13 +705,13 @@ function enableRNPLibJS() {
         }
       }
 
-      let sub_count = new ctypes.size_t();
+      const sub_count = new ctypes.size_t();
       if (RNPLib.rnp_key_get_subkey_count(handle, sub_count.address())) {
         throw new Error("rnp_key_get_subkey_count failed");
       }
 
       for (let i = 0; i < sub_count.value; i++) {
-        let sub_handle = new RNPLib.rnp_key_handle_t();
+        const sub_handle = new RNPLib.rnp_key_handle_t();
         if (RNPLib.rnp_key_get_subkey_at(handle, i, sub_handle.address())) {
           throw new Error("rnp_key_get_subkey_at failed");
         }
@@ -741,13 +741,13 @@ function enableRNPLibJS() {
         return;
       }
 
-      let oldPath = path + ".old";
+      const oldPath = path + ".old";
 
       // Ignore failure, oldPath might not exist yet.
       await IOUtils.copy(path, oldPath).catch(() => {});
 
       let u8 = null;
-      let keyCount = new ctypes.size_t();
+      const keyCount = new ctypes.size_t();
 
       if (keyRingFlag == this.RNP_LOAD_SAVE_SECRET_KEYS) {
         this.rnp_get_secret_key_count(this.ffi, keyCount.address());
@@ -755,9 +755,9 @@ function enableRNPLibJS() {
         this.rnp_get_public_key_count(this.ffi, keyCount.address());
       }
 
-      let keyCountNum = parseInt(keyCount.value.toString());
+      const keyCountNum = parseInt(keyCount.value.toString());
       if (keyCountNum) {
-        let rnp_out = new this.rnp_output_t();
+        const rnp_out = new this.rnp_output_t();
         if (this.rnp_output_to_memory(rnp_out.address(), 0)) {
           throw new Error("rnp_output_to_memory failed");
         }
@@ -765,8 +765,8 @@ function enableRNPLibJS() {
           throw new Error("rnp_save_keys failed");
         }
 
-        let result_buf = new ctypes.uint8_t.ptr();
-        let result_len = new ctypes.size_t();
+        const result_buf = new ctypes.uint8_t.ptr();
+        const result_len = new ctypes.size_t();
 
         // Parameter false means "don't copy rnp_out to result_buf",
         // rather a reference to the memory is used. Be careful to
@@ -781,7 +781,7 @@ function enableRNPLibJS() {
         ) {
           throw new Error("rnp_output_memory_get_buf failed");
         } else {
-          let uint8_array = ctypes.cast(
+          const uint8_array = ctypes.cast(
             result_buf,
             ctypes.uint8_t.array(result_len.value).ptr
           ).contents;
@@ -803,13 +803,13 @@ function enableRNPLibJS() {
       if (!this.ffi) {
         return;
       }
-      let { pubRingPath, secRingPath } = this.getFilenames();
+      const { pubRingPath, secRingPath } = this.getFilenames();
 
-      let saveThem = async () => {
+      const saveThem = async () => {
         await this.saveKeyRing(pubRingPath, this.RNP_LOAD_SAVE_PUBLIC_KEYS);
         await this.saveKeyRing(secRingPath, this.RNP_LOAD_SAVE_SECRET_KEYS);
       };
-      let saveBlocker = saveThem();
+      const saveBlocker = saveThem();
       IOUtils.profileBeforeChange.addBlocker(
         "OpenPGP: writing out keyring",
         saveBlocker
@@ -838,7 +838,7 @@ function enableRNPLibJS() {
      * rely on the usual JS throw mechanism to abort this operation.
      */
     password_cb(ffi, app_ctx, key, pgp_context, buf, buf_len) {
-      let fingerprint = new ctypes.char.ptr();
+      const fingerprint = new ctypes.char.ptr();
       let fpStr;
       if (!RNPLib.rnp_key_get_fprint(key, fingerprint.address())) {
         fpStr = "Fingerprint: " + fingerprint.readString();

@@ -72,7 +72,7 @@ var EnigmailMime = {
    */
 
   getParameter(headerStr, parameter) {
-    let paramsArr = EnigmailMime.getAllParameters(headerStr);
+    const paramsArr = EnigmailMime.getAllParameters(headerStr);
     parameter = parameter.toLowerCase();
     if (parameter in paramsArr) {
       return paramsArr[parameter];
@@ -93,14 +93,14 @@ var EnigmailMime = {
 
   getAllParameters(headerStr) {
     headerStr = headerStr.replace(/[\r\n]+[ \t]+/g, "");
-    let hdrMap = lazy.jsmime.headerparser.parseParameterHeader(
+    const hdrMap = lazy.jsmime.headerparser.parseParameterHeader(
       ";" + headerStr,
       true,
       true
     );
 
-    let paramArr = [];
-    let i = hdrMap.entries();
+    const paramArr = [];
+    const i = hdrMap.entries();
     let p = i.next();
     while (p.value) {
       paramArr[p.value[0].toLowerCase()] = p.value[1];
@@ -137,7 +137,7 @@ var EnigmailMime = {
    * if subject not found: null
    */
   extractSubjectFromBody(msgBody) {
-    let m = msgBody.match(/^(\r?\n?Subject: [^\r\n]+\r?\n\r?\n)/i);
+    const m = msgBody.match(/^(\r?\n?Subject: [^\r\n]+\r?\n\r?\n)/i);
     if (m && m.length > 0) {
       let subject = m[0].replace(/[\r\n]/g, "");
       subject = subject.substr(9);
@@ -166,9 +166,9 @@ var EnigmailMime = {
    */
   extractProtectedHeaders(contentData) {
     // find first MIME delimiter. Anything before that delimiter is the top MIME structure
-    let m = contentData.search(/^--/m);
+    const m = contentData.search(/^--/m);
 
-    let protectedHdr = [
+    const protectedHdr = [
       "subject",
       "date",
       "from",
@@ -180,10 +180,10 @@ var EnigmailMime = {
       "followup-to",
       "message-id",
     ];
-    let newHeaders = {};
+    const newHeaders = {};
 
     // read headers of first MIME part and extract the boundary parameter
-    let outerHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+    const outerHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
       Ci.nsIMimeHeaders
     );
     outerHdr.initialize(contentData.substr(0, m));
@@ -211,7 +211,7 @@ var EnigmailMime = {
       // Escape regex chars in the boundary.
       bound = bound.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
       // search for "outer" MIME delimiter(s)
-      let r = new RegExp("^--" + bound, "mg");
+      const r = new RegExp("^--" + bound, "mg");
 
       startPos = -1;
       endPos = -1;
@@ -236,7 +236,7 @@ var EnigmailMime = {
       endPos = 0;
     }
 
-    let headers = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+    const headers = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
       Ci.nsIMimeHeaders
     );
     headers.initialize(contentData.substring(0, startPos));
@@ -247,9 +247,9 @@ var EnigmailMime = {
       return null;
     }
 
-    for (let i in protectedHdr) {
+    for (const i in protectedHdr) {
       if (headers.hasHeader(protectedHdr[i])) {
-        let extracted = headers.extractHeader(protectedHdr[i], true);
+        const extracted = headers.extractHeader(protectedHdr[i], true);
         newHeaders[protectedHdr[i]] =
           lazy.jsmime.headerparser.decodeRFC2047Words(extracted) || undefined;
       }
@@ -260,18 +260,19 @@ var EnigmailMime = {
       startPos + bound.length + 3,
       endPos
     );
-    let i = contentBody.search(/^[A-Za-z]/m); // skip empty lines
+    const i = contentBody.search(/^[A-Za-z]/m); // skip empty lines
     if (i > 0) {
       contentBody = contentBody.substr(i);
     }
 
     headers.initialize(contentBody);
 
-    let innerCt = headers.extractHeader("content-type", false) || "";
+    const innerCt = headers.extractHeader("content-type", false) || "";
 
     if (innerCt.search(/^text\/rfc822-headers/i) === 0) {
-      let charset = EnigmailMime.getCharset(innerCt);
-      let ctt = headers.extractHeader("content-transfer-encoding", false) || "";
+      const charset = EnigmailMime.getCharset(innerCt);
+      const ctt =
+        headers.extractHeader("content-transfer-encoding", false) || "";
 
       // determine where the headers end and the MIME-subpart body starts
       let bodyStartPos = contentBody.search(/\r?\n\s*\r?\n/) + 1;
@@ -295,13 +296,13 @@ var EnigmailMime = {
       }
 
       // get the headers of the MIME-subpart body --> that's the ones we need
-      let bodyHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+      const bodyHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
         Ci.nsIMimeHeaders
       );
       bodyHdr.initialize(ctBodyData);
 
-      for (let i in protectedHdr) {
-        let extracted = bodyHdr.extractHeader(protectedHdr[i], true);
+      for (const i in protectedHdr) {
+        const extracted = bodyHdr.extractHeader(protectedHdr[i], true);
         if (bodyHdr.hasHeader(protectedHdr[i])) {
           newHeaders[protectedHdr[i]] =
             lazy.jsmime.headerparser.decodeRFC2047Words(extracted) || undefined;
@@ -328,7 +329,7 @@ var EnigmailMime = {
    * @returns String: the mime part number (or "" if none found)
    */
   getMimePartNumber(spec) {
-    let m = spec.match(/([\?&]part=)(\d+(\.\d+)*)/);
+    const m = spec.match(/([\?&]part=)(\d+(\.\d+)*)/);
 
     if (m && m.length >= 3) {
       return m[2];
@@ -364,7 +365,7 @@ var EnigmailMime = {
     }
 
     // is the message a subpart of a complete attachment?
-    let msgPart = this.getMimePartNumber(uriSpec);
+    const msgPart = this.getMimePartNumber(uriSpec);
     if (msgPart.length > 0) {
       // load attached messages
       if (
@@ -399,12 +400,12 @@ var EnigmailMime = {
    */
   getMimeTreeFromUrl(url, getBody = false, callbackFunc) {
     function onData(data) {
-      let tree = getMimeTree(data, getBody);
+      const tree = getMimeTree(data, getBody);
       callbackFunc(tree);
     }
 
-    let chan = lazy.EnigmailStreams.createChannel(url);
-    let bufferListener = lazy.EnigmailStreams.newStringStreamListener(onData);
+    const chan = lazy.EnigmailStreams.createChannel(url);
+    const bufferListener = lazy.EnigmailStreams.newStringStreamListener(onData);
     chan.asyncOpen(bufferListener, null);
   },
 
@@ -427,15 +428,15 @@ var EnigmailMime = {
  * @returns TreeObject, or NULL in case of failure
  */
 function getMimeTree(mimeStr, getBody = false) {
-  let mimeTree = {
-      partNum: "",
-      headers: null,
-      body: "",
-      parent: null,
-      subParts: [],
-    },
-    currentPart = "",
-    currPartNum = "";
+  const mimeTree = {
+    partNum: "",
+    headers: null,
+    body: "",
+    parent: null,
+    subParts: [],
+  };
+  let currentPart = "";
+  let currPartNum = "";
 
   const jsmimeEmitter = {
     createPartObj(partNum, headers, parent) {
@@ -443,8 +444,8 @@ function getMimeTree(mimeStr, getBody = false) {
 
       if (headers.has("content-type")) {
         ct = headers.contentType.type;
-        let it = headers.get("content-type").entries();
-        for (let i of it) {
+        const it = headers.get("content-type").entries();
+        for (const i of it) {
           ct += "; " + i[0] + '="' + i[1] + '"';
         }
       }
@@ -469,7 +470,7 @@ function getMimeTree(mimeStr, getBody = false) {
     startPart(partNum, headers) {
       //dump("mime.jsm: jsmimeEmitter.startPart: partNum=" + partNum + "\n");
       partNum = "1" + (partNum !== "" ? "." : "") + partNum;
-      let newPart = this.createPartObj(partNum, headers, currentPart);
+      const newPart = this.createPartObj(partNum, headers, currentPart);
 
       if (partNum.indexOf(currPartNum) === 0) {
         // found sub-part
@@ -496,14 +497,14 @@ function getMimeTree(mimeStr, getBody = false) {
     },
   };
 
-  let opt = {
+  const opt = {
     strformat: "unicode",
     bodyformat: getBody ? "decode" : "none",
     stripcontinuations: false,
   };
 
   try {
-    let p = new lazy.jsmime.MimeParser(jsmimeEmitter, opt);
+    const p = new lazy.jsmime.MimeParser(jsmimeEmitter, opt);
     p.deliverData(mimeStr);
     return mimeTree.subParts[0];
   } catch (ex) {

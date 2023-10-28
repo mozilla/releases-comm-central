@@ -91,7 +91,7 @@ add_task(async function testItemExists() {
 });
 
 add_task(async function testCreateRecord() {
-  let record = await store.createRecord(identityA.UID);
+  const record = await store.createRecord(identityA.UID);
   Assert.ok(record instanceof IdentityRecord);
   Assert.equal(record.id, identityA.UID);
   Assert.deepEqual(record.accounts, [
@@ -124,15 +124,15 @@ add_task(async function testCreateRecord() {
 });
 
 add_task(async function testCreateDeletedRecord() {
-  let fakeID = "12345678-1234-1234-1234-123456789012";
-  let record = await store.createRecord(fakeID);
+  const fakeID = "12345678-1234-1234-1234-123456789012";
+  const record = await store.createRecord(fakeID);
   Assert.ok(record instanceof IdentityRecord);
   Assert.equal(record.id, fakeID);
   Assert.equal(record.deleted, true);
 });
 
 add_task(async function testSyncRecords() {
-  let newIdentityID = newUID();
+  const newIdentityID = newUID();
   await store.applyIncoming({
     id: newIdentityID,
     accounts: [
@@ -167,7 +167,7 @@ add_task(async function testSyncRecords() {
   Assert.equal(MailServices.accounts.allIdentities.length, 3);
   Assert.equal(accountA.identities.length, 2);
 
-  let newIdentity = MailServices.accounts.allIdentities.find(
+  const newIdentity = MailServices.accounts.allIdentities.find(
     i => i.UID == newIdentityID
   );
   Assert.equal(newIdentity.email, "username@hostname");

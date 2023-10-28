@@ -34,7 +34,7 @@ SearchIntegration = {
 
   get _metadataDir() {
     delete this._metadataDir;
-    let metadataDir = Services.dirsvc.get("Home", Ci.nsIFile);
+    const metadataDir = Services.dirsvc.get("Home", Ci.nsIFile);
     metadataDir.append("Library");
     metadataDir.append("Caches");
     metadataDir.append("Metadata");
@@ -45,23 +45,27 @@ SearchIntegration = {
   // Spotlight won't index files in the profile dir, but will use ~/Library/Caches/Metadata
   _getSearchPathForFolder(aFolder) {
     // Swap the metadata dir for the profile dir prefix in the folder's path
-    let folderPath = aFolder.filePath.path;
-    let fixedPath = folderPath.replace(
+    const folderPath = aFolder.filePath.path;
+    const fixedPath = folderPath.replace(
       this._profileDir.path,
       this._metadataDir.path
     );
-    let searchPath = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    const searchPath = Cc["@mozilla.org/file/local;1"].createInstance(
+      Ci.nsIFile
+    );
     searchPath.initWithPath(fixedPath);
     return searchPath;
   },
 
   // Replace ~/Library/Caches/Metadata with the profile directory, then convert
   _getFolderForSearchPath(aPath) {
-    let folderPath = aPath.path.replace(
+    const folderPath = aPath.path.replace(
       this._metadataDir.path,
       this._profileDir.path
     );
-    let folderFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    const folderFile = Cc["@mozilla.org/file/local;1"].createInstance(
+      Ci.nsIFile
+    );
     folderFile.initWithPath(folderPath);
     return MailUtils.getFolderForFileInProfile(folderFile);
   },
@@ -91,7 +95,7 @@ SearchIntegration = {
   _init() {
     this._initLogging();
 
-    let enabled = this._prefBranch.getBoolPref("enable", false);
+    const enabled = this._prefBranch.getBoolPref("enable", false);
     if (enabled) {
       this._log.info("Initializing Spotlight integration");
     }
@@ -123,7 +127,7 @@ SearchIntegration = {
 
     onStartRequest(request) {
       try {
-        let outputFileStream = Cc[
+        const outputFileStream = Cc[
           "@mozilla.org/network/file-output-stream;1"
         ].createInstance(Ci.nsIFileOutputStream);
         outputFileStream.init(this._outputFile, -1, -1, 0);
@@ -137,7 +141,7 @@ SearchIntegration = {
           "<key>kMDItemLastUsedDate</key><string>"
         );
         // need to write the date as a string
-        let curTimeStr = new Date().toLocaleString();
+        const curTimeStr = new Date().toLocaleString();
         this._outputStream.writeString(curTimeStr);
 
         // need to write the subject in utf8 as the title
@@ -145,7 +149,7 @@ SearchIntegration = {
           "</string>\n<key>kMDItemTitle</key>\n<string>"
         );
 
-        let escapedSubject = this._xmlEscapeString(
+        const escapedSubject = this._xmlEscapeString(
           this._msgHdr.mime2DecodedSubject
         );
         this._outputStream.writeString(escapedSubject);
@@ -176,11 +180,11 @@ SearchIntegration = {
       try {
         // we want to write out the from, to, cc, and subject headers into the
         // Text Content value, so they'll be indexed.
-        let stringStream = Cc[
+        const stringStream = Cc[
           "@mozilla.org/io/string-input-stream;1"
         ].createInstance(Ci.nsIStringInputStream);
         stringStream.setData(this._message, this._message.length);
-        let folder = this._msgHdr.folder;
+        const folder = this._msgHdr.folder;
         let text = folder.getMsgTextFromStream(
           stringStream,
           this._msgHdr.charset,
@@ -215,13 +219,13 @@ SearchIntegration = {
 
     onDataAvailable(request, inputStream, offset, count) {
       try {
-        let inStream = Cc[
+        const inStream = Cc[
           "@mozilla.org/scriptableinputstream;1"
         ].createInstance(Ci.nsIScriptableInputStream);
         inStream.init(inputStream);
 
         // It is necessary to read in data from the input stream
-        let inData = inStream.read(count);
+        const inData = inStream.read(count);
 
         // ignore stuff after the first 20K or so
         if (this._message && this._message.length > 20000) {

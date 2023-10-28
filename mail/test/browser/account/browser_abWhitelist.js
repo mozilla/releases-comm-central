@@ -22,13 +22,13 @@ var gKeyString = null;
 var gAccount = null;
 
 add_setup(function () {
-  let server = MailServices.accounts.findServer(
+  const server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
   gAccount = MailServices.accounts.FindAccountForServer(server);
-  let serverKey = server.key;
+  const serverKey = server.key;
 
   gKeyString = "mail.server." + serverKey + ".whiteListAbURI";
   gOldWhiteList = Services.prefs.getCharPref(gKeyString);
@@ -49,17 +49,17 @@ registerCleanupFunction(function () {
 async function subtest_check_whitelist_init_and_save(tab) {
   // Ok, the advanced settings window is open.  Let's choose
   // the junkmail settings.
-  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
+  const accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
   await click_account_tree_row(tab, accountRow);
 
-  let doc =
+  const doc =
     tab.browser.contentWindow.document.getElementById(
       "contentFrame"
     ).contentDocument;
 
   // At this point, we shouldn't have anything checked, but we should have
   // the two default address books (Personal and Collected) displayed
-  let list = doc.getElementById("whiteListAbURI");
+  const list = doc.getElementById("whiteListAbURI");
   Assert.equal(
     2,
     list.getRowCount(),
@@ -68,7 +68,7 @@ async function subtest_check_whitelist_init_and_save(tab) {
 
   // Now we'll check both address books
   for (let i = 0; i < list.getRowCount(); i++) {
-    let abNode = list.getItemAtIndex(i);
+    const abNode = list.getItemAtIndex(i);
     EventUtils.synthesizeMouseAtCenter(
       abNode.firstElementChild,
       { clickCount: 1 },
@@ -85,18 +85,18 @@ async function subtest_check_whitelist_init_and_save(tab) {
  * @param {object} tab - The account manager tab.
  */
 async function subtest_check_whitelist_load_and_clear(tab) {
-  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
+  const accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
   await click_account_tree_row(tab, accountRow);
 
-  let doc =
+  const doc =
     tab.browser.contentWindow.document.getElementById(
       "contentFrame"
     ).contentDocument;
-  let list = doc.getElementById("whiteListAbURI");
-  let whiteListURIs = Services.prefs.getCharPref(gKeyString).split(" ");
+  const list = doc.getElementById("whiteListAbURI");
+  const whiteListURIs = Services.prefs.getCharPref(gKeyString).split(" ");
 
   for (let i = 0; i < list.getRowCount(); i++) {
-    let abNode = list.getItemAtIndex(i);
+    const abNode = list.getItemAtIndex(i);
     Assert.equal(
       true,
       abNode.firstElementChild.checked,
@@ -121,14 +121,14 @@ async function subtest_check_whitelist_load_and_clear(tab) {
  * @param {object} tab - The account manager tab.
  */
 async function subtest_check_whitelist_load_cleared(tab) {
-  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
+  const accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
   await click_account_tree_row(tab, accountRow);
 
-  let doc =
+  const doc =
     tab.browser.contentWindow.document.getElementById(
       "contentFrame"
     ).contentDocument;
-  let list = doc.getElementById("whiteListAbURI");
+  const list = doc.getElementById("whiteListAbURI");
   let whiteListURIs = "";
 
   try {
@@ -141,7 +141,7 @@ async function subtest_check_whitelist_load_cleared(tab) {
   } catch (e) {}
 
   for (let i = 0; i < list.getRowCount(); i++) {
-    let abNode = list.getItemAtIndex(i);
+    const abNode = list.getItemAtIndex(i);
     Assert.equal(
       false,
       abNode.firstElementChild.checked,

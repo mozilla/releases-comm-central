@@ -4,7 +4,7 @@
 
 /* eslint-disable @microsoft/sdl/no-insecure-url */
 
-let { MockRegistrar } = ChromeUtils.importESModule(
+const { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
@@ -12,7 +12,7 @@ const TEST_DOMAIN = "http://example.org";
 const TEST_IP = "http://127.0.0.1:8888";
 const TEST_PATH = "/browser/comm/mail/base/test/browser/files/links.html";
 
-let links = new Map([
+const links = new Map([
   ["#this-hash", `${TEST_PATH}#hash`],
   ["#this-nohash", `${TEST_PATH}`],
   [
@@ -31,7 +31,7 @@ let links = new Map([
 ]);
 
 /** @implements {nsIWebProgressListener} */
-let webProgressListener = {
+const webProgressListener = {
   QueryInterface: ChromeUtils.generateQI([
     "nsIWebProgressListener",
     "nsISupportsWeakReference",
@@ -49,8 +49,8 @@ let webProgressListener = {
     }
 
     if (this._deferred) {
-      let deferred = this._deferred;
-      let url = this._browser.currentURI.spec;
+      const deferred = this._deferred;
+      const url = this._browser.currentURI.spec;
       this.cancelPromise();
 
       deferred.resolve(url);
@@ -66,8 +66,8 @@ let webProgressListener = {
     }
 
     if (this._deferred) {
-      let deferred = this._deferred;
-      let url = this._browser.currentURI.spec;
+      const deferred = this._deferred;
+      const url = this._browser.currentURI.spec;
       this.cancelPromise();
 
       deferred.resolve(url);
@@ -96,14 +96,14 @@ let webProgressListener = {
 };
 
 /** @implements {nsIExternalProtocolService} */
-let mockExternalProtocolService = {
+const mockExternalProtocolService = {
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 
   _deferred: null,
 
   loadURI(aURI, aWindowContext) {
     if (this._deferred) {
-      let deferred = this._deferred;
+      const deferred = this._deferred;
       this._deferred = null;
 
       deferred.resolve(aURI.spec);
@@ -123,7 +123,7 @@ let mockExternalProtocolService = {
   },
 };
 
-let mockExternalProtocolServiceCID = MockRegistrar.register(
+const mockExternalProtocolServiceCID = MockRegistrar.register(
   "@mozilla.org/uriloader/external-protocol-service;1",
   mockExternalProtocolService
 );
@@ -137,7 +137,7 @@ Services.prefs.setBoolPref(
 );
 
 registerCleanupFunction(() => {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   Assert.equal(tabmail.tabInfo.length, 1);
 
   while (tabmail.tabInfo.length > 1) {
@@ -174,8 +174,8 @@ async function clickOnLink(
     "original URL should be loaded"
   );
 
-  let webProgressPromise = webProgressListener.promiseEvent(browser);
-  let externalProtocolPromise = mockExternalProtocolService.promiseEvent();
+  const webProgressPromise = webProgressListener.promiseEvent(browser);
+  const externalProtocolPromise = mockExternalProtocolService.promiseEvent();
 
   info(`clicking on ${selector}`);
   await BrowserTestUtils.synthesizeMouseAtCenter(selector, {}, browser);
@@ -184,9 +184,9 @@ async function clickOnLink(
 
   if (selector == "#this-hash") {
     await SpecialPowers.spawn(browser, [], () => {
-      let doc = content.document;
-      let target = doc.querySelector("#hash");
-      let targetRect = target.getBoundingClientRect();
+      const doc = content.document;
+      const target = doc.querySelector("#hash");
+      const targetRect = target.getBoundingClientRect();
       Assert.less(
         targetRect.bottom,
         doc.documentElement.clientHeight,
@@ -212,7 +212,7 @@ async function clickOnLink(
   }
 
   if (browser.currentURI?.spec != pageURL) {
-    let promise = webProgressListener.promiseEvent(browser);
+    const promise = webProgressListener.promiseEvent(browser);
     browser.browsingContext.goBack();
     await promise;
     Assert.equal(browser.currentURI?.spec, pageURL, "should have gone back");
@@ -220,8 +220,8 @@ async function clickOnLink(
 }
 
 async function subtest(pagePrePath, group, shouldLoadCB) {
-  let tabmail = document.getElementById("tabmail");
-  let tab = window.openContentTab(
+  const tabmail = document.getElementById("tabmail");
+  const tab = window.openContentTab(
     `${pagePrePath}${TEST_PATH}`,
     undefined,
     group

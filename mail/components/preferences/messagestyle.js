@@ -17,7 +17,7 @@ var { IMServices } = ChromeUtils.importESModule(
 function Conversation(aName) {
   this._name = aName;
   this._observers = [];
-  let now = new Date();
+  const now = new Date();
   this._date =
     new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 42, 22) *
     1000;
@@ -52,9 +52,9 @@ function getBrowser() {
 var previewObserver = {
   _loaded: false,
   load() {
-    let makeDate = function (aDateString) {
-      let array = aDateString.split(":");
-      let now = new Date();
+    const makeDate = function (aDateString) {
+      const array = aDateString.split(":");
+      const now = new Date();
       return (
         new Date(
           now.getFullYear(),
@@ -66,8 +66,8 @@ var previewObserver = {
         ) / 1000
       );
     };
-    let bundle = document.getElementById("themesBundle");
-    let msg = {};
+    const bundle = document.getElementById("themesBundle");
+    const msg = {};
     [
       "nick1",
       "buddy1",
@@ -79,7 +79,7 @@ var previewObserver = {
     ].forEach(function (aText) {
       msg[aText] = bundle.getString(aText);
     });
-    let conv = new Conversation(msg.nick2);
+    const conv = new Conversation(msg.nick2);
     conv.messages = [
       new Message(
         msg.buddy1,
@@ -114,7 +114,7 @@ var previewObserver = {
     ];
     previewObserver.conv = conv;
 
-    let themeName = document.getElementById("messagestyle-themename");
+    const themeName = document.getElementById("messagestyle-themename");
     previewObserver.browser = document.getElementById("previewbrowser");
 
     // If the preferences tab is opened straight to the message styles,
@@ -131,7 +131,9 @@ var previewObserver = {
       return;
     }
 
-    let currentTheme = document.getElementById("messagestyle-themename").value;
+    const currentTheme = document.getElementById(
+      "messagestyle-themename"
+    ).value;
     if (!currentTheme) {
       return;
     }
@@ -145,7 +147,7 @@ var previewObserver = {
       return;
     }
 
-    let variant = document.getElementById("themevariant").value;
+    const variant = document.getElementById("themevariant").value;
     if (!variant) {
       return;
     }
@@ -158,7 +160,7 @@ var previewObserver = {
     try {
       this.theme = getThemeByName(aTheme);
     } catch (e) {
-      let previewBoxBrowser = document
+      const previewBoxBrowser = document
         .getElementById("previewBox")
         .querySelector("browser");
       if (previewBoxBrowser) {
@@ -168,12 +170,12 @@ var previewObserver = {
       return;
     }
 
-    let menulist = document.getElementById("themevariant");
+    const menulist = document.getElementById("themevariant");
     if (menulist.menupopup) {
       menulist.menupopup.remove();
     }
-    let popup = menulist.appendChild(document.createXULElement("menupopup"));
-    let variants = getThemeVariants(this.theme);
+    const popup = menulist.appendChild(document.createXULElement("menupopup"));
+    const variants = getThemeVariants(this.theme);
 
     let defaultVariant = "";
     if (
@@ -194,16 +196,16 @@ var previewObserver = {
         .getString("default");
     }
 
-    let menuitem = document.createXULElement("menuitem");
+    const menuitem = document.createXULElement("menuitem");
     menuitem.setAttribute("label", defaultText);
     menuitem.setAttribute("value", "default");
     popup.appendChild(menuitem);
     popup.appendChild(document.createXULElement("menuseparator"));
 
     variants.sort().forEach(function (aVariantName) {
-      let displayName = aVariantName.replace(/_/g, " ");
+      const displayName = aVariantName.replace(/_/g, " ");
       if (displayName != defaultVariant) {
-        let menuitem = document.createXULElement("menuitem");
+        const menuitem = document.createXULElement("menuitem");
         menuitem.setAttribute("label", displayName);
         menuitem.setAttribute("value", aVariantName);
         popup.appendChild(menuitem);
@@ -249,7 +251,7 @@ var previewObserver = {
     // Display all queued messages. Use a timeout so that message text
     // modifiers can be added with observers for this notification.
     setTimeout(function () {
-      for (let message of previewObserver.conv.messages) {
+      for (const message of previewObserver.conv.messages) {
         aSubject.appendMessage(message, false);
       }
     }, 0);

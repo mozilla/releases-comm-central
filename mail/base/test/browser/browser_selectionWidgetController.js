@@ -58,7 +58,7 @@ var after;
  */
 function reset(options) {
   function createTabStop(text) {
-    let el = win.document.createElement("span");
+    const el = win.document.createElement("span");
     el.tabIndex = 0;
     el.id = text;
     el.textContent = text;
@@ -109,13 +109,13 @@ function range(start, num) {
  * @param {string} msg - A message to use for the assertion.
  */
 function assertSelection(indices, msg) {
-  let selected = widget.selectedIndices();
+  const selected = widget.selectedIndices();
   Assert.deepEqual(selected, indices, `Selected indices should match: ${msg}`);
   // Test that the return of getSelectionRanges is as expected.
-  let expectRanges = [];
+  const expectRanges = [];
   let lastIndex = -2;
   let rangeIndex = -1;
-  for (let index of indices) {
+  for (const index of indices) {
     if (index == lastIndex + 1) {
       expectRanges[rangeIndex].end++;
     } else {
@@ -154,7 +154,7 @@ function assertFocus(expect, msg) {
     name = `Item ${expect.index}`;
   }
   let active = win.document.activeElement;
-  let activeIndex = widget.items.findIndex(i => i.element == active);
+  const activeIndex = widget.items.findIndex(i => i.element == active);
   if (activeIndex >= 0) {
     active = `"${active.textContent}", index: ${activeIndex}`;
   } else if (active.id) {
@@ -200,10 +200,10 @@ function stepFocus(forward, expect, msg) {
  * @param {string} msg - A message to use for the assertion.
  */
 function assertState(expected, msg) {
-  let textOrder = [];
+  const textOrder = [];
   let focusIndex;
-  let selectedIndices = [];
-  for (let [index, state] of expected.entries()) {
+  const selectedIndices = [];
+  for (const [index, state] of expected.entries()) {
     textOrder.push(state.text);
     if (state.selected) {
       selectedIndices.push(index);
@@ -237,7 +237,7 @@ function assertState(expected, msg) {
  * @param {object} mouseEvent - Properties for the click event.
  */
 function clickWidgetEmptySpace(mouseEvent) {
-  let widgetRect = widget.getBoundingClientRect();
+  const widgetRect = widget.getBoundingClientRect();
   if (widget.getAttribute("layout-direction") == "vertical") {
     // Try click end, which we assume is empty.
     EventUtils.synthesizeMouse(
@@ -295,7 +295,7 @@ function selectAllShortcut() {
 
 // If the widget is empty, it receives focus on itself.
 add_task(function test_empty_widget_focus() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     reset({ model });
 
     assertFocus({ element: before }, "Initial");
@@ -309,8 +309,8 @@ add_task(function test_empty_widget_focus() {
     stepFocus(false, { element: before }, "Move back out of widget");
 
     // Clicking also gives focus.
-    for (let shiftKey of [false, true]) {
-      for (let ctrlKey of [false, true]) {
+    for (const shiftKey of [false, true]) {
+      for (const ctrlKey of [false, true]) {
         info(
           `Clicking empty widget: ctrlKey: ${ctrlKey}, shiftKey: ${shiftKey}`
         );
@@ -336,7 +336,7 @@ add_task(function test_empty_widget_focus() {
  *   become selected.
  */
 function subtest_initial_focus(model, setup, expect) {
-  let { focusIndex: index, selection, selectFocus } = expect;
+  const { focusIndex: index, selection, selectFocus } = expect;
 
   reset({ model });
   setup();
@@ -369,8 +369,8 @@ function subtest_initial_focus(model, setup, expect) {
   stepFocus(false, { element: before }, "Move out of widget");
 
   // With mouse click.
-  for (let shiftKey of [false, true]) {
-    for (let ctrlKey of [false, true]) {
+  for (const shiftKey of [false, true]) {
+    for (const ctrlKey of [false, true]) {
       info(`Clicking widget: ctrlKey: ${ctrlKey}, shiftKey: ${shiftKey}`);
 
       reset({ model });
@@ -390,7 +390,7 @@ function subtest_initial_focus(model, setup, expect) {
       }
 
       // With mouse click on item focus moves to the clicked item instead.
-      for (let clickIndex of [
+      for (const clickIndex of [
         (index || widget.items.length) - 1,
         index,
         index + 1,
@@ -448,7 +448,7 @@ function subtest_initial_focus(model, setup, expect) {
 // If the widget has a selection when we move into it, the selected item is
 // focused.
 add_task(function test_initial_focus() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     // With no initial selection.
     subtest_initial_focus(
       model,
@@ -538,13 +538,13 @@ add_task(function test_select_single_item_method() {
     }
   }
 
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     reset({ model });
     widget.addItems(0, ["First", "Second", "Third", "Fourth"]);
 
     stepFocus(true, { index: 0 }, "Move onto first item");
 
-    for (let outside of [false, true]) {
+    for (const outside of [false, true]) {
       info(`Testing selecting item${outside ? " with focus outside" : ""}`);
 
       EventUtils.synthesizeKey("KEY_Home", {}, win);
@@ -586,8 +586,8 @@ add_task(function test_select_single_item_method() {
     }
 
     // With mouse click to focus.
-    for (let shiftKey of [false, true]) {
-      for (let ctrlKey of [false, true]) {
+    for (const shiftKey of [false, true]) {
+      for (const ctrlKey of [false, true]) {
         info(`Clicking widget: ctrlKey: ${ctrlKey}, shiftKey: ${shiftKey}`);
 
         reset({ model });
@@ -683,7 +683,7 @@ add_task(function test_select_single_item_method() {
 // If setItemSelected API method is called, we set the selection state of an
 // item but do not change anything else.
 add_task(function test_set_item_selected_method() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     reset({ model });
     widget.addItems(0, ["First", "Second", "Third", "Fourth", "Fifth"]);
     stepFocus(true, { index: 0 }, "Initial focus on first item");
@@ -759,7 +759,7 @@ add_task(function test_set_item_selected_method() {
  * @param {string} keys.backward - The key to move backward.
  */
 function subtest_keyboard_navigation(model, direction, keys) {
-  let { forward: forwardKey, backward: backwardKey } = keys;
+  const { forward: forwardKey, backward: backwardKey } = keys;
   reset({ model, direction });
   widget.addItems(0, ["First", "Second", "Third"]);
 
@@ -823,8 +823,8 @@ function subtest_keyboard_navigation(model, direction, keys) {
     assertFocus({ index: 1 }, "Second item is focused");
     assertFocus({ index: 1 }, "Second item is selected");
 
-    for (let key of [backwardKey, forwardKey, "KEY_Home", "KEY_End"]) {
-      for (let shiftKey of [false, true]) {
+    for (const key of [backwardKey, forwardKey, "KEY_Home", "KEY_End"]) {
+      for (const shiftKey of [false, true]) {
         info(
           `Pressing Ctrl+${
             shiftKey ? "Shift+" : ""
@@ -865,7 +865,7 @@ function subtest_keyboard_navigation(model, direction, keys) {
     assertSelection([1], "Second item remains selected on Ctrl+Home");
 
     // Does nothing if combined with Shift.
-    for (let key of [backwardKey, forwardKey, "KEY_Home", "KEY_End"]) {
+    for (const key of [backwardKey, forwardKey, "KEY_Home", "KEY_End"]) {
       info(`Pressing Ctrl+Shift+${key} on "${model}" model widget`);
       EventUtils.synthesizeKey(key, { ctrlKey: true, shiftKey: true }, win);
       assertFocus({ index: 0 }, "First item is still focused");
@@ -885,7 +885,7 @@ function subtest_keyboard_navigation(model, direction, keys) {
 
 // Navigating with keyboard will move focus, and possibly selection.
 add_task(function test_keyboard_navigation() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     subtest_keyboard_navigation(model, "top-to-bottom", {
       forward: "KEY_ArrowDown",
       backward: "KEY_ArrowUp",
@@ -954,7 +954,7 @@ add_task(function test_keyboard_navigation() {
  *   positioning of an element.
  */
 function subtest_page_navigation(model, direction, details) {
-  let { sizeName, forwardKey, backwardKey, scrollTo, getStartEnd } = details;
+  const { sizeName, forwardKey, backwardKey, scrollTo, getStartEnd } = details;
   function getStartEndBoundary(element) {
     return getStartEnd(element.getBoundingClientRect());
   }
@@ -971,7 +971,7 @@ function subtest_page_navigation(model, direction, details) {
     // size.
     viewStart += 1;
     viewEnd -= 1;
-    let firstStart = getStartEndBoundary(
+    const firstStart = getStartEndBoundary(
       widget.items[expect.first].element
     ).start;
     Assert.equal(
@@ -986,7 +986,7 @@ function subtest_page_navigation(model, direction, details) {
         `Item ${expect.first - 1} should be out of view: ${msg}`
       );
     }
-    let lastEnd = getStartEndBoundary(widget.items[expect.last].element).end;
+    const lastEnd = getStartEndBoundary(widget.items[expect.last].element).end;
     Assert.equal(
       lastEnd,
       viewEnd + lastClipped,
@@ -1005,7 +1005,7 @@ function subtest_page_navigation(model, direction, details) {
     0,
     range(0, 70).map(i => `add-${i}`)
   );
-  let { start: itemStart, end: itemEnd } = getStartEndBoundary(
+  const { start: itemStart, end: itemEnd } = getStartEndBoundary(
     widget.items[0].element
   );
   Assert.equal(itemEnd - itemStart, 30, "Expected item size");
@@ -1160,7 +1160,7 @@ function subtest_page_navigation(model, direction, details) {
   assertSelection([2], "Selection moves to start of new page");
 
   // Test when view does not exactly fit items.
-  for (let sizeDiff of [0, 10, 15, 20]) {
+  for (const sizeDiff of [0, 10, 15, 20]) {
     info(`Reducing widget size by ${sizeDiff}px`);
     widget.style[sizeName] = `${600 - sizeDiff}px`;
 
@@ -1168,7 +1168,7 @@ function subtest_page_navigation(model, direction, details) {
     // reduce the page size from 20 to 19.
     // NOTE: At each sizeDiff still fits strictly more than 19 items in its
     // view.
-    let pageSize = sizeDiff < 15 ? 20 : 19;
+    const pageSize = sizeDiff < 15 ? 20 : 19;
 
     // Make sure that Home and End keys scroll the view and clip the items
     // as expected.
@@ -1188,7 +1188,7 @@ function subtest_page_navigation(model, direction, details) {
     assertFocus({ index: 69 }, "Last item has focus");
     assertSelection([69], "Last item is selected");
 
-    for (let lastClipped of [0, 10, 15, 20]) {
+    for (const lastClipped of [0, 10, 15, 20]) {
       info(`Testing PageDown with last item clipped by ${lastClipped}px`);
       // Across all sizeDiff and lastClipped values we still want the last
       // item to be index 21 clipped by lastClipped.
@@ -1197,7 +1197,7 @@ function subtest_page_navigation(model, direction, details) {
       // But when the sizeDiff is 10 and the lastClipped is 20, then the
       // scroll will be 50px and the first item will be index 1 with 20px
       // clipping.
-      let scroll = 60 + sizeDiff - lastClipped;
+      const scroll = 60 + sizeDiff - lastClipped;
       scrollTo(scroll);
       let first = Math.floor(scroll / 30);
       let firstClipped = scroll % 30;
@@ -1244,7 +1244,7 @@ function subtest_page_navigation(model, direction, details) {
       // PageDown again will move by a page. The new end of the page will be
       // scrolled just into view at the bottom.
       EventUtils.synthesizeKey("KEY_PageDown", {}, win);
-      let newPageEnd = pageEnd + pageSize - 1;
+      const newPageEnd = pageEnd + pageSize - 1;
       // NOTE: If the previous pageEnd would fit mostly in view, then we
       // expect the first item in the view to be this item. Otherwise, we
       // expect it to be the one before, which will ensure the previous
@@ -1265,7 +1265,7 @@ function subtest_page_navigation(model, direction, details) {
       assertSelection([pageEnd], "Selection returns to pageEnd");
     }
 
-    for (let firstClipped of [0, 10, 15, 20]) {
+    for (const firstClipped of [0, 10, 15, 20]) {
       // Across all sizeDiff and firstClipped values we still want the first
       // item to be index 24 clipped by firstClipped.
       // E.g. when sizeDiff is 10 and firstClipped is 10, then the scroll
@@ -1275,7 +1275,7 @@ function subtest_page_navigation(model, direction, details) {
       // clipping.
       info(`Testing PageUp with first item clipped by ${firstClipped}px`);
       scrollTo(720 + firstClipped);
-      let viewEnd = 720 + firstClipped + 600 - sizeDiff;
+      const viewEnd = 720 + firstClipped + 600 - sizeDiff;
       let last = Math.floor(viewEnd / 30);
       let lastClipped = 30 - (viewEnd % 30);
       clickWidgetItem(42, {});
@@ -1320,7 +1320,7 @@ function subtest_page_navigation(model, direction, details) {
       // PageUp again will move by a page. The new start of the page will be
       // scrolled just into view at the top.
       EventUtils.synthesizeKey("KEY_PageUp", {}, win);
-      let newPageStart = pageStart - pageSize + 1;
+      const newPageStart = pageStart - pageSize + 1;
       // NOTE: If the previous pageStart would fit mostly in view, then we
       // expect the last item in the view to be this item. Otherwise, we
       // expect it to be the one after, which will ensure the previous
@@ -1343,17 +1343,17 @@ function subtest_page_navigation(model, direction, details) {
   }
 
   // When widget only fits 1 visible item or less.
-  for (let size of [10, 20, 30, 45, 50]) {
+  for (const size of [10, 20, 30, 45, 50]) {
     info(`Resizing widget to ${size}px`);
     widget.style[sizeName] = `${size}px`;
 
     scrollTo(600);
     // When the view size is less than the size of an item, we cannot always
     // click the center of the item, so we need to click the start instead.
-    let { xStart, yStart } = getStartEndBoundary(widget.items[20].element);
+    const { xStart, yStart } = getStartEndBoundary(widget.items[20].element);
     EventUtils.synthesizeMouseAtPoint(xStart, yStart, {}, win);
-    let last = size > 30 ? 21 : 20;
-    let lastClipped = size > 30 ? 60 - size : 30 - size;
+    const last = size > 30 ? 21 : 20;
+    const lastClipped = size > 30 ? 60 - size : 30 - size;
     assertInView({ first: 20, last, lastClipped }, "Small number of items");
     assertFocus({ index: 20 }, "Focus on item 20");
     assertSelection([20], "Item 20 selected");
@@ -1375,10 +1375,10 @@ function subtest_page_navigation(model, direction, details) {
     }
 
     scrollTo(660 - size);
-    let { xEnd, yEnd } = getStartEndBoundary(widget.items[21].element);
+    const { xEnd, yEnd } = getStartEndBoundary(widget.items[21].element);
     EventUtils.synthesizeMouseAtPoint(xEnd, yEnd, {}, win);
-    let first = size > 30 ? 20 : 21;
-    let firstClipped = size > 30 ? 60 - size : 30 - size;
+    const first = size > 30 ? 20 : 21;
+    const firstClipped = size > 30 ? 60 - size : 30 - size;
     assertInView({ first, firstClipped, last: 21 }, "Small number of items");
     assertFocus({ index: 21 }, "Focus on item 21");
     assertSelection([21], "Item 21 selected");
@@ -1408,7 +1408,7 @@ function subtest_page_navigation(model, direction, details) {
   widget.toggleAttribute("no-pages", true);
 
   let gotKeys = [];
-  let keydownListener = event => {
+  const keydownListener = event => {
     gotKeys.push(event.key);
   };
   win.document.body.addEventListener("keydown", keydownListener);
@@ -1460,7 +1460,7 @@ function subtest_page_navigation(model, direction, details) {
   win.document.body.removeEventListener("keydown", keydownListener);
 
   // Test with modifiers.
-  for (let { shiftKey, ctrlKey } of [
+  for (const { shiftKey, ctrlKey } of [
     { shiftKey: true, ctrlKey: true },
     { shiftKey: false, ctrlKey: true },
     { shiftKey: true, ctrlKey: false },
@@ -1586,7 +1586,7 @@ function subtest_page_navigation(model, direction, details) {
 // Test that pressing PageUp or PageDown shifts the view according to the
 // visible items.
 add_task(function test_page_navigation() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     subtest_page_navigation(model, "top-to-bottom", {
       sizeName: "height",
       forwardKey: "KEY_ArrowDown",
@@ -1646,7 +1646,7 @@ add_task(function test_page_navigation() {
 
 // Using Space to select items.
 add_task(function test_space_selection() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     reset({ model, direction: "right-to-left" });
     widget.addItems(0, ["First", "Second", "Third", "Fourth"]);
 
@@ -1782,7 +1782,7 @@ add_task(function test_space_selection() {
     assertSelection([1], "Second item is selected");
 
     // Shift + Space will do nothing.
-    for (let ctrlKey of [false, true]) {
+    for (const ctrlKey of [false, true]) {
       info(`Pressing ${ctrlKey ? "Ctrl+" : ""}Shift+space on item`);
       // On selected item.
       EventUtils.synthesizeKey(" ", { ctrlKey, shiftKey: true }, win);
@@ -1811,7 +1811,7 @@ add_task(function test_space_selection() {
 
 // Clicking an item will focus and select it.
 add_task(function test_clicking_items() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     reset({ model, direction: "right-to-left" });
     widget.addItems(0, [
       "First",
@@ -1942,7 +1942,7 @@ add_task(function test_clicking_items() {
 });
 
 add_task(function test_select_all() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     reset({ model, direction: "right-to-left" });
     widget.addItems(0, ["First", "Second", "Third", "Fourth", "Fifth"]);
 
@@ -1990,7 +1990,7 @@ add_task(function test_select_all() {
 // Holding the shift key should perform a range selection if multi-selection is
 // supported by the model.
 add_task(function test_range_selection() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     reset({ model, direction: "right-to-left" });
     widget.addItems(0, ["First", "Second", "Third", "Fourth", "Fifth"]);
 
@@ -2248,7 +2248,7 @@ add_task(function test_range_selection() {
 // Adding items to widget with existing items, should not change the selected
 // item.
 add_task(function test_add_items_to_nonempty() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     reset({ model, direction: "right-to-left" });
     assertState([], "Empty");
 
@@ -2881,9 +2881,9 @@ add_task(function test_add_items_to_nonempty() {
  *   focus after the key press.
  */
 function subtest_keypress_on_focused_widget(initialState, key, index) {
-  let { model, direction, numItems, scroll } = initialState;
-  for (let ctrlKey of [false, true]) {
-    for (let shiftKey of [false, true]) {
+  const { model, direction, numItems, scroll } = initialState;
+  for (const ctrlKey of [false, true]) {
+    for (const shiftKey of [false, true]) {
       info(
         `Adding items to empty ${direction} widget and then pressing ${
           ctrlKey ? "Ctrl+" : ""
@@ -2934,7 +2934,7 @@ function subtest_keypress_on_focused_widget(initialState, key, index) {
 // If items are added to an empty widget that has focus, nothing happens
 // initially. Arrow keys will focus the first item.
 add_task(function test_add_items_to_empty_with_focus() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     // Step navigation always takes us to the first item.
     subtest_keypress_on_focused_widget(
       { model, direction: "top-to-bottom", numItems: 3 },
@@ -3038,7 +3038,7 @@ add_task(function test_add_items_to_empty_with_focus() {
     reset({ model, direction: "top-to-bottom" });
     stepFocus(true, { element: widget }, "Move focus onto empty widget");
     widget.addItems(0, ["First", "Second"]);
-    for (let key of ["KEY_ArrowRight", "KEY_ArrowLeft"]) {
+    for (const key of ["KEY_ArrowRight", "KEY_ArrowLeft"]) {
       EventUtils.synthesizeKey(key, {}, win);
       assertFocus({ element: widget }, `Focus remains on widget after ${key}`);
       assertSelection([], `No items become selected after ${key}`);
@@ -3047,7 +3047,7 @@ add_task(function test_add_items_to_empty_with_focus() {
     reset({ model, direction: "right-to-left" });
     stepFocus(true, { element: widget }, "Move focus onto empty widget");
     widget.addItems(0, ["First", "Second"]);
-    for (let key of ["KEY_ArrowUp", "KEY_ArrowDown"]) {
+    for (const key of ["KEY_ArrowUp", "KEY_ArrowDown"]) {
       EventUtils.synthesizeKey(key, {}, win);
       assertFocus({ element: widget }, `Focus remains on widget after ${key}`);
       assertSelection([], `No items become selected after ${key}`);
@@ -3057,8 +3057,8 @@ add_task(function test_add_items_to_empty_with_focus() {
     reset({ model });
     stepFocus(true, { element: widget }, "Move focus onto empty widget");
     widget.addItems(0, ["First", "Second"]);
-    for (let ctrlKey of [false, true]) {
-      for (let shiftKey of [false, true]) {
+    for (const ctrlKey of [false, true]) {
+      for (const shiftKey of [false, true]) {
         info(
           `Pressing ${ctrlKey ? "Ctrl+" : ""}${shiftKey ? "Shift+" : ""}Space`
         );
@@ -3125,8 +3125,8 @@ add_task(function test_add_items_to_empty_with_focus() {
     // This does not effect clicking.
     // NOTE: case where widget does not initially have focus on clicking is
     // handled by test_initial_no_select_focus
-    for (let ctrlKey of [false, true]) {
-      for (let shiftKey of [false, true]) {
+    for (const ctrlKey of [false, true]) {
+      for (const shiftKey of [false, true]) {
         info(
           `Adding items to empty focused widget and then ${
             ctrlKey ? "Ctrl+" : ""
@@ -3165,7 +3165,7 @@ add_task(function test_add_items_to_empty_with_focus() {
 // Removing items from the widget with existing items, may change focus or
 // selection if the corresponding item was removed.
 add_task(function test_remove_items_nonempty() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     reset({ model, direction: "right-to-left" });
 
     widget.addItems(0, ["0-add", "1-add", "2-add", "3-add", "4-add", "5-add"]);
@@ -5151,7 +5151,7 @@ add_task(function test_remove_items_nonempty() {
 
 // If widget is emptied whilst focused, focus moves to widget.
 add_task(function test_emptying_widget() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     // Empty with focused widget.
     reset({ model });
     stepFocus(true, { element: widget }, "Initial");
@@ -6072,7 +6072,7 @@ function subtest_move_items(model, reCreate) {
 // Moving items in the widget will move focus and selection with the moved
 // items.
 add_task(function test_move_items() {
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     // We want to be sure the methods work with or without re-creating the
     // item elements.
     subtest_move_items(model, false);
@@ -6092,10 +6092,10 @@ add_task(function test_can_drag_items() {
    * @param {string} msg - A message to use in assertions.
    */
   function assertDragstart(index, selection, msg) {
-    let element = widget.items[index].element;
+    const element = widget.items[index].element;
     let eventFired = false;
 
-    let dragstartListener = event => {
+    const dragstartListener = event => {
       eventFired = true;
       Assert.ok(
         element.contains(event.target),
@@ -6107,9 +6107,9 @@ add_task(function test_can_drag_items() {
     widget.addEventListener("dragstart", dragstartListener, true);
 
     // Synthesize the start of a drag.
-    let rect = element.getBoundingClientRect();
-    let x = rect.left + rect.width / 2;
-    let y = rect.top + rect.height / 2;
+    const rect = element.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
     EventUtils.synthesizeMouseAtPoint(x, y, { type: "mousedown" }, win);
     EventUtils.synthesizeMouseAtPoint(x, y, { type: "mousemove" }, win);
     EventUtils.synthesizeMouseAtPoint(x, y + 60, { type: "mousemove" }, win);
@@ -6124,7 +6124,7 @@ add_task(function test_can_drag_items() {
     );
   }
 
-  for (let model of selectionModels) {
+  for (const model of selectionModels) {
     reset({ model, draggable: true });
     widget.addItems(0, ["First", "Second", "Third"]);
     assertFocus({ element: before }, "Focus outside widget");

@@ -40,7 +40,7 @@ var gMockAlertsService = {
   QueryInterface: ChromeUtils.generateQI(["nsIAlertsService"]),
 
   showAlert(alertInfo, alertListener) {
-    let { imageURL, title, text, textClickable, cookie, name } = alertInfo;
+    const { imageURL, title, text, textClickable, cookie, name } = alertInfo;
     // Setting the _doFail flag allows us to revert to the newmailalert.xhtml
     // notification
     if (this._doFail) {
@@ -132,7 +132,7 @@ add_setup(async function () {
 
   // Create the target folders
   gFolder = await create_folder("My Folder");
-  let localRoot = server.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const localRoot = server.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   gFolder2 = localRoot.createLocalSubfolder("Another Folder");
 
   var account = MailServices.accounts.createAccount();
@@ -170,7 +170,7 @@ function setupTest(test) {
 }
 
 function put_bool_prefs_back() {
-  for (let prefString in gOrigBoolPrefs) {
+  for (const prefString in gOrigBoolPrefs) {
     Services.prefs.setBoolPref(prefString, gOrigBoolPrefs[prefString]);
   }
 }
@@ -195,7 +195,7 @@ function remember_and_set_bool_pref(aPrefString, aBoolValue) {
 async function make_gradually_newer_sets_in_folder(aFolder, aArgs) {
   gMsgMinutes -= 1;
   if (!aArgs.age) {
-    for (let arg of aArgs) {
+    for (const arg of aArgs) {
       arg.age = { minutes: gMsgMinutes };
     }
   }
@@ -239,7 +239,7 @@ add_task(async function test_dont_show_newmailalert() {
  */
 add_task(async function test_show_oldest_new_unread_since_last_notification() {
   setupTest();
-  let notifyFirst = "This should notify first";
+  const notifyFirst = "This should notify first";
   Assert.ok(!gMockAlertsService._didNotify, "Should not have notified yet.");
   await make_gradually_newer_sets_in_folder(
     [gFolder],
@@ -255,7 +255,7 @@ add_task(async function test_show_oldest_new_unread_since_last_notification() {
   gFolder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
   gMockAlertsService._reset();
 
-  let notifySecond = "This should notify second";
+  const notifySecond = "This should notify second";
   Assert.ok(!gMockAlertsService._didNotify, "Should not have notified yet.");
   await make_gradually_newer_sets_in_folder(
     [gFolder],
@@ -316,7 +316,7 @@ add_task(async function test_notifications_independent_across_accounts() {
  */
 add_task(async function test_show_subject() {
   setupTest();
-  let subject = "This should be displayed";
+  const subject = "This should be displayed";
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1, subject }]);
   await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
@@ -331,7 +331,7 @@ add_task(async function test_show_subject() {
 add_task(async function test_hide_subject() {
   setupTest();
   Services.prefs.setBoolPref("mail.biff.alert.show_subject", false);
-  let subject = "This should not be displayed";
+  const subject = "This should not be displayed";
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1, subject }]);
   await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
@@ -349,9 +349,9 @@ add_task(async function test_show_only_subject() {
   Services.prefs.setBoolPref("mail.biff.alert.show_sender", false);
   Services.prefs.setBoolPref("mail.biff.alert.show_subject", true);
 
-  let sender = ["John Cleese", "john@cleese.invalid"];
-  let subject = "This should not be displayed";
-  let messageBody = "My message preview";
+  const sender = ["John Cleese", "john@cleese.invalid"];
+  const subject = "This should not be displayed";
+  const messageBody = "My message preview";
 
   await make_gradually_newer_sets_in_folder(
     [gFolder],
@@ -377,7 +377,7 @@ add_task(async function test_show_only_subject() {
  */
 add_task(async function test_show_sender() {
   setupTest();
-  let sender = ["John Cleese", "john@cleese.invalid"];
+  const sender = ["John Cleese", "john@cleese.invalid"];
   await make_gradually_newer_sets_in_folder(
     [gFolder],
     [{ count: 1, from: sender }]
@@ -395,7 +395,7 @@ add_task(async function test_show_sender() {
 add_task(async function test_hide_sender() {
   setupTest();
   Services.prefs.setBoolPref("mail.biff.alert.show_sender", false);
-  let sender = ["John Cleese", "john@cleese.invalid"];
+  const sender = ["John Cleese", "john@cleese.invalid"];
   await make_gradually_newer_sets_in_folder(
     [gFolder],
     [{ count: 1, from: sender }]
@@ -416,9 +416,9 @@ add_task(async function test_show_only_sender() {
   Services.prefs.setBoolPref("mail.biff.alert.show_sender", true);
   Services.prefs.setBoolPref("mail.biff.alert.show_subject", false);
 
-  let sender = ["John Cleese", "john@cleese.invalid"];
-  let subject = "This should not be displayed";
-  let messageBody = "My message preview";
+  const sender = ["John Cleese", "john@cleese.invalid"];
+  const subject = "This should not be displayed";
+  const messageBody = "My message preview";
 
   await make_gradually_newer_sets_in_folder(
     [gFolder],
@@ -445,7 +445,7 @@ add_task(async function test_show_only_sender() {
 add_task(async function test_show_preview() {
   setupTest();
   Services.prefs.setBoolPref("mail.biff.alert.show_preview", true);
-  let messageBody = "My message preview";
+  const messageBody = "My message preview";
   await make_gradually_newer_sets_in_folder(
     [gFolder],
     [{ count: 1, body: { body: messageBody } }]
@@ -463,7 +463,7 @@ add_task(async function test_show_preview() {
 add_task(async function test_hide_preview() {
   setupTest();
   Services.prefs.setBoolPref("mail.biff.alert.show_preview", false);
-  let messageBody = "My message preview";
+  const messageBody = "My message preview";
   await make_gradually_newer_sets_in_folder(
     [gFolder],
     [{ count: 1, body: { body: messageBody } }]
@@ -484,9 +484,9 @@ add_task(async function test_show_only_preview() {
   Services.prefs.setBoolPref("mail.biff.alert.show_sender", false);
   Services.prefs.setBoolPref("mail.biff.alert.show_subject", false);
 
-  let sender = ["John Cleese", "john@cleese.invalid"];
-  let subject = "This should not be displayed";
-  let messageBody = "My message preview";
+  const sender = ["John Cleese", "john@cleese.invalid"];
+  const subject = "This should not be displayed";
+  const messageBody = "My message preview";
   await make_gradually_newer_sets_in_folder(
     [gFolder],
     [{ count: 1, from: sender, subject, body: { body: messageBody } }]
@@ -578,7 +578,7 @@ add_task(async function test_click_on_notification() {
 
   let lastMessage;
   async function ensureMessageLoaded(aboutMessage) {
-    let messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
+    const messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
     if (
       messagePaneBrowser.webProgess?.isLoadingDocument ||
       messagePaneBrowser.currentURI.spec == "about:blank" ||
@@ -633,13 +633,16 @@ add_task(async function test_click_on_notification() {
     MailConsts.OpenMessageBehavior.NEW_TAB
   );
 
-  let tabPromise = BrowserTestUtils.waitForEvent(tabmail, "aboutMessageLoaded");
+  const tabPromise = BrowserTestUtils.waitForEvent(
+    tabmail,
+    "aboutMessageLoaded"
+  );
   gMockAlertsService._doClick = true;
 
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   lastMessage = [...gFolder.messages].at(-1);
   await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
-  let { target: tabAboutMessage } = await tabPromise;
+  const { target: tabAboutMessage } = await tabPromise;
   await ensureMessageLoaded(tabAboutMessage);
 
   Assert.equal(tabmail.tabInfo.length, 2, "a new tab should be used");
@@ -665,7 +668,7 @@ add_task(async function test_click_on_notification() {
     MailConsts.OpenMessageBehavior.NEW_WINDOW
   );
 
-  let winPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+  const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
     undefined,
     win => win.location.href == "chrome://messenger/content/messageWindow.xhtml"
   );
@@ -674,8 +677,8 @@ add_task(async function test_click_on_notification() {
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
   lastMessage = [...gFolder.messages].at(-1);
   await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
-  let win = await winPromise;
-  let winAboutMessage = win.messageBrowser.contentWindow;
+  const win = await winPromise;
+  const winAboutMessage = win.messageBrowser.contentWindow;
   await ensureMessageLoaded(winAboutMessage);
 
   Assert.equal(winAboutMessage.gMessage, lastMessage);
@@ -709,7 +712,7 @@ add_task(async function test_revert_to_newmailalert() {
   // We expect the newmailalert.xhtml window...
   const alertPromise = promise_new_window("alert:alert");
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 2 }]);
-  let win = await alertPromise;
+  const win = await alertPromise;
   // The alert closes itself.
   await BrowserTestUtils.domWindowClosed(win);
 });

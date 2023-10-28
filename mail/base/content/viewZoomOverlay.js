@@ -48,7 +48,7 @@ var ZoomManager = {
   },
 
   getZoomForBrowser(aBrowser) {
-    let zoom = this.useFullZoomForBrowser(aBrowser)
+    const zoom = this.useFullZoomForBrowser(aBrowser)
       ? aBrowser.fullZoom
       : aBrowser.textZoom;
     // Round to remove any floating-point error.
@@ -67,7 +67,7 @@ var ZoomManager = {
       );
     }
 
-    let fullZoom = this.useFullZoomForBrowser(browser);
+    const fullZoom = this.useFullZoomForBrowser(browser);
     browser.textZoom = fullZoom ? 1 : val;
     browser.fullZoom = fullZoom ? val : 1;
   },
@@ -134,7 +134,7 @@ var ZoomManager = {
   scrollZoomEnlarge(messagePaneBrowser) {
     let zoom = messagePaneBrowser.fullZoom;
     zoom += 0.1;
-    let zoomMax = Services.prefs.getIntPref("zoom.maxPercent") / 100;
+    const zoomMax = Services.prefs.getIntPref("zoom.maxPercent") / 100;
     if (zoom > zoomMax) {
       zoom = zoomMax;
     }
@@ -144,7 +144,7 @@ var ZoomManager = {
   scrollReduceEnlarge(messagePaneBrowser) {
     let zoom = messagePaneBrowser.fullZoom;
     zoom -= 0.1;
-    let zoomMin = Services.prefs.getIntPref("zoom.minPercent") / 100;
+    const zoomMin = Services.prefs.getIntPref("zoom.minPercent") / 100;
     if (zoom < zoomMin) {
       zoom = zoomMin;
     }

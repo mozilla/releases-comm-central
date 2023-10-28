@@ -47,9 +47,9 @@ async function test_cookie_settings({
   thirdPartyCookiesEnabled,
   cookieJarSettingsLocked,
 }) {
-  let firstPartyURI = NetUtil.newURI("https://example.com/");
-  let thirdPartyURI = NetUtil.newURI("https://example.org/");
-  let channel = NetUtil.newChannel({
+  const firstPartyURI = NetUtil.newURI("https://example.com/");
+  const thirdPartyURI = NetUtil.newURI("https://example.org/");
+  const channel = NetUtil.newChannel({
     uri: firstPartyURI,
     loadUsingSystemPrincipal: true,
   });
@@ -113,20 +113,20 @@ async function test_cookie_settings({
     undefined,
     url => url.startsWith("about:preferences")
   );
-  let { contentDocument } = window.preferencesTabType.tab.browser;
+  const { contentDocument } = window.preferencesTabType.tab.browser;
   await TestUtils.waitForCondition(() =>
     contentDocument.getElementById("acceptCookies")
   );
-  let expectControlsDisabled = !cookiesEnabled || cookieJarSettingsLocked;
+  const expectControlsDisabled = !cookiesEnabled || cookieJarSettingsLocked;
 
-  for (let id of ["acceptCookies", "showCookiesButton"]) {
+  for (const id of ["acceptCookies", "showCookiesButton"]) {
     is(
       contentDocument.getElementById(id).disabled,
       cookieJarSettingsLocked,
       `#${id} disabled status should match expected`
     );
   }
-  for (let id of ["acceptThirdPartyMenu"]) {
+  for (const id of ["acceptThirdPartyMenu"]) {
     is(
       contentDocument.getElementById(id).disabled,
       expectControlsDisabled,
@@ -140,7 +140,7 @@ async function test_cookie_settings({
     "#cookieExceptions disabled status should matched expected"
   );
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(window.preferencesTabType.tab);
 }
 

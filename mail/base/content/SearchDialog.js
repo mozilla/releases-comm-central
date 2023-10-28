@@ -208,7 +208,7 @@ SearchFolderDisplayWidget.prototype = {
   },
 
   updateStatusResultText() {
-    let rowCount = this.view.dbView.rowCount;
+    const rowCount = this.view.dbView.rowCount;
     let statusMsg;
 
     if (rowCount == 0) {
@@ -253,7 +253,7 @@ function searchOnLoad() {
   // The view is initially unsorted; get the persisted sortDirection column
   // and set up the user's desired sort. This synthetic view is not backed by
   // a db, so secondary sorts and custom columns are not supported here.
-  let sortCol = gFolderDisplay.tree.querySelector("[sortDirection]");
+  const sortCol = gFolderDisplay.tree.querySelector("[sortDirection]");
   let sortType, sortOrder;
   if (sortCol) {
     sortType = Ci.nsMsgViewSortType[gFolderDisplay.COLUMNS_MAP.get(sortCol.id)];
@@ -361,8 +361,8 @@ function onEnterInSearchTerm() {
 }
 
 function onSearch() {
-  let viewWrapper = gFolderDisplay.view;
-  let searchTerms = getSearchTerms();
+  const viewWrapper = gFolderDisplay.view;
+  const searchTerms = getSearchTerms();
 
   viewWrapper.beginViewUpdate();
   viewWrapper.search.userTerms = searchTerms.length ? searchTerms : null;
@@ -376,14 +376,14 @@ function onSearch() {
  *  dangerous and insane predicates.
  */
 function getSearchTerms() {
-  let termCreator = gFolderDisplay.view.search.session;
+  const termCreator = gFolderDisplay.view.search.session;
 
-  let searchTerms = [];
+  const searchTerms = [];
   // searchTerm.js stores wrapper objects in its gSearchTerms array.  Pluck
   //  them.
   for (let iTerm = 0; iTerm < gSearchTerms.length; iTerm++) {
-    let termWrapper = gSearchTerms[iTerm].obj;
-    let realTerm = termCreator.createTerm();
+    const termWrapper = gSearchTerms[iTerm].obj;
+    const realTerm = termCreator.createTerm();
     termWrapper.saveTo(realTerm);
     // A header search of "" is illegal for IMAP and will cause us to
     //  explode.  You don't want that and I don't want that.  So let's check
@@ -404,7 +404,7 @@ function getSearchTerms() {
  * @returns the list of folders the search should cover.
  */
 function getSearchFolders() {
-  let searchFolders = [];
+  const searchFolders = [];
 
   if (!gCurrentFolder.isServer && !gCurrentFolder.noSelect) {
     searchFolders.push(gCurrentFolder);
@@ -424,7 +424,7 @@ function getSearchFolders() {
 }
 
 function AddSubFolders(folder, outFolders) {
-  for (let nextFolder of folder.subFolders) {
+  for (const nextFolder of folder.subFolders) {
     if (!(nextFolder.flags & Ci.nsMsgFolderFlags.Virtual)) {
       if (!nextFolder.noSelect) {
         outFolders.push(nextFolder);
@@ -438,7 +438,7 @@ function AddSubFolders(folder, outFolders) {
 function AddSubFoldersToURI(folder) {
   var returnString = "";
 
-  for (let nextFolder of folder.subFolders) {
+  for (const nextFolder of folder.subFolders) {
     if (!(nextFolder.flags & Ci.nsMsgFolderFlags.Virtual)) {
       if (!nextFolder.noSelect && !nextFolder.isServer) {
         if (returnString.length > 0) {
@@ -474,7 +474,7 @@ function AddSubFoldersToURI(folder) {
  * This method only works for real folders.
  */
 function GetScopeForFolder(folder) {
-  let searchOnline = document.getElementById("checkSearchOnline");
+  const searchOnline = document.getElementById("checkSearchOnline");
   if (!searchOnline.disabled && searchOnline.checked) {
     gSearchOnline = true;
     return folder.server.searchScope;
@@ -489,12 +489,12 @@ function GetScopeForFolder(folder) {
   } catch (e) {} // On error, we'll just assume the default mailbox type
 
   let hasBody = folder.getFlag(Ci.nsMsgFolderFlags.Offline);
-  let nsMsgSearchScope = Ci.nsMsgSearchScope;
+  const nsMsgSearchScope = Ci.nsMsgSearchScope;
   switch (localType) {
     case "news":
       // News has four offline scopes, depending on whether junk and body
       // are available.
-      let hasJunk =
+      const hasJunk =
         folder.getInheritedStringProperty(
           "dobayes.mailnews@mozilla.org#junk"
         ) == "true";
@@ -519,7 +519,9 @@ function GetScopeForFolder(folder) {
       // If we are the root folder, use the server property for body rather
       // than the folder property.
       if (folder.isServer) {
-        let imapServer = folder.server.QueryInterface(Ci.nsIImapIncomingServer);
+        const imapServer = folder.server.QueryInterface(
+          Ci.nsIImapIncomingServer
+        );
         if (imapServer && imapServer.offlineDownload) {
           hasBody = true;
         }
@@ -618,13 +620,13 @@ function MsgOpenSelectedMessages() {
     gFolderDisplay.treeSelection.count == 1 &&
     gFolderDisplay.selectedMessageIsFeed
   ) {
-    let msgHdr = gFolderDisplay.selectedMessage;
+    const msgHdr = gFolderDisplay.selectedMessage;
     if (
       document.documentElement.getAttribute("windowtype") == "mail:3pane" &&
       FeedMessageHandler.onOpenPref ==
         FeedMessageHandler.kOpenToggleInMessagePane
     ) {
-      let showSummary = FeedMessageHandler.shouldShowSummary(msgHdr, true);
+      const showSummary = FeedMessageHandler.shouldShowSummary(msgHdr, true);
       FeedMessageHandler.setContent(msgHdr, showSummary);
       return;
     }

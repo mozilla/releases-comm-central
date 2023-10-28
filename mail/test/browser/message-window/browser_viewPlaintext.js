@@ -20,7 +20,7 @@ var { open_message_from_file } = ChromeUtils.import(
  * @param aDontWantToSee  Content of other MIME parts we don't want to see.
  */
 function check_content(aWindow, aExpected, aDontWantToSee) {
-  let messageContent = aWindow.content.document.documentElement.textContent;
+  const messageContent = aWindow.content.document.documentElement.textContent;
 
   if (aExpected != aDontWantToSee) {
     Assert.ok(
@@ -32,7 +32,7 @@ function check_content(aWindow, aExpected, aDontWantToSee) {
       "Found content that shouldn't be there"
     );
   } else {
-    let ind = messageContent.indexOf(aExpected);
+    const ind = messageContent.indexOf(aExpected);
     Assert.ok(ind >= 0, "Didn't find expected content");
     if (ind >= 0) {
       Assert.ok(
@@ -56,7 +56,7 @@ async function checkSingleMessage(
   aExpectedPlainText,
   aExpectedHTML
 ) {
-  let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
+  const file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
 
   // Load and display as plain text.
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", true);

@@ -46,7 +46,7 @@ var tree = {
     } else {
       expected = [];
     }
-    let numericSort = (a, b) => a - b;
+    const numericSort = (a, b) => a - b;
     Assert.deepEqual(
       this._invalidatedRows.sort(numericSort),
       expected.sort(numericSort),
@@ -58,7 +58,7 @@ var tree = {
 sel.tree = tree;
 
 function createRangeArray(low, high) {
-  let array = [];
+  const array = [];
   for (let i = low; i <= high; i++) {
     array.push(i);
   }
@@ -548,8 +548,8 @@ function run_test() {
   // duplicateSelection (please keep this right at the end, as this modifies
   // sel)
   // no guarantees for the shift pivot yet, so don't test that
-  let oldSel = sel;
-  let newSel = new TreeSelection(null);
+  const oldSel = sel;
+  const newSel = new TreeSelection(null);
   newSel.view = fakeView;
   // multiple selections
   oldSel.rangedSelect(1, 3, false);

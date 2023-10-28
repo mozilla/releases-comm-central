@@ -215,8 +215,8 @@ AccountConfig.prototype = {
    */
   copy() {
     // Workaround: deepCopy() fails to preserve base obj (instanceof)
-    let result = new AccountConfig();
-    for (let prop in this) {
+    const result = new AccountConfig();
+    for (const prop in this) {
       result[prop] = lazy.AccountCreationUtils.deepCopy(this[prop]);
     }
 
@@ -314,10 +314,10 @@ AccountConfig.prototype = {
     } else {
       result += configToString(this.outgoing);
     }
-    for (let config of this.incomingAlternatives) {
+    for (const config of this.incomingAlternatives) {
       result += "\nIncoming alt: " + configToString(config);
     }
-    for (let config of this.outgoingAlternatives) {
+    for (const config of this.outgoingAlternatives) {
       result += "\nOutgoing alt: " + configToString(config);
     }
     return result;
@@ -328,7 +328,7 @@ AccountConfig.prototype = {
    * alternatives.
    */
   preferStandardProtocols() {
-    let alternatives = this.incomingAlternatives;
+    const alternatives = this.incomingAlternatives;
     // Add default incoming as one alternative.
     alternatives.unshift(this.incoming);
     alternatives.sort((a, b) => {
@@ -393,17 +393,17 @@ AccountConfig.replaceVariables = function (
   password
 ) {
   lazy.Sanitizer.nonemptystring(emailfull);
-  let emailsplit = emailfull.split("@");
+  const emailsplit = emailfull.split("@");
   lazy.AccountCreationUtils.assert(
     emailsplit.length == 2,
     "email address not in expected format: must contain exactly one @"
   );
-  let emaillocal = lazy.Sanitizer.nonemptystring(emailsplit[0]);
-  let emaildomain = lazy.Sanitizer.hostname(emailsplit[1]);
+  const emaillocal = lazy.Sanitizer.nonemptystring(emailsplit[0]);
+  const emaildomain = lazy.Sanitizer.hostname(emailsplit[1]);
   lazy.Sanitizer.label(realname);
   lazy.Sanitizer.nonemptystring(realname);
 
-  let otherVariables = {};
+  const otherVariables = {};
   otherVariables.EMAILADDRESS = emailfull;
   otherVariables.EMAILLOCALPART = emaillocal;
   otherVariables.EMAILDOMAIN = emaildomain;
@@ -449,7 +449,7 @@ function _replaceVariable(variable, values) {
     return str;
   }
 
-  for (let varname in values) {
+  for (const varname in values) {
     str = str.replace("%" + varname + "%", values[varname]);
   }
 

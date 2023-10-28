@@ -8,7 +8,7 @@ add_task(async function test_spacesToolbarChatBadgeMUC() {
     "testuser",
     "prpl-mochitest"
   );
-  let passwordPromise = TestUtils.topicObserved("account-updated");
+  const passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
   await passwordPromise;
   account.connect();
@@ -69,7 +69,7 @@ add_task(async function test_spacesToolbarChatBadgeDM() {
     "testuser",
     "prpl-mochitest"
   );
-  let passwordPromise = TestUtils.topicObserved("account-updated");
+  const passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
   await passwordPromise;
   account.connect();
@@ -142,7 +142,7 @@ add_task(async function test_spacesToolbarPinnedChatBadgeMUC() {
     "testuser",
     "prpl-mochitest"
   );
-  let passwordPromise = TestUtils.topicObserved("account-updated");
+  const passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
   await passwordPromise;
   account.connect();
@@ -205,7 +205,7 @@ add_task(async function test_spacesToolbarPinnedChatBadgeDM() {
     "testuser",
     "prpl-mochitest"
   );
-  let passwordPromise = TestUtils.topicObserved("account-updated");
+  const passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
   await passwordPromise;
   account.connect();

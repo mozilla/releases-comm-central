@@ -35,7 +35,7 @@ var msgbodyB = "hi, i think you may know of an email client to recommend?";
 add_setup(async function () {
   folder = await create_folder("FwdedEmlTest");
 
-  let source =
+  const source =
     "From - Mon Apr  16 22:55:33 2012\n" +
     "Date: Mon, 16 Apr 2012 22:55:33 +0300\n" +
     "From: Mr Example <example@invalid>\n" +
@@ -96,14 +96,14 @@ add_setup(async function () {
 async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   await be_in_folder(folder);
 
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
-  let tabSelectPromise = BrowserTestUtils.waitForEvent(
+  const tabSelectPromise = BrowserTestUtils.waitForEvent(
     document.getElementById("tabmail").tabContainer,
     "select"
   );
-  let aboutMessage = get_about_message();
+  const aboutMessage = get_about_message();
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("attachmentName"),
     { clickCount: 1 },
@@ -112,11 +112,11 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   await tabSelectPromise;
   await wait_for_message_display_completion(window, false);
 
-  let newWindowPromise = promise_new_window("msgcompose");
+  const newWindowPromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey(hotkeyToHit, hotkeyModifiers, window);
-  let compWin = await compose_window_ready(newWindowPromise);
+  const compWin = await compose_window_ready(newWindowPromise);
 
-  let bodyText = get_compose_body(compWin).textContent;
+  const bodyText = get_compose_body(compWin).textContent;
   if (bodyText.includes("html")) {
     throw new Error("body text contains raw html; bodyText=" + bodyText);
   }
@@ -130,7 +130,7 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
     );
   }
 
-  let subjectText = compWin.document.getElementById("msgSubject").value;
+  const subjectText = compWin.document.getElementById("msgSubject").value;
   if (!subjectText.includes(msgsubject)) {
     throw new Error(
       "subject text didn't contain the original subject; " +

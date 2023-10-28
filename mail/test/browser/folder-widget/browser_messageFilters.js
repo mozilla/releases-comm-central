@@ -63,7 +63,7 @@ add_setup(async function () {
  * new fitler toolbarbutton and it's dropdown work correctly.
  */
 add_task(async function key_navigation_test() {
-  let filterc = await openFiltersDialogs();
+  const filterc = await openFiltersDialogs();
 
   const filterWinDoc = filterc.document;
   const BUTTONS_SELECTOR = `toolbarbutton:not([disabled="true"],[is="toolbarbutton-menu-button"]),dropmarker, button:not([hidden])`;
@@ -78,7 +78,7 @@ add_task(async function key_navigation_test() {
     "focused on the first filter action button"
   );
 
-  for (let button of navigableButtons) {
+  for (const button of navigableButtons) {
     if (!filterWinDoc.getElementById(button.id).disabled) {
       Assert.equal(
         filterWinDoc.activeElement.id,
@@ -142,16 +142,16 @@ add_task(async function key_navigation_test() {
 add_task(async function test_message_filter_shows_newsgroup_server() {
   await be_in_folder(folderA);
 
-  let filterc = await openFiltersDialogs();
+  const filterc = await openFiltersDialogs();
   wait_for_window_focused(filterc);
 
   // Get the newsgroups to pop up.
-  let serverMenu = filterc.document.getElementById("serverMenu");
+  const serverMenu = filterc.document.getElementById("serverMenu");
   let popupshown = BrowserTestUtils.waitForEvent(serverMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(serverMenu, {}, serverMenu.ownerGlobal);
   await popupshown;
 
-  let nntp = serverMenu.firstElementChild.children.item(1);
+  const nntp = serverMenu.firstElementChild.children.item(1);
   Assert.equal(
     nntp.label,
     "localhost",
@@ -170,18 +170,18 @@ add_task(async function test_message_filter_shows_newsgroup_server() {
  * closes the dialog.
  */
 async function create_simple_filter() {
-  let filterc = await openFiltersDialogs();
+  const filterc = await openFiltersDialogs();
 
   function fill_in_filter_fields(fec) {
-    let filterName = fec.document.getElementById("filterName");
+    const filterName = fec.document.getElementById("filterName");
     filterName.value = "A Simple Filter";
     fec.document.getElementById("searchAttr0").value = Ci.nsMsgSearchAttrib.To;
     fec.document.getElementById("searchOp0").value = Ci.nsMsgSearchOp.Is;
-    let searchVal = fec.document.getElementById("searchVal0").input;
+    const searchVal = fec.document.getElementById("searchVal0").input;
     searchVal.setAttribute("value", "test@foo.invalid");
 
-    let filterActions = fec.document.getElementById("filterActionList");
-    let firstAction = filterActions.getItemAtIndex(0);
+    const filterActions = fec.document.getElementById("filterActionList");
+    const firstAction = filterActions.getItemAtIndex(0);
     firstAction.setAttribute("value", "markasflagged");
     fec.document.querySelector("dialog").acceptDialog();
   }
@@ -231,19 +231,19 @@ async function openFiltersDialogs() {
 add_task(async function test_address_books_appear_in_message_filter_dropdown() {
   // Create a remote address book - we don't want this to appear in the
   // dropdown.
-  let ldapAb = create_ldap_address_book("Some LDAP Address Book");
+  const ldapAb = create_ldap_address_book("Some LDAP Address Book");
 
   // Sanity check - this LDAP book should be remote.
   Assert.ok(ldapAb.isRemote);
 
-  let filterc = await openFiltersDialogs();
+  const filterc = await openFiltersDialogs();
 
   // Prepare a function to deal with the filter editor once it
   // has opened
   function filterEditorOpened(fec) {
     fec.document.getElementById("searchAttr0").value = Ci.nsMsgSearchAttrib.To;
     fec.document.getElementById("searchOp0").value = Ci.nsMsgSearchOp.IsInAB;
-    let abList = fec.document.getElementById("searchVal0").input;
+    const abList = fec.document.getElementById("searchVal0").input;
 
     // We should have 2 address books here - one for the Personal Address
     // Book, and one for Collected Addresses.  The LDAP address book should
@@ -281,12 +281,12 @@ add_task(async function test_can_cancel_quit_on_filter_changes() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
-  let filterc = await create_simple_filter();
+  const filterc = await create_simple_filter();
 
-  let runButton = filterc.document.getElementById("runFiltersButton");
+  const runButton = filterc.document.getElementById("runFiltersButton");
   runButton.setAttribute("label", runButton.getAttribute("stoplabel"));
 
-  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+  const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
   );
 
@@ -295,7 +295,7 @@ add_task(async function test_can_cancel_quit_on_filter_changes() {
   gMockPromptService.returnValue = false;
   // Trigger the quit-application-request notification
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
-  let promptState = gMockPromptService.promptState;
+  const promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a confirmEx prompt");
 
   Assert.equal("confirmEx", promptState.method);
@@ -318,16 +318,16 @@ add_task(async function test_can_quit_on_filter_changes() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
-  let filterc = await wait_for_existing_window("mailnews:filterlist");
+  const filterc = await wait_for_existing_window("mailnews:filterlist");
 
   // There should already be 1 filter defined from previous test.
-  let filterCount = filterc.document.getElementById("filterList").itemCount;
+  const filterCount = filterc.document.getElementById("filterList").itemCount;
   Assert.equal(filterCount, 1, "should have 1 filter from prev test");
 
-  let runButton = filterc.document.getElementById("runFiltersButton");
+  const runButton = filterc.document.getElementById("runFiltersButton");
   runButton.setAttribute("label", runButton.getAttribute("stoplabel"));
 
-  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+  const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
   );
 
@@ -336,7 +336,7 @@ add_task(async function test_can_quit_on_filter_changes() {
   gMockPromptService.returnValue = true;
   // Trigger the quit-application-request notification
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
-  let promptState = gMockPromptService.promptState;
+  const promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a confirmEx prompt");
 
   Assert.equal("confirmEx", promptState.method);

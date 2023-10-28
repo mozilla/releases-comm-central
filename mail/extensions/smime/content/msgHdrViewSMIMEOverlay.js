@@ -20,8 +20,8 @@ var gEncryptionStatusForURI = null;
 
 // Get the necko URL for the message URI.
 function neckoURLForMessageURI(aMessageURI) {
-  let msgSvc = MailServices.messageServiceFromURI(aMessageURI);
-  let neckoURI = msgSvc.getUrlForUri(aMessageURI);
+  const msgSvc = MailServices.messageServiceFromURI(aMessageURI);
+  const neckoURI = msgSvc.getUrlForUri(aMessageURI);
   return neckoURI.spec;
 }
 
@@ -61,13 +61,13 @@ function setMessageCryptoBox(
     return;
   }
 
-  let container = document.getElementById("cryptoBox");
-  let encryptedIcon = document.getElementById("encryptedHdrIcon");
-  let signedIcon = document.getElementById("signedHdrIcon");
-  let button = document.getElementById("encryptionTechBtn");
-  let buttonText = button.querySelector(".crypto-label");
+  const container = document.getElementById("cryptoBox");
+  const encryptedIcon = document.getElementById("encryptedHdrIcon");
+  const signedIcon = document.getElementById("signedHdrIcon");
+  const button = document.getElementById("encryptionTechBtn");
+  const buttonText = button.querySelector(".crypto-label");
 
-  let hidden = !forceShow && (!tech || (!encryptedState && !signedState));
+  const hidden = !forceShow && (!tech || (!encryptedState && !signedState));
   container.hidden = hidden;
   button.hidden = hidden;
   if (hidden) {
@@ -154,8 +154,8 @@ function smimeEncryptedStateToString(encryptedState) {
  *   that triggers this status update.
  */
 function refreshSmimeMessageEncryptionStatus(mimePartNumber = undefined) {
-  let signed = smimeSignedStateToString(gSignatureStatus);
-  let encrypted = smimeEncryptedStateToString(gEncryptionStatus);
+  const signed = smimeSignedStateToString(gSignatureStatus);
+  const encrypted = smimeEncryptedStateToString(gEncryptionStatus);
   setMessageCryptoBox("S/MIME", encrypted, signed, false, mimePartNumber);
 }
 
@@ -222,7 +222,7 @@ var smimeHeaderSink = {
 
     refreshSmimeMessageEncryptionStatus(aOriginMimePartNumber);
 
-    let signed = smimeSignedStateToString(aSignatureStatus);
+    const signed = smimeSignedStateToString(aSignatureStatus);
     if (signed == "unknown" || signed == "mismatch") {
       this.showSenderIfSigner();
     }
@@ -255,7 +255,7 @@ var smimeHeaderSink = {
       return;
     }
 
-    let fromMailboxes = MailServices.headerParser
+    const fromMailboxes = MailServices.headerParser
       .extractHeaderAddressMailboxes(currentHeaderData.from.headerValue)
       .split(",");
     for (let i = 0; i < fromMailboxes.length; i++) {
@@ -264,8 +264,8 @@ var smimeHeaderSink = {
       }
     }
 
-    let senderInfo = { name: "sender", outputFunction: outputEmailAddresses };
-    let senderEntry = new MsgHeaderEntry("expanded", senderInfo);
+    const senderInfo = { name: "sender", outputFunction: outputEmailAddresses };
+    const senderEntry = new MsgHeaderEntry("expanded", senderInfo);
 
     gExpandedHeaderView[senderInfo.name] = senderEntry;
     UpdateExpandedMessageHeaders();

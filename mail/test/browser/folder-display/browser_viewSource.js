@@ -67,9 +67,9 @@ add_task(async function utf8Header_with_utf8Body() {
 });
 
 function addToFolder(subject, charset, body) {
-  let msgId = Services.uuid.generateUUID() + "@invalid";
+  const msgId = Services.uuid.generateUUID() + "@invalid";
 
-  let source =
+  const source =
     "From - Sat Nov  1 12:39:54 2008\n" +
     "X-Mozilla-Status: 0001\n" +
     "X-Mozilla-Status2: 00000000\n" +
@@ -97,8 +97,8 @@ function addToFolder(subject, charset, body) {
 async function subtest(row, expectedDisplayed, expectedSource) {
   await select_click_row(row);
 
-  let aboutMessage = get_about_message();
-  let displayContent =
+  const aboutMessage = get_about_message();
+  const displayContent =
     aboutMessage.getMessagePaneBrowser().contentDocument.body.textContent;
   Assert.stringContains(
     displayContent,
@@ -112,7 +112,7 @@ async function subtest(row, expectedDisplayed, expectedSource) {
 
   const viewSourcePromise = promise_new_window("navigator:view-source");
   EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });
-  let viewSourceWin = await viewSourcePromise;
+  const viewSourceWin = await viewSourcePromise;
 
   await TestUtils.waitForCondition(
     () =>
@@ -135,9 +135,9 @@ async function subtest(row, expectedDisplayed, expectedSource) {
 
   // We can't use the menu on macOS.
   if (AppConstants.platform != "macosx") {
-    let theContent = viewSourceWin.document.getElementById("content");
+    const theContent = viewSourceWin.document.getElementById("content");
     // Keep a reference to the originally loaded document.
-    let doc = theContent.contentDocument;
+    const doc = theContent.contentDocument;
 
     // Click the new window to make it receive further events properly.
     EventUtils.synthesizeMouseAtCenter(theContent, {}, theContent.ownerGlobal);
@@ -147,7 +147,7 @@ async function subtest(row, expectedDisplayed, expectedSource) {
       viewSourceWin.document.getElementById("viewmenu-popup"),
       "popupshown"
     );
-    let menuView = viewSourceWin.document.getElementById("menu_view");
+    const menuView = viewSourceWin.document.getElementById("menu_view");
     EventUtils.synthesizeMouseAtCenter(menuView, {}, menuView.ownerGlobal);
     await popupshown;
 
@@ -184,8 +184,8 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   }
 
   // Check the context menu while were here.
-  let browser = viewSourceWin.document.getElementById("content");
-  let contextMenu = viewSourceWin.document.getElementById(
+  const browser = viewSourceWin.document.getElementById("content");
+  const contextMenu = viewSourceWin.document.getElementById(
     "viewSourceContextMenu"
   );
   popupshown = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
@@ -196,8 +196,8 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   );
   await popupshown;
 
-  let actualItems = [];
-  for (let item of contextMenu.children) {
+  const actualItems = [];
+  for (const item of contextMenu.children) {
     if (item.localName == "menuitem" && !item.hidden) {
       actualItems.push(item.id);
     }

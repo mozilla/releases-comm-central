@@ -31,11 +31,11 @@ var gSanitizePromptDialog = {
     document.getElementById("sanitizeDurationChoice").value =
       Services.prefs.getIntPref("privacy.sanitize.timeSpan");
 
-    let sanitizeItemList = document.querySelectorAll(
+    const sanitizeItemList = document.querySelectorAll(
       "#historyGroup > [preference]"
     );
-    for (let prefItem of sanitizeItemList) {
-      let name = s.getNameFromPreference(prefItem.getAttribute("preference"));
+    for (const prefItem of sanitizeItemList) {
+      const name = s.getNameFromPreference(prefItem.getAttribute("preference"));
       if (!s.canClearItem(name)) {
         prefItem.preference = null;
         prefItem.checked = false;
@@ -52,7 +52,9 @@ var gSanitizePromptDialog = {
     document.querySelector("dialog").getButton("accept").label =
       this.bundleBrowser.getString("sanitizeButtonOK");
 
-    let warningIcon = document.getElementById("sanitizeEverythingWarningIcon");
+    const warningIcon = document.getElementById(
+      "sanitizeEverythingWarningIcon"
+    );
     warningIcon.setAttribute(
       "src",
       "chrome://messenger/skin/icons/new/activity/warning.svg"
@@ -144,10 +146,10 @@ var gSanitizePromptDialog = {
     var found = false;
 
     // Find any other pref that's checked and enabled.
-    let sanitizeItemList = document.querySelectorAll(
+    const sanitizeItemList = document.querySelectorAll(
       "#historyGroup > [preference]"
     );
-    for (let prefItem of sanitizeItemList) {
+    for (const prefItem of sanitizeItemList) {
       found = !prefItem.disabled && prefItem.checked;
       if (found) {
         break;
@@ -176,11 +178,11 @@ var gSanitizePromptDialog = {
     Sanitizer.prefs.setIntPref("timeSpan", this.selectedTimespan);
 
     // Now manually set the prefs from their corresponding preference elements.
-    let sanitizeItemList = document.querySelectorAll(
+    const sanitizeItemList = document.querySelectorAll(
       "#historyGroup > [preference]"
     );
-    for (let prefItem of sanitizeItemList) {
-      let prefName = prefItem.getAttribute("preference");
+    for (const prefItem of sanitizeItemList) {
+      const prefName = prefItem.getAttribute("preference");
       Services.prefs.setBoolPref(prefName, prefItem.checked);
     }
   },
@@ -189,10 +191,10 @@ var gSanitizePromptDialog = {
    * Check if all of the history items have been selected like the default status.
    */
   hasNonSelectedItems() {
-    let sanitizeItemList = document.querySelectorAll(
+    const sanitizeItemList = document.querySelectorAll(
       "#historyGroup > [preference]"
     );
-    for (let prefItem of sanitizeItemList) {
+    for (const prefItem of sanitizeItemList) {
       if (!prefItem.checked) {
         return true;
       }

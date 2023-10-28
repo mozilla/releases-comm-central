@@ -43,8 +43,8 @@ add_task(async function testNetworkAddressBook() {
   Assert.equal(tracker.score, 0);
   Assert.deepEqual(await tracker.getChangedIDs(), {});
 
-  let id = newUID();
-  let dirPrefId = MailServices.ab.newAddressBook(
+  const id = newUID();
+  const dirPrefId = MailServices.ab.newAddressBook(
     "Sync Address Book",
     null,
     MailServices.ab.CARDDAV_DIRECTORY_TYPE,
@@ -58,7 +58,7 @@ add_task(async function testNetworkAddressBook() {
   tracker.resetScore();
   Assert.equal(tracker.score, 0);
 
-  let book = MailServices.ab.getDirectoryFromId(dirPrefId);
+  const book = MailServices.ab.getDirectoryFromId(dirPrefId);
   book.dirName = "changed name";
   Assert.equal(tracker.score, 301);
   Assert.deepEqual(await tracker.getChangedIDs(), { [id]: 0 });
@@ -77,7 +77,7 @@ add_task(async function testNetworkAddressBook() {
   tracker.clearChangedIDs();
   tracker.resetScore();
 
-  let deletedPromise = TestUtils.topicObserved("addrbook-directory-deleted");
+  const deletedPromise = TestUtils.topicObserved("addrbook-directory-deleted");
   MailServices.ab.deleteAddressBook(book.URI);
   await deletedPromise;
   Assert.equal(tracker.score, 301);
@@ -91,7 +91,7 @@ add_task(async function testNetworkAddressBook() {
  * Test a local address book. This shouldn't affect the tracker at all.
  */
 add_task(async function testStorageAddressBook() {
-  let dirPrefId = MailServices.ab.newAddressBook(
+  const dirPrefId = MailServices.ab.newAddressBook(
     "Sync Address Book",
     null,
     MailServices.ab.JS_DIRECTORY_TYPE
@@ -99,13 +99,13 @@ add_task(async function testStorageAddressBook() {
   Assert.deepEqual(await tracker.getChangedIDs(), {});
   Assert.equal(tracker.score, 0);
 
-  let book = MailServices.ab.getDirectoryFromId(dirPrefId);
+  const book = MailServices.ab.getDirectoryFromId(dirPrefId);
   book.dirName = "changed name";
   book.setBoolValue("readOnly", true);
   Assert.deepEqual(await tracker.getChangedIDs(), {});
   Assert.equal(tracker.score, 0);
 
-  let deletedPromise = TestUtils.topicObserved("addrbook-directory-deleted");
+  const deletedPromise = TestUtils.topicObserved("addrbook-directory-deleted");
   MailServices.ab.deleteAddressBook(book.URI);
   await deletedPromise;
   Assert.deepEqual(await tracker.getChangedIDs(), {});
@@ -118,7 +118,7 @@ add_task(async function testStorageAddressBook() {
 add_task(async function testIncomingChanges() {
   PromiseTestUtils.expectUncaughtRejection(/Connection failure/);
 
-  let id = newUID();
+  const id = newUID();
 
   tracker.ignoreAll = true;
   await store.applyIncoming({

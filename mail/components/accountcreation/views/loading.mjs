@@ -53,7 +53,7 @@ class AccountHubLoading extends HTMLElement {
 
     this.classList.add("account-hub-view");
 
-    let template = document.getElementById("accountHubLoading");
+    const template = document.getElementById("accountHubLoading");
     this.appendChild(template.content.cloneNode(true));
 
     this.#continueButton = this.querySelector("#emailContinueButton");

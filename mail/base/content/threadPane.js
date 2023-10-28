@@ -38,7 +38,7 @@ function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect) {
     // Check if the row is exactly the existing selection.  In that case
     //  there is no need to create a bogus selection.
     if (treeSelection.count == 1) {
-      let minObj = {};
+      const minObj = {};
       treeSelection.getRangeAt(0, minObj, {});
       if (minObj.value == row) {
         event.stopPropagation();
@@ -46,7 +46,7 @@ function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect) {
       }
     }
 
-    let transientSelection = new TreeSelection(tree);
+    const transientSelection = new TreeSelection(tree);
     transientSelection.logAdjustSelectionForReplay();
 
     var saveCurrentIndex = treeSelection.currentIndex;
@@ -70,30 +70,30 @@ function ThreadPaneOnDragStart(aEvent) {
     return;
   }
 
-  let messageUris = gFolderDisplay.selectedMessageUris;
+  const messageUris = gFolderDisplay.selectedMessageUris;
   if (!messageUris) {
     return;
   }
 
   gFolderDisplay.hintAboutToDeleteMessages();
-  let messengerBundle = document.getElementById("bundle_messenger");
+  const messengerBundle = document.getElementById("bundle_messenger");
   let noSubjectString = messengerBundle.getString(
     "defaultSaveMessageAsFileName"
   );
   if (noSubjectString.endsWith(".eml")) {
     noSubjectString = noSubjectString.slice(0, -4);
   }
-  let longSubjectTruncator = messengerBundle.getString(
+  const longSubjectTruncator = messengerBundle.getString(
     "longMsgSubjectTruncator"
   );
   // Clip the subject string to 124 chars to avoid problems on Windows,
   // see NS_MAX_FILEDESCRIPTOR in m-c/widget/windows/nsDataObj.cpp .
   const maxUncutNameLength = 124;
-  let maxCutNameLength = maxUncutNameLength - longSubjectTruncator.length;
-  let messages = new Map();
-  for (let [index, msgUri] of messageUris.entries()) {
-    let msgService = MailServices.messageServiceFromURI(msgUri);
-    let msgHdr = msgService.messageURIToMsgHdr(msgUri);
+  const maxCutNameLength = maxUncutNameLength - longSubjectTruncator.length;
+  const messages = new Map();
+  for (const [index, msgUri] of messageUris.entries()) {
+    const msgService = MailServices.messageServiceFromURI(msgUri);
+    const msgHdr = msgService.messageURIToMsgHdr(msgUri);
     let subject = msgHdr.mime2DecodedSubject || "";
     if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
       subject = "Re: " + subject;
@@ -118,7 +118,7 @@ function ThreadPaneOnDragStart(aEvent) {
         messages[msgFileNameLowerCase] = 1;
         break;
       } else {
-        let postfix = "-" + messages[msgFileNameLowerCase];
+        const postfix = "-" + messages[msgFileNameLowerCase];
         messages[msgFileNameLowerCase]++;
         msgFileName = msgFileName + postfix;
         msgFileNameLowerCase = msgFileNameLowerCase + postfix;
@@ -127,8 +127,8 @@ function ThreadPaneOnDragStart(aEvent) {
 
     msgFileName = msgFileName + ".eml";
 
-    let msgUrl = msgService.getUrlForUri(msgUri);
-    let separator = msgUrl.spec.includes("?") ? "&" : "?";
+    const msgUrl = msgService.getUrlForUri(msgUri);
+    const separator = msgUrl.spec.includes("?") ? "&" : "?";
 
     aEvent.dataTransfer.mozSetDataAt("text/x-moz-message", msgUri, index);
     aEvent.dataTransfer.mozSetDataAt("text/x-moz-url", msgUrl.spec, index);
@@ -164,7 +164,7 @@ function ThreadPaneOnClick(event) {
   // get here for clicks on the "treecol" (headers) and the "scrollbarbutton"
   // (scrollbar buttons) and don't want those events to cause a doubleclick.
 
-  let t = event.target;
+  const t = event.target;
   if (t.localName == "treecol") {
     HandleColumnClick(t.id);
     return;
@@ -174,9 +174,9 @@ function ThreadPaneOnClick(event) {
     return;
   }
 
-  let tree = GetThreadTree();
+  const tree = GetThreadTree();
   // Figure out what cell the click was in.
-  let treeCellInfo = tree.getCellAt(event.clientX, event.clientY);
+  const treeCellInfo = tree.getCellAt(event.clientX, event.clientY);
   if (treeCellInfo.row == -1) {
     return;
   }
@@ -203,8 +203,8 @@ function ThreadPaneOnClick(event) {
 
 function HandleColumnClick(columnID) {
   if (columnID == "selectCol") {
-    let treeView = gFolderDisplay.tree.view;
-    let selection = treeView.selection;
+    const treeView = gFolderDisplay.tree.view;
+    const selection = treeView.selection;
     if (!selection) {
       return;
     }
@@ -221,7 +221,7 @@ function HandleColumnClick(columnID) {
   }
 
   let sortType = gFolderDisplay.COLUMNS_MAP.get(columnID);
-  let curCustomColumn = gDBView.curCustomColumn;
+  const curCustomColumn = gDBView.curCustomColumn;
   if (!sortType) {
     // If the column isn't in the map, check if it's a custom column.
     try {
@@ -244,7 +244,7 @@ function HandleColumnClick(columnID) {
     }
   }
 
-  let viewWrapper = gFolderDisplay.view;
+  const viewWrapper = gFolderDisplay.view;
   if (
     viewWrapper.primarySortType == Ci.nsMsgViewSortType[sortType] &&
     (viewWrapper.primarySortType != Ci.nsMsgViewSortType.byCustom ||
@@ -261,8 +261,8 @@ function HandleSelectColClick(event, row) {
   if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
     return;
   }
-  let tree = gFolderDisplay.tree;
-  let selection = tree.view.selection;
+  const tree = gFolderDisplay.tree;
+  const selection = tree.view.selection;
   if (event.detail == 1) {
     selection.toggleSelect(row);
   }
@@ -316,7 +316,7 @@ function ThreadPaneKeyDown(event) {
 }
 
 function MsgSortThreadPane(sortName) {
-  let sortType = Ci.nsMsgViewSortType[sortName];
+  const sortType = Ci.nsMsgViewSortType[sortName];
   gFolderDisplay.view._threadExpandAll = Boolean(
     gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
   );
@@ -340,14 +340,14 @@ function MsgReverseSortThreadPane() {
 //  FolderDisplayWidget ends up using if it refactors column management out.
 function UpdateSortIndicators(sortType, sortOrder) {
   // Remove the sort indicator from all the columns
-  let treeColumns = document.getElementById("threadCols").children;
+  const treeColumns = document.getElementById("threadCols").children;
   for (let i = 0; i < treeColumns.length; i++) {
     treeColumns[i].removeAttribute("sortDirection");
   }
 
   let sortedColumn;
   // set the sort indicator on the column we are sorted by
-  let colID = ConvertSortTypeToColumnID(sortType);
+  const colID = ConvertSortTypeToColumnID(sortType);
   if (colID) {
     sortedColumn = document.getElementById(colID);
   }
@@ -392,12 +392,12 @@ function ThreadPaneSelectionChanged() {
 }
 
 function UpdateSelectCol() {
-  let selectCol = document.getElementById("selectCol");
+  const selectCol = document.getElementById("selectCol");
   if (!selectCol) {
     return;
   }
-  let treeView = gFolderDisplay.tree.view;
-  let selection = treeView.selection;
+  const treeView = gFolderDisplay.tree.view;
+  const selection = treeView.selection;
   if (selection && selection.count > 0) {
     if (treeView.rowCount == selection.count) {
       selectCol.classList.remove("someselected");

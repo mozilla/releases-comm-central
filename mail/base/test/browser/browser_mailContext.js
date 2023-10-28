@@ -24,13 +24,13 @@ var { cal } = ChromeUtils.importESModule(
 const TEST_MESSAGE_URL =
   "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.eml";
 
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 let testFolder, testMessages;
 let draftsFolder, draftsMessages;
 let templatesFolder, templatesMessages;
 let listFolder, listMessages;
 
-let singleSelectionMessagePane = [
+const singleSelectionMessagePane = [
   "singleMessage",
   "draftsFolder",
   "templatesFolder",
@@ -38,7 +38,7 @@ let singleSelectionMessagePane = [
   "syntheticFolderDraft",
   "syntheticFolder",
 ];
-let singleSelectionThreadPane = [
+const singleSelectionThreadPane = [
   "singleMessageTree",
   "draftsFolderTree",
   "templatesFolderTree",
@@ -46,23 +46,23 @@ let singleSelectionThreadPane = [
   "syntheticFolderDraftTree",
   "syntheticFolderTree",
 ];
-let onePane = ["messageTab", "messageWindow"];
-let external = ["externalMessageTab", "externalMessageWindow"];
-let allSingleSelection = [
+const onePane = ["messageTab", "messageWindow"];
+const external = ["externalMessageTab", "externalMessageWindow"];
+const allSingleSelection = [
   ...singleSelectionMessagePane,
   ...singleSelectionThreadPane,
   ...onePane,
   ...external,
 ];
-let allThreePane = [
+const allThreePane = [
   ...singleSelectionMessagePane,
   ...singleSelectionThreadPane,
   "multipleMessagesTree",
   "multipleDraftsFolderTree",
   "multipleTemplatesFolderTree",
 ];
-let notExternal = [...allThreePane, ...onePane];
-let singleNotExternal = [
+const notExternal = [...allThreePane, ...onePane];
+const singleNotExternal = [
   ...singleSelectionMessagePane,
   ...singleSelectionThreadPane,
   ...onePane,
@@ -152,21 +152,21 @@ function checkMenuitems(menu, mode) {
 
   Assert.notEqual(menu.state, "closed", "Menu should be closed");
 
-  let expectedItems = [];
-  for (let [id, modes] of Object.entries(mailContextData)) {
+  const expectedItems = [];
+  for (const [id, modes] of Object.entries(mailContextData)) {
     if (modes === true || modes.includes(mode)) {
       expectedItems.push(id);
     }
   }
 
-  let actualItems = [];
-  for (let item of menu.children) {
+  const actualItems = [];
+  for (const item of menu.children) {
     if (["menu", "menuitem"].includes(item.localName) && !item.hidden) {
       actualItems.push(item.id);
     }
   }
 
-  let notFoundItems = expectedItems.filter(i => !actualItems.includes(i));
+  const notFoundItems = expectedItems.filter(i => !actualItems.includes(i));
   if (notFoundItems.length) {
     Assert.report(
       true,
@@ -176,7 +176,7 @@ function checkMenuitems(menu, mode) {
     );
   }
 
-  let unexpectedItems = actualItems.filter(i => !expectedItems.includes(i));
+  const unexpectedItems = actualItems.filter(i => !expectedItems.includes(i));
   if (unexpectedItems.length) {
     Assert.report(
       true,
@@ -192,24 +192,24 @@ function checkMenuitems(menu, mode) {
 }
 
 add_setup(async function () {
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("mailContextFolder", null);
   testFolder = rootFolder
     .getChildNamed("mailContextFolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  let message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
+  const message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
   testFolder.addMessageBatch([message]);
-  let messages = [
+  const messages = [
     ...generator.makeMessages({ count: 5 }),
     ...generator.makeMessages({ count: 5, msgsPerThread: 5 }),
     ...generator.makeMessages({ count: 200 }),
   ];
-  let messageStrings = messages.map(message => message.toMboxString());
+  const messageStrings = messages.map(message => message.toMboxString());
   testFolder.addMessageBatch(messageStrings);
   testMessages = [...testFolder.messages];
   rootFolder.createSubfolder("mailContextDrafts", null);
@@ -276,9 +276,9 @@ add_setup(async function () {
  * messages are selected.
  */
 add_task(async function testNoMessages() {
-  let about3Pane = tabmail.currentAbout3Pane;
-  let mailContext = about3Pane.document.getElementById("mailContext");
-  let { messageBrowser, messagePane, threadTree } = about3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
+  const mailContext = about3Pane.document.getElementById("mailContext");
+  const { messageBrowser, messagePane, threadTree } = about3Pane;
   messagePane.clearAll();
 
   // The message pane browser isn't visible.
@@ -300,7 +300,7 @@ add_task(async function testNoMessages() {
 
   // Open the menu from an empty part of the thread pane.
 
-  let treeRect = threadTree.getBoundingClientRect();
+  const treeRect = threadTree.getBoundingClientRect();
   EventUtils.synthesizeMouse(
     threadTree,
     treeRect.x + treeRect.width / 2,
@@ -322,12 +322,13 @@ add_task(async function testSingleMessage() {
     1000
   );
 
-  let about3Pane = tabmail.currentAbout3Pane;
-  let mailContext = about3Pane.document.getElementById("mailContext");
-  let { gDBView, messageBrowser, threadTree } = about3Pane;
-  let messagePaneBrowser = messageBrowser.contentWindow.getMessagePaneBrowser();
+  const about3Pane = tabmail.currentAbout3Pane;
+  const mailContext = about3Pane.document.getElementById("mailContext");
+  const { gDBView, messageBrowser, threadTree } = about3Pane;
+  const messagePaneBrowser =
+    messageBrowser.contentWindow.getMessagePaneBrowser();
 
-  let loadedPromise = BrowserTestUtils.browserLoaded(
+  const loadedPromise = BrowserTestUtils.browserLoaded(
     messagePaneBrowser,
     undefined,
     url => url.endsWith(gDBView.getKeyAt(0))
@@ -417,9 +418,9 @@ add_task(async function testMultipleMessages() {
     1000
   );
 
-  let about3Pane = tabmail.currentAbout3Pane;
-  let mailContext = about3Pane.document.getElementById("mailContext");
-  let { messageBrowser, multiMessageBrowser, threadTree } = about3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
+  const mailContext = about3Pane.document.getElementById("mailContext");
+  const { messageBrowser, multiMessageBrowser, threadTree } = about3Pane;
   threadTree.scrollToIndex(1, true);
   threadTree.selectedIndices = [1, 2, 3];
 
@@ -478,7 +479,7 @@ add_task(async function testMultipleMessages() {
  * folder.
  */
 add_task(async function testDraftsFolder() {
-  let about3Pane = tabmail.currentAbout3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({ folderURI: draftsFolder.URI });
 
   await TestUtils.waitForCondition(
@@ -487,11 +488,12 @@ add_task(async function testDraftsFolder() {
     1000
   );
 
-  let mailContext = about3Pane.document.getElementById("mailContext");
-  let { gDBView, messageBrowser, threadTree } = about3Pane;
-  let messagePaneBrowser = messageBrowser.contentWindow.getMessagePaneBrowser();
+  const mailContext = about3Pane.document.getElementById("mailContext");
+  const { gDBView, messageBrowser, threadTree } = about3Pane;
+  const messagePaneBrowser =
+    messageBrowser.contentWindow.getMessagePaneBrowser();
 
-  let loadedPromise = BrowserTestUtils.browserLoaded(
+  const loadedPromise = BrowserTestUtils.browserLoaded(
     messagePaneBrowser,
     undefined,
     url => url.endsWith(gDBView.getKeyAt(0))
@@ -543,7 +545,7 @@ add_task(async function testDraftsFolder() {
  * folder.
  */
 add_task(async function testTemplatesFolder() {
-  let about3Pane = tabmail.currentAbout3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({ folderURI: templatesFolder.URI });
 
   await TestUtils.waitForCondition(
@@ -552,11 +554,12 @@ add_task(async function testTemplatesFolder() {
     1000
   );
 
-  let mailContext = about3Pane.document.getElementById("mailContext");
-  let { gDBView, messageBrowser, threadTree } = about3Pane;
-  let messagePaneBrowser = messageBrowser.contentWindow.getMessagePaneBrowser();
+  const mailContext = about3Pane.document.getElementById("mailContext");
+  const { gDBView, messageBrowser, threadTree } = about3Pane;
+  const messagePaneBrowser =
+    messageBrowser.contentWindow.getMessagePaneBrowser();
 
-  let loadedPromise = BrowserTestUtils.browserLoaded(
+  const loadedPromise = BrowserTestUtils.browserLoaded(
     messagePaneBrowser,
     undefined,
     url => url.endsWith(gDBView.getKeyAt(0))
@@ -609,7 +612,7 @@ add_task(async function testTemplatesFolder() {
  */
 
 add_task(async function testListMessage() {
-  let about3Pane = tabmail.currentAbout3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({ folderURI: listFolder.URI });
 
   await TestUtils.waitForCondition(
@@ -618,11 +621,12 @@ add_task(async function testListMessage() {
     1000
   );
 
-  let mailContext = about3Pane.document.getElementById("mailContext");
-  let { gDBView, messageBrowser, threadTree } = about3Pane;
-  let messagePaneBrowser = messageBrowser.contentWindow.getMessagePaneBrowser();
+  const mailContext = about3Pane.document.getElementById("mailContext");
+  const { gDBView, messageBrowser, threadTree } = about3Pane;
+  const messagePaneBrowser =
+    messageBrowser.contentWindow.getMessagePaneBrowser();
 
-  let loadedPromise = BrowserTestUtils.browserLoaded(
+  const loadedPromise = BrowserTestUtils.browserLoaded(
     messagePaneBrowser,
     undefined,
     url => url.endsWith(gDBView.getKeyAt(0))
@@ -673,7 +677,10 @@ add_task(async function testSyntheticFolder() {
     1000
   );
 
-  let tabPromise = BrowserTestUtils.waitForEvent(window, "aboutMessageLoaded");
+  const tabPromise = BrowserTestUtils.waitForEvent(
+    window,
+    "aboutMessageLoaded"
+  );
   tabmail.openTab("mail3PaneTab", {
     syntheticView: new GlodaSyntheticView({
       collection: Gloda.getMessageCollectionForHeaders([
@@ -686,10 +693,11 @@ add_task(async function testSyntheticFolder() {
   await tabPromise;
   await new Promise(resolve => setTimeout(resolve));
 
-  let about3Pane = tabmail.currentAbout3Pane;
-  let mailContext = about3Pane.document.getElementById("mailContext");
-  let { gDBView, messageBrowser, threadTree } = about3Pane;
-  let messagePaneBrowser = messageBrowser.contentWindow.getMessagePaneBrowser();
+  const about3Pane = tabmail.currentAbout3Pane;
+  const mailContext = about3Pane.document.getElementById("mailContext");
+  const { gDBView, messageBrowser, threadTree } = about3Pane;
+  const messagePaneBrowser =
+    messageBrowser.contentWindow.getMessagePaneBrowser();
 
   let loadedPromise = BrowserTestUtils.browserLoaded(
     messagePaneBrowser,
@@ -766,15 +774,15 @@ add_task(async function testSyntheticFolder() {
  * Tests the mailContext menu on the message pane of a message in a tab.
  */
 add_task(async function testMessageTab() {
-  let tabPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  const tabPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   window.OpenMessageInNewTab(testMessages[0], { background: false });
   await tabPromise;
   await new Promise(resolve => setTimeout(resolve));
 
-  let aboutMessage = tabmail.currentAboutMessage;
-  let mailContext = aboutMessage.document.getElementById("mailContext");
+  const aboutMessage = tabmail.currentAboutMessage;
+  const mailContext = aboutMessage.document.getElementById("mailContext");
 
-  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
@@ -790,8 +798,8 @@ add_task(async function testMessageTab() {
  * Tests the mailContext menu on the message pane of a file message in a tab.
  */
 add_task(async function testExternalMessageTab() {
-  let tabPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
-  let messageFile = new FileUtils.File(
+  const tabPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  const messageFile = new FileUtils.File(
     getTestFilePath("files/sampleContent.eml")
   );
   Services.prefs.setIntPref(
@@ -806,10 +814,10 @@ add_task(async function testExternalMessageTab() {
   await tabPromise;
   await new Promise(resolve => setTimeout(resolve));
 
-  let aboutMessage = tabmail.currentAboutMessage;
-  let mailContext = aboutMessage.document.getElementById("mailContext");
+  const aboutMessage = tabmail.currentAboutMessage;
+  const mailContext = aboutMessage.document.getElementById("mailContext");
 
-  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
@@ -825,16 +833,16 @@ add_task(async function testExternalMessageTab() {
  * Tests the mailContext menu on the message pane of a message in a window.
  */
 add_task(async function testMessageWindow() {
-  let winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   window.MsgOpenNewWindowForMessage(testMessages[0]);
-  let win = await winPromise;
+  const win = await winPromise;
   await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
   await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
 
-  let aboutMessage = win.messageBrowser.contentWindow;
-  let mailContext = aboutMessage.document.getElementById("mailContext");
+  const aboutMessage = win.messageBrowser.contentWindow;
+  const mailContext = aboutMessage.document.getElementById("mailContext");
 
-  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
@@ -850,8 +858,8 @@ add_task(async function testMessageWindow() {
  * Tests the mailContext menu on the message pane of a file message in a window.
  */
 add_task(async function testExternalMessageWindow() {
-  let winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
-  let messageFile = new FileUtils.File(
+  const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  const messageFile = new FileUtils.File(
     getTestFilePath("files/sampleContent.eml")
   );
   Services.prefs.setIntPref(
@@ -863,14 +871,14 @@ add_task(async function testExternalMessageWindow() {
     messageFile,
     Services.io.newFileURI(messageFile)
   );
-  let win = await winPromise;
+  const win = await winPromise;
   await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
   await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
 
-  let aboutMessage = win.messageBrowser.contentWindow;
-  let mailContext = aboutMessage.document.getElementById("mailContext");
+  const aboutMessage = win.messageBrowser.contentWindow;
+  const mailContext = aboutMessage.document.getElementById("mailContext");
 
-  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },

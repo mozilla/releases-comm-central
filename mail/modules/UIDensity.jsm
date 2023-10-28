@@ -33,7 +33,7 @@ function updateWindow(win) {
 }
 
 function updateAllWindows() {
-  for (let win of registeredWindows) {
+  for (const win of registeredWindows) {
     updateWindow(win);
   }
 }

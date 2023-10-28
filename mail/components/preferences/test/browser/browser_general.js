@@ -246,7 +246,7 @@ add_task(async function testTagDialog() {
     "tagsCategory"
   );
 
-  let newTagDialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+  const newTagDialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
     undefined,
     "chrome://messenger/content/preferences/tagDialog.xhtml",
     {
@@ -273,11 +273,11 @@ add_task(async function testTagDialog() {
     }
   );
 
-  let newTagButton = prefsDocument.getElementById("newTagButton");
+  const newTagButton = prefsDocument.getElementById("newTagButton");
   EventUtils.synthesizeMouseAtCenter(newTagButton, {}, prefsWindow);
   await newTagDialogPromise;
 
-  let tagList = prefsDocument.getElementById("tagList");
+  const tagList = prefsDocument.getElementById("tagList");
 
   Assert.ok(
     tagList.querySelector('richlistitem[value="tbird"]'),
@@ -302,7 +302,7 @@ add_task(async function testTagDialog() {
 
   // Now edit the tag. The key should stay the same, name and color will change.
 
-  let editTagDialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+  const editTagDialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
     undefined,
     "chrome://messenger/content/preferences/tagDialog.xhtml",
     {
@@ -340,7 +340,7 @@ add_task(async function testTagDialog() {
     }
   );
 
-  let editTagButton = prefsDocument.getElementById("editTagButton");
+  const editTagButton = prefsDocument.getElementById("editTagButton");
   EventUtils.synthesizeMouseAtCenter(editTagButton, {}, prefsWindow);
   await editTagDialogPromise;
 

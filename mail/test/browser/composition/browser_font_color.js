@@ -10,10 +10,10 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 add_task(async function test_font_color() {
-  let win = await open_compose_new_mail();
-  let formatHelper = new FormatHelper(win);
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
 
-  let colorSet = [
+  const colorSet = [
     { value: "#0000ff", rgb: [0, 0, 255] },
     { value: "#fb3e83", rgb: [251, 62, 131] },
   ];
@@ -30,11 +30,11 @@ add_task(async function test_font_color() {
     "Selector should be enabled with focus"
   );
 
-  let firstText = "no color";
-  let secondText = "with color";
+  const firstText = "no color";
+  const secondText = "with color";
 
-  for (let color of colorSet) {
-    let value = color.value;
+  for (const color of colorSet) {
+    const value = color.value;
     await formatHelper.assertShownColor("", `No color at start (${value})`);
 
     await formatHelper.typeInMessage(firstText);
@@ -58,7 +58,7 @@ add_task(async function test_font_color() {
     );
 
     // Test text selections.
-    for (let [start, end, forward, expect] of [
+    for (const [start, end, forward, expect] of [
       // Make sure we expect changes, so the test does not capture the previous
       // state.
       [0, null, true, ""], // At start.
@@ -94,7 +94,7 @@ add_task(async function test_font_color() {
     );
 
     // Select the default color.
-    let selector = formatHelper.selectColorInDialog(null);
+    const selector = formatHelper.selectColorInDialog(null);
     // Select through Format menu.
     formatHelper.selectFromFormatMenu(formatHelper.colorMenuItem);
     await selector;

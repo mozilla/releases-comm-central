@@ -18,7 +18,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
  * Populates the "Mail Libraries" section of the troubleshooting information page.
  */
 function populateLibrarySection() {
-  let { min_version, loaded_version, status, path } =
+  const { min_version, loaded_version, status, path } =
     BondOpenPGP.getRNPLibStatus();
 
   document.getElementById("rnp-expected-version").textContent = min_version;

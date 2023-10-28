@@ -84,7 +84,7 @@ var reporterListener = {
       Ci.nsIWebProgressListener.STATE_IS_BROKEN |
       Ci.nsIWebProgressListener.STATE_IS_INSECURE;
 
-    let icon = document.getElementById("security-icon");
+    const icon = document.getElementById("security-icon");
     switch (aState & wpl_security_bits) {
       case Ci.nsIWebProgressListener.STATE_IS_SECURE:
         icon.setAttribute(
@@ -125,12 +125,12 @@ function cancelRequest() {
 }
 
 function reportUserClosed() {
-  let request = window.arguments[0].wrappedJSObject;
+  const request = window.arguments[0].wrappedJSObject;
   request.cancelled();
 }
 
 function loadRequestedUrl() {
-  let request = window.arguments[0].wrappedJSObject;
+  const request = window.arguments[0].wrappedJSObject;
 
   var browser = document.getElementById("requestFrame");
   browser.addProgressListener(reporterListener, Ci.nsIWebProgress.NOTIFY_ALL);

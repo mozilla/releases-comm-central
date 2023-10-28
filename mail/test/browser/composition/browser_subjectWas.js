@@ -46,12 +46,12 @@ add_setup(async function () {
 add_task(async function test_was_reply_subj() {
   await be_in_folder(folder);
 
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
-  let cwc = await open_compose_with_reply();
+  const cwc = await open_compose_with_reply();
 
-  let msgSubject = cwc.document.getElementById("msgSubject").value;
+  const msgSubject = cwc.document.getElementById("msgSubject").value;
 
   // Subject should be Re: <the original subject stripped of the was: part>
   Assert.equal(

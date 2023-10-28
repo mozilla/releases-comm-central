@@ -41,10 +41,10 @@ add_setup(async function () {
  */
 add_task(async function test_reply_to_eml_save_as_draft() {
   // Open an .eml file.
-  let file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
+  const msgc = await open_message_from_file(file);
 
-  let replyWin = await open_compose_with_reply(msgc);
+  const replyWin = await open_compose_with_reply(msgc);
 
   // Ctrl+S saves as draft.
   await save_compose_message(replyWin);
@@ -57,7 +57,7 @@ add_task(async function test_reply_to_eml_save_as_draft() {
 
   // Drafts folder should exist now.
   await be_in_folder(gDrafts);
-  let draftMsg = await select_click_row(0);
+  const draftMsg = await select_click_row(0);
   if (!draftMsg) {
     throw new Error("No draft saved!");
   }
@@ -72,10 +72,10 @@ add_task(async function test_reply_to_eml_save_as_draft() {
  */
 add_task(async function test_forward_eml_save_as_draft() {
   // Open an .eml file.
-  let file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
+  const msgc = await open_message_from_file(file);
 
-  let replyWin = await open_compose_with_forward(msgc);
+  const replyWin = await open_compose_with_forward(msgc);
 
   await save_compose_message(replyWin);
   await close_compose_window(replyWin);
@@ -87,7 +87,7 @@ add_task(async function test_forward_eml_save_as_draft() {
 
   // Drafts folder should exist now.
   await be_in_folder(gDrafts);
-  let draftMsg = await select_click_row(0);
+  const draftMsg = await select_click_row(0);
   if (!draftMsg) {
     throw new Error("No draft saved!");
   }
@@ -101,12 +101,12 @@ add_task(async function test_forward_eml_save_as_draft() {
  */
 add_task(async function test_reply_eml_subject() {
   // Open an .eml file whose subject is encoded.
-  let file = new FileUtils.File(
+  const file = new FileUtils.File(
     getTestFilePath("data/mime-encoded-subject.eml")
   );
-  let msgc = await open_message_from_file(file);
+  const msgc = await open_message_from_file(file);
 
-  let replyWin = await open_compose_with_reply(msgc);
+  const replyWin = await open_compose_with_reply(msgc);
 
   Assert.equal(
     replyWin.document.getElementById("msgSubject").value,
@@ -121,10 +121,12 @@ add_task(async function test_reply_eml_subject() {
  */
 add_task(async function test_reply_to_base64_eml() {
   // Open an .eml file.
-  let file = new FileUtils.File(getTestFilePath("data/base64-encoded-msg.eml"));
-  let msgc = await open_message_from_file(file);
-  let compWin = await open_compose_with_reply(msgc);
-  let bodyText = get_compose_body(compWin).textContent;
+  const file = new FileUtils.File(
+    getTestFilePath("data/base64-encoded-msg.eml")
+  );
+  const msgc = await open_message_from_file(file);
+  const compWin = await open_compose_with_reply(msgc);
+  const bodyText = get_compose_body(compWin).textContent;
   const TXT = "You have decoded this text from base64.";
   Assert.ok(bodyText.includes(TXT), "body should contain the decoded text");
   await close_compose_window(compWin);
@@ -136,10 +138,12 @@ add_task(async function test_reply_to_base64_eml() {
  */
 add_task(async function test_forward_base64_eml() {
   // Open an .eml file.
-  let file = new FileUtils.File(getTestFilePath("data/base64-encoded-msg.eml"));
-  let msgc = await open_message_from_file(file);
-  let compWin = await open_compose_with_forward(msgc);
-  let bodyText = get_compose_body(compWin).textContent;
+  const file = new FileUtils.File(
+    getTestFilePath("data/base64-encoded-msg.eml")
+  );
+  const msgc = await open_message_from_file(file);
+  const compWin = await open_compose_with_forward(msgc);
+  const bodyText = get_compose_body(compWin).textContent;
   const TXT = "You have decoded this text from base64.";
   Assert.ok(bodyText.includes(TXT), "body should contain the decoded text");
   await close_compose_window(compWin);
@@ -151,18 +155,18 @@ add_task(async function test_forward_base64_eml() {
  */
 add_task(async function test_reply_fwd_to_evil_meta() {
   // Open an .eml file.
-  let file = new FileUtils.File(getTestFilePath("data/evil-meta-msg.eml"));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath("data/evil-meta-msg.eml"));
+  const msgc = await open_message_from_file(file);
 
   const TXT = "KABOOM!";
 
-  let reWin = await open_compose_with_reply(msgc);
-  let reText = get_compose_body(reWin).textContent;
+  const reWin = await open_compose_with_reply(msgc);
+  const reText = get_compose_body(reWin).textContent;
   Assert.ok(reText.includes(TXT), "re body should contain the text");
   await close_compose_window(reWin);
 
-  let fwdWin = await open_compose_with_forward(msgc);
-  let fwdText = get_compose_body(fwdWin).textContent;
+  const fwdWin = await open_compose_with_forward(msgc);
+  const fwdText = get_compose_body(fwdWin).textContent;
   Assert.ok(fwdText.includes(TXT), "fwd body should contain the text");
   await close_compose_window(fwdWin);
 
@@ -174,13 +178,13 @@ add_task(async function test_reply_fwd_to_evil_meta() {
  */
 add_task(async function test_forward_eml_catchall() {
   // Open an .eml file.
-  let file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
+  const msgc = await open_message_from_file(file);
 
   MailServices.accounts.defaultAccount.defaultIdentity.catchAll = true;
 
-  let replyWin = await open_compose_with_forward(msgc);
-  let bodyText = get_compose_body(replyWin).textContent;
+  const replyWin = await open_compose_with_forward(msgc);
+  const bodyText = get_compose_body(replyWin).textContent;
   const message = "Because they're stupid, that's why";
   Assert.ok(bodyText.includes(message), "Correct message body");
 

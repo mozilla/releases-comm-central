@@ -56,7 +56,7 @@ function test_expected_included(actual, expected, description) {
     `${description}: correct length`
   );
   for (let i = 0; i < expected.length; i++) {
-    for (let item of Object.keys(expected[i])) {
+    for (const item of Object.keys(expected[i])) {
       Assert.equal(
         actual[i][item],
         expected[i][item],
@@ -81,7 +81,7 @@ add_setup(async function () {
 
   // For replies and forwards, we'll work off a message in the Inbox folder
   // of the fake "tinderbox" account.
-  let server = MailServices.accounts.findServer(
+  const server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
@@ -230,8 +230,8 @@ add_task(async function test_offline_error_during_upload() {
  */
 async function subtest_errors_during_upload(error) {
   MockFilePicker.setFiles(collectFiles(kFiles));
-  let provider = new MockCloudfileAccount();
-  let config = {
+  const provider = new MockCloudfileAccount();
+  const config = {
     serviceName: "MochiTest A",
     serviceUrl: "https://www.provider-A.org",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -241,12 +241,12 @@ async function subtest_errors_during_upload(error) {
   }
   provider.init("providerA", config);
 
-  let cw = await open_compose_new_mail();
+  const cw = await open_compose_new_mail();
 
   if (error.toggleOffline) {
     Services.io.offline = true;
   }
-  let seenAlerts = await add_cloud_attachments(
+  const seenAlerts = await add_cloud_attachments(
     cw,
     provider,
     false,
@@ -373,8 +373,8 @@ add_task(async function test_offline_error_during_rename() {
  */
 async function subtest_errors_during_rename(error) {
   MockFilePicker.setFiles(collectFiles(kFiles));
-  let provider = new MockCloudfileAccount();
-  let config = {
+  const provider = new MockCloudfileAccount();
+  const config = {
     serviceName: "MochiTest A",
     serviceUrl: "https://www.provider-A.org",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -384,8 +384,8 @@ async function subtest_errors_during_rename(error) {
   }
   provider.init("providerA", config);
 
-  let cw = await open_compose_new_mail();
-  let uploads = await add_cloud_attachments(cw, provider);
+  const cw = await open_compose_new_mail();
+  const uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -411,7 +411,7 @@ async function subtest_errors_during_rename(error) {
   if (error.toggleOffline) {
     Services.io.offline = true;
   }
-  let seenAlerts = [];
+  const seenAlerts = [];
   for (let i = 0; i < kFiles.length; ++i) {
     select_attachments(cw, i);
     seenAlerts.push(

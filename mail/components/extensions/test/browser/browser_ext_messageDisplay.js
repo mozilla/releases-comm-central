@@ -11,13 +11,13 @@ add_setup(() => {
   Services.prefs.setIntPref("mailnews.default_sort_order", 1);
 
   gAccount = createAccount();
-  let rootFolder = gAccount.incomingServer.rootFolder;
+  const rootFolder = gAccount.incomingServer.rootFolder;
   rootFolder.createSubfolder("test0", null);
   rootFolder.createSubfolder("test1", null);
   rootFolder.createSubfolder("test2", null);
 
-  let subFolders = {};
-  for (let folder of rootFolder.subFolders) {
+  const subFolders = {};
+  for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
   createMessages(subFolders.test0, 5);
@@ -33,20 +33,21 @@ add_setup(() => {
 });
 
 add_task(async function testGetDisplayedMessage() {
-  let files = {
+  const files = {
     "background.js": async () => {
-      let [{ id: firstTabId, displayedFolder }] = await browser.mailTabs.query({
-        active: true,
-        currentWindow: true,
-      });
+      const [{ id: firstTabId, displayedFolder }] =
+        await browser.mailTabs.query({
+          active: true,
+          currentWindow: true,
+        });
 
-      let { messages } = await browser.messages.list(displayedFolder);
+      const { messages } = await browser.messages.list(displayedFolder);
 
       async function checkResults(action, expectedMessages, sameTab) {
-        let msgListener = window.waitForEvent(
+        const msgListener = window.waitForEvent(
           "messageDisplay.onMessageDisplayed"
         );
-        let msgsListener = window.waitForEvent(
+        const msgsListener = window.waitForEvent(
           "messageDisplay.onMessagesDisplayed"
         );
 
@@ -60,7 +61,7 @@ add_task(async function testGetDisplayedMessage() {
         let message;
         if (expectedMessages.length == 1) {
           [tab, message] = await msgListener;
-          let [msgsTab, msgs] = await msgsListener;
+          const [msgsTab, msgs] = await msgsListener;
           // Check listener results.
           if (sameTab) {
             browser.test.assertEq(firstTabId, tab.id);
@@ -89,7 +90,7 @@ add_task(async function testGetDisplayedMessage() {
           let msgs;
           [tab, msgs] = await msgsListener;
 
-          for (let [i, expected] of expectedMessages.entries()) {
+          for (const [i, expected] of expectedMessages.entries()) {
             browser.test.assertEq(messages[expected].subject, msgs[i].subject);
           }
 
@@ -98,11 +99,11 @@ add_task(async function testGetDisplayedMessage() {
           browser.test.assertEq(null, message);
         }
 
-        let displayMsgs = await browser.messageDisplay.getDisplayedMessages(
+        const displayMsgs = await browser.messageDisplay.getDisplayedMessages(
           tab.id
         );
         browser.test.assertEq(expectedMessages.length, displayMsgs.length);
-        for (let [i, expected] of expectedMessages.entries()) {
+        for (const [i, expected] of expectedMessages.entries()) {
           browser.test.assertEq(
             messages[expected].subject,
             displayMsgs[i].subject
@@ -112,7 +113,9 @@ add_task(async function testGetDisplayedMessage() {
       }
 
       async function testGetDisplayedMessageFunctions(tabId, expected) {
-        let messages = await browser.messageDisplay.getDisplayedMessages(tabId);
+        const messages = await browser.messageDisplay.getDisplayedMessages(
+          tabId
+        );
         if (expected) {
           browser.test.assertEq(1, messages.length);
           browser.test.assertEq(expected.subject, messages[0].subject);
@@ -120,7 +123,7 @@ add_task(async function testGetDisplayedMessage() {
           browser.test.assertEq(0, messages.length);
         }
 
-        let message = await browser.messageDisplay.getDisplayedMessage(tabId);
+        const message = await browser.messageDisplay.getDisplayedMessage(tabId);
         if (expected) {
           browser.test.assertEq(expected.subject, message.subject);
         } else {
@@ -151,12 +154,12 @@ add_task(async function testGetDisplayedMessage() {
 
       // Test the windows API being able to return the messageDisplay window as
       // the current one.
-      let msgWindow = await browser.windows.get(tab.windowId);
+      const msgWindow = await browser.windows.get(tab.windowId);
       browser.test.assertEq(msgWindow.type, "messageDisplay");
-      let curWindow = await browser.windows.getCurrent();
+      const curWindow = await browser.windows.getCurrent();
       browser.test.assertEq(tab.windowId, curWindow.id);
       // Test the tabs API being able to return the correct current tab.
-      let [currentTab] = await browser.tabs.query({
+      const [currentTab] = await browser.tabs.query({
         currentWindow: true,
         active: true,
       });
@@ -172,7 +175,7 @@ add_task(async function testGetDisplayedMessage() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -180,7 +183,7 @@ add_task(async function testGetDisplayedMessage() {
     },
   });
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(gFolder);
   about3Pane.threadTree.selectedIndex = 0;
 
@@ -211,7 +214,7 @@ add_task(async function testGetDisplayedMessage() {
 });
 
 add_task(async function testOpenMessagesInTabs() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
         // Helper class to keep track of expected tab states and cycle though all
@@ -243,8 +246,8 @@ add_task(async function testOpenMessagesInTabs() {
             // since running this test with --verify causes multiple accounts to
             // be created, changing the expected first part of message urls.
             await window.waitForCondition(async () => {
-              let tab = await browser.tabs.get(tabId);
-              let expected = this.expectedTabs.get(tabId);
+              const tab = await browser.tabs.get(tabId);
+              const expected = this.expectedTabs.get(tabId);
               return tab.status == "complete" && tab.url.endsWith(expected.url);
             }, `Should have loaded the correct URL in tab ${tabId}`);
 
@@ -256,11 +259,11 @@ add_task(async function testOpenMessagesInTabs() {
             if (!expected.skip && this.expectedTabs.size > 1) {
               // Loop over all tabs, activate each and verify all of them. Test the currently active
               // tab last, so we end up with the original condition.
-              let currentActiveTab = this._toArray().find(tab => tab.active);
-              let tabsToVerify = this._toArray()
+              const currentActiveTab = this._toArray().find(tab => tab.active);
+              const tabsToVerify = this._toArray()
                 .filter(tab => tab.id != currentActiveTab.id)
                 .concat(currentActiveTab);
-              for (let tab of tabsToVerify) {
+              for (const tab of tabsToVerify) {
                 await browser.tabs.update(tab.id, { active: true });
                 await this.check("Activating tab " + tab.id, tab.id, {
                   active: true,
@@ -279,15 +282,15 @@ add_task(async function testOpenMessagesInTabs() {
 
           // Verify that all tabs match their currently expected values.
           async _verify() {
-            let tabs = await browser.tabs.query({});
+            const tabs = await browser.tabs.query({});
             browser.test.assertEq(
               this.expectedTabs.size,
               tabs.length,
               `number of tabs should be correct`
             );
 
-            for (let [tabId, expectedTab] of this.expectedTabs) {
-              let tab = await browser.tabs.get(tabId);
+            for (const [tabId, expectedTab] of this.expectedTabs) {
+              const tab = await browser.tabs.get(tabId);
               browser.test.assertEq(
                 expectedTab.active,
                 tab.active,
@@ -296,9 +299,8 @@ add_task(async function testOpenMessagesInTabs() {
 
               if (expectedTab.hasOwnProperty("message")) {
                 // Getthe currently displayed message.
-                let message = await browser.messageDisplay.getDisplayedMessage(
-                  tabId
-                );
+                const message =
+                  await browser.messageDisplay.getDisplayedMessage(tabId);
 
                 // Test message either being correct or not displayed if not
                 // expected.
@@ -335,25 +337,25 @@ add_task(async function testOpenMessagesInTabs() {
         }
 
         // Verify startup conditions.
-        let accounts = await browser.accounts.list();
+        const accounts = await browser.accounts.list();
         browser.test.assertEq(
           1,
           accounts.length,
           `number of accounts should be correct`
         );
 
-        let folder1 = accounts[0].folders.find(f => f.name == "test1");
+        const folder1 = accounts[0].folders.find(f => f.name == "test1");
         browser.test.assertTrue(!!folder1, "folder should exist");
-        let { messages: messages1 } = await browser.messages.list(folder1);
+        const { messages: messages1 } = await browser.messages.list(folder1);
         browser.test.assertEq(
           5,
           messages1.length,
           `number of messages should be correct`
         );
 
-        let folder2 = accounts[0].folders.find(f => f.name == "test2");
+        const folder2 = accounts[0].folders.find(f => f.name == "test2");
         browser.test.assertTrue(!!folder2, "folder should exist");
-        let { messages: messages2 } = await browser.messages.list(folder2);
+        const { messages: messages2 } = await browser.messages.list(folder2);
         browser.test.assertEq(
           6,
           messages2.length,
@@ -387,13 +389,13 @@ add_task(async function testOpenMessagesInTabs() {
 
         // Create a TabTest to cycle through all existing tabs after each test to
         // verify returned values under different active/inactive scenarios.
-        let tabTest = new TabTest();
+        const tabTest = new TabTest();
 
         // Load a content tab into the primary mail tab, to have a known startup
         // condition.
-        let tabs = await browser.tabs.query({});
+        const tabs = await browser.tabs.query({});
         browser.test.assertEq(1, tabs.length);
-        let mailTab = tabs[0];
+        const mailTab = tabs[0];
         await browser.tabs.update(mailTab.id, {
           url: "https://www.example.com/mailTab/1",
         });
@@ -407,7 +409,7 @@ add_task(async function testOpenMessagesInTabs() {
         );
 
         // Create an active content tab.
-        let tab1 = await browser.tabs.create({
+        const tab1 = await browser.tabs.create({
           url: "https://www.example.com/contentTab1/1",
         });
         await tabTest.check("Create a content tab #1.", tab1.id, {
@@ -416,7 +418,7 @@ add_task(async function testOpenMessagesInTabs() {
         });
 
         // Open an inactive message tab.
-        let tab2 = await browser.messageDisplay.open({
+        const tab2 = await browser.messageDisplay.open({
           messageId: messages1[0].id,
           location: "tab",
           active: false,
@@ -431,7 +433,7 @@ add_task(async function testOpenMessagesInTabs() {
         });
 
         // Open an active message tab.
-        let tab3 = await browser.messageDisplay.open({
+        const tab3 = await browser.messageDisplay.open({
           messageId: messages1[0].id,
           location: "tab",
           active: true,
@@ -447,7 +449,7 @@ add_task(async function testOpenMessagesInTabs() {
         );
 
         // Open another content tab.
-        let tab4 = await browser.tabs.create({
+        const tab4 = await browser.tabs.create({
           url: "https://www.example.com/contentTab1/2",
         });
         await tabTest.check("Create a content tab #2.", tab4.id, {
@@ -461,7 +463,7 @@ add_task(async function testOpenMessagesInTabs() {
         await browser.tabs.remove(tab4.id);
 
         // Test opening multiple tabs.
-        let promisedTabs = [];
+        const promisedTabs = [];
         promisedTabs.push(
           browser.messageDisplay.open({
             messageId: messages1[0].id,
@@ -492,14 +494,14 @@ add_task(async function testOpenMessagesInTabs() {
             location: "tab",
           })
         );
-        let openedTabs = await Promise.allSettled(promisedTabs);
+        const openedTabs = await Promise.allSettled(promisedTabs);
         for (let i = 0; i < 5; i++) {
           browser.test.assertEq(
             "fulfilled",
             openedTabs[i].status,
             `Promise for the opened message should have been fulfilled for tab ${i}`
           );
-          let msg = await browser.messageDisplay.getDisplayedMessage(
+          const msg = await browser.messageDisplay.getDisplayedMessage(
             openedTabs[i].value.id
           );
           browser.test.assertEq(
@@ -526,20 +528,20 @@ add_task(async function testOpenMessagesInTabs() {
 });
 
 add_task(async function testOpenMessagesInWindows() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
         // Verify startup conditions.
-        let accounts = await browser.accounts.list();
+        const accounts = await browser.accounts.list();
         browser.test.assertEq(
           1,
           accounts.length,
           `number of accounts should be correct`
         );
 
-        let folder1 = accounts[0].folders.find(f => f.name == "test1");
+        const folder1 = accounts[0].folders.find(f => f.name == "test1");
         browser.test.assertTrue(!!folder1, "folder should exist");
-        let { messages: messages1 } = await browser.messages.list(folder1);
+        const { messages: messages1 } = await browser.messages.list(folder1);
         browser.test.assertEq(
           5,
           messages1.length,
@@ -548,7 +550,7 @@ add_task(async function testOpenMessagesInWindows() {
 
         // Open multiple different windows.
         {
-          let promisedTabs = [];
+          const promisedTabs = [];
           promisedTabs.push(
             browser.messageDisplay.open({
               messageId: messages1[0].id,
@@ -579,8 +581,8 @@ add_task(async function testOpenMessagesInWindows() {
               location: "window",
             })
           );
-          let openedTabs = await Promise.allSettled(promisedTabs);
-          let foundIds = new Set();
+          const openedTabs = await Promise.allSettled(promisedTabs);
+          const foundIds = new Set();
           for (let i = 0; i < 5; i++) {
             browser.test.assertEq(
               "fulfilled",
@@ -594,7 +596,7 @@ add_task(async function testOpenMessagesInWindows() {
             );
             foundIds.add(openedTabs[i].value.id);
 
-            let msg = await browser.messageDisplay.getDisplayedMessage(
+            const msg = await browser.messageDisplay.getDisplayedMessage(
               openedTabs[i].value.id
             );
             browser.test.assertEq(
@@ -608,7 +610,7 @@ add_task(async function testOpenMessagesInWindows() {
 
         // Open multiple identical windows.
         {
-          let promisedTabs = [];
+          const promisedTabs = [];
           promisedTabs.push(
             browser.messageDisplay.open({
               messageId: messages1[0].id,
@@ -639,8 +641,8 @@ add_task(async function testOpenMessagesInWindows() {
               location: "window",
             })
           );
-          let openedTabs = await Promise.allSettled(promisedTabs);
-          let foundIds = new Set();
+          const openedTabs = await Promise.allSettled(promisedTabs);
+          const foundIds = new Set();
           for (let i = 0; i < 5; i++) {
             browser.test.assertEq(
               "fulfilled",
@@ -654,7 +656,7 @@ add_task(async function testOpenMessagesInWindows() {
             );
             foundIds.add(openedTabs[i].value.id);
 
-            let msg = await browser.messageDisplay.getDisplayedMessage(
+            const msg = await browser.messageDisplay.getDisplayedMessage(
               openedTabs[i].value.id
             );
             browser.test.assertEq(
@@ -682,7 +684,7 @@ add_task(async function testOpenMessagesInWindows() {
 });
 
 add_task(async function test_MV3_event_pages_onMessageDisplayed() {
-  let files = {
+  const files = {
     "background.js": async () => {
       // Whenever the extension starts or wakes up, hasFired is set to false. In
       // case of a wake-up, the first fired event is the one that woke up the background.
@@ -704,7 +706,7 @@ add_task(async function test_MV3_event_pages_onMessageDisplayed() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       manifest_version: 3,
@@ -721,8 +723,8 @@ add_task(async function test_MV3_event_pages_onMessageDisplayed() {
     // ext-mails.json, not by its actual namespace.
     const persistent_events = ["messageDisplay.onMessageDisplayed"];
 
-    for (let event of persistent_events) {
-      let [moduleName, eventName] = event.split(".");
+    for (const event of persistent_events) {
+      const [moduleName, eventName] = event.split(".");
       assertPersistentListeners(extension, moduleName, eventName, {
         primed,
       });
@@ -740,11 +742,11 @@ add_task(async function test_MV3_event_pages_onMessageDisplayed() {
   // Select a message.
 
   {
-    let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+    const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
     about3Pane.displayFolder(gFolder);
     about3Pane.threadTree.selectedIndex = 2;
 
-    let displayInfo = await extension.awaitMessage(
+    const displayInfo = await extension.awaitMessage(
       "onMessageDisplayed received"
     );
     Assert.equal(
@@ -776,8 +778,8 @@ add_task(async function test_MV3_event_pages_onMessageDisplayed() {
   // Open a message in a window.
 
   {
-    let messageWindow = await openMessageInWindow(gMessages[0]);
-    let displayInfo = await extension.awaitMessage(
+    const messageWindow = await openMessageInWindow(gMessages[0]);
+    const displayInfo = await extension.awaitMessage(
       "onMessageDisplayed received"
     );
     Assert.equal(
@@ -811,7 +813,7 @@ add_task(async function test_MV3_event_pages_onMessageDisplayed() {
 
   {
     await openMessageInTab(gMessages[1]);
-    let displayInfo = await extension.awaitMessage(
+    const displayInfo = await extension.awaitMessage(
       "onMessageDisplayed received"
     );
     Assert.equal(
@@ -841,7 +843,7 @@ add_task(async function test_MV3_event_pages_onMessageDisplayed() {
 });
 
 add_task(async function test_MV3_event_pages_onMessagesDisplayed() {
-  let files = {
+  const files = {
     "background.js": async () => {
       // Whenever the extension starts or wakes up, hasFired is set to false. In
       // case of a wake-up, the first fired event is the one that woke up the background.
@@ -865,7 +867,7 @@ add_task(async function test_MV3_event_pages_onMessagesDisplayed() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       manifest_version: 3,
@@ -882,8 +884,8 @@ add_task(async function test_MV3_event_pages_onMessagesDisplayed() {
     // ext-mails.json, not by its actual namespace.
     const persistent_events = ["messageDisplay.onMessagesDisplayed"];
 
-    for (let event of persistent_events) {
-      let [moduleName, eventName] = event.split(".");
+    for (const event of persistent_events) {
+      const [moduleName, eventName] = event.split(".");
       assertPersistentListeners(extension, moduleName, eventName, {
         primed,
       });
@@ -901,11 +903,11 @@ add_task(async function test_MV3_event_pages_onMessagesDisplayed() {
   // Select multiple messages.
 
   {
-    let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+    const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
     about3Pane.displayFolder(gFolder);
     about3Pane.threadTree.selectedIndices = [0, 1, 2, 3, 4];
 
-    let displayInfo = await extension.awaitMessage(
+    const displayInfo = await extension.awaitMessage(
       "onMessagesDisplayed received"
     );
     Assert.equal(
@@ -948,8 +950,8 @@ add_task(async function test_MV3_event_pages_onMessagesDisplayed() {
   // Open a message in a window.
 
   {
-    let messageWindow = await openMessageInWindow(gMessages[0]);
-    let displayInfo = await extension.awaitMessage(
+    const messageWindow = await openMessageInWindow(gMessages[0]);
+    const displayInfo = await extension.awaitMessage(
       "onMessagesDisplayed received"
     );
     Assert.equal(
@@ -988,7 +990,7 @@ add_task(async function test_MV3_event_pages_onMessagesDisplayed() {
 
   {
     await openMessageInTab(gMessages[1]);
-    let displayInfo = await extension.awaitMessage(
+    const displayInfo = await extension.awaitMessage(
       "onMessagesDisplayed received"
     );
     Assert.equal(

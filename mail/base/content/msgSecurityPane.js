@@ -84,9 +84,9 @@ function onMessageSecurityPopupHidden() {
   document.getElementById("viewEncryptionKey").collapsed = true;
   document.getElementById("otherEncryptionKeys").collapsed = true;
 
-  let keyList = document.getElementById("otherEncryptionKeysList");
+  const keyList = document.getElementById("otherEncryptionKeysList");
   // Clear any possible existing key previously appended to the DOM.
-  for (let node of keyList.children) {
+  for (const node of keyList.children) {
     keyList.removeChild(node);
   }
 }

@@ -4,16 +4,16 @@
 
 let account;
 let messages;
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 
 add_setup(async () => {
   account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
-  let subFolders = rootFolder.subFolders;
+  const rootFolder = account.incomingServer.rootFolder;
+  const subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
   messages = subFolders[0].messages;
 
-  let about3Pane = tabmail.currentAbout3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({
     folderPaneVisible: true,
     folderURI: subFolders[0],
@@ -29,7 +29,7 @@ add_setup(async () => {
 add_task(async function test_popup_open_with_click() {
   info("3-pane tab");
   {
-    let testConfig = {
+    const testConfig = {
       actionType: "message_display_action",
       testType: "open-with-mouse-click",
       window: tabmail.currentAboutMessage,
@@ -51,7 +51,7 @@ add_task(async function test_popup_open_with_click() {
   info("Message tab");
   {
     await openMessageInTab(messages.getNext());
-    let testConfig = {
+    const testConfig = {
       actionType: "message_display_action",
       testType: "open-with-mouse-click",
       window: tabmail.currentAboutMessage,
@@ -74,8 +74,8 @@ add_task(async function test_popup_open_with_click() {
 
   info("Message window");
   {
-    let messageWindow = await openMessageInWindow(messages.getNext());
-    let testConfig = {
+    const messageWindow = await openMessageInWindow(messages.getNext());
+    const testConfig = {
       actionType: "message_display_action",
       testType: "open-with-mouse-click",
       window: messageWindow.messageBrowser.contentWindow,
@@ -99,11 +99,11 @@ add_task(async function test_popup_open_with_click() {
 
 // This test uses openPopup() to open the popup in a message window.
 add_task(async function test_popup_open_with_openPopup_in_message_window() {
-  let files = {
+  const files = {
     "background.js": async () => {
-      let windows = await browser.windows.getAll();
-      let mailWindow = windows.find(window => window.type == "normal");
-      let messageWindow = windows.find(
+      const windows = await browser.windows.getAll();
+      const mailWindow = windows.find(window => window.type == "normal");
+      const messageWindow = windows.find(
         window => window.type == "messageDisplay"
       );
       browser.test.assertTrue(!!mailWindow, "should have found a mailWindow");
@@ -112,11 +112,11 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
         "should have found a messageWindow"
       );
 
-      let tabs = await browser.tabs.query({});
-      let mailTab = tabs.find(tab => tab.type == "mail");
+      const tabs = await browser.tabs.query({});
+      const mailTab = tabs.find(tab => tab.type == "mail");
       browser.test.assertTrue(!!mailTab, "should have found a mailTab");
 
-      let msg = await browser.messageDisplay.getDisplayedMessage(mailTab.id);
+      const msg = await browser.messageDisplay.getDisplayedMessage(mailTab.id);
       browser.test.assertTrue(!!msg, "should display a message");
 
       // The test starts with an opened messageWindow, the message_display_action
@@ -163,7 +163,7 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
 
       // Create content tab, the message_display_action is not allowed there and
       // should not be visible, openPopup() should fail.
-      let contentTab = await browser.tabs.create({
+      const contentTab = await browser.tabs.create({
         url: "https://www.example.com",
       });
       browser.test.assertFalse(
@@ -190,7 +190,7 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
 
       // Open a message in a tab, the message_display_action should be shown and
       // openPopup() should succeed.
-      let messageTab = await browser.messageDisplay.open({
+      const messageTab = await browser.messageDisplay.open({
         active: true,
         location: "tab",
         messageId: msg.id,
@@ -204,7 +204,7 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
 
       // Create a popup window, which does not have a message_display_action, openPopup()
       // should fail.
-      let popupWindow = await browser.windows.create({
+      const popupWindow = await browser.windows.create({
         type: "popup",
         url: "https://www.example.com",
       });
@@ -259,7 +259,7 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
       window.close();
     },
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     useAddonManager: "temporary",
     manifest: {
@@ -284,7 +284,7 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
     extension.sendMessage();
   });
 
-  let messageWindow = await openMessageInWindow(messages.getNext());
+  const messageWindow = await openMessageInWindow(messages.getNext());
 
   await extension.startup();
   await extension.awaitFinish("finished");

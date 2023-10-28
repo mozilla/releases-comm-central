@@ -69,19 +69,19 @@ function getPasswordStrength(password) {
     lengthStrength = 5;
   }
 
-  let nonNumericChars = password.replace(/[0-9]/g, "");
+  const nonNumericChars = password.replace(/[0-9]/g, "");
   let numericStrength = password.length - nonNumericChars.length;
   if (numericStrength > 3) {
     numericStrength = 3;
   }
 
-  let nonSymbolChars = password.replace(/\W/g, "");
+  const nonSymbolChars = password.replace(/\W/g, "");
   let symbolStrength = password.length - nonSymbolChars.length;
   if (symbolStrength > 3) {
     symbolStrength = 3;
   }
 
-  let nonUpperAlphaChars = password.replace(/[A-Z]/g, "");
+  const nonUpperAlphaChars = password.replace(/[A-Z]/g, "");
   let upperAlphaStrength = password.length - nonUpperAlphaChars.length;
   if (upperAlphaStrength > 3) {
     upperAlphaStrength = 3;
@@ -110,7 +110,7 @@ function getPasswordStrength(password) {
  *                  Whether to recalculate the strength of the first password.
  */
 function onPasswordInput(recalculatePasswordStrength) {
-  let pw1 = document.getElementById("pw1").value;
+  const pw1 = document.getElementById("pw1").value;
 
   if (recalculatePasswordStrength) {
     document.getElementById("pwmeter").value = getPasswordStrength(pw1);
@@ -118,6 +118,6 @@ function onPasswordInput(recalculatePasswordStrength) {
 
   // Disable the accept button if the two passwords don't match, and enable it
   // if the passwords do match.
-  let pw2 = document.getElementById("pw2").value;
+  const pw2 = document.getElementById("pw2").value;
   gAcceptButton.disabled = pw1 != pw2 || !pw1.length;
 }

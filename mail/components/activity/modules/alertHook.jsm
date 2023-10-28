@@ -42,7 +42,7 @@ var alertHook = {
 
   onAlert(aMessage, aUrl) {
     // Create a new warning.
-    let warning = new nsActWarning(aMessage, this.activityMgr, "");
+    const warning = new nsActWarning(aMessage, this.activityMgr, "");
 
     if (aUrl && aUrl.server && aUrl.server.prettyName) {
       warning.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
@@ -74,7 +74,7 @@ var alertHook = {
     }
 
     try {
-      let alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
+      const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
         Ci.nsIAlertNotification
       );
       alert.init(

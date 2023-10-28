@@ -15,10 +15,10 @@ ChromeUtils.defineModuleGetter(
 );
 
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-let { MsgUtils } = ChromeUtils.import(
+const { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
-let parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
+const parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
   Ci.nsIParserUtils
 );
 
@@ -54,13 +54,13 @@ async function parseComposeRecipientList(
     list = [list];
   }
 
-  let recipients = [];
-  for (let recipient of list) {
+  const recipients = [];
+  for (const recipient of list) {
     if (typeof recipient == "string") {
-      let addressObjects =
+      const addressObjects =
         MailServices.headerParser.makeFromDisplayAddress(recipient);
 
-      for (let ao of addressObjects) {
+      for (const ao of addressObjects) {
         if (requireSingleValidEmail && !isValidAddress(ao.email)) {
           throw new ExtensionError(`Invalid address: ${ao.email}`);
         }
@@ -74,7 +74,7 @@ async function parseComposeRecipientList(
       await extensions.asyncLoadModule("addressBook");
     }
     if (recipient.type == "contact") {
-      let contactNode = this.addressBookCache.findContactById(recipient.id);
+      const contactNode = this.addressBookCache.findContactById(recipient.id);
 
       if (
         requireSingleValidEmail &&
@@ -95,7 +95,7 @@ async function parseComposeRecipientList(
         throw new ExtensionError("Mailing list not allowed.");
       }
 
-      let mailingListNode = this.addressBookCache.findMailingListById(
+      const mailingListNode = this.addressBookCache.findMailingListById(
         recipient.id
       );
       recipients.push(
@@ -185,9 +185,9 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       // The mimeConverter used in this code path is not setting any format but
       // defaults to plaintext if no identity and also no default account is set.
       // The "mail.identity.default.compose_html" preference is NOT used.
-      let usedIdentity =
+      const usedIdentity =
         identity || MailServices.accounts.defaultAccount?.defaultIdentity;
-      let defaultFormat = usedIdentity?.composeHtml
+      const defaultFormat = usedIdentity?.composeHtml
         ? Ci.nsIMsgCompFormat.HTML
         : Ci.nsIMsgCompFormat.PlainText;
       format =
@@ -196,9 +196,9 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
           : Ci.nsIMsgCompFormat.OppositeOfDefault;
     }
 
-    let composeWindowPromise = new Promise(resolve => {
+    const composeWindowPromise = new Promise(resolve => {
       function listener(event) {
-        let composeWindow = event.target.ownerGlobal;
+        const composeWindow = event.target.ownerGlobal;
         // Skip if this window has been processed already. This already helps
         // a lot to assign the opened windows in the correct order to the
         // OpenCompomposeWindow calls.
@@ -208,8 +208,8 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
         // Do a few more checks to make sure we are looking at the expected
         // window. This is still a hack. We need to make OpenCompomposeWindow
         // actually return the opened window.
-        let _msgURI = composeWindow.gMsgCompose.originalMsgURI;
-        let _type = composeWindow.gComposeType;
+        const _msgURI = composeWindow.gMsgCompose.originalMsgURI;
+        const _type = composeWindow.gComposeType;
         if (_msgURI == msgURI && _type == type) {
           composeWindowTracker.add(composeWindow);
           windowTracker.removeListener("compose-editor-ready", listener);
@@ -228,13 +228,13 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       null,
       null
     );
-    let composeWindow = await composeWindowPromise;
+    const composeWindow = await composeWindowPromise;
 
     if (details) {
       await setComposeDetails(composeWindow, details, extension);
       if (details.attachments != null) {
-        let attachmentData = [];
-        for (let data of details.attachments) {
+        const attachmentData = [];
+        for (const data of details.attachments) {
           attachmentData.push(await createAttachment(data));
         }
         await AddAttachmentsToWindow(composeWindow, attachmentData);
@@ -244,15 +244,15 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
     return composeWindow;
   }
 
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
-  let composeFields = Cc[
+  const composeFields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
   if (relatedMessageId && extension.messageManager) {
-    let msgHdr = extension.messageManager.get(relatedMessageId);
+    const msgHdr = extension.messageManager.get(relatedMessageId);
     params.originalMsgURI = msgHdr.folder.getUriForMsg(msgHdr);
   }
 
@@ -263,7 +263,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   }
 
   params.composeFields = composeFields;
-  let composeWindow = Services.ww.openWindow(
+  const composeWindow = Services.ww.openWindow(
     null,
     "chrome://messenger/content/messengercompose/messengercompose.xhtml",
     "_blank",
@@ -278,8 +278,8 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   if (details) {
     await setComposeDetails(composeWindow, details, extension);
     if (details.attachments != null) {
-      let attachmentData = [];
-      for (let data of details.attachments) {
+      const attachmentData = [];
+      for (const data of details.attachments) {
         attachmentData.push(await createAttachment(data));
       }
       await AddAttachmentsToWindow(composeWindow, attachmentData);
@@ -296,7 +296,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
  * @returns {string} - trimmed content
  */
 function trimContent(content) {
-  let data = content.replaceAll("\r\n", "\n").split("\n");
+  const data = content.replaceAll("\r\n", "\n").split("\n");
   while (data[data.length - 1] == "") {
     data.pop();
   }
@@ -313,8 +313,8 @@ function trimContent(content) {
  * @see mail/components/extensions/schemas/compose.json
  */
 async function getComposeDetails(composeWindow, extension) {
-  let composeFields = composeWindow.GetComposeDetails();
-  let editor = composeWindow.GetCurrentEditor();
+  const composeFields = composeWindow.GetComposeDetails();
+  const editor = composeWindow.GetCurrentEditor();
 
   let type;
   // check all known nsIMsgComposeParams
@@ -352,10 +352,10 @@ async function getComposeDetails(composeWindow, extension) {
   if (composeWindow.gMsgCompose.originalMsgURI && extension.messageManager) {
     try {
       // This throws for messages opened from file and then being replied to.
-      let relatedMsgHdr = composeWindow.gMessenger.msgHdrFromURI(
+      const relatedMsgHdr = composeWindow.gMessenger.msgHdrFromURI(
         composeWindow.gMsgCompose.originalMsgURI
       );
-      let relatedMessage = extension.messageManager.convert(relatedMsgHdr);
+      const relatedMessage = extension.messageManager.convert(relatedMsgHdr);
       relatedMessageId = relatedMessage.id;
     } catch (ex) {
       // We are currently unable to get the fake msgHdr from the uri of messages
@@ -363,7 +363,7 @@ async function getComposeDetails(composeWindow, extension) {
     }
   }
 
-  let customHeaders = [...composeFields.headerNames]
+  const customHeaders = [...composeFields.headerNames]
     .map(h => h.toLowerCase())
     .filter(h => h.startsWith("x-"))
     .map(h => {
@@ -384,24 +384,24 @@ async function getComposeDetails(composeWindow, extension) {
   }
   let overrideDefaultFccFolder = "";
   if (overrideDefaultFcc && !composeFields.fcc.startsWith("nocopy://")) {
-    let folder = MailUtils.getExistingFolder(composeFields.fcc);
+    const folder = MailUtils.getExistingFolder(composeFields.fcc);
     if (folder) {
       overrideDefaultFccFolder = extension.folderManager.convert(folder);
     }
   }
   let additionalFccFolder = "";
   if (composeFields.fcc2 && !composeFields.fcc2.startsWith("nocopy://")) {
-    let folder = MailUtils.getExistingFolder(composeFields.fcc2);
+    const folder = MailUtils.getExistingFolder(composeFields.fcc2);
     if (folder) {
       additionalFccFolder = extension.folderManager.convert(folder);
     }
   }
 
-  let deliveryFormat = composeWindow.IsHTMLEditor()
+  const deliveryFormat = composeWindow.IsHTMLEditor()
     ? deliveryFormats.find(f => f.id == composeFields.deliveryFormat).value
     : null;
 
-  let body = trimContent(
+  const body = trimContent(
     editor.outputToString("text/html", Ci.nsIDocumentEncoder.OutputRaw)
   );
   let plainTextBody;
@@ -419,7 +419,7 @@ async function getComposeDetails(composeWindow, extension) {
     }
   }
 
-  let details = {
+  const details = {
     from: composeFields.splitRecipients(composeFields.from, false).shift(),
     to: composeFields.splitRecipients(composeFields.to, false),
     cc: composeFields.splitRecipients(composeFields.cc, false),
@@ -473,10 +473,10 @@ async function setFromField(composeWindow, details, extension) {
     );
   }
 
-  let identityList = composeWindow.document.getElementById("msgIdentity");
+  const identityList = composeWindow.document.getElementById("msgIdentity");
   // Make the from field editable only, if from differs from the currently shown identity.
   if (from != identityList.value) {
-    let activeElement = composeWindow.document.activeElement;
+    const activeElement = composeWindow.document.activeElement;
     // Manually update from, using the same approach used in
     // https://hg.mozilla.org/comm-central/file/1283451c02926e2b7506a6450445b81f6d076f89/mail/components/compose/content/MsgComposeCommands.js#l3621
     composeWindow.MakeFromFieldEditable(true);
@@ -496,7 +496,7 @@ async function setFromField(composeWindow, details, extension) {
  * @see mail/components/extensions/schemas/compose.json
  */
 async function setComposeDetails(composeWindow, details, extension) {
-  let activeElement = composeWindow.document.activeElement;
+  const activeElement = composeWindow.document.activeElement;
 
   // Check if conflicting formats have been specified.
   if (
@@ -534,19 +534,20 @@ async function setComposeDetails(composeWindow, details, extension) {
       );
     }
 
-    let identity = MailServices.accounts.allIdentities.find(
+    const identity = MailServices.accounts.allIdentities.find(
       i => i.key == details.identityId
     );
     if (!identity) {
       throw new ExtensionError(`Identity not found: ${details.identityId}`);
     }
-    let identityElement = composeWindow.document.getElementById("msgIdentity");
+    const identityElement =
+      composeWindow.document.getElementById("msgIdentity");
     identityElement.selectedItem = [
       ...identityElement.childNodes[0].childNodes,
     ].find(e => e.getAttribute("identitykey") == details.identityId);
     composeWindow.LoadIdentity(false);
   }
-  for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
+  for (const field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
     if (field in details) {
       details[field] = await parseComposeRecipientList(details[field]);
     }
@@ -564,11 +565,11 @@ async function setComposeDetails(composeWindow, details, extension) {
   } else if (details.overrideDefaultFccFolder != null) {
     // Override identity fcc with enforced value.
     if (details.overrideDefaultFccFolder) {
-      let uri = folderPathToURI(
+      const uri = folderPathToURI(
         details.overrideDefaultFccFolder.accountId,
         details.overrideDefaultFccFolder.path
       );
-      let folder = MailUtils.getExistingFolder(uri);
+      const folder = MailUtils.getExistingFolder(uri);
       if (folder) {
         composeWindow.gMsgCompose.compFields.fcc = uri;
       } else {
@@ -590,11 +591,11 @@ async function setComposeDetails(composeWindow, details, extension) {
 
   if (details.additionalFccFolder != null) {
     if (details.additionalFccFolder) {
-      let uri = folderPathToURI(
+      const uri = folderPathToURI(
         details.additionalFccFolder.accountId,
         details.additionalFccFolder.path
       );
-      let folder = MailUtils.getExistingFolder(uri);
+      const folder = MailUtils.getExistingFolder(uri);
       if (folder) {
         composeWindow.gMsgCompose.compFields.fcc2 = uri;
       } else {
@@ -609,17 +610,17 @@ async function setComposeDetails(composeWindow, details, extension) {
 
   // Update custom headers, if specified.
   if (details.customHeaders) {
-    let newHeaderNames = details.customHeaders.map(h => h.name.toUpperCase());
-    let obsoleteHeaderNames = [
+    const newHeaderNames = details.customHeaders.map(h => h.name.toUpperCase());
+    const obsoleteHeaderNames = [
       ...composeWindow.gMsgCompose.compFields.headerNames,
     ]
       .map(h => h.toUpperCase())
       .filter(h => h.startsWith("X-") && !newHeaderNames.hasOwnProperty(h));
 
-    for (let headerName of obsoleteHeaderNames) {
+    for (const headerName of obsoleteHeaderNames) {
       composeWindow.gMsgCompose.compFields.deleteHeader(headerName);
     }
-    for (let { name, value } of details.customHeaders) {
+    for (const { name, value } of details.customHeaders) {
       composeWindow.gMsgCompose.compFields.setHeader(name, value);
     }
   }
@@ -648,7 +649,7 @@ async function setComposeDetails(composeWindow, details, extension) {
     details.deliveryStatusNotification !=
       composeWindow.gMsgCompose.compFields.DSN
   ) {
-    let target = composeWindow.document.getElementById("dsnMenu");
+    const target = composeWindow.document.getElementById("dsnMenu");
     composeWindow.ToggleDSN(target);
   }
 
@@ -672,12 +673,12 @@ async function setComposeDetails(composeWindow, details, extension) {
 }
 
 async function fileURLForFile(file) {
-  let realFile = await getRealFileForFile(file);
+  const realFile = await getRealFileForFile(file);
   return Services.io.newFileURI(realFile).spec;
 }
 
 async function createAttachment(data) {
-  let attachment = Cc[
+  const attachment = Cc[
     "@mozilla.org/messengercompose/attachment;1"
   ].createInstance(Ci.nsIMsgAttachment);
 
@@ -686,10 +687,10 @@ async function createAttachment(data) {
       throw new ExtensionError(`Invalid attachment ID: ${data.id}`);
     }
 
-    let { attachment: originalAttachment, window: originalWindow } =
+    const { attachment: originalAttachment, window: originalWindow } =
       composeAttachmentTracker.getAttachment(data.id);
 
-    let originalAttachmentItem =
+    const originalAttachmentItem =
       originalWindow.gAttachmentBucket.findItemForAttachment(
         originalAttachment
       );
@@ -721,8 +722,8 @@ async function AddAttachmentsToWindow(window, attachmentData) {
   await window.AddAttachments(attachmentData.map(a => a.attachment));
   // Check if an attachment has been cloned and the cloudFileUpload needs to be
   // re-applied.
-  for (let entry of attachmentData) {
-    let addedAttachmentItem = window.gAttachmentBucket.findItemForAttachment(
+  for (const entry of attachmentData) {
+    const addedAttachmentItem = window.gAttachmentBucket.findItemForAttachment(
       entry.attachment
     );
     if (!addedAttachmentItem) {
@@ -737,7 +738,7 @@ async function AddAttachmentsToWindow(window, attachmentData) {
       continue;
     }
 
-    let updateSettings = {
+    const updateSettings = {
       cloudFileAccount: entry.originalCloudFileAccount,
       relatedCloudFileUpload: entry.originalCloudFileUpload,
     };
@@ -760,8 +761,8 @@ var composeStates = {
   },
 
   getStates(tab) {
-    let states = {};
-    for (let [state, command] of Object.entries(this._states)) {
+    const states = {};
+    for (const [state, command] of Object.entries(this._states)) {
       state[state] = tab.nativeTab.defaultController.isCommandEnabled(command);
     }
     return states;
@@ -769,8 +770,8 @@ var composeStates = {
 
   // Translate core states (commands) to API states.
   convert(states) {
-    let converted = {};
-    for (let [state, command] of Object.entries(this._states)) {
+    const converted = {};
+    for (const [state, command] of Object.entries(this._states)) {
       if (states.hasOwnProperty(command)) {
         converted[state] = states[command];
       }
@@ -816,7 +817,7 @@ class MsgOperationObserver {
 
   // Observer for mail:composeSendProgressStop.
   observe(subject, topic, data) {
-    let { composeWindow } = subject.wrappedJSObject;
+    const { composeWindow } = subject.wrappedJSObject;
     if (composeWindow == this.composeWindow) {
       this.deliveryCallbacks.resolve();
     }
@@ -841,7 +842,7 @@ class MsgOperationObserver {
   onGetDraftFolderURI(msgID, folderURI) {
     // Only called for save operations and sendLater. Collect messageIds and
     // folders of saved messages.
-    let headerMessageId = msgID.replace(/^<|>$/g, "");
+    const headerMessageId = msgID.replace(/^<|>$/g, "");
     this.savedMessages.push(JSON.stringify({ headerMessageId, folderURI }));
   }
   onSendNotPerformed(msgID, status) {}
@@ -850,9 +851,9 @@ class MsgOperationObserver {
   // Implementation for nsIMsgFolderListener::msgsClassified
   msgsClassified(msgs, junkProcessed, traitProcessed) {
     // Collect all msgHdrs added to folders during the current message operation.
-    for (let msgHdr of msgs) {
-      let cachedMsgHdr = new CachedMsgHeader(msgHdr);
-      let key = JSON.stringify({
+    for (const msgHdr of msgs) {
+      const cachedMsgHdr = new CachedMsgHeader(msgHdr);
+      const key = JSON.stringify({
         headerMessageId: cachedMsgHdr.messageId,
         folderURI: cachedMsgHdr.folder.URI,
       });
@@ -917,7 +918,7 @@ class MsgOperationObserver {
  *   the performed message operation, which is passed to the WebExtension.
  */
 async function goDoCommand(composeWindow, extension, mode) {
-  let commands = new Map([
+  const commands = new Map([
     ["draft", "cmd_saveAsDraft"],
     ["template", "cmd_saveAsTemplate"],
     ["sendNow", "cmd_sendNow"],
@@ -934,12 +935,12 @@ async function goDoCommand(composeWindow, extension, mode) {
     );
   }
 
-  let sendPromise = new Promise((resolve, reject) => {
-    let listener = {
+  const sendPromise = new Promise((resolve, reject) => {
+    const listener = {
       onSuccess(window, mode, messages, headerMessageId) {
         if (window == composeWindow) {
           afterSaveSendEventTracker.removeListener(listener);
-          let info = { mode, messages };
+          const info = { mode, messages };
           if (mode == "sendNow") {
             info.headerMessageId = headerMessageId;
           }
@@ -986,7 +987,7 @@ var afterSaveSendEventTracker = {
     this.listeners.delete(listener);
   },
   async handleSuccess(window, mode, messages, headerMessageId) {
-    for (let listener of this.listeners) {
+    for (const listener of this.listeners) {
       if (!listener.modes.includes(mode)) {
         continue;
       }
@@ -1007,7 +1008,7 @@ var afterSaveSendEventTracker = {
     }
   },
   async handleFailure(window, mode, exception) {
-    for (let listener of this.listeners) {
+    for (const listener of this.listeners) {
       if (!listener.modes.includes(mode)) {
         continue;
       }
@@ -1018,19 +1019,19 @@ var afterSaveSendEventTracker = {
   // Event handler for the "compose-prepare-message-start", which initiates a
   // new message operation (send or save).
   handleEvent(event) {
-    let composeWindow = event.target;
-    let msgType = event.detail.msgType;
+    const composeWindow = event.target;
+    const msgType = event.detail.msgType;
 
-    let modes = new Map([
+    const modes = new Map([
       [Ci.nsIMsgCompDeliverMode.SaveAsDraft, "draft"],
       [Ci.nsIMsgCompDeliverMode.SaveAsTemplate, "template"],
       [Ci.nsIMsgCompDeliverMode.Now, "sendNow"],
       [Ci.nsIMsgCompDeliverMode.Later, "sendLater"],
     ]);
-    let mode = modes.get(msgType);
+    const mode = modes.get(msgType);
 
     if (mode && this.listeners.size > 0) {
-      let msgOperationObserver = new MsgOperationObserver(composeWindow);
+      const msgOperationObserver = new MsgOperationObserver(composeWindow);
       msgOperationObserver
         .waitForOperation()
         .then(msgOperationInfo =>
@@ -1070,16 +1071,16 @@ var beforeSendEventTracker = {
   async handleEvent(event) {
     event.preventDefault();
 
-    let sendPromise = event.detail;
-    let composeWindow = event.target;
+    const sendPromise = event.detail;
+    const composeWindow = event.target;
     await composeWindowIsReady(composeWindow);
     composeWindow.ToggleWindowLock(true);
 
     // Send process waits till sendPromise.resolve() or sendPromise.reject() is
     // called.
 
-    for (let { handler, extension } of this.listeners) {
-      let result = await handler(
+    for (const { handler, extension } of this.listeners) {
+      const result = await handler(
         composeWindow,
         await getComposeDetails(composeWindow, extension)
       );
@@ -1113,7 +1114,7 @@ var composeAttachmentTracker = {
     if (this._attachmentIds.has(attachment)) {
       return this._attachmentIds.get(attachment).id;
     }
-    let id = this._nextId++;
+    const id = this._nextId++;
     this._attachments.set(id, { attachment, window });
     this._attachmentIds.set(attachment, { id, window });
     return id;
@@ -1130,7 +1131,7 @@ var composeAttachmentTracker = {
   forgetAttachment(attachment) {
     // This is called on all attachments when the window closes, whether the
     // attachments have been assigned IDs or not.
-    let id = this._attachmentIds.get(attachment)?.id;
+    const id = this._attachmentIds.get(attachment)?.id;
     if (id) {
       this._attachmentIds.delete(attachment);
       this._attachments.delete(id);
@@ -1139,8 +1140,8 @@ var composeAttachmentTracker = {
 
   forgetAttachments(window) {
     if (window.location.href == COMPOSE_WINDOW_URI) {
-      let bucket = window.document.getElementById("attachmentBucket");
-      for (let item of bucket.itemChildren) {
+      const bucket = window.document.getElementById("attachmentBucket");
+      for (const item of bucket.itemChildren) {
         this.forgetAttachment(item.attachment);
       }
     }
@@ -1158,7 +1159,9 @@ var composeAttachmentTracker = {
     if (!attachment) {
       return null;
     }
-    let uri = Services.io.newURI(attachment.url).QueryInterface(Ci.nsIFileURL);
+    const uri = Services.io
+      .newURI(attachment.url)
+      .QueryInterface(Ci.nsIFileURL);
     // Enforce the actual filename used in the composer, do not leak internal or
     // temporary filenames.
     return File.createFromNsIFile(uri.file, { name: attachment.name });
@@ -1181,12 +1184,12 @@ this.compose = class extends ExtensionAPIPersistent {
     onBeforeSend({ context, fire }) {
       const { extension } = this;
       const { tabManager, windowManager } = extension;
-      let listener = {
+      const listener = {
         async handler(window, details) {
           if (fire.wakeup) {
             await fire.wakeup();
           }
-          let win = windowManager.wrapWindow(window);
+          const win = windowManager.wrapWindow(window);
           return fire.async(
             tabManager.convert(win.activeTab.nativeTab),
             details
@@ -1209,22 +1212,22 @@ this.compose = class extends ExtensionAPIPersistent {
     onAfterSend({ context, fire }) {
       const { extension } = this;
       const { tabManager, windowManager } = extension;
-      let listener = {
+      const listener = {
         async onSuccess(window, mode, messages, headerMessageId) {
-          let win = windowManager.wrapWindow(window);
-          let tab = tabManager.convert(win.activeTab.nativeTab);
+          const win = windowManager.wrapWindow(window);
+          const tab = tabManager.convert(win.activeTab.nativeTab);
           if (fire.wakeup) {
             await fire.wakeup();
           }
-          let sendInfo = { mode, messages };
+          const sendInfo = { mode, messages };
           if (mode == "sendNow") {
             sendInfo.headerMessageId = headerMessageId;
           }
           return fire.async(tab, sendInfo);
         },
         async onFailure(window, mode, exception) {
-          let win = windowManager.wrapWindow(window);
-          let tab = tabManager.convert(win.activeTab.nativeTab);
+          const win = windowManager.wrapWindow(window);
+          const tab = tabManager.convert(win.activeTab.nativeTab);
           if (fire.wakeup) {
             await fire.wakeup();
           }
@@ -1251,13 +1254,13 @@ this.compose = class extends ExtensionAPIPersistent {
     onAfterSave({ context, fire }) {
       const { extension } = this;
       const { tabManager, windowManager } = extension;
-      let listener = {
+      const listener = {
         async onSuccess(window, mode, messages, headerMessageId) {
           if (fire.wakeup) {
             await fire.wakeup();
           }
-          let win = windowManager.wrapWindow(window);
-          let saveInfo = { mode, messages };
+          const win = windowManager.wrapWindow(window);
+          const saveInfo = { mode, messages };
           return fire.async(
             tabManager.convert(win.activeTab.nativeTab),
             saveInfo
@@ -1267,7 +1270,7 @@ this.compose = class extends ExtensionAPIPersistent {
           if (fire.wakeup) {
             await fire.wakeup();
           }
-          let win = windowManager.wrapWindow(window);
+          const win = windowManager.wrapWindow(window);
           return fire.async(tabManager.convert(win.activeTab.nativeTab), {
             mode,
             messages: [],
@@ -1321,8 +1324,8 @@ this.compose = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        for (let attachment of event.detail) {
-          let attachmentId = composeAttachmentTracker.getId(
+        for (const attachment of event.detail) {
+          const attachmentId = composeAttachmentTracker.getId(
             attachment,
             event.target.ownerGlobal
           );
@@ -1397,7 +1400,7 @@ this.compose = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        let activeDictionaries = event.detail.split(",");
+        const activeDictionaries = event.detail.split(",");
         fire.async(
           tabManager.convert(event.target.ownerGlobal),
           Cc["@mozilla.org/spellchecker/engine;1"]
@@ -1431,7 +1434,7 @@ this.compose = class extends ExtensionAPIPersistent {
      * @returns {Tab} a fully loaded messageCompose tab
      */
     async function getComposeTab(tabId) {
-      let tab = tabManager.get(tabId);
+      const tab = tabManager.get(tabId);
       if (tab.type != "messageCompose") {
         throw new ExtensionError(`Invalid compose tab: ${tabId}`);
       }
@@ -1439,8 +1442,8 @@ this.compose = class extends ExtensionAPIPersistent {
       return tab;
     }
 
-    let { extension } = context;
-    let { tabManager } = extension;
+    const { extension } = context;
+    const { tabManager } = extension;
 
     return {
       compose: {
@@ -1498,13 +1501,13 @@ this.compose = class extends ExtensionAPIPersistent {
         async beginNew(messageId, details) {
           let type = Ci.nsIMsgCompType.New;
           if (messageId && context.extension.messageManager) {
-            let msgHdr = context.extension.messageManager.get(messageId);
+            const msgHdr = context.extension.messageManager.get(messageId);
             type =
               msgHdr.flags & Ci.nsMsgMessageFlags.Template
                 ? Ci.nsIMsgCompType.Template
                 : Ci.nsIMsgCompType.EditAsNew;
           }
-          let composeWindow = await openComposeWindow(
+          const composeWindow = await openComposeWindow(
             messageId,
             type,
             details,
@@ -1519,7 +1522,7 @@ this.compose = class extends ExtensionAPIPersistent {
           } else if (replyType == "replyToAll") {
             type = Ci.nsIMsgCompType.ReplyAll;
           }
-          let composeWindow = await openComposeWindow(
+          const composeWindow = await openComposeWindow(
             messageId,
             type,
             details,
@@ -1537,7 +1540,7 @@ this.compose = class extends ExtensionAPIPersistent {
           ) {
             type = Ci.nsIMsgCompType.ForwardAsAttachment;
           }
-          let composeWindow = await openComposeWindow(
+          const composeWindow = await openComposeWindow(
             messageId,
             type,
             details,
@@ -1546,8 +1549,8 @@ this.compose = class extends ExtensionAPIPersistent {
           return tabManager.convert(composeWindow);
         },
         async saveMessage(tabId, options) {
-          let tab = await getComposeTab(tabId);
-          let saveMode = options?.mode || "draft";
+          const tab = await getComposeTab(tabId);
+          const saveMode = options?.mode || "draft";
 
           try {
             return await goDoCommand(
@@ -1562,7 +1565,7 @@ this.compose = class extends ExtensionAPIPersistent {
           }
         },
         async sendMessage(tabId, options) {
-          let tab = await getComposeTab(tabId);
+          const tab = await getComposeTab(tabId);
           let sendMode = options?.mode;
           if (!["sendLater", "sendNow"].includes(sendMode)) {
             sendMode = Services.io.offline ? "sendLater" : "sendNow";
@@ -1581,20 +1584,20 @@ this.compose = class extends ExtensionAPIPersistent {
           }
         },
         async getComposeState(tabId) {
-          let tab = await getComposeTab(tabId);
+          const tab = await getComposeTab(tabId);
           return composeStates.getStates(tab);
         },
         async getComposeDetails(tabId) {
-          let tab = await getComposeTab(tabId);
+          const tab = await getComposeTab(tabId);
           return getComposeDetails(tab.nativeTab, extension);
         },
         async setComposeDetails(tabId, details) {
-          let tab = await getComposeTab(tabId);
+          const tab = await getComposeTab(tabId);
           return setComposeDetails(tab.nativeTab, details, extension);
         },
         async getActiveDictionaries(tabId) {
-          let tab = await getComposeTab(tabId);
-          let dictionaries = tab.nativeTab.gActiveDictionaries;
+          const tab = await getComposeTab(tabId);
+          const dictionaries = tab.nativeTab.gActiveDictionaries;
 
           // Return the list of installed dictionaries, setting those who are
           // enabled to true.
@@ -1607,12 +1610,12 @@ this.compose = class extends ExtensionAPIPersistent {
             }, {});
         },
         async setActiveDictionaries(tabId, activeDictionaries) {
-          let tab = await getComposeTab(tabId);
-          let installedDictionaries = Cc["@mozilla.org/spellchecker/engine;1"]
+          const tab = await getComposeTab(tabId);
+          const installedDictionaries = Cc["@mozilla.org/spellchecker/engine;1"]
             .getService(Ci.mozISpellCheckingEngine)
             .getDictionaryList();
 
-          for (let dict of activeDictionaries) {
+          for (const dict of activeDictionaries) {
             if (!installedDictionaries.includes(dict)) {
               throw new ExtensionError(`Dictionary not found: ${dict}`);
             }
@@ -1621,12 +1624,12 @@ this.compose = class extends ExtensionAPIPersistent {
           await tab.nativeTab.ComposeChangeLanguage(activeDictionaries);
         },
         async listAttachments(tabId) {
-          let tab = await getComposeTab(tabId);
+          const tab = await getComposeTab(tabId);
 
-          let bucket =
+          const bucket =
             tab.nativeTab.document.getElementById("attachmentBucket");
-          let attachments = [];
-          for (let item of bucket.itemChildren) {
+          const attachments = [];
+          for (const item of bucket.itemChildren) {
             attachments.push(
               composeAttachmentTracker.convert(item.attachment, tab.nativeTab)
             );
@@ -1637,13 +1640,13 @@ this.compose = class extends ExtensionAPIPersistent {
           if (!composeAttachmentTracker.hasAttachment(attachmentId)) {
             throw new ExtensionError(`Invalid attachment: ${attachmentId}`);
           }
-          let { attachment } =
+          const { attachment } =
             composeAttachmentTracker.getAttachment(attachmentId);
           return composeAttachmentTracker.getFile(attachment);
         },
         async addAttachment(tabId, data) {
-          let tab = await getComposeTab(tabId);
-          let attachmentData = await createAttachment(data);
+          const tab = await getComposeTab(tabId);
+          const attachmentData = await createAttachment(data);
           await AddAttachmentsToWindow(tab.nativeTab, [attachmentData]);
           return composeAttachmentTracker.convert(
             attachmentData.attachment,
@@ -1651,11 +1654,11 @@ this.compose = class extends ExtensionAPIPersistent {
           );
         },
         async updateAttachment(tabId, attachmentId, data) {
-          let tab = await getComposeTab(tabId);
+          const tab = await getComposeTab(tabId);
           if (!composeAttachmentTracker.hasAttachment(attachmentId)) {
             throw new ExtensionError(`Invalid attachment: ${attachmentId}`);
           }
-          let { attachment, window } =
+          const { attachment, window } =
             composeAttachmentTracker.getAttachment(attachmentId);
           if (window != tab.nativeTab) {
             throw new ExtensionError(
@@ -1663,7 +1666,7 @@ this.compose = class extends ExtensionAPIPersistent {
             );
           }
 
-          let attachmentItem =
+          const attachmentItem =
             window.gAttachmentBucket.findItemForAttachment(attachment);
           if (!attachmentItem) {
             throw new ExtensionError(`Unexpected invalid attachment item`);
@@ -1675,7 +1678,9 @@ this.compose = class extends ExtensionAPIPersistent {
             );
           }
 
-          let realFile = data.file ? await getRealFileForFile(data.file) : null;
+          const realFile = data.file
+            ? await getRealFileForFile(data.file)
+            : null;
           try {
             await window.UpdateAttachment(attachmentItem, {
               file: realFile,
@@ -1689,11 +1694,11 @@ this.compose = class extends ExtensionAPIPersistent {
           return composeAttachmentTracker.convert(attachmentItem.attachment);
         },
         async removeAttachment(tabId, attachmentId) {
-          let tab = await getComposeTab(tabId);
+          const tab = await getComposeTab(tabId);
           if (!composeAttachmentTracker.hasAttachment(attachmentId)) {
             throw new ExtensionError(`Invalid attachment: ${attachmentId}`);
           }
-          let { attachment, window } =
+          const { attachment, window } =
             composeAttachmentTracker.getAttachment(attachmentId);
           if (window != tab.nativeTab) {
             throw new ExtensionError(
@@ -1701,7 +1706,8 @@ this.compose = class extends ExtensionAPIPersistent {
             );
           }
 
-          let item = window.gAttachmentBucket.findItemForAttachment(attachment);
+          const item =
+            window.gAttachmentBucket.findItemForAttachment(attachment);
           await window.RemoveAttachments([item]);
         },
       },

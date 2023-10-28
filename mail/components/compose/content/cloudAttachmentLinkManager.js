@@ -4,7 +4,7 @@
 
 /* import-globals-from MsgComposeCommands.js */
 
-let { MsgUtils } = ChromeUtils.import(
+const { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
 
@@ -12,7 +12,7 @@ var gCloudAttachmentLinkManager = {
   init() {
     this.cloudAttachments = [];
 
-    let bucket = document.getElementById("attachmentBucket");
+    const bucket = document.getElementById("attachmentBucket");
     bucket.addEventListener("attachments-removed", this);
     bucket.addEventListener("attachment-converted-to-regular", this);
     bucket.addEventListener("attachment-uploaded", this);
@@ -23,7 +23,7 @@ var gCloudAttachmentLinkManager = {
     // check to see if any of them are marked to be sent via
     // cloud, and if so, add them to our list.
     for (let i = 0; i < bucket.getRowCount(); ++i) {
-      let attachment = bucket.getItemAtIndex(i).attachment;
+      const attachment = bucket.getItemAtIndex(i).attachment;
       if (attachment && attachment.sendViaCloud) {
         this.cloudAttachments.push(attachment);
       }
@@ -38,21 +38,21 @@ var gCloudAttachmentLinkManager = {
   SaveInFolderDone() {},
 
   async handleEvent(event) {
-    let mailDoc = document.getElementById("messageEditor").contentDocument;
+    const mailDoc = document.getElementById("messageEditor").contentDocument;
 
     if (
       event.type == "attachment-renamed" ||
       event.type == "attachment-moved"
     ) {
-      let cloudFileUpload = event.target.cloudFileUpload;
+      const cloudFileUpload = event.target.cloudFileUpload;
       let items = [];
 
-      let list = mailDoc.getElementById("cloudAttachmentList");
+      const list = mailDoc.getElementById("cloudAttachmentList");
       if (list) {
         items = list.getElementsByClassName("cloudAttachmentItem");
       }
 
-      for (let item of items) {
+      for (const item of items) {
         // The original attachment is stored in the events detail property.
         if (item.dataset.contentLocation == event.detail.contentLocation) {
           item.replaceWith(await this._createNode(mailDoc, cloudFileUpload));
@@ -66,8 +66,8 @@ var gCloudAttachmentLinkManager = {
         this._insertHeader(mailDoc);
       }
 
-      let cloudFileUpload = event.target.cloudFileUpload;
-      let attachment = event.target.attachment;
+      const cloudFileUpload = event.target.cloudFileUpload;
+      const attachment = event.target.attachment;
       this.cloudAttachments.push(attachment);
       await this._insertItem(mailDoc, cloudFileUpload);
     } else if (
@@ -75,18 +75,18 @@ var gCloudAttachmentLinkManager = {
       event.type == "attachment-converted-to-regular"
     ) {
       let items = [];
-      let list = mailDoc.getElementById("cloudAttachmentList");
+      const list = mailDoc.getElementById("cloudAttachmentList");
       if (list) {
         items = list.getElementsByClassName("cloudAttachmentItem");
       }
 
-      let attachments = Array.isArray(event.detail)
+      const attachments = Array.isArray(event.detail)
         ? event.detail
         : [event.detail];
-      for (let attachment of attachments) {
+      for (const attachment of attachments) {
         // Remove the attachment from the message body.
         if (list) {
-          for (let item of items) {
+          for (const item of items) {
             if (item.dataset.contentLocation == attachment.contentLocation) {
               item.remove();
             }
@@ -94,7 +94,7 @@ var gCloudAttachmentLinkManager = {
         }
 
         // Now, remove the attachment from our internal list.
-        let index = this.cloudAttachments.indexOf(attachment);
+        const index = this.cloudAttachments.indexOf(attachment);
         if (index != -1) {
           this.cloudAttachments.splice(index, 1);
         }
@@ -118,7 +118,7 @@ var gCloudAttachmentLinkManager = {
    * @param {Document} aDocument - the document to remove the root node from
    */
   _removeRoot(aDocument) {
-    let header = aDocument.getElementById("cloudAttachmentListRoot");
+    const header = aDocument.getElementById("cloudAttachmentListRoot");
     if (header) {
       header.remove();
     }
@@ -132,7 +132,7 @@ var gCloudAttachmentLinkManager = {
    * @param {DOMNode} aNode - the node to get the textual representation from
    */
   _getHTMLRepresentation(aDocument, aNode) {
-    let tmp = aDocument.createElement("p");
+    const tmp = aDocument.createElement("p");
     tmp.appendChild(aNode);
     return tmp.innerHTML;
   },
@@ -157,7 +157,7 @@ var gCloudAttachmentLinkManager = {
    * @param {string} aColor - the CSS color string for the link
    */
   _generateLink(aDocument, aContent, aHref, aColor) {
-    let link = aDocument.createElement("a");
+    const link = aDocument.createElement("a");
     link.href = aHref;
     link.textContent = aContent;
     link.style.cssText = `color: ${aColor} !important`;
@@ -165,11 +165,11 @@ var gCloudAttachmentLinkManager = {
   },
 
   _findInsertionPoint(aDocument) {
-    let mailBody = aDocument.querySelector("body");
-    let editor = GetCurrentEditor();
-    let selection = editor.selection;
+    const mailBody = aDocument.querySelector("body");
+    const editor = GetCurrentEditor();
+    const selection = editor.selection;
 
-    let childNodes = mailBody.childNodes;
+    const childNodes = mailBody.childNodes;
     let childToInsertAfter, childIndex;
 
     // First, search for any text nodes that are immediate children of
@@ -197,10 +197,10 @@ var gCloudAttachmentLinkManager = {
     }
 
     // If there's a signature, let's get a hold of it now.
-    let signature = mailBody.querySelector(".moz-signature");
+    const signature = mailBody.querySelector(".moz-signature");
 
     // Are we replying?
-    let replyCitation = mailBody.querySelector(".moz-cite-prefix");
+    const replyCitation = mailBody.querySelector(".moz-cite-prefix");
     if (replyCitation) {
       if (gCurrentIdentity && gCurrentIdentity.replyOnTop == 0) {
         // Replying below quote - we'll select the point right before
@@ -239,7 +239,7 @@ var gCloudAttachmentLinkManager = {
     }
 
     // Are we forwarding?
-    let forwardBody = mailBody.querySelector(".moz-forward-container");
+    const forwardBody = mailBody.querySelector(".moz-forward-container");
     if (forwardBody) {
       if (forwardBody.previousSibling) {
         let nodeIndex = Array.from(childNodes).indexOf(
@@ -291,8 +291,8 @@ var gCloudAttachmentLinkManager = {
    * @param {string[]} aIDs - an array of id strings
    */
   _resetNodeIDs(aDocument, aIDs) {
-    for (let id of aIDs) {
-      let node = aDocument.getElementById(id);
+    for (const id of aIDs) {
+      const node = aDocument.getElementById(id);
       if (node) {
         node.id = "";
       }
@@ -317,23 +317,23 @@ var gCloudAttachmentLinkManager = {
       "cloudAttachmentListFooter",
     ]);
 
-    let editor = GetCurrentEditor();
-    let selection = editor.selection;
-    let originalAnchor = selection.anchorNode;
-    let originalOffset = selection.anchorOffset;
+    const editor = GetCurrentEditor();
+    const selection = editor.selection;
+    const originalAnchor = selection.anchorNode;
+    const originalOffset = selection.anchorOffset;
 
     // Save off the selection ranges so we can restore them later.
-    let ranges = [];
+    const ranges = [];
     for (let i = 0; i < selection.rangeCount; i++) {
       ranges.push(selection.getRangeAt(i));
     }
 
     this._findInsertionPoint(aDocument);
 
-    let root = editor.createElementWithDefaults("div");
-    let header = editor.createElementWithDefaults("div");
+    const root = editor.createElementWithDefaults("div");
+    const header = editor.createElementWithDefaults("div");
     let list = editor.createElementWithDefaults("div");
-    let footer = editor.createElementWithDefaults("div");
+    const footer = editor.createElementWithDefaults("div");
 
     if (gMsgCompose.composeHTML) {
       root.style.padding = "15px";
@@ -375,7 +375,7 @@ var gCloudAttachmentLinkManager = {
     selection.collapse(originalAnchor, originalOffset);
 
     // Restore the selection ranges.
-    for (let range of ranges) {
+    for (const range of ranges) {
       selection.addRange(range);
     }
   },
@@ -387,12 +387,12 @@ var gCloudAttachmentLinkManager = {
    * @param {Document} aDocument - the document that contains the header node
    */
   async _updateAttachmentCount(aDocument) {
-    let header = aDocument.getElementById("cloudAttachmentListHeader");
+    const header = aDocument.getElementById("cloudAttachmentListHeader");
     if (!header) {
       return;
     }
 
-    let entries = aDocument.querySelectorAll(
+    const entries = aDocument.querySelectorAll(
       "#cloudAttachmentList > .cloudAttachmentItem"
     );
 
@@ -410,21 +410,21 @@ var gCloudAttachmentLinkManager = {
    * @param {Document} aDocument - the document that contains the footer node
    */
   async _updateServiceProviderLinks(aDocument) {
-    let footer = aDocument.getElementById("cloudAttachmentListFooter");
+    const footer = aDocument.getElementById("cloudAttachmentListFooter");
     if (!footer) {
       return;
     }
 
-    let providers = [];
-    let entries = aDocument.querySelectorAll(
+    const providers = [];
+    const entries = aDocument.querySelectorAll(
       "#cloudAttachmentList > .cloudAttachmentItem"
     );
-    for (let entry of entries) {
+    for (const entry of entries) {
       if (!entry.dataset.serviceUrl) {
         continue;
       }
 
-      let link_markup = this._generateLink(
+      const link_markup = this._generateLink(
         aDocument,
         entry.dataset.serviceName,
         entry.dataset.serviceUrl,
@@ -445,8 +445,8 @@ var gCloudAttachmentLinkManager = {
         }
       );
     } else if (providers.length > 1) {
-      let lastLink = providers.pop();
-      let firstLinks = providers.join(", ");
+      const lastLink = providers.pop();
+      const firstLinks = providers.join(", ");
       content = await l10nCompose.formatValue(
         "cloud-file-service-provider-footer-multiple",
         {
@@ -523,7 +523,7 @@ var gCloudAttachmentLinkManager = {
       "tooltip-password-protected-link": 6,
     };
 
-    let l10n_values = await l10nCompose.formatValues([
+    const l10n_values = await l10nCompose.formatValues([
       { id: "cloud-file-template-service-name" },
       { id: "cloud-file-template-size" },
       { id: "cloud-file-template-link" },
@@ -544,11 +544,11 @@ var gCloudAttachmentLinkManager = {
     node.style.alignItems = "center";
 
     const statsRow = (name, content, contentLink) => {
-      let entry = aDocument.createElement("span");
+      const entry = aDocument.createElement("span");
       entry.style.gridColumn = `2 / span 3`;
       entry.style.fontSize = "small";
 
-      let description = aDocument.createElement("span");
+      const description = aDocument.createElement("span");
       description.style.color = "dark-grey";
       description.textContent = `${l10n_values[locales[name]]} `;
       entry.appendChild(description);
@@ -569,14 +569,14 @@ var gCloudAttachmentLinkManager = {
     };
 
     const serviceRow = () => {
-      let service = aDocument.createDocumentFragment();
+      const service = aDocument.createDocumentFragment();
 
-      let description = aDocument.createElement("span");
+      const description = aDocument.createElement("span");
       description.style.display = "none";
       description.textContent = `${l10n_values[locales.service]} `;
       service.appendChild(description);
 
-      let providerName = aDocument.createElement("span");
+      const providerName = aDocument.createElement("span");
       providerName.style.gridArea = "1 / 4";
       providerName.style.color = "#595959";
       providerName.style.fontSize = "small";
@@ -605,7 +605,7 @@ var gCloudAttachmentLinkManager = {
     name.classList.add("cloudfile-name");
     node.appendChild(name);
 
-    let paperclip = aDocument.createElement("img");
+    const paperclip = aDocument.createElement("img");
     paperclip.classList.add("paperClipIcon");
     paperclip.style.gridArea = "1 / 1";
     paperclip.alt = "";
@@ -622,7 +622,7 @@ var gCloudAttachmentLinkManager = {
     }
     node.appendChild(paperclip);
 
-    let serviceIcon = aDocument.createElement("img");
+    const serviceIcon = aDocument.createElement("img");
     serviceIcon.classList.add("cloudfile-service-icon");
     serviceIcon.style.gridArea = "1 / 3";
     serviceIcon.alt = "";
@@ -685,7 +685,7 @@ var gCloudAttachmentLinkManager = {
       node.appendChild(serviceRow());
     }
 
-    let linkElementLocaleId = aCloudFileUpload.downloadPasswordProtected
+    const linkElementLocaleId = aCloudFileUpload.downloadPasswordProtected
       ? "password-protected-link"
       : "link";
     node.appendChild(
@@ -701,7 +701,7 @@ var gCloudAttachmentLinkManager = {
     // Generate the plain text version from the HTML. The used method needs a <ul>
     // element wrapped around the <li> element to produce the correct content.
     if (!composeHTML) {
-      let ul = aDocument.createElement("ul");
+      const ul = aDocument.createElement("ul");
       ul.appendChild(node);
       node = aDocument.createElement("p");
       node.textContent = this._getTextRepresentation(ul.outerHTML);
@@ -721,7 +721,7 @@ var gCloudAttachmentLinkManager = {
    * sending some BigFiles, we don't run into ID conflicts.
    */
   send(aEvent) {
-    let msgType = parseInt(aEvent.target.getAttribute("msgtype"));
+    const msgType = parseInt(aEvent.target.getAttribute("msgtype"));
 
     if (
       msgType == Ci.nsIMsgCompDeliverMode.Now ||
@@ -734,10 +734,10 @@ var gCloudAttachmentLinkManager = {
         "cloudAttachmentList",
         "cloudAttachmentListFooter",
       ];
-      let mailDoc = document.getElementById("messageEditor").contentDocument;
+      const mailDoc = document.getElementById("messageEditor").contentDocument;
 
-      for (let id of kIDs) {
-        let element = mailDoc.getElementById(id);
+      for (const id of kIDs) {
+        const element = mailDoc.getElementById(id);
         if (element) {
           element.removeAttribute("id");
         }

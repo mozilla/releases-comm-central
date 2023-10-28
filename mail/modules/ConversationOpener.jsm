@@ -45,7 +45,7 @@ class ConversationOpener {
       if (!collection.items.length) {
         console.error("Couldn't find a collection for msg: " + this._msgHdr);
       } else {
-        let message = collection.items[0];
+        const message = collection.items[0];
         let tabmail = this.window.top.document.getElementById("tabmail");
         if (!tabmail) {
           tabmail = Services.wm

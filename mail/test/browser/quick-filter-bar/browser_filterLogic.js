@@ -56,8 +56,8 @@ add_setup(async function () {
 });
 
 add_task(async function test_filter_unread() {
-  let folder = await create_folder("QuickFilterBarFilterUnread");
-  let [unread, read] = await make_message_sets_in_folders(
+  const folder = await create_folder("QuickFilterBarFilterUnread");
+  const [unread, read] = await make_message_sets_in_folders(
     [folder],
     [{ count: 1 }, { count: 1 }]
   );
@@ -70,8 +70,8 @@ add_task(async function test_filter_unread() {
 });
 
 add_task(async function test_filter_starred() {
-  let folder = await create_folder("QuickFilterBarFilterStarred");
-  let [, starred] = await make_message_sets_in_folders(
+  const folder = await create_folder("QuickFilterBarFilterStarred");
+  const [, starred] = await make_message_sets_in_folders(
     [folder],
     [{ count: 1 }, { count: 1 }]
   );
@@ -84,8 +84,8 @@ add_task(async function test_filter_starred() {
 });
 
 add_task(async function test_filter_simple_intersection_unread_and_starred() {
-  let folder = await create_folder("QuickFilterBarFilterUnreadAndStarred");
-  let [, readUnstarred, unreadStarred, readStarred] =
+  const folder = await create_folder("QuickFilterBarFilterUnreadAndStarred");
+  const [, readUnstarred, unreadStarred, readStarred] =
     await make_message_sets_in_folders(
       [folder],
       [{ count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }]
@@ -103,7 +103,7 @@ add_task(async function test_filter_simple_intersection_unread_and_starred() {
 });
 
 add_task(async function test_filter_attachments() {
-  let attachSetDef = {
+  const attachSetDef = {
     count: 1,
     attachments: [
       {
@@ -116,12 +116,12 @@ add_task(async function test_filter_attachments() {
       },
     ],
   };
-  let noAttachSetDef = {
+  const noAttachSetDef = {
     count: 1,
   };
 
-  let folder = await create_folder("QuickFilterBarFilterAttachments");
-  let [, setAttach] = await make_message_sets_in_folders(
+  const folder = await create_folder("QuickFilterBarFilterAttachments");
+  const [, setAttach] = await make_message_sets_in_folders(
     [folder],
     [noAttachSetDef, attachSetDef]
   );
@@ -138,12 +138,12 @@ add_task(async function test_filter_attachments() {
  * book we can find.
  */
 function add_email_to_address_book(aEmailAddr) {
-  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+  const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
   card.primaryEmail = aEmailAddr;
 
-  for (let addrbook of MailServices.ab.directories) {
+  for (const addrbook of MailServices.ab.directories) {
     addrbook.addCard(card);
     return;
   }
@@ -152,13 +152,13 @@ function add_email_to_address_book(aEmailAddr) {
 }
 
 add_task(async function test_filter_in_address_book() {
-  let bookSetDef = {
+  const bookSetDef = {
     from: ["Qbert Q Qbington", "q@q.invalid"],
     count: 1,
   };
   add_email_to_address_book(bookSetDef.from[1]);
-  let folder = await create_folder("MesssageFilterBarInAddressBook");
-  let [setBook] = await make_message_sets_in_folders(
+  const folder = await create_folder("MesssageFilterBarInAddressBook");
+  const [setBook] = await make_message_sets_in_folders(
     [folder],
     [bookSetDef, { count: 1 }]
   );
@@ -169,11 +169,11 @@ add_task(async function test_filter_in_address_book() {
 });
 
 add_task(async function test_filter_tags() {
-  let folder = await create_folder("QuickFilterBarTags");
+  const folder = await create_folder("QuickFilterBarTags");
   const tagA = "$label1",
     tagB = "$label2",
     tagC = "$label3";
-  let [setNoTag, setTagA, setTagB, setTagAB, setTagC] =
+  const [setNoTag, setTagA, setTagB, setTagAB, setTagC] =
     await make_message_sets_in_folders(
       [folder],
       [{ count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }]
@@ -222,9 +222,9 @@ add_task(async function test_filter_tags() {
 });
 
 add_task(async function test_filter_text_single_word_and_predicates() {
-  let folder = await create_folder("QuickFilterBarTextSingleWord");
-  let whoFoo = ["zabba", "foo@madeup.invalid"];
-  let [, setSenderFoo, setRecipientsFoo, setSubjectFoo, setBodyFoo] =
+  const folder = await create_folder("QuickFilterBarTextSingleWord");
+  const whoFoo = ["zabba", "foo@madeup.invalid"];
+  const [, setSenderFoo, setRecipientsFoo, setSubjectFoo, setBodyFoo] =
     await make_message_sets_in_folders(
       [folder],
       [
@@ -288,11 +288,11 @@ add_task(async function test_filter_text_single_word_and_predicates() {
  *  sure that just a single term match is insufficient.
  */
 add_task(async function test_filter_text_multi_word() {
-  let folder = await create_folder("QuickFilterBarTextMultiWord");
+  const folder = await create_folder("QuickFilterBarTextMultiWord");
 
-  let whoFoo = ["foo", "zabba@madeup.invalid"];
-  let whoBar = ["zabba", "bar@madeup.invalid"];
-  let [, setPeepMatch, setSubjReverse] = await make_message_sets_in_folders(
+  const whoFoo = ["foo", "zabba@madeup.invalid"];
+  const whoBar = ["zabba", "bar@madeup.invalid"];
+  const [, setPeepMatch, setSubjReverse] = await make_message_sets_in_folders(
     [folder],
     [
       { count: 1 },
@@ -316,12 +316,12 @@ add_task(async function test_filter_text_multi_word() {
  * | (Pipe character) - Bug 586131
  */
 add_task(async function test_filter_or_operator() {
-  let folder = await create_folder("QuickFilterBarOrOperator");
+  const folder = await create_folder("QuickFilterBarOrOperator");
 
-  let whoFoo = ["foo", "zabba@madeup.invalid"];
-  let whoBar = ["zabba", "bar@madeup.invalid"];
-  let whoTest = ["test", "test@madeup.invalid"];
-  let [setInert, setSenderFoo, setToBar, , , setSubject3, setMail1] =
+  const whoFoo = ["foo", "zabba@madeup.invalid"];
+  const whoBar = ["zabba", "bar@madeup.invalid"];
+  const whoTest = ["test", "test@madeup.invalid"];
+  const [setInert, setSenderFoo, setToBar, , , setSubject3, setMail1] =
     await make_message_sets_in_folders(
       [folder],
       [
@@ -368,19 +368,19 @@ add_task(async function test_filter_or_operator() {
  *  sender/recipients/subject/body toggle buttons.
  */
 add_task(async function test_filter_text_constraints_propagate() {
-  let whoFoo = ["foo", "zabba@madeup.invalid"];
-  let whoBar = ["zabba", "bar@madeup.invalid"];
+  const whoFoo = ["foo", "zabba@madeup.invalid"];
+  const whoBar = ["zabba", "bar@madeup.invalid"];
 
-  let folderOne = await create_folder("QuickFilterBarTextPropagate1");
-  let [setSubjFoo, setWhoFoo] = await make_message_sets_in_folders(
+  const folderOne = await create_folder("QuickFilterBarTextPropagate1");
+  const [setSubjFoo, setWhoFoo] = await make_message_sets_in_folders(
     [folderOne],
     [
       { count: 1, subject: "foo" },
       { count: 1, from: whoFoo },
     ]
   );
-  let folderTwo = await create_folder("QuickFilterBarTextPropagate2");
-  let [, setWhoBar] = await make_message_sets_in_folders(
+  const folderTwo = await create_folder("QuickFilterBarTextPropagate2");
+  const [, setWhoBar] = await make_message_sets_in_folders(
     [folderTwo],
     [
       { count: 1, subject: "bar" },
@@ -423,8 +423,8 @@ add_task(async function test_filter_text_constraints_propagate() {
  * - The count needs to update as the user deletes messages or what not.
  */
 add_task(async function test_results_label() {
-  let folder = await create_folder("QuickFilterBarResultsLabel");
-  let [setImmortal, setMortal, setGoldfish] =
+  const folder = await create_folder("QuickFilterBarResultsLabel");
+  const [setImmortal, setMortal, setGoldfish] =
     await make_message_sets_in_folders(
       [folder],
       [{ count: 1 }, { count: 1 }, { count: 1 }]

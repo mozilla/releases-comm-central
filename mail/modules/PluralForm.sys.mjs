@@ -343,15 +343,15 @@ export var PluralForm = {
     }
 
     // Get the desired pluralRule function
-    let [numForms, pluralFunc] = gFunctions[aRuleNum];
+    const [numForms, pluralFunc] = gFunctions[aRuleNum];
 
     // Return functions that give 1) the number of forms and 2) gets the right
     // plural form
     return [
       function (aNum, aWords) {
         // Figure out which index to use for the semi-colon separated words
-        let index = pluralFunc(aNum ? Number(aNum) : 0);
-        let words = aWords ? aWords.split(/;/) : [""];
+        const index = pluralFunc(aNum ? Number(aNum) : 0);
+        const words = aWords ? aWords.split(/;/) : [""];
 
         // Explicitly check bounds to avoid strict warnings
         let ret = index < words.length ? words[index] : undefined;
@@ -359,7 +359,7 @@ export var PluralForm = {
         // Check for array out of bounds or empty strings
         if (ret == undefined || ret == "") {
           // Report the caller to help figure out who is causing badness
-          let caller = Components.stack.caller
+          const caller = Components.stack.caller
             ? Components.stack.caller.name
             : "top";
 
@@ -415,7 +415,7 @@ export var PluralForm = {
  *        Error message to log or an array of strings to concat
  */
 function log(aMsg) {
-  let msg = "PluralForm.jsm: " + (aMsg.join ? aMsg.join("") : aMsg);
+  const msg = "PluralForm.jsm: " + (aMsg.join ? aMsg.join("") : aMsg);
   Services.console.logStringMessage(msg);
   dump(msg + "\n");
 }

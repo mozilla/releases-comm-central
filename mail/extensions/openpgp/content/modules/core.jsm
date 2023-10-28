@@ -54,7 +54,7 @@ var EnigmailCore = {
 
   shutdown(reason) {
     if (this.factories) {
-      for (let fct of this.factories) {
+      for (const fct of this.factories) {
         fct.unregister();
       }
     }
@@ -94,7 +94,7 @@ var EnigmailCore = {
 ///////////////////////////////////////////////////////////////////////////////
 
 function initializeLogDirectory() {
-  let dir = Services.prefs.getCharPref("temp.openpgp.logDirectory", "");
+  const dir = Services.prefs.getCharPref("temp.openpgp.logDirectory", "");
   if (!dir) {
     return;
   }

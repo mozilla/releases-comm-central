@@ -16,15 +16,15 @@ function summarizeSelection(aMessageDisplay) {
   // the view's version of threading, not the database's version, in order to
   // thread together cross-folder messages. XXX: This falls apart for group by
   // sort; what we really want is a way to specify only the cross-folder view.
-  let folderDisplay = aMessageDisplay.folderDisplay;
-  let selectedIndices = folderDisplay.selectedIndices;
-  let dbView = folderDisplay.view.dbView;
+  const folderDisplay = aMessageDisplay.folderDisplay;
+  const selectedIndices = folderDisplay.selectedIndices;
+  const dbView = folderDisplay.view.dbView;
 
-  let getThreadId = function (index) {
+  const getThreadId = function (index) {
     return dbView.getThreadContainingIndex(index).getRootHdr().messageKey;
   };
 
-  let firstThreadId = getThreadId(selectedIndices[0]);
+  const firstThreadId = getThreadId(selectedIndices[0]);
   let oneThread = true;
   for (let i = 1; i < selectedIndices.length; i++) {
     if (getThreadId(selectedIndices[i]) != firstThreadId) {
@@ -33,7 +33,7 @@ function summarizeSelection(aMessageDisplay) {
     }
   }
 
-  let selectedMessages = folderDisplay.selectedMessages;
+  const selectedMessages = folderDisplay.selectedMessages;
   if (oneThread) {
     summarizeThread(selectedMessages, aMessageDisplay);
   } else {
@@ -53,7 +53,7 @@ function summarizeThread(aSelectedMessages, aMessageDisplay) {
 
   aMessageDisplay.singleMessageDisplay = false;
   gSummaryFrameManager.loadAndCallback(kSummaryURL, function () {
-    let childWindow = gSummaryFrameManager.iframe.contentWindow;
+    const childWindow = gSummaryFrameManager.iframe.contentWindow;
     try {
       childWindow.gMessageSummary.summarize(
         "thread",
@@ -84,7 +84,7 @@ function summarizeMultipleSelection(aSelectedMessages, aMessageDisplay) {
 
   aMessageDisplay.singleMessageDisplay = false;
   gSummaryFrameManager.loadAndCallback(kSummaryURL, function () {
-    let childWindow = gSummaryFrameManager.iframe.contentWindow;
+    const childWindow = gSummaryFrameManager.iframe.contentWindow;
     try {
       childWindow.gMessageSummary.summarize(
         "multipleselection",

@@ -60,11 +60,11 @@ add_task(function testFolderPaneHeaderDefaultState() {
 });
 
 add_task(async function testHideFolderPaneHeader() {
-  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
   await shownPromise;
 
-  let hiddenPromise = BrowserTestUtils.waitForCondition(
+  const hiddenPromise = BrowserTestUtils.waitForCondition(
     () => folderPaneHeader.hidden,
     "The folder pane header is hidden"
   );
@@ -91,12 +91,12 @@ add_task(async function testHideFolderPaneHeader() {
     return;
   }
 
-  let menubar = document.getElementById("toolbar-menubar");
+  const menubar = document.getElementById("toolbar-menubar");
   menubar.removeAttribute("autohide");
   menubar.removeAttribute("inactive");
   await new Promise(resolve => requestAnimationFrame(resolve));
 
-  let viewShownPromise = BrowserTestUtils.waitForEvent(
+  const viewShownPromise = BrowserTestUtils.waitForEvent(
     document.getElementById("menu_View_Popup"),
     "popupshown"
   );
@@ -107,10 +107,10 @@ add_task(async function testHideFolderPaneHeader() {
   );
   await viewShownPromise;
 
-  let viewMenuPopup = document.getElementById("menu_View_Popup");
+  const viewMenuPopup = document.getElementById("menu_View_Popup");
   Assert.ok(viewMenuPopup.querySelector("#menu_FolderViews"));
 
-  let folderViewShownPromise = BrowserTestUtils.waitForEvent(
+  const folderViewShownPromise = BrowserTestUtils.waitForEvent(
     document.getElementById("menu_FolderViewsPopup"),
     "popupshown"
   );
@@ -121,7 +121,7 @@ add_task(async function testHideFolderPaneHeader() {
   );
   await folderViewShownPromise;
 
-  let toggleFolderHeader = menubar.querySelector(`[name="paneheader"]`);
+  const toggleFolderHeader = menubar.querySelector(`[name="paneheader"]`);
   Assert.ok(
     !toggleFolderHeader.hasAttribute("checked"),
     "The toggle header menu item is not checked"
@@ -133,14 +133,14 @@ add_task(async function testHideFolderPaneHeader() {
     "The toggle header menu item is checked"
   );
 
-  let folderViewHiddenPromise = BrowserTestUtils.waitForEvent(
+  const folderViewHiddenPromise = BrowserTestUtils.waitForEvent(
     document.getElementById("menu_FolderViewsPopup"),
     "popuphidden"
   );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
   await folderViewHiddenPromise;
 
-  let viewHiddenPromise = BrowserTestUtils.waitForEvent(
+  const viewHiddenPromise = BrowserTestUtils.waitForEvent(
     viewMenuPopup,
     "popuphidden"
   );
@@ -169,8 +169,11 @@ add_task(async function testTogglePaneHeaderFromAppMenu() {
   );
 
   async function toggleFolderPaneHeader(shouldBeChecked) {
-    let appMenu = document.getElementById("appMenu-popup");
-    let menuShownPromise = BrowserTestUtils.waitForEvent(appMenu, "popupshown");
+    const appMenu = document.getElementById("appMenu-popup");
+    const menuShownPromise = BrowserTestUtils.waitForEvent(
+      appMenu,
+      "popupshown"
+    );
     EventUtils.synthesizeMouseAtCenter(
       document.getElementById("button-appmenu"),
       {},
@@ -178,7 +181,7 @@ add_task(async function testTogglePaneHeaderFromAppMenu() {
     );
     await menuShownPromise;
 
-    let viewShownPromise = BrowserTestUtils.waitForEvent(
+    const viewShownPromise = BrowserTestUtils.waitForEvent(
       appMenu.querySelector("#appMenu-viewView"),
       "ViewShown"
     );
@@ -189,7 +192,7 @@ add_task(async function testTogglePaneHeaderFromAppMenu() {
     );
     await viewShownPromise;
 
-    let toolbarShownPromise = BrowserTestUtils.waitForEvent(
+    const toolbarShownPromise = BrowserTestUtils.waitForEvent(
       appMenu.querySelector("#appMenu-foldersView"),
       "ViewShown"
     );
@@ -200,7 +203,7 @@ add_task(async function testTogglePaneHeaderFromAppMenu() {
     );
     await toolbarShownPromise;
 
-    let appMenuButton = document.getElementById("appmenu_toggleFolderHeader");
+    const appMenuButton = document.getElementById("appmenu_toggleFolderHeader");
     Assert.equal(
       appMenuButton.checked,
       shouldBeChecked,
@@ -209,7 +212,7 @@ add_task(async function testTogglePaneHeaderFromAppMenu() {
 
     EventUtils.synthesizeMouseAtCenter(appMenuButton, {}, window);
 
-    let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    const menuHiddenPromise = BrowserTestUtils.waitForEvent(
       appMenu,
       "popuphidden"
     );
@@ -235,7 +238,7 @@ add_task(async function testTogglePaneHeaderButtons() {
   Assert.ok(!fetchButton.hidden, "The Get Messages button is visible");
   Assert.ok(!newButton.hidden, "The New Message button is visible");
 
-  let folderPaneHdrToggleBtns = [
+  const folderPaneHdrToggleBtns = [
     {
       menuId: "#folderPaneHeaderToggleGetMessages",
       buttonId: "#folderPaneGetMessages",
@@ -248,13 +251,16 @@ add_task(async function testTogglePaneHeaderButtons() {
     },
   ];
 
-  for (let toggle of folderPaneHdrToggleBtns) {
-    let toggleMenuItem = moreContext.querySelector(toggle.menuId);
-    let toggleButton = folderPaneHeader.querySelector(toggle.buttonId);
+  for (const toggle of folderPaneHdrToggleBtns) {
+    const toggleMenuItem = moreContext.querySelector(toggle.menuId);
+    const toggleButton = folderPaneHeader.querySelector(toggle.buttonId);
     let shouldBeChecked = !toggleButton.hidden;
 
     // Hide the toggle buttons
-    let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+    const shownPromise = BrowserTestUtils.waitForEvent(
+      moreContext,
+      "popupshown"
+    );
     EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
     await shownPromise;
 
@@ -278,7 +284,7 @@ add_task(async function testTogglePaneHeaderButtons() {
       `The ${toggle.label}  button is hidden`
     );
 
-    let buttonName =
+    const buttonName =
       toggle.buttonId == "#folderPaneGetMessages"
         ? "folderPaneGetMessages"
         : "folderPaneWriteMessage";
@@ -292,7 +298,7 @@ add_task(async function testTogglePaneHeaderButtons() {
       "The customization data was saved"
     );
 
-    let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    const menuHiddenPromise = BrowserTestUtils.waitForEvent(
       moreContext,
       "popuphidden"
     );
@@ -342,11 +348,11 @@ add_task(async function testTogglePaneHeaderButtons() {
  * Test the default state of the context menu in the about3Pane.
  */
 add_task(async function testInitialActiveModes() {
-  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
   await shownPromise;
 
-  let shownFolderModesSubMenuPromise = BrowserTestUtils.waitForEvent(
+  const shownFolderModesSubMenuPromise = BrowserTestUtils.waitForEvent(
     folderModesContextMenuPopup,
     "popupshown"
   );
@@ -378,20 +384,20 @@ add_task(async function testInitialActiveModes() {
  * active modes.
  */
 add_task(async function testFolderModesActivation() {
-  let folderModesArray = [
+  const folderModesArray = [
     { menuID: "#folderPaneMoreContextUnifiedFolders", modeID: "smart" },
     { menuID: "#folderPaneMoreContextUnreadFolders", modeID: "unread" },
     { menuID: "#folderPaneMoreContextFavoriteFolders", modeID: "favorite" },
     { menuID: "#folderPaneMoreContextRecentFolders", modeID: "recent" },
   ];
   let checkedModesCount = 2;
-  for (let mode of folderModesArray) {
+  for (const mode of folderModesArray) {
     Assert.ok(
       !moreContext.querySelector(mode.menuID).hasAttribute("checked"),
       `"${mode.modeID}" option is not checked`
     );
 
-    let checkedPromise = TestUtils.waitForCondition(
+    const checkedPromise = TestUtils.waitForCondition(
       () => moreContext.querySelector(mode.menuID).hasAttribute("checked"),
       `"${mode.modeID}" option has been checked`
     );
@@ -419,7 +425,7 @@ add_task(async function testFolderModesActivation() {
  * checked.
  */
 add_task(async function testFolderModesDeactivation() {
-  let folderActiveModesArray = [
+  const folderActiveModesArray = [
     { menuID: "#folderPaneMoreContextAllFolders", modeID: "all" },
     { menuID: "#folderPaneMoreContextUnifiedFolders", modeID: "smart" },
     { menuID: "#folderPaneMoreContextUnreadFolders", modeID: "unread" },
@@ -427,13 +433,13 @@ add_task(async function testFolderModesDeactivation() {
     { menuID: "#folderPaneMoreContextRecentFolders", modeID: "recent" },
   ];
   let checkedModesCount = 4;
-  for (let mode of folderActiveModesArray) {
+  for (const mode of folderActiveModesArray) {
     Assert.ok(
       moreContext.querySelector(mode.menuID).hasAttribute("checked"),
       `"${mode.modeID}" option is checked`
     );
 
-    let uncheckedPromise = TestUtils.waitForCondition(
+    const uncheckedPromise = TestUtils.waitForCondition(
       () => !moreContext.querySelector(mode.menuID).hasAttribute("checked"),
       `"${mode.modeID}" option has been unchecked`
     );
@@ -511,7 +517,7 @@ add_task(async function testGetMessageContextMenu() {
 });
 
 add_task(async function testTotalCountDefaultState() {
-  let totalCountBadge = about3Pane.document.querySelector(".total-count");
+  const totalCountBadge = about3Pane.document.querySelector(".total-count");
   Assert.ok(
     !moreContext
       .querySelector("#folderPaneHeaderToggleTotalCount")
@@ -536,7 +542,7 @@ add_task(async function testTotalCountDefaultState() {
   await be_in_folder(inbox);
 
   about3Pane.folderTree.selectedIndex = 1;
-  let row = about3Pane.folderTree.getRowAtIndex(1);
+  const row = about3Pane.folderTree.getRowAtIndex(1);
   await assertAriaLabel(row, "Inbox, 10 unread messages");
 
   about3Pane.threadTree.selectedIndex = 0;
@@ -545,13 +551,13 @@ add_task(async function testTotalCountDefaultState() {
 });
 
 add_task(async function testTotalCountVisible() {
-  let totalCountBadge = about3Pane.document.querySelector(".total-count");
-  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  const totalCountBadge = about3Pane.document.querySelector(".total-count");
+  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
   await shownPromise;
 
   // Toggle total count ON.
-  let toggleOnPromise = BrowserTestUtils.waitForCondition(
+  const toggleOnPromise = BrowserTestUtils.waitForCondition(
     () => !totalCountBadge.hidden,
     "The total count badges are visible"
   );
@@ -576,19 +582,19 @@ add_task(async function testTotalCountVisible() {
     "The customization data was saved"
   );
 
-  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
     moreContext,
     "popuphidden"
   );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
   await menuHiddenPromise;
 
-  let row = about3Pane.folderTree.getRowAtIndex(1);
+  const row = about3Pane.folderTree.getRowAtIndex(1);
   await assertAriaLabel(row, "Inbox, 9 unread messages, 10 total messages");
 });
 
 add_task(async function testFolderSizeDefaultState() {
-  let folderSizeBadge = about3Pane.document.querySelector(".folder-size");
+  const folderSizeBadge = about3Pane.document.querySelector(".folder-size");
   Assert.ok(
     !moreContext
       .querySelector("#folderPaneHeaderToggleFolderSize")
@@ -608,13 +614,13 @@ add_task(async function testFolderSizeDefaultState() {
 });
 
 add_task(async function testFolderSizeVisible() {
-  let folderSizeBadge = about3Pane.document.querySelector(".folder-size");
-  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  const folderSizeBadge = about3Pane.document.querySelector(".folder-size");
+  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
   await shownPromise;
 
   // Toggle folder size ON.
-  let toggleOnPromise = BrowserTestUtils.waitForCondition(
+  const toggleOnPromise = BrowserTestUtils.waitForCondition(
     () => !folderSizeBadge.hidden,
     "The folder sizes are visible"
   );
@@ -641,14 +647,14 @@ add_task(async function testFolderSizeVisible() {
 
   Assert.ok(!folderSizeBadge.hidden, "The folder sizes are visible");
 
-  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
     moreContext,
     "popuphidden"
   );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
   await menuHiddenPromise;
 
-  let row = about3Pane.folderTree.getRowAtIndex(1);
+  const row = about3Pane.folderTree.getRowAtIndex(1);
   await assertAriaLabel(
     row,
     `Inbox, 9 unread messages, 10 total messages, ${row.folderSize}`
@@ -656,13 +662,13 @@ add_task(async function testFolderSizeVisible() {
 });
 
 add_task(async function testFolderSizeHidden() {
-  let folderSizeBadge = about3Pane.document.querySelector(".folder-size");
-  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  const folderSizeBadge = about3Pane.document.querySelector(".folder-size");
+  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
   await shownPromise;
 
   // Toggle folder sizes OFF.
-  let toggleOffPromise = BrowserTestUtils.waitForCondition(
+  const toggleOffPromise = BrowserTestUtils.waitForCondition(
     () => folderSizeBadge.hidden,
     "The folder sizes are hidden"
   );
@@ -691,7 +697,7 @@ add_task(async function testFolderSizeHidden() {
 
   Assert.ok(folderSizeBadge.hidden, "The folder sizes are hidden");
 
-  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
     moreContext,
     "popuphidden"
   );
@@ -700,13 +706,13 @@ add_task(async function testFolderSizeHidden() {
 });
 
 add_task(async function testTotalCountHidden() {
-  let totalCountBadge = about3Pane.document.querySelector(".total-count");
-  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  const totalCountBadge = about3Pane.document.querySelector(".total-count");
+  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
   await shownPromise;
 
   // Toggle total count OFF.
-  let toggleOffPromise = BrowserTestUtils.waitForCondition(
+  const toggleOffPromise = BrowserTestUtils.waitForCondition(
     () => totalCountBadge.hidden,
     "The total count badges are hidden"
   );
@@ -732,14 +738,14 @@ add_task(async function testTotalCountHidden() {
     "The customization data was saved"
   );
 
-  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
     moreContext,
     "popuphidden"
   );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
   await menuHiddenPromise;
 
-  let row = about3Pane.folderTree.getRowAtIndex(1);
+  const row = about3Pane.folderTree.getRowAtIndex(1);
   await assertAriaLabel(row, "Inbox, 9 unread messages");
 });
 
@@ -762,7 +768,7 @@ add_task(async function testHideLocalFoldersXULStore() {
     "The customization data to hide local folders should be saved"
   );
 
-  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
     moreContext,
     "popuphidden"
   );
@@ -800,8 +806,8 @@ add_task(async function testHideLocalFoldersXULStore() {
  * folders and modes change in the folder pane.
  */
 add_task(async function testBadgesPersistentState() {
-  let totalCountBadge = about3Pane.document.querySelector(".total-count");
-  let folderSizeBadge = about3Pane.document.querySelector(".folder-size");
+  const totalCountBadge = about3Pane.document.querySelector(".total-count");
+  const folderSizeBadge = about3Pane.document.querySelector(".folder-size");
   // Show total count.
   let toggleOnPromise = BrowserTestUtils.waitForCondition(
     () => !totalCountBadge.hidden,
@@ -840,7 +846,7 @@ add_task(async function testBadgesPersistentState() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 250));
 
-  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
     moreContext,
     "popuphidden"
   );
@@ -907,7 +913,7 @@ add_task(async function testBadgesPersistentState() {
 
 add_task(async function testActionButtonsState() {
   // Delete all accounts to start clean.
-  for (let account of MailServices.accounts.accounts) {
+  for (const account of MailServices.accounts.accounts) {
     MailServices.accounts.removeAccount(account, true);
   }
 
@@ -922,14 +928,14 @@ add_task(async function testActionButtonsState() {
   Assert.ok(newButton.disabled, "The New Message button is disabled");
 
   // Create a POP server.
-  let popServer = MailServices.accounts
+  const popServer = MailServices.accounts
     .createIncomingServer("nobody", "foo.invalid", "pop3")
     .QueryInterface(Ci.nsIPop3IncomingServer);
 
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox@foo.invalid";
 
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.addIdentity(identity);
   account.incomingServer = popServer;
 

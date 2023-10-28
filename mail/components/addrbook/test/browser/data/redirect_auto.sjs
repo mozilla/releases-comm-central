@@ -7,7 +7,7 @@
 Cu.importGlobalProperties(["URLSearchParams", "URL"]);
 
 function handleRequest(request, response) {
-  let params = new URLSearchParams(request.queryString);
+  const params = new URLSearchParams(request.queryString);
 
   if (request.method == "POST") {
     response.setStatusLine(request.httpVersion, 303, "Redirected");
@@ -15,7 +15,7 @@ function handleRequest(request, response) {
     response.setStatusLine(request.httpVersion, 302, "Moved Temporarily");
   }
 
-  let url = new URL(params.get("redirect_uri"));
+  const url = new URL(params.get("redirect_uri"));
   url.searchParams.set("code", "success");
   response.setHeader("Location", url.href);
 }

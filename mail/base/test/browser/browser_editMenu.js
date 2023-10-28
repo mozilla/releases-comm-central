@@ -41,9 +41,9 @@ if (AppConstants.platform == "linux") {
   editMenuData.menu_preferences = {};
   editMenuData.menu_accountmgr = {};
 }
-let helper = new MenuTestHelper("menu_Edit", editMenuData);
+const helper = new MenuTestHelper("menu_Edit", editMenuData);
 
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 let rootFolder, testFolder, testMessages, virtualFolder;
 let nntpRootFolder, nntpFolder;
 let imapRootFolder, imapFolder;
@@ -54,7 +54,7 @@ add_setup(async function () {
   const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
@@ -70,14 +70,14 @@ add_setup(async function () {
   rootFolder.createSubfolder("edit menu virtual", null);
   virtualFolder = rootFolder.getChildNamed("edit menu virtual");
   virtualFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  let msgDatabase = virtualFolder.msgDatabase;
-  let folderInfo = msgDatabase.dBFolderInfo;
+  const msgDatabase = virtualFolder.msgDatabase;
+  const folderInfo = msgDatabase.dBFolderInfo;
   folderInfo.setCharProperty("searchStr", "ALL");
   folderInfo.setCharProperty("searchFolderUri", testFolder.URI);
 
   NNTPServer.open();
   NNTPServer.addGroup("edit.menu.newsgroup");
-  let nntpAccount = MailServices.accounts.createAccount();
+  const nntpAccount = MailServices.accounts.createAccount();
   nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
     `${nntpAccount.key}user`,
     "localhost",
@@ -89,7 +89,7 @@ add_setup(async function () {
   nntpFolder = nntpRootFolder.getChildNamed("edit.menu.newsgroup");
 
   IMAPServer.open();
-  let imapAccount = MailServices.accounts.createAccount();
+  const imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(MailServices.accounts.createIdentity());
   imapAccount.incomingServer = MailServices.accounts.createIncomingServer(
     `${imapAccount.key}user`,
@@ -122,8 +122,8 @@ add_task(async function test3PaneTab() {
  * various things depending on the current context.
  */
 add_task(async function testDeleteItem() {
-  let about3Pane = tabmail.currentAbout3Pane;
-  let { displayFolder, folderTree, paneLayout, threadTree } = about3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
+  const { displayFolder, folderTree, paneLayout, threadTree } = about3Pane;
   paneLayout.messagePaneVisible = true;
 
   // Focus on the folder tree and check that an NNTP account shows
@@ -250,7 +250,7 @@ add_task(async function testDeleteItem() {
 
   displayFolder(imapFolder);
   await TestUtils.waitForCondition(() => threadTree.view.rowCount == 10);
-  let dbView = about3Pane.gDBView;
+  const dbView = about3Pane.gDBView;
   threadTree.selectedIndex = -1;
   await helper.testItems({
     menu_delete: {
@@ -263,7 +263,7 @@ add_task(async function testDeleteItem() {
   // Then check that calling cmd_delete sets the flag on the message.
 
   threadTree.selectedIndex = 0;
-  let message = dbView.getMsgHdrAt(0);
+  const message = dbView.getMsgHdrAt(0);
   await helper.activateItem("menu_delete", {
     l10nID: "menu-edit-delete-messages",
     l10nArgs: { count: 1 },
@@ -304,7 +304,7 @@ add_task(async function testDeleteItem() {
   // Messages". Check that calling cmd_delete sets the flag on the messages.
 
   threadTree.selectedIndices = [1, 3, 5];
-  let messages = dbView.getSelectedMsgHdrs();
+  const messages = dbView.getSelectedMsgHdrs();
   await helper.testItems({
     menu_delete: {
       l10nID: "menu-edit-delete-messages",
@@ -351,7 +351,7 @@ add_task(async function testDeleteItem() {
  * Tests the "Favorite Folder" item in the menu is checked/unchecked as expected.
  */
 add_task(async function testFavoriteFolderItem() {
-  let { displayFolder } = tabmail.currentAbout3Pane;
+  const { displayFolder } = tabmail.currentAbout3Pane;
 
   testFolder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
   displayFolder(testFolder);
@@ -400,7 +400,7 @@ add_task(async function testPropertiesItem() {
     await SimpleTest.promiseFocus(window);
   }
 
-  let { displayFolder } = tabmail.currentAbout3Pane;
+  const { displayFolder } = tabmail.currentAbout3Pane;
 
   displayFolder(rootFolder);
   await helper.testItems({
@@ -436,7 +436,7 @@ add_task(async function testPropertiesItem() {
 
 var NNTPServer = {
   open() {
-    let { NNTP_RFC977_handler, NntpDaemon } = ChromeUtils.import(
+    const { NNTP_RFC977_handler, NntpDaemon } = ChromeUtils.import(
       "resource://testing-common/mailnews/Nntpd.jsm"
     );
 
@@ -465,9 +465,8 @@ var NNTPServer = {
 
 var IMAPServer = {
   open() {
-    let { ImapDaemon, ImapMessage, IMAP_RFC3501_handler } = ChromeUtils.import(
-      "resource://testing-common/mailnews/Imapd.jsm"
-    );
+    const { ImapDaemon, ImapMessage, IMAP_RFC3501_handler } =
+      ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
     IMAPServer.ImapMessage = ImapMessage;
 
     this.daemon = new ImapDaemon();
@@ -487,15 +486,15 @@ var IMAPServer = {
   },
 
   addMessages(folder, messages) {
-    let fakeFolder = IMAPServer.daemon.getMailbox(folder.name);
+    const fakeFolder = IMAPServer.daemon.getMailbox(folder.name);
     messages.forEach(message => {
       if (typeof message != "string") {
         message = message.toMessageString();
       }
-      let msgURI = Services.io.newURI(
+      const msgURI = Services.io.newURI(
         "data:text/plain;base64," + btoa(message)
       );
-      let imapMsg = new IMAPServer.ImapMessage(
+      const imapMsg = new IMAPServer.ImapMessage(
         msgURI.spec,
         fakeFolder.uidnext++,
         []

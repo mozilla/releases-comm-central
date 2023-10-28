@@ -46,7 +46,7 @@ add_task(function test_toolbar_and_placeholder() {
     !document.getElementById("noConnectedAccountInnerBox").hidden,
     "the 'No connected account' placeholder is visible"
   );
-  let chatHandler = window.chatHandler;
+  const chatHandler = window.chatHandler;
   Assert.equal(
     chatHandler._placeHolderButtonId,
     "openIMAccountManagerButton",
@@ -69,13 +69,13 @@ add_task(function test_toolbar_and_placeholder() {
   );
 
   // The next tests require an account, get the unwrapped default IRC account.
-  let account = IMServices.accounts.getAccountByNumericId(1);
+  const account = IMServices.accounts.getAccountByNumericId(1);
   Assert.equal(
     account.protocol.id,
     "prpl-irc",
     "the default IM account is an IRC account"
   );
-  let ircAccount = account.prplAccount.wrappedJSObject;
+  const ircAccount = account.prplAccount.wrappedJSObject;
 
   // Pretend the account is connected and check how the UI reacts
   ircAccount.reportConnected();

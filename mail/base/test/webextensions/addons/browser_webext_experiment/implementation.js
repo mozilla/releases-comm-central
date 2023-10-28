@@ -18,7 +18,7 @@ var myapi = class extends ExtensionCommon.ExtensionAPI {
           // function that removes those listeners. To have the event fire in your extension,
           // call fire.async.
           register(fire) {
-            let callback = function (event, id, x, y) {
+            const callback = function (event, id, x, y) {
               return fire.async(id, x, y);
             };
 
@@ -55,7 +55,7 @@ var windowListener = new (class extends ExtensionCommon.EventEmitter {
   }
 
   handleEvent(event) {
-    let toolbar = event.target.closest("toolbar");
+    const toolbar = event.target.closest("toolbar");
     windowListener.emit(
       "toolbar-clicked",
       toolbar.id,
@@ -72,7 +72,7 @@ var windowListener = new (class extends ExtensionCommon.EventEmitter {
       ExtensionSupport.registerWindowListener("windowListener", {
         chromeURLs: ["chrome://messenger/content/messenger.xul"],
         onLoadWindow: window => {
-          let toolbox = window.document.getElementById("mail-toolbox");
+          const toolbox = window.document.getElementById("mail-toolbox");
           toolbox.addEventListener("click", this.handleEvent);
         },
       });
@@ -84,11 +84,11 @@ var windowListener = new (class extends ExtensionCommon.EventEmitter {
     this.callbackCount--;
 
     if (this.callbackCount == 0) {
-      for (let window of ExtensionSupport.openWindows) {
+      for (const window of ExtensionSupport.openWindows) {
         if (
           window.location.href == "chrome://messenger/content/messenger.xul"
         ) {
-          let toolbox = window.document.getElementById("mail-toolbox");
+          const toolbox = window.document.getElementById("mail-toolbox");
           toolbox.removeEventListener("click", this.handleEvent);
         }
       }

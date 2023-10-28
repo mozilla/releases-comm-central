@@ -148,7 +148,7 @@ class GlobalSearchBar extends SearchBar {
   }
 
   #handleSearch = event => {
-    let tabmail = document.getElementById("tabmail");
+    const tabmail = document.getElementById("tabmail");
     let args;
     // Build the query from the autocomplete result.
     const selectedIndex = this.popup.selectedIndex;
@@ -173,7 +173,7 @@ class GlobalSearchBar extends SearchBar {
     }
     // Or just do a normal full text search.
     if (!args) {
-      let searchString = event.detail;
+      const searchString = event.detail;
       args = {
         searcher: new lazy.GlodaMsgSearcher(null, searchString),
       };

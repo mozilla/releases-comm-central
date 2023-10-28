@@ -198,8 +198,8 @@ var gAccounts = [];
  * Set up accounts based on the given data.
  */
 function setup_accounts() {
-  for (let details of gAccountList) {
-    let server = localAccountUtils.create_incoming_server(
+  for (const details of gAccountList) {
+    const server = localAccountUtils.create_incoming_server(
       details.type,
       details.port,
       details.user,
@@ -212,9 +212,9 @@ function setup_accounts() {
     // Add the newly created server to the array for testing.
     gIncomingServers.push(server);
 
-    let account = MailServices.accounts.FindAccountForServer(server);
-    for (let smtpDetails of details.smtpServers) {
-      let outgoing = localAccountUtils.create_outgoing_server(
+    const account = MailServices.accounts.FindAccountForServer(server);
+    for (const smtpDetails of details.smtpServers) {
+      const outgoing = localAccountUtils.create_outgoing_server(
         smtpDetails.port,
         smtpDetails.user,
         smtpDetails.password,
@@ -240,7 +240,7 @@ function setup_accounts() {
 add_task(function test_oauth_migration() {
   setup_accounts();
 
-  for (let server of gIncomingServers) {
+  for (const server of gIncomingServers) {
     // Confirm all the incoming servers are not using OAuth2 after the setup.
     Assert.notEqual(
       server.authMethod,
@@ -249,7 +249,7 @@ add_task(function test_oauth_migration() {
     );
   }
 
-  for (let server of gOutgoingServers) {
+  for (const server of gOutgoingServers) {
     // Confirm all the outgoing servers are not using OAuth2 after the setup.
     Assert.notEqual(
       server.authMethod,
@@ -262,7 +262,7 @@ add_task(function test_oauth_migration() {
   Services.prefs.setIntPref("mail.ui-rdf.version", 21);
   MailMigrator._migrateUI();
 
-  for (let server of gIncomingServers) {
+  for (const server of gIncomingServers) {
     // Confirm only the correct incoming servers are using OAuth2 after migration.
     if (
       !server.hostName.endsWith("mail.yahoo.com") &&
@@ -285,7 +285,7 @@ add_task(function test_oauth_migration() {
     );
   }
 
-  for (let server of gOutgoingServers) {
+  for (const server of gOutgoingServers) {
     // Confirm only the correct outgoing servers are using OAuth2 after migration.
     if (
       !server.hostname.endsWith("mail.yahoo.com") &&
@@ -309,11 +309,11 @@ add_task(function test_oauth_migration() {
   }
 
   // Remove our test accounts and servers to leave the profile clean.
-  for (let account of gAccounts) {
+  for (const account of gAccounts) {
     MailServices.accounts.removeAccount(account);
   }
 
-  for (let server of gOutgoingServers) {
+  for (const server of gOutgoingServers) {
     MailServices.smtp.deleteServer(server);
   }
 });

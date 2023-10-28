@@ -32,15 +32,15 @@ var gDownloadDirSection = {
     }
     fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
-    let rv = await new Promise(resolve => fp.open(resolve));
+    const rv = await new Promise(resolve => fp.open(resolve));
     if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
       return;
     }
 
-    let file = fp.file.QueryInterface(Ci.nsIFile);
-    let currentDirPref = Preferences.get("browser.download.downloadDir");
+    const file = fp.file.QueryInterface(Ci.nsIFile);
+    const currentDirPref = Preferences.get("browser.download.downloadDir");
     customDirPref.value = currentDirPref.value = file;
-    let folderListPref = Preferences.get("browser.download.folderList");
+    const folderListPref = Preferences.get("browser.download.folderList");
     folderListPref.value = await this._fileToIndex(file);
   },
 
@@ -80,7 +80,7 @@ var gDownloadDirSection = {
       case "Desktop":
         return Services.dirsvc.get("Desk", Ci.nsIFile);
       case "Downloads":
-        let downloadsDir = await Downloads.getSystemDownloadsDirectory();
+        const downloadsDir = await Downloads.getSystemDownloadsDirectory();
         return new FileUtils.File(downloadsDir);
     }
     throw new Error(
@@ -113,7 +113,7 @@ var gDownloadDirSection = {
     var downloadDir =
       currentDirPref.value || (await this._indexToFile(folderListPref.value));
     if (downloadDir) {
-      let urlSpec = Services.io
+      const urlSpec = Services.io
         .getProtocolHandler("file")
         .QueryInterface(Ci.nsIFileProtocolHandler)
         .getURLSpecFromDir(downloadDir);

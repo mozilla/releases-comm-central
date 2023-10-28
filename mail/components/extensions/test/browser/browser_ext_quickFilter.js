@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 let messages;
-let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 
 add_setup(async () => {
-  let account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
-  let subFolders = rootFolder.subFolders;
+  const account = createAccount();
+  const rootFolder = account.incomingServer.rootFolder;
+  const subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
 
   // Modify the messages so the filters can be checked against them.
@@ -33,16 +33,16 @@ add_setup(async () => {
 
   // Add an author to the address book.
 
-  let author = messages.at(-8).author.replace(/["<>]/g, "").split(" ");
-  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+  const author = messages.at(-8).author.replace(/["<>]/g, "").split(" ");
+  const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
   card.setProperty("FirstName", author[0]);
   card.setProperty("LastName", author[1]);
   card.setProperty("DisplayName", `${author[0]} ${author[1]}`);
   card.setProperty("PrimaryEmail", author[2]);
-  let ab = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
-  let addedCard = ab.addCard(card);
+  const ab = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  const addedCard = ab.addCard(card);
 
   about3Pane.displayFolder(subFolders[0]);
 
@@ -105,7 +105,7 @@ add_task(async () => {
     browser.test.notifyPass("quickFilter");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -116,8 +116,8 @@ add_task(async () => {
   });
 
   extension.onMessage("checkVisible", async (...expected) => {
-    let actual = [];
-    let dbView = about3Pane.gDBView;
+    const actual = [];
+    const dbView = about3Pane.gDBView;
     for (let i = 0; i < dbView.numMsgsInView; i++) {
       actual.push(messages.indexOf(dbView.getMsgHdrAt(i)));
     }

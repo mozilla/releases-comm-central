@@ -25,7 +25,7 @@ class TestSelectionWidget extends HTMLElement {
   #controller = null;
 
   connectedCallback() {
-    let widget = this;
+    const widget = this;
 
     widget.tabIndex = 0;
     widget.setAttribute("role", "listbox");
@@ -34,7 +34,7 @@ class TestSelectionWidget extends HTMLElement {
       "aria-orientation",
       widget.getAttribute("layout-direction")
     );
-    let model = widget.getAttribute("selection-model");
+    const model = widget.getAttribute("selection-model");
     widget.setAttribute("aria-multiselectable", model == "browse-multi");
 
     this.#controller = new SelectionWidgetController(widget, model, {
@@ -53,7 +53,7 @@ class TestSelectionWidget extends HTMLElement {
         if (widget.hasAttribute("no-pages")) {
           return null;
         }
-        let itemRect = widget.items[0]?.element.getBoundingClientRect();
+        const itemRect = widget.items[0]?.element.getBoundingClientRect();
         if (widget.getAttribute("layout-direction") == "vertical") {
           return {
             itemSize: itemRect?.height ?? null,
@@ -91,12 +91,12 @@ class TestSelectionWidget extends HTMLElement {
   }
 
   #createItemElement(text) {
-    for (let { element } of this.items) {
+    for (const { element } of this.items) {
       if (element.textContent == text) {
         throw new Error(`An item with the text "${text}" already exists`);
       }
     }
-    let element = this.ownerDocument.createElement("span");
+    const element = this.ownerDocument.createElement("span");
     element.textContent = text;
     element.setAttribute("role", "option");
     element.tabIndex = -1;
@@ -112,8 +112,8 @@ class TestSelectionWidget extends HTMLElement {
    *   entry in the array will create one item in the same order.
    */
   addItems(index, textList) {
-    for (let [i, text] of textList.entries()) {
-      let element = this.#createItemElement(text);
+    for (const [i, text] of textList.entries()) {
+      const element = this.#createItemElement(text);
       this.insertBefore(element, this.items[index + i]?.element ?? null);
       this.items.splice(index + i, 0, { element });
     }
@@ -131,7 +131,7 @@ class TestSelectionWidget extends HTMLElement {
    */
   removeItems(index, number) {
     this.#controller.removeSelectableItems(index, number, () => {
-      for (let { element } of this.items.splice(index, number)) {
+      for (const { element } of this.items.splice(index, number)) {
         element.remove();
       }
     });
@@ -151,11 +151,11 @@ class TestSelectionWidget extends HTMLElement {
       throw new Error("Missing reCreate argument");
     }
     this.#controller.moveSelectableItems(from, to, number, () => {
-      let moving = this.items.splice(from, number);
+      const moving = this.items.splice(from, number);
       for (let [i, item] of moving.entries()) {
         item.element.remove();
         if (reCreate) {
-          let text = item.element.textContent;
+          const text = item.element.textContent;
           item = { element: this.#createItemElement(text) };
         }
         this.insertBefore(item.element, this.items[to + i]?.element ?? null);
@@ -192,7 +192,7 @@ class TestSelectionWidget extends HTMLElement {
    * @returns {number[]} - The indices for selected items.
    */
   selectedIndices() {
-    let indices = [];
+    const indices = [];
     for (let i = 0; i < this.items.length; i++) {
       // Assert that the item has a defined selection state set in
       // setItemSelectionState.
@@ -201,7 +201,7 @@ class TestSelectionWidget extends HTMLElement {
       }
       // Assert that our stored selection state matches that returned by the
       // controller API.
-      let itemIsSelected = this.#controller.itemIsSelected(i);
+      const itemIsSelected = this.#controller.itemIsSelected(i);
       if (this.items[i].selected != itemIsSelected) {
         throw new Error(
           `itemIsSelected(${i}): "${itemIsSelected}" does not match stored selection state "${this.items[i].selected}"`

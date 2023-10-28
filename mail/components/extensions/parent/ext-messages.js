@@ -52,8 +52,8 @@ var { DefaultMap } = ExtensionUtils;
  * filters out the properties we don't want to send to extensions.
  */
 function convertMessagePart(part) {
-  let partObject = {};
-  for (let key of ["body", "contentType", "name", "partName", "size"]) {
+  const partObject = {};
+  for (const key of ["body", "contentType", "name", "partName", "size"]) {
     if (key in part) {
       partObject[key] = part[key];
     }
@@ -63,7 +63,7 @@ function convertMessagePart(part) {
   // encoded words and need to be RFC 2047 decoded.
   if ("headers" in part) {
     partObject.headers = {};
-    for (let header of Object.keys(part.headers)) {
+    for (const header of Object.keys(part.headers)) {
       partObject.headers[header] = part.headers[header].map(h =>
         MailServices.mimeConverter.decodeMimeHeader(
           h,
@@ -82,7 +82,7 @@ function convertMessagePart(part) {
 }
 
 async function convertAttachment(attachment, extension) {
-  let rv = {
+  const rv = {
     contentType: attachment.contentType,
     name: attachment.name,
     size: attachment.size,
@@ -92,7 +92,7 @@ async function convertAttachment(attachment, extension) {
   if (attachment.contentType.startsWith("message/")) {
     // The attached message may not have been seen/opened yet, create a dummy
     // msgHdr.
-    let attachedMsgHdr = new CachedMsgHeader();
+    const attachedMsgHdr = new CachedMsgHeader();
     attachedMsgHdr.setStringProperty("dummyMsgUrl", attachment.url);
     attachedMsgHdr.recipients = attachment.headers.to;
     attachedMsgHdr.ccList = attachment.headers.cc;
@@ -100,10 +100,10 @@ async function convertAttachment(attachment, extension) {
     attachedMsgHdr.author = attachment.headers.from?.[0] || "";
     attachedMsgHdr.subject = attachment.headers.subject?.[0] || "";
 
-    let hdrDate = attachment.headers.date?.[0];
+    const hdrDate = attachment.headers.date?.[0];
     attachedMsgHdr.date = hdrDate ? Date.parse(hdrDate) * 1000 : 0;
 
-    let hdrId = attachment.headers["message-id"]?.[0];
+    const hdrId = attachment.headers["message-id"]?.[0];
     attachedMsgHdr.messageId = hdrId ? hdrId.replace(/^<|>$/g, "") : "";
 
     rv.message = extension.messageManager.convert(attachedMsgHdr);
@@ -119,10 +119,10 @@ this.messages = class extends ExtensionAPIPersistent {
     // has been called).
 
     onNewMailReceived({ context, fire }) {
-      let listener = async (event, folder, newMessages) => {
-        let { extension } = this;
+      const listener = async (event, folder, newMessages) => {
+        const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert it early.
-        let page = await messageListTracker.startList(newMessages, extension);
+        const page = await messageListTracker.startList(newMessages, extension);
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -140,10 +140,10 @@ this.messages = class extends ExtensionAPIPersistent {
       };
     },
     onUpdated({ context, fire }) {
-      let listener = async (event, message, properties) => {
-        let { extension } = this;
+      const listener = async (event, message, properties) => {
+        const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert it early.
-        let convertedMessage = extension.messageManager.convert(message);
+        const convertedMessage = extension.messageManager.convert(message);
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -161,14 +161,14 @@ this.messages = class extends ExtensionAPIPersistent {
       };
     },
     onMoved({ context, fire }) {
-      let listener = async (event, srcMessages, dstMessages) => {
-        let { extension } = this;
+      const listener = async (event, srcMessages, dstMessages) => {
+        const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert them early.
-        let srcPage = await messageListTracker.startList(
+        const srcPage = await messageListTracker.startList(
           srcMessages,
           extension
         );
-        let dstPage = await messageListTracker.startList(
+        const dstPage = await messageListTracker.startList(
           dstMessages,
           extension
         );
@@ -189,14 +189,14 @@ this.messages = class extends ExtensionAPIPersistent {
       };
     },
     onCopied({ context, fire }) {
-      let listener = async (event, srcMessages, dstMessages) => {
-        let { extension } = this;
+      const listener = async (event, srcMessages, dstMessages) => {
+        const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert them early.
-        let srcPage = await messageListTracker.startList(
+        const srcPage = await messageListTracker.startList(
           srcMessages,
           extension
         );
-        let dstPage = await messageListTracker.startList(
+        const dstPage = await messageListTracker.startList(
           dstMessages,
           extension
         );
@@ -217,10 +217,10 @@ this.messages = class extends ExtensionAPIPersistent {
       };
     },
     onDeleted({ context, fire }) {
-      let listener = async (event, deletedMessages) => {
-        let { extension } = this;
+      const listener = async (event, deletedMessages) => {
+        const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert them early.
-        let deletedPage = await messageListTracker.startList(
+        const deletedPage = await messageListTracker.startList(
           deletedMessages,
           extension
         );
@@ -247,15 +247,15 @@ this.messages = class extends ExtensionAPIPersistent {
     const { tabManager, messageManager } = extension;
 
     function collectMessagesInFolders(messageIds) {
-      let folderMap = new DefaultMap(() => new Set());
+      const folderMap = new DefaultMap(() => new Set());
 
-      for (let messageId of messageIds) {
-        let msgHdr = messageManager.get(messageId);
+      for (const messageId of messageIds) {
+        const msgHdr = messageManager.get(messageId);
         if (!msgHdr) {
           throw new ExtensionError(`Message not found: ${messageId}.`);
         }
 
-        let msgHeaderSet = folderMap.get(msgHdr.folder);
+        const msgHeaderSet = folderMap.get(msgHdr.folder);
         msgHeaderSet.add(msgHdr);
       }
 
@@ -263,22 +263,24 @@ this.messages = class extends ExtensionAPIPersistent {
     }
 
     async function createTempFileMessage(msgHdr) {
-      let rawBinaryString = await getRawMessage(msgHdr);
-      let pathEmlFile = await IOUtils.createUniqueFile(
+      const rawBinaryString = await getRawMessage(msgHdr);
+      const pathEmlFile = await IOUtils.createUniqueFile(
         PathUtils.tempDir,
         encodeURIComponent(msgHdr.messageId).replaceAll(/[/:*?\"<>|]/g, "_") +
           ".eml",
         0o600
       );
 
-      let emlFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+      const emlFile = Cc["@mozilla.org/file/local;1"].createInstance(
+        Ci.nsIFile
+      );
       emlFile.initWithPath(pathEmlFile);
-      let extAppLauncher = Cc[
+      const extAppLauncher = Cc[
         "@mozilla.org/uriloader/external-helper-app-service;1"
       ].getService(Ci.nsPIExternalAppLauncher);
       extAppLauncher.deleteTemporaryFileOnExit(emlFile);
 
-      let buffer = MailStringUtils.byteStringToUint8Array(rawBinaryString);
+      const buffer = MailStringUtils.byteStringToUint8Array(rawBinaryString);
       await IOUtils.write(pathEmlFile, buffer);
       return emlFile;
     }
@@ -294,17 +296,17 @@ this.messages = class extends ExtensionAPIPersistent {
           }() requires the "accountsRead" and the "messagesMove" permission`
         );
       }
-      let destinationURI = folderPathToURI(accountId, path);
-      let destinationFolder =
+      const destinationURI = folderPathToURI(accountId, path);
+      const destinationFolder =
         MailServices.folderLookup.getFolderForURL(destinationURI);
       try {
-        let promises = [];
-        let folderMap = collectMessagesInFolders(messageIds);
-        for (let [sourceFolder, msgHeaderSet] of folderMap.entries()) {
+        const promises = [];
+        const folderMap = collectMessagesInFolders(messageIds);
+        for (const [sourceFolder, msgHeaderSet] of folderMap.entries()) {
           if (sourceFolder == destinationFolder) {
             continue;
           }
-          let msgHeaders = [...msgHeaderSet];
+          const msgHeaders = [...msgHeaderSet];
 
           // Special handling for external messages.
           if (!sourceFolder) {
@@ -314,9 +316,9 @@ this.messages = class extends ExtensionAPIPersistent {
               );
             }
 
-            for (let msgHdr of msgHeaders) {
+            for (const msgHdr of msgHeaders) {
               let file;
-              let fileUrl = msgHdr.getStringProperty("dummyMsgUrl");
+              const fileUrl = msgHdr.getStringProperty("dummyMsgUrl");
               if (fileUrl.startsWith("file://")) {
                 file = Services.io
                   .newURI(fileUrl)
@@ -425,8 +427,8 @@ this.messages = class extends ExtensionAPIPersistent {
           extensionApi: this,
         }).api(),
         async list({ accountId, path }) {
-          let uri = folderPathToURI(accountId, path);
-          let folder = MailServices.folderLookup.getFolderForURL(uri);
+          const uri = folderPathToURI(accountId, path);
+          const folder = MailServices.folderLookup.getFolderForURL(uri);
 
           if (!folder) {
             throw new ExtensionError(`Folder not found: ${path}`);
@@ -438,25 +440,26 @@ this.messages = class extends ExtensionAPIPersistent {
           );
         },
         async continueList(messageListId) {
-          let messageList = messageListTracker.getList(
+          const messageList = messageListTracker.getList(
             messageListId,
             context.extension
           );
           return messageListTracker.getNextPage(messageList);
         },
         async abortList(messageListId) {
-          let messageList = messageListTracker.getList(
+          const messageList = messageListTracker.getList(
             messageListId,
             context.extension
           );
           messageList.done();
         },
         async get(messageId) {
-          let msgHdr = messageManager.get(messageId);
+          const msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          let messageHeader = context.extension.messageManager.convert(msgHdr);
+          const messageHeader =
+            context.extension.messageManager.convert(msgHdr);
           if (messageHeader.id != messageId) {
             throw new ExtensionError(
               "Unexpected Error: Returned message does not equal requested message."
@@ -465,11 +468,11 @@ this.messages = class extends ExtensionAPIPersistent {
           return messageHeader;
         },
         async getFull(messageId) {
-          let msgHdr = messageManager.get(messageId);
+          const msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          let mimeMsg = await getMimeMessage(msgHdr);
+          const mimeMsg = await getMimeMessage(msgHdr);
           if (!mimeMsg) {
             throw new ExtensionError(`Error reading message ${messageId}`);
           }
@@ -486,15 +489,15 @@ this.messages = class extends ExtensionAPIPersistent {
               extension.manifestVersion < 3 ? "BinaryString" : "File";
           }
 
-          let msgHdr = messageManager.get(messageId);
+          const msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
           try {
-            let raw = await getRawMessage(msgHdr);
+            const raw = await getRawMessage(msgHdr);
             if (data_format == "File") {
               // Convert binary string to Uint8Array and return a File.
-              let bytes = new Uint8Array(raw.length);
+              const bytes = new Uint8Array(raw.length);
               for (let i = 0; i < raw.length; i++) {
                 bytes[i] = raw.charCodeAt(i) & 0xff;
               }
@@ -509,11 +512,11 @@ this.messages = class extends ExtensionAPIPersistent {
           }
         },
         async listAttachments(messageId) {
-          let msgHdr = messageManager.get(messageId);
+          const msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          let attachments = await getAttachments(msgHdr);
+          const attachments = await getAttachments(msgHdr);
           for (let i = 0; i < attachments.length; i++) {
             attachments[i] = await convertAttachment(
               attachments[i],
@@ -523,11 +526,11 @@ this.messages = class extends ExtensionAPIPersistent {
           return attachments;
         },
         async getAttachmentFile(messageId, partName) {
-          let msgHdr = messageManager.get(messageId);
+          const msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          let attachment = await getAttachment(msgHdr, partName, {
+          const attachment = await getAttachment(msgHdr, partName, {
             includeRaw: true,
           });
           if (!attachment) {
@@ -540,17 +543,17 @@ this.messages = class extends ExtensionAPIPersistent {
           });
         },
         async openAttachment(messageId, partName, tabId) {
-          let msgHdr = messageManager.get(messageId);
+          const msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          let attachment = await getAttachment(msgHdr, partName);
+          const attachment = await getAttachment(msgHdr, partName);
           if (!attachment) {
             throw new ExtensionError(
               `Part ${partName} not found in message ${messageId}.`
             );
           }
-          let attachmentInfo = new AttachmentInfo({
+          const attachmentInfo = new AttachmentInfo({
             contentType: attachment.contentType,
             url: attachment.url,
             name: attachment.name,
@@ -558,11 +561,12 @@ this.messages = class extends ExtensionAPIPersistent {
             isExternalAttachment: attachment.isExternal,
             message: msgHdr,
           });
-          let tab = tabManager.get(tabId);
+          const tab = tabManager.get(tabId);
           try {
             // Content tabs or content windows use browser, while mail and message
             // tabs use chromeBrowser.
-            let browser = tab.nativeTab.chromeBrowser || tab.nativeTab.browser;
+            const browser =
+              tab.nativeTab.chromeBrowser || tab.nativeTab.browser;
             await attachmentInfo.open(browser.browsingContext);
           } catch (ex) {
             throw new ExtensionError(
@@ -571,7 +575,7 @@ this.messages = class extends ExtensionAPIPersistent {
           }
         },
         async query(queryInfo) {
-          let messageQuery = new MessageQuery(
+          const messageQuery = new MessageQuery(
             queryInfo,
             messageListTracker,
             context.extension
@@ -580,7 +584,7 @@ this.messages = class extends ExtensionAPIPersistent {
         },
         async update(messageId, newProperties) {
           try {
-            let msgHdr = messageManager.get(messageId);
+            const msgHdr = messageManager.get(messageId);
             if (!msgHdr) {
               throw new ExtensionError(`Message not found: ${messageId}.`);
             }
@@ -590,7 +594,7 @@ this.messages = class extends ExtensionAPIPersistent {
               );
             }
 
-            let msgs = [msgHdr];
+            const msgs = [msgHdr];
             if (newProperties.read !== null) {
               msgHdr.folder.markMessagesRead(msgs, newProperties.read);
             }
@@ -598,7 +602,7 @@ this.messages = class extends ExtensionAPIPersistent {
               msgHdr.folder.markMessagesFlagged(msgs, newProperties.flagged);
             }
             if (newProperties.junk !== null) {
-              let score = newProperties.junk
+              const score = newProperties.junk
                 ? Ci.nsIJunkMailPlugin.IS_SPAM_SCORE
                 : Ci.nsIJunkMailPlugin.IS_HAM_SCORE;
               msgHdr.folder.setJunkScoreForMessages(msgs, score);
@@ -611,9 +615,11 @@ this.messages = class extends ExtensionAPIPersistent {
               MailServices.mfn.notifyMsgsJunkStatusChanged(msgs);
             }
             if (Array.isArray(newProperties.tags)) {
-              let currentTags = msgHdr.getStringProperty("keywords").split(" ");
+              const currentTags = msgHdr
+                .getStringProperty("keywords")
+                .split(" ");
 
-              for (let { key: tagKey } of MailServices.tags.getAllTags()) {
+              for (const { key: tagKey } of MailServices.tags.getAllTags()) {
                 if (newProperties.tags.includes(tagKey)) {
                   if (!currentTags.includes(tagKey)) {
                     msgHdr.folder.addKeywordsToMessages(msgs, tagKey);
@@ -636,9 +642,9 @@ this.messages = class extends ExtensionAPIPersistent {
         },
         async delete(messageIds, skipTrash) {
           try {
-            let promises = [];
-            let folderMap = collectMessagesInFolders(messageIds);
-            for (let [sourceFolder, msgHeaderSet] of folderMap.entries()) {
+            const promises = [];
+            const folderMap = collectMessagesInFolders(messageIds);
+            for (const [sourceFolder, msgHeaderSet] of folderMap.entries()) {
               if (!sourceFolder) {
                 throw new ExtensionError(
                   `Operation not permitted for external messages`
@@ -689,8 +695,8 @@ this.messages = class extends ExtensionAPIPersistent {
               `Using messages.import() requires the "accountsRead" and the "messagesImport" permission`
             );
           }
-          let destinationURI = folderPathToURI(accountId, path);
-          let destinationFolder =
+          const destinationURI = folderPathToURI(accountId, path);
+          const destinationFolder =
             MailServices.folderLookup.getFolderForURL(destinationURI);
           if (!destinationFolder) {
             throw new ExtensionError(`Folder not found: ${path}`);
@@ -701,17 +707,17 @@ this.messages = class extends ExtensionAPIPersistent {
             );
           }
           try {
-            let tempFile = await getRealFileForFile(file);
-            let msgHeader = await new Promise((resolve, reject) => {
+            const tempFile = await getRealFileForFile(file);
+            const msgHeader = await new Promise((resolve, reject) => {
               let newKey = null;
-              let msgHdrs = new Map();
+              const msgHdrs = new Map();
 
-              let folderListener = {
+              const folderListener = {
                 onMessageAdded(parentItem, msgHdr) {
                   if (destinationFolder.URI != msgHdr.folder.URI) {
                     return;
                   }
-                  let key = msgHdr.messageKey;
+                  const key = msgHdr.messageKey;
                   msgHdrs.set(key, msgHdr);
                   if (msgHdrs.has(newKey)) {
                     finish(msgHdrs.get(newKey));
@@ -729,7 +735,7 @@ this.messages = class extends ExtensionAPIPersistent {
                 Ci.nsIFolderListener.added
               );
 
-              let finish = msgHdr => {
+              const finish = msgHdr => {
                 MailServices.mailSession.RemoveFolderListener(folderListener);
                 resolve(msgHdr);
               };
@@ -738,7 +744,7 @@ this.messages = class extends ExtensionAPIPersistent {
               let flags = 0;
               if (properties) {
                 if (properties.tags) {
-                  let knownTags = MailServices.tags
+                  const knownTags = MailServices.tags
                     .getAllTags()
                     .map(tag => tag.key);
                   tags = properties.tags
@@ -800,9 +806,9 @@ this.messages = class extends ExtensionAPIPersistent {
         },
         async archive(messageIds) {
           try {
-            let messages = [];
-            let folderMap = collectMessagesInFolders(messageIds);
-            for (let [sourceFolder, msgHeaderSet] of folderMap.entries()) {
+            const messages = [];
+            const folderMap = collectMessagesInFolders(messageIds);
+            for (const [sourceFolder, msgHeaderSet] of folderMap.entries()) {
               if (!sourceFolder) {
                 throw new ExtensionError(
                   `Operation not permitted for external messages`
@@ -811,7 +817,7 @@ this.messages = class extends ExtensionAPIPersistent {
               messages.push(...msgHeaderSet);
             }
             await new Promise(resolve => {
-              let archiver = new MessageArchiver();
+              const archiver = new MessageArchiver();
               archiver.oncomplete = resolve;
               archiver.archiveMessages(messages);
             });
@@ -833,7 +839,7 @@ this.messages = class extends ExtensionAPIPersistent {
             });
         },
         async createTag(key, tag, color) {
-          let tags = MailServices.tags.getAllTags();
+          const tags = MailServices.tags.getAllTags();
           key = key.toLowerCase();
           if (tags.find(t => t.key == key)) {
             throw new ExtensionError(`Specified key already exists: ${key}`);
@@ -844,9 +850,9 @@ this.messages = class extends ExtensionAPIPersistent {
           MailServices.tags.addTagForKey(key, tag, color, "");
         },
         async updateTag(key, updateProperties) {
-          let tags = MailServices.tags.getAllTags();
+          const tags = MailServices.tags.getAllTags();
           key = key.toLowerCase();
-          let tag = tags.find(t => t.key == key);
+          const tag = tags.find(t => t.key == key);
           if (!tag) {
             throw new ExtensionError(`Specified key does not exist: ${key}`);
           }
@@ -864,7 +870,7 @@ this.messages = class extends ExtensionAPIPersistent {
           }
         },
         async deleteTag(key) {
-          let tags = MailServices.tags.getAllTags();
+          const tags = MailServices.tags.getAllTags();
           key = key.toLowerCase();
           if (!tags.find(t => t.key == key)) {
             throw new ExtensionError(`Specified key does not exist: ${key}`);

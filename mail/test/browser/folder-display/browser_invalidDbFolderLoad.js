@@ -46,7 +46,7 @@ add_task(async function test_load_folder_with_invalidDB() {
 });
 
 add_task(function test_view_sort_maintained() {
-  let win = get_about_3pane();
+  const win = get_about_3pane();
   if (win.gDBView.sortType != Ci.nsMsgViewSortType.bySubject) {
     throw new Error("view sort type not restored from invalid db");
   }

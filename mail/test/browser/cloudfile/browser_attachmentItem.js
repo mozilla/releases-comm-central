@@ -61,12 +61,12 @@ registerCleanupFunction(function () {
 add_task(async function test_upload_cancel_repeat() {
   const kFile = "./data/testFile1";
 
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("someKey");
-  let cw = await open_compose_new_mail(window);
+  const cw = await open_compose_new_mail(window);
 
   // Prepare the mock file picker to return our test file.
-  let file = new FileUtils.File(getTestFilePath(kFile));
+  const file = new FileUtils.File(getTestFilePath(kFile));
   MockFilePicker.setFiles([file]);
   await new Promise(resolve => {
     MockFilePicker.afterOpenCallback = resolve;
@@ -91,7 +91,7 @@ add_task(async function test_upload_cancel_repeat() {
     promise = null;
     started = false;
 
-    let bucket = cw.document.getElementById("attachmentBucket");
+    const bucket = cw.document.getElementById("attachmentBucket");
     Assert.equal(
       bucket.itemCount,
       1,
@@ -124,14 +124,14 @@ add_task(async function test_upload_multiple_and_cancel() {
   const kFiles = ["./data/testFile1", "./data/testFile2", "./data/testFile3"];
 
   // Prepare the mock file picker to return our test file.
-  let files = collectFiles(kFiles);
+  const files = collectFiles(kFiles);
   MockFilePicker.setFiles(files);
 
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("someKey");
-  let cw = await open_compose_new_mail();
+  const cw = await open_compose_new_mail();
 
-  let promises = {};
+  const promises = {};
   provider.uploadFile = function (window, aFile) {
     return new Promise((resolve, reject) => {
       promises[aFile.leafName] = { resolve, reject };
@@ -140,7 +140,7 @@ add_task(async function test_upload_multiple_and_cancel() {
 
   await add_cloud_attachments(cw, provider, false);
 
-  let bucket = cw.document.getElementById("attachmentBucket");
+  const bucket = cw.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -201,25 +201,25 @@ async function assert_can_cancel_upload(
   };
 
   // Retrieve the attachment bucket index for the target file...
-  let index = get_attachmentitem_index_for_file(aWin, aTargetFile);
+  const index = get_attachmentitem_index_for_file(aWin, aTargetFile);
 
   // Select that attachmentitem in the bucket
   select_attachments(aWin, index)[0];
 
   // Bring up the context menu, and click cancel.
-  let cmd = aWin.document.getElementById("cmd_cancelUpload");
+  const cmd = aWin.document.getElementById("cmd_cancelUpload");
   aWin.updateAttachmentItems();
 
   Assert.ok(!cmd.hidden, "cmd_cancelUpload should be shown");
   Assert.ok(!cmd.disabled, "cmd_cancelUpload should be enabled");
 
-  let attachmentItem =
+  const attachmentItem =
     aWin.document.getElementById("attachmentBucket").selectedItem;
-  let contextMenu = aWin.document.getElementById(
+  const contextMenu = aWin.document.getElementById(
     "msgComposeAttachmentItemContext"
   );
 
-  let popupPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  const popupPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     attachmentItem,
     { type: "contextmenu", button: 2 },
@@ -227,7 +227,7 @@ async function assert_can_cancel_upload(
   );
   await popupPromise;
 
-  let cancelItem = aWin.document.getElementById(
+  const cancelItem = aWin.document.getElementById(
     "composeAttachmentContext_cancelUploadItem"
   );
   if (AppConstants.platform == "macosx") {
@@ -256,13 +256,13 @@ async function assert_can_cancel_upload(
  */
 function get_attachmentitem_index_for_file(aWin, aFile) {
   // Get the fileUrl from the file.
-  let fileUrl = aWin.FileToAttachment(aFile).url;
+  const fileUrl = aWin.FileToAttachment(aFile).url;
 
   // Get the bucket, and go through each item looking for the matching
   // attachmentitem.
-  let bucket = aWin.document.getElementById("attachmentBucket");
+  const bucket = aWin.document.getElementById("attachmentBucket");
   for (let i = 0; i < bucket.getRowCount(); ++i) {
-    let attachmentitem = bucket.getItemAtIndex(i);
+    const attachmentitem = bucket.getItemAtIndex(i);
     if (attachmentitem.attachment.url == fileUrl) {
       return i;
     }
@@ -282,14 +282,14 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
   const kFiles = ["./data/testFile1", "./data/testFile2", "./data/testFile3"];
 
   // Prepare the mock file picker to return our test file.
-  let files = collectFiles(kFiles);
+  const files = collectFiles(kFiles);
   MockFilePicker.setFiles(files);
 
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("someKey");
 
   // Override the uploadFile function of the MockCloudfileAccount.
-  let promises = [];
+  const promises = [];
   provider.uploadFile = function (window, aFile) {
     return new Promise((resolve, reject) => {
       promises.push({
@@ -307,14 +307,14 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
   await add_cloud_attachments(cw, provider, false);
   await TestUtils.waitForCondition(() => promises.length == kFiles.length);
 
-  let bucket = cw.document.getElementById("attachmentBucket");
+  const bucket = cw.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
     "Should find correct number of attachments before uploading."
   );
 
-  for (let item of bucket.itemChildren) {
+  for (const item of bucket.itemChildren) {
     is(
       item.querySelector("img.attachmentcell-icon").src,
       "chrome://global/skin/icons/loading.png",
@@ -322,7 +322,7 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
     );
   }
 
-  for (let promise of promises) {
+  for (const promise of promises) {
     if (error) {
       promise.reject(error);
     } else {
@@ -337,7 +337,7 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
     "Should find correct number of attachments after uploading."
   );
   // Check if the spinner is no longer shown, but the expected moz-icon.
-  for (let item of bucket.itemChildren) {
+  for (const item of bucket.itemChildren) {
     ok(
       item
         .querySelector("img.attachmentcell-icon")
@@ -359,7 +359,7 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
  * Check if attachment is removed if upload failed.
  */
 add_task(async function test_error_upload() {
-  let cw = await open_compose_new_mail();
+  const cw = await open_compose_new_mail();
   await test_upload(
     cw,
     Components.Exception(
@@ -376,7 +376,7 @@ add_task(async function test_error_upload() {
  * Check if attachment is not removed if upload is successful.
  */
 add_task(async function test_successful_upload() {
-  let cw = await open_compose_new_mail();
+  const cw = await open_compose_new_mail();
   await test_upload(cw, null, 3, 0);
   await close_compose_window(cw);
 });
@@ -386,14 +386,14 @@ add_task(async function test_successful_upload() {
  * provider failed.
  */
 add_task(async function test_error_conversion() {
-  let cw = await open_compose_new_mail();
-  let bucket = cw.document.getElementById("attachmentBucket");
+  const cw = await open_compose_new_mail();
+  const bucket = cw.document.getElementById("attachmentBucket");
 
   // Upload 3 files to the standard provider.
   await test_upload(cw, null, 3, 0);
 
   // Define another provider.
-  let providerB = new MockCloudfileAccount();
+  const providerB = new MockCloudfileAccount();
   providerB.init("someOtherKey");
 
   let uploadPromise = null;
@@ -406,7 +406,7 @@ add_task(async function test_error_conversion() {
   select_attachments(cw, 0);
   await convert_selected_to_cloud_attachment(cw, providerB, false);
 
-  let uploadError = new Promise(resolve => {
+  const uploadError = new Promise(resolve => {
     bucket.addEventListener("attachment-move-failed", resolve, {
       once: true,
     });
@@ -438,7 +438,7 @@ add_task(async function test_error_conversion() {
     "Should find correct number of attachments."
   );
   for (let i = 0; i < bucket.itemCount; i++) {
-    let item = bucket.itemChildren[i];
+    const item = bucket.itemChildren[i];
     Assert.equal(
       item.attachment.sendViaCloud,
       true,

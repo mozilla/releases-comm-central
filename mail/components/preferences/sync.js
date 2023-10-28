@@ -25,7 +25,7 @@ var gSyncPane = {
       Weave.Svc.Obs.remove(UIState.ON_UPDATE, this.updateWeavePrefs, this);
     });
 
-    let cachedComputerName = Services.prefs.getStringPref(
+    const cachedComputerName = Services.prefs.getStringPref(
       "identity.fxaccounts.account.device.name",
       ""
     );
@@ -40,10 +40,10 @@ var gSyncPane = {
    * Update the UI based on the current state.
    */
   updateWeavePrefs() {
-    let state = UIState.get();
+    const state = UIState.get();
 
-    let noFxaAccount = document.getElementById("noFxaAccount");
-    let hasFxaAccount = document.getElementById("hasFxaAccount");
+    const noFxaAccount = document.getElementById("noFxaAccount");
+    const hasFxaAccount = document.getElementById("hasFxaAccount");
     if (state.status == UIState.STATUS_NOT_CONFIGURED) {
       noFxaAccount.hidden = false;
       hasFxaAccount.hidden = true;
@@ -53,9 +53,9 @@ var gSyncPane = {
     hasFxaAccount.hidden = false;
 
     let syncReady = false; // Is sync able to actually sync?
-    let fxaLoginUnverified = document.getElementById("fxaLoginUnverified");
-    let fxaLoginRejected = document.getElementById("fxaLoginRejected");
-    let fxaLoginVerified = document.getElementById("fxaLoginVerified");
+    const fxaLoginUnverified = document.getElementById("fxaLoginUnverified");
+    const fxaLoginRejected = document.getElementById("fxaLoginRejected");
+    const fxaLoginVerified = document.getElementById("fxaLoginVerified");
     if (state.status == UIState.STATUS_LOGIN_FAILED) {
       fxaLoginUnverified.hidden = true;
       fxaLoginRejected.hidden = false;
@@ -72,12 +72,12 @@ var gSyncPane = {
     }
 
     this._populateComputerName(Weave.Service.clientsEngine.localName);
-    for (let elt of document.querySelectorAll(".needs-account-ready")) {
+    for (const elt of document.querySelectorAll(".needs-account-ready")) {
       elt.disabled = !syncReady;
     }
 
-    let syncConnected = document.getElementById("syncConnected");
-    let syncDisconnected = document.getElementById("syncDisconnected");
+    const syncConnected = document.getElementById("syncConnected");
+    const syncDisconnected = document.getElementById("syncDisconnected");
     syncConnected.hidden = !syncReady || !state.syncEnabled;
     syncDisconnected.hidden = !syncReady || state.syncEnabled;
 
@@ -101,7 +101,7 @@ var gSyncPane = {
   },
 
   _toggleComputerNameControls(editMode) {
-    let textbox = document.getElementById("fxaDeviceNameInput");
+    const textbox = document.getElementById("fxaDeviceNameInput");
     textbox.readOnly = !editMode;
     document.getElementById("fxaDeviceNameChangeDeviceName").hidden = editMode;
     document.getElementById("fxaDeviceNameCancel").hidden = !editMode;
@@ -109,8 +109,8 @@ var gSyncPane = {
   },
 
   _focusComputerNameTextbox() {
-    let textbox = document.getElementById("fxaDeviceNameInput");
-    let valLength = textbox.value.length;
+    const textbox = document.getElementById("fxaDeviceNameInput");
+    const valLength = textbox.value.length;
     textbox.focus();
     textbox.setSelectionRange(valLength, valLength);
   },
@@ -131,7 +131,7 @@ var gSyncPane = {
 
   _updateComputerNameValue(save) {
     if (save) {
-      let textbox = document.getElementById("fxaDeviceNameInput");
+      const textbox = document.getElementById("fxaDeviceNameInput");
       Weave.Service.clientsEngine.localName = textbox.value;
     }
     this._populateComputerName(Weave.Service.clientsEngine.localName);
@@ -231,7 +231,7 @@ var gSyncPane = {
         console.error("Error updating the local engines state", err);
       }
     }
-    let params = {};
+    const params = {};
     if (isAlreadySyncing) {
       // If we are already syncing then we also offer to disconnect.
       params.disconnectFun = () => this.disconnectSync();
@@ -260,7 +260,7 @@ var gSyncPane = {
   },
 
   _updateSyncNow(syncing) {
-    let button = document.getElementById("syncShowSyncedSyncNow");
+    const button = document.getElementById("syncShowSyncedSyncNow");
     if (syncing) {
       document.l10n.setAttributes(button, "sync-panel-sync-now-syncing");
       button.disabled = true;
@@ -292,17 +292,17 @@ var gSyncPane = {
    * Send a confirmation email to the account's email address.
    */
   verifyFirefoxAccount() {
-    let onError = async () => {
-      let [title, body] = await document.l10n.formatValues([
+    const onError = async () => {
+      const [title, body] = await document.l10n.formatValues([
         "sync-verification-not-sent-title",
         "sync-verification-not-sent-body",
       ]);
       new Notification(title, { body });
     };
 
-    let onSuccess = async data => {
+    const onSuccess = async data => {
       if (data) {
-        let [title, body] = await document.l10n.formatValues([
+        const [title, body] = await document.l10n.formatValues([
           "sync-verification-sent-title",
           {
             id: "sync-verification-sent-body",
@@ -341,7 +341,7 @@ var gSyncPane = {
   },
 
   _populateComputerName(value) {
-    let textbox = document.getElementById("fxaDeviceNameInput");
+    const textbox = document.getElementById("fxaDeviceNameInput");
     if (!textbox.hasAttribute("placeholder")) {
       textbox.setAttribute(
         "placeholder",
@@ -356,11 +356,11 @@ var gSyncPane = {
    * the preferences used for the engines.
    */
   setupEnginesUI() {
-    let observe = (element, prefName) => {
+    const observe = (element, prefName) => {
       element.hidden = !Services.prefs.getBoolPref(prefName, false);
     };
 
-    let engineItems = {
+    const engineItems = {
       showSyncAccount: "services.sync.engine.accounts",
       showSyncIdentity: "services.sync.engine.identities",
       showSyncAddress: "services.sync.engine.addressbooks",
@@ -368,8 +368,8 @@ var gSyncPane = {
       showSyncPasswords: "services.sync.engine.passwords",
     };
 
-    for (let [id, prefName] of Object.entries(engineItems)) {
-      let obs = observe.bind(null, document.getElementById(id), prefName);
+    for (const [id, prefName] of Object.entries(engineItems)) {
+      const obs = observe.bind(null, document.getElementById(id), prefName);
       obs();
       Services.prefs.addObserver(prefName, obs);
       window.addEventListener("unload", () => {

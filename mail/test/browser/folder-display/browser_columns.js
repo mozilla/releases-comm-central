@@ -111,10 +111,10 @@ add_setup(async function () {
  * @returns {string[]}
  */
 function get_visible_threadtree_columns() {
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
 
-  let columns = about3Pane.threadPane.columns;
+  const columns = about3Pane.threadPane.columns;
   return columns.filter(column => !column.hidden).map(column => column.id);
 }
 
@@ -126,14 +126,14 @@ function get_visible_threadtree_columns() {
  *   that should be visible in the order that they should be visible.
  */
 function assert_visible_columns(desiredColumns) {
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
 
-  let columns = about3Pane.threadPane.columns;
-  let visibleColumns = columns
+  const columns = about3Pane.threadPane.columns;
+  const visibleColumns = columns
     .filter(column => !column.hidden)
     .map(column => column.id);
-  let failCol = visibleColumns.filter(x => !desiredColumns.includes(x));
+  const failCol = visibleColumns.filter(x => !desiredColumns.includes(x));
   if (failCol.length) {
     throw new Error(
       `Found unexpected visible columns: '${failCol}'!\ndesired list: ${desiredColumns}\nactual list: ${visibleColumns}`
@@ -167,23 +167,23 @@ function assert_visible_cards_columns(desiredColumns) {
  * @param {string} columnID - Id of the thread column element to click.
  */
 async function toggleColumn(columnID) {
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
 
-  let colPicker = about3Pane.document.querySelector(
+  const colPicker = about3Pane.document.querySelector(
     `th[is="tree-view-table-column-picker"] button`
   );
-  let colPickerPopup = about3Pane.document.querySelector(
+  const colPickerPopup = about3Pane.document.querySelector(
     `th[is="tree-view-table-column-picker"] menupopup`
   );
 
-  let shownPromise = BrowserTestUtils.waitForEvent(
+  const shownPromise = BrowserTestUtils.waitForEvent(
     colPickerPopup,
     "popupshown"
   );
   EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);
   await shownPromise;
-  let hiddenPromise = BrowserTestUtils.waitForEvent(
+  const hiddenPromise = BrowserTestUtils.waitForEvent(
     colPickerPopup,
     "popuphidden",
     undefined,
@@ -191,8 +191,8 @@ async function toggleColumn(columnID) {
   );
 
   const menuItem = colPickerPopup.querySelector(`[value="${columnID}"]`);
-  let checkedState = menuItem.getAttribute("checked");
-  let checkedStateChanged = TestUtils.waitForCondition(
+  const checkedState = menuItem.getAttribute("checked");
+  const checkedStateChanged = TestUtils.waitForCondition(
     () => checkedState != menuItem.getAttribute("checked"),
     "The checked status changed"
   );
@@ -225,11 +225,11 @@ add_task(async function test_keypress_on_columns() {
     await delete_messages(messageSet);
   });
 
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
 
   // Select the first row.
-  let row = about3Pane.threadTree.getRowAtIndex(0);
+  const row = about3Pane.threadTree.getRowAtIndex(0);
   EventUtils.synthesizeMouseAtCenter(row, {}, about3Pane);
 
   // Press SHIFT+TAB and LEFT to focus on the column picker.
@@ -246,7 +246,7 @@ add_task(async function test_keypress_on_columns() {
 
   Assert.equal(tabmail.tabInfo.length, 1, "Only 1 tab should be visible");
 
-  let colPickerPopup = about3Pane.document.querySelector(
+  const colPickerPopup = about3Pane.document.querySelector(
     `th[is="tree-view-table-column-picker"] menupopup`
   );
   let shownPromise = BrowserTestUtils.waitForEvent(
@@ -379,10 +379,10 @@ add_task(async function test_column_defaults_inherit_from_inbox() {
  * Make sure that when we change tabs that things persist/restore correctly.
  */
 add_task(async function test_column_visibility_persists_through_tab_changes() {
-  let tabA = await be_in_folder(folderA);
+  const tabA = await be_in_folder(folderA);
   assert_visible_columns(INBOX_DEFAULTS);
 
-  let tabB = await open_folder_in_new_tab(folderB);
+  const tabB = await open_folder_in_new_tab(folderB);
   assert_visible_columns(columnsB);
 
   // - switch back and forth among the loaded and verify
@@ -394,7 +394,7 @@ add_task(async function test_column_visibility_persists_through_tab_changes() {
 
   // - change things and make sure the changes stick
   // B gain accountCol
-  let bWithExtra = columnsB.concat(["accountCol"]);
+  const bWithExtra = columnsB.concat(["accountCol"]);
   await toggleColumn("accountCol");
   assert_visible_columns(bWithExtra);
 
@@ -402,7 +402,7 @@ add_task(async function test_column_visibility_persists_through_tab_changes() {
   assert_visible_columns(INBOX_DEFAULTS);
 
   // A loses junk
-  let aSansJunk = INBOX_DEFAULTS.slice(0, -2); // nukes junk, date
+  const aSansJunk = INBOX_DEFAULTS.slice(0, -2); // nukes junk, date
   await toggleColumn("junkStatusCol");
   aSansJunk.push("dateCol"); // put date back
   assert_visible_columns(aSansJunk);
@@ -430,7 +430,7 @@ add_task(
     assert_visible_columns(INBOX_DEFAULTS);
 
     // more for A
-    let aWithExtra = INBOX_DEFAULTS.concat(["sizeCol", "tagsCol"]);
+    const aWithExtra = INBOX_DEFAULTS.concat(["sizeCol", "tagsCol"]);
     await toggleColumn("sizeCol");
     await toggleColumn("tagsCol");
     assert_visible_columns(aWithExtra);
@@ -439,7 +439,7 @@ add_task(
     assert_visible_columns(columnsB);
 
     // B gain accountCol
-    let bWithExtra = columnsB.concat(["accountCol"]);
+    const bWithExtra = columnsB.concat(["accountCol"]);
     await toggleColumn("accountCol");
     assert_visible_columns(bWithExtra);
 
@@ -473,14 +473,14 @@ add_task(
  * Test that reordering persists through tab changes and folder changes.
  */
 add_task(async function test_column_reordering_persists() {
-  let tabA = await be_in_folder(folderA);
-  let tabB = await open_folder_in_new_tab(folderB);
+  const tabA = await be_in_folder(folderA);
+  const tabB = await open_folder_in_new_tab(folderB);
 
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
 
   // Move the tags column before the junk.
-  let tagsColButton = about3Pane.document.getElementById("tagsColButton");
+  const tagsColButton = about3Pane.document.getElementById("tagsColButton");
   tagsColButton.focus();
   // Press Alt + Arrow Left twice to move the tags column before the junk
   // status column.
@@ -488,7 +488,7 @@ add_task(async function test_column_reordering_persists() {
   EventUtils.synthesizeKey("KEY_ArrowLeft", { altKey: true }, about3Pane);
 
   // The columns in folderB should reflect the new order.
-  let reorderdB = columnsB.concat();
+  const reorderdB = columnsB.concat();
   info(reorderdB);
   reorderdB.splice(5, 0, reorderdB.splice(7, 1)[0]);
   info(reorderdB);
@@ -517,17 +517,17 @@ add_task(async function test_column_reordering_persists() {
 });
 
 async function invoke_column_picker_option(aActions) {
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
 
-  let colPicker = about3Pane.document.querySelector(
+  const colPicker = about3Pane.document.querySelector(
     `th[is="tree-view-table-column-picker"] button`
   );
-  let colPickerPopup = about3Pane.document.querySelector(
+  const colPickerPopup = about3Pane.document.querySelector(
     `th[is="tree-view-table-column-picker"] menupopup`
   );
 
-  let shownPromise = BrowserTestUtils.waitForEvent(
+  const shownPromise = BrowserTestUtils.waitForEvent(
     colPickerPopup,
     "popupshown"
   );
@@ -545,7 +545,7 @@ add_task(async function test_reset_to_inbox() {
   assert_visible_columns(INBOX_DEFAULTS);
 
   // Show the size column.
-  let conExtra = INBOX_DEFAULTS.concat(["sizeCol"]);
+  const conExtra = INBOX_DEFAULTS.concat(["sizeCol"]);
   await toggleColumn("sizeCol");
   assert_visible_columns(conExtra);
 
@@ -563,7 +563,7 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
     );
   }
 
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   await invoke_column_picker_option([
     { class: "applyTo-menu" },
     {
@@ -599,7 +599,7 @@ add_task(async function test_apply_to_folder_no_children() {
   await invoke_column_picker_option([{ label: "Restore column order" }]);
 
   // permute!
-  let conExtra = INBOX_DEFAULTS.concat(["sizeCol"]);
+  const conExtra = INBOX_DEFAULTS.concat(["sizeCol"]);
   await toggleColumn("sizeCol");
   assert_visible_columns(conExtra);
 
@@ -629,10 +629,10 @@ add_task(async function test_apply_to_folder_and_children() {
 
   // reset!
   await invoke_column_picker_option([{ label: "Restore column order" }]);
-  let cols = get_visible_threadtree_columns();
+  const cols = get_visible_threadtree_columns();
 
   // permute!
-  let conExtra = cols.concat(["tagsCol"]);
+  const conExtra = cols.concat(["tagsCol"]);
   await toggleColumn("tagsCol");
   assert_visible_columns(conExtra);
 
@@ -666,7 +666,7 @@ add_task(async function test_apply_to_folder_no_children_swapped() {
   await invoke_column_picker_option([{ label: "Restore column order" }]);
 
   // permute!
-  let conExtra = [...INBOX_DEFAULTS];
+  const conExtra = [...INBOX_DEFAULTS];
   if (useCorrespondent) {
     conExtra[5] = "senderCol";
     await toggleColumn("correspondentCol");
@@ -682,7 +682,7 @@ add_task(async function test_apply_to_folder_no_children_swapped() {
   await _apply_to_folder_common(false, folderParent);
 
   // Make sure it copied to the parent.
-  let conExtraSwapped = [...SENT_DEFAULTS];
+  const conExtraSwapped = [...SENT_DEFAULTS];
   conExtraSwapped[5] = useCorrespondent ? "recipientCol" : "correspondentCol";
   await be_in_folder(folderParent);
   assert_visible_columns(conExtraSwapped);
@@ -708,7 +708,7 @@ add_task(async function test_apply_to_folder_and_children_swapped() {
   await invoke_column_picker_option([{ label: "Restore column order" }]);
 
   // permute!
-  let conExtra = [...INBOX_DEFAULTS];
+  const conExtra = [...INBOX_DEFAULTS];
   if (useCorrespondent) {
     conExtra[5] = "senderCol";
     await toggleColumn("correspondentCol");
@@ -724,7 +724,7 @@ add_task(async function test_apply_to_folder_and_children_swapped() {
   await _apply_to_folder_common(true, folderParent);
 
   // Make sure it copied to the parent and his children.
-  let conExtraSwapped = [...SENT_DEFAULTS];
+  const conExtraSwapped = [...SENT_DEFAULTS];
   conExtraSwapped[5] = useCorrespondent ? "recipientCol" : "correspondentCol";
   await be_in_folder(folderParent);
   assert_visible_columns(conExtraSwapped);
@@ -744,8 +744,8 @@ class FakeCollection {
 }
 
 add_task(async function test_column_defaults_gloda_collection() {
-  let tabmail = document.getElementById("tabmail");
-  let tab = tabmail.openTab("mail3PaneTab", {
+  const tabmail = document.getElementById("tabmail");
+  const tab = tabmail.openTab("mail3PaneTab", {
     folderPaneVisible: false,
     syntheticView: new GlodaSyntheticView({
       collection: new FakeCollection(),
@@ -761,9 +761,9 @@ add_task(async function test_column_defaults_gloda_collection() {
 });
 
 add_task(async function test_persist_columns_gloda_collection() {
-  let fakeCollection = new FakeCollection();
-  let tabmail = document.getElementById("tabmail");
-  let tab1 = tabmail.openTab("mail3PaneTab", {
+  const fakeCollection = new FakeCollection();
+  const tabmail = document.getElementById("tabmail");
+  const tab1 = tabmail.openTab("mail3PaneTab", {
     folderPaneVisible: false,
     syntheticView: new GlodaSyntheticView({
       collection: fakeCollection,
@@ -779,10 +779,10 @@ add_task(async function test_persist_columns_gloda_collection() {
   await toggleColumn("accountCol");
 
   // GLODA_DEFAULTS sans 'locationCol' but gains 'accountCol'
-  let glodaColumns = GLODA_DEFAULTS.slice(0, -1);
+  const glodaColumns = GLODA_DEFAULTS.slice(0, -1);
   glodaColumns.push("accountCol");
 
-  let tab2 = tabmail.openTab("mail3PaneTab", {
+  const tab2 = tabmail.openTab("mail3PaneTab", {
     folderPaneVisible: false,
     syntheticView: new GlodaSyntheticView({
       collection: fakeCollection,
@@ -804,9 +804,9 @@ add_task(async function test_persist_columns_gloda_collection() {
 });
 
 add_task(async function test_reset_columns_gloda_collection() {
-  let fakeCollection = new FakeCollection();
-  let tabmail = document.getElementById("tabmail");
-  let tab1 = tabmail.openTab("mail3PaneTab", {
+  const fakeCollection = new FakeCollection();
+  const tabmail = document.getElementById("tabmail");
+  const tab1 = tabmail.openTab("mail3PaneTab", {
     folderPaneVisible: false,
     syntheticView: new GlodaSyntheticView({
       collection: fakeCollection,
@@ -822,7 +822,7 @@ add_task(async function test_reset_columns_gloda_collection() {
   await toggleColumn("accountCol");
 
   // GLODA_DEFAULTS sans 'locationCol' but gains 'accountCol'
-  let glodaColumns = GLODA_DEFAULTS.slice(0, -1);
+  const glodaColumns = GLODA_DEFAULTS.slice(0, -1);
   glodaColumns.push("accountCol");
 
   assert_visible_columns(glodaColumns);
@@ -832,7 +832,7 @@ add_task(async function test_reset_columns_gloda_collection() {
 
   assert_visible_columns(GLODA_DEFAULTS);
 
-  let tab2 = tabmail.openTab("mail3PaneTab", {
+  const tab2 = tabmail.openTab("mail3PaneTab", {
     folderPaneVisible: false,
     syntheticView: new GlodaSyntheticView({
       collection: fakeCollection,
@@ -861,29 +861,29 @@ add_task(async function test_reset_columns_gloda_collection() {
 });
 
 add_task(async function test_double_click_column_picker() {
-  let doubleClickFolder = await create_folder("double click folder");
+  const doubleClickFolder = await create_folder("double click folder");
   await make_message_sets_in_folders([doubleClickFolder], [{ count: 1 }]);
   await be_in_folder(doubleClickFolder);
   await select_click_row(0);
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   const currentTabInfo = tabmail.currentTabInfo;
-  let about3Pane = tabmail.currentAbout3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
 
-  let colPicker = about3Pane.document.querySelector(
+  const colPicker = about3Pane.document.querySelector(
     `th[is="tree-view-table-column-picker"] button`
   );
-  let colPickerPopup = about3Pane.document.querySelector(
+  const colPickerPopup = about3Pane.document.querySelector(
     `th[is="tree-view-table-column-picker"] menupopup`
   );
 
-  let shownPromise = BrowserTestUtils.waitForEvent(
+  const shownPromise = BrowserTestUtils.waitForEvent(
     colPickerPopup,
     "popupshown"
   );
   EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);
   await shownPromise;
-  let hiddenPromise = BrowserTestUtils.waitForEvent(
+  const hiddenPromise = BrowserTestUtils.waitForEvent(
     colPickerPopup,
     "popuphidden",
     undefined,

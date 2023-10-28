@@ -8,13 +8,13 @@ function run_test() {
   Services.locale.requestedLocales = ["en-US"];
 
   // Create an instance of nsIFile out of the current process directory
-  let distroDir = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
+  const distroDir = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
 
   // Construct a descendant of the distroDir file
   distroDir.append("distribution");
 
   // Create a clone of distroDir
-  let iniFile = distroDir.clone();
+  const iniFile = distroDir.clone();
 
   // Create a descendant of iniFile
   iniFile.append("distribution.ini");
@@ -32,8 +32,8 @@ function run_test() {
     }
   });
 
-  let testDir = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
-  let testDistributionFile = testDir.clone();
+  const testDir = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
+  const testDistributionFile = testDir.clone();
 
   // Construct descendant file
   testDistributionFile.append("distribution.ini");
@@ -44,7 +44,7 @@ function run_test() {
   // Set the prefs
   TBDistCustomizer.applyPrefDefaults();
 
-  let testIni = Cc["@mozilla.org/xpcom/ini-parser-factory;1"]
+  const testIni = Cc["@mozilla.org/xpcom/ini-parser-factory;1"]
     .getService(Ci.nsIINIParserFactory)
     .createINIParser(testDistributionFile);
 
@@ -74,8 +74,8 @@ function run_test() {
 
   // Test Preferences section
   let s = "Preferences";
-  for (let key of testIni.getKeys(s)) {
-    let value = TBDistCustomizer.parseValue(testIni.getString(s, key));
+  for (const key of testIni.getKeys(s)) {
+    const value = TBDistCustomizer.parseValue(testIni.getString(s, key));
     switch (typeof value) {
       case "boolean":
         Assert.equal(value, Services.prefs.getBoolPref(key));
@@ -95,9 +95,9 @@ function run_test() {
 
   // Test the LocalizablePreferences-[locale] section
   // Add any prefs found in it to the overrides array
-  let overrides = [];
+  const overrides = [];
   s = "LocalizablePreferences-en-US";
-  for (let key of testIni.getKeys(s)) {
+  for (const key of testIni.getKeys(s)) {
     let value = TBDistCustomizer.parseValue(testIni.getString(s, key));
     value = "data:text/plain," + key + "=" + value;
     Assert.equal(value, Services.prefs.getCharPref(key));
@@ -108,7 +108,7 @@ function run_test() {
   // Any prefs here that aren't found in overrides are not overridden
   //   by LocalizablePrefs-[locale] and should be tested
   s = "LocalizablePreferences";
-  for (let key of testIni.getKeys(s)) {
+  for (const key of testIni.getKeys(s)) {
     if (!overrides.includes(key)) {
       let value = TBDistCustomizer.parseValue(testIni.getString(s, key));
       value = value.replace(/%LOCALE%/g, "en-US");

@@ -24,7 +24,7 @@ registerCleanupFunction(function () {
 });
 
 async function waitForNotification(id, buttonToClickSelector, callback) {
-  let notificationSelector = `#notification-popup > #${id}-notification`;
+  const notificationSelector = `#notification-popup > #${id}-notification`;
   let notification;
   await TestUtils.waitForCondition(() => {
     notification = gDocument.querySelector(notificationSelector);
@@ -36,7 +36,7 @@ async function waitForNotification(id, buttonToClickSelector, callback) {
     callback();
   }
   if (buttonToClickSelector) {
-    let button = notification.querySelector(buttonToClickSelector);
+    const button = notification.querySelector(buttonToClickSelector);
     EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, window);
   }
   await TestUtils.waitForCondition(
@@ -125,7 +125,7 @@ add_task(async function test_xpinstall_webext_actually_install() {
     "addon-webext-permissions",
     ".popup-notification-primary-button",
     () => {
-      let permission = gDocument.getElementById(
+      const permission = gDocument.getElementById(
         "addon-webext-perm-single-entry"
       );
       Assert.ok(!permission.hidden);

@@ -9,7 +9,7 @@ var { be_in_folder, get_about_message, select_click_row } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-let aboutMessage = get_about_message();
+const aboutMessage = get_about_message();
 
 var { MailTelemetryForTests } = ChromeUtils.import(
   "resource:///modules/MailGlue.jsm"
@@ -26,7 +26,7 @@ add_setup(async function () {
   );
   Services.telemetry.clearScalars();
 
-  let account = createAccount();
+  const account = createAccount();
   gFolder = await createSubfolder(account.incomingServer.rootFolder, "test0");
   createMessages(gFolder, 1);
 
@@ -43,30 +43,32 @@ add_task(async function test_customize_toolbar_buttons() {
   be_in_folder(gFolder);
   await select_click_row(0);
 
-  let moreBtn = aboutMessage.document.getElementById("otherActionsButton");
+  const moreBtn = aboutMessage.document.getElementById("otherActionsButton");
   // Make sure we loaded the expected message.
   await assertVisibility(moreBtn, true, "The more button is visible");
 
   // Confirm we're starting from a clean state.
-  let header = aboutMessage.document.getElementById("messageHeader");
+  const header = aboutMessage.document.getElementById("messageHeader");
   Assert.ok(
     header.classList.contains("message-header-show-recipient-avatar"),
     "The From recipient is showing the avatar"
   );
-  let avatar = aboutMessage.document.querySelector(".recipient-avatar");
+  const avatar = aboutMessage.document.querySelector(".recipient-avatar");
   await assertVisibility(avatar, true, "The recipient avatar is shown");
 
   Assert.ok(
     header.classList.contains("message-header-show-sender-full-address"),
     "The From recipient is showing the full address on two lines"
   );
-  let multiLine = aboutMessage.document.querySelector(".recipient-multi-line");
+  const multiLine = aboutMessage.document.querySelector(
+    ".recipient-multi-line"
+  );
   await assertVisibility(
     multiLine,
     true,
     "The recipient multi line is visible"
   );
-  let singleLine = aboutMessage.document.querySelector(
+  const singleLine = aboutMessage.document.querySelector(
     ".recipient-single-line"
   );
   await assertVisibility(
@@ -80,7 +82,9 @@ add_task(async function test_customize_toolbar_buttons() {
     "The labels column is hidden"
   );
 
-  let firstLabel = aboutMessage.document.querySelector(".message-header-label");
+  const firstLabel = aboutMessage.document.querySelector(
+    ".message-header-label"
+  );
   Assert.equal(
     firstLabel.style.minWidth,
     "0px",
@@ -102,42 +106,43 @@ add_task(async function test_customize_toolbar_buttons() {
   );
 
   MailTelemetryForTests.reportUIConfiguration();
-  let scalarName = "tb.ui.configuration.message_header";
+  const scalarName = "tb.ui.configuration.message_header";
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   TelemetryTestUtils.assertScalarUnset(scalars, scalarName);
 
-  let popup = aboutMessage.document.getElementById("otherActionsPopup");
+  const popup = aboutMessage.document.getElementById("otherActionsPopup");
   let popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreBtn, {}, aboutMessage);
   await popupShown;
 
-  let panel = aboutMessage.document.getElementById(
+  const panel = aboutMessage.document.getElementById(
     "messageHeaderCustomizationPanel"
   );
-  let customizeBtn = aboutMessage.document.getElementById(
+  const customizeBtn = aboutMessage.document.getElementById(
     "messageHeaderMoreMenuCustomize"
   );
   let panelShown = BrowserTestUtils.waitForEvent(panel, "popupshown");
   EventUtils.synthesizeMouseAtCenter(customizeBtn, {}, aboutMessage);
   await panelShown;
 
-  let buttonStyle = aboutMessage.document.getElementById("headerButtonStyle");
+  const buttonStyle = aboutMessage.document.getElementById("headerButtonStyle");
   // Assert the options are in a default state.
   Assert.equal(
     buttonStyle.value,
     "default",
     "The buttons style is in the default state"
   );
-  let subjectLarge = aboutMessage.document.getElementById("headerSubjectLarge");
+  const subjectLarge =
+    aboutMessage.document.getElementById("headerSubjectLarge");
   Assert.ok(subjectLarge.checked, "The subject field is in the default state");
 
-  let showAvatar = aboutMessage.document.getElementById("headerShowAvatar");
+  const showAvatar = aboutMessage.document.getElementById("headerShowAvatar");
   Assert.ok(
     showAvatar.checked,
     "The show avatar field is in the default state"
   );
 
-  let showFullAddress = aboutMessage.document.getElementById(
+  const showFullAddress = aboutMessage.document.getElementById(
     "headerShowFullAddress"
   );
   Assert.ok(
@@ -145,16 +150,16 @@ add_task(async function test_customize_toolbar_buttons() {
     "The show full address field is in the default state"
   );
 
-  let hideLabels = aboutMessage.document.getElementById("headerHideLabels");
+  const hideLabels = aboutMessage.document.getElementById("headerHideLabels");
   Assert.ok(
     hideLabels.checked,
     "The hide labels field is in the default state"
   );
 
-  let openMenuPopup = async function () {
+  const openMenuPopup = async function () {
     aboutMessage.document.getElementById("headerButtonStyle").focus();
 
-    let menuPopupShown = BrowserTestUtils.waitForEvent(
+    const menuPopupShown = BrowserTestUtils.waitForEvent(
       aboutMessage.document.querySelector("#headerButtonStyle menupopup"),
       "popupshown"
     );

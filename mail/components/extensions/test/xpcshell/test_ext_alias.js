@@ -24,9 +24,9 @@ server.registerPathHandler("/dummy", (request, response) => {
 });
 
 add_task(async function test_alias() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
-      let pending = new Set(["contentscript", "webscript"]);
+      const pending = new Set(["contentscript", "webscript"]);
 
       browser.runtime.onMessage.addListener(message => {
         if (message == "contentscript") {

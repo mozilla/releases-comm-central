@@ -70,9 +70,9 @@ const messageMenuData = {
   },
   watchThread: { disabled: [...nothingSelected, "externalMessage"] },
 };
-let helper = new MenuTestHelper("messageMenu", messageMenuData);
+const helper = new MenuTestHelper("messageMenu", messageMenuData);
 
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 let rootFolder, testFolder, testMessages;
 let draftsFolder, draftsMessages, templatesFolder, templatesMessages;
 
@@ -80,10 +80,10 @@ add_setup(async function () {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
@@ -154,10 +154,10 @@ add_setup(async function () {
     "MsgLoaded"
   );
 
-  let messageFile = new FileUtils.File(
+  const messageFile = new FileUtils.File(
     getTestFilePath("files/sampleContent.eml")
   );
-  let messageURI =
+  const messageURI =
     Services.io.newFileURI(messageFile).spec +
     "?type=application/x-message-display";
   tabmail.openTab("mailMessageTab", { background: true, messageURI });

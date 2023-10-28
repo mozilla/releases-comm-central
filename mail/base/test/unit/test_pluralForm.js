@@ -12,7 +12,7 @@ const { PluralForm } = ChromeUtils.importESModule(
 );
 
 function run_test() {
-  let allExpect = [
+  const allExpect = [
     [
       // 0: Chinese 0-9, 10-19, ..., 90-99
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -355,13 +355,13 @@ function run_test() {
     ],
   ];
 
-  for (let [rule, expect] of allExpect.entries()) {
+  for (const [rule, expect] of allExpect.entries()) {
     print("\nTesting rule #" + rule);
 
-    let [get, numForms] = PluralForm.makeGetter(rule);
+    const [get, numForms] = PluralForm.makeGetter(rule);
 
     // Make sure the largest value expected matches the number of plural forms
-    let maxExpect = Math.max.apply(this, expect);
+    const maxExpect = Math.max.apply(this, expect);
     Assert.equal(maxExpect, numForms());
 
     // Make a string of numbers, e.g., 1;2;3;4;5
@@ -372,7 +372,7 @@ function run_test() {
     words = words.join(";");
 
     // Make sure we get the expected number
-    for (let [index, number] of expect.entries()) {
+    for (const [index, number] of expect.entries()) {
       print(
         [
           "Plural form of ",

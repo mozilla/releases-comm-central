@@ -5,11 +5,11 @@
 /* import-globals-from ../../../../../toolkit/components/prompts/content/selectDialog.js */
 
 function cloudfileDialogOnLoad() {
-  let icons = propBag.getProperty("icons");
-  let listItems = listBox.itemChildren;
+  const icons = propBag.getProperty("icons");
+  const listItems = listBox.itemChildren;
   for (let i = 0; i < listItems.length; i++) {
     listItems[i].setAttribute("align", "center");
-    let image = document.createElement("img");
+    const image = document.createElement("img");
     image.setAttribute("src", icons[i]);
     image.setAttribute("alt", "");
     listItems[i].insertBefore(image, listItems[i].firstElementChild);

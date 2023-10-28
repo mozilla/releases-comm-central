@@ -216,15 +216,15 @@ PgpMimeEncrypt.prototype = {
 
     let allHdr = "";
 
-    let addrParser = lazy.jsmime.headerparser.parseAddressingHeader;
-    let newsParser = function (s) {
+    const addrParser = lazy.jsmime.headerparser.parseAddressingHeader;
+    const newsParser = function (s) {
       return lazy.jsmime.headerparser.parseStructuredHeader("Newsgroups", s);
     };
-    let noParser = function (s) {
+    const noParser = function (s) {
       return s;
     };
 
-    let h = {
+    const h = {
       from: {
         field: "From",
         parser: addrParser,
@@ -275,7 +275,7 @@ PgpMimeEncrypt.prototype = {
       );
     }
 
-    for (let i in h) {
+    for (const i in h) {
       if (h[i].field == "Subject" && alreadyAddedSubject) {
         continue;
       }
@@ -297,7 +297,7 @@ PgpMimeEncrypt.prototype = {
         {}
       );
 
-      let bracket = this.originalReferences.lastIndexOf("<");
+      const bracket = this.originalReferences.lastIndexOf("<");
       if (bracket >= 0) {
         allHdr += lazy.jsmime.headeremitter.emitStructuredHeader(
           "in-reply-to",
@@ -373,7 +373,7 @@ PgpMimeEncrypt.prototype = {
     } else {
       boundary = this.outerBoundary;
     }
-    let sigHeader =
+    const sigHeader =
       "Content-Type: multipart/signed; micalg=pgp-" +
       this.hashAlgorithm.toLowerCase() +
       ";\r\n" +
@@ -401,7 +401,7 @@ PgpMimeEncrypt.prototype = {
     } else {
       boundary = this.outerBoundary;
     }
-    let sigHeader =
+    const sigHeader =
       "\r\n--" +
       boundary +
       "\r\n" +
@@ -440,13 +440,13 @@ PgpMimeEncrypt.prototype = {
       }
     }
 
-    let statusFlagsObj = {};
-    let errorMsgObj = {};
+    const statusFlagsObj = {};
+    const errorMsgObj = {};
     this.exitCode = 0;
 
     if (this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) {
       // prepare the inner crypto layer (the signature)
-      let sendFlagsWithoutEncrypt =
+      const sendFlagsWithoutEncrypt =
         this.sendFlags & ~lazy.EnigmailConstants.SEND_ENCRYPTED;
 
       this.exitCode = lazy.EnigmailEncryption.encryptMessageStart(
@@ -463,7 +463,7 @@ PgpMimeEncrypt.prototype = {
       );
       if (!this.exitCode) {
         // success
-        let innerSignedMessage = this.cryptoInputBuffer;
+        const innerSignedMessage = this.cryptoInputBuffer;
         this.cryptoInputBuffer = "";
 
         this.signedHeaders1(false);
@@ -560,7 +560,7 @@ PgpMimeEncrypt.prototype = {
             this.mimeStructure == MIME_OUTER_ENC_INNER_SIG
           ) {
             if (!this.encHeader) {
-              let ct = this.getHeader("content-type", false);
+              const ct = this.getHeader("content-type", false);
               if (
                 ct.search(/text\/plain/i) === 0 ||
                 ct.search(/text\/html/i) === 0
@@ -575,8 +575,8 @@ PgpMimeEncrypt.prototype = {
               }
             }
           } else if (this.mimeStructure == MIME_SIGNED) {
-            let ct = this.getHeader("content-type", true);
-            let hdr = lazy.EnigmailFuncs.getHeaderData(ct);
+            const ct = this.getHeader("content-type", true);
+            const hdr = lazy.EnigmailFuncs.getHeaderData(ct);
             hdr.boundary = hdr.boundary || "";
             hdr.boundary = hdr.boundary.replace(/^(['"])(.*)(\1)$/, "$2");
           }
@@ -680,9 +680,9 @@ PgpMimeEncrypt.prototype = {
             return res;
           }
         } else {
-          let j = hdrLines[i].indexOf(":");
+          const j = hdrLines[i].indexOf(":");
           if (j > 0) {
-            let h = hdrLines[i].substr(0, j).replace(/\s*$/, "");
+            const h = hdrLines[i].substr(0, j).replace(/\s*$/, "");
             if (h.toLowerCase() == hdrStr.toLowerCase()) {
               res = hdrLines[i].substr(j + 1).replace(/^\s*/, "");
               if (!fullHeader) {
@@ -733,8 +733,8 @@ function LOCAL_DEBUG(str) {
 
 function initModule() {
   lazy.EnigmailLog.DEBUG("mimeEncrypt.jsm: initModule()\n");
-  let nspr_log_modules = Services.env.get("NSPR_LOG_MODULES");
-  let matches = nspr_log_modules.match(/mimeEncrypt:(\d+)/);
+  const nspr_log_modules = Services.env.get("NSPR_LOG_MODULES");
+  const matches = nspr_log_modules.match(/mimeEncrypt:(\d+)/);
 
   if (matches && matches.length > 1) {
     gDebugLogLevel = matches[1];

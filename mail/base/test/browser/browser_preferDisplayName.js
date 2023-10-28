@@ -25,10 +25,10 @@ add_setup(async function () {
   felix.setPropertyAsBool("PreferDisplayName", false);
   book.addCard(felix);
 
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
 
   registerCleanupFunction(async () => {
@@ -37,7 +37,7 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(account, false);
   });
 
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("preferDisplayName", null);
   testFolder = rootFolder
     .getChildNamed("preferDisplayName")
@@ -48,11 +48,11 @@ add_setup(async function () {
 });
 
 add_task(async function () {
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-  let { threadPane, threadTree, messageBrowser } = about3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const { threadPane, threadTree, messageBrowser } = about3Pane;
   // Not `currentAboutMessage` as that's null right now.
-  let aboutMessage = messageBrowser.contentWindow;
-  let messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
+  const aboutMessage = messageBrowser.contentWindow;
+  const messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
 
   // Set up the UI.
 

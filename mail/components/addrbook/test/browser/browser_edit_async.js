@@ -12,7 +12,7 @@ const { CardDAVServer } = ChromeUtils.import(
 let book;
 
 async function inEditingMode() {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
   await TestUtils.waitForCondition(
     () => abWindow.detailsPane.isEditing,
     "entering editing mode"
@@ -20,7 +20,7 @@ async function inEditingMode() {
 }
 
 async function notInEditingMode() {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
   await TestUtils.waitForCondition(
     () => !abWindow.detailsPane.isEditing,
     "leaving editing mode"
@@ -38,7 +38,7 @@ add_setup(async function () {
   book.setStringValue("carddav.url", CardDAVServer.url);
   book.setStringValue("carddav.username", "alice");
 
-  let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
   loginInfo.init(CardDAVServer.origin, null, "test", "alice", "alice", "", "");
@@ -57,15 +57,15 @@ registerCleanupFunction(async function () {
  * the server.
  */
 add_task(async function testCreateCard() {
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let createContactButton = abDocument.getElementById("toolbarCreateContact");
-  let bookRow = abWindow.booksList.getRowForUID(book.UID);
-  let searchInput = abDocument.getElementById("searchInput");
-  let editButton = abDocument.getElementById("editButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
-  let deleteButton = abDocument.getElementById("detailsDeleteButton");
+  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const bookRow = abWindow.booksList.getRowForUID(book.UID);
+  const searchInput = abDocument.getElementById("searchInput");
+  const editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+  const deleteButton = abDocument.getElementById("detailsDeleteButton");
 
   openDirectory(book);
 
@@ -78,7 +78,7 @@ add_task(async function testCreateCard() {
 
   // Saving the contact will get an immediate notification.
   // Delay the server response so we can test the state of the UI.
-  let promise1 = TestUtils.topicObserved("addrbook-contact-created");
+  const promise1 = TestUtils.topicObserved("addrbook-contact-created");
   CardDAVServer.responseDelay = PromiseUtils.defer();
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await promise1;
@@ -88,7 +88,7 @@ add_task(async function testCreateCard() {
   Assert.ok(BrowserTestUtils.is_visible(editButton));
 
   // Now allow the server to respond and check the UI state again.
-  let promise2 = TestUtils.topicObserved("addrbook-contact-updated");
+  const promise2 = TestUtils.topicObserved("addrbook-contact-updated");
   CardDAVServer.responseDelay.resolve();
   await promise2;
   Assert.ok(!bookRow.classList.contains("requesting"));
@@ -104,7 +104,7 @@ add_task(async function testCreateCard() {
 
   // Saving the contact will get an immediate notification.
   // Delay the server response so we can test the state of the UI.
-  let promise3 = TestUtils.topicObserved("addrbook-contact-updated");
+  const promise3 = TestUtils.topicObserved("addrbook-contact-updated");
   CardDAVServer.responseDelay = PromiseUtils.defer();
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await promise3;
@@ -114,7 +114,7 @@ add_task(async function testCreateCard() {
   Assert.ok(BrowserTestUtils.is_visible(editButton));
 
   // Now allow the server to respond and check the UI state again.
-  let promise4 = TestUtils.topicObserved("addrbook-contact-updated");
+  const promise4 = TestUtils.topicObserved("addrbook-contact-updated");
   CardDAVServer.responseDelay.resolve();
   await promise4;
   Assert.ok(!bookRow.classList.contains("requesting"));
@@ -128,7 +128,7 @@ add_task(async function testCreateCard() {
 
   // Saving the contact will get an immediate notification.
   // Delay the server response so we can test the state of the UI.
-  let promise5 = TestUtils.topicObserved("addrbook-contact-deleted");
+  const promise5 = TestUtils.topicObserved("addrbook-contact-deleted");
   CardDAVServer.responseDelay = PromiseUtils.defer();
   BrowserTestUtils.promiseAlertDialog("accept");
   EventUtils.synthesizeMouseAtCenter(deleteButton, {}, abWindow);
@@ -156,15 +156,15 @@ add_task(async function testCreateCard() {
 add_task(async function testCreateCardWithUIDChange() {
   CardDAVServer.modifyCardOnPut = true;
 
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let createContactButton = abDocument.getElementById("toolbarCreateContact");
-  let bookRow = abWindow.booksList.getRowForUID(book.UID);
-  let searchInput = abDocument.getElementById("searchInput");
-  let editButton = abDocument.getElementById("editButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
-  let deleteButton = abDocument.getElementById("detailsDeleteButton");
+  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const bookRow = abWindow.booksList.getRowForUID(book.UID);
+  const searchInput = abDocument.getElementById("searchInput");
+  const editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+  const deleteButton = abDocument.getElementById("detailsDeleteButton");
 
   openDirectory(book);
 
@@ -177,7 +177,7 @@ add_task(async function testCreateCardWithUIDChange() {
 
   // Saving the contact will get an immediate notification.
   // Delay the server response so we can test the state of the UI.
-  let promise1 = TestUtils.topicObserved("addrbook-contact-created");
+  const promise1 = TestUtils.topicObserved("addrbook-contact-created");
   CardDAVServer.responseDelay = PromiseUtils.defer();
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await promise1;
@@ -186,15 +186,15 @@ add_task(async function testCreateCardWithUIDChange() {
   Assert.equal(abDocument.activeElement, editButton);
   Assert.ok(BrowserTestUtils.is_visible(editButton));
 
-  let initialCard = abWindow.detailsPane.currentCard;
+  const initialCard = abWindow.detailsPane.currentCard;
   Assert.equal(initialCard.getProperty("_href", "RIGHT"), "RIGHT");
 
   // Now allow the server to respond and check the UI state again.
-  let promise2 = TestUtils.topicObserved("addrbook-contact-created");
-  let promise3 = TestUtils.topicObserved("addrbook-contact-deleted");
+  const promise2 = TestUtils.topicObserved("addrbook-contact-created");
+  const promise3 = TestUtils.topicObserved("addrbook-contact-deleted");
   CardDAVServer.responseDelay.resolve();
-  let [changedCard] = await promise2;
-  let [deletedCard] = await promise3;
+  const [changedCard] = await promise2;
+  const [deletedCard] = await promise3;
   Assert.ok(!bookRow.classList.contains("requesting"));
   Assert.equal(abDocument.activeElement, editButton);
   Assert.ok(BrowserTestUtils.is_visible(editButton));
@@ -206,7 +206,7 @@ add_task(async function testCreateCardWithUIDChange() {
   );
   Assert.equal(deletedCard.UID, initialCard.UID);
 
-  let displayedCard = abWindow.detailsPane.currentCard;
+  const displayedCard = abWindow.detailsPane.currentCard;
   Assert.equal(displayedCard.directoryUID, book.UID);
   Assert.notEqual(displayedCard.getProperty("_href", "WRONG"), "WRONG");
   Assert.equal(displayedCard.UID, [...initialCard.UID].reverse().join(""));
@@ -218,7 +218,7 @@ add_task(async function testCreateCardWithUIDChange() {
 
   // Saving the contact will get an immediate notification.
   // Delay the server response so we can test the state of the UI.
-  let promise4 = TestUtils.topicObserved("addrbook-contact-deleted");
+  const promise4 = TestUtils.topicObserved("addrbook-contact-deleted");
   CardDAVServer.responseDelay = PromiseUtils.defer();
   BrowserTestUtils.promiseAlertDialog("accept");
   EventUtils.synthesizeMouseAtCenter(deleteButton, {}, abWindow);
@@ -245,16 +245,16 @@ add_task(async function testCreateCardWithUIDChange() {
 add_task(async function testModificationUpdatesUI() {
   let card = personalBook.addCard(createContact("a", "person"));
 
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
-  let contactName = abDocument.getElementById("viewContactName");
-  let editButton = abDocument.getElementById("editButton");
-  let emailAddressesSection = abDocument.getElementById("emailAddresses");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
-  let cancelEditButton = abDocument.getElementById("cancelEditButton");
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
+  const contactName = abDocument.getElementById("viewContactName");
+  const editButton = abDocument.getElementById("editButton");
+  const emailAddressesSection = abDocument.getElementById("emailAddresses");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+  const cancelEditButton = abDocument.getElementById("cancelEditButton");
 
   openDirectory(personalBook);
   Assert.equal(cardsList.view.rowCount, 1);
@@ -274,7 +274,7 @@ add_task(async function testModificationUpdatesUI() {
 
   // Modify the card and check the display is updated.
 
-  let updatePromise = BrowserTestUtils.waitForMutationCondition(
+  const updatePromise = BrowserTestUtils.waitForMutationCondition(
     detailsPane,
     { childList: true, subtree: true },
     () => true

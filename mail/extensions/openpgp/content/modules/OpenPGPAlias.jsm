@@ -13,7 +13,7 @@ var OpenPGPAlias = {
   },
 
   async load() {
-    let path = Services.prefs.getStringPref(
+    const path = Services.prefs.getStringPref(
       "mail.openpgp.alias_rules_file",
       ""
     );
@@ -33,7 +33,7 @@ var OpenPGPAlias = {
 
   _hasExpectedKeysStructure(keys) {
     try {
-      for (let entry of keys) {
+      for (const entry of keys) {
         if (!("id" in entry) && !("fingerprint" in entry)) {
           return false;
         }
@@ -48,19 +48,18 @@ var OpenPGPAlias = {
   async _loadFromFile(src) {
     this._clear();
 
-    let aliasRules;
     let jsonData;
     if (src.startsWith("file://")) {
-      let response = await fetch(src);
+      const response = await fetch(src);
       jsonData = await response.json();
     } else if (src.includes("/") || src.includes("\\")) {
       throw new Error(`Invalid alias rules src: ${src}`);
     } else {
-      let spec = PathUtils.join(
+      const spec = PathUtils.join(
         Services.dirsvc.get("ProfD", Ci.nsIFile).path,
         src
       );
-      let response = await fetch(PathUtils.toFileURI(spec));
+      const response = await fetch(PathUtils.toFileURI(spec));
       jsonData = await response.json();
     }
     if (!("rules" in jsonData)) {
@@ -68,9 +67,9 @@ var OpenPGPAlias = {
         "alias file contains invalid JSON data, no rules element found"
       );
     }
-    aliasRules = jsonData.rules;
+    const aliasRules = jsonData.rules;
 
-    for (let entry of aliasRules) {
+    for (const entry of aliasRules) {
       if (!("keys" in entry) || !entry.keys || !entry.keys.length) {
         console.log("Ignoring invalid alias rule without keys");
         continue;
@@ -82,7 +81,7 @@ var OpenPGPAlias = {
       // Ignore duplicate rules, only use first rule per key.
       // Require email address contains @, and domain doesn't contain @.
       if ("email" in entry) {
-        let email = entry.email.toLowerCase();
+        const email = entry.email.toLowerCase();
         if (!email.includes("@")) {
           console.log("Ignoring invalid email alias rule: " + email);
           continue;
@@ -99,7 +98,7 @@ var OpenPGPAlias = {
         }
         this._aliasEmails.set(email, entry.keys);
       } else if ("domain" in entry) {
-        let domain = entry.domain.toLowerCase();
+        const domain = entry.domain.toLowerCase();
         if (domain.includes("@")) {
           console.log("Ignoring invalid domain alias rule: " + domain);
           continue;
@@ -128,12 +127,12 @@ var OpenPGPAlias = {
       return null;
     }
 
-    let lastAt = email.lastIndexOf("@");
+    const lastAt = email.lastIndexOf("@");
     if (lastAt == -1) {
       return null;
     }
 
-    let domain = email.substr(lastAt + 1);
+    const domain = email.substr(lastAt + 1);
     if (!domain) {
       return null;
     }
@@ -153,17 +152,17 @@ var OpenPGPAlias = {
       return false;
     }
     email = email.toLowerCase();
-    let hasEmail = this._aliasEmails.has(email);
+    const hasEmail = this._aliasEmails.has(email);
     if (hasEmail) {
       return true;
     }
 
-    let lastAt = email.lastIndexOf("@");
+    const lastAt = email.lastIndexOf("@");
     if (lastAt == -1) {
       return false;
     }
 
-    let domain = email.substr(lastAt + 1);
+    const domain = email.substr(lastAt + 1);
     if (!domain) {
       return false;
     }

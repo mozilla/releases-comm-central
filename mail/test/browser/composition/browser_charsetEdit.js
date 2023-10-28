@@ -43,7 +43,7 @@ var { MailServices } = ChromeUtils.import(
 );
 var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
-let aboutMessage = get_about_message();
+const aboutMessage = get_about_message();
 
 var gDrafts;
 
@@ -59,10 +59,10 @@ add_setup(async function () {
  * @returns Map(partnum -> message headers)
  */
 async function getMsgHeaders(aMsgHdr, aGetText = false) {
-  let msgFolder = aMsgHdr.folder;
-  let msgUri = msgFolder.getUriForMsg(aMsgHdr);
+  const msgFolder = aMsgHdr.folder;
+  const msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
-  let handler = {
+  const handler = {
     _done: false,
     _data: new Map(),
     _text: new Map(),
@@ -77,7 +77,7 @@ async function getMsgHeaders(aMsgHdr, aGetText = false) {
       this._text.set(num, "");
     },
   };
-  let streamListener = MimeParser.makeStreamListenerParser(handler, {
+  const streamListener = MimeParser.makeStreamListenerParser(handler, {
     strformat: "unicode",
   });
   MailServices.messageServiceFromURI(msgUri).streamMessage(
@@ -98,8 +98,8 @@ async function getMsgHeaders(aMsgHdr, aGetText = false) {
  * in that charset. Instead, we should be using UTF-8.
  */
 add_task(async function test_wrong_reply_charset() {
-  let folder = gDrafts;
-  let msg0 = create_message({
+  const folder = gDrafts;
+  const msg0 = create_message({
     bodyPart: new SyntheticPartLeaf("Some text", {
       charset: "invalid-charset",
     }),
@@ -121,7 +121,7 @@ add_task(async function test_wrong_reply_charset() {
   );
   await close_compose_window(rwc);
 
-  let draftMsg = await select_click_row(-2);
+  const draftMsg = await select_click_row(-2);
   Assert.equal((await getMsgHeaders(draftMsg)).get("").charset, "UTF-8");
   await press_delete(window); // Delete message
 
@@ -137,7 +137,7 @@ add_task(async function test_wrong_reply_charset() {
 
   const composePromise = promise_new_window("msgcompose");
 
-  let box = get_notification(
+  const box = get_notification(
     aboutMessage,
     "mail-notification-top",
     "draftMsgContent"
@@ -163,10 +163,10 @@ add_task(async function test_wrong_reply_charset() {
  * Test that replying to bad charsets don't screw up the existing text.
  */
 add_task(async function test_no_mojibake() {
-  let folder = gDrafts;
-  let nonASCII = "ケツァルコアトル";
-  let UTF7 = "+MLEwxDChMOswszCiMMgw6w-";
-  let msg0 = create_message({
+  const folder = gDrafts;
+  const nonASCII = "ケツァルコアトル";
+  const UTF7 = "+MLEwxDChMOswszCiMMgw6w-";
+  const msg0 = create_message({
     bodyPart: new SyntheticPartLeaf(UTF7, { charset: "utf-7" }),
   });
   await add_message_to_folder([folder], msg0);
@@ -187,12 +187,12 @@ add_task(async function test_no_mojibake() {
   );
   await close_compose_window(rwc);
 
-  let draftMsg = await select_click_row(-2);
+  const draftMsg = await select_click_row(-2);
   Assert.equal(
     (await getMsgHeaders(draftMsg)).get("").charset.toUpperCase(),
     "UTF-8"
   );
-  let text = (await getMsgHeaders(draftMsg, true)).get("");
+  const text = (await getMsgHeaders(draftMsg, true)).get("");
   // Delete message first before throwing so subsequent tests are not affected.
   await press_delete(window);
   if (!text.includes(nonASCII)) {
@@ -210,7 +210,7 @@ add_task(async function test_no_mojibake() {
   );
 
   const composePromise = promise_new_window("msgcompose");
-  let box = get_notification(
+  const box = get_notification(
     aboutMessage,
     "mail-notification-top",
     "draftMsgContent"

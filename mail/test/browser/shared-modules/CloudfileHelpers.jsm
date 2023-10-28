@@ -64,7 +64,7 @@ function collectFiles(aFiles, aFileRoot) {
 }
 
 function MockCloudfileAccount() {
-  for (let someDefault in kDefaults) {
+  for (const someDefault in kDefaults) {
     this[someDefault] = kDefaults[someDefault];
   }
 }
@@ -74,7 +74,7 @@ MockCloudfileAccount.prototype = {
   _uploads: new Map(),
 
   init(aAccountKey, aOverrides = {}) {
-    for (let override in aOverrides) {
+    for (const override in aOverrides) {
       this[override] = aOverrides[override];
     }
     this.accountKey = aAccountKey;
@@ -98,7 +98,7 @@ MockCloudfileAccount.prototype = {
       );
     }
 
-    let upload = this._uploads.get(uploadId);
+    const upload = this._uploads.get(uploadId);
     upload.url = `https://www.example.com/${this.accountKey}/${newName}`;
     upload.name = newName;
     return upload;
@@ -116,7 +116,7 @@ MockCloudfileAccount.prototype = {
     }
 
     return new Promise((resolve, reject) => {
-      let upload = {
+      const upload = {
         // Values used in the WebExtension CloudFile type.
         id: this._nextId++,
         url: this.urlForFile(aFile),
@@ -173,8 +173,8 @@ var gMockCloudfileManager = {
       displayName: aID,
       iconURL: "chrome://messenger/content/extension.svg",
       initAccount(accountKey, aAccountOverrides = {}) {
-        let account = new MockCloudfileAccount();
-        for (let override in aOverrides) {
+        const account = new MockCloudfileAccount();
+        for (const override in aOverrides) {
           if (!aAccountOverrides.hasOwnProperty(override)) {
             aAccountOverrides[override] = aOverrides[override];
           }
@@ -195,8 +195,8 @@ var gMockCloudfileManager = {
 
   inProgressUploads: new Set(),
   resolveUploads() {
-    let uploads = [];
-    for (let upload of this.inProgressUploads.values()) {
+    const uploads = [];
+    for (const upload of this.inProgressUploads.values()) {
       uploads.push(upload.resolveData);
       upload.resolve(upload.resolveData);
     }
@@ -204,7 +204,7 @@ var gMockCloudfileManager = {
     return uploads;
   },
   rejectUploads() {
-    for (let upload of this.inProgressUploads.values()) {
+    for (const upload of this.inProgressUploads.values()) {
       upload.reject(
         Components.Exception(
           "Upload error.",
@@ -267,7 +267,7 @@ class CloudFileTestProvider {
   }
 
   async createAccount(displayName) {
-    let account = await cloudFileAccounts.createAccount(this.providerType);
+    const account = await cloudFileAccounts.createAccount(this.providerType);
     cloudFileAccounts.setDisplayName(account, displayName);
     return account;
   }

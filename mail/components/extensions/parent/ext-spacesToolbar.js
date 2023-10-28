@@ -35,12 +35,12 @@ var windowURLs = ["chrome://messenger/content/messenger.xhtml"];
  */
 function getManifestIcons(extension) {
   if (extension.manifest.icons) {
-    let { icon: icon16 } = ExtensionParent.IconDetails.getPreferredIcon(
+    const { icon: icon16 } = ExtensionParent.IconDetails.getPreferredIcon(
       extension.manifest.icons,
       extension,
       16
     );
-    let { icon: icon32 } = ExtensionParent.IconDetails.getPreferredIcon(
+    const { icon: icon32 } = ExtensionParent.IconDetails.getPreferredIcon(
       extension.manifest.icons,
       extension,
       32
@@ -63,7 +63,7 @@ function getManifestIcons(extension) {
 function convertProperties({ extension, buttonProperties }) {
   const normalizeColor = color => {
     if (typeof color == "string") {
-      let col = InspectorUtils.colorToRGBA(color);
+      const col = InspectorUtils.colorToRGBA(color);
       if (!col) {
         throw new ExtensionError(`Invalid color value: "${color}"`);
       }
@@ -72,28 +72,28 @@ function convertProperties({ extension, buttonProperties }) {
     return color;
   };
 
-  let hasThemeIcons =
+  const hasThemeIcons =
     buttonProperties.themeIcons && buttonProperties.themeIcons.length > 0;
 
   // If themeIcons have been defined, ignore manifestIcons as fallback and use
   // themeIcons for the default theme as well, following the behavior of
   // WebExtension action buttons.
-  let fallbackManifestIcons = hasThemeIcons
+  const fallbackManifestIcons = hasThemeIcons
     ? null
     : getManifestIcons(extension);
 
   // Use _normalize() to bypass cache.
-  let icons = ExtensionParent.IconDetails._normalize(
+  const icons = ExtensionParent.IconDetails._normalize(
     {
       path: buttonProperties.defaultIcons || fallbackManifestIcons,
       themeIcons: hasThemeIcons ? buttonProperties.themeIcons : null,
     },
     extension
   );
-  let iconStyles = new Map(getIconData(icons, extension).style);
+  const iconStyles = new Map(getIconData(icons, extension).style);
 
-  let badgeStyles = new Map();
-  let bgColor = normalizeColor(buttonProperties.badgeBackgroundColor);
+  const badgeStyles = new Map();
+  const bgColor = normalizeColor(buttonProperties.badgeBackgroundColor);
   if (bgColor) {
     badgeStyles.set(
       "--spaces-button-badge-bg-color",
@@ -124,11 +124,11 @@ ExtensionSupport.registerWindowListener("ext-spacesToolbar", {
     });
     // Add buttons of all extension spaces to the toolbar of each newly opened
     // normal window.
-    for (let spaceData of spaceTracker.getAll()) {
+    for (const spaceData of spaceTracker.getAll()) {
       if (!spaceData.extension) {
         continue;
       }
-      let nativeButtonProperties = convertProperties(spaceData);
+      const nativeButtonProperties = convertProperties(spaceData);
       await window.gSpacesToolbar.createToolbarButton(
         spaceData.spaceButtonId,
         nativeButtonProperties
@@ -143,12 +143,12 @@ this.spacesToolbar = class extends ExtensionAPI {
       return;
     }
 
-    let extensionId = this.extension.id;
-    for (let spaceData of spaceTracker.getAll()) {
+    const extensionId = this.extension.id;
+    for (const spaceData of spaceTracker.getAll()) {
       if (spaceData.extension?.id != extensionId) {
         continue;
       }
-      for (let window of ExtensionSupport.openWindows) {
+      for (const window of ExtensionSupport.openWindows) {
         if (windowURLs.includes(window.location.href)) {
           await window.gSpacesToolbar.removeToolbarButton(
             spaceData.spaceButtonId
@@ -161,7 +161,7 @@ this.spacesToolbar = class extends ExtensionAPI {
 
   getAPI(context) {
     this.widgetId = makeWidgetId(context.extension.id);
-    let { tabManager } = context.extension;
+    const { tabManager } = context.extension;
 
     return {
       spacesToolbar: {
@@ -169,7 +169,7 @@ this.spacesToolbar = class extends ExtensionAPI {
           if (properties.url) {
             properties.url = context.uri.resolve(properties.url);
           }
-          let [protocol] = (properties.url || "").split("://");
+          const [protocol] = (properties.url || "").split("://");
           if (
             !protocol ||
             !["https", "http", "moz-extension"].includes(protocol)
@@ -185,15 +185,15 @@ this.spacesToolbar = class extends ExtensionAPI {
             );
           }
           try {
-            let spaceData = await spaceTracker.create(
+            const spaceData = await spaceTracker.create(
               name,
               properties.url,
               properties,
               context.extension
             );
 
-            let nativeButtonProperties = convertProperties(spaceData);
-            for (let window of ExtensionSupport.openWindows) {
+            const nativeButtonProperties = convertProperties(spaceData);
+            for (const window of ExtensionSupport.openWindows) {
               if (windowURLs.includes(window.location.href)) {
                 await window.gSpacesToolbar.createToolbarButton(
                   spaceData.spaceButtonId,
@@ -210,14 +210,14 @@ this.spacesToolbar = class extends ExtensionAPI {
           }
         },
         async removeButton(name) {
-          let spaceData = spaceTracker.fromSpaceName(name, context.extension);
+          const spaceData = spaceTracker.fromSpaceName(name, context.extension);
           if (!spaceData) {
             throw new ExtensionError(
               `Failed to remove button from the spaces toolbar: A button with id ${name} does not exist for this extension.`
             );
           }
           try {
-            for (let window of ExtensionSupport.openWindows) {
+            for (const window of ExtensionSupport.openWindows) {
               if (windowURLs.includes(window.location.href)) {
                 await window.gSpacesToolbar.removeToolbarButton(
                   spaceData.spaceButtonId
@@ -232,7 +232,7 @@ this.spacesToolbar = class extends ExtensionAPI {
           }
         },
         async updateButton(name, updatedProperties) {
-          let spaceData = spaceTracker.fromSpaceName(name, context.extension);
+          const spaceData = spaceTracker.fromSpaceName(name, context.extension);
           if (!spaceData) {
             throw new ExtensionError(
               `Failed to update button in the spaces toolbar: A button with id ${name} does not exist for this extension.`
@@ -241,7 +241,7 @@ this.spacesToolbar = class extends ExtensionAPI {
 
           if (updatedProperties.url != null) {
             updatedProperties.url = context.uri.resolve(updatedProperties.url);
-            let [protocol] = updatedProperties.url.split("://");
+            const [protocol] = updatedProperties.url.split("://");
             if (
               !protocol ||
               !["https", "http", "moz-extension"].includes(protocol)
@@ -253,7 +253,7 @@ this.spacesToolbar = class extends ExtensionAPI {
           }
 
           let changes = false;
-          for (let [key, value] of Object.entries(updatedProperties)) {
+          for (const [key, value] of Object.entries(updatedProperties)) {
             if (value != null) {
               if (key == "url") {
                 spaceData.defaultUrl = value;
@@ -264,9 +264,9 @@ this.spacesToolbar = class extends ExtensionAPI {
           }
 
           if (changes) {
-            let nativeButtonProperties = convertProperties(spaceData);
+            const nativeButtonProperties = convertProperties(spaceData);
             try {
-              for (let window of ExtensionSupport.openWindows) {
+              for (const window of ExtensionSupport.openWindows) {
                 if (windowURLs.includes(window.location.href)) {
                   await window.gSpacesToolbar.updateToolbarButton(
                     spaceData.spaceButtonId,
@@ -283,21 +283,21 @@ this.spacesToolbar = class extends ExtensionAPI {
           }
         },
         async clickButton(name, windowId) {
-          let spaceData = spaceTracker.fromSpaceName(name, context.extension);
+          const spaceData = spaceTracker.fromSpaceName(name, context.extension);
           if (!spaceData) {
             throw new ExtensionError(
               `Failed to trigger a click on the spaces toolbar button: A button with id ${name} does not exist for this extension.`
             );
           }
 
-          let window = await getNormalWindowReady(context, windowId);
-          let space = window.gSpacesToolbar.spaces.find(
+          const window = await getNormalWindowReady(context, windowId);
+          const space = window.gSpacesToolbar.spaces.find(
             space => space.button.id == spaceData.spaceButtonId
           );
 
-          let tabmail = window.document.getElementById("tabmail");
-          let currentTab = tabmail.selectedTab;
-          let nativeTabInfo = window.gSpacesToolbar.openSpace(tabmail, space);
+          const tabmail = window.document.getElementById("tabmail");
+          const currentTab = tabmail.selectedTab;
+          const nativeTabInfo = window.gSpacesToolbar.openSpace(tabmail, space);
           return tabManager.convert(nativeTabInfo, currentTab);
         },
       },

@@ -175,7 +175,7 @@ var gEditorDocumentObserver = {
           window.InsertCharWindow = null;
         }
 
-        let domWindowUtils =
+        const domWindowUtils =
           GetCurrentEditorElement().contentWindow.windowUtils;
         // And extra styles for showing anchors, table borders, smileys, etc.
         domWindowUtils.loadSheetUsingURIString(
@@ -235,7 +235,7 @@ function SetFocusOnStartup() {
 function EditorLoadUrl(url) {
   try {
     if (url) {
-      let loadURIOptions = {
+      const loadURIOptions = {
         loadFlags: Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE,
         triggeringPrincipal:
           Services.scriptSecurityManager.getSystemPrincipal(),
@@ -259,7 +259,7 @@ function EditorSharedStartup() {
   // type windows.
   GetCurrentEditorElement().docShell.allowDNSPrefetch = false;
 
-  let messageEditorBrowser = GetCurrentEditorElement();
+  const messageEditorBrowser = GetCurrentEditorElement();
   messageEditorBrowser.addEventListener(
     "DoZoomEnlargeBy10",
     () => {
@@ -395,8 +395,8 @@ async function CheckAndSaveDocument(command, allowDontSave) {
   let result = { value: 0 };
   let promptFlags =
     Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1;
-  let button1Title = null;
-  let button3Title = null;
+  const button1Title = null;
+  const button3Title = null;
 
   promptFlags +=
     Services.prompt.BUTTON_TITLE_SAVE * Services.prompt.BUTTON_POS_0;
@@ -447,7 +447,7 @@ function editorSetParagraphState(state) {
 }
 
 function onParagraphFormatChange() {
-  let paraMenuList = document.getElementById("ParagraphSelect");
+  const paraMenuList = document.getElementById("ParagraphSelect");
   if (!paraMenuList) {
     return;
   }
@@ -466,7 +466,7 @@ function onParagraphFormatChange() {
     paraMenuList.setAttribute("label", GetString("Mixed"));
   } else {
     var menuPopup = document.getElementById("ParagraphPopup");
-    for (let menuItem of menuPopup.children) {
+    for (const menuItem of menuPopup.children) {
       if (menuItem.value === state) {
         paraMenuList.selectedItem = menuItem;
         break;
@@ -485,7 +485,7 @@ function editorRemoveTextStyling() {
  * Selects the current font face in the menulist.
  */
 function onFontFaceChange() {
-  let fontFaceMenuList = document.getElementById("FontFaceSelect");
+  const fontFaceMenuList = document.getElementById("FontFaceSelect");
   var commandNode = document.getElementById("cmd_fontFace");
   var editorFont = commandNode.getAttribute("state");
 
@@ -515,8 +515,8 @@ function onFontFaceChange() {
     default:
   }
 
-  let menuPopup = fontFaceMenuList.menupopup;
-  let menuItems = menuPopup.children;
+  const menuPopup = fontFaceMenuList.menupopup;
+  const menuItems = menuPopup.children;
 
   const genericFamilies = [
     "serif",
@@ -528,14 +528,14 @@ function onFontFaceChange() {
   // Bug 1139524: Normalise before we compare: Make it lower case
   // and replace ", " with "," so that entries like
   // "Helvetica, Arial, sans-serif" are always recognised correctly
-  let editorFontToLower = editorFont.toLowerCase().replace(/, /g, ",");
+  const editorFontToLower = editorFont.toLowerCase().replace(/, /g, ",");
   let foundFont = null;
   let exactMatch = false;
-  let usedFontsSep = menuPopup.querySelector(
+  const usedFontsSep = menuPopup.querySelector(
     "menuseparator.fontFaceMenuAfterUsedFonts"
   );
-  let editorFontOptions = editorFontToLower.split(",");
-  let editorOptionsCount = editorFontOptions.length;
+  const editorFontOptions = editorFontToLower.split(",");
+  const editorOptionsCount = editorFontOptions.length;
   let matchedFontIndex = editorOptionsCount; // initialise to high invalid value
 
   // The font menu has this structure:
@@ -559,13 +559,13 @@ function onFontFaceChange() {
   // "used":         This item is in the used font section.
 
   for (let i = 0; i < menuItems.length; i++) {
-    let menuItem = menuItems.item(i);
+    const menuItem = menuItems.item(i);
     if (
       menuItem.hasAttribute("label") &&
       menuItem.hasAttribute("value_parsed")
     ) {
       // The element seems to represent a font <menuitem>.
-      let fontMenuValue = menuItem.getAttribute("value_parsed");
+      const fontMenuValue = menuItem.getAttribute("value_parsed");
       if (
         fontMenuValue == editorFontToLower ||
         (menuItem.hasAttribute("value_cache") &&
@@ -581,7 +581,7 @@ function onFontFaceChange() {
       } else if (editorOptionsCount > 1 && afterUsedFontSection) {
         // Once we are in the list of all other available fonts,
         // we will find the one that best matches one of the options.
-        let matchPos = editorFontOptions.indexOf(fontMenuValue);
+        const matchPos = editorFontOptions.indexOf(fontMenuValue);
         if (matchPos >= 0 && matchPos < matchedFontIndex) {
           // This menu font comes earlier in the list of options,
           // so prefer it.
@@ -602,7 +602,7 @@ function onFontFaceChange() {
   }
 
   if (foundFont) {
-    let defaultFontsSep = menuPopup.querySelector(
+    const defaultFontsSep = menuPopup.querySelector(
       "menuseparator.fontFaceMenuAfterDefaultFonts"
     );
     if (exactMatch) {
@@ -610,7 +610,7 @@ function onFontFaceChange() {
         // Copy the matched font into the section of used fonts.
         // We insert after the separator following the default fonts,
         // so right at the beginning of the used fonts section.
-        let copyItem = foundFont.cloneNode(true);
+        const copyItem = foundFont.cloneNode(true);
         menuPopup.insertBefore(copyItem, defaultFontsSep.nextElementSibling);
         usedFontsSep.hidden = false;
         foundFont = copyItem;
@@ -663,7 +663,7 @@ function onFontFaceChange() {
     // The editor encountered a font that is not installed on this system.
     // Add it to the font menu now, in the used-fonts section right at the
     // bottom before the separator of the section.
-    let fontLabel = GetFormattedString("NotInstalled", editorFont);
+    const fontLabel = GetFormattedString("NotInstalled", editorFont);
     foundFont = createFontFaceMenuitem(fontLabel, editorFont, menuPopup);
     foundFont.setAttribute("used", "true");
     usedFontsSep.hidden = false;
@@ -799,7 +799,7 @@ function initLocalFontFaceMenu(menuPopup) {
   }
 
   // Don't use radios for menulists.
-  let useRadioMenuitems = menuPopup.parentNode.localName == "menu";
+  const useRadioMenuitems = menuPopup.parentNode.localName == "menu";
   menuPopup.setAttribute("useRadios", useRadioMenuitems);
   if (menuPopup.children.length == kFixedFontFaceMenuItems) {
     if (gLocalFonts.length == 0) {
@@ -813,7 +813,7 @@ function initLocalFontFaceMenu(menuPopup) {
         gLocalFonts[i] != "sans-serif" &&
         gLocalFonts[i] != "monospace"
       ) {
-        let itemNode = createFontFaceMenuitem(
+        const itemNode = createFontFaceMenuitem(
           gLocalFonts[i],
           gLocalFonts[i],
           menuPopup
@@ -834,7 +834,7 @@ function initLocalFontFaceMenu(menuPopup) {
  * @param aMenuPopup  The menupopup for which this menuitem is created.
  */
 function createFontFaceMenuitem(aFontLabel, aFontName, aMenuPopup) {
-  let itemNode = document.createXULElement("menuitem");
+  const itemNode = document.createXULElement("menuitem");
   itemNode.setAttribute("label", aFontLabel);
   itemNode.setAttribute("value", aFontName);
   itemNode.setAttribute(
@@ -866,8 +866,8 @@ function getLegacyFontSize() {
 
 function initFontSizeMenu(menuPopup) {
   if (menuPopup) {
-    let fontSize = getLegacyFontSize();
-    for (let menuitem of menuPopup.children) {
+    const fontSize = getLegacyFontSize();
+    for (const menuitem of menuPopup.children) {
       if (menuitem.getAttribute("value") == fontSize) {
         menuitem.setAttribute("checked", true);
       }
@@ -990,9 +990,9 @@ function GetBackgroundElementWithColor() {
     }
     gColorObj.SelectedType = gColorObj.Type;
   } else {
-    let IsCSSPrefChecked = Services.prefs.getBoolPref(kUseCssPref);
+    const IsCSSPrefChecked = Services.prefs.getBoolPref(kUseCssPref);
     if (IsCSSPrefChecked && IsHTMLEditor()) {
-      let selection = editor.selection;
+      const selection = editor.selection;
       if (selection) {
         element = selection.focusNode;
         while (!editor.nodeIsBlock(element)) {
@@ -1413,15 +1413,18 @@ function SaveRecentFilesPrefs(aTitle, aFileType) {
   }
 
   for (let i = 0; i < historyCount && urlArray.length < historyCount; i++) {
-    let url = Services.prefs.getStringPref("editor.history_url_" + i, "");
+    const url = Services.prefs.getStringPref("editor.history_url_" + i, "");
 
     // Continue if URL pref is missing because
     //  a URL not found during loading may have been removed
 
     // Skip over current an "data" URLs
     if (url && url != curUrl && GetScheme(url) != "data") {
-      let title = Services.prefs.getStringPref("editor.history_title_" + i, "");
-      let fileType = Services.prefs.getStringPref(
+      const title = Services.prefs.getStringPref(
+        "editor.history_title_" + i,
+        ""
+      );
+      const fileType = Services.prefs.getStringPref(
         "editor.history_type_" + i,
         ""
       );
@@ -1746,7 +1749,7 @@ function EditorSetDefaultPrefsAndDoctype() {
     // let's start by assuming we have an author in case we don't have the pref
 
     var prefAuthorString = null;
-    let authorFound = domdoc.querySelector('meta[name="author"]');
+    const authorFound = domdoc.querySelector('meta[name="author"]');
     try {
       prefAuthorString = Services.prefs.getStringPref("editor.author");
     } catch (ex) {}
@@ -1778,8 +1781,8 @@ function EditorSetDefaultPrefsAndDoctype() {
   var bodyelement = GetBodyElement();
   if (bodyelement) {
     if (Services.prefs.getBoolPref("editor.use_custom_colors")) {
-      let text_color = Services.prefs.getCharPref("editor.text_color");
-      let background_color = Services.prefs.getCharPref(
+      const text_color = Services.prefs.getCharPref("editor.text_color");
+      const background_color = Services.prefs.getCharPref(
         "editor.background_color"
       );
 
@@ -1809,7 +1812,7 @@ function EditorSetDefaultPrefsAndDoctype() {
     }
     // Default image is independent of Custom colors???
     try {
-      let background_image = Services.prefs.getCharPref(
+      const background_image = Services.prefs.getCharPref(
         "editor.default_background_image"
       );
       if (background_image) {
@@ -2197,7 +2200,7 @@ function GetNumberOfContiguousSelectedRows() {
   rows++;
 
   var lastIndex = rowObj.value;
-  for (let cell of editor.getSelectedCells()) {
+  for (const cell of editor.getSelectedCells()) {
     editor.getCellIndexes(cell, rowObj, colObj);
     var index = rowObj.value;
     if (index == lastIndex + 1) {
@@ -2228,7 +2231,7 @@ function GetNumberOfContiguousSelectedColumns() {
   columns++;
 
   var lastIndex = colObj.value;
-  for (let cell of editor.getSelectedCells()) {
+  for (const cell of editor.getSelectedCells()) {
     editor.getCellIndexes(cell, rowObj, colObj);
     var index = colObj.value;
     if (index == lastIndex + 1) {
@@ -2281,7 +2284,7 @@ function FindEditorWithInsertCharDialog() {
   try {
     // Find window with an InsertCharsWindow and switch association to this one
 
-    for (let tempWindow of Services.wm.getEnumerator(null)) {
+    for (const tempWindow of Services.wm.getEnumerator(null)) {
       if (
         !tempWindow.closed &&
         tempWindow != window &&
@@ -2330,7 +2333,7 @@ function SwitchInsertCharToAnotherEditorOrClose() {
 
     // TODO: Fix this to search for command controllers and look for "cmd_InsertChars"
     // For now, detect just Web Composer and HTML Mail Composer
-    for (let tempWindow of enumerator) {
+    for (const tempWindow of enumerator) {
       if (
         !tempWindow.closed &&
         tempWindow != window &&
@@ -2383,8 +2386,8 @@ function RemoveTOC() {
     elt.remove();
   }
 
-  let anchorNodes = theDocument.querySelectorAll('a[name^="mozTocId"]');
-  for (let node of anchorNodes) {
+  const anchorNodes = theDocument.querySelectorAll('a[name^="mozTocId"]');
+  for (const node of anchorNodes) {
     if (node.parentNode) {
       node.remove();
     }

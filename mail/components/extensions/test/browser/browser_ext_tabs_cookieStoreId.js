@@ -12,7 +12,7 @@ add_setup(async function () {
 add_task(async function () {
   info("Start testing tabs.create with cookieStoreId");
 
-  let testCases = [
+  const testCases = [
     {
       cookieStoreId: null,
       expectedCookieStoreId: "firefox-default",
@@ -34,7 +34,7 @@ add_task(async function () {
     { cookieStoreId: "wow", failure: "illegal" },
   ];
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       permissions: ["tabs", "cookies"],
     },
@@ -100,7 +100,7 @@ add_task(async function () {
 
           {
             // Tests for tab querying
-            let [tab] = await browser.tabs.query({
+            const [tab] = await browser.tabs.query({
               windowId: this.defaultWindowId,
               cookieStoreId: data.cookieStoreId,
             });
@@ -109,9 +109,9 @@ add_task(async function () {
             testTab(data, tab);
           }
 
-          let stores = await browser.cookies.getAllCookieStores();
+          const stores = await browser.cookies.getAllCookieStores();
 
-          let store = stores.find(store => store.id === tab.cookieStoreId);
+          const store = stores.find(store => store.id === tab.cookieStoreId);
           browser.test.assertTrue(!!store, "We have a store for this tab.");
           browser.test.assertTrue(
             store.tabIds.includes(tab.id),
@@ -127,7 +127,7 @@ add_task(async function () {
       }
 
       async function initialize() {
-        let win = await browser.windows.getCurrent();
+        const win = await browser.windows.getCurrent();
         this.defaultWindowId = win.id;
 
         browser.test.sendMessage("ready");
@@ -158,7 +158,7 @@ add_task(async function () {
   await extension.awaitMessage("ready");
   info("Tests are ready to run!");
 
-  for (let test of testCases) {
+  for (const test of testCases) {
     info(`test tab.create with cookieStoreId: "${test.cookieStoreId}"`);
     extension.sendMessage("test", test);
     await extension.awaitMessage("test-done");
@@ -175,7 +175,7 @@ add_task(async function userContext_disabled() {
   await SpecialPowers.pushPrefEnv({
     set: [["privacy.userContext.enabled", false]],
   });
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       permissions: ["tabs", "cookies"],
     },
@@ -195,15 +195,15 @@ add_task(async function userContext_disabled() {
 });
 
 add_task(async function tabs_query_cookiestoreid_nocookiepermission() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     async background() {
-      let tab = await browser.tabs.create({});
+      const tab = await browser.tabs.create({});
       browser.test.assertEq(
         "firefox-default",
         tab.cookieStoreId,
         "Expecting cookieStoreId for new tab"
       );
-      let query = await browser.tabs.query({
+      const query = await browser.tabs.query({
         index: tab.index,
         cookieStoreId: tab.cookieStoreId,
       });
@@ -222,28 +222,28 @@ add_task(async function tabs_query_cookiestoreid_nocookiepermission() {
 });
 
 add_task(async function tabs_query_multiple_cookiestoreId() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       permissions: ["cookies"],
     },
 
     async background() {
-      let tab1 = await browser.tabs.create({
+      const tab1 = await browser.tabs.create({
         cookieStoreId: "firefox-container-1",
       });
       browser.test.log(`Tab created for cookieStoreId:${tab1.cookieStoreId}`);
 
-      let tab2 = await browser.tabs.create({
+      const tab2 = await browser.tabs.create({
         cookieStoreId: "firefox-container-2",
       });
       browser.test.log(`Tab created for cookieStoreId:${tab2.cookieStoreId}`);
 
-      let tab3 = await browser.tabs.create({
+      const tab3 = await browser.tabs.create({
         cookieStoreId: "firefox-container-3",
       });
       browser.test.log(`Tab created for cookieStoreId:${tab3.cookieStoreId}`);
 
-      let tabs = await browser.tabs.query({
+      const tabs = await browser.tabs.query({
         cookieStoreId: ["firefox-container-1", "firefox-container-2"],
       });
 

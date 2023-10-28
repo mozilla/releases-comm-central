@@ -4,16 +4,16 @@
 
 let account;
 let messages;
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 
 add_setup(async () => {
   account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
-  let subFolders = rootFolder.subFolders;
+  const rootFolder = account.incomingServer.rootFolder;
+  const subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
   messages = subFolders[0].messages;
 
-  let about3Pane = tabmail.currentAbout3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({
     folderPaneVisible: true,
     folderURI: subFolders[0],
@@ -29,7 +29,7 @@ add_setup(async () => {
 add_task(async function test_popup_open_with_menu_command() {
   info("3-pane tab");
   {
-    let testConfig = {
+    const testConfig = {
       actionType: "message_display_action",
       testType: "open-with-menu-command",
       window: tabmail.currentAboutMessage,
@@ -51,7 +51,7 @@ add_task(async function test_popup_open_with_menu_command() {
   info("Message tab");
   {
     await openMessageInTab(messages.getNext());
-    let testConfig = {
+    const testConfig = {
       actionType: "message_display_action",
       testType: "open-with-menu-command",
       window: tabmail.currentAboutMessage,
@@ -74,8 +74,8 @@ add_task(async function test_popup_open_with_menu_command() {
 
   info("Message window");
   {
-    let messageWindow = await openMessageInWindow(messages.getNext());
-    let testConfig = {
+    const messageWindow = await openMessageInWindow(messages.getNext());
+    const testConfig = {
       actionType: "message_display_action",
       testType: "open-with-menu-command",
       window: messageWindow.messageBrowser.contentWindow,
@@ -98,7 +98,7 @@ add_task(async function test_popup_open_with_menu_command() {
 });
 
 add_task(async function test_theme_icons() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       applications: {
         gecko: {
@@ -121,13 +121,13 @@ add_task(async function test_theme_icons() {
 
   await extension.startup();
 
-  let aboutMessage = tabmail.currentAboutMessage;
-  let uuid = extension.uuid;
-  let button = aboutMessage.document.getElementById(
+  const aboutMessage = tabmail.currentAboutMessage;
+  const uuid = extension.uuid;
+  const button = aboutMessage.document.getElementById(
     "message_display_action_mochi_test-messageDisplayAction-toolbarbutton"
   );
 
-  let dark_theme = await AddonManager.getAddonByID(
+  const dark_theme = await AddonManager.getAddonByID(
     "thunderbird-compact-dark@mozilla.org"
   );
   await Promise.all([
@@ -141,7 +141,7 @@ add_task(async function test_theme_icons() {
     `Dark theme should use light icon.`
   );
 
-  let light_theme = await AddonManager.getAddonByID(
+  const light_theme = await AddonManager.getAddonByID(
     "thunderbird-compact-light@mozilla.org"
   );
   await Promise.all([
@@ -205,7 +205,7 @@ add_task(async function test_button_order() {
   tabmail.closeTab();
 
   info("Message window");
-  let messageWindow = await openMessageInWindow(messages.getNext());
+  const messageWindow = await openMessageInWindow(messages.getNext());
   await run_action_button_order_test(
     [
       {
@@ -225,7 +225,7 @@ add_task(async function test_button_order() {
 
 add_task(async function test_upgrade() {
   // Add a message_display_action, to make sure the currentSet has been initialized.
-  let extension1 = ExtensionTestUtils.loadExtension({
+  const extension1 = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       manifest_version: 2,
@@ -244,7 +244,7 @@ add_task(async function test_upgrade() {
   await extension1.awaitMessage("Extension1 ready");
 
   // Add extension without a message_display_action.
-  let extension2 = ExtensionTestUtils.loadExtension({
+  const extension2 = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       manifest_version: 2,
@@ -260,7 +260,7 @@ add_task(async function test_upgrade() {
   await extension2.awaitMessage("Extension2 ready");
 
   // Update the extension, now including a message_display_action.
-  let updatedExtension2 = ExtensionTestUtils.loadExtension({
+  const updatedExtension2 = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       manifest_version: 2,
@@ -278,8 +278,8 @@ add_task(async function test_upgrade() {
   await updatedExtension2.startup();
   await updatedExtension2.awaitMessage("Extension2 updated");
 
-  let aboutMessage = tabmail.currentAboutMessage;
-  let button = aboutMessage.document.getElementById(
+  const aboutMessage = tabmail.currentAboutMessage;
+  const button = aboutMessage.document.getElementById(
     "extension2_mochi_test-messageDisplayAction-toolbarbutton"
   );
 
@@ -293,7 +293,7 @@ add_task(async function test_iconPath() {
   // String values for the default_icon manifest entry have been tested in the
   // theme_icons test already. Here we test imagePath objects for the manifest key
   // and string values as well as objects for the setIcons() function.
-  let files = {
+  const files = {
     "background.js": async () => {
       await window.sendMessage("checkState", "icon1.png");
 
@@ -309,7 +309,7 @@ add_task(async function test_iconPath() {
     "utils.js": await getUtilsJS(),
   };
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       applications: {
@@ -325,10 +325,10 @@ add_task(async function test_iconPath() {
     },
   });
 
-  let aboutMessage = tabmail.currentAboutMessage;
+  const aboutMessage = tabmail.currentAboutMessage;
   extension.onMessage("checkState", async expected => {
-    let uuid = extension.uuid;
-    let button = aboutMessage.document.getElementById(
+    const uuid = extension.uuid;
+    const button = aboutMessage.document.getElementById(
       "message_display_action_mochi_test-messageDisplayAction-toolbarbutton"
     );
 

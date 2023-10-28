@@ -33,7 +33,7 @@ registerCleanupFunction(async () => {
   // the cleanupFunction registered by AddonTestUtils.maybeInit() checks for left over
   // files in the temp folder.
   // Note: PathUtils.tempDir points to the system temp folder, which is different.
-  let path = PathUtils.join(
+  const path = PathUtils.join(
     Services.dirsvc.get("TmpD", Ci.nsIFile).path,
     "MozillaMailnews"
   );
@@ -44,13 +44,13 @@ registerCleanupFunction(async () => {
 // the main test is about to trigger an event. The extension terminates its
 // background and listens for that single event, verifying it is waking up correctly.
 async function event_page_extension(eventName, actionCallback) {
-  let ext = ExtensionTestUtils.loadExtension({
+  const ext = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
         // Whenever the extension starts or wakes up, hasFired is set to false. In
         // case of a wake-up, the first fired event is the one that woke up the background.
         let hasFired = false;
-        let _eventName = browser.runtime.getManifest().description;
+        const _eventName = browser.runtime.getManifest().description;
 
         browser.messages[_eventName].addListener(async (...args) => {
           // Only send the first event after background wake-up, this should
@@ -83,7 +83,7 @@ async function event_page_extension(eventName, actionCallback) {
   assertPersistentListeners(ext, "messages", eventName, { primed: true });
 
   await actionCallback();
-  let rv = await ext.awaitMessage(`${eventName} received`);
+  const rv = await ext.awaitMessage(`${eventName} received`);
   await ext.awaitMessage("background started");
   // The listener should be persistent, but not primed.
   assertPersistentListeners(ext, "messages", eventName, { primed: false });
@@ -99,9 +99,9 @@ add_task(
   async function test_move_copy_delete() {
     await AddonTestUtils.promiseStartupManager();
 
-    let account = createAccount();
-    let rootFolder = account.incomingServer.rootFolder;
-    let subFolders = {
+    const account = createAccount();
+    const rootFolder = account.incomingServer.rootFolder;
+    const subFolders = {
       test1: await createSubfolder(rootFolder, "test1"),
       test2: await createSubfolder(rootFolder, "test2"),
       test3: await createSubfolder(rootFolder, "test3"),
@@ -111,13 +111,13 @@ add_task(
     // 4 messages must be created before this line or test_move_copy_delete will break.
     await createMessages(subFolders.test1, 5);
 
-    let files = {
+    const files = {
       "background.js": async () => {
         async function capturePrimedEvent(eventName, callback) {
-          let eventPageExtensionReadyPromise = window.waitForMessage();
+          const eventPageExtensionReadyPromise = window.waitForMessage();
           browser.test.sendMessage("capturePrimedEvent", eventName);
           await eventPageExtensionReadyPromise;
-          let eventPageExtensionFinishedPromise = window.waitForMessage();
+          const eventPageExtensionFinishedPromise = window.waitForMessage();
           callback();
           return eventPageExtensionFinishedPromise;
         }
@@ -130,15 +130,15 @@ add_task(
             expected,
             "Folder type should be correct"
           );
-          let m = JSON.parse(JSON.stringify(message));
+          const m = JSON.parse(JSON.stringify(message));
           delete m.folder.type;
           return m;
         }
 
         async function checkMessagesInFolder(expectedKeys, folder) {
-          let expectedSubjects = expectedKeys.map(k => messages[k].subject);
+          const expectedSubjects = expectedKeys.map(k => messages[k].subject);
 
-          let { messages: actualMessages } = await browser.messages.list(
+          const { messages: actualMessages } = await browser.messages.list(
             folder
           );
           browser.test.log("expect: " + expectedSubjects.sort());
@@ -154,7 +154,7 @@ add_task(
               .toString(),
             "Messages on server should be correct"
           );
-          for (let m of actualMessages) {
+          for (const m of actualMessages) {
             browser.test.assertTrue(
               expectedSubjects.includes(m.subject),
               `${m.subject} at ${m.id}`
@@ -169,8 +169,8 @@ add_task(
         function newMovePromise(numberOfEventsToCollapse = 1) {
           return new Promise(resolve => {
             let seenEvents = 0;
-            let seenSrcMsgs = [];
-            let seenDstMsgs = [];
+            const seenSrcMsgs = [];
+            const seenDstMsgs = [];
             const listener = (srcMsgs, dstMsgs) => {
               seenEvents++;
               seenSrcMsgs.push(...srcMsgs.messages);
@@ -187,8 +187,8 @@ add_task(
         function newCopyPromise(numberOfEventsToCollapse = 1) {
           return new Promise(resolve => {
             let seenEvents = 0;
-            let seenSrcMsgs = [];
-            let seenDstMsgs = [];
+            const seenSrcMsgs = [];
+            const seenDstMsgs = [];
             const listener = (srcMsgs, dstMsgs) => {
               seenEvents++;
               seenSrcMsgs.push(...srcMsgs.messages);
@@ -205,7 +205,7 @@ add_task(
         function newDeletePromise(numberOfEventsToCollapse = 1) {
           return new Promise(resolve => {
             let seenEvents = 0;
-            let seenMsgs = [];
+            const seenMsgs = [];
             const listener = msgs => {
               seenEvents++;
               seenMsgs.push(...msgs.messages);
@@ -224,11 +224,11 @@ add_task(
           messages,
           dstFolder
         ) {
-          let eventInfo = await infoPromise;
+          const eventInfo = await infoPromise;
           browser.test.assertEq(eventInfo.srcMsgs.length, expected.length);
           browser.test.assertEq(eventInfo.dstMsgs.length, expected.length);
-          for (let msg of expected) {
-            let idx = eventInfo.srcMsgs.findIndex(
+          for (const msg of expected) {
+            const idx = eventInfo.srcMsgs.findIndex(
               e => e.id == messages[msg].id
             );
             browser.test.assertEq(
@@ -246,20 +246,20 @@ add_task(
           }
         }
 
-        let [accountId] = await window.sendMessage("getAccount");
-        let { folders } = await browser.accounts.get(accountId);
-        let testFolder1 = folders.find(f => f.name == "test1");
-        let testFolder2 = folders.find(f => f.name == "test2");
-        let testFolder3 = folders.find(f => f.name == "test3");
-        let trashFolder = folders.find(f => f.name == "Trash");
+        const [accountId] = await window.sendMessage("getAccount");
+        const { folders } = await browser.accounts.get(accountId);
+        const testFolder1 = folders.find(f => f.name == "test1");
+        const testFolder2 = folders.find(f => f.name == "test2");
+        const testFolder3 = folders.find(f => f.name == "test3");
+        const trashFolder = folders.find(f => f.name == "Trash");
 
-        let { messages: folder1Messages } = await browser.messages.list(
+        const { messages: folder1Messages } = await browser.messages.list(
           testFolder1
         );
 
         // Since the ID of a message changes when it is moved, track by subject.
-        let messages = {};
-        for (let m of folder1Messages) {
+        const messages = {};
+        for (const m of folder1Messages) {
           messages[m.subject.split(" ")[0]] = { id: m.id, subject: m.subject };
         }
 
@@ -535,11 +535,11 @@ add_task(
 
         browser.test.log("");
         browser.test.log(" --> Copy one message to another folder.");
-        let copyPromise = newCopyPromise();
-        let primedCopyInfo = await capturePrimedEvent("onCopied", () =>
+        const copyPromise = newCopyPromise();
+        const primedCopyInfo = await capturePrimedEvent("onCopied", () =>
           browser.messages.copy([messages.Happy.id], testFolder2)
         );
-        let copyInfo = await copyPromise;
+        const copyInfo = await copyPromise;
         window.assertDeepEqual(
           {
             srcMsgs: copyInfo.srcMsgs.map(m =>
@@ -575,7 +575,7 @@ add_task(
           ["Red", "Green", "Blue", "My", "Happy"],
           testFolder1
         );
-        let { messages: folder2Messages } = await browser.messages.list(
+        const { messages: folder2Messages } = await browser.messages.list(
           testFolder2
         );
         browser.test.assertEq(1, folder2Messages.length);
@@ -588,12 +588,12 @@ add_task(
 
         browser.test.log("");
         browser.test.log(" --> Delete the copied message.");
-        let deletePromise = newDeletePromise();
-        let [primedDeleteLog] = await capturePrimedEvent("onDeleted", () =>
+        const deletePromise = newDeletePromise();
+        const [primedDeleteLog] = await capturePrimedEvent("onDeleted", () =>
           browser.messages.delete([folder2Messages[0].id], true)
         );
         // Check if the delete information is correct.
-        let deleteLog = await deletePromise;
+        const deleteLog = await deletePromise;
         window.assertDeepEqual(
           [
             {
@@ -672,7 +672,7 @@ add_task(
         await checkMessagesInFolder([], testFolder2);
         await checkMessagesInFolder([], testFolder3);
 
-        let { messages: trashFolderMessages } = await browser.messages.list(
+        const { messages: trashFolderMessages } = await browser.messages.list(
           trashFolder
         );
         browser.test.assertTrue(
@@ -683,7 +683,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
@@ -701,16 +701,16 @@ add_task(
 
     extension.onMessage("forceServerUpdate", async foldername => {
       if (IS_IMAP) {
-        let folder = rootFolder
+        const folder = rootFolder
           .getChildNamed(foldername)
           .QueryInterface(Ci.nsIMsgImapMailFolder);
 
-        let listener = new PromiseTestUtils.PromiseUrlListener();
+        const listener = new PromiseTestUtils.PromiseUrlListener();
         folder.updateFolderWithListener(null, listener);
         await listener.promise;
 
         // ...and download for offline use.
-        let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+        const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
         folder.downloadAllForOffline(promiseUrlListener, null);
         await promiseUrlListener.promise;
       }
@@ -718,7 +718,7 @@ add_task(
     });
 
     extension.onMessage("capturePrimedEvent", async eventName => {
-      let primedEventData = await event_page_extension(eventName, () => {
+      const primedEventData = await event_page_extension(eventName, () => {
         // Resume execution in the main test, after the event page extension is
         // ready to capture the event with deactivated background.
         extension.sendMessage();

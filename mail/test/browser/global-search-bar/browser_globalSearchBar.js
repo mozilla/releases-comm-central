@@ -8,17 +8,17 @@
  * gains focus.
  */
 add_task(async function testGlobalSearchInputGainsFocus() {
-  let searchInput = document.querySelector(".search-bar");
+  const searchInput = document.querySelector(".search-bar");
   EventUtils.synthesizeMouseAtCenter(searchInput, {}, window);
   EventUtils.sendString("Bugzilla", window);
   EventUtils.synthesizeKey("KEY_Enter", {}, window);
 
-  let tabmail = document.querySelector("tabmail");
+  const tabmail = document.querySelector("tabmail");
   Assert.equal(tabmail.tabInfo.length, 2);
   Assert.equal(tabmail.currentTabInfo, tabmail.tabInfo[1]);
 
   await TestUtils.waitForCondition(() => {
-    let browser = tabmail.currentTabInfo.browser;
+    const browser = tabmail.currentTabInfo.browser;
     return (
       browser &&
       !browser.webProgress?.isLoadingDocument &&
@@ -26,7 +26,7 @@ add_task(async function testGlobalSearchInputGainsFocus() {
     );
   });
 
-  let activeElement = document.activeElement;
+  const activeElement = document.activeElement;
   info(`<${activeElement.localName}>`);
   Assert.equal(
     activeElement.getAttribute("is"),
@@ -36,7 +36,7 @@ add_task(async function testGlobalSearchInputGainsFocus() {
 });
 
 registerCleanupFunction(function tearDown() {
-  let tabmail = document.querySelector("tabmail");
+  const tabmail = document.querySelector("tabmail");
   while (tabmail.tabInfo.length > 1) {
     tabmail.closeTab(1);
   }

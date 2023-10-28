@@ -30,7 +30,7 @@ add_setup(async function () {
   await engine.initialize();
   store = engine._store;
 
-  let dirPrefId = MailServices.ab.newAddressBook(
+  const dirPrefId = MailServices.ab.newAddressBook(
     "Sync Address Book",
     null,
     MailServices.ab.CARDDAV_DIRECTORY_TYPE
@@ -50,7 +50,7 @@ add_task(async function testItemExists() {
 });
 
 add_task(async function testCreateRecord() {
-  let record = await store.createRecord(cardDAVBook.UID);
+  const record = await store.createRecord(cardDAVBook.UID);
   Assert.ok(record instanceof AddressBookRecord);
   Assert.equal(record.id, cardDAVBook.UID);
   Assert.equal(record.name, "Sync Address Book");
@@ -59,8 +59,8 @@ add_task(async function testCreateRecord() {
 });
 
 add_task(async function testCreateDeletedRecord() {
-  let fakeID = "12345678-1234-1234-1234-123456789012";
-  let record = await store.createRecord(fakeID);
+  const fakeID = "12345678-1234-1234-1234-123456789012";
+  const record = await store.createRecord(fakeID);
   Assert.ok(record instanceof AddressBookRecord);
   Assert.equal(record.id, fakeID);
   Assert.equal(record.deleted, true);
@@ -70,7 +70,7 @@ add_task(async function testSyncRecords() {
   Assert.equal(MailServices.ab.directories.length, 3);
   PromiseTestUtils.expectUncaughtRejection(/Connection failure/);
 
-  let newID = newUID();
+  const newID = newUID();
   await store.applyIncoming({
     id: newID,
     name: "bar",

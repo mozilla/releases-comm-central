@@ -15,10 +15,10 @@ function handleRequest(request, response) {
 
   response.setHeader("Content-Type", "application/json", false);
 
-  let headers = {};
-  let enumerator = request.headers;
+  const headers = {};
+  const enumerator = request.headers;
   while (enumerator.hasMoreElements()) {
-    let header = enumerator.getNext().data;
+    const header = enumerator.getNext().data;
     headers[header.toLowerCase()] = request.getHeader(header);
   }
 

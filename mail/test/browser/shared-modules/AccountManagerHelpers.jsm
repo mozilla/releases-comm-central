@@ -44,7 +44,7 @@ async function promise_account_tree_load(tab) {
 }
 
 async function openAccountSettings() {
-  let tab = await open_content_tab_with_url("about:accountsettings");
+  const tab = await open_content_tab_with_url("about:accountsettings");
   await promise_account_tree_load(tab);
   return tab;
 }
@@ -57,20 +57,20 @@ async function openAccountSettings() {
  * @param {tabCallback} callback - The callback for the account manager tab that is opened.
  */
 async function open_advanced_settings(callback) {
-  let tab = await open_content_tab_with_url("about:accountsettings");
+  const tab = await open_content_tab_with_url("about:accountsettings");
   await promise_account_tree_load(tab);
   await callback(tab);
   mc.document.getElementById("tabmail").closeTab(tab);
 }
 
 async function openAccountSetup() {
-  let tab = await open_content_tab_with_url("about:accountsetup");
+  const tab = await open_content_tab_with_url("about:accountsetup");
   await promise_content_tab_load(tab, "about:accountsetup", 10000);
   return tab;
 }
 
 async function openAccountProvisioner() {
-  let tab = await open_content_tab_with_url("about:accountprovisioner");
+  const tab = await open_content_tab_with_url("about:accountprovisioner");
   await promise_content_tab_load(tab, "about:accountprovisioner", 10000);
   return tab;
 }
@@ -87,7 +87,7 @@ async function click_account_tree_row(tab, rowIndex) {
     "Timeout waiting for currentAccount to become non-null"
   );
 
-  let tree = content_tab_e(tab, "accounttree");
+  const tree = content_tab_e(tab, "accounttree");
   tree.selectedIndex = rowIndex;
 
   await TestUtils.waitForCondition(
@@ -119,7 +119,7 @@ async function click_account_tree_row(tab, rowIndex) {
  *                   click_account_tree_row has a useful context.
  */
 function get_account_tree_row(accountKey, paneId, tab) {
-  let accountTree = content_tab_e(tab, "accounttree");
+  const accountTree = content_tab_e(tab, "accounttree");
   let row;
   if (accountKey && paneId) {
     row = accountTree.querySelector(`#${accountKey} [PageTag="${paneId}"]`);
@@ -143,22 +143,22 @@ async function remove_account(
   removeAccount = true,
   removeData = false
 ) {
-  let accountRow = get_account_tree_row(account.key, null, tab);
+  const accountRow = get_account_tree_row(account.key, null, tab);
   await click_account_tree_row(tab, accountRow);
 
   account = null;
   // Use the Remove item in the Account actions menu.
-  let actionsButton = content_tab_e(tab, "accountActionsButton");
+  const actionsButton = content_tab_e(tab, "accountActionsButton");
   EventUtils.synthesizeMouseAtCenter(
     actionsButton,
     { clickCount: 1 },
     actionsButton.ownerGlobal
   );
-  let actionsDd = content_tab_e(tab, "accountActionsDropdown");
+  const actionsDd = content_tab_e(tab, "accountActionsDropdown");
   await TestUtils.waitForCondition(
     () => actionsDd.state == "open" || actionsDd.state == "showing"
   );
-  let remove = content_tab_e(tab, "accountActionsDropdownRemove");
+  const remove = content_tab_e(tab, "accountActionsDropdownRemove");
   EventUtils.synthesizeMouseAtCenter(
     remove,
     { clickCount: 1 },
@@ -166,7 +166,7 @@ async function remove_account(
   );
   await TestUtils.waitForCondition(() => actionsDd.state == "closed");
 
-  let cdc = await wh.wait_for_frame_load(
+  const cdc = await wh.wait_for_frame_load(
     tab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://messenger/content/removeAccount.xhtml"
   );

@@ -51,18 +51,18 @@ add_setup(async function () {
     "pop3"
   );
 
-  let identity1 = MailServices.accounts.createIdentity();
+  const identity1 = MailServices.accounts.createIdentity();
   identity1.email = identity1Email;
   account.addIdentity(identity1);
   identityKey1 = identity1.key;
 
-  let identity2 = MailServices.accounts.createIdentity();
+  const identity2 = MailServices.accounts.createIdentity();
   identity2.email = identity2Email;
   identity2.fullName = identity2Name;
   account.addIdentity(identity2);
   identityKey2 = identity2.key;
 
-  let identity3 = MailServices.accounts.createIdentity();
+  const identity3 = MailServices.accounts.createIdentity();
   identity3.email = identity3Email;
   identity3.fullName = identity3Name;
   identity3.label = identity3Label;
@@ -70,7 +70,7 @@ add_setup(async function () {
   identityKey3 = identity3.key;
 
   // Identity with no data.
-  let identity4 = MailServices.accounts.createIdentity();
+  const identity4 = MailServices.accounts.createIdentity();
   account.addIdentity(identity4);
   identityKey4 = identity4.key;
 
@@ -91,7 +91,7 @@ add_setup(async function () {
  *   sender address to be sent out).
  */
 function checkCompIdentity(cwc, aIdentityKey, aIdentityAlias, aIdentityValue) {
-  let identityList = cwc.document.getElementById("msgIdentity");
+  const identityList = cwc.document.getElementById("msgIdentity");
 
   Assert.equal(
     cwc.getCurrentIdentityKey(),
@@ -123,13 +123,13 @@ function checkCompIdentity(cwc, aIdentityKey, aIdentityAlias, aIdentityValue) {
 add_task(async function test_compose_from_composer() {
   await be_in_folder(gInbox);
 
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   checkCompIdentity(cwc, account.defaultIdentity.key);
 
   // Compose a new message from the compose window.
   let composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, cwc);
-  let newCompWin = await compose_window_ready(composePromise);
+  const newCompWin = await compose_window_ready(composePromise);
   checkCompIdentity(newCompWin, account.defaultIdentity.key);
   await close_compose_window(newCompWin);
 
@@ -141,7 +141,7 @@ add_task(async function test_compose_from_composer() {
   // Compose a second new message from the compose window.
   composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, cwc);
-  let newCompWin2 = await compose_window_ready(composePromise);
+  const newCompWin2 = await compose_window_ready(composePromise);
   checkCompIdentity(newCompWin2, identityKey2);
 
   await close_compose_window(newCompWin2);
@@ -157,13 +157,13 @@ add_task(async function test_editing_identity() {
   Services.prefs.setBoolPref("mail.compose.warned_about_customize_from", true);
   await be_in_folder(gInbox);
 
-  let compWin = await open_compose_new_mail();
+  const compWin = await open_compose_new_mail();
   checkCompIdentity(compWin, account.defaultIdentity.key, identity1Email);
 
   // Input custom identity data into the From field.
-  let customName = "custom";
-  let customEmail = "custom@edited.invalid";
-  let identityCustom = customName + " <" + customEmail + ">";
+  const customName = "custom";
+  const customEmail = "custom@edited.invalid";
+  const identityCustom = customName + " <" + customEmail + ">";
 
   EventUtils.synthesizeMouseAtCenter(
     compWin.document.getElementById("msgIdentity"),
@@ -218,7 +218,7 @@ add_task(async function test_editing_identity() {
 add_task(async function test_display_of_identities() {
   await be_in_folder(gInbox);
 
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   checkCompIdentity(cwc, account.defaultIdentity.key, identity1Email);
 
   await chooseIdentity(cwc, identityKey2);
@@ -232,7 +232,7 @@ add_task(async function test_display_of_identities() {
   );
 
   await chooseIdentity(cwc, identityKey3);
-  let identity3From = identity3Name + " <" + identity3Email + ">";
+  const identity3From = identity3Name + " <" + identity3Email + ">";
   checkCompIdentity(
     cwc,
     identityKey3,
@@ -246,7 +246,7 @@ add_task(async function test_display_of_identities() {
   await close_compose_window(cwc);
 
   await be_in_folder(gDrafts);
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
   Assert.equal(curMessage.author, identity3From);
   // Remove the saved draft.
   await press_delete(window);

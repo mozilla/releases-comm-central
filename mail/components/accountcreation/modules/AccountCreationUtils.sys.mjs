@@ -55,7 +55,7 @@ function runAsync(func) {
  */
 function readURLasUTF8(uri) {
   assert(uri instanceof Ci.nsIURI, "uri must be an nsIURI");
-  let chan = Services.io.newChannelFromURI(
+  const chan = Services.io.newChannelFromURI(
     uri,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
@@ -63,7 +63,7 @@ function readURLasUTF8(uri) {
     Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
     Ci.nsIContentPolicy.TYPE_OTHER
   );
-  let is = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(
+  const is = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(
     Ci.nsIConverterInputStream
   );
   is.init(
@@ -74,7 +74,7 @@ function readURLasUTF8(uri) {
   );
 
   let content = "";
-  let strOut = {};
+  const strOut = {};
   try {
     while (is.readString(1024, strOut) != 0) {
       content += strOut.value;
@@ -267,7 +267,7 @@ ParallelAbortable.prototype = {
    * @returns {ParallelCall}
    */
   addCall() {
-    let call = new ParallelCall(this);
+    const call = new ParallelCall(this);
     call.position = this._calls.length;
     this._calls.push(call);
     return call;
@@ -298,13 +298,13 @@ ParallelAbortable.prototype = {
       if (this._calls.some(call => !call.finished)) {
         return;
       }
-      let succeeded = this._calls.filter(call => call.succeeded);
-      let failed = this._calls.filter(call => !call.succeeded);
+      const succeeded = this._calls.filter(call => call.succeeded);
+      const failed = this._calls.filter(call => !call.succeeded);
       func(succeeded, failed);
     });
   },
   _notifyFinished(call) {
-    for (let observer of this._finishedObservers) {
+    for (const observer of this._finishedObservers) {
       try {
         observer(call);
       } catch (e) {
@@ -313,7 +313,7 @@ ParallelAbortable.prototype = {
     }
   },
   cancel(e) {
-    for (let call of this._calls) {
+    for (const call of this._calls) {
       if (!call.finished && call.callerAbortable) {
         call.callerAbortable.cancel(e);
       }
@@ -440,7 +440,7 @@ function PriorityOrderAbortable(successCallback, errorCallback) {
   this._successfulCall = null;
 
   this.addOneFinishedObserver(finishedCall => {
-    for (let call of this._calls) {
+    for (const call of this._calls) {
       if (!call.finished) {
         if (this._successfulCall) {
           // abort
@@ -475,8 +475,8 @@ function PriorityOrderAbortable(successCallback, errorCallback) {
     }
     if (!this._successfulCall) {
       // all failed
-      let allErrors = this._calls.map(call => call.e);
-      let e =
+      const allErrors = this._calls.map(call => call.e);
+      const e =
         allErrors.find(e => e instanceof CancelledException) || allErrors[0];
       errorCallback(e, allErrors); // see docs above
     }
@@ -580,7 +580,7 @@ AddonInstaller.prototype.isDisabled = async function () {
   if (!this._id) {
     return false;
   }
-  let addon = await AddonManager.getAddonByID(this._id);
+  const addon = await AddonManager.getAddonByID(this._id);
   return addon && !addon.isActive;
 };
 
@@ -604,7 +604,7 @@ AddonInstaller.prototype._installDirect = async function () {
   if ("startupPromise" in addon) {
     await addon.startupPromise;
   }
-  let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
   await wait(1000);
 };
 

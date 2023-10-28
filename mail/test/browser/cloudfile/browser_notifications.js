@@ -130,7 +130,7 @@ function close_privacy_warning_notification(aWin) {
 }
 
 add_task(async function test_no_notification_for_small_file() {
-  let cwc = await open_compose_new_mail(window);
+  const cwc = await open_compose_new_mail(window);
   await add_attachments(cwc, "https://www.example.com/1", 0);
   assert_cloudfile_notification_displayed(cwc, false);
 
@@ -147,7 +147,7 @@ add_task(async function test_no_notification_for_small_file() {
 });
 
 add_task(async function test_notification_for_big_files() {
-  let cwc = await open_compose_new_mail(window);
+  const cwc = await open_compose_new_mail(window);
   await add_attachments(cwc, "https://www.example.com/1", maxSize);
   assert_cloudfile_notification_displayed(cwc, true);
 
@@ -164,7 +164,7 @@ add_task(async function test_notification_for_big_files() {
 });
 
 add_task(async function test_graduate_to_notification() {
-  let cwc = await open_compose_new_mail(window);
+  const cwc = await open_compose_new_mail(window);
   await add_attachments(cwc, "https://www.example.com/1", maxSize - 100);
   assert_cloudfile_notification_displayed(cwc, false);
 
@@ -179,7 +179,7 @@ add_task(async function test_graduate_to_notification() {
 
 add_task(async function test_no_notification_if_disabled() {
   Services.prefs.setBoolPref("mail.cloud_files.enabled", false);
-  let cwc = await open_compose_new_mail(window);
+  const cwc = await open_compose_new_mail(window);
 
   await add_attachments(cwc, "https://www.example.com/1", maxSize);
   assert_cloudfile_notification_displayed(cwc, false);
@@ -203,10 +203,10 @@ add_task(async function test_no_notification_if_disabled() {
  */
 add_task(async function test_link_insertion_notification_single() {
   MockFilePicker.setFiles(collectFiles(["./data/testFile1"]));
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = await open_compose_new_mail(window);
+  const cwc = await open_compose_new_mail(window);
   await add_cloud_attachments(cwc, provider, false);
 
   assert_upload_notification_displayed(cwc, true);
@@ -232,10 +232,10 @@ add_task(async function test_link_insertion_notification_multiple() {
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile1", "./data/testFile2"])
   );
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = await open_compose_new_mail(window);
+  const cwc = await open_compose_new_mail(window);
   await add_cloud_attachments(cwc, provider, false);
 
   assert_upload_notification_displayed(cwc, true);
@@ -265,10 +265,10 @@ add_task(async function test_link_insertion_goes_away_on_error() {
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile1", "./data/testFile2"])
   );
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = await open_compose_new_mail(window);
+  const cwc = await open_compose_new_mail(window);
   await add_cloud_attachments(cwc, provider, false);
 
   await wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -291,7 +291,7 @@ add_task(async function test_no_offer_on_conversion() {
 
   // Insert some Filelinks...
   MockFilePicker.setFiles(collectFiles(kFiles));
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("someKey");
 
   // Override uploadFile to succeed instantaneously so that we don't have
@@ -306,7 +306,7 @@ add_task(async function test_no_offer_on_conversion() {
     });
   };
 
-  let cw = await open_compose_new_mail();
+  const cw = await open_compose_new_mail();
   await add_cloud_attachments(cw, provider, false);
 
   assert_cloudfile_notification_displayed(cw, false);
@@ -343,12 +343,12 @@ add_task(async function test_offer_then_upload_notifications() {
   // We're going to add attachments to the attachmentbucket, and we'll
   // use the add_attachments helper function to do it.  First, retrieve
   // some file URIs...
-  let fileURIs = collectFiles(kFiles).map(
+  const fileURIs = collectFiles(kFiles).map(
     file => Services.io.newFileURI(file).spec
   );
 
   // Create our mock provider
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("someKey");
 
   // Override uploadFile to succeed instantaneously so that we don't have
@@ -363,7 +363,7 @@ add_task(async function test_offer_then_upload_notifications() {
     });
   };
 
-  let cw = await open_compose_new_mail();
+  const cw = await open_compose_new_mail();
 
   // Attach the files, saying that each is 500 bytes large - which should
   // certainly trigger the offer.
@@ -397,10 +397,10 @@ add_task(async function test_privacy_warning_notification() {
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile1", "./data/testFile2"])
   );
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = await open_compose_new_mail(window);
+  const cwc = await open_compose_new_mail(window);
   await add_cloud_attachments(cwc, provider, false);
 
   await wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -435,10 +435,10 @@ add_task(async function test_privacy_warning_notification() {
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile1", "./data/testFile2"])
   );
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = await open_compose_new_mail(window);
+  const cwc = await open_compose_new_mail(window);
   await add_cloud_attachments(cwc, provider, false);
 
   await wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -470,7 +470,7 @@ add_task(async function test_privacy_warning_notification_no_persist() {
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile1", "./data/testFile2"])
   );
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("mocktestKey");
 
   let cwc = await open_compose_new_mail(window);
@@ -506,7 +506,7 @@ add_task(async function test_privacy_warning_notification_open_after_close() {
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile1", "./data/testFile2"])
   );
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("aKey");
 
   let cwc = await open_compose_new_mail(window);

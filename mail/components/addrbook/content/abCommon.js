@@ -16,17 +16,17 @@ var kAllDirectoryRoot = "moz-abdirectory://";
 var kPersonalAddressbookURI = "jsaddrbook://abook.sqlite";
 
 async function AbDelete() {
-  let types = GetSelectedCardTypes();
+  const types = GetSelectedCardTypes();
   if (types == kNothingSelected) {
     return;
   }
 
-  let cards = GetSelectedAbCards();
+  const cards = GetSelectedAbCards();
 
   // Determine strings for smart and context-sensitive user prompts
   // for confirming deletion.
   let action, name, list;
-  let selectedDir = gAbView.directory;
+  const selectedDir = gAbView.directory;
 
   switch (types) {
     case kListsAndCards:
@@ -38,7 +38,7 @@ async function AbDelete() {
       name = cards[0].displayName;
       break;
     default: {
-      let nameFormatFromPref = Services.prefs.getIntPref(
+      const nameFormatFromPref = Services.prefs.getIntPref(
         "mail.addr_book.lastnamefirst"
       );
       name = cards[0].generateName(nameFormatFromPref);
@@ -70,7 +70,7 @@ async function AbDelete() {
       break;
   }
 
-  let [title, message] = await document.l10n.formatValues([
+  const [title, message] = await document.l10n.formatValues([
     {
       id: `about-addressbook-confirm-${action}-title`,
       args: { count: cards.length },
@@ -96,7 +96,7 @@ async function AbDelete() {
 }
 
 function AbNewMessage(address) {
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.type = Ci.nsIMsgCompType.New;
@@ -126,7 +126,7 @@ function makeMailboxObjectFromCard(card) {
 
   let email;
   if (card.isMailList) {
-    let directory = GetDirectoryFromURI(card.mailListURI);
+    const directory = GetDirectoryFromURI(card.mailListURI);
     email = directory.description || card.displayName;
   } else {
     email = card.primaryEmail;

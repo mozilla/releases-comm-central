@@ -9,7 +9,7 @@ const lazy = {};
 const PREF_LOGLEVEL = "browser.policies.loglevel";
 
 XPCOMUtils.defineLazyGetter(lazy, "log", () => {
-  let { ConsoleAPI } = ChromeUtils.importESModule(
+  const { ConsoleAPI } = ChromeUtils.importESModule(
     "resource://gre/modules/Console.sys.mjs"
   );
   return new ConsoleAPI({

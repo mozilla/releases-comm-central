@@ -33,14 +33,14 @@ let global = {};
  * Set up: create a new address book to hold the mailing list.
  */
 add_task(async () => {
-  let bookPrefName = MailServices.ab.newAddressBook(
+  const bookPrefName = MailServices.ab.newAddressBook(
     inputs.abName,
     null,
     Ci.nsIAbManager.JS_DIRECTORY_TYPE
   );
-  let addressBook = MailServices.ab.getDirectoryFromId(bookPrefName);
+  const addressBook = MailServices.ab.getDirectoryFromId(bookPrefName);
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
 
   global = {
     abWindow,
@@ -54,22 +54,22 @@ add_task(async () => {
  * Create a new mailing list with some addresses, in the new address book.
  */
 add_task(async () => {
-  let mailingListWindowPromise = promiseLoadSubDialog(
+  const mailingListWindowPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abMailListDialog.xhtml"
   ).then(async function (mlWindow) {
-    let mlDocument = mlWindow.document;
-    let mlDocElement = mlDocument.querySelector("dialog");
+    const mlDocument = mlWindow.document;
+    const mlDocElement = mlDocument.querySelector("dialog");
 
-    let listName = mlDocument.getElementById("ListName");
+    const listName = mlDocument.getElementById("ListName");
     if (mlDocument.activeElement != listName) {
       await BrowserTestUtils.waitForEvent(listName, "focus");
     }
 
-    let abPopup = mlDocument.getElementById("abPopup");
-    let listNickName = mlDocument.getElementById("ListNickName");
-    let listDescription = mlDocument.getElementById("ListDescription");
-    let addressInput1 = mlDocument.getElementById("addressCol1#1");
-    let addressInputsCount = mlDocument
+    const abPopup = mlDocument.getElementById("abPopup");
+    const listNickName = mlDocument.getElementById("ListNickName");
+    const listDescription = mlDocument.getElementById("ListDescription");
+    const addressInput1 = mlDocument.getElementById("addressCol1#1");
+    const addressInputsCount = mlDocument
       .getElementById("addressingWidget")
       .querySelectorAll("input").length;
 
@@ -130,7 +130,7 @@ add_task(async () => {
     "address one was saved"
   );
 
-  let childCards = global.addressBook.childCards;
+  const childCards = global.addressBook.childCards;
 
   Assert.ok(
     childCards.find(card => card.primaryEmail == inputs.addresses[0]),
@@ -141,7 +141,7 @@ add_task(async () => {
     "address one was saved in the correct address book"
   );
 
-  let mailList = MailUtils.findListInAddressBooks(inputs.mlName);
+  const mailList = MailUtils.findListInAddressBooks(inputs.mlName);
 
   // Save the mailing list UID so we can confirm it is the same later.
   global.mailListUID = mailList.UID;
@@ -163,7 +163,7 @@ add_task(async () => {
     "mailing list description was saved"
   );
 
-  let listCards = mailList.childCards;
+  const listCards = mailList.childCards;
   Assert.equal(listCards.length, 2, "two cards exist in the mailing list");
   Assert.ok(
     listCards[0].hasEmailAddress(inputs.addresses[0]),
@@ -179,11 +179,11 @@ add_task(async () => {
  * Open the mailing list dialog and modify the mailing list.
  */
 add_task(async () => {
-  let mailingListWindowPromise = promiseLoadSubDialog(
+  const mailingListWindowPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abEditListDialog.xhtml"
   ).then(async function (mlWindow) {
-    let mlDocument = mlWindow.document;
-    let mlDocElement = mlDocument.querySelector("dialog");
+    const mlDocument = mlWindow.document;
+    const mlDocElement = mlDocument.querySelector("dialog");
 
     if (!mlDocument.getElementById("addressCol1#3")) {
       // The address input nodes are not there yet when the dialog window is
@@ -203,11 +203,11 @@ add_task(async () => {
       );
     }
 
-    let listName = mlDocument.getElementById("ListName");
-    let listNickName = mlDocument.getElementById("ListNickName");
-    let listDescription = mlDocument.getElementById("ListDescription");
-    let addressInput1 = mlDocument.getElementById("addressCol1#1");
-    let addressInput2 = mlDocument.getElementById("addressCol1#2");
+    const listName = mlDocument.getElementById("ListName");
+    const listNickName = mlDocument.getElementById("ListNickName");
+    const listDescription = mlDocument.getElementById("ListDescription");
+    const addressInput1 = mlDocument.getElementById("addressCol1#1");
+    const addressInput2 = mlDocument.getElementById("addressCol1#2");
 
     Assert.equal(
       listName.value,
@@ -235,7 +235,7 @@ add_task(async () => {
       "address one is displayed correctly"
     );
 
-    let textInputs = mlDocument.querySelectorAll(".textbox-addressingWidget");
+    const textInputs = mlDocument.querySelectorAll(".textbox-addressingWidget");
     Assert.equal(textInputs.length, 3, "no extraneous addresses are displayed");
 
     // Add addresses two and three.
@@ -253,7 +253,7 @@ add_task(async () => {
     EventUtils.sendKey("BACK_SPACE", mlWindow);
 
     // Modify the list's name, nick name, and description fields.
-    let modifyField = id => {
+    const modifyField = id => {
       id.focus();
       EventUtils.sendKey("DOWN", mlWindow);
       EventUtils.sendString(inputs.modification, mlWindow);
@@ -290,7 +290,7 @@ add_task(async () => {
     "address three was saved"
   );
 
-  let childCards = global.addressBook.childCards;
+  const childCards = global.addressBook.childCards;
 
   Assert.ok(
     childCards.find(card => card.primaryEmail == inputs.addresses[2]),
@@ -301,7 +301,7 @@ add_task(async () => {
     "address three was saved in the correct address book"
   );
 
-  let mailList = MailUtils.findListInAddressBooks(
+  const mailList = MailUtils.findListInAddressBooks(
     inputs.mlName + inputs.modification
   );
 
@@ -331,7 +331,7 @@ add_task(async () => {
     "modified mailing list description was saved"
   );
 
-  let listCards = mailList.childCards;
+  const listCards = mailList.childCards;
 
   Assert.equal(listCards.length, 3, "three cards exist in the mailing list");
 
@@ -348,7 +348,7 @@ add_task(async () => {
     "address three was saved in the mailing list"
   );
 
-  let hasAddressOne = listCards.find(card =>
+  const hasAddressOne = listCards.find(card =>
     card.hasEmailAddress(inputs.addresses[1])
   );
 
@@ -359,11 +359,11 @@ add_task(async () => {
  * Open the mailing list dialog and confirm the changes are displayed.
  */
 add_task(async () => {
-  let mailingListWindowPromise = promiseLoadSubDialog(
+  const mailingListWindowPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abEditListDialog.xhtml"
   ).then(async function (mailingListWindow) {
-    let mlDocument = mailingListWindow.document;
-    let mlDocElement = mlDocument.querySelector("dialog");
+    const mlDocument = mailingListWindow.document;
+    const mlDocElement = mlDocument.querySelector("dialog");
 
     if (!mlDocument.getElementById("addressCol1#4")) {
       // The address input nodes are not there yet when the dialog window is
@@ -383,12 +383,12 @@ add_task(async () => {
       );
     }
 
-    let listName = mlDocument.getElementById("ListName");
-    let listNickName = mlDocument.getElementById("ListNickName");
-    let listDescription = mlDocument.getElementById("ListDescription");
-    let addressInput1 = mlDocument.getElementById("addressCol1#1");
-    let addressInput2 = mlDocument.getElementById("addressCol1#2");
-    let addressInput3 = mlDocument.getElementById("addressCol1#3");
+    const listName = mlDocument.getElementById("ListName");
+    const listNickName = mlDocument.getElementById("ListNickName");
+    const listDescription = mlDocument.getElementById("ListDescription");
+    const addressInput1 = mlDocument.getElementById("addressCol1#1");
+    const addressInput2 = mlDocument.getElementById("addressCol1#2");
+    const addressInput3 = mlDocument.getElementById("addressCol1#3");
 
     Assert.equal(
       listName.value,
@@ -421,7 +421,7 @@ add_task(async () => {
       "address three is displayed correctly"
     );
 
-    let textInputs = mlDocument.querySelectorAll(".textbox-addressingWidget");
+    const textInputs = mlDocument.querySelectorAll(".textbox-addressingWidget");
     Assert.equal(textInputs.length, 4, "no extraneous addresses are displayed");
 
     mlDocElement.getButton("cancel").click();
@@ -446,11 +446,11 @@ add_task(async () => {
  * Tear down: delete the address book and close the address book window.
  */
 add_task(async () => {
-  let mailingListWindowPromise = BrowserTestUtils.promiseAlertDialog(
+  const mailingListWindowPromise = BrowserTestUtils.promiseAlertDialog(
     "accept",
     "chrome://global/content/commonDialog.xhtml"
   );
-  let deletePromise = TestUtils.topicObserved("addrbook-directory-deleted");
+  const deletePromise = TestUtils.topicObserved("addrbook-directory-deleted");
 
   Assert.equal(
     global.booksList.getRowAtIndex(2).querySelector("span").textContent,
@@ -464,7 +464,7 @@ add_task(async () => {
 
   await Promise.all([mailingListWindowPromise, deletePromise]);
 
-  let addressBook = MailServices.ab.directories.find(
+  const addressBook = MailServices.ab.directories.find(
     directory => directory.dirName == inputs.abName
   );
 

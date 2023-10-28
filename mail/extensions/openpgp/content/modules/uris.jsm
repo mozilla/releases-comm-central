@@ -91,7 +91,7 @@ var EnigmailURIs = {
     let msgNum = "";
     let msgFolder = "";
 
-    let pathQueryRef = "path" in url ? url.path : url.pathQueryRef;
+    const pathQueryRef = "path" in url ? url.path : url.pathQueryRef;
 
     if (url.schemeIs("mailbox")) {
       msgNum = pathQueryRef.replace(/(.*[?&]number=)([0-9]+)([^0-9].*)?/, "$2");
@@ -100,7 +100,7 @@ var EnigmailURIs = {
       msgNum = "0";
       msgFolder = pathQueryRef.replace(/\?.*/, "");
     } else if (url.schemeIs("imap")) {
-      let p = unescape(pathQueryRef);
+      const p = unescape(pathQueryRef);
       msgNum = p.replace(/(.*>)([0-9]+)([^0-9].*)?/, "$2");
       msgFolder = p.replace(/\?.*$/, "").replace(/>[^>]+$/, "");
     } else if (url.schemeIs("news")) {

@@ -183,12 +183,12 @@ export default class CustomizableElement extends HTMLLIElement {
     previewLabel.title = labelText;
     const { IconDetails } = lazy.ExtensionParent;
     if (extension.manifest.icons) {
-      let { icon } = IconDetails.getPreferredIcon(
+      const { icon } = IconDetails.getPreferredIcon(
         extension.manifest.icons,
         extension,
         16
       );
-      let { icon: icon2x } = IconDetails.getPreferredIcon(
+      const { icon: icon2x } = IconDetails.getPreferredIcon(
         extension.manifest.icons,
         extension,
         32

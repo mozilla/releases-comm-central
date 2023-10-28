@@ -69,7 +69,7 @@ function element_visible_recursive(aElem) {
   if (aElem.hidden || aElem.collapsed) {
     return false;
   }
-  let parent = aElem.parentNode;
+  const parent = aElem.parentNode;
   if (parent == null) {
     return true;
   }

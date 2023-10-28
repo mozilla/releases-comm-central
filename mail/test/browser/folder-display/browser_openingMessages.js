@@ -60,11 +60,12 @@ add_setup(async function () {
  */
 add_task(async function test_open_single_message_in_tab() {
   set_open_message_behavior("NEW_TAB");
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
-  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
+  const preCount =
+    document.getElementById("tabmail").tabContainer.allTabs.length;
   await be_in_folder(folder);
   // Select one message
-  let msgHdr = await select_click_row(1);
+  const msgHdr = await select_click_row(1);
   // Open it
   open_selected_message();
   // Check that the tab count has increased by 1
@@ -73,7 +74,7 @@ add_task(async function test_open_single_message_in_tab() {
   // opened tab is in the foreground)
   assert_tab_mode_name(null, "mailMessageTab");
 
-  let tab = document.getElementById("tabmail").currentTabInfo;
+  const tab = document.getElementById("tabmail").currentTabInfo;
   if (
     tab.chromeBrowser.docShell.isLoadingDocument ||
     tab.chromeBrowser.currentURI.spec != "about:message"
@@ -96,13 +97,14 @@ add_task(async function test_open_single_message_in_tab() {
  */
 add_task(async function test_open_multiple_messages_in_tabs() {
   set_open_message_behavior("NEW_TAB");
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
-  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
+  const preCount =
+    document.getElementById("tabmail").tabContainer.allTabs.length;
   await be_in_folder(folder);
 
   // Select a bunch of messages
   await select_click_row(1);
-  let selectedMessages = await select_shift_click_row(NUM_MESSAGES_TO_OPEN);
+  const selectedMessages = await select_shift_click_row(NUM_MESSAGES_TO_OPEN);
   // Open them
   open_selected_messages();
   // Check that the tab count has increased by the correct number
@@ -139,12 +141,12 @@ add_task(async function test_open_message_in_new_window() {
   await be_in_folder(folder);
 
   // Select a message
-  let msgHdr = await select_click_row(1);
+  const msgHdr = await select_click_row(1);
 
-  let newWindowPromise = promise_new_window("mail:messageWindow");
+  const newWindowPromise = promise_new_window("mail:messageWindow");
   // Open it
   open_selected_message();
-  let msgc = await newWindowPromise;
+  const msgc = await newWindowPromise;
   await wait_for_message_display_completion(msgc, true);
 
   await assert_selected_and_displayed(msgc, msgHdr);
@@ -163,13 +165,13 @@ add_task(async function test_open_message_in_existing_window() {
 
   // Open up a window
   await select_click_row(1);
-  let newWindowPromise = promise_new_window("mail:messageWindow");
+  const newWindowPromise = promise_new_window("mail:messageWindow");
   open_selected_message();
-  let msgc = await newWindowPromise;
+  const msgc = await newWindowPromise;
   await wait_for_message_display_completion(msgc, true);
 
   // Select another message and open it
-  let msgHdr = await select_click_row(2);
+  const msgHdr = await select_click_row(2);
   plan_for_message_display(msgc);
   open_selected_message();
   await wait_for_message_display_completion(msgc, true);

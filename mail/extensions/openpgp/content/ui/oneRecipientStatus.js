@@ -41,10 +41,10 @@ async function setListEntries(keys = null) {
     keys = await EnigmailKeyRing.getMultValidKeysForOneRecipient(gAddr, true);
   }
 
-  for (let keyObj of keys) {
-    let listitem = document.createXULElement("richlistitem");
+  for (const keyObj of keys) {
+    const listitem = document.createXULElement("richlistitem");
 
-    let keyId = document.createXULElement("label");
+    const keyId = document.createXULElement("label");
     keyId.setAttribute("value", "0x" + keyObj.keyId);
     keyId.setAttribute("crop", "end");
     keyId.setAttribute("style", "width: var(--keyWidth)");
@@ -87,19 +87,19 @@ async function setListEntries(keys = null) {
       }
     }
 
-    let status = document.createXULElement("label");
+    const status = document.createXULElement("label");
     document.l10n.setAttributes(status, acceptanceText);
     status.setAttribute("crop", "end");
     status.setAttribute("style", "width: var(--statusWidth)");
     listitem.appendChild(status);
 
-    let issued = document.createXULElement("label");
+    const issued = document.createXULElement("label");
     issued.setAttribute("value", keyObj.created);
     issued.setAttribute("crop", "end");
     issued.setAttribute("style", "width: var(--issuedWidth)");
     listitem.appendChild(issued);
 
-    let expire = document.createXULElement("label");
+    const expire = document.createXULElement("label");
     expire.setAttribute("value", keyObj.expiry);
     expire.setAttribute("crop", "end");
     expire.setAttribute("style", "width: var(--expireWidth)");
@@ -113,7 +113,7 @@ async function setListEntries(keys = null) {
 }
 
 async function onLoad() {
-  let params = window.arguments[0];
+  const params = window.arguments[0];
   if (!params) {
     return;
   }
@@ -134,7 +134,7 @@ async function onLoad() {
 
 async function reloadAndSelect(selIndex = -1) {
   while (true) {
-    let child = gListBox.lastChild;
+    const child = gListBox.lastChild;
     // keep first child, which is the header
     if (child == gListBox.firstChild) {
       break;
@@ -147,12 +147,12 @@ async function reloadAndSelect(selIndex = -1) {
 }
 
 function onSelectionChange(event) {
-  let haveSelection = gListBox.selectedItems.length;
+  const haveSelection = gListBox.selectedItems.length;
   gViewButton.disabled = !haveSelection;
 }
 
 function viewSelectedKey() {
-  let selIndex = gListBox.selectedIndex;
+  const selIndex = gListBox.selectedIndex;
   if (gViewButton.disabled || selIndex == -1) {
     return;
   }
@@ -161,8 +161,8 @@ function viewSelectedKey() {
 }
 
 async function discoverKey() {
-  let keyIds = gRowToKey;
-  let foundNewData = await KeyLookupHelper.fullOnlineDiscovery(
+  const keyIds = gRowToKey;
+  const foundNewData = await KeyLookupHelper.fullOnlineDiscovery(
     "interactive-import",
     window,
     gAddr,
@@ -171,7 +171,7 @@ async function discoverKey() {
   if (foundNewData) {
     reloadAndSelect();
   } else {
-    let value = await document.l10n.formatValue("no-key-found2");
+    const value = await document.l10n.formatValue("no-key-found2");
     EnigmailDialog.alert(window, value);
   }
 }

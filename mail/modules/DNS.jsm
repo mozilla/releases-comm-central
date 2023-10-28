@@ -51,10 +51,10 @@ load_libresolv.prototype = {
           { name: "resolv", suffix: "" },
         ];
       }
-      let tried = [];
-      for (let candidate of candidates) {
+      const tried = [];
+      for (const candidate of candidates) {
         try {
-          let name = ctypes.libraryName(candidate.name) + candidate.suffix;
+          const name = ctypes.libraryName(candidate.name) + candidate.suffix;
           tried.push(name);
           return ctypes.open(name);
         } catch (ex) {
@@ -77,7 +77,7 @@ load_libresolv.prototype = {
         aSymbolNames = [aSymbolNames];
       }
 
-      for (let name of aSymbolNames) {
+      for (const name of aSymbolNames) {
         try {
           return library.declare(name, ...aArgs);
         } catch (ex) {
@@ -94,7 +94,7 @@ load_libresolv.prototype = {
       );
     }
 
-    let library = (this.library = findLibrary());
+    const library = (this.library = findLibrary());
     this.res_search = declare(
       ["res_9_search", "res_search", "__res_search"],
       ctypes.default_abi,
@@ -162,37 +162,37 @@ load_libresolv.prototype = {
   // returns it.
   _mapAnswer(aTypeID, aAnswer, aIdx, aLength) {
     if (aTypeID == NS_T_SRV) {
-      let prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
-      let weight = this.ns_get16(aAnswer.addressOfElement(aIdx + 2));
-      let port = this.ns_get16(aAnswer.addressOfElement(aIdx + 4));
+      const prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
+      const weight = this.ns_get16(aAnswer.addressOfElement(aIdx + 2));
+      const port = this.ns_get16(aAnswer.addressOfElement(aIdx + 4));
 
-      let hostbuf = ctypes.char.array(this.NS_MAXCDNAME)();
-      let hostlen = this.dn_expand(
+      const hostbuf = ctypes.char.array(this.NS_MAXCDNAME)();
+      const hostlen = this.dn_expand(
         aAnswer.addressOfElement(0),
         aAnswer.addressOfElement(aLength),
         aAnswer.addressOfElement(aIdx + 6),
         hostbuf,
         this.NS_MAXCDNAME
       );
-      let host = hostlen > -1 ? hostbuf.readString() : null;
+      const host = hostlen > -1 ? hostbuf.readString() : null;
       return new SRVRecord(prio, weight, host, port);
     } else if (aTypeID == NS_T_TXT) {
       // TODO should only read dataLength characters.
-      let data = ctypes.unsigned_char.ptr(aAnswer.addressOfElement(aIdx + 1));
+      const data = ctypes.unsigned_char.ptr(aAnswer.addressOfElement(aIdx + 1));
 
       return new TXTRecord(data.readString());
     } else if (aTypeID == NS_T_MX) {
-      let prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
+      const prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
 
-      let hostbuf = ctypes.char.array(this.NS_MAXCDNAME)();
-      let hostlen = this.dn_expand(
+      const hostbuf = ctypes.char.array(this.NS_MAXCDNAME)();
+      const hostlen = this.dn_expand(
         aAnswer.addressOfElement(0),
         aAnswer.addressOfElement(aLength),
         aAnswer.addressOfElement(aIdx + 2),
         hostbuf,
         this.NS_MAXCDNAME
       );
-      let host = hostlen > -1 ? hostbuf.readString() : null;
+      const host = hostlen > -1 ? hostbuf.readString() : null;
       return new MXRecord(prio, host);
     }
     return {};
@@ -201,9 +201,9 @@ load_libresolv.prototype = {
   // Performs a DNS query for aTypeID on a certain address (aName) and returns
   // array of records of aTypeID.
   lookup(aName, aTypeID) {
-    let qname = ctypes.char.array()(aName);
-    let answer = ctypes.unsigned_char.array(this.QUERYBUF_SIZE)();
-    let length = this.res_search(
+    const qname = ctypes.char.array()(aName);
+    const answer = ctypes.unsigned_char.array(this.QUERYBUF_SIZE)();
+    const length = this.res_search(
       qname,
       this.NS_C_IN,
       aTypeID,
@@ -216,11 +216,11 @@ load_libresolv.prototype = {
       return [];
     }
 
-    let results = [];
+    const results = [];
     let idx = this.NS_HFIXEDSZ;
 
-    let qdcount = this.ns_get16(answer.addressOfElement(4));
-    let ancount = this.ns_get16(answer.addressOfElement(6));
+    const qdcount = this.ns_get16(answer.addressOfElement(4));
+    const ancount = this.ns_get16(answer.addressOfElement(6));
 
     for (let qdidx = 0; qdidx < qdcount && idx < length; qdidx++) {
       idx +=
@@ -236,14 +236,14 @@ load_libresolv.prototype = {
         answer.addressOfElement(idx),
         answer.addressOfElement(length)
       );
-      let rridx = idx;
-      let type = this.ns_get16(answer.addressOfElement(rridx));
-      let dataLength = this.ns_get16(answer.addressOfElement(rridx + 8));
+      const rridx = idx;
+      const type = this.ns_get16(answer.addressOfElement(rridx));
+      const dataLength = this.ns_get16(answer.addressOfElement(rridx + 8));
 
       idx += this.NS_RRFIXEDSZ;
 
       if (type === aTypeID) {
-        let resource = this._mapAnswer(aTypeID, answer, idx, length);
+        const resource = this._mapAnswer(aTypeID, answer, idx, length);
         resource.type = type;
         resource.nsclass = this.ns_get16(answer.addressOfElement(rridx + 2));
         resource.ttl = this.ns_get32(answer.addressOfElement(rridx + 4)) | 0;
@@ -275,7 +275,7 @@ load_dnsapi.prototype = {
       }
     }
 
-    let library = (this.library = ctypes.open(ctypes.libraryName("DnsAPI")));
+    const library = (this.library = ctypes.open(ctypes.libraryName("DnsAPI")));
 
     this.DNS_SRV_DATA = ctypes.StructType("DNS_SRV_DATA", [
       { pNameTarget: ctypes.jschar.ptr },
@@ -342,7 +342,7 @@ load_dnsapi.prototype = {
   // returns it.
   _mapAnswer(aTypeID, aData) {
     if (aTypeID == NS_T_SRV) {
-      let srvdata = ctypes.cast(aData, this.DNS_SRV_DATA);
+      const srvdata = ctypes.cast(aData, this.DNS_SRV_DATA);
 
       return new SRVRecord(
         srvdata.wPriority,
@@ -351,12 +351,12 @@ load_dnsapi.prototype = {
         srvdata.wPort
       );
     } else if (aTypeID == NS_T_TXT) {
-      let txtdata = ctypes.cast(aData, this.DNS_TXT_DATA);
+      const txtdata = ctypes.cast(aData, this.DNS_TXT_DATA);
       if (txtdata.dwStringCount > 0) {
         return new TXTRecord(txtdata.pStringArray[0].readString());
       }
     } else if (aTypeID == NS_T_MX) {
-      let mxdata = ctypes.cast(aData, this.DNS_MX_DATA);
+      const mxdata = ctypes.cast(aData, this.DNS_MX_DATA);
 
       return new MXRecord(mxdata.wPriority, mxdata.pNameTarget.readString());
     }
@@ -366,9 +366,9 @@ load_dnsapi.prototype = {
   // Performs a DNS query for aTypeID on a certain address (aName) and returns
   // array of records of aTypeID (e.g. SRVRecord, TXTRecord, or MXRecord).
   lookup(aName, aTypeID) {
-    let queryResultsSet = this.PDNS_RECORD();
-    let qname = ctypes.jschar.array()(aName);
-    let dnsStatus = this.DnsQuery_W(
+    const queryResultsSet = this.PDNS_RECORD();
+    const qname = ctypes.jschar.array()(aName);
+    const dnsStatus = this.DnsQuery_W(
       qname,
       aTypeID,
       this.DNS_QUERY_STANDARD,
@@ -382,15 +382,15 @@ load_dnsapi.prototype = {
       return [];
     }
 
-    let results = [];
+    const results = [];
     for (
       let presult = queryResultsSet;
       presult && !presult.isNull();
       presult = presult.contents.pNext
     ) {
-      let result = presult.contents;
+      const result = presult.contents;
       if (result.wType == aTypeID) {
-        let resource = this._mapAnswer(aTypeID, result.Data);
+        const resource = this._mapAnswer(aTypeID, result.Data);
         resource.type = result.wType;
         resource.nsclass = 0;
         resource.ttl = result.dwTtl | 0;
@@ -428,9 +428,9 @@ if (typeof Components === "undefined") {
   // We are in a worker, wait for our message then execute the wanted method.
   /* import-globals-from /toolkit/components/workerloader/require.js */
   importScripts("resource://gre/modules/workers/require.js");
-  let PromiseWorker = require("resource://gre/modules/workers/PromiseWorker.js");
+  const PromiseWorker = require("resource://gre/modules/workers/PromiseWorker.js");
 
-  let worker = new PromiseWorker.AbstractWorker();
+  const worker = new PromiseWorker.AbstractWorker();
   worker.dispatch = function (aMethod, aArgs = []) {
     return self[aMethod](...aArgs);
   };
@@ -444,7 +444,7 @@ if (typeof Components === "undefined") {
 
   // eslint-disable-next-line no-unused-vars
   function execute(aOS, aMethod, aArgs) {
-    let DNS = aOS == "WINNT" ? new load_dnsapi() : new load_libresolv(aOS);
+    const DNS = aOS == "WINNT" ? new load_dnsapi() : new load_libresolv(aOS);
     return DNS[aMethod].apply(DNS, aArgs);
   }
 } else {
@@ -470,7 +470,7 @@ if (typeof Components === "undefined") {
      * @returns A promise resolved when completed.
      */
     lookup(aName, aTypeID) {
-      let worker = new BasePromiseWorker(LOCATION);
+      const worker = new BasePromiseWorker(LOCATION);
       return worker.post("execute", [
         Services.appinfo.OS,
         "lookup",

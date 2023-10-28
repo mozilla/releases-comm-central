@@ -12,10 +12,10 @@ add_setup(async () => {
 async function subtest_popup_open_with_click_MV3_event_pages(
   terminateBackground
 ) {
-  for (let area of [null, "formattoolbar"]) {
-    let composeWindow = await openComposeWindow(account);
+  for (const area of [null, "formattoolbar"]) {
+    const composeWindow = await openComposeWindow(account);
     await focusWindow(composeWindow);
-    let testConfig = {
+    const testConfig = {
       manifest_version: 3,
       terminateBackground,
       actionType: "compose_action",

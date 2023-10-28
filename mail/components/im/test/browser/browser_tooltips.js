@@ -7,7 +7,7 @@ add_task(async function testMUCMessageSenderTooltip() {
     "testuser",
     "prpl-mochitest"
   );
-  let passwordPromise = TestUtils.topicObserved("account-updated");
+  const passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
   await passwordPromise;
   account.connect();
@@ -91,7 +91,7 @@ add_task(async function testMUCMessageSenderTooltip() {
       const username = messageParent.querySelector(usernameSelector);
       is(username.textContent, testInfo.displayed);
 
-      let buddyInfo = TestUtils.topicObserved(
+      const buddyInfo = TestUtils.topicObserved(
         "user-info-received",
         (subject, data) => data === testInfo.who
       );
@@ -116,7 +116,7 @@ add_task(async function testTimestampTooltip() {
     "testuser",
     "prpl-mochitest"
   );
-  let passwordPromise = TestUtils.topicObserved("account-updated");
+  const passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
   await passwordPromise;
   account.connect();

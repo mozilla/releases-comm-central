@@ -36,7 +36,7 @@ var gBigFileObserver = {
   },
 
   init() {
-    let bucket = document.getElementById("attachmentBucket");
+    const bucket = document.getElementById("attachmentBucket");
     bucket.addEventListener("attachments-added", this);
     bucket.addEventListener("attachments-removed", this);
     bucket.addEventListener("attachment-converted-to-regular", this);
@@ -89,11 +89,11 @@ var gBigFileObserver = {
   },
 
   bigFileTrackerAdd(aAttachments) {
-    let threshold =
+    const threshold =
       Services.prefs.getIntPref("mail.compose.big_attachments.threshold_kb") *
       1024;
 
-    for (let attachment of aAttachments) {
+    for (const attachment of aAttachments) {
       if (attachment.size >= threshold && !attachment.sendViaCloud) {
         this.bigFiles.push(attachment);
       }
@@ -101,8 +101,8 @@ var gBigFileObserver = {
   },
 
   bigFileTrackerRemove(aAttachments) {
-    for (let attachment of aAttachments) {
-      let index = this.bigFiles.findIndex(e => e.url == attachment.url);
+    for (const attachment of aAttachments) {
+      const index = this.bigFiles.findIndex(e => e.url == attachment.url);
       if (index != -1) {
         this.bigFiles.splice(index, 1);
       }
@@ -135,7 +135,7 @@ var gBigFileObserver = {
         return;
       }
 
-      let buttons = [
+      const buttons = [
         {
           label: getComposeBundle().getString("learnMore.label"),
           accessKey: getComposeBundle().getString("learnMore.accesskey"),
@@ -153,7 +153,7 @@ var gBigFileObserver = {
         },
       ];
 
-      let msg = this.formatString(
+      const msg = this.formatString(
         "bigFileDescription",
         [this.bigFiles.length],
         this.bigFiles.length
@@ -173,27 +173,27 @@ var gBigFileObserver = {
   },
 
   openLearnMore() {
-    let url = Services.prefs.getCharPref("mail.cloud_files.learn_more_url");
+    const url = Services.prefs.getCharPref("mail.cloud_files.learn_more_url");
     openContentTab(url);
     return true;
   },
 
   convertAttachments() {
     let account;
-    let accounts = cloudFileAccounts.configuredAccounts;
+    const accounts = cloudFileAccounts.configuredAccounts;
 
     if (accounts.length == 1) {
       account = accounts[0];
     } else if (accounts.length > 1) {
       // We once used Services.prompt.select for this UI, but it doesn't support displaying an
       // icon for each item. The following code does the same thing with a replacement dialog.
-      let { PromptUtils } = ChromeUtils.importESModule(
+      const { PromptUtils } = ChromeUtils.importESModule(
         "resource://gre/modules/PromptUtils.sys.mjs"
       );
 
-      let names = accounts.map(i => cloudFileAccounts.getDisplayName(i));
-      let icons = accounts.map(i => i.iconURL);
-      let args = {
+      const names = accounts.map(i => cloudFileAccounts.getDisplayName(i));
+      const icons = accounts.map(i => i.iconURL);
+      const args = {
         promptType: "select",
         title: this.formatString("bigFileChooseAccount.title"),
         text: this.formatString("bigFileChooseAccount.text"),
@@ -203,7 +203,7 @@ var gBigFileObserver = {
         ok: false,
       };
 
-      let propBag = PromptUtils.objectToPropBag(args);
+      const propBag = PromptUtils.objectToPropBag(args);
       openDialog(
         "chrome://messenger/content/cloudfile/selectDialog.xhtml",
         "_blank",
@@ -228,7 +228,7 @@ var gBigFileObserver = {
   },
 
   hideBigFileNotification() {
-    let never = {};
+    const never = {};
     if (
       Services.prompt.confirmCheck(
         window,
@@ -257,7 +257,7 @@ var gBigFileObserver = {
       return;
     }
 
-    let activeUploads = this.uploadsInProgress;
+    const activeUploads = this.uploadsInProgress;
     let notification = gComposeNotification.getNotificationWithValue(
       kUploadNotificationValue
     );
@@ -266,7 +266,7 @@ var gBigFileObserver = {
       if (notification) {
         // Check the timestamp that we stashed in the timeout field of the
         // notification...
-        let now = Date.now();
+        const now = Date.now();
         if (now >= notification.timeout) {
           gComposeNotification.removeNotification(notification);
         } else {
@@ -286,7 +286,7 @@ var gBigFileObserver = {
       return;
     }
 
-    let showUploadButton = {
+    const showUploadButton = {
       accessKey: this.formatString(
         "stopShowingUploadingNotification.accesskey"
       ),
@@ -311,7 +311,7 @@ var gBigFileObserver = {
 
   hidePrivacyNotification() {
     this.privacyWarned = false;
-    let notification = gComposeNotification.getNotificationWithValue(
+    const notification = gComposeNotification.getNotificationWithValue(
       kPrivacyWarningNotificationValue
     );
 
@@ -336,7 +336,7 @@ var gBigFileObserver = {
     }
     this.privacyWarned = true;
 
-    let notification = gComposeNotification.getNotificationWithValue(
+    const notification = gComposeNotification.getNotificationWithValue(
       kPrivacyWarningNotificationValue
     );
 
@@ -344,7 +344,7 @@ var gBigFileObserver = {
       return;
     }
 
-    let message = this.formatString("cloudFilePrivacyNotification");
+    const message = this.formatString("cloudFilePrivacyNotification");
     gComposeNotification.appendNotification(
       kPrivacyWarningNotificationValue,
       {
@@ -356,7 +356,7 @@ var gBigFileObserver = {
   },
 
   get uploadsInProgress() {
-    let items = [...document.getElementById("attachmentBucket").itemChildren];
+    const items = [...document.getElementById("attachmentBucket").itemChildren];
     return items.filter(e => e.uploading).length;
   },
 };

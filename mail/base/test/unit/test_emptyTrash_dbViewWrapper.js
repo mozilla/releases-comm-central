@@ -7,8 +7,8 @@ load("resources/viewWrapperTestUtils.js");
 initViewWrapperTestUtils({ mode: "imap", offline: false });
 
 add_task(async function test_real_folder_load_and_move_to_trash() {
-  let viewWrapper = make_view_wrapper();
-  let [[msgFolder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+  const viewWrapper = make_view_wrapper();
+  const [[msgFolder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1 },
   ]);
 
@@ -23,9 +23,9 @@ add_task(async function test_real_folder_load_and_move_to_trash() {
 });
 
 add_task(async function test_empty_trash() {
-  let viewWrapper = make_view_wrapper();
-  let trashHandle = await messageInjection.getTrashFolder();
-  let trashFolder = messageInjection.getRealInjectionFolder(trashHandle);
+  const viewWrapper = make_view_wrapper();
+  const trashHandle = await messageInjection.getTrashFolder();
+  const trashFolder = messageInjection.getRealInjectionFolder(trashHandle);
 
   await view_open(viewWrapper, trashFolder);
 
@@ -34,7 +34,7 @@ add_task(async function test_empty_trash() {
 
   Assert.ok(viewWrapper.displayedFolder !== null);
 
-  let [msgSet] = await messageInjection.makeNewSetsInFolders(
+  const [msgSet] = await messageInjection.makeNewSetsInFolders(
     [trashHandle],
     [{ count: 1 }]
   );

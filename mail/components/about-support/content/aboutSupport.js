@@ -49,7 +49,7 @@ window.addEventListener("load", function onload(event) {
   try {
     window.removeEventListener("load", onload);
     Troubleshoot.snapshot().then(async snapshot => {
-      for (let prop in snapshotFormatters) {
+      for (const prop in snapshotFormatters) {
         try {
           await snapshotFormatters[prop](snapshot[prop]);
         } catch (e) {
@@ -182,7 +182,7 @@ var snapshotFormatters = {
       disabledByE10sOther: "fission-status-disabled-by-e10s-other",
     };
 
-    let statusTextId = STATUS_STRINGS[data.fissionDecisionStatus];
+    const statusTextId = STATUS_STRINGS[data.fissionDecisionStatus];
 
     document.l10n.setAttributes(
       $("multiprocess-box-process-count"),
@@ -222,7 +222,7 @@ var snapshotFormatters = {
       }
 
       if (data.policiesStatus != Services.policies.INACTIVE) {
-        let activePolicies = $.new("a", null, null, {
+        const activePolicies = $.new("a", null, null, {
           href: aboutPolicies,
         });
         document.l10n.setAttributes(activePolicies, policiesStrId);
@@ -234,7 +234,7 @@ var snapshotFormatters = {
       $("policies-status-row").hidden = true;
     }
 
-    let keyLocationServiceGoogleFound = data.keyLocationServiceGoogleFound
+    const keyLocationServiceGoogleFound = data.keyLocationServiceGoogleFound
       ? "found"
       : "missing";
     document.l10n.setAttributes(
@@ -242,7 +242,7 @@ var snapshotFormatters = {
       keyLocationServiceGoogleFound
     );
 
-    let keySafebrowsingGoogleFound = data.keySafebrowsingGoogleFound
+    const keySafebrowsingGoogleFound = data.keySafebrowsingGoogleFound
       ? "found"
       : "missing";
     document.l10n.setAttributes(
@@ -250,13 +250,13 @@ var snapshotFormatters = {
       keySafebrowsingGoogleFound
     );
 
-    let keyMozillaFound = data.keyMozillaFound ? "found" : "missing";
+    const keyMozillaFound = data.keyMozillaFound ? "found" : "missing";
     document.l10n.setAttributes($("key-mozilla-box"), keyMozillaFound);
 
     $("safemode-box").textContent = data.safeMode;
 
     const formatHumanReadableBytes = (elem, bytes) => {
-      let size = DownloadUtils.convertByteUnits(bytes);
+      const size = DownloadUtils.convertByteUnits(bytes);
       document.l10n.setAttributes(elem, "app-basics-data-size", {
         value: size[0],
         unit: size[1],
@@ -268,17 +268,17 @@ var snapshotFormatters = {
 
     // added for TB
     // Add profile path as private info into the page.
-    let currProfD = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    let profElem = document.getElementById("profile-dir-button").parentNode;
-    let profDirNode = document.getElementById("profile-dir-box");
+    const currProfD = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    const profElem = document.getElementById("profile-dir-button").parentNode;
+    const profDirNode = document.getElementById("profile-dir-box");
     profDirNode.setAttribute("class", CLASS_DATA_PRIVATE);
-    let profLinkNode = document.createElement("a");
+    const profLinkNode = document.createElement("a");
     profLinkNode.setAttribute("href", Services.io.newFileURI(currProfD).spec);
     profLinkNode.addEventListener("click", function (event) {
       openProfileDirectory();
       event.preventDefault();
     });
-    let profPathNode = document.createTextNode(currProfD.path);
+    const profPathNode = document.createTextNode(currProfD.path);
     profLinkNode.appendChild(profPathNode);
     profDirNode.appendChild(profLinkNode);
     profElem.appendChild(document.createTextNode(" "));
@@ -288,11 +288,11 @@ var snapshotFormatters = {
     try {
       fsType = AboutSupportPlatform.getFileSystemType(currProfD);
       if (fsType) {
-        let bundle = Services.strings.createBundle(
+        const bundle = Services.strings.createBundle(
           "chrome://messenger/locale/aboutSupportMail.properties"
         );
-        let fsText = bundle.GetStringFromName("fsType." + fsType);
-        let fsTextNode = document.createElement("span");
+        const fsText = bundle.GetStringFromName("fsType." + fsType);
+        const fsTextNode = document.createElement("span");
         fsTextNode.textContent = fsText;
         profElem.appendChild(fsTextNode);
       }
@@ -320,7 +320,7 @@ var snapshotFormatters = {
       return;
     }
 
-    let daysRange = Troubleshoot.kMaxCrashAge / (24 * 60 * 60 * 1000);
+    const daysRange = Troubleshoot.kMaxCrashAge / (24 * 60 * 60 * 1000);
     document.l10n.setAttributes($("crashes-title"), "report-crash-for-days", {
       days: daysRange,
     });
@@ -347,24 +347,27 @@ var snapshotFormatters = {
       );
     }
 
-    let dateNow = new Date();
+    const dateNow = new Date();
     $.append(
       $("crashes-tbody"),
       data.submitted.map(function (crash) {
-        let date = new Date(crash.date);
-        let timePassed = dateNow - date;
+        const date = new Date(crash.date);
+        const timePassed = dateNow - date;
         let formattedDateStrId;
         let formattedDateStrArgs;
         if (timePassed >= 24 * 60 * 60 * 1000) {
-          let daysPassed = Math.round(timePassed / (24 * 60 * 60 * 1000));
+          const daysPassed = Math.round(timePassed / (24 * 60 * 60 * 1000));
           formattedDateStrId = "crashes-time-days";
           formattedDateStrArgs = { days: daysPassed };
         } else if (timePassed >= 60 * 60 * 1000) {
-          let hoursPassed = Math.round(timePassed / (60 * 60 * 1000));
+          const hoursPassed = Math.round(timePassed / (60 * 60 * 1000));
           formattedDateStrId = "crashes-time-hours";
           formattedDateStrArgs = { hours: hoursPassed };
         } else {
-          let minutesPassed = Math.max(Math.round(timePassed / (60 * 1000)), 1);
+          const minutesPassed = Math.max(
+            Math.round(timePassed / (60 * 1000)),
+            1
+          );
           formattedDateStrId = "crashes-time-minutes";
           formattedDateStrArgs = { minutes: minutesPassed };
         }
@@ -423,13 +426,13 @@ var snapshotFormatters = {
   async processes(data) {
     async function buildEntry(name, value) {
       const fluentName = ProcessType.fluentNameFromProcessTypeString(name);
-      let entryName = (await document.l10n.formatValue(fluentName)) || name;
+      const entryName = (await document.l10n.formatValue(fluentName)) || name;
       $("processes-tbody").appendChild(
         $.new("tr", [$.new("td", entryName), $.new("td", value)])
       );
     }
 
-    let remoteProcessesCount = Object.values(data.remoteTypes).reduce(
+    const remoteProcessesCount = Object.values(data.remoteTypes).reduce(
       (a, b) => a + b,
       0
     );
@@ -446,7 +449,7 @@ var snapshotFormatters = {
       delete data.remoteTypes.web;
     }
 
-    for (let remoteProcessType in data.remoteTypes) {
+    for (const remoteProcessType in data.remoteTypes) {
       await buildEntry(remoteProcessType, data.remoteTypes[remoteProcessType]);
     }
   },
@@ -483,7 +486,7 @@ var snapshotFormatters = {
     $("support-printing-clear-settings-button").addEventListener(
       "click",
       function () {
-        for (let name in data) {
+        for (const name in data) {
           Services.prefs.clearUserPref(name);
         }
         tbody.textContent = "";
@@ -497,7 +500,7 @@ var snapshotFormatters = {
       if (typeof msg == "object" && msg.key) {
         return document.l10n.formatValue(msg.key, msg.args);
       }
-      let msgId = toFluentID(msg);
+      const msgId = toFluentID(msg);
       if (msgId) {
         return document.l10n.formatValue(msgId);
       }
@@ -506,9 +509,9 @@ var snapshotFormatters = {
 
     // Read APZ info out of data.info, stripping it out in the process.
     let apzInfo = [];
-    let formatApzInfo = function (info) {
-      let out = [];
-      for (let type of [
+    const formatApzInfo = function (info) {
+      const out = [];
+      for (const type of [
         "Wheel",
         "Touch",
         "Drag",
@@ -516,7 +519,7 @@ var snapshotFormatters = {
         "Autoscroll",
         "Zooming",
       ]) {
-        let key = "Apz" + type + "Input";
+        const key = "Apz" + type + "Input";
 
         if (!(key in info)) {
           continue;
@@ -535,16 +538,16 @@ var snapshotFormatters = {
     // @key      Text in the key column. Localized automatically, unless starts with "#".
     // @value    Fluent ID for text in the value column, or array of children.
     function buildRow(key, value) {
-      let title = key[0] == "#" ? key.substr(1) : key;
-      let keyStrId = toFluentID(key);
-      let valueStrId = Array.isArray(value) ? null : toFluentID(value);
-      let td = $.new("td", value);
+      const title = key[0] == "#" ? key.substr(1) : key;
+      const keyStrId = toFluentID(key);
+      const valueStrId = Array.isArray(value) ? null : toFluentID(value);
+      const td = $.new("td", value);
       td.style["white-space"] = "pre-wrap";
       if (valueStrId) {
         document.l10n.setAttributes(td, valueStrId);
       }
 
-      let th = $.new("th", title, "column");
+      const th = $.new("th", title, "column");
       if (!key.startsWith("#")) {
         document.l10n.setAttributes(th, keyStrId);
       }
@@ -566,8 +569,8 @@ var snapshotFormatters = {
     if ("info" in data) {
       apzInfo = formatApzInfo(data.info);
 
-      let trs = sortedArrayFromObject(data.info).map(function ([prop, val]) {
-        let td = $.new("td", String(val));
+      const trs = sortedArrayFromObject(data.info).map(function ([prop, val]) {
+        const td = $.new("td", String(val));
         td.style["word-break"] = "break-all";
         return $.new("tr", [$.new("th", prop, "column"), td]);
       });
@@ -576,8 +579,8 @@ var snapshotFormatters = {
       delete data.info;
     }
 
-    let windowUtils = window.windowUtils;
-    let gpuProcessPid = windowUtils.gpuProcessPid;
+    const windowUtils = window.windowUtils;
+    const gpuProcessPid = windowUtils.gpuProcessPid;
 
     if (gpuProcessPid != -1) {
       let gpuProcessKillButton = null;
@@ -604,7 +607,7 @@ var snapshotFormatters = {
       (AppConstants.NIGHTLY_BUILD || AppConstants.MOZ_DEV_EDITION) &&
       AppConstants.platform != "macosx"
     ) {
-      let gpuDeviceResetButton = $.new("button");
+      const gpuDeviceResetButton = $.new("button");
 
       gpuDeviceResetButton.addEventListener("click", function () {
         windowUtils.triggerDeviceReset();
@@ -622,9 +625,9 @@ var snapshotFormatters = {
       // If indices is there, it should be the same length as failures,
       // (see Troubleshoot.jsm) but we check anyway:
       if ("indices" in data && data.failures.length == data.indices.length) {
-        let combined = [];
+        const combined = [];
         for (let i = 0; i < data.failures.length; i++) {
-          let assembled = assembleFromGraphicsFailure(i, data);
+          const assembled = assembleFromGraphicsFailure(i, data);
           combined.push(assembled);
         }
         combined.sort(function (a, b) {
@@ -676,7 +679,7 @@ var snapshotFormatters = {
       colKey = colKey || key;
 
       let value;
-      let messageKey = key + "Message";
+      const messageKey = key + "Message";
       if (messageKey in data) {
         value = await localizedMsg(data[messageKey]);
         delete data[messageKey];
@@ -695,7 +698,9 @@ var snapshotFormatters = {
     if (data.windowLayerManagerRemote) {
       compositor = data.windowLayerManagerType;
     } else {
-      let noOMTCString = await document.l10n.formatValue("main-thread-no-omtc");
+      const noOMTCString = await document.l10n.formatValue(
+        "main-thread-no-omtc"
+      );
       compositor = "BasicLayers (" + noOMTCString + ")";
     }
     addRow("features", "compositing", [new Text(compositor)]);
@@ -722,7 +727,7 @@ var snapshotFormatters = {
           ]
         : "apz-none"
     );
-    let featureKeys = [
+    const featureKeys = [
       "webgl1WSIInfo",
       "webgl1Renderer",
       "webgl1Version",
@@ -740,7 +745,7 @@ var snapshotFormatters = {
       "usesTiling",
       "targetFrameRate",
     ];
-    for (let feature of featureKeys) {
+    for (const feature of featureKeys) {
       if (Array.isArray(feature)) {
         await addRowFromKey("features", feature[0], feature[1]);
         continue;
@@ -759,7 +764,7 @@ var snapshotFormatters = {
     }
 
     // Adapter tbodies.
-    let adapterKeys = [
+    const adapterKeys = [
       ["adapterDescription", "gpu-description"],
       ["adapterVendorID", "gpu-vendor-id"],
       ["adapterDeviceID", "gpu-device-id"],
@@ -776,9 +781,9 @@ var snapshotFormatters = {
         return data[prop + suffix];
       }
 
-      let trs = [];
-      for (let [prop, key] of adapterKeys) {
-        let value = get(prop);
+      const trs = [];
+      for (const [prop, key] of adapterKeys) {
+        const value = get(prop);
         if (value === undefined || value === "") {
           continue;
         }
@@ -802,30 +807,32 @@ var snapshotFormatters = {
     showGpu("gpu-2", "2");
 
     // Remove adapter keys.
-    for (let [prop /* key */] of adapterKeys) {
+    for (const [prop /* key */] of adapterKeys) {
       delete data[prop];
       delete data[prop + "2"];
     }
     delete data.isGPU2Active;
 
-    let featureLog = data.featureLog;
+    const featureLog = data.featureLog;
     delete data.featureLog;
 
     if (featureLog.features.length) {
-      for (let feature of featureLog.features) {
-        let trs = [];
-        for (let entry of feature.log) {
+      for (const feature of featureLog.features) {
+        const trs = [];
+        for (const entry of feature.log) {
           let contents;
           if (!entry.hasOwnProperty("message")) {
             // This is a default entry.
             contents = entry.status + " by " + entry.type;
           } else if (entry.message.length && entry.message[0] == "#") {
             // This is a failure ID. See nsIGfxInfo.idl.
-            let m = /#BLOCKLIST_FEATURE_FAILURE_BUG_(\d+)/.exec(entry.message);
+            const m = /#BLOCKLIST_FEATURE_FAILURE_BUG_(\d+)/.exec(
+              entry.message
+            );
             if (m) {
-              let bugSpan = $.new("span");
+              const bugSpan = $.new("span");
 
-              let bugHref = $.new("a");
+              const bugHref = $.new("a");
               bugHref.href =
                 "https://bugzilla.mozilla.org/show_bug.cgi?id=" + m[1];
               bugHref.setAttribute("data-l10n-name", "bug-link");
@@ -836,7 +843,7 @@ var snapshotFormatters = {
 
               contents = [bugSpan];
             } else {
-              let unknownFailure = $.new("span");
+              const unknownFailure = $.new("span");
               document.l10n.setAttributes(unknownFailure, "unknown-failure", {
                 failureCode: entry.message.substr(1),
               });
@@ -856,7 +863,7 @@ var snapshotFormatters = {
     }
 
     if (featureLog.fallbacks.length) {
-      for (let fallback of featureLog.fallbacks) {
+      for (const fallback of featureLog.fallbacks) {
         addRow("workarounds", "#" + fallback.name, [
           new Text(fallback.message),
         ]);
@@ -865,13 +872,13 @@ var snapshotFormatters = {
       $("graphics-workarounds-tbody").style.display = "none";
     }
 
-    let crashGuards = data.crashGuards;
+    const crashGuards = data.crashGuards;
     delete data.crashGuards;
 
     if (crashGuards.length) {
-      for (let guard of crashGuards) {
-        let resetButton = $.new("button");
-        let onClickReset = function () {
+      for (const guard of crashGuards) {
+        const resetButton = $.new("button");
+        const onClickReset = function () {
           Services.prefs.setIntPref(guard.prefName, 0);
           resetButton.removeEventListener("click", onClickReset);
           resetButton.disabled = true;
@@ -888,8 +895,8 @@ var snapshotFormatters = {
 
     // Now that we're done, grab any remaining keys in data and drop them into
     // the diagnostics section.
-    for (let key in data) {
-      let value = data[key];
+    for (const key in data) {
+      const value = data[key];
       addRow("diagnostics", key, [new Text(value)]);
     }
   },
@@ -898,9 +905,9 @@ var snapshotFormatters = {
   media(data) {
     function insertBasicInfo(key, value) {
       function createRow(key, value) {
-        let th = $.new("th", null, "column");
+        const th = $.new("th", null, "column");
         document.l10n.setAttributes(th, key);
-        let td = $.new("td", value);
+        const td = $.new("td", value);
         td.style["white-space"] = "pre-wrap";
         td.colSpan = 8;
         return $.new("tr", [th, td]);
@@ -909,21 +916,21 @@ var snapshotFormatters = {
     }
 
     function createDeviceInfoRow(device) {
-      let deviceInfo = Ci.nsIAudioDeviceInfo;
+      const deviceInfo = Ci.nsIAudioDeviceInfo;
 
-      let states = {};
+      const states = {};
       states[deviceInfo.STATE_DISABLED] = "Disabled";
       states[deviceInfo.STATE_UNPLUGGED] = "Unplugged";
       states[deviceInfo.STATE_ENABLED] = "Enabled";
 
-      let preferreds = {};
+      const preferreds = {};
       preferreds[deviceInfo.PREF_NONE] = "None";
       preferreds[deviceInfo.PREF_MULTIMEDIA] = "Multimedia";
       preferreds[deviceInfo.PREF_VOICE] = "Voice";
       preferreds[deviceInfo.PREF_NOTIFICATION] = "Notification";
       preferreds[deviceInfo.PREF_ALL] = "All";
 
-      let formats = {};
+      const formats = {};
       formats[deviceInfo.FMT_S16LE] = "S16LE";
       formats[deviceInfo.FMT_S16BE] = "S16BE";
       formats[deviceInfo.FMT_F32LE] = "F32LE";
@@ -936,7 +943,7 @@ var snapshotFormatters = {
           return preferreds[deviceInfo.PREF_ALL];
         }
         let str = "";
-        for (let pref of [
+        for (const pref of [
           deviceInfo.PREF_MULTIMEDIA,
           deviceInfo.PREF_VOICE,
           deviceInfo.PREF_NOTIFICATION,
@@ -950,7 +957,7 @@ var snapshotFormatters = {
 
       function toFromatString(dev) {
         let str = "default: " + formats[dev.defaultFormat] + ", support:";
-        for (let fmt of [
+        for (const fmt of [
           deviceInfo.FMT_S16LE,
           deviceInfo.FMT_S16BE,
           deviceInfo.FMT_F32LE,
@@ -992,8 +999,8 @@ var snapshotFormatters = {
     }
 
     function insertDeviceInfo(side, devices) {
-      let rows = [];
-      for (let dev of devices) {
+      const rows = [];
+      for (const dev of devices) {
         rows.push(createDeviceInfoRow(dev));
       }
       $.append($("media-" + side + "-devices-tbody"), rows);
@@ -1006,15 +1013,15 @@ var snapshotFormatters = {
         $("media-capabilities-tbody").style.display = "none";
         return;
       }
-      let button = $("enumerate-database-button");
+      const button = $("enumerate-database-button");
       if (button) {
         button.addEventListener("click", function (event) {
-          let { KeyValueService } = ChromeUtils.importESModule(
+          const { KeyValueService } = ChromeUtils.importESModule(
             "resource://gre/modules/kvstore.sys.mjs"
           );
-          let currProfDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
+          const currProfDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
           currProfDir.append("mediacapabilities");
-          let path = currProfDir.path;
+          const path = currProfDir.path;
 
           function enumerateDatabase(name) {
             KeyValueService.getOrCreate(path, name)
@@ -1024,7 +1031,7 @@ var snapshotFormatters = {
               .then(enumerator => {
                 var logs = [];
                 logs.push(`${name}:`);
-                for (let { key, value } of enumerator) {
+                for (const { key, value } of enumerator) {
                   logs.push(`${key}: ${value}`);
                 }
                 $("enumerate-database-result").textContent +=
@@ -1071,7 +1078,7 @@ var snapshotFormatters = {
 
     if (AppConstants.platform == "macosx") {
       var micStatus = {};
-      let permission = Cc["@mozilla.org/ospermissionrequest;1"].getService(
+      const permission = Cc["@mozilla.org/ospermissionrequest;1"].getService(
         Ci.nsIOSPermissionRequest
       );
       permission.getAudioCapturePermissionState(micStatus);
@@ -1104,12 +1111,12 @@ var snapshotFormatters = {
     $("a11y-activated").textContent = data.isActive;
     $("a11y-force-disabled").textContent = data.forceDisabled || 0;
 
-    let a11yHandlerUsed = $("a11y-handler-used");
+    const a11yHandlerUsed = $("a11y-handler-used");
     if (a11yHandlerUsed) {
       a11yHandlerUsed.textContent = data.handlerUsed;
     }
 
-    let a11yInstantiator = $("a11y-instantiator");
+    const a11yInstantiator = $("a11y-instantiator");
     if (a11yInstantiator) {
       a11yInstantiator.textContent = data.instantiator;
     }
@@ -1124,7 +1131,7 @@ var snapshotFormatters = {
   },
 
   libraryVersions(data) {
-    let trs = [
+    const trs = [
       $.new("tr", [
         $.new("th", ""),
         $.new("th", null, null, { "data-l10n-id": "min-lib-versions" }),
@@ -1147,7 +1154,7 @@ var snapshotFormatters = {
     if (!data.exists) {
       return;
     }
-    let userJSFile = Services.dirsvc.get("PrefD", Ci.nsIFile);
+    const userJSFile = Services.dirsvc.get("PrefD", Ci.nsIFile);
     userJSFile.append("user.js");
     $("prefs-user-js-link").href = Services.io.newFileURI(userJSFile).spec;
     $("prefs-user-js-section").style.display = "";
@@ -1160,8 +1167,8 @@ var snapshotFormatters = {
       return;
     }
 
-    let tbody = $("sandbox-tbody");
-    for (let key in data) {
+    const tbody = $("sandbox-tbody");
+    for (const key in data) {
       // Simplify the display a little in the common case.
       if (
         key === "hasPrivilegedUserNamespaces" &&
@@ -1173,21 +1180,21 @@ var snapshotFormatters = {
         // Not in this table.
         continue;
       }
-      let keyStrId = toFluentID(key);
-      let th = $.new("th", null, "column");
+      const keyStrId = toFluentID(key);
+      const th = $.new("th", null, "column");
       document.l10n.setAttributes(th, keyStrId);
       tbody.appendChild($.new("tr", [th, $.new("td", data[key])]));
     }
 
     if ("syscallLog" in data) {
-      let syscallBody = $("sandbox-syscalls-tbody");
-      let argsHead = $("sandbox-syscalls-argshead");
-      for (let syscall of data.syscallLog) {
+      const syscallBody = $("sandbox-syscalls-tbody");
+      const argsHead = $("sandbox-syscalls-argshead");
+      for (const syscall of data.syscallLog) {
         if (argsHead.colSpan < syscall.args.length) {
           argsHead.colSpan = syscall.args.length;
         }
-        let procTypeStrId = toFluentID(syscall.procType);
-        let cells = [
+        const procTypeStrId = toFluentID(syscall.procType);
+        const cells = [
           $.new("td", syscall.index, "integer"),
           $.new("td", syscall.msecAgo / 1000),
           $.new("td", syscall.pid, "integer"),
@@ -1197,7 +1204,7 @@ var snapshotFormatters = {
           }),
           $.new("td", syscall.syscall, "integer"),
         ];
-        for (let arg of syscall.args) {
+        for (const arg of syscall.args) {
           cells.push($.new("td", arg, "integer"));
         }
         syscallBody.appendChild($.new("tr", cells));
@@ -1235,13 +1242,13 @@ var $ = document.getElementById.bind(document);
 
 // eslint-disable-next-line func-names
 $.new = function $_new(tag, textContentOrChildren, className, attributes) {
-  let elt = document.createElement(tag);
+  const elt = document.createElement(tag);
   if (className) {
     elt.className = className;
   }
   if (attributes) {
     if (attributes["data-l10n-id"]) {
-      let args = attributes.hasOwnProperty("data-l10n-args")
+      const args = attributes.hasOwnProperty("data-l10n-args")
         ? attributes["data-l10n-args"]
         : undefined;
       document.l10n.setAttributes(elt, attributes["data-l10n-id"], args);
@@ -1251,7 +1258,7 @@ $.new = function $_new(tag, textContentOrChildren, className, attributes) {
       }
     }
 
-    for (let attrName in attributes) {
+    for (const attrName in attributes) {
       elt.setAttribute(attrName, attributes[attrName]);
     }
   }
@@ -1272,7 +1279,7 @@ function assembleFromGraphicsFailure(i, data) {
   // Only cover the cases we have today; for example, we do not have
   // log failures that assert and we assume the log level is 1/error.
   let message = data.failures[i];
-  let index = data.indices[i];
+  const index = data.indices[i];
   let what = "";
   if (message.search(/\[GFX1-\]: \(LF\)/) == 0) {
     // Non-asserting log failure - the message is substring(14)
@@ -1287,7 +1294,7 @@ function assembleFromGraphicsFailure(i, data) {
     what = "Assert";
     message = message.substring(8);
   }
-  let assembled = {
+  const assembled = {
     index,
     header: "(#" + index + ") " + what,
     message,
@@ -1296,8 +1303,8 @@ function assembleFromGraphicsFailure(i, data) {
 }
 
 function sortedArrayFromObject(obj) {
-  let tuples = [];
-  for (let prop in obj) {
+  const tuples = [];
+  for (const prop in obj) {
     tuples.push([prop, obj[prop]]);
   }
   tuples.sort(([prop1, v1], [prop2, v2]) => prop1.localeCompare(prop2));
@@ -1313,11 +1320,11 @@ function copyRawDataToClipboard(button) {
       if (button) {
         button.disabled = false;
       }
-      let str = Cc["@mozilla.org/supports-string;1"].createInstance(
+      const str = Cc["@mozilla.org/supports-string;1"].createInstance(
         Ci.nsISupportsString
       );
       str.data = JSON.stringify(snapshot, undefined, 2);
-      let transferable = Cc[
+      const transferable = Cc[
         "@mozilla.org/widget/transferable;1"
       ].createInstance(Ci.nsITransferable);
       transferable.init(getLoadContext());
@@ -1344,18 +1351,18 @@ function getLoadContext() {
 
 async function copyContentsToClipboard() {
   // Get the HTML and text representations for the important part of the page.
-  let contentsDiv = $("contents").cloneNode(true);
+  const contentsDiv = $("contents").cloneNode(true);
   // Remove the items we don't want to copy from the clone:
   contentsDiv.querySelectorAll(".no-copy, [hidden]").forEach(n => n.remove());
-  let dataHtml = contentsDiv.innerHTML;
-  let dataText = createTextForElement(contentsDiv);
+  const dataHtml = contentsDiv.innerHTML;
+  const dataText = createTextForElement(contentsDiv);
 
   // We can't use plain strings, we have to use nsSupportsString.
-  let supportsStringClass = Cc["@mozilla.org/supports-string;1"];
-  let ssHtml = supportsStringClass.createInstance(Ci.nsISupportsString);
-  let ssText = supportsStringClass.createInstance(Ci.nsISupportsString);
+  const supportsStringClass = Cc["@mozilla.org/supports-string;1"];
+  const ssHtml = supportsStringClass.createInstance(Ci.nsISupportsString);
+  const ssText = supportsStringClass.createInstance(Ci.nsISupportsString);
 
-  let transferable = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+  const transferable = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
   transferable.init(getLoadContext());
@@ -1381,7 +1388,7 @@ async function copyContentsToClipboard() {
 // Return the plain text representation of an element.  Do a little bit
 // of pretty-printing to make it human-readable.
 function createTextForElement(elem) {
-  let serializer = new Serializer();
+  const serializer = new Serializer();
   let text = serializer.serialize(elem);
 
   // Actual CR/LF pairs are needed for some Windows text editors.
@@ -1424,9 +1431,9 @@ Serializer.prototype = {
     // all other elements
 
     let hasText = false;
-    for (let child of elem.childNodes) {
+    for (const child of elem.childNodes) {
       if (child.nodeType == Node.TEXT_NODE) {
-        let text = this._nodeText(child);
+        const text = this._nodeText(child);
         this._appendText(text);
         hasText = hasText || !!text.trim();
       } else if (child.nodeType == Node.ELEMENT_NODE) {
@@ -1435,9 +1442,9 @@ Serializer.prototype = {
     }
 
     // For headings, draw a "line" underneath them so they stand out.
-    let isHeader = /^h[0-9]+$/.test(elem.localName);
+    const isHeader = /^h[0-9]+$/.test(elem.localName);
     if (isHeader) {
-      let headerText = (this._currentLine || "").trim();
+      const headerText = (this._currentLine || "").trim();
       if (headerText) {
         this._startNewLine();
         this._appendText("-".repeat(headerText.length));
@@ -1452,7 +1459,7 @@ Serializer.prototype = {
   },
 
   _startNewLine(lines) {
-    let currLine = this._currentLine;
+    const currLine = this._currentLine;
     if (currLine) {
       // The current line is not empty.  Trim it.
       this._currentLine = currLine.trim();
@@ -1475,30 +1482,30 @@ Serializer.prototype = {
   _serializeTable(table) {
     // Collect the table's column headings if in fact there are any.  First
     // check thead.  If there's no thead, check the first tr.
-    let colHeadings = {};
+    const colHeadings = {};
     let tableHeadingElem = table.querySelector("thead");
     if (!tableHeadingElem) {
       tableHeadingElem = table.querySelector("tr");
     }
     if (tableHeadingElem) {
-      let tableHeadingCols = tableHeadingElem.querySelectorAll("th,td");
+      const tableHeadingCols = tableHeadingElem.querySelectorAll("th,td");
       // If there's a contiguous run of th's in the children starting from the
       // rightmost child, then consider them to be column headings.
       for (let i = tableHeadingCols.length - 1; i >= 0; i--) {
-        let col = tableHeadingCols[i];
+        const col = tableHeadingCols[i];
         if (col.localName != "th" || col.classList.contains("title-column")) {
           break;
         }
         colHeadings[i] = this._nodeText(col).trim();
       }
     }
-    let hasColHeadings = Object.keys(colHeadings).length > 0;
+    const hasColHeadings = Object.keys(colHeadings).length > 0;
     if (!hasColHeadings) {
       tableHeadingElem = null;
     }
 
-    let trs = table.querySelectorAll("table > tr, tbody > tr");
-    let startRow =
+    const trs = table.querySelectorAll("table > tr, tbody > tr");
+    const startRow =
       tableHeadingElem && tableHeadingElem.localName == "tr" ? 1 : 0;
 
     if (startRow >= trs.length) {
@@ -1511,7 +1518,7 @@ Serializer.prototype = {
       //   Heading 1: Column 1 value
       //   Heading 2: Column 2 value
       for (let i = startRow; i < trs.length; i++) {
-        let children = trs[i].querySelectorAll("td");
+        const children = trs[i].querySelectorAll("td");
         for (let j = 0; j < children.length; j++) {
           let text = "";
           if (colHeadings[j]) {
@@ -1530,8 +1537,8 @@ Serializer.prototype = {
     // print each tr in a single line like:
     //   Column 1 value: Column 2 value
     for (let i = startRow; i < trs.length; i++) {
-      let children = trs[i].querySelectorAll("th,td");
-      let rowHeading = this._nodeText(children[0]).trim();
+      const children = trs[i].querySelectorAll("th,td");
+      const rowHeading = this._nodeText(children[0]).trim();
       if (children[0].classList.contains("title-column")) {
         if (!this._isHiddenSubHeading(children[0])) {
           this._appendText(rowHeading);
@@ -1540,7 +1547,7 @@ Serializer.prototype = {
         // This is a single-cell row.
         this._appendText(rowHeading);
       } else {
-        let childTables = trs[i].querySelectorAll("table");
+        const childTables = trs[i].querySelectorAll("table");
         if (childTables.length) {
           // If we have child tables, don't use nodeText - its trs are already
           // queued up from querySelectorAll earlier.
@@ -1563,11 +1570,11 @@ Serializer.prototype = {
 
 function openProfileDirectory() {
   // Get the profile directory.
-  let currProfD = Services.dirsvc.get("ProfD", Ci.nsIFile);
-  let profileDir = currProfD.path;
+  const currProfD = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  const profileDir = currProfD.path;
 
   // Show the profile directory.
-  let nsLocalFile = Components.Constructor(
+  const nsLocalFile = Components.Constructor(
     "@mozilla.org/file/local;1",
     "nsIFile",
     "initWithPath"
@@ -1593,7 +1600,7 @@ function populateActionBox() {
 
 // Prompt user to restart the browser in safe mode
 function safeModeRestart() {
-  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+  const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
   );
   Services.obs.notifyObservers(
@@ -1681,13 +1688,13 @@ function setupEventListeners() {
     if (button) {
       button.addEventListener("click", function (event) {
         // Get the update directory.
-        let updateDir = Services.dirsvc.get("UpdRootD", Ci.nsIFile);
+        const updateDir = Services.dirsvc.get("UpdRootD", Ci.nsIFile);
         if (!updateDir.exists()) {
           updateDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
         }
-        let updateDirPath = updateDir.path;
+        const updateDirPath = updateDir.path;
         // Show the update directory.
-        let nsLocalFile = Components.Constructor(
+        const nsLocalFile = Components.Constructor(
           "@mozilla.org/file/local;1",
           "nsIFile",
           "initWithPath"
@@ -1711,9 +1718,9 @@ function setupEventListeners() {
     button.addEventListener("click", function (event) {
       PlacesDBUtils.checkAndFixDatabase().then(tasksStatusMap => {
         let logs = [];
-        for (let [key, value] of tasksStatusMap) {
+        for (const [key, value] of tasksStatusMap) {
           logs.push(`> Task: ${key}`);
-          let prefix = value.succeeded ? "+ " : "- ";
+          const prefix = value.succeeded ? "+ " : "- ";
           logs = logs.concat(value.logs.map(m => `${prefix}${m}`));
         }
         $("verify-place-result").style.display = "block";

@@ -29,7 +29,7 @@ var nntpAccount;
 add_setup(function () {
   gFolderTreeView.selectFolder(gFolderTreeView._enumerateFolders[1]);
 
-  let server = setupLocalServer(NNTP_PORT);
+  const server = setupLocalServer(NNTP_PORT);
   nntpAccount = MailServices.accounts.FindAccountForServer(server);
 });
 
@@ -75,7 +75,7 @@ async function subtest_create_virtual_folder(vfc) {
  * Check the folder list picker is not empty.
  */
 function subtest_check_virtual_folder_list(listc) {
-  let tree = listc.document.getElementById("folderPickerTree");
+  const tree = listc.document.getElementById("folderPickerTree");
   // We should see the folders from the 2 base local accounts here.
   Assert.ok(
     tree.view.rowCount > 0,
@@ -126,7 +126,7 @@ async function subtest_offline_sync(osc) {
  * Check the folder list picker is not empty.
  */
 function subtest_check_offline_folder_list(listc) {
-  let tree = listc.document.getElementById("synchronizeTree");
+  const tree = listc.document.getElementById("synchronizeTree");
   // We should see the newsgroups from the NNTP server here.
   Assert.ok(
     tree.view.rowCount > 0,

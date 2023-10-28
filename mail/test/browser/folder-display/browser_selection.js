@@ -111,7 +111,7 @@ add_task(async function test_selection_persists_through_threading_changes() {
   await be_in_folder(folder);
 
   await make_display_unthreaded();
-  let message = await select_click_row(3);
+  const message = await select_click_row(3);
   await make_display_threaded();
   await assert_selected_and_displayed(message);
   await make_display_grouped();
@@ -132,11 +132,11 @@ add_task(async function test_no_selection_persists_through_threading_changes() {
 });
 
 add_task(async function test_selection_persists_through_folder_tab_changes() {
-  let tab1 = await be_in_folder(folder);
+  const tab1 = await be_in_folder(folder);
 
   await select_click_row(2);
 
-  let tab2 = await open_folder_in_new_tab(folder2);
+  const tab2 = await open_folder_in_new_tab(folder2);
   await wait_for_blank_content_pane();
   await assert_nothing_selected();
 

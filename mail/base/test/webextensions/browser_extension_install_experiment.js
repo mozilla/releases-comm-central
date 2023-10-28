@@ -1,22 +1,22 @@
 "use strict";
 
 async function installFile(filename) {
-  let MockFilePicker = SpecialPowers.MockFilePicker;
+  const MockFilePicker = SpecialPowers.MockFilePicker;
   MockFilePicker.init(window);
   MockFilePicker.setFiles([new FileUtils.File(getTestFilePath(filename))]);
   MockFilePicker.afterOpenCallback = MockFilePicker.cleanup;
 
-  let { document } = await openAddonsMgr("addons://list/extension");
+  const { document } = await openAddonsMgr("addons://list/extension");
 
   // Do the install...
   await waitAboutAddonsViewLoaded(document);
-  let installButton = document.querySelector('[action="install-from-file"]');
+  const installButton = document.querySelector('[action="install-from-file"]');
   installButton.click();
 }
 
 async function testExperimentPrompt(filename) {
-  let installPromise = new Promise(resolve => {
-    let listener = {
+  const installPromise = new Promise(resolve => {
+    const listener = {
       onDownloadCancelled() {
         AddonManager.removeInstallListener(listener);
         resolve(false);
@@ -47,7 +47,7 @@ async function testExperimentPrompt(filename) {
 
   await installFile(filename);
 
-  let panel = await promisePopupNotificationShown("addon-webext-permissions");
+  const panel = await promisePopupNotificationShown("addon-webext-permissions");
   await checkNotification(
     panel,
     isDefaultIcon,
@@ -57,14 +57,14 @@ async function testExperimentPrompt(filename) {
   );
   panel.secondaryButton.click();
 
-  let result = await installPromise;
+  const result = await installPromise;
   ok(!result, "Installation was cancelled");
-  let addon = await AddonManager.getAddonByID(
+  const addon = await AddonManager.getAddonByID(
     "experiment_test@tests.mozilla.org"
   );
   is(addon, null, "Extension is not installed");
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTabInfo);
 }
 

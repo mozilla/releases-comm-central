@@ -16,8 +16,8 @@ var kRememberLastState = 0;
 
 var gOfflineDialog = {
   dialogSetup() {
-    let offlineAutoDetection = Preferences.get("offline.autoDetect");
-    let offlineStartupStatePref = Preferences.get("offline.startup_state");
+    const offlineAutoDetection = Preferences.get("offline.autoDetect");
+    const offlineStartupStatePref = Preferences.get("offline.startup_state");
 
     offlineStartupStatePref.disabled = offlineAutoDetection.value;
     if (offlineStartupStatePref.disabled) {

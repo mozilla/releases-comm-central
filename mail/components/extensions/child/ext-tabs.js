@@ -9,12 +9,12 @@ this.tabs = class extends ExtensionAPI {
     return {
       tabs: {
         connect(tabId, options) {
-          let { frameId = null, name = "" } = options || {};
+          const { frameId = null, name = "" } = options || {};
           return context.messenger.connect({ name, tabId, frameId });
         },
 
         sendMessage(tabId, message, options, callback) {
-          let arg = { tabId, frameId: options?.frameId, message, callback };
+          const arg = { tabId, frameId: options?.frameId, message, callback };
           return context.messenger.sendRuntimeMessage(arg);
         },
       },

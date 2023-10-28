@@ -17,7 +17,7 @@ var { AppConstants } = ChromeUtils.importESModule(
  * @returns A HTML paragraph node containing the warning.
  */
 function createWarning() {
-  let bundle = Services.strings.createBundle(
+  const bundle = Services.strings.createBundle(
     "chrome://messenger/locale/aboutSupportMail.properties"
   );
   return createParentElement("p", [
@@ -30,18 +30,18 @@ function createWarning() {
 
 function getClipboardTransferable() {
   // Get the HTML and text representations for the important part of the page.
-  let hidePrivateData = !document.getElementById("check-show-private-data")
+  const hidePrivateData = !document.getElementById("check-show-private-data")
     .checked;
-  let contentsDiv = createCleanedUpContents(hidePrivateData);
-  let dataHtml = contentsDiv.innerHTML;
-  let dataText = createTextForElement(contentsDiv, hidePrivateData);
+  const contentsDiv = createCleanedUpContents(hidePrivateData);
+  const dataHtml = contentsDiv.innerHTML;
+  const dataText = createTextForElement(contentsDiv, hidePrivateData);
 
   // We can't use plain strings, we have to use nsSupportsString.
-  let supportsStringClass = Cc["@mozilla.org/supports-string;1"];
-  let ssHtml = supportsStringClass.createInstance(Ci.nsISupportsString);
-  let ssText = supportsStringClass.createInstance(Ci.nsISupportsString);
+  const supportsStringClass = Cc["@mozilla.org/supports-string;1"];
+  const ssHtml = supportsStringClass.createInstance(Ci.nsISupportsString);
+  const ssText = supportsStringClass.createInstance(Ci.nsISupportsString);
 
-  let transferable = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+  const transferable = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
   transferable.init(getLoadContext());
@@ -62,7 +62,7 @@ function getClipboardTransferable() {
 // This function intentionally has the same name as the one in aboutSupport.js
 // so that the one here is called.
 function copyContentsToClipboard() {
-  let transferable = getClipboardTransferable();
+  const transferable = getClipboardTransferable();
   // Store the data into the clipboard.
   Services.clipboard.setData(
     transferable,
@@ -73,22 +73,22 @@ function copyContentsToClipboard() {
 
 function sendViaEmail() {
   // Get the HTML representation for the important part of the page.
-  let hidePrivateData = !document.getElementById("check-show-private-data")
+  const hidePrivateData = !document.getElementById("check-show-private-data")
     .checked;
-  let contentsDiv = createCleanedUpContents(hidePrivateData);
+  const contentsDiv = createCleanedUpContents(hidePrivateData);
   let dataHtml = contentsDiv.innerHTML;
   // The editor considers whitespace to be significant, so replace all
   // whitespace with a single space.
   dataHtml = dataHtml.replace(/\s+/g, " ");
 
   // Set up parameters and fields to use for the compose window.
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.type = Ci.nsIMsgCompType.New;
   params.format = Ci.nsIMsgCompFormat.HTML;
 
-  let fields = Cc[
+  const fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   fields.forcePlainText = false;
@@ -105,9 +105,9 @@ function sendViaEmail() {
 
 function createCleanedUpContents(aHidePrivateData) {
   // Get the important part of the page.
-  let contentsDiv = document.getElementById("contents");
+  const contentsDiv = document.getElementById("contents");
   // Deep-clone the entire div.
-  let clonedDiv = contentsDiv.cloneNode(true);
+  const clonedDiv = contentsDiv.cloneNode(true);
   // Go in and replace text with the text we actually want to copy.
   // (this mutates the cloned node)
   cleanUpText(clonedDiv, aHidePrivateData);
@@ -123,7 +123,7 @@ function cleanUpText(aElem, aHidePrivateData) {
   let copyData = aElem.dataset.copyData;
   delete aElem.dataset.copyData;
   while (node) {
-    let classList = "classList" in node && node.classList;
+    const classList = "classList" in node && node.classList;
     // Delete uionly and no-copy nodes.
     if (
       classList &&
@@ -131,7 +131,7 @@ function cleanUpText(aElem, aHidePrivateData) {
     ) {
       // Advance to the next node before removing the current node, since
       // node.nextElementSibling is null after remove()
-      let nextNode = node.nextElementSibling;
+      const nextNode = node.nextElementSibling;
       node.remove();
       node = nextNode;
       continue;
@@ -168,7 +168,7 @@ function cleanUpText(aElem, aHidePrivateData) {
 // of pretty-printing to make it human-readable.
 function createTextForElement(elem, aHidePrivateData) {
   // Generate the initial text.
-  let textFragmentAccumulator = [];
+  const textFragmentAccumulator = [];
   generateTextForElement(elem, aHidePrivateData, "", textFragmentAccumulator);
   let text = textFragmentAccumulator.join("");
 
@@ -207,7 +207,7 @@ function generateTextForElement(
 
   // If this element is one of our elements to replace with text, do it.
   if (elem.id in gElementsToReplace) {
-    let replaceFn = gElementsToReplace[elem.id];
+    const replaceFn = gElementsToReplace[elem.id];
     textFragmentAccumulator.push(replaceFn(aHidePrivateData, indent + "  "));
     return;
   }
@@ -219,7 +219,7 @@ function generateTextForElement(
     }
   }
 
-  let childCount = elem.childElementCount;
+  const childCount = elem.childElementCount;
 
   // We're not going to spread a two-column <tr> across multiple lines, so
   // handle that separately.
@@ -257,14 +257,14 @@ function generateTextForElement(
 function generateTextForTextNode(node, indent, textFragmentAccumulator) {
   // If the text node is the first of a run of text nodes, then start
   // a new line and add the initial indentation.
-  let prevNode = node.previousSibling;
+  const prevNode = node.previousSibling;
   if (!prevNode || prevNode.nodeType == Node.TEXT_NODE) {
     textFragmentAccumulator.push("\n" + indent);
   }
 
   // Trim the text node's text content and add proper indentation after
   // any internal line breaks.
-  let text = node.textContent.trim().replace(/\n/g, "\n" + indent);
+  const text = node.textContent.trim().replace(/\n/g, "\n" + indent);
   textFragmentAccumulator.push(text);
 }
 
@@ -274,9 +274,11 @@ function generateTextForTextNode(node, indent, textFragmentAccumulator) {
 
 function getCrashesText(aIndent) {
   let crashesData = "";
-  let recentCrashesSubmitted = document.querySelectorAll("#crashes-tbody > tr");
+  const recentCrashesSubmitted = document.querySelectorAll(
+    "#crashes-tbody > tr"
+  );
   for (let i = 0; i < recentCrashesSubmitted.length; i++) {
-    let tds = recentCrashesSubmitted.item(i).querySelectorAll("td");
+    const tds = recentCrashesSubmitted.item(i).querySelectorAll("td");
     crashesData +=
       aIndent.repeat(2) +
       tds.item(0).firstElementChild.href +

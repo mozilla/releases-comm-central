@@ -65,7 +65,7 @@ class AccountHubControllerClass {
     document.body.appendChild(element);
     this.#modal = element.modal;
 
-    let closeButton = this.#modal.querySelector("#closeButton");
+    const closeButton = this.#modal.querySelector("#closeButton");
     closeButton.hidden = !MailServices.accounts.accounts.length;
     closeButton.addEventListener("click", () => this.#modal.close());
 
@@ -165,7 +165,7 @@ class AccountHubControllerClass {
    * Hide all the currently visible views.
    */
   #hideViews() {
-    for (let view of this.#modal.querySelectorAll(".account-hub-view")) {
+    for (const view of this.#modal.querySelectorAll(".account-hub-view")) {
       view.hidden = true;
     }
   }
@@ -197,7 +197,7 @@ class AccountHubControllerClass {
    *   have anything to reset.
    */
   #reset() {
-    let isClean = this.#currentView?.reset() ?? true;
+    const isClean = this.#currentView?.reset() ?? true;
     // If the reset operation was successful, clear the current class.
     if (isClean) {
       this.#hideViews();

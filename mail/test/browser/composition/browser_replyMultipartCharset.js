@@ -56,20 +56,20 @@ async function subtest_replyEditAsNewForward_charset(
 ) {
   await be_in_folder(folder);
 
-  let file = new FileUtils.File(getTestFilePath(`data/${aFile}`));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath(`data/${aFile}`));
+  const msgc = await open_message_from_file(file);
 
   // Copy the message to a folder. We run the message through a folder
   // since replying/editing as new/forwarding directly to the message
   // opened from a file gives different results on different platforms.
   // All platforms behave the same when using a folder-stored message.
-  let documentChild = msgc.content.document.documentElement;
+  const documentChild = msgc.content.document.documentElement;
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },
     documentChild.ownerGlobal
   );
-  let aboutMessage = get_about_message(msgc);
+  const aboutMessage = get_about_message(msgc);
   await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),
     [
@@ -80,7 +80,7 @@ async function subtest_replyEditAsNewForward_charset(
   );
   await BrowserTestUtils.closeWindow(msgc);
 
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   if (aViewed) {
     // Only if the preview pane is on, we can check the following.
     await assert_selected_and_displayed(window, msg);
@@ -103,7 +103,7 @@ async function subtest_replyEditAsNewForward_charset(
   }
 
   // Check the charset in the compose window.
-  let charset =
+  const charset =
     fwdWin.document.getElementById("messageEditor").contentDocument.charset;
   Assert.equal(charset, "UTF-8", "Compose window has the wrong charset");
   await close_compose_window(fwdWin);

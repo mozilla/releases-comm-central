@@ -46,15 +46,15 @@ function dump_view_state(aViewWrapper, aDoNotDumpContents) {
 var WHITESPACE = "                                              ";
 var MSG_VIEW_FLAG_DUMMY = 0x20000000;
 function dump_view_contents(aViewWrapper) {
-  let dbView = aViewWrapper.dbView;
-  let treeView = aViewWrapper.dbView.QueryInterface(Ci.nsITreeView);
-  let rowCount = treeView.rowCount;
+  const dbView = aViewWrapper.dbView;
+  const treeView = aViewWrapper.dbView.QueryInterface(Ci.nsITreeView);
+  const rowCount = treeView.rowCount;
 
   dump("********* Current View Contents\n");
   for (let iViewIndex = 0; iViewIndex < rowCount; iViewIndex++) {
-    let level = treeView.getLevel(iViewIndex);
-    let flags = dbView.getFlagsAt(iViewIndex);
-    let msgHdr = dbView.getMsgHdrAt(iViewIndex);
+    const level = treeView.getLevel(iViewIndex);
+    const flags = dbView.getFlagsAt(iViewIndex);
+    const msgHdr = dbView.getMsgHdrAt(iViewIndex);
 
     let s = WHITESPACE.substr(0, level * 2);
     if (treeView.isContainer(iViewIndex)) {
@@ -75,8 +75,8 @@ function dump_view_contents(aViewWrapper) {
 }
 
 function _lookupValueNameInInterface(aValue, aInterface) {
-  for (let key in aInterface) {
-    let value = aInterface[key];
+  for (const key in aInterface) {
+    const value = aInterface[key];
     if (value == aValue) {
       return key;
     }

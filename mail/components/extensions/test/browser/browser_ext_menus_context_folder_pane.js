@@ -31,14 +31,14 @@ add_setup(async () => {
 });
 
 async function subtest_folder_pane(manifest) {
-  let extension = await getMenuExtension(manifest);
+  const extension = await getMenuExtension(manifest);
 
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-  let folderTree = about3Pane.document.getElementById("folderTree");
-  let menu = about3Pane.document.getElementById("folderPaneContext");
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const folderTree = about3Pane.document.getElementById("folderTree");
+  const menu = about3Pane.document.getElementById("folderPaneContext");
   await rightClick(menu, folderTree.rows[1].querySelector(".container"));
   Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_folder_pane"));
   menu.hidePopup();

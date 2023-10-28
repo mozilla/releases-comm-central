@@ -67,7 +67,7 @@ class AccountHubEmail extends HTMLElement {
 
     this.classList.add("account-hub-view");
 
-    let template = document.getElementById("accountHubEmailSetup");
+    const template = document.getElementById("accountHubEmailSetup");
     this.appendChild(template.content.cloneNode(true));
 
     this.#form = this.querySelector("form");
@@ -91,7 +91,7 @@ class AccountHubEmail extends HTMLElement {
   initUI() {
     // Populate the account name if we can get some user info.
     if ("@mozilla.org/userinfo;1" in Cc) {
-      let userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
+      const userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
       this.#realName.value = userInfo.fullname;
     }
 

@@ -101,7 +101,7 @@ var MailOfflineMgr = {
    * @param aMsgWindow the msg window to be used when going online
    */
   goOnlineToSendMessages(aMsgWindow) {
-    let goOnlineToSendMsgs = Services.prompt.confirm(
+    const goOnlineToSendMsgs = Services.prompt.confirm(
       window,
       this.offlineBundle.GetStringFromName("sendMessagesOfflineWindowTitle1"),
       this.offlineBundle.GetStringFromName("sendMessagesOfflineLabel1")
@@ -123,8 +123,8 @@ var MailOfflineMgr = {
    * @returns true if the user wants to send unsent messages
    */
   confirmSendUnsentMessages() {
-    let alwaysAsk = { value: true };
-    let sendUnsentMessages =
+    const alwaysAsk = { value: true };
+    const sendUnsentMessages =
       Services.prompt.confirmEx(
         window,
         this.offlineBundle.GetStringFromName("sendMessagesWindowTitle1"),
@@ -182,8 +182,8 @@ var MailOfflineMgr = {
    * @returns true if the user wants to download messages for offline use.
    */
   confirmDownloadMessagesForOfflineUse() {
-    let alwaysAsk = { value: true };
-    let downloadMessages =
+    const alwaysAsk = { value: true };
+    const downloadMessages =
       Services.prompt.confirmEx(
         window,
         this.offlineBundle.GetStringFromName("downloadMessagesWindowTitle1"),
@@ -215,7 +215,7 @@ var MailOfflineMgr = {
    * @returns true if the user confirms going online.
    */
   getNewMail() {
-    let goOnline = Services.prompt.confirm(
+    const goOnline = Services.prompt.confirm(
       window,
       this.offlineBundle.GetStringFromName("getMessagesOfflineWindowTitle1"),
       this.offlineBundle.GetStringFromName("getMessagesOfflineLabel1")
@@ -261,11 +261,11 @@ var MailOfflineMgr = {
   mailOfflineStateChanged(aGoingOffline) {
     this.updateOfflineUI(aGoingOffline);
     if (!aGoingOffline) {
-      let prefSendUnsentMessages = Services.prefs.getIntPref(
+      const prefSendUnsentMessages = Services.prefs.getIntPref(
         "offline.send.unsent_messages"
       );
       // 0 == Ask, 1 == Always Send, 2 == Never Send
-      let sendUnsentMessages =
+      const sendUnsentMessages =
         (prefSendUnsentMessages == 0 &&
           this.haveUnsentMessages() &&
           this.confirmSendUnsentMessages()) ||

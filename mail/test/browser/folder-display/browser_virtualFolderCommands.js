@@ -26,8 +26,8 @@ var singleVirtFolder;
 var multiVirtFolder;
 
 add_setup(async function () {
-  let folderOne = await create_folder();
-  let folderTwo = await create_folder();
+  const folderOne = await create_folder();
+  const folderTwo = await create_folder();
   await make_message_sets_in_folders([folderOne], [{ msgsPerThread }]);
   await make_message_sets_in_folders([folderTwo], [{ msgsPerThread }]);
 
@@ -37,7 +37,7 @@ add_setup(async function () {
 
 add_task(async function test_single_folder_select_thread() {
   await be_in_folder(singleVirtFolder);
-  let win = get_about_3pane();
+  const win = get_about_3pane();
   await make_display_threaded();
   await expand_all_threads();
 
@@ -60,7 +60,7 @@ add_task(async function test_single_folder_select_thread() {
 
 add_task(async function test_cross_folder_select_thread() {
   await be_in_folder(multiVirtFolder);
-  let win = get_about_3pane();
+  const win = get_about_3pane();
   await make_display_threaded();
   await expand_all_threads();
 

@@ -23,13 +23,13 @@ class AccountHubContainer extends HTMLElement {
     const shadowRoot = this.attachShadow({ mode: "open" });
 
     // Load styles in the shadowRoot so we don't leak it.
-    let style = document.createElement("link");
+    const style = document.createElement("link");
     style.rel = "stylesheet";
     style.href = "chrome://messenger/skin/accountHub.css";
     shadowRoot.appendChild(style);
 
-    let template = document.getElementById("accountHubDialog");
-    let clonedNode = template.content.cloneNode(true);
+    const template = document.getElementById("accountHubDialog");
+    const clonedNode = template.content.cloneNode(true);
     shadowRoot.appendChild(clonedNode);
     this.modal = shadowRoot.querySelector("dialog");
 

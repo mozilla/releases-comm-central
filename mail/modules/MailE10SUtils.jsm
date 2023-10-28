@@ -39,20 +39,20 @@ var MailE10SUtils = {
    * @param {object} params
    */
   loadURI(browser, uri, params = {}) {
-    let multiProcess = browser.ownerGlobal.docShell.QueryInterface(
+    const multiProcess = browser.ownerGlobal.docShell.QueryInterface(
       Ci.nsILoadContext
     ).useRemoteTabs;
-    let remoteSubframes = browser.ownerGlobal.docShell.QueryInterface(
+    const remoteSubframes = browser.ownerGlobal.docShell.QueryInterface(
       Ci.nsILoadContext
     ).useRemoteSubframes;
 
-    let isRemote = browser.getAttribute("remote") == "true";
-    let remoteType = E10SUtils.getRemoteTypeForURI(
+    const isRemote = browser.getAttribute("remote") == "true";
+    const remoteType = E10SUtils.getRemoteTypeForURI(
       uri,
       multiProcess,
       remoteSubframes
     );
-    let shouldBeRemote = remoteType !== E10SUtils.NOT_REMOTE;
+    const shouldBeRemote = remoteType !== E10SUtils.NOT_REMOTE;
 
     if (shouldBeRemote != isRemote) {
       this.changeRemoteness(browser, remoteType);

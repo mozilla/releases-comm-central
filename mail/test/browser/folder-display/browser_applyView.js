@@ -40,7 +40,7 @@ add_setup(async function () {
  * Get the currently visible threadTree columns.
  */
 add_task(async function testSetViewSingle() {
-  let info = folderSource.msgDatabase.dBFolderInfo;
+  const info = folderSource.msgDatabase.dBFolderInfo;
 
   Assert.equal(
     info.viewFlags,
@@ -53,16 +53,16 @@ add_task(async function testSetViewSingle() {
     "sortOrder should start descending"
   );
 
-  let about3Pane = get_about_3pane();
+  const about3Pane = get_about_3pane();
 
-  let threadCol = about3Pane.document.getElementById("threadCol");
+  const threadCol = about3Pane.document.getElementById("threadCol");
   EventUtils.synthesizeMouseAtCenter(threadCol, { clickCount: 1 }, about3Pane);
   await TestUtils.waitForCondition(
     () => info.viewFlags == Ci.nsMsgViewFlagsType.kNone,
     "should change viewFlags to none"
   );
 
-  let subjectCol = about3Pane.document.getElementById("subjectCol");
+  const subjectCol = about3Pane.document.getElementById("subjectCol");
   EventUtils.synthesizeMouseAtCenter(subjectCol, { clickCount: 1 }, about3Pane);
   await TestUtils.waitForCondition(
     () => info.sortType == Ci.nsMsgViewSortType.bySubject,
@@ -77,23 +77,23 @@ add_task(async function testSetViewSingle() {
 });
 
 async function invoke_column_picker_option(aActions) {
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
 
-  let colPicker = about3Pane.document.querySelector(
+  const colPicker = about3Pane.document.querySelector(
     `th[is="tree-view-table-column-picker"] button`
   );
-  let colPickerPopup = about3Pane.document.querySelector(
+  const colPickerPopup = about3Pane.document.querySelector(
     `th[is="tree-view-table-column-picker"] menupopup`
   );
 
-  let shownPromise = BrowserTestUtils.waitForEvent(
+  const shownPromise = BrowserTestUtils.waitForEvent(
     colPickerPopup,
     "popupshown"
   );
   EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);
   await shownPromise;
-  let hiddenPromise = BrowserTestUtils.waitForEvent(
+  const hiddenPromise = BrowserTestUtils.waitForEvent(
     colPickerPopup,
     "popuphidden"
   );
@@ -107,7 +107,7 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
     notificatonPromise = TestUtils.topicObserved("msg-folder-views-propagated");
   }
 
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   await invoke_column_picker_option([
     { class: "applyViewTo-menu" },
     {
@@ -131,10 +131,10 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
  *  children. Make sure the folder changes but the children do not.
  */
 add_task(async function test_apply_to_folder_no_children() {
-  let child1Info = folderChild1.msgDatabase.dBFolderInfo;
-  let child1InfoViewFlags = child1Info.viewFlags;
-  let child1InfoSortType = child1Info.sortType;
-  let child1InfoSortOrder = child1Info.sortOrder;
+  const child1Info = folderChild1.msgDatabase.dBFolderInfo;
+  const child1InfoViewFlags = child1Info.viewFlags;
+  const child1InfoSortType = child1Info.sortType;
+  const child1InfoSortOrder = child1Info.sortOrder;
   Assert.equal(
     child1Info.viewFlags,
     Ci.nsMsgViewFlagsType.kThreadedDisplay,
@@ -191,7 +191,7 @@ add_task(async function test_apply_to_folder_no_children() {
 add_task(async function test_apply_to_folder_and_children() {
   await be_in_folder(folderSource);
 
-  let child1Info = folderChild1.msgDatabase.dBFolderInfo;
+  const child1Info = folderChild1.msgDatabase.dBFolderInfo;
   Assert.equal(
     child1Info.viewFlags,
     Ci.nsMsgViewFlagsType.kThreadedDisplay,
@@ -224,7 +224,7 @@ add_task(async function test_apply_to_folder_and_children() {
   );
 
   // Should have applied to its children as well.
-  for (let child of folderParent.descendants) {
+  for (const child of folderParent.descendants) {
     Assert.equal(
       child.msgDatabase.dBFolderInfo.viewFlags,
       folderSource.msgDatabase.dBFolderInfo.viewFlags,

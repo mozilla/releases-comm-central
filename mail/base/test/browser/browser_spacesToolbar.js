@@ -16,7 +16,7 @@ add_setup(function () {
   // Set up two folders.
   window.MailServices.accounts.createLocalMailAccount();
   testAccount = window.MailServices.accounts.accounts[0];
-  let rootFolder = testAccount.incomingServer.rootFolder;
+  const rootFolder = testAccount.incomingServer.rootFolder;
   rootFolder.createSubfolder("spacesToolbarA", null);
   folderA = rootFolder.findSubFolder("spacesToolbarA");
   rootFolder.createSubfolder("spacesToolbarB", null);
@@ -26,12 +26,12 @@ add_setup(function () {
 registerCleanupFunction(async () => {
   window.MailServices.accounts.removeAccount(testAccount, true);
   // Close all opened tabs.
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   // Reset the spaces toolbar to its default visible state.
   window.gSpacesToolbar.toggleToolbar(false);
   // Reset the menubar visibility.
-  let menubar = document.getElementById("toolbar-menubar");
+  const menubar = document.getElementById("toolbar-menubar");
   menubar.removeAttribute("autohide");
   menubar.removeAttribute("inactive");
   await new Promise(resolve => requestAnimationFrame(resolve));
@@ -48,14 +48,14 @@ async function assertMailShown(win = window) {
 
 async function assertAddressBookShown(win = window) {
   await TestUtils.waitForCondition(() => {
-    let panel = win.document.querySelector(
+    const panel = win.document.querySelector(
       // addressBookTabWrapper0, addressBookTabWrapper1, etc
       "#tabpanelcontainer > [id^=addressBookTabWrapper][selected]"
     );
     if (!panel) {
       return false;
     }
-    let browser = panel.querySelector("[id^=addressBookTabBrowser]");
+    const browser = panel.querySelector("[id^=addressBookTabBrowser]");
     return browser.contentDocument.readyState == "complete";
   }, "The address book tab should be visible and loaded");
 }
@@ -91,28 +91,28 @@ async function assertTasksShown(win = window) {
 
 async function assertSettingsShown(win = window) {
   await TestUtils.waitForCondition(() => {
-    let panel = win.document.querySelector(
+    const panel = win.document.querySelector(
       // preferencesTabWrapper0, preferencesTabWrapper1, etc
       "#tabpanelcontainer > [id^=preferencesTabWrapper][selected]"
     );
     if (!panel) {
       return false;
     }
-    let browser = panel.querySelector("[id^=preferencesTabBrowser]");
+    const browser = panel.querySelector("[id^=preferencesTabBrowser]");
     return browser.contentDocument.readyState == "complete";
   }, "The settings tab should be visible and loaded");
 }
 
 async function assertContentShown(url, win = window) {
   await TestUtils.waitForCondition(() => {
-    let panel = win.document.querySelector(
+    const panel = win.document.querySelector(
       // contentTabWrapper0, contentTabWrapper1, etc
       "#tabpanelcontainer > [id^=contentTabWrapper][selected]"
     );
     if (!panel) {
       return false;
     }
-    let doc = panel.querySelector("[id^=contentTabBrowser]").contentDocument;
+    const doc = panel.querySelector("[id^=contentTabBrowser]").contentDocument;
     return doc.URL == url && doc.readyState == "complete";
   }, `The selected content tab should show ${url}`);
 }
@@ -183,12 +183,12 @@ async function sub_test_cycle_through_primary_tabs() {
 }
 
 add_task(async function testSpacesToolbarVisibility() {
-  let spacesToolbar = document.getElementById("spacesToolbar");
-  let toggleButton = document.getElementById("spacesToolbarReveal");
-  let pinnedButton = document.getElementById("spacesPinnedButton");
+  const spacesToolbar = document.getElementById("spacesToolbar");
+  const toggleButton = document.getElementById("spacesToolbarReveal");
+  const pinnedButton = document.getElementById("spacesPinnedButton");
   Assert.ok(spacesToolbar, "The spaces toolbar exists");
 
-  let assertVisibility = async function (isHidden, msg) {
+  const assertVisibility = async function (isHidden, msg) {
     await TestUtils.waitForCondition(
       () => spacesToolbar.hidden == !isHidden,
       `The spaces toolbar should be ${!isHidden ? "visible" : "hidden"}: ${msg}`
@@ -206,8 +206,11 @@ add_task(async function testSpacesToolbarVisibility() {
   };
 
   async function toggleVisibilityWithAppMenu(expectChecked) {
-    let appMenu = document.getElementById("appMenu-popup");
-    let menuShownPromise = BrowserTestUtils.waitForEvent(appMenu, "popupshown");
+    const appMenu = document.getElementById("appMenu-popup");
+    const menuShownPromise = BrowserTestUtils.waitForEvent(
+      appMenu,
+      "popupshown"
+    );
     EventUtils.synthesizeMouseAtCenter(
       document.getElementById("button-appmenu"),
       {},
@@ -215,7 +218,7 @@ add_task(async function testSpacesToolbarVisibility() {
     );
     await menuShownPromise;
 
-    let viewShownPromise = BrowserTestUtils.waitForEvent(
+    const viewShownPromise = BrowserTestUtils.waitForEvent(
       appMenu.querySelector("#appMenu-viewView"),
       "ViewShown"
     );
@@ -226,7 +229,7 @@ add_task(async function testSpacesToolbarVisibility() {
     );
     await viewShownPromise;
 
-    let toolbarShownPromise = BrowserTestUtils.waitForEvent(
+    const toolbarShownPromise = BrowserTestUtils.waitForEvent(
       appMenu.querySelector("#appMenu-toolbarsView"),
       "ViewShown"
     );
@@ -237,7 +240,7 @@ add_task(async function testSpacesToolbarVisibility() {
     );
     await toolbarShownPromise;
 
-    let appMenuButton = document.getElementById("appmenu_spacesToolbar");
+    const appMenuButton = document.getElementById("appmenu_spacesToolbar");
     Assert.equal(
       appMenuButton.checked,
       expectChecked,
@@ -257,7 +260,7 @@ add_task(async function testSpacesToolbarVisibility() {
 
   // Collapse with a mouse click.
   let activeElement = document.activeElement;
-  let collapseButton = document.getElementById("collapseButton");
+  const collapseButton = document.getElementById("collapseButton");
   EventUtils.synthesizeMouseAtCenter(collapseButton, {}, window);
   await assertVisibility(false, "after clicking collapse button");
 
@@ -281,8 +284,11 @@ add_task(async function testSpacesToolbarVisibility() {
   );
 
   // Show using the pinned button menu.
-  let pinnedMenu = document.getElementById("spacesButtonMenuPopup");
-  let pinnedMenuShown = BrowserTestUtils.waitForEvent(pinnedMenu, "popupshown");
+  const pinnedMenu = document.getElementById("spacesButtonMenuPopup");
+  const pinnedMenuShown = BrowserTestUtils.waitForEvent(
+    pinnedMenu,
+    "popupshown"
+  );
   EventUtils.synthesizeKey("KEY_Enter", {}, window);
   await pinnedMenuShown;
   pinnedMenu.activateItem(document.getElementById("spacesPopupButtonReveal"));
@@ -294,7 +300,7 @@ add_task(async function testSpacesToolbarVisibility() {
   );
 
   // Move focus to the mail button.
-  let mailButton = document.getElementById("mailButton");
+  const mailButton = document.getElementById("mailButton");
   // Loop around from the collapse button to the mailButton.
   EventUtils.synthesizeKey("KEY_ArrowDown", {}, window);
 
@@ -365,21 +371,23 @@ add_task(async function testSpacesToolbarVisibility() {
 });
 
 add_task(async function testSpacesToolbarContextMenu() {
-  let tabmail = document.getElementById("tabmail");
-  let firstMailTabInfo = tabmail.currentTabInfo;
+  const tabmail = document.getElementById("tabmail");
+  const firstMailTabInfo = tabmail.currentTabInfo;
   firstMailTabInfo.folder = folderB;
 
   // Fetch context menu elements.
-  let contextMenu = document.getElementById("spacesContextMenu");
-  let newTabItem = document.getElementById("spacesContextNewTabItem");
-  let newWindowItem = document.getElementById("spacesContextNewWindowItem");
+  const contextMenu = document.getElementById("spacesContextMenu");
+  const newTabItem = document.getElementById("spacesContextNewTabItem");
+  const newWindowItem = document.getElementById("spacesContextNewWindowItem");
 
-  let settingsMenu = document.getElementById("settingsContextMenu");
-  let settingsItem = document.getElementById("settingsContextOpenSettingsItem");
-  let accountItem = document.getElementById(
+  const settingsMenu = document.getElementById("settingsContextMenu");
+  const settingsItem = document.getElementById(
+    "settingsContextOpenSettingsItem"
+  );
+  const accountItem = document.getElementById(
     "settingsContextOpenAccountSettingsItem"
   );
-  let addonsItem = document.getElementById("settingsContextOpenAddonsItem");
+  const addonsItem = document.getElementById("settingsContextOpenAddonsItem");
 
   /**
    * Open the context menu, test its state, select an action and wait for it to
@@ -404,8 +412,8 @@ add_task(async function testSpacesToolbarContextMenu() {
    * @param {string} msg - A message to use in tests.
    */
   async function useContextMenu(input, expect, msg) {
-    let menu = expect.settings ? settingsMenu : contextMenu;
-    let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+    const menu = expect.settings ? settingsMenu : contextMenu;
+    const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
     EventUtils.synthesizeMouseAtCenter(
       input.button,
       { type: "contextmenu" },
@@ -424,7 +432,7 @@ add_task(async function testSpacesToolbarContextMenu() {
         expect.newWindow || false,
         `Open in new window item visibility: ${msg}`
       );
-      let switchItems = menu.querySelectorAll(".switch-to-tab");
+      const switchItems = menu.querySelectorAll(".switch-to-tab");
       Assert.equal(
         switchItems.length,
         expect.numSwitch || 0,
@@ -434,12 +442,12 @@ add_task(async function testSpacesToolbarContextMenu() {
         item = switchItems[input.switchItem];
       }
     }
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.activateItem(item);
     await hiddenPromise;
   }
 
-  let tabScroll = document.getElementById("tabmail-arrowscrollbox").scrollbox;
+  const tabScroll = document.getElementById("tabmail-arrowscrollbox").scrollbox;
   /**
    * Ensure the tab is scrolled into view.
    *
@@ -447,8 +455,8 @@ add_task(async function testSpacesToolbarContextMenu() {
    */
   async function scrollToTab(tab) {
     function tabInView() {
-      let tabRect = tab.getBoundingClientRect();
-      let scrollRect = tabScroll.getBoundingClientRect();
+      const tabRect = tab.getBoundingClientRect();
+      const scrollRect = tabScroll.getBoundingClientRect();
       return (
         tabRect.left >= scrollRect.left && tabRect.right <= scrollRect.right
       );
@@ -506,7 +514,7 @@ add_task(async function testSpacesToolbarContextMenu() {
     );
   }
 
-  let toolbar = document.getElementById("spacesToolbar");
+  const toolbar = document.getElementById("spacesToolbar");
   /**
    * Verify the current tab and space match.
    *
@@ -520,7 +528,7 @@ add_task(async function testSpacesToolbarContextMenu() {
       () => tab.selected,
       `Tab should be selected: ${msg}`
     );
-    let current = toolbar.querySelectorAll("button.current");
+    const current = toolbar.querySelectorAll("button.current");
     Assert.equal(current.length, 1, `Should have one current space: ${msg}`);
     Assert.equal(
       current[0],
@@ -545,16 +553,16 @@ add_task(async function testSpacesToolbarContextMenu() {
 
   // -- Test initial tab --
 
-  let mailButton = document.getElementById("mailButton");
-  let firstTab = await waitForNewTab();
+  const mailButton = document.getElementById("mailButton");
+  const firstTab = await waitForNewTab();
   await assertTab(firstTab, mailButton, "First tab is mail tab");
   await assertMailShown();
 
   // -- Test spaces that only open one tab --
 
   let calendarTab;
-  let calendarButton = document.getElementById("calendarButton");
-  for (let { name, button, assertShown } of [
+  const calendarButton = document.getElementById("calendarButton");
+  for (const { name, button, assertShown } of [
     {
       name: "address book",
       button: document.getElementById("addressBookButton"),
@@ -583,7 +591,7 @@ add_task(async function testSpacesToolbarContextMenu() {
       { newTab: true },
       `Opening ${name} tab`
     );
-    let newTab = await waitForNewTab();
+    const newTab = await waitForNewTab();
     if (name == "calendar") {
       calendarTab = newTab;
     }
@@ -621,11 +629,11 @@ add_task(async function testSpacesToolbarContextMenu() {
     { newWindow: true, newTab: true, numSwitch: 1 },
     "Opening the second mail tab"
   );
-  let secondMailTab = await waitForNewTab();
+  const secondMailTab = await waitForNewTab();
   await assertTab(secondMailTab, mailButton, "Opened second mail tab");
   await assertMailShown();
   // Displayed folder should be the same as in the first mail tab.
-  let [, secondMailTabInfo] =
+  const [, secondMailTabInfo] =
     tabmail._getTabContextForTabbyThing(secondMailTab);
   await TestUtils.waitForCondition(
     () => secondMailTabInfo.folder?.URI == folderB.URI,
@@ -640,12 +648,13 @@ add_task(async function testSpacesToolbarContextMenu() {
     { newWindow: true, newTab: true, numSwitch: 2 },
     "Opening the third mail tab"
   );
-  let thirdMailTab = await waitForNewTab();
+  const thirdMailTab = await waitForNewTab();
   await assertTab(thirdMailTab, mailButton, "Opened third mail tab");
   await assertMailShown();
   // Displayed folder should be the same as in the mail tab that was in view
   // when the context menu was opened, rather than the folder in the first tab.
-  let [, thirdMailTabInfo] = tabmail._getTabContextForTabbyThing(thirdMailTab);
+  const [, thirdMailTabInfo] =
+    tabmail._getTabContextForTabbyThing(thirdMailTab);
   await TestUtils.waitForCondition(
     () => thirdMailTabInfo.folder?.URI == folderA.URI,
     "Should display folder A in the third mail tab"
@@ -706,14 +715,14 @@ add_task(async function testSpacesToolbarContextMenu() {
 
   // -- Test opening the mail space in a new window --
 
-  let windowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  const windowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   await useContextMenu(
     { button: mailButton, item: newWindowItem },
     { newWindow: true, newTab: true, numSwitch: 3 },
     "Opening mail tab in new window"
   );
-  let newMailWindow = await windowPromise;
-  let newTabmail = newMailWindow.document.getElementById("tabmail");
+  const newMailWindow = await windowPromise;
+  const newTabmail = newMailWindow.document.getElementById("tabmail");
   // Expect the same folder as the previously focused tab.
   await TestUtils.waitForCondition(
     () => newTabmail.currentTabInfo.folder?.URI == folderB.URI,
@@ -728,13 +737,13 @@ add_task(async function testSpacesToolbarContextMenu() {
 
   // -- Test opening different tabs that belong to the settings space --
 
-  let settingsButton = document.getElementById("settingsButton");
+  const settingsButton = document.getElementById("settingsButton");
   await useContextMenu(
     { button: settingsButton, item: accountItem },
     { settings: true },
     "Opening account settings"
   );
-  let accountTab = await waitForNewTab();
+  const accountTab = await waitForNewTab();
   // Shown as part of the settings space.
   await assertTab(accountTab, settingsButton, "Opened account settings tab");
   await assertContentShown("about:accountsettings");
@@ -754,7 +763,7 @@ add_task(async function testSpacesToolbarContextMenu() {
     { settings: true },
     "Opening add-ons"
   );
-  let addonsTab = await waitForNewTab();
+  const addonsTab = await waitForNewTab();
   // Shown as part of the settings space.
   await assertTab(addonsTab, settingsButton, "Opened add-ons tab");
   await assertContentShown("about:addons");
@@ -824,7 +833,7 @@ add_task(async function testSpacesToolbarContextMenu() {
 
 add_task(async function testSpacesToolbarMenubar() {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
-  let spacesToolbar = document.getElementById("spacesToolbar");
+  const spacesToolbar = document.getElementById("spacesToolbar");
 
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("collapseButton"),
@@ -838,7 +847,7 @@ add_task(async function testSpacesToolbarMenubar() {
   );
 
   // Test the menubar button.
-  let viewShownPromise = BrowserTestUtils.waitForEvent(
+  const viewShownPromise = BrowserTestUtils.waitForEvent(
     document.getElementById("menu_View_Popup"),
     "popupshown"
   );
@@ -849,7 +858,7 @@ add_task(async function testSpacesToolbarMenubar() {
   );
   await viewShownPromise;
 
-  let toolbarsShownPromise = BrowserTestUtils.waitForEvent(
+  const toolbarsShownPromise = BrowserTestUtils.waitForEvent(
     document.getElementById("view_toolbars_popup"),
     "popupshown"
   );
@@ -860,13 +869,13 @@ add_task(async function testSpacesToolbarMenubar() {
   );
   await toolbarsShownPromise;
 
-  let menuButton = document.getElementById("viewToolbarsPopupSpacesToolbar");
+  const menuButton = document.getElementById("viewToolbarsPopupSpacesToolbar");
   Assert.ok(
     menuButton.getAttribute("checked") != "true",
     "The menu item is not checked"
   );
 
-  let viewHiddenPromise = BrowserTestUtils.waitForEvent(
+  const viewHiddenPromise = BrowserTestUtils.waitForEvent(
     document.getElementById("menu_View_Popup"),
     "popuphidden"
   );
@@ -880,7 +889,7 @@ add_task(async function testSpacesToolbarMenubar() {
 }).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
 
 add_task(async function testSpacesToolbarOSX() {
-  let size = document
+  const size = document
     .getElementById("spacesToolbar")
     .getBoundingClientRect().width;
 
@@ -890,7 +899,7 @@ add_task(async function testSpacesToolbarOSX() {
     "The custom styling was cleared from all toolbars"
   );
 
-  let styleAppliedPromise = BrowserTestUtils.waitForCondition(
+  const styleAppliedPromise = BrowserTestUtils.waitForCondition(
     () =>
       document.getElementById("tabmail-tabs").getAttribute("style") ==
       `margin-inline-start: ${size}px;`,
@@ -902,7 +911,7 @@ add_task(async function testSpacesToolbarOSX() {
   await new Promise(resolve => requestAnimationFrame(resolve));
   await styleAppliedPromise;
 
-  let styleRemovedPromise = BrowserTestUtils.waitForCondition(
+  const styleRemovedPromise = BrowserTestUtils.waitForCondition(
     () => !document.getElementById("tabmail-tabs").hasAttribute("style"),
     "The custom styling was cleared from all toolbars"
   );
@@ -936,18 +945,18 @@ add_task(async function testSpacesToolbarExtension() {
         ],
       ]),
     });
-    let button = document.getElementById(`testButton${i}`);
+    const button = document.getElementById(`testButton${i}`);
     Assert.ok(button);
     Assert.equal(button.title, `Title ${i}`);
 
-    let img = button.querySelector("img");
+    const img = button.querySelector("img");
     Assert.equal(
       img.style.getPropertyValue("--webextension-toolbar-image"),
       `url("chrome://messenger/content/extension.svg")`,
       `Button image should have the correct icon.`
     );
 
-    let menuitem = document.getElementById(`testButton${i}-menuitem`);
+    const menuitem = document.getElementById(`testButton${i}-menuitem`);
     Assert.ok(menuitem);
     Assert.equal(menuitem.label, `Title ${i}`);
     Assert.equal(
@@ -956,7 +965,7 @@ add_task(async function testSpacesToolbarExtension() {
       `Menuitem should have the correct icon.`
     );
 
-    let space = window.gSpacesToolbar.spaces.find(
+    const space = window.gSpacesToolbar.spaces.find(
       space => space.name == `testButton${i}`
     );
     Assert.ok(space);
@@ -978,18 +987,18 @@ add_task(async function testSpacesToolbarExtension() {
         ],
       ]),
     });
-    let button = document.getElementById(`testButton${i}`);
+    const button = document.getElementById(`testButton${i}`);
     Assert.ok(button);
     Assert.equal(button.title, `Modified Title ${i}`);
 
-    let img = button.querySelector("img");
+    const img = button.querySelector("img");
     Assert.equal(
       img.style.getPropertyValue("--webextension-toolbar-image"),
       `url("chrome://messenger/skin/icons/new-addressbook.svg")`,
       `Button image should have the correct icon.`
     );
 
-    let menuitem = document.getElementById(`testButton${i}-menuitem`);
+    const menuitem = document.getElementById(`testButton${i}-menuitem`);
     Assert.ok(menuitem);
     Assert.equal(
       menuitem.label,
@@ -1002,7 +1011,7 @@ add_task(async function testSpacesToolbarExtension() {
       `Menuitem should have the correct icon.`
     );
 
-    let space = window.gSpacesToolbar.spaces.find(
+    const space = window.gSpacesToolbar.spaces.find(
       space => space.name == `testButton${i}`
     );
     Assert.ok(space);
@@ -1013,11 +1022,11 @@ add_task(async function testSpacesToolbarExtension() {
     );
   }
 
-  let overflowButton = document.getElementById(
+  const overflowButton = document.getElementById(
     "spacesToolbarAddonsOverflowButton"
   );
 
-  let originalHeight = window.outerHeight;
+  const originalHeight = window.outerHeight;
   // Set a ridiculous tiny height to be sure all add-on buttons are hidden.
   window.resizeTo(window.outerWidth, 300);
   await new Promise(resolve => requestAnimationFrame(resolve));
@@ -1026,14 +1035,17 @@ add_task(async function testSpacesToolbarExtension() {
     "The overflow button is visible"
   );
 
-  let overflowPopup = document.getElementById("spacesToolbarAddonsPopup");
-  let popupshown = BrowserTestUtils.waitForEvent(overflowPopup, "popupshown");
+  const overflowPopup = document.getElementById("spacesToolbarAddonsPopup");
+  const popupshown = BrowserTestUtils.waitForEvent(overflowPopup, "popupshown");
   overflowButton.click();
   await popupshown;
 
   Assert.ok(overflowPopup.hasChildNodes());
 
-  let popuphidden = BrowserTestUtils.waitForEvent(overflowPopup, "popuphidden");
+  const popuphidden = BrowserTestUtils.waitForEvent(
+    overflowPopup,
+    "popuphidden"
+  );
   // Restore the original height.
   window.resizeTo(window.outerWidth, originalHeight);
   await new Promise(resolve => requestAnimationFrame(resolve));
@@ -1048,23 +1060,25 @@ add_task(async function testSpacesToolbarExtension() {
   // generate elements are properly cleared.
   for (let i = 0; i < 6; i++) {
     await window.gSpacesToolbar.removeToolbarButton(`testButton${i}`);
-    let space = window.gSpacesToolbar.spaces.find(
+    const space = window.gSpacesToolbar.spaces.find(
       space => space.name == `testButton${i}`
     );
     Assert.ok(!space);
 
-    let button = document.getElementById(`testButton${i}`);
+    const button = document.getElementById(`testButton${i}`);
     Assert.ok(!button);
 
-    let menuitem = document.getElementById(`testButton${i}-menuitem`);
+    const menuitem = document.getElementById(`testButton${i}-menuitem`);
     Assert.ok(!menuitem);
   }
 });
 
 add_task(function testPinnedSpacesBadge() {
   window.gSpacesToolbar.toggleToolbar(true);
-  let spacesPinnedButton = document.getElementById("spacesPinnedButton");
-  let spacesPopupButtonChat = document.getElementById("spacesPopupButtonChat");
+  const spacesPinnedButton = document.getElementById("spacesPinnedButton");
+  const spacesPopupButtonChat = document.getElementById(
+    "spacesPopupButtonChat"
+  );
 
   window.gSpacesToolbar.updatePinnedBadgeState();
 
@@ -1097,14 +1111,14 @@ add_task(async function testSpacesToolbarFocusRing() {
   document.getElementById("mailButton").focus();
 
   // Collect an array of all currently visible buttons.
-  let buttons = [
+  const buttons = [
     ...document.querySelectorAll(".spaces-toolbar-button:not([hidden])"),
   ];
 
   // Simulate the Arrow Down keypress to make sure the correct button gets the
   // focus.
   for (let i = 1; i < buttons.length; i++) {
-    let previousElement = document.activeElement;
+    const previousElement = document.activeElement;
     EventUtils.synthesizeKey("KEY_ArrowDown", {}, window);
     Assert.equal(
       document.activeElement.id,
@@ -1120,7 +1134,7 @@ add_task(async function testSpacesToolbarFocusRing() {
   // Do the same with the Arrow Up key press but reversing the array.
   buttons.reverse();
   for (let i = 1; i < buttons.length; i++) {
-    let previousElement = document.activeElement;
+    const previousElement = document.activeElement;
     EventUtils.synthesizeKey("KEY_ArrowUp", {}, window);
     Assert.equal(
       document.activeElement.id,

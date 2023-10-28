@@ -51,7 +51,7 @@ function checkNewText(target) {
   if (target.tagName == "DIV") {
     setColors(target);
   } else if (target.tagName == "P" && target.className == "event") {
-    let parent = target.parentNode;
+    const parent = target.parentNode;
     // We need to start a group with this element if there are at least 3
     // system messages and they aren't already grouped.
     if (!parent?.grouped && parent?.querySelector("p.event:nth-of-type(3)")) {
@@ -68,8 +68,8 @@ function checkNewText(target) {
 }
 
 new MutationObserver(function (aMutations) {
-  for (let mutation of aMutations) {
-    for (let node of mutation.addedNodes) {
+  for (const mutation of aMutations) {
+    for (const node of mutation.addedNodes) {
       if (node instanceof HTMLElement) {
         checkNewText(node);
       }

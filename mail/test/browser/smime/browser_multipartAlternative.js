@@ -43,11 +43,11 @@ add_task(async function test_multipart_alternative() {
     new FileUtils.File(getTestFilePath("data/Bob.p12"), "nss")
   );
 
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/multipart-alternative.eml"))
   );
 
-  let cwc = await open_compose_with_reply(msgc);
+  const cwc = await open_compose_with_reply(msgc);
 
   await BrowserTestUtils.closeWindow(msgc);
 
@@ -61,8 +61,8 @@ add_task(async function test_multipart_alternative() {
 
   // Now check the message content in the drafts folder.
   await be_in_folder(gDrafts);
-  let message = await select_click_row(0);
-  let messageContent = await get_msg_source(message);
+  const message = await select_click_row(0);
+  const messageContent = await get_msg_source(message);
 
   // Check for a single line that contains text and make sure there is a
   // space at the end for a flowed reply.
@@ -83,7 +83,7 @@ registerCleanupFunction(function () {
   Services.focus.focusedWindow = window;
   // Focus an element in the main window, then blur it again to avoid it
   // hijacking keypresses.
-  let mainWindowElement = document.getElementById("button-appmenu");
+  const mainWindowElement = document.getElementById("button-appmenu");
   mainWindowElement.focus();
   mainWindowElement.blur();
 });

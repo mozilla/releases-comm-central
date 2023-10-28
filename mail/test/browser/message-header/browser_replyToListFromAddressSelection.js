@@ -66,23 +66,23 @@ function addMessageToFolder(aFolder) {
 }
 
 function addIdentitiesAndFolder() {
-  let identity2 = MailServices.accounts.createIdentity();
+  const identity2 = MailServices.accounts.createIdentity();
   // identity.fullName = "Tinderbox_Identity1";
   identity2.email = "tinderbox_identity1@foo.invalid";
 
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   // identity.fullName = "Tinderbox_Identity1";
   identity.email = identityString1;
 
-  let server = MailServices.accounts.createIncomingServer(
+  const server = MailServices.accounts.createIncomingServer(
     "nobody",
     "Test Local Folders",
     "pop3"
   );
-  let localRoot = server.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const localRoot = server.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   testFolder = localRoot.createLocalSubfolder("Test Folder");
 
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = server;
   account.addIdentity(identity);
   account.addIdentity(identity2);
@@ -91,7 +91,7 @@ function addIdentitiesAndFolder() {
 add_task(async function test_Reply_To_List_From_Address() {
   await be_in_folder(testFolder);
 
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
   await assert_selected_and_displayed(window, curMessage);
 
   replyToListWindow = await open_compose_with_reply_to_list();

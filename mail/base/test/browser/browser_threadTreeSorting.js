@@ -6,18 +6,18 @@ const { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 
-let tabmail = document.getElementById("tabmail");
-let about3Pane = tabmail.currentAbout3Pane;
-let { sortController, threadTree } = about3Pane;
+const tabmail = document.getElementById("tabmail");
+const about3Pane = tabmail.currentAbout3Pane;
+const { sortController, threadTree } = about3Pane;
 let rootFolder, testFolder, sourceMessageIDs;
-let menuHelper = new MenuTestHelper("menu_View");
+const menuHelper = new MenuTestHelper("menu_View");
 
 add_setup(async function () {
   Services.prefs.setBoolPref("mailnews.scroll_to_new_message", false);
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
@@ -213,7 +213,7 @@ async function clickHeader(header, type, order) {
   const button = header.querySelector("button");
 
   let scrollEvents = 0;
-  let listener = () => scrollEvents++;
+  const listener = () => scrollEvents++;
 
   threadTree.addEventListener("scroll", listener);
   EventUtils.synthesizeMouseAtCenter(button, {}, about3Pane);
@@ -326,13 +326,13 @@ function verifySelection(
 }
 
 function getCardActualSubject(index) {
-  let row = threadTree.getRowAtIndex(index);
+  const row = threadTree.getRowAtIndex(index);
   return row.querySelector(".thread-card-subject-container > .subject")
     .textContent;
 }
 
 function getActualSubject(index) {
-  let row = threadTree.getRowAtIndex(index);
+  const row = threadTree.getRowAtIndex(index);
   return row.querySelector(".subject-line > span").textContent;
 }
 

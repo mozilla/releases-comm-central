@@ -15,7 +15,7 @@ function openAndLoadSubDialog(
   aParams = null,
   aClosingCallback = null
 ) {
-  let promise = promiseLoadSubDialog(aURL);
+  const promise = promiseLoadSubDialog(aURL);
   content.gSubDialog.open(
     aURL,
     { features: aFeatures, closingCallback: aClosingCallback },
@@ -53,11 +53,11 @@ function promiseLoadSubDialog(aURL) {
         is_element_visible(aEvent.detail.dialog._overlay, "Overlay is visible");
 
         // Check that stylesheets were injected
-        let expectedStyleSheetURLs =
+        const expectedStyleSheetURLs =
           aEvent.detail.dialog._injectedStyleSheets.slice(0);
-        for (let styleSheet of aEvent.detail.dialog._frame.contentDocument
+        for (const styleSheet of aEvent.detail.dialog._frame.contentDocument
           .styleSheets) {
-          let i = expectedStyleSheetURLs.indexOf(styleSheet.href);
+          const i = expectedStyleSheetURLs.indexOf(styleSheet.href);
           if (i >= 0) {
             info("found " + styleSheet.href);
             expectedStyleSheetURLs.splice(i, 1);

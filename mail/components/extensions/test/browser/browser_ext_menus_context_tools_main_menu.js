@@ -36,12 +36,12 @@ async function subtest_tools_menu(
   expectedTab,
   manifest
 ) {
-  let extension = await getMenuExtension(manifest);
+  const extension = await getMenuExtension(manifest);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
-  let element = testWindow.document.getElementById("tasksMenu");
-  let menu = testWindow.document.getElementById("taskPopup");
+  const element = testWindow.document.getElementById("tasksMenu");
+  const menu = testWindow.document.getElementById("taskPopup");
   await leftClick(menu, element);
   await checkShownEvent(
     extension,
@@ -49,8 +49,12 @@ async function subtest_tools_menu(
     expectedTab
   );
 
-  let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-  let clickedPromise = checkClickedEvent(extension, expectedInfo, expectedTab);
+  const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  const clickedPromise = checkClickedEvent(
+    extension,
+    expectedInfo,
+    expectedTab
+  );
   menu.activateItem(
     menu.querySelector("#menus_mochi_test-menuitem-_tools_menu")
   );
@@ -59,8 +63,8 @@ async function subtest_tools_menu(
   await extension.unload();
 }
 add_task(async function test_tools_menu_mv2() {
-  let toolbar = window.document.getElementById("toolbar-menubar");
-  let initialState = toolbar.getAttribute("inactive");
+  const toolbar = window.document.getElementById("toolbar-menubar");
+  const initialState = toolbar.getAttribute("inactive");
   toolbar.setAttribute("inactive", "false");
 
   await subtest_tools_menu(
@@ -77,7 +81,7 @@ add_task(async function test_tools_menu_mv2() {
   toolbar.setAttribute("inactive", initialState);
 }).__skipMe = AppConstants.platform == "macosx";
 add_task(async function test_compose_tools_menu_mv2() {
-  let testWindow = await openComposeWindow(gAccount);
+  const testWindow = await openComposeWindow(gAccount);
   await focusWindow(testWindow);
   await subtest_tools_menu(
     testWindow,
@@ -92,7 +96,7 @@ add_task(async function test_compose_tools_menu_mv2() {
   await BrowserTestUtils.closeWindow(testWindow);
 }).__skipMe = AppConstants.platform == "macosx";
 add_task(async function test_messagewindow_tools_menu_mv2() {
-  let testWindow = await openMessageInWindow(gMessage);
+  const testWindow = await openMessageInWindow(gMessage);
   await focusWindow(testWindow);
   await subtest_tools_menu(
     testWindow,
@@ -107,8 +111,8 @@ add_task(async function test_messagewindow_tools_menu_mv2() {
   await BrowserTestUtils.closeWindow(testWindow);
 }).__skipMe = AppConstants.platform == "macosx";
 add_task(async function test_tools_menu_mv3() {
-  let toolbar = window.document.getElementById("toolbar-menubar");
-  let initialState = toolbar.getAttribute("inactive");
+  const toolbar = window.document.getElementById("toolbar-menubar");
+  const initialState = toolbar.getAttribute("inactive");
   toolbar.setAttribute("inactive", "false");
 
   await subtest_tools_menu(
@@ -125,7 +129,7 @@ add_task(async function test_tools_menu_mv3() {
   toolbar.setAttribute("inactive", initialState);
 }).__skipMe = AppConstants.platform == "macosx";
 add_task(async function test_compose_tools_menu_mv3() {
-  let testWindow = await openComposeWindow(gAccount);
+  const testWindow = await openComposeWindow(gAccount);
   await focusWindow(testWindow);
   await subtest_tools_menu(
     testWindow,
@@ -140,7 +144,7 @@ add_task(async function test_compose_tools_menu_mv3() {
   await BrowserTestUtils.closeWindow(testWindow);
 }).__skipMe = AppConstants.platform == "macosx";
 add_task(async function test_messagewindow_tools_menu_mv3() {
-  let testWindow = await openMessageInWindow(gMessage);
+  const testWindow = await openMessageInWindow(gMessage);
   await focusWindow(testWindow);
   await subtest_tools_menu(
     testWindow,

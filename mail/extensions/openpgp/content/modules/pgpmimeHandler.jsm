@@ -90,8 +90,8 @@ UnknownProtoHandler.prototype = {
   processData(req, stream, offset, count) {
     if (count > 0) {
       inStream.init(stream);
-      let data = inStream.read(count);
-      let l = data.replace(/\r\n/g, "\n").split(/\n/);
+      const data = inStream.read(count);
+      const l = data.replace(/\r\n/g, "\n").split(/\n/);
 
       if (data.search(/\n$/) >= 0) {
         l.pop();
@@ -113,7 +113,7 @@ UnknownProtoHandler.prototype = {
         }
 
         if (this.readMode >= 1 && startIndex < l.length) {
-          let out = l.slice(startIndex, endIndex).join("\n") + "\n";
+          const out = l.slice(startIndex, endIndex).join("\n") + "\n";
 
           if ("outputDecryptedData" in this.mimeSvc) {
             // TB >= 57
@@ -148,8 +148,8 @@ PgpMimeHandler.prototype = {
   ),
 
   onStartRequest(request, ctxt) {
-    let mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
-    let ct = mimeSvc.contentType;
+    const mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
+    const ct = mimeSvc.contentType;
 
     let uri = null;
     if ("messageURI" in mimeSvc) {
@@ -173,7 +173,7 @@ PgpMimeHandler.prototype = {
 
     if (ct.search(/^multipart\/encrypted/i) === 0) {
       if (uri) {
-        let u = uri.QueryInterface(Ci.nsIURI);
+        const u = uri.QueryInterface(Ci.nsIURI);
         gLastEncryptedUri = u.spec;
       }
       // PGP/MIME encrypted message
@@ -186,7 +186,7 @@ PgpMimeHandler.prototype = {
       } else if (ct.search(/application\/(x-)?pkcs7-signature/i) > 0) {
         let lastUriSpec = "";
         if (uri) {
-          let u = uri.QueryInterface(Ci.nsIURI);
+          const u = uri.QueryInterface(Ci.nsIURI);
           lastUriSpec = u.spec;
         }
         // S/MIME signed message
@@ -243,9 +243,9 @@ PgpMimeHandler.prototype = {
   },
 
   getMessengerWindow() {
-    let windowManager = Services.wm;
+    const windowManager = Services.wm;
 
-    for (let win of windowManager.getEnumerator(null)) {
+    for (const win of windowManager.getEnumerator(null)) {
       if (win.location.href.search(/\/messenger.xhtml$/) > 0) {
         return win;
       }

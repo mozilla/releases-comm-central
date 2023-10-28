@@ -3,9 +3,9 @@
 "use strict";
 
 add_task(async function test_multiple_messages_selected() {
-  let account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
-  let subFolders = rootFolder.subFolders;
+  const account = createAccount();
+  const rootFolder = account.incomingServer.rootFolder;
+  const subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 2);
   await TestUtils.waitForCondition(
     () => subFolders[0].messages.hasMoreElements(),
@@ -20,11 +20,11 @@ add_task(async function test_multiple_messages_selected() {
       });
     });
 
-    let { messages } = await browser.messages.query({
+    const { messages } = await browser.messages.query({
       autoPaginationTimeout: 0,
     });
     await browser.mailTabs.setSelectedMessages(messages.map(m => m.id));
-    let { messages: selectedMessages } =
+    const { messages: selectedMessages } =
       await browser.mailTabs.getSelectedMessages();
     browser.test.assertEq(
       selectedMessages.length,
@@ -35,7 +35,7 @@ add_task(async function test_multiple_messages_selected() {
     browser.test.sendMessage("ready");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       permissions: ["accountsRead", "messagesRead"],
       commands: {
@@ -60,7 +60,7 @@ add_task(async function test_multiple_messages_selected() {
     },
     window.browsingContext
   );
-  let message = await extension.awaitMessage("oncommand event received");
+  const message = await extension.awaitMessage("oncommand event received");
   is(
     message.commandName,
     "test-multi-message",

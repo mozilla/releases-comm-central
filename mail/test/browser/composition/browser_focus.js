@@ -27,18 +27,18 @@ requestLongerTimeout(3);
  * @param {string} otherHeader - The name of the custom header to show.
  */
 async function checkFocusCycling(win, options) {
-  let doc = win.document;
+  const doc = win.document;
   let contactDoc;
   let contactsInput;
-  let identityElement = doc.getElementById("msgIdentity");
-  let bccButton = doc.getElementById("addr_bccShowAddressRowButton");
-  let toInput = doc.getElementById("toAddrInput");
-  let bccInput = doc.getElementById("bccAddrInput");
-  let subjectInput = doc.getElementById("msgSubject");
-  let editorElement = doc.getElementById("messageEditor");
-  let attachmentElement = doc.getElementById("attachmentBucket");
-  let extraMenuButton = doc.getElementById("extraAddressRowsMenuButton");
-  let languageButton = doc.getElementById("languageStatusButton");
+  const identityElement = doc.getElementById("msgIdentity");
+  const bccButton = doc.getElementById("addr_bccShowAddressRowButton");
+  const toInput = doc.getElementById("toAddrInput");
+  const bccInput = doc.getElementById("bccAddrInput");
+  const subjectInput = doc.getElementById("msgSubject");
+  const editorElement = doc.getElementById("messageEditor");
+  const attachmentElement = doc.getElementById("attachmentBucket");
+  const extraMenuButton = doc.getElementById("extraAddressRowsMenuButton");
+  const languageButton = doc.getElementById("languageStatusButton");
   let firstNotification;
   let secondNotification;
 
@@ -47,10 +47,10 @@ async function checkFocusCycling(win, options) {
     await BrowserTestUtils.waitForEvent(win, "activate");
   }
 
-  let key = options.useTab ? "VK_TAB" : "VK_F6";
-  let goForward = () =>
+  const key = options.useTab ? "VK_TAB" : "VK_F6";
+  const goForward = () =>
     EventUtils.synthesizeKey(key, { ctrlKey: options.useTab }, win);
-  let goBackward = () =>
+  const goBackward = () =>
     EventUtils.synthesizeKey(
       key,
       { ctrlKey: options.useTab, shiftKey: true },
@@ -80,18 +80,18 @@ async function checkFocusCycling(win, options) {
   EventUtils.synthesizeMouseAtCenter(bccButton, {}, win);
 
   // Show the custom row.
-  let otherRow = doc.querySelector(
+  const otherRow = doc.querySelector(
     `.address-row[data-recipienttype="${options.otherHeader}"]`
   );
   // Show the input.
-  let menu = doc.getElementById("extraAddressRowsMenu");
+  const menu = doc.getElementById("extraAddressRowsMenu");
   let promise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(extraMenuButton, {}, win);
   await promise;
   promise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   menu.activateItem(doc.getElementById(otherRow.dataset.showSelfMenuitem));
   await promise;
-  let otherHeaderInput = otherRow.querySelector(".address-row-input");
+  const otherHeaderInput = otherRow.querySelector(".address-row-input");
 
   // Move the initial focus back to the To input.
   toInput.focus();
@@ -103,7 +103,7 @@ async function checkFocusCycling(win, options) {
       0,
       "Should be no initial notifications"
     );
-    let notificationPromise = TestUtils.waitForCondition(
+    const notificationPromise = TestUtils.waitForCondition(
       () => win.gComposeNotification.allNotifications[0],
       "First notification shown"
     );
@@ -124,8 +124,8 @@ async function checkFocusCycling(win, options) {
 
   if (options.notifications && !options.attachment) {
     // Include an attachment key word in the subject.
-    let notificationPromise = TestUtils.waitForCondition(() => {
-      let notifications = win.gComposeNotification.allNotifications;
+    const notificationPromise = TestUtils.waitForCondition(() => {
+      const notifications = win.gComposeNotification.allNotifications;
       if (notifications.length != 2) {
         return null;
       }
@@ -235,7 +235,9 @@ async function checkFocusCycling(win, options) {
   // neighbouring area.
 
   // Focus the close button.
-  let bccCloseButton = doc.querySelector("#addressRowBcc .remove-field-button");
+  const bccCloseButton = doc.querySelector(
+    "#addressRowBcc .remove-field-button"
+  );
   bccCloseButton.focus();
   goForward();
   Assert.ok(
@@ -251,7 +253,7 @@ async function checkFocusCycling(win, options) {
   Assert.ok(toInput.matches(":focus"), "from close bcc button to 'to' row");
 
   if (options.contacts) {
-    let addressBookList = contactDoc.getElementById("addressbookList");
+    const addressBookList = contactDoc.getElementById("addressbookList");
     addressBookList.focus();
     goForward();
     Assert.ok(
@@ -291,7 +293,7 @@ async function checkFocusCycling(win, options) {
 
   // Cc button and extra address rows menu button are in the same area as the
   // message identity.
-  let ccButton = doc.getElementById("addr_ccShowAddressRowButton");
+  const ccButton = doc.getElementById("addr_ccShowAddressRowButton");
   ccButton.focus();
   goBackward();
   if (options.contacts) {
@@ -332,10 +334,10 @@ async function checkFocusCycling(win, options) {
   Assert.ok(identityElement.matches(":focus"), "back to 'from' row again");
 
   if (options.attachment) {
-    let attachmentArea = doc.getElementById("attachmentArea");
-    let attachmentSummary = attachmentArea.querySelector("summary");
+    const attachmentArea = doc.getElementById("attachmentArea");
+    const attachmentSummary = attachmentArea.querySelector("summary");
     Assert.ok(attachmentArea.open, "Attachment area should be open");
-    for (let open of [true, false]) {
+    for (const open of [true, false]) {
       if (open) {
         Assert.ok(attachmentArea.open, "Attachment area should be open");
       } else {
@@ -412,7 +414,7 @@ async function checkFocusCycling(win, options) {
 
   if (options.notifications) {
     // Focus inside the notification.
-    let closeButton = (secondNotification || firstNotification).closeButton;
+    const closeButton = (secondNotification || firstNotification).closeButton;
     closeButton.focus();
 
     goBackward();
@@ -476,8 +478,8 @@ add_task(async function test_jump_focus() {
   // focus on non-input field elements. This is necessary only for macOS as
   // the default value is 2 instead of the default 7 used on Windows and Linux.
   Services.prefs.setIntPref("accessibility.tabfocus", 7);
-  let prevHeader = Services.prefs.getCharPref("mail.compose.other.header");
-  let prevThreshold = Services.prefs.getIntPref(
+  const prevHeader = Services.prefs.getCharPref("mail.compose.other.header");
+  const prevThreshold = Services.prefs.getIntPref(
     "mail.compose.warn_public_recipients.threshold"
   );
   // Set two custom headers, but only one is shown.
@@ -486,12 +488,12 @@ add_task(async function test_jump_focus() {
     "X-Header2,X-Header1"
   );
   Services.prefs.setIntPref("mail.compose.warn_public_recipients.threshold", 2);
-  for (let useTab of [false, true]) {
-    for (let attachment of [false, true]) {
-      for (let notifications of [false, true]) {
-        for (let languageButton of [false, true]) {
-          for (let contacts of [false, true]) {
-            let options = {
+  for (const useTab of [false, true]) {
+    for (const attachment of [false, true]) {
+      for (const notifications of [false, true]) {
+        for (const languageButton of [false, true]) {
+          for (const contacts of [false, true]) {
+            const options = {
               useTab,
               attachment,
               notifications,
@@ -500,7 +502,7 @@ add_task(async function test_jump_focus() {
               otherHeader: "X-Header1",
             };
             info(`Test run: ${JSON.stringify(options)}`);
-            let win = await open_compose_new_mail();
+            const win = await open_compose_new_mail();
             await checkFocusCycling(win, options);
             await close_compose_window(win);
           }

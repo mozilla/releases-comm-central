@@ -52,7 +52,7 @@ function appUpdater(options = {}) {
   );
 
   try {
-    let manualURL = new URL(
+    const manualURL = new URL(
       Services.urlFormatter.formatURLPref("app.update.url.manual")
     );
 
@@ -103,7 +103,7 @@ appUpdater.prototype = {
         this.selectPanel("otherInstanceHandlingUpdates");
         break;
       case AppUpdater.STATUS.DOWNLOADING: {
-        let downloadStatus = document.getElementById("downloadStatus");
+        const downloadStatus = document.getElementById("downloadStatus");
         if (!args.length) {
           // Very early in the DOWNLOADING state, `selectedPatch` may not be
           // available yet. But this function will be called again when it is
@@ -119,7 +119,7 @@ appUpdater.prototype = {
           );
           this.selectPanel("downloading");
         } else {
-          let [progress, max] = args;
+          const [progress, max] = args;
           downloadStatus.textContent = DownloadUtils.getTransferTotal(
             progress,
             max
@@ -158,7 +158,7 @@ appUpdater.prototype = {
         break;
       case AppUpdater.STATUS.UNSUPPORTED_SYSTEM:
         if (this.update.detailsURL) {
-          let unsupportedLink = document.getElementById("unsupportedLink");
+          const unsupportedLink = document.getElementById("unsupportedLink");
           unsupportedLink.href = this.update.detailsURL;
         }
         this.selectPanel("unsupportedSystem");
@@ -194,8 +194,8 @@ appUpdater.prototype = {
    *         The id of the deck's child to select, e.g. "apply".
    */
   selectPanel(aChildID) {
-    let panel = document.getElementById(aChildID);
-    let icons = document.getElementById("icons");
+    const panel = document.getElementById(aChildID);
+    const icons = document.getElementById("icons");
     if (icons) {
       icons.className = aChildID;
     }
@@ -203,19 +203,19 @@ appUpdater.prototype = {
     // Make sure to select the panel before potentially auto-focusing the button.
     this.updateDeck.selectedPanel = panel;
 
-    let button = panel.querySelector("button");
+    const button = panel.querySelector("button");
     if (button) {
       if (aChildID == "downloadAndInstall") {
         let updateVersion = gAppUpdater.update.displayVersion;
         // Include the build ID if this is an "a#" (nightly or aurora) build
         if (/a\d+$/.test(updateVersion)) {
-          let buildID = gAppUpdater.update.buildID;
-          let year = buildID.slice(0, 4);
-          let month = buildID.slice(4, 6);
-          let day = buildID.slice(6, 8);
+          const buildID = gAppUpdater.update.buildID;
+          const year = buildID.slice(0, 4);
+          const month = buildID.slice(4, 6);
+          const day = buildID.slice(6, 8);
           updateVersion += ` (${year}-${month}-${day})`;
         } else {
-          let updateNotesLink = document.getElementById("updateNotes");
+          const updateNotesLink = document.getElementById("updateNotes");
           if (updateNotesLink) {
             updateNotesLink.href = gAppUpdater.update.detailsURL;
             updateNotesLink.hidden = false;
@@ -268,7 +268,7 @@ appUpdater.prototype = {
     gAppUpdater.selectPanel("restarting");
 
     // Notify all windows that an application quit has been requested.
-    let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
       Ci.nsISupportsPRBool
     );
     Services.obs.notifyObservers(
@@ -308,10 +308,10 @@ appUpdater.prototype = {
 };
 
 window.addEventListener("load", () => {
-  let protocolSvc = Cc[
+  const protocolSvc = Cc[
     "@mozilla.org/uriloader/external-protocol-service;1"
   ].getService(Ci.nsIExternalProtocolService);
-  for (let link of document.querySelectorAll(".download-link")) {
+  for (const link of document.querySelectorAll(".download-link")) {
     link.addEventListener("click", event => {
       event.preventDefault();
       protocolSvc.loadURI(Services.io.newURI(event.target.href));

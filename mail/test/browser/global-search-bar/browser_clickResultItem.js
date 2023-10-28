@@ -24,7 +24,7 @@ let folder;
  * 1) The one on the mail tab.
  * 2) The one in the search result tab.
  */
-let tests = [
+const tests = [
   {
     selector: "#unifiedToolbarContent .search-bar global-search-bar",
     isNewSearchBar: true,
@@ -36,7 +36,9 @@ let tests = [
     tabCountBefore: 2,
     async before() {
       // Run a search so we can search from the results tab.
-      let input = document.querySelector("#unifiedToolbarContent .search-bar");
+      const input = document.querySelector(
+        "#unifiedToolbarContent .search-bar"
+      );
       EventUtils.synthesizeMouseAtCenter(input, {});
       EventUtils.sendString("us", window);
       EventUtils.synthesizeKey("KEY_Enter", {});
@@ -74,8 +76,8 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });
   });
 
-  let tabmail = window.document.getElementById("tabmail");
-  for (let test of tests) {
+  const tabmail = window.document.getElementById("tabmail");
+  for (const test of tests) {
     while (tabmail.tabInfo.length > 1) {
       tabmail.closeTab(1);
     }
@@ -90,7 +92,7 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
       "tab count is as expected before"
     );
 
-    let input = document.querySelector(test.selector);
+    const input = document.querySelector(test.selector);
     if (test.isNewSearchBar) {
       input.reset();
     } else {
@@ -107,7 +109,7 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
       `"${test.selector}" did not find any matches`
     );
 
-    let target = document.querySelector(
+    const target = document.querySelector(
       "#PopupGlodaAutocomplete > richlistbox > richlistitem"
     );
     Assert.ok(target, "target item to click found");
@@ -131,7 +133,7 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
 });
 
 registerCleanupFunction(async function () {
-  let tabmail = window.document.getElementById("tabmail");
+  const tabmail = window.document.getElementById("tabmail");
   tabmail.selectTabByMode("mail3PaneTab");
   await be_in_folder(inboxFolder);
   folder.deleteSelf(null);

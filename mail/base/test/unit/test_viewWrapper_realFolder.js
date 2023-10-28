@@ -25,8 +25,8 @@ var { setTimeout } = ChromeUtils.importESModule(
  * Open a pre-populated real folder, make sure all the messages show up.
  */
 add_task(async function test_real_folder_load() {
-  let viewWrapper = make_view_wrapper();
-  let [[msgFolder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
+  const viewWrapper = make_view_wrapper();
+  const [[msgFolder], msgSet] = await messageInjection.makeFoldersWithSets(1, [
     { count: 1 },
   ]);
   viewWrapper.open(msgFolder);
@@ -39,19 +39,25 @@ add_task(async function test_real_folder_load() {
  *  messages, make sure they go away.
  */
 add_task(async function test_real_folder_update() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
   // start with an empty folder
-  let msgFolder = await messageInjection.makeEmptyFolder();
+  const msgFolder = await messageInjection.makeEmptyFolder();
   viewWrapper.open(msgFolder);
   verify_empty_view(viewWrapper);
 
   // add messages (none -> some)
-  let [setOne] = await messageInjection.makeNewSetsInFolders([msgFolder], [{}]);
+  const [setOne] = await messageInjection.makeNewSetsInFolders(
+    [msgFolder],
+    [{}]
+  );
   verify_messages_in_view(setOne, viewWrapper);
 
   // add more messages! (some -> more)
-  let [setTwo] = await messageInjection.makeNewSetsInFolders([msgFolder], [{}]);
+  const [setTwo] = await messageInjection.makeNewSetsInFolders(
+    [msgFolder],
+    [{}]
+  );
   verify_messages_in_view([setOne, setTwo], viewWrapper);
 
   // remove the first set of messages (more -> some)
@@ -68,15 +74,15 @@ add_task(async function test_real_folder_update() {
  *  ability to change folders without exploding.
  */
 add_task(async function test_real_folder_load_after_real_folder_load() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [[folderOne], setOne] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folderOne], setOne] = await messageInjection.makeFoldersWithSets(1, [
     {},
   ]);
   viewWrapper.open(folderOne);
   verify_messages_in_view(setOne, viewWrapper);
 
-  let [[folderTwo], setTwo] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folderTwo], setTwo] = await messageInjection.makeFoldersWithSets(1, [
     {},
   ]);
   viewWrapper.open(folderTwo);
@@ -95,12 +101,12 @@ add_task(async function test_real_folder_load_after_real_folder_load() {
  */
 
 add_task(async function test_real_folder_threading_unthreaded() {
-  let viewWrapper = make_view_wrapper();
-  let folder = await messageInjection.makeEmptyFolder();
+  const viewWrapper = make_view_wrapper();
+  const folder = await messageInjection.makeEmptyFolder();
 
   // create a single maximally nested thread.
   const count = 10;
-  let messageSet = new SyntheticMessageSet(
+  const messageSet = new SyntheticMessageSet(
     gMessageScenarioFactory.directReply(count)
   );
   await messageInjection.addSetsToFolders([folder], [messageSet]);
@@ -125,12 +131,12 @@ add_task(async function test_real_folder_threading_unthreaded() {
 });
 
 add_task(async function test_real_folder_threading_threaded() {
-  let viewWrapper = make_view_wrapper();
-  let folder = await messageInjection.makeEmptyFolder();
+  const viewWrapper = make_view_wrapper();
+  const folder = await messageInjection.makeEmptyFolder();
 
   // create a single maximally nested thread.
   const count = 10;
-  let messageSet = new SyntheticMessageSet(
+  const messageSet = new SyntheticMessageSet(
     gMessageScenarioFactory.directReply(count)
   );
   await messageInjection.addSetsToFolders([folder], [messageSet]);
@@ -156,7 +162,7 @@ add_task(async function test_real_folder_threading_threaded() {
   // blackbox test view flags: make sure IsContainer is true for the root
   verify_view_row_at_index_is_container(viewWrapper, 0);
   // do the histogram test to verify threading...
-  let expectedHisto = {};
+  const expectedHisto = {};
   for (let i = 0; i < count; i++) {
     expectedHisto[i] = 1;
   }
@@ -164,12 +170,12 @@ add_task(async function test_real_folder_threading_threaded() {
 });
 
 add_task(async function test_real_folder_threading_grouped_by_sort() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
   // create some messages that belong to the 'in this week' bucket when sorting
   //  by date and grouping by date.
   const count = 5;
-  let [[folder]] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folder]] = await messageInjection.makeFoldersWithSets(1, [
     { count, age: { days: 2 }, age_incr: { mins: 1 } },
   ]);
 
@@ -207,12 +213,12 @@ add_task(async function test_real_folder_threading_grouped_by_sort() {
  *  flags here; we trust the previous tests to have done their job.
  */
 add_task(async function test_real_folder_threading_persistence() {
-  let viewWrapper = make_view_wrapper();
-  let folder = await messageInjection.makeEmptyFolder();
+  const viewWrapper = make_view_wrapper();
+  const folder = await messageInjection.makeEmptyFolder();
 
   // create a single maximally nested thread.
   const count = 10;
-  let messageSet = new SyntheticMessageSet(
+  const messageSet = new SyntheticMessageSet(
     gMessageScenarioFactory.directReply(count)
   );
   await messageInjection.addSetsToFolders([folder], [messageSet]);
@@ -324,9 +330,9 @@ add_task(async function test_real_folder_threading_persistence() {
  *  test_real_folder_mail_views_unread.
  */
 add_task(async function test_real_folder_flags_show_unread() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [[folder], setOne, setTwo] = await messageInjection.makeFoldersWithSets(
+  const [[folder], setOne, setTwo] = await messageInjection.makeFoldersWithSets(
     1,
     [{}, {}]
   );
@@ -339,7 +345,10 @@ add_task(async function test_real_folder_flags_show_unread() {
   verify_messages_in_view([setOne, setTwo], viewWrapper);
 
   // add some more things (unread!), make sure they appear. #2
-  let [setThree] = await messageInjection.makeNewSetsInFolders([folder], [{}]);
+  const [setThree] = await messageInjection.makeNewSetsInFolders(
+    [folder],
+    [{}]
+  );
   verify_messages_in_view([setOne, setTwo, setThree], viewWrapper);
 
   // make some things read, make sure they disappear. #3 (after refresh)
@@ -373,9 +382,9 @@ add_task(async function test_real_folder_flags_show_unread() {
  *  test_real_folder_flags_show_unread.
  */
 add_task(async function test_real_folder_mail_views_unread() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [[folder], setOne, setTwo] = await messageInjection.makeFoldersWithSets(
+  const [[folder], setOne, setTwo] = await messageInjection.makeFoldersWithSets(
     1,
     [{}, {}]
   );
@@ -387,7 +396,10 @@ add_task(async function test_real_folder_mail_views_unread() {
   verify_messages_in_view([setOne, setTwo], viewWrapper);
 
   // add some more things (unread!), make sure they appear. #2
-  let [setThree] = await messageInjection.makeNewSetsInFolders([folder], [{}]);
+  const [setThree] = await messageInjection.makeNewSetsInFolders(
+    [folder],
+    [{}]
+  );
   verify_messages_in_view([setOne, setTwo, setThree], viewWrapper);
 
   // make some things read, make sure they disappear. #3 (after refresh)
@@ -402,10 +414,10 @@ add_task(async function test_real_folder_mail_views_unread() {
 });
 
 add_task(async function test_real_folder_mail_views_tags() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
   // setup the initial set with the tag
-  let [[folder], setOne, setTwo] = await messageInjection.makeFoldersWithSets(
+  const [[folder], setOne, setTwo] = await messageInjection.makeFoldersWithSets(
     1,
     [{}, {}]
   );
@@ -446,10 +458,10 @@ add_task(async function test_real_folder_mail_views_custom_people_i_know() {
 
 // recent mail = less than 1 day
 add_task(async function test_real_folder_mail_views_custom_recent_mail() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
   // create a set that meets the threshold and a set that does not
-  let [[folder], setRecent] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folder], setRecent] = await messageInjection.makeFoldersWithSets(1, [
     { age: { mins: 0 } },
     { age: { days: 2 }, age_incr: { mins: 1 } },
   ]);
@@ -461,7 +473,7 @@ add_task(async function test_real_folder_mail_views_custom_recent_mail() {
   verify_messages_in_view(setRecent, viewWrapper);
 
   // add two more sets, one that meets, and one that doesn't. #2
-  let [setMoreRecent] = await messageInjection.makeNewSetsInFolders(
+  const [setMoreRecent] = await messageInjection.makeNewSetsInFolders(
     [folder],
     [
       { age: { mins: 0 } },
@@ -477,10 +489,10 @@ add_task(async function test_real_folder_mail_views_custom_recent_mail() {
 });
 
 add_task(async function test_real_folder_mail_views_custom_last_5_days() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
   // create a set that meets the threshold and a set that does not
-  let [[folder], setRecent] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folder], setRecent] = await messageInjection.makeFoldersWithSets(1, [
     { age: { days: 2 }, age_incr: { mins: 1 } },
     { age: { days: 6 }, age_incr: { mins: 1 } },
   ]);
@@ -492,7 +504,7 @@ add_task(async function test_real_folder_mail_views_custom_last_5_days() {
   verify_messages_in_view(setRecent, viewWrapper);
 
   // add two more sets, one that meets, and one that doesn't. #2
-  let [setMoreRecent] = await messageInjection.makeNewSetsInFolders(
+  const [setMoreRecent] = await messageInjection.makeNewSetsInFolders(
     [folder],
     [
       { age: { mins: 0 } },
@@ -508,9 +520,9 @@ add_task(async function test_real_folder_mail_views_custom_last_5_days() {
 });
 
 add_task(async function test_real_folder_mail_views_custom_not_junk() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [[folder], setJunk, setNotJunk] =
+  const [[folder], setJunk, setNotJunk] =
     await messageInjection.makeFoldersWithSets(1, [{}, {}]);
   setJunk.setJunk(true);
   setNotJunk.setJunk(false);
@@ -522,7 +534,10 @@ add_task(async function test_real_folder_mail_views_custom_not_junk() {
   verify_messages_in_view(setNotJunk, viewWrapper);
 
   // add some more messages, have them be non-junk for now. #2
-  let [setFlippy] = await messageInjection.makeNewSetsInFolders([folder], [{}]);
+  const [setFlippy] = await messageInjection.makeNewSetsInFolders(
+    [folder],
+    [{}]
+  );
   setFlippy.setJunk(false);
   viewWrapper.refresh(); // QUICKSEARCH-VIEW-LIMITATION-REMOVE
   verify_messages_in_view([setNotJunk, setFlippy], viewWrapper);
@@ -534,9 +549,9 @@ add_task(async function test_real_folder_mail_views_custom_not_junk() {
 });
 
 add_task(async function test_real_folder_mail_views_custom_has_attachments() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let attachSetDef = {
+  const attachSetDef = {
     attachments: [
       {
         filename: "foo.png",
@@ -548,18 +563,18 @@ add_task(async function test_real_folder_mail_views_custom_has_attachments() {
       },
     ],
   };
-  let noAttachSetDef = {};
+  const noAttachSetDef = {};
 
-  let [[folder], , setAttach] = await messageInjection.makeFoldersWithSets(1, [
-    noAttachSetDef,
-    attachSetDef,
-  ]);
+  const [[folder], , setAttach] = await messageInjection.makeFoldersWithSets(
+    1,
+    [noAttachSetDef, attachSetDef]
+  );
   viewWrapper.open(folder);
   await new Promise(resolve => setTimeout(resolve));
   viewWrapper.setMailView("Has Attachments", null);
   verify_messages_in_view(setAttach, viewWrapper);
 
-  let [setMoreAttach] = await messageInjection.makeNewSetsInFolders(
+  const [setMoreAttach] = await messageInjection.makeNewSetsInFolders(
     [folder],
     [attachSetDef, noAttachSetDef]
   );
@@ -569,15 +584,15 @@ add_task(async function test_real_folder_mail_views_custom_has_attachments() {
 /* ===== Real Folder, Special Views ===== */
 
 add_task(async function test_real_folder_special_views_threads_with_unread() {
-  let viewWrapper = make_view_wrapper();
-  let folder = await messageInjection.makeEmptyFolder();
+  const viewWrapper = make_view_wrapper();
+  const folder = await messageInjection.makeEmptyFolder();
 
   // create two maximally nested threads and add them to the folder.
   const count = 10;
-  let setThreadOne = new SyntheticMessageSet(
+  const setThreadOne = new SyntheticMessageSet(
     gMessageScenarioFactory.directReply(count)
   );
-  let setThreadTwo = new SyntheticMessageSet(
+  const setThreadTwo = new SyntheticMessageSet(
     gMessageScenarioFactory.directReply(count)
   );
   await messageInjection.addSetsToFolders(
@@ -620,8 +635,8 @@ add_task(async function test_real_folder_special_views_threads_with_unread() {
  *  opening the view.
  */
 add_task(async function test_real_folder_special_views_persist() {
-  let viewWrapper = make_view_wrapper();
-  let folder = await messageInjection.makeEmptyFolder();
+  const viewWrapper = make_view_wrapper();
+  const folder = await messageInjection.makeEmptyFolder();
 
   viewWrapper.open(folder);
   viewWrapper.beginViewUpdate();
@@ -641,12 +656,12 @@ add_task(async function test_real_folder_mark_read_on_exit() {
   // mark messages read when leaving the folder.
   Services.prefs.setBoolPref("mailnews.mark_message_read.none", true);
 
-  let viewWrapper = make_view_wrapper();
-  let folder = await messageInjection.makeEmptyFolder();
+  const viewWrapper = make_view_wrapper();
+  const folder = await messageInjection.makeEmptyFolder();
   viewWrapper.open(folder);
 
   // add some unread messages.
-  let [setOne] = await messageInjection.makeNewSetsInFolders([folder], [{}]);
+  const [setOne] = await messageInjection.makeNewSetsInFolders([folder], [{}]);
   setOne.setRead(false);
   // verify that we have unread messages.
   assert_equals(

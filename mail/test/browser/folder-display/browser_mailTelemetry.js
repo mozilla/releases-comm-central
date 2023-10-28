@@ -5,7 +5,7 @@
  * Test telemetry related to secure mails read.
  */
 
-let {
+const {
   create_folder,
   be_in_folder,
   create_message,
@@ -16,10 +16,10 @@ let {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-let { SmimeUtils } = ChromeUtils.import(
+const { SmimeUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/smimeUtils.jsm"
 );
-let { TelemetryTestUtils } = ChromeUtils.importESModule(
+const { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
 
@@ -40,8 +40,8 @@ add_task(async function test_secure_mails_read() {
   const NUM_PLAIN_MAILS = 4;
   const NUM_SMIME_MAILS = 2;
   const NUM_OPENPGP_MAILS = 3;
-  let headers = { from: "alice@t1.example.com", to: "bob@t2.example.net" };
-  let folder = await create_folder("secure-mail");
+  const headers = { from: "alice@t1.example.com", to: "bob@t2.example.net" };
+  const folder = await create_folder("secure-mail");
 
   // normal message should not be counted
   for (let i = 0; i < NUM_PLAIN_MAILS; i++) {

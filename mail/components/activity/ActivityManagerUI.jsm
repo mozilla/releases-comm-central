@@ -11,7 +11,7 @@ function ActivityManagerUI() {}
 ActivityManagerUI.prototype = {
   show(aWindowContext, aID) {
     // First we see if it is already visible
-    let window = this.recentWindow;
+    const window = this.recentWindow;
     if (window) {
       window.focus();
       return;

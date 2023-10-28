@@ -98,7 +98,7 @@
         ],
 
         addObservers() {
-          for (let topic of this._notifications) {
+          for (const topic of this._notifications) {
             Services.obs.addObserver(this, topic);
           }
           this._added = true;
@@ -109,7 +109,7 @@
           if (!this._added) {
             return;
           }
-          for (let topic of this._notifications) {
+          for (const topic of this._notifications) {
             Services.obs.removeObserver(this, topic);
           }
           this._added = false;
@@ -158,7 +158,7 @@
         return;
       }
 
-      for (let recipient of [...this.recipientsList.childNodes].filter(
+      for (const recipient of [...this.recipientsList.childNodes].filter(
         r => r.cardDetails?.book?.dirPrefId == subject.dirPrefId
       )) {
         recipient.updateRecipient();
@@ -182,8 +182,8 @@
         return;
       }
 
-      let addresses = subject.emailAddresses;
-      for (let recipient of [...this.recipientsList.childNodes].filter(
+      const addresses = subject.emailAddresses;
+      for (const recipient of [...this.recipientsList.childNodes].filter(
         r => r.emailAddress && addresses.includes(r.emailAddress)
       )) {
         recipient.updateRecipient();
@@ -207,7 +207,7 @@
       this.#maxLinesBeforeMore = Services.prefs.getIntPref(
         "mailnews.headers.show_n_lines_before_more"
       );
-      let showAllHeaders =
+      const showAllHeaders =
         this.#maxLinesBeforeMore < 1 ||
         Services.prefs.getIntPref("mail.show_headers") ==
           Ci.nsMimeHeaderDisplayTypes.AllHeaders ||
@@ -217,7 +217,7 @@
 
     buildRecipients(showAllHeaders) {
       // Determine focus before clearing the children.
-      let focusIndex = [...this.recipientsList.childNodes].findIndex(node =>
+      const focusIndex = [...this.recipientsList.childNodes].findIndex(node =>
         node.contains(document.activeElement)
       );
       this.recipientsList.replaceChildren();
@@ -229,7 +229,7 @@
       // is not always accurate when viewing the first email. We should defer
       // the generation of the multi recipient rows only after all the other
       // headers have been populated.
-      let availableWidth = !showAllHeaders
+      const availableWidth = !showAllHeaders
         ? this.recipientsList.getBoundingClientRect().width
         : 0;
 
@@ -239,7 +239,7 @@
       // Track how many rows are being populated by recipients.
       let rows = 1;
       for (let [count, recipient] of this.#recipients.entries()) {
-        let li = document.createElement("li", { is: "header-recipient" });
+        const li = document.createElement("li", { is: "header-recipient" });
         // Set an id before connected callback is called on the element.
         li.id = `${this.dataset.headerName}Recipient${count}`;
         // Append the element to the DOM to trigger the connectedCallback.
@@ -279,7 +279,7 @@
 
         // Append the "more" button inside a list item to be properly handled
         // as an inline element of the recipients list UI.
-        let buttonLi = document.createElement("li");
+        const buttonLi = document.createElement("li");
         buttonLi.appendChild(this.moreButton);
         this.recipientsList.appendChild(buttonLi);
         currentRowWidth += buttonLi.getBoundingClientRect().width;
@@ -287,13 +287,13 @@
         // Reverse loop through the added list item and remove them until
         // they all fit in the current row alongside the "more" button.
         for (; count && currentRowWidth > availableWidth; count--) {
-          let toRemove = this.recipientsList.childNodes[count];
+          const toRemove = this.recipientsList.childNodes[count];
           currentRowWidth -= toRemove.getBoundingClientRect().width;
           toRemove.remove();
         }
 
         // Skip the "more" button, which is present if we reached this stage.
-        let lastRecipientIndex = this.recipientsList.childNodes.length - 2;
+        const lastRecipientIndex = this.recipientsList.childNodes.length - 2;
         // Add a unique class to the last visible recipient to remove the
         // comma separator added via pseudo element.
         this.recipientsList.childNodes[lastRecipientIndex].classList.add(
@@ -305,7 +305,7 @@
 
       if (focusIndex >= 0) {
         // If we had focus before, restore focus to the same index, or the last node.
-        let focusNode =
+        const focusNode =
           this.recipientsList.childNodes[
             Math.min(focusIndex, this.recipientsList.childNodes.length - 1)
           ];
@@ -409,7 +409,7 @@
         this.addToAddressBook();
       });
 
-      let img = document.createElement("img");
+      const img = document.createElement("img");
       img.id = `${this.id}AbIcon`;
       img.src = "chrome://messenger/skin/icons/new/address-book-indicator.svg";
       document.l10n.setAttributes(
@@ -472,7 +472,7 @@
       }
 
       this.abIndicator.hidden = false;
-      let card = MailServices.ab.cardForEmailAddress(
+      const card = MailServices.ab.cardForEmailAddress(
         this.#recipient.emailAddress
       );
       this.cardDetails = {
@@ -482,7 +482,7 @@
           : null,
       };
 
-      let displayName = lazy.DisplayNameUtils.formatDisplayName(
+      const displayName = lazy.DisplayNameUtils.formatDisplayName(
         this.emailAddress,
         this.displayName,
         this.dataset.headerName,
@@ -510,7 +510,7 @@
         this.addressLine.textContent = this.emailAddress;
       }
 
-      let hasCard = this.cardDetails.card;
+      const hasCard = this.cardDetails.card;
       // Update the style of the indicator button.
       this.abIndicator.classList.toggle("in-address-book", hasCard);
       document.l10n.setAttributes(
@@ -540,10 +540,10 @@
       }
 
       // We have a card, so let's try to fetch the image.
-      let card = this.cardDetails.card;
-      let photoURL = card.photoURL;
+      const card = this.cardDetails.card;
+      const photoURL = card.photoURL;
       if (photoURL) {
-        let img = document.createElement("img");
+        const img = document.createElement("img");
         document.l10n.setAttributes(img, "message-header-recipient-avatar", {
           address: this.emailAddress,
         });
@@ -559,7 +559,7 @@
     }
 
     _createAvatarPlaceholder() {
-      let letter = document.createElement("span");
+      const letter = document.createElement("span");
       letter.textContent = Array.from(
         this.nameLine.textContent || this.displayName || this.fullAddress
       )[0]?.toUpperCase();
@@ -569,13 +569,13 @@
     }
 
     addToAddressBook() {
-      let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+      const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
         Ci.nsIAbCard
       );
       card.displayName = this.#recipient.displayName;
       card.primaryEmail = this.#recipient.emailAddress;
 
-      let addressBook = MailServices.ab.getDirectory(
+      const addressBook = MailServices.ab.getDirectory(
         "jsaddrbook://abook.sqlite"
       );
       addressBook.addCard(card);
@@ -604,7 +604,7 @@
       this.heading = document.createElement("span");
       this.heading.id = `${this.dataset.headerName}Heading`;
       this.heading.classList.add("row-heading");
-      let sep = document.createElement("span");
+      const sep = document.createElement("span");
       sep.classList.add("screen-reader-only");
       sep.setAttribute("data-l10n-name", "field-separator");
       this.heading.appendChild(sep);
@@ -736,8 +736,8 @@
 
     buildView() {
       this.newsgroupsList.replaceChildren();
-      for (let newsgroup of this.#newsgroups) {
-        let li = document.createElement("li", { is: "header-newsgroup" });
+      for (const newsgroup of this.#newsgroups) {
+        const li = document.createElement("li", { is: "header-newsgroup" });
         this.newsgroupsList.appendChild(li);
         li.textContent = newsgroup;
       }
@@ -809,7 +809,7 @@
       // Clear old tags.
       this.tagsList.replaceChildren();
 
-      for (let tag of tags) {
+      for (const tag of tags) {
         // For each tag, create a label, give it the font color that corresponds to the
         // color of the tag and append it.
         let tagName;
@@ -822,14 +822,14 @@
         }
 
         // Create a label for the tag name and set the color.
-        let li = document.createElement("li");
+        const li = document.createElement("li");
         li.tabIndex = 0;
         li.classList.add("tag");
         li.textContent = tagName;
 
-        let color = MailServices.tags.getColorForKey(tag);
+        const color = MailServices.tags.getColorForKey(tag);
         if (color) {
-          let textColor = !lazy.TagUtils.isColorContrastEnough(color)
+          const textColor = !lazy.TagUtils.isColorContrastEnough(color)
             ? "white"
             : "black";
           li.setAttribute(
@@ -870,7 +870,7 @@
       this.heading = document.createElement("span");
       this.heading.id = `${this.dataset.headerName}Heading`;
       this.heading.classList.add("row-heading");
-      let sep = document.createElement("span");
+      const sep = document.createElement("span");
       sep.classList.add("screen-reader-only");
       sep.setAttribute("data-l10n-name", "field-separator");
       this.heading.appendChild(sep);
@@ -910,8 +910,8 @@
 
     buildView(showAll = false) {
       this.idsList.replaceChildren();
-      for (let [count, id] of this.#ids.entries()) {
-        let li = document.createElement("li", { is: "header-message-id" });
+      for (const [count, id] of this.#ids.entries()) {
+        const li = document.createElement("li", { is: "header-message-id" });
         li.id = id;
         this.idsList.appendChild(li);
         if (!showAll && count < this.#ids.length - 1 && this.#ids.length > 1) {
@@ -924,7 +924,7 @@
 
       if (!showAll && this.#ids.length > 1) {
         this.idsList.lastElementChild.classList.add("last-before-button");
-        let liButton = document.createElement("li");
+        const liButton = document.createElement("li");
         liButton.appendChild(this.toggleButton);
         this.idsList.appendChild(liButton);
       }

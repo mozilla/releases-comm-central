@@ -15,7 +15,7 @@ var TBDistCustomizer = {
       return;
     }
     // Grab the sections of the ini file
-    let sections = enumToObject(this._ini.getSections());
+    const sections = enumToObject(this._ini.getSections());
 
     // The global section, and several of its fields, is required
     // Function exits if this section and its fields are not present
@@ -24,13 +24,13 @@ var TBDistCustomizer = {
     }
 
     // Get the keys in the "Global" section  of the ini file
-    let globalPrefs = enumToObject(this._ini.getKeys("Global"));
+    const globalPrefs = enumToObject(this._ini.getKeys("Global"));
     if (!(globalPrefs.id && globalPrefs.version && globalPrefs.about)) {
       return;
     }
 
     // Get the entire preferences tree (defaults is an instance of nsIPrefBranch)
-    let defaults = Services.prefs.getDefaultBranch(null);
+    const defaults = Services.prefs.getDefaultBranch(null);
 
     // Set the following user prefs
     defaults.setCharPref(
@@ -50,11 +50,13 @@ var TBDistCustomizer = {
     defaults.setStringPref("distribution.about", partnerAbout);
 
     if (sections.Preferences) {
-      let keys = this._ini.getKeys("Preferences");
-      for (let key of keys) {
+      const keys = this._ini.getKeys("Preferences");
+      for (const key of keys) {
         try {
           // Get the string value of the key
-          let value = this.parseValue(this._ini.getString("Preferences", key));
+          const value = this.parseValue(
+            this._ini.getString("Preferences", key)
+          );
           // After determining what type it is, set the pref
           switch (typeof value) {
             case "boolean":
@@ -78,13 +80,13 @@ var TBDistCustomizer = {
     }
 
     // Set the prefs in the other sections
-    let localizedStr = Cc["@mozilla.org/pref-localizedstring;1"].createInstance(
-      Ci.nsIPrefLocalizedString
-    );
+    const localizedStr = Cc[
+      "@mozilla.org/pref-localizedstring;1"
+    ].createInstance(Ci.nsIPrefLocalizedString);
 
     if (sections.LocalizablePreferences) {
-      let keys = this._ini.getKeys("LocalizablePreferences");
-      for (let key of keys) {
+      const keys = this._ini.getKeys("LocalizablePreferences");
+      for (const key of keys) {
         try {
           let value = this.parseValue(
             this._ini.getString("LocalizablePreferences", key)
@@ -103,10 +105,10 @@ var TBDistCustomizer = {
     }
 
     if (sections["LocalizablePreferences-" + this._locale]) {
-      let keys = this._ini.getKeys("LocalizablePreferences-" + this._locale);
-      for (let key of keys) {
+      const keys = this._ini.getKeys("LocalizablePreferences-" + this._locale);
+      for (const key of keys) {
         try {
-          let value = this.parseValue(
+          const value = this.parseValue(
             this._ini.getString("LocalizablePreferences-" + this._locale, key)
           );
           localizedStr.data = "data:text/plain," + key + "=" + value;
@@ -138,7 +140,7 @@ var TBDistCustomizer = {
 
 XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_ini", function () {
   let ini = null;
-  let iniFile = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
+  const iniFile = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
   iniFile.append("distribution");
   iniFile.append("distribution.ini");
   if (iniFile.exists()) {
@@ -154,8 +156,8 @@ XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_locale", function () {
 });
 
 function enumToObject(UTF8Enumerator) {
-  let ret = {};
-  for (let UTF8Obj of UTF8Enumerator) {
+  const ret = {};
+  for (const UTF8Obj of UTF8Enumerator) {
     ret[UTF8Obj] = 1;
   }
   return ret;

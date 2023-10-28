@@ -16,7 +16,7 @@ function compactDialogOnDOMContentLoaded() {
 
   // Convert to a JS object.
   args = {};
-  for (let prop of propBag.enumerator) {
+  for (const prop of propBag.enumerator) {
     args[prop.name] = prop.value;
   }
 
@@ -37,7 +37,7 @@ function compactDialogOnDOMContentLoaded() {
 
   document.addEventListener("dialogextra1", function () {
     // Open the support article URL and leave the dialog open.
-    let uri = Services.io.newURI(
+    const uri = Services.io.newURI(
       "https://support.mozilla.org/kb/compacting-folders"
     );
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
@@ -48,7 +48,7 @@ function compactDialogOnDOMContentLoaded() {
 
 function compactDialogOnUnload() {
   // Convert args back into property bag.
-  for (let propName in args) {
+  for (const propName in args) {
     propBag.setProperty(propName, args[propName]);
   }
 }

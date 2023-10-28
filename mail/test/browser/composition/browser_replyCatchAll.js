@@ -74,7 +74,7 @@ add_setup(function () {
  * Create and select a new message to do a reply with.
  */
 async function create_replyMsg(aTo, aEnvelopeTo) {
-  let msg0 = create_message({
+  const msg0 = create_message({
     from: "Tester <test@example.com>",
     to: aTo,
     subject: "test",
@@ -85,7 +85,7 @@ async function create_replyMsg(aTo, aEnvelopeTo) {
   await add_message_to_folder([gFolder], msg0);
 
   await be_in_folder(gFolder);
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 }
 
@@ -93,7 +93,7 @@ async function create_replyMsg(aTo, aEnvelopeTo) {
  * The tests.
  */
 add_task(async function test_reply_identity_selection() {
-  let tests = [
+  const tests = [
     {
       desc: "No catchAll, 'From' will be set to recipient",
       to: myIdentityEmail2,
@@ -190,7 +190,7 @@ add_task(async function test_reply_identity_selection() {
     },
   ];
 
-  for (let test of tests) {
+  for (const test of tests) {
     info(`Running test: ${test.desc}`);
     test.replyIndex = await create_replyMsg(test.to, test.envelopeTo);
 
@@ -206,7 +206,7 @@ add_task(async function test_reply_identity_selection() {
       `... identity2.catchAll=${identity2.catchAll}, identity2.catchAllHint=${identity2.catchAllHint}`
     );
 
-    let cwc = await open_compose_with_reply();
+    const cwc = await open_compose_with_reply();
 
     info("Checking reply identity: " + JSON.stringify(test, null, 2));
     checkCompIdentity(cwc, test.replyIdKey, test.replyIdFrom);

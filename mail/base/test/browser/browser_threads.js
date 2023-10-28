@@ -6,10 +6,10 @@ const { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 
-let tabmail = document.getElementById("tabmail");
-let about3Pane = tabmail.currentAbout3Pane;
-let { threadPane, threadTree } = about3Pane;
-let { notificationBox } = threadPane;
+const tabmail = document.getElementById("tabmail");
+const about3Pane = tabmail.currentAbout3Pane;
+const { threadPane, threadTree } = about3Pane;
+const { notificationBox } = threadPane;
 let rootFolder, testFolder, testMessages;
 
 add_setup(async function () {
@@ -19,10 +19,10 @@ add_setup(async function () {
   );
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
@@ -69,7 +69,7 @@ add_setup(async function () {
  * message.
  */
 add_task(async function checkDoubleClickOnThreadButton() {
-  let row = threadTree.getRowAtIndex(20);
+  const row = threadTree.getRowAtIndex(20);
   Assert.ok(
     !row.classList.contains("collapsed"),
     "The thread row should be expanded"
@@ -77,7 +77,7 @@ add_task(async function checkDoubleClickOnThreadButton() {
 
   Assert.equal(tabmail.tabInfo.length, 1, "Only 1 tab currently visible");
 
-  let button = row.querySelector(".thread-container .twisty");
+  const button = row.querySelector(".thread-container .twisty");
   // Simulate a double click on the twisty icon.
   EventUtils.synthesizeMouseAtCenter(button, { clickCount: 2 }, about3Pane);
 
@@ -155,24 +155,24 @@ add_task(async function testIgnoreThread() {
 
   // Check the notification about the ignored thread.
 
-  let notification =
+  const notification =
     notificationBox.getNotificationWithValue("ignoreThreadInfo");
-  let label = notification.shadowRoot.querySelector(
+  const label = notification.shadowRoot.querySelector(
     "label.notification-message"
   );
   Assert.stringContains(label.textContent, testMessages[5].subject);
-  let buttons = notification.shadowRoot.querySelectorAll(
+  const buttons = notification.shadowRoot.querySelectorAll(
     "button.notification-button"
   );
   Assert.equal(buttons.length, 2);
 
   // Click the Learn More button, and check it opens the support page in a new tab.
-  let tabOpenPromise = BrowserTestUtils.waitForEvent(
+  const tabOpenPromise = BrowserTestUtils.waitForEvent(
     tabmail.tabContainer,
     "TabOpen"
   );
   EventUtils.synthesizeMouseAtCenter(buttons[0], {}, about3Pane);
-  let event = await tabOpenPromise;
+  const event = await tabOpenPromise;
   await BrowserTestUtils.browserLoaded(event.detail.tabInfo.browser);
   Assert.equal(
     event.detail.tabInfo.browser.currentURI.spec,
@@ -236,13 +236,13 @@ add_task(async function testIgnoreSubthread() {
 
   // Check the notification about the ignored subthread.
 
-  let notification =
+  const notification =
     notificationBox.getNotificationWithValue("ignoreThreadInfo");
-  let label = notification.shadowRoot.querySelector(
+  const label = notification.shadowRoot.querySelector(
     "label.notification-message"
   );
   Assert.stringContains(label.textContent, testMessages[17].subject);
-  let buttons = notification.shadowRoot.querySelectorAll(
+  const buttons = notification.shadowRoot.querySelectorAll(
     "button.notification-button"
   );
   Assert.equal(buttons.length, 2);
@@ -279,10 +279,10 @@ add_task(async function testWatchThread() {
 });
 
 async function checkContextMenu(index, expectedStates, itemToActivate) {
-  let contextMenu = about3Pane.document.getElementById("mailContext");
-  let row = threadTree.getRowAtIndex(index);
+  const contextMenu = about3Pane.document.getElementById("mailContext");
+  const row = threadTree.getRowAtIndex(index);
 
-  let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     row.querySelector(".subject-line"),
     { type: "contextmenu" },
@@ -290,11 +290,14 @@ async function checkContextMenu(index, expectedStates, itemToActivate) {
   );
   await shownPromise;
 
-  for (let [id, checkedState] of Object.entries(expectedStates)) {
+  for (const [id, checkedState] of Object.entries(expectedStates)) {
     assertCheckedState(about3Pane.document.getElementById(id), checkedState);
   }
 
-  let hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
+  const hiddenPromise = BrowserTestUtils.waitForEvent(
+    contextMenu,
+    "popuphidden"
+  );
   if (itemToActivate) {
     contextMenu.activateItem(
       about3Pane.document.getElementById(itemToActivate)
@@ -311,16 +314,16 @@ async function checkMessageMenu(expectedStates) {
     return;
   }
 
-  let messageMenu = document.getElementById("messageMenu");
+  const messageMenu = document.getElementById("messageMenu");
 
-  let shownPromise = BrowserTestUtils.waitForEvent(
+  const shownPromise = BrowserTestUtils.waitForEvent(
     messageMenu.menupopup,
     "popupshown"
   );
   EventUtils.synthesizeMouseAtCenter(messageMenu, {}, window);
   await shownPromise;
 
-  for (let [id, checkedState] of Object.entries(expectedStates)) {
+  for (const [id, checkedState] of Object.entries(expectedStates)) {
     assertCheckedState(document.getElementById(id), checkedState);
   }
 
@@ -339,8 +342,8 @@ function assertCheckedState(menuItem, checkedState) {
 }
 
 function checkRowThreadState(index, expected) {
-  let row = threadTree.getRowAtIndex(index);
-  let icon = row.querySelector(".threadcol-column img");
+  const row = threadTree.getRowAtIndex(index);
+  const icon = row.querySelector(".threadcol-column img");
 
   if (!expected) {
     Assert.ok(
@@ -354,7 +357,7 @@ function checkRowThreadState(index, expected) {
   Assert.ok(BrowserTestUtils.is_visible(icon), "icon should be visible");
 
   let shouldHaveChildrenClass = true;
-  let iconContent = getComputedStyle(icon).content;
+  const iconContent = getComputedStyle(icon).content;
 
   switch (expected) {
     case true:

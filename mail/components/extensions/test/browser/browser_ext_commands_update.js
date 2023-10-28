@@ -37,9 +37,6 @@ function disableAddon(addon) {
 }
 
 add_task(async function test_update_defined_command() {
-  let extension;
-  let updatedExtension;
-
   registerCleanupFunction(async () => {
     await extension.unload();
 
@@ -49,14 +46,14 @@ add_task(async function test_update_defined_command() {
     }
 
     // Check that ESS is cleaned up on uninstall.
-    let storedCommands = ExtensionSettingsStore.getAllForExtension(
+    const storedCommands = ExtensionSettingsStore.getAllForExtension(
       extension.id,
       "commands"
     );
     is(storedCommands.length, 0, "There are no stored commands after unload");
   });
 
-  extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       version: "1.0",
@@ -212,21 +209,21 @@ add_task(async function test_update_defined_command() {
   }
 
   function checkKey(extensionId, shortcutKey, modifiers) {
-    let keyset = extensionKeyset(extensionId);
+    const keyset = extensionKeyset(extensionId);
     is(keyset.children.length, 1, "There is 1 key in the keyset");
-    let key = keyset.children[0];
+    const key = keyset.children[0];
     is(key.getAttribute("key"), shortcutKey, "The key is correct");
     is(key.getAttribute("modifiers"), modifiers, "The modifiers are correct");
   }
 
   function checkNumericKey(extensionId, key, modifiers) {
-    let keyset = extensionKeyset(extensionId);
+    const keyset = extensionKeyset(extensionId);
     is(
       keyset.children.length,
       2,
       "There are 2 keys in the keyset now, 1 of which contains a keycode."
     );
-    let numpadKey = keyset.children[0];
+    const numpadKey = keyset.children[0];
     is(
       numpadKey.getAttribute("keycode"),
       `VK_NUMPAD${key}`,
@@ -238,7 +235,7 @@ add_task(async function test_update_defined_command() {
       "The modifiers are correct"
     );
 
-    let originalNumericKey = keyset.children[1];
+    const originalNumericKey = keyset.children[1];
     is(
       originalNumericKey.getAttribute("keycode"),
       `VK_${key}`,
@@ -267,7 +264,7 @@ add_task(async function test_update_defined_command() {
     "commands"
   );
   is(storedCommands.length, 1, "There is only one stored command");
-  let command = ExtensionSettingsStore.getSetting(
+  const command = ExtensionSettingsStore.getSetting(
     "commands",
     "foo",
     extension.id
@@ -288,7 +285,7 @@ add_task(async function test_update_defined_command() {
   // This command now only has a description set in storage, also update the shortcut.
   extension.sendMessage("update", { name: "foo", shortcut: "Alt+Shift+9" });
   await extension.awaitMessage("updateDone");
-  let storedCommand = await ExtensionSettingsStore.getSetting(
+  const storedCommand = await ExtensionSettingsStore.getSetting(
     "commands",
     "foo",
     extension.id
@@ -311,9 +308,9 @@ add_task(async function test_update_defined_command() {
   checkKey(extension.id, "I", "accel,shift");
 
   // Check that enable/disable removes the keyset and reloads the saved command.
-  let addon = await AddonManager.getAddonByID(extension.id);
+  const addon = await AddonManager.getAddonByID(extension.id);
   await disableAddon(addon);
-  let keyset = extensionKeyset(extension.id);
+  const keyset = extensionKeyset(extension.id);
   is(keyset, null, "The extension keyset is removed when disabled");
   // Add some commands to storage, only "foo" should get loaded.
   await ExtensionSettingsStore.addSetting(extension.id, "commands", "foo", {
@@ -334,7 +331,7 @@ add_task(async function test_update_defined_command() {
   checkNumericKey(extension.id, "9", "alt,shift");
 
   // Check that an update to a shortcut in the manifest is mapped correctly.
-  updatedExtension = ExtensionTestUtils.loadExtension({
+  const updatedExtension = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       version: "1.0",

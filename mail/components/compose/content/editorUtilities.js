@@ -32,10 +32,10 @@ var gFilePickerDirectory;
 
 // Optional: Caller may supply text to substitute for "Ok" and/or "Cancel"
 function ConfirmWithTitle(title, message, okButtonText, cancelButtonText) {
-  let okFlag = okButtonText
+  const okFlag = okButtonText
     ? Services.prompt.BUTTON_TITLE_IS_STRING
     : Services.prompt.BUTTON_TITLE_OK;
-  let cancelFlag = cancelButtonText
+  const cancelFlag = cancelButtonText
     ? Services.prompt.BUTTON_TITLE_IS_STRING
     : Services.prompt.BUTTON_TITLE_CANCEL;
 
@@ -199,7 +199,7 @@ function GetCurrentEditorElement() {
 
   do {
     // Get the <editor> element(s)
-    let editorItem = tmpWindow.document.querySelector("editor");
+    const editorItem = tmpWindow.document.querySelector("editor");
 
     // This will change if we support > 1 editor element
     if (editorItem) {
@@ -399,7 +399,7 @@ function SetElementEnabled(element, doEnable) {
 /** *********** Services / Prefs */
 
 function GetFileProtocolHandler() {
-  let handler = Services.io.getProtocolHandler("file");
+  const handler = Services.io.getProtocolHandler("file");
   return handler.QueryInterface(Ci.nsIFileProtocolHandler);
 }
 
@@ -416,7 +416,7 @@ function SetFilePickerDirectory(filePicker, fileType) {
       // Save current directory so we can reset it in SaveFilePickerDirectory
       gFilePickerDirectory = filePicker.displayDirectory;
 
-      let location = Services.prefs.getComplexValue(
+      const location = Services.prefs.getComplexValue(
         "editor.lastFileLocation." + fileType,
         Ci.nsIFile
       );
@@ -510,7 +510,7 @@ function IsUrlAboutBlank(urlString) {
 }
 
 function MakeRelativeUrl(url) {
-  let inputUrl = url.trim();
+  const inputUrl = url.trim();
   if (!inputUrl) {
     return inputUrl;
   }
@@ -637,20 +637,20 @@ function MakeRelativeUrl(url) {
 }
 
 function MakeAbsoluteUrl(url) {
-  let resultUrl = TrimString(url);
+  const resultUrl = TrimString(url);
   if (!resultUrl) {
     return resultUrl;
   }
 
   // Check if URL is already absolute, i.e., it has a scheme
-  let urlScheme = GetScheme(resultUrl);
+  const urlScheme = GetScheme(resultUrl);
 
   if (urlScheme) {
     return resultUrl;
   }
 
-  let docUrl = GetDocumentBaseUrl();
-  let docScheme = GetScheme(docUrl);
+  const docUrl = GetDocumentBaseUrl();
+  const docScheme = GetScheme(docUrl);
 
   // Can't relativize if no doc scheme (page hasn't been saved)
   if (!docScheme) {
@@ -659,7 +659,7 @@ function MakeAbsoluteUrl(url) {
 
   // Make a URI object to use its "resolve" method
   let absoluteUrl = resultUrl;
-  let docUri = Services.io.newURI(
+  const docUri = Services.io.newURI(
     docUrl,
     GetCurrentEditor().documentCharacterSet
   );
@@ -681,7 +681,7 @@ function GetDocumentBaseUrl() {
     var docUrl;
 
     // if document supplies a <base> tag, use that URL instead
-    let base = GetCurrentEditor().document.querySelector("base");
+    const base = GetCurrentEditor().document.querySelector("base");
     if (base) {
       docUrl = base.getAttribute("href");
     }
@@ -754,9 +754,9 @@ function GetFilename(urlspec) {
   var filename;
 
   try {
-    let uri = Services.io.newURI(urlspec);
+    const uri = Services.io.newURI(urlspec);
     if (uri) {
-      let url = uri.QueryInterface(Ci.nsIURL);
+      const url = uri.QueryInterface(Ci.nsIURL);
       if (url) {
         filename = url.fileName;
       }
@@ -786,9 +786,9 @@ function StripUsernamePassword(urlspec, usernameObj, passwordObj) {
   var atIndex = urlspec.indexOf("@");
   if (atIndex > 0) {
     try {
-      let uri = Services.io.newURI(urlspec);
-      let username = uri.username;
-      let password = uri.password;
+      const uri = Services.io.newURI(urlspec);
+      const username = uri.username;
+      const password = uri.password;
 
       if (usernameObj && username) {
         usernameObj.value = username;
@@ -797,7 +797,7 @@ function StripUsernamePassword(urlspec, usernameObj, passwordObj) {
         passwordObj.value = password;
       }
       if (username) {
-        let usernameStart = urlspec.indexOf(username);
+        const usernameStart = urlspec.indexOf(username);
         if (usernameStart != -1) {
           return urlspec.slice(0, usernameStart) + urlspec.slice(atIndex + 1);
         }
@@ -821,14 +821,14 @@ function StripPassword(urlspec, passwordObj) {
   var atIndex = urlspec.indexOf("@");
   if (atIndex > 0) {
     try {
-      let password = Services.io.newURI(urlspec).password;
+      const password = Services.io.newURI(urlspec).password;
 
       if (passwordObj && password) {
         passwordObj.value = password;
       }
       if (password) {
         // Find last ":" before "@"
-        let colon = urlspec.lastIndexOf(":", atIndex);
+        const colon = urlspec.lastIndexOf(":", atIndex);
         if (colon != -1) {
           // Include the "@"
           return urlspec.slice(0, colon) + urlspec.slice(atIndex);
@@ -847,7 +847,7 @@ function StripUsernamePasswordFromURI(uri) {
       urlspec = uri.spec;
       var userPass = uri.userPass;
       if (userPass) {
-        let start = urlspec.indexOf(userPass);
+        const start = urlspec.indexOf(userPass);
         urlspec =
           urlspec.slice(0, start) + urlspec.slice(start + userPass.length + 1);
       }
@@ -862,7 +862,7 @@ function InsertUsernameIntoUrl(urlspec, username) {
   }
 
   try {
-    let URI = Services.io.newURI(
+    const URI = Services.io.newURI(
       urlspec,
       GetCurrentEditor().documentCharacterSet
     );
@@ -947,13 +947,13 @@ function isImageDataShortened(aImageData) {
 function onCopyOrCutShortened(aEvent) {
   // Put the original data URI onto the clipboard in case the value
   // is a shortened data URI.
-  let field = aEvent.target;
-  let startPos = field.selectionStart;
+  const field = aEvent.target;
+  const startPos = field.selectionStart;
   if (startPos == undefined) {
     return;
   }
-  let endPos = field.selectionEnd;
-  let selection = field.value.substring(startPos, endPos).trim();
+  const endPos = field.selectionEnd;
+  const selection = field.value.substring(startPos, endPos).trim();
 
   // Test that a) the user selected the whole value,
   //           b) the value is a data URI,

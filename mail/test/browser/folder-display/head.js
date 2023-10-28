@@ -59,7 +59,7 @@ async function ensure_table_view() {
 }
 
 registerCleanupFunction(() => {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   Assert.equal(
     tabmail.tabInfo.length,
     1,

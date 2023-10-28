@@ -26,7 +26,7 @@ var prefValue = Services.prefs.getBoolPref(prefName);
 
 add_setup(async function () {
   // Create four unread messages in a sample folder.
-  let folder = await create_folder("Sample");
+  const folder = await create_folder("Sample");
   await make_message_sets_in_folders([folder], [{ count: 4 }]);
   await be_in_folder(folder);
 });
@@ -47,7 +47,7 @@ async function subtest_advance_on_spacebar(shouldAdvance, isShiftPressed) {
   // Set preference.
   Services.prefs.setBoolPref(prefName, shouldAdvance);
   // Select the second message.
-  let oldMessage = await select_click_row(1);
+  const oldMessage = await select_click_row(1);
   await wait_for_message_display_completion(window);
   // Press [Shift-]Space.
   EventUtils.synthesizeKey(
@@ -56,7 +56,7 @@ async function subtest_advance_on_spacebar(shouldAdvance, isShiftPressed) {
     get_about_message()
   );
   // Check that message focus changes if `shouldAdvance` is true.
-  let newMessage = get_about_message().gMessage;
+  const newMessage = get_about_message().gMessage;
   shouldAdvance
     ? Assert.notEqual(oldMessage, newMessage)
     : Assert.equal(oldMessage, newMessage);

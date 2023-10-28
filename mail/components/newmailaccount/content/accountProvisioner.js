@@ -58,7 +58,7 @@ var storedData = {};
  * @returns {Array} - An array with the generated first and last name.
  */
 function splitName(str) {
-  let i = str.lastIndexOf(" ");
+  const i = str.lastIndexOf(" ");
   if (i >= 1) {
     return [str.substring(0, i), str.substring(i + 1)];
   }
@@ -72,7 +72,7 @@ function splitName(str) {
  * @returns {string} - The HTML sanitized input value.
  */
 function sanitizeName(inputID) {
-  let div = document.createElement("div");
+  const div = document.createElement("div");
   div.textContent = document.getElementById(inputID).value;
   return div.innerHTML.trim();
 }
@@ -92,10 +92,10 @@ function insertHTMLReplacement(
   aReplacement
 ) {
   if (aTextNode.textContent.includes(aPlaceholder)) {
-    let placeIndex = aTextNode.textContent.indexOf(aPlaceholder);
-    let restNode = aTextNode.splitText(placeIndex + aPlaceholder.length);
+    const placeIndex = aTextNode.textContent.indexOf(aPlaceholder);
+    const restNode = aTextNode.splitText(placeIndex + aPlaceholder.length);
     aTextContainer.insertBefore(aReplacement, restNode);
-    let placeholderNode = aTextNode.splitText(placeIndex);
+    const placeholderNode = aTextNode.splitText(placeIndex);
     placeholderNode.remove();
   }
 }
@@ -171,7 +171,7 @@ var gAccountProvisioner = {
 
     // If we have a name stored, populate the search field with it.
     if ("@mozilla.org/userinfo;1" in Cc) {
-      let userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
+      const userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
       // Assume that it's a genuine full name if it includes a space.
       if (userInfo.fullname.includes(" ")) {
         document.getElementById("mailName").value = userInfo.fullname;
@@ -220,11 +220,11 @@ var gAccountProvisioner = {
     this.clearNotifications();
 
     // Clear search results.
-    let mailResultsArea = document.getElementById("mailResultsArea");
+    const mailResultsArea = document.getElementById("mailResultsArea");
     while (mailResultsArea.hasChildNodes()) {
       mailResultsArea.lastChild.remove();
     }
-    let domainResultsArea = document.getElementById("domainResultsArea");
+    const domainResultsArea = document.getElementById("domainResultsArea");
     while (domainResultsArea.hasChildNodes()) {
       domainResultsArea.lastChild.remove();
     }
@@ -250,11 +250,11 @@ var gAccountProvisioner = {
   async startLoadingState(stringName) {
     this.clearNotifications();
 
-    let notificationMessage = await document.l10n.formatValue(stringName);
+    const notificationMessage = await document.l10n.formatValue(stringName);
 
     gAccountSetupLogger.debug(`Status msg: ${notificationMessage}`);
 
-    let notification = this.notificationBox.appendNotification(
+    const notification = this.notificationBox.appendNotification(
       "accountSetupLoading",
       {
         label: notificationMessage,
@@ -286,11 +286,11 @@ var gAccountProvisioner = {
 
     // Fetch the fluent string only if this is not an error message coming from
     // a previous method.
-    let notificationMessage = isMsgError
+    const notificationMessage = isMsgError
       ? stringName
       : await document.l10n.formatValue(stringName);
 
-    let notification = this.notificationBox.appendNotification(
+    const notification = this.notificationBox.appendNotification(
       "accountProvisionerError",
       {
         label: notificationMessage,
@@ -309,7 +309,7 @@ var gAccountProvisioner = {
     // Always remove any leftover notification before creating a new one.
     this.clearNotifications();
 
-    let notification = this.notificationBox.appendNotification(
+    const notification = this.notificationBox.appendNotification(
       "accountProvisionerSuccess",
       {
         label: await document.l10n.formatValue(stringName),
@@ -343,20 +343,20 @@ var gAccountProvisioner = {
    */
   onAddressSelected(providerId, email, isDomain = false) {
     gAccountSetupLogger.debug("An address was selected by the user.");
-    let provider = this.allProviders.find(p => p.id == providerId);
+    const provider = this.allProviders.find(p => p.id == providerId);
 
     let url = provider.api;
-    let inputID = isDomain ? "domainName" : "mailName";
-    let [firstName, lastName] = splitName(sanitizeName(inputID));
+    const inputID = isDomain ? "domainName" : "mailName";
+    const [firstName, lastName] = splitName(sanitizeName(inputID));
     // Replace the variables in the API url.
     url = url.replace("{firstname}", firstName);
     url = url.replace("{lastname}", lastName);
     url = url.replace("{email}", email);
 
     // And add the extra data.
-    let data = storedData[providerId];
+    const data = storedData[providerId];
     delete data.provider;
-    for (let name in data) {
+    for (const name in data) {
       url += `${!url.includes("?") ? "?" : "&"}${name}=${encodeURIComponent(
         data[name]
       )}`;
@@ -364,15 +364,15 @@ var gAccountProvisioner = {
 
     gAccountSetupLogger.debug("Opening up a contentTab with the order form.");
     // Open the checkout content tab.
-    let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
-    let tabmail = mail3Pane.document.getElementById("tabmail");
+    const mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+    const tabmail = mail3Pane.document.getElementById("tabmail");
     tabmail.openTab("provisionerCheckoutTab", {
       url,
       realName: (firstName + " " + lastName).trim(),
       email,
     });
 
-    let providerHostname = new URL(url).hostname;
+    const providerHostname = new URL(url).hostname;
     // Collect telemetry on which provider was selected for a new email account.
     Services.telemetry.keyedScalarAdd(
       "tb.account.selected_account_from_provisioner",
@@ -405,7 +405,7 @@ var gAccountProvisioner = {
 
     await this.startLoadingState("account-provisioner-fetching-provisioners");
 
-    let providerListUrl = Services.prefs.getCharPref(
+    const providerListUrl = Services.prefs.getCharPref(
       "mail.provider.providerList"
     );
 
@@ -414,11 +414,11 @@ var gAccountProvisioner = {
     );
 
     try {
-      let res = await fetch(providerListUrl, {
+      const res = await fetch(providerListUrl, {
         signal: gAbortController.signal,
       });
       this.startAbortTimeout();
-      let data = await res.json();
+      const data = await res.json();
       this.populateProvidersLists(data);
     } catch (error) {
       // Ugh, we couldn't get the JSON file. Maybe we're not online. Or maybe
@@ -445,7 +445,7 @@ var gAccountProvisioner = {
   providerHasCorrectFields(provider) {
     let result = true;
 
-    let required = [
+    const required = [
       "id",
       "label",
       "paid",
@@ -456,8 +456,8 @@ var gAccountProvisioner = {
       "sells_domain",
     ];
 
-    for (let field of required) {
-      let fieldExists = field in provider;
+    for (const field of required) {
+      const fieldExists = field in provider;
       result &= fieldExists;
 
       if (!fieldExists) {
@@ -488,14 +488,14 @@ var gAccountProvisioner = {
       return;
     }
 
-    let mailProviderList = document.getElementById("mailProvidersList");
-    let domainProviderList = document.getElementById("domainProvidersList");
+    const mailProviderList = document.getElementById("mailProvidersList");
+    const domainProviderList = document.getElementById("domainProvidersList");
 
     this.allProviders = data;
     this.mailProviders = [];
     this.domainProviders = [];
 
-    for (let provider of data) {
+    for (const provider of data) {
       if (!this.providerHasCorrectFields(provider)) {
         gAccountSetupLogger.warn(
           "A provider had incorrect fields, and has been skipped"
@@ -503,17 +503,17 @@ var gAccountProvisioner = {
         continue;
       }
 
-      let entry = document.createElement("li");
+      const entry = document.createElement("li");
       entry.setAttribute("id", provider.id);
 
       if (provider.icon) {
-        let icon = document.createElement("img");
+        const icon = document.createElement("img");
         icon.setAttribute("src", provider.icon);
         icon.setAttribute("alt", "");
         entry.appendChild(icon);
       }
 
-      let name = document.createElement("span");
+      const name = document.createElement("span");
       name.textContent = provider.label;
       entry.appendChild(name);
 
@@ -536,7 +536,7 @@ var gAccountProvisioner = {
    * @param {boolean} state - True if a fetch request is in progress.
    */
   updateSearchingState(state) {
-    for (let element of document.querySelectorAll(".disable-on-submit")) {
+    for (const element of document.querySelectorAll(".disable-on-submit")) {
       element.disabled = state;
     }
   },
@@ -551,21 +551,24 @@ var gAccountProvisioner = {
     event.preventDefault();
 
     // Quick HTML sanitization.
-    let name = sanitizeName("mailName");
+    const name = sanitizeName("mailName");
 
     // Bail out if the user didn't type anything.
     if (!name) {
       return;
     }
 
-    let resultsArea = document.getElementById("mailSearchResults");
+    const resultsArea = document.getElementById("mailSearchResults");
     resultsArea.hidden = true;
 
     this.startLoadingState("account-provisioner-searching-email");
-    let data = await this.submitFormRequest(name, this.mailProviders.join(","));
+    const data = await this.submitFormRequest(
+      name,
+      this.mailProviders.join(",")
+    );
     this.clearAbortTimeout();
 
-    let count = this.populateSearchResults(data);
+    const count = this.populateSearchResults(data);
     if (!count) {
       // Bail out if we didn't get any usable data.
       gAccountSetupLogger.warn(
@@ -575,8 +578,8 @@ var gAccountProvisioner = {
       return;
     }
 
-    let resultsTitle = document.getElementById("mailResultsTitle");
-    let resultsString = await document.l10n.formatValue(
+    const resultsTitle = document.getElementById("mailResultsTitle");
+    const resultsString = await document.l10n.formatValue(
       "account-provisioner-results-title",
       { count }
     );
@@ -604,24 +607,24 @@ var gAccountProvisioner = {
     event.preventDefault();
 
     // Quick HTML sanitization.
-    let name = sanitizeName("domainName");
+    const name = sanitizeName("domainName");
 
     // Bail out if the user didn't type anything.
     if (!name) {
       return;
     }
 
-    let resultsArea = document.getElementById("domainSearchResults");
+    const resultsArea = document.getElementById("domainSearchResults");
     resultsArea.hidden = true;
 
     this.startLoadingState("account-provisioner-searching-domain");
-    let data = await this.submitFormRequest(
+    const data = await this.submitFormRequest(
       name,
       this.domainProviders.join(",")
     );
     this.clearAbortTimeout();
 
-    let count = this.populateSearchResults(data, true);
+    const count = this.populateSearchResults(data, true);
     if (!count) {
       // Bail out if we didn't get any usable data.
       gAccountSetupLogger.warn(
@@ -631,8 +634,8 @@ var gAccountProvisioner = {
       return;
     }
 
-    let resultsTitle = document.getElementById("domainResultsTitle");
-    let resultsString = await document.l10n.formatValue(
+    const resultsTitle = document.getElementById("domainResultsTitle");
+    const resultsString = await document.l10n.formatValue(
       "account-provisioner-results-title",
       { count }
     );
@@ -664,7 +667,7 @@ var gAccountProvisioner = {
 
     this.clearNotifications();
 
-    let resultsArea = isDomain
+    const resultsArea = isDomain
       ? document.getElementById("domainResultsArea")
       : document.getElementById("mailResultsArea");
     // Clear previously generated content.
@@ -673,7 +676,7 @@ var gAccountProvisioner = {
     }
 
     // Filter out possible errors or empty lists.
-    let validData = data.filter(
+    const validData = data.filter(
       result => result.succeeded && result.addresses.length
     );
 
@@ -681,15 +684,15 @@ var gAccountProvisioner = {
       return 0;
     }
 
-    let providersList = isDomain ? this.domainProviders : this.mailProviders;
+    const providersList = isDomain ? this.domainProviders : this.mailProviders;
 
     let count = 0;
-    for (let provider of validData) {
+    for (const provider of validData) {
       count += provider.addresses.length;
 
       // Don't add a provider header if only 1 is currently available.
       if (providersList.length > 1) {
-        let header = document.createElement("h5");
+        const header = document.createElement("h5");
         header.classList.add("result-list-header");
         header.textContent = this.allProviders.find(
           p => p.id == provider.provider
@@ -697,15 +700,15 @@ var gAccountProvisioner = {
         resultsArea.appendChild(header);
       }
 
-      let list = document.createElement("ul");
+      const list = document.createElement("ul");
 
       // Only show a chink of addresses if we got a long list.
-      let isLongList = provider.addresses.length > 5;
-      let addresses = isLongList
+      const isLongList = provider.addresses.length > 5;
+      const addresses = isLongList
         ? provider.addresses.slice(0, 4)
         : provider.addresses;
 
-      for (let address of addresses) {
+      for (const address of addresses) {
         list.appendChild(this.createAddressRow(address, provider, isDomain));
       }
 
@@ -714,16 +717,16 @@ var gAccountProvisioner = {
       // If we got more than 5 addresses, create an hidden bug expandable list
       // with the rest of the data.
       if (isLongList) {
-        let hiddenList = document.createElement("ul");
+        const hiddenList = document.createElement("ul");
         hiddenList.hidden = true;
 
-        for (let address of provider.addresses.slice(5)) {
+        for (const address of provider.addresses.slice(5)) {
           hiddenList.appendChild(
             this.createAddressRow(address, provider, isDomain)
           );
         }
 
-        let button = document.createElement("button");
+        const button = document.createElement("button");
         button.setAttribute("type", "button");
         button.classList.add("btn-link", "self-center");
         document.l10n.setAttributes(
@@ -740,7 +743,7 @@ var gAccountProvisioner = {
       }
     }
 
-    for (let provider of data) {
+    for (const provider of data) {
       delete provider.succeeded;
       delete provider.addresses;
       delete provider.price;
@@ -761,27 +764,27 @@ var gAccountProvisioner = {
    * @returns {HTMLLIElement}
    */
   createAddressRow(address, provider, isDomain = false) {
-    let row = document.createElement("li");
+    const row = document.createElement("li");
     row.classList.add("result-item");
 
-    let suggestedAddress = address.address || address;
+    const suggestedAddress = address.address || address;
 
-    let button = document.createElement("button");
+    const button = document.createElement("button");
     button.setAttribute("type", "button");
     button.onclick = () => {
       this.onAddressSelected(provider.provider, suggestedAddress, isDomain);
     };
 
-    let leftArea = document.createElement("span");
+    const leftArea = document.createElement("span");
     leftArea.classList.add("result-data");
 
-    let name = document.createElement("span");
+    const name = document.createElement("span");
     name.classList.add("result-name");
     name.textContent = suggestedAddress;
     leftArea.appendChild(name);
     row.setAttribute("data-label", suggestedAddress);
 
-    let price = document.createElement("span");
+    const price = document.createElement("span");
     price.classList.add("result-price");
 
     // Build the pricing text and handle possible free trials.
@@ -809,7 +812,7 @@ var gAccountProvisioner = {
 
     button.appendChild(leftArea);
 
-    let img = document.createElement("img");
+    const img = document.createElement("img");
     document.l10n.setAttributes(img, "account-provisioner-open-in-tab-img");
     img.setAttribute("alt", "");
     img.setAttribute("src", "chrome://global/skin/icons/open-in-new.svg");
@@ -831,11 +834,11 @@ var gAccountProvisioner = {
   async submitFormRequest(name, providers) {
     // If the focused element is disabled by `updateSearchingState`, focus is
     // lost. Save the focused element to restore it later.
-    let activeElement = document.activeElement;
+    const activeElement = document.activeElement;
     this.updateSearchingState(true);
 
-    let [firstName, lastName] = splitName(name);
-    let url = `${this.suggestFromName}?first_name=${encodeURIComponent(
+    const [firstName, lastName] = splitName(name);
+    const url = `${this.suggestFromName}?first_name=${encodeURIComponent(
       firstName
     )}&last_name=${encodeURIComponent(lastName)}&providers=${encodeURIComponent(
       providers
@@ -843,7 +846,7 @@ var gAccountProvisioner = {
 
     let data;
     try {
-      let res = await fetch(url, { signal: gAbortController.signal });
+      const res = await fetch(url, { signal: gAbortController.signal });
       this.startAbortTimeout();
       data = await res.json();
     } catch (error) {

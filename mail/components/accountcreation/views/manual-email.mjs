@@ -109,7 +109,7 @@ class AccountHubManualEmailSetup extends HTMLElement {
 
     this.classList.add("account-hub-view");
 
-    let template = document.getElementById(
+    const template = document.getElementById(
       "accountHubManuallyConfigureEmailSetup"
     );
     this.appendChild(template.content.cloneNode(true));

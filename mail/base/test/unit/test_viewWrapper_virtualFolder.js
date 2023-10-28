@@ -26,13 +26,13 @@ initViewWrapperTestUtils({ mode: "local" });
  *  correctly; no constraints.
  */
 add_task(async function test_virtual_folder_single_load_no_pred() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [[folderOne], setOne] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folderOne], setOne] = await messageInjection.makeFoldersWithSets(1, [
     {},
   ]);
 
-  let virtFolder = messageInjection.makeVirtualFolder([folderOne], {});
+  const virtFolder = messageInjection.makeVirtualFolder([folderOne], {});
   await view_open(viewWrapper, virtFolder);
 
   Assert.ok(viewWrapper.isVirtual);
@@ -52,14 +52,14 @@ add_task(async function test_virtual_folder_single_load_no_pred() {
  *  correctly; one constraint.
  */
 add_task(async function test_virtual_folder_single_load_simple_pred() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [[folderOne], oneSubjFoo] = await messageInjection.makeFoldersWithSets(
+  const [[folderOne], oneSubjFoo] = await messageInjection.makeFoldersWithSets(
     1,
     [{ subject: "foo" }, {}]
   );
 
-  let virtFolder = messageInjection.makeVirtualFolder([folderOne], {
+  const virtFolder = messageInjection.makeVirtualFolder([folderOne], {
     subject: "foo",
   });
   await view_open(viewWrapper, virtFolder);
@@ -73,16 +73,16 @@ add_task(async function test_virtual_folder_single_load_simple_pred() {
  *  correctly; two constraints ANDed together.
  */
 add_task(async function test_virtual_folder_single_load_complex_pred() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let whoBar = make_person_with_word_in_name("bar");
+  const whoBar = make_person_with_word_in_name("bar");
 
-  let [[folderOne], , , oneBoth] = await messageInjection.makeFoldersWithSets(
+  const [[folderOne], , , oneBoth] = await messageInjection.makeFoldersWithSets(
     1,
     [{ subject: "foo" }, { from: whoBar }, { subject: "foo", from: whoBar }, {}]
   );
 
-  let virtFolder = messageInjection.makeVirtualFolder(
+  const virtFolder = messageInjection.makeVirtualFolder(
     [folderOne],
     { subject: "foo", from: "bar" },
     /* and? */ true
@@ -99,24 +99,24 @@ add_task(async function test_virtual_folder_single_load_complex_pred() {
  *  without exploding.
  */
 add_task(async function test_virtual_folder_single_load_after_load() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [[folderOne], oneSubjFoo] = await messageInjection.makeFoldersWithSets(
+  const [[folderOne], oneSubjFoo] = await messageInjection.makeFoldersWithSets(
     1,
     [{ subject: "foo" }, {}]
   );
-  let virtOne = messageInjection.makeVirtualFolder([folderOne], {
+  const virtOne = messageInjection.makeVirtualFolder([folderOne], {
     subject: "foo",
   });
   await view_open(viewWrapper, virtOne);
   verify_messages_in_view([oneSubjFoo], viewWrapper);
 
   // use "bar" instead of "foo" to make sure constraints are properly changing
-  let [[folderTwo], twoSubjBar] = await messageInjection.makeFoldersWithSets(
+  const [[folderTwo], twoSubjBar] = await messageInjection.makeFoldersWithSets(
     1,
     [{ subject: "bar" }, {}]
   );
-  let virtTwo = messageInjection.makeVirtualFolder([folderTwo], {
+  const virtTwo = messageInjection.makeVirtualFolder([folderTwo], {
     subject: "bar",
   });
   await view_open(viewWrapper, virtTwo);
@@ -132,16 +132,16 @@ add_task(async function test_virtual_folder_single_load_after_load() {
  *  correctly; no constraints.
  */
 add_task(async function test_virtual_folder_multi_load_no_pred() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [[folderOne], setOne] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folderOne], setOne] = await messageInjection.makeFoldersWithSets(1, [
     {},
   ]);
-  let [[folderTwo], setTwo] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folderTwo], setTwo] = await messageInjection.makeFoldersWithSets(1, [
     {},
   ]);
 
-  let virtFolder = messageInjection.makeVirtualFolder(
+  const virtFolder = messageInjection.makeVirtualFolder(
     [folderOne, folderTwo],
     {}
   );
@@ -156,16 +156,16 @@ add_task(async function test_virtual_folder_multi_load_no_pred() {
  * folders is persistent.
  */
 add_task(async function test_virtual_folder_multi_sortorder_persistence() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [[folderOne], setOne] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folderOne], setOne] = await messageInjection.makeFoldersWithSets(1, [
     {},
   ]);
-  let [[folderTwo], setTwo] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folderTwo], setTwo] = await messageInjection.makeFoldersWithSets(1, [
     {},
   ]);
 
-  let virtFolder = messageInjection.makeVirtualFolder(
+  const virtFolder = messageInjection.makeVirtualFolder(
     [folderOne, folderTwo],
     {}
   );
@@ -198,20 +198,23 @@ add_task(async function test_virtual_folder_multi_sortorder_persistence() {
  *  correctly; one constraint.
  */
 add_task(async function test_virtual_folder_multi_load_simple_pred() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [[folderOne], oneSubjFoo] = await messageInjection.makeFoldersWithSets(
+  const [[folderOne], oneSubjFoo] = await messageInjection.makeFoldersWithSets(
     1,
     [{ subject: "foo" }, {}]
   );
-  let [[folderTwo], twoSubjFoo] = await messageInjection.makeFoldersWithSets(
+  const [[folderTwo], twoSubjFoo] = await messageInjection.makeFoldersWithSets(
     1,
     [{ subject: "foo" }, {}]
   );
 
-  let virtFolder = messageInjection.makeVirtualFolder([folderOne, folderTwo], {
-    subject: "foo",
-  });
+  const virtFolder = messageInjection.makeVirtualFolder(
+    [folderOne, folderTwo],
+    {
+      subject: "foo",
+    }
+  );
   await view_open(viewWrapper, virtFolder);
 
   verify_messages_in_view([oneSubjFoo, twoSubjFoo], viewWrapper);
@@ -223,20 +226,20 @@ add_task(async function test_virtual_folder_multi_load_simple_pred() {
  *  correctly; two constraints ANDed together.
  */
 add_task(async function test_virtual_folder_multi_load_complex_pred() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let whoBar = make_person_with_word_in_name("bar");
+  const whoBar = make_person_with_word_in_name("bar");
 
-  let [[folderOne], , , oneBoth] = await messageInjection.makeFoldersWithSets(
+  const [[folderOne], , , oneBoth] = await messageInjection.makeFoldersWithSets(
     1,
     [{ subject: "foo" }, { from: whoBar }, { subject: "foo", from: whoBar }, {}]
   );
-  let [[folderTwo], , , twoBoth] = await messageInjection.makeFoldersWithSets(
+  const [[folderTwo], , , twoBoth] = await messageInjection.makeFoldersWithSets(
     1,
     [{ subject: "foo" }, { from: whoBar }, { subject: "foo", from: whoBar }, {}]
   );
 
-  let virtFolder = messageInjection.makeVirtualFolder(
+  const virtFolder = messageInjection.makeVirtualFolder(
     [folderOne, folderTwo],
     { subject: "foo", from: "bar" },
     /* and? */ true
@@ -249,17 +252,17 @@ add_task(async function test_virtual_folder_multi_load_complex_pred() {
 
 add_task(
   async function test_virtual_folder_multi_load_alotta_folders_no_pred() {
-    let viewWrapper = make_view_wrapper();
+    const viewWrapper = make_view_wrapper();
 
     const folderCount = 4;
     const messageCount = 64;
 
-    let [folders, setOne] = await messageInjection.makeFoldersWithSets(
+    const [folders, setOne] = await messageInjection.makeFoldersWithSets(
       folderCount,
       [{ count: messageCount }]
     );
 
-    let virtFolder = messageInjection.makeVirtualFolder(folders, {});
+    const virtFolder = messageInjection.makeVirtualFolder(folders, {});
     await view_open(viewWrapper, virtFolder);
 
     verify_messages_in_view([setOne], viewWrapper);
@@ -269,17 +272,17 @@ add_task(
 
 add_task(
   async function test_virtual_folder_multi_load_alotta_folders_simple_pred() {
-    let viewWrapper = make_view_wrapper();
+    const viewWrapper = make_view_wrapper();
 
     const folderCount = 16;
     const messageCount = 256;
 
-    let [folders, setOne] = await messageInjection.makeFoldersWithSets(
+    const [folders, setOne] = await messageInjection.makeFoldersWithSets(
       folderCount,
       [{ subject: "foo", count: messageCount }]
     );
 
-    let virtFolder = messageInjection.makeVirtualFolder(folders, {
+    const virtFolder = messageInjection.makeVirtualFolder(folders, {
       subject: "foo",
     });
     await view_open(viewWrapper, virtFolder);
@@ -294,24 +297,24 @@ add_task(
  *  opening another virtual folder of the same variety works without explosions.
  */
 add_task(async function test_virtual_folder_multi_load_after_load() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [foldersOne, oneSubjFoo] = await messageInjection.makeFoldersWithSets(2, [
-    { subject: "foo" },
-    {},
-  ]);
-  let virtOne = messageInjection.makeVirtualFolder(foldersOne, {
+  const [foldersOne, oneSubjFoo] = await messageInjection.makeFoldersWithSets(
+    2,
+    [{ subject: "foo" }, {}]
+  );
+  const virtOne = messageInjection.makeVirtualFolder(foldersOne, {
     subject: "foo",
   });
   await view_open(viewWrapper, virtOne);
   verify_messages_in_view([oneSubjFoo], viewWrapper);
 
   // use "bar" instead of "foo" to make sure constraints are properly changing
-  let [foldersTwo, twoSubjBar] = await messageInjection.makeFoldersWithSets(3, [
-    { subject: "bar" },
-    {},
-  ]);
-  let virtTwo = messageInjection.makeVirtualFolder(foldersTwo, {
+  const [foldersTwo, twoSubjBar] = await messageInjection.makeFoldersWithSets(
+    3,
+    [{ subject: "bar" }, {}]
+  );
+  const virtTwo = messageInjection.makeVirtualFolder(foldersTwo, {
     subject: "bar",
   });
   await view_open(viewWrapper, virtTwo);
@@ -333,24 +336,24 @@ add_task(async function test_virtual_folder_multi_load_after_load() {
  *  to create just a single folder.
  */
 add_task(async function test_virtual_folder_combo_load_after_load() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [foldersOne, oneSubjFoo] = await messageInjection.makeFoldersWithSets(1, [
-    { subject: "foo" },
-    {},
-  ]);
-  let virtOne = messageInjection.makeVirtualFolder(foldersOne, {
+  const [foldersOne, oneSubjFoo] = await messageInjection.makeFoldersWithSets(
+    1,
+    [{ subject: "foo" }, {}]
+  );
+  const virtOne = messageInjection.makeVirtualFolder(foldersOne, {
     subject: "foo",
   });
   await view_open(viewWrapper, virtOne);
   verify_messages_in_view([oneSubjFoo], viewWrapper);
 
   // use "bar" instead of "foo" to make sure constraints are properly changing
-  let [foldersTwo, twoSubjBar] = await messageInjection.makeFoldersWithSets(3, [
-    { subject: "bar" },
-    {},
-  ]);
-  let virtTwo = messageInjection.makeVirtualFolder(foldersTwo, {
+  const [foldersTwo, twoSubjBar] = await messageInjection.makeFoldersWithSets(
+    3,
+    [{ subject: "bar" }, {}]
+  );
+  const virtTwo = messageInjection.makeVirtualFolder(foldersTwo, {
     subject: "bar",
   });
   await view_open(viewWrapper, virtTwo);
@@ -369,11 +372,11 @@ add_task(async function test_virtual_folder_combo_load_after_load() {
  *  it does not get into our list of _underlyingFolders.
  */
 add_task(async function test_virtual_folder_filters_out_servers() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [folders] = await messageInjection.makeFoldersWithSets(2, []);
+  const [folders] = await messageInjection.makeFoldersWithSets(2, []);
   folders.push(folders[0].rootFolder);
-  let virtFolder = messageInjection.makeVirtualFolder(folders, {});
+  const virtFolder = messageInjection.makeVirtualFolder(folders, {});
   await view_open(viewWrapper, virtFolder);
 
   assert_equals(
@@ -392,20 +395,23 @@ add_task(async function test_virtual_folder_filters_out_servers() {
  *  view wrapper closes itself.
  */
 add_task(async function test_virtual_folder_underlying_folder_deleted() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [[folderOne]] = await messageInjection.makeFoldersWithSets(1, [
+  const [[folderOne]] = await messageInjection.makeFoldersWithSets(1, [
     { subject: "foo" },
     {},
   ]);
-  let [[folderTwo], twoSubjFoo] = await messageInjection.makeFoldersWithSets(
+  const [[folderTwo], twoSubjFoo] = await messageInjection.makeFoldersWithSets(
     1,
     [{ subject: "foo" }, {}]
   );
 
-  let virtFolder = messageInjection.makeVirtualFolder([folderOne, folderTwo], {
-    subject: "foo",
-  });
+  const virtFolder = messageInjection.makeVirtualFolder(
+    [folderOne, folderTwo],
+    {
+      subject: "foo",
+    }
+  );
   await view_open(viewWrapper, virtFolder);
 
   // this triggers the search (under the view's hood), so it's async
@@ -433,13 +439,16 @@ add_task(async function test_virtual_folder_underlying_folder_deleted() {
 
 add_task(
   async function test_virtual_folder_mail_views_unread_with_one_folder() {
-    let viewWrapper = make_view_wrapper();
+    const viewWrapper = make_view_wrapper();
 
-    let [folders, fooOne, fooTwo] = await messageInjection.makeFoldersWithSets(
-      1,
-      [{ subject: "foo 1" }, { subject: "foo 2" }, {}, {}]
-    );
-    let virtFolder = messageInjection.makeVirtualFolder(folders, {
+    const [folders, fooOne, fooTwo] =
+      await messageInjection.makeFoldersWithSets(1, [
+        { subject: "foo 1" },
+        { subject: "foo 2" },
+        {},
+        {},
+      ]);
+    const virtFolder = messageInjection.makeVirtualFolder(folders, {
       subject: "foo",
     });
 
@@ -449,7 +458,7 @@ add_task(
     verify_messages_in_view([fooOne, fooTwo], viewWrapper);
 
     // add some more things (unread!), make sure they appear.
-    let [fooThree] = await messageInjection.makeNewSetsInFolders(folders, [
+    const [fooThree] = await messageInjection.makeNewSetsInFolders(folders, [
       { subject: "foo 3" },
       {},
     ]);
@@ -474,13 +483,16 @@ add_task(
 
 add_task(
   async function test_virtual_folder_mail_views_unread_with_four_folders() {
-    let viewWrapper = make_view_wrapper();
+    const viewWrapper = make_view_wrapper();
 
-    let [folders, fooOne, fooTwo] = await messageInjection.makeFoldersWithSets(
-      4,
-      [{ subject: "foo 1" }, { subject: "foo 2" }, {}, {}]
-    );
-    let virtFolder = messageInjection.makeVirtualFolder(folders, {
+    const [folders, fooOne, fooTwo] =
+      await messageInjection.makeFoldersWithSets(4, [
+        { subject: "foo 1" },
+        { subject: "foo 2" },
+        {},
+        {},
+      ]);
+    const virtFolder = messageInjection.makeVirtualFolder(folders, {
       subject: "foo",
     });
 
@@ -490,7 +502,7 @@ add_task(
     verify_messages_in_view([fooOne, fooTwo], viewWrapper);
 
     // add some more things (unread!), make sure they appear.
-    let [fooThree] = await messageInjection.makeNewSetsInFolders(folders, [
+    const [fooThree] = await messageInjection.makeNewSetsInFolders(folders, [
       { subject: "foo 3" },
       {},
     ]);
@@ -516,14 +528,14 @@ add_task(
 // core view test, or a mozmill test, but I think the view wrapper stuff
 // is involved in some of the issues here, so this is a compromise.
 add_task(async function test_virtual_folder_mail_new_handling() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [folders] = await messageInjection.makeFoldersWithSets(1, [
+  const [folders] = await messageInjection.makeFoldersWithSets(1, [
     { subject: "foo 1" },
     { subject: "foo 2" },
   ]);
-  let folder = folders[0];
-  let virtFolder = messageInjection.makeVirtualFolder(folders, {
+  const folder = folders[0];
+  const virtFolder = messageInjection.makeVirtualFolder(folders, {
     subject: "foo",
   });
 

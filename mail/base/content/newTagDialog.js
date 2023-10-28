@@ -13,7 +13,7 @@ var dialog;
  * tag dialog.
  */
 function onLoad() {
-  let windowArgs = window.arguments[0];
+  const windowArgs = window.arguments[0];
 
   dialog = {};
 
@@ -54,7 +54,7 @@ function initializeForEditing(aTagKey) {
  */
 function onOKEditTag(event) {
   // get the tag name of the current key we are editing
-  let existingTagName = MailServices.tags.getTagForKey(dialog.editTagKey);
+  const existingTagName = MailServices.tags.getTagForKey(dialog.editTagKey);
 
   // it's ok if the name didn't change
   if (existingTagName != dialog.nameField.value) {

@@ -70,7 +70,7 @@ registerCleanupFunction(async function () {
  * movable tab and drops it onto the third movable tab.
  */
 add_task(async function test_tab_reorder_tabbar() {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
@@ -106,8 +106,8 @@ add_task(async function test_tab_reorder_tabbar() {
   await switch_tab(1);
   await assert_selected_and_displayed(msgHdrsInFolder[0]);
 
-  let tab1 = tabmail.tabContainer.allTabs[1];
-  let tab3 = tabmail.tabContainer.allTabs[3];
+  const tab1 = tabmail.tabContainer.allTabs[1];
+  const tab3 = tabmail.tabContainer.allTabs[3];
 
   drag_n_drop_element(
     tab1,
@@ -158,7 +158,7 @@ add_task(async function test_tab_reorder_tabbar() {
  * Tests drag'n'drop tab reordering between windows
  */
 add_task(async function test_tab_reorder_window() {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
@@ -178,18 +178,18 @@ add_task(async function test_tab_reorder_window() {
 
   // ...and then a new 3 pane as our drop target.
   mc2 = await open_folder_in_new_window(folder);
-  let tabmail2 = mc2.document.getElementById("tabmail");
+  const tabmail2 = mc2.document.getElementById("tabmail");
   await TestUtils.waitForCondition(
     () => tabmail2.currentAbout3Pane.gDBView,
     "waiting for the new window to be ready"
   );
 
   // Start dragging the first tab ...
-  let tabA = tabmail.tabContainer.allTabs[1];
+  const tabA = tabmail.tabContainer.allTabs[1];
   Assert.ok(tabA, "No movable Tab");
 
   // We drop onto the Folder Tab, it is guaranteed to exist.
-  let tabB = tabmail2.tabContainer.allTabs[0];
+  const tabB = tabmail2.tabContainer.allTabs[0];
   Assert.ok(tabB, "No movable Tab");
 
   drag_n_drop_element(tabA, window, tabB, mc2, 0.75, 0.0, tabmail.tabContainer);
@@ -225,7 +225,7 @@ add_task(async function test_tab_reorder_window() {
  * Tests detaching tabs into windows via drag'n'drop
  */
 add_task(async function test_tab_reorder_detach() {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
@@ -241,20 +241,20 @@ add_task(async function test_tab_reorder_detach() {
   assert_number_of_tabs_open(2);
 
   // ... if every thing works we should expect a new window...
-  let newWindowPromise = promise_new_window("mail:3pane");
+  const newWindowPromise = promise_new_window("mail:3pane");
 
   // ... now start dragging
   tabmail.switchToTab(1);
 
-  let tab1 = tabmail.tabContainer.allTabs[1];
-  let dropContent = document.getElementById("tabpanelcontainer");
+  const tab1 = tabmail.tabContainer.allTabs[1];
+  const dropContent = document.getElementById("tabpanelcontainer");
 
-  let dt = synthesize_drag_start(window, tab1, tabmail.tabContainer);
+  const dt = synthesize_drag_start(window, tab1, tabmail.tabContainer);
 
   synthesize_drag_over(window, dropContent, dt);
 
   // notify tab1 drag has ended
-  let dropRect = dropContent.getBoundingClientRect();
+  const dropRect = dropContent.getBoundingClientRect();
   synthesize_drag_end(window, dropContent, tab1, dt, {
     screenX: dropContent.screenX + dropRect.width / 2,
     screenY: dropContent.screenY + dropRect.height / 2,
@@ -262,7 +262,7 @@ add_task(async function test_tab_reorder_detach() {
 
   // ... and wait for the new window
   mc2 = await newWindowPromise;
-  let tabmail2 = mc2.document.getElementById("tabmail");
+  const tabmail2 = mc2.document.getElementById("tabmail");
   await TestUtils.waitForCondition(
     () => tabmail2.tabInfo[1]?.chromeBrowser,
     "waiting for a second tab to open in the new window"
@@ -295,7 +295,7 @@ add_task(async function test_tab_reorder_detach() {
  * Test undo of recently closed tabs.
  */
 add_task(async function test_tab_undo() {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
@@ -337,17 +337,17 @@ add_task(async function test_tab_undo() {
 });
 
 async function _synthesizeRecentlyClosedMenu() {
-  let tab = document.getElementById("tabmail").tabContainer.allTabs[1];
+  const tab = document.getElementById("tabmail").tabContainer.allTabs[1];
   EventUtils.synthesizeMouseAtCenter(
     tab,
     { type: "contextmenu", button: 2 },
     tab.ownerGlobal
   );
 
-  let tabContextMenu = document.getElementById("tabContextMenu");
+  const tabContextMenu = document.getElementById("tabContextMenu");
   await wait_for_popup_to_open(tabContextMenu);
 
-  let recentlyClosedTabs = document.getElementById(
+  const recentlyClosedTabs = document.getElementById(
     "tabContextMenuRecentlyClosed"
   );
 
@@ -358,7 +358,7 @@ async function _synthesizeRecentlyClosedMenu() {
 }
 
 async function _teardownRecentlyClosedMenu() {
-  let menu = document.getElementById("tabContextMenu");
+  const menu = document.getElementById("tabContextMenu");
   await close_popup(window, menu);
 }
 
@@ -366,7 +366,7 @@ async function _teardownRecentlyClosedMenu() {
  * Tests the recently closed tabs menu.
  */
 add_task(async function test_tab_recentlyClosed() {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   tabmail.closeOtherTabs(0, true);
   assert_number_of_tabs_open(1);
@@ -389,7 +389,7 @@ add_task(async function test_tab_recentlyClosed() {
   await assert_selected_and_displayed(msgHdrsInFolder[1]);
 
   // ... and store the tab titles, to ensure they match with the menu items.
-  let tabTitles = [];
+  const tabTitles = [];
   for (let idx = 0; idx < 16; idx++) {
     tabTitles.unshift(tabmail.tabInfo[idx].title);
   }
@@ -402,7 +402,7 @@ add_task(async function test_tab_recentlyClosed() {
   assert_number_of_tabs_open(2);
 
   // ...then open the context menu.
-  let menu = await _synthesizeRecentlyClosedMenu();
+  const menu = await _synthesizeRecentlyClosedMenu();
 
   // Check if the context menu was populated correctly...
   Assert.ok(menu.itemCount == 12, "Failed to populate context menu");
@@ -470,7 +470,7 @@ add_task(async function test_tab_recentlyClosed() {
 function teardownTest(test) {
   // Some test cases open new windows, thus we need to ensure all
   // opened windows get closed.
-  for (let win of Services.wm.getEnumerator("mail:3pane")) {
+  for (const win of Services.wm.getEnumerator("mail:3pane")) {
     if (win != window) {
       win.close();
     }

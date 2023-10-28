@@ -33,7 +33,7 @@ function setupServerDaemon(handler) {
 }
 
 function getBasicSmtpServer(port = 1, hostname = "localhost") {
-  let server = localAccountUtils.create_outgoing_server(
+  const server = localAccountUtils.create_outgoing_server(
     port,
     "user",
     "password",
@@ -49,7 +49,7 @@ function getBasicSmtpServer(port = 1, hostname = "localhost") {
 
 function getSmtpIdentity(senderName, smtpServer) {
   // Set up the identity.
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.email = senderName;
   identity.smtpServerKey = smtpServer.key;
 
@@ -64,11 +64,11 @@ add_setup(() => {
   gServer.start();
 
   // Test needs a non-local default account to be able to send messages.
-  let popAccount = createAccount("pop3");
-  let localAccount = createAccount("local");
+  const popAccount = createAccount("pop3");
+  const localAccount = createAccount("local");
   MailServices.accounts.defaultAccount = popAccount;
 
-  let identity = getSmtpIdentity(
+  const identity = getSmtpIdentity(
     "identity@foo.invalid",
     getBasicSmtpServer(gServer.port)
   );
@@ -76,7 +76,7 @@ add_setup(() => {
   popAccount.defaultIdentity = identity;
 
   // Test is using the Sent folder and Outbox folder of the local account.
-  let rootFolder = localAccount.incomingServer.rootFolder;
+  const rootFolder = localAccount.incomingServer.rootFolder;
   rootFolder.createSubfolder("Sent", null);
   MailServices.accounts.setSpecialFolders();
   gOutbox = rootFolder.getChildNamed("Outbox");
@@ -87,10 +87,10 @@ add_setup(() => {
 });
 
 add_task(async function testIsReflexive() {
-  let files = {
+  const files = {
     "background.js": async () => {
       function trimContent(content) {
-        let data = content.replaceAll("\r\n", "\n").split("\n");
+        const data = content.replaceAll("\r\n", "\n").split("\n");
         while (data[data.length - 1] == "") {
           data.pop();
         }
@@ -98,31 +98,33 @@ add_task(async function testIsReflexive() {
       }
 
       // Create a plain text message.
-      let createdTextWindowPromise = window.waitForEvent("windows.onCreated");
+      const createdTextWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         plainTextBody: "This is some PLAIN text.",
         isPlainText: true,
         to: "rcpt@invalid.foo",
         subject: "Test message",
       });
-      let [createdTextWindow] = await createdTextWindowPromise;
-      let [createdTextTab] = await browser.tabs.query({
+      const [createdTextWindow] = await createdTextWindowPromise;
+      const [createdTextTab] = await browser.tabs.query({
         windowId: createdTextWindow.id,
       });
 
       // Call getComposeDetails() to trigger the actual bug.
-      let details = await browser.compose.getComposeDetails(createdTextTab.id);
+      const details = await browser.compose.getComposeDetails(
+        createdTextTab.id
+      );
       browser.test.assertEq("This is some PLAIN text.", details.plainTextBody);
 
       // Send the message.
-      let removedTextWindowPromise = window.waitForEvent("windows.onRemoved");
+      const removedTextWindowPromise = window.waitForEvent("windows.onRemoved");
       browser.compose.sendMessage(createdTextTab.id);
       await removedTextWindowPromise;
 
       // Find the message in the send folder.
-      let accounts = await browser.accounts.list();
-      let account = accounts.find(a => a.folders.find(f => f.type == "sent"));
-      let { messages } = await browser.messages.list(
+      const accounts = await browser.accounts.list();
+      const account = accounts.find(a => a.folders.find(f => f.type == "sent"));
+      const { messages } = await browser.messages.list(
         account.folders.find(f => f.type == "sent")
       );
 
@@ -132,8 +134,8 @@ add_task(async function testIsReflexive() {
         messages[0].subject,
         "Should find the sent message"
       );
-      let message = await browser.messages.getFull(messages[0].id);
-      let content = trimContent(message.parts[0].body);
+      const message = await browser.messages.getFull(messages[0].id);
+      const content = trimContent(message.parts[0].body);
 
       // Test that the first line is not an empty line.
       browser.test.assertEq(
@@ -146,7 +148,7 @@ add_task(async function testIsReflexive() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },

@@ -28,7 +28,7 @@ add_setup(async function () {
   folder = await create_folder("SigStripTest");
   registerCleanupFunction(() => folder.deleteSelf(null));
 
-  let msg = create_message({
+  const msg = create_message({
     subject: "msg with signature; format=flowed",
     body: {
       body:
@@ -42,7 +42,7 @@ add_setup(async function () {
     },
   });
   await add_message_to_folder([folder], msg);
-  let msg2 = create_message({
+  const msg2 = create_message({
     subject: "msg with signature; format not flowed",
     body: {
       body:
@@ -94,11 +94,11 @@ add_task(async function test_sig_strip_false_nonff() {
  */
 async function check_sig_strip_works(aRow, aShouldStrip) {
   await be_in_folder(folder);
-  let msg = await select_click_row(aRow);
+  const msg = await select_click_row(aRow);
   await assert_selected_and_displayed(window, msg);
 
-  let rwc = await open_compose_with_reply();
-  let body = get_compose_body(rwc);
+  const rwc = await open_compose_with_reply();
+  const body = get_compose_body(rwc);
 
   if (aShouldStrip && body.textContent.includes(sig)) {
     throw new Error("signature was not stripped; body=" + body.textContent);

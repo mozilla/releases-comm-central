@@ -613,7 +613,7 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
       // Save nodes in an array so we can create anchor node under it later
       headingsArray[anchor] = heading;
     }
-    let menuItems = [];
+    const menuItems = [];
     if (anchorList.length) {
       // case insensitive sort
       anchorList.sort((a, b) => {
@@ -634,7 +634,7 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
         linkMenulist.removeAttribute("enablehistory");
         return;
       }
-      let item = createMenuItem(GetString("NoNamedAnchorsOrHeadings"));
+      const item = createMenuItem(GetString("NoNamedAnchorsOrHeadings"));
       item.setAttribute("disabled", "true");
       menuItems.push(item);
     }
@@ -642,10 +642,10 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
       if (document.getElementById("datalist-menuseparator")) {
         return;
       }
-      let menuseparator = document.createXULElement("menuseparator");
+      const menuseparator = document.createXULElement("menuseparator");
       menuseparator.setAttribute("id", "datalist-menuseparator");
       document.getElementById("textbox-contextmenu").appendChild(menuseparator);
-      for (let menuitem of menuItems) {
+      for (const menuitem of menuItems) {
         document.getElementById("textbox-contextmenu").appendChild(menuitem);
       }
     });

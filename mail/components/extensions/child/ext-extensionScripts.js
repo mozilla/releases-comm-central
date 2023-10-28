@@ -54,7 +54,7 @@ class ExtensionScriptChild {
 
 this.extensionScripts = class extends ExtensionAPI {
   getAPI(context) {
-    let api = {
+    const api = {
       register(options) {
         return context.cloneScope.Promise.resolve().then(async () => {
           const scriptId = await context.childManager.callParentAsyncFunction(

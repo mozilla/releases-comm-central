@@ -150,12 +150,16 @@ var paneLayout = {
     this.folderPaneSplitter = document.getElementById("folderPaneSplitter");
     this.messagePaneSplitter = document.getElementById("messagePaneSplitter");
 
-    for (let [splitter, properties, storeID] of [
+    for (const [splitter, properties, storeID] of [
       [this.folderPaneSplitter, ["width"], "folderPaneBox"],
       [this.messagePaneSplitter, ["height", "width"], "messagepaneboxwrapper"],
     ]) {
-      for (let property of properties) {
-        let value = Services.xulStore.getValue(XULSTORE_URL, storeID, property);
+      for (const property of properties) {
+        const value = Services.xulStore.getValue(
+          XULSTORE_URL,
+          storeID,
+          property
+        );
         if (value) {
           splitter[property] = value;
         }
@@ -328,7 +332,7 @@ var folderPaneContextMenu = {
    * @param {string} command
    */
   getCommandState(command) {
-    let folder = this.activeFolder;
+    const folder = this.activeFolder;
     if (!folder || FolderUtils.isSmartTagsFolder(folder)) {
       return false;
     }
@@ -343,15 +347,15 @@ var folderPaneContextMenu = {
         server,
         URI,
       } = folder;
-      let isJunk = flags & Ci.nsMsgFolderFlags.Junk;
-      let isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
-      let isNNTP = server.type == "nntp";
+      const isJunk = flags & Ci.nsMsgFolderFlags.Junk;
+      const isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
+      const isNNTP = server.type == "nntp";
       if (isNNTP && !isServer) {
         // `folderPane.deleteFolder` has a special case for this.
         deletable = true;
       }
-      let isSmartTagsFolder = FolderUtils.isSmartTagsFolder(folder);
-      let showNewFolderItem =
+      const isSmartTagsFolder = FolderUtils.isSmartTagsFolder(folder);
+      const showNewFolderItem =
         (!isNNTP && canCreateSubfolders) || flags & Ci.nsMsgFolderFlags.Inbox;
 
       this._commandStates = {
@@ -383,14 +387,14 @@ var folderPaneContextMenu = {
     }
 
     function showItem(id, show) {
-      let item = document.getElementById(id);
+      const item = document.getElementById(id);
       if (item) {
         item.hidden = !show;
       }
     }
 
     function checkItem(id, checked) {
-      let item = document.getElementById(id);
+      const item = document.getElementById(id);
       if (item) {
         // Always convert truthy/falsy to boolean before string.
         item.setAttribute("checked", !!checked);
@@ -398,35 +402,35 @@ var folderPaneContextMenu = {
     }
 
     // Ask commandController about the commands it controls.
-    for (let [id, command] of Object.entries(this._commands)) {
+    for (const [id, command] of Object.entries(this._commands)) {
       showItem(id, commandController.isCommandEnabled(command));
     }
 
-    let folder = this.activeFolder;
-    let { canCreateSubfolders, flags, isServer, isSpecialFolder, server } =
+    const folder = this.activeFolder;
+    const { canCreateSubfolders, flags, isServer, isSpecialFolder, server } =
       folder;
-    let isJunk = flags & Ci.nsMsgFolderFlags.Junk;
-    let isTrash = isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true);
-    let isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
-    let isRealFolder = !isServer && !isVirtual;
-    let isSmartTagsFolder = FolderUtils.isSmartTagsFolder(folder);
-    let serverType = server.type;
+    const isJunk = flags & Ci.nsMsgFolderFlags.Junk;
+    const isTrash = isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true);
+    const isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
+    const isRealFolder = !isServer && !isVirtual;
+    const isSmartTagsFolder = FolderUtils.isSmartTagsFolder(folder);
+    const serverType = server.type;
 
     showItem(
       "folderPaneContext-getMessages",
       (isServer && serverType != "none") ||
         (["nntp", "rss"].includes(serverType) && !isTrash && !isVirtual)
     );
-    let showPauseAll = isServer && FeedUtils.isFeedFolder(folder);
+    const showPauseAll = isServer && FeedUtils.isFeedFolder(folder);
     showItem("folderPaneContext-pauseAllUpdates", showPauseAll);
     if (showPauseAll) {
-      let optionsAcct = FeedUtils.getOptionsAcct(server);
+      const optionsAcct = FeedUtils.getOptionsAcct(server);
       checkItem("folderPaneContext-pauseAllUpdates", !optionsAcct.doBiff);
     }
-    let showPaused = !isServer && FeedUtils.getFeedUrlsInFolder(folder);
+    const showPaused = !isServer && FeedUtils.getFeedUrlsInFolder(folder);
     showItem("folderPaneContext-pauseUpdates", showPaused);
     if (showPaused) {
-      let properties = FeedUtils.getFolderProperties(folder);
+      const properties = FeedUtils.getFolderProperties(folder);
       checkItem(
         "folderPaneContext-pauseUpdates",
         properties.includes("isPaused")
@@ -449,7 +453,7 @@ var folderPaneContextMenu = {
       isRealFolder && serverType == "nntp"
     );
 
-    let showNewFolderItem =
+    const showNewFolderItem =
       (serverType != "nntp" && canCreateSubfolders) ||
       flags & Ci.nsMsgFolderFlags.Inbox;
     if (showNewFolderItem) {
@@ -497,10 +501,10 @@ var folderPaneContextMenu = {
     // Don't show "copy" and "again" and don't show "recent" and "favorite".
     // Also, check if this is a top-level smart folder, e.g., virtual "Inbox"
     // in unified folder view or a Tags folder. If so, don't show "move".
-    let movePopup = document.getElementById("folderContext-movePopup");
+    const movePopup = document.getElementById("folderContext-movePopup");
     if (isVirtual) {
       showItem("folderPaneContext-copyMenu", false);
-      let folder = this.activeFolder;
+      const folder = this.activeFolder;
       let showMove = true;
       if (
         (folder.server.hostName == "smart mailboxes" &&
@@ -511,14 +515,16 @@ var folderPaneContextMenu = {
       }
       showItem("folderPaneContext-moveMenu", showMove);
       if (showMove) {
-        let rootURI = MailUtils.getOrCreateFolder(
+        const rootURI = MailUtils.getOrCreateFolder(
           this.activeFolder.rootFolder.URI
         );
         movePopup.parentFolder = rootURI;
       }
     } else {
       // Non-virtual. Don't allow move or copy of special use or root folder.
-      let okToMoveCopy = !(isServer || flags & Ci.nsMsgFolderFlags.SpecialUse);
+      const okToMoveCopy = !(
+        isServer || flags & Ci.nsMsgFolderFlags.SpecialUse
+      );
       if (okToMoveCopy) {
         // Set the move menu to show all accounts.
         movePopup.parentFolder = null;
@@ -528,7 +534,7 @@ var folderPaneContextMenu = {
     }
 
     let lastItem;
-    for (let child of document.getElementById("folderPaneContext").children) {
+    for (const child of document.getElementById("folderPaneContext").children) {
       if (child.localName == "menuseparator") {
         child.hidden = !lastItem || lastItem.localName == "menuseparator";
       }
@@ -584,14 +590,14 @@ var folderPaneContextMenu = {
   },
 
   onCommand(event) {
-    let folder = this.activeFolder;
+    const folder = this.activeFolder;
     // If commandController handles this command, ask it to do so.
     if (event.target.id in this._commands) {
       commandController.doCommand(this._commands[event.target.id], folder);
       return;
     }
 
-    let topChromeWindow = window.browsingContext.topChromeWindow;
+    const topChromeWindow = window.browsingContext.topChromeWindow;
     switch (event.target.id) {
       case "folderPaneContext-getMessages":
         topChromeWindow.MsgGetMessage([folder]);
@@ -708,7 +714,7 @@ var folderPane = {
       canBeCompact: false,
 
       initServer(server) {
-        let serverRow = folderPane._createServerRow(this.name, server);
+        const serverRow = folderPane._createServerRow(this.name, server);
         folderPane._insertInServerOrder(this.containerList, serverRow);
         folderPane._addSubFolders(server.rootFolder, serverRow, this.name);
       },
@@ -731,7 +737,7 @@ var folderPane = {
           return;
         }
 
-        let parentRow = folderPane.getRowForFolder(parentFolder, this.name);
+        const parentRow = folderPane.getRowForFolder(parentFolder, this.name);
         if (!parentRow) {
           console.error("no parentRow for ", parentFolder.URI, childFolder.URI);
         }
@@ -744,7 +750,7 @@ var folderPane = {
           parentFolder.performExpand(top.msgWindow);
         }
         folderTree.expandRow(parentRow);
-        let childRow = folderPane._createFolderRow(this.name, childFolder);
+        const childRow = folderPane._createFolderRow(this.name, childFolder);
         folderPane._addSubFolders(childFolder, childRow, "all");
         parentRow.insertChildInOrder(childRow);
       },
@@ -788,19 +794,19 @@ var folderPane = {
           // We don't want the "smart" server/account leaking out into the ui in
           // other places, so set it as hidden.
           this._smartServer.hidden = true;
-          let account = MailServices.accounts.createAccount();
+          const account = MailServices.accounts.createAccount();
           account.incomingServer = this._smartServer;
         }
         this._smartServer.prettyName =
           messengerBundle.GetStringFromName("unifiedAccountName");
-        let smartRoot = this._smartServer.rootFolder.QueryInterface(
+        const smartRoot = this._smartServer.rootFolder.QueryInterface(
           Ci.nsIMsgLocalMailFolder
         );
 
         let allFlags = 0;
         this._folderTypes.forEach(folderType => (allFlags |= folderType.flag));
 
-        for (let folderType of this._folderTypes) {
+        for (const folderType of this._folderTypes) {
           let folder = smartRoot.getChildWithURI(
             `${smartRoot.URI}/${folderType.name}`,
             false,
@@ -808,7 +814,7 @@ var folderPane = {
           );
           if (!folder) {
             try {
-              let searchFolders = [];
+              const searchFolders = [];
 
               function recurse(folder) {
                 let subFolders;
@@ -826,7 +832,7 @@ var folderPane = {
                   return;
                 }
 
-                for (let sf of subFolders) {
+                for (const sf of subFolders) {
                   // Add all of the subfolders except the ones that belong to
                   // a different folder type.
                   if (!(sf.flags & allFlags)) {
@@ -836,8 +842,8 @@ var folderPane = {
                 }
               }
 
-              for (let server of MailServices.accounts.allServers) {
-                for (let f of server.rootFolder.getFoldersWithFlags(
+              for (const server of MailServices.accounts.allServers) {
+                for (const f of server.rootFolder.getFoldersWithFlags(
                   folderType.flag
                 )) {
                   searchFolders.push(f);
@@ -848,8 +854,8 @@ var folderPane = {
               folder = smartRoot.createLocalSubfolder(folderType.name);
               folder.flags |= Ci.nsMsgFolderFlags.Virtual | folderType.flag;
 
-              let msgDatabase = folder.msgDatabase;
-              let folderInfo = msgDatabase.dBFolderInfo;
+              const msgDatabase = folder.msgDatabase;
+              const folderInfo = msgDatabase.dBFolderInfo;
 
               folderInfo.setCharProperty("searchStr", "ALL");
               folderInfo.setCharProperty(
@@ -867,14 +873,14 @@ var folderPane = {
               continue;
             }
           }
-          let row = folderPane._createFolderRow(this.name, folder);
+          const row = folderPane._createFolderRow(this.name, folder);
           this.containerList.appendChild(row);
           folderType.folderURI = folder.URI;
           folderType.list = row.childList;
 
           // Display the searched folders for this type.
-          let wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
-          for (let searchFolder of wrappedFolder.searchFolders) {
+          const wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
+          for (const searchFolder of wrappedFolder.searchFolders) {
             if (searchFolder != folder) {
               this._addSearchedFolder(
                 folderType,
@@ -890,7 +896,7 @@ var folderPane = {
       _addSearchedFolder(folderType, parentFolder, childFolder) {
         if (folderType.flag & childFolder.flags) {
           // The folder has the flag for this type.
-          let folderRow = folderPane._createFolderRow(
+          const folderRow = folderPane._createFolderRow(
             this.name,
             childFolder,
             "server"
@@ -925,7 +931,7 @@ var folderPane = {
       },
 
       changeSearchedFolders(smartFolder) {
-        let folderType = this._folderTypes.find(
+        const folderType = this._folderTypes.find(
           ft => ft.folderURI == smartFolder.URI
         );
         if (!folderType) {
@@ -934,16 +940,20 @@ var folderPane = {
           return;
         }
 
-        let wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(smartFolder);
-        let smartFolderRow = folderPane.getRowForFolder(smartFolder, this.name);
-        let searchFolderURIs = wrappedFolder.searchFolders.map(sf => sf.URI);
-        let serversToCheck = new Set();
+        const wrappedFolder =
+          VirtualFolderHelper.wrapVirtualFolder(smartFolder);
+        const smartFolderRow = folderPane.getRowForFolder(
+          smartFolder,
+          this.name
+        );
+        const searchFolderURIs = wrappedFolder.searchFolders.map(sf => sf.URI);
+        const serversToCheck = new Set();
 
         // Remove any rows which may belong to folders that aren't searched.
-        for (let row of [...smartFolderRow.querySelectorAll("li")]) {
+        for (const row of [...smartFolderRow.querySelectorAll("li")]) {
           if (!searchFolderURIs.includes(row.uri)) {
             row.remove();
-            let folder = MailServices.folderLookup.getFolderForURL(row.uri);
+            const folder = MailServices.folderLookup.getFolderForURL(row.uri);
             if (folder) {
               serversToCheck.add(folder.server);
             }
@@ -951,18 +961,21 @@ var folderPane = {
         }
 
         // Add missing rows for folders that are searched.
-        let existingRowURIs = Array.from(
+        const existingRowURIs = Array.from(
           smartFolderRow.querySelectorAll("li"),
           row => row.uri
         );
-        for (let searchFolder of wrappedFolder.searchFolders) {
+        for (const searchFolder of wrappedFolder.searchFolders) {
           if (
             searchFolder == smartFolder ||
             existingRowURIs.includes(searchFolder.URI)
           ) {
             continue;
           }
-          let existingRow = folderPane.getRowForFolder(searchFolder, this.name);
+          const existingRow = folderPane.getRowForFolder(
+            searchFolder,
+            this.name
+          );
           if (existingRow) {
             // A row for this folder exists, but not under the smart folder.
             // Remove it and display under the smart folder.
@@ -978,7 +991,7 @@ var folderPane = {
         }
 
         // For any rows we removed, check they are added back to the tree.
-        for (let server of serversToCheck) {
+        for (const server of serversToCheck) {
           this.initServer(server);
         }
       },
@@ -986,23 +999,23 @@ var folderPane = {
       initServer(server) {
         // Find all folders in this server, and display the ones that aren't
         // currently displayed.
-        let descendants = new Map(
+        const descendants = new Map(
           server.rootFolder.descendants.map(d => [d.URI, d])
         );
         if (!descendants.size) {
           return;
         }
-        let remainingFolderURIs = Array.from(descendants.keys());
+        const remainingFolderURIs = Array.from(descendants.keys());
 
         // Get a list of folders that already exist in the folder tree.
-        let existingRows = this.containerList.getElementsByTagName("li");
+        const existingRows = this.containerList.getElementsByTagName("li");
         let existingURIs = Array.from(existingRows, li => li.uri);
         do {
-          let folderURI = remainingFolderURIs.shift();
+          const folderURI = remainingFolderURIs.shift();
           if (existingURIs.includes(folderURI)) {
             continue;
           }
-          let folder = descendants.get(folderURI);
+          const folder = descendants.get(folderURI);
           if (folderPane._isGmailFolder(folder)) {
             continue;
           }
@@ -1027,14 +1040,14 @@ var folderPane = {
           return;
         }
 
-        let folderType = this._folderTypes.find(ft =>
+        const folderType = this._folderTypes.find(ft =>
           childFolder.isSpecialFolder(ft.flag, true)
         );
         if (folderType) {
-          let virtualFolder = VirtualFolderHelper.wrapVirtualFolder(
+          const virtualFolder = VirtualFolderHelper.wrapVirtualFolder(
             MailServices.folderLookup.getFolderForURL(folderType.folderURI)
           );
-          let searchFolders = virtualFolder.searchFolders;
+          const searchFolders = virtualFolder.searchFolders;
           if (searchFolders.includes(childFolder)) {
             // This folder is included in the virtual folder, do nothing.
             return;
@@ -1056,7 +1069,10 @@ var folderPane = {
               );
               folderPane._insertInServerOrder(this.containerList, serverRow);
             }
-            let folderRow = folderPane._createFolderRow(this.name, childFolder);
+            const folderRow = folderPane._createFolderRow(
+              this.name,
+              childFolder
+            );
             serverRow.insertChildInOrder(folderRow);
             folderPane._addSubFolders(childFolder, folderRow, this.name);
             return;
@@ -1064,7 +1080,7 @@ var folderPane = {
         }
 
         // Nothing special about this folder. Add it to the end of the list.
-        let folderRow = folderPane._addFolderAndAncestors(
+        const folderRow = folderPane._addFolderAndAncestors(
           this.containerList,
           childFolder,
           this.name
@@ -1073,11 +1089,11 @@ var folderPane = {
       },
 
       removeFolder(parentFolder, childFolder) {
-        let childRow = folderPane.getRowForFolder(childFolder, this.name);
+        const childRow = folderPane.getRowForFolder(childFolder, this.name);
         if (!childRow) {
           return;
         }
-        let parentRow = childRow.parentNode.closest("li");
+        const parentRow = childRow.parentNode.closest("li");
         childRow.remove();
         if (
           parentRow.parentNode == this.containerList &&
@@ -1091,7 +1107,7 @@ var folderPane = {
       changeAccountOrder() {
         folderPane._reapplyServerOrder(this.containerList);
 
-        for (let smartFolderRow of this.containerList.children) {
+        for (const smartFolderRow of this.containerList.children) {
           if (smartFolderRow.dataset.serverKey == this._smartServer.key) {
             folderPane._reapplyServerOrder(smartFolderRow.childList);
           }
@@ -1128,7 +1144,7 @@ var folderPane = {
         }
 
         for (let i = 0; i < subFolders.length; i++) {
-          let folder = subFolders[i];
+          const folder = subFolders[i];
           if (folderPane._isGmailFolder(folder)) {
             subFolders.splice(i, 1, ...folder.subFolders);
           }
@@ -1136,7 +1152,7 @@ var folderPane = {
 
         subFolders.sort((a, b) => a.compareSortKeys(b));
 
-        for (let folder of subFolders) {
+        for (const folder of subFolders) {
           if (!this._unreadFilter(folder)) {
             continue;
           }
@@ -1166,7 +1182,7 @@ var folderPane = {
         }
 
         if (folderPane._isCompact) {
-          let folderRow = folderPane._createFolderRow(
+          const folderRow = folderPane._createFolderRow(
             this.name,
             folder,
             "both"
@@ -1201,7 +1217,7 @@ var folderPane = {
         }
 
         // Remove any stray rows that might be descendants of `childFolder`.
-        for (let row of [...this.containerList.querySelectorAll("li")]) {
+        for (const row of [...this.containerList.querySelectorAll("li")]) {
           if (row.uri.startsWith(childFolder.URI + "/")) {
             row.remove();
           }
@@ -1233,7 +1249,7 @@ var folderPane = {
 
       addFolder(unused, folder) {
         this._addFolder(folder);
-        for (let subFolder of folder.getFoldersWithFlags(
+        for (const subFolder of folder.getFoldersWithFlags(
           Ci.nsMsgFolderFlags.Favorite
         )) {
           this._addFolder(subFolder);
@@ -1282,7 +1298,7 @@ var folderPane = {
         }
 
         // Remove any stray rows that might be descendants of `childFolder`.
-        for (let row of [...this.containerList.querySelectorAll("li")]) {
+        for (const row of [...this.containerList.querySelectorAll("li")]) {
           if (row.uri.startsWith(childFolder.URI + "/")) {
             row.remove();
           }
@@ -1323,13 +1339,13 @@ var folderPane = {
       canBeCompact: false,
 
       init() {
-        let folders = FolderUtils.getMostRecentFolders(
+        const folders = FolderUtils.getMostRecentFolders(
           MailServices.accounts.allFolders,
           Services.prefs.getIntPref("mail.folder_widget.max_recent"),
           "MRUTime"
         );
-        for (let folder of folders) {
-          let folderRow = folderPane._createFolderRow(
+        for (const folder of folders) {
+          const folderRow = folderPane._createFolderRow(
             this.name,
             folder,
             "both"
@@ -1362,12 +1378,12 @@ var folderPane = {
           // We don't want the "smart" server/account leaking out into the ui in
           // other places, so set it as hidden.
           this._smartServer.hidden = true;
-          let account = MailServices.accounts.createAccount();
+          const account = MailServices.accounts.createAccount();
           account.incomingServer = this._smartServer;
         }
         this._smartServer.prettyName =
           messengerBundle.GetStringFromName("unifiedAccountName");
-        let smartRoot = this._smartServer.rootFolder.QueryInterface(
+        const smartRoot = this._smartServer.rootFolder.QueryInterface(
           Ci.nsIMsgLocalMailFolder
         );
         this._tagsFolder =
@@ -1375,9 +1391,9 @@ var folderPane = {
           smartRoot.createLocalSubfolder("tags");
         this._tagsFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-        for (let tag of MailServices.tags.getAllTags()) {
+        for (const tag of MailServices.tags.getAllTags()) {
           try {
-            let folder = this._getVirtualFolder(tag);
+            const folder = this._getVirtualFolder(tag);
             this.containerList.appendChild(
               folderPane._createTagRow(this.name, folder, tag)
             );
@@ -1408,8 +1424,8 @@ var folderPane = {
         folder.flags |= Ci.nsMsgFolderFlags.Virtual;
         folder.prettyName = tag.tag;
 
-        let msgDatabase = folder.msgDatabase;
-        let folderInfo = msgDatabase.dBFolderInfo;
+        const msgDatabase = folder.msgDatabase;
+        const folderInfo = msgDatabase.dBFolderInfo;
 
         folderInfo.setCharProperty(
           "searchStr",
@@ -1437,16 +1453,16 @@ var folderPane = {
        *   changed causing this code to run.
        */
       changeTagFromPrefChange(prefName) {
-        let [, , key] = prefName.split(".");
+        const [, , key] = prefName.split(".");
         if (!MailServices.tags.isValidKey(key)) {
-          let uri = `${this._tagsFolder.URI}/${encodeURIComponent(key)}`;
+          const uri = `${this._tagsFolder.URI}/${encodeURIComponent(key)}`;
           folderPane.getRowForFolder(uri)?.remove();
           return;
         }
 
-        let tag = MailServices.tags.getAllTags().find(t => t.key == key);
-        let folder = this._getVirtualFolder(tag);
-        let row = folderPane.getRowForFolder(folder);
+        const tag = MailServices.tags.getAllTags().find(t => t.key == key);
+        const folder = this._getVirtualFolder(tag);
+        const row = folderPane.getRowForFolder(folder);
         folder.prettyName = tag.tag;
         if (row) {
           row.name = tag.tag;
@@ -1681,7 +1697,7 @@ var folderPane = {
     }
 
     this._hideLocalFolders = value;
-    for (let mode of Object.values(this._modes)) {
+    for (const mode of Object.values(this._modes)) {
       if (!mode.active) {
         continue;
       }
@@ -1697,9 +1713,9 @@ var folderPane = {
    * @param {Event} event - The DOMEvent.
    */
   toggleFolderMode(event) {
-    let currentModes = this.activeModes;
-    let mode = event.target.getAttribute("value");
-    let index = this.activeModes.indexOf(mode);
+    const currentModes = this.activeModes;
+    const mode = event.target.getAttribute("value");
+    const index = this.activeModes.indexOf(mode);
 
     if (event.target.hasAttribute("checked")) {
       if (index == -1) {
@@ -1717,7 +1733,7 @@ var folderPane = {
   },
 
   toggleCompactViewMenuItem() {
-    let subMenuCompactBtn = document.querySelector(
+    const subMenuCompactBtn = document.querySelector(
       "#folderPaneMoreContextCompactToggle"
     );
     if (this.canBeCompact) {
@@ -1732,7 +1748,7 @@ var folderPane = {
    * checked to reflect the currently active modes.
    */
   updateContextCheckedFolderMode() {
-    for (let item of document.querySelectorAll(".folder-pane-mode")) {
+    for (const item of document.querySelectorAll(".folder-pane-mode")) {
       if (this.activeModes.includes(item.value)) {
         item.setAttribute("checked", true);
         continue;
@@ -1773,7 +1789,7 @@ var folderPane = {
       moveDownMenuItem.setAttribute("disabled", "true");
     }
 
-    let compactMenuItem = this.folderPaneModeContext.querySelector(
+    const compactMenuItem = this.folderPaneModeContext.querySelector(
       "#compactFolderButton"
     );
     compactMenuItem.removeAttribute("checked");
@@ -1802,7 +1818,7 @@ var folderPane = {
    * @param {Event} event - The DOMEvent.
    */
   moveFolderModeUp(event) {
-    let currentModes = this.activeModes;
+    const currentModes = this.activeModes;
     const mode = this.mode;
     const index = currentModes.indexOf(mode);
 
@@ -1820,7 +1836,7 @@ var folderPane = {
    * @param {Event} event - The DOMEvent.
    */
   moveFolderModeDown(event) {
-    let currentModes = this.activeModes;
+    const currentModes = this.activeModes;
     const mode = this.mode;
     const index = currentModes.indexOf(mode);
 
@@ -1846,11 +1862,11 @@ var folderPane = {
     if (modes.length == 0) {
       modes = ["all"];
     }
-    for (let name of Object.keys(this._modes)) {
+    for (const name of Object.keys(this._modes)) {
       this._toggleMode(name, modes.includes(name));
     }
-    for (let name of modes) {
-      let { container, containerHeader } = this._modes[name];
+    for (const name of modes) {
+      const { container, containerHeader } = this._modes[name];
       containerHeader.hidden = modes.length == 1;
       folderTree.appendChild(container);
     }
@@ -1900,7 +1916,7 @@ var folderPane = {
       return;
     }
     this._isCompact = value;
-    for (let mode of Object.values(this._modes)) {
+    for (const mode of Object.values(this._modes)) {
       if (!mode.active || !mode.canBeCompact) {
         continue;
       }
@@ -1921,7 +1937,7 @@ var folderPane = {
     if (!(modeName in this._modes)) {
       throw new Error(`Unknown folder tree mode: ${modeName}`);
     }
-    let mode = this._modes[modeName];
+    const mode = this._modes[modeName];
     if (mode.active == active) {
       return;
     }
@@ -1933,7 +1949,7 @@ var folderPane = {
       return;
     }
 
-    let container =
+    const container =
       this._modeTemplate.content.firstElementChild.cloneNode(true);
     container.dataset.mode = modeName;
 
@@ -1968,7 +1984,7 @@ var folderPane = {
     }
 
     // `.accounts` is used here because it is ordered, `.allServers` isn't.
-    for (let account of MailServices.accounts.accounts) {
+    for (const account of MailServices.accounts.accounts) {
       // Skip local folders if they're hidden.
       if (
         account.incomingServer.type == "none" &&
@@ -1999,7 +2015,7 @@ var folderPane = {
    * @returns {FolderTreeRow}
    */
   _createServerRow(modeName, server) {
-    let row = document.createElement("li", { is: "folder-tree-row" });
+    const row = document.createElement("li", { is: "folder-tree-row" });
     row.modeName = modeName;
     row.setServer(server);
     return row;
@@ -2014,7 +2030,7 @@ var folderPane = {
    * @returns {FolderTreeRow}
    */
   _createFolderRow(modeName, folder, nameStyle) {
-    let row = document.createElement("li", { is: "folder-tree-row" });
+    const row = document.createElement("li", { is: "folder-tree-row" });
     row.modeName = modeName;
     row.setFolder(folder, nameStyle);
     return row;
@@ -2029,7 +2045,7 @@ var folderPane = {
    * @returns {FolderTreeRow}
    */
   _createTagRow(modeName, folder, tag) {
-    let row = document.createElement("li", { is: "folder-tree-row" });
+    const row = document.createElement("li", { is: "folder-tree-row" });
     row.modeName = modeName;
     row.setFolder(folder);
     row.dataset.tagKey = tag.key;
@@ -2045,12 +2061,12 @@ var folderPane = {
    * @returns {FolderTreeRow}
    */
   _insertInServerOrder(list, serverRow) {
-    let serverKeys = MailServices.accounts.accounts.map(
+    const serverKeys = MailServices.accounts.accounts.map(
       a => a.incomingServer.key
     );
-    let index = serverKeys.indexOf(serverRow.dataset.serverKey);
-    for (let row of list.children) {
-      let i = serverKeys.indexOf(row.dataset.serverKey);
+    const index = serverKeys.indexOf(serverRow.dataset.serverKey);
+    for (const row of list.children) {
+      const i = serverKeys.indexOf(row.dataset.serverKey);
 
       if (i > index) {
         return list.insertBefore(serverRow, row);
@@ -2074,11 +2090,11 @@ var folderPane = {
   },
 
   _reapplyServerOrder(list) {
-    let selected = list.querySelector("li.selected");
-    let serverKeys = MailServices.accounts.accounts.map(
+    const selected = list.querySelector("li.selected");
+    const serverKeys = MailServices.accounts.accounts.map(
       a => a.incomingServer.key
     );
-    let serverRows = [...list.children];
+    const serverRows = [...list.children];
     serverRows.sort(
       (a, b) =>
         serverKeys.indexOf(a.dataset.serverKey) -
@@ -2106,12 +2122,12 @@ var folderPane = {
     }
 
     if (folder.isServer) {
-      let serverRow = folderPane._createServerRow(modeName, folder.server);
+      const serverRow = folderPane._createServerRow(modeName, folder.server);
       this._insertInServerOrder(containerList, serverRow);
       return serverRow;
     }
 
-    let parentRow = this._addFolderAndAncestors(
+    const parentRow = this._addFolderAndAncestors(
       containerList,
       folderPane._getNonGmailParent(folder),
       modeName
@@ -2144,7 +2160,7 @@ var folderPane = {
     filterFunction,
     childAlreadyGone = false
   ) {
-    let folderRow = folderPane.getRowForFolder(folder, modeName);
+    const folderRow = folderPane.getRowForFolder(folder, modeName);
     if (folderPane._isCompact) {
       folderRow?.remove();
       return;
@@ -2160,7 +2176,7 @@ var folderPane = {
     }
 
     // Otherwise, move up the folder tree.
-    let parentFolder = folderPane._getNonGmailParent(folder);
+    const parentFolder = folderPane._getNonGmailParent(folder);
     if (
       parentFolder &&
       (typeof filterFunction != "function" || !filterFunction(parentFolder))
@@ -2198,7 +2214,7 @@ var folderPane = {
     }
 
     for (let i = 0; i < subFolders.length; i++) {
-      let folder = subFolders[i];
+      const folder = subFolders[i];
       if (this._isGmailFolder(folder)) {
         subFolders.splice(i, 1, ...folder.subFolders);
       }
@@ -2206,11 +2222,11 @@ var folderPane = {
 
     subFolders.sort((a, b) => a.compareSortKeys(b));
 
-    for (let folder of subFolders) {
+    for (const folder of subFolders) {
       if (typeof filterFunction == "function" && !filterFunction(folder)) {
         continue;
       }
-      let folderRow = folderPane._createFolderRow(modeName, folder);
+      const folderRow = folderPane._createFolderRow(modeName, folder);
       this._addSubFolders(folder, folderRow, modeName, filterFunction);
       parentRow.childList.appendChild(folderRow);
     }
@@ -2229,12 +2245,12 @@ var folderPane = {
       folderOrURI = folderOrURI.URI;
     }
 
-    let modeNames = modeName ? [modeName] : this.activeModes;
-    for (let name of modeNames) {
-      let id = FolderTreeRow.makeRowID(name, folderOrURI);
+    const modeNames = modeName ? [modeName] : this.activeModes;
+    for (const name of modeNames) {
+      const id = FolderTreeRow.makeRowID(name, folderOrURI);
       // Look in the mode's container. The container may or may not be
       // attached to the document at this point.
-      let row = this._modes[name].containerList.querySelector(
+      const row = this._modes[name].containerList.querySelector(
         `#${CSS.escape(id)}`
       );
       if (row) {
@@ -2253,7 +2269,7 @@ var folderPane = {
    * @param  {...any} args - The list of arguments to pass to the function.
    */
   _forAllActiveModes(functionName, ...args) {
-    for (let mode of Object.values(this._modes)) {
+    for (const mode of Object.values(this._modes)) {
       if (!mode.active || typeof mode[functionName] != "function") {
         continue;
       }
@@ -2376,7 +2392,7 @@ var folderPane = {
     if (folderOrURI instanceof Ci.nsIMsgFolder) {
       folderOrURI = folderOrURI.URI;
     }
-    for (let row of folderTree.querySelectorAll("li")) {
+    for (const row of folderTree.querySelectorAll("li")) {
       if (row.uri == folderOrURI) {
         callback(row);
       }
@@ -2406,7 +2422,7 @@ var folderPane = {
       // Find the nearest visible ancestor and update it.
       let collapsedAncestor = row.parentNode.closest("li.collapsed");
       while (collapsedAncestor) {
-        let next = collapsedAncestor.parentNode.closest("li.collapsed");
+        const next = collapsedAncestor.parentNode.closest("li.collapsed");
         if (!next) {
           collapsedAncestor.updateUnreadMessageCount();
           break;
@@ -2430,7 +2446,7 @@ var folderPane = {
    * @param {string} name
    */
   changeServerName(folder, name) {
-    for (let row of folderTree.querySelectorAll(
+    for (const row of folderTree.querySelectorAll(
       `li[data-server-key="${folder.server.key}"]`
     )) {
       row.setServerName(name);
@@ -2469,7 +2485,7 @@ var folderPane = {
       messagePane.clearAll();
     }
 
-    let uri = folderTree.rows[folderTree.selectedIndex]?.uri;
+    const uri = folderTree.rows[folderTree.selectedIndex]?.uri;
     if (!uri) {
       gFolder = null;
       return;
@@ -2550,7 +2566,7 @@ var folderPane = {
       return;
     }
 
-    let tabListener = event => {
+    const tabListener = event => {
       // Hide the pane if the new tab ain't us.
       quotaPanel.hidden =
         top.window.document.getElementById("tabmail").currentAbout3Pane ==
@@ -2563,7 +2579,7 @@ var folderPane = {
     // items like "MAILBOX" and "LEVEL" from the panel bargraph. All quota names
     // will still appear on the folder properties quota window.
     // Note: Quota name is typically something like "User Quota / STORAGE".
-    let folderQuota = gFolder
+    const folderQuota = gFolder
       .getQuota()
       .filter(
         quota =>
@@ -2576,12 +2592,12 @@ var folderPane = {
     }
     // If folderQuota not empty, find the index of the element with highest
     //  percent usage and determine if it is above the panel display threshold.
-    let quotaUsagePercentage = q =>
+    const quotaUsagePercentage = q =>
       Number((100n * BigInt(q.usage)) / BigInt(q.limit));
-    let highest = folderQuota.reduce((acc, current) =>
+    const highest = folderQuota.reduce((acc, current) =>
       quotaUsagePercentage(acc) > quotaUsagePercentage(current) ? acc : current
     );
-    let percent = quotaUsagePercentage(highest);
+    const percent = quotaUsagePercentage(highest);
     if (
       percent <
       Services.prefs.getIntPref("mail.quota.mainwindow_threshold.show")
@@ -2598,7 +2614,7 @@ var folderPane = {
       let usage;
       let limit;
       if (/STORAGE/i.test(highest.name)) {
-        let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+        const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
           Ci.nsIMessenger
         );
         usage = messenger.formatFileSize(highest.usage * 1024);
@@ -2659,14 +2675,14 @@ var folderPane = {
       return;
     }
 
-    let popup = document.getElementById("folderPaneContext");
+    const popup = document.getElementById("folderPaneContext");
 
     if (event.button == 2) {
       // Mouse
       if (event.target.closest(".mode-container")) {
         return;
       }
-      let row = event.target.closest("li");
+      const row = event.target.closest("li");
       if (!row) {
         return;
       }
@@ -2682,7 +2698,7 @@ var folderPane = {
       popup.openPopupAtScreen(event.screenX, event.screenY, true);
     } else {
       // Keyboard
-      let row = folderTree.getRowAtIndex(folderTree.selectedIndex);
+      const row = folderTree.getRowAtIndex(folderTree.selectedIndex);
       popup.openPopup(row, "after_end", 0, 0, true);
     }
 
@@ -2691,7 +2707,7 @@ var folderPane = {
 
   _onCollapsed({ target }) {
     if (target.uri) {
-      let mode = target.closest("[data-mode]").dataset.mode;
+      const mode = target.closest("[data-mode]").dataset.mode;
       FolderTreeProperties.setIsExpanded(target.uri, mode, false);
     }
     target.updateUnreadMessageCount();
@@ -2700,14 +2716,14 @@ var folderPane = {
 
   _onExpanded({ target }) {
     if (target.uri) {
-      let mode = target.closest("[data-mode]").dataset.mode;
+      const mode = target.closest("[data-mode]").dataset.mode;
       FolderTreeProperties.setIsExpanded(target.uri, mode, true);
     }
     target.updateUnreadMessageCount();
     target.updateTotalMessageCount();
 
     // Get server type. IMAP is the only server type that does folder discovery.
-    let folder = MailServices.folderLookup.getFolderForURL(target.uri);
+    const folder = MailServices.folderLookup.getFolderForURL(target.uri);
     if (folder.server.type == "imap") {
       if (folder.isServer) {
         folder.server.performExpand(top.msgWindow);
@@ -2719,13 +2735,13 @@ var folderPane = {
   },
 
   _onDragStart(event) {
-    let row = event.target.closest(`li[is="folder-tree-row"]`);
+    const row = event.target.closest(`li[is="folder-tree-row"]`);
     if (!row) {
       event.preventDefault();
       return;
     }
 
-    let folder = MailServices.folderLookup.getFolderForURL(row.uri);
+    const folder = MailServices.folderLookup.getFolderForURL(row.uri);
     if (!folder || folder.isServer) {
       event.preventDefault();
       return;
@@ -2747,24 +2763,24 @@ var folderPane = {
     event.dataTransfer.dropEffect = "none";
     event.preventDefault();
 
-    let row = event.target.closest("li");
+    const row = event.target.closest("li");
     this._timedExpand(row);
     if (!row) {
       return;
     }
 
-    let targetFolder = MailServices.folderLookup.getFolderForURL(row.uri);
+    const targetFolder = MailServices.folderLookup.getFolderForURL(row.uri);
     if (!targetFolder) {
       return;
     }
 
-    let types = Array.from(event.dataTransfer.mozTypesAt(0));
+    const types = Array.from(event.dataTransfer.mozTypesAt(0));
     if (types.includes("text/x-moz-message")) {
       if (targetFolder.isServer || !targetFolder.canFileMessages) {
         return;
       }
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
-        let msgHdr = top.messenger.msgHdrFromURI(
+        const msgHdr = top.messenger.msgHdrFromURI(
           event.dataTransfer.mozGetDataAt("text/x-moz-message", i)
         );
         // Don't allow drop onto original folder.
@@ -2779,7 +2795,7 @@ var folderPane = {
         return;
       }
 
-      let sourceFolder = event.dataTransfer
+      const sourceFolder = event.dataTransfer
         .mozGetDataAt("text/x-moz-folder", 0)
         .QueryInterface(Ci.nsIMsgFolder);
 
@@ -2821,7 +2837,7 @@ var folderPane = {
         return;
       }
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
-        let extFile = event.dataTransfer
+        const extFile = event.dataTransfer
           .mozGetDataAt("application/x-moz-file", i)
           .QueryInterface(Ci.nsIFile);
         if (!extFile.isFile() || !/\.eml$/i.test(extFile.leafName)) {
@@ -2830,7 +2846,7 @@ var folderPane = {
       }
       event.dataTransfer.dropEffect = "copy";
     } else if (types.includes("text/x-moz-newsfolder")) {
-      let folder = event.dataTransfer
+      const folder = event.dataTransfer
         .mozGetDataAt("text/x-moz-newsfolder", 0)
         .QueryInterface(Ci.nsIMsgFolder);
       if (
@@ -2906,19 +2922,19 @@ var folderPane = {
       return;
     }
 
-    let row = event.target.closest("li");
+    const row = event.target.closest("li");
     if (!row) {
       return;
     }
 
-    let targetFolder = MailServices.folderLookup.getFolderForURL(row.uri);
+    const targetFolder = MailServices.folderLookup.getFolderForURL(row.uri);
 
-    let types = Array.from(event.dataTransfer.mozTypesAt(0));
+    const types = Array.from(event.dataTransfer.mozTypesAt(0));
     if (types.includes("text/x-moz-message")) {
-      let array = [];
+      const array = [];
       let sourceFolder;
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
-        let msgHdr = top.messenger.msgHdrFromURI(
+        const msgHdr = top.messenger.msgHdrFromURI(
           event.dataTransfer.mozGetDataAt("text/x-moz-message", i)
         );
         if (!i) {
@@ -2927,7 +2943,7 @@ var folderPane = {
         array.push(msgHdr);
       }
       let isMove = event.dataTransfer.dropEffect == "move";
-      let isNews = sourceFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
+      const isNews = sourceFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
       if (!sourceFolder.canDeleteMessages || isNews) {
         isMove = false;
       }
@@ -2952,7 +2968,7 @@ var folderPane = {
         true
       );
     } else if (types.includes("text/x-moz-folder")) {
-      let sourceFolder = event.dataTransfer
+      const sourceFolder = event.dataTransfer
         .mozGetDataAt("text/x-moz-folder", 0)
         .QueryInterface(Ci.nsIMsgFolder);
       let isMove = event.dataTransfer.dropEffect == "move";
@@ -2971,7 +2987,7 @@ var folderPane = {
       Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
     } else if (types.includes("application/x-moz-file")) {
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
-        let extFile = event.dataTransfer
+        const extFile = event.dataTransfer
           .mozGetDataAt("application/x-moz-file", i)
           .QueryInterface(Ci.nsIFile);
         if (extFile.isFile() && /\.eml$/i.test(extFile.leafName)) {
@@ -2988,12 +3004,12 @@ var folderPane = {
         }
       }
     } else if (types.includes("text/x-moz-newsfolder")) {
-      let folder = event.dataTransfer
+      const folder = event.dataTransfer
         .mozGetDataAt("text/x-moz-newsfolder", 0)
         .QueryInterface(Ci.nsIMsgFolder);
 
-      let mode = row.closest("li[data-mode]").dataset.mode;
-      let newsRoot = targetFolder.rootFolder.QueryInterface(
+      const mode = row.closest("li[data-mode]").dataset.mode;
+      const newsRoot = targetFolder.rootFolder.QueryInterface(
         Ci.nsIMsgNewsFolder
       );
       newsRoot.reorderGroup(folder, targetFolder);
@@ -3006,7 +3022,7 @@ var folderPane = {
     ) {
       // This is a potential rss feed. A link image as well as link text url
       // should be handled; try to extract a url from non moz apps as well.
-      let feedURI = FeedUtils.getFeedUriFromDataTransfer(event.dataTransfer);
+      const feedURI = FeedUtils.getFeedUriFromDataTransfer(event.dataTransfer);
       FeedUtils.subscribeToFeed(feedURI.spec, targetFolder);
     }
 
@@ -3026,7 +3042,7 @@ var folderPane = {
     if (!folder?.canCreateSubfolders) {
       // Check if we can create them at the root, otherwise use the default
       // account as root folder.
-      let rootMsgFolder = folder.server.rootMsgFolder;
+      const rootMsgFolder = folder.server.rootMsgFolder;
       folder = rootMsgFolder.canCreateSubfolders
         ? rootMsgFolder
         : top.GetDefaultAccountRootFolder();
@@ -3080,7 +3096,7 @@ var folderPane = {
       this.editVirtualFolder(folder);
       return;
     }
-    let title = messengerBundle.GetStringFromName("folderProperties");
+    const title = messengerBundle.GetStringFromName("folderProperties");
 
     function editFolderCallback(newName, oldName) {
       if (newName != oldName) {
@@ -3150,7 +3166,7 @@ var folderPane = {
    *   selected one.
    */
   renameFolder(aFolder) {
-    let folder = aFolder;
+    const folder = aFolder;
 
     function renameCallback(aName, aUri) {
       if (aUri != folder.URI) {
@@ -3197,10 +3213,12 @@ var folderPane = {
     }
 
     if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
-      let confirmation = messengerBundle.GetStringFromName(
+      const confirmation = messengerBundle.GetStringFromName(
         "confirmSavedSearchDeleteMessage"
       );
-      let title = messengerBundle.GetStringFromName("confirmSavedSearchTitle");
+      const title = messengerBundle.GetStringFromName(
+        "confirmSavedSearchTitle"
+      );
       if (
         Services.prompt.confirmEx(
           window,
@@ -3254,8 +3272,8 @@ var folderPane = {
     // Check if this is a top-level smart folder. If so, we're going
     // to empty all the trash folders.
     if (folder.server.hostName == "smart mailboxes" && folder.parent.isServer) {
-      for (let server of MailServices.accounts.allServers) {
-        for (let trash of server.rootFolder.getFoldersWithFlags(
+      for (const server of MailServices.accounts.allServers) {
+        for (const trash of server.rootFolder.getFoldersWithFlags(
           Ci.nsMsgFolderFlags.Trash
         )) {
           trash.emptyTrash(null);
@@ -3284,19 +3302,19 @@ var folderPane = {
 
     if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
       // This is the unified junk folder.
-      let wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
-      for (let searchFolder of wrappedFolder.searchFolders) {
+      const wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
+      for (const searchFolder of wrappedFolder.searchFolders) {
         this.emptyJunk(searchFolder, false);
       }
       return;
     }
 
     // Delete any subfolders this folder might have
-    for (let subFolder of folder.subFolders) {
+    for (const subFolder of folder.subFolders) {
       folder.propagateDelete(subFolder, true);
     }
 
-    let messages = [...folder.messages];
+    const messages = [...folder.messages];
     if (!messages.length) {
       return;
     }
@@ -3336,7 +3354,7 @@ var folderPane = {
    * @param aParent - The folder to run the search terms on.
    */
   newVirtualFolder(aName, aSearchTerms, aParent) {
-    let folder = aParent || top.GetDefaultAccountRootFolder();
+    const folder = aParent || top.GetDefaultAccountRootFolder();
     if (!folder) {
       return;
     }
@@ -3359,7 +3377,7 @@ var folderPane = {
   },
 
   editVirtualFolder(aFolder) {
-    let folder = aFolder;
+    const folder = aFolder;
 
     function editVirtualCallback() {
       if (gFolder == folder) {
@@ -3392,19 +3410,19 @@ var folderPane = {
       return false;
     }
 
-    let showPrompt = !Services.prefs.getBoolPref(
+    const showPrompt = !Services.prefs.getBoolPref(
       "mailnews." + aCommand + ".dontAskAgain",
       false
     );
 
     if (showPrompt) {
-      let checkbox = { value: false };
-      let title = messengerBundle.formatStringFromName(
+      const checkbox = { value: false };
+      const title = messengerBundle.formatStringFromName(
         aCommand + "FolderTitle",
         [aFolder.prettyName]
       );
-      let msg = messengerBundle.GetStringFromName(aCommand + "FolderMessage");
-      let ok =
+      const msg = messengerBundle.GetStringFromName(aCommand + "FolderMessage");
+      const ok =
         Services.prompt.confirmEx(
           window,
           title,
@@ -3474,7 +3492,7 @@ var folderPane = {
    * Ensure the pane header context menu items are correctly checked.
    */
   updateContextMenuCheckedItems() {
-    for (let item of document.querySelectorAll(".folder-pane-option")) {
+    for (const item of document.querySelectorAll(".folder-pane-option")) {
       switch (item.id) {
         case "folderPaneHeaderToggleGetMessages":
           this.isFolderPaneGetMsgsBtnHidden()
@@ -3515,14 +3533,14 @@ var folderPane = {
   },
 
   toggleGetMsgsBtn(event) {
-    let show = event.target.hasAttribute("checked");
+    const show = event.target.hasAttribute("checked");
     document.getElementById("folderPaneGetMessages").hidden = !show;
 
     this.updateXULStoreAttribute("folderPaneGetMessages", "hidden", show);
   },
 
   toggleNewMsgBtn(event) {
-    let show = event.target.hasAttribute("checked");
+    const show = event.target.hasAttribute("checked");
     document.getElementById("folderPaneWriteMessage").hidden = !show;
 
     this.updateXULStoreAttribute("folderPaneWriteMessage", "hidden", show);
@@ -3561,14 +3579,14 @@ var folderPane = {
    * Toggle the total message count badges and update the XULStore.
    */
   toggleTotal(event) {
-    let show = !event.target.hasAttribute("checked");
+    const show = !event.target.hasAttribute("checked");
     this.updateXULStoreAttribute("totalMsgCount", "visible", show);
     this.toggleTotalCountBadge();
   },
 
   toggleTotalCountBadge() {
     const isHidden = !this.isTotalMsgCountVisible();
-    for (let row of document.querySelectorAll(`li[is="folder-tree-row"]`)) {
+    for (const row of document.querySelectorAll(`li[is="folder-tree-row"]`)) {
       row.toggleTotalCountBadgeVisibility(isHidden);
     }
   },
@@ -3577,7 +3595,7 @@ var folderPane = {
    * Toggle the folder size option and update the XULStore.
    */
   toggleFolderSize(event) {
-    let show = !event.target.hasAttribute("checked");
+    const show = !event.target.hasAttribute("checked");
     this.updateXULStoreAttribute("folderPaneFolderSize", "visible", show);
     this.toggleFolderSizes(!show);
   },
@@ -3587,7 +3605,7 @@ var folderPane = {
    */
   toggleFolderSizes(visible) {
     const isHidden = !visible;
-    for (let row of document.querySelectorAll(`li[is="folder-tree-row"]`)) {
+    for (const row of document.querySelectorAll(`li[is="folder-tree-row"]`)) {
       row.updateSizeCount(isHidden);
     }
   },
@@ -3596,7 +3614,7 @@ var folderPane = {
    * Toggle the hiding of the local folders and update the XULStore.
    */
   toggleLocalFolders(event) {
-    let isHidden = event.target.hasAttribute("checked");
+    const isHidden = event.target.hasAttribute("checked");
     this.updateXULStoreAttribute("folderPaneLocalFolders", "hidden", !isHidden);
     folderPane.hideLocalFolders = isHidden;
   },
@@ -3615,7 +3633,7 @@ var folderPane = {
     const servers = FolderUtils.allAccountsSorted(true)
       .map(a => a.incomingServer)
       .filter(s => s.rootFolder.isServer && s.type != "none");
-    for (let server of servers) {
+    for (const server of servers) {
       const menuitem = document.createXULElement("menuitem");
       menuitem.classList.add("menuitem-iconic", "server");
       menuitem.dataset.serverType = server.type;
@@ -3702,7 +3720,7 @@ class FolderTreeRow extends HTMLLIElement {
   connectedCallback() {
     // Set the correct CSS `--depth` variable based on where this row was
     // inserted into the tree.
-    let parent = this.parentNode.closest(`li[is="folder-tree-row"]`);
+    const parent = this.parentNode.closest(`li[is="folder-tree-row"]`);
     this.depth = parent ? parent.depth + 1 : 1;
     this.childList.style.setProperty("--depth", this.depth);
   }
@@ -3753,7 +3771,7 @@ class FolderTreeRow extends HTMLLIElement {
     this.classList.toggle("unread", value > 0);
     // Avoid setting `textContent` if possible, each change notifies the
     // MutationObserver on `folderTree`, and there could be *many* changes.
-    let textNode = this.unreadCountLabel.firstChild;
+    const textNode = this.unreadCountLabel.firstChild;
     if (textNode) {
       textNode.nodeValue = value;
     } else {
@@ -3794,7 +3812,7 @@ class FolderTreeRow extends HTMLLIElement {
   #updateAriaLabel() {
     // Collect the various strings and fluent IDs to build the full string for
     // the folder aria-label.
-    let ariaLabelPromises = [];
+    const ariaLabelPromises = [];
     ariaLabelPromises.push(this.name);
 
     // If unread messages.
@@ -3951,7 +3969,7 @@ class FolderTreeRow extends HTMLLIElement {
    * @param {nsIMsgFolder} folder
    */
   setFolderTypeFromFolder(folder) {
-    let folderType = FolderUtils.getSpecialFolderString(folder);
+    const folderType = FolderUtils.getSpecialFolderString(folder);
     if (folderType != "none") {
       this.dataset.folderType = folderType.toLowerCase();
     }
@@ -3966,13 +3984,15 @@ class FolderTreeRow extends HTMLLIElement {
     if (folder.server.type != "rss") {
       return;
     }
-    let urls = !folder.isServer ? FeedUtils.getFeedUrlsInFolder(folder) : null;
+    const urls = !folder.isServer
+      ? FeedUtils.getFeedUrlsInFolder(folder)
+      : null;
     if (urls?.length == 1) {
-      let url = urls[0];
+      const url = urls[0];
       this.icon.style = `content: url("page-icon:${url}"); background-image: none;`;
     }
-    let props = FeedUtils.getFolderProperties(folder);
-    for (let name of ["hasError", "isBusy", "isPaused"]) {
+    const props = FeedUtils.getFolderProperties(folder);
+    for (const name of ["hasError", "isBusy", "isPaused"]) {
       if (props.includes(name)) {
         this.dataset[name] = "true";
       } else {
@@ -4000,8 +4020,8 @@ class FolderTreeRow extends HTMLLIElement {
    * @returns {FolderTreeRow}
    */
   insertChildInOrder(newChild) {
-    let { folderSortOrder, name } = newChild;
-    for (let child of this.childList.children) {
+    const { folderSortOrder, name } = newChild;
+    for (const child of this.childList.children) {
       if (folderSortOrder < child.folderSortOrder) {
         return this.childList.insertBefore(newChild, child);
       }
@@ -4250,7 +4270,7 @@ var threadPaneHeader = {
       return;
     }
 
-    let count = gDBView?.getSelectedMsgHdrs().length;
+    const count = gDBView?.getSelectedMsgHdrs().length;
     if (count < 2) {
       this.selectedCount.hidden = true;
       return;
@@ -4346,7 +4366,7 @@ var threadPane = {
     this.densityChange();
 
     XPCOMUtils.defineLazyGetter(this, "notificationBox", () => {
-      let container = document.getElementById("threadPaneNotificationBox");
+      const container = document.getElementById("threadPaneNotificationBox");
       return new MozElements.NotificationBox(element =>
         container.append(element)
       );
@@ -4555,7 +4575,7 @@ var threadPane = {
       return;
     }
 
-    let folder = gFolder || gDBView.hdrForFirstSelectedMessage.folder;
+    const folder = gFolder || gDBView.hdrForFirstSelectedMessage.folder;
     if (folder?.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)) {
       commandController.doCommand("cmd_editDraftMsg", event);
     } else if (folder?.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)) {
@@ -4585,7 +4605,7 @@ var threadPane = {
             messagePane.clearMessages();
             threadPaneHeader.selectedCount.hidden = true;
           } else {
-            let uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
+            const uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
             messagePane.displayMessage(uri);
             threadPaneHeader.updateSelectedCount();
           }
@@ -4613,7 +4633,7 @@ var threadPane = {
    * Handle threadPane drag events.
    */
   _onDragStart(event) {
-    let row = event.target.closest(`tr[is^="thread-"]`);
+    const row = event.target.closest(`tr[is^="thread-"]`);
     if (!row) {
       event.preventDefault();
       return;
@@ -4630,18 +4650,18 @@ var threadPane = {
     if (noSubjectString.endsWith(".eml")) {
       noSubjectString = noSubjectString.slice(0, -4);
     }
-    let longSubjectTruncator = messengerBundle.GetStringFromName(
+    const longSubjectTruncator = messengerBundle.GetStringFromName(
       "longMsgSubjectTruncator"
     );
     // Clip the subject string to 124 chars to avoid problems on Windows,
     // see NS_MAX_FILEDESCRIPTOR in m-c/widget/windows/nsDataObj.cpp .
     const maxUncutNameLength = 124;
-    let maxCutNameLength = maxUncutNameLength - longSubjectTruncator.length;
-    let messages = new Map();
+    const maxCutNameLength = maxUncutNameLength - longSubjectTruncator.length;
+    const messages = new Map();
 
-    for (let [index, uri] of Object.entries(messageURIs)) {
-      let msgService = MailServices.messageServiceFromURI(uri);
-      let msgHdr = msgService.messageURIToMsgHdr(uri);
+    for (const [index, uri] of Object.entries(messageURIs)) {
+      const msgService = MailServices.messageServiceFromURI(uri);
+      const msgHdr = msgService.messageURIToMsgHdr(uri);
       let subject = msgHdr.mime2DecodedSubject || "";
       if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
         subject = "Re: " + subject;
@@ -4666,9 +4686,9 @@ var threadPane = {
           messages.set(msgFileNameLowerCase, 1);
           break;
         } else {
-          let number = messages.get(msgFileNameLowerCase);
+          const number = messages.get(msgFileNameLowerCase);
           messages.set(msgFileNameLowerCase, number + 1);
-          let postfix = "-" + number;
+          const postfix = "-" + number;
           msgFileName = msgFileName + postfix;
           msgFileNameLowerCase = msgFileNameLowerCase + postfix;
         }
@@ -4708,7 +4728,7 @@ var threadPane = {
     }
 
     event.dataTransfer.effectAllowed = "copyMove";
-    let bcr = row.getBoundingClientRect();
+    const bcr = row.getBoundingClientRect();
     event.dataTransfer.setDragImage(
       row,
       event.clientX - bcr.x,
@@ -4726,14 +4746,14 @@ var threadPane = {
     // Must prevent default. Otherwise dropEffect gets cleared.
     event.preventDefault();
     event.dataTransfer.dropEffect = "none";
-    let types = Array.from(event.dataTransfer.mozTypesAt(0));
-    let targetFolder = gFolder;
+    const types = Array.from(event.dataTransfer.mozTypesAt(0));
+    const targetFolder = gFolder;
     if (types.includes("application/x-moz-file")) {
       if (targetFolder.isServer || !targetFolder.canFileMessages) {
         return;
       }
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
-        let extFile = event.dataTransfer
+        const extFile = event.dataTransfer
           .mozGetDataAt("application/x-moz-file", i)
           .QueryInterface(Ci.nsIFile);
         if (!extFile.isFile() || !/\.eml$/i.test(extFile.leafName)) {
@@ -4753,7 +4773,7 @@ var threadPane = {
     }
     event.preventDefault();
     for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
-      let extFile = event.dataTransfer
+      const extFile = event.dataTransfer
         .mozGetDataAt("application/x-moz-file", i)
         .QueryInterface(Ci.nsIFile);
       if (extFile.isFile() && /\.eml$/i.test(extFile.leafName)) {
@@ -4791,7 +4811,7 @@ var threadPane = {
     }
 
     mailContextMenu.setAsThreadPaneContextMenu();
-    let popup = document.getElementById("mailContext");
+    const popup = document.getElementById("mailContext");
 
     if (isMouse) {
       if (!gDBView.selection.isSelected(row.index)) {
@@ -4817,24 +4837,24 @@ var threadPane = {
         return;
       }
 
-      let fileName = {};
+      const fileName = {};
       transferable.getTransferData(
         "application/x-moz-file-promise-dest-filename",
         fileName
       );
       fileName.value.QueryInterface(Ci.nsISupportsString);
 
-      let destDir = {};
+      const destDir = {};
       transferable.getTransferData(
         "application/x-moz-file-promise-dir",
         destDir
       );
       destDir.value.QueryInterface(Ci.nsIFile);
 
-      let file = destDir.value.clone();
+      const file = destDir.value.clone();
       file.append(fileName.value.data);
 
-      let messageURI = {};
+      const messageURI = {};
       transferable.getTransferData("text/plain", messageURI);
       messageURI.value.QueryInterface(Ci.nsISupportsString);
 
@@ -4906,12 +4926,14 @@ var threadPane = {
     }
     this.tagStyle = document.head.appendChild(document.createElement("style"));
 
-    for (let { color, key } of MailServices.tags.getAllTags()) {
+    for (const { color, key } of MailServices.tags.getAllTags()) {
       if (!color) {
         continue;
       }
-      let selector = MailServices.tags.getSelectorForKey(key);
-      let contrast = TagUtils.isColorContrastEnough(color) ? "black" : "white";
+      const selector = MailServices.tags.getSelectorForKey(key);
+      const contrast = TagUtils.isColorContrastEnough(color)
+        ? "black"
+        : "white";
       this.tagStyle.sheet.insertRule(
         `tr[data-properties~="${selector}"] {
           --tag-color: ${color};
@@ -4927,8 +4949,8 @@ var threadPane = {
   densityChange() {
     // The class ThreadRow can't be referenced because it's declared in a
     // different scope. But we can get it from customElements.
-    let rowClass = customElements.get("thread-row");
-    let cardClass = customElements.get("thread-card");
+    const rowClass = customElements.get("thread-row");
+    const cardClass = customElements.get("thread-card");
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
         rowClass.ROW_HEIGHT = 18;
@@ -4980,10 +5002,10 @@ var threadPane = {
       return;
     }
 
-    let { currentKey, selectedKeys } = this._savedSelections.get(gFolder.URI);
+    const { currentKey, selectedKeys } = this._savedSelections.get(gFolder.URI);
     let currentIndex = nsMsgViewIndex_None;
-    let indices = new Set();
-    for (let key of selectedKeys) {
+    const indices = new Set();
+    for (const key of selectedKeys) {
       let index = gDBView.findIndexFromKey(key, false);
       if (index != nsMsgViewIndex_None) {
         indices.add(index);
@@ -4996,9 +5018,9 @@ var threadPane = {
       // The message for this key can't be found. Perhaps the thread it's in
       // has been collapsed? Select the root message in that case.
       try {
-        let msgHdr = gFolder.GetMessageHeader(key);
-        let thread = gDBView.getThreadContainingMsgHdr(msgHdr);
-        let rootMsgHdr = thread.getRootHdr();
+        const msgHdr = gFolder.GetMessageHeader(key);
+        const thread = gDBView.getThreadContainingMsgHdr(msgHdr);
+        const rootMsgHdr = thread.getRootHdr();
         index = gDBView.findIndexOfMsgHdr(rootMsgHdr, false);
         if (index != nsMsgViewIndex_None) {
           indices.add(index);
@@ -5144,8 +5166,8 @@ var threadPane = {
     }
 
     // Update the row template to match the column properties.
-    for (let column of this.columns) {
-      let cell = this.rowTemplate.content.querySelector(
+    for (const column of this.columns) {
+      const cell = this.rowTemplate.content.querySelector(
         `.${column.id.toLowerCase()}-column`
       );
       cell.hidden = column.hidden;
@@ -5186,7 +5208,7 @@ var threadPane = {
     const columnToShift = this.columns.find(c => c.id == column);
     const currentPosition = this.columns.indexOf(columnToShift);
 
-    let delta = forward ? 1 : -1;
+    const delta = forward ? 1 : -1;
     let newPosition = currentPosition + delta;
     // Account for hidden columns to find the correct new position.
     while (this.columns.at(newPosition).hidden) {
@@ -5238,10 +5260,10 @@ var threadPane = {
    * @param {object} data - The detail object of the bubbled event.
    */
   onColumnsVisibilityChanged(data) {
-    let column = data.value;
-    let checked = data.target.hasAttribute("checked");
+    const column = data.value;
+    const checked = data.target.hasAttribute("checked");
 
-    let changedColumn = this.columns.find(c => c.id == column);
+    const changedColumn = this.columns.find(c => c.id == column);
     changedColumn.hidden = !checked;
 
     this.persistColumnStates();
@@ -5253,7 +5275,7 @@ var threadPane = {
    * Save the current visibility of the columns in the folder database.
    */
   persistColumnStates() {
-    let newState = {};
+    const newState = {};
     for (const column of this.columns) {
       newState[column.id] = {
         visible: !column.hidden,
@@ -5262,7 +5284,7 @@ var threadPane = {
     }
 
     if (gViewWrapper.isSynthetic) {
-      let syntheticView = gViewWrapper._syntheticView;
+      const syntheticView = gViewWrapper._syntheticView;
       if ("setPersistedSetting" in syntheticView) {
         syntheticView.setPersistedSetting("columns", newState);
       }
@@ -5344,7 +5366,7 @@ var threadPane = {
     const msgFluentID = useChildren
       ? "apply-current-columns-to-folder-with-children-message"
       : "apply-current-columns-to-folder-message";
-    let [title, message] = await document.l10n.formatValues([
+    const [title, message] = await document.l10n.formatValues([
       "apply-changes-to-folder-title",
       { id: msgFluentID, args: { name: folder.name } },
     ]);
@@ -5369,7 +5391,7 @@ var threadPane = {
 
     // Get the current state from the columns array, not the saved state in the
     // database in order to make sure we're getting the currently visible state.
-    let columnState = {};
+    const columnState = {};
     for (const column of this.columns) {
       columnState[column.id] = {
         visible: !column.hidden,
@@ -5379,7 +5401,7 @@ var threadPane = {
 
     // Swaps "From" and "Recipient" if only one is shown. This is useful for
     // copying an incoming folder's columns to and from an outgoing folder.
-    let columStateString = JSON.stringify(columnState);
+    const columStateString = JSON.stringify(columnState);
     let swappedColumnStateString;
     if (columnState.senderCol.visible != columnState.recipientCol.visible) {
       const backedSenderColumn = columnState.senderCol;
@@ -5444,7 +5466,7 @@ var threadPane = {
     const msgFluentID = useChildren
       ? "apply-current-view-to-folder-with-children-message"
       : "apply-current-view-to-folder-message";
-    let [title, message] = await document.l10n.formatValues([
+    const [title, message] = await document.l10n.formatValues([
       { id: "apply-changes-to-folder-title" },
       { id: msgFluentID, args: { name: folder.name } },
     ]);
@@ -5512,14 +5534,14 @@ var threadPane = {
    *   their subthreads, otherwise ignoring the whole thread.
    */
   showIgnoredMessageNotification(messages, subthreadOnly) {
-    let threadIds = new Set();
+    const threadIds = new Set();
     messages.forEach(function (msg) {
       if (!threadIds.has(msg.threadId)) {
         threadIds.add(msg.threadId);
       }
     });
 
-    let buttons = [
+    const buttons = [
       {
         label: messengerBundle.GetStringFromName("learnMoreAboutIgnoreThread"),
         accessKey: messengerBundle.GetStringFromName(
@@ -5527,7 +5549,7 @@ var threadPane = {
         ),
         popup: null,
         callback(aNotificationBar, aButton) {
-          let url = Services.prefs.getCharPref(
+          const url = Services.prefs.getCharPref(
             "mail.ignore_thread.learn_more_url"
           );
           top.openContentTab(url);
@@ -5547,11 +5569,11 @@ var threadPane = {
         popup: null,
         callback(aNotificationBar, aButton) {
           messages.forEach(function (msg) {
-            let msgDb = msg.folder.msgDatabase;
+            const msgDb = msg.folder.msgDatabase;
             if (subthreadOnly) {
               msgDb.markHeaderKilled(msg, false, null);
             } else if (threadIds.has(msg.threadId)) {
-              let thread = msgDb.getThreadContainingMsgHdr(msg);
+              const thread = msgDb.getThreadContainingMsgHdr(msg);
               msgDb.markThreadIgnored(
                 thread,
                 thread.getChildKeyAt(0),
@@ -5571,14 +5593,14 @@ var threadPane = {
     ];
 
     if (threadIds.size == 1) {
-      let ignoredThreadText = messengerBundle.GetStringFromName(
+      const ignoredThreadText = messengerBundle.GetStringFromName(
         !subthreadOnly ? "ignoredThreadFeedback" : "ignoredSubthreadFeedback"
       );
       let subj = messages[0].mime2DecodedSubject || "";
       if (subj.length > 45) {
         subj = subj.substring(0, 45) + "…";
       }
-      let text = ignoredThreadText.replace("#1", subj);
+      const text = ignoredThreadText.replace("#1", subj);
 
       this.notificationBox.appendNotification(
         "ignoreThreadInfo",
@@ -5589,14 +5611,14 @@ var threadPane = {
         buttons
       );
     } else {
-      let ignoredThreadText = messengerBundle.GetStringFromName(
+      const ignoredThreadText = messengerBundle.GetStringFromName(
         !subthreadOnly ? "ignoredThreadsFeedback" : "ignoredSubthreadsFeedback"
       );
 
       const { PluralForm } = ChromeUtils.importESModule(
         "resource:///modules/PluralForm.sys.mjs"
       );
-      let text = PluralForm.get(threadIds.size, ignoredThreadText).replace(
+      const text = PluralForm.get(threadIds.size, ignoredThreadText).replace(
         "#1",
         threadIds.size
       );
@@ -5785,12 +5807,12 @@ var messagePane = {
     messagePane.clearWebPage();
     messagePane.clearMessage();
 
-    let getThreadId = function (message) {
+    const getThreadId = function (message) {
       return gDBView.getThreadContainingMsgHdr(message).getRootHdr().messageKey;
     };
 
     let oneThread = true;
-    let firstThreadId = getThreadId(messages[0]);
+    const firstThreadId = getThreadId(messages[0]);
     for (let i = 1; i < messages.length; i++) {
       if (getThreadId(messages[i]) != firstThreadId) {
         oneThread = false;
@@ -5874,7 +5896,7 @@ function restoreState({
     // In a synthetic view check if we have a previously edited column layout to
     // restore.
     if ("getPersistedSetting" in syntheticView) {
-      let columnsState = syntheticView.getPersistedSetting("columns");
+      const columnsState = syntheticView.getPersistedSetting("columns");
       if (!columnsState) {
         threadPane.restoreDefaultColumns();
         return;
@@ -5922,14 +5944,14 @@ function restoreState({
  * @param {nsIMsgFolder|string} folder - The folder to display, or its URI.
  */
 function displayFolder(folder) {
-  let folderURI = folder instanceof Ci.nsIMsgFolder ? folder.URI : folder;
+  const folderURI = folder instanceof Ci.nsIMsgFolder ? folder.URI : folder;
   if (folderTree.selectedRow?.uri == folderURI) {
     // Already set to display the right folder. Make sure not not to change
     // to the same folder in a different folder mode.
     return;
   }
 
-  let row = folderPane.getRowForFolder(folderURI);
+  const row = folderPane.getRowForFolder(folderURI);
   if (!row) {
     return;
   }
@@ -6023,7 +6045,7 @@ var folderListener = {
           folderPane.removeFolder(null, folder);
         } else {
           folderPane.addFolder(null, folder);
-          for (let f of folder.descendants) {
+          for (const f of folder.descendants) {
             folderPane.addFolder(f.parent, f);
           }
         }
@@ -6047,7 +6069,7 @@ var folderListener = {
     if (event == "RenameCompleted") {
       // If a folder is renamed, we get an `onFolderAdded` notification for
       // the folder but we are not notified about the descendants.
-      for (let f of folder.descendants) {
+      for (const f of folder.descendants) {
         folderPane.addFolder(f.parent, f);
       }
     }
@@ -6079,8 +6101,8 @@ customElements.whenDefined("tree-view-table-row").then(() => {
     set index(index) {
       super.index = index;
 
-      let textColumns = [];
-      for (let column of threadPane.columns) {
+      const textColumns = [];
+      for (const column of threadPane.columns) {
         // No need to update the text of this cell if it's hidden, the selection
         // column, or an icon column that doesn't match a specific flag.
         if (column.hidden || column.icon || column.select) {
@@ -6091,9 +6113,9 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
       // XPCOM calls here must be keep to a minimum. Collect all of the
       // required data in one go.
-      let properties = {};
-      let threadLevel = {};
-      let cellTexts = this.view.cellDataForColumns(
+      const properties = {};
+      const threadLevel = {};
+      const cellTexts = this.view.cellDataForColumns(
         index,
         textColumns,
         properties,
@@ -6102,21 +6124,21 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
       // Collect the various strings and fluent IDs to build the full string for
       // the message row aria-label.
-      let ariaLabelPromises = [];
+      const ariaLabelPromises = [];
 
       const propertiesSet = new Set(properties.value.split(" "));
       const isDummyRow = propertiesSet.has("dummy");
 
       this.dataset.properties = properties.value.trim();
 
-      for (let column of threadPane.columns) {
+      for (const column of threadPane.columns) {
         // Skip this column if it's hidden or it's the "select" column, since
         // the selection state is communicated via the aria-activedescendant.
         if (column.hidden || column.select) {
           continue;
         }
-        let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
-        let textIndex = textColumns.indexOf(column.id);
+        const cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
+        const textIndex = textColumns.indexOf(column.id);
 
         // Special case for the subject column.
         if (column.id == "subjectCol") {
@@ -6128,7 +6150,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
             gViewWrapper.showGroupedBySort ? 0 : threadLevel.value
           );
 
-          let imageFluentID = this.#getMessageIndicatorString(propertiesSet);
+          const imageFluentID = this.#getMessageIndicatorString(propertiesSet);
           const image = div.querySelector("img");
           if (imageFluentID && !isDummyRow) {
             document.l10n.setAttributes(image, imageFluentID);
@@ -6163,7 +6185,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
             buttonL10nId = "tree-list-view-row-thread-button";
           }
 
-          let button = cell.querySelector("button");
+          const button = cell.querySelector("button");
           if (buttonL10nId) {
             document.l10n.setAttributes(button, buttonL10nId);
           }
@@ -6174,7 +6196,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
         }
 
         if (column.id == "flaggedCol") {
-          let button = cell.querySelector("button");
+          const button = cell.querySelector("button");
           if (propertiesSet.has("flagged")) {
             document.l10n.setAttributes(button, "tree-list-view-row-flagged");
             ariaLabelPromises.push(
@@ -6187,7 +6209,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
         }
 
         if (column.id == "junkStatusCol") {
-          let button = cell.querySelector("button");
+          const button = cell.querySelector("button");
           if (propertiesSet.has("junk")) {
             document.l10n.setAttributes(button, "tree-list-view-row-spam");
             ariaLabelPromises.push(
@@ -6200,7 +6222,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
         }
 
         if (column.id == "unreadButtonColHeader") {
-          let button = cell.querySelector("button");
+          const button = cell.querySelector("button");
           if (propertiesSet.has("read")) {
             document.l10n.setAttributes(button, "tree-list-view-row-read");
             ariaLabelPromises.push(
@@ -6326,10 +6348,10 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
       // XPCOM calls here must be keep to a minimum. Collect all of the
       // required data in one go.
-      let properties = {};
-      let threadLevel = {};
+      const properties = {};
+      const threadLevel = {};
 
-      let cellTexts = this.view.cellDataForColumns(
+      const cellTexts = this.view.cellDataForColumns(
         index,
         threadPane.cardColumns,
         properties,
@@ -6338,7 +6360,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
       // Collect the various strings and fluent IDs to build the full string for
       // the message row aria-label.
-      let ariaLabelPromises = [];
+      const ariaLabelPromises = [];
 
       if (threadLevel.value) {
         properties.value += " thread-children";
@@ -6594,8 +6616,8 @@ var sortController = {
     this.sortThreadPane("byDate");
   },
   sortThreadPane(sortName) {
-    let sortType = Ci.nsMsgViewSortType[sortName];
-    let grouped = gViewWrapper.showGroupedBySort;
+    const sortType = Ci.nsMsgViewSortType[sortName];
+    const grouped = gViewWrapper.showGroupedBySort;
     gViewWrapper._threadExpandAll = Boolean(
       gViewWrapper._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
     );
@@ -6634,7 +6656,7 @@ var sortController = {
     }
   },
   reverseSortThreadPane() {
-    let grouped = gViewWrapper.showGroupedBySort;
+    const grouped = gViewWrapper.showGroupedBySort;
     gViewWrapper._threadExpandAll = Boolean(
       gViewWrapper._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
     );
@@ -6899,16 +6921,16 @@ commandController.registerCallback("cmd_goStartPage", () => {
 commandController.registerCallback(
   "cmd_print",
   async () => {
-    let PrintUtils = top.PrintUtils;
+    const PrintUtils = top.PrintUtils;
     if (!webBrowser.hidden) {
       PrintUtils.startPrintWindow(webBrowser.browsingContext);
       return;
     }
-    let uris = gViewWrapper.dbView.getURIsForSelection();
+    const uris = gViewWrapper.dbView.getURIsForSelection();
     if (uris.length == 1) {
       if (messageBrowser.hidden) {
         // Load the only message in a hidden browser, then use the print preview UI.
-        let messageService = MailServices.messageServiceFromURI(uris[0]);
+        const messageService = MailServices.messageServiceFromURI(uris[0]);
         await PrintUtils.loadPrintBrowser(
           messageService.getUrlForUri(uris[0]).spec
         );
@@ -6927,7 +6949,7 @@ commandController.registerCallback(
 
     // Multiple messages. Get the printer settings, then load the messages into
     // a hidden browser and print them one at a time.
-    let ps = PrintUtils.getPrintSettings();
+    const ps = PrintUtils.getPrintSettings();
     Cc["@mozilla.org/widget/printdialog-service;1"]
       .getService(Ci.nsIPrintDialogService)
       .showPrintDialog(window, false, ps);
@@ -6936,8 +6958,8 @@ commandController.registerCallback(
     }
     ps.printSilent = true;
 
-    for (let uri of uris) {
-      let messageService = MailServices.messageServiceFromURI(uri);
+    for (const uri of uris) {
+      const messageService = MailServices.messageServiceFromURI(uri);
       await PrintUtils.loadPrintBrowser(messageService.getUrlForUri(uri).spec);
       await PrintUtils.printBrowser.browsingContext.print(ps);
     }
@@ -7112,7 +7134,7 @@ commandController.registerCallback(
 );
 
 // Attachments commands.
-for (let command of [
+for (const command of [
   "cmd_openAllAttachments",
   "cmd_saveAllAttachments",
   "cmd_detachAllAttachments",

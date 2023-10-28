@@ -223,19 +223,19 @@ var EnigmailWkdLookup = {
       return url;
     }
 
-    let at = email.indexOf("@");
+    const at = email.indexOf("@");
 
-    let domain = email.substr(at + 1);
-    let user = email.substr(0, at);
+    const domain = email.substr(at + 1);
+    const user = email.substr(0, at);
 
-    let data = [...new TextEncoder().encode(user)];
-    let ch = Cc["@mozilla.org/security/hash;1"].createInstance(
+    const data = [...new TextEncoder().encode(user)];
+    const ch = Cc["@mozilla.org/security/hash;1"].createInstance(
       Ci.nsICryptoHash
     );
     ch.init(ch.SHA1);
     ch.update(data, data.length);
-    let gotHash = ch.finish(false);
-    let encodedHash = lazy.EnigmailZBase32.encode(gotHash);
+    const gotHash = ch.finish(false);
+    const encodedHash = lazy.EnigmailZBase32.encode(gotHash);
 
     if (advancedMethod) {
       url =
@@ -267,14 +267,14 @@ var EnigmailWkdLookup = {
    * @returns {Promise<string>} key data (or null if not possible)
    */
   async downloadKey(url) {
-    let padLen = (url.length % 512) + 1;
-    let hdrs = new Headers({
+    const padLen = (url.length % 512) + 1;
+    const hdrs = new Headers({
       Authorization: "Basic " + btoa("no-user:"),
     });
     hdrs.append("Content-Type", "application/octet-stream");
     hdrs.append("X-Enigmail-Padding", "x".padEnd(padLen, "x"));
 
-    let myRequest = new Request(url, {
+    const myRequest = new Request(url, {
       method: "GET",
       headers: hdrs,
       mode: "cors",
@@ -319,7 +319,7 @@ var EnigmailWkdLookup = {
   },
 
   isWkdAvailable(email) {
-    let domain = email.toLowerCase().replace(/^.*@/, "");
+    const domain = email.toLowerCase().replace(/^.*@/, "");
 
     return !EXCLUDE_DOMAINS.includes(domain);
   },
@@ -333,7 +333,7 @@ var EnigmailWkdLookup = {
  * @returns {Promise<string>} - URL or null of no URL relevant.
  */
 async function getSiteSpecificUrl(emailAddr) {
-  let domain = emailAddr.replace(/^.+@/, "");
+  const domain = emailAddr.replace(/^.+@/, "");
   let url = null;
 
   switch (domain) {
@@ -346,7 +346,7 @@ async function getSiteSpecificUrl(emailAddr) {
       break;
   }
   if (!url) {
-    let records = await lazy.DNS.mx(domain);
+    const records = await lazy.DNS.mx(domain);
     const mxHosts = records.filter(record => record.host);
 
     if (

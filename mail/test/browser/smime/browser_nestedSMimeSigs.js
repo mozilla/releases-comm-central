@@ -15,14 +15,14 @@ var { open_message_from_file, get_about_message, smimeUtils_ensureNSS } =
   );
 
 function getMsgBodyTxt(msgc) {
-  let msgPane = get_about_message(msgc).getMessagePaneBrowser();
+  const msgPane = get_about_message(msgc).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 
 add_task(async function test_nested_sigs() {
   smimeUtils_ensureNSS();
 
-  let msgc = await open_message_from_file(
+  const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/nested-sigs.eml"))
   );
 
@@ -40,7 +40,7 @@ registerCleanupFunction(() => {
   Services.focus.focusedWindow = window;
   // Focus an element in the main window, then blur it again to avoid it
   // hijacking keypresses.
-  let mainWindowElement = document.getElementById("button-appmenu");
+  const mainWindowElement = document.getElementById("button-appmenu");
   mainWindowElement.focus();
   mainWindowElement.blur();
 });

@@ -143,7 +143,7 @@ var EnigmailKeyRing = {
 
     keyId = keyId.replace(/^0x/, "").toUpperCase();
 
-    let keyObj = gSubkeyIndex[keyId];
+    const keyObj = gSubkeyIndex[keyId];
 
     return keyObj !== undefined;
   },
@@ -162,7 +162,7 @@ var EnigmailKeyRing = {
   getKeysByEmail(email, onlyValidUid = true, allowExpired = false) {
     lazy.EnigmailLog.DEBUG("keyRing.jsm: getKeysByEmail: '" + email + "'\n");
 
-    let res = [];
+    const res = [];
     if (!email) {
       return res;
     }
@@ -170,12 +170,12 @@ var EnigmailKeyRing = {
     this.getAllKeys(); // ensure keylist is loaded;
     email = email.toLowerCase();
 
-    for (let key of gKeyListObj.keyList) {
+    for (const key of gKeyListObj.keyList) {
       if (!allowExpired && key.keyTrust == "e") {
         continue;
       }
 
-      for (let userId of key.userIds) {
+      for (const userId of key.userIds) {
         if (userId.type !== "uid") {
           continue;
         }
@@ -209,15 +209,17 @@ var EnigmailKeyRing = {
 
     this.getAllKeys(); // ensure keylist is loaded;
 
-    for (let key of gKeyListObj.keyList) {
+    for (const key of gKeyListObj.keyList) {
       if (!key.secretAvailable) {
         continue;
       }
-      let isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(key.fpr);
+      const isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
+        key.fpr
+      );
       if (!isPersonal) {
         continue;
       }
-      for (let userId of key.userIds) {
+      for (const userId of key.userIds) {
         if (userId.type !== "uid") {
           continue;
         }
@@ -256,7 +258,7 @@ var EnigmailKeyRing = {
    * @returns KeyObject with the found key, or null if no key found
    */
   async getSecretKeyByEmail(emailAddr) {
-    let result = {};
+    const result = {};
     await this.getAllSecretKeysByEmail(emailAddr, result, true);
     return result.best;
   },
@@ -265,7 +267,7 @@ var EnigmailKeyRing = {
     lazy.EnigmailLog.DEBUG(
       "keyRing.jsm: getAllSecretKeysByEmail: '" + emailAddr + "'\n"
     );
-    let keyList = this.getKeysByEmail(emailAddr, true, true);
+    const keyList = this.getKeysByEmail(emailAddr, true, true);
 
     result.all = [];
     result.best = null;
@@ -274,11 +276,13 @@ var EnigmailKeyRing = {
     var nowSecondsSinceEpoch = nowDate.valueOf() / 1000;
     let bestIsExpired = false;
 
-    for (let key of keyList) {
+    for (const key of keyList) {
       if (!key.secretAvailable) {
         continue;
       }
-      let isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(key.fpr);
+      const isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
+        key.fpr
+      );
       if (!isPersonal) {
         continue;
       }
@@ -286,7 +290,7 @@ var EnigmailKeyRing = {
         key.getEncryptionValidity(true, "ignoreExpired").keyValid &&
         key.getSigningValidity("ignoreExpired").keyValid
       ) {
-        let thisIsExpired =
+        const thisIsExpired =
           key.expiryTime != 0 && key.expiryTime < nowSecondsSinceEpoch;
         if (!allowExpired && thisIsExpired) {
           continue;
@@ -338,9 +342,9 @@ var EnigmailKeyRing = {
       keyArr = keyIdList;
     }
 
-    let ret = [];
-    for (let i in keyArr) {
-      let r = this.getKeyById(keyArr[i]);
+    const ret = [];
+    for (const i in keyArr) {
+      const r = this.getKeyById(keyArr[i]);
       if (r) {
         ret.push(r);
       }
@@ -353,7 +357,7 @@ var EnigmailKeyRing = {
    * @param {nsIFile} file - ASCII armored file containing the revocation.
    */
   async importRevFromFile(file) {
-    let contents = await IOUtils.readUTF8(file.path);
+    const contents = await IOUtils.readUTF8(file.path);
 
     const beginIndexObj = {};
     const endIndexObj = {};
@@ -373,13 +377,13 @@ var EnigmailKeyRing = {
       return;
     }
 
-    let pgpBlock = contents.substr(
+    const pgpBlock = contents.substr(
       beginIndexObj.value,
       endIndexObj.value - beginIndexObj.value + 1
     );
 
     const cApi = lazy.EnigmailCryptoAPI();
-    let res = await cApi.importRevBlockAPI(pgpBlock);
+    const res = await cApi.importRevBlockAPI(pgpBlock);
     if (res.exitCode) {
       return;
     }
@@ -415,8 +419,8 @@ var EnigmailKeyRing = {
         "\n"
     );
 
-    let data = await IOUtils.read(inputFile.path);
-    let contents = MailStringUtils.uint8ArrayToByteString(data);
+    const data = await IOUtils.read(inputFile.path);
+    const contents = MailStringUtils.uint8ArrayToByteString(data);
     let res;
     let tryAgain;
     let permissive = false;
@@ -441,7 +445,7 @@ var EnigmailKeyRing = {
 
       if (failed) {
         if (!permissive) {
-          let agreed = lazy.EnigmailDialog.confirmDlg(
+          const agreed = lazy.EnigmailDialog.confirmDlg(
             win,
             lazy.l10n.formatValueSync("confirm-permissive-import")
           );
@@ -507,7 +511,7 @@ var EnigmailKeyRing = {
    * @returns Array of String: list of UserIds
    */
   getValidUids(keyId) {
-    let keyObj = this.getKeyById(keyId);
+    const keyObj = this.getKeyById(keyId);
     if (keyObj) {
       return this.getValidUidsFromKeyObj(keyObj);
     }
@@ -526,10 +530,10 @@ var EnigmailKeyRing = {
         hideInvalidUid = false;
       }
 
-      for (let i in keyObj.userIds) {
+      for (const i in keyObj.userIds) {
         if (keyObj.userIds[i].type !== "uat") {
           if (hideInvalidUid) {
-            let thisTrust = TRUSTLEVELS_SORTED.indexOf(
+            const thisTrust = TRUSTLEVELS_SORTED.indexOf(
               keyObj.userIds[i].keyTrust
             );
             if (thisTrust > maxTrustLevel) {
@@ -591,7 +595,7 @@ var EnigmailKeyRing = {
 
     exitCodeObj.value = -1;
 
-    let keyBlock = lazy.RNP.getMultiplePublicKeys(
+    const keyBlock = lazy.RNP.getMultiplePublicKeys(
       idArrayFull,
       idArrayReduced,
       idArrayMinimal
@@ -632,8 +636,8 @@ var EnigmailKeyRing = {
   },
 
   async exportPublicKeysInteractive(window, defaultFileName, keyIdArray) {
-    let label = lazy.l10n.formatValueSync("export-to-file");
-    let outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
+    const label = lazy.l10n.formatValueSync("export-to-file");
+    const outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
       window,
       label,
       defaultFileName
@@ -664,8 +668,8 @@ var EnigmailKeyRing = {
   },
 
   backupSecretKeysInteractive(window, defaultFileName, fprArray) {
-    let label = lazy.l10n.formatValueSync("export-keypair-to-file");
-    let outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
+    const label = lazy.l10n.formatValueSync("export-keypair-to-file");
+    const outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
       window,
       label,
       defaultFileName
@@ -703,7 +707,7 @@ var EnigmailKeyRing = {
       return;
     }
 
-    let backupKeyBlock = await lazy.RNP.backupSecretKeys(fprArray, password);
+    const backupKeyBlock = await lazy.RNP.backupSecretKeys(fprArray, password);
     if (!backupKeyBlock) {
       Services.prompt.alert(
         null,
@@ -874,7 +878,7 @@ var EnigmailKeyRing = {
     let permissive = false;
     do {
       // strict on first attempt, permissive on optional second attempt
-      let blockParam = isBinary ? keyBlock : pgpBlock;
+      const blockParam = isBinary ? keyBlock : pgpBlock;
 
       result = await cApi.importPubkeyBlockAutoAcceptAPI(
         parent,
@@ -885,14 +889,14 @@ var EnigmailKeyRing = {
       );
 
       tryAgain = false;
-      let failed =
+      const failed =
         !result ||
         result.exitCode ||
         !result.importedKeys ||
         !result.importedKeys.length;
       if (failed) {
         if (allowPermissiveFallbackWithPrompt && !permissive) {
-          let agreed = lazy.EnigmailDialog.confirmDlg(
+          const agreed = lazy.EnigmailDialog.confirmDlg(
             parent,
             lazy.l10n.formatValueSync("confirm-permissive-import")
           );
@@ -935,10 +939,10 @@ var EnigmailKeyRing = {
   ) {
     let somethingWasImported = false;
     if (preview.length > 0) {
-      let outParam = {};
+      const outParam = {};
       if (lazy.EnigmailDialog.confirmPubkeyImport(window, preview, outParam)) {
         let exitStatus;
-        let errorMsgObj = {};
+        const errorMsgObj = {};
         try {
           exitStatus = await EnigmailKeyRing.importKeyAsync(
             window,
@@ -958,7 +962,7 @@ var EnigmailKeyRing = {
         }
 
         if (exitStatus === 0) {
-          let keyList = preview.map(a => a.id);
+          const keyList = preview.map(a => a.id);
           lazy.EnigmailDialog.keyImportDlg(window, keyList);
           somethingWasImported = true;
         } else {
@@ -983,13 +987,13 @@ var EnigmailKeyRing = {
   ) {
     let somethingWasImported = false;
     if (keyArray.length > 0) {
-      let outParam = {};
+      const outParam = {};
       if (lazy.EnigmailDialog.confirmPubkeyImport(window, keyArray, outParam)) {
-        let importedKeys = [];
+        const importedKeys = [];
         let allErrors = "";
-        for (let key of keyArray) {
+        for (const key of keyArray) {
           let exitStatus;
-          let errorMsgObj = {};
+          const errorMsgObj = {};
           try {
             exitStatus = await EnigmailKeyRing.importKeyAsync(
               window,
@@ -1033,7 +1037,7 @@ var EnigmailKeyRing = {
   },
 
   async importKeyDataSilent(window, keyData, isBinary, onlyFingerprint = "") {
-    let errorMsgObj = {};
+    const errorMsgObj = {};
     let exitStatus = -1;
     try {
       exitStatus = await EnigmailKeyRing.importKeyAsync(
@@ -1096,7 +1100,7 @@ var EnigmailKeyRing = {
       return -2;
     }
 
-    let level = this._getValidityLevelIgnoringAcceptance(
+    const level = this._getValidityLevelIgnoringAcceptance(
       keyObj,
       emailAddr,
       allowExpired
@@ -1129,7 +1133,7 @@ var EnigmailKeyRing = {
 
     if (emailAddr) {
       let uidMatch = false;
-      for (let uid of keyObj.userIds) {
+      for (const uid of keyObj.userIds) {
         if (uid.type !== "uid") {
           continue;
         }
@@ -1158,7 +1162,7 @@ var EnigmailKeyRing = {
     // We already checked above, the primary key is not revoked/expired
     let foundGoodEnc = keyObj.keyUseFor.match(/e/);
     if (!foundGoodEnc) {
-      for (let aSub of keyObj.subKeys) {
+      for (const aSub of keyObj.subKeys) {
         if (aSub.keyTrust == "r") {
           continue;
         }
@@ -1182,7 +1186,7 @@ var EnigmailKeyRing = {
   async _getAcceptanceLevelForEmail(keyObj, emailAddr) {
     let acceptanceLevel;
     if (keyObj.secretAvailable) {
-      let isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
+      const isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
         keyObj.fpr
       );
       if (isPersonal) {
@@ -1218,11 +1222,11 @@ var EnigmailKeyRing = {
     var foundKeyId = null;
     var foundAcceptanceLevel = null;
 
-    let k = this.getAllKeys(null, null);
-    let keyList = k.keyList;
+    const k = this.getAllKeys(null, null);
+    const keyList = k.keyList;
 
-    for (let keyObj of keyList) {
-      let acceptanceLevel = await this.isValidKeyForRecipient(
+    for (const keyObj of keyList) {
+      const acceptanceLevel = await this.isValidKeyForRecipient(
         keyObj,
         emailAddr,
         false
@@ -1254,7 +1258,7 @@ var EnigmailKeyRing = {
       if (details) {
         details.msg = "ProblemNoKey";
       }
-      let msg =
+      const msg =
         "no valid encryption key with enough trust level for '" +
         emailAddr +
         "' found";
@@ -1296,7 +1300,7 @@ var EnigmailKeyRing = {
 
     let acceptanceLevel = 0;
 
-    let acceptanceResult = {};
+    const acceptanceResult = {};
     try {
       await lazy.PgpSqliteDb2.getAcceptance(
         keyObj.fpr,
@@ -1331,7 +1335,7 @@ var EnigmailKeyRing = {
   },
 
   async getKeyAcceptanceForEmail(keyObj, email) {
-    let acceptanceResult = {};
+    const acceptanceResult = {};
 
     try {
       await lazy.PgpSqliteDb2.getAcceptance(
@@ -1397,9 +1401,9 @@ var EnigmailKeyRing = {
         );
       }
 
-      let aliasKeyList = this.getAliasKeyList(addr);
+      const aliasKeyList = this.getAliasKeyList(addr);
       if (aliasKeyList) {
-        for (let entry of aliasKeyList) {
+        for (const entry of aliasKeyList) {
           let foundError = true;
 
           let key;
@@ -1409,7 +1413,7 @@ var EnigmailKeyRing = {
             key = this.getKeyById(entry.id);
           }
           if (key && this.isValidForEncryption(key)) {
-            let acceptanceResult =
+            const acceptanceResult =
               await lazy.PgpSqliteDb2.getFingerprintAcceptance(null, key.fpr);
             // If we don't have acceptance info for the key yet,
             // or, we have it and it isn't rejected,
@@ -1422,7 +1426,7 @@ var EnigmailKeyRing = {
           if (foundError) {
             keyMissing = true;
             if (details) {
-              let detEl = {};
+              const detEl = {};
               detEl.addr = addr;
               detEl.msg = "alias problem";
               details.errArray.push(detEl);
@@ -1441,7 +1445,10 @@ var EnigmailKeyRing = {
 
       // try email match:
       var addrErrDetails = {};
-      let foundKeyId = await this.getValidKeyForRecipient(addr, addrErrDetails);
+      const foundKeyId = await this.getValidKeyForRecipient(
+        addr,
+        addrErrDetails
+      );
       if (details && addrErrDetails.msg) {
         errMsg = addrErrDetails.msg;
       }
@@ -1478,13 +1485,13 @@ var EnigmailKeyRing = {
       emailAddr = emailAddr.substr(1, emailAddr.length - 2);
     }
 
-    let found = [];
+    const found = [];
 
-    let k = this.getAllKeys(null, null);
-    let keyList = k.keyList;
+    const k = this.getAllKeys(null, null);
+    const keyList = k.keyList;
 
-    for (let keyObj of keyList) {
-      let acceptanceLevel = await this.isValidKeyForRecipient(
+    for (const keyObj of keyList) {
+      const acceptanceLevel = await this.isValidKeyForRecipient(
         keyObj,
         emailAddr,
         allowExpired
@@ -1514,7 +1521,7 @@ var EnigmailKeyRing = {
    *                input, or null if no alias matches the address.
    */
   getAliasKeyList(email) {
-    let ekl = lazy.OpenPGPAlias.getEmailAliasKeyList(email);
+    const ekl = lazy.OpenPGPAlias.getEmailAliasKeyList(email);
     if (ekl) {
       return ekl;
     }
@@ -1531,9 +1538,9 @@ var EnigmailKeyRing = {
    *                    or an empty array on failure.
    */
   getAliasKeys(keyList) {
-    let keys = [];
+    const keys = [];
 
-    for (let entry of keyList) {
+    for (const entry of keyList) {
       let key;
       let lookupId;
       if ("fingerprint" in entry) {
@@ -1546,7 +1553,7 @@ var EnigmailKeyRing = {
       if (key && this.isValidForEncryption(key)) {
         keys.push(key.fpr);
       } else {
-        let reason = key ? "not usable" : "missing";
+        const reason = key ? "not usable" : "missing";
         console.debug(
           "getAliasKeys: key for identifier: " + lookupId + " is " + reason
         );
@@ -1564,14 +1571,14 @@ var EnigmailKeyRing = {
     gKeyIndex = [];
     gSubkeyIndex = [];
 
-    for (let i in gKeyListObj.keyList) {
-      let k = gKeyListObj.keyList[i];
+    for (const i in gKeyListObj.keyList) {
+      const k = gKeyListObj.keyList[i];
       gKeyIndex[k.keyId] = k;
       gKeyIndex[k.fpr] = k;
       gKeyIndex[k.keyId.substr(-8, 8)] = k;
 
       // add subkeys
-      for (let j in k.subKeys) {
+      for (const j in k.subKeys) {
         gSubkeyIndex[k.subKeys[j].keyId] = k;
       }
     }
@@ -1585,7 +1592,7 @@ var EnigmailKeyRing = {
    */
   updateKeys(keys) {
     lazy.EnigmailLog.DEBUG("keyRing.jsm: updateKeys(" + keys.join(",") + ")\n");
-    let uniqueKeys = [...new Set(keys)]; // make key IDs unique
+    const uniqueKeys = [...new Set(keys)]; // make key IDs unique
 
     deleteKeysFromCache(uniqueKeys);
 
@@ -1599,25 +1606,25 @@ var EnigmailKeyRing = {
   },
 
   findRevokedPersonalKeysByEmail(email) {
-    let res = [];
+    const res = [];
     if (email === "") {
       return res;
     }
     email = email.toLowerCase();
     this.getAllKeys(); // ensure keylist is loaded;
-    for (let k of gKeyListObj.keyList) {
+    for (const k of gKeyListObj.keyList) {
       if (k.keyTrust != "r") {
         continue;
       }
       let hasAdditionalEmail = false;
       let isMatch = false;
 
-      for (let userId of k.userIds) {
+      for (const userId of k.userIds) {
         if (userId.type !== "uid") {
           continue;
         }
 
-        let emailInUid = lazy.EnigmailFuncs.getEmailFromUserID(
+        const emailInUid = lazy.EnigmailFuncs.getEmailFromUserID(
           userId.userId
         ).toLowerCase();
         if (emailInUid == email) {
@@ -1643,7 +1650,7 @@ var EnigmailKeyRing = {
   },
 
   getAutocryptKey(keyId, email) {
-    let keyObj = this.getKeyById(keyId);
+    const keyObj = this.getKeyById(keyId);
     if (
       !keyObj ||
       !keyObj.subKeys.length ||
@@ -1652,7 +1659,7 @@ var EnigmailKeyRing = {
     ) {
       return null;
     }
-    let uid = keyObj.getUserIdWithEmail(email);
+    const uid = keyObj.getUserIdWithEmail(email);
     if (!uid) {
       return null;
     }
@@ -1709,24 +1716,24 @@ var EnigmailKeyRing = {
   async getEncryptionKeyMeta(email) {
     email = email.toLowerCase();
 
-    let result = [];
+    const result = [];
 
     result.hasAliasRule = lazy.OpenPGPAlias.hasAliasDefinition(email);
     if (result.hasAliasRule) {
-      let keyMeta = {};
+      const keyMeta = {};
       keyMeta.readiness = "alias";
       result.push(keyMeta);
       return result;
     }
 
-    let fingerprintsInKeyring = new Set();
+    const fingerprintsInKeyring = new Set();
 
-    for (let keyObj of this.getAllKeys(null, null).keyList) {
-      let keyMeta = {};
+    for (const keyObj of this.getAllKeys(null, null).keyList) {
+      const keyMeta = {};
       keyMeta.keyObj = keyObj;
 
       let uidMatch = false;
-      for (let uid of keyObj.userIds) {
+      for (const uid of keyObj.userIds) {
         if (uid.type !== "uid") {
           continue;
         }
@@ -1765,7 +1772,7 @@ var EnigmailKeyRing = {
         let hasRevokedSubkey = false;
         let hasUsableSubkey = false;
 
-        for (let aSub of keyObj.subKeys) {
+        for (const aSub of keyObj.subKeys) {
           if (!aSub.keyUseFor.match(/e/)) {
             continue;
           }
@@ -1790,7 +1797,7 @@ var EnigmailKeyRing = {
       }
 
       if (keyObj.secretAvailable) {
-        let isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
+        const isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
           keyObj.fpr
         );
         if (isPersonal) {
@@ -1802,7 +1809,7 @@ var EnigmailKeyRing = {
           continue;
         }
       } else {
-        let acceptanceLevel = await this.getKeyAcceptanceLevelForEmail(
+        const acceptanceLevel = await this.getKeyAcceptanceLevelForEmail(
           keyObj,
           email
         );
@@ -1816,7 +1823,7 @@ var EnigmailKeyRing = {
             break;
           case 0:
           default:
-            let other = await lazy.PgpSqliteDb2.getFingerprintAcceptance(
+            const other = await lazy.PgpSqliteDb2.getFingerprintAcceptance(
               null,
               keyObj.fpr
             );
@@ -1842,23 +1849,23 @@ var EnigmailKeyRing = {
       !this.alreadyCheckedGnuPG.has(email)
     ) {
       this.alreadyCheckedGnuPG.add(email);
-      let keysFromGnuPGMap = lazy.GPGME.getPublicKeysForEmail(email);
-      for (let aFpr of keysFromGnuPGMap.keys()) {
-        let oldKey = this.getKeyById(aFpr);
-        let gpgKeyData = keysFromGnuPGMap.get(aFpr);
+      const keysFromGnuPGMap = lazy.GPGME.getPublicKeysForEmail(email);
+      for (const aFpr of keysFromGnuPGMap.keys()) {
+        const oldKey = this.getKeyById(aFpr);
+        const gpgKeyData = keysFromGnuPGMap.get(aFpr);
         if (oldKey) {
           await this.importKeyDataSilent(null, gpgKeyData, false);
         } else {
-          let k = await lazy.RNP.getKeyListFromKeyBlockImpl(gpgKeyData);
+          const k = await lazy.RNP.getKeyListFromKeyBlockImpl(gpgKeyData);
           if (!k) {
             continue;
           }
           if (k.length != 1) {
             continue;
           }
-          let db = await lazy.CollectedKeysDB.getInstance();
+          const db = await lazy.CollectedKeysDB.getInstance();
           // If key is known in the db: merge + update.
-          let key = await db.mergeExisting(k[0], gpgKeyData, {
+          const key = await db.mergeExisting(k[0], gpgKeyData, {
             uri: "",
             type: "gnupg",
           });
@@ -1867,10 +1874,10 @@ var EnigmailKeyRing = {
       }
     }
 
-    let collDB = await lazy.CollectedKeysDB.getInstance();
-    let coll = await collDB.findKeysForEmail(email);
-    for (let c of coll) {
-      let k = await lazy.RNP.getKeyListFromKeyBlockImpl(c.pubKey);
+    const collDB = await lazy.CollectedKeysDB.getInstance();
+    const coll = await collDB.findKeysForEmail(email);
+    for (const c of coll) {
+      const k = await lazy.RNP.getKeyListFromKeyBlockImpl(c.pubKey);
       if (!k) {
         continue;
       }
@@ -1886,7 +1893,7 @@ var EnigmailKeyRing = {
       if (fingerprintsInKeyring.has(k[0].fpr)) {
         deleteFromCollected = true;
       } else {
-        let trust = k[0].keyTrust;
+        const trust = k[0].keyTrust;
         if (trust == "r" || trust == "e") {
           deleteFromCollected = true;
         }
@@ -1901,7 +1908,7 @@ var EnigmailKeyRing = {
         if (!k[0].keyUseFor.match(/e/)) {
           let hasUsableSubkey = false;
 
-          for (let aSub of k[0].subKeys) {
+          for (const aSub of k[0].subKeys) {
             if (!aSub.keyUseFor.match(/e/)) {
               continue;
             }
@@ -1922,7 +1929,7 @@ var EnigmailKeyRing = {
         continue;
       }
 
-      let keyMeta = {};
+      const keyMeta = {};
       keyMeta.readiness = "collected";
       keyMeta.keyObj = k[0];
       keyMeta.collectedKey = c;
@@ -2078,7 +2085,7 @@ function loadKeyList(win, sortColumn, sortDirection, onlyKeys = null) {
 function updateSortList() {
   gKeyListObj.keySortList = [];
   for (let i = 0; i < gKeyListObj.keyList.length; i++) {
-    let keyObj = gKeyListObj.keyList[i];
+    const keyObj = gKeyListObj.keyList[i];
     gKeyListObj.keySortList.push({
       userId: keyObj.userId ? keyObj.userId.toLowerCase() : "",
       keyId: keyObj.keyId,
@@ -2102,16 +2109,16 @@ function deleteKeysFromCache(keyList) {
     "keyRing.jsm: deleteKeysFromCache(" + keyList.join(",") + ")\n"
   );
 
-  let deleted = [];
-  let foundKeys = [];
-  for (let keyId of keyList) {
-    let k = EnigmailKeyRing.getKeyById(keyId, true);
+  const deleted = [];
+  const foundKeys = [];
+  for (const keyId of keyList) {
+    const k = EnigmailKeyRing.getKeyById(keyId, true);
     if (k) {
       foundKeys.push(k);
     }
   }
 
-  for (let k of foundKeys) {
+  for (const k of foundKeys) {
     let foundIndex = -1;
     for (let i = 0; i < gKeyListObj.keyList.length; i++) {
       if (gKeyListObj.keyList[i].fpr == k.fpr) {
@@ -2195,7 +2202,7 @@ function runKeyUsabilityCheck() {
 */
 
 function waitForKeyList() {
-  let mainThread = Services.tm.mainThread;
+  const mainThread = Services.tm.mainThread;
   while (gLoadingKeys) {
     mainThread.processNextEvent(true);
   }

@@ -76,26 +76,26 @@ export function fetchConfigFromExchange(
 
   // <https://technet.microsoft.com/en-us/library/bb124251(v=exchg.160).aspx#Autodiscover%20services%20in%20Outlook>
   // <https://docs.microsoft.com/en-us/previous-versions/office/developer/exchange-server-interoperability-guidance/hh352638(v%3Dexchg.140)>, search for "The Autodiscover service uses one of these four methods"
-  let url1 =
+  const url1 =
     "https://autodiscover." +
     lazy.Sanitizer.hostname(domain) +
     "/autodiscover/autodiscover.xml";
-  let url2 =
+  const url2 =
     "https://" +
     lazy.Sanitizer.hostname(domain) +
     "/autodiscover/autodiscover.xml";
-  let url3 =
+  const url3 =
     "http://autodiscover." +
     lazy.Sanitizer.hostname(domain) +
     "/autodiscover/autodiscover.xml";
-  let body = `<?xml version="1.0" encoding="utf-8"?>
+  const body = `<?xml version="1.0" encoding="utf-8"?>
     <Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/requestschema/2006">
       <Request>
         <EMailAddress>${emailAddress}</EMailAddress>
         <AcceptableResponseSchema>http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a</AcceptableResponseSchema>
       </Request>
     </Autodiscover>`;
-  let callArgs = {
+  const callArgs = {
     uploadBody: body,
     post: true,
     headers: {
@@ -109,10 +109,9 @@ export function fetchConfigFromExchange(
   };
   let call;
   let fetch;
-  let fetch3;
 
-  let successive = new SuccessiveAbortable();
-  let priority = new PriorityOrderAbortable(function (xml, call) {
+  const successive = new SuccessiveAbortable();
+  const priority = new PriorityOrderAbortable(function (xml, call) {
     // success
     readAutoDiscoverResponse(
       xml,
@@ -153,77 +152,84 @@ export function fetchConfigFromExchange(
 
   call = priority.addCall();
   call.foundMsg = "url3";
-  let call3ErrorCallback = call.errorCallback();
+  const call3ErrorCallback = call.errorCallback();
   // url3 is HTTP (not HTTPS), so suppress password. Even MS spec demands so.
-  let call3Args = deepCopy(callArgs);
+  const call3Args = deepCopy(callArgs);
   delete call3Args.username;
   delete call3Args.password;
-  fetch3 = new lazy.FetchHTTP(url3, call3Args, call.successCallback(), ex => {
-    // url3 is an HTTP URL that will redirect to the real one, usually a
-    // HTTPS URL of the hoster. XMLHttpRequest unfortunately loses the call
-    // parameters, drops the auth, drops the body, and turns POST into GET,
-    // which cause the call to fail. For AutoDiscover mechanism to work,
-    // we need to repeat the call with the correct parameters again.
-    let redirectURL = fetch3._request.responseURL;
-    if (!redirectURL.startsWith("https:")) {
-      call3ErrorCallback(ex);
-      return;
-    }
-    let redirectURI = Services.io.newURI(redirectURL);
-    let redirectDomain = Services.eTLD.getBaseDomain(redirectURI);
-    let originalDomain = Services.eTLD.getBaseDomainFromHost(domain);
+  const fetch3 = new lazy.FetchHTTP(
+    url3,
+    call3Args,
+    call.successCallback(),
+    ex => {
+      // url3 is an HTTP URL that will redirect to the real one, usually a
+      // HTTPS URL of the hoster. XMLHttpRequest unfortunately loses the call
+      // parameters, drops the auth, drops the body, and turns POST into GET,
+      // which cause the call to fail. For AutoDiscover mechanism to work,
+      // we need to repeat the call with the correct parameters again.
+      const redirectURL = fetch3._request.responseURL;
+      if (!redirectURL.startsWith("https:")) {
+        call3ErrorCallback(ex);
+        return;
+      }
+      const redirectURI = Services.io.newURI(redirectURL);
+      const redirectDomain = Services.eTLD.getBaseDomain(redirectURI);
+      const originalDomain = Services.eTLD.getBaseDomainFromHost(domain);
 
-    function fetchRedirect() {
-      let fetchCall = priority.addCall();
-      let fetch = new lazy.FetchHTTP(
-        redirectURL,
-        callArgs, // now with auth
-        fetchCall.successCallback(),
-        fetchCall.errorCallback()
-      );
-      fetchCall.setAbortable(fetch);
-      fetch.start();
-    }
+      function fetchRedirect() {
+        const fetchCall = priority.addCall();
+        const fetch = new lazy.FetchHTTP(
+          redirectURL,
+          callArgs, // now with auth
+          fetchCall.successCallback(),
+          fetchCall.errorCallback()
+        );
+        fetchCall.setAbortable(fetch);
+        fetch.start();
+      }
 
-    const kSafeDomains = ["office365.com", "outlook.com"];
-    if (
-      redirectDomain != originalDomain &&
-      !kSafeDomains.includes(redirectDomain)
-    ) {
-      // Given that we received the redirect URL from an insecure HTTP call,
-      // we ask the user whether he trusts the redirect domain.
-      gAccountSetupLogger.info("AutoDiscover HTTP redirected to other domain");
-      let dialogSuccessive = new SuccessiveAbortable();
-      // Because the dialog implements Abortable, the dialog will cancel and
-      // close automatically, if a slow higher priority call returns late.
-      let dialogCall = priority.addCall();
-      dialogCall.setAbortable(dialogSuccessive);
-      call3ErrorCallback(new Exception("Redirected"));
-      dialogSuccessive.current = new TimeoutAbortable(
-        lazy.setTimeout(() => {
-          dialogSuccessive.current = confirmCallback(
-            redirectDomain,
-            () => {
-              // User agreed.
-              fetchRedirect();
-              // Remove the dialog from the call stack.
-              dialogCall.errorCallback()(new Exception("Proceed to fetch"));
-            },
-            ex => {
-              // User rejected, or action cancelled otherwise.
-              dialogCall.errorCallback()(ex);
-            }
-          );
-          // Account for a slow server response.
-          // This will prevent showing the warning message when not necessary.
-          // The timeout is just for optics. The Abortable ensures that it works.
-        }, 2000)
-      );
-    } else {
-      fetchRedirect();
-      call3ErrorCallback(new Exception("Redirected"));
+      const kSafeDomains = ["office365.com", "outlook.com"];
+      if (
+        redirectDomain != originalDomain &&
+        !kSafeDomains.includes(redirectDomain)
+      ) {
+        // Given that we received the redirect URL from an insecure HTTP call,
+        // we ask the user whether he trusts the redirect domain.
+        gAccountSetupLogger.info(
+          "AutoDiscover HTTP redirected to other domain"
+        );
+        const dialogSuccessive = new SuccessiveAbortable();
+        // Because the dialog implements Abortable, the dialog will cancel and
+        // close automatically, if a slow higher priority call returns late.
+        const dialogCall = priority.addCall();
+        dialogCall.setAbortable(dialogSuccessive);
+        call3ErrorCallback(new Exception("Redirected"));
+        dialogSuccessive.current = new TimeoutAbortable(
+          lazy.setTimeout(() => {
+            dialogSuccessive.current = confirmCallback(
+              redirectDomain,
+              () => {
+                // User agreed.
+                fetchRedirect();
+                // Remove the dialog from the call stack.
+                dialogCall.errorCallback()(new Exception("Proceed to fetch"));
+              },
+              ex => {
+                // User rejected, or action cancelled otherwise.
+                dialogCall.errorCallback()(ex);
+              }
+            );
+            // Account for a slow server response.
+            // This will prevent showing the warning message when not necessary.
+            // The timeout is just for optics. The Abortable ensures that it works.
+          }, 2000)
+        );
+      } else {
+        fetchRedirect();
+        call3ErrorCallback(new Exception("Redirected"));
+      }
     }
-  });
+  );
   fetch3.start();
   call.setAbortable(fetch3);
 
@@ -257,10 +263,10 @@ function readAutoDiscoverResponse(
     "RedirectAddr" in autoDiscoverXML.Autodiscover.Response.Account
   ) {
     // <https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxdscli/49083e77-8dc2-4010-85c6-f40e090f3b17>
-    let redirectEmailAddress = lazy.Sanitizer.emailAddress(
+    const redirectEmailAddress = lazy.Sanitizer.emailAddress(
       autoDiscoverXML.Autodiscover.Response.Account.RedirectAddr
     );
-    let domain = redirectEmailAddress.split("@").pop();
+    const domain = redirectEmailAddress.split("@").pop();
     if (++gLoopCounter > 2) {
       throw new Error("Too many redirects in XML response; domain=" + domain);
     }
@@ -278,7 +284,7 @@ function readAutoDiscoverResponse(
     return;
   }
 
-  let config = readAutoDiscoverXML(autoDiscoverXML, username);
+  const config = readAutoDiscoverXML(autoDiscoverXML, username);
   if (config.isComplete()) {
     successCallback(config);
   } else {
@@ -303,7 +309,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
     !("Account" in autoDiscoverXML.Autodiscover.Response) ||
     !("Protocol" in autoDiscoverXML.Autodiscover.Response.Account)
   ) {
-    let stringBundle = getStringBundle(
+    const stringBundle = getStringBundle(
       "chrome://messenger/locale/accountCreationModel.properties"
     );
     throw new Exception(
@@ -326,9 +332,9 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
   config.outgoing.addThisServer = false;
   config.outgoing.useGlobalPreferredServer = true;
 
-  for (let protocolX of array_or_undef(xml.$Protocol)) {
+  for (const protocolX of array_or_undef(xml.$Protocol)) {
     try {
-      let type = lazy.Sanitizer.enum(
+      const type = lazy.Sanitizer.enum(
         protocolX.Type,
         ["WEB", "EXHTTP", "EXCH", "EXPR", "POP3", "IMAP", "SMTP"],
         "unknown"
@@ -350,7 +356,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
             config.incoming.ewsURL = lazy.Sanitizer.url(urlsX.Protocol.ASUrl);
           }
           config.incoming.type = "exchange";
-          let parsedURL = new URL(config.incoming.owaURL);
+          const parsedURL = new URL(config.incoming.owaURL);
           config.incoming.hostname = lazy.Sanitizer.hostname(
             parsedURL.hostname
           );
@@ -364,7 +370,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
           config.incoming.ewsURL = lazy.Sanitizer.url(protocolX.ASUrl);
         }
         config.incoming.type = "exchange";
-        let parsedURL = new URL(config.incoming.ewsURL);
+        const parsedURL = new URL(config.incoming.ewsURL);
         config.incoming.hostname = lazy.Sanitizer.hostname(parsedURL.hostname);
         if (parsedURL.port) {
           config.incoming.port = lazy.Sanitizer.integer(parsedURL.port);
@@ -466,19 +472,19 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
  * @returns {Abortable}
  */
 export function getAddonsList(config, successCallback, errorCallback) {
-  let incoming = [config.incoming, ...config.incomingAlternatives].find(
+  const incoming = [config.incoming, ...config.incomingAlternatives].find(
     alt => alt.type == "exchange"
   );
   if (!incoming) {
     successCallback();
     return new Abortable();
   }
-  let url = Services.prefs.getCharPref("mailnews.auto_config.addons_url");
+  const url = Services.prefs.getCharPref("mailnews.auto_config.addons_url");
   if (!url) {
     errorCallback(new Exception("no URL for addons list configured"));
     return new Abortable();
   }
-  let fetch = new lazy.FetchHTTP(
+  const fetch = new lazy.FetchHTTP(
     url,
     { allowCache: true, timeout: 10000 },
     function (json) {
@@ -556,15 +562,15 @@ export function getAddonsList(config, successCallback, errorCallback) {
 ]
  */
 function readAddonsJSON(json) {
-  let addons = [];
+  const addons = [];
   function ensureArray(value) {
     return Array.isArray(value) ? value : [];
   }
-  let xulLocale = Services.locale.requestedLocale;
-  let locale = xulLocale ? xulLocale.substring(0, 5) : "default";
-  for (let addonJSON of ensureArray(json)) {
+  const xulLocale = Services.locale.requestedLocale;
+  const locale = xulLocale ? xulLocale.substring(0, 5) : "default";
+  for (const addonJSON of ensureArray(json)) {
     try {
-      let addon = {
+      const addon = {
         id: addonJSON.id,
         minVersion: addonJSON.minVersion,
         xpiURL: lazy.Sanitizer.url(addonJSON.xpiURL),
@@ -582,7 +588,7 @@ function readAddonsJSON(json) {
         locale in addonJSON.description
           ? addonJSON.description[locale]
           : addonJSON.description[0];
-      for (let typeJSON of ensureArray(addonJSON.accountTypes)) {
+      for (const typeJSON of ensureArray(addonJSON.accountTypes)) {
         try {
           addon.supportedTypes.push({
             generalType: lazy.Sanitizer.alphanumdash(typeJSON.generalType),
@@ -614,7 +620,7 @@ function readAddonsJSON(json) {
  */
 function detectStandardProtocols(config, domain, successCallback) {
   gAccountSetupLogger.info("Exchange Autodiscover gave some results.");
-  let alts = [config.incoming, ...config.incomingAlternatives];
+  const alts = [config.incoming, ...config.incomingAlternatives];
   if (alts.find(alt => alt.type == "imap" || alt.type == "pop3")) {
     // Autodiscover found an exchange server with advertized IMAP and/or
     // POP3 support. We're done then.
@@ -626,7 +632,7 @@ function detectStandardProtocols(config, domain, successCallback) {
   // Autodiscover is known not to advertise all that it supports. Let's see
   // if there really isn't any IMAP/POP3 support by probing the Exchange
   // server. Use the server hostname already found.
-  let config2 = new lazy.AccountConfig();
+  const config2 = new lazy.AccountConfig();
   config2.incoming.hostname = config.incoming.hostname;
   config2.incoming.username = config.incoming.username || "%EMAILADDRESS%";
   // For Exchange 2013+ Kerberos/GSSAPI and NTLM options do not work by

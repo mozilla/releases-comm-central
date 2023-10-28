@@ -163,7 +163,7 @@ add_task(async function test_display_message_in_smart_folder_mode_works() {
   // bothering to expand any folders.
   await be_in_folder(dummyFolder);
 
-  let rootFolder = folder.server.rootFolder;
+  const rootFolder = folder.server.rootFolder;
   // Check that the folder is actually the child of the account root
   assert_folder_child_in_view(folder, rootFolder);
 
@@ -193,13 +193,13 @@ add_task(async function test_display_message_in_smart_folder_mode_works() {
 add_task(
   async function test_display_inbox_message_in_smart_folder_mode_works() {
     await be_in_folder(inboxFolder);
-    let inboxMsgHdr = window.gFolderDisplay.view.dbView.getMsgHdrAt(0);
+    const inboxMsgHdr = window.gFolderDisplay.view.dbView.getMsgHdrAt(0);
 
     // Collapse everything
     collapse_folder(smartInboxFolder);
     assert_folder_collapsed(smartInboxFolder);
     assert_folder_not_visible(inboxFolder);
-    let rootFolder = folder.server.rootFolder;
+    const rootFolder = folder.server.rootFolder;
     collapse_folder(rootFolder);
     assert_folder_collapsed(rootFolder);
 

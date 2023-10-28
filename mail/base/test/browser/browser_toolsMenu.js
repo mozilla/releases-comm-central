@@ -37,18 +37,18 @@ if (AppConstants.platform == "win") {
   toolsMenuData.menu_preferences = {};
   toolsMenuData.menu_accountmgr = {};
 }
-let helper = new MenuTestHelper("tasksMenu", toolsMenuData);
+const helper = new MenuTestHelper("tasksMenu", toolsMenuData);
 
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 let rootFolder, testFolder, testMessages;
 
 add_setup(async function () {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 

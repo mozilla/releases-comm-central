@@ -72,16 +72,16 @@ async function clickViewMessagesItem(id) {
  * Test that Ignore Thread works as expected.
  */
 add_task(async function test_ignore_thread() {
-  let t1root = thread1.getMsgHdr(0);
+  const t1root = thread1.getMsgHdr(0);
 
-  let t1second = await select_click_row(1);
+  const t1second = await select_click_row(1);
   await assert_selected_and_displayed(t1second);
 
   // Ignore this thread.
   EventUtils.synthesizeKey("K", { shiftKey: false, accelKey: false });
 
   // The first msg in the next thread should now be selected.
-  let t2root = thread2.getMsgHdr(0);
+  const t2root = thread2.getMsgHdr(0);
   await assert_selected_and_displayed(t2root);
 
   // The ignored thread should still be visible (with an ignored icon).
@@ -99,8 +99,8 @@ add_task(async function test_ignore_thread() {
  * Ignored Threads option is checked.
  */
 add_task(async function test_view_threads_ignored_threads() {
-  let t1root = thread1.getMsgHdr(0);
-  let t2root = thread2.getMsgHdr(0);
+  const t1root = thread1.getMsgHdr(0);
+  const t2root = thread2.getMsgHdr(0);
 
   // Check "Ignored Threads" - the ignored messages should appear =>
   // the first row is the first message of the first thread.
@@ -121,8 +121,8 @@ add_task(async function test_view_threads_ignored_threads() {
  * Test that Watch Thread makes the thread watched.
  */
 add_task(async function test_watch_thread() {
-  let t2second = await select_click_row(1);
-  let t3root = thread3.getMsgHdr(0);
+  const t2second = await select_click_row(1);
+  const t3root = thread3.getMsgHdr(0);
   await assert_selected_and_displayed(t2second);
 
   // Watch this thread.

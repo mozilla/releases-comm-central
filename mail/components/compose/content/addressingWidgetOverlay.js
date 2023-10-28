@@ -32,14 +32,14 @@ function Recipients2CompFields(msgCompFields) {
     );
   }
 
-  let otherHeaders = Services.prefs
+  const otherHeaders = Services.prefs
     .getCharPref("mail.compose.other.header", "")
     .split(",")
     .map(h => h.trim())
     .filter(Boolean);
-  for (let row of document.querySelectorAll(".address-row-raw")) {
-    let recipientType = row.dataset.recipienttype;
-    let headerValue = row.querySelector(".address-row-input").value.trim();
+  for (const row of document.querySelectorAll(".address-row-raw")) {
+    const recipientType = row.dataset.recipienttype;
+    const headerValue = row.querySelector(".address-row-input").value.trim();
     if (headerValue) {
       msgCompFields.setRawHeader(recipientType, headerValue);
     } else if (otherHeaders.includes(recipientType)) {
@@ -47,16 +47,15 @@ function Recipients2CompFields(msgCompFields) {
     }
   }
 
-  let getRecipientList = recipientType =>
+  const getRecipientList = recipientType =>
     Array.from(
       document.querySelectorAll(
         `.address-row[data-recipienttype="${recipientType}"] mail-address-pill`
       ),
       pill => {
         // Expect each pill to contain exactly one address.
-        let { name, email } = MailServices.headerParser.makeFromDisplayAddress(
-          pill.fullAddress
-        )[0];
+        const { name, email } =
+          MailServices.headerParser.makeFromDisplayAddress(pill.fullAddress)[0];
         return MailServices.headerParser.makeMimeAddress(name, email);
       }
     ).join(",");
@@ -87,10 +86,10 @@ function setAddressRowFromCompField(
   multi,
   forceShow = false
 ) {
-  let row = document.getElementById(rowId);
+  const row = document.getElementById(rowId);
   addressRowClearPills(row);
 
-  let value = multi
+  const value = multi
     ? MailServices.headerParser.parseEncodedHeaderW(headerValue).join(", ")
     : headerValue;
 
@@ -98,7 +97,7 @@ function setAddressRowFromCompField(
     addressRowSetVisibility(row, true);
   }
   if (value) {
-    let input = row.querySelector(".address-row-input");
+    const input = row.querySelector(".address-row-input");
     input.value = value;
     recipientAddPills(input, true);
   }
@@ -175,7 +174,7 @@ function CompFields2Recipients(msgCompFields) {
  */
 function updateUIforNNTPAccount() {
   // Hide the `mail-primary-input` field row if no pills have been created.
-  let mailContainer = document
+  const mailContainer = document
     .querySelector(".mail-primary-input")
     .closest(".address-container");
   if (mailContainer.querySelectorAll("mail-address-pill").length == 0) {
@@ -191,7 +190,7 @@ function updateUIforNNTPAccount() {
     .querySelector(".remove-field-button").hidden = false;
 
   // Show the `news-primary-input` field row if not already visible.
-  let newsContainer = document
+  const newsContainer = document
     .querySelector(".news-primary-input")
     .closest(".address-row");
   showAndFocusAddressRow(newsContainer.id);
@@ -200,11 +199,11 @@ function updateUIforNNTPAccount() {
   newsContainer.querySelector(".remove-field-button").hidden = true;
 
   // Prefer showing the buttons for news-show-row-menuitem items.
-  for (let item of document.querySelectorAll(".news-show-row-menuitem")) {
+  for (const item of document.querySelectorAll(".news-show-row-menuitem")) {
     showAddressRowMenuItemSetPreferButton(item, true);
   }
 
-  for (let item of document.querySelectorAll(".mail-show-row-menuitem")) {
+  for (const item of document.querySelectorAll(".mail-show-row-menuitem")) {
     showAddressRowMenuItemSetPreferButton(item, false);
   }
 }
@@ -216,7 +215,7 @@ function updateUIforNNTPAccount() {
  */
 function updateUIforMailAccount() {
   // Show the `mail-primary-input` field row if not already visible.
-  let mailContainer = document
+  const mailContainer = document
     .querySelector(".mail-primary-input")
     .closest(".address-row");
   showAndFocusAddressRow(mailContainer.id);
@@ -225,7 +224,7 @@ function updateUIforMailAccount() {
   mailContainer.querySelector(".remove-field-button").hidden = true;
 
   // Hide the `news-primary-input` field row if no pills have been created.
-  let newsContainer = document
+  const newsContainer = document
     .querySelector(".news-primary-input")
     .closest(".address-row");
   if (newsContainer.querySelectorAll("mail-address-pill").length == 0) {
@@ -236,11 +235,11 @@ function updateUIforMailAccount() {
   newsContainer.querySelector(".remove-field-button").hidden = false;
 
   // Prefer showing the buttons for mail-show-row-menuitem items.
-  for (let item of document.querySelectorAll(".mail-show-row-menuitem")) {
+  for (const item of document.querySelectorAll(".mail-show-row-menuitem")) {
     showAddressRowMenuItemSetPreferButton(item, true);
   }
 
-  for (let item of document.querySelectorAll(".news-show-row-menuitem")) {
+  for (const item of document.querySelectorAll(".news-show-row-menuitem")) {
     showAddressRowMenuItemSetPreferButton(item, false);
   }
 }
@@ -279,11 +278,11 @@ function awRemoveRecipients(msgCompFields, recipientType, recipientsList) {
   }
 
   // Convert csv string of recipients to be deleted into full addresses array.
-  let recipientsArray = msgCompFields.splitRecipients(recipientsList, false);
+  const recipientsArray = msgCompFields.splitRecipients(recipientsList, false);
 
   // Remove first instance of specified recipients from specified container.
-  for (let recipientFullAddress of recipientsArray) {
-    let pill = container.querySelector(
+  for (const recipientFullAddress of recipientsArray) {
+    const pill = container.querySelector(
       `mail-address-pill[fullAddress="${recipientFullAddress}"]`
     );
     if (pill) {
@@ -291,7 +290,7 @@ function awRemoveRecipients(msgCompFields, recipientType, recipientsList) {
     }
   }
 
-  let addressRow = container.closest(`.address-row`);
+  const addressRow = container.closest(`.address-row`);
 
   // Remove entire address row if empty, no user input, and not type "addr_to".
   if (
@@ -336,8 +335,8 @@ function awAddRecipients(msgCompFields, recipientType, recipientsList) {
  *   selected.
  */
 function addressRowAddRecipientsArray(row, addressArray, select = false) {
-  let addresses = [];
-  for (let addr of addressArray) {
+  const addresses = [];
+  for (const addr of addressArray) {
     addresses.push(...MailServices.headerParser.makeFromDisplayAddress(addr));
   }
 
@@ -345,10 +344,10 @@ function addressRowAddRecipientsArray(row, addressArray, select = false) {
     showAndFocusAddressRow(row.id, true);
   }
 
-  let recipientArea = document.getElementById("recipientsContainer");
-  let input = row.querySelector(".address-row-input");
-  for (let address of addresses) {
-    let pill = recipientArea.createRecipientPill(input, address);
+  const recipientArea = document.getElementById("recipientsContainer");
+  const input = row.querySelector(".address-row-input");
+  for (const address of addresses) {
+    const pill = recipientArea.createRecipientPill(input, address);
     if (select) {
       pill.setAttribute("selected", "selected");
     }
@@ -419,7 +418,7 @@ function focusNextAddressRow(currentInput) {
  * @param {Event} event - The DOM keydown event.
  */
 function otherHeaderInputOnKeyDown(event) {
-  let input = event.target;
+  const input = event.target;
 
   switch (event.key) {
     case " ":
@@ -494,7 +493,7 @@ function otherHeaderInputOnKeyDown(event) {
  * @param {Event} event - The DOM keydown event.
  */
 function addressInputOnBeforeHandleKeyDown(event) {
-  let input = event.target;
+  const input = event.target;
 
   switch (event.key) {
     case "a":
@@ -513,10 +512,10 @@ function addressInputOnBeforeHandleKeyDown(event) {
       // Prevent a pill keypress event when the focus moves on it.
       event.preventDefault();
 
-      let lastPill = input
+      const lastPill = input
         .closest(".address-container")
         .querySelector("mail-address-pill:last-of-type");
-      let mailRecipientsArea = input.closest("mail-recipients-area");
+      const mailRecipientsArea = input.closest("mail-recipients-area");
       if (lastPill) {
         // Select all pills of current address row.
         mailRecipientsArea.selectSiblingPills(lastPill);
@@ -524,7 +523,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
         break;
       }
       // No pills in the current address row, select all pills in all rows.
-      let lastPillGlobal = mailRecipientsArea.querySelector(
+      const lastPillGlobal = mailRecipientsArea.querySelector(
         "mail-address-pill:last-of-type"
       );
       if (lastPillGlobal) {
@@ -535,7 +534,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
 
     case " ":
     case ",":
-      let selection = input.value.substring(
+      const selection = input.value.substring(
         input.selectionStart,
         input.selectionEnd
       );
@@ -637,7 +636,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
       // deletion in previous row after removing current row via long keydown.
       event.preventDefault();
 
-      let targetPill = input
+      const targetPill = input
         .closest(".address-container")
         .querySelector(
           "mail-address-pill" + (event.key == "Home" ? "" : ":last-of-type")
@@ -726,7 +725,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
       // since autocomplete input fields prevent that by default (bug 1682147).
       if (event.metaKey) {
         // Cmd+[Shift]+Enter: Send message [later].
-        let sendCmd = event.shiftKey ? "cmd_sendLater" : "cmd_sendWithCheck";
+        const sendCmd = event.shiftKey ? "cmd_sendLater" : "cmd_sendWithCheck";
         goDoCommand(sendCmd);
         break;
       }
@@ -787,7 +786,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
  *   mail.compose.other.header, which do not have autocompletion and pills.
  */
 function addressInputOnInput(event, rawInput) {
-  let input = event.target;
+  const input = event.target;
 
   if (
     !input.value ||
@@ -839,10 +838,12 @@ function recipientAddPills(input, automatic = false) {
     return;
   }
 
-  let addresses = MailServices.headerParser.makeFromDisplayAddress(input.value);
-  let recipientArea = document.getElementById("recipientsContainer");
+  const addresses = MailServices.headerParser.makeFromDisplayAddress(
+    input.value
+  );
+  const recipientArea = document.getElementById("recipientsContainer");
 
-  for (let address of addresses) {
+  for (const address of addresses) {
     recipientArea.createRecipientPill(input, address);
   }
 
@@ -881,7 +882,7 @@ function recipientAddPills(input, automatic = false) {
  * @param {Element} row - The address row to clear.
  */
 function addressRowClearPills(row) {
-  for (let pill of row.querySelectorAll(
+  for (const pill of row.querySelectorAll(
     ".address-container mail-address-pill"
   )) {
     pill.remove();
@@ -921,7 +922,7 @@ function addressInputOnBlur(input) {
     return;
   }
 
-  let address = input.value.trim();
+  const address = input.value.trim();
   if (!address) {
     // If input is empty or whitespace only, clear input to remove any leftover
     // whitespace, reset the input size, and return.
@@ -940,11 +941,11 @@ function addressInputOnBlur(input) {
 
   // Otherwise, try to parse the input text as comma-separated recipients and
   // convert them into recipient pills.
-  let listNames = MimeParser.parseHeaderField(
+  const listNames = MimeParser.parseHeaderField(
     address,
     MimeParser.HEADER_ADDRESS
   );
-  let isMailingList =
+  const isMailingList =
     listNames.length > 0 &&
     MailServices.ab.mailListNameExists(listNames[0].name);
 
@@ -983,16 +984,16 @@ function editAddressPill(element, event) {
  *   opened.
  */
 function expandList(element) {
-  let pill = element.closest("mail-address-pill");
+  const pill = element.closest("mail-address-pill");
   if (pill.isMailList) {
-    let addresses = [];
-    for (let currentPill of pill.parentNode.querySelectorAll(
+    const addresses = [];
+    for (const currentPill of pill.parentNode.querySelectorAll(
       "mail-address-pill"
     )) {
       if (currentPill == pill) {
-        let dir = MailServices.ab.getDirectory(pill.listURI);
+        const dir = MailServices.ab.getDirectory(pill.listURI);
         if (dir) {
-          for (let card of dir.childCards) {
+          for (const card of dir.childCards) {
             addresses.push(makeMailboxObjectFromCard(card));
           }
         }
@@ -1000,7 +1001,7 @@ function expandList(element) {
         addresses.push(currentPill.fullAddress);
       }
     }
-    let row = pill.closest(".address-row");
+    const row = pill.closest(".address-row");
     addressRowClearPills(row);
     addressRowAddRecipientsArray(row, addresses, false);
   }
@@ -1013,31 +1014,31 @@ function expandList(element) {
  * @param {Event} event - The DOM Event.
  */
 function onPillPopupShowing(event) {
-  let menu = event.target;
+  const menu = event.target;
   // Reset previously hidden menuitems.
-  for (let menuitem of menu.querySelectorAll(
+  for (const menuitem of menu.querySelectorAll(
     ".pill-action-move, .pill-action-edit"
   )) {
     menuitem.hidden = false;
   }
 
-  let recipientsContainer = document.getElementById("recipientsContainer");
+  const recipientsContainer = document.getElementById("recipientsContainer");
 
   // Check if the pill where the context menu was originated is not selected.
-  let pill = event.explicitOriginalTarget.closest("mail-address-pill");
+  const pill = event.explicitOriginalTarget.closest("mail-address-pill");
   if (!pill.hasAttribute("selected")) {
     recipientsContainer.deselectAllPills();
     pill.setAttribute("selected", "selected");
   }
 
-  let allSelectedPills = recipientsContainer.getAllSelectedPills();
+  const allSelectedPills = recipientsContainer.getAllSelectedPills();
   // If more than one pill is selected, hide the editing item.
   if (recipientsContainer.getAllSelectedPills().length > 1) {
     menu.querySelector("#editAddressPill").hidden = true;
   }
 
   // Update the recipient type in the menu label of #menu_selectAllSiblingPills.
-  let type = pill
+  const type = pill
     .closest(".address-row")
     .querySelector(".address-label-container > label").value;
   document.l10n.setAttributes(
@@ -1048,7 +1049,7 @@ function onPillPopupShowing(event) {
 
   // Hide the `Expand List` menuitem and the preceding menuseparator if not all
   // selected pills are mailing lists.
-  let isNotMailingList = [...allSelectedPills].some(pill => !pill.isMailList);
+  const isNotMailingList = [...allSelectedPills].some(pill => !pill.isMailList);
   menu.querySelector("#expandList").hidden = isNotMailingList;
   menu.querySelector("#pillContextBeforeExpandListSeparator").hidden =
     isNotMailingList;
@@ -1060,7 +1061,7 @@ function onPillPopupShowing(event) {
         "mail-address-pill[selected]"
     )
   ) {
-    for (let menuitem of menu.querySelectorAll(".pill-action-move")) {
+    for (const menuitem of menu.querySelectorAll(".pill-action-move")) {
       menuitem.hidden = true;
     }
     // Hide the menuseparator before the move items, as there's nothing below.
@@ -1073,11 +1074,11 @@ function onPillPopupShowing(event) {
 
   let selectedType = "";
   // Check if all selected pills are in the same address row.
-  for (let row of recipientsContainer.querySelectorAll(
+  for (const row of recipientsContainer.querySelectorAll(
     ".address-row:not(.hidden)"
   )) {
     // Check if there's at least one selected pill in the address row.
-    let selectedPill = row.querySelector("mail-address-pill[selected]");
+    const selectedPill = row.querySelector("mail-address-pill[selected]");
     if (!selectedPill) {
       continue;
     }
@@ -1111,7 +1112,7 @@ function onPillPopupShowing(event) {
  * @param {string} rowId - The id of the row to show.
  */
 function showAndFocusAddressRow(rowId) {
-  let row = document.getElementById(rowId);
+  const row = document.getElementById(rowId);
   if (addressRowSetVisibility(row, true)) {
     row.querySelector(".address-row-input").focus();
   }
@@ -1126,7 +1127,7 @@ function showAndFocusAddressRow(rowId) {
  * @returns {boolean} - Whether the visibility was set.
  */
 function addressRowSetVisibility(row, show) {
-  let menuItem = document.getElementById(row.dataset.showSelfMenuitem);
+  const menuItem = document.getElementById(row.dataset.showSelfMenuitem);
   if (show && menuItem.hasAttribute("disabled")) {
     return false;
   }
@@ -1144,8 +1145,8 @@ function addressRowSetVisibility(row, show) {
  * @param {boolean} [show=true] - Whether to show the item or hide it.
  */
 function showAddressRowMenuItemSetVisibility(menuItem, show) {
-  let buttonId = menuItem.dataset.buttonId;
-  let button = buttonId && document.getElementById(buttonId);
+  const buttonId = menuItem.dataset.buttonId;
+  const button = buttonId && document.getElementById(buttonId);
   if (button && menuItem.dataset.preferButton == "true") {
     button.hidden = !show;
     // Make sure the menuItem is never shown.
@@ -1170,11 +1171,11 @@ function showAddressRowMenuItemSetVisibility(menuItem, show) {
  *   than the menu item.
  */
 function showAddressRowMenuItemSetPreferButton(menuItem, preferButton) {
-  let buttonId = menuItem.dataset.buttonId;
+  const buttonId = menuItem.dataset.buttonId;
   if (!buttonId || menuItem.dataset.preferButton == String(preferButton)) {
     return;
   }
-  let button = document.getElementById(buttonId);
+  const button = document.getElementById(buttonId);
 
   menuItem.dataset.preferButton = preferButton;
   if (preferButton) {
@@ -1196,7 +1197,7 @@ function updateRecipientsVisibility() {
   document.getElementById("extraAddressRowsMenuButton").hidden =
     !document.querySelector("#extraAddressRowsMenu > :not([hidden])");
 
-  let buttonbox = document.getElementById("extraAddressRowsArea");
+  const buttonbox = document.getElementById("extraAddressRowsArea");
   // Toggle the class to show/hide the pseudo element separator
   // of the msgIdentity field.
   buttonbox.classList.toggle(
@@ -1217,7 +1218,7 @@ function updateRecipientsVisibility() {
  *   row (for [x] or DEL) or previous sibling row (for BACKSPACE).
  */
 function hideAddressRowFromWithin(element, focusType = "next") {
-  let addressRow = element.closest(".address-row");
+  const addressRow = element.closest(".address-row");
 
   // Prevent address row removal when sending (disable-on-send).
   if (
@@ -1228,30 +1229,30 @@ function hideAddressRowFromWithin(element, focusType = "next") {
     return;
   }
 
-  let pills = addressRow.querySelectorAll("mail-address-pill");
-  let isEdited = addressRow
+  const pills = addressRow.querySelectorAll("mail-address-pill");
+  const isEdited = addressRow
     .querySelector(".address-container")
     .classList.contains("addressing-field-edited");
 
   // Ask the user to confirm the removal of all the typed addresses if the field
   // holds addressing pills and has been previously edited.
   if (isEdited && pills.length) {
-    let fieldName = addressRow.querySelector(
+    const fieldName = addressRow.querySelector(
       ".address-label-container > label"
     );
-    let confirmTitle = getComposeBundle().getFormattedString(
+    const confirmTitle = getComposeBundle().getFormattedString(
       "confirmRemoveRecipientRowTitle2",
       [fieldName.value]
     );
-    let confirmBody = getComposeBundle().getFormattedString(
+    const confirmBody = getComposeBundle().getFormattedString(
       "confirmRemoveRecipientRowBody2",
       [fieldName.value]
     );
-    let confirmButton = getComposeBundle().getString(
+    const confirmButton = getComposeBundle().getString(
       "confirmRemoveRecipientRowButton"
     );
 
-    let result = Services.prompt.confirmEx(
+    const result = Services.prompt.confirmEx(
       window,
       confirmTitle,
       confirmBody,
@@ -1268,12 +1269,12 @@ function hideAddressRowFromWithin(element, focusType = "next") {
     }
   }
 
-  for (let pill of pills) {
+  for (const pill of pills) {
     pill.remove();
   }
 
   // Reset the original input.
-  let input = addressRow.querySelector(".address-row-input");
+  const input = addressRow.querySelector(".address-row-input");
   input.value = "";
 
   addressRowSetVisibility(addressRow, false);
@@ -1285,7 +1286,7 @@ function hideAddressRowFromWithin(element, focusType = "next") {
   updateAriaLabelsOfAddressRow(addressRow);
 
   // Move focus to the next focusable address input field.
-  let addressRowSibling =
+  const addressRowSibling =
     focusType == "next"
       ? getNextSibling(addressRow, ".address-row:not(.hidden)")
       : getPreviousSibling(addressRow, ".address-row:not(.hidden)");
@@ -1295,7 +1296,7 @@ function hideAddressRowFromWithin(element, focusType = "next") {
     return;
   }
   // Otherwise move focus to the subject field or to the first available input.
-  let fallbackFocusElement =
+  const fallbackFocusElement =
     focusType == "next"
       ? document.getElementById("msgSubject")
       : getNextSibling(addressRow, ".address-row:not(.hidden)").querySelector(
@@ -1329,8 +1330,8 @@ function extraAddressRowsMenuClosed() {
  * Show the menu for extra address rows (extraAddressRowsMenu).
  */
 function openExtraAddressRowsMenu() {
-  let button = document.getElementById("extraAddressRowsMenuButton");
-  let menu = document.getElementById("extraAddressRowsMenu");
+  const button = document.getElementById("extraAddressRowsMenuButton");
+  const menu = document.getElementById("extraAddressRowsMenu");
   // NOTE: menu handlers handle the aria-expanded state of the button.
   menu.openPopup(button, "after_end", 8, 0);
 }

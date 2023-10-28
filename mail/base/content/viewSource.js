@@ -76,12 +76,12 @@ addEventListener("load", () => {
 
 var viewSourceChrome = {
   promptAndGoToLine() {
-    let actor = gViewSourceUtils.getViewSourceActor(gBrowser.browsingContext);
+    const actor = gViewSourceUtils.getViewSourceActor(gBrowser.browsingContext);
     actor.manager.getActor("ViewSourcePage").promptAndGoToLine();
   },
 
   toggleWrapping() {
-    let state = gBrowser.contentDocument.body.classList.toggle("wrap");
+    const state = gBrowser.contentDocument.body.classList.toggle("wrap");
     if (state) {
       document
         .getElementById("cmd_wrapLongLines")
@@ -140,11 +140,11 @@ function ViewSourceSavePage() {
 
 /** Called by ContextMenuParent.sys.mjs */
 function openContextMenu({ data }, browser, actor) {
-  let popup = browser.ownerDocument.getElementById("viewSourceContextMenu");
+  const popup = browser.ownerDocument.getElementById("viewSourceContextMenu");
 
-  let newEvent = document.createEvent("MouseEvent");
-  let screenX = data.context.screenXDevPx / window.devicePixelRatio;
-  let screenY = data.context.screenYDevPx / window.devicePixelRatio;
+  const newEvent = document.createEvent("MouseEvent");
+  const screenX = data.context.screenXDevPx / window.devicePixelRatio;
+  const screenY = data.context.screenYDevPx / window.devicePixelRatio;
   newEvent.initNSMouseEvent(
     "contextmenu",
     true,

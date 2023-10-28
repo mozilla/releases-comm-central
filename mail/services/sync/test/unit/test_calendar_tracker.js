@@ -40,8 +40,8 @@ add_task(async function testNetworkCalendar() {
   Assert.equal(tracker.score, 0);
   Assert.deepEqual(await tracker.getChangedIDs(), {});
 
-  let id = newUID();
-  let calendar = cal.manager.createCalendar(
+  const id = newUID();
+  const calendar = cal.manager.createCalendar(
     "ics",
     Services.io.newURI("https://localhost:1234/a/calendar")
   );
@@ -87,7 +87,7 @@ add_task(async function testNetworkCalendar() {
  * Test a storage calendar. This shouldn't affect the tracker at all.
  */
 add_task(async function testStorageCalendar() {
-  let storageCalendar = cal.manager.createCalendar(
+  const storageCalendar = cal.manager.createCalendar(
     "storage",
     Services.io.newURI("moz-storage-calendar://")
   );
@@ -113,7 +113,7 @@ add_task(async function testStorageCalendar() {
  * Test the store methods on calendars. The tracker should ignore them.
  */
 add_task(async function testIncomingChanges() {
-  let id = newUID();
+  const id = newUID();
 
   tracker.ignoreAll = true;
   await store.applyIncoming({

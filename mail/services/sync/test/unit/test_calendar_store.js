@@ -68,7 +68,7 @@ add_task(async function testItemExists() {
 });
 
 add_task(async function testCreateCalDAVRecord() {
-  let record = await store.createRecord(calDAVCalendar.id);
+  const record = await store.createRecord(calDAVCalendar.id);
   Assert.ok(record instanceof CalendarRecord);
   Assert.equal(record.id, calDAVCalendar.id);
   Assert.equal(record.name, "CalDAV Calendar");
@@ -78,7 +78,7 @@ add_task(async function testCreateCalDAVRecord() {
 });
 
 add_task(async function testCreateICSRecord() {
-  let record = await store.createRecord(icsCalendar.id);
+  const record = await store.createRecord(icsCalendar.id);
   Assert.ok(record instanceof CalendarRecord);
   Assert.equal(record.id, icsCalendar.id);
   Assert.equal(record.name, "ICS Calendar");
@@ -88,8 +88,8 @@ add_task(async function testCreateICSRecord() {
 });
 
 add_task(async function testCreateDeletedRecord() {
-  let fakeID = "12345678-1234-1234-1234-123456789012";
-  let record = await store.createRecord(fakeID);
+  const fakeID = "12345678-1234-1234-1234-123456789012";
+  const record = await store.createRecord(fakeID);
   Assert.ok(record instanceof CalendarRecord);
   Assert.equal(record.id, fakeID);
   Assert.equal(record.deleted, true);
@@ -98,7 +98,7 @@ add_task(async function testCreateDeletedRecord() {
 add_task(async function testSyncRecords() {
   // Sync a new calendar.
 
-  let newID = newUID();
+  const newID = newUID();
   await store.applyIncoming({
     id: newID,
     name: "New ICS Calendar",

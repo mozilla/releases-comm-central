@@ -14,7 +14,8 @@ var { assert_tab_mode_name } = ChromeUtils.import(
  */
 async function open_chat_tab() {
   // Get the current tab count so we can make sure the tab actually opened.
-  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
+  const preCount =
+    document.getElementById("tabmail").tabContainer.allTabs.length;
 
   document.getElementById("tabmail").openTab("chat", {});
   await wait_for_chat_tab_to_open(window);
@@ -26,7 +27,7 @@ async function open_chat_tab() {
     throw new Error("The tab never actually got opened!");
   }
 
-  let newTab = document.getElementById("tabmail").tabInfo[preCount];
+  const newTab = document.getElementById("tabmail").tabInfo[preCount];
   return newTab;
 }
 
@@ -34,7 +35,7 @@ async function wait_for_chat_tab_to_open() {
   await TestUtils.waitForCondition(
     function () {
       let chatTabFound = false;
-      for (let tab of document.getElementById("tabmail").tabInfo) {
+      for (const tab of document.getElementById("tabmail").tabInfo) {
         if (tab.mode.type == "chat") {
           chatTabFound = true;
           break;
@@ -59,14 +60,14 @@ async function wait_for_chat_tab_to_open() {
  */
 add_task(async function test_chat_tab_restore() {
   // Close everything but the first tab.
-  let closeTabs = function () {
+  const closeTabs = function () {
     while (document.getElementById("tabmail").tabInfo.length > 1) {
       document.getElementById("tabmail").closeTab(1);
     }
   };
 
   await open_chat_tab();
-  let state = document.getElementById("tabmail").persistTabs();
+  const state = document.getElementById("tabmail").persistTabs();
   closeTabs();
   document.getElementById("tabmail").restoreTabs(state);
 
@@ -74,8 +75,8 @@ add_task(async function test_chat_tab_restore() {
     throw new Error("The tab is not restored!");
   }
 
-  let tabTypes = ["mail3PaneTab", "chat"];
-  for (let i in tabTypes) {
+  const tabTypes = ["mail3PaneTab", "chat"];
+  for (const i in tabTypes) {
     assert_tab_mode_name(
       document.getElementById("tabmail").tabInfo[i],
       tabTypes[i]

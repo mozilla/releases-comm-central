@@ -9,12 +9,12 @@ Services.scriptloader.loadSubScript(
   this
 );
 
-let { MockRegistrar } = ChromeUtils.importESModule(
+const { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
 /** @implements {nsIExternalProtocolService} */
-let mockExternalProtocolService = {
+const mockExternalProtocolService = {
   _loadedURLs: [],
   externalProtocolHandlerExists(protocolScheme) {},
   getApplicationDescription(scheme) {},
@@ -31,18 +31,18 @@ let mockExternalProtocolService = {
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };
 
-let mockExternalProtocolServiceCID = MockRegistrar.register(
+const mockExternalProtocolServiceCID = MockRegistrar.register(
   "@mozilla.org/uriloader/external-protocol-service;1",
   mockExternalProtocolService
 );
 
 add_setup(async () => {
-  let account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
-  let subFolders = rootFolder.subFolders;
+  const account = createAccount();
+  const rootFolder = account.incomingServer.rootFolder;
+  const subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.restoreState({
     folderPaneVisible: true,
     folderURI: subFolders[0],
@@ -62,9 +62,9 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
   async function contextClick(elementSelector, browser) {
     await awaitBrowserLoaded(browser, url => url != "about:blank");
 
-    let menuId = browser.getAttribute("context");
-    let menu = browser.ownerGlobal.top.document.getElementById(menuId);
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    const menuId = browser.getAttribute("context");
+    const menu = browser.ownerGlobal.top.document.getElementById(menuId);
+    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     await rightClickOnContent(menu, elementSelector, browser);
     Assert.ok(
       menu.querySelector("#browserContext-openInBrowser"),
@@ -78,7 +78,9 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
 
   // Wait for click on #description
   {
-    let { elementSelector, url } = await extension.awaitMessage("contextClick");
+    const { elementSelector, url } = await extension.awaitMessage(
+      "contextClick"
+    );
     Assert.equal(
       "#description",
       elementSelector,
@@ -102,7 +104,7 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
 };
 
 add_task(async function test_tabs() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "utils.js": await getUtilsJS(),
       "background.js": async () => {
@@ -111,7 +113,7 @@ add_task(async function test_tabs() {
           "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html";
         const elementSelector = "#description";
 
-        let testTab = await browser.tabs.create({ url });
+        const testTab = await browser.tabs.create({ url });
         await window.sendMessage("contextClick", { elementSelector, url });
         await browser.tabs.remove(testTab.id);
 
@@ -133,7 +135,7 @@ add_task(async function test_tabs() {
 });
 
 add_task(async function test_windows() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "utils.js": await getUtilsJS(),
       "background.js": async () => {
@@ -142,7 +144,7 @@ add_task(async function test_windows() {
           "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html";
         const elementSelector = "#description";
 
-        let testWindow = await browser.windows.create({ type: "popup", url });
+        const testWindow = await browser.windows.create({ type: "popup", url });
         await window.sendMessage("contextClick", { elementSelector, url });
         await browser.windows.remove(testWindow.id);
 
@@ -164,7 +166,7 @@ add_task(async function test_windows() {
 });
 
 add_task(async function test_mail3pane() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "utils.js": await getUtilsJS(),
       "background.js": async () => {
@@ -173,7 +175,7 @@ add_task(async function test_mail3pane() {
           "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html";
         const elementSelector = "#description";
 
-        let mailTabs = await browser.tabs.query({ type: "mail" });
+        const mailTabs = await browser.tabs.query({ type: "mail" });
         browser.test.assertEq(
           1,
           mailTabs.length,

@@ -3,7 +3,7 @@
 
 "use strict";
 
-let { LoginTestUtils } = ChromeUtils.importESModule(
+const { LoginTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/LoginTestUtils.sys.mjs"
 );
 
@@ -23,7 +23,7 @@ add_task(async function test_policy_masterpassword_set() {
     undefined,
     url => url.startsWith("about:preferences")
   );
-  let { contentDocument } = window.preferencesTabType.tab.browser;
+  const { contentDocument } = window.preferencesTabType.tab.browser;
   await TestUtils.waitForCondition(() =>
     contentDocument.getElementById("useMasterPassword")
   );
@@ -34,7 +34,7 @@ add_task(async function test_policy_masterpassword_set() {
     "Primary Password checkbox should be disabled"
   );
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(window.preferencesTabType.tab);
 
   LoginTestUtils.primaryPassword.disable();
@@ -50,7 +50,7 @@ add_task(async function test_policy_nochangemp() {
 
   LoginTestUtils.primaryPassword.enable();
 
-  let changeMPWindow = window.openDialog(
+  const changeMPWindow = window.openDialog(
     "chrome://mozapps/content/preferences/changemp.xhtml",
     "",
     ""
@@ -86,7 +86,7 @@ add_task(async function test_policy_admin() {
     },
   });
 
-  let changeMPWindow = window.openDialog(
+  const changeMPWindow = window.openDialog(
     "chrome://mozapps/content/preferences/changemp.xhtml",
     "",
     ""

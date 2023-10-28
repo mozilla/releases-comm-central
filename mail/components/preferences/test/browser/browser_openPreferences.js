@@ -14,7 +14,7 @@ add_task(async () => {
   // Check that openPreferencesTab with no arguments and no stored value opens the first pane.
   Services.xulStore.removeDocument("about:preferences");
 
-  let { prefsWindow } = await openNewPrefsTab();
+  const { prefsWindow } = await openNewPrefsTab();
   is(prefsWindow.gLastCategory.category, "paneGeneral");
 
   await closePrefsTab();

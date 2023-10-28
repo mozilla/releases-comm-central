@@ -43,7 +43,7 @@ add_task(async function test_message_reloads_work_with_message_pane_toggles() {
   toggle_message_pane();
   assert_message_pane_visible();
   // Open a new tab with the same message
-  let tab = await open_folder_in_new_tab(folder);
+  const tab = await open_folder_in_new_tab(folder);
   // Toggle the message pane off
   assert_message_pane_visible();
   toggle_message_pane();

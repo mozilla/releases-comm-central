@@ -75,7 +75,7 @@ function test_expected_included(actual, expected, description) {
   );
 
   for (let i = 0; i < expected.length; i++) {
-    for (let item of Object.keys(expected[i])) {
+    for (const item of Object.keys(expected[i])) {
       Assert.deepEqual(
         actual[i][item],
         expected[i][item],
@@ -100,7 +100,7 @@ add_setup(async function () {
 
   // For replies and forwards, we'll work off a message in the Inbox folder
   // of the fake "tinderbox" account.
-  let server = MailServices.accounts.findServer(
+  const server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
@@ -143,25 +143,25 @@ registerCleanupFunction(function () {
  *   node, and an array of the link URL nodes.
  */
 async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
-  let mailBody = get_compose_body(aWin);
+  const mailBody = get_compose_body(aWin);
 
   // Wait until we can find the root attachment URL node...
-  let root = await promise_element(
+  const root = await promise_element(
     mailBody.parentNode,
     "body > #cloudAttachmentListRoot"
   );
 
-  let list = await promise_element(
+  const list = await promise_element(
     mailBody,
     "#cloudAttachmentListRoot > #cloudAttachmentList"
   );
 
-  let header = await promise_element(
+  const header = await promise_element(
     mailBody,
     "#cloudAttachmentListRoot > #cloudAttachmentListHeader"
   );
 
-  let footer = await promise_element(
+  const footer = await promise_element(
     mailBody,
     "#cloudAttachmentListRoot > #cloudAttachmentListFooter"
   );
@@ -189,7 +189,7 @@ async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
   );
 
   let footerExpected = false;
-  for (let entry of aUploads) {
+  for (const entry of aUploads) {
     if (!entry.serviceUrl) {
       continue;
     }
@@ -216,14 +216,14 @@ async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
     );
   }
 
-  let bucket = aWin.document.getElementById("attachmentBucket");
+  const bucket = aWin.document.getElementById("attachmentBucket");
 
   // Check the actual content of the generated cloudAttachmentItems.
   for (let i = 0; i < urls.length; i++) {
     if (aWin.gMsgCompose.composeHTML) {
       // Test HTML message.
 
-      let paperClipIcon = urls[i].querySelector(".paperClipIcon");
+      const paperClipIcon = urls[i].querySelector(".paperClipIcon");
       Assert.equal(
         aUploads[i].downloadPasswordProtected
           ? "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIfSURBVFhH7ZfLK0RRHMfvNd6PMV4Lj5UkO5bslJIdf4ClRw2TlY2yt2EhsZO9DYoFoiSvJBZkI6SsNMyIiLnH93vmXDF5HNe9pHzqM797fufMPb+Zc4Z7jC+QBnvgJryD93AddkH2eUop3IPiHXdgCfSEdLgLOdE+bIFFSl4zZxeRAl2HXzsn2IIZTCTAHPs4hsvhOlxz3rxRtt6GfRyzJlsucw1582zZehv2cUxEtlyGN6afkThuFa7EL7+H0wK03pek4q/xJwtYVv4YumurO+4V/3vgvwAvC5iHTfHL9zFV/Ah7J9tjE9s2r/K3YwWlD8IaREP+ExPCWBDJVl+gM3LEto0nBURHCiuNpBiflvLjqWcufDFfdVbo4ly1PVoC0xrAaz4qnLdiVjk1hVhArvDRFxuSYxQeFSAaGHzCbAuEIsf0URjtsithX3i1Cf18yewKn8kWyOu+OlWXuSpKnBRwpWKxioTXi7BCtr6Ak004BZvhJAwyAUZhb3Q0bwKxXmY+xVzyB8MNOgXwE/NrC0A+clXBDZV7iYkC7GK18AcvTZ0lOFGRE5NDWAtn4A28hdPQEToFcG1Jq4qERXAZ+DCaBXk+cIROAePQgh2whgk30SngAA7CVDgLq6Fr6P4M++Ec5PmPp6BhWAdzIA+m3BOO0C2AJ2GuMyfme0KQp6Ao5EmZf/fLDGFuI2oi+EEcUQm5JDywhpWc2MFGNIwn/WmcKhqF50UAAAAASUVORK5CYII="
@@ -238,7 +238,7 @@ async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
         "The link attached to the cloudfile name should be correct."
       );
 
-      let providerIcon = urls[i].querySelector(".cloudfile-service-icon");
+      const providerIcon = urls[i].querySelector(".cloudfile-service-icon");
       if (providerIcon) {
         Assert.equal(
           DATA_URLS[aUploads[i].serviceIcon] || aUploads[i].serviceIcon,
@@ -247,7 +247,7 @@ async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
         );
       }
 
-      let expected = {
+      const expected = {
         url: aUploads[i].downloadPasswordProtected
           ? ".cloudfile-password-protected-link"
           : ".cloudfile-link",
@@ -257,8 +257,8 @@ async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
         downloadExpiryDateString: ".cloudfile-expiry-date",
       };
 
-      for (let [fieldName, id] of Object.entries(expected)) {
-        let element = urls[i].querySelector(id);
+      for (const [fieldName, id] of Object.entries(expected)) {
+        const element = urls[i].querySelector(id);
         Assert.ok(
           !!element == !!aUploads[i][fieldName],
           `The ${fieldName} should have been correctly added.`
@@ -280,8 +280,8 @@ async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
     } else {
       // Test plain text message.
 
-      let lines = urls[i].textContent.split("\n");
-      let expected = {
+      const lines = urls[i].textContent.split("\n");
+      const expected = {
         url: aUploads[i].downloadPasswordProtected
           ? `    Password Protected Link: `
           : `    Link: `,
@@ -294,9 +294,9 @@ async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
         expected.serviceName = `    CloudFile Service: `;
       }
 
-      for (let [fieldName, prefix] of Object.entries(expected)) {
+      for (const [fieldName, prefix] of Object.entries(expected)) {
         if (aUploads[i][fieldName]) {
-          let line = `${prefix}${aUploads[i][fieldName]}`;
+          const line = `${prefix}${aUploads[i][fieldName]}`;
           Assert.ok(
             lines.includes(line),
             `Line "${line}" should be part of "${lines}".`
@@ -311,7 +311,7 @@ async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
     }
 
     // Find the bucket entry for this upload.
-    let items = Array.from(
+    const items = Array.from(
       bucket.querySelectorAll(".attachmentItem"),
       item => item
     ).filter(item => item.attachment.name == aUploads[i].name);
@@ -346,7 +346,7 @@ async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
 async function prepare_some_attachments_and_reply(aText, aFiles) {
   MockFilePicker.setFiles(collectFiles(aFiles));
 
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("providerF", {
     serviceName: "MochiTest F",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -355,14 +355,14 @@ async function prepare_some_attachments_and_reply(aText, aFiles) {
   });
 
   await be_in_folder(gInbox);
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
-  let cw = await open_compose_with_reply();
+  const cw = await open_compose_with_reply();
 
   // If we have any typing to do, let's do it.
   type_in_composer(cw, aText);
-  let uploads = await add_cloud_attachments(cw, provider);
+  const uploads = await add_cloud_attachments(cw, provider);
 
   test_expected_included(
     uploads,
@@ -386,7 +386,7 @@ async function prepare_some_attachments_and_reply(aText, aFiles) {
     ],
     `Expected values in uploads array #11`
   );
-  let [root] = await promise_attachment_urls(cw, aFiles.length, uploads);
+  const [root] = await promise_attachment_urls(cw, aFiles.length, uploads);
 
   return [cw, root];
 }
@@ -407,7 +407,7 @@ async function prepare_some_attachments_and_reply(aText, aFiles) {
 async function prepare_some_attachments_and_forward(aText, aFiles) {
   MockFilePicker.setFiles(collectFiles(aFiles));
 
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("providerG", {
     serviceName: "MochiTest G",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -416,18 +416,18 @@ async function prepare_some_attachments_and_forward(aText, aFiles) {
   });
 
   await be_in_folder(gInbox);
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
-  let cw = await open_compose_with_forward();
+  const cw = await open_compose_with_forward();
 
   // Put the selection at the beginning of the document...
-  let editor = cw.GetCurrentEditor();
+  const editor = cw.GetCurrentEditor();
   editor.beginningOfDocument();
 
   // Do any necessary typing...
   type_in_composer(cw, aText);
-  let uploads = await add_cloud_attachments(cw, provider);
+  const uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -452,7 +452,7 @@ async function prepare_some_attachments_and_forward(aText, aFiles) {
   );
 
   // Add the expected time string.
-  let timeString = new Date(1639827408073).toLocaleString(undefined, {
+  const timeString = new Date(1639827408073).toLocaleString(undefined, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -462,7 +462,7 @@ async function prepare_some_attachments_and_forward(aText, aFiles) {
   });
   uploads[0].downloadExpiryDateString = timeString;
   uploads[1].downloadExpiryDateString = timeString;
-  let [root] = await promise_attachment_urls(cw, aFiles.length, uploads);
+  const [root] = await promise_attachment_urls(cw, aFiles.length, uploads);
 
   return [cw, root];
 }
@@ -501,7 +501,7 @@ async function try_with_and_without_signature_in_reply_or_fwd(
  * @param aTest a test that takes no arguments.
  */
 async function try_without_signature(aTest) {
-  let oldSig = Services.prefs.getCharPref(kSigPrefKey);
+  const oldSig = Services.prefs.getCharPref(kSigPrefKey);
   Services.prefs.setCharPref(kSigPrefKey, "");
 
   await try_with_plaintext_and_html_mail(aTest);
@@ -537,12 +537,12 @@ add_task(async function test_inserts_linebreak_on_empty_compose() {
  */
 async function subtest_inserts_linebreak_on_empty_compose() {
   MockFilePicker.setFiles(collectFiles(kFiles));
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("someKey", {
     downloadPasswordProtected: false,
   });
-  let cw = await open_compose_new_mail();
-  let uploads = await add_cloud_attachments(cw, provider);
+  const cw = await open_compose_new_mail();
+  const uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -565,16 +565,16 @@ async function subtest_inserts_linebreak_on_empty_compose() {
     ],
     `Expected values in uploads array #1`
   );
-  let [root] = await promise_attachment_urls(cw, kFiles.length, uploads);
+  const [root] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
-  let br = root.previousSibling;
+  const br = root.previousSibling;
   Assert.equal(
     br.localName,
     "br",
     "The attachment URL containment node should be preceded by a linebreak"
   );
 
-  let mailBody = get_compose_body(cw);
+  const mailBody = get_compose_body(cw);
 
   Assert.equal(
     mailBody.firstChild,
@@ -595,7 +595,7 @@ async function subtest_inserts_linebreak_on_empty_compose() {
 add_task(
   async function test_inserts_linebreak_on_empty_compose_with_signature() {
     MockFilePicker.setFiles(collectFiles(kFiles));
-    let provider = new MockCloudfileAccount();
+    const provider = new MockCloudfileAccount();
     provider.init("someKey", {
       downloadPasswordProtected: true,
     });
@@ -642,7 +642,7 @@ add_task(
     // that is the signature.
     br = assert_next_nodes("br", root, 1);
 
-    let pre = br.nextSibling;
+    const pre = br.nextSibling;
     Assert.equal(
       pre.localName,
       "pre",
@@ -697,7 +697,7 @@ add_task(
     // that is the signature.
     br = assert_next_nodes("br", root, 1);
 
-    let div = br.nextSibling;
+    const div = br.nextSibling;
     Assert.equal(
       div.localName,
       "div",
@@ -728,16 +728,16 @@ add_task(async function test_removing_filelinks_removes_root_node() {
  * on both plaintext and HTML compose windows.
  */
 async function subtest_removing_filelinks_removes_root_node() {
-  let [cw, root] = await prepare_some_attachments_and_reply([], kFiles);
+  const [cw, root] = await prepare_some_attachments_and_reply([], kFiles);
 
   // Now select the attachments in the attachment bucket, and remove them.
   select_attachments(cw, 0, 1);
   cw.goDoCommand("cmd_delete");
 
   // Wait for the root to be removed.
-  let mailBody = get_compose_body(cw);
+  const mailBody = get_compose_body(cw);
   await TestUtils.waitForCondition(function () {
-    let result = mailBody.querySelector(root.id);
+    const result = mailBody.querySelector(root.id);
     return result == null;
   }, "Timed out waiting for attachment container to be removed");
 
@@ -760,12 +760,12 @@ add_task(async function test_adding_filelinks_to_written_message() {
  */
 async function subtest_adding_filelinks_to_written_message() {
   MockFilePicker.setFiles(collectFiles(kFiles));
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("someKey");
-  let cw = await open_compose_new_mail();
+  const cw = await open_compose_new_mail();
 
   type_in_composer(cw, kLines);
-  let uploads = await add_cloud_attachments(cw, provider);
+  const uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -786,7 +786,7 @@ async function subtest_adding_filelinks_to_written_message() {
     ],
     `Expected values in uploads array #4`
   );
-  let [root] = await promise_attachment_urls(cw, kFiles.length, uploads);
+  const [root] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
   let br = root.previousSibling;
   Assert.equal(
@@ -809,7 +809,7 @@ async function subtest_adding_filelinks_to_written_message() {
  * reply above the quote.
  */
 add_task(async function test_adding_filelinks_to_empty_reply_above() {
-  let oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
+  const oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnTop);
 
   await try_with_and_without_signature_in_reply_or_fwd(
@@ -832,7 +832,7 @@ add_task(async function test_adding_filelinks_to_empty_reply_above() {
  * reply above the quote, after entering some text.
  */
 add_task(async function test_adding_filelinks_to_nonempty_reply_above() {
-  let oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
+  const oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnTop);
 
   await subtest_adding_filelinks_to_reply_above(kLines);
@@ -853,7 +853,7 @@ async function subtest_adding_filelinks_to_reply_above_plaintext(
   aText,
   aWithSig
 ) {
-  let [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
+  const [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
 
   let br;
   if (aText.length) {
@@ -862,7 +862,7 @@ async function subtest_adding_filelinks_to_reply_above_plaintext(
     br = assert_next_nodes("br", root, 1);
   }
 
-  let div = br.nextSibling;
+  const div = br.nextSibling;
   Assert.equal(
     div.localName,
     "div",
@@ -880,7 +880,7 @@ async function subtest_adding_filelinks_to_reply_above_plaintext(
   if (aText.length == 0) {
     // If we didn't type anything, that br should be the first element of the
     // message body.
-    let msgBody = get_compose_body(cw);
+    const msgBody = get_compose_body(cw);
     Assert.equal(
       msgBody.firstChild,
       br,
@@ -888,8 +888,8 @@ async function subtest_adding_filelinks_to_reply_above_plaintext(
         "message body"
     );
   } else {
-    let targetText = aText[aText.length - 1];
-    let textNode = br.previousSibling;
+    const targetText = aText[aText.length - 1];
+    const textNode = br.previousSibling;
     Assert.equal(textNode.nodeType, kTextNodeType);
     Assert.equal(textNode.nodeValue, targetText);
   }
@@ -901,17 +901,17 @@ async function subtest_adding_filelinks_to_reply_above_plaintext(
  * Subtest for test_adding_filelinks_to_reply_above for the HTML composer.
  */
 async function subtest_adding_filelinks_to_reply_above(aText) {
-  let [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
+  const [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
 
   // If there's any text written, then there's only a single break between the
   // end of the text and the reply. Otherwise, there are two breaks.
-  let br =
+  const br =
     aText.length > 1
       ? assert_next_nodes("br", root, 2)
       : assert_next_nodes("br", root, 1);
 
   // ... which is followed by a div with a class of "moz-cite-prefix".
-  let div = br.nextSibling;
+  const div = br.nextSibling;
   Assert.equal(
     div.localName,
     "div",
@@ -928,7 +928,7 @@ async function subtest_adding_filelinks_to_reply_above(aText) {
  * reply below the quote.
  */
 add_task(async function test_adding_filelinks_to_empty_reply_below() {
-  let oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
+  const oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnBottom);
 
   await try_with_and_without_signature_in_reply_or_fwd(
@@ -950,7 +950,7 @@ add_task(async function test_adding_filelinks_to_empty_reply_below() {
  * reply below the quote, after entering some text.
  */
 add_task(async function test_adding_filelinks_to_nonempty_reply_below() {
-  let oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
+  const oldReplyOnTop = Services.prefs.getIntPref(kReplyOnTopKey);
   Services.prefs.setIntPref(kReplyOnTopKey, kReplyOnBottom);
 
   await try_with_and_without_signature_in_reply_or_fwd(
@@ -972,7 +972,7 @@ add_task(async function test_adding_filelinks_to_nonempty_reply_below() {
  * Subtest for test_adding_filelinks_to_reply_below for the HTML composer.
  */
 async function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
-  let [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
+  const [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
 
   // So, we should have the root, followed by a br
   let br = root.nextSibling;
@@ -987,7 +987,7 @@ async function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
     // If there was any text inserted, check for 2 previous br nodes, and then
     // the inserted text, and then the blockquote.
     br = assert_previous_nodes("br", root, 2);
-    let textNode = assert_previous_text(br.previousSibling, aText);
+    const textNode = assert_previous_text(br.previousSibling, aText);
     blockquote = textNode.previousSibling;
   } else {
     // If no text was inserted, check for 1 previous br node, and then the
@@ -1002,7 +1002,7 @@ async function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
     "The linebreak should be preceded by a blockquote."
   );
 
-  let prefix = blockquote.previousSibling;
+  const prefix = blockquote.previousSibling;
   Assert.equal(
     prefix.localName,
     "div",
@@ -1023,7 +1023,7 @@ async function subtest_adding_filelinks_to_plaintext_reply_below(
   aText,
   aWithSig
 ) {
-  let [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
+  const [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
   let br, span;
 
   assert_next_nodes("br", root, 1);
@@ -1031,7 +1031,7 @@ async function subtest_adding_filelinks_to_plaintext_reply_below(
   if (aText.length) {
     br = assert_previous_nodes("br", root, 2);
     // If text was entered, make sure it matches what we expect...
-    let textNode = assert_previous_text(br.previousSibling, aText);
+    const textNode = assert_previous_text(br.previousSibling, aText);
     // And then grab the span, which should be before the final text node.
     span = textNode.previousSibling;
   } else {
@@ -1051,7 +1051,7 @@ async function subtest_adding_filelinks_to_plaintext_reply_below(
     "The linebreak should be preceded by a span."
   );
 
-  let prefix = span.previousSibling;
+  const prefix = span.previousSibling;
   Assert.equal(
     prefix.localName,
     "div",
@@ -1106,23 +1106,23 @@ add_task(async function test_adding_filelinks_to_forward() {
  * are positioned correctly.
  */
 async function subtest_adding_filelinks_to_forward(aText, aWithSig) {
-  let [cw, root] = await prepare_some_attachments_and_forward(aText, kFiles);
+  const [cw, root] = await prepare_some_attachments_and_forward(aText, kFiles);
 
-  let br = assert_next_nodes("br", root, 1);
-  let forwardDiv = br.nextSibling;
+  const br = assert_next_nodes("br", root, 1);
+  const forwardDiv = br.nextSibling;
   Assert.equal(forwardDiv.localName, "div");
   Assert.ok(forwardDiv.classList.contains("moz-forward-container"));
 
   if (aText.length) {
     // If there was text typed in, it should be separated from the root by two
     // br's
-    let br = assert_previous_nodes("br", root, 2);
+    const br = assert_previous_nodes("br", root, 2);
     assert_previous_text(br.previousSibling, aText);
   } else {
     // Otherwise, there's only 1 br, and that br should be the first element
     // of the message body.
-    let br = assert_previous_nodes("br", root, 1);
-    let mailBody = get_compose_body(cw);
+    const br = assert_previous_nodes("br", root, 1);
+    const mailBody = get_compose_body(cw);
     Assert.equal(br, mailBody.firstChild);
   }
 
@@ -1148,8 +1148,8 @@ add_task(async function test_converting_filelink_updates_urls() {
  */
 async function subtest_converting_filelink_updates_urls() {
   MockFilePicker.setFiles(collectFiles(kFiles));
-  let providerA = new MockCloudfileAccount();
-  let providerB = new MockCloudfileAccount();
+  const providerA = new MockCloudfileAccount();
+  const providerB = new MockCloudfileAccount();
   providerA.init("providerA", {
     serviceName: "MochiTest A",
     serviceUrl: "https://www.provider-A.org",
@@ -1160,7 +1160,7 @@ async function subtest_converting_filelink_updates_urls() {
     serviceUrl: "https://www.provider-B.org",
   });
 
-  let cw = await open_compose_new_mail();
+  const cw = await open_compose_new_mail();
   let uploads = await add_cloud_attachments(cw, providerA);
   test_expected_included(
     uploads,
@@ -1182,7 +1182,7 @@ async function subtest_converting_filelink_updates_urls() {
     ],
     `Expected values in uploads array #5`
   );
-  let [, , UrlsA] = await promise_attachment_urls(cw, kFiles.length, uploads);
+  const [, , UrlsA] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
   // Convert each Filelink to providerB, ensuring that the URLs are replaced.
   uploads = [];
@@ -1212,7 +1212,7 @@ async function subtest_converting_filelink_updates_urls() {
     ],
     `Expected values in uploads array #6`
   );
-  let [, , UrlsB] = await promise_attachment_urls(cw, kFiles.length, uploads);
+  const [, , UrlsB] = await promise_attachment_urls(cw, kFiles.length, uploads);
   Assert.notEqual(UrlsA, UrlsB, "The original URL should have been replaced");
 
   await close_compose_window(cw);
@@ -1235,7 +1235,7 @@ add_task(async function test_renaming_filelink_updates_urls() {
  */
 async function subtest_renaming_filelink_updates_urls() {
   MockFilePicker.setFiles(collectFiles(kFiles));
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("providerA", {
     serviceName: "MochiTest A",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
@@ -1246,7 +1246,7 @@ async function subtest_renaming_filelink_updates_urls() {
     },
   });
 
-  let cw = await open_compose_new_mail();
+  const cw = await open_compose_new_mail();
   let uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
@@ -1278,15 +1278,15 @@ async function subtest_renaming_filelink_updates_urls() {
   );
 
   // Add the expected time string.
-  let timeString = new Date(1639827408073).toLocaleString(undefined, {
+  const timeString = new Date(1639827408073).toLocaleString(undefined, {
     dateStyle: "short",
   });
   uploads[0].downloadExpiryDateString = timeString;
   uploads[1].downloadExpiryDateString = timeString;
-  let [, , Urls1] = await promise_attachment_urls(cw, kFiles.length, uploads);
+  const [, , Urls1] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
   // Rename each Filelink, ensuring that the URLs are replaced.
-  let newNames = ["testFile1Renamed", "testFile2Renamed"];
+  const newNames = ["testFile1Renamed", "testFile2Renamed"];
   uploads = [];
   for (let i = 0; i < kFiles.length; ++i) {
     select_attachments(cw, i);
@@ -1325,7 +1325,7 @@ async function subtest_renaming_filelink_updates_urls() {
   // Add the expected time string.
   uploads[0].downloadExpiryDateString = timeString;
   uploads[1].downloadExpiryDateString = timeString;
-  let [, , Urls2] = await promise_attachment_urls(cw, kFiles.length, uploads);
+  const [, , Urls2] = await promise_attachment_urls(cw, kFiles.length, uploads);
   Assert.notEqual(Urls1, Urls2, "The original URL should have been replaced");
 
   await close_compose_window(cw);
@@ -1349,15 +1349,15 @@ add_task(async function test_converting_filelink_to_normal_removes_url() {
  */
 async function subtest_converting_filelink_to_normal_removes_url() {
   MockFilePicker.setFiles(collectFiles(kFiles));
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("providerC", {
     serviceName: "MochiTest C",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
     serviceUrl: "https://www.provider-C.org",
   });
 
-  let cw = await open_compose_new_mail();
-  let uploads = await add_cloud_attachments(cw, provider);
+  const cw = await open_compose_new_mail();
+  const uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -1381,12 +1381,12 @@ async function subtest_converting_filelink_to_normal_removes_url() {
   let [root, list] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
   for (let i = 0; i < kFiles.length; ++i) {
-    let [selectedItem] = select_attachments(cw, i);
+    const [selectedItem] = select_attachments(cw, i);
     cw.convertSelectedToRegularAttachment();
 
     // Wait until the cloud file entry has been removed.
     await TestUtils.waitForCondition(function () {
-      let urls = list.querySelectorAll(".cloudAttachmentItem");
+      const urls = list.querySelectorAll(".cloudAttachmentItem");
       return urls.length == kFiles.length - (i + 1);
     });
 
@@ -1400,7 +1400,7 @@ async function subtest_converting_filelink_to_normal_removes_url() {
 
   // At this point, the root should also have been removed.
   await new Promise(resolve => setTimeout(resolve));
-  let mailBody = get_compose_body(cw);
+  const mailBody = get_compose_body(cw);
   root = mailBody.querySelector("#cloudAttachmentListRoot");
   if (root) {
     throw new Error("Should not have found the cloudAttachmentListRoot");
@@ -1428,14 +1428,14 @@ add_task(async function test_filelinks_work_after_manual_removal() {
 async function subtest_filelinks_work_after_manual_removal() {
   // Insert some Filelinks...
   MockFilePicker.setFiles(collectFiles(kFiles));
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("providerD", {
     serviceName: "MochiTest D",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
     serviceUrl: "https://www.provider-D.org",
   });
 
-  let cw = await open_compose_new_mail();
+  const cw = await open_compose_new_mail();
   let uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
@@ -1501,23 +1501,23 @@ add_task(async function test_insertion_restores_caret_point() {
 async function subtest_insertion_restores_caret_point() {
   // Insert some Filelinks...
   MockFilePicker.setFiles(collectFiles(kFiles));
-  let provider = new MockCloudfileAccount();
+  const provider = new MockCloudfileAccount();
   provider.init("providerE", {
     serviceName: "MochiTest E",
     serviceUrl: "https://www.provider-E.org",
   });
 
-  let cw = await open_compose_new_mail();
+  const cw = await open_compose_new_mail();
 
   // Put the selection at the beginning of the document...
-  let editor = cw.GetCurrentEditor();
+  const editor = cw.GetCurrentEditor();
   editor.beginningOfDocument();
 
   // Do any necessary typing, ending with two linebreaks.
   type_in_composer(cw, ["Line 1", "Line 2", "", ""]);
 
   // Attach some Filelinks.
-  let uploads = await add_cloud_attachments(cw, provider);
+  const uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -1538,14 +1538,14 @@ async function subtest_insertion_restores_caret_point() {
     ],
     `Expected values in uploads array #10`
   );
-  let [root] = await promise_attachment_urls(cw, kFiles.length, uploads);
+  const [root] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
   // Type some text.
   const kTypedIn = "Test";
   type_in_composer(cw, [kTypedIn]);
 
   // That text should be inserted just above the root attachment URL node.
-  let br = assert_previous_nodes("br", root, 1);
+  const br = assert_previous_nodes("br", root, 1);
   assert_previous_text(br.previousSibling, [kTypedIn]);
 
   await close_compose_window(cw);

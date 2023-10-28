@@ -32,14 +32,14 @@ export class VCardURLComponent extends HTMLElement {
     }
     this.hasConnected = true;
 
-    let template = document.getElementById("template-vcard-edit-type-text");
-    let clonedTemplate = template.content.cloneNode(true);
+    const template = document.getElementById("template-vcard-edit-type-text");
+    const clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
 
     this.urlEl = this.querySelector('input[type="text"]');
-    let urlId = vCardIdGen.next().value;
+    const urlId = vCardIdGen.next().value;
     this.urlEl.id = urlId;
-    let urlLabel = this.querySelector('label[for="text"]');
+    const urlLabel = this.querySelector('label[for="text"]');
     urlLabel.htmlFor = urlId;
     this.urlEl.type = "url";
     document.l10n.setAttributes(urlLabel, "vcard-url-label");

@@ -38,7 +38,7 @@ var EnigmailWindows = {
     var windowManager = Services.wm;
 
     var recentWin = null;
-    for (let win of windowManager.getEnumerator(null)) {
+    for (const win of windowManager.getEnumerator(null)) {
       if (win.location.href == spec) {
         recentWin = win;
         break;
@@ -73,7 +73,7 @@ var EnigmailWindows = {
 
     var bestFit = null;
 
-    for (let win of windowManager.getEnumerator(null)) {
+    for (const win of windowManager.getEnumerator(null)) {
       if (win.location.href.search(/\/messenger.xhtml$/) > 0) {
         bestFit = win;
       }
@@ -155,9 +155,9 @@ var EnigmailWindows = {
    * manager to refresh the displayed keys
    */
   keyManReloadKeys() {
-    for (let thisWin of Services.wm.getEnumerator(null)) {
+    for (const thisWin of Services.wm.getEnumerator(null)) {
       if (thisWin.name && thisWin.name == "enigmail:KeyManager") {
-        let evt = new thisWin.Event("reload-keycache", {
+        const evt = new thisWin.Event("reload-keycache", {
           bubbles: true,
           cancelable: false,
         });
@@ -432,7 +432,7 @@ var EnigmailWindows = {
       window = this.getBestParentWin();
     }
 
-    let inputObj = {
+    const inputObj = {
       password: null,
       passwdType,
       dlgMode,
@@ -471,7 +471,7 @@ var EnigmailWindows = {
   shutdown(reason) {
     lazy.EnigmailLog.DEBUG("windows.jsm: shutdown()\n");
 
-    let tabs = Services.wm
+    const tabs = Services.wm
       .getMostRecentWindow("mail:3pane")
       .document.getElementById("tabmail");
 

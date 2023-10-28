@@ -11,7 +11,7 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
     )}`
   );
 
-  let extensionOptions = {};
+  const extensionOptions = {};
   extensionOptions.manifest = {
     commands: {
       _execute_message_display_action: {
@@ -85,7 +85,7 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
     });
   };
 
-  let extension = ExtensionTestUtils.loadExtension(extensionOptions);
+  const extension = ExtensionTestUtils.loadExtension(extensionOptions);
 
   extension.onMessage("send-keys", () => {
     info("Simulating ALT+SHIFT+J");
@@ -98,7 +98,7 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
 
   await extension.startup();
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   let messageWindow = window;
   let aboutMessage = tabmail.currentAboutMessage;
   switch (options.displayType) {
@@ -142,22 +142,22 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
 }
 
 add_setup(async () => {
-  let account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
-  let subFolders = rootFolder.subFolders;
+  const account = createAccount();
+  const rootFolder = account.incomingServer.rootFolder;
+  const subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
   gMessages = [...subFolders[0].messages];
 
-  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(subFolders[0].URI);
   about3Pane.threadTree.selectedIndex = 0;
 });
 
-let popupJobs = [true, false];
-let displayJobs = ["3pane", "tab", "window"];
+const popupJobs = [true, false];
+const displayJobs = ["3pane", "tab", "window"];
 
-for (let popupJob of popupJobs) {
-  for (let displayJob of displayJobs) {
+for (const popupJob of popupJobs) {
+  for (const displayJob of displayJobs) {
     add_task(async () => {
       await testExecuteMessageDisplayActionWithOptions(gMessages[1], {
         withPopup: popupJob,

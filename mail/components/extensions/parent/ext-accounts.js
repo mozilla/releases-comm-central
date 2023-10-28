@@ -23,7 +23,7 @@ var accountsTracker = new (class extends EventEmitter {
     this.monitoredAccounts = new Map();
 
     // Keep track of accounts data monitored for changes.
-    for (let nativeAccount of MailServices.accounts.accounts) {
+    for (const nativeAccount of MailServices.accounts.accounts) {
       this.monitoredAccounts.set(
         nativeAccount.key,
         this.getMonitoredProperties(nativeAccount)
@@ -42,8 +42,8 @@ var accountsTracker = new (class extends EventEmitter {
     if (!nativeAccount || !this.monitoredAccounts.has(nativeAccount.key)) {
       return false;
     }
-    let values = this.monitoredAccounts.get(nativeAccount.key);
-    let propertyValue =
+    const values = this.monitoredAccounts.get(nativeAccount.key);
+    const propertyValue =
       this.getMonitoredProperties(nativeAccount)[propertyName];
     if (propertyValue && values[propertyName] != propertyValue) {
       values[propertyName] = propertyValue;
@@ -60,7 +60,7 @@ var accountsTracker = new (class extends EventEmitter {
       MailServices.mfn.addListener(this, MailServices.mfn.folderAdded);
       Services.prefs.addObserver("mail.server.", this);
       Services.prefs.addObserver("mail.account.", this);
-      for (let topic of this._notifications) {
+      for (const topic of this._notifications) {
         Services.obs.addObserver(this, topic);
       }
     }
@@ -71,7 +71,7 @@ var accountsTracker = new (class extends EventEmitter {
       MailServices.mfn.removeListener(this);
       Services.prefs.removeObserver("mail.server.", this);
       Services.prefs.removeObserver("mail.account.", this);
-      for (let topic of this._notifications) {
+      for (const topic of this._notifications) {
         Services.obs.removeObserver(this, topic);
       }
     }
@@ -81,8 +81,8 @@ var accountsTracker = new (class extends EventEmitter {
   folderAdded(folder) {
     // If the account of this folder is unknown, it is new and this is the
     // initial root folder after the account has been created.
-    let server = folder.server;
-    let nativeAccount = MailServices.accounts.FindAccountForServer(server);
+    const server = folder.server;
+    const nativeAccount = MailServices.accounts.FindAccountForServer(server);
     if (nativeAccount && !this.monitoredAccounts.has(nativeAccount.key)) {
       this.monitoredAccounts.set(
         nativeAccount.key,
@@ -99,7 +99,7 @@ var accountsTracker = new (class extends EventEmitter {
     switch (topic) {
       case "nsPref:changed":
         {
-          let [, type, key, property] = data.split(".");
+          const [, type, key, property] = data.split(".");
 
           if (type == "server" && property == "name") {
             let server;
@@ -109,10 +109,13 @@ var accountsTracker = new (class extends EventEmitter {
               // Fails for servers being removed.
               return;
             }
-            let nativeAccount =
+            const nativeAccount =
               MailServices.accounts.FindAccountForServer(server);
 
-            let name = this.getChangedMonitoredProperty(nativeAccount, "name");
+            const name = this.getChangedMonitoredProperty(
+              nativeAccount,
+              "name"
+            );
             if (name) {
               this.emit("account-updated", nativeAccount.key, {
                 id: nativeAccount.key,
@@ -122,9 +125,9 @@ var accountsTracker = new (class extends EventEmitter {
           }
 
           if (type == "account" && property == "identities") {
-            let nativeAccount = MailServices.accounts.getAccount(key);
+            const nativeAccount = MailServices.accounts.getAccount(key);
 
-            let defaultIdentityKey = this.getChangedMonitoredProperty(
+            const defaultIdentityKey = this.getChangedMonitoredProperty(
               nativeAccount,
               "defaultIdentityKey"
             );
@@ -164,7 +167,7 @@ this.accounts = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        let account = extension.accountManager.convert(cachedAccount, false);
+        const account = extension.accountManager.convert(cachedAccount, false);
         fire.sync(cachedAccount.key, account);
       }
       accountsTracker.on("account-added", listener);
@@ -229,7 +232,7 @@ this.accounts = class extends ExtensionAPIPersistent {
     return {
       accounts: {
         async list(includeFolders) {
-          let accounts = [];
+          const accounts = [];
           for (let account of MailServices.accounts.accounts) {
             account = context.extension.accountManager.convert(
               account,
@@ -242,29 +245,29 @@ this.accounts = class extends ExtensionAPIPersistent {
           return accounts;
         },
         async get(accountId, includeFolders) {
-          let account = MailServices.accounts.getAccount(accountId);
+          const account = MailServices.accounts.getAccount(accountId);
           return context.extension.accountManager.convert(
             account,
             includeFolders
           );
         },
         async getDefault(includeFolders) {
-          let account = MailServices.accounts.defaultAccount;
+          const account = MailServices.accounts.defaultAccount;
           return context.extension.accountManager.convert(
             account,
             includeFolders
           );
         },
         async getDefaultIdentity(accountId) {
-          let account = MailServices.accounts.getAccount(accountId);
+          const account = MailServices.accounts.getAccount(accountId);
           return convertMailIdentity(account, account?.defaultIdentity);
         },
         async setDefaultIdentity(accountId, identityId) {
-          let account = MailServices.accounts.getAccount(accountId);
+          const account = MailServices.accounts.getAccount(accountId);
           if (!account) {
             throw new ExtensionError(`Account not found: ${accountId}`);
           }
-          for (let identity of account.identities) {
+          for (const identity of account.identities) {
             if (identity.key == identityId) {
               account.defaultIdentity = identity;
               return;

@@ -18,7 +18,7 @@
   const isDummyDocument =
     document.documentURI == "chrome://extensions/content/dummy.xhtml";
   if (!isDummyDocument) {
-    for (let script of [
+    for (const script of [
       "chrome://chat/content/conversation-browser.js",
       "chrome://messenger/content/gloda-autocomplete-input.js",
       "chrome://chat/content/chat-tooltip.js",

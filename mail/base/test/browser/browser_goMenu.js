@@ -23,7 +23,7 @@ const goMenuData = {
   goRecentlyClosedTabs: { disabled: true },
   goStartPage: {},
 };
-let helper = new MenuTestHelper("menu_Go", goMenuData);
+const helper = new MenuTestHelper("menu_Go", goMenuData);
 
 add_setup(async function () {
   document.getElementById("tabmail").clearRecentlyClosedTabs();

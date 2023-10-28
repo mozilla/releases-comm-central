@@ -201,7 +201,7 @@ function GetImageMap() {
   var usemap = globalElement.getAttribute("usemap");
   if (usemap) {
     gCanRemoveImageMap = true;
-    let mapname = usemap.substr(1);
+    const mapname = usemap.substr(1);
     try {
       return GetCurrentEditor().document.querySelector(
         '[name="' + mapname + '"]'
@@ -291,9 +291,9 @@ function LoadPreviewImage() {
     imageSrc = MakeAbsoluteUrl(imageSrc);
 
     if (GetScheme(imageSrc)) {
-      let uri = Services.io.newURI(imageSrc);
+      const uri = Services.io.newURI(imageSrc);
       if (uri) {
-        let imgCache = Cc["@mozilla.org/image/cache;1"].getService(
+        const imgCache = Cc["@mozilla.org/image/cache;1"].getService(
           Ci.imgICache
         );
 
@@ -482,7 +482,7 @@ function ValidateImage() {
     globalElement.setAttribute("src", src);
   }
 
-  let title = gDialog.titleInput.value.trim();
+  const title = gDialog.titleInput.value.trim();
   if (title) {
     globalElement.setAttribute("title", title);
   } else {

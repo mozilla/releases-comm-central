@@ -181,7 +181,7 @@ var DefaultController = {
 window.controllers.insertControllerAt(0, DefaultController);
 
 function CloseTabOrWindow() {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   if (tabmail.globalOverlay) {
     return;
   }
@@ -223,13 +223,13 @@ function IsSendUnsentMsgsEnabled(unsentMsgsFolder) {
   // Otherwise, we don't know where we are, so use the current identity and
   // find out if we have messages or not via that.
   let identity;
-  let folders = GetSelectedMsgFolders();
+  const folders = GetSelectedMsgFolders();
   if (folders.length > 0) {
     [identity] = MailUtils.getIdentityForServer(folders[0].server);
   }
 
   if (!identity) {
-    let defaultAccount = MailServices.accounts.defaultAccount;
+    const defaultAccount = MailServices.accounts.defaultAccount;
     if (defaultAccount) {
       identity = defaultAccount.defaultIdentity;
     }
@@ -252,7 +252,7 @@ function IsSendUnsentMsgsEnabled(unsentMsgsFolder) {
 function IsSubscribeEnabled() {
   // If there are any IMAP or News servers, we can show the dialog any time and
   // it will properly show those.
-  for (let server of MailServices.accounts.allServers) {
+  for (const server of MailServices.accounts.allServers) {
     if (server.type == "imap" || server.type == "nntp") {
       return true;
     }
@@ -260,7 +260,7 @@ function IsSubscribeEnabled() {
 
   // RSS accounts use a separate Subscribe dialog that we can only show when
   // such an account is selected.
-  let preselectedFolder = GetFirstSelectedMsgFolder();
+  const preselectedFolder = GetFirstSelectedMsgFolder();
   if (preselectedFolder && preselectedFolder.server.type == "rss") {
     return true;
   }
@@ -274,7 +274,7 @@ function IsSubscribeEnabled() {
  * @param {Event} event - The keypress DOMEvent.
  */
 function SwitchPaneFocus(event) {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   // Should not move the focus around when the entire window is covered with
   // something else.
   if (tabmail.globalOverlay) {
@@ -282,7 +282,7 @@ function SwitchPaneFocus(event) {
   }
   // First, build an array of panes to cycle through based on our current state.
   // This will usually be something like [folderTree, threadTree, messageBrowser].
-  let panes = [];
+  const panes = [];
   // The logically focused element. If the actually focused element is not one
   // of the panes, the code below can change this variable to point to one of
   // the panes.
@@ -292,15 +292,15 @@ function SwitchPaneFocus(event) {
   // `focusedElement`) so that the element to focus is correctly chosen.
   let adjustment = 0;
 
-  let spacesElement = !gSpacesToolbar.isHidden
+  const spacesElement = !gSpacesToolbar.isHidden
     ? gSpacesToolbar.focusButton
     : document.getElementById("spacesPinnedButton");
   panes.push(spacesElement);
 
-  let toolbar = document.getElementById("unifiedToolbar");
+  const toolbar = document.getElementById("unifiedToolbar");
   if (!toolbar.hidden) {
     // Prioritise the search bar, otherwise use the first available button.
-    let toolbarElement =
+    const toolbarElement =
       toolbar.querySelector("global-search-bar") ||
       toolbar.querySelector("li:not([hidden]) button, #button-appmenu");
     if (toolbarElement) {
@@ -311,11 +311,11 @@ function SwitchPaneFocus(event) {
     }
   }
 
-  let { currentTabInfo } = tabmail;
+  const { currentTabInfo } = tabmail;
   switch (currentTabInfo.mode.name) {
     case "mail3PaneTab": {
-      let { contentWindow, contentDocument } = currentTabInfo.chromeBrowser;
-      let {
+      const { contentWindow, contentDocument } = currentTabInfo.chromeBrowser;
+      const {
         paneLayout,
         folderTree,
         threadTree,
@@ -373,7 +373,7 @@ function SwitchPaneFocus(event) {
       break;
     }
     case "mailMessageTab": {
-      let { content } = currentTabInfo.chromeBrowser.contentWindow;
+      const { content } = currentTabInfo.chromeBrowser.contentWindow;
       panes.push(content);
       if (focusedElement == currentTabInfo.chromeBrowser) {
         focusedElement = content;
@@ -381,13 +381,13 @@ function SwitchPaneFocus(event) {
       break;
     }
     case "addressBookTab": {
-      let { booksList, cardsPane, detailsPane } =
+      const { booksList, cardsPane, detailsPane } =
         currentTabInfo.browser.contentWindow;
 
       if (detailsPane.isEditing) {
         panes.push(currentTabInfo.browser);
       } else {
-        let targets = [
+        const targets = [
           booksList,
           cardsPane.searchInput,
           cardsPane.cardsList.table.body,

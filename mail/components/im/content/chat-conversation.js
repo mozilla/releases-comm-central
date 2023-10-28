@@ -123,7 +123,9 @@
               if (!this._isConversationSelected) {
                 break;
               }
-              for (let nick of subject.QueryInterface(Ci.nsISimpleEnumerator)) {
+              for (const nick of subject.QueryInterface(
+                Ci.nsISimpleEnumerator
+              )) {
                 this.insertBuddy(this.createBuddy(nick));
               }
               this.updateParticipantCount();
@@ -131,17 +133,19 @@
 
             case "chat-buddy-remove":
               if (!this._isConversationSelected) {
-                for (let nick of subject.QueryInterface(
+                for (const nick of subject.QueryInterface(
                   Ci.nsISimpleEnumerator
                 )) {
-                  let name = nick.toString();
+                  const name = nick.toString();
                   if (this._isBuddyActive(name)) {
                     delete this._activeBuddies[name];
                   }
                 }
                 break;
               }
-              for (let nick of subject.QueryInterface(Ci.nsISimpleEnumerator)) {
+              for (const nick of subject.QueryInterface(
+                Ci.nsISimpleEnumerator
+              )) {
                 this.removeBuddy(nick.toString());
               }
               this.updateParticipantCount();
@@ -274,7 +278,7 @@
 
       new MutationObserver(
         function (aMutations) {
-          for (let mutation of aMutations) {
+          for (const mutation of aMutations) {
             if (mutation.oldValue == "dragging") {
               this._onSplitterChange();
               break;
@@ -346,7 +350,7 @@
 
     _showFirstMessages() {
       this.loaded = true;
-      let messages = this._conv.getMessages();
+      const messages = this._conv.getMessages();
       this._readCount = messages.length - this._conv.unreadMessageCount;
       if (this._readCount) {
         this._writingContextMessages = true;
@@ -385,10 +389,10 @@
 
       // Ugly hack... :(
       if (!aMsg.system && conv.isChat) {
-        let name = aMsg.who;
+        const name = aMsg.who;
         let color;
         if (this.buddies.has(name)) {
-          let buddy = this.buddies.get(name);
+          const buddy = this.buddies.get(name);
           color = buddy.color;
           buddy.removeAttribute("inactive");
           this._activeBuddies[name] = true;
@@ -400,11 +404,11 @@
       }
 
       // Porting note: In TB, this.tab points at the imconv richlistitem element.
-      let read = this._readCount > 0;
-      let isUnreadMessage = !read && aMsg.incoming && !aMsg.system;
-      let isTabFocused = this.tab && this.tab.selected && document.hasFocus();
-      let shouldSetUnreadFlag = this.tab && isUnreadMessage && !isTabFocused;
-      let firstUnread =
+      const read = this._readCount > 0;
+      const isUnreadMessage = !read && aMsg.incoming && !aMsg.system;
+      const isTabFocused = this.tab && this.tab.selected && document.hasFocus();
+      const shouldSetUnreadFlag = this.tab && isUnreadMessage && !isTabFocused;
+      const firstUnread =
         this.tab &&
         !this.tab.hasAttribute("unread") &&
         isUnreadMessage &&
@@ -470,10 +474,10 @@
       // Update buddy color.
       // Ugly hack... :(
       if (!aMsg.system && conv.isChat) {
-        let name = aMsg.who;
+        const name = aMsg.who;
         let color;
         if (this.buddies.has(name)) {
-          let buddy = this.buddies.get(name);
+          const buddy = this.buddies.get(name);
           color = buddy.color;
           buddy.removeAttribute("inactive");
           this._activeBuddies[name] = true;
@@ -505,10 +509,10 @@
         return;
       }
 
-      let account = this._conv.account;
+      const account = this._conv.account;
 
       if (aMsg.startsWith("/")) {
-        let convToFocus = {};
+        const convToFocus = {};
 
         // The /say command is used to bypass command processing
         // (/say can be shortened to just /).
@@ -532,7 +536,7 @@
         }
 
         if (account.protocol.slashCommandsNative && account.connected) {
-          let cmd = aMsg.match(/^\/[^ ]+/);
+          const cmd = aMsg.match(/^\/[^ ]+/);
           if (cmd && cmd != "/me") {
             this._conv.systemMessage(
               this.bundle.formatStringFromName("unknownCommand", [cmd], 1),
@@ -557,10 +561,10 @@
     }
 
     calculateTextboxDefaultHeight() {
-      let totalSpace = parseInt(
+      const totalSpace = parseInt(
         window.getComputedStyle(this).getPropertyValue("height")
       );
-      let textboxStyle = window.getComputedStyle(this.inputBox);
+      const textboxStyle = window.getComputedStyle(this.inputBox);
       let lineHeight = textboxStyle.lineHeight;
       if (lineHeight == "normal") {
         lineHeight = parseFloat(textboxStyle.fontSize) * 1.2;
@@ -569,8 +573,9 @@
       }
 
       // Compute the overhead size.
-      let textboxHeight = this.inputBox.clientHeight;
-      let deckHeight = this.inputBox.parentNode.getBoundingClientRect().height;
+      const textboxHeight = this.inputBox.clientHeight;
+      const deckHeight =
+        this.inputBox.parentNode.getBoundingClientRect().height;
       this._TEXTBOX_VERTICAL_OVERHEAD = deckHeight - textboxHeight;
 
       // Calculate the number of lines to display.
@@ -615,7 +620,7 @@
 
     // eslint-disable-next-line complexity
     inputKeyPress(event) {
-      let text = this.inputBox.value;
+      const text = this.inputBox.value;
 
       const navKeyCodes = [
         KeyEvent.DOM_VK_PAGE_UP,
@@ -634,7 +639,7 @@
           (event.keyCode == KeyEvent.DOM_VK_PAGE_UP ||
             event.keyCode == KeyEvent.DOM_VK_PAGE_DOWN))
       ) {
-        let newEvent = new KeyboardEvent("keypress", event);
+        const newEvent = new KeyboardEvent("keypress", event);
         event.preventDefault();
         event.stopPropagation();
         // Keyboard events must be sent to the focused element for bubbling to work.
@@ -660,7 +665,7 @@
       // We don't want to enable tab completion if the user has selected
       // some text, as it's not clear what the user would expect
       // to happen in that case.
-      let noSelection = !(
+      const noSelection = !(
         this.inputBox.selectionEnd - this.inputBox.selectionStart
       );
 
@@ -685,15 +690,17 @@
           //   "nick1, nick2: " -> "nick1: nick2"
           // Single nick: remove the suffix
           //   "nick1: " -> "nick1"
-          let pos = this.inputBox.selectionStart;
+          const pos = this.inputBox.selectionStart;
           const suffix = ": ";
           if (
             pos > suffix.length &&
             text.substring(pos - suffix.length, pos) == suffix
           ) {
-            let completions = Array.from(this.buddies.keys());
+            const completions = Array.from(this.buddies.keys());
             // Check if the preceding words are a sequence of nick completions.
-            let preceding = text.substring(0, pos - suffix.length).split(", ");
+            const preceding = text
+              .substring(0, pos - suffix.length)
+              .split(", ");
             if (preceding.every(n => completions.includes(n))) {
               let s = preceding.pop();
               if (preceding.length) {
@@ -771,7 +778,7 @@
           0,
           this.inputBox.selectionStart
         );
-        let words = this._beforeTabComplete.match(/\S*?([\w-]+)?$/);
+        const words = this._beforeTabComplete.match(/\S*?([\w-]+)?$/);
         let word = words[0];
         if (!word) {
           return;
@@ -779,14 +786,14 @@
         let isFirstWord = this.inputBox.selectionStart == word.length;
 
         // Check if we are completing a command.
-        let completingCommand = isFirstWord && word[0] == "/";
+        const completingCommand = isFirstWord && word[0] == "/";
         if (completingCommand) {
-          for (let cmd of IMServices.cmd.listCommandsForConversation(
+          for (const cmd of IMServices.cmd.listCommandsForConversation(
             this._conv
           )) {
             // It's possible to have a global and a protocol specific command
             // with the same name. Avoid duplicates in the |completions| array.
-            let name = "/" + cmd.name;
+            const name = "/" + cmd.name;
             if (!completions.includes(name)) {
               completions.push(name);
             }
@@ -800,15 +807,15 @@
           firstWordSuffix = ": ";
           completions = Array.from(this.buddies.keys());
 
-          let outgoingNick = this._conv.nick;
+          const outgoingNick = this._conv.nick;
           completions = completions.filter(c => c != outgoingNick);
 
           // Check if the preceding words are a sequence of nick completions.
-          let wordStart = this.inputBox.selectionStart - word.length;
+          const wordStart = this.inputBox.selectionStart - word.length;
           if (wordStart > 2) {
-            let separator = text.substring(wordStart - 2, wordStart);
+            const separator = text.substring(wordStart - 2, wordStart);
             if (separator == ": " || separator == ", ") {
-              let preceding = text.substring(0, wordStart - 2).split(", ");
+              const preceding = text.substring(0, wordStart - 2).split(", ");
               if (preceding.every(n => completions.includes(n))) {
                 secondNick = true;
                 isFirstWord = true;
@@ -839,14 +846,14 @@
 
         // If the cursor is in the middle of a word, and the word is a nick,
         // there is no need to complete - just jump to the end of the nick.
-        let wholeWord = text.substring(
+        const wholeWord = text.substring(
           this.inputBox.selectionStart - word.length
         );
-        for (let completion of matchingCompletions) {
+        for (const completion of matchingCompletions) {
           if (wholeWord.lastIndexOf(completion, 0) == 0) {
-            let moveCursor = completion.length - word.length;
+            const moveCursor = completion.length - word.length;
             this.inputBox.selectionStart += moveCursor;
-            let separator = text.substring(
+            const separator = text.substring(
               this.inputBox.selectionStart,
               this.inputBox.selectionStart + 2
             );
@@ -869,13 +876,13 @@
         // not be the first and last completions in the list of completions
         // actually exposed to the user, as if there are active nicks
         // they will be moved to the beginning of the list.
-        let firstCompletion = this._completions[0];
-        let lastCompletion = this._completions.slice(-1)[0];
+        const firstCompletion = this._completions[0];
+        const lastCompletion = this._completions.slice(-1)[0];
 
         let preferredNick = false;
         if (this._conv.isChat && !completingCommand) {
           // If there are active nicks, prefer those.
-          let activeCompletions = this._completions.filter(
+          const activeCompletions = this._completions.filter(
             c =>
               this.buddies.has(c) &&
               !this.buddies.get(c).hasAttribute("inactive")
@@ -908,7 +915,7 @@
         // Display the possible completions in a system message.
         delete this._shouldListCompletionsLater;
         if (this._completions.length > 1) {
-          let completionsList = this._completions.join(" ");
+          const completionsList = this._completions.join(" ");
           if (preferredNick) {
             // If we have a preferred nick (which is completed as a whole
             // even if there are alternatives), only show the list of
@@ -919,7 +926,7 @@
           }
         }
 
-        let suffix = isFirstWord ? firstWordSuffix : "";
+        const suffix = isFirstWord ? firstWordSuffix : "";
         this._completions = this._completions.map(c => c + suffix);
 
         let completion;
@@ -929,7 +936,7 @@
           this._completionsIndex %= this._completions.length;
         } else {
           // We have several possible completions, attempt to find a common prefix.
-          let maxLength = Math.min(
+          const maxLength = Math.min(
             firstCompletion.length,
             lastCompletion.length
           );
@@ -1002,7 +1009,7 @@
         return;
       }
 
-      let text = this.inputBox.value;
+      const text = this.inputBox.value;
 
       // Try to avoid sending typing notifications when the user is
       // typing a command in the conversation.
@@ -1041,7 +1048,7 @@
       this.displayStatusText();
 
       if (TextboxSize.autoResize) {
-        let currHeight = Math.round(
+        const currHeight = Math.round(
           this.inputBox.parentNode.getBoundingClientRect().height
         );
         if (
@@ -1070,12 +1077,12 @@
 
       // Check whether we can increase the height without hiding the status bar
       // (ensure the min-height property on the top part of this dialog)
-      let topBoxStyle = window.getComputedStyle(this.convTop);
-      let topMinSize = parseInt(topBoxStyle.getPropertyValue("min-height"));
-      let topSize = parseInt(topBoxStyle.getPropertyValue("height"));
-      let deck = this.inputBox.parentNode;
-      let oldDeckHeight = Math.round(deck.getBoundingClientRect().height);
-      let newDeckHeight =
+      const topBoxStyle = window.getComputedStyle(this.convTop);
+      const topMinSize = parseInt(topBoxStyle.getPropertyValue("min-height"));
+      const topSize = parseInt(topBoxStyle.getPropertyValue("height"));
+      const deck = this.inputBox.parentNode;
+      const oldDeckHeight = Math.round(deck.getBoundingClientRect().height);
+      const newDeckHeight =
         parseInt(this.inputBox.scrollHeight) + this._TEXTBOX_VERTICAL_OVERHEAD;
 
       if (!topMinSize || topSize - topMinSize > newDeckHeight - oldDeckHeight) {
@@ -1097,9 +1104,9 @@
       } else {
         // Used in case the browser is already on its min-height, resize the
         // textbox to avoid hiding the status bar.
-        let convTopStyle = window.getComputedStyle(this.convTop);
+        const convTopStyle = window.getComputedStyle(this.convTop);
         let convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));
-        let convTopMinHeight = parseInt(
+        const convTopMinHeight = parseInt(
           convTopStyle.getPropertyValue("min-height")
         );
 
@@ -1125,7 +1132,7 @@
     }
 
     browserKeyPress(event) {
-      let accelKeyPressed =
+      const accelKeyPressed =
         AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey;
 
       // 118 is the decimal code for "v" character, 13 keyCode for "return" key
@@ -1166,7 +1173,7 @@
       }
 
       // resend the event
-      let clonedEvent = new KeyboardEvent("keypress", event);
+      const clonedEvent = new KeyboardEvent("keypress", event);
       this.inputBox.dispatchEvent(clonedEvent);
     }
 
@@ -1181,7 +1188,7 @@
 
       for (let node = event.target; node; node = node.parentNode) {
         if (node._originalMsg) {
-          let msg = node._originalMsg;
+          const msg = node._originalMsg;
           if (
             msg.system ||
             msg.outgoing ||
@@ -1203,7 +1210,7 @@
      * @param {string} aString
      */
     addString(aString) {
-      let cursorPosition = this.inputBox.selectionStart + aString.length;
+      const cursorPosition = this.inputBox.selectionStart + aString.length;
 
       this.inputBox.value =
         this.inputBox.value.substr(0, this.inputBox.selectionStart) +
@@ -1215,7 +1222,7 @@
     }
 
     addPrompt(aPrompt) {
-      let currentEditorValue = this.inputBox.value;
+      const currentEditorValue = this.inputBox.value;
       if (!currentEditorValue.startsWith(aPrompt)) {
         this.inputBox.value = aPrompt + currentEditorValue;
       }
@@ -1237,7 +1244,7 @@
      * @param {object} aItem
      */
     setBuddyAttributes(aItem) {
-      let buddy = aItem.chatBuddy;
+      const buddy = aItem.chatBuddy;
       let src;
       let l10nId;
       if (buddy.founder) {
@@ -1253,7 +1260,7 @@
         src = "chrome://messenger/skin/icons/voice.png";
         l10nId = "chat-participant-voiced-role-icon2";
       }
-      let imageEl = aItem.querySelector(".conv-nicklist-image");
+      const imageEl = aItem.querySelector(".conv-nicklist-image");
       if (src) {
         imageEl.setAttribute("src", src);
         document.l10n.setAttributes(imageEl, l10nId);
@@ -1307,7 +1314,7 @@
      * @param {object} aBuddy
      */
     createBuddy(aBuddy) {
-      let name = aBuddy.name;
+      const name = aBuddy.name;
       if (!name) {
         throw new Error("The empty string isn't a valid nick.");
       }
@@ -1317,23 +1324,23 @@
 
       this.trackNick(name);
 
-      let image = document.createElement("img");
+      const image = document.createElement("img");
       image.classList.add("conv-nicklist-image");
-      let label = document.createXULElement("label");
+      const label = document.createXULElement("label");
       label.classList.add("conv-nicklist-label");
       label.setAttribute("value", name);
       label.setAttribute("flex", "1");
       label.setAttribute("crop", "end");
 
       // Fix insertBuddy below if you change the DOM makeup!
-      let item = document.createXULElement("richlistitem");
+      const item = document.createXULElement("richlistitem");
       item.chatBuddy = aBuddy;
       item.appendChild(image);
       item.appendChild(label);
       this.setBuddyAttributes(item);
 
-      let color = this._computeColor(name);
-      let style = "color: hsl(" + color + ", 100%, 40%);";
+      const color = this._computeColor(name);
+      const style = "color: hsl(" + color + ", 100%, 40%);";
       item.colorStyle = style;
       item.setAttribute("style", style);
       item.setAttribute("align", "center");
@@ -1352,14 +1359,14 @@
      * @param {Node} aListItem
      */
     insertBuddy(aListItem) {
-      let nicklist = document.getElementById("nicklist");
-      let nick = aListItem.querySelector("label").value.toLowerCase();
+      const nicklist = document.getElementById("nicklist");
+      const nick = aListItem.querySelector("label").value.toLowerCase();
 
       // Look for the place of the nick in the list
       let start = 0;
       let end = nicklist.itemCount;
       while (start < end) {
-        let middle = start + Math.floor((end - start) / 2);
+        const middle = start + Math.floor((end - start) / 2);
         if (
           nick <
           nicklist
@@ -1388,7 +1395,7 @@
      * @param {string} aOldName
      */
     updateBuddy(aBuddy, aOldName) {
-      let name = aBuddy.name;
+      const name = aBuddy.name;
       if (!name) {
         throw new Error("The empty string isn't a valid nick.");
       }
@@ -1398,7 +1405,7 @@
           return;
         }
         // If aOldName is null, we are changing the flags of the buddy
-        let item = this.buddies.get(name);
+        const item = this.buddies.get(name);
         item.chatBuddy = aBuddy;
         this.setBuddyAttributes(item);
         return;
@@ -1428,7 +1435,7 @@
         );
       }
 
-      let item = this.buddies.get(aOldName);
+      const item = this.buddies.get(aOldName);
       item.chatBuddy = aBuddy;
       this.buddies.delete(aOldName);
       this.buddies.set(name, item);
@@ -1462,14 +1469,14 @@
         if (!("_showNickRegExp" in this)) {
           if (!("_showNickList" in this)) {
             this._showNickList = {};
-            for (let n of this.buddies.keys()) {
+            for (const n of this.buddies.keys()) {
               this._showNickList[n.replace(this._nickEscape, "\\$&")] = true;
             }
           }
 
           // The reverse sort ensures that if we have "foo" and "foobar",
           // "foobar" will be matched first by the regexp.
-          let nicks = Object.keys(this._showNickList)
+          const nicks = Object.keys(this._showNickList)
             .sort()
             .reverse()
             .join("|");
@@ -1485,7 +1492,7 @@
             return 0;
           }
         }
-        let exp = this._showNickRegExp;
+        const exp = this._showNickRegExp;
         let result = 0;
         let match;
         // Add leading/trailing spaces to match at beginning and end of
@@ -1494,17 +1501,17 @@
         while ((match = exp.exec(" " + aNode.data + " "))) {
           // \W is not zero-length, but this is cancelled by the
           // extra leading space here.
-          let nickNode = aNode.splitText(match.index);
+          const nickNode = aNode.splitText(match.index);
           // subtract the 2 \W's to get the length of the nick.
           aNode = nickNode.splitText(match[0].length - 2);
           // at this point, nickNode is a text node with only the text
           // of the nick and aNode is a text node with the text after
           // the nick. The text in aNode hasn't been processed yet.
-          let nick = nickNode.data;
-          let elt = aNode.ownerDocument.createElement("span");
+          const nick = nickNode.data;
+          const elt = aNode.ownerDocument.createElement("span");
           elt.setAttribute("class", "ib-nick");
           if (this.buddies.has(nick)) {
-            let buddy = this.buddies.get(nick);
+            const buddy = this.buddies.get(nick);
             elt.setAttribute("style", buddy.colorStyle);
             elt.setAttribute("data-nickColor", buddy.color);
           } else {
@@ -1523,11 +1530,11 @@
      * conversation header.
      */
     updateTopic() {
-      let cti = document.getElementById("conv-top-info");
-      let editable = !!this._conv.topicSettable;
+      const cti = document.getElementById("conv-top-info");
+      const editable = !!this._conv.topicSettable;
 
-      let topicText = this._conv.topic;
-      let noTopic = !topicText;
+      const topicText = this._conv.topic;
+      const noTopic = !topicText;
       cti.setAsChat(topicText || this._conv.noTopicString, noTopic, editable);
     }
 
@@ -1582,7 +1589,7 @@
     }
 
     updateConvStatus() {
-      let cti = document.getElementById("conv-top-info");
+      const cti = document.getElementById("conv-top-info");
       cti.setProtocol(this._conv.account.protocol);
 
       // Set the icon, potentially showing a fallback icon if this is an IM.
@@ -1596,7 +1603,7 @@
         let statusText = "";
         let statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
 
-        let buddy = this._conv.buddy;
+        const buddy = this._conv.buddy;
         if (buddy?.account.connected) {
           displayName = buddy.displayName;
           statusText = buddy.statusText;
@@ -1606,8 +1613,8 @@
 
         let statusName;
 
-        let typingState = this._conv.typingState;
-        let typingName = this._currentTypingName || this._conv.title;
+        const typingState = this._conv.typingState;
+        const typingName = this._currentTypingName || this._conv.title;
 
         switch (typingState) {
           case Ci.prplIConvIM.TYPING:
@@ -1637,13 +1644,13 @@
 
     showParticipants() {
       if (this._conv.isChat) {
-        let nicklist = document.getElementById("nicklist");
+        const nicklist = document.getElementById("nicklist");
         while (nicklist.hasChildNodes()) {
           nicklist.lastChild.remove();
         }
         // Populate the nicklist
         this.buddies = new Map();
-        for (let n of this.conv.getParticipants()) {
+        for (const n of this.conv.getParticipants()) {
           this.createBuddy(n);
         }
         nicklist.append(
@@ -1663,7 +1670,7 @@
     initConversationUI() {
       this._activeBuddies = {};
       if (this._conv.isChat) {
-        let cti = document.getElementById("conv-top-info");
+        const cti = document.getElementById("conv-top-info");
         cti.setAttribute("displayName", this._conv.title);
 
         this.showParticipants();

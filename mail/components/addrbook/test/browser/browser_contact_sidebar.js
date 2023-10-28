@@ -11,21 +11,21 @@ var dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
 
 add_task(async function () {
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
 
-  let book1 = createAddressBook("Book 1");
+  const book1 = createAddressBook("Book 1");
   book1.addCard(createContact("daniel", "test"));
   book1.addCard(createContact("jonathan", "test"));
   book1.addCard(createContact("năthån", "test"));
 
-  let book2 = createAddressBook("Book 2");
+  const book2 = createAddressBook("Book 2");
   book2.addCard(createContact("danielle", "test"));
   book2.addCard(createContact("katherine", "test"));
   book2.addCard(createContact("natalie", "test"));
   book2.addCard(createContact("sūsãnáh", "test"));
 
-  let list = createMailingList("pèóplë named tēst");
+  const list = createMailingList("pèóplë named tēst");
   book2.addMailList(list);
 
   registerCleanupFunction(async function () {
@@ -36,27 +36,27 @@ add_task(async function () {
 
   // Open a compose window.
 
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
-  let composeWindowPromise = BrowserTestUtils.domWindowOpened();
+  const composeWindowPromise = BrowserTestUtils.domWindowOpened();
   MailServices.compose.OpenComposeWindowWithParams(null, params);
-  let composeWindow = await composeWindowPromise;
+  const composeWindow = await composeWindowPromise;
   await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
   await TestUtils.waitForCondition(
     () => Services.focus.activeWindow == composeWindow
   );
-  let composeDocument = composeWindow.document;
-  let toAddrInput = composeDocument.getElementById("toAddrInput");
-  let toAddrRow = composeDocument.getElementById("addressRowTo");
-  let ccAddrInput = composeDocument.getElementById("ccAddrInput");
-  let ccAddrRow = composeDocument.getElementById("addressRowCc");
-  let bccAddrInput = composeDocument.getElementById("bccAddrInput");
-  let bccAddrRow = composeDocument.getElementById("addressRowBcc");
+  const composeDocument = composeWindow.document;
+  const toAddrInput = composeDocument.getElementById("toAddrInput");
+  const toAddrRow = composeDocument.getElementById("addressRowTo");
+  const ccAddrInput = composeDocument.getElementById("ccAddrInput");
+  const ccAddrRow = composeDocument.getElementById("addressRowCc");
+  const bccAddrInput = composeDocument.getElementById("bccAddrInput");
+  const bccAddrRow = composeDocument.getElementById("addressRowBcc");
 
   // The compose window waits before deciding whether to open the sidebar.
   // We must wait longer.
@@ -64,26 +64,26 @@ add_task(async function () {
 
   // Make sure the contacts sidebar is open.
 
-  let sidebar = composeDocument.getElementById("contactsSidebar");
+  const sidebar = composeDocument.getElementById("contactsSidebar");
   if (BrowserTestUtils.is_hidden(sidebar)) {
     EventUtils.synthesizeKey("KEY_F9", {}, composeWindow);
   }
-  let sidebarBrowser = composeDocument.getElementById("contactsBrowser");
+  const sidebarBrowser = composeDocument.getElementById("contactsBrowser");
   await TestUtils.waitForCondition(
     () =>
       sidebarBrowser.currentURI.spec.includes("abContactsPanel.xhtml") &&
       sidebarBrowser.contentDocument.readyState == "complete"
   );
-  let sidebarWindow = sidebarBrowser.contentWindow;
-  let sidebarDocument = sidebarBrowser.contentDocument;
+  const sidebarWindow = sidebarBrowser.contentWindow;
+  const sidebarDocument = sidebarBrowser.contentDocument;
 
-  let abList = sidebarDocument.getElementById("addressbookList");
-  let searchBox = sidebarDocument.getElementById("peopleSearchInput");
-  let cardsList = sidebarDocument.getElementById("abResultsTree");
-  let cardsContext = sidebarDocument.getElementById("cardProperties");
-  let toButton = sidebarDocument.getElementById("toButton");
-  let ccButton = sidebarDocument.getElementById("ccButton");
-  let bccButton = sidebarDocument.getElementById("bccButton");
+  const abList = sidebarDocument.getElementById("addressbookList");
+  const searchBox = sidebarDocument.getElementById("peopleSearchInput");
+  const cardsList = sidebarDocument.getElementById("abResultsTree");
+  const cardsContext = sidebarDocument.getElementById("cardProperties");
+  const toButton = sidebarDocument.getElementById("toButton");
+  const ccButton = sidebarDocument.getElementById("ccButton");
+  const bccButton = sidebarDocument.getElementById("bccButton");
 
   await TestUtils.waitForCondition(() => cardsList.view.rowCount != 0);
   checkListNames(
@@ -117,10 +117,10 @@ add_task(async function () {
   }
 
   async function doMenulist(value) {
-    let shownPromise = BrowserTestUtils.waitForEvent(abList, "popupshown");
+    const shownPromise = BrowserTestUtils.waitForEvent(abList, "popupshown");
     EventUtils.synthesizeMouseAtCenter(abList, {}, sidebarWindow);
     await shownPromise;
-    let hiddenPromise = BrowserTestUtils.waitForEvent(abList, "popuphidden");
+    const hiddenPromise = BrowserTestUtils.waitForEvent(abList, "popuphidden");
     EventUtils.synthesizeMouseAtCenter(
       abList.querySelector(`[value="${value}"]`),
       {},
@@ -131,13 +131,13 @@ add_task(async function () {
 
   async function doContextMenu(row, command) {
     clickOnRow(row, {});
-    let shownPromise = BrowserTestUtils.waitForEvent(
+    const shownPromise = BrowserTestUtils.waitForEvent(
       cardsContext,
       "popupshown"
     );
     clickOnRow(row, { type: "contextmenu" });
     await shownPromise;
-    let hiddenPromise = BrowserTestUtils.waitForEvent(
+    const hiddenPromise = BrowserTestUtils.waitForEvent(
       cardsContext,
       "popuphidden"
     );
@@ -148,7 +148,7 @@ add_task(async function () {
   }
 
   function checkListNames(expectedNames, message) {
-    let actualNames = [];
+    const actualNames = [];
     for (let row = 0; row < cardsList.view.rowCount; row++) {
       actualNames.push(
         cardsList.view.getCellText(row, cardsList.columns.GeneratedName)
@@ -159,7 +159,7 @@ add_task(async function () {
   }
 
   function checkPills(row, expectedPills) {
-    let actualPills = Array.from(
+    const actualPills = Array.from(
       row.querySelectorAll("mail-address-pill"),
       p => p.label
     );
@@ -171,7 +171,7 @@ add_task(async function () {
   }
 
   function clearPills() {
-    for (let input of [toAddrInput, ccAddrInput, bccAddrInput]) {
+    for (const input of [toAddrInput, ccAddrInput, bccAddrInput]) {
       EventUtils.synthesizeMouseAtCenter(input, {}, composeWindow);
       EventUtils.synthesizeKey(
         "a",
@@ -189,15 +189,15 @@ add_task(async function () {
   }
 
   async function inABEditingMode() {
-    let topWindow = Services.wm.getMostRecentWindow("mail:3pane");
-    let abWindow = await topWindow.toAddressBook();
+    const topWindow = Services.wm.getMostRecentWindow("mail:3pane");
+    const abWindow = await topWindow.toAddressBook();
     await new Promise(resolve => abWindow.setTimeout(resolve));
     await TestUtils.waitForCondition(
       () => abWindow.detailsPane.isEditing,
       "entering editing mode"
     );
-    let tabmail = topWindow.document.getElementById("tabmail");
-    let tab = tabmail.tabInfo.find(
+    const tabmail = topWindow.document.getElementById("tabmail");
+    const tab = tabmail.tabInfo.find(
       t => t.browser?.currentURI.spec == "about:addressbook"
     );
     tabmail.closeTab(tab);
@@ -212,14 +212,14 @@ add_task(async function () {
    */
   async function checkEditContact(row, isEditable) {
     clickOnRow(row, {});
-    let shownPromise = BrowserTestUtils.waitForEvent(
+    const shownPromise = BrowserTestUtils.waitForEvent(
       cardsContext,
       "popupshown"
     );
     clickOnRow(row, { type: "contextmenu" });
     await shownPromise;
 
-    let hiddenPromise = BrowserTestUtils.waitForEvent(
+    const hiddenPromise = BrowserTestUtils.waitForEvent(
       cardsContext,
       "popuphidden"
     );
@@ -353,7 +353,7 @@ add_task(async function () {
   clickOnRow(5, {});
 
   dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
-  let [result, dataTransfer] = EventUtils.synthesizeDragOver(
+  const [result, dataTransfer] = EventUtils.synthesizeDragOver(
     cardsList,
     toAddrInput,
     null,
@@ -463,7 +463,7 @@ add_task(async function () {
   await TestUtils.waitForCondition(() => BrowserTestUtils.is_hidden(sidebar));
 
   promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  let closePromise = BrowserTestUtils.windowClosed(composeWindow);
+  const closePromise = BrowserTestUtils.windowClosed(composeWindow);
   composeWindow.goDoCommand("cmd_close");
   await promptPromise;
   await closePromise;

@@ -14,7 +14,7 @@ var autoJoinPref = "autoJoin";
 var joinChat = {
   onload() {
     var accountList = document.getElementById("accountlist");
-    for (let acc of IMServices.accounts.getAccounts()) {
+    for (const acc of IMServices.accounts.getAccounts()) {
       if (!acc.connected || !acc.canJoinChat) {
         continue;
       }
@@ -35,33 +35,33 @@ var joinChat = {
   },
 
   onAccountSelect() {
-    let joinChatGrid = document.getElementById("joinChatGrid");
+    const joinChatGrid = document.getElementById("joinChatGrid");
     while (joinChatGrid.children.length > 3) {
       // leave the first 3 cols
       joinChatGrid.lastChild.remove();
     }
 
-    let acc = document.getElementById("accountlist").selectedItem.account;
-    let defaultValues = acc.getChatRoomDefaultFieldValues();
+    const acc = document.getElementById("accountlist").selectedItem.account;
+    const defaultValues = acc.getChatRoomDefaultFieldValues();
     joinChat._values = defaultValues;
     joinChat._fields = [];
     joinChat._account = acc;
 
-    let protoId = acc.protocol.id;
+    const protoId = acc.protocol.id;
     document.getElementById("autojoin").hidden = !(
       protoId == "prpl-irc" ||
       protoId == "prpl-jabber" ||
       protoId == "prpl-gtalk"
     );
 
-    for (let field of acc.getChatRoomFields()) {
-      let div1 = document.createElementNS(
+    for (const field of acc.getChatRoomFields()) {
+      const div1 = document.createElementNS(
         "http://www.w3.org/1999/xhtml",
         "div"
       );
-      let label = document.createXULElement("label");
+      const label = document.createXULElement("label");
       let text = field.label;
-      let match = /_(.)/.exec(text);
+      const match = /_(.)/.exec(text);
       if (match) {
         label.setAttribute("accesskey", match[1]);
         text = text.replace(/_/, "");
@@ -72,11 +72,11 @@ var joinChat = {
       div1.appendChild(label);
       joinChatGrid.appendChild(div1);
 
-      let div2 = document.createElementNS(
+      const div2 = document.createElementNS(
         "http://www.w3.org/1999/xhtml",
         "div"
       );
-      let input = document.createElementNS(
+      const input = document.createElementNS(
         "http://www.w3.org/1999/xhtml",
         "input"
       );
@@ -86,7 +86,7 @@ var joinChat = {
         "aria-labelledby",
         "field-" + field.identifier + "-label"
       );
-      let val = defaultValues.getValue(field.identifier);
+      const val = defaultValues.getValue(field.identifier);
       if (val) {
         input.setAttribute("value", val);
       }
@@ -102,7 +102,7 @@ var joinChat = {
       div2.appendChild(input);
       joinChatGrid.appendChild(div2);
 
-      let div3 = document.querySelector(".optional-col").cloneNode(true);
+      const div3 = document.querySelector(".optional-col").cloneNode(true);
       div3.classList.toggle("required", field.required);
       joinChatGrid.appendChild(div3);
 
@@ -113,9 +113,9 @@ var joinChat = {
   },
 
   join() {
-    let values = joinChat._values;
-    for (let field of joinChat._fields) {
-      let val = field.input.value.trim();
+    const values = joinChat._values;
+    for (const field of joinChat._fields) {
+      const val = field.input.value.trim();
       if (!val && field.field.required) {
         field.input.focus();
         // FIXME: why isn't the return false enough?
@@ -126,10 +126,10 @@ var joinChat = {
         values.setValue(field.field.identifier, val);
       }
     }
-    let account = joinChat._account;
+    const account = joinChat._account;
     account.joinChat(values);
 
-    let protoId = account.protocol.id;
+    const protoId = account.protocol.id;
     if (
       protoId != "prpl-irc" &&
       protoId != "prpl-jabber" &&
@@ -145,33 +145,33 @@ var joinChat = {
       name = values.getValue("room") + "@" + values.getValue("server");
     }
 
-    let conv = IMServices.conversations.getConversationByNameAndAccount(
+    const conv = IMServices.conversations.getConversationByNameAndAccount(
       name,
       account,
       true
     );
     if (conv) {
-      let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
+      const mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
       if (mailWindow) {
         mailWindow.focus();
-        let tabmail = mailWindow.document.getElementById("tabmail");
+        const tabmail = mailWindow.document.getElementById("tabmail");
         tabmail.openTab("chat", { convType: "focus", conv });
       }
     }
 
     if (document.getElementById("autojoin").checked) {
       // "nick" for JS-XMPP, "handle" for libpurple prpls.
-      let nick = values.getValue("nick") || values.getValue("handle");
+      const nick = values.getValue("nick") || values.getValue("handle");
       if (nick) {
         name += "/" + nick;
       }
 
-      let prefBranch = Services.prefs.getBranch(
+      const prefBranch = Services.prefs.getBranch(
         "messenger.account." + account.id + "."
       );
       let autojoin = [];
       if (prefBranch.prefHasUserValue(autoJoinPref)) {
-        let prefValue = prefBranch.getStringPref(autoJoinPref);
+        const prefValue = prefBranch.getStringPref(autoJoinPref);
         if (prefValue) {
           autojoin = prefValue.split(",");
         }

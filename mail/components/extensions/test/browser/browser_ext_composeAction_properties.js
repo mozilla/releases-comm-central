@@ -3,10 +3,10 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  let account = createAccount();
+  const account = createAccount();
   addIdentity(account);
 
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkProperty(property, expectedDefault, ...expected) {
         browser.test.log(
@@ -30,11 +30,11 @@ add_task(async () => {
       await browser.compose.beginNew();
       await browser.compose.beginNew();
       await browser.compose.beginNew();
-      let windows = await browser.windows.getAll({
+      const windows = await browser.windows.getAll({
         populate: true,
         windowTypes: ["messageCompose"],
       });
-      let tabIDs = windows.map(w => w.tabs[0].id);
+      const tabIDs = windows.map(w => w.tabs[0].id);
 
       await checkProperty("isEnabled", true, true, true, true);
       await browser.composeAction.disable();
@@ -83,7 +83,7 @@ add_task(async () => {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       applications: {
@@ -99,11 +99,11 @@ add_task(async () => {
   });
 
   extension.onMessage("checkProperty", async (property, expected) => {
-    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 3);
 
     for (let i = 0; i < 3; i++) {
-      let button = composeWindows[i].document.getElementById(
+      const button = composeWindows[i].document.getElementById(
         "compose_action_properties_mochi_test-composeAction-toolbarbutton"
       );
       switch (property) {

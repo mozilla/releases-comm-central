@@ -16,7 +16,7 @@ var { MailServices } = ChromeUtils.import(
  * @param {string} address - The email address to try to remove.
  */
 function remove_email_account(address) {
-  for (let account of MailServices.accounts.accounts) {
+  for (const account of MailServices.accounts.accounts) {
     if (account.defaultIdentity && account.defaultIdentity.email == address) {
       MailServices.accounts.removeAccount(account);
       break;

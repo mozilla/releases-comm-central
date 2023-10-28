@@ -18,14 +18,14 @@ AddonTestUtils.maybeInit(this);
 add_task(async function test_accounts_MV3_event_pages() {
   await AddonTestUtils.promiseStartupManager();
 
-  let files = {
+  const files = {
     "background.js": async () => {
       // Whenever the extension starts or wakes up, the eventCounter is reset and
       // allows to observe the order of events fired. In case of a wake-up, the
       // first observed event is the one that woke up the background.
       let eventCounter = 0;
 
-      for (let eventName of ["onCreated", "onUpdated", "onDeleted"]) {
+      for (const eventName of ["onCreated", "onUpdated", "onDeleted"]) {
         browser.accounts[eventName].addListener(async (...args) => {
           browser.test.sendMessage(`${eventName} event received`, {
             eventCount: ++eventCounter,
@@ -38,7 +38,7 @@ add_task(async function test_accounts_MV3_event_pages() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       manifest_version: 3,
@@ -56,15 +56,15 @@ add_task(async function test_accounts_MV3_event_pages() {
       "accounts.onDeleted",
     ];
 
-    for (let event of persistent_events) {
-      let [moduleName, eventName] = event.split(".");
+    for (const event of persistent_events) {
+      const [moduleName, eventName] = event.split(".");
       assertPersistentListeners(extension, moduleName, eventName, {
         primed,
       });
     }
   }
 
-  let testData = [
+  const testData = [
     {
       type: "imap",
       identity: "user@invalidImap",
@@ -107,16 +107,16 @@ add_task(async function test_accounts_MV3_event_pages() {
 
   // Create.
 
-  for (let details of testData) {
+  for (const details of testData) {
     await extension.terminateBackground({ disableResetIdleForTest: true });
     // Verify the primed persistent listeners.
     checkPersistentListeners({ primed: true });
 
-    let account = createAccount(details.type);
+    const account = createAccount(details.type);
     details.account = account;
 
     {
-      let rv = await extension.awaitMessage("onCreated event received");
+      const rv = await extension.awaitMessage("onCreated event received");
       Assert.deepEqual(
         {
           eventCount: 1,
@@ -137,7 +137,7 @@ add_task(async function test_accounts_MV3_event_pages() {
     }
 
     if (details.expectedUpdate) {
-      let rv = await extension.awaitMessage("onUpdated event received");
+      const rv = await extension.awaitMessage("onUpdated event received");
       Assert.deepEqual(
         {
           eventCount: 2,
@@ -159,14 +159,14 @@ add_task(async function test_accounts_MV3_event_pages() {
 
   // Update.
 
-  for (let details of testData) {
+  for (const details of testData) {
     await extension.terminateBackground({ disableResetIdleForTest: true });
     // Verify the primed persistent listeners.
     checkPersistentListeners({ primed: true });
 
-    let account = MailServices.accounts.getAccount(details.account.key);
+    const account = MailServices.accounts.getAccount(details.account.key);
     account.incomingServer.prettyName = details.updatedName;
-    let rv = await extension.awaitMessage("onUpdated event received");
+    const rv = await extension.awaitMessage("onUpdated event received");
 
     Assert.deepEqual(
       {
@@ -191,13 +191,13 @@ add_task(async function test_accounts_MV3_event_pages() {
 
   // Delete.
 
-  for (let details of testData) {
+  for (const details of testData) {
     await extension.terminateBackground({ disableResetIdleForTest: true });
     // Verify the primed persistent listeners.
     checkPersistentListeners({ primed: true });
 
     cleanUpAccount(details.account);
-    let rv = await extension.awaitMessage("onDeleted event received");
+    const rv = await extension.awaitMessage("onDeleted event received");
 
     Assert.deepEqual(
       {

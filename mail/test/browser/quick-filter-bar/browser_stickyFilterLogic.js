@@ -51,15 +51,15 @@ add_setup(async function () {
  * Persist the current settings through folder change and inherit into a new tab.
  */
 add_task(async function test_sticky_basics() {
-  let folderOne = await create_folder("QuickFilterBarStickyBasics1");
-  let [unreadOne, readOne] = await make_message_sets_in_folders(
+  const folderOne = await create_folder("QuickFilterBarStickyBasics1");
+  const [unreadOne, readOne] = await make_message_sets_in_folders(
     [folderOne],
     [{ count: 1 }, { count: 1 }]
   );
   readOne.setRead(true);
 
-  let folderTwo = await create_folder("QuickFilterBarStickyBasics2");
-  let [unreadTwo, readTwo] = await make_message_sets_in_folders(
+  const folderTwo = await create_folder("QuickFilterBarStickyBasics2");
+  const [unreadTwo, readTwo] = await make_message_sets_in_folders(
     [folderTwo],
     [{ count: 1 }, { count: 1 }]
   );
@@ -98,16 +98,16 @@ add_task(async function test_sticky_basics() {
  *  identical (and tested to be identical in |test_sticky_basics|).
  */
 add_task(async function test_sticky_tags() {
-  let folderOne = await create_folder("QuickFilterBarStickyTags1");
-  let folderTwo = await create_folder("QuickFilterBarStickyTags2");
+  const folderOne = await create_folder("QuickFilterBarStickyTags1");
+  const folderTwo = await create_folder("QuickFilterBarStickyTags2");
   const tagA = "$label1",
     tagB = "$label2",
     tagC = "$label3";
-  let [, setTagA1, setTagB1] = await make_message_sets_in_folders(
+  const [, setTagA1, setTagB1] = await make_message_sets_in_folders(
     [folderOne],
     [{ count: 1 }, { count: 1 }, { count: 1 }]
   );
-  let [, setTagA2, setTagC2] = await make_message_sets_in_folders(
+  const [, setTagA2, setTagC2] = await make_message_sets_in_folders(
     [folderTwo],
     [{ count: 1 }, { count: 1 }, { count: 1 }]
   );
@@ -146,8 +146,8 @@ add_task(async function test_sticky_tags() {
  *  |test_filter_text_constraints_propagate|.
  */
 add_task(async function test_sticky_text() {
-  let folderOne = await create_folder("QuickFilterBarStickyText1");
-  let folderTwo = await create_folder("QuickFilterBarStickyText2");
+  const folderOne = await create_folder("QuickFilterBarStickyText1");
+  const folderTwo = await create_folder("QuickFilterBarStickyText2");
 
   await be_in_folder(folderOne);
   await toggle_boolean_constraints("sticky");

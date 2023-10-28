@@ -31,14 +31,14 @@ add_setup(async function () {
   folderA = await create_folder("MessageWindowA");
   folderB = await create_folder("MessageWindowB");
   // create three messages in the folder to display
-  let msg1 = create_thread(1);
-  let msg2 = create_thread(1);
-  let thread1 = create_thread(2);
-  let thread2 = create_thread(2);
+  const msg1 = create_thread(1);
+  const msg2 = create_thread(1);
+  const thread1 = create_thread(2);
+  const thread2 = create_thread(2);
   await add_message_sets_to_folders([folderA], [msg1, msg2, thread1, thread2]);
   // add two more messages in another folder
-  let msg3 = create_thread(1);
-  let msg4 = create_thread(1);
+  const msg3 = create_thread(1);
+  const msg4 = create_thread(1);
   await add_message_sets_to_folders([folderB], [msg3, msg4]);
   folderA.msgDatabase.dBFolderInfo.viewFlags =
     Ci.nsMsgViewFlagsType.kThreadedDisplay;
@@ -123,11 +123,11 @@ add_task(async function test_next_unread() {
     await wait_for_message_display_completion(msgc, true);
   }
 
-  for (let m of folderA.messages) {
+  for (const m of folderA.messages) {
     Assert.ok(m.isRead, `${m.messageId} is read`);
   }
 
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   EventUtils.synthesizeKey("n", {}, msgc);
   plan_for_message_display(msgc);
   await dialogPromise;
@@ -137,7 +137,7 @@ add_task(async function test_next_unread() {
   await be_in_folder(folderB);
 
   // select the first message, and make sure it's not read
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
 
   // make sure we've been displaying the right message
   await assert_selected_and_displayed(msgc, msg);

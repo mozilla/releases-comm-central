@@ -55,7 +55,7 @@ httpRequestObserver.prototype = {
       return;
     }
     // Helper function to get header values.
-    let getHttpHeader = (httpChannel, header) => {
+    const getHttpHeader = (httpChannel, header) => {
       // getResponseHeader throws when header is not set.
       try {
         return httpChannel.getResponseHeader(header);
@@ -64,23 +64,23 @@ httpRequestObserver.prototype = {
       }
     };
 
-    let contentType = getHttpHeader(aSubject, "Content-Type");
+    const contentType = getHttpHeader(aSubject, "Content-Type");
     if (!contentType || !contentType.toLowerCase().startsWith("text/xml")) {
       return;
     }
 
     // It's possible the account information changed during the setup at the
     // provider. Check some headers and set them if needed.
-    let name = getHttpHeader(aSubject, "x-thunderbird-account-name");
+    const name = getHttpHeader(aSubject, "x-thunderbird-account-name");
     if (name) {
       this.params.realName = name;
     }
-    let email = getHttpHeader(aSubject, "x-thunderbird-account-email");
+    const email = getHttpHeader(aSubject, "x-thunderbird-account-email");
     if (email) {
       this.params.email = email;
     }
 
-    let requestWindow = this._getWindowForRequest(aSubject);
+    const requestWindow = this._getWindowForRequest(aSubject);
     if (!requestWindow || requestWindow !== this.browser.innerWindowID) {
       return;
     }
@@ -88,7 +88,7 @@ httpRequestObserver.prototype = {
     // Ok, we've got a request that looks like a decent candidate.
     // Let's attach our TracingListener.
     if (aSubject instanceof Ci.nsITraceableChannel) {
-      let newListener = new TracingListener(this.browser, this.params);
+      const newListener = new TracingListener(this.browser, this.params);
       newListener.oldListener = aSubject.setNewListener(newListener);
     }
   },
@@ -169,15 +169,15 @@ TracingListener.prototype = {
     try {
       // Construct the downloaded data (we'll assume UTF-8 bytes) into XML.
       let xml = this.chunks.join("");
-      let bytes = new Uint8Array(xml.length);
+      const bytes = new Uint8Array(xml.length);
       for (let i = 0; i < xml.length; i++) {
         bytes[i] = xml.charCodeAt(i);
       }
       xml = new TextDecoder().decode(bytes);
 
       // Attempt to derive email account information.
-      let domParser = new DOMParser();
-      let accountConfig = readFromXML(
+      const domParser = new DOMParser();
+      const accountConfig = readFromXML(
         JXON.build(domParser.parseFromString(xml, "text/xml"))
       );
       AccountConfig.replaceVariables(
@@ -186,8 +186,8 @@ TracingListener.prototype = {
         this.params.email
       );
 
-      let host = aRequest.getRequestHeader("Host");
-      let providerHostname = new URL("http://" + host).hostname;
+      const host = aRequest.getRequestHeader("Host");
+      const providerHostname = new URL("http://" + host).hostname;
       // Collect telemetry on which provider the new address was purchased from.
       Services.telemetry.keyedScalarAdd(
         "tb.account.new_account_from_provisioner",
@@ -198,9 +198,9 @@ TracingListener.prototype = {
       // Create the new account in the back end.
       newAccount = await CreateInBackend.createAccountInBackend(accountConfig);
 
-      let tabmail = document.getElementById("tabmail");
+      const tabmail = document.getElementById("tabmail");
       // Find the tab associated with this browser, and close it.
-      let myTabInfo = tabmail.tabInfo.filter(
+      const myTabInfo = tabmail.tabInfo.filter(
         function (x) {
           return "browser" in x && x.browser == this.browser;
         }.bind(this)
@@ -246,13 +246,13 @@ TracingListener.prototype = {
     // to make sure it gets passed to the original listener. We do this
     // by passing the input stream through an nsIStorageStream, writing
     // the data to that stream, and passing it along to the next listener.
-    let binaryInputStream = Cc[
+    const binaryInputStream = Cc[
       "@mozilla.org/binaryinputstream;1"
     ].createInstance(Ci.nsIBinaryInputStream);
-    let storageStream = Cc["@mozilla.org/storagestream;1"].createInstance(
+    const storageStream = Cc["@mozilla.org/storagestream;1"].createInstance(
       Ci.nsIStorageStream
     );
-    let outStream = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(
+    const outStream = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(
       Ci.nsIBinaryOutputStream
     );
 
@@ -264,7 +264,7 @@ TracingListener.prototype = {
     storageStream.init(8192, aCount, null);
     outStream.setOutputStream(storageStream.getOutputStream(0));
 
-    let data = binaryInputStream.readBytes(aCount);
+    const data = binaryInputStream.readBytes(aCount);
     this.chunks.push(data);
 
     outStream.writeBytes(data, aCount);

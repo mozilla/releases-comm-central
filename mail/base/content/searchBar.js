@@ -36,7 +36,7 @@ var GlodaSearchBoxTabMonitor = {
     };
 
     if (aTab.mode.name === "glodaFacet") {
-      let searchInput = aTab.panel.querySelector(".remote-gloda-search");
+      const searchInput = aTab.panel.querySelector(".remote-gloda-search");
       if (searchInput) {
         searchInput.value = aTab.searchString;
       }

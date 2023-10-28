@@ -17,7 +17,7 @@ registerCleanupFunction(async () => {
   // the cleanupFunction registered by AddonTestUtils.maybeInit() checks for left over
   // files in the temp folder.
   // Note: PathUtils.tempDir points to the system temp folder, which is different.
-  let path = PathUtils.join(
+  const path = PathUtils.join(
     Services.dirsvc.get("TmpD", Ci.nsIFile).path,
     "MozillaMailnews"
   );
@@ -28,13 +28,13 @@ registerCleanupFunction(async () => {
 // the main test is about to trigger an event. The extension terminates its
 // background and listens for that single event, verifying it is waking up correctly.
 async function event_page_extension(eventName, actionCallback) {
-  let ext = ExtensionTestUtils.loadExtension({
+  const ext = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
         // Whenever the extension starts or wakes up, hasFired is set to false. In
         // case of a wake-up, the first fired event is the one that woke up the background.
         let hasFired = false;
-        let _eventName = browser.runtime.getManifest().description;
+        const _eventName = browser.runtime.getManifest().description;
 
         browser.messages[_eventName].addListener(async (...args) => {
           // Only send the first event after background wake-up, this should
@@ -67,7 +67,7 @@ async function event_page_extension(eventName, actionCallback) {
   assertPersistentListeners(ext, "messages", eventName, { primed: true });
 
   await actionCallback();
-  let rv = await ext.awaitMessage(`${eventName} received`);
+  const rv = await ext.awaitMessage(`${eventName} received`);
   await ext.awaitMessage("background started");
   // The listener should be persistent, but not primed.
   assertPersistentListeners(ext, "messages", eventName, { primed: false });
@@ -79,10 +79,13 @@ async function event_page_extension(eventName, actionCallback) {
 add_task(async function () {
   await AddonTestUtils.promiseStartupManager();
 
-  let account = createAccount();
-  let inbox = await createSubfolder(account.incomingServer.rootFolder, "test1");
+  const account = createAccount();
+  const inbox = await createSubfolder(
+    account.incomingServer.rootFolder,
+    "test1"
+  );
 
-  let files = {
+  const files = {
     "background.js": async () => {
       browser.messages.onNewMailReceived.addListener((folder, messageList) => {
         window.assertDeepEqual(
@@ -97,7 +100,7 @@ add_task(async function () {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -126,7 +129,7 @@ add_task(async function () {
 
   // Create 2 more new messages.
 
-  let primedOnNewMailReceivedEventData = await event_page_extension(
+  const primedOnNewMailReceivedEventData = await event_page_extension(
     "onNewMailReceived",
     async () => {
       await createMessages(inbox, 2);
@@ -149,7 +152,7 @@ add_task(async function () {
       expected,
       "Folder type should be correct"
     );
-    let m = JSON.parse(JSON.stringify(message));
+    const m = JSON.parse(JSON.stringify(message));
     delete m.folder.type;
     return m;
   }

@@ -86,14 +86,15 @@ function sanitizePositionParams(params, window = null, positionOffset = 0) {
  */
 function updateGeometry(window, options) {
   if (options.left !== null || options.top !== null) {
-    let left = options.left === null ? window.screenX : options.left;
-    let top = options.top === null ? window.screenY : options.top;
+    const left = options.left === null ? window.screenX : options.left;
+    const top = options.top === null ? window.screenY : options.top;
     window.moveTo(left, top);
   }
 
   if (options.width !== null || options.height !== null) {
-    let width = options.width === null ? window.outerWidth : options.width;
-    let height = options.height === null ? window.outerHeight : options.height;
+    const width = options.width === null ? window.outerWidth : options.width;
+    const height =
+      options.height === null ? window.outerHeight : options.height;
     window.resizeTo(width, height);
   }
 }
@@ -103,8 +104,8 @@ this.windows = class extends ExtensionAPIPersistent {
     if (isAppShutdown) {
       return;
     }
-    for (let window of Services.wm.getEnumerator("mail:extensionPopup")) {
-      let uri = window.browser.browsingContext.currentURI;
+    for (const window of Services.wm.getEnumerator("mail:extensionPopup")) {
+      const uri = window.browser.browsingContext.currentURI;
       if (uri.scheme == "moz-extension" && uri.host == this.extension.uuid) {
         window.close();
       }
@@ -112,9 +113,9 @@ this.windows = class extends ExtensionAPIPersistent {
   }
 
   windowEventRegistrar({ windowEvent, listener }) {
-    let { extension } = this;
+    const { extension } = this;
     return ({ context, fire }) => {
-      let listener2 = async (window, ...args) => {
+      const listener2 = async (window, ...args) => {
         if (!extension.canAccessWindow(window)) {
           return;
         }
@@ -164,19 +165,19 @@ this.windows = class extends ExtensionAPIPersistent {
     }),
 
     onFocusChanged({ context, fire }) {
-      let { extension } = this;
+      const { extension } = this;
       // Keep track of the last windowId used to fire an onFocusChanged event
       let lastOnFocusChangedWindowId;
-      let scheduledEvents = [];
+      const scheduledEvents = [];
 
-      let listener = async event => {
+      const listener = async event => {
         // Wait a tick to avoid firing a superfluous WINDOW_ID_NONE
         // event when switching focus between two Thunderbird windows.
         // Note: This is not working for Linux, where we still get the -1
         await Promise.resolve();
 
         let windowId = WindowBase.WINDOW_ID_NONE;
-        let window = Services.focus.activeWindow;
+        const window = Services.focus.activeWindow;
         if (window) {
           if (!extension.canAccessWindow(window)) {
             return;
@@ -190,7 +191,7 @@ this.windows = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        let scheduledWindowId = scheduledEvents.shift();
+        const scheduledWindowId = scheduledEvents.shift();
 
         if (scheduledWindowId !== lastOnFocusChangedWindowId) {
           lastOnFocusChangedWindowId = scheduledWindowId;
@@ -240,7 +241,7 @@ this.windows = class extends ExtensionAPIPersistent {
         }).api(),
 
         get(windowId, getInfo) {
-          let window = windowTracker.getWindow(windowId, context);
+          const window = windowTracker.getWindow(windowId, context);
           if (!window) {
             return Promise.reject({
               message: `Invalid window ID: ${windowId}`,
@@ -250,7 +251,7 @@ this.windows = class extends ExtensionAPIPersistent {
         },
 
         async getCurrent(getInfo) {
-          let window = context.currentWindow || windowTracker.topWindow;
+          const window = context.currentWindow || windowTracker.topWindow;
           if (window.document.readyState != "complete") {
             await new Promise(resolve =>
               window.addEventListener("load", resolve, { once: true })
@@ -260,7 +261,7 @@ this.windows = class extends ExtensionAPIPersistent {
         },
 
         async getLastFocused(getInfo) {
-          let window = windowTracker.topWindow;
+          const window = windowTracker.topWindow;
           if (window.document.readyState != "complete") {
             await new Promise(resolve =>
               window.addEventListener("load", resolve, { once: true })
@@ -270,9 +271,9 @@ this.windows = class extends ExtensionAPIPersistent {
         },
 
         getAll(getInfo) {
-          let doNotCheckTypes = !getInfo || !getInfo.windowTypes;
+          const doNotCheckTypes = !getInfo || !getInfo.windowTypes;
 
-          let windows = Array.from(windowManager.getAll(), win =>
+          const windows = Array.from(windowManager.getAll(), win =>
             win.convert(getInfo)
           ).filter(
             win => doNotCheckTypes || getInfo.windowTypes.includes(win.type)
@@ -285,7 +286,7 @@ this.windows = class extends ExtensionAPIPersistent {
             throw new ExtensionError("`incognito` is not supported");
           }
 
-          let needResize =
+          const needResize =
             createData.left !== null ||
             createData.top !== null ||
             createData.width !== null ||
@@ -310,15 +311,15 @@ this.windows = class extends ExtensionAPIPersistent {
               createData.cookieStoreId
             );
           }
-          let createWindowArgs = createData => {
-            let allowScriptsToClose = !!createData.allowScriptsToClose;
-            let url = createData.url || "about:blank";
-            let urls = Array.isArray(url) ? url : [url];
+          const createWindowArgs = createData => {
+            const allowScriptsToClose = !!createData.allowScriptsToClose;
+            const url = createData.url || "about:blank";
+            const urls = Array.isArray(url) ? url : [url];
 
-            let args = Cc["@mozilla.org/array;1"].createInstance(
+            const args = Cc["@mozilla.org/array;1"].createInstance(
               Ci.nsIMutableArray
             );
-            let actionData = {
+            const actionData = {
               action: "open",
               allowScriptsToClose,
               tabs: urls.map(url => ({
@@ -333,9 +334,9 @@ this.windows = class extends ExtensionAPIPersistent {
           };
 
           let window;
-          let wantNormalWindow =
+          const wantNormalWindow =
             createData.type === null || createData.type == "normal";
-          let features = ["chrome"];
+          const features = ["chrome"];
           if (wantNormalWindow) {
             features.push("dialog=no", "all", "status", "toolbar");
           } else {
@@ -355,7 +356,7 @@ this.windows = class extends ExtensionAPIPersistent {
             }
           }
 
-          let windowURL = wantNormalWindow
+          const windowURL = wantNormalWindow
             ? "chrome://messenger/content/messenger.xhtml"
             : "chrome://messenger/content/extensionPopup.xhtml";
           if (createData.tabId) {
@@ -379,12 +380,12 @@ this.windows = class extends ExtensionAPIPersistent {
               });
             }
 
-            let nativeTabInfo = tabTracker.getTab(createData.tabId);
-            let tabmail =
+            const nativeTabInfo = tabTracker.getTab(createData.tabId);
+            const tabmail =
               getTabBrowser(nativeTabInfo).ownerDocument.getElementById(
                 "tabmail"
               );
-            let targetType = wantNormalWindow ? null : "popup";
+            const targetType = wantNormalWindow ? null : "popup";
             window = tabmail.replaceTabWithWindow(nativeTabInfo, targetType)[0];
           } else {
             window = Services.ww.openWindow(
@@ -407,7 +408,7 @@ this.windows = class extends ExtensionAPIPersistent {
           // Setting a different state before the window is fully focused may cause
           // the initial state to be erroneously applied after the custom state has
           // been set.
-          let focusPromise = new Promise(resolve => {
+          const focusPromise = new Promise(resolve => {
             if (Services.focus.activeWindow == window) {
               resolve();
             } else {
@@ -415,11 +416,11 @@ this.windows = class extends ExtensionAPIPersistent {
             }
           });
 
-          let loadPromise = new Promise(resolve => {
+          const loadPromise = new Promise(resolve => {
             window.addEventListener("load", resolve, { once: true });
           });
 
-          let titlePromise = new Promise(resolve => {
+          const titlePromise = new Promise(resolve => {
             window.addEventListener("pagetitlechanged", resolve, {
               once: true,
             });
@@ -427,7 +428,7 @@ this.windows = class extends ExtensionAPIPersistent {
 
           await Promise.all([focusPromise, loadPromise, titlePromise]);
 
-          let win = windowManager.getWrapper(window);
+          const win = windowManager.getWrapper(window);
 
           if (
             [
@@ -461,7 +462,7 @@ this.windows = class extends ExtensionAPIPersistent {
         },
 
         async update(windowId, updateInfo) {
-          let needResize =
+          const needResize =
             updateInfo.left !== null ||
             updateInfo.top !== null ||
             updateInfo.width !== null ||
@@ -476,7 +477,7 @@ this.windows = class extends ExtensionAPIPersistent {
             );
           }
 
-          let win = windowManager.get(windowId, context);
+          const win = windowManager.get(windowId, context);
           if (!win) {
             throw new ExtensionError(`Invalid window ID: ${windowId}`);
           }
@@ -522,11 +523,11 @@ this.windows = class extends ExtensionAPIPersistent {
         },
 
         remove(windowId) {
-          let window = windowTracker.getWindow(windowId, context);
+          const window = windowTracker.getWindow(windowId, context);
           window.close();
 
           return new Promise(resolve => {
-            let listener = () => {
+            const listener = () => {
               windowTracker.removeListener("domwindowclosed", listener);
               resolve();
             };

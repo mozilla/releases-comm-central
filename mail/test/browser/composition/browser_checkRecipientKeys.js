@@ -29,7 +29,7 @@ registerCleanupFunction(() => {
  * Test that checkEncryptionState should not affect gMsgCompose.compFields.
  */
 add_task(async function test_checkEncryptionState() {
-  let [id] = await OpenPGPTestUtils.importPrivateKey(
+  const [id] = await OpenPGPTestUtils.importPrivateKey(
     window,
     new FileUtils.File(
       getTestFilePath(
@@ -40,11 +40,11 @@ add_task(async function test_checkEncryptionState() {
 
   // Set up the identity to cover the remindOpenPGP/remindSMime branches in
   // checkEncryptionState.
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.email = "test@local";
   identity.setUnicharAttribute("encryption_cert_name", "smime-cert");
   identity.setUnicharAttribute("openpgp_key_id", id.split("0x").join(""));
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.addIdentity(identity);
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "test",
@@ -57,13 +57,13 @@ add_task(async function test_checkEncryptionState() {
   });
 
   // Set up the compose fields used to init the compose window.
-  let fields = Cc[
+  const fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   fields.to = "to@local";
   fields.cc = "cc1@local,cc2@local";
   fields.bcc = "bcc1@local,bcc2@local";
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.identity = identity;
@@ -72,10 +72,10 @@ add_task(async function test_checkEncryptionState() {
   // Open a compose window.
   const composePromise = promise_new_window("msgcompose");
   MailServices.compose.OpenComposeWindowWithParams(null, params);
-  let cwc = await compose_window_ready(composePromise);
+  const cwc = await compose_window_ready(composePromise);
 
   // Test gMsgCompose.compFields is intact.
-  let compFields = cwc.gMsgCompose.compFields;
+  const compFields = cwc.gMsgCompose.compFields;
   Assert.equal(compFields.to, "to@local");
   Assert.equal(compFields.cc, "cc1@local, cc2@local");
   Assert.equal(compFields.bcc, "bcc1@local, bcc2@local");

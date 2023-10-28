@@ -11,7 +11,7 @@
 "use strict";
 
 add_task(function test_main_menu_not_collapsed() {
-  let mainMenu = document.getElementById("toolbar-menubar");
+  const mainMenu = document.getElementById("toolbar-menubar");
   Assert.ok(
     !mainMenu.hasAttribute("autohide"),
     "The main menu should not have the autohide attribute."

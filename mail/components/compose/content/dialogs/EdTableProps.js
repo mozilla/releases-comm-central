@@ -1313,20 +1313,20 @@ function ApplyTableAttributes() {
 /* eslint-enable complexity */
 
 function ApplyCellAttributes() {
-  let selectedCells = gActiveEditor.getSelectedCells();
+  const selectedCells = gActiveEditor.getSelectedCells();
   if (selectedCells.length == 0) {
     return;
   }
 
   if (selectedCells.length == 1) {
-    let cell = selectedCells[0];
+    const cell = selectedCells[0];
     // When only one cell is selected, simply clone entire element,
     //  thus CSS and JS from Advanced edit is copied
 
     gActiveEditor.cloneAttributes(cell, globalCellElement);
 
     if (gDialog.CellStyleCheckbox.checked) {
-      let currentStyleIndex = cell.nodeName.toLowerCase() == "th" ? 1 : 0;
+      const currentStyleIndex = cell.nodeName.toLowerCase() == "th" ? 1 : 0;
       if (gDialog.CellStyleList.selectedIndex != currentStyleIndex) {
         // Switch cell types
         // (replaces with new cell and copies attributes and contents)
@@ -1336,7 +1336,7 @@ function ApplyCellAttributes() {
   } else {
     // Apply changes to all selected cells
     // XXX THIS DOESN'T COPY ADVANCED EDIT CHANGES!
-    for (let cell of selectedCells) {
+    for (const cell of selectedCells) {
       ApplyAttributesToOneCell(cell);
     }
   }

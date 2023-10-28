@@ -30,7 +30,7 @@ var originalAccountCount;
 add_setup(function () {
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
-  let server = MailServices.accounts.findServer(
+  const server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
@@ -48,13 +48,13 @@ add_setup(function () {
  * @param {string[]} itemsEnabled - List of item values that should be visible.
  */
 function check_address_types_state(win, itemsEnabled) {
-  for (let item of win.document.querySelectorAll(
+  for (const item of win.document.querySelectorAll(
     "#extraAddressRowsMenu > menuitem"
   )) {
-    let buttonId = item.dataset.buttonId;
+    const buttonId = item.dataset.buttonId;
     let showRowEl;
     if (buttonId) {
-      let button = win.document.getElementById(buttonId);
+      const button = win.document.getElementById(buttonId);
       if (item.dataset.preferButton == "true") {
         showRowEl = button;
         Assert.ok(item.hidden, `${item.id} menuitem should be hidden`);
@@ -66,10 +66,10 @@ function check_address_types_state(win, itemsEnabled) {
       showRowEl = item;
     }
 
-    let type = item.id.replace(/ShowAddressRowMenuItem$/, "");
+    const type = item.id.replace(/ShowAddressRowMenuItem$/, "");
 
-    let expectShown = itemsEnabled.includes(type);
-    let row = win.document.querySelector(
+    const expectShown = itemsEnabled.includes(type);
+    const row = win.document.querySelector(
       `.address-row[data-recipienttype="${type}"]`
     );
     if (expectShown) {
@@ -131,11 +131,11 @@ function check_collapsed_pop_recipient(cwc) {
 
 function add_NNTP_account() {
   // Create a NNTP server
-  let nntpServer = MailServices.accounts
+  const nntpServer = MailServices.accounts
     .createIncomingServer(null, "example.nntp.invalid", "nntp")
     .QueryInterface(Ci.nsINntpIncomingServer);
 
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox2@example.invalid";
 
   accountNNTP = MailServices.accounts.createAccount();
@@ -162,7 +162,7 @@ function remove_NNTP_account() {
  */
 add_task(async function test_address_types() {
   // Be sure there is no NNTP account yet.
-  for (let account of MailServices.accounts.accounts) {
+  for (const account of MailServices.accounts.accounts) {
     Assert.notEqual(
       account.incomingServer.type,
       "nntp",
@@ -192,7 +192,7 @@ add_task(async function test_address_types() {
   cwc = await open_compose_new_mail();
   check_nntp_address_types(cwc);
 
-  let NNTPidentity = accountNNTP.defaultIdentity.key;
+  const NNTPidentity = accountNNTP.defaultIdentity.key;
   EventUtils.synthesizeMouseAtCenter(
     cwc.document.getElementById("msgIdentity"),
     {},
@@ -205,7 +205,7 @@ add_task(async function test_address_types() {
   check_nntp_address_types(cwc);
 
   // Switch back to the POP3 account.
-  let POP3identity = accountPOP3.defaultIdentity.key;
+  const POP3identity = accountPOP3.defaultIdentity.key;
   EventUtils.synthesizeMouseAtCenter(
     cwc.document.getElementById("msgIdentity"),
     {},
@@ -230,9 +230,9 @@ add_task(async function test_address_types() {
 
 add_task(async function test_address_suppress_leading_comma_space() {
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
-  let win = await open_compose_new_mail();
+  const win = await open_compose_new_mail();
 
-  let addrInput = win.document.getElementById("toAddrInput");
+  const addrInput = win.document.getElementById("toAddrInput");
   Assert.ok(addrInput);
   Assert.equal(addrInput.value, "");
 
@@ -242,12 +242,12 @@ add_task(async function test_address_suppress_leading_comma_space() {
   // Note: the address input should already have focus.
   EventUtils.synthesizeKey(",", {}, win);
 
-  let addrPill = await TestUtils.waitForCondition(
+  const addrPill = await TestUtils.waitForCondition(
     () => win.document.querySelector("#toAddrContainer > .address-pill"),
     "Pill creation"
   );
   Assert.equal(addrInput.value, "");
-  let pillInput = addrPill.querySelector("input");
+  const pillInput = addrPill.querySelector("input");
   Assert.ok(pillInput);
 
   // Asserts that the input has the correct exceptional behaviour for 'comma'
@@ -257,13 +257,13 @@ add_task(async function test_address_suppress_leading_comma_space() {
     // "," key presses, we first run the tests with the "a" key press to assure
     // us that the tests would otherwise capture the normal behaviour. This will
     // also shows us that the comma and space behaviour is exceptional.
-    for (let key of ["a", " ", ","]) {
+    for (const key of ["a", " ", ","]) {
       // Clear input.
       input.value = "";
       await TestUtils.waitForTick();
 
       // Type the key in an empty input.
-      let eventPromise = BrowserTestUtils.waitForEvent(input, "keydown");
+      const eventPromise = BrowserTestUtils.waitForEvent(input, "keydown");
       EventUtils.synthesizeKey(key, {}, win);
       await eventPromise;
 
@@ -289,8 +289,8 @@ add_task(async function test_address_suppress_leading_comma_space() {
       // Test typing the key to replace all the trimmed input.
       // Sample text with two spaces as start and end. Also includes a 2
       // character emoji.
-      let someText = "  some, text📜  ";
-      for (let selection of [
+      const someText = "  some, text📜  ";
+      for (const selection of [
         { start: 0, end: 0 },
         { start: 1, end: 0 },
         { start: 0, end: 1 },
@@ -340,7 +340,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
   // Now test the behaviour when editing a pill.
   // First, we need to get into editing mode by clicking the pill twice.
   EventUtils.synthesizeMouseAtCenter(addrPill, { clickCount: 1 }, win);
-  let clickPromise = BrowserTestUtils.waitForEvent(addrPill, "click");
+  const clickPromise = BrowserTestUtils.waitForEvent(addrPill, "click");
   // We do not want a double click, but two separate clicks.
   EventUtils.synthesizeMouseAtCenter(addrPill, { clickCount: 1 }, win);
   await clickPromise;
@@ -355,10 +355,15 @@ add_task(async function test_address_suppress_leading_comma_space() {
 
 add_task(async function test_pill_creation_in_all_fields() {
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
-  let addresses = ["person@org", "foo@address.valid", "invalid", "foo@address"];
-  let subjectField = cwc.document.getElementById("msgSubject");
+  const addresses = [
+    "person@org",
+    "foo@address.valid",
+    "invalid",
+    "foo@address",
+  ];
+  const subjectField = cwc.document.getElementById("msgSubject");
 
   // Helper method to create multiple pills in a field.
   async function assertPillsCreationInField(input) {
@@ -449,11 +454,11 @@ add_task(async function test_pill_creation_in_all_fields() {
   // The To field is visible and focused by default when the compose window is
   // first opened.
   // Test pill creation for the To input field.
-  let toInput = cwc.document.getElementById("toAddrInput");
+  const toInput = cwc.document.getElementById("toAddrInput");
   await assertPillsCreationInField(toInput);
 
   // Click on the Cc recipient label.
-  let ccInput = cwc.document.getElementById("ccAddrInput");
+  const ccInput = cwc.document.getElementById("ccAddrInput");
   EventUtils.synthesizeMouseAtCenter(
     cwc.document.getElementById("addr_ccShowAddressRowButton"),
     {},
@@ -468,7 +473,7 @@ add_task(async function test_pill_creation_in_all_fields() {
   await assertPillsCreationInField(ccInput);
 
   // Click on the Bcc recipient label.
-  let bccInput = cwc.document.getElementById("bccAddrInput");
+  const bccInput = cwc.document.getElementById("bccAddrInput");
   EventUtils.synthesizeMouseAtCenter(
     cwc.document.getElementById("addr_bccShowAddressRowButton"),
     {},
@@ -565,9 +570,9 @@ add_task(async function test_pill_creation_in_all_fields() {
 
 add_task(async function test_addressing_fields_shortcuts() {
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
-  let addrToInput = cwc.document.getElementById("toAddrInput");
+  const addrToInput = cwc.document.getElementById("toAddrInput");
   // The To input field should be empty.
   Assert.equal(addrToInput.value, "");
   // The To input field should be the currently focused element.
@@ -578,8 +583,8 @@ add_task(async function test_addressing_fields_shortcuts() {
       ? { accelKey: true, shiftKey: true }
       : { ctrlKey: true, shiftKey: true };
 
-  let addrCcInput = cwc.document.getElementById("ccAddrInput");
-  let ccRowShownPromise = BrowserTestUtils.waitForCondition(
+  const addrCcInput = cwc.document.getElementById("ccAddrInput");
+  const ccRowShownPromise = BrowserTestUtils.waitForCondition(
     () => !addrCcInput.closest(".address-row").classList.contains("hidden"),
     "The Cc addressing row is not visible."
   );
@@ -590,8 +595,8 @@ add_task(async function test_addressing_fields_shortcuts() {
   // The Cc input field should be currently focused.
   Assert.equal(cwc.document.activeElement, addrCcInput);
 
-  let addrBccInput = cwc.document.getElementById("bccAddrInput");
-  let bccRowShownPromise = BrowserTestUtils.waitForCondition(
+  const addrBccInput = cwc.document.getElementById("bccAddrInput");
+  const bccRowShownPromise = BrowserTestUtils.waitForCondition(
     () => !addrBccInput.closest(".address-row").classList.contains("hidden"),
     "The Bcc addressing row is not visible."
   );
@@ -621,10 +626,10 @@ add_task(async function test_addressing_fields_shortcuts() {
 
 add_task(async function test_pill_deletion_and_focus() {
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   // When the compose window is opened, the focus should be on the To field.
-  let toInput = cwc.document.getElementById("toAddrInput");
+  const toInput = cwc.document.getElementById("toAddrInput");
   Assert.equal(cwc.document.activeElement, toInput);
 
   const modifiers =
@@ -674,7 +679,7 @@ function test_deletion_and_focus_on_input(cwc, input, addresses, modifiers) {
   // Enter triggers the pill creation.
   EventUtils.synthesizeKey("VK_RETURN", {}, cwc);
 
-  let container = input.closest(".address-container");
+  const container = input.closest(".address-container");
   // We should now have 4 pills.
   Assert.equal(
     container.querySelectorAll("mail-address-pill").length,
@@ -725,7 +730,7 @@ function test_deletion_and_focus_on_input(cwc, input, addresses, modifiers) {
     2,
     "One pill correctly deleted."
   );
-  let selectedPill = container.querySelector("mail-address-pill[selected]");
+  const selectedPill = container.querySelector("mail-address-pill[selected]");
   Assert.equal(cwc.document.activeElement, selectedPill);
 
   // Pressing CTRL+A should select all pills.

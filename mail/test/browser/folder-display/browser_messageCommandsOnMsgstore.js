@@ -46,11 +46,11 @@ add_setup(async function () {
 
   // We delete the first message so that we have to compact anything.
   await be_in_folder(gInbox);
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
   await press_delete(window);
   Assert.notEqual(curMessage, await select_click_row(0));
 
-  let urlListener = {
+  const urlListener = {
     compactDone: false,
 
     OnStartRunningUrl(aUrl) {},
@@ -85,19 +85,19 @@ add_setup(async function () {
  * @param expectedStatus The required status of the message.
  */
 async function check_status(folder, offset, expectedStatus) {
-  let mboxstring = await IOUtils.readUTF8(folder.filePath.path);
+  const mboxstring = await IOUtils.readUTF8(folder.filePath.path);
 
   // Ah-hoc header parsing. Only check the first 1KB because the X-Mozilla-*
   // headers should be near the start.
   let msg = mboxstring.slice(offset, offset + 1024);
   msg = msg.replace(/\r/g, ""); // Simplify by using LFs only.
-  for (let line of msg.split("\n")) {
+  for (const line of msg.split("\n")) {
     if (line == "") {
       break; // end of header block.
     }
     if (line.startsWith("X-Mozilla-Status:")) {
-      let hexValue = /:\s*([0-9a-f]+)/i.exec(line)[1];
-      let gotStatus = parseInt(hexValue, 16);
+      const hexValue = /:\s*([0-9a-f]+)/i.exec(line)[1];
+      const gotStatus = parseInt(hexValue, 16);
       Assert.equal(
         gotStatus,
         expectedStatus,
@@ -120,7 +120,7 @@ add_task(async function test_mark_messages_read() {
   let curMessage = await select_click_row(0);
   // Store the offset because it will be unavailable via the hdr
   // after the message is deleted.
-  let offset = curMessage.messageOffset;
+  const offset = curMessage.messageOffset;
   await check_status(gInbox, offset, 0); // status = unread
   await press_delete(window);
   Assert.notEqual(curMessage, await select_click_row(0));
@@ -195,9 +195,9 @@ add_task(async function test_mark_messages_read() {
 
 add_task(async function test_mark_messages_flagged() {
   // Mark a message with the star.
-  let curMessage = await select_click_row(1);
+  const curMessage = await select_click_row(1);
   await right_click_on_row(1);
-  let hiddenPromise = BrowserTestUtils.waitForEvent(
+  const hiddenPromise = BrowserTestUtils.waitForEvent(
     getMailContext(),
     "popuphidden"
   );
@@ -219,7 +219,7 @@ add_task(async function test_mark_messages_flagged() {
 async function subtest_check_queued_message() {
   // Always check the last message in the Outbox for the correct flag.
   await be_in_folder(gOutbox);
-  let lastMsg = [...gOutbox.messages].pop();
+  const lastMsg = [...gOutbox.messages].pop();
   await check_status(
     gOutbox,
     lastMsg.messageOffset,
@@ -270,8 +270,8 @@ async function reply_forward_message(aMsgRow, aReply) {
   // flags were set. This is risky as the real code could change and call
   // a different function and the purpose of this test would be lost.
   await be_in_folder(gInbox);
-  let curMessage = await select_click_row(aMsgRow);
-  let disposition = aReply
+  const curMessage = await select_click_row(aMsgRow);
+  const disposition = aReply
     ? gInbox.nsMsgDispositionState_Replied
     : gInbox.nsMsgDispositionState_Forwarded;
   gInbox.addMessageDispositionState(curMessage, disposition);
@@ -279,7 +279,7 @@ async function reply_forward_message(aMsgRow, aReply) {
 
 add_task(async function test_mark_messages_replied() {
   await reply_forward_message(2, true);
-  let curMessage = await select_click_row(2);
+  const curMessage = await select_click_row(2);
   await check_status(
     gInbox,
     curMessage.messageOffset,

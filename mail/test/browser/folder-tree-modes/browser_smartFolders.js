@@ -70,12 +70,12 @@ add_task(async function test_folder_flag_changes() {
   // create a smart Archives folder.
   await select_click_row(0);
   await archive_selected_messages();
-  let pop3Server = MailServices.accounts.findServer(
+  const pop3Server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  let pop3Inbox = await get_special_folder(
+  const pop3Inbox = await get_special_folder(
     Ci.nsMsgFolderFlags.Inbox,
     false,
     pop3Server
@@ -85,7 +85,7 @@ add_task(async function test_folder_flag_changes() {
   await select_click_row(0);
   await archive_selected_messages();
 
-  let smartArchiveFolder = get_smart_folder_named("Archives");
+  const smartArchiveFolder = get_smart_folder_named("Archives");
   let archiveScope =
     "|" +
     smartArchiveFolder.msgDatabase.dBFolderInfo.getCharProperty(
@@ -115,9 +115,9 @@ add_task(async function test_folder_flag_changes() {
 
   // figure out what we expect the archiveScope to now be.
   rootFolder = inboxFolder.server.rootFolder;
-  let localArchiveFolder = rootFolder.getChildNamed("Archives");
+  const localArchiveFolder = rootFolder.getChildNamed("Archives");
   let desiredScope = "|" + localArchiveFolder.URI + "|";
-  for (let folder of localArchiveFolder.descendants) {
+  for (const folder of localArchiveFolder.descendants) {
     desiredScope += folder.URI + "|";
   }
 
@@ -130,17 +130,17 @@ add_task(async function test_folder_flag_changes() {
 });
 
 function assert_folder_and_children_in_scope(folder, searchScope) {
-  let folderURI = "|" + folder.URI + "|";
+  const folderURI = "|" + folder.URI + "|";
   assert_uri_found(folderURI, searchScope);
-  for (let f of folder.descendants) {
+  for (const f of folder.descendants) {
     assert_uri_found(f.URI, searchScope);
   }
 }
 
 function assert_folder_and_children_not_in_scope(folder, searchScope) {
-  let folderURI = "|" + folder.URI + "|";
+  const folderURI = "|" + folder.URI + "|";
   assert_uri_not_found(folderURI, searchScope);
-  for (let f of folder.descendants) {
+  for (const f of folder.descendants) {
     assert_uri_not_found(f.URI, searchScope);
   }
 }

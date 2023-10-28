@@ -222,8 +222,8 @@ const ShortcutsManager = {
    * @returns {?Shortcut} - The matching shortcut, or null if nothing matches.
    */
   matches(event, context = null) {
-    let found = [];
-    for (let shortcut of this.shortcuts) {
+    const found = [];
+    for (const shortcut of this.shortcuts) {
       // No need to run any other condition if the base key doesn't match.
       if (shortcut.key != event.key) {
         continue;
@@ -261,8 +261,8 @@ const ShortcutsManager = {
       return null;
     }
 
-    let shortcut = found[0];
-    let mods = shortcut.modifiers[AppConstants.platform];
+    const shortcut = found[0];
+    const mods = shortcut.modifiers[AppConstants.platform];
     // Return the shortcut if it doesn't require any modifier and no modifier
     // is present in the key press event.
     if (
@@ -296,14 +296,14 @@ const ShortcutsManager = {
    *   for the aria-keyshortcuts attribute.
    */
   async getShortcutStrings(id) {
-    let shortcut = this.shortcuts.find(s => s.id == id);
+    const shortcut = this.shortcuts.find(s => s.id == id);
     if (!shortcut?.key) {
       return null;
     }
 
-    let platform = AppConstants.platform;
-    let string = [];
-    let aria = [];
+    const platform = AppConstants.platform;
+    const string = [];
+    const aria = [];
     if (shortcut.modifiers[platform].metaKey) {
       string.push("meta");
       aria.push("Meta");
@@ -330,7 +330,7 @@ const ShortcutsManager = {
     let stringId = string.join("-");
     stringId = this.fluentMapping[stringId] || stringId;
 
-    let value = await this.l10n.formatValue(stringId, {
+    const value = await this.l10n.formatValue(stringId, {
       key: shortcut.key.toUpperCase(),
     });
 

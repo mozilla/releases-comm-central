@@ -195,9 +195,9 @@ add_setup(async function () {
  * @param expectedSize the URL of the expected icon of the attachment
  */
 function check_attachment_icon(index, expectedIcon) {
-  let win = get_about_message();
-  let list = win.document.getElementById("attachmentList");
-  let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
+  const win = get_about_message();
+  const list = win.document.getElementById("attachmentList");
+  const node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
   Assert.equal(
     node.querySelector("img.attachmentcell-icon").src,
@@ -215,12 +215,12 @@ async function help_test_attachment_icon(index) {
   await be_in_folder(folder);
   await select_click_row(index);
   info(`Testing message ${index}: ${messages[index].name}`);
-  let attachments = messages[index].attachments;
+  const attachments = messages[index].attachments;
 
-  let win = get_about_message();
+  const win = get_about_message();
   win.toggleAttachmentList(true);
 
-  let attachmentList = win.document.getElementById("attachmentList");
+  const attachmentList = win.document.getElementById("attachmentList");
   await TestUtils.waitForCondition(
     () => !attachmentList.collapsed,
     "Attachment list is shown"

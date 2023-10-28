@@ -1,16 +1,16 @@
 "use strict";
 
 async function installFile(filename) {
-  let MockFilePicker = SpecialPowers.MockFilePicker;
+  const MockFilePicker = SpecialPowers.MockFilePicker;
   MockFilePicker.init(window);
   MockFilePicker.setFiles([new FileUtils.File(getTestFilePath(filename))]);
   MockFilePicker.afterOpenCallback = MockFilePicker.cleanup;
 
-  let { document } = await openAddonsMgr("addons://list/extension");
+  const { document } = await openAddonsMgr("addons://list/extension");
 
   // Do the install...
   await waitAboutAddonsViewLoaded(document);
-  let installButton = document.querySelector('[action="install-from-file"]');
+  const installButton = document.querySelector('[action="install-from-file"]');
   installButton.click();
 }
 
@@ -33,6 +33,6 @@ add_task(async function test_install_extension_from_local_file() {
     "There was an installId found"
   );
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTabInfo);
 });

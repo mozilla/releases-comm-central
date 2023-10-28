@@ -42,7 +42,7 @@ add_setup(async function () {
  */
 add_task(async function test_open_printpreview() {
   await be_in_folder(folder);
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
   // Trigger print using Ctrl+P.
@@ -55,7 +55,7 @@ add_task(async function test_open_printpreview() {
     return preview && BrowserTestUtils.is_visible(preview);
   });
 
-  let subject = preview.contentDocument.querySelector(
+  const subject = preview.contentDocument.querySelector(
     ".moz-main-header tr > td"
   ).textContent;
   Assert.equal(
@@ -64,7 +64,7 @@ add_task(async function test_open_printpreview() {
     "preview subject should be correct"
   );
 
-  let body = preview.contentDocument
+  const body = preview.contentDocument
     .querySelector(".moz-text-flowed")
     .textContent.trim();
   Assert.equal(body, BODY0, "preview body should be correct");

@@ -33,7 +33,7 @@ XPCOMUtils.defineLazyServiceGetter(
  * @returns the url and the text for the link being clicked.
  */
 function hRefForClickEvent(aEvent) {
-  let target = aEvent.target;
+  const target = aEvent.target;
 
   if (
     HTMLImageElement.isInstance(target) &&
@@ -90,13 +90,13 @@ class LinkClickHandlerChild extends JSWindowActorChild {
       return;
     }
 
-    let eventHRef = hRefForClickEvent(event);
+    const eventHRef = hRefForClickEvent(event);
     if (!eventHRef) {
       return;
     }
 
-    let pageURI = Services.io.newURI(this.document.location.href);
-    let eventURI = Services.io.newURI(eventHRef);
+    const pageURI = Services.io.newURI(this.document.location.href);
+    const eventURI = Services.io.newURI(eventHRef);
 
     try {
       if (pageURI.host == eventURI.host) {
@@ -155,13 +155,13 @@ class StrictLinkClickHandlerChild extends JSWindowActorChild {
       return;
     }
 
-    let eventHRef = hRefForClickEvent(event);
+    const eventHRef = hRefForClickEvent(event);
     if (!eventHRef) {
       return;
     }
 
-    let pageURI = Services.io.newURI(this.document.location.href);
-    let eventURI = Services.io.newURI(eventHRef);
+    const pageURI = Services.io.newURI(this.document.location.href);
+    const eventURI = Services.io.newURI(eventHRef);
     if (eventURI.specIgnoringRef == pageURI.specIgnoringRef) {
       return;
     }

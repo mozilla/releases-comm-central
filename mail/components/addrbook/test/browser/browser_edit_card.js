@@ -10,8 +10,8 @@ var { AddrBookCard } = ChromeUtils.import(
 requestLongerTimeout(2);
 
 async function inEditingMode() {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
   await TestUtils.waitForCondition(
     () => abWindow.detailsPane.isEditing,
@@ -34,8 +34,8 @@ async function inEditingMode() {
  *   after leaving editing.
  */
 async function notInEditingMode(expectedFocus) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
   await TestUtils.waitForCondition(
     () => !abWindow.detailsPane.isEditing,
@@ -58,8 +58,8 @@ async function notInEditingMode(expectedFocus) {
 }
 
 function getInput(entryName, addIfNeeded = false) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
   switch (entryName) {
     case "DisplayName":
@@ -69,7 +69,7 @@ function getInput(entryName, addIfNeeded = false) {
     case "NickName":
       return abDocument.querySelector("vcard-nickname #vCardNickName");
     case "Prefix":
-      let prefixInput = abDocument.querySelector("vcard-n #vcard-n-prefix");
+      const prefixInput = abDocument.querySelector("vcard-n #vcard-n-prefix");
       if (addIfNeeded && BrowserTestUtils.is_hidden(prefixInput)) {
         EventUtils.synthesizeMouseAtCenter(
           abDocument.querySelector("vcard-n #n-list-component-prefix button"),
@@ -81,7 +81,7 @@ function getInput(entryName, addIfNeeded = false) {
     case "FirstName":
       return abDocument.querySelector("vcard-n #vcard-n-firstname");
     case "MiddleName":
-      let middleNameInput = abDocument.querySelector(
+      const middleNameInput = abDocument.querySelector(
         "vcard-n #vcard-n-middlename"
       );
       if (addIfNeeded && BrowserTestUtils.is_hidden(middleNameInput)) {
@@ -97,7 +97,7 @@ function getInput(entryName, addIfNeeded = false) {
     case "LastName":
       return abDocument.querySelector("vcard-n #vcard-n-lastname");
     case "Suffix":
-      let suffixInput = abDocument.querySelector("vcard-n #vcard-n-suffix");
+      const suffixInput = abDocument.querySelector("vcard-n #vcard-n-suffix");
       if (addIfNeeded && BrowserTestUtils.is_hidden(suffixInput)) {
         EventUtils.synthesizeMouseAtCenter(
           abDocument.querySelector("vcard-n #n-list-component-suffix button"),
@@ -111,7 +111,7 @@ function getInput(entryName, addIfNeeded = false) {
         addIfNeeded &&
         abDocument.getElementById("vcard-email").children.length < 1
       ) {
-        let addButton = abDocument.getElementById("vcard-add-email");
+        const addButton = abDocument.getElementById("vcard-add-email");
         addButton.scrollIntoView({ block: "nearest" });
         EventUtils.synthesizeMouseAtCenter(addButton, {}, abWindow);
       }
@@ -127,7 +127,7 @@ function getInput(entryName, addIfNeeded = false) {
         addIfNeeded &&
         abDocument.getElementById("vcard-email").children.length < 2
       ) {
-        let addButton = abDocument.getElementById("vcard-add-email");
+        const addButton = abDocument.getElementById("vcard-add-email");
         addButton.scrollIntoView({ block: "nearest" });
         EventUtils.synthesizeMouseAtCenter(addButton, {}, abWindow);
       }
@@ -144,8 +144,8 @@ function getInput(entryName, addIfNeeded = false) {
 }
 
 function getFields(entryName, addIfNeeded = false, count) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
   let fieldsSelector;
   let addButtonId;
@@ -215,13 +215,13 @@ function getFields(entryName, addIfNeeded = false, count) {
     default:
       throw new Error("entryName not found: " + entryName);
   }
-  let fields = abDocument.querySelectorAll(fieldsSelector).length;
+  const fields = abDocument.querySelectorAll(fieldsSelector).length;
   if (addIfNeeded && fields < count) {
-    let addButton = abDocument.getElementById(addButtonId);
+    const addButton = abDocument.getElementById(addButtonId);
     for (let clickTimes = fields; clickTimes < count; clickTimes++) {
       addButton.focus();
       EventUtils.synthesizeKey("KEY_Enter", {}, abWindow);
-      let expectFocus = abDocument.querySelector(expectFocusSelector);
+      const expectFocus = abDocument.querySelector(expectFocusSelector);
       Assert.ok(
         expectFocus,
         `Expected focus element should now exist for ${entryName}`
@@ -241,10 +241,10 @@ function getFields(entryName, addIfNeeded = false, count) {
 }
 
 function checkToolbarState(shouldBeEnabled) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  for (let id of [
+  for (const id of [
     "toolbarCreateBook",
     "toolbarCreateContact",
     "toolbarCreateList",
@@ -259,11 +259,11 @@ function checkToolbarState(shouldBeEnabled) {
 }
 
 function checkDisplayValues(expected) {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
 
-  for (let [key, values] of Object.entries(expected)) {
-    let section = abWindow.document.getElementById(key);
-    let items = Array.from(
+  for (const [key, values] of Object.entries(expected)) {
+    const section = abWindow.document.getElementById(key);
+    const items = Array.from(
       section.querySelectorAll("li .entry-value"),
       li => li.textContent
     );
@@ -272,8 +272,8 @@ function checkDisplayValues(expected) {
 }
 
 function checkInputValues(expected) {
-  for (let [key, value] of Object.entries(expected)) {
-    let input = getInput(key, !!value);
+  for (const [key, value] of Object.entries(expected)) {
+    const input = getInput(key, !!value);
     if (!input) {
       Assert.ok(!value, `${key} input exists to put a value in`);
       continue;
@@ -289,8 +289,8 @@ function checkInputValues(expected) {
 }
 
 function checkVCardInputValues(expected) {
-  for (let [key, expectedEntries] of Object.entries(expected)) {
-    let fields = getFields(key, false, expectedEntries.length);
+  for (const [key, expectedEntries] of Object.entries(expected)) {
+    const fields = getFields(key, false, expectedEntries.length);
 
     Assert.equal(
       fields.length,
@@ -298,8 +298,8 @@ function checkVCardInputValues(expected) {
       `${key} occurred ${fields.length} time(s) and ${expectedEntries.length} time(s) is expected.`
     );
 
-    for (let [index, field] of fields.entries()) {
-      let expectedEntry = expectedEntries[index];
+    for (const [index, field] of fields.entries()) {
+      const expectedEntry = expectedEntries[index];
       let valueField;
       let typeField;
       switch (key) {
@@ -343,7 +343,7 @@ function checkVCardInputValues(expected) {
           break;
         case "adr":
           typeField = field.vCardType.selectEl;
-          let addressValue = [
+          const addressValue = [
             field.streetEl.value,
             field.localityEl.value,
             field.regionEl.value,
@@ -361,7 +361,7 @@ function checkVCardInputValues(expected) {
           valueField = field.selectEl;
           break;
         case "org":
-          let orgValue = [field.orgEl.value];
+          const orgValue = [field.orgEl.value];
           if (field.unitEl.value) {
             orgValue.push(field.unitEl.value);
           }
@@ -398,7 +398,7 @@ function checkVCardInputValues(expected) {
 }
 
 function checkCardValues(card, expected) {
-  for (let [key, value] of Object.entries(expected)) {
+  for (const [key, value] of Object.entries(expected)) {
     if (value) {
       Assert.equal(
         card.getProperty(key, "WRONG!"),
@@ -416,8 +416,8 @@ function checkCardValues(card, expected) {
 }
 
 function checkVCardValues(card, expected) {
-  for (let [key, expectedEntries] of Object.entries(expected)) {
-    let cardValues = card.vCardProperties.getAllEntries(key);
+  for (const [key, expectedEntries] of Object.entries(expected)) {
+    const cardValues = card.vCardProperties.getAllEntries(key);
 
     Assert.equal(
       expectedEntries.length,
@@ -425,8 +425,8 @@ function checkVCardValues(card, expected) {
       `${key} is expected to occur ${expectedEntries.length} time(s) and ${cardValues.length} time(s) is found.`
     );
 
-    for (let [index, entry] of cardValues.entries()) {
-      let expectedEntry = expectedEntries[index];
+    for (const [index, entry] of cardValues.entries()) {
+      const expectedEntry = expectedEntries[index];
 
       Assert.deepEqual(
         expectedEntry.value,
@@ -454,10 +454,10 @@ function checkVCardValues(card, expected) {
 }
 
 function setInputValues(changes) {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
 
-  for (let [key, value] of Object.entries(changes)) {
-    let input = getInput(key, !!value);
+  for (const [key, value] of Object.entries(changes)) {
+    const input = getInput(key, !!value);
     if (!input) {
       Assert.ok(!value, `${key} input exists to put a value in`);
       continue;
@@ -491,44 +491,47 @@ function setInputValues(changes) {
  * typeField.
  */
 async function activateTypeSelect(typeField, optionValue) {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
   // Ensure that the select field is inside the viewport.
   typeField.scrollIntoView({ block: "nearest" });
-  let shownPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+  const shownPromise = BrowserTestUtils.waitForSelectPopupShown(window);
   EventUtils.synthesizeMouseAtCenter(typeField, {}, abWindow);
-  let selectPopup = await shownPromise;
+  const selectPopup = await shownPromise;
 
   // Get the index of the optionValue from typeField
-  let index = Array.from(typeField.children).findIndex(
+  const index = Array.from(typeField.children).findIndex(
     child => child.value === optionValue
   );
   Assert.ok(index >= 0, "Type in select field found");
 
   // No change event is fired if the same option is activated.
   if (index === typeField.selectedIndex) {
-    let popupHidden = BrowserTestUtils.waitForEvent(selectPopup, "popuphidden");
+    const popupHidden = BrowserTestUtils.waitForEvent(
+      selectPopup,
+      "popuphidden"
+    );
     selectPopup.hidePopup();
     await popupHidden;
     return;
   }
 
   // The change event saves the vCard value.
-  let changeEvent = BrowserTestUtils.waitForEvent(typeField, "change");
+  const changeEvent = BrowserTestUtils.waitForEvent(typeField, "change");
   selectPopup.activateItem(selectPopup.children[index]);
   await changeEvent;
 }
 
 async function setVCardInputValues(changes) {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
 
-  for (let [key, entries] of Object.entries(changes)) {
-    let fields = getFields(key, true, entries.length);
+  for (const [key, entries] of Object.entries(changes)) {
+    const fields = getFields(key, true, entries.length);
     // Somehow prevents an error on macOS when using <select> widgets that
     // have just been added.
     await new Promise(resolve => abWindow.setTimeout(resolve, 250));
 
-    for (let [index, field] of fields.entries()) {
-      let changeEntry = entries[index];
+    for (const [index, field] of fields.entries()) {
+      const changeEntry = entries[index];
       let valueField;
       let typeField;
       switch (key) {
@@ -580,7 +583,7 @@ async function setVCardInputValues(changes) {
         case "adr":
           typeField = field.vCardType.selectEl;
 
-          for (let [index, input] of [
+          for (const [index, input] of [
             field.streetEl,
             field.localityEl,
             field.regionEl,
@@ -610,7 +613,7 @@ async function setVCardInputValues(changes) {
           valueField = field.titleEl;
           break;
         case "org":
-          for (let [index, input] of [field.orgEl, field.unitEl].entries()) {
+          for (const [index, input] of [field.orgEl, field.unitEl].entries()) {
             input.select();
             if (
               changeEntry &&
@@ -663,13 +666,13 @@ async function setVCardInputValues(changes) {
  *   Otherwise uses the "Edit" button in the contact display.
  */
 async function editContactAtIndex(index, options) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
-  let editButton = abDocument.getElementById("editButton");
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
+  const editButton = abDocument.getElementById("editButton");
 
-  let selectHandler = {
+  const selectHandler = {
     seenEvent: null,
     selectedAtEvent: null,
 
@@ -741,28 +744,28 @@ async function editContactAtIndex(index, options) {
 }
 
 add_task(async function test_basic_edit() {
-  let book = createAddressBook("Test Book");
+  const book = createAddressBook("Test Book");
   book.addCard(createContact("contact", "1"));
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
   openDirectory(book);
 
-  let abDocument = abWindow.document;
-  let booksList = abDocument.getElementById("books");
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
-  let editButton = abDocument.getElementById("editButton");
-  let cancelEditButton = abDocument.getElementById("cancelEditButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
+  const abDocument = abWindow.document;
+  const booksList = abDocument.getElementById("books");
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
+  const editButton = abDocument.getElementById("editButton");
+  const cancelEditButton = abDocument.getElementById("cancelEditButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
 
-  let viewContactName = abDocument.getElementById("viewContactName");
-  let viewContactNickName = abDocument.getElementById("viewContactNickName");
-  let viewContactEmail = abDocument.getElementById("viewPrimaryEmail");
-  let editContactName = abDocument.getElementById("editContactHeadingName");
-  let editContactNickName = abDocument.getElementById(
+  const viewContactName = abDocument.getElementById("viewContactName");
+  const viewContactNickName = abDocument.getElementById("viewContactNickName");
+  const viewContactEmail = abDocument.getElementById("viewPrimaryEmail");
+  const editContactName = abDocument.getElementById("editContactHeadingName");
+  const editContactNickName = abDocument.getElementById(
     "editContactHeadingNickName"
   );
-  let editContactEmail = abDocument.getElementById("editContactHeadingEmail");
+  const editContactEmail = abDocument.getElementById("editContactHeadingEmail");
 
   /**
    * Assert that the heading has the expected text content and visibility.
@@ -1141,8 +1144,8 @@ add_task(async function test_special_fields() {
   // default configuration. We need to find a more robust way of doing this,
   // but it is what it is for now.
 
-  let firstName = abDocument.getElementById("FirstName");
-  let lastName = abDocument.getElementById("LastName");
+  const firstName = abDocument.getElementById("FirstName");
+  const lastName = abDocument.getElementById("LastName");
   Assert.equal(
     firstName.compareDocumentPosition(lastName),
     Node.DOCUMENT_POSITION_FOLLOWING,
@@ -1198,14 +1201,14 @@ add_task(async function test_generate_display_name() {
     "false"
   );
 
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let createContactButton = abDocument.getElementById("toolbarCreateContact");
-  let cardsList = abDocument.getElementById("cards");
-  let editButton = abDocument.getElementById("editButton");
-  let cancelEditButton = abDocument.getElementById("cancelEditButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
+  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const cardsList = abDocument.getElementById("cards");
+  const editButton = abDocument.getElementById("editButton");
+  const cancelEditButton = abDocument.getElementById("cancelEditButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
 
   openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
@@ -1349,12 +1352,12 @@ add_task(async function test_generate_display_name() {
  * (in edit mode and only if there is a display name).
  */
 add_task(async function test_prefer_display_name() {
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let createContactButton = abDocument.getElementById("toolbarCreateContact");
-  let editButton = abDocument.getElementById("editButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
+  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
 
   // Make a new card. Check the default value is true.
   // The display name shouldn't be affected by first and last name if the field
@@ -1387,7 +1390,7 @@ add_task(async function test_prefer_display_name() {
 
   // Change the card value.
 
-  let preferDisplayName = abDocument.querySelector(
+  const preferDisplayName = abDocument.querySelector(
     "vcard-fn #vCardPreferDisplayName"
   );
   EventUtils.synthesizeMouseAtCenter(preferDisplayName, {}, abWindow);
@@ -1423,13 +1426,13 @@ add_task(async function test_prefer_display_name() {
  */
 add_task(async function test_toolbar_state() {
   personalBook.addCard(createContact("contact", "2"));
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let cardsList = abDocument.getElementById("cards");
-  let editButton = abDocument.getElementById("editButton");
-  let cancelEditButton = abDocument.getElementById("cancelEditButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
+  const cardsList = abDocument.getElementById("cards");
+  const editButton = abDocument.getElementById("editButton");
+  const cancelEditButton = abDocument.getElementById("cancelEditButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
 
   // In All Address Books, the "create card" and "create list" buttons should
   // be disabled.
@@ -1477,18 +1480,18 @@ add_task(async function test_toolbar_state() {
 });
 
 add_task(async function test_delete_button() {
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
   openDirectory(personalBook);
 
-  let abDocument = abWindow.document;
-  let searchInput = abDocument.getElementById("searchInput");
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
+  const abDocument = abWindow.document;
+  const searchInput = abDocument.getElementById("searchInput");
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
 
-  let createContactButton = abDocument.getElementById("toolbarCreateContact");
-  let editButton = abDocument.getElementById("editButton");
-  let deleteButton = abDocument.getElementById("detailsDeleteButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
+  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const editButton = abDocument.getElementById("editButton");
+  const deleteButton = abDocument.getElementById("detailsDeleteButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
 
   Assert.ok(BrowserTestUtils.is_hidden(detailsPane), "details pane is hidden");
 
@@ -1513,7 +1516,7 @@ add_task(async function test_delete_button() {
   Assert.ok(BrowserTestUtils.is_hidden(deleteButton));
 
   Assert.equal(personalBook.childCardCount, 1, "contact was not deleted");
-  let contact = personalBook.childCards[0];
+  const contact = personalBook.childCards[0];
 
   // Click to edit.
 
@@ -1556,8 +1559,8 @@ add_task(async function test_delete_button() {
 
   // Now let's delete a contact while viewing a list.
 
-  let listContact = createContact("delete", "me too");
-  let list = personalBook.addMailList(createMailingList("a list"));
+  const listContact = createContact("delete", "me too");
+  const list = personalBook.addMailList(createMailingList("a list"));
   list.addCard(listContact);
   await new Promise(resolve => abWindow.setTimeout(resolve));
 
@@ -1600,8 +1603,8 @@ add_task(async function test_delete_button() {
 });
 
 function checkNFieldState({ prefix, middlename, suffix }) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
   Assert.equal(abDocument.querySelectorAll("vcard-n").length, 1);
 
@@ -1615,7 +1618,7 @@ function checkNFieldState({ prefix, middlename, suffix }) {
     "Lastname is always shown."
   );
 
-  for (let [subValueName, inputId, buttonSelector, inputVisible] of [
+  for (const [subValueName, inputId, buttonSelector, inputVisible] of [
     ["prefix", "vcard-n-prefix", "#n-list-component-prefix button", prefix],
     [
       "middlename",
@@ -1625,9 +1628,9 @@ function checkNFieldState({ prefix, middlename, suffix }) {
     ],
     ["suffix", "vcard-n-suffix", "#n-list-component-suffix button", suffix],
   ]) {
-    let inputEl = abDocument.getElementById(inputId);
+    const inputEl = abDocument.getElementById(inputId);
     Assert.ok(inputEl);
-    let buttonEl = abDocument.querySelector(buttonSelector);
+    const buttonEl = abDocument.querySelector(buttonSelector);
     Assert.ok(buttonEl);
 
     if (inputVisible) {
@@ -1657,18 +1660,18 @@ function checkNFieldState({ prefix, middlename, suffix }) {
  * to another card.
  */
 add_task(async function test_name_fields() {
-  let book = createAddressBook("Test Book N Field");
+  const book = createAddressBook("Test Book N Field");
   book.addCard(createContact("contact1", "lastname1"));
   book.addCard(createContact("contact2", "lastname2"));
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
   openDirectory(book);
 
-  let abDocument = abWindow.document;
-  let cardsList = abDocument.getElementById("cards");
-  let editButton = abDocument.getElementById("editButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
-  let cancelEditButton = abDocument.getElementById("cancelEditButton");
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+  const cancelEditButton = abDocument.getElementById("cancelEditButton");
 
   // Edit contact1.
   await editContactAtIndex(0, {});
@@ -1890,7 +1893,7 @@ add_task(async function test_name_fields() {
 
   checkNFieldState({ prefix: true, middlename: true, suffix: true });
 
-  let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
   await promptPromise;
   await notInEditingMode(cardsList.table.body);
@@ -1957,12 +1960,12 @@ async function checkDefaultEmailChoice(
   expectedDefaultChoiceVisible,
   expectedDefaultIndex
 ) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let emailFields = abDocument.querySelectorAll(`#vcard-email tr`);
+  const emailFields = abDocument.querySelectorAll(`#vcard-email tr`);
 
-  for (let [index, emailField] of emailFields.entries()) {
+  for (const [index, emailField] of emailFields.entries()) {
     if (expectedDefaultChoiceVisible) {
       await TestUtils.waitForCondition(
         () => BrowserTestUtils.is_visible(emailField.checkboxEl),
@@ -1985,7 +1988,7 @@ async function checkDefaultEmailChoice(
 
   // Check that at max one checkbox is ticked.
   if (expectedDefaultChoiceVisible) {
-    let checked = Array.from(emailFields).filter(
+    const checked = Array.from(emailFields).filter(
       emailField => emailField.checkboxEl.checked
     );
     Assert.ok(
@@ -1996,18 +1999,18 @@ async function checkDefaultEmailChoice(
 }
 
 add_task(async function test_email_fields() {
-  let book = createAddressBook("Test Book Email Field");
+  const book = createAddressBook("Test Book Email Field");
   book.addCard(createContact("contact1", "lastname1"));
   book.addCard(createContact("contact2", "lastname2"));
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
   openDirectory(book);
 
-  let abDocument = abWindow.document;
-  let cardsList = abDocument.getElementById("cards");
-  let editButton = abDocument.getElementById("editButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
-  let cancelEditButton = abDocument.getElementById("cancelEditButton");
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+  const cancelEditButton = abDocument.getElementById("cancelEditButton");
 
   // Edit contact1.
   await editContactAtIndex(0, { useActivate: true });
@@ -2274,7 +2277,7 @@ add_task(async function test_email_fields() {
 
   await checkDefaultEmailChoice(true, 3);
 
-  let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
   await promptPromise;
   await notInEditingMode(cardsList.table.body);
@@ -2322,29 +2325,29 @@ add_task(async function test_email_fields() {
 });
 
 add_task(async function test_vCard_fields() {
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
-  let book = createAddressBook("Test Book VCard Fields");
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
+  const book = createAddressBook("Test Book VCard Fields");
 
-  let contact1 = createContact("contact1", "lastname");
+  const contact1 = createContact("contact1", "lastname");
   book.addCard(contact1);
-  let contact2 = createContact("contact2", "lastname");
+  const contact2 = createContact("contact2", "lastname");
   book.addCard(contact2);
 
   openDirectory(book);
 
-  let cardsList = abDocument.getElementById("cards");
-  let searchInput = abDocument.getElementById("searchInput");
-  let editButton = abDocument.getElementById("editButton");
-  let cancelEditButton = abDocument.getElementById("cancelEditButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
+  const cardsList = abDocument.getElementById("cards");
+  const searchInput = abDocument.getElementById("searchInput");
+  const editButton = abDocument.getElementById("editButton");
+  const cancelEditButton = abDocument.getElementById("cancelEditButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
 
   // Check that no field is initially shown with a new contact.
-  let createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById("toolbarCreateContact");
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
 
-  for (let [selector, label] of [
+  for (const [selector, label] of [
     ["vcard-impp", "Chat accounts"],
     ["vcard-url", "Websites"],
     ["vcard-tel", "Phone numbers"],
@@ -2744,7 +2747,7 @@ add_task(async function test_vCard_fields() {
   });
 
   // Cancel the changes.
-  let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
   await promptPromise;
   await notInEditingMode(cardsList.table.body);
@@ -2848,10 +2851,10 @@ add_task(async function test_vCard_fields() {
 });
 
 add_task(async function test_vCard_minimal() {
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById("toolbarCreateContact");
 
   openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
@@ -2864,7 +2867,7 @@ add_task(async function test_vCard_minimal() {
     PreferDisplayName: true,
   });
 
-  let addOrgButton = abDocument.getElementById("vcard-add-org");
+  const addOrgButton = abDocument.getElementById("vcard-add-org");
   addOrgButton.scrollIntoView({ block: "nearest" });
   EventUtils.synthesizeMouseAtCenter(addOrgButton, {}, abWindow);
 
@@ -2883,8 +2886,8 @@ add_task(async function test_vCard_minimal() {
 
   abDocument.querySelector("vcard-org input").value = "FBI";
 
-  let saveEditButton = abDocument.getElementById("saveEditButton");
-  let editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+  const editButton = abDocument.getElementById("editButton");
 
   // Should allow to save with only Organization filled.
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
@@ -2902,17 +2905,17 @@ add_task(async function test_vCard_minimal() {
  * Switches to different types to verify that all works accordingly.
  */
 add_task(async function test_type_selection() {
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
-  let book = createAddressBook("Test Book Type Selection");
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
+  const book = createAddressBook("Test Book Type Selection");
 
-  let contact1 = createContact("contact1", "lastname");
+  const contact1 = createContact("contact1", "lastname");
   book.addCard(contact1);
 
   openDirectory(book);
 
-  let editButton = abDocument.getElementById("editButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
+  const editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
 
   await editContactAtIndex(0, {});
 
@@ -3042,12 +3045,12 @@ add_task(async function test_type_selection() {
  * labels. This tests our support for them for the edit of a contact.
  */
 add_task(async function test_support_types_uppercase() {
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
-  let book = createAddressBook("Test Book Uppercase Type Support");
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
+  const book = createAddressBook("Test Book Uppercase Type Support");
 
-  let editButton = abDocument.getElementById("editButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
+  const editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
 
   // Add a card with uppercase types.
   book.addCard(
@@ -3145,10 +3148,10 @@ add_task(async function test_support_types_uppercase() {
 });
 
 add_task(async function test_special_date_field() {
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById("toolbarCreateContact");
 
   openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
@@ -3167,7 +3170,9 @@ add_task(async function test_special_date_field() {
     PrimaryEmail: "contact.1.edited@invalid",
   });
 
-  let addSpecialDate = abDocument.getElementById("vcard-add-bday-anniversary");
+  const addSpecialDate = abDocument.getElementById(
+    "vcard-add-bday-anniversary"
+  );
   addSpecialDate.scrollIntoView({ block: "nearest" });
   EventUtils.synthesizeMouseAtCenter(addSpecialDate, {}, abWindow);
 
@@ -3179,15 +3184,15 @@ add_task(async function test_special_date_field() {
   // just been added.
   await new Promise(resolve => abWindow.setTimeout(resolve, 250));
 
-  let firstYear = abDocument.querySelector(
+  const firstYear = abDocument.querySelector(
     `vcard-special-date input[type="number"]`
   );
   Assert.ok(!firstYear.value, "year empty");
-  let firstMonth = abDocument.querySelector(
+  const firstMonth = abDocument.querySelector(
     `vcard-special-date .vcard-month-select`
   );
   Assert.equal(firstMonth.value, "", "month should be on placeholder");
-  let firstDay = abDocument.querySelector(
+  const firstDay = abDocument.querySelector(
     `vcard-special-date .vcard-day-select`
   );
   Assert.equal(firstDay.value, "", "day should be on placeholder");
@@ -3196,12 +3201,12 @@ add_task(async function test_special_date_field() {
   // Set date to a leap year.
   firstYear.value = 2004;
 
-  let shownPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+  const shownPromise = BrowserTestUtils.waitForSelectPopupShown(window);
   firstMonth.scrollIntoView({ block: "nearest" });
   EventUtils.synthesizeMouseAtCenter(firstMonth, {}, abWindow);
-  let selectPopup = await shownPromise;
+  const selectPopup = await shownPromise;
 
-  let changePromise = BrowserTestUtils.waitForEvent(firstMonth, "change");
+  const changePromise = BrowserTestUtils.waitForEvent(firstMonth, "change");
   selectPopup.activateItem(selectPopup.children[2]);
   await changePromise;
 
@@ -3255,14 +3260,14 @@ add_task(async function testCustomProperties() {
   ]);
   card = personalBook.addCard(card);
 
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
-  let editButton = abDocument.getElementById("editButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
+  const editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
 
-  let index = cardsList.view.getIndexForUID(card.UID);
+  const index = cardsList.view.getIndexForUID(card.UID);
   EventUtils.synthesizeMouseAtCenter(
     cardsList.getRowAtIndex(index),
     {},
@@ -3275,8 +3280,8 @@ add_task(async function testCustomProperties() {
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
-  let customField = getFields("custom")[0];
-  let inputs = customField.querySelectorAll("input");
+  const customField = getFields("custom")[0];
+  const inputs = customField.querySelectorAll("input");
   Assert.equal(inputs.length, 4);
   Assert.equal(inputs[0].value, "");
   Assert.equal(inputs[1].value, "custom two");
@@ -3311,7 +3316,7 @@ add_task(async function testCustomProperties() {
  * other characters in URI values.
  */
 add_task(async function testGoogleEscaping() {
-  let googleBook = createAddressBook("Google Book");
+  const googleBook = createAddressBook("Google Book");
   googleBook.wrappedJSObject._isGoogleCardDAV = true;
   googleBook.addCard(
     VCardUtils.vCardToAbCard(formatVCard`
@@ -3328,11 +3333,11 @@ add_task(async function testGoogleEscaping() {
     `)
   );
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
 
-  let abDocument = abWindow.document;
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
 
   openDirectory(googleBook);
   Assert.equal(cardsList.view.rowCount, 1);
@@ -3363,7 +3368,7 @@ add_task(async function testGoogleEscaping() {
  * Tests that contacts with nickname can be edited.
  */
 add_task(async function testNickname() {
-  let book = createAddressBook("Nick");
+  const book = createAddressBook("Nick");
   book.addCard(
     VCardUtils.vCardToAbCard(formatVCard`
       BEGIN:VCARD
@@ -3375,11 +3380,11 @@ add_task(async function testNickname() {
     `)
   );
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
 
-  let abDocument = abWindow.document;
-  let cardsList = abDocument.getElementById("cards");
-  let detailsPane = abDocument.getElementById("detailsPane");
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
 
   openDirectory(book);
   Assert.equal(cardsList.view.rowCount, 1);
@@ -3398,19 +3403,19 @@ add_task(async function testNickname() {
 });
 
 add_task(async function test_remove_button() {
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let book = createAddressBook("Test Book VCard Fields");
-  let contact1 = createContact("contact1", "lastname");
+  const book = createAddressBook("Test Book VCard Fields");
+  const contact1 = createContact("contact1", "lastname");
   book.addCard(contact1);
 
   openDirectory(book);
 
   await editContactAtIndex(0, {});
-  let detailsPane = abDocument.getElementById("detailsPane");
+  const detailsPane = abDocument.getElementById("detailsPane");
 
-  let removeButtons = detailsPane.querySelectorAll(".remove-property-button");
+  const removeButtons = detailsPane.querySelectorAll(".remove-property-button");
   Assert.equal(
     removeButtons.length,
     2,
@@ -3450,11 +3455,11 @@ add_task(async function test_remove_button() {
     custom: [{ value: "foo" }],
   });
 
-  let vCardEdit = detailsPane.querySelector("vcard-edit");
+  const vCardEdit = detailsPane.querySelector("vcard-edit");
 
   // Click the remove buttons and check that the properties are removed.
 
-  for (let [propertyName, fieldsetId, propertySelector, addButton] of [
+  for (const [propertyName, fieldsetId, propertySelector, addButton] of [
     ["adr", "addr-book-edit-address", "vcard-adr"],
     ["impp", "addr-book-edit-impp", "vcard-impp"],
     ["tel", "addr-book-edit-tel", "vcard-tel"],
@@ -3470,12 +3475,12 @@ add_task(async function test_remove_button() {
       vCardEdit.vCardProperties.getFirstEntry(propertyName),
       `${propertyName} is present.`
     );
-    let removeButton = abDocument
+    const removeButton = abDocument
       .getElementById(fieldsetId)
       .querySelector(".remove-property-button");
 
     removeButton.scrollIntoView({ block: "nearest" });
-    let removeEvent = BrowserTestUtils.waitForEvent(
+    const removeEvent = BrowserTestUtils.waitForEvent(
       vCardEdit,
       "vcard-remove-property"
     );
@@ -3507,8 +3512,8 @@ add_task(async function test_remove_button() {
     }
   }
 
-  let saveEditButton = abDocument.getElementById("saveEditButton");
-  let editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+  const editButton = abDocument.getElementById("editButton");
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode(editButton);
 

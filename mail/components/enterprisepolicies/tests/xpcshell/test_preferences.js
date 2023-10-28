@@ -148,54 +148,60 @@ const BAD_PREFERENCES_TESTS = [
 ];
 
 add_task(async function test_old_preferences() {
-  for (let test of OLD_PREFERENCES_TESTS) {
+  for (const test of OLD_PREFERENCES_TESTS) {
     await setupPolicyEngineWithJson({
       policies: test.policies,
     });
 
     info("Checking policy: " + Object.keys(test.policies)[0]);
 
-    for (let [prefName, prefValue] of Object.entries(test.lockedPrefs || {})) {
+    for (const [prefName, prefValue] of Object.entries(
+      test.lockedPrefs || {}
+    )) {
       checkLockedPref(prefName, prefValue);
     }
   }
 });
 
 add_task(async function test_new_preferences() {
-  for (let test of NEW_PREFERENCES_TESTS) {
+  for (const test of NEW_PREFERENCES_TESTS) {
     await setupPolicyEngineWithJson({
       policies: test.policies,
     });
 
     info("Checking policy: " + Object.keys(test.policies)[0]);
 
-    for (let [prefName, prefValue] of Object.entries(test.lockedPrefs || {})) {
+    for (const [prefName, prefValue] of Object.entries(
+      test.lockedPrefs || {}
+    )) {
       checkLockedPref(prefName, prefValue);
     }
 
-    for (let [prefName, prefValue] of Object.entries(test.defaultPrefs || {})) {
+    for (const [prefName, prefValue] of Object.entries(
+      test.defaultPrefs || {}
+    )) {
       checkDefaultPref(prefName, prefValue);
     }
 
-    for (let [prefName, prefValue] of Object.entries(test.userPrefs || {})) {
+    for (const [prefName, prefValue] of Object.entries(test.userPrefs || {})) {
       checkUserPref(prefName, prefValue);
     }
 
-    for (let [prefName, prefValue] of Object.entries(test.clearPrefs || {})) {
+    for (const [prefName, prefValue] of Object.entries(test.clearPrefs || {})) {
       checkClearPref(prefName, prefValue);
     }
   }
 });
 
 add_task(async function test_bad_preferences() {
-  for (let test of BAD_PREFERENCES_TESTS) {
+  for (const test of BAD_PREFERENCES_TESTS) {
     await setupPolicyEngineWithJson({
       policies: test.policies,
     });
 
     info("Checking policy: " + Object.keys(test.policies)[0]);
 
-    for (let prefName of Object.entries(test.defaultPrefs || {})) {
+    for (const prefName of Object.entries(test.defaultPrefs || {})) {
       checkUnsetPref(prefName);
     }
   }

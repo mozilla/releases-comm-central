@@ -78,7 +78,7 @@ var FolderNotificationHelper = {
    */
   updateFolderAndNotifyOnLoad(aFolder, aFolderDisplay, aMsgWindow) {
     // set up our datastructure first in case of wacky event sequences
-    let folderURI = aFolder.URI;
+    const folderURI = aFolder.URI;
     let wrappers = this._pendingFolderUriToViewWrapperLists[folderURI];
     if (wrappers == null) {
       wrappers = this._pendingFolderUriToViewWrapperLists[folderURI] = [];
@@ -104,11 +104,11 @@ var FolderNotificationHelper = {
    * @param aViewWrapper The view wrapper that is up to no good.
    */
   stalkFolders(aFolders, aNotherFolder, aViewWrapper) {
-    let folders = aFolders ? aFolders.concat() : [];
+    const folders = aFolders ? aFolders.concat() : [];
     if (aNotherFolder && !folders.includes(aNotherFolder)) {
       folders.push(aNotherFolder);
     }
-    for (let folder of folders) {
+    for (const folder of folders) {
       let wrappers = this._interestedWrappers[folder.URI];
       if (wrappers == null) {
         wrappers = this._interestedWrappers[folder.URI] = [];
@@ -135,9 +135,9 @@ var FolderNotificationHelper = {
    * @param aViewWrapper The view wrapper of interest.
    */
   _removeWrapperFromListener(aTable, aFolder, aViewWrapper) {
-    let wrappers = aTable[aFolder.URI];
+    const wrappers = aTable[aFolder.URI];
     if (wrappers) {
-      let index = wrappers.indexOf(aViewWrapper);
+      const index = wrappers.indexOf(aViewWrapper);
       if (index >= 0) {
         wrappers.splice(index, 1);
       }
@@ -158,7 +158,7 @@ var FolderNotificationHelper = {
       );
       return;
     }
-    for (let folder of aFolders) {
+    for (const folder of aFolders) {
       this._removeWrapperFromListener(
         this._interestedWrappers,
         folder,
@@ -189,24 +189,24 @@ var FolderNotificationHelper = {
 
   /* ***** Notifications ***** */
   _notifyHelper(aFolder, aHandlerName) {
-    let wrappers = this._interestedWrappers[aFolder.URI];
+    const wrappers = this._interestedWrappers[aFolder.URI];
     if (wrappers) {
       // clone the list to avoid confusing mutation by listeners
-      for (let wrapper of wrappers.concat()) {
+      for (const wrapper of wrappers.concat()) {
         wrapper[aHandlerName](aFolder);
       }
     }
-    for (let wrapper of this._curiousWrappers) {
+    for (const wrapper of this._curiousWrappers) {
       wrapper[aHandlerName](aFolder);
     }
   },
 
   onFolderEvent(aFolder, aEvent) {
     if (aEvent == "FolderLoaded") {
-      let folderURI = aFolder.URI;
-      let widgets = this._pendingFolderUriToViewWrapperLists[folderURI];
+      const folderURI = aFolder.URI;
+      const widgets = this._pendingFolderUriToViewWrapperLists[folderURI];
       if (widgets) {
-        for (let widget of widgets) {
+        for (const widget of widgets) {
           // we are friends, this is an explicit relationship.
           // (we don't use a generic callback mechanism because the 'this' stuff
           //  gets ugly and no one else should be hooking in at this level.)
@@ -250,8 +250,8 @@ var FolderNotificationHelper = {
   },
 
   _folderMoveHelper(aOldFolder, aNewFolder) {
-    let oldURI = aOldFolder.URI;
-    let newURI = aNewFolder.URI;
+    const oldURI = aOldFolder.URI;
+    const newURI = aNewFolder.URI;
     // fix up our listener tables.
     if (oldURI in this._pendingFolderUriToViewWrapperLists) {
       this._pendingFolderUriToViewWrapperLists[newURI] =
@@ -263,10 +263,10 @@ var FolderNotificationHelper = {
       delete this._interestedWrappers[oldURI];
     }
 
-    let wrappers = this._interestedWrappers[newURI];
+    const wrappers = this._interestedWrappers[newURI];
     if (wrappers) {
       // clone the list to avoid confusing mutation by listeners
-      for (let wrapper of wrappers.concat()) {
+      for (const wrapper of wrappers.concat()) {
         wrapper._folderMoved(aOldFolder, aNewFolder);
       }
     }
@@ -281,16 +281,16 @@ var FolderNotificationHelper = {
 
   folderMoveCopyCompleted(aMove, aSrcFolder, aDestFolder) {
     if (aMove) {
-      let aNewFolder = aDestFolder.getChildNamed(aSrcFolder.prettyName);
+      const aNewFolder = aDestFolder.getChildNamed(aSrcFolder.prettyName);
       this._folderMoveHelper(aSrcFolder, aNewFolder);
     }
   },
 
   folderDeleted(aFolder) {
-    let wrappers = this._interestedWrappers[aFolder.URI];
+    const wrappers = this._interestedWrappers[aFolder.URI];
     if (wrappers) {
       // clone the list to avoid confusing mutation by listeners
-      for (let wrapper of wrappers.concat()) {
+      for (const wrapper of wrappers.concat()) {
         wrapper._folderDeleted(aFolder);
       }
       // if the folder is deleted, it's not going to ever do anything again
@@ -627,7 +627,7 @@ DBViewWrapper.prototype = {
    * @param aListener {IDBViewWrapperListener} The listener to use on the new view.
    */
   clone(aListener) {
-    let doppel = new DBViewWrapper(aListener);
+    const doppel = new DBViewWrapper(aListener);
 
     // -- copy attributes
     doppel.displayedFolder = this.displayedFolder;
@@ -724,7 +724,7 @@ DBViewWrapper.prototype = {
 
     if (this._underlyingFolders) {
       // (potentially) zero out the underlying msgDatabase references
-      for (let folder of this._underlyingFolders) {
+      for (const folder of this._underlyingFolders) {
         this._releaseFolderDatabase(folder);
       }
     }
@@ -794,7 +794,7 @@ DBViewWrapper.prototype = {
       return;
     }
 
-    let typeForTelemetry =
+    const typeForTelemetry =
       [
         "Inbox",
         "Drafts",
@@ -870,7 +870,7 @@ DBViewWrapper.prototype = {
     this._underlyingData = this.kUnderlyingSearchView;
     this._underlyingFolders = [];
 
-    let dis = this;
+    const dis = this;
     this.__defineGetter__("searchFolders", function () {
       return dis._underlyingFolders;
     });
@@ -958,7 +958,7 @@ DBViewWrapper.prototype = {
    * sort order, current view flags, etc), and save in the view wrapper.
    */
   _prepareToLoadView(msgDatabase, aFolder) {
-    let dbFolderInfo = msgDatabase.dBFolderInfo;
+    const dbFolderInfo = msgDatabase.dBFolderInfo;
     // - retrieve persisted sort information
     this._sort = [[dbFolderInfo.sortType, dbFolderInfo.sortOrder]];
 
@@ -987,7 +987,7 @@ DBViewWrapper.prototype = {
     // The nsMsgDBView is the one who persists this information for us.  In this
     //  case the nsMsgThreadedDBView superclass of the special views triggers it
     //  when opened.
-    let viewType = dbFolderInfo.viewType;
+    const viewType = dbFolderInfo.viewType;
     if (
       viewType == Ci.nsMsgViewType.eShowThreadsWithUnread ||
       viewType == Ci.nsMsgViewType.eShowWatchedThreadsWithUnread
@@ -997,19 +997,19 @@ DBViewWrapper.prototype = {
 
     // - retrieve virtual folder configuration
     if (aFolder.flags & Ci.nsMsgFolderFlags.Virtual) {
-      let virtFolder = VirtualFolderHelper.wrapVirtualFolder(aFolder);
+      const virtFolder = VirtualFolderHelper.wrapVirtualFolder(aFolder);
 
       if (virtFolder.searchFolderURIs == "*") {
         // This is a special virtual folder that searches all folders in all
         // accounts (except the unwanted types listed). Get those folders now.
-        let unwantedFlags =
+        const unwantedFlags =
           Ci.nsMsgFolderFlags.Trash |
           Ci.nsMsgFolderFlags.Junk |
           Ci.nsMsgFolderFlags.Queue |
           Ci.nsMsgFolderFlags.Virtual;
         this._underlyingFolders = [];
-        for (let server of MailServices.accounts.allServers) {
-          for (let f of server.rootFolder.descendants) {
+        for (const server of MailServices.accounts.allServers) {
+          for (const f of server.rootFolder.descendants) {
             if (!f.isSpecialFolder(unwantedFlags, true)) {
               this._underlyingFolders.push(f);
             }
@@ -1063,7 +1063,7 @@ DBViewWrapper.prototype = {
         //  $label tags, except someone reused one of the indices for
         //  kViewItemNotDeleted, which means that $label2 can no longer be
         //  migrated.
-        let mailViewIndex = dbFolderInfo.getUint32Property(
+        const mailViewIndex = dbFolderInfo.getUint32Property(
           MailViewConstants.kViewCurrent,
           MailViewConstants.kViewItemAll
         );
@@ -1095,7 +1095,7 @@ DBViewWrapper.prototype = {
     let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=";
 
     // we will have saved these off when closing our view
-    let viewFlags =
+    const viewFlags =
       this.__viewFlags ??
       Services.prefs.getIntPref("mailnews.default_view_flags", 1);
 
@@ -1125,7 +1125,7 @@ DBViewWrapper.prototype = {
     // and now zero the saved-off flags.
     this.__viewFlags = null;
 
-    let dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
+    const dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
     dbView.init(
       this.listener.messenger,
       this.listener.msgWindow,
@@ -1136,7 +1136,7 @@ DBViewWrapper.prototype = {
     let [sortType, sortOrder, sortCustomCol] = this._getSortDetails(
       this._sort.length - 1
     );
-    let outCount = {};
+    const outCount = {};
     // when the underlying folder is a single real folder (virtual or no), we
     //  tell the view about the underlying folder.
     if (this.isSingleFolder) {
@@ -1260,7 +1260,7 @@ DBViewWrapper.prototype = {
       return;
     }
 
-    let i = this._underlyingFolders.findIndex(f => f == aOldFolder);
+    const i = this._underlyingFolders.findIndex(f => f == aOldFolder);
     if (i >= 0) {
       this._underlyingFolders[i] = aNewFolder;
     }
@@ -1295,7 +1295,7 @@ DBViewWrapper.prototype = {
     }
 
     // indexOf doesn't work for this (reliably)
-    for (let [i, underlyingFolder] of this._underlyingFolders.entries()) {
+    for (const [i, underlyingFolder] of this._underlyingFolders.entries()) {
       if (aFolder == underlyingFolder) {
         this._underlyingFolders.splice(i, 1);
         break;
@@ -1438,8 +1438,8 @@ DBViewWrapper.prototype = {
 
     let setViewFlags = true;
     let reSort = false;
-    let oldFlags = this.dbView.viewFlags;
-    let changedFlags = oldFlags ^ aViewFlags;
+    const oldFlags = this.dbView.viewFlags;
+    const changedFlags = oldFlags ^ aViewFlags;
 
     if (this.isVirtual) {
       if (
@@ -1505,7 +1505,7 @@ DBViewWrapper.prototype = {
     this.dbView = this._createView();
     // if the synthetic view defines columns, add those for it
     if (this.isSynthetic) {
-      for (let customCol of this._syntheticView.customColumns) {
+      for (const customCol of this._syntheticView.customColumns) {
         customCol.bindToView(this.dbView);
         this.dbView.addColumnHandler(customCol.id, customCol);
       }
@@ -1652,7 +1652,7 @@ DBViewWrapper.prototype = {
     if (!this._sort.length) {
       return false;
     }
-    let sortType = this._sort[0][0];
+    const sortType = this._sort[0][0];
     return (
       sortType == Ci.nsMsgViewSortType.byDate ||
       sortType == Ci.nsMsgViewSortType.byReceived ||
@@ -1699,7 +1699,8 @@ DBViewWrapper.prototype = {
     if (this._viewUpdateDepth == 0 && this.dbView) {
       for (let iSort = this._sort.length - 1; iSort >= 0; iSort--) {
         // apply them in the reverse order
-        let [sortType, sortOrder, sortCustomCol] = this._getSortDetails(iSort);
+        const [sortType, sortOrder, sortCustomCol] =
+          this._getSortDetails(iSort);
         if (sortCustomCol) {
           this.dbView.curCustomColumn = sortCustomCol;
         }
@@ -1721,7 +1722,7 @@ DBViewWrapper.prototype = {
   _getSortDetails(aIndex) {
     let [sortType, sortOrder] = this._sort[aIndex];
     let sortCustomColumn = null;
-    let sortTypeType = typeof sortType;
+    const sortTypeType = typeof sortType;
     if (sortTypeType != "number") {
       sortCustomColumn = sortTypeType == "string" ? sortType : sortType.id;
       sortType = Ci.nsMsgViewSortType.byCustom;
@@ -1752,7 +1753,7 @@ DBViewWrapper.prototype = {
       // (make sure it is valid...)
       this._ensureValidSort();
       // get sort details, handle custom column as string sortType
-      let [sortType, sortOrder, sortCustomCol] = this._getSortDetails(0);
+      const [sortType, sortOrder, sortCustomCol] = this._getSortDetails(0);
       if (sortCustomCol) {
         this.dbView.curCustomColumn = sortCustomCol;
       }
@@ -1792,8 +1793,8 @@ DBViewWrapper.prototype = {
     ) {
       // We cannot be sorting by thread, id, none, or size.  If we are, switch
       //  to sorting by date.
-      for (let sortPair of this._sort) {
-        let sortType = sortPair[0];
+      for (const sortPair of this._sort) {
+        const sortType = sortPair[0];
         if (
           sortType == Ci.nsMsgViewSortType.byThread ||
           sortType == Ci.nsMsgViewSortType.byId ||
@@ -1826,7 +1827,7 @@ DBViewWrapper.prototype = {
       if (aShowGroupBySort) {
         // For virtual single folders, the kExpandAll flag must be set.
         // Do not apply the flag change until we have made the sort safe.
-        let viewFlags =
+        const viewFlags =
           this._viewFlags |
           Ci.nsMsgViewFlagsType.kGroupBySort |
           Ci.nsMsgViewFlagsType.kExpandAll |
@@ -1948,7 +1949,7 @@ DBViewWrapper.prototype = {
    */
   set showUnreadOnly(aShowUnreadOnly) {
     if (this._specialView || this.showUnreadOnly != aShowUnreadOnly) {
-      let viewRebuildRequired = this._specialView != null;
+      const viewRebuildRequired = this._specialView != null;
       this._specialView = null;
       if (viewRebuildRequired) {
         this.beginViewUpdate();
@@ -2055,7 +2056,7 @@ DBViewWrapper.prototype = {
    *     info.  This is intended for internal use only.
    */
   setMailView(aMailViewIndex, aData, aDoNotPersist) {
-    let mailViewDef = MailViewManager.getMailViewByIndex(aMailViewIndex);
+    const mailViewDef = MailViewManager.getMailViewByIndex(aMailViewIndex);
 
     this._mailViewIndex = aMailViewIndex;
     this._mailViewData = aData;
@@ -2066,9 +2067,9 @@ DBViewWrapper.prototype = {
 
     // - persist the view to the folder.
     if (!aDoNotPersist && this.displayedFolder) {
-      let msgDatabase = this.displayedFolder.msgDatabase;
+      const msgDatabase = this.displayedFolder.msgDatabase;
       if (msgDatabase) {
-        let dbFolderInfo = msgDatabase.dBFolderInfo;
+        const dbFolderInfo = msgDatabase.dBFolderInfo;
         dbFolderInfo.setUint32Property(
           MailViewConstants.kViewCurrent,
           this._mailViewIndex
@@ -2093,7 +2094,7 @@ DBViewWrapper.prototype = {
    *     false if the row is a collapsed group or anything else.
    */
   isCollapsedThreadAtIndex(aViewIndex) {
-    let flags = this.dbView.getFlagsAt(aViewIndex);
+    const flags = this.dbView.getFlagsAt(aViewIndex);
     return (
       flags & Ci.nsMsgMessageFlags.Elided &&
       !(flags & MSG_VIEW_FLAG_DUMMY) &&
@@ -2233,8 +2234,8 @@ DBViewWrapper.prototype = {
     if (!this._underlyingFolders) {
       return null;
     }
-    for (let folder of this._underlyingFolders) {
-      let msgHdr = folder.msgDatabase.getMsgHdrForMessageID(aMessageId);
+    for (const folder of this._underlyingFolders) {
+      const msgHdr = folder.msgDatabase.getMsgHdrForMessageID(aMessageId);
       if (msgHdr) {
         return msgHdr;
       }

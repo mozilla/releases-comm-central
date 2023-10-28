@@ -195,7 +195,7 @@
         this._inputField.removeEventListener("change", this._change);
         this.menupopup.removeEventListener("popuphiding", this._popupHiding);
 
-        for (let prop of [
+        for (const prop of [
           "_inputField",
           "_labelBox",
           "_dropmarker",
@@ -209,7 +209,7 @@
       }
 
       static get inheritedAttributes() {
-        let attrs = super.inheritedAttributes;
+        const attrs = super.inheritedAttributes;
         attrs.input = "value,disabled";
         attrs["#description"] = "value=description";
         return attrs;
@@ -330,7 +330,7 @@
           case "Enter":
             if (this.currentItem && !event.ctrlKey && !event.shiftKey) {
               this.addItemToSelection(this.currentItem);
-              let evt = document.createEvent("XULCommandEvent");
+              const evt = document.createEvent("XULCommandEvent");
               evt.initCommandEvent(
                 "command",
                 true,
@@ -367,7 +367,7 @@
         return;
       }
 
-      let children = Array.from(this._childNodes);
+      const children = Array.from(this._childNodes);
 
       children
         .filter(child => child.getAttribute("selected") == "true")
@@ -423,18 +423,18 @@
       }
 
       // First try to estimate which row is visible, assuming they're all the same height.
-      let box = this;
-      let estimatedRow = Math.floor(
+      const box = this;
+      const estimatedRow = Math.floor(
         box.scrollTop / this._childNodes[0].getBoundingClientRect().height
       );
-      let estimatedIndex = estimatedRow * this._itemsPerRow();
-      let offset = this._childNodes[estimatedIndex].screenY - box.screenY;
+      const estimatedIndex = estimatedRow * this._itemsPerRow();
+      const offset = this._childNodes[estimatedIndex].screenY - box.screenY;
 
       if (offset > 0) {
         // We went too far! Go back until we find an item totally off-screen, then return the one
         // after that.
         for (let i = estimatedIndex - 1; i >= 0; i--) {
-          let childBoxObj = this._childNodes[i].getBoundingClientRect();
+          const childBoxObj = this._childNodes[i].getBoundingClientRect();
           if (childBoxObj.screenY + childBoxObj.height <= box.screenY) {
             return i + 1;
           }
@@ -446,7 +446,7 @@
 
       // We didn't go far enough! Keep going until we find an item at least partially on-screen.
       for (let i = estimatedIndex; i < this._childNodes.length; i++) {
-        let childBoxObj = this._childNodes[i].getBoundingClientRect();
+        const childBoxObj = this._childNodes[i].getBoundingClientRect();
         if (childBoxObj.screenY + childBoxObj.height > box.screenY > 0) {
           return i;
         }
@@ -460,7 +460,7 @@
     }
 
     ensureElementIsVisible(item) {
-      let box = this;
+      const box = this;
 
       // Are we too far down?
       if (item.screenY < box.screenY) {
@@ -480,8 +480,8 @@
     }
 
     scrollToIndex(index) {
-      let box = this;
-      let item = this.getItemAtIndex(index);
+      const box = this;
+      const item = this.getItemAtIndex(index);
       if (!item) {
         return;
       }
@@ -495,12 +495,12 @@
     }
 
     insertItemAt(index, attachment, name) {
-      let item = this.ownerDocument.createXULElement("richlistitem");
+      const item = this.ownerDocument.createXULElement("richlistitem");
       item.classList.add("attachmentItem");
       item.setAttribute("role", "option");
 
       item.addEventListener("dblclick", event => {
-        let evt = document.createEvent("XULCommandEvent");
+        const evt = document.createEvent("XULCommandEvent");
         evt.initCommandEvent(
           "command",
           true,
@@ -516,8 +516,8 @@
         item.dispatchEvent(evt);
       });
 
-      let makeDropIndicator = placementClass => {
-        let img = document.createElement("img");
+      const makeDropIndicator = placementClass => {
+        const img = document.createElement("img");
         img.setAttribute(
           "src",
           "chrome://messenger/skin/icons/tab-drag-indicator.svg"
@@ -529,22 +529,22 @@
 
       item.appendChild(makeDropIndicator("before"));
 
-      let icon = this.ownerDocument.createElement("img");
+      const icon = this.ownerDocument.createElement("img");
       icon.setAttribute("alt", "");
       icon.setAttribute("draggable", "false");
       // Allow the src to be invalid.
       icon.classList.add("attachmentcell-icon", "invisible-on-broken");
       item.appendChild(icon);
 
-      let textLabel = this.ownerDocument.createElement("span");
+      const textLabel = this.ownerDocument.createElement("span");
       textLabel.classList.add("attachmentcell-name");
       item.appendChild(textLabel);
 
-      let extensionLabel = this.ownerDocument.createElement("span");
+      const extensionLabel = this.ownerDocument.createElement("span");
       extensionLabel.classList.add("attachmentcell-extension");
       item.appendChild(extensionLabel);
 
-      let sizeLabel = this.ownerDocument.createElement("span");
+      const sizeLabel = this.ownerDocument.createElement("span");
       sizeLabel.setAttribute("role", "note");
       sizeLabel.classList.add("attachmentcell-size");
       item.appendChild(sizeLabel);
@@ -566,7 +566,7 @@
      * @param {string|null} src - The src to set.
      */
     setAttachmentIconSrc(item, src) {
-      let icon = item.querySelector(".attachmentcell-icon");
+      const icon = item.querySelector(".attachmentcell-icon");
       icon.setAttribute("src", src);
     }
 
@@ -578,8 +578,8 @@
      */
     refreshAttachmentIcon(item) {
       let src;
-      let attachment = item.attachment;
-      let type = attachment.contentType;
+      const attachment = item.attachment;
+      const type = attachment.contentType;
       if (type == "text/x-moz-deleted") {
         src = "chrome://messenger/skin/icons/attachment-deleted.svg";
       } else if (!item.loaded || item.uploading) {
@@ -600,7 +600,7 @@
           // wasn't showing up if you dragged a web url that had a query or
           // reference string after the file name and for mailnews urls where
           // the filename is hidden in the url as a &filename=  part.
-          let url = Services.io.newURI(attachment.url);
+          const url = Services.io.newURI(attachment.url);
           if (
             url instanceof Ci.nsIURL &&
             url.fileName &&
@@ -623,7 +623,7 @@
      */
     isLoaded() {
       // Not loaded if at least one loading.
-      for (let item of this.querySelectorAll(".attachmentItem")) {
+      for (const item of this.querySelectorAll(".attachmentItem")) {
         if (!item.loaded) {
           return false;
         }
@@ -667,7 +667,7 @@
       // even if the full name would overflow.
       // NOTE: This is a convenience feature rather than a security feature
       // since the content type of an attachment need not match the extension.
-      let found = name.match(/^(.+)(\.[a-zA-Z0-9_#$!~+-]{1,16})$/);
+      const found = name.match(/^(.+)(\.[a-zA-Z0-9_#$!~+-]{1,16})$/);
       item.querySelector(".attachmentcell-name").textContent =
         found?.[1] || name;
       item.querySelector(".attachmentcell-extension").textContent =
@@ -682,13 +682,13 @@
      */
     setAttachmentSize(item, size) {
       item.setAttribute("size", size);
-      let sizeEl = item.querySelector(".attachmentcell-size");
+      const sizeEl = item.querySelector(".attachmentcell-size");
       sizeEl.textContent = size;
       sizeEl.hidden = !size;
     }
 
     invalidateItem(item, name) {
-      let attachment = item.attachment;
+      const attachment = item.attachment;
 
       this.setAttachmentName(item, name || attachment.name);
       let size =
@@ -713,7 +713,7 @@
      */
     findItemForAttachment(aAttachment) {
       for (let i = 0; i < this.itemCount; i++) {
-        let item = this.getItemAtIndex(i);
+        const item = this.getItemAtIndex(i);
         if (item.attachment == aAttachment) {
           return item;
         }
@@ -735,7 +735,7 @@
         return this._childNodes.length;
       }
 
-      let itemWidth =
+      const itemWidth =
         this._childNodes[1].getBoundingClientRect().x -
         this._childNodes[0].getBoundingClientRect().x;
 
@@ -747,7 +747,7 @@
     }
 
     _itemsPerCol(aItemsPerRow) {
-      let itemsPerRow = aItemsPerRow || this._itemsPerRow();
+      const itemsPerRow = aItemsPerRow || this._itemsPerRow();
 
       if (this._childNodes.length == 0) {
         return 0;
@@ -757,7 +757,7 @@
         return 1;
       }
 
-      let itemHeight =
+      const itemHeight =
         this._childNodes[itemsPerRow].getBoundingClientRect().y -
         this._childNodes[0].getBoundingClientRect().y;
 
@@ -774,14 +774,14 @@
       }
 
       let width = 0;
-      for (let child of this._childNodes) {
+      for (const child of this._childNodes) {
         // Unset the width, then the child will expand or shrink to its
         // "natural" size in the flex-wrapped container. I.e. its preferred
         // width bounded by the width of the container's content space.
         child.style.width = null;
         width = Math.max(width, child.getBoundingClientRect().width);
       }
-      for (let child of this._childNodes) {
+      for (const child of this._childNodes) {
         child.style.width = `${width}px`;
       }
     }
@@ -1048,7 +1048,7 @@
       this.emailInput.focus();
 
       // Account for pill padding.
-      let inputWidth = this.emailInput.clientWidth + 15;
+      const inputWidth = this.emailInput.clientWidth + 15;
 
       // In case the original address is shorter than the input field child node
       // force resize the pill container to prevent overflows.
@@ -1081,10 +1081,10 @@
     }
 
     async updatePill() {
-      let addresses = MailServices.headerParser.makeFromDisplayAddress(
+      const addresses = MailServices.headerParser.makeFromDisplayAddress(
         this.emailInput.value
       );
-      let row = this.closest(".address-row");
+      const row = this.closest(".address-row");
 
       if (!addresses[0]) {
         this.rowInput.focus();
@@ -1110,7 +1110,7 @@
 
       // Update the aria label of edited pill only, as pill count didn't change.
       // Unfortunately, we still need to get the row's pills for counting once.
-      let pills = row.querySelectorAll("mail-address-pill");
+      const pills = row.querySelectorAll("mail-address-pill");
       this.setAttribute(
         "aria-label",
         await document.l10n.formatValue("pill-aria-label", {
@@ -1129,7 +1129,7 @@
       this.classList.remove("editing");
       this.labelView.removeAttribute("hidden");
       this.emailInput.setAttribute("hidden", "hidden");
-      let textLength = this.emailInput.value.length;
+      const textLength = this.emailInput.value.length;
       this.emailInput.setSelectionRange(textLength, textLength);
       this.rowInput.focus();
     }
@@ -1139,14 +1139,14 @@
      * the helper icons accordingly.
      */
     async updatePillStatus() {
-      let isValid = this.isValidAddress(this.emailAddress);
-      let listNames = LazyModules.MimeParser.parseHeaderField(
+      const isValid = this.isValidAddress(this.emailAddress);
+      const listNames = LazyModules.MimeParser.parseHeaderField(
         this.fullAddress,
         LazyModules.MimeParser.HEADER_ADDRESS
       );
 
       if (listNames.length > 0) {
-        let mailList = MailServices.ab.getMailListFromName(listNames[0].name);
+        const mailList = MailServices.ab.getMailListFromName(listNames[0].name);
         this.isMailList = !!mailList;
         if (this.isMailList) {
           this.listURI = mailList.URI;
@@ -1157,7 +1157,7 @@
         }
       }
 
-      let isNewsgroup = this.emailInput.classList.contains("news-input");
+      const isNewsgroup = this.emailInput.classList.contains("news-input");
 
       if (!isValid && !this.isMailList && !isNewsgroup) {
         this.classList.add("invalid-address");
@@ -1251,7 +1251,7 @@
       }
       this.hasConnected = true;
 
-      for (let input of this.querySelectorAll(".mail-input,.news-input")) {
+      for (const input of this.querySelectorAll(".mail-input,.news-input")) {
         // Disable inbuilt autocomplete on blur to handle it with our handlers.
         input._dontBlur = true;
 
@@ -1278,8 +1278,8 @@
         .addEventListener("keypress", event => {
           if (event.key == "Tab" && !event.shiftKey) {
             event.preventDefault();
-            let row = this.querySelector(".address-row:not(.hidden)");
-            let removeFieldButton = row.querySelector(".remove-field-button");
+            const row = this.querySelector(".address-row:not(.hidden)");
+            const removeFieldButton = row.querySelector(".remove-field-button");
             // If the close button is hidden, focus on the input field.
             if (removeFieldButton.hidden) {
               row.querySelector(".address-row-input").focus();
@@ -1293,7 +1293,7 @@
       this.addEventListener("dragstart", event => {
         // Check if we're dragging a pill, as the drag target might be another
         // element like row or pill <input> when dragging selected plain text.
-        let targetPill = event.target.closest(
+        const targetPill = event.target.closest(
           "mail-address-pill:not(.editing)"
         );
         if (!targetPill) {
@@ -1302,7 +1302,7 @@
         if (!targetPill.hasAttribute("selected")) {
           // If the drag action starts from a non-selected pill,
           // deselect all selected pills and select only the target pill.
-          for (let pill of this.getAllSelectedPills()) {
+          for (const pill of this.getAllSelectedPills()) {
             pill.removeAttribute("selected");
           }
           targetPill.toggleAttribute("selected");
@@ -1370,7 +1370,7 @@
         }
 
         // Pills have been dropped ("text/pills").
-        let targetAddressRow = event.target.closest(".address-row");
+        const targetAddressRow = event.target.closest(".address-row");
         // Return if pills have been dropped outside an address row.
         if (
           !targetAddressRow ||
@@ -1383,8 +1383,9 @@
         // If they have been dropped directly on an address container, use that.
         // Otherwise ensure having an addressContainer for drop targets inside
         // the row, but outside the address container (e.g. the row label).
-        let targetAddressContainer = event.target.closest(".address-container");
-        let addressContainer =
+        const targetAddressContainer =
+          event.target.closest(".address-container");
+        const addressContainer =
           targetAddressContainer ||
           targetAddressRow.querySelector(".address-container");
 
@@ -1393,7 +1394,7 @@
         // dropped into an address container, append pills after existing pills.
         // Otherwise if dropped elsewhere on the row (e.g. on the row label),
         // append pills before existing pills.
-        let targetPill = event.target.closest("mail-address-pill");
+        const targetPill = event.target.closest("mail-address-pill");
         this.createDNDPills(
           addressContainer,
           targetPill || !targetAddressContainer,
@@ -1440,17 +1441,19 @@
      *   selected addresses should be appended.
      */
     createDNDPills(addressContainer, appendStart, targetAddress) {
-      let existingPills =
+      const existingPills =
         addressContainer.querySelectorAll("mail-address-pill");
-      let existingAddresses = [...existingPills].map(pill => pill.fullAddress);
-      let selectedAddresses = [...this.getAllSelectedPills()].map(
+      const existingAddresses = [...existingPills].map(
         pill => pill.fullAddress
       );
-      let originalTargetIndex = existingAddresses.indexOf(targetAddress);
+      const selectedAddresses = [...this.getAllSelectedPills()].map(
+        pill => pill.fullAddress
+      );
+      const originalTargetIndex = existingAddresses.indexOf(targetAddress);
 
       // Remove all the duplicate existing addresses.
-      for (let address of selectedAddresses) {
-        let index = existingAddresses.indexOf(address);
+      for (const address of selectedAddresses) {
+        const index = existingAddresses.indexOf(address);
         if (index > -1) {
           existingAddresses.splice(index, 1);
         }
@@ -1477,18 +1480,18 @@
       }
 
       // Remove all selected pills.
-      for (let pill of this.getAllSelectedPills()) {
+      for (const pill of this.getAllSelectedPills()) {
         pill.remove();
       }
 
       // Existing pills are removed before creating new ones in the right order.
-      for (let pill of existingPills) {
+      for (const pill of existingPills) {
         pill.remove();
       }
 
       // Create pills for all the combined addresses.
-      let row = addressContainer.closest(".address-row");
-      for (let address of combinedAddresses) {
+      const row = addressContainer.closest(".address-row");
+      for (const address of combinedAddresses) {
         addressRowAddRecipientsArray(
           row,
           [address],
@@ -1512,22 +1515,22 @@
     // NOTE: This is currently never called with rawInput = false, so it may be
     // out of date if used.
     buildRecipientRow(recipient, rawInput = false) {
-      let row = document.createXULElement("hbox");
+      const row = document.createXULElement("hbox");
       row.setAttribute("id", recipient.rowId);
       row.classList.add("address-row");
       row.dataset.recipienttype = recipient.type;
 
-      let firstCol = document.createXULElement("hbox");
+      const firstCol = document.createXULElement("hbox");
       firstCol.classList.add("aw-firstColBox");
 
       row.classList.add("hidden");
 
-      let closeButton = document.createElement("button");
+      const closeButton = document.createElement("button");
       closeButton.classList.add("remove-field-button", "plain-button");
       document.l10n.setAttributes(closeButton, "remove-address-row-button", {
         type: recipient.type,
       });
-      let closeIcon = document.createElement("img");
+      const closeIcon = document.createElement("img");
       closeIcon.setAttribute("src", "chrome://global/skin/icons/close.svg");
       // Button's title is the accessible name.
       closeIcon.setAttribute("alt", "");
@@ -1539,7 +1542,7 @@
       firstCol.appendChild(closeButton);
       row.appendChild(firstCol);
 
-      let labelContainer = document.createXULElement("hbox");
+      const labelContainer = document.createXULElement("hbox");
       labelContainer.setAttribute("align", "top");
       labelContainer.setAttribute("pack", "end");
       labelContainer.setAttribute("flex", 1);
@@ -1549,7 +1552,7 @@
         getComposeBundle().getString("headersSpaceStyle")
       );
 
-      let label = document.createXULElement("label");
+      const label = document.createXULElement("label");
       label.setAttribute("id", recipient.labelId);
       label.setAttribute("value", recipient.type);
       label.setAttribute("control", recipient.inputId);
@@ -1558,7 +1561,7 @@
       labelContainer.appendChild(label);
       row.appendChild(labelContainer);
 
-      let inputContainer = document.createXULElement("hbox");
+      const inputContainer = document.createXULElement("hbox");
       inputContainer.setAttribute("id", recipient.containerId);
       inputContainer.setAttribute("flex", 1);
       inputContainer.setAttribute("align", "center");
@@ -1570,7 +1573,7 @@
       inputContainer.addEventListener("click", focusAddressInputOnClick);
 
       // Set up the row input for the row.
-      let input = document.createElement(
+      const input = document.createElement(
         "input",
         rawInput
           ? undefined
@@ -1628,7 +1631,7 @@
       row.appendChild(inputContainer);
 
       // Create the menuitem that shows the row on selection.
-      let showRowMenuItem = document.createXULElement("menuitem");
+      const showRowMenuItem = document.createXULElement("menuitem");
       showRowMenuItem.classList.add("subviewbutton", "menuitem-iconic");
       showRowMenuItem.setAttribute("id", recipient.showRowMenuItemId);
       showRowMenuItem.setAttribute("disableonsend", true);
@@ -1652,7 +1655,7 @@
      * @returns {Element} The newly created pill.
      */
     createRecipientPill(element, address) {
-      let pill = document.createXULElement("mail-address-pill");
+      const pill = document.createXULElement("mail-address-pill");
 
       pill.label = address.toString();
       pill.emailAddress = address.email || "";
@@ -1716,12 +1719,12 @@
 
       // The emailInput attribute is accessible only after the pill has been
       // appended to the DOM.
-      let excludedClasses = [
+      const excludedClasses = [
         "mail-primary-input",
         "news-primary-input",
         "address-row-input",
       ];
-      for (let cssClass of element.classList) {
+      for (const cssClass of element.classList) {
         if (excludedClasses.includes(cssClass)) {
           continue;
         }
@@ -1733,7 +1736,7 @@
       );
       element.removeAttribute("aria-labelledby");
 
-      let params = JSON.parse(
+      const params = JSON.parse(
         pill.emailInput.getAttribute("autocompletesearchparam")
       );
       params.type = element.closest(".address-row").dataset.recipienttype;
@@ -1761,8 +1764,8 @@
           // If keydown would normally replace all of the current trimmed input,
           // including if the current input is empty, then suppress the key and
           // clear the input instead.
-          let input = pill.emailInput;
-          let selection = input.value.substring(
+          const input = pill.emailInput;
+          const selection = input.value.substring(
             input.selectionStart,
             input.selectionEnd
           );
@@ -1803,7 +1806,7 @@
           }
           // Delete selected pills, handle focus and select another pill
           // where applicable.
-          let focusType = event.key == "Delete" ? "next" : "previous";
+          const focusType = event.key == "Delete" ? "next" : "previous";
           this.removeSelectedPills(focusType, true);
           break;
 
@@ -1822,7 +1825,7 @@
           break;
 
         case "Home":
-          let firstPill = pill
+          const firstPill = pill
             .closest(".address-container")
             .querySelector("mail-address-pill");
           if (!event.ctrlKey) {
@@ -1849,7 +1852,7 @@
           break;
 
         case "Tab":
-          for (let item of this.getSiblingPills(pill)) {
+          for (const item of this.getSiblingPills(pill)) {
             item.removeAttribute("selected");
           }
           // Ctrl+Tab is handled by moveFocusToNeighbouringArea.
@@ -1939,9 +1942,9 @@
      *   element navigated to.
      */
     checkKeyboardSelected(event, targetElement) {
-      let sourcePill =
+      const sourcePill =
         event.target.tagName == "mail-address-pill" ? event.target : null;
-      let targetPill =
+      const targetPill =
         targetElement.tagName == "mail-address-pill" ? targetElement : null;
 
       if (event.shiftKey) {
@@ -1992,11 +1995,11 @@
      * Copy the selected pills to clipboard.
      */
     copySelectedPills() {
-      let selectedAddresses = [
+      const selectedAddresses = [
         ...document.getElementById("recipientsContainer").getAllSelectedPills(),
       ].map(pill => pill.fullAddress);
 
-      let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
+      const clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
         Ci.nsIClipboardHelper
       );
       clipboard.copyString(selectedAddresses.join(", "));
@@ -2017,7 +2020,7 @@
      */
     moveSelectedPills(row) {
       // Store all the selected addresses inside an array.
-      let selectedAddresses = [...this.getAllSelectedPills()].map(
+      const selectedAddresses = [...this.getAllSelectedPills()].map(
         pill => pill.fullAddress
       );
 
@@ -2034,7 +2037,7 @@
       addressRowAddRecipientsArray(row, selectedAddresses, true);
 
       // Move focus to the last selected pill.
-      let selectedPills = this.getAllSelectedPills();
+      const selectedPills = this.getAllSelectedPills();
       selectedPills[selectedPills.length - 1].focus();
     }
 
@@ -2051,21 +2054,23 @@
      */
     removeSelectedPills(focusType = "next", select = false, moved = false) {
       // Return if no pills selected.
-      let firstSelectedPill = this.querySelector("mail-address-pill[selected]");
+      const firstSelectedPill = this.querySelector(
+        "mail-address-pill[selected]"
+      );
       if (!firstSelectedPill) {
         return;
       }
       // Get the pill which has focus before we start removing selected pills,
       // which may or may not include the focused pill. If no pill has focus,
       // consider the first selected pill as focused pill for our purposes.
-      let pill =
+      const pill =
         this.querySelector("mail-address-pill:focus") || firstSelectedPill;
 
       // We'll look hard for an appropriate element to focus after the removal.
       let focusElement = null;
       // Get addressContainer and rowInput now as pill might be deleted later.
-      let addressContainer = pill.closest(".address-container");
-      let rowInput = pill.rowInput;
+      const addressContainer = pill.closest(".address-container");
+      const rowInput = pill.rowInput;
       let unselectedSourcePill = false;
 
       if (pill.hasAttribute("selected")) {
@@ -2079,8 +2084,8 @@
       }
 
       // Remove selected pills.
-      let selectedPills = this.getAllSelectedPills();
-      for (let sPill of selectedPills) {
+      const selectedPills = this.getAllSelectedPills();
+      for (const sPill of selectedPills) {
         sPill.remove();
       }
 
@@ -2126,7 +2131,7 @@
      *   same .address-container will be selected.
      */
     selectSiblingPills(pill) {
-      for (let sPill of this.getSiblingPills(pill)) {
+      for (const sPill of this.getSiblingPills(pill)) {
         sPill.setAttribute("selected", "selected");
       }
     }
@@ -2135,7 +2140,7 @@
      * Select all pills of the <mail-recipients-area> element.
      */
     selectAllPills() {
-      for (let pill of this.getAllPills()) {
+      for (const pill of this.getAllPills()) {
         pill.setAttribute("selected", "selected");
       }
     }
@@ -2144,7 +2149,7 @@
      * Deselect all the pills of the <mail-recipients-area> element.
      */
     deselectAllPills() {
-      for (let pill of this.querySelectorAll(`mail-address-pill[selected]`)) {
+      for (const pill of this.querySelectorAll(`mail-address-pill[selected]`)) {
         pill.removeAttribute("selected");
       }
     }
@@ -2195,7 +2200,7 @@
      * @param {Element} element - The element where the event was triggered.
      */
     moveFocusToPreviousElement(element) {
-      let row = element.closest(".address-row");
+      const row = element.closest(".address-row");
       // Move focus on the close label if not collapsed.
       if (!row.querySelector(".remove-field-button").hidden) {
         row.querySelector(".remove-field-button").focus();
@@ -2213,7 +2218,7 @@
       }
       // Move the focus on the previous button: either the
       // extraAddressRowsMenuButton, or one of "<type>ShowAddressRowButton".
-      let buttons = document.querySelectorAll(
+      const buttons = document.querySelectorAll(
         "#extraAddressRowsArea button:not([hidden])"
       );
       if (buttons.length) {

@@ -106,11 +106,11 @@ AccountStore.prototype = {
    */
   async create(record) {
     if (record.type == "smtp") {
-      let smtpServer = MailServices.smtp.createServer();
+      const smtpServer = MailServices.smtp.createServer();
       smtpServer.UID = record.id;
       smtpServer.username = record.username;
       smtpServer.hostname = record.hostname;
-      for (let key of Object.keys(SYNCED_SMTP_PROPERTIES)) {
+      for (const key of Object.keys(SYNCED_SMTP_PROPERTIES)) {
         if (key in record.prefs) {
           smtpServer[key] = record.prefs[key];
         }
@@ -129,20 +129,20 @@ AccountStore.prototype = {
       MailServices.accounts.createLocalMailAccount();
     }
 
-    let server = MailServices.accounts.createIncomingServer(
+    const server = MailServices.accounts.createIncomingServer(
       record.username,
       record.hostname,
       record.type
     );
     server.UID = record.id;
 
-    for (let key of Object.keys(SYNCED_SERVER_PROPERTIES)) {
+    for (const key of Object.keys(SYNCED_SERVER_PROPERTIES)) {
       if (key in record.prefs) {
         server[key] = record.prefs[key];
       }
     }
 
-    let account = MailServices.accounts.createAccount();
+    const account = MailServices.accounts.createAccount();
     account.incomingServer = server;
 
     if (server.loginAtStartUp) {
@@ -162,19 +162,21 @@ AccountStore.prototype = {
    *        The store record to delete an item from
    */
   async remove(record) {
-    let smtpServer = MailServices.smtp.servers.find(s => s.UID == record.id);
+    const smtpServer = MailServices.smtp.servers.find(s => s.UID == record.id);
     if (smtpServer) {
       MailServices.smtp.deleteServer(smtpServer);
       return;
     }
 
-    let server = MailServices.accounts.allServers.find(s => s.UID == record.id);
+    const server = MailServices.accounts.allServers.find(
+      s => s.UID == record.id
+    );
     if (!server) {
       this._log.trace("Asked to remove record that doesn't exist, ignoring");
       return;
     }
 
-    let account = MailServices.accounts.FindAccountForServer(server);
+    const account = MailServices.accounts.FindAccountForServer(server);
     if (account) {
       MailServices.accounts.removeAccount(account, true);
     } else {
@@ -202,14 +204,14 @@ AccountStore.prototype = {
   },
 
   async _updateSMTP(record) {
-    let smtpServer = MailServices.smtp.servers.find(s => s.UID == record.id);
+    const smtpServer = MailServices.smtp.servers.find(s => s.UID == record.id);
     if (!smtpServer) {
       this._log.trace("Skipping update for unknown item: " + record.id);
       return;
     }
     smtpServer.username = record.username;
     smtpServer.hostname = record.hostname;
-    for (let key of Object.keys(SYNCED_SMTP_PROPERTIES)) {
+    for (const key of Object.keys(SYNCED_SMTP_PROPERTIES)) {
       if (key in record.prefs) {
         smtpServer[key] = record.prefs[key];
       }
@@ -220,7 +222,9 @@ AccountStore.prototype = {
   },
 
   async _updateIncoming(record) {
-    let server = MailServices.accounts.allServers.find(s => s.UID == record.id);
+    const server = MailServices.accounts.allServers.find(
+      s => s.UID == record.id
+    );
     if (!server) {
       this._log.trace("Skipping update for unknown item: " + record.id);
       return;
@@ -232,7 +236,7 @@ AccountStore.prototype = {
       );
     }
 
-    for (let key of Object.keys(SYNCED_SERVER_PROPERTIES)) {
+    for (const key of Object.keys(SYNCED_SERVER_PROPERTIES)) {
       if (key in record.prefs) {
         server[key] = record.prefs[key];
       }
@@ -260,11 +264,11 @@ AccountStore.prototype = {
    *         are ignored.
    */
   async getAllIDs() {
-    let ids = {};
-    for (let s of MailServices.smtp.servers) {
+    const ids = {};
+    for (const s of MailServices.smtp.servers) {
       ids[s.UID] = true;
     }
-    for (let s of MailServices.accounts.allServers) {
+    for (const s of MailServices.accounts.allServers) {
       if (["imap", "pop3"].includes(s.type)) {
         ids[s.UID] = true;
       }
@@ -287,7 +291,7 @@ AccountStore.prototype = {
    * @return record type for this engine
    */
   async createRecord(id, collection) {
-    let record = new AccountRecord(collection, id);
+    const record = new AccountRecord(collection, id);
 
     let server = MailServices.smtp.servers.find(s => s.UID == id);
     if (server) {
@@ -295,7 +299,7 @@ AccountStore.prototype = {
       record.username = server.username;
       record.hostname = server.hostname;
       record.prefs = {};
-      for (let key of Object.keys(SYNCED_SMTP_PROPERTIES)) {
+      for (const key of Object.keys(SYNCED_SMTP_PROPERTIES)) {
         record.prefs[key] = server[key];
       }
       record.isDefault = MailServices.smtp.defaultServer == server;
@@ -313,7 +317,7 @@ AccountStore.prototype = {
     record.username = server.username;
     record.hostname = server.hostName;
     record.prefs = {};
-    for (let key of Object.keys(SYNCED_SERVER_PROPERTIES)) {
+    for (const key of Object.keys(SYNCED_SERVER_PROPERTIES)) {
       record.prefs[key] = server[key];
     }
 
@@ -331,8 +335,8 @@ AccountTracker.prototype = {
   _ignoreAll: false,
 
   async getChangedIDs() {
-    let changes = {};
-    for (let id of this._changedIDs) {
+    const changes = {};
+    for (const id of this._changedIDs) {
       changes[id] = 0;
     }
     return changes;
@@ -369,8 +373,8 @@ AccountTracker.prototype = {
     if (topic == "message-server-removed") {
       server = subject.QueryInterface(Ci.nsIMsgIncomingServer);
     } else {
-      let serverKey = data.split(".")[2];
-      let prefName = data.substring(serverKey.length + 13);
+      const serverKey = data.split(".")[2];
+      const prefName = data.substring(serverKey.length + 13);
       if (!Object.values(SYNCED_SERVER_PROPERTIES).includes(prefName)) {
         return;
       }

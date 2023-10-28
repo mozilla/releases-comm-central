@@ -52,14 +52,14 @@ export class BrowsingDataDelegate {
     // divided by 1000 to convert to ms.
     // If Sanitizer.getClearRange returns undefined that means the range is
     // currently "Everything", so we should set since to 0.
-    let clearRange = lazy.Sanitizer.getClearRange();
-    let since = clearRange ? clearRange[0] / 1000 : 0;
-    let options = { since };
+    const clearRange = lazy.Sanitizer.getClearRange();
+    const since = clearRange ? clearRange[0] / 1000 : 0;
+    const options = { since };
 
-    let dataToRemove = {};
-    let dataRemovalPermitted = {};
+    const dataToRemove = {};
+    const dataRemovalPermitted = {};
 
-    for (let item of PREF_LIST) {
+    for (const item of PREF_LIST) {
       // The property formData needs a different case than the
       // formdata preference.
       const name = item === "formdata" ? "formData" : item;

@@ -17,10 +17,10 @@ var { cloudFileAccounts } = ChromeUtils.import(
 XPCOMUtils.defineLazyGlobalGetters(this, ["File", "FileReader"]);
 
 async function promiseFileRead(nsifile) {
-  let blob = await File.createFromNsIFile(nsifile);
+  const blob = await File.createFromNsIFile(nsifile);
 
   return new Promise((resolve, reject) => {
-    let reader = new FileReader();
+    const reader = new FileReader();
     reader.addEventListener("loadend", event => {
       if (event.target.error) {
         reject(event.target.error);
@@ -63,7 +63,7 @@ class CloudFileAccount {
   }
   get iconURL() {
     if (this.extension.manifest.icons) {
-      let { icon } = ExtensionParent.IconDetails.getPreferredIcon(
+      const { icon } = ExtensionParent.IconDetails.getPreferredIcon(
         this.extension.manifest.icons,
         this.extension,
         32
@@ -128,7 +128,7 @@ class CloudFileAccount {
    */
   markAsImmutable(id) {
     if (this._uploads.has(id)) {
-      let upload = this._uploads.get(id);
+      const upload = this._uploads.get(id);
       upload.immutable = true;
       this._uploads.set(id, upload);
     }
@@ -142,8 +142,8 @@ class CloudFileAccount {
    * @returns {CloudFileUpload}
    */
   newUploadForFile(file, data = {}) {
-    let id = this._nextId++;
-    let upload = {
+    const id = this._nextId++;
+    const upload = {
       // Values used in the WebExtension CloudFile type.
       id,
       name: data.name ?? file.leafName,
@@ -183,7 +183,7 @@ class CloudFileAccount {
    * @returns {CloudFileUpload} Information about the uploaded file.
    */
   async uploadFile(window, file, name = file.leafName, relatedCloudFileUpload) {
-    let data = await File.createFromNsIFile(file);
+    const data = await File.createFromNsIFile(file);
 
     if (
       this.remainingFileSpace != -1 &&
@@ -205,8 +205,8 @@ class CloudFileAccount {
       );
     }
 
-    let upload = this.newUploadForFile(file, { name });
-    let id = upload.id;
+    const upload = this.newUploadForFile(file, { name });
+    const id = upload.id;
     let relatedFileInfo;
     if (relatedCloudFileUpload) {
       relatedFileInfo = {
@@ -335,18 +335,18 @@ class CloudFileAccount {
     }
 
     // Find matching url in known uploads and check if it is immutable.
-    let isImmutableUrl = url => {
+    const isImmutableUrl = url => {
       return [...this._uploads.values()].some(u => u.immutable && u.url == url);
     };
 
     // Check all open windows if the url is used elsewhere.
-    let isDuplicateUrl = url => {
-      let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    const isDuplicateUrl = url => {
+      const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
       if (composeWindows.length == 0) {
         return false;
       }
-      let countsPerWindow = composeWindows.map(window => {
-        let bucket = window.document.getElementById("attachmentBucket");
+      const countsPerWindow = composeWindows.map(window => {
+        const bucket = window.document.getElementById("attachmentBucket");
         if (!bucket) {
           return 0;
         }
@@ -382,7 +382,7 @@ class CloudFileAccount {
       );
     }
 
-    let upload = this._uploads.get(uploadId);
+    const upload = this._uploads.get(uploadId);
     let results;
     try {
       results = await this.extension.emit(
@@ -445,9 +445,9 @@ class CloudFileAccount {
    * @param {nsIFile} file File to be uploaded.
    */
   async cancelFileUpload(window, file) {
-    let path = file.path;
+    const path = file.path;
     let uploadId = -1;
-    for (let upload of this._uploads.values()) {
+    for (const upload of this._uploads.values()) {
       if (!upload.url && upload.path == path) {
         uploadId = upload.id;
         break;
@@ -459,7 +459,7 @@ class CloudFileAccount {
       return false;
     }
 
-    let result = await this.extension.emit(
+    const result = await this.extension.emit(
       "uploadAbort",
       this,
       uploadId,
@@ -500,7 +500,7 @@ class CloudFileAccount {
 
     try {
       if (this._uploads.has(uploadId)) {
-        let upload = this._uploads.get(uploadId);
+        const upload = this._uploads.get(uploadId);
         if (!this.isReusedUpload(upload)) {
           await this.extension.emit("deleteFile", this, uploadId, window);
           this._uploads.delete(uploadId);
@@ -534,13 +534,13 @@ this.cloudFile = class extends ExtensionAPIPersistent {
 
   onManifestEntry(entryName) {
     if (entryName == "cloud_file") {
-      let { extension } = this;
+      const { extension } = this;
       cloudFileAccounts.registerProvider(this.providerType, {
         type: this.providerType,
         displayName: extension.manifest.cloud_file.name,
         get iconURL() {
           if (extension.manifest.icons) {
-            let { icon } = ExtensionParent.IconDetails.getPreferredIcon(
+            const { icon } = ExtensionParent.IconDetails.getPreferredIcon(
               extension.manifest.icons,
               extension,
               32
@@ -714,7 +714,7 @@ this.cloudFile = class extends ExtensionAPIPersistent {
   };
 
   getAPI(context) {
-    let self = this;
+    const self = this;
 
     return {
       cloudFile: {
@@ -761,7 +761,7 @@ this.cloudFile = class extends ExtensionAPIPersistent {
         }).api(),
 
         async getAccount(accountId) {
-          let account = cloudFileAccounts.getAccount(accountId);
+          const account = cloudFileAccounts.getAccount(accountId);
 
           if (!account || account.type != self.providerType) {
             return undefined;
@@ -777,7 +777,7 @@ this.cloudFile = class extends ExtensionAPIPersistent {
         },
 
         async updateAccount(accountId, updateProperties) {
-          let account = cloudFileAccounts.getAccount(accountId);
+          const account = cloudFileAccounts.getAccount(accountId);
 
           if (!account || account.type != self.providerType) {
             return undefined;

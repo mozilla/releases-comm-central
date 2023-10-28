@@ -214,9 +214,9 @@ function guessConfig(
     outgoingEx = null;
     HostTryToAccountServer(thisTry, resultConfig.outgoing);
 
-    for (let alternativeTry of alternativeTries) {
+    for (const alternativeTry of alternativeTries) {
       // resultConfig.createNewOutgoing(); misses username etc., so copy
-      let altServer = deepCopy(resultConfig.outgoing);
+      const altServer = deepCopy(resultConfig.outgoing);
       HostTryToAccountServer(alternativeTry, altServer);
       assert(resultConfig.outgoingAlternatives);
       resultConfig.outgoingAlternatives.push(altServer);
@@ -240,9 +240,9 @@ function guessConfig(
     incomingEx = null;
     HostTryToAccountServer(thisTry, resultConfig.incoming);
 
-    for (let alternativeTry of alternativeTries) {
+    for (const alternativeTry of alternativeTries) {
       // resultConfig.createNewIncoming(); misses username etc., so copy
-      let altServer = deepCopy(resultConfig.incoming);
+      const altServer = deepCopy(resultConfig.incoming);
       HostTryToAccountServer(alternativeTry, altServer);
       assert(resultConfig.incomingAlternatives);
       resultConfig.incomingAlternatives.push(altServer);
@@ -406,7 +406,7 @@ HostDetector.prototype = {
     // callbacks e.g. to the cert handler. If the dialog is gone by the time
     // this happens, the javascript stack is horked.
     for (let i = 0; i < this._hostsToTry.length; i++) {
-      let thisTry = this._hostsToTry[i]; // {HostTry}
+      const thisTry = this._hostsToTry[i]; // {HostTry}
       if (thisTry.abortable) {
         thisTry.abortable.cancel(ex);
       }
@@ -469,10 +469,15 @@ HostDetector.prototype = {
     }
 
     for (let i = 0; i < hostnamesToTry.length; i++) {
-      let hostname = hostnamesToTry[i];
-      let hostEntries = this._portsToTry(hostname, protocol, socketType, port);
+      const hostname = hostnamesToTry[i];
+      const hostEntries = this._portsToTry(
+        hostname,
+        protocol,
+        socketType,
+        port
+      );
       for (let j = 0; j < hostEntries.length; j++) {
-        let hostTry = hostEntries[j]; // from getHostEntry()
+        const hostTry = hostEntries[j]; // from getHostEntry()
         if (ssl_only && hostTry.socketType == NONE) {
           continue;
         }
@@ -514,7 +519,7 @@ HostDetector.prototype = {
     // pop.domain resolve differently.
     doProxy(this._hostsToTry[0].hostname, function (proxy) {
       for (let i = 0; i < me._hostsToTry.length; i++) {
-        let thisTry = me._hostsToTry[i]; // {HostTry}
+        const thisTry = me._hostsToTry[i]; // {HostTry}
         if (thisTry.status != kNotTried) {
           continue;
         }
@@ -631,7 +636,7 @@ HostDetector.prototype = {
     var unfinishedBusiness = false;
     // this._hostsToTry is ordered by decreasing preference
     for (let i = 0; i < this._hostsToTry.length; i++) {
-      let thisTry = this._hostsToTry[i];
+      const thisTry = this._hostsToTry[i];
       if (thisTry.status == kNotTried || thisTry.status == kOngoing) {
         unfinishedBusiness = true;
       } else if (thisTry.status == kSuccess && !unfinishedBusiness) {
@@ -1000,11 +1005,11 @@ SSLErrorHandler.prototype = {
       return;
     }
 
-    let cert = secInfo.serverCert;
+    const cert = secInfo.serverCert;
 
-    let parts = targetSite.split(":");
-    let host = parts[0];
-    let port = parts[1];
+    const parts = targetSite.split(":");
+    const host = parts[0];
+    const port = parts[1];
 
     /* The following 2 cert problems are unfortunately common:
      * 1) hostname mismatch:
@@ -1157,7 +1162,7 @@ function SocketUtil(
         initialized = true;
         if (!aborted) {
           // Send the first request
-          let outputData = commands[index++];
+          const outputData = commands[index++];
           outstream.write(outputData, outputData.length);
         }
       } catch (e) {
@@ -1171,11 +1176,11 @@ function SocketUtil(
         // Did it fail because of a bad certificate?
         let isCertError = false;
         if (!Components.isSuccessCode(status)) {
-          let nssErrorsService = Cc[
+          const nssErrorsService = Cc[
             "@mozilla.org/nss_errors_service;1"
           ].getService(Ci.nsINSSErrorsService);
           try {
-            let errorType = nssErrorsService.getErrorClass(status);
+            const errorType = nssErrorsService.getErrorClass(status);
             if (errorType == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
               isCertError = true;
             }
@@ -1195,10 +1200,10 @@ function SocketUtil(
               `Bad (overridable) certificate for ${hostname}:${port}. Set mailnews.auto_config.guess.requireGoodCert to false to allow detecting this as a valid SSL/TLS configuration`
             );
           } else {
-            let socketTransport = transport.QueryInterface(
+            const socketTransport = transport.QueryInterface(
               Ci.nsISocketTransport
             );
-            let secInfo =
+            const secInfo =
               await socketTransport.tlsSocketControl?.asyncGetSecurityInfo();
             sslErrorHandler.processCertError(secInfo, hostname + ":" + port);
           }
@@ -1211,11 +1216,11 @@ function SocketUtil(
     onDataAvailable(request, inputStream, offset, count) {
       try {
         if (!aborted) {
-          let inputData = instream.read(count);
+          const inputData = instream.read(count);
           this.data.push(inputData);
           if (index < commands.length) {
             // Send the next request to the server.
-            let outputData = commands[index++];
+            const outputData = commands[index++];
             outstream.write(outputData, outputData.length);
           }
         }

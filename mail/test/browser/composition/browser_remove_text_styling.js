@@ -10,13 +10,13 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 add_task(async function test_remove_text_styling() {
-  let win = await open_compose_new_mail();
-  let formatHelper = new FormatHelper(win);
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
 
   const NO_SIZE = formatHelper.NO_SIZE;
 
-  let removeButton = formatHelper.removeStylingButton;
-  let removeItem = formatHelper.removeStylingMenuItem;
+  const removeButton = formatHelper.removeStylingButton;
+  const removeItem = formatHelper.removeStylingMenuItem;
 
   // Before focus.
   Assert.ok(
@@ -39,28 +39,28 @@ add_task(async function test_remove_text_styling() {
     await formatHelper.assertShownParagraphState(state, message);
   }
 
-  let styleSet = [
+  const styleSet = [
     formatHelper.styleDataMap.get("underline"),
     formatHelper.styleDataMap.get("superscript"),
     formatHelper.styleDataMap.get("strong"),
   ];
-  let tags = new Set();
+  const tags = new Set();
   styleSet.forEach(style => tags.add(style.tag));
 
-  let color = { value: "#0000ff", rgb: [0, 0, 255] };
-  let font = formatHelper.commonFonts[0];
-  let size = 4;
+  const color = { value: "#0000ff", rgb: [0, 0, 255] };
+  const font = formatHelper.commonFonts[0];
+  const size = 4;
 
   // In paragraph state.
 
-  for (let style of styleSet) {
+  for (const style of styleSet) {
     await formatHelper.selectStyle(style);
   }
   await formatHelper.selectColor(color.value);
   await formatHelper.selectFont(font);
   await formatHelper.selectSize(size);
 
-  let text = "some text to apply styling to";
+  const text = "some text to apply styling to";
   await formatHelper.typeInMessage(text);
 
   formatHelper.assertMessageParagraph(

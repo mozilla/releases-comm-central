@@ -126,13 +126,13 @@ customElements.whenDefined("autocomplete-input").then(() => {
             topic == "autocomplete-did-enter-text" &&
             document.activeElement == this
           ) {
-            let selectedIndex = this.popup.selectedIndex;
-            let curResult = lazy.glodaCompleter.curResult;
+            const selectedIndex = this.popup.selectedIndex;
+            const curResult = lazy.glodaCompleter.curResult;
             if (!curResult) {
               // autocomplete didn't even finish.
               return;
             }
-            let row = curResult.getObjectAt(selectedIndex);
+            const row = curResult.getObjectAt(selectedIndex);
             if (row == null) {
               return;
             }
@@ -166,9 +166,9 @@ customElements.whenDefined("autocomplete-input").then(() => {
         },
       };
 
-      let keyLabel =
+      const keyLabel =
         AppConstants.platform == "macosx" ? "keyLabelMac" : "keyLabelNonMac";
-      let placeholder = this.getAttribute("emptytextbase").replace(
+      const placeholder = this.getAttribute("emptytextbase").replace(
         "#1",
         this.getAttribute(keyLabel)
       );
@@ -196,12 +196,12 @@ customElements.whenDefined("autocomplete-input").then(() => {
 
     doSearch() {
       if (this.value) {
-        let tabmail = document.getElementById("tabmail");
+        const tabmail = document.getElementById("tabmail");
         // If the current tab is a gloda search tab, reset the value
         // to the initial search value. Otherwise, clear it. This
         // is the value that is going to be saved with the current
         // tab when we switch back to it next.
-        let searchString = this.value;
+        const searchString = this.value;
 
         if (tabmail.currentTabInfo.mode.name == "glodaFacet") {
           // We'd rather reuse the existing tab (and somehow do something
@@ -211,7 +211,7 @@ customElements.whenDefined("autocomplete-input").then(() => {
           tabmail.closeTab();
         }
         this.value = ""; // clear our value, to avoid persistence
-        let args = {
+        const args = {
           searcher: new lazy.GlodaMsgSearcher(null, searchString),
         };
         if (Services.prefs.getBoolPref("mail.chat.enabled")) {

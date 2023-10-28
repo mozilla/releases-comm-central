@@ -7,19 +7,19 @@ const BASE_URL =
   "http://mochi.test:8888/browser/comm/mail/components/enterprisepolicies/tests/browser";
 
 async function isExtensionLockedAndUpdateDisabled(win, addonID) {
-  let addonCard = await BrowserTestUtils.waitForCondition(() => {
+  const addonCard = await BrowserTestUtils.waitForCondition(() => {
     return win.document.querySelector(`addon-card[addon-id="${addonID}"]`);
   }, `Get addon-card for "${addonID}"`);
-  let disableBtn = addonCard.querySelector('[action="toggle-disabled"]');
-  let removeBtn = addonCard.querySelector('panel-item[action="remove"]');
+  const disableBtn = addonCard.querySelector('[action="toggle-disabled"]');
+  const removeBtn = addonCard.querySelector('panel-item[action="remove"]');
   ok(removeBtn.disabled, "Remove button should be disabled");
   ok(disableBtn.hidden, "Disable button should be hidden");
-  let updateRow = addonCard.querySelector(".addon-detail-row-updates");
+  const updateRow = addonCard.querySelector(".addon-detail-row-updates");
   is(updateRow.hidden, true, "Update row should be hidden");
 }
 
 add_task(async function test_addon_install() {
-  let installPromise = waitForAddonInstall(ADDON_ID);
+  const installPromise = waitForAddonInstall(ADDON_ID);
   await setupPolicyEngineWithJson({
     policies: {
       ExtensionSettings: {
@@ -32,7 +32,7 @@ add_task(async function test_addon_install() {
     },
   });
   await installPromise;
-  let addon = await AddonManager.getAddonByID(ADDON_ID);
+  const addon = await AddonManager.getAddonByID(ADDON_ID);
   isnot(addon, null, "Addon not installed.");
   is(addon.version, "0.1", "Addon version is correct");
 
@@ -44,12 +44,12 @@ add_task(async function test_addon_install() {
 });
 
 add_task(async function test_addon_locked_update_disabled() {
-  let tabmail = document.getElementById("tabmail");
-  let index = tabmail.tabInfo.length;
+  const tabmail = document.getElementById("tabmail");
+  const index = tabmail.tabInfo.length;
   await window.openAddonsMgr("addons://detail/" + encodeURIComponent(ADDON_ID));
-  let tab = tabmail.tabInfo[index];
-  let browser = tab.browser;
-  let win = browser.contentWindow;
+  const tab = tabmail.tabInfo[index];
+  const browser = tab.browser;
+  const win = browser.contentWindow;
 
   await isExtensionLockedAndUpdateDisabled(win, ADDON_ID);
 
@@ -57,7 +57,7 @@ add_task(async function test_addon_locked_update_disabled() {
 });
 
 add_task(async function test_addon_uninstall() {
-  let uninstallPromise = waitForAddonUninstall(ADDON_ID);
+  const uninstallPromise = waitForAddonUninstall(ADDON_ID);
   await setupPolicyEngineWithJson({
     policies: {
       ExtensionSettings: {
@@ -68,6 +68,6 @@ add_task(async function test_addon_uninstall() {
     },
   });
   await uninstallPromise;
-  let addon = await AddonManager.getAddonByID(ADDON_ID);
+  const addon = await AddonManager.getAddonByID(ADDON_ID);
   is(addon, null, "Addon should be uninstalled.");
 });

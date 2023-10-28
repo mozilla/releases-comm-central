@@ -109,7 +109,7 @@ function prettyPrintTime(aValue, aNoSeconds) {
     aValue -= aValue % 60;
   }
 
-  let valuesAndUnits = window.convertTimeUnits(aValue);
+  const valuesAndUnits = window.convertTimeUnits(aValue);
   if (!valuesAndUnits[2]) {
     valuesAndUnits.splice(2, 2);
   }
@@ -257,9 +257,9 @@ function checkNewText(target) {
     if (lastMsgTime && msgTime >= lastMsgTime) {
       var interval = msgTime - lastMsgTime;
       var margin = computeSpace(interval);
-      let isTimetext = interval >= timebeforetextdisplay;
+      const isTimetext = interval >= timebeforetextdisplay;
       if (isTimetext) {
-        let p = document.createElement("p");
+        const p = document.createElement("p");
         p.className = "interval";
         if (shouldSetSessionRuler) {
           // Hide the hr and style the time text accordingly instead.
@@ -294,11 +294,11 @@ function checkNewText(target) {
       prev.style.marginTop = kRulerMarginTop + "px";
     }
   } else if (target.tagName == "P" && target.className == "event") {
-    let parent = target.parentNode;
+    const parent = target.parentNode;
     // We need to start a group with this element if there are at least 4
     // system messages and they aren't already grouped.
     if (!parent?.grouped && parent?.querySelector("p.event:nth-of-type(4)")) {
-      let p = document.createElement("p");
+      const p = document.createElement("p");
       p.className = "eventToggle";
       p.addEventListener("click", event =>
         event.target.parentNode.classList.toggle("hide-children")
@@ -315,8 +315,8 @@ function checkNewText(target) {
 }
 
 new MutationObserver(function (aMutations) {
-  for (let mutation of aMutations) {
-    for (let node of mutation.addedNodes) {
+  for (const mutation of aMutations) {
+    for (const node of mutation.addedNodes) {
       if (node instanceof HTMLElement) {
         checkNewText(node);
       }

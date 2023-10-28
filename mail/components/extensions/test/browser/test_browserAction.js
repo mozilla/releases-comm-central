@@ -7,8 +7,8 @@ let messages;
 
 add_setup(async () => {
   account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
-  let subFolders = rootFolder.subFolders;
+  const rootFolder = account.incomingServer.rootFolder;
+  const subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
   messages = subFolders[0].messages;
 });
@@ -16,7 +16,7 @@ add_setup(async () => {
 // This test uses a command from the menus API to open the popup.
 add_task(async function test_popup_open_with_menu_command_mv2() {
   info("3-pane tab");
-  let testConfig = {
+  const testConfig = {
     actionType: "browser_action",
     testType: "open-with-menu-command",
     window,
@@ -36,8 +36,8 @@ add_task(async function test_popup_open_with_menu_command_mv2() {
 
   info("Message window");
   {
-    let messageWindow = await openMessageInWindow(messages.getNext());
-    let testConfig = {
+    const messageWindow = await openMessageInWindow(messages.getNext());
+    const testConfig = {
       actionType: "browser_action",
       testType: "open-with-menu-command",
       default_windows: ["messageDisplay"],
@@ -61,7 +61,7 @@ add_task(async function test_popup_open_with_menu_command_mv2() {
 
 add_task(async function test_popup_open_with_menu_command_mv3() {
   info("3-pane tab");
-  let testConfig = {
+  const testConfig = {
     manifest_version: 3,
     actionType: "action",
     testType: "open-with-menu-command",
@@ -82,8 +82,8 @@ add_task(async function test_popup_open_with_menu_command_mv3() {
 
   info("Message window");
   {
-    let messageWindow = await openMessageInWindow(messages.getNext());
-    let testConfig = {
+    const messageWindow = await openMessageInWindow(messages.getNext());
+    const testConfig = {
       manifest_version: 3,
       actionType: "action",
       testType: "open-with-menu-command",
@@ -107,7 +107,7 @@ add_task(async function test_popup_open_with_menu_command_mv3() {
 });
 
 add_task(async function test_theme_icons() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     manifest: {
       applications: {
@@ -129,7 +129,7 @@ add_task(async function test_theme_icons() {
     },
   });
 
-  let unifiedToolbarUpdate = TestUtils.topicObserved(
+  const unifiedToolbarUpdate = TestUtils.topicObserved(
     "unified-toolbar-state-change"
   );
   await extension.startup();
@@ -142,13 +142,13 @@ add_task(async function test_theme_icons() {
     "Button added to unified toolbar"
   );
 
-  let uuid = extension.uuid;
-  let icon = document.querySelector(
+  const uuid = extension.uuid;
+  const icon = document.querySelector(
     `#unifiedToolbarContent [extension="browser_action_properties@mochi.test"] .button-icon`
   );
   const defaultIcon = `url("moz-extension://${uuid}/default.png")`;
 
-  let dark_theme = await AddonManager.getAddonByID(
+  const dark_theme = await AddonManager.getAddonByID(
     "thunderbird-compact-dark@mozilla.org"
   );
   await Promise.all([
@@ -162,7 +162,7 @@ add_task(async function test_theme_icons() {
     `Dark theme should use light icon.`
   );
 
-  let light_theme = await AddonManager.getAddonByID(
+  const light_theme = await AddonManager.getAddonByID(
     "thunderbird-compact-light@mozilla.org"
   );
   await Promise.all([
@@ -189,8 +189,8 @@ add_task(async function test_theme_icons() {
 });
 
 add_task(async function test_theme_icons_messagewindow() {
-  let messageWindow = await openMessageInWindow(messages.getNext());
-  let extension = ExtensionTestUtils.loadExtension({
+  const messageWindow = await openMessageInWindow(messages.getNext());
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     manifest: {
       applications: {
@@ -215,13 +215,13 @@ add_task(async function test_theme_icons_messagewindow() {
 
   await extension.startup();
 
-  let uuid = extension.uuid;
-  let button = messageWindow.document.getElementById(
+  const uuid = extension.uuid;
+  const button = messageWindow.document.getElementById(
     "browser_action_properties_mochi_test-browserAction-toolbarbutton"
   );
   const defaultIcon = `url("moz-extension://${uuid}/default.png")`;
 
-  let dark_theme = await AddonManager.getAddonByID(
+  const dark_theme = await AddonManager.getAddonByID(
     "thunderbird-compact-dark@mozilla.org"
   );
   await Promise.all([
@@ -235,7 +235,7 @@ add_task(async function test_theme_icons_messagewindow() {
     `Dark theme should use light icon.`
   );
 
-  let light_theme = await AddonManager.getAddonByID(
+  const light_theme = await AddonManager.getAddonByID(
     "thunderbird-compact-light@mozilla.org"
   );
   await Promise.all([
@@ -289,7 +289,7 @@ add_task(async function test_button_order() {
   );
 
   info("Message window");
-  let messageWindow = await openMessageInWindow(messages.getNext());
+  const messageWindow = await openMessageInWindow(messages.getNext());
   await run_action_button_order_test(
     [
       {
@@ -311,7 +311,7 @@ add_task(async function test_button_order() {
 
 add_task(async function test_upgrade() {
   // Add a browser_action, to make sure the currentSet has been initialized.
-  let extension1 = ExtensionTestUtils.loadExtension({
+  const extension1 = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       manifest_version: 2,
@@ -330,7 +330,7 @@ add_task(async function test_upgrade() {
   await extension1.awaitMessage("Extension1 ready");
 
   // Add extension without a browser_action.
-  let extension2 = ExtensionTestUtils.loadExtension({
+  const extension2 = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       manifest_version: 2,
@@ -346,7 +346,7 @@ add_task(async function test_upgrade() {
   await extension2.awaitMessage("Extension2 ready");
 
   // Update the extension, now including a browser_action.
-  let updatedExtension2 = ExtensionTestUtils.loadExtension({
+  const updatedExtension2 = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       manifest_version: 2,
@@ -364,7 +364,7 @@ add_task(async function test_upgrade() {
   await updatedExtension2.startup();
   await updatedExtension2.awaitMessage("Extension2 updated");
 
-  let button = document.querySelector(
+  const button = document.querySelector(
     `.unified-toolbar [extension="Extension2@mochi.test"]`
   );
 
@@ -379,7 +379,7 @@ add_task(async function test_iconPath() {
   // String values for the default_icon manifest entry have been tested in the
   // theme_icons test already. Here we test imagePath objects for the manifest key
   // and string values as well as objects for the setIcons() function.
-  let files = {
+  const files = {
     "background.js": async () => {
       await window.sendMessage("checkState", "icon1.png");
 
@@ -394,7 +394,7 @@ add_task(async function test_iconPath() {
     "utils.js": await getUtilsJS(),
   };
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     useAddonManager: "temporary",
     manifest: {
@@ -412,8 +412,8 @@ add_task(async function test_iconPath() {
   });
 
   extension.onMessage("checkState", async expected => {
-    let uuid = extension.uuid;
-    let icon = document.querySelector(
+    const uuid = extension.uuid;
+    const icon = document.querySelector(
       `.unified-toolbar [extension="browser_action@mochi.test"] .button-icon`
     );
 
@@ -432,11 +432,11 @@ add_task(async function test_iconPath() {
 });
 
 add_task(async function test_allowedSpaces() {
-  let tabmail = document.getElementById("tabmail");
-  let unifiedToolbar = document.querySelector("unified-toolbar");
+  const tabmail = document.getElementById("tabmail");
+  const unifiedToolbar = document.querySelector("unified-toolbar");
 
   function buttonInUnifiedToolbar() {
-    let button = unifiedToolbar.querySelector(
+    const button = unifiedToolbar.querySelector(
       '[item-id="ext-browser_action_spaces@mochi.test"]'
     );
     if (!button) {
@@ -445,7 +445,7 @@ add_task(async function test_allowedSpaces() {
     return BrowserTestUtils.is_visible(button);
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     manifest: {
       applications: {
@@ -459,12 +459,12 @@ add_task(async function test_allowedSpaces() {
     },
   });
 
-  let mailSpace = window.gSpacesToolbar.spaces.find(
+  const mailSpace = window.gSpacesToolbar.spaces.find(
     space => space.name == "mail"
   );
   window.gSpacesToolbar.openSpace(tabmail, mailSpace);
 
-  let unifiedToolbarUpdate = TestUtils.topicObserved(
+  const unifiedToolbarUpdate = TestUtils.topicObserved(
     "unified-toolbar-state-change"
   );
 
@@ -521,11 +521,11 @@ add_task(async function test_allowedSpaces() {
 });
 
 add_task(async function test_allowedInAllSpaces() {
-  let tabmail = document.getElementById("tabmail");
-  let unifiedToolbar = document.querySelector("unified-toolbar");
+  const tabmail = document.getElementById("tabmail");
+  const unifiedToolbar = document.querySelector("unified-toolbar");
 
   function buttonInUnifiedToolbar() {
-    let button = unifiedToolbar.querySelector(
+    const button = unifiedToolbar.querySelector(
       '[item-id="ext-browser_action_all_spaces@mochi.test"]'
     );
     if (!button) {
@@ -534,7 +534,7 @@ add_task(async function test_allowedInAllSpaces() {
     return BrowserTestUtils.is_visible(button);
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     manifest: {
       applications: {
@@ -548,12 +548,12 @@ add_task(async function test_allowedInAllSpaces() {
     },
   });
 
-  let mailSpace = window.gSpacesToolbar.spaces.find(
+  const mailSpace = window.gSpacesToolbar.spaces.find(
     space => space.name == "mail"
   );
   window.gSpacesToolbar.openSpace(tabmail, mailSpace);
 
-  let unifiedToolbarUpdate = TestUtils.topicObserved(
+  const unifiedToolbarUpdate = TestUtils.topicObserved(
     "unified-toolbar-state-change"
   );
 
@@ -607,11 +607,11 @@ add_task(async function test_allowedInAllSpaces() {
 });
 
 add_task(async function test_allowedSpacesDefault() {
-  let tabmail = document.getElementById("tabmail");
-  let unifiedToolbar = document.querySelector("unified-toolbar");
+  const tabmail = document.getElementById("tabmail");
+  const unifiedToolbar = document.querySelector("unified-toolbar");
 
   function buttonInUnifiedToolbar() {
-    let button = unifiedToolbar.querySelector(
+    const button = unifiedToolbar.querySelector(
       '[item-id="ext-browser_action_default_spaces@mochi.test"]'
     );
     if (!button) {
@@ -620,7 +620,7 @@ add_task(async function test_allowedSpacesDefault() {
     return BrowserTestUtils.is_visible(button);
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
     manifest: {
       applications: {
@@ -634,12 +634,12 @@ add_task(async function test_allowedSpacesDefault() {
     },
   });
 
-  let mailSpace = window.gSpacesToolbar.spaces.find(
+  const mailSpace = window.gSpacesToolbar.spaces.find(
     space => space.name == "mail"
   );
   window.gSpacesToolbar.openSpace(tabmail, mailSpace);
 
-  let unifiedToolbarUpdate = TestUtils.topicObserved(
+  const unifiedToolbarUpdate = TestUtils.topicObserved(
     "unified-toolbar-state-change"
   );
 
@@ -696,11 +696,11 @@ add_task(async function test_allowedSpacesDefault() {
 });
 
 add_task(async function test_update_allowedSpaces() {
-  let tabmail = document.getElementById("tabmail");
-  let unifiedToolbar = document.querySelector("unified-toolbar");
+  const tabmail = document.getElementById("tabmail");
+  const unifiedToolbar = document.querySelector("unified-toolbar");
 
   function buttonInUnifiedToolbar() {
-    let button = unifiedToolbar.querySelector(
+    const button = unifiedToolbar.querySelector(
       '[item-id="ext-browser_action_spaces@mochi.test"]'
     );
     if (!button) {
@@ -710,7 +710,7 @@ add_task(async function test_update_allowedSpaces() {
   }
 
   async function closeSpaceTab() {
-    let toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+    const toolbarMutation = BrowserTestUtils.waitForMutationCondition(
       unifiedToolbar,
       { childList: true },
       () => true
@@ -720,11 +720,11 @@ add_task(async function test_update_allowedSpaces() {
   }
 
   async function ensureActiveMailSpace() {
-    let mailSpace = window.gSpacesToolbar.spaces.find(
+    const mailSpace = window.gSpacesToolbar.spaces.find(
       space => space.name == "mail"
     );
     if (window.gSpacesToolbar.currentSpace != mailSpace) {
-      let toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+      const toolbarMutation = BrowserTestUtils.waitForMutationCondition(
         unifiedToolbar,
         { childList: true },
         () => true
@@ -738,7 +738,7 @@ add_task(async function test_update_allowedSpaces() {
     // Make sure the mail space is open.
     await ensureActiveMailSpace();
 
-    let unifiedToolbarUpdate = TestUtils.topicObserved(
+    const unifiedToolbarUpdate = TestUtils.topicObserved(
       "unified-toolbar-state-change"
     );
     await extension.startup();
@@ -746,7 +746,7 @@ add_task(async function test_update_allowedSpaces() {
 
     // Test mail space.
     {
-      let expected = expectedSpaces.includes("mail");
+      const expected = expectedSpaces.includes("mail");
       Assert.equal(
         buttonInUnifiedToolbar(),
         expected,
@@ -756,7 +756,7 @@ add_task(async function test_update_allowedSpaces() {
 
     // Test calendar space.
     {
-      let toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+      const toolbarMutation = BrowserTestUtils.waitForMutationCondition(
         unifiedToolbar,
         { childList: true },
         () => true
@@ -767,7 +767,7 @@ add_task(async function test_update_allowedSpaces() {
       );
       await toolbarMutation;
 
-      let expected = expectedSpaces.includes("calendar");
+      const expected = expectedSpaces.includes("calendar");
       Assert.equal(
         buttonInUnifiedToolbar(),
         expected,
@@ -780,7 +780,7 @@ add_task(async function test_update_allowedSpaces() {
 
     // Test default space.
     {
-      let toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+      const toolbarMutation = BrowserTestUtils.waitForMutationCondition(
         unifiedToolbar,
         { childList: true },
         () => true
@@ -788,7 +788,7 @@ add_task(async function test_update_allowedSpaces() {
       tabmail.openTab("contentTab", { url: "about:blank" });
       await toolbarMutation;
 
-      let expected = expectedSpaces.includes("default");
+      const expected = expectedSpaces.includes("default");
       Assert.equal(
         buttonInUnifiedToolbar(),
         expected,
@@ -802,7 +802,7 @@ add_task(async function test_update_allowedSpaces() {
     // Test mail space again.
     {
       await ensureActiveMailSpace();
-      let expected = expectedSpaces.includes("mail");
+      const expected = expectedSpaces.includes("mail");
       Assert.equal(
         buttonInUnifiedToolbar(),
         expected,
@@ -813,7 +813,7 @@ add_task(async function test_update_allowedSpaces() {
 
   // Install extension and test that the button is shown in the default space and
   // in the calendar space.
-  let extension1 = ExtensionTestUtils.loadExtension({
+  const extension1 = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       applications: {
@@ -830,7 +830,7 @@ add_task(async function test_update_allowedSpaces() {
 
   // Update extension by installing a newer version on top. Verify that it is now
   // also shown in the mail space.
-  let extension2 = ExtensionTestUtils.loadExtension({
+  const extension2 = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       applications: {
@@ -847,7 +847,7 @@ add_task(async function test_update_allowedSpaces() {
 
   // Update extension by installing a newer version on top. Verify that it is now
   // no longer shown in the calendar space.
-  let extension3 = ExtensionTestUtils.loadExtension({
+  const extension3 = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     manifest: {
       applications: {

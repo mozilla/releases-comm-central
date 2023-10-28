@@ -70,7 +70,7 @@ function getDataUrl(file) {
  * @returns {string} - Either "png" or "jpeg". Throws otherwise.
  */
 function getImageType(contentType) {
-  let typeParts = contentType.toLowerCase().split("/");
+  const typeParts = contentType.toLowerCase().split("/");
   if (typeParts[0] != "image" || !["jpeg", "png"].includes(typeParts[1])) {
     throw new ExtensionError(`Unsupported image format: ${contentType}`);
   }
@@ -85,7 +85,7 @@ function getImageType(contentType) {
  * @returns {VCardPropertyEntry}
  */
 async function addVCardPhotoEntry(vCardProperties, photoFile) {
-  let dataUrl = await getDataUrl(photoFile);
+  const dataUrl = await getDataUrl(photoFile);
   if (vCardProperties.getFirstValue("version") == "4.0") {
     vCardProperties.addEntry(
       new VCardPropertyEntry("photo", {}, "url", dataUrl)
@@ -110,28 +110,28 @@ async function addVCardPhotoEntry(vCardProperties, photoFile) {
  * @returns {File} The photo of the contact, or null.
  */
 async function getPhotoFile(id) {
-  let { item } = addressBookCache.findContactById(id);
-  let photoUrl = item.photoURL;
+  const { item } = addressBookCache.findContactById(id);
+  const photoUrl = item.photoURL;
   if (!photoUrl) {
     return null;
   }
 
   try {
     if (photoUrl.startsWith("file://")) {
-      let realFile = Services.io
+      const realFile = Services.io
         .newURI(photoUrl)
         .QueryInterface(Ci.nsIFileURL).file;
-      let file = await File.createFromNsIFile(realFile);
-      let type = getImageType(file.type);
+      const file = await File.createFromNsIFile(realFile);
+      const type = getImageType(file.type);
       // Clone the File object to be able to give it the correct name, matching
       // the dataUrl/webUrl code path below.
       return new File([file], `${id}.${type}`, { type: `image/${type}` });
     }
 
     // Retrieve dataUrls or webUrls.
-    let result = await fetch(photoUrl);
-    let type = getImageType(result.headers.get("content-type"));
-    let blob = await result.blob();
+    const result = await fetch(photoUrl);
+    const type = getImageType(result.headers.get("content-type"));
+    const blob = await result.blob();
     return new File([blob], `${id}.${type}`, { type: `image/${type}` });
   } catch (ex) {
     console.error(`Failed to read photo information for ${id}: ` + ex);
@@ -147,25 +147,25 @@ async function getPhotoFile(id) {
  * @param {File} file - The new photo
  */
 async function setPhotoFile(id, file) {
-  let node = addressBookCache.findContactById(id);
-  let vCardProperties = vCardPropertiesFromCard(node.item);
+  const node = addressBookCache.findContactById(id);
+  const vCardProperties = vCardPropertiesFromCard(node.item);
 
   try {
-    let type = getImageType(file.type);
+    const type = getImageType(file.type);
 
     // If the contact already has a photoUrl, replace it with the same url type.
     // Otherwise save the photo as a local file, except for CardDAV contacts.
-    let photoUrl = node.item.photoURL;
-    let parentNode = addressBookCache.findAddressBookById(node.parentId);
-    let useFile = photoUrl
+    const photoUrl = node.item.photoURL;
+    const parentNode = addressBookCache.findAddressBookById(node.parentId);
+    const useFile = photoUrl
       ? photoUrl.startsWith("file://")
       : parentNode.item.dirType != Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE;
 
     if (useFile) {
-      let oldPhotoFile = Services.io
+      const oldPhotoFile = Services.io
         .newURI(photoUrl)
         .QueryInterface(Ci.nsIFileURL).file;
-      let pathPhotoFile = await IOUtils.createUniqueFile(
+      const pathPhotoFile = await IOUtils.createUniqueFile(
         PathUtils.join(PathUtils.profileDir, "Photos"),
         `${id}.${type}`,
         0o600
@@ -177,7 +177,7 @@ async function setPhotoFile(id, file) {
         await IOUtils.copy(file.mozFullPath, pathPhotoFile);
       } else {
         // The file object is a data blob. Dump it into a real file.
-        let buffer = await file.arrayBuffer();
+        const buffer = await file.arrayBuffer();
         await IOUtils.write(pathPhotoFile, new Uint8Array(buffer));
       }
 
@@ -230,7 +230,7 @@ function vCardPropertiesFromCard(card) {
  */
 function flatPropertiesToAbCard(properties, uid) {
   // Do not use VCardUtils.propertyMapToVCard().
-  let vCard = VCardProperties.fromPropertyMap(
+  const vCard = VCardProperties.fromPropertyMap(
     new Map(Object.entries(properties))
   ).toVCard();
   return VCardUtils.vCardToAbCard(vCard, uid);
@@ -263,17 +263,17 @@ function isCustomProperty(name) {
  *   the provided card
  */
 function addProperties(card, updateProperties, originalProperties) {
-  let updates = Object.entries(updateProperties).filter(e =>
+  const updates = Object.entries(updateProperties).filter(e =>
     isCustomProperty(e[0])
   );
-  let mergedProperties = originalProperties
+  const mergedProperties = originalProperties
     ? new Map([
         ...Array.from(originalProperties, p => [p.name, p.value]),
         ...updates,
       ])
     : new Map(updates);
 
-  for (let [name, value] of mergedProperties) {
+  for (const [name, value] of mergedProperties) {
     if (
       !BANISHED_PROPERTIES.includes(name) &&
       value != "" &&
@@ -353,14 +353,14 @@ class ExtSearchBook extends AddrBookDirectory {
       if (this.fire.wakeup) {
         await this.fire.wakeup();
       }
-      let { results, isCompleteResult } = await this.fire.async(
+      const { results, isCompleteResult } = await this.fire.async(
         await addressBookCache.convert(
           addressBookCache.addressBooks.get(this.UID)
         ),
         aSearchString,
         aQuery
       );
-      for (let resultData of results) {
+      for (const resultData of results) {
         let card;
         // A specified vCard is winning over any individual standard property.
         if (resultData.vCard) {
@@ -413,7 +413,7 @@ var addressBookCache = new (class extends EventEmitter {
   }
   _makeDirectoryNode(directory, parent = null) {
     directory.QueryInterface(Ci.nsIAbDirectory);
-    let node = {
+    const node = {
       id: directory.UID,
       type: directory.isMailList ? "mailingList" : "addressBook",
       item: directory,
@@ -425,8 +425,8 @@ var addressBookCache = new (class extends EventEmitter {
   }
   _populateListContacts(mailingList) {
     mailingList.contacts = new Map();
-    for (let contact of mailingList.item.childCards) {
-      let newNode = this._makeContactNode(contact, mailingList.item);
+    for (const contact of mailingList.item.childCards) {
+      const newNode = this._makeContactNode(contact, mailingList.item);
       mailingList.contacts.set(newNode.id, newNode);
     }
   }
@@ -438,9 +438,9 @@ var addressBookCache = new (class extends EventEmitter {
   }
   _populateContacts(addressBook) {
     addressBook.contacts = new Map();
-    for (let contact of addressBook.item.childCards) {
+    for (const contact of addressBook.item.childCards) {
       if (!contact.isMailList) {
-        let newNode = this._makeContactNode(contact, addressBook.item);
+        const newNode = this._makeContactNode(contact, addressBook.item);
         this._contacts.set(newNode.id, newNode);
         addressBook.contacts.set(newNode.id, newNode);
       }
@@ -454,8 +454,8 @@ var addressBookCache = new (class extends EventEmitter {
   }
   _populateMailingLists(parent) {
     parent.mailingLists = new Map();
-    for (let mailingList of parent.item.childNodes) {
-      let newNode = this._makeDirectoryNode(mailingList, parent.item);
+    for (const mailingList of parent.item.childNodes) {
+      const newNode = this._makeDirectoryNode(mailingList, parent.item);
       this._mailingLists.set(newNode.id, newNode);
       parent.mailingLists.set(newNode.id, newNode);
     }
@@ -469,7 +469,7 @@ var addressBookCache = new (class extends EventEmitter {
   get addressBooks() {
     if (!this._addressBooks) {
       this._addressBooks = new Map();
-      for (let tld of MailServices.ab.directories) {
+      for (const tld of MailServices.ab.directories) {
         this._addressBooks.set(tld.UID, this._makeDirectoryNode(tld));
       }
     }
@@ -481,7 +481,7 @@ var addressBookCache = new (class extends EventEmitter {
     this._addressBooks = null;
   }
   findAddressBookById(id) {
-    let addressBook = this.addressBooks.get(id);
+    const addressBook = this.addressBooks.get(id);
     if (addressBook) {
       return addressBook;
     }
@@ -493,7 +493,7 @@ var addressBookCache = new (class extends EventEmitter {
     if (this._mailingLists.has(id)) {
       return this._mailingLists.get(id);
     }
-    for (let addressBook of this.addressBooks.values()) {
+    for (const addressBook of this.addressBooks.values()) {
       if (!addressBook.mailingLists) {
         this._populateMailingLists(addressBook);
         if (addressBook.mailingLists.has(id)) {
@@ -515,7 +515,7 @@ var addressBookCache = new (class extends EventEmitter {
         return bookHint.contacts.get(id);
       }
     }
-    for (let addressBook of this.addressBooks.values()) {
+    for (const addressBook of this.addressBooks.values()) {
       if (!addressBook.contacts) {
         this._populateContacts(addressBook);
         if (addressBook.contacts.has(id)) {
@@ -532,14 +532,14 @@ var addressBookCache = new (class extends EventEmitter {
       return node;
     }
     if (Array.isArray(node)) {
-      let cards = await Promise.allSettled(
+      const cards = await Promise.allSettled(
         node.map(i => this.convert(i, complete))
       );
       return cards.filter(card => card.value).map(card => card.value);
     }
 
-    let copy = {};
-    for (let key of ["id", "parentId", "type"]) {
+    const copy = {};
+    for (const key of ["id", "parentId", "type"]) {
       if (key in node) {
         copy[key] = node[key];
       }
@@ -567,16 +567,16 @@ var addressBookCache = new (class extends EventEmitter {
       case "contact": {
         // Clone the vCardProperties of this contact, so we can manipulate them
         // for the WebExtension, but do not actually change the stored data.
-        let vCardProperties = vCardPropertiesFromCard(node.item).clone();
+        const vCardProperties = vCardPropertiesFromCard(node.item).clone();
         copy.properties = {};
 
         // Build a flat property list from vCardProperties.
-        for (let [name, value] of vCardProperties.toPropertyMap()) {
+        for (const [name, value] of vCardProperties.toPropertyMap()) {
           copy.properties[name] = "" + value;
         }
 
         // Return all other exposed properties stored in the nodes property bag.
-        for (let property of Array.from(node.item.properties).filter(e =>
+        for (const property of Array.from(node.item.properties).filter(e =>
           isCustomProperty(e.name)
         )) {
           copy.properties[property.name] = "" + property.value;
@@ -585,14 +585,14 @@ var addressBookCache = new (class extends EventEmitter {
         // If this card has no photo vCard entry, but a local photo, add it to its vCard: Thunderbird
         // does not store photos of local address books in the internal _vCard property, to reduce
         // the amount of data stored in its database.
-        let photoName = node.item.getProperty("PhotoName", "");
-        let vCardPhoto = vCardProperties.getFirstValue("photo");
+        const photoName = node.item.getProperty("PhotoName", "");
+        const vCardPhoto = vCardProperties.getFirstValue("photo");
         if (!vCardPhoto && photoName) {
           try {
-            let realPhotoFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+            const realPhotoFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
             realPhotoFile.append("Photos");
             realPhotoFile.append(photoName);
-            let photoFile = await File.createFromNsIFile(realPhotoFile);
+            const photoFile = await File.createFromNsIFile(realPhotoFile);
             await addVCardPhotoEntry(vCardProperties, photoFile);
           } catch (ex) {
             console.error(
@@ -619,7 +619,7 @@ var addressBookCache = new (class extends EventEmitter {
         copy.name = node.item.dirName;
         copy.nickName = node.item.listNickName;
         copy.description = node.item.description;
-        let parentNode = this.findAddressBookById(node.parentId);
+        const parentNode = this.findAddressBookById(node.parentId);
         copy.readOnly = parentNode.item.readOnly;
         copy.remote = parentNode.item.isRemote;
         break;
@@ -648,7 +648,7 @@ var addressBookCache = new (class extends EventEmitter {
       case "addrbook-directory-created": {
         subject.QueryInterface(Ci.nsIAbDirectory);
 
-        let newNode = this._makeDirectoryNode(subject);
+        const newNode = this._makeDirectoryNode(subject);
         if (this._addressBooks) {
           this._addressBooks.set(newNode.id, newNode);
         }
@@ -665,16 +665,16 @@ var addressBookCache = new (class extends EventEmitter {
       case "addrbook-directory-deleted": {
         subject.QueryInterface(Ci.nsIAbDirectory);
 
-        let uid = subject.UID;
+        const uid = subject.UID;
         if (this._addressBooks?.has(uid)) {
-          let parentNode = this._addressBooks.get(uid);
+          const parentNode = this._addressBooks.get(uid);
           if (parentNode.contacts) {
-            for (let id of parentNode.contacts.keys()) {
+            for (const id of parentNode.contacts.keys()) {
               this._contacts.delete(id);
             }
           }
           if (parentNode.mailingLists) {
-            for (let id of parentNode.mailingLists.keys()) {
+            for (const id of parentNode.mailingLists.keys()) {
               this._mailingLists.delete(id);
             }
           }
@@ -687,10 +687,10 @@ var addressBookCache = new (class extends EventEmitter {
       case "addrbook-contact-created": {
         subject.QueryInterface(Ci.nsIAbCard);
 
-        let parent = MailServices.ab.getDirectoryFromUID(data);
-        let newNode = this._makeContactNode(subject, parent);
+        const parent = MailServices.ab.getDirectoryFromUID(data);
+        const newNode = this._makeContactNode(subject, parent);
         if (this._addressBooks?.has(data)) {
-          let parentNode = this._addressBooks.get(data);
+          const parentNode = this._addressBooks.get(data);
           if (parentNode.contacts) {
             parentNode.contacts.set(newNode.id, newNode);
           }
@@ -703,17 +703,17 @@ var addressBookCache = new (class extends EventEmitter {
       case "addrbook-contact-properties-updated": {
         subject.QueryInterface(Ci.nsIAbCard);
 
-        let parentUID = subject.directoryUID;
-        let parent = MailServices.ab.getDirectoryFromUID(parentUID);
-        let newNode = this._makeContactNode(subject, parent);
+        const parentUID = subject.directoryUID;
+        const parent = MailServices.ab.getDirectoryFromUID(parentUID);
+        const newNode = this._makeContactNode(subject, parent);
         if (this._addressBooks?.has(parentUID)) {
-          let parentNode = this._addressBooks.get(parentUID);
+          const parentNode = this._addressBooks.get(parentUID);
           if (parentNode.contacts) {
             parentNode.contacts.set(newNode.id, newNode);
             this._contacts.set(newNode.id, newNode);
           }
           if (parentNode.mailingLists) {
-            for (let mailingList of parentNode.mailingLists.values()) {
+            for (const mailingList of parentNode.mailingLists.values()) {
               if (
                 mailingList.contacts &&
                 mailingList.contacts.has(newNode.id)
@@ -730,10 +730,10 @@ var addressBookCache = new (class extends EventEmitter {
       case "addrbook-contact-deleted": {
         subject.QueryInterface(Ci.nsIAbCard);
 
-        let uid = subject.UID;
+        const uid = subject.UID;
         this._contacts.delete(uid);
         if (this._addressBooks?.has(data)) {
-          let parentNode = this._addressBooks.get(data);
+          const parentNode = this._addressBooks.get(data);
           if (parentNode.contacts) {
             parentNode.contacts.delete(uid);
           }
@@ -745,10 +745,10 @@ var addressBookCache = new (class extends EventEmitter {
       case "addrbook-list-created": {
         subject.QueryInterface(Ci.nsIAbDirectory);
 
-        let parent = MailServices.ab.getDirectoryFromUID(data);
-        let newNode = this._makeDirectoryNode(subject, parent);
+        const parent = MailServices.ab.getDirectoryFromUID(data);
+        const newNode = this._makeDirectoryNode(subject, parent);
         if (this._addressBooks?.has(data)) {
-          let parentNode = this._addressBooks.get(data);
+          const parentNode = this._addressBooks.get(data);
           if (parentNode.mailingLists) {
             parentNode.mailingLists.set(newNode.id, newNode);
           }
@@ -761,7 +761,7 @@ var addressBookCache = new (class extends EventEmitter {
       case "addrbook-list-updated": {
         subject.QueryInterface(Ci.nsIAbDirectory);
 
-        let listNode = this.findMailingListById(subject.UID);
+        const listNode = this.findMailingListById(subject.UID);
         listNode.item = subject;
 
         this.emit("mailing-list-updated", listNode);
@@ -770,10 +770,10 @@ var addressBookCache = new (class extends EventEmitter {
       case "addrbook-list-deleted": {
         subject.QueryInterface(Ci.nsIAbDirectory);
 
-        let uid = subject.UID;
+        const uid = subject.UID;
         this._mailingLists.delete(uid);
         if (this._addressBooks?.has(data)) {
-          let parentNode = this._addressBooks.get(data);
+          const parentNode = this._addressBooks.get(data);
           if (parentNode.mailingLists) {
             parentNode.mailingLists.delete(uid);
           }
@@ -785,8 +785,8 @@ var addressBookCache = new (class extends EventEmitter {
       case "addrbook-list-member-added": {
         subject.QueryInterface(Ci.nsIAbCard);
 
-        let parentNode = this.findMailingListById(data);
-        let newNode = this._makeContactNode(subject, parentNode.item);
+        const parentNode = this.findMailingListById(data);
+        const newNode = this._makeContactNode(subject, parentNode.item);
         if (
           this._mailingLists.has(data) &&
           this._mailingLists.get(data).contacts
@@ -799,9 +799,9 @@ var addressBookCache = new (class extends EventEmitter {
       case "addrbook-list-member-removed": {
         subject.QueryInterface(Ci.nsIAbCard);
 
-        let uid = subject.UID;
+        const uid = subject.UID;
         if (this._mailingLists.has(data)) {
-          let parentNode = this._mailingLists.get(data);
+          const parentNode = this._mailingLists.get(data);
           if (parentNode.contacts) {
             parentNode.contacts.delete(uid);
           }
@@ -816,7 +816,7 @@ var addressBookCache = new (class extends EventEmitter {
   incrementListeners() {
     this.listenerCount++;
     if (this.listenerCount == 1) {
-      for (let topic of this._notifications) {
+      for (const topic of this._notifications) {
         Services.obs.addObserver(this, topic);
       }
     }
@@ -824,7 +824,7 @@ var addressBookCache = new (class extends EventEmitter {
   decrementListeners() {
     this.listenerCount--;
     if (this.listenerCount == 0) {
-      for (let topic of this._notifications) {
+      for (const topic of this._notifications) {
         Services.obs.removeObserver(this, topic);
       }
 
@@ -841,7 +841,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
 
     // addressBooks.*
     onAddressBookCreated({ context, fire }) {
-      let listener = async (event, node) => {
+      const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -859,7 +859,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
       };
     },
     onAddressBookUpdated({ context, fire }) {
-      let listener = async (event, node) => {
+      const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -877,7 +877,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
       };
     },
     onAddressBookDeleted({ context, fire }) {
-      let listener = async (event, itemUID) => {
+      const listener = async (event, itemUID) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -897,7 +897,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
 
     // contacts.*
     onContactCreated({ context, fire }) {
-      let listener = async (event, node) => {
+      const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -915,20 +915,20 @@ this.addressBook = class extends ExtensionAPIPersistent {
       };
     },
     onContactUpdated({ context, fire }) {
-      let listener = async (event, node, changes) => {
+      const listener = async (event, node, changes) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        let filteredChanges = {};
+        const filteredChanges = {};
         // Find changes in flat properties stored in the vCard.
         if (changes.hasOwnProperty("_vCard")) {
-          let oldVCardProperties = VCardProperties.fromVCard(
+          const oldVCardProperties = VCardProperties.fromVCard(
             changes._vCard.oldValue
           ).toPropertyMap();
-          let newVCardProperties = VCardProperties.fromVCard(
+          const newVCardProperties = VCardProperties.fromVCard(
             changes._vCard.newValue
           ).toPropertyMap();
-          for (let [name, value] of oldVCardProperties) {
+          for (const [name, value] of oldVCardProperties) {
             if (newVCardProperties.get(name) != value) {
               filteredChanges[name] = {
                 oldValue: value,
@@ -936,7 +936,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
               };
             }
           }
-          for (let [name, value] of newVCardProperties) {
+          for (const [name, value] of newVCardProperties) {
             if (
               !filteredChanges.hasOwnProperty(name) &&
               oldVCardProperties.get(name) != value
@@ -948,7 +948,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
             }
           }
         }
-        for (let [name, value] of Object.entries(changes)) {
+        for (const [name, value] of Object.entries(changes)) {
           if (!filteredChanges.hasOwnProperty(name) && isCustomProperty(name)) {
             filteredChanges[name] = value;
           }
@@ -967,7 +967,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
       };
     },
     onContactDeleted({ context, fire }) {
-      let listener = async (event, parentUID, itemUID) => {
+      const listener = async (event, parentUID, itemUID) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -987,7 +987,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
 
     // mailingLists.*
     onMailingListCreated({ context, fire }) {
-      let listener = async (event, node) => {
+      const listener = async (event, node) => {
         fire.sync(await addressBookCache.convert(node));
       };
       addressBookCache.on("mailing-list-created", listener);
@@ -1002,7 +1002,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
       };
     },
     onMailingListUpdated({ context, fire }) {
-      let listener = async (event, node) => {
+      const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -1020,7 +1020,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
       };
     },
     onMailingListDeleted({ context, fire }) {
-      let listener = async (event, parentUID, itemUID) => {
+      const listener = async (event, parentUID, itemUID) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -1038,7 +1038,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
       };
     },
     onMemberAdded({ context, fire }) {
-      let listener = async (event, node) => {
+      const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -1056,7 +1056,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
       };
     },
     onMemberRemoved({ context, fire }) {
-      let listener = async (event, parentUID, itemUID) => {
+      const listener = async (event, parentUID, itemUID) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -1085,24 +1085,24 @@ this.addressBook = class extends ExtensionAPIPersistent {
   }
 
   getAPI(context) {
-    let { extension } = context;
-    let { tabManager } = extension;
+    const { extension } = context;
+    const { tabManager } = extension;
 
     return {
       addressBooks: {
         async openUI() {
-          let messengerWindow = windowTracker.topNormalWindow;
-          let abWindow = await messengerWindow.toAddressBook();
+          const messengerWindow = windowTracker.topNormalWindow;
+          const abWindow = await messengerWindow.toAddressBook();
           await new Promise(resolve => abWindow.setTimeout(resolve));
-          let abTab = messengerWindow.document
+          const abTab = messengerWindow.document
             .getElementById("tabmail")
             .tabInfo.find(t => t.mode.name == "addressBookTab");
           return tabManager.convert(abTab);
         },
         async closeUI() {
-          for (let win of Services.wm.getEnumerator("mail:3pane")) {
-            let tabmail = win.document.getElementById("tabmail");
-            for (let tab of tabmail.tabInfo.slice()) {
+          for (const win of Services.wm.getEnumerator("mail:3pane")) {
+            const tabmail = win.document.getElementById("tabmail");
+            for (const tab of tabmail.tabInfo.slice()) {
               if (tab.browser?.currentURI.spec == "about:addressbook") {
                 tabmail.closeTab(tab);
               }
@@ -1123,22 +1123,22 @@ this.addressBook = class extends ExtensionAPIPersistent {
           );
         },
         create({ name }) {
-          let dirName = MailServices.ab.newAddressBook(
+          const dirName = MailServices.ab.newAddressBook(
             name,
             "",
             Ci.nsIAbManager.JS_DIRECTORY_TYPE
           );
-          let directory = MailServices.ab.getDirectoryFromId(dirName);
+          const directory = MailServices.ab.getDirectoryFromId(dirName);
           return directory.UID;
         },
         update(id, { name }) {
-          let node = addressBookCache.findAddressBookById(id);
+          const node = addressBookCache.findAddressBookById(id);
           node.item.dirName = name;
         },
         async delete(id) {
-          let node = addressBookCache.findAddressBookById(id);
-          let deletePromise = new Promise(resolve => {
-            let listener = () => {
+          const node = addressBookCache.findAddressBookById(id);
+          const deletePromise = new Promise(resolve => {
+            const listener = () => {
               addressBookCache.off("address-book-deleted", listener);
               resolve();
             };
@@ -1178,7 +1178,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
                   `addressBook with id=${args.id} already exists.`
                 );
               }
-              let dir = new ExtSearchBook(fire, context, args);
+              const dir = new ExtSearchBook(fire, context, args);
               dir.init();
               MailServices.ab.addAddressBook(dir);
               return () => {
@@ -1190,7 +1190,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
       },
       contacts: {
         list(parentId) {
-          let parentNode = addressBookCache.findAddressBookById(parentId);
+          const parentNode = addressBookCache.findAddressBookById(parentId);
           return addressBookCache.convert(
             addressBookCache.getContacts(parentNode),
             false
@@ -1213,14 +1213,14 @@ this.addressBook = class extends ExtensionAPIPersistent {
             searchString = queryInfo.searchString;
           }
 
-          let searchWords = getSearchTokens(searchString);
+          const searchWords = getSearchTokens(searchString);
           if (searchWords.length == 0) {
             return [];
           }
-          let searchFormat = getModelQuery(
+          const searchFormat = getModelQuery(
             "mail.addr_book.quicksearchquery.format"
           );
-          let searchQuery = generateQueryURI(searchFormat, searchWords);
+          const searchQuery = generateQueryURI(searchFormat, searchWords);
 
           let booksToSearch;
           if (parentId == null) {
@@ -1229,9 +1229,9 @@ this.addressBook = class extends ExtensionAPIPersistent {
             booksToSearch = [addressBookCache.findAddressBookById(parentId)];
           }
 
-          let results = [];
-          let promises = [];
-          for (let book of booksToSearch) {
+          const results = [];
+          const promises = [];
+          for (const book of booksToSearch) {
             if (
               (book.item.isRemote && !queryInfo.includeRemote) ||
               (!book.item.isRemote && !queryInfo.includeLocal) ||
@@ -1275,7 +1275,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
           return setPhotoFile(id, file);
         },
         create(parentId, id, createData) {
-          let parentNode = addressBookCache.findAddressBookById(parentId);
+          const parentNode = addressBookCache.findAddressBookById(parentId);
           if (parentNode.item.readOnly) {
             throw new ExtensionUtils.ExtensionError(
               "Cannot create a contact in a read-only address book"
@@ -1313,12 +1313,14 @@ this.addressBook = class extends ExtensionAPIPersistent {
             }
           }
 
-          let newCard = parentNode.item.addCard(card);
+          const newCard = parentNode.item.addCard(card);
           return newCard.UID;
         },
         update(id, updateData) {
-          let node = addressBookCache.findContactById(id);
-          let parentNode = addressBookCache.findAddressBookById(node.parentId);
+          const node = addressBookCache.findContactById(id);
+          const parentNode = addressBookCache.findAddressBookById(
+            node.parentId
+          );
           if (parentNode.item.readOnly) {
             throw new ExtensionUtils.ExtensionError(
               "Cannot modify a contact in a read-only address book"
@@ -1354,25 +1356,25 @@ this.addressBook = class extends ExtensionAPIPersistent {
             // Get the current vCardProperties, build a propertyMap and create
             // vCardParsed which allows to identify all currently exposed entries
             // based on the typeName used in VCardUtils.jsm (e.g. adr.work).
-            let vCardProperties = vCardPropertiesFromCard(node.item);
-            let vCardParsed = VCardUtils._parse(vCardProperties.entries);
-            let propertyMap = vCardProperties.toPropertyMap();
+            const vCardProperties = vCardPropertiesFromCard(node.item);
+            const vCardParsed = VCardUtils._parse(vCardProperties.entries);
+            const propertyMap = vCardProperties.toPropertyMap();
 
             // Save the old exposed state.
-            let oldProperties = VCardProperties.fromPropertyMap(propertyMap);
-            let oldParsed = VCardUtils._parse(oldProperties.entries);
+            const oldProperties = VCardProperties.fromPropertyMap(propertyMap);
+            const oldParsed = VCardUtils._parse(oldProperties.entries);
             // Update the propertyMap.
-            for (let [name, value] of Object.entries(updateData)) {
+            for (const [name, value] of Object.entries(updateData)) {
               propertyMap.set(name, value);
             }
             // Save the new exposed state.
-            let newProperties = VCardProperties.fromPropertyMap(propertyMap);
-            let newParsed = VCardUtils._parse(newProperties.entries);
+            const newProperties = VCardProperties.fromPropertyMap(propertyMap);
+            const newParsed = VCardUtils._parse(newProperties.entries);
 
             // Evaluate the differences and update the still existing entries,
             // mark removed items for deletion.
-            let deleteLog = [];
-            for (let typeName of oldParsed.keys()) {
+            const deleteLog = [];
+            for (const typeName of oldParsed.keys()) {
               if (typeName == "version") {
                 continue;
               }
@@ -1381,8 +1383,8 @@ this.addressBook = class extends ExtensionAPIPersistent {
                   newParsed.has(typeName) &&
                   idx < newParsed.get(typeName).length
                 ) {
-                  let originalIndex = vCardParsed.get(typeName)[idx].index;
-                  let newEntryIndex = newParsed.get(typeName)[idx].index;
+                  const originalIndex = vCardParsed.get(typeName)[idx].index;
+                  const newEntryIndex = newParsed.get(typeName)[idx].index;
                   vCardProperties.entries[originalIndex] =
                     newProperties.entries[newEntryIndex];
                   // Mark this item as handled.
@@ -1394,16 +1396,16 @@ this.addressBook = class extends ExtensionAPIPersistent {
             }
 
             // Remove entries which have been marked for deletion.
-            for (let deleteIndex of deleteLog.sort((a, b) => a < b)) {
+            for (const deleteIndex of deleteLog.sort((a, b) => a < b)) {
               vCardProperties.entries.splice(deleteIndex, 1);
             }
 
             // Add new entries.
-            for (let typeName of newParsed.keys()) {
+            for (const typeName of newParsed.keys()) {
               if (typeName == "version") {
                 continue;
               }
-              for (let newEntry of newParsed.get(typeName)) {
+              for (const newEntry of newParsed.get(typeName)) {
                 if (newEntry) {
                   vCardProperties.addEntry(
                     newProperties.entries[newEntry.index]
@@ -1425,8 +1427,10 @@ this.addressBook = class extends ExtensionAPIPersistent {
           parentNode.item.modifyCard(card);
         },
         delete(id) {
-          let node = addressBookCache.findContactById(id);
-          let parentNode = addressBookCache.findAddressBookById(node.parentId);
+          const node = addressBookCache.findContactById(id);
+          const parentNode = addressBookCache.findAddressBookById(
+            node.parentId
+          );
           if (parentNode.item.readOnly) {
             throw new ExtensionUtils.ExtensionError(
               "Cannot delete a contact in a read-only address book"
@@ -1458,7 +1462,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
       },
       mailingLists: {
         list(parentId) {
-          let parentNode = addressBookCache.findAddressBookById(parentId);
+          const parentNode = addressBookCache.findAddressBookById(parentId);
           return addressBookCache.convert(
             addressBookCache.getMailingLists(parentNode),
             false
@@ -1471,13 +1475,13 @@ this.addressBook = class extends ExtensionAPIPersistent {
           );
         },
         create(parentId, { name, nickName, description }) {
-          let parentNode = addressBookCache.findAddressBookById(parentId);
+          const parentNode = addressBookCache.findAddressBookById(parentId);
           if (parentNode.item.readOnly) {
             throw new ExtensionUtils.ExtensionError(
               "Cannot create a mailing list in a read-only address book"
             );
           }
-          let mailList = Cc[
+          const mailList = Cc[
             "@mozilla.org/addressbook/directoryproperty;1"
           ].createInstance(Ci.nsIAbDirectory);
           mailList.isMailList = true;
@@ -1485,12 +1489,14 @@ this.addressBook = class extends ExtensionAPIPersistent {
           mailList.listNickName = nickName === null ? "" : nickName;
           mailList.description = description === null ? "" : description;
 
-          let newMailList = parentNode.item.addMailList(mailList);
+          const newMailList = parentNode.item.addMailList(mailList);
           return newMailList.UID;
         },
         update(id, { name, nickName, description }) {
-          let node = addressBookCache.findMailingListById(id);
-          let parentNode = addressBookCache.findAddressBookById(node.parentId);
+          const node = addressBookCache.findMailingListById(id);
+          const parentNode = addressBookCache.findAddressBookById(
+            node.parentId
+          );
           if (parentNode.item.readOnly) {
             throw new ExtensionUtils.ExtensionError(
               "Cannot modify a mailing list in a read-only address book"
@@ -1502,8 +1508,10 @@ this.addressBook = class extends ExtensionAPIPersistent {
           node.item.editMailListToDatabase(null);
         },
         delete(id) {
-          let node = addressBookCache.findMailingListById(id);
-          let parentNode = addressBookCache.findAddressBookById(node.parentId);
+          const node = addressBookCache.findMailingListById(id);
+          const parentNode = addressBookCache.findAddressBookById(
+            node.parentId
+          );
           if (parentNode.item.readOnly) {
             throw new ExtensionUtils.ExtensionError(
               "Cannot delete a mailing list in a read-only address book"
@@ -1513,32 +1521,36 @@ this.addressBook = class extends ExtensionAPIPersistent {
         },
 
         listMembers(id) {
-          let node = addressBookCache.findMailingListById(id);
+          const node = addressBookCache.findMailingListById(id);
           return addressBookCache.convert(
             addressBookCache.getListContacts(node),
             false
           );
         },
         addMember(id, contactId) {
-          let node = addressBookCache.findMailingListById(id);
-          let parentNode = addressBookCache.findAddressBookById(node.parentId);
+          const node = addressBookCache.findMailingListById(id);
+          const parentNode = addressBookCache.findAddressBookById(
+            node.parentId
+          );
           if (parentNode.item.readOnly) {
             throw new ExtensionUtils.ExtensionError(
               "Cannot add to a mailing list in a read-only address book"
             );
           }
-          let contactNode = addressBookCache.findContactById(contactId);
+          const contactNode = addressBookCache.findContactById(contactId);
           node.item.addCard(contactNode.item);
         },
         removeMember(id, contactId) {
-          let node = addressBookCache.findMailingListById(id);
-          let parentNode = addressBookCache.findAddressBookById(node.parentId);
+          const node = addressBookCache.findMailingListById(id);
+          const parentNode = addressBookCache.findAddressBookById(
+            node.parentId
+          );
           if (parentNode.item.readOnly) {
             throw new ExtensionUtils.ExtensionError(
               "Cannot remove from a mailing list in a read-only address book"
             );
           }
-          let contactNode = addressBookCache.findContactById(contactId);
+          const contactNode = addressBookCache.findContactById(contactId);
 
           node.item.deleteCards([contactNode.item]);
         },

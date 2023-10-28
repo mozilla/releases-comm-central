@@ -28,8 +28,8 @@ export class VCardFNComponent extends HTMLElement {
 
   constructor() {
     super();
-    let template = document.getElementById("template-vcard-edit-fn");
-    let clonedTemplate = template.content.cloneNode(true);
+    const template = document.getElementById("template-vcard-edit-fn");
+    const clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
   }
 

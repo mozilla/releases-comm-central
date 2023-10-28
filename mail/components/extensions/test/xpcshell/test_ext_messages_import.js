@@ -15,28 +15,28 @@ var { MailStringUtils } = ChromeUtils.import(
 );
 
 add_task(async function test_import() {
-  let _account = createAccount();
+  const _account = createAccount();
   await createSubfolder(_account.incomingServer.rootFolder, "test1");
   await createSubfolder(_account.incomingServer.rootFolder, "test2");
   await createSubfolder(_account.incomingServer.rootFolder, "test3");
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
         async function do_import(expected, file, folder, options) {
-          let msg = await browser.messages.import(file, folder, options);
+          const msg = await browser.messages.import(file, folder, options);
           browser.test.assertEq(
             "alternative.eml@mime.sample",
             msg.headerMessageId,
             "should find the correct message after import"
           );
-          let { messages } = await browser.messages.list(folder);
+          const { messages } = await browser.messages.list(folder);
           browser.test.assertEq(
             1,
             messages.length,
             "should find the imported message in the destination folder"
           );
-          for (let [propName, value] of Object.entries(expected)) {
+          for (const [propName, value] of Object.entries(expected)) {
             window.assertDeepEqual(
               value,
               messages[0][propName],
@@ -45,21 +45,21 @@ add_task(async function test_import() {
           }
         }
 
-        let accounts = await browser.accounts.list();
+        const accounts = await browser.accounts.list();
         browser.test.assertEq(1, accounts.length);
-        let [account] = accounts;
-        let folder1 = account.folders.find(f => f.name == "test1");
-        let folder2 = account.folders.find(f => f.name == "test2");
-        let folder3 = account.folders.find(f => f.name == "test3");
+        const [account] = accounts;
+        const folder1 = account.folders.find(f => f.name == "test1");
+        const folder2 = account.folders.find(f => f.name == "test2");
+        const folder3 = account.folders.find(f => f.name == "test3");
         browser.test.assertTrue(folder1, "Test folder should exist");
         browser.test.assertTrue(folder2, "Test folder should exist");
         browser.test.assertTrue(folder3, "Test folder should exist");
 
-        let [emlFileContent] = await window.sendMessage(
+        const [emlFileContent] = await window.sendMessage(
           "getFileContent",
           "messages/alternative.eml"
         );
-        let file = new File([emlFileContent], "test.eml");
+        const file = new File([emlFileContent], "test.eml");
 
         if (account.type == "nntp" || account.type == "imap") {
           // nsIMsgCopyService.copyFileMessage() not implemented for NNTP.
@@ -109,7 +109,7 @@ add_task(async function test_import() {
   });
 
   extension.onMessage("getFileContent", async path => {
-    let raw = await IOUtils.read(do_get_file(path).path);
+    const raw = await IOUtils.read(do_get_file(path).path);
     extension.sendMessage(MailStringUtils.uint8ArrayToByteString(raw));
   });
 

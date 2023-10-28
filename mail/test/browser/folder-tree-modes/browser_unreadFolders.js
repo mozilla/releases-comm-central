@@ -71,7 +71,7 @@ add_task(async function test_folder_population() {
  * change the selected folder in unread folders mode.
  */
 add_task(async function test_newly_added_folder() {
-  let [newSet] = await make_message_sets_in_folders(
+  const [newSet] = await make_message_sets_in_folders(
     [trashFolder],
     [{ count: 1 }]
   );

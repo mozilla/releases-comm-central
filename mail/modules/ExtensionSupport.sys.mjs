@@ -69,9 +69,9 @@ export var ExtensionSupport = {
     } else {
       openWindowList = new Set();
       // Get the list of windows already open.
-      let windows = Services.wm.getEnumerator(null);
+      const windows = Services.wm.getEnumerator(null);
       while (windows.hasMoreElements()) {
-        let domWindow = windows.getNext();
+        const domWindow = windows.getNext();
         if (domWindow.document.location.href === "about:blank") {
           ExtensionSupport._waitForLoad(domWindow, aID);
         } else {
@@ -97,7 +97,7 @@ export var ExtensionSupport = {
       return false;
     }
 
-    let windowListener = extensionHooks.get(aID);
+    const windowListener = extensionHooks.get(aID);
     if (!windowListener) {
       console.error(
         "Couldn't remove window listener for extension + '" + aID + "'"
@@ -127,7 +127,7 @@ export var ExtensionSupport = {
     // nsIWindowMediatorListener functions
     onOpenWindow(appWindow) {
       // A new window has opened.
-      let domWindow = appWindow.docShell.domWindow;
+      const domWindow = appWindow.docShell.domWindow;
 
       // Here we pass no caller ID, so all registered callers get notified.
       ExtensionSupport._waitForLoad(domWindow);
@@ -135,7 +135,7 @@ export var ExtensionSupport = {
 
     onCloseWindow(appWindow) {
       // One of the windows has closed.
-      let domWindow = appWindow.docShell.domWindow;
+      const domWindow = appWindow.docShell.domWindow;
       openWindowList.delete(domWindow);
     },
   },
@@ -190,7 +190,7 @@ export var ExtensionSupport = {
     if (aID) {
       checkAndRunExtensionCode(extensionHooks.get(aID));
     } else {
-      for (let extensionHook of extensionHooks.values()) {
+      for (const extensionHook of extensionHooks.values()) {
         checkAndRunExtensionCode(extensionHook);
       }
     }
@@ -204,7 +204,7 @@ export var ExtensionSupport = {
      */
     function checkAndRunExtensionCode(aExtensionHook) {
       try {
-        let windowChromeURL = aWindow.document.location.href;
+        const windowChromeURL = aWindow.document.location.href;
         // Check if extension applies to this document URL.
         if (
           "chromeURLs" in aExtensionHook &&

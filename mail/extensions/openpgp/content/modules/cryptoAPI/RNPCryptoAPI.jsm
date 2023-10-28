@@ -92,7 +92,7 @@ class RNPCryptoAPI extends CryptoAPI {
     permissive,
     limitedFPRs = []
   ) {
-    let res = await RNP.importPubkeyBlockAutoAcceptImpl(
+    const res = await RNP.importPubkeyBlockAutoAcceptImpl(
       win,
       keyBlock,
       acceptance,
@@ -160,7 +160,7 @@ class RNPCryptoAPI extends CryptoAPI {
    */
 
   async decryptAttachment(encrypted) {
-    let options = {};
+    const options = {};
     options.fromAddr = "";
     options.msgDate = null;
     return RNP.decrypt(encrypted, options);
@@ -255,7 +255,7 @@ class RNPCryptoAPI extends CryptoAPI {
   }
 
   async genKey(userId, keyType, keySize, expiryTime, passphrase) {
-    let id = RNP.genKey(userId, keyType, keySize, expiryTime, passphrase);
+    const id = RNP.genKey(userId, keyType, keySize, expiryTime, passphrase);
     await RNP.saveKeyRings();
     return id;
   }

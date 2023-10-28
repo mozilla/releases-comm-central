@@ -4,8 +4,8 @@
 
 var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 
-let servers = ["server", "rssRoot"];
-let realFolders = ["plain", "inbox", "junk", "trash", "rssFeed"];
+const servers = ["server", "rssRoot"];
+const realFolders = ["plain", "inbox", "junk", "trash", "rssFeed"];
 
 const folderPaneContextData = {
   "folderPaneContext-getMessages": [...servers, "rssFeed"],
@@ -34,9 +34,9 @@ const folderPaneContextData = {
   "folderPaneContext-copyMenu": ["plain", "rssFeed"],
 };
 
-let tabmail = document.getElementById("tabmail");
-let about3Pane = tabmail.currentAbout3Pane;
-let context = about3Pane.document.getElementById("folderPaneContext");
+const tabmail = document.getElementById("tabmail");
+const about3Pane = tabmail.currentAbout3Pane;
+const context = about3Pane.document.getElementById("folderPaneContext");
 let account;
 let rootFolder,
   plainFolder,
@@ -70,12 +70,12 @@ add_setup(async function () {
 
   virtualFolder = rootFolder.createLocalSubfolder("folderPaneContextVirtual");
   virtualFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  let msgDatabase = virtualFolder.msgDatabase;
-  let folderInfo = msgDatabase.dBFolderInfo;
+  const msgDatabase = virtualFolder.msgDatabase;
+  const folderInfo = msgDatabase.dBFolderInfo;
   folderInfo.setCharProperty("searchStr", "ALL");
   folderInfo.setCharProperty("searchFolderUri", plainFolder.URI);
 
-  let rssAccount = FeedUtils.createRssAccount("rss");
+  const rssAccount = FeedUtils.createRssAccount("rss");
   rssRootFolder = rssAccount.incomingServer.rootFolder;
   FeedUtils.subscribeToFeed(
     "https://example.org/browser/comm/mail/base/test/browser/files/rss.xml?folderPaneContext",
@@ -139,7 +139,7 @@ add_task(async function testShownItems() {
  */
 add_task(async function testOpen() {
   async function promiseTabOpenAndReady() {
-    let event = await BrowserTestUtils.waitForEvent(
+    const event = await BrowserTestUtils.waitForEvent(
       tabmail.tabContainer,
       "TabOpen"
     );
@@ -152,7 +152,7 @@ add_task(async function testOpen() {
   }
 
   async function promiseWindowOpenAndReady() {
-    let win = await BrowserTestUtils.domWindowOpenedAndLoaded(
+    const win = await BrowserTestUtils.domWindowOpenedAndLoaded(
       undefined,
       win => win.location.href == "chrome://messenger/content/messenger.xhtml"
     );
@@ -252,10 +252,10 @@ add_task(async function testOpen() {
   // Open in a new window.
 
   leftClickOn(trashFolder);
-  let winPromise = promiseWindowOpenAndReady();
+  const winPromise = promiseWindowOpenAndReady();
   await rightClickAndActivate(trashFolder, "folderPaneContext-openNewWindow");
-  let win = await winPromise;
-  let winTabmail = win.document.getElementById("tabmail");
+  const win = await winPromise;
+  const winTabmail = win.document.getElementById("tabmail");
 
   Assert.equal(winTabmail.tabInfo.length, 1, "new window should have 1 tab");
   Assert.equal(
@@ -277,7 +277,7 @@ add_task(async function testOpen() {
  * Tests "New Folder", "Rename" and "Delete".
  */
 add_task(async function testNewRenameDelete() {
-  let newFolderPromise = BrowserTestUtils.promiseAlertDialog(
+  const newFolderPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://messenger/content/newFolderDialog.xhtml",
     {
@@ -302,7 +302,7 @@ add_task(async function testNewRenameDelete() {
           parentInput.menupopup,
           "shown"
         );
-        let rootFolderMenu = [...parentInput.menupopup.children].find(
+        const rootFolderMenu = [...parentInput.menupopup.children].find(
           m => m._folder == rootFolder
         );
         rootFolderMenu.openMenu(true);
@@ -326,14 +326,14 @@ add_task(async function testNewRenameDelete() {
   await rightClickAndActivate(plainFolder, "folderPaneContext-new");
   await newFolderPromise;
 
-  let newFolder = rootFolder.getChildNamed("folderPaneContextNew");
+  const newFolder = rootFolder.getChildNamed("folderPaneContextNew");
   Assert.ok(newFolder);
   await TestUtils.waitForCondition(
     () => about3Pane.folderPane.getRowForFolder(newFolder, "all"),
     "waiting for folder to appear in the folder tree"
   );
 
-  let renameFolderPromise = BrowserTestUtils.promiseAlertDialog(
+  const renameFolderPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://messenger/content/renameFolderDialog.xhtml",
     {
@@ -362,7 +362,7 @@ add_task(async function testNewRenameDelete() {
   await rightClickAndActivate(newFolder, "folderPaneContext-rename");
   await renameFolderPromise;
 
-  let renamedFolder = rootFolder.getChildNamed("folderPaneContextRenamed");
+  const renamedFolder = rootFolder.getChildNamed("folderPaneContextRenamed");
   Assert.ok(renamedFolder);
   await TestUtils.waitForCondition(
     () => about3Pane.folderPane.getRowForFolder(renamedFolder, "all"),
@@ -384,7 +384,7 @@ add_task(async function testNewRenameDelete() {
  * Tests "Properties" (folders) and "Settings" (servers).
  */
 add_task(async function testPropertiesSettings() {
-  let folderPropsPromise = BrowserTestUtils.promiseAlertDialog(
+  const folderPropsPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://messenger/content/folderProps.xhtml",
     {
@@ -407,7 +407,7 @@ add_task(async function testPropertiesSettings() {
   await rightClickAndActivate(plainFolder, "folderPaneContext-properties");
   await folderPropsPromise;
 
-  let virtualPropsPromise = BrowserTestUtils.promiseAlertDialog(
+  const virtualPropsPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://messenger/content/virtualFolderProperties.xhtml",
     {
@@ -434,16 +434,16 @@ add_task(async function testPropertiesSettings() {
   await rightClickAndActivate(virtualFolder, "folderPaneContext-properties");
   await virtualPropsPromise;
 
-  let tabPromise = BrowserTestUtils.waitForEvent(
+  const tabPromise = BrowserTestUtils.waitForEvent(
     tabmail.tabContainer,
     "TabOpen"
   );
   leftClickOn(rootFolder);
   await rightClickAndActivate(rootFolder, "folderPaneContext-settings");
-  let {
+  const {
     detail: { tabInfo },
   } = await tabPromise;
-  let browser = tabInfo.browser;
+  const browser = tabInfo.browser;
 
   Assert.equal(
     tabmail.currentTabInfo,
@@ -493,21 +493,21 @@ function checkMenuitems(menu, mode) {
 
   Assert.notEqual(menu.state, "closed");
 
-  let expectedItems = [];
-  for (let [id, modes] of Object.entries(folderPaneContextData)) {
+  const expectedItems = [];
+  for (const [id, modes] of Object.entries(folderPaneContextData)) {
     if (modes === true || modes.includes(mode)) {
       expectedItems.push(id);
     }
   }
 
-  let actualItems = [];
-  for (let item of menu.children) {
+  const actualItems = [];
+  for (const item of menu.children) {
     if (["menu", "menuitem"].includes(item.localName) && !item.hidden) {
       actualItems.push(item.id);
     }
   }
 
-  let notFoundItems = expectedItems.filter(i => !actualItems.includes(i));
+  const notFoundItems = expectedItems.filter(i => !actualItems.includes(i));
   if (notFoundItems.length) {
     Assert.report(
       true,
@@ -517,7 +517,7 @@ function checkMenuitems(menu, mode) {
     );
   }
 
-  let unexpectedItems = actualItems.filter(i => !expectedItems.includes(i));
+  const unexpectedItems = actualItems.filter(i => !expectedItems.includes(i));
   if (unexpectedItems.length) {
     Assert.report(
       true,

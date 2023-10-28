@@ -21,11 +21,11 @@ const TEST_IMAGE_URL =
 let about3Pane, testFolder;
 
 async function getImageArrayBuffer() {
-  let response = await fetch(TEST_IMAGE_URL);
-  let blob = await response.blob();
+  const response = await fetch(TEST_IMAGE_URL);
+  const blob = await response.blob();
 
   return new Promise((resolve, reject) => {
-    let reader = new FileReader();
+    const reader = new FileReader();
     reader.addEventListener("loadend", event => {
       resolve(event.target.result);
     });
@@ -42,8 +42,8 @@ function checkMenuitems(menu, ...expectedItems) {
 
   Assert.notEqual(menu.state, "closed");
 
-  let actualItems = [];
-  for (let item of menu.children) {
+  const actualItems = [];
+  for (const item of menu.children) {
     if (
       ["menu", "menuitem", "menugroup"].includes(item.localName) &&
       !item.hidden
@@ -67,11 +67,11 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
     );
   }
 
-  let browserContext = doc.getElementById("browserContext");
-  let isMac = AppConstants.platform == "macosx";
-  let isWebPage =
+  const browserContext = doc.getElementById("browserContext");
+  const isMac = AppConstants.platform == "macosx";
+  const isWebPage =
     browser.currentURI.schemeIs("http") || browser.currentURI.schemeIs("https");
-  let isExtensionPage = browser.currentURI.schemeIs("moz-extension");
+  const isExtensionPage = browser.currentURI.schemeIs("moz-extension");
 
   // Just some text.
 
@@ -86,7 +86,7 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
   );
   await shownPromise;
 
-  let expectedContextItems = [];
+  const expectedContextItems = [];
   if (isWebPage || isExtensionPage) {
     if (isMac) {
       // Mac has the nav items directly in the context menu and not in the horizontal
@@ -168,7 +168,7 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
     "browserContext-saveimage"
   );
 
-  let pickerPromise = new Promise(resolve => {
+  const pickerPromise = new Promise(resolve => {
     SpecialPowers.MockFilePicker.init(window);
     SpecialPowers.MockFilePicker.showCallback = picker => {
       resolve(picker.defaultString);
@@ -182,17 +182,17 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
 
 add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("browserContextFolder", null);
   testFolder = rootFolder
     .getChildNamed("browserContextFolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  let message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
+  const message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
   testFolder.addMessageBatch([message]);
-  let messages = new MessageGenerator().makeMessages({ count: 5 });
-  let messageStrings = messages.map(message => message.toMboxString());
+  const messages = new MessageGenerator().makeMessages({ count: 5 });
+  const messageStrings = messages.map(message => message.toMboxString());
   testFolder.addMessageBatch(messageStrings);
 
   about3Pane = document.getElementById("tabmail").currentAbout3Pane;
@@ -213,15 +213,15 @@ add_task(async function testMessagePane() {
 });
 
 add_task(async function testContentTab() {
-  let tab = window.openContentTab(TEST_DOCUMENT_URL);
+  const tab = window.openContentTab(TEST_DOCUMENT_URL);
   await checkABrowser(tab.browser);
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tab);
 });
 
 add_task(async function testExtensionTab() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
       await browser.tabs.create({ url: "sampleContent.html" });
       browser.test.notifyPass("ready");
@@ -237,7 +237,7 @@ add_task(async function testExtensionTab() {
   await extension.startup();
   await extension.awaitFinish("ready");
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   await checkABrowser(tabmail.tabInfo[1].browser);
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
 
@@ -245,7 +245,7 @@ add_task(async function testExtensionTab() {
 });
 
 add_task(async function testExtensionPopupWindow() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
       await browser.windows.create({
         url: "sampleContent.html",
@@ -266,7 +266,7 @@ add_task(async function testExtensionPopupWindow() {
   await extension.startup();
   await extension.awaitFinish("ready");
 
-  let extensionPopup = Services.wm.getMostRecentWindow("mail:extensionPopup");
+  const extensionPopup = Services.wm.getMostRecentWindow("mail:extensionPopup");
   // extensionPopup.xhtml needs time to initialise properly.
   await new Promise(resolve => extensionPopup.setTimeout(resolve, 500));
   await checkABrowser(extensionPopup.document.getElementById("requestFrame"));
@@ -276,7 +276,7 @@ add_task(async function testExtensionPopupWindow() {
 });
 
 add_task(async function testExtensionBrowserAction() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
         response.text()
@@ -297,7 +297,7 @@ add_task(async function testExtensionBrowserAction() {
 
   await extension.startup();
 
-  let { panel, browser } = await openExtensionPopup(
+  const { panel, browser } = await openExtensionPopup(
     window,
     "ext-browsercontext\\@mochi.test"
   );
@@ -312,7 +312,7 @@ add_task(async function testExtensionBrowserAction() {
 });
 
 add_task(async function testExtensionComposeAction() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
         response.text()
@@ -333,19 +333,19 @@ add_task(async function testExtensionComposeAction() {
 
   await extension.startup();
 
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
-  let composeWindowPromise = BrowserTestUtils.domWindowOpened();
+  const composeWindowPromise = BrowserTestUtils.domWindowOpened();
   MailServices.compose.OpenComposeWindowWithParams(null, params);
-  let composeWindow = await composeWindowPromise;
+  const composeWindow = await composeWindowPromise;
   await BrowserTestUtils.waitForEvent(composeWindow, "load");
 
-  let { panel, browser } = await openExtensionPopup(
+  const { panel, browser } = await openExtensionPopup(
     composeWindow,
     "browsercontext_mochi_test-composeAction-toolbarbutton"
   );
@@ -357,7 +357,7 @@ add_task(async function testExtensionComposeAction() {
 });
 
 add_task(async function testExtensionMessageDisplayAction() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
         response.text()
@@ -378,15 +378,15 @@ add_task(async function testExtensionMessageDisplayAction() {
 
   await extension.startup();
 
-  let messageWindowPromise = BrowserTestUtils.domWindowOpened();
+  const messageWindowPromise = BrowserTestUtils.domWindowOpened();
   window.MsgOpenNewWindowForMessage([...testFolder.messages][0]);
-  let messageWindow = await messageWindowPromise;
-  let { target: aboutMessage } = await BrowserTestUtils.waitForEvent(
+  const messageWindow = await messageWindowPromise;
+  const { target: aboutMessage } = await BrowserTestUtils.waitForEvent(
     messageWindow,
     "aboutMessageLoaded"
   );
 
-  let { panel, browser } = await openExtensionPopup(
+  const { panel, browser } = await openExtensionPopup(
     aboutMessage,
     "browsercontext_mochi_test-messageDisplayAction-toolbarbutton"
   );

@@ -88,8 +88,8 @@ function setup_accounts() {
   localAccountUtils.loadLocalMailAccount();
 
   // Now run through the details and set up accounts accordingly.
-  for (let details of gAccountList) {
-    let server = localAccountUtils.create_incoming_server(
+  for (const details of gAccountList) {
+    const server = localAccountUtils.create_incoming_server(
       details.type,
       details.port,
       details.user,
@@ -98,9 +98,9 @@ function setup_accounts() {
     server.socketType = details.socketType;
     server.authMethod = details.authMethod;
     gSensitiveData.push(details.password);
-    let account = MailServices.accounts.FindAccountForServer(server);
-    for (let smtpDetails of details.smtpServers) {
-      let outgoing = localAccountUtils.create_outgoing_server(
+    const account = MailServices.accounts.FindAccountForServer(server);
+    for (const smtpDetails of details.smtpServers) {
+      const outgoing = localAccountUtils.create_outgoing_server(
         smtpDetails.port,
         smtpDetails.user,
         smtpDetails.password
@@ -127,25 +127,25 @@ function setup_accounts() {
  * Verify that the given account's details match our details for the key.
  */
 function verify_account_details(aDetails) {
-  let expectedDetails = gAccountMap.get(aDetails.key);
+  const expectedDetails = gAccountMap.get(aDetails.key);
   // All our servers are at localhost
-  let expectedHostDetails =
+  const expectedHostDetails =
     "(" + expectedDetails.type + ") localhost:" + expectedDetails.port;
   Assert.equal(aDetails.hostDetails, expectedHostDetails);
   Assert.equal(aDetails.socketType, expectedDetails.socketType);
   Assert.equal(aDetails.authMethod, expectedDetails.authMethod);
 
-  let smtpToSee = expectedDetails.smtpServers.map(
+  const smtpToSee = expectedDetails.smtpServers.map(
     smtpDetails => "localhost:" + smtpDetails.port
   );
 
-  for (let smtpDetails of aDetails.smtpServers) {
+  for (const smtpDetails of aDetails.smtpServers) {
     // Check that we're expecting to see this server
-    let toSeeIndex = smtpToSee.indexOf(smtpDetails.name);
+    const toSeeIndex = smtpToSee.indexOf(smtpDetails.name);
     Assert.notEqual(toSeeIndex, -1);
     smtpToSee.splice(toSeeIndex, 1);
 
-    let expectedSMTPDetails = gSMTPMap.get(smtpDetails.name);
+    const expectedSMTPDetails = gSMTPMap.get(smtpDetails.name);
     Assert.equal(smtpDetails.socketType, expectedSMTPDetails.socketType);
     Assert.equal(smtpDetails.authMethod, expectedSMTPDetails.authMethod);
     Assert.equal(smtpDetails.isDefault, expectedSMTPDetails.isDefault);
@@ -162,7 +162,7 @@ function verify_account_details(aDetails) {
  * on.
  */
 function test_get_file_system_type() {
-  let fsType = AboutSupportPlatform.getFileSystemType(do_get_cwd());
+  const fsType = AboutSupportPlatform.getFileSystemType(do_get_cwd());
   if ("nsILocalFileMac" in Ci) {
     // Mac should return null
     Assert.equal(fsType, null);
@@ -176,17 +176,17 @@ function test_get_file_system_type() {
  * Test the getAccountDetails function.
  */
 function test_get_account_details() {
-  let accountDetails = AboutSupport.getAccountDetails();
-  let accountDetailsText = uneval(accountDetails);
+  const accountDetails = AboutSupport.getAccountDetails();
+  const accountDetailsText = uneval(accountDetails);
   // The list of accounts we are looking for
-  let accountsToSee = [...gAccountMap.keys()];
+  const accountsToSee = [...gAccountMap.keys()];
 
   // Our first check is to see that no sensitive data has crept in
-  for (let data of gSensitiveData) {
+  for (const data of gSensitiveData) {
     Assert.ok(!accountDetailsText.includes(data));
   }
 
-  for (let details of accountDetails) {
+  for (const details of accountDetails) {
     // We're going to make one exception: for the local folders server. We don't
     // care too much about its details.
     if (details.key == localAccountUtils.msgAccount.key) {
@@ -194,7 +194,7 @@ function test_get_account_details() {
     }
 
     // Check that we're expecting to see this server
-    let toSeeIndex = accountsToSee.indexOf(details.key);
+    const toSeeIndex = accountsToSee.indexOf(details.key);
     Assert.notEqual(toSeeIndex, -1);
     accountsToSee.splice(toSeeIndex, 1);
 
@@ -213,7 +213,7 @@ function run_test() {
 
   setup_accounts();
 
-  for (let test of tests) {
+  for (const test of tests) {
     test();
   }
 }

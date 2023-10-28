@@ -38,7 +38,7 @@ var EnigmailFixExchangeMsg = {
    * @return {nsMsgKey}              upon success, the promise returns the messageKey
    */
   async fixExchangeMessage(hdr, brokenByApp, destFolderUri = null) {
-    let msgUriSpec = hdr.folder.getUriForMsg(hdr);
+    const msgUriSpec = hdr.folder.getUriForMsg(hdr);
     lazy.EnigmailLog.DEBUG(
       "fixExchangeMsg.jsm: fixExchangeMessage: msgUriSpec: " + msgUriSpec + "\n"
     );
@@ -49,7 +49,7 @@ var EnigmailFixExchangeMsg = {
 
     this.msgSvc = MailServices.messageServiceFromURI(msgUriSpec);
 
-    let fixedMsgData = await this.getMessageBody();
+    const fixedMsgData = await this.getMessageBody();
 
     lazy.EnigmailLog.DEBUG(
       "fixExchangeMsg.jsm: fixExchangeMessage: got fixedMsgData\n"
@@ -70,7 +70,7 @@ var EnigmailFixExchangeMsg = {
     var self = this;
 
     return new Promise(function (resolve, reject) {
-      let url = lazy.EnigmailFuncs.getUrlFromUriSpec(
+      const url = lazy.EnigmailFuncs.getUrlFromUriSpec(
         self.hdr.folder.getUriForMsg(self.hdr)
       );
 
@@ -78,7 +78,7 @@ var EnigmailFixExchangeMsg = {
         "fixExchangeMsg.jsm: getting data from URL " + url + "\n"
       );
 
-      let s = lazy.EnigmailStreams.newStringStreamListener(function (data) {
+      const s = lazy.EnigmailStreams.newStringStreamListener(function (data) {
         lazy.EnigmailLog.DEBUG(
           "fixExchangeMsg.jsm: analyzeDecryptedData: got " +
             data.length +
@@ -91,7 +91,7 @@ var EnigmailFixExchangeMsg = {
           );
         }
 
-        let [good, errorCode, msg] = self.getRepairedMessage(data);
+        const [good, errorCode, msg] = self.getRepairedMessage(data);
 
         if (!good) {
           reject(errorCode);
@@ -101,7 +101,7 @@ var EnigmailFixExchangeMsg = {
       });
 
       try {
-        let channel = lazy.EnigmailStreams.createChannel(url);
+        const channel = lazy.EnigmailStreams.createChannel(url);
         channel.asyncOpen(s, null);
       } catch (e) {
         lazy.EnigmailLog.DEBUG(
@@ -114,21 +114,21 @@ var EnigmailFixExchangeMsg = {
   getRepairedMessage(data) {
     this.determineCreatorApp(data);
 
-    let hdrEnd = data.search(/\r?\n\r?\n/);
+    const hdrEnd = data.search(/\r?\n\r?\n/);
 
     if (hdrEnd <= 0) {
       // cannot find end of header data
       return [false, 0, ""];
     }
 
-    let hdrLines = data.substr(0, hdrEnd).split(/\r?\n/);
-    let hdrObj = this.getFixedHeaderData(hdrLines);
+    const hdrLines = data.substr(0, hdrEnd).split(/\r?\n/);
+    const hdrObj = this.getFixedHeaderData(hdrLines);
 
     if (hdrObj.headers.length === 0 || hdrObj.boundary.length === 0) {
       return [false, 1, ""];
     }
 
-    let boundary = hdrObj.boundary;
+    const boundary = hdrObj.boundary;
     let body;
 
     switch (this.brokenByApp) {
@@ -165,10 +165,10 @@ var EnigmailFixExchangeMsg = {
       return;
     }
 
-    let msgTree = lazy.EnigmailMime.getMimeTree(msgData, false);
+    const msgTree = lazy.EnigmailMime.getMimeTree(msgData, false);
 
     try {
-      let isIPGMail =
+      const isIPGMail =
         msgTree.subParts.length === 3 &&
         (msgTree.subParts[0].headers.get("content-type").type.toLowerCase() ===
           "text/plain" ||
@@ -198,7 +198,7 @@ var EnigmailFixExchangeMsg = {
         hdrLines.length +
         "'\n"
     );
-    let r = {
+    const r = {
       headers: "",
       boundary: "",
     };
@@ -224,7 +224,7 @@ var EnigmailFixExchangeMsg = {
           if (endOfCTL) {
             // we got the complete content-type header
             contentTypeLine = contentTypeLine.replace(/[\r\n]/g, "");
-            let h = lazy.EnigmailFuncs.getHeaderData(contentTypeLine);
+            const h = lazy.EnigmailFuncs.getHeaderData(contentTypeLine);
             r.boundary = h.boundary || "";
             break;
           }
@@ -258,7 +258,7 @@ var EnigmailFixExchangeMsg = {
     );
     // Escape regex chars in the boundary.
     boundary = boundary.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
-    let boundRx = new RegExp("^--" + boundary, "gm");
+    const boundRx = new RegExp("^--" + boundary, "gm");
     let match = boundRx.exec(bodyData);
 
     if (match.index < 0) {
@@ -268,7 +268,7 @@ var EnigmailFixExchangeMsg = {
       return null;
     }
 
-    let skipStart = match.index;
+    const skipStart = match.index;
     // found first instance -- that's the message part to ignore
     match = boundRx.exec(bodyData);
     if (match.index <= 0) {
@@ -278,7 +278,7 @@ var EnigmailFixExchangeMsg = {
       return null;
     }
 
-    let versionIdent = match.index;
+    const versionIdent = match.index;
 
     if (
       bodyData
@@ -301,8 +301,8 @@ var EnigmailFixExchangeMsg = {
       return null;
     }
 
-    let encData = match.index;
-    let mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+    const encData = match.index;
+    const mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
       Ci.nsIMimeHeaders
     );
     mimeHdr.initialize(bodyData.substring(versionIdent, encData));
@@ -340,7 +340,7 @@ var EnigmailFixExchangeMsg = {
     );
     // Escape regex chars.
     boundary = boundary.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
-    let boundRx = new RegExp("^--" + boundary, "gm");
+    const boundRx = new RegExp("^--" + boundary, "gm");
     let match = boundRx.exec(bodyData);
 
     if (match.index < 0) {
@@ -359,7 +359,7 @@ var EnigmailFixExchangeMsg = {
       return null;
     }
 
-    let encData = match.index;
+    const encData = match.index;
 
     match = boundRx.exec(bodyData);
     if (match.index < 0) {
@@ -369,12 +369,12 @@ var EnigmailFixExchangeMsg = {
       return null;
     }
 
-    let mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
+    const mimeHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
       Ci.nsIMimeHeaders
     );
 
     mimeHdr.initialize(bodyData.substr(encData, 5000));
-    let ct = mimeHdr.extractHeader("content-type", false);
+    const ct = mimeHdr.extractHeader("content-type", false);
     if (!ct || ct.search(/application\/pgp-encrypted/i) < 0) {
       lazy.EnigmailLog.DEBUG(
         "fixExchangeMsg.jsm: getCorrectediPGMailBodyData: wrong content-type of PGP/MIME data\n"
@@ -403,7 +403,7 @@ var EnigmailFixExchangeMsg = {
   },
 
   ensureExpectedStructure(msgData) {
-    let msgTree = lazy.EnigmailMime.getMimeTree(msgData, true);
+    const msgTree = lazy.EnigmailMime.getMimeTree(msgData, true);
 
     // check message structure
     let ok =
@@ -419,9 +419,9 @@ var EnigmailFixExchangeMsg = {
 
     if (ok) {
       // check for existence of PGP Armor
-      let body = msgTree.subParts[1].body;
-      let p0 = body.search(/^-----BEGIN PGP MESSAGE-----$/m);
-      let p1 = body.search(/^-----END PGP MESSAGE-----$/m);
+      const body = msgTree.subParts[1].body;
+      const p0 = body.search(/^-----BEGIN PGP MESSAGE-----$/m);
+      const p1 = body.search(/^-----END PGP MESSAGE-----$/m);
 
       ok = p0 >= 0 && p1 > p0 + 32;
     }

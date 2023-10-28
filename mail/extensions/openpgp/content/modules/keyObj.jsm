@@ -135,7 +135,7 @@ class EnigmailKeyObj {
       "userId",
       "hasIgnoredAttributes",
     ];
-    for (let i of ATTRS) {
+    for (const i of ATTRS) {
       if (i in keyData) {
         this[i] = keyData[i];
       }
@@ -146,8 +146,8 @@ class EnigmailKeyObj {
    * create a copy of the object
    */
   clone() {
-    let cp = new EnigmailKeyObj(["copy"]);
-    for (let i in this) {
+    const cp = new EnigmailKeyObj(["copy"]);
+    for (const i in this) {
       if (i !== "fprFormatted") {
         if (typeof this[i] !== "function") {
           if (typeof this[i] === "object") {
@@ -169,7 +169,7 @@ class EnigmailKeyObj {
    */
   hasSubUserIds() {
     let nUid = 0;
-    for (let i in this.userIds) {
+    for (const i in this.userIds) {
       if (this.userIds[i].type === "uid") {
         ++nUid;
       }
@@ -200,7 +200,7 @@ class EnigmailKeyObj {
    *   - reason: String (explanation of invalidity)
    */
   getPubKeyValidity(exceptionReason = null) {
-    let retVal = {
+    const retVal = {
       keyValid: false,
       reason: "",
     };
@@ -234,7 +234,7 @@ class EnigmailKeyObj {
    *   - reason: String (explanation of invalidity)
    */
   getSigningValidity(exceptionReason = null) {
-    let retVal = this.getPubKeyValidity(exceptionReason);
+    const retVal = this.getPubKeyValidity(exceptionReason);
 
     if (!retVal.keyValid) {
       return retVal;
@@ -259,7 +259,7 @@ class EnigmailKeyObj {
     let found = 0;
     let noSecret = 0;
 
-    for (let sk in this.subKeys) {
+    for (const sk in this.subKeys) {
       if (this.subKeys[sk].keyUseFor.search(/s/) >= 0) {
         if (
           this.subKeys[sk].keyTrust.search(/e/i) >= 0 &&
@@ -343,7 +343,7 @@ class EnigmailKeyObj {
     exceptionReason = null,
     subId = null
   ) {
-    let retVal = this.getPubKeyValidity(exceptionReason);
+    const retVal = this.getPubKeyValidity(exceptionReason);
     if (!retVal.keyValid) {
       return retVal;
     }
@@ -369,7 +369,7 @@ class EnigmailKeyObj {
     let found = 0;
     let noSecret = 0;
 
-    for (let sk of this.subKeys) {
+    for (const sk of this.subKeys) {
       if (subId && subId != sk.keyId) {
         continue;
       }
@@ -392,7 +392,7 @@ class EnigmailKeyObj {
     }
 
     if (!found) {
-      let idToShow = subId ? subId : this.keyId;
+      const idToShow = subId ? subId : this.keyId;
 
       if (exceptionReason != "ignoreExpired" && expired) {
         retVal.reason = lazy.l10n.formatValueSync(
@@ -448,7 +448,7 @@ class EnigmailKeyObj {
       expiryDate = this.expiryTime;
     }
 
-    for (let sk in this.subKeys) {
+    for (const sk in this.subKeys) {
       if (this.subKeys[sk].keyUseFor.search(/[eE]/) >= 0) {
         let expiry = this.subKeys[sk].expiryTime;
         if (expiry === 0) {
@@ -504,7 +504,7 @@ class EnigmailKeyObj {
 
       let foundUid = false,
         uid = "";
-      for (let i in this.userIds) {
+      for (const i in this.userIds) {
         try {
           uid = lazy.EnigmailFuncs.stripEmail(
             this.userIds[i].userId.toLowerCase()
@@ -538,7 +538,7 @@ class EnigmailKeyObj {
       subkeysArr = null;
 
     // search for valid subkeys
-    for (let sk in this.subKeys) {
+    for (const sk in this.subKeys) {
       if (!"indDre".includes(this.subKeys[sk].keyTrust)) {
         if (this.subKeys[sk].keyUseFor.search(/[sS]/) >= 0) {
           // found signing subkey
@@ -614,7 +614,7 @@ class EnigmailKeyObj {
       return false;
     }
 
-    let subKey = this.subKeys[0];
+    const subKey = this.subKeys[0];
 
     if (!this.expiryTime && !subKey.expiryTime) {
       return true;
@@ -640,9 +640,9 @@ class EnigmailKeyObj {
    *   of the key's user IDs, excluding exceptThisEmail.
    */
   getAlternativeEmails(exceptThisEmail) {
-    let result = [];
+    const result = [];
 
-    for (let u of this.userIds) {
+    for (const u of this.userIds) {
       let email;
       try {
         email = lazy.EnigmailFuncs.stripEmail(u.userId.toLowerCase());
@@ -661,7 +661,7 @@ class EnigmailKeyObj {
   }
 
   getUserIdWithEmail(email) {
-    for (let u of this.userIds) {
+    for (const u of this.userIds) {
       let e;
       try {
         e = lazy.EnigmailFuncs.stripEmail(u.userId.toLowerCase());

@@ -28,8 +28,8 @@ export class VCardTitleComponent extends HTMLElement {
 
   constructor() {
     super();
-    let template = document.getElementById("template-vcard-edit-title");
-    let clonedTemplate = template.content.cloneNode(true);
+    const template = document.getElementById("template-vcard-edit-title");
+    const clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
   }
 
@@ -62,7 +62,7 @@ export class VCardTitleComponent extends HTMLElement {
   }
 
   assignIds(inputEl, labelEl) {
-    let labelInputId = vCardIdGen.next().value;
+    const labelInputId = vCardIdGen.next().value;
     inputEl.id = labelInputId;
     labelEl.htmlFor = labelInputId;
   }
@@ -86,8 +86,8 @@ export class VCardRoleComponent extends HTMLElement {
 
   constructor() {
     super();
-    let template = document.getElementById("template-vcard-edit-role");
-    let clonedTemplate = template.content.cloneNode(true);
+    const template = document.getElementById("template-vcard-edit-role");
+    const clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
   }
 
@@ -120,7 +120,7 @@ export class VCardRoleComponent extends HTMLElement {
   }
 
   assignIds(inputEl, labelEl) {
-    let labelInputId = vCardIdGen.next().value;
+    const labelInputId = vCardIdGen.next().value;
     inputEl.id = labelInputId;
     labelEl.htmlFor = labelInputId;
   }
@@ -149,8 +149,8 @@ export class VCardOrgComponent extends HTMLElement {
     }
     this.hasConnected = true;
 
-    let template = document.getElementById("template-vcard-edit-org");
-    let clonedTemplate = template.content.cloneNode(true);
+    const template = document.getElementById("template-vcard-edit-org");
+    const clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
 
     this.orgEl = this.querySelector('input[name="org"]');

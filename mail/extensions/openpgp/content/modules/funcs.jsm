@@ -83,9 +83,9 @@ var EnigmailFuncs = {
     }
 
     // We know that the "," and the < > are at the right places, thus we can split by ","
-    let addrList = mailAddrs.split(/,/);
+    const addrList = mailAddrs.split(/,/);
 
-    for (let i in addrList) {
+    for (const i in addrList) {
       // Extract pure e-mail address list (strip out anything before angle brackets and any whitespace)
       addrList[i] = addrList[i]
         .replace(/^([^<>]*<)([^<>]+)(>)$/, "$2")
@@ -112,7 +112,7 @@ var EnigmailFuncs = {
    */
   parseEmails(mailAddrs, encoded = true) {
     try {
-      let hdr = Cc["@mozilla.org/messenger/headerparser;1"].createInstance(
+      const hdr = Cc["@mozilla.org/messenger/headerparser;1"].createInstance(
         Ci.nsIMsgHeaderParser
       );
       if (encoded) {
@@ -294,11 +294,11 @@ var EnigmailFuncs = {
       if (a[i].length === 0) {
         break;
       }
-      let b = a[i].split(/;/);
+      const b = a[i].split(/;/);
 
       // extract "abc = xyz" tuples
       for (let j = 0; j < b.length; j++) {
-        let m = b[j].match(/^(\s*)([^=\s;]+)(\s*)(=)(\s*)(.*)(\s*)$/);
+        const m = b[j].match(/^(\s*)([^=\s;]+)(\s*)(=)(\s*)(.*)(\s*)$/);
         if (m) {
           // m[2]: identifier / m[6]: data
           res[m[2].toLowerCase()] = m[6].replace(/\s*$/, "");
@@ -341,7 +341,7 @@ var EnigmailFuncs = {
 
     if (Array.isArray(orig) && orig.length > 0) {
       newObj = [];
-      for (let i in orig) {
+      for (const i in orig) {
         if (typeof orig[i] === "object") {
           newObj.push(this.cloneObj(orig[i]));
         } else {
@@ -350,7 +350,7 @@ var EnigmailFuncs = {
       }
     } else {
       newObj = {};
-      for (let i in orig) {
+      for (const i in orig) {
         if (typeof orig[i] === "object") {
           newObj[i] = this.cloneObj(orig[i]);
         } else {
@@ -378,7 +378,7 @@ var EnigmailFuncs = {
    *      Throws an error if mime1 or mime2 do not comply to the required format
    */
   compareMimePartLevel(mime1, mime2) {
-    let s = new RegExp("^[0-9]+(\\.[0-9]+)*$");
+    const s = new RegExp("^[0-9]+(\\.[0-9]+)*$");
     if (mime1.search(s) < 0) {
       throw new Error("Invalid mime1");
     }
@@ -386,8 +386,8 @@ var EnigmailFuncs = {
       throw new Error("Invalid mime2");
     }
 
-    let a1 = mime1.split(/\./);
-    let a2 = mime2.split(/\./);
+    const a1 = mime1.split(/\./);
+    const a2 = mime2.split(/\./);
 
     for (let i = 0; i < Math.min(a1.length, a2.length); i++) {
       if (Number(a1[i]) < Number(a2[i])) {
@@ -411,8 +411,8 @@ var EnigmailFuncs = {
    * Get the nsIMsgAccount associated with a given nsIMsgIdentity
    */
   getAccountForIdentity(identity) {
-    for (let ac of MailServices.accounts.accounts) {
-      for (let id of ac.identities) {
+    for (const ac of MailServices.accounts.accounts) {
+      for (const id of ac.identities) {
         if (id.key === identity.key) {
           return ac;
         }
@@ -454,19 +454,19 @@ var EnigmailFuncs = {
    * and all reply-to addresses
    */
   getOwnEmailAddresses() {
-    let ownEmails = {};
+    const ownEmails = {};
 
     // Determine all sorts of own email addresses
-    for (let id of MailServices.accounts.allIdentities) {
+    for (const id of MailServices.accounts.allIdentities) {
       if (id.email && id.email.length > 0) {
         ownEmails[id.email.toLowerCase()] = 1;
       }
       if (id.replyTo && id.replyTo.length > 0) {
         try {
-          let replyEmails = this.stripEmail(id.replyTo)
+          const replyEmails = this.stripEmail(id.replyTo)
             .toLowerCase()
             .split(/,/);
-          for (let j in replyEmails) {
+          for (const j in replyEmails) {
             ownEmails[replyEmails[j]] = 1;
           }
         } catch (ex) {}
@@ -481,18 +481,18 @@ var EnigmailFuncs = {
    * Only To: and Cc: fields are considered.
    */
   getNumberOfRecipients(msgCompField) {
-    let recipients = {},
+    const recipients = {},
       ownEmails = this.getOwnEmailAddresses();
 
-    let allAddr = (
+    const allAddr = (
       this.stripEmail(msgCompField.to) +
       "," +
       this.stripEmail(msgCompField.cc)
     ).toLowerCase();
-    let emails = allAddr.split(/,+/);
+    const emails = allAddr.split(/,+/);
 
     for (let i = 0; i < emails.length; i++) {
-      let r = emails[i];
+      const r = emails[i];
       if (r && !(r in ownEmails)) {
         recipients[r] = 1;
       }
@@ -514,8 +514,8 @@ var EnigmailFuncs = {
         return null;
       }
 
-      let msgService = MailServices.messageServiceFromURI(uriSpec);
-      let url = msgService.getUrlForUri(uriSpec);
+      const msgService = MailServices.messageServiceFromURI(uriSpec);
+      const url = msgService.getUrlForUri(uriSpec);
 
       if (url.scheme == "file") {
         return url;
@@ -547,7 +547,7 @@ var EnigmailFuncs = {
    * an empty string is returned.
    */
   getEmailFromUserID(uid) {
-    let addresses = MailServices.headerParser.makeFromDisplayAddress(uid);
+    const addresses = MailServices.headerParser.makeFromDisplayAddress(uid);
     if (
       !addresses[0] ||
       !EnigmailFuncs.stringLooksLikeEmailAddress(addresses[0].email)

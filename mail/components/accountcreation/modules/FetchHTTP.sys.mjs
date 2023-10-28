@@ -139,7 +139,7 @@ FetchHTTP.prototype = {
 
   start() {
     let url = this._url;
-    for (let name in this._args.urlArgs) {
+    for (const name in this._args.urlArgs) {
       url +=
         (!url.includes("?") ? "?" : "&") +
         name +
@@ -147,7 +147,7 @@ FetchHTTP.prototype = {
         encodeURIComponent(this._args.urlArgs[name]);
     }
     this._request = new XMLHttpRequest();
-    let request = this._request;
+    const request = this._request;
     request.mozBackgroundRequest = !this._args.allowAuthPrompt;
     let username = null,
       password = null;
@@ -195,7 +195,7 @@ FetchHTTP.prototype = {
     } else if (this._args.bodyFormArgs) {
       mimetype = "application/x-www-form-urlencoded; charset=UTF-8";
       body = "";
-      for (let name in this._args.bodyFormArgs) {
+      for (const name in this._args.bodyFormArgs) {
         body +=
           (body ? "&" : "") +
           name +
@@ -221,7 +221,7 @@ FetchHTTP.prototype = {
           )
       );
     }
-    for (let name in this._args.headers) {
+    for (const name in this._args.headers) {
       request.setRequestHeader(name, this._args.headers[name]);
       if (name == "Cookie") {
         // Websites are not allowed to set this, but chrome is.
@@ -340,7 +340,7 @@ FetchHTTP.prototype = {
         this._error(exStored);
       } else {
         // Put the caller's stack into the exception
-        let e = new ServerException(errorStr, errorCode, this._url);
+        const e = new ServerException(errorStr, errorCode, this._url);
         e.stack = this._callStack;
         this._error(e);
       }

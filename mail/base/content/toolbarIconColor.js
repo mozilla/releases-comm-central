@@ -66,7 +66,7 @@ var ToolbarIconColor = {
     }
 
     function parseRGB(aColorString) {
-      let rgb = aColorString.match(/^rgba?\((\d+), (\d+), (\d+)/);
+      const rgb = aColorString.match(/^rgba?\((\d+), (\d+), (\d+)/);
       rgb.shift();
       return rgb.map(x => parseInt(x));
     }
@@ -100,16 +100,16 @@ var ToolbarIconColor = {
 
     // The getComputedStyle calls and setting the brighttext are separated in
     // two loops to avoid flushing layout and making it dirty repeatedly.
-    let cachedLuminances = this._toolbarLuminanceCache;
-    let luminances = new Map();
-    for (let toolbar of document.querySelectorAll(toolbarSelector)) {
+    const cachedLuminances = this._toolbarLuminanceCache;
+    const luminances = new Map();
+    for (const toolbar of document.querySelectorAll(toolbarSelector)) {
       // Toolbars *should* all have ids, but guard anyway to avoid blowing up.
-      let cacheKey =
+      const cacheKey =
         toolbar.id && toolbar.id + JSON.stringify(this._windowState);
       // Lookup cached luminance value for this toolbar in this window state.
       let luminance = cacheKey && cachedLuminances.get(cacheKey);
       if (isNaN(luminance)) {
-        let [r, g, b] = parseRGB(getComputedStyle(toolbar).color);
+        const [r, g, b] = parseRGB(getComputedStyle(toolbar).color);
         luminance = 0.2125 * r + 0.7154 * g + 0.0721 * b;
         if (cacheKey) {
           cachedLuminances.set(cacheKey, luminance);
@@ -119,7 +119,7 @@ var ToolbarIconColor = {
     }
 
     const luminanceThreshold = 127; // In between 0 and 255
-    for (let [toolbar, luminance] of luminances) {
+    for (const [toolbar, luminance] of luminances) {
       if (luminance <= luminanceThreshold) {
         toolbar.removeAttribute("brighttext");
       } else {
@@ -135,12 +135,12 @@ var ToolbarIconColor = {
       Services.prefs.getCharPref("extensions.activeThemeID", "") ==
         "default-theme@mozilla.org"
     ) {
-      let folderTree = document.getElementById("folderTree");
+      const folderTree = document.getElementById("folderTree");
       if (!folderTree) {
         return;
       }
 
-      let sidebarColor = getComputedStyle(folderTree).color;
+      const sidebarColor = getComputedStyle(folderTree).color;
       // Interrupt if the sidebar color didn't change.
       if (sidebarColor == this._sidebarColorCache) {
         return;
@@ -148,13 +148,13 @@ var ToolbarIconColor = {
 
       this._sidebarColorCache = sidebarColor;
 
-      let mainWindow = document.getElementById("messengerWindow");
+      const mainWindow = document.getElementById("messengerWindow");
       if (!mainWindow) {
         return;
       }
 
-      let [r, g, b] = parseRGB(sidebarColor);
-      let luminance = 0.2125 * r + 0.7154 * g + 0.0721 * b;
+      const [r, g, b] = parseRGB(sidebarColor);
+      const luminance = 0.2125 * r + 0.7154 * g + 0.0721 * b;
 
       if (luminance <= 110) {
         mainWindow.removeAttribute("lwt-tree-brighttext");

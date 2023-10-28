@@ -70,8 +70,8 @@ function OnLoadMessageWindow() {
   // Do this before the window loads.
   if (!document.documentElement.hasAttribute("width")) {
     // Prefer 860xfull height.
-    let defaultHeight = screen.availHeight;
-    let defaultWidth = screen.availWidth >= 860 ? 860 : screen.availWidth;
+    const defaultHeight = screen.availHeight;
+    const defaultWidth = screen.availWidth >= 860 ? 860 : screen.availWidth;
 
     // On small screens, default to maximized state.
     if (defaultHeight <= 600) {
@@ -168,7 +168,7 @@ function actuallyLoadMessage() {
    *   2: The nsIMsgDBView used to open us.
    */
   if (window.arguments && window.arguments.length) {
-    let contentWindow = messageBrowser.contentWindow;
+    const contentWindow = messageBrowser.contentWindow;
     if (window.arguments[0] instanceof Ci.nsIURI) {
       contentWindow.displayMessage(window.arguments[0].spec);
       return;
@@ -177,7 +177,7 @@ function actuallyLoadMessage() {
     let msgHdr, viewWrapperToClone;
     // message header as an object?
     if ("wrappedJSObject" in window.arguments[0]) {
-      let hdrObject = window.arguments[0].wrappedJSObject;
+      const hdrObject = window.arguments[0].wrappedJSObject;
       ({ msgHdr, viewWrapperToClone } = hdrObject);
     } else if (window.arguments[0] instanceof Ci.nsIMsgDBHdr) {
       // message header as a separate param?
@@ -205,7 +205,7 @@ function actuallyLoadMessage() {
  *                            message window
  */
 function displayMessage(aMsgHdr, aViewWrapperToClone) {
-  let contentWindow = messageBrowser.contentWindow;
+  const contentWindow = messageBrowser.contentWindow;
   contentWindow.displayMessage(
     aMsgHdr.folder.getUriForMsg(aMsgHdr),
     aViewWrapperToClone
@@ -278,7 +278,9 @@ function HideMenus() {
     viewLayoutMenu.setAttribute("hidden", "true");
   }
 
-  let paneViewSeparator = document.getElementById("appmenu_paneViewSeparator");
+  const paneViewSeparator = document.getElementById(
+    "appmenu_paneViewSeparator"
+  );
   if (paneViewSeparator) {
     paneViewSeparator.setAttribute("hidden", "true");
   }
@@ -395,17 +397,17 @@ function HideMenus() {
     compactFolderMenu.setAttribute("hidden", "true");
   }
 
-  let trashSeparator = document.getElementById("trashMenuSeparator");
+  const trashSeparator = document.getElementById("trashMenuSeparator");
   if (trashSeparator) {
     trashSeparator.setAttribute("hidden", "true");
   }
 
-  let goStartPageSeparator = document.getElementById("goNextSeparator");
+  const goStartPageSeparator = document.getElementById("goNextSeparator");
   if (goStartPageSeparator) {
     goStartPageSeparator.hidden = true;
   }
 
-  let goRecentlyClosedTabsSeparator = document.getElementById(
+  const goRecentlyClosedTabsSeparator = document.getElementById(
     "goRecentlyClosedTabsSeparator"
   );
   if (goRecentlyClosedTabsSeparator) {
@@ -422,12 +424,12 @@ function HideMenus() {
     goFolder.hidden = true;
   }
 
-  let goStartPage = document.getElementById("goStartPage");
+  const goStartPage = document.getElementById("goStartPage");
   if (goStartPage) {
     goStartPage.hidden = true;
   }
 
-  let quickFilterBar = document.getElementById("appmenu_quickFilterBar");
+  const quickFilterBar = document.getElementById("appmenu_quickFilterBar");
   if (quickFilterBar) {
     quickFilterBar.hidden = true;
   }
@@ -580,7 +582,7 @@ var MessageWindowController = {
         msgWindow.StopUrls();
         break;
       case "cmd_chat":
-        let win = Services.wm.getMostRecentWindow("mail:3pane");
+        const win = Services.wm.getMostRecentWindow("mail:3pane");
         if (win) {
           win.focus();
           win.showChatTab();

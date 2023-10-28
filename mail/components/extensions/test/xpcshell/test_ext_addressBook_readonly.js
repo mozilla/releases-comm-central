@@ -18,7 +18,7 @@ add_setup(async () => {
     );
   });
 
-  let historyAB = MailServices.ab.getDirectory("jsaddrbook://history.sqlite");
+  const historyAB = MailServices.ab.getDirectory("jsaddrbook://history.sqlite");
 
   let contact1 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
@@ -30,7 +30,7 @@ add_setup(async () => {
   contact1.primaryEmail = "contact1@invalid";
   contact1 = historyAB.addCard(contact1);
 
-  let mailList = Cc[
+  const mailList = Cc[
     "@mozilla.org/addressbook/directoryproperty;1"
   ].createInstance(Ci.nsIAbDirectory);
   mailList.isMailList = true;
@@ -46,10 +46,10 @@ add_setup(async () => {
 
 add_task(async function test_addressBooks_readonly() {
   async function background() {
-    let list = await browser.addressBooks.list();
+    const list = await browser.addressBooks.list();
 
     // The read only AB should be in the list.
-    let readOnlyAB = list.find(ab => ab.name == "Collected Addresses");
+    const readOnlyAB = list.find(ab => ab.name == "Collected Addresses");
     browser.test.assertTrue(!!readOnlyAB, "Should have found the address book");
 
     browser.test.assertTrue(
@@ -57,7 +57,7 @@ add_task(async function test_addressBooks_readonly() {
       "Should have marked the address book as read-only"
     );
 
-    let card = await browser.contacts.get(
+    const card = await browser.contacts.get(
       "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
     );
     browser.test.assertTrue(!!card, "Should have found the card");
@@ -89,8 +89,8 @@ add_task(async function test_addressBooks_readonly() {
 
     // Mailing List
 
-    let mailingLists = await browser.mailingLists.list(readOnlyAB.id);
-    let readOnlyML = mailingLists[0];
+    const mailingLists = await browser.mailingLists.list(readOnlyAB.id);
+    const readOnlyML = mailingLists[0];
     browser.test.assertTrue(!!readOnlyAB, "Should have found the mailing list");
 
     browser.test.assertTrue(
@@ -131,7 +131,7 @@ add_task(async function test_addressBooks_readonly() {
     browser.test.notifyPass("addressBooks");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),

@@ -32,7 +32,7 @@ var MailUtils = {
    * safe mode if it is already in safe mode.
    */
   restartApplication() {
-    let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
       Ci.nsISupportsPRBool
     );
     Services.obs.notifyObservers(
@@ -61,7 +61,7 @@ var MailUtils = {
    * open (the folder tree wouldn't have been initialized yet).
    */
   discoverFolders() {
-    for (let server of lazy.MailServices.accounts.allServers) {
+    for (const server of lazy.MailServices.accounts.allServers) {
       // Bug 466311 Sometimes this can throw file not found, we're unsure
       // why, but catch it and log the fact.
       try {
@@ -87,7 +87,7 @@ var MailUtils = {
    *          isn't found
    */
   getFolderForFileInProfile(aFile) {
-    for (let folder of lazy.MailServices.accounts.allFolders) {
+    for (const folder of lazy.MailServices.accounts.allFolders) {
       if (folder.filePath.equals(aFile)) {
         return folder;
       }
@@ -103,7 +103,7 @@ var MailUtils = {
    *          the folder doesn't already exist.
    */
   getExistingFolder(aFolderURI) {
-    let fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
+    const fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
       Ci.nsIFolderLookupService
     );
     return fls.getFolderForURL(aFolderURI);
@@ -117,7 +117,7 @@ var MailUtils = {
    * @returns {nsIMsgFolder} Folder corresponding to this URI.
    */
   getOrCreateFolder(aFolderURI) {
-    let fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
+    const fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
       Ci.nsIFolderLookupService
     );
     return fls.getOrCreateFolderForURL(aFolderURI);
@@ -157,13 +157,13 @@ var MailUtils = {
    * @param aLiitingPref: the name of the pref to retrieve the limit from
    */
   confirmAction(aNumMessages, aConfirmTitle, aConfirmMsg, aLimitingPref) {
-    let openWarning = Services.prefs.getIntPref(aLimitingPref);
+    const openWarning = Services.prefs.getIntPref(aLimitingPref);
     if (openWarning > 1 && aNumMessages >= openWarning) {
-      let bundle = Services.strings.createBundle(
+      const bundle = Services.strings.createBundle(
         "chrome://messenger/locale/messenger.properties"
       );
-      let title = bundle.GetStringFromName(aConfirmTitle);
-      let message = lazy.PluralForm.get(
+      const title = bundle.GetStringFromName(aConfirmTitle);
+      const message = lazy.PluralForm.get(
         aNumMessages,
         bundle.GetStringFromName(aConfirmMsg)
       ).replace("#1", aNumMessages);
@@ -198,7 +198,7 @@ var MailUtils = {
     aTabmail,
     useBackgroundPref = false
   ) {
-    let openMessageBehavior = Services.prefs.getIntPref(
+    const openMessageBehavior = Services.prefs.getIntPref(
       "mail.openMessageBehavior"
     );
 
@@ -243,7 +243,7 @@ var MailUtils = {
           : false;
 
         // Open all the tabs in the background, except for the last one
-        for (let [i, msgHdr] of aMsgHdrs.entries()) {
+        for (const [i, msgHdr] of aMsgHdrs.entries()) {
           aTabmail.openTab("mailMessageTab", {
             messageURI: msgHdr.folder.getUriForMsg(msgHdr),
             viewWrapper: aViewWrapperToClone,
@@ -272,7 +272,7 @@ var MailUtils = {
    *   header was displayed, false otherwise.
    */
   openMessageInExistingWindow(aMsgHdr, aViewWrapperToClone) {
-    let messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
+    const messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
     if (messageWindow) {
       messageWindow.displayMessage(aMsgHdr, aViewWrapperToClone);
       return true;
@@ -290,7 +290,7 @@ var MailUtils = {
    */
   openMessageInNewWindow(aMsgHdr, aViewWrapperToClone) {
     // It sucks that we have to go through XPCOM for this.
-    let args = { msgHdr: aMsgHdr, viewWrapperToClone: aViewWrapperToClone };
+    const args = { msgHdr: aMsgHdr, viewWrapperToClone: aViewWrapperToClone };
     args.wrappedJSObject = args;
 
     return Services.ww.openWindow(
@@ -324,7 +324,7 @@ var MailUtils = {
       return;
     }
 
-    for (let msgHdr of aMsgHdrs) {
+    for (const msgHdr of aMsgHdrs) {
       this.openMessageInNewWindow(msgHdr, aViewWrapperToClone);
     }
   },
@@ -336,8 +336,8 @@ var MailUtils = {
    */
   displayFolderIn3Pane(folderURI) {
     // Try opening new tabs in a 3pane window
-    let win = Services.wm.getMostRecentWindow("mail:3pane");
-    let tabmail = win.document.getElementById("tabmail");
+    const win = Services.wm.getMostRecentWindow("mail:3pane");
+    const tabmail = win.document.getElementById("tabmail");
     if (!tabmail.currentAbout3Pane) {
       tabmail.switchToTab(tabmail.tabInfo[0]);
       tabmail.updateCurrentTab();
@@ -358,10 +358,11 @@ var MailUtils = {
    */
   displayMessageInFolderTab(msgHdr, openIfMessagePaneHidden) {
     // Try opening new tabs in a 3pane window
-    let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
+    const mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
     if (mail3PaneWindow) {
       if (openIfMessagePaneHidden) {
-        let tab = mail3PaneWindow.document.getElementById("tabmail").tabInfo[0];
+        const tab =
+          mail3PaneWindow.document.getElementById("tabmail").tabInfo[0];
         if (!tab.chromeBrowser.contentWindow.paneLayout.messagePaneVisible) {
           this.displayMessage(msgHdr);
           return;
@@ -376,7 +377,7 @@ var MailUtils = {
       }
       mail3PaneWindow.focus();
     } else {
-      let args = { msgHdr };
+      const args = { msgHdr };
       args.wrappedJSObject = args;
       Services.ww.openWindow(
         null,
@@ -394,18 +395,18 @@ var MailUtils = {
    * @param {string} msgId - The message id string without the brackets.
    */
   openMessageByMessageId(msgId) {
-    let msgHdr = this.getMsgHdrForMsgId(msgId);
+    const msgHdr = this.getMsgHdrForMsgId(msgId);
     if (msgHdr) {
       this.displayMessage(msgHdr);
       return;
     }
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messenger.properties"
     );
-    let errorTitle = bundle.GetStringFromName(
+    const errorTitle = bundle.GetStringFromName(
       "errorOpenMessageForMessageIdTitle"
     );
-    let errorMessage = bundle.formatStringFromName(
+    const errorMessage = bundle.formatStringFromName(
       "errorOpenMessageForMessageIdMessage",
       [msgId]
     );
@@ -420,7 +421,7 @@ var MailUtils = {
    * @param {nsIURL} aURL - The full file URL.
    */
   openEMLFile(win, aFile, aURL) {
-    let url = aURL
+    const url = aURL
       .mutate()
       .setQuery("type=application/x-message-display")
       .finalize();
@@ -433,7 +434,7 @@ var MailUtils = {
         Ci.nsIFileInputStream
       );
       fstream.init(aFile, -1, 0, 0);
-      let data = lazy.NetUtil.readInputStreamToString(
+      const data = lazy.NetUtil.readInputStreamToString(
         fstream,
         fstream.available()
       );
@@ -449,7 +450,7 @@ var MailUtils = {
     }
 
     if (headers.get("X-Unsent") == "1") {
-      let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+      const msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
         Ci.nsIMsgWindow
       );
       lazy.MailServices.compose.OpenComposeWindow(
@@ -526,20 +527,20 @@ var MailUtils = {
    */
   async takeActionOnFolderAndDescendents(folder, action) {
     // We need to add the base folder as it is not included by .descendants.
-    let allFolders = [folder, ...folder.descendants];
+    const allFolders = [folder, ...folder.descendants];
 
     // - worker function
     function* folderWorker() {
-      for (let folder of allFolders) {
+      for (const folder of allFolders) {
         action(folder);
         yield undefined;
       }
     }
-    let worker = folderWorker();
+    const worker = folderWorker();
 
     return new Promise((resolve, reject) => {
       // - driver logic
-      let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+      const timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
       function folderDriver() {
         try {
           if (worker.next().done) {
@@ -574,7 +575,7 @@ var MailUtils = {
    *   identity is an nsIMsgIdentity and matchingHint is a string.
    */
   getBestIdentity(identities, optionalHint, useDefault = false) {
-    let identityCount = identities.length;
+    const identityCount = identities.length;
     if (identityCount < 1) {
       return [null, null];
     }
@@ -582,11 +583,11 @@ var MailUtils = {
     // If we have a hint to help us pick one identity, search for a match.
     // Even if we only have one identity, check which hint might match.
     if (optionalHint) {
-      let hints =
+      const hints =
         lazy.MailServices.headerParser.makeFromDisplayAddress(optionalHint);
 
-      for (let hint of hints) {
-        for (let identity of identities.filter(i => i.email)) {
+      for (const hint of hints) {
+        for (const identity of identities.filter(i => i.email)) {
           if (hint.email.toLowerCase() == identity.email.toLowerCase()) {
             return [identity, hint];
           }
@@ -594,8 +595,8 @@ var MailUtils = {
       }
 
       // Lets search again, this time for a match from catchAll.
-      for (let hint of hints) {
-        for (let identity of identities.filter(
+      for (const hint of hints) {
+        for (const identity of identities.filter(
           i => i.email && i.catchAll && i.catchAllHint
         )) {
           for (let caHint of identity.catchAllHint.toLowerCase().split(",")) {
@@ -603,7 +604,7 @@ var MailUtils = {
             // this case return the hint so it can be used for replying.
             // If the hint was for a more specific hint, don't return a hint
             // so that the normal from address for the identity is used.
-            let wholeDomain = caHint.trim().startsWith("*@");
+            const wholeDomain = caHint.trim().startsWith("*@");
             caHint = caHint.trim().replace(/^\*/, ""); // Remove initial star.
             if (hint.email.toLowerCase().includes(caHint)) {
               return wholeDomain ? [identity, hint] : [identity, null];
@@ -615,7 +616,7 @@ var MailUtils = {
 
     // Still no matches? Give up and pick the default or the first one.
     if (useDefault) {
-      let defaultAccount = lazy.MailServices.accounts.defaultAccount;
+      const defaultAccount = lazy.MailServices.accounts.defaultAccount;
       if (defaultAccount && defaultAccount.defaultIdentity) {
         return [defaultAccount.defaultIdentity, null];
       }
@@ -625,7 +626,8 @@ var MailUtils = {
   },
 
   getIdentityForServer(server, optionalHint) {
-    let identities = lazy.MailServices.accounts.getIdentitiesForServer(server);
+    const identities =
+      lazy.MailServices.accounts.getIdentitiesForServer(server);
     return this.getBestIdentity(identities, optionalHint);
   },
 
@@ -641,7 +643,7 @@ var MailUtils = {
     let server = null;
     let identity = null;
     let matchingHint = null;
-    let folder = hdr.folder;
+    const folder = hdr.folder;
     if (folder) {
       server = folder.server;
       identity = folder.customIdentity;
@@ -651,9 +653,9 @@ var MailUtils = {
     }
 
     if (!server) {
-      let accountKey = hdr.accountKey;
+      const accountKey = hdr.accountKey;
       if (accountKey) {
-        let account = lazy.MailServices.accounts.getAccount(accountKey);
+        const account = lazy.MailServices.accounts.getAccount(accountKey);
         if (account) {
           server = account.incomingServer;
         }
@@ -709,9 +711,9 @@ var MailUtils = {
    * @returns {nsIAbDirectory|null} - Found list or null.
    */
   findListInAddressBooks(entryName) {
-    for (let abDir of lazy.MailServices.ab.directories) {
+    for (const abDir of lazy.MailServices.ab.directories) {
       if (abDir.supportsMailingLists) {
-        for (let dir of abDir.childNodes) {
+        for (const dir of abDir.childNodes) {
           if (dir.isMailList && dir.dirName == entryName) {
             return dir;
           }
@@ -746,7 +748,7 @@ var MailUtils = {
     }
 
     // Search subfolders recursively.
-    for (let currentFolder of folder.subFolders) {
+    for (const currentFolder of folder.subFolders) {
       msgHdr = this.findMsgIdInFolder(msgId, currentFolder);
       if (msgHdr) {
         return msgHdr;
@@ -770,9 +772,9 @@ var MailUtils = {
         allServers.filter(s => s.key != startServer.key)
       );
     }
-    for (let server of allServers) {
+    for (const server of allServers) {
       if (server && server.canSearchMessages && !server.isDeferredTo) {
-        let msgHdr = this.findMsgIdInFolder(msgId, server.rootFolder);
+        const msgHdr = this.findMsgIdInFolder(msgId, server.rootFolder);
         if (msgHdr) {
           return msgHdr;
         }

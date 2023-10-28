@@ -67,7 +67,7 @@ export class TreeSelection {
    * Mark the currently selected rows as invalid.
    */
   _invalidateSelection() {
-    for (let [low, high] of this._ranges) {
+    for (const [low, high] of this._ranges) {
       for (let i = low; i <= high; i++) {
         this._invalidIndices.add(i);
       }
@@ -82,7 +82,7 @@ export class TreeSelection {
       return;
     }
     if (this._tree) {
-      for (let i of this._invalidIndices) {
+      for (const i of this._invalidIndices) {
         this._tree.invalidateRow(i);
       }
     }
@@ -97,7 +97,7 @@ export class TreeSelection {
    *   defaults to the index of the last row.
    */
   _doInvalidateRange(startIndex, endIndex) {
-    let noEndIndex = endIndex === undefined;
+    const noEndIndex = endIndex === undefined;
     if (noEndIndex) {
       if (!this._view || this.view.rowCount == 0) {
         this._doInvalidateAll();
@@ -108,7 +108,7 @@ export class TreeSelection {
     if (this._tree) {
       this._tree.invalidateRange(startIndex, endIndex);
     }
-    for (let i of this._invalidIndices) {
+    for (const i of this._invalidIndices) {
       if (i >= startIndex && (noEndIndex || i <= endIndex)) {
         this._invalidIndices.delete(i);
       }
@@ -153,7 +153,7 @@ export class TreeSelection {
 
   _updateCount() {
     this._count = 0;
-    for (let [low, high] of this._ranges) {
+    for (const [low, high] of this._ranges) {
       this._count += high - low + 1;
     }
   }
@@ -163,7 +163,7 @@ export class TreeSelection {
   }
 
   isSelected(viewIndex) {
-    for (let [low, high] of this._ranges) {
+    for (const [low, high] of this._ranges) {
       if (viewIndex >= low && viewIndex <= high) {
         return true;
       }
@@ -209,7 +209,7 @@ export class TreeSelection {
       this._ranges = [[index, index]];
     } else {
       let added = false;
-      for (let [iTupe, [low, high]] of this._ranges.entries()) {
+      for (const [iTupe, [low, high]] of this._ranges.entries()) {
         // below the range? add it to the existing range or create a new one
         if (index < low) {
           this._count++;
@@ -331,7 +331,7 @@ export class TreeSelection {
     let lowOverlap, lowNuke, highNuke, highOverlap;
     // in case there is no overlap, also figure an insertionPoint
     let insertionPoint = this._ranges.length; // default to the end
-    for (let [iTupe, [low, high]] of this._ranges.entries()) {
+    for (const [iTupe, [low, high]] of this._ranges.entries()) {
       // If it's completely include the range, it should be nuked
       if (rangeStart <= low && rangeEnd >= high) {
         if (lowNuke == null) {
@@ -398,7 +398,7 @@ export class TreeSelection {
     //  variables are for blocks that get spliced out.  For our purposes, all
     //  overlap blocks are also nuke blocks.
     let lowOverlap, lowNuke, highNuke, highOverlap;
-    for (let [iTupe, [low, high]] of this._ranges.entries()) {
+    for (const [iTupe, [low, high]] of this._ranges.entries()) {
       // If we completely include the range, it should be nuked
       if (rangeStart <= low && rangeEnd >= high) {
         if (lowNuke == null) {
@@ -436,7 +436,7 @@ export class TreeSelection {
     if (lowNuke == null) {
       return;
     }
-    let args = [lowNuke, highNuke - lowNuke + 1];
+    const args = [lowNuke, highNuke - lowNuke + 1];
     if (lowOverlap != null) {
       args.push([this._ranges[lowOverlap][0], rangeStart - 1]);
     }
@@ -477,8 +477,8 @@ export class TreeSelection {
       return;
     }
 
-    let view = this._view;
-    let rowCount = view.rowCount;
+    const view = this._view;
+    const rowCount = view.rowCount;
 
     // no-ops-ville
     if (!rowCount) {
@@ -534,7 +534,7 @@ export class TreeSelection {
    *     2) the index at which to insert a range that would contain the point.
    */
   _findRangeContainingRow(index) {
-    for (let [iTupe, [low, high]] of this._ranges.entries()) {
+    for (const [iTupe, [low, high]] of this._ranges.entries()) {
       if (index >= low && index <= high) {
         return [iTupe, iTupe];
       }
@@ -573,7 +573,7 @@ export class TreeSelection {
       //  to generate an event each time otherwise, and better 1 event than
       //  many.
       selection.selectEventsSuppressed = true;
-      for (let [index, count] of this._adjustSelectionLog) {
+      for (const [index, count] of this._adjustSelectionLog) {
         selection.adjustSelection(index, count);
       }
       selection.selectEventsSuppressed = false;
@@ -604,7 +604,7 @@ export class TreeSelection {
     if (count > 0) {
       let [iContain, iInsert] = this._findRangeContainingRow(index);
       if (iContain != null) {
-        let [low, high] = this._ranges[iContain];
+        const [low, high] = this._ranges[iContain];
         // if it is the low value, we just want to shift the range entirely, so
         //  do nothing (and keep iInsert pointing at it for translation)
         // if it is not the low value, then there must be at least two values so
@@ -616,7 +616,7 @@ export class TreeSelection {
       }
       // now translate everything from iInsert on up
       for (let iTrans = iInsert; iTrans < this._ranges.length; iTrans++) {
-        let [low, high] = this._ranges[iTrans];
+        const [low, high] = this._ranges[iTrans];
         this._ranges[iTrans] = [low + count, high + count];
       }
       // invalidate and fire selection change notice
@@ -629,13 +629,13 @@ export class TreeSelection {
     //  getting deleted and translating everyone above the remaining point
     //  downwards.  The one trick is we may have to merge the lowest translated
     //  block.
-    let saveSuppress = this.selectEventsSuppressed;
+    const saveSuppress = this.selectEventsSuppressed;
     this.selectEventsSuppressed = true;
     this.clearRange(index, index - count - 1);
     // translate
     let iTrans = this._findRangeContainingRow(index)[1];
     for (; iTrans < this._ranges.length; iTrans++) {
-      let [low, high] = this._ranges[iTrans];
+      const [low, high] = this._ranges[iTrans];
       // for the first range, low may be below the index, in which case it
       //  should not get translated
       this._ranges[iTrans] = [low >= index ? low + count : low, high + count];
@@ -684,7 +684,7 @@ export class TreeSelection {
     if (this.selectEventsSuppressed) {
       return;
     }
-    let view = this._tree?.view ?? this._view;
+    const view = this._tree?.view ?? this._view;
 
     // We might not have a view if we're in the middle of setting up things
     view?.selectionChanged();
@@ -733,7 +733,7 @@ export class TreeSelection {
   duplicateSelection(selection) {
     selection.selectEventsSuppressed = true;
     selection.clearSelection();
-    for (let [iTupe, [low, high]] of this._ranges.entries()) {
+    for (const [iTupe, [low, high]] of this._ranges.entries()) {
       selection.rangedSelect(low, high, iTupe > 0);
     }
 

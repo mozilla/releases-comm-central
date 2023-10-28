@@ -11,7 +11,7 @@ add_task(async function no_cookies_permission() {
     set: [["privacy.userContext.enabled", true]],
   });
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     async background() {
       await browser.test.assertRejects(
         browser.windows.create({ cookieStoreId: "firefox-container-1" }),
@@ -32,7 +32,7 @@ add_task(async function invalid_cookieStoreId() {
     set: [["privacy.userContext.enabled", true]],
   });
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       permissions: ["cookies"],
     },
@@ -62,7 +62,7 @@ add_task(async function userContext_disabled() {
   await SpecialPowers.pushPrefEnv({
     set: [["privacy.userContext.enabled", false]],
   });
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       permissions: ["tabs", "cookies"],
     },
@@ -86,13 +86,15 @@ add_task(async function cookieStoreId_and_tabId() {
     set: [["privacy.userContext.enabled", true]],
   });
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       permissions: ["cookies"],
     },
     async background() {
-      for (let cookieStoreId of ["firefox-default", "firefox-container-1"]) {
-        let { id: normalTabId } = await browser.tabs.create({ cookieStoreId });
+      for (const cookieStoreId of ["firefox-default", "firefox-container-1"]) {
+        const { id: normalTabId } = await browser.tabs.create({
+          cookieStoreId,
+        });
 
         await browser.test.assertRejects(
           browser.windows.create({

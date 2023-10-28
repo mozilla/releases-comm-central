@@ -14,10 +14,10 @@ var folders = {};
 
 add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
-  let rootFolder = account.incomingServer.rootFolder;
+  const account = MailServices.accounts.accounts[0];
+  const rootFolder = account.incomingServer.rootFolder;
 
-  for (let type of ["Drafts", "SentMail", "Templates", "Junk", "Archive"]) {
+  for (const type of ["Drafts", "SentMail", "Templates", "Junk", "Archive"]) {
     rootFolder.createSubfolder(`telemetry${type}`, null);
     folders[type] = rootFolder.getChildNamed(`telemetry${type}`);
     folders[type].setFlag(Ci.nsMsgFolderFlags[type]);
@@ -25,9 +25,9 @@ add_setup(async function () {
   rootFolder.createSubfolder("telemetryPlain", null);
   folders.Other = rootFolder.getChildNamed("telemetryPlain");
 
-  let { paneLayout } = tabmail.currentAbout3Pane;
-  let folderPaneVisibleAtStart = paneLayout.folderPaneVisible;
-  let messagePaneVisibleAtStart = paneLayout.messagePaneVisible;
+  const { paneLayout } = tabmail.currentAbout3Pane;
+  const folderPaneVisibleAtStart = paneLayout.folderPaneVisible;
+  const messagePaneVisibleAtStart = paneLayout.messagePaneVisible;
 
   registerCleanupFunction(function () {
     MailServices.accounts.removeAccount(account, false);
@@ -44,10 +44,10 @@ add_setup(async function () {
 add_task(async function testFolderOpen() {
   Services.telemetry.clearScalars();
 
-  let about3Pane = tabmail.currentAbout3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.displayFolder(folders.Other.URI);
 
-  let scalarName = "tb.mails.folder_opened";
+  const scalarName = "tb.mails.folder_opened";
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Other", 1);
 
@@ -79,7 +79,7 @@ add_task(async function testFolderOpen() {
 });
 
 add_task(async function testPaneVisibility() {
-  let { paneLayout, displayFolder } = tabmail.currentAbout3Pane;
+  const { paneLayout, displayFolder } = tabmail.currentAbout3Pane;
   displayFolder(folders.Other.URI);
   // Make the folder pane and message pane visible initially.
   if (!paneLayout.folderPaneVisible) {
@@ -95,7 +95,7 @@ add_task(async function testPaneVisibility() {
 
   tabmail.switchToTab(0);
 
-  let scalarName = "tb.ui.configuration.pane_visibility";
+  const scalarName = "tb.ui.configuration.pane_visibility";
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "folderPane", true);
   TelemetryTestUtils.assertKeyedScalar(

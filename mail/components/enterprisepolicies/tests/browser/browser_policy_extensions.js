@@ -7,17 +7,17 @@ const BASE_URL =
   "http://mochi.test:8888/browser/comm/mail/components/enterprisepolicies/tests/browser";
 
 async function isExtensionLocked(win, addonID) {
-  let addonCard = await BrowserTestUtils.waitForCondition(() => {
+  const addonCard = await BrowserTestUtils.waitForCondition(() => {
     return win.document.querySelector(`addon-card[addon-id="${addonID}"]`);
   }, `Get addon-card for "${addonID}"`);
-  let disableBtn = addonCard.querySelector('[action="toggle-disabled"]');
-  let removeBtn = addonCard.querySelector('panel-item[action="remove"]');
+  const disableBtn = addonCard.querySelector('[action="toggle-disabled"]');
+  const removeBtn = addonCard.querySelector('panel-item[action="remove"]');
   ok(removeBtn.disabled, "Remove button should be disabled");
   ok(disableBtn.hidden, "Disable button should be hidden");
 }
 
 add_task(async function test_addon_install() {
-  let installPromise = waitForAddonInstall(ADDON_ID);
+  const installPromise = waitForAddonInstall(ADDON_ID);
   await setupPolicyEngineWithJson({
     policies: {
       Extensions: {
@@ -27,7 +27,7 @@ add_task(async function test_addon_install() {
     },
   });
   await installPromise;
-  let addon = await AddonManager.getAddonByID(ADDON_ID);
+  const addon = await AddonManager.getAddonByID(ADDON_ID);
   isnot(addon, null, "Addon not installed.");
   is(addon.version, "0.1", "Addon version is correct");
 
@@ -39,11 +39,11 @@ add_task(async function test_addon_install() {
 });
 
 add_task(async function test_addon_locked() {
-  let tabmail = document.getElementById("tabmail");
-  let index = tabmail.tabInfo.length;
+  const tabmail = document.getElementById("tabmail");
+  const index = tabmail.tabInfo.length;
   await window.openAddonsMgr("addons://list/extension");
-  let tab = tabmail.tabInfo[index];
-  let browser = tab.browser;
+  const tab = tabmail.tabInfo[index];
+  const browser = tab.browser;
 
   await isExtensionLocked(browser.contentWindow, ADDON_ID);
 
@@ -54,8 +54,8 @@ add_task(async function test_addon_reinstall() {
   // Test that uninstalling and reinstalling the same addon ID works as expected.
   // This can be used to update an addon.
 
-  let uninstallPromise = waitForAddonUninstall(ADDON_ID);
-  let installPromise = waitForAddonInstall(ADDON_ID);
+  const uninstallPromise = waitForAddonUninstall(ADDON_ID);
+  const installPromise = waitForAddonInstall(ADDON_ID);
   await setupPolicyEngineWithJson({
     policies: {
       Extensions: {
@@ -71,7 +71,7 @@ add_task(async function test_addon_reinstall() {
   // New version was installed
   await installPromise;
 
-  let addon = await AddonManager.getAddonByID(ADDON_ID);
+  const addon = await AddonManager.getAddonByID(ADDON_ID);
   isnot(
     addon,
     null,
@@ -83,7 +83,7 @@ add_task(async function test_addon_reinstall() {
 add_task(async function test_addon_uninstall() {
   EnterprisePolicyTesting.resetRunOnceState();
 
-  let uninstallPromise = waitForAddonUninstall(ADDON_ID);
+  const uninstallPromise = waitForAddonUninstall(ADDON_ID);
   await setupPolicyEngineWithJson({
     policies: {
       Extensions: {
@@ -92,7 +92,7 @@ add_task(async function test_addon_uninstall() {
     },
   });
   await uninstallPromise;
-  let addon = await AddonManager.getAddonByID(ADDON_ID);
+  const addon = await AddonManager.getAddonByID(ADDON_ID);
   is(addon, null, "Addon should be uninstalled.");
 });
 
@@ -100,7 +100,7 @@ add_task(async function test_addon_download_failure() {
   // Test that if the download fails, the runOnce pref
   // is cleared so that the download will happen again.
 
-  let installPromise = waitForAddonInstall(ADDON_ID);
+  const installPromise = waitForAddonInstall(ADDON_ID);
   await setupPolicyEngineWithJson({
     policies: {
       Extensions: {

@@ -36,11 +36,11 @@ async function EnigRevokeKey(keyObj, callbackFunc) {
     return;
   }
 
-  let promptFlags =
+  const promptFlags =
     Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
     Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL;
 
-  let confirm = Services.prompt.confirmEx(
+  const confirm = Services.prompt.confirmEx(
     window,
     l10nCommon.formatValueSync("openpgp-key-revoke-title"),
     l10nCommon.formatValueSync("revoke-key-question", {

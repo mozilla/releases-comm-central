@@ -13,8 +13,8 @@ initViewWrapperTestUtils({ mode: "local" });
  *  clears the other flag.  (Because they're mutually exclusive, you see.)
  */
 add_task(async function test_threading_grouping_mutual_exclusion() {
-  let viewWrapper = make_view_wrapper();
-  let folder = await messageInjection.makeEmptyFolder();
+  const viewWrapper = make_view_wrapper();
+  const folder = await messageInjection.makeEmptyFolder();
 
   await view_open(viewWrapper, folder);
   // enter an update that will never conclude.  this is fine.
@@ -37,8 +37,8 @@ add_task(async function test_threading_grouping_mutual_exclusion() {
  *  |specialViewThreadsWithUnread| has them all be properly mutually exclusive.
  */
 add_task(async function test_threads_special_views_mutual_exclusion() {
-  let viewWrapper = make_view_wrapper();
-  let folder = await messageInjection.makeEmptyFolder();
+  const viewWrapper = make_view_wrapper();
+  const folder = await messageInjection.makeEmptyFolder();
 
   await view_open(viewWrapper, folder);
   // enter an update that will never conclude. this is fine.
@@ -80,10 +80,10 @@ add_task(async function test_threads_special_views_mutual_exclusion() {
  *  the sort.)
  */
 add_task(async function test_sort_primary() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
+  const [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
 
   await view_open(viewWrapper, folder);
   viewWrapper.sort(
@@ -125,10 +125,10 @@ add_task(async function test_sort_primary() {
  * Verify that we handle explicit secondary sorts correctly.
  */
 add_task(async function test_sort_secondary_explicit() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
+  const [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
 
   await view_open(viewWrapper, folder);
   viewWrapper.sort(
@@ -173,10 +173,10 @@ add_task(async function test_sort_secondary_explicit() {
  *  this for us.  Why?  Because we re-create the view all the bloody time.
  */
 add_task(async function test_sort_secondary_implicit() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
+  const [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
 
   await view_open(viewWrapper, folder);
   viewWrapper.magicSort(
@@ -224,10 +224,10 @@ add_task(async function test_sort_secondary_implicit() {
  *  a view rebuild.
  */
 add_task(async function test_sort_group_by_sort() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
+  const [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
   await view_open(viewWrapper, folder);
 
   // - start out by being in an illegal (for group-by-sort) sort mode and
@@ -285,8 +285,8 @@ add_task(async function test_sort_group_by_sort() {
  *  presumably visible).
  */
 add_task(async function test_mailviews_persistence() {
-  let viewWrapper = make_view_wrapper();
-  let folder = await messageInjection.makeEmptyFolder();
+  const viewWrapper = make_view_wrapper();
+  const folder = await messageInjection.makeEmptyFolder();
 
   // open the folder, ensure it is using the default mail view
   await view_open(viewWrapper, folder);
@@ -324,7 +324,7 @@ add_task(async function test_mailviews_persistence() {
  * @bug 498145
  */
 add_task(function test_view_update_depth_logic() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
   // create an instance-specific dummy method that counts calls t
   //  _applyViewChanges

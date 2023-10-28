@@ -70,14 +70,14 @@ export class VCardSpecialDateComponent extends HTMLElement {
     }
     this.hasConnected = true;
 
-    let template = document.getElementById(
+    const template = document.getElementById(
       "template-vcard-edit-bday-anniversary"
     );
-    let clonedTemplate = template.content.cloneNode(true);
+    const clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
 
     this.selectEl = this.querySelector(".vcard-type-selection");
-    let selectId = vCardIdGen.next().value;
+    const selectId = vCardIdGen.next().value;
     this.selectEl.id = selectId;
     this.querySelector(".vcard-type-label").htmlFor = selectId;
 
@@ -90,7 +90,7 @@ export class VCardSpecialDateComponent extends HTMLElement {
     });
 
     this.month = this.querySelector("#month");
-    let monthId = vCardIdGen.next().value;
+    const monthId = vCardIdGen.next().value;
     this.month.id = monthId;
     this.querySelector('label[for="month"]').htmlFor = monthId;
     this.month.addEventListener("change", () => {
@@ -98,12 +98,12 @@ export class VCardSpecialDateComponent extends HTMLElement {
     });
 
     this.day = this.querySelector("#day");
-    let dayId = vCardIdGen.next().value;
+    const dayId = vCardIdGen.next().value;
     this.day.id = dayId;
     this.querySelector('label[for="day"]').htmlFor = dayId;
 
     this.year = this.querySelector("#year");
-    let yearId = vCardIdGen.next().value;
+    const yearId = vCardIdGen.next().value;
     this.year.id = yearId;
     this.querySelector('label[for="year"]').htmlFor = yearId;
     this.year.addEventListener("input", () => {
@@ -158,7 +158,7 @@ export class VCardSpecialDateComponent extends HTMLElement {
       return;
     }
     // Default value is date-and-or-time.
-    let dateValue = new ICAL.VCardTime({}, null, "date");
+    const dateValue = new ICAL.VCardTime({}, null, "date");
     // Set the properties directly instead of using the VCardTime
     // constructor argument, which causes null values to become 0.
     dateValue.year = this.year.value ? Number(this.year.value) : null;
@@ -198,14 +198,14 @@ export class VCardSpecialDateComponent extends HTMLElement {
       return true;
     }
 
-    let year = parseInt(this.year.value);
+    const year = parseInt(this.year.value);
     return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
   }
 
   fillMonthOptions() {
-    let formatter = Intl.DateTimeFormat(undefined, { month: "long" });
+    const formatter = Intl.DateTimeFormat(undefined, { month: "long" });
     for (let m = 1; m <= 12; m++) {
-      let option = document.createElement("option");
+      const option = document.createElement("option");
       option.setAttribute("value", m);
       option.setAttribute("label", formatter.format(new Date(2000, m - 1, 2)));
       this.month.appendChild(option);
@@ -224,7 +224,7 @@ export class VCardSpecialDateComponent extends HTMLElement {
     }
 
     // Always clear old options.
-    let defaultOption = document.createElement("option");
+    const defaultOption = document.createElement("option");
     defaultOption.value = "";
     document.l10n
       .formatValues([{ id: "vcard-date-day" }])
@@ -233,15 +233,15 @@ export class VCardSpecialDateComponent extends HTMLElement {
       });
     this.day.replaceChildren(defaultOption);
 
-    let monthValue = this.month.value || 1;
+    const monthValue = this.month.value || 1;
     // Add a day to February if this is a leap year and we're in February.
     if (monthValue === "2") {
       this.monthDays["2"] = this.isLeapYear() ? 29 : 28;
     }
 
-    let formatter = Intl.DateTimeFormat(undefined, { day: "numeric" });
+    const formatter = Intl.DateTimeFormat(undefined, { day: "numeric" });
     for (let d = 1; d <= this.monthDays[monthValue]; d++) {
-      let option = document.createElement("option");
+      const option = document.createElement("option");
       option.setAttribute("value", d);
       option.setAttribute("label", formatter.format(new Date(2000, 0, d)));
       this.day.appendChild(option);

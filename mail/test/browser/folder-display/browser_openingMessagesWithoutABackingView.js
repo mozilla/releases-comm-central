@@ -59,11 +59,12 @@ add_setup(async function () {
  */
 async function test_open_single_message_without_backing_view_in_tab() {
   set_open_message_behavior("NEW_TAB");
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
-  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
+  const preCount =
+    document.getElementById("tabmail").tabContainer.allTabs.length;
   await be_in_folder(folder);
 
-  let win = get_about_3pane();
+  const win = get_about_3pane();
 
   if (!msgHdrsInFolder) {
     msgHdrsInFolder = [];
@@ -73,7 +74,7 @@ async function test_open_single_message_without_backing_view_in_tab() {
     }
   }
   // Get a reference to a header
-  let msgHdr = msgHdrsInFolder[4];
+  const msgHdr = msgHdrsInFolder[4];
   // Open it
   MailUtils.displayMessage(msgHdr);
   // This is going to trigger a message display in the main 3pane window. Since
@@ -101,12 +102,13 @@ add_task(test_open_single_message_without_backing_view_in_tab);
  */
 async function test_open_multiple_messages_without_backing_views_in_tabs() {
   set_open_message_behavior("NEW_TAB");
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
-  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
+  const preCount =
+    document.getElementById("tabmail").tabContainer.allTabs.length;
   await be_in_folder(folder);
 
   // Get a reference to a bunch of headers
-  let msgHdrs = msgHdrsInFolder.slice(0, NUM_MESSAGES_TO_OPEN);
+  const msgHdrs = msgHdrsInFolder.slice(0, NUM_MESSAGES_TO_OPEN);
 
   // Open them
   MailUtils.displayMessages(msgHdrs);
@@ -149,12 +151,12 @@ async function test_open_message_without_backing_view_in_new_window() {
   await be_in_folder(folder);
 
   // Select a message
-  let msgHdr = msgHdrsInFolder[6];
+  const msgHdr = msgHdrsInFolder[6];
 
-  let newWindowPromise = promise_new_window("mail:messageWindow");
+  const newWindowPromise = promise_new_window("mail:messageWindow");
   // Open it
   MailUtils.displayMessage(msgHdr);
-  let msgc = await newWindowPromise;
+  const msgc = await newWindowPromise;
   await wait_for_message_display_completion(msgc, true);
 
   await assert_selected_and_displayed(msgc, msgHdr);
@@ -172,14 +174,14 @@ async function test_open_message_without_backing_view_in_existing_window() {
   await be_in_folder(folder);
 
   // Open up a window
-  let firstMsgHdr = msgHdrsInFolder[3];
-  let newWindowPromise = promise_new_window("mail:messageWindow");
+  const firstMsgHdr = msgHdrsInFolder[3];
+  const newWindowPromise = promise_new_window("mail:messageWindow");
   MailUtils.displayMessage(firstMsgHdr);
-  let msgc = await newWindowPromise;
+  const msgc = await newWindowPromise;
   await wait_for_message_display_completion(msgc, true);
 
   // Open another message
-  let msgHdr = msgHdrsInFolder[7];
+  const msgHdr = msgHdrsInFolder[7];
   plan_for_message_display(msgc);
   MailUtils.displayMessage(msgHdr);
   await wait_for_message_display_completion(msgc, true);

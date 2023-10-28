@@ -31,19 +31,19 @@ var gTestNumber;
 async function subtest_check_set_port_number(tab, dontSet) {
   // This test expects the following POP account to exist by default
   // with port number 110 and no security.
-  let server = MailServices.accounts.findServer(
+  const server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  let account = MailServices.accounts.FindAccountForServer(server);
+  const account = MailServices.accounts.FindAccountForServer(server);
 
-  let accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
+  const accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
   await click_account_tree_row(tab, accountRow);
 
-  let iframe =
+  const iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
-  let portElem = iframe.contentDocument.getElementById("server.port");
+  const portElem = iframe.contentDocument.getElementById("server.port");
   portElem.focus();
 
   if (portElem.value != PORT_NUMBERS_TO_TEST[gTestNumber - 1]) {

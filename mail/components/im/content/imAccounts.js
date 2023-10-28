@@ -61,8 +61,8 @@ var gAccountManager = {
         this.accountList = document.getElementById("accountlist");
         let defaultID;
         IMServices.core.init(); // ensure the imCore is initialized.
-        for (let acc of this.getAccounts()) {
-          let elt = document.createXULElement("richlistitem", {
+        for (const acc of this.getAccounts()) {
+          const elt = document.createXULElement("richlistitem", {
             is: "chat-account-richlistitem",
           });
           this.accountList.appendChild(elt);
@@ -74,7 +74,7 @@ var gAccountManager = {
             defaultID = acc.id;
           }
         }
-        for (let event of events) {
+        for (const event of events) {
           Services.obs.addObserver(this, event);
         }
         if (!this.accountList.getRowCount()) {
@@ -113,17 +113,17 @@ var gAccountManager = {
   },
   unload() {
     clearInterval(this._connectedLabelInterval);
-    for (let event of events) {
+    for (const event of events) {
       Services.obs.removeObserver(this, event);
     }
   },
   _updateAccountList() {
-    let accountList = this.accountList;
+    const accountList = this.accountList;
     let i = 0;
-    for (let acc of this.getAccounts()) {
-      let oldItem = accountList.getItemAtIndex(i);
+    for (const acc of this.getAccounts()) {
+      const oldItem = accountList.getItemAtIndex(i);
       if (oldItem.id != acc.id) {
-        let accElt = document.getElementById(acc.id);
+        const accElt = document.getElementById(acc.id);
         accountList.insertBefore(accElt, oldItem);
         accElt.refreshState();
       }
@@ -154,7 +154,7 @@ var gAccountManager = {
       this.close();
       return;
     } else if (aTopic == "autologin-processed") {
-      let notification =
+      const notification =
         this.msgNotificationBar.getNotificationWithValue("autoLoginStatus");
       if (notification) {
         notification.close();
@@ -172,12 +172,12 @@ var gAccountManager = {
     }
 
     // The following notification handlers need an account.
-    let account = aObject.QueryInterface(Ci.imIAccount);
+    const account = aObject.QueryInterface(Ci.imIAccount);
 
     if (aTopic == "account-added") {
       document.getElementById("noAccountScreen").hidden = true;
       document.getElementById("accounts-notification-box").hidden = false;
-      let elt = document.createXULElement("richlistitem", {
+      const elt = document.createXULElement("richlistitem", {
         is: "chat-account-richlistitem",
       });
       this.accountList.appendChild(elt);
@@ -186,7 +186,7 @@ var gAccountManager = {
         this.accountList.selectedIndex = 0;
       }
     } else if (aTopic == "account-removed") {
-      let elt = document.getElementById(account.id);
+      const elt = document.getElementById(account.id);
       elt.destroy();
       if (!elt.selected) {
         elt.remove();
@@ -247,7 +247,7 @@ var gAccountManager = {
         "account-disconnecting": "disconnecting",
       };
       if (aTopic in stateEvents) {
-        let elt = document.getElementById(account.id);
+        const elt = document.getElementById(account.id);
         if (!elt) {
           // Probably disconnecting a removed account.
           return;
@@ -260,28 +260,28 @@ var gAccountManager = {
     this.accountList.selectedItem.cancelReconnection();
   },
   connect() {
-    let account = this.accountList.selectedItem.account;
+    const account = this.accountList.selectedItem.account;
     if (account.disconnected) {
       this.temporarilyDisableButtons();
       account.connect();
     }
   },
   disconnect() {
-    let account = this.accountList.selectedItem.account;
+    const account = this.accountList.selectedItem.account;
     if (account.connected || account.connecting) {
       this.temporarilyDisableButtons();
       account.disconnect();
     }
   },
   addException() {
-    let account = this.accountList.selectedItem.account;
-    let prplAccount = account.prplAccount;
+    const account = this.accountList.selectedItem.account;
+    const prplAccount = account.prplAccount;
     if (!prplAccount.connectionTarget) {
       return;
     }
 
     // Open the Gecko SSL exception dialog.
-    let params = {
+    const params = {
       exceptionAdded: false,
       securityInfo: prplAccount.securityInfo,
       prefetchCert: true,
@@ -300,11 +300,11 @@ var gAccountManager = {
     }
   },
   copyDebugLog() {
-    let account = this.accountList.selectedItem.account;
-    let text = account
+    const account = this.accountList.selectedItem.account;
+    const text = account
       .getDebugMessages()
       .map(function (dbgMsg) {
-        let m = dbgMsg.message;
+        const m = dbgMsg.message;
         let time = new Date(m.timeStamp);
         const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
           dateStyle: "short",
@@ -346,7 +346,7 @@ var gAccountManager = {
   },
   updateConnectedLabels() {
     for (let i = 0; i < gAccountManager.accountList.itemCount; ++i) {
-      let item = gAccountManager.accountList.getItemAtIndex(i);
+      const item = gAccountManager.accountList.getItemAtIndex(i);
       if (item.account.connected) {
         item.refreshConnectedLabel();
       }
@@ -378,9 +378,9 @@ var gAccountManager = {
   edit() {
     // Find the nsIIncomingServer for the current imIAccount.
     let server = null;
-    let imAccountId = this.accountList.selectedItem.account.numericId;
-    for (let account of MailServices.accounts.accounts) {
-      let incomingServer = account.incomingServer;
+    const imAccountId = this.accountList.selectedItem.account.numericId;
+    for (const account of MailServices.accounts.accounts) {
+      const incomingServer = account.incomingServer;
       if (!incomingServer || incomingServer.type != "im") {
         continue;
       }
@@ -410,8 +410,8 @@ var gAccountManager = {
   /* This function disables or enables the currently selected button and
      the corresponding context menu item */
   disableCommandItems() {
-    let accountList = this.accountList;
-    let selectedItem = accountList.selectedItem;
+    const accountList = this.accountList;
+    const selectedItem = accountList.selectedItem;
     // When opening the account manager, if accounts have errors, we
     // can be called during build(), before any item is selected.
     // In this case, just return early.
@@ -425,15 +425,15 @@ var gAccountManager = {
       return;
     }
 
-    let account = selectedItem.account;
-    let isCommandDisabled =
+    const account = selectedItem.account;
+    const isCommandDisabled =
       this.isOffline ||
       (account.disconnected &&
         account.connectionErrorReason == Ci.imIAccount.ERROR_UNKNOWN_PRPL);
 
-    let disabledItems = ["connect", "disconnect"];
-    for (let name of disabledItems) {
-      let elt = document.getElementById("cmd_" + name);
+    const disabledItems = ["connect", "disconnect"];
+    for (const name of disabledItems) {
+      const elt = document.getElementById("cmd_" + name);
       if (isCommandDisabled) {
         elt.setAttribute("disabled", "true");
       } else {
@@ -442,21 +442,21 @@ var gAccountManager = {
     }
   },
   onContextMenuShowing(event) {
-    let targetElt = event.target.triggerNode.closest(
+    const targetElt = event.target.triggerNode.closest(
       'richlistitem[is="chat-account-richlistitem"]'
     );
     document.querySelectorAll(".im-context-account-item").forEach(e => {
       e.hidden = !targetElt;
     });
     if (targetElt) {
-      let account = targetElt.account;
-      let hiddenItems = {
+      const account = targetElt.account;
+      const hiddenItems = {
         connect: !account.disconnected,
         disconnect: account.disconnected || account.disconnecting,
         cancelReconnection: !targetElt.hasAttribute("reconnectPending"),
         accountsItemsSeparator: account.disconnecting,
       };
-      for (let name in hiddenItems) {
+      for (const name in hiddenItems) {
         document.getElementById("context_" + name).hidden = hiddenItems[name];
       }
     }
@@ -508,7 +508,7 @@ var gAccountManager = {
     }
 
     if (event.keyCode == event.DOM_VK_RETURN) {
-      let target = event.target;
+      const target = event.target;
       if (
         target.localName != "checkbox" &&
         (target.localName != "button" ||
@@ -520,7 +520,7 @@ var gAccountManager = {
   },
 
   *getAccounts() {
-    for (let account of IMServices.accounts.getAccounts()) {
+    for (const account of IMServices.accounts.getAccounts()) {
       yield account;
     }
   },
@@ -535,7 +535,7 @@ var gAccountManager = {
     var autoLoginStatus = IMServices.accounts.autoLoginStatus;
     let isOffline = false;
     let crashCount = 0;
-    for (let acc of this.getAccounts()) {
+    for (const acc of this.getAccounts()) {
       if (
         acc.autoLogin &&
         acc.firstConnectionState == acc.FIRST_CONNECTION_CRASHED
@@ -548,13 +548,13 @@ var gAccountManager = {
       autoLoginStatus == IMServices.accounts.AUTOLOGIN.ENABLED &&
       crashCount == 0
     ) {
-      let status = IMServices.core.globalUserStatus.statusType;
+      const status = IMServices.core.globalUserStatus.statusType;
       this.setOffline(isOffline || status == Ci.imIStatusInfo.STATUS_OFFLINE);
       return;
     }
 
     var bundle = document.getElementById("accountsBundle");
-    let box = this.msgNotificationBar;
+    const box = this.msgNotificationBar;
     var prio = box.PRIORITY_INFO_HIGH;
     var connectNowButton = {
       accessKey: bundle.getString(
@@ -607,7 +607,7 @@ var gAccountManager = {
       default:
         barLabel = bundle.getString("accountsManager.notification.other.label");
     }
-    let status = IMServices.core.globalUserStatus.statusType;
+    const status = IMServices.core.globalUserStatus.statusType;
     this.setOffline(isOffline || status == Ci.imIStatusInfo.STATUS_OFFLINE);
 
     box.appendNotification(
@@ -631,7 +631,7 @@ var gAccountManager = {
     gAccountManager.accountList.selectedItem.setFocus();
   },
   processCrashedAccountsLogin() {
-    for (let acc in gAccountManager.getAccounts()) {
+    for (const acc in gAccountManager.getAccounts()) {
       if (
         acc.disconnected &&
         acc.autoLogin &&
@@ -641,7 +641,7 @@ var gAccountManager = {
       }
     }
 
-    let notification =
+    const notification =
       this.msgNotificationBar.getNotificationWithValue("autoLoginStatus");
     if (notification) {
       notification.close();

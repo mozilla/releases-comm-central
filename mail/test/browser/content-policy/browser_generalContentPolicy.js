@@ -120,7 +120,7 @@ var TESTS = [
       return element.naturalWidth > 0 && element.naturalHeight > 0;
     },
     checkForAllowedRemote: () => {
-      let element = content.document.getElementById("testelement");
+      const element = content.document.getElementById("testelement");
       return element.naturalWidth > 0 && element.naturalHeight > 0;
     },
   },
@@ -135,7 +135,7 @@ var TESTS = [
       return element.networkState != element.NETWORK_NO_SOURCE;
     },
     checkForAllowedRemote: () => {
-      let element = content.document.getElementById("testelement");
+      const element = content.document.getElementById("testelement");
       return element.networkState != element.NETWORK_NO_SOURCE;
     },
   },
@@ -150,7 +150,7 @@ var TESTS = [
       return element.naturalWidth > 0 && element.naturalHeight > 0;
     },
     checkForAllowedRemote: () => {
-      let element = content.document.getElementById("testelement");
+      const element = content.document.getElementById("testelement");
       return element.naturalWidth > 0 && element.naturalHeight > 0;
     },
   },
@@ -162,7 +162,7 @@ var TESTS = [
     body: `<html><iframe id='testelement' srcdoc='<html><img src="${url}pass.png" alt="pichere"/>'></html>`,
     checkForAllowed: async element => {
       await new Promise(window.requestAnimationFrame);
-      let img = element.contentDocument.querySelector("img");
+      const img = element.contentDocument.querySelector("img");
       return img && img.naturalHeight > 0 && img.naturalWidth > 0;
     },
   },
@@ -194,7 +194,7 @@ add_setup(async () => {
 
 // We can't call it test since that it would be run as subtest.
 function checkPermission(aURI) {
-  let principal = Services.scriptSecurityManager.createContentPrincipal(
+  const principal = Services.scriptSecurityManager.createContentPrincipal(
     aURI,
     {}
   );
@@ -202,7 +202,7 @@ function checkPermission(aURI) {
 }
 
 function addPermission(aURI, aAllowDeny) {
-  let principal = Services.scriptSecurityManager.createContentPrincipal(
+  const principal = Services.scriptSecurityManager.createContentPrincipal(
     aURI,
     {}
   );
@@ -210,7 +210,7 @@ function addPermission(aURI, aAllowDeny) {
 }
 
 function removePermission(aURI) {
-  let principal = Services.scriptSecurityManager.createContentPrincipal(
+  const principal = Services.scriptSecurityManager.createContentPrincipal(
     aURI,
     {}
   );
@@ -218,10 +218,10 @@ function removePermission(aURI) {
 }
 
 function addToFolder(aSubject, aBody, aFolder) {
-  let msgId = Services.uuid.generateUUID() + "@mozillamessaging.invalid";
+  const msgId = Services.uuid.generateUUID() + "@mozillamessaging.invalid";
 
   gMsgNo++;
-  let source =
+  const source =
     "From - Sat Nov  1 12:39:54 2008\n" +
     "X-Mozilla-Status: 0001\n" +
     "X-Mozilla-Status2: 00000000\n" +
@@ -255,14 +255,14 @@ function addToFolder(aSubject, aBody, aFolder) {
 
 async function addMsgToFolderAndCheckContent(folder, test) {
   info(`Checking msg in folder; test=${test.type}`);
-  let msgDbHdr = addToFolder(
+  const msgDbHdr = addToFolder(
     test.type + " test message ",
     msgBodyStart + test.body + msgBodyEnd,
     folder
   );
 
   // select the newly created message
-  let msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo);
 
   if (msgDbHdr != msgHdr) {
     throw new Error(
@@ -273,9 +273,9 @@ async function addMsgToFolderAndCheckContent(folder, test) {
   await assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been loaded
-  let messageDocument =
+  const messageDocument =
     get_about_message().getMessagePaneBrowser().contentDocument;
-  let testelement = messageDocument.getElementById("testelement");
+  const testelement = messageDocument.getElementById("testelement");
   Assert.ok(testelement, "testelement should be found");
   if (test.shouldBeBlocked) {
     if (await test.checkForAllowed(testelement)) {
@@ -305,11 +305,11 @@ async function checkComposeWindow(test, replyType, loadAllowed) {
   info(
     `Checking compose win; replyType=${replyType}, test=${test.type}; shouldLoad=${loadAllowed}`
   );
-  let replyWindow = replyType
+  const replyWindow = replyType
     ? await open_compose_with_reply()
     : await open_compose_with_forward();
 
-  let what =
+  const what =
     test.description +
     ": " +
     test.type +
@@ -339,12 +339,12 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
   info(
     `Checking standalong msg win; test=${test.type}; shouldLoad=${loadAllowed}`
   );
-  let winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   // Open it
   set_open_message_behavior("NEW_WINDOW");
   open_selected_message();
 
-  let win = await winPromise;
+  const win = await winPromise;
   await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
   await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
 
@@ -355,13 +355,13 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
         .contentDocument.getElementById("testelement")
     )) != loadAllowed
   ) {
-    let expected = loadAllowed ? "allowed" : "blocked";
+    const expected = loadAllowed ? "allowed" : "blocked";
     throw new Error(
       `${test.type} was not ${expected} in standalone message content`
     );
   }
 
-  let closed = BrowserTestUtils.domWindowClosed(win);
+  const closed = BrowserTestUtils.domWindowClosed(win);
   win.close();
   await closed;
 }
@@ -371,8 +371,8 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
  * Make sure there's a notification bar.
  */
 async function checkEMLMessageWindow(test, emlFile) {
-  let msgc = await open_message_from_file(emlFile);
-  let aboutMessage = get_about_message(msgc);
+  const msgc = await open_message_from_file(emlFile);
+  const aboutMessage = get_about_message(msgc);
   if (!aboutMessage.document.getElementById("mail-notification-top")) {
     throw new Error(test.type + " has no content notification bar.");
   }
@@ -390,11 +390,11 @@ async function checkEMLMessageWindow(test, emlFile) {
  * @returns the file the message was safed to
  */
 async function saveAsEMLFile(msgNo) {
-  let msgHdr = await select_click_row(msgNo);
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+  const msgHdr = await select_click_row(msgNo);
+  const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
-  let profD = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  const profD = Services.dirsvc.get("ProfD", Ci.nsIFile);
   var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   file.initWithFile(profD);
   file.append("content-policy-test-" + msgNo + ".eml");
@@ -418,13 +418,13 @@ async function allowRemoteContentAndCheck(test) {
   info(`Checking allow remote content; test=${test.type}`);
   await addMsgToFolderAndCheckContent(folder, test);
 
-  let aboutMessage = get_about_message();
+  const aboutMessage = get_about_message();
 
   // Click on the allow remote content button
   const kBoxId = "mail-notification-top";
   const kNotificationValue = "remoteContent";
   await wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
-  let prefButton = get_notification_button(
+  const prefButton = get_notification_button(
     aboutMessage,
     kBoxId,
     kNotificationValue,
@@ -465,9 +465,10 @@ async function checkContentTab(test) {
   }
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
+  const preCount =
+    document.getElementById("tabmail").tabContainer.allTabs.length;
 
-  let newTab = await open_content_tab_with_url(url + test.webPage);
+  const newTab = await open_content_tab_with_url(url + test.webPage);
 
   if (
     !(await SpecialPowers.spawn(newTab.browser, [], test.checkForAllowedRemote))
@@ -494,7 +495,7 @@ async function checkAllowFeedMsg(test) {
   if (test.neverAllowed) {
     return;
   }
-  let msgDbHdr = addToFolder(
+  const msgDbHdr = addToFolder(
     test.type + " test feed message",
     msgBodyStart + test.body + msgBodyEnd,
     folder
@@ -502,13 +503,13 @@ async function checkAllowFeedMsg(test) {
   msgDbHdr.orFlags(Ci.nsMsgMessageFlags.FeedMsg);
 
   // select the newly created message
-  let msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo);
 
   Assert.equal(msgDbHdr, msgHdr);
   await assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
-  let messageDocument =
+  const messageDocument =
     get_about_message().getMessagePaneBrowser().contentDocument;
   if (
     !(await test.checkForAllowed(messageDocument.getElementById("testelement")))
@@ -526,29 +527,31 @@ async function checkAllowForSenderWithPerms(test) {
   if (test.neverAllowed) {
     return;
   }
-  let msgDbHdr = addToFolder(
+  const msgDbHdr = addToFolder(
     test.type + " priv sender test message ",
     msgBodyStart + test.body + msgBodyEnd,
     folder
   );
 
-  let addresses = MailServices.headerParser.parseEncodedHeader(msgDbHdr.author);
-  let authorEmailAddress = addresses[0].email;
+  const addresses = MailServices.headerParser.parseEncodedHeader(
+    msgDbHdr.author
+  );
+  const authorEmailAddress = addresses[0].email;
 
-  let uri = Services.io.newURI(
+  const uri = Services.io.newURI(
     "chrome://messenger/content/email=" + authorEmailAddress
   );
   addPermission(uri, Services.perms.ALLOW_ACTION);
   Assert.equal(checkPermission(uri), Services.perms.ALLOW_ACTION);
 
   // select the newly created message
-  let msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo);
 
   Assert.equal(msgDbHdr, msgHdr);
   await assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
-  let messageDocument =
+  const messageDocument =
     get_about_message().getMessagePaneBrowser().contentDocument;
   if (
     !(await test.checkForAllowed(messageDocument.getElementById("testelement")))
@@ -570,7 +573,7 @@ async function checkAllowForHostsWithPerms(test) {
   if (test.neverAllowed) {
     return;
   }
-  let msgDbHdr = addToFolder(
+  const msgDbHdr = addToFolder(
     test.type + " priv host test message ",
     msgBodyStart + test.body + msgBodyEnd,
     folder
@@ -581,16 +584,16 @@ async function checkAllowForHostsWithPerms(test) {
   Assert.equal(msgDbHdr, msgHdr);
   await assert_selected_and_displayed(gMsgNo);
 
-  let aboutMessage = get_about_message();
+  const aboutMessage = get_about_message();
   let messageDocument = aboutMessage.getMessagePaneBrowser().contentDocument;
-  let src = messageDocument.getElementById("testelement").src;
+  const src = messageDocument.getElementById("testelement").src;
 
   if (!src.startsWith("http")) {
     // Just test http in this test.
     return;
   }
 
-  let uri = Services.io.newURI(src);
+  const uri = Services.io.newURI(src);
   addPermission(uri, Services.perms.ALLOW_ACTION);
   Assert.equal(checkPermission(uri), Services.perms.ALLOW_ACTION);
 
@@ -638,11 +641,11 @@ add_task(async function test_generalContentPolicy() {
         // Only want to do this for the test case which has the remote image.
 
         // Add the site to the whitelist.
-        let messageDocument =
+        const messageDocument =
           get_about_message().getMessagePaneBrowser().contentDocument;
-        let src = messageDocument.getElementById("testelement").src;
+        const src = messageDocument.getElementById("testelement").src;
 
-        let uri = Services.io.newURI(src);
+        const uri = Services.io.newURI(src);
         addPermission(uri, Services.perms.ALLOW_ACTION);
         Assert.equal(checkPermission(uri), Services.perms.ALLOW_ACTION);
 
@@ -687,7 +690,7 @@ add_task(async function test_generalContentPolicy() {
 
     // Only want to do this for the test case which has the remote image.
     if (TESTS[i].checkRemoteImg) {
-      let emlFile = await saveAsEMLFile(i);
+      const emlFile = await saveAsEMLFile(i);
       await checkEMLMessageWindow(TESTS[i], emlFile);
       emlFile.remove(false);
     }
@@ -713,10 +716,10 @@ add_task(async function test_imgAuth() {
   await select_click_row(gMsgNo);
 
   // Open reply/fwd. If we get a prompt the test will timeout.
-  let rwc = await open_compose_with_reply();
+  const rwc = await open_compose_with_reply();
   await close_compose_window(rwc);
 
-  let fwc = await open_compose_with_forward();
+  const fwc = await open_compose_with_forward();
   await close_compose_window(fwc);
 
   Services.prefs.clearUserPref("mailnews.message_display.disable_remote_image");
@@ -724,18 +727,18 @@ add_task(async function test_imgAuth() {
 
 /** Make sure remote images work in signatures. */
 add_task(async function test_sigPic() {
-  let identity = MailServices.accounts.allIdentities[0];
+  const identity = MailServices.accounts.allIdentities[0];
   identity.htmlSigFormat = true;
   identity.htmlSigText = `Tb remote! <img id='testelement' alt='[sigpic]' src='${url}pass.png' />`;
 
-  let wasAllowed = element => {
+  const wasAllowed = element => {
     return element.naturalWidth > 0 && element.naturalHeight > 0;
   };
 
   be_in_folder(folder);
   await select_click_row(gMsgNo);
 
-  let nwc = await open_compose_new_mail();
+  const nwc = await open_compose_new_mail();
   await TestUtils.waitForCondition(async () => {
     return wasAllowed(
       nwc.document
@@ -745,7 +748,7 @@ add_task(async function test_sigPic() {
   }, "Should allow remote sig in new mail");
   await close_compose_window(nwc);
 
-  let rwc = await open_compose_with_reply();
+  const rwc = await open_compose_with_reply();
   await TestUtils.waitForCondition(async () => {
     return wasAllowed(
       rwc.document
@@ -762,7 +765,7 @@ add_task(async function test_sigPic() {
 
 // Copied from test-blocked-content.js.
 async function putHTMLOnClipboard(html) {
-  let trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+  const trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
 
@@ -770,7 +773,7 @@ async function putHTMLOnClipboard(html) {
   trans.init(null);
   trans.addDataFlavor("text/html");
 
-  let wapper = Cc["@mozilla.org/supports-string;1"].createInstance(
+  const wapper = Cc["@mozilla.org/supports-string;1"].createInstance(
     Ci.nsISupportsString
   );
   wapper.data = html;
@@ -782,7 +785,7 @@ async function putHTMLOnClipboard(html) {
 
 async function subtest_insertImageIntoReplyForward(aReplyType) {
   Assert.ok(folder, "folder should be set up");
-  let msgDbHdr = addToFolder(
+  const msgDbHdr = addToFolder(
     "Test insert image into reply or forward",
     "Stand by for image insertion ;-)",
     folder
@@ -790,7 +793,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
 
   // Select the newly created message.
   await be_in_folder(folder);
-  let msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo);
 
   if (msgDbHdr != msgHdr) {
     throw new Error(
@@ -800,7 +803,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
 
   await assert_selected_and_displayed(gMsgNo);
 
-  let replyWindow = aReplyType
+  const replyWindow = aReplyType
     ? await open_compose_with_reply()
     : await open_compose_with_forward();
 
@@ -815,13 +818,13 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
     "Mail:image",
     async function (mwc) {
       // Insert the url of the image.
-      let srcloc = mwc.document.getElementById("srcInput");
+      const srcloc = mwc.document.getElementById("srcInput");
       srcloc.focus();
 
       input_value(mwc, url + "pass.png");
 
       // Don't add alternate text
-      let noAlt = mwc.document.getElementById("noAltTextRadio");
+      const noAlt = mwc.document.getElementById("noAltTextRadio");
       EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
       await new Promise(resolve => setTimeout(resolve));
 
@@ -830,8 +833,8 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
     }
   );
 
-  let insertMenu = replyWindow.document.getElementById("InsertPopupButton");
-  let insertMenuPopup = replyWindow.document.getElementById("InsertPopup");
+  const insertMenu = replyWindow.document.getElementById("InsertPopupButton");
+  const insertMenuPopup = replyWindow.document.getElementById("InsertPopup");
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
@@ -856,14 +859,14 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
 
   // Now wait for the paste.
   await TestUtils.waitForCondition(function () {
-    let img = replyWindow.document
+    const img = replyWindow.document
       .getElementById("messageEditor")
       .contentDocument.getElementById("tmp-img");
     return img != null && img.complete;
   }, "Timeout waiting for pasted tmp image to be loaded ok");
 
   // Test that the image load has not been denied
-  let childImages = replyWindow.document
+  const childImages = replyWindow.document
     .getElementById("messageEditor")
     .contentDocument.getElementsByTagName("img");
 

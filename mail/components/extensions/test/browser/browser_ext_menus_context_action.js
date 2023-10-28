@@ -45,10 +45,10 @@ async function subtest_action_menu(
   manifest
 ) {
   function checkVisibility(menu, visible) {
-    let removeExtension = menu.querySelector(
+    const removeExtension = menu.querySelector(
       ".customize-context-removeExtension"
     );
-    let manageExtension = menu.querySelector(
+    const manageExtension = menu.querySelector(
       ".customize-context-manageExtension"
     );
 
@@ -58,8 +58,8 @@ async function subtest_action_menu(
   }
 
   async function testContextMenuRemoveExtension(extension, menu, element) {
-    let name = "Generated extension";
-    let brand = Services.strings
+    const name = "Generated extension";
+    const brand = Services.strings
       .createBundle("chrome://branding/locale/brand.properties")
       .GetStringFromName("brandShorterName");
 
@@ -68,11 +68,11 @@ async function subtest_action_menu(
     );
     await rightClick(menu, element);
     await extension.awaitMessage("onShown");
-    let removeExtension = menu.querySelector(
+    const removeExtension = menu.querySelector(
       ".customize-context-removeExtension"
     );
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-    let promptPromise = BrowserTestUtils.promiseAlertDialog(
+    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    const promptPromise = BrowserTestUtils.promiseAlertDialog(
       undefined,
       undefined,
       {
@@ -82,7 +82,7 @@ async function subtest_action_menu(
             "waiting for prompt to become active"
           );
 
-          let promptDocument = promptWindow.document;
+          const promptDocument = promptWindow.document;
           // Check if the correct add-on is being removed.
           is(promptDocument.title, `Remove ${name}?`);
           if (
@@ -93,7 +93,7 @@ async function subtest_action_menu(
               `Remove ${name} as well as its configuration and data from ${brand}?`
             );
           }
-          let acceptButton = promptDocument
+          const acceptButton = promptDocument
             .querySelector("dialog")
             .getButton("accept");
           is(acceptButton.label, "Remove");
@@ -107,23 +107,23 @@ async function subtest_action_menu(
   }
 
   async function testContextMenuManageExtension(extension, menu, element) {
-    let id = "menus@mochi.test";
-    let tabmail = window.document.getElementById("tabmail");
+    const id = "menus@mochi.test";
+    const tabmail = window.document.getElementById("tabmail");
 
     info(
       `Choosing 'Manage Extension' in ${menu.id} should load the management page.`
     );
     await rightClick(menu, element);
     await extension.awaitMessage("onShown");
-    let manageExtension = menu.querySelector(
+    const manageExtension = menu.querySelector(
       ".customize-context-manageExtension"
     );
-    let addonManagerPromise = contentTabOpenPromise(tabmail, "about:addons");
+    const addonManagerPromise = contentTabOpenPromise(tabmail, "about:addons");
     menu.activateItem(manageExtension);
-    let managerTab = await addonManagerPromise;
+    const managerTab = await addonManagerPromise;
 
     // Check the UI to make sure that the correct view is loaded.
-    let managerWindow = managerTab.linkedBrowser.contentWindow;
+    const managerWindow = managerTab.linkedBrowser.contentWindow;
     is(
       managerWindow.gViewController.currentViewId,
       `addons://detail/${encodeURIComponent(id)}`,
@@ -137,13 +137,13 @@ async function subtest_action_menu(
     tabmail.closeTab(managerTab);
   }
 
-  let extension = await getMenuExtension(manifest);
+  const extension = await getMenuExtension(manifest);
 
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
-  let element = testWindow.document.querySelector(target.elementSelector);
-  let menu = testWindow.document.getElementById(target.menuId);
+  const element = testWindow.document.querySelector(target.elementSelector);
+  const menu = testWindow.document.getElementById(target.menuId);
 
   await rightClick(menu, element);
   await checkVisibility(menu, true);
@@ -153,8 +153,12 @@ async function subtest_action_menu(
     expectedTab
   );
 
-  let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-  let clickedPromise = checkClickedEvent(extension, expectedInfo, expectedTab);
+  const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  const clickedPromise = checkClickedEvent(
+    extension,
+    expectedInfo,
+    expectedTab
+  );
   menu.activateItem(
     menu.querySelector(`#menus_mochi_test-menuitem-_${target.context}`)
   );
@@ -163,12 +167,12 @@ async function subtest_action_menu(
 
   // Test the non actionButton element for visibility of the management menu entries.
   if (target.nonActionButtonSelector) {
-    let nonActionButtonElement = testWindow.document.querySelector(
+    const nonActionButtonElement = testWindow.document.querySelector(
       target.nonActionButtonSelector
     );
     await rightClick(menu, nonActionButtonElement);
     await checkVisibility(menu, false);
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.hidePopup();
     await hiddenPromise;
   }
@@ -199,7 +203,7 @@ add_task(async function test_browser_action_menu_mv2() {
   );
 });
 add_task(async function test_message_display_action_menu_pane_mv2() {
-  let tab = await openMessageInTab(gMessage);
+  const tab = await openMessageInTab(gMessage);
   // No check for menu entries in nonActionButtonElements as the header-toolbar
   // does not have a context menu associated.
   await subtest_action_menu(
@@ -224,7 +228,7 @@ add_task(async function test_message_display_action_menu_pane_mv2() {
   window.document.getElementById("tabmail").closeTab(tab);
 });
 add_task(async function test_message_display_action_menu_window_mv2() {
-  let testWindow = await openMessageInWindow(gMessage);
+  const testWindow = await openMessageInWindow(gMessage);
   await focusWindow(testWindow);
   // No check for menu entries in nonActionButtonElements as the header-toolbar
   // does not have a context menu associated.
@@ -250,7 +254,7 @@ add_task(async function test_message_display_action_menu_window_mv2() {
   await BrowserTestUtils.closeWindow(testWindow);
 });
 add_task(async function test_compose_action_menu_mv2() {
-  let testWindow = await openComposeWindow(gAccount);
+  const testWindow = await openComposeWindow(gAccount);
   await focusWindow(testWindow);
   await subtest_action_menu(
     testWindow,
@@ -275,7 +279,7 @@ add_task(async function test_compose_action_menu_mv2() {
   await BrowserTestUtils.closeWindow(testWindow);
 });
 add_task(async function test_compose_action_menu_formattoolbar_mv2() {
-  let testWindow = await openComposeWindow(gAccount);
+  const testWindow = await openComposeWindow(gAccount);
   await focusWindow(testWindow);
   await subtest_action_menu(
     testWindow,
@@ -322,7 +326,7 @@ add_task(async function test_browser_action_menu_mv3() {
   );
 });
 add_task(async function test_message_display_action_menu_pane_mv3() {
-  let tab = await openMessageInTab(gMessage);
+  const tab = await openMessageInTab(gMessage);
   // No check for menu entries in nonActionButtonElements as the header-toolbar
   // does not have a context menu associated.
   await subtest_action_menu(
@@ -347,7 +351,7 @@ add_task(async function test_message_display_action_menu_pane_mv3() {
   window.document.getElementById("tabmail").closeTab(tab);
 });
 add_task(async function test_message_display_action_menu_window_mv3() {
-  let testWindow = await openMessageInWindow(gMessage);
+  const testWindow = await openMessageInWindow(gMessage);
   await focusWindow(testWindow);
   // No check for menu entries in nonActionButtonElements as the header-toolbar
   // does not have a context menu associated.
@@ -373,7 +377,7 @@ add_task(async function test_message_display_action_menu_window_mv3() {
   await BrowserTestUtils.closeWindow(testWindow);
 });
 add_task(async function test_compose_action_menu_mv3() {
-  let testWindow = await openComposeWindow(gAccount);
+  const testWindow = await openComposeWindow(gAccount);
   await focusWindow(testWindow);
   await subtest_action_menu(
     testWindow,
@@ -398,7 +402,7 @@ add_task(async function test_compose_action_menu_mv3() {
   await BrowserTestUtils.closeWindow(testWindow);
 });
 add_task(async function test_compose_action_menu_formattoolbar_mv3() {
-  let testWindow = await openComposeWindow(gAccount);
+  const testWindow = await openComposeWindow(gAccount);
   await focusWindow(testWindow);
   await subtest_action_menu(
     testWindow,

@@ -30,7 +30,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
       this._mutationObserver = new MutationObserver((records, observer) => {
         records.forEach(mutation => {
-          let menuItem = mutation.target.mCorrespondingMenuitem;
+          const menuItem = mutation.target.mCorrespondingMenuitem;
           if (menuItem) {
             this._setMenuitemAttributes(menuItem, mutation.target);
           }
@@ -39,8 +39,8 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
       this.addEventListener("popupshowing", event => {
         // Set up the menu popup.
-        let tabcontainer = this.tabmail.tabContainer;
-        let tabs = tabcontainer.allTabs;
+        const tabcontainer = this.tabmail.tabContainer;
+        const tabs = tabcontainer.allTabs;
 
         // Listen for changes in the tab bar.
         this._mutationObserver.observe(tabcontainer, {
@@ -65,7 +65,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       this.addEventListener("popuphiding", event => {
         // Clear out the menu popup and remove the listeners.
         while (this.hasChildNodes()) {
-          let menuItem = this.lastElementChild;
+          const menuItem = this.lastElementChild;
           menuItem.removeEventListener("command", this);
           menuItem.tab.removeEventListener("TabClose", this);
           menuItem.tab.mCorrespondingMenuitem = null;
@@ -86,7 +86,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     _tabOnTabClose(aEvent) {
-      let menuItem = aEvent.target.mCorrespondingMenuitem;
+      const menuItem = aEvent.target.mCorrespondingMenuitem;
       if (menuItem) {
         menuItem.remove();
       }
@@ -114,16 +114,16 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     _updateTabsVisibilityStatus() {
-      let tabStrip = this.tabmail.tabContainer.arrowScrollbox;
+      const tabStrip = this.tabmail.tabContainer.arrowScrollbox;
       // We don't want menu item decoration unless there is overflow.
       if (tabStrip.getAttribute("overflow") != "true") {
         return;
       }
 
-      let tabStripBox = tabStrip.getBoundingClientRect();
+      const tabStripBox = tabStrip.getBoundingClientRect();
 
       for (let i = 0; i < this.children.length; i++) {
-        let currentTabBox = this.children[i].tab.getBoundingClientRect();
+        const currentTabBox = this.children[i].tab.getBoundingClientRect();
 
         if (
           currentTabBox.left >= tabStripBox.left &&
@@ -137,7 +137,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     _createTabMenuItem(aTab) {
-      let menuItem = document.createXULElement("menuitem");
+      const menuItem = document.createXULElement("menuitem");
 
       menuItem.setAttribute(
         "class",
@@ -170,7 +170,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       }
 
       // Change the tab icon accordingly.
-      let style = window.getComputedStyle(aTab);
+      const style = window.getComputedStyle(aTab);
       aMenuitem.style.listStyleImage = style.listStyleImage;
       aMenuitem.style.MozImageRegion = style.MozImageRegion;
 
@@ -493,17 +493,17 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       // @implements {nsIController}
       this.tabController = {
         supportsCommand: aCommand => {
-          let tab = this.currentTabInfo;
+          const tab = this.currentTabInfo;
           // This can happen if we're starting up and haven't got a tab
           // loaded yet.
           if (!tab) {
             return false;
           }
 
-          for (let tabMonitor of this.tabMonitors) {
+          for (const tabMonitor of this.tabMonitors) {
             try {
               if ("supportsCommand" in tabMonitor) {
-                let result = tabMonitor.supportsCommand(aCommand, tab);
+                const result = tabMonitor.supportsCommand(aCommand, tab);
                 if (result !== null) {
                   return result;
                 }
@@ -513,7 +513,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
             }
           }
 
-          let supportsCommandFunc =
+          const supportsCommandFunc =
             tab.mode.supportsCommand || tab.mode.tabType.supportsCommand;
           if (supportsCommandFunc) {
             return supportsCommandFunc.call(tab.mode.tabType, aCommand, tab);
@@ -523,17 +523,17 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         },
 
         isCommandEnabled: aCommand => {
-          let tab = this.currentTabInfo;
+          const tab = this.currentTabInfo;
           // This can happen if we're starting up and haven't got a tab
           // loaded yet.
           if (!tab || this.globalOverlay) {
             return false;
           }
 
-          for (let tabMonitor of this.tabMonitors) {
+          for (const tabMonitor of this.tabMonitors) {
             try {
               if ("isCommandEnabled" in tabMonitor) {
-                let result = tabMonitor.isCommandEnabled(aCommand, tab);
+                const result = tabMonitor.isCommandEnabled(aCommand, tab);
                 if (result !== null) {
                   return result;
                 }
@@ -543,7 +543,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
             }
           }
 
-          let isCommandEnabledFunc =
+          const isCommandEnabledFunc =
             tab.mode.isCommandEnabled || tab.mode.tabType.isCommandEnabled;
           if (isCommandEnabledFunc) {
             return isCommandEnabledFunc.call(tab.mode.tabType, aCommand, tab);
@@ -553,17 +553,17 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         },
 
         doCommand: (aCommand, ...args) => {
-          let tab = this.currentTabInfo;
+          const tab = this.currentTabInfo;
           // This can happen if we're starting up and haven't got a tab
           // loaded yet.
           if (!tab) {
             return;
           }
 
-          for (let tabMonitor of this.tabMonitors) {
+          for (const tabMonitor of this.tabMonitors) {
             try {
               if ("doCommand" in tabMonitor) {
-                let result = tabMonitor.doCommand(aCommand, tab);
+                const result = tabMonitor.doCommand(aCommand, tab);
                 if (result === true) {
                   return;
                 }
@@ -573,21 +573,22 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
             }
           }
 
-          let doCommandFunc = tab.mode.doCommand || tab.mode.tabType.doCommand;
+          const doCommandFunc =
+            tab.mode.doCommand || tab.mode.tabType.doCommand;
           if (doCommandFunc) {
             doCommandFunc.call(tab.mode.tabType, aCommand, tab, ...args);
           }
         },
 
         onEvent: aEvent => {
-          let tab = this.currentTabInfo;
+          const tab = this.currentTabInfo;
           // This can happen if we're starting up and haven't got a tab
           // loaded yet.
           if (!tab) {
             return null;
           }
 
-          let onEventFunc = tab.mode.onEvent || tab.mode.tabType.onEvent;
+          const onEventFunc = tab.mode.onEvent || tab.mode.tabType.onEvent;
           if (onEventFunc) {
             return onEventFunc.call(tab.mode.tabType, aEvent, tab);
           }
@@ -631,7 +632,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       }
 
       this.tabTypes[aTabType.name] = aTabType;
-      for (let [modeName, modeDetails] of Object.entries(aTabType.modes)) {
+      for (const [modeName, modeDetails] of Object.entries(aTabType.modes)) {
         modeDetails.name = modeName;
         modeDetails.tabType = aTabType;
         modeDetails.tabs = [];
@@ -651,10 +652,10 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       }
 
       setTimeout(() => {
-        for (let modeName of Object.keys(aTabType.modes)) {
+        for (const modeName of Object.keys(aTabType.modes)) {
           let i = 0;
           while (i < this.unrestoredTabs.length) {
-            let state = this.unrestoredTabs[i];
+            const state = this.unrestoredTabs[i];
             if (state.mode == modeName) {
               this.restoreTab(state);
               this.unrestoredTabs.splice(i, 1);
@@ -674,13 +675,13 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
       // ... if the tab type is still in use, we can not remove it without
       // breaking the UI. So we throw an exception.
-      for (let modeName of Object.keys(aTabType.modes)) {
+      for (const modeName of Object.keys(aTabType.modes)) {
         if (this.tabModes[modeName].tabs.length) {
           throw new Error("Tab mode " + modeName + " still in use. Close tabs");
         }
       }
       // ... finally get rid of the tab type
-      for (let modeName of Object.keys(aTabType.modes)) {
+      for (const modeName of Object.keys(aTabType.modes)) {
         delete this.tabModes[modeName];
       }
 
@@ -746,7 +747,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       // event to ensure we have an accurate title.  We assume the tab
       // contents will set themselves up correctly.
       if (this.tabInfo.length == 0) {
-        let tab = this.openTab("mail3PaneTab", { first: true });
+        const tab = this.openTab("mail3PaneTab", { first: true });
         this.tabs[0].linkedPanel = tab.panel.id;
       }
     }
@@ -758,23 +759,23 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           throw new Error("No such tab mode: " + aTabModeName);
         }
 
-        let tabMode = this.tabModes[aTabModeName];
+        const tabMode = this.tabModes[aTabModeName];
         // if we are already at our limit for this mode, show an existing one
         if (tabMode.tabs.length == tabMode.maxTabs) {
-          let desiredTab = tabMode.tabs[0];
+          const desiredTab = tabMode.tabs[0];
           this.tabContainer.selectedIndex = this.tabInfo.indexOf(desiredTab);
           return null;
         }
 
         // Do this so that we don't generate strict warnings
-        let background = aArgs.background;
+        const background = aArgs.background;
         // If the mode wants us to, we should switch to an existing tab
         // rather than open a new one. We shouldn't switch to the tab if
         // we're opening it in the background, though.
-        let shouldSwitchToFunc =
+        const shouldSwitchToFunc =
           tabMode.shouldSwitchTo || tabMode.tabType.shouldSwitchTo;
         if (shouldSwitchToFunc) {
-          let tabIndex = shouldSwitchToFunc.apply(tabMode.tabType, [aArgs]);
+          const tabIndex = shouldSwitchToFunc.apply(tabMode.tabType, [aArgs]);
           if (tabIndex >= 0) {
             if (!background) {
               this.selectTabByIndex(null, tabIndex);
@@ -788,7 +789,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           this.saveCurrentTabState();
         }
 
-        let tab = {
+        const tab = {
           first: !!aArgs.first,
           mode: tabMode,
           busy: false,
@@ -822,7 +823,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           document.documentElement.removeAttribute("tabbarhidden");
         }
 
-        let oldTab = (this._mostRecentTabInfo = this.currentTabInfo);
+        const oldTab = (this._mostRecentTabInfo = this.currentTabInfo);
         // If we're not disregarding the opening, hold a reference to opener
         // so that if the new tab is closed without switching, we can switch
         // back to the opener tab.
@@ -864,7 +865,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         }
 
         // Make sure the new panel is marked selected.
-        let oldPanel = [...this.panelContainer.children].find(p =>
+        const oldPanel = [...this.panelContainer.children].find(p =>
           p.hasAttribute("selected")
         );
         // Blur the currently focused element only if we're actually switching
@@ -875,7 +876,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         }
 
         this.panelContainer.selectedPanel.setAttribute("selected", "true");
-        let tabOpenFunc = tab.mode.openTab || tab.mode.tabType.openTab;
+        const tabOpenFunc = tab.mode.openTab || tab.mode.tabType.openTab;
         tabOpenFunc.apply(tab.mode.tabType, [tab, aArgs]);
 
         if (!t.linkedPanel) {
@@ -889,7 +890,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         }
 
         // Set the tabId after defining a <browser> and before notifications.
-        let browser = this.getBrowserForTab(tab);
+        const browser = this.getBrowserForTab(tab);
         if (browser && !tab.browser) {
           tab.browser = browser;
           if (!tab.linkedBrowser) {
@@ -897,8 +898,8 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           }
         }
 
-        let restoreState = this._restoringTabState;
-        for (let tabMonitor of this.tabMonitors) {
+        const restoreState = this._restoringTabState;
+        for (const tabMonitor of this.tabMonitors) {
           try {
             if (
               "onTabRestored" in tabMonitor &&
@@ -934,9 +935,9 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           this.panelContainer.selectedPanel.focus();
         }
 
-        let moving = restoreState ? restoreState.moving : null;
+        const moving = restoreState ? restoreState.moving : null;
         // Dispatch tab opening event
-        let evt = new CustomEvent("TabOpen", {
+        const evt = new CustomEvent("TabOpen", {
           bubbles: true,
           detail: { tabInfo: tab, moving },
         });
@@ -953,9 +954,9 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     selectTabByMode(aTabModeName) {
-      let tabMode = this.tabModes[aTabModeName];
+      const tabMode = this.tabModes[aTabModeName];
       if (tabMode.tabs.length) {
-        let desiredTab = tabMode.tabs[0];
+        const desiredTab = tabMode.tabs[0];
         this.tabContainer.selectedIndex = this.tabInfo.indexOf(desiredTab);
       }
     }
@@ -1000,7 +1001,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       // If we're in the middle of opening a new tab
       // (this._mostRecentTabInfo is non-null), we shouldn't consider the
       // current tab
-      let tabToConsider = this._mostRecentTabInfo || this.currentTabInfo;
+      const tabToConsider = this._mostRecentTabInfo || this.currentTabInfo;
       if (tabToConsider && tabToConsider.mode == aTabMode) {
         return tabToConsider;
       } else if (aTabMode.tabs.length) {
@@ -1018,7 +1019,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         aIdx = this.recentlyClosedTabs.length - 1;
       }
       // splice always returns an array
-      let history = this.recentlyClosedTabs.splice(aIdx, 1)[0];
+      const history = this.recentlyClosedTabs.splice(aIdx, 1)[0];
       if (!history.tab) {
         return;
       }
@@ -1027,14 +1028,14 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         return;
       }
 
-      let idx = Math.min(history.idx, this.tabInfo.length);
-      let tab = this.tabContainer.allTabs[this.tabInfo.length - 1];
+      const idx = Math.min(history.idx, this.tabInfo.length);
+      const tab = this.tabContainer.allTabs[this.tabInfo.length - 1];
       this.moveTabTo(tab, idx);
       this.switchToTab(tab);
     }
 
     closeTab(aOptTabIndexNodeOrInfo, aNoUndo) {
-      let [iTab, tab, tabNode] = this._getTabContextForTabbyThing(
+      const [iTab, tab, tabNode] = this._getTabContextForTabbyThing(
         aOptTabIndexNodeOrInfo,
         true
       );
@@ -1047,18 +1048,18 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       // and chromeTabs run onbeforeunload event handlers that may
       // exercise their right to prompt the user for confirmation before
       // closing.
-      let tryCloseFunc = tab.mode.tryCloseTab || tab.mode.tabType.tryCloseTab;
+      const tryCloseFunc = tab.mode.tryCloseTab || tab.mode.tabType.tryCloseTab;
       if (tryCloseFunc && !tryCloseFunc.call(tab.mode.tabType, tab)) {
         return;
       }
 
-      let evt = new CustomEvent("TabClose", {
+      const evt = new CustomEvent("TabClose", {
         bubbles: true,
         detail: { tabInfo: tab, moving: tab.moving },
       });
 
       tabNode.dispatchEvent(evt);
-      for (let tabMonitor of this.tabMonitors) {
+      for (const tabMonitor of this.tabMonitors) {
         try {
           if ("onTabClosing" in tabMonitor) {
             tabMonitor.onTabClosing(tab);
@@ -1070,7 +1071,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
       if (!aNoUndo) {
         // Allow user to undo accidentally closed tabs
-        let session = this.persistTab(tab);
+        const session = this.persistTab(tab);
         if (session) {
           this.recentlyClosedTabs.unshift({
             tab: JSON.stringify(session),
@@ -1084,7 +1085,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       }
 
       tab.closed = true;
-      let closeFunc = tab.mode.closeTab || tab.mode.tabType.closeTab;
+      const closeFunc = tab.mode.closeTab || tab.mode.tabType.closeTab;
       closeFunc.call(tab.mode.tabType, tab);
       this.tabInfo.splice(iTab, 1);
       tab.mode.tabs.splice(tab.mode.tabs.indexOf(tab), 1);
@@ -1134,10 +1135,10 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
      * that are closeable.
      */
     closeOtherTabs(aTabNode, aNoUndo) {
-      let [, thisTab] = this._getTabContextForTabbyThing(aTabNode, false);
+      const [, thisTab] = this._getTabContextForTabbyThing(aTabNode, false);
       // closeTab mutates the tabInfo array, so start from the end.
       for (let i = this.tabInfo.length - 1; i >= 0; i--) {
-        let tab = this.tabInfo[i];
+        const tab = this.tabInfo[i];
         if (tab != thisTab && tab.canClose) {
           this.closeTab(tab, aNoUndo);
         }
@@ -1165,23 +1166,23 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       tab = JSON.parse(JSON.stringify(tab));
       // Set up an identifier for the move, consumers may want to correlate TabClose and
       // TabOpen events.
-      let moveSession = Services.uuid.generateUUID().toString();
+      const moveSession = Services.uuid.generateUUID().toString();
       tab.moving = moveSession;
       aTab.moving = moveSession;
       this.closeTab(aTab, true);
 
       if (aTargetWindow && aTargetWindow !== "popup") {
-        let targetTabmail = aTargetWindow.document.getElementById("tabmail");
+        const targetTabmail = aTargetWindow.document.getElementById("tabmail");
         targetTabmail.restoreTab(tab);
         if (aTargetPosition) {
-          let droppedTab =
+          const droppedTab =
             targetTabmail.tabInfo[targetTabmail.tabInfo.length - 1];
           targetTabmail.moveTabTo(droppedTab, aTargetPosition);
         }
         return aTargetWindow;
       }
 
-      let features = ["chrome"];
+      const features = ["chrome"];
       if (aTargetWindow === "popup") {
         features.push(
           "dialog",
@@ -1210,7 +1211,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     moveTabTo(aTabIndexNodeOrInfo, aIndex) {
-      let [oldIdx, tab, tabNode] = this._getTabContextForTabbyThing(
+      const [oldIdx, tab, tabNode] = this._getTabContextForTabbyThing(
         aTabIndexNodeOrInfo,
         false
       );
@@ -1258,7 +1259,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       }
 
       tab.mode.tabs.splice(modeIdx, 0, tab);
-      let evt = new CustomEvent("TabMove", {
+      const evt = new CustomEvent("TabMove", {
         bubbles: true,
         view: window,
         detail: { idx: oldIdx, tabInfo: tab },
@@ -1270,7 +1271,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
     // Returns null in case persist fails.
     persistTab(tab) {
-      let persistFunc = tab.mode.persistTab || tab.mode.tabType.persistTab;
+      const persistFunc = tab.mode.persistTab || tab.mode.tabType.persistTab;
       // if we can't restore the tab we can't move it
       if (!persistFunc) {
         return null;
@@ -1297,11 +1298,11 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         return null;
       }
 
-      let ext = {};
-      for (let tabMonitor of this.tabMonitors) {
+      const ext = {};
+      for (const tabMonitor of this.tabMonitors) {
         try {
           if ("onTabPersist" in tabMonitor) {
-            let monState = tabMonitor.onTabPersist(tab);
+            const monState = tabMonitor.onTabPersist(tab);
             if (monState !== null) {
               ext[tabMonitor.monitorName] = monState;
             }
@@ -1326,16 +1327,16 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
      * @returns {object} The persisted tab states.
      */
     persistTabs() {
-      let state = {
+      const state = {
         // Explicitly specify a revision so we don't wish we had later.
         rev: 0,
         // If our currently selected tab gets persisted, we will update this
         selectedIndex: null,
       };
 
-      let tabs = (state.tabs = []);
-      for (let [iTab, tab] of this.tabInfo.entries()) {
-        let persistTab = this.persistTab(tab);
+      const tabs = (state.tabs = []);
+      for (const [iTab, tab] of this.tabInfo.entries()) {
+        const persistTab = this.persistTab(tab);
         if (!persistTab) {
           continue;
         }
@@ -1358,13 +1359,13 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       }
 
       // if we no longer know about the mode, we can't restore the tab
-      let mode = this.tabModes[aState.mode];
+      const mode = this.tabModes[aState.mode];
       if (!mode) {
         this.unrestoredTabs.push(aState);
         return false;
       }
 
-      let restoreFunc = mode.restoreTab || mode.tabType.restoreTab;
+      const restoreFunc = mode.restoreTab || mode.tabType.restoreTab;
       if (!restoreFunc) {
         return false;
       }
@@ -1388,10 +1389,10 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
      * the tabs one-by-one.
      */
     restoreTabs(aPersistedState, aDontRestoreFirstTab) {
-      let tabs = aPersistedState.tabs;
+      const tabs = aPersistedState.tabs;
       let indexToSelect = null;
 
-      for (let [iTab, tabState] of tabs.entries()) {
+      for (const [iTab, tabState] of tabs.entries()) {
         if (tabState.state.firstTab && aDontRestoreFirstTab) {
           tabState.state.dontRestoreFirstTab = aDontRestoreFirstTab;
         }
@@ -1431,8 +1432,8 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
      */
     _teardown() {
       for (var i = 0; i < this.tabInfo.length; i++) {
-        let tab = this.tabInfo[i];
-        let tabCloseFunc = tab.mode.closeTab || tab.mode.tabType.closeTab;
+        const tab = this.tabInfo[i];
+        const tabCloseFunc = tab.mode.closeTab || tab.mode.tabType.closeTab;
         tabCloseFunc.call(tab.mode.tabType, tab);
       }
     }
@@ -1458,7 +1459,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     get currentAboutMessage() {
       switch (this.currentTabInfo.mode.name) {
         case "mail3PaneTab": {
-          let messageBrowser = this.currentAbout3Pane.messageBrowser;
+          const messageBrowser = this.currentAbout3Pane.messageBrowser;
           return messageBrowser && !messageBrowser.hidden
             ? messageBrowser.contentWindow
             : null;
@@ -1491,7 +1492,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     getBrowserForTab(aTab) {
-      let browserFunc = aTab
+      const browserFunc = aTab
         ? aTab.mode.getBrowser || aTab.mode.tabType.getBrowser
         : null;
       return browserFunc ? browserFunc.call(aTab.mode.tabType, aTab) : null;
@@ -1503,12 +1504,12 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
      */
     getBrowserForDocument(aDocument) {
       for (let i = 0; i < this.tabInfo.length; ++i) {
-        let browserFunc =
+        const browserFunc =
           this.tabInfo[i].mode.getBrowser ||
           this.tabInfo[i].mode.tabType.getBrowser;
 
         if (browserFunc) {
-          let possBrowser = browserFunc.call(
+          const possBrowser = browserFunc.call(
             this.tabInfo[i].mode.tabType,
             this.tabInfo[i]
           );
@@ -1527,11 +1528,11 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
      */
     getBrowserForDocumentId(aDocumentId) {
       for (let i = 0; i < this.tabInfo.length; ++i) {
-        let browserFunc =
+        const browserFunc =
           this.tabInfo[i].mode.getBrowser ||
           this.tabInfo[i].mode.tabType.getBrowser;
         if (browserFunc) {
-          let possBrowser = browserFunc.call(
+          const possBrowser = browserFunc.call(
             this.tabInfo[i].mode.tabType,
             this.tabInfo[i]
           );
@@ -1552,7 +1553,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       if (this.getBrowserForSelectedTab() == aBrowser) {
         return this.currentTabInfo;
       }
-      for (let tabInfo of this.tabInfo) {
+      for (const tabInfo of this.tabInfo) {
         if (this.getBrowserForTab(tabInfo) == aBrowser) {
           return tabInfo;
         }
@@ -1567,7 +1568,10 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     switchToTab(aTabIndexNodeOrInfo) {
-      let [iTab] = this._getTabContextForTabbyThing(aTabIndexNodeOrInfo, false);
+      const [iTab] = this._getTabContextForTabbyThing(
+        aTabIndexNodeOrInfo,
+        false
+      );
       this.tabContainer.selectedIndex = iTab;
     }
 
@@ -1581,10 +1585,10 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       // Check for anything inside tabmail-container rather than the panel
       // because focus could be in the Today Pane.
       let activeElement = document.activeElement;
-      let container = document.getElementById("tabmail-container");
+      const container = document.getElementById("tabmail-container");
       if (container.contains(activeElement)) {
         while (activeElement.localName == "browser") {
-          let next = activeElement.contentDocument?.activeElement;
+          const next = activeElement.contentDocument?.activeElement;
           if (!next || next.localName == "body") {
             break;
           }
@@ -1612,11 +1616,11 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           this.saveCurrentTabState();
         }
 
-        let oldTab = this.currentTabInfo;
-        let oldPanel = [...this.panelContainer.children].find(p =>
+        const oldTab = this.currentTabInfo;
+        const oldPanel = [...this.panelContainer.children].find(p =>
           p.hasAttribute("selected")
         );
-        let tab = (this.currentTabInfo =
+        const tab = (this.currentTabInfo =
           this.tabInfo[this.tabContainer.selectedIndex]);
         // Update the selected attribute on the current and old tab panel.
         if (oldPanel) {
@@ -1625,10 +1629,10 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         }
 
         this.panelContainer.selectedPanel.setAttribute("selected", "true");
-        let showTabFunc = tab.mode.showTab || tab.mode.tabType.showTab;
+        const showTabFunc = tab.mode.showTab || tab.mode.tabType.showTab;
         showTabFunc.call(tab.mode.tabType, tab);
 
-        let browser = this.getBrowserForTab(tab);
+        const browser = this.getBrowserForTab(tab);
         if (browser && !tab.browser) {
           tab.browser = browser;
           if (!tab.linkedBrowser) {
@@ -1636,7 +1640,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           }
         }
 
-        for (let tabMonitor of this.tabMonitors) {
+        for (const tabMonitor of this.tabMonitors) {
           try {
             tabMonitor.onTabSwitched(tab, oldTab);
           } catch (ex) {
@@ -1665,7 +1669,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           delete tab.lastActiveElement;
         }
 
-        let evt = new CustomEvent("TabSelect", {
+        const evt = new CustomEvent("TabSelect", {
           bubbles: true,
           detail: {
             tabInfo: tab,
@@ -1681,31 +1685,35 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         this.currentTabInfo = this.tabInfo[0];
       }
 
-      let tab = this.currentTabInfo;
+      const tab = this.currentTabInfo;
       // save the old tab state before we change the current tab
-      let saveTabFunc = tab.mode.saveTabState || tab.mode.tabType.saveTabState;
+      const saveTabFunc =
+        tab.mode.saveTabState || tab.mode.tabType.saveTabState;
       saveTabFunc.call(tab.mode.tabType, tab);
     }
 
     setTabTitle(aTabNodeOrInfo) {
-      let [iTab, tab] = this._getTabContextForTabbyThing(aTabNodeOrInfo, true);
+      const [iTab, tab] = this._getTabContextForTabbyThing(
+        aTabNodeOrInfo,
+        true
+      );
       if (tab) {
-        let tabNode = this.tabContainer.allTabs[iTab];
-        let titleChangeFunc =
+        const tabNode = this.tabContainer.allTabs[iTab];
+        const titleChangeFunc =
           tab.mode.onTitleChanged || tab.mode.tabType.onTitleChanged;
         if (titleChangeFunc) {
           titleChangeFunc.call(tab.mode.tabType, tab, tabNode);
         }
 
-        let defaultTabTitle =
+        const defaultTabTitle =
           document.documentElement.getAttribute("defaultTabTitle");
-        let oldLabel = tabNode.getAttribute("label");
-        let newLabel = aTabNodeOrInfo ? tab.title : defaultTabTitle;
+        const oldLabel = tabNode.getAttribute("label");
+        const newLabel = aTabNodeOrInfo ? tab.title : defaultTabTitle;
         if (oldLabel == newLabel) {
           return;
         }
 
-        for (let tabMonitor of this.tabMonitors) {
+        for (const tabMonitor of this.tabMonitors) {
           try {
             tabMonitor.onTabTitleChanged(tab);
           } catch (ex) {
@@ -1723,7 +1731,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
         // Notify tab title change
         if (!tab.beforeTabOpen) {
-          let evt = new CustomEvent("TabAttrModified", {
+          const evt = new CustomEvent("TabAttrModified", {
             bubbles: true,
             cancelable: false,
             detail: { changed: ["label"], tabInfo: tab },
@@ -1748,7 +1756,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
      *   of missing or broken favicons.
      */
     setTabFavIcon(tabInfo, favIconUrl, fallbackSrc) {
-      let prevUrl = tabInfo.favIconUrl;
+      const prevUrl = tabInfo.favIconUrl;
       // The favIconUrl value is used by the TabmailTab _favIconUrl getter,
       // which is used by the tab wrapper in the TabAttrModified callback.
       tabInfo.favIconUrl = favIconUrl;
@@ -1756,7 +1764,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       // is used in the tab. In particular, if the favIconUrl is null, we pass
       // null rather than the fallbackIcon that is displayed.
       if (favIconUrl != prevUrl && !tabInfo.beforeTabOpen) {
-        let evt = new CustomEvent("TabAttrModified", {
+        const evt = new CustomEvent("TabAttrModified", {
           bubbles: true,
           cancelable: false,
           detail: { changed: ["favIconUrl"], tabInfo },
@@ -1783,11 +1791,11 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     setTabThinking(aTabNodeOrInfo, aThinking) {
-      let [iTab, tab, tabNode] = this._getTabContextForTabbyThing(
+      const [iTab, tab, tabNode] = this._getTabContextForTabbyThing(
         aTabNodeOrInfo,
         false
       );
-      let isSelected = iTab == this.tabContainer.selectedIndex;
+      const isSelected = iTab == this.tabContainer.selectedIndex;
       // if we are the current tab, update the cursor
       if (isSelected) {
         this._setActiveThinkingState(aThinking);
@@ -1810,11 +1818,11 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     setTabBusy(aTabNodeOrInfo, aBusy) {
-      let [iTab, tab, tabNode] = this._getTabContextForTabbyThing(
+      const [iTab, tab, tabNode] = this._getTabContextForTabbyThing(
         aTabNodeOrInfo,
         false
       );
-      let isSelected = iTab == this.tabContainer.selectedIndex;
+      const isSelected = iTab == this.tabContainer.selectedIndex;
 
       // if we are the current tab, update the cursor
       if (isSelected) {
@@ -1842,7 +1850,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
      */
     setDocumentTitle(aTab = this.selectedTab) {
       let docTitle = aTab.title ? aTab.title.trim() : "";
-      let docElement = document.documentElement;
+      const docElement = document.documentElement;
       // If the document title is blank, add the default title.
       if (!docTitle) {
         docTitle = docElement.getAttribute("defaultTabTitle");
@@ -1944,7 +1952,7 @@ function InitRecentlyClosedTabsPopup(
     );
 
     item.addEventListener("command", () => {
-      let tabmail = document.getElementById("tabmail");
+      const tabmail = document.getElementById("tabmail");
       let len = tabmail.recentlyClosedTabs.length;
       while (len--) {
         document.getElementById("tabmail").undoCloseTab();
@@ -1965,25 +1973,25 @@ function InitRecentlyClosedTabsPopup(
 window.addEventListener(
   "DOMContentLoaded",
   () => {
-    let tabmail = document.getElementById("tabmail");
-    let tabMenu = document.getElementById("tabContextMenu");
+    const tabmail = document.getElementById("tabmail");
+    const tabMenu = document.getElementById("tabContextMenu");
 
-    let openInWindowItem = document.getElementById(
+    const openInWindowItem = document.getElementById(
       "tabContextMenuOpenInWindow"
     );
-    let closeOtherTabsItem = document.getElementById(
+    const closeOtherTabsItem = document.getElementById(
       "tabContextMenuCloseOtherTabs"
     );
-    let recentlyClosedMenu = document.getElementById(
+    const recentlyClosedMenu = document.getElementById(
       "tabContextMenuRecentlyClosed"
     );
-    let closeItem = document.getElementById("tabContextMenuClose");
+    const closeItem = document.getElementById("tabContextMenuClose");
 
     // Shared variable: the tabNode that was activated to open the context menu.
     let currentTabInfo = null;
 
     tabMenu.addEventListener("popupshowing", () => {
-      let tabNode = tabMenu.triggerNode?.closest("tab");
+      const tabNode = tabMenu.triggerNode?.closest("tab");
 
       // this happens when the user did not actually-click on a tab but
       // instead on the strip behind it.
@@ -2024,7 +2032,7 @@ window.addEventListener(
       tabmail.closeTab(currentTabInfo);
     });
 
-    let recentlyClosedPopup = recentlyClosedMenu.querySelector("menupopup");
+    const recentlyClosedPopup = recentlyClosedMenu.querySelector("menupopup");
     recentlyClosedPopup.addEventListener("popupshowing", () =>
       InitRecentlyClosedTabsPopup(recentlyClosedPopup)
     );

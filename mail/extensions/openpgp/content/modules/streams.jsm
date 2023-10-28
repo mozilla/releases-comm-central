@@ -23,7 +23,7 @@ var EnigmailStreams = {
    * @return: channel
    */
   createChannel(url) {
-    let c = lazy.NetUtil.newChannel({
+    const c = lazy.NetUtil.newChannel({
       uri: url,
       loadUsingSystemPrincipal: true,
     });
@@ -40,7 +40,7 @@ var EnigmailStreams = {
    * @return: the nsIStreamListener to pass to the stream
    */
   newStringStreamListener(onStopCallback) {
-    let listener = {
+    const listener = {
       data: "",
       inStream: Cc["@mozilla.org/binaryinputstream;1"].createInstance(
         Ci.nsIBinaryInputStream
@@ -82,22 +82,22 @@ var EnigmailStreams = {
       loadInfo = createLoadInfo();
     }
 
-    let inputStream = Cc[
+    const inputStream = Cc[
       "@mozilla.org/io/string-input-stream;1"
     ].createInstance(Ci.nsIStringInputStream);
     inputStream.setData(data, -1);
 
     if (!contentCharset || contentCharset.length === 0) {
-      let netUtil = Services.io.QueryInterface(Ci.nsINetUtil);
+      const netUtil = Services.io.QueryInterface(Ci.nsINetUtil);
       const newCharset = {};
       const hadCharset = {};
       netUtil.parseResponseContentType(contentType, newCharset, hadCharset);
       contentCharset = newCharset.value;
     }
 
-    let isc = Cc["@mozilla.org/network/input-stream-channel;1"].createInstance(
-      Ci.nsIInputStreamChannel
-    );
+    const isc = Cc[
+      "@mozilla.org/network/input-stream-channel;1"
+    ].createInstance(Ci.nsIInputStreamChannel);
     isc.QueryInterface(Ci.nsIChannel);
     isc.setURI(uri);
     isc.loadInfo = loadInfo;
@@ -114,7 +114,7 @@ var EnigmailStreams = {
   },
 
   newFileChannel(uri, file, contentType, deleteOnClose) {
-    let inputStream = Cc[
+    const inputStream = Cc[
       "@mozilla.org/network/file-input-stream;1"
     ].createInstance(Ci.nsIFileInputStream);
     let behaviorFlags = Ci.nsIFileInputStream.CLOSE_ON_EOF;
@@ -125,9 +125,9 @@ var EnigmailStreams = {
     const perm = 0;
     inputStream.init(file, ioFlags, perm, behaviorFlags);
 
-    let isc = Cc["@mozilla.org/network/input-stream-channel;1"].createInstance(
-      Ci.nsIInputStreamChannel
-    );
+    const isc = Cc[
+      "@mozilla.org/network/input-stream-channel;1"
+    ].createInstance(Ci.nsIInputStreamChannel);
     isc.QueryInterface(Ci.nsIChannel);
     isc.contentDisposition = Ci.nsIChannel.DISPOSITION_ATTACHMENT;
     isc.loadInfo = createLoadInfo();
@@ -142,7 +142,7 @@ var EnigmailStreams = {
 };
 
 function createLoadInfo() {
-  let c = lazy.NetUtil.newChannel({
+  const c = lazy.NetUtil.newChannel({
     uri: "chrome://openpgp/content/",
     loadUsingSystemPrincipal: true,
   });

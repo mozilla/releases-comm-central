@@ -18,16 +18,16 @@ AddonTestUtils.maybeInit(this);
 add_task(async function test_identities_MV3_event_pages() {
   await AddonTestUtils.promiseStartupManager();
 
-  let account1 = createAccount();
+  const account1 = createAccount();
   addIdentity(account1, "id1@invalid");
 
-  let files = {
+  const files = {
     "background.js": async () => {
       // Whenever the extension starts or wakes up, hasFired is set to false. In
       // case of a wake-up, the first fired event is the one that woke up the background.
       let hasFired = false;
 
-      for (let eventName of ["onCreated", "onUpdated", "onDeleted"]) {
+      for (const eventName of ["onCreated", "onUpdated", "onDeleted"]) {
         browser.identities[eventName].addListener((...args) => {
           // Only send the first event after background wake-up, this should be the
           // only one expected.
@@ -42,7 +42,7 @@ add_task(async function test_identities_MV3_event_pages() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       manifest_version: 3,
@@ -61,8 +61,8 @@ add_task(async function test_identities_MV3_event_pages() {
       "identities.onDeleted",
     ];
 
-    for (let event of persistent_events) {
-      let [moduleName, eventName] = event.split(".");
+    for (const event of persistent_events) {
+      const [moduleName, eventName] = event.split(".");
       assertPersistentListeners(extension, moduleName, eventName, {
         primed,
       });
@@ -80,8 +80,8 @@ add_task(async function test_identities_MV3_event_pages() {
 
   // Create.
 
-  let id2 = addIdentity(account1, "id2@invalid");
-  let createData = await extension.awaitMessage("onCreated received");
+  const id2 = addIdentity(account1, "id2@invalid");
+  const createData = await extension.awaitMessage("onCreated received");
   Assert.deepEqual(
     [
       "id2",
@@ -112,7 +112,7 @@ add_task(async function test_identities_MV3_event_pages() {
   // Update
 
   id2.fullName = "Updated Name";
-  let updateData = await extension.awaitMessage("onUpdated received");
+  const updateData = await extension.awaitMessage("onUpdated received");
   Assert.deepEqual(
     ["id2", { name: "Updated Name", accountId: "account1", id: "id2" }],
     updateData,
@@ -128,7 +128,7 @@ add_task(async function test_identities_MV3_event_pages() {
   // Delete
 
   account1.removeIdentity(id2);
-  let deleteData = await extension.awaitMessage("onDeleted received");
+  const deleteData = await extension.awaitMessage("onDeleted received");
   Assert.deepEqual(
     ["id2"],
     deleteData,

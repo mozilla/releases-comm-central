@@ -9,20 +9,20 @@ const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-let tabmail = document.getElementById("tabmail");
-let about3Pane = tabmail.currentAbout3Pane;
-let threadTree = about3Pane.threadTree;
+const tabmail = document.getElementById("tabmail");
+const about3Pane = tabmail.currentAbout3Pane;
+const threadTree = about3Pane.threadTree;
 // Not `currentAboutMessage` as (a) that's null right now, and (b) we'll be
 // testing things that happen when about:message is hidden.
-let aboutMessage = about3Pane.messageBrowser.contentWindow;
-let messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
+const aboutMessage = about3Pane.messageBrowser.contentWindow;
+const messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
 let rootFolder, folderA, folderB, trashFolder, sourceMessages, sourceMessageIDs;
 
 add_setup(async function () {
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
@@ -36,7 +36,7 @@ add_setup(async function () {
   trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
 
   // Make some messages, then change their dates to simulate a different order.
-  let syntheticMessages = generator.makeMessages({
+  const syntheticMessages = generator.makeMessages({
     count: 15,
     msgsPerThread: 5,
   });
@@ -246,7 +246,7 @@ add_task(async function testArchiveDeleteUpdates() {
   await messageLoaded(7);
 
   let selectCount = 0;
-  let onSelect = () => selectCount++;
+  const onSelect = () => selectCount++;
   threadTree.addEventListener("select", onSelect);
 
   let selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
@@ -306,7 +306,7 @@ add_task(async function testMessagePaneSelection() {
 
   // Check the initial selection in about:message.
   Assert.equal(aboutMessage.gDBView.selection.getRangeCount(), 1);
-  let min = {},
+  const min = {},
     max = {};
   aboutMessage.gDBView.selection.getRangeAt(0, min, max);
   Assert.equal(min.value, 1);
@@ -337,11 +337,11 @@ add_task(async function testMessagePaneSelection() {
   messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
 
   // Now click the delete button in about:message.
-  let deletePromise = PromiseTestUtils.promiseFolderEvent(
+  const deletePromise = PromiseTestUtils.promiseFolderEvent(
     folderB,
     "DeleteOrMoveMsgCompleted"
   );
-  let loadPromise = messageLoaded(6);
+  const loadPromise = messageLoaded(6);
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("hdrTrashButton"),
     {},
@@ -373,11 +373,13 @@ add_task(async function testMessagePaneSelection() {
 });
 
 add_task(async function testNonSelectionContextMenu() {
-  let mailContext = about3Pane.document.getElementById("mailContext");
-  let openNewTabItem = about3Pane.document.getElementById(
+  const mailContext = about3Pane.document.getElementById("mailContext");
+  const openNewTabItem = about3Pane.document.getElementById(
     "mailContext-openNewTab"
   );
-  let replyItem = about3Pane.document.getElementById("mailContext-replySender");
+  const replyItem = about3Pane.document.getElementById(
+    "mailContext-replySender"
+  );
 
   about3Pane.restoreState({
     messagePaneVisible: true,
@@ -401,12 +403,15 @@ add_task(async function testNonSelectionContextMenu() {
   await subtestOpenTab(0, sourceMessageIDs[0]);
 
   async function doContextMenu(testIndex, messageId, itemToActivate) {
-    let originalSelection = threadTree.selectedIndices;
+    const originalSelection = threadTree.selectedIndices;
 
     threadTree.addEventListener("select", reportBadSelectEvent);
     messagePaneBrowser.addEventListener("load", reportBadLoad, true);
 
-    let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+    const shownPromise = BrowserTestUtils.waitForEvent(
+      mailContext,
+      "popupshown"
+    );
     EventUtils.synthesizeMouseAtCenter(
       threadTree
         .getRowAtIndex(testIndex)
@@ -422,7 +427,9 @@ add_task(async function testNonSelectionContextMenu() {
       [testIndex],
       "selection should be only the right-clicked-on row"
     );
-    let contextTargetRows = threadTree.querySelectorAll(".context-menu-target");
+    const contextTargetRows = threadTree.querySelectorAll(
+      ".context-menu-target"
+    );
     Assert.equal(
       contextTargetRows.length,
       1,
@@ -434,7 +441,7 @@ add_task(async function testNonSelectionContextMenu() {
       "correct row has .context-menu-target"
     );
 
-    let hiddenPromise = BrowserTestUtils.waitForEvent(
+    const hiddenPromise = BrowserTestUtils.waitForEvent(
       mailContext,
       "popuphidden"
     );
@@ -470,7 +477,7 @@ add_task(async function testNonSelectionContextMenu() {
 
   // Opening a new tab should open the clicked-on message, not the selected.
   async function subtestOpenTab(testIndex, messageId) {
-    let newAboutMessagePromise = BrowserTestUtils.waitForEvent(
+    const newAboutMessagePromise = BrowserTestUtils.waitForEvent(
       tabmail,
       "aboutMessageLoaded"
     ).then(async function (event) {
@@ -481,7 +488,7 @@ add_task(async function testNonSelectionContextMenu() {
     });
     await doContextMenu(testIndex, messageId, openNewTabItem);
 
-    let newAboutMessage = await newAboutMessagePromise;
+    const newAboutMessage = await newAboutMessagePromise;
     Assert.equal(
       newAboutMessage.gMessage.messageId,
       messageId,
@@ -506,11 +513,11 @@ add_task(async function testNonSelectionContextMenu() {
       .getSelection()
       .selectAllChildren(messagePaneBrowser.contentDocument.body);
 
-    let composeWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+    const composeWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
     await doContextMenu(testIndex, messageId, replyItem);
-    let composeWindow = await composeWindowPromise;
-    let composeEditor = composeWindow.GetCurrentEditorElement();
-    let composeBody = await TestUtils.waitForCondition(
+    const composeWindow = await composeWindowPromise;
+    const composeEditor = composeWindow.GetCurrentEditorElement();
+    const composeBody = await TestUtils.waitForCondition(
       () => composeEditor.contentDocument.body.textContent
     );
 
@@ -601,14 +608,14 @@ async function validateTree(rowCount, selectedIndices, currentIndex) {
     selectedIndices,
     "table's selected indices"
   );
-  let selectedRows = Array.from(threadTree.querySelectorAll(".selected"));
+  const selectedRows = Array.from(threadTree.querySelectorAll(".selected"));
   Assert.equal(
     selectedRows.length,
     selectedIndices.length,
     "number of rows with .selected class"
   );
-  for (let index of selectedIndices) {
-    let row = threadTree.getRowAtIndex(index);
+  for (const index of selectedIndices) {
+    const row = threadTree.getRowAtIndex(index);
     Assert.ok(
       selectedRows.includes(row),
       `.selected row at ${index} is expected`
@@ -616,7 +623,7 @@ async function validateTree(rowCount, selectedIndices, currentIndex) {
   }
 
   Assert.equal(threadTree.currentIndex, currentIndex, "table's current index");
-  let currentRows = threadTree.querySelectorAll(".current");
+  const currentRows = threadTree.querySelectorAll(".current");
   Assert.equal(currentRows.length, 1, "one row should have .current");
   Assert.equal(
     currentRows[0],
@@ -624,7 +631,7 @@ async function validateTree(rowCount, selectedIndices, currentIndex) {
     ".current row is expected"
   );
 
-  let contextTargetRows = threadTree.querySelectorAll(".context-menu-target");
+  const contextTargetRows = threadTree.querySelectorAll(".context-menu-target");
   Assert.equal(
     contextTargetRows.length,
     0,
@@ -633,7 +640,7 @@ async function validateTree(rowCount, selectedIndices, currentIndex) {
 }
 
 async function move(messages, source, dest) {
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     source,
     messages,
@@ -662,11 +669,11 @@ function reportBadLoad() {
 async function restoreMessages() {
   // Move all of the messages back to folder A.
   await move([...folderB.messages], folderB, folderA);
-  let archiveFolder = rootFolder.getFolderWithFlags(
+  const archiveFolder = rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Archive
   );
   if (archiveFolder) {
-    for (let folder of archiveFolder.subFolders) {
+    for (const folder of archiveFolder.subFolders) {
       await move([...folder.messages], folder, folderA);
     }
   }

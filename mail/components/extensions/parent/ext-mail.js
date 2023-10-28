@@ -55,13 +55,13 @@ const NOTIFICATION_COLLAPSE_TIME = 200;
 
   // This allows scripts to run in the compose document or message display
   // document if and only if the extension has permission.
-  let { defaultConstructor } = ExtensionContent.contentScripts;
+  const { defaultConstructor } = ExtensionContent.contentScripts;
   ExtensionContent.contentScripts.defaultConstructor = function (matcher) {
-    let script = defaultConstructor.call(this, matcher);
+    const script = defaultConstructor.call(this, matcher);
 
-    let { matchesWindowGlobal } = script;
+    const { matchesWindowGlobal } = script;
     script.matchesWindowGlobal = function (windowGlobal) {
-      let { browsingContext, windowContext } = windowGlobal;
+      const { browsingContext, windowContext } = windowGlobal;
 
       if (
         browsingContext.topChromeWindow?.location.href == COMPOSE_WINDOW_URI &&
@@ -82,12 +82,6 @@ const NOTIFICATION_COLLAPSE_TIME = 200;
   };
 })();
 
-let messageTracker;
-let messageListTracker;
-let tabTracker;
-let spaceTracker;
-let windowTracker;
-
 // This function is pretty tightly tied to Extension.jsm.
 // Its job is to fill in the |tab| property of the sender.
 const getSender = (extension, target, sender) => {
@@ -106,7 +100,7 @@ const getSender = (extension, target, sender) => {
   }
 
   if (tabId != null && tabId >= 0) {
-    let tab = extension.tabManager.get(tabId, null);
+    const tab = extension.tabManager.get(tabId, null);
     if (tab) {
       sender.tab = tab.convert();
     }
@@ -123,7 +117,7 @@ global.clickModifiersFromEvent = event => {
     metaKey: "Command",
     ctrlKey: "Ctrl",
   };
-  let modifiers = Object.keys(map)
+  const modifiers = Object.keys(map)
     .filter(key => event[key])
     .map(key => map[key]);
 
@@ -135,7 +129,7 @@ global.clickModifiersFromEvent = event => {
 };
 
 global.openOptionsPage = extension => {
-  let window = windowTracker.topNormalWindow;
+  const window = windowTracker.topNormalWindow;
   if (!window) {
     return Promise.reject({ message: "No mail window available" });
   }
@@ -147,7 +141,7 @@ global.openOptionsPage = extension => {
     return Promise.resolve();
   }
 
-  let viewId = `addons://detail/${encodeURIComponent(
+  const viewId = `addons://detail/${encodeURIComponent(
     extension.id
   )}/preferences`;
 
@@ -162,26 +156,26 @@ global.openOptionsPage = extension => {
  */
 async function getRealFileForFile(file) {
   if (file.mozFullPath) {
-    let realFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    const realFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     realFile.initWithPath(file.mozFullPath);
     return realFile;
   }
 
-  let pathTempFile = await IOUtils.createUniqueFile(
+  const pathTempFile = await IOUtils.createUniqueFile(
     PathUtils.tempDir,
     file.name.replaceAll(/[/:*?\"<>|]/g, "_"),
     0o600
   );
 
-  let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  const tempFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   tempFile.initWithPath(pathTempFile);
-  let extAppLauncher = Cc[
+  const extAppLauncher = Cc[
     "@mozilla.org/uriloader/external-helper-app-service;1"
   ].getService(Ci.nsPIExternalAppLauncher);
   extAppLauncher.deleteTemporaryFileOnExit(tempFile);
 
-  let bytes = await new Promise(function (resolve) {
-    let reader = new FileReader();
+  const bytes = await new Promise(function (resolve) {
+    const reader = new FileReader();
     reader.onloadend = function () {
       resolve(new Uint8Array(reader.result));
     };
@@ -269,7 +263,7 @@ global.TabContext = class extends EventEmitter {
    */
   get(keyObject) {
     if (!this.tabData.has(keyObject)) {
-      let data = Object.create(this.getDefaultPrototype(keyObject));
+      const data = Object.create(this.getDefaultPrototype(keyObject));
       this.tabData.set(keyObject, data);
     }
 
@@ -310,7 +304,7 @@ XPCOMUtils.defineLazyGetter(global, "searchInitialized", () => {
  * @returns {[string]} - The WebExtension type of the window
  */
 function getWebExtensionWindowType(window) {
-  let { documentElement } = window.document;
+  const { documentElement } = window.document;
   if (!documentElement) {
     return null;
   }
@@ -365,7 +359,7 @@ class WindowTracker extends WindowTrackerBase {
    * @returns {boolean} True, if the window is supported by the windows API
    */
   isBrowserWindow(window) {
-    let type = getWebExtensionWindowType(window);
+    const type = getWebExtensionWindowType(window);
     return !!type && type != "unknown";
   }
 
@@ -378,7 +372,7 @@ class WindowTracker extends WindowTrackerBase {
    * @returns {boolean} True, if the window is a mail window but not the main window
    */
   isSecondaryWindow(window) {
-    let { documentElement } = window.document;
+    const { documentElement } = window.document;
     if (!documentElement) {
       return false;
     }
@@ -402,7 +396,7 @@ class WindowTracker extends WindowTrackerBase {
     if (win && !this.isBrowserWindow(win)) {
       win = null;
       // This is oldest to newest, so this gets a bit ugly.
-      for (let nextWin of Services.wm.getEnumerator(null)) {
+      for (const nextWin of Services.wm.getEnumerator(null)) {
         if (this.isBrowserWindow(nextWin)) {
           win = nextWin;
         }
@@ -457,7 +451,7 @@ class SpaceTracker {
     this._spaceIds = new Map();
 
     // Keep this in sync with the default spaces in gSpacesToolbar.
-    let builtInSpaces = [
+    const builtInSpaces = [
       {
         name: "mail",
         spaceButtonId: "mailButton",
@@ -497,7 +491,7 @@ class SpaceTracker {
               // A primary tab that the open method creates.
               return 1;
             case "contentTab":
-              let url = tabInfo.urlbar?.value;
+              const url = tabInfo.urlbar?.value;
               if (url == "about:accountsettings" || url == "about:addons") {
                 // A secondary tab, that is related to this space.
                 return 2;
@@ -507,13 +501,13 @@ class SpaceTracker {
         },
       },
     ];
-    for (let builtInSpace of builtInSpaces) {
+    for (const builtInSpace of builtInSpaces) {
       this._add(builtInSpace);
     }
   }
 
   findSpaceForTab(tabInfo) {
-    for (let spaceData of this._spaceData.values()) {
+    for (const spaceData of this._spaceData.values()) {
       if (spaceData.tabInSpace(tabInfo)) {
         return spaceData;
       }
@@ -522,8 +516,8 @@ class SpaceTracker {
   }
 
   _add(spaceData) {
-    let spaceId = this._nextId++;
-    let { spaceButtonId } = spaceData;
+    const spaceId = this._nextId++;
+    const { spaceButtonId } = spaceData;
     this._spaceData.set(spaceButtonId, { ...spaceData, spaceId });
     this._spaceIds.set(spaceId, spaceButtonId);
     return { ...spaceData, spaceId };
@@ -549,7 +543,7 @@ class SpaceTracker {
    * @returns {SpaceData}
    */
   fromSpaceName(name, extension) {
-    let spaceButtonId = this._getSpaceButtonId(name, extension);
+    const spaceButtonId = this._getSpaceButtonId(name, extension);
     return this.fromSpaceButtonId(spaceButtonId);
   }
 
@@ -560,7 +554,7 @@ class SpaceTracker {
    * @returns {SpaceData}
    */
   fromSpaceId(spaceId) {
-    let spaceButtonId = this._spaceIds.get(spaceId);
+    const spaceButtonId = this._spaceIds.get(spaceId);
     return this.fromSpaceButtonId(spaceButtonId);
   }
 
@@ -589,7 +583,7 @@ class SpaceTracker {
    * @returns {SpaceData}
    */
   async create(name, defaultUrl, buttonProperties, extension) {
-    let spaceButtonId = this._getSpaceButtonId(name, extension);
+    const spaceButtonId = this._getSpaceButtonId(name, extension);
     if (this._spaceData.has(spaceButtonId)) {
       return false;
     }
@@ -610,7 +604,7 @@ class SpaceTracker {
    * @returns {Space} - @see mail/components/extensions/schemas/spaces.json
    */
   convert(spaceData, extension) {
-    let space = {
+    const space = {
       id: spaceData.spaceId,
       name: spaceData.name,
       isBuiltIn: !spaceData.extension,
@@ -747,9 +741,9 @@ class TabTracker extends TabTrackerBase {
       return id;
     }
 
-    let window = browser.browsingContext.topChromeWindow;
-    let tabmail = window.document.getElementById("tabmail");
-    let tab = tabmail && tabmail.getTabForBrowser(browser);
+    const window = browser.browsingContext.topChromeWindow;
+    const tabmail = window.document.getElementById("tabmail");
+    const tab = tabmail && tabmail.getTabForBrowser(browser);
 
     if (tab) {
       id = this.getId(tab);
@@ -770,7 +764,7 @@ class TabTracker extends TabTrackerBase {
    */
   setId(nativeTabInfo, id) {
     this._tabs.set(nativeTabInfo, id);
-    let browser = getTabBrowser(nativeTabInfo);
+    const browser = getTabBrowser(nativeTabInfo);
     if (browser) {
       this._browsers.set(browser.browserId, id);
     }
@@ -784,7 +778,7 @@ class TabTracker extends TabTrackerBase {
    * @param {{ nativeTabInfo:NativeTabInfo}} - The object containing tab info
    */
   _handleTabDestroyed(event, { nativeTabInfo }) {
-    let id = this._tabs.get(nativeTabInfo);
+    const id = this._tabs.get(nativeTabInfo);
     if (id) {
       this._tabs.delete(nativeTabInfo);
       if (nativeTabInfo.browser) {
@@ -804,7 +798,7 @@ class TabTracker extends TabTrackerBase {
    * @returns {NativeTabInfo} The tab information for the given id.
    */
   getTab(tabId, default_ = undefined) {
-    let nativeTabInfo = this._tabIds.get(tabId);
+    const nativeTabInfo = this._tabIds.get(tabId);
     if (nativeTabInfo) {
       return nativeTabInfo;
     }
@@ -821,20 +815,20 @@ class TabTracker extends TabTrackerBase {
    * @param {Event} event - A DOM event to handle.
    */
   handleEvent(event) {
-    let nativeTabInfo = event.detail.tabInfo;
+    const nativeTabInfo = event.detail.tabInfo;
 
     switch (event.type) {
       case "TabOpen": {
         // Save the current tab, since the newly-created tab will likely be
         // active by the time the promise below resolves and the event is
         // dispatched.
-        let tabmail = event.target.ownerDocument.getElementById("tabmail");
-        let currentTab = tabmail.selectedTab;
+        const tabmail = event.target.ownerDocument.getElementById("tabmail");
+        const currentTab = tabmail.selectedTab;
         // We need to delay sending this event until the next tick, since the
         // tab does not have its final index when the TabOpen event is dispatched.
         Promise.resolve().then(() => {
           if (event.detail.moving) {
-            let srcTabId = this._movingTabs.get(event.detail.moving);
+            const srcTabId = this._movingTabs.get(event.detail.moving);
             this.setId(nativeTabInfo, srcTabId);
             this._movingTabs.delete(event.detail.moving);
 
@@ -881,12 +875,12 @@ class TabTracker extends TabTrackerBase {
       return;
     }
 
-    let tabmail = window.document.getElementById("tabmail");
+    const tabmail = window.document.getElementById("tabmail");
     if (!tabmail) {
       return;
     }
 
-    for (let nativeTabInfo of tabmail.tabInfo) {
+    for (const nativeTabInfo of tabmail.tabInfo) {
       this.emitCreated(nativeTabInfo);
     }
   }
@@ -908,12 +902,12 @@ class TabTracker extends TabTrackerBase {
       return;
     }
 
-    let tabmail = window.document.getElementById("tabmail");
+    const tabmail = window.document.getElementById("tabmail");
     if (!tabmail) {
       return;
     }
 
-    for (let nativeTabInfo of tabmail.tabInfo) {
+    for (const nativeTabInfo of tabmail.tabInfo) {
       this.emitRemoved(nativeTabInfo, true);
     }
   }
@@ -942,11 +936,11 @@ class TabTracker extends TabTrackerBase {
    * @param {NativeTabInfo} nativeTabInfo - The tab info which is being attached.
    */
   emitAttached(nativeTabInfo) {
-    let tabId = this.getId(nativeTabInfo);
-    let browser = getTabBrowser(nativeTabInfo);
-    let tabmail = browser.ownerDocument.getElementById("tabmail");
-    let tabIndex = tabmail._getTabContextForTabbyThing(nativeTabInfo)[0];
-    let newWindowId = windowTracker.getId(browser.ownerGlobal);
+    const tabId = this.getId(nativeTabInfo);
+    const browser = getTabBrowser(nativeTabInfo);
+    const tabmail = browser.ownerDocument.getElementById("tabmail");
+    const tabIndex = tabmail._getTabContextForTabbyThing(nativeTabInfo)[0];
+    const newWindowId = windowTracker.getId(browser.ownerGlobal);
 
     this.emit("tab-attached", {
       nativeTabInfo,
@@ -962,11 +956,11 @@ class TabTracker extends TabTrackerBase {
    * @param {NativeTabInfo} nativeTabInfo - The tab info which is being detached.
    */
   emitDetached(nativeTabInfo) {
-    let tabId = this.getId(nativeTabInfo);
-    let browser = getTabBrowser(nativeTabInfo);
-    let tabmail = browser.ownerDocument.getElementById("tabmail");
-    let tabIndex = tabmail._getTabContextForTabbyThing(nativeTabInfo)[0];
-    let oldWindowId = windowTracker.getId(browser.ownerGlobal);
+    const tabId = this.getId(nativeTabInfo);
+    const browser = getTabBrowser(nativeTabInfo);
+    const tabmail = browser.ownerDocument.getElementById("tabmail");
+    const tabIndex = tabmail._getTabContextForTabbyThing(nativeTabInfo)[0];
+    const oldWindowId = windowTracker.getId(browser.ownerGlobal);
 
     this.emit("tab-detached", {
       nativeTabInfo,
@@ -1022,8 +1016,8 @@ class TabTracker extends TabTrackerBase {
    * @readonly
    */
   get activeTab() {
-    let window = windowTracker.topWindow;
-    let tabmail = window && window.document.getElementById("tabmail");
+    const window = windowTracker.topWindow;
+    const tabmail = window && window.document.getElementById("tabmail");
     return tabmail ? tabmail.selectedTab : window;
   }
 }
@@ -1035,12 +1029,12 @@ class TabTracker extends TabTrackerBase {
  */
 class Tab extends TabBase {
   get spaceId() {
-    let tabWindow = getTabWindow(this.nativeTab);
+    const tabWindow = getTabWindow(this.nativeTab);
     if (getWebExtensionWindowType(tabWindow) != "normal") {
       return undefined;
     }
 
-    let spaceData = spaceTracker.findSpaceForTab(this.nativeTab);
+    const spaceData = spaceTracker.findSpaceForTab(this.nativeTab);
     return spaceData?.spaceId ?? undefined;
   }
 
@@ -1065,9 +1059,9 @@ class Tab extends TabBase {
     if ((queryInfo.url || queryInfo.title) && !this.browser) {
       return false;
     }
-    let result = super.matches(queryInfo, context);
+    const result = super.matches(queryInfo, context);
 
-    let type = queryInfo.mailTab ? "mail" : queryInfo.type;
+    const type = queryInfo.mailTab ? "mail" : queryInfo.type;
     if (result && type && this.type != type) {
       return false;
     }
@@ -1081,13 +1075,13 @@ class Tab extends TabBase {
 
   /** Adds the mailTab property and removes some useless properties from a tab object. */
   convert(fallback) {
-    let result = super.convert(fallback);
+    const result = super.convert(fallback);
     result.spaceId = this.spaceId;
     result.type = this.type;
     result.mailTab = result.type == "mail";
 
     // These properties are not useful to Thunderbird extensions and are not returned.
-    for (let key of [
+    for (const key of [
       "attention",
       "audible",
       "autoDiscardable",
@@ -1262,7 +1256,7 @@ class Tab extends TabBase {
         {
           // If the messagePane is hidden or all browsers are hidden, there is
           // nothing to be loaded and we should return complete.
-          let about3Pane = this.nativeTab.chromeBrowser.contentWindow;
+          const about3Pane = this.nativeTab.chromeBrowser.contentWindow;
           isComplete =
             !about3Pane.paneLayout?.messagePaneVisible ||
             this.browser?.webProgress?.isLoadingDocument === false ||
@@ -1322,7 +1316,7 @@ class Tab extends TabBase {
 class TabmailTab extends Tab {
   constructor(extension, nativeTab, id) {
     if (nativeTab.localName == "tab") {
-      let tabmail = nativeTab.ownerDocument.getElementById("tabmail");
+      const tabmail = nativeTab.ownerDocument.getElementById("tabmail");
       nativeTab = tabmail._getTabContextForTabbyThing(nativeTab)[1];
     }
     super(extension, nativeTab, id);
@@ -1338,7 +1332,7 @@ class TabmailTab extends Tab {
       case "mailMessageTab":
         return "messageDisplay";
       case "contentTab": {
-        let currentURI = this.nativeTab.browser.currentURI;
+        const currentURI = this.nativeTab.browser.currentURI;
         if (currentURI?.schemeIs("about")) {
           switch (currentURI.filePath) {
             case "accountprovisioner":
@@ -1423,7 +1417,7 @@ class Window extends WindowBase {
    * @readonly
    */
   get type() {
-    let type = getWebExtensionWindowType(this.window);
+    const type = getWebExtensionWindowType(this.window);
     if (!type) {
       throw new ExtensionError(
         "Windows API encountered an invalid window type."
@@ -1528,7 +1522,7 @@ class Window extends WindowBase {
    * @param {string} state - "maximized", "minimized", "normal" or "fullscreen"
    */
   async setState(state) {
-    let { window } = this;
+    const { window } = this;
     const expectedState = (function () {
       switch (state) {
         case "maximized":
@@ -1625,7 +1619,7 @@ class Window extends WindowBase {
    * @yields {Tab}      The wrapped Tab in this window
    */
   *getTabs() {
-    let { tabManager } = this.extension;
+    const { tabManager } = this.extension;
     yield tabManager.getWrapper(this.window);
   }
 
@@ -1641,7 +1635,7 @@ class Window extends WindowBase {
 
   /** Retrieves the active tab in this window */
   get activeTab() {
-    let { tabManager } = this.extension;
+    const { tabManager } = this.extension;
     return tabManager.getWrapper(this.window);
   }
 
@@ -1652,7 +1646,7 @@ class Window extends WindowBase {
    * @returns {Tab} The wrapped tab at the index
    */
   getTabAtIndex(index) {
-    let { tabManager } = this.extension;
+    const { tabManager } = this.extension;
     if (index == 0) {
       return tabManager.getWrapper(this.window);
     }
@@ -1672,9 +1666,9 @@ class TabmailWindow extends Window {
    * @yields {Tab}      The wrapped Tab in this window
    */
   *getTabs() {
-    let { tabManager } = this.extension;
+    const { tabManager } = this.extension;
 
-    for (let nativeTabInfo of this.tabmail.tabInfo) {
+    for (const nativeTabInfo of this.tabmail.tabInfo) {
       // Only tabs that have a browser element.
       yield tabManager.getWrapper(nativeTabInfo);
     }
@@ -1682,8 +1676,8 @@ class TabmailWindow extends Window {
 
   /** Retrieves the active tab in this window */
   get activeTab() {
-    let { tabManager } = this.extension;
-    let selectedTab = this.tabmail.selectedTab;
+    const { tabManager } = this.extension;
+    const selectedTab = this.tabmail.selectedTab;
     if (selectedTab) {
       return tabManager.getWrapper(selectedTab);
     }
@@ -1697,8 +1691,8 @@ class TabmailWindow extends Window {
    * @returns {Tab} The wrapped tab at the index
    */
   getTabAtIndex(index) {
-    let { tabManager } = this.extension;
-    let nativeTabInfo = this.tabmail.tabInfo[index];
+    const { tabManager } = this.extension;
+    const nativeTabInfo = this.tabmail.tabInfo[index];
     if (nativeTabInfo) {
       return tabManager.getWrapper(nativeTabInfo);
     }
@@ -1718,7 +1712,7 @@ class TabManager extends TabManagerBase {
    * @returns {Tab|*} The wrapped tab, or the default value
    */
   get(tabId, default_ = undefined) {
-    let nativeTabInfo = tabTracker.getTab(tabId, default_);
+    const nativeTabInfo = tabTracker.getTab(tabId, default_);
 
     if (nativeTabInfo) {
       return this.getWrapper(nativeTabInfo);
@@ -1792,7 +1786,7 @@ class WindowManager extends WindowManagerBase {
    * @returns {Window} The wrapped window
    */
   get(windowId, context) {
-    let window = windowTracker.getWindow(windowId, context);
+    const window = windowTracker.getWindow(windowId, context);
     return this.getWrapper(window);
   }
 
@@ -1802,7 +1796,7 @@ class WindowManager extends WindowManagerBase {
    * @yields {Window}
    */
   *getAll() {
-    for (let window of windowTracker.browserWindows()) {
+    for (const window of windowTracker.browserWindows()) {
       yield this.getWrapper(window);
     }
   }
@@ -1836,7 +1830,7 @@ class WindowManager extends WindowManagerBase {
 async function getNormalWindowReady(context, windowId) {
   let window;
   if (windowId) {
-    let win = context.extension.windowManager.get(windowId, context);
+    const win = context.extension.windowManager.get(windowId, context);
     if (win.type != "normal") {
       throw new ExtensionError(
         `Window with ID ${windowId} is not a normal window`
@@ -1850,7 +1844,7 @@ async function getNormalWindowReady(context, windowId) {
   // Wait for session restore.
   await new Promise(resolve => {
     if (!window.SessionStoreManager._restored) {
-      let obs = (observedWindow, topic, data) => {
+      const obs = (observedWindow, topic, data) => {
         if (observedWindow != window) {
           return;
         }
@@ -1864,8 +1858,8 @@ async function getNormalWindowReady(context, windowId) {
   });
 
   // Wait for all mail3PaneTab's to have been fully restored and loaded.
-  for (let tabInfo of window.gTabmail.tabInfo) {
-    let { chromeBrowser, mode, closed } = tabInfo;
+  for (const tabInfo of window.gTabmail.tabInfo) {
+    const { chromeBrowser, mode, closed } = tabInfo;
     if (!closed && mode.name == "mail3PaneTab") {
       await new Promise(resolve => {
         if (
@@ -1889,17 +1883,17 @@ async function getNormalWindowReady(context, windowId) {
   return window;
 }
 
-tabTracker = new TabTracker();
-spaceTracker = new SpaceTracker();
-windowTracker = new WindowTracker();
+const tabTracker = new TabTracker();
+const spaceTracker = new SpaceTracker();
+const windowTracker = new WindowTracker();
 Object.assign(global, {
   tabTracker,
   spaceTracker,
   windowTracker,
 });
 
-messageTracker = new MessageTracker(windowTracker);
-messageListTracker = new MessageListTracker(messageTracker);
+const messageTracker = new MessageTracker(windowTracker);
+const messageListTracker = new MessageListTracker(messageTracker);
 Object.assign(global, {
   messageTracker,
   messageListTracker,

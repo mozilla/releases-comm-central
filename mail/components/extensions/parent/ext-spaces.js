@@ -33,12 +33,12 @@ var windowURLs = ["chrome://messenger/content/messenger.xhtml"];
  */
 function getManifestIcons(extension) {
   if (extension.manifest.icons) {
-    let { icon: icon16 } = ExtensionParent.IconDetails.getPreferredIcon(
+    const { icon: icon16 } = ExtensionParent.IconDetails.getPreferredIcon(
       extension.manifest.icons,
       extension,
       16
     );
-    let { icon: icon32 } = ExtensionParent.IconDetails.getPreferredIcon(
+    const { icon: icon32 } = ExtensionParent.IconDetails.getPreferredIcon(
       extension.manifest.icons,
       extension,
       32
@@ -65,7 +65,7 @@ function getNativeButtonProperties({
 }) {
   const normalizeColor = color => {
     if (typeof color == "string") {
-      let col = InspectorUtils.colorToRGBA(color);
+      const col = InspectorUtils.colorToRGBA(color);
       if (!col) {
         throw new ExtensionError(`Invalid color value: "${color}"`);
       }
@@ -74,28 +74,28 @@ function getNativeButtonProperties({
     return color;
   };
 
-  let hasThemeIcons =
+  const hasThemeIcons =
     buttonProperties.themeIcons && buttonProperties.themeIcons.length > 0;
 
   // If themeIcons have been defined, ignore manifestIcons as fallback and use
   // themeIcons for the default theme as well, following the behavior of
   // WebExtension action buttons.
-  let fallbackManifestIcons = hasThemeIcons
+  const fallbackManifestIcons = hasThemeIcons
     ? null
     : getManifestIcons(extension);
 
   // Use _normalize() to bypass cache.
-  let icons = ExtensionParent.IconDetails._normalize(
+  const icons = ExtensionParent.IconDetails._normalize(
     {
       path: buttonProperties.defaultIcons || fallbackManifestIcons,
       themeIcons: hasThemeIcons ? buttonProperties.themeIcons : null,
     },
     extension
   );
-  let iconStyles = new Map(getIconData(icons, extension).style);
+  const iconStyles = new Map(getIconData(icons, extension).style);
 
-  let badgeStyles = new Map();
-  let bgColor = normalizeColor(buttonProperties.badgeBackgroundColor);
+  const badgeStyles = new Map();
+  const bgColor = normalizeColor(buttonProperties.badgeBackgroundColor);
   if (bgColor) {
     badgeStyles.set(
       "--spaces-button-badge-bg-color",
@@ -126,11 +126,11 @@ ExtensionSupport.registerWindowListener("ext-spaces", {
     });
     // Add buttons of all extension spaces to the toolbar of each newly opened
     // normal window.
-    for (let spaceData of spaceTracker.getAll()) {
+    for (const spaceData of spaceTracker.getAll()) {
       if (!spaceData.extension) {
         continue;
       }
-      let nativeButtonProperties = getNativeButtonProperties(spaceData);
+      const nativeButtonProperties = getNativeButtonProperties(spaceData);
       await window.gSpacesToolbar.createToolbarButton(
         spaceData.spaceButtonId,
         nativeButtonProperties
@@ -177,12 +177,12 @@ this.spaces = class extends ExtensionAPI {
       return;
     }
 
-    let extensionId = this.extension.id;
-    for (let spaceData of spaceTracker.getAll()) {
+    const extensionId = this.extension.id;
+    for (const spaceData of spaceTracker.getAll()) {
       if (spaceData.extension?.id != extensionId) {
         continue;
       }
-      for (let window of ExtensionSupport.openWindows) {
+      for (const window of ExtensionSupport.openWindows) {
         if (windowURLs.includes(window.location.href)) {
           await window.gSpacesToolbar.removeToolbarButton(
             spaceData.spaceButtonId
@@ -194,8 +194,8 @@ this.spaces = class extends ExtensionAPI {
   }
 
   getAPI(context) {
-    let { tabManager } = context.extension;
-    let self = this;
+    const { tabManager } = context.extension;
+    const self = this;
 
     return {
       spaces: {
@@ -214,15 +214,15 @@ this.spaces = class extends ExtensionAPI {
           }
 
           try {
-            let spaceData = await spaceTracker.create(
+            const spaceData = await spaceTracker.create(
               name,
               defaultUrl,
               buttonProperties,
               context.extension
             );
 
-            let nativeButtonProperties = getNativeButtonProperties(spaceData);
-            for (let window of ExtensionSupport.openWindows) {
+            const nativeButtonProperties = getNativeButtonProperties(spaceData);
+            for (const window of ExtensionSupport.openWindows) {
               if (windowURLs.includes(window.location.href)) {
                 await window.gSpacesToolbar.createToolbarButton(
                   spaceData.spaceButtonId,
@@ -239,7 +239,7 @@ this.spaces = class extends ExtensionAPI {
           }
         },
         async remove(spaceId) {
-          let spaceData = spaceTracker.fromSpaceId(spaceId);
+          const spaceData = spaceTracker.fromSpaceId(spaceId);
           if (!spaceData) {
             throw new ExtensionError(
               `Failed to remove space with id ${spaceId}: Unknown id.`
@@ -252,7 +252,7 @@ this.spaces = class extends ExtensionAPI {
           }
 
           try {
-            for (let window of ExtensionSupport.openWindows) {
+            for (const window of ExtensionSupport.openWindows) {
               if (windowURLs.includes(window.location.href)) {
                 await window.gSpacesToolbar.removeToolbarButton(
                   spaceData.spaceButtonId
@@ -267,7 +267,7 @@ this.spaces = class extends ExtensionAPI {
           }
         },
         async update(spaceId, updatedDefaultUrl, updatedButtonProperties) {
-          let spaceData = spaceTracker.fromSpaceId(spaceId);
+          const spaceData = spaceTracker.fromSpaceId(spaceId);
           if (!spaceData) {
             throw new ExtensionError(
               `Failed to update space with id ${spaceId}: Unknown id.`
@@ -294,7 +294,9 @@ this.spaces = class extends ExtensionAPI {
           }
 
           if (updatedButtonProperties) {
-            for (let [key, value] of Object.entries(updatedButtonProperties)) {
+            for (const [key, value] of Object.entries(
+              updatedButtonProperties
+            )) {
               if (value != null) {
                 spaceData.buttonProperties[key] = value;
                 changes = true;
@@ -303,9 +305,9 @@ this.spaces = class extends ExtensionAPI {
           }
 
           if (changes) {
-            let nativeButtonProperties = getNativeButtonProperties(spaceData);
+            const nativeButtonProperties = getNativeButtonProperties(spaceData);
             try {
-              for (let window of ExtensionSupport.openWindows) {
+              for (const window of ExtensionSupport.openWindows) {
                 if (windowURLs.includes(window.location.href)) {
                   await window.gSpacesToolbar.updateToolbarButton(
                     spaceData.spaceButtonId,
@@ -322,25 +324,25 @@ this.spaces = class extends ExtensionAPI {
           }
         },
         async open(spaceId, windowId) {
-          let spaceData = spaceTracker.fromSpaceId(spaceId);
+          const spaceData = spaceTracker.fromSpaceId(spaceId);
           if (!spaceData) {
             throw new ExtensionError(
               `Failed to open space with id ${spaceId}: Unknown id.`
             );
           }
 
-          let window = await getNormalWindowReady(context, windowId);
-          let space = window.gSpacesToolbar.spaces.find(
+          const window = await getNormalWindowReady(context, windowId);
+          const space = window.gSpacesToolbar.spaces.find(
             space => space.button.id == spaceData.spaceButtonId
           );
 
-          let tabmail = window.document.getElementById("tabmail");
-          let currentTab = tabmail.selectedTab;
-          let nativeTabInfo = window.gSpacesToolbar.openSpace(tabmail, space);
+          const tabmail = window.document.getElementById("tabmail");
+          const currentTab = tabmail.selectedTab;
+          const nativeTabInfo = window.gSpacesToolbar.openSpace(tabmail, space);
           return tabManager.convert(nativeTabInfo, currentTab);
         },
         async get(spaceId) {
-          let spaceData = spaceTracker.fromSpaceId(spaceId);
+          const spaceData = spaceTracker.fromSpaceId(spaceId);
           if (!spaceData) {
             throw new ExtensionError(
               `Failed to get space with id ${spaceId}: Unknown id.`
@@ -349,7 +351,7 @@ this.spaces = class extends ExtensionAPI {
           return spaceTracker.convert(spaceData, context.extension);
         },
         async query(queryInfo) {
-          let allSpaceData = [...spaceTracker.getAll()];
+          const allSpaceData = [...spaceTracker.getAll()];
           return allSpaceData
             .map(spaceData =>
               spaceTracker.convert(spaceData, context.extension)

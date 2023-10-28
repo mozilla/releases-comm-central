@@ -47,7 +47,7 @@ function run_test() {
   registerCleanupFunction(finish_test);
 
   // Copy the xml file into place
-  let file = do_get_file("data/" + kXMLFile);
+  const file = do_get_file("data/" + kXMLFile);
 
   copyLocation = Services.dirsvc.get("CurProcD", Ci.nsIFile);
   copyLocation.append("isp");

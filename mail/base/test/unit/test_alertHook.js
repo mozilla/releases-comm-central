@@ -43,7 +43,7 @@ add_setup(function () {
     mockAlertsService
   );
   // A random URL.
-  let uri = Services.io.newURI("news://localhost:80/1@regular.invalid");
+  const uri = Services.io.newURI("news://localhost:80/1@regular.invalid");
   mailnewsURL = uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
 });
 
@@ -70,7 +70,7 @@ add_task(async function test_shown_to_user() {
 
   // Text, url and window => expect error shown to user
   MailServices.mailSession.alertUser("test error 2", mailnewsURL);
-  let alertShown = await mockAlertsService.promise;
+  const alertShown = await mockAlertsService.promise;
   Assert.ok(alertShown);
 });
 

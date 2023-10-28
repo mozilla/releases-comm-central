@@ -98,7 +98,7 @@
         this.initializeEncryption()
       );
 
-      let encryptionButton = this.querySelector(".encryption-button");
+      const encryptionButton = this.querySelector(".encryption-button");
       encryptionButton.addEventListener(
         "command",
         this.encryptionButtonClicked
@@ -122,9 +122,9 @@
         return;
       }
 
-      let panel = this.getSelectedPanel();
-      let topic = this.topic;
-      let topicInput = this.topicInput;
+      const panel = this.getSelectedPanel();
+      const topic = this.topic;
+      const topicInput = this.topicInput;
       topic.removeAttribute("hidden");
       topicInput.hidden = true;
       if (save) {
@@ -168,8 +168,8 @@
     }
 
     startEditTopic() {
-      let topic = this.topic;
-      let topicInput = this.topicInput;
+      const topic = this.topic;
+      const topicInput = this.topicInput;
       if (!this.topicEditable || this.editingTopic) {
         return;
       }
@@ -193,17 +193,17 @@
 
     encryptionButtonClicked(aEvent) {
       aEvent.preventDefault();
-      let encryptionMenu = this.querySelector(".encryption-menu-popup");
+      const encryptionMenu = this.querySelector(".encryption-menu-popup");
       encryptionMenu.openPopup(encryptionMenu.parentNode, "after_start");
     }
 
     onOtrStartClicked() {
       // check if start-menu-command is disabled, if yes exit
-      let convBinding = this.getSelectedPanel();
-      let uiConv = convBinding._conv;
-      let conv = uiConv.target;
-      let context = OTR.getContext(conv);
-      let bundleId =
+      const convBinding = this.getSelectedPanel();
+      const uiConv = convBinding._conv;
+      const conv = uiConv.target;
+      const context = OTR.getContext(conv);
+      const bundleId =
         "alert-" +
         (context.msgstate === OTR.getMessageState().OTRL_MSGSTATE_ENCRYPTED
           ? "refresh"
@@ -213,18 +213,18 @@
     }
 
     onOtrEndClicked() {
-      let convBinding = this.getSelectedPanel();
-      let uiConv = convBinding._conv;
-      let conv = uiConv.target;
+      const convBinding = this.getSelectedPanel();
+      const uiConv = convBinding._conv;
+      const conv = uiConv.target;
       OTR.disconnect(conv, false);
-      let bundleId = "alert-gone-insecure";
+      const bundleId = "alert-gone-insecure";
       OTRUI.sendSystemAlert(uiConv, conv, bundleId);
     }
 
     onOtrAuthClicked() {
-      let convBinding = this.getSelectedPanel();
-      let uiConv = convBinding._conv;
-      let conv = uiConv.target;
+      const convBinding = this.getSelectedPanel();
+      const uiConv = convBinding._conv;
+      const conv = uiConv.target;
       OTRUI.openAuth(window, conv.normalizedName, "start", uiConv);
     }
 
@@ -235,7 +235,7 @@
     }
 
     getSelectedPanel() {
-      for (let element of document.getElementById("conversationsBox")
+      for (const element of document.getElementById("conversationsBox")
         .children) {
         if (!element.hidden) {
           return element;
@@ -278,13 +278,13 @@
      * @param {string} statusName - The name of the status.
      */
     setStatusIcon(statusName) {
-      let statusIcon = this.querySelector(".statusTypeIcon");
+      const statusIcon = this.querySelector(".statusTypeIcon");
       if (statusName === null) {
         statusIcon.hidden = true;
         statusIcon.removeAttribute("src");
       } else {
         statusIcon.hidden = false;
-        let src = ChatIcons.getStatusIconURI(statusName);
+        const src = ChatIcons.getStatusIconURI(statusName);
         if (src) {
           statusIcon.setAttribute("src", src);
         } else {
@@ -302,7 +302,7 @@
      *   indicate the status is some fallback text.
      */
     setStatusText(text, noTopic = false) {
-      let statusEl = this.topic;
+      const statusEl = this.topic;
 
       statusEl.setAttribute("value", text);
       statusEl.setAttribute("tooltiptext", text);

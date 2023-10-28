@@ -23,9 +23,9 @@ var { ExtensionSupport } = ChromeUtils.importESModule(
  */
 add_task(async function test_windowListeners() {
   // There may be some pre-existing listeners already set up, e.g. mozmill ones.
-  let originalListenerCount = ExtensionSupport.registeredWindowListenerCount;
+  const originalListenerCount = ExtensionSupport.registeredWindowListenerCount;
 
-  let addonRunCount = [];
+  const addonRunCount = [];
   addonRunCount.load = new Map();
   addonRunCount.unload = new Map();
 
@@ -133,7 +133,7 @@ add_task(async function test_windowListeners() {
 
   const activityManagerPromise = promise_new_window("Activity:Manager");
   window.openActivityMgr();
-  let amWin = await activityManagerPromise;
+  const amWin = await activityManagerPromise;
 
   // Only Addon1 listens to any window.
   Assert.equal(addonCount("test-addon1", "load"), 5);

@@ -36,9 +36,9 @@ var EnigmailLog = {
       !EnigmailLog.fileStream &&
       EnigmailLog.level >= 5
     ) {
-      let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+      const file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
       file.initWithPath(EnigmailLog.directory + "enigdbug.txt");
-      let ofStream = Cc[
+      const ofStream = Cc[
         "@mozilla.org/network/file-output-stream;1"
       ].createInstance(Ci.nsIFileOutputStream);
       ofStream.init(file, -1, -1, 0);

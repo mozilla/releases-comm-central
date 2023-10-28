@@ -23,9 +23,9 @@ var EnigmailZBase32 = {
    * @returns {string} the encoded string.
    */
   encode(str) {
-    let a = this.a;
-    let pad = this.pad;
-    let len = str.length;
+    const a = this.a;
+    const pad = this.pad;
+    const len = str.length;
     let o = "";
     let w,
       c,

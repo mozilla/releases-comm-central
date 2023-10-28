@@ -1,8 +1,9 @@
 /* import-globals-from ../../content/utilityOverlay.js */
 
 add_task(async () => {
-  let TEST_DOCUMENT_URL = getRootDirectory(gTestPath) + "files/menulist.xhtml";
-  let testDocument = await new Promise(resolve => {
+  const TEST_DOCUMENT_URL =
+    getRootDirectory(gTestPath) + "files/menulist.xhtml";
+  const testDocument = await new Promise(resolve => {
     Services.obs.addObserver(function documentLoaded(subject) {
       if (subject.URL == TEST_DOCUMENT_URL) {
         Services.obs.removeObserver(documentLoaded, "chrome-document-loaded");
@@ -12,12 +13,12 @@ add_task(async () => {
     openContentTab(TEST_DOCUMENT_URL);
   });
   ok(testDocument.URL == TEST_DOCUMENT_URL);
-  let testWindow = testDocument.ownerGlobal;
-  let MENULIST_CLASS = testWindow.customElements.get("menulist");
-  let MENULIST_EDITABLE_CLASS =
+  const testWindow = testDocument.ownerGlobal;
+  const MENULIST_CLASS = testWindow.customElements.get("menulist");
+  const MENULIST_EDITABLE_CLASS =
     testWindow.customElements.get("menulist-editable");
 
-  let menulists = testDocument.querySelectorAll("menulist");
+  const menulists = testDocument.querySelectorAll("menulist");
   is(menulists.length, 3);
 
   // Menulist 0 is an ordinary, non-editable menulist.
@@ -38,11 +39,11 @@ add_task(async () => {
   ok(menulists[2].editable);
 
   // Okay, let's check the focus order.
-  let testBrowser = document.getElementById("tabmail").currentTabInfo.browser;
+  const testBrowser = document.getElementById("tabmail").currentTabInfo.browser;
   EventUtils.synthesizeMouseAtCenter(testBrowser, { clickCount: 1 });
   await new Promise(resolve => setTimeout(resolve));
 
-  let beforeButton = testDocument.querySelector("button#before");
+  const beforeButton = testDocument.querySelector("button#before");
   beforeButton.focus();
   is(testDocument.activeElement, beforeButton);
 
@@ -79,9 +80,9 @@ add_task(async () => {
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, testWindow);
   is(testDocument.activeElement, beforeButton, "focus back to the start");
 
-  let popup = menulists[2].menupopup;
+  const popup = menulists[2].menupopup;
   // The dropmarker should open and close the popup.
-  let openEvent = BrowserTestUtils.waitForEvent(popup, "popupshown");
+  const openEvent = BrowserTestUtils.waitForEvent(popup, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     menulists[2]._dropmarker,
     { clickCount: 1 },
@@ -90,7 +91,7 @@ add_task(async () => {
   await openEvent;
   ok(menulists[2].hasAttribute("open"), "popup open");
 
-  let hiddenEvent = BrowserTestUtils.waitForEvent(popup, "popuphidden");
+  const hiddenEvent = BrowserTestUtils.waitForEvent(popup, "popuphidden");
   popup.hidePopup();
   await hiddenEvent;
   ok(!menulists[2].hasAttribute("open"), "closed again");

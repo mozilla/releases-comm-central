@@ -7,9 +7,9 @@ let tabmail, about3Pane, messagePane;
 
 add_setup(async () => {
   account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("messageDisplayScripts", null);
-  let folder = rootFolder.getChildNamed("messageDisplayScripts");
+  const folder = rootFolder.getChildNamed("messageDisplayScripts");
   createMessages(folder, 11);
   messages = [...folder.messages];
 
@@ -40,10 +40,10 @@ async function checkMessageBody(expected, message, browser) {
 
 /** Tests browser.tabs.insertCSS and browser.tabs.removeCSS. */
 add_task(async function testInsertRemoveCSS() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let [tab] = await browser.tabs.query({ mailTab: true });
+        const [tab] = await browser.tabs.query({ mailTab: true });
         await window.sendMessage();
 
         await browser.tabs.insertCSS(tab.id, {
@@ -116,10 +116,10 @@ add_task(async function testInsertRemoveCSS() {
 
 /** Tests browser.tabs.insertCSS fails without the "messagesModify" permission. */
 add_task(async function testInsertRemoveCSSNoPermissions() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let [tab] = await browser.tabs.query({ mailTab: true });
+        const [tab] = await browser.tabs.query({ mailTab: true });
 
         await browser.test.assertRejects(
           browser.tabs.insertCSS(tab.id, {
@@ -174,10 +174,10 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
 
 /** Tests browser.tabs.executeScript. */
 add_task(async function testExecuteScript() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let [tab] = await browser.tabs.query({ mailTab: true });
+        const [tab] = await browser.tabs.query({ mailTab: true });
         await window.sendMessage();
 
         await browser.tabs.executeScript(tab.id, {
@@ -228,10 +228,10 @@ add_task(async function testExecuteScript() {
 
 /** Tests browser.tabs.executeScript fails without the "messagesModify" permission. */
 add_task(async function testExecuteScriptNoPermissions() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let [tab] = await browser.tabs.query({ mailTab: true });
+        const [tab] = await browser.tabs.query({ mailTab: true });
 
         await browser.test.assertRejects(
           browser.tabs.executeScript(tab.id, {
@@ -283,10 +283,10 @@ add_task(async function testExecuteScriptNoPermissions() {
 
 /** Tests the messenger alias is available. */
 add_task(async function testExecuteScriptAlias() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let [tab] = await browser.tabs.query({ mailTab: true });
+        const [tab] = await browser.tabs.query({ mailTab: true });
         await window.sendMessage();
 
         await browser.tabs.executeScript(tab.id, {
@@ -329,7 +329,7 @@ add_task(async function testExecuteScriptAlias() {
  * on the returned object.
  */
 add_task(async function testRegister() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
         // Keep track of registered scrips being executed and ready.
@@ -339,7 +339,7 @@ add_task(async function testRegister() {
           }
         });
 
-        let registeredScript = await browser.messageDisplayScripts.register({
+        const registeredScript = await browser.messageDisplayScripts.register({
           css: [{ code: "body { color: white }" }, { file: "test.css" }],
           js: [
             { code: `document.body.setAttribute("foo", "bar");` },
@@ -408,7 +408,7 @@ add_task(async function testRegister() {
   // Load a new message and check it is modified.
   let loadPromise = extension.awaitMessage("ScriptLoaded");
   about3Pane.threadTree.selectedIndex = 6;
-  let tabId = await loadPromise;
+  const tabId = await loadPromise;
 
   await checkMessageBody(
     {
@@ -426,8 +426,8 @@ add_task(async function testRegister() {
 
   // Open the message in a new tab.
   loadPromise = extension.awaitMessage("ScriptLoaded");
-  let messageTab = await openMessageInTab(messages.at(-7));
-  let messageTabId = await loadPromise;
+  const messageTab = await openMessageInTab(messages.at(-7));
+  const messageTabId = await loadPromise;
   Assert.equal(tabmail.tabInfo.length, 2);
 
   await checkMessageBody(
@@ -446,7 +446,7 @@ add_task(async function testRegister() {
   await testDonePromise;
 
   // Open a content tab. The CSS and script shouldn't apply.
-  let contentTab = window.openContentTab("http://mochi.test:8888/");
+  const contentTab = window.openContentTab("http://mochi.test:8888/");
   // Let's wait a while and see if anything happens:
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
@@ -480,9 +480,9 @@ add_task(async function testRegister() {
 
   // Open the message in a new window.
   loadPromise = extension.awaitMessage("ScriptLoaded");
-  let newWindow = await openMessageInWindow(messages.at(-8));
-  let newWindowMessagePane = newWindow.getBrowser();
-  let windowTabId = await loadPromise;
+  const newWindow = await openMessageInWindow(messages.at(-8));
+  const newWindowMessagePane = newWindow.getBrowser();
+  const windowTabId = await loadPromise;
 
   await checkMessageBody(
     {
@@ -546,7 +546,7 @@ add_task(async function testRegister() {
 
 /** Tests content_scripts in the manifest do not affect message display. */
 async function subtestContentScriptManifest(message, ...permissions) {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "test.css": "body { background-color: red; }",
       "test.js": () => {
@@ -596,7 +596,7 @@ add_task(async function testContentScriptManifest() {
 
 /** Tests registered content scripts do not affect message display. */
 async function subtestContentScriptRegister(message, ...permissions) {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
         await browser.contentScripts.register({

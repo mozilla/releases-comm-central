@@ -13,13 +13,13 @@ var { open_message_from_file } = ChromeUtils.import(
 );
 
 async function check_eml_window_title(subject, eml) {
-  let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath(`data/${eml}`));
+  const msgc = await open_message_from_file(file);
 
-  let brandBundle = Services.strings.createBundle(
+  const brandBundle = Services.strings.createBundle(
     "chrome://branding/locale/brand.properties"
   );
-  let productName = brandBundle.GetStringFromName("brandFullName");
+  const productName = brandBundle.GetStringFromName("brandFullName");
   let expectedTitle = subject;
   if (expectedTitle && AppConstants.platform != "macosx") {
     expectedTitle += " - ";

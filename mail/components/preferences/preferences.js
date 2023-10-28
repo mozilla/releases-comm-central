@@ -59,7 +59,7 @@ XPCOMUtils.defineLazyGetter(this, "gSubDialog", function () {
         );
 
         // Creating tooltips for all the instances found
-        for (let node of gSearchResultsPane.listSearchTooltips) {
+        for (const node of gSearchResultsPane.listSearchTooltips) {
           if (!node.tooltipNode) {
             gSearchResultsPane.createSearchTooltip(
               node,
@@ -70,8 +70,8 @@ XPCOMUtils.defineLazyGetter(this, "gSubDialog", function () {
 
         // Resize the dialog to fit the content with edited font size.
         requestAnimationFrame(() => {
-          let dialogs = frame.ownerGlobal.gSubDialog._dialogs;
-          let dialog = dialogs.find(
+          const dialogs = frame.ownerGlobal.gSubDialog._dialogs;
+          const dialog = dialogs.find(
             d => d._frame.contentDocument == frame.contentDocument
           );
           if (dialog) {
@@ -89,7 +89,7 @@ var gCategoryInits = new Map();
 var gLastCategory = { category: undefined, subcategory: undefined };
 
 function init_category_if_required(category) {
-  let categoryInfo = gCategoryInits.get(category);
+  const categoryInfo = gCategoryInits.get(category);
   if (!categoryInfo) {
     throw new Error(
       "Unknown in-content prefs category! Can't init " + category
@@ -105,10 +105,10 @@ function register_module(categoryName, categoryObject) {
   gCategoryInits.set(categoryName, {
     inited: false,
     async init() {
-      let template = document.getElementById(categoryName);
+      const template = document.getElementById(categoryName);
       if (template) {
         // Replace the template element with the nodes inside of it.
-        let frag = template.content;
+        const frag = template.content;
         await document.l10n.translateFragment(frag);
 
         // Actually insert them into the DOM.
@@ -152,7 +152,7 @@ function init() {
   }
   gSearchResultsPane.init();
 
-  let categories = document.getElementById("categories");
+  const categories = document.getElementById("categories");
   categories.addEventListener("select", event => gotoPref(event.target.value));
 
   document.documentElement.addEventListener("keydown", event => {
@@ -169,7 +169,7 @@ function init() {
   });
 
   window.addEventListener("hashchange", onHashChange);
-  let lastSelected = Services.xulStore.getValue(
+  const lastSelected = Services.xulStore.getValue(
     "about:preferences",
     "paneDeck",
     "lastSelected"
@@ -185,16 +185,16 @@ function onHashChange() {
 }
 
 async function gotoPref(aCategory) {
-  let categories = document.getElementById("categories");
+  const categories = document.getElementById("categories");
   const kDefaultCategoryInternalName = "paneGeneral";
   const kDefaultCategory = "general";
-  let hash = document.location.hash;
+  const hash = document.location.hash;
 
   let category = aCategory || hash.substr(1) || kDefaultCategoryInternalName;
-  let breakIndex = category.indexOf("-");
+  const breakIndex = category.indexOf("-");
   // Subcategories allow for selecting smaller sections of the preferences
   // until proper search support is enabled (bug 1353954).
-  let subcategory = breakIndex != -1 && category.substring(breakIndex + 1);
+  const subcategory = breakIndex != -1 && category.substring(breakIndex + 1);
   if (subcategory) {
     category = category.substring(0, breakIndex);
   }
@@ -222,7 +222,7 @@ async function gotoPref(aCategory) {
   let item;
   if (category != "paneSearchResults") {
     // Hide second level headers in normal view
-    for (let element of document.querySelectorAll(".search-header")) {
+    for (const element of document.querySelectorAll(".search-header")) {
       element.hidden = true;
     }
 
@@ -238,7 +238,7 @@ async function gotoPref(aCategory) {
     category != kDefaultCategoryInternalName ||
     subcategory
   ) {
-    let friendlyName = internalPrefCategoryNameToFriendlyName(category);
+    const friendlyName = internalPrefCategoryNameToFriendlyName(category);
     document.location.hash = friendlyName;
   }
   // Need to set the gLastCategory before setting categories.selectedItem since
@@ -274,7 +274,7 @@ async function gotoPref(aCategory) {
 
   search(category, "data-category");
 
-  let mainContent = document.querySelector(".main-content");
+  const mainContent = document.querySelector(".main-content");
   mainContent.scrollTop = 0;
 
   spotlight(subcategory, category);
@@ -305,16 +305,16 @@ function internalPrefCategoryNameToFriendlyName(aName) {
 }
 
 function search(aQuery, aAttribute) {
-  let paneDeck = document.getElementById("paneDeck");
-  let elements = paneDeck.children;
-  for (let element of elements) {
+  const paneDeck = document.getElementById("paneDeck");
+  const elements = paneDeck.children;
+  for (const element of elements) {
     // If the "data-hidden-from-search" is "true", the
     // element will not get considered during search.
     if (
       element.getAttribute("data-hidden-from-search") != "true" ||
       element.getAttribute("data-subpanel") == "true"
     ) {
-      let attributeValue = element.getAttribute(aAttribute);
+      const attributeValue = element.getAttribute(aAttribute);
       if (attributeValue == aQuery) {
         element.hidden = false;
       } else {
@@ -329,9 +329,9 @@ function search(aQuery, aAttribute) {
     element.classList.remove("visually-hidden");
   }
 
-  let keysets = paneDeck.getElementsByTagName("keyset");
-  for (let element of keysets) {
-    let attributeValue = element.getAttribute(aAttribute);
+  const keysets = paneDeck.getElementsByTagName("keyset");
+  for (const element of keysets) {
+    const attributeValue = element.getAttribute(aAttribute);
     if (attributeValue == aQuery) {
       element.removeAttribute("disabled");
     } else {
@@ -341,9 +341,9 @@ function search(aQuery, aAttribute) {
 }
 
 async function spotlight(subcategory, category) {
-  let highlightedElements = document.querySelectorAll(".spotlight");
+  const highlightedElements = document.querySelectorAll(".spotlight");
   if (highlightedElements.length) {
-    for (let element of highlightedElements) {
+    for (const element of highlightedElements) {
       element.classList.remove("spotlight");
     }
   }
@@ -353,11 +353,11 @@ async function spotlight(subcategory, category) {
 }
 
 async function scrollAndHighlight(subcategory, category) {
-  let element = document.querySelector(`[data-subcategory="${subcategory}"]`);
+  const element = document.querySelector(`[data-subcategory="${subcategory}"]`);
   if (!element) {
     return;
   }
-  let header = getClosestDisplayedHeader(element);
+  const header = getClosestDisplayedHeader(element);
 
   scrollContentTo(header);
   element.classList.add("spotlight");
@@ -371,7 +371,7 @@ async function scrollAndHighlight(subcategory, category) {
  */
 function getClosestDisplayedHeader(element) {
   let header = element.closest("groupbox");
-  let searchHeader = header.querySelector(".search-header");
+  const searchHeader = header.querySelector(".search-header");
   if (
     searchHeader &&
     searchHeader.hidden &&
@@ -385,8 +385,8 @@ function getClosestDisplayedHeader(element) {
 function scrollContentTo(element) {
   const STICKY_CONTAINER_HEIGHT =
     document.querySelector(".sticky-container").clientHeight;
-  let mainContent = document.querySelector(".main-content");
-  let top = element.getBoundingClientRect().top - STICKY_CONTAINER_HEIGHT;
+  const mainContent = document.querySelector(".main-content");
+  const top = element.getBoundingClientRect().top - STICKY_CONTAINER_HEIGHT;
   mainContent.scroll({
     top,
     behavior: "smooth",
@@ -439,12 +439,15 @@ function showTab(scrollPaneTo, subdialogID) {
  * to be installed, so if it isn't installed remove it from availableLocales.
  */
 async function getAvailableLocales() {
-  let { availableLocales, defaultLocale, lastFallbackLocale } = Services.locale;
+  const { availableLocales, defaultLocale, lastFallbackLocale } =
+    Services.locale;
   // If defaultLocale isn't lastFallbackLocale, then we still need the langpack
   // for lastFallbackLocale for it to be useful.
   if (defaultLocale != lastFallbackLocale) {
-    let lastFallbackId = `langpack-${lastFallbackLocale}@thunderbird.mozilla.org`;
-    let lastFallbackInstalled = await AddonManager.getAddonByID(lastFallbackId);
+    const lastFallbackId = `langpack-${lastFallbackLocale}@thunderbird.mozilla.org`;
+    const lastFallbackInstalled = await AddonManager.getAddonByID(
+      lastFallbackId
+    );
     if (!lastFallbackInstalled) {
       return availableLocales.filter(locale => locale != lastFallbackLocale);
     }

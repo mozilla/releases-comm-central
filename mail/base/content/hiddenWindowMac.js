@@ -5,7 +5,7 @@
 
 function hiddenWindowStartup() {
   // Disable menus which are not appropriate
-  let disabledItems = [
+  const disabledItems = [
     "menu_newFolder",
     "newMailAccountMenuItem",
     "newNewsgroupAccountMenuItem",
@@ -109,7 +109,7 @@ function hiddenWindowStartup() {
   ];
 
   let element;
-  for (let id of disabledItems) {
+  for (const id of disabledItems) {
     element = document.getElementById(id);
     if (element) {
       element.setAttribute("disabled", "true");

@@ -10,7 +10,7 @@
 "use strict";
 
 add_task(function test_main_menu_collapsed() {
-  let mainMenu = document.getElementById("toolbar-menubar");
+  const mainMenu = document.getElementById("toolbar-menubar");
   Assert.equal(
     mainMenu.getAttribute("autohide"),
     "true",

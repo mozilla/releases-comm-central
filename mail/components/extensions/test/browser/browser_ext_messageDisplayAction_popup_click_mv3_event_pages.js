@@ -4,16 +4,16 @@
 
 let account;
 let messages;
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 
 add_setup(async () => {
   account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
-  let subFolders = rootFolder.subFolders;
+  const rootFolder = account.incomingServer.rootFolder;
+  const subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
   messages = subFolders[0].messages;
 
-  let about3Pane = tabmail.currentAbout3Pane;
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({
     folderPaneVisible: true,
     folderURI: subFolders[0],
@@ -30,7 +30,7 @@ async function subtest_popup_open_with_click_MV3_event_pages(
 ) {
   info("3-pane tab");
   {
-    let testConfig = {
+    const testConfig = {
       manifest_version: 3,
       terminateBackground,
       actionType: "message_display_action",
@@ -54,7 +54,7 @@ async function subtest_popup_open_with_click_MV3_event_pages(
   info("Message tab");
   {
     await openMessageInTab(messages.getNext());
-    let testConfig = {
+    const testConfig = {
       manifest_version: 3,
       terminateBackground,
       actionType: "message_display_action",
@@ -79,8 +79,8 @@ async function subtest_popup_open_with_click_MV3_event_pages(
 
   info("Message window");
   {
-    let messageWindow = await openMessageInWindow(messages.getNext());
-    let testConfig = {
+    const messageWindow = await openMessageInWindow(messages.getNext());
+    const testConfig = {
       manifest_version: 3,
       terminateBackground,
       actionType: "message_display_action",

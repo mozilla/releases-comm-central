@@ -2,45 +2,45 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account = createAccount();
-let defaultIdentity = addIdentity(account);
-let nonDefaultIdentity = addIdentity(account);
+const account = createAccount();
+const defaultIdentity = addIdentity(account);
+const nonDefaultIdentity = addIdentity(account);
 defaultIdentity.attachVCard = false;
 nonDefaultIdentity.attachVCard = true;
 
-let gRootFolder = account.incomingServer.rootFolder;
+const gRootFolder = account.incomingServer.rootFolder;
 
 gRootFolder.createSubfolder("test", null);
-let gTestFolder = gRootFolder.getChildNamed("test");
+const gTestFolder = gRootFolder.getChildNamed("test");
 createMessages(gTestFolder, 4);
 
 // TODO: Figure out why naming this folder drafts is problematic.
 gRootFolder.createSubfolder("something", null);
-let gDraftsFolder = gRootFolder.getChildNamed("something");
+const gDraftsFolder = gRootFolder.getChildNamed("something");
 gDraftsFolder.flags = Ci.nsMsgFolderFlags.Drafts;
 createMessages(gDraftsFolder, 2);
-let gDrafts = [...gDraftsFolder.messages];
+const gDrafts = [...gDraftsFolder.messages];
 
 // Verifies ComposeDetails of a given composer can be applied to a different
 // composer, even if they have different compose formats. The composer should pick
 // the matching body/plaintextBody value, if both are specified. The value for
 // isPlainText is ignored by setComposeDetails.
 add_task(async function testIsReflexive() {
-  let files = {
+  const files = {
     "background.js": async () => {
       // Start a new TEXT message.
-      let createdTextWindowPromise = window.waitForEvent("windows.onCreated");
+      const createdTextWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         plainTextBody: "This is some PLAIN text.",
         isPlainText: true,
       });
-      let [createdTextWindow] = await createdTextWindowPromise;
-      let [createdTextTab] = await browser.tabs.query({
+      const [createdTextWindow] = await createdTextWindowPromise;
+      const [createdTextTab] = await browser.tabs.query({
         windowId: createdTextWindow.id,
       });
 
       // Get details, TEXT message.
-      let textDetails = await browser.compose.getComposeDetails(
+      const textDetails = await browser.compose.getComposeDetails(
         createdTextTab.id
       );
       browser.test.assertTrue(textDetails.isPlainText);
@@ -53,18 +53,18 @@ add_task(async function testIsReflexive() {
       );
 
       // Start a new HTML message.
-      let createdHtmlWindowPromise = window.waitForEvent("windows.onCreated");
+      const createdHtmlWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         body: "<p>This is some <i>HTML</i> text.</p>",
         isPlainText: false,
       });
-      let [createdHtmlWindow] = await createdHtmlWindowPromise;
-      let [createdHtmlTab] = await browser.tabs.query({
+      const [createdHtmlWindow] = await createdHtmlWindowPromise;
+      const [createdHtmlTab] = await browser.tabs.query({
         windowId: createdHtmlWindow.id,
       });
 
       // Get details, HTML message.
-      let htmlDetails = await browser.compose.getComposeDetails(
+      const htmlDetails = await browser.compose.getComposeDetails(
         createdHtmlTab.id
       );
       browser.test.assertFalse(htmlDetails.isPlainText);
@@ -84,7 +84,7 @@ add_task(async function testIsReflexive() {
 
       // Set TEXT details on HTML composer and verify the changed content.
       await browser.compose.setComposeDetails(createdHtmlTab.id, textDetails);
-      let htmlDetails2 = await browser.compose.getComposeDetails(
+      const htmlDetails2 = await browser.compose.getComposeDetails(
         createdHtmlTab.id
       );
       browser.test.assertFalse(htmlDetails2.isPlainText);
@@ -98,7 +98,7 @@ add_task(async function testIsReflexive() {
 
       // Set HTML details on TEXT composer and verify the changed content.
       await browser.compose.setComposeDetails(createdTextTab.id, htmlDetails);
-      let textDetails2 = await browser.compose.getComposeDetails(
+      const textDetails2 = await browser.compose.getComposeDetails(
         createdTextTab.id
       );
       browser.test.assertTrue(textDetails2.isPlainText);
@@ -112,11 +112,11 @@ add_task(async function testIsReflexive() {
 
       // Clean up.
 
-      let removedHtmlWindowPromise = window.waitForEvent("windows.onRemoved");
+      const removedHtmlWindowPromise = window.waitForEvent("windows.onRemoved");
       browser.windows.remove(createdHtmlWindow.id);
       await removedHtmlWindowPromise;
 
-      let removedTextWindowPromise = window.waitForEvent("windows.onRemoved");
+      const removedTextWindowPromise = window.waitForEvent("windows.onRemoved");
       browser.windows.remove(createdTextWindow.id);
       await removedTextWindowPromise;
 
@@ -124,7 +124,7 @@ add_task(async function testIsReflexive() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -138,17 +138,17 @@ add_task(async function testIsReflexive() {
 });
 
 add_task(async function testType() {
-  let files = {
+  const files = {
     "background.js": async () => {
-      let accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list();
       browser.test.assertEq(1, accounts.length, "number of accounts");
 
-      let testFolder = accounts[0].folders.find(f => f.name == "test");
-      let messages = (await browser.messages.list(testFolder)).messages;
+      const testFolder = accounts[0].folders.find(f => f.name == "test");
+      const messages = (await browser.messages.list(testFolder)).messages;
       browser.test.assertEq(4, messages.length, "number of messages");
 
-      let draftFolder = accounts[0].folders.find(f => f.name == "something");
-      let drafts = (await browser.messages.list(draftFolder)).messages;
+      const draftFolder = accounts[0].folders.find(f => f.name == "something");
+      const drafts = (await browser.messages.list(draftFolder)).messages;
       browser.test.assertEq(2, drafts.length, "number of drafts");
 
       async function checkComposer(tab, expected) {
@@ -160,7 +160,7 @@ add_task(async function testType() {
           "type of window ID"
         );
 
-        let details = await browser.compose.getComposeDetails(tab.id);
+        const details = await browser.compose.getComposeDetails(tab.id);
         browser.test.assertEq(expected.type, details.type, "type of composer");
         browser.test.assertEq(
           expected.relatedMessageId,
@@ -170,7 +170,7 @@ add_task(async function testType() {
         await browser.windows.remove(tab.windowId);
       }
 
-      let tests = [
+      const tests = [
         {
           funcName: "beginNew",
           args: [],
@@ -218,9 +218,9 @@ add_task(async function testType() {
           expected: { type: "new", relatedMessageId: messages[3].id },
         },
       ];
-      for (let test of tests) {
+      for (const test of tests) {
         browser.test.log(test.funcName);
-        let tab = await browser.compose[test.funcName](...test.args);
+        const tab = await browser.compose[test.funcName](...test.args);
         await checkComposer(tab, test.expected);
       }
 
@@ -228,14 +228,14 @@ add_task(async function testType() {
         // Bug 1702957, if composeWindow.GetComposeDetails() is not delayed
         // until the compose window is ready, it will overwrite the compose
         // fields.
-        let details = await browser.compose.getComposeDetails(tab.id);
+        const details = await browser.compose.getComposeDetails(tab.id);
         browser.test.assertEq(
           "Johnny Jones <johnny@jones.invalid>",
           details.to.pop(),
           "Check Recipients in draft after calling getComposeDetails()"
         );
 
-        let window = await browser.windows.get(tab.windowId);
+        const window = await browser.windows.get(tab.windowId);
         if (window.type == "messageCompose") {
           await checkComposer(tab, {
             type: "draft",
@@ -248,7 +248,7 @@ add_task(async function testType() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -274,10 +274,10 @@ add_task(async function testType() {
 });
 
 add_task(async function testFcc() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkWindow(createdTab, expected) {
-        let state = await browser.compose.getComposeDetails(createdTab.id);
+        const state = await browser.compose.getComposeDetails(createdTab.id);
 
         browser.test.assertEq(
           expected.overrideDefaultFcc,
@@ -316,16 +316,16 @@ add_task(async function testFcc() {
         await window.sendMessage("checkWindow", expected);
       }
 
-      let [account] = await browser.accounts.list();
-      let folder1 = account.folders.find(f => f.name == "Trash");
-      let folder2 = account.folders.find(f => f.name == "something");
+      const [account] = await browser.accounts.list();
+      const folder1 = account.folders.find(f => f.name == "Trash");
+      const folder2 = account.folders.find(f => f.name == "something");
 
       // Start a new message.
 
-      let createdWindowPromise = window.waitForEvent("windows.onCreated");
+      const createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew();
-      let [createdWindow] = await createdWindowPromise;
-      let [createdTab] = await browser.tabs.query({
+      const [createdWindow] = await createdWindowPromise;
+      const [createdTab] = await browser.tabs.query({
         windowId: createdWindow.id,
       });
 
@@ -423,7 +423,7 @@ add_task(async function testFcc() {
 
       // Clean up.
 
-      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      const removedWindowPromise = window.waitForEvent("windows.onRemoved");
       browser.windows.remove(createdWindow.id);
       await removedWindowPromise;
 
@@ -431,7 +431,7 @@ add_task(async function testFcc() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -450,10 +450,10 @@ add_task(async function testFcc() {
 });
 
 add_task(async function testSimpleDetails() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkWindow(createdTab, expected) {
-        let state = await browser.compose.getComposeDetails(createdTab.id);
+        const state = await browser.compose.getComposeDetails(createdTab.id);
 
         if (expected.priority) {
           browser.test.assertEq(
@@ -500,24 +500,24 @@ add_task(async function testSimpleDetails() {
 
       // Start a new message.
 
-      let createdWindowPromise = window.waitForEvent("windows.onCreated");
+      const createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew();
-      let [createdWindow] = await createdWindowPromise;
-      let [createdTab] = await browser.tabs.query({
+      const [createdWindow] = await createdWindowPromise;
+      const [createdTab] = await browser.tabs.query({
         windowId: createdWindow.id,
       });
 
-      let accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list();
       browser.test.assertEq(1, accounts.length, "number of accounts");
-      let localAccount = accounts.find(a => a.type == "none");
+      const localAccount = accounts.find(a => a.type == "none");
       browser.test.assertEq(
         2,
         localAccount.identities.length,
         "number of identities"
       );
-      let [defaultIdentity, nonDefaultIdentity] = localAccount.identities;
+      const [defaultIdentity, nonDefaultIdentity] = localAccount.identities;
 
-      let expected = {
+      const expected = {
         priority: "normal",
         returnReceipt: false,
         deliveryStatusNotification: false,
@@ -531,7 +531,7 @@ add_task(async function testSimpleDetails() {
           [key]: value,
         });
         expected[key] = value;
-        for (let [k, v] of Object.entries(_expected)) {
+        for (const [k, v] of Object.entries(_expected)) {
           expected[k] = v;
         }
         await checkWindow(createdTab, expected);
@@ -574,7 +574,7 @@ add_task(async function testSimpleDetails() {
 
       // Clean up.
 
-      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      const removedWindowPromise = window.waitForEvent("windows.onRemoved");
       browser.windows.remove(createdWindow.id);
       await removedWindowPromise;
 
@@ -582,7 +582,7 @@ add_task(async function testSimpleDetails() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -601,12 +601,12 @@ add_task(async function testSimpleDetails() {
 });
 
 add_task(async function testAutoComplete() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkWindow(createdTab, expected) {
-        let state = await browser.compose.getComposeDetails(createdTab.id);
+        const state = await browser.compose.getComposeDetails(createdTab.id);
 
-        for (let [id, value] of Object.entries(expected.pills)) {
+        for (const [id, value] of Object.entries(expected.pills)) {
           browser.test.assertEq(
             value,
             state[id].length ? state[id][0] : "",
@@ -618,16 +618,16 @@ add_task(async function testAutoComplete() {
       }
 
       // Start a new message.
-      let createdWindowPromise = window.waitForEvent("windows.onCreated");
+      const createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew();
-      let [createdWindow] = await createdWindowPromise;
-      let [createdTab] = await browser.tabs.query({
+      const [createdWindow] = await createdWindowPromise;
+      const [createdTab] = await browser.tabs.query({
         windowId: createdWindow.id,
       });
 
       // Create a test contact.
-      let [addressBook] = await browser.addressBooks.list(true);
-      let contactId = await browser.contacts.create(addressBook.id, {
+      const [addressBook] = await browser.addressBooks.list(true);
+      const contactId = await browser.contacts.create(addressBook.id, {
         PrimaryEmail: "autocomplete@invalid",
         DisplayName: "Autocomplete Test",
       });
@@ -669,7 +669,7 @@ add_task(async function testAutoComplete() {
 
       // Clean up.
       await browser.contacts.delete(contactId);
-      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      const removedWindowPromise = window.waitForEvent("windows.onRemoved");
       browser.windows.remove(createdWindow.id);
       await removedWindowPromise;
 
@@ -677,7 +677,7 @@ add_task(async function testAutoComplete() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -686,7 +686,7 @@ add_task(async function testAutoComplete() {
   });
 
   extension.onMessage("typeIntoActiveAddrField", async value => {
-    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
 
     for (const s of value) {
@@ -698,9 +698,9 @@ add_task(async function testAutoComplete() {
   });
 
   extension.onMessage("checkWindow", async expected => {
-    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
-    let composeDocument = composeWindows[0].document;
+    const composeDocument = composeWindows[0].document;
     await new Promise(resolve => composeWindows[0].setTimeout(resolve));
 
     Assert.equal(
@@ -709,7 +709,7 @@ add_task(async function testAutoComplete() {
       `Active element should be correct`
     );
 
-    for (let [id, value] of Object.entries(expected.values)) {
+    for (const [id, value] of Object.entries(expected.values)) {
       await TestUtils.waitForCondition(
         () => composeDocument.getElementById(id).value == value,
         `Value of field ${id} should be correct`

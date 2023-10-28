@@ -9,7 +9,7 @@
  * in the outbox.
  */
 async function sendMessage(win) {
-  let closePromise = BrowserTestUtils.domWindowClosed(win);
+  const closePromise = BrowserTestUtils.domWindowClosed(win);
   win.goDoCommand("cmd_sendLater");
   await closePromise;
 

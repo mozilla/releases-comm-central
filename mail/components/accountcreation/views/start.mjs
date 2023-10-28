@@ -63,7 +63,7 @@ class AccountHubStart extends HTMLElement {
 
     this.classList.add("account-hub-view");
 
-    let template = document.getElementById("accountHubStart");
+    const template = document.getElementById("accountHubStart");
     this.appendChild(template.content.cloneNode(true));
 
     this.initUI();
@@ -93,7 +93,7 @@ class AccountHubStart extends HTMLElement {
       Services.prefs.getPrefType("app.releaseNotesURL") !=
       Services.prefs.PREF_INVALID
     ) {
-      let relNotesURL = Services.urlFormatter.formatURLPref(
+      const relNotesURL = Services.urlFormatter.formatURLPref(
         "app.releaseNotesURL"
       );
       if (relNotesURL != "about:blank") {

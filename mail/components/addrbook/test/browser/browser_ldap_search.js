@@ -24,8 +24,8 @@ add_task(async () => {
 
   // Set up some local people.
 
-  let cardsToRemove = [];
-  for (let name of ["daniel", "jonathan", "nathan"]) {
+  const cardsToRemove = [];
+  for (const name of ["daniel", "jonathan", "nathan"]) {
     let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
       Ci.nsIAbCard
     );
@@ -38,23 +38,25 @@ add_task(async () => {
   // Set up the LDAP server.
 
   LDAPServer.open();
-  let response = await fetch(jsonFile);
-  let ldapContacts = await response.json();
+  const response = await fetch(jsonFile);
+  const ldapContacts = await response.json();
 
-  let bookPref = MailServices.ab.newAddressBook(
+  const bookPref = MailServices.ab.newAddressBook(
     "Mochitest",
     `ldap://localhost:${LDAPServer.port}/`,
     0
   );
-  let book = MailServices.ab.getDirectoryFromId(bookPref);
+  const book = MailServices.ab.getDirectoryFromId(bookPref);
 
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let searchBox = abDocument.getElementById("searchInput");
-  let cardsList = abWindow.cardsPane.cardsList;
-  let noSearchResults = abDocument.getElementById("placeholderNoSearchResults");
-  let detailsPane = abDocument.getElementById("detailsPane");
+  const searchBox = abDocument.getElementById("searchInput");
+  const cardsList = abWindow.cardsPane.cardsList;
+  const noSearchResults = abDocument.getElementById(
+    "placeholderNoSearchResults"
+  );
+  const detailsPane = abDocument.getElementById("detailsPane");
 
   // Search for some people in the LDAP directory.
 

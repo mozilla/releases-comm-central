@@ -12,17 +12,17 @@ var gUndecided = null;
 var gUnverified = null;
 
 async function init() {
-  let num = window.arguments[0].keys.length;
-  let label1 = document.getElementById("importInfo");
+  const num = window.arguments[0].keys.length;
+  const label1 = document.getElementById("importInfo");
   document.l10n.setAttributes(label1, "openpgp-pubkey-import-intro", {
     num,
   });
-  let label2 = document.getElementById("acceptInfo");
+  const label2 = document.getElementById("acceptInfo");
   document.l10n.setAttributes(label2, "openpgp-pubkey-import-accept", {
     num,
   });
 
-  let l10nElements = [];
+  const l10nElements = [];
   l10nElements.push(label1);
   l10nElements.push(label2);
 
@@ -30,7 +30,7 @@ async function init() {
   // at a later time. We reuse strings on the 78 branch that don't have
   // the .label definition in the .ftl file.
 
-  let [rUnd, rUnv] = await document.l10n.formatValues([
+  const [rUnd, rUnv] = await document.l10n.formatValues([
     { id: "openpgp-key-undecided" },
     { id: "openpgp-key-unverified" },
   ]);
@@ -40,17 +40,17 @@ async function init() {
   gUnverified = document.getElementById("acceptUnverified");
   gUnverified.label = rUnv;
 
-  let keyList = document.getElementById("importKeyList");
+  const keyList = document.getElementById("importKeyList");
 
-  for (let key of window.arguments[0].keys) {
-    let container = document.createXULElement("hbox");
+  for (const key of window.arguments[0].keys) {
+    const container = document.createXULElement("hbox");
     container.classList.add("key-import-row");
 
-    let titleContainer = document.createXULElement("vbox");
-    let headerHBox = document.createXULElement("hbox");
+    const titleContainer = document.createXULElement("vbox");
+    const headerHBox = document.createXULElement("hbox");
 
-    let idSpan = document.createElement("span");
-    let idLabel = document.createXULElement("label");
+    const idSpan = document.createElement("span");
+    const idLabel = document.createXULElement("label");
     idSpan.appendChild(idLabel);
     idSpan.classList.add("openpgp-key-id");
     headerHBox.appendChild(idSpan);
@@ -59,8 +59,8 @@ async function init() {
       kid: "0x" + key.keyId,
     });
 
-    let fprSpan = document.createElement("span");
-    let fprLabel = document.createXULElement("label");
+    const fprSpan = document.createElement("span");
+    const fprLabel = document.createXULElement("label");
     fprSpan.appendChild(fprLabel);
     fprSpan.classList.add("openpgp-key-fpr");
     headerHBox.appendChild(fprSpan);
@@ -71,8 +71,8 @@ async function init() {
 
     titleContainer.appendChild(headerHBox);
 
-    for (let uid of key.userIds) {
-      let name = document.createXULElement("label");
+    for (const uid of key.userIds) {
+      const name = document.createXULElement("label");
       name.classList.add("openpgp-key-name");
       name.value = uid.userId;
       titleContainer.appendChild(name);

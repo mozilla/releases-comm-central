@@ -19,16 +19,16 @@ function onLoad() {
   document.getElementById("filler").style.maxWidth =
     screen.availWidth - 50 + "px";
 
-  let args = window.arguments[0];
-  let msgtext = args.msgtext;
-  let button1 = args.button1;
-  let button2 = args.button2;
-  let button3 = args.button3;
-  let buttonCancel = args.cancelButton;
-  let checkboxLabel = args.checkboxLabel;
+  const args = window.arguments[0];
+  const msgtext = args.msgtext;
+  const button1 = args.button1;
+  const button2 = args.button2;
+  const button3 = args.button3;
+  const buttonCancel = args.cancelButton;
+  const checkboxLabel = args.checkboxLabel;
 
   if (args.iconType) {
-    let icn = document.getElementById("infoImage");
+    const icn = document.getElementById("infoImage");
     icn.removeAttribute("collapsed");
     let iconClass = "";
 
@@ -50,7 +50,7 @@ function onLoad() {
 
   if (args.dialogTitle) {
     if (AppConstants.platform == "macosx") {
-      let t = document.getElementById("macosDialogTitle");
+      const t = document.getElementById("macosDialogTitle");
       t.setAttribute("value", args.dialogTitle);
       t.removeAttribute("collapsed");
     }
@@ -74,13 +74,13 @@ function onLoad() {
   }
 
   if (checkboxLabel) {
-    let checkboxElem = document.getElementById("theCheckBox");
+    const checkboxElem = document.getElementById("theCheckBox");
     checkboxElem.setAttribute("label", checkboxLabel);
     document.getElementById("checkboxContainer").removeAttribute("hidden");
   }
 
   dlg.getButton("accept").focus();
-  let textbox = document.getElementById("msgtext");
+  const textbox = document.getElementById("msgtext");
   textbox.appendChild(textbox.ownerDocument.createTextNode(msgtext));
 
   window.addEventListener("keypress", onKeyPress);
@@ -88,13 +88,13 @@ function onLoad() {
 }
 
 function resizeDlg() {
-  let availHeight = screen.availHeight;
+  const availHeight = screen.availHeight;
   if (window.outerHeight > availHeight - 100) {
-    let box = document.getElementById("msgContainer");
-    let dlg = document.getElementById("enigmailMsgBox");
-    let btnHeight = dlg.getButton("accept").parentNode.clientHeight + 20;
-    let boxHeight = box.clientHeight;
-    let dlgHeight = dlg.clientHeight;
+    const box = document.getElementById("msgContainer");
+    const dlg = document.getElementById("enigmailMsgBox");
+    const btnHeight = dlg.getButton("accept").parentNode.clientHeight + 20;
+    const boxHeight = box.clientHeight;
+    const dlgHeight = dlg.clientHeight;
 
     box.setAttribute("style", "overflow: auto;");
     box.setAttribute(
@@ -164,7 +164,7 @@ function checkboxCb() {
 }
 
 async function copyToClipbrd() {
-  let s = window.getSelection().toString();
+  const s = window.getSelection().toString();
   return navigator.clipboard.writeText(s);
 }
 

@@ -39,10 +39,10 @@ add_setup(async () => {
 
 add_task(async function test_addressBooks_remote() {
   async function background() {
-    let list = await browser.addressBooks.list();
+    const list = await browser.addressBooks.list();
 
     // The remote AB should be in the list.
-    let remoteAB = list.find(ab => ab.name == "test");
+    const remoteAB = list.find(ab => ab.name == "test");
     browser.test.assertTrue(!!remoteAB, "Should have found the address book");
 
     browser.test.assertTrue(
@@ -50,7 +50,7 @@ add_task(async function test_addressBooks_remote() {
       "Should have marked the address book as remote"
     );
 
-    let cards = await browser.contacts.quickSearch("eurus");
+    const cards = await browser.contacts.quickSearch("eurus");
     browser.test.assertTrue(
       cards.length,
       "Should have found at least one card"
@@ -66,7 +66,7 @@ add_task(async function test_addressBooks_remote() {
     browser.test.notifyPass("addressBooks");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -77,7 +77,7 @@ add_task(async function test_addressBooks_remote() {
     },
   });
 
-  let startupPromise = extension.startup();
+  const startupPromise = extension.startup();
 
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();

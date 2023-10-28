@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account = createAccount();
-let defaultIdentity = addIdentity(account);
+const account = createAccount();
+const defaultIdentity = addIdentity(account);
 
 add_task(async function test_dictionaries() {
-  let files = {
+  const files = {
     "background.js": async () => {
       function verifyDictionaries(dictionaries, expected) {
         browser.test.assertEq(
@@ -28,8 +28,8 @@ add_task(async function test_dictionaries() {
         }
       }
       async function setDictionaries(newActiveDictionaries, expected) {
-        let changes = new Promise(resolve => {
-          let listener = (tab, dictionaries) => {
+        const changes = new Promise(resolve => {
+          const listener = (tab, dictionaries) => {
             browser.compose.onActiveDictionariesChanged.removeListener(
               listener
             );
@@ -42,7 +42,7 @@ add_task(async function test_dictionaries() {
           createdTab.id,
           newActiveDictionaries
         );
-        let eventData = await changes;
+        const eventData = await changes;
         verifyDictionaries(expected.dictionaries, eventData.dictionaries);
 
         browser.test.assertEq(
@@ -51,7 +51,7 @@ add_task(async function test_dictionaries() {
           "Should find the correct tab"
         );
 
-        let dictionaries = await browser.compose.getActiveDictionaries(
+        const dictionaries = await browser.compose.getActiveDictionaries(
           createdTab.id
         );
         verifyDictionaries(expected.dictionaries, dictionaries);
@@ -59,10 +59,10 @@ add_task(async function test_dictionaries() {
 
       // Start a new message.
 
-      let createdWindowPromise = window.waitForEvent("windows.onCreated");
+      const createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew();
-      let [createdWindow] = await createdWindowPromise;
-      let [createdTab] = await browser.tabs.query({
+      const [createdWindow] = await createdWindowPromise;
+      const [createdTab] = await browser.tabs.query({
         windowId: createdWindow.id,
       });
 
@@ -83,7 +83,7 @@ add_task(async function test_dictionaries() {
 
       // Clean up.
 
-      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      const removedWindowPromise = window.waitForEvent("windows.onRemoved");
       browser.windows.remove(createdWindow.id);
       await removedWindowPromise;
 
@@ -91,7 +91,7 @@ add_task(async function test_dictionaries() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -105,7 +105,7 @@ add_task(async function test_dictionaries() {
 });
 
 add_task(async function test_onActiveDictionariesChanged_MV3_event_pages() {
-  let files = {
+  const files = {
     "background.js": async () => {
       // Whenever the extension starts or wakes up, hasFired is set to false. In
       // case of a wake-up, the first fired event is the one that woke up the background.
@@ -129,7 +129,7 @@ add_task(async function test_onActiveDictionariesChanged_MV3_event_pages() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       manifest_version: 3,
@@ -146,8 +146,8 @@ add_task(async function test_onActiveDictionariesChanged_MV3_event_pages() {
     // ext-mails.json, not by its actual namespace.
     const persistent_events = ["compose.onActiveDictionariesChanged"];
 
-    for (let event of persistent_events) {
-      let [moduleName, eventName] = event.split(".");
+    for (const event of persistent_events) {
+      const [moduleName, eventName] = event.split(".");
       assertPersistentListeners(extension, moduleName, eventName, {
         primed,
       });
@@ -155,11 +155,11 @@ add_task(async function test_onActiveDictionariesChanged_MV3_event_pages() {
   }
 
   async function setActiveDictionaries(activeDictionaries) {
-    let installedDictionaries = Cc["@mozilla.org/spellchecker/engine;1"]
+    const installedDictionaries = Cc["@mozilla.org/spellchecker/engine;1"]
       .getService(Ci.mozISpellCheckingEngine)
       .getDictionaryList();
 
-    for (let dict of activeDictionaries) {
+    for (const dict of activeDictionaries) {
       if (!installedDictionaries.includes(dict)) {
         throw new Error(`Dictionary not found: ${dict}`);
       }
@@ -168,7 +168,7 @@ add_task(async function test_onActiveDictionariesChanged_MV3_event_pages() {
     await composeWindow.ComposeChangeLanguage(activeDictionaries);
   }
 
-  let composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(account);
   await focusWindow(composeWindow);
 
   await extension.startup();
@@ -179,7 +179,7 @@ add_task(async function test_onActiveDictionariesChanged_MV3_event_pages() {
   // Trigger onActiveDictionariesChanged without terminating the background first.
 
   setActiveDictionaries(["en-US"]);
-  let newActiveDictionary1 = await extension.awaitMessage(
+  const newActiveDictionary1 = await extension.awaitMessage(
     "onActiveDictionariesChanged received"
   );
   Assert.equal(
@@ -195,7 +195,7 @@ add_task(async function test_onActiveDictionariesChanged_MV3_event_pages() {
   checkPersistentListeners({ primed: true });
 
   setActiveDictionaries([]);
-  let newActiveDictionary2 = await extension.awaitMessage(
+  const newActiveDictionary2 = await extension.awaitMessage(
     "onActiveDictionariesChanged received"
   );
   Assert.equal(

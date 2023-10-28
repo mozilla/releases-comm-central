@@ -28,7 +28,7 @@
    */
   async function setupSpacesShortcuts() {
     // Set up all shortcut strings for the various spaces buttons.
-    let buttons = {
+    const buttons = {
       "space-toggle": ["collapseButton", "spacesToolbarReveal"],
       "space-mail": ["mailButton"],
       "space-addressbook": ["addressBookButton"],
@@ -36,14 +36,14 @@
       "space-tasks": ["tasksButton"],
       "space-chat": ["chatButton"],
     };
-    for (let [string, ids] of Object.entries(buttons)) {
-      let shortcut = await ShortcutsManager.getShortcutStrings(string);
+    for (const [string, ids] of Object.entries(buttons)) {
+      const shortcut = await ShortcutsManager.getShortcutStrings(string);
       if (!shortcut) {
         continue;
       }
 
-      for (let id of ids) {
-        let button = document.getElementById(id);
+      for (const id of ids) {
+        const button = document.getElementById(id);
         button.setAttribute("aria-label", button.title);
         document.l10n.setAttributes(button, "button-shortcut-string", {
           title: button.title,
@@ -54,7 +54,7 @@
     }
 
     // Set up all shortcut strings for the various spaces menuitems.
-    let menuitems = {
+    const menuitems = {
       "space-toggle": ["spacesPopupButtonReveal"],
       "space-mail": ["spacesPopupButtonMail"],
       "space-addressbook": ["spacesPopupButtonAddressBook"],
@@ -65,14 +65,14 @@
       "space-tasks": ["spacesPopupButtonTasks", "calMenuSwitchToTask"],
       "space-chat": ["spacesPopupButtonChat", "menu_goChat"],
     };
-    for (let [string, ids] of Object.entries(menuitems)) {
-      let shortcut = await ShortcutsManager.getShortcutStrings(string);
+    for (const [string, ids] of Object.entries(menuitems)) {
+      const shortcut = await ShortcutsManager.getShortcutStrings(string);
       if (!shortcut) {
         continue;
       }
 
-      for (let id of ids) {
-        let menuitem = document.getElementById(id);
+      for (const id of ids) {
+        const menuitem = document.getElementById(id);
         if (!menuitem.label) {
           await document.l10n.translateElements([menuitem]);
         }
@@ -88,10 +88,10 @@
    * Set up the keydown event to intercept shortcuts.
    */
   function setupEventListener() {
-    let tabmail = document.getElementById("tabmail");
+    const tabmail = document.getElementById("tabmail");
 
     window.addEventListener("keydown", event => {
-      let shortcut = ShortcutsManager.matches(event);
+      const shortcut = ShortcutsManager.matches(event);
       // FIXME: Temporarily ignore numbers coming from the Numpad to prevent
       // hijacking Alt characters typing in Windows. This can be removed once
       // we implement customizable shortcuts.
@@ -110,7 +110,7 @@
         case "space-calendar":
         case "space-tasks":
         case "space-chat":
-          let space = window.gSpacesToolbar.spaces.find(
+          const space = window.gSpacesToolbar.spaces.find(
             space => space.name == shortcut.id.replace("space-", "")
           );
           window.gSpacesToolbar.openSpace(tabmail, space);

@@ -25,7 +25,7 @@ var messagePane =
  * @returns {Promise} A promise that resolves when the menu appears.
  */
 function rightClick(menu, element, win) {
-  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(element, { type: "contextmenu" }, win);
   return shownPromise;
 }
@@ -46,7 +46,7 @@ function rightClick(menu, element, win) {
  * @param {boolean} expectedTab.mailTab
  */
 async function checkShownEvent(extension, expectedInfo, expectedTab) {
-  let [info, tab] = await extension.awaitMessage("onShown");
+  const [info, tab] = await extension.awaitMessage("onShown");
   Assert.deepEqual(info.menuIds, expectedInfo.menuIds);
   Assert.deepEqual(info.contexts, expectedInfo.contexts);
 
@@ -90,7 +90,7 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
  * @param {boolean} expectedTab.mailTab
  */
 async function checkClickedEvent(extension, expectedInfo, expectedTab) {
-  let [info, tab] = await extension.awaitMessage("onClicked");
+  const [info, tab] = await extension.awaitMessage("onClicked");
 
   Assert.equal(
     !!info.attachments,
@@ -125,7 +125,7 @@ function getExtensionDetails(...permissions) {
   return {
     files: {
       "background.js": async () => {
-        for (let context of [
+        for (const context of [
           "message_attachments",
           "all_message_attachments",
         ]) {
@@ -234,35 +234,35 @@ async function subtest_attachmentItem(
   expectedContext,
   expectedAttachments
 ) {
-  let menu = element.ownerGlobal.document.getElementById(
+  const menu = element.ownerGlobal.document.getElementById(
     expectedContext == "message_attachments"
       ? "attachmentItemContext"
       : "attachmentListContext"
   );
 
-  let expectedShowData = {
+  const expectedShowData = {
     menuIds: [expectedContext],
     contexts: [expectedContext, "all"],
     attachments: expectedAttachments,
   };
-  let expectedClickData = {
+  const expectedClickData = {
     attachments: expectedAttachments,
   };
-  let expectedTab = { active: true, index: 0, mailTab: false };
+  const expectedTab = { active: true, index: 0, mailTab: false };
 
-  let showEventPromise = checkShownEvent(
+  const showEventPromise = checkShownEvent(
     extension,
     expectedShowData,
     expectedTab
   );
   await rightClick(menu, element, win);
-  let menuItem = menu.querySelector(
+  const menuItem = menu.querySelector(
     `#menus_mochi_test-menuitem-_${expectedContext}`
   );
   await showEventPromise;
   Assert.ok(menuItem);
 
-  let clickEventPromise = checkClickedEvent(
+  const clickEventPromise = checkClickedEvent(
     extension,
     expectedClickData,
     expectedTab
@@ -284,7 +284,7 @@ async function subtest_attachments(
   expectedAttachments
 ) {
   // Test clicking on the attachmentInfo element.
-  let attachmentInfo = win.document.getElementById("attachmentInfo");
+  const attachmentInfo = win.document.getElementById("attachmentInfo");
   await subtest_attachmentItem(
     extension,
     win,
@@ -295,7 +295,7 @@ async function subtest_attachments(
 
   if (expectedAttachments) {
     win.toggleAttachmentList(true);
-    let attachmentList = win.document.getElementById("attachmentList");
+    const attachmentList = win.document.getElementById("attachmentList");
     Assert.equal(
       attachmentList.children.length,
       expectedAttachments.length,
@@ -324,7 +324,7 @@ async function subtest_message_panes(
   expectedContext,
   expectedAttachments = null
 ) {
-  let extensionDetails = getExtensionDetails(...permissions);
+  const extensionDetails = getExtensionDetails(...permissions);
 
   info("Test the message pane in the 3-pane tab.");
 
@@ -356,7 +356,7 @@ async function subtest_message_panes(
 
   info("Test the message pane in a separate window.");
 
-  let displayWindow = await openMessageInWindow(gMessage);
+  const displayWindow = await openMessageInWindow(gMessage);
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await extension.startup();
   await extension.awaitMessage("menus-created");

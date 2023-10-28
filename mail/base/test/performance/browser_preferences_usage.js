@@ -28,7 +28,7 @@ const DEFAULT_PROCESS_COUNT = Services.prefs
  *                 }
  */
 function checkPrefGetters(stats, max, knownProblematicPrefs = {}) {
-  let getterStats = Object.entries(stats).sort(
+  const getterStats = Object.entries(stats).sort(
     ([, val1], [, val2]) => val2 - val1
   );
 
@@ -36,8 +36,8 @@ function checkPrefGetters(stats, max, knownProblematicPrefs = {}) {
   // forgot any later on.
   knownProblematicPrefs = Object.assign({}, knownProblematicPrefs);
 
-  for (let [pref, count] of getterStats) {
-    let prefLimits = knownProblematicPrefs[pref];
+  for (const [pref, count] of getterStats) {
+    const prefLimits = knownProblematicPrefs[pref];
     if (!prefLimits) {
       Assert.lessOrEqual(
         count,
@@ -77,7 +77,7 @@ function checkPrefGetters(stats, max, knownProblematicPrefs = {}) {
     delete knownProblematicPrefs["browser.startup.record"];
   }
 
-  let unusedPrefs = Object.keys(knownProblematicPrefs);
+  const unusedPrefs = Object.keys(knownProblematicPrefs);
   is(
     unusedPrefs.length,
     0,
@@ -90,7 +90,7 @@ function checkPrefGetters(stats, max, knownProblematicPrefs = {}) {
  * using the Services.prefs.readStats() function.
  */
 function getPreferenceStats() {
-  let stats = {};
+  const stats = {};
   Services.prefs.readStats((key, value) => (stats[key] = value));
   return stats;
 }
@@ -101,9 +101,9 @@ add_task(async function debug_only() {
 
 // Just checks how many prefs were accessed during startup.
 add_task(async function startup() {
-  let max = 40;
+  const max = 40;
 
-  let knownProblematicPrefs = {
+  const knownProblematicPrefs = {
     // These are all similar values to Firefox, check with the equivalent
     // file in Firefox.
     "browser.startup.record": {
@@ -123,7 +123,7 @@ add_task(async function startup() {
 
   // These preferences are used in PresContext or layout areas and all have a
   // similar number of errors - probably being loaded in the same component.
-  let prefsUsedInLayout = [
+  const prefsUsedInLayout = [
     "dom.send_after_paint_to_content",
     "image.animation_mode",
     "layout.reflow.dumpframebyframecounts",
@@ -132,7 +132,7 @@ add_task(async function startup() {
     "layout.scrollbar.side",
   ];
 
-  for (let pref of prefsUsedInLayout) {
+  for (const pref of prefsUsedInLayout) {
     knownProblematicPrefs[pref] = {
       min: 60,
       max: 175,
@@ -140,7 +140,7 @@ add_task(async function startup() {
   }
 
   if (AppConstants.platform == "macosx") {
-    for (let pref of [
+    for (const pref of [
       "font.default.x-western",
       "font.minimum-size.x-western",
       "font.name.variable.x-western",
@@ -166,7 +166,7 @@ add_task(async function startup() {
     }
   }
 
-  let startupRecorder =
+  const startupRecorder =
     Cc["@mozilla.org/test/startuprecorder;1"].getService().wrappedJSObject;
   await startupRecorder.done;
 

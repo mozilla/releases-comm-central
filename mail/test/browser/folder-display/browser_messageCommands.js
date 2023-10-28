@@ -111,16 +111,17 @@ function check_read_status(messages, read) {
  */
 async function check_read_menuitems(index, canMarkRead, canMarkUnread) {
   await right_click_on_row(index);
-  let hiddenPromise = BrowserTestUtils.waitForEvent(
+  const hiddenPromise = BrowserTestUtils.waitForEvent(
     getMailContext(),
     "popuphidden"
   );
   await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
 
-  let readEnabled = !getMailContext().querySelector("#mailContext-markRead")
+  const readEnabled = !getMailContext().querySelector("#mailContext-markRead")
     .disabled;
-  let unreadEnabled = !getMailContext().querySelector("#mailContext-markUnread")
-    .disabled;
+  const unreadEnabled = !getMailContext().querySelector(
+    "#mailContext-markUnread"
+  ).disabled;
 
   Assert.ok(
     readEnabled == canMarkRead,
@@ -151,7 +152,7 @@ function enable_archiving(enabled) {
  * @param read true the message should be marked read, false otherwise
  */
 async function mark_read_via_menu(index, read) {
-  let menuItem = read ? "mailContext-markRead" : "mailContext-markUnread";
+  const menuItem = read ? "mailContext-markRead" : "mailContext-markUnread";
   await right_click_on_row(index);
   await wait_for_popup_to_open(getMailContext());
   await click_menus_in_sequence(getMailContext(), [
@@ -163,7 +164,7 @@ async function mark_read_via_menu(index, read) {
 
 add_task(async function test_mark_one_read() {
   await be_in_folder(unreadFolder);
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
 
   curMessage.markRead(false);
   await mark_read_via_menu(0, true);
@@ -172,7 +173,7 @@ add_task(async function test_mark_one_read() {
 
 add_task(async function test_mark_one_unread() {
   await be_in_folder(unreadFolder);
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
 
   curMessage.markRead(true);
   await mark_read_via_menu(0, false);
@@ -182,7 +183,7 @@ add_task(async function test_mark_one_unread() {
 add_task(async function test_mark_n_read() {
   await be_in_folder(unreadFolder);
   await select_click_row(0);
-  let curMessages = await select_shift_click_row(1);
+  const curMessages = await select_shift_click_row(1);
 
   for (let i = 0; i < curMessages.length; i++) {
     curMessages[i].markRead(false);
@@ -194,7 +195,7 @@ add_task(async function test_mark_n_read() {
 add_task(async function test_mark_n_unread() {
   await be_in_folder(unreadFolder);
   await select_click_row(0);
-  let curMessages = await select_shift_click_row(1);
+  const curMessages = await select_shift_click_row(1);
 
   for (let i = 0; i < curMessages.length; i++) {
     curMessages[i].markRead(true);
@@ -206,7 +207,7 @@ add_task(async function test_mark_n_unread() {
 add_task(async function test_mark_n_read_mixed() {
   await be_in_folder(unreadFolder);
   await select_click_row(0);
-  let curMessages = await select_shift_click_row(1);
+  const curMessages = await select_shift_click_row(1);
 
   curMessages[0].markRead(true);
   curMessages[1].markRead(false);
@@ -222,7 +223,7 @@ add_task(async function test_mark_n_read_mixed() {
 add_task(async function test_mark_n_unread_mixed() {
   await be_in_folder(unreadFolder);
   await select_click_row(0);
-  let curMessages = await select_shift_click_row(1);
+  const curMessages = await select_shift_click_row(1);
 
   curMessages[0].markRead(false);
   curMessages[1].markRead(true);
@@ -237,7 +238,7 @@ add_task(async function test_mark_n_unread_mixed() {
 
 add_task(async function test_toggle_read() {
   await be_in_folder(unreadFolder);
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
 
   curMessage.markRead(false);
   EventUtils.synthesizeKey("m", {});
@@ -246,7 +247,7 @@ add_task(async function test_toggle_read() {
 
 add_task(async function test_toggle_unread() {
   await be_in_folder(unreadFolder);
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
 
   curMessage.markRead(true);
   EventUtils.synthesizeKey("m", {});
@@ -256,7 +257,7 @@ add_task(async function test_toggle_unread() {
 add_task(async function test_toggle_mixed() {
   await be_in_folder(unreadFolder);
   await select_click_row(0);
-  let curMessages = await select_shift_click_row(1);
+  const curMessages = await select_shift_click_row(1);
 
   curMessages[0].markRead(false);
   curMessages[1].markRead(true);
@@ -271,7 +272,7 @@ add_task(async function test_toggle_mixed() {
 
 add_task(async function test_mark_menu_read() {
   await be_in_folder(unreadFolder);
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
 
   curMessage.markRead(false);
   await check_read_menuitems(0, true, false);
@@ -279,7 +280,7 @@ add_task(async function test_mark_menu_read() {
 
 add_task(async function test_mark_menu_unread() {
   await be_in_folder(unreadFolder);
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
 
   curMessage.markRead(true);
   await check_read_menuitems(0, false, true);
@@ -288,7 +289,7 @@ add_task(async function test_mark_menu_unread() {
 add_task(async function test_mark_menu_mixed() {
   await be_in_folder(unreadFolder);
   await select_click_row(0);
-  let curMessages = await select_shift_click_row(1);
+  const curMessages = await select_shift_click_row(1);
 
   curMessages[0].markRead(false);
   curMessages[1].markRead(true);
@@ -298,7 +299,7 @@ add_task(async function test_mark_menu_mixed() {
 
 add_task(async function test_mark_all_read() {
   await be_in_folder(unreadFolder);
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
   curMessage.markRead(false);
 
   // Make sure we can mark all read with >0 messages unread.
@@ -315,7 +316,7 @@ add_task(async function test_mark_all_read() {
   // Make sure we can't mark all read, now that all messages are already read.
   await right_click_on_row(0);
   await wait_for_popup_to_open(getMailContext());
-  let hiddenPromise = BrowserTestUtils.waitForEvent(
+  const hiddenPromise = BrowserTestUtils.waitForEvent(
     getMailContext(),
     "popuphidden"
   );
@@ -323,19 +324,19 @@ add_task(async function test_mark_all_read() {
   await hiddenPromise;
   await new Promise(resolve => requestAnimationFrame(resolve));
 
-  let allReadDisabled = getMailContext().querySelector(
+  const allReadDisabled = getMailContext().querySelector(
     "#mailContext-markAllRead"
   ).disabled;
   Assert.ok(allReadDisabled, "Mark All Read menu item should be disabled!");
 });
 
 add_task(async function test_mark_thread_as_read() {
-  let unreadThreadFolder = await create_folder("UnreadThreadFolder");
+  const unreadThreadFolder = await create_folder("UnreadThreadFolder");
   await add_message_sets_to_folders([unreadThreadFolder], [create_thread(3)]);
   await be_in_folder(unreadThreadFolder);
   await make_display_threaded();
 
-  let serviceState = Services.prefs.getBoolPref(
+  const serviceState = Services.prefs.getBoolPref(
     "mailnews.mark_message_read.auto"
   );
   if (serviceState) {
@@ -365,7 +366,7 @@ add_task(async function test_mark_thread_as_read() {
   ]);
   await close_popup(window, getMailContext());
 
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
   Assert.ok(curMessage.isRead, "Message should have been marked read!");
 
   // Make sure Mark Thread as Read is now disabled with all messages read.
@@ -401,15 +402,15 @@ add_task(async function test_mark_thread_as_read() {
 add_task(async function roving_multi_message_buttons() {
   await be_in_folder(unreadFolder);
   await select_click_row(0);
-  let curMessages = await select_shift_click_row(1);
+  const curMessages = await select_shift_click_row(1);
   await assert_selected_and_displayed(curMessages);
 
-  let multiMsgView = get_about_3pane().multiMessageBrowser;
+  const multiMsgView = get_about_3pane().multiMessageBrowser;
   const BUTTONS_SELECTOR = `toolbarbutton:not([hidden="true"]`;
-  let headerToolbar = multiMsgView.contentDocument.getElementById(
+  const headerToolbar = multiMsgView.contentDocument.getElementById(
     "header-view-toolbar"
   );
-  let headerButtons = headerToolbar.querySelectorAll(BUTTONS_SELECTOR);
+  const headerButtons = headerToolbar.querySelectorAll(BUTTONS_SELECTOR);
 
   // Press tab twice while on the message selected to access the multi message
   // view header buttons.
@@ -424,7 +425,7 @@ add_task(async function roving_multi_message_buttons() {
   // Simulate the Arrow Right keypress to make sure the correct button gets the
   // focus.
   for (let i = 1; i < headerButtons.length; i++) {
-    let previousElement = document.activeElement;
+    const previousElement = document.activeElement;
     EventUtils.synthesizeKey("KEY_ArrowRight", {});
     Assert.equal(
       multiMsgView.contentDocument.activeElement.id,
@@ -441,7 +442,7 @@ add_task(async function roving_multi_message_buttons() {
   // Simulate the Arrow Left keypress to make sure the correct button gets the
   // focus.
   for (let i = headerButtons.length - 2; i > -1; i--) {
-    let previousElement = document.activeElement;
+    const previousElement = document.activeElement;
     EventUtils.synthesizeKey("KEY_ArrowLeft", {});
     Assert.equal(
       multiMsgView.contentDocument.activeElement.id,
@@ -542,24 +543,24 @@ async function yearly_archive(keep_structure) {
   await be_in_folder(archiveSrcFolder);
   await make_display_unthreaded();
 
-  let win = get_about_3pane();
+  const win = get_about_3pane();
   win.sortController.sortThreadPane("byDate");
   win.sortController.sortAscending();
 
-  let identity = MailServices.accounts.getFirstIdentityForServer(
+  const identity = MailServices.accounts.getFirstIdentityForServer(
     win.gDBView.getMsgHdrAt(0).folder.server
   );
   identity.archiveGranularity = Ci.nsIMsgIdentity.perYearArchiveFolders;
   // We need to get all the info about the messages before we do the archive,
   // because deleting the headers could make extracting values from them fail.
-  let firstMsgHdr = win.gDBView.getMsgHdrAt(0);
-  let lastMsgHdr = win.gDBView.getMsgHdrAt(12);
-  let firstMsgHdrMsgId = firstMsgHdr.messageId;
-  let lastMsgHdrMsgId = lastMsgHdr.messageId;
-  let firstMsgDate = new Date(firstMsgHdr.date / 1000);
-  let firstMsgYear = firstMsgDate.getFullYear().toString();
-  let lastMsgDate = new Date(lastMsgHdr.date / 1000);
-  let lastMsgYear = lastMsgDate.getFullYear().toString();
+  const firstMsgHdr = win.gDBView.getMsgHdrAt(0);
+  const lastMsgHdr = win.gDBView.getMsgHdrAt(12);
+  const firstMsgHdrMsgId = firstMsgHdr.messageId;
+  const lastMsgHdrMsgId = lastMsgHdr.messageId;
+  const firstMsgDate = new Date(firstMsgHdr.date / 1000);
+  const firstMsgYear = firstMsgDate.getFullYear().toString();
+  const lastMsgDate = new Date(lastMsgHdr.date / 1000);
+  const lastMsgYear = lastMsgDate.getFullYear().toString();
 
   win.threadTree.scrollToIndex(0, true);
   await TestUtils.waitForCondition(
@@ -578,15 +579,15 @@ async function yearly_archive(keep_structure) {
   await archive_selected_messages();
 
   // Figure out where the messages should have gone.
-  let archiveRoot = "mailbox://nobody@Local%20Folders/Archives";
+  const archiveRoot = "mailbox://nobody@Local%20Folders/Archives";
   let firstArchiveUri = archiveRoot + "/" + firstMsgYear;
   let lastArchiveUri = archiveRoot + "/" + lastMsgYear;
   if (keep_structure) {
     firstArchiveUri += "/ArchiveSrc";
     lastArchiveUri += "/ArchiveSrc";
   }
-  let firstArchiveFolder = MailUtils.getOrCreateFolder(firstArchiveUri);
-  let lastArchiveFolder = MailUtils.getOrCreateFolder(lastArchiveUri);
+  const firstArchiveFolder = MailUtils.getOrCreateFolder(firstArchiveUri);
+  const lastArchiveFolder = MailUtils.getOrCreateFolder(lastArchiveUri);
   await be_in_folder(firstArchiveFolder);
   Assert.ok(
     win.gDBView.getMsgHdrAt(0).messageId == firstMsgHdrMsgId,
@@ -612,27 +613,27 @@ add_task(async function test_monthly_archive() {
 async function monthly_archive(keep_structure) {
   await be_in_folder(archiveSrcFolder);
 
-  let win = get_about_3pane();
-  let identity = MailServices.accounts.getFirstIdentityForServer(
+  const win = get_about_3pane();
+  const identity = MailServices.accounts.getFirstIdentityForServer(
     win.gDBView.getMsgHdrAt(0).folder.server
   );
   identity.archiveGranularity = Ci.nsIMsgIdentity.perMonthArchiveFolders;
   await select_click_row(0);
   await select_control_click_row(1);
 
-  let firstMsgHdr = win.gDBView.getMsgHdrAt(0);
-  let lastMsgHdr = win.gDBView.getMsgHdrAt(1);
-  let firstMsgHdrMsgId = firstMsgHdr.messageId;
-  let lastMsgHdrMsgId = lastMsgHdr.messageId;
-  let firstMsgDate = new Date(firstMsgHdr.date / 1000);
-  let firstMsgYear = firstMsgDate.getFullYear().toString();
-  let firstMonthFolderName =
+  const firstMsgHdr = win.gDBView.getMsgHdrAt(0);
+  const lastMsgHdr = win.gDBView.getMsgHdrAt(1);
+  const firstMsgHdrMsgId = firstMsgHdr.messageId;
+  const lastMsgHdrMsgId = lastMsgHdr.messageId;
+  const firstMsgDate = new Date(firstMsgHdr.date / 1000);
+  const firstMsgYear = firstMsgDate.getFullYear().toString();
+  const firstMonthFolderName =
     firstMsgYear +
     "-" +
     (firstMsgDate.getMonth() + 1).toString().padStart(2, "0");
-  let lastMsgDate = new Date(lastMsgHdr.date / 1000);
-  let lastMsgYear = lastMsgDate.getFullYear().toString();
-  let lastMonthFolderName =
+  const lastMsgDate = new Date(lastMsgHdr.date / 1000);
+  const lastMsgYear = lastMsgDate.getFullYear().toString();
+  const lastMonthFolderName =
     lastMsgYear +
     "-" +
     (lastMsgDate.getMonth() + 1).toString().padStart(2, "0");
@@ -641,7 +642,7 @@ async function monthly_archive(keep_structure) {
   await archive_selected_messages();
 
   // Figure out where the messages should have gone.
-  let archiveRoot = "mailbox://nobody@Local%20Folders/Archives";
+  const archiveRoot = "mailbox://nobody@Local%20Folders/Archives";
   let firstArchiveUri =
     archiveRoot + "/" + firstMsgYear + "/" + firstMonthFolderName;
   let lastArchiveUri =
@@ -650,8 +651,8 @@ async function monthly_archive(keep_structure) {
     firstArchiveUri += "/ArchiveSrc";
     lastArchiveUri += "/ArchiveSrc";
   }
-  let firstArchiveFolder = MailUtils.getOrCreateFolder(firstArchiveUri);
-  let lastArchiveFolder = MailUtils.getOrCreateFolder(lastArchiveUri);
+  const firstArchiveFolder = MailUtils.getOrCreateFolder(firstArchiveUri);
+  const lastArchiveFolder = MailUtils.getOrCreateFolder(lastArchiveUri);
   await be_in_folder(firstArchiveFolder);
   Assert.ok(
     win.gDBView.getMsgHdrAt(0).messageId == firstMsgHdrMsgId,
@@ -683,10 +684,10 @@ add_task(async function test_folder_structure_archiving() {
 });
 
 add_task(async function test_selection_after_archive() {
-  let win = get_about_3pane();
+  const win = get_about_3pane();
   enable_archiving(true);
   await be_in_folder(archiveSrcFolder);
-  let identity = MailServices.accounts.getFirstIdentityForServer(
+  const identity = MailServices.accounts.getFirstIdentityForServer(
     win.gDBView.getMsgHdrAt(0).folder.server
   );
   identity.archiveGranularity = Ci.nsIMsgIdentity.perMonthArchiveFolders;
@@ -702,8 +703,8 @@ add_task(async function test_selection_after_archive() {
 });
 
 add_task(async function test_disabled_archive() {
-  let win = get_about_message();
-  let win3 = get_about_3pane();
+  const win = get_about_message();
+  const win3 = get_about_3pane();
   enable_archiving(false);
   await be_in_folder(archiveSrcFolder);
 
@@ -749,7 +750,7 @@ add_task(async function test_disabled_archive() {
 }).skip();
 
 function check_tag_in_message(message, tag, isSet) {
-  let tagSet = message
+  const tagSet = message
     .getStringProperty("keywords")
     .split(" ")
     .includes(tag.key);
@@ -762,7 +763,7 @@ function check_tag_in_message(message, tag, isSet) {
 
 add_task(async function test_tag_keys() {
   await be_in_folder(unreadFolder);
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
 
   EventUtils.synthesizeKey("1", {});
   check_tag_in_message(curMessage, tagArray[0], true);
@@ -778,12 +779,12 @@ add_task(async function test_tag_keys() {
 
 add_task(async function test_tag_keys_disabled_in_content_tab() {
   await be_in_folder(unreadFolder);
-  let curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0);
 
   window.openAddonsMgr("addons://list/theme");
   await new Promise(resolve => setTimeout(resolve));
 
-  let tab = document.getElementById("tabmail").currentTabInfo;
+  const tab = document.getElementById("tabmail").currentTabInfo;
   await promise_content_tab_load(tab, "about:addons", 15000);
 
   // Make sure pressing the "1" key in a content tab doesn't tag a message

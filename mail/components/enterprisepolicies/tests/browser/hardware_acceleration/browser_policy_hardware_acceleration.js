@@ -4,6 +4,6 @@
 "use strict";
 
 add_task(async function test_policy_hardware_acceleration() {
-  let winUtils = Services.wm.getMostRecentWindow("").windowUtils;
+  const winUtils = Services.wm.getMostRecentWindow("").windowUtils;
   is(winUtils.layerManagerType, "Basic", "Hardware acceleration disabled");
 });

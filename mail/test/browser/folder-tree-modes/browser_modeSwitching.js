@@ -82,12 +82,12 @@ async function assert_mode_selected(aMode) {
   if (["linux", "win"].includes(AppConstants.platform)) {
     // On OS X the main menu seems not accessible for clicking from tests.
     EventUtils.synthesizeMouseAtCenter(view_menu, { clickCount: 1 }, window);
-    let popuplist = await click_menus_in_sequence(
+    const popuplist = await click_menus_in_sequence(
       view_menupopup,
       [{ id: modeList_menu.parentNode.id }],
       true
     );
-    for (let mode of about3Pane.folderPane.activeModes) {
+    for (const mode of about3Pane.folderPane.activeModes) {
       Assert.ok(
         modeList_menu.querySelector(`[value="${mode}"]`).hasAttribute("checked")
       );
@@ -101,7 +101,7 @@ async function assert_mode_selected(aMode) {
     null,
     window
   );
-  for (let mode of about3Pane.folderPane.activeModes) {
+  for (const mode of about3Pane.folderPane.activeModes) {
     Assert.ok(
       modeList_appmenu
         .querySelector(`[value="${mode}"]`)
@@ -123,7 +123,7 @@ async function assert_mode_not_selected(mode) {
   if (["linux", "win"].includes(AppConstants.platform)) {
     // On OS X the main menu seems not accessible for clicking from tests.
     EventUtils.synthesizeMouseAtCenter(view_menu, { clickCount: 1 }, window);
-    let popuplist = await click_menus_in_sequence(
+    const popuplist = await click_menus_in_sequence(
       view_menupopup,
       [{ id: modeList_menu.parentNode.id }],
       true
@@ -165,7 +165,7 @@ async function select_mode_in_menu(mode) {
  * Check the all folders mode.
  */
 async function subtest_toggle_all_folders(show) {
-  let mode = "all";
+  const mode = "all";
   await select_mode_in_menu(mode);
 
   if (show) {
@@ -179,7 +179,7 @@ async function subtest_toggle_all_folders(show) {
  * Check the unread folders mode.
  */
 async function subtest_toggle_unread_folders(show) {
-  let mode = "unread";
+  const mode = "unread";
   await select_mode_in_menu(mode);
 
   if (show) {
@@ -198,7 +198,7 @@ async function subtest_toggle_unread_folders(show) {
  * Check the favorite folders mode.
  */
 async function subtest_toggle_favorite_folders(show) {
-  let mode = "favorite";
+  const mode = "favorite";
   await select_mode_in_menu(mode);
 
   if (show) {
@@ -217,7 +217,7 @@ async function subtest_toggle_favorite_folders(show) {
  * Check the recent folders mode.
  */
 async function subtest_toggle_recent_folders(show) {
-  let mode = "recent";
+  const mode = "recent";
   await select_mode_in_menu(mode);
 
   if (show) {
@@ -231,7 +231,7 @@ async function subtest_toggle_recent_folders(show) {
  * Check the smart folders mode.
  */
 async function subtest_toggle_smart_folders(show) {
-  let mode = "smart";
+  const mode = "smart";
   await select_mode_in_menu(mode);
 
   if (show) {
@@ -245,7 +245,7 @@ async function subtest_toggle_smart_folders(show) {
  * Toggle the compact mode.
  */
 async function subtest_toggle_compact(compact) {
-  let mode = "compact";
+  const mode = "compact";
   await select_mode_in_menu(mode);
 
   if (compact) {
@@ -259,7 +259,7 @@ async function subtest_toggle_compact(compact) {
  * Toggle the compact mode.
  */
 async function subtest_toggle_tags(show) {
-  let mode = "tags";
+  const mode = "tags";
   await select_mode_in_menu(mode);
 
   if (show) {
@@ -275,8 +275,8 @@ async function subtest_toggle_tags(show) {
  */
 function check_scalars(expected) {
   MailTelemetryForTests.reportUIConfiguration();
-  let scalarName = "tb.ui.configuration.folder_tree_modes";
-  let scalars = TelemetryTestUtils.getProcessScalars("parent");
+  const scalarName = "tb.ui.configuration.folder_tree_modes";
+  const scalars = TelemetryTestUtils.getProcessScalars("parent");
   if (expected) {
     TelemetryTestUtils.assertScalar(scalars, scalarName, expected);
   } else {

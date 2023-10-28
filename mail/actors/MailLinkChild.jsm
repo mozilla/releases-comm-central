@@ -11,8 +11,8 @@ const PROTOCOLS = ["mailto:", "mid:", "news:", "snews:"];
 
 class MailLinkChild extends JSWindowActorChild {
   handleEvent(event) {
-    let href = event.target.href;
-    let location = this.document.location;
+    const href = event.target.href;
+    const location = this.document.location;
     if (
       !href ||
       // Do nothing if not the main button clicked.
@@ -23,8 +23,8 @@ class MailLinkChild extends JSWindowActorChild {
       return;
     }
 
-    let url = new URL(href);
-    let protocol = url.protocol;
+    const url = new URL(href);
+    const protocol = url.protocol;
     if (
       PROTOCOLS.includes(protocol) ||
       // A link to an attachment, e.g. cid: link.

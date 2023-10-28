@@ -45,7 +45,7 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
           return;
         }
         var contents = readURLasUTF8(Services.io.newFileURI(configLocation));
-        let domParser = new DOMParser();
+        const domParser = new DOMParser();
         successCallback(
           lazy.readFromXML(
             JXON.build(domParser.parseFromString(contents, "text/xml"), "disk")
@@ -91,10 +91,10 @@ function fetchConfigFromISP(
     return new Abortable();
   }
 
-  let conf1 =
+  const conf1 =
     "autoconfig." + lazy.Sanitizer.hostname(domain) + "/mail/config-v1.1.xml";
   // .well-known/ <http://tools.ietf.org/html/draft-nottingham-site-meta-04>
-  let conf2 =
+  const conf2 =
     lazy.Sanitizer.hostname(domain) +
     "/.well-known/autoconfig/mail/config-v1.1.xml";
   // This list is sorted by decreasing priority
@@ -104,7 +104,7 @@ function fetchConfigFromISP(
   ) {
     urls.push("http://" + conf1, "http://" + conf2);
   }
-  let callArgs = {
+  const callArgs = {
     urlArgs: {
       emailaddress: emailAddress,
     },
@@ -119,12 +119,12 @@ function fetchConfigFromISP(
   let call;
   let fetch;
 
-  let priority = new PriorityOrderAbortable(
+  const priority = new PriorityOrderAbortable(
     (xml, call) =>
       successCallback(lazy.readFromXML(xml, `isp-${call.foundMsg}`)),
     errorCallback
   );
-  for (let url of urls) {
+  for (const url of urls) {
     call = priority.addCall();
     call.foundMsg = url.startsWith("https") ? "https" : "http";
     fetch = new lazy.FetchHTTP(
@@ -160,7 +160,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
     url = url.replace("{{domain}}", domain);
   }
 
-  let fetch = new lazy.FetchHTTP(
+  const fetch = new lazy.FetchHTTP(
     url,
     { timeout: 10000 }, // 10 seconds
     function (result) {
@@ -203,7 +203,7 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
     function (mxHostname) {
       // success
       ddump("getmx took " + (Date.now() - time) + "ms");
-      let sld = Services.eTLD.getBaseDomainFromHost(mxHostname);
+      const sld = Services.eTLD.getBaseDomainFromHost(mxHostname);
       ddump("base domain " + sld + " for " + mxHostname);
       if (sld == sanitizedDomain) {
         errorCallback(
@@ -221,18 +221,21 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
         // e.g. hostname doesn't have enough components
         console.error(ex); // not fatal
       }
-      let priority = new PriorityOrderAbortable(successCallback, errorCallback);
+      const priority = new PriorityOrderAbortable(
+        successCallback,
+        errorCallback
+      );
       if (mxDomain && sld != mxDomain) {
-        let call = priority.addCall();
-        let fetch = fetchConfigFromDB(
+        const call = priority.addCall();
+        const fetch = fetchConfigFromDB(
           mxDomain,
           call.successCallback(),
           call.errorCallback()
         );
         call.setAbortable(fetch);
       }
-      let call = priority.addCall();
-      let fetch = fetchConfigFromDB(
+      const call = priority.addCall();
+      const fetch = fetchConfigFromDB(
         sld,
         call.successCallback(),
         call.errorCallback()

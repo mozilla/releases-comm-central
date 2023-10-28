@@ -11,15 +11,15 @@ const TRASH_COLOR_RGB = "rgb(82, 80, 124)";
 const VIRTUAL_COLOR_HEX = "#cd26a5";
 const VIRTUAL_COLOR_RGB = "rgb(205, 38, 165)";
 
-let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-let { folderPane, folderTree, threadTree } = about3Pane;
+const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+const { folderPane, folderTree, threadTree } = about3Pane;
 let rootFolder, trashFolder, trashFolderRows, virtualFolder, virtualFolderRows;
 
 add_setup(async function () {
   Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
   FolderTreeProperties.resetColors();
 
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     `${account.key}user`,
     "localhost",
@@ -35,14 +35,14 @@ add_setup(async function () {
   virtualFolder = rootFolder.getChildNamed("folderTreePropsVirtual");
   virtualFolder.flags |=
     Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Favorite;
-  let virtualFolderInfo = virtualFolder.msgDatabase.dBFolderInfo;
+  const virtualFolderInfo = virtualFolder.msgDatabase.dBFolderInfo;
   virtualFolderInfo.setCharProperty("searchStr", "ALL");
   virtualFolderInfo.setCharProperty("searchFolderUri", trashFolder.URI);
 
   // Test the colours change in all folder modes, not just the current one.
   folderPane.activeModes = ["all", "favorite"];
   await new Promise(resolve => setTimeout(resolve));
-  for (let row of folderTree.querySelectorAll(".collapsed")) {
+  for (const row of folderTree.querySelectorAll(".collapsed")) {
     folderTree.expandRow(row);
   }
 
@@ -164,13 +164,13 @@ async function subtestColors(rows, defaultHex, defaultRGB) {
 }
 
 async function openFolderProperties(row) {
-  let folderPaneContext =
+  const folderPaneContext =
     about3Pane.document.getElementById("folderPaneContext");
-  let folderPaneContextProperties = about3Pane.document.getElementById(
+  const folderPaneContextProperties = about3Pane.document.getElementById(
     "folderPaneContext-properties"
   );
 
-  let shownPromise = BrowserTestUtils.waitForEvent(
+  const shownPromise = BrowserTestUtils.waitForEvent(
     folderPaneContext,
     "popupshown"
   );
@@ -181,14 +181,14 @@ async function openFolderProperties(row) {
   );
   await shownPromise;
 
-  let windowOpenedPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  const windowOpenedPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   folderPaneContext.activateItem(folderPaneContextProperties);
-  let dialogWindow = await windowOpenedPromise;
-  let dialogDocument = dialogWindow.document;
+  const dialogWindow = await windowOpenedPromise;
+  const dialogDocument = dialogWindow.document;
 
-  let colorButton = dialogDocument.getElementById("color");
-  let resetColorButton = dialogDocument.getElementById("resetColor");
-  let folderPropertiesDialog = dialogDocument.querySelector("dialog");
+  const colorButton = dialogDocument.getElementById("color");
+  const resetColorButton = dialogDocument.getElementById("resetColor");
+  const folderPropertiesDialog = dialogDocument.querySelector("dialog");
 
   return {
     assertColor(hex) {
@@ -197,7 +197,7 @@ async function openFolderProperties(row) {
     async setColor(hex) {
       SpecialPowers.MockColorPicker.init(dialogWindow);
       SpecialPowers.MockColorPicker.returnColor = hex;
-      let inputPromise = BrowserTestUtils.waitForEvent(colorButton, "input");
+      const inputPromise = BrowserTestUtils.waitForEvent(colorButton, "input");
       EventUtils.synthesizeMouseAtCenter(colorButton, {}, dialogWindow);
       await inputPromise;
       SpecialPowers.MockColorPicker.cleanup();
@@ -206,7 +206,8 @@ async function openFolderProperties(row) {
       EventUtils.synthesizeMouseAtCenter(resetColorButton, {}, dialogWindow);
     },
     async accept() {
-      let windowClosedPromise = BrowserTestUtils.domWindowClosed(dialogWindow);
+      const windowClosedPromise =
+        BrowserTestUtils.domWindowClosed(dialogWindow);
       EventUtils.synthesizeMouseAtCenter(
         folderPropertiesDialog.getButton("accept"),
         {},
@@ -215,7 +216,8 @@ async function openFolderProperties(row) {
       await windowClosedPromise;
     },
     async cancel() {
-      let windowClosedPromise = BrowserTestUtils.domWindowClosed(dialogWindow);
+      const windowClosedPromise =
+        BrowserTestUtils.domWindowClosed(dialogWindow);
       EventUtils.synthesizeMouseAtCenter(
         folderPropertiesDialog.getButton("cancel"),
         {},
@@ -230,7 +232,7 @@ function assertRowColors(rows, rgb) {
   // Always move the focus away from the row otherwise we might get the selected
   // state which turns the icon white.
   threadTree.table.body.focus();
-  for (let row of Object.values(rows)) {
+  for (const row of Object.values(rows)) {
     Assert.equal(getComputedStyle(row.querySelector(".icon")).stroke, rgb);
   }
 }

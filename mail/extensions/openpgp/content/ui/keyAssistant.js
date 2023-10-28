@@ -136,7 +136,7 @@ var gKeyAssistant = {
     this.notificationBox.removeAllNotifications();
     this.dialog.removeAttribute("style");
 
-    for (let view of document.querySelectorAll(".dialog-body-view")) {
+    for (const view of document.querySelectorAll(".dialog-body-view")) {
       view.hidden = true;
     }
 
@@ -192,16 +192,16 @@ var gKeyAssistant = {
     this.usableKeys = 0;
     this.problematicKeys = 0;
 
-    for (let addr of this.recipients) {
+    for (const addr of this.recipients) {
       // Fetch all keys for the current recipient.
-      let keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(addr);
+      const keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(addr);
       if (keyMetas.some(k => k.readiness == "alias")) {
-        let aliasKeyList = EnigmailKeyRing.getAliasKeyList(addr);
-        let aliasKeys = EnigmailKeyRing.getAliasKeys(aliasKeyList);
+        const aliasKeyList = EnigmailKeyRing.getAliasKeyList(addr);
+        const aliasKeys = EnigmailKeyRing.getAliasKeys(aliasKeyList);
         if (!aliasKeys.length) {
           // failure, at least one alias key is unusable/unavailable
 
-          let descriptionDiv = document.createElement("div");
+          const descriptionDiv = document.createElement("div");
           document.l10n.setAttributes(
             descriptionDiv,
             "openpgp-compose-alias-status-error"
@@ -210,7 +210,7 @@ var gKeyAssistant = {
           this.addToProblematicList(addr, descriptionDiv, null);
           this.problematicKeys++;
         } else {
-          let aliasText = document.createElement("div");
+          const aliasText = document.createElement("div");
           document.l10n.setAttributes(
             aliasText,
             "openpgp-compose-alias-status-direct",
@@ -223,9 +223,9 @@ var gKeyAssistant = {
       } else {
         // not alias
 
-        let acceptedKeys = keyMetas.filter(k => k.readiness == "accepted");
+        const acceptedKeys = keyMetas.filter(k => k.readiness == "accepted");
         if (acceptedKeys.length) {
-          let button = document.createElement("button");
+          const button = document.createElement("button");
           document.l10n.setAttributes(
             button,
             "openpgp-key-assistant-view-key-button"
@@ -237,9 +237,9 @@ var gKeyAssistant = {
           this.addToReadyList(addr, button);
           this.usableKeys++;
         } else {
-          let descriptionDiv = document.createElement("div");
+          const descriptionDiv = document.createElement("div");
 
-          let canOfferResolving = keyMetas.some(
+          const canOfferResolving = keyMetas.some(
             k =>
               k.readiness == "collected" ||
               k.readiness == "expiredAccepted" ||
@@ -314,7 +314,7 @@ var gKeyAssistant = {
   },
 
   async viewKeyFromResolve(keyMeta) {
-    let oldAccept = {};
+    const oldAccept = {};
     await PgpSqliteDb2.getAcceptance(
       keyMeta.keyObj.fpr,
       this.currentRecip,
@@ -328,9 +328,9 @@ var gKeyAssistant = {
     // If the key is not yet accepted, then we want to automatically
     // close the email-resolve view, if the user accepts the key
     // while viewing the key details.
-    let autoCloseOnAccept = !this.isAccepted(oldAccept);
+    const autoCloseOnAccept = !this.isAccepted(oldAccept);
 
-    let newAccept = {};
+    const newAccept = {};
     await PgpSqliteDb2.getAcceptance(
       keyMeta.keyObj.fpr,
       this.currentRecip,
@@ -343,7 +343,7 @@ var gKeyAssistant = {
     } else {
       // While viewing the key, the user could have triggered a refresh,
       // which could have changed the validity of the key.
-      let keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(
+      const keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(
         this.currentRecip
       );
       this.buildResolveView(this.currentRecip, keyMetas);
@@ -364,7 +364,7 @@ var gKeyAssistant = {
   },
 
   async _viewKey(keyMeta) {
-    let exists = EnigmailKeyRing.getKeyById(keyMeta.keyObj.keyId);
+    const exists = EnigmailKeyRing.getKeyById(keyMeta.keyObj.keyId);
 
     if (!exists) {
       if (keyMeta.readiness != "collected") {
@@ -381,13 +381,13 @@ var gKeyAssistant = {
   },
 
   addToReadyList(recipient, detailElement) {
-    let list = document.getElementById("keysListValid");
-    let row = document.createElement("li");
+    const list = document.getElementById("keysListValid");
+    const row = document.createElement("li");
     row.classList.add("key-row");
 
-    let info = document.createElement("div");
+    const info = document.createElement("div");
     info.classList.add("key-info");
-    let title = document.createElement("b");
+    const title = document.createElement("b");
     title.textContent = recipient;
 
     info.appendChild(title);
@@ -396,13 +396,13 @@ var gKeyAssistant = {
   },
 
   fillKeysStatus(element, keyMetas) {
-    let unaccepted = keyMetas.filter(
+    const unaccepted = keyMetas.filter(
       k =>
         k.readiness == "undecided" ||
         k.readiness == "rejected" ||
         k.readiness == "otherAccepted"
     );
-    let collected = keyMetas.filter(k => k.readiness == "collected");
+    const collected = keyMetas.filter(k => k.readiness == "collected");
 
     // Multiple keys available.
     if (unaccepted.length + collected.length > 1) {
@@ -429,7 +429,7 @@ var gKeyAssistant = {
       return;
     }
 
-    let expiredAccepted = keyMetas.filter(
+    const expiredAccepted = keyMetas.filter(
       k => k.readiness == "expiredAccepted"
     );
 
@@ -453,7 +453,7 @@ var gKeyAssistant = {
       return;
     }
 
-    let expiredUnaccepted = keyMetas.filter(
+    const expiredUnaccepted = keyMetas.filter(
       k =>
         k.readiness == "expiredUndecided" ||
         k.readiness == "expiredRejected" ||
@@ -480,7 +480,7 @@ var gKeyAssistant = {
       return;
     }
 
-    let unacceptedNotYetImported = keyMetas.filter(
+    const unacceptedNotYetImported = keyMetas.filter(
       k => k.readiness == "collected"
     );
 
@@ -506,13 +506,13 @@ var gKeyAssistant = {
   },
 
   addToProblematicList(recipient, descriptionDiv, resolveButton) {
-    let list = document.getElementById("keysListIssues");
-    let row = document.createElement("li");
+    const list = document.getElementById("keysListIssues");
+    const row = document.createElement("li");
     row.classList.add("key-row");
 
-    let info = document.createElement("div");
+    const info = document.createElement("div");
     info.classList.add("key-info");
-    let title = document.createElement("b");
+    const title = document.createElement("b");
     title.textContent = recipient;
     info.append(title, descriptionDiv);
 
@@ -528,7 +528,7 @@ var gKeyAssistant = {
   fillKeyOriginAndStatus(element, keyMeta) {
     // The key was collected from somewhere.
     if (keyMeta.collectedKey) {
-      let sourceSpan = document.createElement("span");
+      const sourceSpan = document.createElement("span");
       document.l10n.setAttributes(
         sourceSpan,
         "openpgp-key-assistant-key-source",
@@ -537,12 +537,12 @@ var gKeyAssistant = {
         }
       );
       element.append(sourceSpan, ": ");
-      let linkSpan = document.createElement("span");
+      const linkSpan = document.createElement("span");
       linkSpan.classList.add("comma-separated");
 
-      let sourceLinks = keyMeta.collectedKey.sources.map(source => {
+      const sourceLinks = keyMeta.collectedKey.sources.map(source => {
         source.type = source.type.toLowerCase(); // Earlier "WKD" was "wkd".
-        let a = document.createElement("a");
+        const a = document.createElement("a");
         if (source.uri) {
           a.href = source.uri;
           a.title = source.uri;
@@ -553,7 +553,7 @@ var gKeyAssistant = {
           }
           a.title += source.description;
         }
-        let span = document.createElement("span");
+        const span = document.createElement("span");
         // openpgp-key-assistant-key-collected-attachment
         // openpgp-key-assistant-key-collected-autocrypt
         // openpgp-key-assistant-key-collected-keyserver
@@ -612,17 +612,17 @@ var gKeyAssistant = {
     this.currentRecip = recipient;
     document.getElementById("resolveViewAcceptKey").disabled = true;
 
-    let unaccepted = keyMetas.filter(
+    const unaccepted = keyMetas.filter(
       k =>
         k.readiness == "undecided" ||
         k.readiness == "rejected" ||
         k.readiness == "otherAccepted"
     );
-    let collected = keyMetas.filter(k => k.readiness == "collected");
-    let expiredAccepted = keyMetas.filter(
+    const collected = keyMetas.filter(k => k.readiness == "collected");
+    const expiredAccepted = keyMetas.filter(
       k => k.readiness == "expiredAccepted"
     );
-    let expiredUnaccepted = keyMetas.filter(
+    const expiredUnaccepted = keyMetas.filter(
       k =>
         k.readiness == "expiredUndecided" ||
         k.readiness == "expiredRejected" ||
@@ -630,8 +630,8 @@ var gKeyAssistant = {
     );
 
     this.usableKeys = unaccepted.length + collected.length;
-    let problematicKeys = expiredAccepted.length + expiredUnaccepted.length;
-    let numKeys = this.usableKeys + problematicKeys;
+    const problematicKeys = expiredAccepted.length + expiredUnaccepted.length;
+    const numKeys = this.usableKeys + problematicKeys;
 
     document.l10n.setAttributes(
       document.getElementById("resolveViewTitle"),
@@ -649,15 +649,15 @@ var gKeyAssistant = {
     );
 
     document.getElementById("resolveViewValid").hidden = !this.usableKeys;
-    let usableList = document.getElementById("resolveValidKeysList");
+    const usableList = document.getElementById("resolveValidKeysList");
     usableList.replaceChildren();
 
     function createKeyRow(keyMeta, isValid) {
-      let row = document.createElement("li");
-      let label = document.createElement("label");
+      const row = document.createElement("li");
+      const label = document.createElement("label");
       label.classList.add("flex-center");
 
-      let input = document.createElement("input");
+      const input = document.createElement("input");
       input.type = "radio";
       input.name = isValid ? "valid-key" : "invalid-key";
       input.value = keyMeta.keyObj.keyId;
@@ -670,10 +670,10 @@ var gKeyAssistant = {
       }
       label.appendChild(input);
 
-      let keyId = document.createElement("b");
+      const keyId = document.createElement("b");
       keyId.textContent = "0x" + keyMeta.keyObj.keyId;
 
-      let creationTime = document.createElement("time");
+      const creationTime = document.createElement("time");
       creationTime.setAttribute(
         "datetime",
         new Date(keyMeta.keyObj.keyCreated * 1000).toISOString()
@@ -686,10 +686,10 @@ var gKeyAssistant = {
       label.append(keyId, " - ", creationTime);
       row.appendChild(label);
 
-      let fingerprint = document.createElement("div");
+      const fingerprint = document.createElement("div");
       fingerprint.classList.add("key-info-block");
-      let fpDesc = document.createElement("span");
-      let fpLink = document.createElement("a");
+      const fpDesc = document.createElement("span");
+      const fpLink = document.createElement("a");
       fpLink.href = "#";
       fpLink.textContent = EnigmailKey.formatFpr(keyMeta.keyObj.fpr);
       fpLink.addEventListener("click", event => {
@@ -703,7 +703,7 @@ var gKeyAssistant = {
       fingerprint.append(fpDesc, ": ", fpLink);
       row.appendChild(fingerprint);
 
-      let info = document.createElement("div");
+      const info = document.createElement("div");
       info.classList.add("key-info-block");
       row.append(info);
 
@@ -711,22 +711,22 @@ var gKeyAssistant = {
       return row;
     }
 
-    for (let meta of unaccepted) {
+    for (const meta of unaccepted) {
       usableList.appendChild(createKeyRow(meta, true));
     }
 
-    for (let meta of collected) {
+    for (const meta of collected) {
       usableList.appendChild(createKeyRow(meta, true));
     }
 
     document.getElementById("resolveViewInvalid").hidden = !problematicKeys;
-    let problematicList = document.getElementById("resolveInvalidKeysList");
+    const problematicList = document.getElementById("resolveInvalidKeysList");
     problematicList.replaceChildren();
 
-    for (let meta of expiredAccepted) {
+    for (const meta of expiredAccepted) {
       problematicList.appendChild(createKeyRow(meta, false));
     }
-    for (let meta of expiredUnaccepted) {
+    for (const meta of expiredUnaccepted) {
       problematicList.appendChild(createKeyRow(meta, false));
     }
 
@@ -737,7 +737,7 @@ var gKeyAssistant = {
   },
 
   async acceptSelectedKey(recipient, keyMetas) {
-    let selectedKey = document.querySelector(
+    const selectedKey = document.querySelector(
       'input[name="valid-key"]:checked'
     )?.value;
     if (!selectedKey) {
@@ -748,15 +748,15 @@ var gKeyAssistant = {
 
     this.ignoreExternal = true;
 
-    let existingKey = EnigmailKeyRing.getKeyById(selectedKey);
+    const existingKey = EnigmailKeyRing.getKeyById(selectedKey);
     if (existingKey) {
       fingerprint = existingKey.fpr;
     } else {
-      let unacceptedNotYetImported = keyMetas.filter(
+      const unacceptedNotYetImported = keyMetas.filter(
         k => k.readiness == "collected"
       );
 
-      for (let keyMeta of unacceptedNotYetImported) {
+      for (const keyMeta of unacceptedNotYetImported) {
         if (keyMeta.keyObj.keyId != selectedKey) {
           continue;
         }
@@ -786,16 +786,16 @@ var gKeyAssistant = {
   },
 
   async initOnlineDiscovery(context) {
-    let container = document.getElementById("discoveryOutput");
+    const container = document.getElementById("discoveryOutput");
     container.replaceChildren();
 
     function write(recipient) {
-      let p = document.createElement("p");
-      let span = document.createElement("span");
+      const p = document.createElement("p");
+      const span = document.createElement("span");
       document.l10n.setAttributes(span, "openpgp-key-assistant-discover-keys", {
         recipient,
       });
-      let span2 = document.createElement("span");
+      const span2 = document.createElement("span");
       span2.classList.add("loading-inline");
       p.append(span, " ", span2);
       container.appendChild(p);
@@ -809,12 +809,12 @@ var gKeyAssistant = {
 
     if (context == "overview") {
       this.ignoreExternal = true;
-      for (let email of this.recipients) {
+      for (const email of this.recipients) {
         if (OpenPGPAlias.hasAliasDefinition(email)) {
           continue;
         }
         write(email);
-        let rv = await KeyLookupHelper.fullOnlineDiscovery(
+        const rv = await KeyLookupHelper.fullOnlineDiscovery(
           "silent-collection",
           window,
           email,
@@ -867,7 +867,7 @@ var gKeyAssistant = {
 
     // If the recipient now has a usable previously accepted key, go back to
     // the main view and show a successful notification.
-    let keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(
+    const keyMetas = await EnigmailKeyRing.getEncryptionKeyMeta(
       this.currentRecip
     );
 
@@ -916,7 +916,7 @@ var gKeyAssistant = {
   },
 
   toggleRecipientsList() {
-    let list = document.getElementById("keysListValid");
+    const list = document.getElementById("keysListValid");
     list.hidden = !list.hidden;
 
     document.l10n.setAttributes(

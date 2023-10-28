@@ -23,7 +23,7 @@ add_setup(function () {
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 
   // Create a POP server
-  let popServer = MailServices.accounts
+  const popServer = MailServices.accounts
     .createIncomingServer("nobody", "pop.foo.invalid", "pop3")
     .QueryInterface(Ci.nsIPop3IncomingServer);
 
@@ -35,7 +35,7 @@ add_setup(function () {
   gPopAccount.addIdentity(identity);
 
   // Create an IMAP server
-  let imapServer = MailServices.accounts
+  const imapServer = MailServices.accounts
     .createIncomingServer("nobody", "imap.foo.invalid", "imap")
     .QueryInterface(Ci.nsIImapIncomingServer);
 
@@ -69,11 +69,11 @@ add_task(async function test_account_data_deletion() {
  * @param {object} tab - The account manager tab.
  */
 async function subtest_account_data_deletion1(tab) {
-  let accountDir = gPopAccount.incomingServer.localPath;
+  const accountDir = gPopAccount.incomingServer.localPath;
   Assert.ok(accountDir.isDirectory());
 
   // Get some existing file in the POP3 account data dir.
-  let inboxFile = accountDir.clone();
+  const inboxFile = accountDir.clone();
   inboxFile.append("Inbox.msf");
   Assert.ok(inboxFile.isFile());
 
@@ -89,11 +89,11 @@ async function subtest_account_data_deletion1(tab) {
  * @param {object} tab - The account manager tab.
  */
 async function subtest_account_data_deletion2(tab) {
-  let accountDir = gImapAccount.incomingServer.localPath;
+  const accountDir = gImapAccount.incomingServer.localPath;
   Assert.ok(accountDir.isDirectory());
 
   // Get some file in the IMAP account data dir.
-  let inboxFile = accountDir.clone();
+  const inboxFile = accountDir.clone();
   inboxFile.append("INBOX.msf");
   Assert.ok(inboxFile.isFile());
 

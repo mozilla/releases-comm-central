@@ -19,7 +19,7 @@ Preferences.addAll([
  * sending of return receipts is enabled.
  */
 function enableDisableAllowedReceipts() {
-  let enable = document.getElementById("receiptSend").value === "true";
+  const enable = document.getElementById("receiptSend").value === "true";
   enableElement(document.getElementById("notInToCcLabel"), enable);
   enableElement(document.getElementById("notInToCcPref"), enable);
   enableElement(document.getElementById("outsideDomainLabel"), enable);
@@ -32,7 +32,7 @@ function enableDisableAllowedReceipts() {
  * Set disabled state of aElement, unless its associated pref is locked.
  */
 function enableElement(aElement, aEnable) {
-  let pref = aElement.getAttribute("preference");
-  let prefIsLocked = pref ? Preferences.get(pref).locked : false;
+  const pref = aElement.getAttribute("preference");
+  const prefIsLocked = pref ? Preferences.get(pref).locked : false;
   aElement.disabled = !aEnable || prefIsLocked;
 }

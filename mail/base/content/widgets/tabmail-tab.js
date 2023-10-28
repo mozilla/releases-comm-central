@@ -83,7 +83,7 @@
         true
       );
 
-      let closeButton = this.querySelector(".tab-close-button");
+      const closeButton = this.querySelector(".tab-close-button");
 
       // Prevent switching to the tab before closing it by stopping the
       // mousedown event.
@@ -114,14 +114,14 @@
     }
 
     get linkedBrowser() {
-      let tabmail = document.getElementById("tabmail");
-      let tab = tabmail._getTabContextForTabbyThing(this, false)[1];
+      const tabmail = document.getElementById("tabmail");
+      const tab = tabmail._getTabContextForTabbyThing(this, false)[1];
       return tabmail.getBrowserForTab(tab);
     }
 
     get mode() {
-      let tabmail = document.getElementById("tabmail");
-      let tab = tabmail._getTabContextForTabbyThing(this, false)[1];
+      const tabmail = document.getElementById("tabmail");
+      const tab = tabmail._getTabContextForTabbyThing(this, false)[1];
       return tab.mode;
     }
 
@@ -139,7 +139,7 @@
      *   iconSrc is missing or broken.
      */
     setIcon(iconSrc, fallbackSrc) {
-      let icon = this.querySelector(".tab-icon-image");
+      const icon = this.querySelector(".tab-icon-image");
       if (!fallbackSrc) {
         if (iconSrc) {
           icon.setAttribute("src", iconSrc);
@@ -158,7 +158,7 @@
 
       // Set the tab image, and use the fallback if an error occurs.
       // Set up a one time listener for either error or load.
-      let listener = event => {
+      const listener = event => {
         icon.removeEventListener("error", listener);
         icon.removeEventListener("load", listener);
         if (event.type == "error") {

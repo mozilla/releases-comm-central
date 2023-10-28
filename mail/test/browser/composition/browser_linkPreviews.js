@@ -15,10 +15,10 @@ var url =
 
 add_task(async function previewEnabled() {
   Services.prefs.setBoolPref("mail.compose.add_link_preview", true);
-  let win = await open_compose_new_mail();
+  const win = await open_compose_new_mail();
   await navigator.clipboard.writeText(url);
 
-  let messageEditor = win.document.getElementById("messageEditor");
+  const messageEditor = win.document.getElementById("messageEditor");
   messageEditor.focus();
 
   // Ctrl+V = Paste

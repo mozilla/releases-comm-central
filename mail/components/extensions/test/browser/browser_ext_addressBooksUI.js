@@ -5,7 +5,7 @@
 add_task(async function testUI() {
   async function background() {
     async function checkNumberOfAddressBookTabs(expectedNumberOfTabs) {
-      let addressBookTabs = await browser.tabs.query({ type: "addressBook" });
+      const addressBookTabs = await browser.tabs.query({ type: "addressBook" });
       browser.test.assertEq(
         expectedNumberOfTabs,
         addressBookTabs.length,
@@ -13,7 +13,7 @@ add_task(async function testUI() {
       );
     }
 
-    let addedTabs = new Set();
+    const addedTabs = new Set();
     let removedTabs = 0;
     function tabCreateListener(tab) {
       if (tab.type == "addressBook") {
@@ -42,7 +42,7 @@ add_task(async function testUI() {
     await window.sendMessage("checkNumberOfAddressBookTabs", 0);
     await checkNumberOfAddressBookTabs(0);
 
-    let abTab1 = await browser.addressBooks.openUI();
+    const abTab1 = await browser.addressBooks.openUI();
     browser.test.log(JSON.stringify(abTab1));
     browser.test.assertEq(
       "addressBook",
@@ -53,7 +53,7 @@ add_task(async function testUI() {
     await checkNumberOfAddressBookTabs(1);
 
     await browser.addressBooks.openUI();
-    let abTab2 = await browser.addressBooks.openUI();
+    const abTab2 = await browser.addressBooks.openUI();
     browser.test.log(JSON.stringify(abTab2));
     browser.test.assertEq(
       "addressBook",
@@ -90,7 +90,7 @@ add_task(async function testUI() {
 
     browser.test.notifyPass("addressBooks");
   }
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -102,8 +102,8 @@ add_task(async function testUI() {
   });
 
   extension.onMessage("checkNumberOfAddressBookTabs", count => {
-    let tabmail = document.getElementById("tabmail");
-    let tabs = tabmail.tabInfo.filter(
+    const tabmail = document.getElementById("tabmail");
+    const tabs = tabmail.tabInfo.filter(
       tab => tab.browser?.currentURI.spec == "about:addressbook"
     );
     Assert.equal(tabs.length, count, "Right number of address books open");

@@ -65,18 +65,18 @@ function OnMailWindowUnload() {
  * that the images can be accessed in a paste elsewhere.
  */
 function onCopyOrDragStart(e) {
-  let browser = getBrowser();
+  const browser = getBrowser();
   if (!browser) {
     return;
   }
 
   // We're only interested if this is in the message content.
-  let sourceDoc = browser.contentDocument;
+  const sourceDoc = browser.contentDocument;
   if (e.target.ownerDocument != sourceDoc) {
     return;
   }
-  let sourceURL = sourceDoc.URL;
-  let protocol = sourceURL.substr(0, sourceURL.indexOf(":")).toLowerCase();
+  const sourceURL = sourceDoc.URL;
+  const protocol = sourceURL.substr(0, sourceURL.indexOf(":")).toLowerCase();
   if (
     !(
       Services.io.getProtocolHandler(protocol) instanceof
@@ -87,16 +87,16 @@ function onCopyOrDragStart(e) {
     return;
   }
 
-  let imgMap = new Map(); // Mapping img.src -> dataURL.
+  const imgMap = new Map(); // Mapping img.src -> dataURL.
 
   // For copy, the data of what is to be copied is not accessible at this point.
   // Figure out what images are a) part of the selection and b) visible in
   // the current document. If their source isn't http or data already, convert
   // them to data URLs.
 
-  let selection = sourceDoc.getSelection();
-  let draggedImg = selection.isCollapsed ? e.target : null;
-  for (let img of sourceDoc.images) {
+  const selection = sourceDoc.getSelection();
+  const draggedImg = selection.isCollapsed ? e.target : null;
+  for (const img of sourceDoc.images) {
     if (/^(https?|data):/.test(img.src)) {
       continue;
     }
@@ -110,7 +110,7 @@ function onCopyOrDragStart(e) {
       continue;
     }
 
-    let style = window.getComputedStyle(img);
+    const style = window.getComputedStyle(img);
     if (style.display == "none" || style.visibility == "hidden") {
       continue;
     }
@@ -122,12 +122,12 @@ function onCopyOrDragStart(e) {
 
     // We don't need to wait for the image to load. If it isn't already loaded
     // in the source document, we wouldn't want it anyway.
-    let canvas = sourceDoc.createElement("canvas");
+    const canvas = sourceDoc.createElement("canvas");
     canvas.width = img.width;
     canvas.height = img.height;
     canvas.getContext("2d").drawImage(img, 0, 0, img.width, img.height);
 
-    let type = /\.jpe?g$/i.test(img.src) ? "image/jpg" : "image/png";
+    const type = /\.jpe?g$/i.test(img.src) ? "image/jpg" : "image/png";
     imgMap.set(img.src, canvas.toDataURL(type));
   }
 
@@ -136,25 +136,25 @@ function onCopyOrDragStart(e) {
     return;
   }
 
-  let clonedSelection = draggedImg
+  const clonedSelection = draggedImg
     ? draggedImg.cloneNode(false)
     : selection.getRangeAt(0).cloneContents();
-  let div = sourceDoc.createElement("div");
+  const div = sourceDoc.createElement("div");
   div.appendChild(clonedSelection);
 
-  let images = div.querySelectorAll("img");
-  for (let img of images) {
+  const images = div.querySelectorAll("img");
+  for (const img of images) {
     if (!imgMap.has(img.src)) {
       continue;
     }
     img.src = imgMap.get(img.src);
   }
 
-  let html = div.innerHTML;
-  let parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
+  const html = div.innerHTML;
+  const parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
     Ci.nsIParserUtils
   );
-  let plain = parserUtils.convertToPlainText(
+  const plain = parserUtils.convertToPlainText(
     html,
     Ci.nsIDocumentEncoder.OutputForPlainTextClipboardCopy,
     0
@@ -218,7 +218,7 @@ function toggleCaretBrowsing() {
   }
 
   let useCaret = Services.prefs.getBoolPref(caretPref, false);
-  let warn = Services.prefs.getBoolPref(warnPref, true);
+  const warn = Services.prefs.getBoolPref(warnPref, true);
   if (!warn || useCaret) {
     // Toggle immediately.
     try {
@@ -235,7 +235,7 @@ function toggleCaretBrowsing() {
       { id: "caret-browsing-prompt-check-text" },
     ])
     .then(([title, promptText, checkText]) => {
-      let checkValue = { value: false };
+      const checkValue = { value: false };
 
       useCaret =
         0 ===
@@ -281,7 +281,7 @@ function InitMsgWindow() {
   document.addEventListener("copy", onCopyOrDragStart, true);
   document.addEventListener("dragstart", onCopyOrDragStart, true);
 
-  let keypressListener = {
+  const keypressListener = {
     handleEvent: event => {
       if (event.defaultPrevented) {
         return;
@@ -405,7 +405,7 @@ nsMsgStatusFeedback.prototype = {
       return;
     }
 
-    let elt = document.getElementById("remoteBrowserTooltip");
+    const elt = document.getElementById("remoteBrowserTooltip");
     elt.label = tooltip;
     elt.style.direction = direction;
     elt.openPopupAtScreen(
@@ -418,12 +418,12 @@ nsMsgStatusFeedback.prototype = {
 
   // Called by BrowserParent::RecvHideTooltip, needed for tooltips in content tabs.
   hideTooltip() {
-    let elt = document.getElementById("remoteBrowserTooltip");
+    const elt = document.getElementById("remoteBrowserTooltip");
     elt.hidePopup();
   },
 
   getTabCount() {
-    let tabmail = document.getElementById("tabmail");
+    const tabmail = document.getElementById("tabmail");
     // messageWindow.xhtml does not have multiple tabs.
     return tabmail ? tabmail.tabs.length : 1;
   },
@@ -636,7 +636,7 @@ nsMsgStatusFeedback.prototype = {
     aWorkUnitsCompleted,
     aTotalWorkUnits
   ) {
-    let index = this._activeProcesses.indexOf(aActivity);
+    const index = this._activeProcesses.indexOf(aActivity);
 
     // Iterate through the list trying to find the first active process, but
     // only go as far as our process.
@@ -670,7 +670,7 @@ nsMsgStatusFeedback.prototype = {
  * on the getBrowser function.
  */
 function getBrowser() {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   return tabmail ? tabmail.getBrowserForSelectedTab() : null;
 }
 
@@ -683,7 +683,7 @@ function OpenInboxForServer(server) {
 
 /** Update state of zoom type (text vs. full) menu item. */
 function UpdateFullZoomMenu() {
-  let cmdItem = document.getElementById("cmd_fullZoomToggle");
+  const cmdItem = document.getElementById("cmd_fullZoomToggle");
   cmdItem.setAttribute("checked", !ZoomManager.useFullZoom);
 }
 
@@ -726,12 +726,12 @@ nsBrowserAccess.prototype = {
       return null;
     }
 
-    let loadInBackground = Services.prefs.getBoolPref(
+    const loadInBackground = Services.prefs.getBoolPref(
       "browser.tabs.loadDivertedInBackground"
     );
 
-    let tabmail = win.document.getElementById("tabmail");
-    let newTab = tabmail.openTab("contentTab", {
+    const tabmail = win.document.getElementById("tabmail");
+    const newTab = tabmail.openTab("contentTab", {
       background: loadInBackground,
       csp: aCsp,
       linkHandler: aMessageManagerGroup,
@@ -821,12 +821,12 @@ nsBrowserAccess.prototype = {
     aSkipLoad
   ) {
     if (aWhere == Ci.nsIBrowserDOMWindow.OPEN_PRINT_BROWSER) {
-      let browser =
+      const browser =
         PrintUtils.handleStaticCloneCreatedForPrint(aOpenWindowInfo);
       return browser ? browser.browsingContext : null;
     }
 
-    let isExternal = !!(aFlags & Ci.nsIBrowserDOMWindow.OPEN_EXTERNAL);
+    const isExternal = !!(aFlags & Ci.nsIBrowserDOMWindow.OPEN_EXTERNAL);
 
     if (aOpenWindowInfo && isExternal) {
       throw Components.Exception(
@@ -872,7 +872,7 @@ nsBrowserAccess.prototype = {
       );
     }
 
-    let browser = this._openURIInNewTab(
+    const browser = this._openURIInNewTab(
       aURI,
       referrerInfo,
       isExternal,
@@ -907,7 +907,7 @@ nsBrowserAccess.prototype = {
       return null;
     }
 
-    let isExternal = !!(aFlags & Ci.nsIBrowserDOMWindow.OPEN_EXTERNAL);
+    const isExternal = !!(aFlags & Ci.nsIBrowserDOMWindow.OPEN_EXTERNAL);
 
     return this._openURIInNewTab(
       aURI,
@@ -926,7 +926,7 @@ nsBrowserAccess.prototype = {
   },
 
   get tabCount() {
-    let tabmail = document.getElementById("tabmail");
+    const tabmail = document.getElementById("tabmail");
     // messageWindow.xhtml does not have multiple tabs.
     return tabmail ? tabmail.tabInfo.length : 1;
   },
@@ -937,7 +937,7 @@ nsBrowserAccess.prototype = {
  * Only the "open in tab" option is supported, so that's what we'll do here.
  */
 function switchToTabHavingURI(aURI, aOpenNew, aOpenParams = {}) {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   let matchingIndex = -1;
   if (tabmail) {
     // about:preferences should be opened through openPreferencesTab().
@@ -946,17 +946,17 @@ function switchToTabHavingURI(aURI, aOpenNew, aOpenParams = {}) {
       return true;
     }
 
-    let openURI = makeURI(aURI);
-    let tabInfo = tabmail.tabInfo;
+    const openURI = makeURI(aURI);
+    const tabInfo = tabmail.tabInfo;
 
     // Check if we already have the same URL open in a content tab.
     for (let tabIndex = 0; tabIndex < tabInfo.length; tabIndex++) {
       if (tabInfo[tabIndex].mode.name == "contentTab") {
-        let browserFunc =
+        const browserFunc =
           tabInfo[tabIndex].mode.getBrowser ||
           tabInfo[tabIndex].mode.tabType.getBrowser;
         if (browserFunc) {
-          let browser = browserFunc.call(
+          const browser = browserFunc.call(
             tabInfo[tabIndex].mode.tabType,
             tabInfo[tabIndex]
           );
@@ -1001,7 +1001,7 @@ var contentProgress = {
   },
 
   callListeners(method, args) {
-    for (let listener of this._listeners.values()) {
+    for (const listener of this._listeners.values()) {
       if (method in listener) {
         try {
           listener[method](...args);

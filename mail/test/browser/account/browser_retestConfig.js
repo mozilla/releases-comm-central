@@ -23,7 +23,7 @@ const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 add_setup(function () {
   Services.prefs.setCharPref("mail.setup.loglevel", "All");
 
-  let url =
+  const url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
   Services.prefs.setCharPref(PREF_NAME, url);
 });
@@ -36,8 +36,8 @@ registerCleanupFunction(function () {
 add_task(async function test_re_test_config() {
   // Opening multiple windows in the same run seems to require letting the stack
   // unwind before opening the next one, so do that here.
-  let tab = await openAccountSetup();
-  let tabDocument = tab.browser.contentWindow.document;
+  const tab = await openAccountSetup();
+  const tabDocument = tab.browser.contentWindow.document;
   // Input user's account information
   EventUtils.synthesizeMouseAtCenter(
     tabDocument.getElementById("realname"),
@@ -54,11 +54,11 @@ add_task(async function test_re_test_config() {
   input_value(window, user.email);
 
   // Click "continue" button.
-  let nextButton = tabDocument.getElementById("continueButton");
+  const nextButton = tabDocument.getElementById("continueButton");
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, tab.browser.contentWindow);
 
   // Wait for 'edit' button to be enabled.
-  let editButton = tabDocument.getElementById("manualConfigButton");
+  const editButton = tabDocument.getElementById("manualConfigButton");
   await BrowserTestUtils.waitForCondition(
     () => !editButton.hidden && !editButton.disabled,
     "Timeout waiting for edit button to become visible and active"
@@ -67,7 +67,7 @@ add_task(async function test_re_test_config() {
   EventUtils.synthesizeMouseAtCenter(editButton, {}, tab.browser.contentWindow);
 
   // Click "re-test" button.
-  let testButton = tabDocument.getElementById("reTestButton");
+  const testButton = tabDocument.getElementById("reTestButton");
   EventUtils.synthesizeMouseAtCenter(testButton, {}, tab.browser.contentWindow);
 
   await BrowserTestUtils.waitForCondition(

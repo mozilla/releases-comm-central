@@ -15,7 +15,7 @@ const gHandlerService = Cc[
 
 // This seems odd, but for test purposes, this just has to be a file that we know exists,
 // and by using this file, we don't have to worry about different platforms.
-let exeFile = Services.dirsvc.get("XREExeF", Ci.nsIFile);
+const exeFile = Services.dirsvc.get("XREExeF", Ci.nsIFile);
 
 add_task(async function test_valid_handlers() {
   await setupPolicyEngineWithJson({
@@ -117,7 +117,7 @@ add_task(async function test_no_handler() {
     },
   });
 
-  let handlerInfo =
+  const handlerInfo =
     gExternalProtocolService.getProtocolHandlerInfo("no_handler");
   is(handlerInfo.preferredAction, handlerInfo.alwaysAsk);
   is(handlerInfo.alwaysAskBeforeHandling, true);
@@ -145,7 +145,7 @@ add_task(async function test_bad_web_handler1() {
     },
   });
 
-  let handlerInfo =
+  const handlerInfo =
     gExternalProtocolService.getProtocolHandlerInfo("bad_web_handler1");
   is(handlerInfo.preferredAction, handlerInfo.alwaysAsk);
   is(handlerInfo.alwaysAskBeforeHandling, true);
@@ -173,7 +173,7 @@ add_task(async function test_bad_web_handler2() {
     },
   });
 
-  let handlerInfo =
+  const handlerInfo =
     gExternalProtocolService.getProtocolHandlerInfo("bad_web_handler1");
   is(handlerInfo.preferredAction, handlerInfo.alwaysAsk);
   is(handlerInfo.alwaysAskBeforeHandling, true);

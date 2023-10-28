@@ -8,8 +8,8 @@ var { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
 );
 
-let boolean = val => (!val && val !== false ? "" : val);
-let string = val => (val ? String(val) : "");
+const boolean = val => (!val && val !== false ? "" : val);
+const string = val => (val ? String(val) : "");
 
 /**
  * A list of tuples for each calendar property displayed where each tuple
@@ -18,7 +18,7 @@ let string = val => (val ? String(val) : "");
  * 1 - A function that accepts the property value and attempts it into a string.
  * 2 - Boolean indicating whether the property is private data (optional).
  */
-let gCalendarProperties = [
+const gCalendarProperties = [
   ["name", string, true],
   ["type", string],
   ["disabled", boolean],
@@ -52,18 +52,18 @@ let gCalendarProperties = [
  * with the properties of each configured calendar.
  */
 function populateCalendarsSection() {
-  let container = document.getElementById("calendar-tables");
-  let tableTmpl = document.getElementById("calendars-table-template");
-  let rowTmpl = document.getElementById("calendars-table-row-template");
+  const container = document.getElementById("calendar-tables");
+  const tableTmpl = document.getElementById("calendars-table-template");
+  const rowTmpl = document.getElementById("calendars-table-row-template");
 
-  for (let calendar of cal.manager.getCalendars()) {
-    let table = tableTmpl.content.cloneNode(true).querySelector("table");
+  for (const calendar of cal.manager.getCalendars()) {
+    const table = tableTmpl.content.cloneNode(true).querySelector("table");
     table.firstElementChild.textContent = calendar.name;
 
-    let tbody = table.querySelector("tbody");
-    for (let [prop, transform, isPrivate] of gCalendarProperties) {
-      let tr = rowTmpl.content.cloneNode(true).querySelector("tr");
-      let l10nKey = `calendars-table-${prop
+    const tbody = table.querySelector("tbody");
+    for (const [prop, transform, isPrivate] of gCalendarProperties) {
+      const tr = rowTmpl.content.cloneNode(true).querySelector("tr");
+      const l10nKey = `calendars-table-${prop
         .toLowerCase()
         .replaceAll(".", "-")}`;
 

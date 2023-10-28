@@ -29,16 +29,16 @@ export class VCardTZComponent extends HTMLElement {
 
   constructor() {
     super();
-    let template = document.getElementById("template-vcard-edit-tz");
-    let clonedTemplate = template.content.cloneNode(true);
+    const template = document.getElementById("template-vcard-edit-tz");
+    const clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
   }
 
   connectedCallback() {
     if (this.isConnected) {
       this.selectEl = this.querySelector("select");
-      for (let tzid of lazy.cal.timezoneService.timezoneIds) {
-        let option = this.selectEl.appendChild(
+      for (const tzid of lazy.cal.timezoneService.timezoneIds) {
+        const option = this.selectEl.appendChild(
           document.createElement("option")
         );
         option.value = tzid;

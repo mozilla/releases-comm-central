@@ -151,7 +151,7 @@ const filterActionEncrypt = {
  * @param filterObj - nsIMsgFilterCustomAction
  */
 function addFilterIfNotExists(filterObj) {
-  let filterService = Cc[
+  const filterService = Cc[
     "@mozilla.org/messenger/services/filters;1"
   ].getService(Ci.nsIMsgFilterService);
 
@@ -167,7 +167,7 @@ function addFilterIfNotExists(filterObj) {
 
 var EnigmailFiltersWrapper = {
   onStartup() {
-    let { EnigmailFilters } = ChromeUtils.import(
+    const { EnigmailFilters } = ChromeUtils.import(
       "chrome://openpgp/content/modules/filters.jsm"
     );
     gEnigmailFilters = EnigmailFilters;

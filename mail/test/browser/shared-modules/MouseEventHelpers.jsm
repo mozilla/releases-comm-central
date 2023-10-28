@@ -49,12 +49,12 @@ function drag_n_drop_element(
   aRelDropY,
   aListener
 ) {
-  let dt = synthesize_drag_start(aDragWindow, aDragObject, aListener);
+  const dt = synthesize_drag_start(aDragWindow, aDragObject, aListener);
   Assert.ok(dt, "Drag data transfer was undefined");
 
   synthesize_drag_over(aDropWindow, aDropObject, dt);
 
-  let dropRect = aDropObject.getBoundingClientRect();
+  const dropRect = aDropObject.getBoundingClientRect();
   synthesize_drop(aDropWindow, aDropObject, dt, {
     screenX: aDropObject.screenX + dropRect.width * aRelDropX,
     screenY: aDropObject.screenY + dropRect.height * aRelDropY,
@@ -75,7 +75,7 @@ function drag_n_drop_element(
 function synthesize_drag_start(aWindow, aDispatcher, aListener) {
   let dt;
 
-  let trapDrag = function (event) {
+  const trapDrag = function (event) {
     if (!event.dataTransfer) {
       throw new Error("no DataTransfer");
     }
@@ -203,7 +203,7 @@ function _synthesizeDragEvent(aType, aWindow, aDispatcher, aDt, aArgs) {
     screenY = aDispatcher.screenY;
   }
 
-  let event = aWindow.document.createEvent("DragEvent");
+  const event = aWindow.document.createEvent("DragEvent");
   event.initDragEvent(
     aType,
     true,

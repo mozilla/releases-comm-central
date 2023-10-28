@@ -31,7 +31,7 @@ add_setup(async function () {
  * book if the books list has focus.
  */
 add_task(async function testFileMenuBooks() {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
 
   openAllAddressBooks();
   abWindow.booksList.focus();
@@ -44,8 +44,8 @@ add_task(async function testFileMenuBooks() {
  * Tests that the books list context menu prints the selected address book.
  */
 add_task(async function testBooksContext() {
-  let abWindow = getAddressBookWindow();
-  let booksList = abWindow.booksList;
+  const abWindow = getAddressBookWindow();
+  const booksList = abWindow.booksList;
 
   await showBooksContext(
     booksList.getIndexForUID(book.UID),
@@ -65,8 +65,8 @@ add_task(async function testBooksContext() {
  * if the cards list has focus.
  */
 add_task(async function testFileMenuCards() {
-  let abWindow = getAddressBookWindow();
-  let cardsList = abWindow.cardsPane.cardsList;
+  const abWindow = getAddressBookWindow();
+  const cardsList = abWindow.cardsPane.cardsList;
 
   openAllAddressBooks();
   cardsList.focus();
@@ -85,8 +85,8 @@ add_task(async function testFileMenuCards() {
  * Tests that the cards list context menu prints the selected cards.
  */
 add_task(async function testCardsContext() {
-  let abWindow = getAddressBookWindow();
-  let cardsList = abWindow.cardsPane.cardsList;
+  const abWindow = getAddressBookWindow();
+  const cardsList = abWindow.cardsPane.cardsList;
 
   openAllAddressBooks();
 
@@ -107,10 +107,10 @@ add_task(async function testCardsContext() {
 async function printFromFileMenu() {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
-  let fileMenu = document.getElementById("menu_File");
-  let printMenuItem = document.getElementById("printMenuItem");
+  const fileMenu = document.getElementById("menu_File");
+  const printMenuItem = document.getElementById("printMenuItem");
 
-  let shownPromise = BrowserTestUtils.waitForPopupEvent(fileMenu, "shown");
+  const shownPromise = BrowserTestUtils.waitForPopupEvent(fileMenu, "shown");
   EventUtils.synthesizeMouseAtCenter(fileMenu, {});
   await shownPromise;
 
@@ -120,12 +120,12 @@ async function printFromFileMenu() {
 async function checkPrintPreview(...expectedContacts) {
   await waitForPreviewVisible();
 
-  let previewBrowser = document.querySelector(".printPreviewBrowser");
+  const previewBrowser = document.querySelector(".printPreviewBrowser");
   SpecialPowers.spawn(
     previewBrowser,
     [expectedContacts.map(c => c.displayName)],
     function (expectedNames) {
-      let names = Array.from(
+      const names = Array.from(
         content.document.querySelectorAll(".contact-heading-name"),
         n => n.textContent
       );
@@ -144,7 +144,7 @@ async function checkPrintPreview(...expectedContacts) {
 
 async function waitForPreviewVisible() {
   await TestUtils.waitForCondition(function () {
-    let preview = document.querySelector(".printPreviewBrowser");
+    const preview = document.querySelector(".printPreviewBrowser");
     return preview && BrowserTestUtils.is_visible(preview);
   }, "waiting for print preview to appear");
 }

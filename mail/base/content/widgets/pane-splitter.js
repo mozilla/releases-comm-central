@@ -121,7 +121,7 @@
     _updateResizeElement(element) {
       if (element == undefined) {
         // Use the resize-id to find the element.
-        let resizeId = this.getAttribute("resize-id");
+        const resizeId = this.getAttribute("resize-id");
         if (resizeId) {
           if (this._resizeElement?.id == resizeId) {
             // Avoid looking up the element since we already have it.
@@ -229,7 +229,7 @@
      * @param {?number} [trySize] - The size to try and achieve.
      */
     _updateSize(trySize) {
-      let vertical = this.resizeDirection == "vertical";
+      const vertical = this.resizeDirection == "vertical";
       if (trySize != undefined) {
         if (vertical) {
           this.height = trySize;
@@ -239,7 +239,7 @@
       }
       // Now that the width and height are updated, we fetch the size the
       // element actually took.
-      let actual = this._getActualResizeSize();
+      const actual = this._getActualResizeSize();
       if (vertical) {
         this.height = actual;
       } else {
@@ -256,7 +256,7 @@
      * @returns {number} - The border area size of the resizeElement.
      */
     _getActualResizeSize() {
-      let resizeRect = this.resizeElement.getBoundingClientRect();
+      const resizeRect = this.resizeElement.getBoundingClientRect();
       if (this.resizeDirection == "vertical") {
         return resizeRect.height;
       }
@@ -360,8 +360,8 @@
         };
       }
 
-      let vertical = this.resizeDirection == "vertical";
-      let height = this.isCollapsed ? 0 : this.height;
+      const vertical = this.resizeDirection == "vertical";
+      const height = this.isCollapsed ? 0 : this.height;
       if (!vertical || height == null) {
         // If we are resizing horizontally or the "height" property is set to
         // null, we remove the CSS height variable. The height of the element
@@ -370,7 +370,7 @@
       } else {
         this.parentNode.style.setProperty(this._cssName.height, `${height}px`);
       }
-      let width = this.isCollapsed ? 0 : this.width;
+      const width = this.isCollapsed ? 0 : this.width;
       if (vertical || width == null) {
         // If we are resizing vertically or the "width" property is set to
         // null, we remove the CSS width variable. The width of the element
@@ -409,12 +409,12 @@
         return;
       }
 
-      let vertical = this.resizeDirection == "vertical";
-      let collapseSize =
+      const vertical = this.resizeDirection == "vertical";
+      const collapseSize =
         Number(
           this.getAttribute(vertical ? "collapse-height" : "collapse-width")
         ) || 0;
-      let ltrDir = this.parentNode.matches(":dir(ltr)");
+      const ltrDir = this.parentNode.matches(":dir(ltr)");
 
       this._dragStartInfo = {
         wasCollapsed: this.isCollapsed,
@@ -446,7 +446,7 @@
         return;
       }
       let cursor;
-      let { vertical, negative } = this._dragStartInfo;
+      const { vertical, negative } = this._dragStartInfo;
       if (this.isCollapsed) {
         if (vertical) {
           cursor = negative ? "n-resize" : "s-resize";
@@ -537,7 +537,7 @@
       if (!this._dragStartInfo) {
         return;
       }
-      let didStart = this._started;
+      const didStart = this._started;
 
       delete this._dragStartInfo;
       delete this._started;

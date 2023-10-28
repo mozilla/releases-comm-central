@@ -49,23 +49,23 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
   }
 
   static onUninstall(extensionId) {
-    let widgetId = makeWidgetId(extensionId);
-    let id = `${widgetId}-messageDisplayAction-toolbarbutton`;
-    let toolbar = "header-view-toolbar";
+    const widgetId = makeWidgetId(extensionId);
+    const id = `${widgetId}-messageDisplayAction-toolbarbutton`;
+    const toolbar = "header-view-toolbar";
 
     // Check all possible windows and remove the toolbarbutton if found.
     // Sadly we have to hardcode these values here, as the add-on is already
     // shutdown when onUninstall is called.
-    let windowURLs = [
+    const windowURLs = [
       "chrome://messenger/content/messenger.xhtml",
       "chrome://messenger/content/messageWindow.xhtml",
     ];
-    for (let windowURL of windowURLs) {
-      for (let setName of ["currentset", "extensionset"]) {
-        let set = Services.xulStore
+    for (const windowURL of windowURLs) {
+      for (const setName of ["currentset", "extensionset"]) {
+        const set = Services.xulStore
           .getValue(windowURL, toolbar, setName)
           .split(",");
-        let newSet = set.filter(e => e != id);
+        const newSet = set.filter(e => e != id);
         if (newSet.length < set.length) {
           Services.xulStore.setValue(
             windowURL,
@@ -83,7 +83,7 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
    */
   paint(window) {
     window.addEventListener("aboutMessageLoaded", this);
-    for (let bc of window.browsingContext.getAllBrowsingContextsInSubtree()) {
+    for (const bc of window.browsingContext.getAllBrowsingContextsInSubtree()) {
       if (bc.currentURI.spec == "about:message") {
         super.paint(bc.window);
       }
@@ -95,7 +95,7 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
    */
   unpaint(window) {
     window.removeEventListener("aboutMessageLoaded", this);
-    for (let bc of window.browsingContext.getAllBrowsingContextsInSubtree()) {
+    for (const bc of window.browsingContext.getAllBrowsingContextsInSubtree()) {
       if (bc.currentURI.spec == "about:message") {
         super.unpaint(bc.window);
       }
@@ -106,7 +106,7 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
    * Overrides the super class to update every about:message in this window.
    */
   async updateWindow(window) {
-    for (let bc of window.browsingContext.getAllBrowsingContextsInSubtree()) {
+    for (const bc of window.browsingContext.getAllBrowsingContextsInSubtree()) {
       if (bc.currentURI.spec == "about:message") {
         super.updateWindow(bc.window);
       }
@@ -123,13 +123,13 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
       return;
     }
 
-    let window = Cu.getGlobalForObject(target);
+    const window = Cu.getGlobalForObject(target);
     if (window == target) {
       await super.updateOnChange(target);
       return;
     }
 
-    let tabmail = window.top.document.getElementById("tabmail");
+    const tabmail = window.top.document.getElementById("tabmail");
     if (!tabmail || target != tabmail.selectedTab) {
       return;
     }
@@ -148,7 +148,7 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
 
   handleEvent(event) {
     super.handleEvent(event);
-    let window = event.target.ownerGlobal;
+    const window = event.target.ownerGlobal;
 
     switch (event.type) {
       case "aboutMessageLoaded":
@@ -203,10 +203,10 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
     // The passed in window could be the window of one of the supported message
     // browsers already. To know if the browser is hidden, always re-search the
     // message window and start at the top.
-    let tabmail = window.top.document.getElementById("tabmail");
+    const tabmail = window.top.document.getElementById("tabmail");
     if (tabmail) {
       // A mail tab or a message tab.
-      let isHidden =
+      const isHidden =
         tabmail.currentAbout3Pane &&
         tabmail.currentAbout3Pane.messageBrowser.hidden;
 
@@ -238,7 +238,7 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
   }
 
   makeButton(window) {
-    let button = super.makeButton(window);
+    const button = super.makeButton(window);
     button.classList.add("message-header-view-button");
     // The header toolbar has no associated context menu. Add one directly to
     // this button.

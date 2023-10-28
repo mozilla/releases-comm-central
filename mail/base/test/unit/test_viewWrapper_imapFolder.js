@@ -23,17 +23,17 @@ initViewWrapperTestUtils({ mode: "imap", offline: false });
 add_task(
   async function test_enter_imap_folder_requiring_update_folder_immediately() {
     // - create the folder and wait for the IMAP op to complete
-    let folderHandle = await messageInjection.makeEmptyFolder();
-    let msgFolder = messageInjection.getRealInjectionFolder(folderHandle);
+    const folderHandle = await messageInjection.makeEmptyFolder();
+    const msgFolder = messageInjection.getRealInjectionFolder(folderHandle);
 
     // - add the messages
-    let [msgSet] = await messageInjection.makeNewSetsInFolders(
+    const [msgSet] = await messageInjection.makeNewSetsInFolders(
       [folderHandle],
       [{ count: 1 }],
       true
     );
 
-    let viewWrapper = make_view_wrapper();
+    const viewWrapper = make_view_wrapper();
 
     // - make sure we don't know about the message!
     Assert.equal(msgFolder.getTotalMessages(false), 0);

@@ -116,7 +116,7 @@ var PgpSqliteDb2 = {
     try {
       conn = await this.openDatabase();
 
-      let result = await conn.execute(
+      const result = await conn.execute(
         "select count(decision) as hits from acceptance_email" +
           " inner join acceptance_decision on" +
           " acceptance_decision.fpr = acceptance_email.fpr" +
@@ -181,7 +181,7 @@ var PgpSqliteDb2 = {
           )
           .then(result => {
             if (result.length) {
-              let count = result[0].getResultByName("count(*)");
+              const count = result[0].getResultByName("count(*)");
               rv.emailDecided = count > 0;
             }
           });
@@ -197,7 +197,7 @@ var PgpSqliteDb2 = {
 
   // fingerprint must be lowercase already
   async internalDeleteAcceptanceNoTransaction(conn, fingerprint) {
-    let delObj = { fpr: fingerprint };
+    const delObj = { fpr: fingerprint };
     await conn.execute(
       "delete from acceptance_decision where fpr = :fpr",
       delObj
@@ -239,7 +239,7 @@ var PgpSqliteDb2 = {
     try {
       conn = await this.openDatabase();
 
-      let fingerprintAcceptance = await this.getFingerprintAcceptance(
+      const fingerprintAcceptance = await this.getFingerprintAcceptance(
         conn,
         fingerprint
       );
@@ -320,7 +320,7 @@ var PgpSqliteDb2 = {
     fingerprint = fingerprint.toLowerCase();
     let conn;
     try {
-      let uniqueEmails = new Set();
+      const uniqueEmails = new Set();
       if (decision !== "undecided") {
         if (emailArray) {
           for (let email of emailArray) {
@@ -345,7 +345,7 @@ var PgpSqliteDb2 = {
       await this.internalDeleteAcceptanceNoTransaction(conn, fingerprint);
 
       if (decision !== "undecided") {
-        let decisionObj = {
+        const decisionObj = {
           fpr: fingerprint,
           decision,
         };
@@ -360,7 +360,7 @@ var PgpSqliteDb2 = {
         if (decision !== "rejected") {
           // A key might contain multiple user IDs with the same email
           // address. We add each email only once.
-          for (let email of uniqueEmails) {
+          for (const email of uniqueEmails) {
             await conn.execute(
               "insert into acceptance_email values (:fpr, :email)",
               {
@@ -391,7 +391,7 @@ var PgpSqliteDb2 = {
   },
 
   async isAcceptedAsPersonalKey(fingerprint) {
-    let result = await this.getFingerprintAcceptance(null, fingerprint);
+    const result = await this.getFingerprintAcceptance(null, fingerprint);
     return result === "personal";
   },
 };
@@ -417,7 +417,7 @@ function openDatabaseConn(filename, resolve, reject, waitms, maxtime) {
       resolve(connection);
     })
     .catch(error => {
-      let now = Date.now();
+      const now = Date.now();
       if (now > maxtime) {
         reject(error);
         return;
@@ -430,8 +430,8 @@ function openDatabaseConn(filename, resolve, reject, waitms, maxtime) {
 
 async function checkAcceptanceTable(connection) {
   try {
-    let exists = await connection.tableExists("acceptance_email");
-    let exists2 = await connection.tableExists("acceptance_decision");
+    const exists = await connection.tableExists("acceptance_email");
+    const exists2 = await connection.tableExists("acceptance_decision");
     lazy.EnigmailLog.DEBUG("sqliteDB.jsm: checkAcceptanceTable - success\n");
     if (!exists || !exists2) {
       await createAcceptanceTable(connection);

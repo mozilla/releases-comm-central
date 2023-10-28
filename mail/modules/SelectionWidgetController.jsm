@@ -287,7 +287,7 @@ class SelectionWidgetController {
   #updateWidgetSelectionState(index, number) {
     // First, inform the widget of the selection state of the new items.
     let prevRangeEnd = index;
-    for (let { start, end } of this.#ranges) {
+    for (const { start, end } of this.#ranges) {
       // Deselect the items in the gap between the previous range and this one.
       // For the first range, there may not be a gap.
       if (start > prevRangeEnd) {
@@ -354,11 +354,11 @@ class SelectionWidgetController {
     // However, if insertSelection touches the start or end of the new items, it
     // may be possible to merge it with an existing SelectionRange that touches
     // the same edge.
-    let touchStartRange =
+    const touchStartRange =
       insertSelection.length && insertSelection[0].start == index
         ? insertSelection[0]
         : null;
-    let touchEndRange =
+    const touchEndRange =
       insertSelection.length &&
       insertSelection[insertSelection.length - 1].end == index + number
         ? insertSelection[insertSelection.length - 1]
@@ -366,7 +366,7 @@ class SelectionWidgetController {
 
     // Go through ranges from last to first.
     for (let i = this.#ranges.length - 1; i >= 0; i--) {
-      let { start, end } = this.#ranges[i];
+      const { start, end } = this.#ranges[i];
       if (touchStartRange && end == index) {
         // Merge the range with touchStartRange.
         touchStartRange.start = start;
@@ -453,11 +453,11 @@ class SelectionWidgetController {
     this.#assertIntegerInRange(index, 0, this.#numItems - 1, "index");
     this.#assertIntegerInRange(number, 1, this.#numItems - index, "number");
 
-    let focusWasSelected =
+    const focusWasSelected =
       this.#focusIndex != null && this.itemIsSelected(this.#focusIndex);
     // Get whether the focus is within the widget now in case it is lost when
     // the items are removed.
-    let focusInWidget = this.#focusInWidget();
+    const focusInWidget = this.#focusInWidget();
 
     removeCallback();
 
@@ -539,11 +539,11 @@ class SelectionWidgetController {
     let deleteRangesNumber = 0;
     // The range to insert by combining overlapping ranges on either side of the
     // deleted indices.
-    let insertRange = { start: index, end: index };
+    const insertRange = { start: index, end: index };
 
     // Go through ranges from last to first.
     for (let i = this.#ranges.length - 1; i >= 0; i--) {
-      let { start, end } = this.#ranges[i];
+      const { start, end } = this.#ranges[i];
       if (end < index) {
         //                                     <- removed ->
         // A   B   C   D   E [ F   G   H ] I   J   K   L   M
@@ -652,14 +652,14 @@ class SelectionWidgetController {
     this.#assertIntegerInRange(to, 0, this.#numItems - number, "to");
     // Get whether the focus is within the widget now in case it is lost when
     // the items are moved.
-    let focusInWidget = this.#focusInWidget();
+    const focusInWidget = this.#focusInWidget();
 
     moveCallback();
 
-    let movedSelection = this.#adjustRangesOnRemoveItems(from, number);
+    const movedSelection = this.#adjustRangesOnRemoveItems(from, number);
     // Descend the removed ranges.
     for (let i = movedSelection.length - 1; i >= 0; i--) {
-      let range = movedSelection[i];
+      const range = movedSelection[i];
       if (range.end <= from || range.start >= from + number) {
         // Touched the start or end, but did not overlap.
         movedSelection.splice(i, 1);
@@ -714,7 +714,7 @@ class SelectionWidgetController {
    */
   selectSingleItem(index) {
     this.#selectSingle(index);
-    let focusInWidget = this.#focusInWidget();
+    const focusInWidget = this.#focusInWidget();
     if (this.#focusIndex == null && !focusInWidget) {
       // Wait until handleFocusIn to move the focus to the selected item in case
       // other items become selected through setItemSelected.
@@ -776,7 +776,7 @@ class SelectionWidgetController {
    */
   itemIsSelected(index) {
     this.#assertIntegerInRange(index, 0, this.#numItems - 1, "index");
-    for (let { start, end } of this.#ranges) {
+    for (const { start, end } of this.#ranges) {
       if (index < start) {
         // index was not in any lower ranges and is before the start of this
         // range, so should be unselected.
@@ -800,9 +800,9 @@ class SelectionWidgetController {
     this.#assertIntegerInRange(index, 0, this.#numItems - 1, "index");
     this.#assertIntegerInRange(number, 1, this.#numItems - index, "number");
 
-    let prevRanges = this.#ranges;
-    let start = index;
-    let end = index + number;
+    const prevRanges = this.#ranges;
+    const start = index;
+    const end = index + number;
     if (
       prevRanges.length == 1 &&
       prevRanges[0].start == start &&
@@ -820,8 +820,8 @@ class SelectionWidgetController {
     // state be set more than once for an item, but it will be to the same
     // value.
     if (prevRanges.length) {
-      let firstRangeStart = prevRanges[0].start;
-      let lastRangeEnd = prevRanges[prevRanges.length - 1].end;
+      const firstRangeStart = prevRanges[0].start;
+      const lastRangeEnd = prevRanges[prevRanges.length - 1].end;
       this.#updateWidgetSelectionState(
         firstRangeStart,
         lastRangeEnd - firstRangeStart
@@ -855,7 +855,7 @@ class SelectionWidgetController {
     let i;
     // We traverse over the ranges.
     for (i = 0; i < this.#ranges.length; i++) {
-      let { start, end } = this.#ranges[i];
+      const { start, end } = this.#ranges[i];
       // Test if in a gap between the end of last range and the start of the
       // current one.
       // NOTE: Since we did not break on the previous loop, we already know that
@@ -914,11 +914,11 @@ class SelectionWidgetController {
       // width.
       // We want to know whether the index touches the borders of the range
       // either side of the gap.
-      let touchesRangeEnd = i > 0 && index == this.#ranges[i - 1].end;
+      const touchesRangeEnd = i > 0 && index == this.#ranges[i - 1].end;
       // A [ B   C   D ] E   F   G   H   I
       //         end(i-1)^
       //                 ^index
-      let touchesRangeStart =
+      const touchesRangeStart =
         i < this.#ranges.length && index + 1 == this.#ranges[i].start;
       // A   B   C   D   E [ F   G   H ] I
       //                     ^start(i)
@@ -967,7 +967,7 @@ class SelectionWidgetController {
    *   current focus state.
    */
   #moveFocus(index, focusInWidget) {
-    let numItems = this.#numItems;
+    const numItems = this.#numItems;
     if (index != null) {
       if (index >= numItems) {
         index = numItems ? numItems - 1 : null;
@@ -1022,7 +1022,7 @@ class SelectionWidgetController {
    *   to select all items.
    */
   #adjustFocusAndSelection(focusIndex, select) {
-    let prevFocusIndex = this.#focusIndex;
+    const prevFocusIndex = this.#focusIndex;
     if (focusIndex !== undefined) {
       // NOTE: We need a strict inequality since focusIndex may be null.
       this.#moveFocus(focusIndex);
@@ -1108,7 +1108,7 @@ class SelectionWidgetController {
     if (event.button != 0 || event.metaKey || event.altKey) {
       return;
     }
-    let { shiftKey, ctrlKey } = event;
+    const { shiftKey, ctrlKey } = event;
     if (
       (ctrlKey && shiftKey) ||
       // Both modifiers pressed.
@@ -1117,7 +1117,7 @@ class SelectionWidgetController {
     ) {
       return;
     }
-    let clickIndex = this.#methods.indexFromTarget(event.target);
+    const clickIndex = this.#methods.indexFromTarget(event.target);
     if (clickIndex == null) {
       // Clicked empty space.
       return;
@@ -1147,7 +1147,7 @@ class SelectionWidgetController {
     ) {
       return;
     }
-    let clickIndex = this.#methods.indexFromTarget(event.target);
+    const clickIndex = this.#methods.indexFromTarget(event.target);
     if (clickIndex == null) {
       return;
     }
@@ -1160,7 +1160,7 @@ class SelectionWidgetController {
       return;
     }
 
-    let { shiftKey, ctrlKey, metaKey } = event;
+    const { shiftKey, ctrlKey, metaKey } = event;
     if (
       this.#multiSelectable &&
       event.key == "a" &&
@@ -1226,7 +1226,7 @@ class SelectionWidgetController {
         break;
       case "PageUp":
       case "PageDown":
-        let sizeDetails = this.#methods.getPageSizeDetails();
+        const sizeDetails = this.#methods.getPageSizeDetails();
         if (!sizeDetails) {
           // Do not handle and allow PageUp or PageDown to propagate.
           return;
@@ -1235,7 +1235,7 @@ class SelectionWidgetController {
           // Still reserve PageUp and PageDown
           break;
         }
-        let { itemSize, viewSize, viewOffset } = sizeDetails;
+        const { itemSize, viewSize, viewOffset } = sizeDetails;
         // We want to determine what items are visible. We count an item as
         // "visible" if more than half of it is in view.
         //
@@ -1263,7 +1263,7 @@ class SelectionWidgetController {
         // is the largest index i that satisfies
         //     i < (viewSize / itemSize) - 1/2
         // This is given by taking the ceiling - 1, which cancels with the +1.
-        let itemsPerPage = Math.ceil(viewSize / itemSize - 0.5);
+        const itemsPerPage = Math.ceil(viewSize / itemSize - 0.5);
         if (itemsPerPage <= 1) {
           break;
         }
@@ -1272,7 +1272,7 @@ class SelectionWidgetController {
           // i that satisfies
           //     i > (viewOffset / itemSize) - 1/2
           // This is equivalent to flooring the right hand side + 1.
-          let pageStart = Math.floor(viewOffset / itemSize - 0.5) + 1;
+          const pageStart = Math.floor(viewOffset / itemSize - 0.5) + 1;
           if (this.#focusIndex == null || this.#focusIndex > pageStart) {
             // Move focus to the top of the page.
             focusIndex = pageStart;
@@ -1287,7 +1287,8 @@ class SelectionWidgetController {
           // that satisfies
           //     i < (viewOffset + viewSize) / itemSize - 1/2
           // This is equivalent to ceiling the right hand side - 1.
-          let pageEnd = Math.ceil((viewOffset + viewSize) / itemSize - 0.5) - 1;
+          const pageEnd =
+            Math.ceil((viewOffset + viewSize) / itemSize - 0.5) - 1;
           if (this.#focusIndex == null || this.#focusIndex < pageEnd) {
             // Move focus to the end of the page.
             focusIndex = pageEnd;

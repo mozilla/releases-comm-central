@@ -34,20 +34,20 @@ class PromptCollection {
       return false;
     }
 
-    let contentViewer = browsingContext?.docShell?.contentViewer;
+    const contentViewer = browsingContext?.docShell?.contentViewer;
 
     // TODO: Do we really want to allow modal dialogs from inactive
     // content viewers at all, particularly for permit unload prompts?
-    let modalAllowed = contentViewer
+    const modalAllowed = contentViewer
       ? contentViewer.isTabModalPromptAllowed
       : browsingContext.ancestorsAreCurrent;
 
-    let modalType =
+    const modalType =
       Ci.nsIPromptService[
         modalAllowed ? "MODAL_TYPE_CONTENT" : "MODAL_TYPE_WINDOW"
       ];
 
-    let buttonFlags =
+    const buttonFlags =
       Ci.nsIPromptService.BUTTON_POS_0_DEFAULT |
       (Ci.nsIPromptService.BUTTON_TITLE_IS_STRING *
         Ci.nsIPromptService.BUTTON_POS_0) |
@@ -82,7 +82,7 @@ XPCOMUtils.defineLazyGetter(
   PromptCollection.prototype,
   "domBundle",
   function () {
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://global/locale/dom/dom.properties"
     );
     if (!bundle) {

@@ -51,16 +51,18 @@ const policiesToTest = [
 ];
 
 add_task(async function testAboutTask() {
-  for (let policyToTest of policiesToTest) {
-    let policyJSON = { policies: {} };
+  for (const policyToTest of policiesToTest) {
+    const policyJSON = { policies: {} };
     policyJSON.policies = policyToTest.policies;
-    for (let url of policyToTest.urls) {
+    for (const url of policyToTest.urls) {
       if (url.startsWith("about")) {
-        let feature = url.split(":")[1];
-        let aboutModule = Cc[ABOUT_CONTRACT + feature].getService(
+        const feature = url.split(":")[1];
+        const aboutModule = Cc[ABOUT_CONTRACT + feature].getService(
           Ci.nsIAboutModule
         );
-        let chromeURL = aboutModule.getChromeURI(Services.io.newURI(url)).spec;
+        const chromeURL = aboutModule.getChromeURI(
+          Services.io.newURI(url)
+        ).spec;
         await testPageBlockedByPolicy(policyJSON, chromeURL);
       }
       await testPageBlockedByPolicy(policyJSON, url);

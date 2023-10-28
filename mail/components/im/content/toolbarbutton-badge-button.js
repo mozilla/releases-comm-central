@@ -54,7 +54,7 @@
 
     set badgeCount(count) {
       this._badgeCount = count;
-      let badge = this.querySelector(".badgeButton-badge");
+      const badge = this.querySelector(".badgeButton-badge");
       badge.textContent = count;
       badge.hidden = count == 0;
     }

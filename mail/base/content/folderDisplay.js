@@ -391,7 +391,7 @@ FolderDisplayWidget.prototype = {
     this._deleteInProgress = false;
 
     // - we saw this coming
-    let rowCount = this.view.dbView.rowCount;
+    const rowCount = this.view.dbView.rowCount;
     if (this._nextViewIndexAfterDelete != null) {
       // adjust the index if it is after the last row...
       // (this can happen if the "mail.delete_matches_sort_order" pref is not
@@ -408,7 +408,7 @@ FolderDisplayWidget.prototype = {
     // - we didn't see it coming
 
     // A deletion happened to our folder.
-    let treeSelection = this.treeSelection;
+    const treeSelection = this.treeSelection;
     // we can't fix the selection if we have no selection
     if (!treeSelection) {
       return;
@@ -542,7 +542,7 @@ FolderDisplayWidget.prototype = {
     // save the current index off in case the selection gets deleted out from
     //  under us and we want to have persistence of actually-having-something
     //  selected.
-    let treeSelection = this.treeSelection;
+    const treeSelection = this.treeSelection;
     if (treeSelection) {
       this._mostRecentCurrentIndices.unshift(treeSelection.currentIndex);
       this._mostRecentCurrentIndices.splice(2);
@@ -605,7 +605,7 @@ FolderDisplayWidget.prototype = {
     if (!this.view.dbView) {
       return false;
     }
-    let enabledObj = {},
+    const enabledObj = {},
       checkStatusObj = {};
     this.view.dbView.getCommandStatus(aCommandType, enabledObj, checkStatusObj);
     return enabledObj.value;
@@ -660,14 +660,14 @@ FolderDisplayWidget.prototype = {
     if (aSelect === undefined) {
       aSelect = true;
     }
-    let resultKeyObj = {},
+    const resultKeyObj = {},
       resultIndexObj = {},
       threadIndexObj = {};
 
-    let summarizeSelection = this.summarizeSelectionInFolder;
+    const summarizeSelection = this.summarizeSelectionInFolder;
 
-    let treeSelection = this.treeSelection; // potentially magic getter
-    let currentIndex = treeSelection ? treeSelection.currentIndex : 0;
+    const treeSelection = this.treeSelection; // potentially magic getter
+    const currentIndex = treeSelection ? treeSelection.currentIndex : 0;
 
     let viewIndex;
     // if we're doing next unread, and a collapsed thread is selected, and
@@ -739,11 +739,11 @@ FolderDisplayWidget.prototype = {
     // there are inconsistencies in hdrForFirstSelectedMessage between
     //  nsMsgDBView and nsMsgSearchDBView in whether they use currentIndex,
     //  do it ourselves.  (nsMsgDBView does not use currentIndex, search does.)
-    let treeSelection = this.treeSelection;
+    const treeSelection = this.treeSelection;
     if (!treeSelection || !treeSelection.count) {
       return null;
     }
-    let minObj = {},
+    const minObj = {},
       maxObj = {};
     treeSelection.getRangeAt(0, minObj, maxObj);
     return this.view.dbView.getMsgHdrAt(minObj.value);
@@ -822,7 +822,7 @@ FolderDisplayWidget.prototype = {
       return null;
     }
 
-    let messageArray = this.view.dbView.getURIsForSelection();
+    const messageArray = this.view.dbView.getURIsForSelection();
     return messageArray.length ? messageArray : null;
   },
 
@@ -834,12 +834,12 @@ FolderDisplayWidget.prototype = {
    *     bail.
    */
   selectViewIndex(aViewIndex) {
-    let treeSelection = this.treeSelection;
+    const treeSelection = this.treeSelection;
     // if we have no selection, we can't select something
     if (!treeSelection) {
       return;
     }
-    let rowCount = this.view.dbView.rowCount;
+    const rowCount = this.view.dbView.rowCount;
     if (
       aViewIndex == nsMsgViewIndex_None ||
       aViewIndex < 0 ||
@@ -904,16 +904,16 @@ FolderDisplayWidget.prototype = {
     // If we can get the height of the folder pane, treat the values as
     //  percentages of that.
     if (this.tree) {
-      let topPercentPadding = Services.prefs.getIntPref(
+      const topPercentPadding = Services.prefs.getIntPref(
         "mail.threadpane.padding.top_percent"
       );
-      let bottomPercentPadding = Services.prefs.getIntPref(
+      const bottomPercentPadding = Services.prefs.getIntPref(
         "mail.threadpane.padding.bottom_percent"
       );
 
       // Assume the bottom row is half-visible and should generally be ignored.
       // (We could actually do the legwork to see if there is a partial one...)
-      let paneHeight = this.tree.getPageLength() - 1;
+      const paneHeight = this.tree.getPageLength() - 1;
 
       // Convert from percentages to absolute row counts.
       topPadding = Math.ceil((topPercentPadding / 100) * paneHeight);
@@ -955,13 +955,13 @@ FolderDisplayWidget.prototype = {
     //  and reliable if we ensure that all of FolderDisplayWidget's state
     //  change logic gets to run to completion before we run ourselves.
     if (!aBounced) {
-      let dis = this;
+      const dis = this;
       window.setTimeout(function () {
         dis.ensureRowIsVisible(aViewIndex, true);
       }, 0);
     }
 
-    let tree = this.tree;
+    const tree = this.tree;
     if (!tree || !tree.view) {
       return;
     }
@@ -969,15 +969,15 @@ FolderDisplayWidget.prototype = {
     // try and trigger a reflow...
     tree.getBoundingClientRect();
 
-    let maxIndex = tree.view.rowCount - 1;
+    const maxIndex = tree.view.rowCount - 1;
 
-    let first = tree.getFirstVisibleRow();
+    const first = tree.getFirstVisibleRow();
     // Assume the bottom row is half-visible and should generally be ignored.
     // (We could actually do the legwork to see if there is a partial one...)
     const halfVisible = 1;
-    let last = tree.getLastVisibleRow() - halfVisible;
-    let span = tree.getPageLength() - halfVisible;
-    let [topPadding, bottomPadding] = this.visibleRowPadding;
+    const last = tree.getLastVisibleRow() - halfVisible;
+    const span = tree.getPageLength() - halfVisible;
+    const [topPadding, bottomPadding] = this.visibleRowPadding;
 
     let target;
     if (aViewIndex >= last - bottomPadding) {

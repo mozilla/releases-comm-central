@@ -46,7 +46,7 @@ imContextMenu.prototype = {
     ).nextElementSibling;
     // remove the action menuitems added last time we opened the popup
     while (elt && elt.localName != "menuseparator") {
-      let tmp = elt.nextElementSibling;
+      const tmp = elt.nextElementSibling;
       elt.remove();
       elt = tmp;
     }
@@ -83,7 +83,7 @@ imContextMenu.prototype = {
     this.showItem("context-copy", this.isContentSelected);
     this.showItem("context-selectall", !this.onLink || this.isContentSelected);
     if (!this.initedActions) {
-      let actor =
+      const actor =
         nsContextMenu.contentData.browser.browsingContext.currentWindowGlobal?.getActor(
           "ChatAction"
         );
@@ -115,9 +115,9 @@ imContextMenu.prototype = {
     this.showItem("context-sep-messageactions", actions.length > 0);
 
     // Display action menu items.
-    let sep = document.getElementById("context-sep-messageactions");
-    for (let [index, label] of actions.entries()) {
-      let menuitem = document.createXULElement("menuitem");
+    const sep = document.getElementById("context-sep-messageactions");
+    for (const [index, label] of actions.entries()) {
+      const menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("label", label);
       menuitem.addEventListener("command", () => {
         nsContextMenu.contentData.browser.browsingContext.currentWindowGlobal

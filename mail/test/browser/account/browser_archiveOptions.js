@@ -34,27 +34,29 @@ async function subtest_check_archive_options_enabled(
   accountKey,
   isEnabled
 ) {
-  let accountRow = get_account_tree_row(accountKey, "am-copies.xhtml", tab);
+  const accountRow = get_account_tree_row(accountKey, "am-copies.xhtml", tab);
   await click_account_tree_row(tab, accountRow);
 
-  let iframe =
+  const iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
-  let button = iframe.contentDocument.getElementById("archiveHierarchyButton");
+  const button = iframe.contentDocument.getElementById(
+    "archiveHierarchyButton"
+  );
 
   Assert.equal(button.disabled, !isEnabled);
 }
 
 add_task(async function test_archive_options_enabled() {
-  let defaultAccount = MailServices.accounts.defaultAccount;
+  const defaultAccount = MailServices.accounts.defaultAccount;
   // First, create an IMAP server
-  let imapServer = MailServices.accounts
+  const imapServer = MailServices.accounts
     .createIncomingServer("nobody", "example.com", "imap")
     .QueryInterface(Ci.nsIImapIncomingServer);
 
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox@example.com";
 
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = imapServer;
   account.addIdentity(identity);
 
@@ -150,9 +152,9 @@ async function subtest_check_archive_enabled(tab, archiveEnabled) {
 
   await click_account_tree_row(tab, 2);
 
-  let iframe =
+  const iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
-  let checkbox = iframe.contentDocument.getElementById(
+  const checkbox = iframe.contentDocument.getElementById(
     "identity.archiveEnabled"
   );
 
@@ -173,9 +175,9 @@ async function subtest_disable_archive(tab) {
   defaultIdentity.archiveEnabled = true;
   await click_account_tree_row(tab, 2);
 
-  let iframe =
+  const iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
-  let checkbox = iframe.contentDocument.getElementById(
+  const checkbox = iframe.contentDocument.getElementById(
     "identity.archiveEnabled"
   );
 

@@ -32,21 +32,21 @@ add_setup(async () => {
 });
 
 async function subtest_message_panes(manifest) {
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({
     messagePaneVisible: true,
     folderURI: gFolders[0].URI,
   });
 
-  let extension = await getMenuExtension(manifest);
+  const extension = await getMenuExtension(manifest);
 
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
   info("Test the thread pane in the 3-pane tab.");
 
-  let threadTree = about3Pane.document.getElementById("threadTree");
+  const threadTree = about3Pane.document.getElementById("threadTree");
   let menu = about3Pane.document.getElementById("mailContext");
   threadTree.selectedIndex = 0;
   await rightClick(menu, threadTree.getRowAtIndex(0));
@@ -109,8 +109,8 @@ async function subtest_message_panes(manifest) {
 
   info("Test the message pane in a separate window.");
 
-  let displayWindow = await openMessageInWindow(gMessage);
-  let displayDocument = displayWindow.document;
+  const displayWindow = await openMessageInWindow(gMessage);
+  const displayDocument = displayWindow.document;
   menu = displayDocument.getElementById("mailContext");
   messagePane = displayDocument
     .getElementById("messageBrowser")

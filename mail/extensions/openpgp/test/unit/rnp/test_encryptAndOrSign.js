@@ -178,9 +178,9 @@ add_setup(async function () {
  * with various inputs.
  */
 add_task(async function testEncryptAndOrSignResults() {
-  for (let test of tests) {
-    let chunks = test.filename.split("/");
-    let filename = chunks[chunks.length - 1];
+  for (const test of tests) {
+    const chunks = test.filename.split("/");
+    const filename = chunks[chunks.length - 1];
     if (test.skip) {
       info(`Skipped input from: ${filename}`);
       continue;
@@ -188,13 +188,13 @@ add_task(async function testEncryptAndOrSignResults() {
 
     info(`Running test with input from: ${filename}`);
 
-    let buffer = await IOUtils.read(do_get_file(test.filename).path);
+    const buffer = await IOUtils.read(do_get_file(test.filename).path);
     const textDecoder = new TextDecoder(test.encoding || "utf-8");
 
-    let sourceText = textDecoder.decode(buffer);
-    let encryptResult = {};
+    const sourceText = textDecoder.decode(buffer);
+    const encryptResult = {};
 
-    let encryptArgs = {
+    const encryptArgs = {
       aliasKeys: new Map(),
       armor: true,
       bcc: [],
@@ -209,7 +209,7 @@ add_task(async function testEncryptAndOrSignResults() {
       to: ["<alice@openpgp.example>"],
     };
 
-    let encrypted = await RNP.encryptAndOrSign(
+    const encrypted = await RNP.encryptAndOrSign(
       sourceText,
       encryptArgs,
       encryptResult
@@ -220,7 +220,7 @@ add_task(async function testEncryptAndOrSignResults() {
       `${filename}: RNP.encryptAndOrSign() exited ok`
     );
 
-    let decryptOptions = {
+    const decryptOptions = {
       fromAddr: "bob@openpgp.example",
       maxOutputLength: encrypted.length * 100,
       noOutput: false,
@@ -229,7 +229,7 @@ add_task(async function testEncryptAndOrSignResults() {
       msgDate: null,
     };
 
-    let { exitCode, decryptedData } = await RNP.decrypt(
+    const { exitCode, decryptedData } = await RNP.decrypt(
       encrypted,
       decryptOptions
     );
@@ -252,23 +252,26 @@ add_task(async function testEncryptAndOrSignResults() {
  * https://openclipart.org/detail/191741/blue-bird
  */
 add_task(async function testDecryptAttachment() {
-  let expected = String.fromCharCode(
+  const expected = String.fromCharCode(
     ...(await IOUtils.read(do_get_file("data/bluebird50.jpg").path))
   );
 
-  for (let filename of ["data/bluebird50.jpg.asc", "data/bluebird50.jpg.gpg"]) {
-    let encrypted = String.fromCharCode(
+  for (const filename of [
+    "data/bluebird50.jpg.asc",
+    "data/bluebird50.jpg.gpg",
+  ]) {
+    const encrypted = String.fromCharCode(
       ...(await IOUtils.read(do_get_file(filename).path))
     );
-    let options = {};
+    const options = {};
     options.fromAddr = "";
     options.msgDate = null;
-    let result = await RNP.decrypt(encrypted, options);
+    const result = await RNP.decrypt(encrypted, options);
 
     Assert.ok(!result.exitCode, `${filename}: RNP.decrypt() exited ok`);
 
     // Don't use Assert.equal to avoid logging the raw binary data
-    let isEqual = expected === result.decryptedData;
+    const isEqual = expected === result.decryptedData;
 
     Assert.ok(
       isEqual,

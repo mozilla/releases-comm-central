@@ -49,14 +49,14 @@ if (!customElements.get("menulist")) {
         ],
 
         init() {
-          for (let topic of this._notifications) {
+          for (const topic of this._notifications) {
             Services.obs.addObserver(this, topic, true);
           }
           window.addEventListener("unload", this);
         },
 
         cleanUp() {
-          for (let topic of this._notifications) {
+          for (const topic of this._notifications) {
             Services.obs.removeObserver(this, topic);
           }
           window.removeEventListener("unload", this);
@@ -85,7 +85,7 @@ if (!customElements.get("menulist")) {
             case "addrbook-directory-updated": {
               // Find the item in the list to rename.
               // We can't use indexOf here because we need loose equality.
-              let len = this._directories.length;
+              const len = this._directories.length;
               for (var oldIndex = len - 1; oldIndex >= 0; oldIndex--) {
                 if (this._directories[oldIndex] == subject) {
                   break;
@@ -99,7 +99,7 @@ if (!customElements.get("menulist")) {
             case "addrbook-directory-deleted": {
               // Find the item in the list to remove.
               // We can't use indexOf here because we need loose equality.
-              let len = this._directories.length;
+              const len = this._directories.length;
               for (var index = len - 1; index >= 0; index--) {
                 if (this._directories[index] == subject) {
                   break;
@@ -150,13 +150,13 @@ if (!customElements.get("menulist")) {
       // Init the address book cache.
       this._directories.length = 0;
 
-      for (let ab of MailServices.ab.directories) {
+      for (const ab of MailServices.ab.directories) {
         if (this._matches(ab)) {
           this._directories.push(ab);
 
           if (this.getAttribute("mailinglists") == "true") {
             // Also append contained mailinglists.
-            for (let list of ab.childNodes) {
+            for (const list of ab.childNodes) {
               if (this._matches(list)) {
                 this._directories.push(list);
               }
@@ -170,7 +170,7 @@ if (!customElements.get("menulist")) {
       if (this.hasAttribute("none")) {
         // Create a dummy menuitem representing no selection.
         this._directories.unshift(null);
-        let listItem = this.appendItem(this.getAttribute("none"), "");
+        const listItem = this.appendItem(this.getAttribute("none"), "");
         listItem.setAttribute("class", "menuitem-iconic abMenuItem");
       }
 
@@ -178,14 +178,14 @@ if (!customElements.get("menulist")) {
         // Insert a menuitem representing All Addressbooks.
         let allABLabel = this.getAttribute("alladdressbooks");
         if (allABLabel == "true") {
-          let bundle = Services.strings.createBundle(
+          const bundle = Services.strings.createBundle(
             "chrome://messenger/locale/addressbook/addressBook.properties"
           );
           allABLabel = bundle.GetStringFromName("allAddressBooks");
         }
 
         this._directories.unshift(null);
-        let listItem = this.appendItem(allABLabel, "moz-abdirectory://?");
+        const listItem = this.appendItem(allABLabel, "moz-abdirectory://?");
         listItem.setAttribute("class", "menuitem-iconic abMenuItem");
         listItem.setAttribute(
           "image",
@@ -194,14 +194,14 @@ if (!customElements.get("menulist")) {
       }
 
       // Now create menuitems for all displayed directories.
-      let type = this._type;
-      for (let ab of this._directories) {
+      const type = this._type;
+      for (const ab of this._directories) {
         if (!ab) {
           // Skip the empty members added above.
           continue;
         }
 
-        let listItem = this.appendItem(ab.dirName, ab[type]);
+        const listItem = this.appendItem(ab.dirName, ab[type]);
         listItem.setAttribute("class", "menuitem-iconic abMenuItem");
 
         // Style the items by type.

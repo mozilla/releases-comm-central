@@ -34,7 +34,7 @@ var gAttachmentReminderOptionsDialog = {
   async addKeyword() {
     var input = { value: "" }; // Default to empty.
 
-    let [title, message] = await document.l10n.formatValues([
+    const [title, message] = await document.l10n.formatValues([
       { id: "new-keyword-title" },
       { id: "new-keyword-label" },
     ]);
@@ -43,7 +43,7 @@ var gAttachmentReminderOptionsDialog = {
       value: 0,
     });
     if (ok && input.value) {
-      let newKey = this.keywordListBox.appendItem(input.value, input.value);
+      const newKey = this.keywordListBox.appendItem(input.value, input.value);
       this.keywordListBox.ensureElementIsVisible(newKey);
       this.keywordListBox.selectItem(newKey);
     }
@@ -56,7 +56,7 @@ var gAttachmentReminderOptionsDialog = {
     var keywordToEdit = this.keywordListBox.selectedItem;
     var input = { value: keywordToEdit.getAttribute("value") };
 
-    let [title, message] = await document.l10n.formatValues([
+    const [title, message] = await document.l10n.formatValues([
       { id: "edit-keyword-title" },
       { id: "edit-keyword-label" },
     ]);

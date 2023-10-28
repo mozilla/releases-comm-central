@@ -37,16 +37,16 @@ var cloudFileAccounts = new (class extends EventEmitter {
   }
 
   get _accountKeys() {
-    let accountKeySet = new Set();
-    let branch = Services.prefs.getBranch(ACCOUNT_ROOT);
-    let children = branch.getChildList("");
-    for (let child of children) {
-      let subbranch = child.substr(0, child.indexOf("."));
+    const accountKeySet = new Set();
+    const branch = Services.prefs.getBranch(ACCOUNT_ROOT);
+    const children = branch.getChildList("");
+    for (const child of children) {
+      const subbranch = child.substr(0, child.indexOf("."));
       accountKeySet.add(subbranch);
 
-      let match = /^account(\d+)$/.exec(subbranch);
+      const match = /^account(\d+)$/.exec(subbranch);
       if (match) {
-        let ordinal = parseInt(match[1], 10);
+        const ordinal = parseInt(match[1], 10);
         this._highestOrdinal = Math.max(this._highestOrdinal, ordinal);
       }
     }
@@ -95,7 +95,7 @@ var cloudFileAccounts = new (class extends EventEmitter {
       throw new Error(`Cloudfile provider ${aType} is not registered`);
     }
 
-    for (let account of this.getAccountsForType(aType)) {
+    for (const account of this.getAccountsForType(aType)) {
       this._accounts.delete(account.accountKey);
     }
 
@@ -113,11 +113,11 @@ var cloudFileAccounts = new (class extends EventEmitter {
 
   createAccount(aType) {
     this._highestOrdinal++;
-    let key = "account" + this._highestOrdinal;
+    const key = "account" + this._highestOrdinal;
 
     try {
-      let provider = this.getProviderForType(aType);
-      let account = provider.initAccount(key);
+      const provider = this.getProviderForType(aType);
+      const account = provider.initAccount(key);
 
       Services.prefs.setCharPref(ACCOUNT_ROOT + key + ".type", aType);
       Services.prefs.setCharPref(
@@ -129,7 +129,7 @@ var cloudFileAccounts = new (class extends EventEmitter {
       this.emit("accountAdded", account);
       return account;
     } catch (e) {
-      for (let prefName of Services.prefs.getChildList(
+      for (const prefName of Services.prefs.getChildList(
         `${ACCOUNT_ROOT}${key}.`
       )) {
         Services.prefs.clearUserPref(prefName);
@@ -139,11 +139,11 @@ var cloudFileAccounts = new (class extends EventEmitter {
   }
 
   removeAccount(aKeyOrAccount) {
-    let key = this._ensureKey(aKeyOrAccount);
-    let type = Services.prefs.getCharPref(ACCOUNT_ROOT + key + ".type");
+    const key = this._ensureKey(aKeyOrAccount);
+    const type = Services.prefs.getCharPref(ACCOUNT_ROOT + key + ".type");
 
     this._accounts.delete(key);
-    for (let prefName of Services.prefs.getChildList(
+    for (const prefName of Services.prefs.getChildList(
       `${ACCOUNT_ROOT}${key}.`
     )) {
       Services.prefs.clearUserPref(prefName);
@@ -153,9 +153,9 @@ var cloudFileAccounts = new (class extends EventEmitter {
   }
 
   get accounts() {
-    let arr = [];
-    for (let key of this._accountKeys) {
-      let account = this.getAccount(key);
+    const arr = [];
+    for (const key of this._accountKeys) {
+      const account = this.getAccount(key);
       if (account) {
         arr.push(account);
       }
@@ -172,11 +172,11 @@ var cloudFileAccounts = new (class extends EventEmitter {
       return this._accounts.get(aKey);
     }
 
-    let type = Services.prefs.getCharPref(ACCOUNT_ROOT + aKey + ".type", "");
+    const type = Services.prefs.getCharPref(ACCOUNT_ROOT + aKey + ".type", "");
     if (type) {
-      let provider = this.getProviderForType(type);
+      const provider = this.getProviderForType(type);
       if (provider) {
-        let account = provider.initAccount(aKey);
+        const account = provider.initAccount(aKey);
         this._accounts.set(aKey, account);
         return account;
       }
@@ -185,10 +185,10 @@ var cloudFileAccounts = new (class extends EventEmitter {
   }
 
   getAccountsForType(aType) {
-    let result = [];
+    const result = [];
 
-    for (let accountKey of this._accountKeys) {
-      let type = Services.prefs.getCharPref(
+    for (const accountKey of this._accountKeys) {
+      const type = Services.prefs.getCharPref(
         ACCOUNT_ROOT + accountKey + ".type"
       );
       if (type === aType) {
@@ -201,12 +201,12 @@ var cloudFileAccounts = new (class extends EventEmitter {
 
   getDisplayName(aKeyOrAccount) {
     // If no display name has been set, we return the empty string.
-    let key = this._ensureKey(aKeyOrAccount);
+    const key = this._ensureKey(aKeyOrAccount);
     return Services.prefs.getCharPref(ACCOUNT_ROOT + key + ".displayName", "");
   }
 
   setDisplayName(aKeyOrAccount, aDisplayName) {
-    let key = this._ensureKey(aKeyOrAccount);
+    const key = this._ensureKey(aKeyOrAccount);
     Services.prefs.setCharPref(
       ACCOUNT_ROOT + key + ".displayName",
       aDisplayName

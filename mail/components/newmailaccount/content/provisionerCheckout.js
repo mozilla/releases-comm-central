@@ -115,7 +115,7 @@ provisionerCheckoutTabType._setMonitoring = function (
   aEmail,
   aSearchEngine
 ) {
-  let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+  const mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
 
   // We'll construct our special observer (defined in urlListener.js)
   // that will watch for requests where the contentType contains

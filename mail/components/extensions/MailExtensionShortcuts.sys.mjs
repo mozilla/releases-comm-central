@@ -41,7 +41,7 @@ export class MailExtensionShortcuts extends ExtensionShortcuts {
    * @returns {Document} The newly created Key element.
    */
   buildKey(doc, name, shortcut) {
-    let keyElement = this.buildKeyFromShortcut(doc, name, shortcut);
+    const keyElement = this.buildKeyFromShortcut(doc, name, shortcut);
 
     // We need to have the attribute "oncommand" for the "command" listener to fire,
     // and it is currently ignored when set to the empty string.
@@ -69,7 +69,7 @@ export class MailExtensionShortcuts extends ExtensionShortcuts {
         return;
       }
       if (action) {
-        let win = event.target.ownerGlobal;
+        const win = event.target.ownerGlobal;
         action.triggerAction(win);
       }
     });

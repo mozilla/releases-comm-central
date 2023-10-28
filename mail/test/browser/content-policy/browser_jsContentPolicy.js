@@ -33,11 +33,11 @@ var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
 
-let aboutMessage = get_about_message();
+const aboutMessage = get_about_message();
 
 var folder;
 registerCleanupFunction(async () => {
-  let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   folder.deleteSelf(window.msgWindow);
   await promptPromise;
 
@@ -48,9 +48,9 @@ var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-policy/html/";
 
 function addToFolder(aSubject, aBody, aFolder) {
-  let msgId = Services.uuid.generateUUID() + "@mozillamessaging.invalid";
+  const msgId = Services.uuid.generateUUID() + "@mozillamessaging.invalid";
 
-  let source =
+  const source =
     "From - Sat Nov  1 12:39:54 2008\n" +
     "X-Mozilla-Status: 0001\n" +
     "X-Mozilla-Status2: 00000000\n" +
@@ -99,9 +99,9 @@ function assertJSDisabled() {
     "JS should not be turned on in content."
   );
 
-  let noscript = content.document.querySelector("noscript");
+  const noscript = content.document.querySelector("noscript");
   Assert.ok(!!noscript, "noscript element should be found in doc");
-  let display = content.getComputedStyle(noscript).display;
+  const display = content.getComputedStyle(noscript).display;
   Assert.equal(display, "inline", "noscript display should be 'inline'");
 }
 
@@ -121,9 +121,9 @@ function assertJSEnabled() {
     "JS should be turned on in content."
   );
 
-  let noscript = content.document.querySelector("noscript");
+  const noscript = content.document.querySelector("noscript");
   Assert.ok(!!noscript, "noscript element should be found in doc");
-  let display = content.getComputedStyle(noscript).display;
+  const display = content.getComputedStyle(noscript).display;
   Assert.equal(display, "none", "noscript display should be 'none'");
 }
 
@@ -162,10 +162,10 @@ add_setup(async function () {
 add_task(async function testJsInMail() {
   await be_in_folder(folder);
 
-  let msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
+  const msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
 
   // select the newly created message
-  let msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo);
 
   Assert.equal(
     msgDbHdr,
@@ -185,7 +185,7 @@ add_task(async function testJsInMail() {
  * Check JavaScript is enabled when loading local content in the message pane.
  */
 add_task(async function testJsInNonMessageContent() {
-  let loadedPromise = BrowserTestUtils.browserLoaded(messagePane);
+  const loadedPromise = BrowserTestUtils.browserLoaded(messagePane);
   MailE10SUtils.loadURI(
     messagePane,
     "data:text/html;charset=utf-8,<script>var jsIsTurnedOn%3Dtrue%3B<%2Fscript>bar" +
@@ -203,8 +203,8 @@ add_task(async function testJsInNonMessageContent() {
  */
 add_task(async function testJsInRemoteContent() {
   // load something non-message-like in the message pane
-  let pageURL = url + "remote-noscript.html";
-  let loadedPromise = BrowserTestUtils.browserLoaded(
+  const pageURL = url + "remote-noscript.html";
+  const loadedPromise = BrowserTestUtils.browserLoaded(
     messagePane,
     false,
     pageURL
@@ -224,10 +224,10 @@ add_task(async function testJsInRemoteContent() {
 add_task(async function testJsInMailAgain() {
   await be_in_folder(folder);
 
-  let msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
+  const msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
 
   // select the newly created message
-  let msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo);
 
   Assert.equal(
     msgDbHdr,
@@ -269,10 +269,10 @@ add_task(async function testJsInMailReply() {
     "<img src=x onerror=alert(1)></body>"
   );
 
-  let msgDbHdr = addToFolder("js msg reply " + gMsgNo, body, folder);
+  const msgDbHdr = addToFolder("js msg reply " + gMsgNo, body, folder);
 
   // select the newly created message
-  let msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo);
 
   Assert.equal(
     msgDbHdr,
@@ -284,14 +284,14 @@ add_task(async function testJsInMailReply() {
 
   await SpecialPowers.spawn(messagePane, [], assertJSDisabledInEditor);
 
-  let replyWin = await open_compose_with_reply();
+  const replyWin = await open_compose_with_reply();
   // If JavaScript is on, loading the window will actually show an alert(1)
   // so execution doesn't go further from here.
   let editor = replyWin.document.getElementById("messageEditor");
   await SpecialPowers.spawn(editor, [], assertJSDisabledInEditor);
   await close_compose_window(replyWin);
 
-  let fwdWin = await open_compose_with_forward();
+  const fwdWin = await open_compose_with_forward();
   editor = fwdWin.document.getElementById("messageEditor");
   await SpecialPowers.spawn(editor, [], assertJSDisabledInEditor);
   await close_compose_window(fwdWin);

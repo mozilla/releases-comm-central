@@ -110,7 +110,7 @@ Notification.prototype = {
   },
 
   get anchorElement() {
-    let iconBox = this.owner.iconBox;
+    const iconBox = this.owner.iconBox;
     return iconBox.querySelector("#" + this.anchorID);
   },
 
@@ -122,7 +122,7 @@ Notification.prototype = {
    * Adds a value to the specified histogram, that must be keyed by ID.
    */
   _recordTelemetry(histogramId, value) {
-    let histogram = Services.telemetry.getKeyedHistogramById(histogramId);
+    const histogram = Services.telemetry.getKeyedHistogramById(histogramId);
     histogram.add("(all)", value);
     histogram.add(this.id, value);
   },
@@ -204,13 +204,13 @@ function PopupNotifications(tabbrowser, panel, iconBox, options = {}) {
     }
 
     // Esc key cancels the topmost notification, if there is one.
-    let notification = this.panel.firstElementChild;
+    const notification = this.panel.firstElementChild;
     if (!notification) {
       return;
     }
 
-    let doc = this.window.document;
-    let focusedElement = Services.focus.focusedElement;
+    const doc = this.window.document;
+    const focusedElement = Services.focus.focusedElement;
 
     // If the chrome window has a focused element, let it handle the ESC key instead.
     if (
@@ -228,11 +228,11 @@ function PopupNotifications(tabbrowser, panel, iconBox, options = {}) {
     }
   };
 
-  let documentElement = this.window.document.documentElement;
-  let locationBarHidden = documentElement
+  const documentElement = this.window.document.documentElement;
+  const locationBarHidden = documentElement
     .getAttribute("chromehidden")
     .includes("location");
-  let isFullscreen = !!this.window.document.fullscreenElement;
+  const isFullscreen = !!this.window.document.fullscreenElement;
 
   this.panel.setAttribute("followanchor", !locationBarHidden && !isFullscreen);
 
@@ -461,7 +461,7 @@ PopupNotifications.prototype = {
       throw new Error("PopupNotifications_show: invalid secondaryActions");
     }
 
-    let notification = new Notification(
+    const notification = new Notification(
       id,
       message,
       anchorID,
@@ -476,14 +476,14 @@ PopupNotifications.prototype = {
       notification.dismissed = true;
     }
 
-    let existingNotification = this.getNotification(id);
+    const existingNotification = this.getNotification(id);
     if (existingNotification) {
       this._remove(existingNotification);
     }
 
     popupNotificationsMap.push(notification);
 
-    let isActiveWindow = Services.focus.activeWindow == this.window;
+    const isActiveWindow = Services.focus.activeWindow == this.window;
 
     if (isActiveWindow) {
       // Autofocus if the notification requests focus.
@@ -521,7 +521,7 @@ PopupNotifications.prototype = {
    * Returns true if the notification popup is currently being displayed.
    */
   get isPanelOpen() {
-    let panelState = this.panel.state;
+    const panelState = this.panel.state;
 
     return panelState == "showing" || panelState == "open";
   },
@@ -535,7 +535,9 @@ PopupNotifications.prototype = {
   remove(notification) {
     this._remove(notification);
 
-    let notifications = this._getNotificationsForBrowser(notification.browser);
+    const notifications = this._getNotificationsForBrowser(
+      notification.browser
+    );
     this._update(notifications);
   },
 
@@ -546,14 +548,14 @@ PopupNotifications.prototype = {
         break;
       case "activate":
         if (this.isPanelOpen) {
-          for (let elt of this.panel.children) {
+          for (const elt of this.panel.children) {
             elt.notification.timeShown = this.window.performance.now();
           }
           break;
         }
       // Falls through
       case "TabSelect":
-        let self = this;
+        const self = this;
         // This is where we could detect if the panel is dismissed if the page
         // was switched. Unfortunately, the user usually has clicked elsewhere
         // at this point so this value only gets recorded for programmatic
@@ -611,13 +613,13 @@ PopupNotifications.prototype = {
     // An explicitly dismissed persistent notification effectively becomes
     // non-persistent.
     if (event && telemetryReason == TELEMETRY_STAT_DISMISSAL_CLOSE_BUTTON) {
-      let notificationEl = getNotificationFromElement(event.target);
+      const notificationEl = getNotificationFromElement(event.target);
       if (notificationEl) {
         notificationEl.notification.options.persistent = false;
       }
     }
 
-    let browser =
+    const browser =
       this.panel.firstElementChild &&
       this.panel.firstElementChild.notification.browser;
     this.panel.hidePopup();
@@ -636,7 +638,7 @@ PopupNotifications.prototype = {
     if (this._ignoreDismissal) {
       return this._ignoreDismissal.promise;
     }
-    let deferred = PromiseUtils.defer();
+    const deferred = PromiseUtils.defer();
     this._ignoreDismissal = deferred;
     this.panel.hidePopup();
     return deferred.promise;
@@ -652,7 +654,7 @@ PopupNotifications.prototype = {
 
       // If this notification was provided by the chrome document rather than
       // created ad hoc, move it back to where we got it from.
-      let originalParent = gNotificationParents.get(popupnotification);
+      const originalParent = gNotificationParents.get(popupnotification);
       if (originalParent) {
         popupnotification.notification = null;
 
@@ -684,8 +686,8 @@ PopupNotifications.prototype = {
    * end:   The last part of the description message.
    */
   _formatDescriptionMessage(n) {
-    let text = {};
-    let array = n.message.split("<>");
+    const text = {};
+    const array = n.message.split("<>");
     text.start = array[0] || "";
     text.name = n.options.name || "";
     text.end = array[1] || "";
@@ -696,11 +698,11 @@ PopupNotifications.prototype = {
     this._clearPanel();
 
     notificationsToShow.forEach(function (n) {
-      let doc = this.window.document;
+      const doc = this.window.document;
 
       // Append "-notification" to the ID to try to avoid ID conflicts with other stuff
       // in the document.
-      let popupnotificationID = n.id + "-notification";
+      const popupnotificationID = n.id + "-notification";
 
       // If the chrome document provides a popupnotification with this id, use
       // that. Otherwise create it ad-hoc.
@@ -715,7 +717,7 @@ PopupNotifications.prototype = {
       }
 
       // Create the notification description element.
-      let desc = this._formatDescriptionMessage(n);
+      const desc = this._formatDescriptionMessage(n);
       popupnotification.setAttribute("label", desc.start);
       popupnotification.setAttribute("name", desc.name);
       popupnotification.setAttribute("endlabel", desc.end);
@@ -772,7 +774,7 @@ PopupNotifications.prototype = {
       }
 
       if (n.options.popupIconClass) {
-        let classes = "popup-notification-icon " + n.options.popupIconClass;
+        const classes = "popup-notification-icon " + n.options.popupIconClass;
         popupnotification.setAttribute("iconclass", classes);
       }
       if (n.options.popupIconURL) {
@@ -811,12 +813,12 @@ PopupNotifications.prototype = {
       }
 
       popupnotification.notification = n;
-      let menuitems = [];
+      const menuitems = [];
 
       if (n.mainAction && n.secondaryActions && n.secondaryActions.length > 0) {
         let telemetryStatId = TELEMETRY_STAT_ACTION_2;
 
-        let secondaryAction = n.secondaryActions[0];
+        const secondaryAction = n.secondaryActions[0];
         popupnotification.setAttribute(
           "secondarybuttonlabel",
           secondaryAction.label
@@ -832,8 +834,8 @@ PopupNotifications.prototype = {
         popupnotification.removeAttribute("secondarybuttonhidden");
 
         for (let i = 1; i < n.secondaryActions.length; i++) {
-          let action = n.secondaryActions[i];
-          let item = doc.createXULElement("menuitem");
+          const action = n.secondaryActions[i];
+          const item = doc.createXULElement("menuitem");
           item.setAttribute("label", action.label);
           item.setAttribute("accesskey", action.accessKey);
           item.notification = n;
@@ -857,9 +859,9 @@ PopupNotifications.prototype = {
         popupnotification.setAttribute("dropmarkerhidden", "true");
       }
 
-      let checkbox = n.options.checkbox;
+      const checkbox = n.options.checkbox;
       if (checkbox && checkbox.label) {
-        let checked =
+        const checked =
           n._checkboxChecked != null ? n._checkboxChecked : !!checkbox.checked;
 
         popupnotification.checkboxState = {
@@ -919,7 +921,7 @@ PopupNotifications.prototype = {
         return false;
       }
 
-      let dismiss = this._fireCallback(n, NOTIFICATION_EVENT_SHOWING);
+      const dismiss = this._fireCallback(n, NOTIFICATION_EVENT_SHOWING);
       if (dismiss) {
         n.dismissed = true;
       }
@@ -928,7 +930,7 @@ PopupNotifications.prototype = {
     if (!notificationsToShow.length) {
       return;
     }
-    let notificationIds = notificationsToShow.map(n => n.id);
+    const notificationIds = notificationsToShow.map(n => n.id);
 
     this._refreshPanel(notificationsToShow);
 
@@ -937,7 +939,7 @@ PopupNotifications.prototype = {
         return true;
       }
 
-      let anchorRect = elem.getBoundingClientRect();
+      const anchorRect = elem.getBoundingClientRect();
       return anchorRect.width == 0 && anchorRect.height == 0;
     }
 
@@ -975,7 +977,7 @@ PopupNotifications.prototype = {
       // Let tests know that the panel was updated and what notifications it was
       // updated with so that tests can wait for the correct notifications to be
       // added.
-      let event = new this.window.CustomEvent("PanelUpdated", {
+      const event = new this.window.CustomEvent("PanelUpdated", {
         detail: notificationIds,
       });
       this.panel.dispatchEvent(event);
@@ -1039,7 +1041,7 @@ PopupNotifications.prototype = {
         // These notifications are used by tests to know when all the processing
         // required to display the panel has happened.
         this.panel.dispatchEvent(new this.window.CustomEvent("Shown"));
-        let event = new this.window.CustomEvent("PanelUpdated", {
+        const event = new this.window.CustomEvent("PanelUpdated", {
           detail: notificationIds,
         });
         this.panel.dispatchEvent(event);
@@ -1073,14 +1075,14 @@ PopupNotifications.prototype = {
       notifications = this._currentNotifications;
     }
 
-    let haveNotifications = notifications.length > 0;
+    const haveNotifications = notifications.length > 0;
     if (!anchors.size && haveNotifications) {
       anchors = this._getAnchorsForNotifications(notifications);
     }
 
     let useIconBox = !!this.iconBox;
     if (useIconBox && anchors.size) {
-      for (let anchor of anchors) {
+      for (const anchor of anchors) {
         if (anchor.parentNode == this.iconBox) {
           continue;
         }
@@ -1121,7 +1123,7 @@ PopupNotifications.prototype = {
     }
 
     if (notificationsToShow.length > 0) {
-      let anchorElement = anchors.values().next().value;
+      const anchorElement = anchors.values().next().value;
       if (anchorElement) {
         this._showPanel(notificationsToShow, anchorElement);
       }
@@ -1151,7 +1153,7 @@ PopupNotifications.prototype = {
         if (useIconBox) {
           this.iconBox.hidden = true;
         } else if (anchors.size) {
-          for (let anchorElement of anchors) {
+          for (const anchorElement of anchors) {
             anchorElement.removeAttribute(ICON_ATTRIBUTE_SHOWING);
           }
         }
@@ -1167,7 +1169,7 @@ PopupNotifications.prototype = {
   },
 
   _updateAnchorIcons(notifications, anchorElements) {
-    for (let anchorElement of anchorElements) {
+    for (const anchorElement of anchorElements) {
       anchorElement.setAttribute(ICON_ATTRIBUTE_SHOWING, "true");
       // Use the anchorID as a class along with the default icon class as a
       // fallback if anchorID is not defined in CSS. We always use the first
@@ -1182,7 +1184,7 @@ PopupNotifications.prototype = {
         if (notifications.length > 0) {
           // Find the first notification this anchor used for.
           let notification = notifications[0];
-          for (let n of notifications) {
+          for (const n of notifications) {
             if (n.anchorElement == anchorElement) {
               notification = n;
               break;
@@ -1198,8 +1200,8 @@ PopupNotifications.prototype = {
   },
 
   _showIcons(aCurrentNotifications) {
-    for (let notification of aCurrentNotifications) {
-      let anchorElm = notification.anchorElement;
+    for (const notification of aCurrentNotifications) {
+      const anchorElm = notification.anchorElement;
       if (anchorElm) {
         anchorElm.setAttribute(ICON_ATTRIBUTE_SHOWING, "true");
 
@@ -1211,8 +1213,8 @@ PopupNotifications.prototype = {
   },
 
   _hideIcons() {
-    let icons = this.iconBox.querySelectorAll(ICON_SELECTOR);
-    for (let icon of icons) {
+    const icons = this.iconBox.querySelectorAll(ICON_SELECTOR);
+    for (const icon of icons) {
       icon.removeAttribute(ICON_ATTRIBUTE_SHOWING);
     }
   },
@@ -1226,8 +1228,8 @@ PopupNotifications.prototype = {
   },
 
   _getAnchorsForNotifications(notifications, defaultAnchor) {
-    let anchors = new Set();
-    for (let notification of notifications) {
+    const anchors = new Set();
+    for (const notification of notifications) {
       if (notification.anchorElement) {
         anchors.add(notification.anchorElement);
       }
@@ -1240,7 +1242,7 @@ PopupNotifications.prototype = {
 
   _onIconBoxCommand(event) {
     // Left click, space or enter only
-    let type = event.type;
+    const type = event.type;
     if (type == "click" && event.button != 0) {
       return;
     }
@@ -1301,7 +1303,7 @@ PopupNotifications.prototype = {
   _reshowNotifications(anchor, browser) {
     // Mark notifications anchored to this anchor as un-dismissed
     browser = browser || this.tabbrowser.selectedBrowser;
-    let notifications = this._getNotificationsForBrowser(browser);
+    const notifications = this._getNotificationsForBrowser(browser);
     notifications.forEach(function (n) {
       if (n.anchorElement == anchor) {
         n.dismissed = false;
@@ -1317,7 +1319,7 @@ PopupNotifications.prototype = {
     // to update our notification map.
 
     let ourNotifications = this._getNotificationsForBrowser(ourBrowser);
-    let other = otherBrowser.ownerGlobal.PopupNotifications;
+    const other = otherBrowser.ownerGlobal.PopupNotifications;
     if (!other) {
       if (ourNotifications.length > 0) {
         console.error(
@@ -1400,17 +1402,17 @@ PopupNotifications.prototype = {
   },
 
   _dismissOrRemoveCurrentNotifications() {
-    let browser =
+    const browser =
       this.panel.firstElementChild &&
       this.panel.firstElementChild.notification.browser;
     if (!browser) {
       return;
     }
 
-    let notifications = this._getNotificationsForBrowser(browser);
+    const notifications = this._getNotificationsForBrowser(browser);
     // Mark notifications as dismissed and call dismissal callbacks
-    for (let nEl of this.panel.children) {
-      let notificationObj = nEl.notification;
+    for (const nEl of this.panel.children) {
+      const notificationObj = nEl.notification;
       // Never call a dismissal handler on a notification that's been removed.
       if (!notifications.includes(notificationObj)) {
         return;
@@ -1418,7 +1420,7 @@ PopupNotifications.prototype = {
 
       // Record the time of the first notification dismissal if the main action
       // was not triggered in the meantime.
-      let timeSinceShown =
+      const timeSinceShown =
         this.window.performance.now() - notificationObj.timeShown;
       if (
         !notificationObj.wasDismissed &&
@@ -1443,9 +1445,9 @@ PopupNotifications.prototype = {
   },
 
   _onCheckboxCommand(event) {
-    let notificationEl = getNotificationFromElement(event.target);
-    let checked = notificationEl.checkbox.checked;
-    let notification = notificationEl.notification;
+    const notificationEl = getNotificationFromElement(event.target);
+    const checked = notificationEl.checkbox.checked;
+    const notification = notificationEl.notification;
 
     // Save checkbox state to be able to persist it when re-opening the doorhanger.
     notification._checkboxChecked = checked;
@@ -1469,7 +1471,7 @@ PopupNotifications.prototype = {
     if (event.target.localName == "button") {
       return;
     }
-    let notificationEl = getNotificationFromElement(event.target);
+    const notificationEl = getNotificationFromElement(event.target);
     this._setNotificationUIState(notificationEl);
   },
 
@@ -1490,7 +1492,7 @@ PopupNotifications.prototype = {
       );
     }
 
-    let notification = notificationEl.notification;
+    const notification = notificationEl.notification;
 
     if (type == "dropmarkerpopupshown") {
       notification._recordTelemetryStat(TELEMETRY_STAT_OPEN_SUBMENU);
@@ -1505,7 +1507,7 @@ PopupNotifications.prototype = {
     if (type == "buttoncommand") {
       // Record the total timing of the main action since the notification was
       // created, even if the notification was dismissed in the meantime.
-      let timeSinceCreated =
+      const timeSinceCreated =
         this.window.performance.now() - notification.timeCreated;
       if (!notification.recordedTelemetryMainAction) {
         notification.recordedTelemetryMainAction = true;
@@ -1526,7 +1528,7 @@ PopupNotifications.prototype = {
         return;
       }
 
-      let timeSinceShown =
+      const timeSinceShown =
         this.window.performance.now() - notification.timeShown;
       if (timeSinceShown < this.buttonDelay) {
         Services.console.logStringMessage(
@@ -1570,14 +1572,14 @@ PopupNotifications.prototype = {
   },
 
   _onMenuCommand(event) {
-    let target = event.target;
+    const target = event.target;
     if (!target.action || !target.notification) {
       throw new Error(
         "menucommand target has no associated action/notification"
       );
     }
 
-    let notificationEl = getNotificationFromElement(target);
+    const notificationEl = getNotificationFromElement(target);
     event.stopPropagation();
 
     target.notification._recordTelemetryStat(target.action.telemetryStatId);

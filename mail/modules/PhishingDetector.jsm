@@ -84,7 +84,7 @@ const PhishingDetector = new (class PhishingDetector {
       }
 
       // Also ignore messages in Sent/Drafts/Templates/Outbox.
-      let outgoingFlags =
+      const outgoingFlags =
         Ci.nsMsgFolderFlags.SentMail |
         Ci.nsMsgFolderFlags.Drafts |
         Ci.nsMsgFolderFlags.Templates |
@@ -99,7 +99,7 @@ const PhishingDetector = new (class PhishingDetector {
     }
 
     // If the message contains forms with action attributes, warn the user.
-    let formNodes = browser.contentDocument.querySelectorAll("form[action]");
+    const formNodes = browser.contentDocument.querySelectorAll("form[action]");
 
     return this.mDisallowFormActions && formNodes.length > 0;
   }
@@ -144,7 +144,7 @@ const PhishingDetector = new (class PhishingDetector {
         aLinkText.replace(/\/+$/, "") != aUrl.replace(/\/+$/, "")
       ) {
         if (this.mCheckForIPAddresses) {
-          let unobscuredHostNameValue = lazy.isLegalIPAddress(
+          const unobscuredHostNameValue = lazy.isLegalIPAddress(
             hrefURL.host,
             true
           );
@@ -185,8 +185,8 @@ const PhishingDetector = new (class PhishingDetector {
     );
     reportUrl += "&url=" + encodeURIComponent(aPhishingURL);
 
-    let uri = Services.io.newURI(reportUrl);
-    let protocolSvc = Cc[
+    const uri = Services.io.newURI(reportUrl);
+    const protocolSvc = Cc[
       "@mozilla.org/uriloader/external-protocol-service;1"
     ].getService(Ci.nsIExternalProtocolService);
     protocolSvc.loadURI(uri);
@@ -207,7 +207,7 @@ const PhishingDetector = new (class PhishingDetector {
 
     // Only worry about http: and https: urls.
     if (/^https?:/.test(aLinkNodeText)) {
-      let linkTextURI = Services.io.newURI(aLinkNodeText);
+      const linkTextURI = Services.io.newURI(aLinkNodeText);
 
       // Compare the base domain of the href and the link text.
       try {
@@ -246,13 +246,13 @@ const PhishingDetector = new (class PhishingDetector {
     if (!this.#analyzeUrl(aUrl, aLinkText)) {
       return 2; // No problem with the url. Allow it to load.
     }
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messenger.properties"
     );
 
     // Analysis said there was a problem.
     if (aLinkText && /^https?:/i.test(aLinkText)) {
-      let actualURI = Services.io.newURI(aUrl);
+      const actualURI = Services.io.newURI(aUrl);
       let displayedURI;
       try {
         displayedURI = Services.io.newURI(aLinkText);
@@ -260,24 +260,26 @@ const PhishingDetector = new (class PhishingDetector {
         return 1;
       }
 
-      let titleMsg = bundle.GetStringFromName("linkMismatchTitle");
-      let dialogMsg = bundle.formatStringFromName(
+      const titleMsg = bundle.GetStringFromName("linkMismatchTitle");
+      const dialogMsg = bundle.formatStringFromName(
         "confirmPhishingUrlAlternate",
         [displayedURI.host, actualURI.host]
       );
-      let warningButtons =
+      const warningButtons =
         Ci.nsIPromptService.BUTTON_POS_0 *
           Ci.nsIPromptService.BUTTON_TITLE_IS_STRING +
         Ci.nsIPromptService.BUTTON_POS_1 *
           Ci.nsIPromptService.BUTTON_TITLE_CANCEL +
         Ci.nsIPromptService.BUTTON_POS_2 *
           Ci.nsIPromptService.BUTTON_TITLE_IS_STRING;
-      let button0Text = bundle.formatStringFromName("confirmPhishingGoDirect", [
-        displayedURI.host,
-      ]);
-      let button2Text = bundle.formatStringFromName("confirmPhishingGoAhead", [
-        actualURI.host,
-      ]);
+      const button0Text = bundle.formatStringFromName(
+        "confirmPhishingGoDirect",
+        [displayedURI.host]
+      );
+      const button2Text = bundle.formatStringFromName(
+        "confirmPhishingGoAhead",
+        [actualURI.host]
+      );
       return Services.prompt.confirmEx(
         win,
         titleMsg,
@@ -302,22 +304,22 @@ const PhishingDetector = new (class PhishingDetector {
     // only prompt for http and https urls
     if (hrefURL.schemeIs("http") || hrefURL.schemeIs("https")) {
       // unobscure the host name in case it's an encoded ip address..
-      let unobscuredHostNameValue =
+      const unobscuredHostNameValue =
         lazy.isLegalIPAddress(hrefURL.host, true) || hrefURL.host;
 
-      let brandBundle = Services.strings.createBundle(
+      const brandBundle = Services.strings.createBundle(
         "chrome://branding/locale/brand.properties"
       );
-      let brandShortName = brandBundle.GetStringFromName("brandShortName");
-      let titleMsg = bundle.GetStringFromName("confirmPhishingTitle");
-      let dialogMsg = bundle.formatStringFromName("confirmPhishingUrl", [
+      const brandShortName = brandBundle.GetStringFromName("brandShortName");
+      const titleMsg = bundle.GetStringFromName("confirmPhishingTitle");
+      const dialogMsg = bundle.formatStringFromName("confirmPhishingUrl", [
         brandShortName,
         unobscuredHostNameValue,
       ]);
-      let warningButtons =
+      const warningButtons =
         Ci.nsIPromptService.STD_YES_NO_BUTTONS +
         Ci.nsIPromptService.BUTTON_POS_1_DEFAULT;
-      let button = Services.prompt.confirmEx(
+      const button = Services.prompt.confirmEx(
         win,
         titleMsg,
         dialogMsg,

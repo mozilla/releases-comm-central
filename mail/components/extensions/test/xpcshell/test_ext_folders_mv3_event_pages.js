@@ -20,7 +20,7 @@ registerCleanupFunction(async () => {
   // the cleanupFunction registered by AddonTestUtils.maybeInit() checks for left over
   // files in the temp folder.
   // Note: PathUtils.tempDir points to the system temp folder, which is different.
-  let path = PathUtils.join(
+  const path = PathUtils.join(
     Services.dirsvc.get("TmpD", Ci.nsIFile).path,
     "MozillaMailnews"
   );
@@ -36,13 +36,13 @@ add_task(
   async function test_folders_MV3_event_pages() {
     await AddonTestUtils.promiseStartupManager();
 
-    let account = createAccount();
-    let rootFolder = account.incomingServer.rootFolder;
+    const account = createAccount();
+    const rootFolder = account.incomingServer.rootFolder;
     addIdentity(account, "id1@invalid");
 
-    let files = {
+    const files = {
       "background.js": () => {
-        for (let eventName of [
+        for (const eventName of [
           "onCreated",
           "onDeleted",
           "onCopied",
@@ -59,7 +59,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         manifest_version: 3,
@@ -72,13 +72,13 @@ add_task(
     // the main test is about to trigger an event. The extension terminates its
     // background and listens for that single event, verifying it is waking up correctly.
     async function event_page_extension(eventName, actionCallback) {
-      let ext = ExtensionTestUtils.loadExtension({
+      const ext = ExtensionTestUtils.loadExtension({
         files: {
           "background.js": async () => {
             // Whenever the extension starts or wakes up, hasFired is set to false. In
             // case of a wake-up, the first fired event is the one that woke up the background.
             let hasFired = false;
-            let _eventName = browser.runtime.getManifest().description;
+            const _eventName = browser.runtime.getManifest().description;
 
             browser.folders[_eventName].addListener(async (...args) => {
               // Only send the first event after background wake-up, this should
@@ -109,7 +109,7 @@ add_task(
       assertPersistentListeners(ext, "folders", eventName, { primed: true });
 
       await actionCallback();
-      let rv = await ext.awaitMessage(`${eventName} received`);
+      const rv = await ext.awaitMessage(`${eventName} received`);
       await ext.awaitMessage("background started");
       // The listener should be persistent, but not primed.
       assertPersistentListeners(ext, "folders", eventName, { primed: false });
@@ -135,7 +135,7 @@ add_task(
 
     {
       rootFolder.createSubfolder("SubFolder1", null);
-      let createData = await extension.awaitMessage("onCreated received");
+      const createData = await extension.awaitMessage("onCreated received");
       Assert.deepEqual(
         [
           {
@@ -153,13 +153,13 @@ add_task(
     // Create SubFolder2 (used for primed onFolderInfoChanged).
 
     {
-      let primedChangeData = await event_page_extension(
+      const primedChangeData = await event_page_extension(
         "onFolderInfoChanged",
         () => {
           rootFolder.createSubfolder("SubFolder3", null);
         }
       );
-      let createData = await extension.awaitMessage("onCreated received");
+      const createData = await extension.awaitMessage("onCreated received");
       Assert.deepEqual(
         [
           {
@@ -185,7 +185,7 @@ add_task(
     // Copy.
 
     {
-      let primedCopyData = await event_page_extension("onCopied", () => {
+      const primedCopyData = await event_page_extension("onCopied", () => {
         MailServices.copy.copyFolder(
           rootFolder.getChildNamed("SubFolder3"),
           rootFolder.getChildNamed("SubFolder1"),
@@ -194,7 +194,7 @@ add_task(
           null
         );
       });
-      let copyData = await extension.awaitMessage("onCopied received");
+      const copyData = await extension.awaitMessage("onCopied received");
       Assert.deepEqual(
         primedCopyData,
         copyData,
@@ -221,7 +221,7 @@ add_task(
 
       if (IS_IMAP) {
         // IMAP fires an additional create event.
-        let createData = await extension.awaitMessage("onCreated received");
+        const createData = await extension.awaitMessage("onCreated received");
         Assert.deepEqual(
           [
             {
@@ -240,7 +240,7 @@ add_task(
     // Move.
 
     {
-      let primedMoveData = await event_page_extension("onMoved", () => {
+      const primedMoveData = await event_page_extension("onMoved", () => {
         MailServices.copy.copyFolder(
           rootFolder.getChildNamed("SubFolder1").getChildNamed("SubFolder3"),
           rootFolder.getChildNamed("SubFolder3"),
@@ -250,7 +250,7 @@ add_task(
         );
       });
 
-      let moveData = await extension.awaitMessage("onMoved received");
+      const moveData = await extension.awaitMessage("onMoved received");
       Assert.deepEqual(
         primedMoveData,
         moveData,
@@ -277,7 +277,7 @@ add_task(
 
       if (IS_IMAP) {
         // IMAP fires additional rename and delete events.
-        let renameData = await extension.awaitMessage("onRenamed received");
+        const renameData = await extension.awaitMessage("onRenamed received");
         Assert.deepEqual(
           [
             {
@@ -296,7 +296,7 @@ add_task(
           renameData,
           "The onRenamed event should return the correct MailFolder values."
         );
-        let deleteData = await extension.awaitMessage("onDeleted received");
+        const deleteData = await extension.awaitMessage("onDeleted received");
         Assert.deepEqual(
           [
             {
@@ -315,14 +315,14 @@ add_task(
     // Delete.
 
     {
-      let primedDeleteData = await event_page_extension("onDeleted", () => {
-        let subFolder1 = rootFolder.getChildNamed("SubFolder3");
+      const primedDeleteData = await event_page_extension("onDeleted", () => {
+        const subFolder1 = rootFolder.getChildNamed("SubFolder3");
         subFolder1.propagateDelete(
           subFolder1.getChildNamed("SubFolder3"),
           true
         );
       });
-      let deleteData = await extension.awaitMessage("onDeleted received");
+      const deleteData = await extension.awaitMessage("onDeleted received");
       Assert.deepEqual(
         primedDeleteData,
         deleteData,
@@ -345,10 +345,10 @@ add_task(
     // Rename.
 
     {
-      let primedRenameData = await event_page_extension("onRenamed", () => {
+      const primedRenameData = await event_page_extension("onRenamed", () => {
         rootFolder.getChildNamed("TestFolder").rename("TestFolder2", null);
       });
-      let renameData = await extension.awaitMessage("onRenamed received");
+      const renameData = await extension.awaitMessage("onRenamed received");
       Assert.deepEqual(
         primedRenameData,
         renameData,

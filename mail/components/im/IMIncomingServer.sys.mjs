@@ -16,7 +16,7 @@ IMIncomingServer.prototype = {
       return this._imAccount;
     }
 
-    let id = this.getCharValue("imAccount");
+    const id = this.getCharValue("imAccount");
     if (!id) {
       return null;
     }
@@ -50,7 +50,7 @@ IMIncomingServer.prototype = {
 
   clearAllValues() {
     IMServices.accounts.deleteAccount(this.imAccount.id);
-    for (let prefName of this._prefBranch.getChildList("")) {
+    for (const prefName of this._prefBranch.getChildList("")) {
       this._prefBranch.clearUserPref(prefName);
     }
     delete this._prefBranch;
@@ -63,8 +63,8 @@ IMIncomingServer.prototype = {
   // This is used in account removal dialog and should return the same path
   // that the removeFiles() function deletes.
   get localPath() {
-    let logPath = IMServices.logs.getLogFolderPathForAccount(this.imAccount);
-    let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    const logPath = IMServices.logs.getLogFolderPathForAccount(this.imAccount);
+    const file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     file.initWithPath(logPath);
     return file;
   },
@@ -85,7 +85,7 @@ IMIncomingServer.prototype = {
 
   // Shown in the "Remove Account" confirm prompt.
   get prettyName() {
-    let protocol = this.imAccount.protocol.name || this.imAccount.protocol.id;
+    const protocol = this.imAccount.protocol.name || this.imAccount.protocol.id;
     return protocol + " - " + this.imAccount.name;
   },
 
@@ -112,26 +112,26 @@ IMIncomingServer.prototype = {
   },
   get autojoin() {
     try {
-      let prefName = "messenger.account." + this.imAccount.id + ".autoJoin";
+      const prefName = "messenger.account." + this.imAccount.id + ".autoJoin";
       return Services.prefs.getStringPref(prefName);
     } catch (e) {
       return "";
     }
   },
   set autojoin(aAutoJoin) {
-    let prefName = "messenger.account." + this.imAccount.id + ".autoJoin";
+    const prefName = "messenger.account." + this.imAccount.id + ".autoJoin";
     Services.prefs.setStringPref(prefName, aAutoJoin);
   },
   get autologin() {
     try {
-      let prefName = "messenger.account." + this.imAccount.id + ".autoLogin";
+      const prefName = "messenger.account." + this.imAccount.id + ".autoLogin";
       return Services.prefs.getBoolPref(prefName);
     } catch (e) {
       return false;
     }
   },
   set autologin(aAutoLogin) {
-    let prefName = "messenger.account." + this.imAccount.id + ".autoLogin";
+    const prefName = "messenger.account." + this.imAccount.id + ".autoLogin";
     Services.prefs.setBoolPref(prefName, aAutoLogin);
   },
 
@@ -159,7 +159,7 @@ IMIncomingServer.prototype = {
     }
 
     try {
-      let prefName =
+      const prefName =
         "messenger.account." + this.imAccount.id + ".options." + aPrefName;
       return Services.prefs.getStringPref(prefName);
     } catch (x) {
@@ -177,7 +177,7 @@ IMIncomingServer.prototype = {
       return this.autologin;
     }
     try {
-      let prefName =
+      const prefName =
         "messenger.account." + this.imAccount.id + ".options." + aPrefName;
       return Services.prefs.getBoolPref(prefName);
     } catch (x) {
@@ -189,7 +189,7 @@ IMIncomingServer.prototype = {
   },
   getIntValue(aPrefName) {
     try {
-      let prefName =
+      const prefName =
         "messenger.account." + this.imAccount.id + ".options." + aPrefName;
       return Services.prefs.getIntPref(prefName);
     } catch (x) {
@@ -212,8 +212,8 @@ IMIncomingServer.prototype = {
     }
 
     this._defaultOptionValues = {};
-    for (let opt of this.imAccount.protocol.getOptions()) {
-      let type = opt.type;
+    for (const opt of this.imAccount.protocol.getOptions()) {
+      const type = opt.type;
       if (type == Ci.prplIPref.typeBool) {
         this._defaultOptionValues[opt.name] = opt.getBool();
       } else if (type == Ci.prplIPref.typeInt) {

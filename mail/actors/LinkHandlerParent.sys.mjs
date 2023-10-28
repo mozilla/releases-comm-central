@@ -4,7 +4,7 @@
 
 export class LinkHandlerParent extends JSWindowActorParent {
   receiveMessage(msg) {
-    let browser = this.browsingContext.top.embedderElement;
+    const browser = this.browsingContext.top.embedderElement;
     if (!browser) {
       return;
     }
@@ -17,12 +17,12 @@ export class LinkHandlerParent extends JSWindowActorParent {
   }
 
   setIconFromLink(browser, iconURL, canUseForTab) {
-    let tabmail = browser.ownerDocument.getElementById("tabmail");
+    const tabmail = browser.ownerDocument.getElementById("tabmail");
     if (!tabmail) {
       return;
     }
 
-    let tab = tabmail.getTabForBrowser(browser);
+    const tab = tabmail.getTabForBrowser(browser);
     if (tab?.mode?.type != "contentTab") {
       return;
     }

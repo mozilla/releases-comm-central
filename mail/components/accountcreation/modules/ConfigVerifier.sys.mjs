@@ -64,10 +64,10 @@ export class ConfigVerifier {
 
     let certError = false;
     try {
-      let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
-        Ci.nsINSSErrorsService
-      );
-      let errorClass = nssErrorsService.getErrorClass(status);
+      const nssErrorsService = Cc[
+        "@mozilla.org/nss_errors_service;1"
+      ].getService(Ci.nsINSSErrorsService);
+      const errorClass = nssErrorsService.getErrorClass(status);
       if (errorClass == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
         certError = true;
       }
@@ -76,8 +76,8 @@ export class ConfigVerifier {
     }
 
     if (certError) {
-      let mailNewsUrl = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
-      let secInfo = mailNewsUrl.failedSecInfo;
+      const mailNewsUrl = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
+      const secInfo = mailNewsUrl.failedSecInfo;
       this.informUserOfCertError(secInfo, url.asciiHostPort);
     } else if (this.alter) {
       // Try other variations.
@@ -131,7 +131,7 @@ export class ConfigVerifier {
       // which is not good. But then again, we already warned the user,
       // if it is a config without SSL.
 
-      let brokenAuth = this.config.incoming.auth;
+      const brokenAuth = this.config.incoming.auth;
       // take the next best method (compare chooseBestAuthMethod() in guess)
       this.config.incoming.auth = this.config.incoming.authAlternatives.shift();
       this.server.authMethod = this.config.incoming.auth;
@@ -176,7 +176,7 @@ export class ConfigVerifier {
   _failed(url) {
     this.cleanup();
     url = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
-    let code = url.errorCode || "login-error-unknown";
+    const code = url.errorCode || "login-error-unknown";
     let msg = url.errorMessage;
     // *Only* for known (!) username/password errors, show our message.
     // But there are 1000 other reasons why it could have failed, e.g.
@@ -206,7 +206,7 @@ export class ConfigVerifier {
    */
   informUserOfCertError(secInfo, location) {
     this._log.debug(`Informing user about cert error for ${location}`);
-    let params = {
+    const params = {
       exceptionAdded: false,
       securityInfo: secInfo,
       prefetchCert: true,
@@ -223,7 +223,7 @@ export class ConfigVerifier {
     if (!params.exceptionAdded) {
       this._log.debug(`Did not accept exception for ${location}`);
       this.cleanup();
-      let errorMsg = AccountCreationUtils.getStringBundle(
+      const errorMsg = AccountCreationUtils.getStringBundle(
         "chrome://messenger/locale/accountCreationModel.properties"
       ).GetStringFromName("cannot_login.error");
       this.errorCallback(new Error(errorMsg));
@@ -293,7 +293,7 @@ export class ConfigVerifier {
             !config.incoming.oauthSettings.issuer ||
             !config.incoming.oauthSettings.scope)
         ) {
-          let details = OAuth2Providers.getHostnameDetails(
+          const details = OAuth2Providers.getHostnameDetails(
             config.incoming.hostname
           );
           if (!details) {
@@ -315,7 +315,7 @@ export class ConfigVerifier {
             !config.outgoing.oauthSettings.issuer ||
             !config.outgoing.oauthSettings.scope)
         ) {
-          let details = OAuth2Providers.getHostnameDetails(
+          const details = OAuth2Providers.getHostnameDetails(
             config.outgoing.hostname
           );
           if (!details) {
@@ -364,7 +364,7 @@ export class ConfigVerifier {
     this._log.info("verifyLogon for server at " + this.server.hostName);
 
     this.server.password = this.config.incoming.password;
-    let uri = this.server.verifyLogon(this, this.msgWindow);
+    const uri = this.server.verifyLogon(this, this.msgWindow);
     // clear msgWindow so url won't prompt for passwords.
     uri.QueryInterface(Ci.nsIMsgMailNewsUrl).msgWindow = null;
   }

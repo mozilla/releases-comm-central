@@ -5,10 +5,10 @@
 addIdentity(createAccount());
 
 async function checkComposeBody(expected, waitForEvent) {
-  let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+  const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
   Assert.equal(composeWindows.length, 1);
 
-  let composeWindow = composeWindows[0];
+  const composeWindow = composeWindows[0];
   if (waitForEvent) {
     await BrowserTestUtils.waitForEvent(
       composeWindow,
@@ -16,17 +16,17 @@ async function checkComposeBody(expected, waitForEvent) {
     );
   }
 
-  let composeEditor = composeWindow.GetCurrentEditorElement();
+  const composeEditor = composeWindow.GetCurrentEditorElement();
 
   await checkContent(composeEditor, expected);
 }
 
 /** Tests browser.tabs.insertCSS and browser.tabs.removeCSS. */
 add_task(async function testInsertRemoveCSS() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        const tab = await browser.compose.beginNew();
         await window.sendMessage();
 
         await browser.tabs.insertCSS(tab.id, {
@@ -85,10 +85,10 @@ add_task(async function testInsertRemoveCSS() {
 
 /** Tests browser.tabs.insertCSS fails without the "compose" permission. */
 add_task(async function testInsertRemoveCSSNoPermissions() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        const tab = await browser.compose.beginNew();
 
         await browser.test.assertRejects(
           browser.tabs.insertCSS(tab.id, {
@@ -142,10 +142,10 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
 
 /** Tests browser.tabs.executeScript. */
 add_task(async function testExecuteScript() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        const tab = await browser.compose.beginNew();
         await window.sendMessage();
 
         await browser.tabs.executeScript(tab.id, {
@@ -193,10 +193,10 @@ add_task(async function testExecuteScript() {
 
 /** Tests browser.tabs.executeScript fails without the "compose" permission. */
 add_task(async function testExecuteScriptNoPermissions() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        const tab = await browser.compose.beginNew();
 
         await browser.test.assertRejects(
           browser.tabs.executeScript(tab.id, {
@@ -249,10 +249,10 @@ add_task(async function testExecuteScriptNoPermissions() {
 
 /** Tests the messenger alias is available. */
 add_task(async function testExecuteScriptAlias() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        const tab = await browser.compose.beginNew();
         await window.sendMessage();
 
         await browser.tabs.executeScript(tab.id, {
@@ -292,10 +292,10 @@ add_task(async function testExecuteScriptAlias() {
  * `unregister` on the returned object.
  */
 add_task(async function testRegisterBeforeCompose() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let registeredScript = await browser.composeScripts.register({
+        const registeredScript = await browser.composeScripts.register({
           css: [{ code: "body { color: white }" }, { file: "test.css" }],
           js: [
             { code: `document.body.setAttribute("foo", "bar");` },
@@ -362,13 +362,13 @@ add_task(async function testRegisterBeforeCompose() {
  * calling `unregister` on the returned object.
  */
 add_task(async function testRegisterDuringCompose() {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        const tab = await browser.compose.beginNew();
         await window.sendMessage();
 
-        let registeredScript = await browser.composeScripts.register({
+        const registeredScript = await browser.composeScripts.register({
           css: [{ code: "body { color: white }" }, { file: "test.css" }],
           js: [
             { code: `document.body.setAttribute("foo", "bar");` },
@@ -425,10 +425,10 @@ add_task(async function testRegisterDuringCompose() {
 
 /** Tests content_scripts in the manifest do not affect compose windows. */
 async function subtestContentScriptManifest(...permissions) {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        const tab = await browser.compose.beginNew();
 
         await window.sendMessage();
 
@@ -481,7 +481,7 @@ add_task(async function testContentScriptManifest() {
 
 /** Tests registered content scripts do not affect compose windows. */
 async function subtestContentScriptRegister(...permissions) {
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
         await browser.contentScripts.register({
@@ -491,7 +491,7 @@ async function subtestContentScriptRegister(...permissions) {
           matchAboutBlank: true,
         });
 
-        let tab = await browser.compose.beginNew();
+        const tab = await browser.compose.beginNew();
 
         await window.sendMessage();
 

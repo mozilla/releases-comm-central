@@ -30,7 +30,7 @@ add_setup(function () {
   Assert.ok(MailServices.accounts.localFoldersServer);
 
   // Create an IMAP server
-  let imapServer = MailServices.accounts
+  const imapServer = MailServices.accounts
     .createIncomingServer("nobody", "example.com", "imap")
     .QueryInterface(Ci.nsIImapIncomingServer);
 
@@ -42,7 +42,7 @@ add_setup(function () {
   imapAccount.addIdentity(identity);
 
   // Create a NNTP server
-  let nntpServer = MailServices.accounts
+  const nntpServer = MailServices.accounts
     .createIncomingServer(null, "example.nntp.invalid", "nntp")
     .QueryInterface(Ci.nsINntpIncomingServer);
 
@@ -84,11 +84,11 @@ async function subtest_check_account_actions(
   isRemoveEnabled,
   isAddAccountEnabled
 ) {
-  let accountRow = get_account_tree_row(accountKey, null, tab);
+  const accountRow = get_account_tree_row(accountKey, null, tab);
   await click_account_tree_row(tab, accountRow);
 
   // click the Actions Button to bring up the popup with menuitems to test
-  let button = content_tab_e(tab, "accountActionsButton");
+  const button = content_tab_e(tab, "accountActionsButton");
   EventUtils.synthesizeMouseAtCenter(
     button,
     { clickCount: 1 },
@@ -96,14 +96,17 @@ async function subtest_check_account_actions(
   );
   await wait_for_popup_to_open(content_tab_e(tab, "accountActionsDropdown"));
 
-  let actionAddMailAccount = content_tab_e(tab, "accountActionsAddMailAccount");
+  const actionAddMailAccount = content_tab_e(
+    tab,
+    "accountActionsAddMailAccount"
+  );
   Assert.notEqual(actionAddMailAccount, undefined);
   Assert.equal(
     !actionAddMailAccount.getAttribute("disabled"),
     isAddAccountEnabled
   );
 
-  let actionAddOtherAccount = content_tab_e(
+  const actionAddOtherAccount = content_tab_e(
     tab,
     "accountActionsAddOtherAccount"
   );
@@ -113,14 +116,17 @@ async function subtest_check_account_actions(
     isAddAccountEnabled
   );
 
-  let actionSetDefault = content_tab_e(tab, "accountActionsDropdownSetDefault");
+  const actionSetDefault = content_tab_e(
+    tab,
+    "accountActionsDropdownSetDefault"
+  );
   Assert.notEqual(actionSetDefault, undefined);
   Assert.equal(
     !actionSetDefault.getAttribute("disabled"),
     isSetAsDefaultEnabled
   );
 
-  let actionRemove = content_tab_e(tab, "accountActionsDropdownRemove");
+  const actionRemove = content_tab_e(tab, "accountActionsDropdownRemove");
   Assert.notEqual(actionRemove, undefined);
   Assert.equal(!actionRemove.getAttribute("disabled"), isRemoveEnabled);
 

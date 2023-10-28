@@ -58,7 +58,7 @@ add_setup(async function () {
   plainIdentity.email = "bob+plain@openpgp.example";
   bobAcct.addIdentity(plainIdentity);
 
-  let [id] = await OpenPGPTestUtils.importPrivateKey(
+  const [id] = await OpenPGPTestUtils.importPrivateKey(
     window,
     new FileUtils.File(
       getTestFilePath(
@@ -111,8 +111,8 @@ async function testComposeFlags(
   bobIdentity.attachPgpKey = prefAttachPgpKey;
   bobIdentity.protectSubject = prefProtectSubject;
 
-  let cwc = await open_compose_new_mail();
-  let composeWin = cwc;
+  const cwc = await open_compose_new_mail();
+  const composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -233,29 +233,29 @@ async function testComposeFlags(
  */
 
 add_task(async function testMsgComp1() {
-  let prefEncryptionPolicy = 0; // default encryption: off
-  let prefSignMail = false; // sign unencrypted messages: off
-  let prefAttachPgpKey = true; // attach key to signed messages: on
-  let prefProtectSubject = true; // encrypt subject of encrypted message: on
+  const prefEncryptionPolicy = 0; // default encryption: off
+  const prefSignMail = false; // sign unencrypted messages: off
+  const prefAttachPgpKey = true; // attach key to signed messages: on
+  const prefProtectSubject = true; // encrypt subject of encrypted message: on
 
-  let expectSendEncrypted = false;
-  let expectSendSigned = false;
-  let expectAttachMyPublicPGPKey = false;
-  let expectEncryptSubject = false;
-  let testToggle = null;
-  let expectSendEncrypted2AfterToggle = undefined;
-  let expectSendSigned2AfterToggle = undefined;
-  let expectAttachMyPublicPGPKey2AfterToggle = undefined;
-  let expectEncryptSubject2AfterToggle = undefined;
-  let switchIdentity = true;
-  let expectSendEncrypted3GoneToPlainIdentity = false;
-  let expectSendSigned3GoneToPlainIdentity = false;
-  let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = false;
-  let expectSendEncrypted4GoneToOrigIdentity = false;
-  let expectSendSigned4GoneToOrigIdentity = false;
-  let expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
-  let expectEncryptSubject4GoneToOrigIdentity = false;
+  const expectSendEncrypted = false;
+  const expectSendSigned = false;
+  const expectAttachMyPublicPGPKey = false;
+  const expectEncryptSubject = false;
+  const testToggle = null;
+  const expectSendEncrypted2AfterToggle = undefined;
+  const expectSendSigned2AfterToggle = undefined;
+  const expectAttachMyPublicPGPKey2AfterToggle = undefined;
+  const expectEncryptSubject2AfterToggle = undefined;
+  const switchIdentity = true;
+  const expectSendEncrypted3GoneToPlainIdentity = false;
+  const expectSendSigned3GoneToPlainIdentity = false;
+  const expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
+  const expectEncryptSubject3GoneToPlainIdentity = false;
+  const expectSendEncrypted4GoneToOrigIdentity = false;
+  const expectSendSigned4GoneToOrigIdentity = false;
+  const expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
+  const expectEncryptSubject4GoneToOrigIdentity = false;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -284,29 +284,29 @@ add_task(async function testMsgComp1() {
 });
 
 add_task(async function testMsgComp1b() {
-  let prefEncryptionPolicy = 0; // default encryption: off
-  let prefSignMail = false; // sign unencrypted messages: off
-  let prefAttachPgpKey = true; // attach key to signed messages: on
-  let prefProtectSubject = true; // encrypt subject of encrypted message: on
+  const prefEncryptionPolicy = 0; // default encryption: off
+  const prefSignMail = false; // sign unencrypted messages: off
+  const prefAttachPgpKey = true; // attach key to signed messages: on
+  const prefProtectSubject = true; // encrypt subject of encrypted message: on
 
-  let expectSendEncrypted = false;
-  let expectSendSigned = false;
-  let expectAttachMyPublicPGPKey = false;
-  let expectEncryptSubject = false;
-  let testToggle = "sign";
-  let expectSendEncrypted2AfterToggle = false;
-  let expectSendSigned2AfterToggle = true;
-  let expectAttachMyPublicPGPKey2AfterToggle = true;
-  let expectEncryptSubject2AfterToggle = false;
-  let switchIdentity = true;
-  let expectSendEncrypted3GoneToPlainIdentity = false;
-  let expectSendSigned3GoneToPlainIdentity = false;
-  let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = false;
-  let expectSendEncrypted4GoneToOrigIdentity = false;
-  let expectSendSigned4GoneToOrigIdentity = false;
-  let expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
-  let expectEncryptSubject4GoneToOrigIdentity = false;
+  const expectSendEncrypted = false;
+  const expectSendSigned = false;
+  const expectAttachMyPublicPGPKey = false;
+  const expectEncryptSubject = false;
+  const testToggle = "sign";
+  const expectSendEncrypted2AfterToggle = false;
+  const expectSendSigned2AfterToggle = true;
+  const expectAttachMyPublicPGPKey2AfterToggle = true;
+  const expectEncryptSubject2AfterToggle = false;
+  const switchIdentity = true;
+  const expectSendEncrypted3GoneToPlainIdentity = false;
+  const expectSendSigned3GoneToPlainIdentity = false;
+  const expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
+  const expectEncryptSubject3GoneToPlainIdentity = false;
+  const expectSendEncrypted4GoneToOrigIdentity = false;
+  const expectSendSigned4GoneToOrigIdentity = false;
+  const expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
+  const expectEncryptSubject4GoneToOrigIdentity = false;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -335,29 +335,29 @@ add_task(async function testMsgComp1b() {
 });
 
 add_task(async function testMsgComp2() {
-  let prefEncryptionPolicy = 0; // default encryption: off
-  let prefSignMail = true; // sign unencrypted messages: on
-  let prefAttachPgpKey = true; // attach key to signed messages: on
-  let prefProtectSubject = true; // encrypt subject of encrypted message: on
+  const prefEncryptionPolicy = 0; // default encryption: off
+  const prefSignMail = true; // sign unencrypted messages: on
+  const prefAttachPgpKey = true; // attach key to signed messages: on
+  const prefProtectSubject = true; // encrypt subject of encrypted message: on
 
-  let expectSendEncrypted = false;
-  let expectSendSigned = true;
-  let expectAttachMyPublicPGPKey = true;
-  let expectEncryptSubject = false;
-  let testToggle = null;
-  let expectSendEncrypted2AfterToggle = undefined;
-  let expectSendSigned2AfterToggle = undefined;
-  let expectAttachMyPublicPGPKey2AfterToggle = undefined;
-  let expectEncryptSubject2AfterToggle = undefined;
-  let switchIdentity = true;
-  let expectSendEncrypted3GoneToPlainIdentity = false;
-  let expectSendSigned3GoneToPlainIdentity = false;
-  let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = false;
-  let expectSendEncrypted4GoneToOrigIdentity = false;
-  let expectSendSigned4GoneToOrigIdentity = true;
-  let expectAttachMyPublicPGPKey4GoneToOrigIdentity = true;
-  let expectEncryptSubject4GoneToOrigIdentity = false;
+  const expectSendEncrypted = false;
+  const expectSendSigned = true;
+  const expectAttachMyPublicPGPKey = true;
+  const expectEncryptSubject = false;
+  const testToggle = null;
+  const expectSendEncrypted2AfterToggle = undefined;
+  const expectSendSigned2AfterToggle = undefined;
+  const expectAttachMyPublicPGPKey2AfterToggle = undefined;
+  const expectEncryptSubject2AfterToggle = undefined;
+  const switchIdentity = true;
+  const expectSendEncrypted3GoneToPlainIdentity = false;
+  const expectSendSigned3GoneToPlainIdentity = false;
+  const expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
+  const expectEncryptSubject3GoneToPlainIdentity = false;
+  const expectSendEncrypted4GoneToOrigIdentity = false;
+  const expectSendSigned4GoneToOrigIdentity = true;
+  const expectAttachMyPublicPGPKey4GoneToOrigIdentity = true;
+  const expectEncryptSubject4GoneToOrigIdentity = false;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -386,29 +386,29 @@ add_task(async function testMsgComp2() {
 });
 
 add_task(async function testMsgComp2b() {
-  let prefEncryptionPolicy = 0; // default encryption: off
-  let prefSignMail = true; // sign unencrypted messages: on
-  let prefAttachPgpKey = true; // attach key to signed messages: on
-  let prefProtectSubject = true; // encrypt subject of encrypted message: on
+  const prefEncryptionPolicy = 0; // default encryption: off
+  const prefSignMail = true; // sign unencrypted messages: on
+  const prefAttachPgpKey = true; // attach key to signed messages: on
+  const prefProtectSubject = true; // encrypt subject of encrypted message: on
 
-  let expectSendEncrypted = false;
-  let expectSendSigned = true;
-  let expectAttachMyPublicPGPKey = true;
-  let expectEncryptSubject = false;
-  let testToggle = "attach-key";
-  let expectSendEncrypted2AfterToggle = false;
-  let expectSendSigned2AfterToggle = true;
-  let expectAttachMyPublicPGPKey2AfterToggle = false;
-  let expectEncryptSubject2AfterToggle = false;
-  let switchIdentity = true;
-  let expectSendEncrypted3GoneToPlainIdentity = false;
-  let expectSendSigned3GoneToPlainIdentity = false;
-  let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = false;
-  let expectSendEncrypted4GoneToOrigIdentity = false;
-  let expectSendSigned4GoneToOrigIdentity = true;
-  let expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
-  let expectEncryptSubject4GoneToOrigIdentity = false;
+  const expectSendEncrypted = false;
+  const expectSendSigned = true;
+  const expectAttachMyPublicPGPKey = true;
+  const expectEncryptSubject = false;
+  const testToggle = "attach-key";
+  const expectSendEncrypted2AfterToggle = false;
+  const expectSendSigned2AfterToggle = true;
+  const expectAttachMyPublicPGPKey2AfterToggle = false;
+  const expectEncryptSubject2AfterToggle = false;
+  const switchIdentity = true;
+  const expectSendEncrypted3GoneToPlainIdentity = false;
+  const expectSendSigned3GoneToPlainIdentity = false;
+  const expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
+  const expectEncryptSubject3GoneToPlainIdentity = false;
+  const expectSendEncrypted4GoneToOrigIdentity = false;
+  const expectSendSigned4GoneToOrigIdentity = true;
+  const expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
+  const expectEncryptSubject4GoneToOrigIdentity = false;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -437,29 +437,29 @@ add_task(async function testMsgComp2b() {
 });
 
 add_task(async function testMsgComp3() {
-  let prefEncryptionPolicy = 2; // default encryption: on (require)
-  let prefSignMail = false; // sign unencrypted messages: off
-  let prefAttachPgpKey = true; // attach key to signed messages: on
-  let prefProtectSubject = true; // encrypt subject of encrypted message: on
+  const prefEncryptionPolicy = 2; // default encryption: on (require)
+  const prefSignMail = false; // sign unencrypted messages: off
+  const prefAttachPgpKey = true; // attach key to signed messages: on
+  const prefProtectSubject = true; // encrypt subject of encrypted message: on
 
-  let expectSendEncrypted = true;
-  let expectSendSigned = true;
-  let expectAttachMyPublicPGPKey = true;
-  let expectEncryptSubject = true;
-  let testToggle = null;
-  let expectSendEncrypted2AfterToggle = undefined;
-  let expectSendSigned2AfterToggle = undefined;
-  let expectAttachMyPublicPGPKey2AfterToggle = undefined;
-  let expectEncryptSubject2AfterToggle = undefined;
-  let switchIdentity = true;
-  let expectSendEncrypted3GoneToPlainIdentity = true;
-  let expectSendSigned3GoneToPlainIdentity = false;
-  let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = true;
-  let expectSendEncrypted4GoneToOrigIdentity = true;
-  let expectSendSigned4GoneToOrigIdentity = true;
-  let expectAttachMyPublicPGPKey4GoneToOrigIdentity = true;
-  let expectEncryptSubject4GoneToOrigIdentity = true;
+  const expectSendEncrypted = true;
+  const expectSendSigned = true;
+  const expectAttachMyPublicPGPKey = true;
+  const expectEncryptSubject = true;
+  const testToggle = null;
+  const expectSendEncrypted2AfterToggle = undefined;
+  const expectSendSigned2AfterToggle = undefined;
+  const expectAttachMyPublicPGPKey2AfterToggle = undefined;
+  const expectEncryptSubject2AfterToggle = undefined;
+  const switchIdentity = true;
+  const expectSendEncrypted3GoneToPlainIdentity = true;
+  const expectSendSigned3GoneToPlainIdentity = false;
+  const expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
+  const expectEncryptSubject3GoneToPlainIdentity = true;
+  const expectSendEncrypted4GoneToOrigIdentity = true;
+  const expectSendSigned4GoneToOrigIdentity = true;
+  const expectAttachMyPublicPGPKey4GoneToOrigIdentity = true;
+  const expectEncryptSubject4GoneToOrigIdentity = true;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -488,29 +488,29 @@ add_task(async function testMsgComp3() {
 });
 
 add_task(async function testMsgComp3b() {
-  let prefEncryptionPolicy = 2; // default encryption: on (require)
-  let prefSignMail = false; // sign unencrypted messages: off
-  let prefAttachPgpKey = true; // attach key to signed messages: on
-  let prefProtectSubject = true; // encrypt subject of encrypted message: on
+  const prefEncryptionPolicy = 2; // default encryption: on (require)
+  const prefSignMail = false; // sign unencrypted messages: off
+  const prefAttachPgpKey = true; // attach key to signed messages: on
+  const prefProtectSubject = true; // encrypt subject of encrypted message: on
 
-  let expectSendEncrypted = true;
-  let expectSendSigned = true;
-  let expectAttachMyPublicPGPKey = true;
-  let expectEncryptSubject = true;
-  let testToggle = "encrypt-subject";
-  let expectSendEncrypted2AfterToggle = true;
-  let expectSendSigned2AfterToggle = true;
-  let expectAttachMyPublicPGPKey2AfterToggle = true;
-  let expectEncryptSubject2AfterToggle = false;
-  let switchIdentity = true;
-  let expectSendEncrypted3GoneToPlainIdentity = true;
-  let expectSendSigned3GoneToPlainIdentity = false;
-  let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = false;
-  let expectSendEncrypted4GoneToOrigIdentity = true;
-  let expectSendSigned4GoneToOrigIdentity = true;
-  let expectAttachMyPublicPGPKey4GoneToOrigIdentity = true;
-  let expectEncryptSubject4GoneToOrigIdentity = false;
+  const expectSendEncrypted = true;
+  const expectSendSigned = true;
+  const expectAttachMyPublicPGPKey = true;
+  const expectEncryptSubject = true;
+  const testToggle = "encrypt-subject";
+  const expectSendEncrypted2AfterToggle = true;
+  const expectSendSigned2AfterToggle = true;
+  const expectAttachMyPublicPGPKey2AfterToggle = true;
+  const expectEncryptSubject2AfterToggle = false;
+  const switchIdentity = true;
+  const expectSendEncrypted3GoneToPlainIdentity = true;
+  const expectSendSigned3GoneToPlainIdentity = false;
+  const expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
+  const expectEncryptSubject3GoneToPlainIdentity = false;
+  const expectSendEncrypted4GoneToOrigIdentity = true;
+  const expectSendSigned4GoneToOrigIdentity = true;
+  const expectAttachMyPublicPGPKey4GoneToOrigIdentity = true;
+  const expectEncryptSubject4GoneToOrigIdentity = false;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -539,29 +539,29 @@ add_task(async function testMsgComp3b() {
 });
 
 add_task(async function testMsgComp4() {
-  let prefEncryptionPolicy = 2; // default encryption: on (require)
-  let prefSignMail = true; // sign unencrypted messages: on
-  let prefAttachPgpKey = true; // attach key to signed messages: on
-  let prefProtectSubject = true; // encrypt subject of encrypted message: on
+  const prefEncryptionPolicy = 2; // default encryption: on (require)
+  const prefSignMail = true; // sign unencrypted messages: on
+  const prefAttachPgpKey = true; // attach key to signed messages: on
+  const prefProtectSubject = true; // encrypt subject of encrypted message: on
 
-  let expectSendEncrypted = true;
-  let expectSendSigned = true;
-  let expectAttachMyPublicPGPKey = true;
-  let expectEncryptSubject = true;
-  let testToggle = null;
-  let expectSendEncrypted2AfterToggle = undefined;
-  let expectSendSigned2AfterToggle = undefined;
-  let expectAttachMyPublicPGPKey2AfterToggle = undefined;
-  let expectEncryptSubject2AfterToggle = undefined;
-  let switchIdentity = true;
-  let expectSendEncrypted3GoneToPlainIdentity = true;
-  let expectSendSigned3GoneToPlainIdentity = false;
-  let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = true;
-  let expectSendEncrypted4GoneToOrigIdentity = true;
-  let expectSendSigned4GoneToOrigIdentity = true;
-  let expectAttachMyPublicPGPKey4GoneToOrigIdentity = true;
-  let expectEncryptSubject4GoneToOrigIdentity = true;
+  const expectSendEncrypted = true;
+  const expectSendSigned = true;
+  const expectAttachMyPublicPGPKey = true;
+  const expectEncryptSubject = true;
+  const testToggle = null;
+  const expectSendEncrypted2AfterToggle = undefined;
+  const expectSendSigned2AfterToggle = undefined;
+  const expectAttachMyPublicPGPKey2AfterToggle = undefined;
+  const expectEncryptSubject2AfterToggle = undefined;
+  const switchIdentity = true;
+  const expectSendEncrypted3GoneToPlainIdentity = true;
+  const expectSendSigned3GoneToPlainIdentity = false;
+  const expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
+  const expectEncryptSubject3GoneToPlainIdentity = true;
+  const expectSendEncrypted4GoneToOrigIdentity = true;
+  const expectSendSigned4GoneToOrigIdentity = true;
+  const expectAttachMyPublicPGPKey4GoneToOrigIdentity = true;
+  const expectEncryptSubject4GoneToOrigIdentity = true;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -590,29 +590,29 @@ add_task(async function testMsgComp4() {
 });
 
 add_task(async function testMsgComp4b() {
-  let prefEncryptionPolicy = 2; // default encryption: on (require)
-  let prefSignMail = true; // sign unencrypted messages: on
-  let prefAttachPgpKey = true; // attach key to signed messages: on
-  let prefProtectSubject = true; // encrypt subject of encrypted message: on
+  const prefEncryptionPolicy = 2; // default encryption: on (require)
+  const prefSignMail = true; // sign unencrypted messages: on
+  const prefAttachPgpKey = true; // attach key to signed messages: on
+  const prefProtectSubject = true; // encrypt subject of encrypted message: on
 
-  let expectSendEncrypted = true;
-  let expectSendSigned = true;
-  let expectAttachMyPublicPGPKey = true;
-  let expectEncryptSubject = true;
-  let testToggle = "attach-key";
-  let expectSendEncrypted2AfterToggle = true;
-  let expectSendSigned2AfterToggle = true;
-  let expectAttachMyPublicPGPKey2AfterToggle = false;
-  let expectEncryptSubject2AfterToggle = true;
-  let switchIdentity = true;
-  let expectSendEncrypted3GoneToPlainIdentity = true;
-  let expectSendSigned3GoneToPlainIdentity = false;
-  let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = true;
-  let expectSendEncrypted4GoneToOrigIdentity = true;
-  let expectSendSigned4GoneToOrigIdentity = true;
-  let expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
-  let expectEncryptSubject4GoneToOrigIdentity = true;
+  const expectSendEncrypted = true;
+  const expectSendSigned = true;
+  const expectAttachMyPublicPGPKey = true;
+  const expectEncryptSubject = true;
+  const testToggle = "attach-key";
+  const expectSendEncrypted2AfterToggle = true;
+  const expectSendSigned2AfterToggle = true;
+  const expectAttachMyPublicPGPKey2AfterToggle = false;
+  const expectEncryptSubject2AfterToggle = true;
+  const switchIdentity = true;
+  const expectSendEncrypted3GoneToPlainIdentity = true;
+  const expectSendSigned3GoneToPlainIdentity = false;
+  const expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
+  const expectEncryptSubject3GoneToPlainIdentity = true;
+  const expectSendEncrypted4GoneToOrigIdentity = true;
+  const expectSendSigned4GoneToOrigIdentity = true;
+  const expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
+  const expectEncryptSubject4GoneToOrigIdentity = true;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -641,29 +641,29 @@ add_task(async function testMsgComp4b() {
 });
 
 add_task(async function testMsgComp5() {
-  let prefEncryptionPolicy = 2; // default encryption: on (require)
-  let prefSignMail = false; // sign unencrypted messages: off
-  let prefAttachPgpKey = false; // attach key to signed messages: off
-  let prefProtectSubject = false; // encrypt subject of encrypted message: off
+  const prefEncryptionPolicy = 2; // default encryption: on (require)
+  const prefSignMail = false; // sign unencrypted messages: off
+  const prefAttachPgpKey = false; // attach key to signed messages: off
+  const prefProtectSubject = false; // encrypt subject of encrypted message: off
 
-  let expectSendEncrypted = true;
-  let expectSendSigned = true;
-  let expectAttachMyPublicPGPKey = false;
-  let expectEncryptSubject = false;
-  let testToggle = null;
-  let expectSendEncrypted2AfterToggle = undefined;
-  let expectSendSigned2AfterToggle = undefined;
-  let expectAttachMyPublicPGPKey2AfterToggle = undefined;
-  let expectEncryptSubject2AfterToggle = undefined;
-  let switchIdentity = true;
-  let expectSendEncrypted3GoneToPlainIdentity = true;
-  let expectSendSigned3GoneToPlainIdentity = false;
-  let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = true;
-  let expectSendEncrypted4GoneToOrigIdentity = true;
-  let expectSendSigned4GoneToOrigIdentity = true;
-  let expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
-  let expectEncryptSubject4GoneToOrigIdentity = false;
+  const expectSendEncrypted = true;
+  const expectSendSigned = true;
+  const expectAttachMyPublicPGPKey = false;
+  const expectEncryptSubject = false;
+  const testToggle = null;
+  const expectSendEncrypted2AfterToggle = undefined;
+  const expectSendSigned2AfterToggle = undefined;
+  const expectAttachMyPublicPGPKey2AfterToggle = undefined;
+  const expectEncryptSubject2AfterToggle = undefined;
+  const switchIdentity = true;
+  const expectSendEncrypted3GoneToPlainIdentity = true;
+  const expectSendSigned3GoneToPlainIdentity = false;
+  const expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
+  const expectEncryptSubject3GoneToPlainIdentity = true;
+  const expectSendEncrypted4GoneToOrigIdentity = true;
+  const expectSendSigned4GoneToOrigIdentity = true;
+  const expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
+  const expectEncryptSubject4GoneToOrigIdentity = false;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -692,29 +692,29 @@ add_task(async function testMsgComp5() {
 });
 
 add_task(async function testMsgComp6() {
-  let prefEncryptionPolicy = 0; // default encryption: off
-  let prefSignMail = false; // sign unencrypted messages: off
-  let prefAttachPgpKey = true; // attach key to signed messages: on
-  let prefProtectSubject = true; // encrypt subject of encrypted message: on
+  const prefEncryptionPolicy = 0; // default encryption: off
+  const prefSignMail = false; // sign unencrypted messages: off
+  const prefAttachPgpKey = true; // attach key to signed messages: on
+  const prefProtectSubject = true; // encrypt subject of encrypted message: on
 
-  let expectSendEncrypted = false;
-  let expectSendSigned = false;
-  let expectAttachMyPublicPGPKey = false;
-  let expectEncryptSubject = false;
-  let testToggle = "encrypt";
-  let expectSendEncrypted2AfterToggle = true;
-  let expectSendSigned2AfterToggle = true;
-  let expectAttachMyPublicPGPKey2AfterToggle = true;
-  let expectEncryptSubject2AfterToggle = true;
-  let switchIdentity = true;
-  let expectSendEncrypted3GoneToPlainIdentity = true;
-  let expectSendSigned3GoneToPlainIdentity = false;
-  let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = true;
-  let expectSendEncrypted4GoneToOrigIdentity = true;
-  let expectSendSigned4GoneToOrigIdentity = true;
-  let expectAttachMyPublicPGPKey4GoneToOrigIdentity = true;
-  let expectEncryptSubject4GoneToOrigIdentity = true;
+  const expectSendEncrypted = false;
+  const expectSendSigned = false;
+  const expectAttachMyPublicPGPKey = false;
+  const expectEncryptSubject = false;
+  const testToggle = "encrypt";
+  const expectSendEncrypted2AfterToggle = true;
+  const expectSendSigned2AfterToggle = true;
+  const expectAttachMyPublicPGPKey2AfterToggle = true;
+  const expectEncryptSubject2AfterToggle = true;
+  const switchIdentity = true;
+  const expectSendEncrypted3GoneToPlainIdentity = true;
+  const expectSendSigned3GoneToPlainIdentity = false;
+  const expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
+  const expectEncryptSubject3GoneToPlainIdentity = true;
+  const expectSendEncrypted4GoneToOrigIdentity = true;
+  const expectSendSigned4GoneToOrigIdentity = true;
+  const expectAttachMyPublicPGPKey4GoneToOrigIdentity = true;
+  const expectEncryptSubject4GoneToOrigIdentity = true;
 
   await testComposeFlags(
     prefEncryptionPolicy,
@@ -743,29 +743,29 @@ add_task(async function testMsgComp6() {
 });
 
 add_task(async function testMsgComp7() {
-  let prefEncryptionPolicy = 0; // default encryption: off
-  let prefSignMail = true; // sign unencrypted messages: on
-  let prefAttachPgpKey = false; // attach key to signed messages: off
-  let prefProtectSubject = false; // encrypt subject of encrypted message: off
+  const prefEncryptionPolicy = 0; // default encryption: off
+  const prefSignMail = true; // sign unencrypted messages: on
+  const prefAttachPgpKey = false; // attach key to signed messages: off
+  const prefProtectSubject = false; // encrypt subject of encrypted message: off
 
-  let expectSendEncrypted = false;
-  let expectSendSigned = true;
-  let expectAttachMyPublicPGPKey = false;
-  let expectEncryptSubject = false;
-  let testToggle = "encrypt";
-  let expectSendEncrypted2AfterToggle = true;
-  let expectSendSigned2AfterToggle = true;
-  let expectAttachMyPublicPGPKey2AfterToggle = false;
-  let expectEncryptSubject2AfterToggle = false;
-  let switchIdentity = true;
-  let expectSendEncrypted3GoneToPlainIdentity = true;
-  let expectSendSigned3GoneToPlainIdentity = false;
-  let expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
-  let expectEncryptSubject3GoneToPlainIdentity = true;
-  let expectSendEncrypted4GoneToOrigIdentity = true;
-  let expectSendSigned4GoneToOrigIdentity = true;
-  let expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
-  let expectEncryptSubject4GoneToOrigIdentity = false;
+  const expectSendEncrypted = false;
+  const expectSendSigned = true;
+  const expectAttachMyPublicPGPKey = false;
+  const expectEncryptSubject = false;
+  const testToggle = "encrypt";
+  const expectSendEncrypted2AfterToggle = true;
+  const expectSendSigned2AfterToggle = true;
+  const expectAttachMyPublicPGPKey2AfterToggle = false;
+  const expectEncryptSubject2AfterToggle = false;
+  const switchIdentity = true;
+  const expectSendEncrypted3GoneToPlainIdentity = true;
+  const expectSendSigned3GoneToPlainIdentity = false;
+  const expectAttachMyPublicPGPKey3GoneToPlainIdentity = false;
+  const expectEncryptSubject3GoneToPlainIdentity = true;
+  const expectSendEncrypted4GoneToOrigIdentity = true;
+  const expectSendSigned4GoneToOrigIdentity = true;
+  const expectAttachMyPublicPGPKey4GoneToOrigIdentity = false;
+  const expectEncryptSubject4GoneToOrigIdentity = false;
 
   await testComposeFlags(
     prefEncryptionPolicy,

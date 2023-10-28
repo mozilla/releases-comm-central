@@ -87,9 +87,9 @@ AddressBookStore.prototype = {
   __proto__: Store.prototype,
 
   _addPrefsToBook(book, record, whichPrefs) {
-    for (let [key, realKey] of Object.entries(whichPrefs)) {
-      let value = record.prefs[key];
-      let type = typeof value;
+    for (const [key, realKey] of Object.entries(whichPrefs)) {
+      const value = record.prefs[key];
+      const type = typeof value;
       if (type == "string") {
         book.setStringValue(realKey, value);
       } else if (type == "number") {
@@ -119,13 +119,13 @@ AddressBookStore.prototype = {
       return;
     }
 
-    let dirPrefId = MailServices.ab.newAddressBook(
+    const dirPrefId = MailServices.ab.newAddressBook(
       record.name,
       null,
       record.type,
       record.id
     );
-    let book = MailServices.ab.getDirectoryFromId(dirPrefId);
+    const book = MailServices.ab.getDirectoryFromId(dirPrefId);
 
     this._addPrefsToBook(book, record, SYNCED_COMMON_PROPERTIES);
     if (record.type == MailServices.ab.CARDDAV_DIRECTORY_TYPE) {
@@ -146,13 +146,13 @@ AddressBookStore.prototype = {
    *        The store record to delete an item from
    */
   async remove(record) {
-    let book = MailServices.ab.getDirectoryFromUID(record.id);
+    const book = MailServices.ab.getDirectoryFromUID(record.id);
     if (!book) {
       this._log.trace("Asked to remove record that doesn't exist, ignoring");
       return;
     }
 
-    let deletedPromise = new Promise(resolve => {
+    const deletedPromise = new Promise(resolve => {
       Services.obs.addObserver(
         {
           observe() {
@@ -177,7 +177,7 @@ AddressBookStore.prototype = {
    *        The record to use to update an item from
    */
   async update(record) {
-    let book = MailServices.ab.getDirectoryFromUID(record.id);
+    const book = MailServices.ab.getDirectoryFromUID(record.id);
     if (!book) {
       this._log.trace("Skipping update for unknown item: " + record.id);
       return;
@@ -221,8 +221,8 @@ AddressBookStore.prototype = {
    *         are ignored.
    */
   async getAllIDs() {
-    let ids = {};
-    for (let b of MailServices.ab.directories) {
+    const ids = {};
+    for (const b of MailServices.ab.directories) {
       if (
         [
           MailServices.ab.LDAP_DIRECTORY_TYPE,
@@ -250,9 +250,9 @@ AddressBookStore.prototype = {
    * @return record type for this engine
    */
   async createRecord(id, collection) {
-    let record = new AddressBookRecord(collection, id);
+    const record = new AddressBookRecord(collection, id);
 
-    let book = MailServices.ab.getDirectoryFromUID(id);
+    const book = MailServices.ab.getDirectoryFromUID(id);
 
     // If we don't know about this ID, mark the record as deleted.
     if (!book) {
@@ -303,8 +303,8 @@ AddressBookTracker.prototype = {
   _ignoreAll: false,
 
   async getChangedIDs() {
-    let changes = {};
-    for (let id of this._changedIDs) {
+    const changes = {};
+    for (const id of this._changedIDs) {
       changes[id] = 0;
     }
     return changes;
@@ -342,8 +342,8 @@ AddressBookTracker.prototype = {
     let book;
     switch (topic) {
       case "nsPref:changed": {
-        let serverKey = data.split(".")[2];
-        let prefName = data.substring(serverKey.length + 16);
+        const serverKey = data.split(".")[2];
+        const prefName = data.substring(serverKey.length + 16);
         if (
           prefName != "description" &&
           !Object.values(SYNCED_COMMON_PROPERTIES).includes(prefName) &&

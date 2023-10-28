@@ -33,7 +33,7 @@ add_task(
     select_click_folder(folderA);
     assert_folders_selected_and_displayed(folderA);
 
-    let swc = await open_search_window_from_context_menu(folderA);
+    const swc = await open_search_window_from_context_menu(folderA);
     assert_search_window_folder_displayed(swc, folderA);
 
     await close_search_window(swc);
@@ -47,7 +47,7 @@ add_task(async function test_open_search_window_with_one_thing_selected() {
   select_click_folder(folderA);
   assert_folders_selected_and_displayed(folderA);
 
-  let swc = await open_search_window_from_context_menu(folderB);
+  const swc = await open_search_window_from_context_menu(folderB);
   assert_search_window_folder_displayed(swc, folderB);
 
   await close_search_window(swc);

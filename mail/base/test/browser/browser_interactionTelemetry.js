@@ -8,18 +8,18 @@ const AREAS = ["keyboard", "calendar", "chat", "message_display", "toolbox"];
 // Checks that the correct number of clicks are registered against the correct
 // keys in the scalars.
 function assertInteractionScalars(expectedAreas) {
-  let processScalars =
+  const processScalars =
     Services.telemetry.getSnapshotForKeyedScalars("main", true)?.parent ?? {};
 
-  for (let source of AREAS) {
-    let scalars = processScalars?.[`tb.ui.interaction.${source}`] ?? {};
+  for (const source of AREAS) {
+    const scalars = processScalars?.[`tb.ui.interaction.${source}`] ?? {};
 
-    let expected = expectedAreas[source] ?? {};
+    const expected = expectedAreas[source] ?? {};
 
-    let expectedKeys = new Set(
+    const expectedKeys = new Set(
       Object.keys(scalars).concat(Object.keys(expected))
     );
-    for (let key of expectedKeys) {
+    for (const key of expectedKeys) {
       Assert.equal(
         scalars[key],
         expected[key],
@@ -38,7 +38,7 @@ add_task(async function () {
     window
   );
 
-  let calendarWindowPromise = BrowserTestUtils.promiseAlertDialog(
+  const calendarWindowPromise = BrowserTestUtils.promiseAlertDialog(
     "cancel",
     "chrome://calendar/content/calendar-creation.xhtml"
   );

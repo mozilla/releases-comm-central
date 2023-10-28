@@ -194,11 +194,11 @@ add_task(async function () {
     return;
   }
 
-  let startupRecorder =
+  const startupRecorder =
     Cc["@mozilla.org/test/startuprecorder;1"].getService().wrappedJSObject;
   await startupRecorder.done;
 
-  let data = Cu.cloneInto(startupRecorder.data.code, {});
+  const data = Cu.cloneInto(startupRecorder.data.code, {});
   function getStack(scriptType, name) {
     if (scriptType == "modules") {
       return Cu.getModuleImportStack(name);
@@ -210,9 +210,9 @@ add_task(async function () {
   // it doesn't contribute to the actual test.
   SimpleTest.requestCompleteLog();
   let previous;
-  for (let phase in data) {
-    for (let scriptType in data[phase]) {
-      for (let f of data[phase][scriptType].sort()) {
+  for (const phase in data) {
+    for (const scriptType in data[phase]) {
+      for (const f of data[phase][scriptType].sort()) {
         // phases are ordered, so if a script wasn't loaded yet at the immediate
         // previous phase, it wasn't loaded during any of the previous phases
         // either, and is new in the current phase.
@@ -227,11 +227,11 @@ add_task(async function () {
     previous = phase;
   }
 
-  for (let phase in startupPhases) {
-    let loadedList = data[phase];
-    let allowlist = startupPhases[phase].allowlist || null;
+  for (const phase in startupPhases) {
+    const loadedList = data[phase];
+    const allowlist = startupPhases[phase].allowlist || null;
     if (allowlist) {
-      for (let scriptType in allowlist) {
+      for (const scriptType in allowlist) {
         loadedList[scriptType] = loadedList[scriptType].filter(c => {
           if (!allowlist[scriptType].has(c)) {
             return true;
@@ -244,8 +244,8 @@ add_task(async function () {
           0,
           `should have no unexpected ${scriptType} loaded ${phase}`
         );
-        for (let script of loadedList[scriptType]) {
-          let message = `unexpected ${scriptType}: ${script}`;
+        for (const script of loadedList[scriptType]) {
+          const message = `unexpected ${scriptType}: ${script}`;
           record(false, message, undefined, getStack(scriptType, script));
         }
         is(
@@ -253,17 +253,17 @@ add_task(async function () {
           0,
           `all ${scriptType} allowlist entries should have been used`
         );
-        for (let script of allowlist[scriptType]) {
+        for (const script of allowlist[scriptType]) {
           ok(false, `unused ${scriptType} allowlist entry: ${script}`);
         }
       }
     }
-    let denylist = startupPhases[phase].denylist || null;
+    const denylist = startupPhases[phase].denylist || null;
     if (denylist) {
-      for (let scriptType in denylist) {
-        for (let file of denylist[scriptType]) {
-          let loaded = loadedList[scriptType].includes(file);
-          let message = `${file} is not allowed ${phase}`;
+      for (const scriptType in denylist) {
+        for (const file of denylist[scriptType]) {
+          const loaded = loadedList[scriptType].includes(file);
+          const message = `${file} is not allowed ${phase}`;
           if (!loaded) {
             ok(true, message);
           } else {

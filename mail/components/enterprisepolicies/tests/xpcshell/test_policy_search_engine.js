@@ -158,7 +158,7 @@ add_task(async function test_install_and_set_default_prevent_installs() {
 });
 
 add_task(async function test_install_and_remove() {
-  let iconURL =
+  const iconURL =
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 
   Assert.equal(
@@ -185,7 +185,7 @@ add_task(async function test_install_and_remove() {
 
   // If this passes, it means that the new search engine was properly installed
 
-  let engine = Services.search.getEngineByName("Foo");
+  const engine = Services.search.getEngineByName("Foo");
   Assert.notEqual(engine, null, "Specified search engine should be installed");
 
   Assert.equal(
@@ -244,7 +244,7 @@ add_task(async function test_install_post_method_engine() {
   // Get in line, because the Search policy callbacks are async.
   await TestUtils.waitForTick();
 
-  let engine = Services.search.getEngineByName("Post");
+  const engine = Services.search.getEngineByName("Post");
   Assert.notEqual(engine, null, "Specified search engine should be installed");
 
   Assert.equal(
@@ -253,10 +253,10 @@ add_task(async function test_install_post_method_engine() {
     "Method should be POST"
   );
 
-  let submission = engine.getSubmission("term", "text/html");
+  const submission = engine.getSubmission("term", "text/html");
   Assert.notEqual(submission.postData, null, "Post data should not be null");
 
-  let scriptableInputStream = Cc[
+  const scriptableInputStream = Cc[
     "@mozilla.org/scriptableinputstream;1"
   ].createInstance(Ci.nsIScriptableInputStream);
   scriptableInputStream.init(submission.postData);
@@ -295,7 +295,7 @@ add_task(async function test_install_with_encoding() {
   // Get in line, because the Search policy callbacks are async.
   await TestUtils.waitForTick();
 
-  let engine = Services.search.getEngineByName("Encoding");
+  const engine = Services.search.getEngineByName("Encoding");
   Assert.equal(
     engine.wrappedJSObject.queryCharset,
     "windows-1252",
@@ -386,7 +386,7 @@ add_task(async function test_install_with_suggest() {
   // Get in line, because the Search policy callbacks are async.
   await TestUtils.waitForTick();
 
-  let engine = Services.search.getEngineByName("Suggest");
+  const engine = Services.search.getEngineByName("Suggest");
 
   Assert.equal(
     engine.getSubmission("test", "application/x-suggestions+json").uri.spec,
@@ -423,7 +423,7 @@ add_task(async function test_install_and_restart_keeps_settings() {
   // Get in line, because the Search policy callbacks are async.
   await TestUtils.waitForTick();
 
-  let settingsWritten = SearchTestUtils.promiseSearchNotification(
+  const settingsWritten = SearchTestUtils.promiseSearchNotification(
     "write-settings-to-disk-complete"
   );
   let engine = Services.search.getEngineByName("Settings");

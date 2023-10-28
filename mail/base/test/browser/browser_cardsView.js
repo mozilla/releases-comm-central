@@ -9,14 +9,14 @@ const { click_through_appmenu } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-let tabmail = document.getElementById("tabmail");
-let about3Pane = tabmail.currentAbout3Pane;
-let { threadPane, threadTree } = about3Pane;
+const tabmail = document.getElementById("tabmail");
+const about3Pane = tabmail.currentAbout3Pane;
+const { threadPane, threadTree } = about3Pane;
 let rootFolder, testFolder, testMessages, displayContext, displayButton;
 
 add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
@@ -25,7 +25,7 @@ add_setup(async function () {
     .getChildNamed("cardsView")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
   testFolder.addMessageBatch(
     generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
   );
@@ -154,12 +154,12 @@ add_task(async function testSwitchToCardsView() {
     "The message row should remain as Row Item"
   );
 
-  let row = threadTree.getRowAtIndex(0);
-  let star = row.querySelector(".button-star");
+  const row = threadTree.getRowAtIndex(0);
+  const star = row.querySelector(".button-star");
   Assert.ok(BrowserTestUtils.is_visible(star), "star icon should be visible");
-  let tag = row.querySelector(".tag-icon");
+  const tag = row.querySelector(".tag-icon");
   Assert.ok(BrowserTestUtils.is_hidden(tag), "tag icon should be hidden");
-  let attachment = row.querySelector(".attachment-icon");
+  const attachment = row.querySelector(".attachment-icon");
   Assert.ok(
     BrowserTestUtils.is_hidden(attachment),
     "attachment icon should be hidden"
@@ -181,11 +181,11 @@ add_task(async function testSwitchToCardsView() {
 });
 
 add_task(async function testTagsInVerticalView() {
-  let row = threadTree.getRowAtIndex(1);
+  const row = threadTree.getRowAtIndex(1);
   EventUtils.synthesizeMouseAtCenter(row, {}, about3Pane);
   Assert.ok(row.classList.contains("selected"), "the row should be selected");
 
-  let tag = row.querySelector(".tag-icon");
+  const tag = row.querySelector(".tag-icon");
   Assert.ok(BrowserTestUtils.is_hidden(tag), "tag icon should be hidden");
 
   // Set the important tag.
@@ -193,14 +193,14 @@ add_task(async function testTagsInVerticalView() {
   Assert.ok(BrowserTestUtils.is_visible(tag), "tag icon should be visible");
   Assert.deepEqual(tag.title, "Important", "The important tag should be set");
 
-  let row2 = threadTree.getRowAtIndex(2);
+  const row2 = threadTree.getRowAtIndex(2);
   EventUtils.synthesizeMouseAtCenter(row2, {}, about3Pane);
   Assert.ok(
     row2.classList.contains("selected"),
     "the third row should be selected"
   );
 
-  let tag2 = row2.querySelector(".tag-icon");
+  const tag2 = row2.querySelector(".tag-icon");
   Assert.ok(BrowserTestUtils.is_hidden(tag2), "tag icon should be hidden");
 
   // Set the work tag.
@@ -209,7 +209,7 @@ add_task(async function testTagsInVerticalView() {
   Assert.deepEqual(tag2.title, "Work", "The work tag should be set");
 
   // Switch back to a table layout and horizontal view.
-  let shownPromise = BrowserTestUtils.waitForEvent(
+  const shownPromise = BrowserTestUtils.waitForEvent(
     displayContext,
     "popupshown"
   );
@@ -223,7 +223,7 @@ add_task(async function testTagsInVerticalView() {
     "The cards view menuitem should be checked"
   );
 
-  let hiddenPromise = BrowserTestUtils.waitForEvent(
+  const hiddenPromise = BrowserTestUtils.waitForEvent(
     displayContext,
     "popuphidden"
   );

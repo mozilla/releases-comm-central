@@ -24,7 +24,7 @@ var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 // Set up our string formatter for localizing strings.
 XPCOMUtils.defineLazyGetter(this, "formatString", function () {
-  let formatter = new PluralStringFormatter(
+  const formatter = new PluralStringFormatter(
     "chrome://messenger/locale/multimessageview.properties"
   );
   return function (...args) {
@@ -77,7 +77,7 @@ var ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
  * whichever comes first.
  */
 LimitIterator.prototype[ITERATOR_SYMBOL] = function* () {
-  let length = this.length;
+  const length = this.length;
   for (let i = 0; i < length; i++) {
     yield this._array[i];
   }
@@ -115,7 +115,7 @@ MultiMessageSummary.prototype = {
    * @param aNode   The related DOM node.
    */
   mapMsgToNode(aMsgHdr, aNode) {
-    let key = aMsgHdr.messageKey + aMsgHdr.folder.URI;
+    const key = aMsgHdr.messageKey + aMsgHdr.folder.URI;
     this._msgNodes[key] = aNode;
   },
 
@@ -129,7 +129,7 @@ MultiMessageSummary.prototype = {
     this._msgNodes = {};
 
     // Clear the messages list.
-    let messageList = document.getElementById("message_list");
+    const messageList = document.getElementById("message_list");
     while (messageList.hasChildNodes()) {
       messageList.lastChild.remove();
     }
@@ -159,11 +159,11 @@ MultiMessageSummary.prototype = {
     }
 
     // Enable/disable the archive button as appropriate.
-    let archiveBtn = document.getElementById("hdrArchiveButton");
+    const archiveBtn = document.getElementById("hdrArchiveButton");
     archiveBtn.hidden = !MessageArchiver.canArchive(aMessages);
 
     // Set archive and delete button listeners.
-    let topChromeWindow = window.browsingContext.topChromeWindow;
+    const topChromeWindow = window.browsingContext.topChromeWindow;
     archiveBtn.onclick = event => {
       if (event.button == 0) {
         topChromeWindow.goDoCommand("cmd_archive");
@@ -177,13 +177,13 @@ MultiMessageSummary.prototype = {
 
     headerToolbarNavigation.init();
 
-    let summarizer = this._summarizers[aType];
+    const summarizer = this._summarizers[aType];
     if (!summarizer) {
       throw new Error('Unknown summarizer "' + aType + '"');
     }
 
-    let messages = new LimitIterator(aMessages, this.kMaxMessages);
-    let summarizedMessages = summarizer.summarize(messages, aDBView);
+    const messages = new LimitIterator(aMessages, this.kMaxMessages);
+    const summarizedMessages = summarizer.summarize(messages, aDBView);
 
     // Stash somewhere so it doesn't get GC'ed.
     this._glodaQuery = Gloda.getMessageCollectionForHeaders(
@@ -200,8 +200,8 @@ MultiMessageSummary.prototype = {
    * @param subtitle A smaller subtitle for the heading.
    */
   setHeading(title, subtitle) {
-    let titleNode = document.getElementById("summary_title");
-    let subtitleNode = document.getElementById("summary_subtitle");
+    const titleNode = document.getElementById("summary_title");
+    const subtitleNode = document.getElementById("summary_subtitle");
     titleNode.textContent = title || "";
     subtitleNode.textContent = subtitle || "";
   },
@@ -239,14 +239,14 @@ MultiMessageSummary.prototype = {
       });
 
       tags = new Set();
-      for (let message of thread) {
-        for (let tag of this._getTagsForMsg(message)) {
+      for (const message of thread) {
+        for (const tag of this._getTagsForMsg(message)) {
           tags.add(tag);
         }
       }
     }
 
-    let row = document.createElement("li");
+    const row = document.createElement("li");
     row.dataset.messageId = message.messageId;
     row.classList.toggle("thread", thread && thread.length > 1);
     row.classList.toggle("unread", numUnread > 0);
@@ -254,7 +254,7 @@ MultiMessageSummary.prototype = {
 
     row.appendChild(document.createElement("div")).classList.add("star");
 
-    let summary = document.createElement("div");
+    const summary = document.createElement("div");
     summary.classList.add("item_summary");
     summary
       .appendChild(document.createElement("div"))
@@ -262,9 +262,9 @@ MultiMessageSummary.prototype = {
     summary.appendChild(document.createElement("div")).classList.add("snippet");
     row.appendChild(summary);
 
-    let itemHeaderNode = row.querySelector(".item_header");
+    const itemHeaderNode = row.querySelector(".item_header");
 
-    let authorNode = document.createElement("span");
+    const authorNode = document.createElement("span");
     authorNode.classList.add("author");
     authorNode.textContent = DisplayNameUtils.formatDisplayNameList(
       message.mime2DecodedAuthor,
@@ -275,7 +275,7 @@ MultiMessageSummary.prototype = {
       authorNode.classList.add("right");
       itemHeaderNode.appendChild(authorNode);
 
-      let subjectNode = document.createElement("span");
+      const subjectNode = document.createElement("span");
       subjectNode.classList.add("subject", "primary_header", "link");
       subjectNode.textContent =
         message.mime2DecodedSubject || formatString("noSubject");
@@ -291,7 +291,7 @@ MultiMessageSummary.prototype = {
             numUnread
           );
         }
-        let countStr =
+        const countStr =
           "(" +
           formatString(
             "numMessages",
@@ -301,13 +301,13 @@ MultiMessageSummary.prototype = {
           numUnreadStr +
           ")";
 
-        let countNode = document.createElement("span");
+        const countNode = document.createElement("span");
         countNode.classList.add("count");
         countNode.textContent = countStr;
         itemHeaderNode.appendChild(countNode);
       }
     } else {
-      let dateNode = document.createElement("span");
+      const dateNode = document.createElement("span");
       dateNode.classList.add("date", "right");
       dateNode.textContent = makeFriendlyDateAgo(new Date(message.date / 1000));
       itemHeaderNode.appendChild(dateNode);
@@ -319,12 +319,12 @@ MultiMessageSummary.prototype = {
       itemHeaderNode.appendChild(authorNode);
     }
 
-    let tagNode = document.createElement("span");
+    const tagNode = document.createElement("span");
     tagNode.classList.add("tags");
     this._addTagNodes(tags, tagNode);
     itemHeaderNode.appendChild(tagNode);
 
-    let snippetNode = row.querySelector(".snippet");
+    const snippetNode = row.querySelector(".snippet");
     try {
       const kSnippetLength = aOptions && aOptions.snippetLength;
       MsgHdrToMimeMessage(
@@ -335,7 +335,7 @@ MultiMessageSummary.prototype = {
             // Shouldn't happen, but sometimes does?
             return;
           }
-          let [text, meta] = mimeMsgToContentSnippetAndMeta(
+          const [text, meta] = mimeMsgToContentSnippetAndMeta(
             aMimeMsg,
             aMsgHdr.folder,
             kSnippetLength
@@ -367,7 +367,7 @@ MultiMessageSummary.prototype = {
    * @param aNoticeText The text to show in the notice.
    */
   showNotice(aNoticeText) {
-    let notice = document.getElementById("notice");
+    const notice = document.getElementById("notice");
     notice.textContent = aNoticeText;
   },
 
@@ -380,8 +380,8 @@ MultiMessageSummary.prototype = {
    * @returns An array of nsIMsgTag objects.
    */
   _getTagsForMsg(aMsgHdr) {
-    let keywords = new Set(aMsgHdr.getStringProperty("keywords").split(" "));
-    let allTags = MailServices.tags.getAllTags();
+    const keywords = new Set(aMsgHdr.getStringProperty("keywords").split(" "));
+    const allTags = MailServices.tags.getAllTags();
 
     return allTags.filter(function (tag) {
       return keywords.has(tag.key);
@@ -396,18 +396,18 @@ MultiMessageSummary.prototype = {
    */
   _addTagNodes(aTags, aTagsNode) {
     // Make sure the tags are sorted in their natural order.
-    let sortedTags = [...aTags];
+    const sortedTags = [...aTags];
     sortedTags.sort(function (a, b) {
       return a.key.localeCompare(b.key) || a.ordinal.localeCompare(b.ordinal);
     });
 
-    for (let tag of sortedTags) {
-      let tagNode = document.createElement("span");
+    for (const tag of sortedTags) {
+      const tagNode = document.createElement("span");
 
       tagNode.className = "tag";
-      let color = MailServices.tags.getColorForKey(tag.key);
+      const color = MailServices.tags.getColorForKey(tag.key);
       if (color) {
-        let textColor = !TagUtils.isColorContrastEnough(color)
+        const textColor = !TagUtils.isColorContrastEnough(color)
           ? "white"
           : "black";
         tagNode.setAttribute(
@@ -429,12 +429,12 @@ MultiMessageSummary.prototype = {
    */
   _computeSize(aMessages) {
     let numBytes = 0;
-    for (let msgHdr of aMessages) {
+    for (const msgHdr of aMessages) {
       numBytes += msgHdr.messageSize;
       // XXX do something about news?
     }
 
-    let format = aMessages.limited
+    const format = aMessages.limited
       ? "messagesTotalSizeMoreThan"
       : "messagesTotalSize";
     document.getElementById("size").textContent = formatString(format, [
@@ -456,17 +456,17 @@ MultiMessageSummary.prototype = {
    * @param aItems Contents of a gloda collection.
    */
   _processItems(aItems) {
-    let knownMessageNodes = new Map();
+    const knownMessageNodes = new Map();
 
-    for (let glodaMsg of aItems) {
+    for (const glodaMsg of aItems) {
       // Unread and starred will get set if any of the messages in a collapsed
       // thread qualify.  The trick here is that we may get multiple items
       // corresponding to the same thread (and hence DOM node), so we need to
       // detect when we get the first item for a particular DOM node, stash the
       // preexisting status of that DOM node, an only do transitions if the
       // items warrant it.
-      let key = glodaMsg.messageKey + glodaMsg.folder.uri;
-      let headerNode = this._msgNodes[key];
+      const key = glodaMsg.messageKey + glodaMsg.folder.uri;
+      const headerNode = this._msgNodes[key];
       if (!headerNode) {
         continue;
       }
@@ -478,25 +478,25 @@ MultiMessageSummary.prototype = {
         });
       }
 
-      let flags = knownMessageNodes.get(headerNode);
+      const flags = knownMessageNodes.get(headerNode);
 
       // Count as read if *all* the messages are read.
       flags.read &= glodaMsg.read;
       // Count as starred if *any* of the messages are starred.
       flags.starred |= glodaMsg.starred;
       // Count as tagged with a tag if *any* of the messages have that tag.
-      for (let tag of this._getTagsForMsg(glodaMsg.folderMessage)) {
+      for (const tag of this._getTagsForMsg(glodaMsg.folderMessage)) {
         flags.tags.add(tag);
       }
     }
 
-    for (let [headerNode, flags] of knownMessageNodes) {
+    for (const [headerNode, flags] of knownMessageNodes) {
       headerNode.classList.toggle("unread", !flags.read);
       headerNode.classList.toggle("starred", flags.starred);
 
       // Clear out all the tags and start fresh, just to make sure we don't get
       // out of sync.
-      let tagsNode = headerNode.querySelector(".tags");
+      const tagsNode = headerNode.querySelector(".tags");
       while (tagsNode.hasChildNodes()) {
         tagsNode.lastChild.remove();
       }
@@ -553,21 +553,21 @@ ThreadSummarizer.prototype = {
    * @returns An array of the messages actually summarized.
    */
   summarize(aMessages, aDBView) {
-    let messageList = document.getElementById("message_list");
+    const messageList = document.getElementById("message_list");
 
     // Remove all ignored messages from summarization.
-    let summarizedMessages = [];
-    for (let message of aMessages) {
+    const summarizedMessages = [];
+    for (const message of aMessages) {
       if (!message.isKilled) {
         summarizedMessages.push(message);
       }
     }
-    let ignoredCount = aMessages.trueLength - summarizedMessages.length;
+    const ignoredCount = aMessages.trueLength - summarizedMessages.length;
 
     // Summarize the selected messages.
     let subject = null;
     let maxCountExceeded = false;
-    for (let [i, msgHdr] of summarizedMessages.entries()) {
+    for (const [i, msgHdr] of summarizedMessages.entries()) {
       if (i == this.kMaxSummarizedMessages) {
         summarizedMessages.length = i;
         maxCountExceeded = true;
@@ -578,7 +578,7 @@ ThreadSummarizer.prototype = {
         subject = msgHdr.mime2DecodedSubject;
       }
 
-      let msgNode = this.context.makeSummaryItem(msgHdr, {
+      const msgNode = this.context.makeSummaryItem(msgHdr, {
         snippetLength: this.kSnippetLength,
       });
       messageList.appendChild(msgNode);
@@ -593,7 +593,7 @@ ThreadSummarizer.prototype = {
       aMessages.length
     );
     if (ignoredCount != 0) {
-      let format = aMessages.limited ? "atLeastNumIgnored" : "numIgnored";
+      const format = aMessages.limited ? "atLeastNumIgnored" : "numIgnored";
       countInfo += formatString(
         format,
         [ignoredCount.toLocaleString()],
@@ -654,13 +654,13 @@ MultipleSelectionSummarizer.prototype = {
    * @param aMessages The messages to summarize.
    */
   summarize(aMessages, aDBView) {
-    let messageList = document.getElementById("message_list");
+    const messageList = document.getElementById("message_list");
 
-    let threads = this._buildThreads(aMessages, aDBView);
-    let threadsCount = threads.length;
+    const threads = this._buildThreads(aMessages, aDBView);
+    const threadsCount = threads.length;
 
     // Set the heading based on the number of messages & threads.
-    let format = aMessages.limited
+    const format = aMessages.limited
       ? "atLeastNumConversations"
       : "numConversations";
     this.context.setHeading(
@@ -669,20 +669,20 @@ MultipleSelectionSummarizer.prototype = {
 
     // Summarize the selected messages by thread.
     let maxCountExceeded = false;
-    for (let [i, msgs] of threads.entries()) {
+    for (const [i, msgs] of threads.entries()) {
       if (i == this.kMaxSummarizedThreads) {
         threads.length = i;
         maxCountExceeded = true;
         break;
       }
 
-      let msgNode = this.context.makeSummaryItem(msgs, {
+      const msgNode = this.context.makeSummaryItem(msgs, {
         showSubject: true,
         snippetLength: this.kSnippetLength,
       });
       messageList.appendChild(msgNode);
 
-      for (let msgHdr of msgs) {
+      for (const msgHdr of msgs) {
         this.context.mapMsgToNode(msgHdr, msgNode);
       }
     }
@@ -716,10 +716,10 @@ MultipleSelectionSummarizer.prototype = {
    */
   _buildThreads(aMessages, aDBView) {
     // First, we group the messages in threads and count the threads.
-    let threads = [];
-    let threadMap = {};
-    for (let msgHdr of aMessages) {
-      let viewThreadId = aDBView.getThreadContainingMsgHdr(msgHdr).threadKey;
+    const threads = [];
+    const threadMap = {};
+    for (const msgHdr of aMessages) {
+      const viewThreadId = aDBView.getThreadContainingMsgHdr(msgHdr).threadKey;
       if (!(viewThreadId in threadMap)) {
         threadMap[viewThreadId] = threads.length;
         threads.push([msgHdr]);

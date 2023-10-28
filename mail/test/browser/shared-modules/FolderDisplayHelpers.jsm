@@ -206,7 +206,7 @@ var gDefaultWindowWidth = 1024;
 var gDefaultWindowHeight = 768;
 
 function get_about_3pane(win = mc) {
-  let tabmail = win.document.getElementById("tabmail");
+  const tabmail = win.document.getElementById("tabmail");
   if (tabmail?.currentTabInfo.mode.name == "mail3PaneTab") {
     return tabmail.currentAbout3Pane;
   }
@@ -214,8 +214,8 @@ function get_about_3pane(win = mc) {
 }
 
 function get_about_message(win = mc) {
-  let doc = win.document;
-  let tabmail = doc.getElementById("tabmail");
+  const doc = win.document;
+  const tabmail = doc.getElementById("tabmail");
   if (tabmail?.currentTabInfo.mode.name == "mailMessageTab") {
     return tabmail.currentAboutMessage;
   } else if (tabmail?.currentTabInfo.mode.name == "mail3PaneTab") {
@@ -230,8 +230,8 @@ function get_about_message(win = mc) {
 }
 
 function get_about_3pane_or_about_message(win = mc) {
-  let doc = win.document;
-  let tabmail = doc.getElementById("tabmail");
+  const doc = win.document;
+  const tabmail = doc.getElementById("tabmail");
   if (
     tabmail &&
     ["mail3PaneTab", "mailMessageTab"].includes(
@@ -281,7 +281,7 @@ function smimeUtils_loadCertificateAndKey(file, pw) {
 async function create_folder(aFolderName, aSpecialFlags) {
   await wait_for_message_display_completion();
 
-  let folder = await messageInjection.makeEmptyFolder(
+  const folder = await messageInjection.makeEmptyFolder(
     aFolderName,
     aSpecialFlags
   );
@@ -296,7 +296,7 @@ async function create_folder(aFolderName, aSpecialFlags) {
  * @returns {nsIMsgFolder}
  */
 function create_virtual_folder(...aArgs) {
-  let folder = messageInjection.makeVirtualFolder(...aArgs);
+  const folder = messageInjection.makeVirtualFolder(...aArgs);
   return folder;
 }
 
@@ -314,7 +314,7 @@ async function get_special_folder(
   aServer,
   aEmpty = true
 ) {
-  let folderNames = new Map([
+  const folderNames = new Map([
     [Ci.nsMsgFolderFlags.Drafts, "Drafts"],
     [Ci.nsMsgFolderFlags.Templates, "Templates"],
     [Ci.nsMsgFolderFlags.Queue, "Outbox"],
@@ -431,14 +431,14 @@ async function delete_messages(aSynMessageSet) {
  *  will leave the folder and come back if we have to.
  */
 async function enter_folder(aFolder) {
-  let win = get_about_3pane();
+  const win = get_about_3pane();
 
   // If we're already selected, go back to the root...
   if (win.gFolder == aFolder) {
     await enter_folder(aFolder.rootFolder);
   }
 
-  let displayPromise = BrowserTestUtils.waitForEvent(win, "folderURIChanged");
+  const displayPromise = BrowserTestUtils.waitForEvent(win, "folderURIChanged");
   win.displayFolder(aFolder.URI);
   await displayPromise;
 
@@ -453,7 +453,7 @@ async function enter_folder(aFolder) {
  *     tabs than the index, which will change as tabs open/close).
  */
 async function be_in_folder(aFolder) {
-  let win = get_about_3pane();
+  const win = get_about_3pane();
   if (win.gFolder != aFolder) {
     await enter_folder(aFolder);
   }
@@ -475,7 +475,7 @@ async function be_in_folder(aFolder) {
 async function open_folder_in_new_tab(aFolder) {
   otherTab = mc.document.getElementById("tabmail").currentTabInfo;
 
-  let tab = mc.openTab("mail3PaneTab", { folderURI: aFolder.URI }, "tab");
+  const tab = mc.openTab("mail3PaneTab", { folderURI: aFolder.URI }, "tab");
   if (
     tab.chromeBrowser.docShell.isLoadingDocument ||
     tab.chromeBrowser.currentURI.spec != "about:3pane"
@@ -530,15 +530,15 @@ var open_selected_message = open_selected_messages;
  */
 async function open_selected_message_in_new_tab(aBackground) {
   // get the current tab count so we can make sure the tab actually opened.
-  let preCount =
+  const preCount =
     mc.document.getElementById("tabmail").tabContainer.allTabs.length;
 
   // save the current tab as the 'other' tab
   otherTab = mc.document.getElementById("tabmail").currentTabInfo;
 
-  let win = get_about_3pane();
-  let message = win.gDBView.hdrForFirstSelectedMessage;
-  let tab = mc.document.getElementById("tabmail").openTab("mailMessageTab", {
+  const win = get_about_3pane();
+  const message = win.gDBView.hdrForFirstSelectedMessage;
+  const tab = mc.document.getElementById("tabmail").openTab("mailMessageTab", {
     messageURI: message.folder.getUriForMsg(message),
     viewWrapper: win.gViewWrapper,
     background: aBackground,
@@ -564,13 +564,13 @@ async function open_selected_message_in_new_tab(aBackground) {
  * @returns {Window} The new window.
  */
 async function open_selected_message_in_new_window() {
-  let win = get_about_3pane();
-  let newWindowPromise = promise_new_window("mail:messageWindow");
+  const win = get_about_3pane();
+  const newWindowPromise = promise_new_window("mail:messageWindow");
   mc.MsgOpenNewWindowForMessage(
     win.gDBView.hdrForFirstSelectedMessage,
     win.gViewWrapper
   );
-  let msgc = await newWindowPromise;
+  const msgc = await newWindowPromise;
   await wait_for_message_display_completion(msgc, true);
   return msgc;
 }
@@ -599,7 +599,7 @@ async function display_message_in_folder_tab(aMsgHdr, aExpectNew3Pane) {
   }
 
   // Make sure that the tab we're returning is a folder tab
-  let currentTab = mc.document.getElementById("tabmail").currentTabInfo;
+  const currentTab = mc.document.getElementById("tabmail").currentTabInfo;
   assert_tab_mode_name(currentTab, "mail3PaneTab");
 
   return currentTab;
@@ -627,18 +627,18 @@ async function open_message_from_file(file) {
     .setQuery("type=application/x-message-display")
     .finalize();
 
-  let newWindowPromise = promise_new_window("mail:messageWindow");
-  let win = mc.openDialog(
+  const newWindowPromise = promise_new_window("mail:messageWindow");
+  const win = mc.openDialog(
     "chrome://messenger/content/messageWindow.xhtml",
     "_blank",
     "all,chrome,dialog=no,status,toolbar",
     fileURL
   );
   await BrowserTestUtils.waitForEvent(win, "load");
-  let aboutMessage = get_about_message(win);
+  const aboutMessage = get_about_message(win);
   await BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
 
-  let msgc = await newWindowPromise;
+  const msgc = await newWindowPromise;
   await wait_for_message_display_completion(msgc, true);
   wait_for_window_focused(msgc);
   await TestUtils.waitForTick();
@@ -664,10 +664,10 @@ async function switch_tab(aNewTab) {
     return;
   }
 
-  let targetTab = aNewTab != null ? aNewTab : otherTab;
+  const targetTab = aNewTab != null ? aNewTab : otherTab;
   // now the current tab will be the 'other' tab after we switch
   otherTab = mc.document.getElementById("tabmail").currentTabInfo;
-  let selectPromise = BrowserTestUtils.waitForEvent(
+  const selectPromise = BrowserTestUtils.waitForEvent(
     mc.document.getElementById("tabmail").tabContainer,
     "select"
   );
@@ -714,7 +714,7 @@ function assert_tab_mode_name(aTab, aModeName) {
  * @param aNumber The number of tabs that should be open.
  */
 function assert_number_of_tabs_open(aNumber) {
-  let actualNumber =
+  const actualNumber =
     mc.document.getElementById("tabmail").tabContainer.allTabs.length;
   Assert.equal(actualNumber, aNumber, `There should be ${aNumber} tabs open`);
 }
@@ -760,7 +760,7 @@ function close_tab(aTabToClose) {
   }
 
   // Get the current tab count so we can make sure the tab actually closed.
-  let preCount =
+  const preCount =
     mc.document.getElementById("tabmail").tabContainer.allTabs.length;
 
   mc.document.getElementById("tabmail").closeTab(aTabToClose);
@@ -788,7 +788,7 @@ async function select_none(win = mc) {
   // Because the selection event may not be generated immediately, we need to
   //  spin until the message display thinks it is not displaying a message,
   //  which is the sign that the event actually happened.
-  let win2 = get_about_message();
+  const win2 = get_about_message();
   function noMessageChecker() {
     return win2.gMessage == null;
   }
@@ -808,12 +808,12 @@ async function select_none(win = mc) {
  *     or a SyntheticMessageSet (we only care about the first message in it).
  */
 function _normalize_view_index(aViewIndex) {
-  let dbView = get_db_view();
+  const dbView = get_db_view();
 
   // SyntheticMessageSet special-case
   if (typeof aViewIndex != "number") {
-    let msgHdrIter = aViewIndex.msgHdrs();
-    let msgHdr = msgHdrIter.next().value;
+    const msgHdrIter = aViewIndex.msgHdrs();
+    const msgHdr = msgHdrIter.next().value;
     msgHdrIter.return();
     // do not expand
     aViewIndex = dbView.findIndexOfMsgHdr(msgHdr, false);
@@ -839,13 +839,13 @@ async function click_tree_row(aTree, aRowIndex) {
     );
   }
 
-  let selection = aTree.view.selection;
+  const selection = aTree.view.selection;
   selection.select(aRowIndex);
   aTree.ensureRowIsVisible(aRowIndex);
 
   // get cell coordinates
-  let column = aTree.columns[0];
-  let coords = aTree.getCoordsForCellItem(aRowIndex, column, "text");
+  const column = aTree.columns[0];
+  const coords = aTree.getCoordsForCellItem(aRowIndex, column, "text");
 
   await TestUtils.waitForTick();
   EventUtils.synthesizeMouse(
@@ -859,8 +859,8 @@ async function click_tree_row(aTree, aRowIndex) {
 }
 
 async function _get_row_at_index(aViewIndex) {
-  let win = get_about_3pane();
-  let tree = win.document.getElementById("threadTree");
+  const win = get_about_3pane();
+  const tree = win.document.getElementById("threadTree");
   Assert.greater(
     tree.view.rowCount,
     aViewIndex,
@@ -882,7 +882,7 @@ async function _get_row_at_index(aViewIndex) {
 async function select_click_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
-  let row = await _get_row_at_index(aViewIndex);
+  const row = await _get_row_at_index(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, {}, row.ownerGlobal);
   await TestUtils.waitForTick();
 
@@ -902,9 +902,9 @@ async function select_click_row(aViewIndex) {
  * @returns The message header selected.
  */
 async function select_column_click_row(aViewIndex, aWin = mc) {
-  let dbView = get_db_view(aWin);
+  const dbView = get_db_view(aWin);
 
-  let hasMessageDisplay = "messageDisplay" in aWin;
+  const hasMessageDisplay = "messageDisplay" in aWin;
   if (hasMessageDisplay) {
     await wait_for_message_display_completion(aWin);
   }
@@ -946,8 +946,10 @@ async function select_column_click_row(aViewIndex, aWin = mc) {
 async function toggle_thread_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
-  let win = get_about_3pane();
-  let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
+  const win = get_about_3pane();
+  const row = win.document
+    .getElementById("threadTree")
+    .getRowAtIndex(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row.querySelector(".twisty"), {}, win);
 
   await wait_for_message_display_completion();
@@ -966,8 +968,10 @@ async function toggle_thread_row(aViewIndex) {
 async function select_control_click_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
-  let win = get_about_3pane();
-  let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
+  const win = get_about_3pane();
+  const row = win.document
+    .getElementById("threadTree")
+    .getRowAtIndex(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, { accelKey: true }, win);
 
   await wait_for_message_display_completion();
@@ -989,8 +993,10 @@ async function select_control_click_row(aViewIndex) {
 async function select_shift_click_row(aViewIndex, aWin, aDoNotRequireLoad) {
   aViewIndex = _normalize_view_index(aViewIndex, aWin);
 
-  let win = get_about_3pane();
-  let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
+  const win = get_about_3pane();
+  const row = win.document
+    .getElementById("threadTree")
+    .getRowAtIndex(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, { shiftKey: true }, win);
 
   await wait_for_message_display_completion();
@@ -1012,15 +1018,15 @@ function _row_click_helper(
   // Force-focus the tree
   aTree.focus();
   // coordinates of the upper left of the entire tree widget (headers included)
-  let treeRect = aTree.getBoundingClientRect();
-  let tx = treeRect.x,
+  const treeRect = aTree.getBoundingClientRect();
+  const tx = treeRect.x,
     ty = treeRect.y;
   // coordinates of the row display region of the tree (below the headers)
-  let children = aWin.document.getElementById(aTree.id, {
+  const children = aWin.document.getElementById(aTree.id, {
     tagName: "treechildren",
   });
-  let childrenRect = children.getBoundingClientRect();
-  let x = childrenRect.x,
+  const childrenRect = children.getBoundingClientRect();
+  const x = childrenRect.x,
     y = childrenRect.y;
   // Click in the middle of the row by default
   let rowX = childrenRect.width / 2;
@@ -1028,8 +1034,8 @@ function _row_click_helper(
   // be hidden), and far enough in that we are in no danger of clicking the
   // expand toggler unless that is explicitly requested.
   if (aTree.id == "threadTree") {
-    let columnId = aColumnId || "subjectCol";
-    let col = aWin.document.getElementById(columnId);
+    const columnId = aColumnId || "subjectCol";
+    const col = aWin.document.getElementById(columnId);
     rowX = col.getBoundingClientRect().x - tx + 8;
     // click on the toggle if so requested (for subjectCol)
     if (columnId == "subjectCol" && aExtra !== "toggle") {
@@ -1038,7 +1044,7 @@ function _row_click_helper(
   }
   // Very important, gotta be able to see the row.
   aTree.ensureRowIsVisible(aViewIndex);
-  let rowY =
+  const rowY =
     aTree.rowHeight * (aViewIndex - aTree.getFirstVisibleRow()) +
     aTree.rowHeight / 2;
   if (aTree.getRowAt(x + rowX, y + rowY) != aViewIndex) {
@@ -1109,12 +1115,14 @@ function _row_click_helper(
 async function right_click_on_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
-  let win = get_about_3pane();
-  let shownPromise = BrowserTestUtils.waitForEvent(
+  const win = get_about_3pane();
+  const shownPromise = BrowserTestUtils.waitForEvent(
     win.document.getElementById("mailContext"),
     "popupshown"
   );
-  let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
+  const row = win.document
+    .getElementById("threadTree")
+    .getRowAtIndex(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, { type: "contextmenu" }, win);
   await shownPromise;
 
@@ -1130,8 +1138,8 @@ async function right_click_on_row(aViewIndex) {
 async function middle_click_on_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
-  let win = get_about_3pane();
-  let row = await _get_row_at_index(aViewIndex);
+  const win = get_about_3pane();
+  const row = await _get_row_at_index(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, { button: 1 }, win);
 
   return [
@@ -1150,7 +1158,7 @@ async function middle_click_on_row(aViewIndex) {
  *   the first window.
  */
 function assert_folder_mode(aMode, aWin) {
-  let about3Pane = get_about_3pane(aWin);
+  const about3Pane = get_about_3pane(aWin);
   if (!about3Pane.folderPane.activeModes.includes(aMode)) {
     throw new Error(`The folder mode "${aMode}" is not visible`);
   }
@@ -1162,9 +1170,9 @@ function assert_folder_mode(aMode, aWin) {
  * should be a top-level folder.
  */
 function assert_folder_child_in_view(aChild, aParent) {
-  let about3Pane = get_about_3pane();
-  let childRow = about3Pane.folderPane.getRowForFolder(aChild);
-  let parentRow = childRow.parentNode.closest("li");
+  const about3Pane = get_about_3pane();
+  const childRow = about3Pane.folderPane.getRowForFolder(aChild);
+  const parentRow = childRow.parentNode.closest("li");
 
   if (parentRow?.uri != aParent.URI) {
     throw new Error(
@@ -1187,8 +1195,8 @@ function assert_folder_child_in_view(aChild, aParent) {
  * @returns {integer} The index of the folder, if it is visible.
  */
 function assert_folder_visible(aFolder, aWin) {
-  let about3Pane = get_about_3pane(aWin);
-  let folderIndex = about3Pane.folderTree.rows.findIndex(
+  const about3Pane = get_about_3pane(aWin);
+  const folderIndex = about3Pane.folderTree.rows.findIndex(
     row => row.uri == aFolder.URI
   );
   if (folderIndex == -1) {
@@ -1203,8 +1211,8 @@ function assert_folder_visible(aFolder, aWin) {
  * or is not currently visible.
  */
 function assert_folder_not_visible(aFolder) {
-  let about3Pane = get_about_3pane();
-  let folderIndex = about3Pane.folderTree.rows.findIndex(
+  const about3Pane = get_about_3pane();
+  const folderIndex = about3Pane.folderTree.rows.findIndex(
     row => row.uri == aFolder.URI
   );
   if (folderIndex != -1) {
@@ -1219,9 +1227,9 @@ function assert_folder_not_visible(aFolder) {
  * not visible in the folder view.
  */
 function collapse_folder(aFolder) {
-  let folderIndex = assert_folder_visible(aFolder);
-  let about3Pane = get_about_3pane();
-  let folderRow = about3Pane.folderTree.getRowAtIndex(folderIndex);
+  const folderIndex = assert_folder_visible(aFolder);
+  const about3Pane = get_about_3pane();
+  const folderRow = about3Pane.folderTree.getRowAtIndex(folderIndex);
   if (!folderRow.classList.contains("collapsed")) {
     EventUtils.synthesizeMouseAtCenter(
       folderRow.querySelector(".twisty"),
@@ -1236,9 +1244,9 @@ function collapse_folder(aFolder) {
  * not visible in the folder view.
  */
 function expand_folder(aFolder) {
-  let folderIndex = assert_folder_visible(aFolder);
-  let about3Pane = get_about_3pane();
-  let folderRow = about3Pane.folderTree.getRowAtIndex(folderIndex);
+  const folderIndex = assert_folder_visible(aFolder);
+  const about3Pane = get_about_3pane();
+  const folderRow = about3Pane.folderTree.getRowAtIndex(folderIndex);
   if (folderRow.classList.contains("collapsed")) {
     EventUtils.synthesizeMouseAtCenter(
       folderRow.querySelector(".twisty"),
@@ -1253,8 +1261,8 @@ function expand_folder(aFolder) {
  * either of the two is untrue.
  */
 function assert_folder_collapsed(aFolder) {
-  let folderIndex = assert_folder_visible(aFolder);
-  let row = get_about_3pane().folderTree.getRowAtIndex(folderIndex);
+  const folderIndex = assert_folder_visible(aFolder);
+  const row = get_about_3pane().folderTree.getRowAtIndex(folderIndex);
   Assert.ok(row.classList.contains("collapsed"));
 }
 
@@ -1263,8 +1271,8 @@ function assert_folder_collapsed(aFolder) {
  * either of the two is untrue.
  */
 function assert_folder_expanded(aFolder) {
-  let folderIndex = assert_folder_visible(aFolder);
-  let row = get_about_3pane().folderTree.getRowAtIndex(folderIndex);
+  const folderIndex = assert_folder_visible(aFolder);
+  const row = get_about_3pane().folderTree.getRowAtIndex(folderIndex);
   Assert.ok(!row.classList.contains("collapsed"));
 }
 
@@ -1277,9 +1285,9 @@ function assert_folder_expanded(aFolder) {
  * @returns the view index that you clicked on.
  */
 function select_click_folder(aFolder) {
-  let win = get_about_3pane();
-  let folderTree = win.document.getElementById("folderTree");
-  let row = folderTree.rows.find(row => row.uri == aFolder.URI);
+  const win = get_about_3pane();
+  const folderTree = win.document.getElementById("folderTree");
+  const row = folderTree.rows.find(row => row.uri == aFolder.URI);
   row.scrollIntoView();
   EventUtils.synthesizeMouseAtCenter(row.querySelector(".container"), {}, win);
 }
@@ -1295,7 +1303,7 @@ function select_click_folder(aFolder) {
 async function select_shift_click_folder(aFolder) {
   await wait_for_all_messages_to_load();
 
-  let viewIndex = mc.folderTreeView.getIndexOfFolder(aFolder);
+  const viewIndex = mc.folderTreeView.getIndexOfFolder(aFolder);
   // Passing -1 as the start range checks the shift-pivot, which should be -1,
   //  so it should fall over to the current index, which is what we want.  It
   //  will then set the shift-pivot to the previously-current-index and update
@@ -1320,13 +1328,13 @@ async function select_shift_click_folder(aFolder) {
  * @returns The view index that you clicked on.
  */
 async function right_click_on_folder(aFolder) {
-  let win = get_about_3pane();
-  let folderTree = win.document.getElementById("folderTree");
-  let shownPromise = BrowserTestUtils.waitForEvent(
+  const win = get_about_3pane();
+  const folderTree = win.document.getElementById("folderTree");
+  const shownPromise = BrowserTestUtils.waitForEvent(
     win.document.getElementById("folderPaneContext"),
     "popupshown"
   );
-  let row = folderTree.rows.find(row => row.uri == aFolder.URI);
+  const row = folderTree.rows.find(row => row.uri == aFolder.URI);
   EventUtils.synthesizeMouseAtCenter(
     row.querySelector(".container"),
     { type: "contextmenu" },
@@ -1343,9 +1351,9 @@ async function right_click_on_folder(aFolder) {
  * @returns [The new tab, the view index that you clicked on.]
  */
 function middle_click_on_folder(aFolder, shiftPressed) {
-  let win = get_about_3pane();
-  let folderTree = win.document.getElementById("folderTree");
-  let row = folderTree.rows.find(row => row.uri == aFolder.URI);
+  const win = get_about_3pane();
+  const folderTree = win.document.getElementById("folderTree");
+  const row = folderTree.rows.find(row => row.uri == aFolder.URI);
   EventUtils.synthesizeMouseAtCenter(
     row.querySelector(".container"),
     { button: 1, shiftKey: shiftPressed },
@@ -1366,7 +1374,7 @@ function middle_click_on_folder(aFolder, shiftPressed) {
  * @returns An nsIMsgFolder representing the smart folder with the given name.
  */
 function get_smart_folder_named(aFolderName) {
-  let smartServer = MailServices.accounts.findServer(
+  const smartServer = MailServices.accounts.findServer(
     "nobody",
     "smart mailboxes",
     "none"
@@ -1383,8 +1391,8 @@ async function delete_via_popup() {
     "DeleteOrMoveMsgCompleted",
     "DeleteOrMoveMsgFailed"
   );
-  let win = get_about_3pane();
-  let ctxDelete = win.document.getElementById("mailContext-delete");
+  const win = get_about_3pane();
+  const ctxDelete = win.document.getElementById("mailContext-delete");
   if (AppConstants.platform == "macosx") {
     // We need to use click() since the synthesizeMouseAtCenter doesn't work for
     // context menu items on macos.
@@ -1415,7 +1423,7 @@ async function close_popup(aWin, elem) {
 
   if (elem.state != "hiding") {
     // Actually close the popup because it's not closing/closed.
-    let hiddenPromise = BrowserTestUtils.waitForEvent(elem, "popuphidden");
+    const hiddenPromise = BrowserTestUtils.waitForEvent(elem, "popuphidden");
     elem.hidePopup();
     await hiddenPromise;
     await new Promise(resolve => aWin.requestAnimationFrame(resolve));
@@ -1475,10 +1483,10 @@ async function empty_folder(aFolder, aWin = mc) {
  *   the first window.
  */
 async function archive_selected_messages(win = mc) {
-  let dbView = get_db_view(win);
+  const dbView = get_db_view(win);
 
   // How many messages do we expect to remain after the archival?
-  let expectedCount = dbView.rowCount - dbView.numSelected;
+  const expectedCount = dbView.rowCount - dbView.numSelected;
 
   // if (expectedCount && win.messageDisplay.visible) {
   //   plan_for_message_display(win);
@@ -1486,7 +1494,7 @@ async function archive_selected_messages(win = mc) {
   EventUtils.synthesizeKey("a", {}, win);
 
   // Wait for the view rowCount to decrease by the number of selected messages.
-  let messagesDeletedFromView = function () {
+  const messagesDeletedFromView = function () {
     return dbView.rowCount == expectedCount;
   };
   await TestUtils.waitForCondition(
@@ -1579,9 +1587,9 @@ async function wait_for_message_display_completion(aWin, aLoadDemanded) {
     win = aWin.document.getElementById("messageBrowser").contentWindow;
   }
 
-  let tabmail = mc.document.getElementById("tabmail");
+  const tabmail = mc.document.getElementById("tabmail");
   if (tabmail.currentTabInfo.mode.name == "mail3PaneTab") {
-    let about3Pane = tabmail.currentAbout3Pane;
+    const about3Pane = tabmail.currentAbout3Pane;
     if (about3Pane?.gDBView?.getSelectedMsgHdrs().length > 1) {
       // Displaying multiple messages.
       return;
@@ -1594,7 +1602,7 @@ async function wait_for_message_display_completion(aWin, aLoadDemanded) {
 
   await TestUtils.waitForCondition(() => win.document.readyState == "complete");
 
-  let browser = win.getMessagePaneBrowser();
+  const browser = win.getMessagePaneBrowser();
 
   await TestUtils.waitForCondition(
     () =>
@@ -1618,7 +1626,7 @@ async function wait_for_blank_content_pane(win = mc) {
     () => aboutMessage.document.readyState == "complete"
   );
 
-  let browser = aboutMessage.getMessagePaneBrowser();
+  const browser = aboutMessage.getMessagePaneBrowser();
   if (BrowserTestUtils.is_hidden(browser)) {
     return;
   }
@@ -1722,22 +1730,22 @@ function assert_messages_in_view(aSynSets, aWin = mc) {
 
   // - Iterate over all the message sets, retrieving the message header.  Use
   //  this to construct a URI to populate a dictionary mapping.
-  let synMessageURIs = {}; // map URI to message header
-  for (let messageSet of aSynSets) {
-    for (let msgHdr of messageSet.msgHdrs()) {
+  const synMessageURIs = {}; // map URI to message header
+  for (const messageSet of aSynSets) {
+    for (const msgHdr of messageSet.msgHdrs()) {
       synMessageURIs[msgHdr.folder.getUriForMsg(msgHdr)] = msgHdr;
     }
   }
 
   // - Iterate over the contents of the view, nulling out values in
   //  synMessageURIs for found messages, and exploding for missing ones.
-  let dbView = get_db_view(aWin);
-  let treeView = dbView.QueryInterface(Ci.nsITreeView);
-  let rowCount = treeView.rowCount;
+  const dbView = get_db_view(aWin);
+  const treeView = dbView.QueryInterface(Ci.nsITreeView);
+  const rowCount = treeView.rowCount;
 
   for (let iViewIndex = 0; iViewIndex < rowCount; iViewIndex++) {
-    let msgHdr = dbView.getMsgHdrAt(iViewIndex);
-    let uri = msgHdr.folder.getUriForMsg(msgHdr);
+    const msgHdr = dbView.getMsgHdrAt(iViewIndex);
+    const uri = msgHdr.folder.getUriForMsg(msgHdr);
     // expected hit, null it out. (in the dummy case, we will just null out
     //  twice, which is also why we do an 'in' test and not a value test.
     if (uri in synMessageURIs) {
@@ -1751,8 +1759,8 @@ function assert_messages_in_view(aSynSets, aWin = mc) {
   }
 
   // - Iterate over our URI set and make sure every message got nulled out.
-  for (let uri in synMessageURIs) {
-    let msgHdr = synMessageURIs[uri];
+  for (const uri in synMessageURIs) {
+    const msgHdr = synMessageURIs[uri];
     if (msgHdr != null) {
       throw_and_dump_view_state(
         "The view should include the message header" + msgHdr.messageKey
@@ -1771,8 +1779,8 @@ function assert_messages_not_in_view(aMessages) {
     aMessages = [aMessages];
   }
 
-  let dbView = get_db_view();
-  for (let msgHdr of aMessages) {
+  const dbView = get_db_view();
+  for (const msgHdr of aMessages) {
     Assert.equal(
       dbView.findIndexOfMsgHdr(msgHdr, true),
       nsMsgViewIndex_None,
@@ -1787,8 +1795,8 @@ var assert_message_not_in_view = assert_messages_not_in_view;
  *  menus, splitters, etc. are set up right.
  */
 function assert_message_pane_visible() {
-  let win = get_about_3pane();
-  let messagePane = win.document.getElementById("messagePane");
+  const win = get_about_3pane();
+  const messagePane = win.document.getElementById("messagePane");
 
   Assert.equal(
     win.paneLayout.messagePaneVisible,
@@ -1806,7 +1814,7 @@ function assert_message_pane_visible() {
   );
 
   mc.view_init(); // Force the view menu to update.
-  let paneMenuItem = mc.document.getElementById("menu_showMessage");
+  const paneMenuItem = mc.document.getElementById("menu_showMessage");
   Assert.equal(
     paneMenuItem.getAttribute("checked"),
     "true",
@@ -1819,8 +1827,8 @@ function assert_message_pane_visible() {
  *  menus, splitters, etc. are set up right.
  */
 function assert_message_pane_hidden() {
-  let win = get_about_3pane();
-  let messagePane = win.document.getElementById("messagePane");
+  const win = get_about_3pane();
+  const messagePane = win.document.getElementById("messagePane");
 
   Assert.equal(
     win.paneLayout.messagePaneVisible,
@@ -1838,7 +1846,7 @@ function assert_message_pane_hidden() {
   );
 
   mc.view_init(); // Force the view menu to update.
-  let paneMenuItem = mc.document.getElementById("menu_showMessage");
+  const paneMenuItem = mc.document.getElementById("menu_showMessage");
   Assert.notEqual(
     paneMenuItem.getAttribute("checked"),
     "true",
@@ -1870,15 +1878,15 @@ function show_folder_pane() {
 function _process_row_message_arguments(...aArgs) {
   let troller = mc;
   // - normalize into desired selected view indices
-  let desiredIndices = [];
-  for (let arg of aArgs) {
+  const desiredIndices = [];
+  for (const arg of aArgs) {
     // An integer identifying a view index
     if (typeof arg == "number") {
       desiredIndices.push(_normalize_view_index(arg));
     } else if (arg instanceof Ci.nsIMsgDBHdr) {
       // A message header
       // do not expand; the thing should already be selected, eg expanded!
-      let viewIndex = get_db_view(troller).findIndexOfMsgHdr(arg, false);
+      const viewIndex = get_db_view(troller).findIndexOfMsgHdr(arg, false);
       if (viewIndex == nsMsgViewIndex_None) {
         throw_and_dump_view_state(
           "Message not present in view that should be there. " +
@@ -1892,20 +1900,20 @@ function _process_row_message_arguments(...aArgs) {
       desiredIndices.push(viewIndex);
     } else if (arg.length == 2 && typeof arg[0] == "number") {
       // A list containing two integers, indicating a range of view indices.
-      let lowIndex = _normalize_view_index(arg[0]);
-      let highIndex = _normalize_view_index(arg[1]);
+      const lowIndex = _normalize_view_index(arg[0]);
+      const highIndex = _normalize_view_index(arg[1]);
       for (let viewIndex = lowIndex; viewIndex <= highIndex; viewIndex++) {
         desiredIndices.push(viewIndex);
       }
     } else if (Array.isArray(arg)) {
       // a List of message headers
       for (let iMsg = 0; iMsg < arg.length; iMsg++) {
-        let msgHdr = arg[iMsg].QueryInterface(Ci.nsIMsgDBHdr);
+        const msgHdr = arg[iMsg].QueryInterface(Ci.nsIMsgDBHdr);
         if (!msgHdr) {
           throw new Error(arg[iMsg] + " is not a message header!");
         }
         // false means do not expand, it should already be selected
-        let viewIndex = get_db_view(troller).findIndexOfMsgHdr(msgHdr, false);
+        const viewIndex = get_db_view(troller).findIndexOfMsgHdr(msgHdr, false);
         if (viewIndex == nsMsgViewIndex_None) {
           throw_and_dump_view_state(
             "Message not present in view that should be there. " +
@@ -1920,8 +1928,8 @@ function _process_row_message_arguments(...aArgs) {
       }
     } else if (arg.synMessages) {
       // SyntheticMessageSet
-      for (let msgHdr of arg.msgHdrs()) {
-        let viewIndex = get_db_view(troller).findIndexOfMsgHdr(msgHdr, false);
+      for (const msgHdr of arg.msgHdrs()) {
+        const viewIndex = get_db_view(troller).findIndexOfMsgHdr(msgHdr, false);
         if (viewIndex == nsMsgViewIndex_None) {
           throw_and_dump_view_state(
             "Message not present in view that should be there. " +
@@ -1965,10 +1973,10 @@ function _process_row_message_arguments(...aArgs) {
  * - A synthetic message set.
  */
 function assert_selected(...aArgs) {
-  let [troller, desiredIndices] = _process_row_message_arguments(...aArgs);
+  const [troller, desiredIndices] = _process_row_message_arguments(...aArgs);
 
   // - get the actual selection (already sorted by integer value)
-  let selectedIndices = get_db_view(troller).getIndicesForSelection();
+  const selectedIndices = get_db_view(troller).getIndicesForSelection();
 
   // - test selection equivalence
   // which is the same as string equivalence in this case. muah hah hah.
@@ -1995,7 +2003,7 @@ function assert_selected(...aArgs) {
  * - A list of message headers.
  */
 async function assert_displayed(...aArgs) {
-  let [troller, desiredIndices] = _process_row_message_arguments(...aArgs);
+  const [troller, desiredIndices] = _process_row_message_arguments(...aArgs);
   await _internal_assert_displayed(false, troller, desiredIndices);
 }
 
@@ -2015,7 +2023,7 @@ async function _internal_assert_displayed(
   if (desiredIndices.length == 0) {
     await wait_for_blank_content_pane(troller);
 
-    let messageWindow = get_about_message();
+    const messageWindow = get_about_message();
 
     // folder summary is not landed yet, just verify there is no message.
     if (messageWindow.gMessage) {
@@ -2024,7 +2032,7 @@ async function _internal_assert_displayed(
       );
     }
     // make sure the content pane is pointed at about:blank
-    let location = messageWindow.getMessagePaneBrowser()?.location;
+    const location = messageWindow.getMessagePaneBrowser()?.location;
     if (location && location.href != "about:blank") {
       throw new Error(
         `the content pane should be blank, but is showing: '${location.href}'`
@@ -2148,7 +2156,7 @@ async function _internal_assert_displayed(
  */
 async function assert_selected_and_displayed(...aArgs) {
   // make sure the selection is right first.
-  let [troller, desiredIndices] = assert_selected(...aArgs);
+  const [troller, desiredIndices] = assert_selected(...aArgs);
   // now make sure the display is right
   await _internal_assert_displayed(true, troller, desiredIndices);
 }
@@ -2164,10 +2172,10 @@ async function archive_messages(aMsgHdrs) {
     "DeleteOrMoveMsgFailed"
   );
 
-  let { MessageArchiver } = ChromeUtils.import(
+  const { MessageArchiver } = ChromeUtils.import(
     "resource:///modules/MessageArchiver.jsm"
   );
-  let batchMover = new MessageArchiver();
+  const batchMover = new MessageArchiver();
   batchMover.archiveMessages(aMsgHdrs);
   await wait_for_folder_events();
 }
@@ -2182,10 +2190,10 @@ async function archive_messages(aMsgHdrs) {
  *     of messages.
  */
 function _verify_summarized_message_set(aSummarizedKeys, aSelectedMessages) {
-  let summarizedKeys = aSummarizedKeys.slice();
+  const summarizedKeys = aSummarizedKeys.slice();
   summarizedKeys.sort();
   // We use the same key-generation as in multimessageview.js.
-  let selectedKeys = aSelectedMessages.map(
+  const selectedKeys = aSelectedMessages.map(
     msgHdr => msgHdr.messageKey + msgHdr.folder.URI
   );
   selectedKeys.sort();
@@ -2221,11 +2229,11 @@ async function assert_messages_summarized(aWin, aSelectedMessages) {
     aSelectedMessages = Array.from(aSelectedMessages.msgHdrs());
   }
 
-  let summaryFrame = aWin.gSummaryFrameManager.iframe;
-  let summary = summaryFrame.contentWindow.gMessageSummary;
-  let summarizedKeys = Object.keys(summary._msgNodes);
+  const summaryFrame = aWin.gSummaryFrameManager.iframe;
+  const summary = summaryFrame.contentWindow.gMessageSummary;
+  const summarizedKeys = Object.keys(summary._msgNodes);
   if (aSelectedMessages.length != summarizedKeys.length) {
-    let elaboration =
+    const elaboration =
       "Summary contains " +
       summarizedKeys.length +
       " messages, expected " +
@@ -2236,7 +2244,7 @@ async function assert_messages_summarized(aWin, aSelectedMessages) {
     );
   }
   if (!_verify_summarized_message_set(summarizedKeys, aSelectedMessages)) {
-    let elaboration =
+    const elaboration =
       "Summary: " + summarizedKeys + "  Selected: " + aSelectedMessages + ".";
     throw new Error(
       "Summary does not contain the right set of messages. " + elaboration
@@ -2254,16 +2262,16 @@ var assert_nothing_selected = assert_selected_and_displayed;
  * Assert that the given view index or message is visible in the thread pane.
  */
 function assert_visible(aViewIndexOrMessage) {
-  let win = get_about_3pane();
+  const win = get_about_3pane();
   let viewIndex;
   if (typeof aViewIndexOrMessage == "number") {
     viewIndex = _normalize_view_index(aViewIndexOrMessage);
   } else {
     viewIndex = win.gDBView.findIndexOfMsgHdr(aViewIndexOrMessage, false);
   }
-  let tree = win.threadTree;
-  let firstVisibleIndex = tree.getFirstVisibleIndex();
-  let lastVisibleIndex = tree.getLastVisibleIndex();
+  const tree = win.threadTree;
+  const firstVisibleIndex = tree.getFirstVisibleIndex();
+  const lastVisibleIndex = tree.getLastVisibleIndex();
 
   if (viewIndex < firstVisibleIndex || viewIndex > lastVisibleIndex) {
     throw new Error(
@@ -2282,9 +2290,9 @@ function assert_visible(aViewIndexOrMessage) {
  * Assert that the given message is now shown in the current view.
  */
 function assert_not_shown(aMessages) {
-  let win = get_about_3pane();
+  const win = get_about_3pane();
   aMessages.forEach(function (msg) {
-    let viewIndex = win.gDBView.findIndexOfMsgHdr(msg, false);
+    const viewIndex = win.gDBView.findIndexOfMsgHdr(msg, false);
     if (viewIndex !== nsMsgViewIndex_None) {
       throw new Error(
         "Message shows; " + msg.messageKey + ": " + msg.mime2DecodedSubject
@@ -2299,11 +2307,11 @@ function assert_not_shown(aMessages) {
  *     |_process_row_message_arguments|.
  */
 function _assert_elided_helper(aShouldBeElided, ...aArgs) {
-  let [troller, viewIndices] = _process_row_message_arguments(...aArgs);
+  const [troller, viewIndices] = _process_row_message_arguments(...aArgs);
 
-  let dbView = get_db_view(troller);
-  for (let viewIndex of viewIndices) {
-    let flags = dbView.getFlagsAt(viewIndex);
+  const dbView = get_db_view(troller);
+  for (const viewIndex of viewIndices) {
+    const flags = dbView.getFlagsAt(viewIndex);
     if (Boolean(flags & Ci.nsMsgMessageFlags.Elided) != aShouldBeElided) {
       throw new Error(
         "Message at view index " +
@@ -2346,7 +2354,7 @@ function assert_expanded(...aArgs) {
  *     calls removeChild on the palette.)
  */
 function add_to_toolbar(aToolbarElement, aElementId) {
-  let currentSet = aToolbarElement.currentSet.split(",");
+  const currentSet = aToolbarElement.currentSet.split(",");
   if (!currentSet.includes(aElementId)) {
     currentSet.unshift(aElementId);
     aToolbarElement.currentSet = currentSet.join(",");
@@ -2363,7 +2371,7 @@ function add_to_toolbar(aToolbarElement, aElementId) {
  *     toolbar.
  */
 function remove_from_toolbar(aToolbarElement, aElementId) {
-  let currentSet = aToolbarElement.currentSet.split(",");
+  const currentSet = aToolbarElement.currentSet.split(",");
   if (currentSet.includes(aElementId)) {
     currentSet.splice(currentSet.indexOf(aElementId), 1);
     aToolbarElement.currentSet = currentSet.join(",");
@@ -2377,7 +2385,7 @@ var RECOGNIZED_ELEMENTS = ["folderTree", "threadTree", "attachmentList"];
  * Focus the folder tree.
  */
 function focus_folder_tree() {
-  let folderTree = get_about_3pane().document.getElementById("folderTree");
+  const folderTree = get_about_3pane().document.getElementById("folderTree");
   Assert.ok(BrowserTestUtils.is_visible(folderTree), "folder tree is visible");
   folderTree.focus();
 }
@@ -2386,7 +2394,7 @@ function focus_folder_tree() {
  * Focus the thread tree.
  */
 function focus_thread_tree() {
-  let threadTree = get_about_3pane().document.getElementById("threadTree");
+  const threadTree = get_about_3pane().document.getElementById("threadTree");
   threadTree.table.body.focus();
 }
 
@@ -2394,7 +2402,7 @@ function focus_thread_tree() {
  * Focus the (single) message pane.
  */
 function focus_message_pane() {
-  let messageBrowser =
+  const messageBrowser =
     get_about_3pane().document.getElementById("messageBrowser");
   Assert.ok(
     BrowserTestUtils.is_visible(messageBrowser),
@@ -2407,7 +2415,7 @@ function focus_message_pane() {
  * Focus the multimessage pane.
  */
 function focus_multimessage_pane() {
-  let multiMessageBrowser = get_about_3pane().document.getElementById(
+  const multiMessageBrowser = get_about_3pane().document.getElementById(
     "multiMessageBrowser"
   );
   Assert.ok(
@@ -2423,10 +2431,10 @@ function focus_multimessage_pane() {
  */
 function _get_currently_focused_thing() {
   // If the message pane or multimessage is focused, return that
-  let focusedWindow = mc.document.commandDispatcher.focusedWindow;
+  const focusedWindow = mc.document.commandDispatcher.focusedWindow;
   if (focusedWindow) {
-    for (let windowId of RECOGNIZED_WINDOWS) {
-      let elem = mc.document.getElementById(windowId);
+    for (const windowId of RECOGNIZED_WINDOWS) {
+      const elem = mc.document.getElementById(windowId);
       if (elem && focusedWindow == elem.contentWindow) {
         return windowId;
       }
@@ -2441,7 +2449,7 @@ function _get_currently_focused_thing() {
   }
 
   let focusedElement = mc.document.commandDispatcher.focusedElement;
-  let elementsToMatch = RECOGNIZED_ELEMENTS.map(elem =>
+  const elementsToMatch = RECOGNIZED_ELEMENTS.map(elem =>
     mc.document.getElementById(elem)
   );
   while (focusedElement && !elementsToMatch.includes(focusedElement)) {
@@ -2452,7 +2460,7 @@ function _get_currently_focused_thing() {
 }
 
 function _assert_thing_focused(aThing) {
-  let focusedThing = _get_currently_focused_thing();
+  const focusedThing = _get_currently_focused_thing();
   if (focusedThing != aThing) {
     throw new Error(
       "The currently focused thing should be " +
@@ -2474,7 +2482,7 @@ function assert_folder_tree_focused() {
  * Assert that the thread tree is focused.
  */
 function assert_thread_tree_focused() {
-  let about3Pane = get_about_3pane();
+  const about3Pane = get_about_3pane();
   Assert.equal(
     about3Pane.document.activeElement,
     about3Pane.threadTree.table.body
@@ -2524,11 +2532,11 @@ function _normalize_folder_view_index(aViewIndex, aWin = mc) {
 function _process_row_folder_arguments(...aArgs) {
   let troller = mc;
   // - normalize into desired selected view indices
-  let desiredFolders = [];
-  for (let arg of aArgs) {
+  const desiredFolders = [];
+  for (const arg of aArgs) {
     // An integer identifying a view index
     if (typeof arg == "number") {
-      let folder = troller.folderTreeView.getFolderForIndex(
+      const folder = troller.folderTreeView.getFolderForIndex(
         _normalize_folder_view_index(arg)
       );
       if (!folder) {
@@ -2540,8 +2548,8 @@ function _process_row_folder_arguments(...aArgs) {
       desiredFolders.push(arg);
     } else if (arg.length == 2 && typeof arg[0] == "number") {
       // A list containing two integers, indicating a range of view indices.
-      let lowIndex = _normalize_folder_view_index(arg[0]);
-      let highIndex = _normalize_folder_view_index(arg[1]);
+      const lowIndex = _normalize_folder_view_index(arg[0]);
+      const highIndex = _normalize_folder_view_index(arg[1]);
       for (let viewIndex = lowIndex; viewIndex <= highIndex; viewIndex++) {
         desiredFolders.push(
           troller.folderTreeView.getFolderForIndex(viewIndex)
@@ -2550,7 +2558,7 @@ function _process_row_folder_arguments(...aArgs) {
     } else if (arg.length !== undefined) {
       // a List of folders
       for (let iFolder = 0; iFolder < arg.length; iFolder++) {
-        let folder = arg[iFolder].QueryInterface(Ci.nsIMsgFolder);
+        const folder = arg[iFolder].QueryInterface(Ci.nsIMsgFolder);
         if (!folder) {
           throw new Error(arg[iFolder] + " is not a folder!");
         }
@@ -2582,13 +2590,13 @@ function _process_row_folder_arguments(...aArgs) {
  * - A list of nsIMsgFolders.
  */
 function assert_folders_selected(...aArgs) {
-  let [troller, desiredFolders] = _process_row_folder_arguments(...aArgs);
+  const [troller, desiredFolders] = _process_row_folder_arguments(...aArgs);
 
-  let win = get_about_3pane();
-  let folderTree = win.document.getElementById("folderTree");
+  const win = get_about_3pane();
+  const folderTree = win.document.getElementById("folderTree");
   // - get the actual selection (already sorted by integer value)
-  let uri = folderTree.rows[folderTree.selectedIndex]?.uri;
-  let selectedFolders = [MailServices.folderLookup.getFolderForURL(uri)];
+  const uri = folderTree.rows[folderTree.selectedIndex]?.uri;
+  const selectedFolders = [MailServices.folderLookup.getFolderForURL(uri)];
 
   // - test selection equivalence
   // no shortcuts here. check if each folder in either array is present in the
@@ -2632,7 +2640,7 @@ var assert_folder_selected = assert_folders_selected;
  * the first folder you pass in.
  */
 function assert_folder_displayed(...aArgs) {
-  let [troller, desiredFolders] = _process_row_folder_arguments(...aArgs);
+  const [troller, desiredFolders] = _process_row_folder_arguments(...aArgs);
   Assert.equal(troller.gFolderDisplay.displayedFolder, desiredFolders[0]);
 }
 
@@ -2652,9 +2660,9 @@ function assert_folder_displayed(...aArgs) {
  * - A list of nsIMsgFolders.
  */
 function assert_folders_selected_and_displayed(...aArgs) {
-  let [, desiredFolders] = assert_folders_selected(...aArgs);
+  const [, desiredFolders] = assert_folders_selected(...aArgs);
   if (desiredFolders.length > 0) {
-    let win = get_about_3pane();
+    const win = get_about_3pane();
     Assert.equal(win.gFolder, desiredFolders[0]);
   }
 }
@@ -2667,7 +2675,7 @@ var assert_folder_selected_and_displayed =
  * collapsed parents) in the folder tree view.
  */
 function assert_folder_tree_view_row_count(aCount) {
-  let about3Pane = get_about_3pane();
+  const about3Pane = get_about_3pane();
   if (about3Pane.folderTree.rowCount != aCount) {
     throw new Error(
       "The folder tree view's row count should be " +
@@ -2682,7 +2690,7 @@ function assert_folder_tree_view_row_count(aCount) {
  * Assert that the displayed text of the folder at index n equals to str.
  */
 function assert_folder_at_index_as(n, str) {
-  let folderN = mc.gFolderTreeView.getFTVItemForIndex(n);
+  const folderN = mc.gFolderTreeView.getFTVItemForIndex(n);
   Assert.equal(folderN.text, str);
 }
 
@@ -2690,7 +2698,7 @@ function assert_folder_at_index_as(n, str) {
  * Since indexOf does strict equality checking, we need this.
  */
 function _non_strict_index_of(aArray, aSearchElement) {
-  for (let [i, item] of aArray.entries()) {
+  for (const [i, item] of aArray.entries()) {
     if (item == aSearchElement) {
       return i;
     }
@@ -2761,7 +2769,7 @@ async function set_mail_view(aMailViewIndex, aData) {
  * |set_mail_view| for information about aData.
  */
 function assert_mail_view(aMailViewIndex, aData) {
-  let actualMailViewIndex = mc.gFolderDisplay.view.mailViewIndex;
+  const actualMailViewIndex = mc.gFolderDisplay.view.mailViewIndex;
   if (actualMailViewIndex != aMailViewIndex) {
     throw new Error(
       "The mail view index should be " +
@@ -2771,7 +2779,7 @@ function assert_mail_view(aMailViewIndex, aData) {
     );
   }
 
-  let actualMailViewData = mc.gFolderDisplay.view.mailViewData;
+  const actualMailViewData = mc.gFolderDisplay.view.mailViewData;
   if (actualMailViewData != aData) {
     throw new Error(
       "The mail view data should be " +
@@ -2858,8 +2866,8 @@ function reset_close_message_on_delete() {
  */
 
 function assert_summary_contains_N_elts(aSelector, aNumElts) {
-  let htmlframe = mc.document.getElementById("multimessage");
-  let matches = htmlframe.contentDocument.querySelectorAll(aSelector);
+  const htmlframe = mc.document.getElementById("multimessage");
+  const matches = htmlframe.contentDocument.querySelectorAll(aSelector);
   if (matches.length != aNumElts) {
     throw new Error(
       "Expected to find " +
@@ -2892,7 +2900,9 @@ var kVerticalMailLayout = 2;
  * @param aLayout  layout code
  */
 function assert_pane_layout(aLayout) {
-  let actualPaneLayout = Services.prefs.getIntPref("mail.pane_config.dynamic");
+  const actualPaneLayout = Services.prefs.getIntPref(
+    "mail.pane_config.dynamic"
+  );
   if (actualPaneLayout != aLayout) {
     throw new Error(
       "The mail pane layout should be " +
@@ -2935,8 +2945,8 @@ function assert_default_window_size() {
  * @param {boolean} aEnabled - Whether the menu should be shown or not.
  */
 async function toggle_main_menu(aEnabled = true) {
-  let menubar = mc.document.getElementById("toolbar-menubar");
-  let state = menubar.getAttribute("autohide") != "true";
+  const menubar = mc.document.getElementById("toolbar-menubar");
+  const state = menubar.getAttribute("autohide") != "true";
   menubar.setAttribute("autohide", !aEnabled);
   await TestUtils.waitForTick();
   return state;

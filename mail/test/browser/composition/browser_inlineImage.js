@@ -29,7 +29,7 @@ function typedArrayToString(buffer) {
 }
 
 function putHTMLOnClipboard(html) {
-  let trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+  const trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
 
@@ -37,7 +37,7 @@ function putHTMLOnClipboard(html) {
   trans.init(null);
   trans.addDataFlavor("text/html");
 
-  let wapper = Cc["@mozilla.org/supports-string;1"].createInstance(
+  const wapper = Cc["@mozilla.org/supports-string;1"].createInstance(
     Ci.nsISupportsString
   );
   wapper.data = html;
@@ -55,7 +55,7 @@ add_setup(async function () {
  * for data uri if needed.
  */
 add_task(async function test_send_inline_image() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   await setup_msg_contents(
     cwc,
     "someone@example.com",
@@ -63,9 +63,9 @@ add_task(async function test_send_inline_image() {
     "The image doesn't display because we changed the data URI\n"
   );
 
-  let fileBuf = await IOUtils.read(getTestFilePath("data/nest.png"));
-  let fileContent = btoa(typedArrayToString(fileBuf));
-  let dataURI = `data:image/png;base64,${fileContent}`;
+  const fileBuf = await IOUtils.read(getTestFilePath("data/nest.png"));
+  const fileContent = btoa(typedArrayToString(fileBuf));
+  const dataURI = `data:image/png;base64,${fileContent}`;
 
   putHTMLOnClipboard(`<img id="inline-img" src="${dataURI}">`);
   cwc.document.getElementById("messageEditor").focus();
@@ -78,13 +78,13 @@ add_task(async function test_send_inline_image() {
   await SimpleTest.promiseFocus(window);
 
   await be_in_folder(gOutboxFolder);
-  let msgLoaded = BrowserTestUtils.waitForEvent(
+  const msgLoaded = BrowserTestUtils.waitForEvent(
     get_about_message(),
     "MsgLoaded"
   );
-  let outMsg = await select_click_row(0);
+  const outMsg = await select_click_row(0);
   await msgLoaded;
-  let outMsgContent = await get_msg_source(outMsg);
+  const outMsgContent = await get_msg_source(outMsg);
 
   ok(
     outMsgContent.includes('id="inline-img" src="cid:'),

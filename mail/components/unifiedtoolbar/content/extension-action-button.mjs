@@ -8,7 +8,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   ExtensionParent: "resource://gre/modules/ExtensionParent.sys.mjs",
 });
-let browserActionFor = extensionId => {
+const browserActionFor = extensionId => {
   const extension =
     lazy.ExtensionParent.GlobalManager.getExtension(extensionId);
   if (!extension) {
@@ -56,7 +56,7 @@ class ExtensionActionButton extends UnifiedToolbarButton {
     if (this.#action.extension.hasPermission("menus")) {
       document.addEventListener("popupshowing", this.#action);
       if (this.#action.defaults.type == "menu") {
-        let menupopup = document.createXULElement("menupopup");
+        const menupopup = document.createXULElement("menupopup");
         menupopup.dataset.actionMenu = this.#action.manifestName;
         menupopup.dataset.extensionId = this.#action.extension.id;
         menupopup.addEventListener("popuphiding", event => {

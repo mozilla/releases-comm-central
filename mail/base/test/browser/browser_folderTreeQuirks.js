@@ -15,8 +15,8 @@ const { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"
 );
 
-let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-let { folderPane, folderTree, threadTree } = about3Pane;
+const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+const { folderPane, folderTree, threadTree } = about3Pane;
 let account,
   rootFolder,
   inboxFolder,
@@ -27,8 +27,8 @@ let account,
   folderC,
   moreButton,
   moreContext;
-let generator = new MessageGenerator();
-let messageInjection = new MessageInjection(
+const generator = new MessageGenerator();
+const messageInjection = new MessageInjection(
   {
     mode: "local",
   },
@@ -144,14 +144,14 @@ add_task(async function testCompactFavoriteFolders() {
 
   // Test with multiple accounts.
 
-  let foo = MailServices.accounts.createAccount();
+  const foo = MailServices.accounts.createAccount();
   foo.incomingServer = MailServices.accounts.createIncomingServer(
     `${foo.key}user`,
     "localhost",
     "none"
   );
-  let fooRootFolder = foo.incomingServer.rootFolder;
-  let fooTrashFolder = fooRootFolder.getChildNamed("Trash");
+  const fooRootFolder = foo.incomingServer.rootFolder;
+  const fooTrashFolder = fooRootFolder.getChildNamed("Trash");
 
   fooTrashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
   await checkModeListItems("favorite", [fooTrashFolder]);
@@ -182,9 +182,9 @@ add_task(async function testCompactFavoriteFolders() {
  * Tests the Unread Folders mode.
  */
 add_task(async function testUnreadFolders() {
-  let folderAMessages = [...folderA.messages];
-  let folderBMessages = [...folderB.messages];
-  let folderCMessages = [...folderC.messages];
+  const folderAMessages = [...folderA.messages];
+  const folderBMessages = [...folderB.messages];
+  const folderCMessages = [...folderC.messages];
 
   folderPane.activeModes = ["all", "unread"];
   await checkModeListItems("unread", []);
@@ -230,9 +230,9 @@ add_task(async function testUnreadFolders() {
  * Tests the compact Unread Folders mode.
  */
 add_task(async function testCompactUnreadFolders() {
-  let folderAMessages = [...folderA.messages];
-  let folderBMessages = [...folderB.messages];
-  let folderCMessages = [...folderC.messages];
+  const folderAMessages = [...folderA.messages];
+  const folderBMessages = [...folderB.messages];
+  const folderCMessages = [...folderC.messages];
 
   folderPane.activeModes = ["all", "unread"];
   folderPane.isCompact = true;
@@ -276,20 +276,20 @@ add_task(async function testCompactUnreadFolders() {
 
   // Test with multiple accounts.
 
-  let foo = MailServices.accounts.createAccount();
+  const foo = MailServices.accounts.createAccount();
   foo.incomingServer = MailServices.accounts.createIncomingServer(
     `${foo.key}user`,
     "localhost",
     "none"
   );
-  let fooRootFolder = foo.incomingServer.rootFolder;
-  let fooTrashFolder = fooRootFolder.getChildNamed("Trash");
+  const fooRootFolder = foo.incomingServer.rootFolder;
+  const fooTrashFolder = fooRootFolder.getChildNamed("Trash");
 
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
   fooTrashFolder
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
     .addMessage(generator.makeMessages({}).map(m => m.toMboxString()));
-  let fooMessages = [...fooTrashFolder.messages];
+  const fooMessages = [...fooTrashFolder.messages];
 
   fooMessages[0].markRead(false);
   await checkModeListItems("unread", [
@@ -353,15 +353,21 @@ add_task(async function testSmartFolders() {
   folderPane.activeModes = ["smart"];
 
   // Check the mode is set up correctly.
-  let localExtraFolders = [rootFolder, outboxFolder, folderA, folderB, folderC];
-  let smartServer = MailServices.accounts.findServer(
+  const localExtraFolders = [
+    rootFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    folderC,
+  ];
+  const smartServer = MailServices.accounts.findServer(
     "nobody",
     "smart mailboxes",
     "none"
   );
-  let smartInbox = smartServer.rootFolder.getChildNamed("Inbox");
-  let smartInboxFolders = [smartInbox, inboxFolder];
-  let otherSmartFolders = [
+  const smartInbox = smartServer.rootFolder.getChildNamed("Inbox");
+  const smartInboxFolders = [smartInbox, inboxFolder];
+  const otherSmartFolders = [
     smartServer.rootFolder.getChildNamed("Drafts"),
     smartServer.rootFolder.getChildNamed("Templates"),
     smartServer.rootFolder.getChildNamed("Sent"),
@@ -399,10 +405,10 @@ add_task(async function testSmartFolders() {
   ]);
 
   // Check the hierarchy.
-  let rootRow = folderPane.getRowForFolder(rootFolder);
-  let inboxRow = folderPane.getRowForFolder(inboxFolder);
-  let trashRow = folderPane.getRowForFolder(trashFolder);
-  let rowB = folderPane.getRowForFolder(folderB);
+  const rootRow = folderPane.getRowForFolder(rootFolder);
+  const inboxRow = folderPane.getRowForFolder(inboxFolder);
+  const trashRow = folderPane.getRowForFolder(trashFolder);
+  const rowB = folderPane.getRowForFolder(folderB);
   let rowX = folderPane.getRowForFolder(folderX);
   let rowY = folderPane.getRowForFolder(folderY);
   let rowYY = folderPane.getRowForFolder(folderYY);
@@ -430,7 +436,7 @@ add_task(async function testSmartFolders() {
 
   // Stop searching folderY and folderYY in the smart inbox. They should stop
   // being listed under the inbox and instead appear under the root folder.
-  let wrappedInbox = VirtualFolderHelper.wrapVirtualFolder(smartInbox);
+  const wrappedInbox = VirtualFolderHelper.wrapVirtualFolder(smartInbox);
   Assert.deepEqual(wrappedInbox.searchFolders, [
     inboxFolder,
     folderY,
@@ -556,7 +562,7 @@ add_task(async function testSmartFolders() {
  */
 add_task(async function testFolderMove() {
   rootFolder.createSubfolder("new parent", null);
-  let newParentFolder = rootFolder.getChildNamed("new parent");
+  const newParentFolder = rootFolder.getChildNamed("new parent");
   [...folderC.messages][6].markRead(false);
   folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
@@ -590,8 +596,8 @@ add_task(async function testFolderMove() {
   );
   await copyListener.promise;
 
-  let movedFolderB = newParentFolder.getChildNamed("folderTreeQuirksB");
-  let movedFolderC = movedFolderB.getChildNamed("folderTreeQuirksC");
+  const movedFolderB = newParentFolder.getChildNamed("folderTreeQuirksB");
+  const movedFolderC = movedFolderB.getChildNamed("folderTreeQuirksC");
 
   await checkModeListItems("all", [
     rootFolder,
@@ -661,8 +667,8 @@ add_task(async function testFolderMove() {
  * with any subfolders if they should be shown.
  */
 add_task(async function testFolderRename() {
-  let extraFolders = {};
-  for (let name of ["aaa", "ggg", "zzz"]) {
+  const extraFolders = {};
+  for (const name of ["aaa", "ggg", "zzz"]) {
     rootFolder.createSubfolder(name, null);
     extraFolders[name] = rootFolder
       .getChildNamed(name)
@@ -712,9 +718,9 @@ add_task(async function testFolderRename() {
   // Rename `folderA`.
 
   folderA.rename("renamedA", window.msgWindow);
-  let renamedFolderA = rootFolder.getChildNamed("renamedA");
-  let renamedFolderB = renamedFolderA.getChildNamed("folderTreeQuirksB");
-  let renamedFolderC = renamedFolderB.getChildNamed("folderTreeQuirksC");
+  const renamedFolderA = rootFolder.getChildNamed("renamedA");
+  const renamedFolderB = renamedFolderA.getChildNamed("folderTreeQuirksB");
+  const renamedFolderC = renamedFolderB.getChildNamed("folderTreeQuirksC");
 
   await checkModeListItems("all", [
     rootFolder,
@@ -808,11 +814,11 @@ add_task(async function testFolderRename() {
  * Check that only one entry in the folder tree is created.
  */
 add_task(async function testSearchFolderAddedOnlyOnce() {
-  let context = about3Pane.document.getElementById("folderPaneContext");
-  let searchMessagesItem = about3Pane.document.getElementById(
+  const context = about3Pane.document.getElementById("folderPaneContext");
+  const searchMessagesItem = about3Pane.document.getElementById(
     "folderPaneContext-searchMessages"
   );
-  let removeItem = about3Pane.document.getElementById(
+  const removeItem = about3Pane.document.getElementById(
     "folderPaneContext-remove"
   );
 
@@ -826,13 +832,13 @@ add_task(async function testSearchFolderAddedOnlyOnce() {
   );
   await shownPromise;
 
-  let searchWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+  const searchWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
     null,
     w =>
       w.document.documentURI == "chrome://messenger/content/SearchDialog.xhtml"
   );
   context.activateItem(searchMessagesItem);
-  let searchWindow = await searchWindowPromise;
+  const searchWindow = await searchWindowPromise;
 
   EventUtils.synthesizeMouseAtCenter(
     searchWindow.document.getElementById("searchVal0"),
@@ -843,7 +849,7 @@ add_task(async function testSearchFolderAddedOnlyOnce() {
 
   // Create a virtual folder for the search.
 
-  let vfWindowPromise = BrowserTestUtils.promiseAlertDialogOpen(
+  const vfWindowPromise = BrowserTestUtils.promiseAlertDialogOpen(
     null,
     "chrome://messenger/content/virtualFolderProperties.xhtml",
     {
@@ -873,8 +879,8 @@ add_task(async function testSearchFolderAddedOnlyOnce() {
 
   // Find the folder and the row for it in the tree.
 
-  let virtualFolder = rootFolder.getChildNamed("virtual folder");
-  let row = await TestUtils.waitForCondition(() =>
+  const virtualFolder = rootFolder.getChildNamed("virtual folder");
+  const row = await TestUtils.waitForCondition(() =>
     folderPane.getRowForFolder(virtualFolder)
   );
 
@@ -901,7 +907,7 @@ add_task(async function testSearchFolderAddedOnlyOnce() {
   );
   await shownPromise;
 
-  let dialogPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
   context.activateItem(removeItem);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -924,8 +930,8 @@ add_task(async function testSearchFolderAddedOnlyOnce() {
  * that a change in their deferred status updates the folder tree.
  */
 add_task(async function testDeferredAccount() {
-  let pop3Account = MailServices.accounts.createAccount();
-  let pop3Server = MailServices.accounts.createIncomingServer(
+  const pop3Account = MailServices.accounts.createAccount();
+  const pop3Server = MailServices.accounts.createIncomingServer(
     `${pop3Account.key}user`,
     "localhost",
     "pop3"
@@ -935,13 +941,13 @@ add_task(async function testDeferredAccount() {
     Ci.nsIPop3IncomingServer
   );
 
-  let pop3RootFolder = pop3Server.rootFolder;
-  let pop3Folders = [
+  const pop3RootFolder = pop3Server.rootFolder;
+  const pop3Folders = [
     pop3RootFolder,
     pop3RootFolder.getChildNamed("Inbox"),
     pop3RootFolder.getChildNamed("Trash"),
   ];
-  let localFolders = [
+  const localFolders = [
     rootFolder,
     inboxFolder,
     trashFolder,
@@ -978,8 +984,8 @@ add_task(async function testDeferredAccount() {
 add_task(async function testGmailFolders() {
   IMAPServer.open();
   // Set up a fake Gmail account.
-  let gmailAccount = MailServices.accounts.createAccount();
-  let gmailServer = MailServices.accounts.createIncomingServer(
+  const gmailAccount = MailServices.accounts.createAccount();
+  const gmailServer = MailServices.accounts.createIncomingServer(
     "user",
     "localhost",
     "imap"
@@ -988,26 +994,26 @@ add_task(async function testGmailFolders() {
   gmailServer.password = "password";
   gmailAccount.incomingServer = gmailServer;
 
-  let gmailIdentity = MailServices.accounts.createIdentity();
+  const gmailIdentity = MailServices.accounts.createIdentity();
   gmailIdentity.email = "imap@invalid";
   gmailAccount.addIdentity(gmailIdentity);
   gmailAccount.defaultIdentity = gmailIdentity;
 
-  let gmailRootFolder = gmailServer.rootFolder;
+  const gmailRootFolder = gmailServer.rootFolder;
   gmailServer.performExpand(window.msgWindow);
   await TestUtils.waitForCondition(
     () => gmailRootFolder.subFolders.length == 3,
     "waiting for folders to be created"
   );
 
-  let gmailInboxFolder = gmailRootFolder.getChildNamed("INBOX");
-  let gmailTrashFolder = gmailRootFolder.getChildNamed("Trash");
-  let gmailGmailFolder = gmailRootFolder.getChildNamed("[Gmail]");
+  const gmailInboxFolder = gmailRootFolder.getChildNamed("INBOX");
+  const gmailTrashFolder = gmailRootFolder.getChildNamed("Trash");
+  const gmailGmailFolder = gmailRootFolder.getChildNamed("[Gmail]");
   await TestUtils.waitForCondition(
     () => gmailGmailFolder.subFolders.length == 1,
     "waiting for All Mail folder to be created"
   );
-  let gmailAllMailFolder = gmailGmailFolder.getChildNamed("All Mail");
+  const gmailAllMailFolder = gmailGmailFolder.getChildNamed("All Mail");
 
   Assert.ok(
     !folderPane._isGmailFolder(gmailRootFolder),
@@ -1097,7 +1103,7 @@ add_task(async function testAccountOrder() {
   folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
   folderPane.activeModes = ["all", "smart", "unread", "favorite"];
 
-  let localFolders = [
+  const localFolders = [
     rootFolder,
     inboxFolder,
     trashFolder,
@@ -1106,13 +1112,19 @@ add_task(async function testAccountOrder() {
     folderB,
     folderC,
   ];
-  let localExtraFolders = [rootFolder, outboxFolder, folderA, folderB, folderC];
-  let smartServer = MailServices.accounts.findServer(
+  const localExtraFolders = [
+    rootFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    folderC,
+  ];
+  const smartServer = MailServices.accounts.findServer(
     "nobody",
     "smart mailboxes",
     "none"
   );
-  let smartFolders = [
+  const smartFolders = [
     smartServer.rootFolder.getChildNamed("Inbox"),
     inboxFolder,
     smartServer.rootFolder.getChildNamed("Drafts"),
@@ -1137,31 +1149,31 @@ add_task(async function testAccountOrder() {
 
   // Create two new "none" accounts, foo and bar.
 
-  let foo = MailServices.accounts.createAccount();
+  const foo = MailServices.accounts.createAccount();
   foo.incomingServer = MailServices.accounts.createIncomingServer(
     `${foo.key}user`,
     "localhost",
     "none"
   );
-  let fooRootFolder = foo.incomingServer.rootFolder;
-  let fooTrashFolder = fooRootFolder.getChildNamed("Trash");
-  let fooOutboxFolder = fooRootFolder.getChildNamed("Outbox");
-  let fooFolders = [fooRootFolder, fooTrashFolder, fooOutboxFolder];
-  let fooExtraFolders = [fooRootFolder, fooOutboxFolder];
+  const fooRootFolder = foo.incomingServer.rootFolder;
+  const fooTrashFolder = fooRootFolder.getChildNamed("Trash");
+  const fooOutboxFolder = fooRootFolder.getChildNamed("Outbox");
+  const fooFolders = [fooRootFolder, fooTrashFolder, fooOutboxFolder];
+  const fooExtraFolders = [fooRootFolder, fooOutboxFolder];
 
-  let bar = MailServices.accounts.createAccount();
+  const bar = MailServices.accounts.createAccount();
   bar.incomingServer = MailServices.accounts.createIncomingServer(
     `${bar.key}user`,
     "localhost",
     "none"
   );
-  let barRootFolder = bar.incomingServer.rootFolder;
-  let barTrashFolder = barRootFolder.getChildNamed("Trash");
-  let barOutboxFolder = barRootFolder.getChildNamed("Outbox");
-  let barFolders = [barRootFolder, barTrashFolder, barOutboxFolder];
-  let barExtraFolders = [barRootFolder, barOutboxFolder];
+  const barRootFolder = bar.incomingServer.rootFolder;
+  const barTrashFolder = barRootFolder.getChildNamed("Trash");
+  const barOutboxFolder = barRootFolder.getChildNamed("Outbox");
+  const barFolders = [barRootFolder, barTrashFolder, barOutboxFolder];
+  const barExtraFolders = [barRootFolder, barOutboxFolder];
 
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
   fooTrashFolder
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
     .addMessage(generator.makeMessage({}).toMboxString());
@@ -1351,7 +1363,7 @@ add_task(async function testAccountOrder() {
   await checkModeListItems("unread", [rootFolder, folderA]);
   await checkModeListItems("favorite", []);
 
-  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
   await shownPromise;
 
@@ -1363,7 +1375,7 @@ add_task(async function testAccountOrder() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
     moreContext,
     "popuphidden"
   );
@@ -1393,7 +1405,7 @@ async function checkModeListItems(modeName, folders) {
 }
 
 function expandAll(modeName) {
-  for (let folderTreeRow of folderPane._modes[
+  for (const folderTreeRow of folderPane._modes[
     modeName
   ].containerList.querySelectorAll("li")) {
     folderTree.expandRow(folderTreeRow);
@@ -1432,7 +1444,7 @@ var IMAPServer = {
       specialUseFlag: "\\AllMail",
     });
     this.server = new nsMailServer(daemon => {
-      let handler = new IMAP_RFC3501_handler(daemon);
+      const handler = new IMAP_RFC3501_handler(daemon);
       mixinExtension(handler, IMAP_GMAIL_extension);
       mixinExtension(handler, IMAP_RFC3348_extension);
       return handler;

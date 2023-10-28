@@ -16,13 +16,13 @@ var { cloudFileAccounts } = ChromeUtils.import(
 add_task(async function test_without_UI() {
   async function background() {
     function createCloudfileAccount() {
-      let addListener = window.waitForEvent("cloudFile.onAccountAdded");
+      const addListener = window.waitForEvent("cloudFile.onAccountAdded");
       browser.test.sendMessage("createAccount");
       return addListener;
     }
 
     function removeCloudfileAccount(id) {
-      let deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
+      const deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
       browser.test.sendMessage("removeAccount", id);
       return deleteListener;
     }
@@ -40,7 +40,7 @@ add_task(async function test_without_UI() {
     async function test_account_creation_removal() {
       browser.test.log("test_account_creation_removal");
       // Account creation
-      let [createdAccount] = await createCloudfileAccount();
+      const [createdAccount] = await createCloudfileAccount();
       assertAccountsMatch(createdAccount, {
         id: "account1",
         name: "mochitest",
@@ -70,7 +70,9 @@ add_task(async function test_without_UI() {
       });
 
       // Account removal
-      let [removedAccountId] = await removeCloudfileAccount(createdAccount.id);
+      const [removedAccountId] = await removeCloudfileAccount(
+        createdAccount.id
+      );
       browser.test.assertEq(createdAccount.id, removedAccountId);
     }
 
@@ -78,7 +80,7 @@ add_task(async function test_without_UI() {
       browser.test.log("test_getters_update");
       browser.test.sendMessage("createAccount", "ext-other-addon");
 
-      let [createdAccount] = await createCloudfileAccount();
+      const [createdAccount] = await createCloudfileAccount();
 
       // getAccount and getAllAccounts
       let retrievedAccount = await browser.cloudFile.getAccount(
@@ -86,12 +88,12 @@ add_task(async function test_without_UI() {
       );
       assertAccountsMatch(createdAccount, retrievedAccount);
 
-      let retrievedAccounts = await browser.cloudFile.getAllAccounts();
+      const retrievedAccounts = await browser.cloudFile.getAllAccounts();
       browser.test.assertEq(retrievedAccounts.length, 1);
       assertAccountsMatch(createdAccount, retrievedAccounts[0]);
 
       // update()
-      let changes = {
+      const changes = {
         configured: true,
         // uploadSizeLimit intentionally left unset
         spaceRemaining: 456,
@@ -99,13 +101,13 @@ add_task(async function test_without_UI() {
         managementUrl: "/account.html",
       };
 
-      let changedAccount = await browser.cloudFile.updateAccount(
+      const changedAccount = await browser.cloudFile.updateAccount(
         retrievedAccount.id,
         changes
       );
       retrievedAccount = await browser.cloudFile.getAccount(createdAccount.id);
 
-      let expected = {
+      const expected = {
         id: createdAccount.id,
         name: "mochitest",
         configured: true,
@@ -123,9 +125,9 @@ add_task(async function test_without_UI() {
 
     async function test_upload_rename_delete() {
       browser.test.log("test_upload_rename_delete");
-      let [createdAccount] = await createCloudfileAccount();
+      const [createdAccount] = await createCloudfileAccount();
 
-      let fileId = await new Promise(resolve => {
+      const fileId = await new Promise(resolve => {
         async function fileListener(
           account,
           { id, name, data },
@@ -137,7 +139,7 @@ add_task(async function test_without_UI() {
           browser.test.assertEq(name, "cloudFile1.txt");
           // eslint-disable-next-line mozilla/use-isInstance
           browser.test.assertTrue(data instanceof File);
-          let content = await data.text();
+          const content = await data.text();
           browser.test.assertEq(content, "you got the moves!\n");
           browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(() => resolve(id));
@@ -364,7 +366,7 @@ add_task(async function test_without_UI() {
     browser.test.notifyPass("cloudFile");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -379,12 +381,12 @@ add_task(async function test_without_UI() {
     },
   });
 
-  let testFiles = {
+  const testFiles = {
     cloudFile1: new FileUtils.File(getTestFilePath("data/cloudFile1.txt")),
     cloudFile2: new FileUtils.File(getTestFilePath("data/cloudFile2.txt")),
   };
 
-  let uploads = {};
+  const uploads = {};
 
   extension.onMessage("createAccount", (id = "ext-cloudfile@mochi.test") => {
     cloudFileAccounts.createAccount(id);
@@ -397,7 +399,7 @@ add_task(async function test_without_UI() {
   extension.onMessage(
     "uploadFileError",
     async (id, filename, expectedErrorStatus, expectedErrorMessage) => {
-      let account = cloudFileAccounts.getAccount(id);
+      const account = cloudFileAccounts.getAccount(id);
 
       let status;
       try {
@@ -427,7 +429,7 @@ add_task(async function test_without_UI() {
   extension.onMessage(
     "uploadFile",
     (id, filename, expectedErrorStatus = Cr.NS_OK, expectedErrorMessage) => {
-      let account = cloudFileAccounts.getAccount(id);
+      const account = cloudFileAccounts.getAccount(id);
 
       if (typeof expectedErrorStatus == "string") {
         expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
@@ -463,7 +465,7 @@ add_task(async function test_without_UI() {
       expectedErrorStatus = Cr.NS_OK,
       expectedErrorMessage
     ) => {
-      let account = cloudFileAccounts.getAccount(id);
+      const account = cloudFileAccounts.getAccount(id);
 
       if (typeof expectedErrorStatus == "string") {
         expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
@@ -488,12 +490,12 @@ add_task(async function test_without_UI() {
   );
 
   extension.onMessage("cancelUpload", id => {
-    let account = cloudFileAccounts.getAccount(id);
+    const account = cloudFileAccounts.getAccount(id);
     account.cancelFileUpload(null, testFiles.cloudFile2);
   });
 
   extension.onMessage("deleteFile", id => {
-    let account = cloudFileAccounts.getAccount(id);
+    const account = cloudFileAccounts.getAccount(id);
     account.deleteFile(null, uploads.cloudFile1.id);
   });
 
@@ -515,33 +517,32 @@ add_task(async function test_without_UI() {
  * interaction.
  */
 add_task(async function test_compose_window_MV2() {
-  let testFiles = {
+  const testFiles = {
     cloudFile1: new FileUtils.File(getTestFilePath("data/cloudFile1.txt")),
     cloudFile2: new FileUtils.File(getTestFilePath("data/cloudFile2.txt")),
   };
-  let uploads = {};
-  let composeWindow;
+  const uploads = {};
 
   async function background() {
     function createCloudfileAccount(id) {
-      let addListener = window.waitForEvent("cloudFile.onAccountAdded");
+      const addListener = window.waitForEvent("cloudFile.onAccountAdded");
       browser.test.sendMessage("createAccount", id);
       return addListener;
     }
 
     function removeCloudfileAccount(id) {
-      let deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
+      const deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
       browser.test.sendMessage("removeAccount", id);
       return deleteListener;
     }
 
     async function test_tab_in_upload_rename_abort_delete_listener(composeTab) {
       browser.test.log("test_upload_delete");
-      let [createdAccount] = await createCloudfileAccount(
+      const [createdAccount] = await createCloudfileAccount(
         "ext-cloudfile@mochi.test"
       );
 
-      let fileId = await new Promise(resolve => {
+      const fileId = await new Promise(resolve => {
         async function fileListener(
           uploadAccount,
           { id, name, data },
@@ -555,7 +556,7 @@ add_task(async function test_compose_window_MV2() {
           browser.test.assertEq(name, "cloudFile1.txt");
           // eslint-disable-next-line mozilla/use-isInstance
           browser.test.assertTrue(data instanceof File);
-          let content = await data.text();
+          const content = await data.text();
           browser.test.assertEq(content, "you got the moves!\n");
 
           browser.test.assertEq(undefined, relatedFileInfo);
@@ -643,7 +644,7 @@ add_task(async function test_compose_window_MV2() {
       await new Promise(resolve => setTimeout(resolve));
     }
 
-    let [composerTab] = await browser.tabs.query({
+    const [composerTab] = await browser.tabs.query({
       windowType: "messageCompose",
     });
     await test_tab_in_upload_rename_abort_delete_listener(composerTab);
@@ -651,7 +652,7 @@ add_task(async function test_compose_window_MV2() {
     browser.test.notifyPass("finished");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -677,7 +678,7 @@ add_task(async function test_compose_window_MV2() {
   extension.onMessage(
     "uploadFile",
     (id, filename, expectedErrorStatus = Cr.NS_OK, expectedErrorMessage) => {
-      let cloudFileAccount = cloudFileAccounts.getAccount(id);
+      const cloudFileAccount = cloudFileAccounts.getAccount(id);
 
       if (typeof expectedErrorStatus == "string") {
         expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
@@ -713,7 +714,7 @@ add_task(async function test_compose_window_MV2() {
       expectedErrorStatus = Cr.NS_OK,
       expectedErrorMessage
     ) => {
-      let cloudFileAccount = cloudFileAccounts.getAccount(id);
+      const cloudFileAccount = cloudFileAccounts.getAccount(id);
 
       if (typeof expectedErrorStatus == "string") {
         expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
@@ -738,19 +739,19 @@ add_task(async function test_compose_window_MV2() {
   );
 
   extension.onMessage("cancelUpload", id => {
-    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+    const cloudFileAccount = cloudFileAccounts.getAccount(id);
     cloudFileAccount.cancelFileUpload(composeWindow, testFiles.cloudFile2);
   });
 
   extension.onMessage("deleteFile", id => {
-    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+    const cloudFileAccount = cloudFileAccounts.getAccount(id);
     cloudFileAccount.deleteFile(composeWindow, uploads.cloudFile1.id);
   });
 
-  let account = createAccount();
+  const account = createAccount();
   addIdentity(account);
 
-  composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(account);
   await focusWindow(composeWindow);
 
   await extension.startup();
@@ -766,12 +767,11 @@ add_task(async function test_compose_window_MV2() {
  * background terminations and background restarts.
  */
 add_task(async function test_compose_window_MV3_event_page() {
-  let testFiles = {
+  const testFiles = {
     cloudFile1: new FileUtils.File(getTestFilePath("data/cloudFile1.txt")),
     cloudFile2: new FileUtils.File(getTestFilePath("data/cloudFile2.txt")),
   };
-  let uploads = {};
-  let composeWindow;
+  const uploads = {};
 
   async function background() {
     let abortResolveCallback;
@@ -788,19 +788,19 @@ add_task(async function test_compose_window_MV3_event_page() {
           1,
           "onFileUpload should be the wake up event"
         );
-        let [{ cloudAccountId, composeTabId, aborting }] =
+        const [{ cloudAccountId, composeTabId, aborting }] =
           await window.sendMessage("getEnvironment");
         browser.test.assertEq(tab.id, composeTabId);
         browser.test.assertEq(uploadAccount.id, cloudAccountId);
         browser.test.assertEq(name, "cloudFile1.txt");
         // eslint-disable-next-line mozilla/use-isInstance
         browser.test.assertTrue(data instanceof File);
-        let content = await data.text();
+        const content = await data.text();
         browser.test.assertEq(content, "you got the moves!\n");
         browser.test.assertEq(undefined, relatedFileInfo);
 
         if (aborting) {
-          let abortPromise = new Promise(resolve => {
+          const abortPromise = new Promise(resolve => {
             abortResolveCallback = resolve;
           });
           browser.test.sendMessage("uploadStarted", id);
@@ -826,7 +826,7 @@ add_task(async function test_compose_window_MV3_event_page() {
           1,
           "onFileRename should be the wake up event"
         );
-        let [{ cloudAccountId, fileId, composeTabId }] =
+        const [{ cloudAccountId, fileId, composeTabId }] =
           await window.sendMessage("getEnvironment");
         browser.test.assertEq(tab.id, composeTabId);
         browser.test.assertEq(account.id, cloudAccountId);
@@ -846,9 +846,8 @@ add_task(async function test_compose_window_MV3_event_page() {
         1,
         "onFileDeleted should be the wake up event"
       );
-      let [{ cloudAccountId, fileId, composeTabId }] = await window.sendMessage(
-        "getEnvironment"
-      );
+      const [{ cloudAccountId, fileId, composeTabId }] =
+        await window.sendMessage("getEnvironment");
       browser.test.assertEq(tab.id, composeTabId);
       browser.test.assertEq(account.id, cloudAccountId);
       browser.test.assertEq(id, fileId);
@@ -865,7 +864,7 @@ add_task(async function test_compose_window_MV3_event_page() {
           2,
           "onFileUploadAbort should not be the wake up event"
         );
-        let [{ cloudAccountId, fileId, composeTabId }] =
+        const [{ cloudAccountId, fileId, composeTabId }] =
           await window.sendMessage("getEnvironment");
         browser.test.assertEq(tab.id, composeTabId);
         browser.test.assertEq(account.id, cloudAccountId);
@@ -891,14 +890,14 @@ add_task(async function test_compose_window_MV3_event_page() {
         1,
         "onAccountDeleted should be the wake up event"
       );
-      let [{ cloudAccountId }] = await window.sendMessage("getEnvironment");
+      const [{ cloudAccountId }] = await window.sendMessage("getEnvironment");
       browser.test.assertEq(accountId, cloudAccountId);
       browser.test.notifyPass("finished");
     });
 
     browser.runtime.onInstalled.addListener(async () => {
       eventCounter++;
-      let [composeTab] = await browser.tabs.query({
+      const [composeTab] = await browser.tabs.query({
         windowType: "messageCompose",
       });
       await window.sendMessage("setEnvironment", {
@@ -910,7 +909,7 @@ add_task(async function test_compose_window_MV3_event_page() {
     browser.test.sendMessage("background started");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -933,7 +932,7 @@ add_task(async function test_compose_window_MV3_event_page() {
     expectedErrorStatus = Cr.NS_OK,
     expectedErrorMessage
   ) {
-    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+    const cloudFileAccount = cloudFileAccounts.getAccount(id);
 
     if (typeof expectedErrorStatus == "string") {
       expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
@@ -959,13 +958,13 @@ add_task(async function test_compose_window_MV3_event_page() {
     );
   }
   function startUpload(id, filename) {
-    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+    const cloudFileAccount = cloudFileAccounts.getAccount(id);
     return cloudFileAccount
       .uploadFile(composeWindow, testFiles[filename])
       .catch(() => {});
   }
   function cancelUpload(id, filename) {
-    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+    const cloudFileAccount = cloudFileAccounts.getAccount(id);
     return cloudFileAccount.cancelFileUpload(
       composeWindow,
       testFiles[filename]
@@ -978,7 +977,7 @@ add_task(async function test_compose_window_MV3_event_page() {
     expectedErrorStatus = Cr.NS_OK,
     expectedErrorMessage
   ) {
-    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+    const cloudFileAccount = cloudFileAccounts.getAccount(id);
 
     if (typeof expectedErrorStatus == "string") {
       expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
@@ -1001,11 +1000,11 @@ add_task(async function test_compose_window_MV3_event_page() {
     );
   }
   function deleteFile(id, uploadId) {
-    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+    const cloudFileAccount = cloudFileAccounts.getAccount(id);
     return cloudFileAccount.deleteFile(composeWindow, uploadId);
   }
 
-  let environment = {};
+  const environment = {};
   extension.onMessage("setEnvironment", data => {
     if (data.composeTabId) {
       environment.composeTabId = data.composeTabId;
@@ -1016,10 +1015,10 @@ add_task(async function test_compose_window_MV3_event_page() {
     extension.sendMessage(environment);
   });
 
-  let account = createAccount();
+  const account = createAccount();
   addIdentity(account);
 
-  composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(account);
   await focusWindow(composeWindow);
 
   await extension.startup();
@@ -1037,7 +1036,7 @@ add_task(async function test_compose_window_MV3_event_page() {
       "onAccountAdded",
       "onAccountDeleted",
     ];
-    for (let eventName of persistent_events) {
+    for (const eventName of persistent_events) {
       assertPersistentListeners(extension, "cloudFile", eventName, {
         primed,
       });
@@ -1114,32 +1113,31 @@ add_task(async function test_compose_window_MV3_event_page() {
  * Test cloudFiles without accounts and removed local files.
  */
 add_task(async function test_incomplete_cloudFiles() {
-  let testFiles = {
+  const testFiles = {
     cloudFile1: new FileUtils.File(getTestFilePath("data/cloudFile1.txt")),
     cloudFile2: new FileUtils.File(getTestFilePath("data/cloudFile2.txt")),
   };
-  let uploads = {};
-  let composeWindow;
+  const uploads = {};
   let cloudFileAccount = null;
 
   async function background() {
     function createCloudfileAccount(id) {
-      let addListener = window.waitForEvent("cloudFile.onAccountAdded");
+      const addListener = window.waitForEvent("cloudFile.onAccountAdded");
       browser.test.sendMessage("createAccount", id);
       return addListener;
     }
 
     function removeCloudfileAccount(id) {
-      let deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
+      const deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
       browser.test.sendMessage("removeAccount", id);
       return deleteListener;
     }
 
-    let [composerTab] = await browser.tabs.query({
+    const [composerTab] = await browser.tabs.query({
       windowType: "messageCompose",
     });
 
-    let [createdAccount] = await createCloudfileAccount(
+    const [createdAccount] = await createCloudfileAccount(
       "ext-cloudfile@mochi.test"
     );
 
@@ -1160,8 +1158,8 @@ add_task(async function test_incomplete_cloudFiles() {
     });
 
     await window.sendMessage("attachAndInvalidate", "cloudFile1");
-    let attachments = await browser.compose.listAttachments(composerTab.id);
-    let [attachmentId] = attachments
+    const attachments = await browser.compose.listAttachments(composerTab.id);
+    const [attachmentId] = attachments
       .filter(e => e.name == "cloudFile1.txt")
       .map(e => e.id);
 
@@ -1191,7 +1189,7 @@ add_task(async function test_incomplete_cloudFiles() {
     browser.test.notifyPass("finished");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -1216,14 +1214,16 @@ add_task(async function test_incomplete_cloudFiles() {
   });
 
   extension.onMessage("attachAndInvalidate", async filename => {
-    let upload = uploads[filename];
+    const upload = uploads[filename];
     await composeWindow.attachToCloudRepeat(
       uploads[filename],
       cloudFileAccount
     );
 
-    let bucket = composeWindow.document.getElementById("attachmentBucket");
-    let item = [...bucket.children].find(e => e.attachment.name == upload.name);
+    const bucket = composeWindow.document.getElementById("attachmentBucket");
+    const item = [...bucket.children].find(
+      e => e.attachment.name == upload.name
+    );
     Assert.ok(item, "Should have found the attachment item");
 
     // Invalidate the cloud attachment, simulating a file move/delete.
@@ -1235,7 +1235,7 @@ add_task(async function test_incomplete_cloudFiles() {
   extension.onMessage(
     "uploadFile",
     (id, filename, expectedErrorStatus = Cr.NS_OK, expectedErrorMessage) => {
-      let cloudFileAccount = cloudFileAccounts.getAccount(id);
+      const cloudFileAccount = cloudFileAccounts.getAccount(id);
 
       if (typeof expectedErrorStatus == "string") {
         expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
@@ -1262,10 +1262,10 @@ add_task(async function test_incomplete_cloudFiles() {
     }
   );
 
-  let account = createAccount();
+  const account = createAccount();
   addIdentity(account);
 
-  composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(account);
   await focusWindow(composeWindow);
 
   await extension.startup();
@@ -1280,18 +1280,18 @@ add_task(async function test_incomplete_cloudFiles() {
 add_task(async function test_file_format() {
   async function background() {
     function createCloudfileAccount() {
-      let addListener = window.waitForEvent("cloudFile.onAccountAdded");
+      const addListener = window.waitForEvent("cloudFile.onAccountAdded");
       browser.test.sendMessage("createAccount");
       return addListener;
     }
 
     function removeCloudfileAccount(id) {
-      let deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
+      const deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
       browser.test.sendMessage("removeAccount", id);
       return deleteListener;
     }
 
-    let [createdAccount] = await createCloudfileAccount();
+    const [createdAccount] = await createCloudfileAccount();
 
     browser.test.log("test upload");
     await new Promise(resolve => {
@@ -1300,7 +1300,7 @@ add_task(async function test_file_format() {
         browser.test.assertEq(name, "cloudFile1.txt");
         // eslint-disable-next-line mozilla/use-isInstance
         browser.test.assertTrue(data instanceof File);
-        let reader = new FileReader();
+        const reader = new FileReader();
         reader.addEventListener("loadend", () => {
           browser.test.assertEq(reader.result, "you got the moves!\n");
           setTimeout(() => resolve(id));
@@ -1348,7 +1348,7 @@ add_task(async function test_file_format() {
     browser.test.notifyPass("cloudFile");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -1363,7 +1363,7 @@ add_task(async function test_file_format() {
     },
   });
 
-  let testFiles = {
+  const testFiles = {
     cloudFile1: new FileUtils.File(getTestFilePath("data/cloudFile1.txt")),
     cloudFile2: new FileUtils.File(getTestFilePath("data/cloudFile2.txt")),
   };
@@ -1379,7 +1379,7 @@ add_task(async function test_file_format() {
   extension.onMessage(
     "uploadFileError",
     async (id, filename, expectedErrorStatus, expectedErrorMessage) => {
-      let account = cloudFileAccounts.getAccount(id);
+      const account = cloudFileAccounts.getAccount(id);
 
       let status;
       try {
@@ -1409,7 +1409,7 @@ add_task(async function test_file_format() {
   extension.onMessage(
     "uploadFile",
     (id, filename, expectedErrorStatus = Cr.NS_OK, expectedErrorMessage) => {
-      let account = cloudFileAccounts.getAccount(id);
+      const account = cloudFileAccounts.getAccount(id);
 
       if (typeof expectedErrorStatus == "string") {
         expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];

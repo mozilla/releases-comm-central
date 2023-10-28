@@ -19,14 +19,17 @@ if (AppConstants.platform == "linux") {
 
 let win, canvas;
 let paints = [];
-let afterPaintListener = () => {
+const afterPaintListener = () => {
   let width, height;
   canvas.width = width = win.innerWidth;
   canvas.height = height = win.innerHeight;
   if (width < 1 || height < 1) {
     return;
   }
-  let ctx = canvas.getContext("2d", { alpha: false, willReadFrequently: true });
+  const ctx = canvas.getContext("2d", {
+    alpha: false,
+    willReadFrequently: true,
+  });
 
   ctx.drawWindow(
     win,
@@ -127,7 +130,7 @@ StartupRecorder.prototype = {
           "mail-startup-idle-tasks-finished",
         ];
       }
-      for (let t of topics) {
+      for (const t of topics) {
         Services.obs.addObserver(this, t);
       }
       return;

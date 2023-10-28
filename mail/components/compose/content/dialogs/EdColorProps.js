@@ -443,11 +443,11 @@ function ValidateData() {
 function onAccept(event) {
   // If it's a file, convert to a data URL.
   if (gBackgroundImage && /^file:/i.test(gBackgroundImage)) {
-    let nsFile = Services.io
+    const nsFile = Services.io
       .newURI(gBackgroundImage)
       .QueryInterface(Ci.nsIFileURL).file;
     if (nsFile.exists()) {
-      let reader = new FileReader();
+      const reader = new FileReader();
       reader.addEventListener("load", function () {
         gBackgroundImage = reader.result;
         gDialog.BackgroundImageInput.value = reader.result;

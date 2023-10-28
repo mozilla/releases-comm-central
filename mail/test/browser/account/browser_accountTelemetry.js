@@ -5,23 +5,23 @@
  * Test telemetry related to account.
  */
 
-let { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+const { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 
-let { IMServices } = ChromeUtils.importESModule(
+const { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
 );
-let { MailServices } = ChromeUtils.import(
+const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-let { MailTelemetryForTests } = ChromeUtils.import(
+const { MailTelemetryForTests } = ChromeUtils.import(
   "resource:///modules/MailGlue.jsm"
 );
 
-let { add_message_to_folder, msgGen, get_special_folder, create_folder } =
+const { add_message_to_folder, msgGen, get_special_folder, create_folder } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
   );
-let { TelemetryTestUtils } = ChromeUtils.importESModule(
+const { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
 
@@ -30,7 +30,7 @@ let { TelemetryTestUtils } = ChromeUtils.importESModule(
  */
 add_task(async function test_account_types() {
   // Collect all added accounts to be cleaned up at the end.
-  let addedAccounts = [];
+  const addedAccounts = [];
 
   Services.telemetry.clearScalars();
 
@@ -39,15 +39,15 @@ add_task(async function test_account_types() {
   const NUM_IRC = 1;
 
   // Add incoming servers.
-  let imapServer = MailServices.accounts
+  const imapServer = MailServices.accounts
     .createIncomingServer("nobody", "foo.invalid", "imap")
     .QueryInterface(Ci.nsIImapIncomingServer);
-  let imAccount = IMServices.accounts.createAccount(
+  const imAccount = IMServices.accounts.createAccount(
     "telemetry-irc-user",
     "prpl-irc"
   );
   imAccount.autoLogin = false;
-  let ircServer = MailServices.accounts.createIncomingServer(
+  const ircServer = MailServices.accounts.createIncomingServer(
     "nobody",
     "foo.invalid",
     "im"
@@ -56,31 +56,31 @@ add_task(async function test_account_types() {
 
   // Add accounts and assign incoming servers.
   for (let i = 0; i < NUM_IMAP; i++) {
-    let identity = MailServices.accounts.createIdentity();
+    const identity = MailServices.accounts.createIdentity();
     identity.email = "tinderbox@foo.invalid";
-    let account = MailServices.accounts.createAccount();
+    const account = MailServices.accounts.createAccount();
     account.incomingServer = imapServer;
     account.addIdentity(identity);
     addedAccounts.push(account);
   }
   for (let i = 0; i < NUM_RSS; i++) {
-    let account = FeedUtils.createRssAccount("rss");
+    const account = FeedUtils.createRssAccount("rss");
     addedAccounts.push(account);
   }
   for (let i = 0; i < NUM_IRC; i++) {
-    let account = MailServices.accounts.createAccount();
+    const account = MailServices.accounts.createAccount();
     account.incomingServer = ircServer;
     addedAccounts.push(account);
   }
 
   registerCleanupFunction(() => {
-    for (let account of addedAccounts) {
+    for (const account of addedAccounts) {
       MailServices.accounts.removeAccount(account);
     }
   });
 
   MailTelemetryForTests.reportAccountTypes();
-  let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+  const scalars = TelemetryTestUtils.getProcessScalars("parent", true);
 
   // Check if we count account types correctly.
   Assert.equal(
@@ -114,13 +114,13 @@ add_task(async function test_account_sizes() {
   const NUM_INBOX = 3;
   const NUM_OTHER = 2;
 
-  let inbox = await get_special_folder(
+  const inbox = await get_special_folder(
     Ci.nsMsgFolderFlags.Inbox,
     true,
     null,
     false
   );
-  let other = await create_folder("TestAccountSize");
+  const other = await create_folder("TestAccountSize");
   for (let i = 0; i < NUM_INBOX; i++) {
     await add_message_to_folder(
       [inbox],
@@ -135,7 +135,7 @@ add_task(async function test_account_sizes() {
   }
 
   MailTelemetryForTests.reportAccountSizes();
-  let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+  const scalars = TelemetryTestUtils.getProcessScalars("parent", true);
 
   // Check if we count total messages correctly.
   Assert.equal(

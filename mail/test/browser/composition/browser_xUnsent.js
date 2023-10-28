@@ -25,16 +25,16 @@ function waitForComposeWindow() {
  * Tests that opening an .eml with X-Unsent: 1 opens composition correctly.
  */
 add_task(async function openXUnsent() {
-  let compWinReady = waitForComposeWindow();
-  let file = new FileUtils.File(getTestFilePath(`data/xunsent.eml`));
-  let fileURL = Services.io
+  const compWinReady = waitForComposeWindow();
+  const file = new FileUtils.File(getTestFilePath(`data/xunsent.eml`));
+  const fileURL = Services.io
     .newFileURI(file)
     .QueryInterface(Ci.nsIFileURL)
     .mutate()
     .setQuery("type=application/x-message-display")
     .finalize();
   MailUtils.openEMLFile(window, file, fileURL);
-  let compWin = await compWinReady;
+  const compWin = await compWinReady;
 
   Assert.equal(
     compWin.document.getElementById("msgSubject").value,

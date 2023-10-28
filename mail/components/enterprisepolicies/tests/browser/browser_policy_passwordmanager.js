@@ -22,6 +22,6 @@ add_task(async function test_pwmanagerbutton() {
     "showPasswords should be disabled."
   );
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(window.preferencesTabType.tab);
 });

@@ -54,8 +54,8 @@ async function open_content_tab_with_url(
   aLinkHandler = null,
   aBackground = false
 ) {
-  let tabmail = mc.document.getElementById("tabmail");
-  let preCount = tabmail.tabContainer.allTabs.length;
+  const tabmail = mc.document.getElementById("tabmail");
+  const preCount = tabmail.tabContainer.allTabs.length;
   tabmail.openTab("contentTab", {
     url: aURL,
     background: aBackground,
@@ -69,7 +69,7 @@ async function open_content_tab_with_url(
   );
 
   // We append new tabs at the end, so check the last one.
-  let expectedNewTab = tabmail.tabInfo[preCount];
+  const expectedNewTab = tabmail.tabInfo[preCount];
   folderDisplayHelper.assert_selected_tab(expectedNewTab);
   await promise_content_tab_load(expectedNewTab, aURL);
   return expectedNewTab;
@@ -89,7 +89,7 @@ async function open_content_tab_with_click(
   aExpectedURL,
   aTabType = "contentTab"
 ) {
-  let preCount =
+  const preCount =
     mc.document.getElementById("tabmail").tabContainer.allTabs.length;
   if (typeof aElem != "function") {
     EventUtils.synthesizeMouseAtCenter(aElem, {}, aElem.ownerGlobal);
@@ -107,7 +107,8 @@ async function open_content_tab_with_click(
   );
 
   // We append new tabs at the end, so check the last one.
-  let expectedNewTab = mc.document.getElementById("tabmail").tabInfo[preCount];
+  const expectedNewTab =
+    mc.document.getElementById("tabmail").tabInfo[preCount];
   folderDisplayHelper.assert_selected_tab(expectedNewTab);
   folderDisplayHelper.assert_tab_mode_name(expectedNewTab, aTabType);
   await promise_content_tab_load(expectedNewTab, aExpectedURL);
@@ -185,7 +186,7 @@ function assert_content_tab_has_favicon(aTab, aURL) {
  * Returns the current "display" style property of an element.
  */
 function get_content_tab_element_display(aTab, aElem) {
-  let style = aTab.browser.contentWindow.getComputedStyle(aElem);
+  const style = aTab.browser.contentWindow.getComputedStyle(aElem);
   return style.getPropertyValue("display");
 }
 
@@ -193,7 +194,7 @@ function get_content_tab_element_display(aTab, aElem) {
  * Asserts that the given element is hidden from view on the page.
  */
 function assert_content_tab_element_hidden(aTab, aElem) {
-  let display = get_content_tab_element_display(aTab, aElem);
+  const display = get_content_tab_element_display(aTab, aElem);
   Assert.equal(display, "none", "Element should be hidden");
 }
 
@@ -201,7 +202,7 @@ function assert_content_tab_element_hidden(aTab, aElem) {
  * Asserts that the given element is visible on the page.
  */
 function assert_content_tab_element_visible(aTab, aElem) {
-  let display = get_content_tab_element_display(aTab, aElem);
+  const display = get_content_tab_element_display(aTab, aElem);
   Assert.notEqual(display, "none", "Element should be visible");
 }
 
@@ -224,8 +225,8 @@ async function promise_content_tab_element_display(aTab, aElem) {
  */
 function get_element_by_text(aRootNode, aText) {
   // Check every node existing.
-  let nodes = aRootNode.querySelectorAll("*");
-  for (let node of nodes) {
+  const nodes = aRootNode.querySelectorAll("*");
+  for (const node of nodes) {
     // We ignore surrounding whitespace.
     if (node.textContent.trim() == aText) {
       return node;
@@ -239,7 +240,7 @@ function get_element_by_text(aRootNode, aText) {
  * Finds element containing only the specified text in the content tab's page.
  */
 function get_content_tab_element_by_text(aTab, aText) {
-  let doc = aTab.browser.contentDocument.documentElement;
+  const doc = aTab.browser.contentDocument.documentElement;
   return get_element_by_text(doc, aText);
 }
 
@@ -268,7 +269,7 @@ function assert_content_tab_text_absent(aTab, aText) {
  * null if otherwise.
  */
 function get_notification_bar_for_tab(aTab) {
-  let notificationBoxEls = mc.document
+  const notificationBoxEls = mc.document
     .getElementById("tabmail")
     .selectedTab.panel.querySelector("notificationbox");
   if (!notificationBoxEls) {

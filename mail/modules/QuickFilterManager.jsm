@@ -31,8 +31,8 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
  * Shallow object copy.
  */
 function shallowObjCopy(obj) {
-  let newObj = {};
-  for (let key in obj) {
+  const newObj = {};
+  for (const key in obj) {
     newObj[key] = obj[key];
   }
   return newObj;
@@ -236,7 +236,7 @@ function QuickFilterSearchListener(
 QuickFilterSearchListener.prototype = {
   onNewSearch() {
     this.started = true;
-    let curState =
+    const curState =
       this.filterDef.name in this.filterer.filterValues
         ? this.filterer.filterValues[this.filterDef.name]
         : null;
@@ -270,11 +270,11 @@ QuickFilterSearchListener.prototype = {
 
     this.session.unregisterListener(this);
 
-    let curState =
+    const curState =
       this.filterDef.name in this.filterer.filterValues
         ? this.filterer.filterValues[this.filterDef.name]
         : null;
-    let [newState, update, treatAsUserAction] = this.listener.onSearchDone(
+    const [newState, update, treatAsUserAction] = this.listener.onSearchDone(
       curState,
       this.scratch,
       aStatus
@@ -419,7 +419,7 @@ var QuickFilterManager = {
    * @param aName The name of the filter to kill.
    */
   killFilter(aName) {
-    let filterDef = this.filterDefsByName[aName];
+    const filterDef = this.filterDefsByName[aName];
     this.filterDefs.splice(this.filterDefs.indexOf(filterDef), 1);
     delete this.filterDefsByName[aName];
   },
@@ -432,16 +432,16 @@ var QuickFilterManager = {
    * @returns The new filterValues state.
    */
   propagateValues(aTemplValues) {
-    let values = {};
-    let sticky = "sticky" in aTemplValues ? aTemplValues.sticky : false;
+    const values = {};
+    const sticky = "sticky" in aTemplValues ? aTemplValues.sticky : false;
 
-    for (let filterDef of this.filterDefs) {
+    for (const filterDef of this.filterDefs) {
       if ("propagateState" in filterDef) {
-        let curValue =
+        const curValue =
           filterDef.name in aTemplValues
             ? aTemplValues[filterDef.name]
             : undefined;
-        let newValue = filterDef.propagateState(curValue, sticky);
+        const newValue = filterDef.propagateState(curValue, sticky);
         if (newValue != null) {
           values[filterDef.name] = newValue;
         }
@@ -461,10 +461,10 @@ var QuickFilterManager = {
    * @returns Thew new filterValues state.
    */
   getDefaultValues() {
-    let values = {};
-    for (let filterDef of this.filterDefs) {
+    const values = {};
+    for (const filterDef of this.filterDefs) {
       if ("getDefaults" in filterDef) {
-        let newValue = filterDef.getDefaults();
+        const newValue = filterDef.getDefaults();
         if (newValue != null) {
           values[filterDef.name] = newValue;
         }
@@ -480,7 +480,7 @@ var QuickFilterManager = {
    *     to clear.
    */
   clearFilterValue(aFilterName, aValues) {
-    let filterDef = this.filterDefsByName[aFilterName];
+    const filterDef = this.filterDefsByName[aFilterName];
     if (!("clearState" in filterDef)) {
       if (aFilterName in aValues) {
         delete aValues[aFilterName];
@@ -489,9 +489,9 @@ var QuickFilterManager = {
       return false;
     }
 
-    let curValue = aFilterName in aValues ? aValues[aFilterName] : undefined;
+    const curValue = aFilterName in aValues ? aValues[aFilterName] : undefined;
     // Yes, we want to call it to clear its state even if it has no state.
-    let [newValue, didClear] = filterDef.clearState(curValue);
+    const [newValue, didClear] = filterDef.clearState(curValue);
     if (newValue != null) {
       aValues[aFilterName] = newValue;
     } else {
@@ -508,7 +508,7 @@ var QuickFilterManager = {
    */
   clearAllFilterValues(aFilterValues) {
     let didClearSomething = false;
-    for (let filterDef of this.filterDefs) {
+    for (const filterDef of this.filterDefs) {
       if (this.clearFilterValue(filterDef.name, aFilterValues)) {
         didClearSomething = true;
       }
@@ -523,13 +523,13 @@ var QuickFilterManager = {
    * as per the contract.
    */
   createSearchTerms(aFilterValues, aTermCreator) {
-    let searchTerms = [],
+    const searchTerms = [],
       listeners = [];
-    for (let filterName in aFilterValues) {
-      let filterValue = aFilterValues[filterName];
-      let filterDef = this.filterDefsByName[filterName];
+    for (const filterName in aFilterValues) {
+      const filterValue = aFilterValues[filterName];
+      const filterDef = this.filterDefsByName[filterName];
       try {
-        let listener = filterDef.appendTerms(
+        const listener = filterDef.appendTerms(
           aTermCreator,
           searchTerms,
           filterValue
@@ -556,7 +556,7 @@ QuickFilterManager.defineFilter({
    * This should not cause an update, otherwise default logic.
    */
   onCommand(aState, aNode, aEvent, aDocument) {
-    let checked = aNode.pressed;
+    const checked = aNode.pressed;
     return [checked, false];
   },
 });
@@ -569,10 +569,9 @@ QuickFilterManager.defineFilter({
   domId: "qfb-unread",
   menuItemID: "quickFilterButtonsContextUnreadToggle",
   appendTerms(aTermCreator, aTerms, aFilterValue) {
-    let term, value;
-    term = aTermCreator.createTerm();
+    const term = aTermCreator.createTerm();
     term.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
-    value = term.value;
+    const value = term.value;
     value.attrib = term.attrib;
     value.status = Ci.nsMsgMessageFlags.Read;
     term.value = value;
@@ -590,10 +589,9 @@ QuickFilterManager.defineFilter({
   domId: "qfb-starred",
   menuItemID: "quickFilterButtonsContextStarredToggle",
   appendTerms(aTermCreator, aTerms, aFilterValue) {
-    let term, value;
-    term = aTermCreator.createTerm();
+    const term = aTermCreator.createTerm();
     term.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
-    value = term.value;
+    const value = term.value;
     value.attrib = term.attrib;
     value.status = Ci.nsMsgMessageFlags.Marked;
     term.value = value;
@@ -611,10 +609,10 @@ QuickFilterManager.defineFilter({
   domId: "qfb-inaddrbook",
   menuItemID: "quickFilterButtonsContextInaddrbookToggle",
   appendTerms(aTermCreator, aTerms, aFilterValue) {
-    let term, value;
+    let value;
     let firstBook = true;
-    term = null;
-    for (let addrbook of MailServices.ab.directories) {
+    let term = null;
+    for (const addrbook of MailServices.ab.directories) {
       if (!addrbook.isRemote) {
         term = aTermCreator.createTerm();
         term.attrib = Ci.nsMsgSearchAttrib.Sender;
@@ -667,8 +665,8 @@ var TagFacetingFilter = {
     }
     // but also if the object contains no non-null values
     let simpleCase = true;
-    for (let key in aFilterValue.tags) {
-      let value = aFilterValue.tags[key];
+    for (const key in aFilterValue.tags) {
+      const value = aFilterValue.tags[key];
       if (value !== null) {
         simpleCase = false;
         break;
@@ -714,11 +712,11 @@ var TagFacetingFilter = {
       let lastIncludeTerm = null;
       term = null;
 
-      let excludeTerms = [];
+      const excludeTerms = [];
 
-      let mode = aFilterValue.mode;
-      for (let key in aFilterValue.tags) {
-        let shouldFilter = aFilterValue.tags[key];
+      const mode = aFilterValue.mode;
+      for (const key in aFilterValue.tags) {
+        const shouldFilter = aFilterValue.tags[key];
         if (shouldFilter !== null) {
           term = aTermCreator.createTerm();
           term.attrib = Ci.nsMsgSearchAttrib.Keywords;
@@ -779,10 +777,10 @@ var TagFacetingFilter = {
     return {};
   },
   onSearchMessage(aKeywordMap, aMsgHdr, aFolder) {
-    let keywords = aMsgHdr.getStringProperty("keywords");
-    let keywordList = keywords.split(" ");
+    const keywords = aMsgHdr.getStringProperty("keywords");
+    const keywordList = keywords.split(" ");
     for (let iKeyword = 0; iKeyword < keywordList.length; iKeyword++) {
-      let keyword = keywordList[iKeyword];
+      const keyword = keywordList[iKeyword];
       aKeywordMap[keyword] = null;
     }
   },
@@ -794,11 +792,11 @@ var TagFacetingFilter = {
     }
 
     // only propagate things that are actually tags though!
-    let outKeyMap = { tags: {} };
-    let tags = MailServices.tags.getAllTags();
-    let tagCount = tags.length;
+    const outKeyMap = { tags: {} };
+    const tags = MailServices.tags.getAllTags();
+    const tagCount = tags.length;
     for (let iTag = 0; iTag < tagCount; iTag++) {
-      let tag = tags[iTag];
+      const tag = tags[iTag];
 
       if (tag.key in aKeywordMap) {
         outKeyMap.tags[tag.key] = aKeywordMap[tag.key];
@@ -847,7 +845,7 @@ var TagFacetingFilter = {
   domBindExtra(aDocument, aMuxer, aNode) {
     // Tag filtering mode menu (All of/Any of)
     function commandHandler(aEvent) {
-      let filterValue = aMuxer.getFilterValueForMutation(
+      const filterValue = aMuxer.getFilterValueForMutation(
         TagFacetingFilter.name
       );
       filterValue.mode = aEvent.target.value;
@@ -874,13 +872,13 @@ var TagFacetingFilter = {
   },
 
   _populateTagBar(aState, aDocument, aMuxer) {
-    let tagbar = aDocument.getElementById("quickFilterBarTagsContainer");
-    let keywordMap = aState.tags;
+    const tagbar = aDocument.getElementById("quickFilterBarTagsContainer");
+    const keywordMap = aState.tags;
 
     // If we have a mode stored use that. If we don't have a mode, then update
     // our state to agree with what the UI is currently displaying;
     // this will happen for fresh profiles.
-    let qbm = aDocument.getElementById("qfb-boolean-mode");
+    const qbm = aDocument.getElementById("qfb-boolean-mode");
     if (aState.mode) {
       qbm.value = aState.mode;
     } else {
@@ -888,8 +886,8 @@ var TagFacetingFilter = {
     }
 
     function clickHandler(aEvent) {
-      let tagKey = this.getAttribute("value");
-      let state = aMuxer.getFilterValueForMutation(TagFacetingFilter.name);
+      const tagKey = this.getAttribute("value");
+      const state = aMuxer.getFilterValueForMutation(TagFacetingFilter.name);
       state.tags[tagKey] = this.pressed ? true : null;
       this.removeAttribute("inverted");
       aMuxer.updateSearch();
@@ -900,8 +898,8 @@ var TagFacetingFilter = {
         // Toggle isn't triggered by a contextmenu event, so do it here.
         this.pressed = !this.pressed;
 
-        let tagKey = this.getAttribute("value");
-        let state = aMuxer.getFilterValueForMutation(TagFacetingFilter.name);
+        const tagKey = this.getAttribute("value");
+        const state = aMuxer.getFilterValueForMutation(TagFacetingFilter.name);
         state.tags[tagKey] = this.pressed ? false : null;
         if (this.pressed) {
           this.setAttribute("inverted", "true");
@@ -921,10 +919,10 @@ var TagFacetingFilter = {
     let addCount = 0;
 
     // -- create an element for each tag
-    let tags = MailServices.tags.getAllTags();
-    let tagCount = tags.length;
+    const tags = MailServices.tags.getAllTags();
+    const tagCount = tags.length;
     for (let iTag = 0; iTag < tagCount; iTag++) {
-      let tag = tags[iTag];
+      const tag = tags[iTag];
 
       if (tag.key in keywordMap) {
         addCount++;
@@ -932,7 +930,9 @@ var TagFacetingFilter = {
         // Keep in mind that the XBL does not get built for dynamically created
         //  elements such as these until they get displayed, which definitely
         //  means not before we append it into the tree.
-        let button = aDocument.createElement("button", { is: "toggle-button" });
+        const button = aDocument.createElement("button", {
+          is: "toggle-button",
+        });
 
         button.setAttribute("id", "qfb-tag-" + tag.key);
         button.addEventListener("click", clickHandler);
@@ -945,8 +945,8 @@ var TagFacetingFilter = {
         }
         button.textContent = tag.tag;
         button.setAttribute("value", tag.key);
-        let color = tag.color;
-        let contrast = lazy.TagUtils.isColorContrastEnough(color)
+        const color = tag.color;
+        const contrast = lazy.TagUtils.isColorContrastEnough(color)
           ? "black"
           : "white";
         // everybody always gets to be an qfb-tag-button.
@@ -973,10 +973,9 @@ QuickFilterManager.defineFilter({
   domId: "qfb-attachment",
   menuItemID: "quickFilterButtonsContextAttachmentToggle",
   appendTerms(aTermCreator, aTerms, aFilterValue) {
-    let term, value;
-    term = aTermCreator.createTerm();
+    const term = aTermCreator.createTerm();
     term.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
-    value = term.value;
+    const value = term.value;
     value.attrib = term.attrib;
     value.status = Ci.nsMsgMessageFlags.Attachment;
     term.value = value;
@@ -1012,7 +1011,7 @@ var MessageTextFilter = {
    */
   _parseSearchString(aSearchString) {
     aSearchString = aSearchString.trim();
-    let terms = [];
+    const terms = [];
 
     /*
      * Add the term as long as the trim on the way in didn't obliterate it.
@@ -1043,7 +1042,7 @@ var MessageTextFilter = {
         continue;
       }
 
-      let searchTerms = aSearchString.split(" ");
+      const searchTerms = aSearchString.split(" ");
       searchTerms.forEach(searchTerm => addTerm(searchTerm));
       break;
     }
@@ -1061,17 +1060,17 @@ var MessageTextFilter = {
     let term, value;
 
     if (aFilterValue.text) {
-      let phrases = this._parseSearchString(aFilterValue.text);
-      for (let groupedPhrases of phrases) {
+      const phrases = this._parseSearchString(aFilterValue.text);
+      for (const groupedPhrases of phrases) {
         let firstClause = true;
         term = null;
-        let splitPhrases = groupedPhrases.split("|");
-        for (let phrase of splitPhrases) {
-          for (let [tfName, tfValue] of Object.entries(aFilterValue.states)) {
+        const splitPhrases = groupedPhrases.split("|");
+        for (const phrase of splitPhrases) {
+          for (const [tfName, tfValue] of Object.entries(aFilterValue.states)) {
             if (!tfValue) {
               continue;
             }
-            let tfDef = this.textFilterDefs[tfName];
+            const tfDef = this.textFilterDefs[tfName];
 
             term = aTermCreator.createTerm();
             term.attrib = tfDef.attrib;
@@ -1094,8 +1093,8 @@ var MessageTextFilter = {
     }
   },
   getDefaults() {
-    let states = {};
-    for (let name in this._defaultStates) {
+    const states = {};
+    for (const name in this._defaultStates) {
       states[name] = this._defaultStates[name];
     }
     return {
@@ -1110,7 +1109,7 @@ var MessageTextFilter = {
     };
   },
   clearState(aState) {
-    let hadState = Boolean(aState.text);
+    const hadState = Boolean(aState.text);
     aState.text = null;
     return [aState, hadState];
   },
@@ -1127,7 +1126,7 @@ var MessageTextFilter = {
       // event from causing scrolling, but that prevents the tree from
       // selecting a message if necessary, so we must do it here.
       if (aEvent.keyCode == aEvent.DOM_VK_DOWN) {
-        let threadTree = aDocument.getElementById("threadTree");
+        const threadTree = aDocument.getElementById("threadTree");
         threadTree.table.body.focus();
         if (threadTree.selectedIndex == -1) {
           threadTree.selectedIndex = 0;
@@ -1140,7 +1139,7 @@ var MessageTextFilter = {
     aNode.addEventListener(
       "blur",
       function (aEvent) {
-        let panel = aDocument.getElementById("qfb-text-search-upsell");
+        const panel = aDocument.getElementById("qfb-text-search-upsell");
         if (
           (Services.focus.activeWindow != aDocument.defaultView ||
             aDocument.commandDispatcher.focusedElement != aNode.inputField) &&
@@ -1154,14 +1153,14 @@ var MessageTextFilter = {
 
     // -- Expando Buttons!
     function commandHandler(aEvent) {
-      let state = aMuxer.getFilterValueForMutation(MessageTextFilter.name);
-      let filterDef = MessageTextFilter.textFilterDefsByDomId[this.id];
+      const state = aMuxer.getFilterValueForMutation(MessageTextFilter.name);
+      const filterDef = MessageTextFilter.textFilterDefsByDomId[this.id];
       state.states[filterDef.name] = this.pressed;
       aMuxer.updateSearch();
     }
 
-    for (let name in this.textFilterDefs) {
-      let textFilter = this.textFilterDefs[name];
+    for (const name in this.textFilterDefs) {
+      const textFilter = this.textFilterDefs[name];
       aDocument
         .getElementById(textFilter.domId)
         .addEventListener("click", commandHandler);
@@ -1169,14 +1168,14 @@ var MessageTextFilter = {
   },
 
   onCommand(aState, aNode, aEvent, aDocument) {
-    let text = aEvent.detail || null;
+    const text = aEvent.detail || null;
     const isSearch = aEvent.type === "search";
     if (isSearch) {
-      let upsell = aDocument.getElementById("qfb-text-search-upsell");
+      const upsell = aDocument.getElementById("qfb-text-search-upsell");
       if (upsell.state == "open") {
         upsell.hidePopup();
       }
-      let tabmail =
+      const tabmail =
         aDocument.ownerGlobal.top.document.getElementById("tabmail");
       tabmail.openTab("glodaFacet", {
         searcher: new lazy.GlodaMsgSearcher(null, aState.text),
@@ -1190,7 +1189,7 @@ var MessageTextFilter = {
   },
 
   reflectInDOM(aNode, aFilterValue, aDocument, aMuxer, aFromPFP) {
-    let panel = aDocument.getElementById("qfb-text-search-upsell");
+    const panel = aDocument.getElementById("qfb-text-search-upsell");
 
     if (aFromPFP == "nosale") {
       if (panel.state != "closed") {
@@ -1200,7 +1199,7 @@ var MessageTextFilter = {
     }
 
     if (aFromPFP == "upsell") {
-      let line2 = aDocument.getElementById("qfb-upsell-line-two");
+      const line2 = aDocument.getElementById("qfb-upsell-line-two");
       aDocument.l10n.setAttributes(
         line2,
         "quick-filter-bar-gloda-upsell-line2",
@@ -1229,15 +1228,15 @@ var MessageTextFilter = {
     }
 
     // Propagate a cleared text filter to the search bar input.
-    let desiredValue = aFilterValue.text || "";
+    const desiredValue = aFilterValue.text || "";
     if (!desiredValue) {
       aNode.reset();
     }
 
     // Update our expanded filters buttons.
-    let states = aFilterValue.states;
-    for (let name in this.textFilterDefs) {
-      let textFilter = this.textFilterDefs[name];
+    const states = aFilterValue.states;
+    for (const name in this.textFilterDefs) {
+      const textFilter = this.textFilterDefs[name];
       aDocument.getElementById(textFilter.domId).pressed =
         states[textFilter.name];
     }

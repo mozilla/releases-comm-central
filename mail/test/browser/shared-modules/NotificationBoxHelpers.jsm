@@ -32,14 +32,14 @@ var { TestUtils } = ChromeUtils.importESModule(
  * @returns True/false depending on the state of the notification.
  */
 function check_notification_displayed(aWindow, aBoxId, aValue, aNotification) {
-  let nb = aWindow.document.getElementById(aBoxId);
+  const nb = aWindow.document.getElementById(aBoxId);
   if (!nb) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
   }
 
   if (nb.querySelector(".notificationbox-stack")) {
-    let box = nb.querySelector(".notificationbox-stack")._notificationBox;
-    let notification = box.getNotificationWithValue(aValue);
+    const box = nb.querySelector(".notificationbox-stack")._notificationBox;
+    const notification = box.getNotificationWithValue(aValue);
     if (aNotification) {
       aNotification.notification = notification;
     }
@@ -63,8 +63,8 @@ function check_notification_displayed(aWindow, aBoxId, aValue, aNotification) {
  *          displayed, and it actually shows up. Throws otherwise.
  */
 function assert_notification_displayed(aWindow, aBoxId, aValue, aDisplayed) {
-  let notification = {};
-  let hasNotification = check_notification_displayed(
+  const notification = {};
+  const hasNotification = check_notification_displayed(
     aWindow,
     aBoxId,
     aValue,
@@ -91,13 +91,13 @@ function assert_notification_displayed(aWindow, aBoxId, aValue, aDisplayed) {
  * @param aValue   the value of the notification to close
  */
 function close_notification(aWindow, aBoxId, aValue) {
-  let nb = aWindow.document.getElementById(aBoxId);
+  const nb = aWindow.document.getElementById(aBoxId);
   if (!nb) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
   }
 
-  let box = nb.querySelector(".notificationbox-stack")._notificationBox;
-  let notification = box.getNotificationWithValue(aValue);
+  const box = nb.querySelector(".notificationbox-stack")._notificationBox;
+  const notification = box.getNotificationWithValue(aValue);
   if (notification) {
     notification.close();
   }
@@ -112,12 +112,12 @@ function close_notification(aWindow, aBoxId, aValue) {
  * @param aValue   the value of the notification to wait to stop
  */
 async function wait_for_notification_to_stop(aWindow, aBoxId, aValue) {
-  let nb = aWindow.document.getElementById(aBoxId);
+  const nb = aWindow.document.getElementById(aBoxId);
   if (!nb) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
   }
 
-  let box = nb.querySelector(".notificationbox-stack")._notificationBox;
+  const box = nb.querySelector(".notificationbox-stack")._notificationBox;
   await TestUtils.waitForCondition(
     () => !box.getNotificationWithValue(aValue),
     "Timed out waiting for notification with value " + aValue + " to stop."
@@ -133,14 +133,14 @@ async function wait_for_notification_to_stop(aWindow, aBoxId, aValue) {
  * @param aValue   the value of the notification to wait for
  */
 async function wait_for_notification_to_show(aWindow, aBoxId, aValue) {
-  let nb = aWindow.document.getElementById(aBoxId);
+  const nb = aWindow.document.getElementById(aBoxId);
   if (!nb) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
   }
 
   await TestUtils.waitForCondition(function () {
     if (nb.querySelector(".notificationbox-stack")) {
-      let box = nb.querySelector(".notificationbox-stack")._notificationBox;
+      const box = nb.querySelector(".notificationbox-stack")._notificationBox;
       return box.getNotificationWithValue(aValue) != null && !box._animating;
     }
     return false;
@@ -156,13 +156,13 @@ async function wait_for_notification_to_show(aWindow, aBoxId, aValue) {
  * @returns {?Element} - The notification element if found.
  */
 function get_notification(win, id, val) {
-  let nb = win.document.getElementById(id);
+  const nb = win.document.getElementById(id);
   if (!nb) {
     throw new Error("Couldn't find a notification box for id=" + id);
   }
 
   if (nb.querySelector(".notificationbox-stack")) {
-    let box = nb.querySelector(".notificationbox-stack")._notificationBox;
+    const box = nb.querySelector(".notificationbox-stack")._notificationBox;
     return box.getNotificationWithValue(val);
   }
 
@@ -179,14 +179,14 @@ function get_notification(win, id, val) {
  *                   pairs, similar to click_menus_in_sequence().
  */
 function get_notification_button(aWindow, aBoxId, aValue, aMatch) {
-  let notification = get_notification(aWindow, aBoxId, aValue);
-  let buttons = notification.buttonContainer.querySelectorAll(
+  const notification = get_notification(aWindow, aBoxId, aValue);
+  const buttons = notification.buttonContainer.querySelectorAll(
     "button, toolbarbutton"
   );
-  for (let button of buttons) {
+  for (const button of buttons) {
     let matchedAll = true;
-    for (let name in aMatch) {
-      let value = aMatch[name];
+    for (const name in aMatch) {
+      const value = aMatch[name];
       let matched = false;
       if (name == "popup") {
         if (button.getAttribute("type") == "menu") {

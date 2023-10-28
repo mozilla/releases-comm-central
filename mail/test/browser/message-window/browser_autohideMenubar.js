@@ -40,15 +40,17 @@ add_setup(async function () {
  * @param {boolean} hide - True to hide, false otherwise.
  */
 async function set_autohide_menubar(win, elem, hide) {
-  let contextMenu = win.document.getElementById("toolbar-context-menu");
-  let popupshown = BrowserTestUtils.waitForEvent(
+  const contextMenu = win.document.getElementById("toolbar-context-menu");
+  const popupshown = BrowserTestUtils.waitForEvent(
     contextMenu,
     "popupshown",
     win
   );
   EventUtils.synthesizeMouseAtCenter(elem, { type: "contextmenu" }, win);
   await popupshown;
-  let menuitem = win.document.querySelector(`menuitem[toolbarid="${elem.id}"]`);
+  const menuitem = win.document.querySelector(
+    `menuitem[toolbarid="${elem.id}"]`
+  );
   if (menuitem.getAttribute("checked") == hide + "") {
     EventUtils.synthesizeMouseAtCenter(menuitem, {}, win);
     await new Promise(resolve => win.setTimeout(resolve, 50));
@@ -93,15 +95,15 @@ async function help_test_autohide(win, menubar) {
 }
 
 add_task(async function test_autohidden_menubar_3pane() {
-  let menubar = document.getElementById("toolbar-menubar");
+  const menubar = document.getElementById("toolbar-menubar");
   await help_test_autohide(window, menubar);
 });
 
 add_task(async function test_autohidden_menubar_message_window() {
   await be_in_folder(menuFolder);
   await select_click_row(0);
-  let msgc = await open_selected_message_in_new_window();
-  let menubar = msgc.document.getElementById("toolbar-menubar");
+  const msgc = await open_selected_message_in_new_window();
+  const menubar = msgc.document.getElementById("toolbar-menubar");
 
   await help_test_autohide(msgc, menubar);
   await BrowserTestUtils.closeWindow(msgc);

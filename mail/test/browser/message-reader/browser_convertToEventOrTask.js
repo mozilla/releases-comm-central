@@ -45,15 +45,15 @@ add_setup(async function () {
 });
 
 add_task(async function test_convertToEvent() {
-  let file = new FileUtils.File(getTestFilePath("data/multiparty.eml"));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath("data/multiparty.eml"));
+  const msgc = await open_message_from_file(file);
 
   await be_in_folder(folder);
 
   // Copy the message to a folder.
-  let aboutMessage =
+  const aboutMessage =
     msgc.document.getElementById("messageBrowser").contentWindow;
-  let documentChild = aboutMessage.document
+  const documentChild = aboutMessage.document
     .getElementById("messagepane")
     .contentDocument.querySelector("div.moz-text-flowed");
   EventUtils.synthesizeMouseAtCenter(
@@ -71,13 +71,13 @@ add_task(async function test_convertToEvent() {
   );
   await BrowserTestUtils.closeWindow(msgc);
 
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
   // Open Other Actions, and check the event dialog popping up seems alright.
-  let dialogWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
-  let win = get_about_message();
-  let otherActionsButton = win.document.getElementById("otherActionsButton");
+  const dialogWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
+  const win = get_about_message();
+  const otherActionsButton = win.document.getElementById("otherActionsButton");
   EventUtils.synthesizeMouseAtCenter(
     otherActionsButton,
     {},
@@ -92,12 +92,12 @@ add_task(async function test_convertToEvent() {
   );
 
   await dialogWindowPromise.then(async dialogWindow => {
-    let document = dialogWindow.document.querySelector(
+    const document = dialogWindow.document.querySelector(
       "#calendar-item-panel-iframe"
     ).contentDocument;
 
-    let startDate = document.getElementById("event-starttime");
-    let dt = cal.dtz.now();
+    const startDate = document.getElementById("event-starttime");
+    const dt = cal.dtz.now();
     dt.month = 5;
     dt.day = 30;
     Assert.equal(

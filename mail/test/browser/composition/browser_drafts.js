@@ -39,7 +39,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-let aboutMessage = get_about_message();
+const aboutMessage = get_about_message();
 
 var kBoxId = "mail-notification-top";
 var draftsFolder;
@@ -60,7 +60,7 @@ add_task(async function test_open_draft_again() {
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
-  let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
+  const box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
   const composePromise = promise_new_window("msgcompose");
   // Click on the "Edit" button in the draft notification.
@@ -69,9 +69,9 @@ add_task(async function test_open_draft_again() {
     {},
     aboutMessage
   );
-  let cwc = await compose_window_ready(composePromise);
+  const cwc = await compose_window_ready(composePromise);
 
-  let cwins = [...Services.wm.getEnumerator("msgcompose")].length;
+  const cwins = [...Services.wm.getEnumerator("msgcompose")].length;
 
   // click edit in main win again
   EventUtils.synthesizeMouseAtCenter(
@@ -89,7 +89,7 @@ add_task(async function test_open_draft_again() {
     "the original draft composition window should have got focus (again)"
   );
 
-  let cwins2 = [...Services.wm.getEnumerator("msgcompose")].length;
+  const cwins2 = [...Services.wm.getEnumerator("msgcompose")].length;
 
   Assert.ok(cwins2 > 0, "No compose window open!");
   Assert.equal(cwins, cwins2, "The number of compose windows changed!");
@@ -142,12 +142,12 @@ async function internal_check_delivery_format(editDraft) {
       {},
       cwc.document.getElementById("optionsMenu").ownerGlobal
     );
-    let formatMenu = await click_menus_in_sequence(
+    const formatMenu = await click_menus_in_sequence(
       cwc.document.getElementById("optionsMenuPopup"),
       [{ id: "outputFormatMenu" }],
       true
     );
-    let formatItem = cwc.document
+    const formatItem = cwc.document
       .getElementById("outputFormatMenuPopup")
       .querySelector("[name=output_format][checked=true]");
     Assert.equal(formatItem.id, aMenuItemId);
@@ -170,7 +170,7 @@ async function internal_check_delivery_format(editDraft) {
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
-  let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
+  const box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
   const composePromise = promise_new_window("msgcompose");
   if (editDraft) {
@@ -218,7 +218,7 @@ add_task(async function test_edit_as_new_in_draft() {
 
   const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
-  let cwc = await compose_window_ready(composePromise);
+  const cwc = await compose_window_ready(composePromise);
 
   cwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hello!", cwc);
@@ -287,7 +287,7 @@ add_task(async function test_edit_draft_mime_from() {
 
   const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
-  let cwc = await compose_window_ready(composePromise);
+  const cwc = await compose_window_ready(composePromise);
 
   const msgIdentity = cwc.document.getElementById("msgIdentity");
   // Should show no quotes in the address.
@@ -317,7 +317,7 @@ add_task(async function test_edit_draft_mime_from() {
  * Tests Content-Language header.
  */
 add_task(async function test_content_language_header() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   await setup_msg_contents(
     cwc,
@@ -335,8 +335,8 @@ add_task(async function test_content_language_header() {
   );
 
   await be_in_folder(draftsFolder);
-  let draftMsg = await select_click_row(0);
-  let draftMsgContent = await get_msg_source(draftMsg);
+  const draftMsg = await select_click_row(0);
+  const draftMsgContent = await get_msg_source(draftMsg);
 
   // Check for a single line that contains our header.
   if (
@@ -355,10 +355,12 @@ add_task(async function test_content_language_header() {
  * Tests Content-Language header suppression.
  */
 add_task(async function test_content_language_header_suppression() {
-  let statusQuo = Services.prefs.getBoolPref("mail.suppress_content_language");
+  const statusQuo = Services.prefs.getBoolPref(
+    "mail.suppress_content_language"
+  );
   Services.prefs.setBoolPref("mail.suppress_content_language", true);
 
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   await setup_msg_contents(
     cwc,
@@ -376,8 +378,8 @@ add_task(async function test_content_language_header_suppression() {
   );
 
   await be_in_folder(draftsFolder);
-  let draftMsg = await select_click_row(0);
-  let draftMsgContent = await get_msg_source(draftMsg);
+  const draftMsg = await select_click_row(0);
+  const draftMsgContent = await get_msg_source(draftMsg);
 
   // Check no line contains our Content-Language.
   Assert.ok(
@@ -396,7 +398,7 @@ add_task(async function test_content_language_header_suppression() {
  */
 add_task(async function test_remove_space_stuffing_format_flowed() {
   // Prepare for plaintext email.
-  let oldHtmlPref = Services.prefs.getBoolPref(
+  const oldHtmlPref = Services.prefs.getBoolPref(
     "mail.identity.default.compose_html"
   );
   Services.prefs.setBoolPref("mail.identity.default.compose_html", false);
@@ -424,7 +426,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
-  let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
+  const box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
   const composePromise = promise_new_window("msgcompose");
   // Click on the "Edit" button in the draft notification.
@@ -435,7 +437,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
   );
   cwc = await compose_window_ready(composePromise);
 
-  let bodyText = get_compose_body(cwc).innerHTML;
+  const bodyText = get_compose_body(cwc).innerHTML;
   if (!bodyText.includes("NoSpace<br> OneSpace<br>  TwoSpaces")) {
     Assert.ok(false, "Something went wrong with space stuffing");
   }

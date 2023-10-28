@@ -21,9 +21,9 @@ var TagUtils = {
 };
 
 function loadTagsIntoCSS(aDocument) {
-  let tagSheet = findTagColorSheet(aDocument);
-  let tagArray = MailServices.tags.getAllTags();
-  for (let tag of tagArray) {
+  const tagSheet = findTagColorSheet(aDocument);
+  const tagArray = MailServices.tags.getAllTags();
+  for (const tag of tagArray) {
     // tag.key is the internal key, like "$label1" for "Important".
     // For user defined keys with non-ASCII characters, key is
     // the MUTF-7 encoded name.
@@ -32,11 +32,11 @@ function loadTagsIntoCSS(aDocument) {
 }
 
 function addTagToAllDocumentSheets(aKey, aColor) {
-  for (let nextWin of Services.wm.getEnumerator("mail:3pane", true)) {
+  for (const nextWin of Services.wm.getEnumerator("mail:3pane", true)) {
     addTagToSheet(aKey, aColor, findTagColorSheet(nextWin.document));
   }
 
-  for (let nextWin of Services.wm.getEnumerator("mailnews:search", true)) {
+  for (const nextWin of Services.wm.getEnumerator("mailnews:search", true)) {
     addTagToSheet(aKey, aColor, findTagColorSheet(nextWin.document));
   }
 }
@@ -51,7 +51,7 @@ function addTagToSheet(aKey, aColor, aSheet) {
   let ruleString2;
   let ruleString3;
   let ruleString4;
-  let selector = MailServices.tags.getSelectorForKey(aKey);
+  const selector = MailServices.tags.getSelectorForKey(aKey);
   if (!aColor) {
     ruleString1 =
       ":root[lwt-tree] treechildren::-moz-tree-row(" +
@@ -123,7 +123,7 @@ function addTagToSheet(aKey, aColor, aSheet) {
 function findTagColorSheet(aDocument) {
   const cssUri = "chrome://messenger/skin/tagColors.css";
   let tagSheet = null;
-  for (let sheet of aDocument.styleSheets) {
+  for (const sheet of aDocument.styleSheets) {
     if (sheet.href == cssUri) {
       tagSheet = sheet;
       break;
@@ -142,9 +142,9 @@ function isColorContrastEnough(aColor) {
     return true;
   }
   // Zero-pad the number just to make sure that it is 8 digits.
-  let colorHex = ("00000000" + aColor).substr(-8);
-  let colorArray = colorHex.match(/../g);
-  let [, cR, cG, cB] = colorArray.map(val => parseInt(val, 16));
+  const colorHex = ("00000000" + aColor).substr(-8);
+  const colorArray = colorHex.match(/../g);
+  const [, cR, cG, cB] = colorArray.map(val => parseInt(val, 16));
   return new lazy.Color(cR, cG, cB).isContrastRatioAcceptable(
     new lazy.Color(0, 0, 0),
     "AAA"

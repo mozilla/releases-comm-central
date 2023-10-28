@@ -90,7 +90,7 @@ Enigmail.msg = {
   },
 
   removeNotification(value) {
-    let item = this.notificationBox.getNotificationWithValue(value);
+    const item = this.notificationBox.getNotificationWithValue(value);
     // Remove the notification only if the user didn't previously close it.
     if (item) {
       this.notificationBox.removeNotification(item, true);
@@ -197,7 +197,7 @@ Enigmail.msg = {
 
   messageCleanup() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageCleanup\n");
-    for (let value of [
+    for (const value of [
       "decryptInlinePGReminder",
       "decryptInlinePG",
       "brokenExchangeProgress",
@@ -226,7 +226,7 @@ Enigmail.msg = {
     Enigmail.msg.allAttachmentsDone = false;
     Enigmail.msg.messageDecryptDone = false;
 
-    let cryptoBox = document.getElementById("cryptoBox");
+    const cryptoBox = document.getElementById("cryptoBox");
     if (cryptoBox) {
       cryptoBox.removeAttribute("decryptDone");
     }
@@ -309,18 +309,18 @@ Enigmail.msg = {
   },
 
   setMainMenuLabel() {
-    let o = ["menu_Enigmail", "appmenu-Enigmail"];
+    const o = ["menu_Enigmail", "appmenu-Enigmail"];
 
-    let m0 = document.getElementById(o[0]);
-    let m1 = document.getElementById(o[1]);
+    const m0 = document.getElementById(o[0]);
+    const m1 = document.getElementById(o[1]);
 
     m1.setAttribute("enigmaillabel", m0.getAttribute("enigmaillabel"));
 
-    for (let menuId of o) {
-      let menu = document.getElementById(menuId);
+    for (const menuId of o) {
+      const menu = document.getElementById(menuId);
 
       if (menu) {
-        let lbl = menu.getAttribute("enigmaillabel");
+        const lbl = menu.getAttribute("enigmaillabel");
         menu.setAttribute("label", lbl);
       }
     }
@@ -467,7 +467,7 @@ Enigmail.msg = {
       return;
     }
 
-    let url = this.getCurrentMsgUrl();
+    const url = this.getCurrentMsgUrl();
     if (!url) {
       await Enigmail.msg.messageDecryptCb(event, isAuto, null);
       await Enigmail.msg.notifyMessageDecryptDone();
@@ -562,7 +562,7 @@ Enigmail.msg = {
         autocrypt: [],
       };
 
-      for (let h in currentHeaderData) {
+      for (const h in currentHeaderData) {
         if (h.search(/^autocrypt\d*$/) === 0) {
           Enigmail.msg.savedHeaders.autocrypt.push(
             currentHeaderData[h].headerValue
@@ -582,7 +582,7 @@ Enigmail.msg = {
         var headerValue = "";
 
         if (mimeMsg.headers.has(headerName)) {
-          let h = mimeMsg.headers.get(headerName);
+          const h = mimeMsg.headers.get(headerName);
           if (Array.isArray(h)) {
             headerValue = h.join("");
           } else {
@@ -736,7 +736,7 @@ Enigmail.msg = {
           Enigmail.msg.savedHeaders["content-transfer-encoding"];
       }
 
-      let smime =
+      const smime =
         contentType.search(
           /multipart\/signed; protocol="application\/pkcs7-signature/i
         ) >= 0;
@@ -795,7 +795,7 @@ Enigmail.msg = {
    * Display header about reparing buggy MS-Exchange messages.
    */
   async buggyMailHeader() {
-    let uri = this.getCurrentMsgUrl();
+    const uri = this.getCurrentMsgUrl();
     Enigmail.hdrView.headerPane.updateSecurityStatus(
       0,
       0,
@@ -825,7 +825,7 @@ Enigmail.msg = {
       return;
     }
 
-    let buttons = [
+    const buttons = [
       {
         "l10n-id": "openpgp-broken-exchange-repair",
         popup: null,
@@ -847,8 +847,8 @@ Enigmail.msg = {
   },
 
   getFirstPGPMessageType(msgText) {
-    let indexEncrypted = msgText.indexOf("-----BEGIN PGP MESSAGE-----");
-    let indexSigned = msgText.indexOf("-----BEGIN PGP SIGNED MESSAGE-----");
+    const indexEncrypted = msgText.indexOf("-----BEGIN PGP MESSAGE-----");
+    const indexSigned = msgText.indexOf("-----BEGIN PGP SIGNED MESSAGE-----");
     if (indexEncrypted >= 0) {
       if (
         indexSigned == -1 ||
@@ -898,7 +898,7 @@ Enigmail.msg = {
       return;
     }
 
-    let topElement = bodyElement;
+    const topElement = bodyElement;
     var findStr = /* interactive ? null : */ "-----BEGIN PGP";
     var msgText = null;
     var foundIndex = -1;
@@ -959,14 +959,14 @@ Enigmail.msg = {
     }
 
     if (foundIndex >= 0 && !this.hasInlineQuote(topElement)) {
-      let beginIndex = {};
-      let endIndex = {};
-      let indentStr = {};
+      const beginIndex = {};
+      const endIndex = {};
+      const indentStr = {};
 
       if (
         Enigmail.msg.savedHeaders["content-type"].search(/^text\/html/i) === 0
       ) {
-        let p = Cc["@mozilla.org/parserutils;1"].createInstance(
+        const p = Cc["@mozilla.org/parserutils;1"].createInstance(
           Ci.nsIParserUtils
         );
         const de = Ci.nsIDocumentEncoder;
@@ -980,7 +980,7 @@ Enigmail.msg = {
       }
 
       if (!isAuto) {
-        let blockType = EnigmailArmor.locateArmoredBlock(
+        const blockType = EnigmailArmor.locateArmoredBlock(
           msgText,
           0,
           "",
@@ -1003,14 +1003,15 @@ Enigmail.msg = {
       return;
     }
 
-    let charset = currentCharacterSet ?? "";
+    const charset = currentCharacterSet ?? "";
     if (charset != "UTF-8") {
       // Encode ciphertext to charset from unicode
       msgText = EnigmailData.convertFromUnicode(msgText, charset);
     }
 
     if (isAuto) {
-      let ht = hasHeadOrTailNode || this.hasHeadOrTailBesidesInlinePGP(msgText);
+      const ht =
+        hasHeadOrTailNode || this.hasHeadOrTailBesidesInlinePGP(msgText);
       if (ht) {
         let infoId;
         let buttonId;
@@ -1025,12 +1026,12 @@ Enigmail.msg = {
           buttonId = "openpgp-partial-decrypt-button";
         }
 
-        let [description, buttonLabel] = await document.l10n.formatValues([
+        const [description, buttonLabel] = await document.l10n.formatValues([
           { id: infoId },
           { id: buttonId },
         ]);
 
-        let buttons = [
+        const buttons = [
           {
             label: buttonLabel,
             popup: null,
@@ -1076,7 +1077,7 @@ Enigmail.msg = {
 
     var urlSpec = mailNewsUrl ? mailNewsUrl.spec : "";
 
-    let retry = 1;
+    const retry = 1;
 
     await Enigmail.msg.messageParseCallback(
       msgText,
@@ -1105,25 +1106,27 @@ Enigmail.msg = {
   },
 
   hasHeadOrTailBesidesInlinePGP(msgText) {
-    let startIndex = msgText.search(/-----BEGIN PGP (SIGNED )?MESSAGE-----/m);
-    let endIndex = msgText.indexOf("-----END PGP");
+    const startIndex = msgText.search(/-----BEGIN PGP (SIGNED )?MESSAGE-----/m);
+    const endIndex = msgText.indexOf("-----END PGP");
     let hasHead = false;
     let hasTail = false;
     let crypto = 0;
 
     if (startIndex > 0) {
-      let pgpMsg = msgText.match(/(-----BEGIN PGP (SIGNED )?MESSAGE-----)/m)[0];
+      const pgpMsg = msgText.match(
+        /(-----BEGIN PGP (SIGNED )?MESSAGE-----)/m
+      )[0];
       if (pgpMsg.search(/SIGNED/) > 0) {
         crypto = EnigmailConstants.UNCERTAIN_SIGNATURE;
       } else {
         crypto = EnigmailConstants.DECRYPTION_FAILED;
       }
-      let startSection = msgText.substr(0, startIndex - 1);
+      const startSection = msgText.substr(0, startIndex - 1);
       hasHead = startSection.search(/\S/) >= 0;
     }
 
     if (endIndex > startIndex) {
-      let nextLine = msgText.substring(endIndex).search(/[\n\r]/);
+      const nextLine = msgText.substring(endIndex).search(/[\n\r]/);
       if (nextLine > 0) {
         hasTail = msgText.substring(endIndex + nextLine).search(/\S/) >= 0;
       }
@@ -1142,7 +1145,7 @@ Enigmail.msg = {
   },
 
   getBodyElement() {
-    let msgFrame = document.getElementById("messagepane");
+    const msgFrame = document.getElementById("messagepane");
     if (!msgFrame || !msgFrame.contentDocument) {
       return null;
     }
@@ -1215,7 +1218,7 @@ Enigmail.msg = {
       await this.importKeyFromMsgBody(msgText);
       return;
     }
-    let armorHeaders = EnigmailArmor.getArmorHeaders(msgText);
+    const armorHeaders = EnigmailArmor.getArmorHeaders(msgText);
     if ("charset" in armorHeaders) {
       charset = armorHeaders.charset;
       EnigmailLog.DEBUG(
@@ -1286,7 +1289,7 @@ Enigmail.msg = {
         // Peek inside msgText, and check what kind of content it is,
         // so we can show a minimal error.
 
-        let msgType = Enigmail.msg.getFirstPGPMessageType(msgText);
+        const msgType = Enigmail.msg.getFirstPGPMessageType(msgText);
         if (msgType == "encrypted") {
           statusFlags = EnigmailConstants.DECRYPTION_FAILED;
         } else if (msgType == "signed") {
@@ -1545,7 +1548,7 @@ Enigmail.msg = {
   },
 
   importAttachedSenderKey() {
-    for (let info of Enigmail.msg.attachedSenderEmailKeysIndex) {
+    for (const info of Enigmail.msg.attachedSenderEmailKeysIndex) {
       EnigmailKeyRing.importKeyDataWithConfirmation(
         window,
         [info.keyInfo],
@@ -1557,7 +1560,7 @@ Enigmail.msg = {
   },
 
   async searchSignatureKey() {
-    let keyId = document
+    const keyId = document
       .getElementById("signatureKeyBox")
       .getAttribute("keyid");
     if (!keyId) {
@@ -1587,24 +1590,24 @@ Enigmail.msg = {
 
   unhideMissingSigKeyBox() {
     let sigKeyIsAttached = false;
-    for (let info of Enigmail.msg.attachedSenderEmailKeysIndex) {
+    for (const info of Enigmail.msg.attachedSenderEmailKeysIndex) {
       if (info.keyInfo.keyId == Enigmail.msg.missingSigKey) {
         sigKeyIsAttached = true;
         break;
       }
     }
     if (!sigKeyIsAttached) {
-      let b = document.getElementById("signatureKeyBox");
+      const b = document.getElementById("signatureKeyBox");
       b.removeAttribute("hidden");
       b.setAttribute("keyid", Enigmail.msg.missingSigKey);
     }
   },
 
   async importKeyFromMsgBody(msgData) {
-    let beginIndexObj = {};
-    let endIndexObj = {};
-    let indentStrObj = {};
-    let blockType = EnigmailArmor.locateArmoredBlock(
+    const beginIndexObj = {};
+    const endIndexObj = {};
+    const indentStrObj = {};
+    const blockType = EnigmailArmor.locateArmoredBlock(
       msgData,
       0,
       "",
@@ -1616,10 +1619,10 @@ Enigmail.msg = {
       return;
     }
 
-    let keyData = msgData.substring(beginIndexObj.value, endIndexObj.value);
+    const keyData = msgData.substring(beginIndexObj.value, endIndexObj.value);
 
-    let errorMsgObj = {};
-    let preview = await EnigmailKey.getKeyListFromKeyBlock(
+    const errorMsgObj = {};
+    const preview = await EnigmailKey.getKeyListFromKeyBlock(
       keyData,
       errorMsgObj,
       true,
@@ -1646,14 +1649,14 @@ Enigmail.msg = {
   movePEPsubject() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: movePEPsubject:\n");
 
-    let bodyElement = this.getBodyElement();
+    const bodyElement = this.getBodyElement();
     if (
       bodyElement.textContent.search(/^\r?\n?Subject: [^\r\n]+\r?\n\r?\n/i) ===
         0 &&
       "subject" in currentHeaderData &&
       currentHeaderData.subject.headerValue === "pEp"
     ) {
-      let m = EnigmailMime.extractSubjectFromBody(bodyElement.textContent);
+      const m = EnigmailMime.extractSubjectFromBody(bodyElement.textContent);
       if (m) {
         let node = bodyElement.firstChild;
         let found = false;
@@ -1699,7 +1702,7 @@ Enigmail.msg = {
       null
     );
 
-    let msg = gMessage;
+    const msg = gMessage;
     EnigmailFixExchangeMsg.fixExchangeMessage(msg, this.buggyMailType)
       .then(msgKey => {
         // Display the new message which now has the key msgKey.
@@ -1728,7 +1731,7 @@ Enigmail.msg = {
    * Hide attachments containing OpenPGP keys
    */
   hidePgpKeys() {
-    let keys = [];
+    const keys = [];
     for (let i = 0; i < currentAttachments.length; i++) {
       if (
         currentAttachments[i].contentType.search(/^application\/pgp-keys/i) ===
@@ -1739,7 +1742,7 @@ Enigmail.msg = {
     }
 
     if (keys.length > 0) {
-      let attachmentList = document.getElementById("attachmentList");
+      const attachmentList = document.getElementById("attachmentList");
 
       for (let i = keys.length; i > 0; i--) {
         currentAttachments.splice(keys[i - 1], 1);
@@ -1754,7 +1757,7 @@ Enigmail.msg = {
         // build new attachment list
 
         /* global gBuildAttachmentsForCurrentMsg: true */
-        let orig = gBuildAttachmentsForCurrentMsg;
+        const orig = gBuildAttachmentsForCurrentMsg;
         gBuildAttachmentsForCurrentMsg = false;
         displayAttachmentsForExpandedView();
         gBuildAttachmentsForCurrentMsg = orig;
@@ -1805,7 +1808,7 @@ Enigmail.msg = {
         try {
           var msg = gMessage;
           if (msg) {
-            let msgHdr = {
+            const msgHdr = {
               From: msg.author,
               Subject: msg.subject,
               To: msg.recipients,
@@ -1823,7 +1826,7 @@ Enigmail.msg = {
               msgHdr.Newsgroups = currentHeaderData.newsgroups.headerValue;
             }
 
-            for (let headerName in msgHdr) {
+            for (const headerName in msgHdr) {
               if (msgHdr[headerName] && msgHdr[headerName].length > 0) {
                 contentData += headerName + ": " + msgHdr[headerName] + "\r\n";
               }
@@ -1832,8 +1835,8 @@ Enigmail.msg = {
         } catch (ex) {
           // the above seems to fail every now and then
           // so, here is the fallback
-          for (let headerName in headerList) {
-            let headerValue = headerList[headerName];
+          for (const headerName in headerList) {
+            const headerValue = headerList[headerName];
             contentData += headerName + ": " + headerValue + "\r\n";
           }
         }
@@ -1883,7 +1886,7 @@ Enigmail.msg = {
 
       if (includeHeaders) {
         for (headerName in headerList) {
-          let headerValue = headerList[headerName];
+          const headerValue = headerList[headerName];
 
           if (headerValue) {
             if (contentType == "text/html") {
@@ -1943,12 +1946,12 @@ Enigmail.msg = {
         signature +
         "\n"
     );
-    let mailNewsUrl = this.getCurrentMsgUrl();
+    const mailNewsUrl = this.getCurrentMsgUrl();
     if (!mailNewsUrl) {
       return;
     }
 
-    let PromiseStreamListener = function () {
+    const PromiseStreamListener = function () {
       this._promise = new Promise((resolve, reject) => {
         this._resolve = resolve;
         this._reject = reject;
@@ -1973,13 +1976,13 @@ Enigmail.msg = {
           return;
         }
 
-        let start = this.data.indexOf("-----BEGIN PGP");
+        const start = this.data.indexOf("-----BEGIN PGP");
         let end = this.data.indexOf("-----END PGP");
 
         if (start >= 0 && end > start) {
-          let tStr = this.data.substr(end);
-          let n = tStr.indexOf("\n");
-          let r = tStr.indexOf("\r");
+          const tStr = this.data.substr(end);
+          const n = tStr.indexOf("\n");
+          const r = tStr.indexOf("\r");
           let lEnd = -1;
           if (n >= 0 && r >= 0) {
             lEnd = Math.min(r, n);
@@ -1993,17 +1996,17 @@ Enigmail.msg = {
             end += lEnd;
           }
 
-          let data = Enigmail.msg.trimIfEncrypted(
+          const data = Enigmail.msg.trimIfEncrypted(
             this.data.substring(start, end + 1)
           );
           EnigmailLog.DEBUG(
             "enigmailMessengerOverlay.js: data: >" + data.substr(0, 100) + "<\n"
           );
 
-          let currentMsgURL = Enigmail.msg.getCurrentMsgUrl();
-          let urlSpec = currentMsgURL ? currentMsgURL.spec : "";
+          const currentMsgURL = Enigmail.msg.getCurrentMsgUrl();
+          const urlSpec = currentMsgURL ? currentMsgURL.spec : "";
 
-          let l = urlSpec.length;
+          const l = urlSpec.length;
           if (urlSpec.substr(0, l) != mailNewsUrl.spec.substr(0, l)) {
             EnigmailLog.ERROR(
               "enigmailMessengerOverlay.js: Message URL mismatch " +
@@ -2046,8 +2049,8 @@ Enigmail.msg = {
       },
     };
 
-    let streamListener = new PromiseStreamListener();
-    let msgSvc = MailServices.messageServiceFromURI(msgUriSpec);
+    const streamListener = new PromiseStreamListener();
+    const msgSvc = MailServices.messageServiceFromURI(msgUriSpec);
     msgSvc.streamMessage(
       msgUriSpec,
       streamListener,
@@ -2077,17 +2080,17 @@ Enigmail.msg = {
    * Set up some event handlers for the attachment items in #attachmentList.
    */
   handleAttachmentEvent() {
-    let attList = document.getElementById("attachmentList");
+    const attList = document.getElementById("attachmentList");
 
-    for (let att of attList.itemChildren) {
+    for (const att of attList.itemChildren) {
       att.addEventListener("click", this.attachmentItemClick.bind(this), true);
     }
   },
 
   // handle a selected attachment (decrypt & open or save)
   handleAttachmentSel(actionType) {
-    let contextMenu = document.getElementById("attachmentItemContext");
-    let anAttachment = contextMenu.attachments[0];
+    const contextMenu = document.getElementById("attachmentItemContext");
+    const anAttachment = contextMenu.attachments[0];
 
     switch (actionType) {
       case "saveAttachment":
@@ -2210,7 +2213,7 @@ Enigmail.msg = {
     outFile1.append(EnigmailMsgRead.getAttachmentName(origAtt));
     outFile1.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 
-    let response = await fetch(origAtt.url);
+    const response = await fetch(origAtt.url);
     if (!response.ok) {
       throw new Error(`Bad response for url=${origAtt.url}`);
     }
@@ -2219,8 +2222,8 @@ Enigmail.msg = {
     if (isEncrypted) {
       // Try to decrypt message if we suspect the message is encrypted.
       // If it fails we will just verify the encrypted data.
-      let readBinaryFile = async () => {
-        let data = await IOUtils.read(outFile1.path);
+      const readBinaryFile = async () => {
+        const data = await IOUtils.read(outFile1.path);
         return MailStringUtils.uint8ArrayToByteString(data);
       };
       await EnigmailDecryption.decryptAttachment(
@@ -2238,14 +2241,14 @@ Enigmail.msg = {
     outFile2.append(EnigmailMsgRead.getAttachmentName(signatureAtt));
     outFile2.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 
-    let response2 = await fetch(signatureAtt.url);
+    const response2 = await fetch(signatureAtt.url);
     if (!response2.ok) {
       throw new Error(`Bad response for url=${signatureAtt.url}`);
     }
     await IOUtils.writeUTF8(outFile2.path, await response2.text());
 
-    let cApi = EnigmailCryptoAPI();
-    let promise = cApi.verifyAttachment(outFile1.path, outFile2.path);
+    const cApi = EnigmailCryptoAPI();
+    const promise = cApi.verifyAttachment(outFile1.path, outFile2.path);
     promise.then(async function (message) {
       EnigmailDialog.info(
         window,
@@ -2280,18 +2283,20 @@ Enigmail.msg = {
         "\n"
     );
 
-    let bufferListener = EnigmailStreams.newStringStreamListener(async data => {
-      Enigmail.msg.decryptAttachmentCallback([
-        {
-          actionType,
-          attachment,
-          forceBrowser: false,
-          data,
-        },
-      ]);
-    });
-    let msgUri = Services.io.newURI(attachment.url);
-    let channel = EnigmailStreams.createChannel(msgUri);
+    const bufferListener = EnigmailStreams.newStringStreamListener(
+      async data => {
+        Enigmail.msg.decryptAttachmentCallback([
+          {
+            actionType,
+            attachment,
+            forceBrowser: false,
+            data,
+          },
+        ]);
+      }
+    );
+    const msgUri = Services.io.newURI(attachment.url);
+    const channel = EnigmailStreams.createChannel(msgUri);
     channel.asyncOpen(bufferListener, msgUri);
   },
 
@@ -2451,7 +2456,7 @@ Enigmail.msg = {
         statusFlagsObj.value & EnigmailConstants.UNCERTAIN_SIGNATURE
       ) {
         if (callbackArg.actionType == "openAttachment") {
-          let [title, button] = await document.l10n.formatValues([
+          const [title, button] = await document.l10n.formatValues([
             { id: "decrypt-ok-no-sig" },
             { id: "msg-ovl-button-cont-anyway" },
           ]);
@@ -2475,7 +2480,7 @@ Enigmail.msg = {
     if (exitStatus) {
       if (statusFlagsObj.value & EnigmailConstants.IMPORTED_KEY) {
         if (exitCodeObj.keyList) {
-          let importKeyList = exitCodeObj.keyList.map(function (a) {
+          const importKeyList = exitCodeObj.keyList.map(function (a) {
             return a.id;
           });
           EnigmailDialog.keyImportDlg(window, importKeyList);
@@ -2582,7 +2587,7 @@ Enigmail.msg = {
       "enigmailMessengerOverlay.js: attachmentItemClick: event=" + event + "\n"
     );
 
-    let attachment = event.currentTarget.attachment;
+    const attachment = event.currentTarget.attachment;
     if (this.checkEncryptedAttach(attachment)) {
       if (event.button === 0 && event.detail == 2) {
         // double click
@@ -2595,14 +2600,14 @@ Enigmail.msg = {
   // decrypted and copy/move all selected messages in a target folder
 
   async decryptToFolder(destFolder, move) {
-    let msgHdrs = gDBView.getSelectedMsgHdrs();
+    const msgHdrs = gDBView.getSelectedMsgHdrs();
     if (!msgHdrs || msgHdrs.length === 0) {
       return;
     }
 
-    let total = msgHdrs.length;
+    const total = msgHdrs.length;
     let failures = 0;
-    for (let msgHdr of msgHdrs) {
+    for (const msgHdr of msgHdrs) {
       await EnigmailPersistentCrypto.cryptMessage(
         msgHdr,
         destFolder.URI,
@@ -2614,7 +2619,7 @@ Enigmail.msg = {
     }
 
     if (failures) {
-      let info = await document.l10n.formatValue(
+      const info = await document.l10n.formatValue(
         "decrypt-and-copy-failures-multiple",
         {
           failures,
@@ -2652,8 +2657,8 @@ Enigmail.msg = {
       );
     }
 
-    for (let c of this.changedAttributes) {
-      let elem = document.getElementById(c.id);
+    for (const c of this.changedAttributes) {
+      const elem = document.getElementById(c.id);
       if (elem) {
         elem.setAttribute(c.attrib, c.value);
       }
@@ -2695,8 +2700,8 @@ Enigmail.msg = {
       return;
     }
 
-    let errorMsgObj = {};
-    let preview = await EnigmailKey.getKeyListFromKeyBlock(
+    const errorMsgObj = {};
+    const preview = await EnigmailKey.getKeyListFromKeyBlock(
       keyData,
       errorMsgObj,
       true,
@@ -2713,8 +2718,8 @@ Enigmail.msg = {
 
     this.fetchParticipants();
 
-    for (let newKey of preview) {
-      let oldKey = EnigmailKeyRing.getKeyById(newKey.fpr);
+    for (const newKey of preview) {
+      const oldKey = EnigmailKeyRing.getKeyById(newKey.fpr);
       if (!oldKey) {
         // If the key is unknown, an expired key cannot help us
         // for anything new, so don't use it.
@@ -2725,10 +2730,10 @@ Enigmail.msg = {
         // Potentially merge the revocation into CollectedKeysDB, it if
         // already has that key.
         if (newKey.keyTrust == "r") {
-          let db = await CollectedKeysDB.getInstance();
-          let existing = await db.findKeyForFingerprint(newKey.fpr);
+          const db = await CollectedKeysDB.getInstance();
+          const existing = await db.findKeyForFingerprint(newKey.fpr);
           if (existing) {
-            let key = await db.mergeExisting(newKey, newKey.pubKey, {
+            const key = await db.mergeExisting(newKey, newKey.pubKey, {
               uri: `mid:${gMessage.messageId}`,
               type: isBinaryAutocrypt ? "autocrypt" : "attachment",
               description,
@@ -2746,7 +2751,7 @@ Enigmail.msg = {
         // sent to us by someone else?
 
         let keyInOurName = false;
-        for (let userId of newKey.userIds) {
+        for (const userId of newKey.userIds) {
           if (userId.type !== "uid") {
             continue;
           }
@@ -2777,8 +2782,8 @@ Enigmail.msg = {
           // If it's a non expired, non revoked new key, in the email
           // author's name (email address match), then offer it for
           // manual (immediate) import.
-          let nextIndex = Enigmail.msg.attachedKeys.length;
-          let info = {
+          const nextIndex = Enigmail.msg.attachedKeys.length;
+          const info = {
             fpr: "0x" + newKey.fpr,
             idx: nextIndex,
             keyInfo: newKey,
@@ -2797,7 +2802,7 @@ Enigmail.msg = {
 
         if (!relatedParticipantEmailAddress) {
           // Not related to the author
-          for (let toOrCc of this.toAndCCSet) {
+          for (const toOrCc of this.toAndCCSet) {
             if (this.hasUserIdForEmail(newKey.userIds, toOrCc)) {
               // Might be ok to import, so remember to which email
               // the key is related and leave the loop.
@@ -2822,7 +2827,7 @@ Enigmail.msg = {
               skip: true,
             });
           } else {
-            let candidate = {};
+            const candidate = {};
             candidate.skip = false;
             candidate.newKeyObj = newKey;
             candidate.pubKey = newKey.pubKey;
@@ -2904,7 +2909,7 @@ Enigmail.msg = {
     document.getElementById("openpgpKeyBox").removeAttribute("hidden");
 
     // Check if the proposed key to import was previously accepted.
-    let hasAreadyAcceptedOther =
+    const hasAreadyAcceptedOther =
       await PgpSqliteDb2.hasAnyPositivelyAcceptedKeyForEmail(
         Enigmail.msg.authorEmail
       );
@@ -2959,13 +2964,13 @@ Enigmail.msg = {
       Enigmail.msg.savedHeaders.autocrypt.length > 0 &&
       "from" in currentHeaderData
     ) {
-      let fromAddr = EnigmailFuncs.stripEmail(
+      const fromAddr = EnigmailFuncs.stripEmail(
         currentHeaderData.from.headerValue
       ).toLowerCase();
       // There might be multiple headers, we only want the one
       // matching the sender's address.
-      for (let ac of Enigmail.msg.savedHeaders.autocrypt) {
-        let acAddr = MimeParser.getParameter(ac, "addr");
+      for (const ac of Enigmail.msg.savedHeaders.autocrypt) {
+        const acAddr = MimeParser.getParameter(ac, "addr");
         if (fromAddr == acAddr) {
           let senderAutocryptKey;
           try {
@@ -2987,19 +2992,19 @@ Enigmail.msg = {
       }
     }
 
-    for (let gossipKey of EnigmailSingletons.lastDecryptedMessage.gossip) {
+    for (const gossipKey of EnigmailSingletons.lastDecryptedMessage.gossip) {
       await this.commonProcessAttachedKey(gossipKey, true);
     }
 
     if (this.keyCollectCandidates && this.keyCollectCandidates.size) {
-      let db = await CollectedKeysDB.getInstance();
+      const db = await CollectedKeysDB.getInstance();
 
-      for (let candidate of this.keyCollectCandidates.values()) {
+      for (const candidate of this.keyCollectCandidates.values()) {
         if (candidate.skip) {
           continue;
         }
         // If key is known in the db: merge + update.
-        let key = await db.mergeExisting(
+        const key = await db.mergeExisting(
           candidate.newKeyObj,
           candidate.pubKey,
           candidate.source
@@ -3017,7 +3022,7 @@ Enigmail.msg = {
         Enigmail.msg.getCurrentMsgUriSpec()
       )
     ) {
-      let buttons = [
+      const buttons = [
         {
           "l10n-id": "openpgp-show-encrypted-parts",
           popup: null,
@@ -3089,7 +3094,7 @@ Enigmail.msg = {
     addresses = MailServices.headerParser.parseEncodedHeader(
       gMessage.recipients + "," + gMessage.ccList
     );
-    for (let addr of addresses) {
+    for (const addr of addresses) {
       this.toAndCCSet.add(addr.email.toLowerCase());
     }
   },
@@ -3097,7 +3102,7 @@ Enigmail.msg = {
   hasUserIdForEmail(userIds, authorEmail) {
     authorEmail = authorEmail.toLowerCase();
 
-    for (let id of userIds) {
+    for (const id of userIds) {
       if (id.type !== "uid") {
         continue;
       }
@@ -3127,21 +3132,23 @@ Enigmail.msg = {
 
     Enigmail.msg.autoProcessPgpKeyAttachmentCount++;
 
-    let bufferListener = EnigmailStreams.newStringStreamListener(async data => {
-      // Make sure to let the message load before doing potentially *very*
-      // time consuming auto processing (seconds!?).
-      await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
-      await this.commonProcessAttachedKey(data, false, attachment.name);
-      Enigmail.msg.autoProcessPgpKeyAttachmentProcessed++;
-      if (
-        Enigmail.msg.autoProcessPgpKeyAttachmentProcessed ==
-        Enigmail.msg.autoProcessPgpKeyAttachmentCount
-      ) {
-        await Enigmail.msg.processAfterAttachmentsAndDecrypt();
+    const bufferListener = EnigmailStreams.newStringStreamListener(
+      async data => {
+        // Make sure to let the message load before doing potentially *very*
+        // time consuming auto processing (seconds!?).
+        await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
+        await this.commonProcessAttachedKey(data, false, attachment.name);
+        Enigmail.msg.autoProcessPgpKeyAttachmentProcessed++;
+        if (
+          Enigmail.msg.autoProcessPgpKeyAttachmentProcessed ==
+          Enigmail.msg.autoProcessPgpKeyAttachmentCount
+        ) {
+          await Enigmail.msg.processAfterAttachmentsAndDecrypt();
+        }
       }
-    });
-    let msgUri = Services.io.newURI(attachment.url);
-    let channel = EnigmailStreams.createChannel(msgUri);
+    );
+    const msgUri = Services.io.newURI(attachment.url);
+    const channel = EnigmailStreams.createChannel(msgUri);
     channel.asyncOpen(bufferListener, msgUri);
   },
 
@@ -3231,9 +3238,9 @@ Enigmail.msg = {
         );
     }
 
-    let signatureLabel = document.getElementById("signatureLabel");
+    const signatureLabel = document.getElementById("signatureLabel");
     if (wantToShowDate && Enigmail.hdrView.msgSignatureDate) {
-      let date = new Services.intl.DateTimeFormat(undefined, {
+      const date = new Services.intl.DateTimeFormat(undefined, {
         dateStyle: "short",
         timeStyle: "short",
       }).format(Enigmail.hdrView.msgSignatureDate);
@@ -3248,7 +3255,9 @@ Enigmail.msg = {
     signatureLabel.classList.remove(signatureLabel.classList.item(1));
     signatureLabel.classList.add(sigClass);
 
-    let signatureExplanation = document.getElementById("signatureExplanation");
+    const signatureExplanation = document.getElementById(
+      "signatureExplanation"
+    );
     // eslint-disable-next-line mozilla/prefer-formatValues
     signatureExplanation.textContent = await document.l10n.formatValue(sigInfo);
 
@@ -3290,7 +3299,7 @@ Enigmail.msg = {
 
     document.getElementById("techLabel").textContent = "- OpenPGP";
 
-    let encryptionLabel = document.getElementById("encryptionLabel");
+    const encryptionLabel = document.getElementById("encryptionLabel");
     // eslint-disable-next-line mozilla/prefer-formatValues
     encryptionLabel.textContent = await document.l10n.formatValue(encInfoLabel);
 
@@ -3303,7 +3312,7 @@ Enigmail.msg = {
       await document.l10n.formatValue(encInfo);
 
     if (Enigmail.hdrView.msgSignatureKeyId) {
-      let sigKeyInfo = EnigmailKeyRing.getKeyById(
+      const sigKeyInfo = EnigmailKeyRing.getKeyById(
         Enigmail.hdrView.msgSignatureKeyId
       );
 
@@ -3345,7 +3354,7 @@ Enigmail.msg = {
       myIdToSkipInList = Enigmail.hdrView.msgEncryptionKeyId.keyId;
 
       // If we were given a separate primaryKeyId, it means keyId is a subkey.
-      let havePrimaryId = !!Enigmail.hdrView.msgEncryptionKeyId.primaryKeyId;
+      const havePrimaryId = !!Enigmail.hdrView.msgEncryptionKeyId.primaryKeyId;
       document.getElementById("encryptionKey").collapsed = false;
 
       if (havePrimaryId) {
@@ -3375,7 +3384,7 @@ Enigmail.msg = {
       }
     }
 
-    let otherLabel = document.getElementById("otherLabel");
+    const otherLabel = document.getElementById("otherLabel");
     if (myIdToSkipInList) {
       document.l10n.setAttributes(otherLabel, "openpgp-other-enc-all-key-ids");
     } else {
@@ -3389,28 +3398,28 @@ Enigmail.msg = {
       return;
     }
 
-    let keyList = document.getElementById("otherEncryptionKeysList");
+    const keyList = document.getElementById("otherEncryptionKeysList");
     // Remove all the previously populated keys.
     while (keyList.lastChild) {
       keyList.removeChild(keyList.lastChild);
     }
 
     let showExtraKeysList = false;
-    for (let key of Enigmail.hdrView.msgEncryptionAllKeyIds) {
+    for (const key of Enigmail.hdrView.msgEncryptionAllKeyIds) {
       if (key.keyId == myIdToSkipInList) {
         continue;
       }
 
-      let container = document.createXULElement("vbox");
+      const container = document.createXULElement("vbox");
       container.classList.add("other-key-row");
 
-      let havePrimaryId2 = !!key.primaryKeyId;
-      let keyInfo = EnigmailKeyRing.getKeyById(
+      const havePrimaryId2 = !!key.primaryKeyId;
+      const keyInfo = EnigmailKeyRing.getKeyById(
         havePrimaryId2 ? key.primaryKeyId : key.keyId
       );
 
       // Use textContent for label XUl elements to enable text wrapping.
-      let name = document.createXULElement("label");
+      const name = document.createXULElement("label");
       name.classList.add("openpgp-key-name");
       name.setAttribute("context", "simpleCopyPopup");
       if (keyInfo) {
@@ -3419,7 +3428,7 @@ Enigmail.msg = {
         document.l10n.setAttributes(name, "openpgp-other-enc-all-key-ids");
       }
 
-      let id = document.createXULElement("label");
+      const id = document.createXULElement("label");
       id.setAttribute("context", "simpleCopyPopup");
       id.classList.add("openpgp-key-id");
       id.textContent = havePrimaryId2

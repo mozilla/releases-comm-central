@@ -61,9 +61,9 @@ var BondOpenPGP = {
     lazy.EnigmailKeyRing.init();
     lazy.EnigmailVerify.init();
 
-    let initDone = await lazy.RNP.init({});
+    const initDone = await lazy.RNP.init({});
     if (!initDone) {
-      let { error } = this.getRNPLibStatus();
+      const { error } = this.getRNPLibStatus();
       throw new Error(error);
     }
 

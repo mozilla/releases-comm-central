@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let account = createAccount();
-let defaultIdentity = addIdentity(account);
-let nonDefaultIdentity = addIdentity(account);
-let gRootFolder = account.incomingServer.rootFolder;
+const account = createAccount();
+const defaultIdentity = addIdentity(account);
+const nonDefaultIdentity = addIdentity(account);
+const gRootFolder = account.incomingServer.rootFolder;
 
 gRootFolder.createSubfolder("test", null);
-let gTestFolder = gRootFolder.getChildNamed("test");
+const gTestFolder = gRootFolder.getChildNamed("test");
 createMessages(gTestFolder, 4);
 
 add_task(async function testHeaders() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkWindow(expected) {
-        let state = await browser.compose.getComposeDetails(createdTab.id);
-        for (let field of [
+        const state = await browser.compose.getComposeDetails(createdTab.id);
+        for (const field of [
           "to",
           "cc",
           "bcc",
@@ -56,13 +56,13 @@ add_task(async function testHeaders() {
         await window.sendMessage("checkWindow", expected);
       }
 
-      let [account] = await browser.accounts.list();
-      let [defaultIdentity, nonDefaultIdentity] = account.identities;
+      const [account] = await browser.accounts.list();
+      const [defaultIdentity, nonDefaultIdentity] = account.identities;
 
-      let addressBook = await browser.addressBooks.create({
+      const addressBook = await browser.addressBooks.create({
         name: "Baker Street",
       });
-      let contacts = {
+      const contacts = {
         sherlock: await browser.contacts.create(addressBook, {
           DisplayName: "Sherlock Holmes",
           PrimaryEmail: "sherlock@bakerstreet.invalid",
@@ -76,7 +76,7 @@ add_task(async function testHeaders() {
           PrimaryEmail: "",
         }),
       };
-      let list = await browser.mailingLists.create(addressBook, {
+      const list = await browser.mailingLists.create(addressBook, {
         name: "Holmes and Watson",
         description: "Tenants221B",
       });
@@ -90,16 +90,16 @@ add_task(async function testHeaders() {
 
       // Start a new message.
 
-      let createdWindowPromise = window.waitForEvent("windows.onCreated");
+      const createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew();
-      let [createdWindow] = await createdWindowPromise;
-      let [createdTab] = await browser.tabs.query({
+      const [createdWindow] = await createdWindowPromise;
+      const [createdTab] = await browser.tabs.query({
         windowId: createdWindow.id,
       });
 
       await checkWindow({ identityId: defaultIdentity.id });
 
-      let tests = [
+      const tests = [
         {
           // Change the identity and check default from.
           input: { identityId: nonDefaultIdentity.id },
@@ -351,7 +351,7 @@ add_task(async function testHeaders() {
           },
         },
       ];
-      for (let test of tests) {
+      for (const test of tests) {
         browser.test.log(`Checking input: ${JSON.stringify(test.input)}`);
 
         if (test.expected.errorRejected) {
@@ -394,7 +394,7 @@ add_task(async function testHeaders() {
 
       // Clean up.
 
-      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      const removedWindowPromise = window.waitForEvent("windows.onRemoved");
       browser.windows.remove(createdWindow.id);
       await removedWindowPromise;
 
@@ -403,7 +403,7 @@ add_task(async function testHeaders() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -417,12 +417,12 @@ add_task(async function testHeaders() {
   });
 
   extension.onMessage("changeIdentity", newIdentity => {
-    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
-    let composeDocument = composeWindows[0].document;
+    const composeDocument = composeWindows[0].document;
 
-    let identityList = composeDocument.getElementById("msgIdentity");
-    let identityItem = identityList.querySelector(
+    const identityList = composeDocument.getElementById("msgIdentity");
+    const identityItem = identityList.querySelector(
       `[identitykey="${newIdentity}"]`
     );
     ok(identityItem);
@@ -437,7 +437,7 @@ add_task(async function testHeaders() {
 });
 
 add_task(async function test_onIdentityChanged_MV3_event_pages() {
-  let files = {
+  const files = {
     "background.js": async () => {
       // Whenever the extension starts or wakes up, the eventCounter is reset and
       // allows to observe the order of events fired. In case of a wake-up, the
@@ -462,7 +462,7 @@ add_task(async function test_onIdentityChanged_MV3_event_pages() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       manifest_version: 3,
@@ -473,10 +473,10 @@ add_task(async function test_onIdentityChanged_MV3_event_pages() {
   });
 
   function changeIdentity(newIdentity) {
-    let composeDocument = composeWindow.document;
+    const composeDocument = composeWindow.document;
 
-    let identityList = composeDocument.getElementById("msgIdentity");
-    let identityItem = identityList.querySelector(
+    const identityList = composeDocument.getElementById("msgIdentity");
+    const identityItem = identityList.querySelector(
       `[identitykey="${newIdentity}"]`
     );
     ok(identityItem);
@@ -496,15 +496,15 @@ add_task(async function test_onIdentityChanged_MV3_event_pages() {
       "compose.onComposeStateChanged",
     ];
 
-    for (let event of persistent_events) {
-      let [moduleName, eventName] = event.split(".");
+    for (const event of persistent_events) {
+      const [moduleName, eventName] = event.split(".");
       assertPersistentListeners(extension, moduleName, eventName, {
         primed,
       });
     }
   }
 
-  let composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(account);
   await focusWindow(composeWindow);
 
   await extension.startup();
@@ -516,7 +516,7 @@ add_task(async function test_onIdentityChanged_MV3_event_pages() {
 
   changeIdentity(nonDefaultIdentity.key);
   {
-    let rv = await extension.awaitMessage("identity changed");
+    const rv = await extension.awaitMessage("identity changed");
     Assert.deepEqual(
       {
         eventCount: 1,
@@ -529,7 +529,7 @@ add_task(async function test_onIdentityChanged_MV3_event_pages() {
 
   setToAddr("user@invalid.net");
   {
-    let rv = await extension.awaitMessage("compose state changed");
+    const rv = await extension.awaitMessage("compose state changed");
     Assert.deepEqual(
       {
         eventCount: 2,
@@ -551,7 +551,7 @@ add_task(async function test_onIdentityChanged_MV3_event_pages() {
 
   changeIdentity(defaultIdentity.key);
   {
-    let rv = await extension.awaitMessage("identity changed");
+    const rv = await extension.awaitMessage("identity changed");
     Assert.deepEqual(
       {
         eventCount: 1,
@@ -575,7 +575,7 @@ add_task(async function test_onIdentityChanged_MV3_event_pages() {
 
   setToAddr("invalid");
   {
-    let rv = await extension.awaitMessage("compose state changed");
+    const rv = await extension.awaitMessage("compose state changed");
     Assert.deepEqual(
       {
         eventCount: 1,
@@ -599,17 +599,17 @@ add_task(async function test_onIdentityChanged_MV3_event_pages() {
 });
 
 add_task(async function testCustomHeaders() {
-  let files = {
+  const files = {
     "background.js": async () => {
       async function checkCustomHeaders(tab, expectedCustomHeaders) {
-        let [testHeader] = await window.sendMessage("getTestHeader");
+        const [testHeader] = await window.sendMessage("getTestHeader");
         browser.test.assertEq(
           "CannotTouchThis",
           testHeader,
           "Should include the test header."
         );
 
-        let details = await browser.compose.getComposeDetails(tab.id);
+        const details = await browser.compose.getComposeDetails(tab.id);
 
         browser.test.assertEq(
           expectedCustomHeaders.length,
@@ -632,7 +632,7 @@ add_task(async function testCustomHeaders() {
 
       // Start a new message with custom headers.
       let customHeaders = [{ name: "X-TEST1", value: "some header" }];
-      let tab = await browser.compose.beginNew(null, { customHeaders });
+      const tab = await browser.compose.beginNew(null, { customHeaders });
 
       // Add a header which does not start with X- and should not be touched by
       // the API.
@@ -690,7 +690,7 @@ add_task(async function testCustomHeaders() {
       );
 
       // Clean up.
-      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      const removedWindowPromise = window.waitForEvent("windows.onRemoved");
       browser.windows.remove(tab.windowId);
       await removedWindowPromise;
 
@@ -698,7 +698,7 @@ add_task(async function testCustomHeaders() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -707,7 +707,7 @@ add_task(async function testCustomHeaders() {
   });
 
   extension.onMessage("addTestHeader", () => {
-    let composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+    const composeWindow = Services.wm.getMostRecentWindow("msgcompose");
     composeWindow.gMsgCompose.compFields.setHeader(
       "ATestHeader",
       "CannotTouchThis"
@@ -716,8 +716,8 @@ add_task(async function testCustomHeaders() {
   });
 
   extension.onMessage("getTestHeader", () => {
-    let composeWindow = Services.wm.getMostRecentWindow("msgcompose");
-    let value = composeWindow.gMsgCompose.compFields.getHeader("ATestHeader");
+    const composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+    const value = composeWindow.gMsgCompose.compFields.getHeader("ATestHeader");
     extension.sendMessage(value);
   });
 

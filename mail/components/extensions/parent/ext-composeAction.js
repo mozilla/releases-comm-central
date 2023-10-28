@@ -42,28 +42,28 @@ this.composeAction = class extends ToolbarButtonAPI {
     this.windowURLs = [
       "chrome://messenger/content/messengercompose/messengercompose.xhtml",
     ];
-    let isFormatToolbar =
+    const isFormatToolbar =
       extension.manifest.compose_action.default_area == "formattoolbar";
     this.toolboxId = isFormatToolbar ? "FormatToolbox" : "compose-toolbox";
     this.toolbarId = isFormatToolbar ? "FormatToolbar" : "composeToolbar2";
   }
 
   static onUninstall(extensionId) {
-    let widgetId = makeWidgetId(extensionId);
-    let id = `${widgetId}-composeAction-toolbarbutton`;
-    let windowURL =
+    const widgetId = makeWidgetId(extensionId);
+    const id = `${widgetId}-composeAction-toolbarbutton`;
+    const windowURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
 
     // Check all possible toolbars and remove the toolbarbutton if found.
     // Sadly we have to hardcode these values here, as the add-on is already
     // shutdown when onUninstall is called.
-    let toolbars = ["composeToolbar2", "FormatToolbar"];
-    for (let toolbar of toolbars) {
-      for (let setName of ["currentset", "extensionset"]) {
-        let set = Services.xulStore
+    const toolbars = ["composeToolbar2", "FormatToolbar"];
+    for (const toolbar of toolbars) {
+      for (const setName of ["currentset", "extensionset"]) {
+        const set = Services.xulStore
           .getValue(windowURL, toolbar, setName)
           .split(",");
-        let newSet = set.filter(e => e != id);
+        const newSet = set.filter(e => e != id);
         if (newSet.length < set.length) {
           Services.xulStore.setValue(
             windowURL,
@@ -78,7 +78,7 @@ this.composeAction = class extends ToolbarButtonAPI {
 
   handleEvent(event) {
     super.handleEvent(event);
-    let window = event.target.ownerGlobal;
+    const window = event.target.ownerGlobal;
 
     switch (event.type) {
       case "popupshowing":
@@ -122,7 +122,7 @@ this.composeAction = class extends ToolbarButtonAPI {
   }
 
   makeButton(window) {
-    let button = super.makeButton(window);
+    const button = super.makeButton(window);
     if (this.toolbarId == "FormatToolbar") {
       button.classList.add("formatting-button");
       // The format toolbar has no associated context menu. Add one directly to

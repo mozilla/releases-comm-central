@@ -20,10 +20,13 @@ var { be_in_folder, select_click_row, get_special_folder } = ChromeUtils.import(
  * Test custom headers are set and encoded correctly.
  */
 add_task(async function test_customHeaders() {
-  let draftsFolder = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+  const draftsFolder = await get_special_folder(
+    Ci.nsMsgFolderFlags.Drafts,
+    true
+  );
 
   // Set other.header so that they will be rendered in compose window.
-  let otherHeaders = Services.prefs.getCharPref("mail.compose.other.header");
+  const otherHeaders = Services.prefs.getCharPref("mail.compose.other.header");
   Services.prefs.setCharPref(
     "mail.compose.other.header",
     "X-Header1, X-Header2, Approved ,Supersedes"
@@ -31,7 +34,7 @@ add_task(async function test_customHeaders() {
 
   // Set values to custom headers.
   let cwc = await open_compose_new_mail();
-  let inputs = cwc.document.querySelectorAll(".address-row-raw input");
+  const inputs = cwc.document.querySelectorAll(".address-row-raw input");
   inputs[0].value = "Test äöü";
   inputs[1].value = "Test 😃";
   inputs[2].value = "moderator@tinderbox.com";
@@ -45,8 +48,8 @@ add_task(async function test_customHeaders() {
   );
 
   await be_in_folder(draftsFolder);
-  let draftMsg = await select_click_row(0);
-  let draftMsgLines = (await get_msg_source(draftMsg)).split("\n");
+  const draftMsg = await select_click_row(0);
+  const draftMsgLines = (await get_msg_source(draftMsg)).split("\n");
 
   // Check header values are set and encoded correctly.
   Assert.ok(
@@ -75,7 +78,7 @@ add_task(async function test_customHeaders() {
   );
 
   cwc = await open_compose_from_draft();
-  let inputs2 = cwc.document.querySelectorAll(".address-row-raw input");
+  const inputs2 = cwc.document.querySelectorAll(".address-row-raw input");
 
   Assert.equal(inputs2[0].value, "Test äöü");
   Assert.equal(inputs2[1].value, "Test 😃");

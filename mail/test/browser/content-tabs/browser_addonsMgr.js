@@ -15,9 +15,10 @@ add_task(async function test_open_addons_with_url() {
   window.openAddonsMgr("addons://list/theme");
   await new Promise(resolve => setTimeout(resolve));
 
-  let tab = document.getElementById("tabmail").currentTabInfo;
+  const tab = document.getElementById("tabmail").currentTabInfo;
   await promise_content_tab_load(tab, "about:addons", 10000);
-  let categoriesBox = tab.browser.contentDocument.getElementById("categories");
+  const categoriesBox =
+    tab.browser.contentDocument.getElementById("categories");
   Assert.equal(
     categoriesBox.selectedChild.getAttribute("viewid"),
     "addons://list/theme",
@@ -50,7 +51,7 @@ add_task(async function test_addon_prefs() {
 
   // MozMill add-on should be somewhere in the list. When found, click it.
   let foundAddon = false;
-  for (let item of subview.children) {
+  for (const item of subview.children) {
     if (
       item.tagName == "toolbarbutton" &&
       item.getAttribute("collapsed") != "true" &&

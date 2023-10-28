@@ -57,7 +57,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
 
   await be_in_folder(folderVirtual);
   await select_click_row(0);
-  let urlListener = {
+  const urlListener = {
     compactDone: false,
 
     OnStartRunningUrl(aUrl) {},

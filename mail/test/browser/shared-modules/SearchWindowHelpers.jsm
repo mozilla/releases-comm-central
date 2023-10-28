@@ -40,7 +40,7 @@ var { TestUtils } = ChromeUtils.importESModule(
  * @returns {Window} The search window.
  */
 async function open_search_window() {
-  let searchPromise = promise_new_window("mailnews:search");
+  const searchPromise = promise_new_window("mailnews:search");
   EventUtils.synthesizeKey("f", { shiftKey: true, accelKey: true }, mc);
   return searchPromise;
 }
@@ -53,12 +53,12 @@ async function open_search_window() {
  * @returns {Window} The search window.
  */
 async function open_search_window_from_context_menu(aFolder) {
-  let win = get_about_3pane();
-  let context = win.document.getElementById("folderPaneContext");
-  let item = win.document.getElementById("folderPaneContext-searchMessages");
+  const win = get_about_3pane();
+  const context = win.document.getElementById("folderPaneContext");
+  const item = win.document.getElementById("folderPaneContext-searchMessages");
   await right_click_on_folder(aFolder);
 
-  let searchPromise = promise_new_window("mailnews:search");
+  const searchPromise = promise_new_window("mailnews:search");
   context.activateItem(item);
   return searchPromise;
 }
@@ -80,7 +80,7 @@ async function close_search_window(win) {
  * @param {nsIMsgFolder} aFolder - The expected folder.
  */
 function assert_search_window_folder_displayed(aWin, aFolder) {
-  let currentFolder = aWin.gCurrentFolder;
+  const currentFolder = aWin.gCurrentFolder;
   Assert.equal(
     currentFolder,
     aFolder,
@@ -99,14 +99,14 @@ function assert_search_window_folder_displayed(aWin, aFolder) {
  * @returns {nsIMsgDBHdr} The message header selected.
  */
 function select_click_search_row(aViewIndex, aWin) {
-  let tree = aWin.document.getElementById("threadTree");
+  const tree = aWin.document.getElementById("threadTree");
   tree.scrollToRow(aViewIndex);
-  let coords = tree.getCoordsForCellItem(
+  const coords = tree.getCoordsForCellItem(
     aViewIndex,
     tree.columns.subjectCol,
     "cell"
   );
-  let treeChildren = tree.lastElementChild;
+  const treeChildren = tree.lastElementChild;
   EventUtils.synthesizeMouse(
     treeChildren,
     coords.x + coords.width / 2,
@@ -128,14 +128,14 @@ function select_click_search_row(aViewIndex, aWin) {
  *   selected.
  */
 async function select_shift_click_search_row(aViewIndex, aWin) {
-  let tree = aWin.document.getElementById("threadTree");
+  const tree = aWin.document.getElementById("threadTree");
   tree.scrollToRow(aViewIndex);
-  let coords = tree.getCoordsForCellItem(
+  const coords = tree.getCoordsForCellItem(
     aViewIndex,
     tree.columns.subjectCol,
     "cell"
   );
-  let treeChildren = tree.lastElementChild;
+  const treeChildren = tree.lastElementChild;
   EventUtils.synthesizeMouse(
     treeChildren,
     coords.x + coords.width / 2,
@@ -166,22 +166,24 @@ function assert_messages_in_search_view(aSynSets, aWin) {
 
   // Iterate over all the message sets, retrieving the message header.  Use
   // this to construct a URI to populate a dictionary mapping.
-  let synMessageURIs = {}; // map URI to message header
-  for (let messageSet of aSynSets) {
-    for (let msgHdr of messageSet.msgHdrs()) {
+  const synMessageURIs = {}; // map URI to message header
+  for (const messageSet of aSynSets) {
+    for (const msgHdr of messageSet.msgHdrs()) {
       synMessageURIs[msgHdr.folder.getUriForMsg(msgHdr)] = msgHdr;
     }
   }
 
   // Iterate over the contents of the view, nulling out values in
   // synMessageURIs for found messages, and exploding for missing ones.
-  let dbView = aWin.gFolderDisplay.view.dbView;
-  let treeView = aWin.gFolderDisplay.view.dbView.QueryInterface(Ci.nsITreeView);
-  let rowCount = treeView.rowCount;
+  const dbView = aWin.gFolderDisplay.view.dbView;
+  const treeView = aWin.gFolderDisplay.view.dbView.QueryInterface(
+    Ci.nsITreeView
+  );
+  const rowCount = treeView.rowCount;
 
   for (let iViewIndex = 0; iViewIndex < rowCount; iViewIndex++) {
-    let msgHdr = dbView.getMsgHdrAt(iViewIndex);
-    let uri = msgHdr.folder.getUriForMsg(msgHdr);
+    const msgHdr = dbView.getMsgHdrAt(iViewIndex);
+    const uri = msgHdr.folder.getUriForMsg(msgHdr);
     Assert.ok(
       uri in synMessageURIs,
       "The view should show the message header" + msgHdr.messageKey
@@ -190,8 +192,8 @@ function assert_messages_in_search_view(aSynSets, aWin) {
   }
 
   // Iterate over our URI set and make sure every message was shown.
-  for (let uri in synMessageURIs) {
-    let msgHdr = synMessageURIs[uri];
+  for (const uri in synMessageURIs) {
+    const msgHdr = synMessageURIs[uri];
     Assert.ok(
       false,
       "The view is should include the message header" + msgHdr.messageKey

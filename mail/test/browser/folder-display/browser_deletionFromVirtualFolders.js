@@ -61,7 +61,7 @@ add_setup(async function () {
   // For setTagged, we want exactly as many messages as we plan to delete, so
   // that we can test that the message window and tabs close when they run out
   // of things to display.
-  let [, setTagged] = await make_message_sets_in_folders(
+  const [, setTagged] = await make_message_sets_in_folders(
     [baseFolder],
     [{ count: 4 }, { count: 4 }]
   );

@@ -25,7 +25,7 @@ registerCleanupFunction(async () => {
   // the cleanupFunction registered by AddonTestUtils.maybeInit() checks for left over
   // files in the temp folder.
   // Note: PathUtils.tempDir points to the system temp folder, which is different.
-  let path = PathUtils.join(
+  const path = PathUtils.join(
     Services.dirsvc.get("TmpD", Ci.nsIFile).path,
     "MozillaMailnews"
   );
@@ -36,13 +36,13 @@ registerCleanupFunction(async () => {
 // the main test is about to trigger an event. The extension terminates its
 // background and listens for that single event, verifying it is waking up correctly.
 async function event_page_extension(eventName, actionCallback) {
-  let ext = ExtensionTestUtils.loadExtension({
+  const ext = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
         // Whenever the extension starts or wakes up, hasFired is set to false. In
         // case of a wake-up, the first fired event is the one that woke up the background.
         let hasFired = false;
-        let _eventName = browser.runtime.getManifest().description;
+        const _eventName = browser.runtime.getManifest().description;
 
         browser.messages[_eventName].addListener(async (...args) => {
           // Only send the first event after background wake-up, this should
@@ -75,7 +75,7 @@ async function event_page_extension(eventName, actionCallback) {
   assertPersistentListeners(ext, "messages", eventName, { primed: true });
 
   await actionCallback();
-  let rv = await ext.awaitMessage(`${eventName} received`);
+  const rv = await ext.awaitMessage(`${eventName} received`);
   await ext.awaitMessage("background started");
   // The listener should be persistent, but not primed.
   assertPersistentListeners(ext, "messages", eventName, { primed: false });
@@ -91,29 +91,29 @@ add_task(
   async function test_update() {
     await AddonTestUtils.promiseStartupManager();
 
-    let account = createAccount();
-    let rootFolder = account.incomingServer.rootFolder;
-    let testFolder0 = await createSubfolder(rootFolder, "test0");
+    const account = createAccount();
+    const rootFolder = account.incomingServer.rootFolder;
+    const testFolder0 = await createSubfolder(rootFolder, "test0");
     await createMessages(testFolder0, 1);
     testFolder0.addKeywordsToMessages(
       [[...testFolder0.messages][0]],
       "testkeyword"
     );
 
-    let files = {
+    const files = {
       "background.js": async () => {
         async function capturePrimedEvent(eventName, callback) {
-          let eventPageExtensionReadyPromise = window.waitForMessage();
+          const eventPageExtensionReadyPromise = window.waitForMessage();
           browser.test.sendMessage("capturePrimedEvent", eventName);
           await eventPageExtensionReadyPromise;
-          let eventPageExtensionFinishedPromise = window.waitForMessage();
+          const eventPageExtensionFinishedPromise = window.waitForMessage();
           callback();
           return eventPageExtensionFinishedPromise;
         }
 
         function newUpdatePromise(numberOfEventsToCollapse = 1) {
           return new Promise(resolve => {
-            let seenEvents = {};
+            const seenEvents = {};
             const listener = (msg, props) => {
               if (!seenEvents.hasOwnProperty(msg.id)) {
                 seenEvents[msg.id] = {
@@ -123,7 +123,7 @@ add_task(
               }
 
               seenEvents[msg.id].counts++;
-              for (let prop of Object.keys(props)) {
+              for (const prop of Object.keys(props)) {
                 seenEvents[msg.id].props[prop] = props[prop];
               }
 
@@ -144,14 +144,14 @@ add_task(
             expected,
             "Folder type should be correct"
           );
-          let m = JSON.parse(JSON.stringify(message));
+          const m = JSON.parse(JSON.stringify(message));
           delete m.folder.type;
           return m;
         }
 
-        let tags = await browser.messages.listTags();
-        let [data] = await window.sendMessage("getFolder");
-        let messageList = await browser.messages.list(data.folder);
+        const tags = await browser.messages.listTags();
+        const [data] = await window.sendMessage("getFolder");
+        const messageList = await browser.messages.list(data.folder);
         browser.test.assertEq(1, messageList.messages.length);
         let message = messageList.messages[0];
         browser.test.assertFalse(message.flagged);
@@ -305,7 +305,7 @@ add_task(
       },
       "utils.js": await getUtilsJS(),
     };
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
@@ -316,13 +316,13 @@ add_task(
       },
     });
 
-    let message = [...testFolder0.messages][0];
+    const message = [...testFolder0.messages][0];
     ok(!message.isFlagged);
     ok(!message.isRead);
     equal(message.getStringProperty("keywords"), "testkeyword");
 
     extension.onMessage("capturePrimedEvent", async eventName => {
-      let primedEventData = await event_page_extension(eventName, () => {
+      const primedEventData = await event_page_extension(eventName, () => {
         // Resume execution in the main test, after the event page extension is
         // ready to capture the event with deactivated background.
         extension.sendMessage();

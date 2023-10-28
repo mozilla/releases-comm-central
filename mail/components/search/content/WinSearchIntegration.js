@@ -104,7 +104,7 @@ SearchIntegration = {
   get _regKeysPresent() {
     if (!this.__regKeysPresent) {
       for (let i = 0; i < gRegKeys.length; i++) {
-        let regKey = Cc["@mozilla.org/windows-registry-key;1"].createInstance(
+        const regKey = Cc["@mozilla.org/windows-registry-key;1"].createInstance(
           Ci.nsIWindowsRegKey
         );
         try {
@@ -116,7 +116,7 @@ SearchIntegration = {
         } catch (e) {
           return false;
         }
-        let valuePresent =
+        const valuePresent =
           regKey.hasValue(gRegKeys[i].name) &&
           regKey.readStringValue(gRegKeys[i].name) == gRegKeys[i].value;
         regKey.close();
@@ -169,7 +169,7 @@ SearchIntegration = {
       return;
     }
 
-    let enabled = this.prefEnabled;
+    const enabled = this.prefEnabled;
 
     if (enabled) {
       this._log.info("Initializing Windows Search integration");
@@ -201,7 +201,7 @@ SearchIntegration = {
       }
     }
     // Also set the FANCI bit to 0 for the profile directory
-    let profD = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    const profD = Services.dirsvc.get("ProfD", Ci.nsIFile);
     this._winSearchHelper.setFANCIBit(profD, false, true);
 
     return true;
@@ -233,7 +233,7 @@ SearchIntegration = {
 
     onStartRequest(request) {
       try {
-        let outputFileStream = Cc[
+        const outputFileStream = Cc[
           "@mozilla.org/network/file-output-stream;1"
         ].createInstance(Ci.nsIFileOutputStream);
         outputFileStream.init(this._outputFile, -1, -1, 0);
@@ -251,13 +251,13 @@ SearchIntegration = {
         // XXX Once the JS emitter gets checked in, this code should probably be
         // switched over to use that
         // Decode using getMsgTextFromStream
-        let stringStream = Cc[
+        const stringStream = Cc[
           "@mozilla.org/io/string-input-stream;1"
         ].createInstance(Ci.nsIStringInputStream);
         stringStream.setData(this._message, this._message.length);
-        let contentType = {};
-        let folder = this._msgHdr.folder;
-        let text = folder.getMsgTextFromStream(
+        const contentType = {};
+        const folder = this._msgHdr.folder;
+        const text = folder.getMsgTextFromStream(
           stringStream,
           this._msgHdr.charset,
           65536,
@@ -270,12 +270,12 @@ SearchIntegration = {
         // To get the Received header, we need to parse the message headers.
         // We only need the first header, which contains the latest received
         // date
-        let headers = this._message.split(/\r\n\r\n|\r\r|\n\n/, 1)[0];
-        let mimeHeaders = Cc[
+        const headers = this._message.split(/\r\n\r\n|\r\r|\n\n/, 1)[0];
+        const mimeHeaders = Cc[
           "@mozilla.org/messenger/mimeheaders;1"
         ].createInstance(Ci.nsIMimeHeaders);
         mimeHeaders.initialize(headers);
-        let receivedHeader = mimeHeaders.extractHeader("Received", false);
+        const receivedHeader = mimeHeaders.extractHeader("Received", false);
 
         this._outputStream.writeString("From: " + this._msgHdr.author + CRLF);
         // If we're a newsgroup, then add the name of the folder as the
@@ -321,13 +321,13 @@ SearchIntegration = {
 
     onDataAvailable(request, inputStream, offset, count) {
       try {
-        let inStream = Cc[
+        const inStream = Cc[
           "@mozilla.org/scriptableinputstream;1"
         ].createInstance(Ci.nsIScriptableInputStream);
         inStream.init(inputStream);
 
         // It is necessary to read in data from the input stream
-        let inData = inStream.read(count);
+        const inData = inStream.read(count);
 
         // Ignore stuff after the first 50K or so
         if (this._message && this._message.length > 50000) {

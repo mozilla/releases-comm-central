@@ -36,7 +36,7 @@ var gMapAddressToKeyObjs = null;
 function addRecipients(toAddrList, recList) {
   for (var i = 0; i < recList.length; i++) {
     try {
-      let entry = EnigmailFuncs.stripEmail(recList[i].replace(/[",]/g, ""));
+      const entry = EnigmailFuncs.stripEmail(recList[i].replace(/[",]/g, ""));
       toAddrList.push(entry);
     } catch (ex) {
       console.debug(ex);
@@ -53,11 +53,11 @@ async function setListEntries() {
     let statusStringID = null;
     let statusStringDirect = "";
 
-    let aliasKeyList = EnigmailKeyRing.getAliasKeyList(addr);
-    let isAlias = !!aliasKeyList;
+    const aliasKeyList = EnigmailKeyRing.getAliasKeyList(addr);
+    const isAlias = !!aliasKeyList;
 
     if (isAlias) {
-      let aliasKeys = EnigmailKeyRing.getAliasKeys(aliasKeyList);
+      const aliasKeys = EnigmailKeyRing.getAliasKeys(aliasKeyList);
       if (!aliasKeys.length) {
         // failure, at least one alias key is unusable/unavailable
         statusStringDirect = await document.l10n.formatValue(
@@ -78,7 +78,7 @@ async function setListEntries() {
       // query all keys again.
       // The consequence is, we need to later call isValidForEncryption
       // for the keys we have obtained, to confirm they are really valid.
-      let foundKeys = await EnigmailKeyRing.getMultValidKeysForOneRecipient(
+      const foundKeys = await EnigmailKeyRing.getMultValidKeysForOneRecipient(
         addr,
         true
       );
@@ -86,7 +86,7 @@ async function setListEntries() {
         statusStringID = "openpgp-recip-missing";
       } else {
         gMapAddressToKeyObjs.set(addr, foundKeys);
-        for (let keyObj of foundKeys) {
+        for (const keyObj of foundKeys) {
           let goodPersonal = false;
           if (keyObj.secretAvailable) {
             goodPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(
@@ -109,15 +109,15 @@ async function setListEntries() {
       }
     }
 
-    let listitem = document.createXULElement("richlistitem");
+    const listitem = document.createXULElement("richlistitem");
 
-    let emailItem = document.createXULElement("label");
+    const emailItem = document.createXULElement("label");
     emailItem.setAttribute("value", addr);
     emailItem.setAttribute("crop", "end");
     emailItem.setAttribute("style", "width: var(--recipientWidth)");
     listitem.appendChild(emailItem);
 
-    let status = document.createXULElement("label");
+    const status = document.createXULElement("label");
 
     if (statusStringID) {
       document.l10n.setAttributes(status, statusStringID);
@@ -137,7 +137,7 @@ async function setListEntries() {
 }
 
 async function onLoad() {
-  let params = window.arguments[0];
+  const params = window.arguments[0];
   if (!params) {
     return;
   }
@@ -184,7 +184,7 @@ async function onLoad() {
 
 async function reloadAndReselect(selIndex = -1) {
   while (true) {
-    let child = gListBox.lastChild;
+    const child = gListBox.lastChild;
     // keep first child, which is the header
     if (child == gListBox.firstChild) {
       break;
@@ -204,11 +204,11 @@ function onSelectionChange(event) {
 }
 
 function viewSelectedEmail() {
-  let selIndex = gListBox.selectedIndex;
+  const selIndex = gListBox.selectedIndex;
   if (gViewButton.disabled || selIndex == -1) {
     return;
   }
-  let email = gRowToEmail[selIndex];
+  const email = gRowToEmail[selIndex];
   window.openDialog(
     "chrome://openpgp/content/ui/oneRecipientStatus.xhtml",
     "",

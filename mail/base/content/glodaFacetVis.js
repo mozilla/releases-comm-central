@@ -23,7 +23,7 @@ function DateFacetVis(aBinding, aCanvasNode) {
 }
 DateFacetVis.prototype = {
   build() {
-    let resultsBarRect = document
+    const resultsBarRect = document
       .getElementById("results")
       .getBoundingClientRect();
     this.allowedSpace = resultsBarRect.right - resultsBarRect.left;
@@ -62,9 +62,9 @@ DateFacetVis.prototype = {
    * @returns An object with attributes:
    */
   makeIdealScaleGivenSpace(aPixels) {
-    let facet = this.faceter;
+    const facet = this.faceter;
     // build a scale and have it grow the edges based on the span
-    let scale = pv.Scales.dateTime(facet.oldest, facet.newest);
+    const scale = pv.Scales.dateTime(facet.oldest, facet.newest);
 
     const Span = pv.Scales.DateTimeScale.Span;
     const MS_MIN = 60 * 1000,
@@ -104,7 +104,7 @@ DateFacetVis.prototype = {
 
     // day is our smallest unit
     const ALLOWED_SPANS = [Span.DAYS, Span.WEEKS, Span.MONTHS, Span.YEARS];
-    for (let trySpan of ALLOWED_SPANS) {
+    for (const trySpan of ALLOWED_SPANS) {
       if (enoughPix(trySpan)) {
         // do the equivalent of nice() for our chosen span
         scale.min(scale.round(scale.min(), trySpan, false));
@@ -118,9 +118,9 @@ DateFacetVis.prototype = {
 
     // - Figure out our labeling strategy
     // normalize the symbols into an explicit ordering
-    let spandex = ALLOWED_SPANS.indexOf(span);
+    const spandex = ALLOWED_SPANS.indexOf(span);
     // from least-specific to most-specific
-    let labelTiers = [];
+    const labelTiers = [];
     // add year spans in all cases, although whether we draw bars depends on if
     //  we are in year mode or not
     labelTiers.push({
@@ -141,7 +141,7 @@ DateFacetVis.prototype = {
     }
     // add week spans if our granularity is days...
     if (span == Span.DAYS) {
-      let numDays = delta / MS_DAY;
+      const numDays = delta / MS_DAY;
 
       // find out how many days we are talking about and add days if it's small
       //  enough, display both the date and the day of the week
@@ -179,42 +179,42 @@ DateFacetVis.prototype = {
 
     barPixBudget = Math.floor(barPixBudget);
 
-    let minBarPix = this._MIN_BAR_SIZE_PX + this._BAR_SPACING_PX;
-    let maxBarPix = this._MAX_BAR_SIZE_PX + this._BAR_SPACING_PX;
+    const minBarPix = this._MIN_BAR_SIZE_PX + this._BAR_SPACING_PX;
+    const maxBarPix = this._MAX_BAR_SIZE_PX + this._BAR_SPACING_PX;
 
     let barPix = Math.max(minBarPix, Math.min(maxBarPix, barPixBudget));
     let width = barPix * (rules.length - 1);
 
     let totalAxisLabelHeight = 0;
-    let isRTL = window.getComputedStyle(this.binding).direction == "rtl";
+    const isRTL = window.getComputedStyle(this.binding).direction == "rtl";
 
     // we need to do some font-metric calculations, so create a canvas...
-    let fontMetricCanvas = document.createElement("canvas");
-    let ctx = fontMetricCanvas.getContext("2d");
+    const fontMetricCanvas = document.createElement("canvas");
+    const ctx = fontMetricCanvas.getContext("2d");
 
     // do the labeling logic,
-    for (let labelTier of labelTiers) {
-      let labelRules = labelTier.rules;
+    for (const labelTier of labelTiers) {
+      const labelRules = labelTier.rules;
       let perLabelBudget = width / (labelRules.length - 1);
-      for (let labelFormat of labelTier.label) {
+      for (const labelFormat of labelTier.label) {
         let maxWidth = 0;
-        let displayValues = [];
+        const displayValues = [];
         for (let iRule = 0; iRule < labelRules.length - 1; iRule++) {
           // is this at the either edge of the display?  in that case, it might
           //  be partial...
-          let fringe =
+          const fringe =
             labelRules.length > 2 &&
             (iRule == 0 || iRule == labelRules.length - 2);
-          let labelStartDate = labelRules[iRule];
-          let labelEndDate = labelRules[iRule + 1];
+          const labelStartDate = labelRules[iRule];
+          const labelEndDate = labelRules[iRule + 1];
           let labelText = labelFormat
             ? labelStartDate.toLocaleDateString(undefined, labelFormat)
             : null;
-          let labelStartNorm = Math.max(0, scale.normalize(labelStartDate));
-          let labelEndNorm = Math.min(1, scale.normalize(labelEndDate));
-          let labelBudget = (labelEndNorm - labelStartNorm) * width;
+          const labelStartNorm = Math.max(0, scale.normalize(labelStartDate));
+          const labelEndNorm = Math.min(1, scale.normalize(labelEndDate));
+          const labelBudget = (labelEndNorm - labelStartNorm) * width;
           if (labelText) {
-            let labelWidth = ctx.measureText(labelText).width;
+            const labelWidth = ctx.measureText(labelText).width;
             // discard labels at the fringe who don't fit in our budget
             if (fringe && !labelTier.noFringe && labelWidth > labelBudget) {
               labelText = null;
@@ -256,21 +256,21 @@ DateFacetVis.prototype = {
       }
     }
 
-    let barWidth = barPix - this._BAR_SPACING_PX;
+    const barWidth = barPix - this._BAR_SPACING_PX;
 
     width = barPix * (rules.length - 1);
     // we ideally want this to be the same size as the max rows translates to...
-    let height = 100;
-    let ch = height - totalAxisLabelHeight;
+    const height = 100;
+    const ch = height - totalAxisLabelHeight;
 
-    let [bins, maxBinSize] = this.binBySpan(scale, span, rules);
+    const [bins, maxBinSize] = this.binBySpan(scale, span, rules);
 
     // build empty bins for our hot bins
     this.emptyBins = bins.map(bin => 0);
 
-    let binScale = maxBinSize ? ch / maxBinSize : 1;
+    const binScale = maxBinSize ? ch / maxBinSize : 1;
 
-    let vis = (this.vis = new pv.Panel()
+    const vis = (this.vis = new pv.Panel()
       .canvas(this.canvasNode)
       // dimensions
       .width(width)
@@ -278,8 +278,8 @@ DateFacetVis.prototype = {
       // margins
       .bottom(totalAxisLabelHeight));
 
-    let faceter = this.faceter;
-    let dis = this;
+    const faceter = this.faceter;
+    const dis = this;
     // bin bars...
     vis
       .add(pv.Bar)
@@ -323,8 +323,8 @@ DateFacetVis.prototype = {
       })
       .fillStyle("var(--barHlColor)");
 
-    for (let labelTier of labelTiers) {
-      let labelBar = vis
+    for (const labelTier of labelTiers) {
+      const labelBar = vis
         .add(pv.Bar)
         .data(labelTier.displayValues)
         .bottom(-totalAxisLabelHeight + labelTier.vertOffset)
@@ -367,9 +367,9 @@ DateFacetVis.prototype = {
   },
 
   hoverItems(aItems) {
-    let itemToBin = this.itemToBin;
-    let bins = this.emptyBins.concat();
-    for (let item of aItems) {
+    const itemToBin = this.itemToBin;
+    const bins = this.emptyBins.concat();
+    for (const item of aItems) {
       if (item.id in itemToBin) {
         bins[itemToBin[item.id]]++;
       }
@@ -390,10 +390,10 @@ DateFacetVis.prototype = {
    *  bucket they should be placed in.
    */
   binBySpan(aScale, aSpan, aRules, aItems) {
-    let bins = [];
+    const bins = [];
     let maxBinSize = 0;
-    let binCount = aRules.length - 1;
-    let itemToBin = (this.itemToBin = {});
+    const binCount = aRules.length - 1;
+    const itemToBin = (this.itemToBin = {});
 
     // We used to break this out by case, but that was a lot of code, and it was
     //  somewhat ridiculous.  So now we just do the simple, if somewhat more
@@ -402,24 +402,24 @@ DateFacetVis.prototype = {
     //  then do a pass through all of the items, rounding them down and using
     //  that to perform a lookup against the map.  We could special-case the
     //  rounding, but I doubt it's worth it.
-    let binMap = {};
+    const binMap = {};
     for (let iRule = 0; iRule < binCount; iRule++) {
-      let binStartDate = aRules[iRule],
+      const binStartDate = aRules[iRule],
         binEndDate = aRules[iRule + 1];
       binMap[binStartDate.valueOf().toString()] = iRule;
       bins.push({ items: [], startDate: binStartDate, endDate: binEndDate });
     }
-    let attrKey = this.attrDef.boundName;
-    for (let item of this.faceter.validItems) {
+    const attrKey = this.attrDef.boundName;
+    for (const item of this.faceter.validItems) {
       let val = item[attrKey];
       // round it to the rule...
       val = aScale.round(val, aSpan, false);
       // which we can then map...
-      let itemBin = binMap[val.valueOf().toString()];
+      const itemBin = binMap[val.valueOf().toString()];
       itemToBin[item.id] = itemBin;
       bins[itemBin].items.push(item);
     }
-    for (let bin of bins) {
+    for (const bin of bins) {
       maxBinSize = Math.max(bin.items.length, maxBinSize);
     }
 

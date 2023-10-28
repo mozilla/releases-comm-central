@@ -77,7 +77,7 @@ var GPGME = {
       let matchesEmail = false;
       let nextUid = key.contents.uids;
       while (nextUid && !nextUid.isNull()) {
-        let uidEmail = nextUid.contents.email.readString();
+        const uidEmail = nextUid.contents.email.readString();
         // Variable email is provided by the outer scope.
         if (uidEmail == email) {
           matchesEmail = true;
@@ -92,17 +92,17 @@ var GPGME = {
   },
 
   async decrypt(encrypted, enArmorCB) {
-    let result = {};
+    const result = {};
     result.decryptedData = "";
 
-    let arr = encrypted.split("").map(e => e.charCodeAt());
-    let encrypted_array = lazy.ctypes.uint8_t.array()(arr);
-    let tmp_array = lazy.ctypes.cast(
+    const arr = encrypted.split("").map(e => e.charCodeAt());
+    const encrypted_array = lazy.ctypes.uint8_t.array()(arr);
+    const tmp_array = lazy.ctypes.cast(
       encrypted_array,
       lazy.ctypes.char.array(encrypted_array.length)
     );
 
-    let data_ciphertext = new GPGMELib.gpgme_data_t();
+    const data_ciphertext = new GPGMELib.gpgme_data_t();
     if (
       GPGMELib.gpgme_data_new_from_mem(
         data_ciphertext.address(),
@@ -114,12 +114,12 @@ var GPGME = {
       throw new Error("gpgme_data_new_from_mem failed");
     }
 
-    let data_plain = new GPGMELib.gpgme_data_t();
+    const data_plain = new GPGMELib.gpgme_data_t();
     if (GPGMELib.gpgme_data_new(data_plain.address())) {
       throw new Error("gpgme_data_new failed");
     }
 
-    let c1 = new GPGMELib.gpgme_ctx_t();
+    const c1 = new GPGMELib.gpgme_ctx_t();
     if (GPGMELib.gpgme_new(c1.address())) {
       throw new Error("gpgme_new failed");
     }
@@ -137,14 +137,14 @@ var GPGME = {
       throw new Error("gpgme_data_release failed");
     }
 
-    let result_len = new lazy.ctypes.size_t();
-    let result_buf = GPGMELib.gpgme_data_release_and_get_mem(
+    const result_len = new lazy.ctypes.size_t();
+    const result_buf = GPGMELib.gpgme_data_release_and_get_mem(
       data_plain,
       result_len.address()
     );
 
     if (!result_buf.isNull()) {
-      let unwrapped = lazy.ctypes.cast(
+      const unwrapped = lazy.ctypes.cast(
         result_buf,
         lazy.ctypes.char.array(result_len.value).ptr
       ).contents;
@@ -155,9 +155,9 @@ var GPGME = {
       // we check if the result looks like an armored message.
       // If it doesn't we apply armoring ourselves.
 
-      let armor_head = "-----BEGIN PGP MESSAGE-----";
+      const armor_head = "-----BEGIN PGP MESSAGE-----";
 
-      let head_of_array = lazy.ctypes.cast(
+      const head_of_array = lazy.ctypes.cast(
         result_buf,
         lazy.ctypes.char.array(armor_head.length).ptr
       ).contents;
@@ -167,7 +167,7 @@ var GPGME = {
       try {
         // If this is binary, which usually isn't a valid UTF-8
         // encoding, it will throw an error.
-        let head_of_array_string = head_of_array.readString();
+        const head_of_array_string = head_of_array.readString();
         if (head_of_array_string == armor_head) {
           isArmored = true;
         }
@@ -202,19 +202,19 @@ var GPGME = {
 
     let result = null;
     //args.sender must be keyId
-    let keyId = args.sender.replace(/^0x/, "").toUpperCase();
+    const keyId = args.sender.replace(/^0x/, "").toUpperCase();
 
-    let ctx = new GPGMELib.gpgme_ctx_t();
+    const ctx = new GPGMELib.gpgme_ctx_t();
     if (GPGMELib.gpgme_new(ctx.address())) {
       throw new Error("gpgme_new failed");
     }
     GPGMELib.gpgme_set_armor(ctx, 1);
     GPGMELib.gpgme_set_textmode(ctx, 1);
-    let keyHandle = new GPGMELib.gpgme_key_t();
+    const keyHandle = new GPGMELib.gpgme_key_t();
     if (!GPGMELib.gpgme_get_key(ctx, keyId, keyHandle.address(), 1)) {
       if (!GPGMELib.gpgme_signers_add(ctx, keyHandle)) {
         var tmp_array = lazy.ctypes.char.array()(plaintext);
-        let data_plaintext = new GPGMELib.gpgme_data_t();
+        const data_plaintext = new GPGMELib.gpgme_data_t();
 
         // The tmp_array will have one additional byte to store the
         // trailing null character, we don't want to sign it, thus -1.
@@ -226,9 +226,9 @@ var GPGME = {
             0
           )
         ) {
-          let data_signed = new GPGMELib.gpgme_data_t();
+          const data_signed = new GPGMELib.gpgme_data_t();
           if (!GPGMELib.gpgme_data_new(data_signed.address())) {
-            let exitCode = GPGMELib.gpgme_op_sign(
+            const exitCode = GPGMELib.gpgme_op_sign(
               ctx,
               data_plaintext,
               data_signed,
@@ -237,13 +237,13 @@ var GPGME = {
             if (exitCode != GPGMELib.GPG_ERR_NO_ERROR) {
               GPGMELib.gpgme_data_release(data_signed);
             } else {
-              let result_len = new lazy.ctypes.size_t();
-              let result_buf = GPGMELib.gpgme_data_release_and_get_mem(
+              const result_len = new lazy.ctypes.size_t();
+              const result_buf = GPGMELib.gpgme_data_release_and_get_mem(
                 data_signed,
                 result_len.address()
               );
               if (!result_buf.isNull()) {
-                let unwrapped = lazy.ctypes.cast(
+                const unwrapped = lazy.ctypes.cast(
                   result_buf,
                   lazy.ctypes.char.array(result_len.value).ptr
                 ).contents;
@@ -277,17 +277,17 @@ var GPGME = {
 
     let result = null;
     //args.sender must be keyId
-    let keyId = args.sender.replace(/^0x/, "").toUpperCase();
+    const keyId = args.sender.replace(/^0x/, "").toUpperCase();
 
-    let ctx = new GPGMELib.gpgme_ctx_t();
+    const ctx = new GPGMELib.gpgme_ctx_t();
     if (GPGMELib.gpgme_new(ctx.address())) {
       throw new Error("gpgme_new failed");
     }
-    let keyHandle = new GPGMELib.gpgme_key_t();
+    const keyHandle = new GPGMELib.gpgme_key_t();
     if (!GPGMELib.gpgme_get_key(ctx, keyId, keyHandle.address(), 1)) {
       if (!GPGMELib.gpgme_signers_add(ctx, keyHandle)) {
         var tmp_array = lazy.ctypes.char.array()(plaintext);
-        let data_plaintext = new GPGMELib.gpgme_data_t();
+        const data_plaintext = new GPGMELib.gpgme_data_t();
 
         // The tmp_array will have one additional byte to store the
         // trailing null character, we don't want to sign it, thus -1.
@@ -299,9 +299,9 @@ var GPGME = {
             0
           )
         ) {
-          let data_signed = new GPGMELib.gpgme_data_t();
+          const data_signed = new GPGMELib.gpgme_data_t();
           if (!GPGMELib.gpgme_data_new(data_signed.address())) {
-            let exitCode = GPGMELib.gpgme_op_sign(
+            const exitCode = GPGMELib.gpgme_op_sign(
               ctx,
               data_plaintext,
               data_signed,
@@ -310,13 +310,13 @@ var GPGME = {
             if (exitCode != GPGMELib.GPG_ERR_NO_ERROR) {
               GPGMELib.gpgme_data_release(data_signed);
             } else {
-              let result_len = new lazy.ctypes.size_t();
-              let result_buf = GPGMELib.gpgme_data_release_and_get_mem(
+              const result_len = new lazy.ctypes.size_t();
+              const result_buf = GPGMELib.gpgme_data_release_and_get_mem(
                 data_signed,
                 result_len.address()
               );
               if (!result_buf.isNull()) {
-                let unwrapped = lazy.ctypes.cast(
+                const unwrapped = lazy.ctypes.cast(
                   result_buf,
                   lazy.ctypes.uint8_t.array(result_len.value).ptr
                 ).contents;

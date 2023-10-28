@@ -44,7 +44,7 @@ function setPref(dirPrefId, key, value) {
  */
 async function setLogins(...logins) {
   Services.logins.removeAllLogins();
-  for (let [origin, realm, username, password] of logins) {
+  for (const [origin, realm, username, password] of logins) {
     await Services.logins.addLoginAsync(
       new LoginInfo(origin, null, realm, username, password, "", "")
     );
@@ -63,7 +63,7 @@ async function setLogins(...logins) {
  *   and the new token stored with this user name.
  */
 async function subtest(dirPrefId, uid, newTokenUsername) {
-  let directory = new CardDAVDirectory();
+  const directory = new CardDAVDirectory();
   directory._dirPrefId = dirPrefId;
   directory._uid = uid;
   directory.__prefBranch = Services.prefs.getBranch(
@@ -71,14 +71,14 @@ async function subtest(dirPrefId, uid, newTokenUsername) {
   );
   directory.__prefBranch.setStringPref("carddav.url", URL);
 
-  let response = await directory._makeRequest("auth_headers.sjs");
+  const response = await directory._makeRequest("auth_headers.sjs");
   Assert.equal(response.status, 200);
-  let headers = JSON.parse(response.text);
+  const headers = JSON.parse(response.text);
 
   if (newTokenUsername) {
     Assert.equal(headers.authorization, "Bearer new_access_token");
 
-    let logins = Services.logins
+    const logins = Services.logins
       .findLogins(ORIGIN, null, SCOPE)
       .filter(l => l.username == newTokenUsername);
     Assert.equal(logins.length, 1);
@@ -95,8 +95,8 @@ async function subtest(dirPrefId, uid, newTokenUsername) {
 
 /** No token stored, no username set. */
 add_task(function testAddressBookOAuth_uid_none() {
-  let dirPrefId = "uid_none";
-  let uid = "testAddressBookOAuth_uid_none";
+  const dirPrefId = "uid_none";
+  const uid = "testAddressBookOAuth_uid_none";
   return subtest(dirPrefId, uid, uid);
 });
 
@@ -105,8 +105,8 @@ add_task(function testAddressBookOAuth_uid_none() {
 
 /** Expired token stored with UID. */
 add_task(async function testAddressBookOAuth_uid_expired() {
-  let dirPrefId = "uid_expired";
-  let uid = "testAddressBookOAuth_uid_expired";
+  const dirPrefId = "uid_expired";
+  const uid = "testAddressBookOAuth_uid_expired";
   await setLogins([ORIGIN, SCOPE, uid, "expired_token"]);
   await subtest(dirPrefId, uid, uid);
 }).skip(); // Broken.
@@ -115,16 +115,16 @@ add_task(async function testAddressBookOAuth_uid_expired() {
 
 /** Valid token stored with UID. This is the old way of storing the token. */
 add_task(async function testAddressBookOAuth_uid_valid() {
-  let dirPrefId = "uid_valid";
-  let uid = "testAddressBookOAuth_uid_valid";
+  const dirPrefId = "uid_valid";
+  const uid = "testAddressBookOAuth_uid_valid";
   await setLogins([ORIGIN, SCOPE, uid, VALID_TOKEN]);
   await subtest(dirPrefId, uid);
 });
 
 /** Valid token stored with username, exact scope. */
 add_task(async function testAddressBookOAuth_username_validSingle() {
-  let dirPrefId = "username_validSingle";
-  let uid = "testAddressBookOAuth_username_validSingle";
+  const dirPrefId = "username_validSingle";
+  const uid = "testAddressBookOAuth_username_validSingle";
   setPref(dirPrefId, "carddav.username", USERNAME);
   await setLogins(
     [ORIGIN, SCOPE, USERNAME, VALID_TOKEN],
@@ -135,8 +135,8 @@ add_task(async function testAddressBookOAuth_username_validSingle() {
 
 /** Valid token stored with username, many scopes. */
 add_task(async function testAddressBookOAuth_username_validMultiple() {
-  let dirPrefId = "username_validMultiple";
-  let uid = "testAddressBookOAuth_username_validMultiple";
+  const dirPrefId = "username_validMultiple";
+  const uid = "testAddressBookOAuth_username_validMultiple";
   setPref(dirPrefId, "carddav.username", USERNAME);
   await setLogins([
     ORIGIN,

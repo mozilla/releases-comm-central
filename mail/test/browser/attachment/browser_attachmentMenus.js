@@ -366,7 +366,7 @@ async function check_toolbar_menu_states_single(expected) {
     assert_enabled("attachmentSaveAllSingle", false);
   } else {
     assert_enabled("attachmentSaveAllSingle", true);
-    let dm = aboutMessage.document.querySelector(
+    const dm = aboutMessage.document.querySelector(
       "#attachmentSaveAllSingle .toolbarbutton-menubutton-dropmarker"
     );
     EventUtils.synthesizeMouseAtCenter(dm, { clickCount: 1 }, aboutMessage);
@@ -401,7 +401,7 @@ async function check_toolbar_menu_states_multiple(expected) {
     assert_enabled("attachmentSaveAllMultiple", false);
   } else {
     assert_enabled("attachmentSaveAllMultiple", true);
-    let dm = aboutMessage.document.querySelector(
+    const dm = aboutMessage.document.querySelector(
       "#attachmentSaveAllMultiple .toolbarbutton-menubutton-dropmarker"
     );
     EventUtils.synthesizeMouseAtCenter(dm, { clickCount: 1 }, aboutMessage);
@@ -429,13 +429,13 @@ async function check_toolbar_menu_states_multiple(expected) {
  * @param expected a dictionary containing the expected states
  */
 async function check_menu_states_single(index, expected) {
-  let attachmentList = aboutMessage.document.getElementById("attachmentList");
-  let node = attachmentList.getItemAtIndex(index);
+  const attachmentList = aboutMessage.document.getElementById("attachmentList");
+  const node = attachmentList.getItemAtIndex(index);
 
-  let contextMenu = aboutMessage.document.getElementById(
+  const contextMenu = aboutMessage.document.getElementById(
     "attachmentItemContext"
   );
-  let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   attachmentList.selectItem(node);
   EventUtils.synthesizeMouseAtCenter(
     node,
@@ -456,7 +456,7 @@ async function check_menu_states_single(index, expected) {
     assert_enabled("context-detachAttachment", expected.detach);
     assert_enabled("context-deleteAttachment", expected.delete_);
   } finally {
-    let hiddenPromise = BrowserTestUtils.waitForEvent(
+    const hiddenPromise = BrowserTestUtils.waitForEvent(
       contextMenu,
       "popuphidden"
     );
@@ -475,10 +475,10 @@ async function check_menu_states_all(expected) {
   // Using a rightClick here is unsafe, because we need to hit the empty area
   // beside the attachment items and that seems to be different per platform.
   // Using DOM methods to open the popup works fine.
-  let contextMenu = aboutMessage.document.getElementById(
+  const contextMenu = aboutMessage.document.getElementById(
     "attachmentListContext"
   );
-  let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   aboutMessage.document
     .getElementById("attachmentListContext")
     .openPopup(aboutMessage.document.getElementById("attachmentList"));
@@ -506,12 +506,12 @@ async function check_menu_states_all(expected) {
 async function help_test_attachment_menus(index) {
   await be_in_folder(folder);
   await select_click_row(index);
-  let expectedStates = messages[index].menuStates;
+  const expectedStates = messages[index].menuStates;
 
-  let aboutMessage = get_about_message();
+  const aboutMessage = get_about_message();
   aboutMessage.toggleAttachmentList(true);
 
-  for (let attachment of aboutMessage.currentAttachments) {
+  for (const attachment of aboutMessage.currentAttachments) {
     // Ensure all attachments are resolved; other than external they already
     // should be.
     await attachment.isEmpty();

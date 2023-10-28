@@ -9,21 +9,21 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
 );
 
 add_task(async function test_query() {
-  let account = createAccount();
+  const account = createAccount();
 
-  let textAttachment = {
+  const textAttachment = {
     body: "textAttachment",
     filename: "test.txt",
     contentType: "text/plain",
   };
 
-  let subFolders = {
+  const subFolders = {
     test1: await createSubfolder(account.incomingServer.rootFolder, "test1"),
     test2: await createSubfolder(account.incomingServer.rootFolder, "test2"),
   };
   await createMessages(subFolders.test1, { count: 9, age_incr: { days: 2 } });
 
-  let messages = [...subFolders.test1.messages];
+  const messages = [...subFolders.test1.messages];
   // NB: Here, the messages are zero-indexed. In the test they're one-indexed.
   subFolders.test1.markMessagesRead([messages[0]], true);
   subFolders.test1.markMessagesFlagged([messages[1]], true);
@@ -52,36 +52,36 @@ add_task(async function test_query() {
     attachments: [textAttachment],
   });
 
-  let files = {
+  const files = {
     "background.js": async () => {
-      let [accountId] = await window.waitForMessage();
-      let _account = await browser.accounts.get(accountId);
-      let accountType = _account.type;
+      const [accountId] = await window.waitForMessage();
+      const _account = await browser.accounts.get(accountId);
+      const accountType = _account.type;
 
-      let messages1 = await browser.messages.list({
+      const messages1 = await browser.messages.list({
         accountId,
         path: "/test1",
       });
       browser.test.assertEq(9, messages1.messages.length);
-      let messages2 = await browser.messages.list({
+      const messages2 = await browser.messages.list({
         accountId,
         path: "/test2",
       });
       browser.test.assertEq(9, messages2.messages.length);
 
       // Check all messages are returned.
-      let { messages: allMessages } = await browser.messages.query({
+      const { messages: allMessages } = await browser.messages.query({
         autoPaginationTimeout: 0,
       });
       browser.test.assertEq(18, allMessages.length);
 
-      let folder1 = { accountId, path: "/test1" };
-      let folder2 = { accountId, path: "/test2" };
-      let rootFolder = { accountId, path: "/" };
+      const folder1 = { accountId, path: "/test1" };
+      const folder2 = { accountId, path: "/test2" };
+      const rootFolder = { accountId, path: "/" };
 
       // Query messages from test1. No messages from test2 should be returned.
       // We'll use these messages as a reference for further tests.
-      let { messages: referenceMessages } = await browser.messages.query({
+      const { messages: referenceMessages } = await browser.messages.query({
         folder: folder1,
         autoPaginationTimeout: 0,
       });
@@ -91,10 +91,12 @@ add_task(async function test_query() {
       );
 
       // Test includeSubFolders: Default (False).
-      let { messages: searchRecursiveDefault } = await browser.messages.query({
-        folder: rootFolder,
-        autoPaginationTimeout: 0,
-      });
+      const { messages: searchRecursiveDefault } = await browser.messages.query(
+        {
+          folder: rootFolder,
+          autoPaginationTimeout: 0,
+        }
+      );
       browser.test.assertEq(
         0,
         searchRecursiveDefault.length,
@@ -102,7 +104,7 @@ add_task(async function test_query() {
       );
 
       // Test includeSubFolders: True.
-      let { messages: searchRecursiveTrue } = await browser.messages.query({
+      const { messages: searchRecursiveTrue } = await browser.messages.query({
         folder: rootFolder,
         includeSubFolders: true,
         autoPaginationTimeout: 0,
@@ -114,7 +116,7 @@ add_task(async function test_query() {
       );
 
       // Test includeSubFolders: False.
-      let { messages: searchRecursiveFalse } = await browser.messages.query({
+      const { messages: searchRecursiveFalse } = await browser.messages.query({
         folder: rootFolder,
         includeSubFolders: false,
         autoPaginationTimeout: 0,
@@ -126,7 +128,7 @@ add_task(async function test_query() {
       );
 
       // Test attachment query: False.
-      let { messages: searchAttachmentFalse } = await browser.messages.query({
+      const { messages: searchAttachmentFalse } = await browser.messages.query({
         attachment: false,
         includeSubFolders: true,
         autoPaginationTimeout: 0,
@@ -138,7 +140,7 @@ add_task(async function test_query() {
       );
 
       // Test attachment query: True.
-      let { messages: searchAttachmentTrue } = await browser.messages.query({
+      const { messages: searchAttachmentTrue } = await browser.messages.query({
         attachment: true,
         includeSubFolders: true,
         autoPaginationTimeout: 0,
@@ -147,11 +149,11 @@ add_task(async function test_query() {
 
       // Dump the reference messages to the console for easier debugging.
       browser.test.log("Reference messages:");
-      for (let m of referenceMessages) {
-        let date = m.date.toISOString().substring(0, 10);
-        let author = m.author.replace(/"(.*)".*/, "$1").padEnd(16, " ");
+      for (const m of referenceMessages) {
+        const date = m.date.toISOString().substring(0, 10);
+        const author = m.author.replace(/"(.*)".*/, "$1").padEnd(16, " ");
         // No recipient support for NNTP.
-        let recipients =
+        const recipients =
           accountType == "nntp"
             ? ""
             : m.recipients[0].replace(/(.*) <.*>/, "$1").padEnd(16, " ");
@@ -160,12 +162,12 @@ add_task(async function test_query() {
         );
       }
 
-      let subtest = async function (queryInfo, ...expectedMessageIndices) {
+      const subtest = async function (queryInfo, ...expectedMessageIndices) {
         if (!queryInfo.folder) {
           queryInfo.folder = folder1;
         }
         browser.test.log("Testing " + JSON.stringify(queryInfo));
-        let { messages: actualMessages } = await browser.messages.query({
+        const { messages: actualMessages } = await browser.messages.query({
           ...queryInfo,
           autoPaginationTimeout: 0,
         });
@@ -175,7 +177,7 @@ add_task(async function test_query() {
           actualMessages.length,
           "Correct number of messages"
         );
-        for (let index of expectedMessageIndices) {
+        for (const index of expectedMessageIndices) {
           // browser.test.log(`Looking for message ${index}`);
           if (!actualMessages.some(am => am.id == index)) {
             browser.test.fail(`Message ${index} was not returned`);
@@ -187,13 +189,13 @@ add_task(async function test_query() {
       };
 
       // Date range query. The messages are 0 days old, 2 days old, 4 days old, etc..
-      let today = new Date();
-      let date1 = new Date(
+      const today = new Date();
+      const date1 = new Date(
         today.getFullYear(),
         today.getMonth(),
         today.getDate() - 5
       );
-      let date2 = new Date(
+      const date2 = new Date(
         today.getFullYear(),
         today.getMonth(),
         today.getDate() - 11
@@ -320,7 +322,7 @@ add_task(async function test_query() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },

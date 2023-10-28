@@ -32,7 +32,7 @@ export function getCachedAllowedSpaces() {
       "allowedExtSpaces"
     )
   ) {
-    let rawCache = Services.xulStore.getValue(
+    const rawCache = Services.xulStore.getValue(
       "chrome://messenger/content/messenger.xhtml",
       "unifiedToolbar",
       "allowedExtSpaces"
@@ -66,7 +66,7 @@ export function getIconData(icons, extension) {
   // If the best available icon size is not divisible by 16, check if we have
   // an 18px icon to fall back to, and trim off the padding instead.
   if (size % 16 && typeof icon === "string" && !icon.endsWith(".svg")) {
-    let result = IconDetails.getPreferredIcon(icons, extension, 18);
+    const result = IconDetails.getPreferredIcon(icons, extension, 18);
 
     if (result.size % 18 == 0) {
       baseSize = 18;
@@ -75,8 +75,8 @@ export function getIconData(icons, extension) {
     }
   }
 
-  let getIcon = (size, theme) => {
-    let { icon } = IconDetails.getPreferredIcon(icons, extension, size);
+  const getIcon = (size, theme) => {
+    const { icon } = IconDetails.getPreferredIcon(icons, extension, size);
     if (typeof icon === "object") {
       if (icon[theme] == IconDetails.DEFAULT_ICON) {
         icon[theme] = DEFAULT_ICON;
@@ -89,12 +89,12 @@ export function getIconData(icons, extension) {
     return IconDetails.escapeUrl(icon);
   };
 
-  let style = [];
-  let getImageSet = (size, theme) => `image-set(
+  const style = [];
+  const getImageSet = (size, theme) => `image-set(
     url("${getIcon(size, theme)}"),
     url("${getIcon(size * 2, theme)}") 2x
   )`;
-  let getStyle = (name, size) => {
+  const getStyle = (name, size) => {
     style.push([`--webextension-${name}`, getImageSet(size, "default")]);
     style.push([`--webextension-${name}-light`, getImageSet(size, "light")]);
     style.push([`--webextension-${name}-dark`, getImageSet(size, "dark")]);
@@ -103,7 +103,7 @@ export function getIconData(icons, extension) {
   getStyle("menupanel-image", 32);
   getStyle("toolbar-image", baseSize);
 
-  let realIcon = getIcon(size, "default");
+  const realIcon = getIcon(size, "default");
 
   return { style, legacy, realIcon };
 }
@@ -131,7 +131,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    *        The name of the property in the extension manifest
    */
   async onManifestEntry(entryName) {
-    let { extension } = this;
+    const { extension } = this;
     this.paint = this.paint.bind(this);
     this.unpaint = this.unpaint.bind(this);
 
@@ -145,7 +145,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
     this.id = `${this.widgetId}-${this.moduleName}-toolbarbutton`;
     this.eventQueue = [];
 
-    let options = extension.manifest[entryName];
+    const options = extension.manifest[entryName];
     this.defaults = {
       enabled: true,
       label: options.default_label,
@@ -198,7 +198,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    */
   close() {
     lazy.ExtensionSupport.unregisterWindowListener(this.id);
-    for (let window of lazy.ExtensionSupport.openWindows) {
+    for (const window of lazy.ExtensionSupport.openWindows) {
       if (this.windowURLs.includes(window.location.href)) {
         this.unpaint(window);
       }
@@ -211,7 +211,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @param {Window} window
    */
   makeButton(window) {
-    let { document } = window;
+    const { document } = window;
     let button;
     switch (this.globals.type) {
       case "menu":
@@ -219,7 +219,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
           button = document.createXULElement("toolbarbutton");
           button.setAttribute("type", "menu");
           button.setAttribute("wantdropmarker", "true");
-          let menupopup = document.createXULElement("menupopup");
+          const menupopup = document.createXULElement("menupopup");
           menupopup.dataset.actionMenu = this.manifestName;
           menupopup.dataset.extensionId = this.extension.id;
           button.appendChild(menupopup);
@@ -258,24 +258,24 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @param {Window} window
    */
   customizableToolbarPaint(window) {
-    let windowURL = window.location.href;
-    let { document } = window;
+    const windowURL = window.location.href;
+    const { document } = window;
     if (document.getElementById(this.id)) {
       return;
     }
 
-    let toolbox = document.getElementById(this.toolboxId);
+    const toolbox = document.getElementById(this.toolboxId);
     if (!toolbox) {
       return;
     }
 
     // Get all toolbars which link to or are children of this.toolboxId and check
     // if the button has been moved to a non-default toolbar.
-    let toolbars = window.document.querySelectorAll(
+    const toolbars = window.document.querySelectorAll(
       `#${this.toolboxId} toolbar, toolbar[toolboxid="${this.toolboxId}"]`
     );
-    for (let toolbar of toolbars) {
-      let currentSet = Services.xulStore
+    for (const toolbar of toolbars) {
+      const currentSet = Services.xulStore
         .getValue(windowURL, toolbar.id, "currentset")
         .split(",")
         .filter(Boolean);
@@ -285,8 +285,8 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
       }
     }
 
-    let toolbar = document.getElementById(this.toolbarId);
-    let button = this.makeButton(window);
+    const toolbar = document.getElementById(this.toolbarId);
+    const button = this.makeButton(window);
     if (toolbox.palette) {
       toolbox.palette.appendChild(button);
     } else {
@@ -296,7 +296,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
     // Handle the special case where this toolbar does not yet have a currentset
     // defined.
     if (!Services.xulStore.hasValue(windowURL, this.toolbarId, "currentset")) {
-      let defaultSet = toolbar
+      const defaultSet = toolbar
         .getAttribute("defaultset")
         .split(",")
         .filter(Boolean);
@@ -310,7 +310,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
 
     // Add new buttons to currentset: If the extensionset does not include the
     // button, it is a new one which needs to be added.
-    let extensionSet = Services.xulStore
+    const extensionSet = Services.xulStore
       .getValue(windowURL, this.toolbarId, "extensionset")
       .split(",")
       .filter(Boolean);
@@ -322,7 +322,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
         "extensionset",
         extensionSet.join(",")
       );
-      let currentSet = Services.xulStore
+      const currentSet = Services.xulStore
         .getValue(windowURL, this.toolbarId, "currentset")
         .split(",")
         .filter(Boolean);
@@ -337,7 +337,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
       }
     }
 
-    let currentSet = Services.xulStore.getValue(
+    const currentSet = Services.xulStore.getValue(
       windowURL,
       this.toolbarId,
       "currentset"
@@ -357,15 +357,15 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @param {Window} window
    */
   nonCustomizableToolbarPaint(window) {
-    let { document } = window;
-    let windowURL = window.location.href;
+    const { document } = window;
+    const windowURL = window.location.href;
     if (document.getElementById(this.id)) {
       return;
     }
-    let toolbar = document.getElementById(this.toolbarId);
+    const toolbar = document.getElementById(this.toolbarId);
     let before = this.getNonCustomizableToolbarInsertionPoint(toolbar);
-    let button = this.makeButton(window);
-    let currentSet = Services.xulStore
+    const button = this.makeButton(window);
+    const currentSet = Services.xulStore
       .getValue(windowURL, toolbar.id, "currentset")
       .split(",")
       .filter(Boolean);
@@ -378,14 +378,14 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
         currentSet.join(",")
       );
     } else {
-      for (let id of [...currentSet].reverse()) {
+      for (const id of [...currentSet].reverse()) {
         if (!id.endsWith(`-${this.manifestName}-toolbarbutton`)) {
           continue;
         }
         if (id == this.id) {
           break;
         }
-        let element = document.getElementById(id);
+        const element = document.getElementById(id);
         if (element) {
           before = element;
         }
@@ -404,7 +404,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @param {Window} window
    */
   paint(window) {
-    let toolbar = window.document.getElementById(this.toolbarId);
+    const toolbar = window.document.getElementById(this.toolbarId);
     if (toolbar.hasAttribute("customizable")) {
       return this.customizableToolbarPaint(window);
     }
@@ -417,13 +417,13 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @param {Window} window
    */
   unpaint(window) {
-    let { document } = window;
+    const { document } = window;
 
     if (this.extension.hasPermission("menus")) {
       document.removeEventListener("popupshowing", this);
     }
 
-    let button = document.getElementById(this.id);
+    const button = document.getElementById(this.id);
     if (button) {
       button.remove();
     }
@@ -436,8 +436,8 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @returns {DOMElement} the toolbar button element, or null
    */
   getToolbarButton(window) {
-    let button = window.document.getElementById(this.id);
-    let toolbar = button?.closest("toolbar");
+    const button = window.document.getElementById(this.id);
+    const toolbar = button?.closest("toolbar");
     return button && !toolbar?.collapsed ? button : null;
   }
 
@@ -457,8 +457,8 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @returns {boolean} status if action could be successfully triggered
    */
   async triggerAction(window, options = {}) {
-    let button = this.getToolbarButton(window);
-    let { popup: popupURL, enabled } = this.getContextData(
+    const button = this.getToolbarButton(window);
+    const { popup: popupURL, enabled } = this.getContextData(
       this.getTargetFromWindow(window)
     );
 
@@ -468,7 +468,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
 
       if (popupURL) {
         success = true;
-        let popup =
+        const popup =
           lazy.ViewPopup.for(this.extension, window.top) ||
           this.getPopup(window.top, popupURL);
         popup.viewNode.openPopup(button, "bottomleft topleft", 0, 0);
@@ -491,7 +491,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @param {Event} event
    */
   handleEvent(event) {
-    let window = event.target.ownerGlobal;
+    const window = event.target.ownerGlobal;
     switch (event.type) {
       case "click":
       case "mousedown":
@@ -535,7 +535,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @returns {ViewPopup}
    */
   getPopup(window, popupURL, blockParser = false) {
-    let popup = new lazy.ViewPopup(
+    const popup = new lazy.ViewPopup(
       this.extension,
       window,
       popupURL,
@@ -559,9 +559,9 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    *        Whether to perform the update immediately
    */
   updateButton(node, tabData, sync = false) {
-    let title = tabData.title || this.extension.name;
-    let label = tabData.label;
-    let callback = () => {
+    const title = tabData.title || this.extension.name;
+    const label = tabData.label;
+    const callback = () => {
       node.setAttribute("tooltiptext", title);
       node.setAttribute("label", label || title);
       node.setAttribute(
@@ -591,9 +591,9 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
         node.removeAttribute("badgeStyle");
       }
 
-      let { style } = this.iconData.get(tabData.icon);
+      const { style } = this.iconData.get(tabData.icon);
 
-      for (let [name, value] of style) {
+      for (const [name, value] of style) {
         node.style.setProperty(name, value);
       }
     };
@@ -611,9 +611,9 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    *        Browser chrome window.
    */
   async updateWindow(window) {
-    let button = this.getToolbarButton(window);
+    const button = this.getToolbarButton(window);
     if (button) {
-      let tabData = this.getContextData(this.getTargetFromWindow(window));
+      const tabData = this.getContextData(this.getTargetFromWindow(window));
       this.updateButton(button, tabData);
     }
     await new Promise(window.requestAnimationFrame);
@@ -630,18 +630,18 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    */
   async updateOnChange(target) {
     if (target) {
-      let window = Cu.getGlobalForObject(target);
+      const window = Cu.getGlobalForObject(target);
       if (target === window) {
         await this.updateWindow(window);
       } else {
-        let tabmail = window.document.getElementById("tabmail");
+        const tabmail = window.document.getElementById("tabmail");
         if (tabmail && target == tabmail.selectedTab) {
           await this.updateWindow(window);
         }
       }
     } else {
-      let promises = [];
-      for (let window of lazy.ExtensionSupport.openWindows) {
+      const promises = [];
+      for (const window of lazy.ExtensionSupport.openWindows) {
         if (this.windowURLs.includes(window.location.href)) {
           promises.push(this.updateWindow(window));
         }
@@ -658,7 +658,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @returns {XULElement|ChromeWindow}
    */
   getTargetFromWindow(window) {
-    let tabmail = window.top.document.getElementById("tabmail");
+    const tabmail = window.top.document.getElementById("tabmail");
     if (!tabmail) {
       return window.top;
     }
@@ -721,8 +721,8 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    *        Value for prop.
    */
   async setProperty(details, prop, value) {
-    let target = this.getTargetFromDetails(details);
-    let values = this.getContextData(target);
+    const target = this.getTargetFromDetails(details);
+    const values = this.getContextData(target);
     if (value === null) {
       delete values[prop];
     } else {
@@ -760,7 +760,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
         // TODO: We should double-check if the tab is already being closed by the time
         // the background script got started and we converted the primed listener.
 
-        let win = windowManager.wrapWindow(window);
+        const win = windowManager.wrapWindow(window);
         fire.sync(tabManager.convert(win.activeTab.nativeTab), clickInfo);
       }
       this.on("click", listener);
@@ -782,9 +782,9 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @param {object} context
    */
   getAPI(context) {
-    let { extension } = context;
+    const { extension } = context;
 
-    let action = this;
+    const action = this;
 
     return {
       [this.manifestName]: {
@@ -854,7 +854,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
           // root.
           // For internal consistency, we currently resolve both relative to the
           // calling context.
-          let url = details.popup && context.uri.resolve(details.popup);
+          const url = details.popup && context.uri.resolve(details.popup);
           if (url && !context.checkLoadURL(url)) {
             return Promise.reject({ message: `Access denied for URL ${url}` });
           }
@@ -875,7 +875,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
         async setBadgeBackgroundColor(details) {
           let color = details.color;
           if (typeof color == "string") {
-            let col = InspectorUtils.colorToRGBA(color);
+            const col = InspectorUtils.colorToRGBA(color);
             if (!col) {
               throw new ExtensionError(
                 `Invalid badge background color: "${color}"`
@@ -887,7 +887,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
         },
 
         getBadgeBackgroundColor(details, callback) {
-          let color = action.getProperty(details, "badgeBackgroundColor");
+          const color = action.getProperty(details, "badgeBackgroundColor");
           return color || [0xd9, 0, 0, 255];
         },
 

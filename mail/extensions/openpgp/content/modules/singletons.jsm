@@ -12,7 +12,7 @@ var EnigmailSingletons = {
   lastMessageDecryptTime: 0,
 
   clearLastDecryptedMessage() {
-    let lm = this.lastDecryptedMessage;
+    const lm = this.lastDecryptedMessage;
     lm.lastMessageData = "";
     lm.lastMessageURI = null;
     lm.mimePartNumber = "";
@@ -21,7 +21,7 @@ var EnigmailSingletons = {
   },
 
   isLastDecryptedMessagePart(folder, msgNum, mimePartNumber) {
-    let reval =
+    const reval =
       this.lastDecryptedMessage.lastMessageURI &&
       this.lastDecryptedMessage.lastMessageURI.folder == folder &&
       this.lastDecryptedMessage.lastMessageURI.msgNum == msgNum &&

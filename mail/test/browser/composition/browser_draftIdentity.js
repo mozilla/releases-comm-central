@@ -31,7 +31,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-let aboutMessage = get_about_message();
+const aboutMessage = get_about_message();
 
 var gDrafts;
 var gAccount;
@@ -55,8 +55,8 @@ add_setup(async function () {
     "pop3"
   );
 
-  for (let id of gIdentities) {
-    let identity = MailServices.accounts.createIdentity();
+  for (const id of gIdentities) {
+    const identity = MailServices.accounts.createIdentity();
     if ("email" in id) {
       identity.email = id.email;
     }
@@ -82,8 +82,8 @@ add_setup(async function () {
  * @returns {integer} The index (position) of the created message in the drafts folder.
  */
 function create_draft(aFrom, aIdKey) {
-  let msgCount = gDrafts.getTotalMessages(false);
-  let source =
+  const msgCount = gDrafts.getTotalMessages(false);
+  const source =
     "From - Wed Mar 01 01:02:03 2017\n" +
     "X-Mozilla-Status: 0000\n" +
     "X-Mozilla-Status2: 00000000\n" +
@@ -108,7 +108,7 @@ function create_draft(aFrom, aIdKey) {
     "Testing draft identity.\n";
 
   gDrafts.QueryInterface(Ci.nsIMsgLocalMailFolder).addMessage(source);
-  let msgCountNew = gDrafts.getTotalMessages(false);
+  const msgCountNew = gDrafts.getTotalMessages(false);
 
   Assert.equal(msgCountNew, msgCount + 1);
   return msgCountNew - 1;
@@ -146,7 +146,7 @@ function checkCompIdentity(cwc, aIdentityKey, aFrom) {
  * of From and X-Identity-Key gets the expected initial identity selected.
  */
 add_task(async function test_draft_identity_selection() {
-  let tests = [
+  const tests = [
     // X-Identity-Key header exists:
     // 1. From header matches X-Identity-Key identity exactly
     {
@@ -226,11 +226,11 @@ add_task(async function test_draft_identity_selection() {
     },
   ];
 
-  for (let test of tests) {
+  for (const test of tests) {
     test.draftIndex = create_draft(test.draftFrom, test.draftIdKey);
   }
 
-  for (let test of tests) {
+  for (const test of tests) {
     dump("Running draft identity test" + tests.indexOf(test) + "\n");
     await be_in_folder(gDrafts);
     await select_click_row(test.draftIndex);
@@ -240,7 +240,7 @@ add_task(async function test_draft_identity_selection() {
       "mail-notification-top",
       "draftMsgContent"
     );
-    let cwc = await open_compose_from_draft();
+    const cwc = await open_compose_from_draft();
     checkCompIdentity(
       cwc,
       gIdentities[test.idIndex].key,
@@ -306,7 +306,7 @@ registerCleanupFunction(async function () {
   Services.focus.focusedWindow = window;
   // Focus an element in the main window, then blur it again to avoid it
   // hijacking keypresses.
-  let mainWindowElement = document.getElementById("button-appmenu");
+  const mainWindowElement = document.getElementById("button-appmenu");
   mainWindowElement.focus();
   mainWindowElement.blur();
 });

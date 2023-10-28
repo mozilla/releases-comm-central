@@ -285,12 +285,12 @@ export const isOutgoing = folder => {
  */
 export function getDefaultColumns(folder, isSynthetic = false) {
   // Create a clone we can edit.
-  let updatedColumns = DEFAULT_COLUMNS.map(column => ({ ...column }));
+  const updatedColumns = DEFAULT_COLUMNS.map(column => ({ ...column }));
 
   if (isSynthetic) {
     // Synthetic views usually can contain messages from multiple folders.
     // Folder for the selected message will still be set.
-    for (let c of updatedColumns) {
+    for (const c of updatedColumns) {
       switch (c.id) {
         case "correspondentCol":
           // Don't show the correspondent if is not wanted.
@@ -320,7 +320,7 @@ export function getDefaultColumns(folder, isSynthetic = false) {
     return updatedColumns;
   }
 
-  for (let c of updatedColumns) {
+  for (const c of updatedColumns) {
     switch (c.id) {
       case "correspondentCol":
         // Don't show the correspondent for news or RSS.

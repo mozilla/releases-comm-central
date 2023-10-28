@@ -7,37 +7,37 @@ var { MailServices } = ChromeUtils.import(
 );
 
 add_setup(() => {
-  let account = createAccount("pop3");
+  const account = createAccount("pop3");
   createAccount("local");
   MailServices.accounts.defaultAccount = account;
 
   addIdentity(account);
 
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("test", null);
-  let folder = rootFolder.getChildNamed("test");
+  const folder = rootFolder.getChildNamed("test");
   createMessages(folder, 4);
 });
 
 /* Test if getComposeDetails() is waiting until the entire init procedure of
  * the composeWindow has finished, before returning values. */
 add_task(async function testComposerIsReady() {
-  let files = {
+  const files = {
     "background.js": async () => {
-      let accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
-      let popAccount = accounts.find(a => a.type == "pop3");
-      let folder = popAccount.folders.find(f => f.name == "test");
-      let { messages } = await browser.messages.list(folder);
+      const popAccount = accounts.find(a => a.type == "pop3");
+      const folder = popAccount.folders.find(f => f.name == "test");
+      const { messages } = await browser.messages.list(folder);
       browser.test.assertEq(4, messages.length, "number of messages");
 
-      let details = {
+      const details = {
         plainTextBody: "This is Text",
         to: ["Mr. Holmes <holmes@bakerstreet.invalid>"],
         subject: "Test Email",
       };
 
-      let tests = [
+      const tests = [
         {
           description: "Reply default.",
           funcName: "beginReply",
@@ -60,20 +60,22 @@ add_task(async function testComposerIsReady() {
         },
       ];
 
-      for (let test of tests) {
+      for (const test of tests) {
         browser.test.log(JSON.stringify(test));
-        let expectedDetails = test.arguments[test.arguments.length - 1];
+        const expectedDetails = test.arguments[test.arguments.length - 1];
 
         // Test with windows.onCreated
         {
-          let createdWindowPromise = window.waitForEvent("windows.onCreated");
+          const createdWindowPromise = window.waitForEvent("windows.onCreated");
           // Explicitly do not await this call.
           browser.compose[test.funcName](...test.arguments);
-          let [createdWindow] = await createdWindowPromise;
-          let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
+          const [createdWindow] = await createdWindowPromise;
+          const [tab] = await browser.tabs.query({
+            windowId: createdWindow.id,
+          });
 
-          let actualDetails = await browser.compose.getComposeDetails(tab.id);
-          for (let detail of Object.keys(expectedDetails)) {
+          const actualDetails = await browser.compose.getComposeDetails(tab.id);
+          for (const detail of Object.keys(expectedDetails)) {
             browser.test.assertEq(
               expectedDetails[detail].toString(),
               actualDetails[detail].toString(),
@@ -84,37 +86,37 @@ add_task(async function testComposerIsReady() {
           // Test the windows API being able to return the messageCompose window as
           // the current one.
           await window.waitForCondition(async () => {
-            let win = await browser.windows.get(createdWindow.id);
+            const win = await browser.windows.get(createdWindow.id);
             return win.focused;
           }, `Window should have received focus.`);
 
-          let composeWindow = await browser.windows.get(tab.windowId);
+          const composeWindow = await browser.windows.get(tab.windowId);
           browser.test.assertEq(composeWindow.type, "messageCompose");
-          let curWindow = await browser.windows.getCurrent();
+          const curWindow = await browser.windows.getCurrent();
           browser.test.assertEq(tab.windowId, curWindow.id);
           // Test the tabs API being able to return the correct current tab.
-          let [currentTab] = await browser.tabs.query({
+          const [currentTab] = await browser.tabs.query({
             currentWindow: true,
             active: true,
           });
           browser.test.assertEq(tab.id, currentTab.id);
 
-          let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+          const removedWindowPromise = window.waitForEvent("windows.onRemoved");
           browser.windows.remove(createdWindow.id);
           await removedWindowPromise;
         }
 
         // Test with tabs.onCreated
         {
-          let createdTabPromise = window.waitForEvent("tabs.onCreated");
+          const createdTabPromise = window.waitForEvent("tabs.onCreated");
           // Explicitly do not await this call.
           browser.compose[test.funcName](...test.arguments);
-          let [createdTab] = await createdTabPromise;
-          let actualDetails = await browser.compose.getComposeDetails(
+          const [createdTab] = await createdTabPromise;
+          const actualDetails = await browser.compose.getComposeDetails(
             createdTab.id
           );
 
-          for (let detail of Object.keys(expectedDetails)) {
+          for (const detail of Object.keys(expectedDetails)) {
             browser.test.assertEq(
               expectedDetails[detail].toString(),
               actualDetails[detail].toString(),
@@ -122,8 +124,8 @@ add_task(async function testComposerIsReady() {
             );
           }
 
-          let removedWindowPromise = window.waitForEvent("windows.onRemoved");
-          let createdWindow = await browser.windows.get(createdTab.windowId);
+          const removedWindowPromise = window.waitForEvent("windows.onRemoved");
+          const createdWindow = await browser.windows.get(createdTab.windowId);
           browser.windows.remove(createdWindow.id);
           await removedWindowPromise;
         }
@@ -133,7 +135,7 @@ add_task(async function testComposerIsReady() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },

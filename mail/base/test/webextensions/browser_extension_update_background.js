@@ -18,7 +18,7 @@ const FAKE_INSTALL_TELEMETRY_SOURCE = "fake-install-source";
 requestLongerTimeout(2);
 
 function promiseViewLoaded(tab, viewid) {
-  let win = tab.linkedBrowser.contentWindow;
+  const win = tab.linkedBrowser.contentWindow;
   if (
     win.gViewController &&
     !win.gViewController.isLoading &&
@@ -31,15 +31,15 @@ function promiseViewLoaded(tab, viewid) {
 }
 
 function getBadgeStatus() {
-  let menuButton = document.getElementById("button-appmenu");
+  const menuButton = document.getElementById("button-appmenu");
   return menuButton.getAttribute("badge-status");
 }
 
 function promiseBadgeChange() {
   return new Promise(resolve => {
-    let menuButton = document.getElementById("button-appmenu");
+    const menuButton = document.getElementById("button-appmenu");
     new MutationObserver((mutationsList, observer) => {
-      for (let mutation of mutationsList) {
+      for (const mutation of mutationsList) {
         if (mutation.attributeName == "badge-status") {
           observer.disconnect();
           resolve();
@@ -82,7 +82,7 @@ async function backgroundUpdateTest(url, id, checkIconFn) {
   let addon = await promiseInstallAddon(url, {
     source: FAKE_INSTALL_TELEMETRY_SOURCE,
   });
-  let addonId = addon.id;
+  const addonId = addon.id;
 
   ok(addon, "Addon was installed");
   is(getBadgeStatus(), "", "Should not start out with an addon alert badge");
@@ -117,7 +117,7 @@ async function backgroundUpdateTest(url, id, checkIconFn) {
   // The original extension has 1 promptable permission and the new one
   // has 2 (history and <all_urls>) plus 1 non-promptable permission (cookies).
   // So we should only see the 1 new promptable permission in the notification.
-  let singlePermissionEl = document.getElementById(
+  const singlePermissionEl = document.getElementById(
     "addon-webext-perm-single-entry"
   );
   ok(!singlePermissionEl.hidden, "Single permission entry is not hidden");

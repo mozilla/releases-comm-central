@@ -28,7 +28,7 @@ add_setup(async function () {
     // Tests following this one may attempt to create a folder at the same URI
     // and will fail because our folder lookup code is a mess. Renaming should
     // prevent that.
-    let archiveFolder = rootFolder.getFolderWithFlags(
+    const archiveFolder = rootFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Archive
     );
     archiveFolder?.subFolders[0]?.rename("archive2000", null);
@@ -67,7 +67,7 @@ add_setup(async function () {
  * Tests undoing after archiving a thread.
  */
 add_task(async function testArchiveUndo() {
-  let row = threadTree.getRowAtIndex(0);
+  const row = threadTree.getRowAtIndex(0);
 
   // Simulate a click on the row's subject line to select the row.
   const selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");

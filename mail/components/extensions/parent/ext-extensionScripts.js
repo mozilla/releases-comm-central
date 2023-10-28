@@ -15,7 +15,7 @@ var { ExtensionUtils } = ChromeUtils.importESModule(
 
 var { getUniqueId } = ExtensionUtils;
 
-let scripts = new Set();
+const scripts = new Set();
 
 ExtensionSupport.registerWindowListener("ext-composeScripts", {
   chromeURLs: [
@@ -25,7 +25,7 @@ ExtensionSupport.registerWindowListener("ext-composeScripts", {
     await new Promise(resolve =>
       win.addEventListener("compose-editor-ready", resolve, { once: true })
     );
-    for (let script of scripts) {
+    for (const script of scripts) {
       if (script.type == "compose") {
         script.executeInWindow(
           win,
@@ -44,8 +44,8 @@ ExtensionSupport.registerWindowListener("ext-messageDisplayScripts", {
   onLoadWindow(win) {
     win.addEventListener("MsgLoaded", event => {
       // `event.target` is an about:message window.
-      let nativeTab = event.target.tabOrWindow;
-      for (let script of scripts) {
+      const nativeTab = event.target.tabOrWindow;
+      for (const script of scripts) {
         if (script.type == "messageDisplay") {
           script.executeInWindow(
             win,
@@ -127,10 +127,10 @@ class ExtensionScriptParent {
   }
 
   async executeInWindow(window, tab) {
-    for (let css of this.options.css) {
+    for (const css of this.options.css) {
       await tab.insertCSS(this.context, { ...css, frameId: null });
     }
-    for (let js of this.options.js) {
+    for (const js of this.options.js) {
       await tab.executeScript(this.context, { ...js, frameId: null });
     }
     window.dispatchEvent(new window.CustomEvent("extension-scripts-added"));
@@ -147,7 +147,7 @@ this.extensionScripts = class extends ExtensionAPI {
     // Unregister all the scriptId related to a context when it is closed.
     context.callOnClose({
       close() {
-        for (let script of parentScriptsMap.values()) {
+        for (const script of parentScriptsMap.values()) {
           script.destroy();
         }
         parentScriptsMap.clear();

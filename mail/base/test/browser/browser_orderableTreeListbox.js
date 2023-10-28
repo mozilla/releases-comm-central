@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
+const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
 );
 
 let waitTime = 0;
 
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   Services.prefs.clearUserPref("ui.prefersReducedMotion");
@@ -57,10 +57,10 @@ async function waitForTransition(shouldWait) {
 }
 
 async function startDrag(index, shouldWait = false) {
-  let listRect = list.getBoundingClientRect();
-  let clientY = listRect.top + index * 32 + 4;
+  const listRect = list.getBoundingClientRect();
+  const clientY = listRect.top + index * 32 + 4;
 
-  let transitionPromise = waitForTransition(shouldWait);
+  const transitionPromise = waitForTransition(shouldWait);
   dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
   [, dataTransfer] = EventUtils.synthesizeDragOver(
     list.rows[index],
@@ -79,14 +79,14 @@ async function startDrag(index, shouldWait = false) {
 }
 
 async function continueDrag(index, shouldWait = false) {
-  let listRect = list.getBoundingClientRect();
-  let destClientX = listRect.left + listRect.width / 2;
-  let destClientY = listRect.top + index * 32 + 4;
-  let destScreenX = win.mozInnerScreenX + destClientX;
-  let destScreenY = win.mozInnerScreenY + destClientY;
+  const listRect = list.getBoundingClientRect();
+  const destClientX = listRect.left + listRect.width / 2;
+  const destClientY = listRect.top + index * 32 + 4;
+  const destScreenX = win.mozInnerScreenX + destClientX;
+  const destScreenY = win.mozInnerScreenY + destClientY;
 
-  let transitionPromise = waitForTransition(shouldWait);
-  let result = EventUtils.sendDragEvent(
+  const transitionPromise = waitForTransition(shouldWait);
+  const result = EventUtils.sendDragEvent(
     {
       type: "dragover",
       screenX: destScreenX,
@@ -105,10 +105,10 @@ async function continueDrag(index, shouldWait = false) {
 }
 
 async function endDrag(index, shouldWait = false) {
-  let listRect = list.getBoundingClientRect();
-  let clientY = listRect.top + index * 32 + 4;
+  const listRect = list.getBoundingClientRect();
+  const clientY = listRect.top + index * 32 + 4;
 
-  let transitionPromise = waitForTransition(shouldWait);
+  const transitionPromise = waitForTransition(shouldWait);
   EventUtils.synthesizeDropAfterDragOver(false, dataTransfer, list, win, {
     clientY,
     _domDispatchOnly: true,
@@ -128,7 +128,7 @@ function checkRowOrder(expectedOrder) {
     "order in DOM is correct"
   );
 
-  let apparentOrder = list.rows.sort(
+  const apparentOrder = list.rows.sort(
     (a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top
   );
   Assert.deepEqual(
@@ -147,11 +147,11 @@ function checkRowOrder(expectedOrder) {
 }
 
 function checkYPositions(...expectedPositions) {
-  let offset = list.getBoundingClientRect().top;
+  const offset = list.getBoundingClientRect().top;
 
   for (let i = 0; i < 5; i++) {
-    let id = `row-${i + 1}`;
-    let row = doc.getElementById(id);
+    const id = `row-${i + 1}`;
+    const row = doc.getElementById(id);
     Assert.equal(
       row.getBoundingClientRect().top - offset,
       expectedPositions[i],
@@ -161,7 +161,7 @@ function checkYPositions(...expectedPositions) {
 }
 
 async function checkNoTransformations() {
-  for (let row of list.children) {
+  for (const row of list.children) {
     await TestUtils.waitForCondition(
       () => win.getComputedStyle(row).transform == "none",
       `${row.id} has no transforms`
@@ -176,7 +176,7 @@ async function checkNoTransformations() {
   }
 }
 
-let selectHandler = {
+const selectHandler = {
   seenEvent: null,
 
   reset() {
@@ -187,7 +187,7 @@ let selectHandler = {
   },
 };
 
-let orderedHandler = {
+const orderedHandler = {
   seenEvent: null,
   orderAtEvent: null,
 
@@ -381,9 +381,9 @@ async function subtestDragReorder2() {
  * yet, so they are untested.
  */
 async function subtestDragUndroppable() {
-  let originalGetter = list.__lookupGetter__("_orderableChildren");
+  const originalGetter = list.__lookupGetter__("_orderableChildren");
   list.__defineGetter__("_orderableChildren", function () {
-    let rows = [...this.children];
+    const rows = [...this.children];
     rows.pop();
     return rows;
   });
@@ -447,7 +447,7 @@ add_setup(async function () {
   // Make sure the whole test runs with an unthreaded view in all folders.
   Services.prefs.setIntPref("mailnews.default_view_flags", 0);
 
-  let tab = tabmail.openTab("contentTab", {
+  const tab = tabmail.openTab("contentTab", {
     url: "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/orderableTreeListbox.xhtml",
   });
 

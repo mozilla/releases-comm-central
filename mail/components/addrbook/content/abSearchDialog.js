@@ -126,7 +126,7 @@ function onAbSearchReset(event) {
 
 function SelectDirectory(aURI) {
   // set popup with address book names
-  let abPopup = document.getElementById("abPopup");
+  const abPopup = document.getElementById("abPopup");
   if (abPopup) {
     if (aURI) {
       abPopup.value = aURI;
@@ -143,7 +143,7 @@ function GetScopeForDirectoryURI(aURI) {
   if (aURI && aURI != "moz-abdirectory://?") {
     directory = MailServices.ab.getDirectory(aURI);
   }
-  let booleanAnd = gSearchBooleanRadiogroup.selectedItem.value == "and";
+  const booleanAnd = gSearchBooleanRadiogroup.selectedItem.value == "and";
 
   if (directory?.isRemote) {
     if (booleanAnd) {
@@ -189,7 +189,7 @@ function onSearch() {
 
   let searchUri = "?(";
   for (let i = 0; i < gSearchSession.searchTerms.length; i++) {
-    let searchTerm = gSearchSession.searchTerms[i];
+    const searchTerm = gSearchSession.searchTerms[i];
     // get the "and" / "or" value from the first term
     if (i == 0) {
       if (searchTerm.booleanAnd) {
@@ -384,7 +384,7 @@ function AbResultsPaneDoubleClick(card) {
 
 function UpdateCardView() {
   disableCommands();
-  let numSelected = GetNumSelectedCards();
+  const numSelected = GetNumSelectedCards();
 
   if (!numSelected) {
     return;

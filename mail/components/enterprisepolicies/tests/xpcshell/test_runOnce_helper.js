@@ -3,7 +3,7 @@
 
 "use strict";
 
-let { runOnce } = ChromeUtils.importESModule(
+const { runOnce } = ChromeUtils.importESModule(
   "resource:///modules/policies/Policies.sys.mjs"
 );
 

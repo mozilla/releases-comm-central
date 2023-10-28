@@ -24,7 +24,7 @@ var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-policy/html/";
 
 add_task(async function test_openComposeFromMailToLink() {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   // Open a content tab with the mailto link in it.
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
@@ -49,13 +49,13 @@ add_task(async function test_checkInsertImage() {
     "Mail:image",
     async function (mwc) {
       // Insert the url of the image.
-      let srcloc = mwc.document.getElementById("srcInput");
+      const srcloc = mwc.document.getElementById("srcInput");
       srcloc.focus();
 
       input_value(mwc, url + "pass.png");
       await new Promise(resolve => setTimeout(resolve));
 
-      let noAlt = mwc.document.getElementById("noAltTextRadio");
+      const noAlt = mwc.document.getElementById("noAltTextRadio");
       // Don't add alternate text
       EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
 
@@ -64,14 +64,14 @@ add_task(async function test_checkInsertImage() {
     }
   );
 
-  let insertMenu = gCwc.document.getElementById("InsertPopupButton");
-  let insertMenuPopup = gCwc.document.getElementById("InsertPopup");
+  const insertMenu = gCwc.document.getElementById("InsertPopupButton");
+  const insertMenuPopup = gCwc.document.getElementById("InsertPopup");
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
   await dialogPromise;
 
   // Test that the image load has not been denied
-  let childImages = gCwc.document
+  const childImages = gCwc.document
     .getElementById("messageEditor")
     .contentDocument.getElementsByTagName("img");
 
@@ -92,7 +92,7 @@ add_task(async function test_checkInsertImage() {
 
 add_task(async function test_closeComposeWindowAndTab() {
   await close_compose_window(gCwc);
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
 
   tabmail.closeTab(gNewTab);
 

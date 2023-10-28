@@ -31,32 +31,32 @@ add_task(async function test_folder_names_in_recent_view_mode() {
   // We need 2 local accounts that have pristine folders with
   // unmodified times, so that it does not influence the
   // list of Recent folders. So clear out the most-recently-used time.
-  for (let acc of MailServices.accounts.accounts) {
-    for (let fld of acc.incomingServer.rootFolder.subFolders) {
+  for (const acc of MailServices.accounts.accounts) {
+    for (const fld of acc.incomingServer.rootFolder.subFolders) {
       fld.setStringProperty("MRUTime", "0");
     }
   }
 
-  let acc1 = MailServices.accounts.accounts[1];
-  let acc2 = MailServices.accounts.accounts[0];
-  let rootFolder1 = acc1.incomingServer.rootFolder;
-  let rootFolder2 = acc2.incomingServer.rootFolder;
+  const acc1 = MailServices.accounts.accounts[1];
+  const acc2 = MailServices.accounts.accounts[0];
+  const rootFolder1 = acc1.incomingServer.rootFolder;
+  const rootFolder2 = acc2.incomingServer.rootFolder;
 
   // Create some test folders.
   rootFolder1.createSubfolder("uniqueName", null);
   rootFolder1.createSubfolder("duplicatedName", null);
   rootFolder2.createSubfolder("duplicatedName", null);
-  let inbox2 = rootFolder2.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  const inbox2 = rootFolder2.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   inbox2.createSubfolder("duplicatedName", null);
 
-  let fUnique = rootFolder1.getChildNamed("uniqueName");
-  let fDup1 = rootFolder1.getChildNamed("duplicatedName");
-  let fDup2 = rootFolder2.getChildNamed("duplicatedName");
-  let fDup3 = inbox2.getChildNamed("duplicatedName");
+  const fUnique = rootFolder1.getChildNamed("uniqueName");
+  const fDup1 = rootFolder1.getChildNamed("duplicatedName");
+  const fDup2 = rootFolder2.getChildNamed("duplicatedName");
+  const fDup3 = inbox2.getChildNamed("duplicatedName");
 
   // Close the inbox folder if open. This might happen when running multiple
   // tests from the folder-pane.
-  let index = window.gFolderTreeView.getIndexOfFolder(inbox2);
+  const index = window.gFolderTreeView.getIndexOfFolder(inbox2);
   if (index != null) {
     if (window.gFolderTreeView._rowMap[index].open) {
       window.gFolderTreeView._toggleRow(index, false);

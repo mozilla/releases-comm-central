@@ -43,18 +43,18 @@ async function subtest_tab(manifest) {
     );
   }
 
-  let extension = await getMenuExtension(manifest);
+  const extension = await getMenuExtension(manifest);
 
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   window.openContentTab("about:config");
   window.openContentTab("about:mozilla");
   tabmail.openTab("mail3PaneTab", { folderURI: gFolders[0].URI });
 
-  let tabs = document.getElementById("tabmail-tabs").allTabs;
-  let menu = document.getElementById("tabContextMenu");
+  const tabs = document.getElementById("tabmail-tabs").allTabs;
+  const menu = document.getElementById("tabContextMenu");
 
   await checkTabEvent(0, false, true);
   await checkTabEvent(1, false, false);

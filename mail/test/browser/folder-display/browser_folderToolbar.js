@@ -60,7 +60,7 @@ add_task(async function test_folder_toolbar_shows_correct_item() {
   );
 
   // Start in folder a.
-  let tabFolderA = await be_in_folder(folderA);
+  const tabFolderA = await be_in_folder(folderA);
   assert_folder_selected_and_displayed(folderA);
   await assert_nothing_selected();
   Assert.equal(
@@ -70,7 +70,7 @@ add_task(async function test_folder_toolbar_shows_correct_item() {
   );
 
   // Open tab b, make sure it works right.
-  let tabFolderB = await open_folder_in_new_tab(folderB);
+  const tabFolderB = await open_folder_in_new_tab(folderB);
   await wait_for_blank_content_pane();
   assert_folder_selected_and_displayed(folderB);
   await assert_nothing_selected();
@@ -118,7 +118,7 @@ add_task(async function test_folder_toolbar_disappears_on_message_tab() {
   // Select one message
   await select_click_row(0);
   // Open it
-  let messageTab = await open_selected_message_in_new_tab();
+  const messageTab = await open_selected_message_in_new_tab();
 
   await BrowserTestUtils.waitForMutationCondition(
     document.getElementById("unifiedToolbarContent"),

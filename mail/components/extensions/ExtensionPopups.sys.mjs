@@ -24,7 +24,7 @@ var { DefaultWeakMap, ExtensionError, promiseEvent } = ExtensionUtils;
 const POPUP_LOAD_TIMEOUT_MS = 200;
 
 XPCOMUtils.defineLazyGetter(lazy, "standaloneStylesheets", () => {
-  let stylesheets = [];
+  const stylesheets = [];
 
   if (AppConstants.platform === "macosx") {
     stylesheets.push("chrome://browser/content/extension-mac-panel.css");
@@ -112,7 +112,7 @@ export class BasePopup {
         delete this.viewNode.customRectGetter;
       }
 
-      let { panel } = this;
+      const { panel } = this;
       if (panel) {
         panel.removeEventListener("popuppositioned", this, { capture: true });
       }
@@ -129,7 +129,7 @@ export class BasePopup {
   }
 
   destroyBrowser(browser, finalize = false) {
-    let mm = browser.messageManager;
+    const mm = browser.messageManager;
     // If the browser has already been removed from the document, because the
     // popup was closed externally, there will be no message manager here, so
     // just replace our receiveMessage method with a stub.
@@ -145,7 +145,7 @@ export class BasePopup {
   }
 
   get STYLESHEETS() {
-    let sheets = [];
+    const sheets = [];
 
     if (this.browserStyle) {
       sheets.push(...lazy.ExtensionParent.extensionStylesheets);
@@ -234,12 +234,12 @@ export class BasePopup {
   }
 
   createBrowser(viewNode, popupURL = null) {
-    let document = viewNode.ownerDocument;
+    const document = viewNode.ownerDocument;
 
-    let stack = document.createXULElement("stack");
+    const stack = document.createXULElement("stack");
     stack.setAttribute("class", "webextension-popup-stack");
 
-    let browser = document.createXULElement("browser");
+    const browser = document.createXULElement("browser");
     browser.setAttribute("type", "content");
     browser.setAttribute("disableglobalhistory", "true");
     browser.setAttribute("messagemanagergroup", "webext-browsers");
@@ -296,8 +296,8 @@ export class BasePopup {
       browser.contentWindow; // eslint-disable-line no-unused-expressions
     }
 
-    let setupBrowser = browser => {
-      let mm = browser.messageManager;
+    const setupBrowser = browser => {
+      const mm = browser.messageManager;
       mm.addMessageListener("Extension:BrowserBackgroundChanged", this);
       mm.addMessageListener("Extension:BrowserContentLoaded", this);
       mm.addMessageListener("Extension:BrowserResized", this);
@@ -313,7 +313,7 @@ export class BasePopup {
 
     const initBrowser = () => {
       setupBrowser(browser);
-      let mm = browser.messageManager;
+      const mm = browser.messageManager;
 
       mm.loadFrameScript(
         "chrome://extensions/content/ext-browser-content.js",
@@ -364,8 +364,8 @@ export class BasePopup {
     if (this.fixedWidth) {
       // Figure out how much extra space we have on the side of the panel
       // opposite the arrow.
-      let side = this.panel.getAttribute("side") == "top" ? "bottom" : "top";
-      let maxHeight = this.viewHeight + this.extraHeight[side];
+      const side = this.panel.getAttribute("side") == "top" ? "bottom" : "top";
+      const maxHeight = this.viewHeight + this.extraHeight[side];
 
       height = Math.min(height, maxHeight);
       this.browser.style.height = `${height}px`;
@@ -380,7 +380,7 @@ export class BasePopup {
       this.browser.style.minHeight = `${height}px`;
     }
 
-    let event = new this.window.CustomEvent("WebExtPopupResized", { detail });
+    const event = new this.window.CustomEvent("WebExtPopupResized", { detail });
     this.browser.dispatchEvent(event);
   }
 
@@ -416,10 +416,10 @@ export class ViewPopup extends BasePopup {
     fixedWidth,
     blockParser
   ) {
-    let document = window.document;
+    const document = window.document;
 
-    let createPanel = remote => {
-      let panel = document.createXULElement("panel");
+    const createPanel = remote => {
+      const panel = document.createXULElement("panel");
       panel.setAttribute("type", "arrow");
       panel.setAttribute("class", "panel-no-padding");
       if (remote) {
@@ -528,15 +528,15 @@ export class ViewPopup extends BasePopup {
 
     this.setBackground(this.background);
 
-    let flushPromise = this.window.promiseDocumentFlushed(() => {
-      let win = this.window;
+    const flushPromise = this.window.promiseDocumentFlushed(() => {
+      const win = this.window;
 
       // Calculate the extra height available on the screen above and below the
       // menu panel. Use that to calculate the how much the sub-view may grow.
-      let popupRect = panel.getBoundingClientRect();
-      let screenBottom = win.screen.availTop + win.screen.availHeight;
-      let popupBottom = win.mozInnerScreenY + popupRect.bottom;
-      let popupTop = win.mozInnerScreenY + popupRect.top;
+      const popupRect = panel.getBoundingClientRect();
+      const screenBottom = win.screen.availTop + win.screen.availHeight;
+      const popupBottom = win.mozInnerScreenY + popupRect.bottom;
+      const popupTop = win.mozInnerScreenY + popupRect.top;
 
       // Store the initial height of the view, so that we never resize menu panel
       // sub-views smaller than the initial height of the menu.
@@ -549,7 +549,7 @@ export class ViewPopup extends BasePopup {
     });
 
     // Create a new browser in the real popup.
-    let browser = this.browser;
+    const browser = this.browser;
     await this.createBrowser(this.viewNode);
 
     this.browser.swapDocShells(browser);
@@ -588,7 +588,7 @@ export class ViewPopup extends BasePopup {
       return false;
     }
 
-    let event = new this.window.CustomEvent("WebExtPopupLoaded", {
+    const event = new this.window.CustomEvent("WebExtPopupLoaded", {
       bubbles: true,
       detail: { extension: this.extension },
     });

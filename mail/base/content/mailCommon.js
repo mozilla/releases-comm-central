@@ -186,14 +186,14 @@ var commandController = {
       Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", true);
     },
     async cmd_copyDecryptedTo(destFolder) {
-      let msgHdrs = gDBView.getSelectedMsgHdrs();
+      const msgHdrs = gDBView.getSelectedMsgHdrs();
       if (!msgHdrs || msgHdrs.length === 0) {
         return;
       }
 
-      let total = msgHdrs.length;
+      const total = msgHdrs.length;
       let failures = 0;
-      for (let msgHdr of msgHdrs) {
+      for (const msgHdr of msgHdrs) {
         await EnigmailPersistentCrypto.cryptMessage(
           msgHdr,
           destFolder.URI,
@@ -205,7 +205,7 @@ var commandController = {
       }
 
       if (failures) {
-        let info = await document.l10n.formatValue(
+        const info = await document.l10n.formatValue(
           "decrypt-and-copy-failures-multiple",
           {
             failures,
@@ -222,7 +222,7 @@ var commandController = {
      */
     cmd_copyMessage(destFolder) {
       if (window.gMessageURI?.startsWith("file:")) {
-        let file = Services.io
+        const file = Services.io
           .newURI(window.gMessageURI)
           .QueryInterface(Ci.nsIFileURL).file;
         MailServices.copy.copyFileMessage(
@@ -255,7 +255,7 @@ var commandController = {
         return;
       }
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
-      let archiver = new MessageArchiver();
+      const archiver = new MessageArchiver();
       // The instance of nsITransactionManager to use here is tied to msgWindow. Set
       // this property so the operation can be undone if requested.
       archiver.msgWindow = top.msgWindow;
@@ -269,7 +269,7 @@ var commandController = {
         parent.commandController.doCommand("cmd_moveToFolderAgain");
         return;
       }
-      let folder = MailUtils.getOrCreateFolder(
+      const folder = MailUtils.getOrCreateFolder(
         Services.prefs.getStringPref("mail.last_msg_movecopy_target_uri")
       );
       if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
@@ -300,18 +300,18 @@ var commandController = {
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
     },
     cmd_createFilterFromMenu() {
-      let msgHdr = gDBView.hdrForFirstSelectedMessage;
-      let emailAddress =
+      const msgHdr = gDBView.hdrForFirstSelectedMessage;
+      const emailAddress =
         MailServices.headerParser.extractHeaderAddressMailboxes(msgHdr.author);
       if (emailAddress) {
         top.MsgFilters(emailAddress, msgHdr.folder);
       }
     },
     cmd_viewPageSource() {
-      let uris = window.gMessageURI
+      const uris = window.gMessageURI
         ? [window.gMessageURI]
         : gDBView.getURIsForSelection();
-      for (let uri of uris) {
+      for (const uri of uris) {
         // Now, we need to get a URL from a URI
         let url = MailServices.mailSession.ConvertMsgURIToMsgURL(
           uri,
@@ -330,7 +330,7 @@ var commandController = {
       }
     },
     cmd_saveAsFile() {
-      let uris = window.gMessageURI
+      const uris = window.gMessageURI
         ? [window.gMessageURI]
         : gDBView.getURIsForSelection();
       top.SaveAsFile(uris);
@@ -339,20 +339,20 @@ var commandController = {
       top.SaveAsTemplate(gDBView.getURIsForSelection()[0]);
     },
     cmd_applyFilters() {
-      let curFilterList = gFolder.getFilterList(top.msgWindow);
+      const curFilterList = gFolder.getFilterList(top.msgWindow);
       // Create a new filter list and copy over the enabled filters to it.
       // We do this instead of having the filter after the fact code ignore
       // disabled filters because the Filter Dialog filter after the fact
       // code would have to clone filters to allow disabled filters to run,
       // and we don't support cloning filters currently.
-      let tempFilterList = MailServices.filters.getTempFilterList(gFolder);
-      let numFilters = curFilterList.filterCount;
+      const tempFilterList = MailServices.filters.getTempFilterList(gFolder);
+      const numFilters = curFilterList.filterCount;
       // Make sure the temp filter list uses the same log stream.
       tempFilterList.loggingEnabled = curFilterList.loggingEnabled;
       tempFilterList.logStream = curFilterList.logStream;
       let newFilterIndex = 0;
       for (let i = 0; i < numFilters; i++) {
-        let curFilter = curFilterList.getFilterAt(i);
+        const curFilter = curFilterList.getFilterAt(i);
         // Only add enabled, UI visible filters that are in the manual context.
         if (
           curFilter.enabled &&
@@ -370,7 +370,7 @@ var commandController = {
       );
     },
     cmd_applyFiltersToSelection() {
-      let selectedMessages = gDBView.getSelectedMsgHdrs();
+      const selectedMessages = gDBView.getSelectedMsgHdrs();
       if (selectedMessages.length) {
         MailServices.filters.applyFilters(
           Ci.nsMsgFilterType.Manual,
@@ -388,7 +388,7 @@ var commandController = {
       } else {
         messagePaneBrowser = window.getMessagePaneBrowser();
       }
-      let contentWindow = messagePaneBrowser.contentWindow;
+      const contentWindow = messagePaneBrowser.contentWindow;
 
       if (event?.shiftKey) {
         // If at the start of the message, go to the previous one.
@@ -433,7 +433,7 @@ var commandController = {
   },
   // eslint-disable-next-line complexity
   isCommandEnabled(command) {
-    let type = typeof this._isCallbackEnabled[command];
+    const type = typeof this._isCallbackEnabled[command];
     if (type == "function") {
       return this._isCallbackEnabled[command]();
     } else if (type == "boolean") {
@@ -456,13 +456,13 @@ var commandController = {
       return false;
     }
 
-    let isDummyMessage = !gViewWrapper.isSynthetic && !gFolder;
+    const isDummyMessage = !gViewWrapper.isSynthetic && !gFolder;
 
     if (["cmd_goBack", "cmd_goForward"].includes(command)) {
-      let activeMessageHistory = (
+      const activeMessageHistory = (
         window.messageBrowser?.contentWindow ?? window
       ).messageHistory;
-      let relPos = command === "cmd_goBack" ? -1 : 1;
+      const relPos = command === "cmd_goBack" ? -1 : 1;
       if (relPos === -1 && activeMessageHistory.canPop(0)) {
         return !isDummyMessage;
       }
@@ -473,10 +473,10 @@ var commandController = {
       return !isDummyMessage;
     }
 
-    let numSelectedMessages = isDummyMessage ? 1 : gDBView.numSelected;
+    const numSelectedMessages = isDummyMessage ? 1 : gDBView.numSelected;
 
     // Evaluate these properties only if needed, not once for each command.
-    let folder = () => {
+    const folder = () => {
       if (gFolder) {
         return gFolder;
       }
@@ -485,9 +485,9 @@ var commandController = {
       }
       return null;
     };
-    let isNewsgroup = () =>
+    const isNewsgroup = () =>
       folder()?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, true);
-    let canMove = () =>
+    const canMove = () =>
       numSelectedMessages >= 1 &&
       (folder()?.canDeleteMessages || gViewWrapper.isSynthetic);
 
@@ -495,7 +495,7 @@ var commandController = {
       case "cmd_cancel":
         if (numSelectedMessages == 1 && isNewsgroup()) {
           // Ensure author of message matches own identity
-          let author = gDBView.hdrForFirstSelectedMessage.mime2DecodedAuthor;
+          const author = gDBView.hdrForFirstSelectedMessage.mime2DecodedAuthor;
           return MailServices.accounts
             .getIdentitiesForServer(folder().server)
             .some(id => id.fullAddress == author);
@@ -564,7 +564,7 @@ var commandController = {
       case "cmd_copyDecryptedTo": {
         let showDecrypt = numSelectedMessages > 1;
         if (numSelectedMessages == 1 && !isDummyMessage) {
-          let msgURI = gDBView.URIForFirstSelectedMessage;
+          const msgURI = gDBView.URIForFirstSelectedMessage;
           if (msgURI) {
             showDecrypt =
               EnigmailURIs.isEncryptedUri(msgURI) ||
@@ -602,10 +602,10 @@ var commandController = {
         if (numSelectedMessages == 0 || isDummyMessage) {
           return false;
         }
-        let sel = gViewWrapper.dbView.selection;
+        const sel = gViewWrapper.dbView.selection;
         for (let i = 0; i < sel.getRangeCount(); i++) {
-          let start = {};
-          let end = {};
+          const start = {};
+          const end = {};
           sel.getRangeAt(i, start, end);
           for (let j = start.value; j <= end.value; j++) {
             if (
@@ -639,7 +639,7 @@ var commandController = {
           canMoveAgain = canMove() && !isNewsgroup();
         }
         if (canMoveAgain) {
-          let targetURI = Services.prefs.getStringPref(
+          const targetURI = Services.prefs.getStringPref(
             "mail.last_msg_movecopy_target_uri"
           );
           canMoveAgain = targetURI && MailUtils.getExistingFolder(targetURI);
@@ -659,8 +659,8 @@ var commandController = {
           folder()?.server.canHaveFilters
         );
       case "cmd_watchThread": {
-        let enabledObj = {};
-        let checkStatusObj = {};
+        const enabledObj = {};
+        const checkStatusObj = {};
         gViewWrapper.dbView.getCommandStatus(
           Ci.nsMsgViewCommandType.toggleThreadWatched,
           enabledObj,
@@ -718,8 +718,8 @@ var commandController = {
       return false;
     }
 
-    let enabledObj = {};
-    let checkStatusObj = {};
+    const enabledObj = {};
+    const checkStatusObj = {};
     gViewWrapper.dbView.getCommandStatus(
       commandType,
       enabledObj,
@@ -738,8 +738,8 @@ var commandController = {
   _composeMsgByType(composeType, event) {
     // If we're the hidden window, then we're not going to have a gFolderDisplay
     // to work out existing folders, so just use null.
-    let msgFolder = gFolder;
-    let msgUris =
+    const msgFolder = gFolder;
+    const msgUris =
       gFolder || gViewWrapper.isSynthetic
         ? gDBView?.getURIsForSelection()
         : [window.gMessageURI];
@@ -797,11 +797,11 @@ var commandController = {
       } else if (noCurrentMessage) {
         relativePosition = 0;
       }
-      let newMessageURI = messageHistory.pop(relativePosition)?.messageURI;
+      const newMessageURI = messageHistory.pop(relativePosition)?.messageURI;
       if (!newMessageURI) {
         return;
       }
-      let msgHdr =
+      const msgHdr =
         MailServices.messageServiceFromURI(newMessageURI).messageURIToMsgHdr(
           newMessageURI
         );
@@ -815,12 +815,14 @@ var commandController = {
       return;
     }
 
-    let resultKey = { value: nsMsgKey_None };
-    let resultIndex = { value: nsMsgViewIndex_None };
-    let threadIndex = {};
+    const resultKey = { value: nsMsgKey_None };
+    const resultIndex = { value: nsMsgViewIndex_None };
+    const threadIndex = {};
 
     let expandCurrentThread = false;
-    let currentIndex = window.threadTree ? window.threadTree.currentIndex : -1;
+    const currentIndex = window.threadTree
+      ? window.threadTree.currentIndex
+      : -1;
 
     // If we're doing next unread, and a collapsed thread is selected, and
     // the top level message is unread, just set the result manually to
@@ -984,7 +986,10 @@ var dbViewWrapperListener = {
       let newMessageFound = false;
       if (window.threadPane.scrollToNewMessage) {
         try {
-          let index = gDBView.findIndexOfMsgHdr(gFolder.firstNewMessage, true);
+          const index = gDBView.findIndexOfMsgHdr(
+            gFolder.firstNewMessage,
+            true
+          );
           if (index != nsMsgViewIndex_None) {
             window.threadTree.scrollToIndex(index, true);
             newMessageFound = true;
@@ -1016,7 +1021,7 @@ var dbViewWrapperListener = {
       return;
     }
 
-    let rowCount = gDBView.rowCount;
+    const rowCount = gDBView.rowCount;
 
     // There's no messages left.
     if (rowCount == 0) {
@@ -1025,7 +1030,7 @@ var dbViewWrapperListener = {
         window.threadTree.selectedIndex = -1;
       } else if (parent?.location != "about:3pane") {
         // In a standalone message tab or window, close the tab or window.
-        let tabmail = top.document.getElementById("tabmail");
+        const tabmail = top.document.getElementById("tabmail");
         if (tabmail) {
           tabmail.closeTab(window.tabOrWindow);
         } else {
@@ -1054,7 +1059,7 @@ var dbViewWrapperListener = {
           // might not fire it. OTOH, we want it to fire only once, so see if
           // the event is fired, and if not, fire it.
           let eventFired = false;
-          let onSelect = () => (eventFired = true);
+          const onSelect = () => (eventFired = true);
 
           window.threadTree.addEventListener("select", onSelect, {
             once: true,
@@ -1070,7 +1075,7 @@ var dbViewWrapperListener = {
             Services.prefs.getBoolPref("mail.close_message_window.on_delete")
           ) {
             // Close the tab or window if the displayed message is deleted.
-            let tabmail = top.document.getElementById("tabmail");
+            const tabmail = top.document.getElementById("tabmail");
             if (tabmail) {
               tabmail.closeTab(window.tabOrWindow);
             } else {

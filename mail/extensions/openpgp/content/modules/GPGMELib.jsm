@@ -23,9 +23,9 @@ const ADDITIONAL_LIB_PATHS = [
 var libgpgme, libgpgmePath;
 
 function tryLoadGPGME(name, suffix) {
-  let filename = ctypes.libraryName(name) + suffix;
-  let binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
-  let binDir = PathUtils.parent(binPath);
+  const filename = ctypes.libraryName(name) + suffix;
+  const binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
+  const binDir = PathUtils.parent(binPath);
   libgpgmePath = PathUtils.join(binDir, filename);
 
   let loadFromInfo;
@@ -47,7 +47,7 @@ function tryLoadGPGME(name, suffix) {
   if (!libgpgme && systemOS !== "winnt") {
     // try specific additional directories
 
-    for (let tryPath of ADDITIONAL_LIB_PATHS) {
+    for (const tryPath of ADDITIONAL_LIB_PATHS) {
       try {
         loadFromInfo = "additional standard locations";
         libgpgmePath = tryPath + "/" + filename;
@@ -121,7 +121,7 @@ const gpgme_decrypt_flags_t = ctypes.unsigned_int;
 const gpgme_data_encoding_t = ctypes.unsigned_int;
 const gpgme_sig_mode_t = ctypes.int; // it's an enum, risk of wrong type.
 
-let _gpgme_subkey = ctypes.StructType("_gpgme_subkey");
+const _gpgme_subkey = ctypes.StructType("_gpgme_subkey");
 _gpgme_subkey.define([
   { next: _gpgme_subkey.ptr },
   { bitfield: ctypes.unsigned_int },
@@ -136,9 +136,9 @@ _gpgme_subkey.define([
   { curve: ctypes.char.ptr },
   { keygrip: ctypes.char.ptr },
 ]);
-let gpgme_subkey_t = _gpgme_subkey.ptr;
+const gpgme_subkey_t = _gpgme_subkey.ptr;
 
-let _gpgme_sig_notation = ctypes.StructType("_gpgme_sig_notation");
+const _gpgme_sig_notation = ctypes.StructType("_gpgme_sig_notation");
 _gpgme_sig_notation.define([
   { next: _gpgme_sig_notation.ptr },
   { name: ctypes.char.ptr },
@@ -148,9 +148,9 @@ _gpgme_sig_notation.define([
   { flags: gpgme_sig_notation_flags_t },
   { bitfield: ctypes.unsigned_int },
 ]);
-let gpgme_sig_notation_t = _gpgme_sig_notation.ptr;
+const gpgme_sig_notation_t = _gpgme_sig_notation.ptr;
 
-let _gpgme_key_sig = ctypes.StructType("_gpgme_key_sig");
+const _gpgme_key_sig = ctypes.StructType("_gpgme_key_sig");
 _gpgme_key_sig.define([
   { next: _gpgme_key_sig.ptr },
   { bitfield: ctypes.unsigned_int },
@@ -169,9 +169,9 @@ _gpgme_key_sig.define([
   { notations: gpgme_sig_notation_t },
   { last_notation: gpgme_sig_notation_t },
 ]);
-let gpgme_key_sig_t = _gpgme_key_sig.ptr;
+const gpgme_key_sig_t = _gpgme_key_sig.ptr;
 
-let _gpgme_tofu_info = ctypes.StructType("_gpgme_tofu_info");
+const _gpgme_tofu_info = ctypes.StructType("_gpgme_tofu_info");
 _gpgme_tofu_info.define([
   { next: _gpgme_tofu_info.ptr },
   { bitfield: ctypes.unsigned_int },
@@ -183,9 +183,9 @@ _gpgme_tofu_info.define([
   { encrlast: ctypes.unsigned_short },
   { description: ctypes.char.ptr },
 ]);
-let gpgme_tofu_info_t = _gpgme_tofu_info.ptr;
+const gpgme_tofu_info_t = _gpgme_tofu_info.ptr;
 
-let _gpgme_user_id = ctypes.StructType("_gpgme_user_id");
+const _gpgme_user_id = ctypes.StructType("_gpgme_user_id");
 _gpgme_user_id.define([
   { next: _gpgme_user_id.ptr },
   { bitfield: ctypes.unsigned_int },
@@ -200,9 +200,9 @@ _gpgme_user_id.define([
   { tofu: gpgme_tofu_info_t },
   { last_update: ctypes.unsigned_long },
 ]);
-let gpgme_user_id_t = _gpgme_user_id.ptr;
+const gpgme_user_id_t = _gpgme_user_id.ptr;
 
-let _gpgme_key = ctypes.StructType("gpgme_key_t", [
+const _gpgme_key = ctypes.StructType("gpgme_key_t", [
   { _refs: ctypes.unsigned_int },
   { bitfield: ctypes.unsigned_int },
   { protocol: gpgme_protocol_t },
@@ -218,7 +218,7 @@ let _gpgme_key = ctypes.StructType("gpgme_key_t", [
   { fpr: ctypes.char.ptr },
   { last_update: ctypes.unsigned_long },
 ]);
-let gpgme_key_t = _gpgme_key.ptr;
+const gpgme_key_t = _gpgme_key.ptr;
 
 var GPGMELib;
 
@@ -231,24 +231,24 @@ function enableGPGMELibJS() {
     init() {
       // GPGME 1.9.0 released 2017-03-28 is the first version that
       // supports GPGME_DECRYPT_UNWRAP, requiring >= gpg 2.1.12
-      let versionPtr = this.gpgme_check_version("1.9.0");
-      let version = versionPtr.readString();
+      const versionPtr = this.gpgme_check_version("1.9.0");
+      const version = versionPtr.readString();
       console.debug("gpgme version: " + version);
 
-      let gpgExe = Services.prefs.getStringPref(
+      const gpgExe = Services.prefs.getStringPref(
         "mail.openpgp.alternative_gpg_path"
       );
       if (!gpgExe) {
         return true;
       }
 
-      let extResult = this.gpgme_set_engine_info(
+      const extResult = this.gpgme_set_engine_info(
         this.GPGME_PROTOCOL_OpenPGP,
         gpgExe,
         null
       );
-      let success = extResult === this.GPG_ERR_NO_ERROR;
-      let info = success ? "success" : "failure: " + extResult;
+      const success = extResult === this.GPG_ERR_NO_ERROR;
+      const info = success ? "success" : "failure: " + extResult;
       console.debug(
         "configuring GPGME to use an external OpenPGP engine " +
           gpgExe +
@@ -274,10 +274,10 @@ function enableGPGMELibJS() {
      *   indexed by fingerprint.
      */
     exportKeys(pattern, secret = false, keyFilterFunction = undefined) {
-      let resultMap = new Map();
-      let allFingerprints = [];
+      const resultMap = new Map();
+      const allFingerprints = [];
 
-      let c1 = new gpgme_ctx_t();
+      const c1 = new gpgme_ctx_t();
       if (this.gpgme_new(c1.address())) {
         throw new Error("gpgme_new failed");
       }
@@ -287,8 +287,8 @@ function enableGPGMELibJS() {
       }
 
       do {
-        let key = new gpgme_key_t();
-        let rv = this.gpgme_op_keylist_next(c1, key.address());
+        const key = new gpgme_key_t();
+        const rv = this.gpgme_op_keylist_next(c1, key.address());
         if (rv & GPGMELib.GPG_ERR_EOF) {
           break;
         } else if (rv) {
@@ -297,7 +297,7 @@ function enableGPGMELibJS() {
 
         if (key.contents.protocol == GPGMELib.GPGME_PROTOCOL_OpenPGP) {
           if (!keyFilterFunction || keyFilterFunction(key)) {
-            let fpr = key.contents.fpr.readString();
+            const fpr = key.contents.fpr.readString();
             allFingerprints.push(fpr);
           }
         }
@@ -310,15 +310,15 @@ function enableGPGMELibJS() {
 
       this.gpgme_release(c1);
 
-      for (let aFpr of allFingerprints) {
-        let c2 = new gpgme_ctx_t();
+      for (const aFpr of allFingerprints) {
+        const c2 = new gpgme_ctx_t();
         if (this.gpgme_new(c2.address())) {
           throw new Error("gpgme_new failed");
         }
 
         this.gpgme_set_armor(c2, 1);
 
-        let data = new gpgme_data_t();
+        const data = new gpgme_data_t();
         let rv = this.gpgme_data_new(data.address());
         if (rv) {
           throw new Error("gpgme_op_keylist_next gpgme_data_new: " + rv);
@@ -334,13 +334,13 @@ function enableGPGMELibJS() {
           throw new Error("gpgme_op_export gpgme_data_new: " + rv);
         }
 
-        let result_len = new ctypes.size_t();
-        let result_buf = this.gpgme_data_release_and_get_mem(
+        const result_len = new ctypes.size_t();
+        const result_buf = this.gpgme_data_release_and_get_mem(
           data,
           result_len.address()
         );
 
-        let keyData = ctypes.cast(
+        const keyData = ctypes.cast(
           result_buf,
           ctypes.char.array(result_len.value).ptr
         ).contents;

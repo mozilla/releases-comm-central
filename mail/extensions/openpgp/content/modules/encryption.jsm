@@ -56,7 +56,7 @@ var EnigmailEncryption = {
     errorMsgObj,
     logFileObj
   ) {
-    let result = {};
+    const result = {};
     result.sender = "";
     result.sign = false;
     result.signatureHash = "";
@@ -142,9 +142,9 @@ var EnigmailEncryption = {
         result.encryptToSender = true;
       }
 
-      let recipArrays = ["to", "bcc"];
-      for (let recipArray of recipArrays) {
-        let kMax = recipArray == "to" ? result.to.length : result.bcc.length;
+      const recipArrays = ["to", "bcc"];
+      for (const recipArray of recipArrays) {
+        const kMax = recipArray == "to" ? result.to.length : result.bcc.length;
         for (let k = 0; k < kMax; k++) {
           let email = recipArray == "to" ? result.to[k] : result.bcc[k];
           if (!email) {
@@ -160,11 +160,11 @@ var EnigmailEncryption = {
             result.bcc[k] = "<" + email + ">";
           }
 
-          let aliasKeyList = lazy.EnigmailKeyRing.getAliasKeyList(email);
+          const aliasKeyList = lazy.EnigmailKeyRing.getAliasKeyList(email);
           if (aliasKeyList) {
             // We have an alias definition.
 
-            let aliasKeys = lazy.EnigmailKeyRing.getAliasKeys(aliasKeyList);
+            const aliasKeys = lazy.EnigmailKeyRing.getAliasKeys(aliasKeyList);
             if (!aliasKeys.length) {
               // An empty result means there was a failure obtaining the
               // defined keys, this happens if at least one key is missing
@@ -208,13 +208,13 @@ var EnigmailEncryption = {
       "errorHandling.jsm: determineInvSignReason: keyId: " + keyId + "\n"
     );
 
-    let key = lazy.EnigmailKeyRing.getKeyById(keyId);
+    const key = lazy.EnigmailKeyRing.getKeyById(keyId);
     if (!key) {
       return lazy.l10n.formatValueSync("key-error-key-id-not-found", {
         keySpec: keyId,
       });
     }
-    let r = key.getSigningValidity();
+    const r = key.getSigningValidity();
     if (!r.keyValid) {
       return r.reason;
     }
@@ -235,13 +235,13 @@ var EnigmailEncryption = {
       "errorHandling.jsm: determineInvRcptReason: keyId: " + keyId + "\n"
     );
 
-    let key = lazy.EnigmailKeyRing.getKeyById(keyId);
+    const key = lazy.EnigmailKeyRing.getKeyById(keyId);
     if (!key) {
       return lazy.l10n.formatValueSync("key-error-key-id-not-found", {
         keySpec: keyId,
       });
     }
-    let r = key.getEncryptionValidity(false);
+    const r = key.getEncryptionValidity(false);
     if (!r.keyValid) {
       return r.reason;
     }
@@ -270,7 +270,7 @@ var EnigmailEncryption = {
     );
 
     let foundKey = null;
-    let ret = {
+    const ret = {
       errorMsg: null,
     };
 
@@ -278,8 +278,8 @@ var EnigmailEncryption = {
       return ret;
     }
 
-    let sign = !!(sendFlags & lazy.EnigmailConstants.SEND_SIGNED);
-    let encrypt = !!(sendFlags & lazy.EnigmailConstants.SEND_ENCRYPTED);
+    const sign = !!(sendFlags & lazy.EnigmailConstants.SEND_SIGNED);
+    const encrypt = !!(sendFlags & lazy.EnigmailConstants.SEND_ENCRYPTED);
 
     if (/^(0x)?[0-9a-f]+$/i.test(fromKeyId)) {
       // key ID specified
@@ -293,7 +293,7 @@ var EnigmailEncryption = {
     }
 
     if (!isExternalGnuPG && foundKey.secretAvailable) {
-      let isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
+      const isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
         foundKey.fpr
       );
       if (!isPersonal) {
@@ -313,7 +313,7 @@ var EnigmailEncryption = {
     if (isExternalGnuPG) {
       canSign = true;
     } else if (sign && foundKey) {
-      let v = foundKey.getSigningValidity();
+      const v = foundKey.getSigningValidity();
       if (v.keyValid) {
         canSign = true;
       } else {
@@ -329,7 +329,7 @@ var EnigmailEncryption = {
         // If the configured own key ID points to a subkey, check
         // specifically that this subkey is a valid encryption key.
 
-        let id = fromKeyId.replace(/^0x/, "");
+        const id = fromKeyId.replace(/^0x/, "");
         v = foundKey.getEncryptionValidity(false, null, id);
       } else {
         // Use parameter "false", because for isExternalGnuPG we cannot
@@ -420,9 +420,9 @@ var EnigmailEncryption = {
       );
     }
 
-    let logFileObj = {};
+    const logFileObj = {};
 
-    let encryptArgs = EnigmailEncryption.getCryptParams(
+    const encryptArgs = EnigmailEncryption.getCryptParams(
       fromMailAddr,
       toMailAddr,
       bccMailAddr,
@@ -441,9 +441,9 @@ var EnigmailEncryption = {
       throw new Error("unexpected no listener");
     }
 
-    let resultStatus = {};
+    const resultStatus = {};
     const cApi = lazy.EnigmailCryptoAPI();
-    let encrypted = cApi.sync(
+    const encrypted = cApi.sync(
       cApi.encryptAndOrSign(
         listener.getInputForCrypto(),
         encryptArgs,

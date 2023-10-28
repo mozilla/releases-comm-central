@@ -17,7 +17,7 @@ document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
 function Startup() {
-  let editor = GetCurrentEditor();
+  const editor = GetCurrentEditor();
   if (!editor) {
     window.close();
     return;
@@ -91,11 +91,11 @@ function replaceDataURIs(input) {
 }
 
 function onCopyOrCut(event) {
-  let startPos = gDialog.srcInput.selectionStart;
+  const startPos = gDialog.srcInput.selectionStart;
   if (startPos == undefined) {
     return;
   }
-  let endPos = gDialog.srcInput.selectionEnd;
+  const endPos = gDialog.srcInput.selectionEnd;
   let clipboard = gDialog.srcInput.value.substring(startPos, endPos);
 
   // Add back the original data URIs we stashed away earlier.
@@ -120,12 +120,12 @@ function onCopyOrCut(event) {
 }
 
 function onPaste(event) {
-  let startPos = gDialog.srcInput.selectionStart;
+  const startPos = gDialog.srcInput.selectionStart;
   if (startPos == undefined) {
     return;
   }
-  let endPos = gDialog.srcInput.selectionEnd;
-  let clipboard = event.clipboardData.getData("text/plain");
+  const endPos = gDialog.srcInput.selectionEnd;
+  const clipboard = event.clipboardData.getData("text/plain");
 
   // We do out own paste by replacing the selection with the pre-processed
   // clipboard data.

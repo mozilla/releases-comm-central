@@ -51,14 +51,14 @@ add_setup(async function () {
   folder = await create_folder("PromptToSaveTest");
 
   await add_message_to_folder([folder], create_message()); // row 0
-  let localFolder = folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const localFolder = folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   localFolder.addMessage(msgSource("content type: text", "text")); // row 1
   localFolder.addMessage(msgSource("content type missing", null)); // row 2
   gDraftFolder = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
 
 function msgSource(aSubject, aContentType) {
-  let msgId = Services.uuid.generateUUID() + "@invalid";
+  const msgId = Services.uuid.generateUUID() + "@invalid";
 
   return (
     "From - Sun Apr 07 22:47:11 2013\r\n" +
@@ -100,7 +100,7 @@ add_task(async function test_can_cancel_quit_on_changes() {
   cwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hey check out this megalol link", cwc);
 
-  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+  const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
   );
 
@@ -111,7 +111,7 @@ add_task(async function test_can_cancel_quit_on_changes() {
 
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
 
-  let promptState = gMockPromptService.promptState;
+  const promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a confirmEx prompt");
 
   Assert.equal("confirmEx", promptState.method);
@@ -144,7 +144,7 @@ add_task(async function test_can_quit_on_changes() {
   cwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hey check out this megalol link", cwc);
 
-  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+  const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
   );
 
@@ -155,7 +155,7 @@ add_task(async function test_can_quit_on_changes() {
   // Trigger the quit-application-request notification
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
 
-  let promptState = gMockPromptService.promptState;
+  const promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a confirmEx prompt");
 
   Assert.equal("confirmEx", promptState.method);
@@ -181,8 +181,8 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
   gMockPromptService.register();
 
   // open two new compose windows
-  let cwc1 = await open_compose_new_mail(window);
-  let cwc2 = await open_compose_new_mail(window);
+  const cwc1 = await open_compose_new_mail(window);
+  const cwc2 = await open_compose_new_mail(window);
 
   // Type something in each window.
   cwc1.document.getElementById("messageEditor").focus();
@@ -191,7 +191,7 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
   cwc2.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Polo!", cwc2);
 
-  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+  const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
   );
 
@@ -244,16 +244,16 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
  */
 add_task(async function test_no_prompt_on_close_for_unmodified() {
   await be_in_folder(folder);
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
-  let nwc = await open_compose_new_mail();
+  const nwc = await open_compose_new_mail();
   await close_compose_window(nwc, false);
 
-  let rwc = await open_compose_with_reply();
+  const rwc = await open_compose_with_reply();
   await close_compose_window(rwc, false);
 
-  let fwc = await open_compose_with_forward();
+  const fwc = await open_compose_with_forward();
   await close_compose_window(fwc, false);
 });
 
@@ -263,20 +263,20 @@ add_task(async function test_no_prompt_on_close_for_unmodified() {
  */
 add_task(async function test_prompt_on_close_for_modified() {
   await be_in_folder(folder);
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
-  let nwc = await open_compose_new_mail();
+  const nwc = await open_compose_new_mail();
   nwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hey hey hey!", nwc);
   await close_compose_window(nwc, true);
 
-  let rwc = await open_compose_with_reply();
+  const rwc = await open_compose_with_reply();
   rwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Howdy!", rwc);
   await close_compose_window(rwc, true);
 
-  let fwc = await open_compose_with_forward();
+  const fwc = await open_compose_with_forward();
   fwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Greetings!", fwc);
   await close_compose_window(fwc, true);
@@ -289,13 +289,13 @@ add_task(async function test_prompt_on_close_for_modified() {
 add_task(
   async function test_no_prompt_on_close_for_unmodified_content_type_text() {
     await be_in_folder(folder);
-    let msg = await select_click_row(1); // row 1 is the one with content type text
+    const msg = await select_click_row(1); // row 1 is the one with content type text
     await assert_selected_and_displayed(window, msg);
 
-    let rwc = await open_compose_with_reply();
+    const rwc = await open_compose_with_reply();
     await close_compose_window(rwc, false);
 
-    let fwc = await open_compose_with_forward();
+    const fwc = await open_compose_with_forward();
     Assert.equal(
       fwc.document.getElementById("attachmentBucket").getRowCount(),
       0,
@@ -312,13 +312,13 @@ add_task(
 add_task(
   async function test_no_prompt_on_close_for_unmodified_no_content_type() {
     await be_in_folder(folder);
-    let msg = await select_click_row(2); // row 2 is the one with no content type
+    const msg = await select_click_row(2); // row 2 is the one with no content type
     await assert_selected_and_displayed(window, msg);
 
-    let rwc = await open_compose_with_reply();
+    const rwc = await open_compose_with_reply();
     await close_compose_window(rwc, false);
 
-    let fwc = await open_compose_with_forward();
+    const fwc = await open_compose_with_forward();
     Assert.equal(
       fwc.document.getElementById("attachmentBucket").getRowCount(),
       0,
@@ -333,7 +333,7 @@ add_task(async function test_prompt_save_on_pill_editing() {
 
   // Focus should be on the To field, so just type an address.
   EventUtils.sendString("test@foo.invalid", cwc);
-  let pillCreated = TestUtils.waitForCondition(
+  const pillCreated = TestUtils.waitForCondition(
     () => cwc.document.querySelectorAll("mail-address-pill").length == 1,
     "One pill was created"
   );
@@ -364,14 +364,14 @@ add_task(async function test_prompt_save_on_pill_editing() {
 
   // Move to the drafts folder and select the recently saved message.
   await be_in_folder(gDraftFolder);
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
   // Click on the "edit draft" notification.
-  let aboutMessage = get_about_message();
-  let kBoxId = "mail-notification-top";
+  const aboutMessage = get_about_message();
+  const kBoxId = "mail-notification-top";
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
-  let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
+  const box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
   const composePromise = promise_new_window("msgcompose");
   // Click on the "Edit" button in the draft notification.
@@ -383,18 +383,18 @@ add_task(async function test_prompt_save_on_pill_editing() {
   cwc = await compose_window_ready(composePromise);
 
   // Make sure the address was saved correctly.
-  let pill = cwc.document.querySelector("mail-address-pill");
+  const pill = cwc.document.querySelector("mail-address-pill");
   Assert.equal(
     pill.fullAddress,
     "test@foo.invalid",
     "the email address matches"
   );
-  let isEditing = TestUtils.waitForCondition(
+  const isEditing = TestUtils.waitForCondition(
     () => pill.isEditing,
     "Pill is being edited"
   );
 
-  let focusPromise = TestUtils.waitForCondition(
+  const focusPromise = TestUtils.waitForCondition(
     () => cwc.document.activeElement == pill,
     "Pill is focused"
   );
@@ -407,7 +407,7 @@ add_task(async function test_prompt_save_on_pill_editing() {
   EventUtils.synthesizeKey("VK_RETURN", {}, cwc);
   await isEditing;
 
-  let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   // Try to quit after entering the pill edit mode, a "unsaved changes" dialog
   // should be triggered.
   cwc.goDoCommand("cmd_close");

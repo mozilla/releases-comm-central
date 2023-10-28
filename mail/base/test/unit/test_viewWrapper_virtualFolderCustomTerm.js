@@ -48,14 +48,14 @@ MailServices.filters.addCustomTerm(gCustomSearchTermSubject);
  *  correctly, with a custom search term.
  */
 add_task(async function test_virtual_folder_single_load_custom_pred() {
-  let viewWrapper = make_view_wrapper();
+  const viewWrapper = make_view_wrapper();
 
-  let [[folderOne], oneSubjFoo] = await messageInjection.makeFoldersWithSets(
+  const [[folderOne], oneSubjFoo] = await messageInjection.makeFoldersWithSets(
     1,
     [{ subject: "foo" }, {}]
   );
 
-  let virtFolder = messageInjection.makeVirtualFolder(folderOne, {
+  const virtFolder = messageInjection.makeVirtualFolder(folderOne, {
     custom: "foo",
   });
 

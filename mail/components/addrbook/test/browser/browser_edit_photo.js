@@ -16,7 +16,7 @@ const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
 const profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile).path;
 
 async function inEditingMode() {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
   await TestUtils.waitForCondition(
     () => abWindow.detailsPane.isEditing,
     "entering editing mode"
@@ -24,7 +24,7 @@ async function inEditingMode() {
 }
 
 async function notInEditingMode() {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
   await TestUtils.waitForCondition(
     () => !abWindow.detailsPane.isEditing,
     "leaving editing mode"
@@ -32,8 +32,8 @@ async function notInEditingMode() {
 }
 
 async function waitForDialogOpenState(state) {
-  let abWindow = getAddressBookWindow();
-  let dialog = abWindow.document.getElementById("photoDialog");
+  const abWindow = getAddressBookWindow();
+  const dialog = abWindow.document.getElementById("photoDialog");
   await TestUtils.waitForCondition(
     () => dialog.open == state,
     "waiting for photo dialog to change state"
@@ -42,9 +42,9 @@ async function waitForDialogOpenState(state) {
 }
 
 async function waitForPreviewChange() {
-  let abWindow = getAddressBookWindow();
-  let preview = abWindow.document.querySelector("#photoDialog svg > image");
-  let oldValue = preview.getAttribute("href");
+  const abWindow = getAddressBookWindow();
+  const preview = abWindow.document.querySelector("#photoDialog svg > image");
+  const oldValue = preview.getAttribute("href");
   await BrowserTestUtils.waitForEvent(
     preview,
     "load",
@@ -55,10 +55,10 @@ async function waitForPreviewChange() {
 }
 
 async function waitForPhotoChange() {
-  let abWindow = getAddressBookWindow();
-  let photo = abWindow.document.querySelector("#photoButton .contact-photo");
-  let dialog = abWindow.document.getElementById("photoDialog");
-  let oldValue = photo.src;
+  const abWindow = getAddressBookWindow();
+  const photo = abWindow.document.querySelector("#photoButton .contact-photo");
+  const dialog = abWindow.document.getElementById("photoDialog");
+  const oldValue = photo.src;
   await BrowserTestUtils.waitForMutationCondition(
     photo,
     { attributes: true },
@@ -69,10 +69,10 @@ async function waitForPhotoChange() {
 }
 
 function dropFile(target, path) {
-  let abWindow = getAddressBookWindow();
-  let file = new FileUtils.File(getTestFilePath(path));
+  const abWindow = getAddressBookWindow();
+  const file = new FileUtils.File(getTestFilePath(path));
 
-  let dataTransfer = new DataTransfer();
+  const dataTransfer = new DataTransfer();
   dataTransfer.dropEffect = "copy";
   dataTransfer.mozSetDataAt("application/x-moz-file", file, 0);
 
@@ -105,11 +105,11 @@ function checkDialogElements({
   saveButtonDisabled = false,
   discardButtonVisible = false,
 }) {
-  let abWindow = getAddressBookWindow();
-  let dialog = abWindow.document.getElementById("photoDialog");
-  let { saveButton, discardButton } = dialog;
-  let dropTarget = dialog.querySelector("#photoDropTarget");
-  let svg = dialog.querySelector("svg");
+  const abWindow = getAddressBookWindow();
+  const dialog = abWindow.document.getElementById("photoDialog");
+  const { saveButton, discardButton } = dialog;
+  const dropTarget = dialog.querySelector("#photoDropTarget");
+  const svg = dialog.querySelector("svg");
   Assert.equal(
     BrowserTestUtils.is_visible(dropTarget),
     !!dropTargetClass,
@@ -141,8 +141,8 @@ function checkDialogElements({
 }
 
 function getInput(entryName, addIfNeeded = false) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
   switch (entryName) {
     case "DisplayName":
@@ -185,10 +185,10 @@ function getInput(entryName, addIfNeeded = false) {
 }
 
 function setInputValues(changes) {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
 
-  for (let [key, value] of Object.entries(changes)) {
-    let input = getInput(key, !!value);
+  for (const [key, value] of Object.entries(changes)) {
+    const input = getInput(key, !!value);
     if (!input) {
       Assert.ok(!value, `${key} input exists to put a value in`);
       continue;
@@ -217,16 +217,16 @@ registerCleanupFunction(async function cleanUp() {
 
 /** Create a new contact. We'll add a photo to this contact. */
 async function subtest_add_photo(book) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let createContactButton = abDocument.getElementById("toolbarCreateContact");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
-  let photoButton = abDocument.getElementById("photoButton");
-  let editPhoto = photoButton.querySelector(".contact-photo");
-  let viewPhoto = abDocument.getElementById("viewContactPhoto");
-  let dialog = abWindow.document.getElementById("photoDialog");
-  let { saveButton } = dialog;
+  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+  const photoButton = abDocument.getElementById("photoButton");
+  const editPhoto = photoButton.querySelector(".contact-photo");
+  const viewPhoto = abDocument.getElementById("viewContactPhoto");
+  const dialog = abWindow.document.getElementById("photoDialog");
+  const { saveButton } = dialog;
 
   openDirectory(book);
 
@@ -251,7 +251,7 @@ async function subtest_add_photo(book) {
 
   // Drop a file on the photo dialog.
 
-  let previewChangePromise = waitForPreviewChange();
+  const previewChangePromise = waitForPreviewChange();
   dropFile(dialog, "data/photo1.jpg");
   await previewChangePromise;
 
@@ -262,7 +262,7 @@ async function subtest_add_photo(book) {
 
   // Accept the photo dialog.
 
-  let photoChangePromise = waitForPhotoChange();
+  const photoChangePromise = waitForPhotoChange();
   EventUtils.synthesizeMouseAtCenter(saveButton, {}, abWindow);
   await photoChangePromise;
   Assert.notEqual(
@@ -273,7 +273,7 @@ async function subtest_add_photo(book) {
 
   // Save the contact.
 
-  let createdPromise = TestUtils.topicObserved("addrbook-contact-created");
+  const createdPromise = TestUtils.topicObserved("addrbook-contact-created");
   setInputValues({
     DisplayName: "Person with Photo 1",
   });
@@ -287,24 +287,24 @@ async function subtest_add_photo(book) {
     "a photo is shown in contact view"
   );
 
-  let [card, uid] = await createdPromise;
+  const [card, uid] = await createdPromise;
   Assert.equal(uid, book.UID);
   return card;
 }
 
 /** Create another new contact. This time we'll add a photo, but discard it. */
 async function subtest_dont_add_photo(book) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let createContactButton = abDocument.getElementById("toolbarCreateContact");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
-  let photoButton = abDocument.getElementById("photoButton");
-  let editPhoto = photoButton.querySelector(".contact-photo");
-  let viewPhoto = abDocument.getElementById("viewContactPhoto");
-  let dialog = abWindow.document.getElementById("photoDialog");
-  let { saveButton, cancelButton, discardButton } = dialog;
-  let svg = dialog.querySelector("svg");
+  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+  const photoButton = abDocument.getElementById("photoButton");
+  const editPhoto = photoButton.querySelector(".contact-photo");
+  const viewPhoto = abDocument.getElementById("viewContactPhoto");
+  const dialog = abWindow.document.getElementById("photoDialog");
+  const { saveButton, cancelButton, discardButton } = dialog;
+  const svg = dialog.querySelector("svg");
 
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
@@ -412,7 +412,7 @@ async function subtest_dont_add_photo(book) {
 
   // Save the contact and check the photo was NOT saved.
 
-  let createdPromise = TestUtils.topicObserved("addrbook-contact-created");
+  const createdPromise = TestUtils.topicObserved("addrbook-contact-created");
   setInputValues({
     DisplayName: "Person with Photo 2",
   });
@@ -425,24 +425,24 @@ async function subtest_dont_add_photo(book) {
     "no photo shown in contact view"
   );
 
-  let [card, uid] = await createdPromise;
+  const [card, uid] = await createdPromise;
   Assert.equal(uid, book.UID);
   return card;
 }
 
 /** Go back to the first contact and discard the photo. */
 async function subtest_discard_photo(book, checkPhotoCallback) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let cardsList = abDocument.getElementById("cards");
-  let editButton = abDocument.getElementById("editButton");
-  let saveEditButton = abDocument.getElementById("saveEditButton");
-  let photoButton = abDocument.getElementById("photoButton");
-  let editPhoto = photoButton.querySelector(".contact-photo");
-  let viewPhoto = abDocument.getElementById("viewContactPhoto");
-  let dialog = abWindow.document.getElementById("photoDialog");
-  let { discardButton } = dialog;
+  const cardsList = abDocument.getElementById("cards");
+  const editButton = abDocument.getElementById("editButton");
+  const saveEditButton = abDocument.getElementById("saveEditButton");
+  const photoButton = abDocument.getElementById("photoButton");
+  const editPhoto = photoButton.querySelector(".contact-photo");
+  const viewPhoto = abDocument.getElementById("viewContactPhoto");
+  const dialog = abWindow.document.getElementById("photoDialog");
+  const { discardButton } = dialog;
 
   openDirectory(book);
 
@@ -472,13 +472,13 @@ async function subtest_discard_photo(book, checkPhotoCallback) {
 
   // Click to discard the photo.
 
-  let photoChangePromise = waitForPhotoChange();
+  const photoChangePromise = waitForPhotoChange();
   EventUtils.synthesizeMouseAtCenter(discardButton, {}, abWindow);
   await photoChangePromise;
 
   // Save the contact and check the photo was removed.
 
-  let updatedPromise = TestUtils.topicObserved("addrbook-contact-updated");
+  const updatedPromise = TestUtils.topicObserved("addrbook-contact-updated");
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode();
   Assert.equal(
@@ -487,21 +487,21 @@ async function subtest_discard_photo(book, checkPhotoCallback) {
     "photo no longer shown in contact view"
   );
 
-  let [card, uid] = await updatedPromise;
+  const [card, uid] = await updatedPromise;
   Assert.equal(uid, book.UID);
   return card;
 }
 
 /** Check that pasting URLs on photo widgets works. */
 async function subtest_paste_url() {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let createContactButton = abDocument.getElementById("toolbarCreateContact");
-  let cancelEditButton = abDocument.getElementById("cancelEditButton");
-  let photoButton = abDocument.getElementById("photoButton");
-  let editPhoto = photoButton.querySelector(".contact-photo");
-  let dropTarget = abDocument.getElementById("photoDropTarget");
+  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const cancelEditButton = abDocument.getElementById("cancelEditButton");
+  const photoButton = abDocument.getElementById("photoButton");
+  const editPhoto = photoButton.querySelector(".contact-photo");
+  const dropTarget = abDocument.getElementById("photoDropTarget");
 
   // Start a new contact and focus on the photo button.
 
@@ -528,12 +528,12 @@ async function subtest_paste_url() {
 
   let previewChangePromise = waitForPreviewChange();
 
-  let wrapper1 = Cc["@mozilla.org/supports-string;1"].createInstance(
+  const wrapper1 = Cc["@mozilla.org/supports-string;1"].createInstance(
     Ci.nsISupportsString
   );
   wrapper1.data =
     "https://example.com/browser/comm/mail/components/addrbook/test/browser/data/photo1.jpg";
-  let transfer1 = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+  const transfer1 = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
   transfer1.init(null);
@@ -567,12 +567,12 @@ async function subtest_paste_url() {
 
   previewChangePromise = waitForPreviewChange();
 
-  let wrapper2 = Cc["@mozilla.org/supports-string;1"].createInstance(
+  const wrapper2 = Cc["@mozilla.org/supports-string;1"].createInstance(
     Ci.nsISupportsString
   );
   wrapper2.data =
     "https://example.com/browser/comm/mail/components/addrbook/test/browser/data/photo2.jpg";
-  let transfer2 = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+  const transfer2 = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
   transfer2.init(null);
@@ -603,12 +603,12 @@ async function subtest_paste_url() {
 
   // Paste an invalid URL.
 
-  let wrapper3 = Cc["@mozilla.org/supports-string;1"].createInstance(
+  const wrapper3 = Cc["@mozilla.org/supports-string;1"].createInstance(
     Ci.nsISupportsString
   );
   wrapper3.data =
     "https://example.com/browser/comm/mail/components/addrbook/test/browser/data/fake.jpg";
-  let transfer3 = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+  const transfer3 = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
   transfer3.init(null);
@@ -638,16 +638,16 @@ async function subtest_paste_url() {
 add_task(async function test_local() {
   // Create a new contact. We'll add a photo to this contact.
 
-  let card1 = await subtest_add_photo(personalBook);
-  let photo1Name = card1.getProperty("PhotoName", "");
+  const card1 = await subtest_add_photo(personalBook);
+  const photo1Name = card1.getProperty("PhotoName", "");
   Assert.ok(photo1Name, "PhotoName property saved on card");
 
-  let photo1Path = PathUtils.join(profileDir, "Photos", photo1Name);
-  let photo1File = new FileUtils.File(photo1Path);
+  const photo1Path = PathUtils.join(profileDir, "Photos", photo1Name);
+  const photo1File = new FileUtils.File(photo1Path);
   Assert.ok(photo1File.exists(), "photo saved to disk");
 
-  let image = new Image();
-  let loadedPromise = BrowserTestUtils.waitForEvent(image, "load");
+  const image = new Image();
+  const loadedPromise = BrowserTestUtils.waitForEvent(image, "load");
   image.src = Services.io.newFileURI(photo1File).spec;
   await loadedPromise;
 
@@ -656,7 +656,7 @@ add_task(async function test_local() {
 
   // Create another new contact. This time we'll add a photo, but discard it.
 
-  let card2 = await subtest_dont_add_photo(personalBook);
+  const card2 = await subtest_dont_add_photo(personalBook);
   Assert.equal(
     card2.getProperty("PhotoName", "NO VALUE"),
     "NO VALUE",
@@ -665,7 +665,7 @@ add_task(async function test_local() {
 
   // Go back to the first contact and discard the photo.
 
-  let card3 = await subtest_discard_photo(personalBook, src =>
+  const card3 = await subtest_discard_photo(personalBook, src =>
     src.endsWith(photo1Name)
   );
   Assert.equal(
@@ -693,7 +693,7 @@ add_task(async function test_add_photo_carddav3() {
   CardDAVServer.open("alice", "alice");
   CardDAVServer.mimicGoogle = true;
 
-  let book = createAddressBook(
+  const book = createAddressBook(
     "CardDAV Book",
     Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
   );
@@ -703,7 +703,7 @@ add_task(async function test_add_photo_carddav3() {
   book.setBoolValue("carddav.vcard3", true);
   book.wrappedJSObject._isGoogleCardDAV = true;
 
-  let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
   loginInfo.init(CardDAVServer.origin, null, "test", "alice", "alice", "", "");
@@ -713,8 +713,8 @@ add_task(async function test_add_photo_carddav3() {
 
   // This notification fires when we retrieve the saved card from the server,
   // which happens before subtest_add_photo finishes.
-  let updatedPromise = TestUtils.topicObserved("addrbook-contact-updated");
-  let card1 = await subtest_add_photo(book);
+  const updatedPromise = TestUtils.topicObserved("addrbook-contact-updated");
+  const card1 = await subtest_add_photo(book);
   Assert.equal(
     card1.getProperty("PhotoName", "RIGHT"),
     "RIGHT",
@@ -731,7 +731,7 @@ add_task(async function test_add_photo_carddav3() {
 
   // Check the card we received from the server. If the server didn't like it,
   // the photo will be removed and this will fail.
-  let [card2] = await updatedPromise;
+  const [card2] = await updatedPromise;
   photoProp = card2.vCardProperties.getFirstEntry("photo");
   Assert.ok(card2.vCardProperties.designSet === ICAL.design.vcard3);
   Assert.ok(photoProp);
@@ -749,7 +749,7 @@ add_task(async function test_add_photo_carddav3() {
 
   // Discard the photo.
 
-  let card3 = await subtest_discard_photo(book, src =>
+  const card3 = await subtest_discard_photo(book, src =>
     src.startsWith("data:image/jpeg;base64,/9j/")
   );
 
@@ -759,7 +759,7 @@ add_task(async function test_add_photo_carddav3() {
   // This notification is the second of two, and fires when we retrieve the
   // saved card from the server, which doesn't happen before
   // subtest_discard_photo finishes.
-  let [card4] = await TestUtils.topicObserved("addrbook-contact-updated");
+  const [card4] = await TestUtils.topicObserved("addrbook-contact-updated");
   Assert.equal(card4.vCardProperties.getFirstEntry("photo"), null);
 
   // Check the card on the server.
@@ -785,7 +785,7 @@ add_task(async function test_add_photo_carddav4() {
 
   CardDAVServer.open("bob", "bob");
 
-  let book = createAddressBook(
+  const book = createAddressBook(
     "CardDAV Book",
     Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
   );
@@ -793,7 +793,7 @@ add_task(async function test_add_photo_carddav4() {
   book.setStringValue("carddav.url", CardDAVServer.url);
   book.setStringValue("carddav.username", "bob");
 
-  let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
   loginInfo.init(CardDAVServer.origin, null, "test", "bob", "bob", "", "");
@@ -803,8 +803,8 @@ add_task(async function test_add_photo_carddav4() {
 
   // This notification fires when we retrieve the saved card from the server,
   // which happens before subtest_add_photo finishes.
-  let updatedPromise = TestUtils.topicObserved("addrbook-contact-updated");
-  let card1 = await subtest_add_photo(book);
+  const updatedPromise = TestUtils.topicObserved("addrbook-contact-updated");
+  const card1 = await subtest_add_photo(book);
   Assert.equal(
     card1.getProperty("PhotoName", "RIGHT"),
     "RIGHT",
@@ -820,7 +820,7 @@ add_task(async function test_add_photo_carddav4() {
   Assert.ok(photoProp.value.startsWith("data:image/jpeg;base64,/9j/"));
 
   // Check the card we received from the server.
-  let [card2] = await updatedPromise;
+  const [card2] = await updatedPromise;
   photoProp = card2.vCardProperties.getFirstEntry("photo");
   Assert.ok(card2.vCardProperties.designSet === ICAL.design.vcard);
   Assert.ok(photoProp);
@@ -838,7 +838,7 @@ add_task(async function test_add_photo_carddav4() {
 
   // Discard the photo.
 
-  let card3 = await subtest_discard_photo(book, src =>
+  const card3 = await subtest_discard_photo(book, src =>
     src.startsWith("data:image/jpeg;base64,/9j/")
   );
 
@@ -848,7 +848,7 @@ add_task(async function test_add_photo_carddav4() {
   // This notification is the second of two, and fires when we retrieve the
   // saved card from the server, which doesn't happen before
   // subtest_discard_photo finishes.
-  let [card4] = await TestUtils.topicObserved("addrbook-contact-updated");
+  const [card4] = await TestUtils.topicObserved("addrbook-contact-updated");
   Assert.equal(card4.vCardProperties.getFirstEntry("photo"), null);
 
   // Check the card on the server.

@@ -37,7 +37,7 @@ var gDrafts;
 
 add_setup(async function () {
   folder = await create_folder("Test");
-  let thread1 = create_thread(10);
+  const thread1 = create_thread(10);
   await add_message_sets_to_folders([folder], [thread1]);
 
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
@@ -59,11 +59,11 @@ async function forward_selected_messages_and_go_to_drafts_folder(callback) {
   cwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString(kText, cwc);
 
-  let mailBody = get_compose_body(cwc);
+  const mailBody = get_compose_body(cwc);
   assert_previous_text(mailBody.firstChild, [kText]);
 
   const closePromise = BrowserTestUtils.domWindowClosed(cwc);
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   // quit -> do you want to save ?
   cwc.goDoCommand("cmd_close");
   await dialogPromise;
@@ -79,14 +79,14 @@ add_task(async function test_forward_inline() {
   await be_in_folder(folder);
   await make_display_unthreaded();
   // original message header
-  let oMsgHdr = await select_click_row(0);
+  const oMsgHdr = await select_click_row(0);
 
   await forward_selected_messages_and_go_to_drafts_folder(
     open_compose_with_forward
   );
 
   // forwarded message header
-  let fMsgHdr = await select_click_row(0);
+  const fMsgHdr = await select_click_row(0);
 
   Assert.ok(
     fMsgHdr.numReferences > 0,
@@ -119,8 +119,8 @@ add_task(async function test_forward_as_attachments() {
   await make_display_unthreaded();
 
   // original message header
-  let oMsgHdr0 = await select_click_row(0);
-  let oMsgHdr1 = await select_click_row(1);
+  const oMsgHdr0 = await select_click_row(0);
+  const oMsgHdr1 = await select_click_row(1);
   await select_shift_click_row(0);
 
   await forward_selected_messages_and_go_to_drafts_folder(
@@ -128,7 +128,7 @@ add_task(async function test_forward_as_attachments() {
   );
 
   // forwarded message header
-  let fMsgHdr = await select_click_row(0);
+  const fMsgHdr = await select_click_row(0);
 
   Assert.ok(
     fMsgHdr.numReferences > 0,

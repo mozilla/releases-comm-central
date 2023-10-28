@@ -36,7 +36,7 @@ add_task(async function test_copy_eml_message() {
   // up in the recent folders list. This simplifies navigation of the copy
   // context menu.
   await be_in_folder(folder1);
-  let message = await select_click_row(0);
+  const message = await select_click_row(0);
   MailServices.copy.copyMessages(
     folder1,
     [message],
@@ -51,12 +51,12 @@ add_task(async function test_copy_eml_message() {
   await press_delete(window);
 
   // Now, open a .eml file and copy it to our folder.
-  let file = new FileUtils.File(getTestFilePath("data/evil.eml"));
-  let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc);
+  const file = new FileUtils.File(getTestFilePath("data/evil.eml"));
+  const msgc = await open_message_from_file(file);
+  const aboutMessage = get_about_message(msgc);
 
   // First check the properties are correct when opening the .eml from file.
-  let emlMessage = aboutMessage.gMessage;
+  const emlMessage = aboutMessage.gMessage;
   Assert.equal(emlMessage.mime2DecodedSubject, "An email");
   Assert.equal(emlMessage.mime2DecodedAuthor, "from@example.com");
   Assert.equal(
@@ -68,7 +68,7 @@ add_task(async function test_copy_eml_message() {
     "11111111-bdfd-ca83-6479-3427940164a8@invalid"
   );
 
-  let documentChild = msgc.content.document.documentElement;
+  const documentChild = msgc.content.document.documentElement;
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },
@@ -87,7 +87,7 @@ add_task(async function test_copy_eml_message() {
   // Make sure the copy worked. Make sure the first header is the one used,
   // in case the message (incorrectly) has multiple when max-number is 1
   // according to RFC 5322.
-  let copiedMessage = await select_click_row(0);
+  const copiedMessage = await select_click_row(0);
   Assert.equal(copiedMessage.mime2DecodedSubject, "An email");
   Assert.equal(copiedMessage.mime2DecodedAuthor, "from@example.com");
   Assert.equal(

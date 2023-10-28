@@ -7,9 +7,9 @@ var { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"
 );
 
-let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 let rootFolder;
-let folders = {};
+const folders = {};
 
 const FOLDER_PREFIX = "mailbox://nobody@smart%20mailboxes/tags/";
 const DEFAULT_TAGS = new Map([
@@ -21,7 +21,7 @@ const DEFAULT_TAGS = new Map([
 ]);
 
 add_setup(async function () {
-  let allTags = MailServices.tags.getAllTags();
+  const allTags = MailServices.tags.getAllTags();
   Assert.deepEqual(
     allTags.map(t => t.key),
     [...DEFAULT_TAGS.keys()],
@@ -36,7 +36,7 @@ add_setup(async function () {
   about3Pane.folderPane.activeModes = ["all"];
   resetSmartMailboxes();
 
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     `${account.key}user`,
     "localhost",
@@ -47,7 +47,7 @@ add_setup(async function () {
     Ci.nsIMsgLocalMailFolder
   );
 
-  for (let flag of [
+  for (const flag of [
     "Inbox",
     "Drafts",
     "Templates",
@@ -67,8 +67,8 @@ add_setup(async function () {
   }
   folders.Plain = rootFolder.createLocalSubfolder("tagsModePlain");
 
-  let msgDatabase = folders.Virtual.msgDatabase;
-  let folderInfo = msgDatabase.dBFolderInfo;
+  const msgDatabase = folders.Virtual.msgDatabase;
+  const folderInfo = msgDatabase.dBFolderInfo;
   folderInfo.setCharProperty("searchStr", "ALL");
   folderInfo.setCharProperty("searchFolderUri", folders.Inbox.URI);
 
@@ -79,16 +79,18 @@ add_setup(async function () {
 });
 
 async function checkFolderTree(expectedTags) {
-  let tagsList = about3Pane.folderTree.querySelector(`li[data-mode="tags"] ul`);
+  const tagsList = about3Pane.folderTree.querySelector(
+    `li[data-mode="tags"] ul`
+  );
   await TestUtils.waitForCondition(
     () => tagsList.childElementCount == expectedTags.size,
     "waiting for folder tree to update"
   );
-  let keys = expectedTags.keys();
-  let values = expectedTags.values();
-  for (let row of tagsList.children) {
-    let key = keys.next().value;
-    let { label, color } = values.next().value;
+  const keys = expectedTags.keys();
+  const values = expectedTags.values();
+  for (const row of tagsList.children) {
+    const key = keys.next().value;
+    const { label, color } = values.next().value;
     Assert.equal(row.uri, FOLDER_PREFIX + encodeURIComponent(key));
     Assert.equal(row.name, label);
     Assert.equal(row.icon.style.getPropertyValue("--icon-color"), color);
@@ -98,7 +100,7 @@ async function checkFolderTree(expectedTags) {
 
 add_task(async function testFolderTree() {
   // Check the default tags are shown initially.
-  let expectedTags = new Map(DEFAULT_TAGS);
+  const expectedTags = new Map(DEFAULT_TAGS);
   about3Pane.folderPane.activeModes = ["all", "tags"];
   await checkFolderTree(DEFAULT_TAGS);
 
@@ -144,11 +146,11 @@ add_task(async function testFolderTree() {
 });
 
 function checkVirtualFolder(tagKey, tagLabel, expectedFolderURIs) {
-  let folder = MailServices.folderLookup.getFolderForURL(
+  const folder = MailServices.folderLookup.getFolderForURL(
     FOLDER_PREFIX + encodeURIComponent(tagKey)
   );
   Assert.ok(folder);
-  let wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
+  const wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
   Assert.equal(folder.prettyName, tagLabel);
   Assert.equal(wrappedFolder.searchString, `AND (tag,contains,${tagKey})`);
   Assert.equal(wrappedFolder.searchFolderURIs, "*");
@@ -161,7 +163,7 @@ function checkVirtualFolder(tagKey, tagLabel, expectedFolderURIs) {
 }
 
 add_task(async function testFolderSelection() {
-  let expectedFolderURIs = [
+  const expectedFolderURIs = [
     folders.Inbox.URI,
     folders.Drafts.URI,
     folders.Templates.URI,
@@ -170,17 +172,17 @@ add_task(async function testFolderSelection() {
     folders.Plain.URI,
   ];
 
-  for (let [key, { label }] of DEFAULT_TAGS) {
+  for (const [key, { label }] of DEFAULT_TAGS) {
     checkVirtualFolder(key, label, expectedFolderURIs);
   }
 
   // Add another plain folder. It should be added to the searched folders.
-  let newPlainFolder = rootFolder.createLocalSubfolder("tagsModePlain2");
+  const newPlainFolder = rootFolder.createLocalSubfolder("tagsModePlain2");
   expectedFolderURIs.push(newPlainFolder.URI);
   checkVirtualFolder("$label1", "Important", expectedFolderURIs);
 
   // Add a subfolder to the inbox. It should be added to the searched folders.
-  let newInboxFolder = folders.Inbox.createLocalSubfolder("tagsModeInbox2");
+  const newInboxFolder = folders.Inbox.createLocalSubfolder("tagsModeInbox2");
   expectedFolderURIs.push(newInboxFolder.URI);
   checkVirtualFolder("$label2", "Work", expectedFolderURIs);
 
@@ -188,15 +190,15 @@ add_task(async function testFolderSelection() {
   folders.Trash.createLocalSubfolder("tagsModeTrash2");
   checkVirtualFolder("$label1", "Important", expectedFolderURIs);
 
-  let rssAccount = FeedUtils.createRssAccount("rss");
-  let rssRootFolder = rssAccount.incomingServer.rootFolder;
+  const rssAccount = FeedUtils.createRssAccount("rss");
+  const rssRootFolder = rssAccount.incomingServer.rootFolder;
   FeedUtils.subscribeToFeed(
     "https://example.org/browser/comm/mail/base/test/browser/files/rss.xml?tagsMode",
     rssRootFolder,
     null
   );
   await TestUtils.waitForCondition(() => rssRootFolder.subFolders.length == 2);
-  let rssFeedFolder = rssRootFolder.getChildNamed("Test Feed");
+  const rssFeedFolder = rssRootFolder.getChildNamed("Test Feed");
 
   expectedFolderURIs.push(rssFeedFolder.URI);
   checkVirtualFolder("$label2", "Work", expectedFolderURIs);
@@ -206,7 +208,7 @@ add_task(async function testFolderSelection() {
   resetSmartMailboxes();
   about3Pane.folderPane.activeModes = ["all", "tags"];
 
-  for (let [key, { label }] of DEFAULT_TAGS) {
+  for (const [key, { label }] of DEFAULT_TAGS) {
     checkVirtualFolder(key, label, expectedFolderURIs);
   }
 

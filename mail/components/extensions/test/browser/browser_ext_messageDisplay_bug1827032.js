@@ -7,16 +7,18 @@
  * non-message tabs.
  */
 add_task(async function testGetDisplayedMessageInComposeTab() {
-  let files = {
+  const files = {
     "background.js": async () => {
-      let composeTab = await browser.compose.beginNew();
+      const composeTab = await browser.compose.beginNew();
       browser.test.assertEq(
         composeTab.type,
         "messageCompose",
         "Should have found a compose tab"
       );
 
-      let msg = await browser.messageDisplay.getDisplayedMessage(composeTab.id);
+      const msg = await browser.messageDisplay.getDisplayedMessage(
+        composeTab.id
+      );
       browser.test.assertTrue(!msg, "Should not have found a message");
 
       await browser.tabs.remove(composeTab.id);
@@ -24,7 +26,7 @@ add_task(async function testGetDisplayedMessageInComposeTab() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },

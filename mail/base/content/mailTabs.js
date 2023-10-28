@@ -23,10 +23,10 @@ var mailTabType = {
   name: "mailTab",
   perTabPanel: "vbox",
   _cloneTemplate(template, tab, onDOMContentLoaded, onLoad) {
-    let tabmail = document.getElementById("tabmail");
+    const tabmail = document.getElementById("tabmail");
 
-    let clone = document.getElementById(template).content.cloneNode(true);
-    let browser = clone.querySelector("browser");
+    const clone = document.getElementById(template).content.cloneNode(true);
+    const browser = clone.querySelector("browser");
     browser.id = `${tab.mode.name}Browser${tab.mode._nextId}`;
     browser.addEventListener(
       "DOMTitleChanged",
@@ -36,7 +36,7 @@ var mailTabType = {
       },
       true
     );
-    let linkRelIconHandler = event => {
+    const linkRelIconHandler = event => {
       if (event.target.rel != "icon") {
         return;
       }
@@ -165,7 +165,7 @@ var mailTabType = {
         // Content properties.
         Object.defineProperty(tab, "message", {
           get() {
-            let dbView = tab.chromeBrowser.contentWindow.gDBView;
+            const dbView = tab.chromeBrowser.contentWindow.gDBView;
             if (dbView?.selection?.count) {
               return dbView.hdrForFirstSelectedMessage;
             }
@@ -205,9 +205,9 @@ var mailTabType = {
 
         // Manually call onTabRestored, since it is usually called by openTab(),
         // which is skipped for the first tab.
-        let restoreState = tabmail._restoringTabState;
+        const restoreState = tabmail._restoringTabState;
         if (restoreState) {
-          for (let tabMonitor of tabmail.tabMonitors) {
+          for (const tabMonitor of tabmail.tabMonitors) {
             try {
               if (
                 "onTabRestored" in tabMonitor &&
@@ -226,7 +226,7 @@ var mailTabType = {
           }
         }
 
-        let { chromeBrowser, closed } = tabmail.tabInfo[0];
+        const { chromeBrowser, closed } = tabmail.tabInfo[0];
         if (
           chromeBrowser.contentDocument.readyState == "complete" &&
           chromeBrowser.currentURI.spec == "about:3pane"
@@ -243,7 +243,7 @@ var mailTabType = {
           "DOMContentLoaded",
           event => {
             if (!closed && event.target == chromeBrowser.contentDocument) {
-              let about3Pane = event.target.ownerGlobal;
+              const about3Pane = event.target.ownerGlobal;
               about3Pane.openingState = {
                 ...about3Pane.openingState,
                 ...persistedState,

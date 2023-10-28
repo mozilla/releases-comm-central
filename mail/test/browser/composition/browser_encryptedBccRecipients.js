@@ -42,11 +42,11 @@ add_setup(async function () {
     "imap"
   );
 
-  let bobIdentity = MailServices.accounts.createIdentity();
+  const bobIdentity = MailServices.accounts.createIdentity();
   bobIdentity.email = "bob@openpgp.example";
   bobAcct.addIdentity(bobIdentity);
 
-  let [id] = await OpenPGPTestUtils.importPrivateKey(
+  const [id] = await OpenPGPTestUtils.importPrivateKey(
     window,
     new FileUtils.File(
       getTestFilePath(
@@ -70,7 +70,7 @@ add_setup(async function () {
 add_task(async function testWarningShowsWhenEncryptionEnabled() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   Assert.ok(!cwc.gSendEncrypted);
 
@@ -117,7 +117,7 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
 add_task(async function testNotificationDismissal() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   Assert.ok(!cwc.gSendEncrypted);
 
@@ -155,7 +155,7 @@ add_task(async function testNotificationDismissal() {
     "Timeout waiting for warnEncryptedBccRecipients notification"
   );
 
-  let notificationHidden = BrowserTestUtils.waitForCondition(
+  const notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
       !cwc.gComposeNotification.getNotificationWithValue(
         "warnEncryptedBccRecipients"
@@ -163,7 +163,7 @@ add_task(async function testNotificationDismissal() {
     "notification was not removed in time"
   );
 
-  let notification = cwc.gComposeNotification.getNotificationWithValue(
+  const notification = cwc.gComposeNotification.getNotificationWithValue(
     "warnEncryptedBccRecipients"
   );
   EventUtils.synthesizeMouseAtCenter(
@@ -205,7 +205,7 @@ add_task(async function testNotificationDismissal() {
 add_task(async function testNoWarningWhenEncryptionDisabled() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   Assert.ok(!window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
@@ -215,7 +215,7 @@ add_task(async function testNoWarningWhenEncryptionDisabled() {
   );
 
   // setup_msg_contents will trigger checkEncryptionState.
-  let checkDonePromise = waitCheckEncryptionStateDone(cwc);
+  const checkDonePromise = waitCheckEncryptionStateDone(cwc);
   await setup_msg_contents(
     cwc,
     "test@example.org",
@@ -245,7 +245,7 @@ add_task(async function testNoWarningWhenEncryptionDisabled() {
 add_task(async function testNoWarningWhenBccRecipientIsSender() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   Assert.ok(!window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
@@ -255,7 +255,7 @@ add_task(async function testNoWarningWhenBccRecipientIsSender() {
   );
 
   // setup_msg_contents will trigger checkEncryptionState.
-  let checkDonePromise = waitCheckEncryptionStateDone(cwc);
+  const checkDonePromise = waitCheckEncryptionStateDone(cwc);
   await setup_msg_contents(
     cwc,
     "bob@openpgp.example",

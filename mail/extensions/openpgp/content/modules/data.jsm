@@ -14,7 +14,7 @@ const SCRIPTABLEUNICODECONVERTER_CONTRACTID =
 const HEX_TABLE = "0123456789abcdef";
 
 function converter(charset) {
-  let unicodeConv = Cc[SCRIPTABLEUNICODECONVERTER_CONTRACTID].getService(
+  const unicodeConv = Cc[SCRIPTABLEUNICODECONVERTER_CONTRACTID].getService(
     Ci.nsIScriptableUnicodeConverter
   );
   unicodeConv.charset = charset || "utf-8";
@@ -61,7 +61,7 @@ var EnigmailData = {
     }
 
     // Encode plaintext
-    let buffer = Uint8Array.from(text, c => c.charCodeAt(0));
+    const buffer = Uint8Array.from(text, c => c.charCodeAt(0));
     return new TextDecoder(charset).decode(buffer);
   },
 
@@ -70,7 +70,7 @@ var EnigmailData = {
       return "";
     }
 
-    let conv = converter(charset);
+    const conv = converter(charset);
     let result = conv.ConvertFromUnicode(text);
     result += conv.Finish();
     return result;
@@ -88,7 +88,7 @@ var EnigmailData = {
   },
 
   unpack(str) {
-    let len = str.length;
+    const len = str.length;
     let value = 0;
 
     for (let j = 0; j < len; j++) {
@@ -100,11 +100,11 @@ var EnigmailData = {
   },
 
   bytesToHex(str) {
-    let len = str.length;
+    const len = str.length;
 
     let hex = "";
     for (let j = 0; j < len; j++) {
-      let charCode = str.charCodeAt(j);
+      const charCode = str.charCodeAt(j);
       hex +=
         HEX_TABLE.charAt((charCode & 0xf0) >> 4) +
         HEX_TABLE.charAt(charCode & 0x0f);
@@ -119,9 +119,9 @@ var EnigmailData = {
   arrayBufferToString(buffer) {
     const MAXLEN = 102400;
 
-    let uArr = new Uint8Array(buffer);
+    const uArr = new Uint8Array(buffer);
     let ret = "";
-    let len = buffer.byteLength;
+    const len = buffer.byteLength;
 
     for (let j = 0; j < Math.floor(len / MAXLEN) + 1; j++) {
       ret += String.fromCharCode.apply(

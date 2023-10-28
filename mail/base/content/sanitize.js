@@ -96,7 +96,7 @@ Sanitizer.prototype = {
       clear() {
         if (this.range) {
           // Iterate through the cookies and delete any created after our cutoff.
-          for (let cookie of Services.cookies.cookies) {
+          for (const cookie of Services.cookies.cookies) {
             if (cookie.creationTime > this.range[0]) {
               // This cookie was created after our cutoff, clear it
               Services.cookies.remove(

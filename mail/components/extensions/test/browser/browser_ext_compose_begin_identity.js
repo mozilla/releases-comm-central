@@ -6,40 +6,40 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-let account = createAccount("pop3");
+const account = createAccount("pop3");
 createAccount("local");
 MailServices.accounts.defaultAccount = account;
 
-let defaultIdentity = addIdentity(account);
+const defaultIdentity = addIdentity(account);
 defaultIdentity.composeHtml = true;
-let nonDefaultIdentity = addIdentity(account);
+const nonDefaultIdentity = addIdentity(account);
 nonDefaultIdentity.composeHtml = false;
 
-let rootFolder = account.incomingServer.rootFolder;
+const rootFolder = account.incomingServer.rootFolder;
 rootFolder.createSubfolder("test", null);
-let folder = rootFolder.getChildNamed("test");
+const folder = rootFolder.getChildNamed("test");
 createMessages(folder, 4);
 
 add_task(async function testIdentity() {
-  let files = {
+  const files = {
     "background.js": async () => {
-      let accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
-      let popAccount = accounts.find(a => a.type == "pop3");
+      const popAccount = accounts.find(a => a.type == "pop3");
       browser.test.assertEq(
         2,
         popAccount.identities.length,
         "number of identities"
       );
-      let [defaultIdentity, nonDefaultIdentity] = popAccount.identities;
-      let folder = popAccount.folders.find(f => f.name == "test");
-      let { messages } = await browser.messages.list(folder);
+      const [defaultIdentity, nonDefaultIdentity] = popAccount.identities;
+      const folder = popAccount.folders.find(f => f.name == "test");
+      const { messages } = await browser.messages.list(folder);
       browser.test.assertEq(4, messages.length, "number of messages");
 
       browser.test.log(defaultIdentity.id);
       browser.test.log(nonDefaultIdentity.id);
 
-      let funcs = [
+      const funcs = [
         { name: "beginNew", args: [] },
         { name: "beginReply", args: [messages[0].id] },
         { name: "beginForward", args: [messages[1].id, "forwardAsAttachment"] },
@@ -47,7 +47,7 @@ add_task(async function testIdentity() {
         { name: "beginForward", args: [messages[2].id, "forwardInline"] },
         { name: "beginNew", args: [messages[3].id] },
       ];
-      let tests = [
+      const tests = [
         { args: [], isDefault: true },
         {
           args: [{ identityId: defaultIdentity.id }],
@@ -58,11 +58,11 @@ add_task(async function testIdentity() {
           isDefault: false,
         },
       ];
-      for (let func of funcs) {
+      for (const func of funcs) {
         browser.test.log(func.name);
-        for (let test of tests) {
+        for (const test of tests) {
           browser.test.log(JSON.stringify(test.args));
-          let tab = await browser.compose[func.name](
+          const tab = await browser.compose[func.name](
             ...func.args.concat(test.args)
           );
           browser.test.assertEq("object", typeof tab);
@@ -75,7 +75,7 @@ add_task(async function testIdentity() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
@@ -84,7 +84,7 @@ add_task(async function testIdentity() {
   });
 
   extension.onMessage("checkIdentity", async isDefault => {
-    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
     await new Promise(resolve => composeWindows[0].setTimeout(resolve));
 

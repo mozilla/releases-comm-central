@@ -16,8 +16,8 @@ let book, list;
 add_setup(async function () {
   book = createAddressBook("book");
   book.addCard(createContact("contact", "A"));
-  let contactB = book.addCard(createContact("contact", "B"));
-  let contactC = book.addCard(createContact("contact", "C"));
+  const contactB = book.addCard(createContact("contact", "B"));
+  const contactC = book.addCard(createContact("contact", "C"));
 
   list = book.addMailList(createMailingList("list"));
   list.addCard(contactB);
@@ -67,22 +67,22 @@ async function promiseExport(directory, extension) {
   MockFilePicker.testFilters = [];
   MockFilePicker.testExtension = extension;
 
-  let [exportFile, directoryUID] = await TestUtils.topicObserved(
+  const [exportFile, directoryUID] = await TestUtils.topicObserved(
     "addrbook-export-completed"
   );
   Assert.equal(directoryUID, directory.UID);
 
-  let contents = await IOUtils.readUTF8(exportFile.path);
+  const contents = await IOUtils.readUTF8(exportFile.path);
   await IOUtils.remove(exportFile.path);
 
   return contents;
 }
 
 async function exportFromBooksContext(directory, extension) {
-  let exportPromise = promiseExport(directory, extension);
+  const exportPromise = promiseExport(directory, extension);
 
-  let abWindow = getAddressBookWindow();
-  let booksList = abWindow.booksList;
+  const abWindow = getAddressBookWindow();
+  const booksList = abWindow.booksList;
   await showBooksContext(
     booksList.getIndexForUID(directory.UID),
     "bookContextExport"
@@ -92,7 +92,7 @@ async function exportFromBooksContext(directory, extension) {
 }
 
 async function exportFromCardsContext(directory, extension) {
-  let exportPromise = promiseExport(directory, extension);
+  const exportPromise = promiseExport(directory, extension);
 
   openDirectory(book);
   // The list is the fourth item, after the contacts.

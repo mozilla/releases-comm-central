@@ -75,11 +75,11 @@ function help_create_detached_deleted_attachment(filename, type) {
  * @returns a string representing the attachment
  */
 function create_detached_attachment(file, type) {
-  let fileHandler = Services.io
+  const fileHandler = Services.io
     .getProtocolHandler("file")
     .QueryInterface(Ci.nsIFileProtocolHandler);
-  let url = fileHandler.getURLSpecFromActualFile(file);
-  let filename = file.leafName;
+  const url = fileHandler.getURLSpecFromActualFile(file);
+  const filename = file.leafName;
 
   let str =
     'Content-Type: text/plain;\r\n name="' +
@@ -156,12 +156,12 @@ function create_enclosure_attachment(filename, type, url, size) {
  * @param {integer} [aIndexEnd] - The index of the last item to select.
  */
 function select_attachments(aWin, aIndexStart, aIndexEnd) {
-  let bucket = aWin.document.getElementById("attachmentBucket");
+  const bucket = aWin.document.getElementById("attachmentBucket");
   bucket.clearSelection();
 
   if (aIndexEnd !== undefined) {
-    let startItem = bucket.getItemAtIndex(aIndexStart);
-    let endItem = bucket.getItemAtIndex(aIndexEnd);
+    const startItem = bucket.getItemAtIndex(aIndexStart);
+    const endItem = bucket.getItemAtIndex(aIndexEnd);
     bucket.selectItemRange(startItem, endItem);
   } else {
     bucket.selectedIndex = aIndexStart;

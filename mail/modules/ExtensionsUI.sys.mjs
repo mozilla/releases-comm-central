@@ -63,7 +63,7 @@ var PopupNotifications = {
   },
 
   show(browser, id, message, anchorID, mainAction, secondaryActions, options) {
-    let notifications = getTopWindow().PopupNotifications;
+    const notifications = getTopWindow().PopupNotifications;
     if (options.popupIconURL == "chrome://browser/content/extension.svg") {
       options.popupIconURL = DEFAULT_EXTENSION_ICON;
     }
@@ -103,7 +103,7 @@ function removeNotificationOnEnd(notification, installs) {
 
     if (--count == 0) {
       // Check that the notification is still showing
-      let current = PopupNotifications.getNotification(
+      const current = PopupNotifications.getNotification(
         notification.id,
         notification.browser
       );
@@ -113,7 +113,7 @@ function removeNotificationOnEnd(notification, installs) {
     }
   }
 
-  for (let install of installs) {
+  for (const install of installs) {
     install.addListener({
       onDownloadCancelled: maybeRemove,
       onDownloadFailed: maybeRemove,
@@ -127,7 +127,7 @@ function removeNotificationOnEnd(notification, installs) {
 function buildNotificationAction(msg, callback) {
   let label = "";
   let accessKey = "";
-  for (let { name, value } of msg.attributes) {
+  for (const { name, value } of msg.attributes) {
     switch (name) {
       case "label":
         label = value;
@@ -192,7 +192,7 @@ const ERROR_L10N_IDS = new Map([
 // Add Thunderbird specific permissions so localization will work. Add entries
 // to PERMISSION_L10N_ID_OVERRIDES here in case a permission string needs to be
 // overridden.
-for (let perm of [
+for (const perm of [
   "accountsFolders",
   "accountsIdentities",
   "accountsRead",
@@ -225,13 +225,13 @@ var gXPInstallObserver = {
   // Themes do not have a permission prompt and instead call for an install
   // confirmation.
   showInstallConfirmation(browser, installInfo, height = undefined) {
-    let document = getTopWindow().document;
+    const document = getTopWindow().document;
     // If the confirmation notification is already open cache the installInfo
     // and the new confirmation will be shown later
     if (
       PopupNotifications.getNotification("addon-install-confirmation", browser)
     ) {
-      let pending = this.pendingInstalls.get(browser);
+      const pending = this.pendingInstalls.get(browser);
       if (pending) {
         pending.push(installInfo);
       } else {
@@ -240,8 +240,8 @@ var gXPInstallObserver = {
       return;
     }
 
-    let showNextConfirmation = () => {
-      let pending = this.pendingInstalls.get(browser);
+    const showNextConfirmation = () => {
+      const pending = this.pendingInstalls.get(browser);
       if (pending && pending.length) {
         this.showInstallConfirmation(browser, pending.shift());
       }
@@ -268,8 +268,8 @@ var gXPInstallObserver = {
       },
     };
 
-    let acceptInstallation = () => {
-      for (let install of installInfo.installs) {
+    const acceptInstallation = () => {
+      for (const install of installInfo.installs) {
         install.install();
       }
       installInfo = null;
@@ -281,9 +281,9 @@ var gXPInstallObserver = {
         );
     };
 
-    let cancelInstallation = () => {
+    const cancelInstallation = () => {
       if (installInfo) {
-        for (let install of installInfo.installs) {
+        for (const install of installInfo.installs) {
           // The notification may have been closed because the add-ons got
           // cancelled elsewhere, only try to cancel those that are still
           // pending install.
@@ -302,17 +302,17 @@ var gXPInstallObserver = {
           cancelInstallation();
           break;
         case "shown":
-          let addonList = document.getElementById(
+          const addonList = document.getElementById(
             "addon-install-confirmation-content"
           );
           while (addonList.lastChild) {
             addonList.lastChild.remove();
           }
 
-          for (let install of installInfo.installs) {
-            let container = document.createXULElement("hbox");
+          for (const install of installInfo.installs) {
+            const container = document.createXULElement("hbox");
 
-            let name = document.createXULElement("label");
+            const name = document.createXULElement("label");
             name.setAttribute("value", install.addon.name);
             name.setAttribute("class", "addon-install-confirmation-name");
             container.appendChild(name);
@@ -323,11 +323,10 @@ var gXPInstallObserver = {
       }
     };
 
-    let msgId;
-    let notification = document.getElementById(
+    const notification = document.getElementById(
       "addon-install-confirmation-notification"
     );
-    msgId = "addon-confirm-install-message";
+    const msgId = "addon-confirm-install-message";
     notification.removeAttribute("warning");
     options.learnMoreURL =
       "https://support.thunderbird.net/kb/installing-addon-thunderbird";
@@ -345,7 +344,7 @@ var gXPInstallObserver = {
       notification.style.minHeight = height + "px";
     }
 
-    let popup = PopupNotifications.show(
+    const popup = PopupNotifications.show(
       browser,
       "addon-install-confirmation",
       messageString,
@@ -381,7 +380,7 @@ var gXPInstallObserver = {
    * @returns {boolean} - true if notifications have been removed.
    */
   removeAllNotifications(browser) {
-    let notifications = this.NOTIFICATION_IDS.map(id =>
+    const notifications = this.NOTIFICATION_IDS.map(id =>
       PopupNotifications.getNotification(id, browser)
     ).filter(notification => notification != null);
 
@@ -391,11 +390,11 @@ var gXPInstallObserver = {
   },
 
   async observe(aSubject, aTopic, aData) {
-    let installInfo = aSubject.wrappedJSObject;
-    let browser = installInfo.browser;
+    const installInfo = aSubject.wrappedJSObject;
+    const browser = installInfo.browser;
 
     // Make notifications persistent
-    let options = {
+    const options = {
       displayURI: installInfo.originatingURI,
       persistent: true,
       hideClose: true,
@@ -449,7 +448,7 @@ var gXPInstallObserver = {
             : "xpinstall-prompt";
         let messageString = await lazy.l10n.formatValue(msgId);
         if (Services.policies) {
-          let extensionSettings = Services.policies.getExtensionSettings("*");
+          const extensionSettings = Services.policies.getExtensionSettings("*");
           if (
             extensionSettings &&
             "blocked_install_message" in extensionSettings
@@ -461,11 +460,11 @@ var gXPInstallObserver = {
         options.removeOnDismissal = true;
         options.persistent = false;
 
-        let secHistogram = Services.telemetry.getHistogramById("SECURITY_UI");
+        const secHistogram = Services.telemetry.getHistogramById("SECURITY_UI");
         secHistogram.add(
           Ci.nsISecurityUITelemetry.WARNING_ADDON_ASKING_PREVENTED
         );
-        let popup = PopupNotifications.show(
+        const popup = PopupNotifications.show(
           browser,
           aTopic,
           messageString,
@@ -478,12 +477,12 @@ var gXPInstallObserver = {
         break;
       }
       case "addon-install-blocked": {
-        let window = getTopWindow();
+        const window = getTopWindow();
         await window.ensureCustomElements("moz-support-link");
         // Dismiss the progress notification.  Note that this is bad if
         // there are multiple simultaneous installs happening, see
         // bug 1329884 for a longer explanation.
-        let progressNotification = PopupNotifications.getNotification(
+        const progressNotification = PopupNotifications.getNotification(
           "addon-progress",
           browser
         );
@@ -494,7 +493,7 @@ var gXPInstallObserver = {
         // The informational content differs somewhat for site permission
         // add-ons. AOM no longer supports installing multiple addons,
         // so the array handling here is vestigial.
-        let isSitePermissionAddon = installInfo.installs.every(
+        const isSitePermissionAddon = installInfo.installs.every(
           ({ addon }) => addon?.type === lazy.SITEPERMS_ADDON_TYPE
         );
         let hasHost = false;
@@ -524,15 +523,15 @@ var gXPInstallObserver = {
 
         // displayURI becomes it's own label, so we unset it for this panel. It will become part of the
         // messageString above.
-        let displayURI = options.displayURI;
+        const displayURI = options.displayURI;
         options.displayURI = undefined;
 
         options.eventCallback = topic => {
           if (topic !== "showing") {
             return;
           }
-          let doc = browser.ownerDocument;
-          let message = doc.getElementById("addon-install-blocked-message");
+          const doc = browser.ownerDocument;
+          const message = doc.getElementById("addon-install-blocked-message");
           // We must remove any prior use of this panel message in this window.
           while (message.firstChild) {
             message.firstChild.remove();
@@ -541,20 +540,20 @@ var gXPInstallObserver = {
           if (!hasHost) {
             message.textContent = msgString;
           } else {
-            let b = doc.createElementNS("http://www.w3.org/1999/xhtml", "b");
+            const b = doc.createElementNS("http://www.w3.org/1999/xhtml", "b");
             b.textContent = options.name;
-            let fragment = getLocalizedFragment(doc, msgString, b);
+            const fragment = getLocalizedFragment(doc, msgString, b);
             message.appendChild(fragment);
           }
 
-          let article = isSitePermissionAddon
+          const article = isSitePermissionAddon
             ? "site-permission-addons"
             : "unlisted-extensions-risks";
-          let learnMore = doc.getElementById("addon-install-blocked-info");
+          const learnMore = doc.getElementById("addon-install-blocked-info");
           learnMore.setAttribute("support-page", article);
         };
 
-        let secHistogram = Services.telemetry.getHistogramById("SECURITY_UI");
+        const secHistogram = Services.telemetry.getHistogramById("SECURITY_UI");
         secHistogram.add(
           Ci.nsISecurityUITelemetry.WARNING_ADDON_ASKING_PREVENTED
         );
@@ -586,7 +585,7 @@ var gXPInstallObserver = {
           //  "install",
           //  lazy.SitePermissions.BLOCK
           // );
-          for (let install of installInfo.installs) {
+          for (const install of installInfo.installs) {
             if (install.state != lazy.AddonManager.STATE_CANCELLED) {
               install.cancel();
             }
@@ -598,7 +597,7 @@ var gXPInstallObserver = {
 
         const declineActions = [
           buildNotificationAction(dontAllowMsg, () => {
-            for (let install of installInfo.installs) {
+            for (const install of installInfo.installs) {
               if (install.state != lazy.AddonManager.STATE_CANCELLED) {
                 install.cancel();
               }
@@ -626,7 +625,7 @@ var gXPInstallObserver = {
           );
         }
 
-        let popup = PopupNotifications.show(
+        const popup = PopupNotifications.show(
           browser,
           aTopic,
           headerString,
@@ -674,14 +673,14 @@ var gXPInstallObserver = {
         action.disabled = true;
 
         const secondaryAction = buildNotificationAction(cancelMsg, () => {
-          for (let install of installInfo.installs) {
+          for (const install of installInfo.installs) {
             if (install.state != lazy.AddonManager.STATE_CANCELLED) {
               install.cancel();
             }
           }
         });
 
-        let notification = PopupNotifications.show(
+        const notification = PopupNotifications.show(
           browser,
           "addon-progress",
           messageString,
@@ -699,7 +698,7 @@ var gXPInstallObserver = {
         options.persistent = false;
 
         // TODO This isn't terribly ideal for the multiple failure case
-        for (let install of installInfo.installs) {
+        for (const install of installInfo.installs) {
           let host;
           try {
             host = options.displayURI.host;
@@ -722,7 +721,7 @@ var gXPInstallObserver = {
               "addon-install-blocked-by-policy",
               { addonName: install.name, addonId: install.addon.id }
             );
-            let extensionSettings = Services.policies.getExtensionSettings(
+            const extensionSettings = Services.policies.getExtensionSettings(
               install.addon.id
             );
             if (
@@ -774,10 +773,10 @@ var gXPInstallObserver = {
         break;
       }
       case "addon-install-confirmation": {
-        let showNotification = () => {
+        const showNotification = () => {
           let height;
           if (PopupNotifications.isPanelOpen) {
-            let rect = getTopWindow()
+            const rect = getTopWindow()
               .document.getElementById("addon-progress-notification")
               .getBoundingClientRect();
             height = rect.height;
@@ -787,13 +786,13 @@ var gXPInstallObserver = {
           this.showInstallConfirmation(browser, installInfo, height);
         };
 
-        let progressNotification = PopupNotifications.getNotification(
+        const progressNotification = PopupNotifications.getNotification(
           "addon-progress",
           browser
         );
         if (progressNotification) {
-          let downloadDuration = Date.now() - progressNotification._startTime;
-          let securityDelay =
+          const downloadDuration = Date.now() - progressNotification._startTime;
+          const securityDelay =
             Services.prefs.getIntPref("security.dialog_enable_delay") -
             downloadDuration;
           if (securityDelay > 0) {
@@ -813,7 +812,7 @@ var gXPInstallObserver = {
     }
   },
   _removeProgressNotification(aBrowser) {
-    let notification = PopupNotifications.getNotification(
+    const notification = PopupNotifications.getNotification(
       "addon-progress",
       aBrowser
     );
@@ -855,7 +854,7 @@ export var ExtensionsUI = {
   },
 
   async _checkForSideloaded() {
-    let sideloaded = await lazy.AddonManagerPrivate.getNewSideloads();
+    const sideloaded = await lazy.AddonManagerPrivate.getNewSideloads();
 
     if (!sideloaded.length) {
       // No new side-loads. We're done.
@@ -885,7 +884,7 @@ export var ExtensionsUI = {
       lazy.AddonManager.addAddonListener(this.sideloadListener);
     }
 
-    for (let addon of sideloaded) {
+    for (const addon of sideloaded) {
       this.sideloaded.add(addon);
     }
     this._updateNotifications();
@@ -910,7 +909,7 @@ export var ExtensionsUI = {
     this.sideloaded.delete(addon);
     this._updateNotifications();
 
-    let strings = this._buildStrings({
+    const strings = this._buildStrings({
       addon,
       permissions: addon.userPermissions,
       type: "sideload",
@@ -968,14 +967,14 @@ export var ExtensionsUI = {
 
   async observe(subject, topic, data) {
     if (topic == "webextension-permission-prompt") {
-      let { target, info } = subject.wrappedJSObject;
+      const { target, info } = subject.wrappedJSObject;
 
-      let { browser, window } = getTabBrowser(target);
+      const { browser, window } = getTabBrowser(target);
 
       // Dismiss the progress notification.  Note that this is bad if
       // there are multiple simultaneous installs happening, see
       // bug 1329884 for a longer explanation.
-      let progressNotification = window.PopupNotifications.getNotification(
+      const progressNotification = window.PopupNotifications.getNotification(
         "addon-progress",
         browser
       );
@@ -983,16 +982,16 @@ export var ExtensionsUI = {
         progressNotification.remove();
       }
 
-      let strings = this._buildStrings(info);
-      let data = new lazy.ExtensionData(info.addon.getResourceURI());
+      const strings = this._buildStrings(info);
+      const data = new lazy.ExtensionData(info.addon.getResourceURI());
       await data.loadManifest();
       if (data.manifest.experiment_apis) {
         // Add the experiment permission text and use the header for
         // extensions with permissions.
-        let [experimentWarning] = await lazy.l10n.formatValues([
+        const [experimentWarning] = await lazy.l10n.formatValues([
           "webext-experiment-warning",
         ]);
-        let [header, msg] = await PERMISSION_L10N.formatValues([
+        const [header, msg] = await PERMISSION_L10N.formatValues([
           {
             id: "webext-perms-header-with-perms",
             args: { extension: "<>" },
@@ -1013,7 +1012,7 @@ export var ExtensionsUI = {
       // If this is an update with no promptable permissions, just apply it. Skip
       // prompts also, if this add-on already has full access via experiment_apis.
       if (info.type == "update") {
-        let extension = lazy.ExtensionParent.GlobalManager.getExtension(
+        const extension = lazy.ExtensionParent.GlobalManager.getExtension(
           info.addon.id
         );
         if (
@@ -1025,7 +1024,7 @@ export var ExtensionsUI = {
         }
       }
 
-      let icon = info.unsigned
+      const icon = info.unsigned
         ? "chrome://global/skin/icons/warning.svg"
         : info.icon;
 
@@ -1044,7 +1043,7 @@ export var ExtensionsUI = {
       // unknown APIs" policy, as add-ons using the Legacy API from TB68 will
       // not do anything, confusing the user.
       if (data.manifest.legacy) {
-        let subject = {
+        const subject = {
           wrappedJSObject: {
             browser,
             originatingURI: null,
@@ -1072,13 +1071,13 @@ export var ExtensionsUI = {
         }
       });
     } else if (topic == "webextension-update-permissions") {
-      let info = subject.wrappedJSObject;
+      const info = subject.wrappedJSObject;
       info.type = "update";
-      let strings = this._buildStrings(info);
+      const strings = this._buildStrings(info);
 
       // If we don't prompt for any new permissions, just apply it. Skip prompts
       // also, if this add-on already has full access via experiment_apis.
-      let extension = lazy.ExtensionParent.GlobalManager.getExtension(
+      const extension = lazy.ExtensionParent.GlobalManager.getExtension(
         info.addon.id
       );
       if (
@@ -1089,7 +1088,7 @@ export var ExtensionsUI = {
         return;
       }
 
-      let update = {
+      const update = {
         strings,
         permissions: info.permissions,
         install: info.install,
@@ -1101,17 +1100,17 @@ export var ExtensionsUI = {
       this.updates.add(update);
       this._updateNotifications();
     } else if (topic == "webextension-install-notify") {
-      let { target, addon, callback } = subject.wrappedJSObject;
+      const { target, addon, callback } = subject.wrappedJSObject;
       this.showInstallNotification(target, addon).then(() => {
         if (callback) {
           callback();
         }
       });
     } else if (topic == "webextension-optional-permission-prompt") {
-      let browser =
+      const browser =
         getTopWindow().document.getElementById("tabmail").selectedBrowser;
-      let { name, icon, permissions, resolve } = subject.wrappedJSObject;
-      let strings = this._buildStrings({
+      const { name, icon, permissions, resolve } = subject.wrappedJSObject;
+      const strings = this._buildStrings({
         type: "optional",
         addon: { name },
         permissions,
@@ -1124,7 +1123,7 @@ export var ExtensionsUI = {
       }
       resolve(this.showPermissionsPrompt(browser, strings, icon));
     } else if (topic == "webextension-defaultsearch-prompt") {
-      let { browser, name, icon, respond, currentEngine, newEngine } =
+      const { browser, name, icon, respond, currentEngine, newEngine } =
         subject.wrappedJSObject;
 
       // FIXME: These only exist in mozilla/browser/locales/en-US/browser/extensionsUI.ftl.
@@ -1138,14 +1137,14 @@ export var ExtensionsUI = {
       ]);
 
       const strings = { addonName: name, text: searchDesc.value };
-      for (let attr of searchYes.attributes) {
+      for (const attr of searchYes.attributes) {
         if (attr.name === "label") {
           strings.acceptText = attr.value;
         } else if (attr.name === "accesskey") {
           strings.acceptKey = attr.value;
         }
       }
-      for (let attr of searchNo.attributes) {
+      for (const attr of searchNo.attributes) {
         if (attr.name === "label") {
           strings.cancelText = attr.value;
         } else if (attr.name === "accesskey") {
@@ -1168,7 +1167,7 @@ export var ExtensionsUI = {
   },
 
   async showPermissionsPrompt(target, strings, icon) {
-    let { browser } = getTabBrowser(target);
+    const { browser } = getTabBrowser(target);
 
     // Wait for any pending prompts to complete before showing the next one.
     let pending;
@@ -1176,39 +1175,39 @@ export var ExtensionsUI = {
       await pending;
     }
 
-    let promise = new Promise(resolve => {
+    const promise = new Promise(resolve => {
       function eventCallback(topic) {
-        let doc = this.browser.ownerDocument;
+        const doc = this.browser.ownerDocument;
         if (topic == "showing") {
-          let textEl = doc.getElementById("addon-webext-perm-text");
+          const textEl = doc.getElementById("addon-webext-perm-text");
           textEl.textContent = strings.text;
           textEl.hidden = !strings.text;
 
           // By default, multiline strings don't get formatted properly. These
           // are presently only used in site permission add-ons, so we treat it
           // as a special case to avoid unintended effects on other things.
-          let isMultiline = strings.text.includes("\n\n");
+          const isMultiline = strings.text.includes("\n\n");
           textEl.classList.toggle(
             "addon-webext-perm-text-multiline",
             isMultiline
           );
 
-          let listIntroEl = doc.getElementById("addon-webext-perm-intro");
+          const listIntroEl = doc.getElementById("addon-webext-perm-intro");
           listIntroEl.textContent = strings.listIntro;
           listIntroEl.hidden = !strings.msgs.length || !strings.listIntro;
 
-          let listInfoEl = doc.getElementById("addon-webext-perm-info");
+          const listInfoEl = doc.getElementById("addon-webext-perm-info");
           listInfoEl.textContent = strings.learnMore;
           listInfoEl.href =
             Services.urlFormatter.formatURLPref("app.support.baseURL") +
             "extension-permissions";
           listInfoEl.hidden = !strings.msgs.length;
 
-          let list = doc.getElementById("addon-webext-perm-list");
+          const list = doc.getElementById("addon-webext-perm-list");
           while (list.firstChild) {
             list.firstChild.remove();
           }
-          let singleEntryEl = doc.getElementById(
+          const singleEntryEl = doc.getElementById(
             "addon-webext-perm-single-entry"
           );
           singleEntryEl.textContent = "";
@@ -1219,15 +1218,15 @@ export var ExtensionsUI = {
             singleEntryEl.textContent = strings.msgs[0];
             singleEntryEl.hidden = false;
           } else if (strings.msgs.length) {
-            for (let msg of strings.msgs) {
-              let item = doc.createElementNS(HTML_NS, "li");
+            for (const msg of strings.msgs) {
+              const item = doc.createElementNS(HTML_NS, "li");
               item.textContent = msg;
               list.appendChild(item);
             }
             list.hidden = false;
           }
 
-          let experimentsEl = doc.getElementById(
+          const experimentsEl = doc.getElementById(
             "addon-webext-experiment-warning"
           );
           experimentsEl.textContent = strings.experimentWarning;
@@ -1243,7 +1242,7 @@ export var ExtensionsUI = {
         return false;
       }
 
-      let options = {
+      const options = {
         hideClose: true,
         popupIconURL: icon || DEFAULT_EXTENSION_ICON,
         popupIconClass: icon ? "" : "addon-warning-icon",
@@ -1269,14 +1268,14 @@ export var ExtensionsUI = {
         options.name = strings.addonName;
       }
 
-      let action = {
+      const action = {
         label: strings.acceptText,
         accessKey: strings.acceptKey,
         callback: () => {
           resolve(true);
         },
       };
-      let secondaryActions = [
+      const secondaryActions = [
         {
           label: strings.cancelText,
           accessKey: strings.cancelKey,
@@ -1304,7 +1303,7 @@ export var ExtensionsUI = {
 
   showDefaultSearchPrompt(target, strings, icon) {
     return new Promise(resolve => {
-      let options = {
+      const options = {
         hideClose: true,
         popupIconURL: icon || DEFAULT_EXTENSION_ICON,
         persistent: true,
@@ -1317,14 +1316,14 @@ export var ExtensionsUI = {
         name: strings.addonName,
       };
 
-      let action = {
+      const action = {
         label: strings.acceptText,
         accessKey: strings.acceptKey,
         callback: () => {
           resolve(true);
         },
       };
-      let secondaryActions = [
+      const secondaryActions = [
         {
           label: strings.cancelText,
           accessKey: strings.cancelKey,
@@ -1334,7 +1333,7 @@ export var ExtensionsUI = {
         },
       ];
 
-      let { browser } = getTabBrowser(target);
+      const { browser } = getTabBrowser(target);
 
       PopupNotifications.show(
         browser,
@@ -1349,18 +1348,18 @@ export var ExtensionsUI = {
   },
 
   async showInstallNotification(target, addon) {
-    let { browser, window } = getTabBrowser(target);
+    const { browser, window } = getTabBrowser(target);
 
     const message = await lazy.l10n.formatValue("addon-post-install-message", {
       addonName: "<>",
     });
 
-    let icon = addon.isWebExtension
+    const icon = addon.isWebExtension
       ? lazy.AddonManager.getPreferredIconURL(addon, 32, window) ||
         DEFAULT_EXTENSION_ICON
       : "chrome://messenger/skin/addons/addon-install-installed.svg";
 
-    let options = {
+    const options = {
       hideClose: true,
       timeout: Date.now() + 30000,
       popupIconURL: icon,
@@ -1411,7 +1410,7 @@ function getLocalizedFragment(doc, msg, ...nodesOrStrings) {
       msg = msg.replace(/%S/, "%" + i + "$S");
     }
   }
-  let numberOfInsertionPoints = msg.match(/%\d+\$S/g).length;
+  const numberOfInsertionPoints = msg.match(/%\d+\$S/g).length;
   if (numberOfInsertionPoints != nodesOrStrings.length) {
     console.error(
       `Message has ${numberOfInsertionPoints} insertion points, ` +
@@ -1419,12 +1418,12 @@ function getLocalizedFragment(doc, msg, ...nodesOrStrings) {
     );
   }
 
-  let fragment = doc.createDocumentFragment();
-  let parts = [msg];
+  const fragment = doc.createDocumentFragment();
+  const parts = [msg];
   let insertionPoint = 1;
-  for (let replacement of nodesOrStrings) {
-    let insertionString = "%" + insertionPoint++ + "$S";
-    let partIndex = parts.findIndex(
+  for (const replacement of nodesOrStrings) {
+    const insertionString = "%" + insertionPoint++ + "$S";
+    const partIndex = parts.findIndex(
       part => typeof part == "string" && part.includes(insertionString)
     );
     if (partIndex == -1) {
@@ -1435,13 +1434,13 @@ function getLocalizedFragment(doc, msg, ...nodesOrStrings) {
     if (typeof replacement == "string") {
       parts[partIndex] = parts[partIndex].replace(insertionString, replacement);
     } else {
-      let [firstBit, lastBit] = parts[partIndex].split(insertionString);
+      const [firstBit, lastBit] = parts[partIndex].split(insertionString);
       parts.splice(partIndex, 1, firstBit, replacement, lastBit);
     }
   }
 
   // Put everything in a document fragment:
-  for (let part of parts) {
+  for (const part of parts) {
     if (typeof part == "string") {
       if (part) {
         fragment.appendChild(doc.createTextNode(part));

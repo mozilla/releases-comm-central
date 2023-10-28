@@ -74,7 +74,7 @@ add_task(
 
     // - open message tab, make sure the message pane is visible
     await select_click_row(0);
-    let tabMessage = await open_selected_message_in_new_tab();
+    const tabMessage = await open_selected_message_in_new_tab();
 
     // - close the tab, sanity check the transition was okay
     close_tab(tabMessage);
@@ -96,19 +96,19 @@ add_task(
  *  states.
  */
 add_task(async function test_message_pane_is_sticky() {
-  let tabFolderA = await be_in_folder(folder);
+  const tabFolderA = await be_in_folder(folder);
   assert_message_pane_visible();
 
   // [folder+ => (new) message]
   await select_click_row(0);
-  let tabMessage = await open_selected_message_in_new_tab();
+  const tabMessage = await open_selected_message_in_new_tab();
 
   // [message => folder+]
   await switch_tab(tabFolderA);
   assert_message_pane_visible();
 
   // [folder+ => (new) folder+]
-  let tabFolderB = await open_folder_in_new_tab(folder);
+  const tabFolderB = await open_folder_in_new_tab(folder);
   assert_message_pane_visible();
 
   // [folder pane toggle + => -]
@@ -132,7 +132,7 @@ add_task(async function test_message_pane_is_sticky() {
 
   // [folder- => (new) folder-]
   // (we are testing inheritance here)
-  let tabFolderC = await open_folder_in_new_tab(folder);
+  const tabFolderC = await open_folder_in_new_tab(folder);
   assert_message_pane_hidden();
 
   // [folder- => folder-]
@@ -166,12 +166,12 @@ add_task(async function test_message_pane_is_sticky() {
 add_task(async function test_message_pane_persistence_generally_works() {
   await be_in_folder(folder);
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
 
   // helper to open tabs with the folder pane in the desired states (1 for
   //  visible, 0 for hidden)
   async function openTabs(aConfig) {
-    for (let [iTab, messagePaneVisible] of aConfig.entries()) {
+    for (const [iTab, messagePaneVisible] of aConfig.entries()) {
       if (iTab != 0) {
         await open_folder_in_new_tab(folder);
       }
@@ -192,7 +192,7 @@ add_task(async function test_message_pane_persistence_generally_works() {
   }
 
   async function verifyTabs(aConfig) {
-    for (let [iTab, messagePaneVisible] of aConfig.entries()) {
+    for (const [iTab, messagePaneVisible] of aConfig.entries()) {
       info("tab " + iTab);
 
       await switch_tab(iTab);
@@ -211,16 +211,16 @@ add_task(async function test_message_pane_persistence_generally_works() {
     }
   }
 
-  let configs = [
+  const configs = [
     // 1st time: [+ - - + +]
     [1, 0, 0, 1, 1],
     // 2nd time: [- + + - -]
     [0, 1, 1, 0, 0],
   ];
-  for (let config of configs) {
+  for (const config of configs) {
     await openTabs(config);
     await verifyTabs(config); // make sure openTabs did its job right
-    let state = tabmail.persistTabs();
+    const state = tabmail.persistTabs();
     closeTabs();
 
     Assert.equal(state.tabs[0].state.messagePaneVisible, config[0]);

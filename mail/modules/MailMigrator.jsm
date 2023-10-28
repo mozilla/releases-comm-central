@@ -38,7 +38,7 @@ var MailMigrator = {
     Array.from(Services.xulStore.getIDsEnumerator(fromURL)).forEach(id => {
       Array.from(Services.xulStore.getAttributeEnumerator(fromURL, id)).forEach(
         attr => {
-          let value = Services.xulStore.getValue(fromURL, id, attr);
+          const value = Services.xulStore.getValue(fromURL, id, attr);
           Services.xulStore.setValue(toURL, id, attr, value);
         }
       );
@@ -48,7 +48,7 @@ var MailMigrator = {
   _migrateXULStoreForElement(url, fromID, toID) {
     Array.from(Services.xulStore.getAttributeEnumerator(url, fromID)).forEach(
       attr => {
-        let value = Services.xulStore.getValue(url, fromID, attr);
+        const value = Services.xulStore.getValue(url, fromID, attr);
         Services.xulStore.setValue(url, toID, attr, value);
         Services.xulStore.removeValue(url, fromID, attr);
       }
@@ -74,9 +74,9 @@ var MailMigrator = {
       return;
     }
 
-    let xulStore = Services.xulStore;
+    const xulStore = Services.xulStore;
 
-    let newProfile = currentUIVersion == 0;
+    const newProfile = currentUIVersion == 0;
     if (newProfile) {
       // Collapse the main menu by default if the override pref
       // "mail.main_menu.collapse_by_default" is set to true.
@@ -151,7 +151,7 @@ var MailMigrator = {
       if (currentUIVersion < 10 || newProfile) {
         // If the file exists, read its contents, prepend the "All ABs" URI
         // and save it, else, just write the "All ABs" URI to the file.
-        let spec = PathUtils.join(
+        const spec = PathUtils.join(
           Services.dirsvc.get("ProfD", Ci.nsIFile).path,
           "directoryTree.json"
         );
@@ -203,12 +203,12 @@ var MailMigrator = {
       // Migrate remote content exceptions for email addresses which are
       // encoded as chrome URIs.
       if (currentUIVersion < 14) {
-        let permissionsDB = Services.dirsvc.get("ProfD", Ci.nsIFile);
+        const permissionsDB = Services.dirsvc.get("ProfD", Ci.nsIFile);
         permissionsDB.append("permissions.sqlite");
-        let db = Services.storage.openDatabase(permissionsDB);
+        const db = Services.storage.openDatabase(permissionsDB);
 
         try {
-          let statement = db.createStatement(
+          const statement = db.createStatement(
             "select origin,permission from moz_perms where " +
               // Avoid 'like' here which needs to be escaped.
               "substr(origin, 1, 28)='chrome://messenger/content/?';"
@@ -216,7 +216,7 @@ var MailMigrator = {
           try {
             while (statement.executeStep()) {
               let origin = statement.getUTF8String(0);
-              let permission = statement.getInt32(1);
+              const permission = statement.getInt32(1);
               Services.perms.removeFromPrincipal(
                 Services.scriptSecurityManager.createContentPrincipal(
                   Services.io.newURI(origin),
@@ -292,7 +292,7 @@ var MailMigrator = {
           if (Services.prefs.getBoolPref(MATCHOS_LOCALE_PREF, false)) {
             Services.locale.requestedLocales = [];
           } else {
-            let locale = Services.prefs.getComplexValue(
+            const locale = Services.prefs.getComplexValue(
               SELECTED_LOCALE_PREF,
               Ci.nsIPrefLocalizedString
             );
@@ -321,8 +321,8 @@ var MailMigrator = {
         );
         if (cs && cs.includes("button-attach")) {
           // Get array of button ids from currentset string.
-          let csArray = cs.split(",");
-          let attachButtonIndex = csArray.indexOf("button-attach");
+          const csArray = cs.split(",");
+          const attachButtonIndex = csArray.indexOf("button-attach");
           // Remove attach button id from current array position.
           csArray.splice(attachButtonIndex, 1);
           // If the currentset string does not contain a spring which causes
@@ -348,7 +348,7 @@ var MailMigrator = {
       }
 
       if (currentUIVersion < 18) {
-        for (let url of [
+        for (const url of [
           "chrome://calendar/content/calendar-event-dialog-attendees.xul",
           "chrome://calendar/content/calendar-event-dialog.xul",
           "chrome://messenger/content/addressbook/addressbook.xul",
@@ -396,16 +396,19 @@ var MailMigrator = {
           ) &&
           Services.prefs.getIntPref("network.proxy.type", 0) == 1
         ) {
-          let httpProxy = Services.prefs.getCharPref("network.proxy.http", "");
-          let httpPort = Services.prefs.getIntPref(
+          const httpProxy = Services.prefs.getCharPref(
+            "network.proxy.http",
+            ""
+          );
+          const httpPort = Services.prefs.getIntPref(
             "network.proxy.http_port",
             0
           );
-          let socksProxy = Services.prefs.getCharPref(
+          const socksProxy = Services.prefs.getCharPref(
             "network.proxy.socks",
             ""
           );
-          let socksPort = Services.prefs.getIntPref(
+          const socksPort = Services.prefs.getIntPref(
             "network.proxy.socks_port",
             0
           );
@@ -424,16 +427,19 @@ var MailMigrator = {
 
       // Clear unused socks proxy backup values - see bug 1625773.
       if (currentUIVersion < 20) {
-        let backup = Services.prefs.getCharPref(
+        const backup = Services.prefs.getCharPref(
           "network.proxy.backup.socks",
           ""
         );
-        let backupPort = Services.prefs.getIntPref(
+        const backupPort = Services.prefs.getIntPref(
           "network.proxy.backup.socks_port",
           0
         );
-        let socksProxy = Services.prefs.getCharPref("network.proxy.socks", "");
-        let socksPort = Services.prefs.getIntPref(
+        const socksProxy = Services.prefs.getCharPref(
+          "network.proxy.socks",
+          ""
+        );
+        const socksPort = Services.prefs.getIntPref(
           "network.proxy.socks_port",
           0
         );
@@ -469,7 +475,7 @@ var MailMigrator = {
 
       // Some elements changed ID, move their persisted values to the new ID.
       if (currentUIVersion < 25) {
-        let url = "chrome://messenger/content/messenger.xhtml";
+        const url = "chrome://messenger/content/messenger.xhtml";
         this._migrateXULStoreForElement(url, "view-deck", "view-box");
         this._migrateXULStoreForElement(url, "displayDeck", "displayBox");
       }
@@ -484,11 +490,11 @@ var MailMigrator = {
       }
 
       if (currentUIVersion < 27) {
-        let accountList = MailServices.accounts.accounts.filter(
+        const accountList = MailServices.accounts.accounts.filter(
           a => a.incomingServer
         );
         accountList.sort(lazy.FolderUtils.compareAccounts);
-        let accountKeyList = accountList.map(account => account.key);
+        const accountKeyList = accountList.map(account => account.key);
         try {
           MailServices.accounts.reorderAccounts(accountKeyList);
         } catch (error) {
@@ -503,7 +509,7 @@ var MailMigrator = {
       // Migrating the preference of the font size in the message compose window
       // to use in document.execCommand.
       if (currentUIVersion < 28) {
-        let fontSize = Services.prefs.getCharPref("msgcompose.font_size");
+        const fontSize = Services.prefs.getCharPref("msgcompose.font_size");
         let newFontSize;
         switch (fontSize) {
           case "x-small":
@@ -566,7 +572,7 @@ var MailMigrator = {
         );
         if (cs) {
           // Button ids from currentset string.
-          let buttonIds = cs.split(",");
+          const buttonIds = cs.split(",");
 
           // We want to insert the two buttons at index 2 and 3.
           buttonIds.splice(2, 0, "button-encryption");
@@ -590,12 +596,12 @@ var MailMigrator = {
         // + mail.default_html_action - The default sending format if we didn't
         //   auto-downgrade.
         // to mail.default_send_format
-        let defaultHTMLAction = Services.prefs.getIntPref(
+        const defaultHTMLAction = Services.prefs.getIntPref(
           "mail.default_html_action",
           3
         );
         Services.prefs.clearUserPref("mail.default_html_action");
-        let autoDowngrade = Services.prefs.getBoolPref(
+        const autoDowngrade = Services.prefs.getBoolPref(
           "mailnews.sendformat.auto_downgrade",
           true
         );
@@ -754,7 +760,7 @@ var MailMigrator = {
    * @param {string} hostnameHint - What the hostname should end with.
    */
   _migrateIncomingToOAuth2(hostnameHint) {
-    for (let account of MailServices.accounts.accounts) {
+    for (const account of MailServices.accounts.accounts) {
       // Skip if not a matching account.
       if (!account.incomingServer.hostName.endsWith(hostnameHint)) {
         continue;
@@ -771,7 +777,7 @@ var MailMigrator = {
    * @param {string} hostnameHint - What the hostname should end with.
    */
   _migrateSMTPToOAuth2(hostnameHint) {
-    for (let server of MailServices.smtp.servers) {
+    for (const server of MailServices.smtp.servers) {
       // Skip if not a matching server.
       if (!server.hostname.endsWith(hostnameHint)) {
         continue;
@@ -793,25 +799,25 @@ var MailMigrator = {
    */
   async _migrateRSS() {
     // Find all the RSS IncomingServers.
-    let rssServers = [];
-    for (let server of MailServices.accounts.allServers) {
+    const rssServers = [];
+    for (const server of MailServices.accounts.allServers) {
       if (server && server.type == "rss") {
         rssServers.push(server);
       }
     }
 
     // For each one...
-    for (let server of rssServers) {
+    for (const server of rssServers) {
       await this._migrateRSSServer(server);
     }
   },
 
   async _migrateRSSServer(server) {
-    let rssServer = server.QueryInterface(Ci.nsIRssIncomingServer);
+    const rssServer = server.QueryInterface(Ci.nsIRssIncomingServer);
 
     // Convert feeds.rdf to feeds.json (if needed).
-    let feedsFile = rssServer.subscriptionsPath;
-    let legacyFeedsFile = server.localPath;
+    const feedsFile = rssServer.subscriptionsPath;
+    const legacyFeedsFile = server.localPath;
     legacyFeedsFile.append("feeds.rdf");
 
     try {
@@ -828,8 +834,8 @@ var MailMigrator = {
     }
 
     // Convert feeditems.rdf to feeditems.json (if needed).
-    let itemsFile = rssServer.feedItemsPath;
-    let legacyItemsFile = server.localPath;
+    const itemsFile = rssServer.feedItemsPath;
+    const legacyItemsFile = server.localPath;
     legacyItemsFile.append("feeditems.rdf");
     try {
       await this._migrateRSSItems(legacyItemsFile, itemsFile);
@@ -870,22 +876,22 @@ var MailMigrator = {
         return; // nothing legacy file to migrate
       }
     }
-    let parser = new DOMParser();
-    let doc = parser.parseFromString(rawXMLRDF, "text/xml");
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(rawXMLRDF, "text/xml");
 
-    let feeds = [];
+    const feeds = [];
     // Skip the fz:root->fz:feeds->etc structure. Just grab fz:feed nodes.
-    let feedNodes = doc.documentElement.getElementsByTagNameNS(
+    const feedNodes = doc.documentElement.getElementsByTagNameNS(
       this.FZ_NS,
       "feed"
     );
 
-    let toBool = function (val) {
+    const toBool = function (val) {
       return val == "true";
     };
 
     // Map RDF feed property names to js.
-    let propMap = [
+    const propMap = [
       { ns: this.DC_NS, name: "title", dest: "title" },
       { ns: this.DC_NS, name: "lastModified", dest: "lastModified" },
       { ns: this.DC_NS, name: "identifier", dest: "url" },
@@ -895,13 +901,13 @@ var MailMigrator = {
       { ns: this.RSS_NS, name: "link", dest: "link" },
     ];
 
-    for (let f of feedNodes) {
-      let feed = {};
-      for (let p of propMap) {
+    for (const f of feedNodes) {
+      const feed = {};
+      for (const p of propMap) {
         // The data could be in either an attribute or an element.
         let val = f.getAttributeNS(p.ns, p.name);
         if (!val) {
-          let el = f.getElementsByTagNameNS(p.ns, p.name).item(0);
+          const el = f.getElementsByTagNameNS(p.ns, p.name).item(0);
           if (el) {
             // Might be a RDF:resource...
             val = el.getAttributeNS(this.RDF_SYNTAX_NS, "resource");
@@ -949,12 +955,12 @@ var MailMigrator = {
         return; // nothing legacy file to migrate
       }
     }
-    let parser = new DOMParser();
-    let doc = parser.parseFromString(rawXMLRDF, "text/xml");
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(rawXMLRDF, "text/xml");
 
-    let items = {};
+    const items = {};
 
-    let demangleURL = function (itemURI) {
+    const demangleURL = function (itemURI) {
       // Reverse the mapping that originally turned links/guids into URIs.
       let url = itemURI;
       url = url.replace("urn:feeditem:", "");
@@ -967,22 +973,22 @@ var MailMigrator = {
       return url;
     };
 
-    let toBool = function (s) {
+    const toBool = function (s) {
       return s == "true";
     };
 
-    let toInt = function (s) {
-      let t = parseInt(s);
+    const toInt = function (s) {
+      const t = parseInt(s);
       return Number.isNaN(t) ? 0 : t;
     };
 
-    let itemNodes = doc.documentElement.getElementsByTagNameNS(
+    const itemNodes = doc.documentElement.getElementsByTagNameNS(
       this.RDF_SYNTAX_NS,
       "Description"
     );
 
     // Map RDF feed property names to js.
-    let propMap = [
+    const propMap = [
       { ns: this.FZ_NS, name: "stored", dest: "stored", cook: toBool },
       { ns: this.FZ_NS, name: "valid", dest: "valid", cook: toBool },
       {
@@ -993,13 +999,13 @@ var MailMigrator = {
       },
     ];
 
-    for (let itemNode of itemNodes) {
-      let item = {};
-      for (let p of propMap) {
+    for (const itemNode of itemNodes) {
+      const item = {};
+      for (const p of propMap) {
         // The data could be in either an attribute or an element.
         let val = itemNode.getAttributeNS(p.ns, p.name);
         if (!val) {
-          let elements = itemNode.getElementsByTagNameNS(p.ns, p.name);
+          const elements = itemNode.getElementsByTagNameNS(p.ns, p.name);
           if (elements.length > 0) {
             val = elements.item(0).textContent;
           }
@@ -1016,9 +1022,9 @@ var MailMigrator = {
       }
 
       item.feedURLs = [];
-      let feedNodes = itemNode.getElementsByTagNameNS(this.FZ_NS, "feed");
-      for (let feedNode of feedNodes) {
-        let feedURL = feedNode.getAttributeNS(this.RDF_SYNTAX_NS, "resource");
+      const feedNodes = itemNode.getElementsByTagNameNS(this.FZ_NS, "feed");
+      for (const feedNode of feedNodes) {
+        const feedURL = feedNode.getAttributeNS(this.RDF_SYNTAX_NS, "resource");
         item.feedURLs.push(feedURL);
       }
 
@@ -1088,14 +1094,14 @@ var MigrationTasks = {
 
     // Do not optimise this for-loop. More tasks could be added.
     for (let t = 0; t < this._tasks.length; t++) {
-      let task = this._tasks[t];
+      const task = this._tasks[t];
       task.status = "running";
 
       await task.action();
 
       for (let i = 0; i < task.subTasks.length; i++) {
         task.emit("progress", i, task.subTasks.length);
-        let subTask = task.subTasks[i];
+        const subTask = task.subTasks[i];
         subTask.status = "running";
 
         await subTask.action();

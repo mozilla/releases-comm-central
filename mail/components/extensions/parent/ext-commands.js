@@ -23,7 +23,7 @@ this.commands = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        let tab = tabManager.convert(tabTracker.activeTab);
+        const tab = tabManager.convert(tabTracker.activeTab);
         fire.async(commandName, tab);
       }
       this.on("command", listener);
@@ -62,7 +62,7 @@ this.commands = class extends ExtensionAPIPersistent {
   }
 
   async onManifestEntry(entryName) {
-    let shortcuts = new MailExtensionShortcuts({
+    const shortcuts = new MailExtensionShortcuts({
       extension: this.extension,
       onCommand: name => this.emit("command", name),
       onShortcutChanged: changeInfo => this.emit("shortcutChanged", changeInfo),

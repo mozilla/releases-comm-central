@@ -9,4 +9,4 @@ function* vCardHtmlIdGen() {
   }
 }
 
-export let vCardIdGen = vCardHtmlIdGen();
+export const vCardIdGen = vCardHtmlIdGen();

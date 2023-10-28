@@ -19,7 +19,7 @@ add_task(async () => {
     await CardDAVServer.close();
   });
 
-  let dirPrefId = MailServices.ab.newAddressBook(
+  const dirPrefId = MailServices.ab.newAddressBook(
     "sync",
     undefined,
     Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
@@ -27,8 +27,8 @@ add_task(async () => {
   Assert.equal(dirPrefId, "ldap_2.servers.sync");
   Assert.equal([...MailServices.ab.directories].length, 3);
 
-  let directory = MailServices.ab.getDirectoryFromId(dirPrefId);
-  let davDirectory = CardDAVDirectory.forFile(directory.fileName);
+  const directory = MailServices.ab.getDirectoryFromId(dirPrefId);
+  const davDirectory = CardDAVDirectory.forFile(directory.fileName);
   Assert.equal(directory.dirType, Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
 
   Services.prefs.setStringPref(
@@ -44,8 +44,8 @@ add_task(async () => {
   Assert.equal(davDirectory._serverURL, CardDAVServer.url);
   Assert.equal(davDirectory._syncToken, "http://mochi.test/sync/0");
 
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = await openAddressBookWindow();
+  const abDocument = abWindow.document;
 
   // This test becomes unreliable if we don't pause for a moment.
   await new Promise(resolve => abWindow.setTimeout(resolve, 500));
@@ -53,10 +53,10 @@ add_task(async () => {
   openDirectory(directory);
   checkNamesListed();
 
-  let menu = abDocument.getElementById("bookContext");
-  let menuItem = abDocument.getElementById("bookContextSynchronize");
-  let openContext = async (index, itemHidden) => {
-    let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  const menu = abDocument.getElementById("bookContext");
+  const menuItem = abDocument.getElementById("bookContextSynchronize");
+  const openContext = async (index, itemHidden) => {
+    const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
     EventUtils.synthesizeMouseAtCenter(
       abWindow.booksList.getRowAtIndex(index),
       { type: "contextmenu" },
@@ -66,10 +66,10 @@ add_task(async () => {
     Assert.equal(menuItem.hidden, itemHidden);
   };
 
-  for (let index of [1, 3]) {
+  for (const index of [1, 3]) {
     await openContext(index, true);
 
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.hidePopup();
     await hiddenPromise;
   }

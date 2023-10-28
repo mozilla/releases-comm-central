@@ -33,7 +33,7 @@ add_setup(async function () {
 });
 
 function check_content(window) {
-  let mailBody = get_compose_body(window);
+  const mailBody = get_compose_body(window);
 
   let node = mailBody.firstChild;
   while (node) {
@@ -58,10 +58,10 @@ function check_content(window) {
 }
 
 async function forwardDirect(aFilePath) {
-  let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
+  const msgc = await open_message_from_file(file);
 
-  let cwc = await open_compose_with_forward(msgc);
+  const cwc = await open_compose_with_forward(msgc);
 
   check_content(cwc);
 
@@ -72,12 +72,12 @@ async function forwardDirect(aFilePath) {
 async function forwardViaFolder(aFilePath) {
   await be_in_folder(folderToSendFrom);
 
-  let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
-  let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc);
+  const file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
+  const msgc = await open_message_from_file(file);
+  const aboutMessage = get_about_message(msgc);
 
   // Copy the message to a folder.
-  let documentChild =
+  const documentChild =
     aboutMessage.document.getElementById("messagepane").contentDocument
       .documentElement;
   EventUtils.synthesizeMouseAtCenter(
@@ -95,7 +95,7 @@ async function forwardViaFolder(aFilePath) {
   );
   await BrowserTestUtils.closeWindow(msgc);
 
-  let msg = await select_click_row(0);
+  const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
 
   Assert.ok(
@@ -104,7 +104,7 @@ async function forwardViaFolder(aFilePath) {
       .contentDocument.body.textContent.includes("áóúäöüß")
   );
 
-  let fwdWin = await open_compose_with_forward();
+  const fwdWin = await open_compose_with_forward();
 
   check_content(fwdWin);
 

@@ -39,11 +39,11 @@ add_task(async function test_addressBooks() {
   async function background() {
     let firstBookId, secondBookId, newContactId;
 
-    let events = [];
+    const events = [];
     let eventPromise;
     let eventPromiseResolve;
-    for (let eventNamespace of ["addressBooks", "contacts", "mailingLists"]) {
-      for (let eventName of [
+    for (const eventNamespace of ["addressBooks", "contacts", "mailingLists"]) {
+      for (const eventName of [
         "onCreated",
         "onUpdated",
         "onDeleted",
@@ -54,7 +54,7 @@ add_task(async function test_addressBooks() {
           browser[eventNamespace][eventName].addListener((...args) => {
             events.push({ namespace: eventNamespace, name: eventName, args });
             if (eventPromiseResolve) {
-              let resolve = eventPromiseResolve;
+              const resolve = eventPromiseResolve;
               eventPromiseResolve = null;
               resolve();
             }
@@ -63,13 +63,13 @@ add_task(async function test_addressBooks() {
       }
     }
 
-    let outsideEvent = function (action, ...args) {
+    const outsideEvent = function (action, ...args) {
       eventPromise = new Promise(resolve => {
         eventPromiseResolve = resolve;
       });
       return window.sendMessage("outsideEventsTest", action, ...args);
     };
-    let checkEvents = async function (...expectedEvents) {
+    const checkEvents = async function (...expectedEvents) {
       if (eventPromiseResolve) {
         await eventPromise;
       }
@@ -81,15 +81,15 @@ add_task(async function test_addressBooks() {
       );
 
       if (expectedEvents.length != events.length) {
-        for (let event of events) {
-          let args = event.args.join(", ");
+        for (const event of events) {
+          const args = event.args.join(", ");
           browser.test.log(`${event.namespace}.${event.name}(${args})`);
         }
         throw new Error("Wrong number of events, stopping.");
       }
 
-      for (let [namespace, name, ...expectedArgs] of expectedEvents) {
-        let event = events.shift();
+      for (const [namespace, name, ...expectedArgs] of expectedEvents) {
+        const event = events.shift();
         browser.test.assertEq(
           namespace,
           event.namespace,
@@ -114,7 +114,7 @@ add_task(async function test_addressBooks() {
       browser.test.log("Starting addressBookTest");
       let list = await browser.addressBooks.list();
       browser.test.assertEq(2, list.length);
-      for (let b of list) {
+      for (const b of list) {
         browser.test.assertEq(5, Object.keys(b).length);
         browser.test.assertEq(36, b.id.length);
         browser.test.assertEq("addressBook", b.type);
@@ -123,25 +123,27 @@ add_task(async function test_addressBooks() {
         browser.test.assertFalse(b.remote);
       }
 
-      let completeList = await browser.addressBooks.list(true);
+      const completeList = await browser.addressBooks.list(true);
       browser.test.assertEq(2, completeList.length);
-      for (let b of completeList) {
+      for (const b of completeList) {
         browser.test.assertEq(7, Object.keys(b).length);
       }
 
       firstBookId = list[0].id;
       secondBookId = list[1].id;
 
-      let firstBook = await browser.addressBooks.get(firstBookId);
+      const firstBook = await browser.addressBooks.get(firstBookId);
       browser.test.assertEq(5, Object.keys(firstBook).length);
 
-      let secondBook = await browser.addressBooks.get(secondBookId, true);
+      const secondBook = await browser.addressBooks.get(secondBookId, true);
       browser.test.assertEq(7, Object.keys(secondBook).length);
       browser.test.assertTrue(Array.isArray(secondBook.contacts));
       browser.test.assertEq(0, secondBook.contacts.length);
       browser.test.assertTrue(Array.isArray(secondBook.mailingLists));
       browser.test.assertEq(0, secondBook.mailingLists.length);
-      let newBookId = await browser.addressBooks.create({ name: "test name" });
+      const newBookId = await browser.addressBooks.create({
+        name: "test name",
+      });
       browser.test.assertEq(36, newBookId.length);
       await checkEvents([
         "addressBooks",
@@ -152,7 +154,7 @@ add_task(async function test_addressBooks() {
       list = await browser.addressBooks.list();
       browser.test.assertEq(3, list.length);
 
-      let newBook = await browser.addressBooks.get(newBookId);
+      const newBook = await browser.addressBooks.get(newBookId);
       browser.test.assertEq(newBookId, newBook.id);
       browser.test.assertEq("addressBook", newBook.type);
       browser.test.assertEq("test name", newBook.name);
@@ -163,7 +165,7 @@ add_task(async function test_addressBooks() {
         "onUpdated",
         { type: "addressBook", id: newBookId },
       ]);
-      let updatedBook = await browser.addressBooks.get(newBookId);
+      const updatedBook = await browser.addressBooks.get(newBookId);
       browser.test.assertEq("new name", updatedBook.name);
 
       list = await browser.addressBooks.list();
@@ -175,8 +177,8 @@ add_task(async function test_addressBooks() {
       list = await browser.addressBooks.list();
       browser.test.assertEq(2, list.length);
 
-      for (let operation of ["get", "update", "delete"]) {
-        let args = [newBookId];
+      for (const operation of ["get", "update", "delete"]) {
+        const args = [newBookId];
         if (operation == "update") {
           args.push({ name: "" });
         }
@@ -239,7 +241,7 @@ add_task(async function test_addressBooks() {
         "Contact not added to second book."
       );
 
-      let newContact = await browser.contacts.get(newContactId);
+      const newContact = await browser.contacts.get(newContactId);
       browser.test.assertEq(6, Object.keys(newContact).length);
       browser.test.assertEq(newContactId, newContact.id);
       browser.test.assertEq(firstBookId, newContact.parentId);
@@ -288,7 +290,7 @@ add_task(async function test_addressBooks() {
             Custom1: { oldValue: null, newValue: "Original custom value" },
           },
         ]);
-        let updContact1 = await browser.contacts.get(newContactId);
+        const updContact1 = await browser.contacts.get(newContactId);
         browser.test.assertEq(
           "Original custom value",
           updContact1.properties.Custom1
@@ -308,7 +310,7 @@ add_task(async function test_addressBooks() {
             },
           },
         ]);
-        let updContact2 = await browser.contacts.get(newContactId);
+        const updContact2 = await browser.contacts.get(newContactId);
         browser.test.assertEq(
           "Updated custom value",
           updContact2.properties.Custom1
@@ -482,7 +484,7 @@ add_task(async function test_addressBooks() {
       );
 
       // Set a fixed UID.
-      let fixedContactId = await browser.contacts.create(
+      const fixedContactId = await browser.contacts.create(
         firstBookId,
         "this is a test",
         {
@@ -497,7 +499,7 @@ add_task(async function test_addressBooks() {
         { type: "contact", parentId: firstBookId, id: "this is a test" },
       ]);
 
-      let fixedContact = await browser.contacts.get("this is a test");
+      const fixedContact = await browser.contacts.get("this is a test");
       browser.test.assertEq("this is a test", fixedContact.id);
 
       await browser.contacts.delete("this is a test");
@@ -532,7 +534,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertTrue(Array.isArray(mailingLists));
       browser.test.assertEq(0, mailingLists.length);
 
-      let newMailingListId = await browser.mailingLists.create(firstBookId, {
+      const newMailingListId = await browser.mailingLists.create(firstBookId, {
         name: "name",
       });
       browser.test.assertEq(36, newMailingListId.length);
@@ -556,7 +558,7 @@ add_task(async function test_addressBooks() {
         "List not added to second book."
       );
 
-      let newAddressList = await browser.mailingLists.get(newMailingListId);
+      const newAddressList = await browser.mailingLists.get(newMailingListId);
       browser.test.assertEq(8, Object.keys(newAddressList).length);
       browser.test.assertEq(newMailingListId, newAddressList.id);
       browser.test.assertEq(firstBookId, newAddressList.parentId);
@@ -603,7 +605,9 @@ add_task(async function test_addressBooks() {
         { type: "mailingList", parentId: firstBookId, id: newMailingListId },
       ]);
 
-      let updatedMailingList = await browser.mailingLists.get(newMailingListId);
+      const updatedMailingList = await browser.mailingLists.get(
+        newMailingListId
+      );
       browser.test.assertEq("name!", updatedMailingList.name);
       browser.test.assertEq("nickname!", updatedMailingList.nickName);
       browser.test.assertEq("description!", updatedMailingList.description);
@@ -621,7 +625,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertTrue(Array.isArray(listMembers));
       browser.test.assertEq(1, listMembers.length);
 
-      let anotherContactId = await browser.contacts.create(firstBookId, {
+      const anotherContactId = await browser.contacts.create(firstBookId, {
         FirstName: "second",
         LastName: "last",
         PrimaryEmail: "em@il",
@@ -676,7 +680,7 @@ add_task(async function test_addressBooks() {
       mailingLists = await browser.mailingLists.list(firstBookId);
       browser.test.assertEq(0, mailingLists.length);
 
-      for (let operation of [
+      for (const operation of [
         "get",
         "update",
         "delete",
@@ -684,7 +688,7 @@ add_task(async function test_addressBooks() {
         "addMember",
         "removeMember",
       ]) {
-        let args = [newMailingListId];
+        const args = [newMailingListId];
         switch (operation) {
           case "update":
             args.push({ name: "" });
@@ -746,8 +750,8 @@ add_task(async function test_addressBooks() {
       await browser.contacts.delete(newContactId);
       await checkEvents(["contacts", "onDeleted", firstBookId, newContactId]);
 
-      for (let operation of ["get", "update", "delete"]) {
-        let args = [newContactId];
+      for (const operation of ["get", "update", "delete"]) {
+        const args = [newContactId];
         if (operation == "update") {
           args.push({});
         }
@@ -766,7 +770,7 @@ add_task(async function test_addressBooks() {
         }
       }
 
-      let contacts = await browser.contacts.list(firstBookId);
+      const contacts = await browser.contacts.list(firstBookId);
       browser.test.assertEq(0, contacts.length);
 
       browser.test.assertEq(0, events.length, "No events left unconsumed");
@@ -775,8 +779,8 @@ add_task(async function test_addressBooks() {
 
     async function outsideEventsTest() {
       browser.test.log("Starting outsideEventsTest");
-      let [bookId, newBookPrefId] = await outsideEvent("createAddressBook");
-      let [newBook] = await checkEvents([
+      const [bookId, newBookPrefId] = await outsideEvent("createAddressBook");
+      const [newBook] = await checkEvents([
         "addressBooks",
         "onCreated",
         { type: "addressBook", id: bookId },
@@ -784,7 +788,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("external add", newBook.name);
 
       await outsideEvent("updateAddressBook", newBookPrefId);
-      let [updatedBook] = await checkEvents([
+      const [updatedBook] = await checkEvents([
         "addressBooks",
         "onUpdated",
         { type: "addressBook", id: bookId },
@@ -794,8 +798,8 @@ add_task(async function test_addressBooks() {
       await outsideEvent("deleteAddressBook", newBookPrefId);
       await checkEvents(["addressBooks", "onDeleted", bookId]);
 
-      let [parentId1, contactId] = await outsideEvent("createContact");
-      let [newContact] = await checkEvents([
+      const [parentId1, contactId] = await outsideEvent("createContact");
+      const [newContact] = await checkEvents([
         "contacts",
         "onCreated",
         { type: "contact", parentId: parentId1, id: contactId },
@@ -809,7 +813,7 @@ add_task(async function test_addressBooks() {
 
       // Update the contact from outside.
       await outsideEvent("updateContact", contactId);
-      let [updatedContact] = await checkEvents([
+      const [updatedContact] = await checkEvents([
         "contacts",
         "onUpdated",
         { type: "contact", parentId: parentId1, id: contactId },
@@ -818,8 +822,8 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("external", updatedContact.properties.FirstName);
       browser.test.assertEq("edit", updatedContact.properties.LastName);
 
-      let [parentId2, listId] = await outsideEvent("createMailingList");
-      let [newList] = await checkEvents([
+      const [parentId2, listId] = await outsideEvent("createMailingList");
+      const [newList] = await checkEvents([
         "mailingLists",
         "onCreated",
         { type: "mailingList", parentId: parentId2, id: listId },
@@ -827,7 +831,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("external add", newList.name);
 
       await outsideEvent("updateMailingList", listId);
-      let [updatedList] = await checkEvents([
+      const [updatedList] = await checkEvents([
         "mailingLists",
         "onUpdated",
         { type: "mailingList", parentId: parentId2, id: listId },
@@ -840,7 +844,7 @@ add_task(async function test_addressBooks() {
         "onMemberAdded",
         { type: "contact", parentId: listId, id: contactId },
       ]);
-      let listMembers = await browser.mailingLists.listMembers(listId);
+      const listMembers = await browser.mailingLists.listMembers(listId);
       browser.test.assertEq(1, listMembers.length);
 
       await outsideEvent("removeMailingListMember", listId, contactId);
@@ -864,7 +868,7 @@ add_task(async function test_addressBooks() {
     browser.test.notifyPass("addressBooks");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -875,9 +879,9 @@ add_task(async function test_addressBooks() {
     },
   });
 
-  let parent = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  const parent = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
   function findContact(id) {
-    for (let child of parent.childCards) {
+    for (const child of parent.childCards) {
       if (child.UID == id) {
         return child;
       }
@@ -885,7 +889,7 @@ add_task(async function test_addressBooks() {
     return null;
   }
   function findMailingList(id) {
-    for (let list of parent.childNodes) {
+    for (const list of parent.childNodes) {
       if (list.UID == id) {
         return list;
       }
@@ -896,39 +900,39 @@ add_task(async function test_addressBooks() {
   extension.onMessage("outsideEventsTest", async (action, ...args) => {
     switch (action) {
       case "createAddressBook": {
-        let dirPrefId = MailServices.ab.newAddressBook(
+        const dirPrefId = MailServices.ab.newAddressBook(
           "external add",
           "",
           Ci.nsIAbManager.JS_DIRECTORY_TYPE
         );
-        let book = MailServices.ab.getDirectoryFromId(dirPrefId);
+        const book = MailServices.ab.getDirectoryFromId(dirPrefId);
         extension.sendMessage(book.UID, dirPrefId);
         return;
       }
       case "updateAddressBook": {
-        let book = MailServices.ab.getDirectoryFromId(args[0]);
+        const book = MailServices.ab.getDirectoryFromId(args[0]);
         book.dirName = "external edit";
         extension.sendMessage();
         return;
       }
       case "deleteAddressBook": {
-        let book = MailServices.ab.getDirectoryFromId(args[0]);
+        const book = MailServices.ab.getDirectoryFromId(args[0]);
         MailServices.ab.deleteAddressBook(book.URI);
         extension.sendMessage();
         return;
       }
       case "createContact": {
-        let contact = new AddrBookCard();
+        const contact = new AddrBookCard();
         contact.firstName = "external";
         contact.lastName = "add";
         contact.primaryEmail = "test@invalid";
 
-        let newContact = parent.addCard(contact);
+        const newContact = parent.addCard(contact);
         extension.sendMessage(parent.UID, newContact.UID);
         return;
       }
       case "updateContact": {
-        let contact = findContact(args[0]);
+        const contact = findContact(args[0]);
         if (contact) {
           contact.firstName = "external";
           contact.lastName = "edit";
@@ -939,7 +943,7 @@ add_task(async function test_addressBooks() {
         break;
       }
       case "deleteContact": {
-        let contact = findContact(args[0]);
+        const contact = findContact(args[0]);
         if (contact) {
           parent.deleteCards([contact]);
           extension.sendMessage();
@@ -948,18 +952,18 @@ add_task(async function test_addressBooks() {
         break;
       }
       case "createMailingList": {
-        let list = Cc[
+        const list = Cc[
           "@mozilla.org/addressbook/directoryproperty;1"
         ].createInstance(Ci.nsIAbDirectory);
         list.isMailList = true;
         list.dirName = "external add";
 
-        let newList = parent.addMailList(list);
+        const newList = parent.addMailList(list);
         extension.sendMessage(parent.UID, newList.UID);
         return;
       }
       case "updateMailingList": {
-        let list = findMailingList(args[0]);
+        const list = findMailingList(args[0]);
         if (list) {
           list.dirName = "external edit";
           list.editMailListToDatabase(null);
@@ -969,7 +973,7 @@ add_task(async function test_addressBooks() {
         break;
       }
       case "deleteMailingList": {
-        let list = findMailingList(args[0]);
+        const list = findMailingList(args[0]);
         if (list) {
           parent.deleteDirectory(list);
           extension.sendMessage();
@@ -978,8 +982,8 @@ add_task(async function test_addressBooks() {
         break;
       }
       case "addMailingListMember": {
-        let list = findMailingList(args[0]);
-        let contact = findContact(args[1]);
+        const list = findMailingList(args[0]);
+        const contact = findContact(args[1]);
 
         if (list && contact) {
           list.addCard(contact);
@@ -990,8 +994,8 @@ add_task(async function test_addressBooks() {
         break;
       }
       case "removeMailingListMember": {
-        let list = findMailingList(args[0]);
-        let contact = findContact(args[1]);
+        const list = findMailingList(args[0]);
+        const contact = findContact(args[1]);
 
         if (list && contact) {
           list.deleteCards([contact]);
@@ -1016,14 +1020,14 @@ add_task(async function test_addressBooks() {
 add_task(async function test_addressBooks_MV3_event_pages() {
   await AddonTestUtils.promiseStartupManager();
 
-  let files = {
+  const files = {
     "background.js": async () => {
       // Whenever the extension starts or wakes up, hasFired is set to false. In
       // case of a wake-up, the first fired event is the one that woke up the background.
       let hasFired = false;
 
       // Create and register event listener.
-      for (let event of [
+      for (const event of [
         "addressBooks.onCreated",
         "addressBooks.onUpdated",
         "addressBooks.onDeleted",
@@ -1036,7 +1040,7 @@ add_task(async function test_addressBooks_MV3_event_pages() {
         "mailingLists.onMemberAdded",
         "mailingLists.onMemberRemoved",
       ]) {
-        let [apiName, eventName] = event.split(".");
+        const [apiName, eventName] = event.split(".");
         browser[apiName][eventName].addListener((...args) => {
           // Only send the first event after background wake-up, this should be
           // the only one expected.
@@ -1051,7 +1055,7 @@ add_task(async function test_addressBooks_MV3_event_pages() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       manifest_version: 3,
@@ -1061,9 +1065,9 @@ add_task(async function test_addressBooks_MV3_event_pages() {
     },
   });
 
-  let parent = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  const parent = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
   function findContact(id) {
-    for (let child of parent.childCards) {
+    for (const child of parent.childCards) {
       if (child.UID == id) {
         return child;
       }
@@ -1071,7 +1075,7 @@ add_task(async function test_addressBooks_MV3_event_pages() {
     return null;
   }
   function findMailingList(id) {
-    for (let list of parent.childNodes) {
+    for (const list of parent.childNodes) {
       if (list.UID == id) {
         return list;
       }
@@ -1081,35 +1085,35 @@ add_task(async function test_addressBooks_MV3_event_pages() {
   function outsideEvent(action, ...args) {
     switch (action) {
       case "createAddressBook": {
-        let dirPrefId = MailServices.ab.newAddressBook(
+        const dirPrefId = MailServices.ab.newAddressBook(
           "external add",
           "",
           Ci.nsIAbManager.JS_DIRECTORY_TYPE
         );
-        let book = MailServices.ab.getDirectoryFromId(dirPrefId);
+        const book = MailServices.ab.getDirectoryFromId(dirPrefId);
         return [book, dirPrefId];
       }
       case "updateAddressBook": {
-        let book = MailServices.ab.getDirectoryFromId(args[0]);
+        const book = MailServices.ab.getDirectoryFromId(args[0]);
         book.dirName = "external edit";
         return [];
       }
       case "deleteAddressBook": {
-        let book = MailServices.ab.getDirectoryFromId(args[0]);
+        const book = MailServices.ab.getDirectoryFromId(args[0]);
         MailServices.ab.deleteAddressBook(book.URI);
         return [];
       }
       case "createContact": {
-        let contact = new AddrBookCard();
+        const contact = new AddrBookCard();
         contact.firstName = "external";
         contact.lastName = "add";
         contact.primaryEmail = "test@invalid";
 
-        let newContact = parent.addCard(contact);
+        const newContact = parent.addCard(contact);
         return [parent.UID, newContact.UID];
       }
       case "updateContact": {
-        let contact = findContact(args[0]);
+        const contact = findContact(args[0]);
         if (contact) {
           contact.firstName = "external";
           contact.lastName = "edit";
@@ -1119,7 +1123,7 @@ add_task(async function test_addressBooks_MV3_event_pages() {
         break;
       }
       case "deleteContact": {
-        let contact = findContact(args[0]);
+        const contact = findContact(args[0]);
         if (contact) {
           parent.deleteCards([contact]);
           return [];
@@ -1127,17 +1131,17 @@ add_task(async function test_addressBooks_MV3_event_pages() {
         break;
       }
       case "createMailingList": {
-        let list = Cc[
+        const list = Cc[
           "@mozilla.org/addressbook/directoryproperty;1"
         ].createInstance(Ci.nsIAbDirectory);
         list.isMailList = true;
         list.dirName = "external add";
 
-        let newList = parent.addMailList(list);
+        const newList = parent.addMailList(list);
         return [parent.UID, newList.UID];
       }
       case "updateMailingList": {
-        let list = findMailingList(args[0]);
+        const list = findMailingList(args[0]);
         if (list) {
           list.dirName = "external edit";
           list.editMailListToDatabase(null);
@@ -1146,7 +1150,7 @@ add_task(async function test_addressBooks_MV3_event_pages() {
         break;
       }
       case "deleteMailingList": {
-        let list = findMailingList(args[0]);
+        const list = findMailingList(args[0]);
         if (list) {
           parent.deleteDirectory(list);
           return [];
@@ -1154,8 +1158,8 @@ add_task(async function test_addressBooks_MV3_event_pages() {
         break;
       }
       case "addMailingListMember": {
-        let list = findMailingList(args[0]);
-        let contact = findContact(args[1]);
+        const list = findMailingList(args[0]);
+        const contact = findContact(args[1]);
 
         if (list && contact) {
           list.addCard(contact);
@@ -1165,8 +1169,8 @@ add_task(async function test_addressBooks_MV3_event_pages() {
         break;
       }
       case "removeMailingListMember": {
-        let list = findMailingList(args[0]);
-        let contact = findContact(args[1]);
+        const list = findMailingList(args[0]);
+        const contact = findContact(args[1]);
 
         if (list && contact) {
           list.deleteCards([contact]);
@@ -1199,8 +1203,8 @@ add_task(async function test_addressBooks_MV3_event_pages() {
       "addressBook.onMemberRemoved",
     ];
 
-    for (let event of persistent_events) {
-      let [moduleName, eventName] = event.split(".");
+    for (const event of persistent_events) {
+      const [moduleName, eventName] = event.split(".");
       assertPersistentListeners(extension, moduleName, eventName, {
         primed,
       });
@@ -1215,7 +1219,7 @@ add_task(async function test_addressBooks_MV3_event_pages() {
 
   await extension.terminateBackground({ disableResetIdleForTest: true });
   checkPersistentListeners({ primed: true });
-  let [newBook, dirPrefId] = outsideEvent("createAddressBook");
+  const [newBook, dirPrefId] = outsideEvent("createAddressBook");
   // The event should have restarted the background.
   await extension.awaitMessage("background started");
   Assert.deepEqual(
@@ -1273,10 +1277,10 @@ add_task(async function test_addressBooks_MV3_event_pages() {
 
   await extension.terminateBackground({ disableResetIdleForTest: true });
   checkPersistentListeners({ primed: true });
-  let [parentId1, contactId] = outsideEvent("createContact");
+  const [parentId1, contactId] = outsideEvent("createContact");
   // The event should have restarted the background.
   await extension.awaitMessage("background started");
-  let [createdNode] = await extension.awaitMessage(
+  const [createdNode] = await extension.awaitMessage(
     "contacts.onCreated received"
   );
   Assert.deepEqual(
@@ -1301,7 +1305,7 @@ add_task(async function test_addressBooks_MV3_event_pages() {
   outsideEvent("updateContact", contactId);
   // The event should have restarted the background.
   await extension.awaitMessage("background started");
-  let [updatedNode, changedProperties] = await extension.awaitMessage(
+  const [updatedNode, changedProperties] = await extension.awaitMessage(
     "contacts.onUpdated received"
   );
   Assert.deepEqual(
@@ -1325,7 +1329,7 @@ add_task(async function test_addressBooks_MV3_event_pages() {
 
   await extension.terminateBackground({ disableResetIdleForTest: true });
   checkPersistentListeners({ primed: true });
-  let [parentId2, listId] = outsideEvent("createMailingList");
+  const [parentId2, listId] = outsideEvent("createMailingList");
   // The event should have restarted the background.
   await extension.awaitMessage("background started");
   Assert.deepEqual(
@@ -1378,7 +1382,7 @@ add_task(async function test_addressBooks_MV3_event_pages() {
   outsideEvent("addMailingListMember", listId, contactId);
   // The event should have restarted the background.
   await extension.awaitMessage("background started");
-  let [addedNode] = await extension.awaitMessage(
+  const [addedNode] = await extension.awaitMessage(
     "mailingLists.onMemberAdded received"
   );
   Assert.deepEqual(
@@ -1437,16 +1441,16 @@ add_task(async function test_addressBooks_MV3_event_pages() {
 
 add_task(async function test_photos() {
   async function background() {
-    let events = [];
+    const events = [];
     let eventPromise;
     let eventPromiseResolve;
-    for (let eventNamespace of ["addressBooks", "contacts"]) {
-      for (let eventName of ["onCreated", "onUpdated", "onDeleted"]) {
+    for (const eventNamespace of ["addressBooks", "contacts"]) {
+      for (const eventName of ["onCreated", "onUpdated", "onDeleted"]) {
         if (eventName in browser[eventNamespace]) {
           browser[eventNamespace][eventName].addListener((...args) => {
             events.push({ namespace: eventNamespace, name: eventName, args });
             if (eventPromiseResolve) {
-              let resolve = eventPromiseResolve;
+              const resolve = eventPromiseResolve;
               eventPromiseResolve = null;
               resolve();
             }
@@ -1455,7 +1459,7 @@ add_task(async function test_photos() {
       }
     }
 
-    let getDataUrl = function (file) {
+    const getDataUrl = function (file) {
       return new Promise((resolve, reject) => {
         var reader = new FileReader();
         reader.readAsDataURL(file);
@@ -1468,7 +1472,7 @@ add_task(async function test_photos() {
       });
     };
 
-    let updateAndVerifyPhoto = async function (
+    const updateAndVerifyPhoto = async function (
       parentId,
       id,
       photoFile,
@@ -1485,26 +1489,26 @@ add_task(async function test_photos() {
         { type: "contact", parentId, id },
         {},
       ]);
-      let updatedPhoto = await browser.contacts.getPhoto(id);
+      const updatedPhoto = await browser.contacts.getPhoto(id);
       // eslint-disable-next-line mozilla/use-isInstance
       browser.test.assertTrue(updatedPhoto instanceof File);
       browser.test.assertEq("image/png", updatedPhoto.type);
       browser.test.assertEq(`${id}.png`, updatedPhoto.name);
       browser.test.assertEq(photoData, await getDataUrl(updatedPhoto));
     };
-    let normalizeVCard = function (vCard) {
+    const normalizeVCard = function (vCard) {
       return vCard
         .replaceAll("\r\n", "")
         .replaceAll("\n", "")
         .replaceAll(" ", "");
     };
-    let outsideEvent = function (action, ...args) {
+    const outsideEvent = function (action, ...args) {
       eventPromise = new Promise(resolve => {
         eventPromiseResolve = resolve;
       });
       return window.sendMessage("outsideEventsTest", action, ...args);
     };
-    let checkEvents = async function (...expectedEvents) {
+    const checkEvents = async function (...expectedEvents) {
       if (eventPromiseResolve) {
         await eventPromise;
       }
@@ -1516,15 +1520,15 @@ add_task(async function test_photos() {
       );
 
       if (expectedEvents.length != events.length) {
-        for (let event of events) {
-          let args = event.args.join(", ");
+        for (const event of events) {
+          const args = event.args.join(", ");
           browser.test.log(`${event.namespace}.${event.name}(${args})`);
         }
         throw new Error("Wrong number of events, stopping.");
       }
 
-      for (let [namespace, name, ...expectedArgs] of expectedEvents) {
-        let event = events.shift();
+      for (const [namespace, name, ...expectedArgs] of expectedEvents) {
+        const event = events.shift();
         browser.test.assertEq(
           namespace,
           event.namespace,
@@ -1545,27 +1549,27 @@ add_task(async function test_photos() {
       return null;
     };
 
-    let whitePixelData =
+    const whitePixelData =
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC";
-    let bluePixelData =
+    const bluePixelData =
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==";
-    let greenPixelData =
+    const greenPixelData =
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY5CeYAMAAbEA6ASxSWcAAAAASUVORK5CYII=";
-    let redPixelData =
+    const redPixelData =
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY3growIAAycBLhVrvukAAAAASUVORK5CYII=";
-    let vCard3WhitePixel =
+    const vCard3WhitePixel =
       "PHOTO;ENCODING=B;TYPE=PNG:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC";
-    let vCard4WhitePixel =
+    const vCard4WhitePixel =
       "PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC";
-    let vCard4BluePixel =
+    const vCard4BluePixel =
       "PHOTO;VALUE=URL:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQg==";
 
     // Create a photo file, which is linked to a local file to simulate a file
     // opened through a filepicker.
-    let [redPixelRealFile] = await window.sendMessage("getRedPixelFile");
+    const [redPixelRealFile] = await window.sendMessage("getRedPixelFile");
 
     // Create a photo file, which is a simple data blob.
-    let greenPixelFile = await fetch(greenPixelData)
+    const greenPixelFile = await fetch(greenPixelData)
       .then(res => res.arrayBuffer())
       .then(buf => new File([buf], "greenPixel.png", { type: "image/png" }));
 
@@ -1573,10 +1577,10 @@ add_task(async function test_photos() {
     // Test vCard v4 with a photoName set.
     // -------------------------------------------------------------------------
 
-    let [parentId1, contactId1, photoName1] = await outsideEvent(
+    const [parentId1, contactId1, photoName1] = await outsideEvent(
       "createV4ContactWithPhotoName"
     );
-    let [newContact] = await checkEvents([
+    const [newContact] = await checkEvents([
       "contacts",
       "onCreated",
       { type: "contact", parentId: parentId1, id: contactId1 },
@@ -1602,7 +1606,7 @@ add_task(async function test_photos() {
 
     // Test if we can get the photo through the API.
 
-    let photo = await browser.contacts.getPhoto(contactId1);
+    const photo = await browser.contacts.getPhoto(contactId1);
     // eslint-disable-next-line mozilla/use-isInstance
     browser.test.assertTrue(photo instanceof File);
     browser.test.assertEq("image/png", photo.type);
@@ -1655,7 +1659,7 @@ add_task(async function test_photos() {
     // photo in its vCard (outside of the API).
 
     await outsideEvent("updateV4ContactWithBluePixel", contactId1);
-    let [updatedContact1] = await checkEvents([
+    const [updatedContact1] = await checkEvents([
       "contacts",
       "onUpdated",
       { type: "contact", parentId: parentId1, id: contactId1 },
@@ -1663,7 +1667,7 @@ add_task(async function test_photos() {
     ]);
     browser.test.assertEq("external", updatedContact1.properties.FirstName);
     browser.test.assertEq("edit", updatedContact1.properties.LastName);
-    let updatedPhoto1 = await browser.contacts.getPhoto(contactId1);
+    const updatedPhoto1 = await browser.contacts.getPhoto(contactId1);
     // eslint-disable-next-line mozilla/use-isInstance
     browser.test.assertTrue(updatedPhoto1 instanceof File);
     browser.test.assertEq("image/png", updatedPhoto1.type);
@@ -1679,10 +1683,10 @@ add_task(async function test_photos() {
     // Test vCard v4 with a photoName and also a photo in its vCard.
     // -------------------------------------------------------------------------
 
-    let [parentId2, contactId2] = await outsideEvent(
+    const [parentId2, contactId2] = await outsideEvent(
       "createV4ContactWithBothPhotoProps"
     );
-    let [newContact2] = await checkEvents([
+    const [newContact2] = await checkEvents([
       "contacts",
       "onCreated",
       { type: "contact", parentId: parentId2, id: contactId2 },
@@ -1710,7 +1714,7 @@ add_task(async function test_photos() {
 
     // Test if we can get the correct photo through the API.
 
-    let photo3 = await browser.contacts.getPhoto(contactId2);
+    const photo3 = await browser.contacts.getPhoto(contactId2);
     // eslint-disable-next-line mozilla/use-isInstance
     browser.test.assertTrue(photo3 instanceof File);
     browser.test.assertEq("image/png", photo3.type);
@@ -1762,10 +1766,10 @@ add_task(async function test_photos() {
     // Test vCard v3 with a photoName set.
     // -------------------------------------------------------------------------
 
-    let [parentId3, contactId3, photoName4] = await outsideEvent(
+    const [parentId3, contactId3, photoName4] = await outsideEvent(
       "createV3ContactWithPhotoName"
     );
-    let [newContact4] = await checkEvents([
+    const [newContact4] = await checkEvents([
       "contacts",
       "onCreated",
       { type: "contact", parentId: parentId3, id: contactId3 },
@@ -1788,7 +1792,7 @@ add_task(async function test_photos() {
       contactId3,
       `^file:.*?${photoName4}$`
     );
-    let photo4 = await browser.contacts.getPhoto(contactId3);
+    const photo4 = await browser.contacts.getPhoto(contactId3);
     // eslint-disable-next-line mozilla/use-isInstance
     browser.test.assertTrue(photo4 instanceof File);
     browser.test.assertEq("image/png", photo4.type);
@@ -1841,7 +1845,7 @@ add_task(async function test_photos() {
     // photo in its vCard (outside of the API).
 
     await outsideEvent("updateV3ContactWithBluePixel", contactId3);
-    let [updatedContact3] = await checkEvents([
+    const [updatedContact3] = await checkEvents([
       "contacts",
       "onUpdated",
       { type: "contact", parentId: parentId3, id: contactId3 },
@@ -1849,7 +1853,7 @@ add_task(async function test_photos() {
     ]);
     browser.test.assertEq("external", updatedContact3.properties.FirstName);
     browser.test.assertEq("edit", updatedContact3.properties.LastName);
-    let updatedPhoto3 = await browser.contacts.getPhoto(contactId3);
+    const updatedPhoto3 = await browser.contacts.getPhoto(contactId3);
     // eslint-disable-next-line mozilla/use-isInstance
     browser.test.assertTrue(updatedPhoto3 instanceof File);
     browser.test.assertEq("image/png", updatedPhoto3.type);
@@ -1872,7 +1876,7 @@ add_task(async function test_photos() {
     browser.test.notifyPass("addressBooksPhotos");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
@@ -1883,9 +1887,9 @@ add_task(async function test_photos() {
     },
   });
 
-  let parent = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  const parent = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
   function findContact(id) {
-    for (let child of parent.childCards) {
+    for (const child of parent.childCards) {
       if (child.UID == id) {
         return child;
       }
@@ -1895,7 +1899,7 @@ add_task(async function test_photos() {
 
   async function getUniqueWhitePixelFile() {
     // Copy photo file into the required Photos subfolder of the profile folder.
-    let photoName = `${AddrBookUtils.newUID()}.png`;
+    const photoName = `${AddrBookUtils.newUID()}.png`;
     await IOUtils.copy(
       do_get_file("images/whitePixel.png").path,
       PathUtils.join(PathUtils.profileDir, "Photos", photoName)
@@ -1904,19 +1908,19 @@ add_task(async function test_photos() {
   }
 
   extension.onMessage("getRedPixelFile", async () => {
-    let redPixelFile = await File.createFromNsIFile(
+    const redPixelFile = await File.createFromNsIFile(
       do_get_file("images/redPixel.png")
     );
     extension.sendMessage(redPixelFile);
   });
 
   extension.onMessage("verifyInternalPhotoUrl", (id, expected) => {
-    let contact = findContact(id);
-    let photoUrl = contact.photoURL;
+    const contact = findContact(id);
+    const photoUrl = contact.photoURL;
     if (expected.startsWith("data:")) {
       Assert.equal(expected, photoUrl, `photoURL should be correct`);
     } else {
-      let regExp = new RegExp(expected);
+      const regExp = new RegExp(expected);
       Assert.ok(
         regExp.test(photoUrl),
         `photoURL <${photoUrl}> should match expected regExp <${expected}>`
@@ -1928,21 +1932,21 @@ add_task(async function test_photos() {
   extension.onMessage("outsideEventsTest", async (action, ...args) => {
     switch (action) {
       case "createV4ContactWithPhotoName": {
-        let photoName = await getUniqueWhitePixelFile();
-        let contact = new AddrBookCard();
+        const photoName = await getUniqueWhitePixelFile();
+        const contact = new AddrBookCard();
         contact.firstName = "external";
         contact.lastName = "add";
         contact.primaryEmail = "test@invalid";
         contact.setProperty("PhotoName", photoName);
 
-        let newContact = parent.addCard(contact);
+        const newContact = parent.addCard(contact);
         extension.sendMessage(parent.UID, newContact.UID, photoName);
         return;
       }
       case "createV4ContactWithBothPhotoProps": {
         // This contact has whitePixel as file but bluePixel in the vCard.
-        let photoName = await getUniqueWhitePixelFile();
-        let contact = new AddrBookCard();
+        const photoName = await getUniqueWhitePixelFile();
+        const contact = new AddrBookCard();
         contact.setProperty("PhotoName", photoName);
         contact.setProperty(
           "_vCard",
@@ -1957,12 +1961,12 @@ add_task(async function test_photos() {
             END:VCARD
           `
         );
-        let newContact = parent.addCard(contact);
+        const newContact = parent.addCard(contact);
         extension.sendMessage(parent.UID, newContact.UID, photoName);
         return;
       }
       case "updateV4ContactWithBluePixel": {
-        let contact = findContact(args[0]);
+        const contact = findContact(args[0]);
         if (contact) {
           contact.setProperty(
             "_vCard",
@@ -1983,8 +1987,8 @@ add_task(async function test_photos() {
         break;
       }
       case "createV3ContactWithPhotoName": {
-        let photoName = await getUniqueWhitePixelFile();
-        let contact = new AddrBookCard();
+        const photoName = await getUniqueWhitePixelFile();
+        const contact = new AddrBookCard();
         contact.setProperty("PhotoName", photoName);
         contact.setProperty(
           "_vCard",
@@ -1997,12 +2001,12 @@ add_task(async function test_photos() {
             END:VCARD
           `
         );
-        let newContact = parent.addCard(contact);
+        const newContact = parent.addCard(contact);
         extension.sendMessage(parent.UID, newContact.UID, photoName);
         return;
       }
       case "updateV3ContactWithBluePixel": {
-        let contact = findContact(args[0]);
+        const contact = findContact(args[0]);
         if (contact) {
           contact.setProperty(
             "_vCard",
@@ -2023,7 +2027,7 @@ add_task(async function test_photos() {
         break;
       }
       case "deleteContact": {
-        let contact = findContact(args[0]);
+        const contact = findContact(args[0]);
         if (contact) {
           parent.deleteCards([contact]);
           extension.sendMessage();

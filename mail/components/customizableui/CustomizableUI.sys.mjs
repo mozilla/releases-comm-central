@@ -22,7 +22,7 @@ var CustomizableUIInternal = {
   addPanelCloseListeners(aPanel) {
     Services.els.addSystemEventListener(aPanel, "click", this, false);
     Services.els.addSystemEventListener(aPanel, "keypress", this, false);
-    let win = aPanel.ownerGlobal;
+    const win = aPanel.ownerGlobal;
     if (!gPanelsForWindow.has(win)) {
       gPanelsForWindow.set(win, new Set());
     }
@@ -32,8 +32,8 @@ var CustomizableUIInternal = {
   removePanelCloseListeners(aPanel) {
     Services.els.removeSystemEventListener(aPanel, "click", this, false);
     Services.els.removeSystemEventListener(aPanel, "keypress", this, false);
-    let win = aPanel.ownerGlobal;
-    let panels = gPanelsForWindow.get(win);
+    const win = aPanel.ownerGlobal;
+    const panels = gPanelsForWindow.get(win);
     if (panels) {
       panels.delete(this._getPanelForNode(aPanel));
     }
@@ -73,7 +73,7 @@ var CustomizableUIInternal = {
     }
 
     let target = aEvent.target;
-    let panel = this._getPanelForNode(aEvent.currentTarget);
+    const panel = this._getPanelForNode(aEvent.currentTarget);
     // This can happen in e.g. customize mode. If there's no panel,
     // there's clearly nothing for us to close; pretend we're interactive.
     if (!panel) {
@@ -105,14 +105,14 @@ var CustomizableUIInternal = {
           break;
         }
       }
-      let tagName = target.localName;
+      const tagName = target.localName;
       inInput = tagName == "input";
       inItem = tagName == "toolbaritem" || tagName == "toolbarbutton";
-      let isMenuItem = tagName == "menuitem";
+      const isMenuItem = tagName == "menuitem";
       inMenu = inMenu || isMenuItem;
 
       if (isMenuItem && target.hasAttribute("closemenu")) {
-        let closemenuVal = target.getAttribute("closemenu");
+        const closemenuVal = target.getAttribute("closemenu");
         menuitemCloseMenu =
           closemenuVal == "single" || closemenuVal == "none"
             ? closemenuVal
@@ -136,7 +136,7 @@ var CustomizableUIInternal = {
       // We need specific code for popups: the item on which they were invoked
       // isn't necessarily in their parentNode chain:
       if (isMenuItem) {
-        let topmostMenuPopup = getMenuPopupForDescendant(target);
+        const topmostMenuPopup = getMenuPopupForDescendant(target);
         target =
           (topmostMenuPopup && topmostMenuPopup.triggerNode) ||
           target.parentNode;
@@ -164,14 +164,14 @@ var CustomizableUIInternal = {
   },
 
   hidePanelForNode(aNode) {
-    let panel = this._getPanelForNode(aNode);
+    const panel = this._getPanelForNode(aNode);
     if (panel) {
       lazy.PanelMultiView.hidePopup(panel);
     }
   },
 
   maybeAutoHidePanel(aEvent) {
-    let eventType = aEvent.type;
+    const eventType = aEvent.type;
     if (eventType == "keypress" && aEvent.keyCode != aEvent.DOM_VK_RETURN) {
       return;
     }

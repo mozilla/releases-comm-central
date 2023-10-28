@@ -36,10 +36,10 @@ add_setup(async function () {
  * @returns {Map(partnum -> message headers), Map(partnum -> message text)}
  */
 async function getMsgHeaders(aMsgHdr) {
-  let msgFolder = aMsgHdr.folder;
-  let msgUri = msgFolder.getUriForMsg(aMsgHdr);
+  const msgFolder = aMsgHdr.folder;
+  const msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
-  let handler = {
+  const handler = {
     _done: false,
     _data: new Map(),
     _text: new Map(),
@@ -54,7 +54,7 @@ async function getMsgHeaders(aMsgHdr) {
       this._text.set(num, "");
     },
   };
-  let streamListener = MimeParser.makeStreamListenerParser(handler, {
+  const streamListener = MimeParser.makeStreamListenerParser(handler, {
     strformat: "unicode",
   });
   MailServices.messageServiceFromURI(msgUri).streamMessage(
@@ -73,7 +73,7 @@ async function getMsgHeaders(aMsgHdr) {
 /**
  */
 add_task(async function test_basic_multipart_related() {
-  let compWin = await open_compose_new_mail();
+  const compWin = await open_compose_new_mail();
   compWin.focus();
   EventUtils.sendString("someone@example.com", compWin);
   compWin.document.getElementById("msgSubject").focus();
@@ -82,11 +82,11 @@ add_task(async function test_basic_multipart_related() {
   EventUtils.sendString("Here is a prologue.\n", compWin);
 
   const fname = "data/tb-logo.png";
-  let file = new FileUtils.File(getTestFilePath(fname));
-  let fileHandler = Services.io
+  const file = new FileUtils.File(getTestFilePath(fname));
+  const fileHandler = Services.io
     .getProtocolHandler("file")
     .QueryInterface(Ci.nsIFileProtocolHandler);
-  let fileURL = fileHandler.getURLSpecFromActualFile(file);
+  const fileURL = fileHandler.getURLSpecFromActualFile(file);
 
   // Add a simple image to our dialog
   const dialogPromise = promise_modal_dialog(
@@ -104,8 +104,8 @@ add_task(async function test_basic_multipart_related() {
     }
   );
 
-  let insertMenu = compWin.document.getElementById("InsertPopupButton");
-  let insertMenuPopup = compWin.document.getElementById("InsertPopup");
+  const insertMenu = compWin.document.getElementById("InsertPopupButton");
+  const insertMenuPopup = compWin.document.getElementById("InsertPopup");
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
@@ -122,8 +122,8 @@ add_task(async function test_basic_multipart_related() {
 
   // Make sure that the headers are right on this one.
   await be_in_folder(gDrafts);
-  let draftMsg = await select_click_row(0);
-  let { headers, text } = await getMsgHeaders(draftMsg, true);
+  const draftMsg = await select_click_row(0);
+  const { headers, text } = await getMsgHeaders(draftMsg, true);
   Assert.equal(headers.get("").contentType.type, "multipart/related");
   Assert.equal(headers.get("1").contentType.type, "text/html");
   Assert.equal(headers.get("2").contentType.type, "image/png");
@@ -132,7 +132,7 @@ add_task(async function test_basic_multipart_related() {
     headers.get("2").getRawHeader("Content-Disposition")[0],
     'inline; filename="tb-logo.png"'
   );
-  let cid = headers.get("2").getRawHeader("Content-ID")[0].slice(1, -1);
+  const cid = headers.get("2").getRawHeader("Content-ID")[0].slice(1, -1);
   if (!text.get("1").includes('src="cid:' + cid + '"')) {
     throw new Error("Expected HTML to refer to cid " + cid);
   }

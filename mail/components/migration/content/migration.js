@@ -25,13 +25,13 @@ var MigrationWizard = {
       .querySelector("wizard")
       .addEventListener("wizardcancel", this.onCancel.bind(this));
 
-    let importSourcePage = document.getElementById("importSource");
+    const importSourcePage = document.getElementById("importSource");
     importSourcePage.addEventListener(
       "pageadvanced",
       this.onImportSourcePageAdvanced.bind(this)
     );
 
-    let selectProfilePage = document.getElementById("selectProfile");
+    const selectProfilePage = document.getElementById("selectProfile");
     selectProfilePage.addEventListener(
       "pageshow",
       this.onSelectProfilePageShow.bind(this)
@@ -45,7 +45,7 @@ var MigrationWizard = {
       this.onSelectProfilePageAdvanced.bind(this)
     );
 
-    let importItemsPage = document.getElementById("importItems");
+    const importItemsPage = document.getElementById("importItems");
     importItemsPage.addEventListener(
       "pageshow",
       this.onImportItemsPageShow.bind(this)
@@ -59,16 +59,16 @@ var MigrationWizard = {
       this.onImportItemsPageAdvanced.bind(this)
     );
 
-    let migratingPage = document.getElementById("migrating");
+    const migratingPage = document.getElementById("migrating");
     migratingPage.addEventListener(
       "pageshow",
       this.onMigratingPageShow.bind(this)
     );
 
-    let donePage = document.getElementById("done");
+    const donePage = document.getElementById("done");
     donePage.addEventListener("pageshow", this.onDonePageShow.bind(this));
 
-    let failedPage = document.getElementById("failed");
+    const failedPage = document.getElementById("failed");
     failedPage.addEventListener("pageshow", () => (this._failed = true));
     failedPage.addEventListener("pagerewound", () => (this._failed = false));
 
@@ -129,8 +129,8 @@ var MigrationWizard = {
 
     // Figure out what source apps are are available to import from:
     var group = document.getElementById("importSourceGroup");
-    for (let childNode of group.children) {
-      let suffix = childNode.id;
+    for (const childNode of group.children) {
+      const suffix = childNode.id;
       if (suffix != "nothing") {
         var contractID =
           kProfileMigratorContractIDPrefix + suffix.split("-")[0];
@@ -145,7 +145,7 @@ var MigrationWizard = {
     }
 
     var firstNonDisabled = null;
-    for (let childNode of group.children) {
+    for (const childNode of group.children) {
       if (!childNode.hidden && !childNode.disabled) {
         firstNonDisabled = childNode;
         break;
@@ -331,7 +331,7 @@ var MigrationWizard = {
           this._wiz.canRewind = true;
           this._wiz.rewind();
           this._wiz.canAdvance = true;
-          let [zipFileTooBigTitle, zipFileTooBigMessage] =
+          const [zipFileTooBigTitle, zipFileTooBigMessage] =
             await document.l10n.formatValues([
               "zip-file-too-big-title",
               "zip-file-too-big-message",
@@ -357,7 +357,7 @@ var MigrationWizard = {
   },
 
   async onMigratingMigrate(aOuter) {
-    let [source, type] = this._source.split("-");
+    const [source, type] = this._source.split("-");
     if (source == "thunderbird") {
       // Ask user for the profile directory location.
       await this._migrator.wrappedJSObject.getProfileDir(window, type);
@@ -405,7 +405,7 @@ var MigrationWizard = {
         break;
       case "Migration:ItemBeforeMigrate": {
         dump("*** before " + aData + "\n");
-        let label = document.getElementById(aData + "_migrated");
+        const label = document.getElementById(aData + "_migrated");
         if (label) {
           label.setAttribute("style", "font-weight: bold");
         }
@@ -413,7 +413,7 @@ var MigrationWizard = {
       }
       case "Migration:ItemAfterMigrate": {
         dump("*** after " + aData + "\n");
-        let label = document.getElementById(aData + "_migrated");
+        const label = document.getElementById(aData + "_migrated");
         if (label) {
           label.removeAttribute("style");
         }

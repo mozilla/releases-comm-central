@@ -35,7 +35,7 @@ var EnigmailDialog = {
    * @return:      Boolean   - true: OK pressed / false: Cancel or ESC pressed
    */
   confirmDlg(win, mesg, okLabel, cancelLabel) {
-    let buttonPressed = EnigmailDialog.msgBox(
+    const buttonPressed = EnigmailDialog.msgBox(
       win,
       {
         msgtext: mesg,
@@ -153,13 +153,13 @@ var EnigmailDialog = {
    *                        the future display status
    */
   alertPref(win, mesg, prefText) {
-    let prefValue = Services.prefs.getBoolPref("temp.openpgp." + prefText);
+    const prefValue = Services.prefs.getBoolPref("temp.openpgp." + prefText);
     if (prefValue) {
-      let checkBoxObj = {
+      const checkBoxObj = {
         value: false,
       };
 
-      let buttonPressed = EnigmailDialog.msgBox(
+      const buttonPressed = EnigmailDialog.msgBox(
         win,
         {
           msgtext: mesg,
@@ -200,10 +200,10 @@ var EnigmailDialog = {
     switch (prefValue) {
       case true: {
         // display
-        let checkBoxObj = {
+        const checkBoxObj = {
           value: false,
         };
-        let buttonPressed = EnigmailDialog.msgBox(
+        const buttonPressed = EnigmailDialog.msgBox(
           win,
           {
             msgtext: mesg,
@@ -233,15 +233,15 @@ var EnigmailDialog = {
   },
 
   confirmIntPref(win, mesg, pref, okLabel, cancelLabel) {
-    let prefValue = Services.prefs.getIntPref(pref);
+    const prefValue = Services.prefs.getIntPref(pref);
     // number: remember user's choice
     switch (prefValue) {
       case 0: {
         // not set
-        let checkBoxObj = {
+        const checkBoxObj = {
           value: false,
         };
-        let buttonPressed = EnigmailDialog.msgBox(
+        const buttonPressed = EnigmailDialog.msgBox(
           win,
           {
             msgtext: mesg,
@@ -300,10 +300,10 @@ var EnigmailDialog = {
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance();
     filePicker = filePicker.QueryInterface(Ci.nsIFilePicker);
 
-    let open = multiple
+    const open = multiple
       ? Ci.nsIFilePicker.modeOpenMultiple
       : Ci.nsIFilePicker.modeOpen;
-    let mode = save ? Ci.nsIFilePicker.modeSave : open;
+    const mode = save ? Ci.nsIFilePicker.modeSave : open;
 
     filePicker.init(win, title, mode);
     if (displayDir) {
@@ -339,10 +339,10 @@ var EnigmailDialog = {
 
     filePicker.appendFilters(Ci.nsIFilePicker.filterAll);
 
-    let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(
+    const inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(
       Ci.nsIJSInspector
     );
-    let files = [];
+    const files = [];
     filePicker.open(res => {
       if (
         res != Ci.nsIFilePicker.returnOK &&
@@ -355,7 +355,7 @@ var EnigmailDialog = {
       // Loop through multiple selected files only if the dialog was triggered
       // to open files and the `multiple` boolean variable is true.
       if (!save && multiple) {
-        for (let file of filePicker.files) {
+        for (const file of filePicker.files) {
           // XXX: for some reason QI is needed on Mac.
           files.push(file.QueryInterface(Ci.nsIFile));
         }
@@ -424,7 +424,7 @@ var EnigmailDialog = {
    *
    */
   confirmPubkeyImport(parentWindow, keyPreview, outputParams) {
-    let args = {
+    const args = {
       keys: keyPreview,
       confirmed: false,
       acceptance: "",

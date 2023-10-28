@@ -42,7 +42,7 @@ collectedAddresses = MailServices.ab.getDirectory(
  */
 function ensure_card_exists(emailAddress, displayName, preferDisplayName) {
   ensure_no_card_exists(emailAddress);
-  let card = create_contact(emailAddress, displayName, preferDisplayName);
+  const card = create_contact(emailAddress, displayName, preferDisplayName);
   collectedAddresses.addCard(card);
 }
 
@@ -52,7 +52,7 @@ function ensure_card_exists(emailAddress, displayName, preferDisplayName) {
  * @param emailAddress the address that should have no cards
  */
 function ensure_no_card_exists(emailAddress) {
-  for (let ab of MailServices.ab.directories) {
+  for (const ab of MailServices.ab.directories) {
     try {
       var card = ab.cardForEmailAddress(emailAddress);
       if (card) {
@@ -70,7 +70,7 @@ function ensure_no_card_exists(emailAddress) {
 function get_cards_in_all_address_books_for_email(aEmailAddress) {
   var result = [];
 
-  for (let ab of MailServices.ab.directories) {
+  for (const ab of MailServices.ab.directories) {
     var card = ab.cardForEmailAddress(aEmailAddress);
     if (card) {
       result.push(card);
@@ -87,8 +87,8 @@ function get_cards_in_all_address_books_for_email(aEmailAddress) {
  * @returns the nsIAbDirectory address book
  */
 function create_address_book(aName) {
-  let abPrefString = MailServices.ab.newAddressBook(aName, "", 101);
-  let abURI = Services.prefs.getCharPref(abPrefString + ".filename");
+  const abPrefString = MailServices.ab.newAddressBook(aName, "", 101);
+  const abURI = Services.prefs.getCharPref(abPrefString + ".filename");
   return MailServices.ab.getDirectory(ABJS_PREFIX + abURI);
 }
 
@@ -105,7 +105,7 @@ function create_ldap_address_book(aName, aURI) {
   if (!aURI) {
     aURI = "ldap://dummyldap/??sub?(objectclass=*)";
   }
-  let abPrefString = MailServices.ab.newAddressBook(aName, aURI, 0);
+  const abPrefString = MailServices.ab.newAddressBook(aName, aURI, 0);
   return MailServices.ab.getDirectory(ABLDAP_PREFIX + abPrefString);
 }
 
@@ -118,7 +118,7 @@ function create_ldap_address_book(aName, aURI) {
  *                           override the header display name
  */
 function create_contact(aEmailAddress, aDisplayName, aPreferDisplayName) {
-  let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+  const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
   card.primaryEmail = aEmailAddress;
@@ -145,7 +145,7 @@ function create_mailing_list(aMailingListName) {
  * @param aDirName the dirName of the mailing list
  */
 function get_mailing_list_from_address_book(aAddressBook, aDirName) {
-  for (let list of aAddressBook.childNodes) {
+  for (const list of aAddressBook.childNodes) {
     if (list.dirName == aDirName) {
       return list;
     }

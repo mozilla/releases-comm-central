@@ -76,7 +76,7 @@ var gComposePane = {
     // selectors, and bail out.
     if (!Services.prefs.getBoolPref("mail.cloud_files.enabled")) {
       // Hide the tab selector
-      let cloudFileBox = document.getElementById("cloudFileBox");
+      const cloudFileBox = document.getElementById("cloudFileBox");
       cloudFileBox.hidden = true;
       return;
     }
@@ -99,7 +99,7 @@ var gComposePane = {
   },
 
   updateUseReaderDefaults() {
-    let useReaderDefaultsChecked = Preferences.get(
+    const useReaderDefaultsChecked = Preferences.get(
       "msgcompose.default_colors"
     ).value;
     gComposePane.enableElement(
@@ -135,13 +135,15 @@ var gComposePane = {
   },
 
   enableElement(aElement, aEnable) {
-    let pref = aElement.getAttribute("preference");
-    let prefIsLocked = pref ? Preferences.get(pref).locked : false;
+    const pref = aElement.getAttribute("preference");
+    const prefIsLocked = pref ? Preferences.get(pref).locked : false;
     aElement.disabled = !aEnable || prefIsLocked;
   },
 
   enableAutocomplete() {
-    let acLDAPPref = Preferences.get("ldap_2.autoComplete.useDirectory").value;
+    const acLDAPPref = Preferences.get(
+      "ldap_2.autoComplete.useDirectory"
+    ).value;
     gComposePane.enableElement(
       document.getElementById("directoriesList"),
       acLDAPPref
@@ -163,10 +165,10 @@ var gComposePane = {
       this.startupDirListener.load();
     }
 
-    let dirList = document.getElementById("defaultStartupDirList");
+    const dirList = document.getElementById("defaultStartupDirList");
     if (Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault")) {
       // Some directory is the default.
-      let startupURI = Services.prefs.getCharPref(
+      const startupURI = Services.prefs.getCharPref(
         "mail.addr_book.view.startupURI"
       );
       dirList.value = startupURI;
@@ -204,14 +206,14 @@ var gComposePane = {
   },
 
   async initLanguages() {
-    let languageList = document.getElementById("dictionaryList");
+    const languageList = document.getElementById("dictionaryList");
     this.mSpellChecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(
       Ci.mozISpellCheckingEngine
     );
 
     // Get the list of dictionaries from the spellchecker.
 
-    let dictList = this.mSpellChecker.getDictionaryList();
+    const dictList = this.mSpellChecker.getDictionaryList();
 
     // HACK: calling sortDictionaryList may fail the first time due to
     // synchronous loading of the .ftl files. If we load the files and wait
@@ -220,19 +222,19 @@ var gComposePane = {
       "toolkit/intl/languageNames.ftl",
       "toolkit/intl/regionNames.ftl",
     ]).formatValue("language-name-en");
-    let sortedList = new InlineSpellChecker().sortDictionaryList(dictList);
-    let activeDictionaries = Services.prefs
+    const sortedList = new InlineSpellChecker().sortDictionaryList(dictList);
+    const activeDictionaries = Services.prefs
       .getCharPref("spellchecker.dictionary")
       .split(",");
-    let template = document.getElementById("dictionaryListItem");
+    const template = document.getElementById("dictionaryListItem");
     languageList.replaceChildren(
       ...sortedList.map(({ displayName, localeCode }) => {
-        let item = template.content.cloneNode(true).firstElementChild;
+        const item = template.content.cloneNode(true).firstElementChild;
         item.querySelector(".checkbox-label").textContent = displayName;
-        let input = item.querySelector("input");
+        const input = item.querySelector("input");
         input.setAttribute("value", localeCode);
         input.addEventListener("change", event => {
-          let language = event.target.value;
+          const language = event.target.value;
           let dicts = Services.prefs
             .getCharPref("spellchecker.dictionary")
             .split(",")
@@ -378,7 +380,7 @@ var gCloudFile = {
     cloudFileAccounts.on("providerRegistered", this._onProviderRegistered);
     cloudFileAccounts.on("providerUnregistered", this._onProviderUnregistered);
 
-    let element = document.getElementById("cloudFileThreshold");
+    const element = document.getElementById("cloudFileThreshold");
     Preferences.addSyncFromPrefListener(element, () => this.readThreshold());
     Preferences.addSyncToPrefListener(element, () => this.writeThreshold());
 
@@ -393,7 +395,7 @@ var gCloudFile = {
   },
 
   _onAccountConfigured(event, account) {
-    for (let item of this._list.children) {
+    for (const item of this._list.children) {
       if (item.value == account.accountKey) {
         item.querySelector(".configuredWarning").hidden = account.configured;
       }
@@ -401,13 +403,13 @@ var gCloudFile = {
   },
 
   _onProviderRegistered(event, provider) {
-    let accounts = cloudFileAccounts.getAccountsForType(provider.type);
+    const accounts = cloudFileAccounts.getAccountsForType(provider.type);
     accounts.sort(this._sortDisplayNames);
 
     // Always add newly-enabled accounts to the end of the list, this makes
     // it clearer to users what's happening.
-    for (let account of accounts) {
-      let item = this.makeRichListItemForAccount(account);
+    for (const account of accounts) {
+      const item = this.makeRichListItemForAccount(account);
       this._list.appendChild(item);
     }
 
@@ -416,7 +418,7 @@ var gCloudFile = {
   },
 
   _onProviderUnregistered(event, type) {
-    for (let item of [...this._list.children]) {
+    for (const item of [...this._list.children]) {
       // If the provider is unregistered, getAccount returns null.
       if (!cloudFileAccounts.getAccount(item.value)) {
         if (item.hasAttribute("selected")) {
@@ -431,13 +433,13 @@ var gCloudFile = {
       }
     }
 
-    for (let button of this._buttonContainer.children) {
+    for (const button of this._buttonContainer.children) {
       if (button.getAttribute("value") == type) {
         button.remove();
       }
     }
 
-    for (let item of this._listContainer.children) {
+    for (const item of this._listContainer.children) {
       if (item.getAttribute("value") == type) {
         item.remove();
       }
@@ -450,12 +452,12 @@ var gCloudFile = {
   },
 
   makeRichListItemForAccount(aAccount) {
-    let rli = document.createXULElement("richlistitem");
+    const rli = document.createXULElement("richlistitem");
     rli.setAttribute("align", "center");
     rli.classList.add("cloudfileAccount", "input-container");
     rli.setAttribute("value", aAccount.accountKey);
 
-    let icon = document.createElement("img");
+    const icon = document.createElement("img");
     icon.classList.add("typeIcon");
     if (aAccount.iconURL) {
       icon.setAttribute("src", aAccount.iconURL);
@@ -463,7 +465,7 @@ var gCloudFile = {
     icon.setAttribute("alt", "");
     rli.appendChild(icon);
 
-    let label = document.createXULElement("label");
+    const label = document.createXULElement("label");
     label.setAttribute("crop", "end");
     label.setAttribute("flex", "1");
     label.setAttribute(
@@ -473,14 +475,14 @@ var gCloudFile = {
     label.addEventListener("click", this, true);
     rli.appendChild(label);
 
-    let input = document.createElement("input");
+    const input = document.createElement("input");
     input.setAttribute("type", "text");
     input.setAttribute("hidden", "hidden");
     input.addEventListener("blur", this);
     input.addEventListener("keypress", this);
     rli.appendChild(input);
 
-    let warningIcon = document.createElement("img");
+    const warningIcon = document.createElement("img");
     warningIcon.setAttribute("class", "configuredWarning typeIcon");
     warningIcon.setAttribute("src", "chrome://global/skin/icons/warning.svg");
     // "title" provides the accessible name, not "alt".
@@ -497,7 +499,7 @@ var gCloudFile = {
   },
 
   makeButtonForProvider(provider) {
-    let button = document.createXULElement("button");
+    const button = document.createXULElement("button");
     button.setAttribute("value", provider.type);
     button.setAttribute(
       "label",
@@ -512,7 +514,7 @@ var gCloudFile = {
   },
 
   makeListItemForProvider(provider) {
-    let menuitem = document.createXULElement("menuitem");
+    const menuitem = document.createXULElement("menuitem");
     menuitem.classList.add("menuitem-iconic");
     menuitem.setAttribute("value", provider.type);
     menuitem.setAttribute("label", provider.displayName);
@@ -522,8 +524,8 @@ var gCloudFile = {
 
   // Sort the accounts by displayName.
   _sortDisplayNames(a, b) {
-    let aName = a.displayName.toLowerCase();
-    let bName = b.displayName.toLowerCase();
+    const aName = a.displayName.toLowerCase();
+    const bName = b.displayName.toLowerCase();
     return aName.localeCompare(bName);
   },
 
@@ -533,11 +535,11 @@ var gCloudFile = {
       this._list.lastChild.remove();
     }
 
-    let accounts = cloudFileAccounts.accounts;
+    const accounts = cloudFileAccounts.accounts;
     accounts.sort(this._sortDisplayNames);
 
-    for (let account of accounts) {
-      let rli = this.makeRichListItemForAccount(account);
+    for (const account of accounts) {
+      const rli = this.makeRichListItemForAccount(account);
       this._list.appendChild(rli);
     }
 
@@ -545,9 +547,9 @@ var gCloudFile = {
       this._buttonContainer.lastChild.remove();
     }
 
-    let providers = cloudFileAccounts.providers;
+    const providers = cloudFileAccounts.providers;
     providers.sort(this._sortDisplayNames);
-    for (let provider of providers) {
+    for (const provider of providers) {
       this._buttonContainer.appendChild(this.makeButtonForProvider(provider));
       this._listContainer.appendChild(this.makeListItemForProvider(provider));
     }
@@ -559,7 +561,7 @@ var gCloudFile = {
     }
 
     // Get the selected item
-    let selection = this._list.selectedItem;
+    const selection = this._list.selectedItem;
     this._removeAccountButton.disabled = !selection;
     if (!selection) {
       this._defaultPanel.hidden = false;
@@ -574,13 +576,13 @@ var gCloudFile = {
   },
 
   _showAccountInfo(aAccountKey) {
-    let account = cloudFileAccounts.getAccount(aAccountKey);
+    const account = cloudFileAccounts.getAccount(aAccountKey);
     this._defaultPanel.hidden = true;
     this._settingsPanelWrap.hidden = false;
 
-    let url = account.managementURL + `?accountId=${account.accountKey}`;
+    const url = account.managementURL + `?accountId=${account.accountKey}`;
 
-    let browser = document.createXULElement("browser");
+    const browser = document.createXULElement("browser");
     browser.setAttribute("type", "content");
     browser.setAttribute("remote", "true");
     browser.setAttribute("remoteType", E10SUtils.EXTENSION_REMOTE_TYPE);
@@ -615,7 +617,7 @@ var gCloudFile = {
       true
     );
 
-    let options = account.browserStyle
+    const options = account.browserStyle
       ? { stylesheets: ExtensionParent.extensionStylesheets }
       : {};
     browser.messageManager.sendAsyncMessage("Extension:InitBrowser", options);
@@ -633,12 +635,12 @@ var gCloudFile = {
   },
 
   addCloudFileAccount(aType) {
-    let account = cloudFileAccounts.createAccount(aType);
+    const account = cloudFileAccounts.createAccount(aType);
     if (!account) {
       return;
     }
 
-    let rli = this.makeRichListItemForAccount(account);
+    const rli = this.makeRichListItemForAccount(account);
     this._list.appendChild(rli);
     this._list.selectItem(rli);
     this._addAccountButton.removeAttribute("image");
@@ -651,15 +653,15 @@ var gCloudFile = {
 
   removeCloudFileAccount() {
     // Get the selected account key
-    let selection = this._list.selectedItem;
+    const selection = this._list.selectedItem;
     if (!selection) {
       return;
     }
 
-    let accountKey = selection.value;
-    let accountName = cloudFileAccounts.getDisplayName(accountKey);
+    const accountKey = selection.value;
+    const accountName = cloudFileAccounts.getDisplayName(accountKey);
     // Does the user really want to remove this account?
-    let confirmMessage = this._strings.formatStringFromName(
+    const confirmMessage = this._strings.formatStringFromName(
       "dialog_removeAccount",
       [accountName]
     );
@@ -667,7 +669,7 @@ var gCloudFile = {
     if (Services.prompt.confirm(null, "", confirmMessage)) {
       this._list.clearSelection();
       cloudFileAccounts.removeAccount(accountKey);
-      let rli = this._list.querySelector(
+      const rli = this._list.querySelector(
         "richlistitem[value='" + accountKey + "']"
       );
       rli.remove();
@@ -685,9 +687,9 @@ var gCloudFile = {
         this.destroy();
         break;
       case "click": {
-        let label = aEvent.target;
-        let item = label.parentNode;
-        let input = item.querySelector("input");
+        const label = aEvent.target;
+        const item = label.parentNode;
+        const input = item.querySelector("input");
         if (!item.selected) {
           return;
         }
@@ -698,9 +700,9 @@ var gCloudFile = {
         break;
       }
       case "blur": {
-        let input = aEvent.target;
-        let item = input.parentNode;
-        let label = item.querySelector("label");
+        const input = aEvent.target;
+        const item = input.parentNode;
+        const label = item.querySelector("label");
         cloudFileAccounts.setDisplayName(item.value, input.value);
         label.value = input.value;
         label.hidden = false;
@@ -708,9 +710,9 @@ var gCloudFile = {
         break;
       }
       case "keypress": {
-        let input = aEvent.target;
-        let item = input.parentNode;
-        let label = item.querySelector("label");
+        const input = aEvent.target;
+        const item = input.parentNode;
+        const label = item.querySelector("label");
 
         if (aEvent.key == "Enter") {
           cloudFileAccounts.setDisplayName(item.value, input.value);
@@ -733,13 +735,13 @@ var gCloudFile = {
   },
 
   readThreshold() {
-    let pref = Preferences.get("mail.compose.big_attachments.threshold_kb");
+    const pref = Preferences.get("mail.compose.big_attachments.threshold_kb");
     return pref.value / 1024;
   },
 
   writeThreshold() {
-    let threshold = document.getElementById("cloudFileThreshold");
-    let intValue = parseInt(threshold.value, 10);
+    const threshold = document.getElementById("cloudFileThreshold");
+    const intValue = parseInt(threshold.value, 10);
     return isNaN(intValue) ? 0 : intValue * 1024;
   },
 

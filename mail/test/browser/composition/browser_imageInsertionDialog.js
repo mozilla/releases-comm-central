@@ -20,7 +20,7 @@ var { click_menus_in_sequence, promise_modal_dialog } = ChromeUtils.import(
 );
 
 add_task(async function test_image_insertion_dialog_persist() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   // First focus on the editor element
   cwc.document.getElementById("messageEditor").focus();
@@ -28,21 +28,21 @@ add_task(async function test_image_insertion_dialog_persist() {
   // Now open the image window
   let dialogPromise = promise_modal_dialog("Mail:image", async function (mwc) {
     // Insert the url of the image.
-    let srcloc = mwc.document.getElementById("srcInput");
+    const srcloc = mwc.document.getElementById("srcInput");
     srcloc.focus();
 
-    let file = new FileUtils.File(getTestFilePath("data/tb-logo.png"));
+    const file = new FileUtils.File(getTestFilePath("data/tb-logo.png"));
     input_value(mwc, Services.io.newFileURI(file).spec);
 
     // Don't add alternate text
-    let noAlt = mwc.document.getElementById("noAltTextRadio");
+    const noAlt = mwc.document.getElementById("noAltTextRadio");
     EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
     await new Promise(resolve => setTimeout(resolve));
     mwc.document.documentElement.querySelector("dialog").acceptDialog();
   });
 
-  let insertMenu = cwc.document.getElementById("InsertPopupButton");
-  let insertMenuPopup = cwc.document.getElementById("InsertPopup");
+  const insertMenu = cwc.document.getElementById("InsertPopupButton");
+  const insertMenuPopup = cwc.document.getElementById("InsertPopup");
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
@@ -64,7 +64,7 @@ add_task(async function test_image_insertion_dialog_persist() {
       "We should persist the previously selected value"
     );
     // We change to "use alt text"
-    let altTextRadio = mwc.document.getElementById("altTextRadio");
+    const altTextRadio = mwc.document.getElementById("altTextRadio");
     EventUtils.synthesizeMouseAtCenter(
       altTextRadio,
       {},
@@ -117,14 +117,14 @@ add_task(async function test_image_insertion_dialog_persist() {
       mwc.document.getElementById("noAltTextRadio").selected,
       "That value should persist still..."
     );
-    let altTextRadio = mwc.document.getElementById("altTextRadio");
+    const altTextRadio = mwc.document.getElementById("altTextRadio");
     EventUtils.synthesizeMouseAtCenter(
       altTextRadio,
       {},
       altTextRadio.ownerGlobal
     );
 
-    let srcloc = mwc.document.getElementById("altTextInput");
+    const srcloc = mwc.document.getElementById("altTextInput");
     srcloc.focus();
     input_value(mwc, "some alt text");
     await new Promise(resolve => setTimeout(resolve));

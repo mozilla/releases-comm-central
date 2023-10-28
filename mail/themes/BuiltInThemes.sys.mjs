@@ -73,11 +73,11 @@ class _BuiltInThemes {
    * AddonManager.maybeInstallBuiltinAddon for that theme.
    */
   maybeInstallActiveBuiltInTheme() {
-    let activeThemeID = Services.prefs.getStringPref(
+    const activeThemeID = Services.prefs.getStringPref(
       "extensions.activeThemeID",
       "default-theme@mozilla.org"
     );
-    let activeBuiltInTheme = STANDARD_THEMES.get(activeThemeID);
+    const activeBuiltInTheme = STANDARD_THEMES.get(activeThemeID);
     if (activeBuiltInTheme) {
       lazy.AddonManager.maybeInstallBuiltinAddon(
         activeThemeID,
@@ -91,8 +91,8 @@ class _BuiltInThemes {
    * Ensures that all built-in themes are installed.
    */
   async ensureBuiltInThemes() {
-    let installPromises = [];
-    for (let [id, { version, path }] of STANDARD_THEMES.entries()) {
+    const installPromises = [];
+    for (const [id, { version, path }] of STANDARD_THEMES.entries()) {
       installPromises.push(
         lazy.AddonManager.maybeInstallBuiltinAddon(
           id,

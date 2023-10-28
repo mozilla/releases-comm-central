@@ -49,7 +49,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-let aboutMessage = get_about_message();
+const aboutMessage = get_about_message();
 
 var kBoxId = "compose-notification-bottom";
 var kNotificationId = "attachmentReminder";
@@ -123,7 +123,7 @@ function assert_manual_reminder_state(aCwc, aChecked) {
     remindCommand
   );
 
-  let checkedValue = aChecked ? "true" : "false";
+  const checkedValue = aChecked ? "true" : "false";
   Assert.equal(
     aCwc.document.getElementById(remindCommand).getAttribute("checked"),
     checkedValue
@@ -137,7 +137,7 @@ function assert_manual_reminder_state(aCwc, aChecked) {
  */
 function get_reminder_keywords(cwc) {
   assert_automatic_reminder_state(cwc, true);
-  let box = get_notification(cwc, kBoxId, kNotificationId);
+  const box = get_notification(cwc, kBoxId, kNotificationId);
   return box.messageText.querySelector("#attachmentKeywords").textContent;
 }
 
@@ -145,7 +145,7 @@ function get_reminder_keywords(cwc) {
  * Test that the attachment reminder works, in general.
  */
 add_task(async function test_attachment_reminder_appears_properly() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
@@ -169,7 +169,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
   // The manual reminder should be disabled yet.
   assert_manual_reminder_state(cwc, false);
 
-  let box = get_notification(cwc, kBoxId, kNotificationId);
+  const box = get_notification(cwc, kBoxId, kNotificationId);
   // Click ok to be notified on send if no attachments are attached.
   EventUtils.synthesizeMouseAtCenter(
     box.buttonContainer.lastElementChild,
@@ -183,8 +183,8 @@ add_task(async function test_attachment_reminder_appears_properly() {
 
   // Now try to send, make sure we get the alert.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  let buttonSend = cwc.document.getElementById("button-send");
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  const buttonSend = cwc.document.getElementById("button-send");
   EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -200,7 +200,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
  * notification.
  */
 add_task(async function test_attachment_reminder_dismissal() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
@@ -222,13 +222,13 @@ add_task(async function test_attachment_reminder_dismissal() {
   // We didn't click the "Remind Me Later" - the alert should pop up
   // on send anyway.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  let buttonSend = cwc.document.getElementById("button-send");
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  const buttonSend = cwc.document.getElementById("button-send");
   EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
 
-  let notification = assert_automatic_reminder_state(cwc, true);
+  const notification = assert_automatic_reminder_state(cwc, true);
 
   notification.close();
   assert_automatic_reminder_state(cwc, false);
@@ -243,7 +243,7 @@ add_task(async function test_attachment_reminder_dismissal() {
  * Check that adding an attachment actually hides the notification.
  */
 add_task(async function test_attachment_reminder_with_attachment() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
@@ -259,13 +259,13 @@ add_task(async function test_attachment_reminder_with_attachment() {
   await wait_for_reminder_state(cwc, true);
 
   // Add an attachment.
-  let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  const file = Services.dirsvc.get("ProfD", Ci.nsIFile);
   file.append("prefs.js");
   Assert.ok(
     file.exists(),
     "The required file prefs.js was not found in the profile."
   );
-  let attachments = [cwc.FileToAttachment(file)];
+  const attachments = [cwc.FileToAttachment(file)];
   cwc.AddAttachments(attachments);
 
   // The notification should hide.
@@ -294,7 +294,7 @@ add_task(async function test_attachment_reminder_aggressive_pref() {
   const kPref = "mail.compose.attachment_reminder_aggressive";
   Services.prefs.setBoolPref(kPref, false);
 
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
@@ -322,7 +322,7 @@ add_task(async function test_attachment_reminder_aggressive_pref() {
  * works.
  */
 add_task(async function test_no_send_now_sends() {
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   await setup_msg_contents(
     cwc,
@@ -334,8 +334,8 @@ add_task(async function test_no_send_now_sends() {
   await wait_for_reminder_state(cwc, true);
 
   // Click the send button again, this time choose "No, Send Now".
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  let buttonSend = cwc.document.getElementById("button-send");
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  const buttonSend = cwc.document.getElementById("button-send");
   EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -356,17 +356,17 @@ add_task(async function test_no_send_now_sends() {
  */
 async function click_manual_reminder(aCwc, aExpectedState) {
   await wait_for_window_focused(aCwc);
-  let button = aCwc.document.getElementById("button-attach");
+  const button = aCwc.document.getElementById("button-attach");
 
-  let popup = aCwc.document.getElementById("button-attachPopup");
-  let shownPromise = BrowserTestUtils.waitForEvent(popup, "popupshown");
+  const popup = aCwc.document.getElementById("button-attachPopup");
+  const shownPromise = BrowserTestUtils.waitForEvent(popup, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     button.querySelector(".toolbarbutton-menubutton-dropmarker"),
     {},
     aCwc
   );
   await shownPromise;
-  let hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
+  const hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
   popup.activateItem(
     aCwc.document.getElementById("button-attachPopup_remindLaterItem")
   );
@@ -423,7 +423,7 @@ add_task(async function test_manual_attachment_reminder() {
   );
   // Edit the draft again...
   const composePromise = promise_new_window("msgcompose");
-  let box = get_notification(
+  const box = get_notification(
     aboutMessage,
     "mail-notification-top",
     "draftMsgContent"
@@ -444,7 +444,7 @@ add_task(async function test_manual_attachment_reminder() {
   // Now try to send, make sure we get the alert.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
   dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  let buttonSend = cwc.document.getElementById("button-send");
+  const buttonSend = cwc.document.getElementById("button-send");
   EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -474,7 +474,7 @@ add_task(async function test_manual_attachment_reminder() {
 add_task(
   async function test_manual_automatic_attachment_reminder_interaction() {
     // Open a blank message compose
-    let cwc = await open_compose_new_mail();
+    const cwc = await open_compose_new_mail();
     // This one should have the reminder disabled.
     assert_manual_reminder_state(cwc, false);
     // There should be no attachment notification.
@@ -529,7 +529,7 @@ add_task(
  * @param {boolean} aValue - True if notification should exist. False otherwise.
  */
 function assert_any_notification(aCwc, aValue) {
-  let notification = aCwc.document.getElementById(kBoxId).currentNotification;
+  const notification = aCwc.document.getElementById(kBoxId).currentNotification;
   if ((notification == null) == aValue) {
     throw new Error("Notification in wrong state");
   }
@@ -541,7 +541,7 @@ function assert_any_notification(aCwc, aValue) {
  */
 add_task(async function test_attachment_vs_filelink_reminder() {
   // Open a blank message compose
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   await setup_msg_contents(
     cwc,
     "test@example.invalid",
@@ -553,9 +553,9 @@ add_task(async function test_attachment_vs_filelink_reminder() {
   assert_any_notification(cwc, false);
 
   // Bring up the FileLink notification.
-  let kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
-  let maxSize = Services.prefs.getIntPref(kOfferThreshold, 0) * 1024;
-  let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  const kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
+  const maxSize = Services.prefs.getIntPref(kOfferThreshold, 0) * 1024;
+  const file = Services.dirsvc.get("ProfD", Ci.nsIFile);
   file.append("prefs.js");
   await add_attachments(cwc, Services.io.newFileURI(file).spec, maxSize);
 
@@ -574,7 +574,7 @@ add_task(async function test_attachment_vs_filelink_reminder() {
  */
 add_task(async function test_attachment_reminder_in_subject() {
   // Open a blank message compose
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   // This one should have the reminder disabled.
   assert_manual_reminder_state(cwc, false);
   // There should be no attachment notification.
@@ -608,7 +608,7 @@ add_task(async function test_attachment_reminder_in_subject() {
  */
 add_task(async function test_attachment_reminder_in_subject_and_body() {
   // Open a blank message compose
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   // This one should have the reminder disabled.
   assert_manual_reminder_state(cwc, false);
   // There should be no attachment notification.
@@ -646,7 +646,7 @@ add_task(async function test_disabled_attachment_reminder() {
   Services.prefs.setBoolPref(kReminderPref, false);
 
   // Open a sample message with no attachment keywords.
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   await setup_msg_contents(
     cwc,
     "test@example.invalid",
@@ -724,7 +724,7 @@ add_task(async function test_reminder_in_draft() {
   );
   // Edit the draft again...
   const composePromise = promise_new_window("msgcompose");
-  let box = get_notification(
+  const box = get_notification(
     aboutMessage,
     "mail-notification-top",
     "draftMsgContent"
@@ -752,7 +752,7 @@ add_task(async function test_reminder_in_draft() {
  */
 add_task(async function test_disabling_attachment_reminder() {
   // Open a sample message with attachment keywords.
-  let cwc = await open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
   await setup_msg_contents(
     cwc,
     "test@example.invalid",
@@ -824,7 +824,7 @@ add_task(async function test_disabling_attachment_reminder() {
   await press_delete();
 
   // Get back to the mail account for other tests.
-  let mail = MailServices.accounts.defaultAccount.incomingServer.rootFolder;
+  const mail = MailServices.accounts.defaultAccount.incomingServer.rootFolder;
   await be_in_folder(mail);
 });
 
@@ -842,7 +842,7 @@ async function click_send_and_handle_send_error(aWin, aAlreadySending) {
     click_ok_on_send_error
   );
   if (!aAlreadySending) {
-    let buttonSend = aWin.document.getElementById("button-send");
+    const buttonSend = aWin.document.getElementById("button-send");
     EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   }
   await dialogPromise;

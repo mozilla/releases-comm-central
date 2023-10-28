@@ -133,7 +133,7 @@ var folderTracker = new (class extends EventEmitter {
     switch (event) {
       case "MRUTimeChanged":
         try {
-          let time = Number(folder.getStringProperty("MRUTime")) * 1000;
+          const time = Number(folder.getStringProperty("MRUTime")) * 1000;
           if (time) {
             this.addPendingInfoNotification(folder, "lastUsed", new Date(time));
           }
@@ -162,7 +162,7 @@ var folderTracker = new (class extends EventEmitter {
   }
 
   emitPendingInfoNotification(folder) {
-    let folderInfo = this.pendingInfoNotifications.get(folder);
+    const folderInfo = this.pendingInfoNotifications.get(folder);
     if (folderInfo.size > 0) {
       this.emit(
         "folder-info-changed",
@@ -181,8 +181,8 @@ var folderTracker = new (class extends EventEmitter {
   folderDeleted(oldFolder) {
     // Deleting an account, will trigger delete notifications for its folders,
     // but the account lookup fails, so skip them.
-    let server = oldFolder.server;
-    let account = MailServices.accounts.FindAccountForServer(server);
+    const server = oldFolder.server;
+    const account = MailServices.accounts.FindAccountForServer(server);
     if (account) {
       this.emit("folder-deleted", new CachedFolder(oldFolder), account.key);
     }
@@ -226,8 +226,8 @@ var folderTracker = new (class extends EventEmitter {
 async function doMoveCopyOperation(source, destination, extension, isMove) {
   // The schema file allows destination to be either a MailFolder or a
   // MailAccount.
-  let srcFolder = getFolder(source);
-  let dstFolder = getFolder(destination);
+  const srcFolder = getFolder(source);
+  const dstFolder = getFolder(destination);
 
   if (
     srcFolder.folder.server.type == "nntp" ||
@@ -254,7 +254,7 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
     );
   }
 
-  let rv = await new Promise(resolve => {
+  const rv = await new Promise(resolve => {
     let _destination = null;
     const listener = {
       folderMoveCopyCompleted(_isMove, _srcFolder, _dstFolder) {
@@ -544,7 +544,7 @@ this.folders = class extends ExtensionAPIPersistent {
               yield folder;
             }
             if (folder.hasSubFolders) {
-              for (let subFolder of folder.subFolders) {
+              for (const subFolder of folder.subFolders) {
                 yield* getFlatFolderStructure(subFolder, true);
               }
             }
@@ -556,7 +556,7 @@ this.folders = class extends ExtensionAPIPersistent {
             if (query == null) {
               return true;
             }
-            let value = valueCallback();
+            const value = valueCallback();
 
             if (typeof query == "boolean") {
               return query == (value != 0);
@@ -572,9 +572,9 @@ this.folders = class extends ExtensionAPIPersistent {
           }
 
           // Prepare folders, which are to be searched.
-          let parentFolders = [];
+          const parentFolders = [];
           if (queryInfo.parent) {
-            let { folder } = getFolder(queryInfo.parent);
+            const { folder } = getFolder(queryInfo.parent);
             if (!folder) {
               throw new ExtensionError(
                 `Folder not found: ${JSON.stringify(queryInfo.parent)}`
@@ -582,7 +582,7 @@ this.folders = class extends ExtensionAPIPersistent {
             }
             parentFolders.push(folder);
           } else {
-            for (let account of MailServices.accounts.accounts) {
+            for (const account of MailServices.accounts.accounts) {
               parentFolders.push(account.incomingServer.rootFolder);
             }
           }
@@ -590,7 +590,7 @@ this.folders = class extends ExtensionAPIPersistent {
           // Prepare type flags.
           let typeFlags = [];
           if (queryInfo.type) {
-            let types = Array.isArray(queryInfo.type)
+            const types = Array.isArray(queryInfo.type)
               ? queryInfo.type
               : [queryInfo.type];
             typeFlags = [...folderTypeMap.entries()]
@@ -614,8 +614,8 @@ this.folders = class extends ExtensionAPIPersistent {
           }
 
           let foundFolders = [];
-          for (let parentFolder of parentFolders) {
-            for (let folder of getFlatFolderStructure(parentFolder)) {
+          for (const parentFolder of parentFolders) {
+            for (const folder of getFlatFolderStructure(parentFolder)) {
               // Apply search criteria.
 
               if (queryInfo.favorite != null) {
@@ -628,7 +628,7 @@ this.folders = class extends ExtensionAPIPersistent {
               }
 
               if (typeFlags.length > 0) {
-                let flags = folder.flags;
+                const flags = folder.flags;
                 if (!typeFlags.find(typeFlag => flags & typeFlag)) {
                   continue;
                 }
@@ -725,7 +725,7 @@ this.folders = class extends ExtensionAPIPersistent {
               "MRUTime"
             );
           } else if (queryInfo.recent != null) {
-            let recentFolders = FolderUtils.getMostRecentFolders(
+            const recentFolders = FolderUtils.getMostRecentFolders(
               foundFolders,
               Infinity,
               "MRUTime"
@@ -746,7 +746,7 @@ this.folders = class extends ExtensionAPIPersistent {
         async create(parent, childName) {
           // The schema file allows parent to be either a MailFolder or a
           // MailAccount.
-          let { folder: parentFolder, accountId } = getFolder(parent);
+          const { folder: parentFolder, accountId } = getFolder(parent);
 
           if (
             parentFolder.hasSubFolders &&
@@ -760,20 +760,20 @@ this.folders = class extends ExtensionAPIPersistent {
             );
           }
 
-          let childFolderPromise = waitForOperation(
+          const childFolderPromise = waitForOperation(
             MailServices.mfn.folderAdded,
             parentFolder.URI
           );
           parentFolder.createSubfolder(childName, null);
 
-          let childFolder = await childFolderPromise;
+          const childFolder = await childFolderPromise;
           return context.extension.folderManager.convert(
             childFolder,
             accountId
           );
         },
         async rename({ accountId, path }, newName) {
-          let { folder } = getFolder({ accountId, path });
+          const { folder } = getFolder({ accountId, path });
 
           if (!folder.parent) {
             throw new ExtensionError(
@@ -795,13 +795,13 @@ this.folders = class extends ExtensionAPIPersistent {
             );
           }
 
-          let newFolderPromise = waitForOperation(
+          const newFolderPromise = waitForOperation(
             MailServices.mfn.folderRenamed,
             folder.URI
           );
           folder.rename(newName, null);
 
-          let newFolder = await newFolderPromise;
+          const newFolder = await newFolderPromise;
           return context.extension.folderManager.convert(newFolder, accountId);
         },
         async move(source, destination) {
@@ -830,7 +830,7 @@ this.folders = class extends ExtensionAPIPersistent {
             );
           }
 
-          let { folder } = getFolder({ accountId, path });
+          const { folder } = getFolder({ accountId, path });
           if (folder.server.type == "nntp") {
             throw new ExtensionError(
               `folders.delete() is not supported in news accounts`
@@ -847,7 +847,7 @@ this.folders = class extends ExtensionAPIPersistent {
             if (inTrash) {
               // FixMe: The UI is not updated, the folder is still shown, only after
               // a restart it is removed from trash.
-              let deletedPromise = new Promise(resolve => {
+              const deletedPromise = new Promise(resolve => {
                 MailServices.imap.deleteFolder(
                   folder,
                   {
@@ -859,7 +859,7 @@ this.folders = class extends ExtensionAPIPersistent {
                   null
                 );
               });
-              let status = await deletedPromise;
+              const status = await deletedPromise;
               if (!Components.isSuccessCode(status)) {
                 throw new ExtensionError(
                   `folders.delete() failed for unknown reasons`
@@ -868,10 +868,10 @@ this.folders = class extends ExtensionAPIPersistent {
             } else {
               // FixMe: Accounts could have their trash folder outside of their
               // own folder structure.
-              let trash = folder.server.rootFolder.getFolderWithFlags(
+              const trash = folder.server.rootFolder.getFolderWithFlags(
                 Ci.nsMsgFolderFlags.Trash
               );
-              let deletedPromise = new Promise(resolve => {
+              const deletedPromise = new Promise(resolve => {
                 MailServices.imap.moveFolder(
                   folder,
                   trash,
@@ -884,7 +884,7 @@ this.folders = class extends ExtensionAPIPersistent {
                   null
                 );
               });
-              let status = await deletedPromise;
+              const status = await deletedPromise;
               if (!Components.isSuccessCode(status)) {
                 throw new ExtensionError(
                   `folders.delete() failed for unknown reasons`
@@ -892,7 +892,7 @@ this.folders = class extends ExtensionAPIPersistent {
               }
             }
           } else {
-            let deletedPromise = waitForOperation(
+            const deletedPromise = waitForOperation(
               MailServices.mfn.folderDeleted |
                 MailServices.mfn.folderMoveCopyCompleted,
               folder.URI
@@ -902,7 +902,7 @@ this.folders = class extends ExtensionAPIPersistent {
           }
         },
         async update({ accountId, path }, updateProperties) {
-          let { folder } = getFolder({ accountId, path });
+          const { folder } = getFolder({ accountId, path });
 
           if (!folder.parent) {
             throw new ExtensionError(
@@ -919,9 +919,9 @@ this.folders = class extends ExtensionAPIPersistent {
           }
         },
         async getFolderInfo({ accountId, path }) {
-          let { folder } = getFolder({ accountId, path });
+          const { folder } = getFolder({ accountId, path });
 
-          let mailFolderInfo = {
+          const mailFolderInfo = {
             favorite: folder.getFlag(Ci.nsMsgFolderFlags.Favorite),
             totalMessageCount: folder.getTotalMessages(false),
             unreadMessageCount: folder.getNumUnread(false),
@@ -934,7 +934,7 @@ this.folders = class extends ExtensionAPIPersistent {
           };
 
           try {
-            let time = Number(folder.getStringProperty("MRUTime")) * 1000;
+            const time = Number(folder.getStringProperty("MRUTime")) * 1000;
             if (time) {
               mailFolderInfo.lastUsed = new Date(time);
             }
@@ -946,7 +946,7 @@ this.folders = class extends ExtensionAPIPersistent {
           const { folderManager } = context.extension;
 
           let { folder } = getFolder({ accountId, path });
-          let parentFolders = [];
+          const parentFolders = [];
           // We do not consider the absolute root ("/") as a root folder, but
           // the first real folders (all folders returned in MailAccount.folders
           // are considered root folders).
@@ -966,10 +966,10 @@ this.folders = class extends ExtensionAPIPersistent {
         async getSubFolders(accountOrFolder, includeFolders) {
           const { folderManager } = context.extension;
 
-          let { folder, accountId } = getFolder(accountOrFolder);
-          let subFolders = [];
+          const { folder, accountId } = getFolder(accountOrFolder);
+          const subFolders = [];
           if (folder.hasSubFolders) {
-            for (let subFolder of folder.subFolders) {
+            for (const subFolder of folder.subFolders) {
               if (includeFolders) {
                 subFolders.push(
                   folderManager.traverseSubfolders(subFolder, accountId)
@@ -982,7 +982,7 @@ this.folders = class extends ExtensionAPIPersistent {
           return subFolders;
         },
         markAsRead({ accountId, path }) {
-          let { folder } = getFolder({ accountId, path });
+          const { folder } = getFolder({ accountId, path });
 
           if (!folder.parent) {
             throw new ExtensionError(

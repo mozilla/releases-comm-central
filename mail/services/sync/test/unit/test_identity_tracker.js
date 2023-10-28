@@ -74,8 +74,8 @@ add_task(async function testIdentity() {
   Assert.equal(tracker.score, 0);
   Assert.deepEqual(await tracker.getChangedIDs(), {});
 
-  let id = newUID();
-  let newIdentity = MailServices.accounts.createIdentity();
+  const id = newUID();
+  const newIdentity = MailServices.accounts.createIdentity();
   newIdentity.UID = id;
   newIdentity.email = "username@hostname";
   newIdentity.fullName = "User";
@@ -149,7 +149,7 @@ add_task(async function testDefaultIdentityChange() {
  * Test the store methods on identites. The tracker should ignore them.
  */
 add_task(async function testIncomingChanges() {
-  let id = newUID();
+  const id = newUID();
 
   tracker.ignoreAll = true;
   await store.applyIncoming({

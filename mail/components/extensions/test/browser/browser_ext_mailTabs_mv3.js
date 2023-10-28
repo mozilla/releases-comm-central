@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 let account, rootFolder, subFolders;
-let tabmail = document.getElementById("tabmail");
+const tabmail = document.getElementById("tabmail");
 
 add_setup(async () => {
   account = createAccount();
@@ -11,7 +11,7 @@ add_setup(async () => {
   rootFolder.createSubfolder("test1", null);
   rootFolder.createSubfolder("test2", null);
   subFolders = {};
-  for (let folder of rootFolder.subFolders) {
+  for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
   }
   createMessages(subFolders.test1, 10);
@@ -27,13 +27,13 @@ add_setup(async () => {
 });
 
 add_task(async function test_MV3_event_pages() {
-  let files = {
+  const files = {
     "background.js": async () => {
       // Whenever the extension starts or wakes up, hasFired is set to false. In
       // case of a wake-up, the first fired event is the one that woke up the background.
       let hasFired = false;
 
-      for (let eventName of [
+      for (const eventName of [
         "onDisplayedFolderChanged",
         "onSelectedMessagesChanged",
       ]) {
@@ -51,7 +51,7 @@ add_task(async function test_MV3_event_pages() {
     },
     "utils.js": await getUtilsJS(),
   };
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       manifest_version: 3,
@@ -71,8 +71,8 @@ add_task(async function test_MV3_event_pages() {
       "mailTabs.onSelectedMessagesChanged",
     ];
 
-    for (let event of persistent_events) {
-      let [moduleName, eventName] = event.split(".");
+    for (const event of persistent_events) {
+      const [moduleName, eventName] = event.split(".");
       assertPersistentListeners(extension, moduleName, eventName, {
         primed,
       });
@@ -91,7 +91,7 @@ add_task(async function test_MV3_event_pages() {
 
   {
     tabmail.currentTabInfo.folder = subFolders.test1;
-    let displayInfo = await extension.awaitMessage(
+    const displayInfo = await extension.awaitMessage(
       "onDisplayedFolderChanged received"
     );
     Assert.deepEqual(
@@ -127,7 +127,7 @@ add_task(async function test_MV3_event_pages() {
     tabmail.currentAbout3Pane.threadTree.selectedIndices = messages.map(m =>
       tabmail.currentAbout3Pane.gDBView.findIndexOfMsgHdr(m, false)
     );
-    let displayInfo = await extension.awaitMessage(
+    const displayInfo = await extension.awaitMessage(
       "onSelectedMessagesChanged received"
     );
     Assert.deepEqual(

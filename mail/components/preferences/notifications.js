@@ -13,7 +13,7 @@ Preferences.addAll([
 
 var gNotificationsDialog = {
   init() {
-    let element = document.getElementById("totalOpenTime");
+    const element = document.getElementById("totalOpenTime");
     Preferences.addSyncFromPrefListener(
       element,
       () => Preferences.get("alerts.totalOpenTime").value / 1000

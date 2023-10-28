@@ -72,7 +72,7 @@ var kTextNodeType = 3;
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_new_mail(win = mc) {
-  let composePromise = promise_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, win);
   return compose_window_ready(composePromise);
 }
@@ -86,7 +86,7 @@ async function open_compose_new_mail(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_with_reply(win = mc) {
-  let composePromise = promise_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("r", { shiftKey: false, accelKey: true }, win);
   return compose_window_ready(composePromise);
 }
@@ -100,7 +100,7 @@ async function open_compose_with_reply(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_with_reply_to_all(win = mc) {
-  let composePromise = promise_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("R", { shiftKey: true, accelKey: true }, win);
   return compose_window_ready(composePromise);
 }
@@ -114,7 +114,7 @@ async function open_compose_with_reply_to_all(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_with_reply_to_list(win = mc) {
-  let composePromise = promise_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("l", { shiftKey: true, accelKey: true }, win);
   return compose_window_ready(composePromise);
 }
@@ -128,7 +128,7 @@ async function open_compose_with_reply_to_list(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_with_forward_as_attachments(win = mc) {
-  let composePromise = promise_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   win.goDoCommand("cmd_forwardAttachment");
   return compose_window_ready(composePromise);
 }
@@ -142,7 +142,7 @@ async function open_compose_with_forward_as_attachments(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_with_edit_as_new(win = mc) {
-  let composePromise = promise_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   win.goDoCommand("cmd_editAsNew");
   return compose_window_ready(composePromise);
 }
@@ -156,7 +156,7 @@ async function open_compose_with_edit_as_new(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_with_forward(win = mc) {
-  let composePromise = promise_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("l", { shiftKey: false, accelKey: true }, win);
   return compose_window_ready(composePromise);
 }
@@ -170,8 +170,8 @@ async function open_compose_with_forward(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_from_draft(win = get_about_message()) {
-  let composePromise = promise_new_window("msgcompose");
-  let box = get_notification(win, "mail-notification-top", "draftMsgContent");
+  const composePromise = promise_new_window("msgcompose");
+  const box = get_notification(win, "mail-notification-top", "draftMsgContent");
   EventUtils.synthesizeMouseAtCenter(
     box.buttonContainer.firstElementChild,
     {},
@@ -186,7 +186,7 @@ async function open_compose_from_draft(win = get_about_message()) {
  * @param {Window} win - A messengercompose.xhtml window.
  */
 async function save_compose_message(win) {
-  let savePromise = BrowserTestUtils.waitForEvent(win, "aftersave");
+  const savePromise = BrowserTestUtils.waitForEvent(win, "aftersave");
   win.document.querySelector("#button-save").click();
   await savePromise;
 }
@@ -227,7 +227,7 @@ async function close_compose_window(aWin, aShouldPrompt) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function compose_window_ready(composePromise) {
-  let replyWindow = await composePromise;
+  const replyWindow = await composePromise;
   return _wait_for_compose_window(replyWindow);
 }
 
@@ -237,7 +237,7 @@ async function compose_window_ready(composePromise) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function promise_compose_window() {
-  let replyWindow = promise_new_window("msgcompose");
+  const replyWindow = promise_new_window("msgcompose");
   return _wait_for_compose_window(replyWindow);
 }
 
@@ -271,7 +271,7 @@ async function setup_msg_contents(
   aBody,
   inputID = "toAddrInput"
 ) {
-  let pillcount = function () {
+  const pillcount = function () {
     return aCwc.document.querySelectorAll("mail-address-pill").length;
   };
   let targetCount = pillcount();
@@ -279,7 +279,7 @@ async function setup_msg_contents(
     targetCount += aAddr.split(",").filter(s => s.trim()).length;
   }
 
-  let input = aCwc.document.getElementById(inputID);
+  const input = aCwc.document.getElementById(inputID);
   await new Promise(resolve => aCwc.setTimeout(resolve, 1000));
   input.focus();
   EventUtils.sendString(aAddr, aCwc);
@@ -304,7 +304,7 @@ async function setup_msg_contents(
  * @param {Window} win - Compose window.
  */
 function clear_recipients(win) {
-  for (let pill of win.document.querySelectorAll("mail-address-pill")) {
+  for (const pill of win.document.querySelectorAll("mail-address-pill")) {
     pill.toggleAttribute("selected", true);
   }
   win.document.getElementById("recipientsContainer").removeSelectedPills();
@@ -326,7 +326,7 @@ function get_first_pill(win) {
  * @param aSize (optional) the file size of this attachment, in bytes
  */
 function create_msg_attachment(aUrl, aSize) {
-  let attachment = Cc[
+  const attachment = Cc[
     "@mozilla.org/messengercompose/attachment;1"
   ].createInstance(Ci.nsIMsgAttachment);
 
@@ -358,9 +358,9 @@ async function add_attachments(aWin, aUrls, aSizes = [], aWaitAdded = true) {
     aSizes = [aSizes];
   }
 
-  let attachments = [];
+  const attachments = [];
 
-  for (let [i, url] of aUrls.entries()) {
+  for (const [i, url] of aUrls.entries()) {
     attachments.push(create_msg_attachment(url, aSizes[i]));
   }
 
@@ -370,7 +370,7 @@ async function add_attachments(aWin, aUrls, aSizes = [], aWaitAdded = true) {
     attachmentsDone = true;
   }
 
-  let bucket = aWin.document.getElementById("attachmentBucket");
+  const bucket = aWin.document.getElementById("attachmentBucket");
   if (aWaitAdded) {
     bucket.addEventListener("attachments-added", collectAddedAttachments, {
       once: true,
@@ -393,7 +393,7 @@ async function add_attachments(aWin, aUrls, aSizes = [], aWaitAdded = true) {
  * @param {string} aName - The requested new name for the attachment.
  */
 async function rename_selected_cloud_attachment(aWin, aName) {
-  let bucket = aWin.document.getElementById("attachmentBucket");
+  const bucket = aWin.document.getElementById("attachmentBucket");
   let attachmentRenamed = false;
   let upload = null;
   let seenAlert = null;
@@ -404,7 +404,7 @@ async function rename_selected_cloud_attachment(aWin, aName) {
   }
 
   /** @implements {nsIPromptService} */
-  let mockPromptService = {
+  const mockPromptService = {
     value: "",
     prompt(window, title, message, rv) {
       rv.value = this.value;
@@ -420,7 +420,7 @@ async function rename_selected_cloud_attachment(aWin, aName) {
     once: true,
   });
 
-  let originalPromptService = Services.prompt;
+  const originalPromptService = Services.prompt;
   Services.prompt = mockPromptService;
   Services.prompt.value = aName;
   aWin.RenameSelectedAttachment();
@@ -453,9 +453,9 @@ async function convert_selected_to_cloud_attachment(
   aProvider,
   aWaitUploaded = true
 ) {
-  let bucket = aWin.document.getElementById("attachmentBucket");
+  const bucket = aWin.document.getElementById("attachmentBucket");
   let uploads = [];
-  let attachmentsSelected = aWin.gAttachmentBucket.selectedItems.length;
+  const attachmentsSelected = aWin.gAttachmentBucket.selectedItems.length;
   let attachmentsSubmitted = 0;
   let attachmentsConverted = 0;
 
@@ -466,8 +466,8 @@ async function convert_selected_to_cloud_attachment(
   );
 
   function collectConvertingAttachments(event) {
-    let item = event.target;
-    let img = item.querySelector("img.attachmentcell-icon");
+    const item = event.target;
+    const img = item.querySelector("img.attachmentcell-icon");
     Assert.equal(
       img.src,
       "chrome://global/skin/icons/loading.png",
@@ -488,8 +488,8 @@ async function convert_selected_to_cloud_attachment(
   }
 
   function collectConvertedAttachment(event) {
-    let item = event.target;
-    let img = item.querySelector("img.attachmentcell-icon");
+    const item = event.target;
+    const img = item.querySelector("img.attachmentcell-icon");
     Assert.equal(
       img.src,
       item.cloudIcon,
@@ -545,9 +545,9 @@ async function add_cloud_attachments(
   aWaitUploaded = true,
   aExpectedAlerts = 0
 ) {
-  let bucket = aWin.document.getElementById("attachmentBucket");
+  const bucket = aWin.document.getElementById("attachmentBucket");
   let uploads = [];
-  let seenAlerts = [];
+  const seenAlerts = [];
 
   let attachmentsAdded = 0;
   let attachmentsSubmitted = 0;
@@ -564,8 +564,8 @@ async function add_cloud_attachments(
   }
 
   function collectUploadingAttachments(event) {
-    let item = event.target;
-    let img = item.querySelector("img.attachmentcell-icon");
+    const item = event.target;
+    const img = item.querySelector("img.attachmentcell-icon");
     Assert.equal(
       img.src,
       "chrome://global/skin/icons/loading.png",
@@ -582,8 +582,8 @@ async function add_cloud_attachments(
   }
 
   function collectUploadedAttachments(event) {
-    let item = event.target;
-    let img = item.querySelector("img.attachmentcell-icon");
+    const item = event.target;
+    const img = item.querySelector("img.attachmentcell-icon");
     Assert.equal(
       img.src,
       item.cloudIcon,
@@ -600,7 +600,7 @@ async function add_cloud_attachments(
   }
 
   /** @implements {nsIPromptService} */
-  let mockPromptService = {
+  const mockPromptService = {
     alert(window, title, message) {
       seenAlerts.push({ title, message });
     },
@@ -611,7 +611,7 @@ async function add_cloud_attachments(
     once: true,
   });
 
-  let originalPromptService = Services.prompt;
+  const originalPromptService = Services.prompt;
   Services.prompt = mockPromptService;
   aWin.attachToCloudNew(aProvider);
   await TestUtils.waitForCondition(
@@ -647,8 +647,8 @@ async function add_cloud_attachments(
  * @param {integer} aIndex - The index of the attachment in the attachment pane
  */
 function delete_attachment(aComposeWindow, aIndex) {
-  let bucket = aComposeWindow.document.getElementById("attachmentBucket");
-  let node = bucket.querySelectorAll("richlistitem.attachmentItem")[aIndex];
+  const bucket = aComposeWindow.document.getElementById("attachmentBucket");
+  const node = bucket.querySelectorAll("richlistitem.attachmentItem")[aIndex];
 
   EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);
   aComposeWindow.RemoveSelectedAttachment();
@@ -660,7 +660,7 @@ function delete_attachment(aComposeWindow, aIndex) {
  * @param {Window} win - A compose window.
  */
 function get_compose_body(win) {
-  let mailBody = win.document
+  const mailBody = win.document
     .getElementById("messageEditor")
     .contentDocument.querySelector("body");
   if (!mailBody) {
@@ -678,8 +678,8 @@ function get_compose_body(win) {
  */
 function type_in_composer(aWin, aText) {
   // If we have any typing to do, let's do it.
-  let frame = aWin.document.getElementById("messageEditor");
-  for (let [i, aLine] of aText.entries()) {
+  const frame = aWin.document.getElementById("messageEditor");
+  for (const [i, aLine] of aText.entries()) {
     frame.focus();
     EventUtils.sendString(aLine, aWin);
     if (i < aText.length - 1) {
@@ -719,7 +719,7 @@ function assert_previous_text(aStart, aText) {
     // We expect a BR preceding each text node automatically, except
     // for the last one that we reach.
     if (i > 0) {
-      let br = textNode.previousSibling;
+      const br = textNode.previousSibling;
 
       if (br.localName != "br") {
         throw new Error(
@@ -742,10 +742,10 @@ function assert_previous_text(aStart, aText) {
  * @returns String with the message source.
  */
 async function get_msg_source(aMsgHdr, aCharset = "") {
-  let msgUri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
+  const msgUri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
 
-  let content = await new Promise((resolve, reject) => {
-    let streamListener = {
+  const content = await new Promise((resolve, reject) => {
+    const streamListener = {
       QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
       sis: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
         Ci.nsIScriptableInputStream
@@ -780,7 +780,7 @@ async function get_msg_source(aMsgHdr, aCharset = "") {
     return content;
   }
 
-  let buffer = Uint8Array.from(content, c => c.charCodeAt(0));
+  const buffer = Uint8Array.from(content, c => c.charCodeAt(0));
   return new TextDecoder(aCharset).decode(buffer);
 }
 
@@ -873,7 +873,7 @@ class FormatHelper {
     /** The Body of the message content. */
     this.messageBody = this.messageDocument.body;
 
-    let styleDataMap = new Map([
+    const styleDataMap = new Map([
       ["bold", { tag: "B" }],
       ["italic", { tag: "I" }],
       ["underline", { tag: "U" }],
@@ -994,10 +994,10 @@ class FormatHelper {
    * Select the entire message.
    */
   async selectAll() {
-    let selection = this.messageWindow.getSelection();
+    const selection = this.messageWindow.getSelection();
     selection.removeAllRanges();
 
-    let changePromise = BrowserTestUtils.waitForEvent(
+    const changePromise = BrowserTestUtils.waitForEvent(
       this.messageDocument,
       "selectionchange"
     );
@@ -1011,15 +1011,15 @@ class FormatHelper {
    * Select the first paragraph in the message.
    */
   async selectFirstParagraph() {
-    let selection = this.messageWindow.getSelection();
+    const selection = this.messageWindow.getSelection();
     selection.removeAllRanges();
 
-    let changePromise = BrowserTestUtils.waitForEvent(
+    const changePromise = BrowserTestUtils.waitForEvent(
       this.messageDocument,
       "selectionchange"
     );
 
-    let paragraph = this.messageDocument.body.querySelector("p");
+    const paragraph = this.messageDocument.body.querySelector("p");
     Assert.ok(paragraph, "Have at least one paragraph");
     selection.selectAllChildren(paragraph);
 
@@ -1042,7 +1042,7 @@ class FormatHelper {
   async emptyParagraph() {
     await this.selectFirstParagraph();
     await this.deleteSelection();
-    let p = this.messageDocument.body.querySelector("p");
+    const p = this.messageDocument.body.querySelector("p");
     Assert.equal(p.textContent, "", "should have emptied p");
   }
 
@@ -1152,7 +1152,7 @@ class FormatHelper {
       if (this.isBlock(node)) {
         return { type: "block-start", node };
       }
-      let child = node.firstChild;
+      const child = node.firstChild;
       if (child) {
         node = child;
       } else {
@@ -1179,7 +1179,7 @@ class FormatHelper {
   static nextLeaf(root, leaf) {
     if (leaf.type === "block-start") {
       // Enter within the block scope.
-      let child = leaf.node.firstChild;
+      const child = leaf.node.firstChild;
       if (!child) {
         return { type: "block-end", node };
       }
@@ -1234,7 +1234,7 @@ class FormatHelper {
    *   backward direction.
    */
   async selectTextRange(start, end = null, forward = true) {
-    let selectionTargets = [{ position: start }];
+    const selectionTargets = [{ position: start }];
     if (end !== null) {
       Assert.ok(
         end >= start,
@@ -1243,8 +1243,8 @@ class FormatHelper {
       selectionTargets.push({ position: end });
     }
 
-    let cls = this.constructor;
-    let root = this.messageBody;
+    const cls = this.constructor;
+    const root = this.messageBody;
     let prevLeaf = null;
     let leaf = cls.firstLeaf(root);
     let total = 0;
@@ -1253,14 +1253,14 @@ class FormatHelper {
     // Search the tree until we find the target nodes, or run out of leaves.
     while (leaf && selectionTargets.some(target => !target.node)) {
       // Look ahead at the next leaf.
-      let nextLeaf = cls.nextLeaf(root, leaf);
+      const nextLeaf = cls.nextLeaf(root, leaf);
       switch (leaf.type) {
         case "text":
           // Each character in the text content counts towards the total.
-          let textLength = leaf.node.textContent.length;
+          const textLength = leaf.node.textContent.length;
           total += textLength;
 
-          for (let target of selectionTargets) {
+          for (const target of selectionTargets) {
             if (target.node) {
               continue;
             }
@@ -1305,7 +1305,7 @@ class FormatHelper {
         case "block-end":
           // Only create a newline if non-empty.
           if (prevLeaf?.type !== "block-start") {
-            for (let target of selectionTargets) {
+            for (const target of selectionTargets) {
               if (!target.node && total === target.position) {
                 // This should only happen for blocks that contain no text, such
                 // as a block that only contains a break.
@@ -1321,13 +1321,13 @@ class FormatHelper {
           // Only counts as a newline if it is not trailing in the body or block
           // scope.
           if (nextLeaf && nextLeaf.type !== "block-end") {
-            for (let target of selectionTargets) {
+            for (const target of selectionTargets) {
               if (!target.node && total === target.position) {
                 // This should only happen for breaks that are at the start of a
                 // block.
                 // The break has no content, so the parent is used as the
                 // target.
-                let parentNode = leaf.node.parentNode;
+                const parentNode = leaf.node.parentNode;
                 target.node = parentNode;
                 let index = 0;
                 while (parentNode[index] !== leaf.node) {
@@ -1351,11 +1351,11 @@ class FormatHelper {
     );
 
     // Clear the current selection.
-    let selection = this.messageWindow.getSelection();
+    const selection = this.messageWindow.getSelection();
     selection.removeAllRanges();
 
     // Create the new one.
-    let range = this.messageDocument.createRange();
+    const range = this.messageDocument.createRange();
     range.setStart(selectionTargets[0].node, selectionTargets[0].offset);
     if (end !== null) {
       range.setEnd(selectionTargets[1].node, selectionTargets[1].offset);
@@ -1363,7 +1363,7 @@ class FormatHelper {
       range.setEnd(selectionTargets[0].node, selectionTargets[0].offset);
     }
 
-    let changePromise = BrowserTestUtils.waitForEvent(
+    const changePromise = BrowserTestUtils.waitForEvent(
       this.messageDocument,
       "selectionchange"
     );
@@ -1423,7 +1423,7 @@ class FormatHelper {
     if (tags.size !== cmp.size) {
       return false;
     }
-    for (let t of tags) {
+    for (const t of tags) {
       if (!cmp.has(t)) {
         return false;
       }
@@ -1444,9 +1444,9 @@ class FormatHelper {
    *   content.
    */
   getMessageBodyContent() {
-    let cls = this.constructor;
-    let bodyNode = this.messageBody;
-    let bodyContent = [];
+    const cls = this.constructor;
+    const bodyNode = this.messageBody;
+    const bodyContent = [];
     let blockNode = null;
     let blockContent = null;
     let prevLeaf = null;
@@ -1455,15 +1455,15 @@ class FormatHelper {
     // is why we only need to traverse them.
     while (leaf) {
       // Look ahead at the next leaf.
-      let nextLeaf = cls.nextLeaf(bodyNode, leaf);
-      let isText = leaf.type === "text";
-      let isBreak = leaf.type === "break";
-      let isEmpty = leaf.type === "empty";
+      const nextLeaf = cls.nextLeaf(bodyNode, leaf);
+      const isText = leaf.type === "text";
+      const isBreak = leaf.type === "break";
+      const isEmpty = leaf.type === "empty";
       // Ignore a break node between a text node and either:
       // + the end of the body,
       // + the start of a block, or
       // + the end of a block.
-      let ignoreBreak =
+      const ignoreBreak =
         prevLeaf?.type === "text" &&
         (!nextLeaf ||
           nextLeaf.type === "block-start" ||
@@ -1475,7 +1475,7 @@ class FormatHelper {
           );
         }
         // Set the block to add content to.
-        let block = { block: leaf.node.tagName, content: [] };
+        const block = { block: leaf.node.tagName, content: [] };
         blockNode = leaf.node;
         blockContent = block.content;
         // Add to the content of the body.
@@ -1492,7 +1492,7 @@ class FormatHelper {
         let font;
         let size;
         let color;
-        let ancestorBlock = blockNode || bodyNode;
+        const ancestorBlock = blockNode || bodyNode;
         for (
           // If empty, then we include the styling of the empty element.
           let ancestor = isEmpty ? leaf.node : leaf.node.parentNode;
@@ -1529,10 +1529,10 @@ class FormatHelper {
           text = "";
         }
 
-        let content = blockContent || bodyContent;
+        const content = blockContent || bodyContent;
         let merged = false;
         if (content.length) {
-          let prevSummary = content[content.length - 1];
+          const prevSummary = content[content.length - 1];
           // NOTE: prevSummary may be a block if this leaf lives in the body
           // scope. We don't merge in that case.
           if (
@@ -1549,7 +1549,7 @@ class FormatHelper {
           }
         }
         if (!merged) {
-          let summary = { text };
+          const summary = { text };
           summary.tags = tags;
           summary.font = font;
           summary.size = size;
@@ -1592,7 +1592,7 @@ class FormatHelper {
    * @param {string} assertMessage - A description of the test.
    */
   assertMessageBodyContent(content, assertMessage) {
-    let cls = this.constructor;
+    const cls = this.constructor;
 
     function message(message, below, index) {
       return `${message} (at index ${index} below ${below})`;
@@ -1624,8 +1624,8 @@ class FormatHelper {
             }
             return Array.from(tags).join(",");
           }
-          let have = tagsToString(node.tags);
-          let wanted = tagsToString(expect.tags);
+          const have = tagsToString(node.tags);
+          const wanted = tagsToString(expect.tags);
           return message(`Different tags ${have} vs ${wanted}`, below, index);
         }
         if (node.font !== expect.font) {
@@ -1666,7 +1666,7 @@ class FormatHelper {
           if (i >= node.content.length) {
             return message("Missing child", node.block, i);
           }
-          let childDiff = getDifference(
+          const childDiff = getDifference(
             node.content[i],
             expect.content[i],
             node.block,
@@ -1679,7 +1679,7 @@ class FormatHelper {
         if (i !== node.content.length) {
           let extra = "";
           for (; i < node.content.length; i++) {
-            let child = node.content[i];
+            const child = node.content[i];
             if (child.text !== undefined) {
               extra += child.text;
             } else {
@@ -1693,8 +1693,8 @@ class FormatHelper {
       throw new Error(message("Unrecognised object", below, index));
     }
 
-    let expectBlock = { block: "BODY", content };
-    let bodyBlock = { block: "BODY", content: this.getMessageBodyContent() };
+    const expectBlock = { block: "BODY", content };
+    const bodyBlock = { block: "BODY", content: this.getMessageBodyContent() };
 
     // We use a single Assert so that we can bail early if there is a
     // difference. Only show the first difference found.
@@ -1712,7 +1712,7 @@ class FormatHelper {
   dumpMessageBodyContent() {
     function printTextSummary(textSummary, indent = "") {
       let str = `${indent}<text`;
-      for (let prop in textSummary) {
+      for (const prop in textSummary) {
         let value = textSummary[prop];
         switch (prop) {
           case "text":
@@ -1731,13 +1731,13 @@ class FormatHelper {
 
     function printBlockSummary(blockSummary) {
       console.log(`<${blockSummary.block}>`);
-      for (let textSummary of blockSummary.content) {
+      for (const textSummary of blockSummary.content) {
         printTextSummary(textSummary, "  ");
       }
       console.log(`</${blockSummary.block}>`);
     }
 
-    for (let summary of this.getMessageBodyContent()) {
+    for (const summary of this.getMessageBodyContent()) {
       if (summary.block !== undefined) {
         printBlockSummary(summary);
       } else {
@@ -1778,8 +1778,8 @@ class FormatHelper {
     // NOTE: This only seems to happen for some platforms, specifically this
     // sometimes occurs for the linux64 build on the try server.
     // FIXME: Use only BrowserEventUtils.waitForEvent(menu, "popupshown")
-    let eventPromise = new Promise(resolve => {
-      let listener = event => {
+    const eventPromise = new Promise(resolve => {
+      const listener = event => {
         menu.removeEventListener("popupshown", listener);
         menu.removeEventListener("popuphidden", listener);
         resolve(event.type);
@@ -1788,7 +1788,7 @@ class FormatHelper {
       menu.addEventListener("popuphidden", listener);
     });
     menu.openMenu(true);
-    let eventType = await eventPromise;
+    const eventType = await eventPromise;
     return eventType == "popupshown";
   }
 
@@ -1814,7 +1814,7 @@ class FormatHelper {
    */
   async _closeMenu(menu) {
     menu = menu.parentNode;
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.openMenu(false);
     await hiddenPromise;
   }
@@ -1827,7 +1827,7 @@ class FormatHelper {
    */
   async _selectFromOpenMenu(item, menu) {
     menu = menu.parentNode;
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.menupopup.activateItem(item);
     await hiddenPromise;
   }
@@ -1938,7 +1938,7 @@ class FormatHelper {
       );
     }
     await this.openFormatSubMenu(menu);
-    let hiddenPromise = BrowserTestUtils.waitForEvent(
+    const hiddenPromise = BrowserTestUtils.waitForEvent(
       this.formatMenu,
       "popuphidden"
     );
@@ -1964,9 +1964,9 @@ class FormatHelper {
    * @param {boolean} [wait] - Whether to retry until the test passes.
    */
   async assertWithFormatSubMenu(menu, test, message, wait = false) {
-    let performTest = async () => {
+    const performTest = async () => {
       await this.openFormatSubMenu(menu);
-      let pass = test();
+      const pass = test();
       await this.closeFormatMenu();
       return pass;
     };
@@ -2193,7 +2193,7 @@ class FormatHelper {
    * @param {string} font - The font color to select.
    */
   async selectColor(color) {
-    let selector = this.selectColorInDialog(color);
+    const selector = this.selectColorInDialog(color);
     this.colorSelector.click();
     await selector;
   }
@@ -2212,8 +2212,8 @@ class FormatHelper {
       color = { value: "", rgb: [0, 0, 0] };
     }
 
-    let rgbRegex = /^rgb\(([0-9]+), ([0-9]+), ([0-9]+)\)$/;
-    let testOnce = foundColor => {
+    const rgbRegex = /^rgb\(([0-9]+), ([0-9]+), ([0-9]+)\)$/;
+    const testOnce = foundColor => {
       if (color === null) {
         return foundColor === "mixed";
       }
@@ -2230,7 +2230,7 @@ class FormatHelper {
       return foundColor === color.value;
     };
 
-    let name = color === null ? '"mixed"' : `"${color.value}"`;
+    const name = color === null ? '"mixed"' : `"${color.value}"`;
     let foundColor = this.colorSelector.getAttribute("color");
     if (testOnce(foundColor)) {
       Assert.ok(
@@ -2240,7 +2240,7 @@ class FormatHelper {
       return;
     }
     await TestUtils.waitForCondition(() => {
-      let colorNow = this.colorSelector.getAttribute("color");
+      const colorNow = this.colorSelector.getAttribute("color");
       if (colorNow !== foundColor) {
         foundColor = colorNow;
         return true;
@@ -2292,7 +2292,7 @@ class FormatHelper {
    * @param {string} message - A message to use in assertions.
    */
   async assertShownStyles(styleSet, message) {
-    let expectItems = [];
+    const expectItems = [];
     let expectString;
     let isBold = false;
     let isItalic = false;
@@ -2300,7 +2300,7 @@ class FormatHelper {
     if (styleSet) {
       expectString = "Only ";
       let first = true;
-      let addSingleStyle = data => {
+      const addSingleStyle = data => {
         if (!data) {
           return;
         }
@@ -2315,7 +2315,7 @@ class FormatHelper {
         }
         expectString += data.name;
       };
-      let addStyle = style => {
+      const addStyle = style => {
         if (typeof style === "string") {
           style = this.styleDataMap.get(style);
         }
@@ -2335,7 +2335,7 @@ class FormatHelper {
     await this.assertWithFormatSubMenu(
       this.styleMenu,
       () => {
-        let checkedIds = this.styleMenuItems
+        const checkedIds = this.styleMenuItems
           .filter(i => i.getAttribute("checked") === "true")
           .map(m => m.id);
         if (expectItems.length != checkedIds.length) {

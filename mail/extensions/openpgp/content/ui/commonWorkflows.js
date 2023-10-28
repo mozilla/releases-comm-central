@@ -30,7 +30,7 @@ var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
  * resultFlags.canceled is set to true if the user clicked cancel
  */
 function passphrasePromptCallback(win, promptString, resultFlags) {
-  let password = { value: "" };
+  const password = { value: "" };
   if (!Services.prompt.promptPassword(win, "", promptString, password)) {
     resultFlags.canceled = true;
     return "";
@@ -46,7 +46,7 @@ function passphrasePromptCallback(win, promptString, resultFlags) {
  *   Skip blocks of wrong type.
  */
 async function getKeyBlockFromFile(file, wantSecret) {
-  let contents = await IOUtils.readUTF8(file.path).catch(() => "");
+  const contents = await IOUtils.readUTF8(file.path).catch(() => "");
   let searchOffset = 0;
 
   while (searchOffset < contents.length) {
@@ -90,10 +90,10 @@ async function EnigmailCommon_importObjectFromFile(what) {
     throw new Error(`Can't import. Invalid argument: ${what}`);
   }
 
-  let importingRevocation = what == "rev";
-  let promptStr = importingRevocation ? "import-rev-file" : "import-key-file";
+  const importingRevocation = what == "rev";
+  const promptStr = importingRevocation ? "import-rev-file" : "import-key-file";
 
-  let files = EnigmailDialog.filePicker(
+  const files = EnigmailDialog.filePicker(
     window,
     l10n.formatValueSync(promptStr),
     "",
@@ -108,7 +108,7 @@ async function EnigmailCommon_importObjectFromFile(what) {
     return;
   }
 
-  for (let file of files) {
+  for (const file of files) {
     if (file.fileSize > 5000000) {
       document.l10n.formatValue("file-to-big-to-import").then(value => {
         EnigmailDialog.alert(window, value);
@@ -116,7 +116,7 @@ async function EnigmailCommon_importObjectFromFile(what) {
       continue;
     }
 
-    let errorMsgObj = {};
+    const errorMsgObj = {};
 
     if (importingRevocation) {
       await EnigmailKeyRing.importRevFromFile(file);
@@ -129,12 +129,12 @@ async function EnigmailCommon_importObjectFromFile(what) {
     // if we don't find an ASCII block, try to import as binary.
     if (!keyBlock) {
       importBinary = true;
-      let data = await IOUtils.read(file.path);
+      const data = await IOUtils.read(file.path);
       keyBlock = MailStringUtils.uint8ArrayToByteString(data);
     }
 
     // Generate a preview of the imported key.
-    let preview = await EnigmailKey.getKeyListFromKeyBlock(
+    const preview = await EnigmailKey.getKeyListFromKeyBlock(
       keyBlock,
       errorMsgObj,
       true, // interactive
@@ -152,7 +152,7 @@ async function EnigmailCommon_importObjectFromFile(what) {
     if (preview.length > 0) {
       let confirmImport = false;
       let autoAcceptance = null;
-      let outParam = {};
+      const outParam = {};
       confirmImport = EnigmailDialog.confirmPubkeyImport(
         window,
         preview,
@@ -164,9 +164,9 @@ async function EnigmailCommon_importObjectFromFile(what) {
 
       if (confirmImport) {
         // import
-        let resultKeys = {};
+        const resultKeys = {};
 
-        let importExitCode = EnigmailKeyRing.importKey(
+        const importExitCode = EnigmailKeyRing.importKey(
           window,
           false, // interactive, we already asked for confirmation
           keyBlock,

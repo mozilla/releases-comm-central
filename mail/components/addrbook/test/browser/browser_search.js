@@ -3,12 +3,12 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  let cards = {};
-  let cardsToRemove = {
+  const cards = {};
+  const cardsToRemove = {
     personal: [],
     history: [],
   };
-  for (let name of ["daniel", "jonathan", "nathan"]) {
+  for (const name of ["daniel", "jonathan", "nathan"]) {
     let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
       Ci.nsIAbCard
     );
@@ -18,7 +18,7 @@ add_task(async () => {
     cards[name] = card;
     cardsToRemove.personal.push(card);
   }
-  for (let name of ["danielle", "katherine", "natalie", "susanah"]) {
+  for (const name of ["danielle", "katherine", "natalie", "susanah"]) {
     let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
       Ci.nsIAbCard
     );
@@ -29,7 +29,7 @@ add_task(async () => {
     cardsToRemove.history.push(card);
   }
 
-  let abWindow = await openAddressBookWindow();
+  const abWindow = await openAddressBookWindow();
 
   registerCleanupFunction(() => {
     abWindow.close();
@@ -37,8 +37,8 @@ add_task(async () => {
     historyBook.deleteCards(cardsToRemove.history);
   });
 
-  let abDocument = abWindow.document;
-  let searchBox = abDocument.getElementById("searchInput");
+  const abDocument = abWindow.document;
+  const searchBox = abDocument.getElementById("searchInput");
 
   Assert.equal(
     abDocument.activeElement,

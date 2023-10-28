@@ -32,24 +32,24 @@ add_setup(async () => {
 });
 
 add_task(async function test_content_mv2() {
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({
     messagePaneVisible: true,
     folderURI: gFolders[0].URI,
   });
 
-  let oldPref = Services.prefs.getStringPref("mailnews.start_page.url");
+  const oldPref = Services.prefs.getStringPref("mailnews.start_page.url");
   Services.prefs.setStringPref(
     "mailnews.start_page.url",
     `${URL_BASE}/content.html`
   );
 
-  let loadPromise = BrowserTestUtils.browserLoaded(about3Pane.webBrowser);
+  const loadPromise = BrowserTestUtils.browserLoaded(about3Pane.webBrowser);
   window.goDoCommand("cmd_goStartPage");
   await loadPromise;
 
-  let extension = await getMenuExtension({
+  const extension = await getMenuExtension({
     manifest_version: 2,
     host_permissions: ["<all_urls>"],
   });
@@ -74,10 +74,10 @@ add_task(async function test_content_mv2() {
   Services.prefs.setStringPref("mailnews.start_page.url", oldPref);
 });
 add_task(async function test_content_tab_mv2() {
-  let tab = window.openContentTab(`${URL_BASE}/content.html`);
+  const tab = window.openContentTab(`${URL_BASE}/content.html`);
   await awaitBrowserLoaded(tab.browser);
 
-  let extension = await getMenuExtension({
+  const extension = await getMenuExtension({
     manifest_version: 2,
     host_permissions: ["<all_urls>"],
   });
@@ -99,25 +99,25 @@ add_task(async function test_content_tab_mv2() {
 
   await extension.unload();
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeOtherTabs(0);
 });
 add_task(async function test_content_window_mv2() {
-  let extensionWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  const extensionWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   window.openDialog(
     "chrome://messenger/content/extensionPopup.xhtml",
     "_blank",
     "width=800,height=500,resizable",
     `${URL_BASE}/content.html`
   );
-  let extensionWindow = await extensionWindowPromise;
+  const extensionWindow = await extensionWindowPromise;
   await focusWindow(extensionWindow);
   await awaitBrowserLoaded(
     extensionWindow.browser,
     url => url != "about:blank"
   );
 
-  let extension = await getMenuExtension({
+  const extension = await getMenuExtension({
     manifest_version: 2,
     host_permissions: ["<all_urls>"],
   });
@@ -142,24 +142,24 @@ add_task(async function test_content_window_mv2() {
   await BrowserTestUtils.closeWindow(extensionWindow);
 });
 add_task(async function test_content_mv3() {
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({
     messagePaneVisible: true,
     folderURI: gFolders[0].URI,
   });
 
-  let oldPref = Services.prefs.getStringPref("mailnews.start_page.url");
+  const oldPref = Services.prefs.getStringPref("mailnews.start_page.url");
   Services.prefs.setStringPref(
     "mailnews.start_page.url",
     `${URL_BASE}/content.html`
   );
 
-  let loadPromise = BrowserTestUtils.browserLoaded(about3Pane.webBrowser);
+  const loadPromise = BrowserTestUtils.browserLoaded(about3Pane.webBrowser);
   window.goDoCommand("cmd_goStartPage");
   await loadPromise;
 
-  let extension = await getMenuExtension({
+  const extension = await getMenuExtension({
     manifest_version: 3,
     host_permissions: ["<all_urls>"],
   });
@@ -184,10 +184,10 @@ add_task(async function test_content_mv3() {
   Services.prefs.setStringPref("mailnews.start_page.url", oldPref);
 });
 add_task(async function test_content_tab_mv3() {
-  let tab = window.openContentTab(`${URL_BASE}/content.html`);
+  const tab = window.openContentTab(`${URL_BASE}/content.html`);
   await awaitBrowserLoaded(tab.browser);
 
-  let extension = await getMenuExtension({
+  const extension = await getMenuExtension({
     manifest_version: 3,
     host_permissions: ["<all_urls>"],
   });
@@ -209,25 +209,25 @@ add_task(async function test_content_tab_mv3() {
 
   await extension.unload();
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeOtherTabs(0);
 });
 add_task(async function test_content_window_mv3() {
-  let extensionWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  const extensionWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   window.openDialog(
     "chrome://messenger/content/extensionPopup.xhtml",
     "_blank",
     "width=800,height=500,resizable",
     `${URL_BASE}/content.html`
   );
-  let extensionWindow = await extensionWindowPromise;
+  const extensionWindow = await extensionWindowPromise;
   await focusWindow(extensionWindow);
   await awaitBrowserLoaded(
     extensionWindow.browser,
     url => url != "about:blank"
   );
 
-  let extension = await getMenuExtension({
+  const extension = await getMenuExtension({
     manifest_version: 3,
     host_permissions: ["<all_urls>"],
   });

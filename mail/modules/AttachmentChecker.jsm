@@ -72,10 +72,10 @@ function getAttachmentKeywords(mailData, keywordsInCsv) {
     if (keywordsArray[i].charAt(0) == ".") {
       // like .pdf
       // For this case we want to match the whole document name.
-      let start = "(([^\\s]*)\\b)";
-      let end = IsCJK(kw.charCodeAt(kw.length - 1)) ? "" : "(\\s|$)";
-      let re = new RegExp(start + kw + end, "ig");
-      let matching = mailData.match(re);
+      const start = "(([^\\s]*)\\b)";
+      const end = IsCJK(kw.charCodeAt(kw.length - 1)) ? "" : "(\\s|$)";
+      const re = new RegExp(start + kw + end, "ig");
+      const matching = mailData.match(re);
       if (matching) {
         for (var j = 0; j < matching.length; j++) {
           // Ignore the match if it was in a URL.
@@ -90,9 +90,11 @@ function getAttachmentKeywords(mailData, keywordsInCsv) {
         }
       }
     } else {
-      let start = IsCJK(kw.charCodeAt(0)) ? "" : "((^|\\s)\\S*)";
-      let end = IsCJK(kw.charCodeAt(kw.length - 1)) ? "" : "(" + NOT_W + "|$)";
-      let re = new RegExp(start + kw + end, "ig");
+      const start = IsCJK(kw.charCodeAt(0)) ? "" : "((^|\\s)\\S*)";
+      const end = IsCJK(kw.charCodeAt(kw.length - 1))
+        ? ""
+        : "(" + NOT_W + "|$)";
+      const re = new RegExp(start + kw + end, "ig");
       let matching;
       while ((matching = re.exec(mailData)) !== null) {
         // Ignore the match if it was in a URL.

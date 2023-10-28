@@ -26,7 +26,7 @@ var activityObject = {
    * Creates the proper element for the given activity
    */
   createActivityWidget(type) {
-    let element = document.createElement("li", {
+    const element = document.createElement("li", {
       is: type.bindingName,
     });
 
@@ -91,7 +91,7 @@ var activityObject = {
       // get |groupingStyle| of the activity. Grouping style determines
       // whether we show the activity standalone or grouped by context in
       // the activity manager window.
-      let isGroupByContext =
+      const isGroupByContext =
         aActivity.groupingStyle == Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
 
       // find out if an activity group has already been created for this context
@@ -118,12 +118,12 @@ var activityObject = {
       }
 
       // create the appropriate element for the activity
-      let actElement = this.createActivityWidget(aActivity);
+      const actElement = this.createActivityWidget(aActivity);
       this._activityLogger.info("created activity element");
 
       if (group) {
         // get the inner list element of the group
-        let groupView = group.querySelector(".activitygroup-list");
+        const groupView = group.querySelector(".activitygroup-list");
         groupView.appendChild(actElement);
       } else {
         this.placeActivityElement(actElement);
@@ -141,10 +141,10 @@ var activityObject = {
    */
   removeActivityElement(aID) {
     this._activityLogger.info("removing Activity ID: " + aID);
-    let item = this._activitiesView.querySelector(`[actID="${aID}"]`);
+    const item = this._activitiesView.querySelector(`[actID="${aID}"]`);
 
     if (item) {
-      let group = item.closest(".activitygroup");
+      const group = item.closest(".activitygroup");
       item.remove();
       if (group && !group.querySelector(".activityitem")) {
         // Empty group is removed.
@@ -161,13 +161,13 @@ var activityObject = {
     try {
       this._activitiesView = document.getElementById("activityView");
 
-      let activities = activityManager.getActivities();
+      const activities = activityManager.getActivities();
       for (
         let iActivity = Math.max(0, activities.length - ACTIVITY_LIMIT);
         iActivity < activities.length;
         iActivity++
       ) {
-        let activity = activities[iActivity];
+        const activity = activities[iActivity];
         this.addActivityElement(activity.id, activity);
       }
 
@@ -181,8 +181,8 @@ var activityObject = {
   },
 
   rebuild() {
-    let activities = activityManager.getActivities();
-    for (let activity of activities) {
+    const activities = activityManager.getActivities();
+    for (const activity of activities) {
       this.addActivityElement(activity.id, activity);
     }
   },

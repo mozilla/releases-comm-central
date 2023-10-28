@@ -27,7 +27,7 @@
       };
     }
     static get menubuttonFragment() {
-      let frag = document.importNode(
+      const frag = document.importNode(
         MozXULElement.parseXULToFragment(`
           <toolbarbutton class="box-inherit toolbarbutton-menubutton-button"
                          flex="1"
@@ -62,7 +62,7 @@
 
       // Defer creating DOM elements for content inside popups.
       // These will be added in the popupshown handler above.
-      let panel = this.closest("panel");
+      const panel = this.closest("panel");
       if (panel && !panel.hasAttribute("hasbeenopened")) {
         return;
       }

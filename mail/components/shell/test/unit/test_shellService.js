@@ -6,13 +6,13 @@
  * Test setDefaultClient works for all supported types.
  */
 add_task(function test_setDefaultClient() {
-  let shellSvc = Cc["@mozilla.org/mail/shell-service;1"].getService(
+  const shellSvc = Cc["@mozilla.org/mail/shell-service;1"].getService(
     Ci.nsIShellService
   );
 
-  let types = ["MAIL", "NEWS", "RSS", "CALENDAR"];
+  const types = ["MAIL", "NEWS", "RSS", "CALENDAR"];
 
-  for (let type of types) {
+  for (const type of types) {
     shellSvc.setDefaultClient(false, shellSvc[type]);
     ok(
       shellSvc.isDefaultClient(false, shellSvc[type]),

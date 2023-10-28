@@ -31,11 +31,11 @@ add_setup(function () {
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 
   // Create a POP server
-  let popServer = MailServices.accounts
+  const popServer = MailServices.accounts
     .createIncomingServer("nobody", "example.invalid", "pop3")
     .QueryInterface(Ci.nsIPop3IncomingServer);
 
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox@example.invalid";
 
   gPopAccount = MailServices.accounts.createAccount();
@@ -72,20 +72,20 @@ add_task(async function test_default_CC_address() {
  * @param {object} tab - The account manager tab.
  */
 async function subtest_check_default_CC_address(tab) {
-  let accountRow = get_account_tree_row(
+  const accountRow = get_account_tree_row(
     gPopAccount.key,
     "am-copies.xhtml",
     tab
   );
   await click_account_tree_row(tab, accountRow);
 
-  let iframe =
+  const iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
 
-  let defaultAddress =
+  const defaultAddress =
     iframe.contentDocument.getElementById("identity.email").value;
-  let ccCheck = iframe.contentDocument.getElementById("identity.doCc");
-  let ccAddress = iframe.contentDocument.getElementById("identity.doCcList");
+  const ccCheck = iframe.contentDocument.getElementById("identity.doCc");
+  const ccAddress = iframe.contentDocument.getElementById("identity.doCcList");
   // The CC checkbox is not enabled and the address value is empty.
   Assert.ok(!ccCheck.checked);
   Assert.equal(ccAddress.value, "");
@@ -93,12 +93,13 @@ async function subtest_check_default_CC_address(tab) {
   EventUtils.synthesizeMouseAtCenter(ccCheck, {}, ccCheck.ownerGlobal);
   Assert.equal(ccAddress.value, defaultAddress);
 
-  let bccCheck = iframe.contentDocument.getElementById("identity.doBcc");
-  let bccAddress = iframe.contentDocument.getElementById("identity.doBccList");
+  const bccCheck = iframe.contentDocument.getElementById("identity.doBcc");
+  const bccAddress =
+    iframe.contentDocument.getElementById("identity.doBccList");
   // The BCC checkbox is not enabled but we set the address value to something.
   Assert.ok(!bccCheck.checked);
   Assert.equal(bccAddress.value, "");
-  let bccUserAddress = "somebody@else.invalid";
+  const bccUserAddress = "somebody@else.invalid";
   bccAddress.value = bccUserAddress;
   // After ticking the BCC checkbox the current value of the address should not change.
   EventUtils.synthesizeMouseAtCenter(bccCheck, {}, bccCheck.ownerGlobal);
@@ -113,14 +114,14 @@ async function subtest_check_default_CC_address(tab) {
 add_task(async function test_account_name() {
   // We already have a POP account ready.
   // Create also a NNTP server.
-  let nntpServer = MailServices.accounts
+  const nntpServer = MailServices.accounts
     .createIncomingServer(null, "example.nntp.invalid", "nntp")
     .QueryInterface(Ci.nsINntpIncomingServer);
 
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.email = "tinderbox2@example.invalid";
 
-  let nntpAccount = MailServices.accounts.createAccount();
+  const nntpAccount = MailServices.accounts.createAccount();
   nntpAccount.incomingServer = nntpServer;
   nntpAccount.addIdentity(identity);
 
@@ -205,14 +206,14 @@ async function subtest_check_account_name(
   newUsername,
   tab
 ) {
-  let accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
+  const accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
   await click_account_tree_row(tab, accountRow);
 
-  let iframe =
+  const iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
 
   if (newHostname) {
-    let hostname = iframe.contentDocument.getElementById("server.hostName");
+    const hostname = iframe.contentDocument.getElementById("server.hostName");
     Assert.equal(hostname.value, account.incomingServer.hostName);
 
     // Now change the server host name.
@@ -220,7 +221,7 @@ async function subtest_check_account_name(
   }
 
   if (newUsername) {
-    let username = iframe.contentDocument.getElementById("server.username");
+    const username = iframe.contentDocument.getElementById("server.username");
     Assert.equal(username.value, account.incomingServer.username);
 
     // Now change the server user name.
@@ -244,7 +245,7 @@ async function subtest_check_account_name(
  */
 add_task(async function test_invalid_junk_target() {
   // Set the junk target prefs to invalid values.
-  let branch = Services.prefs.getBranch(
+  const branch = Services.prefs.getBranch(
     "mail.server." + gPopAccount.incomingServer.key + "."
   );
   branch.setCharPref("spamActionTargetAccount", "some random non-existent URI");
@@ -260,9 +261,9 @@ add_task(async function test_invalid_junk_target() {
   moveOnSpam = branch.getBoolPref("moveOnSpam", false);
   Assert.ok(!moveOnSpam);
   // The targets should point to the same pop account now.
-  let targetAccount = branch.getCharPref("spamActionTargetAccount");
+  const targetAccount = branch.getCharPref("spamActionTargetAccount");
   Assert.equal(targetAccount, gPopAccount.incomingServer.serverURI);
-  let targetFolder = branch.getStringPref("spamActionTargetFolder");
+  const targetFolder = branch.getStringPref("spamActionTargetFolder");
   Assert.equal(targetFolder, gPopAccount.incomingServer.serverURI + "/Junk");
 });
 
@@ -272,7 +273,11 @@ add_task(async function test_invalid_junk_target() {
  * @param {object} tab - The account manager tab.
  */
 async function subtest_check_invalid_junk_target(tab) {
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
+  const accountRow = get_account_tree_row(
+    gPopAccount.key,
+    "am-junk.xhtml",
+    tab
+  );
   await click_account_tree_row(tab, accountRow);
   tab.browser.contentWindow.onAccept(true);
 }
@@ -282,10 +287,10 @@ async function subtest_check_invalid_junk_target(tab) {
  * Checks if invalid server hostnames are not accepted.
  */
 add_task(async function test_invalid_hostname() {
-  let branch = Services.prefs.getBranch(
+  const branch = Services.prefs.getBranch(
     "mail.server." + gPopAccount.incomingServer.key + "."
   );
-  let origHostname = branch.getCharPref("hostname");
+  const origHostname = branch.getCharPref("hostname");
 
   await open_advanced_settings(async function (tab) {
     await subtest_check_invalid_hostname(tab, false, origHostname);
@@ -295,7 +300,7 @@ add_task(async function test_invalid_hostname() {
   });
 
   // The new bad hostname should not have been saved.
-  let newHostname = branch.getCharPref("hostname");
+  const newHostname = branch.getCharPref("hostname");
   Assert.equal(origHostname, newHostname);
 });
 
@@ -365,14 +370,16 @@ add_task(async function test_trailing_spaces() {
  * @param {object} tab - The account manager tab.
  */
 async function subtest_check_trailing_spaces(tab) {
-  let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
+  const accountRow = get_account_tree_row(gPopAccount.key, null, tab);
   await click_account_tree_row(tab, accountRow);
 
-  let iframe =
+  const iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
 
-  let accountName = iframe.contentDocument.getElementById("server.prettyName");
-  let defaultAddress = iframe.contentDocument.getElementById("identity.email");
+  const accountName =
+    iframe.contentDocument.getElementById("server.prettyName");
+  const defaultAddress =
+    iframe.contentDocument.getElementById("identity.email");
   accountName.value = "";
   defaultAddress.value = "";
   input_value(window, badName, accountName);

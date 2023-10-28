@@ -15,7 +15,7 @@ add_setup(async function () {
     },
   });
 
-  let extensionPolicy = Services.policies.getExtensionPolicy(
+  const extensionPolicy = Services.policies.getExtensionPolicy(
     "3rdparty-policy@mozilla.com"
   );
   deepEqual(extensionPolicy, { string: "value" });

@@ -25,10 +25,10 @@ add_setup(async () => {
 
 add_task(async function test_quickSearch() {
   async function background() {
-    let book1 = await browser.addressBooks.create({ name: "book1" });
-    let book2 = await browser.addressBooks.create({ name: "book2" });
+    const book1 = await browser.addressBooks.create({ name: "book1" });
+    const book2 = await browser.addressBooks.create({ name: "book2" });
 
-    let book1contacts = {
+    const book1contacts = {
       charlie: await browser.contacts.create(book1, { FirstName: "charlie" }),
       juliet: await browser.contacts.create(book1, { FirstName: "juliet" }),
       mike: await browser.contacts.create(book1, { FirstName: "mike" }),
@@ -38,7 +38,7 @@ add_task(async function test_quickSearch() {
       victor: await browser.contacts.create(book1, { FirstName: "victor" }),
     };
 
-    let book2contacts = {
+    const book2contacts = {
       bigBird: await browser.contacts.create(book2, {
         FirstName: "Big",
         LastName: "Bird",
@@ -96,7 +96,7 @@ add_task(async function test_quickSearch() {
     browser.test.notifyPass("addressBooks");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background,
     manifest: { permissions: ["addressBooks"] },
   });
@@ -114,7 +114,7 @@ add_task(async function test_quickSearch_types() {
   }
 
   // Add a card to the personal AB.
-  let personaAB = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  const personaAB = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
 
   let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
@@ -127,7 +127,7 @@ add_task(async function test_quickSearch_types() {
   contact = personaAB.addCard(contact);
 
   // Set up the history AB as read-only.
-  let historyAB = MailServices.ab.getDirectory("jsaddrbook://history.sqlite");
+  const historyAB = MailServices.ab.getDirectory("jsaddrbook://history.sqlite");
 
   contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
@@ -156,8 +156,8 @@ add_task(async function test_quickSearch_types() {
   async function background() {
     function checkCards(cards, expectedNames) {
       browser.test.assertEq(expectedNames.length, cards.length);
-      let expected = new Set(expectedNames);
-      for (let card of cards) {
+      const expected = new Set(expectedNames);
+      for (const card of cards) {
         expected.delete(card.properties.FirstName);
       }
       browser.test.assertEq(
@@ -205,12 +205,12 @@ add_task(async function test_quickSearch_types() {
     browser.test.notifyPass("addressBooks");
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     background,
     manifest: { permissions: ["addressBooks"] },
   });
 
-  let startupPromise = extension.startup();
+  const startupPromise = extension.startup();
 
   // This for loop handles returning responses for LDAP. It should run once
   // for each test that queries the remote address book.

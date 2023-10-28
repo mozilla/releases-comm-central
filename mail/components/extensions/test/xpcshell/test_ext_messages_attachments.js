@@ -16,18 +16,18 @@ add_task(
     skip_if: () => IS_IMAP,
   },
   async function test_setup() {
-    let _account = createAccount();
-    let _testFolder = await createSubfolder(
+    const _account = createAccount();
+    const _testFolder = await createSubfolder(
       _account.incomingServer.rootFolder,
       "test1"
     );
 
-    let textAttachment = {
+    const textAttachment = {
       body: "textAttachment",
       filename: "test.txt",
       contentType: "text/plain",
     };
-    let binaryAttachment = {
+    const binaryAttachment = {
       body: btoa("binaryAttachment"),
       filename: "test",
       contentType: "application/octet-stream",
@@ -65,12 +65,12 @@ add_task(
     skip_if: () => IS_IMAP,
   },
   async function test_attachments() {
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files: {
         "background.js": async () => {
-          let [account] = await browser.accounts.list();
-          let testFolder = account.folders.find(f => f.name == "test1");
-          let { messages } = await browser.messages.list(testFolder);
+          const [account] = await browser.accounts.list();
+          const testFolder = account.folders.find(f => f.name == "test1");
+          const { messages } = await browser.messages.list(testFolder);
           browser.test.assertEq(5, messages.length);
 
           let attachments, attachment, file;
@@ -237,19 +237,19 @@ add_task(
     skip_if: () => IS_IMAP,
   },
   async function test_messages_as_attachments() {
-    let extension = ExtensionTestUtils.loadExtension({
+    const extension = ExtensionTestUtils.loadExtension({
       files: {
         "background.js": async () => {
-          let [account] = await browser.accounts.list();
-          let testFolder = account.folders.find(f => f.name == "test1");
-          let { messages } = await browser.messages.list(testFolder);
+          const [account] = await browser.accounts.list();
+          const testFolder = account.folders.find(f => f.name == "test1");
+          const { messages } = await browser.messages.list(testFolder);
           browser.test.assertEq(5, messages.length);
-          let message = messages[4];
+          const message = messages[4];
 
           function validateMessage(msg, expectedValues) {
-            for (let expectedValueName in expectedValues) {
-              let value = msg[expectedValueName];
-              let expected = expectedValues[expectedValueName];
+            for (const expectedValueName in expectedValues) {
+              const value = msg[expectedValueName];
+              const expected = expectedValues[expectedValueName];
               if (Array.isArray(expected)) {
                 browser.test.assertTrue(
                   Array.isArray(value),
@@ -288,7 +288,9 @@ add_task(
           }
 
           // Request attachments.
-          let attachments = await browser.messages.listAttachments(message.id);
+          const attachments = await browser.messages.listAttachments(
+            message.id
+          );
           browser.test.assertEq(2, attachments.length);
           browser.test.assertEq("1.2", attachments[0].partName);
           browser.test.assertEq("1.3", attachments[1].partName);
@@ -297,7 +299,7 @@ add_task(
           browser.test.assertEq("yellowPixel.png", attachments[1].name);
 
           // Validate the returned MessageHeader for attached message1.eml.
-          let subMessage = attachments[0].message;
+          const subMessage = attachments[0].message;
           browser.test.assertTrue(
             subMessage.id != message.id,
             `Id of attached SubMessage (${subMessage.id}) should be different from the id of the outer message (${message.id})`
@@ -321,7 +323,7 @@ add_task(
           });
 
           // Make sure we can use getFull() on the subMessage.
-          let subFull = await browser.messages.getFull(subMessage.id);
+          const subFull = await browser.messages.getFull(subMessage.id);
           browser.test.assertEq(
             subFull.headers["message-id"][0],
             "<sample-attached.eml@mime.sample>",
@@ -334,14 +336,14 @@ add_task(
           );
 
           // Make sure we can use getRaw() on the subMessage.
-          let subRaw = await browser.messages.getRaw(subMessage.id);
+          const subRaw = await browser.messages.getRaw(subMessage.id);
           browser.test.assertTrue(
             subRaw.startsWith("Message-ID: <sample-attached.eml@mime.sample>"),
             "Content returned by getRaw() for the attached message should be correct."
           );
 
           // Get attachments of sub-message messag1.eml.
-          let subAttachments = await browser.messages.listAttachments(
+          const subAttachments = await browser.messages.listAttachments(
             subMessage.id
           );
           browser.test.assertEq(4, subAttachments.length);
@@ -357,7 +359,7 @@ add_task(
 
           // Validate the returned MessageHeader for sub-message message2.eml
           // attached to sub-message message1.eml.
-          let subSubMessage = subAttachments[3].message;
+          const subSubMessage = subAttachments[3].message;
           browser.test.assertTrue(
             ![message.id, subMessage.id].includes(subSubMessage.id),
             `Id of attached SubSubMessage (${subSubMessage.id}) should be different from the id of the outer message (${message.id}) and from the SubMessage (${subMessage.id})`
@@ -386,8 +388,8 @@ add_task(
           // belong to subMessages. There is no difference between requesting
           // part 1.2.1.2 from the main message or from message1.eml (part 1.2).
           // X-ray vision from a sub-message back into a parent is not allowed.
-          let platform = await browser.runtime.getPlatformInfo();
-          let fileTests = [
+          const platform = await browser.runtime.getPlatformInfo();
+          const fileTests = [
             {
               partName: "1.2",
               name: "message1.eml",
@@ -439,7 +441,7 @@ add_task(
               data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j/iQEABOUB8pypNlQAAAAASUVORK5CYII=",
             },
           ];
-          let testMessages = [
+          const testMessages = [
             {
               id: message.id,
               expectedFileCounts: 7,
@@ -455,9 +457,9 @@ add_task(
               expectedFileCounts: 1,
             },
           ];
-          for (let msg of testMessages) {
+          for (const msg of testMessages) {
             let fileCounts = 0;
-            for (let test of fileTests) {
+            for (const test of fileTests) {
               if (msg.subPart && !test.partName.startsWith(msg.subPart)) {
                 await browser.test.assertRejects(
                   browser.messages.getAttachmentFile(msg.id, test.partName),
@@ -468,7 +470,7 @@ add_task(
               }
               fileCounts++;
 
-              let file = await browser.messages.getAttachmentFile(
+              const file = await browser.messages.getAttachmentFile(
                 msg.id,
                 test.partName
               );
@@ -485,8 +487,8 @@ add_task(
               }
 
               if (test.data) {
-                let reader = new FileReader();
-                let data = await new Promise(resolve => {
+                const reader = new FileReader();
+                const data = await new Promise(resolve => {
                   reader.onload = e => resolve(e.target.result);
                   reader.readAsDataURL(file);
                 });

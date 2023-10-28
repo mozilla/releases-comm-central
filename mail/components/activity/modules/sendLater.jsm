@@ -89,7 +89,7 @@ var sendLaterModule = {
   },
 
   _newProcess(aLocaleStringBase, aAddSubject) {
-    let process = new nsActProcess(
+    const process = new nsActProcess(
       this._displayTextForHeader(
         aLocaleStringBase,
         aAddSubject ? this._subject : ""
@@ -128,7 +128,7 @@ var sendLaterModule = {
   _replaceProcessWithEvent(aProcess) {
     this.activityMgr.removeActivity(aProcess.id);
 
-    let event = new nsActEvent(
+    const event = new nsActEvent(
       this._displayTextForHeader("sentMessage", this._subject),
       this.activityMgr,
       "",
@@ -152,7 +152,7 @@ var sendLaterModule = {
   ) {
     this.activityMgr.removeActivity(aProcess.id);
 
-    let warning = new nsActWarning(
+    const warning = new nsActWarning(
       this._displayTextForHeader("failedTo" + aCopyOrSend, this._subject),
       this.activityMgr,
       ""
@@ -280,14 +280,14 @@ var sendLaterModule = {
   init() {
     // We should need to remove the listener as we're not being held by anyone
     // except by the send later instance.
-    let sendLaterService = Cc[
+    const sendLaterService = Cc[
       "@mozilla.org/messengercompose/sendlater;1"
     ].getService(Ci.nsIMsgSendLater);
 
     sendLaterService.addListener(this);
 
     // Also add the nsIMsgStatusFeedback object.
-    let statusFeedback = Cc[
+    const statusFeedback = Cc[
       "@mozilla.org/messenger/statusfeedback;1"
     ].createInstance(Ci.nsIMsgStatusFeedback);
 

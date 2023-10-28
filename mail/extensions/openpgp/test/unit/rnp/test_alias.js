@@ -226,10 +226,10 @@ add_setup(async function () {
 });
 
 add_task(async function testAlias() {
-  let aliasFilename = "openpgp-alias-rules.json";
-  let profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  const aliasFilename = "openpgp-alias-rules.json";
+  const profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
 
-  for (let test of tests) {
+  for (const test of tests) {
     if (test.filename) {
       info(`Running alias test with rules from: ${test.filename}`);
 
@@ -237,7 +237,7 @@ add_task(async function testAlias() {
       // because load function only works with simple filenames
       // or absolute file URLs.
 
-      let inFile = do_get_file(test.filename);
+      const inFile = do_get_file(test.filename);
       inFile.copyTo(profileDir, aliasFilename);
 
       try {
@@ -261,10 +261,10 @@ add_task(async function testAlias() {
     }
     info(test.info);
 
-    let addresses = [test.to];
-    let resultDetails = {};
+    const addresses = [test.to];
+    const resultDetails = {};
 
-    let isMissing = await EnigmailKeyRing.getValidKeysForAllRecipients(
+    const isMissing = await EnigmailKeyRing.getValidKeysForAllRecipients(
       addresses,
       resultDetails
     );
@@ -279,9 +279,9 @@ add_task(async function testAlias() {
       continue;
     }
 
-    let errorMsgObj = { value: "" };
-    let logFileObj = {};
-    let encryptArgs = EnigmailEncryption.getCryptParams(
+    const errorMsgObj = { value: "" };
+    const logFileObj = {};
+    const encryptArgs = EnigmailEncryption.getCryptParams(
       "",
       test.to,
       "",
@@ -292,7 +292,7 @@ add_task(async function testAlias() {
       logFileObj
     );
 
-    let foundAliasKeys = encryptArgs.aliasKeys.get(test.to.toLowerCase());
+    const foundAliasKeys = encryptArgs.aliasKeys.get(test.to.toLowerCase());
 
     if (!test.expectedAliasKeys) {
       Assert.ok(!foundAliasKeys, "foundAliasKeys should be empty");
@@ -303,8 +303,8 @@ add_task(async function testAlias() {
         Assert.ok(foundAliasKeys.includes(val));
       });
 
-      let encryptResult = {};
-      let encrypted = await RNP.encryptAndOrSign(
+      const encryptResult = {};
+      const encrypted = await RNP.encryptAndOrSign(
         "plaintext",
         encryptArgs,
         encryptResult

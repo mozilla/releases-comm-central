@@ -294,9 +294,9 @@ function goUpdateComposerMenuItems(commandset) {
  */
 function goDoCommandParams(command, paramValue) {
   try {
-    let params = newCommandParams();
+    const params = newCommandParams();
     params.setStringValue("state_attribute", paramValue);
-    let controller =
+    const controller =
       document.commandDispatcher.getControllerForCommand(command);
     if (controller && controller.isCommandEnabled(command)) {
       if (controller instanceof Ci.nsICommandController) {
@@ -318,8 +318,8 @@ function goDoCommandParams(command, paramValue) {
  * @param {boolean} desiredState - State to set for the command.
  */
 function pokeStyleUI(uiID, desiredState) {
-  let commandNode = document.getElementById(uiID);
-  let uiState = commandNode.getAttribute("state") == "true";
+  const commandNode = document.getElementById(uiID);
+  const uiState = commandNode.getAttribute("state") == "true";
   if (desiredState != uiState) {
     commandNode.setAttribute("state", desiredState ? "true" : "false");
     let buttonId;
@@ -349,7 +349,7 @@ function pokeStyleUI(uiID, desiredState) {
 /**
  * Maps internal command names to their document.execCommand() command string.
  */
-let gCommandMap = new Map([
+const gCommandMap = new Map([
   ["cmd_bold", "bold"],
   ["cmd_italic", "italic"],
   ["cmd_underline", "underline"],
@@ -379,8 +379,8 @@ function doStyleUICommand(cmdStr) {
     false,
     null
   );
-  let commandNode = document.getElementById(cmdStr);
-  let newState = commandNode.getAttribute("state") != "true";
+  const commandNode = document.getElementById(cmdStr);
+  const newState = commandNode.getAttribute("state") != "true";
   pokeStyleUI(cmdStr, newState);
 }
 
@@ -416,8 +416,8 @@ function pokeMultiStateUI(uiID, cmdParams) {
     desiredAttrib = cmdParams.getStringValue("state_attribute");
   }
 
-  let commandNode = document.getElementById(uiID);
-  let uiState = commandNode.getAttribute("state");
+  const commandNode = document.getElementById(uiID);
+  const uiState = commandNode.getAttribute("state");
   if (desiredAttrib != uiState) {
     commandNode.setAttribute("state", desiredAttrib);
     switch (uiID) {
@@ -479,7 +479,7 @@ function doStatefulCommand(commandID, newState, updateUI) {
   }
 
   if (updateUI) {
-    let commandNode = document.getElementById(commandID);
+    const commandNode = document.getElementById(commandID);
     commandNode.setAttribute("state", newState);
     switch (commandID) {
       case "cmd_fontFace": {
@@ -488,7 +488,7 @@ function doStatefulCommand(commandID, newState, updateUI) {
       }
     }
   } else {
-    let commandNode = document.getElementById(commandID);
+    const commandNode = document.getElementById(commandID);
     if (commandNode) {
       commandNode.setAttribute("state", newState);
     }
@@ -546,7 +546,7 @@ function GetSuggestedFileName(aDocumentURLString, aMIMEType) {
       docURI = docURI.QueryInterface(Ci.nsIURL);
 
       // grab the file name
-      let url = validateFileName(decodeURIComponent(docURI.fileBaseName));
+      const url = validateFileName(decodeURIComponent(docURI.fileBaseName));
       if (url) {
         return url + extension;
       }
@@ -614,7 +614,7 @@ function PromptForSaveLocation(
 
     var isLocalFile = true;
     try {
-      let docURI = Services.io.newURI(
+      const docURI = Services.io.newURI(
         aDocumentURLString,
         GetCurrentEditor().documentCharacterSet
       );
@@ -672,10 +672,10 @@ function PromptAndSetTitleIfNone() {
     return true;
   }
 
-  let result = { value: null };
-  let captionStr = GetString("DocumentTitle");
-  let msgStr = GetString("NeedDocTitle") + "\n" + GetString("DocTitleHelp");
-  let confirmed = Services.prompt.prompt(
+  const result = { value: null };
+  const captionStr = GetString("DocumentTitle");
+  const msgStr = GetString("NeedDocTitle") + "\n" + GetString("DocTitleHelp");
+  const confirmed = Services.prompt.prompt(
     window,
     captionStr,
     msgStr,
@@ -1241,7 +1241,7 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
       }
     }
 
-    let destinationLocation = tempLocalFile ? tempLocalFile : docURI;
+    const destinationLocation = tempLocalFile ? tempLocalFile : docURI;
 
     success = OutputFileWithPersistAPI(
       editorDoc,
@@ -1328,7 +1328,7 @@ var nsFindAgainCommand = {
   doCommandParams(aCommand, aParams, editorElement) {},
 
   doCommand(aCommand, editorElement) {
-    let findPrev = aCommand == "cmd_findPrev";
+    const findPrev = aCommand == "cmd_findPrev";
     document.getElementById("FindToolbar").onFindAgainCommand(findPrev);
   },
 };
@@ -1430,7 +1430,7 @@ var nsHLineCommand = {
         hLine = editor.createElementWithDefaults(tagName);
 
         // We change the default attributes to those saved in the user prefs
-        let align = Services.prefs.getIntPref("editor.hrule.align");
+        const align = Services.prefs.getIntPref("editor.hrule.align");
         if (align == 0) {
           editor.setAttributeOrEquivalent(hLine, "align", "left", true);
         } else if (align == 2) {
@@ -1446,7 +1446,7 @@ var nsHLineCommand = {
 
         editor.setAttributeOrEquivalent(hLine, "width", width, true);
 
-        let height = Services.prefs.getIntPref("editor.hrule.height");
+        const height = Services.prefs.getIntPref("editor.hrule.height");
         editor.setAttributeOrEquivalent(hLine, "size", String(height), true);
 
         if (Services.prefs.getBoolPref("editor.hrule.shading")) {
@@ -1665,8 +1665,8 @@ var nsSetSmiley = {
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {
     try {
-      let editor = GetCurrentEditor();
-      let smileyCode = aParams.getStringValue("state_attribute");
+      const editor = GetCurrentEditor();
+      const smileyCode = aParams.getStringValue("state_attribute");
       editor.insertHTML(smileyCode);
       window.content.focus();
     } catch (e) {
@@ -1713,7 +1713,7 @@ var nsIncreaseFontCommand = {
     if (!(IsDocumentEditable() && IsEditingRenderedHTML())) {
       return false;
     }
-    let setIndex = parseInt(getLegacyFontSize());
+    const setIndex = parseInt(getLegacyFontSize());
     return setIndex < 6;
   },
 
@@ -1721,7 +1721,7 @@ var nsIncreaseFontCommand = {
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    let setIndex = parseInt(getLegacyFontSize());
+    const setIndex = parseInt(getLegacyFontSize());
     EditorSetFontSize((setIndex + 1).toString());
   },
 };
@@ -1731,7 +1731,7 @@ var nsDecreaseFontCommand = {
     if (!(IsDocumentEditable() && IsEditingRenderedHTML())) {
       return false;
     }
-    let setIndex = parseInt(getLegacyFontSize());
+    const setIndex = parseInt(getLegacyFontSize());
     return setIndex > 1;
   },
 
@@ -1739,7 +1739,7 @@ var nsDecreaseFontCommand = {
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    let setIndex = parseInt(getLegacyFontSize());
+    const setIndex = parseInt(getLegacyFontSize());
     EditorSetFontSize((setIndex - 1).toString());
   },
 };

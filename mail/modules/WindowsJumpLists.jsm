@@ -138,7 +138,7 @@ var WinTaskbarJumpList = {
     this._builder.abortListBuild();
     // Since our list is static right now, we won't actually get back any
     // removed items.
-    let removedItems = Cc["@mozilla.org/array;1"].createInstance(
+    const removedItems = Cc["@mozilla.org/array;1"].createInstance(
       Ci.nsIMutableArray
     );
     return this._builder.initListBuild(removedItems);
@@ -155,7 +155,7 @@ var WinTaskbarJumpList = {
   _buildTasks() {
     if (this._tasks.length > 0) {
       var items = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-      for (let item of this._tasks.map(task =>
+      for (const item of this._tasks.map(task =>
         this._createHandlerAppItem(task)
       )) {
         items.appendElement(item);
@@ -176,24 +176,24 @@ var WinTaskbarJumpList = {
    */
 
   _createHandlerAppItem(aTask) {
-    let file = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
+    const file = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
 
     // XXX where can we grab this from in the build? Do we need to?
     file.append("thunderbird.exe");
 
-    let handlerApp = Cc[
+    const handlerApp = Cc[
       "@mozilla.org/uriloader/local-handler-app;1"
     ].createInstance(Ci.nsILocalHandlerApp);
     handlerApp.executable = file;
     // handlers default to the leaf name if a name is not specified
-    let title = aTask.title;
+    const title = aTask.title;
     if (title && title.length != 0) {
       handlerApp.name = title;
     }
     handlerApp.detailedDescription = aTask.description;
     handlerApp.appendParameter(aTask.args);
 
-    let item = Cc["@mozilla.org/windows-jumplistshortcut;1"].createInstance(
+    const item = Cc["@mozilla.org/windows-jumplistshortcut;1"].createInstance(
       Ci.nsIJumpListShortcut
     );
     item.app = handlerApp;

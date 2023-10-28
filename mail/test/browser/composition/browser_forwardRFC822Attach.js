@@ -32,19 +32,19 @@ add_setup(async function () {
 });
 
 async function forwardDirect(aFilePath, aExpectedText) {
-  let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
-  let msgc = await open_message_from_file(file);
+  const file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
+  const msgc = await open_message_from_file(file);
 
-  let cwc = await open_compose_with_forward_as_attachments(msgc);
+  const cwc = await open_compose_with_forward_as_attachments(msgc);
 
   await save_compose_message(cwc);
   await close_compose_window(cwc);
   await BrowserTestUtils.closeWindow(msgc);
 
   await be_in_folder(gDrafts);
-  let draftMsg = await select_click_row(0);
+  const draftMsg = await select_click_row(0);
 
-  let draftMsgContent = await get_msg_source(draftMsg);
+  const draftMsgContent = await get_msg_source(draftMsg);
 
   Assert.ok(
     draftMsgContent.includes(aExpectedText),

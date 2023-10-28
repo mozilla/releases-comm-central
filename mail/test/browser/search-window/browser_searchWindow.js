@@ -105,7 +105,9 @@ add_task(function test_enter_some_stuff() {
   searchVal0.value = "foo";
 
   // - add another subject box
-  let plusButton = swc.document.querySelector("#searchRow0 button[label='+']");
+  const plusButton = swc.document.querySelector(
+    "#searchRow0 button[label='+']"
+  );
   EventUtils.synthesizeMouseAtCenter(plusButton, {}, plusButton.ownerGlobal);
 
   // - put "bar" in it
@@ -158,12 +160,13 @@ add_task(async function test_go_search() {
 add_task(async function test_open_single_search_result_in_tab() {
   swc.focus();
   set_open_message_behavior("NEW_TAB");
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
-  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
+  const preCount =
+    document.getElementById("tabmail").tabContainer.allTabs.length;
 
   // Select one message
   swc.document.getElementById("threadTree").focus();
-  let msgHdr = select_click_search_row(1, swc);
+  const msgHdr = select_click_search_row(1, swc);
   // Open the selected message
   open_selected_message(swc);
   // This is going to trigger a message display in the main 3pane window
@@ -187,13 +190,14 @@ add_task(async function test_open_single_search_result_in_tab() {
 add_task(async function test_open_multiple_search_results_in_new_tabs() {
   swc.focus();
   set_open_message_behavior("NEW_TAB");
-  let folderTab = document.getElementById("tabmail").currentTabInfo;
-  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
+  const folderTab = document.getElementById("tabmail").currentTabInfo;
+  const preCount =
+    document.getElementById("tabmail").tabContainer.allTabs.length;
 
   // Select a bunch of messages
   swc.document.getElementById("threadTree").focus();
   select_click_search_row(1, swc);
-  let selectedMessages = await select_shift_click_search_row(
+  const selectedMessages = await select_shift_click_search_row(
     NUM_MESSAGES_TO_OPEN,
     swc
   );
@@ -235,12 +239,12 @@ add_task(async function test_open_search_result_in_new_window() {
 
   // Select a message
   swc.document.getElementById("threadTree").focus();
-  let msgHdr = select_click_search_row(1, swc);
+  const msgHdr = select_click_search_row(1, swc);
 
-  let newWindowPromise = promise_new_window("mail:messageWindow");
+  const newWindowPromise = promise_new_window("mail:messageWindow");
   // Open it
   open_selected_message(swc);
-  let msgc = await newWindowPromise;
+  const msgc = await newWindowPromise;
   await wait_for_message_display_completion(msgc, true);
 
   await assert_selected_and_displayed(msgc, msgHdr);
@@ -259,13 +263,13 @@ add_task(async function test_open_search_result_in_existing_window() {
   // Open up a window
   swc.document.getElementById("threadTree").focus();
   select_click_search_row(1, swc);
-  let newWindowPromise = promise_new_window("mail:messageWindow");
+  const newWindowPromise = promise_new_window("mail:messageWindow");
   open_selected_message(swc);
-  let msgc = await newWindowPromise;
+  const msgc = await newWindowPromise;
   await wait_for_message_display_completion(msgc, true);
 
   // Select another message and open it
-  let msgHdr = select_click_search_row(2, swc);
+  const msgHdr = select_click_search_row(2, swc);
   plan_for_message_display(msgc);
   open_selected_message(swc);
   await wait_for_message_display_completion(msgc, true);
@@ -331,7 +335,7 @@ add_task(async function test_close_search_window() {
  *  has the right contents.
  */
 add_task(async function test_verify_saved_search() {
-  let savedFolder = folder.getChildNamed("SearchSaved");
+  const savedFolder = folder.getChildNamed("SearchSaved");
   if (savedFolder == null) {
     throw new Error("Saved folder did not show up.");
   }

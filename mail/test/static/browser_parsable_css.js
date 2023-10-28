@@ -11,7 +11,7 @@ SimpleTest.requestCompleteLog();
  * matching the offending error. If an object has multiple regex criteria, they
  * ALL need to match an error in order for that error not to cause a test
  * failure. */
-let whitelist = [
+const whitelist = [
   // CodeMirror is imported as-is, see bug 1004423.
   { sourceName: /codemirror\.css$/i, isFromDevTools: true },
   {
@@ -134,7 +134,7 @@ if (!Services.prefs.getBoolPref("layout.css.forced-colors.enabled")) {
   });
 }
 
-let propNameWhitelist = [
+const propNameWhitelist = [
   // These custom properties are retrieved directly from CSSOM
   // in videocontrols.xml to get pre-defined style instead of computed
   // dimensions, which is why they are not referenced by CSS.
@@ -155,7 +155,7 @@ let propNameWhitelist = [
   { propName: "--bezier-grid-color", isFromDevTools: true },
 ];
 
-let thunderbirdWhitelist = [];
+const thunderbirdWhitelist = [];
 
 // Add suffix to stylesheets' URI so that we always load them here and
 // have them parsed. Add a random number so that even if we run this
@@ -176,11 +176,11 @@ function dumpWhitelistItem(item) {
  * @returns true if the error should be ignored, false otherwise.
  */
 function ignoredError(aErrorObject) {
-  for (let list of [whitelist, thunderbirdWhitelist]) {
-    for (let whitelistItem of list) {
+  for (const list of [whitelist, thunderbirdWhitelist]) {
+    for (const whitelistItem of list) {
       let matches = true;
       let catchAll = true;
-      for (let prop of ["sourceName", "errorMessage"]) {
+      for (const prop of ["sourceName", "errorMessage"]) {
         if (whitelistItem.hasOwnProperty(prop)) {
           catchAll = false;
           if (!whitelistItem[prop].test(aErrorObject[prop] || "")) {
@@ -199,7 +199,7 @@ function ignoredError(aErrorObject) {
       }
       if (matches) {
         whitelistItem.used = true;
-        let { sourceName, errorMessage } = aErrorObject;
+        const { sourceName, errorMessage } = aErrorObject;
         info(
           `Ignored error "${errorMessage}" on ${sourceName} ` +
             "because of whitelist item " +
@@ -222,25 +222,25 @@ var resHandler = Services.io
   .QueryInterface(Ci.nsIResProtocolHandler);
 var gResourceMap = [];
 function trackResourcePrefix(prefix) {
-  let uri = Services.io.newURI("resource://" + prefix + "/");
+  const uri = Services.io.newURI("resource://" + prefix + "/");
   gResourceMap.unshift([prefix, resHandler.resolveURI(uri)]);
 }
 trackResourcePrefix("gre");
 trackResourcePrefix("app");
 
 function getBaseUriForChromeUri(chromeUri) {
-  let chromeFile = chromeUri + "gobbledygooknonexistentfile.reallynothere";
-  let uri = Services.io.newURI(chromeFile);
-  let fileUri = gChromeReg.convertChromeURL(uri);
+  const chromeFile = chromeUri + "gobbledygooknonexistentfile.reallynothere";
+  const uri = Services.io.newURI(chromeFile);
+  const fileUri = gChromeReg.convertChromeURL(uri);
   return fileUri.resolve(".");
 }
 
 function parseManifest(manifestUri) {
   return fetchFile(manifestUri.spec).then(data => {
-    for (let line of data.split("\n")) {
-      let [type, ...argv] = line.split(/\s+/);
+    for (const line of data.split("\n")) {
+      const [type, ...argv] = line.split(/\s+/);
       if (type == "content" || type == "skin") {
-        let chromeUri = `chrome://${argv[0]}/${type}/`;
+        const chromeUri = `chrome://${argv[0]}/${type}/`;
         gChromeMap.set(getBaseUriForChromeUri(chromeUri), chromeUri);
       } else if (type == "resource") {
         trackResourcePrefix(argv[0]);
@@ -253,10 +253,10 @@ function convertToCodeURI(fileUri) {
   let baseUri = fileUri;
   let path = "";
   while (true) {
-    let slashPos = baseUri.lastIndexOf("/", baseUri.length - 2);
+    const slashPos = baseUri.lastIndexOf("/", baseUri.length - 2);
     if (slashPos <= 0) {
       // File not accessible from chrome protocol, try resource://
-      for (let res of gResourceMap) {
+      for (const res of gResourceMap) {
         if (fileUri.startsWith(res[1])) {
           return fileUri.replace(res[1], "resource://" + res[0] + "/");
         }
@@ -279,8 +279,8 @@ function messageIsCSSError(msg) {
     msg.category.includes("CSS") &&
     msg.sourceName.endsWith(kPathSuffix)
   ) {
-    let sourceName = msg.sourceName.slice(0, -kPathSuffix.length);
-    let msgInfo = { sourceName, errorMessage: msg.errorMessage };
+    const sourceName = msg.sourceName.slice(0, -kPathSuffix.length);
+    const msgInfo = { sourceName, errorMessage: msg.errorMessage };
     // Check if this error is whitelisted in whitelist
     if (!ignoredError(msgInfo)) {
       ok(false, `Got error message for ${sourceName}: ${msg.errorMessage}`);
@@ -305,7 +305,7 @@ function neverMatches(mediaList) {
     linux: ["(-moz-platform: linux)"],
     android: ["(-moz-platform: android)"],
   };
-  for (let platform in perPlatformMediaQueryMap) {
+  for (const platform in perPlatformMediaQueryMap) {
     if (platform === AppConstants.platform) {
       continue;
     }
@@ -318,7 +318,7 @@ function neverMatches(mediaList) {
 }
 
 function processCSSRules(sheet) {
-  for (let rule of sheet.cssRules) {
+  for (const rule of sheet.cssRules) {
     if (rule.media && neverMatches(rule.media)) {
       continue;
     }
@@ -336,10 +336,10 @@ function processCSSRules(sheet) {
     // Extract urls from the css text.
     // Note: CSSRule.cssText always has double quotes around URLs even
     //       when the original CSS file didn't.
-    let urls = rule.cssText.match(/url\("[^"]*"\)/g);
+    const urls = rule.cssText.match(/url\("[^"]*"\)/g);
     // Extract props by searching all "--" preceded by "var(" or a non-word
     // character.
-    let props = rule.cssText.match(/(var\(|\W)(--[\w\-]+)/g);
+    const props = rule.cssText.match(/(var\(|\W)(--[\w\-]+)/g);
     if (!urls && !props) {
       continue;
     }
@@ -352,11 +352,11 @@ function processCSSRules(sheet) {
       }
 
       // Make the url absolute and remove the ref.
-      let baseURI = Services.io.newURI(rule.parentStyleSheet.href);
+      const baseURI = Services.io.newURI(rule.parentStyleSheet.href);
       url = Services.io.newURI(url, null, baseURI).specIgnoringRef;
 
       // Store the image url along with the css file referencing it.
-      let baseUrl = baseURI.spec.split("?always-parse-css")[0];
+      const baseUrl = baseURI.spec.split("?always-parse-css")[0];
       if (!imageURIsToReferencesMap.has(url)) {
         imageURIsToReferencesMap.set(url, new Set([baseUrl]));
       } else {
@@ -367,7 +367,7 @@ function processCSSRules(sheet) {
     for (let prop of props || []) {
       if (prop.startsWith("var(")) {
         prop = prop.substring(4);
-        let prevValue = customPropsToReferencesMap.get(prop) || 0;
+        const prevValue = customPropsToReferencesMap.get(prop) || 0;
         customPropsToReferencesMap.set(prop, prevValue + 1);
       } else {
         // Remove the extra non-word character captured by the regular
@@ -384,12 +384,12 @@ function processCSSRules(sheet) {
 function chromeFileExists(aURI) {
   let available = 0;
   try {
-    let channel = NetUtil.newChannel({
+    const channel = NetUtil.newChannel({
       uri: aURI,
       loadUsingSystemPrincipal: true,
     });
-    let stream = channel.open();
-    let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    const stream = channel.open();
+    const sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
       Ci.nsIScriptableInputStream
     );
     sstream.init(stream);
@@ -409,7 +409,7 @@ add_task(async function checkAllTheCSS() {
   // better to not have some messages from previous tests in the array.
   Services.console.reset();
 
-  let appDir = Services.dirsvc.get("GreD", Ci.nsIFile);
+  const appDir = Services.dirsvc.get("GreD", Ci.nsIFile);
   // This asynchronously produces a list of URLs (sadly, mostly sync on our
   // test infrastructure because it runs against jarfiles there, and
   // our zipreader APIs are all sync)
@@ -417,8 +417,8 @@ add_task(async function checkAllTheCSS() {
 
   // Create a clean iframe to load all the files into. This needs to live at a
   // chrome URI so that it's allowed to load and parse any styles.
-  let testFile = getRootDirectory(gTestPath) + "dummy_page.html";
-  let { HiddenFrame } = ChromeUtils.importESModule(
+  const testFile = getRootDirectory(gTestPath) + "dummy_page.html";
+  const { HiddenFrame } = ChromeUtils.importESModule(
     "resource://gre/modules/HiddenFrame.sys.mjs"
   );
   let hiddenFrame = new HiddenFrame();
@@ -428,7 +428,7 @@ add_task(async function checkAllTheCSS() {
     "html:iframe"
   );
   win.document.documentElement.appendChild(iframe);
-  let iframeLoaded = BrowserTestUtils.waitForEvent(iframe, "load", true);
+  const iframeLoaded = BrowserTestUtils.waitForEvent(iframe, "load", true);
   iframe.contentWindow.location = testFile;
   await iframeLoaded;
   let doc = iframe.contentWindow.document;
@@ -437,7 +437,7 @@ add_task(async function checkAllTheCSS() {
   // Parse and remove all manifests from the list.
   // NOTE that this must be done before filtering out devtools paths
   // so that all chrome paths can be recorded.
-  let manifestURIs = [];
+  const manifestURIs = [];
   uris = uris.filter(uri => {
     if (uri.pathQueryRef.endsWith(".manifest")) {
       manifestURIs.push(uri);
@@ -449,22 +449,21 @@ add_task(async function checkAllTheCSS() {
   await throttledMapPromises(manifestURIs, parseManifest);
 
   // filter out either the devtools paths or the non-devtools paths:
-  let isDevtools = SimpleTest.harnessParameters.subsuite == "devtools";
-  let devtoolsPathBits = ["devtools"];
+  const isDevtools = SimpleTest.harnessParameters.subsuite == "devtools";
+  const devtoolsPathBits = ["devtools"];
   uris = uris.filter(
     uri => isDevtools == devtoolsPathBits.some(path => uri.spec.includes(path))
   );
 
-  let loadCSS = chromeUri =>
+  const loadCSS = chromeUri =>
     new Promise(resolve => {
-      let linkEl, onLoad, onError;
-      onLoad = e => {
+      const onLoad = e => {
         processCSSRules(linkEl.sheet);
         resolve();
         linkEl.removeEventListener("load", onLoad);
         linkEl.removeEventListener("error", onError);
       };
-      onError = e => {
+      const onError = e => {
         ok(
           false,
           "Loading " + linkEl.getAttribute("href") + " threw an error!"
@@ -473,7 +472,7 @@ add_task(async function checkAllTheCSS() {
         linkEl.removeEventListener("load", onLoad);
         linkEl.removeEventListener("error", onError);
       };
-      linkEl = doc.createElement("link");
+      const linkEl = doc.createElement("link");
       linkEl.setAttribute("rel", "stylesheet");
       linkEl.setAttribute("type", "text/css");
       linkEl.addEventListener("load", onLoad);
@@ -485,7 +484,7 @@ add_task(async function checkAllTheCSS() {
   // We build a list of promises that get resolved when their respective
   // files have loaded and produced no errors.
   const kInContentCommonCSS = "chrome://global/skin/in-content/common.css";
-  let allPromises = uris
+  const allPromises = uris
     .map(uri => convertToCodeURI(uri.spec))
     .filter(uri => uri !== kInContentCommonCSS);
 
@@ -500,11 +499,11 @@ add_task(async function checkAllTheCSS() {
   await throttledMapPromises(allPromises, loadCSS);
 
   // Check if all the files referenced from CSS actually exist.
-  for (let [image, references] of imageURIsToReferencesMap) {
+  for (const [image, references] of imageURIsToReferencesMap) {
     if (!chromeFileExists(image)) {
-      for (let ref of references) {
+      for (const ref of references) {
         let whitelisted = false;
-        for (let whitelistItem of thunderbirdWhitelist) {
+        for (const whitelistItem of thunderbirdWhitelist) {
           if (whitelistItem.sourceName.test(ref)) {
             whitelistItem.used = true;
             whitelisted = true;
@@ -520,10 +519,10 @@ add_task(async function checkAllTheCSS() {
   }
 
   // Check if all the properties that are defined are referenced.
-  for (let [prop, refCount] of customPropsToReferencesMap) {
+  for (const [prop, refCount] of customPropsToReferencesMap) {
     if (!refCount) {
       let ignored = false;
-      for (let item of propNameWhitelist) {
+      for (const item of propNameWhitelist) {
         if (item.propName == prop && isDevtools == item.isFromDevTools) {
           item.used = true;
           if (
@@ -541,10 +540,10 @@ add_task(async function checkAllTheCSS() {
     }
   }
 
-  let messages = Services.console.getMessageArray();
+  const messages = Services.console.getMessageArray();
   // Count errors (the test output will list actual issues for us, as well
   // as the ok(false) in messageIsCSSError.
-  let errors = messages.filter(messageIsCSSError);
+  const errors = messages.filter(messageIsCSSError);
   is(
     errors.length,
     0,
@@ -553,7 +552,7 @@ add_task(async function checkAllTheCSS() {
 
   // Confirm that all whitelist rules have been used.
   function checkWhitelist(list) {
-    for (let item of list) {
+    for (const item of list) {
       if (
         !item.used &&
         isDevtools == item.isFromDevTools &&

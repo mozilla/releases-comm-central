@@ -51,9 +51,9 @@ add_setup(async function () {
 });
 
 function addToFolder(aSubject, aBody, aFolder) {
-  let msgId = Services.uuid.generateUUID() + "@mozillamessaging.invalid";
+  const msgId = Services.uuid.generateUUID() + "@mozillamessaging.invalid";
 
-  let source =
+  const source =
     "From - Sat Nov  1 12:39:54 2008\n" +
     "X-Mozilla-Status: 0001\n" +
     "X-Mozilla-Status2: 00000000\n" +
@@ -84,10 +84,14 @@ function addToFolder(aSubject, aBody, aFolder) {
 }
 
 async function addMsgToFolder(folder) {
-  let msgDbHdr = addToFolder("exposed test message " + gMsgNo, msgBody, folder);
+  const msgDbHdr = addToFolder(
+    "exposed test message " + gMsgNo,
+    msgBody,
+    folder
+  );
 
   // select the newly created message
-  let msgHdr = await select_click_row(gMsgNo);
+  const msgHdr = await select_click_row(gMsgNo);
 
   if (msgDbHdr != msgHdr) {
     throw new Error(
@@ -100,11 +104,11 @@ async function addMsgToFolder(folder) {
   ++gMsgNo;
 
   // We also want to return the url of the message, so save that here.
-  let msgSimpleURL = msgHdr.folder.getUriForMsg(msgHdr);
+  const msgSimpleURL = msgHdr.folder.getUriForMsg(msgHdr);
 
-  let msgService = MailServices.messageServiceFromURI(msgSimpleURL);
+  const msgService = MailServices.messageServiceFromURI(msgSimpleURL);
 
-  let neckoURL = msgService.getUrlForUri(msgSimpleURL);
+  const neckoURL = msgService.getUrlForUri(msgSimpleURL);
 
   // This is the full url to the message that we want (i.e. passing this to
   // a browser element or iframe will display it).
@@ -114,15 +118,16 @@ async function addMsgToFolder(folder) {
 async function checkContentTab(msgURL) {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
+  const preCount =
+    document.getElementById("tabmail").tabContainer.allTabs.length;
 
-  let dataurl =
+  const dataurl =
     "data:text/html,<html><head><title>test exposed</title>" +
     '</head><body><iframe id="msgIframe" src="' +
     encodeURI(msgURL) +
     '"/></body></html>';
 
-  let newTab = await open_content_tab_with_url(dataurl);
+  const newTab = await open_content_tab_with_url(dataurl);
 
   Assert.notEqual(newTab.browser.currentURI.spec, "about:blank");
   Assert.equal(newTab.browser.webProgress.isLoadingDocument, false);
@@ -155,7 +160,7 @@ add_task(async function test_exposedInContentTabs() {
   await assert_nothing_selected();
 
   // Check for denied in mail
-  let msgURL = await addMsgToFolder(folder);
+  const msgURL = await addMsgToFolder(folder);
 
   // Check allowed in content tab
   await checkContentTab(msgURL);

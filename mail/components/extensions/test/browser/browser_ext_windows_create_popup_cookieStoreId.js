@@ -9,7 +9,7 @@ add_task(async function no_cookies_permission() {
     set: [["privacy.userContext.enabled", true]],
   });
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     async background() {
       await browser.test.assertRejects(
         browser.windows.create({
@@ -33,7 +33,7 @@ add_task(async function invalid_cookieStoreId() {
     set: [["privacy.userContext.enabled", true]],
   });
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       permissions: ["cookies"],
     },
@@ -69,7 +69,7 @@ add_task(async function userContext_disabled() {
   await SpecialPowers.pushPrefEnv({
     set: [["privacy.userContext.enabled", false]],
   });
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       permissions: ["tabs", "cookies"],
     },
@@ -120,14 +120,14 @@ add_task(async function valid_cookieStoreId() {
   ];
 
   async function background(testCases) {
-    let readyTabs = new Map();
-    let tabReadyCheckers = new Set();
+    const readyTabs = new Map();
+    const tabReadyCheckers = new Set();
     browser.webNavigation.onCompleted.addListener(({ url, tabId, frameId }) => {
       if (frameId === 0) {
         readyTabs.set(tabId, url);
         browser.test.log(`Detected navigation in tab ${tabId} to ${url}.`);
 
-        for (let check of tabReadyCheckers) {
+        for (const check of tabReadyCheckers) {
           check(tabId, url);
         }
       }
@@ -163,13 +163,13 @@ add_task(async function valid_cookieStoreId() {
         return e.message;
       }
     }
-    for (let {
+    for (const {
       description,
       createParams,
       expectedCookieStoreIds,
       expectedExecuteScriptResult,
     } of testCases) {
-      let win = await browser.windows.create(createParams);
+      const win = await browser.windows.create(createParams);
 
       browser.test.assertEq(
         expectedCookieStoreIds.length,
@@ -177,7 +177,7 @@ add_task(async function valid_cookieStoreId() {
         "Expected number of tabs"
       );
 
-      for (let [i, expectedCookieStoreId] of Object.entries(
+      for (const [i, expectedCookieStoreId] of Object.entries(
         expectedCookieStoreIds
       )) {
         browser.test.assertEq(
@@ -187,17 +187,17 @@ add_task(async function valid_cookieStoreId() {
         );
       }
 
-      for (let [i, expectedResult] of Object.entries(
+      for (const [i, expectedResult] of Object.entries(
         expectedExecuteScriptResult
       )) {
         // Wait until the the tab can process the tabs.executeScript calls.
         // TODO: Remove this when bug 1418655 and bug 1397667 are fixed.
-        let expectedUrl = Array.isArray(createParams.url)
+        const expectedUrl = Array.isArray(createParams.url)
           ? createParams.url[i]
           : createParams.url || "about:home";
         await awaitTabReady(win.tabs[i].id, expectedUrl);
 
-        let result = await executeScriptAndGetResult(win.tabs[i].id);
+        const result = await executeScriptAndGetResult(win.tabs[i].id);
         browser.test.assertEq(
           expectedResult,
           result,
@@ -209,7 +209,7 @@ add_task(async function valid_cookieStoreId() {
     }
     browser.test.sendMessage("done");
   }
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       host_permissions: ["*://*/*"], // allows script in top-level about:blank.
       permissions: ["cookies", "webNavigation"],
@@ -227,13 +227,15 @@ add_task(async function cookieStoreId_and_tabId() {
     set: [["privacy.userContext.enabled", true]],
   });
 
-  let extension = ExtensionTestUtils.loadExtension({
+  const extension = ExtensionTestUtils.loadExtension({
     manifest: {
       permissions: ["cookies"],
     },
     async background() {
-      for (let cookieStoreId of ["firefox-default", "firefox-container-1"]) {
-        let { id: normalTabId } = await browser.tabs.create({ cookieStoreId });
+      for (const cookieStoreId of ["firefox-default", "firefox-container-1"]) {
+        const { id: normalTabId } = await browser.tabs.create({
+          cookieStoreId,
+        });
 
         await browser.test.assertRejects(
           browser.windows.create({

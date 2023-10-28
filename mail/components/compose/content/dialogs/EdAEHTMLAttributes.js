@@ -44,11 +44,11 @@ function BuildHTMLAttributeNameList() {
         }
       } else {
         // Get information about value filtering
-        let forceOneChar = name.includes("!");
-        let forceInteger = name.includes("#");
-        let forceSignedInteger = name.includes("+");
-        let forceIntOrPercent = name.includes("%");
-        let limitFirstChar = name.includes("^");
+        const forceOneChar = name.includes("!");
+        const forceInteger = name.includes("#");
+        const forceSignedInteger = name.includes("+");
+        const forceIntOrPercent = name.includes("%");
+        const limitFirstChar = name.includes("^");
         // let required = name.includes("$");
 
         // Strip flag characters
@@ -91,7 +91,7 @@ function BuildHTMLAttributeTable() {
   if (nodeMap.length > 0) {
     var added = false;
     for (i = 0; i < nodeMap.length; i++) {
-      let name = nodeMap[i].name.trim().toLowerCase();
+      const name = nodeMap[i].name.trim().toLowerCase();
       if (
         CheckAttributeNameSimilarity(nodeMap[i].nodeName, HTMLAttrs) ||
         name.startsWith("on") ||
@@ -148,7 +148,7 @@ function onSelectHTMLTreeItem() {
 }
 
 function onInputHTMLAttributeName() {
-  let attName = gDialog.AddHTMLAttributeNameInput.value.toLowerCase().trim();
+  const attName = gDialog.AddHTMLAttributeNameInput.value.toLowerCase().trim();
 
   // Clear value widget, but prevent triggering update in tree
   gUpdateTreeValue = false;
@@ -178,7 +178,7 @@ function onInputHTMLAttributeName() {
     if (valueListName in gHTMLAttr) {
       var valueList = gHTMLAttr[valueListName];
 
-      let listLen = valueList.length;
+      const listLen = valueList.length;
       useMenulist = listLen > 1;
       if (listLen == 1) {
         newValue = valueList[0];

@@ -35,14 +35,14 @@ export class VCardTelComponent extends HTMLElement {
     }
     this.hasConnected = true;
 
-    let template = document.getElementById("template-vcard-edit-tel");
-    let clonedTemplate = template.content.cloneNode(true);
+    const template = document.getElementById("template-vcard-edit-tel");
+    const clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
 
     this.inputElement = this.querySelector('input[type="text"]');
-    let urlId = vCardIdGen.next().value;
+    const urlId = vCardIdGen.next().value;
     this.inputElement.id = urlId;
-    let urlLabel = this.querySelector('label[for="text"]');
+    const urlLabel = this.querySelector('label[for="text"]');
     urlLabel.htmlFor = urlId;
     document.l10n.setAttributes(urlLabel, "vcard-tel-label");
     this.inputElement.type = "tel";

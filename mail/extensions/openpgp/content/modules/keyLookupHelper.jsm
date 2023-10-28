@@ -59,13 +59,13 @@ var KeyLookupHelper = {
     let foundUnchanged = false;
     let collectedForLater = false;
 
-    let ksArray = lazy.EnigmailKeyserverURIs.getKeyServers();
+    const ksArray = lazy.EnigmailKeyserverURIs.getKeyServers();
     if (!ksArray.length) {
       return false;
     }
 
     let continueSearching = true;
-    for (let ks of ksArray) {
+    for (const ks of ksArray) {
       let foundKey;
       if (ks.startsWith("vks://")) {
         foundKey = await lazy.EnigmailKeyServer.downloadNoImport(
@@ -80,7 +80,7 @@ var KeyLookupHelper = {
           );
       }
       if (foundKey && "keyData" in foundKey) {
-        let errorInfo = {};
+        const errorInfo = {};
         let keyList = await lazy.EnigmailKey.getKeyListFromKeyBlock(
           foundKey.keyData,
           errorInfo,
@@ -91,7 +91,7 @@ var KeyLookupHelper = {
         // We might get a zero length keyList, if we refuse to use the key
         // that we received because of its properties.
         if (keyList && keyList.length == 1) {
-          let oldKey = lazy.EnigmailKeyRing.getKeyById(keyList[0].fpr);
+          const oldKey = lazy.EnigmailKeyRing.getKeyById(keyList[0].fpr);
           if (oldKey) {
             await lazy.EnigmailKeyRing.importKeyDataSilent(
               window,
@@ -100,7 +100,7 @@ var KeyLookupHelper = {
               "0x" + keyList[0].fpr
             );
 
-            let updatedKey = lazy.EnigmailKeyRing.getKeyById(keyList[0].fpr);
+            const updatedKey = lazy.EnigmailKeyRing.getKeyById(keyList[0].fpr);
             // If new imported/merged key is equal to old key,
             // don't notify about new keys details.
             if (JSON.stringify(oldKey) !== JSON.stringify(updatedKey)) {
@@ -134,10 +134,10 @@ var KeyLookupHelper = {
             }
             if (!keyImported) {
               collectedForLater = true;
-              let db = await lazy.CollectedKeysDB.getInstance();
-              for (let newKey of keyList) {
+              const db = await lazy.CollectedKeysDB.getInstance();
+              for (const newKey of keyList) {
                 // If key is known in the db: merge + update.
-                let key = await db.mergeExisting(newKey, foundKey.keyData, {
+                const key = await db.mergeExisting(newKey, foundKey.keyData, {
                   uri: lazy.EnigmailKeyServer.serverReqURL(
                     `0x${newKey.fpr}`,
                     ks
@@ -186,7 +186,7 @@ var KeyLookupHelper = {
     if (!/^0x/i.test(keyId)) {
       keyId = "0x" + keyId;
     }
-    let importResult = await this._lookupAndImportOnKeyserver(
+    const importResult = await this._lookupAndImportOnKeyserver(
       mode,
       window,
       keyId
@@ -202,7 +202,7 @@ var KeyLookupHelper = {
       } else {
         msgId = "no-key-found2";
       }
-      let value = await lazy.l10n.formatValue(msgId);
+      const value = await lazy.l10n.formatValue(msgId);
       lazy.EnigmailDialog.alert(window, value);
     }
     return importResult.keyImported;
@@ -249,8 +249,8 @@ var KeyLookupHelper = {
     if (!wkdResult) {
       console.debug("searchKeysOnInternet no wkd data for " + email);
     } else {
-      let errorInfo = {};
-      let keyList = await lazy.EnigmailKey.getKeyListFromKeyBlock(
+      const errorInfo = {};
+      const keyList = await lazy.EnigmailKey.getKeyListFromKeyBlock(
         wkdResult,
         errorInfo,
         false,
@@ -263,11 +263,11 @@ var KeyLookupHelper = {
           "failed to process data retrieved from WKD server: " + errorInfo.value
         );
       } else {
-        let existingKeys = [];
+        const existingKeys = [];
         let newKeys = [];
 
-        for (let wkdKey of keyList) {
-          let oldKey = lazy.EnigmailKeyRing.getKeyById(wkdKey.fpr);
+        for (const wkdKey of keyList) {
+          const oldKey = lazy.EnigmailKeyRing.getKeyById(wkdKey.fpr);
           if (oldKey) {
             await lazy.EnigmailKeyRing.importKeyDataSilent(
               window,
@@ -276,7 +276,7 @@ var KeyLookupHelper = {
               "0x" + wkdKey.fpr
             );
 
-            let updatedKey = lazy.EnigmailKeyRing.getKeyById(wkdKey.fpr);
+            const updatedKey = lazy.EnigmailKeyRing.getKeyById(wkdKey.fpr);
             // If new imported/merged key is equal to old key,
             // don't notify about new keys details.
             if (JSON.stringify(oldKey) !== JSON.stringify(updatedKey)) {
@@ -311,10 +311,10 @@ var KeyLookupHelper = {
         if (!wkdKeyImported) {
           // If a caller ever needs information what we found,
           // this is the place to set: wkdCollectedForLater = true
-          let db = await lazy.CollectedKeysDB.getInstance();
-          for (let newKey of newKeys) {
+          const db = await lazy.CollectedKeysDB.getInstance();
+          for (const newKey of newKeys) {
             // If key is known in the db: merge + update.
-            let key = await db.mergeExisting(newKey, newKey.pubKey, {
+            const key = await db.mergeExisting(newKey, newKey.pubKey, {
               uri: wkdUrl,
               type: "wkd",
             });
@@ -324,7 +324,7 @@ var KeyLookupHelper = {
       }
     }
 
-    let { keyImported, foundUnchanged } =
+    const { keyImported, foundUnchanged } =
       await this._lookupAndImportOnKeyserver(mode, window, email);
     resultKeyImported = wkdKeyImported || keyImported;
 
@@ -340,7 +340,7 @@ var KeyLookupHelper = {
       } else {
         msgId = "no-key-found2";
       }
-      let value = await lazy.l10n.formatValue(msgId);
+      const value = await lazy.l10n.formatValue(msgId);
       lazy.EnigmailDialog.alert(window, value);
     }
 
@@ -365,15 +365,20 @@ var KeyLookupHelper = {
     // (A revoked key on the keyserver might have no user ID.)
     let atLeastoneImport = false;
     if (keyIds) {
-      for (let keyId of keyIds) {
+      for (const keyId of keyIds) {
         // Ensure the function call goes first in the logic or expression,
         // to ensure it's always called, even if atLeastoneImport is already true.
-        let rv = await this.lookupAndImportByKeyID(mode, window, keyId, false);
+        const rv = await this.lookupAndImportByKeyID(
+          mode,
+          window,
+          keyId,
+          false
+        );
         atLeastoneImport = rv || atLeastoneImport;
       }
     }
     // Now check for updated or new keys by email address
-    let rv2 = await this.lookupAndImportByEmail(mode, window, email, false);
+    const rv2 = await this.lookupAndImportByEmail(mode, window, email, false);
     atLeastoneImport = rv2 || atLeastoneImport;
     return atLeastoneImport;
   },

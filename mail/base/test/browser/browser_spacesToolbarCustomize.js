@@ -26,8 +26,8 @@ registerCleanupFunction(async () => {
 
 async function sub_test_open_customize_panel() {
   // Open the panel.
-  let menu = document.getElementById("spacesToolbarContextMenu");
-  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  const menu = document.getElementById("spacesToolbarContextMenu");
+  const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     document.getElementById("spacesToolbar"),
     { type: "contextmenu" },
@@ -35,15 +35,15 @@ async function sub_test_open_customize_panel() {
   );
   await shownPromise;
 
-  let panel = document.getElementById("spacesToolbarCustomizationPanel");
-  let panelShownPromise = BrowserTestUtils.waitForEvent(panel, "popupshown");
+  const panel = document.getElementById("spacesToolbarCustomizationPanel");
+  const panelShownPromise = BrowserTestUtils.waitForEvent(panel, "popupshown");
   menu.activateItem(document.getElementById("spacesToolbarContextCustomize"));
   await panelShownPromise;
 }
 
 function sub_test_apply_colors_to_inputs() {
-  for (let key in INPUTS) {
-    let input = document.getElementById(`${key}`);
+  for (const key in INPUTS) {
+    const input = document.getElementById(`${key}`);
     input.value = INPUTS[key];
     // We need to force dispatch the onchange event otherwise the listener won't
     // fire since we're programmatically changing the color value.
@@ -58,7 +58,7 @@ function sub_test_apply_colors_to_inputs() {
  * @param {boolean} empty - If the style properties should be empty or filled.
  */
 function sub_test_check_for_style_properties(empty) {
-  let style = document.documentElement.style;
+  const style = document.documentElement.style;
   if (empty) {
     Assert.equal(style.getPropertyValue("--spaces-bg-color"), "");
     Assert.equal(style.getPropertyValue("--spaces-button-text-color"), "");
