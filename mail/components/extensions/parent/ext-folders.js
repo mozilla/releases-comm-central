@@ -921,11 +921,43 @@ this.folders = class extends ExtensionAPIPersistent {
         async getFolderInfo({ accountId, path }) {
           const { folder } = getFolder({ accountId, path });
 
+          // Support quota names containing "STORAGE" or "MESSAGE", which are
+          // defined in RFC2087. Excluding unusual quota names containing items
+          // like "MAILBOX" and "LEVEL".
+          let folderQuota = [];
+          if (folder.getQuota) {
+            folderQuota = folder
+              .getQuota()
+              .map(quota => {
+                const name = quota.name.toUpperCase();
+                const type = ["STORAGE", "MESSAGE"].find(x => name.includes(x));
+                switch (type) {
+                  case "STORAGE":
+                    return {
+                      type,
+                      limit: quota.limit * 1024,
+                      used: quota.usage * 1024,
+                      unused: (quota.limit - quota.usage) * 1024,
+                    };
+                  case "MESSAGE":
+                    return {
+                      type,
+                      limit: quota.limit,
+                      used: quota.usage,
+                      unused: quota.limit - quota.usage,
+                    };
+                }
+                return null;
+              })
+              .filter(quota => !!quota);
+          }
+
           const mailFolderInfo = {
             favorite: folder.getFlag(Ci.nsMsgFolderFlags.Favorite),
             totalMessageCount: folder.getTotalMessages(false),
             unreadMessageCount: folder.getNumUnread(false),
             newMessageCount: folder.msgDatabase.getNewList().length,
+            quota: folderQuota.length > 0 ? folderQuota : null,
             canAddMessages: !!folder.canFileMessages,
             canAddSubfolders: !!folder.canCreateSubfolders,
             canBeDeleted: !!folder.deletable,

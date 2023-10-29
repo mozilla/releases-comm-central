@@ -102,6 +102,14 @@
             "optional": true,
             "description": "Date the folder was last used (precision: seconds)."
           },
+          "quota": {
+            "type": "array",
+            "items": {
+              "$ref": "MailFolderQuota"
+            },
+            "optional": true,
+            "description": "Quota information, if available."
+          },
           "newMessageCount": {
             "type": "integer",
             "optional": true,
@@ -133,6 +141,30 @@
           "junk",
           "outbox"
         ]
+      },
+      {
+        "id": "MailFolderQuota",
+        "type": "object",
+        "description": "An object containing quota information.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["STORAGE", "MESSAGE"],
+            "description": "The type of the quota as defined by RFC2087. A <value>STORAGE</value> quota is constraining the available storage in bytes, a <value>MESSAGE</value> quota is constraining the number of storable messages."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "The maximum available quota."
+          },
+          "used": {
+            "type": "integer",
+            "description": "The currently used quota."
+          },
+          "unused": {
+            "type": "integer",
+            "description": "The currently unused quota."
+          }
+        }
       },
       {
         "id": "QueryRange",
