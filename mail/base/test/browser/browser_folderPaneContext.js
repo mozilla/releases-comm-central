@@ -20,7 +20,7 @@ const folderPaneContextData = {
   "folderPaneContext-remove": ["plain", "junk", "virtual", "rssFeed"],
   "folderPaneContext-rename": ["plain", "junk", "virtual", "rssFeed"],
   "folderPaneContext-compact": [...servers, ...realFolders],
-  "folderPaneContext-markMailFolderAllRead": [...realFolders],
+  "folderPaneContext-markMailFolderAllRead": [...realFolders, "virtual"],
   "folderPaneContext-markNewsgroupAllRead": [],
   "folderPaneContext-emptyTrash": ["trash"],
   "folderPaneContext-emptyJunk": ["junk"],

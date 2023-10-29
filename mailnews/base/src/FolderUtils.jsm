@@ -18,6 +18,7 @@ var FolderUtils = {
   getSpecialFolderString,
   canRenameDeleteJunkMail,
   isSmartTagsFolder,
+  isSmartVirtualFolder,
 };
 
 const { MailServices } = ChromeUtils.import(
@@ -312,6 +313,20 @@ function getFolderIcon(folder) {
   }
 
   return `chrome://messenger/skin/icons/new/compact/${iconName}`;
+}
+
+/**
+ * Checks if `folder` is a virtual folder for the Unified Folders pane mode.
+ *
+ * @param {nsIMsgFolder} folder
+ * @returns {boolean}
+ */
+function isSmartVirtualFolder(folder) {
+  return (
+    folder.isSpecialFolder(Ci.nsMsgFolderFlags.Virtual) &&
+    folder.server.hostName == "smart mailboxes" &&
+    folder.parent?.isServer
+  );
 }
 
 /**
