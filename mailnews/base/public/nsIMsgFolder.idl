@@ -53,6 +53,7 @@ interface nsIMsgFolder : nsISupports {
   attribute AString name;
   attribute AString prettyName;
   readonly attribute AString abbreviatedName;
+  readonly attribute AString prettyPath;
 
   /**
    * Set pretty name again from original name,

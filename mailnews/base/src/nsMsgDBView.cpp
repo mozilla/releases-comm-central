@@ -1968,7 +1968,7 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         nsCOMPtr<nsIMsgFolder> folder;
         nsresult rv = GetFolderForViewIndex(aRow, getter_AddRefs(folder));
         NS_ENSURE_SUCCESS(rv, rv);
-        folder->GetPrettyName(aValue);
+        folder->GetPrettyPath(aValue);
       }
       break;
     }

@@ -3216,6 +3216,27 @@ NS_IMETHODIMP nsMsgDBFolder::GetPrettyName(nsAString& name) {
   return GetName(name);
 }
 
+NS_IMETHODIMP nsMsgDBFolder::GetPrettyPath(nsAString& aPath) {
+  nsresult rv;
+  if (mIsServer) {
+    aPath.Truncate();
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIMsgFolder> parent = do_QueryReferent(mParent);
+  if (parent) {
+    parent->GetPrettyPath(aPath);
+    if (!aPath.IsEmpty()) {
+      aPath.AppendLiteral("/");
+    }
+  }
+  nsString name;
+  rv = GetPrettyName(name);
+  NS_ENSURE_SUCCESS(rv, rv);
+  aPath.Append(name);
+  return NS_OK;
+}
+
 static bool nonEnglishApp() {
   if (nsMsgDBFolder::gIsEnglishApp == -1) {
     nsAutoCString locale;

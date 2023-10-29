@@ -175,7 +175,7 @@ nsresult nsMsgSearchDBView::FetchLocation(int32_t aRow,
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = GetFolderForViewIndex(aRow, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
-  return folder->GetPrettyName(aLocationString);
+  return folder->GetPrettyPath(aLocationString);
 }
 
 nsresult nsMsgSearchDBView::OnNewHeader(nsIMsgDBHdr* newHdr,

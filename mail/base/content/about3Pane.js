@@ -6246,6 +6246,16 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           continue;
         }
 
+        if (column.id == "locationCol") {
+          const prettyPath = cellTexts[textIndex].split("/");
+          cell.textContent = Array.isArray(prettyPath)
+            ? prettyPath.at(-1)
+            : cellTexts[textIndex];
+          cell.title = cellTexts[textIndex];
+          ariaLabelPromises.push(cellTexts[textIndex]);
+          continue;
+        }
+
         if (textIndex >= 0) {
           if (isDummyRow) {
             cell.textContent = "";
