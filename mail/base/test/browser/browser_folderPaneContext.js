@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+const { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+const { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
 
 const servers = ["server", "rssRoot"];
 const realFolders = ["plain", "inbox", "junk", "trash", "rssFeed"];
@@ -34,6 +37,7 @@ const folderPaneContextData = {
   "folderPaneContext-copyMenu": ["plain", "rssFeed"],
 };
 
+const generator = new MessageGenerator();
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
 const context = about3Pane.document.getElementById("folderPaneContext");
@@ -41,6 +45,7 @@ let account;
 let rootFolder,
   plainFolder,
   inboxFolder,
+  inboxSubfolder,
   junkFolder,
   trashFolder,
   virtualFolder;
@@ -60,15 +65,28 @@ add_setup(async function () {
     Ci.nsIMsgLocalMailFolder
   );
 
-  plainFolder = rootFolder.createLocalSubfolder("folderPaneContextFolder");
-  inboxFolder = rootFolder.createLocalSubfolder("folderPaneContextInbox");
+  plainFolder = rootFolder
+    .createLocalSubfolder("folderPaneContextFolder")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  inboxFolder = rootFolder
+    .createLocalSubfolder("folderPaneContextInbox")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
   inboxFolder.setFlag(Ci.nsMsgFolderFlags.Inbox);
-  junkFolder = rootFolder.createLocalSubfolder("folderPaneContextJunk");
+  inboxSubfolder = inboxFolder
+    .createLocalSubfolder("folderPaneContextInboxSubfolder")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  junkFolder = rootFolder
+    .createLocalSubfolder("folderPaneContextJunk")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
   junkFolder.setFlag(Ci.nsMsgFolderFlags.Junk);
-  trashFolder = rootFolder.createLocalSubfolder("folderPaneContextTrash");
+  trashFolder = rootFolder
+    .createLocalSubfolder("folderPaneContextTrash")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
   trashFolder.setFlag(Ci.nsMsgFolderFlags.Trash);
 
-  virtualFolder = rootFolder.createLocalSubfolder("folderPaneContextVirtual");
+  virtualFolder = rootFolder
+    .createLocalSubfolder("folderPaneContextVirtual")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
   virtualFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
   const msgDatabase = virtualFolder.msgDatabase;
   const folderInfo = msgDatabase.dBFolderInfo;
@@ -462,6 +480,125 @@ add_task(async function testPropertiesSettings() {
     "account should be selected"
   );
   tabmail.closeTab(tabInfo);
+});
+
+/**
+ * Tests "Mark Folder Read" and "Mark All Folders Read".
+ */
+add_task(async function testMarkAllRead() {
+  about3Pane.folderPane.activeModes = ["all", "smart", "tags"];
+
+  function addMessages(folder, count) {
+    folder.addMessageBatch(
+      generator.makeMessages({ count }).map(message => message.toMboxString())
+    );
+  }
+
+  function checkUnreadCount(folder, expectedCount) {
+    info(`Checking unread count for ${folder.URI}`);
+    const unreadBadge = about3Pane.folderPane
+      .getRowForFolder(folder)
+      .querySelector(".unread-count");
+    Assert.equal(
+      folder.getNumUnread(false),
+      expectedCount,
+      `${folder.name} unread count`
+    );
+    if (expectedCount) {
+      Assert.ok(
+        BrowserTestUtils.is_visible(unreadBadge),
+        "unread count badge should be visible"
+      );
+      Assert.equal(
+        unreadBadge.textContent,
+        expectedCount,
+        "unread count badge label"
+      );
+    } else {
+      Assert.ok(
+        BrowserTestUtils.is_hidden(unreadBadge),
+        "unread count badge should be hidden"
+      );
+    }
+  }
+
+  addMessages(inboxFolder, 3);
+  addMessages(inboxSubfolder, 7);
+  addMessages(plainFolder, 4);
+
+  // Mark the inbox as read.
+
+  checkUnreadCount(inboxFolder, 3);
+  checkUnreadCount(inboxSubfolder, 7);
+  await rightClickAndActivate(
+    inboxFolder,
+    "folderPaneContext-markMailFolderAllRead"
+  );
+  checkUnreadCount(inboxFolder, 0);
+  // Check the other folders were not marked as read.
+  checkUnreadCount(inboxSubfolder, 7);
+  checkUnreadCount(plainFolder, 4);
+
+  // Mark a virtual folder as read.
+
+  checkUnreadCount(virtualFolder, 4);
+  await rightClickAndActivate(
+    virtualFolder,
+    "folderPaneContext-markMailFolderAllRead"
+  );
+  checkUnreadCount(virtualFolder, 0);
+  checkUnreadCount(plainFolder, 0);
+
+  // Mark all folders in the account as read.
+
+  addMessages(inboxSubfolder, 1);
+  addMessages(plainFolder, 5);
+
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  await rightClickAndActivate(
+    rootFolder,
+    "folderPaneContext-markAllFoldersRead"
+  );
+  await promptPromise;
+  checkUnreadCount(inboxFolder, 0);
+  checkUnreadCount(inboxSubfolder, 0);
+  checkUnreadCount(plainFolder, 0);
+
+  // Mark an RSS feed as read.
+
+  checkUnreadCount(rssFeedFolder, 1);
+  await rightClickAndActivate(
+    rssFeedFolder,
+    "folderPaneContext-markMailFolderAllRead"
+  );
+  checkUnreadCount(rssFeedFolder, 0);
+
+  // TODO: same, but for NNTP.
+
+  // Mark the unified inbox as read.
+
+  const smartServer = MailServices.accounts.findServer(
+    "nobody",
+    "smart mailboxes",
+    "none"
+  );
+  const smartInboxFolder = smartServer.rootFolder.getFolderWithFlags(
+    Ci.nsMsgFolderFlags.Inbox
+  );
+  addMessages(inboxFolder, 9);
+  addMessages(inboxSubfolder, 6);
+  addMessages(plainFolder, 2);
+  await TestUtils.waitForTick();
+
+  checkUnreadCount(smartInboxFolder, 15);
+  await rightClickAndActivate(
+    smartInboxFolder,
+    "folderPaneContext-markMailFolderAllRead"
+  );
+  checkUnreadCount(smartInboxFolder, 0);
+  checkUnreadCount(inboxFolder, 0);
+  checkUnreadCount(inboxSubfolder, 0);
+  checkUnreadCount(plainFolder, 2);
 });
 
 function leftClickOn(folder) {
