@@ -344,14 +344,6 @@ const PanelUI = {
       case "appMenu-foldersView":
         this._onFoldersViewShow(event);
         break;
-      case "appMenu-addonsView":
-        initAddonPrefsMenu(
-          event.target.querySelector(".panel-subview-body"),
-          "toolbarbutton",
-          "subviewbutton subviewbutton-iconic",
-          "subviewbutton subviewbutton-iconic"
-        );
-        break;
       case "appMenu-toolbarsView":
         onViewToolbarsPopupShowing(
           event,
