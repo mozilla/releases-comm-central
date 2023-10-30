@@ -982,7 +982,7 @@ var dbViewWrapperListener = {
     // one) until we have all of the messages.
     window.threadPane.restoreSelection(all);
 
-    if (all) {
+    if (all || gViewWrapper.search.hasSearchTerms) {
       let newMessageFound = false;
       if (window.threadPane.scrollToNewMessage) {
         try {
@@ -999,10 +999,10 @@ var dbViewWrapperListener = {
         }
         window.threadPane.scrollToNewMessage = false;
       }
+      window.threadTree.reset();
       if (!newMessageFound && !window.threadPane.scrollDetected) {
         window.threadPane.scrollToLatestRowIfNoSelection();
       }
-      window.threadTree.reset();
     }
     window.quickFilterBar?.onMessagesChanged();
   },
