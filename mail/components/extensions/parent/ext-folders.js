@@ -604,7 +604,7 @@ this.folders = class extends ExtensionAPIPersistent {
             try {
               nameRegExp = new RegExp(
                 queryInfo.name.regexp,
-                queryInfo.name.flags
+                queryInfo.name.flags || undefined
               );
             } catch (ex) {
               throw new ExtensionError(

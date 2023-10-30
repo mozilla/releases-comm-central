@@ -182,6 +182,22 @@
             "description": "The maximum value required to match the query."
           }
         }
+      },
+      {
+        "id": "RegularExpression",
+        "type": "object",
+        "properties": {
+          "regexp": {
+            "type": "string",
+            "description": "A regular expression, for example <value>^Projects \\d{4}$</value>"
+          },
+          "flags": {
+            "type": "string",
+            "pattern": "^(i|u|v|iu|iv|ui|vi)$",
+            "description": "Supported RegExp flags: <value>i</value> = case insensitive, and/or one of <value>u</value> = unicode support or <value>v</value> = extended unicode support",
+            "optional": true
+          }
+        }
       }
     ],
     "functions": [
@@ -283,19 +299,7 @@
               "name": {
                 "choices": [
                   {
-                    "type": "object",
-                    "properties": {
-                      "regexp": {
-                        "type": "string",
-                        "description": "A regular expression, for example <value>^Projects \\d{4}$</value>"
-                      },
-                      "flags": {
-                        "type": "string",
-                        "enum": ["i", "u", "v"],
-                        "description": "RegExp Flags: <value>i</value> = case insensitive, <value>u</value> & <value>v</value> = unicode support",
-                        "optional": true
-                      }
-                    }
+                    "$ref": "RegularExpression"
                   },
                   {
                     "type": "string"
