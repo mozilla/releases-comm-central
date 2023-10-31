@@ -1062,7 +1062,13 @@ class Tab extends TabBase {
     const result = super.matches(queryInfo, context);
 
     const type = queryInfo.mailTab ? "mail" : queryInfo.type;
-    if (result && type && this.type != type) {
+    let types = [];
+    if (Array.isArray(type)) {
+      types = type;
+    } else if (type) {
+      types.push(type);
+    }
+    if (result && types.length > 0 && !types.includes(this.type)) {
       return false;
     }
 

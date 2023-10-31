@@ -39,7 +39,7 @@ add_task(async function testQuery() {
         browser.test.assertEq(
           contentTab.id,
           tabs[0].id,
-          "Id of content tab is correct"
+          "Id of content tab should be correct"
         );
 
         // Query for the mail tab using spaceId.
@@ -48,7 +48,7 @@ add_task(async function testQuery() {
         browser.test.assertEq(
           mailTab.id,
           tabs[0].id,
-          "Id of mail tab is correct"
+          "Id of mail tab should be correct"
         );
 
         // Query for the mail tab using type.
@@ -57,7 +57,32 @@ add_task(async function testQuery() {
         browser.test.assertEq(
           mailTab.id,
           tabs[0].id,
-          "Id of mail tab is correct"
+          "Id of mail tab should be correct"
+        );
+
+        // Query for the mail tab using type array.
+        tabs = await browser.tabs.query({ type: ["mail"] });
+        browser.test.assertEq(1, tabs.length, "Found one mail tab");
+        browser.test.assertEq(
+          mailTab.id,
+          tabs[0].id,
+          "Id of mail tab should be correct"
+        );
+
+        // Query for the mail tab and the content tab using type array.
+        tabs = await browser.tabs.query({ type: ["mail", "content"] });
+        browser.test.assertEq(2, tabs.length, "Found two matching tabs");
+        const foundMailTab = tabs.find(tab => tab.type == "mail");
+        const foundContentTab = tabs.find(tab => tab.type == "content");
+        browser.test.assertEq(
+          mailTab.id,
+          foundMailTab.id,
+          "Id of mail tab should be correct"
+        );
+        browser.test.assertEq(
+          contentTab.id,
+          foundContentTab.id,
+          "Id of content tab should be correct"
         );
 
         // Query for the mail tab using mailTab.
@@ -66,7 +91,7 @@ add_task(async function testQuery() {
         browser.test.assertEq(
           mailTab.id,
           tabs[0].id,
-          "Id of mail tab is correct"
+          "Id of mail tab should be correct"
         );
 
         // Query for the content tab but also using mailTab.
@@ -75,7 +100,7 @@ add_task(async function testQuery() {
         browser.test.assertEq(
           mailTab.id,
           tabs[0].id,
-          "Id of mail tab is correct"
+          "Id of mail tab should be correct"
         );
 
         // Query for active tab.
@@ -84,7 +109,7 @@ add_task(async function testQuery() {
         browser.test.assertEq(
           contentTab.id,
           tabs[0].id,
-          "Id of mail tab is correct"
+          "Id of mail tab should be correct"
         );
 
         // Query for highlighted tab.
@@ -93,7 +118,7 @@ add_task(async function testQuery() {
         browser.test.assertEq(
           contentTab.id,
           tabs[0].id,
-          "Id of mail tab is correct"
+          "Id of mail tab should be correct"
         );
 
         await browser.tabs.remove(contentTab.id);

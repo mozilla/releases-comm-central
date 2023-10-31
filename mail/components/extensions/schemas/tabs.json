@@ -103,20 +103,7 @@
             "description": "The `CookieStore <|link-cookieStore|>`__ id used by the tab. Either a custom id created using the `contextualIdentities API <|link-contextualIdentity|>`__, or a built-in one: <value>firefox-default</value>, <value>firefox-container-1</value>, <value>firefox-container-2</value>, <value>firefox-container-3</value>, <value>firefox-container-4</value>, <value>firefox-container-5</value>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
           },
           "type": {
-            "type": "string",
-            "enum": [
-              "addressBook",
-              "calendar",
-              "calendarEvent",
-              "calendarTask",
-              "chat",
-              "content",
-              "mail",
-              "messageCompose",
-              "messageDisplay",
-              "special",
-              "tasks"
-            ],
+            "$ref": "TabType",
             "optional": true
           },
           "mailTab": {
@@ -137,6 +124,24 @@
         "type": "string",
         "enum": ["loading", "complete"],
         "description": "Whether the tabs have completed loading."
+      },
+      {
+        "id": "TabType",
+        "type": "string",
+        "enum": [
+          "addressBook",
+          "calendar",
+          "calendarEvent",
+          "calendarTask",
+          "chat",
+          "content",
+          "mail",
+          "messageCompose",
+          "messageDisplay",
+          "special",
+          "tasks"
+        ],
+        "description": "Tab types supported by the tabs API."
       },
       {
         "id": "WindowType",
@@ -430,9 +435,19 @@
                 "optional": true
               },
               "type": {
-                "type": "string",
+                "choices": [
+                  {
+                    "$ref": "TabType"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "TabType"
+                    }
+                  }
+                ],
                 "optional": true,
-                "description": "Match tabs against the given Tab.type (see :ref:`tabs.Tab`). Ignored if ``queryInfo.mailTab`` is specified."
+                "description": "Match tabs against the given tab type or types. Ignored if ``queryInfo.mailTab`` is specified."
               },
               "active": {
                 "type": "boolean",
