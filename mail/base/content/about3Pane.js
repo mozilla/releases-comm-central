@@ -6375,6 +6375,14 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.dateLine.textContent = cellTexts[2];
       this.tagIcon.title = cellTexts[3];
 
+      const matchesTags = [];
+      for (let tag of MailServices.tags.getAllTags()) {
+        if (cellTexts[3].includes(tag.tag)) {
+          matchesTags.push(tag.tag.toString());
+        }
+      }
+      this.tagIcon.title = matchesTags.join(", ");
+
       // Follow the layout order.
       ariaLabelPromises.push(cellTexts[1]);
       ariaLabelPromises.push(cellTexts[2]);
