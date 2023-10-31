@@ -139,6 +139,18 @@ add_task(async function test_query() {
         "attachment: False"
       );
 
+      // Test attachment query: Range.
+      const { messages: searchAttachmentRange } = await browser.messages.query({
+        attachment: { min: 1, max: 2 },
+        includeSubFolders: true,
+        autoPaginationTimeout: 0,
+      });
+      browser.test.assertEq(
+        1,
+        searchAttachmentRange.length,
+        "attachment: Range"
+      );
+
       // Test attachment query: True.
       const { messages: searchAttachmentTrue } = await browser.messages.query({
         attachment: true,

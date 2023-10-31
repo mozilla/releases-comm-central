@@ -212,7 +212,7 @@
           "attachVCard": {
             "type": "boolean",
             "optional": true,
-            "description": "Wether or not the vCard of the used identity will be attached to the message during send. Note: If the value has not been modified, selecting a different identity will load the default value of the new identity."
+            "description": "Whether or not the vCard of the used identity will be attached to the message during send. Note: If the value has not been modified, selecting a different identity will load the default value of the new identity."
           },
           "attachments": {
             "type": "array",

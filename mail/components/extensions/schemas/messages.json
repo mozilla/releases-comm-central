@@ -289,6 +289,23 @@
             "description": "A MessageHeader, if this attachment is a message."
           }
         }
+      },
+      {
+        "id": "QueryRange",
+        "type": "object",
+        "description": "An object defining a range.",
+        "properties": {
+          "min": {
+            "type": "integer",
+            "optional": true,
+            "description": "The minimum value required to match the query."
+          },
+          "max": {
+            "type": "integer",
+            "optional": true,
+            "description": "The maximum value required to match the query."
+          }
+        }
       }
     ],
     "events": [
@@ -613,9 +630,16 @@
             "default": {},
             "properties": {
               "attachment": {
-                "type": "boolean",
+                "choices": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "$ref": "QueryRange"
+                  }
+                ],
                 "optional": true,
-                "description": "If specified, returns only messages with or without attachments."
+                "description": "Whether the message has attachments, or not. Supports to specify a :ref:`messages.QueryRange` (min/max) instead of a simple boolean value (none/some)."
               },
               "author": {
                 "type": "string",

@@ -1551,7 +1551,20 @@ export class MessageQuery {
         msgHdr,
         true // includeNestedAttachments
       );
-      return !!attachments.length == this.queryInfo.attachment;
+      if (typeof this.queryInfo.attachment == "boolean") {
+        if (this.queryInfo.attachment != (attachments.length != 0)) {
+          return false;
+        }
+      } else {
+        // If not a boolean, it is an object with min and max members.
+        const attRange = this.queryInfo.attachment;
+        if (attRange.min != null && attachments.length < attRange.min) {
+          return false;
+        }
+        if (attRange.max != null && attachments.length > attRange.max) {
+          return false;
+        }
+      }
     }
 
     return true;
