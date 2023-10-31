@@ -6376,7 +6376,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.tagIcon.title = cellTexts[3];
 
       const matchesTags = [];
-      for (let tag of MailServices.tags.getAllTags()) {
+      for (const tag of MailServices.tags.getAllTags()) {
         if (cellTexts[3].includes(tag.tag)) {
           matchesTags.push(tag.tag.toString());
         }
