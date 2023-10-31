@@ -1709,6 +1709,9 @@ nsMsgAccountManager::GetAccount(const nsACString& aKey,
   NS_ENSURE_ARG_POINTER(aAccount);
   *aAccount = nullptr;
 
+  nsresult rv = LoadAccounts();
+  NS_ENSURE_SUCCESS(rv, rv);
+
   for (uint32_t i = 0; i < m_accounts.Length(); ++i) {
     nsCOMPtr<nsIMsgAccount> account(m_accounts[i]);
     nsCString key;
