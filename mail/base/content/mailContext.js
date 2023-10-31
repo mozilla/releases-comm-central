@@ -183,7 +183,7 @@ var mailContextMenu = {
     }
     if (this._selectionIsOverridden) {
       window.threadTree._selection.selectEventsSuppressed = true;
-      window.threadPane.restoreSelection(undefined, false);
+      window.threadPane.restoreSelection({ notify: false });
       this._selectionIsOverridden = false;
       window.threadTree.invalidate();
     }

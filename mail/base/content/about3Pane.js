@@ -2544,7 +2544,6 @@ var folderPane = {
         !gViewWrapper?.showThreaded && !gViewWrapper?.showGroupedBySort
       );
       threadPane.restoreSortIndicator();
-      threadPane.restoreSelection();
       threadPaneHeader.onFolderSelected();
     }
 
@@ -4530,7 +4529,7 @@ var threadPane = {
    */
   releaseSelection() {
     threadTree._selection.selectEventsSuppressed = true;
-    this.restoreSelection(undefined, false);
+    this.restoreSelection({ notify: false });
     threadTree._selection.selectEventsSuppressed = false;
   },
 
@@ -4973,10 +4972,17 @@ var threadPane = {
    * Store the current thread tree selection.
    */
   saveSelection() {
-    if (gFolder && gDBView) {
+    // Identifying messages by key doesn't reliably work on on cross-folder views since
+    // the msgKey may not be unique.
+    if (gFolder && gDBView && !gViewWrapper?.isMultiFolder) {
       this._savedSelections.set(gFolder.URI, {
         currentKey: gDBView.getKeyAt(threadTree.currentIndex),
-        selectedKeys: threadTree.selectedIndices.map(gDBView.getKeyAt),
+        // In views which are "grouped by sort", getting the key for collapsed dummy rows
+        // returns the key of the first group member, so we would restore something that
+        // wasn't selected. So filter them out.
+        selectedKeys: threadTree.selectedIndices
+          .filter(i => !gViewWrapper.isGroupedByHeaderAtIndex(i))
+          .map(gDBView.getKeyAt),
       });
     }
   },
@@ -4994,12 +5000,15 @@ var threadPane = {
   /**
    * Restore the previously saved thread tree selection.
    *
-   * @param {boolean} [discard=true] - If false, the selection data should be
-   *   kept after restoring the selection, otherwise it is forgotten.
+   * @param {boolean} [discard=true] - If false, the selection data is kept for
+   *   another call of this function, unless all selections could already be
+   *   restored in this run.
    * @param {boolean} [notify=true] - Whether a change in "select" event
    *   should be fired.
+   * @param {boolean} [expand=true] - Try to expand threads containing selected
+   *   messages.
    */
-  restoreSelection(discard = true, notify = true) {
+  restoreSelection({ discard = true, notify = true, expand = true } = {}) {
     if (!this._savedSelections.has(gFolder?.URI) || !threadTree.view) {
       return;
     }
@@ -5008,19 +5017,33 @@ var threadPane = {
     let currentIndex = nsMsgViewIndex_None;
     const indices = new Set();
     for (const key of selectedKeys) {
-      let index = gDBView.findIndexFromKey(key, false);
-      if (index != nsMsgViewIndex_None) {
+      let index = gDBView.findIndexFromKey(key, expand);
+      // While the first message in a collapsed group returns the index of the
+      // dummy row, other messages return none. To be consistent, we don't
+      // select the dummy row in any case.
+      if (
+        index != nsMsgViewIndex_None &&
+        !gViewWrapper.isGroupedByHeaderAtIndex(index)
+      ) {
         indices.add(index);
         if (key == currentKey) {
           currentIndex = index;
         }
         continue;
       }
-
+      // Since it does not seem to be possible to reliably find the dummy row
+      // for a message in a group, we continue.
+      if (gViewWrapper.showGroupedBySort) {
+        continue;
+      }
       // The message for this key can't be found. Perhaps the thread it's in
       // has been collapsed? Select the root message in that case.
       try {
-        const msgHdr = gFolder.GetMessageHeader(key);
+        const folder =
+          gViewWrapper.isVirtual && gViewWrapper.isSingleFolder
+            ? gViewWrapper._underlyingFolders[0]
+            : gFolder;
+        const msgHdr = folder.GetMessageHeader(key);
         const thread = gDBView.getThreadContainingMsgHdr(msgHdr);
         const rootMsgHdr = thread.getRootHdr();
         index = gDBView.findIndexOfMsgHdr(rootMsgHdr, false);
@@ -5037,12 +5060,13 @@ var threadPane = {
     threadTree.setSelectedIndices(indices.values(), !notify);
 
     if (currentIndex != nsMsgViewIndex_None) {
-      // Do an instant scroll before setting the index to avoid animation.
-      threadTree.scrollToIndex(currentIndex, true);
+      threadTree.style.scrollBehavior = "auto"; // Avoid smooth scroll.
       threadTree.currentIndex = currentIndex;
+      threadTree.style.scrollBehavior = null;
     }
 
-    if (discard) {
+    // If all selections have already been restored, discard them as well.
+    if (discard || gDBView.selection.count == selectedKeys.length) {
       this._savedSelections.delete(gFolder.URI);
     }
   },
@@ -5062,6 +5086,24 @@ var threadPane = {
       threadTree.scrollToIndex(gDBView.rowCount - 1, true);
     } else {
       threadTree.scrollToIndex(0, true);
+    }
+  },
+
+  /**
+   * Re-collapse threads expanded by nsMsgQuickSearchDBView if necessary.
+   */
+  ensureThreadStateForQuickSearchView() {
+    // nsMsgQuickSearchDBView::SortThreads leaves all threads expanded in any
+    // case.
+    if (
+      gViewWrapper.isSingleFolder &&
+      gViewWrapper.search.hasSearchTerms &&
+      gViewWrapper.showThreaded &&
+      !gViewWrapper._threadExpandAll
+    ) {
+      window.threadPane.saveSelection();
+      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+      window.threadPane.restoreSelection();
     }
   },
 
@@ -6710,6 +6752,8 @@ var sortController = {
       }
       // Restore Grouped By selection post sort direction change.
       threadPane.restoreSelection();
+      // Refresh dummy rows in case of collapseAll.
+      threadTree.invalidate();
     }
     threadPane.restoreThreadState();
   },
@@ -6744,6 +6788,7 @@ var sortController = {
 
     threadTree.style.scrollBehavior = "auto"; // Avoid smooth scroll.
     gViewWrapper.sortAscending();
+    threadPane.ensureThreadStateForQuickSearchView();
     threadTree.style.scrollBehavior = null;
   },
   sortDescending() {
@@ -6756,6 +6801,7 @@ var sortController = {
 
     threadTree.style.scrollBehavior = "auto"; // Avoid smooth scroll.
     gViewWrapper.sortDescending();
+    threadPane.ensureThreadStateForQuickSearchView();
     threadTree.style.scrollBehavior = null;
   },
   convertSortTypeToColumnID(sortKey) {
@@ -6860,6 +6906,7 @@ commandController.registerCallback(
   () => {
     threadPane.saveSelection();
     gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.expandAll);
+    gViewWrapper._threadExpandAll = true;
     threadPane.restoreSelection();
   },
   () => !!gViewWrapper?.dbView
@@ -6869,7 +6916,8 @@ commandController.registerCallback(
   () => {
     threadPane.saveSelection();
     gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
-    threadPane.restoreSelection();
+    gViewWrapper._threadExpandAll = false;
+    threadPane.restoreSelection({ expand: false });
   },
   () => !!gViewWrapper?.dbView
 );

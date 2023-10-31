@@ -948,6 +948,7 @@ var dbViewWrapperListener = {
   onCreatedView() {
     if (window.threadTree) {
       window.threadPane.setTreeView(gViewWrapper.dbView);
+      window.threadPane.restoreThreadState();
       window.threadPane.isFirstScroll = true;
       window.threadPane.scrollDetected = false;
       window.threadPane.scrollToLatestRowIfNoSelection();
@@ -979,10 +980,12 @@ var dbViewWrapperListener = {
       return;
     }
     // Try to restore what was selected. Keep the saved selection (if there is
-    // one) until we have all of the messages.
-    window.threadPane.restoreSelection(all);
+    // one) until we have all of the messages. This will also reveal selected
+    // messages in collapsed threads.
+    window.threadPane.restoreSelection({ discard: all });
 
     if (all || gViewWrapper.search.hasSearchTerms) {
+      window.threadPane.ensureThreadStateForQuickSearchView();
       let newMessageFound = false;
       if (window.threadPane.scrollToNewMessage) {
         try {
