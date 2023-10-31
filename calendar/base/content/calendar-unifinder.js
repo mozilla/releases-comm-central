@@ -84,7 +84,7 @@ async function prepareCalendarUnifinder() {
  */
 function finishCalendarUnifinder() {
   const unifinderTree = getUnifinderTree();
-  unifinderTree.removeEventListener("select", unifinderSelect);
+  unifinderTree.removeEventListener("select", unifinderSelect, true);
 
   const viewBox = getViewBox();
   viewBox.removeEventListener("dayselect", refreshUnifinderFilterInterval);
@@ -134,7 +134,7 @@ function unifinderDoubleClick(event) {
  *
  * @param event         The DOM selection event.
  */
-function unifinderSelect(event) {
+async function unifinderSelect(event) {
   const treeView = getUnifinderView();
   const currentSelection = treeView.selection;
   if (!currentSelection || currentSelection.getRangeCount() == 0) {
@@ -160,15 +160,19 @@ function unifinderSelect(event) {
     }
   }
 
+  const view = currentView();
   if (selectedItems.length == 1) {
     // Go to the day of the selected item in the current view.
-    currentView().goToDay(selectedItems[0].startDate);
+    const startDate = selectedItems[0].startDate;
+    if (view.startDate.compare(startDate) > 0 || view.endDate.compare(startDate) <= 0) {
+      view.goToDay(startDate);
+      await view.ready;
+    }
   }
 
   // Set up the selected items in the view. Pass in true to suppress firing the
   // "itemselect" event, so we don't end up in a circular loop.
-  currentView().setSelectedItems(selectedItems, true);
-  currentView().centerSelectedItems();
+  view.setSelectedItems(selectedItems, true);
   calendarController.onSelectionChanged({ detail: selectedItems });
   getUnifinderTree().focus();
 }
@@ -193,7 +197,7 @@ function unifinderItemSelect(event) {
   // handler entirely until the event has been fired.
   // See https://bugzilla.mozilla.org/show_bug.cgi?id=168211 for more.
   const unifinderTree = getUnifinderTree();
-  unifinderTree.removeEventListener("select", unifinderSelect);
+  unifinderTree.removeEventListener("select", unifinderSelect, true);
 
   treeView.setSelectionFromItems(event.detail);
 
