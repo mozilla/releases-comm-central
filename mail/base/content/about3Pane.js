@@ -6,7 +6,7 @@
 
 // mailCommon.js
 /* globals commandController, DBViewWrapper, dbViewWrapperListener,
-     nsMsgViewIndex_None */
+     nsMsgViewIndex_None, VirtualFolderHelper */
 /* globals gDBView: true, gFolder: true, gViewWrapper: true */
 
 // mailContext.js
@@ -49,7 +49,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
   TagUtils: "resource:///modules/TagUtils.jsm",
-  VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.jsm",
 });
 
 const XULSTORE_URL = "chrome://messenger/content/messenger.xhtml";

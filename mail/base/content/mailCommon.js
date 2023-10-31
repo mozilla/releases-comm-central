@@ -27,6 +27,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MessageArchiver: "resource:///modules/MessageArchiver.jsm",
+  VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.jsm",
 });
 
 XPCOMUtils.defineLazyServiceGetter(
@@ -72,7 +73,6 @@ var commandController = {
     cmd_markAsRead: Ci.nsMsgViewCommandType.markMessagesRead,
     cmd_markAsUnread: Ci.nsMsgViewCommandType.markMessagesUnread,
     cmd_markThreadAsRead: Ci.nsMsgViewCommandType.markThreadRead,
-    cmd_markAllRead: Ci.nsMsgViewCommandType.markAllRead,
     cmd_markAsNotJunk: Ci.nsMsgViewCommandType.unjunk,
     cmd_watchThread: Ci.nsMsgViewCommandType.toggleThreadWatched,
   },
@@ -161,6 +161,15 @@ var commandController = {
         gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
       }
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.junk);
+    },
+    cmd_markAllRead(folder = gFolder) {
+      if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
+        top.MsgMarkAllRead(
+          VirtualFolderHelper.wrapVirtualFolder(folder).searchFolders
+        );
+      } else {
+        top.MsgMarkAllRead([folder]);
+      }
     },
     /**
      * Moves the selected messages to the destination folder.
