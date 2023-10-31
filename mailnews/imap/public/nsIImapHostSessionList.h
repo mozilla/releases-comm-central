@@ -76,8 +76,6 @@ class nsIImapHostSessionList : public nsISupports {
                                            bool inProgress) = 0;
   NS_IMETHOD GetDiscoveryForHostInProgress(const char* serverKey,
                                            bool& result) = 0;
-  NS_IMETHOD SetSavedTlsError(const char* serverKey, nsresult errorCode) = 0;
-  NS_IMETHOD GetSavedTlsError(const char* serverKey, nsresult& result) = 0;
 
   // Trash Folder
   NS_IMETHOD SetOnlineTrashFolderExistsForHost(const char* serverKey,

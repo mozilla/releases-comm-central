@@ -32,7 +32,6 @@ class nsIMAPHostInfo {
   char* fHierarchyDelimiters;  // string of top-level hierarchy delimiters
   bool fHaveWeEverDiscoveredFolders;
   bool fDiscoveryForHostInProgress;
-  nsresult fTlsErrorCode;
   char* fCanonicalOnlineSubDir;
   nsImapNamespaceList *fNamespaceList, *fTempNamespaceList;
   bool fNamespacesOverridable;
@@ -111,9 +110,6 @@ class nsImapHostSessionList : public nsIImapHostSessionList,
                                            bool inProgress) override;
   NS_IMETHOD GetDiscoveryForHostInProgress(const char* serverKey,
                                            bool& result) override;
-  NS_IMETHOD SetSavedTlsError(const char* serverKey,
-                              nsresult errorCode) override;
-  NS_IMETHOD GetSavedTlsError(const char* serverKey, nsresult& result) override;
 
   // Trash Folder
   NS_IMETHOD SetOnlineTrashFolderExistsForHost(const char* serverKey,

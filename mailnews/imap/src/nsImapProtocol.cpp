@@ -4800,21 +4800,6 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
           int32_t sec_error = -1 * NS_ERROR_GET_CODE(rv);  // = 0xFFFFD00C
           if (!mozilla::psm::ErrorIsOverridable(sec_error)) {
             AlertUserEventUsingName("imapTlsError");
-          } else {
-            m_hostSessionList->SetSavedTlsError(GetImapServerKey(), rv);
-            bool authenticated = false;
-            if (NS_SUCCEEDED(m_hostSessionList->GetPasswordVerifiedOnline(
-                    GetImapServerKey(), authenticated)) &&
-                !authenticated) {
-              // Create a new protocol instance for queued select url and let
-              // it run and fail so it can trigger the exception dialog.
-              if (m_imapServerSink) {
-                Log("CreateNewLineFromSocket", nullptr,
-                    "handle queued url after  error");
-                bool urlRun;
-                m_imapServerSink->LoadNextQueuedUrl(nullptr, &urlRun);
-              }
-            }
           }
 
           // Stash the socket transport securityInfo on the URL so it will be
@@ -8556,11 +8541,6 @@ bool nsImapProtocol::TryToLogon() {
     if (NS_SUCCEEDED(rv) && !passwordAlreadyVerified) {
       // First successful login for this server/host during this session.
       m_hostSessionList->SetPasswordVerifiedOnline(GetImapServerKey());
-      // Create a new protocol instance for possible queued select url.
-      if (NS_SUCCEEDED(GetConnectionStatus()) && m_imapServerSink) {
-        bool urlRun;
-        m_imapServerSink->LoadNextQueuedUrl(nullptr, &urlRun);
-      }
     }
 
     bool imapPasswordIsNew = !passwordAlreadyVerified;

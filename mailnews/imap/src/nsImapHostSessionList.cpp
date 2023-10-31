@@ -30,7 +30,6 @@ nsIMAPHostInfo::nsIMAPHostInfo(const char* serverKey,
   fHaveWeEverDiscoveredFolders = false;  // try this, see what bad happens
 #endif
   fDiscoveryForHostInProgress = false;
-  fTlsErrorCode = NS_OK;
   fCanonicalOnlineSubDir = NULL;
   fNamespaceList = nsImapNamespaceList::CreatensImapNamespaceList();
   fUsingSubscription = true;
@@ -312,27 +311,6 @@ NS_IMETHODIMP nsImapHostSessionList::SetDiscoveryForHostInProgress(
   PR_EnterMonitor(gCachedHostInfoMonitor);
   nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fDiscoveryForHostInProgress = inProgress;
-  PR_ExitMonitor(gCachedHostInfoMonitor);
-  return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
-}
-
-NS_IMETHODIMP nsImapHostSessionList::GetSavedTlsError(const char* serverKey,
-                                                      nsresult& result) {
-  PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo* host = FindHost(serverKey);
-  if (host)
-    result = host->fTlsErrorCode;
-  else
-    result = NS_ERROR_UNEXPECTED;
-  PR_ExitMonitor(gCachedHostInfoMonitor);
-  return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
-}
-
-NS_IMETHODIMP nsImapHostSessionList::SetSavedTlsError(const char* serverKey,
-                                                      nsresult tlsError) {
-  PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo* host = FindHost(serverKey);
-  if (host) host->fTlsErrorCode = tlsError;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
