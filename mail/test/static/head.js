@@ -41,48 +41,60 @@ function generateURIsFromDirTree(dir, extensions) {
 }
 
 /**
- * Iterates over all entries of a directory.
- * It returns a promise that is resolved with an object with two properties:
- *  - files: an array of nsIURIs corresponding to files that match the extensions passed
- *  - subdirs: an array of paths for subdirectories we need to recurse into
- *             (handled by generateURIsFromDirTree above)
+ * Iterate over the children of |path| and find subdirectories and files with
+ * the given extension.
  *
- * @param path the path to check (string)
- * @param extensions the file extensions we're interested in.
+ * This function recurses into ZIP and JAR archives as well.
+ *
+ * @param {string} path The path to check.
+ * @param {string[]} extensions The file extensions we're interested in.
+ *
+ * @returns {Promise<object>}
+ *           A promise that resolves to an object containing the following
+ *           properties:
+ *           - files: an array of nsIURIs corresponding to
+ *             files that match the extensions passed
+ *           - subdirs: an array of paths for subdirectories we need to recurse
+ *             into (handled by generateURIsFromDirTree above)
  */
 async function iterateOverPath(path, extensions) {
-  const parentDir = new LocalFile(path);
-  const subdirs = [];
-  const files = [];
+  const children = await IOUtils.getChildren(path);
 
-  // Iterate through the directory
-  for (const childPath of await IOUtils.getChildren(path)) {
-    const stat = await IOUtils.stat(childPath);
+  const files = [];
+  const subdirs = [];
+
+  for (const entry of children) {
+    let stat;
+    try {
+      stat = await IOUtils.stat(entry);
+    } catch (error) {
+      if (error.name === "NotFoundError") {
+        // Ignore symlinks from prior builds to subsequently removed files
+        continue;
+      }
+      throw error;
+    }
+
     if (stat.type === "directory") {
-      subdirs.push(childPath);
-    } else if (extensions.some(extension => childPath.endsWith(extension))) {
-      const file = parentDir.clone();
-      file.append(PathUtils.filename(childPath));
-      // the build system might leave dead symlinks hanging around, which are
-      // returned as part of the directory iterator, but don't actually exist:
-      if (file.exists()) {
-        const uriSpec = getURLForFile(file);
-        files.push(Services.io.newURI(uriSpec));
+      subdirs.push(entry);
+    } else if (extensions.some(extension => entry.endsWith(extension))) {
+      if (await IOUtils.exists(entry)) {
+        const spec = PathUtils.toFileURI(entry);
+        files.push(Services.io.newURI(spec));
       }
     } else if (
-      childPath.endsWith(".ja") ||
-      childPath.endsWith(".jar") ||
-      childPath.endsWith(".zip") ||
-      childPath.endsWith(".xpi")
+      entry.endsWith(".ja") ||
+      entry.endsWith(".jar") ||
+      entry.endsWith(".zip") ||
+      entry.endsWith(".xpi")
     ) {
-      const file = parentDir.clone();
-      file.append(PathUtils.filename(childPath));
+      const file = new LocalFile(entry);
       for (const extension of extensions) {
-        const jarEntryIterator = generateEntriesFromJarFile(file, extension);
-        files.push(...jarEntryIterator);
+        files.push(...generateEntriesFromJarFile(file, extension));
       }
     }
   }
+
   return { files, subdirs };
 }
 

@@ -11,17 +11,11 @@ SimpleTest.requestCompleteLog();
  * matching the offending error. If an object has multiple regex criteria, they
  * ALL need to match an error in order for that error not to cause a test
  * failure. */
-const whitelist = [
+const ignoreList = [
   // CodeMirror is imported as-is, see bug 1004423.
   { sourceName: /codemirror\.css$/i, isFromDevTools: true },
   {
     sourceName: /devtools\/content\/debugger\/src\/components\/([A-z\/]+).css/i,
-    isFromDevTools: true,
-  },
-  // Highlighter CSS uses a UA-only pseudo-class, see bug 985597.
-  {
-    sourceName: /highlighters\.css$/i,
-    errorMessage: /Unknown pseudo-class.*moz-native-anonymous/i,
     isFromDevTools: true,
   },
   // UA-only media features.
@@ -54,12 +48,6 @@ const whitelist = [
     errorMessage: /Unknown property.*overflow-clip-box/i,
     isFromDevTools: false,
   },
-  // Same but with zoom.
-  {
-    sourceName: /\bscrollbars\.css$/i,
-    errorMessage: /Unknown property ‘zoom’/i,
-    isFromDevTools: false,
-  },
   // These variables are declared somewhere else, and error when we load the
   // files directly. They're all marked intermittent because their appearance
   // in the error console seems to not be consistent.
@@ -76,23 +64,19 @@ const whitelist = [
       /Unknown property ‘text-size-adjust’\. {2}Declaration dropped\./i,
     isFromDevTools: false,
   },
-  // PDF.js uses a property that is currently only supported in chrome.
-  {
-    sourceName: /web\/viewer\.css$/i,
-    errorMessage:
-      /Unknown property ‘forced-color-adjust’\. {2}Declaration dropped\./i,
-    isFromDevTools: false,
-  },
-  {
-    sourceName: /overlay\.css$/i,
-    errorMessage: /Unknown pseudo-class.*moz-native-anonymous/i,
-    isFromDevTools: false,
-  },
 ];
+
+if (!Services.prefs.getBoolPref("layout.css.zoom.enabled")) {
+  ignoreList.push({
+    sourceName: /\bscrollbars\.css$/i,
+    errorMessage: /Unknown property ‘zoom’/i,
+    isFromDevTools: false,
+  });
+}
 
 if (!Services.prefs.getBoolPref("layout.css.color-mix.enabled")) {
   // Reserved to UA sheets unless layout.css.color-mix.enabled flipped to true.
-  whitelist.push({
+  ignoreList.push({
     sourceName: /\b(autocomplete-item)\.css$/,
     errorMessage: /Expected color but found \u2018color-mix\u2019./i,
     isFromDevTools: false,
@@ -102,7 +86,7 @@ if (!Services.prefs.getBoolPref("layout.css.color-mix.enabled")) {
 
 if (!Services.prefs.getBoolPref("layout.css.math-depth.enabled")) {
   // mathml.css UA sheet rule for math-depth.
-  whitelist.push({
+  ignoreList.push({
     sourceName: /\b(scrollbars|mathml)\.css$/i,
     errorMessage: /Unknown property .*\bmath-depth\b/i,
     isFromDevTools: false,
@@ -111,7 +95,7 @@ if (!Services.prefs.getBoolPref("layout.css.math-depth.enabled")) {
 
 if (!Services.prefs.getBoolPref("layout.css.math-style.enabled")) {
   // mathml.css UA sheet rule for math-style.
-  whitelist.push({
+  ignoreList.push({
     sourceName: /(?:res|gre-resources)\/mathml\.css$/i,
     errorMessage: /Unknown property .*\bmath-style\b/i,
     isFromDevTools: false,
@@ -119,7 +103,7 @@ if (!Services.prefs.getBoolPref("layout.css.math-style.enabled")) {
 }
 
 if (!Services.prefs.getBoolPref("layout.css.scroll-anchoring.enabled")) {
-  whitelist.push({
+  ignoreList.push({
     sourceName: /webconsole\.css$/i,
     errorMessage: /Unknown property .*\boverflow-anchor\b/i,
     isFromDevTools: true,
@@ -127,14 +111,24 @@ if (!Services.prefs.getBoolPref("layout.css.scroll-anchoring.enabled")) {
 }
 
 if (!Services.prefs.getBoolPref("layout.css.forced-colors.enabled")) {
-  whitelist.push({
+  ignoreList.push({
     sourceName: /pdf\.js\/web\/viewer\.css$/,
     errorMessage: /Expected media feature name but found ‘forced-colors’*/i,
     isFromDevTools: false,
   });
 }
 
-const propNameWhitelist = [
+if (!Services.prefs.getBoolPref("layout.css.forced-color-adjust.enabled")) {
+  // PDF.js uses a property that is currently not enabled.
+  ignoreList.push({
+    sourceName: /web\/viewer\.css$/i,
+    errorMessage:
+      /Unknown property ‘forced-color-adjust’\. {2}Declaration dropped\./i,
+    isFromDevTools: false,
+  });
+}
+
+const propNameAllowlist = [
   // These custom properties are retrieved directly from CSSOM
   // in videocontrols.xml to get pre-defined style instead of computed
   // dimensions, which is why they are not referenced by CSS.
@@ -155,35 +149,35 @@ const propNameWhitelist = [
   { propName: "--bezier-grid-color", isFromDevTools: true },
 ];
 
-const thunderbirdWhitelist = [];
+const thunderbirdIgnoreList = [];
 
 // Add suffix to stylesheets' URI so that we always load them here and
 // have them parsed. Add a random number so that even if we run this
 // test multiple times, it would be unlikely to affect each other.
 const kPathSuffix = "?always-parse-css-" + Math.random();
 
-function dumpWhitelistItem(item) {
+function dumpAllowlistItem(item) {
   return JSON.stringify(item, (key, value) => {
     return value instanceof RegExp ? value.toString() : value;
   });
 }
 
 /**
- * Check if an error should be ignored due to matching one of the whitelist
- * objects defined in whitelist
+ * Check if an error should be ignored due to matching one of the allowlist
+ * objects.
  *
  * @param aErrorObject the error to check
  * @returns true if the error should be ignored, false otherwise.
  */
 function ignoredError(aErrorObject) {
-  for (const list of [whitelist, thunderbirdWhitelist]) {
-    for (const whitelistItem of list) {
+  for (const list of [ignoreList, thunderbirdIgnoreList]) {
+    for (const allowlistItem of list) {
       let matches = true;
       let catchAll = true;
       for (const prop of ["sourceName", "errorMessage"]) {
-        if (whitelistItem.hasOwnProperty(prop)) {
+        if (allowlistItem.hasOwnProperty(prop)) {
           catchAll = false;
-          if (!whitelistItem[prop].test(aErrorObject[prop] || "")) {
+          if (!allowlistItem[prop].test(aErrorObject[prop] || "")) {
             matches = false;
             break;
           }
@@ -192,18 +186,18 @@ function ignoredError(aErrorObject) {
       if (catchAll) {
         ok(
           false,
-          "A whitelist item is catching all errors. " +
-            dumpWhitelistItem(whitelistItem)
+          "An allowlist item is catching all errors. " +
+            dumpAllowlistItem(allowlistItem)
         );
         continue;
       }
       if (matches) {
-        whitelistItem.used = true;
+        allowlistItem.used = true;
         const { sourceName, errorMessage } = aErrorObject;
         info(
           `Ignored error "${errorMessage}" on ${sourceName} ` +
-            "because of whitelist item " +
-            dumpWhitelistItem(whitelistItem)
+            "because of allowlist item " +
+            dumpAllowlistItem(allowlistItem)
         );
         return true;
       }
@@ -281,7 +275,7 @@ function messageIsCSSError(msg) {
   ) {
     const sourceName = msg.sourceName.slice(0, -kPathSuffix.length);
     const msgInfo = { sourceName, errorMessage: msg.errorMessage };
-    // Check if this error is whitelisted in whitelist
+    // Check if this error is ignore in allowlist
     if (!ignoredError(msgInfo)) {
       ok(false, `Got error message for ${sourceName}: ${msg.errorMessage}`);
       return true;
@@ -502,16 +496,16 @@ add_task(async function checkAllTheCSS() {
   for (const [image, references] of imageURIsToReferencesMap) {
     if (!chromeFileExists(image)) {
       for (const ref of references) {
-        let whitelisted = false;
-        for (const whitelistItem of thunderbirdWhitelist) {
-          if (whitelistItem.sourceName.test(ref)) {
-            whitelistItem.used = true;
-            whitelisted = true;
+        let ignored = false;
+        for (const allowlistItem of thunderbirdIgnoreList) {
+          if (allowlistItem.sourceName.test(ref)) {
+            allowlistItem.used = true;
+            ignored = true;
             info("missing " + image + " referenced from " + ref);
             break;
           }
         }
-        if (!whitelisted) {
+        if (!ignored) {
           ok(false, "missing " + image + " referenced from " + ref);
         }
       }
@@ -522,7 +516,7 @@ add_task(async function checkAllTheCSS() {
   for (const [prop, refCount] of customPropsToReferencesMap) {
     if (!refCount) {
       let ignored = false;
-      for (const item of propNameWhitelist) {
+      for (const item of propNameAllowlist) {
         if (item.propName == prop && isDevtools == item.isFromDevTools) {
           item.used = true;
           if (
@@ -550,8 +544,8 @@ add_task(async function checkAllTheCSS() {
     "All the styles (" + allPromises.length + ") loaded without errors."
   );
 
-  // Confirm that all whitelist rules have been used.
-  function checkWhitelist(list) {
+  // Confirm that all allowlist rules have been used.
+  function checkAllowlist(list) {
     for (const item of list) {
       if (
         !item.used &&
@@ -559,11 +553,11 @@ add_task(async function checkAllTheCSS() {
         (!item.platforms || item.platforms.includes(AppConstants.platform)) &&
         !item.intermittent
       ) {
-        ok(false, "Unused whitelist item: " + dumpWhitelistItem(item));
+        ok(false, "Unused allowlist item: " + dumpAllowlistItem(item));
       }
     }
   }
-  checkWhitelist(thunderbirdWhitelist);
+  checkAllowlist(thunderbirdIgnoreList);
 
   // Clean up to avoid leaks:
   doc.head.innerHTML = "";
