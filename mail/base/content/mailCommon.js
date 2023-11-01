@@ -523,7 +523,10 @@ var commandController = {
         if (hasIdentities && numSelectedMessages == 1) {
           const aboutMessage =
             document.getElementById("messageBrowser")?.contentWindow || window;
-          return aboutMessage?.currentHeaderData?.["list-post"];
+          return (
+            gDBView.URIForFirstSelectedMessage == aboutMessage?.gMessageURI &&
+            aboutMessage.currentHeaderData?.["list-post"]
+          );
         }
         return false;
       case "cmd_viewPageSource":

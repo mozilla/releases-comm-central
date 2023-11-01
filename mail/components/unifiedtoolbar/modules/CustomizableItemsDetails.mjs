@@ -168,7 +168,7 @@ export default [
     spaces: ["mail"],
     templateId: "replyToListTemplate",
     requiredModules: [
-      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+      "chrome://messenger/content/unifiedtoolbar/reply-list-button.mjs",
     ],
   },
   {
