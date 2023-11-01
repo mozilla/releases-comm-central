@@ -4,7 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE html>
-
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   windowtype="mail:accountcentral"
@@ -16,11 +15,17 @@
     <link rel="localization" href="branding/brand.ftl" />
     <link rel="localization" href="messenger/accountCentral.ftl" />
 
-    <script src="chrome://communicator/content/utilityOverlay.js"></script>
-    <script src="chrome://messenger/content/msgAccountCentral.js"></script>
+    <script
+      defer="defer"
+      src="chrome://communicator/content/utilityOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/msgAccountCentral.js"
+    ></script>
   </head>
 
-  <body onload="OnInit();">
+  <body>
     <main id="accountCentral">
       <header
         id="headerFirstRun"
@@ -76,6 +81,13 @@
       <section id="accountFeaturesSection" class="account-central-section">
         <aside class="row-container account-options">
           <button
+            id="readButton"
+            type="button"
+            data-l10n-id="read"
+            class="btn-link btn-inline"
+            onclick="readMessages();"
+          ></button>
+          <button
             id="nntpSubscriptionButton"
             type="button"
             data-l10n-id="nntp-subscription"
@@ -89,14 +101,6 @@
             data-l10n-id="rss-subscription"
             class="btn-link btn-inline"
             onclick="subscribe();"
-            hidden="hidden"
-          ></button>
-          <button
-            id="readButton"
-            type="button"
-            data-l10n-id="read"
-            class="btn-link btn-inline"
-            onclick="readMessages();"
             hidden="hidden"
           ></button>
           <button

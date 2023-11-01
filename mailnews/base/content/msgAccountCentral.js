@@ -13,6 +13,8 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 var gSelectedServer = null;
 var gSelectedFolder = null;
 
+window.addEventListener("DOMContentLoaded", OnInit);
+
 /**
  * Set up the whole page depending on the selected folder/account.
  * The folder is passed in via the document URL.
@@ -82,19 +84,12 @@ function updateAccountCentralUI() {
   // Is this an NNTP account?
   const isNNTPAccount = gSelectedServer?.type == "nntp";
 
-  // It can read messages (does it have an Inbox)?.
-  let canGetMessages = false;
-  try {
-    canGetMessages = protocolInfo && protocolInfo.canGetMessages;
-    document
-      .getElementById("readButton")
-      .toggleAttribute(
-        "hidden",
-        !canGetMessages || isRssAccount || isNNTPAccount
-      );
-  } catch (e) {
-    exceptions.push(e);
-  }
+  // Is this a Local Folders account?
+  const isLocalFoldersAccount = gSelectedServer?.type == "none";
+
+  document
+    .getElementById("readButton")
+    .toggleAttribute("hidden", !getReadMessagesFolder());
 
   // It can compose messages.
   let showComposeMsgLink = false;
@@ -142,7 +137,10 @@ function updateAccountCentralUI() {
   // It can have End-to-end Encryption.
   document
     .getElementById("e2eButton")
-    .toggleAttribute("hidden", !canGetMessages || isRssAccount);
+    .toggleAttribute(
+      "hidden",
+      isNNTPAccount || isRssAccount || isLocalFoldersAccount
+    );
 
   // Check if we collected any exception.
   while (exceptions.length) {
@@ -153,19 +151,31 @@ function updateAccountCentralUI() {
 }
 
 /**
- * Open the Inbox for selected server. If needed, open the twisty and
- * select the Inbox menuitem.
+ * For the selected server, check for new messges and display first
+ * suitable folder (genrally Inbox) for reading.
  */
 function readMessages() {
-  if (!gSelectedServer) {
-    return;
-  }
+  const folder = getReadMessagesFolder();
+  top.MsgGetMessage([folder]);
+  parent.displayFolder(folder);
+}
 
-  try {
-    parent.displayFolder(MailUtils.getInboxFolder(gSelectedServer));
-  } catch (ex) {
-    console.error("Error opening Inbox for server: " + ex + "\n");
+/**
+ * Find the folder Read Messages should use.
+ *
+ * @returns {?nsIMsgFolder} folder to use, if we have a suitable one.
+ */
+function getReadMessagesFolder() {
+  const folder = MailUtils.getInboxFolder(gSelectedServer);
+  if (folder) {
+    return folder;
   }
+  // For feeds and nntp, show the first non-trash folder. Don't use Outbox.
+  return gSelectedServer.rootFolder.descendants.find(
+    f =>
+      !(f.flags & Ci.nsMsgFolderFlags.Trash) &&
+      !(f.flags & Ci.nsMsgFolderFlags.Queue)
+  );
 }
 
 /**
