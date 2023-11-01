@@ -918,6 +918,19 @@ this.folders = class extends ExtensionAPIPersistent {
             }
           }
         },
+        async getFolderCapabilities({ accountId, path }) {
+          const { folder } = getFolder({ accountId, path });
+
+          const mailFolderCapabilities = {
+            canAddMessages: !!folder.canFileMessages,
+            canAddSubfolders: !!folder.canCreateSubfolders,
+            canBeDeleted: !!folder.deletable,
+            canBeRenamed: !!folder.canRename,
+            canDeleteMessages: !!folder.canDeleteMessages,
+          };
+
+          return mailFolderCapabilities;
+        },
         async getFolderInfo({ accountId, path }) {
           const { folder } = getFolder({ accountId, path });
 
@@ -958,11 +971,6 @@ this.folders = class extends ExtensionAPIPersistent {
             unreadMessageCount: folder.getNumUnread(false),
             newMessageCount: folder.msgDatabase.getNewList().length,
             quota: folderQuota.length > 0 ? folderQuota : null,
-            canAddMessages: !!folder.canFileMessages,
-            canAddSubfolders: !!folder.canCreateSubfolders,
-            canBeDeleted: !!folder.deletable,
-            canBeRenamed: !!folder.canRename,
-            canDeleteMessages: !!folder.canDeleteMessages,
           };
 
           try {

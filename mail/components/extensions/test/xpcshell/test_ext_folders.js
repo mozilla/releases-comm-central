@@ -626,13 +626,22 @@ add_task(async function test_getFolderInfo_and_query() {
             unreadMessageCount: 12,
             newMessageCount: 12,
             favorite: false,
+          },
+          info
+        );
+
+        const capabilities = await browser.folders.getFolderCapabilities(
+          InfoTestFolder
+        );
+        window.assertDeepEqual(
+          {
             canAddMessages: account.type != "nntp",
             canAddSubfolders: account.type != "nntp",
             canBeDeleted: account.type != "nntp",
             canBeRenamed: account.type != "nntp",
             canDeleteMessages: true,
           },
-          info
+          capabilities
         );
 
         // Verify lastUsed.
