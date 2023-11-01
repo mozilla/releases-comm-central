@@ -1131,11 +1131,13 @@ DBViewWrapper.prototype = {
       this.listener.msgWindow,
       this.listener.threadPaneCommandUpdater
     );
-    // use the least-specific sort so we can clock them back through to build up
-    //  the correct sort order...
-    let [sortType, sortOrder, sortCustomCol] = this._getSortDetails(
-      this._sort.length - 1
-    );
+    // Excluding Group By views, use the least-specific sort so we can clock
+    // them back through to build up the correct sort order,
+    const index =
+      viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort
+        ? 0
+        : this._sort.length - 1;
+    let [sortType, sortOrder, sortCustomCol] = this._getSortDetails(index);
     const outCount = {};
     // when the underlying folder is a single real folder (virtual or no), we
     //  tell the view about the underlying folder.
