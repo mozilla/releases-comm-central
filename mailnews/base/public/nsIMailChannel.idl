@@ -100,4 +100,10 @@ interface nsIMailProgressListener : nsISupports {
    * the message body to the channel.
    */
   void onBodyComplete(in nsIMailChannel mailChannel);
+
+  /**
+   * Receive a notification from the parser that it has finished outputting
+   * the attachment information to the channel.
+   */
+  void onAttachmentsComplete(in nsIMailChannel mailChannel);
 };

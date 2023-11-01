@@ -411,6 +411,16 @@ nsresult nsMimeHtmlDisplayEmitter::EndAllAttachments() {
   UtilityWrite("</table>");
   UtilityWrite("</div>");
 
+  // Notify the front end that we've finished reading the body.
+  nsresult rv;
+  nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(mChannel, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMailProgressListener> listener;
+  mailChannel->GetListener(getter_AddRefs(listener));
+  if (listener) {
+    listener->OnAttachmentsComplete(mailChannel);
+  }
+
   return NS_OK;
 }
 

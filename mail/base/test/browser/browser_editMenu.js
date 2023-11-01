@@ -52,6 +52,7 @@ let imapRootFolder, imapFolder;
 
 add_setup(async function () {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
+  window.messenger.transactionManager.clear();
 
   const generator = new MessageGenerator();
 

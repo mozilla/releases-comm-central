@@ -537,14 +537,55 @@ var messageProgressListener = {
   ]),
 
   /**
+   * Step 1: A message has started loading (if the flags include STATE_START).
+   *
+   * @param {nsIWebProgress} webProgress
+   * @param {nsIRequest} request
+   * @param {integer} stateFlags
+   * @param {nsresult} status
+   * @see {nsIWebProgressListener}
+   */
+  onStateChange(webProgress, request, stateFlags, status) {
+    if (
+      !(request instanceof Ci.nsIMailChannel) ||
+      !(stateFlags & Ci.nsIWebProgressListener.STATE_START)
+    ) {
+      return;
+    }
+
+    // Clear the previously displayed message.
+    const previousDocElement =
+      getMessagePaneBrowser().contentDocument?.documentElement;
+    if (previousDocElement) {
+      previousDocElement.style.display = "none";
+    }
+    ClearAttachmentList();
+    gMessageNotificationBar.clearMsgNotifications();
+
+    request.listener = this;
+    request.smimeHeaderSink = smimeHeaderSink;
+    this.onStartHeaders();
+  },
+
+  /**
+   * Step 2: The message headers are available on the channel.
+   *
    * @param {nsIMailChannel} mailChannel
    * @see {nsIMailProgressListener}
    */
   onHeadersComplete(mailChannel) {
+    const domWindow = getMessagePaneBrowser().docShell.DOMWindow;
+    domWindow.addEventListener(
+      "DOMContentLoaded",
+      event => this.onDOMContentLoaded(event),
+      { once: true }
+    );
     this.processHeaders(mailChannel.headerNames, mailChannel.headerValues);
   },
 
   /**
+   * Step 3: The parser has finished reading the body of the message.
+   *
    * @param {nsIMailChannel} mailChannel
    * @see {nsIMailProgressListener}
    */
@@ -553,62 +594,57 @@ var messageProgressListener = {
   },
 
   /**
-   * @param {nsIWebProgress} webProgress
-   * @param {nsIRequest} request
-   * @param {integer} stateFlags
-   * @param {nsresult} status
-   * @see {nsIWebProgressListener}
+   * Step 4: The attachment information is available on the channel.
+   *
+   * @param {nsIMailChannel} mailChannel
+   * @see {nsIMailProgressListener}
    */
-  onStateChange(webProgress, request, stateFlags, status) {
-    if (!(request instanceof Ci.nsIMailChannel)) {
-      return;
-    }
-    if (stateFlags & Ci.nsIWebProgressListener.STATE_START) {
-      // Clear the previously displayed message.
-      const previousDocElement =
-        getMessagePaneBrowser().contentDocument?.documentElement;
-      if (previousDocElement) {
-        previousDocElement.style.display = "none";
-      }
-      ClearAttachmentList();
-      gMessageNotificationBar.clearMsgNotifications();
-
-      request.listener = this;
-      request.smimeHeaderSink = smimeHeaderSink;
-      this.onStartHeaders();
-    } else if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
-      currentCharacterSet = request.mailCharacterSet;
-      request.smimeHeaderSink = null;
-      if (request.imipItem) {
-        calImipBar.showImipBar(request.imipItem, request.imipMethod);
-      }
-      for (const attachment of request.attachments) {
-        this.handleAttachment(
-          attachment.getProperty("contentType"),
-          attachment.getProperty("url"),
-          attachment.getProperty("displayName"),
-          attachment.getProperty("uri"),
-          attachment.getProperty("notDownloaded")
-        );
-        for (const key of [
-          "X-Mozilla-PartURL",
-          "X-Mozilla-PartSize",
-          "X-Mozilla-PartDownloaded",
-          "Content-Description",
-          "Content-Type",
-          "Content-Encoding",
-        ]) {
-          if (attachment.hasKey(key)) {
-            this.addAttachmentField(key, attachment.getProperty(key));
-          }
+  onAttachmentsComplete(mailChannel) {
+    for (const attachment of mailChannel.attachments) {
+      this.handleAttachment(
+        attachment.getProperty("contentType"),
+        attachment.getProperty("url"),
+        attachment.getProperty("displayName"),
+        attachment.getProperty("uri"),
+        attachment.getProperty("notDownloaded")
+      );
+      for (const key of [
+        "X-Mozilla-PartURL",
+        "X-Mozilla-PartSize",
+        "X-Mozilla-PartDownloaded",
+        "Content-Description",
+        "Content-Type",
+        "Content-Encoding",
+      ]) {
+        if (attachment.hasKey(key)) {
+          this.addAttachmentField(key, attachment.getProperty(key));
         }
       }
-      this.onEndAllAttachments();
-      request.QueryInterface(Ci.nsIChannel);
-      const uri = request.URI.QueryInterface(Ci.nsIMsgMailNewsUrl);
-      this.onEndMsgHeaders(uri);
-      this.onEndMsgDownload(uri);
     }
+  },
+
+  /**
+   * Step 5: The message HTML is complete, but external resources such as may
+   * not have loaded yet. The docShell will handle them – for our purposes,
+   * message loading has finished.
+   */
+  onDOMContentLoaded(event) {
+    const { docShell } = event.target.ownerGlobal;
+    if (!docShell.isTopLevelContentDocShell) {
+      return;
+    }
+
+    const channel = docShell.currentDocumentChannel;
+    channel.QueryInterface(Ci.nsIMailChannel);
+    currentCharacterSet = channel.mailCharacterSet;
+    channel.smimeHeaderSink = null;
+    if (channel.imipItem) {
+      calImipBar.showImipBar(channel.imipItem, channel.imipMethod);
+    }
+    this.onEndAllAttachments();
+    const uri = channel.URI.QueryInterface(Ci.nsIMsgMailNewsUrl);
+    this.onEndMsgHeaders(uri);
+    this.onEndMsgDownload(uri);
   },
 
   onStartHeaders() {

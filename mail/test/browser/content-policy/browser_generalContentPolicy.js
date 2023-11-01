@@ -161,7 +161,9 @@ var TESTS = [
 
     body: `<html><iframe id='testelement' srcdoc='<html><img src="${url}pass.png" alt="pichere"/>'></html>`,
     checkForAllowed: async element => {
-      await new Promise(window.requestAnimationFrame);
+      if (element.contentDocument.readyState != "complete") {
+        await new Promise(resolve => element.addEventListener("load", resolve));
+      }
       const img = element.contentDocument.querySelector("img");
       return img && img.naturalHeight > 0 && img.naturalWidth > 0;
     },
