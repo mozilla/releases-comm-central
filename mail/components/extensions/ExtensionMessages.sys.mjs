@@ -1403,12 +1403,56 @@ export class MessageQuery {
       return false;
     }
 
-    // Check unread.
+    // Check unread (MV2).
     if (
+      this.extension.manifestVersion < 3 &&
       this.queryInfo.unread !== null &&
       msgHdr.isRead != !this.queryInfo.unread
     ) {
       return false;
+    }
+
+    // Check read (MV3+).
+    if (
+      this.extension.manifestVersion > 2 &&
+      this.queryInfo.read !== null &&
+      msgHdr.isRead != this.queryInfo.read
+    ) {
+      return false;
+    }
+
+    // Check size.
+    if (this.queryInfo.size != null) {
+      const size = msgHdr.messageSize;
+      const query = this.queryInfo.size;
+      if (query.min != null && size < query.min) {
+        return false;
+      }
+      if (query.max != null && size > query.max) {
+        return false;
+      }
+    }
+
+    // Check junk score.
+    if (this.queryInfo.junkScore != null) {
+      const score = parseInt(msgHdr.getStringProperty("junkscore"), 10) || 0;
+      const query = this.queryInfo.junkScore;
+      if (query.min != null && score < query.min) {
+        return false;
+      }
+      if (query.max != null && score > query.max) {
+        return false;
+      }
+    }
+
+    // Check junk flag.
+    if (this.queryInfo.junk != null) {
+      const junk =
+        (parseInt(msgHdr.getStringProperty("junkscore"), 10) || 0) >=
+        lazy.gJunkThreshold;
+      if (this.queryInfo.junk != junk) {
+        return false;
+      }
     }
 
     // Check flagged.
@@ -1423,6 +1467,14 @@ export class MessageQuery {
     if (
       this.queryInfo.subject &&
       !msgHdr.mime2DecodedSubject.includes(this.queryInfo.subject)
+    ) {
+      return false;
+    }
+
+    // Check new.
+    if (
+      this.queryInfo.new !== null &&
+      !!(msgHdr.flags & Ci.nsMsgMessageFlags.New) != this.queryInfo.new
     ) {
       return false;
     }

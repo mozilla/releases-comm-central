@@ -691,10 +691,15 @@
                 "optional": true,
                 "description": "Returns only messages whose recipients match all specified addresses. The search value is a semicolon separated list of email addresses, names or combinations (e.g.: <value>Name <user@domain.org></value>). For a match, all specified addresses must equal a recipient's address completely and all specified names must match a recipient's name partially. All matches are done case-insensitive."
               },
+              "size": {
+                "$ref": "QueryRange",
+                "optional": true,
+                "description": "Returns only messages with a size in the specified byte range."
+              },
               "subject": {
                 "type": "string",
                 "optional": true,
-                "description": "Returns only messages with this value matching the subject."
+                "description": "Returns only messages whose subject contains the provided string."
               },
               "tags": {
                 "$ref": "TagsDetail",
@@ -711,10 +716,32 @@
                 "optional": true,
                 "description": "Returns only messages with at least one recipient address matching any configured identity."
               },
+              "junk": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Returns only messages whith the specified junk state."
+              },
+              "junkScore": {
+                "$ref": "QueryRange",
+                "optional": true,
+                "description": "Returns only messages with a junk score in the specified range."
+              },
+              "new": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Returns only messages with the specified new state."
+              },
               "unread": {
                 "type": "boolean",
                 "optional": true,
+                "max_manifest_version": 2,
                 "description": "Returns only unread (or read if false) messages."
+              },
+              "read": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Returns only messages with the specified read state.",
+                "min_manifest_version": 3
               },
               "autoPaginationTimeout": {
                 "type": "integer",

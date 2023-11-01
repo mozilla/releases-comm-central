@@ -79,6 +79,23 @@ add_task(async function test_query() {
       const folder2 = { accountId, path: "/test2" };
       const rootFolder = { accountId, path: "/" };
 
+      // Mark two messages in folder1 as junk.
+      await browser.messages.update(messages1.messages[4].id, { junk: true });
+      await browser.messages.update(messages1.messages[5].id, { junk: true });
+
+      // Mark a message in folder1 as read and unread again, to force a difference
+      // between read and new.
+      await browser.messages.update(messages1.messages[2].id, { read: true });
+      await window.waitForCondition(async () => {
+        const msg = await browser.messages.get(messages1.messages[2].id);
+        return msg.read;
+      }, `Message should have been marked as read.`);
+      await browser.messages.update(messages1.messages[2].id, { read: false });
+      await window.waitForCondition(async () => {
+        const msg = await browser.messages.get(messages1.messages[2].id);
+        return !msg.read;
+      }, `Message should have been marked as not read.`);
+
       // Query messages from test1. No messages from test2 should be returned.
       // We'll use these messages as a reference for further tests.
       const { messages: referenceMessages } = await browser.messages.query({
@@ -130,7 +147,6 @@ add_task(async function test_query() {
       // Test attachment query: False.
       const { messages: searchAttachmentFalse } = await browser.messages.query({
         attachment: false,
-        includeSubFolders: true,
         autoPaginationTimeout: 0,
       });
       browser.test.assertEq(
@@ -142,7 +158,6 @@ add_task(async function test_query() {
       // Test attachment query: Range.
       const { messages: searchAttachmentRange } = await browser.messages.query({
         attachment: { min: 1, max: 2 },
-        includeSubFolders: true,
         autoPaginationTimeout: 0,
       });
       browser.test.assertEq(
@@ -154,10 +169,33 @@ add_task(async function test_query() {
       // Test attachment query: True.
       const { messages: searchAttachmentTrue } = await browser.messages.query({
         attachment: true,
-        includeSubFolders: true,
         autoPaginationTimeout: 0,
       });
       browser.test.assertEq(1, searchAttachmentTrue.length, "attachment: True");
+
+      // Test size query range.
+      const { messages: searchSizeRange } = await browser.messages.query({
+        size: { min: 400, max: 700 },
+        folder: folder1,
+        includeSubFolders: true,
+        autoPaginationTimeout: 0,
+      });
+      const expectedSizeRange = referenceMessages.filter(
+        m => m.size > 400 && m.size < 700
+      );
+      browser.test.assertEq(
+        expectedSizeRange.length,
+        searchSizeRange.length,
+        "size range"
+      );
+
+      // Test junkScore query : range.
+      const { messages: searchJunkScoreRange } = await browser.messages.query({
+        junkScore: { min: 50, max: 100 },
+        folder: folder1,
+        autoPaginationTimeout: 0,
+      });
+      browser.test.assertEq(2, searchJunkScoreRange.length, "junk: range");
 
       // Dump the reference messages to the console for easier debugging.
       browser.test.log("Reference messages:");
@@ -187,7 +225,11 @@ add_task(async function test_query() {
         browser.test.assertEq(
           expectedMessageIndices.length,
           actualMessages.length,
-          "Correct number of messages"
+          `Query ${JSON.stringify(
+            queryInfo
+          )}: Should have received the correct number of messages: ${JSON.stringify(
+            actualMessages.map(m => m.id)
+          )}`
         );
         for (const index of expectedMessageIndices) {
           // browser.test.log(`Looking for message ${index}`);
@@ -219,6 +261,14 @@ add_task(async function test_query() {
       await subtest({ toDate: date2 }, 7, 8, 9);
       await subtest({ fromDate: date1, toDate: date2 });
       await subtest({ fromDate: date2, toDate: date1 }, 4, 5, 6);
+
+      // Junk query. Only two messages are junk.
+      await subtest({ junk: true }, 5, 6);
+      await subtest({ junk: false }, 1, 2, 3, 4, 7, 8, 9);
+
+      // New query. Only two messages are not new.
+      await subtest({ new: false }, 1, 3);
+      await subtest({ new: true }, 2, 4, 5, 6, 7, 8, 9);
 
       // Unread query. Only message 1 has been read.
       await subtest({ unread: false }, 1);
