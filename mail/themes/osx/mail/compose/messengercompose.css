@@ -82,14 +82,7 @@ toolbar[nowindowdrag="true"] {
 }
 
 #msgIdentity[is="menulist-editable"][editable="true"] > menupopup {
-  appearance: auto;
-  -moz-default-appearance: menupopup;
   margin-inline-start: 0;
-}
-
-#msgIdentity[is="menulist-editable"][editable="true"] > menupopup > menuitem {
-  appearance: auto;
-  -moz-default-appearance: menuitem;
 }
 
 #msgIdentityPopup {
