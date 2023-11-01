@@ -144,37 +144,20 @@ add_task(async function () {
     "onNewMailReceived event received"
   );
 
-  // Checks the folder type property of the given message and returns a clone
-  // where the type has been removed.
-  function preCheckFolderType(message, expected) {
-    Assert.deepEqual(
-      message.folder.type,
-      expected,
-      "Folder type should be correct"
-    );
-    const m = JSON.parse(JSON.stringify(message));
-    delete m.folder.type;
-    return m;
-  }
-
   Assert.deepEqual(
-    preCheckFolderType({ folder: primedOnNewMailReceivedEventData[0] }, []),
-    preCheckFolderType({ folder: onNewMailReceivedEventData[0] }, undefined),
+    { folder: primedOnNewMailReceivedEventData[0] },
+    { folder: onNewMailReceivedEventData[0] },
     "The primed and non-primed onNewMailReceived events should return the same folder"
   );
 
   Assert.deepEqual(
     {
       id: primedOnNewMailReceivedEventData[1].id,
-      messages: primedOnNewMailReceivedEventData[1].messages.map(m =>
-        preCheckFolderType(m, [])
-      ),
+      messages: primedOnNewMailReceivedEventData[1].messages,
     },
     {
       id: onNewMailReceivedEventData[1].id,
-      messages: onNewMailReceivedEventData[1].messages.map(m =>
-        preCheckFolderType(m, undefined)
-      ),
+      messages: onNewMailReceivedEventData[1].messages,
     },
     "The primed and non-primed onNewMailReceived events should return the same messages"
   );

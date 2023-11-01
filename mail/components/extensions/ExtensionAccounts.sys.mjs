@@ -231,7 +231,7 @@ export function folderPathToURI(accountId, path) {
   );
 }
 
-export const folderTypeMap = new Map([
+export const folderUsageMap = new Map([
   [Ci.nsMsgFolderFlags.Inbox, "inbox"],
   [Ci.nsMsgFolderFlags.Drafts, "drafts"],
   [Ci.nsMsgFolderFlags.SentMail, "sent"],
@@ -241,6 +241,16 @@ export const folderTypeMap = new Map([
   [Ci.nsMsgFolderFlags.Junk, "junk"],
   [Ci.nsMsgFolderFlags.Queue, "outbox"],
 ]);
+
+export function getFolderUsage(flags) {
+  const usage = [];
+  for (const [flag, usageName] of folderUsageMap.entries()) {
+    if (flags & flag) {
+      usage.push(usageName);
+    }
+  }
+  return usage;
+}
 
 export class FolderManager {
   constructor(extension) {
@@ -270,26 +280,15 @@ export class FolderManager {
       accountId,
       name: folder.prettyName,
       path: folderURIToPath(accountId, folder.URI),
+      usage: getFolderUsage(folder.flags),
     };
 
-    // In MV2 only the first matching type was returned, assuming a folder can
-    // only be of one type. Since that turned out to be wrong, the type property
-    // is now an array in MV3.
-    if (this.extension.manifestVersion > 2) {
-      folderObject.type = [];
-    }
-
-    const flags = folder.flags;
-    for (const [flag, typeName] of folderTypeMap.entries()) {
-      if (flags & flag) {
-        if (this.extension.manifestVersion > 2) {
-          folderObject.type.push(typeName);
-        } else {
-          folderObject.type = typeName;
-          // Exit the loop as soon as an entry was found.
-          break;
-        }
-      }
+    // In MV2 only the first matching usage was returned as type, assuming a
+    // folder can only be of one type. Since that turned out to be wrong, the
+    // type property is now deprecated (removed in MV3) and an additional usage
+    // property is returned.
+    if (this.extension.manifestVersion < 3 && folderObject.usage.length > 0) {
+      folderObject.type = folderObject.usage[0];
     }
 
     return folderObject;

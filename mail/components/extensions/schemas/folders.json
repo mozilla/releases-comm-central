@@ -20,7 +20,7 @@
       {
         "id": "MailFolder",
         "type": "object",
-        "description": "An object describing a mail folder, as returned for example by the :ref:`folders.getParentFolders` or :ref:`folders.getSubFolders` methods, or part of a :ref:`accounts.MailAccount` object, which is returned for example by the :ref:`accounts.list` and :ref:`accounts.get` methods. The ``subFolders`` property is only included if requested.",
+        "description": "An object describing a folder, as returned for example by the :ref:`folders.getParentFolders` or :ref:`folders.getSubFolders` methods, or part of a :ref:`accounts.MailAccount` object, which is returned for example by the :ref:`accounts.list` and :ref:`accounts.get` methods. The ``subFolders`` property is only included if requested.",
         "properties": {
           "accountId": {
             "type": "string",
@@ -44,28 +44,25 @@
             "optional": true
           },
           "type": {
-            "choices": [
-              {
-                "max_manifest_version": 2,
-                "$ref": "folders.MailFolderType"
-              },
-              {
-                "min_manifest_version": 3,
-                "type": "array",
-                "items": {
-                  "$ref": "folders.MailFolderType"
-                }
-              }
-            ],
+            "max_manifest_version": 2,
+            "$ref": "folders.MailFolderUsage",
             "optional": true,
-            "description": "The type of folder."
+            "description": "Deprecated. Was used to represent the type of this folder."
+          },
+          "usage": {
+            "type": "array",
+            "items": {
+              "$ref": "folders.MailFolderUsage"
+            },
+            "optional": true,
+            "description": "The special usage of this folder. A folder can have multiple special uses."
           }
         }
       },
       {
         "id": "MailFolderInfo",
         "type": "object",
-        "description": "An object containing additional information about a mail folder.",
+        "description": "An object containing additional information about a folder.",
         "properties": {
           "favorite": {
             "type": "boolean",
@@ -105,7 +102,7 @@
       {
         "id": "MailFolderCapabilities",
         "type": "object",
-        "description": "An object containing capability information about a mail folder.",
+        "description": "An object containing capability information about a folder.",
         "properties": {
           "canAddMessages": {
             "type": "boolean",
@@ -135,9 +132,9 @@
         }
       },
       {
-        "id": "MailFolderType",
+        "id": "MailFolderUsage",
         "type": "string",
-        "description": "The type of folder",
+        "description": "Supported values for the special usage of a folder.",
         "enum": [
           "inbox",
           "drafts",
@@ -196,7 +193,7 @@
         "properties": {
           "regexp": {
             "type": "string",
-            "description": "A regular expression, for example <value>^Projects \\d{4}$</value>"
+            "description": "A regular expression, for example <value>^Projects \\d{4}$</value>."
           },
           "flags": {
             "type": "string",
@@ -333,19 +330,19 @@
                 "description": "Whether the folder (excluding subfolders) has been used within the last month, or not. The returned folders will be sorted by their recentness. Ignored if <value>mostRecent</value> is specified."
               },
               "type": {
-                "choices": [
-                  {
-                    "$ref": "folders.MailFolderType"
-                  },
-                  {
-                    "type": "array",
-                    "items": {
-                      "$ref": "folders.MailFolderType"
-                    }
-                  }
-                ],
+                "max_manifest_version": 2,
+                "$ref": "folders.MailFolderUsage",
                 "optional": true,
-                "description": "Match only folders of the specified type or types."
+                "description": "Deprecated. Match only folders with the specified special usage."
+              },
+              "usage": {
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolderUsage"
+                },
+                "minItems": 1,
+                "optional": true,
+                "description": "Match only folders with the specified special usage (folders have to match all specified uses)."
               }
             }
           },
@@ -534,7 +531,7 @@
       {
         "name": "getFolderInfo",
         "type": "function",
-        "description": "Get additional information about a mail folder.",
+        "description": "Get additional information about a folder.",
         "async": "callback",
         "parameters": [
           {
@@ -556,7 +553,7 @@
       {
         "name": "getFolderCapabilities",
         "type": "function",
-        "description": "Get capability information about a mail folder.",
+        "description": "Get capability information about a folder.",
         "async": "callback",
         "parameters": [
           {
@@ -570,6 +567,31 @@
             "parameters": [
               {
                 "$ref": "folders.MailFolderCapabilities"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "getFolderUsage",
+        "type": "function",
+        "description": "Get the special usage of a folder.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "folder",
+            "$ref": "folders.MailFolder"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolderUsage"
+                }
               }
             ]
           }
@@ -725,6 +747,31 @@
           {
             "name": "deletedFolder",
             "$ref": "folders.MailFolder"
+          }
+        ]
+      },
+      {
+        "name": "onFolderUsageChanged",
+        "type": "function",
+        "description": "Fired when the special usage of a folder has changed.",
+        "parameters": [
+          {
+            "name": "folder",
+            "$ref": "folders.MailFolder"
+          },
+          {
+            "name": "oldFolderUsage",
+            "type": "array",
+            "items": {
+              "$ref": "folders.MailFolderUsage"
+            }
+          },
+          {
+            "name": "newFolderUsage",
+            "type": "array",
+            "items": {
+              "$ref": "folders.MailFolderUsage"
+            }
           }
         ]
       },

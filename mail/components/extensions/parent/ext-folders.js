@@ -19,7 +19,8 @@ var {
   folderPathToURI,
   folderURIToPath,
   getFolder,
-  folderTypeMap,
+  getFolderUsage,
+  folderUsageMap,
 } = ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
 
 /**
@@ -99,6 +100,22 @@ var folderTracker = new (class extends EventEmitter {
             !!(newValue & Ci.nsMsgFolderFlags.Favorite)
           );
         }
+
+        const folderUsageFlags = [...folderUsageMap.keys()];
+        const folderUsageMask = folderUsageFlags.reduce((rv, f) => rv | f);
+        const oldFolderUsageFlags = oldValue & folderUsageMask;
+        const newFolderUsageFlags = newValue & folderUsageMask;
+        if (oldFolderUsageFlags != newFolderUsageFlags) {
+          const oldUsage = getFolderUsage(oldValue);
+          const newUsage = getFolderUsage(newValue);
+          this.emit(
+            "folder-usage-changed",
+            new CachedFolder(item),
+            oldUsage,
+            newUsage
+          );
+        }
+
         break;
       case "TotalMessages":
         this.addPendingInfoNotification(item, "totalMessageCount", newValue);
@@ -496,6 +513,27 @@ this.folders = class extends ExtensionAPIPersistent {
         },
       };
     },
+    onFolderUsageChanged({ context, fire }) {
+      const { extension } = this;
+      const { folderManager } = extension;
+
+      async function listener(event, changedFolder, oldUsage, newUsage) {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.async(folderManager.convert(changedFolder), oldUsage, newUsage);
+      }
+      folderTracker.on("folder-usage-changed", listener);
+      return {
+        unregister: () => {
+          folderTracker.off("folder-usage-changed", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
   };
 
   getAPI(context) {
@@ -537,7 +575,15 @@ this.folders = class extends ExtensionAPIPersistent {
           event: "onFolderInfoChanged",
           extensionApi: this,
         }).api(),
+        onFolderUsageChanged: new EventManager({
+          context,
+          module: "folders",
+          event: "onFolderUsageChanged",
+          extensionApi: this,
+        }).api(),
         async query(queryInfo) {
+          const manifestVersion = context.extension.manifestVersion;
+
           // Generator function to flatten the folder structure.
           function* getFlatFolderStructure(folder, isSubFolder) {
             if (isSubFolder && !folder.isServer) {
@@ -587,16 +633,18 @@ this.folders = class extends ExtensionAPIPersistent {
             }
           }
 
-          // Prepare type flags.
-          let typeFlags = [];
-          if (queryInfo.type) {
-            const types = Array.isArray(queryInfo.type)
-              ? queryInfo.type
-              : [queryInfo.type];
-            typeFlags = [...folderTypeMap.entries()]
-              .filter(([typeFlag, typeName]) => types.includes(typeName))
-              .map(([typeFlag, typeName]) => typeFlag);
-          }
+          // Prepare usage flags.
+          const usage =
+            !queryInfo.usage && queryInfo.type && manifestVersion < 3
+              ? [queryInfo.type]
+              : queryInfo.usage;
+          const usageFlags =
+            usage && Array.isArray(usage) && usage.length > 0
+              ? [...folderUsageMap.entries()]
+                  .filter(([flag, usageName]) => usage.includes(usageName))
+                  .map(([flag, usageName]) => flag)
+                  .reduce((rv, f) => rv | f)
+              : null;
 
           // Prepare regular expression.
           let nameRegExp;
@@ -627,9 +675,8 @@ this.folders = class extends ExtensionAPIPersistent {
                 }
               }
 
-              if (typeFlags.length > 0) {
-                const flags = folder.flags;
-                if (!typeFlags.find(typeFlag => flags & typeFlag)) {
+              if (usageFlags) {
+                if (~folder.flags & usageFlags) {
                   continue;
                 }
               }
@@ -981,6 +1028,10 @@ this.folders = class extends ExtensionAPIPersistent {
           } catch (e) {}
 
           return mailFolderInfo;
+        },
+        async getFolderUsage({ accountId, path }) {
+          const { folder } = getFolder({ accountId, path });
+          return getFolderUsage(folder.flags);
         },
         async getParentFolders({ accountId, path }, includeFolders) {
           const { folderManager } = context.extension;

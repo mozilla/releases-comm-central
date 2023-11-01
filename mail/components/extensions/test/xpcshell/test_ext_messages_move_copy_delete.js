@@ -123,12 +123,13 @@ add_task(
         }
 
         // Checks the folder type property of the given message and returns a clone
-        // where the type has been removed.
+        // where the type has been removed. The type property has been deprecated
+        // in MV3.
         function preCheckFolderType(message, expected) {
           window.assertDeepEqual(
             message.folder.type,
             expected,
-            "Folder type should be correct"
+            "Deprecated Folder type should be correct"
           );
           const m = JSON.parse(JSON.stringify(message));
           delete m.folder.type;
@@ -275,20 +276,12 @@ add_task(
         let moveInfo = await movePromise;
         window.assertDeepEqual(
           {
-            srcMsgs: moveInfo.srcMsgs.map(m =>
-              preCheckFolderType(m, undefined)
-            ),
-            dstMsgs: moveInfo.dstMsgs.map(m =>
-              preCheckFolderType(m, undefined)
-            ),
+            srcMsgs: moveInfo.srcMsgs,
+            dstMsgs: moveInfo.dstMsgs,
           },
           {
-            srcMsgs: primedMoveInfo[0].messages.map(m =>
-              preCheckFolderType(m, [])
-            ),
-            dstMsgs: primedMoveInfo[1].messages.map(m =>
-              preCheckFolderType(m, [])
-            ),
+            srcMsgs: primedMoveInfo[0].messages,
+            dstMsgs: primedMoveInfo[1].messages,
           },
           "The primed and non-primed onMoved events should return the same values",
           { strict: true }
@@ -319,20 +312,12 @@ add_task(
         moveInfo = await movePromise;
         window.assertDeepEqual(
           {
-            srcMsgs: moveInfo.srcMsgs.map(m =>
-              preCheckFolderType(m, undefined)
-            ),
-            dstMsgs: moveInfo.dstMsgs.map(m =>
-              preCheckFolderType(m, undefined)
-            ),
+            srcMsgs: moveInfo.srcMsgs,
+            dstMsgs: moveInfo.dstMsgs,
           },
           {
-            srcMsgs: primedMoveInfo[0].messages.map(m =>
-              preCheckFolderType(m, [])
-            ),
-            dstMsgs: primedMoveInfo[1].messages.map(m =>
-              preCheckFolderType(m, [])
-            ),
+            srcMsgs: primedMoveInfo[0].messages,
+            dstMsgs: primedMoveInfo[1].messages,
           },
           "The primed and non-primed onMoved events should return the same values",
           { strict: true }
@@ -366,20 +351,12 @@ add_task(
         moveInfo = await movePromise;
         window.assertDeepEqual(
           {
-            srcMsgs: moveInfo.srcMsgs.map(m =>
-              preCheckFolderType(m, undefined)
-            ),
-            dstMsgs: moveInfo.dstMsgs.map(m =>
-              preCheckFolderType(m, undefined)
-            ),
+            srcMsgs: moveInfo.srcMsgs,
+            dstMsgs: moveInfo.dstMsgs,
           },
           {
-            srcMsgs: primedMoveInfo[0].messages.map(m =>
-              preCheckFolderType(m, [])
-            ),
-            dstMsgs: primedMoveInfo[1].messages.map(m =>
-              preCheckFolderType(m, [])
-            ),
+            srcMsgs: primedMoveInfo[0].messages,
+            dstMsgs: primedMoveInfo[1].messages,
           },
           "The primed and non-primed onMoved events should return the same values",
           { strict: true }
@@ -407,20 +384,12 @@ add_task(
         moveInfo = await movePromise;
         window.assertDeepEqual(
           {
-            srcMsgs: moveInfo.srcMsgs.map(m =>
-              preCheckFolderType(m, undefined)
-            ),
-            dstMsgs: moveInfo.dstMsgs.map(m =>
-              preCheckFolderType(m, undefined)
-            ),
+            srcMsgs: moveInfo.srcMsgs,
+            dstMsgs: moveInfo.dstMsgs,
           },
           {
-            srcMsgs: primedMoveInfo[0].messages.map(m =>
-              preCheckFolderType(m, [])
-            ),
-            dstMsgs: primedMoveInfo[1].messages.map(m =>
-              preCheckFolderType(m, [])
-            ),
+            srcMsgs: primedMoveInfo[0].messages,
+            dstMsgs: primedMoveInfo[1].messages,
           },
           "The primed and non-primed onMoved events should return the same values",
           { strict: true }
@@ -542,20 +511,12 @@ add_task(
         const copyInfo = await copyPromise;
         window.assertDeepEqual(
           {
-            srcMsgs: copyInfo.srcMsgs.map(m =>
-              preCheckFolderType(m, undefined)
-            ),
-            dstMsgs: copyInfo.dstMsgs.map(m =>
-              preCheckFolderType(m, undefined)
-            ),
+            srcMsgs: copyInfo.srcMsgs,
+            dstMsgs: copyInfo.dstMsgs,
           },
           {
-            srcMsgs: primedCopyInfo[0].messages.map(m =>
-              preCheckFolderType(m, [])
-            ),
-            dstMsgs: primedCopyInfo[1].messages.map(m =>
-              preCheckFolderType(m, [])
-            ),
+            srcMsgs: primedCopyInfo[0].messages,
+            dstMsgs: primedCopyInfo[1].messages,
           },
           "The primed and non-primed onCopied events should return the same values",
           { strict: true }
@@ -598,15 +559,13 @@ add_task(
           [
             {
               id: null,
-              messages: deleteLog.map(m => preCheckFolderType(m, undefined)),
+              messages: deleteLog,
             },
           ],
           [
             {
               id: primedDeleteLog.id,
-              messages: primedDeleteLog.messages.map(m =>
-                preCheckFolderType(m, [])
-              ),
+              messages: primedDeleteLog.messages,
             },
           ],
           "The primed and non-primed onDeleted events should return the same values",
@@ -637,18 +596,15 @@ add_task(
         moveInfo = await movePromise;
         window.assertDeepEqual(
           {
-            srcMsgs: moveInfo.srcMsgs.map(m =>
-              preCheckFolderType(m, undefined)
-            ),
+            srcMsgs: moveInfo.srcMsgs,
+            // The type property is deprecated in MV3.
             dstMsgs: moveInfo.dstMsgs.map(m => preCheckFolderType(m, "trash")),
           },
           {
-            // Adjust expected folder type from MV3 to MV2.
-            srcMsgs: primedMoveInfo[0].messages.map(m =>
-              preCheckFolderType(m, [])
-            ),
+            srcMsgs: primedMoveInfo[0].messages,
+            // The type property is deprecated in MV3.
             dstMsgs: primedMoveInfo[1].messages.map(m =>
-              preCheckFolderType(m, ["trash"])
+              preCheckFolderType(m, undefined)
             ),
           },
           "The primed and non-primed onMoved events should return the same values",

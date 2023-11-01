@@ -807,19 +807,35 @@ add_task(async function test_getFolderInfo_and_query() {
         ["OtherTest"]
       );
 
-      // Type.
+      // Usage.
       await queryCheck(
         { parent: account, type: "inbox" },
         expectedAccountFolders.filter(f => f == "Inbox")
       );
       await queryCheck(
-        { parent: account, type: ["inbox"] },
+        { parent: account, usage: ["inbox"] },
         expectedAccountFolders.filter(f => f == "Inbox")
       );
-      await queryCheck(
-        { parent: account, type: ["inbox", "trash"] },
-        expectedAccountFolders.filter(f => ["Inbox", "Trash"].includes(f))
-      );
+      await queryCheck({ parent: account, usage: ["inbox", "trash"] }, []);
+      // NNTP does not have a trash folder which is set to be a drafts folder
+      // here, so skip it.
+      if (account.type != "nntp") {
+        const usageChangedPromise = new Promise(resolve => {
+          const listener = (folder, oldUsage, newUsage) => {
+            browser.folders.onFolderUsageChanged.removeListener(listener);
+            resolve({ folder, oldUsage, newUsage });
+          };
+          browser.folders.onFolderUsageChanged.addListener(listener);
+        });
+
+        await window.sendMessage("setAsDraft");
+        await usageChangedPromise;
+
+        await queryCheck(
+          { parent: account, usage: ["drafts", "trash"] },
+          expectedAccountFolders.filter(f => f == "Trash")
+        );
+      }
 
       // Clear new messages and check FolderInfo and onFolderInfoChanged event.
       {
@@ -1019,6 +1035,14 @@ add_task(async function test_getFolderInfo_and_query() {
     extension.sendMessage();
   });
 
+  extension.onMessage("setAsDraft", () => {
+    const trash = account.incomingServer.rootFolder.subFolders.find(
+      f => f.prettyName == "Trash"
+    );
+    trash.setFlag(Ci.nsMsgFolderFlags.Drafts);
+    extension.sendMessage();
+  });
+
   // Set max_recent to 1 to be able to test the difference between mostRecent
   // and recent.
   Services.prefs.setIntPref("mail.folder_widget.max_recent", 1);
@@ -1030,3 +1054,98 @@ add_task(async function test_getFolderInfo_and_query() {
 
   Services.prefs.clearUserPref("mail.folder_widget.max_recent");
 });
+
+add_task(
+  {
+    // NNTP does not have special folders.
+    skip_if: () => IS_NNTP,
+  },
+  async function test_folder_usage() {
+    const files = {
+      "background.js": async () => {
+        const [accountId] = await window.waitForMessage();
+
+        const account = await browser.accounts.get(accountId);
+        browser.test.assertEq(
+          3,
+          account.folders.length,
+          "Should find the correct number of folders"
+        );
+        const trash = account.folders.find(f => f.usage.includes("trash"));
+        browser.test.assertTrue(
+          trash,
+          "Should find a folder which is used as trash"
+        );
+
+        const usage = await browser.folders.getFolderUsage(trash);
+        window.assertDeepEqual(
+          ["trash"],
+          usage,
+          "Should find the correct folder usage"
+        );
+
+        const usageChangedPromise = new Promise(resolve => {
+          const listener = (folder, oldUsage, newUsage) => {
+            browser.folders.onFolderUsageChanged.removeListener(listener);
+            resolve({ folder, oldUsage, newUsage });
+          };
+          browser.folders.onFolderUsageChanged.addListener(listener);
+        });
+
+        await window.sendMessage("setAsDraft");
+        const changed = await usageChangedPromise;
+
+        // Prepare expected event folder value.
+        trash.usage = ["drafts", "trash"];
+        trash.type = "drafts";
+        delete trash.subFolders;
+
+        window.assertDeepEqual(
+          trash,
+          changed.folder,
+          "Should find the correct changed folder"
+        );
+        window.assertDeepEqual(
+          ["trash"],
+          changed.oldUsage,
+          "Should find the correct old usage"
+        );
+        window.assertDeepEqual(
+          ["drafts", "trash"],
+          changed.newUsage,
+          "Should find the correct new usage"
+        );
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    const extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "accountsFolders", "messagesDelete"],
+      },
+    });
+
+    const account = createAccount();
+    // Not all folders appear immediately on IMAP. Creating a new one causes them to appear.
+    await createSubfolder(account.incomingServer.rootFolder, "unused");
+
+    extension.onMessage("setAsDraft", () => {
+      const trash = account.incomingServer.rootFolder.subFolders.find(
+        f => f.prettyName == "Trash"
+      );
+      trash.setFlag(Ci.nsMsgFolderFlags.Drafts);
+      extension.sendMessage();
+    });
+
+    // We should now have three folders. For IMAP accounts they are Inbox, Trash,
+    // and unused. Otherwise they are Trash, Unsent Messages and unused.
+
+    await extension.startup();
+    extension.sendMessage(account.key, IS_IMAP);
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
