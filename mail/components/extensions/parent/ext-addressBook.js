@@ -162,9 +162,16 @@ async function setPhotoFile(id, file) {
       : parentNode.item.dirType != Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE;
 
     if (useFile) {
-      const oldPhotoFile = Services.io
-        .newURI(photoUrl)
-        .QueryInterface(Ci.nsIFileURL).file;
+      let oldPhotoFile;
+      if (photoUrl) {
+        try {
+          oldPhotoFile = Services.io
+            .newURI(photoUrl)
+            .QueryInterface(Ci.nsIFileURL).file;
+        } catch (ex) {
+          console.error(`Ignoring invalid photoUrl ${photoUrl}: ` + ex);
+        }
+      }
       const pathPhotoFile = await IOUtils.createUniqueFile(
         PathUtils.join(PathUtils.profileDir, "Photos"),
         `${id}.${type}`,
