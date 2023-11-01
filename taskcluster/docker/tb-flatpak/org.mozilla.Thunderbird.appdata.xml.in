@@ -69,8 +69,8 @@
   <url type="contact">https://www.thunderbird.net/contact/</url>
   
   <screenshots>
-    <screenshot type="default">https://raw.githubusercontent.com/thundernest/flatpak-screenshots/main/image_1.png</screenshot>
-    <screenshot>https://raw.githubusercontent.com/thundernest/flatpak-screenshots/main/image_2.png</screenshot>
+    <screenshot type="default">https://raw.githubusercontent.com/thunderbird/flatpak-screenshots/main/image_1.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/thunderbird/flatpak-screenshots/main/image_2.png</screenshot>
   </screenshots>
   
   <custom>
