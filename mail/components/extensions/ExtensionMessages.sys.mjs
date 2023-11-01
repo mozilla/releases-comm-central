@@ -741,15 +741,6 @@ export class MessageTracker extends EventEmitter {
     const folders = changedFolder.descendants;
     folders.unshift(changedFolder);
     for (const folder of folders) {
-      const flags = folder.flags;
-      if (
-        !(flags & Ci.nsMsgFolderFlags.Inbox) &&
-        flags & (Ci.nsMsgFolderFlags.SpecialUse | Ci.nsMsgFolderFlags.Virtual)
-      ) {
-        // Do not notify if the folder is not Inbox but one of
-        // Drafts|Trash|SentMail|Templates|Junk|Archive|Queue or Virtual.
-        continue;
-      }
       const numNewMessages = folder.getNumNewMessages(false);
       if (!numNewMessages) {
         continue;

@@ -76,7 +76,7 @@ async function event_page_extension(eventName, actionCallback) {
   return rv;
 }
 
-add_task(async function () {
+add_task(async function test_onNewMailReceived_default() {
   await AddonTestUtils.promiseStartupManager();
 
   const account = createAccount();
@@ -176,4 +176,91 @@ add_task(async function () {
 
   cleanUpAccount(account);
   await AddonTestUtils.promiseShutdownManager();
+});
+
+add_task(async function test_onNewMailReceived_custom() {
+  const account = createAccount();
+  const inbox = await createSubfolder(
+    account.incomingServer.rootFolder,
+    "test1"
+  );
+  const draft = await createSubfolder(
+    account.incomingServer.rootFolder,
+    "test2"
+  );
+
+  // Set the test2 folder to be a drafts folder, which should not trigger the
+  // onNewMailReceived event in the default listener configuration.
+  draft.setFlag(Ci.nsMsgFolderFlags.Drafts);
+
+  const files = {
+    "background.js": async () => {
+      const seenByListener1 = [];
+      const seenByListener2 = [];
+
+      browser.test.onMessage.addListener(async msg => {
+        if (msg == "checkListeners") {
+          await window.waitForCondition(
+            () => seenByListener1.length == 2,
+            `The non-default listener should see two events.`
+          );
+          await window.waitForCondition(
+            () => seenByListener2.length == 1,
+            `The default listener should see one event.`
+          );
+
+          window.assertDeepEqual(
+            ["test1", "test2"],
+            seenByListener1.map(e => e.folder.name)
+          );
+
+          window.assertDeepEqual(
+            ["test1"],
+            seenByListener2.map(e => e.folder.name)
+          );
+
+          browser.test.notifyPass("finished");
+        }
+      });
+
+      browser.messages.onNewMailReceived.addListener((folder, messageList) => {
+        seenByListener1.push({ folder, messageList });
+      }, true);
+
+      browser.messages.onNewMailReceived.addListener((folder, messageList) => {
+        seenByListener2.push({ folder, messageList });
+        browser.test.sendMessage("onNewMailReceived event received");
+      });
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  const extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
+  });
+
+  await extension.startup();
+
+  // Create a new message in drafts and inbox.
+
+  await createMessages(inbox, 1);
+  inbox.hasNewMessages = true;
+  inbox.setNumNewMessages(1);
+  inbox.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NewMail;
+
+  await createMessages(draft, 1);
+  draft.hasNewMessages = true;
+  draft.setNumNewMessages(1);
+  draft.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NewMail;
+
+  await extension.awaitMessage("onNewMailReceived event received");
+
+  extension.sendMessage("checkListeners");
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  cleanUpAccount(account);
 });

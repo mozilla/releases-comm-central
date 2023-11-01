@@ -118,7 +118,7 @@ this.messages = class extends ExtensionAPIPersistent {
     // available after fire.wakeup() has fulfilled (ensuring the convert() function
     // has been called).
 
-    onNewMailReceived({ context, fire }) {
+    onNewMailReceived({ context, fire }, [monitorAllFolders]) {
       const listener = async (event, folder, newMessages) => {
         const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert it early.
@@ -126,7 +126,14 @@ this.messages = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.async(extension.folderManager.convert(folder), page);
+        // Evaluate sensitivity.
+        const flags = folder.flags;
+        const isInbox = f => f & Ci.nsMsgFolderFlags.Inbox;
+        const isNormal = f =>
+          !(f & (Ci.nsMsgFolderFlags.SpecialUse | Ci.nsMsgFolderFlags.Virtual));
+        if (monitorAllFolders || isInbox(flags) || isNormal(flags)) {
+          fire.async(extension.folderManager.convert(folder), page);
+        }
       };
       messageTracker.on("messages-received", listener);
       return {
