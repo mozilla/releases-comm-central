@@ -277,6 +277,32 @@
         ]
       },
       {
+        "name": "getListedMessages",
+        "type": "function",
+        "description": "Lists the messages in the current view, honoring sort order and filters.",
+        "permissions": ["messagesRead"],
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer",
+            "description": "Defaults to the active tab of the current window.",
+            "optional": true,
+            "minimum": 1
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "messages.MessageList"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "getSelectedMessages",
         "type": "function",
         "description": "Lists the selected messages in the current folder.",

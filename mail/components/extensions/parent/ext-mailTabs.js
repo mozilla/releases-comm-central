@@ -15,6 +15,10 @@ var { folderPathToURI } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
 
+var { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
+
 XPCOMUtils.defineLazyPreferenceGetter(
   this,
   "gDynamicPaneConfig",
@@ -368,6 +372,30 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           if (typeof messagePaneVisible == "boolean") {
             about3Pane.paneLayout.messagePaneVisible = messagePaneVisible;
           }
+        },
+
+        async getListedMessages(tabId) {
+          const addListedMessages = async (dbView, messageList) => {
+            for (let i = 0; i < dbView.numMsgsInView; i++) {
+              await messageList.addMessage(dbView.getMsgHdrAt(i));
+            }
+            messageList.done();
+          };
+
+          const tab = await getTabOrActive(tabId);
+          const dbView = tab.nativeTab.chromeBrowser.contentWindow?.gDBView;
+          if (dbView) {
+            // The view could contain a lot of messages and looping over them
+            // could take some time. Do not create a static list which pushes
+            // all messages at once into the list, but push messages as soon as
+            // they are known and return pages as soon as they are filled. This
+            // is the same mechanism used for queries.
+            const messageList = messageListTracker.createList(extension);
+            setTimeout(() => addListedMessages(dbView, messageList));
+            return messageListTracker.getNextPage(messageList);
+          }
+
+          return messageListTracker.startList([], extension);
         },
 
         async getSelectedMessages(tabId) {
