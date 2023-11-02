@@ -50,6 +50,7 @@ function populateChatSection() {
     );
   };
 
+  IMServices.core.init();
   const chatAccounts = IMServices.accounts.getAccounts();
   if (!chatAccounts.length) {
     return;
