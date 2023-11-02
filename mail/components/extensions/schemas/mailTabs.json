@@ -73,6 +73,71 @@
         }
       },
       {
+        "id": "MailTabProperties",
+        "type": "object",
+        "properties": {
+          "sortType": {
+            "type": "string",
+            "description": "Sorts the list of messages. ``sortOrder`` must also be given.",
+            "optional": true,
+            "enum": [
+              "none",
+              "date",
+              "subject",
+              "author",
+              "id",
+              "thread",
+              "priority",
+              "status",
+              "size",
+              "flagged",
+              "unread",
+              "recipient",
+              "location",
+              "tags",
+              "junkStatus",
+              "attachments",
+              "account",
+              "custom",
+              "received",
+              "correspondent"
+            ]
+          },
+          "sortOrder": {
+            "type": "string",
+            "description": "Sorts the list of messages. ``sortType`` must also be given.",
+            "optional": true,
+            "enum": ["none", "ascending", "descending"]
+          },
+          "viewType": {
+            "type": "string",
+            "optional": true,
+            "enum": ["ungrouped", "groupedByThread", "groupedBySortType"]
+          },
+          "layout": {
+            "type": "string",
+            "description": "Sets the arrangement of the folder pane, message list pane, and message display pane. Note that setting this applies it to all mail tabs.",
+            "optional": true,
+            "enum": ["standard", "wide", "vertical"]
+          },
+          "folderPaneVisible": {
+            "type": "boolean",
+            "description": "Shows or hides the folder pane.",
+            "optional": true
+          },
+          "messagePaneVisible": {
+            "type": "boolean",
+            "description": "Shows or hides the message display pane.",
+            "optional": true
+          },
+          "displayedFolder": {
+            "$ref": "folders.MailFolder",
+            "description": "Sets the folder displayed in the mail tab. Requires the <permission>accountsRead</permission> permission. The previous message selection in the given folder will be restored, if any. This property is ignored, if <value>selectedMessages</value> is specified.",
+            "optional": true
+          }
+        }
+      },
+      {
         "id": "QuickFilterTextDetail",
         "type": "object",
         "properties": {
@@ -197,10 +262,37 @@
         ]
       },
       {
+        "name": "create",
+        "type": "function",
+        "description": "Creates a new mail tab. Standard tab properties can be adjusted via :ref:`tabs.update` after the mail tab has been created. Note: A new mail window can be created via :ref:`windows.create`.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "createProperties",
+            "$ref": "MailTabProperties",
+            "optional": true,
+            "default": {}
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "mailTab",
+                "$ref": "MailTab",
+                "optional": true,
+                "description": "Details about the created mail tab. Will contain the ID of the new tab."
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "update",
         "type": "function",
         "description": "Modifies the properties of a mail tab. Properties that are not specified in ``updateProperties`` are not modified.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "tabId",
@@ -211,68 +303,20 @@
           },
           {
             "name": "updateProperties",
-            "type": "object",
-            "properties": {
-              "displayedFolder": {
-                "$ref": "folders.MailFolder",
-                "description": "Sets the folder displayed in the tab. The extension must have the <permission>accountsRead</permission> permission to do this. The previous message selection in the given folder will be restored.",
-                "optional": true
-              },
-              "sortType": {
-                "type": "string",
-                "description": "Sorts the list of messages. ``sortOrder`` must also be given.",
+            "$ref": "MailTabProperties"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "mailTab",
+                "$ref": "MailTab",
                 "optional": true,
-                "enum": [
-                  "none",
-                  "date",
-                  "subject",
-                  "author",
-                  "id",
-                  "thread",
-                  "priority",
-                  "status",
-                  "size",
-                  "flagged",
-                  "unread",
-                  "recipient",
-                  "location",
-                  "tags",
-                  "junkStatus",
-                  "attachments",
-                  "account",
-                  "custom",
-                  "received",
-                  "correspondent"
-                ]
-              },
-              "sortOrder": {
-                "type": "string",
-                "description": "Sorts the list of messages. ``sortType`` must also be given.",
-                "optional": true,
-                "enum": ["none", "ascending", "descending"]
-              },
-              "viewType": {
-                "type": "string",
-                "optional": true,
-                "enum": ["ungrouped", "groupedByThread", "groupedBySortType"]
-              },
-              "layout": {
-                "type": "string",
-                "description": "Sets the arrangement of the folder pane, message list pane, and message display pane. Note that setting this applies it to all mail tabs.",
-                "optional": true,
-                "enum": ["standard", "wide", "vertical"]
-              },
-              "folderPaneVisible": {
-                "type": "boolean",
-                "description": "Shows or hides the folder pane.",
-                "optional": true
-              },
-              "messagePaneVisible": {
-                "type": "boolean",
-                "description": "Shows or hides the message display pane.",
-                "optional": true
+                "description": "Details about the updated mail tab."
               }
-            }
+            ]
           }
         ]
       },
@@ -345,7 +389,7 @@
           {
             "name": "messageIds",
             "type": "array",
-            "description": "The IDs of the messages, which should be selected. The mailTab will switch to the folder of the selected messages. Throws if they belong to different folders. Array can be empty to deselect any currently selected message.",
+            "description": "The IDs of the messages, which should be selected. The mail tab will switch to the folder of the selected messages. Throws if they belong to different folders. Array can be empty to deselect any currently selected message.",
             "items": {
               "type": "integer"
             }

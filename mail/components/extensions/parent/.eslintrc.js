@@ -58,6 +58,7 @@ module.exports = {
     spaceTracker: true,
     tabGetSender: true,
     tabTracker: true,
+    waitForMailTabReady: true,
     windowTracker: true,
 
     // ext-browserAction.js

@@ -226,14 +226,14 @@ this.mailTabs = class extends ExtensionAPIPersistent {
 
     /**
      * Set the currently displayed folder in the given tab.
-     * @param {NativeTabInfo} nativeTabInfo
+     * @param {NativeTab} nativeTab
      * @param {nsIMsgFolder} folder
      * @param {boolean} restorePreviousSelection - Select the previously selected
      *   messages of the folder, after it has been set.
      */
-    async function setFolder(nativeTabInfo, folder, restorePreviousSelection) {
-      const about3Pane = nativeTabInfo.chromeBrowser.contentWindow;
-      if (!nativeTabInfo.folder || nativeTabInfo.folder.URI != folder.URI) {
+    async function setFolder(nativeTab, folder, restorePreviousSelection) {
+      const about3Pane = nativeTab.chromeBrowser.contentWindow;
+      if (!nativeTab.folder || nativeTab.folder.URI != folder.URI) {
         await new Promise(resolve => {
           const listener = event => {
             if (event.detail == folder.URI) {
@@ -248,10 +248,96 @@ this.mailTabs = class extends ExtensionAPIPersistent {
             });
           } else {
             about3Pane.threadPane.forgetSelection(folder.URI);
-            nativeTabInfo.folder = folder;
+            nativeTab.folder = folder;
           }
         });
       }
+    }
+
+    /**
+     * Update the given tab.
+     * @param {NativeTab} nativeTab
+     * @param {MailTabProperties} properties
+     *
+     * @see mail/components/extensions/schemas/mailTabs.json
+     */
+    async function updateMailTab(nativeTab, properties) {
+      const about3Pane = nativeTab.chromeBrowser.contentWindow;
+
+      let {
+        displayedFolder,
+        layout,
+        folderPaneVisible,
+        messagePaneVisible,
+        sortOrder,
+        sortType,
+        viewType,
+      } = properties;
+
+      if (displayedFolder) {
+        const folder = getFolderFromMailFolder(displayedFolder);
+        await setFolder(nativeTab, folder, true);
+      }
+
+      if (sortType) {
+        // Change "foo" to "byFoo".
+        sortType = "by" + sortType[0].toUpperCase() + sortType.substring(1);
+        if (
+          sortType in Ci.nsMsgViewSortType &&
+          sortOrder &&
+          sortOrder in Ci.nsMsgViewSortOrder
+        ) {
+          about3Pane.gViewWrapper.sort(
+            Ci.nsMsgViewSortType[sortType],
+            Ci.nsMsgViewSortOrder[sortOrder]
+          );
+        }
+      }
+
+      switch (viewType) {
+        case "groupedBySortType":
+          about3Pane.gViewWrapper.showGroupedBySort = true;
+          break;
+        case "groupedByThread":
+          about3Pane.gViewWrapper.showThreaded = true;
+          break;
+        case "ungrouped":
+          about3Pane.gViewWrapper.showUnthreaded = true;
+          break;
+      }
+
+      // Layout applies to all folder tabs.
+      if (layout) {
+        Services.prefs.setIntPref(
+          "mail.pane_config.dynamic",
+          LAYOUTS.indexOf(layout)
+        );
+      }
+
+      if (typeof folderPaneVisible == "boolean") {
+        about3Pane.paneLayout.folderPaneVisible = folderPaneVisible;
+      }
+      if (typeof messagePaneVisible == "boolean") {
+        about3Pane.paneLayout.messagePaneVisible = messagePaneVisible;
+      }
+
+      const tab = tabManager.wrapTab(nativeTab);
+      return convertMailTab(tab, context);
+    }
+
+    function getFolderFromMailFolder(displayedFolder) {
+      const folderUri = folderPathToURI(
+        displayedFolder.accountId,
+        displayedFolder.path
+      );
+      const folder = MailServices.folderLookup.getFolderForURL(folderUri);
+      if (!folder) {
+        throw new ExtensionError(
+          `Folder "${displayedFolder.path}" for account ` +
+            `"${displayedFolder.accountId}" not found.`
+        );
+      }
+      return folder;
     }
 
     return {
@@ -295,83 +381,52 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           }
         },
 
-        async update(tabId, args) {
-          const tab = await getTabOrActive(tabId);
-          const { nativeTab } = tab;
-          const about3Pane = nativeTab.chromeBrowser.contentWindow;
+        async create(properties) {
+          // Set those properties here already, which can be defined before opening
+          // the new tab. All other properties will be applied via an update after
+          // the tab has been created.
+          const tabParams = {};
 
-          let {
-            displayedFolder,
-            layout,
-            folderPaneVisible,
-            messagePaneVisible,
-            sortOrder,
-            sortType,
-            viewType,
-          } = args;
+          // Set folderURI parameter.
+          if (properties.displayedFolder) {
+            if (!extension.hasPermission("accountsRead")) {
+              throw new ExtensionError(
+                'Setting the displayed folder requires the "accountsRead" permission'
+              );
+            }
+            tabParams.folderURI = getFolderFromMailFolder(
+              properties.displayedFolder
+            ).URI;
+            delete properties.displayedFolder;
+          }
 
-          if (displayedFolder) {
+          // Set pane visibility parameters.
+          if (properties.folderPaneVisible != null) {
+            tabParams.folderPaneVisible = properties.folderPaneVisible;
+            delete properties.folderPaneVisible;
+          }
+          if (properties.messagePaneVisible != null) {
+            tabParams.messagePaneVisible = properties.messagePaneVisible;
+            delete properties.messagePaneVisible;
+          }
+
+          const window = await getNormalWindowReady();
+          const nativeTab = window.gTabmail.openTab("mail3PaneTab", tabParams);
+          await waitForMailTabReady(nativeTab);
+          return updateMailTab(nativeTab, properties);
+        },
+
+        async update(tabId, properties) {
+          if (properties.displayedFolder) {
             if (!extension.hasPermission("accountsRead")) {
               throw new ExtensionError(
                 'Updating the displayed folder requires the "accountsRead" permission'
               );
             }
-
-            const folderUri = folderPathToURI(
-              displayedFolder.accountId,
-              displayedFolder.path
-            );
-            const folder = MailServices.folderLookup.getFolderForURL(folderUri);
-            if (!folder) {
-              throw new ExtensionError(
-                `Folder "${displayedFolder.path}" for account ` +
-                  `"${displayedFolder.accountId}" not found.`
-              );
-            }
-            await setFolder(nativeTab, folder, true);
           }
-
-          if (sortType) {
-            // Change "foo" to "byFoo".
-            sortType = "by" + sortType[0].toUpperCase() + sortType.substring(1);
-            if (
-              sortType in Ci.nsMsgViewSortType &&
-              sortOrder &&
-              sortOrder in Ci.nsMsgViewSortOrder
-            ) {
-              about3Pane.gViewWrapper.sort(
-                Ci.nsMsgViewSortType[sortType],
-                Ci.nsMsgViewSortOrder[sortOrder]
-              );
-            }
-          }
-
-          switch (viewType) {
-            case "groupedBySortType":
-              about3Pane.gViewWrapper.showGroupedBySort = true;
-              break;
-            case "groupedByThread":
-              about3Pane.gViewWrapper.showThreaded = true;
-              break;
-            case "ungrouped":
-              about3Pane.gViewWrapper.showUnthreaded = true;
-              break;
-          }
-
-          // Layout applies to all folder tabs.
-          if (layout) {
-            Services.prefs.setIntPref(
-              "mail.pane_config.dynamic",
-              LAYOUTS.indexOf(layout)
-            );
-          }
-
-          if (typeof folderPaneVisible == "boolean") {
-            about3Pane.paneLayout.folderPaneVisible = folderPaneVisible;
-          }
-          if (typeof messagePaneVisible == "boolean") {
-            about3Pane.paneLayout.messagePaneVisible = messagePaneVisible;
-          }
+          const tab = await getTabOrActive(tabId);
+          const { nativeTab } = tab;
+          return updateMailTab(nativeTab, properties);
         },
 
         async getListedMessages(tabId) {

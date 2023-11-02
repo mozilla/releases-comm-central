@@ -1824,6 +1824,24 @@ class WindowManager extends WindowManagerBase {
   }
 }
 
+async function waitForMailTabReady(tabInfo) {
+  const { chromeBrowser, mode, closed } = tabInfo;
+  if (!closed && mode.name == "mail3PaneTab") {
+    await new Promise(resolve => {
+      if (
+        chromeBrowser.contentDocument.readyState == "complete" &&
+        chromeBrowser.currentURI.spec == "about:3pane"
+      ) {
+        resolve();
+      } else {
+        chromeBrowser.contentWindow.addEventListener("load", () => resolve(), {
+          once: true,
+        });
+      }
+    });
+  }
+}
+
 /**
  * Wait until the normal window identified by the given windowId has finished its
  * delayed startup. Returns its DOMWindow when done. Waits for the top normal
@@ -1865,25 +1883,7 @@ async function getNormalWindowReady(context, windowId) {
 
   // Wait for all mail3PaneTab's to have been fully restored and loaded.
   for (const tabInfo of window.gTabmail.tabInfo) {
-    const { chromeBrowser, mode, closed } = tabInfo;
-    if (!closed && mode.name == "mail3PaneTab") {
-      await new Promise(resolve => {
-        if (
-          chromeBrowser.contentDocument.readyState == "complete" &&
-          chromeBrowser.currentURI.spec == "about:3pane"
-        ) {
-          resolve();
-        } else {
-          chromeBrowser.contentWindow.addEventListener(
-            "load",
-            () => resolve(),
-            {
-              once: true,
-            }
-          );
-        }
-      });
-    }
+    await waitForMailTabReady(tabInfo);
   }
 
   return window;
