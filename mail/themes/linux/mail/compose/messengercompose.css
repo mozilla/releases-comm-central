@@ -40,10 +40,10 @@
 #composeContentBox {
   background-color: -moz-dialog;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) inset;
-}
 
-#composeContentBox:-moz-window-inactive {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) inset;
+  &:-moz-window-inactive {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) inset;
+  }
 }
 
 #MsgHeadersToolbar {
@@ -72,10 +72,10 @@
 
 .address-pill {
   padding-block: 2px;
-}
 
-.address-pill label {
-  margin-block: 0;
+  & label {
+    margin-block: 0;
+  }
 }
 
 .pill-indicator {
@@ -90,32 +90,32 @@
   margin-block: 2px 0;
   padding-block: 4px;
   padding-inline: 2px 20px;
-}
 
-#msgIdentity::part(label-box) {
-  background: none;
-  padding-inline-end: initial;
-}
+  &::part(label-box) {
+    background: none;
+    padding-inline-end: initial;
+  }
 
-#msgIdentity::part(text-input) {
-  appearance: none;
-  padding-block: 1px 2px;
-  padding-inline: 3px 12px;
-  background-color: transparent;
-  color: inherit;
-}
+  &::part(text-input) {
+    appearance: none;
+    padding-block: 1px 2px;
+    padding-inline: 3px 12px;
+    background-color: transparent;
+    color: inherit;
+  }
 
-#msgIdentity[editable="true"]::part(dropmarker) {
-  margin-inline-end: 0;
-  width: 12px;
-}
+  &[editable="true"]::part(dropmarker) {
+    margin-inline-end: 0;
+    width: 12px;
+  }
 
-#msgIdentity[open="true"] {
-  color: FieldText;
-}
+  &[open="true"] {
+    color: FieldText;
 
-:root[lwt-tree] #msgIdentity[open="true"] {
-  color: var(--lwt-toolbar-field-color);
+    :root[lwt-tree] & {
+      color: inherit;
+    }
+  }
 }
 
 /* ::::: format toolbar ::::: */
@@ -129,11 +129,11 @@
 
 toolbarbutton.formatting-button {
   margin: 1px;
-}
 
-.formatting-button > .toolbarbutton-menu-dropmarker {
-  appearance: none !important;
-  margin-inline-start: 3px;
+  & > .toolbarbutton-menu-dropmarker {
+    appearance: none !important;
+    margin-inline-start: 3px;
+  }
 }
 
 /* ::::: address book sidebar ::::: */
@@ -151,11 +151,13 @@ menu[command="cmd_convertCloud"] .menu-iconic-left {
 
 /* Styles for the default system dark theme */
 
-:root[lwt-tree] #MsgHeadersToolbar {
-  background-image: none;
-}
+:root[lwt-tree] {
+  & #MsgHeadersToolbar {
+    background-image: none;
+  }
 
-:root[lwt-tree] #FormatToolbar {
-  color: inherit;
-  background-image: none;
+  & #FormatToolbar {
+    color: inherit;
+    background-image: none;
+  }
 }

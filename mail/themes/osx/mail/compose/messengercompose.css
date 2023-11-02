@@ -11,25 +11,27 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-#compose-toolbox:-moz-lwtheme::after {
-  top: 100%;
-  margin-top: -1px;
-  border-bottom: 1px solid var(--chrome-content-separator-color);
-  z-index: 1;
-}
+#compose-toolbox {
+  &:-moz-lwtheme::after {
+    top: 100%;
+    margin-top: -1px;
+    border-bottom: 1px solid var(--chrome-content-separator-color);
+    z-index: 1;
+  }
 
-#compose-toolbox toolbarbutton[checked="true"] {
-  background-color: transparent;
-}
+  & toolbarbutton[checked="true"] {
+    background-color: transparent;
+  }
 
-/* Inactive window state */
-#compose-toolbox > toolbar:-moz-window-inactive {
-  border-top-color: rgba(255,255,255,0.45);
-  border-bottom-color: rgba(0,0,0,0.35);
-}
+  /* Inactive window state */
+  & > toolbar:-moz-window-inactive {
+    border-top-color: rgba(255, 255, 255, 0.45);
+    border-bottom-color: rgba(0, 0, 0, 0.35);
+  }
 
-#compose-toolbox > toolbar:not(:-moz-lwtheme) {
-  background-color: #cfcfcf;
+  & > toolbar:not(:-moz-lwtheme) {
+    background-color: #cfcfcf;
+  }
 }
 
 #composeToolbar2 {
@@ -56,10 +58,10 @@ toolbar[nowindowdrag="true"] {
   color: -moz-DialogText;
   text-shadow: none;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) inset;
-}
 
-#composeContentBox:-moz-window-inactive {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) inset;
+  &:-moz-window-inactive {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) inset;
+  }
 }
 
 #MsgHeadersToolbar {
@@ -74,15 +76,15 @@ toolbar[nowindowdrag="true"] {
   margin-block: 2px 0;
   padding-block: 3px;
   color: inherit;
-}
 
-#msgIdentity::part(text-input) {
-  color: inherit;
-  padding-inline-start: 3px;
-}
+  &::part(text-input) {
+    color: inherit;
+    padding-inline-start: 3px;
+  }
 
-#msgIdentity[is="menulist-editable"][editable="true"] > menupopup {
-  margin-inline-start: 0;
+  &[is="menulist-editable"][editable="true"] > menupopup {
+    margin-inline-start: 0;
+  }
 }
 
 #msgIdentityPopup {
@@ -93,15 +95,14 @@ toolbar[nowindowdrag="true"] {
 
 .notification-button[is="toolbarbutton-menu-button"] {
   padding-top: 0;
-}
 
-.notification-button[is="toolbarbutton-menu-button"] > button {
-  appearance: none;
-  margin-bottom: -1px;
-  margin-inline-start: -3px;
-  margin-inline-end: 3px;
-  padding-inline-end: 5px;
-  border-inline-end: 1px solid #9b9b9b;
+  & > button {
+    appearance: none;
+    margin-bottom: -1px;
+    margin-inline: -3px 3px;
+    padding-inline-end: 5px;
+    border-inline-end: 1px solid #9b9b9b;
+  }
 }
 
 #subjectLabel {
@@ -115,11 +116,11 @@ toolbar[nowindowdrag="true"] {
 
 .address-container {
   padding: 1px 4px;
-}
 
-.address-container > .address-input {
-  padding-block: 5px;
-  min-height: 14px;
+  & > .address-input {
+    padding-block: 5px;
+    min-height: 14px;
+  }
 }
 
 #msgIdentity,
@@ -130,10 +131,10 @@ toolbar[nowindowdrag="true"] {
 
 .address-pill {
   padding-block: 2px;
-}
 
-.address-pill label {
-  margin-block: 0;
+  & label {
+    margin-block: 0;
+  }
 }
 
 .pill-indicator {
@@ -153,23 +154,28 @@ toolbar[nowindowdrag="true"] {
   padding-block: 4px;
   margin-inline: 3px;
   margin-block-end: 3px;
-}
 
-#FormatToolbar toolbarseparator {
-  background-image: none;
+  :root[lwt-tree] & {
+    background-image: none;
+    background-color: transparent !important;
+  }
+
+  & toolbarseparator {
+    background-image: none;
+  }
 }
 
 toolbarbutton.formatting-button {
   margin-inline: 1px;
   padding-inline: 4px;
-}
 
-.formatting-button > .toolbarbutton-menu-dropmarker {
-  margin-inline-start: 3px;
+  & > .toolbarbutton-menu-dropmarker {
+    margin-inline-start: 3px;
+  }
 }
 
 #FontFaceSelect {
-   max-width: 15em;
+  max-width: 15em;
 }
 
 /* ::::: address book sidebar ::::: */
@@ -200,11 +206,4 @@ toolbarbutton.formatting-button {
 
 #titlebar-title-label {
   justify-content: center;
-}
-
-/* Styles for the default system dark theme */
-
-:root[lwt-tree] #FormatToolbar {
-  background-image: none;
-  background-color: transparent !important;
 }

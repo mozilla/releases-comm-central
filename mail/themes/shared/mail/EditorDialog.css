@@ -63,24 +63,24 @@
   height: 12px;
   border: 1px inset #CCCCCC;
   margin: auto;
-}
 
-.color-well[default="true"] {
-  border: 1px solid transparent;
-  background-color: inherit;
-}
+  &[default="true"] {
+    border: 1px solid transparent;
+    background-color: inherit;
+  }
 
-.color-well + .button-box {
-  display: none;
+  & + .button-box {
+    display: none;
+  }
 }
 
 .color-button {
   min-width: 0;
   margin: 2px;
-}
 
-button.color-button .button-text {
-  margin-inline: 0;
+  & .button-text {
+    margin-inline: 0;
+  }
 }
 
 #spacingLabel,
@@ -141,6 +141,10 @@ tree.list {
   list-style-image: url("chrome://global/skin/icons/arrow-left-12.svg");
   -moz-context-properties: stroke;
   stroke: currentColor;
+
+  & > .button-box > .button-icon {
+    margin-inline-end: 2px;
+  }
 }
 
 #PreviousButton[type="row"] {
@@ -149,11 +153,6 @@ tree.list {
 
 #NextButton[type="row"] {
   list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-}
-
-#NextButton > .button-box > .button-icon,
-#PreviousButton > .button-box > .button-icon {
-  margin-inline-end: 2px;
 }
 
 #NextButton:not([type="row"]) > .button-box > .button-icon {
@@ -186,10 +185,10 @@ tree.list {
   margin-inline-start: 4px;
   /* For a little extra space between buttons */
   margin-bottom: 2px;
-}
 
-.colorpicker:active {
-  border: 1px inset #CCCCCC;
+  &:active {
+    border: 1px inset #CCCCCC;
+  }
 }
 
 .smallspacer {
@@ -226,24 +225,26 @@ tree.list {
   min-width: 2em;
 }
 
-.align-menu[value="top"] {
-  list-style-image:url("chrome://editor/skin/icons/img-align-top.gif");
-}
+.align-menu {
+  &[value="top"] {
+    list-style-image:url("chrome://editor/skin/icons/img-align-top.gif");
+  }
 
-.align-menu[value="middle"] {
-  list-style-image:url("chrome://editor/skin/icons/img-align-middle.gif");
-}
+  &[value="middle"] {
+    list-style-image:url("chrome://editor/skin/icons/img-align-middle.gif");
+  }
 
-.align-menu[value="bottom"] {
-  list-style-image:url("chrome://editor/skin/icons/img-align-bottom.gif");
-}
+  &[value="bottom"] {
+    list-style-image:url("chrome://editor/skin/icons/img-align-bottom.gif");
+  }
 
-.align-menu[value="right"] {
-  list-style-image:url("chrome://editor/skin/icons/img-align-right.gif");
-}
+  &[value="right"] {
+    list-style-image:url("chrome://editor/skin/icons/img-align-right.gif");
+  }
 
-.align-menu[value="left"] {
-  list-style-image:url("chrome://editor/skin/icons/img-align-left.gif");
+  &[value="left"] {
+    list-style-image:url("chrome://editor/skin/icons/img-align-left.gif");
+  }
 }
 
 /* Don't change width/height of these without changing values in
@@ -276,22 +277,20 @@ tree.list {
 }
 
 html|fieldset {
-  margin: 1em 3px 3px 3px;
+  margin: 1em 3px 3px;
   padding: 3px 0 6px;
   border: none;
+
+  & > :is(hbox, vbox, radiogroup, menulist) {
+    width: -moz-available;
+  }
 }
+
 html|legend {
   font-weight: bold;
   margin-top: -1em;
   margin-inline-start: 3px;
   padding-inline: 3px;
-}
-
-html|fieldset > hbox,
-html|fieldset > vbox,
-html|fieldset > radiogroup,
-html|fieldset > menulist {
-  width: -moz-available;
 }
 
 html|table html|th {

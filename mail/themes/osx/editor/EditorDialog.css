@@ -8,11 +8,10 @@ groupbox {
   padding: 0 8px 5px;
   margin: 6px;
   margin-top: 1.5em;
-}
 
-groupbox > .groupbox-title > .header {
-  font-size: 1.18em;
-  margin-top: -1.3em;
-  margin-bottom: 5px;
-  margin-inline-start: -5px;
+  & > .groupbox-title > .header {
+    font-size: 1.18em;
+    margin-block: -1.3em 5px;
+    margin-inline-start: -5px;
+  }
 }

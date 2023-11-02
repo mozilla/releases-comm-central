@@ -11,65 +11,43 @@
   --autocomplete-box-padding: 3px;
   --autocomplete-item-padding: 3px;
   --autocomplete-item-radius: var(--button-border-radius);
-}
 
-:root[uidensity="compact"] {
-  --autocomplete-box-padding: 0;
-  --autocomplete-item-padding: 0;
-  --autocomplete-item-radius: 0;
-}
+  &[uidensity="compact"] {
+    --autocomplete-box-padding: 0;
+    --autocomplete-item-padding: 0;
+    --autocomplete-item-radius: 0;
+  }
 
-:root[uidensity="touch"] {
-  --autocomplete-item-padding: 8px 3px;
-}
-
-#contactsSidebar .sidebar-header {
-  appearance: none;
-  height: 30px;
-  text-shadow: none;
-  background-color: -moz-Dialog;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05));
-  color: -moz-dialogText;
-  border-bottom: 1px solid var(--lwt-tabs-border-color);
-}
-
-:root[lwt-tree] #contactsSidebar .sidebar-header {
-  background-color: var(--toolbar-bgcolor);
-  color: var(--lwt-text-color);
-  border-bottom: 1px solid var(--lwt-tabs-border-color);
-}
-
-:root[lwt-tree-brighttext] #contactsSidebar .sidebar-header {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
-}
-
-#contactsSidebar toolbarbutton.close-icon {
-  margin-inline-end: 3px;
+  &[uidensity="touch"] {
+    --autocomplete-item-padding: 8px 3px;
+  }
 }
 
 /* Styles for the default system dark theme */
 
-:root[lwt-tree] :is(#MsgHeadersToolbar, #FormatToolbox) {
-  background-color: var(--toolbar-bgcolor) !important;
-  color: var(--lwt-text-color);
-}
+:root[lwt-tree] {
+  & :is(#MsgHeadersToolbar, #FormatToolbox) {
+    background-color: var(--toolbar-bgcolor) !important;
+    color: var(--lwt-text-color);
+  }
 
-:root[lwt-tree] panel[type="autocomplete-richlistbox"] {
-  margin-top: -1px;
-  padding: 2px 0;
-  --panel-background: var(--arrowpanel-background);
-  --panel-color: var(--arrowpanel-color);
-  --panel-border-color: var(--arrowpanel-border-color);
-}
+  & panel[type="autocomplete-richlistbox"] {
+    margin-top: -1px;
+    padding: 2px 0;
+    --panel-background: var(--arrowpanel-background);
+    --panel-color: var(--arrowpanel-color);
+    --panel-border-color: var(--arrowpanel-border-color);
+  }
 
-:root[lwt-tree] .autocomplete-richlistbox {
-  color: inherit;
-  background-color: inherit;
-}
+  & .autocomplete-richlistbox {
+    color: inherit;
+    background-color: inherit;
+  }
 
-:root[lwt-tree] .autocomplete-richlistitem[selected] {
-  background-color: var(--autocomplete-popup-highlight-background);
-  color: var(--autocomplete-popup-highlight-color);
+  & .autocomplete-richlistitem[selected] {
+    background-color: var(--autocomplete-popup-highlight-background);
+    color: var(--autocomplete-popup-highlight-color);
+  }
 }
 
 .autocomplete-richlistbox {
@@ -79,17 +57,45 @@
 .autocomplete-richlistitem {
   padding: var(--autocomplete-item-padding);
   border-radius: var(--autocomplete-item-radius);
+
+  &:hover {
+    background-color: var(--arrowpanel-dimmed);
+  }
+
+  &[selected] {
+    background-color: var(--selected-item-color);
+    color: var(--selected-item-text-color);
+  }
+
+  /* :::: autocomplete icons :::: */
+
+  & > .ac-site-icon {
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+  }
+
+  &[type="local-abook"] > .ac-site-icon {
+    list-style-image: var(--icon-address-book);
+  }
+
+  &[type="remote-abook"] > .ac-site-icon {
+    list-style-image: var(--icon-globe);
+  }
+
+  &[type="remote-err"] > .ac-site-icon {
+    list-style-image: var(--icon-error-circle);
+  }
+
+  &[type="subscribed-news-abook"] > .ac-site-icon {
+    list-style-image: var(--icon-newsletter);
+  }
 }
 
 #attachmentBucket {
   grid-area: attachment-list;
   border-block: 1px solid var(--splitter-color); /* The same color as the splitters */
   padding: 1px;
-}
-
-:root[lwt-tree] #attachmentArea > summary {
-  background-color: var(--toolbar-bgcolor);
-  color: var(--toolbar-color);
 }
 
 #attachmentArea > summary {
@@ -100,15 +106,20 @@
   display: flex;
   gap: 6px;
   align-items: baseline;
-}
 
-#attachmentArea > summary > * {
-  flex: 0 0 auto;
-}
+  :root[lwt-tree] & {
+    background-color: var(--toolbar-bgcolor);
+    color: var(--toolbar-color);
+  }
 
-#attachmentArea > summary:focus-visible {
-  outline-style: auto;
-  outline-offset: -1px;
+  &:focus-visible {
+    outline-style: auto;
+    outline-offset: -1px;
+  }
+
+  & > * {
+    flex: 0 0 auto;
+  }
 }
 
 #newAttachmentIndicator {
@@ -155,14 +166,14 @@
   -moz-context-properties: stroke;
   stroke: currentColor;
   fill-opacity: 1;
-}
 
-#attachmentArea:not([open]) #attachmentToggle {
-  transform: rotate(-90deg);
-}
+  #attachmentArea:not([open]) & {
+    transform: rotate(-90deg);
+  }
 
-#attachmentArea:-moz-locale-dir(rtl):not([open]) #attachmentToggle {
-  transform: rotate(90deg);
+  #attachmentArea:-moz-locale-dir(rtl):not([open]) & {
+    transform: rotate(90deg);
+  }
 }
 
 #attachmentBucketCount {
@@ -183,24 +194,6 @@
 }
 
 .drop-attachment-overlay {
-  --overlay-color: #fff;
-  --overlay-backround: rgba(0, 0, 0, 0.5);
-  --drop-attachment-box-color: #222;
-  --drop-attachment-box-border-color: rgba(255, 255, 255, 0.85);
-  --drop-attachment-box-background-hover: rgba(255, 255, 255, 0.5);
-  --drop-attachment-box-border-color-hover: #fff;
-  --drop-attachment-title-background: rgba(255, 255, 255, 0.85);
-}
-
-:root[lwt-tree-brighttext] .drop-attachment-overlay {
-  --drop-attachment-box-color: #cbcbcb;
-  --drop-attachment-box-border-color: #999;
-  --drop-attachment-box-background-hover: rgba(0, 0, 0, 0.5);
-  --drop-attachment-box-border-color-hover: #fff;
-  --drop-attachment-title-background: rgba(0, 0, 0, 0.85);
-}
-
-.drop-attachment-overlay {
   pointer-events: none;
   position: fixed;
   z-index: 12; /* above the attachment bucket splitter */
@@ -210,6 +203,35 @@
   padding: 30px;
   display: none;
   justify-content: space-around;
+
+  --overlay-color: #fff;
+  --overlay-backround: rgba(0, 0, 0, 0.5);
+  --drop-attachment-box-color: #222;
+  --drop-attachment-box-border-color: rgba(255, 255, 255, 0.85);
+  --drop-attachment-box-background-hover: rgba(255, 255, 255, 0.5);
+  --drop-attachment-box-border-color-hover: #fff;
+  --drop-attachment-title-background: rgba(255, 255, 255, 0.85);
+
+  :root[lwt-tree-brighttext] & {
+    --drop-attachment-box-color: #cbcbcb;
+    --drop-attachment-box-border-color: #999;
+    --drop-attachment-box-background-hover: rgba(0, 0, 0, 0.5);
+    --drop-attachment-box-border-color-hover: #fff;
+    --drop-attachment-title-background: rgba(0, 0, 0, 0.85);
+  }
+
+  &.hiding {
+    animation: hiding-animation 120ms ease 1;
+  }
+
+  &.showing {
+    display: flex;
+    animation: showing-animation 120ms ease 1;
+  }
+
+  &.show {
+    display: flex;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -246,19 +268,6 @@
   }
 }
 
-.drop-attachment-overlay.hiding {
-  animation: hiding-animation 120ms ease 1;
-}
-
-.drop-attachment-overlay.showing {
-  display: flex;
-  animation: showing-animation 120ms ease 1;
-}
-
-.drop-attachment-overlay.show {
-  display: flex;
-}
-
 .drop-attachment-box {
   pointer-events: auto;
   font-size: 1.4rem;
@@ -270,48 +279,48 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
-.drop-attachment-box:not(.hidden) + .drop-attachment-box {
-  margin-inline-start: 30px;
-}
+  &:not(.hidden) + & {
+    margin-inline-start: 30px;
+  }
 
-.drop-attachment-box span {
-  pointer-events: none;
-  -moz-context-properties: fill;
-  fill: currentColor;
-  padding-inline: 25px 6px;
-  border-radius: 3px;
-  background-color: var(--drop-attachment-title-background);
-  background-position: 6px center;
-  background-repeat: no-repeat;
-  background-size: 16px;
-}
+  & span {
+    pointer-events: none;
+    -moz-context-properties: fill;
+    fill: currentColor;
+    padding-inline: 25px 6px;
+    border-radius: 3px;
+    background-color: var(--drop-attachment-title-background);
+    background-position: 6px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
 
-.drop-attachment-box span:-moz-locale-dir(rtl) {
-  background-position-x: right 6px;
-}
+    &:-moz-locale-dir(rtl) {
+      background-position-x: right 6px;
+    }
+  }
 
-.drop-attachment-box .drop-as-attachment {
-  background-image: url("chrome://messenger/skin/icons/attach.svg");
-}
+  & .drop-as-attachment {
+    background-image: url("chrome://messenger/skin/icons/attach.svg");
+  }
 
-.drop-attachment-box .drop-inline {
-  background-image: url("chrome://messenger/skin/icons/image.svg");
-}
+  & .drop-inline {
+    background-image: url("chrome://messenger/skin/icons/image.svg");
+  }
 
-.drop-attachment-box.hidden {
-  display: none;
-}
+  &.hidden {
+    display: none;
+  }
 
-.drop-attachment-box.hover {
-  border-color: var(--drop-attachment-box-border-color-hover);
-  border-style: solid;
-  background-color: var(--drop-attachment-box-background-hover);
-}
+  &.hover {
+    border-color: var(--drop-attachment-box-border-color-hover);
+    border-style: solid;
+    background-color: var(--drop-attachment-box-background-hover);
 
-.drop-attachment-box.hover span {
-  background-color: transparent;
+    & span {
+      background-color: transparent;
+    }
+  }
 }
 
 .add-attachment-label {
@@ -322,27 +331,29 @@
   padding-inline-start: 25px;
 }
 
-#compose-toolbox > toolbar {
-  /* force iconsize="small" on these toolbars */
-  counter-reset: smallicons;
-  background-color: var(--toolbar-bgcolor);
-}
+#compose-toolbox {
+  &:-moz-lwtheme {
+    appearance: none;
+    position: relative;
+    color: var(--toolbar-color, inherit);
 
-#compose-toolbox:-moz-lwtheme {
-  appearance: none;
-  position: relative;
-  color: var(--toolbar-color, inherit);
-}
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      pointer-events: none;
+      top: -1px;
+      width: -moz-available;
+      height: 1px;
+      border-bottom: 1px solid var(--lwt-tabs-border-color, transparent);
+    }
+  }
 
-#compose-toolbox:-moz-lwtheme::after {
-  content: "";
-  display: block;
-  position: absolute;
-  pointer-events: none;
-  top: -1px;
-  width: -moz-available;
-  height: 1px;
-  border-bottom: 1px solid var(--lwt-tabs-border-color, transparent);
+  & > toolbar {
+    /* force iconsize="small" on these toolbars */
+    counter-reset: smallicons;
+    background-color: var(--toolbar-bgcolor);
+  }
 }
 
 #composeToolbar2 {
@@ -381,6 +392,38 @@
   min-height: 0;
   flex: 1;
   overflow: clip;
+
+  /* When the attachment area is hidden, or the visibility of the attachmentBucket
+   * is toggled by the summary element. */
+  &:is(.attachment-area-hidden, .attachment-bucket-closed) {
+    /* We adjust the track sizing so it no longer takes up any grid space. */
+    --attachment-list-track-size: 0;
+  }
+
+  &.attachment-bucket-closed #attachmentSplitter {
+    /* NOTE: When the bucket is closed, we do not consider it "collapsed" by the
+     * splitter. It was closed by the attachmentArea's summary, not the splitter.
+     * Moreover, it cannot be un-collapsed by the splitter either.
+     * Instead, we want to simply stop the splitter from resizing by making it
+     * non-interactive. We keep the splitter visible though as it still acts as a
+     * barrier between the message body and the attachment area. */
+    pointer-events: none;
+  }
+
+  &.attachment-area-hidden {
+    & #attachmentSplitter {
+      /* We completely hide the splitter when the attachment area is hidden. */
+      display: none;
+    }
+
+    & #attachmentArea {
+      display: none;
+    }
+  }
+
+  &.attachment-bucket-closed #attachmentBucket {
+    display: none;
+  }
 }
 
 #contactsSidebar {
@@ -390,27 +433,50 @@
   max-width: 400px;
   display: flex;
   flex-direction: column;
-}
 
-#contactsSidebar .sidebar-header {
-  flex: 0 0 auto;
+  &.collapsed-by-splitter {
+    display: none;
+  }
+
+  & .sidebar-header {
+    appearance: none;
+    flex: 0 0 auto;
+    height: 30px;
+    text-shadow: none;
+    background-color: -moz-Dialog;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.05),
+                                      rgba(0, 0, 0, 0.05));
+    color: -moz-dialogText;
+    border-bottom: 1px solid var(--lwt-tabs-border-color);
+
+    :root[lwt-tree] & {
+      background-color: var(--toolbar-bgcolor);
+      color: var(--lwt-text-color);
+      border-bottom: 1px solid var(--lwt-tabs-border-color);
+    }
+
+    :root[lwt-tree-brighttext] & {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.05),
+                                        rgba(255, 255, 255, 0.05));
+    }
+  }
+
+  & toolbarbutton.close-icon {
+    margin-inline-end: 3px;
+  }
 }
 
 #contactsBrowser {
   flex: 1 1 auto;
 }
 
-#contactsSidebar.collapsed-by-splitter {
-  display: none;
-}
-
 #contactsSplitter {
   grid-area: contacts-splitter;
-}
 
-#contactsSplitter.splitter-collapsed {
-  /* The splitter cannot be un-collapsed using a mouse drag. */
-  display: none;
+  &.splitter-collapsed {
+    /* The splitter cannot be un-collapsed using a mouse drag. */
+    display: none;
+  }
 }
 
 #MsgHeadersToolbar {
@@ -430,6 +496,10 @@
   grid-area: message;
   display: flex;
   flex-direction: column;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: #2a2a2e;
+  }
 }
 
 #messageEditor {
@@ -441,12 +511,6 @@
   flex: 0 0 auto;
 }
 
-@media (prefers-color-scheme: dark) {
-  #messageArea {
-    background-color: #2a2a2e;
-  }
-}
-
 #attachmentSplitter {
   grid-area: attachment-splitter;
 }
@@ -454,36 +518,6 @@
 #attachmentArea {
   /* Children are grid items. */
   display: contents;
-}
-
-/* When the attachment area is hidden, or the visibility of the attachmentBucket
- * is toggled by the summary element. */
-#composeContentBox:is(.attachment-area-hidden, .attachment-bucket-closed) {
-  /* We adjust the track sizing so it no longer takes up any grid space. */
-  --attachment-list-track-size: 0;
-}
-
-#composeContentBox.attachment-bucket-closed #attachmentSplitter {
-  /* NOTE: When the bucket is closed, we do not consider it "collapsed" by the
-   * splitter. It was closed by the attachmentArea's summary, not the splitter.
-   * Moreover, it cannot be un-collapsed by the splitter either.
-   * Instead, we want to simply stop the splitter from resizing by making it
-   * non-interactive. We keep the splitter visible though as it still acts as a
-   * barrier between the message body and the attachment area. */
-  pointer-events: none;
-}
-
-#composeContentBox.attachment-area-hidden #attachmentSplitter {
-  /* We completely hide the splitter when the attachment area is hidden. */
-  display: none;
-}
-
-#composeContentBox.attachment-area-hidden #attachmentArea {
-  display: none;
-}
-
-#composeContentBox.attachment-bucket-closed #attachmentBucket {
-  display: none;
 }
 
 /* :::: primary toolbar buttons :::: */
@@ -506,10 +540,10 @@
 
 #button-encryption {
   list-style-image: var(--icon-lock-disabled);
-}
 
-#button-encryption[checked] {
-  list-style-image: var(--icon-lock);
+  &[checked] {
+    list-style-image: var(--icon-lock);
+  }
 }
 
 #button-encryption-options {
@@ -569,8 +603,35 @@ menulist::part(description) {
 
 /* :::: Format toolbar :::: */
 
-#FormatToolbar:not([hidden="true"]) {
-  display: flex;
+#FormatToolbar {
+  &:not([hidden="true"]) {
+    display: flex;
+  }
+
+  & > menulist {
+    margin-block: 1px;
+
+    &:not(:hover) {
+      background: transparent;
+    }
+
+    &::part(label-box) {
+     text-shadow: none;
+    }
+
+    &:not([disabled="true"],[open="true"]):hover {
+      background: var(--toolbarbutton-hover-background);
+    }
+
+    &[open="true"] {
+      background: var(--toolbarbutton-active-background);
+      border-color: var(--toolbarbutton-active-bordercolor);
+    }
+  }
+
+  & > toolbarbutton > .toolbarbutton-text {
+    display: none;
+  }
 }
 
 /*
@@ -591,31 +652,6 @@ menulist::part(description) {
   min-width: 7em;
 }
 
-#FormatToolbar > menulist {
-  margin-block: 1px;
-}
-
-#FormatToolbar > menulist:not(:hover) {
-  background: transparent;
-}
-
-#FormatToolbar > menulist::part(label-box) {
- text-shadow: none;
-}
-
-#FormatToolbar > menulist:not([disabled="true"],[open="true"]):hover {
-  background: var(--toolbarbutton-hover-background);
-}
-
-#FormatToolbar > menulist[open="true"] {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-}
-
-#FormatToolbar > toolbarbutton > .toolbarbutton-text {
-  display: none;
-}
-
 toolbarbutton.formatting-button {
   appearance: none;
   border: 1px solid transparent;
@@ -625,34 +661,35 @@ toolbarbutton.formatting-button {
   fill: currentColor;
   transition-property: background-color, border-color, box-shadow;
   transition-duration: 150ms;
-}
 
-toolbarbutton.formatting-button:not([disabled="true"]):hover {
-  background: var(--toolbarbutton-hover-background);
-  border-color: var(--toolbarbutton-hover-bordercolor);
-  box-shadow: var(--toolbarbutton-hover-boxshadow);
-}
+  &:not([disabled="true"]) {
+    &:hover {
+      background: var(--toolbarbutton-hover-background);
+      border-color: var(--toolbarbutton-hover-bordercolor);
+      box-shadow: var(--toolbarbutton-hover-boxshadow);
+    }
 
-toolbarbutton.formatting-button:not([disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
-  background: var(--toolbarbutton-checked-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-}
+    &:is([open="true"],[checked="true"],:hover:active) {
+      background: var(--toolbarbutton-checked-background);
+      border-color: var(--toolbarbutton-active-bordercolor);
+      box-shadow: var(--toolbarbutton-active-boxshadow);
+    }
 
-toolbarbutton.formatting-button:not([disabled="true"]):is([open="true"],:hover:active) {
-  background: var(--toolbarbutton-active-background) !important;
-}
+    &:is([open="true"],:hover:active) {
+      background: var(--toolbarbutton-active-background) !important;
+    }
+  }
 
-.formatting-button > .toolbarbutton-menu-dropmarker {
-  list-style-image: url("chrome://messenger/skin/messengercompose/format-dropmarker.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-  display: inline-flex;
-}
+  & > .toolbarbutton-menu-dropmarker {
+    list-style-image: url("chrome://messenger/skin/messengercompose/format-dropmarker.svg");
+    -moz-context-properties: fill;
+    fill: currentColor;
+    display: inline-flex;
+  }
 
-toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
-.formatting-button[disabled="true"] > .toolbarbutton-menu-dropmarker {
-  opacity: 0.4;
+  &[disabled="true"] > :where(.toolbarbutton-icon, .toolbarbutton-menu-dropmarker) {
+    opacity: 0.4;
+  }
 }
 
 #FontFaceSelect {
@@ -671,10 +708,10 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   width: 18px;
   height: 15px;
   margin: 2px;
-}
 
-.color-button[disabled="true"] {
-  opacity: 0.5;
+  &[disabled="true"] {
+    opacity: 0.5;
+  }
 }
 
 .ColorPickerLabel {
@@ -686,11 +723,11 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 #TextColorButton {
   margin-block: 2px 9px;
   margin-inline: 2px 9px;
-}
 
-#TextColorButton[color="mixed"] {
-  background-image: url("chrome://messenger/skin/icons/multicolor.png");
-  background-size: cover;
+  &[color="mixed"] {
+    background-image: url("chrome://messenger/skin/icons/multicolor.png");
+    background-size: cover;
+  }
 }
 
 #BackgroundColorButton {
@@ -732,39 +769,6 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   transform: scaleY(-1);
 }
 
-.autocomplete-richlistitem:hover {
-  background-color: var(--arrowpanel-dimmed);
-}
-
-.autocomplete-richlistitem[selected] {
-  background-color: var(--selected-item-color);
-  color: var(--selected-item-text-color);
-}
-
-/* :::: autocomplete icons :::: */
-
-.autocomplete-richlistitem > .ac-site-icon {
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-}
-
-.autocomplete-richlistitem[type="local-abook"] > .ac-site-icon {
-  list-style-image: var(--icon-address-book);
-}
-
-.autocomplete-richlistitem[type="remote-abook"] > .ac-site-icon {
-  list-style-image: var(--icon-globe);
-}
-
-.autocomplete-richlistitem[type="remote-err"] > .ac-site-icon {
-  list-style-image: var(--icon-error-circle);
-}
-
-.autocomplete-richlistitem[type="subscribed-news-abook"] > .ac-site-icon {
-  list-style-image: var(--icon-newsletter);
-}
-
 /* :::: attachment notification :::: */
 
 #compose-notification-bottom > .notificationbox-stack {
@@ -804,15 +808,46 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   border-radius: var(--button-border-radius);
   background-color: transparent;
   transition: border .2s, box-shadow .2s, background-color .2s;
-}
 
-/* XUL element needs the full [disabled="true"] attribute. */
-#msgIdentity[disabled="true"] {
-  opacity: 0.6;
-}
+  /* XUL element needs the full [disabled="true"] attribute. */
+  &[disabled="true"] {
+    opacity: 0.6;
+  }
 
-#msgIdentity:-moz-locale-dir(rtl) {
-  background-position: 5px;
+  &:-moz-locale-dir(rtl) {
+    background-position: 5px;
+  }
+
+  &:hover {
+    border-color: var(--toolbarbutton-hover-bordercolor);
+    background-color: Field;
+
+    :root[lwt-tree] & {
+      background-color: var(--toolbar-field-background-color);
+    }
+  }
+
+  &:where(:focus, :focus-within, [focused="true"]) {
+    border-color: var(--toolbar-field-focus-border-color);
+    background-color: Field;
+    outline: 1px solid var(--toolbar-field-focus-border-color);
+    outline-offset: 0;
+
+    :root[lwt-tree] & {
+      color: var(--toolbar-field-focus-color);
+      background-color: var(--toolbar-field-focus-background-color);
+    }
+
+    :root[lwt-tree-brighttext] & {
+      background-color: var(--toolbar-field-background-color);
+    }
+  }
+
+  &::part(text-input) {
+    border-style: none;
+    outline-style: none;
+    margin-inline: 1px;
+  }
 }
 
 #extraAddressRowsArea {
@@ -834,12 +869,6 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   width: 1px;
   border-inline-start: 1px solid var(--toolbarbutton-hover-bordercolor);
   height: 14px;
-}
-
-#msgIdentity::part(text-input) {
-  border-style: none;
-  outline-style: none;
-  margin-inline: 1px;
 }
 
 #msgIdentityPopup >  menuitem[selected="true"] {
@@ -867,21 +896,36 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   padding-block: 0;
   padding-inline: 4px 2px;
   transition: border .2s, box-shadow .2s;
-}
 
-#msgSubject.with-icon {
-  padding-inline-start: 25px;
+  &.with-icon {
+    padding-inline-start: 25px;
+  }
+
+  :root[lwt-tree] & {
+    background-color: var(--toolbar-field-background-color);
+    color: var(--lwt-text-color);
+  }
+
+  &:focus {
+    border-color: var(--toolbar-field-focus-border-color);
+    background-color: Field;
+    outline: 1px solid var(--toolbar-field-focus-border-color);
+    outline-offset: 0;
+
+    :root[lwt-tree] & {
+      color: var(--toolbar-field-focus-color);
+      background-color: var(--toolbar-field-focus-background-color);
+    }
+
+    :root[lwt-tree-brighttext] & {
+      background-color: var(--toolbar-field-background-color);
+    }
+  }
 }
 
 .recipients-container {
   display: block;
   overflow-y: auto;
-}
-
-:root[lwt-tree] #msgSubject,
-:root[lwt-tree] .address-container {
-  background-color: var(--toolbar-field-background-color);
-  color: var(--lwt-text-color);
 }
 
 .address-row {
@@ -890,31 +934,29 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   margin-block: 6px;
   margin-inline-end: 8px;
   align-items: self-start;
-}
 
-.address-row > .aw-firstColBox {
-  transition: opacity .2s ease;
-  opacity: 0;
-  flex: 0 0 auto;
-  align-self: center;
-}
+  &.hidden {
+    display: none;
+  }
 
-.address-row:hover > .aw-firstColBox,
-.address-row:focus > .aw-firstColBox,
-.address-row:focus-within > .aw-firstColBox {
-  opacity: 1;
-}
+  & > .aw-firstColBox {
+    transition: opacity .2s ease;
+    opacity: 0;
+    flex: 0 0 auto;
+    align-self: center;
+  }
 
-.address-row > .address-label-container {
-  flex: 0 0 auto;
-}
+  &:where(:hover, :focus, :focus-within) > .aw-firstColBox {
+    opacity: 1;
+  }
 
-.address-row > .address-container {
-  flex: 1 1 auto;
-}
+  & > .address-label-container {
+    flex: 0 0 auto;
+  }
 
-.address-row.hidden {
-  display: none;
+  & > .address-container {
+    flex: 1 1 auto;
+  }
 }
 
 .address-container {
@@ -925,22 +967,43 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   background-color: Field;
   transition: border .2s, box-shadow .2s;
   cursor: text;
-}
 
-.address-container.disable-container {
-  opacity: 0.9;
+  :root[lwt-tree] & {
+    background-color: var(--toolbar-field-background-color);
+    color: var(--lwt-text-color);
+  }
+
+  &.disable-container {
+    opacity: 0.9;
+  }
+
+  & > .address-input {
+    padding-block: 4px;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &[focused="true"] {
+    border-color: var(--toolbar-field-focus-border-color);
+    background-color: Field;
+    outline: 1px solid var(--toolbar-field-focus-border-color);
+    outline-offset: 0;
+
+    :root[lwt-tree] & {
+      color: var(--toolbar-field-focus-color);
+      background-color: var(--toolbar-field-focus-background-color);
+    }
+
+    :root[lwt-tree-brighttext] & {
+      background-color: var(--toolbar-field-background-color);
+    }
+  }
 }
 
 .address-input {
   color: inherit;
-  outline: none;
-}
-
-.address-container > .address-input {
-  padding-block: 4px;
-}
-
-.address-container > .address-input:focus {
   outline: none;
 }
 
@@ -957,42 +1020,116 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   -moz-user-focus: normal;
   cursor: default;
   box-shadow: inset 0 0 0 1px transparent;
-}
 
-.address-pill label {
-  -moz-user-focus: none;
-  cursor: default;
-  margin-inline: 0;
-}
+  @media (prefers-color-scheme: dark) {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
 
-.address-pill label,
-.address-pill hbox {
-  pointer-events: none;
-}
+  &::before {
+    display: block;
+    content: '';
+    position: relative;
+    width: 3px;
+    background-color: var(--focus-outline-color);
+    height: 15px;
+    border-radius: 2px;
+    margin-inline: -10px 5px;
+    transition: all .2s ease;
+    transform: scaleY(0);
+  }
 
-.address-pill hbox:not([hidden="true"]) {
-  display: flex;
-}
+  &.editing {
+    flex: 1;
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px var(--focus-outline-color);
+    min-height: calc(1.25em + 4px); /* needed to not shrink in edit mode */
+  }
 
-.address-pill:hover:not(.editing),
-.address-pill:focus:not(.editing) {
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3),
-    inset 0 0 0 2em rgba(0, 0, 0, 0.1);
-}
+  &:where(:hover, :focus):not(.editing) {
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3),
+      inset 0 0 0 2em rgba(0, 0, 0, 0.1);
 
-.address-pill[selected]:hover:not(.editing),
-.address-pill[selected]:focus:not(.editing) {
-  box-shadow: 0 1px 5px -2px var(--focus-outline-color),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.3),
-    inset 0 0 0 2em rgba(0, 0, 0, 0.15);
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
-}
+    @media (prefers-color-scheme: dark) {
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+        inset 0 0 0 2em rgba(255, 255, 255, 0.1);
+    }
+  }
 
-.address-pill.editing {
-  flex: 1;
-  background-color: transparent;
-  box-shadow: inset 0 0 0 1px var(--focus-outline-color);
-  min-height: calc(1.25em + 4px); /* needed to not shrink in edit mode */
+  &[selected]:where(:hover, :focus):not(.editing) {
+    box-shadow: 0 1px 5px -2px var(--focus-outline-color),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.3),
+      inset 0 0 0 2em rgba(0, 0, 0, 0.15);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+
+    @media (prefers-color-scheme: dark) {
+      box-shadow: 0 1px 5px -2px var(--focus-outline-color),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+        inset 0 0 0 2em rgba(0, 0, 0, 0.2);
+      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  &.invalid-address:not(.editing) {
+    color: #fff;
+    background-color: #d70022;
+    background-image: url("chrome://global/skin/icons/warning.svg");
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: calc(100% - 5px);
+    padding-inline-end: 21px;
+    fill: currentColor;
+    -moz-context-properties: fill;
+  }
+
+  &.key-issue:not(.editing) {
+    color: #000;
+    background-color: #ffe900;
+    background-image: url("chrome://global/skin/icons/warning.svg");
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: calc(100% - 5px);
+    padding-inline-end: 21px;
+    fill: currentcolor;
+    -moz-context-properties: fill;
+  }
+
+  /* RTL variation for background position */
+  &:where(.invalid-address, .key-issue):not(.editing):-moz-locale-dir(rtl) {
+    background-position: 5px;
+  }
+
+  &.invalid-address:is(:hover, :focus):not(.editing) {
+    background-color: #a4000f;
+  }
+
+  &.key-issue:is(:hover, :focus):not(.editing) {
+    background-color: #d7b600;
+  }
+
+  &[selected]:not(.editing),
+  &:where(.invalid-address, .key-issue)[selected]:not(.editing) {
+    color: var(--selected-item-text-color);
+    background-color: var(--selected-item-color);
+  }
+
+  & label {
+    -moz-user-focus: none;
+    cursor: default;
+    margin-inline: 0;
+  }
+
+  & label,
+  & hbox {
+    pointer-events: none;
+  }
+
+  & hbox:not([hidden="true"]) {
+    display: flex;
+  }
+
+  &[selected]:not(.editing) .pill-indicator {
+    fill: var(--selected-item-color);
+  }
 }
 
 .pill-indicator {
@@ -1002,90 +1139,10 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   margin-inline-end: -8px;
   margin-bottom: 1em;
   transition: fill .2s ease, stroke .2s ease;
-}
 
-:root[lwt-tree] .pill-indicator {
-  stroke: var(--toolbar-field-background-color);
-}
-
-#MsgHeadersToolbar[brighttext] .address-pill:not(.editing) {
-  background-color: rgba(0,0,0,0.3);
-}
-
-#MsgHeadersToolbar[brighttext] .address-pill:hover:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill:focus:not(.editing) {
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3),
-    inset 0 0 0 2em rgba(255, 255, 255, 0.1);
-}
-
-#MsgHeadersToolbar[brighttext] .address-pill[selected]:hover:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill[selected]:focus:not(.editing) {
-  box-shadow: 0 1px 5px -2px var(--focus-outline-color),
-    inset 0 0 0 1px rgba(255,255,255,0.3),
-    inset 0 0 0 2em rgba(0, 0, 0, 0.2);
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
-}
-
-.address-pill.invalid-address:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill.invalid-address:not(.editing) {
-  color: #fff;
-  background-color: #d70022;
-  background-image: url("chrome://global/skin/icons/warning.svg");
-  background-size: 12px;
-  background-repeat: no-repeat;
-  background-position: calc(100% - 5px);
-  padding-inline-end: 21px;
-  fill: currentColor;
-  -moz-context-properties: fill;
-}
-
-.address-pill.key-issue:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill.key-issue:not(.editing) {
-  color: #000;
-  background-color: #ffe900;
-  background-image: url("chrome://global/skin/icons/warning.svg");
-  background-size: 12px;
-  background-repeat: no-repeat;
-  background-position: calc(100% - 5px);
-  padding-inline-end: 21px;
-  fill: currentcolor;
-  -moz-context-properties: fill;
-}
-
-/* RTL variation for background position */
-.address-pill.invalid-address:not(.editing):-moz-locale-dir(rtl),
-.address-pill.key-issue:not(.editing):-moz-locale-dir(rtl),
-#MsgHeadersToolbar[brighttext] .address-pill.invalid-address:not(.editing):-moz-locale-dir(rtl),
-#MsgHeadersToolbar[brighttext] .address-pill.key-issue:not(.editing):-moz-locale-dir(rtl) {
-  background-position: 5px;
-}
-
-.address-pill.invalid-address:hover:not(.editing),
-.address-pill.invalid-address:focus:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill.invalid-address:hover:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill.invalid-address:focus:not(.editing) {
-  background-color: #a4000f;
-}
-
-.address-pill.key-issue:hover:not(.editing),
-.address-pill.key-issue:focus:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill.key-issue:hover:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill.key-issue:focus:not(.editing) {
-  background-color: #d7b600;
-}
-
-.address-pill[selected]:not(.editing),
-.address-pill.invalid-address[selected]:not(.editing),
-.address-pill.key-issue[selected]:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill[selected]:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill.invalid-address[selected]:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill.key-issue[selected]:not(.editing) {
-  color: var(--selected-item-text-color);
-  background-color: var(--selected-item-color);
-}
-
-.address-pill[selected]:not(.editing) .pill-indicator {
-  fill: var(--selected-item-color);
+  :root[lwt-tree] & {
+    stroke: var(--toolbar-field-background-color);
+  }
 }
 
 #MsgHeadersToolbar {
@@ -1152,54 +1209,11 @@ button:is(
   height: 16px;
 }
 
-#msgIdentity:hover {
-  border-color: var(--toolbarbutton-hover-bordercolor);
-  background-color: Field;
-}
-
-:root[lwt-tree] #msgIdentity:hover {
-  background-color: var(--toolbar-field-background-color);
-}
-
-#msgIdentity:focus,
-#msgIdentity:focus-within,
-#msgIdentity[focused="true"],
-#msgSubject:focus,
-.drag-address-container,
-.address-container[focused="true"] {
+.drag-address-container {
   border-color: var(--toolbar-field-focus-border-color);
   background-color: Field;
   outline: 1px solid var(--toolbar-field-focus-border-color);
   outline-offset: 0;
-}
-
-:root[lwt-tree] #msgIdentity:focus-within,
-:root[lwt-tree] #msgIdentity[focused="true"],
-:root[lwt-tree] #msgSubject:focus,
-:root[lwt-tree] .address-container[focused="true"] {
-  color: var(--toolbar-field-focus-color);
-  background-color: var(--toolbar-field-focus-background-color);
-}
-
-:root[lwt-tree-brighttext] #msgIdentity:focus,
-:root[lwt-tree-brighttext] #msgIdentity:focus-within,
-:root[lwt-tree-brighttext] #msgIdentity[focused="true"],
-:root[lwt-tree-brighttext] #msgSubject:focus,
-:root[lwt-tree-brighttext] .address-container[focused="true"] {
-  background-color: var(--toolbar-field-background-color);
-}
-
-.address-pill::before {
-  display: block;
-  content: '';
-  position: relative;
-  width: 3px;
-  background-color: var(--focus-outline-color);
-  height: 15px;
-  border-radius: 2px;
-  margin-inline: -10px 5px;
-  transition: all .2s ease;
-  transform: scaleY(0);
 }
 
 .drop-indicator::before {

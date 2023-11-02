@@ -4,7 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/EditorDialog.css");
 
-menulist > menupopup > menuitem,
-menulist > menupopup > menu {
+menulist > menupopup > :where(menuitem, menu) {
   padding-block: 0.2em;
 }
