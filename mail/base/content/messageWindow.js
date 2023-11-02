@@ -740,5 +740,7 @@ function forwardToolbarMenu_init(popup) {
 }
 
 function GetSelectedMsgFolders() {
-  return [messageBrowser.contentWindow.gFolder];
+  return messageBrowser.contentWindow.gFolder
+    ? [messageBrowser.contentWindow.gFolder]
+    : [];
 }
