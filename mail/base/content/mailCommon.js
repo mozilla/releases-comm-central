@@ -162,13 +162,13 @@ var commandController = {
       }
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.junk);
     },
-    cmd_markAllRead(folder = gFolder) {
-      if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
+    cmd_markAllRead() {
+      if (gFolder.flags & Ci.nsMsgFolderFlags.Virtual) {
         top.MsgMarkAllRead(
-          VirtualFolderHelper.wrapVirtualFolder(folder).searchFolders
+          VirtualFolderHelper.wrapVirtualFolder(gFolder).searchFolders
         );
       } else {
-        top.MsgMarkAllRead([folder]);
+        top.MsgMarkAllRead([gFolder]);
       }
     },
     /**
