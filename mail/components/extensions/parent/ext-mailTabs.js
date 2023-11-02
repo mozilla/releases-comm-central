@@ -11,12 +11,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailServices: "resource:///modules/MailServices.jsm",
 });
 
+ChromeUtils.defineESModuleGetters(this, {
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
+});
+
 var { folderPathToURI } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
-);
-
-var { setTimeout } = ChromeUtils.importESModule(
-  "resource://gre/modules/Timer.sys.mjs"
 );
 
 XPCOMUtils.defineLazyPreferenceGetter(
