@@ -520,13 +520,13 @@ var commandController = {
           )
         );
       case "cmd_replylist":
-        if (hasIdentities && numSelectedMessages == 1) {
-          const aboutMessage =
-            document.getElementById("messageBrowser")?.contentWindow || window;
-          return (
-            gDBView.URIForFirstSelectedMessage == aboutMessage?.gMessageURI &&
-            aboutMessage.currentHeaderData?.["list-post"]
-          );
+        if (
+          !mailContextMenu.selectionIsOverridden &&
+          hasIdentities &&
+          numSelectedMessages == 1
+        ) {
+          return (window.messageBrowser?.contentWindow ?? window)
+            .currentHeaderData?.["list-post"];
         }
         return false;
       case "cmd_viewPageSource":
