@@ -21,8 +21,8 @@
   --checkbox-unchecked-hover-bgcolor: var(--field-background-color);
   --field-text-color: FieldText;
   --field-background-color: Field;
-  --field-border-color: rgba(128, 128, 128, .6);
-  --field-border-hover-color: rgba(128, 128, 128, .8);
+  --field-border-color: rgba(128, 128, 128, 0.6);
+  --field-border-hover-color: rgba(128, 128, 128, 0.8);
   --selected-item-color: var(--color-blue-60);
   --primary-text-color: var(--selected-item-text-color);
   --primary-background-hover: color-mix(in srgb, var(--selected-item-color) 85%, black);
@@ -70,13 +70,13 @@
   --box-text-color: MenuText;
   --box-background-color: Menu;
   --box-border-color: ThreeDShadow;
-  --checkbox-border-color: rgba(128, 128, 128, .6);
+  --checkbox-border-color: rgba(128, 128, 128, 0.6);
   --checkbox-unchecked-bgcolor: Field;
   --checkbox-unchecked-hover-bgcolor: Field;
   --field-text-color: FieldText;
   --field-background-color: Field;
-  --field-border-color: rgba(128, 128, 128, .6);
-  --field-border-hover-color: rgba(128, 128, 128, .8);
+  --field-border-color: rgba(128, 128, 128, 0.6);
+  --field-border-hover-color: rgba(128, 128, 128, 0.8);
   --selected-item-color: var(--color-blue-60);
   --lwt-accent-color: -moz-Dialog;
   --richlist-button-background: -moz-Dialog;
@@ -137,10 +137,10 @@ dialog::part(content-box) {
 dialog.scrollable {
   width: 100vw;
   height: 100vh;
-}
 
-dialog.scrollable::part(content-box) {
-  overflow: scroll;
+  &::part(content-box) {
+    overflow: scroll;
+  }
 }
 
 html|input,
@@ -151,23 +151,20 @@ html|textarea {
   border-radius: var(--button-border-radius);
   color: var(--field-text-color);
   margin: 2px 4px;
-}
 
-html|input:not(:focus):hover,
-html|textarea:not(:focus):hover {
-  border-color: var(--field-border-hover-color);
-}
+  &:not(:focus):hover {
+    border-color: var(--field-border-hover-color);
+  }
 
-html|input:focus,
-html|textarea:focus {
-  border-color: var(--selected-item-color);
-  outline: 1px solid var(--selected-item-color);
-}
+  &:focus {
+    border-color: var(--selected-item-color);
+    outline: 1px solid var(--selected-item-color);
+  }
 
-:root[lwt-tree-brighttext] html|input::selection,
-:root[lwt-tree-brighttext] html|textarea::selection {
-  background-color: var(--highlight-background);
-  color: var(--selected-item-color);
+  :root[lwt-tree-brighttext] &::selection {
+    background-color: var(--highlight-background);
+    color: var(--selected-item-color);
+  }
 }
 
 html|input:is([type="email"],[type="tel"],[type="text"],[type="password"],
@@ -177,28 +174,29 @@ html|input:is([type="email"],[type="tel"],[type="text"],[type="password"],
 
 html|input[type="number"] {
   padding-inline-end: 1px;
-}
 
-html|input[type="number"]::-moz-number-spin-up,
-html|input[type="number"]::-moz-number-spin-down {
-  appearance: none;
-  width: 16px;
-  background-position: center;
-  background-color: var(--button-background-color);
-  background-repeat: no-repeat;
-  border: 1px solid var(--field-border-color);
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-}
+  &::-moz-number-spin-up,
+  &::-moz-number-spin-down {
+    appearance: none;
+    width: 16px;
+    background-position: center;
+    background-color: var(--button-background-color);
+    background-repeat: no-repeat;
+    border: 1px solid var(--field-border-color);
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+  }
 
-html|input[type="number"]::-moz-number-spin-up {
-  background-image: var(--icon-nav-up-sm);
-  border-bottom-style: none;
-  border-radius: 2px 2px 0 0;
-}
-html|input[type="number"]::-moz-number-spin-down {
-  background-image: var(--icon-nav-down-sm);
-  border-radius: 0 0 2px 2px;
+  &::-moz-number-spin-up {
+    background-image: var(--icon-nav-up-sm);
+    border-bottom-style: none;
+    border-radius: 2px 2px 0 0;
+  }
+
+  &::-moz-number-spin-down {
+    background-image: var(--icon-nav-down-sm);
+    border-radius: 0 0 2px 2px;
+  }
 }
 
 button,
@@ -216,10 +214,6 @@ html|input[type="color"] {
   margin: 4px;
   /* Ensure font-size isn't overridden by widget styling (e.g. in forms.css) */
   font-size: 1em;
-}
-
-menulist {
-  padding-inline: 4px;
 }
 
 html|input[type="color"] {
@@ -242,17 +236,17 @@ html|input[type="color"] {
   --toolbarbutton-hover-bordercolor: var(--button-border-color);
   --toolbarbutton-active-background: var(--button-active-background-color);
   --toolbarbutton-active-bordercolor: var(--button-border-color);
+
+  &:not(:hover) {
+    background-color: transparent;
+  }
+
+  & .button-icon {
+    margin-inline-end: 0;
+  }
 }
 
-#resetColor:not(:hover) {
-  background-color: transparent;
-}
-
-#resetColor .button-icon {
-  margin-inline-end: 0;
-}
-
-button:-moz-focusring {
+button:focus-visible {
   outline: 2px solid var(--selected-item-color);
   outline-offset: -1px;
 }
@@ -274,19 +268,19 @@ html|input[type="color"]:not([disabled="true"]):hover:active {
 button[default] {
   background-color: var(--selected-item-color);
   color: var(--primary-text-color) !important;
-}
 
-button[default]:-moz-focusring {
-  border-color: var(--primary-focus-border);
-  outline-offset: 0;
-}
+  &:focus-visible {
+    border-color: var(--primary-focus-border);
+    outline-offset: 0;
+  }
 
-button[default]:not([disabled="true"]):hover {
-  background-color: var(--primary-background-hover);
-}
+  &:not([disabled="true"]):hover {
+    background-color: var(--primary-background-hover);
 
-button[default]:not([disabled="true"]):hover:active {
-  background-color: var(--primary-background-active);
+    &:active {
+      background-color: var(--primary-background-active);
+    }
+  }
 }
 
 button[is="toolbarbutton-menu-button"] > .button-box > button {
@@ -302,58 +296,62 @@ menulist[disabled="true"] {
   opacity: 0.4;
 }
 
-menulist::part(label-box) {
-  font-weight: inherit;
-  text-shadow: none;
-}
+menulist {
+  padding-inline: 4px;
 
-menulist:-moz-focusring::part(label-box),
-menulist:-moz-focusring:not([open="true"])::part(label-box) {
-  outline: none;
-}
+  &::part(label-box) {
+    font-weight: inherit;
+    text-shadow: none;
+  }
 
-menulist::part(icon) {
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
+  &:focus-visible::part(label-box),
+  &:focus-visible:not([open="true"])::part(label-box) {
+    outline: none;
+  }
 
-menulist[is="menulist-addrbooks"]::part(icon) {
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-}
+  &::part(icon) {
+    -moz-context-properties: fill;
+    fill: currentColor;
+  }
 
-menulist::part(dropmarker) {
-  appearance: none;
-  padding: 0;
-  border: none;
-  background-color: transparent;
-}
+  &[is="menulist-addrbooks"]::part(icon) {
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+  }
 
-menulist[is="menulist-editable"][editable="true"]::part(text-input) {
-  background-color: var(--field-background-color);
-  color: var(--field-text-color);
-  border: 1px solid var(--field-border-color);
-  border-start-start-radius: 3px;
-  border-end-start-radius: 3px;
-  border-start-end-radius: 0;
-  border-end-end-radius: 0;
-}
+  &::part(dropmarker) {
+    appearance: none;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+  }
 
-menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
-  border-color: var(--selected-item-color);
-  outline: 1px solid var(--selected-item-color);
+  &[is="menulist-editable"][editable="true"]::part(text-input) {
+    background-color: var(--field-background-color);
+    color: var(--field-text-color);
+    border: 1px solid var(--field-border-color);
+    border-start-start-radius: 3px;
+    border-end-start-radius: 3px;
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+
+    &:focus {
+      border-color: var(--selected-item-color);
+      outline: 1px solid var(--selected-item-color);
+    }
+  }
 }
 
 .menu-iconic-left {
   -moz-context-properties: fill;
   fill: currentColor;
-}
 
-.abMenuItem > .menu-iconic-left {
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
+  .abMenuItem > & {
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+  }
 }
 
 .menu-right {
@@ -361,20 +359,15 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
   -moz-context-properties: fill;
   list-style-image: var(--icon-nav-right-sm);
   fill: currentColor;
-}
 
-.menu-right:-moz-locale-dir(rtl) {
-  list-style-image: var(--icon-nav-left-sm);
+  &:-moz-locale-dir(rtl) {
+    list-style-image: var(--icon-nav-left-sm);
+  }
 }
 
 button menupopup menuseparator,
 menulist menupopup menuseparator {
   padding-inline: 8px;
-}
-
-:root[lwt-tree] .autocomplete-richlistbox {
-  border-style: none;
-  background-color: var(--box-background-color);
 }
 
 label {
@@ -384,6 +377,10 @@ label {
 radio,
 checkbox {
   appearance: none;
+
+  &[disabled="true"] {
+    color: #999;
+  }
 }
 
 checkbox {
@@ -391,23 +388,23 @@ checkbox {
   padding-inline: 4px 2px;
 }
 
-radio[disabled="true"],
-checkbox[disabled="true"] {
-  color: #999;
-}
-
 .radio-check {
   appearance: none;
   width: 16px;
   height: 16px;
   border: 1px solid var(--field-border-color);
+  border-radius: 50%;
   margin: 0;
   margin-inline-end: 6px;
   background-color: var(--field-background-color);
-}
 
-.radio-check {
-  border-radius: 50%;
+  &[selected] {
+    list-style-image: url("chrome://global/skin/icons/radio.svg");
+    -moz-context-properties: fill;
+    color: var(--checkbox-checked-border-color, currentColor);
+    fill: var(--checkbox-checked-color, AccentColorText);
+    background-color: var(--checkbox-checked-bgcolor, AccentColor);
+  }
 }
 
 radio:not([disabled="true"]):hover > .radio-check,
@@ -415,36 +412,40 @@ checkbox:not([disabled="true"]):hover > .checkbox-check {
   border-color: var(--selected-item-color);
 }
 
-.radio-check[selected] {
-  list-style-image: url("chrome://global/skin/icons/radio.svg");
-  -moz-context-properties: fill;
-  color: var(--checkbox-checked-border-color, currentColor);
-  fill: var(--checkbox-checked-color, AccentColorText);
-  background-color: var(--checkbox-checked-bgcolor, AccentColor);
-}
+:root[lwt-tree] {
+  & richlistbox {
+    appearance: none;
+    background-color: var(--field-background-color);
+    color: var(--field-text-color);
+    border: 1px solid var(--field-border-color);
+  }
 
-:root[lwt-tree] richlistbox {
-  appearance: none;
-  background-color: var(--field-background-color);
-  color: var(--field-text-color);
-  border: 1px solid var(--field-border-color);
-}
+  & richlistitem[selected="true"] {
+    background-color: hsla(0, 0%, 50%, 0.15);
+    color: inherit;
+  }
 
-:root[lwt-tree] richlistitem[selected="true"] {
-  background-color: hsla(0,0%,50%,.15);
-  color: inherit;
-}
+  & richlistbox:focus > richlistitem[selected="true"] {
+    background-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 50%, 0.35));
+    color: var(--sidebar-highlight-text-color, inherit);
+    outline: 1px solid var(--selected-item-color) !important;
+    outline-offset: -1px;
 
-:root[lwt-tree] richlistbox:focus > richlistitem[selected="true"] {
-  background-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 50%, 0.35));
-  color: var(--sidebar-highlight-text-color, inherit);
-  outline: 1px solid var(--selected-item-color) !important;
-  outline-offset: -1px;
-}
+    & button,
+    & menulist {
+      color: var(--sidebar-text-color) !important;
+    }
+  }
 
-:root[lwt-tree] richlistbox:focus > richlistitem[selected="true"] button,
-:root[lwt-tree] richlistbox:focus > richlistitem[selected="true"] menulist {
-  color: var(--sidebar-text-color) !important;
+  & tree {
+    appearance: none;
+    border: 1px solid var(--sidebar-border-color);
+  }
+
+  & .autocomplete-richlistbox {
+    border-style: none;
+    background-color: var(--box-background-color);
+  }
 }
 
 richlistitem[selected="true"] {
@@ -463,48 +464,43 @@ richlistbox[seltype="multiple"]:focus > richlistitem[current="true"] {
 
 richlistbox > richlistitem {
   padding-block: 1px;
-}
 
-richlistbox > richlistitem menulist {
-  margin-block: 2px;
-}
-
-richlistitem button,
-richlistitem menulist {
-  background-color: var(--richlist-button-background);
-  background-image: linear-gradient(var(--button-background-color),
-                                    var(--button-background-color));
-  color: var(--field-text-color) !important;
-
-  &:-moz-lwtheme {
-    color: var(--lwt-text-color) !important;
+  & menulist {
+    margin-block: 2px;
   }
-}
 
-richlistitem button:not([disabled="true"]):hover,
-richlistitem menulist:not([disabled="true"]):hover,
-richlistitem menulist[open="true"]:not([disabled="true"]) {
-  background-color: var(--richlist-button-background);
-  background-image: linear-gradient(var(--button-hover-background-color),
-                                    var(--button-hover-background-color));
-}
+  & button,
+  & menulist {
+    background-color: var(--richlist-button-background);
+    background-image: linear-gradient(var(--button-background-color),
+                                      var(--button-background-color));
+    color: var(--field-text-color) !important;
 
-richlistitem button[open],
-richlistitem button[open]:hover,
-richlistitem button:not([disabled="true"]):hover:active {
-  background-color: var(--richlist-button-background);
-  background-image: linear-gradient(var(--button-active-background-color),
-                                    var(--button-active-background-color));
+    &:-moz-lwtheme {
+      color: var(--lwt-text-color) !important;
+    }
+  }
+
+  & button:not([disabled="true"]):hover,
+  & menulist:not([disabled="true"]):hover,
+  & menulist[open="true"]:not([disabled="true"]) {
+    background-color: var(--richlist-button-background);
+    background-image: linear-gradient(var(--button-hover-background-color),
+                                      var(--button-hover-background-color));
+  }
+
+  & button[open],
+  & button[open]:hover,
+  & button:not([disabled="true"]):hover:active {
+    background-color: var(--richlist-button-background);
+    background-image: linear-gradient(var(--button-active-background-color),
+                                      var(--button-active-background-color));
+  }
 }
 
 menulist[open="true"],
 menulist:not([disabled="true"], [open="true"]):hover {
   border-color: var(--button-border-color);
-}
-
-:root[lwt-tree] tree {
-  appearance: none;
-  border: 1px solid var(--sidebar-border-color);
 }
 
 tabbox {
@@ -524,16 +520,16 @@ tab {
   padding: 6px 10px !important;
   border-bottom: 2px solid transparent;
   color: inherit !important;
-}
 
-tab:hover {
-  background-color: var(--tab-hover-background);
-}
+  &:hover {
+    background-color: var(--tab-hover-background);
+  }
 
-tab[visuallyselected="true"] {
-  margin-block: 0;
-  background-color: var(--tab-selected-background);
-  border-bottom-color: var(--lwt-tab-line-color, var(--selected-item-color));
+  &[visuallyselected="true"] {
+    margin-block: 0;
+    background-color: var(--tab-selected-background);
+    border-bottom-color: var(--lwt-tab-line-color, var(--selected-item-color));
+  }
 }
 
 tabpanels {

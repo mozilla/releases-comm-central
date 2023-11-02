@@ -8,11 +8,11 @@
 
 html|input {
   padding: 2px 4px;
-}
 
-html|input[type="number"]::-moz-number-spin-up,
-html|input[type="number"]::-moz-number-spin-down {
-  min-height: 0.55em;
+  &[type="number"]::-moz-number-spin-up,
+  &[type="number"]::-moz-number-spin-down {
+    min-height: 0.55em;
+  }
 }
 
 menulist[is="menulist-editable"][editable="true"]::part(text-input) {

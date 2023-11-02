@@ -32,10 +32,6 @@ button > .button-box {
   display: flex;
 }
 
-menulist {
-  padding-inline-end: 0;
-}
-
 html|input {
   padding: 4px;
 }
@@ -45,28 +41,32 @@ html|input[type="number"]::-moz-number-spin-down {
   min-height: 0.7em;
 }
 
-menulist::part(dropmarker) {
-  margin-inline-end: 6px;
-}
+menulist {
+  padding-inline-end: 0;
 
-menulist[is="menulist-editable"][editable="true"] {
-  padding: 0;
-}
+  &::part(dropmarker) {
+    margin-inline-end: 6px;
+  }
 
-menulist[is="menulist-editable"][editable="true"]::part(text-input) {
-  padding: 4px;
-  margin-block: -1px;
-  margin-inline: -1px 2px;
-}
+  &[is="menulist-editable"][editable="true"] {
+    padding: 0;
 
-menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
-  width: initial;
-  margin-inline-end: 3px;
-}
+    &::part(text-input) {
+      padding: 4px;
+      margin-block: -1px;
+      margin-inline: -1px 2px;
+    }
 
-menulist > menupopup:not([position]) {
-  margin-inline-start: 0;
-  margin-top: 0;
+    &::part(dropmarker) {
+      width: initial;
+      margin-inline-end: 3px;
+    }
+  }
+
+  & > menupopup:not([position]) {
+    margin-inline-start: 0;
+    margin-top: 0;
+  }
 }
 
 .menu-right {

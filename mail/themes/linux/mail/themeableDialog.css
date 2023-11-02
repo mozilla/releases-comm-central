@@ -31,28 +31,28 @@ button > .button-box {
 
 html|input {
   padding: 4px;
-}
 
-html|input[type="number"]::-moz-number-spin-up,
-html|input[type="number"]::-moz-number-spin-down {
-  min-height: 0.7em;
+  &[type="number"]::-moz-number-spin-up,
+  &[type="number"]::-moz-number-spin-down {
+    min-height: 0.7em;
+  }
 }
 
 menulist[is="menulist-editable"][editable="true"] {
   appearance: none;
   margin-inline-end: 4px;
   padding: 0;
-}
 
-menulist[is="menulist-editable"][editable="true"]::part(text-input) {
-  padding: 5px 4px;
-  margin-block: -2px;
-  margin-inline: -7px 7px;
-}
+  &::part(text-input) {
+    padding: 5px 4px;
+    margin-block: -2px;
+    margin-inline: -7px 7px;
+  }
 
-menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
-  width: initial;
-  margin-inline-end: 3px;
+  &::part(dropmarker) {
+    width: initial;
+    margin-inline-end: 3px;
+  }
 }
 
 menulist menupopup menu,
