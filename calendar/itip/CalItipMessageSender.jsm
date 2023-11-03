@@ -250,8 +250,9 @@ class CalItipMessageSender {
     }
 
     if (opType == Ci.calIOperationListener.DELETE) {
+      let attendees = this.#filterOwnerFromAttendees(item.getAttendees(), item.calendar);
       this.pendingMessages.push(
-        new CalItipOutgoingMessage("CANCEL", item.getAttendees(), item, null, autoResponse)
+        new CalItipOutgoingMessage("CANCEL", attendees, item, null, autoResponse)
       );
       return this.pendingMessageCount;
     } // else ADD, MODIFY:
@@ -336,10 +337,7 @@ class CalItipMessageSender {
         // Since this is a REQUEST, it is being sent from the event creator to
         // attendees. We do not need to send a message to the creator, even
         // though they may also be an attendee.
-        const calendarEmail = cal.provider.getEmailIdentityOfCalendar(item.calendar)?.email;
-        recipients = recipients.filter(
-          attendee => cal.email.removeMailTo(attendee.id) != calendarEmail
-        );
+        recipients = this.#filterOwnerFromAttendees(recipients, item.calendar);
 
         if (recipients.length > 0) {
           this.pendingMessages.push(
@@ -356,6 +354,7 @@ class CalItipMessageSender {
       for (let att of canceledAttendees) {
         cancelItem.addAttendee(att);
       }
+      canceledAttendees = this.#filterOwnerFromAttendees(canceledAttendees, cancelItem.calendar);
       this.pendingMessages.push(
         new CalItipOutgoingMessage("CANCEL", canceledAttendees, cancelItem, null, autoResponse)
       );
@@ -374,6 +373,19 @@ class CalItipMessageSender {
    */
   send(transport) {
     return this.pendingMessages.every(msg => msg.send(transport));
+  }
+
+  /**
+   * Filter out calendar owner from a list of event attendees to prevent the
+   * owner from receiving messages about changes they have made.
+   *
+   * @param {calIAttendee[]} attendees - The attendees.
+   * @param {calICalendar} calendar - The calendar the event belongs to.
+   * @returns {calIAttendee[]} the attendees with calendar owner removed.
+   */
+  #filterOwnerFromAttendees(attendees, calendar) {
+    const calendarEmail = cal.provider.getEmailIdentityOfCalendar(calendar)?.email;
+    return attendees.filter(attendee => cal.email.removeMailTo(attendee.id) != calendarEmail);
   }
 }
 

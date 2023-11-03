@@ -143,6 +143,29 @@ add_task(async function testAddAttendeesToOwnEvent() {
   );
 
   await calendar.deleteItem(modifiedItem);
+
+  // Now also cancel the event. No mail should be sent to self.
+  const targetItem2 = modifiedItem.clone();
+
+  targetItem2.setProperty("STATUS", "CANCELLED");
+  targetItem2.setProperty("SEQUENCE", "2");
+  const modifiedItem2 = await calendar.addItem(targetItem2);
+  const sender2 = new CalItipMessageSender(modifiedItem2, null);
+
+  const result2 = sender2.buildOutgoingMessages(Ci.calIOperationListener.MODIFY, modifiedItem2);
+  Assert.equal(result2, 1, "return value should indicate there are pending messages");
+  Assert.equal(sender2.pendingMessageCount, 1, "there should be one pending message");
+
+  const [msg2] = sender2.pendingMessages;
+  Assert.equal(msg2.method, "CANCEL", "deletion message method should be 'CANCEL'");
+  Assert.equal(msg2.recipients.length, 1, "deletion message should have one recipient");
+
+  const [recipient2] = msg2.recipients;
+  Assert.equal(
+    recipient2.id,
+    cal.email.prependMailTo(newAttendeeEmail),
+    "for deletion message, recipient should be the non-organizer attendee"
+  );
 });
 
 add_task(async function testAddAdditionalAttendee() {
