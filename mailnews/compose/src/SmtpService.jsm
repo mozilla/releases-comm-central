@@ -95,11 +95,14 @@ class SmtpService {
       deliveryListener?.OnStartRunningUrl(runningUrl, 0);
       let fresh = true;
       client.onidle = () => {
-        // onidle can be emitted multiple times, but we should not init sending
-        // process again.
-        if (!fresh) {
+        // onidle can occur multiple times, but we should only init sending
+        // when sending a new message(fresh is true) or when a new connection
+        // replaces the original connection due to error 4xx response
+        // (client.isRetry is true).
+        if (!fresh && !client.isRetry) {
           return;
         }
+        // Init when fresh==true OR re-init sending when client.isRetry==true.
         fresh = false;
         let from = sender;
         const to = MailServices.headerParser

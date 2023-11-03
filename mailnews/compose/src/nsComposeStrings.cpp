@@ -66,9 +66,7 @@ const char* errorStringNameForErrorCode(nsresult aCode) {
     case NS_ERROR_SMTP_SEND_NOT_ALLOWED:
       return "smtpSendNotAllowed";
     case NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED:
-      return "smtpTempSizeExceeded";
-    case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1:
-      return "smtpPermSizeExceeded1";
+      return "smtpTooManyRecipients";
     case NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2:
       return "smtpPermSizeExceeded2";
     case NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER:

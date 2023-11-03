@@ -205,12 +205,19 @@ class SmtpServer {
     return this._getServerURI(true);
   }
 
+  /**
+   * If pref max_cached_connection is set to less than 1, allow only one
+   * connection and one message to be sent on that connection. Otherwise, allow
+   * up to max_cached_connection (default to 3) with each connection allowed to
+   * send multiple messages.
+   */
   get maximumConnectionsNumber() {
     const maxConnections = this._getIntPrefWithDefault(
       "max_cached_connections",
       3
     );
-    return maxConnections > 1 ? maxConnections : 1;
+    // Always return a value >= 0.
+    return maxConnections > 0 ? maxConnections : 0;
   }
 
   set maximumConnectionsNumber(value) {
@@ -401,7 +408,7 @@ class SmtpServer {
   }
 
   /**
-   * Get the value of a string preference from this or default SMTP server.
+   * Get the value of a char preference from this or default SMTP server.
    *
    * @param {string} name - The preference name.
    * @param {number} [defaultValue=""] - The default value to return.
@@ -466,9 +473,12 @@ class SmtpServer {
       this._busyConnections.push(client);
       return client;
     }
+    const maxConns = this.maximumConnectionsNumber
+      ? this.maximumConnectionsNumber
+      : 1;
     if (
       this._freeConnections.length + this._busyConnections.length <
-      this.maximumConnectionsNumber
+      maxConns
     ) {
       // Create a new client if the pool is not full.
       client = new lazy.SmtpClient(this);
@@ -489,9 +499,22 @@ class SmtpServer {
     const client = await this._getNextClient();
     client.onFree = () => {
       this._busyConnections = this._busyConnections.filter(c => c != client);
-      this._freeConnections.push(client);
-      // Resovle the first waiting in queue.
-      this._connectionWaitingQueue.shift()?.();
+      // Per RFC, the minimum total number of recipients that MUST be buffered
+      // is 100 recipients.
+      // @see https://datatracker.ietf.org/doc/html/rfc5321#section-4.5.3.1.8
+      // So use a new connection for the next message to avoid running into
+      // recipient limits.
+      // If user has set SMTP pref max_cached_connection to less than 1,
+      // use a new connection for each message.
+      if (this.maximumConnectionsNumber == 0 || client.rcptCount > 99) {
+        // Send QUIT, server will then terminate the connection
+        client.quit();
+      } else {
+        // Keep using this connection
+        this._freeConnections.push(client);
+        // Resolve the first waiting in queue.
+        this._connectionWaitingQueue.shift()?.();
+      }
     };
     handler(client);
     client.connect();
