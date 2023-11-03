@@ -171,7 +171,10 @@ class MimeMessage {
       if (atIndex >= 0) {
         messageId = Cc["@mozilla.org/messengercompose/computils;1"]
           .createInstance(Ci.nsIMsgCompUtils)
-          .msgGenerateMessageIdFromHost(fromAddr.slice(atIndex + 1));
+          .msgGenerateMessageId(
+            this._userIdentity,
+            fromAddr.slice(atIndex + 1)
+          );
       }
 
       this._compFields.messageId = messageId;

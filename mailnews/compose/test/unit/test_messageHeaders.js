@@ -330,24 +330,95 @@ async function testOtherHeadersAgentParam(sendAgent, minimalAgent) {
 }
 
 /**
- * Tests that the message ID is generated using the domain of the address in the
- * From header rather than the domain of the identity's address.
+ * Tests that the domain for the Message-Id header defaults to the domain of the
+ * identity's address.
+ */
+async function testMessageIdUseIdentityAddress() {
+  const expectedMessageIdHostname = "tinderbox.test";
+
+  const identity = getSmtpIdentity(
+    `from@${expectedMessageIdHostname}`,
+    getBasicSmtpServer()
+  );
+
+  await createMsgAndCompareMessageId(identity, null, expectedMessageIdHostname);
+}
+
+/**
+ * Tests that if a custom address (with a custom domain) is used when composing a
+ * message, the domain in this address takes precendence over the domain of the
+ * identity's address to generate the value for the Message-Id header.
  */
 async function testMessageIdUseFromDomain() {
-  const fields = new CompFields();
+  const expectedMessageIdHostname = "another-tinderbox.test";
+
   const identity = getSmtpIdentity("from@tinderbox.test", getBasicSmtpServer());
+
   // Set the From header to an address that uses a different domain than
   // the identity.
+  const fields = new CompFields();
+  fields.from = `Nobody <nobody@${expectedMessageIdHostname}>`;
+
+  await createMsgAndCompareMessageId(
+    identity,
+    fields,
+    expectedMessageIdHostname
+  );
+}
+
+/**
+ * Tests that if the identity has a "FQDN" attribute, it takes precedence to use as the
+ * domain for the Message-Id header over any other domain or address.
+ */
+async function testMessageIdUseIdentityAttribute() {
+  const expectedMessageIdHostname = "my-custom-fqdn.test";
+
+  const identity = getSmtpIdentity("from@tinderbox.test", getBasicSmtpServer());
+  identity.setCharAttribute("FQDN", expectedMessageIdHostname);
+
+  // Set the From header to an address that uses a different domain than
+  // the identity.
+  const fields = new CompFields();
   fields.from = "Nobody <nobody@another-tinderbox.test>";
+
+  await createMsgAndCompareMessageId(
+    identity,
+    fields,
+    expectedMessageIdHostname
+  );
+}
+
+/**
+ * Util function to create a message using the given identity and fields,
+ * and test that the message ID that was generated for it has the correct
+ * host name.
+ *
+ * @param {nsIMsgIdentity} identity - The identity to use to create the message.
+ * @param {?nsIMsgCompFields} fields - The compose fields to use. If not provided,
+ *   default fields are used.
+ * @param {string} expectedMessageIdHostname - The expected host name of the
+ *   Message-Id header.
+ */
+async function createMsgAndCompareMessageId(
+  identity,
+  fields,
+  expectedMessageIdHostname
+) {
+  if (!fields) {
+    fields = new CompFields();
+  }
 
   const msgHdr = await richCreateMessage(fields, [], identity);
   const msgData = mailTestUtils.loadMessageToString(msgHdr.folder, msgHdr);
   const headers = MimeParser.extractHeaders(msgData);
 
   // As of bug 1727181, the identity does not override the message-id header.
-  Assert.ok(headers.has("Message-Id"));
+  Assert.ok(headers.has("Message-Id"), "the message has a Message-Id header");
   Assert.ok(
-    headers.getRawHeader("Message-Id")[0].endsWith("@another-tinderbox.test>")
+    headers
+      .getRawHeader("Message-Id")[0]
+      .endsWith(`@${expectedMessageIdHostname}>`),
+    `the hostname for the Message-Id header should be ${expectedMessageIdHostname}`
   );
 }
 
@@ -728,7 +799,9 @@ var tests = [
   testSendHeaders,
   testContentHeaders,
   testSentMessage,
+  testMessageIdUseIdentityAddress,
   testMessageIdUseFromDomain,
+  testMessageIdUseIdentityAttribute,
 ];
 
 function run_test() {

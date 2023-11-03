@@ -11,33 +11,22 @@ interface nsIMsgCompUtils : nsISupports {
   string mimeMakeSeparator(in string prefix);
 
   /**
-   * Generate a message ID using the provided host.
+   * Try to use the provided identity and/or host name to generate a message ID.
    *
-   * Used when the address for the sender of the message differs from the
-   * address of the identity used to send the message.
-   *
-   * @param string The host to use to generate the message ID.
-   *
-   * @returns A message ID usable in a Message-ID header, or an empty string
-   *          if no message ID could be generated.
-   */
-  string msgGenerateMessageIdFromHost(in string host);
-
-  /**
-   * Generate a message ID using the domain in the email address for the
-   * provided identity.
-   *
-   * Should not be used when the address for the sender of the message differs
-   * from the address for the identity, otherwise the resulting message ID might
-   * be generated with the wrong domain (use msgGenerateMessageIdFromHost instead
-   * in this case).
+   * To identify the host name to use in the message ID, this will:
+   *   - if the attribute "FQDN" of the identity is set to a valid host name, use it
+   *   - otherwise, if the provided host name is valid, use it
+   *   - otherwise, if the identity's email address includes a valid host name after
+   *     an '@' symbol, use it
+   *   - otherwise, bail without generating a message ID (returns with an empty value)
    *
    * @param nsIMsgIdentity The identity to use to generate the message ID.
+   * @param string The host to use to generate the message ID. Ignored if empty.
    *
    * @returns A message ID usable in a Message-ID header, or an empty string
    *          if no message ID could be generated.
    */
-  string msgGenerateMessageIdFromIdentity(in nsIMsgIdentity identity);
+  AUTF8String msgGenerateMessageId(in nsIMsgIdentity identity, in AUTF8String host);
 
   readonly attribute boolean msgMimeConformToStandard;
 

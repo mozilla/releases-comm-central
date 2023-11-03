@@ -1184,7 +1184,7 @@ add_task(async function getHeaderSection_test() {
     const composeUtils = Cc["@mozilla.org/messengercompose/computils;1"].createInstance(
       Ci.nsIMsgCompUtils
     );
-    const messageId = composeUtils.msgGenerateMessageIdFromIdentity(identity);
+    const messageId = composeUtils.msgGenerateMessageId(identity, null);
 
     const header = cal.invitation.getHeaderSection(
       messageId,

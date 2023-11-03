@@ -213,7 +213,7 @@ class CalItipEmailTransport {
         let composeUtils = Cc["@mozilla.org/messengercompose/computils;1"].createInstance(
           Ci.nsIMsgCompUtils
         );
-        let messageId = composeUtils.msgGenerateMessageIdFromIdentity(identity);
+        let messageId = composeUtils.msgGenerateMessageId(identity, null);
         let mailFile = this._createTempImipFile(
           toList,
           aSubject,

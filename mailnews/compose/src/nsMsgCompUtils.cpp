@@ -43,8 +43,9 @@
 #include "nsIRandomGenerator.h"
 #include "nsID.h"
 
-char* msg_generate_message_id(const char* host);
-char* msg_generate_message_id_from_identity(nsIMsgIdentity*);
+void msg_generate_message_id(nsIMsgIdentity* identity,
+                             const nsACString& customHost,
+                             nsACString& messageID);
 
 NS_IMPL_ISUPPORTS(nsMsgCompUtils, nsIMsgCompUtils)
 
@@ -60,19 +61,13 @@ NS_IMETHODIMP nsMsgCompUtils::MimeMakeSeparator(const char* prefix,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompUtils::MsgGenerateMessageIdFromHost(const char* host,
-                                                           char** _retval) {
-  NS_ENSURE_ARG_POINTER(host);
-  NS_ENSURE_ARG_POINTER(_retval);
-  *_retval = msg_generate_message_id(host);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgCompUtils::MsgGenerateMessageIdFromIdentity(
-    nsIMsgIdentity* identity, char** _retval) {
+NS_IMETHODIMP nsMsgCompUtils::MsgGenerateMessageId(nsIMsgIdentity* identity,
+                                                   const nsACString& host,
+                                                   nsACString& messageID) {
+  // We don't check `host` because it's allowed to be a null pointer (which
+  // means we should ignore it for message ID generation).
   NS_ENSURE_ARG_POINTER(identity);
-  NS_ENSURE_ARG_POINTER(_retval);
-  *_retval = msg_generate_message_id_from_identity(identity);
+  msg_generate_message_id(identity, host, messageID);
   return NS_OK;
 }
 
@@ -526,22 +521,77 @@ char* mime_make_separator(const char* prefix) {
       rand_buf[10], rand_buf[11]);
 }
 
-static bool isValidHost(const char* host) {
-  if (host)
-    for (const char* s = host; *s; ++s)
-      if (!isalpha(*s) && !isdigit(*s) && *s != '-' && *s != '_' && *s != '.') {
-        host = nullptr;
-        break;
-      }
+// Tests if the content of a string is a valid host name.
+// In this case, a valid host name is any non-empty string that only contains
+// letters (a-z + A-Z), numbers (0-9) and the characters '-', '_' and '.'.
+static bool isValidHost(const nsCString& host) {
+  if (host.IsEmpty()) {
+    return false;
+  }
 
-  return nullptr != host;
+  const auto* cur = host.BeginReading();
+  const auto* end = host.EndReading();
+  for (; cur < end; ++cur) {
+    if (!isalpha(*cur) && !isdigit(*cur) && *cur != '-' && *cur != '_' &&
+        *cur != '.') {
+      return false;
+    }
+  }
+
+  return true;
 }
 
-char* msg_generate_message_id(const char* host) {
+// Extract the domain name from an address.
+// If none could be found (i.e. the address does not contain an '@' sign, or
+// the value following it is not a valid domain), then nullptr is returned.
+void msg_domain_name_from_address(const nsACString& address, nsACString& host) {
+  auto atIndex = address.FindChar('@');
+
+  if (address.IsEmpty() || atIndex == kNotFound) {
+    return;
+  }
+
+  // Substring() should handle cases where we would go out of bounds (by
+  // preventing the index from exceeding the length of the source string), so we
+  // don't need to handle this here.
+  host = Substring(address, atIndex + 1);
+}
+
+// Generate a value for a Message-Id header using the identity and optional
+// hostname provided.
+void msg_generate_message_id(nsIMsgIdentity* identity,
+                             const nsACString& customHost,
+                             nsACString& messageID) {
+  nsCString host;
+
+  // Check if the identity forces host name. This is sometimes the case when
+  // using newsgroup.
+  nsCString forcedFQDN;
+  nsresult rv = identity->GetCharAttribute("FQDN", forcedFQDN);
+  if (NS_SUCCEEDED(rv) && !forcedFQDN.IsEmpty()) {
+    host = forcedFQDN;
+  }
+
+  // If no valid host name has been set, try using the value defined by the
+  // caller, if any.
   if (!isValidHost(host)) {
-    // If we couldn't find a valid host name to use, we can't generate a
-    // valid message ID, so bail, and let NNTP and SMTP generate them.
-    return nullptr;
+    host = customHost;
+  }
+
+  // If no valid host name has been set, try extracting one from the email
+  // address associated with the identity.
+  if (!isValidHost(host)) {
+    nsCString from;
+    rv = identity->GetEmail(from);
+    if (NS_SUCCEEDED(rv) && !from.IsEmpty()) {
+      msg_domain_name_from_address(from, host);
+    }
+  }
+
+  // If we still couldn't find a valid host name to use, we can't generate a
+  // valid message ID, so bail, and let NNTP and SMTP generate them.
+  if (!isValidHost(host)) {
+    return;
   }
 
   // Generate 128-bit UUID for the local part of the ID. `nsID` provides us with
@@ -551,36 +601,8 @@ char* msg_generate_message_id(const char* host) {
   uuid.ToProvidedString(uuidString);
   // Drop first and last characters (curly braces).
   uuidString[NSID_LENGTH - 2] = 0;
-  return PR_smprintf("<%s@%s>", uuidString + 1, host);
-}
 
-char* msg_generate_message_id_from_identity(nsIMsgIdentity* identity) {
-  const char* host = 0;
-
-  nsCString forcedFQDN;
-  nsCString from;
-  nsresult rv = NS_OK;
-
-  // Check if the identity forces an FQDN.
-  rv = identity->GetCharAttribute("FQDN", forcedFQDN);
-  if (NS_SUCCEEDED(rv) && !forcedFQDN.IsEmpty()) host = forcedFQDN.get();
-
-  if (!isValidHost(host)) {
-    // If no FQDN is forced, or one is forced but is invalid, try to retrieve a
-    // domain from the identity's email address.
-    nsresult rv = identity->GetEmail(from);
-    if (NS_SUCCEEDED(rv) && !from.IsEmpty()) host = strchr(from.get(), '@');
-
-    // There might not be an '@' in the email address (e.g., due to anti-spam;
-    // see bug 197203), in which case the result is a null pointer. We have no
-    // more fallback options here.
-    if (!host) return nullptr;
-
-    // Move one character right so `host` starts after the '@' symbol.
-    ++host;
-  }
-
-  return msg_generate_message_id(host);
+  messageID.AppendPrintf("<%s@%s>", uuidString + 1, host.get());
 }
 
 // this is to guarantee the folded line will never be greater

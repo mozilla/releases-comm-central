@@ -120,7 +120,7 @@ class SmtpService {
         if (!messageId) {
           messageId = Cc["@mozilla.org/messengercompose/computils;1"]
             .createInstance(Ci.nsIMsgCompUtils)
-            .msgGenerateMessageIdFromIdentity(userIdentity);
+            .msgGenerateMessageId(userIdentity, null);
         }
         client.useEnvelope({
           from: MailServices.headerParser.parseEncodedHeaderW(
