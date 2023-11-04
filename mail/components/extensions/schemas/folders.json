@@ -55,17 +55,17 @@
           },
           "type": {
             "max_manifest_version": 2,
-            "$ref": "folders.MailFolderUsage",
+            "$ref": "folders.MailFolderSpecialUse",
             "optional": true,
             "description": "Deprecated. Was used to represent the type of this folder."
           },
-          "usage": {
+          "specialUse": {
             "type": "array",
             "items": {
-              "$ref": "folders.MailFolderUsage"
+              "$ref": "folders.MailFolderSpecialUse"
             },
             "optional": true,
-            "description": "The special usage of this folder. A folder can have multiple special uses."
+            "description": "The special use of this folder. A folder can have multiple special uses."
           }
         }
       },
@@ -143,9 +143,9 @@
         }
       },
       {
-        "id": "MailFolderUsage",
+        "id": "MailFolderSpecialUse",
         "type": "string",
-        "description": "Supported values for the special usage of a folder.",
+        "description": "Supported values for the special use of a folder.",
         "enum": [
           "inbox",
           "drafts",
@@ -342,18 +342,18 @@
               },
               "type": {
                 "max_manifest_version": 2,
-                "$ref": "folders.MailFolderUsage",
+                "$ref": "folders.MailFolderSpecialUse",
                 "optional": true,
-                "description": "Deprecated. Match only folders with the specified special usage."
+                "description": "Deprecated. Match only folders with the specified special use."
               },
-              "usage": {
+              "specialUse": {
                 "type": "array",
                 "items": {
-                  "$ref": "folders.MailFolderUsage"
+                  "$ref": "folders.MailFolderSpecialUse"
                 },
                 "minItems": 1,
                 "optional": true,
-                "description": "Match only folders with the specified special usage (folders have to match all specified uses)."
+                "description": "Match only folders with the specified special use (folders have to match all specified uses)."
               }
             }
           },
@@ -761,7 +761,7 @@
       {
         "name": "onUpdated",
         "type": "function",
-        "description": "Fired when properties of a folder have changed (<value>usage</value> and <value>favorite</value>).",
+        "description": "Fired when properties of a folder have changed (<value>specialUse</value> and <value>favorite</value>).",
         "parameters": [
           {
             "name": "originalFolder",

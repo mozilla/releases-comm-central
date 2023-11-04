@@ -622,7 +622,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         window.assertDeepEqual(
           {
             id: `${InfoTestFolder.accountId}:/${InfoTestFolder.path}`,
-            usage: [],
+            specialUse: [],
             favorite: false,
           },
           InfoTestFolder,
@@ -814,16 +814,16 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         ["OtherTest"]
       );
 
-      // Usage.
+      // Special use.
       await queryCheck(
         { parent: account, type: "inbox" },
         expectedAccountFolders.filter(f => f == "Inbox")
       );
       await queryCheck(
-        { parent: account, usage: ["inbox"] },
+        { parent: account, specialUse: ["inbox"] },
         expectedAccountFolders.filter(f => f == "Inbox")
       );
-      await queryCheck({ parent: account, usage: ["inbox", "trash"] }, []);
+      await queryCheck({ parent: account, specialUse: ["inbox", "trash"] }, []);
       // NNTP does not have a trash folder which is set to be a drafts folder
       // here, so skip it.
       if (account.type != "nntp") {
@@ -839,7 +839,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         await folderUpdatedPromise;
 
         await queryCheck(
-          { parent: account, usage: ["drafts", "trash"] },
+          { parent: account, specialUse: ["drafts", "trash"] },
           expectedAccountFolders.filter(f => f == "Trash")
         );
       }
@@ -1084,7 +1084,7 @@ add_task(
           account.folders.length,
           "Should find the correct number of folders"
         );
-        const trash = account.folders.find(f => f.usage.includes("trash"));
+        const trash = account.folders.find(f => f.specialUse.includes("trash"));
         browser.test.assertTrue(
           trash,
           "Should find a folder which is used as trash"
@@ -1110,16 +1110,16 @@ add_task(
         const folderUpdatedEvent = await folderUpdatedPromise;
 
         // Prepare expected event folder value.
-        trash.usage = ["drafts", "trash"];
+        trash.specialUse = ["drafts", "trash"];
         trash.type = "drafts";
 
         window.assertDeepEqual(
           {
-            oldFolder: { usage: ["trash"] },
+            oldFolder: { specialUse: ["trash"] },
             newFolder: trash,
           },
           {
-            oldFolder: { usage: folderUpdatedEvent.oldFolder.usage },
+            oldFolder: { specialUse: folderUpdatedEvent.oldFolder.specialUse },
             newFolder: folderUpdatedEvent.newFolder,
           },
           "The values returned by the folders.onUpdated event should be correct."

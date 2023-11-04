@@ -19,8 +19,8 @@ var {
   folderPathToURI,
   folderURIToPath,
   getFolder,
-  getFolderUsage,
-  folderUsageMap,
+  getSpecialUse,
+  specialUseMap,
 } = ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
 
 /**
@@ -108,10 +108,10 @@ var folderTracker = new (class extends EventEmitter {
             );
           }
 
-          const folderUsageFlags = [...folderUsageMap.keys()].reduce(
+          const specialUseFlags = [...specialUseMap.keys()].reduce(
             (rv, f) => rv | f
           );
-          if ((oldValue & folderUsageFlags) != (newValue & folderUsageFlags)) {
+          if ((oldValue & specialUseFlags) != (newValue & specialUseFlags)) {
             modified = true;
           }
 
@@ -648,15 +648,17 @@ this.folders = class extends ExtensionAPIPersistent {
           }
 
           // Prepare usage flags.
-          const usage =
-            !queryInfo.usage && queryInfo.type && manifestVersion < 3
+          const specialUse =
+            !queryInfo.specialUse && queryInfo.type && manifestVersion < 3
               ? [queryInfo.type]
-              : queryInfo.usage;
-          const usageFlags =
-            usage && Array.isArray(usage) && usage.length > 0
-              ? [...folderUsageMap.entries()]
-                  .filter(([flag, usageName]) => usage.includes(usageName))
-                  .map(([flag, usageName]) => flag)
+              : queryInfo.specialUse;
+          const specialUseFlags =
+            specialUse && Array.isArray(specialUse) && specialUse.length > 0
+              ? [...specialUseMap.entries()]
+                  .filter(([flag, specialUseName]) =>
+                    specialUse.includes(specialUseName)
+                  )
+                  .map(([flag, specialUseName]) => flag)
                   .reduce((rv, f) => rv | f)
               : null;
 
@@ -689,8 +691,8 @@ this.folders = class extends ExtensionAPIPersistent {
                 }
               }
 
-              if (usageFlags) {
-                if (~folder.flags & usageFlags) {
+              if (specialUseFlags) {
+                if (~folder.flags & specialUseFlags) {
                   continue;
                 }
               }

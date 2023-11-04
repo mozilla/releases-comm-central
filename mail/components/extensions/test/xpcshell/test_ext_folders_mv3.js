@@ -481,7 +481,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
         window.assertDeepEqual(
           {
             id: `${InfoTestFolder.accountId}:/${InfoTestFolder.path}`,
-            usage: [],
+            specialUse: [],
             favorite: false,
           },
           InfoTestFolder,
@@ -704,7 +704,7 @@ add_task(
           account.folders.length,
           "Should find the correct number of folders"
         );
-        const trash = account.folders.find(f => f.usage.includes("trash"));
+        const trash = account.folders.find(f => f.specialUse.includes("trash"));
         browser.test.assertTrue(
           trash,
           "Should find a folder which is used as trash"
@@ -730,15 +730,15 @@ add_task(
         const folderUpdatedEvent = await folderUpdatedPromise;
 
         // Prepare expected event folder value.
-        trash.usage = ["drafts", "trash"];
+        trash.specialUse = ["drafts", "trash"];
 
         window.assertDeepEqual(
           {
-            oldFolder: { usage: ["trash"] },
+            oldFolder: { specialUse: ["trash"] },
             newFolder: trash,
           },
           {
-            oldFolder: { usage: folderUpdatedEvent.oldFolder.usage },
+            oldFolder: { specialUse: folderUpdatedEvent.oldFolder.specialUse },
             newFolder: folderUpdatedEvent.newFolder,
           },
           "The values returned by the folders.onUpdated event should be correct."

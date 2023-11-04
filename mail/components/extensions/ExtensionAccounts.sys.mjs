@@ -231,7 +231,7 @@ export function folderPathToURI(accountId, path) {
   );
 }
 
-export const folderUsageMap = new Map([
+export const specialUseMap = new Map([
   [Ci.nsMsgFolderFlags.Inbox, "inbox"],
   [Ci.nsMsgFolderFlags.Drafts, "drafts"],
   [Ci.nsMsgFolderFlags.SentMail, "sent"],
@@ -242,14 +242,14 @@ export const folderUsageMap = new Map([
   [Ci.nsMsgFolderFlags.Queue, "outbox"],
 ]);
 
-export function getFolderUsage(flags) {
-  const usage = [];
-  for (const [flag, usageName] of folderUsageMap.entries()) {
+export function getSpecialUse(flags) {
+  const specialUse = [];
+  for (const [flag, specialUseName] of specialUseMap.entries()) {
     if (flags & flag) {
-      usage.push(usageName);
+      specialUse.push(specialUseName);
     }
   }
-  return usage;
+  return specialUse;
 }
 
 export class FolderManager {
@@ -282,16 +282,19 @@ export class FolderManager {
       accountId,
       name: folder.prettyName,
       path,
-      usage: getFolderUsage(folder.flags),
+      specialUse: getSpecialUse(folder.flags),
       favorite: folder.getFlag(Ci.nsMsgFolderFlags.Favorite),
     };
 
-    // In MV2 only the first matching usage was returned as type, assuming a
-    // folder can only be of one type. Since that turned out to be wrong, the
-    // type property is now deprecated (removed in MV3) and an additional usage
+    // In MV2 only the first special use was returned as type, assuming a folder
+    // can only be of one type. Since that turned out to be wrong, the type
+    // property is now deprecated (removed in MV3) and an additional specialUse
     // property is returned.
-    if (this.extension.manifestVersion < 3 && folderObject.usage.length > 0) {
-      folderObject.type = folderObject.usage[0];
+    if (
+      this.extension.manifestVersion < 3 &&
+      folderObject.specialUse.length > 0
+    ) {
+      folderObject.type = folderObject.specialUse[0];
     }
 
     return folderObject;

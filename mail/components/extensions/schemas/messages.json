@@ -386,7 +386,7 @@
         "extraParameters": [
           {
             "name": "monitorAllFolders",
-            "description": "Monitor all folders (including all special use folders as defined by :ref:`folders.MailFolderUsage`) instead of just inbox folders and normal folders.",
+            "description": "Monitor all folders (including all special use folders as defined by :ref:`folders.MailFolderSpecialUse`) instead of just inbox folders and normal folders.",
             "type": "boolean",
             "optional": true
           }
