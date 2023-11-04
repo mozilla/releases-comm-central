@@ -60,9 +60,13 @@ treeherder:
 
         # Tests
         'X': 'Xpcshell tests'
+        'X-cf': 'Xpcshell tests confirm failure'
         'X-msix': 'Xpcshell tests on msix packages'
+        'X-msix-cf': 'Xpcshell tests confirm failure on msix packages'
         'M': 'Mochitests'
+        'M-cf': 'Mochitests confirm failure'
         'M-msix': 'Mochitests from MSIX builds'
+        'M-msix-cf': 'Mochitests confirm failure from MSIX builds'
 
         'Searchfox': 'Searchfox builds'
         'doc': 'Source docs'
