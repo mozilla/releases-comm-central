@@ -56,6 +56,7 @@ XPCOMUtils.defineLazyGetter(this, "SubDialog", function () {
       ],
       resizeCallback: ({ title, frame }) => {
         UIFontSize.registerWindow(frame.contentWindow);
+        updateCommands();
 
         // Resize the dialog to fit the content with edited font size.
         requestAnimationFrame(() => {
@@ -257,6 +258,7 @@ function createBook(type = Ci.nsIAbManager.JS_DIRECTORY_TYPE) {
           );
           booksList.focus();
         }
+        updateCommands();
       },
     },
     params
@@ -319,6 +321,7 @@ function createList(cards) {
           booksList.selectedIndex = booksList.getIndexForUID(params.newListUID);
           booksList.focus();
         }
+        updateCommands();
       },
     },
     params
@@ -384,6 +387,19 @@ function updateSharedSplitter(isTableLayout) {
 
   splitter.isCollapsed =
     document.getElementById("detailsPane").hidden && isTableLayout;
+}
+
+/**
+ * Update all commands that are affected by the contents of the address book
+ * tab.
+ */
+function updateCommands() {
+  const { topChromeWindow } = window.browsingContext;
+  topChromeWindow.goUpdateCommand("cmd_createAddressBook");
+  topChromeWindow.goUpdateCommand("cmd_createAddressBookCARDDAV");
+  topChromeWindow.goUpdateCommand("cmd_createAddressBookLDAP");
+  topChromeWindow.goUpdateCommand("cmd_createList");
+  topChromeWindow.goUpdateCommand("cmd_newCard");
 }
 
 // Books
@@ -578,7 +594,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
 
       SubDialog.open(
         "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
-        { features: "resizable=no" },
+        { features: "resizable=no", closedCallback: updateCommands },
         { listURI: list.URI }
       );
       return;
@@ -588,7 +604,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
 
     SubDialog.open(
       book.propertiesChromeURI,
-      { features: "resizable=no" },
+      { features: "resizable=no", closedCallback: updateCommands },
       { selectedDirectory: book }
     );
   }
@@ -741,6 +757,40 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     );
   }
 
+  /**
+   * @returns {boolean} True if a new contact can be created in the current
+   *   address book.
+   */
+  canCreateContact() {
+    if (this.selectedIndex === 0) {
+      return true;
+    }
+    const row = this.rows[this.selectedIndex];
+    if (!row) {
+      return false;
+    }
+    const bookUID = row.dataset.book ?? row.dataset.uid;
+    const book = MailServices.ab.getDirectoryFromUID(bookUID);
+    return !book.readOnly;
+  }
+
+  /**
+   * @returns {boolean} True if a new list can be created in the current
+   *   address book.
+   */
+  canCreateList() {
+    if (this.selectedIndex === 0) {
+      return true;
+    }
+    const row = this.rows[this.selectedIndex];
+    if (!row) {
+      return false;
+    }
+    const bookUID = row.dataset.book ?? row.dataset.uid;
+    const book = MailServices.ab.getDirectoryFromUID(bookUID);
+    return !book.readOnly && book.supportsMailingLists;
+  }
+
   _onSelect() {
     const row = this.rows[this.selectedIndex];
     if (row.classList.contains("listRow")) {
@@ -748,6 +798,9 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     } else {
       cardsPane.displayBook(row.dataset.uid);
     }
+
+    window.browsingContext.topChromeWindow.goUpdateCommand("cmd_newCard");
+    window.browsingContext.topChromeWindow.goUpdateCommand("cmd_createList");
 
     // Row 0 is the "All Address Books" item.
     if (this.selectedIndex === 0) {
@@ -2773,6 +2826,7 @@ var detailsPane = {
     }
 
     document.body.classList.toggle("is-editing", editing);
+    updateCommands();
 
     // Disable the toolbar buttons when starting to edit. Remember their state
     // to restore it when editing stops.
@@ -3423,7 +3477,7 @@ var detailsPane = {
     } else if (this.currentList) {
       SubDialog.open(
         "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
-        { features: "resizable=no" },
+        { features: "resizable=no", closedCallback: updateCommands },
         { listURI: this.currentList.mailListURI }
       );
     }

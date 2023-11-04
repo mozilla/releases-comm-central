@@ -364,3 +364,35 @@
                xmlns="http://www.w3.org/1999/xhtml">
   <img class="throbber-icon" alt="" data-l10n-id="toolbar-throbber" />
 </html:template>
+
+<html:template id="createContactTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="cmd_newCard"
+          label-id="toolbar-create-contact-label"
+          data-l10n-id="toolbar-create-contact"></button>
+</html:template>
+
+<html:template id="createAddressBookTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="create-address-book-button"
+          popup="unifiedToolbarCreateBook"
+          label-id="toolbar-create-address-book-label"
+          data-l10n-id="toolbar-create-address-book"></button>
+</html:template>
+
+<html:template id="createListTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="cmd_createList"
+          label-id="toolbar-create-list-label"
+          data-l10n-id="toolbar-create-list"></button>
+</html:template>
+
+<html:template id="importContactsTemplate"
+               xmlns="http://www.w3.org/1999/xhtml">
+  <button is="unified-toolbar-button"
+          command="cmd_importContacts"
+          label-id="toolbar-import-contacts-label"
+          data-l10n-id="toolbar-import-contacts"></button>
+</html:template>

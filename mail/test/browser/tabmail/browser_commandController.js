@@ -61,12 +61,24 @@ add_task(function test_noRegisteredCommands() {
   );
 });
 
-add_task(function test_disabledCommand() {
+add_task(async function test_disabledCommand() {
   const { commandController } = browser.contentWindow;
 
   const command = "cmd_disabledCommand";
   const callback = sinon.spy();
+  const commandUpdated = BrowserTestUtils.waitForEvent(window, "commandstate");
   commandController.registerCallback(command, callback, false);
+  const event = await commandUpdated;
+
+  Assert.equal(
+    event.detail.command,
+    command,
+    "commandstate event fired for the registered command"
+  );
+  Assert.ok(
+    !event.detail.enabled,
+    "The registred command isn't enabled per the event"
+  );
 
   Assert.ok(
     commandController.supportsCommand(command),

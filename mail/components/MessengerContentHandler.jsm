@@ -591,7 +591,7 @@ MailDefaultHandler.prototype = {
 
               winPromise.then(win =>
                 win.toAddressBook([
-                  "cmd_createContact",
+                  "cmd_newCard",
                   undefined,
                   decodeURIComponent(data),
                 ])

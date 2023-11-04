@@ -81,12 +81,21 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
           attributes: true,
           attributeFilter: observedAttributes,
         });
+      } else {
+        window.addEventListener("commandstate", this);
       }
       // Update the disabled state to match the current state of the command.
       try {
-        this.disabled = !getEnabledControllerForCommand(this.observedCommand);
+        this.disabled =
+          !getEnabledControllerForCommand(this.observedCommand) &&
+          (!command?.hasAttribute("oncommand") ||
+            command.getAttribute("disabled") === "true");
       } catch {
-        this.disabled = true;
+        if (command) {
+          this.disabled = command.getAttribute("disabled") === "true";
+        } else {
+          this.disabled = true;
+        }
       }
     }
     if (this.hasConnected) {
@@ -107,6 +116,8 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
   disconnectedCallback() {
     if (this.#observer) {
       this.#observer.disconnect();
+    } else if (this.observedCommand) {
+      window.removeEventListener("commandstate", this);
     }
   }
 
@@ -125,6 +136,16 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
           this.dispatchEvent(new CustomEvent("buttondisabled"));
         } else if (!this.disabled && this.tabIndex === -1) {
           this.dispatchEvent(new CustomEvent("buttonenabled"));
+        }
+        break;
+    }
+  }
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "commandstate":
+        if (event.detail.command === this.observedCommand) {
+          this.disabled = !event.detail.enabled;
         }
         break;
     }

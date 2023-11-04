@@ -1843,7 +1843,7 @@ function initAppMenuPopup() {
 }
 
 function openNewCardDialog() {
-  toAddressBook(["cmd_createContact"]);
+  toAddressBook(["cmd_newCard"]);
 }
 
 /**
@@ -2042,7 +2042,7 @@ function getIconForAttachment(attachment) {
  */
 function addEmail(url) {
   const addresses = getEmail(url);
-  toAddressBook(["cmd_createContact", addresses]);
+  toAddressBook(["cmd_newCard", addresses]);
 }
 
 /**

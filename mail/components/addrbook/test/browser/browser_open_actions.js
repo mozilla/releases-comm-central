@@ -75,7 +75,7 @@ add_task(async function testNoAction() {
  * Address Book. A new blank card should open in edit mode.
  */
 add_task(async function testCreateBlank() {
-  await window.toAddressBook(["cmd_createContact"]);
+  await window.toAddressBook(["cmd_newCard"]);
   await inEditingMode();
   // TODO check blank
   await closeAddressBookWindow();
@@ -87,9 +87,14 @@ add_task(async function testCreateBlank() {
  * open in edit mode.
  */
 add_task(async function testCreateWithAddress() {
-  await window.toAddressBook(["cmd_createContact", "test@invalid"]);
+  await window.toAddressBook(["cmd_newCard", "test@invalid"]);
   await inEditingMode();
-  // TODO check address matches
+  const abWindow = getAddressBookWindow();
+  Assert.equal(
+    abWindow.document.querySelector('input[type="email"]').value,
+    "test@invalid",
+    "Address put into editor"
+  );
   await closeAddressBookWindow();
 });
 
@@ -99,12 +104,31 @@ add_task(async function testCreateWithAddress() {
  */
 add_task(async function testCreateWithVCard() {
   await window.toAddressBook([
-    "cmd_createContact",
+    "cmd_newCard",
     undefined,
     "BEGIN:VCARD\r\nFN:a test person\r\nN:person;test;;a;\r\nEND:VCARD\r\n",
   ]);
   await inEditingMode();
   // TODO check card matches
+  const abWindow = getAddressBookWindow();
+  Assert.equal(
+    abWindow.document.querySelector('input[type="email"]').value,
+    "",
+    "VCard provided no email address"
+  );
+  await closeAddressBookWindow();
+});
+
+add_task(async function testCreateWithEvent() {
+  const event = new CustomEvent("dummyclick");
+  await window.toAddressBook(["cmd_newCard", event]);
+  await inEditingMode();
+  const abWindow = getAddressBookWindow();
+  Assert.equal(
+    abWindow.document.querySelector('input[type="email"]').value,
+    "",
+    "Event not put in as address"
+  );
   await closeAddressBookWindow();
 });
 

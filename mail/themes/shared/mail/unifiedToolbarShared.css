@@ -270,6 +270,22 @@
     visibility: visible;
     object-position: 0;
   }
+
+  & .create-contact .button-icon {
+    content: var(--icon-new-contact);
+  }
+
+  & .create-address-book .button-icon {
+    content: var(--icon-new-address-book);
+  }
+
+  & .create-list .button-icon {
+    content: var(--icon-new-user-list);
+  }
+
+  & .import-contacts .button-icon {
+    content: var(--icon-import);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

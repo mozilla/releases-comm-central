@@ -108,6 +108,10 @@ function goDoCommand(command, ...args) {
  *
  * @param {string} id
  * @param {boolean} enabled
+ * @fires {CustomEvent} commandstate - Fired on the window when there is no
+ *   command element matching the id. Detail is an object with the command
+ *   property containing the id, and the enabled property containing the passed
+ *   value.
  */
 function goSetCommandEnabled(id, enabled) {
   const node = document.getElementById(id);
@@ -118,5 +122,10 @@ function goSetCommandEnabled(id, enabled) {
     } else {
       node.setAttribute("disabled", "true");
     }
+  } else {
+    const commandStateEvent = new CustomEvent("commandstate", {
+      detail: { command: id, enabled },
+    });
+    window.dispatchEvent(commandStateEvent);
   }
 }

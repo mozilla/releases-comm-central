@@ -32,6 +32,7 @@ class GetMessagesButton extends UnifiedToolbarButton {
 
   handleEvent(event) {
     if (event.type !== "contextmenu") {
+      super.handleEvent(event);
       return;
     }
     this.#handleContextMenu(event);

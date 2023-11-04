@@ -24,6 +24,7 @@ const commandController = {
   registerCallback(commandName, callback, isEnabled = true) {
     this._callbackCommands[commandName] = callback;
     this._isCallbackEnabled[commandName] = isEnabled;
+    window.browsingContext.topChromeWindow.goUpdateCommand(commandName);
   },
 
   supportsCommand(command) {

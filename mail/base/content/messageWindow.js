@@ -472,6 +472,7 @@ var MessageWindowController = {
       case "cmd_viewNormalHeader":
       case "cmd_stop":
       case "cmd_chat":
+      case "cmd_newCard":
         return true;
       case "cmd_synchronizeOffline":
         return MailOfflineMgr.isOnline();
@@ -505,6 +506,7 @@ var MessageWindowController = {
       case "cmd_fullZoomToggle":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
+      case "cmd_newCard":
         return true;
       case "cmd_undo":
       case "cmd_redo":
@@ -595,6 +597,9 @@ var MessageWindowController = {
             { tabType: "chat", tabParams: {} }
           );
         }
+        break;
+      case "cmd_newCard":
+        openNewCardDialog();
         break;
     }
   },

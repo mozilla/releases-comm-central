@@ -9,6 +9,7 @@ messenger.jar:
     content/messenger/unifiedtoolbar/add-to-calendar-button.mjs        (content/items/add-to-calendar-button.mjs)
     content/messenger/unifiedtoolbar/addons-button.mjs                 (content/items/addons-button.mjs)
     content/messenger/unifiedtoolbar/compact-folder-button.mjs         (content/items/compact-folder-button.mjs)
+    content/messenger/unifiedtoolbar/create-address-book-button.mjs    (content/items/create-address-book-button.mjs)
     content/messenger/unifiedtoolbar/delete-button.mjs                 (content/items/delete-button.mjs)
     content/messenger/unifiedtoolbar/folder-location-button.mjs        (content/items/folder-location-button.mjs)
     content/messenger/unifiedtoolbar/get-messages-button.mjs           (content/items/get-messages-button.mjs)

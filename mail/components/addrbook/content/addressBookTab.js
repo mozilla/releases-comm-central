@@ -162,6 +162,12 @@ var addressBookTabType = {
     aTabmail.openTab("addressBookTab", {});
   },
 
+  showTab(tab) {
+    // We need to update the commands in case the tab was switched to while an
+    // overlay is active (or was activated).
+    tab.browser?.contentWindow.updateCommands();
+  },
+
   supportsCommand(command, tab) {
     return tab.browser?.contentWindow.commandController?.supportsCommand(
       command

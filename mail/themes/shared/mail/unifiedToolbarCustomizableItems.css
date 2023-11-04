@@ -196,4 +196,20 @@
     content: var(--icon-loading);
     object-fit: cover;
   }
+
+  .create-contact & {
+    content: var(--icon-new-contact);
+  }
+
+  .create-address-book & {
+    content: var(--icon-new-address-book);
+  }
+
+  .create-list & {
+    content: var(--icon-new-user-list);
+  }
+
+  .import-contacts & {
+    content: var(--icon-import);
+  }
 }

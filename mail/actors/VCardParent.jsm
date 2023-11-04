@@ -10,7 +10,7 @@ const EXPORTED_SYMBOLS = ["VCardParent"];
 class VCardParent extends JSWindowActorParent {
   receiveMessage({ data, target }) {
     target.browsingContext.topChromeWindow.toAddressBook([
-      "cmd_createContact",
+      "cmd_newCard",
       undefined,
       decodeURIComponent(data),
     ]);

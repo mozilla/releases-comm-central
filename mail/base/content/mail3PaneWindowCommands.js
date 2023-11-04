@@ -47,6 +47,7 @@ var DefaultController = {
       case "cmd_stop":
       case "cmd_chat":
       case "cmd_goFolder":
+      case "cmd_newCard":
         return true;
       case "cmd_synchronizeOffline":
         return MailOfflineMgr.isOnline();
@@ -98,6 +99,11 @@ var DefaultController = {
       case "cmd_addChatBuddy":
       case "cmd_chatStatus":
         return !!chatHandler;
+      case "cmd_newCard":
+        return (
+          document.getElementById("tabmail").selectedTab.mode.name !=
+          "addressBookTab"
+        );
     }
     return false;
   },
@@ -165,6 +171,8 @@ var DefaultController = {
       case "cmd_chat":
         showChatTab();
         break;
+      case "cmd_newCard":
+        openNewCardDialog();
     }
   },
 
