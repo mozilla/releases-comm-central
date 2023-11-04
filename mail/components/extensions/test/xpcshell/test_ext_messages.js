@@ -648,89 +648,94 @@ add_task(
 );
 
 // The IMAP fakeserver just can't handle this.
-add_task({ skip_if: () => IS_IMAP || IS_NNTP }, async function test_archive() {
-  const account2 = createAccount();
-  account2.addIdentity(MailServices.accounts.createIdentity());
-  const inbox2 = await createSubfolder(
-    account2.incomingServer.rootFolder,
-    "test"
-  );
-  await createMessages(inbox2, 15);
+add_task(
+  {
+    skip_if: () => IS_IMAP || IS_NNTP,
+  },
+  async function test_archive() {
+    const account2 = createAccount();
+    account2.addIdentity(MailServices.accounts.createIdentity());
+    const inbox2 = await createSubfolder(
+      account2.incomingServer.rootFolder,
+      "test"
+    );
+    await createMessages(inbox2, 15);
 
-  let month = 10;
-  for (const message of inbox2.messages) {
-    message.date = new Date(2018, month++, 15) * 1000;
+    let month = 10;
+    for (const message of inbox2.messages) {
+      message.date = new Date(2018, month++, 15) * 1000;
+    }
+
+    const files = {
+      "background.js": async () => {
+        const [accountId] = await window.waitForMessage();
+
+        const accountBefore = await browser.accounts.get(accountId);
+        browser.test.assertEq(3, accountBefore.folders.length);
+        browser.test.assertEq("/test", accountBefore.folders[2].path);
+
+        const messagesBefore = await browser.messages.list(
+          accountBefore.folders[2]
+        );
+        browser.test.assertEq(15, messagesBefore.messages.length);
+        await browser.messages.archive(messagesBefore.messages.map(m => m.id));
+
+        const accountAfter = await browser.accounts.get(accountId);
+        browser.test.assertEq(4, accountAfter.folders.length);
+        browser.test.assertEq("/test", accountAfter.folders[3].path);
+        browser.test.assertEq("/Archives", accountAfter.folders[0].path);
+        browser.test.assertEq(3, accountAfter.folders[0].subFolders.length);
+        browser.test.assertEq(
+          "/Archives/2018",
+          accountAfter.folders[0].subFolders[0].path
+        );
+        browser.test.assertEq(
+          "/Archives/2019",
+          accountAfter.folders[0].subFolders[1].path
+        );
+        browser.test.assertEq(
+          "/Archives/2020",
+          accountAfter.folders[0].subFolders[2].path
+        );
+
+        const messagesAfter = await browser.messages.list(
+          accountAfter.folders[3]
+        );
+        browser.test.assertEq(0, messagesAfter.messages.length);
+
+        const messages2018 = await browser.messages.list(
+          accountAfter.folders[0].subFolders[0]
+        );
+        browser.test.assertEq(2, messages2018.messages.length);
+
+        const messages2019 = await browser.messages.list(
+          accountAfter.folders[0].subFolders[1]
+        );
+        browser.test.assertEq(12, messages2019.messages.length);
+
+        const messages2020 = await browser.messages.list(
+          accountAfter.folders[0].subFolders[2]
+        );
+        browser.test.assertEq(1, messages2020.messages.length);
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    const extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesMove", "messagesRead"],
+      },
+    });
+
+    await extension.startup();
+    extension.sendMessage(account2.key);
+    await extension.awaitFinish("finished");
+    await extension.unload();
   }
-
-  const files = {
-    "background.js": async () => {
-      const [accountId] = await window.waitForMessage();
-
-      const accountBefore = await browser.accounts.get(accountId);
-      browser.test.assertEq(3, accountBefore.folders.length);
-      browser.test.assertEq("/test", accountBefore.folders[2].path);
-
-      const messagesBefore = await browser.messages.list(
-        accountBefore.folders[2]
-      );
-      browser.test.assertEq(15, messagesBefore.messages.length);
-      await browser.messages.archive(messagesBefore.messages.map(m => m.id));
-
-      const accountAfter = await browser.accounts.get(accountId);
-      browser.test.assertEq(4, accountAfter.folders.length);
-      browser.test.assertEq("/test", accountAfter.folders[3].path);
-      browser.test.assertEq("/Archives", accountAfter.folders[0].path);
-      browser.test.assertEq(3, accountAfter.folders[0].subFolders.length);
-      browser.test.assertEq(
-        "/Archives/2018",
-        accountAfter.folders[0].subFolders[0].path
-      );
-      browser.test.assertEq(
-        "/Archives/2019",
-        accountAfter.folders[0].subFolders[1].path
-      );
-      browser.test.assertEq(
-        "/Archives/2020",
-        accountAfter.folders[0].subFolders[2].path
-      );
-
-      const messagesAfter = await browser.messages.list(
-        accountAfter.folders[3]
-      );
-      browser.test.assertEq(0, messagesAfter.messages.length);
-
-      const messages2018 = await browser.messages.list(
-        accountAfter.folders[0].subFolders[0]
-      );
-      browser.test.assertEq(2, messages2018.messages.length);
-
-      const messages2019 = await browser.messages.list(
-        accountAfter.folders[0].subFolders[1]
-      );
-      browser.test.assertEq(12, messages2019.messages.length);
-
-      const messages2020 = await browser.messages.list(
-        accountAfter.folders[0].subFolders[2]
-      );
-      browser.test.assertEq(1, messages2020.messages.length);
-
-      browser.test.notifyPass("finished");
-    },
-    "utils.js": await getUtilsJS(),
-  };
-  const extension = ExtensionTestUtils.loadExtension({
-    files,
-    manifest: {
-      background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["accountsRead", "messagesMove", "messagesRead"],
-    },
-  });
-
-  await extension.startup();
-  extension.sendMessage(account2.key);
-  await extension.awaitFinish("finished");
-  await extension.unload();
-});
+);
 
 add_task(
   {

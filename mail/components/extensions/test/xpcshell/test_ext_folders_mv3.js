@@ -8,6 +8,7 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
 
+/* Will be removed before checkin, phab diff unreadable without it.
 add_task(
   {
     skip_if: () => IS_NNTP,
@@ -452,8 +453,10 @@ add_task(async function test_getParentFolders_getSubFolders() {
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+*/
 
-add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
+// This is a simplified version of a similar MV2 test in test_ext_folders.js
+add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
   const files = {
     "background.js": async () => {
       const [accountId, startTime] = await window.waitForMessage();
@@ -470,150 +473,6 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
       }
 
       const account = await browser.accounts.get(accountId);
-
-      let expectedAllFolders;
-      let expectedAccountFolders;
-
-      // Set account specific expected folders and check capabilities.
-      switch (account.type) {
-        case "none":
-          expectedAllFolders = [
-            "Trash",
-            "Outbox",
-            "unused",
-            "Trash",
-            "Outbox",
-            "unused",
-            "MyRoot",
-            "level0",
-            "level1",
-            "level2",
-            "level3",
-            "level4",
-            "level5",
-            "level6",
-            "level7",
-            "level8",
-            "level9",
-            "Trash",
-            "Outbox",
-            "InfoTest",
-            "OtherTest",
-            "Trash",
-            "Outbox",
-            "unused",
-            "folder1",
-            "folder4",
-            "folder4",
-          ];
-          expectedAccountFolders = ["Trash", "Outbox", "InfoTest", "OtherTest"];
-          await queryCheck(
-            { canAddMessages: true, canAddSubfolders: true },
-            expectedAllFolders.filter(f => f != "Outbox")
-          );
-          await queryCheck(
-            { canAddMessages: false },
-            expectedAllFolders.filter(f => f == "Outbox")
-          );
-          await queryCheck(
-            { canAddSubfolders: false },
-            expectedAllFolders.filter(f => f == "Outbox")
-          );
-          await queryCheck(
-            { canBeDeleted: true, canBeRenamed: true },
-            expectedAllFolders.filter(f => !["Outbox", "Trash"].includes(f))
-          );
-          await queryCheck(
-            { canBeDeleted: false, canBeRenamed: false },
-            expectedAllFolders.filter(f => ["Outbox", "Trash"].includes(f))
-          );
-          break;
-
-        case "nntp":
-          expectedAllFolders = [
-            "unused",
-            "MyRoot",
-            "level0",
-            "level1",
-            "level2",
-            "level3",
-            "level4",
-            "level5",
-            "level6",
-            "level7",
-            "level8",
-            "level9",
-            "InfoTest",
-            "OtherTest",
-          ];
-          expectedAccountFolders = ["InfoTest", "OtherTest"];
-          await queryCheck({ canAddMessages: true }, []);
-          await queryCheck({ canAddSubfolders: true }, []);
-          await queryCheck({ canBeDeleted: true }, []);
-          await queryCheck({ canBeRenamed: true }, []);
-          await queryCheck(
-            {
-              canAddMessages: false,
-              canAddSubfolders: false,
-              canBeDeleted: false,
-              canBeRenamed: false,
-            },
-            expectedAllFolders
-          );
-          break;
-
-        default:
-          expectedAllFolders = [
-            "Inbox",
-            "Trash",
-            "folder3",
-            "unused",
-            "folder1",
-            "folder4",
-            "folder4",
-            "Inbox",
-            "Trash",
-            "unused",
-            "Inbox",
-            "Trash",
-            "unused",
-            "MyRoot",
-            "level0",
-            "level1",
-            "level2",
-            "level3",
-            "level4",
-            "level5",
-            "level6",
-            "level7",
-            "level8",
-            "level9",
-            "Inbox",
-            "Trash",
-            "InfoTest",
-            "OtherTest",
-          ];
-          expectedAccountFolders = ["Inbox", "Trash", "InfoTest", "OtherTest"];
-          await queryCheck(
-            { canAddMessages: true, canAddSubfolders: true },
-            expectedAllFolders
-          );
-          await queryCheck({ canAddMessages: false }, []);
-          await queryCheck({ canAddSubfolders: false }, []);
-          await queryCheck(
-            { canBeDeleted: true, canBeRenamed: true },
-            expectedAllFolders.filter(f => !["Inbox", "Trash"].includes(f))
-          );
-          await queryCheck(
-            { canBeDeleted: false, canBeRenamed: false },
-            expectedAllFolders.filter(f => ["Inbox", "Trash"].includes(f))
-          );
-      }
-      browser.test.assertEq(
-        expectedAccountFolders.length,
-        account.folders.length
-      );
-
       const folders = await browser.folders.getSubFolders(account, false);
       const InfoTestFolder = folders.find(f => f.name == "InfoTest");
 
@@ -635,7 +494,6 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
             totalMessageCount: 12,
             unreadMessageCount: 12,
             newMessageCount: 12,
-            favorite: false, // Deprecated in MV3.
           },
           info,
           "Returned MailFolderInfo should be correct."
@@ -664,186 +522,6 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         );
       }
 
-      // Check query results without favorite folder and all messages unread & new.
-
-      // Recent.
-      await queryCheck({}, expectedAllFolders);
-      await queryCheck({ parent: account, mostRecent: true }, ["OtherTest"]);
-      await queryCheck({ parent: account, recent: true }, [
-        "InfoTest",
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { parent: account, recent: false },
-        expectedAccountFolders.filter(
-          f => !["InfoTest", "OtherTest"].includes(f)
-        )
-      );
-
-      // Name.
-      await queryCheck({ name: "level0" }, ["level0"]);
-      await queryCheck({ name: { regexp: "^Level\\d$", flags: "i" } }, [
-        "level0",
-        "level1",
-        "level2",
-        "level3",
-        "level4",
-        "level5",
-        "level6",
-        "level7",
-        "level8",
-        "level9",
-      ]);
-      await queryCheck({ name: { regexp: "^level\\d$" } }, [
-        "level0",
-        "level1",
-        "level2",
-        "level3",
-        "level4",
-        "level5",
-        "level6",
-        "level7",
-        "level8",
-        "level9",
-      ]);
-
-      // Capabilities.
-      await queryCheck({ canDeleteMessages: false }, []);
-      await queryCheck({ canDeleteMessages: true }, expectedAllFolders);
-
-      // Favorite.
-      await queryCheck({ parent: account, favorite: true }, []);
-      await queryCheck(
-        { parent: account, favorite: false },
-        expectedAccountFolders
-      );
-
-      // SubFolders.
-      await queryCheck(
-        { name: { regexp: "^Level\\d$", flags: "i" }, hasSubFolders: true },
-        [
-          "level0",
-          "level1",
-          "level2",
-          "level3",
-          "level4",
-          "level5",
-          "level6",
-          "level7",
-          "level8",
-        ]
-      );
-      await queryCheck(
-        {
-          name: { regexp: "^Level\\d$", flags: "i" },
-          hasSubFolders: { min: 1 },
-        },
-        [
-          "level0",
-          "level1",
-          "level2",
-          "level3",
-          "level4",
-          "level5",
-          "level6",
-          "level7",
-          "level8",
-        ]
-      );
-      await queryCheck(
-        {
-          name: { regexp: "^Level\\d$", flags: "i" },
-          hasSubFolders: { min: 2 },
-        },
-        []
-      );
-      await queryCheck(
-        { parent: account, hasSubFolders: false },
-        expectedAccountFolders
-      );
-      await queryCheck(
-        { parent: account, hasSubFolders: { max: 2 } },
-        expectedAccountFolders
-      );
-
-      // Messages.
-      await queryCheck({ parent: account, hasMessages: true }, [
-        "InfoTest",
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { parent: account, hasMessages: false },
-        expectedAccountFolders.filter(
-          f => !["InfoTest", "OtherTest"].includes(f)
-        )
-      );
-      await queryCheck({ parent: account, hasUnreadMessages: true }, [
-        "InfoTest",
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { parent: account, hasUnreadMessages: false },
-        expectedAccountFolders.filter(
-          f => !["InfoTest", "OtherTest"].includes(f)
-        )
-      );
-      await queryCheck({ parent: account, hasNewMessages: true }, [
-        "InfoTest",
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { parent: account, hasNewMessages: false },
-        expectedAccountFolders.filter(
-          f => !["InfoTest", "OtherTest"].includes(f)
-        )
-      );
-      await queryCheck({ parent: account, hasMessages: { min: 12 } }, [
-        "InfoTest",
-      ]);
-      await queryCheck({ parent: account, hasMessages: { min: 13 } }, []);
-      await queryCheck({ parent: account, hasUnreadMessages: { min: 12 } }, [
-        "InfoTest",
-      ]);
-      await queryCheck({ parent: account, hasUnreadMessages: { min: 13 } }, []);
-      await queryCheck({ parent: account, hasNewMessages: { min: 12 } }, [
-        "InfoTest",
-      ]);
-      await queryCheck({ parent: account, hasNewMessages: { min: 13 } }, []);
-      await queryCheck(
-        { parent: account, hasNewMessages: { min: 1, max: 2 } },
-        ["OtherTest"]
-      );
-
-      // Usage.
-      await queryCheck(
-        { parent: account, type: "inbox" },
-        expectedAccountFolders.filter(f => f == "Inbox")
-      );
-      await queryCheck(
-        { parent: account, usage: ["inbox"] },
-        expectedAccountFolders.filter(f => f == "Inbox")
-      );
-      await queryCheck({ parent: account, usage: ["inbox", "trash"] }, []);
-      // NNTP does not have a trash folder which is set to be a drafts folder
-      // here, so skip it.
-      if (account.type != "nntp") {
-        const folderUpdatedPromise = new Promise(resolve => {
-          const listener = (oldFolder, newFolder) => {
-            browser.folders.onUpdated.removeListener(listener);
-            resolve({ oldFolder, newFolder });
-          };
-          browser.folders.onUpdated.addListener(listener);
-        });
-
-        await window.sendMessage("setAsDraft");
-        await folderUpdatedPromise;
-
-        await queryCheck(
-          { parent: account, usage: ["drafts", "trash"] },
-          expectedAccountFolders.filter(f => f == "Trash")
-        );
-      }
-
       // Clear new messages and check FolderInfo and onFolderInfoChanged event.
       {
         const onFolderInfoChangedPromise = window.waitForEvent(
@@ -865,47 +543,18 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
             totalMessageCount: 12,
             unreadMessageCount: 12,
             newMessageCount: 0,
-            favorite: false, // Deprecated in MV3.
           },
           info
         );
       }
 
-      // Check query results with all messages still unread but no longer new in
-      // InfoTest.
-
+      // Favorite before the flip.
+      await queryCheck({ parent: account, favorite: true }, []);
+      // Unread messages before marking folder as read.
       await queryCheck({ parent: account, hasUnreadMessages: true }, [
         "InfoTest",
         "OtherTest",
       ]);
-      await queryCheck(
-        { parent: account, hasUnreadMessages: false },
-        expectedAccountFolders.filter(
-          f => !["InfoTest", "OtherTest"].includes(f)
-        )
-      );
-      await queryCheck({ parent: account, hasNewMessages: true }, [
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { parent: account, hasNewMessages: false },
-        expectedAccountFolders.filter(f => !["OtherTest"].includes(f))
-      );
-      await queryCheck(
-        { parent: account, hasUnreadMessages: true, hasNewMessages: false },
-        ["InfoTest"]
-      );
-
-      await queryCheck({ parent: account, hasUnreadMessages: { min: 12 } }, [
-        "InfoTest",
-      ]);
-      await queryCheck({ parent: account, hasUnreadMessages: { min: 13 } }, []);
-      await queryCheck({ parent: account, hasNewMessages: { min: 12 } }, []);
-      await queryCheck({ parent: account, hasNewMessages: { min: 13 } }, []);
-      await queryCheck(
-        { parent: account, hasNewMessages: { min: 1, max: 2 } },
-        ["OtherTest"]
-      );
 
       // Flip favorite to true and mark all messages as read. Check FolderInfo
       // and onFolderInfoChanged event.
@@ -928,7 +577,6 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         window.assertDeepEqual(
           {
             unreadMessageCount: 0,
-            favorite: true, // Deprecated in MV3.
           },
           mailFolderInfo
         );
@@ -940,59 +588,30 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
             totalMessageCount: 12,
             unreadMessageCount: 0,
             newMessageCount: 0,
-            favorite: true, // Deprecated in MV3.
           },
           info
         );
       }
 
-      // Check query results with favorite folder and all messages read in InfoTest.
-
-      // Favorite.
-      await queryCheck(
-        { parent: account, favorite: false },
-        expectedAccountFolders.filter(f => f != "InfoTest")
-      );
+      // Favorite after the flip.
       await queryCheck({ parent: account, favorite: true }, ["InfoTest"]);
-
-      // Messages.
-      await queryCheck({ parent: account, hasMessages: true }, [
-        "InfoTest",
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { parent: account, hasMessages: false },
-        expectedAccountFolders.filter(
-          f => !["InfoTest", "OtherTest"].includes(f)
-        )
-      );
+      // Unread messages before marking folder as read.
       await queryCheck({ parent: account, hasUnreadMessages: true }, [
         "OtherTest",
       ]);
-      await queryCheck(
-        { parent: account, hasUnreadMessages: false },
-        expectedAccountFolders.filter(f => !["OtherTest"].includes(f))
-      );
-
-      await queryCheck({ parent: account, hasUnreadMessages: { min: 12 } }, []);
-      await queryCheck({ parent: account, hasUnreadMessages: { min: 13 } }, []);
-      await queryCheck({ parent: account, hasNewMessages: { min: 12 } }, []);
-      await queryCheck({ parent: account, hasNewMessages: { min: 13 } }, []);
-      await queryCheck(
-        { parent: account, hasNewMessages: { min: 1, max: 2 } },
-        ["OtherTest"]
-      );
 
       // Test flipping favorite back to false.
       {
-        const onFolderInfoChangedPromise = window.waitForEvent(
-          "folders.onFolderInfoChanged"
-        );
+        const onUpdatedPromise = window.waitForEvent("folders.onUpdated");
         await browser.folders.update(InfoTestFolder, { favorite: false });
-        const [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
-        window.assertDeepEqual({ favorite: false }, mailFolderInfo);
-        browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
+        const [originalFolder, updatedFolder] = await onUpdatedPromise;
+        browser.test.assertEq(true, originalFolder.favorite);
+        browser.test.assertEq(false, updatedFolder.favorite);
+        browser.test.assertEq(InfoTestFolder.path, originalFolder.path);
       }
+
+      // Favorite after the second flip.
+      await queryCheck({ parent: account, favorite: true }, []);
 
       // Test setting some messages back to unread.
       {
@@ -1012,6 +631,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
   const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
+      manifest_version: 3,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "accountsFolders", "messagesDelete"],
     },
@@ -1111,7 +731,6 @@ add_task(
 
         // Prepare expected event folder value.
         trash.usage = ["drafts", "trash"];
-        trash.type = "drafts";
 
         window.assertDeepEqual(
           {
@@ -1132,6 +751,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 3,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "accountsFolders", "messagesDelete"],
       },

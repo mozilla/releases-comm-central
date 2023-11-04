@@ -139,10 +139,12 @@ add_task(
       Assert.deepEqual(
         [
           {
+            id: `${account.key}://SubFolder1`,
             accountId: account.key,
             name: "SubFolder1",
             path: "/SubFolder1",
             usage: [],
+            favorite: false,
           },
         ],
         createData,
@@ -163,10 +165,12 @@ add_task(
       Assert.deepEqual(
         [
           {
+            id: `${account.key}://SubFolder3`,
             accountId: account.key,
             name: "SubFolder3",
             path: "/SubFolder3",
             usage: [],
+            favorite: false,
           },
         ],
         createData,
@@ -203,16 +207,20 @@ add_task(
       Assert.deepEqual(
         [
           {
+            id: `${account.key}://SubFolder3`,
             accountId: account.key,
             name: "SubFolder3",
             path: "/SubFolder3",
             usage: [],
+            favorite: false,
           },
           {
+            id: `${account.key}://SubFolder1/SubFolder3`,
             accountId: account.key,
             name: "SubFolder3",
             path: "/SubFolder1/SubFolder3",
             usage: [],
+            favorite: false,
           },
         ],
         copyData,
@@ -225,10 +233,12 @@ add_task(
         Assert.deepEqual(
           [
             {
+              id: `${account.key}://SubFolder1/SubFolder3`,
               accountId: account.key,
               name: "SubFolder3",
               path: "/SubFolder1/SubFolder3",
               usage: [],
+              favorite: false,
             },
           ],
           createData,
@@ -259,16 +269,20 @@ add_task(
       Assert.deepEqual(
         [
           {
+            id: `${account.key}://SubFolder1/SubFolder3`,
             accountId: account.key,
             name: "SubFolder3",
             path: "/SubFolder1/SubFolder3",
             usage: [],
+            favorite: false,
           },
           {
+            id: `${account.key}://SubFolder3/SubFolder3`,
             accountId: account.key,
             name: "SubFolder3",
             path: "/SubFolder3/SubFolder3",
             usage: [],
+            favorite: false,
           },
         ],
         moveData,
@@ -281,16 +295,20 @@ add_task(
         Assert.deepEqual(
           [
             {
+              id: `${account.key}://SubFolder1/SubFolder3`,
               accountId: account.key,
               name: "SubFolder3",
               path: "/SubFolder1/SubFolder3",
               usage: [],
+              favorite: false,
             },
             {
+              id: `${account.key}://SubFolder3/SubFolder3`,
               accountId: account.key,
               name: "SubFolder3",
               path: "/SubFolder3/SubFolder3",
               usage: [],
+              favorite: false,
             },
           ],
           renameData,
@@ -300,10 +318,12 @@ add_task(
         Assert.deepEqual(
           [
             {
+              id: `${account.key}://SubFolder1/SubFolder3`,
               accountId: account.key,
               name: "SubFolder3",
               path: "/SubFolder1/SubFolder3",
               usage: [],
+              favorite: false,
             },
           ],
           deleteData,
@@ -331,10 +351,12 @@ add_task(
       Assert.deepEqual(
         [
           {
+            id: `${account.key}://SubFolder3/SubFolder3`,
             accountId: account.key,
             name: "SubFolder3",
             path: "/SubFolder3/SubFolder3",
             usage: [],
+            favorite: false,
           },
         ],
         deleteData,
@@ -362,16 +384,20 @@ add_task(
       Assert.deepEqual(
         [
           {
+            id: `${account.key}://TestFolder`,
             accountId: account.key,
             name: "TestFolder",
             path: "/TestFolder",
             usage: [],
+            favorite: false,
           },
           {
+            id: `${account.key}://TestFolder2`,
             accountId: account.key,
             name: "TestFolder2",
             path: "/TestFolder2",
             usage: [],
+            favorite: false,
           },
         ],
         renameData,

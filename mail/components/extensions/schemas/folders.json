@@ -20,8 +20,13 @@
       {
         "id": "MailFolder",
         "type": "object",
-        "description": "An object describing a folder, as returned for example by the :ref:`folders.getParentFolders` or :ref:`folders.getSubFolders` methods, or part of a :ref:`accounts.MailAccount` object, which is returned for example by the :ref:`accounts.list` and :ref:`accounts.get` methods. The ``subFolders`` property is only included if requested.",
+        "description": "An object describing a folder. The ``subFolders`` property is only included if requested.",
         "properties": {
+          "id": {
+            "type": "string",
+            "optional": true,
+            "description": "An identifier for the folder."
+          },
           "accountId": {
             "type": "string",
             "description": "The account this folder belongs to."
@@ -42,6 +47,11 @@
               "$ref": "folders.MailFolder"
             },
             "optional": true
+          },
+          "favorite": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether this folder is a favorite folder."
           },
           "type": {
             "max_manifest_version": 2,
@@ -67,7 +77,8 @@
           "favorite": {
             "type": "boolean",
             "optional": true,
-            "description": "Whether this folder is a favorite folder."
+            "max_manifest_version": 2,
+            "description": "Deprecated. This information is now available in :ref:`folders.MailFolder`."
           },
           "lastUsed": {
             "$ref": "extensionTypes.Date",
@@ -362,6 +373,28 @@
         ]
       },
       {
+        "name": "get",
+        "type": "function",
+        "description": "Returns the specified folder.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "folderId",
+            "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "MailFolder"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "create",
         "type": "function",
         "permissions": ["accountsFolders"],
@@ -573,31 +606,6 @@
         ]
       },
       {
-        "name": "getFolderUsage",
-        "type": "function",
-        "description": "Get the special usage of a folder.",
-        "async": "callback",
-        "parameters": [
-          {
-            "name": "folder",
-            "$ref": "folders.MailFolder"
-          },
-          {
-            "type": "function",
-            "name": "callback",
-            "optional": true,
-            "parameters": [
-              {
-                "type": "array",
-                "items": {
-                  "$ref": "folders.MailFolderUsage"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
         "name": "getParentFolders",
         "type": "function",
         "description": "Get all parent folders as a flat ordered array. The first array entry is the direct parent.",
@@ -751,27 +759,17 @@
         ]
       },
       {
-        "name": "onFolderUsageChanged",
+        "name": "onUpdated",
         "type": "function",
-        "description": "Fired when the special usage of a folder has changed.",
+        "description": "Fired when properties of a folder have changed (<value>usage</value> and <value>favorite</value>).",
         "parameters": [
           {
-            "name": "folder",
+            "name": "originalFolder",
             "$ref": "folders.MailFolder"
           },
           {
-            "name": "oldFolderUsage",
-            "type": "array",
-            "items": {
-              "$ref": "folders.MailFolderUsage"
-            }
-          },
-          {
-            "name": "newFolderUsage",
-            "type": "array",
-            "items": {
-              "$ref": "folders.MailFolderUsage"
-            }
+            "name": "updatedFolder",
+            "$ref": "folders.MailFolder"
           }
         ]
       },

@@ -90,32 +90,38 @@ var folderTracker = new (class extends EventEmitter {
 
     switch (property) {
       case "FolderFlag":
-        if (
-          (oldValue & Ci.nsMsgFolderFlags.Favorite) !=
-          (newValue & Ci.nsMsgFolderFlags.Favorite)
-        ) {
-          this.addPendingInfoNotification(
-            item,
-            "favorite",
-            !!(newValue & Ci.nsMsgFolderFlags.Favorite)
-          );
-        }
+        {
+          let modified = false;
 
-        const folderUsageFlags = [...folderUsageMap.keys()];
-        const folderUsageMask = folderUsageFlags.reduce((rv, f) => rv | f);
-        const oldFolderUsageFlags = oldValue & folderUsageMask;
-        const newFolderUsageFlags = newValue & folderUsageMask;
-        if (oldFolderUsageFlags != newFolderUsageFlags) {
-          const oldUsage = getFolderUsage(oldValue);
-          const newUsage = getFolderUsage(newValue);
-          this.emit(
-            "folder-usage-changed",
-            new CachedFolder(item),
-            oldUsage,
-            newUsage
-          );
-        }
+          if (
+            (oldValue & Ci.nsMsgFolderFlags.Favorite) !=
+            (newValue & Ci.nsMsgFolderFlags.Favorite)
+          ) {
+            modified = true;
 
+            // Deprecated in MV3, will be suppressed before sending it to the
+            // WebExtension.
+            this.addPendingInfoNotification(
+              item,
+              "favorite",
+              !!(newValue & Ci.nsMsgFolderFlags.Favorite)
+            );
+          }
+
+          const folderUsageFlags = [...folderUsageMap.keys()].reduce(
+            (rv, f) => rv | f
+          );
+          if ((oldValue & folderUsageFlags) != (newValue & folderUsageFlags)) {
+            modified = true;
+          }
+
+          if (modified) {
+            const updatedFolder = new CachedFolder(item);
+            const originalFolder = new CachedFolder(item);
+            originalFolder.flags = oldValue;
+            this.emit("folder-updated", originalFolder, updatedFolder);
+          }
+        }
         break;
       case "TotalMessages":
         this.addPendingInfoNotification(item, "totalMessageCount", newValue);
@@ -500,7 +506,12 @@ this.folders = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.async(folderManager.convert(changedFolder), mailFolderInfo);
+        if (extension.manifestVersion > 2) {
+          delete mailFolderInfo.favorite;
+        }
+        if (Object.keys(mailFolderInfo).length > 0) {
+          fire.async(folderManager.convert(changedFolder), mailFolderInfo);
+        }
       }
       folderTracker.on("folder-info-changed", listener);
       return {
@@ -513,20 +524,23 @@ this.folders = class extends ExtensionAPIPersistent {
         },
       };
     },
-    onFolderUsageChanged({ context, fire }) {
+    onUpdated({ context, fire }) {
       const { extension } = this;
       const { folderManager } = extension;
 
-      async function listener(event, changedFolder, oldUsage, newUsage) {
+      async function listener(event, originalFolder, updatedFolder) {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.async(folderManager.convert(changedFolder), oldUsage, newUsage);
+        fire.async(
+          folderManager.convert(originalFolder),
+          folderManager.convert(updatedFolder)
+        );
       }
-      folderTracker.on("folder-usage-changed", listener);
+      folderTracker.on("folder-updated", listener);
       return {
         unregister: () => {
-          folderTracker.off("folder-usage-changed", listener);
+          folderTracker.off("folder-updated", listener);
         },
         convert(newFire, extContext) {
           fire = newFire;
@@ -537,6 +551,8 @@ this.folders = class extends ExtensionAPIPersistent {
   };
 
   getAPI(context) {
+    const manifestVersion = context.extension.manifestVersion;
+
     return {
       folders: {
         onCreated: new EventManager({
@@ -575,15 +591,13 @@ this.folders = class extends ExtensionAPIPersistent {
           event: "onFolderInfoChanged",
           extensionApi: this,
         }).api(),
-        onFolderUsageChanged: new EventManager({
+        onUpdated: new EventManager({
           context,
           module: "folders",
-          event: "onFolderUsageChanged",
+          event: "onUpdated",
           extensionApi: this,
         }).api(),
         async query(queryInfo) {
-          const manifestVersion = context.extension.manifestVersion;
-
           // Generator function to flatten the folder structure.
           function* getFlatFolderStructure(folder, isSubFolder) {
             if (isSubFolder && !folder.isServer) {
@@ -789,6 +803,10 @@ this.folders = class extends ExtensionAPIPersistent {
           return foundFolders.map(folder =>
             context.extension.folderManager.convert(folder)
           );
+        },
+        async get(id) {
+          const { folder } = getFolder(id);
+          return context.extension.folderManager.convert(folder);
         },
         async create(parent, childName) {
           // The schema file allows parent to be either a MailFolder or a
@@ -1013,12 +1031,18 @@ this.folders = class extends ExtensionAPIPersistent {
           }
 
           const mailFolderInfo = {
-            favorite: folder.getFlag(Ci.nsMsgFolderFlags.Favorite),
             totalMessageCount: folder.getTotalMessages(false),
             unreadMessageCount: folder.getNumUnread(false),
             newMessageCount: folder.msgDatabase.getNewList().length,
             quota: folderQuota.length > 0 ? folderQuota : null,
           };
+
+          // The favorite property was moved to MailFolder in MV3.
+          if (manifestVersion < 3) {
+            mailFolderInfo.favorite = folder.getFlag(
+              Ci.nsMsgFolderFlags.Favorite
+            );
+          }
 
           try {
             const time = Number(folder.getStringProperty("MRUTime")) * 1000;
@@ -1028,10 +1052,6 @@ this.folders = class extends ExtensionAPIPersistent {
           } catch (e) {}
 
           return mailFolderInfo;
-        },
-        async getFolderUsage({ accountId, path }) {
-          const { folder } = getFolder({ accountId, path });
-          return getFolderUsage(folder.flags);
         },
         async getParentFolders({ accountId, path }, includeFolders) {
           const { folderManager } = context.extension;

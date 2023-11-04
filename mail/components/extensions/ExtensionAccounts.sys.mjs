@@ -276,11 +276,14 @@ export class FolderManager {
       accountId = account.key;
     }
 
+    const path = folderURIToPath(accountId, folder.URI);
     const folderObject = {
+      id: `${accountId}:/${path}`,
       accountId,
       name: folder.prettyName,
-      path: folderURIToPath(accountId, folder.URI),
+      path,
       usage: getFolderUsage(folder.flags),
+      favorite: folder.getFlag(Ci.nsMsgFolderFlags.Favorite),
     };
 
     // In MV2 only the first matching usage was returned as type, assuming a
@@ -362,19 +365,36 @@ export class CachedFolder {
     throw new Error("CachedFolder.subFolders: Not Implemented");
   }
 
+  getFlag(flag) {
+    return !!(this.flags & flag);
+  }
+
   QueryInterface() {
     return this;
   }
 }
 
 /**
- * Accepts a MailFolder or a MailAccount and returns the actual folder and its
- * accountId. Throws if the requested folder does not exist.
+ * Accepts a MailFolder, a MailAccount or a folderId. Returns the actual folder,
+ * its accountId and its path. Throws if the requested folder does not exist.
  */
-export function getFolder({ accountId, path, id }) {
-  if (id && !path && !accountId) {
-    accountId = id;
-    path = "/";
+export function getFolder(target) {
+  let accountId, path;
+  if (typeof target === "object") {
+    // MailFolders have a mandatory accountId member, which can be used to
+    // differentiate between MailAccounts and MailFolders.
+    if (target.id && !target.accountId) {
+      // The target is a MailAccount, use its id.
+      accountId = target.id;
+      path = "/";
+    } else {
+      // The target is a MailFolder.
+      accountId = target.accountId;
+      path = target.path;
+    }
+  } else {
+    // The target is a folderId.
+    [accountId, path] = target.split(":/", 1);
   }
 
   const uri = folderPathToURI(accountId, path);
@@ -382,5 +402,5 @@ export function getFolder({ accountId, path, id }) {
   if (!folder) {
     throw new ExtensionError(`Folder not found: ${path}`);
   }
-  return { folder, accountId };
+  return { folder, accountId, path };
 }
