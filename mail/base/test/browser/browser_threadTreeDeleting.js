@@ -248,13 +248,12 @@ add_task(async function testDeletionWhileScrolling() {
     folderURI: folderI.URI,
   });
 
+  const timeout = !AppConstants.DEBUG ? 1000 : 3000;
   const scrollListener = {
     async promiseScrollingStopped() {
-      this.lastTime = Date.now();
-      await TestUtils.waitForCondition(
-        () => Date.now() - this.lastTime > 1000,
-        "waiting for scrolling to stop"
-      );
+      await BrowserTestUtils.waitForEvent(threadTree, "scrollend");
+      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+      await new Promise(resolve => setTimeout(resolve, timeout));
       delete this.direction;
       delete this.lastPosition;
     },
@@ -273,12 +272,19 @@ add_task(async function testDeletionWhileScrolling() {
 
       const position = threadTree.scrollTop;
       if (this.direction == -1) {
-        Assert.lessOrEqual(position, this.lastPosition);
+        Assert.lessOrEqual(
+          position,
+          this.lastPosition,
+          "should have scrolled up"
+        );
       } else if (this.direction == 1) {
-        Assert.greaterOrEqual(position, this.lastPosition);
+        Assert.greaterOrEqual(
+          position,
+          this.lastPosition,
+          "should have scrolled down"
+        );
       }
       this.lastPosition = position;
-      this.lastTime = Date.now();
     },
   };
 
@@ -292,22 +298,23 @@ add_task(async function testDeletionWhileScrolling() {
   }
 
   threadTree.addEventListener("scroll", scrollListener);
+  let scrollend = scrollListener.promiseScrollingStopped();
   threadTree.table.body.focus();
   threadTree.selectedIndex = 299;
-  await scrollListener.promiseScrollingStopped();
+  await scrollend;
 
-  let stopPromise = scrollListener.promiseScrollingStopped();
+  scrollend = scrollListener.promiseScrollingStopped();
   scrollListener.setScrollExpectation(-1);
 
   // Page up a few times then delete some messages.
-
   await delayThenPress(0, "VK_PAGE_UP");
   await delayThenPress(60, "VK_PAGE_UP");
   await delayThenPress(60, "VK_PAGE_UP");
   await delayThenPress(400, "VK_DELETE");
   await delayThenPress(80, "VK_DELETE");
 
-  await stopPromise;
+  await scrollend;
+
   Assert.equal(
     threadTree.getFirstVisibleIndex(),
     threadTree.selectedIndex,
@@ -316,7 +323,7 @@ add_task(async function testDeletionWhileScrolling() {
 
   // Page down a few times then delete some messages.
 
-  stopPromise = scrollListener.promiseScrollingStopped();
+  scrollend = scrollListener.promiseScrollingStopped();
   scrollListener.setScrollExpectation(1);
 
   await delayThenPress(60, "VK_PAGE_DOWN");
@@ -328,7 +335,8 @@ add_task(async function testDeletionWhileScrolling() {
   await delayThenPress(80, "VK_DELETE");
   await delayThenPress(80, "VK_DELETE");
 
-  await stopPromise;
+  await scrollend;
+
   Assert.equal(
     threadTree.getLastVisibleIndex(),
     threadTree.selectedIndex,
@@ -336,14 +344,16 @@ add_task(async function testDeletionWhileScrolling() {
   );
 
   // Select a message somewhere in the middle then delete it.
-
+  // Shouldn't scroll.
   scrollListener.setNoScrollExpectation();
   threadTree.selectedIndex -= 10;
   await delayThenPress(80, "VK_DELETE");
   await delayThenPress(80, "VK_DELETE");
   await delayThenPress(80, "VK_DELETE");
 
-  await delayThenPress(1000);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, timeout));
+
   Assert.less(
     threadTree.getFirstVisibleIndex(),
     threadTree.selectedIndex,
