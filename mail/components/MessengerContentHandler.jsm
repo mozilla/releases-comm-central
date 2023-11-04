@@ -590,10 +590,11 @@ MailDefaultHandler.prototype = {
               data = new TextDecoder(charset).decode(buffer);
 
               winPromise.then(win =>
-                win.toAddressBook({
-                  action: "create",
-                  vCard: decodeURIComponent(data),
-                })
+                win.toAddressBook([
+                  "cmd_createContact",
+                  undefined,
+                  decodeURIComponent(data),
+                ])
               );
             }
           );

@@ -160,7 +160,7 @@ function addSelectedAddresses(recipientType) {
  */
 function editSelectedAddress() {
   const cards = GetSelectedAbCards();
-  window.top.toAddressBook({ action: "edit", card: cards[0] });
+  window.top.toAddressBook(["cmd_editContact", cards[0]]);
 }
 
 function AddressBookMenuListChange(aValue) {

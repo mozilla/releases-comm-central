@@ -177,7 +177,7 @@ var editContactInlineUI = {
 
   editDetails() {
     this.saveChanges();
-    top.toAddressBook({ action: "edit", card: this._cardDetails.card });
+    top.toAddressBook(["cmd_editContact", this._cardDetails.card]);
   },
 
   deleteContact() {

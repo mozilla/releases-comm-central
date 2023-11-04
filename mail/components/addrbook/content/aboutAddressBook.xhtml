@@ -12,7 +12,7 @@
   <meta charset="utf-8" />
   <title data-l10n-id="about-addressbook-title"></title>
   <meta http-equiv="Content-Security-Policy"
-        content="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src blob: chrome: data: http: https:; style-src chrome: 'unsafe-inline'; object-src 'none'" />
+        content="default-src chrome:; script-src chrome: resource: 'unsafe-inline'; img-src blob: chrome: data: http: https:; style-src chrome: 'unsafe-inline'; object-src 'none'" />
   <meta name="color-scheme" content="light dark" />
 
   <link rel="icon" href="chrome://messenger/skin/icons/new/compact/address-book.svg" />
@@ -39,6 +39,7 @@
   <script src="chrome://messenger/content/jsTreeView.js"></script>
   <script src="chrome://messenger/content/addressbook/abView-new.js"></script>
   <script src="chrome://messenger/content/addressbook/aboutAddressBook.js"></script>
+  <script type="module" src="chrome://messenger/content/addressbook/aboutAddressBookCommands.mjs"></script>
 </head>
 <body>
   <xul:toolbox id="toolbox" class="contentTabToolbox" labelalign="end">

@@ -75,7 +75,7 @@ add_task(async function testNoAction() {
  * Address Book. A new blank card should open in edit mode.
  */
 add_task(async function testCreateBlank() {
-  await window.toAddressBook({ action: "create" });
+  await window.toAddressBook(["cmd_createContact"]);
   await inEditingMode();
   // TODO check blank
   await closeAddressBookWindow();
@@ -87,7 +87,7 @@ add_task(async function testCreateBlank() {
  * open in edit mode.
  */
 add_task(async function testCreateWithAddress() {
-  await window.toAddressBook({ action: "create", address: "test@invalid" });
+  await window.toAddressBook(["cmd_createContact", "test@invalid"]);
   await inEditingMode();
   // TODO check address matches
   await closeAddressBookWindow();
@@ -98,11 +98,11 @@ add_task(async function testCreateWithAddress() {
  * the Address Book. A new card should open in edit mode.
  */
 add_task(async function testCreateWithVCard() {
-  await window.toAddressBook({
-    action: "create",
-    vCard:
-      "BEGIN:VCARD\r\nFN:a test person\r\nN:person;test;;a;\r\nEND:VCARD\r\n",
-  });
+  await window.toAddressBook([
+    "cmd_createContact",
+    undefined,
+    "BEGIN:VCARD\r\nFN:a test person\r\nN:person;test;;a;\r\nEND:VCARD\r\n",
+  ]);
   await inEditingMode();
   // TODO check card matches
   await closeAddressBookWindow();
@@ -113,7 +113,7 @@ add_task(async function testCreateWithVCard() {
  * Book. The card should be displayed.
  */
 add_task(async function testDisplayCard() {
-  await window.toAddressBook({ action: "display", card: writableCard });
+  await window.toAddressBook(["cmd_displayContact", writableCard]);
   checkDirectoryDisplayed(writableBook);
   await notInEditingMode();
 
@@ -129,7 +129,7 @@ add_task(async function testDisplayCard() {
  * opens the Address Book. The card should open in edit mode.
  */
 add_task(async function testEditCardWritable() {
-  await window.toAddressBook({ action: "edit", card: writableCard });
+  await window.toAddressBook(["cmd_editContact", writableCard]);
   checkDirectoryDisplayed(writableBook);
   await inEditingMode();
 
@@ -145,7 +145,7 @@ add_task(async function testEditCardWritable() {
  * opens the Address Book. The card should open in display mode.
  */
 add_task(async function testEditCardReadOnly() {
-  await window.toAddressBook({ action: "edit", card: readOnlyCard });
+  await window.toAddressBook(["cmd_editContact", readOnlyCard]);
   checkDirectoryDisplayed(readOnlyBook);
   await notInEditingMode();
 

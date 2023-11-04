@@ -162,11 +162,19 @@ var addressBookTabType = {
     aTabmail.openTab("addressBookTab", {});
   },
 
-  doCommand(aCommand, aTab) {
-    if (aCommand == "cmd_print") {
-      aTab.browser.contentWindow.externalAction({ action: "print" });
-      return;
-    }
-    this.__proto__.doCommand(aCommand, aTab);
+  supportsCommand(command, tab) {
+    return tab.browser?.contentWindow.commandController?.supportsCommand(
+      command
+    );
+  },
+
+  isCommandEnabled(command, tab) {
+    return tab.browser.contentWindow.commandController?.isCommandEnabled(
+      command
+    );
+  },
+
+  doCommand(command, tab, ...args) {
+    tab.browser?.contentWindow.commandController?.doCommand(command, ...args);
   },
 };

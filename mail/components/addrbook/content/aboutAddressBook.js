@@ -222,56 +222,6 @@ async function setKeyboardShortcuts() {
 }
 
 /**
- * Called on load from `toAddressBook` to create, display or edit a card.
- *
- * @param {"create"|"display"|"edit"|"create_ab_*"} action - What to do with the args given.
- * @param {?string} address - Create a new card with this email address.
- * @param {?string} vCard - Create a new card from this vCard.
- * @param {?nsIAbCard} card - Display or edit this card.
- */
-function externalAction({ action, address, card, vCard } = {}) {
-  if (action == "create") {
-    if (address) {
-      detailsPane.editNewContact(
-        `BEGIN:VCARD\r\nEMAIL:${address}\r\nEND:VCARD\r\n`
-      );
-    } else {
-      detailsPane.editNewContact(vCard);
-    }
-  } else if (action == "display" || action == "edit") {
-    if (!card || !card.directoryUID) {
-      return;
-    }
-
-    const book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
-    if (!book) {
-      return;
-    }
-
-    booksList.selectedIndex = booksList.getIndexForUID(card.directoryUID);
-    cardsPane.cardsList.selectedIndex = cardsPane.cardsList.view.getIndexForUID(
-      card.UID
-    );
-
-    if (action == "edit" && book && !book.readOnly) {
-      detailsPane.editCurrentContact();
-    }
-  } else if (action == "print") {
-    if (document.activeElement == booksList) {
-      booksList.printSelected();
-    } else {
-      cardsPane.printSelected();
-    }
-  } else if (action == "create_ab_JS") {
-    createBook();
-  } else if (action == "create_ab_CARDDAV") {
-    createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
-  } else if (action == "create_ab_LDAP") {
-    createBook(Ci.nsIAbManager.LDAP_DIRECTORY_TYPE);
-  }
-}
-
-/**
  * Show UI to create a new address book of the type specified.
  *
  * @param {integer} [type=Ci.nsIAbManager.JS_DIRECTORY_TYPE] - One of the

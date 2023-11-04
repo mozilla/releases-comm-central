@@ -351,7 +351,7 @@ function GetAbViewListener() {
 
 function onProperties() {
   if (!gPropertiesCmd.hasAttribute("disabled")) {
-    window.opener.toAddressBook({ action: "display", card: GetSelectedCard() });
+    window.opener.toAddressBook(["cmd_displayContact", GetSelectedCard()]);
   }
 }
 

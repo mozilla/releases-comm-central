@@ -1843,17 +1843,18 @@ function initAppMenuPopup() {
 }
 
 function openNewCardDialog() {
-  toAddressBook({ action: "create" });
+  toAddressBook(["cmd_createContact"]);
 }
 
 /**
  * Opens Address Book tab and triggers address book creation dialog defined
  * type.
  *
- * @param {?string}[type = "JS"] type - The address book type needing creation.
+ * @param {?string}[type = ""] type - The address book type needing creation.
+ *   Empty string creates a "JS" type address book.
  */
-function openNewABDialog(type = "JS") {
-  toAddressBook({ action: `create_ab_${type}` });
+function openNewABDialog(type = "") {
+  toAddressBook([`cmd_createAddressBook${type}`]);
 }
 
 /**
@@ -2041,10 +2042,7 @@ function getIconForAttachment(attachment) {
  */
 function addEmail(url) {
   const addresses = getEmail(url);
-  toAddressBook({
-    action: "create",
-    address: addresses,
-  });
+  toAddressBook(["cmd_createContact", addresses]);
 }
 
 /**

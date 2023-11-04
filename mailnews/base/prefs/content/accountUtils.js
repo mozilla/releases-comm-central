@@ -114,9 +114,9 @@ function AddFeedAccount() {
  *   are "JS", "LDAP", and "CARDDAV".
  */
 function addNewAddressBook(type) {
-  window.browsingContext.topChromeWindow.toAddressBook({
-    action: `create_ab_${type}`,
-  });
+  window.browsingContext.topChromeWindow.toAddressBook([
+    `cmd_createAddressBook${type}`,
+  ]);
 }
 
 function showCalendarWizard() {
