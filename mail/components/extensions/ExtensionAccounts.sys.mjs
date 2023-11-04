@@ -397,7 +397,10 @@ export function getFolder(target) {
     }
   } else {
     // The target is a folderId.
-    [accountId, path] = target.split(":/", 1);
+    const parts = target.split(":/");
+    accountId = parts.shift();
+    // The path may contain ":/" itself, so stich it all back together.
+    path = parts.join(":/");
   }
 
   const uri = folderPathToURI(accountId, path);
