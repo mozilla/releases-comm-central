@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad, onReminderSelected, updateReminder, onNewReminder, onRemoveReminder */
-
 /* global MozElements */
 
 /* import-globals-from ../calendar-ui-utils.js */
@@ -24,6 +22,8 @@ XPCOMUtils.defineLazyGetter(this, "gReminderNotification", () => {
     document.getElementById("reminder-notifications").append(element);
   });
 });
+
+window.addEventListener("load", onLoad);
 
 /**
  * Sets up the reminder dialog.

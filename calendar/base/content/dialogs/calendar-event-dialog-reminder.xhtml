@@ -3,146 +3,150 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window SYSTEM "chrome://calendar/locale/dialogs/calendar-event-dialog-reminder.dtd">
-
-<window
-  id="calendar-event-dialog-reminder"
-  title="&reminderdialog.title;"
-  windowtype="Calendar:EventDialog:Reminder"
-  onload="onLoad()"
-  persist="screenX screenY width height"
-  lightweightthemes="true"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html SYSTEM "chrome://calendar/locale/dialogs/calendar-event-dialog-reminder.dtd">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  id="calendar-event-dialog-reminder"
+  persist="screenX screenY"
+  lightweightthemes="true"
+  scrolling="false"
 >
-  <dialog>
-    <linkset>
-      <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
-      <html:link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-alarms.css" />
-      <html:link rel="stylesheet" href="chrome://calendar/skin/shared/widgets/minimonth.css" />
-      <html:link rel="stylesheet" href="chrome://calendar/skin/calendar-event-dialog.css" />
-      <html:link rel="stylesheet" href="chrome://calendar/skin/shared/datetimepickers.css" />
-      <html:link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
-      <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-      <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-      <html:link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+  <head>
+    <title>&reminderdialog.title;</title>
+    <link rel="localization" href="calendar/calendar-event-dialog-reminder.ftl" />
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-alarms.css" />
+    <link rel="stylesheet" href="chrome://calendar/skin/shared/widgets/minimonth.css" />
+    <link rel="stylesheet" href="chrome://calendar/skin/shared/datetimepickers.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="stylesheet" href="chrome://calendar/skin/calendar-event-dialog.css" />
+    <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+    <script defer="defer" src="chrome://calendar/content/widgets/calendar-minimonth.js"></script>
+    <script defer="defer" src="chrome://calendar/content/widgets/datetimepickers.js"></script>
+    <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+    <script
+      defer="defer"
+      src="chrome://calendar/content/calendar-event-dialog-reminder.js"
+    ></script>
+  </head>
+  <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <dialog>
+      <vbox id="reminder-notifications" class="notification-inline">
+        <!-- notificationbox will be added here lazily. -->
+      </vbox>
 
-      <html:link rel="localization" href="calendar/calendar-event-dialog-reminder.ftl" />
-    </linkset>
-
-    <!-- Javascript includes -->
-    <script src="chrome://calendar/content/calendar-event-dialog-reminder.js" />
-    <script src="chrome://calendar/content/calendar-ui-utils.js" />
-    <script src="chrome://calendar/content/widgets/calendar-minimonth.js" />
-    <script src="chrome://calendar/content/widgets/datetimepickers.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <vbox id="reminder-notifications" class="notification-inline">
-      <!-- notificationbox will be added here lazily. -->
-    </vbox>
-
-    <!-- Listbox with custom reminders -->
-    <vbox flex="1">
-      <richlistbox
-        id="reminder-listbox"
-        seltype="single"
-        class="event-dialog-listbox"
-        onselect="onReminderSelected()"
-        flex="1"
-      />
-      <hbox id="reminder-action-buttons-box" pack="end">
-        <button
-          id="reminder-new-button"
-          label="&reminder.add.label;"
-          accesskey="&reminder.add.accesskey;"
-          oncommand="onNewReminder()"
+      <!-- Listbox with custom reminders -->
+      <vbox flex="1">
+        <richlistbox
+          id="reminder-listbox"
+          seltype="single"
+          class="event-dialog-listbox"
+          onselect="onReminderSelected();"
+          flex="1"
         />
-        <button
-          id="reminder-remove-button"
-          label="&reminder.remove.label;"
-          accesskey="&reminder.remove.accesskey;"
-          oncommand="onRemoveReminder()"
-        />
+        <hbox id="reminder-action-buttons-box" pack="end">
+          <button
+            id="reminder-new-button"
+            label="&reminder.add.label;"
+            accesskey="&reminder.add.accesskey;"
+            oncommand="onNewReminder();"
+          />
+          <button
+            id="reminder-remove-button"
+            label="&reminder.remove.label;"
+            accesskey="&reminder.remove.accesskey;"
+            oncommand="onRemoveReminder();"
+          />
+        </hbox>
+      </vbox>
+
+      <hbox id="reminder-details-caption" class="calendar-caption" align="center">
+        <label value="&reminder.reminderDetails.label;" class="header" />
+        <separator class="groove" flex="1" />
       </hbox>
-    </vbox>
-
-    <hbox id="reminder-details-caption" class="calendar-caption" align="center">
-      <label value="&reminder.reminderDetails.label;" class="header" />
-      <separator class="groove" flex="1" />
-    </hbox>
-    <radiogroup
-      id="reminder-relation-radiogroup"
-      onselect="setupRadioEnabledState(); updateReminder(event)"
-    >
-      <hbox id="reminder-relative-box" align="start" flex="1">
-        <radio
-          id="reminder-relative-radio"
-          value="relative"
-          aria-labelledby="reminder-length reminder-unit reminder-relation-origin"
-        />
-        <vbox id="reminder-relative-box" flex="1">
-          <hbox id="reminder-relative-length-unit-relation" align="center" flex="1">
-            <html:input
-              id="reminder-length"
-              class="input-inline"
-              type="number"
-              min="0"
-              oninput="updateReminder(event)"
-            />
-            <menulist id="reminder-unit" oncommand="updateReminder(event)" flex="1">
-              <menupopup id="reminder-unit-menupopup">
-                <menuitem
-                  id="reminder-minutes-menuitem"
-                  label="&alarm.units.minutes;"
-                  value="minutes"
-                />
-                <menuitem id="reminder-hours-menuitem" label="&alarm.units.hours;" value="hours" />
-                <menuitem id="reminder-days-menuitem" label="&alarm.units.days;" value="days" />
+      <radiogroup
+        id="reminder-relation-radiogroup"
+        onselect="setupRadioEnabledState(); updateReminder(event)"
+      >
+        <hbox id="reminder-relative-box" align="start" flex="1">
+          <radio
+            id="reminder-relative-radio"
+            value="relative"
+            aria-labelledby="reminder-length reminder-unit reminder-relation-origin"
+          />
+          <vbox id="reminder-relative-box" flex="1">
+            <hbox id="reminder-relative-length-unit-relation" align="center" flex="1">
+              <html:input
+                id="reminder-length"
+                class="input-inline"
+                type="number"
+                min="0"
+                oninput="updateReminder(event)"
+              />
+              <menulist id="reminder-unit" oncommand="updateReminder(event)" flex="1">
+                <menupopup id="reminder-unit-menupopup">
+                  <menuitem
+                    id="reminder-minutes-menuitem"
+                    label="&alarm.units.minutes;"
+                    value="minutes"
+                  />
+                  <menuitem
+                    id="reminder-hours-menuitem"
+                    label="&alarm.units.hours;"
+                    value="hours"
+                  />
+                  <menuitem id="reminder-days-menuitem" label="&alarm.units.days;" value="days" />
+                </menupopup>
+              </menulist>
+            </hbox>
+            <menulist id="reminder-relation-origin" oncommand="updateReminder(event)">
+              <menupopup id="reminder-relation-origin-menupopup">
+                <!-- The labels here will be set in calendar-event-dialog-reminder.js -->
+                <menuitem id="reminder-before-start-menuitem" value="before-START" />
+                <menuitem id="reminder-after-start-menuitem" value="after-START" />
+                <menuitem id="reminder-before-end-menuitem" value="before-END" />
+                <menuitem id="reminder-after-end-menuitem" value="after-END" />
               </menupopup>
             </menulist>
-          </hbox>
-          <menulist id="reminder-relation-origin" oncommand="updateReminder(event)">
-            <menupopup id="reminder-relation-origin-menupopup">
-              <!-- The labels here will be set in calendar-event-dialog-reminder.js -->
-              <menuitem id="reminder-before-start-menuitem" value="before-START" />
-              <menuitem id="reminder-after-start-menuitem" value="after-START" />
-              <menuitem id="reminder-before-end-menuitem" value="before-END" />
-              <menuitem id="reminder-after-end-menuitem" value="after-END" />
-            </menupopup>
-          </menulist>
-        </vbox>
-      </hbox>
-      <hbox id="reminder-absolute-box" flex="1">
-        <radio id="reminder-absolute-radio" control="reminder-absolute-date" value="absolute" />
-        <datetimepicker id="reminder-absolute-date" />
-      </hbox>
-    </radiogroup>
+          </vbox>
+        </hbox>
+        <hbox id="reminder-absolute-box" flex="1">
+          <radio id="reminder-absolute-radio" control="reminder-absolute-date" value="absolute" />
+          <datetimepicker id="reminder-absolute-date" />
+        </hbox>
+      </radiogroup>
 
-    <hbox id="reminder-actions-caption" class="calendar-caption" align="center">
-      <label value="&reminder.action.label;" control="reminder-actions-menulist" class="header" />
-      <separator class="groove" flex="1" />
-    </hbox>
-    <menulist
-      id="reminder-actions-menulist"
-      oncommand="updateReminder(event)"
-      class="reminder-list-icon"
-    >
-      <!-- Make sure the id is formatted "reminder-action-<VALUE>", for accessibility -->
-      <!-- TODO provider specific -->
-      <menupopup id="reminder-actions-menupopup">
-        <menuitem
-          id="reminder-action-DISPLAY"
-          class="reminder-list-icon menuitem-iconic"
-          value="DISPLAY"
-          label="&reminder.action.alert.label;"
-        />
-        <menuitem
-          id="reminder-action-EMAIL"
-          class="reminder-list-icon menuitem-iconic"
-          value="EMAIL"
-          label="&reminder.action.email.label;"
-        />
-      </menupopup>
-    </menulist>
-  </dialog>
-</window>
+      <hbox id="reminder-actions-caption" class="calendar-caption" align="center">
+        <label value="&reminder.action.label;" control="reminder-actions-menulist" class="header" />
+        <separator class="groove" flex="1" />
+      </hbox>
+      <menulist
+        id="reminder-actions-menulist"
+        oncommand="updateReminder(event)"
+        class="reminder-list-icon"
+      >
+        <!-- Make sure the id is formatted "reminder-action-<VALUE>", for accessibility -->
+        <!-- TODO provider specific -->
+        <menupopup id="reminder-actions-menupopup">
+          <menuitem
+            id="reminder-action-DISPLAY"
+            class="reminder-list-icon menuitem-iconic"
+            value="DISPLAY"
+            label="&reminder.action.alert.label;"
+          />
+          <menuitem
+            id="reminder-action-EMAIL"
+            class="reminder-list-icon menuitem-iconic"
+            value="EMAIL"
+            label="&reminder.action.email.label;"
+          />
+        </menupopup>
+      </menulist>
+    </dialog>
+  </html:body>
+</html>
