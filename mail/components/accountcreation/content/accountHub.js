@@ -50,9 +50,6 @@ class AccountHubControllerClass {
     FEED: () => this.#viewFeedSetup(),
     NNTP: () => this.#viewNNTPSetup(),
     IMPORT: () => this.#viewImportSetup(),
-    MANUAL_EMAIL: () => this.#viewManualEmailConfig(),
-    LOADING: () => this.#viewLoading(),
-    EMAIL_ADDED: () => this.#viewEmailAdded(),
   };
 
   constructor() {

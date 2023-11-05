@@ -26,10 +26,12 @@
     <div id="defaultHeader" class="start-header" hidden="hidden">
       <img src="chrome://branding/content/logo-gradient.svg" alt="" />
       <h1>
-        <span class="start-header-brand-name"
-              data-l10n-id="account-hub-brand"></span>
-        <span class="start-header-title"
-              data-l10n-id="account-hub-title"></span>
+        <span
+          class="start-header-brand-name"
+          data-l10n-id="account-hub-brand"></span>
+        <span
+          class="start-header-title"
+          data-l10n-id="account-hub-title"></span>
       </h1>
     </div>
   </header>
@@ -37,95 +39,115 @@
   <div class="hub-body">
     <div class="hub-body-grid"></div>
 #ifdef NIGHTLY_BUILD
-    <button id="hubSyncButton"
-            data-l10n-id="account-hub-sync-button"
-            class="button button-flat"
-            type="button"
-            hidden="hidden"></button>
+    <button
+      id="hubSyncButton"
+      data-l10n-id="account-hub-sync-button"
+      class="button button-flat"
+      type="button"
+      hidden="hidden"></button>
 #endif
   </div>
 
   <footer class="hub-footer">
     <ul class="reset-list footer-links">
       <li>
-        <a id="hubReleaseNotes"
-           data-l10n-id="account-hub-release-notes"></a>
+        <a
+          id="hubReleaseNotes"
+          data-l10n-id="account-hub-release-notes"></a>
       </li>
       <li>
-        <a href="https://support.mozilla.org/products/thunderbird"
-           data-l10n-id="account-hub-support"
-           onclick="openLinkExternally(this.href);"></a>
+        <a
+          href="https://support.mozilla.org/products/thunderbird"
+          data-l10n-id="account-hub-support"
+          onclick="openLinkExternally(this.href);"></a>
       </li>
       <li>
-        <a href="https://give.thunderbird.net/?utm_source=thunderbird_account_hub&amp;utm_medium=referral&amp;utm_content=hub_footer"
-           data-l10n-id="account-hub-donate"
-           onclick="openLinkExternally(this.href);"></a>
+        <a
+          href="https://give.thunderbird.net/?utm_source=thunderbird_account_hub&amp;utm_medium=referral&amp;utm_content=hub_footer"
+          data-l10n-id="account-hub-donate"
+          onclick="openLinkExternally(this.href);"></a>
       </li>
     </ul>
   </footer>
 </html:template>
 
 <html:template id="accountHubEmailSetup" xmlns="http://www.w3.org/1999/xhtml">
-  <form id="emailForm" class="account-hub-form">
+  <!-- Email/Password Form Subview -->
+  <form id="emailFormSubview" class="account-hub-form">
     <header class="hub-header">
       <h1 class="sub-view-title" data-l10n-id="account-hub-add-email-title"></h1>
     </header>
 
     <div class="hub-body">
-      <label for="realName"
-             data-l10n-id="account-setup-name-label"
-             data-l10n-attrs="accesskey">
+      <label
+          for="realName"
+          data-l10n-id="account-setup-name-label"
+          data-l10n-attrs="accesskey">
       </label>
       <div class="input-control">
-        <input id="realName" type="text"
-               class="input-field"
-               data-l10n-id="account-setup-name-input"
-               required="required" />
-        <img src="chrome://messenger/skin/icons/new/compact/info.svg"
-             data-l10n-id="account-setup-name-info-icon"
-             alt=""
-             class="form-icon" />
-        <img src="chrome://messenger/skin/icons/new/compact/warning.svg"
-             data-l10n-id="account-setup-name-warning-icon"
-             alt=""
-             class="form-icon icon-warning" />
+        <input
+          id="realName"
+          type="text"
+          class="input-field"
+          data-l10n-id="account-setup-name-input"
+          required="required" />
+        <img
+          src="chrome://messenger/skin/icons/new/compact/info.svg"
+          data-l10n-id="account-setup-name-info-icon"
+          alt=""
+          class="form-icon" />
+        <img
+          src="chrome://messenger/skin/icons/new/compact/warning.svg"
+          data-l10n-id="account-setup-name-warning-icon"
+          alt=""
+          class="form-icon icon-warning" />
       </div>
 
-      <label for="email"
-             data-l10n-id="account-setup-email-label"
-             data-l10n-attrs="accesskey">
+      <label
+        for="email"
+        data-l10n-id="account-setup-email-label"
+        data-l10n-attrs="accesskey">
       </label>
       <div class="input-control">
-        <input id="email" type="email"
-               data-l10n-id="account-setup-email-input"
-               class="input-field"
-               required="required" />
-        <img id="emailInfo"
-             src="chrome://messenger/skin/icons/new/compact/info.svg"
-             data-l10n-id="account-setup-email-info-icon"
-             alt=""
-             class="form-icon" />
-        <img id="emailWarning"
-             src="chrome://messenger/skin/icons/new/compact/warning.svg"
-             data-l10n-id="account-setup-email-warning-icon"
-             alt=""
-             class="form-icon icon-warning" />
+        <input
+          id="email"
+          type="email"
+          data-l10n-id="account-setup-email-input"
+          class="input-field"
+          required="required" />
+        <img
+          id="emailInfo"
+          src="chrome://messenger/skin/icons/new/compact/info.svg"
+          data-l10n-id="account-setup-email-info-icon"
+          alt=""
+          class="form-icon" />
+        <img
+          id="emailWarning"
+          src="chrome://messenger/skin/icons/new/compact/warning.svg"
+          data-l10n-id="account-setup-email-warning-icon"
+          alt=""
+          class="form-icon icon-warning" />
       </div>
 
-      <label for="password"
-             data-l10n-id="account-setup-password-label"
-             data-l10n-attrs="accesskey">
+      <label
+        for="password"
+        data-l10n-id="account-setup-password-label"
+        data-l10n-attrs="accesskey">
       </label>
       <div class="input-control">
         <!-- Leave the placeholder empty for CSS visibility toggle of the
-             adjacent button. -->
-        <input id="password" type="password" class="input-field"
-               placeholder="" />
-        <button id="passwordToggleButton"
-                type="button"
-                data-l10n-id="account-setup-password-toggle-show"
-                class="form-toggle-button"
-                aria-pressed="false">
+            adjacent button. -->
+        <input
+          id="password"
+          type="password"
+          class="input-field"
+          placeholder="" />
+        <button
+          id="passwordToggleButton"
+          type="button"
+          data-l10n-id="account-setup-password-toggle-show"
+          class="form-toggle-button"
+          aria-pressed="false">
           <img src="" alt="" class="form-icon" />
         </button>
       </div>
@@ -133,42 +155,66 @@
       <div class="remember-button-container">
         <label class="toggle-container-with-text">
           <input id="rememberPassword" type="checkbox" checked="checked" />
-          <span data-l10n-id="account-setup-remember-password"
-                data-l10n-attrs="accesskey">
+          <span
+            data-l10n-id="account-setup-remember-password"
+            data-l10n-attrs="accesskey">
           </span>
         </label>
       </div>
     </div>
 
-    <footer class="hub-footer">
+    <footer id="accountHubEmailFooter" class="hub-footer">
       <menu class="dialog-menu-container two-columns">
-        <li>
-          <button id="emailGoBackButton" type="button"
-                  data-l10n-id="account-hub-email-cancel-button"></button>
+        <li id="footerButtonsLeftColumn">
+          <button
+            id="emailCancelButton"
+            type="button"
+            data-l10n-id="account-hub-email-cancel-button"
+            hidden="hidden"></button>
+          <button
+            id="emailGoBackButton"
+            type="button"
+            data-l10n-id="account-hub-email-back-button"
+            hidden="hidden"></button>
+          <button
+            id="emailRetestButton" type="button"
+            data-l10n-id="account-hub-email-retest-button"
+            hidden="hidden"> </button>
         </li>
-        <li>
-          <button id="emailManuallyConfigureButton"
-                 hidden="hidden"
-                 class="button link-button"
-                 data-l10n-id="account-hub-email-manually-configure-button">
-          </button>
-          <button id="emailContinueButton" type="submit"
-                  data-l10n-id="account-hub-email-continue-button"
-                  class="primary"
-                  disabled="disabled"></button>
+        <li id="footerButtonsCenterColumn" hidden="hidden">
+          <button
+            id="emailFinishButton" type="button"
+            data-l10n-id="account-hub-email-finish-button"
+            class="primary"
+            hidden="hidden"></button>
+        </li>
+        <li id="footerButtonsRightColumn">
+          <button
+            id="emailManuallyConfigureButton"
+            hidden="hidden"
+            class="button link-button"
+            data-l10n-id="account-hub-email-manually-configure-button"></button>
+          <button
+            id="emailContinueButton" type="submit"
+            data-l10n-id="account-hub-email-continue-button"
+            class="primary"
+            disabled="disabled"
+            hidden="hidden"></button>
         </li>
       </menu>
     </footer>
   </form>
-</html:template>
 
-<html:template id="accountHubManuallyConfigureEmailSetup"
-               xmlns="http://www.w3.org/1999/xhtml"
-               xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-               xmlns:html="http://www.w3.org/1999/xhtml">
-  <form id="manualConfigureForm" class="account-hub-form">
+  <!-- Manual Config Email Form Subview -->
+  <form
+    id="manualConfigureEmailFormSubview"
+    class="account-hub-form"
+    hidden="hidden">
     <header class="hub-header">
-      <h1 class="sub-view-title" data-l10n-id="account-hub-manually-configure-email-title"></h1>
+      <h1
+        class="sub-view-title"
+        data-l10n-id="account-hub-manually-configure-email-title">
+      </h1>
     </header>
 
     <div class="hub-body flex-direction-row">
@@ -182,11 +228,26 @@
           data-l10n-attrs="accesskey">
         </label>
         <div class="input-control">
-          <xul:menulist id="incomingProtocol" class="menulist" label="IMAP" value="1" flex="1">
+          <xul:menulist
+            id="incomingProtocol"
+            class="menulist"
+            label="IMAP"
+            value="1"
+            flex="1">
             <xul:menupopup id="incomingProtocolMenupopup" class="menupopup">
-              <xul:menuitem id="incomingProtocolIMAP" label="IMAP" value="1" />
-              <xul:menuitem id="incomingProtocolPOP3" label="POP3" value="2" />
-              <xul:menuitem id="incomingProtocolExchange" label="Exchange" value="3" hidden="hidden" />
+              <xul:menuitem
+                id="incomingProtocolIMAP"
+                label="IMAP"
+                value="1" />
+              <xul:menuitem
+                id="incomingProtocolPOP3"
+                label="POP3"
+                value="2" />
+              <xul:menuitem
+                id="incomingProtocolExchange"
+                label="Exchange"
+                value="3"
+                hidden="hidden" />
             </xul:menupopup>
           </xul:menulist>
         </div>
@@ -202,8 +263,7 @@
             type="text"
             placeholder="mail.example.com"
             required="required"
-            class="input-field"
-          />
+            class="input-field" />
         </div>
 
         <label
@@ -215,12 +275,10 @@
           <input
             id="incomingPort"
             type="number"
-            min="1"
-            max="65535"
+            min="1" max="65535"
             placeholder="993"
             required="required"
-            class="input-field"
-          />
+            class="input-field" />
         </div>
 
         <label
@@ -229,12 +287,30 @@
           class="option-label">
         </label>
         <div class="input-control">
-          <xul:menulist id="incomingConnectionSecurity" class="menulist" value="0" flex="1">
-            <xul:menupopup id="incomingConnectionSecurityMenupopup" class="menupopup">
-              <xul:menuitem id="incomingConnectionSecurityAutodetect" data-l10n-id="account-hub-ssl-autodetect-option" value="-1" />
-              <xul:menuitem id="incomingConnectionSecurityNonEncryption" data-l10n-id="account-hub-ssl-noencryption-option" value="0" />
-              <xul:menuitem id="incomingConnectionSecurityStartTtls" label="STARTTLS" value="2" />
-              <xul:menuitem id="incomingConnectionSecuritySslTls" label="SSL/TLS" value="3" />
+          <xul:menulist
+            id="incomingConnectionSecurity"
+            class="menulist"
+            value="0"
+            flex="1">
+            <xul:menupopup
+              id="incomingConnectionSecurityMenupopup"
+              class="menupopup">
+              <xul:menuitem
+                id="incomingConnectionSecurityAutodetect"
+                data-l10n-id="account-hub-ssl-autodetect-option"
+                value="-1" />
+              <xul:menuitem
+                id="incomingConnectionSecurityNonEncryption"
+                data-l10n-id="account-hub-ssl-noencryption-option"
+                value="0" />
+              <xul:menuitem
+                id="incomingConnectionSecurityStartTtls"
+                label="STARTTLS"
+                value="2" />
+              <xul:menuitem
+                id="incomingConnectionSecuritySslTls"
+                label="SSL/TLS"
+                value="3" />
             </xul:menupopup>
           </xul:menulist>
         </div>
@@ -245,13 +321,38 @@
           class="option-label">
         </label>
         <div class="input-control">
-          <xul:menulist id="incomingAuthMethod" class="menulist" required="required" value="0" flex="1">
+          <xul:menulist
+            id="incomingAuthMethod"
+            class="menulist"
+            required="required"
+            value="0"
+            flex="1">
             <xul:menupopup id="incomingAuthMenupopup" class="menupopup">
-              <xul:menuitem id="incomingAuthMethodAutodetect" data-l10n-id="account-hub-ssl-autodetect-option" value="0"></xul:menuitem>
-              <xul:menuitem id="incomingAuthMethodCleartext" data-l10n-id="account-hub-ssl-cleartext-password-option" value="3"></xul:menuitem>
-              <xul:menuitem id="incomingAuthMethodEncrypted" data-l10n-id="account-hub-ssl-encrypted-password-option" value="4"></xul:menuitem>
-              <xul:menuitem id="incomingAuthMethodKerbos" label="Kerberos / GSSAPI" value="5"></xul:menuitem>
-              <xul:menuitem id="incomingAuthMethodNtlm" label="NTLM" value="6"></xul:menuitem>
+              <xul:menuitem
+                id="incomingAuthMethodAutodetect"
+                data-l10n-id="account-hub-ssl-autodetect-option"
+                value="0">
+              </xul:menuitem>
+              <xul:menuitem
+                id="incomingAuthMethodCleartext"
+                data-l10n-id="account-hub-ssl-cleartext-password-option"
+                value="3">
+              </xul:menuitem>
+              <xul:menuitem
+                id="incomingAuthMethodEncrypted"
+                data-l10n-id="account-hub-ssl-encrypted-password-option"
+                value="4">
+              </xul:menuitem>
+              <xul:menuitem
+                id="incomingAuthMethodKerbos"
+                label="Kerberos / GSSAPI"
+                value="5">
+              </xul:menuitem>
+              <xul:menuitem
+                id="incomingAuthMethodNtlm"
+                label="NTLM"
+                value="6">
+              </xul:menuitem>
             </xul:menupopup>
           </xul:menulist>
         </div>
@@ -267,15 +368,17 @@
             type="text"
             data-l10n-id="account-setup-email-input"
             required="required"
-            class="username input-field"
-            />
+            class="username input-field" />
         </div>
       </div>
       <div class="hub-body-column">
         <div>
           <legend data-l10n-id="account-hub-outgoing-server-legend"></legend>
         </div>
-        <label for="outgoingHostname" data-l10n-id="account-hub-hostname-label" class="option-label">
+        <label
+          for="outgoingHostname"
+          data-l10n-id="account-hub-hostname-label"
+          class="option-label">
         </label>
         <div class="input-control">
           <input
@@ -283,11 +386,13 @@
             type="text"
             placeholder="mail.example.com"
             required="required"
-            class="input-field"
-          />
+            class="input-field" />
         </div>
 
-        <label for="outgoingPort" data-l10n-id="account-hub-port-label" class="option-label">
+        <label
+          for="outgoingPort"
+          data-l10n-id="account-hub-port-label"
+          class="option-label">
         </label>
         <div class="input-control">
           <input
@@ -297,43 +402,88 @@
             type="number"
             placeholder="993"
             required="required"
-            class="input-field"
-          />
+            class="input-field" />
         </div>
 
         <label for="outgoingSsl" data-l10n-id="account-hub-ssl-label" class="option-label">
         </label>
         <div class="input-control">
-          <xul:menulist id="outgoingConnectionSecurity" class="menulist" value="0" flex="1">
-            <xul:menupopup id="outgoingConnectionSecurityMenupopup" class="menupopup">
-              <xul:menuitem id="outgoingConnectionSecurityAutodetect" data-l10n-id="account-hub-ssl-autodetect-option"
+          <xul:menulist
+            id="outgoingConnectionSecurity"
+            class="menulist"
+            value="0"
+            flex="1">
+            <xul:menupopup
+              id="outgoingConnectionSecurityMenupopup"
+              class="menupopup">
+              <xul:menuitem
+                id="outgoingConnectionSecurityAutodetect"
+                data-l10n-id="account-hub-ssl-autodetect-option"
                 value="-1" />
-              <xul:menuitem id="outgoingConnectionSecurityNonEncryption" data-l10n-id="account-hub-ssl-noencryption-option"
+              <xul:menuitem
+                id="outgoingConnectionSecurityNonEncryption"
+                data-l10n-id="account-hub-ssl-noencryption-option"
                 value="0" />
-              <xul:menuitem id="outgoingConnectionSecurityStartTtls" label="STARTTLS" value="2" />
-              <xul:menuitem id="outgoingConnectionSecuritySslTls" label="SSL/TLS" value="3" />
+              <xul:menuitem
+                id="outgoingConnectionSecurityStartTtls"
+                label="STARTTLS"
+                value="2" />
+              <xul:menuitem
+                id="outgoingConnectionSecuritySslTls"
+                label="SSL/TLS"
+                value="3" />
             </xul:menupopup>
           </xul:menulist>
         </div>
 
-        <label for="outgoingAuthMethod" data-l10n-id="account-hub-auth-label" class="option-label">
+        <label
+          for="outgoingAuthMethod"
+          data-l10n-id="account-hub-auth-label"
+          class="option-label">
         </label>
         <div class="input-control">
-          <xul:menulist id="outgoingAuthMethod" class="menulist" required="required" value="0" flex="1">
-            <xul:menupopup id="outgoingAuthMenupopup" class="menupopup">
-              <xul:menuitem id="outgoingAuthMethodAutodetect" data-l10n-id="account-hub-ssl-autodetect-option" value="0">
+          <xul:menulist
+            id="outgoingAuthMethod"
+            class="menulist"
+            required="required"
+            value="0"
+            flex="1">
+            <xul:menupopup
+              id="outgoingAuthMenupopup"
+              class="menupopup">
+              <xul:menuitem
+                id="outgoingAuthMethodAutodetect"
+                data-l10n-id="account-hub-ssl-autodetect-option"
+                value="0">
               </xul:menuitem>
-              <xul:menuitem id="outgoingAuthMethodCleartext" data-l10n-id="account-hub-ssl-cleartext-password-option" value="3">
+              <xul:menuitem
+                id="outgoingAuthMethodCleartext"
+                data-l10n-id="account-hub-ssl-cleartext-password-option"
+                value="3">
               </xul:menuitem>
-              <xul:menuitem id="outgoingAuthMethodEncrypted" data-l10n-id="account-hub-ssl-encrypted-password-option" value="4">
+              <xul:menuitem
+                id="outgoingAuthMethodEncrypted"
+                data-l10n-id="account-hub-ssl-encrypted-password-option"
+                value="4">
               </xul:menuitem>
-              <xul:menuitem id="outgoingAuthMethodKerbos" label="Kerberos / GSSAPI" value="5"></xul:menuitem>
-              <xul:menuitem id="outgoingAuthMethodNtlm" label="NTLM" value="6"></xul:menuitem>
+              <xul:menuitem
+                id="outgoingAuthMethodKerbos"
+                label="Kerberos / GSSAPI"
+                value="5">
+              </xul:menuitem>
+              <xul:menuitem
+                id="outgoingAuthMethodNtlm"
+                label="NTLM"
+                value="6">
+              </xul:menuitem>
             </xul:menupopup>
           </xul:menulist>
         </div>
 
-        <label for="outgoingUsername" data-l10n-id="account-hub-username-label" class="option-label">
+        <label
+          for="outgoingUsername"
+          data-l10n-id="account-hub-username-label"
+          class="option-label">
         </label>
         <div class="input-control">
           <input
@@ -341,69 +491,55 @@
             type="text"
             data-l10n-id="account-setup-email-input"
             required="required"
-            class="username input-field"
-          />
+            class="username input-field" />
         </div>
       </div>
     </div>
-
-    <footer class="hub-footer">
-      <menu class="dialog-menu-container two-columns">
-        <li>
-          <button id="emailRetestButton" type="button" data-l10n-id="account-hub-email-retest-button"></button>
-        </li>
-        <li>
-          <button id="emailGoBackButton" type="button" data-l10n-id="account-hub-email-back-button"></button>
-          <button id="emailContinueButton" type="submit" data-l10n-id="account-hub-email-continue-button"
-            class="primary" disabled="disabled"></button>
-        </li>
-      </menu>
-    </footer>
   </form>
-</html:template>
 
-<html:template id="accountHubLoading" xmlns="http://www.w3.org/1999/xhtml">
-  <header class="hub-header">
-    <!-- <h1 id="lookupEmailConfigurationTitle" class="sub-view-title" data-l10n-id="account-hub-lookup-email-configuration-title" hidden="hidden"></h1> -->
-    <h1 id="addingAccountTitle" class="sub-view-title" data-l10n-id="account-hub-adding-account-title"></h1>
-    <!-- <h1 id="lookupEmailConfigurationSubheader" class="sub-view-subheader" data-l10n-id="account-hub-trying-server-names-subheader" hidden="hidden"></h1> -->
-    <h1 id="addingAccountSubheader" class="sub-view-subheader" data-l10n-id="account-hub-adding-account-subheader"></h1>
-  </header>
+  <!-- Account Hub Email Added Subview -->
+  <div id="emailAddedSubview" hidden="hidden">
+    <header class="hub-header">
+      <h1
+        id="accountAddedTitle"
+        class="sub-view-title"
+        data-l10n-id="account-hub-account-added-title">
+      </h1>
+      <h1 id="accountAddedSubheader" class="sub-view-subheader"></h1>
+    </header>
 
-  <div class="hub-body">
-    <img id="hubLoader" class="icon" role="presentation" />
+    <div class="hub-body">
+    </div>
   </div>
 
-  <footer class="hub-footer">
-    <menu class="dialog-menu-container two-columns">
-      <li>
-        <button id="emailGoBackButton" type="button" data-l10n-id="account-hub-email-back-button"></button>
-      </li>
-      <li>
-        <!-- <button id="emailStopButton" type="button" data-l10n-id="account-hub-email-stop-button"></button> -->
-        <button id="emailContinueButton" type="button" data-l10n-id="account-hub-email-continue-button"
-          class="primary" disabled="disabled"></button>
-      </li>
-    </menu>
-  </footer>
-</html:template>
+  <!-- Account Hub Email Loading Subview -->
+  <div id="emailLoadingSubview" hidden="hidden">
+    <header class="hub-header">
+      <!-- <h1
+          id="lookupEmailConfigurationTitle"
+          class="sub-view-title"
+          data-l10n-id="account-hub-lookup-email-configuration-title"
+          hidden="hidden"></h1> -->
+      <h1
+        id="addingAccountTitle"
+        class="sub-view-title"
+        data-l10n-id="account-hub-adding-account-title">
+      </h1>
+      <!-- <h1
+          id="lookupEmailConfigurationSubheader"
+          class="sub-view-subheader"
+          data-l10n-id="account-hub-trying-server-names-subheader"
+          hidden="hidden">
+        </h1> -->
+      <h1
+        id="addingAccountSubheader"
+        class="sub-view-subheader"
+        data-l10n-id="account-hub-adding-account-subheader">
+      </h1>
+    </header>
 
-<html:template id="accountHubEmailAdded" xmlns="http://www.w3.org/1999/xhtml">
-  <header class="hub-header">
-    <h1 id="accountAddedTitle" class="sub-view-title" data-l10n-id="account-hub-account-added-title"></h1>
-    <h1 id="accountAddedSubheader" class="sub-view-subheader"></h1>
-  </header>
-
-  <div class="hub-body">
-
+    <div class="hub-body">
+      <img id="hubLoader" class="icon" role="presentation" />
+    </div>
   </div>
-
-  <footer class="hub-footer">
-    <menu class="dialog-menu-container center-column">
-      <li>
-        <button id="emailFinishBackButton" type="button" data-l10n-id="account-hub-email-finish-button"
-          class="primary"></button>
-      </li>
-    </menu>
-  </footer>
 </html:template>
