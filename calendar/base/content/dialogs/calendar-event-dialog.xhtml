@@ -3,634 +3,648 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+<!DOCTYPE html [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
 <!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
 <!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
 %brandDTD; %globalDTD; %calendarDTD; %eventDialogDTD; ]>
 
 <!-- Dialog id is changed during execution to allow different Window-icons
-     on this dialog. document.loadOverlay() will not work on this one. -->
-<window
+     on this dialog. -->
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
   id="calendar-event-window"
-  title="&event.title.label;"
   icon="calendar-general-dialog"
   windowtype="Calendar:EventDialog"
-  onload="onLoadCalendarItemPanel();"
-  onunload="onUnloadCalendarItemPanel();"
-  persist="screenX screenY width height"
+  persist="screenX screenY"
   lightweightthemes="true"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  xmlns:html="http://www.w3.org/1999/xhtml"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
-  <html:link rel="stylesheet" href="chrome://calendar/skin/shared/widgets/minimonth.css" />
-  <html:link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-attendees.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css"
-  />
-  <html:link rel="stylesheet" href="chrome://calendar/skin/calendar-event-dialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/primaryToolbar.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
-  <dialog>
-    <!-- Javascript includes -->
-    <script src="chrome://calendar/content/calendar-item-panel.js" />
-    <script src="chrome://calendar/content/calendar-dialog-utils.js" />
-    <script src="chrome://calendar/content/calendar-ui-utils.js" />
-    <script src="chrome://messenger/content/globalOverlay.js" />
-    <script src="chrome://messenger/content/toolbarIconColor.js" />
-    <script src="chrome://messenger/content/customizable-toolbar.js" />
+  <head>
+    <title>&event.title.label;</title>
+    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="stylesheet" href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/primaryToolbar.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="stylesheet" href="chrome://calendar/skin/shared/widgets/minimonth.css" />
+    <link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-attendees.css" />
+    <link rel="stylesheet" href="chrome://calendar/skin/calendar-event-dialog.css" />
+    <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
+    <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
+    <script defer="defer" src="chrome://messenger/content/customizable-toolbar.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-item-panel.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-dialog-utils.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+    <script>
+      window.addEventListener("load", onLoadCalendarItemPanel);
+      window.addEventListener("unload", onUnloadCalendarItemPanel);
+    </script>
+  </head>
+  <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <dialog>
+      <!-- Command updater -->
+      <commandset
+        id="globalEditMenuItems"
+        commandupdater="true"
+        events="focus"
+        oncommandupdate="goUpdateGlobalEditMenuItems()"
+      />
+      <commandset
+        id="selectEditMenuItems"
+        commandupdater="true"
+        events="select"
+        oncommandupdate="goUpdateSelectEditMenuItems()"
+      />
+      <commandset
+        id="undoEditMenuItems"
+        commandupdater="true"
+        events="undo"
+        oncommandupdate="goUpdateUndoEditMenuItems()"
+      />
+      <commandset
+        id="clipboardEditMenuItems"
+        commandupdater="true"
+        events="clipboard"
+        oncommandupdate="goUpdatePasteMenuItems()"
+      />
 
-    <stringbundle id="languageBundle" src="chrome://global/locale/languageNames.properties" />
+      <!-- Commands -->
+      <commandset id="itemCommands">
+        <!-- Item menu -->
+        <command id="cmd_item_new_event" oncommand="openNewEvent()" />
+        <command id="cmd_item_new_task" oncommand="openNewTask()" />
+        <command id="cmd_item_new_message" oncommand="openNewMessage()" />
+        <command id="cmd_item_close" oncommand="cancelDialog()" />
+        <command id="cmd_save" disable-on-readonly="true" oncommand="onCommandSave()" />
+        <command
+          id="cmd_item_delete"
+          disable-on-readonly="true"
+          oncommand="onCommandDeleteItem()"
+        />
 
-    <!-- Command updater -->
-    <commandset
-      id="globalEditMenuItems"
-      commandupdater="true"
-      events="focus"
-      oncommandupdate="goUpdateGlobalEditMenuItems()"
-    />
-    <commandset
-      id="selectEditMenuItems"
-      commandupdater="true"
-      events="select"
-      oncommandupdate="goUpdateSelectEditMenuItems()"
-    />
-    <commandset
-      id="undoEditMenuItems"
-      commandupdater="true"
-      events="undo"
-      oncommandupdate="goUpdateUndoEditMenuItems()"
-    />
-    <commandset
-      id="clipboardEditMenuItems"
-      commandupdater="true"
-      events="clipboard"
-      oncommandupdate="goUpdatePasteMenuItems()"
-    />
+        <!-- Edit menu -->
+        <command id="cmd_undo" disabled="true" oncommand="goDoCommand('cmd_undo')" />
+        <command id="cmd_redo" disabled="true" oncommand="goDoCommand('cmd_redo')" />
+        <command id="cmd_cut" disabled="true" oncommand="goDoCommand('cmd_cut')" />
+        <command id="cmd_copy" disabled="true" oncommand="goDoCommand('cmd_copy')" />
+        <command id="cmd_paste" disabled="true" oncommand="goDoCommand('cmd_paste')" />
+        <command id="cmd_selectAll" disabled="true" oncommand="goDoCommand('cmd_selectAll')" />
 
-    <!-- Commands -->
-    <commandset id="itemCommands">
-      <!-- Item menu -->
-      <command id="cmd_item_new_event" oncommand="openNewEvent()" />
-      <command id="cmd_item_new_task" oncommand="openNewTask()" />
-      <command id="cmd_item_new_message" oncommand="openNewMessage()" />
-      <command id="cmd_item_close" oncommand="cancelDialog()" />
-      <command id="cmd_save" disable-on-readonly="true" oncommand="onCommandSave()" />
-      <command id="cmd_item_delete" disable-on-readonly="true" oncommand="onCommandDeleteItem()" />
-
-      <!-- Edit menu -->
-      <command id="cmd_undo" disabled="true" oncommand="goDoCommand('cmd_undo')" />
-      <command id="cmd_redo" disabled="true" oncommand="goDoCommand('cmd_redo')" />
-      <command id="cmd_cut" disabled="true" oncommand="goDoCommand('cmd_cut')" />
-      <command id="cmd_copy" disabled="true" oncommand="goDoCommand('cmd_copy')" />
-      <command id="cmd_paste" disabled="true" oncommand="goDoCommand('cmd_paste')" />
-      <command id="cmd_selectAll" disabled="true" oncommand="goDoCommand('cmd_selectAll')" />
-
-      <!-- View menu -->
-      <command
-        id="cmd_toolbar"
-        oncommand="onCommandViewToolbar('event-toolbar',
+        <!-- View menu -->
+        <command
+          id="cmd_toolbar"
+          oncommand="onCommandViewToolbar('event-toolbar',
                                              'view-toolbars-event-menuitem')"
-      />
-      <command id="cmd_customize" oncommand="onCommandCustomize()" />
+        />
+        <command id="cmd_customize" oncommand="onCommandCustomize()" />
 
-      <!-- status -->
-      <command
-        id="cmd_status_none"
-        oncommand="editStatus(event.target)"
-        hidden="true"
-        value="NONE"
-      />
-      <command id="cmd_status_tentative" oncommand="editStatus(event.target)" value="TENTATIVE" />
-      <command id="cmd_status_confirmed" oncommand="editStatus(event.target)" value="CONFIRMED" />
-      <command id="cmd_status_cancelled" oncommand="editStatus(event.target)" value="CANCELLED" />
+        <!-- status -->
+        <command
+          id="cmd_status_none"
+          oncommand="editStatus(event.target)"
+          hidden="true"
+          value="NONE"
+        />
+        <command id="cmd_status_tentative" oncommand="editStatus(event.target)" value="TENTATIVE" />
+        <command id="cmd_status_confirmed" oncommand="editStatus(event.target)" value="CONFIRMED" />
+        <command id="cmd_status_cancelled" oncommand="editStatus(event.target)" value="CANCELLED" />
 
-      <!-- priority -->
-      <command id="cmd_priority_none" oncommand="editPriority(event.target)" value="0" />
-      <command id="cmd_priority_low" oncommand="editPriority(event.target)" value="9" />
-      <command id="cmd_priority_normal" oncommand="editPriority(event.target)" value="5" />
-      <command id="cmd_priority_high" oncommand="editPriority(event.target)" value="1" />
+        <!-- priority -->
+        <command id="cmd_priority_none" oncommand="editPriority(event.target)" value="0" />
+        <command id="cmd_priority_low" oncommand="editPriority(event.target)" value="9" />
+        <command id="cmd_priority_normal" oncommand="editPriority(event.target)" value="5" />
+        <command id="cmd_priority_high" oncommand="editPriority(event.target)" value="1" />
 
-      <!-- freebusy -->
-      <command id="cmd_showtimeas_busy" oncommand="editShowTimeAs(event.target)" value="OPAQUE" />
-      <command
-        id="cmd_showtimeas_free"
-        oncommand="editShowTimeAs(event.target)"
-        value="TRANSPARENT"
-      />
+        <!-- freebusy -->
+        <command id="cmd_showtimeas_busy" oncommand="editShowTimeAs(event.target)" value="OPAQUE" />
+        <command
+          id="cmd_showtimeas_free"
+          oncommand="editShowTimeAs(event.target)"
+          value="TRANSPARENT"
+        />
 
-      <!-- attendees -->
-      <command id="cmd_attendees" oncommand="editAttendees();" />
-      <command id="cmd_email" oncommand="sendMailToAttendees(window.attendees);" />
-      <command
-        id="cmd_email_undecided"
-        oncommand="sendMailToUndecidedAttendees(window.attendees);"
-      />
+        <!-- attendees -->
+        <command id="cmd_attendees" oncommand="editAttendees();" />
+        <command id="cmd_email" oncommand="sendMailToAttendees(window.attendees);" />
+        <command
+          id="cmd_email_undecided"
+          oncommand="sendMailToUndecidedAttendees(window.attendees);"
+        />
 
-      <!-- accept, attachments, timezone -->
-      <command id="cmd_accept" disable-on-readonly="true" oncommand="acceptDialog();" />
-      <command id="cmd_attach_url" disable-on-readonly="true" oncommand="attachURL()" />
-      <command id="cmd_attach_cloud" disable-on-readonly="true" />
-      <command
-        id="cmd_timezone"
-        persist="checked"
-        checked="false"
-        oncommand="toggleTimezoneLinks()"
-      />
-    </commandset>
+        <!-- accept, attachments, timezone -->
+        <command id="cmd_accept" disable-on-readonly="true" oncommand="acceptDialog();" />
+        <command id="cmd_attach_url" disable-on-readonly="true" oncommand="attachURL()" />
+        <command id="cmd_attach_cloud" disable-on-readonly="true" />
+        <command
+          id="cmd_timezone"
+          persist="checked"
+          checked="false"
+          oncommand="toggleTimezoneLinks()"
+        />
+      </commandset>
 
-    <keyset id="calendar-event-dialog-keyset">
-      <key
-        id="new-message-key"
-        modifiers="accel"
-        key="&event.dialog.new.message.key2;"
-        command="cmd_item_new_message"
-      />
-      <key
-        id="close-key"
-        modifiers="accel"
-        key="&event.dialog.close.key;"
-        command="cmd_item_close"
-      />
-      <key id="save-key" modifiers="accel" key="&event.dialog.save.key;" command="cmd_save" />
-      <key
-        id="saveandclose-key"
-        modifiers="accel"
-        key="&event.dialog.saveandclose.key;"
-        command="cmd_accept"
-      />
-      <key id="undo-key" modifiers="accel" key="&event.dialog.undo.key;" command="cmd_undo" />
-      <key id="redo-key" modifiers="accel" key="&event.dialog.redo.key;" command="cmd_redo" />
-      <key id="cut-key" modifiers="accel" key="&event.dialog.cut.key;" command="cmd_cut" />
-      <key id="copy-key" modifiers="accel" key="&event.dialog.copy.key;" command="cmd_copy" />
-      <key id="paste-key" modifiers="accel" key="&event.dialog.paste.key;" command="cmd_paste" />
-      <key
-        id="select-all-key"
-        modifiers="accel"
-        key="&event.dialog.select.all.key;"
-        command="cmd_selectAll"
-      />
-    </keyset>
+      <keyset id="calendar-event-dialog-keyset">
+        <key
+          id="new-message-key"
+          modifiers="accel"
+          key="&event.dialog.new.message.key2;"
+          command="cmd_item_new_message"
+        />
+        <key
+          id="close-key"
+          modifiers="accel"
+          key="&event.dialog.close.key;"
+          command="cmd_item_close"
+        />
+        <key id="save-key" modifiers="accel" key="&event.dialog.save.key;" command="cmd_save" />
+        <key
+          id="saveandclose-key"
+          modifiers="accel"
+          key="&event.dialog.saveandclose.key;"
+          command="cmd_accept"
+        />
+        <key id="undo-key" modifiers="accel" key="&event.dialog.undo.key;" command="cmd_undo" />
+        <key id="redo-key" modifiers="accel" key="&event.dialog.redo.key;" command="cmd_redo" />
+        <key id="cut-key" modifiers="accel" key="&event.dialog.cut.key;" command="cmd_cut" />
+        <key id="copy-key" modifiers="accel" key="&event.dialog.copy.key;" command="cmd_copy" />
+        <key id="paste-key" modifiers="accel" key="&event.dialog.paste.key;" command="cmd_paste" />
+        <key
+          id="select-all-key"
+          modifiers="accel"
+          key="&event.dialog.select.all.key;"
+          command="cmd_selectAll"
+        />
+      </keyset>
 
-    <menupopup id="event-dialog-toolbar-context-menu">
-      <menuitem
-        id="CustomizeDialogToolbar"
-        label="&event.menu.view.toolbars.customize.label;"
-        command="cmd_customize"
-      />
-    </menupopup>
+      <menupopup id="event-dialog-toolbar-context-menu">
+        <menuitem
+          id="CustomizeDialogToolbar"
+          label="&event.menu.view.toolbars.customize.label;"
+          command="cmd_customize"
+        />
+      </menupopup>
 
-    <!-- Toolbox contains the menubar -->
-    <toolbox
-      id="event-toolbox"
-      class="mail-toolbox"
-      mode="full"
-      defaultmode="full"
-      iconsize="small"
-      defaulticonsize="small"
-      labelalign="end"
-      defaultlabelalign="end"
-    >
-      <!-- Menubar -->
-      <toolbar type="menubar">
-        <menubar id="event-menubar">
-          <!-- Item menu -->
-          <!-- These 2 Strings are placeholders, values are set at runtime -->
-          <menu label="Item" accesskey="I" id="item-menu">
-            <menupopup id="item-menupopup">
-              <menu
-                id="item-new-menu"
-                label="&event.menu.item.new.label;"
-                accesskey="&event.menu.item.new.accesskey;"
-              >
-                <menupopup id="item-new-menupopup" class="menulist-menupopup">
-                  <menuitem
-                    id="item-new-message-menuitem"
-                    label="&event.menu.item.new.message.label;"
-                    accesskey="&event.menu.item.new.message.accesskey;"
-                    key="new-message-key"
-                    command="cmd_item_new_message"
-                    disable-on-readonly="true"
-                  />
-                  <menuitem
-                    id="item-new-event-menuitem"
-                    label="&event.menu.item.new.event.label;"
-                    accesskey="&event.menu.item.new.event.accesskey;"
-                    command="cmd_item_new_event"
-                    disable-on-readonly="true"
-                  />
-                  <menuitem
-                    id="item-new-task-menuitem"
-                    label="&event.menu.item.new.task.label;"
-                    accesskey="&event.menu.item.new.task.accesskey;"
-                    command="cmd_item_new_task"
-                    disable-on-readonly="true"
-                  />
-                </menupopup>
-              </menu>
-              <menuseparator id="item-menuseparator1" />
-              <menuitem
-                id="item-save-menuitem"
-                label="&event.menu.item.save.label;"
-                accesskey="&event.menu.item.save.accesskey;"
-                key="save-key"
-                command="cmd_save"
-              />
-              <menuitem
-                id="item-saveandclose-menuitem"
-                label="&event.menu.item.saveandclose.label;"
-                accesskey="&event.menu.item.saveandclose.accesskey;"
-                key="saveandclose-key"
-                command="cmd_accept"
-              />
-              <menuitem
-                id="item-delete-menuitem"
-                label="&event.menu.item.delete.label;"
-                accesskey="&event.menu.item.delete.accesskey;"
-                command="cmd_item_delete"
-                disable-on-readonly="true"
-              />
-              <menuseparator id="item-menuseparator1" />
-              <menuitem
-                id="item-close-menuitem"
-                label="&event.menu.item.close.label;"
-                accesskey="&event.menu.item.close.accesskey;"
-                key="close-key"
-                command="cmd_item_close"
-                disable-on-readonly="true"
-              />
-            </menupopup>
-          </menu>
-
-          <!-- Edit menu -->
-          <menu
-            id="edit-menu"
-            label="&event.menu.edit.label;"
-            accesskey="&event.menu.edit.accesskey;"
-            collapse-on-readonly="true"
-          >
-            <menupopup id="edit-menupopup">
-              <menuitem
-                id="edit-undo-menuitem"
-                label="&event.menu.edit.undo.label;"
-                accesskey="&event.menu.edit.undo.accesskey;"
-                key="undo-key"
-                command="cmd_undo"
-              />
-              <menuitem
-                id="edit-redo-menuitem"
-                label="&event.menu.edit.redo.label;"
-                accesskey="&event.menu.edit.redo.accesskey;"
-                key="redo-key"
-                command="cmd_redo"
-              />
-              <menuseparator id="edit-menuseparator1" />
-              <menuitem
-                id="edit-cut-menuitem"
-                label="&event.menu.edit.cut.label;"
-                accesskey="&event.menu.edit.cut.accesskey;"
-                key="cut-key"
-                command="cmd_cut"
-              />
-              <menuitem
-                id="edit-copy-menuitem"
-                label="&event.menu.edit.copy.label;"
-                accesskey="&event.menu.edit.copy.accesskey;"
-                key="copy-key"
-                command="cmd_copy"
-              />
-              <menuitem
-                id="edit-paste-menuitem"
-                label="&event.menu.edit.paste.label;"
-                accesskey="&event.menu.edit.paste.accesskey;"
-                key="paste-key"
-                command="cmd_paste"
-              />
-              <menuseparator id="edit-menuseparator2" />
-              <menuitem
-                id="edit-selectall-menuitem"
-                label="&event.menu.edit.select.all.label;"
-                accesskey="&event.menu.edit.select.all.accesskey;"
-                key="select-all-key"
-                command="cmd_selectAll"
-              />
-            </menupopup>
-          </menu>
-
-          <!-- View menu -->
-          <menu
-            id="view-menu"
-            label="&event.menu.view.label;"
-            accesskey="&event.menu.view.accesskey;"
-            collapse-on-readonly="true"
-          >
-            <menupopup id="view-menupopup">
-              <menu
-                id="view-toolbars-menu"
-                label="&event.menu.view.toolbars.label;"
-                accesskey="&event.menu.view.toolbars.accesskey;"
-              >
-                <menupopup id="view-toolbars-menupopup">
-                  <menuitem
-                    id="view-toolbars-event-menuitem"
-                    label="&event.menu.view.toolbars.event.label;"
-                    accesskey="&event.menu.view.toolbars.event.accesskey;"
-                    type="checkbox"
-                    checked="true"
-                    command="cmd_toolbar"
-                  />
-                  <menuseparator id="view-toolbars-menuseparator1" />
-                  <menuitem
-                    id="view-toolbars-customize-menuitem"
-                    label="&event.menu.view.toolbars.customize.label;"
-                    accesskey="&event.menu.view.toolbars.customize.accesskey;"
-                    command="cmd_customize"
-                  />
-                </menupopup>
-              </menu>
-            </menupopup>
-          </menu>
-
-          <!-- Options menu -->
-          <menu
-            id="options-menu"
-            label="&event.menu.options.label;"
-            accesskey="&event.menu.options.accesskey;"
-          >
-            <menupopup id="options-menupopup">
-              <menuitem
-                id="options-attendees-menuitem"
-                label="&event.menu.options.attendees.label;"
-                accesskey="&event.menu.options.attendees.accesskey;"
-                command="cmd_attendees"
-                disable-on-readonly="true"
-              />
-              <menu
-                id="options-attachments-menu"
-                label="&event.attachments.menubutton.label;"
-                accesskey="&event.attachments.menubutton.accesskey;"
-              >
-                <menupopup id="options-attachments-menupopup">
-                  <menuitem
-                    id="options-attachments-url-menuitem"
-                    label="&event.attachments.url.label;"
-                    accesskey="&event.attachments.url.accesskey;"
-                    command="cmd_attach_url"
-                  />
-                  <!-- Additional items are added here in loadCloudProviders(). -->
-                </menupopup>
-              </menu>
-              <menuitem
-                id="options-timezones-menuitem"
-                label="&event.menu.options.timezone2.label;"
-                accesskey="&event.menu.options.timezone2.accesskey;"
-                type="checkbox"
-                command="cmd_timezone"
-                disable-on-readonly="true"
-              />
-              <menuseparator id="options-menuseparator1" />
-              <menu
-                id="options-priority-menu"
-                label="&event.menu.options.priority2.label;"
-                accesskey="&event.menu.options.priority2.accesskey;"
-                disable-on-readonly="true"
-              >
-                <menupopup id="options-priority-menupopup">
-                  <menuitem
-                    id="options-priority-none-menuitem"
-                    label="&event.menu.options.priority.notspecified.label;"
-                    accesskey="&event.menu.options.priority.notspecified.accesskey;"
-                    type="radio"
-                    command="cmd_priority_none"
-                    disable-on-readonly="true"
-                  />
-                  <menuitem
-                    id="options-priority-low-menuitem"
-                    label="&event.menu.options.priority.low.label;"
-                    accesskey="&event.menu.options.priority.low.accesskey;"
-                    type="radio"
-                    command="cmd_priority_low"
-                    disable-on-readonly="true"
-                  />
-                  <menuitem
-                    id="options-priority-normal-label"
-                    label="&event.menu.options.priority.normal.label;"
-                    accesskey="&event.menu.options.priority.normal.accesskey;"
-                    type="radio"
-                    command="cmd_priority_normal"
-                    disable-on-readonly="true"
-                  />
-                  <menuitem
-                    id="options-priority-high-label"
-                    label="&event.menu.options.priority.high.label;"
-                    accesskey="&event.menu.options.priority.high.accesskey;"
-                    type="radio"
-                    command="cmd_priority_high"
-                    disable-on-readonly="true"
-                  />
-                </menupopup>
-              </menu>
-              <menu
-                id="options-privacy-menu"
-                label="&event.menu.options.privacy.label;"
-                accesskey="&event.menu.options.privacy.accesskey;"
-                disable-on-readonly="true"
-              >
-                <menupopup id="options-privacy-menupopup">
-                  <menuitem
-                    id="options-privacy-public-menuitem"
-                    label="&event.menu.options.privacy.public.label;"
-                    accesskey="&event.menu.options.privacy.public.accesskey;"
-                    type="radio"
-                    privacy="PUBLIC"
-                    oncommand="editPrivacy(this, event)"
-                    disable-on-readonly="true"
-                  />
-                  <menuitem
-                    id="options-privacy-confidential-menuitem"
-                    label="&event.menu.options.privacy.confidential.label;"
-                    accesskey="&event.menu.options.privacy.confidential.accesskey;"
-                    type="radio"
-                    privacy="CONFIDENTIAL"
-                    oncommand="editPrivacy(this, event)"
-                    disable-on-readonly="true"
-                  />
-                  <menuitem
-                    id="options-privacy-private-menuitem"
-                    label="&event.menu.options.privacy.private.label;"
-                    accesskey="&event.menu.options.privacy.private.accesskey;"
-                    type="radio"
-                    privacy="PRIVATE"
-                    oncommand="editPrivacy(this, event)"
-                    disable-on-readonly="true"
-                  />
-                </menupopup>
-              </menu>
-              <menu
-                id="options-status-menu"
-                label="&newevent.status.label;"
-                accesskey="&newevent.status.accesskey;"
-                class="event-only"
-                disable-on-readonly="true"
-              >
-                <menupopup id="options-status-menupopup">
-                  <menuitem
-                    id="options-status-none-menuitem"
-                    label="&newevent.eventStatus.none.label;"
-                    accesskey="&newevent.eventStatus.none.accesskey;"
-                    type="radio"
-                    command="cmd_status_none"
-                    disable-on-readonly="true"
-                  />
-                  <menuitem
-                    id="options-status-tentative-menuitem"
-                    label="&newevent.status.tentative.label;"
-                    accesskey="&newevent.status.tentative.accesskey;"
-                    type="radio"
-                    command="cmd_status_tentative"
-                    disable-on-readonly="true"
-                  />
-                  <menuitem
-                    id="options-status-confirmed-menuitem"
-                    label="&newevent.status.confirmed.label;"
-                    accesskey="&newevent.status.confirmed.accesskey;"
-                    type="radio"
-                    command="cmd_status_confirmed"
-                    disable-on-readonly="true"
-                  />
-                  <menuitem
-                    id="options-status-canceled-menuitem"
-                    label="&newevent.eventStatus.cancelled.label;"
-                    accesskey="&newevent.eventStatus.cancelled.accesskey;"
-                    type="radio"
-                    command="cmd_status_cancelled"
-                    disable-on-readonly="true"
-                  />
-                </menupopup>
-              </menu>
-              <menuseparator id="options-menuseparator2" class="event-only" />
-              <menu
-                id="options-freebusy-menu"
-                class="event-only"
-                label="&event.menu.options.show.time.label;"
-                accesskey="&event.menu.options.show.time.accesskey;"
-                disable-on-readonly="true"
-              >
-                <menupopup id="options-freebusy-menupopup">
-                  <menuitem
-                    id="options-freebusy-busy-menuitem"
-                    label="&event.menu.options.show.time.busy.label;"
-                    accesskey="&event.menu.options.show.time.busy.accesskey;"
-                    type="radio"
-                    command="cmd_showtimeas_busy"
-                    disable-on-readonly="true"
-                  />
-                  <menuitem
-                    id="options-freebusy-free-menuitem"
-                    label="&event.menu.options.show.time.free.label;"
-                    accesskey="&event.menu.options.show.time.free.accesskey;"
-                    type="radio"
-                    command="cmd_showtimeas_free"
-                    disable-on-readonly="true"
-                  />
-                </menupopup>
-              </menu>
-            </menupopup>
-          </menu>
-        </menubar>
-      </toolbar>
-
-      <toolbarpalette id="event-toolbarpalette">
-        #include ../item-editing/calendar-item-toolbar.inc.xhtml
-      </toolbarpalette>
-
-      <!-- toolboxid is set here since we move the toolbar around in tabs -->
-      <toolbar
-        is="customizable-toolbar"
-        id="event-toolbar"
-        toolboxid="event-toolbox"
-        class="chromeclass-toolbar themeable-full"
-        customizable="true"
+      <!-- Toolbox contains the menubar -->
+      <toolbox
+        id="event-toolbox"
+        class="mail-toolbox"
+        mode="full"
+        defaultmode="full"
+        iconsize="small"
+        defaulticonsize="small"
         labelalign="end"
         defaultlabelalign="end"
-        context="event-dialog-toolbar-context-menu"
-        defaultset="button-saveandclose,button-attendees,button-privacy,button-url,button-delete"
-      />
-    </toolbox>
+      >
+        <!-- Menubar -->
+        <toolbar type="menubar">
+          <menubar id="event-menubar">
+            <!-- Item menu -->
+            <!-- These 2 Strings are placeholders, values are set at runtime -->
+            <menu label="Item" accesskey="I" id="item-menu">
+              <menupopup id="item-menupopup">
+                <menu
+                  id="item-new-menu"
+                  label="&event.menu.item.new.label;"
+                  accesskey="&event.menu.item.new.accesskey;"
+                >
+                  <menupopup id="item-new-menupopup" class="menulist-menupopup">
+                    <menuitem
+                      id="item-new-message-menuitem"
+                      label="&event.menu.item.new.message.label;"
+                      accesskey="&event.menu.item.new.message.accesskey;"
+                      key="new-message-key"
+                      command="cmd_item_new_message"
+                      disable-on-readonly="true"
+                    />
+                    <menuitem
+                      id="item-new-event-menuitem"
+                      label="&event.menu.item.new.event.label;"
+                      accesskey="&event.menu.item.new.event.accesskey;"
+                      command="cmd_item_new_event"
+                      disable-on-readonly="true"
+                    />
+                    <menuitem
+                      id="item-new-task-menuitem"
+                      label="&event.menu.item.new.task.label;"
+                      accesskey="&event.menu.item.new.task.accesskey;"
+                      command="cmd_item_new_task"
+                      disable-on-readonly="true"
+                    />
+                  </menupopup>
+                </menu>
+                <menuseparator id="item-menuseparator1" />
+                <menuitem
+                  id="item-save-menuitem"
+                  label="&event.menu.item.save.label;"
+                  accesskey="&event.menu.item.save.accesskey;"
+                  key="save-key"
+                  command="cmd_save"
+                />
+                <menuitem
+                  id="item-saveandclose-menuitem"
+                  label="&event.menu.item.saveandclose.label;"
+                  accesskey="&event.menu.item.saveandclose.accesskey;"
+                  key="saveandclose-key"
+                  command="cmd_accept"
+                />
+                <menuitem
+                  id="item-delete-menuitem"
+                  label="&event.menu.item.delete.label;"
+                  accesskey="&event.menu.item.delete.accesskey;"
+                  command="cmd_item_delete"
+                  disable-on-readonly="true"
+                />
+                <menuseparator id="item-menuseparator1" />
+                <menuitem
+                  id="item-close-menuitem"
+                  label="&event.menu.item.close.label;"
+                  accesskey="&event.menu.item.close.accesskey;"
+                  key="close-key"
+                  command="cmd_item_close"
+                  disable-on-readonly="true"
+                />
+              </menupopup>
+            </menu>
 
-    <!-- the calendar-item-panel-iframe iframe is inserted here dynamically in the "load" handler function -->
+            <!-- Edit menu -->
+            <menu
+              id="edit-menu"
+              label="&event.menu.edit.label;"
+              accesskey="&event.menu.edit.accesskey;"
+              collapse-on-readonly="true"
+            >
+              <menupopup id="edit-menupopup">
+                <menuitem
+                  id="edit-undo-menuitem"
+                  label="&event.menu.edit.undo.label;"
+                  accesskey="&event.menu.edit.undo.accesskey;"
+                  key="undo-key"
+                  command="cmd_undo"
+                />
+                <menuitem
+                  id="edit-redo-menuitem"
+                  label="&event.menu.edit.redo.label;"
+                  accesskey="&event.menu.edit.redo.accesskey;"
+                  key="redo-key"
+                  command="cmd_redo"
+                />
+                <menuseparator id="edit-menuseparator1" />
+                <menuitem
+                  id="edit-cut-menuitem"
+                  label="&event.menu.edit.cut.label;"
+                  accesskey="&event.menu.edit.cut.accesskey;"
+                  key="cut-key"
+                  command="cmd_cut"
+                />
+                <menuitem
+                  id="edit-copy-menuitem"
+                  label="&event.menu.edit.copy.label;"
+                  accesskey="&event.menu.edit.copy.accesskey;"
+                  key="copy-key"
+                  command="cmd_copy"
+                />
+                <menuitem
+                  id="edit-paste-menuitem"
+                  label="&event.menu.edit.paste.label;"
+                  accesskey="&event.menu.edit.paste.accesskey;"
+                  key="paste-key"
+                  command="cmd_paste"
+                />
+                <menuseparator id="edit-menuseparator2" />
+                <menuitem
+                  id="edit-selectall-menuitem"
+                  label="&event.menu.edit.select.all.label;"
+                  accesskey="&event.menu.edit.select.all.accesskey;"
+                  key="select-all-key"
+                  command="cmd_selectAll"
+                />
+              </menupopup>
+            </menu>
 
-    <hbox id="status-bar" class="statusbar chromeclass-status" role="status">
-      <hbox
-        id="status-privacy"
-        class="statusbarpanel"
-        align="center"
-        flex="1"
-        collapsed="true"
-        pack="start"
-      >
-        <label value="&event.statusbarpanel.privacy.label;" />
-        <hbox id="status-privacy-public-box" privacy="PUBLIC">
-          <label value="&event.menu.options.privacy.public.label;" />
-        </hbox>
-        <hbox id="status-privacy-confidential-box" privacy="CONFIDENTIAL">
-          <label value="&event.menu.options.privacy.confidential.label;" />
-        </hbox>
-        <hbox id="status-privacy-private-box" privacy="PRIVATE">
-          <label value="&event.menu.options.privacy.private.label;" />
-        </hbox>
-      </hbox>
-      <hbox
-        id="status-priority"
-        class="statusbarpanel"
-        align="center"
-        flex="1"
-        collapsed="true"
-        pack="start"
-      >
-        <label value="&event.priority2.label;" />
-        <html:img class="cal-statusbar-1" />
-      </hbox>
-      <hbox
-        id="status-status"
-        class="statusbarpanel"
-        align="center"
-        flex="1"
-        collapsed="true"
-        pack="start"
-      >
-        <label value="&task.status.label;" />
-        <label
-          id="status-status-tentative-label"
-          value="&newevent.status.tentative.label;"
-          hidden="true"
+            <!-- View menu -->
+            <menu
+              id="view-menu"
+              label="&event.menu.view.label;"
+              accesskey="&event.menu.view.accesskey;"
+              collapse-on-readonly="true"
+            >
+              <menupopup id="view-menupopup">
+                <menu
+                  id="view-toolbars-menu"
+                  label="&event.menu.view.toolbars.label;"
+                  accesskey="&event.menu.view.toolbars.accesskey;"
+                >
+                  <menupopup id="view-toolbars-menupopup">
+                    <menuitem
+                      id="view-toolbars-event-menuitem"
+                      label="&event.menu.view.toolbars.event.label;"
+                      accesskey="&event.menu.view.toolbars.event.accesskey;"
+                      type="checkbox"
+                      checked="true"
+                      command="cmd_toolbar"
+                    />
+                    <menuseparator id="view-toolbars-menuseparator1" />
+                    <menuitem
+                      id="view-toolbars-customize-menuitem"
+                      label="&event.menu.view.toolbars.customize.label;"
+                      accesskey="&event.menu.view.toolbars.customize.accesskey;"
+                      command="cmd_customize"
+                    />
+                  </menupopup>
+                </menu>
+              </menupopup>
+            </menu>
+
+            <!-- Options menu -->
+            <menu
+              id="options-menu"
+              label="&event.menu.options.label;"
+              accesskey="&event.menu.options.accesskey;"
+            >
+              <menupopup id="options-menupopup">
+                <menuitem
+                  id="options-attendees-menuitem"
+                  label="&event.menu.options.attendees.label;"
+                  accesskey="&event.menu.options.attendees.accesskey;"
+                  command="cmd_attendees"
+                  disable-on-readonly="true"
+                />
+                <menu
+                  id="options-attachments-menu"
+                  label="&event.attachments.menubutton.label;"
+                  accesskey="&event.attachments.menubutton.accesskey;"
+                >
+                  <menupopup id="options-attachments-menupopup">
+                    <menuitem
+                      id="options-attachments-url-menuitem"
+                      label="&event.attachments.url.label;"
+                      accesskey="&event.attachments.url.accesskey;"
+                      command="cmd_attach_url"
+                    />
+                    <!-- Additional items are added here in loadCloudProviders(). -->
+                  </menupopup>
+                </menu>
+                <menuitem
+                  id="options-timezones-menuitem"
+                  label="&event.menu.options.timezone2.label;"
+                  accesskey="&event.menu.options.timezone2.accesskey;"
+                  type="checkbox"
+                  command="cmd_timezone"
+                  disable-on-readonly="true"
+                />
+                <menuseparator id="options-menuseparator1" />
+                <menu
+                  id="options-priority-menu"
+                  label="&event.menu.options.priority2.label;"
+                  accesskey="&event.menu.options.priority2.accesskey;"
+                  disable-on-readonly="true"
+                >
+                  <menupopup id="options-priority-menupopup">
+                    <menuitem
+                      id="options-priority-none-menuitem"
+                      label="&event.menu.options.priority.notspecified.label;"
+                      accesskey="&event.menu.options.priority.notspecified.accesskey;"
+                      type="radio"
+                      command="cmd_priority_none"
+                      disable-on-readonly="true"
+                    />
+                    <menuitem
+                      id="options-priority-low-menuitem"
+                      label="&event.menu.options.priority.low.label;"
+                      accesskey="&event.menu.options.priority.low.accesskey;"
+                      type="radio"
+                      command="cmd_priority_low"
+                      disable-on-readonly="true"
+                    />
+                    <menuitem
+                      id="options-priority-normal-label"
+                      label="&event.menu.options.priority.normal.label;"
+                      accesskey="&event.menu.options.priority.normal.accesskey;"
+                      type="radio"
+                      command="cmd_priority_normal"
+                      disable-on-readonly="true"
+                    />
+                    <menuitem
+                      id="options-priority-high-label"
+                      label="&event.menu.options.priority.high.label;"
+                      accesskey="&event.menu.options.priority.high.accesskey;"
+                      type="radio"
+                      command="cmd_priority_high"
+                      disable-on-readonly="true"
+                    />
+                  </menupopup>
+                </menu>
+                <menu
+                  id="options-privacy-menu"
+                  label="&event.menu.options.privacy.label;"
+                  accesskey="&event.menu.options.privacy.accesskey;"
+                  disable-on-readonly="true"
+                >
+                  <menupopup id="options-privacy-menupopup">
+                    <menuitem
+                      id="options-privacy-public-menuitem"
+                      label="&event.menu.options.privacy.public.label;"
+                      accesskey="&event.menu.options.privacy.public.accesskey;"
+                      type="radio"
+                      privacy="PUBLIC"
+                      oncommand="editPrivacy(this, event)"
+                      disable-on-readonly="true"
+                    />
+                    <menuitem
+                      id="options-privacy-confidential-menuitem"
+                      label="&event.menu.options.privacy.confidential.label;"
+                      accesskey="&event.menu.options.privacy.confidential.accesskey;"
+                      type="radio"
+                      privacy="CONFIDENTIAL"
+                      oncommand="editPrivacy(this, event)"
+                      disable-on-readonly="true"
+                    />
+                    <menuitem
+                      id="options-privacy-private-menuitem"
+                      label="&event.menu.options.privacy.private.label;"
+                      accesskey="&event.menu.options.privacy.private.accesskey;"
+                      type="radio"
+                      privacy="PRIVATE"
+                      oncommand="editPrivacy(this, event)"
+                      disable-on-readonly="true"
+                    />
+                  </menupopup>
+                </menu>
+                <menu
+                  id="options-status-menu"
+                  label="&newevent.status.label;"
+                  accesskey="&newevent.status.accesskey;"
+                  class="event-only"
+                  disable-on-readonly="true"
+                >
+                  <menupopup id="options-status-menupopup">
+                    <menuitem
+                      id="options-status-none-menuitem"
+                      label="&newevent.eventStatus.none.label;"
+                      accesskey="&newevent.eventStatus.none.accesskey;"
+                      type="radio"
+                      command="cmd_status_none"
+                      disable-on-readonly="true"
+                    />
+                    <menuitem
+                      id="options-status-tentative-menuitem"
+                      label="&newevent.status.tentative.label;"
+                      accesskey="&newevent.status.tentative.accesskey;"
+                      type="radio"
+                      command="cmd_status_tentative"
+                      disable-on-readonly="true"
+                    />
+                    <menuitem
+                      id="options-status-confirmed-menuitem"
+                      label="&newevent.status.confirmed.label;"
+                      accesskey="&newevent.status.confirmed.accesskey;"
+                      type="radio"
+                      command="cmd_status_confirmed"
+                      disable-on-readonly="true"
+                    />
+                    <menuitem
+                      id="options-status-canceled-menuitem"
+                      label="&newevent.eventStatus.cancelled.label;"
+                      accesskey="&newevent.eventStatus.cancelled.accesskey;"
+                      type="radio"
+                      command="cmd_status_cancelled"
+                      disable-on-readonly="true"
+                    />
+                  </menupopup>
+                </menu>
+                <menuseparator id="options-menuseparator2" class="event-only" />
+                <menu
+                  id="options-freebusy-menu"
+                  class="event-only"
+                  label="&event.menu.options.show.time.label;"
+                  accesskey="&event.menu.options.show.time.accesskey;"
+                  disable-on-readonly="true"
+                >
+                  <menupopup id="options-freebusy-menupopup">
+                    <menuitem
+                      id="options-freebusy-busy-menuitem"
+                      label="&event.menu.options.show.time.busy.label;"
+                      accesskey="&event.menu.options.show.time.busy.accesskey;"
+                      type="radio"
+                      command="cmd_showtimeas_busy"
+                      disable-on-readonly="true"
+                    />
+                    <menuitem
+                      id="options-freebusy-free-menuitem"
+                      label="&event.menu.options.show.time.free.label;"
+                      accesskey="&event.menu.options.show.time.free.accesskey;"
+                      type="radio"
+                      command="cmd_showtimeas_free"
+                      disable-on-readonly="true"
+                    />
+                  </menupopup>
+                </menu>
+              </menupopup>
+            </menu>
+          </menubar>
+        </toolbar>
+
+        <toolbarpalette id="event-toolbarpalette">
+          #include ../item-editing/calendar-item-toolbar.inc.xhtml
+        </toolbarpalette>
+
+        <!-- toolboxid is set here since we move the toolbar around in tabs -->
+        <toolbar
+          is="customizable-toolbar"
+          id="event-toolbar"
+          toolboxid="event-toolbox"
+          class="chromeclass-toolbar themeable-full"
+          customizable="true"
+          labelalign="end"
+          defaultlabelalign="end"
+          context="event-dialog-toolbar-context-menu"
+          defaultset="button-saveandclose,button-attendees,button-privacy,button-url,button-delete"
         />
-        <label
-          id="status-status-confirmed-label"
-          value="&newevent.status.confirmed.label;"
-          hidden="true"
-        />
-        <label
-          id="status-status-cancelled-label"
-          value="&newevent.eventStatus.cancelled.label;"
-          hidden="true"
-        />
+      </toolbox>
+
+      <!-- the calendar-item-panel-iframe iframe is inserted here dynamically in the "load" handler function -->
+
+      <hbox id="status-bar" class="statusbar chromeclass-status" role="status">
+        <hbox
+          id="status-privacy"
+          class="statusbarpanel"
+          align="center"
+          flex="1"
+          collapsed="true"
+          pack="start"
+        >
+          <label value="&event.statusbarpanel.privacy.label;" />
+          <hbox id="status-privacy-public-box" privacy="PUBLIC">
+            <label value="&event.menu.options.privacy.public.label;" />
+          </hbox>
+          <hbox id="status-privacy-confidential-box" privacy="CONFIDENTIAL">
+            <label value="&event.menu.options.privacy.confidential.label;" />
+          </hbox>
+          <hbox id="status-privacy-private-box" privacy="PRIVATE">
+            <label value="&event.menu.options.privacy.private.label;" />
+          </hbox>
+        </hbox>
+        <hbox
+          id="status-priority"
+          class="statusbarpanel"
+          align="center"
+          flex="1"
+          collapsed="true"
+          pack="start"
+        >
+          <label value="&event.priority2.label;" />
+          <html:img class="cal-statusbar-1" />
+        </hbox>
+        <hbox
+          id="status-status"
+          class="statusbarpanel"
+          align="center"
+          flex="1"
+          collapsed="true"
+          pack="start"
+        >
+          <label value="&task.status.label;" />
+          <label
+            id="status-status-tentative-label"
+            value="&newevent.status.tentative.label;"
+            hidden="true"
+          />
+          <label
+            id="status-status-confirmed-label"
+            value="&newevent.status.confirmed.label;"
+            hidden="true"
+          />
+          <label
+            id="status-status-cancelled-label"
+            value="&newevent.eventStatus.cancelled.label;"
+            hidden="true"
+          />
+        </hbox>
+        <hbox
+          id="status-freebusy"
+          class="statusbarpanel event-only"
+          align="center"
+          flex="1"
+          collapsed="true"
+          pack="start"
+        >
+          <label value="&event.statusbarpanel.freebusy.label;" />
+          <label
+            id="status-freebusy-free-label"
+            value="&event.freebusy.legend.free;"
+            hidden="true"
+          />
+          <label
+            id="status-freebusy-busy-label"
+            value="&event.freebusy.legend.busy;"
+            hidden="true"
+          />
+        </hbox>
       </hbox>
-      <hbox
-        id="status-freebusy"
-        class="statusbarpanel event-only"
-        align="center"
-        flex="1"
-        collapsed="true"
-        pack="start"
-      >
-        <label value="&event.statusbarpanel.freebusy.label;" />
-        <label id="status-freebusy-free-label" value="&event.freebusy.legend.free;" hidden="true" />
-        <label id="status-freebusy-busy-label" value="&event.freebusy.legend.busy;" hidden="true" />
-      </hbox>
-    </hbox>
-  </dialog>
-</window>
+    </dialog>
+  </html:body>
+</html>
