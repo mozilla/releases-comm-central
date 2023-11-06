@@ -52,7 +52,7 @@ add_task(
           const testFolder2 = folders.find(f => f.name == "test2");
           const testFolder3 = folders.find(f => f.name == "test3");
 
-          let { messages } = await browser.messages.list(testFolder1);
+          let { messages } = await browser.messages.list(testFolder1.id);
           browser.test.assertEq(
             5,
             messages.length,
@@ -68,11 +68,10 @@ add_task(
 
           // Move two messages. We could do this in one operation, but to be
           // sure of the order, do it in separate operations.
+          await browser.messages.move([1], testFolder2.id);
+          await browser.messages.move([3], testFolder2.id);
 
-          await browser.messages.move([1], testFolder2);
-          await browser.messages.move([3], testFolder2);
-
-          ({ messages } = await browser.messages.list(testFolder1));
+          ({ messages } = await browser.messages.list(testFolder1.id));
           browser.test.assertEq(
             3,
             messages.length,
@@ -85,7 +84,7 @@ add_task(
           browser.test.assertEq(subjects[3], messages[1].subject);
           browser.test.assertEq(subjects[4], messages[2].subject);
 
-          ({ messages } = await browser.messages.list(testFolder2));
+          ({ messages } = await browser.messages.list(testFolder2.id));
           browser.test.assertEq(
             2,
             messages.length,
@@ -98,9 +97,9 @@ add_task(
 
           // Copy one message.
 
-          await browser.messages.copy([6], testFolder3);
+          await browser.messages.copy([6], testFolder3.id);
 
-          ({ messages } = await browser.messages.list(testFolder2));
+          ({ messages } = await browser.messages.list(testFolder2.id));
           browser.test.assertEq(
             2,
             messages.length,
@@ -111,7 +110,7 @@ add_task(
           browser.test.assertEq(subjects[0], messages[0].subject);
           browser.test.assertEq(subjects[2], messages[1].subject);
 
-          ({ messages } = await browser.messages.list(testFolder3));
+          ({ messages } = await browser.messages.list(testFolder3.id));
           browser.test.assertEq(
             1,
             messages.length,
@@ -123,9 +122,9 @@ add_task(
           // Move the copied message back to the previous folder. There should
           // now be two copies there, each with their own ID.
 
-          await browser.messages.move([8], testFolder2);
+          await browser.messages.move([8], testFolder2.id);
 
-          ({ messages } = await browser.messages.list(testFolder2));
+          ({ messages } = await browser.messages.list(testFolder2.id));
           browser.test.assertEq(
             3,
             messages.length,
@@ -195,7 +194,7 @@ add_task(
 
           const [{ folders }] = await browser.accounts.list();
           const testFolder = folders.find(f => f.name == "attachment");
-          const { messages } = await browser.messages.list(testFolder);
+          const { messages } = await browser.messages.list(testFolder.id);
           browser.test.assertEq(1, messages.length);
           const id = messages[0].id;
 

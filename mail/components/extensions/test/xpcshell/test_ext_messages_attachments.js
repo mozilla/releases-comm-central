@@ -70,7 +70,7 @@ add_task(
         "background.js": async () => {
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
-          const { messages } = await browser.messages.list(testFolder);
+          const { messages } = await browser.messages.list(testFolder.id);
           browser.test.assertEq(5, messages.length);
 
           let attachments, attachment, file;
@@ -242,7 +242,7 @@ add_task(
         "background.js": async () => {
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
-          const { messages } = await browser.messages.list(testFolder);
+          const { messages } = await browser.messages.list(testFolder.id);
           browser.test.assertEq(5, messages.length);
           const message = messages[4];
 

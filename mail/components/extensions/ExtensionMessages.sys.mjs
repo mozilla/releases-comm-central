@@ -9,7 +9,7 @@ import { EventEmitter } from "resource://gre/modules/EventEmitter.sys.mjs";
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
 import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
-import { folderPathToURI } from "resource:///modules/ExtensionAccounts.sys.mjs";
+import { getFolder } from "resource:///modules/ExtensionAccounts.sys.mjs";
 
 var { ExtensionError } = ExtensionUtils;
 var { MailServices } = ChromeUtils.import(
@@ -1322,24 +1322,17 @@ export class MessageQuery {
     // Limit search to a given folder, or search all folders.
     const folders = [];
     let includeSubFolders = false;
-    if (this.queryInfo.folder) {
+
+    // Property was renamed from folder to folderId in MV3.
+    const queryFolder = this.queryInfo.folderId || this.queryInfo.folder;
+    if (queryFolder) {
       includeSubFolders = !!this.queryInfo.includeSubFolders;
       if (!this.extension.hasPermission("accountsRead")) {
         throw new ExtensionError(
           'Querying by folder requires the "accountsRead" permission'
         );
       }
-      const folder = MailServices.folderLookup.getFolderForURL(
-        folderPathToURI(
-          this.queryInfo.folder.accountId,
-          this.queryInfo.folder.path
-        )
-      );
-      if (!folder) {
-        throw new ExtensionError(
-          `Folder not found: ${this.queryInfo.folder.path}`
-        );
-      }
+      const { folder } = getFolder(queryFolder);
       folders.push(folder);
     } else {
       includeSubFolders = true;

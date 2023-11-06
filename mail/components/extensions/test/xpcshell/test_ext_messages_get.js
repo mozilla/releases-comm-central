@@ -42,7 +42,7 @@ add_task(async function test_plain_mv2() {
 
       for (const account of accounts) {
         const folder = account.folders.find(f => f.name == "test1");
-        const { messages } = await browser.messages.list(folder);
+        const { messages } = await browser.messages.list(folder.id);
         browser.test.assertEq(1, messages.length);
 
         const [message] = messages;
@@ -195,7 +195,7 @@ add_task(async function test_plain_mv3() {
 
       for (const account of accounts) {
         const folder = account.folders.find(f => f.name == "test1");
-        const { messages } = await browser.messages.list(folder);
+        const { messages } = await browser.messages.list(folder.id);
         browser.test.assertEq(1, messages.length);
 
         const [message] = messages;
@@ -796,7 +796,7 @@ add_task(async function test_encoding() {
 
       for (const account of accounts) {
         const folder = account.folders.find(f => f.name == "test1");
-        const { messages } = await browser.messages.list(folder);
+        const { messages } = await browser.messages.list(folder.id);
         browser.test.assertEq(7, messages.length);
 
         for (const message of messages) {
@@ -852,7 +852,7 @@ add_task(
           // Read the message, without the key set up. The headers should be
           // readable, but not the message itself.
 
-          let { messages } = await browser.messages.list(folder);
+          let { messages } = await browser.messages.list(folder.id);
           browser.test.assertEq(1, messages.length);
 
           let [message] = messages;
@@ -903,7 +903,7 @@ add_task(
 
           await window.sendMessage("load key");
 
-          ({ messages } = await browser.messages.list(folder));
+          ({ messages } = await browser.messages.list(folder.id));
           browser.test.assertEq(1, messages.length);
           [message] = messages;
           browser.test.assertEq("...", message.subject);
@@ -1012,7 +1012,7 @@ add_task(async function test_attached_message_with_missing_headers() {
 
         for (const account of accounts) {
           const folder = account.folders.find(f => f.name == "test1");
-          const { messages } = await browser.messages.list(folder);
+          const { messages } = await browser.messages.list(folder.id);
           browser.test.assertEq(1, messages.length);
 
           const msg = messages[0];

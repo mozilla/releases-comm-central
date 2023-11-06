@@ -8,6 +8,20 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
 
+add_setup(async function setup() {
+  // There are a couple of deprecated properties in MV3, which we still want to
+  // test in MV2 but also report to the user. By default, tests throw when
+  // deprecated properties are used.
+  Services.prefs.setBoolPref(
+    "extensions.webextensions.warnings-as-errors",
+    false
+  );
+  registerCleanupFunction(async () => {
+    Services.prefs.clearUserPref("extensions.webextensions.warnings-as-errors");
+  });
+  await new Promise(resolve => executeSoon(resolve));
+});
+
 add_task(
   {
     skip_if: () => IS_NNTP,
@@ -183,8 +197,8 @@ add_task(
 
           // Test reject on deleting non-existing folder.
           await browser.test.assertRejects(
-            browser.folders.delete({ accountId, path: "/folder1/folder5" }),
-            `Folder not found: /folder1/folder5`,
+            browser.folders.delete({ accountId, path: "/missing" }),
+            `Folder not found: /missing`,
             "browser.folders.delete threw exception"
           );
 
@@ -470,6 +484,8 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
       }
 
       const account = await browser.accounts.get(accountId);
+      // FIXME: Expose account root folder.
+      const rootFolder = { id: `${accountId}://`, accountId, path: "/" };
 
       let expectedAllFolders;
       let expectedAccountFolders;
@@ -668,13 +684,15 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
 
       // Recent.
       await queryCheck({}, expectedAllFolders);
-      await queryCheck({ parent: account, mostRecent: true }, ["OtherTest"]);
-      await queryCheck({ parent: account, recent: true }, [
+      await queryCheck({ folderId: rootFolder.id, mostRecent: true }, [
+        "OtherTest",
+      ]);
+      await queryCheck({ folderId: rootFolder.id, recent: true }, [
         "InfoTest",
         "OtherTest",
       ]);
       await queryCheck(
-        { parent: account, recent: false },
+        { folderId: rootFolder.id, recent: false },
         expectedAccountFolders.filter(
           f => !["InfoTest", "OtherTest"].includes(f)
         )
@@ -712,9 +730,9 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
       await queryCheck({ canDeleteMessages: true }, expectedAllFolders);
 
       // Favorite.
-      await queryCheck({ parent: account, favorite: true }, []);
+      await queryCheck({ folderId: rootFolder.id, favorite: true }, []);
       await queryCheck(
-        { parent: account, favorite: false },
+        { folderId: rootFolder.id, favorite: false },
         expectedAccountFolders
       );
 
@@ -758,72 +776,86 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         []
       );
       await queryCheck(
-        { parent: account, hasSubFolders: false },
+        { folderId: rootFolder.id, hasSubFolders: false },
         expectedAccountFolders
       );
       await queryCheck(
-        { parent: account, hasSubFolders: { max: 2 } },
+        { folderId: rootFolder.id, hasSubFolders: { max: 2 } },
         expectedAccountFolders
       );
 
       // Messages.
-      await queryCheck({ parent: account, hasMessages: true }, [
+      await queryCheck({ folderId: rootFolder.id, hasMessages: true }, [
         "InfoTest",
         "OtherTest",
       ]);
       await queryCheck(
-        { parent: account, hasMessages: false },
+        { folderId: rootFolder.id, hasMessages: false },
         expectedAccountFolders.filter(
           f => !["InfoTest", "OtherTest"].includes(f)
         )
       );
-      await queryCheck({ parent: account, hasUnreadMessages: true }, [
+      await queryCheck({ folderId: rootFolder.id, hasUnreadMessages: true }, [
         "InfoTest",
         "OtherTest",
       ]);
       await queryCheck(
-        { parent: account, hasUnreadMessages: false },
+        { folderId: rootFolder.id, hasUnreadMessages: false },
         expectedAccountFolders.filter(
           f => !["InfoTest", "OtherTest"].includes(f)
         )
       );
-      await queryCheck({ parent: account, hasNewMessages: true }, [
+      await queryCheck({ folderId: rootFolder.id, hasNewMessages: true }, [
         "InfoTest",
         "OtherTest",
       ]);
       await queryCheck(
-        { parent: account, hasNewMessages: false },
+        { folderId: rootFolder.id, hasNewMessages: false },
         expectedAccountFolders.filter(
           f => !["InfoTest", "OtherTest"].includes(f)
         )
       );
-      await queryCheck({ parent: account, hasMessages: { min: 12 } }, [
+      await queryCheck({ folderId: rootFolder.id, hasMessages: { min: 12 } }, [
         "InfoTest",
       ]);
-      await queryCheck({ parent: account, hasMessages: { min: 13 } }, []);
-      await queryCheck({ parent: account, hasUnreadMessages: { min: 12 } }, [
-        "InfoTest",
-      ]);
-      await queryCheck({ parent: account, hasUnreadMessages: { min: 13 } }, []);
-      await queryCheck({ parent: account, hasNewMessages: { min: 12 } }, [
-        "InfoTest",
-      ]);
-      await queryCheck({ parent: account, hasNewMessages: { min: 13 } }, []);
       await queryCheck(
-        { parent: account, hasNewMessages: { min: 1, max: 2 } },
+        { folderId: rootFolder.id, hasMessages: { min: 13 } },
+        []
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasUnreadMessages: { min: 12 } },
+        ["InfoTest"]
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasUnreadMessages: { min: 13 } },
+        []
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasNewMessages: { min: 12 } },
+        ["InfoTest"]
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasNewMessages: { min: 13 } },
+        []
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasNewMessages: { min: 1, max: 2 } },
         ["OtherTest"]
       );
 
       // Special use.
       await queryCheck(
-        { parent: account, type: "inbox" },
+        { folderId: rootFolder.id, type: "inbox" },
         expectedAccountFolders.filter(f => f == "Inbox")
       );
       await queryCheck(
-        { parent: account, specialUse: ["inbox"] },
+        { folderId: rootFolder.id, specialUse: ["inbox"] },
         expectedAccountFolders.filter(f => f == "Inbox")
       );
-      await queryCheck({ parent: account, specialUse: ["inbox", "trash"] }, []);
+      await queryCheck(
+        { folderId: rootFolder.id, specialUse: ["inbox", "trash"] },
+        []
+      );
       // NNTP does not have a trash folder which is set to be a drafts folder
       // here, so skip it.
       if (account.type != "nntp") {
@@ -839,7 +871,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         await folderUpdatedPromise;
 
         await queryCheck(
-          { parent: account, specialUse: ["drafts", "trash"] },
+          { folderId: rootFolder.id, specialUse: ["drafts", "trash"] },
           expectedAccountFolders.filter(f => f == "Trash")
         );
       }
@@ -874,36 +906,50 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
       // Check query results with all messages still unread but no longer new in
       // InfoTest.
 
-      await queryCheck({ parent: account, hasUnreadMessages: true }, [
+      await queryCheck({ folderId: rootFolder.id, hasUnreadMessages: true }, [
         "InfoTest",
         "OtherTest",
       ]);
       await queryCheck(
-        { parent: account, hasUnreadMessages: false },
+        { folderId: rootFolder.id, hasUnreadMessages: false },
         expectedAccountFolders.filter(
           f => !["InfoTest", "OtherTest"].includes(f)
         )
       );
-      await queryCheck({ parent: account, hasNewMessages: true }, [
+      await queryCheck({ folderId: rootFolder.id, hasNewMessages: true }, [
         "OtherTest",
       ]);
       await queryCheck(
-        { parent: account, hasNewMessages: false },
+        { folderId: rootFolder.id, hasNewMessages: false },
         expectedAccountFolders.filter(f => !["OtherTest"].includes(f))
       );
       await queryCheck(
-        { parent: account, hasUnreadMessages: true, hasNewMessages: false },
+        {
+          folderId: rootFolder.id,
+          hasUnreadMessages: true,
+          hasNewMessages: false,
+        },
         ["InfoTest"]
       );
 
-      await queryCheck({ parent: account, hasUnreadMessages: { min: 12 } }, [
-        "InfoTest",
-      ]);
-      await queryCheck({ parent: account, hasUnreadMessages: { min: 13 } }, []);
-      await queryCheck({ parent: account, hasNewMessages: { min: 12 } }, []);
-      await queryCheck({ parent: account, hasNewMessages: { min: 13 } }, []);
       await queryCheck(
-        { parent: account, hasNewMessages: { min: 1, max: 2 } },
+        { folderId: rootFolder.id, hasUnreadMessages: { min: 12 } },
+        ["InfoTest"]
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasUnreadMessages: { min: 13 } },
+        []
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasNewMessages: { min: 12 } },
+        []
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasNewMessages: { min: 13 } },
+        []
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasNewMessages: { min: 1, max: 2 } },
         ["OtherTest"]
       );
 
@@ -950,36 +996,50 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
 
       // Favorite.
       await queryCheck(
-        { parent: account, favorite: false },
+        { folderId: rootFolder.id, favorite: false },
         expectedAccountFolders.filter(f => f != "InfoTest")
       );
-      await queryCheck({ parent: account, favorite: true }, ["InfoTest"]);
+      await queryCheck({ folderId: rootFolder.id, favorite: true }, [
+        "InfoTest",
+      ]);
 
       // Messages.
-      await queryCheck({ parent: account, hasMessages: true }, [
+      await queryCheck({ folderId: rootFolder.id, hasMessages: true }, [
         "InfoTest",
         "OtherTest",
       ]);
       await queryCheck(
-        { parent: account, hasMessages: false },
+        { folderId: rootFolder.id, hasMessages: false },
         expectedAccountFolders.filter(
           f => !["InfoTest", "OtherTest"].includes(f)
         )
       );
-      await queryCheck({ parent: account, hasUnreadMessages: true }, [
+      await queryCheck({ folderId: rootFolder.id, hasUnreadMessages: true }, [
         "OtherTest",
       ]);
       await queryCheck(
-        { parent: account, hasUnreadMessages: false },
+        { folderId: rootFolder.id, hasUnreadMessages: false },
         expectedAccountFolders.filter(f => !["OtherTest"].includes(f))
       );
 
-      await queryCheck({ parent: account, hasUnreadMessages: { min: 12 } }, []);
-      await queryCheck({ parent: account, hasUnreadMessages: { min: 13 } }, []);
-      await queryCheck({ parent: account, hasNewMessages: { min: 12 } }, []);
-      await queryCheck({ parent: account, hasNewMessages: { min: 13 } }, []);
       await queryCheck(
-        { parent: account, hasNewMessages: { min: 1, max: 2 } },
+        { folderId: rootFolder.id, hasUnreadMessages: { min: 12 } },
+        []
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasUnreadMessages: { min: 13 } },
+        []
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasNewMessages: { min: 12 } },
+        []
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasNewMessages: { min: 13 } },
+        []
+      );
+      await queryCheck(
+        { folderId: rootFolder.id, hasNewMessages: { min: 1, max: 2 } },
         ["OtherTest"]
       );
 

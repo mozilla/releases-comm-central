@@ -24,7 +24,7 @@ add_task(async function testAttachments() {
       browser.test.assertEq(2, accounts.length, "number of accounts");
       const popAccount = accounts.find(a => a.type == "pop3");
       const folder = popAccount.folders.find(f => f.name == "test");
-      const { messages } = await browser.messages.list(folder);
+      const { messages } = await browser.messages.list(folder.id);
 
       const newTab = await browser.compose.beginNew({
         attachments: [

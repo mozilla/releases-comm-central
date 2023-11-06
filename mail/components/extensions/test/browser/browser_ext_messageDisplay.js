@@ -41,7 +41,7 @@ add_task(async function testGetDisplayedMessage() {
           currentWindow: true,
         });
 
-      const { messages } = await browser.messages.list(displayedFolder);
+      const { messages } = await browser.messages.list(displayedFolder.id);
 
       async function checkResults(action, expectedMessages, sameTab) {
         const msgListener = window.waitForEvent(
@@ -346,7 +346,7 @@ add_task(async function testOpenMessagesInTabs() {
 
         const folder1 = accounts[0].folders.find(f => f.name == "test1");
         browser.test.assertTrue(!!folder1, "folder should exist");
-        const { messages: messages1 } = await browser.messages.list(folder1);
+        const { messages: messages1 } = await browser.messages.list(folder1.id);
         browser.test.assertEq(
           5,
           messages1.length,
@@ -355,7 +355,7 @@ add_task(async function testOpenMessagesInTabs() {
 
         const folder2 = accounts[0].folders.find(f => f.name == "test2");
         browser.test.assertTrue(!!folder2, "folder should exist");
-        const { messages: messages2 } = await browser.messages.list(folder2);
+        const { messages: messages2 } = await browser.messages.list(folder2.id);
         browser.test.assertEq(
           6,
           messages2.length,
@@ -541,7 +541,7 @@ add_task(async function testOpenMessagesInWindows() {
 
         const folder1 = accounts[0].folders.find(f => f.name == "test1");
         browser.test.assertTrue(!!folder1, "folder should exist");
-        const { messages: messages1 } = await browser.messages.list(folder1);
+        const { messages: messages1 } = await browser.messages.list(folder1.id);
         browser.test.assertEq(
           5,
           messages1.length,

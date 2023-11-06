@@ -24,13 +24,13 @@ add_task(async function test_import() {
     files: {
       "background.js": async () => {
         async function do_import(expected, file, folder, options) {
-          const msg = await browser.messages.import(file, folder, options);
+          const msg = await browser.messages.import(file, folder.id, options);
           browser.test.assertEq(
             "alternative.eml@mime.sample",
             msg.headerMessageId,
             "should find the correct message after import"
           );
-          const { messages } = await browser.messages.list(folder);
+          const { messages } = await browser.messages.list(folder.id);
           browser.test.assertEq(
             1,
             messages.length,
@@ -66,7 +66,7 @@ add_task(async function test_import() {
           // offline/online behavior of IMAP nsIMsgCopyService.copyFileMessage()
           // is too erratic to be supported ATM.
           await browser.test.assertRejects(
-            browser.messages.import(file, folder1),
+            browser.messages.import(file, folder1.id),
             `browser.messenger.import() is not supported for ${account.type} accounts`,
             "Should throw for unsupported accounts"
           );

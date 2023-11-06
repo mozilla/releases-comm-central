@@ -198,11 +198,11 @@ add_task(async function testExternalMessage() {
       async function testMessageOperations(message) {
         // Test copying a file message into Thunderbird.
         const { messages: messagesBeforeCopy } = await browser.messages.list(
-          displayedFolder
+          displayedFolder.id
         );
-        await browser.messages.copy([message.id], displayedFolder);
+        await browser.messages.copy([message.id], displayedFolder.id);
         const { messages: messagesAfterCopy } = await browser.messages.list(
-          displayedFolder
+          displayedFolder.id
         );
         browser.test.assertEq(
           messagesBeforeCopy.length + 1,
@@ -210,7 +210,7 @@ add_task(async function testExternalMessage() {
           "The file message should have been copied into the current folder"
         );
         const { messages } = await browser.messages.query({
-          folder: displayedFolder,
+          folderId: displayedFolder.id,
           headerMessageId: message.headerMessageId,
         });
         browser.test.assertTrue(
@@ -238,7 +238,7 @@ add_task(async function testExternalMessage() {
         );
 
         await browser.test.assertRejects(
-          browser.messages.move([message.id], displayedFolder),
+          browser.messages.move([message.id], displayedFolder.id),
           `Error moving message: Operation not permitted for external messages`,
           "Moving external messages should throw."
         );
@@ -330,13 +330,13 @@ add_task(async function testExternalMessage() {
       );
 
       await browser.test.assertRejects(
-        browser.messages.move([externalMessage.id], displayedFolder),
+        browser.messages.move([externalMessage.id], displayedFolder.id),
         `Error moving message: Message not found: ${externalMessage.id}.`,
         "Moving a missing message should throw."
       );
 
       await browser.test.assertRejects(
-        browser.messages.copy([externalMessage.id], displayedFolder),
+        browser.messages.copy([externalMessage.id], displayedFolder.id),
         `Error copying message: Message not found: ${externalMessage.id}.`,
         "Copying a missing message should throw."
       );

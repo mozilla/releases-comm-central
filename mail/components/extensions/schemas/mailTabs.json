@@ -131,7 +131,16 @@
             "optional": true
           },
           "displayedFolder": {
-            "$ref": "folders.MailFolder",
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "MailTabProperties.displayedFolder: Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ],
             "description": "Sets the folder displayed in the mail tab. Requires the <permission>accountsRead</permission> permission. The previous message selection in the given folder will be restored, if any. This property is ignored, if <value>selectedMessages</value> is specified.",
             "optional": true
           }

@@ -144,11 +144,11 @@ add_task(async function testType() {
       browser.test.assertEq(1, accounts.length, "number of accounts");
 
       const testFolder = accounts[0].folders.find(f => f.name == "test");
-      const messages = (await browser.messages.list(testFolder)).messages;
+      const messages = (await browser.messages.list(testFolder.id)).messages;
       browser.test.assertEq(4, messages.length, "number of messages");
 
       const draftFolder = accounts[0].folders.find(f => f.name == "something");
-      const drafts = (await browser.messages.list(draftFolder)).messages;
+      const drafts = (await browser.messages.list(draftFolder.id)).messages;
       browser.test.assertEq(2, drafts.length, "number of drafts");
 
       async function checkComposer(tab, expected) {
@@ -343,10 +343,10 @@ add_task(async function testFcc() {
         "browser.compose.setComposeDetails() should reject setting overrideDefaultFcc to true."
       );
 
-      // Set folders.
+      // Set folders using IDs
       await browser.compose.setComposeDetails(createdTab.id, {
-        overrideDefaultFccFolder: folder1,
-        additionalFccFolder: folder2,
+        overrideDefaultFccFolder: folder1.id,
+        additionalFccFolder: folder2.id,
       });
       await checkWindow(createdTab, {
         overrideDefaultFcc: true,
@@ -364,7 +364,9 @@ add_task(async function testFcc() {
         additionalFccFolder: folder2,
       });
 
-      // A no-op should not change any values.
+      // A no-op should not change any values. Set folder objects, which is not
+      // deprecated here, since a received ComposeDetail object should be usable
+      // as-is with compose.setComposeDetails().
       await browser.compose.setComposeDetails(createdTab.id, {});
       await checkWindow(createdTab, {
         overrideDefaultFcc: true,
@@ -409,7 +411,7 @@ add_task(async function testFcc() {
             accountId: folder1.accountId,
           },
         }),
-        `Invalid MailFolder: {accountId:${folder1.accountId}, path:/bad}`,
+        /Folder not found/,
         "browser.compose.setComposeDetails() should reject, if an invalid folder is set as overrideDefaultFccFolder."
       );
 
@@ -417,7 +419,7 @@ add_task(async function testFcc() {
         browser.compose.setComposeDetails(createdTab.id, {
           additionalFccFolder: { path: "/bad", accountId: folder1.accountId },
         }),
-        `Invalid MailFolder: {accountId:${folder1.accountId}, path:/bad}`,
+        /Folder not found/,
         "browser.compose.setComposeDetails() should reject, if an invalid folder is set as additionalFccFolder."
       );
 

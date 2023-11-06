@@ -27,6 +27,20 @@ add_setup(
     };
     await createMessages(subFolders.trash, 99);
     await createMessages(subFolders.test4, 1);
+
+    // There are a couple of deprecated properties in MV3, which we still want to
+    // test in MV2 but also report to the user. By default, tests throw when
+    // deprecated properties are used.
+    Services.prefs.setBoolPref(
+      "extensions.webextensions.warnings-as-errors",
+      false
+    );
+    registerCleanupFunction(async () => {
+      Services.prefs.clearUserPref(
+        "extensions.webextensions.warnings-as-errors"
+      );
+    });
+    await new Promise(resolve => executeSoon(resolve));
   }
 );
 

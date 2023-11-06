@@ -28,7 +28,7 @@ add_task(async function testComposerIsReady() {
       browser.test.assertEq(2, accounts.length, "number of accounts");
       const popAccount = accounts.find(a => a.type == "pop3");
       const folder = popAccount.folders.find(f => f.name == "test");
-      const { messages } = await browser.messages.list(folder);
+      const { messages } = await browser.messages.list(folder.id);
       browser.test.assertEq(4, messages.length, "number of messages");
 
       const details = {
@@ -150,7 +150,7 @@ add_task(async function testBeginForward() {
       browser.test.assertEq(2, accounts.length, "number of accounts");
       const popAccount = accounts.find(a => a.type == "pop3");
       const folder = popAccount.folders.find(f => f.name == "test");
-      const { messages } = await browser.messages.list(folder);
+      const { messages } = await browser.messages.list(folder.id);
       browser.test.assertEq(4, messages.length, "number of messages");
 
       const details = {
@@ -238,7 +238,7 @@ add_task(async function testBeginForwardInlineMixUp() {
       browser.test.assertEq(2, accounts.length, "number of accounts");
       const popAccount = accounts.find(a => a.type == "pop3");
       const folder = popAccount.folders.find(f => f.name == "test");
-      const { messages } = await browser.messages.list(folder);
+      const { messages } = await browser.messages.list(folder.id);
       browser.test.assertEq(4, messages.length, "number of messages");
 
       // Test opening different messages.

@@ -15,7 +15,7 @@ ChromeUtils.defineESModuleGetters(this, {
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
-var { folderPathToURI } = ChromeUtils.importESModule(
+var { getFolder } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
 
@@ -275,7 +275,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
       } = properties;
 
       if (displayedFolder) {
-        const folder = getFolderFromMailFolder(displayedFolder);
+        const { folder } = getFolder(displayedFolder);
         await setFolder(nativeTab, folder, true);
       }
 
@@ -323,21 +323,6 @@ this.mailTabs = class extends ExtensionAPIPersistent {
 
       const tab = tabManager.wrapTab(nativeTab);
       return convertMailTab(tab, context);
-    }
-
-    function getFolderFromMailFolder(displayedFolder) {
-      const folderUri = folderPathToURI(
-        displayedFolder.accountId,
-        displayedFolder.path
-      );
-      const folder = MailServices.folderLookup.getFolderForURL(folderUri);
-      if (!folder) {
-        throw new ExtensionError(
-          `Folder "${displayedFolder.path}" for account ` +
-            `"${displayedFolder.accountId}" not found.`
-        );
-      }
-      return folder;
     }
 
     return {
@@ -394,9 +379,8 @@ this.mailTabs = class extends ExtensionAPIPersistent {
                 'Setting the displayed folder requires the "accountsRead" permission'
               );
             }
-            tabParams.folderURI = getFolderFromMailFolder(
-              properties.displayedFolder
-            ).URI;
+            const { folder } = getFolder(properties.displayedFolder);
+            tabParams.folderURI = folder.URI;
             delete properties.displayedFolder;
           }
 

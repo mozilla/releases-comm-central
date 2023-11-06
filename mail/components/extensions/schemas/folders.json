@@ -23,7 +23,7 @@
         "description": "An object describing a folder. The ``subFolders`` property is only included if requested.",
         "properties": {
           "id": {
-            "type": "string",
+            "$ref": "folders.MailFolderId",
             "optional": true,
             "description": "An identifier for the folder."
           },
@@ -68,6 +68,11 @@
             "description": "The special use of this folder. A folder can have multiple special uses."
           }
         }
+      },
+      {
+        "id": "MailFolderId",
+        "type": "string",
+        "description": "A unique id representing a :ref:`folders.MailFolder` throughout a session. Renaming or moving a folder will invalidate its id."
       },
       {
         "id": "MailFolderInfo",
@@ -323,17 +328,10 @@
                 "optional": true,
                 "description": "Return only folders whose name is matched by the provided string or regular expression."
               },
-              "parent": {
-                "choices": [
-                  {
-                    "$ref": "folders.MailFolder"
-                  },
-                  {
-                    "$ref": "accounts.MailAccount"
-                  }
-                ],
-                "optional": true,
-                "description": "Limits the search to the specified parent folder or account."
+              "folderId": {
+                "$ref": "folders.MailFolderId",
+                "description": "Limits the search to the folder with the specified id.",
+                "optional": true
               },
               "recent": {
                 "type": "boolean",
@@ -380,7 +378,7 @@
         "parameters": [
           {
             "name": "folderId",
-            "type": "string"
+            "$ref": "folders.MailFolderId"
           },
           {
             "type": "function",
@@ -388,7 +386,7 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "MailFolder"
+                "$ref": "folders.MailFolder"
               }
             ]
           }
@@ -405,6 +403,11 @@
             "name": "parent",
             "choices": [
               {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.create(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
                 "$ref": "folders.MailFolder"
               },
               {
@@ -437,7 +440,16 @@
         "parameters": [
           {
             "name": "folder",
-            "$ref": "folders.MailFolder"
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.rename(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ]
           },
           {
             "name": "newName",
@@ -463,13 +475,27 @@
         "async": "callback",
         "parameters": [
           {
-            "name": "sourceFolder",
-            "$ref": "folders.MailFolder"
+            "name": "source",
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.move(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ]
           },
           {
             "name": "destination",
             "choices": [
               {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.move(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
                 "$ref": "folders.MailFolder"
               },
               {
@@ -497,13 +523,27 @@
         "async": "callback",
         "parameters": [
           {
-            "name": "sourceFolder",
-            "$ref": "folders.MailFolder"
+            "name": "source",
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.copy(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ]
           },
           {
             "name": "destination",
             "choices": [
               {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.copy(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
                 "$ref": "folders.MailFolder"
               },
               {
@@ -532,7 +572,16 @@
         "parameters": [
           {
             "name": "folder",
-            "$ref": "folders.MailFolder"
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.delete(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ]
           }
         ]
       },
@@ -545,7 +594,16 @@
         "parameters": [
           {
             "name": "folder",
-            "$ref": "folders.MailFolder"
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.update(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ]
           },
           {
             "name": "updateProperties",
@@ -569,7 +627,16 @@
         "parameters": [
           {
             "name": "folder",
-            "$ref": "folders.MailFolder"
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.getFolderInfo(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ]
           },
           {
             "type": "function",
@@ -591,7 +658,16 @@
         "parameters": [
           {
             "name": "folder",
-            "$ref": "folders.MailFolder"
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.getFolderCapabilities(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ]
           },
           {
             "type": "function",
@@ -613,7 +689,16 @@
         "parameters": [
           {
             "name": "folder",
-            "$ref": "folders.MailFolder"
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.getParentFolders(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ]
           },
           {
             "name": "includeSubFolders",
@@ -647,6 +732,11 @@
             "name": "folderOrAccount",
             "choices": [
               {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.getSubFolders(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
                 "$ref": "folders.MailFolder"
               },
               {
@@ -685,7 +775,16 @@
         "parameters": [
           {
             "name": "folder",
-            "$ref": "folders.MailFolder"
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "folders.markAsRead(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ]
           }
         ]
       }

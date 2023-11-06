@@ -22,7 +22,7 @@ add_task(async function test_managers() {
       const testFolder = testAccount.folders.find(f => f.name == "test1");
       const {
         messages: [testMessage],
-      } = await browser.messages.list(testFolder);
+      } = await browser.messages.list(testFolder.id);
 
       const messageCount = await browser.testapi.testCanGetFolder(testFolder);
       browser.test.assertEq(5, messageCount);

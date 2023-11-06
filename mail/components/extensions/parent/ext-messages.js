@@ -17,7 +17,7 @@ var {
   getRawMessage,
 } = ChromeUtils.importESModule("resource:///modules/ExtensionMessages.sys.mjs");
 
-var { folderPathToURI } = ChromeUtils.importESModule(
+var { getFolder } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
@@ -292,7 +292,7 @@ this.messages = class extends ExtensionAPIPersistent {
       return emlFile;
     }
 
-    async function moveOrCopyMessages(messageIds, { accountId, path }, isMove) {
+    async function moveOrCopyMessages(messageIds, destination, isMove) {
       if (
         !context.extension.hasPermission("accountsRead") ||
         !context.extension.hasPermission("messagesMove")
@@ -303,9 +303,7 @@ this.messages = class extends ExtensionAPIPersistent {
           }() requires the "accountsRead" and the "messagesMove" permission`
         );
       }
-      const destinationURI = folderPathToURI(accountId, path);
-      const destinationFolder =
-        MailServices.folderLookup.getFolderForURL(destinationURI);
+      const { folder: destinationFolder } = getFolder(destination);
       try {
         const promises = [];
         const folderMap = collectMessagesInFolders(messageIds);
@@ -433,14 +431,8 @@ this.messages = class extends ExtensionAPIPersistent {
           event: "onDeleted",
           extensionApi: this,
         }).api(),
-        async list({ accountId, path }) {
-          const uri = folderPathToURI(accountId, path);
-          const folder = MailServices.folderLookup.getFolderForURL(uri);
-
-          if (!folder) {
-            throw new ExtensionError(`Folder not found: ${path}`);
-          }
-
+        async list(target) {
+          const { folder } = getFolder(target);
           return messageListTracker.startList(
             folder.messages,
             context.extension
@@ -693,7 +685,7 @@ this.messages = class extends ExtensionAPIPersistent {
             throw new ExtensionError(`Error deleting message: ${ex.message}`);
           }
         },
-        async import(file, { accountId, path }, properties) {
+        async import(file, destination, properties) {
           if (
             !context.extension.hasPermission("accountsRead") ||
             !context.extension.hasPermission("messagesImport")
@@ -702,12 +694,7 @@ this.messages = class extends ExtensionAPIPersistent {
               `Using messages.import() requires the "accountsRead" and the "messagesImport" permission`
             );
           }
-          const destinationURI = folderPathToURI(accountId, path);
-          const destinationFolder =
-            MailServices.folderLookup.getFolderForURL(destinationURI);
-          if (!destinationFolder) {
-            throw new ExtensionError(`Folder not found: ${path}`);
-          }
+          const { folder: destinationFolder } = getFolder(destination);
           if (!["none", "pop3"].includes(destinationFolder.server.type)) {
             throw new ExtensionError(
               `browser.messenger.import() is not supported for ${destinationFolder.server.type} accounts`

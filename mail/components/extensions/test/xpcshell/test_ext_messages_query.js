@@ -58,15 +58,12 @@ add_task(async function test_query() {
       const _account = await browser.accounts.get(accountId);
       const accountType = _account.type;
 
-      const messages1 = await browser.messages.list({
-        accountId,
-        path: "/test1",
-      });
+      const [folder1] = await browser.folders.query({ name: "test1" });
+      const [folder2] = await browser.folders.query({ name: "test2" });
+
+      const messages1 = await browser.messages.list(folder1.id);
       browser.test.assertEq(9, messages1.messages.length);
-      const messages2 = await browser.messages.list({
-        accountId,
-        path: "/test2",
-      });
+      const messages2 = await browser.messages.list(folder2.id);
       browser.test.assertEq(9, messages2.messages.length);
 
       // Check all messages are returned.
@@ -75,9 +72,8 @@ add_task(async function test_query() {
       });
       browser.test.assertEq(18, allMessages.length);
 
-      const folder1 = { accountId, path: "/test1" };
-      const folder2 = { accountId, path: "/test2" };
-      const rootFolder = { accountId, path: "/" };
+      // FIXME: Expose account root folder.
+      const rootFolder = { id: `${accountId}://`, accountId, path: "/" };
 
       // Mark two messages in folder1 as junk.
       await browser.messages.update(messages1.messages[4].id, { junk: true });
@@ -99,7 +95,7 @@ add_task(async function test_query() {
       // Query messages from test1. No messages from test2 should be returned.
       // We'll use these messages as a reference for further tests.
       const { messages: referenceMessages } = await browser.messages.query({
-        folder: folder1,
+        folderId: folder1.id,
         autoPaginationTimeout: 0,
       });
       browser.test.assertEq(9, referenceMessages.length);
@@ -110,7 +106,7 @@ add_task(async function test_query() {
       // Test includeSubFolders: Default (False).
       const { messages: searchRecursiveDefault } = await browser.messages.query(
         {
-          folder: rootFolder,
+          folderId: rootFolder.id,
           autoPaginationTimeout: 0,
         }
       );
@@ -122,7 +118,7 @@ add_task(async function test_query() {
 
       // Test includeSubFolders: True.
       const { messages: searchRecursiveTrue } = await browser.messages.query({
-        folder: rootFolder,
+        folderId: rootFolder.id,
         includeSubFolders: true,
         autoPaginationTimeout: 0,
       });
@@ -134,7 +130,7 @@ add_task(async function test_query() {
 
       // Test includeSubFolders: False.
       const { messages: searchRecursiveFalse } = await browser.messages.query({
-        folder: rootFolder,
+        folderId: rootFolder.id,
         includeSubFolders: false,
         autoPaginationTimeout: 0,
       });
@@ -176,7 +172,7 @@ add_task(async function test_query() {
       // Test size query range.
       const { messages: searchSizeRange } = await browser.messages.query({
         size: { min: 400, max: 700 },
-        folder: folder1,
+        folderId: folder1.id,
         includeSubFolders: true,
         autoPaginationTimeout: 0,
       });
@@ -192,7 +188,7 @@ add_task(async function test_query() {
       // Test junkScore query : range.
       const { messages: searchJunkScoreRange } = await browser.messages.query({
         junkScore: { min: 50, max: 100 },
-        folder: folder1,
+        folderId: folder1.id,
         autoPaginationTimeout: 0,
       });
       browser.test.assertEq(2, searchJunkScoreRange.length, "junk: range");
@@ -213,8 +209,8 @@ add_task(async function test_query() {
       }
 
       const subtest = async function (queryInfo, ...expectedMessageIndices) {
-        if (!queryInfo.folder) {
-          queryInfo.folder = folder1;
+        if (!queryInfo.folderId) {
+          queryInfo.folderId = folder1.id;
         }
         browser.test.log("Testing " + JSON.stringify(queryInfo));
         const { messages: actualMessages } = await browser.messages.query({
@@ -354,28 +350,31 @@ add_task(async function test_query() {
       await subtest({ headerMessageId: "unknown@made.up.invalid" });
 
       // attachment query
-      await subtest({ folder: folder2, attachment: true }, 18);
+      await subtest({ folderId: folder2.id, attachment: true }, 18);
 
       // text in nested html part of multipart/alternative
-      await subtest({ folder: folder2, body: "I am HTML!" }, 17);
+      await subtest({ folderId: folder2.id, body: "I am HTML!" }, 17);
 
       // No recipient support for NNTP.
       if (accountType != "nntp") {
         // advanced search on recipients
-        await subtest({ folder: folder2, recipients: "karl; heinz" }, 17);
+        await subtest({ folderId: folder2.id, recipients: "karl; heinz" }, 17);
         await subtest(
-          { folder: folder2, recipients: "<friedrich@example.COM>; HEINZ" },
+          {
+            folderId: folder2.id,
+            recipients: "<friedrich@example.COM>; HEINZ",
+          },
           17
         );
         await subtest(
           {
-            folder: folder2,
+            folderId: folder2.id,
             recipients: "karl <friedrich@example.COM>; HEINZ",
           },
           17
         );
         await subtest({
-          folder: folder2,
+          folderId: folder2.id,
           recipients: "Heinz <friedrich@example.COM>; Karl",
         });
       }

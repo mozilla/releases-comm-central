@@ -29,7 +29,7 @@ async function testOpenMessages(testConfig) {
           f => f.name == "testFolder"
         );
         browser.test.assertTrue(!!testFolder, "folder should exist");
-        const { messages } = await browser.messages.list(testFolder);
+        const { messages } = await browser.messages.list(testFolder.id);
         browser.test.assertEq(
           5,
           messages.length,

@@ -14,14 +14,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 ChromeUtils.defineESModuleGetters(this, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
 });
-var {
-  CachedFolder,
-  folderPathToURI,
-  folderURIToPath,
-  getFolder,
-  getSpecialUse,
-  specialUseMap,
-} = ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
+var { CachedFolder, folderURIToPath, getFolder, specialUseMap } =
+  ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
 
 /**
  * Tracks folder events.
@@ -633,13 +627,8 @@ this.folders = class extends ExtensionAPIPersistent {
 
           // Prepare folders, which are to be searched.
           const parentFolders = [];
-          if (queryInfo.parent) {
-            const { folder } = getFolder(queryInfo.parent);
-            if (!folder) {
-              throw new ExtensionError(
-                `Folder not found: ${JSON.stringify(queryInfo.parent)}`
-              );
-            }
+          if (queryInfo.folderId) {
+            const { folder } = getFolder(queryInfo.folderId);
             parentFolders.push(folder);
           } else {
             for (const account of MailServices.accounts.accounts) {
@@ -806,8 +795,8 @@ this.folders = class extends ExtensionAPIPersistent {
             context.extension.folderManager.convert(folder)
           );
         },
-        async get(id) {
-          const { folder } = getFolder(id);
+        async get(folderId) {
+          const { folder } = getFolder(folderId);
           return context.extension.folderManager.convert(folder);
         },
         async create(parent, childName) {
@@ -839,8 +828,8 @@ this.folders = class extends ExtensionAPIPersistent {
             accountId
           );
         },
-        async rename({ accountId, path }, newName) {
-          const { folder } = getFolder({ accountId, path });
+        async rename(target, newName) {
+          const { folder, accountId } = getFolder(target);
 
           if (!folder.parent) {
             throw new ExtensionError(
@@ -887,7 +876,7 @@ this.folders = class extends ExtensionAPIPersistent {
             false /* isMove */
           );
         },
-        async delete({ accountId, path }) {
+        async delete(target) {
           if (
             !context.extension.hasPermission("accountsFolders") ||
             !context.extension.hasPermission("messagesDelete")
@@ -897,7 +886,8 @@ this.folders = class extends ExtensionAPIPersistent {
             );
           }
 
-          const { folder } = getFolder({ accountId, path });
+          const { folder } = getFolder(target);
+
           if (folder.server.type == "nntp") {
             throw new ExtensionError(
               `folders.delete() is not supported in news accounts`
@@ -968,8 +958,8 @@ this.folders = class extends ExtensionAPIPersistent {
             await deletedPromise;
           }
         },
-        async update({ accountId, path }, updateProperties) {
-          const { folder } = getFolder({ accountId, path });
+        async update(target, updateProperties) {
+          const { folder, path } = getFolder(target);
 
           if (!folder.parent) {
             throw new ExtensionError(
@@ -985,8 +975,8 @@ this.folders = class extends ExtensionAPIPersistent {
             }
           }
         },
-        async getFolderCapabilities({ accountId, path }) {
-          const { folder } = getFolder({ accountId, path });
+        async getFolderCapabilities(target) {
+          const { folder } = getFolder(target);
 
           const mailFolderCapabilities = {
             canAddMessages: !!folder.canFileMessages,
@@ -998,8 +988,8 @@ this.folders = class extends ExtensionAPIPersistent {
 
           return mailFolderCapabilities;
         },
-        async getFolderInfo({ accountId, path }) {
-          const { folder } = getFolder({ accountId, path });
+        async getFolderInfo(target) {
+          const { folder } = getFolder(target);
 
           // Support quota names containing "STORAGE" or "MESSAGE", which are
           // defined in RFC2087. Excluding unusual quota names containing items
@@ -1094,8 +1084,8 @@ this.folders = class extends ExtensionAPIPersistent {
           }
           return subFolders;
         },
-        markAsRead({ accountId, path }) {
-          const { folder } = getFolder({ accountId, path });
+        markAsRead(target) {
+          const { folder, path } = getFolder(target);
 
           if (!folder.parent) {
             throw new ExtensionError(

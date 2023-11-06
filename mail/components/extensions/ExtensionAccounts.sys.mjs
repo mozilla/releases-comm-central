@@ -403,6 +403,10 @@ export function getFolder(target) {
     path = parts.join(":/");
   }
 
+  if (!accountId) {
+    throw new ExtensionError(`Folder not found: ${JSON.stringify(target)}`);
+  }
+
   const uri = folderPathToURI(accountId, path);
   const folder = MailServices.folderLookup.getFolderForURL(uri);
   if (!folder) {

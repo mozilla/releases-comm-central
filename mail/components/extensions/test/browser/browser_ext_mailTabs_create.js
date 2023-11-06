@@ -32,7 +32,12 @@ add_setup(async () => {
 add_task(async function test_create() {
   async function background() {
     async function testIt(config, expected = config) {
-      const mailTab = await browser.mailTabs.create(config);
+      const test = {
+        ...config,
+      };
+      test.displayedFolder = config.displayedFolder.id;
+
+      const mailTab = await browser.mailTabs.create(test);
       window.assertDeepEqual(expected, mailTab);
       await window.sendMessage("checkRealLayout", expected);
       await window.sendMessage("checkRealSort", expected);

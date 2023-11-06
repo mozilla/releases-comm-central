@@ -403,7 +403,16 @@
         "parameters": [
           {
             "name": "folder",
-            "$ref": "folders.MailFolder"
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "messages.list(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ]
           },
           {
             "type": "function",
@@ -664,8 +673,15 @@
                 "optional": true,
                 "description": "Returns only flagged (or unflagged if false) messages."
               },
+              "folderId": {
+                "$ref": "folders.MailFolderId",
+                "optional": true,
+                "description": "Returns only messages from the folder with the specified id. The <permission>accountsRead</permission> permission is required."
+              },
               "folder": {
                 "$ref": "folders.MailFolder",
+                "max_manifest_version": 2,
+                "deprecated": "messages.queryInfo.folder: Manifest V3 will use messages.queryInfo.folderId instead.",
                 "optional": true,
                 "description": "Returns only messages from the specified folder. The <permission>accountsRead</permission> permission is required."
               },
@@ -822,7 +838,16 @@
           },
           {
             "name": "destination",
-            "$ref": "folders.MailFolder",
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "messages.move(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ],
             "description": "The folder to move the messages to."
           }
         ]
@@ -845,7 +870,16 @@
           },
           {
             "name": "destination",
-            "$ref": "folders.MailFolder",
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "messages.copy(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ],
             "description": "The folder to copy the messages to."
           }
         ]
@@ -889,7 +923,16 @@
           },
           {
             "name": "destination",
-            "$ref": "folders.MailFolder",
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "max_manifest_version": 2,
+                "deprecated": "messages.import(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "$ref": "folders.MailFolder"
+              }
+            ],
             "description": "The folder to import the messages into."
           },
           {

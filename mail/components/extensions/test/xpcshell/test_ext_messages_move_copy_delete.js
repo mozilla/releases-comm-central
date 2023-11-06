@@ -140,7 +140,7 @@ add_task(
           const expectedSubjects = expectedKeys.map(k => messages[k].subject);
 
           const { messages: actualMessages } = await browser.messages.list(
-            folder
+            folder.id
           );
           browser.test.log("expect: " + expectedSubjects.sort());
           browser.test.log(
@@ -255,7 +255,7 @@ add_task(
         const trashFolder = folders.find(f => f.name == "Trash");
 
         const { messages: folder1Messages } = await browser.messages.list(
-          testFolder1
+          testFolder1.id
         );
 
         // Since the ID of a message changes when it is moved, track by subject.
@@ -271,7 +271,7 @@ add_task(
         browser.test.log(" --> Move one message to another folder.");
         let movePromise = newMovePromise();
         let primedMoveInfo = await capturePrimedEvent("onMoved", () =>
-          browser.messages.move([messages.Red.id], testFolder2)
+          browser.messages.move([messages.Red.id], testFolder2.id)
         );
         let moveInfo = await movePromise;
         window.assertDeepEqual(
@@ -307,7 +307,7 @@ add_task(
         browser.test.log(" --> And back again.");
         movePromise = newMovePromise();
         primedMoveInfo = await capturePrimedEvent("onMoved", () =>
-          browser.messages.move([messages.Red.id], testFolder1)
+          browser.messages.move([messages.Red.id], testFolder1.id)
         );
         moveInfo = await movePromise;
         window.assertDeepEqual(
@@ -345,7 +345,7 @@ add_task(
         primedMoveInfo = await capturePrimedEvent("onMoved", () =>
           browser.messages.move(
             [messages.Green.id, messages.My.id],
-            testFolder2
+            testFolder2.id
           )
         );
         moveInfo = await movePromise;
@@ -379,7 +379,7 @@ add_task(
         browser.test.log(" --> Move one back again: " + messages.My.id);
         movePromise = newMovePromise();
         primedMoveInfo = await capturePrimedEvent("onMoved", () =>
-          browser.messages.move([messages.My.id], testFolder1)
+          browser.messages.move([messages.My.id], testFolder1.id)
         );
         moveInfo = await movePromise;
         window.assertDeepEqual(
@@ -414,7 +414,7 @@ add_task(
         movePromise = newMovePromise(2);
         await browser.messages.move(
           [messages.Green.id, messages.My.id],
-          testFolder3
+          testFolder3.id
         );
         await checkEventInformation(
           movePromise,
@@ -443,12 +443,12 @@ add_task(
         browser.messages.onMoved.addListener(listenerFunc);
 
         // Move a message to the folder it's already in.
-        await browser.messages.move([messages.Green.id], testFolder3);
+        await browser.messages.move([messages.Green.id], testFolder3.id);
         await checkMessagesInFolder(["Green", "My"], testFolder3);
         browser.test.log(JSON.stringify(messages)); // Red:7, Green:11, Blue:3, My:12, Happy:5
 
         // Move no messages.
-        await browser.messages.move([], testFolder3);
+        await browser.messages.move([], testFolder3.id);
         await checkMessagesInFolder(["Red", "Blue", "Happy"], testFolder1);
         await checkMessagesInFolder([], testFolder2);
         await checkMessagesInFolder(["Green", "My"], testFolder3);
@@ -456,18 +456,15 @@ add_task(
 
         // Move a non-existent message.
         await browser.test.assertRejects(
-          browser.messages.move([9999], testFolder1),
+          browser.messages.move([9999], testFolder1.id),
           /Error moving message/,
           "something should happen"
         );
 
         // Move to a non-existent folder.
         await browser.test.assertRejects(
-          browser.messages.move([messages.Red.id], {
-            accountId,
-            path: "/missing",
-          }),
-          /Error moving message/,
+          browser.messages.move([messages.Red.id], `${accountId}://missing`),
+          /Folder not found/,
           "something should happen"
         );
 
@@ -482,7 +479,7 @@ add_task(
         movePromise = newMovePromise();
         await browser.messages.move(
           [messages.My.id, messages.Green.id],
-          testFolder1
+          testFolder1.id
         );
         await checkEventInformation(
           movePromise,
@@ -506,7 +503,7 @@ add_task(
         browser.test.log(" --> Copy one message to another folder.");
         const copyPromise = newCopyPromise();
         const primedCopyInfo = await capturePrimedEvent("onCopied", () =>
-          browser.messages.copy([messages.Happy.id], testFolder2)
+          browser.messages.copy([messages.Happy.id], testFolder2.id)
         );
         const copyInfo = await copyPromise;
         window.assertDeepEqual(
@@ -537,7 +534,7 @@ add_task(
           testFolder1
         );
         const { messages: folder2Messages } = await browser.messages.list(
-          testFolder2
+          testFolder2.id
         );
         browser.test.assertEq(1, folder2Messages.length);
         browser.test.assertEq(
@@ -591,7 +588,7 @@ add_task(
         browser.test.log(" --> Move a message to the trash.");
         movePromise = newMovePromise();
         primedMoveInfo = await capturePrimedEvent("onMoved", () =>
-          browser.messages.move([messages.Green.id], trashFolder)
+          browser.messages.move([messages.Green.id], trashFolder.id)
         );
         moveInfo = await movePromise;
         window.assertDeepEqual(
@@ -629,7 +626,7 @@ add_task(
         await checkMessagesInFolder([], testFolder3);
 
         const { messages: trashFolderMessages } = await browser.messages.list(
-          trashFolder
+          trashFolder.id
         );
         browser.test.assertTrue(
           trashFolderMessages.find(m => m.subject == messages.Green.subject)

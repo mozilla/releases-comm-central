@@ -33,7 +33,7 @@ add_task(async function testIdentity() {
       );
       const [defaultIdentity, nonDefaultIdentity] = popAccount.identities;
       const folder = popAccount.folders.find(f => f.name == "test");
-      const { messages } = await browser.messages.list(folder);
+      const { messages } = await browser.messages.list(folder.id);
       browser.test.assertEq(4, messages.length, "number of messages");
 
       browser.test.log(defaultIdentity.id);

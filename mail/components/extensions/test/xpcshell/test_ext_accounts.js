@@ -8,6 +8,20 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
 
+add_setup(async function setup() {
+  // There are a couple of deprecated properties in MV3, which we still want to
+  // test in MV2 but also report to the user. By default, tests throw when
+  // deprecated properties are used.
+  Services.prefs.setBoolPref(
+    "extensions.webextensions.warnings-as-errors",
+    false
+  );
+  registerCleanupFunction(async () => {
+    Services.prefs.clearUserPref("extensions.webextensions.warnings-as-errors");
+  });
+  await new Promise(resolve => executeSoon(resolve));
+});
+
 add_task(async function test_accounts() {
   // Here all the accounts are local but the first account will behave as
   // an actual local account and will be kept last always.

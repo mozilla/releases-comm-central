@@ -138,7 +138,8 @@ add_task(
 
         const tags = await browser.messages.listTags();
         const [data] = await window.sendMessage("getFolder");
-        const messageList = await browser.messages.list(data.folder);
+        const [folder] = await browser.folders.query({ name: data.folderName });
+        const messageList = await browser.messages.list(folder.id);
         browser.test.assertEq(1, messageList.messages.length);
         let message = messageList.messages[0];
         browser.test.assertFalse(message.flagged);
@@ -146,7 +147,7 @@ add_task(
         browser.test.assertFalse(message.junk);
         browser.test.assertEq(0, message.junkScore);
         browser.test.assertEq(0, message.tags.length);
-        browser.test.assertEq(data.size, message.size);
+        browser.test.assertEq(data.messageSize, message.size);
         browser.test.assertEq("0@made.up.invalid", message.headerMessageId);
 
         // Test that setting flagged works.
@@ -405,8 +406,8 @@ add_task(
 
     extension.onMessage("getFolder", async () => {
       extension.sendMessage({
-        folder: { accountId: account.key, path: "/test0" },
-        size: message.messageSize,
+        folderName: "test0",
+        messageSize: message.messageSize,
       });
     });
 

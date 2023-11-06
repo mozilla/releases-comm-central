@@ -103,6 +103,9 @@
           "overrideDefaultFccFolder": {
             "choices": [
               {
+                "$ref": "folders.MailFolderId"
+              },
+              {
                 "$ref": "folders.MailFolder"
               },
               {
@@ -115,6 +118,9 @@
           },
           "additionalFccFolder": {
             "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
               {
                 "$ref": "folders.MailFolder"
               },

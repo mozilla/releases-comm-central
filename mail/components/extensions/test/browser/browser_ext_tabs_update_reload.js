@@ -62,7 +62,9 @@ add_task(async function testUpdateTabs_WebExtProtocolHandler() {
       browser.test.assertTrue(!!mailTab, "Should have found a mail tab.");
 
       // Load a message.
-      const { messages } = await browser.messages.list(mailTab.displayedFolder);
+      const { messages } = await browser.messages.list(
+        mailTab.displayedFolder.id
+      );
       await browser.mailTabs.setSelectedMessages(mailTab.id, [messages[0].id]);
       const message1 = await browser.messageDisplay.getDisplayedMessage(
         mailTab.id
@@ -269,7 +271,9 @@ add_task(async function testUpdateReloadTabs() {
       );
 
       // Load a message.
-      const { messages } = await browser.messages.list(mailTab.displayedFolder);
+      const { messages } = await browser.messages.list(
+        mailTab.displayedFolder.id
+      );
       await browser.mailTabs.setSelectedMessages(mailTab.id, [messages[1].id]);
       const message1 = await browser.messageDisplay.getDisplayedMessage(
         mailTab.id

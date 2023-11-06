@@ -21,9 +21,17 @@ add_setup(async () => {
   tabmail.currentAbout3Pane.displayFolder(subFolders.test1.URI);
   await ensure_table_view();
 
+  // There are a couple of deprecated properties in MV3, which we still want to
+  // test in MV2 but also report to the user. By default, tests throw when
+  // deprecated properties are used.
+  Services.prefs.setBoolPref(
+    "extensions.webextensions.warnings-as-errors",
+    false
+  );
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
   registerCleanupFunction(async () => {
     await ensure_cards_view();
+    Services.prefs.clearUserPref("extensions.webextensions.warnings-as-errors");
     Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
   });
   await new Promise(resolve => executeSoon(resolve));

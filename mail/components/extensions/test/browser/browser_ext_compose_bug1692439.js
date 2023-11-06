@@ -125,7 +125,7 @@ add_task(async function testIsReflexive() {
       const accounts = await browser.accounts.list();
       const account = accounts.find(a => a.folders.find(f => f.type == "sent"));
       const { messages } = await browser.messages.list(
-        account.folders.find(f => f.type == "sent")
+        account.folders.find(f => f.type == "sent").id
       );
 
       // Read the message.

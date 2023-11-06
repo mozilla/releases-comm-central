@@ -22,7 +22,7 @@ const parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
   Ci.nsIParserUtils
 );
 
-var { folderPathToURI } = ChromeUtils.importESModule(
+var { getFolder } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
 
@@ -565,18 +565,8 @@ async function setComposeDetails(composeWindow, details, extension) {
   } else if (details.overrideDefaultFccFolder != null) {
     // Override identity fcc with enforced value.
     if (details.overrideDefaultFccFolder) {
-      const uri = folderPathToURI(
-        details.overrideDefaultFccFolder.accountId,
-        details.overrideDefaultFccFolder.path
-      );
-      const folder = MailUtils.getExistingFolder(uri);
-      if (folder) {
-        composeWindow.gMsgCompose.compFields.fcc = uri;
-      } else {
-        throw new ExtensionError(
-          `Invalid MailFolder: {accountId:${details.overrideDefaultFccFolder.accountId}, path:${details.overrideDefaultFccFolder.path}}`
-        );
-      }
+      const { folder } = getFolder(details.overrideDefaultFccFolder);
+      composeWindow.gMsgCompose.compFields.fcc = folder.URI;
     } else {
       composeWindow.gMsgCompose.compFields.fcc = "nocopy://";
     }
@@ -591,18 +581,8 @@ async function setComposeDetails(composeWindow, details, extension) {
 
   if (details.additionalFccFolder != null) {
     if (details.additionalFccFolder) {
-      const uri = folderPathToURI(
-        details.additionalFccFolder.accountId,
-        details.additionalFccFolder.path
-      );
-      const folder = MailUtils.getExistingFolder(uri);
-      if (folder) {
-        composeWindow.gMsgCompose.compFields.fcc2 = uri;
-      } else {
-        throw new ExtensionError(
-          `Invalid MailFolder: {accountId:${details.additionalFccFolder.accountId}, path:${details.additionalFccFolder.path}}`
-        );
-      }
+      const { folder } = getFolder(details.additionalFccFolder);
+      composeWindow.gMsgCompose.compFields.fcc2 = folder.URI;
     } else {
       composeWindow.gMsgCompose.compFields.fcc2 = "";
     }
