@@ -5683,11 +5683,21 @@ nsresult nsImapProtocol::ClientID() {
 nsresult nsImapProtocol::AuthLogin(const char* userName,
                                    const nsString& aPassword,
                                    eIMAPCapabilityFlag flag) {
+  nsresult rv;
+  // If we're shutting down, bail out.
+  nsCOMPtr<nsIMsgAccountManager> accountMgr =
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  bool shuttingDown = false;
+  (void)accountMgr->GetShutdownInProgress(&shuttingDown);
+  if (shuttingDown) {
+    return NS_ERROR_ABORT;
+  }
+
   ProgressEventFunctionUsingName("imapStatusSendingAuthLogin");
   IncrementCommandTagNumber();
 
   char* currentCommand = nullptr;
-  nsresult rv;
   NS_ConvertUTF16toUTF8 password(aPassword);
   MOZ_LOG(IMAP, LogLevel::Debug,
           ("IMAP: trying auth method 0x%" PRIx64, m_currentAuthMethod));
