@@ -9,6 +9,7 @@
 #include "nsIMsgWindow.h"
 #include "nsIImapMailFolderSink.h"
 
+#include "mozilla/ClearOnShutdown.h"
 #include "mozilla/Monitor.h"
 
 NS_IMPL_ISUPPORTS(StreamListenerProxy, nsIStreamListener)
@@ -512,6 +513,13 @@ void OAuth2ThreadHelper::GetXOAuth2String(nsACString& base64Str) {
                         &OAuth2ThreadHelper::Connect);
   NS_DispatchToMainThread(runInit);
   mMonitor.Wait();
+  NS_NewRunnableFunction("GetXOAuth2StringShutdownNotifier",
+                         [self = RefPtr(this)] {
+                           mozilla::RunOnShutdown([&]() {
+                             // Notify anyone waiting that we're done.
+                             self->mMonitor.Notify();
+                           });
+                         });
 
   // Now we either have the string, or we failed (in which case the string is
   // empty).
