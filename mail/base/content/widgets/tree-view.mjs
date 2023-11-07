@@ -1652,6 +1652,7 @@ class TreeViewTable extends HTMLTableElement {
     this.spacerTop = document.createElement("tbody", {
       is: "tree-view-table-spacer",
     });
+    this.spacerTop.ariaHidden = "true";
     fragment.append(this.spacerTop);
 
     this.body = document.createElement("tbody", {
@@ -1662,6 +1663,7 @@ class TreeViewTable extends HTMLTableElement {
     this.spacerBottom = document.createElement("tbody", {
       is: "tree-view-table-spacer",
     });
+    this.spacerBottom.ariaHidden = "true";
     fragment.append(this.spacerBottom);
 
     this.append(fragment);
