@@ -38,16 +38,13 @@ xpcshell:
                     default: []
             default: built-projects
     tier:
-        by-variant:
-            msix: 2
-            default:
-                by-test-platform:
-                    .*-asan.*: 2
-                    .*-ccov.*: 2
-                    .*-tsan.*: 2
-                    macosx1100.*: 2
-                    windows11.*: 1
-                    default: default
+        by-test-platform:
+            .*-asan.*: 2
+            .*-ccov.*: 2
+            .*-tsan.*: 2
+            macosx1100.*: 2
+            windows11.*: 1
+            default: default
     chunks:
         by-test-platform:
             .*-ccov.*/.*: 10
@@ -149,16 +146,13 @@ mochitest-thunderbird:
                     default: []
             default: built-projects
     tier:
-        by-variant:
-            msix: 2
-            default:
-                by-test-platform:
-                    .*-asan.*: 2
-                    .*-ccov.*: 2
-                    .*-tsan.*: 2
-                    macosx1100.*: 2
-                    windows11.*: 1
-                    default: default
+        by-test-platform:
+            .*-asan.*: 2
+            .*-ccov.*: 2
+            .*-tsan.*: 2
+            macosx1100.*: 2
+            windows11.*: 1
+            default: default
     chunks:
         by-test-platform:
             linux.*64-asan.*/opt: 16
