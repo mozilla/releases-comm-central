@@ -16,6 +16,8 @@ Thunderbird Source Tree Documentation
 
    storybook/index
 
+   telemetry/index
+
 
 
 Indices and tables

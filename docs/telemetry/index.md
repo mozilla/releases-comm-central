@@ -37,12 +37,11 @@ to filter out histograms with a `TELEMETRY_TEST_` prefix).
 
 ## Compile-time switches
 
-Telemetry is not compiled in by default. You need to add the following line
-to your mozconfig:
+Telemetry is compiled in by default for Nightly and Official builds. To enable for
+unofficial builds, add the following line to your mozconfig (lack of a value is
+intentional):
 
-    export MOZ_TELEMETRY_REPORTING=1
-
-The nightly and release configs have this setting already (`$ grep -r MOZ_TELEMETRY_ mail/config/mozconfigs`).
+    ac_add_options MOZ_TELEMETRY_REPORTING=
 
 ## Runtime prefs for testing
 
