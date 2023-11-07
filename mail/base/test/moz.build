@@ -20,4 +20,6 @@ XPCSHELL_TESTS_MANIFESTS += [
 
 TESTING_JS_MODULES += [
     "../../../../browser/components/customizableui/test/CustomizableUITestUtils.sys.mjs",
+    "IMAPServer.sys.mjs",
+    "NNTPServer.sys.mjs",
 ]

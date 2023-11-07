@@ -2,9 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
+const { IMAPServer } = ChromeUtils.importESModule(
+  "resource://testing-common/IMAPServer.sys.mjs"
 );
+const { NNTPServer } = ChromeUtils.importESModule(
+  "resource://testing-common/NNTPServer.sys.mjs"
+);
+
+let imapServer, nntpServer;
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
@@ -18,26 +23,38 @@ add_setup(async function () {
   Services.prefs.setIntPref("mail.server.default.max_cached_connections", 1);
 
   const imapAccount = MailServices.accounts.createAccount();
-  IMAPServer.open(`${imapAccount.key}user`);
+  imapServer = new IMAPServer(this, `${imapAccount.key}user`);
+  imapServer.daemon.createMailbox("Bar", { subscribed: false });
+  imapServer.daemon.createMailbox("Baz", { subscribed: true });
+  imapServer.daemon.createMailbox("Foo", { subscribed: false });
+  imapServer.daemon.createMailbox("Foo/Subfoo", { subscribed: false });
+  imapServer.daemon.getMailbox("INBOX").specialUseFlag = "\\Inbox";
+  imapServer.daemon.getMailbox("INBOX").subscribed = true;
+
   imapAccount.addIdentity(MailServices.accounts.createIdentity());
   imapAccount.incomingServer = MailServices.accounts.createIncomingServer(
     `${imapAccount.key}user`,
     "localhost",
     "imap"
   );
-  imapAccount.incomingServer.port = IMAPServer.port;
+  imapAccount.incomingServer.port = imapServer.port;
   imapAccount.incomingServer.password = "password";
   imapAccount.incomingServer.deleteModel = Ci.nsMsgImapDeleteModels.IMAPDelete;
   imapRootFolder = imapAccount.incomingServer.rootFolder;
 
-  NNTPServer.open();
+  nntpServer = new NNTPServer(this);
+  nntpServer.addGroup("subscribe.bar");
+  nntpServer.addGroup("subscribe.baz");
+  nntpServer.addGroup("subscribe.baz.subbaz");
+  nntpServer.addGroup("subscribe.foo");
+
   const nntpAccount = MailServices.accounts.createAccount();
   nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
     `${nntpAccount.key}user`,
     "localhost",
     "nntp"
   );
-  nntpAccount.incomingServer.port = NNTPServer.port;
+  nntpAccount.incomingServer.port = nntpServer.port;
   nntpRootFolder = nntpAccount.incomingServer.rootFolder;
 
   registerCleanupFunction(() => {
@@ -58,11 +75,11 @@ add_task(async function testIMAPSubscribe() {
     "waiting for folder tree to update"
   );
 
-  Assert.ok(!IMAPServer.daemon.getMailbox("Bar").subscribed);
-  Assert.ok(IMAPServer.daemon.getMailbox("Baz").subscribed);
-  Assert.ok(!IMAPServer.daemon.getMailbox("Foo").subscribed);
-  Assert.ok(!IMAPServer.daemon.getMailbox("Foo/Subfoo").subscribed);
-  Assert.ok(IMAPServer.daemon.getMailbox("INBOX").subscribed);
+  Assert.ok(!imapServer.daemon.getMailbox("Bar").subscribed);
+  Assert.ok(imapServer.daemon.getMailbox("Baz").subscribed);
+  Assert.ok(!imapServer.daemon.getMailbox("Foo").subscribed);
+  Assert.ok(!imapServer.daemon.getMailbox("Foo/Subfoo").subscribed);
+  Assert.ok(imapServer.daemon.getMailbox("INBOX").subscribed);
 
   Assert.ok(!folderPane.getRowForFolder(`${imapRootFolder.URI}/Bar`));
   Assert.ok(folderPane.getRowForFolder(`${imapRootFolder.URI}/Baz`));
@@ -164,11 +181,11 @@ add_task(async function testIMAPSubscribe() {
     "waiting for folder tree to update"
   );
 
-  Assert.ok(!IMAPServer.daemon.getMailbox("Bar").subscribed);
-  Assert.ok(!IMAPServer.daemon.getMailbox("Baz").subscribed);
-  Assert.ok(IMAPServer.daemon.getMailbox("Foo").subscribed);
-  Assert.ok(IMAPServer.daemon.getMailbox("Foo/Subfoo").subscribed);
-  Assert.ok(IMAPServer.daemon.getMailbox("INBOX").subscribed);
+  Assert.ok(!imapServer.daemon.getMailbox("Bar").subscribed);
+  Assert.ok(!imapServer.daemon.getMailbox("Baz").subscribed);
+  Assert.ok(imapServer.daemon.getMailbox("Foo").subscribed);
+  Assert.ok(imapServer.daemon.getMailbox("Foo/Subfoo").subscribed);
+  Assert.ok(imapServer.daemon.getMailbox("INBOX").subscribed);
 
   Assert.ok(!folderPane.getRowForFolder(`${imapRootFolder.URI}/Bar`));
   Assert.ok(!folderPane.getRowForFolder(`${imapRootFolder.URI}/Baz`));
@@ -480,61 +497,3 @@ function checkTreeRow(tree, index, expected) {
     // Properties usually has "subscribed-false", but sometimes it doesn't.
   }
 }
-
-var IMAPServer = {
-  open(username) {
-    const { ImapDaemon, ImapMessage, IMAP_RFC3501_handler } =
-      ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
-    IMAPServer.ImapMessage = ImapMessage;
-
-    this.daemon = new ImapDaemon();
-    this.daemon.createMailbox("Bar", { subscribed: false });
-    this.daemon.createMailbox("Baz", { subscribed: true });
-    this.daemon.createMailbox("Foo", { subscribed: false });
-    this.daemon.createMailbox("Foo/Subfoo", { subscribed: false });
-    this.daemon.getMailbox("INBOX").specialUseFlag = "\\Inbox";
-    this.daemon.getMailbox("INBOX").subscribed = true;
-    this.server = new nsMailServer(
-      daemon => new IMAP_RFC3501_handler(daemon, { username }),
-      this.daemon
-    );
-    this.server.start();
-
-    registerCleanupFunction(() => this.close());
-  },
-  close() {
-    this.server.stop();
-  },
-  get port() {
-    return this.server.port;
-  },
-};
-
-var NNTPServer = {
-  open() {
-    const { NNTP_RFC977_handler, NntpDaemon } = ChromeUtils.import(
-      "resource://testing-common/mailnews/Nntpd.jsm"
-    );
-
-    this.daemon = new NntpDaemon();
-    this.daemon.addGroup("subscribe.bar");
-    this.daemon.addGroup("subscribe.baz");
-    this.daemon.addGroup("subscribe.baz.subbaz");
-    this.daemon.addGroup("subscribe.foo");
-    this.server = new nsMailServer(
-      daemon => new NNTP_RFC977_handler(daemon),
-      this.daemon
-    );
-    this.server.start();
-
-    registerCleanupFunction(() => this.close());
-  },
-
-  close() {
-    this.server.stop();
-  },
-
-  get port() {
-    return this.server.port;
-  },
-};

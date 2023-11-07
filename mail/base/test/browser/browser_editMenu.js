@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
+const { IMAPServer } = ChromeUtils.importESModule(
+  "resource://testing-common/IMAPServer.sys.mjs"
 );
 const { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-const { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
+const { NNTPServer } = ChromeUtils.importESModule(
+  "resource://testing-common/NNTPServer.sys.mjs"
 );
 const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
@@ -43,6 +43,8 @@ if (AppConstants.platform == "linux") {
 }
 const helper = new MenuTestHelper("menu_Edit", editMenuData);
 
+let imapServer, nntpServer;
+
 const tabmail = document.getElementById("tabmail");
 let rootFolder, testFolder, testMessages, virtualFolder;
 let nntpRootFolder, nntpFolder;
@@ -75,20 +77,20 @@ add_setup(async function () {
   folderInfo.setCharProperty("searchStr", "ALL");
   folderInfo.setCharProperty("searchFolderUri", testFolder.URI);
 
-  NNTPServer.open();
-  NNTPServer.addGroup("edit.menu.newsgroup");
+  nntpServer = new NNTPServer(this);
+  nntpServer.addGroup("edit.menu.newsgroup");
   const nntpAccount = MailServices.accounts.createAccount();
   nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
     `${nntpAccount.key}user`,
     "localhost",
     "nntp"
   );
-  nntpAccount.incomingServer.port = NNTPServer.port;
+  nntpAccount.incomingServer.port = nntpServer.port;
   nntpRootFolder = nntpAccount.incomingServer.rootFolder;
   nntpRootFolder.createSubfolder("edit.menu.newsgroup", null);
   nntpFolder = nntpRootFolder.getChildNamed("edit.menu.newsgroup");
 
-  IMAPServer.open();
+  imapServer = new IMAPServer(this);
   const imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(MailServices.accounts.createIdentity());
   imapAccount.incomingServer = MailServices.accounts.createIncomingServer(
@@ -96,20 +98,18 @@ add_setup(async function () {
     "localhost",
     "imap"
   );
-  imapAccount.incomingServer.port = IMAPServer.port;
+  imapAccount.incomingServer.port = imapServer.port;
   imapAccount.incomingServer.username = "user";
   imapAccount.incomingServer.password = "password";
   imapAccount.incomingServer.deleteModel = Ci.nsMsgImapDeleteModels.IMAPDelete;
   imapRootFolder = imapAccount.incomingServer.rootFolder;
   imapFolder = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
-  IMAPServer.addMessages(imapFolder, generator.makeMessages({}));
+  imapServer.addMessages(imapFolder, generator.makeMessages({}));
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
-    NNTPServer.close();
-    IMAPServer.close();
   });
 });
 
@@ -433,77 +433,3 @@ add_task(async function testPropertiesItem() {
   displayFolder(nntpFolder);
   await testDialog(nntpFolder, { l10nID: "menu-edit-newsgroup-properties" });
 });
-
-var NNTPServer = {
-  open() {
-    const { NNTP_RFC977_handler, NntpDaemon } = ChromeUtils.import(
-      "resource://testing-common/mailnews/Nntpd.jsm"
-    );
-
-    this.daemon = new NntpDaemon();
-    this.server = new nsMailServer(
-      daemon => new NNTP_RFC977_handler(daemon),
-      this.daemon
-    );
-    this.server.start();
-
-    registerCleanupFunction(() => this.close());
-  },
-
-  close() {
-    this.server.stop();
-  },
-
-  get port() {
-    return this.server.port;
-  },
-
-  addGroup(group) {
-    return this.daemon.addGroup(group);
-  },
-};
-
-var IMAPServer = {
-  open() {
-    const { ImapDaemon, ImapMessage, IMAP_RFC3501_handler } =
-      ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
-    IMAPServer.ImapMessage = ImapMessage;
-
-    this.daemon = new ImapDaemon();
-    this.server = new nsMailServer(
-      daemon => new IMAP_RFC3501_handler(daemon),
-      this.daemon
-    );
-    this.server.start();
-
-    registerCleanupFunction(() => this.close());
-  },
-  close() {
-    this.server.stop();
-  },
-  get port() {
-    return this.server.port;
-  },
-
-  addMessages(folder, messages) {
-    const fakeFolder = IMAPServer.daemon.getMailbox(folder.name);
-    messages.forEach(message => {
-      if (typeof message != "string") {
-        message = message.toMessageString();
-      }
-      const msgURI = Services.io.newURI(
-        "data:text/plain;base64," + btoa(message)
-      );
-      const imapMsg = new IMAPServer.ImapMessage(
-        msgURI.spec,
-        fakeFolder.uidnext++,
-        []
-      );
-      fakeFolder.addMessage(imapMsg);
-    });
-
-    return new Promise(resolve =>
-      mailTestUtils.updateFolderAndNotify(folder, resolve)
-    );
-  },
-};

@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { GmailServer } = ChromeUtils.importESModule(
+  "resource://testing-common/IMAPServer.sys.mjs"
+);
 const { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
@@ -982,7 +985,7 @@ add_task(async function testDeferredAccount() {
  * Check that it doesn't appear when for a new or existing account.
  */
 add_task(async function testGmailFolders() {
-  IMAPServer.open();
+  const imapServer = new GmailServer(this);
   // Set up a fake Gmail account.
   const gmailAccount = MailServices.accounts.createAccount();
   const gmailServer = MailServices.accounts.createIncomingServer(
@@ -990,7 +993,7 @@ add_task(async function testGmailFolders() {
     "localhost",
     "imap"
   );
-  gmailServer.port = IMAPServer.port;
+  gmailServer.port = imapServer.port;
   gmailServer.password = "password";
   gmailAccount.incomingServer = gmailServer;
 
@@ -1411,52 +1414,3 @@ function expandAll(modeName) {
     folderTree.expandRow(folderTreeRow);
   }
 }
-
-var IMAPServer = {
-  open() {
-    const {
-      ImapDaemon,
-      ImapMessage,
-      IMAP_GMAIL_extension,
-      IMAP_RFC3348_extension,
-      IMAP_RFC3501_handler,
-      mixinExtension,
-    } = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
-    const { nsMailServer } = ChromeUtils.import(
-      "resource://testing-common/mailnews/Maild.jsm"
-    );
-    IMAPServer.ImapMessage = ImapMessage;
-
-    this.daemon = new ImapDaemon();
-    this.daemon.getMailbox("INBOX").specialUseFlag = "\\Inbox";
-    this.daemon.getMailbox("INBOX").subscribed = true;
-    this.daemon.createMailbox("Trash", {
-      flags: ["\\Trash"],
-      subscribed: true,
-    });
-    this.daemon.createMailbox("[Gmail]", {
-      flags: ["\\NoSelect"],
-      subscribed: true,
-    });
-    this.daemon.createMailbox("[Gmail]/All Mail", {
-      flags: ["\\Archive"],
-      subscribed: true,
-      specialUseFlag: "\\AllMail",
-    });
-    this.server = new nsMailServer(daemon => {
-      const handler = new IMAP_RFC3501_handler(daemon);
-      mixinExtension(handler, IMAP_GMAIL_extension);
-      mixinExtension(handler, IMAP_RFC3348_extension);
-      return handler;
-    }, this.daemon);
-    this.server.start();
-
-    registerCleanupFunction(() => this.close());
-  },
-  close() {
-    this.server.stop();
-  },
-  get port() {
-    return this.server.port;
-  },
-};
