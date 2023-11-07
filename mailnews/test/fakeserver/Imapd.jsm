@@ -1463,6 +1463,7 @@ class IMAP_RFC3501_handler {
     for (var i = 0; i < messages.length; i++) {
       response += "* " + ids[i] + " FETCH (";
       var parts = [];
+      const flagsBefore = messages[i].flags.slice();
       for (const item of items) {
         // Brief explanation: an item like BODY[]<> can't be hardcoded easily,
         // so we go for the initial alphanumeric substring, passing in the
@@ -1478,6 +1479,15 @@ class IMAP_RFC3501_handler {
         } catch (ex) {
           return "BAD error in fetching: " + ex;
         }
+      }
+      const flagsAfter = messages[i].flags;
+      if (
+        !items.includes("FLAGS") &&
+        (flagsAfter.length != flagsBefore.length ||
+          flagsAfter.some((f, i) => f != flagsBefore[i]))
+      ) {
+        // Flags changed, send them too, even though they weren't requested.
+        parts.push(this._FETCH_FLAGS(messages[i], "FLAGS"));
       }
       response += parts.join(" ") + ")\0";
     }
