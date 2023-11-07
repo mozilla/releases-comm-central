@@ -4857,7 +4857,9 @@ void nsImapProtocol::NotifyMessageFlags(imapMessageFlagsType flags,
   if (m_imapMessageSink) {
     // if we're selecting the folder, don't need to report the flags; we've
     // already fetched them.
-    if (m_imapAction != nsIImapUrl::nsImapSelectFolder)
+    if (m_imapAction != nsIImapUrl::nsImapSelectFolder &&
+        (m_imapAction != nsIImapUrl::nsImapMsgFetch ||
+         (flags & ~kImapMsgRecentFlag) != kImapMsgSeenFlag))
       m_imapMessageSink->NotifyMessageFlags(flags, keywords, key,
                                             highestModSeq);
   }
