@@ -3,36 +3,34 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!-- DTD File with all strings specific to the file -->
-<!DOCTYPE window SYSTEM "chrome://calendar/locale/calendar.dtd">
-
-<window
-  id="chooseCalendar"
-  title="&calendar.select.dialog.title;"
-  windowtype="Calendar:CalendarPicker"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html SYSTEM "chrome://calendar/locale/calendar.dtd">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  onload="setTimeout(loadCalendars, 0);"
+  scrolling="false"
   lightweightthemes="true"
-  persist="screenX screenY height width"
+  persist="screenX screenY"
 >
-  <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://calendar/skin/shared/dialogs/chooseCalendarDialog.css"
-  />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
-
-  <dialog buttons="accept,cancel">
-    <script src="chrome://calendar/content/calendar-ui-utils.js" />
-    <script src="chrome://calendar/content/chooseCalendarDialog.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <vbox id="dialog-box" flex="1">
+  <head>
+    <title>&calendar.select.dialog.title;</title>
+    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="stylesheet" href="chrome://calendar/skin/shared/dialogs/chooseCalendarDialog.css" />
+    <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+    <script defer="defer" src="chrome://calendar/content/chooseCalendarDialog.js"></script>
+  </head>
+  <body>
+    <xul:dialog
+      buttons="accept,cancel"
+      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    >
       <label id="prompt" control="calendar-list" />
-      <richlistbox id="calendar-list" flex="1" seltype="single" />
+      <richlistbox id="calendar-list" seltype="single" />
       <description id="promptNotify" />
-    </vbox>
-  </dialog>
-</window>
+    </xul:dialog>
+  </body>
+</html>

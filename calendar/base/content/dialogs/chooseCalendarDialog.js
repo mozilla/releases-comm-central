@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported loadCalendars */
-
 /* import-globals-from ../calendar-ui-utils.js */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
+window.addEventListener("load", event => {
+  loadCalendars();
+});
 function loadCalendars() {
   const calendarManager = Cc["@mozilla.org/calendar/manager;1"].getService(Ci.calICalendarManager);
   let listbox = document.getElementById("calendar-list");
   let composite = cal.view.getCompositeCalendar(window.opener);
   let selectedIndex = 0;
   let calendars;
-
   if (window.arguments[0].calendars) {
     calendars = window.arguments[0].calendars;
   } else {
@@ -45,6 +45,7 @@ function loadCalendars() {
       selectedIndex = i;
     }
   }
+
   document.getElementById("prompt").textContent = window.arguments[0].promptText;
   if (window.arguments[0].promptNotify) {
     document.getElementById("promptNotify").textContent = window.arguments[0].promptNotify;
@@ -74,7 +75,8 @@ function loadCalendars() {
     accept.setAttribute("disabled", "true");
   }
 
-  window.sizeToContent();
+  // Workaround for #calendar-list not showing properly.
+  requestAnimationFrame(() => window.resizeBy(1, 0));
 }
 
 document.addEventListener("dialogaccept", () => {

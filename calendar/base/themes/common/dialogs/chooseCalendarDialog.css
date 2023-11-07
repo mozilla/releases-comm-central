@@ -7,6 +7,10 @@
   min-height: 200px;
 }
 
+#calendar-list {
+  flex: 1 1 0;
+}
+
 richlistitem {
   padding: 4px 8px;
   align-items: center;
