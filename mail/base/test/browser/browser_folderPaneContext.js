@@ -3,39 +3,51 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+
 const { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
+const { NNTPServer } = ChromeUtils.importESModule(
+  "resource://testing-common/NNTPServer.sys.mjs"
+);
 
-const servers = ["server", "rssRoot"];
+const servers = ["server", "nntpRoot", "rssRoot"];
 const realFolders = ["plain", "inbox", "junk", "trash", "rssFeed"];
 
 const folderPaneContextData = {
-  "folderPaneContext-getMessages": [...servers, "rssFeed"],
+  "folderPaneContext-getMessages": [...servers, "nntpGroup", "rssFeed"],
   "folderPaneContext-pauseAllUpdates": ["rssRoot"],
   "folderPaneContext-pauseUpdates": ["rssFeed"],
   "folderPaneContext-openNewTab": true,
   "folderPaneContext-openNewWindow": true,
-  "folderPaneContext-searchMessages": [...servers, ...realFolders],
-  "folderPaneContext-subscribe": ["rssRoot", "rssFeed"],
-  "folderPaneContext-newsUnsubscribe": [],
-  "folderPaneContext-new": [...servers, ...realFolders],
-  "folderPaneContext-remove": ["plain", "junk", "virtual", "rssFeed"],
+  "folderPaneContext-searchMessages": [...servers, ...realFolders, "nntpGroup"],
+  "folderPaneContext-subscribe": ["nntpRoot", "rssRoot", "rssFeed"],
+  "folderPaneContext-newsUnsubscribe": ["nntpGroup"],
+  "folderPaneContext-new": ["server", "rssRoot", ...realFolders],
+  "folderPaneContext-remove": [
+    "plain",
+    "junk",
+    "virtual",
+    "nntpGroup",
+    "rssFeed",
+  ],
   "folderPaneContext-rename": ["plain", "junk", "virtual", "rssFeed"],
+  "folderPaneContext-moveMenu": ["plain", "virtual", "rssFeed"],
+  "folderPaneContext-copyMenu": ["plain", "rssFeed"],
   "folderPaneContext-compact": [...servers, ...realFolders],
   "folderPaneContext-markMailFolderAllRead": [...realFolders, "virtual"],
-  "folderPaneContext-markNewsgroupAllRead": [],
+  "folderPaneContext-markNewsgroupAllRead": ["nntpGroup"],
   "folderPaneContext-emptyTrash": ["trash"],
   "folderPaneContext-emptyJunk": ["junk"],
   "folderPaneContext-sendUnsentMessages": [],
-  "folderPaneContext-favoriteFolder": [...realFolders, "virtual"],
-  "folderPaneContext-properties": [...realFolders, "virtual"],
+  "folderPaneContext-favoriteFolder": [...realFolders, "virtual", "nntpGroup"],
+  "folderPaneContext-properties": [...realFolders, "virtual", "nntpGroup"],
   "folderPaneContext-markAllFoldersRead": [...servers],
   "folderPaneContext-settings": [...servers],
   "folderPaneContext-manageTags": ["tags"],
-  "folderPaneContext-moveMenu": ["plain", "virtual", "rssFeed"],
-  "folderPaneContext-copyMenu": ["plain", "rssFeed"],
 };
+
+let nntpServer;
 
 const generator = new MessageGenerator();
 const tabmail = document.getElementById("tabmail");
@@ -49,6 +61,7 @@ let rootFolder,
   junkFolder,
   trashFolder,
   virtualFolder;
+let nntpRootFolder, nntpGroupFolder;
 let rssRootFolder, rssFeedFolder;
 let tagsFolder;
 
@@ -93,6 +106,25 @@ add_setup(async function () {
   folderInfo.setCharProperty("searchStr", "ALL");
   folderInfo.setCharProperty("searchFolderUri", plainFolder.URI);
 
+  nntpServer = new NNTPServer(this);
+  nntpServer.addGroup("folder.pane.context.newsgroup");
+  nntpServer.addMessages(
+    "folder.pane.context.newsgroup",
+    generator.makeMessages({ count: 8 })
+  );
+  const nntpAccount = MailServices.accounts.createAccount();
+  nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    `${nntpAccount.key}user`,
+    "localhost",
+    "nntp"
+  );
+  nntpAccount.incomingServer.port = nntpServer.port;
+  nntpRootFolder = nntpAccount.incomingServer.rootFolder;
+  nntpRootFolder.createSubfolder("folder.pane.context.newsgroup", null);
+  nntpGroupFolder = nntpRootFolder.getChildNamed(
+    "folder.pane.context.newsgroup"
+  );
+
   const rssAccount = FeedUtils.createRssAccount("rss");
   rssRootFolder = rssAccount.incomingServer.rootFolder;
   FeedUtils.subscribeToFeed(
@@ -108,6 +140,7 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
+    MailServices.accounts.removeAccount(nntpAccount, false);
     MailServices.accounts.removeAccount(rssAccount, false);
     about3Pane.folderPane.activeModes = ["all"];
     Services.prefs.clearUserPref("mail.tabs.loadInBackground");
@@ -131,6 +164,10 @@ add_task(async function testShownItems() {
   await rightClickOn(trashFolder, "trash");
   leftClickOn(virtualFolder);
   await rightClickOn(virtualFolder, "virtual");
+  leftClickOn(nntpRootFolder);
+  await rightClickOn(nntpRootFolder, "nntpRoot");
+  leftClickOn(nntpGroupFolder);
+  await rightClickOn(nntpGroupFolder, "nntpGroup");
   leftClickOn(rssRootFolder);
   await rightClickOn(rssRootFolder, "rssRoot");
   leftClickOn(rssFeedFolder);
@@ -564,6 +601,15 @@ add_task(async function testMarkAllRead() {
   checkUnreadCount(inboxSubfolder, 0);
   checkUnreadCount(plainFolder, 0);
 
+  // Mark a newsgroup as read.
+
+  checkUnreadCount(nntpGroupFolder, 8);
+  await rightClickAndActivate(
+    nntpGroupFolder,
+    "folderPaneContext-markNewsgroupAllRead"
+  );
+  checkUnreadCount(nntpGroupFolder, 0);
+
   // Mark an RSS feed as read.
 
   checkUnreadCount(rssFeedFolder, 1);
@@ -572,8 +618,6 @@ add_task(async function testMarkAllRead() {
     "folderPaneContext-markMailFolderAllRead"
   );
   checkUnreadCount(rssFeedFolder, 0);
-
-  // TODO: same, but for NNTP.
 
   // Mark the unified inbox as read.
 

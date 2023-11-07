@@ -517,9 +517,10 @@ var folderPaneContextMenu = {
       }
     } else {
       // Non-virtual. Don't allow move or copy of special use or root folder.
-      const okToMoveCopy = !(
-        isServer || flags & Ci.nsMsgFolderFlags.SpecialUse
-      );
+      const okToMoveCopy =
+        !isServer &&
+        !(flags & Ci.nsMsgFolderFlags.SpecialUse) &&
+        serverType != "nntp";
       if (okToMoveCopy) {
         // Set the move menu to show all accounts.
         movePopup.parentFolder = null;
