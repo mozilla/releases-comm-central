@@ -147,9 +147,9 @@
   }
 }
 
-[is="tree-view-table-body"]:focus > .selected button,
-[is="tree-view-table-body"]:focus-within > .selected button,
-[is="tree-view-table-body"] > .selected:focus-within button {
+[is="tree-view-table-body"]:focus > [is="thread-row"].selected button,
+[is="tree-view-table-body"]:focus-within > [is="thread-row"].selected button,
+[is="tree-view-table-body"] > [is="thread-row"].selected:focus-within button {
   color: currentColor;
 }
 
@@ -163,11 +163,10 @@
   min-height: 16px;
   min-width: 16px;
   opacity: 0.7;
-}
 
-#threadTree[rows="thread-card"] button:hover {
-  opacity: 1;
-  color: currentColor;
+  &:hover {
+    opacity: 1;
+  }
 }
 
 tr[data-properties~="untagged"][data-properties~="unread"] {
@@ -188,9 +187,9 @@ tr[data-properties~="tagged"] .tag-icon {
   color: var(--tag-color, currentColor);
 }
 
-[is="tree-view-table-body"]:focus > .selected[data-properties~="tagged"] :is(.tag-icon, .subject),
-[is="tree-view-table-body"]:focus-within > .selected[data-properties~="tagged"] :is(.tag-icon, .subject),
-[is="tree-view-table-body"] > .selected[data-properties~="tagged"]:focus-within :is(.tag-icon, .subject) {
+[is="tree-view-table-body"]:focus > [is="thread-row"].selected[data-properties~="tagged"] :is(.tag-icon, .subject),
+[is="tree-view-table-body"]:focus-within > [is="thread-row"].selected[data-properties~="tagged"] :is(.tag-icon, .subject),
+[is="tree-view-table-body"] > [is="thread-row"].selected[data-properties~="tagged"]:focus-within :is(.tag-icon, .subject) {
   color: currentColor;
 }
 
@@ -298,11 +297,11 @@ tr[data-properties~="flagged"] .button-star {
 }
 
 [is="tree-view-table-body"]:focus >
-  .selected :is(.attachmentcol-column img, .attachment-icon),
+    [is="thread-row"].selected :is(.attachmentcol-column img, .attachment-icon),
 [is="tree-view-table-body"]:focus-within >
-  .selected :is(.attachmentcol-column img, .attachment-icon),
+    [is="thread-row"].selected :is(.attachmentcol-column img, .attachment-icon),
 [is="tree-view-table-body"] >
-  .selected:focus-within :is(.attachmentcol-column img, .attachment-icon) {
+    [is="thread-row"].selected:focus-within :is(.attachmentcol-column img, .attachment-icon) {
   color: currentColor;
 }
 
@@ -464,14 +463,14 @@ tr[data-properties~="replied"][data-properties~="forwarded"][data-properties~="r
   stroke: var(--color-purple-50);
 }
 
-[is="tree-view-table-body"]:focus > .selected :is(.subject-line img, .state),
-[is="tree-view-table-body"]:focus-within > .selected :is(.subject-line img, .state),
-[is="tree-view-table-body"] > .selected:focus-within :is(.subject-line img, .state) {
+[is="tree-view-table-body"]:focus > [is="thread-row"].selected :is(.subject-line img, .state),
+[is="tree-view-table-body"]:focus-within > [is="thread-row"].selected :is(.subject-line img, .state),
+[is="tree-view-table-body"] > [is="thread-row"].selected:focus-within :is(.subject-line img, .state) {
   fill: currentColor !important;
   stroke: currentColor !important;
 }
 
-tr:is([is="thread-row"], [is="thread-card"]) .twisty {
+tr[is="thread-row"] .twisty {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
@@ -483,6 +482,9 @@ tr:is([is="thread-row"], [is="thread-card"]) .twisty {
   height: 13px;
   min-width: 12px;
   min-height: 13px;
+  &:hover {
+    color: currentColor;
+  }
 }
 
 tr:is([is="thread-row"], [is="thread-card"]):not(.children) .twisty {

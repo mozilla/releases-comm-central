@@ -14,6 +14,7 @@
   --table-row-cell-img-margin-inline-start: 6px;
   --table-row-cell-button-margin-inline-start: 4px;
   --card-outline-offset: -2px;
+  --selection-indicator-width: 4px;
 }
 
 :root[uidensity="compact"] {
@@ -27,6 +28,7 @@
   --table-header-cell-icon-button-padding: 0;
   --table-row-cell-img-margin-inline-start: 3px;
   --table-row-cell-button-margin-inline-start: 1px;
+  --selection-indicator-width: 3px;
 }
 
 :root[uidensity="touch"] {
@@ -39,6 +41,7 @@
   --table-row-cell-img-margin-inline-start: 11px;
   --table-row-cell-button-margin-inline-start: 9px;
   --card-outline-offset: -3px;
+  --selection-indicator-width: 5px;
 }
 
 @media not (prefers-contrast) {
@@ -56,6 +59,16 @@
     --tree-view-header-hover-active-bg: var(--color-gray-30);
     --tree-view-header-border-color: var(--color-gray-30);
     --tree-row-delete-button-color: var(--color-red-60);
+    --card-view-color: light-dark(var(--color-blue-80), var(--color-blue-40));
+    --card-view-sender-color: var(--layout-color-1);
+    --card-view-subject-color: var(--layout-color-2);
+    --card-view-date-color: var(--layout-color-2);
+    --card-view-background-selected-unfocused: light-dark(color-mix(in srgb, transparent 25%, var(--color-gray-20)), color-mix(in srgb, transparent 25%, var(--color-gray-70)));
+    --card-view-background-selected-focused: light-dark(color-mix(in srgb, transparent 25%, var(--color-blue-10)), color-mix(in srgb, transparent 25%, var(--color-blue-90)));
+    --selection-indicator-background-selected-unfocused: light-dark(var(--color-gray-30), var(--color-gray-50));
+    --selection-indicator-background-selected-focused: var(--color-blue-50);
+    --selection-indicator-border-selected-unfocused: light-dark(var(--color-gray-50), var(--color-gray-70));
+    --selection-indicator-border-selected-focused: var(--color-blue-70);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -85,6 +98,11 @@
     --tree-view-color: FieldText;
     --tree-view-header-hover-bg: color-mix(in srgb, Field 70%, hsl(0, 0%, 50%));
     --tree-view-header-border-color: ThreeDShadow;
+    --card-view-color-selected-focused: SelectedItemText;
+    --card-view-background-selected-focused: SelectedItem;
+    --card-view-background-selected-unfocused: color-mix(in srgb, transparent 80%, var(--card-view-background-selected-focused));
+    --selection-indicator-background-selected-unfocused: SelectedItem;
+    --selection-indicator-background-selected-focused: SelectedItemText;
   }
 }
 
@@ -122,22 +140,33 @@
 }
 
 @media (prefers-contrast) {
-  [is="tree-view-table-body"] > *:hover {
-    outline: var(--listbox-selected-outline);
-    outline-offset: -2px;
-  }
+  [is="tree-view-table-body"] {
+    & > *:hover {
+      outline: var(--listbox-selected-outline);
+      outline-offset: -2px;
+    }
 
-  [is="tree-view-table-body"] > [is="thread-card"]:hover {
-    outline-offset: var(--card-outline-offset);
+    /* Thread card selection styles */
+    & > [is="thread-card"] {
+      &:hover {
+        outline-offset: var(--card-outline-offset);
+      }
+    }
+    /* Thread card selection focused styles */
+    &:focus > [is="thread-card"].selected,
+    &:focus-within > [is="thread-card"].selected,
+    & > [is="thread-card"].selected:focus-within {
+      color: var(--card-view-color-selected-focused);
+    }
   }
 }
 
-[is="tree-view-table-body"] > .selected {
+[is="tree-view-table-body"] > tr[is="thread-row"].selected {
   background-color: var(--listbox-selected-bg);
 }
 
-[is="tree-view-table-body"]:focus > .selected,
-[is="tree-view-table-body"]:focus-within > .selected {
+[is="tree-view-table-body"]:focus > tr[is="thread-row"].selected,
+[is="tree-view-table-body"]:focus-within > tr[is="thread-row"].selected {
   color: var(--listbox-selected-color);
 }
 
@@ -154,16 +183,7 @@
       outline-offset: var(--card-outline-offset);
     }
   }
-}
 
-[is="tree-view-table-body"]:focus > .selected,
-[is="tree-view-table-body"]:focus-within > .selected,
-[is="tree-view-table-body"] > .selected:focus-within {
-  color: var(--listbox-selected-color);
-  background-color: var(--listbox-focused-selected-bg);
-}
-
-[is="tree-view-table-body"] {
   tr.context-menu-target {
     background-color: color-mix(in srgb, var(--treeitem-background-active) 10%, transparent);
     outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
@@ -171,6 +191,90 @@
 
     &[is="thread-card"] {
       outline-offset: var(--card-outline-offset);
+    }
+  }
+
+  /* Thread row selection styles */
+  &:focus > [is="thread-row"].selected,
+  &:focus-within > [is="thread-row"].selected,
+  & > [is="thread-row"].selected:focus-within {
+    color: var(--listbox-selected-color);
+    background-color: var(--listbox-focused-selected-bg);
+
+    & img {
+      fill: color-mix(in srgb, currentColor 40%, transparent);
+      stroke: currentColor;
+    }
+
+    & .tree-view-row-thread img {
+      stroke: var(--listbox-selected-color);
+    }
+  }
+
+  & [is="thread-row"].selected .twisty {
+    color: currentColor;
+  }
+
+  /* Thread card selection styles */
+  & > [is="thread-card"] {
+    .thread-card-icon-info {
+        color: var(--card-view-color);
+      }
+
+    .sender {
+      color: var(--card-view-sender-color);
+    }
+
+    .subject {
+      color: var(--card-view-subject-color);
+    }
+
+    .date {
+      color: var(--card-view-date-color);
+    }
+
+    img {
+      -moz-context-properties: fill, stroke;
+      fill: color-mix(in srgb, currentColor 20%, transparent);
+      stroke: var(--layout-color-2);
+
+      &.tag-icon {
+        stroke: var(--tag-color);
+      }
+    }
+
+    & > td::before {
+      content: "";
+      position: absolute;
+      inset-inline-start: 0;
+      background-color: transparent;
+      border-inline-end: 1px solid transparent;
+      width: var(--selection-indicator-width);
+      height: inherit;
+    }
+
+    &.selected {
+      background: var(--card-view-background-selected-unfocused);
+
+      & > td::before {
+        background-color: var(--selection-indicator-background-selected-unfocused);
+        border-color: var(--selection-indicator-border-selected-unfocused);
+      }
+    }
+  }
+
+  &:focus > [is="thread-card"].selected,
+  &:focus-within > [is="thread-card"].selected,
+  & > [is="thread-card"].selected:focus-within {
+    background: var(--card-view-background-selected-focused);
+
+    & > td::before {
+      background-color: var(--selection-indicator-background-selected-focused);
+      border-color: var(--selection-indicator-border-selected-focused);
+    }
+    & img {
+      fill: color-mix(in srgb, currentColor 40%, transparent);
+      stroke: currentColor;
     }
   }
 }
@@ -188,9 +292,9 @@
   }
 }
 
-[is="tree-view-table-body"]:focus > .selected img,
-[is="tree-view-table-body"]:focus-within > .selected img,
-[is="tree-view-table-body"] > .selected:focus-within img {
+[is="tree-view-table-body"]:focus > [is="thread-row"].selected img,
+[is="tree-view-table-body"]:focus-within > [is="thread-row"].selected img,
+[is="tree-view-table-body"] > [is="thread-row"].selected:focus-within img {
   fill: color-mix(in srgb, currentColor 40%, transparent);
   stroke: currentColor;
 }
@@ -200,7 +304,7 @@
   stroke: var(--listbox-selected-color);
 }
 
-tr:is([is="thread-row"], [is="thread-card"]).selected .twisty {
+tr[is="thread-row"].selected .twisty {
   color: currentColor;
 }
 
