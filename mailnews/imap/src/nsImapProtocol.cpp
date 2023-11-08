@@ -860,6 +860,8 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
                         nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
                         nsIContentPolicy::TYPE_OTHER);
       m_mockChannel = do_QueryInterface(channel);
+      NS_ASSERTION(m_mockChannel,
+                   "failed to get a mock channel in nsImapProtocol");
 
       // Certain imap operations (not initiated by the IO Service via AsyncOpen)
       // can be interrupted by  the stop button on the toolbar. We do this by

@@ -2371,7 +2371,40 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
       // we want to use our existing event sink.
       if (prevEventSink) channel->SetProgressEventSink(prevEventSink);
     }
+  } else {
+    // This might not be a call resulting from user action (e.g. we might be
+    // getting a new message via nsImapMailFolder::OnNewIdleMessages(), or via
+    // nsAutoSyncManager, etc). In this case, try to retrieve the top-most
+    // message window to update its status feedback.
+    nsCOMPtr<nsIMsgMailSession> mailSession =
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIMsgWindow> msgWindow;
+    rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
+    if (NS_SUCCEEDED(rv) && msgWindow) {
+      // If we could retrieve a window, get its nsIMsgStatusFeedback and set it
+      // to the URL so that other components interacting with it can correctly
+      // feed status updates to the UI.
+      nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
+      msgWindow->GetStatusFeedback(getter_AddRefs(statusFeedback));
+      mailnewsUrl->SetStatusFeedback(statusFeedback);
+      // We also need to set the status feedback as the channel's progress event
+      // sink, since that's how nsImapProtocol feeds some of the progress
+      // changes (e.g. downloading incoming messages) to the UI.
+      nsCOMPtr<nsIProgressEventSink> eventSink =
+          do_QueryInterface(statusFeedback);
+      channel->SetProgressEventSink(eventSink);
+    }
+
+    // This function ends by checking the final value of rv and deciding whether
+    // to set aRetVal to our channel according to it. We don't want this to be
+    // impacted if we fail to retrieve a window (which might not work if we're
+    // being called through the command line, or through a test), so let's just
+    // reset rv to an OK value.
+    rv = NS_OK;
   }
+
   // the imap url holds a weak reference so we can pass the channel into the
   // imap protocol when we actually run the url.
   imapUrl->SetMockChannel(channel);

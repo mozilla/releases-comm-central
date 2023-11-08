@@ -69,12 +69,14 @@ var MailE10SUtils = {
    *
    * @see E10SUtils.jsm for remote types.
    *
-   * @param {nsIBrowser} browser
-   * @param {string} remoteType
+   * @param {nsIBrowser} browser - the browser to enforce the remoteness of.
+   * @param {string} remoteType - the remoteness to enforce.
+   * @returns {boolean} true if any change happened on the browser (which would
+   *    not be the case if its remoteness is already in the correct state).
    */
   changeRemoteness(browser, remoteType) {
     if (browser.remoteType == remoteType) {
-      return;
+      return false;
     }
 
     browser.destroy();
@@ -90,5 +92,7 @@ var MailE10SUtils = {
     browser.changeRemoteness({ remoteType });
     browser.construct();
     ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
+
+    return true;
   },
 };

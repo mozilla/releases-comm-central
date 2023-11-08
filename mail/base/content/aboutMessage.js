@@ -73,7 +73,7 @@ function MailSetCharacterSet() {
   messageService.loadMessage(
     gMessageURI,
     getMessagePaneBrowser().docShell,
-    null,
+    top.msgWindow,
     null,
     true
   );
@@ -101,13 +101,28 @@ window.addEventListener("DOMContentLoaded", event => {
   preferenceObserver.init();
   Services.obs.addObserver(msgObserver, "message-content-updated");
 
+  const browser = getMessagePaneBrowser();
+
   if (parent == top) {
     // Standalone message display? Focus the message pane.
-    getMessagePaneBrowser().focus();
+    browser.focus();
   }
 
   if (window.parent == window.top) {
     mailContextMenu.init();
+  }
+
+  // There might not be a msgWindow variable on the top window
+  // if we're e.g. showing a message in a dedicated window.
+  if (top.msgWindow) {
+    // Necessary plumbing to communicate status updates back to
+    // the user.
+    browser.docShell
+      ?.QueryInterface(Ci.nsIWebProgress)
+      .addProgressListener(
+        top.msgWindow.statusFeedback,
+        Ci.nsIWebProgress.NOTIFY_ALL
+      );
   }
 
   window.dispatchEvent(
@@ -207,9 +222,18 @@ function displayMessage(uri, viewWrapper) {
   }
 
   const browser = getMessagePaneBrowser();
-  MailE10SUtils.changeRemoteness(browser, null);
+  const browserChanged = MailE10SUtils.changeRemoteness(browser, null);
   browser.docShell.allowAuth = false;
   browser.docShell.allowDNSPrefetch = false;
+
+  if (browserChanged) {
+    browser.docShell
+      ?.QueryInterface(Ci.nsIWebProgress)
+      .addProgressListener(
+        top.msgWindow.statusFeedback,
+        Ci.nsIWebProgress.NOTIFY_ALL
+      );
+  }
 
   // @implements {nsIUrlListener}
   const urlListener = {
@@ -227,7 +251,13 @@ function displayMessage(uri, viewWrapper) {
     },
   };
   try {
-    messageService.loadMessage(uri, browser.docShell, null, urlListener, false);
+    messageService.loadMessage(
+      uri,
+      browser.docShell,
+      top.msgWindow,
+      urlListener,
+      false
+    );
   } catch (ex) {
     if (ex.result != Cr.NS_ERROR_OFFLINE) {
       throw ex;
