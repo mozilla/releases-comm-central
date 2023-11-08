@@ -15,11 +15,11 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
   MsgUtils: "resource:///modules/MimeMessageUtils.jsm",
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
+  MimeParser: "resource:///modules/mimeParser.jsm",
 });
 
 var EnigmailMime = {
@@ -154,175 +154,33 @@ var EnigmailMime = {
   },
 
   /***
-   * Determine if the message data contains a first mime part with
-   * content-type = "text/rfc822-headers"
+   * Determine if the message data contains protected headers.
    * If so, extract the corresponding field(s).
    *
-   * @param {string} contentData - The message data to extract from
-   * @returns {object} headers
-   * @returns {object} headers.newHeaders
-   * @returns {integer} headers.startPos
-   * @returns {integer} headers.endPos
-   * @returns {integer} headers.securityLevel
+   * @param {string} contentData - The message data to extract from.
+   * @returns {?StructuredHeaders} the protected headers, or null.
    */
   extractProtectedHeaders(contentData) {
-    // find first MIME delimiter. Anything before that delimiter is the top MIME structure
-    const m = contentData.search(/^--/m);
-
-    const protectedHdr = [
-      "subject",
-      "date",
-      "from",
-      "to",
-      "cc",
-      "reply-to",
-      "references",
-      "newsgroups",
-      "followup-to",
-      "message-id",
-    ];
-    const newHeaders = {};
-
-    // read headers of first MIME part and extract the boundary parameter
-    const outerHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
-      Ci.nsIMimeHeaders
-    );
-    outerHdr.initialize(contentData.substr(0, m));
-
-    let ct = outerHdr.extractHeader("content-type", false) || "";
-    if (ct === "") {
+    let [headers, body] = lazy.MimeParser.extractHeadersAndBody(contentData);
+    let contentType = headers.get("content-type");
+    if (
+      contentType?.type == "multipart/signed" &&
+      contentType?.get("protocol") == "application/pgp-signature"
+    ) {
+      // Multilayer PGP/MIME Message with Protected Headers.
+      // We need to look at what's signed instead.
+      headers = lazy.MimeParser.extractHeaders(body);
+      contentType = headers.get("content-type");
+    }
+    if (contentType?.get("protected-headers") != "v1") {
       return null;
     }
 
-    let startPos = -1,
-      endPos = -1,
-      bound = "";
-
-    if (ct.search(/^multipart\//i) === 0) {
-      // multipart/xyz message type
-      if (m < 5) {
-        return null;
-      }
-
-      bound = EnigmailMime.getBoundary(ct);
-      if (bound === "") {
-        return null;
-      }
-
-      // Escape regex chars in the boundary.
-      bound = bound.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
-      // search for "outer" MIME delimiter(s)
-      const r = new RegExp("^--" + bound, "mg");
-
-      startPos = -1;
-      endPos = -1;
-
-      // 1st match: start of 1st MIME-subpart
-      let match = r.exec(contentData);
-      if (match && match.index) {
-        startPos = match.index;
-      }
-
-      // 2nd  match: end of 1st MIME-subpart
-      match = r.exec(contentData);
-      if (match && match.index) {
-        endPos = match.index;
-      }
-
-      if (startPos < 0 || endPos < 0) {
-        return null;
-      }
-    } else {
-      startPos = contentData.length;
-      endPos = 0;
+    // Cache the headers we want to make available to serialization.
+    for (const header of ["subject", "date"]) {
+      headers.get(header);
     }
-
-    const headers = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
-      Ci.nsIMimeHeaders
-    );
-    headers.initialize(contentData.substring(0, startPos));
-
-    // we got a potentially protected header. Let's check ...
-    ct = headers.extractHeader("content-type", false) || "";
-    if (this.getParameter(ct, "protected-headers").search(/^v1$/i) !== 0) {
-      return null;
-    }
-
-    for (const i in protectedHdr) {
-      if (headers.hasHeader(protectedHdr[i])) {
-        const extracted = headers.extractHeader(protectedHdr[i], true);
-        newHeaders[protectedHdr[i]] =
-          lazy.jsmime.headerparser.decodeRFC2047Words(extracted) || undefined;
-      }
-    }
-
-    // contentBody holds the complete 1st MIME part
-    let contentBody = contentData.substring(
-      startPos + bound.length + 3,
-      endPos
-    );
-    const i = contentBody.search(/^[A-Za-z]/m); // skip empty lines
-    if (i > 0) {
-      contentBody = contentBody.substr(i);
-    }
-
-    headers.initialize(contentBody);
-
-    const innerCt = headers.extractHeader("content-type", false) || "";
-
-    if (innerCt.search(/^text\/rfc822-headers/i) === 0) {
-      const charset = EnigmailMime.getCharset(innerCt);
-      const ctt =
-        headers.extractHeader("content-transfer-encoding", false) || "";
-
-      // determine where the headers end and the MIME-subpart body starts
-      let bodyStartPos = contentBody.search(/\r?\n\s*\r?\n/) + 1;
-
-      if (bodyStartPos < 10) {
-        return null;
-      }
-
-      bodyStartPos += contentBody.substr(bodyStartPos).search(/^[A-Za-z]/m);
-
-      let ctBodyData = contentBody.substr(bodyStartPos);
-
-      if (ctt.search(/^base64/i) === 0) {
-        ctBodyData = lazy.EnigmailData.decodeBase64(ctBodyData) + "\n";
-      } else if (ctt.search(/^quoted-printable/i) === 0) {
-        ctBodyData = lazy.EnigmailData.decodeQuotedPrintable(ctBodyData) + "\n";
-      }
-
-      if (charset) {
-        ctBodyData = lazy.MailStringUtils.byteStringToString(
-          ctBodyData,
-          charset
-        );
-      }
-
-      // get the headers of the MIME-subpart body --> that's the ones we need
-      const bodyHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(
-        Ci.nsIMimeHeaders
-      );
-      bodyHdr.initialize(ctBodyData);
-
-      for (const i in protectedHdr) {
-        const extracted = bodyHdr.extractHeader(protectedHdr[i], true);
-        if (bodyHdr.hasHeader(protectedHdr[i])) {
-          newHeaders[protectedHdr[i]] =
-            lazy.jsmime.headerparser.decodeRFC2047Words(extracted) || undefined;
-        }
-      }
-    } else {
-      startPos = -1;
-      endPos = -1;
-    }
-
-    return {
-      newHeaders,
-      startPos,
-      endPos,
-      securityLevel: 0,
-    };
+    return headers;
   },
 
   /**

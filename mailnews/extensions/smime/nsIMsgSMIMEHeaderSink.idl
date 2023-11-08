@@ -20,14 +20,14 @@ interface nsIMsgSMIMEHeaderSink : nsISupports
                     in long aSignatureStatus,
                     in nsIX509Cert aSignerCert,
                     in AUTF8String aMsgNeckoURL,
-                    in ACString originMimePartNumber);
+                    in AUTF8String originMimePartNumber);
   void encryptionStatus(in long aNestingLevel,
                         in long aEncryptionStatus,
                         in nsIX509Cert aReceipientCert,
                         in AUTF8String aMsgNeckoURL,
-                        in ACString originMimePartNumber);
-  void ignoreStatusFrom(in ACString originMimePartNumber);
-  void handleSMimeMessage(in ACString uri);
+                        in AUTF8String originMimePartNumber);
+  void ignoreStatusFrom(in AUTF8String originMimePartNumber);
+  void handleSMimeMessage(in AUTF8String uri);
 
   /**
    * Although this interface claims it's specific for S/MIME, it was later
@@ -36,18 +36,18 @@ interface nsIMsgSMIMEHeaderSink : nsISupports
    * TODO: Clarify this interface, rename it, or split into two separate things.
    */
 
-  void modifyMessageHeaders(in ACString uri,
-                            in ACString headerData,
-                            in ACString mimePartNumber);
+  void modifyMessageHeaders(in AUTF8String uri,
+                            in AUTF8String headerData,
+                            in AUTF8String mimePartNumber);
   void updateSecurityStatus(in ACString exitCode,
-                            in ACString statusFlags,
-                            in ACString extStatusFlags,
-                            in ACString keyId,
-                            in ACString userId,
-                            in ACString sigDetails,
-                            in ACString errorMsg,
-                            in ACString blockSeparation,
-                            in ACString uri,
-                            in ACString extraDetails,
-                            in ACString mimePartNumber);
+                            in AUTF8String statusFlags,
+                            in AUTF8String extStatusFlags,
+                            in AUTF8String keyId,
+                            in AUTF8String userId,
+                            in AUTF8String sigDetails,
+                            in AUTF8String errorMsg,
+                            in AUTF8String blockSeparation,
+                            in AUTF8String uri,
+                            in AUTF8String extraDetails,
+                            in AUTF8String mimePartNumber);
 };

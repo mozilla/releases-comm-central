@@ -63,7 +63,6 @@ const headerSink = {
   hasUnauthenticatedParts() {
     return false;
   },
-  processDecryptionResult() {},
   updateSecurityStatus(
     exitCode,
     statusFlags,

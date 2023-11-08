@@ -893,7 +893,7 @@ add_task(async function testDecryptHtmlWithNBSP() {
  * Test that opening an encrypted (and signed) message with non-ascii subject
  * and body works.
  */
-add_task(async function testOpenSignedByUnverifiedEncrypted() {
+add_task(async function testOpenAliceToBobEncryptedNonASCII() {
   const opengpgprocessed = openpgpProcessed();
   const msgc = await open_message_from_file(
     new FileUtils.File(

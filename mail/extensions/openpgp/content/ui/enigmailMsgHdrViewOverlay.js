@@ -8,6 +8,8 @@
 /* import-globals-from ../../../../base/content/msgHdrView.js */
 /* import-globals-from ../../../smime/content/msgHdrViewSMIMEOverlay.js */
 
+/* eslint-enable valid-jsdoc */
+
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -970,105 +972,29 @@ Enigmail.hdrView = {
       }
     },
 
-    processDecryptionResult(uri, actionType, processData, mimePartNumber) {
-      EnigmailLog.DEBUG(
-        "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.processDecryptionResult:\n"
-      );
-      EnigmailLog.DEBUG(
-        "enigmailMsgHdrViewOverlay.js: actionType= " +
-          actionType +
-          ", mimePart=" +
-          mimePartNumber +
-          "\n"
-      );
-
-      const msg = gMessage;
-      if (!msg) {
-        return;
-      }
-      if (!this.isCurrentMessage(uri)) {
-        return;
-      }
-
-      switch (actionType) {
-        case "modifyMessageHeaders":
-          this.modifyMessageHeaders(uri, processData, mimePartNumber);
-          break;
-        /*
-        case "wksConfirmRequest":
-          Enigmail.hdrView.checkWksConfirmRequest(processData);
-        */
-      }
-    },
-
     modifyMessageHeaders(uri, headerData, mimePartNumber) {
       EnigmailLog.DEBUG(
         "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.modifyMessageHeaders:\n"
       );
-
-      const msg = gMessage;
-      if (!msg) {
+      if (!gMessage) {
         return;
       }
       if (!this.isCurrentMessage(uri)) {
         return;
       }
-
-      const uriSpec = uri ? uri.spec : null;
-      let hdr;
-
-      try {
-        hdr = JSON.parse(headerData);
-      } catch (ex) {
-        EnigmailLog.DEBUG(
-          "enigmailMsgHdrViewOverlay.js: modifyMessageHeaders: - no headers to display\n"
-        );
+      if (!this.displaySubPart(mimePartNumber, uri.spec)) {
         return;
       }
 
-      if (typeof hdr !== "object") {
-        return;
-      }
-      if (!this.displaySubPart(mimePartNumber, uriSpec)) {
-        return;
-      }
-
+      const hdr = JSON.parse(headerData);
       if ("subject" in hdr) {
         Enigmail.hdrView.setSubject(hdr.subject);
       }
 
       if ("date" in hdr) {
-        msg.date = Date.parse(hdr.date) * 1000;
+        // FIXME: more work needed to update the UI. See setSubject.
+        gMessage.date = Date.parse(hdr.date) * 1000;
       }
-      /*
-            if ("newsgroups" in hdr) {
-              updateHdrBox("newsgroups", hdr.newsgroups);
-            }
-
-            if ("followup-to" in hdr) {
-              updateHdrBox("followup-to", hdr["followup-to"]);
-            }
-
-            if ("from" in hdr) {
-              gExpandedHeaderView.from.outputFunction(gExpandedHeaderView.from, hdr.from);
-              msg.setStringProperty("Enigmail-From", hdr.from);
-            }
-
-            if ("to" in hdr) {
-              gExpandedHeaderView.to.outputFunction(gExpandedHeaderView.to, hdr.to);
-              msg.setStringProperty("Enigmail-To", hdr.to);
-            }
-
-            if ("cc" in hdr) {
-              gExpandedHeaderView.cc.outputFunction(gExpandedHeaderView.cc, hdr.cc);
-              msg.setStringProperty("Enigmail-Cc", hdr.cc);
-            }
-
-            if ("reply-to" in hdr) {
-              gExpandedHeaderView["reply-to"].outputFunction(gExpandedHeaderView["reply-to"], hdr["reply-to"]);
-              msg.setStringProperty("Enigmail-ReplyTo", hdr["reply-to"]);
-            }
-      */
     },
 
     handleSMimeMessage(uri) {
@@ -1087,60 +1013,6 @@ Enigmail.hdrView = {
       }
     },
   },
-
-  /*
-  onUnloadEnigmail() {
-    window.removeEventListener("load-enigmail", Enigmail.hdrView.hdrViewLoad);
-    for (let i = 0; i < gMessageListeners.length; i++) {
-      if (gMessageListeners[i] === Enigmail.hdrView.messageListener) {
-        gMessageListeners.splice(i, 1);
-        break;
-      }
-    }
-
-    let signedHdrElement = document.getElementById("signedHdrIcon");
-    if (signedHdrElement) {
-      signedHdrElement.setAttribute(
-        "onclick",
-        "showMessageReadSecurityInfo();"
-      );
-    }
-
-    let encryptedHdrElement = document.getElementById("encryptedHdrIcon");
-    if (encryptedHdrElement) {
-      encryptedHdrElement.setAttribute(
-        "onclick",
-        "showMessageReadSecurityInfo();"
-      );
-    }
-
-    let addrPopup = document.getElementById("emailAddressPopup");
-    if (addrPopup) {
-      addrPopup.removeEventListener(
-        "popupshowing",
-        Enigmail.hdrView.displayAddressPopup
-      );
-    }
-
-    let attCtx = document.getElementById("attachmentItemContext");
-    if (attCtx) {
-      attCtx.removeEventListener(
-        "popupshowing",
-        this.onShowAttachmentContextMenu
-      );
-    }
-
-    let msgFrame = EnigmailWindows.getFrame(window, "messagepane");
-    if (msgFrame) {
-      msgFrame.removeEventListener(
-        "unload",
-        Enigmail.hdrView.messageUnload,
-        true
-      );
-      msgFrame.removeEventListener("load", Enigmail.hdrView.messageLoad);
-    }
-  },
-  */
 };
 
 window.addEventListener(

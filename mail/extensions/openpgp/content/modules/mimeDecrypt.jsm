@@ -126,7 +126,7 @@ function MimeDecryptHandler() {
   this.statusDisplayed = false;
   this.uri = null;
   this.backgroundJob = false;
-  this.decryptedHeaders = {};
+  this.decryptedHeaders = null;
   this.mimePartNumber = "";
   this.allowNestedDecrypt = false;
   this.dataIsBase64 = null;
@@ -196,7 +196,7 @@ MimeDecryptHandler.prototype = {
     this.outQueue = "";
     this.statusStr = "";
     this.headerMode = 0;
-    this.decryptedHeaders = {};
+    this.decryptedHeaders = null;
     this.xferEncoding = ENCODING_DEFAULT;
     this.boundary = lazy.EnigmailMime.getBoundary(mimeSvc.contentType);
 
@@ -544,7 +544,7 @@ MimeDecryptHandler.prototype = {
 
       if (this.returnStatus.exitCode) {
         // Failure
-        if (this.returnStatus.decryptedData.length) {
+        if (this.returnStatus.decryptedData) {
           // However, we got decrypted data.
           // Did we get any verification failure flags?
           // If yes, then conclude only verification failed.
@@ -647,13 +647,16 @@ MimeDecryptHandler.prototype = {
       lazy.EnigmailLog.DEBUG(
         "mimeDecrypt.jsm: displayStatus for uri " + uriSpec + "\n"
       );
-
       if (headerSink && this.uri && !this.backgroundJob) {
-        headerSink.modifyMessageHeaders(
-          this.uri,
-          JSON.stringify(this.decryptedHeaders),
-          this.mimePartNumber
-        );
+        if (this.decryptedHeaders) {
+          headerSink.modifyMessageHeaders(
+            this.uri,
+            JSON.stringify(
+              Object.fromEntries(this.decryptedHeaders._cachedHeaders)
+            ),
+            this.mimePartNumber
+          );
+        }
 
         headerSink.updateSecurityStatus(
           this.exitCode,
@@ -670,7 +673,8 @@ MimeDecryptHandler.prototype = {
           }),
           this.mimePartNumber
         );
-      } else {
+      } else if (headerSink) {
+        // not attachment...
         this.updateHeadersInMsgDb();
       }
       this.statusDisplayed = true;
@@ -854,12 +858,12 @@ MimeDecryptHandler.prototype = {
       return;
     }
 
-    if (this.decryptedHeaders && "subject" in this.decryptedHeaders) {
+    if (this.decryptedHeaders?.has("subject")) {
       try {
         const msgDbHdr = this.uri.QueryInterface(
           Ci.nsIMsgMessageUrl
         ).messageHeader;
-        msgDbHdr.subject = this.decryptedHeaders.subject;
+        msgDbHdr.subject = this.decryptedHeaders.get("subject");
       } catch (x) {
         console.debug(x);
       }
@@ -867,17 +871,9 @@ MimeDecryptHandler.prototype = {
   },
 
   extractEncryptedHeaders() {
-    const r = lazy.EnigmailMime.extractProtectedHeaders(this.decryptedData);
-    if (!r) {
-      return;
-    }
-
-    this.decryptedHeaders = r.newHeaders;
-    if (r.startPos >= 0 && r.endPos > r.startPos) {
-      this.decryptedData =
-        this.decryptedData.substr(0, r.startPos) +
-        this.decryptedData.substr(r.endPos);
-    }
+    this.decryptedHeaders = lazy.EnigmailMime.extractProtectedHeaders(
+      this.decryptedData
+    );
   },
 
   /**
@@ -885,6 +881,7 @@ MimeDecryptHandler.prototype = {
    */
   async extractAutocryptGossip() {
     const gossipHeaders =
+      // TODO: already available as this.decryptedHeaders.get("autocrypt-gossip")
       MimeParser.extractHeaders(this.decryptedData).get("autocrypt-gossip") ||
       [];
     for (const h of gossipHeaders) {

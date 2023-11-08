@@ -482,19 +482,7 @@ MimeVerify.prototype = {
     this.protectedHeaders = lazy.EnigmailMime.extractProtectedHeaders(
       this.signedData
     );
-
-    if (
-      this.protectedHeaders &&
-      this.protectedHeaders.startPos >= 0 &&
-      this.protectedHeaders.endPos > this.protectedHeaders.startPos
-    ) {
-      const r =
-        this.signedData.substr(0, this.protectedHeaders.startPos) +
-        this.signedData.substr(this.protectedHeaders.endPos);
-      this.returnData(r);
-    } else {
-      this.returnData(this.signedData);
-    }
+    this.returnData(this.signedData);
 
     if (!this.isAllowedSigPart(this.mimePartNumber, this.msgUriSpec)) {
       return;
@@ -661,7 +649,9 @@ MimeVerify.prototype = {
         if (this.protectedHeaders) {
           headerSink.modifyMessageHeaders(
             this.uri,
-            JSON.stringify(this.protectedHeaders.newHeaders),
+            JSON.stringify(
+              Object.fromEntries(this.protectedHeaders._cachedHeaders)
+            ),
             this.mimePartNumber
           );
         }
