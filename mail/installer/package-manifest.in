@@ -281,6 +281,7 @@
 @RESPATH@/greprefs.js
 
 ; Remote Settings JSON dumps
+@RESPATH@/defaults/settings/last_modified.json
 @RESPATH@/defaults/settings/blocklists
 @RESPATH@/defaults/settings/main
 @RESPATH@/defaults/settings/security-state
