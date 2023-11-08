@@ -1506,7 +1506,7 @@ Enigmail.msg = {
             // the decrypted or signed part (bug 983)
             divFound = true;
             node.innerHTML = EnigmailFuncs.formatPlaintextMsg(
-              EnigmailData.convertToUnicode(messageContent, charset)
+              MailStringUtils.byteStringToString(messageContent, charset)
             );
             Enigmail.msg.movePEPsubject();
           }
@@ -1529,7 +1529,7 @@ Enigmail.msg = {
           } else {
             preFound = true;
             node.innerHTML = EnigmailFuncs.formatPlaintextMsg(
-              EnigmailData.convertToUnicode(messageContent, charset)
+              MailStringUtils.byteStringToString(messageContent, charset)
             );
             Enigmail.msg.movePEPsubject();
           }

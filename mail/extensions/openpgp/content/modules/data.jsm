@@ -26,16 +26,6 @@ var EnigmailData = {
     return btoa(str).replace(/(.{72})/g, "$1\r\n");
   },
 
-  convertToUnicode(text, charset) {
-    if (!text || (charset && charset.toLowerCase() == "iso-8859-1")) {
-      return text;
-    }
-
-    // Encode plaintext
-    const buffer = Uint8Array.from(text, c => c.charCodeAt(0));
-    return new TextDecoder(charset).decode(buffer);
-  },
-
   convertFromUnicode(text, charset) {
     if (!text) {
       return "";

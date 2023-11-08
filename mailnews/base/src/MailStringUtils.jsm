@@ -37,10 +37,11 @@ var MailStringUtils = {
    * Convert a ByteString to a string.
    *
    * @param {ByteString} str - The ByteString to convert.
+   * @param {string} [charset="utf-8"] - The charset the string was in.
    * @returns {string} The converted string.
    */
-  byteStringToString(str) {
-    return new TextDecoder().decode(this.byteStringToUint8Array(str));
+  byteStringToString(str, charset = "utf-8") {
+    return new TextDecoder(charset).decode(this.byteStringToUint8Array(str));
   },
 
   /**

@@ -293,7 +293,10 @@ var EnigmailMime = {
       }
 
       if (charset) {
-        ctBodyData = lazy.EnigmailData.convertToUnicode(ctBodyData, charset);
+        ctBodyData = lazy.MailStringUtils.byteStringToString(
+          ctBodyData,
+          charset
+        );
       }
 
       // get the headers of the MIME-subpart body --> that's the ones we need

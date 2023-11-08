@@ -17,11 +17,11 @@ const lazy = {};
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
-  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   FeedUtils: "resource:///modules/FeedUtils.jsm",
+  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
@@ -582,7 +582,7 @@ const accessHkpInternal = {
             break;
           case "uid":
             key.uid.push(
-              lazy.EnigmailData.convertToUnicode(line[1].trim(), "utf-8")
+              lazy.MailStringUtils.byteStringToString(line[1].trim())
             );
         }
       }
