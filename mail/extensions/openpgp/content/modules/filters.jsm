@@ -26,18 +26,16 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
-  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
-
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
-
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
+  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
 
 const l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
@@ -424,7 +422,8 @@ JsmimeEmitter.prototype = {
       if (typeof data === "string") {
         this.currentPart.body += data;
       } else {
-        this.currentPart.body += lazy.EnigmailData.arrayBufferToString(data);
+        this.currentPart.body +=
+          lazy.MailStringUtils.uint8ArrayToByteString(data);
       }
     }
   },

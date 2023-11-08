@@ -19,6 +19,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
   MsgUtils: "resource:///modules/MimeMessageUtils.jsm",
+  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
 
 var EnigmailMime = {
@@ -422,10 +423,13 @@ var EnigmailMime = {
  *     - body: String, if getBody == true
  *     - subParts: Array of TreeObject
  *
- * @param mimeStr: String - a MIME structure to parse
- * @param getBody: Boolean - if true, delivers the body text of each MIME part
- *
- * @returns TreeObject, or NULL in case of failure
+ * @param {string} mimeStr - A MIME structure to parse.
+ * @param {boolean} getBody - If true, delivers the body text of each MIME part.
+ * @returns {?object} tree - TreeObject
+ * @returns {string} tree.partNum
+ * @returns {Map} tree.headers - Map, containing all headers
+ * @returns {Map} tree.body - Body, if getBody == true.
+ * @returns {object[]} tree.subParts Array of TreeObject
  */
 function getMimeTree(mimeStr, getBody = false) {
   const mimeTree = {
@@ -468,7 +472,6 @@ function getMimeTree(mimeStr, getBody = false) {
     endMessage() {},
 
     startPart(partNum, headers) {
-      //dump("mime.jsm: jsmimeEmitter.startPart: partNum=" + partNum + "\n");
       partNum = "1" + (partNum !== "" ? "." : "") + partNum;
       const newPart = this.createPartObj(partNum, headers, currentPart);
 
@@ -483,16 +486,14 @@ function getMimeTree(mimeStr, getBody = false) {
       currentPart = newPart;
     },
     endPart(partNum) {
-      //dump("mime.jsm: jsmimeEmitter.startPart: partNum=" + partNum + "\n");
       currentPart = currentPart.parent;
     },
 
     deliverPartData(partNum, data) {
-      //dump("mime.jsm: jsmimeEmitter.deliverPartData: partNum=" + partNum + " / " + typeof data + "\n");
       if (typeof data === "string") {
         currentPart.body += data;
       } else {
-        currentPart.body += lazy.EnigmailData.arrayBufferToString(data);
+        currentPart.body += lazy.MailStringUtils.uint8ArrayToByteString(data);
       }
     },
   };

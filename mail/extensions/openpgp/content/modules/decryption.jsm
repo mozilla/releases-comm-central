@@ -21,7 +21,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
-  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
@@ -528,7 +527,7 @@ var EnigmailDecryption = {
     if (this.isDecryptFailureResult(result)) {
       return "";
     }
-    return lazy.EnigmailData.getUnicodeData(result.decryptedData);
+    return result.decryptedData;
   },
 
   async decryptAttachment(

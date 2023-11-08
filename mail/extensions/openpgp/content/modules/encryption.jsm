@@ -18,7 +18,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
-  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
@@ -386,7 +385,7 @@ var EnigmailEncryption = {
         ", hashAlgorithm=" +
         hashAlgorithm +
         " (" +
-        lazy.EnigmailData.bytesToHex(lazy.EnigmailData.pack(sendFlags, 4)) +
+        sendFlags +
         ")\n"
     );
 
@@ -477,88 +476,6 @@ var EnigmailEncryption = {
     statusFlagsObj,
     errorMsgObj
   ) {
-    lazy.EnigmailLog.DEBUG(
-      "enigmail.js: Enigmail.encryptMessage: " +
-        plainText.length +
-        " bytes from " +
-        fromMailAddr +
-        " to " +
-        toMailAddr +
-        " (" +
-        sendFlags +
-        ")\n"
-    );
     throw new Error("Not implemented");
-
-    /*
-    exitCodeObj.value = -1;
-    statusFlagsObj.value = 0;
-    errorMsgObj.value = "";
-
-    if (!plainText) {
-      EnigmailLog.DEBUG("enigmail.js: Enigmail.encryptMessage: NO ENCRYPTION!\n");
-      exitCodeObj.value = 0;
-      EnigmailLog.DEBUG("  <=== encryptMessage()\n");
-      return plainText;
-    }
-
-    var defaultSend = sendFlags & EnigmailConstants.SEND_DEFAULT;
-    var signMsg = sendFlags & EnigmailConstants.SEND_SIGNED;
-    var encryptMsg = sendFlags & EnigmailConstants.SEND_ENCRYPTED;
-
-    if (encryptMsg) {
-      // First convert all linebreaks to newlines
-      plainText = plainText.replace(/\r\n/g, "\n");
-      plainText = plainText.replace(/\r/g, "\n");
-
-      // we need all data in CRLF according to RFC 4880
-      plainText = plainText.replace(/\n/g, "\r\n");
-    }
-
-    var listener = EnigmailExecution.newSimpleListener(
-      function _stdin(pipe) {
-        pipe.write(plainText);
-        pipe.close();
-      },
-      function _done(exitCode) {});
-
-
-    var proc = EnigmailEncryption.encryptMessageStart(parent, uiFlags,
-      fromMailAddr, toMailAddr, bccMailAddr,
-      null, sendFlags,
-      listener, statusFlagsObj, errorMsgObj);
-    if (!proc) {
-      exitCodeObj.value = -1;
-      EnigmailLog.DEBUG("  <=== encryptMessage()\n");
-      return "";
-    }
-
-    // Wait for child pipes to close
-    proc.wait();
-
-    var retStatusObj = {};
-    exitCodeObj.value = EnigmailEncryption.encryptMessageEnd(fromMailAddr, EnigmailData.getUnicodeData(listener.stderrData), listener.exitCode,
-      uiFlags, sendFlags,
-      listener.stdoutData.length,
-      retStatusObj);
-
-    statusFlagsObj.value = retStatusObj.statusFlags;
-    statusFlagsObj.statusMsg = retStatusObj.statusMsg;
-    errorMsgObj.value = retStatusObj.errorMsg;
-
-
-    if ((exitCodeObj.value === 0) && listener.stdoutData.length === 0)
-      exitCodeObj.value = -1;
-
-    if (exitCodeObj.value === 0) {
-      // Normal return
-      EnigmailLog.DEBUG("  <=== encryptMessage()\n");
-      return EnigmailData.getUnicodeData(listener.stdoutData);
-    }
-
-    // Error processing
-    EnigmailLog.DEBUG("enigmail.js: Enigmail.encryptMessage: command execution exit code: " + exitCodeObj.value + "\n");
-    return "";
-  */
   },
 };

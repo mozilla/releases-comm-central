@@ -19,9 +19,9 @@ const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   DNS: "resource:///modules/DNS.jsm",
-  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailZBase32: "chrome://openpgp/content/modules/zbase32.jsm",
+  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
 
 // Those domains are not expected to have WKD:
@@ -267,55 +267,38 @@ var EnigmailWkdLookup = {
    * @returns {Promise<string>} key data (or null if not possible)
    */
   async downloadKey(url) {
-    const padLen = (url.length % 512) + 1;
-    const hdrs = new Headers({
-      Authorization: "Basic " + btoa("no-user:"),
-    });
-    hdrs.append("Content-Type", "application/octet-stream");
-    hdrs.append("X-Enigmail-Padding", "x".padEnd(padLen, "x"));
-
-    const myRequest = new Request(url, {
-      method: "GET",
-      headers: hdrs,
-      mode: "cors",
-      //redirect: 'error',
-      redirect: "follow",
-      cache: "default",
-    });
-
     let response;
     try {
       lazy.EnigmailLog.DEBUG(
         "wkdLookup.jsm: downloadKey: requesting " + url + "\n"
       );
-      response = await fetch(myRequest);
-      if (!response.ok) {
-        return null;
-      }
-    } catch (ex) {
-      lazy.EnigmailLog.DEBUG(
-        "wkdLookup.jsm: downloadKey: error " + ex.toString() + "\n"
-      );
-      return null;
-    }
-
-    try {
+      response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/octet-stream",
+          Authorization: "Basic " + btoa("no-user:"),
+          // Add padding as packet size allows adversaries to guess which key
+          // is requested by the client, despite using TLS.
+          "X-OpenPGP-Padding": "x".padEnd((url.length % 512) + 1, "x"),
+        },
+        mode: "cors",
+        redirect: "follow",
+        cache: "default",
+      });
       if (
-        response.headers.has("content-type") &&
-        response.headers.get("content-type").search(/^text\/html/i) === 0
+        !response.ok ||
+        /^text\/html/i.test(response.headers.get("content-type"))
       ) {
-        // if we get HTML output, we return nothing (for example redirects to error catching pages)
         return null;
       }
-      return lazy.EnigmailData.arrayBufferToString(
-        Cu.cloneInto(await response.arrayBuffer(), {})
-      );
     } catch (ex) {
       lazy.EnigmailLog.DEBUG(
         "wkdLookup.jsm: downloadKey: error " + ex.toString() + "\n"
       );
       return null;
     }
+    const uint8Array = new Uint8Array(await response.arrayBuffer());
+    return lazy.MailStringUtils.uint8ArrayToByteString(uint8Array);
   },
 
   isWkdAvailable(email) {

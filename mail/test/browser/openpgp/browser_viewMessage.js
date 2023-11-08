@@ -45,6 +45,22 @@ function getMsgBodyTxt(msgc) {
   return msgPane.contentDocument.documentElement.textContent;
 }
 
+/**
+ * When testing a scenario that should automatically process the OpenPGP
+ * contents (it's not suppressed e.g. because of a partial content),
+ * then we need to wait for the automatic processing to complete.
+ */
+async function openpgpProcessed() {
+  const [subject] = await TestUtils.topicObserved(
+    "document-element-inserted",
+    document => {
+      return document.ownerGlobal?.location == "about:message";
+    }
+  );
+
+  return BrowserTestUtils.waitForEvent(subject, "openpgpprocessed");
+}
+
 var aliceAcct;
 
 /**
@@ -776,14 +792,16 @@ add_task(async function testUpdateMessageSignature() {
  * can be correctly verified.
  */
 add_task(async function testOpenSignedInlineWithUTF8() {
+  const opengpgprocessed = openpgpProcessed();
   const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/alice-utf.eml"))
   );
   const aboutMessage = get_about_message(msgc);
+  await opengpgprocessed;
 
   Assert.ok(
     getMsgBodyTxt(msgc).includes("£35.00"),
-    "UTF-8 character found in message"
+    "UTF-8 £35.00 should be found in message"
   );
   await TestUtils.waitForCondition(
     () =>
@@ -802,23 +820,25 @@ add_task(async function testOpenSignedInlineWithUTF8() {
  * can be correctly verified.
  */
 add_task(async function testOpenSignedInlineWithLeadingWS() {
+  const opengpgprocessed = openpgpProcessed();
   const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/signed-inline-indented.eml"))
   );
   const aboutMessage = get_about_message(msgc);
+  await opengpgprocessed;
 
   Assert.ok(
     getMsgBodyTxt(msgc).includes("indent test with £"),
-    "expected text should be found in message"
+    "expected text 'indent test with £' should be found in message"
   );
   await TestUtils.waitForCondition(
     () =>
       OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unverified"),
-    "signed unverified icon is displayed"
+    "signed unverified icon should display"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should not display"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
