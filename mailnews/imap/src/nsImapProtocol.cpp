@@ -514,6 +514,7 @@ nsImapProtocol::nsImapProtocol()
   m_currentAuthMethod = kCapabilityUndefined;
   m_socketType = nsMsgSocketType::trySTARTTLS;
   m_connectionStatus = NS_OK;
+  m_safeToCloseConnection = false;
   m_hostSessionList = nullptr;
   m_isGmailServer = false;
   m_fetchingWholeMessage = false;
@@ -597,6 +598,7 @@ nsImapProtocol::nsImapProtocol()
   m_chunkSize = 0;
   m_chunkThreshold = 0;
   m_fromHeaderSeen = false;
+  m_closeNeededBeforeSelect = false;
   m_needNoop = false;
   m_noopCount = 0;
   m_fetchBodyListIsNew = false;
@@ -1257,6 +1259,7 @@ NS_IMETHODIMP nsImapProtocol::OnInputStreamReady(nsIAsyncInputStream* inStr) {
 
 // this is to be called from the UI thread. It sets m_threadShouldDie,
 // and then signals the imap thread, which, when it wakes up, should exit.
+// The imap thread cleanup code will check m_safeToCloseConnection.
 NS_IMETHODIMP
 nsImapProtocol::TellThreadToDie(bool aIsSafeToClose) {
   MOZ_DIAGNOSTIC_ASSERT(
@@ -1275,6 +1278,7 @@ nsImapProtocol::TellThreadToDie(bool aIsSafeToClose) {
   }
   {
     ReentrantMonitorAutoEnter deathMon(m_threadDeathMonitor);
+    m_safeToCloseConnection = aIsSafeToClose;
     m_threadShouldDie = true;
   }
   ReentrantMonitorAutoEnter readyMon(m_urlReadyToRunMonitor);
@@ -1368,6 +1372,8 @@ void nsImapProtocol::TellThreadToDie() {
 
   // This routine is called only from the imap protocol thread.
   // The UI thread causes this to be called by calling TellThreadToDie.
+  // In that case, m_safeToCloseConnection will be FALSE if it's dropping a
+  // timed out connection, true when closing a cached connection.
   // We're using PR_CEnter/ExitMonitor because Monitors don't like having
   // us to hold one monitor and call code that gets a different monitor. And
   // some of the methods we call here use Monitors.
@@ -1382,6 +1388,9 @@ void nsImapProtocol::TellThreadToDie() {
     urlWritingData = m_imapAction == nsIImapUrl::nsImapAppendMsgFromFile ||
                      m_imapAction == nsIImapUrl::nsImapAppendDraftFromFile;
 
+  bool closeNeeded = GetServerStateParser().GetIMAPstate() ==
+                         nsImapServerResponseParser::kFolderSelected &&
+                     m_safeToCloseConnection;
   nsCString command;
   // if a url is writing data, we can't even logout, so we're just
   // going to close the connection as if the user pressed stop.
@@ -1391,8 +1400,11 @@ void nsImapProtocol::TellThreadToDie() {
 
     if (TestFlag(IMAP_CONNECTION_IS_OPEN) && m_idle && isAlive) EndIdle(false);
 
-    // Just logout and don't imap close. Avoid expunging messages marked
-    // deleted.
+    if (NS_SUCCEEDED(rv) && isAlive && closeNeeded &&
+        GetDeleteIsMoveToTrash() && TestFlag(IMAP_CONNECTION_IS_OPEN) &&
+        m_outputStream)
+      ImapClose(true, connectionIdle);
+
     if (NS_SUCCEEDED(rv) && isAlive && TestFlag(IMAP_CONNECTION_IS_OPEN) &&
         NS_SUCCEEDED(GetConnectionStatus()) && m_outputStream)
       Logout(true, connectionIdle);
@@ -2717,11 +2729,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
       if (GetServerStateParser().GetSelectedMailboxName() &&
           PL_strcmp(GetServerStateParser().GetSelectedMailboxName(),
                     mailboxName.get())) {  // we are selected in another folder
-
-        // There may be messages marked deleted. But, if so, don't imap close
-        // the mailbox before selecting it. Imap close would cause unwanted
-        // expunge of all messages marked deleted.
-
+        if (m_closeNeededBeforeSelect) ImapClose();
         if (GetServerStateParser().LastCommandSuccessful()) {
           selectIssued = true;
           SelectMailbox(mailboxName.get());
@@ -3361,6 +3369,7 @@ void nsImapProtocol::SelectMailbox(const char* mailboxName) {
                                            mailboxName);
   IncrementCommandTagNumber();
 
+  m_closeNeededBeforeSelect = false;  // initial value
   GetServerStateParser().ResetFlagInfo();
   nsCString escapedName;
   CreateEscapedMailboxName(mailboxName, escapedName);
@@ -5223,6 +5232,10 @@ void nsImapProtocol::Store(const nsCString& messageList,
     else
       formatString = "%s store %s %s\015\012";
 
+    // we might need to close this mailbox after this
+    m_closeNeededBeforeSelect =
+        GetDeleteIsMoveToTrash() && (PL_strcasestr(messageData, "\\Deleted"));
+
     const char* commandTag = GetServerCommandTag();
     int protocolStringSize = PL_strlen(formatString) + messageList.Length() +
                              PL_strlen(messageData) + PL_strlen(commandTag) + 1;
@@ -6520,10 +6533,16 @@ void nsImapProtocol::Logout(bool shuttingDown /* = false */,
   if (!shuttingDown) ProgressEventFunctionUsingName("imapStatusLoggingOut");
 
   /******************************************************************
-   * due to the undo functionality we cannot issule a close when logout; there
+   * due to the undo functionality we cannot issue ImapClose when logout; there
    * is no way to do an undo if the message has been permanently expunge
    * jt - 07/12/1999
-   ********************/
+
+      bool closeNeeded = GetServerStateParser().GetIMAPstate() ==
+          nsImapServerResponseParser::kFolderSelected;
+
+      if (closeNeeded && GetDeleteIsMoveToTrash())
+          ImapClose();
+  ********************/
 
   IncrementCommandTagNumber();
 
@@ -7519,8 +7538,7 @@ void nsImapProtocol::DeleteMailbox(const char* mailboxName) {
   // check if this connection currently has the folder to be deleted selected.
   // If so, we should close it because at least some UW servers don't like you
   // deleting a folder you have open.
-  // Probably no longer needed but deleting folder so expunge of msgs OK.
-  if (FolderIsSelected(mailboxName)) CloseImap();
+  if (FolderIsSelected(mailboxName)) ImapClose();
 
   ProgressEventFunctionUsingNameWithString("imapStatusDeletingMailbox",
                                            mailboxName);
@@ -7541,13 +7559,7 @@ void nsImapProtocol::DeleteMailbox(const char* mailboxName) {
 void nsImapProtocol::RenameMailbox(const char* existingName,
                                    const char* newName) {
   // just like DeleteMailbox; Some UW servers don't like it.
-  //
-  // Probably no longer an issue. But don't rename a folder if it has marked
-  // deleted message that you might want to keep and don't want them expunged!
-  // RFC 3501 written by the UW developer (Crispin) doesn't mention the need to
-  // imap close when the folder is in selected state. Also, UW imap servers are
-  // rarely used now.
-  if (FolderIsSelected(existingName)) CloseImap();
+  if (FolderIsSelected(existingName)) ImapClose();
 
   ProgressEventFunctionUsingNameWithString("imapStatusRenamingMailbox",
                                            existingName);
@@ -8116,10 +8128,10 @@ void nsImapProtocol::ProcessStoreFlags(const nsCString& messageIdsString,
 
 /**
  * This will cause all messages marked deleted to be expunged with no untagged
- * response so it can cause unexpected data loss.
+ * response so it can cause unexpected data loss if used improperly.
  */
-void nsImapProtocol::CloseImap(bool shuttingDown /* = false */,
-                               bool waitForResponse /* = true */) {
+void nsImapProtocol::ImapClose(bool shuttingDown /* = false */,
+                           bool waitForResponse /* = true */) {
   IncrementCommandTagNumber();
 
   nsCString command(GetServerCommandTag());

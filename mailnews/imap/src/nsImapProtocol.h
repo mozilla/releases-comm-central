@@ -322,7 +322,7 @@ class nsImapProtocol : public nsIImapProtocol,
                          const nsCString& attribute);
   void Expunge();
   void UidExpunge(const nsCString& messageSet);
-  void CloseImap(bool shuttingDown = false, bool waitForResponse = true);
+  void ImapClose(bool shuttingDown = false, bool waitForResponse = true);
   void Check();
   void SelectMailbox(const char* mailboxName);
   // more imap commands
@@ -533,6 +533,9 @@ class nsImapProtocol : public nsIImapProtocol,
 
   // use to prevent re-entering TellThreadToDie.
   bool m_inThreadShouldDie;
+  // If the UI thread has signalled the IMAP thread to die, and the
+  // connection has timed out, this will be set to FALSE.
+  bool m_safeToCloseConnection;
 
   RefPtr<nsImapFlagAndUidState> m_flagState;
   nsMsgBiffState m_currentBiffState;
@@ -729,6 +732,7 @@ class nsImapProtocol : public nsIImapProtocol,
   bool m_useIdle;
   int32_t m_noopCount;
   bool m_autoSubscribe, m_autoUnsubscribe, m_autoSubscribeOnOpen;
+  bool m_closeNeededBeforeSelect;
   bool m_retryUrlOnError;
   bool m_preferPlainText;
   bool m_forceSelect;
