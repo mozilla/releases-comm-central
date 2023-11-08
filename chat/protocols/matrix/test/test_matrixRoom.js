@@ -4,6 +4,9 @@
 const { setTimeout, clearTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
 );
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 loadMatrix();
 
@@ -909,6 +912,35 @@ add_task(function test_highlightForNotifications() {
   ok(message.incoming);
   equal(message.alias, "foo bar");
   ok(message.containsNick);
+  roomStub.forget();
+});
+
+add_task(async function test_prepareForDisplayingFormattedHTML() {
+  const time = Date.now();
+  const event = makeEvent({
+    type: MatrixSDK.EventType.RoomMessage,
+    time,
+    sender: "@foo:example.com",
+    content: {
+      msgtype: MatrixSDK.MsgType.Text,
+      format: "org.matrix.custom.html",
+      formatted_body: "<foo>bar</foo>",
+      body: "bar",
+    },
+  });
+  const roomStub = getRoom(true, "#test:example.com");
+
+  const newTextNotification = TestUtils.topicObserved("new-text");
+  roomStub.addEvent(event);
+
+  const [message] = await newTextNotification;
+
+  equal(
+    message.displayMessage,
+    event.getContent().formatted_body,
+    "Formatted body used for display"
+  );
+
   roomStub.forget();
 });
 

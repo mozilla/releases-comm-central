@@ -1019,7 +1019,7 @@ MatrixRoom.prototype = {
    */
   prepareForDisplaying(msg) {
     const formattedHTML = lazy.MatrixMessageContent.getIncomingHTML(
-      msg.wrappedJSObject.prplMessage.wrappedJSObject.event,
+      msg.prplMessage.event,
       this._account._client.getHomeserverUrl(),
       eventId => this.room.findEventById(eventId)
     );
