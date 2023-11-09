@@ -3,239 +3,246 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % imDTD SYSTEM "chrome://messenger/locale/am-im.dtd">
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-%imDTD; %brandDTD; ]>
-
-<window
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html [ <!ENTITY % imDTD SYSTEM "chrome://messenger/locale/am-im.dtd">
+%imDTD; ]>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   id="account"
-  title="&accountWindow.title;"
-  buttons="accept,cancel"
-  onload="parent.onPanelLoaded('am-im.xhtml');"
-  onbeforeunload="onBeforeUnload();"
+  scrolling="false"
 >
-  <script src="chrome://messenger/content/globalOverlay.js" />
-  <script src="chrome://global/content/editMenuOverlay.js" />
-  <script src="chrome://chat/content/imAccountOptionsHelper.js" />
-  <script src="chrome://messenger/content/am-im.js" />
-
-  <linkset>
-    <html:link
-      rel="stylesheet"
-      href="chrome://messenger/skin/accountManage.css"
-    />
-    <html:link
+  <head>
+    <title>&accountWindow.title;</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
+    <link
       rel="stylesheet"
       href="chrome://messenger/skin/shared/grid-layout.css"
     />
-
-    <html:link rel="localization" href="branding/brand.ftl" />
-    <html:link rel="localization" href="messenger/preferences/am-im.ftl" />
-    <html:link rel="localization" href="messenger/otr/am-im-otr.ftl" />
-  </linkset>
-
-  <vbox flex="1" style="overflow: auto; padding: 0"
-    ><vbox id="containerBox" flex="1">
-      <hbox class="dialogheader">
-        <label
-          class="dialogheader-title"
-          defaultTitle="&accountWindow.title;"
-        />
-      </hbox>
-
-      <hbox align="center">
-        <html:img id="protocolIcon" alt="" />
-        <vbox flex="1">
-          <label id="accountName" crop="end" class="header" />
-          <label id="protocolName" class="tip-caption" />
-        </vbox>
-      </hbox>
-
-      <tabbox id="imTabbox" flex="1">
-        <tabs>
-          <tab id="imTabGeneral" label="&account.general;" />
-          <tab
-            id="imTabEncryption"
-            data-l10n-id="account-encryption"
-            hidden="true"
+    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="messenger/preferences/am-im.ftl" />
+    <link rel="localization" href="messenger/otr/am-im-otr.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://chat/content/imAccountOptionsHelper.js"
+    ></script>
+    <script defer="defer" src="chrome://messenger/content/am-im.js"></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <vbox flex="1" style="overflow: auto; padding: 0"
+      ><vbox id="containerBox" flex="1">
+        <hbox class="dialogheader">
+          <label
+            class="dialogheader-title"
+            defaultTitle="&accountWindow.title;"
           />
-        </tabs>
-        <tabpanels flex="1">
-          <tabpanel orient="vertical">
-            <label class="header" data-l10n-id="account-settings-title" />
-            <hbox id="passwordBox" align="baseline" class="input-container">
-              <label
-                value="&account.password;"
-                control="server.password"
-                class="label-inline"
-              />
-              <html:input
-                id="server.password"
-                type="password"
-                preftype="wstring"
-                genericattr="true"
-                class="input-inline"
-              />
-            </hbox>
-            <hbox id="aliasBox" align="baseline" class="input-container">
-              <label
-                value="&account.alias;"
-                control="server.alias"
-                class="label-inline"
-              />
-              <html:input
-                id="server.alias"
-                type="text"
-                preftype="wstring"
-                wsm_persist="true"
-                genericattr="true"
-                class="input-inline"
-              />
-            </hbox>
-            <vbox id="autologinBox">
-              <checkbox
-                id="server.autologin"
-                data-l10n-id="chat-autologin"
-                crop="end"
-                wsm_persist="true"
-                preftype="bool"
-                genericattr="true"
-              />
-            </vbox>
-            <separator class="thin" />
+        </hbox>
 
-            <vbox id="autojoinBox" hidden="true">
-              <label class="header" data-l10n-id="account-channel-title" />
-              <hbox class="input-container">
+        <hbox align="center">
+          <html:img id="protocolIcon" alt="" />
+          <vbox flex="1">
+            <label id="accountName" crop="end" class="header" />
+            <label id="protocolName" class="tip-caption" />
+          </vbox>
+        </hbox>
+
+        <tabbox id="imTabbox" flex="1">
+          <tabs>
+            <tab id="imTabGeneral" label="&account.general;" />
+            <tab
+              id="imTabEncryption"
+              data-l10n-id="account-encryption"
+              hidden="true"
+            />
+          </tabs>
+          <tabpanels flex="1">
+            <tabpanel orient="vertical">
+              <label class="header" data-l10n-id="account-settings-title" />
+              <hbox id="passwordBox" align="baseline" class="input-container">
                 <label
+                  value="&account.password;"
+                  control="server.password"
                   class="label-inline"
-                  value="&account.autojoin;"
-                  control="server.autojoin"
                 />
                 <html:input
-                  id="server.autojoin"
-                  type="text"
+                  id="server.password"
+                  type="password"
                   preftype="wstring"
                   genericattr="true"
                   class="input-inline"
                 />
               </hbox>
-              <separator class="thin" />
-            </vbox>
-            <vbox id="advanced">
-              <label class="header">&account.advanced;</label>
-              <html:div
-                id="protoSpecific"
-                class="grid-block-two-column-fr grid-items-baseline"
-              >
-              </html:div>
-            </vbox>
-          </tabpanel>
-
-          <tabpanel orient="vertical">
-            <html:div>
-              <html:h1 data-l10n-id="chat-encryption-generic" />
-              <separator class="thin" />
-
-              <vbox>
+              <hbox id="aliasBox" align="baseline" class="input-container">
+                <label
+                  value="&account.alias;"
+                  control="server.alias"
+                  class="label-inline"
+                />
+                <html:input
+                  id="server.alias"
+                  type="text"
+                  preftype="wstring"
+                  wsm_persist="true"
+                  genericattr="true"
+                  class="input-inline"
+                />
+              </hbox>
+              <vbox id="autologinBox">
                 <checkbox
-                  id="server.otrAllowMsgLog"
-                  data-l10n-id="chat-encryption-log"
+                  id="server.autologin"
+                  data-l10n-id="chat-autologin"
                   crop="end"
                   wsm_persist="true"
                   preftype="bool"
                   genericattr="true"
                 />
               </vbox>
-            </html:div>
-            <separator />
-            <html:div class="chat-encryption-settings">
-              <html:h1 data-l10n-id="chat-encryption-label" />
-              <description id="chat-encryption-description" />
-
               <separator class="thin" />
 
-              <label class="header" data-l10n-id="chat-encryption-status" />
-              <html:div class="indent">
-                <html:ul class="chat-encryption-status">
-                  <html:li data-l10n-id="chat-encryption-placeholder" />
-                </html:ul>
-              </html:div>
-
-              <html:div class="chat-encryption-sessions-container">
-                <separator class="thin" />
-                <label class="header" data-l10n-id="chat-encryption-sessions" />
-                <description
-                  data-l10n-id="chat-encryption-sessions-description"
-                />
-                <html:div class="indent">
-                  <html:ul class="chat-encryption-sessions"></html:ul>
-                </html:div>
-              </html:div>
-              <separator />
-            </html:div>
-            <html:div class="otr-settings">
-              <html:h1 data-l10n-id="account-otr-label" />
-              <description data-l10n-id="account-otr-description2" />
-
-              <separator />
-
-              <vbox>
-                <label class="header" data-l10n-id="otr-settings-title" />
-                <checkbox
-                  id="server.otrRequireEncryption"
-                  data-l10n-id="otr-require-encryption"
-                  crop="end"
-                  wsm_persist="true"
-                  preftype="bool"
-                  genericattr="true"
-                />
-                <html:p
-                  id="otrRequireEncryptionInfo"
-                  class="option-description"
-                  data-l10n-id="otr-require-encryption-info"
-                ></html:p>
-                <checkbox
-                  id="server.otrVerifyNudge"
-                  data-l10n-id="otr-verify-nudge"
-                  crop="end"
-                  wsm_persist="true"
-                  preftype="bool"
-                  genericattr="true"
-                />
-              </vbox>
-
-              <separator />
-
-              <vbox>
-                <label class="header" data-l10n-id="otr-encryption-title" />
-                <label data-l10n-id="otr-encryption-caption" />
-                <separator class="thin" />
-                <hbox align="center">
-                  <label data-l10n-id="otr-fingerprint-label" />
-                  <hbox class="input-container" flex="1">
-                    <html:input
-                      id="otrFingerprint"
-                      type="text"
-                      class="input-inline"
-                      readonly="readonly"
-                    />
-                  </hbox>
-                </hbox>
-                <separator class="thin" />
-                <hbox pack="end">
-                  <button
-                    id="viewFingerprintButton"
-                    data-l10n-id="view-fingerprint-button"
-                    oncommand="account.viewFingerprintKeys();"
+              <vbox id="autojoinBox" hidden="true">
+                <label class="header" data-l10n-id="account-channel-title" />
+                <hbox class="input-container">
+                  <label
+                    class="label-inline"
+                    value="&account.autojoin;"
+                    control="server.autojoin"
+                  />
+                  <html:input
+                    id="server.autojoin"
+                    type="text"
+                    preftype="wstring"
+                    genericattr="true"
+                    class="input-inline"
                   />
                 </hbox>
+                <separator class="thin" />
               </vbox>
-            </html:div>
-          </tabpanel>
-        </tabpanels>
-      </tabbox> </vbox
-  ></vbox>
-</window>
+              <vbox id="advanced">
+                <label class="header">&account.advanced;</label>
+                <html:div
+                  id="protoSpecific"
+                  class="grid-block-two-column-fr grid-items-baseline"
+                >
+                </html:div>
+              </vbox>
+            </tabpanel>
+
+            <tabpanel orient="vertical">
+              <html:div>
+                <html:h1 data-l10n-id="chat-encryption-generic" />
+                <separator class="thin" />
+
+                <vbox>
+                  <checkbox
+                    id="server.otrAllowMsgLog"
+                    data-l10n-id="chat-encryption-log"
+                    crop="end"
+                    wsm_persist="true"
+                    preftype="bool"
+                    genericattr="true"
+                  />
+                </vbox>
+              </html:div>
+              <separator />
+              <html:div class="chat-encryption-settings">
+                <html:h1 data-l10n-id="chat-encryption-label" />
+                <description id="chat-encryption-description" />
+
+                <separator class="thin" />
+
+                <label class="header" data-l10n-id="chat-encryption-status" />
+                <html:div class="indent">
+                  <html:ul class="chat-encryption-status">
+                    <html:li data-l10n-id="chat-encryption-placeholder" />
+                  </html:ul>
+                </html:div>
+
+                <html:div class="chat-encryption-sessions-container">
+                  <separator class="thin" />
+                  <label
+                    class="header"
+                    data-l10n-id="chat-encryption-sessions"
+                  />
+                  <description
+                    data-l10n-id="chat-encryption-sessions-description"
+                  />
+                  <html:div class="indent">
+                    <html:ul class="chat-encryption-sessions"></html:ul>
+                  </html:div>
+                </html:div>
+                <separator />
+              </html:div>
+              <html:div class="otr-settings">
+                <html:h1 data-l10n-id="account-otr-label" />
+                <description data-l10n-id="account-otr-description2" />
+
+                <separator />
+
+                <vbox>
+                  <label class="header" data-l10n-id="otr-settings-title" />
+                  <checkbox
+                    id="server.otrRequireEncryption"
+                    data-l10n-id="otr-require-encryption"
+                    crop="end"
+                    wsm_persist="true"
+                    preftype="bool"
+                    genericattr="true"
+                  />
+                  <html:p
+                    id="otrRequireEncryptionInfo"
+                    class="option-description"
+                    data-l10n-id="otr-require-encryption-info"
+                  ></html:p>
+                  <checkbox
+                    id="server.otrVerifyNudge"
+                    data-l10n-id="otr-verify-nudge"
+                    crop="end"
+                    wsm_persist="true"
+                    preftype="bool"
+                    genericattr="true"
+                  />
+                </vbox>
+
+                <separator />
+
+                <vbox>
+                  <label class="header" data-l10n-id="otr-encryption-title" />
+                  <label data-l10n-id="otr-encryption-caption" />
+                  <separator class="thin" />
+                  <hbox align="center">
+                    <label data-l10n-id="otr-fingerprint-label" />
+                    <hbox class="input-container" flex="1">
+                      <html:input
+                        id="otrFingerprint"
+                        type="text"
+                        class="input-inline"
+                        readonly="readonly"
+                      />
+                    </hbox>
+                  </hbox>
+                  <separator class="thin" />
+                  <hbox pack="end">
+                    <button
+                      id="viewFingerprintButton"
+                      data-l10n-id="view-fingerprint-button"
+                      oncommand="account.viewFingerprintKeys();"
+                    />
+                  </hbox>
+                </vbox>
+              </html:div>
+            </tabpanel>
+          </tabpanels>
+        </tabbox> </vbox
+    ></vbox>
+  </html:body>
+</html>

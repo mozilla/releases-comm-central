@@ -14,7 +14,12 @@ ChromeUtils.defineESModuleGetters(this, {
   OTRUI: "resource:///modules/OTRUI.sys.mjs",
 });
 
-var autoJoinPref = "autoJoin";
+window.addEventListener("load", event => {
+  parent.onPanelLoaded("am-im.xhtml");
+});
+window.addEventListener("beforeunload", event => {
+  onBeforeUnload();
+});
 
 function onPreInit(aAccount, aAccountValue) {
   account.init(aAccount.incomingServer.wrappedJSObject.imAccount);
