@@ -8133,7 +8133,7 @@ void nsImapProtocol::ProcessStoreFlags(const nsCString& messageIdsString,
  * response so it can cause unexpected data loss if used improperly.
  */
 void nsImapProtocol::ImapClose(bool shuttingDown /* = false */,
-                           bool waitForResponse /* = true */) {
+                               bool waitForResponse /* = true */) {
   IncrementCommandTagNumber();
 
   nsCString command(GetServerCommandTag());
