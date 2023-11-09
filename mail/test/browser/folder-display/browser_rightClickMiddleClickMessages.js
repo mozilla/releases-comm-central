@@ -8,6 +8,8 @@
 
 "use strict";
 
+requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 2 : 1);
+
 var {
   add_message_sets_to_folders,
   assert_displayed,
@@ -47,10 +49,6 @@ var {
 
 var folder, threadedFolder;
 var tabmail = document.getElementById("tabmail");
-
-if (AppConstants.MOZ_CODE_COVERAGE) {
-  requestLongerTimeout(1);
-}
 
 /**
  * The number of messages in the thread we use to test.
