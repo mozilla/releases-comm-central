@@ -158,9 +158,6 @@ openpgp-key-man-copy-to-clipboard =
              }
     .accesskey = P
 
-openpgp-key-man-ctx-expor-to-file-label =
-    .label = Export Keys To File
-
 openpgp-key-man-ctx-copy =
     .label = Copy
     .accesskey = C
