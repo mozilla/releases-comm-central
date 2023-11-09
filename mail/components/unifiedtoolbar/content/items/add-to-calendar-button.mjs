@@ -4,6 +4,13 @@
 
 import { MailTabButton } from "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs";
 
+const lazy = {};
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "calendarDeactivator",
+  "resource:///modules/calendar/calCalendarDeactivator.jsm"
+);
+
 /* import-globals-from ../../../../../calendar/base/content/calendar-extract.js */
 
 /**
@@ -13,11 +20,37 @@ import { MailTabButton } from "chrome://messenger/content/unifiedtoolbar/mail-ta
  * - type: "event" or "task", specifying the target type to create.
  */
 class AddToCalendarButton extends MailTabButton {
+  /**
+   * Observer for the calendar-deactivated attribute.
+   *
+   * @type {MutationObserver}
+   */
+  #observer = null;
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (!this.#observer) {
+      this.#observer = new MutationObserver(() =>
+        this.onCommandContextChange()
+      );
+    }
+    this.#observer.observe(window.document.documentElement, {
+      attributes: true,
+      attributeFilter: ["calendar-deactivated"],
+    });
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.#observer.disconnect();
+  }
+
   onCommandContextChange() {
     const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
     this.disabled =
       (about3Pane && !about3Pane.gDBView) ||
-      (about3Pane?.gDBView?.numSelected ?? -1) === 0;
+      (about3Pane?.gDBView?.numSelected ?? -1) === 0 ||
+      !lazy.calendarDeactivator.isCalendarActivated;
   }
 
   handleClick = event => {
