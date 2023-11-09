@@ -16,6 +16,10 @@
   --folder-pane-icon-more: var(--icon-more);
   --folder-pane-icon-download: var(--icon-cloud-download);
   --folder-pane-icon-kebab: var(--icon-kebab);
+  --folder-drag-indicator-body: url(chrome://messenger/skin/icons/folder-drag-indicator-body.svg);
+  --folder-drag-indicator-left: url(chrome://messenger/skin/icons/folder-drag-indicator-left.svg);
+  --folder-drag-indicator-right: url(chrome://messenger/skin/icons/folder-drag-indicator-right.svg);
+  --folder-drag-indicator-color: var(--color-blue-50);
 }
 
 @media not (prefers-contrast) {
@@ -343,6 +347,50 @@ li.context-menu-target:not(.selected) > .container:hover {
   background-color: color-mix(in srgb, var(--treeitem-background-active) 10%, transparent);
   outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
   outline-offset: -1px;
+}
+
+#folder-drag-indicator {
+  position: absolute;
+  height: 8px;
+  z-index: 1;
+  display: none;
+  justify-content: stretch;
+  pointer-events: none;
+
+  & > .folder-drag-indicator-body {
+    display: inline flex;
+    flex-grow: 1;
+    height: 8px;
+    mask-image: var(--folder-drag-indicator-body);
+    mask-repeat: repeat-x;
+    background-color: var(--folder-drag-indicator-color);
+  }
+
+  & > .folder-drag-indicator-left {
+    display: inline flex;
+    width: 8px;
+    height: 8px;
+    mask-image: var(--folder-drag-indicator-left);
+    mask-repeat: no-repeat;
+    background-color: var(--folder-drag-indicator-color);
+
+    &:dir(rtl) {
+      mask-image: var(--folder-drag-indicator-right);
+    }
+  }
+
+  & > .folder-drag-indicator-right {
+    display: inline flex;
+    width: 8px;
+    height: 8px;
+    mask-image: var(--folder-drag-indicator-right);
+    mask-repeat: no-repeat;
+    background-color: var(--folder-drag-indicator-color);
+
+    &:dir(rtl) {
+      mask-image: var(--folder-drag-indicator-left);
+    }
+  }
 }
 
 #folderTree:focus-within li.selected > .container,

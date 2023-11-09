@@ -250,6 +250,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   static nsrefcnt mInstanceCount;
 
   uint32_t mFlags;
+  uint32_t mSortOrder;        // Sort order among sibling folders.
   nsWeakPtr mParent;          // This won't be refcounted for ownership reasons.
   int32_t mNumUnreadMessages; /* count of unread messages (-1 means unknown; -2
                                  means unknown but we already tried to find
