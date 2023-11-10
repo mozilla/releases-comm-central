@@ -23,7 +23,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
+            "$ref": "MailAccountId",
             "description": "A unique identifier for this account."
           },
           "name": {
@@ -56,6 +56,11 @@
             }
           }
         }
+      },
+      {
+        "id": "MailAccountId",
+        "type": "string",
+        "description": "A unique id representing a :ref:`accounts.MailAccount`."
       }
     ],
     "functions": [
@@ -95,7 +100,7 @@
         "parameters": [
           {
             "name": "accountId",
-            "type": "string"
+            "$ref": "MailAccountId"
           },
           {
             "name": "includeFolders",
@@ -152,7 +157,7 @@
         "parameters": [
           {
             "name": "accountId",
-            "type": "string"
+            "$ref": "MailAccountId"
           },
           {
             "name": "identityId",
@@ -169,7 +174,7 @@
         "parameters": [
           {
             "name": "accountId",
-            "type": "string"
+            "$ref": "MailAccountId"
           },
           {
             "type": "function",
@@ -191,8 +196,8 @@
         "description": "Fired when a new account has been created.",
         "parameters": [
           {
-            "name": "id",
-            "type": "string"
+            "name": "accountId",
+            "$ref": "MailAccountId"
           },
           {
             "name": "account",
@@ -206,8 +211,8 @@
         "description": "Fired when an account has been removed.",
         "parameters": [
           {
-            "name": "id",
-            "type": "string"
+            "name": "accountId",
+            "$ref": "MailAccountId"
           }
         ]
       },
@@ -217,8 +222,8 @@
         "description": "Fired when a property of an account has been modified. Folders and identities of accounts are not monitored by this event, use the dedicated folder and identity events instead. A changed ``defaultIdentity`` is reported only after a different identity has been assigned as default identity, but not after a property of the default identity has been changed.",
         "parameters": [
           {
-            "name": "id",
-            "type": "string"
+            "name": "accountId",
+            "$ref": "MailAccountId"
           },
           {
             "name": "changedValues",

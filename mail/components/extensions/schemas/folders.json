@@ -23,7 +23,7 @@
         "description": "An object describing a folder. The ``subFolders`` property is only included if requested.",
         "properties": {
           "accountId": {
-            "type": "string",
+            "$ref": "accounts.MailAccountId",
             "description": "The id of the account this folder belongs to."
           },
           "id": {
@@ -238,6 +238,11 @@
             "optional": true,
             "default": {},
             "properties": {
+              "accountId": {
+                "$ref": "accounts.MailAccountId",
+                "description": "Limits the search to folders of the account with the specified id.",
+                "optional": true
+              },
               "canAddMessages": {
                 "type": "boolean",
                 "optional": true,
@@ -342,6 +347,18 @@
                 ],
                 "optional": true,
                 "description": "Return only folders whose name is matched by the provided string or regular expression."
+              },
+              "path": {
+                "choices": [
+                  {
+                    "$ref": "RegularExpression"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "optional": true,
+                "description": "Return only folders whose path is matched by the provided string or regular expression."
               },
               "recent": {
                 "type": "boolean",

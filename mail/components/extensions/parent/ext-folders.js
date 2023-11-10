@@ -626,11 +626,22 @@ this.folders = class extends ExtensionAPIPersistent {
           // Prepare folders, which are to be searched.
           const parentFolders = [];
           if (queryInfo.folderId) {
-            const { folder } = getFolder(queryInfo.folderId);
-            parentFolders.push(folder);
+            const { folder, accountId } = getFolder(queryInfo.folderId);
+            if (!queryInfo.accountId || queryInfo.accountId == accountId) {
+              parentFolders.push({
+                rootFolder: folder,
+                accountId,
+              });
+            }
           } else {
             for (const account of MailServices.accounts.accounts) {
-              parentFolders.push(account.incomingServer.rootFolder);
+              const accountId = account.key;
+              if (!queryInfo.accountId || queryInfo.accountId == accountId) {
+                parentFolders.push({
+                  rootFolder: account.incomingServer.rootFolder,
+                  accountId,
+                });
+              }
             }
           }
 
@@ -649,7 +660,7 @@ this.folders = class extends ExtensionAPIPersistent {
                   .reduce((rv, f) => rv | f)
               : null;
 
-          // Prepare regular expression.
+          // Prepare regular expression for the name.
           let nameRegExp;
           if (queryInfo.name != null && queryInfo.name.regexp) {
             try {
@@ -664,9 +675,25 @@ this.folders = class extends ExtensionAPIPersistent {
             }
           }
 
+          // Prepare regular expression for the path.
+          let pathRegExp;
+          if (queryInfo.path != null && queryInfo.path.regexp) {
+            try {
+              pathRegExp = new RegExp(
+                queryInfo.path.regexp,
+                queryInfo.path.flags || undefined
+              );
+            } catch (ex) {
+              throw new ExtensionError(
+                `Invalid Regular Expression: ${JSON.stringify(queryInfo.path)}`
+              );
+            }
+          }
+
           let foundFolders = [];
           for (const parentFolder of parentFolders) {
-            for (const folder of getFlatFolderStructure(parentFolder)) {
+            const { accountId, rootFolder } = parentFolder;
+            for (const folder of getFlatFolderStructure(rootFolder)) {
               // Apply search criteria.
               const isServer = folder.isServer;
 
@@ -766,6 +793,17 @@ this.folders = class extends ExtensionAPIPersistent {
                     continue;
                   }
                 } else if (queryInfo.name != name) {
+                  continue;
+                }
+              }
+
+              if (queryInfo.path) {
+                const folderPath = folderURIToPath(accountId, folder.URI);
+                if (pathRegExp) {
+                  if (!pathRegExp.test(folderPath)) {
+                    continue;
+                  }
+                } else if (queryInfo.path != folderPath) {
                   continue;
                 }
               }

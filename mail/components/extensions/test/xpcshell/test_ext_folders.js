@@ -82,10 +82,15 @@ add_task(
 
         {
           const onRenamedPromise = window.waitForEvent("folders.onRenamed");
-          const folder3 = await browser.folders.rename(
-            { accountId, path: "/folder1/folder+2" },
-            "folder3"
+          const [folderPlus2] = await browser.folders.query({
+            accountId,
+            path: "/folder1/folder+2",
+          });
+          browser.test.assertTrue(
+            folderPlus2,
+            "Query should have been successful"
           );
+          const folder3 = await browser.folders.rename(folderPlus2, "folder3");
           const [originalFolder, renamedFolder] = await onRenamedPromise;
           // Test the original folder.
           browser.test.assertEq(accountId, originalFolder.accountId);
@@ -107,8 +112,16 @@ add_task(
           );
 
           // Test reject on renaming absolute root.
+          const [forbiddenRootFolder] = await browser.folders.query({
+            accountId,
+            isRoot: true,
+          });
+          browser.test.assertTrue(
+            forbiddenRootFolder,
+            "Query should have been successful"
+          );
           await browser.test.assertRejects(
-            browser.folders.rename({ accountId, path: "/" }, "UhhOh"),
+            browser.folders.rename(forbiddenRootFolder, "UhhOh"),
             `folders.rename() failed, because it cannot rename the root of the account`,
             "browser.folders.rename threw exception"
           );
@@ -129,7 +142,12 @@ add_task(
           const deletePromise = window.waitForEvent(
             `folders.${IS_IMAP ? "onDeleted" : "onMoved"}`
           );
-          await browser.folders.delete({ accountId, path: "/folder1/folder3" });
+          const [folder3] = await browser.folders.query({
+            accountId,
+            path: "/folder1/folder3",
+          });
+          browser.test.assertTrue(folder3, "Query should have been successful");
+          await browser.folders.delete(folder3);
           // The onMoved event returns the original/deleted and the new folder.
           // The onDeleted event returns just the original/deleted folder.
           const [originalFolder, folderMovedToTrash] = await deletePromise;
@@ -179,8 +197,17 @@ add_task(
           } else {
             // The IMAP test server signals success for the delete request, but
             // keeps the folder. Testing for this broken behavior to get notified
-            // via test fails, if this behaviour changes.
-            await browser.folders.delete({ accountId, path: "/Trash/folder3" });
+            // via test fails, if this behavior changes.
+            const [folderInTrash] = await browser.folders.query({
+              folderId: trashFolder.id,
+              name: "folder3",
+            });
+            browser.test.assertTrue(
+              folderInTrash,
+              "Query should have been successful"
+            );
+
+            await browser.folders.delete(folderInTrash);
             const trashSubfolders = await browser.folders.getSubFolders(
               trashFolder,
               false
@@ -241,10 +268,17 @@ add_task(
 
         {
           const onCopiedPromise = window.waitForEvent("folders.onCopied");
-          const folder4_copied = await browser.folders.copy(
-            { accountId, path: "/folder4" },
-            { accountId, path: "/folder1" }
-          );
+          const [f4] = await browser.folders.query({
+            accountId,
+            path: "/folder4",
+          });
+          browser.test.assertTrue(f4, "Query should have been successful");
+          const [f1] = await browser.folders.query({
+            accountId,
+            path: "/folder1",
+          });
+          browser.test.assertTrue(f1, "Query should have been successful");
+          const folder4_copied = await browser.folders.copy(f4, f1);
           const [originalFolder, copiedFolder] = await onCopiedPromise;
           // Test the original folder.
           browser.test.assertEq(accountId, originalFolder.accountId);

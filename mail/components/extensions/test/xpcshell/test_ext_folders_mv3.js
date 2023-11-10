@@ -254,7 +254,7 @@ add_task(
         {
           const onCopiedPromise = window.waitForEvent("folders.onCopied");
           const [folder4] = await browser.folders.query({
-            folderId: rootFolder.id,
+            accountId: account.id,
             name: "folder4",
           });
           const folder4_copied = await browser.folders.copy(

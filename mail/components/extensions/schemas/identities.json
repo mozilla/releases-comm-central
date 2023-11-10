@@ -22,7 +22,7 @@
         "type": "object",
         "properties": {
           "accountId": {
-            "type": "string",
+            "$ref": "accounts.MailAccountId",
             "optional": true,
             "description": "The id of the :ref:`accounts.MailAccount` this identity belongs to. The ``accountId`` property is read-only."
           },
@@ -83,7 +83,7 @@
         "parameters": [
           {
             "name": "accountId",
-            "type": "string",
+            "$ref": "accounts.MailAccountId",
             "optional": true
           },
           {
@@ -133,7 +133,7 @@
         "parameters": [
           {
             "name": "accountId",
-            "type": "string"
+            "$ref": "accounts.MailAccountId"
           },
           {
             "name": "details",
@@ -199,7 +199,7 @@
         "parameters": [
           {
             "name": "accountId",
-            "type": "string"
+            "$ref": "accounts.MailAccountId"
           },
           {
             "type": "function",
@@ -221,7 +221,7 @@
         "parameters": [
           {
             "name": "accountId",
-            "type": "string"
+            "$ref": "accounts.MailAccountId"
           },
           {
             "name": "identityId",
