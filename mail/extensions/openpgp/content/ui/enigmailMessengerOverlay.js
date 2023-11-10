@@ -3204,6 +3204,8 @@ Enigmail.msg = {
 
       case EnigmailConstants.MSG_SIG_INVALID:
         sigInfoLabel = "openpgp-invalid-sig";
+        sigInfoWithDateLabel = "openpgp-invalid-sig-with-date";
+        wantToShowDate = true;
         sigClass = "mismatch";
         sigInfo = "openpgp-sig-invalid-technical-problem";
         break;
