@@ -56,7 +56,7 @@ XPCOMUtils.defineLazyGetter(this, "SubDialog", function () {
       ],
       resizeCallback: ({ title, frame }) => {
         UIFontSize.registerWindow(frame.contentWindow);
-        updateCommands();
+        updateAbCommands();
 
         // Resize the dialog to fit the content with edited font size.
         requestAnimationFrame(() => {
@@ -258,7 +258,7 @@ function createBook(type = Ci.nsIAbManager.JS_DIRECTORY_TYPE) {
           );
           booksList.focus();
         }
-        updateCommands();
+        updateAbCommands();
       },
     },
     params
@@ -321,7 +321,7 @@ function createList(cards) {
           booksList.selectedIndex = booksList.getIndexForUID(params.newListUID);
           booksList.focus();
         }
-        updateCommands();
+        updateAbCommands();
       },
     },
     params
@@ -393,7 +393,7 @@ function updateSharedSplitter(isTableLayout) {
  * Update all commands that are affected by the contents of the address book
  * tab.
  */
-function updateCommands() {
+function updateAbCommands() {
   const { topChromeWindow } = window.browsingContext;
   topChromeWindow.goUpdateCommand("cmd_createAddressBook");
   topChromeWindow.goUpdateCommand("cmd_createAddressBookCARDDAV");
@@ -594,7 +594,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
 
       SubDialog.open(
         "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
-        { features: "resizable=no", closedCallback: updateCommands },
+        { features: "resizable=no", closedCallback: updateAbCommands },
         { listURI: list.URI }
       );
       return;
@@ -604,7 +604,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
 
     SubDialog.open(
       book.propertiesChromeURI,
-      { features: "resizable=no", closedCallback: updateCommands },
+      { features: "resizable=no", closedCallback: updateAbCommands },
       { selectedDirectory: book }
     );
   }
@@ -2826,7 +2826,7 @@ var detailsPane = {
     }
 
     document.body.classList.toggle("is-editing", editing);
-    updateCommands();
+    updateAbCommands();
 
     // Disable the toolbar buttons when starting to edit. Remember their state
     // to restore it when editing stops.
@@ -3477,7 +3477,7 @@ var detailsPane = {
     } else if (this.currentList) {
       SubDialog.open(
         "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
-        { features: "resizable=no", closedCallback: updateCommands },
+        { features: "resizable=no", closedCallback: updateAbCommands },
         { listURI: this.currentList.mailListURI }
       );
     }
