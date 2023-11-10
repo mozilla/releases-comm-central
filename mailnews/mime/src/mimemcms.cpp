@@ -205,17 +205,14 @@ static void* MimeMultCMS_init(MimeObject* obj) {
     return 0; /* #### bogus message?  out of memory? */
   }
 
-  // When disabling hash algorithms, don't remove them here, to avoid
-  // that less helpful error messages are shown to the user.
-  // Rather, adjust nsCMSMessage::CommonVerifySignature accordingly,
-  // search for code that sets NS_ERROR_CMS_VERIFY_UNSUPPORTED_ALGO
-  // based on unsupported or obsolete/weak hash algorithm.
+  bool allowSha1 = mozilla::Preferences::GetBool(
+      "mail.smime.accept_insecure_sha1_message_signatures", false);
 
-  if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA1) ||
-      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_2) ||
-      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_3) ||
-      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_4) ||
-      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_5))
+  if (allowSha1 && (!PL_strcasecmp(micalg, PARAM_MICALG_SHA1) ||
+                    !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_2) ||
+                    !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_3) ||
+                    !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_4) ||
+                    !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_5)))
     hash_type = nsICryptoHash::SHA1;
   else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA256) ||
            !PL_strcasecmp(micalg, PARAM_MICALG_SHA256_2) ||
