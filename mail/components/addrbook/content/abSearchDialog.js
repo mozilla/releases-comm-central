@@ -190,6 +190,9 @@ function onSearch() {
   let searchUri = "?(";
   for (let i = 0; i < gSearchSession.searchTerms.length; i++) {
     const searchTerm = gSearchSession.searchTerms[i];
+    if (!searchTerm.value.str) {
+      continue;
+    }
     // get the "and" / "or" value from the first term
     if (i == 0) {
       if (searchTerm.booleanAnd) {
@@ -330,6 +333,10 @@ function onSearch() {
   }
 
   searchUri += ")";
+  if (searchUri == "?()") {
+    // Empty search.
+    searchUri = "";
+  }
   SetAbView(currentAbURI, searchUri, "");
 }
 
