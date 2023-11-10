@@ -848,10 +848,12 @@ add_task(async function testOpenSignedInlineWithLeadingWS() {
  * in the PGP separator line, is trimmed and decrypted.
  */
 add_task(async function testDecryptInlineWithNBSPasQP() {
+  const opengpgprocessed = openpgpProcessed();
   const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/bob-enc-inline-nbsp-qp.eml"))
   );
   const aboutMessage = get_about_message(msgc);
+  await opengpgprocessed;
 
   Assert.ok(
     getMsgBodyTxt(msgc).includes("My real name is not Bob."),
@@ -869,10 +871,12 @@ add_task(async function testDecryptInlineWithNBSPasQP() {
  * encoded as qp in the PGP separator line, is trimmed and decrypted.
  */
 add_task(async function testDecryptHtmlWithNBSP() {
+  const opengpgprocessed = openpgpProcessed();
   const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/bob-enc-html-nbsp.eml"))
   );
   const aboutMessage = get_about_message(msgc);
+  await opengpgprocessed;
 
   Assert.ok(
     getMsgBodyTxt(msgc).includes("My real name is not Bob."),
@@ -890,12 +894,14 @@ add_task(async function testDecryptHtmlWithNBSP() {
  * and body works.
  */
 add_task(async function testOpenSignedByUnverifiedEncrypted() {
+  const opengpgprocessed = openpgpProcessed();
   const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/encrypted-and-signed-alice-to-bob-nonascii.eml")
     )
   );
   const aboutMessage = get_about_message(msgc);
+  await opengpgprocessed;
 
   // Check the subject was properly updated (from ...) in the message header.
   Assert.equal(
@@ -906,11 +912,11 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
   Assert.ok(getMsgBodyTxt(msgc).includes("Detta är krypterat!"));
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),
-    "signed verified icon is displayed"
+    "signed verified icon should be displayed"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be displayed"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -929,12 +935,14 @@ add_task(async function testOpenEncryptedForRevokedKey() {
     )
   );
 
+  const opengpgprocessed = openpgpProcessed();
   const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/enc-to-carol@pgp.icu-revoked.eml")
     )
   );
   const aboutMessage = get_about_message(msgc);
+  await opengpgprocessed;
 
   Assert.ok(
     getMsgBodyTxt(msgc).includes("billie-jean"),
@@ -942,7 +950,7 @@ add_task(async function testOpenEncryptedForRevokedKey() {
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be displayed"
   );
   await BrowserTestUtils.closeWindow(msgc);
   await OpenPGPTestUtils.removeKeyById("0xEF2FD01608AFD744", true);
