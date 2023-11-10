@@ -381,6 +381,13 @@
             "$ref": "folders.MailFolderId"
           },
           {
+            "name": "includeSubFolders",
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders . Defaults to <value>true</value>.",
+            "optional": true,
+            "default": true,
+            "type": "boolean"
+          },
+          {
             "type": "function",
             "name": "callback",
             "optional": true,

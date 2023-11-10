@@ -140,6 +140,7 @@ add_task(async function test_update() {
       "utils.js": await getUtilsJS(),
     },
     manifest: {
+      manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "messagesRead"],
     },
@@ -292,6 +293,7 @@ add_task(async function test_displayedFolderChanged() {
       "utils.js": await getUtilsJS(),
     },
     manifest: {
+      manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "messagesRead"],
     },
@@ -377,6 +379,7 @@ add_task(async function test_selectedMessagesChanged() {
       "utils.js": await getUtilsJS(),
     },
     manifest: {
+      manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "messagesRead"],
     },
@@ -485,6 +488,7 @@ add_task(async function test_background_tab() {
       "utils.js": await getUtilsJS(),
     },
     manifest: {
+      manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead"],
     },
@@ -655,6 +659,7 @@ add_task(async function test_get_and_query() {
       "utils.js": await getUtilsJS(),
     },
     manifest: {
+      manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead"],
     },
@@ -866,6 +871,7 @@ add_task(async function test_setSelectedMessages() {
       "utils.js": await getUtilsJS(),
     },
     manifest: {
+      manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "messagesRead"],
     },

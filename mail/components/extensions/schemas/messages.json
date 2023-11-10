@@ -708,7 +708,7 @@
               "includeSubFolders": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Search the folder specified by ``queryInfo.folder`` recursively."
+                "description": "Search the specified folder recursively."
               },
               "recipients": {
                 "type": "string",

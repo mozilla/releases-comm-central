@@ -114,6 +114,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "messagesRead"],
       },
@@ -162,6 +163,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         browser_specific_settings: {
           gecko: { id: "messages.delete@mochi.test" },
@@ -214,6 +216,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         browser_specific_settings: {
           gecko: { id: "messages.move@mochi.test" },
@@ -600,6 +603,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["messagesRead", "accountsRead", "messagesTags"],
       },
@@ -649,6 +653,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["messagesRead", "accountsRead"],
       },
@@ -739,6 +744,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "messagesMove", "messagesRead"],
       },
@@ -805,6 +811,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "messagesRead"],
       },
@@ -878,6 +885,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "messagesRead"],
       },
@@ -1041,6 +1049,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "messagesRead"],
         experiment_apis: {
@@ -1209,6 +1218,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "messagesRead"],
         experiment_apis: {
@@ -1344,6 +1354,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "messagesRead"],
         experiment_apis: {
@@ -1496,6 +1507,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "messagesRead"],
         experiment_apis: {

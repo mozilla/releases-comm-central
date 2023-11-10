@@ -795,8 +795,14 @@ this.folders = class extends ExtensionAPIPersistent {
             context.extension.folderManager.convert(folder)
           );
         },
-        async get(folderId) {
-          const { folder } = getFolder(folderId);
+        async get(folderId, includeSubFolders) {
+          const { folder, accountId } = getFolder(folderId);
+          if (includeSubFolders) {
+            return context.extension.folderManager.traverseSubfolders(
+              folder,
+              accountId
+            );
+          }
           return context.extension.folderManager.convert(folder);
         },
         async create(parent, childName) {
@@ -1045,10 +1051,9 @@ this.folders = class extends ExtensionAPIPersistent {
 
           return mailFolderInfo;
         },
-        async getParentFolders({ accountId, path }, includeFolders) {
+        async getParentFolders(target, includeSubFolders) {
           const { folderManager } = context.extension;
-
-          let { folder } = getFolder({ accountId, path });
+          let { folder, accountId } = getFolder(target);
           const parentFolders = [];
           // We do not consider the absolute root ("/") as a root folder, but
           // the first real folders (all folders returned in MailAccount.folders
@@ -1056,7 +1061,7 @@ this.folders = class extends ExtensionAPIPersistent {
           while (folder.parent != null && folder.parent.parent != null) {
             folder = folder.parent;
 
-            if (includeFolders) {
+            if (includeSubFolders) {
               parentFolders.push(
                 folderManager.traverseSubfolders(folder, accountId)
               );
@@ -1066,19 +1071,26 @@ this.folders = class extends ExtensionAPIPersistent {
           }
           return parentFolders;
         },
-        async getSubFolders(accountOrFolder, includeFolders) {
+        async getSubFolders(target, includeSubFolders) {
           const { folderManager } = context.extension;
-
-          const { folder, accountId } = getFolder(accountOrFolder);
+          const { folder, accountId } = getFolder(target);
           const subFolders = [];
           if (folder.hasSubFolders) {
-            for (const subFolder of folder.subFolders) {
-              if (includeFolders) {
+            // Use the same order as used by Thunderbird.
+            const directSubFolders = [...folder.subFolders].sort((a, b) =>
+              a.sortOrder == b.sortOrder
+                ? a.name.localeCompare(b.name)
+                : a.sortOrder - b.sortOrder
+            );
+            for (const directSubFolder of directSubFolders) {
+              if (includeSubFolders) {
                 subFolders.push(
-                  folderManager.traverseSubfolders(subFolder, accountId)
+                  folderManager.traverseSubfolders(directSubFolder, accountId)
                 );
               } else {
-                subFolders.push(folderManager.convert(subFolder, accountId));
+                subFolders.push(
+                  folderManager.convert(directSubFolder, accountId)
+                );
               }
             }
           }

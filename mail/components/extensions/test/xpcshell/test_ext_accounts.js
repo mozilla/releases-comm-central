@@ -223,6 +223,7 @@ add_task(async function test_accounts() {
   const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
+      manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "accountsIdentities", "messagesRead"],
     },
@@ -789,6 +790,7 @@ add_task(async function test_identities() {
   const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
+      manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "accountsIdentities"],
     },
@@ -837,6 +839,7 @@ add_task(async function test_identities_without_write_permissions() {
       browser.test.notifyPass("finished");
     },
     manifest: {
+      manifest_version: 2,
       permissions: ["accountsRead"],
     },
   });
@@ -1080,6 +1083,7 @@ add_task(async function test_accounts_events() {
   const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
+      manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "accountsIdentities"],
     },

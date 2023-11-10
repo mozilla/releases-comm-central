@@ -284,6 +284,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "accountsFolders", "messagesDelete"],
       },
@@ -326,6 +327,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "accountsFolders"],
       },
@@ -450,6 +452,7 @@ add_task(async function test_getParentFolders_getSubFolders() {
   const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
+      manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "accountsFolders"],
     },
@@ -1072,6 +1075,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
   const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
+      manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "accountsFolders", "messagesDelete"],
     },
@@ -1192,6 +1196,7 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files,
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "accountsFolders", "messagesDelete"],
       },
