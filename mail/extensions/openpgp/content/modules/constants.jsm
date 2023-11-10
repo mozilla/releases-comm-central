@@ -114,6 +114,7 @@ var EnigmailConstants = {
 
   /* Extended status flags */
   EXT_SELF_IDENTITY: 0x00000001,
+  EXT_SIGNING_TIME_MISMATCH: 0x00000002,
 
   /* UI message status flags */
   MSG_SIG_NONE: 0,
@@ -125,6 +126,7 @@ var EnigmailConstants = {
   MSG_SIG_UNCERTAIN_KEY_NOT_ACCEPTED: 6,
   MSG_SIG_INVALID: 7,
   MSG_SIG_INVALID_KEY_REJECTED: 8,
+  MSG_SIG_INVALID_DATE_MISMATCH: 9,
 
   MSG_ENC_NONE: 0,
   MSG_ENC_OK: 1,

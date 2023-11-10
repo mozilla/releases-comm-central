@@ -2093,6 +2093,8 @@ var RNP = {
       if (timeDelta > 1000 * 60 * 60 * 1) {
         result.statusFlags &= ~lazy.EnigmailConstants.GOOD_SIGNATURE;
         result.statusFlags |= lazy.EnigmailConstants.MSG_SIG_INVALID;
+        result.extStatusFlags |=
+          lazy.EnigmailConstants.EXT_SIGNING_TIME_MISMATCH;
       }
     }
 

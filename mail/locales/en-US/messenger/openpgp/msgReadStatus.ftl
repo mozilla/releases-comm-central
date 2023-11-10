@@ -29,6 +29,10 @@ openpgp-invalid-sig = Invalid Digital Signature
 # Variables:
 # $date (String) - Date with time the signature was made in a short format.
 openpgp-invalid-sig-with-date = Invalid Digital Signature - Signed on { $date }
+openpgp-bad-date-sig = Signature Date Mismatch
+# Variables:
+# $date (String) - Date with time the signature was made in a short format.
+openpgp-bad-date-sig-with-date = Signature Date Mismatch - Signed on { $date }
 openpgp-good-sig = Good Digital Signature
 # Variables:
 # $date (String) - Date with time the signature was made in a short format.
@@ -39,6 +43,7 @@ openpgp-sig-uncertain-uid-mismatch = This message contains a digital signature, 
 openpgp-sig-uncertain-not-accepted = This message contains a digital signature, but you haven’t yet decided if the signer’s key is acceptable to you.
 openpgp-sig-invalid-rejected = This message contains a digital signature, but you have previously decided to reject the signer key.
 openpgp-sig-invalid-technical-problem = This message contains a digital signature, but a technical error was detected. Either the message has been corrupted, or the message has been modified by someone else.
+openpgp-sig-invalid-date-mismatch = This message contains a digital signature, but the signature wasn’t made at the same time the email message was sent. This could be an attempt to deceive you with content from the wrong context: e.g. content written in another timely context or meant for someone else.
 openpgp-sig-valid-unverified = This message includes a valid digital signature from a key that you have already accepted. However, you have not yet verified that the key is really owned by the sender.
 openpgp-sig-valid-verified = This message includes a valid digital signature from a verified key.
 openpgp-sig-valid-own-key = This message includes a valid digital signature from your personal key.

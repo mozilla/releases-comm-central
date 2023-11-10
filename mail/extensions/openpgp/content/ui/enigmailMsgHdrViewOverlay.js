@@ -337,6 +337,9 @@ Enigmail.hdrView = {
     ) {
       if (statusFlags & EnigmailConstants.INVALID_RECIPIENT) {
         this.msgSignatureState = EnigmailConstants.MSG_SIG_INVALID_KEY_REJECTED;
+      } else if (extStatusFlags & EnigmailConstants.EXT_SIGNING_TIME_MISMATCH) {
+        this.msgSignatureState =
+          EnigmailConstants.MSG_SIG_INVALID_DATE_MISMATCH;
       } else {
         this.msgSignatureState = EnigmailConstants.MSG_SIG_INVALID;
       }
