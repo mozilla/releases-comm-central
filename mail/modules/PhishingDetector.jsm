@@ -17,8 +17,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 
 const PhishingDetector = new (class PhishingDetector {
   mEnabled = true;
-  mCheckForIPAddresses = true;
-  mCheckForMismatchedHosts = true;
   mDisallowFormActions = true;
 
   constructor() {
@@ -26,18 +24,6 @@ const PhishingDetector = new (class PhishingDetector {
       this,
       "mEnabled",
       "mail.phishing.detection.enabled",
-      true
-    );
-    XPCOMUtils.defineLazyPreferenceGetter(
-      this,
-      "mCheckForIPAddresses",
-      "mail.phishing.detection.ipaddresses",
-      true
-    );
-    XPCOMUtils.defineLazyPreferenceGetter(
-      this,
-      "mCheckForMismatchedHosts",
-      "mail.phishing.detection.mismatched_hosts",
       true
     );
     XPCOMUtils.defineLazyPreferenceGetter(
@@ -105,72 +91,62 @@ const PhishingDetector = new (class PhishingDetector {
   }
 
   /**
-   * Analyze the url contained in aLinkNode for phishing attacks.
+   * Analyze the url contained for phishing attacks. Determine if the link node
+   * contains a user visible url with a host name that differs from the actual
+   * href the user would get taken to.
+   * E.g. <a href="http://myevilsite.com">http://mozilla.org</a>
    *
-   * @param {string} aHref - the url to be analyzed
-   * @param {string} [aLinkText] - user visible link text associated with aHref
-   *         in case we are dealing with a link node.
-   * @returns true if link node contains phishing URL. false otherwise.
+   * @param {string} aUrl - The url to be analyzed
+   * @param {string} aLinkText - User visible link text associated with aUrl
+   *   in case we are dealing with a link node.
+   * @returns {boolean} true if link node contains phishing URL.
    */
-  #analyzeUrl(aUrl, aLinkText) {
-    if (!aUrl) {
+  linkTextMismatch(aUrl, aLinkText) {
+    if (!aUrl || !URL.canParse(aUrl)) {
       return false;
     }
 
-    let hrefURL;
-    // make sure relative link urls don't make us bail out
-    try {
-      hrefURL = Services.io.newURI(aUrl);
-    } catch (ex) {
-      return false;
-    }
+    const hrefURL = new URL(aUrl);
 
-    // only check for phishing urls if the url is an http or https link.
+    // Only check for phishing urls if the url is an http or https link.
     // this prevents us from flagging imap and other internally handled urls
-    if (hrefURL.schemeIs("http") || hrefURL.schemeIs("https")) {
-      // The link is not suspicious if the visible text is the same as the URL,
-      // even if the URL is an IP address. URLs are commonly surrounded by
-      // < > or "" (RFC2396E) - so strip those from the link text before comparing.
-      if (aLinkText) {
-        aLinkText = aLinkText.replace(/^<(.+)>$|^"(.+)"$/, "$1$2");
-      }
+    if (hrefURL.protocol != "http:" && hrefURL.protocol != "https:") {
+      return false;
+    }
+    // The link is not suspicious if the visible text is the same as the URL,
+    // even if the URL is an IP address. URLs are commonly surrounded by
+    // < > or "" (RFC2396E) - so strip those from the link text before comparing.
+    aLinkText = aLinkText.replace(/^<(.+)>$|^"(.+)"$/, "$1$2");
 
-      var failsStaticTests = false;
-      // If the link text and url differs by something other than a trailing
-      // slash, do some further checks.
-      if (
-        aLinkText &&
-        aLinkText != aUrl &&
-        aLinkText.replace(/\/+$/, "") != aUrl.replace(/\/+$/, "")
-      ) {
-        if (this.mCheckForIPAddresses) {
-          const unobscuredHostNameValue = lazy.isLegalIPAddress(
-            hrefURL.host,
-            true
-          );
-          if (unobscuredHostNameValue) {
-            failsStaticTests = !lazy.isLegalLocalIPAddress(
-              unobscuredHostNameValue
-            );
-          }
-        }
+    // gatherTextUnder puts a space between each piece of text it gathers,
+    // so strip the spaces out (see bug 326082 for details).
+    aLinkText = aLinkText.replace(/ /g, "");
 
-        if (!failsStaticTests && this.mCheckForMismatchedHosts) {
-          failsStaticTests =
-            aLinkText && this.misMatchedHostWithLinkText(hrefURL, aLinkText);
-        }
-      }
-      // We don't use dynamic checks anymore. The old implementation was removed
-      // in bug bug 1085382. Using the toolkit safebrowsing is bug 778611.
-      //
-      // Because these static link checks tend to cause false positives
-      // we delay showing the warning until a user tries to click the link.
-      if (failsStaticTests) {
-        return true;
-      }
+    if (!URL.canParse(aLinkText)) {
+      return false;
+    }
+    const textURL = new URL(aLinkText);
+    if (textURL.protocol != "http:" && textURL.protocol != "https:") {
+      return false;
+    }
+    if (hrefURL.hostname == textURL.hostname) {
+      return false;
     }
 
-    return false;
+    const hrefURI = Services.io.newURI(aUrl);
+    const linkTextURI = Services.io.newURI(aLinkText);
+
+    // Compare the base domain of the href and the link text.
+    try {
+      return (
+        Services.eTLD.getBaseDomain(hrefURI) !=
+        Services.eTLD.getBaseDomain(linkTextURI)
+      );
+    } catch (e) {
+      // If we throw above, one of the URIs probably has no TLD (e.g.
+      // http://localhost), so just check the entire host.
+      return hrefURI.host != linkTextURI.host;
+    }
   }
 
   /**
@@ -193,39 +169,6 @@ const PhishingDetector = new (class PhishingDetector {
   }
 
   /**
-   * Private helper method to determine if the link node contains a user visible
-   * url with a host name that differs from the actual href the user would get
-   * taken to.
-   * i.e. <a href="http://myevilsite.com">http://mozilla.org</a>
-   *
-   * @returns true if aHrefURL.host does NOT match the host of the link node text
-   */
-  misMatchedHostWithLinkText(aHrefURL, aLinkNodeText) {
-    // gatherTextUnder puts a space between each piece of text it gathers,
-    // so strip the spaces out (see bug 326082 for details).
-    aLinkNodeText = aLinkNodeText.replace(/ /g, "");
-
-    // Only worry about http: and https: urls.
-    if (/^https?:/.test(aLinkNodeText)) {
-      const linkTextURI = Services.io.newURI(aLinkNodeText);
-
-      // Compare the base domain of the href and the link text.
-      try {
-        return (
-          Services.eTLD.getBaseDomain(aHrefURL) !=
-          Services.eTLD.getBaseDomain(linkTextURI)
-        );
-      } catch (e) {
-        // If we throw above, one of the URIs probably has no TLD (e.g.
-        // http://localhost), so just check the entire host.
-        return aHrefURL.host != linkTextURI.host;
-      }
-    }
-
-    return false;
-  }
-
-  /**
    * If the current message has been identified as an email scam, prompts the
    * user with a warning before allowing the link click to be processed.
    * The warning prompt includes the unobscured host name of the http(s) url the
@@ -235,7 +178,7 @@ const PhishingDetector = new (class PhishingDetector {
    *   The window the message is being displayed within.
    * @param {string} aUrl
    *   The url of the message
-   * @param {string} [aLinkText]
+   * @param {string} aLinkText
    *   User visible link text associated with the link
    * @returns {number}
    *   0 if the URL implied by aLinkText should be used instead.
@@ -243,87 +186,41 @@ const PhishingDetector = new (class PhishingDetector {
    *   2 if aUrl should be allowed to load.
    */
   warnOnSuspiciousLinkClick(win, aUrl, aLinkText) {
-    if (!this.#analyzeUrl(aUrl, aLinkText)) {
-      return 2; // No problem with the url. Allow it to load.
+    if (!aUrl || !URL.canParse(aUrl)) {
+      return 1; // block
     }
+
     const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messenger.properties"
     );
 
-    // Analysis said there was a problem.
-    if (aLinkText && /^https?:/i.test(aLinkText)) {
-      const actualURI = Services.io.newURI(aUrl);
-      let displayedURI;
-      try {
-        displayedURI = Services.io.newURI(aLinkText);
-      } catch (e) {
-        return 1;
-      }
-
-      const titleMsg = bundle.GetStringFromName("linkMismatchTitle");
-      const dialogMsg = bundle.formatStringFromName(
-        "confirmPhishingUrlAlternate",
-        [displayedURI.host, actualURI.host]
-      );
-      const warningButtons =
-        Ci.nsIPromptService.BUTTON_POS_0 *
-          Ci.nsIPromptService.BUTTON_TITLE_IS_STRING +
-        Ci.nsIPromptService.BUTTON_POS_1 *
-          Ci.nsIPromptService.BUTTON_TITLE_CANCEL +
-        Ci.nsIPromptService.BUTTON_POS_2 *
-          Ci.nsIPromptService.BUTTON_TITLE_IS_STRING;
-      const button0Text = bundle.formatStringFromName(
-        "confirmPhishingGoDirect",
-        [displayedURI.host]
-      );
-      const button2Text = bundle.formatStringFromName(
-        "confirmPhishingGoAhead",
-        [actualURI.host]
-      );
-      return Services.prompt.confirmEx(
-        win,
-        titleMsg,
-        dialogMsg,
-        warningButtons,
-        button0Text,
-        "",
-        button2Text,
-        "",
-        {}
-      );
+    const hrefURL = new URL(aUrl);
+    if (hrefURL.protocol != "http:" && hrefURL.protocol != "https:") {
+      return 2; // allow
     }
 
-    let hrefURL;
-    try {
-      // make sure relative link urls don't make us bail out
-      hrefURL = Services.io.newURI(aUrl);
-    } catch (e) {
-      return 1; // block the load
+    if (!this.linkTextMismatch(aUrl, aLinkText)) {
+      return 2; // allow
     }
 
-    // only prompt for http and https urls
-    if (hrefURL.schemeIs("http") || hrefURL.schemeIs("https")) {
-      // unobscure the host name in case it's an encoded ip address..
-      const unobscuredHostNameValue =
-        lazy.isLegalIPAddress(hrefURL.host, true) || hrefURL.host;
-
+    // Unobscure the hostname in case it's an encoded IP address.
+    const unobscuredHostname = lazy.isLegalIPAddress(hrefURL.hostname, true);
+    if (unobscuredHostname && !lazy.isLegalLocalIPAddress(unobscuredHostname)) {
       const brandBundle = Services.strings.createBundle(
         "chrome://branding/locale/brand.properties"
       );
-      const brandShortName = brandBundle.GetStringFromName("brandShortName");
       const titleMsg = bundle.GetStringFromName("confirmPhishingTitle");
+      const brandShortName = brandBundle.GetStringFromName("brandShortName");
       const dialogMsg = bundle.formatStringFromName("confirmPhishingUrl", [
         brandShortName,
-        unobscuredHostNameValue,
+        unobscuredHostname,
       ]);
-      const warningButtons =
-        Ci.nsIPromptService.STD_YES_NO_BUTTONS +
-        Ci.nsIPromptService.BUTTON_POS_1_DEFAULT;
       const button = Services.prompt.confirmEx(
         win,
         titleMsg,
         dialogMsg,
-        warningButtons,
+        Ci.nsIPromptService.STD_YES_NO_BUTTONS +
+          Ci.nsIPromptService.BUTTON_POS_1_DEFAULT,
         "",
         "",
         "",
@@ -332,6 +229,39 @@ const PhishingDetector = new (class PhishingDetector {
       );
       return button == 0 ? 2 : 1; // 2 == allow, 1 == block
     }
-    return 2; // allow the link to load
+
+    // We have a mismatching hostname. Prompt the user what to do.
+    const actualURL = hrefURL;
+    const displayedURL = new URL(aLinkText);
+
+    const titleMsg = bundle.GetStringFromName("linkMismatchTitle");
+    const dialogMsg = bundle.formatStringFromName(
+      "confirmPhishingUrlAlternate",
+      [displayedURL.hostname, actualURL.hostname]
+    );
+    const warningButtons =
+      Ci.nsIPromptService.BUTTON_POS_0 *
+        Ci.nsIPromptService.BUTTON_TITLE_IS_STRING +
+      Ci.nsIPromptService.BUTTON_POS_1 *
+        Ci.nsIPromptService.BUTTON_TITLE_CANCEL +
+      Ci.nsIPromptService.BUTTON_POS_2 *
+        Ci.nsIPromptService.BUTTON_TITLE_IS_STRING;
+    const button0Text = bundle.formatStringFromName("confirmPhishingGoDirect", [
+      displayedURL.hostname,
+    ]);
+    const button2Text = bundle.formatStringFromName("confirmPhishingGoAhead", [
+      actualURL.hostname,
+    ]);
+    return Services.prompt.confirmEx(
+      win,
+      titleMsg,
+      dialogMsg,
+      warningButtons,
+      button0Text,
+      "",
+      button2Text,
+      "",
+      {}
+    );
   }
 })();

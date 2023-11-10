@@ -533,10 +533,6 @@ pref("alerts.useSystemBackend", false);
 
 // analyze urls in mail messages for scams
 pref("mail.phishing.detection.enabled", true);
-// If phishing detection is enabled, allow fine grained control
-// of the local, static tests
-pref("mail.phishing.detection.ipaddresses", true);
-pref("mail.phishing.detection.mismatched_hosts", true);
 pref("mail.phishing.detection.disallow_form_actions", true);
 
 pref("browser.safebrowsing.reportPhishURL", "https://%LOCALE%.phish-report.mozilla.com/?hl=%LOCALE%");

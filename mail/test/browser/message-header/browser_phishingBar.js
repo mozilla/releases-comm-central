@@ -48,23 +48,15 @@ var gMockExtProtocolSvc = {
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 
   _loadedURLs: [],
-
   externalProtocolHandlerExists(aProtocolScheme) {},
-
   getApplicationDescription(aScheme) {},
-
   getProtocolHandlerInfo(aProtocolScheme) {},
-
   getProtocolHandlerInfoFromOS(aProtocolScheme, aFound) {},
-
   isExposedProtocol(aProtocolScheme) {},
-
   loadURI(aURI, aWindowContext) {
     this._loadedURLs.push(aURI.spec);
   },
-
   setProtocolHandlerDefaults(aHandlerInfo, aOSHandlerExists) {},
-
   urlLoaded(aURL) {
     return this._loadedURLs.includes(aURL);
   },
@@ -77,6 +69,7 @@ add_setup(async function () {
   );
 
   folder = await create_folder("PhishingBarA");
+  // msg #0
   await add_message_to_folder(
     [folder],
     create_message({
@@ -86,7 +79,9 @@ add_setup(async function () {
       },
     })
   );
+  // msg #1
   await add_message_to_folder([folder], create_message());
+  // msg #2
   await add_message_to_folder(
     [folder],
     create_message({
@@ -96,6 +91,7 @@ add_setup(async function () {
       },
     })
   );
+  // msg #3
   await add_message_to_folder(
     [folder],
     create_message({
@@ -105,6 +101,7 @@ add_setup(async function () {
       },
     })
   );
+  // msg #4
   await add_message_to_folder(
     [folder],
     create_message({
@@ -114,6 +111,7 @@ add_setup(async function () {
       },
     })
   );
+  // msg #5
   await add_message_to_folder(
     [folder],
     create_message({
@@ -123,11 +121,22 @@ add_setup(async function () {
       },
     })
   );
+  // msg #6
   await add_message_to_folder(
     [folder],
     create_message({
       body: {
         body: '<form action="http://localhost/download-me"><input></form>.',
+        contentType: "text/html",
+      },
+    })
+  );
+  // msg #7
+  await add_message_to_folder(
+    [folder],
+    create_message({
+      body: {
+        body: '<a href="http://216.58.211.228/bla">http://216.58.211.228/</a>',
         contentType: "text/html",
       },
     })
@@ -209,8 +218,9 @@ add_task(async function test_ignore_phishing_warning_from_eml() {
 
   const msgc = await open_message_from_file(file);
   await assert_ignore_works(msgc);
+
   await BrowserTestUtils.closeWindow(msgc);
-}).skip();
+}).skip(); // TODO: fix broken feature. Disabled in bug 1787094
 
 /**
  * Test that when viewing an attached eml file, the phishing notification works.
@@ -242,7 +252,7 @@ add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
 
   await BrowserTestUtils.closeWindow(msgc2);
   await BrowserTestUtils.closeWindow(msgc);
-}).skip();
+}).skip(); // TODO: fix broken feature. Disabled in bug 1787094
 
 /**
  * Test that when viewing a message with an auto-linked ip address, we don't
@@ -302,11 +312,24 @@ add_task(async function test_phishing_warning_for_local_domain() {
 });
 
 /**
+ * Test that when clicking a link to an IP, and the text is not quite the same
+ * but the hostname (IP) is still the same - should not pop up any dialog.
+ */
+add_task(async function test_phishing_warning_for_non_local_IP() {
+  await be_in_folder(folder);
+  await select_click_row(-8);
+
+  click_link_if_available();
+  await new Promise(resolve => setTimeout(resolve));
+  // A modal would be shown if not working correctly.
+});
+
+/**
  * Test that we warn about emails which contain <form>s with action attributes.
  */
 add_task(async function test_phishing_warning_for_action_form() {
   await be_in_folder(folder);
-  await select_click_row(0);
+  await select_click_row(-7);
   assert_notification_displayed(
     get_about_message(),
     kBoxId,
