@@ -115,10 +115,7 @@ add_task(
 
           // Test reject on renaming to existing folder.
           await browser.test.assertRejects(
-            browser.folders.rename(
-              { accountId, path: "/folder1/folder3" },
-              "folder3"
-            ),
+            browser.folders.rename(folder3, "folder3"),
             `folders.rename() failed, because folder3 already exists in /folder1`,
             "browser.folders.rename threw exception"
           );
@@ -164,7 +161,7 @@ add_task(
 
             // Delete the folder from trash.
             const onDeletedPromise = window.waitForEvent("folders.onDeleted");
-            await browser.folders.delete({ accountId, path: "/Trash/folder3" });
+            await browser.folders.delete(folderMovedToTrash);
             const [deletedFolder] = await onDeletedPromise;
             browser.test.assertEq(accountId, deletedFolder.accountId);
             browser.test.assertEq("folder3", deletedFolder.name);
@@ -210,11 +207,11 @@ add_task(
         // Test move.
 
         {
-          await browser.folders.create(folder1, "folder4");
+          const folder4 = await browser.folders.create(folder1, "folder4");
           const onMovedPromise = window.waitForEvent("folders.onMoved");
           const folder4_moved = await browser.folders.move(
-            { accountId, path: "/folder1/folder4" },
-            { accountId, path: "/" }
+            folder4,
+            account.rootFolder
           );
           const [originalFolder, movedFolder] = await onMovedPromise;
           // Test the original folder.
@@ -476,6 +473,10 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
       const [accountId, startTime] = await window.waitForMessage();
 
       async function queryCheck(queryInfo, expected) {
+        // Do not include root folders in this test per default.
+        if (!queryInfo.hasOwnProperty("isRoot")) {
+          queryInfo.isRoot = false;
+        }
         const found = await browser.folders.query(queryInfo);
         window.assertDeepEqual(
           expected,
@@ -484,11 +485,11 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
             queryInfo
           )}) should return the correct folders`
         );
+        return found;
       }
 
       const account = await browser.accounts.get(accountId);
-      // FIXME: Expose account root folder.
-      const rootFolder = { id: `${accountId}://`, accountId, path: "/" };
+      const rootFolder = account.rootFolder;
 
       let expectedAllFolders;
       let expectedAccountFolders;
@@ -642,7 +643,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
           {
             id: `${InfoTestFolder.accountId}:/${InfoTestFolder.path}`,
             specialUse: [],
-            favorite: false,
+            isFavorite: false,
           },
           InfoTestFolder,
           "Returned MailFolder should be correct."
@@ -685,8 +686,38 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
 
       // Check query results without favorite folder and all messages unread & new.
 
+      // Folders.
+      const f1 = await queryCheck({ isRoot: false }, expectedAllFolders);
+      const f2 = await queryCheck(
+        { isRoot: false, folderId: rootFolder.id },
+        expectedAccountFolders
+      );
+      const f3 = await queryCheck({ isRoot: true, folderId: rootFolder.id }, [
+        "Root",
+      ]);
+      for (const f of f1) {
+        browser.test.assertEq(
+          false,
+          f.isRoot,
+          "The isRoot property should be false"
+        );
+      }
+      for (const f of f2) {
+        browser.test.assertEq(
+          false,
+          f.isRoot,
+          "The isRoot property should be false"
+        );
+      }
+      for (const f of f3) {
+        browser.test.assertEq(
+          true,
+          f.isRoot,
+          "The isRoot property should be true"
+        );
+      }
+
       // Recent.
-      await queryCheck({}, expectedAllFolders);
       await queryCheck({ folderId: rootFolder.id, mostRecent: true }, [
         "OtherTest",
       ]);
@@ -733,9 +764,9 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
       await queryCheck({ canDeleteMessages: true }, expectedAllFolders);
 
       // Favorite.
-      await queryCheck({ folderId: rootFolder.id, favorite: true }, []);
+      await queryCheck({ folderId: rootFolder.id, isFavorite: true }, []);
       await queryCheck(
-        { folderId: rootFolder.id, favorite: false },
+        { folderId: rootFolder.id, isFavorite: false },
         expectedAccountFolders
       );
 
@@ -956,7 +987,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         ["OtherTest"]
       );
 
-      // Flip favorite to true and mark all messages as read. Check FolderInfo
+      // Flip isFavorite to true and mark all messages as read. Check FolderInfo
       // and onFolderInfoChanged event.
       {
         const onFolderInfoChangedPromise = window.waitForEvent(
@@ -964,13 +995,13 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         );
         const onUpdatedPromise = window.waitForEvent("folders.onUpdated");
         await browser.folders.update(InfoTestFolder, {
-          favorite: true,
+          isFavorite: true,
         });
         await browser.folders.markAsRead(InfoTestFolder);
 
         const [originalFolder, updatedFolder] = await onUpdatedPromise;
-        browser.test.assertEq(false, originalFolder.favorite);
-        browser.test.assertEq(true, updatedFolder.favorite);
+        browser.test.assertEq(false, originalFolder.isFavorite);
+        browser.test.assertEq(true, updatedFolder.isFavorite);
         browser.test.assertEq(InfoTestFolder.path, originalFolder.path);
 
         const [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
@@ -981,6 +1012,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
           },
           mailFolderInfo
         );
+        browser.test.assertEq(true, mailFolder.isFavorite);
         browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
 
         const info = await browser.folders.getFolderInfo(InfoTestFolder);
@@ -999,10 +1031,10 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
 
       // Favorite.
       await queryCheck(
-        { folderId: rootFolder.id, favorite: false },
+        { folderId: rootFolder.id, isFavorite: false },
         expectedAccountFolders.filter(f => f != "InfoTest")
       );
-      await queryCheck({ folderId: rootFolder.id, favorite: true }, [
+      await queryCheck({ folderId: rootFolder.id, isFavorite: true }, [
         "InfoTest",
       ]);
 
@@ -1046,14 +1078,15 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         ["OtherTest"]
       );
 
-      // Test flipping favorite back to false.
+      // Test flipping isFavorite back to false.
       {
         const onFolderInfoChangedPromise = window.waitForEvent(
           "folders.onFolderInfoChanged"
         );
-        await browser.folders.update(InfoTestFolder, { favorite: false });
+        await browser.folders.update(InfoTestFolder, { isFavorite: false });
         const [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
-        window.assertDeepEqual({ favorite: false }, mailFolderInfo);
+        window.assertDeepEqual({ favorite: false }, mailFolderInfo); // Deprecated in MV3
+        browser.test.assertEq(false, mailFolder.isFavorite);
         browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
       }
 

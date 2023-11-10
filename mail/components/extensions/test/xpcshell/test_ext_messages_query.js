@@ -72,8 +72,7 @@ add_task(async function test_query() {
       });
       browser.test.assertEq(18, allMessages.length);
 
-      // FIXME: Expose account root folder.
-      const rootFolder = { id: `${accountId}://`, accountId, path: "/" };
+      const rootFolder = _account.rootFolder;
 
       // Mark two messages in folder1 as junk.
       await browser.messages.update(messages1.messages[4].id, { junk: true });

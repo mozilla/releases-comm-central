@@ -17,16 +17,14 @@ add_task(
       "background.js": async () => {
         const [accountId, IS_IMAP] = await window.waitForMessage();
 
-        let account = await browser.accounts.get(accountId);
-        // FIXME: Expose account root folder.
-        const rootFolder = { id: `${accountId}://`, accountId, path: "/" };
-
-        browser.test.assertEq(3, account.folders.length);
+        const account = await browser.accounts.get(accountId);
+        const rootFolder = account.rootFolder;
+        browser.test.assertEq(3, rootFolder.subFolders.length);
 
         // Test create.
 
         const onCreatedPromise = window.waitForEvent("folders.onCreated");
-        const folder1 = await browser.folders.create(account, "folder1");
+        const folder1 = await browser.folders.create(rootFolder.id, "folder1");
         const [createdFolder] = await onCreatedPromise;
         for (const folder of [folder1, createdFolder]) {
           browser.test.assertEq(accountId, folder.accountId);
@@ -34,30 +32,37 @@ add_task(
           browser.test.assertEq("/folder1", folder.path);
         }
 
-        account = await browser.accounts.get(accountId);
         // Check order of the returned folders being correct (new folder not last).
-        browser.test.assertEq(4, account.folders.length);
+        let accountFolders = await browser.folders.getSubFolders(
+          rootFolder.id,
+          true
+        );
+        browser.test.assertEq(4, accountFolders.length);
         if (IS_IMAP) {
-          browser.test.assertEq("Inbox", account.folders[0].name);
-          browser.test.assertEq("Trash", account.folders[1].name);
+          browser.test.assertEq("Inbox", accountFolders[0].name);
+          browser.test.assertEq("Trash", accountFolders[1].name);
         } else {
-          browser.test.assertEq("Trash", account.folders[0].name);
-          browser.test.assertEq("Outbox", account.folders[1].name);
+          browser.test.assertEq("Trash", accountFolders[0].name);
+          browser.test.assertEq("Outbox", accountFolders[1].name);
         }
-        browser.test.assertEq("folder1", account.folders[2].name);
-        browser.test.assertEq("unused", account.folders[3].name);
+        browser.test.assertEq("folder1", accountFolders[2].name);
+        browser.test.assertEq("unused", accountFolders[3].name);
 
+        // Create a second folder;
         const folder2 = await browser.folders.create(folder1.id, "folder+2");
         browser.test.assertEq(accountId, folder2.accountId);
         browser.test.assertEq("folder+2", folder2.name);
         browser.test.assertEq("/folder1/folder+2", folder2.path);
 
-        account = await browser.accounts.get(accountId);
-        browser.test.assertEq(4, account.folders.length);
-        browser.test.assertEq(1, account.folders[2].subFolders.length);
+        accountFolders = await browser.folders.getSubFolders(
+          rootFolder.id,
+          true
+        );
+        browser.test.assertEq(4, accountFolders.length);
+        browser.test.assertEq(1, accountFolders[2].subFolders.length);
         browser.test.assertEq(
           "/folder1/folder+2",
-          account.folders[2].subFolders[0].path
+          accountFolders[2].subFolders[0].path
         );
 
         // Test reject on creating already existing folder.
@@ -84,12 +89,16 @@ add_task(
             browser.test.assertEq("/folder1/folder3", folder.path);
           }
 
-          account = await browser.accounts.get(accountId);
-          browser.test.assertEq(4, account.folders.length);
-          browser.test.assertEq(1, account.folders[2].subFolders.length);
+          // Test if the renamed folder can be found.
+          accountFolders = await browser.folders.getSubFolders(
+            rootFolder.id,
+            true
+          );
+          browser.test.assertEq(4, accountFolders.length);
+          browser.test.assertEq(1, accountFolders[2].subFolders.length);
           browser.test.assertEq(
             "/folder1/folder3",
-            account.folders[2].subFolders[0].path
+            accountFolders[2].subFolders[0].path
           );
 
           // Test reject on renaming absolute root.
@@ -130,9 +139,12 @@ add_task(
           browser.test.assertEq("/folder1/folder3", originalFolder.path);
 
           // Check if it really is in trash folder.
-          account = await browser.accounts.get(accountId);
-          browser.test.assertEq(4, account.folders.length);
-          const trashFolder = account.folders.find(f => f.name == "Trash");
+          accountFolders = await browser.folders.getSubFolders(
+            rootFolder.id,
+            true
+          );
+          browser.test.assertEq(4, accountFolders.length);
+          const trashFolder = accountFolders.find(f => f.name == "Trash");
           browser.test.assertTrue(trashFolder);
           browser.test.assertEq("/Trash", trashFolder.path);
           browser.test.assertEq(1, trashFolder.subFolders.length);
@@ -140,7 +152,7 @@ add_task(
             "/Trash/folder3",
             trashFolder.subFolders[0].path
           );
-          browser.test.assertEq("/folder1", account.folders[2].path);
+          browser.test.assertEq("/folder1", accountFolders[2].path);
 
           if (!IS_IMAP) {
             // For non IMAP folders, the delete request has triggered an onMoved
@@ -193,9 +205,12 @@ add_task(
             "browser.folders.delete threw exception"
           );
 
-          account = await browser.accounts.get(accountId);
-          browser.test.assertEq(4, account.folders.length);
-          browser.test.assertEq("/folder1", account.folders[2].path);
+          accountFolders = await browser.folders.getSubFolders(
+            rootFolder.id,
+            true
+          );
+          browser.test.assertEq(4, accountFolders.length);
+          browser.test.assertEq("/folder1", accountFolders[2].path);
         }
 
         // Test move.
@@ -203,7 +218,10 @@ add_task(
         {
           const folder4 = await browser.folders.create(folder1.id, "folder4");
           const onMovedPromise = window.waitForEvent("folders.onMoved");
-          const folder4_moved = await browser.folders.move(folder4.id, account);
+          const folder4_moved = await browser.folders.move(
+            folder4.id,
+            rootFolder.id
+          );
           const [originalFolder, movedFolder] = await onMovedPromise;
           // Test the original folder.
           browser.test.assertEq(accountId, originalFolder.accountId);
@@ -216,13 +234,16 @@ add_task(
             browser.test.assertEq("/folder4", folder.path);
           }
 
-          account = await browser.accounts.get(accountId);
-          browser.test.assertEq(5, account.folders.length);
-          browser.test.assertEq("/folder4", account.folders[3].path);
+          accountFolders = await browser.folders.getSubFolders(
+            rootFolder.id,
+            true
+          );
+          browser.test.assertEq(5, accountFolders.length);
+          browser.test.assertEq("/folder4", accountFolders[3].path);
 
           // Test reject on moving to already existing folder.
           await browser.test.assertRejects(
-            browser.folders.move(folder4_moved.id, account),
+            browser.folders.move(folder4_moved.id, rootFolder.id),
             `folders.move() failed, because folder4 already exists in /`,
             "browser.folders.move threw exception"
           );
@@ -232,8 +253,10 @@ add_task(
 
         {
           const onCopiedPromise = window.waitForEvent("folders.onCopied");
-          // FIXME: Expose account root folder to properly query for folder4.
-          const [folder4] = await browser.folders.query({ name: "folder4" });
+          const [folder4] = await browser.folders.query({
+            folderId: rootFolder.id,
+            name: "folder4",
+          });
           const folder4_copied = await browser.folders.copy(
             folder4.id,
             folder1.id
@@ -250,13 +273,16 @@ add_task(
             browser.test.assertEq("/folder1/folder4", folder.path);
           }
 
-          account = await browser.accounts.get(accountId);
-          browser.test.assertEq(5, account.folders.length);
-          browser.test.assertEq(1, account.folders[2].subFolders.length);
-          browser.test.assertEq("/folder4", account.folders[3].path);
+          accountFolders = await browser.folders.getSubFolders(
+            rootFolder.id,
+            true
+          );
+          browser.test.assertEq(5, accountFolders.length);
+          browser.test.assertEq(1, accountFolders[2].subFolders.length);
+          browser.test.assertEq("/folder4", accountFolders[3].path);
           browser.test.assertEq(
             "/folder1/folder4",
-            account.folders[2].subFolders[0].path
+            accountFolders[2].subFolders[0].path
           );
 
           // Test reject on copy to already existing folder.
@@ -312,10 +338,8 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
       }
 
       const account = await browser.accounts.get(accountId);
-      // FIXME: Expose account root folder.
-      const rootFolder = { id: `${accountId}://`, accountId, path: "/" };
-
-      const folders = await browser.folders.getSubFolders(account, false);
+      const rootFolder = account.rootFolder;
+      const folders = await browser.folders.getSubFolders(rootFolder.id, false);
       const InfoTestFolder = folders.find(f => f.name == "InfoTest");
 
       // Verify initial state of the InfoTestFolder.
@@ -324,7 +348,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
           {
             id: `${InfoTestFolder.accountId}:/${InfoTestFolder.path}`,
             specialUse: [],
-            favorite: false,
+            isFavorite: false,
           },
           InfoTestFolder,
           "Returned MailFolder should be correct."
@@ -391,14 +415,14 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
       }
 
       // Favorite before the flip.
-      await queryCheck({ folderId: rootFolder.id, favorite: true }, []);
+      await queryCheck({ folderId: rootFolder.id, isFavorite: true }, []);
       // Unread messages before marking folder as read.
       await queryCheck({ folderId: rootFolder.id, hasUnreadMessages: true }, [
         "InfoTest",
         "OtherTest",
       ]);
 
-      // Flip favorite to true and mark all messages as read. Check FolderInfo
+      // Flip isFavorite to true and mark all messages as read. Check FolderInfo
       // and onFolderInfoChanged event.
       {
         const onFolderInfoChangedPromise = window.waitForEvent(
@@ -406,13 +430,13 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
         );
         const onUpdatedPromise = window.waitForEvent("folders.onUpdated");
         await browser.folders.update(InfoTestFolder.id, {
-          favorite: true,
+          isFavorite: true,
         });
         await browser.folders.markAsRead(InfoTestFolder.id);
 
         const [originalFolder, updatedFolder] = await onUpdatedPromise;
-        browser.test.assertEq(false, originalFolder.favorite);
-        browser.test.assertEq(true, updatedFolder.favorite);
+        browser.test.assertEq(false, originalFolder.isFavorite);
+        browser.test.assertEq(true, updatedFolder.isFavorite);
         browser.test.assertEq(InfoTestFolder.path, originalFolder.path);
 
         const [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
@@ -436,7 +460,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
       }
 
       // Favorite after the flip.
-      await queryCheck({ folderId: rootFolder.id, favorite: true }, [
+      await queryCheck({ folderId: rootFolder.id, isFavorite: true }, [
         "InfoTest",
       ]);
       // Unread messages before marking folder as read.
@@ -444,18 +468,18 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
         "OtherTest",
       ]);
 
-      // Test flipping favorite back to false.
+      // Test flipping isFavorite back to false.
       {
         const onUpdatedPromise = window.waitForEvent("folders.onUpdated");
-        await browser.folders.update(InfoTestFolder.id, { favorite: false });
+        await browser.folders.update(InfoTestFolder.id, { isFavorite: false });
         const [originalFolder, updatedFolder] = await onUpdatedPromise;
-        browser.test.assertEq(true, originalFolder.favorite);
-        browser.test.assertEq(false, updatedFolder.favorite);
+        browser.test.assertEq(true, originalFolder.isFavorite);
+        browser.test.assertEq(false, updatedFolder.isFavorite);
         browser.test.assertEq(InfoTestFolder.path, originalFolder.path);
       }
 
       // Favorite after the second flip.
-      await queryCheck({ folderId: rootFolder.id, favorite: true }, []);
+      await queryCheck({ folderId: rootFolder.id, isFavorite: true }, []);
 
       // Test setting some messages back to unread.
       {
@@ -543,12 +567,14 @@ add_task(
         const [accountId] = await window.waitForMessage();
 
         const account = await browser.accounts.get(accountId);
+        const rootFolder = account.rootFolder;
+        const accountFolders = rootFolder.subFolders;
         browser.test.assertEq(
           3,
-          account.folders.length,
+          accountFolders.length,
           "Should find the correct number of folders"
         );
-        const trash = account.folders.find(f => f.specialUse.includes("trash"));
+        const trash = accountFolders.find(f => f.specialUse.includes("trash"));
         browser.test.assertTrue(
           trash,
           "Should find a folder which is used as trash"
@@ -628,9 +654,10 @@ add_task(async function test_folders_get_getParentFolders_getSubFolders() {
     "background.js": async () => {
       const [accountId] = await window.waitForMessage();
       const account = await browser.accounts.get(accountId);
+      const rootFolder = account.rootFolder;
 
       // Create a new root folder in the account.
-      const root = await browser.folders.create(account, "level0");
+      const root = await browser.folders.create(rootFolder.id, "level0");
 
       async function createSubFolder(folderId, name) {
         const subFolder = await browser.folders.create(folderId, name);
@@ -712,7 +739,7 @@ add_task(async function test_folders_get_getParentFolders_getSubFolders() {
         // Check parent folders.
         const parents = await browser.folders.getParentFolders(folder.id);
         browser.test.assertEq(
-          expected.depth,
+          expected.depth + 1,
           parents.length,
           "Returned parents should have the correct size."
         );
@@ -721,7 +748,9 @@ add_task(async function test_folders_get_getParentFolders_getSubFolders() {
         for (const parent of parents) {
           depth--;
           browser.test.assertEq(expected.accountId, parent.accountId);
-          browser.test.assertEq(`level${depth}`, parent.name);
+
+          const expectedName = depth < 0 ? "Root" : `level${depth}`;
+          browser.test.assertEq(expectedName, parent.name);
           browser.test.assertFalse(
             parent.subFolders,
             "The subFolders property should be always falsy in MV3"

@@ -22,14 +22,24 @@
         "type": "object",
         "description": "An object describing a folder. The ``subFolders`` property is only included if requested.",
         "properties": {
+          "accountId": {
+            "type": "string",
+            "description": "The id of the account this folder belongs to."
+          },
           "id": {
             "$ref": "folders.MailFolderId",
             "optional": true,
             "description": "An identifier for the folder."
           },
-          "accountId": {
-            "type": "string",
-            "description": "The account this folder belongs to."
+          "isFavorite": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether this folder is a favorite folder."
+          },
+          "isRoot": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether this folder is a root folder."
           },
           "name": {
             "type": "string",
@@ -40,6 +50,14 @@
             "type": "string",
             "description": "Path to this folder in the account. Although paths look predictable, never guess a folder's path, as there are a number of reasons why it may not be what you think it is. Use :ref:`folders.getParentFolders` or :ref:`folders.getSubFolders` to obtain hierarchy information."
           },
+          "specialUse": {
+            "type": "array",
+            "items": {
+              "$ref": "folders.MailFolderSpecialUse"
+            },
+            "optional": true,
+            "description": "The special use of this folder. A folder can have multiple special uses."
+          },
           "subFolders": {
             "type": "array",
             "description": "Subfolders are only included if requested. They will be returned in the same order as used in Thunderbird's folder pane.",
@@ -48,24 +66,11 @@
             },
             "optional": true
           },
-          "favorite": {
-            "type": "boolean",
-            "optional": true,
-            "description": "Whether this folder is a favorite folder."
-          },
           "type": {
             "max_manifest_version": 2,
             "$ref": "folders.MailFolderSpecialUse",
             "optional": true,
             "description": "Deprecated. Was used to represent the type of this folder."
-          },
-          "specialUse": {
-            "type": "array",
-            "items": {
-              "$ref": "folders.MailFolderSpecialUse"
-            },
-            "optional": true,
-            "description": "The special use of this folder. A folder can have multiple special uses."
           }
         }
       },
@@ -258,10 +263,10 @@
                 "optional": true,
                 "description": "Whether the folder supports deleting messages, or not."
               },
-              "favorite": {
-                "type": "boolean",
-                "optional": true,
-                "description": "Whether the folder is a favorite folder, or not."
+              "folderId": {
+                "$ref": "folders.MailFolderId",
+                "description": "Limits the search to the folder with the specified id.",
+                "optional": true
               },
               "hasMessages": {
                 "choices": [
@@ -311,6 +316,16 @@
                 "optional": true,
                 "description": "Whether the folder has subfolders, or not. Supports to specify a :ref:`folders.QueryRange` (min/max) instead of a simple boolean value (none/some)."
               },
+              "isFavorite": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder is a favorite folder, or not."
+              },
+              "isRoot": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder is a root folder, or not."
+              },
               "mostRecent": {
                 "type": "boolean",
                 "optional": true,
@@ -328,21 +343,10 @@
                 "optional": true,
                 "description": "Return only folders whose name is matched by the provided string or regular expression."
               },
-              "folderId": {
-                "$ref": "folders.MailFolderId",
-                "description": "Limits the search to the folder with the specified id.",
-                "optional": true
-              },
               "recent": {
                 "type": "boolean",
                 "optional": true,
                 "description": "Whether the folder (excluding subfolders) has been used within the last month, or not. The returned folders will be sorted by their recentness. Ignored if <value>mostRecent</value> is specified."
-              },
-              "type": {
-                "max_manifest_version": 2,
-                "$ref": "folders.MailFolderSpecialUse",
-                "optional": true,
-                "description": "Deprecated. Match only folders with the specified special use."
               },
               "specialUse": {
                 "type": "array",
@@ -352,6 +356,12 @@
                 "minItems": 1,
                 "optional": true,
                 "description": "Match only folders with the specified special use (folders have to match all specified uses)."
+              },
+              "type": {
+                "max_manifest_version": 2,
+                "$ref": "folders.MailFolderSpecialUse",
+                "optional": true,
+                "description": "Deprecated. Match only folders with the specified special use."
               }
             }
           },
@@ -407,7 +417,7 @@
         "async": "callback",
         "parameters": [
           {
-            "name": "parent",
+            "name": "destination",
             "choices": [
               {
                 "$ref": "folders.MailFolderId"
@@ -418,6 +428,8 @@
                 "$ref": "folders.MailFolder"
               },
               {
+                "max_manifest_version": 2,
+                "deprecated": "folders.create(): Manifest V3 will require to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
                 "$ref": "accounts.MailAccount"
               }
             ]
@@ -506,6 +518,8 @@
                 "$ref": "folders.MailFolder"
               },
               {
+                "max_manifest_version": 2,
+                "deprecated": "folders.move(): Manifest V3 will require to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
                 "$ref": "accounts.MailAccount"
               }
             ]
@@ -554,6 +568,8 @@
                 "$ref": "folders.MailFolder"
               },
               {
+                "max_manifest_version": 2,
+                "deprecated": "folders.copy(): Manifest V3 will require to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
                 "$ref": "accounts.MailAccount"
               }
             ]
@@ -617,7 +633,7 @@
             "type": "object",
             "description": "The properties to update.",
             "properties": {
-              "favorite": {
+              "isFavorite": {
                 "type": "boolean",
                 "optional": true,
                 "description": "Sets or clears the favorite status."
@@ -736,7 +752,7 @@
         "async": "callback",
         "parameters": [
           {
-            "name": "folderOrAccount",
+            "name": "folder",
             "choices": [
               {
                 "$ref": "folders.MailFolderId"
@@ -747,6 +763,8 @@
                 "$ref": "folders.MailFolder"
               },
               {
+                "max_manifest_version": 2,
+                "deprecated": "folders.getSubFolders(): Manifest V3 will require to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
                 "$ref": "accounts.MailAccount"
               }
             ]
@@ -867,7 +885,7 @@
       {
         "name": "onUpdated",
         "type": "function",
-        "description": "Fired when properties of a folder have changed (<value>specialUse</value> and <value>favorite</value>).",
+        "description": "Fired when properties of a folder have changed (<value>specialUse</value> and <value>isFavorite</value>).",
         "parameters": [
           {
             "name": "originalFolder",

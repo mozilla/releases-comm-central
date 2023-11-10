@@ -32,23 +32,32 @@ export class AccountManager {
       return null;
     }
 
-    let folders = null;
-    if (includeFolders) {
-      folders = this.extension.folderManager.traverseSubfolders(
-        server.rootFolder,
-        account.key
-      ).subFolders;
-    }
-
-    return {
+    const rootFolder = server.rootFolder;
+    const mailAccount = {
       id: account.key,
       name: server.prettyName,
       type: server.type,
-      folders,
+      rootFolder: this.extension.folderManager.convert(rootFolder, account.key),
       identities: account.identities.map(identity =>
         convertMailIdentity(account, identity)
       ),
     };
+
+    if (includeFolders) {
+      const { subFolders } = this.extension.folderManager.traverseSubfolders(
+        rootFolder,
+        account.key
+      );
+      mailAccount.rootFolder.subFolders = subFolders;
+    } else {
+      mailAccount.rootFolder.subFolders = null;
+    }
+
+    if (this.extension.manifestVersion < 3) {
+      mailAccount.folders = mailAccount.rootFolder.subFolders;
+    }
+
+    return mailAccount;
   }
 }
 
@@ -103,10 +112,7 @@ export class CachedServer {
 
     this.type = server.type;
     this.prettyName = server.prettyName;
-  }
-
-  get rootFolder() {
-    throw new Error("CachedServer.rootFolder: Not implemented");
+    this.rootFolder = server.rootFolder;
   }
 
   QueryInterface() {
@@ -277,13 +283,15 @@ export class FolderManager {
     }
 
     const path = folderURIToPath(accountId, folder.URI);
+    const isRoot = folder.isServer;
     const folderObject = {
       id: `${accountId}:/${path}`,
       accountId,
-      name: folder.prettyName,
+      name: isRoot ? "Root" : folder.prettyName,
       path,
       specialUse: getSpecialUse(folder.flags),
-      favorite: folder.getFlag(Ci.nsMsgFolderFlags.Favorite),
+      isFavorite: folder.getFlag(Ci.nsMsgFolderFlags.Favorite),
+      isRoot,
     };
 
     // In MV2 only the first special use was returned as type, assuming a folder
@@ -358,6 +366,7 @@ export class CachedFolder {
     this.prettyName = folder.prettyName;
     this.URI = folder.URI;
     this.flags = folder.flags;
+    this.isServer = folder.isServer;
   }
 
   get hasSubFolders() {

@@ -593,13 +593,11 @@ this.folders = class extends ExtensionAPIPersistent {
         }).api(),
         async query(queryInfo) {
           // Generator function to flatten the folder structure.
-          function* getFlatFolderStructure(folder, isSubFolder) {
-            if (isSubFolder && !folder.isServer) {
-              yield folder;
-            }
+          function* getFlatFolderStructure(folder) {
+            yield folder;
             if (folder.hasSubFolders) {
               for (const subFolder of folder.subFolders) {
-                yield* getFlatFolderStructure(subFolder, true);
+                yield* getFlatFolderStructure(subFolder);
               }
             }
           }
@@ -670,12 +668,19 @@ this.folders = class extends ExtensionAPIPersistent {
           for (const parentFolder of parentFolders) {
             for (const folder of getFlatFolderStructure(parentFolder)) {
               // Apply search criteria.
+              const isServer = folder.isServer;
 
-              if (queryInfo.favorite != null) {
+              if (queryInfo.isFavorite != null) {
                 if (
-                  queryInfo.favorite !=
+                  queryInfo.isFavorite !=
                   !!folder.getFlag(Ci.nsMsgFolderFlags.Favorite)
                 ) {
+                  continue;
+                }
+              }
+
+              if (queryInfo.isRoot != null) {
+                if (queryInfo.isRoot != isServer) {
                   continue;
                 }
               }
@@ -688,16 +693,15 @@ this.folders = class extends ExtensionAPIPersistent {
 
               if (
                 !matchBooleanOrQueryRange(queryInfo.hasMessages, () =>
-                  folder.getTotalMessages(false)
+                  isServer ? 0 : folder.getTotalMessages(false)
                 )
               ) {
                 continue;
               }
 
               if (
-                !matchBooleanOrQueryRange(
-                  queryInfo.hasNewMessages,
-                  () => folder.msgDatabase.getNewList().length
+                !matchBooleanOrQueryRange(queryInfo.hasNewMessages, () =>
+                  isServer ? 0 : folder.msgDatabase.getNewList().length
                 )
               ) {
                 continue;
@@ -705,7 +709,7 @@ this.folders = class extends ExtensionAPIPersistent {
 
               if (
                 !matchBooleanOrQueryRange(queryInfo.hasUnreadMessages, () =>
-                  folder.getNumUnread(false)
+                  isServer ? 0 : folder.getNumUnread(false)
                 )
               ) {
                 continue;
@@ -755,15 +759,15 @@ this.folders = class extends ExtensionAPIPersistent {
                 continue;
               }
 
-              if (nameRegExp) {
-                if (!nameRegExp.test(folder.prettyName)) {
+              if (queryInfo.name) {
+                const name = isServer ? "Root" : folder.prettyName;
+                if (nameRegExp) {
+                  if (!nameRegExp.test(name)) {
+                    continue;
+                  }
+                } else if (queryInfo.name != name) {
                   continue;
                 }
-              } else if (
-                queryInfo.name &&
-                queryInfo.name != folder.prettyName
-              ) {
-                continue;
               }
 
               foundFolders.push(folder);
@@ -973,8 +977,8 @@ this.folders = class extends ExtensionAPIPersistent {
             );
           }
 
-          if (updateProperties.favorite != null) {
-            if (updateProperties.favorite) {
+          if (updateProperties.isFavorite != null) {
+            if (updateProperties.isFavorite) {
               folder.setFlag(Ci.nsMsgFolderFlags.Favorite);
             } else {
               folder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
@@ -1035,7 +1039,8 @@ this.folders = class extends ExtensionAPIPersistent {
             quota: folderQuota.length > 0 ? folderQuota : null,
           };
 
-          // The favorite property was moved to MailFolder in MV3.
+          // MailFolderInfo.favorite property was moved to MailFolder.isFavorite
+          // in MV3.
           if (manifestVersion < 3) {
             mailFolderInfo.favorite = folder.getFlag(
               Ci.nsMsgFolderFlags.Favorite
@@ -1055,10 +1060,11 @@ this.folders = class extends ExtensionAPIPersistent {
           const { folderManager } = context.extension;
           let { folder, accountId } = getFolder(target);
           const parentFolders = [];
-          // We do not consider the absolute root ("/") as a root folder, but
-          // the first real folders (all folders returned in MailAccount.folders
-          // are considered root folders).
-          while (folder.parent != null && folder.parent.parent != null) {
+          // MV3 considers the rootFolder as a true folder.
+          while (
+            folder.parent != null &&
+            (manifestVersion > 2 || folder.parent.parent != null)
+          ) {
             folder = folder.parent;
 
             if (includeSubFolders) {

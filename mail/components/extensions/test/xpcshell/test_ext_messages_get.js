@@ -170,7 +170,10 @@ add_task(async function test_plain_mv2() {
 
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["accountsRead", "messagesRead"] },
+    manifest: {
+      manifest_version: 2,
+      permissions: ["accountsRead", "messagesRead"],
+    },
   });
 
   await extension.startup();
@@ -194,7 +197,9 @@ add_task(async function test_plain_mv3() {
       browser.test.assertEq(1, accounts.length);
 
       for (const account of accounts) {
-        const folder = account.folders.find(f => f.name == "test1");
+        const folder = account.rootFolder.subFolders.find(
+          f => f.name == "test1"
+        );
         const { messages } = await browser.messages.list(folder.id);
         browser.test.assertEq(1, messages.length);
 
@@ -811,7 +816,10 @@ add_task(async function test_encoding() {
 
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["accountsRead", "messagesRead"] },
+    manifest: {
+      manifest_version: 2,
+      permissions: ["accountsRead", "messagesRead"],
+    },
   });
 
   await extension.startup();
@@ -968,6 +976,7 @@ add_task(
         "utils.js": await getUtilsJS(),
       },
       manifest: {
+        manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "messagesRead"],
       },
@@ -1060,6 +1069,7 @@ add_task(async function test_attached_message_with_missing_headers() {
       "utils.js": await getUtilsJS(),
     },
     manifest: {
+      manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "messagesRead"],
     },
