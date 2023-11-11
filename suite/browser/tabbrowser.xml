@@ -978,9 +978,9 @@
         <body>
           <![CDATA[
             try {
-              aURI = Services.uriFixup.createExposableURI(aURI).spec;
+              aURI = Services.uriFixup.createExposableURI(aURI).displaySpec;
             } catch (e) {
-              aURI = aURI.spec;
+              aURI = aURI.displaySpec;
             }
 
             if (aURI == "about:blank")
@@ -3690,7 +3690,7 @@
       <![CDATA[
         var tab = event.target.tab;
         if (tab) {
-          let overLink = tab.linkedBrowser.currentURI.spec;
+          let overLink = tab.linkedBrowser.currentURI.displaySpec;
           if (overLink == "about:blank")
             overLink = "";
           XULBrowserWindow.setOverLink(overLink, null);

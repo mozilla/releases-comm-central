@@ -2504,7 +2504,7 @@ function URLBarSetURI(aURI, aValid) {
 }
 
 function losslessDecodeURI(aURI) {
-  var value = aURI.spec;
+  var value = aURI.displaySpec;
   var scheme = aURI.scheme;
 
   var decodeASCIIOnly = !["https", "http", "file", "ftp"].includes(scheme);
