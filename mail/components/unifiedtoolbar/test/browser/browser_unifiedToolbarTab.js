@@ -9,11 +9,6 @@ registerCleanupFunction(() => {
 let browser;
 let testDocument;
 
-const waitForRender = () => {
-  return new Promise(resolve => {
-    window.requestAnimationFrame(resolve);
-  });
-};
 const getTabButton = tab => tab.shadowRoot.querySelector("button");
 /**
  * Get the relevant elements for the tab at the given index.
