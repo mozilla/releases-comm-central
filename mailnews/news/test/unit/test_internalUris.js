@@ -6,8 +6,6 @@
  * If you manually generate a news URI somewhere, please add it to this test.
  */
 
-Cu.importGlobalProperties(["crypto"]);
-
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/alertTestUtils.js");
 

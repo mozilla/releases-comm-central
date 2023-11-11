@@ -4,7 +4,6 @@
  * MailGlue that observes command-line-startup will not be working properly.
  */
 
-Cu.importGlobalProperties(["fetch"]);
 var { MailGlue } = ChromeUtils.import("resource:///modules/MailGlue.jsm");
 
 add_task(async () => {

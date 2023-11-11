@@ -11,7 +11,6 @@ const { CardDAVServer } = ChromeUtils.import(
 const { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
-Cu.importGlobalProperties(["fetch"]);
 
 do_get_profile();
 
