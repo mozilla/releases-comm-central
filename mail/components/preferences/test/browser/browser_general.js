@@ -248,7 +248,7 @@ add_task(async function testTagDialog() {
 
   const newTagDialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
     undefined,
-    "chrome://messenger/content/preferences/tagDialog.xhtml",
+    "chrome://messenger/content/newTagDialog.xhtml",
     {
       isSubDialog: true,
       async callback(dialogWindow) {
@@ -304,7 +304,7 @@ add_task(async function testTagDialog() {
 
   const editTagDialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
     undefined,
-    "chrome://messenger/content/preferences/tagDialog.xhtml",
+    "chrome://messenger/content/newTagDialog.xhtml",
     {
       isSubDialog: true,
       async callback(dialogWindow) {

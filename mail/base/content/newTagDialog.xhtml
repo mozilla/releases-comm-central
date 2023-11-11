@@ -1,33 +1,76 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window>
-
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        data-l10n-id="tag-dialog-window"
-        lightweightthemes="true"
-        style="min-width: 25em;"
-        onload="onLoad();">
-  <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-<dialog>
-
-  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-
-  <script src="chrome://messenger/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/newTagDialog.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-#include tagDialog.inc.xhtml
-</dialog>
-</window>
+<!DOCTYPE html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  scrolling="false"
+  style="min-width: 370px; min-height: 165px"
+>
+  <head>
+    <title data-l10n-id="tag-dialog-title"></title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="messenger/preferences/new-tag.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/newTagDialog.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog>
+      <stringbundle
+        id="bundle_messenger"
+        src="chrome://messenger/locale/messenger.properties"
+      />
+      <box
+        style="
+          display: grid;
+          grid-template-columns: auto 1fr;
+          align-items: center;
+        "
+      >
+        <label id="nameLabel" data-l10n-id="tag-name-label" control="name" />
+        <hbox class="input-container">
+          <html:input
+            id="name"
+            type="text"
+            oninput="doEnabling();"
+            class="input-inline"
+            aria-labelledby="nameLabel"
+          />
+        </hbox>
+        <hbox align="center">
+          <label
+            id="colorLabel"
+            data-l10n-id="tag-color-label"
+            control="tagColorPicker"
+          />
+        </hbox>
+        <html:input type="color" id="tagColorPicker" />
+      </box>
+      <separator />
+    </dialog>
+  </html:body>
+</html>

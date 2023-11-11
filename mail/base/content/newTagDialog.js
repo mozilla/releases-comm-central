@@ -8,6 +8,10 @@ var { MailServices } = ChromeUtils.import(
 
 var dialog;
 
+window.addEventListener("load", event => {
+  onLoad();
+});
+
 /**
  * Pass in keyToEdit as a window argument to turn this dialog into an edit
  * tag dialog.

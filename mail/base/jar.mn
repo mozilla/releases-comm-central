@@ -68,7 +68,7 @@ messenger.jar:
     content/messenger/multimessageview.js           (content/multimessageview.js)
     content/messenger/multimessageview.xhtml        (content/multimessageview.xhtml)
     content/messenger/newTagDialog.js               (content/newTagDialog.js)
-*   content/messenger/newTagDialog.xhtml            (content/newTagDialog.xhtml)
+    content/messenger/newTagDialog.xhtml            (content/newTagDialog.xhtml)
     content/messenger/printUtils.js                 (content/printUtils.js)
     content/messenger/protovis-r2.6-modded.js       (content/protovis-r2.6-modded.js)
     content/messenger/quickFilterBar.js             (content/quickFilterBar.js)

@@ -1401,7 +1401,7 @@ var gGeneralPane = {
         keyToEdit: tagElToEdit.getAttribute("value"),
       };
       gSubDialog.open(
-        "chrome://messenger/content/preferences/tagDialog.xhtml",
+        "chrome://messenger/content/newTagDialog.xhtml",
         { features: "resizable=no" },
         args
       );
@@ -1411,7 +1411,7 @@ var gGeneralPane = {
   addTag() {
     var args = { result: "", okCallback: addTagCallback };
     gSubDialog.open(
-      "chrome://messenger/content/preferences/tagDialog.xhtml",
+      "chrome://messenger/content/newTagDialog.xhtml",
       { features: "resizable=no" },
       args
     );

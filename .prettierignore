@@ -56,7 +56,6 @@ mail/base/content/buildconfig.html
 mail/base/content/hiddenWindowMac.xhtml
 mail/base/content/messageWindow.xhtml
 mail/base/content/messenger.xhtml
-mail/base/content/newTagDialog.xhtml
 mail/base/content/profileDowngrade.xhtml
 mail/base/content/SearchDialog.xhtml
 mail/base/content/viewSource.xhtml
@@ -72,7 +71,6 @@ mail/components/preferences/colors.xhtml
 mail/components/preferences/cookies.xhtml
 mail/components/preferences/dockoptions.xhtml
 mail/components/preferences/preferences.xhtml
-mail/components/preferences/tagDialog.xhtml
 mail/extensions/am-e2e/am-e2e.xhtml
 mail/extensions/mailviews/content/mailViewSetup.xhtml
 mailnews/base/content/virtualFolderProperties.xhtml
