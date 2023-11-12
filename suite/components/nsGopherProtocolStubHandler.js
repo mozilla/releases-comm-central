@@ -34,11 +34,12 @@ GopherProtocol.prototype = {
   },
 
   newURI: function GP_newURI(spec, charset, baseURI) {
-    var uri = Cc["@mozilla.org/network/standard-url;1"]
-                .createInstance(Ci.nsIStandardURL);
-    uri.init(Ci.nsIStandardURL.URLTYPE_STANDARD,
-      this.defaultPort, spec, charset, baseURI)
-    return uri;
+    return Cc["@mozilla.org/network/standard-url-mutator;1"]
+             .createInstance(Ci.nsIStandardURLMutator)
+             .init(Ci.nsIStandardURL.URLTYPE_STANDARD,
+                   this.defaultPort, spec, charset, baseURI)
+             .finalize()
+             .QueryInterface(Ci.nsIStandardURL);
   },
 
   newChannel: function GP_newChannel(inputURI) {
