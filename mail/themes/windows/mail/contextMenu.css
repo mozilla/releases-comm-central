@@ -4,33 +4,35 @@
 
 @import url("chrome://messenger/skin/shared/contextMenu.css");
 
-/* Disabled empty item looks too small otherwise, because it has no icon. */
-menuitem[disabled="true"]:not(.menuitem-iconic) {
-  /* This is 16px for an icon + 3px for its margins + 1px for its padding +
-   * 2px for its border. */
-  min-height: 22px;
-}
-
-menupopup:not([type="arrow"]) {
-  margin: -4px;
-}
-
-@media (prefers-contrast) {
-  menupopup:not(:-moz-lwtheme) > :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
-    color: SelectedItemText;
+menupopup {
+  &:not([type="arrow"]) {
+    margin: -4px;
   }
-}
 
-menupopup[needsgutter] menu:not([icon], .menu-iconic),
-menupopup[needsgutter] menuitem:not([checked="true"], [icon], .menuitem-iconic) {
-  padding-inline-start: 32px;
-}
+  @media (prefers-contrast) {
+    &:not(:-moz-lwtheme) > :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
+      color: SelectedItemText;
+    }
+  }
 
-menupopup > :is(menu, menuitem):not([needsgutter]) >
-  menuitem:not([icon], .menuitem-iconic) {
-  padding-inline-start: 1em;
-}
+  &[needsgutter] menu:not([icon], .menu-iconic),
+  &[needsgutter] menuitem:not([checked="true"], [icon], .menuitem-iconic) {
+    padding-inline-start: 32px;
+  }
 
-menuitem[checked="true"] {
-  padding-inline-start: 8px;
+  & > :is(menu, menuitem):not([needsgutter]) >
+    menuitem:not([icon], .menuitem-iconic) {
+    padding-inline-start: 1em;
+  }
+
+  & menuitem[checked="true"] {
+    padding-inline-start: 8px;
+  }
+
+  /* Disabled empty item looks too small otherwise, because it has no icon. */
+  & menuitem[disabled="true"]:not(.menuitem-iconic) {
+    /* This is 16px for an icon + 3px for its margins + 1px for its padding +
+     * 2px for its border. */
+    min-height: 22px;
+  }
 }

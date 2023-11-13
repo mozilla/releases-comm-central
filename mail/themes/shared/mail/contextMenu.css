@@ -5,21 +5,21 @@
 :root {
   --menu-item-margin: 0 4px;
   --menu-item-padding: 4px;
-}
 
-/* UI Density customization */
+  /* UI Density customization */
 
-:root[uidensity="compact"] {
-  --menu-item-margin: 0 3px;
-  --menu-item-padding: 3px;
-}
+  &[uidensity="compact"] {
+    --menu-item-margin: 0 3px;
+    --menu-item-padding: 3px;
 
-:root[uidensity="compact"] menupopup {
-  --arrowpanel-padding: 3px 0;
-}
+    & menupopup {
+      --arrowpanel-padding: 3px 0;
+    }
+  }
 
-:root[uidensity="touch"] {
-  --menu-item-padding: 9px;
+  &[uidensity="touch"] {
+    --menu-item-padding: 9px;
+  }
 }
 
 menupopup {
@@ -36,152 +36,143 @@ menupopup {
   font: menu;
   font-size: inherit;
   text-align: start;
+
+  menubar:not(:-moz-lwtheme) > menu & {
+    --panel-background: Menu;
+    --panel-color: MenuText;
+  }
+
+  & > :is(menu, menuitem) {
+    appearance: none;
+    margin: var(--menu-item-margin);
+    min-height: 24px;
+    padding-inline: 8px;
+    padding-block: var(--menu-item-padding);
+    border-radius: 3px;
+    background-color: transparent;
+
+    &:focus {
+      outline: 0;
+    }
+
+    &[checked="true"] {
+      list-style-image: var(--icon-check);
+      -moz-context-properties: stroke;
+      stroke: currentColor;
+      color: inherit;
+    }
+
+    &:not([disabled="true"],:active)[_moz-menuactive] {
+      color: inherit;
+      background-color: var(--arrowpanel-dimmed);
+    }
+
+    &:not([disabled="true"])[_moz-menuactive]:active {
+      color: inherit;
+      background-color: var(--arrowpanel-dimmed-further);
+      box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
+    }
+
+    &[disabled="true"],
+    &[disabled="true"]:hover,
+    &[checked="true"][disabled="true"],
+    &[checked="true"][disabled="true"]:hover {
+      color: var(--text-color-deemphasized);
+      background-color: transparent;
+    }
+
+    & > .menu-text {
+      appearance: none;
+      margin-inline-start: 0;
+    }
+  }
+
+  menubar:not(:-moz-lwtheme) > menu & >
+    :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
+    color: -moz-MenuHoverText;
+    background-color: -moz-MenuHover;
+
+    @media (-moz-platform: windows) {
+      @media not (prefers-contrast) {
+        color: inherit;
+        background-color: var(--arrowpanel-dimmed-further);
+      }
+    }
+  }
+
+  & > menu::after {
+    -moz-context-properties: stroke, fill-opacity;
+    content: var(--icon-nav-right-sm);
+    stroke: currentColor;
+    float: inline-end;
+    margin-inline-start: 10px;
+  }
+
+  & > menu:-moz-locale-dir(rtl)::after {
+    content: var(--icon-nav-left-sm);
+  }
+
+  & > menuseparator {
+    padding-inline: 8px;
+  }
 }
 
-menubar:not(:-moz-lwtheme) > menu menupopup {
-  --panel-background: Menu;
-  --panel-color: MenuText;
-}
+#ContentSelectDropdown {
+  & > menupopup {
+    /* !important to override inline styles */
+    --content-select-background-image: none !important;
+    --panel-color: var(--arrowpanel-color) !important;
+  }
 
-menupopup > menuitem {
-  appearance: none !important;
-}
+  & > menupopup[customoptionstyling="true"]::part(arrowscrollbox) {
+    /* !important to override inline styles */
+    background-image: none !important;
+    background-color: var(--arrowpanel-background) !important;
+  }
 
-menupopup > :is(menu, menuitem) > .menu-text {
-  appearance: none;
-  margin-inline-start: 0 !important;
-}
-
-menupopup > :is(menu, menuitem) {
-  appearance: none;
-  margin: var(--menu-item-margin);
-  min-height: 24px;
-  padding-inline: 8px;
-  padding-block: var(--menu-item-padding);
-  border-radius: 3px;
-  background-color: transparent;
-}
-
-menupopup > :is(menu, menuitem):focus {
-  outline: 0;
-}
-
-menupopup > :is(menu, menuitem)[disabled="true"],
-menupopup > :is(menu, menuitem)[disabled="true"]:hover,
-menupopup > :is(menu, menuitem)[checked="true"][disabled="true"],
-menupopup > :is(menu, menuitem)[checked="true"][disabled="true"]:hover {
-  color: var(--text-color-deemphasized);
-  background-color: transparent;
+  & .ContentSelectDropdown-item-0:not([_moz-menuactive="true"]) {
+    background-color: var(--arrowpanel-background) !important;
+    color: var(--arrowpanel-color) !important;
+  }
 }
 
 menu > .menu-right {
   display: none;
 }
 
-menupopup > menu::after {
-  -moz-context-properties: stroke, fill-opacity;
-  content: var(--icon-nav-right-sm);
-  stroke: currentColor;
-  float: inline-end;
-}
-
-menupopup > menu:-moz-locale-dir(rtl)::after {
-  content: var(--icon-nav-left-sm);
-}
-
-menupopup > menu::after {
-  margin-inline-start: 10px;
-}
-
-menupopup > :is(menu, menuitem)[checked="true"] {
-  list-style-image: var(--icon-check);
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-  color: inherit;
-}
-
-menupopup > :is(menu, menuitem):not([disabled="true"],:active)[_moz-menuactive] {
-  color: inherit;
-  background-color: var(--arrowpanel-dimmed);
-}
-
-menupopup > :is(menu, menuitem):not([disabled="true"])[_moz-menuactive]:active {
-  color: inherit;
-  background-color: var(--arrowpanel-dimmed-further);
-  box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
-}
-
-menubar:not(:-moz-lwtheme) > menu menupopup >
-  :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
-  color: -moz-MenuHoverText;
-  background-color: -moz-MenuHover;
-}
-
-@media (-moz-platform: windows) {
-  @media not (prefers-contrast) {
-    menubar:not(:-moz-lwtheme) > menu menupopup >
-      :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
-      color: inherit;
-      background-color: var(--arrowpanel-dimmed-further);
-    }
-  }
-}
-
-menupopup > menuseparator {
-  padding-inline: 8px;
-}
-
-#ContentSelectDropdown > menupopup {
-  /* !important to override inline styles */
-  --content-select-background-image: none !important;
-  --panel-color: var(--arrowpanel-color) !important;
-}
-
-#ContentSelectDropdown > menupopup[customoptionstyling="true"]::part(arrowscrollbox) {
-  /* !important to override inline styles */
-  background-image: none !important;
-  background-color: var(--arrowpanel-background) !important;
-}
-
-#ContentSelectDropdown .ContentSelectDropdown-item-0:not([_moz-menuactive="true"]) {
-  background-color: var(--arrowpanel-background) !important;
-  color: var(--arrowpanel-color) !important;
-}
-
 .menu-iconic-accel {
-  margin-inline-end: 3px !important;
+  margin-inline-end: 3px;
 }
 
 /* browser navigation context menu in content pages */
-#context-navigation > .menuitem-iconic {
-  -moz-box-flex: 1;
-  -moz-box-pack: center;
-  -moz-box-align: center;
-  flex: 1 0 auto;
-  margin: var(--menu-item-margin);
-  border-radius: 3px;
-}
+#context-navigation {
+  & > .menuitem-iconic {
+    -moz-box-flex: 1;
+    -moz-box-pack: center;
+    -moz-box-align: center;
+    flex: 1 0 auto;
+    margin: var(--menu-item-margin);
+    border-radius: 3px;
 
-#context-navigation > .menuitem-iconic > .menu-iconic-left {
-  appearance: none;
-}
+    & > .menu-iconic-left {
+      appearance: none;
+      margin: 0 auto;
+      padding: 0;
 
-#context-navigation > .menuitem-iconic > .menu-iconic-text,
-#context-navigation > .menuitem-iconic > .menu-accel-container {
-  display: none;
-}
+      & > .menu-iconic-icon {
+        width: 1.25em;
+        height: auto;
+        margin: 7px;
+        -moz-context-properties: fill;
+        fill: currentColor;
+      }
+    }
 
-#context-navigation > .menuitem-iconic > .menu-iconic-left {
-  margin: 0;
-  padding: 0;
-}
-
-#context-navigation > .menuitem-iconic > .menu-iconic-left > .menu-iconic-icon {
-  width: 1.25em;
-  height: auto;
-  margin: 7px;
-  -moz-context-properties: fill;
-  fill: currentColor;
+    & > .menu-iconic-text,
+    & > .menu-accel-container {
+      display: none;
+    }
+  }
 }
 
 #browserContext-back {

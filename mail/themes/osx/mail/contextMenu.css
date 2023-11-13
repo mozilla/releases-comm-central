@@ -7,48 +7,56 @@
 menupopup {
   appearance: none;
   background-color: transparent;
-}
 
-menupopup::part(content) {
-  margin: 1px;
-}
+  &::part(content) {
+    margin: 1px;
+  }
 
-menupopup .menu-iconic-icon {
-  width: 16px;
-  margin-inline-start: 0;
-}
+  & > menu::after {
+    line-height: 0;
+  }
 
-menupopup > menu::after {
-  line-height: 0;
-}
+  & > :is(menu, menuitem) > .menu-text {
+    margin-inline-start: 21px;
+  }
 
-menupopup > menu > .menu-text,
-menupopup > menuitem > .menu-text {
-  margin-inline-start: 21px !important;
-}
+  & .menu-iconic-icon {
+    width: 16px;
+    margin-inline-start: 0;
+  }
 
-menupopup > menuitem > .menu-right {
-  margin-inline-end: -4px;
-  appearance: none;
+  & > menuseparator#customizeMailToolbarMenuSeparator {
+    display: none;
+  }
+
+  & > menuitem {
+    & > .menu-right {
+      margin-inline-end: -4px;
+      appearance: none;
+    }
+
+    &::before,
+    &::after {
+      content: none; /* Reset's macOS' checkmark spacing */
+    }
+  }
+
+  menulist > & > menuitem {
+    &::before {
+      margin-inline: 0 -10px;
+    }
+
+    &:is([checked="true"], [selected="true"])::before {
+      visibility: hidden;
+    }
+
+    &.menuitem-iconic::before {
+      display: none;
+    }
+  }
 }
 
 /* Only show the system checkmark on main window menu */
 #windowPopup > menuitem[checked="true"] {
   list-style-image: none;
-}
-
-menupopup > menuseparator#customizeMailToolbarMenuSeparator {
-  display: none;
-}
-
-menulist > menupopup > menuitem::before {
-  margin-inline: 0 -10px;
-}
-
-menulist > menupopup > menuitem:is([checked="true"], [selected="true"])::before {
-  visibility: hidden;
-}
-
-menulist > menupopup > menuitem.menuitem-iconic::before {
-  display: none;
 }
