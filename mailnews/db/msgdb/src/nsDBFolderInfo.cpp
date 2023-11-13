@@ -657,7 +657,7 @@ NS_IMETHODIMP nsDBFolderInfo::GetInt64Property(const char* propertyName,
                                                int64_t defaultValue,
                                                int64_t* propertyValue) {
   return m_mdb->GetUint64Property(m_mdbRow, propertyName,
-                                  (uint64_t*)&propertyValue, defaultValue);
+                                  (uint64_t*)propertyValue, defaultValue);
 }
 
 nsresult nsDBFolderInfo::GetInt64PropertyWithToken(mdb_token aProperty,
