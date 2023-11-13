@@ -4213,6 +4213,15 @@ function autoMarkAsRead() {
     return;
   }
 
+  if (document.hidden) {
+    // We're in an inactive docShell (probably a background tab). Wait until
+    // it becomes active before marking the message as read.
+    document.addEventListener("visibilitychange", () => autoMarkAsRead(), {
+      once: true,
+    });
+    return;
+  }
+
   const markReadAutoMode = Services.prefs.getBoolPref(
     "mailnews.mark_message_read.auto"
   );
