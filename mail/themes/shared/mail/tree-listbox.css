@@ -201,7 +201,7 @@
     color: var(--listbox-selected-color);
     background-color: var(--listbox-focused-selected-bg);
 
-    & img {
+    &:not([data-properties~="flagged"],[data-properties~="junk"]) img {
       fill: color-mix(in srgb, currentColor 40%, transparent);
       stroke: currentColor;
     }
@@ -290,13 +290,6 @@
       outline-offset: var(--card-outline-offset);
     }
   }
-}
-
-[is="tree-view-table-body"]:focus > [is="thread-row"].selected img,
-[is="tree-view-table-body"]:focus-within > [is="thread-row"].selected img,
-[is="tree-view-table-body"] > [is="thread-row"].selected:focus-within img {
-  fill: color-mix(in srgb, currentColor 40%, transparent);
-  stroke: currentColor;
 }
 
 [is="tree-view-table-body"]:focus > .selected .tree-view-row-thread img,
