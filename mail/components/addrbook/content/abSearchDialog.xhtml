@@ -3,7 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % abResultsPaneDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPane.dtd">
   %abResultsPaneDTD;
   <!ENTITY % SearchDialogDTD SYSTEM "chrome://messenger/locale/SearchDialog.dtd">
@@ -11,44 +11,33 @@
   <!ENTITY % searchTermDTD SYSTEM "chrome://messenger/locale/searchTermOverlay.dtd">
   %searchTermDTD;
 ]>
-<window id="searchAddressBookWindow"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="searchOnLoad();"
-        onunload="searchOnUnload();"
-        onclose="onSearchStop();"
-        windowtype="mailnews:absearch"
-        title="&abSearchDialogTitle.label;"
-        style="min-width: 52em; min-height: 34em;"
-        lightweightthemes="true"
-        persist="screenX screenY width height sizemode">
-  <html:link rel="stylesheet" href="chrome://messenger/skin/searchDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/addressbook/abResultsPane.css"
-  />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/abSearchDialog.css"
-  />
-
-  <html:link rel="localization" href="messenger/addressbook/aboutAddressBook.ftl" />
-
-  <script src="chrome://messenger/content/globalOverlay.js"/>
-  <script src="chrome://messenger/content/addressbook/abSearchDialog.js"/>
-  <script src="chrome://messenger/content/addressbook/abResultsPane.js"/>
-  <script src="chrome://messenger/content/addressbook/abCommon.js"/>
-  <script src="chrome://messenger/content/searchTerm.js"/>
-  <script src="chrome://messenger/content/searchWidgets.js"/>
-  <script src="chrome://messenger/content/dateFormat.js"/>
-  <script src="chrome://messenger/content/jsTreeView.js"/>
-  <script src="chrome://messenger/content/addressbook/abView.js"/>
-
+<html id="searchAddressBookWindow" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="mailnews:absearch"
+      lightweightthemes="true"
+      persist="screenX screenY width height sizemode"
+      style="min-width: 52em; min-height: 34em;"
+      scrolling="false">
+<head>
+  <title>&abSearchDialogTitle.label;</title>
+  <link rel="stylesheet" href="chrome://messenger/skin/searchDialog.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/addressbook/abResultsPane.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/abSearchDialog.css" />
+  <link rel="localization" href="messenger/addressbook/aboutAddressBook.ftl" />
+  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/searchTerm.js"></script>
+  <script defer="defer" src="chrome://messenger/content/searchWidgets.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dateFormat.js"></script>
+  <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/abView.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/abResultsPane.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/abCommon.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/abSearchDialog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <keyset id="mailKeys">
     <key key="&closeCmd.key;" modifiers="accel" oncommand="onSearchStop(); window.close();"/>
     <key keycode="VK_ESCAPE" oncommand="onSearchStop(); window.close();"/>
@@ -205,5 +194,5 @@
   <hbox id="status-bar" class="statusbar chromeclass-status" role="status">
     <label id="statusText" class="statusbarpanel" crop="end" flex="1"/>
   </hbox>
-
-</window>
+</html:body>
+</html>

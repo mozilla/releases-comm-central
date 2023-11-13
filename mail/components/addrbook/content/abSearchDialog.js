@@ -18,6 +18,10 @@ var { PluralForm } = ChromeUtils.importESModule(
   "resource:///modules/PluralForm.sys.mjs"
 );
 
+window.addEventListener("load", searchOnLoad);
+window.addEventListener("unload", searchOnUnload);
+window.addEventListener("close", onSearchStop);
+
 var searchSessionContractID = "@mozilla.org/messenger/searchSession;1";
 var gSearchSession;
 
