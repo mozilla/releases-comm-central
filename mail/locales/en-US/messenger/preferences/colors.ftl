@@ -2,8 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-colors-dialog-window2 =
-    .title = Colors
+colors-dialog-title = Colors
 
 colors-dialog-legend = Text and Background
 
