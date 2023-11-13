@@ -5,6 +5,10 @@
 let account, rootFolder, subFolders;
 const tabmail = document.getElementById("tabmail");
 
+const { VirtualFolderHelper } = ChromeUtils.import(
+  "resource:///modules/VirtualFolderWrapper.jsm"
+);
+
 add_setup(async () => {
   account = createAccount();
   rootFolder = account.incomingServer.rootFolder;
@@ -16,6 +20,14 @@ add_setup(async () => {
   }
   createMessages(subFolders.test1, 10);
   createMessages(subFolders.test2, 50);
+
+  VirtualFolderHelper.createNewVirtualFolder(
+    "virtualFolder",
+    rootFolder,
+    [subFolders.test1, subFolders.test2],
+    "ANY",
+    false
+  );
 
   tabmail.currentTabInfo.folder = rootFolder;
   tabmail.currentAbout3Pane.displayFolder(subFolders.test1.URI);
@@ -705,16 +717,33 @@ add_task(async function test_setSelectedMessages() {
     const queryTabs = await browser.tabs.query({ mailTab: true });
     const allMailTabs = await browser.mailTabs.query({});
 
-    const { messages: messages1 } = await browser.messages.list(
-      folders.find(f => f.path == "/test1")
+    // Helper function to make sure the entire list has been awaited, before
+    // the test ends.
+    async function pullEntireList(listPromise) {
+      const msgs = [];
+      let list = await listPromise;
+      while (list) {
+        for (const m of list.messages) {
+          msgs.push(m);
+        }
+        if (!list.id) {
+          break;
+        }
+        list = await browser.messages.continueList(list.id);
+      }
+      return msgs;
+    }
+
+    const messages1 = await pullEntireList(
+      browser.messages.list(folders.find(f => f.path == "/test1"))
     );
     browser.test.assertTrue(
       messages1.length > 7,
       "There should be more than 7 messages in /test1"
     );
 
-    const { messages: messages2 } = await browser.messages.list(
-      folders.find(f => f.path == "/test2")
+    const messages2 = await pullEntireList(
+      browser.messages.list(folders.find(f => f.path == "/test2"))
     );
     browser.test.assertTrue(
       messages2.length > 4,
@@ -856,9 +885,7 @@ add_task(async function test_setSelectedMessages() {
         messages2.at(-3).id,
         messages1.at(-5).id,
       ]),
-      `Message ${messages2.at(-3).id} and message ${
-        messages1.at(-5).id
-      } are not in the same folder, cannot select them both.`,
+      /Requested messages are not in the same folder and are also not in the current view/,
       "browser.mailTabs.setSelectedMessages() should reject, if the requested message do not belong to the same folder."
     );
 
@@ -910,5 +937,91 @@ add_task(async function test_setSelectedMessages() {
   await extension.unload();
 
   tabmail.closeOtherTabs(0);
+  tabmail.currentTabInfo.folder = rootFolder;
+});
+
+add_task(async function test_setSelectedMessages_virtual() {
+  async function background() {
+    const [accountId] = await window.waitForMessage();
+    const { folders } = await browser.accounts.get(accountId);
+
+    // Helper function to make sure the entire list has been awaited, before
+    // the test ends.
+    async function pullEntireList(listPromise) {
+      const msgs = [];
+      let list = await listPromise;
+      while (list) {
+        for (const m of list.messages) {
+          msgs.push(m);
+        }
+        if (!list.id) {
+          break;
+        }
+        list = await browser.messages.continueList(list.id);
+      }
+      return msgs;
+    }
+
+    const messages1 = await pullEntireList(
+      browser.messages.list(folders.find(f => f.path == "/test1"))
+    );
+    browser.test.assertEq(
+      10,
+      messages1.length,
+      "The number of messages in /test1 should be correct"
+    );
+
+    const messages2 = await pullEntireList(
+      browser.messages.list(folders.find(f => f.path == "/test2"))
+    );
+    browser.test.assertTrue(
+      50,
+      messages2.length,
+      "The number of messages in /test2 should be correct"
+    );
+
+    // Select the virtual folder.
+    const virtualFolder = folders.find(f => f.path == "/virtualFolder");
+    await browser.mailTabs.update({ displayedFolder: virtualFolder.id });
+
+    const messages = await pullEntireList(browser.mailTabs.getListedMessages());
+    browser.test.assertTrue(
+      60,
+      messages.length,
+      "The number of messages in /virtual should be correct"
+    );
+
+    // Select all.
+    await browser.mailTabs.setSelectedMessages(messages.map(m => m.id));
+
+    // Check.
+    const selectedMessages = await pullEntireList(
+      browser.mailTabs.getSelectedMessages()
+    );
+    browser.test.assertTrue(
+      60,
+      selectedMessages.length,
+      "The number of selected messages in /virtual should be correct"
+    );
+
+    browser.test.notifyPass("mailTabs");
+  }
+
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
+  });
+
+  await extension.startup();
+  extension.sendMessage(account.key);
+  await extension.awaitFinish("mailTabs");
+  await extension.unload();
+
   tabmail.currentTabInfo.folder = rootFolder;
 });

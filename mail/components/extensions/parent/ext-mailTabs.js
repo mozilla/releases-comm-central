@@ -42,6 +42,8 @@ const SORT_ORDER_MAP = new Map(
   ])
 );
 
+const nsMsgViewIndex_None = 0xffffffff;
+
 /**
  * Converts a mail tab to a simple object for use in messages.
  *
@@ -457,33 +459,52 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           }
 
           const tab = await getTabOrActive(tabId);
-          let refFolder, refMsgId;
-          const msgHdrs = [];
-          for (const messageId of messageIds) {
-            const msgHdr = extension.messageManager.get(messageId);
-            if (!refFolder) {
-              refFolder = msgHdr.folder;
-              refMsgId = messageId;
-            }
-            if (msgHdr.folder == refFolder) {
-              msgHdrs.push(msgHdr);
-            } else {
+          const about3Pane = tab.nativeTab.chromeBrowser.contentWindow;
+          let selectedIndices = [];
+
+          if (messageIds.length > 0) {
+            const getIndices = msgHdrs => {
+              try {
+                return msgHdrs
+                  .map(
+                    about3Pane.gViewWrapper.getViewIndexForMsgHdr,
+                    about3Pane.gViewWrapper
+                  )
+                  .filter(idx => idx != nsMsgViewIndex_None);
+              } catch (ex) {
+                // Something went wrong, probably no current view.
+                return [];
+              }
+            };
+
+            const msgHdrs = messageIds.map(id =>
+              extension.messageManager.get(id)
+            );
+            const foundIndices = getIndices(msgHdrs);
+            const allInCurrentView = foundIndices.length == msgHdrs.length;
+            const allInSameFolder = msgHdrs.every(
+              hdr => hdr.folder == msgHdrs[0].folder
+            );
+
+            if (!allInCurrentView && !allInSameFolder) {
               throw new ExtensionError(
-                `Message ${refMsgId} and message ${messageId} are not in the same folder, cannot select them both.`
+                `Requested messages are not in the same folder and are also not in the current view, cannot select all of them at the same time.`
               );
+            }
+
+            // Only enforce folder switch, if the messages are not already in the
+            // current view.
+            if (allInCurrentView) {
+              selectedIndices = foundIndices;
+            } else {
+              await setFolder(tab.nativeTab, msgHdrs[0].folder, false);
+              // Update indices after switching the folder.
+              selectedIndices = getIndices(msgHdrs);
             }
           }
 
-          if (refFolder) {
-            await setFolder(tab.nativeTab, refFolder, false);
-          }
-          const about3Pane = tab.nativeTab.chromeBrowser.contentWindow;
-          const selectedIndices = msgHdrs.map(
-            about3Pane.gViewWrapper.getViewIndexForMsgHdr,
-            about3Pane.gViewWrapper
-          );
           about3Pane.threadTree.selectedIndices = selectedIndices;
-          if (selectedIndices.length) {
+          if (selectedIndices.length > 0) {
             about3Pane.threadTree.scrollToIndex(selectedIndices[0], true);
           }
         },
