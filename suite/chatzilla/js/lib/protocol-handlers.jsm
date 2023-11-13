@@ -225,17 +225,4 @@ this.ChatZillaProtocols =
                                 IRCSPROT_HANDLER_CONTRACTID,
                                 IRCSProtocolHandlerFactory);
     },
-
-    initObsolete(compMgr, fileSpec, location, type)
-    {
-        compMgr = compMgr.QueryInterface(Ci.nsIComponentRegistrar);
-        compMgr.registerFactoryLocation(IRCPROT_HANDLER_CID,
-                                        "IRC protocol handler",
-                                        IRCPROT_HANDLER_CONTRACTID,
-                                        fileSpec, location, type);
-        compMgr.registerFactoryLocation(IRCSPROT_HANDLER_CID,
-                                        "IRCS protocol handler",
-                                        IRCSPROT_HANDLER_CONTRACTID,
-                                        fileSpec, location, type);
-    },
 };

@@ -228,27 +228,18 @@ const ChatZillaModule =
         const catman = Cc[CATMAN_CONTRACTID].getService(Ci.nsICategoryManager);
 
         debug("*** Registering -chat handler.\n");
-        compMgr.registerFactoryLocation(CLINE_SERVICE_CID,
-                                            "ChatZilla CommandLine Service",
-                                        CLINE_SERVICE_CONTRACTID,
-                                        fileSpec, location, type);
         catman.addCategoryEntry("command-line-argument-handlers",
                                 "chatzilla command line handler",
                                 CLINE_SERVICE_CONTRACTID, true, true);
         catman.addCategoryEntry("command-line-handler",
                                 "m-irc",
                                 CLINE_SERVICE_CONTRACTID, true, true);
-
-        debug("*** Registering irc protocol handler.\n");
-            ChatZillaProtocols.initObsolete(compMgr, fileSpec, location, type);
-
         debug("*** Registering done.\n");
     },
 
     unregisterSelf(compMgr, fileSpec, location)
     {
         compMgr = compMgr.QueryInterface(Ci.nsIComponentRegistrar);
-
         const catman = Cc[CATMAN_CONTRACTID].getService(Ci.nsICategoryManager);
         catman.deleteCategoryEntry("command-line-argument-handlers",
                                    "chatzilla command line handler", true);
