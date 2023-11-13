@@ -226,6 +226,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
 
     /**
      * Set the currently displayed folder in the given tab.
+     *
      * @param {NativeTab} nativeTab
      * @param {nsIMsgFolder} folder
      * @param {boolean} restorePreviousSelection - Select the previously selected
@@ -256,6 +257,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
 
     /**
      * Update the given tab.
+     *
      * @param {NativeTab} nativeTab
      * @param {MailTabProperties} properties
      *
@@ -476,10 +478,14 @@ this.mailTabs = class extends ExtensionAPIPersistent {
             await setFolder(tab.nativeTab, refFolder, false);
           }
           const about3Pane = tab.nativeTab.chromeBrowser.contentWindow;
-          about3Pane.threadTree.selectedIndices = msgHdrs.map(
+          const selectedIndices = msgHdrs.map(
             about3Pane.gViewWrapper.getViewIndexForMsgHdr,
             about3Pane.gViewWrapper
           );
+          about3Pane.threadTree.selectedIndices = selectedIndices;
+          if (selectedIndices.length) {
+            about3Pane.threadTree.scrollToIndex(selectedIndices[0], true);
+          }
         },
 
         async setQuickFilter(tabId, state) {
