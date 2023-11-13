@@ -1067,17 +1067,9 @@ NS_IMETHODIMP nsMsgSearchDBView::Sort(nsMsgViewSortTypeValue sortType,
 NS_IMETHODIMP
 nsMsgSearchDBView::GetHdrForFirstSelectedMessage(nsIMsgDBHdr** hdr) {
   NS_ENSURE_ARG_POINTER(hdr);
-  int32_t index;
-
-  if (!mTreeSelection) {
-    // We're in standalone mode, so use the message view index to get the
-    // header. We can't use the key here because we don't have an m_db.
-    index = m_currentlyDisplayedViewIndex;
-  } else {
-    nsresult rv = mTreeSelection->GetCurrentIndex(&index);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
+  nsMsgViewIndex index;
+  nsresult rv = GetViewIndexForFirstSelectedMsg(&index);
+  NS_ENSURE_SUCCESS(rv, rv);
   return GetMsgHdrForViewIndex(index, hdr);
 }
 
