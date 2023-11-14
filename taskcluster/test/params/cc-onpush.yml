@@ -1,0 +1,57 @@
+---
+app_version: 121.0a1
+backstop: false
+base_ref: default
+base_repository: https://hg.mozilla.org/mozilla-unified
+base_rev: 925231a8fb5eccf055afb3e9921596d8f990128b
+build_date: 1699267904
+build_number: 1
+comm_base_ref: default
+comm_base_repository: https://hg.mozilla.org/comm-central
+comm_base_rev: 72918f80c3787d95892f3ea72b9802b3820a65ae
+comm_head_ref: bd719e91319162b001bf11e363cdf06b65ef2831
+comm_head_repository: https://hg.mozilla.org/comm-central
+comm_head_rev: bd719e91319162b001bf11e363cdf06b65ef2831
+comm_src_path: comm/
+do_not_optimize: []
+enable_always_target:
+    - docker-image
+existing_tasks: {}
+filters:
+    - target_tasks_method
+head_ref: default
+head_repository: https://hg.mozilla.org/mozilla-central
+head_rev: 925231a8fb5eccf055afb3e9921596d8f990128b
+head_tag: ''
+hg_branch: default
+level: '3'
+message: ''
+moz_build_date: '20231106105144'
+next_version: null
+optimize_strategies: null
+optimize_target_tasks: true
+owner: mkmelin@iki.fi
+phabricator_diff: null
+project: comm-central
+pushdate: 1699267904
+pushlog_id: '21535'
+release_enable_emefree: false
+release_enable_partner_attribution: false
+release_enable_partner_repack: false
+release_eta: ''
+release_history: {}
+release_partner_build_number: 1
+release_partner_config: {}
+release_partners: []
+release_product: null
+release_type: nightly
+repository_type: hg
+required_signoffs: []
+signoff_urls: {}
+target_tasks_method: comm_central_tasks
+tasks_for: hg-push
+test_manifest_loader: default
+try_mode: null
+try_options: null
+try_task_config: {}
+version: 121.0a1

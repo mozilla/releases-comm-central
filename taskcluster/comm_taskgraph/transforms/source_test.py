@@ -3,11 +3,15 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import logging
+import os
 import shlex
 
+import taskgraph
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.path import join as join_path
 from taskgraph.util.path import match as match_path
+
+from gecko_taskgraph.util.hg import get_json_automationrelevance
 
 from comm_taskgraph.files_changed import get_changed_files
 
@@ -65,4 +69,31 @@ def changed_clang_format(config, jobs):
                     ],
                 }
 
+        yield job
+
+
+@transforms.add
+def set_base_revision_in_tgdiff(config, jobs):
+    # Don't attempt to download 'json-automation' locally as the revision may
+    # not exist in the repository.
+    if not os.environ.get("MOZ_AUTOMATION") or taskgraph.fast:
+        yield from jobs
+        return
+
+    data = get_json_automationrelevance(
+        config.params["comm_head_repository"], config.params["comm_head_rev"]
+    )
+    for job in jobs:
+        if job["name"] != "taskgraph-diff":
+            yield job
+            continue
+
+        job["task-context"] = {
+            "from-object": {
+                "base_rev": data["changesets"][0]["parents"][0],
+            },
+            "substitution-fields": [
+                "run.command",
+            ],
+        }
         yield job

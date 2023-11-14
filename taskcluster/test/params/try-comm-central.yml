@@ -1,0 +1,74 @@
+---
+app_version: 121.0a1
+backstop: false
+base_ref: default
+base_repository: https://hg.mozilla.org/mozilla-unified
+base_rev: 925231a8fb5eccf055afb3e9921596d8f990128b
+build_date: 1699301628
+build_number: 1
+comm_base_ref: default
+comm_base_repository: https://hg.mozilla.org/try-comm-central
+comm_base_rev: bd719e91319162b001bf11e363cdf06b65ef2831
+comm_head_ref: 94e33707ca84d2e91ea7997d0c39e52296eea470
+comm_head_repository: https://hg.mozilla.org/try-comm-central
+comm_head_rev: 94e33707ca84d2e91ea7997d0c39e52296eea470
+comm_src_path: comm/
+do_not_optimize: []
+enable_always_target: true
+existing_tasks: {}
+filters:
+    - target_tasks_method
+head_ref: default
+head_repository: https://hg.mozilla.org/mozilla-central
+head_rev: 925231a8fb5eccf055afb3e9921596d8f990128b
+head_tag: ''
+hg_branch: default
+level: '1'
+message: 'try: -b o -p all -u all --artifact'
+moz_build_date: '20231106201348'
+next_version: null
+optimize_strategies: null
+optimize_target_tasks: true
+owner: mkmelin@iki.fi
+phabricator_diff: null
+project: try-comm-central
+pushdate: 1699301628
+pushlog_id: '25712'
+release_enable_emefree: false
+release_enable_partner_attribution: false
+release_enable_partner_repack: false
+release_eta: ''
+release_history: {}
+release_partner_build_number: 1
+release_partner_config: {}
+release_partners: []
+release_product: null
+release_type: ''
+repository_type: hg
+required_signoffs: []
+signoff_urls: {}
+target_tasks_method: try_cc_tasks
+tasks_for: hg-push
+test_manifest_loader: default
+try_mode: try_option_syntax
+try_options:
+    build_types: o
+    include_nightly: false
+    interactive: false
+    jobs: null
+    no_retry: false
+    notifications: null
+    platforms: all
+    raptor: none
+    raptor_trigger_tests: 1
+    tag: null
+    talos: none
+    talos_trigger_tests: 1
+    taskcluster_worker: false
+    trigger_tests: 1
+    unittests: all
+try_task_config:
+    env: {}
+    gecko-profile: false
+    use-artifact-builds: true
+version: 121.0a1

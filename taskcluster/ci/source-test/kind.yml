@@ -20,6 +20,7 @@ jobs-from:
     - clang.yml
     - mozlint.yml
     - python.yml
+    - taskgraph.yml
 
 job-defaults:
     attributes:
