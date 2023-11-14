@@ -42,10 +42,6 @@ interface  nsIDBFolderInfo : nsISupports {
   void changeNumUnreadMessages(in long aDelta);
   void changeNumMessages(in long aDelta);
 
-  // Key value that is used to determine the order among sibling folders.
-  // nsIMsgFolder::NO_SORT_VALUE means not specified.
-  attribute unsigned long folderSortOrder;
-
   // numUnreadMessages and numMessages will never return negative numbers. 0 means 'no msgs'.
   attribute long numUnreadMessages;
   attribute long numMessages;

@@ -231,7 +231,6 @@ nsMsgDBFolder::nsMsgDBFolder(void)
       m_bytesAddedToLocalMsg(0),
       m_tempMessageStreamBytesWritten(0),
       mFlags(0),
-      mSortOrder(nsIMsgFolder::NO_SORT_VALUE),
       mNumUnreadMessages(-1),
       mNumTotalMessages(-1),
       mNotifyCountChanges(true),
@@ -670,8 +669,6 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
         nsCString utf8Name;
         folderInfo->GetFolderName(utf8Name);
         if (!utf8Name.IsEmpty()) CopyUTF8toUTF16(utf8Name, mName);
-
-        folderInfo->GetFolderSortOrder(&mSortOrder);
 
         // These should be put in IMAP folder only.
         // folderInfo->GetImapTotalPendingMessages(&mNumPendingTotalMessages);
@@ -5003,69 +5000,39 @@ NS_IMETHODIMP nsMsgDBFolder::CloseDBIfFolderNotOpen(bool aForceClosed) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::SetUserSortOrder(uint32_t order) {
-  if (order != mSortOrder) {
-    nsCOMPtr<nsIMsgDatabase> db;
-    nsCOMPtr<nsIDBFolderInfo> folderInfo;
-    nsresult rv =
-        GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
-    if (NS_SUCCEEDED(rv) && folderInfo) {
-      folderInfo->SetFolderSortOrder(mSortOrder = order);
-      if (db) db->Commit(nsMsgDBCommitType::kLargeCommit);
-    }
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::GetUserSortOrder(uint32_t* order) {
-  NS_ENSURE_ARG_POINTER(order);
-  ReadDBFolderInfo(true);
-  *order = mSortOrder;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgDBFolder::SetSortOrder(int32_t order) {
-  return SetUserSortOrder(static_cast<uint32_t>(order));
+  NS_ASSERTION(false, "not implemented");
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::GetSortOrder(int32_t* order) {
   NS_ENSURE_ARG_POINTER(order);
-  uint32_t userSortOrder;
-  GetUserSortOrder(&userSortOrder);
-  /*
-    NO_SORT_VALUE is defined in interface nsIMsgFolder as unsigned long.
-    But XPIDL-generated enum is interpreted as signed.
-    So we have to cast explicitly in the following comparison.
-    This problem is filed on:
-    - https://bugzilla.mozilla.org/show_bug.cgi?id=239460
-    - https://bugzilla.mozilla.org/show_bug.cgi?id=1648346
-  */
-  if (userSortOrder == static_cast<uint32_t>(nsIMsgFolder::NO_SORT_VALUE)) {
-    // Returns the past static order if this folder does not yet have
-    // the FolderSortOrder property in the DB.
-    if (mFlags & nsMsgFolderFlags::Inbox)
-      *order = 0;
-    else if (mFlags & nsMsgFolderFlags::Drafts)
-      *order = 1;
-    else if (mFlags & nsMsgFolderFlags::Templates)
-      *order = 2;
-    else if (mFlags & nsMsgFolderFlags::SentMail)
-      *order = 3;
-    else if (mFlags & nsMsgFolderFlags::Archive)
-      *order = 4;
-    else if (mFlags & nsMsgFolderFlags::Junk)
-      *order = 5;
-    else if (mFlags & nsMsgFolderFlags::Trash)
-      *order = 6;
-    else if (mFlags & nsMsgFolderFlags::Virtual)
-      *order = 7;
-    else if (mFlags & nsMsgFolderFlags::Queue)
-      *order = 8;
-    else
-      *order = 9;
-  } else {
-    *order = static_cast<int32_t>(userSortOrder);
-  }
+
+  uint32_t flags;
+  nsresult rv = GetFlags(&flags);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (flags & nsMsgFolderFlags::Inbox)
+    *order = 0;
+  else if (flags & nsMsgFolderFlags::Drafts)
+    *order = 1;
+  else if (flags & nsMsgFolderFlags::Templates)
+    *order = 2;
+  else if (flags & nsMsgFolderFlags::SentMail)
+    *order = 3;
+  else if (flags & nsMsgFolderFlags::Archive)
+    *order = 4;
+  else if (flags & nsMsgFolderFlags::Junk)
+    *order = 5;
+  else if (flags & nsMsgFolderFlags::Trash)
+    *order = 6;
+  else if (flags & nsMsgFolderFlags::Virtual)
+    *order = 7;
+  else if (flags & nsMsgFolderFlags::Queue)
+    *order = 8;
+  else
+    *order = 9;
+
   return NS_OK;
 }
 
@@ -5078,7 +5045,7 @@ nsresult nsMsgDBFolder::BuildFolderSortKey(nsIMsgFolder* aFolder,
   nsresult rv = aFolder->GetSortOrder(&order);
   NS_ENSURE_SUCCESS(rv, rv);
   nsAutoString orderString;
-  orderString.AppendPrintf("%.10d", order);
+  orderString.AppendInt(order);
   nsString folderName;
   rv = aFolder->GetName(folderName);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -5094,14 +5061,14 @@ nsresult nsMsgDBFolder::BuildFolderSortKey(nsIMsgFolder* aFolder,
 }
 
 NS_IMETHODIMP nsMsgDBFolder::CompareSortKeys(nsIMsgFolder* aFolder,
-                                             int32_t* compareResult) {
+                                             int32_t* sortOrder) {
   nsTArray<uint8_t> sortKey1;
   nsTArray<uint8_t> sortKey2;
   nsresult rv = BuildFolderSortKey(this, sortKey1);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = BuildFolderSortKey(aFolder, sortKey2);
   NS_ENSURE_SUCCESS(rv, rv);
-  *compareResult = gCollationKeyGenerator->CompareSortKeys(sortKey1, sortKey2);
+  *sortOrder = gCollationKeyGenerator->CompareSortKeys(sortKey1, sortKey2);
   return rv;
 }
 

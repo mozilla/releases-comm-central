@@ -570,7 +570,6 @@ var folderPaneContextMenu = {
       // Can't copy folder intra-server, change to move.
       isMove = true;
     }
-    folderPane.setSortOrderOnNewFolder(sourceFolder, targetFolder);
     // Do the transfer. A slight delay in calling copyFolder() helps the
     // folder-menupopup chain of items get properly closed so the next folder
     // context popup can occur.
@@ -2792,75 +2791,15 @@ var folderPane = {
       }
       event.dataTransfer.dropEffect = copyKey ? "copy" : "move";
     } else if (types.includes("text/x-moz-folder")) {
-      const sourceFolder = event.dataTransfer
-        .mozGetDataAt("text/x-moz-folder", 0)
-        .QueryInterface(Ci.nsIMsgFolder);
-
-      // Don't allow dragging of virtual folders across accounts.
-      if (
-        sourceFolder.getFlag(Ci.nsMsgFolderFlags.Virtual) &&
-        sourceFolder.server != targetFolder.server
-      ) {
-        return;
-      }
-      // Don't allow parent to be dropped on its ancestors.
-      if (sourceFolder.isAncestorOf(targetFolder)) {
-        return;
-      }
-
-      // For the ability to move anywhere (i.e. reorder)
-      const dragIndicator = document.getElementById("folder-drag-indicator");
-      if (dragIndicator) {
-        if (
-          !copyKey &&
-          sourceFolder.server == targetFolder.server &&
-          !targetFolder.isServer &&
-          // Except in "all" mode, it would be impossible to insert
-          // unambiguously.
-          row.modeName == "all"
-        ) {
-          const targetElement = row.querySelector(".container") ?? row;
-          const targetRect = targetElement.getBoundingClientRect();
-          const iconElement =
-            targetElement.querySelector(".icon") ?? targetElement;
-          const iconRect = iconElement.getBoundingClientRect();
-          const isRTL = document.dir == "rtl";
-          const left = isRTL ? targetRect.left : iconRect.left - 6;
-          const right = isRTL ? iconRect.right + 6 : targetRect.right;
-          dragIndicator.style.left = left + "px";
-          dragIndicator.style.width = right - left + "px";
-          const center =
-            targetRect.top +
-            targetElement.clientTop +
-            targetElement.clientHeight / 2;
-          const quarterOfHeight = targetElement.clientHeight / 4;
-          if (event.clientY < center - quarterOfHeight) {
-            // Insert before the target.
-            this._clearDropTarget();
-            dragIndicator.style.top = targetRect.top - 4 + "px";
-            dragIndicator.style.display = "flex";
-            event.dataTransfer.dropEffect = "move";
-            return;
-          } else if (
-            event.clientY > center + quarterOfHeight &&
-            (!row.classList.contains("children") ||
-              row.classList.contains("collapsed"))
-          ) {
-            // Insert after the target.
-            this._clearDropTarget();
-            dragIndicator.style.top = targetRect.bottom - 4 + "px";
-            dragIndicator.style.display = "flex";
-            event.dataTransfer.dropEffect = "move";
-            return;
-          }
-        }
-        dragIndicator.style.display = "none";
-      }
-
       // If cannot create subfolders then don't allow drop here.
       if (!targetFolder.canCreateSubfolders) {
         return;
       }
+
+      const sourceFolder = event.dataTransfer
+        .mozGetDataAt("text/x-moz-folder", 0)
+        .QueryInterface(Ci.nsIMsgFolder);
+
       // Don't allow to drop on itself.
       if (targetFolder == sourceFolder) {
         return;
@@ -2871,6 +2810,17 @@ var folderPane = {
       }
       // Don't allow immediate child to be dropped onto its parent.
       if (targetFolder == sourceFolder.parent) {
+        return;
+      }
+      // Don't allow dragging of virtual folders across accounts.
+      if (
+        sourceFolder.getFlag(Ci.nsMsgFolderFlags.Virtual) &&
+        sourceFolder.server != targetFolder.server
+      ) {
+        return;
+      }
+      // Don't allow parent to be dropped on its ancestors.
+      if (sourceFolder.isAncestorOf(targetFolder)) {
         return;
       }
       // If there is a folder that can't be renamed, don't allow it to be
@@ -2959,10 +2909,6 @@ var folderPane = {
 
   _clearDropTarget() {
     folderTree.querySelector(".drop-target")?.classList.remove("drop-target");
-    const dragIndicator = document.getElementById("folder-drag-indicator");
-    if (dragIndicator) {
-      dragIndicator.style.display = "none";
-    }
   },
 
   _onDrop(event) {
@@ -3027,76 +2973,18 @@ var folderPane = {
         .mozGetDataAt("text/x-moz-folder", 0)
         .QueryInterface(Ci.nsIMsgFolder);
       let isMove = event.dataTransfer.dropEffect == "move";
-      let destinationFolder = targetFolder;
-      const parentFolder = targetFolder.parent;
-      // Insertion?
-      let reorder = 0;
-      const dragIndicator = document.getElementById("folder-drag-indicator");
-      if (
-        dragIndicator &&
-        isMove &&
-        parentFolder &&
-        sourceFolder.server == targetFolder.server &&
-        !targetFolder.isServer &&
-        row.modeName == "all" // Except in "all" mode, it would be impossible
-        // to insert unambiguously.
-      ) {
-        const targetElement = row.querySelector(".container") ?? row;
-        const targetRect = targetElement.getBoundingClientRect();
-        const center =
-          targetRect.top +
-          targetElement.clientTop +
-          targetElement.clientHeight / 2;
-        const quarterOfHeight = targetElement.clientHeight / 4;
-        if (event.clientY < center - quarterOfHeight) {
-          reorder = -1; // Insert before targetFolder.
-        } else if (
-          event.clientY > center + quarterOfHeight &&
-          (!row.classList.contains("children") ||
-            row.classList.contains("collapsed"))
-        ) {
-          reorder = 1; // Insert after targetFolder.
-        }
-        if (reorder != 0) {
-          destinationFolder =
-            parentFolder != sourceFolder.parent ? parentFolder : null;
-        }
-      }
-      if (destinationFolder) {
-        if (reorder == 0) {
-          this.setSortOrderOnNewFolder(sourceFolder, destinationFolder);
-        }
-        isMove = folderPaneContextMenu.transferFolder(
-          isMove,
-          sourceFolder,
-          destinationFolder
-        );
-        // Save in prefs the destination folder URI and if this was a move or
-        // copy.
-        // This is to fill in the next folder or message context menu item
-        // "Move|Copy to <DestinationFolderName> Again".
-        Services.prefs.setStringPref(
-          "mail.last_msg_movecopy_target_uri",
-          destinationFolder.URI
-        );
-      }
-      if (reorder) {
-        // Move the folder.
-        this.insertFolder(sourceFolder, targetFolder, reorder > 0);
-        // Update folder pane UI.
-        const movedFolderURI = sourceFolder.URI;
-        const modeNames = this.activeModes;
-        for (const name of modeNames) {
-          const rowToMove = this.getRowForFolder(sourceFolder, name);
-          const id = FolderTreeRow.makeRowID(name, movedFolderURI);
-          const listRow = this._modes[name].containerList.querySelector(
-            `li[is="folder-tree-row"]:has(>ul>li#${CSS.escape(id)})`
-          );
-          if (listRow) {
-            listRow.insertChildInOrder(rowToMove);
-          }
-        }
-      }
+      isMove = folderPaneContextMenu.transferFolder(
+        isMove,
+        sourceFolder,
+        targetFolder
+      );
+      // Save in prefs the target folder URI and if this was a move or copy.
+      // This is to fill in the next folder or message context menu item
+      // "Move|Copy to <TargetFolderName> Again".
+      Services.prefs.setStringPref(
+        "mail.last_msg_movecopy_target_uri",
+        targetFolder.URI
+      );
       Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
     } else if (types.includes("application/x-moz-file")) {
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
@@ -3179,8 +3067,8 @@ var folderPane = {
         return;
       }
       aFolder.createSubfolder(aName, top.msgWindow);
-      // onFolderAdded() is called when the new folder has been created
-      // properly. Until then, we cannot add it to the tree.
+      // Don't call the rebuildAfterChange() here as we'll need to wait for the
+      // new folder to be properly created before rebuilding the tree.
     }
 
     window.openDialog(
@@ -3757,91 +3645,6 @@ var folderPane = {
       );
       menupopup.appendChild(menuitem);
     }
-  },
-
-  /**
-   * Set folder sort order to rows for the folder.
-   *
-   * @param {nsIMsgFolder} folder
-   * @param {integer} order
-   */
-  setOrderToRowInAllModes(folder, order) {
-    const modeNames = this.activeModes;
-    for (const name of modeNames) {
-      const row = folderPane.getRowForFolder(folder, name);
-      if (row) {
-        row.folderSortOrder = order;
-      }
-    }
-  },
-
-  /**
-   * Set the sort order for the new folder to be added to the folder group.
-   *
-   * @param {nsIMsgFolder} folder
-   * @param {nsIMsgFolder} destination
-   */
-  setSortOrderOnNewFolder(folder, destination) {
-    const subFolders = destination?.subFolders ?? [];
-    let maxOrderValue = -1;
-    for (const sf of subFolders) {
-      const order = sf.userSortOrder;
-      if (order != Ci.nsIMsgFolder.NO_SORT_VALUE && order > maxOrderValue) {
-        maxOrderValue = order;
-      }
-    }
-    // If maxOrderValue is still negative, then none of the sibling folders
-    // have a sort order value (i.e. this group of folders has never been
-    // manually sorted). In this case, the natural order should still be used.
-    // Otherwise the new folder will be at the bottom of the group.
-    const newOrder =
-      maxOrderValue < 0 ? Ci.nsIMsgFolder.NO_SORT_VALUE : maxOrderValue + 1;
-    folder.userSortOrder = newOrder; // Update DB
-    this.setOrderToRowInAllModes(folder, newOrder); // Update row info.
-  },
-
-  /**
-   * Insert a folder before/after the target and reorder siblings.
-   * Note: Valid only in "all" mode.
-   *
-   * @param {nsIMsgFolder} folder
-   * @param {nsIMsgFolder} target
-   * @param {bool} insertAfter
-   */
-  insertFolder(folder, target, insertAfter) {
-    let subFolders;
-    try {
-      subFolders = target.parent.subFolders;
-    } catch (ex) {
-      console.error(
-        new Error(`Unable to access the subfolders of ${target.parent.URI}`, {
-          cause: ex,
-        })
-      );
-    }
-    const targetOrder = target.sortOrder;
-    const insertedFolderOrder = targetOrder + 1;
-    for (const sf of subFolders) {
-      if (sf == folder || (insertAfter && sf == target)) {
-        continue;
-      }
-      let order = sf.sortOrder;
-      if (
-        (!insertAfter && sf == target) ||
-        order > targetOrder ||
-        (order == targetOrder &&
-          FolderTreeRow.nameCollator.compare(sf.name, target.name) > 0)
-      ) {
-        // newOrder for sf must be greater than insertedFolderOrder.
-        // Since there is a possibility that order == targetOrder,
-        // increase by 2.
-        order += 2;
-        sf.sortOrder = order; // Update DB
-        this.setOrderToRowInAllModes(sf, order); // Update row info.
-      }
-    }
-    folder.sortOrder = insertedFolderOrder; // Update DB
-    this.setOrderToRowInAllModes(folder, insertedFolderOrder); // Update row info.
   },
 };
 
@@ -6237,10 +6040,6 @@ function selectMessage(msgHdr) {
 var folderListener = {
   QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
   onFolderAdded(parentFolder, childFolder) {
-    if (childFolder.userSortOrder == Ci.nsIMsgFolder.NO_SORT_VALUE) {
-      // This folder is new.
-      folderPane.setSortOrderOnNewFolder(childFolder, parentFolder);
-    }
     folderPane.addFolder(parentFolder, childFolder);
     folderPane.updateFolderRowUIElements();
   },

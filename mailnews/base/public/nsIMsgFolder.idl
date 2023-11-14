@@ -668,20 +668,10 @@ interface nsIMsgFolder : nsISupports {
   attribute nsIMsgRetentionSettings retentionSettings;
   attribute nsIMsgDownloadSettings downloadSettings;
   boolean callFilterPlugins(in nsIMsgWindow aMsgWindow);
-
   /**
-   * The order of the folder (relative to its siblings) in the folder pane,
-   * folder pickers, etc.
+   * used for order in the folder pane, folder pickers, etc.
    */
   attribute long sortOrder;
-
-  const unsigned long NO_SORT_VALUE = 0xffffffff;
-  /**
-   * The order of the folder as assigned by the user. The default value is
-   * NO_SORT_VALUE if no value has been assigned, and the folder's sortOrder
-   * property will used for ordering.
-   */
-  attribute unsigned long userSortOrder;
 
   attribute nsIDBFolderInfo dBTransferInfo;
 
