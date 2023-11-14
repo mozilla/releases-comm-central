@@ -15,6 +15,7 @@ var {
   getMimeMessage,
   getMsgStreamUrl,
   getRawMessage,
+  getMessagesInFolder,
 } = ChromeUtils.importESModule("resource:///modules/ExtensionMessages.sys.mjs");
 
 var { getFolder } = ChromeUtils.importESModule(
@@ -293,17 +294,23 @@ this.messages = class extends ExtensionAPIPersistent {
     }
 
     async function moveOrCopyMessages(messageIds, destination, isMove) {
+      const functionName = isMove ? "messages.move()" : "messages.copy()";
+
       if (
         !context.extension.hasPermission("accountsRead") ||
         !context.extension.hasPermission("messagesMove")
       ) {
         throw new ExtensionError(
-          `Using messages.${
-            isMove ? "move" : "copy"
-          }() requires the "accountsRead" and the "messagesMove" permission`
+          `Using ${functionName} requires the "accountsRead" and the "messagesMove" permission`
         );
       }
       const { folder: destinationFolder } = getFolder(destination);
+      if (destinationFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+        throw new ExtensionError(
+          `The destination used in ${functionName} cannot be a search folder`
+        );
+      }
+
       try {
         const promises = [];
         const folderMap = collectMessagesInFolders(messageIds);
@@ -433,10 +440,8 @@ this.messages = class extends ExtensionAPIPersistent {
         }).api(),
         async list(target) {
           const { folder } = getFolder(target);
-          return messageListTracker.startList(
-            folder.messages,
-            context.extension
-          );
+          const messages = getMessagesInFolder(folder);
+          return messageListTracker.startList(messages, context.extension);
         },
         async continueList(messageListId) {
           const messageList = messageListTracker.getList(
@@ -695,9 +700,15 @@ this.messages = class extends ExtensionAPIPersistent {
             );
           }
           const { folder: destinationFolder } = getFolder(destination);
+          if (destinationFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+            throw new ExtensionError(
+              `The destination used in messages.import() cannot be a search folder`
+            );
+          }
+
           if (!["none", "pop3"].includes(destinationFolder.server.type)) {
             throw new ExtensionError(
-              `browser.messenger.import() is not supported for ${destinationFolder.server.type} accounts`
+              `messages.import() is not supported for ${destinationFolder.server.type} accounts`
             );
           }
           try {

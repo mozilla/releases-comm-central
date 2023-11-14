@@ -41,6 +41,11 @@
             "optional": true,
             "description": "Whether this folder is a root folder."
           },
+          "isVirtual": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether this folder is a virtual search folder."
+          },
           "name": {
             "type": "string",
             "optional": true,

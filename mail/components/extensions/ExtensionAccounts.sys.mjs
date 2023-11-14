@@ -292,6 +292,7 @@ export class FolderManager {
       specialUse: getSpecialUse(folder.flags),
       isFavorite: folder.getFlag(Ci.nsMsgFolderFlags.Favorite),
       isRoot,
+      isVirtual: folder.getFlag(Ci.nsMsgFolderFlags.Virtual),
     };
 
     // In MV2 only the first special use was returned as type, assuming a folder

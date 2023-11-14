@@ -18,14 +18,20 @@ var { MailServices } = ChromeUtils.import(
 
 ChromeUtils.defineModuleGetter(
   lazy,
+  "jsmime",
+  "resource:///modules/jsmime.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  lazy,
   "MsgHdrToMimeMessage",
   "resource:///modules/gloda/MimeMessage.jsm"
 );
 ChromeUtils.defineModuleGetter(
   lazy,
-  "jsmime",
-  "resource:///modules/jsmime.jsm"
+  "VirtualFolderHelper",
+  "resource:///modules/VirtualFolderWrapper.jsm"
 );
+
 XPCOMUtils.defineLazyPreferenceGetter(
   lazy,
   "gJunkThreshold",
@@ -348,6 +354,41 @@ export async function getMimeMessage(msgHdr, partName = "") {
     console.warn(ex);
     return null;
   }
+}
+
+export function getMessagesInFolder(folder) {
+  if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+    // We first try to read the cached results.
+    try {
+      return [...folder.parent.msgDatabase.getCachedHits(folder.URI)];
+    } catch (e) {}
+
+    // Manually search the folder.
+    const messages = [];
+    const wrappedVirtualFolder =
+      lazy.VirtualFolderHelper.wrapVirtualFolder(folder);
+    for (const searchFolder of wrappedVirtualFolder.searchFolders) {
+      const msgs = searchFolder.msgDatabase.getFilterEnumerator(
+        wrappedVirtualFolder.searchTerms
+      );
+      for (const msg of msgs) {
+        messages.push(msg);
+      }
+    }
+    return messages;
+  }
+
+  // Attempt to read the folder directly.
+  try {
+    return [...folder.messages];
+  } catch (e) {
+    // Some folders fail to retrieve messages, instead of returning an empty array.
+    console.warn(
+      `Failed to retrieve content of folder ${folder.prettyName}: ${e}`
+    );
+  }
+
+  return [];
 }
 
 /**
@@ -902,6 +943,7 @@ export class MessageList {
     this._messageTracker = messageTracker;
     this.folderCache = new Map();
     this.messagesPerPage = messagesPerPage ?? lazy.gMessagesPerPage;
+    this.log = new Set();
 
     this.pages.push(new MessagePage());
   }
@@ -947,13 +989,16 @@ export class MessageList {
       return;
     }
 
-    if (this.currentPage.messages.length >= this.messagesPerPage) {
-      await this.addPage();
-    }
-
     const messageHeader = this.extension.messageManager.convert(msgHdr, {
       skipFolder: true,
     });
+    if (this.log.has(messageHeader.id)) {
+      return;
+    }
+
+    if (this.currentPage.messages.length >= this.messagesPerPage) {
+      await this.addPage();
+    }
 
     if (msgHdr.folder && this.extension.folderManager) {
       if (this.folderCache.has(msgHdr.folder.URI)) {
@@ -965,6 +1010,7 @@ export class MessageList {
         this.folderCache.set(msgHdr.folder.URI, messageHeader.folder);
       }
     }
+    this.log.add(messageHeader.id);
     this.currentPage.addMessage(messageHeader);
   }
 
@@ -1607,31 +1653,24 @@ export class MessageQuery {
   }
 
   async searchMessages(folder, includeSubFolders = false) {
-    let messages = null;
-    try {
-      messages = folder.messages;
-    } catch (e) {
-      // Some folders fail on message query, instead of returning empty
-    }
+    const messages = getMessagesInFolder(folder);
 
-    if (messages) {
-      for (const msg of [...messages]) {
-        if (this.messageList.isDone) {
-          return;
-        }
-        if (await this.checkSearchCriteriaFn(msg, folder)) {
-          await this.messageList.addMessage(msg);
-        }
+    for (const msg of messages) {
+      if (this.messageList.isDone) {
+        return;
+      }
+      if (await this.checkSearchCriteriaFn(msg, folder)) {
+        await this.messageList.addMessage(msg);
+      }
 
-        // Check if auto-pagination is needed.
-        if (
-          this.autoPaginationTimeout &&
-          this.messageList.currentPage.messages.length > 0 &&
-          Date.now() - this.messageList.currentPage.timeOfFirstMessage >
-            this.autoPaginationTimeout
-        ) {
-          await this.messageList.addPage();
-        }
+      // Check if auto-pagination is needed.
+      if (
+        this.autoPaginationTimeout &&
+        this.messageList.currentPage.messages.length > 0 &&
+        Date.now() - this.messageList.currentPage.timeOfFirstMessage >
+          this.autoPaginationTimeout
+      ) {
+        await this.messageList.addPage();
       }
     }
 

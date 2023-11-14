@@ -67,7 +67,7 @@ add_task(async function test_import() {
           // is too erratic to be supported ATM.
           await browser.test.assertRejects(
             browser.messages.import(file, folder1.id),
-            `browser.messenger.import() is not supported for ${account.type} accounts`,
+            `messages.import() is not supported for ${account.type} accounts`,
             "Should throw for unsupported accounts"
           );
         } else {

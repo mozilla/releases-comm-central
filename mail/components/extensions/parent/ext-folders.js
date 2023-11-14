@@ -241,10 +241,18 @@ var folderTracker = new (class extends EventEmitter {
  * Copy or Move a folder.
  */
 async function doMoveCopyOperation(source, destination, extension, isMove) {
+  const functionName = isMove ? "folders.move()" : "folders.copy()";
+
   // The schema file allows destination to be either a MailFolder or a
   // MailAccount.
   const srcFolder = getFolder(source);
   const dstFolder = getFolder(destination);
+
+  if (dstFolder.folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+    throw new ExtensionError(
+      `The destination used in ${functionName} cannot be a search folder`
+    );
+  }
 
   if (
     srcFolder.folder.server.type == "nntp" ||
@@ -847,10 +855,16 @@ this.folders = class extends ExtensionAPIPersistent {
           }
           return context.extension.folderManager.convert(folder);
         },
-        async create(parent, childName) {
+        async create(destination, childName) {
           // The schema file allows parent to be either a MailFolder or a
           // MailAccount.
-          const { folder: parentFolder, accountId } = getFolder(parent);
+          const { folder: parentFolder, accountId } = getFolder(destination);
+
+          if (parentFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+            throw new ExtensionError(
+              `The destination used in folders.create() cannot be a search folder`
+            );
+          }
 
           if (
             parentFolder.hasSubFolders &&
