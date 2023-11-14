@@ -10,6 +10,9 @@ const { MessageGenerator } = ChromeUtils.import(
 const { NNTPServer } = ChromeUtils.importESModule(
   "resource://testing-common/NNTPServer.sys.mjs"
 );
+const { VirtualFolderHelper } = ChromeUtils.import(
+  "resource:///modules/VirtualFolderWrapper.jsm"
+);
 
 const servers = ["server", "nntpRoot", "rssRoot"];
 const realFolders = ["plain", "inbox", "junk", "trash", "rssFeed"];
@@ -62,7 +65,7 @@ let rootFolder,
   trashFolder,
   virtualFolder;
 let nntpRootFolder, nntpGroupFolder;
-let rssRootFolder, rssFeedFolder;
+let rssRootFolder, rssFeedFolder, rssTrashFolder;
 let tagsFolder;
 
 add_setup(async function () {
@@ -93,9 +96,8 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   junkFolder.setFlag(Ci.nsMsgFolderFlags.Junk);
   trashFolder = rootFolder
-    .createLocalSubfolder("folderPaneContextTrash")
+    .getFolderWithFlags(Ci.nsMsgFolderFlags.Trash)
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  trashFolder.setFlag(Ci.nsMsgFolderFlags.Trash);
 
   virtualFolder = rootFolder
     .createLocalSubfolder("folderPaneContextVirtual")
@@ -134,6 +136,9 @@ add_setup(async function () {
   );
   await TestUtils.waitForCondition(() => rssRootFolder.subFolders.length == 2);
   rssFeedFolder = rssRootFolder.getChildNamed("Test Feed");
+  rssTrashFolder = rssRootFolder
+    .getFolderWithFlags(Ci.nsMsgFolderFlags.Trash)
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   about3Pane.folderPane.activeModes = ["all", "tags"];
   tagsFolder = about3Pane.folderPane._modes.tags._tagsFolder.subFolders[0];
@@ -643,6 +648,153 @@ add_task(async function testMarkAllRead() {
   checkUnreadCount(inboxFolder, 0);
   checkUnreadCount(inboxSubfolder, 0);
   checkUnreadCount(plainFolder, 2);
+});
+
+/**
+ * Tests "Empty Trash" and "Empty Junk".
+ * Note that this test has several commented-out assertions about the number
+ * of messages in the smart trash folder. This folder doesn't get notified
+ * properly due to the weird way we empty trash folders.
+ */
+add_task(async function testEmpty() {
+  about3Pane.folderPane.activeModes = ["all", "smart"];
+
+  const smartServer = MailServices.accounts.findServer(
+    "nobody",
+    "smart mailboxes",
+    "none"
+  );
+  const smartTrashFolder = smartServer.rootFolder.getFolderWithFlags(
+    Ci.nsMsgFolderFlags.Trash
+  );
+  const smartJunkFolder = smartServer.rootFolder.getFolderWithFlags(
+    Ci.nsMsgFolderFlags.Junk
+  );
+
+  // Add some messages to the test folders. Different quantities of messages
+  // are used to aid debugging.
+
+  trashFolder.addMessageBatch(
+    generator.makeMessages({ count: 8 }).map(message => message.toMboxString())
+  );
+  junkFolder.addMessageBatch(
+    generator.makeMessages({ count: 3 }).map(message => message.toMboxString())
+  );
+
+  // Test emptying a real trash folder.
+
+  Assert.equal(
+    trashFolder.getTotalMessages(false),
+    8,
+    "trash folder should have the right message count before emptying"
+  );
+  let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  await rightClickAndActivate(trashFolder, "folderPaneContext-emptyTrash");
+  await promptPromise;
+  Assert.equal(
+    trashFolder.getTotalMessages(false),
+    0,
+    "trash folder should be emptied"
+  );
+
+  // Test emptying a real junk folder.
+
+  Assert.equal(
+    junkFolder.getTotalMessages(false),
+    3,
+    "junk folder should have the right message count before emptying"
+  );
+  promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  await rightClickAndActivate(junkFolder, "folderPaneContext-emptyJunk");
+  await promptPromise;
+  Assert.equal(
+    junkFolder.getTotalMessages(false),
+    0,
+    "junk folder should be emptied"
+  );
+
+  // Add some new messages to the test folders.
+
+  trashFolder.addMessageBatch(
+    generator.makeMessages({ count: 4 }).map(message => message.toMboxString())
+  );
+  rssTrashFolder.addMessageBatch(
+    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+  );
+  junkFolder.addMessageBatch(
+    generator.makeMessages({ count: 6 }).map(message => message.toMboxString())
+  );
+
+  // Test emptying the smart trash folder. All trash folders should be emptied.
+
+  // leftClickOn(smartTrashFolder);
+  // Assert.equal(
+  //   smartTrashFolder.getTotalMessages(false),
+  //   9,
+  //   "smart trash folder should have the right message count before emptying"
+  // );
+  promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  await rightClickAndActivate(smartTrashFolder, "folderPaneContext-emptyTrash");
+  await promptPromise;
+  Assert.deepEqual(
+    VirtualFolderHelper.wrapVirtualFolder(smartTrashFolder).searchFolders,
+    [trashFolder, rssTrashFolder],
+    "smart trash folder should still search the real trash folders"
+  );
+  // Assert.equal(
+  //   smartTrashFolder.getTotalMessages(false),
+  //   0,
+  //   "smart trash folder should be emptied"
+  // );
+  Assert.equal(
+    trashFolder.getTotalMessages(false),
+    0,
+    "trash folder should be emptied"
+  );
+  Assert.equal(
+    rssTrashFolder.getTotalMessages(false),
+    0,
+    "RSS trash folder should be emptied"
+  );
+  // Assert.equal(about3Pane.gDBView.rowCount, 0, "view should have no rows");
+  // Assert.equal(
+  //   about3Pane.threadTree.table.body.rows.length,
+  //   0,
+  //   "no rows should be displayed"
+  // );
+
+  // Test emptying the smart junk folder. All junk folders should be emptied.
+
+  leftClickOn(smartJunkFolder);
+  Assert.equal(
+    smartJunkFolder.getTotalMessages(false),
+    6,
+    "smart junk folder should have the right message count before emptying"
+  );
+  promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  await rightClickAndActivate(smartJunkFolder, "folderPaneContext-emptyJunk");
+  await promptPromise;
+  Assert.deepEqual(
+    VirtualFolderHelper.wrapVirtualFolder(smartJunkFolder).searchFolders,
+    [junkFolder],
+    "smart junk folder should still search the real junk folder"
+  );
+  Assert.equal(
+    smartJunkFolder.getTotalMessages(false),
+    0,
+    "smart junk folder should be emptied"
+  );
+  Assert.equal(
+    junkFolder.getTotalMessages(false),
+    0,
+    "junk folder should be emptied"
+  );
+  Assert.equal(about3Pane.gDBView.rowCount, 0, "view should have no rows");
+  Assert.equal(
+    about3Pane.threadTree.table.body.rows.length,
+    0,
+    "no rows should be displayed"
+  );
 });
 
 function leftClickOn(folder) {

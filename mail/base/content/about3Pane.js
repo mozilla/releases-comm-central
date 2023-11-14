@@ -648,9 +648,6 @@ var folderPaneContextMenu = {
       case "folderPaneContext-sendUnsentMessages":
         topChromeWindow.SendUnsentMessages();
         break;
-      case "folderPaneContext-properties":
-        folderPane.editFolder(folder);
-        break;
       case "folderPaneContext-markAllFoldersRead":
         topChromeWindow.MsgMarkAllFoldersRead([folder]);
         break;
