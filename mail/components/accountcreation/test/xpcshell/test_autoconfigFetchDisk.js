@@ -36,6 +36,9 @@ function onTestSuccess(config) {
   Assert.equal(config.outgoing.hostname, "smtp.example.com");
   Assert.equal(config.identity.realname, "Yamato Nadeshiko");
   Assert.equal(config.identity.emailAddress, "yamato.nadeshiko@example.com");
+
+  Assert.equal(config.subSource, "xml-from-disk");
+
   do_test_finished();
 }
 

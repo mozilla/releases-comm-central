@@ -46,11 +46,8 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
         }
         var contents = readURLasUTF8(Services.io.newFileURI(configLocation));
         const domParser = new DOMParser();
-        successCallback(
-          lazy.readFromXML(
-            JXON.build(domParser.parseFromString(contents, "text/xml"), "disk")
-          )
-        );
+        const xml = JXON.build(domParser.parseFromString(contents, "text/xml"));
+        successCallback(lazy.readFromXML(xml, "disk"));
       } catch (e) {
         errorCallback(e);
       }
