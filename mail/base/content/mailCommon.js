@@ -1031,7 +1031,7 @@ var dbViewWrapperListener = {
   onMessagesRemoved() {
     window.quickFilterBar?.onMessagesChanged();
 
-    if (!gDBView || !gFolder) {
+    if (!gDBView) {
       // This can't be a notification about the message currently displayed.
       return;
     }
