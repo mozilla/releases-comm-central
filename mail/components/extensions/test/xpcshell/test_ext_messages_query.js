@@ -127,6 +127,19 @@ add_task(async function test_query() {
         "includeSubFolders: True"
       );
 
+      // Test includeSubFolders: True but use accountId instead of rootFolder.id.
+      const { messages: searchRecursiveAccountTrue } =
+        await browser.messages.query({
+          accountId: rootFolder.accountId,
+          includeSubFolders: true,
+          autoPaginationTimeout: 0,
+        });
+      browser.test.assertEq(
+        18,
+        searchRecursiveAccountTrue.length,
+        "includeAccountSubFolders: True"
+      );
+
       // Test includeSubFolders: False.
       const { messages: searchRecursiveFalse } = await browser.messages.query({
         folderId: rootFolder.id,

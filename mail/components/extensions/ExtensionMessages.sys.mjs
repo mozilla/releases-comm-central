@@ -1375,6 +1375,7 @@ export class MessageQuery {
 
     // Property was renamed from folder to folderId in MV3.
     const queryFolder = this.queryInfo.folderId || this.queryInfo.folder;
+    const queryAccountId = this.queryInfo.accountId;
     if (queryFolder) {
       includeSubFolders = !!this.queryInfo.includeSubFolders;
       if (!this.extension.hasPermission("accountsRead")) {
@@ -1382,12 +1383,17 @@ export class MessageQuery {
           'Querying by folder requires the "accountsRead" permission'
         );
       }
-      const { folder } = getFolder(queryFolder);
-      folders.push(folder);
+      const { folder, accountId } = getFolder(queryFolder);
+      if (!queryAccountId || queryAccountId == accountId) {
+        folders.push(folder);
+      }
     } else {
       includeSubFolders = true;
       for (const account of MailServices.accounts.accounts) {
-        folders.push(account.incomingServer.rootFolder);
+        const accountId = account.key;
+        if (!queryAccountId || queryAccountId == accountId) {
+          folders.push(account.incomingServer.rootFolder);
+        }
       }
     }
 

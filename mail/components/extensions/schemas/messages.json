@@ -646,6 +646,11 @@
             "optional": true,
             "default": {},
             "properties": {
+              "accountId": {
+                "$ref": "accounts.MailAccountId",
+                "description": "Limits the search to folders of the account with the specified id.",
+                "optional": true
+              },
               "attachment": {
                 "choices": [
                   {
