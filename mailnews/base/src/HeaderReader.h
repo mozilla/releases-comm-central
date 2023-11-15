@@ -2,8 +2,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef HeaderReader_h__
-#define HeaderReader_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_HEADERREADER_H_
+#define COMM_MAILNEWS_BASE_SRC_HEADERREADER_H_
 
 #include <algorithm>
 #include "LineReader.h"
@@ -32,8 +32,8 @@
  *
  * Example usage:
  *    nsCString raw = "To: Alice\r\nFrom: Bob\r\n\r\n...Message body..."_ns;
- *    auto cb = [&](HeaderReader::Header const& hdr) {
- *      printf("-> '%s':'%s'\n", hdr.Name(raw), hdr.Value(raw));
+ *    auto cb = [&](HeaderReader::Hdr const& hdr) {
+ *      printf("-> '%s':'%s'\n", hdr.Name(raw).get(), hdr.Value(raw).get());
  *      return true;
  *    };
  *
@@ -302,4 +302,4 @@ bool HeaderReader::HandleLine(mozilla::Span<const char> line,
   return keepGoing;
 }
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_HEADERREADER_H_

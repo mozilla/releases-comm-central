@@ -180,14 +180,6 @@ class CMapiMessage {
 
   // Retrieve info for message
   inline bool BodyIsHtml(void) const { return m_bodyIsHtml; }
-  const char* GetFromLine(int& len) const {
-    if (m_fromLine.IsEmpty())
-      return NULL;
-    else {
-      len = m_fromLine.Length();
-      return m_fromLine.get();
-    }
-  }
   inline CMapiMessageHeaders* GetHeaders() { return &m_headers; }
   inline const wchar_t* GetBody(void) const { return m_body.get(); }
   inline size_t GetBodyLen(void) const { return m_body.Length(); }
@@ -231,7 +223,6 @@ class CMapiMessage {
 
   bool m_dldStateHeadersOnly;  // if the message has not been downloaded yet
   CMapiMessageHeaders m_headers;
-  nsCString m_fromLine;         // utf-8
   nsCString m_mimeContentType;  // utf-8
   nsCString m_mimeBoundary;     // utf-8
   nsCString m_mimeCharset;      // utf-8
@@ -277,7 +268,6 @@ class CMapiMessage {
   void ProcessContentType();
   bool CheckBodyInCharsetRange(const char* charset);
   void FormatDateTime(SYSTEMTIME& tm, nsCString& s, bool includeTZ = true);
-  void BuildFromLine(void);
 
   inline static bool IsSpace(char c) {
     return c == ' ' || c == '\r' || c == '\n' || c == '\b' || c == '\t';

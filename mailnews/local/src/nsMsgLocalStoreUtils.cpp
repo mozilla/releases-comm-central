@@ -256,19 +256,6 @@ bool nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile* aFile,
 }
 
 /**
- * Resets forceReparse in the database.
- *
- * @param aMsgDb The database to reset.
- */
-void nsMsgLocalStoreUtils::ResetForceReparse(nsIMsgDatabase* aMsgDB) {
-  if (aMsgDB) {
-    nsCOMPtr<nsIDBFolderInfo> folderInfo;
-    aMsgDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
-    if (folderInfo) folderInfo->SetBooleanProperty("forceReparse", false);
-  }
-}
-
-/**
  * Update the value of an X-Mozilla-Keys header in place.
  *
  * @param seekable The stream containing the message, positioned at the

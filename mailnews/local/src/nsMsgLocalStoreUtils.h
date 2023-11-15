@@ -30,8 +30,6 @@ class nsMsgLocalStoreUtils {
       nsISeekableStream* seekable, nsTArray<nsCString> const& keywordsToAdd,
       nsTArray<nsCString> const& keywordsToRemove, bool& notEnoughSpace);
 
-  static void ResetForceReparse(nsIMsgDatabase* aMsgDB);
-
   nsresult RewriteMsgFlags(nsISeekableStream* seekable, uint32_t flags);
   bool DiskSpaceAvailableInStore(nsIFile* aFile, uint64_t aSpaceRequested);
 };

@@ -2,17 +2,17 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#ifndef LineReader_h__
-#define LineReader_h__
+#ifndef COMM_MAILNEWS_BASE_SRC_LINEREADER_H_
+#define COMM_MAILNEWS_BASE_SRC_LINEREADER_H_
 
 #include <algorithm>
 #include "mozilla/Span.h"
 #include "mozilla/Vector.h"
 
 /**
- * FirstLine() returns the first line of a span.
+ * FirstLine() returns the first complete line in a span.
  * The EOL sequence (CRLF or LF) is included in the returned line.
- * If no lines are found an empty span is returned.
+ * If no EOL is found, an empty span is returned.
  */
 inline mozilla::Span<const char> FirstLine(
     mozilla::Span<const char> const& data) {
@@ -185,4 +185,4 @@ mozilla::Span<const char> SplitLines(mozilla::Span<const char> data,
   return data;
 }
 
-#endif
+#endif  // COMM_MAILNEWS_BASE_SRC_LINEREADER_H_

@@ -6,28 +6,28 @@
 #define __nsMsgBodyHandler_h
 
 #include "nsIMsgSearchScopeTerm.h"
-#include "nsILineInputStream.h"
-#include "nsIMsgDatabase.h"
+#include "nsReadLine.h"
+#include "mozilla/UniquePtr.h"
 
 //---------------------------------------------------------------------------
 // nsMsgBodyHandler: used to retrieve lines from POP and IMAP offline messages.
-// This is a helper class used by nsMsgSearchTerm::MatchBody
+// This is a helper class used by nsMsgSearchTerm::MatchBody() and
+// nsMsgSearchTerm::MatchArbitraryHeader().
 //---------------------------------------------------------------------------
 class nsMsgBodyHandler {
  public:
-  nsMsgBodyHandler(nsIMsgSearchScopeTerm*, uint32_t length, nsIMsgDBHdr* msg,
-                   nsIMsgDatabase* db);
+  nsMsgBodyHandler(nsIMsgSearchScopeTerm*, nsIMsgDBHdr* msg);
 
-  // we can also create a body handler when doing arbitrary header
+  // We can also create a body handler when doing arbitrary header
   // filtering...we need the list of headers and the header size as well
   // if we are doing filtering...if ForFilters is false, headers and
   // headersSize is ignored!!!
-  nsMsgBodyHandler(nsIMsgSearchScopeTerm*, uint32_t length, nsIMsgDBHdr* msg,
-                   nsIMsgDatabase* db,
-                   const char* headers /* NULL terminated list of headers */,
-                   uint32_t headersSize, bool ForFilters);
+  // If ForFilters is true, `headers` should contain a list of
+  // '\0'-terminated header strings (See Bug 1791947 for cleanup suggestion).
+  nsMsgBodyHandler(nsIMsgSearchScopeTerm*, nsIMsgDBHdr* msg,
+                   const char* headers, uint32_t headersSize, bool ForFilters);
 
-  virtual ~nsMsgBodyHandler();
+  ~nsMsgBodyHandler();
 
   // Returns next message line in buf and the applicable charset, if found.
   // The return value is the length of 'buf' or -1 for EOF.
@@ -40,7 +40,7 @@ class nsMsgBodyHandler {
  protected:
   void Initialize();  // common initialization code
 
-  // filter related methods. For filtering we always use the headers
+  // Filter related methods. For filtering we always use the headers
   // list instead of the database...
   bool m_Filtering;
   int32_t GetNextFilterLine(nsCString& buf);
@@ -49,44 +49,15 @@ class nsMsgBodyHandler {
   uint32_t m_headersSize;
   uint32_t m_headerBytesRead;
 
-  // local / POP related methods
-  void OpenLocalFolder();
-
-  // goes through the mail folder
-  int32_t GetNextLocalLine(nsCString& buf);
-
+  // Reading from raw message stream.
+  int32_t GetNextLocalLine(nsACString& line);
   nsIMsgSearchScopeTerm* m_scope;
-  nsCOMPtr<nsILineInputStream> m_fileLineStream;
-  nsCOMPtr<nsIFile> m_localFile;
-
-  /**
-   * The number of lines in the message.  If |m_lineCountInBodyLines| then this
-   * is the number of body lines, otherwise this is the entire number of lines
-   * in the message.  This is important so we know when to stop reading the file
-   * without accidentally reading part of the next message.
-   */
-  uint32_t m_numLocalLines;
-  /**
-   * When true, |m_numLocalLines| is the number of body lines in the message,
-   * when false it is the entire number of lines in the message.
-   *
-   * When a message is an offline IMAP or news message, then the number of lines
-   * will be the entire number of lines, so this should be false.  When the
-   * message is a local message, the number of lines will be the number of body
-   * lines.
-   */
-  bool m_lineCountInBodyLines;
-
-  // Offline IMAP related methods & state
-
-  nsCOMPtr<nsIMsgDBHdr> m_msgHdr;
-  nsCOMPtr<nsIMsgDatabase> m_db;
+  nsCOMPtr<nsIInputStream> m_msgStream;
+  mozilla::UniquePtr<nsLineBuffer<char>> m_lineBuffer;
 
   // Transformations
   // With the exception of m_isMultipart, these all apply to the various parts
   bool m_stripHeaders;     // true if we're supposed to strip of message headers
-  bool m_pastMsgHeaders;   // true if we've already skipped over the message
-                           // headers
   bool m_pastPartHeaders;  // true if we've already skipped over the part
                            // headers
   bool m_partIsQP;     // true if the Content-Transfer-Encoding header claims

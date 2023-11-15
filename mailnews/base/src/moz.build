@@ -6,6 +6,8 @@
 EXPORTS += [
     "HeaderReader.h",
     "LineReader.h",
+    "MboxMsgInputStream.h",
+    "MboxMsgOutputStream.h",
     "nsImapMoveCoalescer.h",
     "nsMailAuthModule.h",
     "nsMailChannel.h",
@@ -32,6 +34,8 @@ EXPORTS += [
 SOURCES += [
     "MailNewsDLF.cpp",
     "MailnewsLoadContextInfo.cpp",
+    "MboxMsgInputStream.cpp",
+    "MboxMsgOutputStream.cpp",
     "nsCidProtocolHandler.cpp",
     "nsCopyMessageStreamListener.cpp",
     "nsImapMoveCoalescer.cpp",

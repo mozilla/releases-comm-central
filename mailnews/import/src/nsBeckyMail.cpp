@@ -27,7 +27,6 @@
 #include "nsBeckyUtils.h"
 #include "nsBeckyStringBundle.h"
 
-#define FROM_LINE "From - Mon Jan 1 00:00:00 1965" MSG_LINEBREAK
 #define X_BECKY_STATUS_HEADER "X-Becky-Status"
 #define X_BECKY_INCLUDE_HEADER "X-Becky-Include"
 
@@ -344,8 +343,6 @@ nsresult ImportMessageRunnable::WriteHeaders(nsCString& aHeaders,
   nsresult rv;
   uint32_t writtenBytes = 0;
 
-  rv = aOutputStream->Write(FROM_LINE, strlen(FROM_LINE), &writtenBytes);
-  NS_ENSURE_SUCCESS(rv, rv);
   rv = aOutputStream->Write(aHeaders.get(), aHeaders.Length(), &writtenBytes);
   NS_ENSURE_SUCCESS(rv, rv);
   rv =

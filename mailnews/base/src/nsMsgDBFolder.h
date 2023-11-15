@@ -148,11 +148,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   virtual nsresult SendFlagNotifications(nsIMsgDBHdr* item, uint32_t oldFlags,
                                          uint32_t newFlags);
 
-  // Overriden by IMAP to handle gmail hack.
-  virtual nsresult GetOfflineFileStream(nsMsgKey msgKey, uint64_t* offset,
-                                        uint32_t* size,
-                                        nsIInputStream** aFileStream);
-
   nsresult CheckWithNewMessagesStatus(bool messageAdded);
   void UpdateNewMessages();
   nsresult OnHdrAddedOrDeleted(nsIMsgDBHdr* hdrChanged, bool added);
@@ -177,7 +172,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   // Offline support methods. Used by IMAP and News folders, but not local
   // folders.
   nsresult StartNewOfflineMessage();
-  nsresult WriteStartOfNewLocalMessage();
   nsresult EndNewOfflineMessage(nsresult status);
 
   nsresult AutoCompact(nsIMsgWindow* aWindow);

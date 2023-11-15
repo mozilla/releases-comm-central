@@ -18,29 +18,34 @@
 
 #import <Cocoa/Cocoa.h>
 
-nsresult nsEmlxHelperUtils::ConvertToMozillaStatusFlags(const char* aXMLBufferStart,
-                                                        const char* aXMLBufferEnd,
-                                                        uint32_t* aMozillaStatusFlags) {
-  // create a NSData wrapper around the buffer, so we can use the Cocoa call below
-  NSData* metadata = [[[NSData alloc] initWithBytesNoCopy:(void*)aXMLBufferStart
-                                                   length:(aXMLBufferEnd - aXMLBufferStart)
-                                             freeWhenDone:NO] autorelease];
+nsresult nsEmlxHelperUtils::ConvertToMozillaStatusFlags(
+    const char* aXMLBufferStart, const char* aXMLBufferEnd,
+    uint32_t* aMozillaStatusFlags) {
+  // create a NSData wrapper around the buffer, so we can use the Cocoa call
+  // below
+  NSData* metadata =
+      [[[NSData alloc] initWithBytesNoCopy:(void*)aXMLBufferStart
+                                    length:(aXMLBufferEnd - aXMLBufferStart)
+                              freeWhenDone:NO] autorelease];
 
   // get the XML data as a dictionary
   NSPropertyListFormat format;
-  id plist = [NSPropertyListSerialization propertyListWithData:metadata
-                                                       options:NSPropertyListImmutable
-                                                        format:&format
-                                                         error:NULL];
+  id plist =
+      [NSPropertyListSerialization propertyListWithData:metadata
+                                                options:NSPropertyListImmutable
+                                                 format:&format
+                                                  error:NULL];
 
   if (!plist) return NS_ERROR_FAILURE;
 
   // find the <flags>...</flags> value and convert to int
-  const uint32_t emlxMessageFlags = [[(NSDictionary*)plist objectForKey:@"flags"] intValue];
+  const uint32_t emlxMessageFlags =
+      [[(NSDictionary*)plist objectForKey:@"flags"] intValue];
 
   if (emlxMessageFlags == 0) return NS_ERROR_FAILURE;
 
-  if (emlxMessageFlags & nsEmlxHelperUtils::kRead) *aMozillaStatusFlags |= nsMsgMessageFlags::Read;
+  if (emlxMessageFlags & nsEmlxHelperUtils::kRead)
+    *aMozillaStatusFlags |= nsMsgMessageFlags::Read;
   if (emlxMessageFlags & nsEmlxHelperUtils::kForwarded)
     *aMozillaStatusFlags |= nsMsgMessageFlags::Forwarded;
   if (emlxMessageFlags & nsEmlxHelperUtils::kAnswered)
@@ -51,56 +56,13 @@ nsresult nsEmlxHelperUtils::ConvertToMozillaStatusFlags(const char* aXMLBufferSt
   return NS_OK;
 }
 
-nsresult nsEmlxHelperUtils::ConvertToMboxRD(const char* aMessageBufferStart,
-                                            const char* aMessageBufferEnd, nsCString& aOutBuffer) {
-  nsTArray<const char*> foundFromLines;
-
-  const char* cur = aMessageBufferStart;
-  while (cur < aMessageBufferEnd) {
-    const char* foundFromStr = strnstr(cur, "From ", aMessageBufferEnd - cur);
-
-    if (foundFromStr) {
-      // skip all prepending '>' chars
-      const char* fromLineStart = foundFromStr;
-      while (fromLineStart-- >= aMessageBufferStart) {
-        if (*fromLineStart == '\n' || fromLineStart == aMessageBufferStart) {
-          if (fromLineStart > aMessageBufferStart) fromLineStart++;
-          foundFromLines.AppendElement(fromLineStart);
-          break;
-        } else if (*fromLineStart != '>')
-          break;
-      }
-
-      // advance past the last found From string.
-      cur = foundFromStr + 5;
-
-      // look for more From lines.
-      continue;
-    }
-
-    break;
-  }
-
-  // go through foundFromLines
-  if (foundFromLines.Length()) {
-    const char* chunkStart = aMessageBufferStart;
-    for (unsigned i = 0; i < foundFromLines.Length(); ++i) {
-      aOutBuffer.Append(chunkStart, (foundFromLines[i] - chunkStart));
-      aOutBuffer.Append(">"_ns);
-
-      chunkStart = foundFromLines[i];
-    }
-    aOutBuffer.Append(chunkStart, (aMessageBufferEnd - chunkStart));
-  }
-
-  return NS_OK;
-}
-
-nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile* aMessage, nsIOutputStream* aOut) {
+nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile* aMessage,
+                                                   nsIOutputStream* aOut) {
   NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
-  // needed to be sure autoreleased objects are released too, which they might not
-  // in a C++ environment where the main event loop has no autorelease pool (e.g on a XPCOM thread)
+  // needed to be sure autoreleased objects are released too, which they might
+  // not in a C++ environment where the main event loop has no autorelease pool
+  // (e.g on a XPCOM thread)
   NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
   nsresult rv = NS_ERROR_FAILURE;
@@ -108,7 +70,8 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile* aMessage, nsIOutputS
   nsAutoCString path;
   aMessage->GetNativePath(path);
 
-  NSData* data = [NSData dataWithContentsOfFile:[NSString stringWithUTF8String:path.get()]];
+  NSData* data = [NSData
+      dataWithContentsOfFile:[NSString stringWithUTF8String:path.get()]];
   if (!data) {
     [pool release];
     return NS_ERROR_FAILURE;
@@ -125,40 +88,36 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile* aMessage, nsIOutputS
   // < XML metadata for this message >
   // -------------------------------
 
-  // read the first line of the emlx file, which is a number of how many bytes ahead the actual
-  // message data is.
-  uint64_t numberOfBytesToRead = strtol((char*)[data bytes], &startOfMessageData, 10);
+  // read the first line of the emlx file, which is a number of how many bytes
+  // ahead the actual message data is.
+  uint64_t numberOfBytesToRead =
+      strtol((char*)[data bytes], &startOfMessageData, 10);
   if (numberOfBytesToRead <= 0 || !startOfMessageData) {
     [pool release];
     return NS_ERROR_FAILURE;
   }
 
   // skip whitespace
-  while (*startOfMessageData == ' ' || *startOfMessageData == '\n' || *startOfMessageData == '\r' ||
-         *startOfMessageData == '\t')
+  while (*startOfMessageData == ' ' || *startOfMessageData == '\n' ||
+         *startOfMessageData == '\r' || *startOfMessageData == '\t')
     ++startOfMessageData;
 
-  constexpr auto kBogusFromLine = "From \n"_ns;
   constexpr auto kEndOfMessage = "\n\n"_ns;
 
-  // write the bogus "From " line which is a magic separator in the mbox format
-  rv = aOut->Write(kBogusFromLine.get(), kBogusFromLine.Length(), &actualBytesWritten);
-  if (NS_FAILED(rv)) {
-    [pool release];
-    return rv;
-  }
-
-  // now read the XML metadata, so we can extract info like which flags (read? replied? flagged?
-  // etc) this message has.
+  // now read the XML metadata, so we can extract info like which flags (read?
+  // replied? flagged? etc) this message has.
   const char* startOfXMLMetadata = startOfMessageData + numberOfBytesToRead;
   const char* endOfXMLMetadata = (char*)[data bytes] + [data length];
 
   uint32_t x_mozilla_flags = 0;
-  ConvertToMozillaStatusFlags(startOfXMLMetadata, endOfXMLMetadata, &x_mozilla_flags);
+  ConvertToMozillaStatusFlags(startOfXMLMetadata, endOfXMLMetadata,
+                              &x_mozilla_flags);
 
-  // write the X-Mozilla-Status header according to which flags we've gathered above.
+  // write the X-Mozilla-Status header according to which flags we've gathered
+  // above.
   uint32_t dummyRv;
-  nsAutoCString buf(PR_smprintf(X_MOZILLA_STATUS_FORMAT MSG_LINEBREAK, x_mozilla_flags));
+  nsAutoCString buf(
+      PR_smprintf(X_MOZILLA_STATUS_FORMAT MSG_LINEBREAK, x_mozilla_flags));
   NS_ASSERTION(!buf.IsEmpty(), "printf error with X-Mozilla-Status header");
   if (buf.IsEmpty()) {
     [pool release];
@@ -193,34 +152,20 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile* aMessage, nsIOutputS
     return rv;
   }
 
-  // do any conversion needed for the mbox data to be valid mboxrd.
-  nsCString convertedData;
-  rv = ConvertToMboxRD(startOfMessageData, (startOfMessageData + numberOfBytesToRead),
-                       convertedData);
-  if (NS_FAILED(rv)) {
-    [pool release];
-    return rv;
-  }
-
   // write the actual message data.
-  if (convertedData.IsEmpty())
-    rv = aOut->Write(startOfMessageData, (uint32_t)numberOfBytesToRead, &actualBytesWritten);
-  else {
-    IMPORT_LOG1("Escaped From-lines in %s!", path.get());
-    rv = aOut->Write(convertedData.get(), convertedData.Length(), &actualBytesWritten);
-  }
-
+  rv = aOut->Write(startOfMessageData, (uint32_t)numberOfBytesToRead,
+                   &actualBytesWritten);
   if (NS_FAILED(rv)) {
     [pool release];
     return rv;
   }
 
-  NS_ASSERTION(actualBytesWritten ==
-                   (convertedData.IsEmpty() ? numberOfBytesToRead : convertedData.Length()),
+  NS_ASSERTION(actualBytesWritten == numberOfBytesToRead,
                "Didn't write as many bytes as expected for .emlx file?");
 
   // add newlines to denote the end of this message in the mbox
-  rv = aOut->Write(kEndOfMessage.get(), kEndOfMessage.Length(), &actualBytesWritten);
+  rv = aOut->Write(kEndOfMessage.get(), kEndOfMessage.Length(),
+                   &actualBytesWritten);
 
   [pool release];
 

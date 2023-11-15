@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
+#include "nsIStreamListener.idl"
 
 interface nsIMsgFolder;
 interface nsIMsgCopyServiceListener;
@@ -14,14 +15,14 @@ interface nsIInputStream;
 interface nsIUrlListener;
 interface nsIMsgDatabase;
 interface nsITransaction;
-
-[scriptable, uuid(F732CE58-E540-4dc4-B803-9456056EBEFC)]
+interface nsIStoreScanListener;
 
 /**
  * Pluggable message store interface. Each incoming server can have a different
  * message store.
  * All methods are synchronous unless otherwise specified.
  */
+[scriptable, uuid(F732CE58-E540-4dc4-B803-9456056EBEFC)]
 interface nsIMsgPluggableStore : nsISupports {
   /**
    * Examines the store and adds subfolders for the existing folders in the
@@ -243,20 +244,6 @@ interface nsIMsgPluggableStore : nsISupports {
   readonly attribute boolean supportsCompaction;
 
   /**
-   * Remove deleted messages from the store, reclaiming space. Some stores
-   * won't need to do anything here (e.g., maildir), and those stores
-   * should return false for needsCompaction. This operation is asynchronous,
-   * and the listener OnStopRunningUrl() method is called when the operation
-   * is complete.
-   *
-   * @param aFolder folder whose storage is to be compacted
-   * @param aListener listener notified when compaction is done.
-   * @param aMsgWindow window to display progress/status in.
-   */
-  void compactFolder(in nsIMsgFolder aFolder, in nsIUrlListener aListener,
-                     in nsIMsgWindow aMsgWindow);
-
-  /**
    * Is the summary file for the passed folder valid? For Berkeley Mailboxes,
    * for local mail folders, this checks the timestamp and size of the local
    * mail folder against values stored in the db. For other stores, this may
@@ -286,28 +273,16 @@ interface nsIMsgPluggableStore : nsISupports {
                            in boolean aValid);
 
   /**
-   * Rebuild the index from information in the store. This involves creating
-   * a new nsIMsgDatabase for the folder, adding the information for all the
-   * messages in the store, and then copying the new msg database over the
-   * existing database. For Berkeley mailbox, we try to maintain meta data
-   * stored in the existing database when possible, and other stores should do
-   * the same. Ideally, I would figure out a way of making that easy. That
-   * might entail reworking the rebuild index process into one where the store
-   * would iterate over the messages, and stream each message through the
-   * message parser, and the common code would handle maintaining the
-   * meta data. But the berkeley mailbox code needs to do some parsing because
-   * it doesn't know how big the message is (i.e., the stream can't simply be
-   * a file stream).
-   * This operation is asynchronous,
-   * and the passed url listener should be called when the operation is done.
+   * Asynchronously read every message in the folder in turn.
+   * scanListener is a nsIStreamListener augmented to handle multiple messages.
+   * See nsIStoreScanListener below for the listener callback sequence.
    *
-   * @param aFolder folder whose storage is to be compacted
-   * @param aMsgDB db to put parsed headers in.
-   * @param aMsgWindow msgWindow to use for progress updates.
-   * @param aListener listener notified when the index is rebuilt.
+   * If asyncScan() succeeds, a reference-counter pointer to the scanListener
+   * will be held until the scan is completed.
+   * If asyncScan fails, no listener callbacks will be called.
+   * No listener callbacks will be invoked before asyncScan() returns.
    */
-  void rebuildIndex(in nsIMsgFolder aFolder, in nsIMsgDatabase aMsgDB,
-                    in nsIMsgWindow aMsgWindow, in nsIUrlListener aListener);
+  void asyncScan(in nsIMsgFolder folder, in nsIStoreScanListener scanListener);
 
   /**
    * Attempts to sets/clear flags by on the given messages by editing
@@ -336,10 +311,58 @@ interface nsIMsgPluggableStore : nsISupports {
                       in boolean aAdd);
 
   /**
+   * Calculates total size of all messages in the given folder, in bytes.
+   * It should be enough for progress reporting when scanning through
+   * messages, but don't rely on this being either byte-accurate or instant!
+   * For example, for mbox, it'll just be the size of the mbox file, which
+   * is very quick, but includes "From " lines and "From "-escape characters.
+   * For maildir, it'll be a total of file sizes, which is accurate, but
+   * potentially slow(ish) for large numbers of messages.
+   * And it doesn't account for various storage overheads - For example,
+   * block-granularity allocations by filesystems.
+   */
+  int64_t estimateFolderSize(in nsIMsgFolder folder);
+
+  /**
    * Identifies a specific type of store. Please use this only for legacy
    * bug fixes, and not as a method to change behavior!
    *
    * Typical values: "mbox", "maildir"
    */
   readonly attribute ACString storeType;
+};
+
+/**
+  * nsIStoreScanListener is an nsIStreamListener augmented to handle
+  * streaming out multiple messages from a msgStore.
+  * The sequence of callbacks for a listener (l) is:
+  *  l.onStartScan()
+  *  for each message:
+  *    l.onStartMessage()
+  *    l.onStartRequest()
+  *    while data remaining in message:
+  *      l.onDataAvailable()
+  *    l.onStopRequest()
+  *  l.onStopScan()
+  */
+[scriptable, uuid(00D3344A-6EFB-4D18-8A5A-D9C004E62FDF)]
+interface nsIStoreScanListener : nsIStreamListener
+{
+  /**
+   * This is called before the first message.
+   */
+  void onStartScan();
+
+  /**
+   * Called just before onStartRequest, to communicate the store token of
+   * the message within the msgStore.
+   * After this, the standard nsIStreamListener callbacks are called to
+   * transfer this single message.
+   */
+  void onStartMessage(in AUTF8String storeToken);
+
+  /**
+   * Called when the scan operation as a whole is complete.
+   */
+  void onStopScan(in nsresult status);
 };

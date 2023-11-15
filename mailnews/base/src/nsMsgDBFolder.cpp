@@ -733,176 +733,6 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgStore(nsIMsgPluggableStore** aStore) {
   return server->GetMsgStore(aStore);
 }
 
-nsresult nsMsgDBFolder::GetOfflineFileStream(nsMsgKey msgKey, uint64_t* offset,
-                                             uint32_t* size,
-                                             nsIInputStream** aFileStream) {
-  NS_ENSURE_ARG(aFileStream);
-
-  *offset = 0;
-  *size = 0;
-
-  // Initialise to nullptr since this is checked by some callers for the success
-  // of the function.
-  *aFileStream = nullptr;
-
-  nsresult rv = GetDatabase();
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgDBHdr> hdr;
-  rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(hdr));
-  NS_ENSURE_SUCCESS(rv, rv);
-  hdr->GetOfflineMessageSize(size);
-  NS_ENSURE_TRUE(*size != 0, NS_ERROR_UNEXPECTED);
-  rv = GetMsgInputStream(hdr, aFileStream);
-  if (NS_FAILED(rv)) {
-    NS_WARNING(nsPrintfCString(
-                   "(debug) nsMsgDBFolder::GetOfflineFileStream: "
-                   "GetMsgInputStream(hdr, aFileStream); rv=0x%" PRIx32 "\n",
-                   static_cast<uint32_t>(rv))
-                   .get());
-    // Return early: If we could not find an offline stream, clear the offline
-    // flag which will fall back to reading the message from the server.
-    if (mDatabase) mDatabase->MarkOffline(msgKey, false, nullptr);
-
-    return rv;
-  }
-
-  // Check if the database has the correct offset into the offline store by
-  // reading up to 300 bytes. If it is incorrect, clear the offline flag on the
-  // message and return false. This will cause a fall back to reading the
-  // message from the server. We will also advance the offset past the envelope
-  // header ("From " or "FCC") and "X-Mozilla-Status*" lines so these line are
-  // not included when the message is read from the file.
-  // Note: This occurs for both mbox and maildir offline store and probably any
-  // future pluggable store that may be supported.
-  nsCOMPtr<nsISeekableStream> seekableStream = do_QueryInterface(*aFileStream);
-  if (seekableStream) {
-    int64_t o;
-    seekableStream->Tell(&o);
-    *offset = uint64_t(o);
-    char startOfMsg[301];
-    uint32_t bytesRead = 0;
-    uint32_t bytesToRead = sizeof(startOfMsg) - 1;
-    rv = (*aFileStream)->Read(startOfMsg, bytesToRead, &bytesRead);
-    startOfMsg[bytesRead] = '\0';
-    uint32_t msgOffset = 0;
-    uint32_t keepMsgOffset = 0;
-    char* headerLine = startOfMsg;
-    int32_t findPos;
-    // Check a few lines in startOfMsg[] to verify message record validity.
-    bool line1 = true;
-    bool foundError = false;
-    // If Read() above fails, don't check any lines and set record bad.
-    // Even if Read() succeeds, don't enter the loop below if bytesRead is 0.
-    bool foundNextLine = NS_SUCCEEDED(rv) && (bytesRead > 0) ? true : false;
-    while (foundNextLine) {
-      headerLine = startOfMsg + msgOffset;
-      // Ignore lines beginning X-Mozilla-Status or X-Mozilla-Status2
-      if (!strncmp(headerLine, X_MOZILLA_STATUS, X_MOZILLA_STATUS_LEN) ||
-          !strncmp(headerLine, X_MOZILLA_STATUS2, X_MOZILLA_STATUS2_LEN)) {
-        // If there is an invalid line ahead of X-Mozilla-Status lines,
-        // immediately flag this a bad record. Only the "From " or "FCC"
-        // delimiter line is expected and OK before this.
-        if (foundError) {
-          break;
-        }
-        foundNextLine =
-            MsgAdvanceToNextLine(startOfMsg, msgOffset, bytesRead - 1);
-        line1 = false;
-        continue;
-      }
-      if (line1) {
-        // Ignore "From " and, for Drafts, "FCC" when on first line.
-        if ((!strncmp(headerLine, "From ", 5) ||
-             ((mFlags & nsMsgFolderFlags::Drafts) &&
-              !strncmp(headerLine, "FCC", 3)))) {
-          foundNextLine =
-              MsgAdvanceToNextLine(startOfMsg, msgOffset, bytesRead - 1);
-          line1 = false;
-          continue;
-        }
-      }
-      bool validOrFrom = false;
-      // Check if line looks like a valid header (just check for a colon). Also
-      // a line beginning with "From " as is sometimes returned by broken IMAP
-      // servers is also acceptable. Also, size of message must be greater than
-      // the offset of the first header line into the message (msgOffset).
-      findPos = MsgFindCharInSet(nsDependentCString(headerLine), ":\n\r", 0);
-      if (((findPos != kNotFound && headerLine[findPos] == ':') ||
-           !strncmp(headerLine, "From ", 5)) &&
-          *size > msgOffset) {
-        validOrFrom = true;
-      }
-      if (!foundError) {
-        if (validOrFrom) {
-          // Record looks OK, accept it.
-          break;
-        } else {
-          foundError = true;
-          keepMsgOffset = msgOffset;
-          foundNextLine =
-              MsgAdvanceToNextLine(startOfMsg, msgOffset, bytesRead - 1);
-          if (MOZ_LOG_TEST(DBLog, LogLevel::Info)) {
-            char save;
-            if (foundNextLine) {
-              // Temporarily null terminate the bad header line for logging.
-              save = startOfMsg[msgOffset - 1];  // should be \r or \n
-              startOfMsg[msgOffset - 1] = 0;
-
-              // DEBUG: the error happened while checking network outage
-              // condition.
-              // XXX TODO We may need to check if dovecot and other imap
-              // servers are returning funny "From " line, etc.
-              NS_WARNING(
-                  nsPrintfCString("Strange startOfMsg: |%s|\n", startOfMsg)
-                      .get());
-            }
-            MOZ_LOG(DBLog, LogLevel::Info,
-                    ("Invalid header line in offline store: %s",
-                     startOfMsg + keepMsgOffset));
-            if (foundNextLine) startOfMsg[msgOffset - 1] = save;
-          }
-          line1 = false;
-          continue;
-        }
-      } else {
-        if (validOrFrom) {
-          // Previous was bad, this is good, accept the record at bad line.
-          foundError = false;
-          msgOffset = keepMsgOffset;
-          break;
-        }
-        // If reached, two consecutive lines bad, reject the record
-        break;
-      }
-    }  // while (foundNextLine)
-
-    if (!foundNextLine) {
-      // Can't find a valid header line in the buffer or buffer read() failed.
-      foundError = true;
-    }
-
-    if (!foundError) {
-      *offset += msgOffset;
-      *size -= msgOffset;
-      seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, *offset);
-      MOZ_ASSERT(NS_SUCCEEDED(rv));
-    } else {
-      // Offline store message record looks bad. Cause message fetch from
-      // server and store in RAM cache.
-      MOZ_ASSERT(mDatabase);  // Would have crashed above if mDatabase null!
-      mDatabase->MarkOffline(msgKey, false, nullptr);
-      MOZ_LOG(DBLog, LogLevel::Error,
-              ("Leading offline store file content appears invalid, will fetch "
-               "message from server."));
-      MOZ_LOG(
-          DBLog, LogLevel::Error,
-          ("First 300 bytes of offline store content are:\n%s", startOfMsg));
-      rv = NS_ERROR_FAILURE;
-    }
-  }
-  return rv;
-}
-
 NS_IMETHODIMP nsMsgDBFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
                                                nsIInputStream** stream) {
   // Eventually this will be purely a matter of fetching the storeToken
@@ -1618,26 +1448,31 @@ NS_IMETHODIMP nsMsgDBFolder::IsCommandEnabled(const nsACString& command,
   return NS_OK;
 }
 
-nsresult nsMsgDBFolder::WriteStartOfNewLocalMessage() {
-  nsAutoCString result;
-  uint32_t writeCount;
-  time_t now = time((time_t*)0);
-  char* ct = ctime(&now);
-  ct[24] = 0;
-  result = "From - ";
-  result += ct;
-  result += MSG_LINEBREAK;
-  m_bytesAddedToLocalMsg = result.Length();
+nsresult nsMsgDBFolder::StartNewOfflineMessage() {
+  bool isLocked;
+  GetLocked(&isLocked);
+  bool hasSemaphore = false;
+  if (isLocked) {
+    // It's OK if we, the folder, have the semaphore.
+    TestSemaphore(static_cast<nsIMsgFolder*>(this), &hasSemaphore);
+    if (!hasSemaphore) {
+      NS_WARNING("folder locked trying to download offline");
+      return NS_MSG_FOLDER_BUSY;
+    }
+  }
 
-  MOZ_ASSERT(m_tempMessageStream,
-             "Temporary message stream must not be nullptr");
-
-  nsresult rv =
-      m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
+  m_tempMessageStreamBytesWritten = 0;
+  m_bytesAddedToLocalMsg = 0;
+  m_numOfflineMsgLines = 0;
+  nsresult rv = GetOfflineStoreOutputStream(
+      m_offlineHeader, getter_AddRefs(m_tempMessageStream));
+  if (NS_SUCCEEDED(rv) && !hasSemaphore)
+    AcquireSemaphore(static_cast<nsIMsgFolder*>(this));
   NS_ENSURE_SUCCESS(rv, rv);
-  m_tempMessageStreamBytesWritten += writeCount;
 
+  // Write out the X-Mozilla-Status headers...
   constexpr auto MozillaStatus = "X-Mozilla-Status: 0001"_ns MSG_LINEBREAK;
+  uint32_t writeCount;
   rv = m_tempMessageStream->Write(MozillaStatus.get(), MozillaStatus.Length(),
                                   &writeCount);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1653,33 +1488,7 @@ nsresult nsMsgDBFolder::WriteStartOfNewLocalMessage() {
   return NS_OK;
 }
 
-nsresult nsMsgDBFolder::StartNewOfflineMessage() {
-  bool isLocked;
-  GetLocked(&isLocked);
-  bool hasSemaphore = false;
-  if (isLocked) {
-    // it's OK if we, the folder, have the semaphore.
-    TestSemaphore(static_cast<nsIMsgFolder*>(this), &hasSemaphore);
-    if (!hasSemaphore) {
-      NS_WARNING("folder locked trying to download offline");
-      return NS_MSG_FOLDER_BUSY;
-    }
-  }
-  m_tempMessageStreamBytesWritten = 0;
-  nsresult rv = GetOfflineStoreOutputStream(
-      m_offlineHeader, getter_AddRefs(m_tempMessageStream));
-  if (NS_SUCCEEDED(rv) && !hasSemaphore)
-    AcquireSemaphore(static_cast<nsIMsgFolder*>(this));
-  if (NS_SUCCEEDED(rv)) WriteStartOfNewLocalMessage();
-  m_numOfflineMsgLines = 0;
-  return rv;
-}
-
 nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
-  int64_t curStorePos;
-  uint64_t messageOffset;
-  uint32_t messageSize;
-
   nsMsgKey messageKey;
 
   nsresult rv1, rv2;
@@ -1715,9 +1524,10 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
   nsCOMPtr<nsISeekableStream> seekable;
   if (m_tempMessageStream) seekable = do_QueryInterface(m_tempMessageStream);
   if (seekable) {
-    int64_t tellPos;
-    seekable->Tell(&tellPos);
-    curStorePos = tellPos;
+    uint64_t messageOffset;
+    uint32_t messageSize;
+    int64_t curStorePos;
+    seekable->Tell(&curStorePos);
 
     // N.B. This only works if we've set the offline flag for the message,
     // so be careful about moving the call to MarkOffline above.

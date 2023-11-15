@@ -630,9 +630,8 @@ nsresult nsMsgSearchTerm::DeStreamNew(char* inStream, int16_t /*length*/) {
 // Looks in the MessageDB for the user specified arbitrary header, if it finds
 // the header, it then looks for a match against the value for the header.
 nsresult nsMsgSearchTerm::MatchArbitraryHeader(
-    nsIMsgSearchScopeTerm* scope, uint32_t length /* in lines*/,
-    const char* charset, bool charsetOverride, nsIMsgDBHdr* msg,
-    nsIMsgDatabase* db, const nsACString& headers, bool ForFiltering,
+    nsIMsgSearchScopeTerm* scope, const char* charset, bool charsetOverride,
+    nsIMsgDBHdr* msg, const nsACString& headers, bool ForFiltering,
     bool* pResult) {
   NS_ENSURE_ARG_POINTER(pResult);
 
@@ -658,10 +657,9 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader(
     result = *pResult;
   }
 
-  nsMsgBodyHandler* bodyHandler =
-      new nsMsgBodyHandler(scope, length, msg, db, headers.BeginReading(),
-                           headers.Length(), ForFiltering);
-  bodyHandler->SetStripHeaders(false);
+  nsMsgBodyHandler bodyHandler(scope, msg, headers.BeginReading(),
+                               headers.Length(), ForFiltering);
+  bodyHandler.SetStripHeaders(false);
 
   nsCString headerFullValue;  // Contains matched header value accumulated over
                               // multiple lines.
@@ -671,7 +669,7 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader(
 
   while (processingHeaders) {
     nsCString charsetIgnored;
-    if (bodyHandler->GetNextLine(buf, charsetIgnored) < 0 ||
+    if (bodyHandler.GetNextLine(buf, charsetIgnored) < 0 ||
         EMPTY_MESSAGE_LINE(buf))
       processingHeaders =
           false;  // No more lines or empty line terminating headers.
@@ -737,7 +735,6 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader(
     }
   }
 
-  delete bodyHandler;
   *pResult = result;
   return rv;
 }
@@ -797,68 +794,63 @@ NS_IMETHODIMP nsMsgSearchTerm::MatchUint32HdrProperty(nsIMsgDBHdr* aHdr,
 }
 
 nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
-                                    uint32_t length /*in lines*/,
                                     const char* folderCharset, nsIMsgDBHdr* msg,
-                                    nsIMsgDatabase* db, bool* pResult) {
+                                    bool* pResult) {
   NS_ENSURE_ARG_POINTER(pResult);
-
   nsresult rv = NS_OK;
-
-  bool result = false;
   *pResult = false;
-
-  // Small hack so we don't look all through a message when someone has
-  // specified "BODY IS foo". ### Since length is in lines, this is not quite
-  // right.
-  if ((length > 0) &&
-      (m_operator == nsMsgSearchOp::Is || m_operator == nsMsgSearchOp::Isnt))
-    length = m_value.utf8String.Length();
-
-  nsMsgBodyHandler* bodyHan = new nsMsgBodyHandler(scope, length, msg, db);
-  if (!bodyHan) return NS_ERROR_OUT_OF_MEMORY;
-
-  nsAutoCString buf;
-  bool endOfFile = false;  // if retValue == 0, we've hit the end of the file
 
   // Change the sense of the loop so we don't bail out prematurely
   // on negative terms. i.e. opDoesntContain must look at all lines
   bool boolContinueLoop;
   GetMatchAllBeforeDeciding(&boolContinueLoop);
-  result = boolContinueLoop;
+  bool result = boolContinueLoop;
 
   nsCString compare;
-  nsCString charset;
-  while (!endOfFile && result == boolContinueLoop) {
-    if (bodyHan->GetNextLine(buf, charset) >= 0) {
-      bool softLineBreak = false;
-      // Do in-place decoding of quoted printable
-      if (bodyHan->IsQP()) {
-        softLineBreak = StringEndsWith(buf, "="_ns);
-        MsgStripQuotedPrintable(buf);
-        // If soft line break, chop off the last char as well.
-        size_t bufLength = buf.Length();
-        if ((bufLength > 0) && softLineBreak) buf.SetLength(bufLength - 1);
+  nsMsgBodyHandler bodyHandler(scope, msg);
+  uint32_t seen = 0;
+  while (result == boolContinueLoop) {
+    // Small hack so we don't look all through a message when someone has
+    // specified "BODY IS foo".
+    if (m_operator == nsMsgSearchOp::Is || m_operator == nsMsgSearchOp::Isnt) {
+      if (seen > m_value.utf8String.Length()) {
+        break;
       }
-      compare.Append(buf);
-      // If this line ends with a soft line break, loop around
-      // and get the next line before looking for the search string.
-      // This assumes the message can't end on a QP soft line break.
-      // That seems like a pretty safe assumption.
-      if (softLineBreak) continue;
-      if (!compare.IsEmpty()) {
-        char startChar = (char)compare.CharAt(0);
-        if (startChar != '\r' && startChar != '\n') {
-          rv = MatchString(compare,
-                           charset.IsEmpty() ? folderCharset : charset.get(),
-                           &result);
-        }
-        compare.Truncate();
+    }
+
+    nsAutoCString buf;
+    nsAutoCString charset;
+    int32_t n = bodyHandler.GetNextLine(buf, charset);
+    if (n < 0) {
+      break;  // EOF
+    }
+    seen += n;
+    bool softLineBreak = false;
+    // Do in-place decoding of quoted printable
+    if (bodyHandler.IsQP()) {
+      softLineBreak = StringEndsWith(buf, "="_ns);
+      MsgStripQuotedPrintable(buf);
+      // If soft line break, chop off the last char as well.
+      size_t bufLength = buf.Length();
+      if ((bufLength > 0) && softLineBreak) buf.SetLength(bufLength - 1);
+    }
+    compare.Append(buf);
+    // If this line ends with a soft line break, loop around
+    // and get the next line before looking for the search string.
+    // This assumes the message can't end on a QP soft line break.
+    // That seems like a pretty safe assumption.
+    if (softLineBreak) continue;
+    if (!compare.IsEmpty()) {
+      char startChar = (char)compare.CharAt(0);
+      if (startChar != '\r' && startChar != '\n') {
+        rv = MatchString(compare,
+                         charset.IsEmpty() ? folderCharset : charset.get(),
+                         &result);
       }
-    } else
-      endOfFile = true;
+      compare.Truncate();
+    }
   }
 
-  delete bodyHan;
   *pResult = result;
   return rv;
 }
@@ -1631,7 +1623,7 @@ nsMsgSearchScopeTerm::GetInputStream(nsIMsgDBHdr* aMsgHdr,
   NS_ENSURE_ARG_POINTER(aMsgHdr);
   NS_ENSURE_TRUE(m_folder, NS_ERROR_NULL_POINTER);
   nsresult rv =
-      m_folder->GetMsgInputStream(aMsgHdr, getter_AddRefs(m_inputStream));
+      m_folder->GetLocalMsgStream(aMsgHdr, getter_AddRefs(m_inputStream));
   NS_ENSURE_SUCCESS(rv, rv);
   NS_IF_ADDREF(*aInputStream = m_inputStream);
   return rv;

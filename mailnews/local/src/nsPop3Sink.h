@@ -49,7 +49,6 @@ class nsPop3Sink : public nsIPop3Sink {
   int32_t m_numNewMessagesInFolder;
   int32_t m_numMsgsDownloaded;
   bool m_senderAuthed;
-  nsCString m_outputBuffer;
   nsCOMPtr<nsIPop3IncomingServer> m_popServer;
   // Currently the folder we want to update about biff info
   nsCOMPtr<nsIMsgFolder> m_folder;

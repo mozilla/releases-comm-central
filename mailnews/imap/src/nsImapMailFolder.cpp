@@ -7705,11 +7705,6 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
     bool needMoreData = false;
     char* newLine = nullptr;
     uint32_t numBytesInLine = 0;
-    if (offlineStore) {
-      const char* envelope = "From " CRLF;
-      offlineStore->Write(envelope, strlen(envelope), &bytesWritten);
-      fileSize += bytesWritten;
-    }
     do {
       newLine = inputStreamBuffer->ReadNextLine(inputStream, numBytesInLine,
                                                 needMoreData);
@@ -8957,62 +8952,35 @@ nsresult nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey,
   return NS_OK;
 }
 
-nsresult nsImapMailFolder::GetOfflineFileStream(nsMsgKey msgKey,
-                                                uint64_t* offset,
-                                                uint32_t* size,
-                                                nsIInputStream** aFileStream) {
-  NS_ENSURE_ARG(aFileStream);
-  nsCOMPtr<nsIMsgFolder> offlineFolder;
-  nsresult rv = GetOfflineMsgFolder(msgKey, getter_AddRefs(offlineFolder));
+NS_IMETHODIMP nsImapMailFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
+                                                  nsIInputStream** stream) {
+  // Gmail hack. Check if message is actually stored in another folder.
+  nsMsgKey msgKey;
+  hdr->GetMessageKey(&msgKey);
+  nsCOMPtr<nsIMsgFolder> otherFolder;
+  nsresult rv = GetOfflineMsgFolder(msgKey, getter_AddRefs(otherFolder));
   NS_ENSURE_SUCCESS(rv, rv);
-  if (!offlineFolder) return NS_ERROR_FAILURE;
-
-  rv = GetDatabase();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (offlineFolder == this) {
-    return nsMsgDBFolder::GetOfflineFileStream(msgKey, offset, size,
-                                               aFileStream);
-  }
-
-  // The message we want is stored in a different folder (hackery for gmail).
-  nsCOMPtr<nsIMsgDBHdr> hdr;
-  rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(hdr));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCString gmMsgID;
-  hdr->GetStringProperty("X-GM-MSGID", gmMsgID);
-  nsCOMPtr<nsIMsgDatabase> db;
-  offlineFolder->GetMsgDatabase(getter_AddRefs(db));
-  rv = db->GetMsgHdrForGMMsgID(gmMsgID.get(), getter_AddRefs(hdr));
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (!hdr) {
+  if (!otherFolder) {
     return NS_ERROR_FAILURE;
   }
 
-  nsMsgKey newMsgKey;
-  hdr->GetMessageKey(&newMsgKey);
+  if (otherFolder != this) {
+    // It's in another folder. Find it.
+    nsAutoCString gmMsgID;
+    hdr->GetStringProperty("X-GM-MSGID", gmMsgID);
+    nsCOMPtr<nsIMsgDatabase> otherDB;
+    otherFolder->GetMsgDatabase(getter_AddRefs(otherDB));
+    nsCOMPtr<nsIMsgDBHdr> otherHdr;
+    rv = otherDB->GetMsgHdrForGMMsgID(gmMsgID.get(), getter_AddRefs(otherHdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!otherHdr) {
+      return NS_ERROR_FAILURE;  // Couldn't find the message.
+    }
+    return otherFolder->GetLocalMsgStream(otherHdr, stream);
+  }
 
-  // We _know_ it's a nsImapMailFolder.
-  nsImapMailFolder* other = static_cast<nsImapMailFolder*>(offlineFolder.get());
-  return other->GetOfflineFileStream(newMsgKey, offset, size, aFileStream);
-}
-
-NS_IMETHODIMP nsImapMailFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
-                                                  nsIInputStream** stream) {
-  nsMsgKey key;
-  hdr->GetMessageKey(&key);
-
-  uint64_t offset = 0;
-  uint32_t size = 0;
-  nsCOMPtr<nsIInputStream> rawStream;
-  nsresult rv =
-      GetOfflineFileStream(key, &offset, &size, getter_AddRefs(rawStream));
+  rv = GetMsgInputStream(hdr, stream);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  RefPtr<SlicedInputStream> slicedStream =
-      new SlicedInputStream(rawStream.forget(), offset, uint64_t(size));
-  slicedStream.forget(stream);
   return NS_OK;
 }
 

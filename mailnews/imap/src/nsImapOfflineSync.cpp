@@ -341,10 +341,6 @@ void nsImapOfflineSync::ProcessAppendMsgOperation(
     return;
   }
 
-  uint64_t messageOffset;
-  uint32_t messageSize;
-  mailHdr->GetMessageOffset(&messageOffset);
-  mailHdr->GetOfflineMessageSize(&messageSize);
   nsCOMPtr<nsIFile> tmpFile;
 
   if (NS_WARN_IF(NS_FAILED(GetSpecialDirectoryWithFileName(
@@ -370,41 +366,17 @@ void nsImapOfflineSync::ProcessAppendMsgOperation(
     rv = GetOrCreateFolder(moveDestination, getter_AddRefs(destFolder));
     if (NS_WARN_IF(NS_FAILED(rv))) break;
 
-    nsCOMPtr<nsIInputStream> offlineStoreInputStream;
-    rv = destFolder->GetMsgInputStream(mailHdr,
-                                       getter_AddRefs(offlineStoreInputStream));
-    if (NS_WARN_IF((NS_FAILED(rv) || !offlineStoreInputStream))) break;
-
-    nsCOMPtr<nsISeekableStream> seekStream =
-        do_QueryInterface(offlineStoreInputStream);
-    MOZ_ASSERT(seekStream, "non seekable stream - can't read from offline msg");
-    if (!seekStream) break;
+    nsCOMPtr<nsIInputStream> inStream;
+    rv = destFolder->GetLocalMsgStream(mailHdr, getter_AddRefs(inStream));
+    if (NS_WARN_IF((NS_FAILED(rv)))) break;
 
     // From this point onwards, we need to set "playing back".
     setPlayingBack = true;
 
-    rv = seekStream->Seek(PR_SEEK_SET, messageOffset);
-    if (NS_WARN_IF(NS_FAILED(rv))) break;
-
     // Copy the dest folder offline store msg to the temp file.
-    int32_t inputBufferSize = FILE_IO_BUFFER_SIZE;
-    char* inputBuffer = (char*)PR_Malloc(inputBufferSize);
-    int32_t bytesLeft;
-    uint32_t bytesRead, bytesWritten;
-
-    bytesLeft = messageSize;
-    rv = inputBuffer ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
-    while (bytesLeft > 0 && NS_SUCCEEDED(rv)) {
-      int32_t bytesToRead = std::min(inputBufferSize, bytesLeft);
-      rv = offlineStoreInputStream->Read(inputBuffer, bytesToRead, &bytesRead);
-      if (NS_WARN_IF(NS_FAILED(rv)) || bytesRead == 0) break;
-      rv = outputStream->Write(inputBuffer, bytesRead, &bytesWritten);
-      if (NS_WARN_IF(NS_FAILED(rv))) break;
-      MOZ_ASSERT(bytesWritten == bytesRead,
-                 "wrote out incorrect number of bytes");
-      bytesLeft -= bytesRead;
-    }
-    PR_FREEIF(inputBuffer);
+    uint64_t bytesCopied;
+    rv = SyncCopyStream(inStream, outputStream, bytesCopied,
+                        FILE_IO_BUFFER_SIZE);
 
     // rv could have an error from Read/Write.
     nsresult rv2 = outputStream->Close();

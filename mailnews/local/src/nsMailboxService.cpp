@@ -33,54 +33,8 @@ nsMailboxService::nsMailboxService() {}
 
 nsMailboxService::~nsMailboxService() {}
 
-NS_IMPL_ISUPPORTS(nsMailboxService, nsIMailboxService, nsIMsgMessageService,
-                  nsIProtocolHandler, nsIMsgMessageFetchPartService)
-
-nsresult nsMailboxService::ParseMailbox(nsIMsgWindow* aMsgWindow,
-                                        nsIFile* aMailboxPath,
-                                        nsIStreamListener* aMailboxParser,
-                                        nsIUrlListener* aUrlListener,
-                                        nsIURI** aURL) {
-  NS_ENSURE_ARG_POINTER(aMailboxPath);
-
-  nsresult rv;
-  nsCOMPtr<nsIMailboxUrl> mailboxurl =
-      do_CreateInstance("@mozilla.org/messenger/mailboxurl;1", &rv);
-  if (NS_SUCCEEDED(rv) && mailboxurl) {
-    nsCOMPtr<nsIMsgMailNewsUrl> url = do_QueryInterface(mailboxurl);
-    // okay now generate the url string
-#ifdef XP_WIN
-    nsString path = aMailboxPath->NativePath();
-    nsCString mailboxPath;
-    NS_CopyUnicodeToNative(path, mailboxPath);
-#else
-    nsCString mailboxPath = aMailboxPath->NativePath();
-#endif
-    nsAutoCString buf;
-    MsgEscapeURL(mailboxPath,
-                 nsINetUtil::ESCAPE_URL_MINIMAL | nsINetUtil::ESCAPE_URL_FORCED,
-                 buf);
-    nsEscapeNativePath(buf);
-    url->SetUpdatingFolder(true);
-    url->SetMsgWindow(aMsgWindow);
-    nsAutoCString uriSpec("mailbox://");
-    uriSpec.Append(buf);
-    rv = url->SetSpecInternal(uriSpec);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    mailboxurl->SetMailboxParser(aMailboxParser);
-    if (aUrlListener) url->RegisterListener(aUrlListener);
-
-    rv = RunMailboxUrl(url, nullptr);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (aURL) {
-      url.forget(aURL);
-    }
-  }
-
-  return rv;
-}
+NS_IMPL_ISUPPORTS(nsMailboxService, nsIMsgMessageService, nsIProtocolHandler,
+                  nsIMsgMessageFetchPartService)
 
 nsresult nsMailboxService::CopyMessage(const nsACString& aSrcMailboxURI,
                                        nsIStreamListener* aMailboxCopyHandler,

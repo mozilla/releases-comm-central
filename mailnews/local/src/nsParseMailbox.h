@@ -117,7 +117,6 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
 
   PRTime m_receivedTime;
   uint16_t m_body_lines;
-  uint16_t m_lastLineBlank;
 
   // this enables extensions to add the values of particular headers to
   // the .msf file as properties of nsIMsgHdr. It is initialized from a
@@ -129,7 +128,13 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   virtual ~nsParseMailMessageState();
 };
 
-// This class is part of the mailbox parsing state machine
+// NOTE:
+// nsMsgMailboxParser is a vestigial class, no longer used directly.
+// It's been left in because it's a base class for nsParseNewMailState, but
+// ultimately it should be removed completely.
+// Originally, a single parser instance was used to handle multiple
+// messages. But that made lots of inherent mbox-specific assumptions, and
+// the carried-between-messages state made it very hard to follow.
 class nsMsgMailboxParser : public nsIStreamListener,
                            public nsParseMailMessageState,
                            public nsMsgLineBuffer {
@@ -170,7 +175,7 @@ class nsMsgMailboxParser : public nsIStreamListener,
   virtual ~nsMsgMailboxParser();
   nsCOMPtr<nsIMsgStatusFeedback> m_statusFeedback;
 
-  virtual int32_t PublishMsgHeader(nsIMsgWindow* msgWindow);
+  virtual void PublishMsgHeader(nsIMsgWindow* msgWindow);
 
   // data
   nsString m_folderName;
@@ -202,7 +207,7 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   NS_DECL_NSIMSGFILTERHITNOTIFY
 
   nsOutputFileStream* GetLogFile();
-  virtual int32_t PublishMsgHeader(nsIMsgWindow* msgWindow) override;
+  virtual void PublishMsgHeader(nsIMsgWindow* msgWindow) override;
   void GetMsgWindow(nsIMsgWindow** aMsgWindow);
   nsresult EndMsgDownload();
 
@@ -213,9 +218,14 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   nsresult ApplyForwardAndReplyFilter(nsIMsgWindow* msgWindow);
   virtual void OnNewMessage(nsIMsgWindow* msgWindow) override;
 
+  // These two vars are public because they need to be carried between
+  // messages.
+
   // this keeps track of how many messages we downloaded that
   // aren't new - e.g., marked read, or moved to an other server.
   int32_t m_numNotNewMessages;
+  // Filter-initiated moves are collected to run all at once.
+  RefPtr<nsImapMoveCoalescer> m_moveCoalescer;
 
  protected:
   virtual ~nsParseNewMailState();
@@ -235,8 +245,6 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   nsCOMPtr<nsIMsgFolder> m_downloadFolder;
   nsCOMPtr<nsIOutputStream> m_outputStream;
   nsCOMArray<nsIMsgFolder> m_filterTargetFolders;
-
-  RefPtr<nsImapMoveCoalescer> m_moveCoalescer;
 
   bool m_msgMovedByFilter;
   bool m_msgCopiedByFilter;

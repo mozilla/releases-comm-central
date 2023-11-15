@@ -456,10 +456,7 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
       break;
     }
     case nsMsgSearchAttrib::Body: {
-      uint32_t lineCount;
-      msgToMatch->GetLineCount(&lineCount);
-      err =
-          aTerm->MatchBody(scope, lineCount, charset, msgToMatch, db, &result);
+      err = aTerm->MatchBody(scope, charset, msgToMatch, &result);
       break;
     }
     case nsMsgSearchAttrib::Date: {
@@ -574,11 +571,9 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
       // for the Content-Type header on all messages.
       if (attrib >= nsMsgSearchAttrib::OtherHeader &&
           attrib < nsMsgSearchAttrib::kNumMsgSearchAttributes) {
-        uint32_t lineCount;
-        msgToMatch->GetLineCount(&lineCount);
-        err = aTerm->MatchArbitraryHeader(scope, lineCount, charset,
-                                          charsetOverride, msgToMatch, db,
-                                          headers, Filtering, &result);
+        err = aTerm->MatchArbitraryHeader(scope, charset, charsetOverride,
+                                          msgToMatch, headers, Filtering,
+                                          &result);
       } else {
         err = NS_ERROR_INVALID_ARG;  // ### was SearchError_InvalidAttribute
         result = false;

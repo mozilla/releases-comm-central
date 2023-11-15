@@ -280,22 +280,27 @@ void nsMsgMailboxParser::UpdateProgressPercent() {
 
 nsresult nsMsgMailboxParser::ProcessMailboxInputStream(nsIInputStream* aIStream,
                                                        uint32_t aLength) {
-  nsresult ret = NS_OK;
-
-  uint32_t bytesRead = 0;
-
-  if (NS_SUCCEEDED(m_inputStream.GrowBuffer(aLength))) {
+  // Impose an upper limit on our read buffer, just in case.
+  // 1MB: small enough to cope with, but still ridiculously big.
+  constexpr uint32_t maxBuf = 1024 * 1024;
+  while (aLength > 0) {
+    uint32_t chunkSize = std::min(aLength, maxBuf);
+    nsresult rv = m_inputStream.GrowBuffer(chunkSize);
+    NS_ENSURE_SUCCESS(rv, rv);
+    uint32_t bytesRead = 0;
     // OK, this sucks, but we're going to have to copy into our
     // own byte buffer, and then pass that to the line buffering code,
     // which means a couple buffer copies.
-    ret = aIStream->Read(m_inputStream.GetBuffer(), aLength, &bytesRead);
-    if (NS_SUCCEEDED(ret))
-      ret = BufferInput(m_inputStream.GetBuffer(), bytesRead);
+    rv = aIStream->Read(m_inputStream.GetBuffer(), chunkSize, &bytesRead);
+    NS_ENSURE_SUCCESS(rv, rv);
+    aLength -= bytesRead;
+    rv = BufferInput(m_inputStream.GetBuffer(), bytesRead);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (m_graph_progress_total > 0) {
+      m_graph_progress_received += bytesRead;
+    }
   }
-  if (m_graph_progress_total > 0) {
-    if (NS_SUCCEEDED(ret)) m_graph_progress_received += bytesRead;
-  }
-  return (ret);
+  return NS_OK;
 }
 
 void nsMsgMailboxParser::DoneParsingFolder(nsresult status) {
@@ -326,7 +331,7 @@ void nsMsgMailboxParser::UpdateDBFolderInfo(nsIMsgDatabase* mailDB) {
 }
 
 // Tell the world about the message header (add to db, and view, if any)
-int32_t nsMsgMailboxParser::PublishMsgHeader(nsIMsgWindow* msgWindow) {
+void nsMsgMailboxParser::PublishMsgHeader(nsIMsgWindow* msgWindow) {
   FinishHeader();
   if (m_newMsgHdr) {
     nsCString storeToken = nsPrintfCString("%" PRIu64, m_envelope_pos);
@@ -352,12 +357,12 @@ int32_t nsMsgMailboxParser::PublishMsgHeader(nsIMsgWindow* msgWindow) {
           false,
           "no database while parsing local folder");  // should have a DB, no?
   } else if (m_mailDB) {
+    // m_newMsgHdr is null when Expunged flag is set (see FinalizeHeaders()).
     nsCOMPtr<nsIDBFolderInfo> folderInfo;
     m_mailDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
     if (folderInfo)
       folderInfo->ChangeExpungedBytes(m_position - m_envelope_pos);
   }
-  return 0;
 }
 
 void nsMsgMailboxParser::AbortNewHeader() {
@@ -443,7 +448,7 @@ NS_IMPL_ISUPPORTS(nsParseMailMessageState, nsIMsgParseMailMsgState,
 nsParseMailMessageState::nsParseMailMessageState() {
   m_position = 0;
   m_new_key = nsMsgKey_None;
-  m_state = nsIMsgParseMailMsgState::ParseBodyState;
+  m_state = nsIMsgParseMailMsgState::ParseHeadersState;
 
   // setup handling of custom db headers, headers that are added to .msf files
   // as properties of the nsMsgHdr objects, controlled by the
@@ -513,7 +518,6 @@ NS_IMETHODIMP nsParseMailMessageState::Clear() {
   m_mdn_original_recipient.length = 0;
   m_bccList.length = 0;
   m_body_lines = 0;
-  m_lastLineBlank = 0;
   m_newMsgHdr = nullptr;
   m_envelope_pos = 0;
   m_new_key = nsMsgKey_None;
@@ -584,9 +588,6 @@ nsresult nsParseMailMessageState::ParseFolderLine(const char* line,
     }
   } else if (m_state == nsIMsgParseMailMsgState::ParseBodyState) {
     m_body_lines++;
-    // See comment in msgCore.h for why we use `IS_MSG_LINEBREAK` rather than
-    // just comparing `line` to `MSG_LINEBREAK`.
-    m_lastLineBlank = IS_MSG_LINEBREAK(line);
   }
 
   m_position += lineLength;
@@ -699,8 +700,7 @@ bool nsParseMailMessageState::IsEnvelopeLine(const char* buf,
 // We've found the start of the next message, so finish this one off.
 NS_IMETHODIMP nsParseMailMessageState::FinishHeader() {
   if (m_newMsgHdr) {
-    if (m_lastLineBlank) m_body_lines--;
-    m_newMsgHdr->SetMessageSize(m_position - m_envelope_pos - m_lastLineBlank);
+    m_newMsgHdr->SetMessageSize(m_position - m_envelope_pos);
     m_newMsgHdr->SetLineCount(m_body_lines);
   }
   return NS_OK;
@@ -1570,7 +1570,7 @@ void nsParseNewMailState::DoneParsingFolder(nsresult status) {
 
 void nsParseNewMailState::OnNewMessage(nsIMsgWindow* msgWindow) {}
 
-int32_t nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
+void nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
   bool moved = false;
   FinishHeader();
 
@@ -1584,7 +1584,7 @@ int32_t nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
     if (!m_disableFilters) {
       nsCOMPtr<nsIMsgIncomingServer> server;
       nsresult rv = m_rootFolder->GetServer(getter_AddRefs(server));
-      NS_ENSURE_SUCCESS(rv, 0);
+      NS_ENSURE_SUCCESS_VOID(rv);
       int32_t duplicateAction;
       server->GetIncomingDuplicateAction(&duplicateAction);
       if (duplicateAction != nsIMsgIncomingServer::keepDups) {
@@ -1639,7 +1639,7 @@ int32_t nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
           m_downloadFolder->SetNumNewMessages(numNewMessages - 1);
 
           m_newMsgHdr = nullptr;
-          return 0;
+          return;
         }
       }
 
@@ -1661,7 +1661,6 @@ int32_t nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
        // nullptr
     m_newMsgHdr = nullptr;
   }
-  return 0;
 }
 
 nsresult nsParseNewMailState::GetTrashFolder(nsIMsgFolder** pTrashFolder) {
@@ -1806,7 +1805,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
           // FALLTHROUGH
           [[fallthrough]];
         case nsMsgFilterAction::MoveToFolder: {
-          // if moving to a different file, do it.
+          // If moving to a different folder, do it.
           if (!actionTargetFolderUri.IsEmpty() &&
               !m_inboxUri.Equals(actionTargetFolderUri,
                                  nsCaseInsensitiveCStringComparator)) {

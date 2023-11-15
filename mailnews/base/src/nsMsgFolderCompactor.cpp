@@ -36,6 +36,7 @@
 #include "mozilla/Buffer.h"
 #include "HeaderReader.h"
 #include "LineReader.h"
+#include "MboxMsgOutputStream.h"
 #include "mozilla/Components.h"
 
 static nsresult GetBaseStringBundle(nsIStringBundle** aBundle) {
@@ -114,13 +115,17 @@ class nsFolderCompactState : public nsIStreamListener,
   nsresult ShowStatusMsg(const nsString& aMsg);
   nsresult ReleaseFolderLock();
   void ShowCompactingStatusMsg();
+  nsresult BeginMsgWrite();
 
   nsCString m_baseMessageUri;       // base message uri
   nsCString m_messageUri;           // current message uri being copy
   nsCOMPtr<nsIMsgFolder> m_folder;  // current folder being compact
   nsCOMPtr<nsIMsgDatabase> m_db;    // new database for the compact folder
   nsCOMPtr<nsIFile> m_file;         // new mailbox for the compact folder
-  nsCOMPtr<nsIOutputStream> m_fileStream;  // output file stream for writing
+  // The underlying temporary mbox file we're writing to.
+  nsCOMPtr<nsIOutputStream> m_fileStream;
+  // The output stream for the current message.
+  RefPtr<MboxMsgOutputStream> m_msgOut;
   // All message keys that need to be copied over.
   nsTArray<nsMsgKey> m_keys;
 
@@ -130,8 +135,12 @@ class nsFolderCompactState : public nsIStreamListener,
   uint64_t m_totalExpungedBytes{0};
   // Index of the current copied message key in key array.
   uint32_t m_curIndex{0};
-  // Offset in mailbox of new message.
+  // Offset of the current message within the mbox.
   uint64_t m_startOfNewMsg{0};
+
+  // Number of bytes written so far into the message.
+  uint64_t m_msgSize{0};
+
   mozilla::Buffer<char> m_buffer{COMPACTOR_READ_BUFF_SIZE};
   uint32_t m_bufferCount{0};
 
@@ -147,9 +156,7 @@ class nsFolderCompactState : public nsIStreamListener,
   nsCOMPtr<nsIMsgDBHdr> m_curSrcHdr;
   // Flag set when we're waiting for local folder to complete parsing.
   bool m_parsingFolder;
-  // Flag to indicate we're starting a new message, and that no data has
-  // been written for it yet.
-  bool m_startOfMsg;
+
   // Function which will be run when the folder compaction completes.
   // Takes a result code and the number of bytes which were expunged.
   std::function<void(nsresult, uint64_t)> m_completionFn;
@@ -159,10 +166,7 @@ class nsFolderCompactState : public nsIStreamListener,
 NS_IMPL_ISUPPORTS(nsFolderCompactState, nsIRequestObserver, nsIStreamListener,
                   nsICopyMessageStreamListener, nsIUrlListener)
 
-nsFolderCompactState::nsFolderCompactState() {
-  m_parsingFolder = false;
-  m_startOfMsg = true;
-}
+nsFolderCompactState::nsFolderCompactState() { m_parsingFolder = false; }
 
 nsFolderCompactState::~nsFolderCompactState() {
   CloseOutputStream();
@@ -491,6 +495,7 @@ nsresult nsFolderCompactState::FinishCompact() {
 
   // get leaf name and database name of the folder
   nsresult rv = m_folder->GetFilePath(getter_AddRefs(path));
+  NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIFile> folderPath =
       do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -530,11 +535,14 @@ nsresult nsFolderCompactState::FinishCompact() {
   // close down database of the original folder
   m_folder->ForceDBClosed();
 
+  // Sanity check - mbox size should always be larger than the messages
+  // written to it (because of "From " lines, escaping, and a blank line
+  // at the end of each message).
   nsCOMPtr<nsIFile> cloneFile;
   int64_t fileSize = 0;
   rv = m_file->Clone(getter_AddRefs(cloneFile));
   if (NS_SUCCEEDED(rv)) rv = cloneFile->GetFileSize(&fileSize);
-  bool tempFileRightSize = ((uint64_t)fileSize == m_totalMsgSize);
+  bool tempFileRightSize = ((uint64_t)fileSize > m_totalMsgSize);
   NS_WARNING_ASSERTION(tempFileRightSize,
                        "temp file not of expected size in compact");
 
@@ -552,8 +560,9 @@ nsresult nsFolderCompactState::FinishCompact() {
     if (NS_SUCCEEDED(rv))
       rv = tempSummaryFile->GetNativeLeafName(tempSummaryFileName);
 
-    if (NS_SUCCEEDED(rv))
+    if (NS_SUCCEEDED(rv)) {
       rv = oldSummaryFile->MoveToNative((nsIFile*)nullptr, tempSummaryFileName);
+    }
 
     NS_WARNING_ASSERTION(NS_SUCCEEDED(rv),
                          "error moving compacted folder's db out of the way");
@@ -662,12 +671,23 @@ nsresult nsFolderCompactState::ReleaseFolderLock() {
 
 NS_IMETHODIMP
 nsFolderCompactState::OnStartRequest(nsIRequest* request) {
-  return StartMessage();
+  // Still some confusion with nsICopyMessageStreamListener -
+  // OnStartRequest() and StartMessage() may both be called.
+  // So handle the possibility we've already called BeginMsgWrite().
+  if (m_msgOut) {
+    return NS_OK;
+  }
+  return BeginMsgWrite();
 }
 
 NS_IMETHODIMP
 nsFolderCompactState::OnStopRequest(nsIRequest* request, nsresult status) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
+  nsresult rv = EndCopy(nullptr, status);
+  if (NS_FAILED(rv) && NS_SUCCEEDED(status)) {
+    status = rv;
+  }
+
   if (NS_FAILED(status)) {
     // Set m_status to status so the destructor can remove the temp folder and
     // database.
@@ -678,7 +698,6 @@ nsFolderCompactState::OnStopRequest(nsIRequest* request, nsresult status) {
     m_folder->ThrowAlertMsg("compactFolderWriteFailed", m_window);
   } else {
     // XXX TODO: Error checking and handling missing here.
-    EndCopy(nullptr, status);
     if (m_curIndex >= m_keys.Length()) {
       msgHdr = nullptr;
       // no more to copy finish it up
@@ -705,21 +724,6 @@ nsFolderCompactState::OnDataAvailable(nsIRequest* request,
   MOZ_ASSERT(inStr);
 
   nsresult rv = NS_OK;
-
-  // TODO: This block should be moved in to the callback that indicates the
-  // start of a new message, but it's complicated because of the derived
-  // nsOfflineStoreCompactState and also the odd message copy listener
-  // orderings. Leaving it here for now, but it's ripe for tidying up in
-  // future.
-  if (m_startOfMsg) {
-    m_messageUri.Truncate();  // clear the previous message uri
-    if (NS_SUCCEEDED(BuildMessageURI(m_baseMessageUri.get(), m_keys[m_curIndex],
-                                     m_messageUri))) {
-      rv = m_messageService->MessageURIToMsgHdr(m_messageUri,
-                                                getter_AddRefs(m_curSrcHdr));
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-  }
 
   while (count > 0) {
     uint32_t maxReadCount =
@@ -760,21 +764,21 @@ static nsresult WriteSpan(nsIOutputStream* writeable,
 // More complicated than it should be because we need to fiddle with
 // some of the X-Mozilla-* headers on the fly.
 nsresult nsFolderCompactState::FlushBuffer() {
-  MOZ_ASSERT(m_fileStream);
+  MOZ_ASSERT(m_msgOut);
   nsresult rv;
   auto buf = m_buffer.AsSpan().First(m_bufferCount);
-  if (!m_startOfMsg) {
-    // We only do header twiddling for the first chunk. So from now on we
-    // just copy data verbatim.
-    rv = WriteSpan(m_fileStream, buf);
+  // Only do header twiddling for the first chunk.
+  if (m_msgSize > 0) {
+    // Not the first chunk - just copy data verbatim.
+    rv = WriteSpan(m_msgOut, buf);
     NS_ENSURE_SUCCESS(rv, rv);
+    m_msgSize += buf.Length();
     m_bufferCount = 0;
     return NS_OK;
   }
 
   // This is the first chunk of a new message. We'll update the
   // X-Mozilla-(Status|Status2|Keys) headers as we go.
-  m_startOfMsg = false;
 
   // Sniff the data to see if we can spot any CRs.
   // If so, we'll use CRLFs instead of platform-native EOLs.
@@ -783,22 +787,6 @@ nsresult nsFolderCompactState::FlushBuffer() {
   if (cr != sniffChunk.cend()) {
     m_eolSeq.Assign("\r\n"_ns);
   }
-
-  // Add a "From " line if missing.
-  // NOTE: Ultimately we should never see "From " lines in this data - it's an
-  // mbox detail the message streaming should filter out. But for now we'll
-  // handle it optionally.
-  nsAutoCString fromLine;
-  auto l = FirstLine(buf);
-  if (l.Length() > 5 &&
-      nsDependentCSubstring(l.Elements(), 5).EqualsLiteral("From ")) {
-    fromLine = nsDependentCSubstring(l);
-    buf = buf.From(l.Length());
-  } else {
-    fromLine = "From "_ns + m_eolSeq;
-  }
-  rv = WriteSpan(m_fileStream, fromLine);
-  NS_ENSURE_SUCCESS(rv, rv);
 
   // Read as many headers as we can. We might not have the complete header
   // block our in buffer, but that's OK - the X-Mozilla-* ones should be
@@ -834,14 +822,16 @@ nsresult nsFolderCompactState::FlushBuffer() {
   auto out =
       nsPrintfCString(HEADER_X_MOZILLA_STATUS ": %4.4x", msgFlags & 0xFFFF);
   out.Append(m_eolSeq);
-  rv = WriteSpan(m_fileStream, out);
+  rv = WriteSpan(m_msgOut, out);
   NS_ENSURE_SUCCESS(rv, rv);
+  m_msgSize += out.Length();
 
   out = nsPrintfCString(HEADER_X_MOZILLA_STATUS2 ": %8.8x",
                         msgFlags & 0xFFFF0000);
   out.Append(m_eolSeq);
-  rv = WriteSpan(m_fileStream, out);
+  rv = WriteSpan(m_msgOut, out);
   NS_ENSURE_SUCCESS(rv, rv);
+  m_msgSize += out.Length();
 
   // Try to leave room for future in-place keyword edits.
   while (keywords.Length() < X_MOZILLA_KEYWORDS_BLANK_LEN) {
@@ -849,13 +839,16 @@ nsresult nsFolderCompactState::FlushBuffer() {
   }
   out = nsPrintfCString(HEADER_X_MOZILLA_KEYWORDS ": %s", keywords.get());
   out.Append(m_eolSeq);
-  rv = WriteSpan(m_fileStream, out);
+  rv = WriteSpan(m_msgOut, out);
   NS_ENSURE_SUCCESS(rv, rv);
+  m_msgSize += out.Length();
 
   // Write out the rest of the headers.
   for (auto const& hdr : headers) {
-    rv = WriteSpan(m_fileStream, buf.Subspan(hdr.pos, hdr.len));
+    auto h = buf.Subspan(hdr.pos, hdr.len);
+    rv = WriteSpan(m_msgOut, h);
     NS_ENSURE_SUCCESS(rv, rv);
+    m_msgSize += h.Length();
   }
 
   // The header parser consumes the blank line, If we've completed parsing
@@ -863,14 +856,16 @@ nsresult nsFolderCompactState::FlushBuffer() {
   // If we haven't parsed all the headers yet then the blank line will be
   // safely copied verbatim as part of the remaining data.
   if (rdr.IsComplete()) {
-    rv = WriteSpan(m_fileStream, m_eolSeq);
+    rv = WriteSpan(m_msgOut, m_eolSeq);
     NS_ENSURE_SUCCESS(rv, rv);
+    m_msgSize += m_eolSeq.Length();
   }
 
   // Write out everything else in the buffer verbatim.
   if (leftover.Length() > 0) {
-    rv = WriteSpan(m_fileStream, leftover);
+    rv = WriteSpan(m_msgOut, leftover);
     NS_ENSURE_SUCCESS(rv, rv);
+    m_msgSize += leftover.Length();
   }
   m_bufferCount = 0;
   return NS_OK;
@@ -899,8 +894,9 @@ class nsOfflineStoreCompactState : public nsFolderCompactState {
   nsOfflineStoreCompactState(void);
   virtual ~nsOfflineStoreCompactState(void);
   NS_IMETHOD OnStopRequest(nsIRequest* request, nsresult status) override;
-  NS_IMETHODIMP OnDataAvailable(nsIRequest* request, nsIInputStream* inStr,
-                                uint64_t sourceOffset, uint32_t count) override;
+  NS_IMETHOD OnStartRequest(nsIRequest* request) override;
+  NS_IMETHOD OnDataAvailable(nsIRequest* request, nsIInputStream* inStr,
+                             uint64_t sourceOffset, uint32_t count) override;
 
  protected:
   nsresult CopyNextMessage(bool& done);
@@ -910,11 +906,9 @@ class nsOfflineStoreCompactState : public nsFolderCompactState {
 
   char m_dataBuffer[COMPACTOR_READ_BUFF_SIZE + 1];  // temp data buffer for
                                                     // copying message
-  uint32_t m_offlineMsgSize;
 };
 
-nsOfflineStoreCompactState::nsOfflineStoreCompactState()
-    : m_offlineMsgSize(0) {}
+nsOfflineStoreCompactState::nsOfflineStoreCompactState() {}
 
 nsOfflineStoreCompactState::~nsOfflineStoreCompactState() {}
 
@@ -955,7 +949,6 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool& done) {
     rv = BuildMessageURI(m_baseMessageUri.get(), m_keys[m_curIndex],
                          m_messageUri);
     NS_ENSURE_SUCCESS(rv, rv);
-    m_startOfMsg = true;
     nsCOMPtr<nsISupports> thisSupports;
     QueryInterface(NS_GET_IID(nsISupports), getter_AddRefs(thisSupports));
     nsCOMPtr<nsIURI> dummyNull;
@@ -982,14 +975,27 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool& done) {
 }
 
 NS_IMETHODIMP
+nsOfflineStoreCompactState::OnStartRequest(nsIRequest* request) {
+  return BeginMsgWrite();
+}
+
+NS_IMETHODIMP
 nsOfflineStoreCompactState::OnStopRequest(nsIRequest* request,
                                           nsresult status) {
-  nsresult rv = status;
   nsCOMPtr<nsIURI> uri;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
   nsCOMPtr<nsIChannel> channel;
   bool done = false;
+
+  // Close/flush the current message
+  MOZ_ASSERT(m_msgOut);
+  nsresult rv = m_msgOut->Close();
+  m_msgOut = nullptr;
+  if (NS_FAILED(rv)) {
+    goto done;
+  }
+  rv = status;
 
   // The NS_MSG_ERROR_MSG_NOT_OFFLINE error should allow us to continue, so we
   // check for it specifically and don't terminate the compaction.
@@ -1021,7 +1027,7 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest* request,
       msgHdr->SetMessageOffset(m_startOfNewMsg);
       nsCString storeToken = nsPrintfCString("%" PRIu64, m_startOfNewMsg);
       msgHdr->SetStringProperty("storeToken", storeToken);
-      msgHdr->SetOfflineMessageSize(m_offlineMsgSize);
+      msgHdr->SetOfflineMessageSize(m_msgSize);
     } else {
       uint32_t resultFlags;
       msgHdr->AndFlags(~nsMsgMessageFlags::Offline, &resultFlags);
@@ -1068,6 +1074,7 @@ nsresult nsOfflineStoreCompactState::FinishCompact() {
   // get leaf name and database name of the folder
   m_folder->GetFlags(&flags);
   nsresult rv = m_folder->GetFilePath(getter_AddRefs(path));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString leafName;
   path->GetNativeLeafName(leafName);
@@ -1109,32 +1116,56 @@ nsFolderCompactState::Init(nsICopyMessageListener* destination) {
   return NS_OK;
 }
 
+// This is called at the start of each message by both nsFolderCompactState and
+// nsOfflineStoreCompactState.
 NS_IMETHODIMP
 nsFolderCompactState::StartMessage() {
-  nsresult rv = NS_ERROR_FAILURE;
-  NS_ASSERTION(m_fileStream, "Fatal, null m_fileStream...");
-  if (m_fileStream) {
-    nsCOMPtr<nsISeekableStream> seekableStream =
-        do_QueryInterface(m_fileStream, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    // this will force an internal flush, but not a sync. Tell should really do
-    // an internal flush, but it doesn't, and I'm afraid to change that
-    // nsIFileStream.cpp code anymore.
-    seekableStream->Seek(nsISeekableStream::NS_SEEK_CUR, 0);
-    // record the new message key for the message
-    int64_t curStreamPos;
-    seekableStream->Tell(&curStreamPos);
-    m_startOfNewMsg = curStreamPos;
-    rv = NS_OK;
+  // Still some confusion with nsICopyMessageStreamListener -
+  // OnStartRequest() and StartMessage() may both be called.
+  // So handle the possibility we've already called BeginMsgWrite().
+  if (m_msgOut) {
+    return NS_OK;
   }
-  return rv;
+  return BeginMsgWrite();
+}
+
+// Set up the state for writing a single message.
+nsresult nsFolderCompactState::BeginMsgWrite() {
+  NS_ASSERTION(m_fileStream, "Fatal, null m_fileStream...");
+  nsresult rv;
+  nsCOMPtr<nsISeekableStream> seekableStream =
+      do_QueryInterface(m_fileStream, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  // This will force an internal flush, but not a sync. Tell should really do
+  // an internal flush, but it doesn't, and I'm afraid to change that
+  // nsIFileStream.cpp code anymore.
+  seekableStream->Seek(nsISeekableStream::NS_SEEK_CUR, 0);
+  // Record the start position of the message.
+  int64_t curStreamPos;
+  rv = seekableStream->Tell(&curStreamPos);
+  NS_ENSURE_SUCCESS(rv, rv);
+  m_startOfNewMsg = curStreamPos;
+  m_msgSize = 0;
+
+  // Open m_msgOut to write a single message.
+  MOZ_ASSERT(m_fileStream);
+  MOZ_ASSERT(!m_msgOut);
+  m_msgOut = new MboxMsgOutputStream(m_fileStream);
+
+  // Get URI and msgDBHdr for the message.
+  m_messageUri.Truncate();
+  rv =
+      BuildMessageURI(m_baseMessageUri.get(), m_keys[m_curIndex], m_messageUri);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = m_messageService->MessageURIToMsgHdr(m_messageUri,
+                                            getter_AddRefs(m_curSrcHdr));
+  NS_ENSURE_SUCCESS(rv, rv);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsFolderCompactState::EndMessage(nsMsgKey key) { return NS_OK; }
 
-// XXX TODO: This function is sadly lacking all status checking, it always
-// returns NS_OK and moves onto the next message.
 NS_IMETHODIMP
 nsFolderCompactState::EndCopy(nsIURI* uri, nsresult status) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
@@ -1145,22 +1176,21 @@ nsFolderCompactState::EndCopy(nsIURI* uri, nsresult status) {
     return NS_OK;
   }
 
-  // Take note of the end offset of the message (without the trailing blank
-  // line).
-  nsCOMPtr<nsITellableStream> tellable(do_QueryInterface(m_fileStream));
-  MOZ_ASSERT(tellable);
-  int64_t endOfMsg;
-  nsresult rv = tellable->Tell(&endOfMsg);
-  NS_ENSURE_SUCCESS(rv, rv);
+  // Close/flush the current message.
+  MOZ_ASSERT(m_msgOut);
+  nsresult rv = m_msgOut->Close();
+  m_msgOut = nullptr;
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
 
-  /* Messages need to have trailing blank lines */
-  rv = WriteSpan(m_fileStream, m_eolSeq);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_FAILED(status)) {
+    // EndCopy() succeeded - it handled the failure.
+    return NS_OK;
+  }
 
-  /*
-   * Done with the current message; copying the existing message header
-   * to the new database.
-   */
+  // Done with the current message; copying the existing message header
+  // to the new database.
   if (m_curSrcHdr) {
     nsMsgKey key;
     m_curSrcHdr->GetMessageKey(&key);
@@ -1172,17 +1202,15 @@ nsFolderCompactState::EndCopy(nsIURI* uri, nsresult status) {
     nsCString storeToken = nsPrintfCString("%" PRIu64, m_startOfNewMsg);
     newMsgHdr->SetStringProperty("storeToken", storeToken);
     newMsgHdr->SetMessageOffset(m_startOfNewMsg);
-    uint64_t msgSize = endOfMsg - m_startOfNewMsg;
-    newMsgHdr->SetMessageSize(msgSize);
+    newMsgHdr->SetMessageSize(m_msgSize);
 
-    m_totalMsgSize += msgSize + m_eolSeq.Length();
+    m_totalMsgSize += m_msgSize;
   }
 
   //  m_db->Commit(nsMsgDBCommitType::kLargeCommit);  // no sense committing
   //  until the end
   // advance to next message
   m_curIndex++;
-  m_startOfMsg = true;
   nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
   if (m_window) {
     m_window->GetStatusFeedback(getter_AddRefs(statusFeedback));
@@ -1195,7 +1223,7 @@ nsFolderCompactState::EndCopy(nsIURI* uri, nsresult status) {
 nsresult nsOfflineStoreCompactState::StartCompacting() {
   nsresult rv = NS_OK;
   if (m_keys.Length() > 0 && m_curIndex == 0) {
-    NS_ADDREF_THIS();  // we own ourselves, until we're done, anyway.
+    NS_ADDREF_THIS();  // We own ourselves, until we're done, anyway.
     ShowCompactingStatusMsg();
     bool done = false;
     rv = CopyNextMessage(done);
@@ -1215,16 +1243,6 @@ nsOfflineStoreCompactState::OnDataAvailable(nsIRequest* request,
 
   nsresult rv = NS_OK;
 
-  if (m_startOfMsg) {
-    m_offlineMsgSize = 0;
-    m_messageUri.Truncate();  // clear the previous message uri
-    if (NS_SUCCEEDED(BuildMessageURI(m_baseMessageUri.get(), m_keys[m_curIndex],
-                                     m_messageUri))) {
-      rv = m_messageService->MessageURIToMsgHdr(m_messageUri,
-                                                getter_AddRefs(m_curSrcHdr));
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-  }
   uint32_t maxReadCount, readCount, writeCount;
   uint32_t bytesWritten;
 
@@ -1235,16 +1253,8 @@ nsOfflineStoreCompactState::OnDataAvailable(nsIRequest* request,
     rv = inStr->Read(m_dataBuffer, maxReadCount, &readCount);
 
     if (NS_SUCCEEDED(rv)) {
-      if (m_startOfMsg) {
-        m_startOfMsg = false;
-        // check if there's an envelope header; if not, write one.
-        if (strncmp(m_dataBuffer, "From ", 5)) {
-          m_fileStream->Write("From " CRLF, 7, &bytesWritten);
-          m_offlineMsgSize += bytesWritten;
-        }
-      }
-      m_fileStream->Write(m_dataBuffer, readCount, &bytesWritten);
-      m_offlineMsgSize += bytesWritten;
+      m_msgOut->Write(m_dataBuffer, readCount, &bytesWritten);
+      m_msgSize += bytesWritten;
       writeCount += bytesWritten;
       count -= readCount;
       if (writeCount != readCount) {

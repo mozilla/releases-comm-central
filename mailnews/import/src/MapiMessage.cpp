@@ -46,8 +46,6 @@ extern LPMAPIFREEBUFFER gpMapiFreeBuffer;
 typedef const char* PC_S8;
 
 static const char* kWhitespace = "\b\t\r\n ";
-static const char* sFromLine = "From - ";
-static const char* sFromDate = "Mon Jan 1 00:00:00 1965";
 static const char* sDaysOfWeek[7] = {"Sun", "Mon", "Tue", "Wed",
                                      "Thu", "Fri", "Sat"};
 
@@ -62,7 +60,6 @@ CMapiMessage::CMapiMessage(LPMESSAGE lpMsg)
 
   FetchHeaders();
   if (ValidState()) {
-    BuildFromLine();
     FetchFlags();
     GetDownloadState();
     if (FullMessageDownloaded()) {
@@ -162,20 +159,6 @@ bool CMapiMessage::EnsureDate() {
   }
 
   return false;
-}
-
-void CMapiMessage::BuildFromLine(void) {
-  m_fromLine = sFromLine;
-  LPSPropValue pVal = CMapiApi::GetMapiProperty(m_lpMsg, PR_CREATION_TIME);
-  if (pVal) {
-    SYSTEMTIME st;
-    ::FileTimeToSystemTime(&(pVal->Value.ft), &st);
-    CMapiApi::MAPIFreeBuffer(pVal);
-    FormatDateTime(st, m_fromLine, FALSE);
-  } else
-    m_fromLine += sFromDate;
-
-  m_fromLine += "\x0D\x0A";
 }
 
 #ifndef dispidHeaderItem

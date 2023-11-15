@@ -164,14 +164,13 @@ nsMsgStatusFeedback::SetStatusString(const nsAString& aStatus) {
 
 NS_IMETHODIMP
 nsMsgStatusFeedback::ShowProgress(int32_t aPercentage) {
-  // if the percentage hasn't changed...OR if we are going from 0 to 100% in one
+  // If the percentage hasn't changed...OR if we are going from 0 to 100% in one
   // step then don't bother....just fall out....
   if (aPercentage == m_lastPercent ||
       (m_lastPercent == 0 && aPercentage >= 100))
     return NS_OK;
 
-  m_lastPercent = aPercentage;
-
+  // Throttle updates.
   int64_t nowMS = 0;
   if (aPercentage < 100)  // always need to do 100%
   {
@@ -179,6 +178,7 @@ nsMsgStatusFeedback::ShowProgress(int32_t aPercentage) {
     if (nowMS < m_lastProgressTime + 250) return NS_OK;
   }
 
+  m_lastPercent = aPercentage;
   m_lastProgressTime = nowMS;
   nsCOMPtr<nsIMsgStatusFeedback> jsStatusFeedback(
       do_QueryReferent(mJSStatusFeedbackWeak));

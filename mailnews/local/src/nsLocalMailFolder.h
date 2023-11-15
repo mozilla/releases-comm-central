@@ -10,6 +10,8 @@
 #ifndef nsMsgLocalMailFolder_h__
 #define nsMsgLocalMailFolder_h__
 
+#include "LineReader.h"
+#include "mozilla/Array.h"
 #include "mozilla/Attributes.h"
 #include "nsMsgDBFolder.h" /* include the interface we are going to support */
 #include "nsICopyMessageListener.h"
@@ -61,18 +63,16 @@ struct nsLocalMailCopyState {
   nsCOMPtr<nsIMsgMessageService> m_messageService;
   /// The number of messages in m_messages.
   uint32_t m_totalMsgCount;
-  char* m_dataBuffer;
-  uint32_t m_dataBufferSize;
-  uint32_t m_leftOver;
+  mozilla::Array<char, COPY_BUFFER_SIZE> m_dataBuffer;
+  LineReader m_LineReader;
   bool m_isMove;
-  bool m_isFolder;  // isFolder move/copy
-  bool m_dummyEnvelopeNeeded;
+  bool m_isFolder;            // isFolder move/copy
+  bool m_addXMozillaHeaders;  // Should prepend X-Mozilla-Status et al?
   bool m_copyingMultipleMessages;
   bool m_fromLineSeen;
   bool m_allowUndo;
   bool m_writeFailed;
   bool m_notifyFolderLoaded;
-  bool m_wholeMsgInStream;
   nsCString m_newMsgKeywords;
   nsCOMPtr<nsIMsgDBHdr> m_newHdr;
 };
@@ -254,12 +254,8 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   bool GetDeleteFromServerOnMove();
   void CopyHdrPropertiesWithSkipList(nsIMsgDBHdr* destHdr, nsIMsgDBHdr* srcHdr,
                                      const nsCString& skipList);
-  nsresult FinishNewLocalMessage(nsIOutputStream* outputStream,
-                                 nsIMsgDBHdr* newHdr,
-                                 nsIMsgPluggableStore* msgStore,
-                                 nsParseMailMessageState* parseMsgState);
+  bool CopyLine(mozilla::Span<const char> line);
 
- protected:
   nsLocalMailCopyState* mCopyState;  // We only allow one of these at a time
   nsCString mType;
   bool mHaveReadNameFromDB;
@@ -269,6 +265,9 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   nsCOMPtr<nsIUrlListener> mReparseListener;
   nsTArray<nsMsgKey> mSpamKeysToMove;
   nsresult setSubfolderFlag(const nsAString& aFolderName, uint32_t flags);
+
+  // Helper fn used by ParseFolder().
+  void FinishUpAfterParseFolder(nsresult status);
 
   // state variables for DownloadMessagesForOffline
 

@@ -5,7 +5,6 @@
 
 XPIDL_SOURCES += [
     "nsILocalMailIncomingServer.idl",
-    "nsIMailboxService.idl",
     "nsIMailboxUrl.idl",
     "nsIMsgLocalMailFolder.idl",
     "nsIMsgParseMailMsgState.idl",

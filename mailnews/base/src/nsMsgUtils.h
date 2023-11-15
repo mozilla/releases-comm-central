@@ -440,9 +440,11 @@ void MsgLogToConsole4(const nsAString& aErrorText, const nsAString& aFilename,
 
 /**
  * Perform C-style string escaping. E.g. "foo\r\n" => "foo\\r\\n"
- * This is primarily intended for debuggin purposes.
+ * This is primarily intended to ease debugging large strings.
+ * CEscapeString("foo\r\n") => "foo\\r\\n"
+ * CEscapeString("foo\r\n", 5) => "fo..."
  */
-nsCString CEscapeString(nsACString const& s);
+nsCString CEscapeString(nsACString const& s, size_t maxLen = SIZE_MAX);
 
 /**
  * Synchronously copy the contents of src to dest, until EOF is encountered

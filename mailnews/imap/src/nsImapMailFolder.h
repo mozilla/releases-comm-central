@@ -489,10 +489,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   // Allocate and initialize associated auto-sync state object.
   void InitAutoSyncState();
 
-  virtual nsresult GetOfflineFileStream(nsMsgKey msgKey, uint64_t* offset,
-                                        uint32_t* size,
-                                        nsIInputStream** aFileStream) override;
-
   bool m_initialized;
   bool m_haveDiscoveredAllFolders;
   nsCOMPtr<nsIMsgParseMailMsgState> m_msgParser;

@@ -1827,14 +1827,14 @@ void MsgRemoveQueryPart(nsCString& aSpec) {
 // Perform C-style string escaping.
 // e.g. "foo\r\n" => "foo\\r\\n"
 // (See also CEscape(), in protobuf, for similar function).
-nsCString CEscapeString(nsACString const& s) {
+// maxLen can be set to truncate overlong strings (default is SIZE_MAX).
+// E.g.
+// CEscapeString("foo\r\n") => "foo\\r\\n"
+// CEscapeString("foo\r\n", 5) => "fo..."
+nsCString CEscapeString(nsACString const& s, size_t maxLen) {
   nsCString out;
-  for (size_t i = 0; i < s.Length(); ++i) {
+  for (size_t i = 0; i < s.Length() && out.Length() < maxLen; ++i) {
     char c = s[i];
-    if (c & 0x80) {
-      out.AppendPrintf("\\x%02x", (uint8_t)c);
-      continue;
-    }
     switch (c) {
       case '\a':
         out += "\\a";
@@ -1858,13 +1858,21 @@ nsCString CEscapeString(nsACString const& s) {
         out += "\\v";
         break;
       default:
-        if (c < ' ') {
+        if (c < ' ' || c & 0x80) {
           out.AppendPrintf("\\x%02x", (uint8_t)c);
         } else {
           out += c;
         }
         break;
     }
+  }
+
+  if (maxLen < 3) {
+    maxLen = 3;
+  }
+  if (out.Length() > maxLen - 3) {
+    out.SetLength(maxLen - 3);
+    out.AppendLiteral("...");
   }
   return out;
 }

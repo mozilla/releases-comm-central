@@ -15,6 +15,7 @@
 #include "nsISimpleEnumerator.h"
 #include "nsIDirectoryEnumerator.h"
 #include "nsIInputStream.h"
+#include "nsIInputStreamPump.h"
 #include "nsMsgFolderFlags.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"
@@ -32,11 +33,135 @@
 #include "nsIMsgFilterPlugin.h"
 #include "nsLocalUndoTxn.h"
 #include "nsIMessenger.h"
+#include "nsThreadUtils.h"
 #include "mozilla/Logging.h"
 #include "mozilla/SlicedInputStream.h"
 #include "mozilla/UniquePtr.h"
 
 static mozilla::LazyLogModule MailDirLog("MailDirStore");
+
+/*
+ * MaildirScanner is a helper class for implementing
+ * nsMsgMaildirStore::AsyncScan().
+ *
+ * It derives from nsIStreamListener purely as an implementation detail,
+ * using itself as a listener to handle async streaming of message data.
+ * nsIStreamListener shouldn't be considered part of the public interface.
+ *
+ * It keeps a self reference, which will be released when the operation is
+ * finished. So the caller doesn't need to hold onto it.
+ */
+class MaildirScanner : public nsIStreamListener {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSISTREAMLISTENER
+  NS_DECL_NSIREQUESTOBSERVER
+
+  // Start scanning.
+  // If an error occurs here, it'll be returned directly and no listener
+  // methods will be called.
+  nsresult BeginScan(nsIFile* mboxFile, nsIStoreScanListener* scanListener);
+
+ private:
+  virtual ~MaildirScanner() {}
+
+  void NextFile();
+
+  nsCOMPtr<nsIStoreScanListener> mScanListener;
+
+  RefPtr<MaildirScanner> mKungFuDeathGrip;
+  nsresult mStatus{NS_OK};
+  nsCOMPtr<nsIDirectoryEnumerator> mDirEnumerator;
+  // Pump to use sync stream as async.
+  nsCOMPtr<nsIInputStreamPump> mPump;
+};
+
+NS_IMPL_ISUPPORTS(MaildirScanner, nsIStreamListener)
+
+nsresult MaildirScanner::BeginScan(nsIFile* maildirPath,
+                                   nsIStoreScanListener* scanListener) {
+  MOZ_ASSERT(scanListener);
+  MOZ_ASSERT(!mScanListener);
+  MOZ_ASSERT(!mKungFuDeathGrip);
+
+  mScanListener = scanListener;
+
+  nsCOMPtr<nsIFile> cur;
+  maildirPath->Clone(getter_AddRefs(cur));
+  cur->Append(u"cur"_ns);
+
+  nsresult rv = cur->GetDirectoryEntries(getter_AddRefs(mDirEnumerator));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // We're up and running. Hold ourself in existence until scan is complete.
+  mKungFuDeathGrip = this;
+
+  // Kick off via dispatch, so the first callbacks will be properly async.
+  // (otherwise the first callbacks will be called before BeginScan() finishes,
+  // which should be fine, but just seems a bit inconsistent).
+  RefPtr<MaildirScanner> self = this;
+  NS_DispatchToMainThread(
+      NS_NewRunnableFunction("Maildir BeginScan kickoff", [self] {
+        self->mScanListener->OnStartScan();
+        self->NextFile();
+      }));
+  return NS_OK;
+}
+
+// The main driver. Returns no error code. If an error occurs, the mStatus
+// member is set and the appropriate nsIStoreScanListener callbacks are
+// invoked.
+void MaildirScanner::NextFile() {
+  nsCOMPtr<nsIFile> f;
+  if (NS_SUCCEEDED(mStatus)) {
+    mStatus = mDirEnumerator->GetNextFile(getter_AddRefs(f));
+  }
+  if (NS_SUCCEEDED(mStatus) && f) {
+    // Start streaming the next message.
+    nsAutoCString storeToken;
+    f->GetNativeLeafName(storeToken);
+    mStatus = mScanListener->OnStartMessage(storeToken);
+
+    nsCOMPtr<nsIInputStream> stream;
+    if (NS_SUCCEEDED(mStatus)) {
+      mStatus = NS_NewLocalFileInputStream(getter_AddRefs(stream), f);
+    }
+    nsCOMPtr<nsIInputStreamPump> pump;
+    if (NS_SUCCEEDED(mStatus)) {
+      mStatus = NS_NewInputStreamPump(getter_AddRefs(pump), stream.forget());
+    }
+    if (NS_SUCCEEDED(mStatus)) {
+      mPump = pump;  // Keep the pump in existence until we're done.
+      mStatus = mPump->AsyncRead(this);
+    }
+  }
+
+  if (!f || NS_FAILED(mStatus)) {
+    // We've finished (or failed).
+    mScanListener->OnStopScan(mStatus);
+    mPump = nullptr;
+    mKungFuDeathGrip = nullptr;
+  }
+}
+
+NS_IMETHODIMP MaildirScanner::OnStartRequest(nsIRequest* req) {
+  mStatus = mScanListener->OnStartRequest(req);
+  return mStatus;
+}
+
+NS_IMETHODIMP MaildirScanner::OnDataAvailable(nsIRequest* req,
+                                              nsIInputStream* stream,
+                                              uint64_t offset, uint32_t count) {
+  mStatus = mScanListener->OnDataAvailable(req, stream, offset, count);
+  return mStatus;
+}
+
+NS_IMETHODIMP MaildirScanner::OnStopRequest(nsIRequest* req, nsresult status) {
+  mScanListener->OnStopRequest(req, status);
+  mStatus = status;
+  NextFile();
+  return NS_OK;
+}
 
 // Helper function to produce a safe filename from a Message-ID value.
 // We'll percent-encode anything not in this set: [-+.%=@_0-9a-zA-Z]
@@ -597,6 +722,7 @@ nsMsgMaildirStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
   newFile->GetNativeLeafName(newName);
   // save the file name in the message header - otherwise no way to retrieve it
   (*aNewMsgHdr)->SetStringProperty("storeToken", newName);
+
   return MsgNewBufferedFileOutputStream(aResult, newFile,
                                         PR_WRONLY | PR_CREATE_FILE, 00600);
 }
@@ -1089,157 +1215,15 @@ nsMsgMaildirStore::GetSupportsCompaction(bool* aSupportsCompaction) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMaildirStore::CompactFolder(nsIMsgFolder* aFolder,
-                                               nsIUrlListener* aListener,
-                                               nsIMsgWindow* aMsgWindow) {
-  return NS_OK;
-}
-
-class MaildirStoreParser {
- public:
-  MaildirStoreParser(nsIMsgFolder* aFolder, nsIMsgDatabase* aMsgDB,
-                     nsIDirectoryEnumerator* aDirectoryEnumerator,
-                     nsIUrlListener* aUrlListener);
-  virtual ~MaildirStoreParser();
-
-  nsresult ParseNextMessage(nsIFile* aFile);
-  static void TimerCallback(nsITimer* aTimer, void* aClosure);
-  nsresult StartTimer();
-
-  nsCOMPtr<nsIDirectoryEnumerator> m_directoryEnumerator;
-  nsCOMPtr<nsIMsgFolder> m_folder;
-  nsCOMPtr<nsIMsgDatabase> m_db;
-  nsCOMPtr<nsITimer> m_timer;
-  nsCOMPtr<nsIUrlListener> m_listener;
-};
-
-MaildirStoreParser::MaildirStoreParser(nsIMsgFolder* aFolder,
-                                       nsIMsgDatabase* aMsgDB,
-                                       nsIDirectoryEnumerator* aDirEnum,
-                                       nsIUrlListener* aUrlListener) {
-  m_folder = aFolder;
-  m_db = aMsgDB;
-  m_directoryEnumerator = aDirEnum;
-  m_listener = aUrlListener;
-}
-
-MaildirStoreParser::~MaildirStoreParser() {}
-
-nsresult MaildirStoreParser::ParseNextMessage(nsIFile* aFile) {
-  nsresult rv;
-  NS_ENSURE_TRUE(m_db, NS_ERROR_NULL_POINTER);
-  nsCOMPtr<nsIInputStream> inputStream;
-  nsCOMPtr<nsIMsgParseMailMsgState> msgParser =
-      do_CreateInstance("@mozilla.org/messenger/messagestateparser;1", &rv);
+NS_IMETHODIMP nsMsgMaildirStore::AsyncScan(nsIMsgFolder* folder,
+                                           nsIStoreScanListener* scanListener) {
+  nsCOMPtr<nsIFile> maildirPath;
+  nsresult rv = folder->GetFilePath(getter_AddRefs(maildirPath));
   NS_ENSURE_SUCCESS(rv, rv);
-  msgParser->SetMailDB(m_db);
-  nsCOMPtr<nsIMsgDBHdr> newMsgHdr;
-  rv = m_db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(newMsgHdr));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  newMsgHdr->SetMessageOffset(0);
-
-  rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
-  if (NS_SUCCEEDED(rv) && inputStream) {
-    RefPtr<nsMsgLineStreamBuffer> inputStreamBuffer =
-        new nsMsgLineStreamBuffer(FILE_IO_BUFFER_SIZE, true, false);
-    int64_t fileSize;
-    aFile->GetFileSize(&fileSize);
-    msgParser->SetNewMsgHdr(newMsgHdr);
-    msgParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
-    bool needMoreData = false;
-    char* newLine = nullptr;
-    uint32_t numBytesInLine = 0;
-    // we only have to read the headers, because we know the message size
-    // from the file size. So we can do this in one time slice.
-    do {
-      newLine = inputStreamBuffer->ReadNextLine(inputStream, numBytesInLine,
-                                                needMoreData);
-      if (newLine) {
-        msgParser->ParseAFolderLine(newLine, numBytesInLine);
-        free(newLine);
-      }
-    } while (newLine && numBytesInLine > 0);
-
-    msgParser->FinishHeader();
-    // A single message needs to be less than 4GB
-    newMsgHdr->SetMessageSize((uint32_t)fileSize);
-    m_db->AddNewHdrToDB(newMsgHdr, true);
-    nsAutoCString storeToken;
-    aFile->GetNativeLeafName(storeToken);
-    newMsgHdr->SetStringProperty("storeToken", storeToken);
-  }
-  NS_ENSURE_SUCCESS(rv, rv);
-  return rv;
-}
-
-void MaildirStoreParser::TimerCallback(nsITimer* aTimer, void* aClosure) {
-  MaildirStoreParser* parser = (MaildirStoreParser*)aClosure;
-  bool hasMore;
-  parser->m_directoryEnumerator->HasMoreElements(&hasMore);
-  if (!hasMore) {
-    nsCOMPtr<nsIMsgPluggableStore> store;
-    parser->m_folder->GetMsgStore(getter_AddRefs(store));
-    parser->m_timer->Cancel();
-    if (parser->m_db) parser->m_db->SetSummaryValid(true);
-    // store->SetSummaryFileValid(parser->m_folder, parser->m_db, true);
-    if (parser->m_listener) {
-      nsresult rv;
-      nsCOMPtr<nsIMailboxUrl> mailboxurl =
-          do_CreateInstance("@mozilla.org/messenger/mailboxurl;1", &rv);
-      if (NS_SUCCEEDED(rv) && mailboxurl) {
-        nsCOMPtr<nsIMsgMailNewsUrl> url = do_QueryInterface(mailboxurl);
-        url->SetUpdatingFolder(true);
-        nsAutoCString uriSpec("mailbox://");
-        // ### TODO - what if SetSpec fails?
-        (void)url->SetSpecInternal(uriSpec);
-        parser->m_listener->OnStopRunningUrl(url, NS_OK);
-      }
-    }
-    // Parsing complete and timer cancelled, so we release the parser object.
-    delete parser;
-    return;
-  }
-  nsCOMPtr<nsIFile> currentFile;
-  nsresult rv =
-      parser->m_directoryEnumerator->GetNextFile(getter_AddRefs(currentFile));
-  if (NS_SUCCEEDED(rv)) rv = parser->ParseNextMessage(currentFile);
-  if (NS_FAILED(rv) && parser->m_listener)
-    parser->m_listener->OnStopRunningUrl(nullptr, NS_ERROR_FAILURE);
-}
-
-nsresult MaildirStoreParser::StartTimer() {
-  nsresult rv;
-  m_timer = do_CreateInstance("@mozilla.org/timer;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  m_timer->InitWithNamedFuncCallback(TimerCallback, (void*)this, 0,
-                                     nsITimer::TYPE_REPEATING_SLACK,
-                                     "MaildirStoreParser::TimerCallback");
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgMaildirStore::RebuildIndex(nsIMsgFolder* aFolder,
-                                              nsIMsgDatabase* aMsgDB,
-                                              nsIMsgWindow* aMsgWindow,
-                                              nsIUrlListener* aListener) {
-  NS_ENSURE_ARG_POINTER(aFolder);
-  // This code needs to iterate over the maildir files, and parse each
-  // file and add a msg hdr to the db for the file.
-  nsCOMPtr<nsIFile> path;
-  nsresult rv = aFolder->GetFilePath(getter_AddRefs(path));
-  NS_ENSURE_SUCCESS(rv, rv);
-  path->Append(u"cur"_ns);
-
-  nsCOMPtr<nsIDirectoryEnumerator> directoryEnumerator;
-  rv = path->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  MaildirStoreParser* fileParser =
-      new MaildirStoreParser(aFolder, aMsgDB, directoryEnumerator, aListener);
-  NS_ENSURE_TRUE(fileParser, NS_ERROR_OUT_OF_MEMORY);
-  fileParser->StartTimer();
-  ResetForceReparse(aMsgDB);
-  return NS_OK;
+  // Fire and forget. MaildirScanner will hold itself in existence until
+  // finished.
+  RefPtr<MaildirScanner> scanner(new MaildirScanner());
+  return scanner->BeginScan(maildirPath, scanListener);
 }
 
 NS_IMETHODIMP nsMsgMaildirStore::ChangeFlags(
@@ -1376,5 +1360,52 @@ nsMsgMaildirStore::SliceStream(nsIInputStream* inStream, uint64_t start,
   RefPtr<mozilla::SlicedInputStream> slicedStream =
       new mozilla::SlicedInputStream(in.forget(), start, uint64_t(length));
   slicedStream.forget(result);
+  return NS_OK;
+}
+
+// For maildir store, our estimate is just the total of the file sizes.
+NS_IMETHODIMP nsMsgMaildirStore::EstimateFolderSize(nsIMsgFolder* folder,
+                                                    int64_t* size) {
+  MOZ_ASSERT(size);
+  *size = 0;
+  bool isServer = false;
+  nsresult rv = folder->GetIsServer(&isServer);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (isServer) {
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIFile> cur;
+  rv = folder->GetFilePath(getter_AddRefs(cur));
+  NS_ENSURE_SUCCESS(rv, rv);
+  cur->Append(u"cur"_ns);
+
+  nsCOMPtr<nsIDirectoryEnumerator> dirEnumerator;
+  rv = cur->GetDirectoryEntries(getter_AddRefs(dirEnumerator));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  int64_t total = 0;
+  while (true) {
+    nsCOMPtr<nsIFile> f;
+    rv = dirEnumerator->GetNextFile(getter_AddRefs(f));
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!f) {
+      break;  // No more files.
+    }
+
+    // Shouldn't have any subdirs in here, but if we do, skip 'em.
+    bool isDir;
+    rv = f->IsDirectory(&isDir);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (isDir) {
+      continue;
+    }
+
+    int64_t s;
+    rv = f->GetFileSize(&s);
+    NS_ENSURE_SUCCESS(rv, rv);
+    total += s;
+  }
+  *size = total;
   return NS_OK;
 }

@@ -15,6 +15,7 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIInputStream.h"
+#include "nsIInputStreamPump.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"
 #include "nsIDirectoryEnumerator.h"
@@ -27,18 +28,189 @@
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsMailHeaders.h"
 #include "nsParseMailbox.h"
-#include "nsIMailboxService.h"
 #include "nsIMsgFolderCompactor.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsPrintfCString.h"
 #include "nsQuarantinedOutputStream.h"
+#include "MboxMsgInputStream.h"
+#include "MboxMsgOutputStream.h"
+#include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/SlicedInputStream.h"
+#include "mozilla/RefCounted.h"
 #include "prprf.h"
 #include <cstdlib>  // for std::abs(int/long)
 #include <cmath>    // for std::abs(float/double)
 
+mozilla::LazyLogModule gMboxLog("mbox");
+using mozilla::LogLevel;
+
+/*
+ * MboxScanner is a helper class for implementing
+ * nsMsgBrkMBoxStore::AsyncScan().
+ *
+ * It derives from nsIStreamListener purely as an implementation detail,
+ * using itself as a listener to handle async streaming of message data.
+ * nsIStreamListener shouldn't be considered part of the public interface.
+ *
+ * It keeps a self reference, which will be released when the operation is
+ * finished. So the caller doesn't need to hold onto it.
+ */
+class MboxScanner : public nsIStreamListener {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSISTREAMLISTENER
+  NS_DECL_NSIREQUESTOBSERVER
+
+  // If BeginScan() is successful, a reference-counted pointer to
+  // scanListener will be held until the scan completes.
+  nsresult BeginScan(nsIFile* mboxFile, nsIStoreScanListener* scanListener);
+
+ private:
+  virtual ~MboxScanner() {}
+  nsCOMPtr<nsIStoreScanListener> mScanListener;
+
+  RefPtr<MboxScanner> mKungFuDeathGrip;
+  RefPtr<MboxMsgInputStream> mMboxStream;
+  // Pump to use a sync stream as async.
+  nsCOMPtr<nsIInputStreamPump> mPump;
+};
+
+NS_IMPL_ISUPPORTS(MboxScanner, nsIStreamListener)
+
+nsresult MboxScanner::BeginScan(nsIFile* mboxFile,
+                                nsIStoreScanListener* scanListener) {
+  MOZ_ASSERT(scanListener);
+  MOZ_ASSERT(!mKungFuDeathGrip);
+  MOZ_ASSERT(!mScanListener);
+
+  mScanListener = scanListener;
+
+  // Open the raw mbox file for reading.
+  nsCOMPtr<nsIInputStream> raw;
+  nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(raw), mboxFile);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Start reading first message async.
+  // Note: The pump doesn't close the stream when complete.
+  // This is important because we want to use Continue() to move on to
+  // the next message.
+  RefPtr<MboxMsgInputStream> mboxStream = new MboxMsgInputStream(raw);
+  mMboxStream = mboxStream;
+  nsCOMPtr<nsIInputStreamPump> pump;
+  rv = NS_NewInputStreamPump(getter_AddRefs(pump), mboxStream.forget());
+
+  NS_ENSURE_SUCCESS(rv, rv);
+  mPump = pump;
+
+  // Stream the first message asynchronously, using ourselves as listener.
+  // Our OnStartRequest/OnDataAvailable/OnStopRequest handlers will sort
+  // out streaming subsequent messages, and invoke the callbacks in the
+  // nsIStoreScanListener we're feeding messages to.
+  //
+  // NOTE for future simplification: rather than streaming individual
+  // messages via MboxMsgInputStream() here and chaining up subsequent
+  // messages as we go, maybe it'd be simpler to just stream the entire
+  // mbox in raw form?
+  // Then, in our OnDataAvailable handler we could feed the data directly
+  // into an MboxParser and drain it into the nsIStoreScanListener methods.
+  // This would avoid the extra abstraction of MboxMsgInputStream.
+  // To do that, MboxParser (currently internal to MboxMsgInputStream)
+  // would have to be tidied up and made public.
+  rv = mPump->AsyncRead(this);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // We're up and running. Hold ourself in existence until scan is complete.
+  mKungFuDeathGrip = this;
+  return NS_OK;
+}
+
+NS_IMETHODIMP MboxScanner::OnStartRequest(nsIRequest* req) {
+  nsresult rv;
+  size_t msgOffset = mMboxStream->MsgOffset();
+  if (msgOffset == 0) {
+    rv = mScanListener->OnStartScan();
+    if (NS_FAILED(rv)) {
+      return rv;  // This will cancel the request.
+    }
+
+    if (mMboxStream->IsNullMessage()) {
+      // Special corner case: we've already started the async request, but
+      // it turns out it's an empty mbox file. In that case we just want the
+      // scanlistener to see OnStartScan() and OnStopScan() and nothing else.
+      // But we're already in the middle of the async request, so ditch the
+      // mboxStream now, to indicate it's all over.
+      mMboxStream->Close();
+      mMboxStream = nullptr;
+      return NS_OK;
+    }
+  }
+
+  nsAutoCString token;
+  token.AppendInt((uint64_t)msgOffset);
+  rv = mScanListener->OnStartMessage(token);
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
+  return mScanListener->OnStartRequest(req);
+}
+
+NS_IMETHODIMP MboxScanner::OnDataAvailable(nsIRequest* req,
+                                           nsIInputStream* stream,
+                                           uint64_t offset, uint32_t count) {
+  if (!mMboxStream) {
+    // It was an empty mbox, so don't call scanlistener.
+    return NS_OK;
+  }
+  return mScanListener->OnDataAvailable(req, stream, offset, count);
+}
+
+NS_IMETHODIMP MboxScanner::OnStopRequest(nsIRequest* req, nsresult status) {
+  if (mMboxStream) {
+    mScanListener->OnStopRequest(req, status);
+
+    bool more = false;
+    if (NS_SUCCEEDED(status)) {
+      // Kick off the next message, if any.
+      nsresult rv = mMboxStream->Continue(more);
+      if (NS_SUCCEEDED(rv) && more) {
+        RefPtr<MboxMsgInputStream> stream = mMboxStream;
+        nsresult rv =
+            NS_NewInputStreamPump(getter_AddRefs(mPump), stream.forget());
+        if (NS_SUCCEEDED(rv)) {
+          rv = mPump->AsyncRead(this);
+        }
+      }
+      if (NS_FAILED(rv)) {
+        // Stop here, and make sure OnStopScan() hears about the fail.
+        more = false;
+        status = rv;
+      }
+    }
+
+    // If we're not starting a new message, close the mbox.
+    if (!more) {
+      mMboxStream->Close();
+      mMboxStream = nullptr;
+    }
+  }
+
+  // If we're not starting another message, we're done!
+  // `status` indicates if the operation as a whole finished or failed.
+  if (!mMboxStream) {
+    // Tell the listener the overall operation is now done.
+    mScanListener->OnStopScan(status);
+    // Time to evaporate.
+    mKungFuDeathGrip = nullptr;
+  }
+  return NS_OK;
+}
+
+/*
+ * nsMsgBrkMBoxStore implementation.
+ */
 nsMsgBrkMBoxStore::nsMsgBrkMBoxStore() {}
 
 nsMsgBrkMBoxStore::~nsMsgBrkMBoxStore() {}
@@ -270,27 +442,26 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::SetSummaryFileValid(nsIMsgFolder* aFolder,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteFolder(nsIMsgFolder* aFolder) {
-  NS_ENSURE_ARG_POINTER(aFolder);
-  bool exists;
+NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteFolder(nsIMsgFolder* folder) {
+  NS_ENSURE_ARG_POINTER(folder);
 
   // Delete mbox file.
   nsCOMPtr<nsIFile> pathFile;
-  nsresult rv = aFolder->GetFilePath(getter_AddRefs(pathFile));
+  nsresult rv = folder->GetFilePath(getter_AddRefs(pathFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  exists = false;
-  pathFile->Exists(&exists);
-  if (exists) {
+  bool mboxExists = false;
+  pathFile->Exists(&mboxExists);
+  if (mboxExists) {
     rv = pathFile->Remove(false);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
   // Delete any subfolders (.sbd-suffixed directories).
   AddDirectorySeparator(pathFile);
-  exists = false;
-  pathFile->Exists(&exists);
-  if (exists) {
+  bool subdirExists = false;
+  pathFile->Exists(&subdirExists);
+  if (subdirExists) {
     rv = pathFile->Remove(true);
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -554,19 +725,27 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
     prefBranch->GetBoolPref("mailnews.downloadToTempFile", &quarantining);
   }
 
+  nsCOMPtr<nsIOutputStream> rawMboxStream;
+  nsresult rv = InternalGetNewMsgOutputStream(aFolder, aNewMsgHdr,
+                                              getter_AddRefs(rawMboxStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Wrap raw stream in one which will handle "From " separator and escaping
+  // etc...
+  // We want rawMboxStream to be closed when mboxStream is closed.
+  RefPtr<MboxMsgOutputStream> mboxStream =
+      new MboxMsgOutputStream(rawMboxStream, true);
+
   if (!quarantining) {
-    // Caller will write directly to mbox.
-    return InternalGetNewMsgOutputStream(aFolder, aNewMsgHdr, aResult);
+    // Caller will write directly(ish) to mbox.
+    mboxStream.forget(aResult);
+    return NS_OK;
   }
 
   // Quarantining is on, so we want to write the new message to a temp file
   // and let the virus checker have at it before we append it to the mbox.
   // We'll wrap the mboxStream with an nsQuarantinedOutputStream and return
   // that.
-  nsCOMPtr<nsIOutputStream> mboxStream;
-  nsresult rv = InternalGetNewMsgOutputStream(aFolder, aNewMsgHdr,
-                                              getter_AddRefs(mboxStream));
-  NS_ENSURE_SUCCESS(rv, rv);
 
   RefPtr<nsQuarantinedOutputStream> qStream =
       new nsQuarantinedOutputStream(mboxStream);
@@ -594,44 +773,38 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
   aFolder->GetMsgDatabase(getter_AddRefs(db));
   if (!db && !*aNewMsgHdr) NS_WARNING("no db, and no message header");
   bool exists = false;
+
+  MOZ_LOG(gMboxLog, LogLevel::Debug,
+          ("nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(): %s",
+           mboxFile->HumanReadablePath().get()));
+
   mboxFile->Exists(&exists);
   if (!exists) {
     rv = mboxFile->Create(nsIFile::NORMAL_FILE_TYPE, 0600);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  nsCString URI;
-  aFolder->GetURI(URI);
-  nsCOMPtr<nsISeekableStream> seekable;
-  if (m_outputStreams.Get(URI, aResult)) {
-    seekable = do_QueryInterface(*aResult, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = seekable->Seek(nsISeekableStream::NS_SEEK_END, 0);
-    if (NS_FAILED(rv)) {
-      m_outputStreams.Remove(URI);
-      NS_RELEASE(*aResult);
-    }
+  rv = MsgGetFileStream(mboxFile, aResult);
+  if (NS_FAILED(rv)) {
+    nsAutoCString uri;
+    aFolder->GetURI(uri);
+    MOZ_LOG(gMboxLog, LogLevel::Error,
+            ("failed opening offline store for %s", uri.get()));
   }
-  if (!*aResult) {
-    rv = MsgGetFileStream(mboxFile, aResult);
-    NS_ASSERTION(NS_SUCCEEDED(rv), "failed opening offline store for output");
-    if (NS_FAILED(rv))
-      printf("failed opening offline store for %s\n", URI.get());
-    NS_ENSURE_SUCCESS(rv, rv);
-    seekable = do_QueryInterface(*aResult, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = seekable->Seek(nsISeekableStream::NS_SEEK_END, 0);
-    NS_ENSURE_SUCCESS(rv, rv);
-    m_outputStreams.InsertOrUpdate(URI, *aResult);
-  }
-  int64_t filePos;
-  seekable->Tell(&filePos);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(*aResult, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = seekable->Seek(nsISeekableStream::NS_SEEK_END, 0);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   if (db && !*aNewMsgHdr) {
     db->CreateNewHdr(nsMsgKey_None, aNewMsgHdr);
   }
 
   if (*aNewMsgHdr) {
+    int64_t filePos;
+    rv = seekable->Tell(&filePos);
+    NS_ENSURE_SUCCESS(rv, rv);
     nsCString storeToken = nsPrintfCString("%" PRId64, filePos);
     (*aNewMsgHdr)->SetStringProperty("storeToken", storeToken);
     (*aNewMsgHdr)->SetMessageOffset(filePos);
@@ -705,12 +878,14 @@ nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
   nsCOMPtr<nsIFile> mboxFile;
   nsresult rv = aMsgFolder->GetFilePath(getter_AddRefs(mboxFile));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIInputStream> msgStream;
-  rv = NS_NewLocalFileInputStream(getter_AddRefs(msgStream), mboxFile);
+  nsCOMPtr<nsIInputStream> rawMboxStream;
+  rv = NS_NewLocalFileInputStream(getter_AddRefs(rawMboxStream), mboxFile);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(msgStream));
+  nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(rawMboxStream));
   rv = seekable->Seek(PR_SEEK_SET, offset);
   NS_ENSURE_SUCCESS(rv, rv);
+  // Stream to return a single message, hiding all "From "-separator guff.
+  RefPtr<MboxMsgInputStream> msgStream = new MboxMsgInputStream(rawMboxStream);
   msgStream.forget(aResult);
   return NS_OK;
 }
@@ -743,71 +918,27 @@ nsMsgBrkMBoxStore::GetSupportsCompaction(bool* aSupportsCompaction) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::CompactFolder(nsIMsgFolder* aFolder,
-                                               nsIUrlListener* aListener,
-                                               nsIMsgWindow* aMsgWindow) {
-  // Eventually, folder compaction should be managed by nsMsgBrkMBoxStore, but
-  // for now it's separate (see nsMsgFolderCompactor) and invoked via the
-  // folder methods Compact() and CompactAll().
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMsgBrkMBoxStore::RebuildIndex(nsIMsgFolder* aFolder,
-                                              nsIMsgDatabase* aMsgDB,
-                                              nsIMsgWindow* aMsgWindow,
-                                              nsIUrlListener* aListener) {
-  NS_ENSURE_ARG_POINTER(aFolder);
-  nsCOMPtr<nsIFile> pathFile;
-  nsresult rv = aFolder->GetFilePath(getter_AddRefs(pathFile));
-  if (NS_FAILED(rv)) return rv;
-
-  bool isLocked;
-  aFolder->GetLocked(&isLocked);
-  if (isLocked) {
-    NS_ASSERTION(false, "Could not get folder lock");
-    return NS_MSG_FOLDER_BUSY;
-  }
-
-  nsCOMPtr<nsIMailboxService> mailboxService =
-      do_GetService("@mozilla.org/messenger/mailboxservice;1", &rv);
+NS_IMETHODIMP nsMsgBrkMBoxStore::AsyncScan(nsIMsgFolder* folder,
+                                           nsIStoreScanListener* scanListener) {
+  nsCOMPtr<nsIFile> mboxPath;
+  nsresult rv = folder->GetFilePath(getter_AddRefs(mboxPath));
   NS_ENSURE_SUCCESS(rv, rv);
-
-  RefPtr<nsMsgMailboxParser> parser = new nsMsgMailboxParser(aFolder);
-  NS_ENSURE_TRUE(parser, NS_ERROR_OUT_OF_MEMORY);
-  rv = parser->Init();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = mailboxService->ParseMailbox(aMsgWindow, pathFile, parser, aListener,
-                                    nullptr);
-  if (NS_SUCCEEDED(rv)) ResetForceReparse(aMsgDB);
-  return rv;
+  // Fire and forget. MboxScanner will hold itself in existence until finished.
+  RefPtr<MboxScanner> scanner(new MboxScanner());
+  return scanner->BeginScan(mboxPath, scanListener);
 }
 
 nsresult nsMsgBrkMBoxStore::GetOutputStream(
-    nsIMsgDBHdr* aHdr, nsCOMPtr<nsIOutputStream>& outputStream,
-    nsCOMPtr<nsISeekableStream>& seekableStream, int64_t& restorePos) {
+    nsIMsgDBHdr* aHdr, nsCOMPtr<nsIOutputStream>& outputStream) {
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = aHdr->GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCString URI;
-  folder->GetURI(URI);
-  restorePos = -1;
-  if (m_outputStreams.Get(URI, getter_AddRefs(outputStream))) {
-    seekableStream = do_QueryInterface(outputStream);
-    rv = seekableStream->Tell(&restorePos);
-    if (NS_FAILED(rv)) {
-      outputStream = nullptr;
-      m_outputStreams.Remove(URI);
-    }
-  }
-  if (!outputStream) {
-    nsCOMPtr<nsIFile> mboxFile;
-    rv = folder->GetFilePath(getter_AddRefs(mboxFile));
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = MsgGetFileStream(mboxFile, getter_AddRefs(outputStream));
-    seekableStream = do_QueryInterface(outputStream);
-    if (NS_SUCCEEDED(rv)) m_outputStreams.InsertOrUpdate(URI, outputStream);
-  }
+
+  nsCOMPtr<nsIFile> mboxFile;
+  rv = folder->GetFilePath(getter_AddRefs(mboxFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = MsgGetFileStream(mboxFile, getter_AddRefs(outputStream));
+  NS_ENSURE_SUCCESS(rv, rv);
   return rv;
 }
 
@@ -827,10 +958,9 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(
   if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
 
   nsCOMPtr<nsIOutputStream> outputStream;
-  nsCOMPtr<nsISeekableStream> seekableStream;
-  int64_t restoreStreamPos;
-  nsresult rv = GetOutputStream(aHdrArray[0], outputStream, seekableStream,
-                                restoreStreamPos);
+  nsresult rv = GetOutputStream(aHdrArray[0], outputStream);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(outputStream, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
@@ -846,8 +976,6 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(
     }
 
     // Rewrite flags into X-Mozilla-Status headers.
-    nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(outputStream, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
     uint64_t msgOffset;
     rv = msgHdr->GetMessageOffset(&msgOffset);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -858,10 +986,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(
       break;
     }
   }
-  if (restoreStreamPos != -1)
-    seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, restoreStreamPos);
-  else if (outputStream)
-    outputStream->Close();
+  outputStream->Close();
   SetDBValid(aHdrArray[0]);
   return NS_OK;
 }
@@ -881,10 +1006,9 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
 
   // Get the (possibly-cached) seekable & writable stream for this mbox.
   nsCOMPtr<nsIOutputStream> output;
-  nsCOMPtr<nsISeekableStream> seekable;
-  int64_t restoreStreamPos;
-  nsresult rv =
-      GetOutputStream(aHdrArray[0], output, seekable, restoreStreamPos);
+  nsresult rv = GetOutputStream(aHdrArray[0], output);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(output, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (auto msgHdr : aHdrArray) {
@@ -906,11 +1030,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
     }
   }
 
-  if (restoreStreamPos != -1) {
-    seekable->Seek(nsISeekableStream::NS_SEEK_SET, restoreStreamPos);
-  } else if (output) {
-    output->Close();
-  }
+  output->Close();
   SetDBValid(aHdrArray[0]);
   return NS_OK;
 }
@@ -1029,5 +1149,26 @@ nsMsgBrkMBoxStore::SliceStream(nsIInputStream* inStream, uint64_t start,
   RefPtr<mozilla::SlicedInputStream> slicedStream =
       new mozilla::SlicedInputStream(in.forget(), start, uint64_t(length));
   slicedStream.forget(result);
+  return NS_OK;
+}
+
+// For mbox store, we'll just use mbox file size as our estimate.
+NS_IMETHODIMP nsMsgBrkMBoxStore::EstimateFolderSize(nsIMsgFolder* folder,
+                                                    int64_t* size) {
+  MOZ_ASSERT(size);
+
+  *size = 0;
+  bool isServer = false;
+  nsresult rv = folder->GetIsServer(&isServer);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (isServer) {
+    return NS_OK;
+  }
+  nsCOMPtr<nsIFile> file;
+  rv = folder->GetFilePath(getter_AddRefs(file));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = file->GetFileSize(size);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   return NS_OK;
 }

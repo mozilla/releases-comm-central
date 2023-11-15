@@ -70,38 +70,29 @@ interface nsIMsgSearchTerm : nsISupports {
     /**
      * Test if the body of the passed in message matches "this" search term.
      * @param aScopeTerm scope of search
-     * @param aOffset offset of message in message store.
-     * @param aLength length of message.
      * @param aCharset folder charset.
      * @param aMsg db msg hdr of message to match.
-     * @param aDB db containing msg header.
      */
     boolean matchBody(in nsIMsgSearchScopeTerm aScopeTerm,
-                      in unsigned long aLength,
                       in string aCharset,
-                      in nsIMsgDBHdr aMsg,
-                      in nsIMsgDatabase aDb);
+                      in nsIMsgDBHdr aMsg);
 
     /**
      * Test if the arbitrary header specified by this search term
      * matches the corresponding header in the passed in message.
      *
      * @param aScopeTerm scope of search
-     * @param aLength length of message
      * @param aCharset The charset to apply to un-labeled non-UTF-8 data.
      * @param aCharsetOverride If true, aCharset is used instead of any
      *                         charset labeling other than UTF-8.
      * @param aMsg The nsIMsgDBHdr of the message
-     * @param aDb The message database containing aMsg
      * @param aHeaders A null-separated list of message headers.
      * @param aForFilters Whether this is a filter or a search operation.
      */
     boolean matchArbitraryHeader(in nsIMsgSearchScopeTerm aScopeTerm,
-                                 in unsigned long aLength,
                                  in string aCharset,
                                  in boolean aCharsetOverride,
                                  in nsIMsgDBHdr aMsg,
-                                 in nsIMsgDatabase aDb,
                                  in ACString aHeaders,
                                  in boolean aForFilters);
 

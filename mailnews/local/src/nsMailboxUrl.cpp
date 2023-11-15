@@ -35,7 +35,7 @@ char* extractAttributeValue(const char* searchString,
                             const char* attributeName);
 
 nsMailboxUrl::nsMailboxUrl() {
-  m_mailboxAction = nsIMailboxUrl::ActionParseMailbox;
+  m_mailboxAction = nsIMailboxUrl::ActionInvalid;
   m_filePath = nullptr;
   m_messageID = nullptr;
   m_messageKey = nsMsgKey_None;
@@ -62,17 +62,6 @@ NS_INTERFACE_MAP_END_INHERITING(nsMsgMailNewsUrl)
 ////////////////////////////////////////////////////////////////////////////////////
 // Begin nsIMailboxUrl specific support
 ////////////////////////////////////////////////////////////////////////////////////
-nsresult nsMailboxUrl::SetMailboxParser(nsIStreamListener* aMailboxParser) {
-  if (aMailboxParser) m_mailboxParser = aMailboxParser;
-  return NS_OK;
-}
-
-nsresult nsMailboxUrl::GetMailboxParser(nsIStreamListener** aConsumer) {
-  NS_ENSURE_ARG_POINTER(aConsumer);
-
-  NS_IF_ADDREF(*aConsumer = m_mailboxParser);
-  return NS_OK;
-}
 
 nsresult nsMailboxUrl::SetMailboxCopyHandler(
     nsIStreamListener* aMailboxCopyHandler) {
@@ -325,8 +314,10 @@ nsresult nsMailboxUrl::ParseSearchPart() {
 
     PR_Free(msgPart);
     PR_Free(messageKey);
-  } else
-    m_mailboxAction = nsIMailboxUrl::ActionParseMailbox;
+  } else {
+    m_mailboxAction = nsIMailboxUrl::ActionInvalid;
+    return NS_ERROR_UNEXPECTED;
+  }
 
   return rv;
 }

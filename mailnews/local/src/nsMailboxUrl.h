@@ -26,8 +26,6 @@ class nsMailboxUrl : public nsIMailboxUrl,
   nsresult CreateURL(const nsACString& aSpec, nsIURL** aURL) override;
 
   // from nsIMailboxUrl:
-  NS_IMETHOD SetMailboxParser(nsIStreamListener* aConsumer) override;
-  NS_IMETHOD GetMailboxParser(nsIStreamListener** aConsumer) override;
   NS_IMETHOD SetMailboxCopyHandler(nsIStreamListener* aConsumer) override;
   NS_IMETHOD GetMailboxCopyHandler(nsIStreamListener** aConsumer) override;
 

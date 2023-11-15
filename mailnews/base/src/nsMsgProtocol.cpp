@@ -300,8 +300,9 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest* request,
   // if we are set up as a channel, we should notify our channel listener that
   // we are starting... so pass in ourself as the channel and not the underlying
   // socket or file channel the protocol happens to be using
-  if (!mSuppressListenerNotifications && m_channelListener)
+  if (!mSuppressListenerNotifications && m_channelListener) {
     rv = m_channelListener->OnStopRequest(this, aStatus);
+  }
 
   nsCOMPtr<nsIURI> uri;
   GetURI(getter_AddRefs(uri));

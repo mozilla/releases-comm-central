@@ -249,16 +249,7 @@ FeedItem.prototype = {
       this.keywords
     );
 
-    // Escape occurrences of "From " at the beginning of lines of
-    // content per the mbox standard, since "From " denotes a new
-    // message, and add a line break so we know the last line has one.
-    this.content = this.content.replace(/([\r\n]+)(>*From )/g, "$1>$2");
-    this.content += "\n";
-
     let source =
-      "From - " +
-      this.mDate +
-      "\n" +
       "X-Mozilla-Status: 0000\n" +
       "X-Mozilla-Status2: 00000000\n" +
       "X-Mozilla-Keys: " +

@@ -14,17 +14,6 @@ typedef long nsMailboxAction;
 [scriptable, uuid(2ac72280-90f4-4d80-8af1-5e7a1997e2a8)]
 interface nsIMailboxUrl : nsISupports {
 
-  // Mailbox urls which parse a mailbox folder require a consumer of the
-  // stream which will represent the mailbox. This consumer is the mailbox
-  // parser. As data from the mailbox folder is read in, the data will be
-  // written to a stream and the consumer will be notified through
-  // nsIStreamListenter::OnDataAvailable that the stream has data
-  // available...
-  // mscott: I wonder if the caller should be allowed to create and set
-  // the stream they want the data written to as well? Hmm....
-
-  attribute nsIStreamListener mailboxParser;
-
   /////////////////////////////////////////////////////////////////////////
   // Copy/Move mailbox urls require a mailbox copy handler which actually
   // performs the copy.
@@ -48,7 +37,7 @@ interface nsIMailboxUrl : nsISupports {
   attribute nsMailboxAction mailboxAction;
 
   /* these are nsMailboxActions */
-  const long ActionParseMailbox = 0;
+  const long ActionInvalid = 0;   // Bad URL!
   const long ActionFetchMessage = 1;
   const long ActionCopyMessage = 2;
   const long ActionMoveMessage = 3;

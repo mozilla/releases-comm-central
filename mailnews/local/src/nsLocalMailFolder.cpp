@@ -7,6 +7,8 @@
 #include "nsIPrefBranch.h"
 #include "prlog.h"
 
+#include "HeaderReader.h"
+#include "LineReader.h"
 #include "msgCore.h"  // precompiled header...
 #include "nsLocalMailFolder.h"
 #include "nsMsgLocalFolderHdrs.h"
@@ -49,8 +51,12 @@
 #include "nsIStringEnumerator.h"
 #include "nsIURIMutator.h"
 #include "mozilla/Components.h"
+#include "mozilla/Services.h"
 #include "mozilla/UniquePtr.h"
-#include "mozilla/SlicedInputStream.h"
+#include "StoreIndexer.h"
+
+#include <algorithm>
+#include <functional>
 
 //////////////////////////////////////////////////////////////////////////////
 // nsLocal
@@ -62,16 +68,12 @@ nsLocalMailCopyState::nsLocalMailCopyState()
       m_curDstKey(nsMsgKey_None),
       m_curCopyIndex(0),
       m_totalMsgCount(0),
-      m_dataBufferSize(0),
-      m_leftOver(0),
       m_isMove(false),
-      m_dummyEnvelopeNeeded(false),
-      m_fromLineSeen(false),
+      m_addXMozillaHeaders(false),
       m_writeFailed(false),
       m_notifyFolderLoaded(false) {}
 
 nsLocalMailCopyState::~nsLocalMailCopyState() {
-  PR_Free(m_dataBuffer);
   if (m_fileStream) m_fileStream->Close();
   if (m_messageService) {
     nsCOMPtr<nsIMsgFolder> srcFolder = do_QueryInterface(m_srcSupport);
@@ -141,21 +143,128 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetManyHeadersToDownload(bool* retval) {
   return nsMsgDBFolder::GetManyHeadersToDownload(retval);
 }
 
-// run the url to parse the mailbox
-NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* aMsgWindow,
-                                                nsIUrlListener* aListener) {
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (aListener != this) mReparseListener = aListener;
-  // if parsing is synchronous, we need to set m_parsingFolder to
-  // true before starting. And we need to open the db before
-  // setting m_parsingFolder to true.
-  //  OpenDatabase();
-  rv = msgStore->RebuildIndex(this, mDatabase, aMsgWindow, this);
-  if (NS_SUCCEEDED(rv)) m_parsingFolder = true;
+// Rebuild the msgDB by scanning the msgStore.
+NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* window,
+                                                nsIUrlListener* listener) {
+  RefPtr<StoreIndexer> indexer = new StoreIndexer();
+  nsresult rv;
 
-  return rv;
+  // Set up for progress updates.
+  // statusFeedback can be left null, in which case we'll skip the progress
+  // reports.
+  nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
+  nsCOMPtr<nsIStringBundle> bundle;
+  nsString folderName;
+  GetName(folderName);
+  if (window) {
+    window->GetStatusFeedback(getter_AddRefs(statusFeedback));
+    nsCOMPtr<nsIStringBundleService> stringService =
+        mozilla::components::StringBundle::Service();
+    if (stringService) {
+      nsCOMPtr<nsIStringBundle> filterBundle;
+      stringService->CreateBundle(
+          "chrome://messenger/locale/localMsgs.properties",
+          getter_AddRefs(bundle));
+    }
+    if (!bundle) {
+      statusFeedback = nullptr;
+    }
+  }
+
+  // Start indexing, call FinishUpAfterParseFolder() when done.
+  // NOTE: the division of labour between ParseFolder() and the StoreIndexer
+  // is still a little arbitrary. Ideally, StoreIndexer would deal exclusively
+  // with a single database (not the backup db juggling it currently does),
+  // and all the folder-related stuff would happen out here.
+  // The way nsMailboxParseState is arranged makes that a little tricky
+  // right now, but that stuff is also overdue for a refactoring.
+
+  // Callback to handle progress updates.
+  auto progressFn = [=](int64_t current, int64_t expected) {
+    if (statusFeedback && expected > 0) {
+      current = std::min(current, expected);  // Clip to 100%
+      int64_t percent = (100 * current) / expected;
+      statusFeedback->ShowProgress((int32_t)percent);
+    }
+  };
+
+  // Callback to clean up afterwards.
+  auto completionFn = [=, self = RefPtr(this)](nsresult status) {
+    if (statusFeedback) {
+      statusFeedback->StopMeteors();
+      nsAutoString msg;
+      nsresult rv = bundle->FormatStringFromName("localStatusDocumentDone",
+                                                 {folderName}, msg);
+      if (NS_SUCCEEDED(rv)) {
+        statusFeedback->ShowStatusString(msg);
+      }
+    }
+    self->FinishUpAfterParseFolder(status);
+  };
+
+  // Start the parsing.
+  rv = indexer->GoIndex(this, progressFn, completionFn);
+  NS_ENSURE_SUCCESS(rv, rv);
+  m_parsingFolder = true;
+  mReparseListener = listener;
+
+  if (statusFeedback) {
+    nsAutoString msg;
+    rv = bundle->FormatStringFromName("buildingSummary", {folderName}, msg);
+    if (NS_SUCCEEDED(rv)) {
+      statusFeedback->ShowStatusString(msg);
+      statusFeedback->StartMeteors();
+    }
+  }
+
+  return NS_OK;
+}
+
+// Helper fn used by ParseFolder().
+// Called to do all the things we want to do when the StoreIndexer finishes.
+// Would prefer this to just be a lambda inside ParseFolder(),
+// but it's a little more involved than it probably should be...
+void nsMsgLocalMailFolder::FinishUpAfterParseFolder(nsresult status) {
+  m_parsingFolder = false;
+  // TODO: Updating the size should be pushed down into the msg store backend
+  // so that the size is recalculated as part of parsing the folder data
+  // (important for maildir), once GetSizeOnDisk is pushed into the msgStores
+  // (bug 1032360).
+  RefreshSizeOnDisk();
+
+  // Update the summary totals so the front end will
+  // show the right thing.
+  UpdateSummaryTotals(true);
+
+  // If a listener was passed into ParseFolder(), tell it the reparse is done.
+  if (mReparseListener) {
+    mReparseListener->OnStopRunningUrl(nullptr, status);
+    mReparseListener = nullptr;
+  }
+
+  // If we're an inbox, and mCheckForNewMessagesAfterParsing is set,
+  // then kick off GetNewMessages().
+  // Shouldn't have to deal with this here. See Bug 1848476.
+  if (NS_SUCCEEDED(status) && mFlags & nsMsgFolderFlags::Inbox) {
+    nsresult rv;
+    nsCOMPtr<nsIMsgMailSession> mailSession =
+        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
+    if (NS_SUCCEEDED(rv)) {
+      nsCOMPtr<nsIMsgWindow> msgWindow;
+      mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
+      if (msgWindow && mDatabase && mCheckForNewMessagesAfterParsing) {
+        mCheckForNewMessagesAfterParsing = false;
+        // TODO: maybe simplify this.
+        // - if parsing succeeded, then db should always be valid, right?
+        bool valid = false;
+        mDatabase->GetSummaryValid(&valid);
+        if (valid) {
+          GetNewMessages(msgWindow, nullptr);
+        }
+      }
+    }
+  }
+  NotifyFolderEvent(kFolderLoaded);
 }
 
 // this won't force a reparse of the folder if the db is invalid.
@@ -250,8 +359,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetDatabaseWithReparse(
   // if we're already reparsing, just remember the listener so we can notify it
   // when we've finished.
   if (m_parsingFolder) {
-    NS_ASSERTION(!mReparseListener, "can't have an existing listener");
-    mReparseListener = aReparseUrlListener;
     return NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
   }
 
@@ -358,7 +465,7 @@ nsMsgLocalMailFolder::UpdateFolder(nsIMsgWindow* aWindow) {
     // We don't need the return value, and assigning it to mDatabase which
     // is already set internally leaks.
     nsCOMPtr<nsIMsgDatabase> returnedDb;
-    rv = GetDatabaseWithReparse(this, aWindow, getter_AddRefs(returnedDb));
+    rv = GetDatabaseWithReparse(nullptr, aWindow, getter_AddRefs(returnedDb));
     if (NS_SUCCEEDED(rv)) NotifyFolderEvent(kFolderLoaded);
   } else {
     bool valid;
@@ -496,12 +603,18 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener* aListener,
     NS_ENSURE_SUCCESS(rv, rv);
     int64_t expungedBytes = 0;
     for (auto folder : allDescendants) {
+      // If folder doesn't currently have a DB, expungedBytes might be out of
+      // whack. Also the compact might do a folder reparse first, which could
+      // change the expungedBytes count (via Expunge flag in X-Mozilla-Status).
+      bool hasDB;
+      folder->GetDatabaseOpen(&hasDB);
+
       expungedBytes = 0;
       if (folder) rv = folder->GetExpungedBytes(&expungedBytes);
 
       NS_ENSURE_SUCCESS(rv, rv);
 
-      if (expungedBytes > 0) folderArray.AppendElement(folder);
+      if (!hasDB || expungedBytes > 0) folderArray.AppendElement(folder);
     }
   }
 
@@ -1202,10 +1315,6 @@ nsresult nsMsgLocalMailFolder::InitCopyState(
   mCopyState = new nsLocalMailCopyState();
   NS_ENSURE_TRUE(mCopyState, NS_ERROR_OUT_OF_MEMORY);
 
-  mCopyState->m_dataBuffer = (char*)PR_CALLOC(COPY_BUFFER_SIZE + 1);
-  NS_ENSURE_TRUE(mCopyState->m_dataBuffer, NS_ERROR_OUT_OF_MEMORY);
-
-  mCopyState->m_dataBufferSize = COPY_BUFFER_SIZE;
   mCopyState->m_destDB = msgDB;
 
   mCopyState->m_srcSupport = aSupport;
@@ -1218,7 +1327,6 @@ nsresult nsMsgLocalMailFolder::InitCopyState(
   mCopyState->m_totalMsgCount = messages.Length();
   if (listener) mCopyState->m_listener = listener;
   mCopyState->m_copyingMultipleMessages = false;
-  mCopyState->m_wholeMsgInStream = false;
 
   return NS_OK;
 }
@@ -1409,10 +1517,9 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
   }
 
   if (!protocolType.LowerCaseEqualsLiteral("mailbox")) {
-    // Copying from a non-mbox source, so we will be synthesising
-    // a "From " line and "X-Mozilla-*" headers before copying the message
-    // proper.
-    mCopyState->m_dummyEnvelopeNeeded = true;
+    // Copying from a non-local source, so we will be adding "X-Mozilla-*"
+    // headers before copying the message proper.
+    mCopyState->m_addXMozillaHeaders = true;
     nsParseMailMessageState* parseMsgState = new nsParseMailMessageState();
     if (parseMsgState) {
       nsCOMPtr<nsIMsgDatabase> msgDb;
@@ -1692,44 +1799,88 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
     if (msgDb) parseMsgState->SetMailDB(msgDb);
 
     nsCOMPtr<nsIInputStream> inputStream;
+    nsCOMPtr<nsISeekableStream> seekableStream;
     rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
+    if NS_SUCCEEDED (rv) {
+      seekableStream = do_QueryInterface(inputStream, &rv);
+    }
 
     // All or none for adding a message file to the store
     if (NS_SUCCEEDED(rv) && fileSize > PR_INT32_MAX)
       rv = NS_ERROR_ILLEGAL_VALUE;  // may need error code for max msg size
 
+    // Sniff the beginning of the message to check for:
+    // 1. An erroneous "From " separator (a proper RFC5322 message file
+    //    shouldn't have one, but they are out there in the wild (e.g.
+    //    previous versions of TB would include a "From " line in emails
+    //    saved out to a file).
+    // 2. X-Mozilla-* headers. If they aren't present, we'll ask for them
+    //    to be added during the copy process.
+    int64_t msgStart = 0;
     if (NS_SUCCEEDED(rv) && inputStream) {
-      char buffer[5];
-      uint32_t readCount;
-      rv = inputStream->Read(buffer, 5, &readCount);
+      // X-Mozilla-* headers, if present, appear early. So 2KB should be
+      // enough.
+      mozilla::Buffer<char> buf(2048);
+      uint32_t n;
+      rv = inputStream->Read(buf.Elements(), buf.Length(), &n);
+
       if (NS_SUCCEEDED(rv)) {
-        if (strncmp(buffer, "From ", 5))
-          mCopyState->m_dummyEnvelopeNeeded = true;
-        nsCOMPtr<nsISeekableStream> seekableStream =
-            do_QueryInterface(inputStream, &rv);
-        if (NS_SUCCEEDED(rv))
-          seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, 0);
+        auto data = buf.AsSpan().First(n);
+        // Found a "From " line? If so, note where it ends so we can skip it.
+        auto firstLine = FirstLine(data);
+        if (firstLine.Length() >= 5 &&
+            nsDependentCSubstring(firstLine.First(5)).EqualsLiteral("From ")) {
+          msgStart = (int64_t)firstLine.Length();  // Includes the EOL.
+          data = data.From(firstLine.Length());
+        }
+
+        // Are there any X-Mozilla-(Status|Status2|Keys) headers?
+        // If not, we'll ask for them to be added.
+        mCopyState->m_addXMozillaHeaders = true;
+        HeaderReader rdr;
+        rdr.Parse(data, [&](HeaderReader::Hdr const& hdr) {
+          auto const name = hdr.Name(data);
+          if (name.EqualsLiteral(X_MOZILLA_STATUS) ||
+              name.EqualsLiteral(X_MOZILLA_STATUS2) ||
+              name.EqualsLiteral("X-Mozilla-Keys")) {
+            mCopyState->m_addXMozillaHeaders = false;
+            return false;  // Early out.
+          }
+          return true;  // Continue scanning headers.
+        });
+
+        // Seek back to beginning of message, ready for copying,
+        // If we did find an initial "From ", skip to the next line.
+        rv = seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, msgStart);
       }
     }
 
-    mCopyState->m_wholeMsgInStream = true;
-    if (NS_SUCCEEDED(rv)) rv = BeginCopy();
+    if (NS_SUCCEEDED(rv)) {
+      rv = BeginCopy();
+    }
+    if (NS_SUCCEEDED(rv)) {
+      rv = CopyData(inputStream, (int32_t)fileSize - msgStart);
+    }
+    if (NS_SUCCEEDED(rv)) {
+      rv = EndCopy(true);
+    }
 
-    if (NS_SUCCEEDED(rv)) rv = CopyData(inputStream, (int32_t)fileSize);
-
-    if (NS_SUCCEEDED(rv)) rv = EndCopy(true);
-
-    // mDatabase should have been initialized above - if we got msgDb
+    // mDatabase should have been initialized above.
     // If we were going to delete, here is where we would do it. But because
     // existing code already supports doing those deletes, we are just going
     // to end the copy.
-    if (NS_SUCCEEDED(rv) && msgToReplace && mDatabase)
+    if (NS_SUCCEEDED(rv) && msgToReplace && mDatabase) {
       rv = OnCopyCompleted(fileSupport, true);
+    }
 
-    if (inputStream) inputStream->Close();
+    if (inputStream) {
+      inputStream->Close();
+    }
   }
 
-  if (NS_FAILED(rv)) (void)OnCopyCompleted(fileSupport, false);
+  if (NS_FAILED(rv)) {
+    (void)OnCopyCompleted(fileSupport, false);
+  }
 
   return rv;
 }
@@ -1765,7 +1916,12 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
   if (NS_SUCCEEDED(rv)) {
     bool valid = false;
     nsCOMPtr<nsIMsgDatabase> db;
-    // this will kick off a reparse if the db is out of date.
+    // This will kick off a reparse if the db is out of date.
+    // TODO: This uses SetCheckForNewMessagesAfterParsing() to tell
+    // FinishUpAfterParseFolder() to call us again when it's done.
+    // Would be much better to pass in a UrlListener here which calls
+    // GetNewMail() in its OnStopRunningUrl() callback.
+    // See Bug 1848476.
     rv = localInbox->GetDatabaseWithReparse(nullptr, aWindow,
                                             getter_AddRefs(db));
     if (NS_SUCCEEDED(rv)) {
@@ -1824,27 +1980,17 @@ nsresult nsMsgLocalMailFolder::WriteStartOfNewMessage() {
     mCopyState->m_parseMsgState->SetState(
         nsIMsgParseMailMsgState::ParseHeadersState);
   }
-  if (mCopyState->m_dummyEnvelopeNeeded) {
+  if (mCopyState->m_addXMozillaHeaders) {
+    // The message is apparently coming in from a source which doesn't
+    // include X-Mozilla-Status et al, so we'll slip them in now, before
+    // we start writing the real headers.
+    // TODO: A much more robust solution would be to check for the headers
+    // as the data flows through CopyData(), and to add in any missing
+    // X-Mozilla-* headers there. Falls under Bug 1731177.
     nsCString result;
-    nsAutoCString nowStr;
-    MsgGenerateNowStr(nowStr);
-    result.AppendLiteral("From - ");
-    result.Append(nowStr);
-    result.Append(MSG_LINEBREAK);
-
     uint32_t bytesWritten;
-    mCopyState->m_fileStream->Write(result.get(), result.Length(),
-                                    &bytesWritten);
-    if (mCopyState->m_parseMsgState) {
-      mCopyState->m_parseMsgState->ParseAFolderLine(result.get(),
-                                                    result.Length());
-      // Make sure the parser knows where the header block begins.
-      // Another hack for Bug 1734847.
-      mCopyState->m_parseMsgState->m_headerstartpos =
-          mCopyState->m_parseMsgState->m_position;
-    }
 
-    // *** jt - hard code status line for now; come back later
+    // Insert an X-Mozilla-Status header.
     char statusStrBuf[50];
     if (mCopyState->m_curCopyIndex < mCopyState->m_messages.Length()) {
       uint32_t dbFlags = 0;
@@ -1858,28 +2004,35 @@ nsresult nsMsgLocalMailFolder::WriteStartOfNewMessage() {
           dbFlags &
               ~(nsMsgMessageFlags::RuntimeOnly | nsMsgMessageFlags::Offline) &
               0x0000FFFF);
-    } else
+    } else {
       strcpy(statusStrBuf, "X-Mozilla-Status: 0001" MSG_LINEBREAK);
+    }
+
     mCopyState->m_fileStream->Write(statusStrBuf, strlen(statusStrBuf),
                                     &bytesWritten);
-    if (mCopyState->m_parseMsgState)
+    if (mCopyState->m_parseMsgState) {
       mCopyState->m_parseMsgState->ParseAFolderLine(statusStrBuf,
                                                     strlen(statusStrBuf));
+    }
+
+    // Insert an X-Mozilla-Status2 header.
     result = "X-Mozilla-Status2: 00000000" MSG_LINEBREAK;
     mCopyState->m_fileStream->Write(result.get(), result.Length(),
                                     &bytesWritten);
-    if (mCopyState->m_parseMsgState)
+    if (mCopyState->m_parseMsgState) {
       mCopyState->m_parseMsgState->ParseAFolderLine(result.get(),
                                                     result.Length());
+    }
+
+    // Insert an X-Mozilla-Keys header.
     result = X_MOZILLA_KEYWORDS;
     mCopyState->m_fileStream->Write(result.get(), result.Length(),
                                     &bytesWritten);
-    if (mCopyState->m_parseMsgState)
+    if (mCopyState->m_parseMsgState) {
       mCopyState->m_parseMsgState->ParseAFolderLine(result.get(),
                                                     result.Length());
-    mCopyState->m_fromLineSeen = true;
-  } else
-    mCopyState->m_fromLineSeen = false;
+    }
+  }
 
   mCopyState->m_curCopyIndex++;
   return NS_OK;
@@ -1897,7 +2050,7 @@ nsresult nsMsgLocalMailFolder::InitCopyMsgHdrAndFileStream() {
   return rv;
 }
 
-// nsICopyMessageListener
+// nsICopyMessageListener.beginCopy()
 NS_IMETHODIMP nsMsgLocalMailFolder::BeginCopy() {
   if (!mCopyState) return NS_ERROR_NULL_POINTER;
 
@@ -1936,6 +2089,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::BeginCopy() {
                                                 : NS_OK;
 }
 
+// nsICopyMessageListener.copyData()
 NS_IMETHODIMP nsMsgLocalMailFolder::CopyData(nsIInputStream* aIStream,
                                              int32_t aLength) {
   // check to make sure we have control of the write.
@@ -1948,88 +2102,58 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CopyData(nsIInputStream* aIStream,
 
   if (!mCopyState) return NS_ERROR_OUT_OF_MEMORY;
 
-  uint32_t readCount;
-  // allocate one extra byte for '\0' at the end and another extra byte at the
-  // front to insert a '>' if we have a "From" line
-  // allocate 2 more for crlf that may be needed for those without crlf at end
-  // of file
-  if (aLength + mCopyState->m_leftOver + 4 > mCopyState->m_dataBufferSize) {
-    char* newBuffer = (char*)PR_REALLOC(mCopyState->m_dataBuffer,
-                                        aLength + mCopyState->m_leftOver + 4);
-    if (!newBuffer) return NS_ERROR_OUT_OF_MEMORY;
-
-    mCopyState->m_dataBuffer = newBuffer;
-    mCopyState->m_dataBufferSize = aLength + mCopyState->m_leftOver + 3;
+  while (aLength > 0 && !mCopyState->m_writeFailed) {
+    uint32_t readCount;
+    rv = aIStream->Read(
+        mCopyState->m_dataBuffer.begin(),
+        std::min((uint32_t)aLength, (uint32_t)mCopyState->m_dataBuffer.Length),
+        &readCount);
+    if (readCount == 0) {
+      rv = NS_ERROR_UNEXPECTED;  // unexpected EOF.
+    }
+    NS_ENSURE_SUCCESS(rv, rv);
+    aLength -= readCount;
+    auto data =
+        mozilla::Span<const char>(mCopyState->m_dataBuffer.cbegin(), readCount);
+    mCopyState->m_LineReader.Feed(
+        data, std::bind(&nsMsgLocalMailFolder::CopyLine, this,
+                        std::placeholders::_1));
   }
 
-  rv = aIStream->Read(mCopyState->m_dataBuffer + mCopyState->m_leftOver + 1,
-                      aLength, &readCount);
-  NS_ENSURE_SUCCESS(rv, rv);
-  mCopyState->m_leftOver += readCount;
-  mCopyState->m_dataBuffer[mCopyState->m_leftOver + 1] = '\0';
-  char* start = mCopyState->m_dataBuffer + 1;
-  char* endBuffer = mCopyState->m_dataBuffer + mCopyState->m_leftOver + 1;
+  if (mCopyState->m_writeFailed) {
+    return NS_ERROR_UNEXPECTED;
+  }
+  return NS_OK;
+}
 
-  uint32_t lineLength;
+// Handle a single line - called from CopyData() and EndCopy().
+// Would be better not to do this line by line but we're feeding
+// into a nsParseMailMessageState here, and that needs lines.
+// Returns true upon success.
+// Upon failure, sets mCopyState->m_writeFailed and returns false.
+bool nsMsgLocalMailFolder::CopyLine(mozilla::Span<const char> line) {
+  if (!mCopyState->m_fileStream) {
+    ThrowAlertMsg("copyMsgWriteFailed", mCopyState->m_msgWindow);
+    mCopyState->m_writeFailed = true;
+    return false;  // Stop processing!
+  }
+
+  // Feed it to the messagestore.
   uint32_t bytesWritten;
-
-  while (1) {
-    char* end = PL_strnpbrk(start, "\r\n", endBuffer - start);
-    if (!end) {
-      mCopyState->m_leftOver -= (start - mCopyState->m_dataBuffer - 1);
-      // In CopyFileMessage, a complete message is being copied in a single
-      // call to CopyData, and if it does not have a LINEBREAK at the EOF,
-      // then end will be null after reading the last line, and we need
-      // to append the LINEBREAK to the buffer to enable transfer of the last
-      // line.
-      if (mCopyState->m_wholeMsgInStream) {
-        end = start + mCopyState->m_leftOver;
-        memcpy(end, MSG_LINEBREAK "\0", MSG_LINEBREAK_LEN + 1);
-      } else {
-        memmove(mCopyState->m_dataBuffer + 1, start, mCopyState->m_leftOver);
-        break;
-      }
-    }
-
-    // need to set the linebreak_len each time
-    uint32_t linebreak_len = 1;  // assume CR or LF
-    if (*end == '\r' && *(end + 1) == '\n') linebreak_len = 2;  // CRLF
-
-    if (!mCopyState->m_fromLineSeen) {
-      mCopyState->m_fromLineSeen = true;
-      NS_ASSERTION(strncmp(start, "From ", 5) == 0,
-                   "Fatal ... bad message format\n");
-    } else if (strncmp(start, "From ", 5) == 0) {
-      // if we're at the beginning of the buffer, we've reserved a byte to
-      // insert a '>'.  If we're in the middle, we're overwriting the previous
-      // line ending, but we've already written it to m_fileStream, so it's OK.
-      *--start = '>';
-    }
-
-    if (!mCopyState->m_fileStream) {
-      ThrowAlertMsg("copyMsgWriteFailed", mCopyState->m_msgWindow);
-      mCopyState->m_writeFailed = true;
-      return NS_ERROR_UNEXPECTED;
-    }
-
-    lineLength = end - start + linebreak_len;
-    rv = mCopyState->m_fileStream->Write(start, lineLength, &bytesWritten);
-    if (bytesWritten != lineLength || NS_FAILED(rv)) {
-      ThrowAlertMsg("copyMsgWriteFailed", mCopyState->m_msgWindow);
-      mCopyState->m_writeFailed = true;
-      return NS_MSG_ERROR_WRITING_MAIL_FOLDER;
-    }
-
-    if (mCopyState->m_parseMsgState)
-      mCopyState->m_parseMsgState->ParseAFolderLine(start, lineLength);
-
-    start = end + linebreak_len;
-    if (start >= endBuffer) {
-      mCopyState->m_leftOver = 0;
-      break;
-    }
+  nsresult rv = mCopyState->m_fileStream->Write(line.data(), line.Length(),
+                                                &bytesWritten);
+  if (NS_FAILED(rv)) {
+    ThrowAlertMsg("copyMsgWriteFailed", mCopyState->m_msgWindow);
+    mCopyState->m_writeFailed = true;
+    return false;  // Stop processing!
   }
-  return rv;
+
+  if (mCopyState->m_parseMsgState) {
+    // Also feed it through the nsParseMailMessageState to extract the
+    // headers for an nsIMsgDBHdr.
+    mCopyState->m_parseMsgState->ParseAFolderLine(line.data(), line.size());
+  }
+  return true;  // All good.
 }
 
 void nsMsgLocalMailFolder::CopyPropertiesToMsgHdr(nsIMsgDBHdr* destHdr,
@@ -2079,19 +2203,26 @@ void nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(
   }
 }
 
+// nsICopyMessageListener.endCopy()
 MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
 nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
   if (!mCopyState) return NS_OK;
+
+  // Flush any remaining data (i.e if the last line of the message had
+  // no EOL).
+  mCopyState->m_LineReader.Flush(
+      std::bind(&nsMsgLocalMailFolder::CopyLine, this, std::placeholders::_1));
 
   // we are the destination folder for a move/copy
   nsresult rv = aCopySucceeded ? NS_OK : NS_ERROR_FAILURE;
 
   if (!aCopySucceeded || mCopyState->m_writeFailed) {
     if (mCopyState->m_fileStream) {
-      if (mCopyState->m_curDstKey != nsMsgKey_None)
+      if (mCopyState->m_curDstKey != nsMsgKey_None) {
         mCopyState->m_msgStore->DiscardNewMessage(mCopyState->m_fileStream,
                                                   mCopyState->m_newHdr);
-      mCopyState->m_fileStream->Close();
+      }
+      mCopyState->m_fileStream = nullptr;
     }
 
     if (!mCopyState->m_isMove) {
@@ -2111,12 +2242,6 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
 
   RefPtr<nsLocalMoveCopyMsgTxn> localUndoTxn = mCopyState->m_undoMsgTxn;
 
-  NS_ASSERTION(mCopyState->m_leftOver == 0,
-               "whoops, something wrong with previous copy");
-  mCopyState->m_leftOver = 0;  // reset to 0.
-  // need to reset this in case we're move/copying multiple msgs.
-  mCopyState->m_fromLineSeen = false;
-
   // flush the copied message. We need a close at the end to get the
   // file size and time updated correctly.
   //
@@ -2130,15 +2255,12 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
   // has already been processed by EndMessage so it is not doubly added here.
 
   if (mCopyState->m_fileStream) {
-    rv = FinishNewLocalMessage(mCopyState->m_fileStream, mCopyState->m_newHdr,
-                               mCopyState->m_msgStore,
-                               mCopyState->m_parseMsgState);
-    if (NS_SUCCEEDED(rv) && mCopyState->m_newHdr)
+    rv = mCopyState->m_msgStore->FinishNewMessage(mCopyState->m_fileStream,
+                                                  mCopyState->m_newHdr);
+    if (NS_SUCCEEDED(rv) && mCopyState->m_newHdr) {
       mCopyState->m_newHdr->GetMessageKey(&mCopyState->m_curDstKey);
-    if (multipleCopiesFinished)
-      mCopyState->m_fileStream->Close();
-    else
-      mCopyState->m_fileStream->Flush();
+    }
+    mCopyState->m_fileStream = nullptr;
   }
   // Copy the header to the new database
   if (mCopyState->m_message) {
@@ -2352,6 +2474,7 @@ bool nsMsgLocalMailFolder::GetDeleteFromServerOnMove() {
   return gDeleteFromServerOnMove;
 }
 
+// nsICopyMessageListener.endMove()
 MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
 nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
   nsresult rv;
@@ -2428,6 +2551,7 @@ nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
   return NS_OK;
 }
 
+// nsICopyMessageListener.startMessage()
 // this is the beginning of the next message copied
 NS_IMETHODIMP nsMsgLocalMailFolder::StartMessage() {
   // We get crashes that we don't understand (bug 284876), so stupidly prevent
@@ -2438,6 +2562,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::StartMessage() {
   return WriteStartOfNewMessage();
 }
 
+// nsICopyMessageListener.endMessage()
 // just finished the current message.
 NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
   NS_ENSURE_ARG_POINTER(mCopyState);
@@ -2452,14 +2577,12 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
     localUndoTxn->AddDstKey(mCopyState->m_curDstKey);
   }
 
-  // I think this is always true for online to offline copy
-  mCopyState->m_dummyEnvelopeNeeded = true;
+  // Request addition of X-Mozilla-Status et al.
+  mCopyState->m_addXMozillaHeaders = true;
   if (mCopyState->m_fileStream) {
-    rv = FinishNewLocalMessage(mCopyState->m_fileStream, mCopyState->m_newHdr,
-                               mCopyState->m_msgStore,
-                               mCopyState->m_parseMsgState);
-    mCopyState->m_fileStream->Close();
-    mCopyState->m_fileStream = nullptr;  // all done with the file stream
+    rv = mCopyState->m_msgStore->FinishNewMessage(mCopyState->m_fileStream,
+                                                  mCopyState->m_newHdr);
+    mCopyState->m_fileStream = nullptr;
   }
 
   // CopyFileMessage() and CopyMessages() from servers other than mailbox
@@ -2502,7 +2625,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
       mCopyState->m_listener->SetMessageKey(mCopyState->m_curDstKey);
   }
 
-  if (mCopyState->m_fileStream) mCopyState->m_fileStream->Flush();
   return NS_OK;
 }
 
@@ -2789,20 +2911,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::HasMsgOffline(nsMsgKey msgKey,
 
 NS_IMETHODIMP nsMsgLocalMailFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
                                                       nsIInputStream** stream) {
-  uint64_t offset = 0;
-  hdr->GetMessageOffset(&offset);
-  // It's a local folder - .messageSize holds the size.
-  uint32_t size = 0;
-  hdr->GetMessageSize(&size);
-  nsCOMPtr<nsIInputStream> fileStream;
-  nsresult rv = GetMsgInputStream(hdr, getter_AddRefs(fileStream));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  RefPtr<mozilla::SlicedInputStream> slicedStream =
-      new mozilla::SlicedInputStream(fileStream.forget(), offset,
-                                     uint64_t(size));
-  slicedStream.forget(stream);
-  return NS_OK;
+  return GetMsgInputStream(hdr, stream);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::NotifyDelete() {
@@ -2894,53 +3003,9 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
     return nsMsgDBFolder::OnStopRunningUrl(aUrl, aExitCode);
   }
 
-  nsresult rv;
-  if (NS_SUCCEEDED(aExitCode)) {
-    nsCOMPtr<nsIMsgMailSession> mailSession =
-        do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIMsgWindow> msgWindow;
-    rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-    nsAutoCString aSpec;
-    if (aUrl) {
-      rv = aUrl->GetSpec(aSpec);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-
-    if (mFlags & nsMsgFolderFlags::Inbox) {
-      if (mDatabase && mCheckForNewMessagesAfterParsing) {
-        bool valid =
-            false;  // GetSummaryValid may return without setting valid.
-        mDatabase->GetSummaryValid(&valid);
-        if (valid && msgWindow) rv = GetNewMessages(msgWindow, nullptr);
-        mCheckForNewMessagesAfterParsing = false;
-      }
-    }
-  }
-
-  if (m_parsingFolder) {
-    // Clear this before calling OnStopRunningUrl, in case the url listener
-    // tries to get the database.
-    m_parsingFolder = false;
-
-    // TODO: Updating the size should be pushed down into the msg store backend
-    // so that the size is recalculated as part of parsing the folder data
-    // (important for maildir), once GetSizeOnDisk is pushed into the msgStores
-    // (bug 1032360).
-    (void)RefreshSizeOnDisk();
-
-    // Update the summary totals so the front end will
-    // show the right thing.
-    UpdateSummaryTotals(true);
-
-    if (mReparseListener) {
-      nsCOMPtr<nsIUrlListener> saveReparseListener = mReparseListener;
-      mReparseListener = nullptr;
-      saveReparseListener->OnStopRunningUrl(aUrl, aExitCode);
-    }
-  }
   if (mFlags & nsMsgFolderFlags::Inbox) {
     // if we are the inbox and running pop url
+    nsresult rv;
     nsCOMPtr<nsIPop3URL> popurl = do_QueryInterface(aUrl, &rv);
     mozilla::Unused << popurl;
     if (NS_SUCCEEDED(rv)) {
@@ -3344,6 +3409,8 @@ nsMsgLocalMailFolder::AddMessageBatch(
 
       rv = newMailParser->Init(rootFolder, this, msgWindow, newHdr,
                                outFileStream);
+      NS_ENSURE_SUCCESS(rv, rv);
+      newMailParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
 
       uint32_t bytesWritten;
       uint32_t messageLen = aMessages[i].Length();
@@ -3353,8 +3420,7 @@ nsMsgLocalMailFolder::AddMessageBatch(
       rv = newMailParser->Flush();
       NS_ENSURE_SUCCESS(rv, rv);
 
-      FinishNewLocalMessage(outFileStream, newHdr, msgStore, newMailParser);
-      outFileStream->Close();
+      msgStore->FinishNewMessage(outFileStream, newHdr);
       outFileStream = nullptr;
       newMailParser->OnStopRequest(nullptr, NS_OK);
       newMailParser->EndMsgDownload();
@@ -3363,16 +3429,6 @@ nsMsgLocalMailFolder::AddMessageBatch(
   }
   ReleaseSemaphore(static_cast<nsIMsgLocalMailFolder*>(this));
   return rv;
-}
-
-nsresult nsMsgLocalMailFolder::FinishNewLocalMessage(
-    nsIOutputStream* aOutputStream, nsIMsgDBHdr* aNewHdr,
-    nsIMsgPluggableStore* aMsgStore, nsParseMailMessageState* aParseMsgState) {
-  uint32_t bytesWritten;
-  aOutputStream->Write(MSG_LINEBREAK, MSG_LINEBREAK_LEN, &bytesWritten);
-  if (aParseMsgState)
-    aParseMsgState->ParseAFolderLine(MSG_LINEBREAK, MSG_LINEBREAK_LEN);
-  return aMsgStore->FinishNewMessage(aOutputStream, aNewHdr);
 }
 
 NS_IMETHODIMP

@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -360,28 +359,38 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, uint32_t flags) {
                                          getter_AddRefs(m_outFileStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // create a new mail parser
-  if (!m_newMailParser) m_newMailParser = new nsParseNewMailState;
-  NS_ENSURE_TRUE(m_newMailParser, NS_ERROR_OUT_OF_MEMORY);
-  if (m_uidlDownload) m_newMailParser->DisableFilters();
-
   nsCOMPtr<nsIMsgFolder> serverFolder;
   rv = GetServerFolder(getter_AddRefs(serverFolder));
   if (NS_FAILED(rv)) return rv;
 
+  // Annoyingly, there's some state which needs to be carried over multiple
+  // messages, hence this hoop-jumping.
+  int32_t oldNotNewCount = 0;
+  RefPtr<nsImapMoveCoalescer> oldCoalescer;
+  if (m_newMailParser) {
+    oldNotNewCount = m_newMailParser->m_numNotNewMessages;
+    oldCoalescer = m_newMailParser->m_moveCoalescer;
+    m_newMailParser->m_moveCoalescer = nullptr;
+    m_newMailParser = nullptr;
+  }
+  // Create a new mail parser to parse out the headers of the message and
+  // load the details into the message database.
+  m_newMailParser = new nsParseNewMailState;
   rv = m_newMailParser->Init(serverFolder, m_folder, m_window, newHdr,
                              m_outFileStream);
+  m_newMailParser->m_numNotNewMessages = oldNotNewCount;
+  m_newMailParser->m_moveCoalescer = oldCoalescer;
+
+  if (m_uidlDownload) m_newMailParser->DisableFilters();
+
   // If we failed to initialize the parser, then just don't use it!!!
   // We can still continue without one.
-
   if (NS_FAILED(rv)) {
     m_newMailParser = nullptr;
     rv = NS_OK;
   }
 
-  nsCString outputString(GetDummyEnvelope());
-  rv = WriteLineToMailbox(outputString);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCString outputString;
   // Write out account-key before UIDL so the code that looks for
   // UIDL will find the account first and know it can stop looking
   // once it finds the UIDL line.
@@ -458,31 +467,8 @@ NS_IMETHODIMP nsPop3Sink::SetMsgsToDownload(uint32_t aNumMessages) {
   return NS_OK;
 }
 
-char* nsPop3Sink::GetDummyEnvelope(void) {
-  static char result[75];
-  char* ct;
-  time_t now = time((time_t*)0);
-#if defined(XP_WIN)
-  if (now < 0 || now > 0x7FFFFFFF) now = 0x7FFFFFFF;
-#endif
-  ct = ctime(&now);
-  PR_ASSERT(ct[24] == '\r' || ct[24] == '\n');
-  ct[24] = 0;
-  /* This value must be in ctime() format, with English abbreviations.
-   strftime("... %c ...") is no good, because it is localized. */
-  PL_strcpy(result, "From - ");
-  PL_strcpy(result + 7, ct);
-  PL_strcpy(result + 7 + 24, MSG_LINEBREAK);
-  return result;
-}
-
 nsresult nsPop3Sink::IncorporateWrite(const char* block, int32_t length) {
-  m_outputBuffer.Truncate();
-  if (!strncmp(block, "From ", 5)) m_outputBuffer.Assign('>');
-
-  m_outputBuffer.Append(block);
-
-  return WriteLineToMailbox(m_outputBuffer);
+  return WriteLineToMailbox(nsDependentCString(block, length));
 }
 
 nsresult nsPop3Sink::WriteLineToMailbox(const nsACString& buffer) {
@@ -576,13 +562,11 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
     nsBuildLocalMessageURI(m_baseMessageUri, msgKey, m_messageUri);
   }
 
-  nsresult rv = WriteLineToMailbox(nsLiteralCString(MSG_LINEBREAK));
-  NS_ENSURE_SUCCESS(rv, rv);
   bool leaveOnServer = false;
   m_popServer->GetLeaveMessagesOnServer(&leaveOnServer);
   // We need to flush the output stream, in case mail filters move
   // the new message, which relies on all the data being flushed.
-  rv =
+  nsresult rv =
       m_outFileStream->Flush();  // Make sure the message is written to the disk
   NS_ENSURE_SUCCESS(rv, rv);
   NS_ASSERTION(m_newMailParser, "could not get m_newMailParser");

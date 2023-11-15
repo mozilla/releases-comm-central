@@ -46,7 +46,6 @@
 #include "nsILoginManager.h"
 #include "nsEmbedCID.h"
 #include "mozilla/Components.h"
-#include "mozilla/SlicedInputStream.h"
 #include "nsIInputStream.h"
 #include "nsMemory.h"
 #include "nsIURIMutator.h"
@@ -1430,21 +1429,7 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadMessagesForOffline(
 
 NS_IMETHODIMP nsMsgNewsFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
                                                  nsIInputStream** stream) {
-  nsMsgKey key;
-  hdr->GetMessageKey(&key);
-
-  uint64_t offset = 0;
-  uint32_t size = 0;
-  nsCOMPtr<nsIInputStream> rawStream;
-  nsresult rv =
-      GetOfflineFileStream(key, &offset, &size, getter_AddRefs(rawStream));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  RefPtr<mozilla::SlicedInputStream> slicedStream =
-      new mozilla::SlicedInputStream(rawStream.forget(), offset,
-                                     uint64_t(size));
-  slicedStream.forget(stream);
-  return NS_OK;
+  return GetMsgInputStream(hdr, stream);
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::NotifyDownloadBegin(nsMsgKey key) {

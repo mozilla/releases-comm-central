@@ -9,7 +9,6 @@
 #include "nscore.h"
 #include "nsISupports.h"
 
-#include "nsIMailboxService.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgMessageService.h"
 #include "nsIMsgWindow.h"
@@ -18,8 +17,7 @@
 #include "nsIUrlListener.h"
 #include "nsIProtocolHandler.h"
 
-class nsMailboxService : public nsIMailboxService,
-                         public nsIMsgMessageService,
+class nsMailboxService : public nsIMsgMessageService,
                          public nsIMsgMessageFetchPartService,
                          public nsIProtocolHandler {
  public:
@@ -28,7 +26,6 @@ class nsMailboxService : public nsIMailboxService,
                          nsIURI* aBaseURI, nsIURI** _retval);
 
   NS_DECL_ISUPPORTS
-  NS_DECL_NSIMAILBOXSERVICE
   NS_DECL_NSIMSGMESSAGESERVICE
   NS_DECL_NSIMSGMESSAGEFETCHPARTSERVICE
   NS_DECL_NSIPROTOCOLHANDLER
