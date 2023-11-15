@@ -519,13 +519,18 @@ void OAuth2ThreadHelper::GetXOAuth2String(nsACString& base64Str) {
     return;
   }
   mMonitor.Wait();
-  NS_NewRunnableFunction("GetXOAuth2StringShutdownNotifier",
-                         [self = RefPtr(this)] {
-                           mozilla::RunOnShutdown([&]() {
-                             // Notify anyone waiting that we're done.
-                             self->mMonitor.Notify();
-                           });
-                         });
+
+  nsCOMPtr<nsIRunnable> shutdownNotify = NS_NewRunnableFunction(
+      "GetXOAuth2StringShutdownNotifier", [self = RefPtr(this)]() {
+        mozilla::RunOnShutdown([self]() {
+          // Notify anyone waiting that we're done.
+          self->mMonitor.Notify();
+        });
+      });
+  rv = NS_DispatchToMainThread(shutdownNotify.forget());
+  if (NS_WARN_IF(NS_FAILED(rv))) {
+    return;
+  }
 
   // Now we either have the string, or we failed (in which case the string is
   // empty).
