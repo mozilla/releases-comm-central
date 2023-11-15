@@ -414,7 +414,7 @@
         "async": "callback",
         "parameters": [
           {
-            "name": "folderId",
+            "name": "folder",
             "$ref": "folders.MailFolderId"
           },
           {
@@ -451,12 +451,12 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.create(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.create() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.create(): Manifest V3 will require to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.create() requires to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object.",
                 "$ref": "accounts.MailAccount"
               }
             ]
@@ -492,7 +492,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.rename(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.rename() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ]
@@ -517,7 +517,7 @@
         "name": "move",
         "type": "function",
         "permissions": ["accountsFolders"],
-        "description": "Moves the given ``sourceFolder`` into the given ``destination``. Throws if the destination already contains a folder with the name of the source folder.",
+        "description": "Moves the given source folder into the given destination folder. Throws if the destination already contains a folder with the name of the source folder.",
         "async": "callback",
         "parameters": [
           {
@@ -528,7 +528,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.move(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.move() requires to specify a MailFolderId for its source parameter, instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ]
@@ -541,12 +541,12 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.move(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.move() requires to specify a MailFolderId for its destination parameter, instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.move(): Manifest V3 will require to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.move() requires to specify the MailFolderId of the account's rootFolder for its destination parameter, instead of a full MailAccount object.",
                 "$ref": "accounts.MailAccount"
               }
             ]
@@ -567,7 +567,7 @@
         "name": "copy",
         "type": "function",
         "permissions": ["accountsFolders"],
-        "description": "Copies the given ``sourceFolder`` into the given ``destination``. Throws if the destination already contains a folder with the name of the source folder.",
+        "description": "Copies the given source folder into the given destination folder. Throws if the destination already contains a folder with the name of the source folder.",
         "async": "callback",
         "parameters": [
           {
@@ -578,7 +578,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.copy(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.copy() requires to specify a MailFolderId for its source parameter, instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ]
@@ -591,12 +591,12 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.copy(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.copy() requires to specify a MailFolderId for its destination parameter, instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.copy(): Manifest V3 will require to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.copy() requires to specify the MailFolderId of the account's rootFolder for its destination parameter, instead of a full MailAccount object.",
                 "$ref": "accounts.MailAccount"
               }
             ]
@@ -628,7 +628,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.delete(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.delete() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ]
@@ -650,7 +650,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.update(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.update() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ]
@@ -683,7 +683,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.getFolderInfo(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getFolderInfo() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ]
@@ -714,7 +714,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.getFolderCapabilities(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getFolderCapabilities() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ]
@@ -745,7 +745,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.getParentFolders(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getParentFolders() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ]
@@ -786,12 +786,12 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.getSubFolders(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getSubFolders() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.getSubFolders(): Manifest V3 will require to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getSubFolders() requires to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object.",
                 "$ref": "accounts.MailAccount"
               }
             ]
@@ -833,7 +833,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "folders.markAsRead(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.markAsRead() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ]

@@ -366,7 +366,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "messages.list(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.list() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ]
@@ -643,7 +643,7 @@
               "folder": {
                 "$ref": "folders.MailFolder",
                 "max_manifest_version": 2,
-                "deprecated": "messages.queryInfo.folder: Manifest V3 will use messages.queryInfo.folderId instead.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.queryInfo.folder has been replaced by messages.queryInfo.folderId.",
                 "optional": true,
                 "description": "Returns only messages from the specified folder. The <permission>accountsRead</permission> permission is required."
               },
@@ -806,7 +806,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "messages.move(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.move() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ],
@@ -838,7 +838,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "messages.copy(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.copy() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ],
@@ -891,7 +891,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "messages.import(): Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.import() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ],
@@ -938,7 +938,7 @@
         "description": "Returns a list of tags that can be set on messages, and their human-friendly name, colour, and sort order.",
         "async": "callback",
         "max_manifest_version": 2,
-        "deprecated": "Deprecated since Thunderbird 121 and removed in Manifest V3, messages.listTags() is now available as messages.tags.list().",
+        "deprecated": "Deprecated since Thunderbird 121 and removed in Manifest V3: messages.listTags() is now available as messages.tags.list().",
         "parameters": [
           {
             "type": "function",
@@ -962,7 +962,7 @@
         "async": true,
         "permissions": ["messagesTags"],
         "max_manifest_version": 2,
-        "deprecated": "Deprecated since Thunderbird 121 and removed in Manifest V3, messages.createTag() is now available as messages.tags.create().",
+        "deprecated": "Deprecated since Thunderbird 121 and removed in Manifest V3: messages.createTag() is now available as messages.tags.create().",
         "parameters": [
           {
             "type": "string",
@@ -990,7 +990,7 @@
         "async": true,
         "permissions": ["messagesTags"],
         "max_manifest_version": 2,
-        "deprecated": "Deprecated since Thunderbird 121 and removed in Manifest V3, messages.updateTag() is now available as messages.tags.update().",
+        "deprecated": "Deprecated since Thunderbird 121 and removed in Manifest V3: messages.updateTag() is now available as messages.tags.update().",
         "parameters": [
           {
             "type": "string",
@@ -1024,7 +1024,7 @@
         "async": true,
         "permissions": ["messagesTags"],
         "max_manifest_version": 2,
-        "deprecated": "Deprecated since Thunderbird 121 and removed in Manifest V3, messages.deleteTag() is now available as messages.tags.delete().",
+        "deprecated": "Deprecated since Thunderbird 121 and removed in Manifest V3: messages.deleteTag() is now available as messages.tags.delete().",
         "parameters": [
           {
             "type": "string",

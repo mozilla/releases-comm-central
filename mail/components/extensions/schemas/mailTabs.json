@@ -137,7 +137,7 @@
               },
               {
                 "max_manifest_version": 2,
-                "deprecated": "MailTabProperties.displayedFolder: Manifest V3 will require to specify a MailFolderId instead of a full MailFolder object. It is recommended to use a MailFolderId in Manifest V2 already as well.",
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: MailTabProperties.displayedFolder needs to be specified as a MailFolderId instead of as a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ],

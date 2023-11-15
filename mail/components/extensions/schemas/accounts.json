@@ -153,7 +153,8 @@
         "type": "function",
         "description": "Sets the default identity for an account.",
         "async": true,
-        "deprecated": "This will be removed. Use :ref:`identities.setDefault` instead.",
+        "max_manifest_version": 2,
+        "deprecated": "Deprecated since Thunderbird 91 and removed in Manifest V3: accounts.setDefaultIdentity() is now available as identities.setDefault.",
         "parameters": [
           {
             "name": "accountId",
@@ -170,7 +171,8 @@
         "type": "function",
         "description": "Returns the default identity for an account, or <value>null</value> if it is not defined.",
         "async": "callback",
-        "deprecated": "This will be removed. Use :ref:`identities.getDefault` instead.",
+        "max_manifest_version": 2,
+        "deprecated": "Deprecated since Thunderbird 91 and removed in Manifest V3: accounts.getDefaultIdentity() is now available as identities.getDefault.",
         "parameters": [
           {
             "name": "accountId",
