@@ -388,11 +388,58 @@ add_task(
           tags2
         );
 
+        await browser.messages.tags.update("$label5", {
+          tag: "A Bit Later",
+          color: "#114488",
+        });
+        const tags3a = await browser.messages.listTags();
+        window.assertDeepEqual(
+          [
+            {
+              key: "$label1",
+              tag: "Important",
+              color: "#FF0000",
+              ordinal: "",
+            },
+            {
+              key: "$label2",
+              tag: "Work",
+              color: "#FF9900",
+              ordinal: "",
+            },
+            {
+              key: "$label3",
+              tag: "Personal",
+              color: "#009900",
+              ordinal: "",
+            },
+            {
+              key: "$label4",
+              tag: "To Do",
+              color: "#3333FF",
+              ordinal: "",
+            },
+            {
+              key: "$label5",
+              tag: "A Bit Later",
+              color: "#114488",
+              ordinal: "",
+            },
+            {
+              key: "custom_tag",
+              tag: "Custom Tag",
+              color: "#123456",
+              ordinal: "",
+            },
+          ],
+          tags3a
+        );
+
         await browser.messages.updateTag("$label5", {
           tag: "Much Later",
           color: "#225599",
         });
-        const tags3 = await browser.messages.listTags();
+        const tags3b = await browser.messages.listTags();
         window.assertDeepEqual(
           [
             {
@@ -432,7 +479,7 @@ add_task(
               ordinal: "",
             },
           ],
-          tags3
+          tags3b
         );
 
         // Test rejects for createTag().
@@ -545,11 +592,15 @@ add_task(
         const message1 = await browser.messages.get(folder4Messages[0].id);
         window.assertDeepEqual(["custom_tag"], message1.tags);
 
-        await browser.messages.deleteTag("custom_tag");
+        await browser.messages.tags.delete("custom_tag");
         const message2 = await browser.messages.get(folder4Messages[0].id);
         window.assertDeepEqual([], message2.tags);
 
-        await browser.messages.createTag("custom_tag", "Custom Tag", "#123456");
+        await browser.messages.tags.create(
+          "custom_tag",
+          "Custom Tag",
+          "#123456"
+        );
         const message3 = await browser.messages.get(folder4Messages[0].id);
         window.assertDeepEqual(["custom_tag"], message3.tags);
 
@@ -595,7 +646,7 @@ add_task(
         // Clean up.
         await browser.messages.update(folder4Messages[0].id, { tags: [] });
         await browser.messages.deleteTag("custom_tag");
-        await browser.messages.createTag("$label5", "Later", "#993399");
+        await browser.messages.tags.create("$label5", "Later", "#993399");
         browser.test.notifyPass("finished");
       },
       "utils.js": await getUtilsJS(),

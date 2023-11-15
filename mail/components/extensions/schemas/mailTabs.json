@@ -449,7 +449,7 @@
                     "type": "boolean"
                   },
                   {
-                    "$ref": "messages.TagsDetail"
+                    "$ref": "messages.tags.TagsDetail"
                   }
                 ],
                 "description": "Shows only messages with tags on them."

@@ -831,56 +831,73 @@ this.messages = class extends ExtensionAPIPersistent {
             throw new ExtensionError(`Error archiving message: ${ex.message}`);
           }
         },
+
+        // Deprecated and removed in MV3.
         async listTags() {
-          return MailServices.tags
-            .getAllTags()
-            .map(({ key, tag, color, ordinal }) => {
-              return {
-                key,
-                tag,
-                color,
-                ordinal,
-              };
-            });
+          return this.tags.list();
         },
         async createTag(key, tag, color) {
-          const tags = MailServices.tags.getAllTags();
-          key = key.toLowerCase();
-          if (tags.find(t => t.key == key)) {
-            throw new ExtensionError(`Specified key already exists: ${key}`);
-          }
-          if (tags.find(t => t.tag == tag)) {
-            throw new ExtensionError(`Specified tag already exists: ${tag}`);
-          }
-          MailServices.tags.addTagForKey(key, tag, color, "");
+          return this.tags.create(key, tag, color);
         },
         async updateTag(key, updateProperties) {
-          const tags = MailServices.tags.getAllTags();
-          key = key.toLowerCase();
-          const tag = tags.find(t => t.key == key);
-          if (!tag) {
-            throw new ExtensionError(`Specified key does not exist: ${key}`);
-          }
-          if (updateProperties.color && tag.color != updateProperties.color) {
-            MailServices.tags.setColorForKey(key, updateProperties.color);
-          }
-          if (updateProperties.tag && tag.tag != updateProperties.tag) {
-            // Don't let the user edit a tag to the name of another existing tag.
-            if (tags.find(t => t.tag == updateProperties.tag)) {
-              throw new ExtensionError(
-                `Specified tag already exists: ${updateProperties.tag}`
-              );
-            }
-            MailServices.tags.setTagForKey(key, updateProperties.tag);
-          }
+          return this.tags.update(key, updateProperties);
         },
         async deleteTag(key) {
-          const tags = MailServices.tags.getAllTags();
-          key = key.toLowerCase();
-          if (!tags.find(t => t.key == key)) {
-            throw new ExtensionError(`Specified key does not exist: ${key}`);
-          }
-          MailServices.tags.deleteKey(key);
+          return this.tags.delete(key);
+        },
+
+        tags: {
+          async list() {
+            return MailServices.tags
+              .getAllTags()
+              .map(({ key, tag, color, ordinal }) => {
+                return {
+                  key,
+                  tag,
+                  color,
+                  ordinal,
+                };
+              });
+          },
+          async create(key, tag, color) {
+            const tags = MailServices.tags.getAllTags();
+            key = key.toLowerCase();
+            if (tags.find(t => t.key == key)) {
+              throw new ExtensionError(`Specified key already exists: ${key}`);
+            }
+            if (tags.find(t => t.tag == tag)) {
+              throw new ExtensionError(`Specified tag already exists: ${tag}`);
+            }
+            MailServices.tags.addTagForKey(key, tag, color, "");
+          },
+          async update(key, updateProperties) {
+            const tags = MailServices.tags.getAllTags();
+            key = key.toLowerCase();
+            const tag = tags.find(t => t.key == key);
+            if (!tag) {
+              throw new ExtensionError(`Specified key does not exist: ${key}`);
+            }
+            if (updateProperties.color && tag.color != updateProperties.color) {
+              MailServices.tags.setColorForKey(key, updateProperties.color);
+            }
+            if (updateProperties.tag && tag.tag != updateProperties.tag) {
+              // Don't let the user edit a tag to the name of another existing tag.
+              if (tags.find(t => t.tag == updateProperties.tag)) {
+                throw new ExtensionError(
+                  `Specified tag already exists: ${updateProperties.tag}`
+                );
+              }
+              MailServices.tags.setTagForKey(key, updateProperties.tag);
+            }
+          },
+          async delete(key) {
+            const tags = MailServices.tags.getAllTags();
+            key = key.toLowerCase();
+            if (!tags.find(t => t.key == key)) {
+              throw new ExtensionError(`Specified key does not exist: ${key}`);
+            }
+            MailServices.tags.deleteKey(key);
+          },
         },
       },
     };

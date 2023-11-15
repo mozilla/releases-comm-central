@@ -113,7 +113,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Tags associated with this message. For a list of available tags, call the listTags method."
+            "description": "Tags associated with this message. For a list of available tags, use :ref:`messages.tags.list`."
           }
         }
       },
@@ -216,49 +216,6 @@
             "items": {
               "type": "string"
             }
-          }
-        }
-      },
-      {
-        "id": "MessageTag",
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string",
-            "description": "Unique tag identifier."
-          },
-          "tag": {
-            "type": "string",
-            "description": "Human-readable tag name."
-          },
-          "color": {
-            "type": "string",
-            "description": "Tag color."
-          },
-          "ordinal": {
-            "type": "string",
-            "description": "Custom sort string (usually empty)."
-          }
-        }
-      },
-      {
-        "id": "TagsDetail",
-        "type": "object",
-        "description": "Used for filtering messages by tag in various methods. Note that functions using this type may have a partial implementation.",
-        "properties": {
-          "tags": {
-            "type": "object",
-            "description": "A <em>dictionary object</em> with one or more filter condition as <em>key-value</em> pairs, the <em>key</em> being the tag to filter on, and the <em>value</em> being a boolean expression, requesting whether a message must include (<value>true</value>) or exclude (<value>false</value>) the tag. For a list of available tags, call the :ref:`messages.listTags` method.",
-            "patternProperties": {
-              ".*": {
-                "type": "boolean"
-              }
-            }
-          },
-          "mode": {
-            "type": "string",
-            "description": "Whether all of the tag filters must apply, or any of them.",
-            "enum": ["all", "any"]
           }
         }
       },
@@ -731,7 +688,7 @@
                 "description": "Returns only messages whose subject contains the provided string."
               },
               "tags": {
-                "$ref": "TagsDetail",
+                "$ref": "messages.tags.TagsDetail",
                 "optional": true,
                 "description": "Returns only messages with the specified tags. For a list of available tags, call the :ref:`messages.listTags` method."
               },
@@ -980,6 +937,8 @@
         "type": "function",
         "description": "Returns a list of tags that can be set on messages, and their human-friendly name, colour, and sort order.",
         "async": "callback",
+        "max_manifest_version": 2,
+        "deprecated": "Deprecated since Thunderbird 121 and removed in Manifest V3, messages.listTags() is now available as messages.tags.list().",
         "parameters": [
           {
             "type": "function",
@@ -989,7 +948,7 @@
               {
                 "type": "array",
                 "items": {
-                  "$ref": "MessageTag"
+                  "$ref": "messages.tags.MessageTag"
                 }
               }
             ]
@@ -998,6 +957,157 @@
       },
       {
         "name": "createTag",
+        "type": "function",
+        "description": "Creates a new message tag. Tagging a message will store the tag's key in the user's message. Throws if the specified tag key is used already.",
+        "async": true,
+        "permissions": ["messagesTags"],
+        "max_manifest_version": 2,
+        "deprecated": "Deprecated since Thunderbird 121 and removed in Manifest V3, messages.createTag() is now available as messages.tags.create().",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "key",
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <value>()<>{/%*\"</value> or spaces.",
+            "pattern": "^[^ ()/{%*<>\"]+$"
+          },
+          {
+            "type": "string",
+            "name": "tag",
+            "description": "Human-readable tag name."
+          },
+          {
+            "type": "string",
+            "name": "color",
+            "description": "Tag color in hex format (i.e.: <value>#000080</value> for navy blue)",
+            "pattern": "^#[0-9a-f]{6}"
+          }
+        ]
+      },
+      {
+        "name": "updateTag",
+        "type": "function",
+        "description": "Updates a message tag.",
+        "async": true,
+        "permissions": ["messagesTags"],
+        "max_manifest_version": 2,
+        "deprecated": "Deprecated since Thunderbird 121 and removed in Manifest V3, messages.updateTag() is now available as messages.tags.update().",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "key",
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <value>()<>{/%*\"</value> or spaces.",
+            "pattern": "^[^ ()/{%*<>\"]+$"
+          },
+          {
+            "type": "object",
+            "name": "updateProperties",
+            "properties": {
+              "tag": {
+                "type": "string",
+                "optional": "true",
+                "description": "Human-readable tag name."
+              },
+              "color": {
+                "type": "string",
+                "pattern": "^#[0-9a-f]{6}",
+                "description": "Tag color in hex format (i.e.: #000080 for navy blue).",
+                "optional": "true"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "deleteTag",
+        "type": "function",
+        "description": "Deletes a message tag, removing it from the list of known tags. Its key will not be removed from tagged messages, but they will appear untagged. Recreating a deleted tag, will make all former tagged messages appear tagged again.",
+        "async": true,
+        "permissions": ["messagesTags"],
+        "max_manifest_version": 2,
+        "deprecated": "Deprecated since Thunderbird 121 and removed in Manifest V3, messages.deleteTag() is now available as messages.tags.delete().",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "key",
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <value>()<>{/%*\"</value> or spaces.",
+            "pattern": "^[^ ()/{%*<>\"]+$"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "messages.tags",
+    "permissions": ["messagesRead"],
+    "types": [
+      {
+        "id": "MessageTag",
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Unique tag identifier."
+          },
+          "tag": {
+            "type": "string",
+            "description": "Human-readable tag name."
+          },
+          "color": {
+            "type": "string",
+            "description": "Tag color."
+          },
+          "ordinal": {
+            "type": "string",
+            "description": "Custom sort string (usually empty)."
+          }
+        }
+      },
+      {
+        "id": "TagsDetail",
+        "type": "object",
+        "description": "Used for filtering messages by tag in various methods. Note that functions using this type may have a partial implementation.",
+        "properties": {
+          "tags": {
+            "type": "object",
+            "description": "A <em>dictionary object</em> with one or more filter condition as <em>key-value</em> pairs, the <em>key</em> being the tag to filter on, and the <em>value</em> being a boolean expression, requesting whether a message must include (<value>true</value>) or exclude (<value>false</value>) the tag. For a list of available tags, call the :ref:`messages.listTags` method.",
+            "patternProperties": {
+              ".*": {
+                "type": "boolean"
+              }
+            }
+          },
+          "mode": {
+            "type": "string",
+            "description": "Whether all of the tag filters must apply, or any of them.",
+            "enum": ["all", "any"]
+          }
+        }
+      }
+    ],
+    "functions": [
+      {
+        "name": "list",
+        "type": "function",
+        "description": "Returns a list of tags that can be set on messages, and their human-friendly name, colour, and sort order.",
+        "async": "callback",
+        "parameters": [
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "messages.tags.MessageTag"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "create",
         "type": "function",
         "description": "Creates a new message tag. Tagging a message will store the tag's key in the user's message. Throws if the specified tag key is used already.",
         "async": true,
@@ -1023,7 +1133,7 @@
         ]
       },
       {
-        "name": "updateTag",
+        "name": "update",
         "type": "function",
         "description": "Updates a message tag.",
         "async": true,
@@ -1055,7 +1165,7 @@
         ]
       },
       {
-        "name": "deleteTag",
+        "name": "delete",
         "type": "function",
         "description": "Deletes a message tag, removing it from the list of known tags. Its key will not be removed from tagged messages, but they will appear untagged. Recreating a deleted tag, will make all former tagged messages appear tagged again.",
         "async": true,

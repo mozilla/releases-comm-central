@@ -136,7 +136,7 @@ add_task(
           });
         }
 
-        const tags = await browser.messages.listTags();
+        const tags = await browser.messages.tags.list();
         const [data] = await window.sendMessage("getFolder");
         const [folder] = await browser.folders.query({ name: data.folderName });
         const messageList = await browser.messages.list(folder.id);
