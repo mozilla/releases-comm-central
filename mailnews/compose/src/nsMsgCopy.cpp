@@ -228,9 +228,8 @@ nsresult nsMsgCopy::DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = copyService->CopyFileMessage(aDiskFile, dstFolder, aMsgToReplace,
-                                      aIsDraft,
-                                      aIsDraft ? 0 : nsMsgMessageFlags::Read,
-                                      EmptyCString(), copyListener, msgWindow);
+                                      aIsDraft, 0, EmptyCString(), copyListener,
+                                      msgWindow);
     // copyListener->mCopyInProgress can only be set when we are in the
     // middle of the shutdown process
     while (copyListener->mCopyInProgress) {
