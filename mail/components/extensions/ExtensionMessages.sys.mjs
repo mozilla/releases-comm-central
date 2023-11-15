@@ -357,6 +357,10 @@ export async function getMimeMessage(msgHdr, partName = "") {
 }
 
 export function getMessagesInFolder(folder) {
+  if (folder.isServer) {
+    return [];
+  }
+
   if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
     // We first try to read the cached results.
     try {

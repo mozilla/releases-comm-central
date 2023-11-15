@@ -331,6 +331,11 @@
                 "optional": true,
                 "description": "Whether the folder is a favorite folder, or not."
               },
+              "isVirtual": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether this folder is a virtual search folder, or not."
+              },
               "isRoot": {
                 "type": "boolean",
                 "optional": true,

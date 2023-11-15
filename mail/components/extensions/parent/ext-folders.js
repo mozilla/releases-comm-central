@@ -705,25 +705,28 @@ this.folders = class extends ExtensionAPIPersistent {
               // Apply search criteria.
               const isServer = folder.isServer;
 
-              if (queryInfo.isFavorite != null) {
-                if (
-                  queryInfo.isFavorite !=
+              if (
+                queryInfo.isFavorite != null &&
+                queryInfo.isFavorite !=
                   !!folder.getFlag(Ci.nsMsgFolderFlags.Favorite)
-                ) {
-                  continue;
-                }
+              ) {
+                continue;
               }
 
-              if (queryInfo.isRoot != null) {
-                if (queryInfo.isRoot != isServer) {
-                  continue;
-                }
+              if (queryInfo.isRoot != null && queryInfo.isRoot != isServer) {
+                continue;
               }
 
-              if (specialUseFlags) {
-                if (~folder.flags & specialUseFlags) {
-                  continue;
-                }
+              if (
+                queryInfo.isVirtual != null &&
+                queryInfo.isVirtual !=
+                  folder.getFlag(Ci.nsMsgFolderFlags.Virtual)
+              ) {
+                continue;
+              }
+
+              if (specialUseFlags && ~folder.flags & specialUseFlags) {
+                continue;
               }
 
               if (
