@@ -564,7 +564,7 @@
               "url": {
                 "type": "string",
                 "optional": true,
-                "description": "A URL of a page to load. If the URL points to a content page (a web page, an extension page or a registered WebExtension protocol handler page), the tab will navigate to the requested page. All other URLs will be opened externally without changing the tab. Note: This function will throw an error, if a content page is loaded into a non-content tab (its type must be either <value>content</value> or <value>mail</value>)."
+                "description": "A URL of a page to load. If the URL points to a content page (a web page, an extension page or a registered WebExtension protocol handler page), the tab will navigate to the requested page. All other URLs will be opened externally without changing the tab. **Note:** This function will throw an error, if a content page is loaded into a non-content tab (its type must be either <value>content</value> or <value>mail</value>)."
               },
               "active": {
                 "type": "boolean",
