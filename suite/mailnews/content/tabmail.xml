@@ -1056,7 +1056,7 @@
       </xul:stack>
     </content>
 
-    <implementation implements="nsITimerCallback, nsIDOMEventListener, nsIObserver">
+    <implementation implements="nsITimerCallback, nsIObserver">
       <constructor>
         <![CDATA[
           this.mTabMinWidth  = Services.prefs.getIntPref ("browser.tabs.tabMinWidth");
@@ -1324,7 +1324,7 @@
   -->
   <binding id="tabmail-alltabs-popup"
            extends="chrome://global/content/bindings/popup.xml#popup">
-    <implementation implements="nsIDOMEventListener">
+    <implementation>
       <method name="_tabOnTabClose">
         <parameter name="aEvent"/>
         <body>

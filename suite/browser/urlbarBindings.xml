@@ -49,7 +49,7 @@
       <children includes="menupopup"/>
     </content>
 
-    <implementation implements="nsIObserver, nsIDOMEventListener">
+    <implementation implements="nsIObserver">
       <constructor><![CDATA[
         this._prefs = Services.prefs.getBranch("browser.urlbar.");
         this._prefs.addObserver("", this);

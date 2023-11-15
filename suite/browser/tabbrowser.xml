@@ -103,7 +103,7 @@
       </xul:tabbox>
       <children/>
     </content>
-    <implementation implements="nsIDOMEventListener, nsIObserver">
+    <implementation implements="nsIObserver">
       <field name="closingTabsEnum" readonly="true">
         ({ ALL: 0, OTHER: 1, TO_END: 2 });
       </field>
@@ -3387,7 +3387,7 @@
       </xul:stack>
     </content>
 
-    <implementation implements="nsIDOMEventListener">
+    <implementation>
       <constructor>
         <![CDATA[
           var tab = this.firstChild;
@@ -3546,7 +3546,7 @@
 
   <binding id="tabbrowser-alltabs-popup"
            extends="chrome://global/content/bindings/popup.xml#popup">
-    <implementation implements="nsIDOMEventListener">
+    <implementation>
       <method name="_tabOnTabClose">
         <parameter name="aEvent"/>
         <body>

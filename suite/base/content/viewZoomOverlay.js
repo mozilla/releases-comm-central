@@ -34,8 +34,7 @@ var FullZoom = FullZoom || {
   // nsISupports
 
   QueryInterface:
-  XPCOMUtils.generateQI([Ci.nsIDOMEventListener,
-                         Ci.nsIObserver,
+  XPCOMUtils.generateQI([Ci.nsIObserver,
                          Ci.nsIContentPrefObserver,
                          Ci.nsIContentPrefCallback2,
                          Ci.nsISupportsWeakReference]),
@@ -72,7 +71,7 @@ var FullZoom = FullZoom || {
   //**************************************************************************//
   // Event Handlers
 
-  // nsIDOMEventListener
+  // EventListener
 
   handleEvent: function FullZoom_handleEvent(event) {
     switch (event.type) {

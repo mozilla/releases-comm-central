@@ -764,8 +764,7 @@ var gApplicationsPane = {
   //**************************************************************************//
   // nsISupports
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
-                                         Ci.nsIDOMEventListener]),
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver]),
 
   //**************************************************************************//
   // nsIObserver
@@ -782,7 +781,7 @@ var gApplicationsPane = {
 
 
   //**************************************************************************//
-  // nsIDOMEventListener
+  // EventListener
 
   handleEvent(aEvent) {
     switch (aEvent.type) {

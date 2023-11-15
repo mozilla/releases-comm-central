@@ -69,7 +69,6 @@ typeAheadFind.prototype = {
       Ci.nsISupportsWeakReference,
       Ci.nsIObserver,
       Ci.nsITimerCallback,
-      Ci.nsIDOMEventListener,
       Ci.nsISelectionListener]),
 
   /* nsIObserver */
@@ -116,7 +115,7 @@ typeAheadFind.prototype = {
     this.stopFind(false);
   },
 
-  /* nsIDOMEventListener */
+  /* EventListener */
   handleEvent: function(aEvent) {
     if (!aEvent.type.startsWith("key")) {
       this.stopFind(false);

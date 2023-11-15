@@ -18,7 +18,7 @@
 
   <binding id="browser-notificationbox"
            extends="chrome://global/content/bindings/notification.xml#notificationbox">
-    <implementation implements="nsIObserver, nsIFormSubmitObserver, nsIWebProgressListener, nsIWebProgressListener2, nsIDOMEventListener">
+    <implementation implements="nsIObserver, nsIFormSubmitObserver, nsIWebProgressListener, nsIWebProgressListener2">
       <field name="_stringBundle" readonly="true">
         <![CDATA[
           Services.strings.createBundle("chrome://communicator/locale/notification.properties");

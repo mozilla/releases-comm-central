@@ -705,7 +705,7 @@ FeedWriter.prototype = {
     }
   },
 
-  // nsIDOMEventListener
+  // EventListener
   handleEvent: function(event) {
     if (event.target != this._document &&
         event.target.ownerDocument != this._document) {
@@ -1202,7 +1202,6 @@ FeedWriter.prototype = {
 
   classID: FEEDWRITER_CID,
   QueryInterface: XPCOMUtils.generateQI([ Ci.nsIDOMGlobalPropertyInitializer,
-                                          Ci.nsIDOMEventListener,
                                           Ci.nsIObserver])
 
 };

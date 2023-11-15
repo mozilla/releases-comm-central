@@ -67,7 +67,7 @@ var StarUI = {
     });
   },
 
-  // nsIDOMEventListener
+  // EventListener
   handleEvent: function SU_handleEvent(aEvent) {
     switch (aEvent.type) {
       case "popuphidden":

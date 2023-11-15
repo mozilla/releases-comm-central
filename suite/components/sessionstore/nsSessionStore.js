@@ -123,7 +123,6 @@ function SessionStoreService() {
 SessionStoreService.prototype = {
   classID: Components.ID("{d37ccdf1-496f-4135-9575-037180af010d}"),
   QueryInterface: XPCOMUtils.generateQI([Ci.nsISessionStore,
-                                         Ci.nsIDOMEventListener,
                                          Ci.nsIObserver,
                                          Ci.nsISupportsWeakReference]),
 
@@ -492,7 +491,7 @@ SessionStoreService.prototype = {
 /* ........ Window Event Handlers .............. */
 
   /**
-   * Implement nsIDOMEventListener for handling various window and tab events
+   * Implement EventListener for handling various window and tab events
    */
   handleEvent: function sss_handleEvent(aEvent) {
     var win = aEvent.currentTarget.ownerDocument.defaultView;
