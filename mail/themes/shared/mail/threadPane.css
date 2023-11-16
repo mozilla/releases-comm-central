@@ -5,18 +5,22 @@
 :root {
   --thread-pane-container-gap: 3px;
   --thread-pane-header-padding: 3px;
-  --indicator-offset-inline: 7px;
-  --indicator-offset-block: 5px;
+  --indicator-icon-offset-inline: 7px;
+  --indicator-icon-offset-block: 5px;
+  --thread-card-padding-inline-start: 24px;
+  --thread-card-padding-inline-end: 12px;
+  --thread-line-inset-inline-start: calc(var(--thread-card-padding-inline-start) / 2);
+  --thread-line-height: 100%;
 }
 
 :root[uidensity="compact"] {
   --thread-pane-container-gap: 0;
-  --indicator-offset-block: 3px;
+  --indicator-icon-offset-block: 3px;
 }
 
 :root[uidensity="touch"] {
   --thread-pane-header-padding: 6px;
-  --indicator-offset-block: 7px;
+  --indicator-icon-offset-block: 7px;
 }
 
 @media not (prefers-contrast) {
@@ -27,8 +31,13 @@
     --thread-pane-unread-stroke: var(--color-green-60);
     --thread-pane-spam-fill: var(--color-red-50);
     --thread-pane-spam-stroke: var(--color-red-70);
-    --thread-pane-unread-color: currentColor;
-    --thread-pane-child-card-bg: var(--layout-background-2);
+    --thread-card-background: var(--layout-background-1);
+    --thread-card-background-children: light-dark(var(--color-gray-05), color-mix(in srgb, var(--color-gray-90) 80%, var(--color-black)));
+    --thread-card-border-color: var(--layout-border-0);
+    --thread-card-shadow-color: light-dark(rgba(0, 0, 0, .25), rgba(0, 0, 0, 1));
+    --thread-card-shadow-children: inset 0 6px 6px -6px var(--thread-card-shadow-color);
+    --thread-card-shadow-children-inverse: inset 0 -6px 6px -8px var(--thread-card-shadow-color);
+    --thread-line-color: light-dark(var(--color-ink-40), var(--color-ink-50));
   }
 
   @media (prefers-color-scheme: dark) {
@@ -39,15 +48,15 @@
       --thread-pane-unread-stroke: var(--color-green-50);
       --thread-pane-spam-fill: var(--color-red-40);
       --thread-pane-spam-stroke: var(--color-red-50);
-      --thread-pane-unread-color: var(--color-white);
-      --thread-pane-child-card-bg: var(--layout-background-0);
     }
   }
 }
 
 @media (prefers-contrast) {
   :root {
-    --thread-pane-unread-color: currentColor;
+    --thread-line-color: currentColor;
+    --thread-card-background-children: Canvas;
+    --thread-card-border-color: color-mix(in srgb, Canvas 50%, CanvasText);
   }
 }
 
@@ -167,10 +176,6 @@
   &:hover {
     opacity: 1;
   }
-}
-
-tr[data-properties~="untagged"][data-properties~="unread"] {
-  color: var(--thread-pane-unread-color);
 }
 
 tr[is="thread-row"],
@@ -621,24 +626,120 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
 /* Vertical layout cards */
 
 #threadTree[rows="thread-card"] {
-  background-color: var(--layout-background-1);
+  background-color: var(--thread-card-background);
 }
 
-tr[is="thread-card"] td {
-  padding: 0;
-}
+tr[is="thread-card"] {
+  &[aria-expanded="true"] + tr[data-properties~="thread-children"] {
+    box-shadow: var(--thread-card-shadow-children);
 
-tr[is="thread-card"][data-properties~="unread"]:not(.selected, :hover) {
-  background-color: var(--tree-view-bg);
-}
+    &:has(+ tr:not([data-properties~="thread-children"])) {
+      box-shadow: var(--thread-card-shadow-children),
+                  var(--thread-card-shadow-children-inverse);
+    }
+  }
 
-tr[is="thread-card"][data-properties~="unread"][data-properties~="thread-children"]:not(.selected, :hover) {
-  background-color: var(--thread-pane-child-card-bg);
-}
+  & .thread-card-container {
+    border-bottom: 1px solid var(--thread-card-border-color);
+  }
 
-tr[is="thread-card"][data-properties~="new"] {
-  position: relative;
-  box-shadow: 0 6px 5px -5px rgba(0, 0, 0, 0.1);
+  & td {
+    padding: 0;
+  }
+
+  &[data-properties~="new"] {
+    --indicator-icon: var(--icon-sparkle-star-sm);
+    --indicator-icon-fill: var(--color-yellow-30);
+    --indicator-icon-stroke: var(--color-amber-50);
+    position: relative;
+
+    &[data-properties~="thread-children"] .thread-card-container::after {
+      --indicator-icon: var(--icon-sparkle-star-sm);
+      --indicator-icon-fill: var(--color-yellow-30);
+      --indicator-icon-stroke: var(--color-amber-50);
+    }
+  }
+
+  &[data-properties~="unread"] {
+    &:not([data-properties~="new"]) {
+      --indicator-icon: var(--icon-dot-sm);
+      --indicator-icon-fill: var(--color-green-40);
+      --indicator-icon-stroke: var(--color-green-60);
+
+      &[data-properties~="thread-children"] .thread-card-container::after {
+        --indicator-icon: var(--icon-dot-sm);
+        --indicator-icon-fill: var(--color-green-40);
+        --indicator-icon-stroke: var(--color-green-60);
+      }
+    }
+
+    &[data-properties~="thread-children"] .thread-card-container::after {
+      --indicator-icon-offset-inline: calc(var(--thread-line-inset-inline-start) - 8px);
+    }
+  }
+
+  &[data-properties~="thread-children"] {
+    &:not(.selected, :hover) {
+      background-color: var(--thread-card-background-children);
+    }
+
+    & .thread-card-container {
+      padding-inline-start: var(--thread-card-padding-inline-end);
+      margin-inline-start: var(--thread-card-padding-inline-start);
+
+      &::after {
+        --indicator-icon-offset-inline: calc(var(--thread-line-inset-inline-start) - 6px);
+        --indicator-icon-offset-block: calc(50% - 8px);
+        --indicator-icon: var(--icon-dot-xs);
+        --indicator-icon-fill: var(--thread-card-background-children);
+        --indicator-icon-stroke: var(--thread-line-color);
+      }
+
+      &::before {
+        display: block;
+        content: "";
+        position: absolute;
+        height: var(--thread-line-height);
+        width: 1px;
+        border-inline-start: 1px dashed var(--thread-line-color);
+        inset-inline-start: calc(var(--thread-line-inset-inline-start) - 0.025rem);
+        inset-block: 0;
+      }
+    }
+
+    & + tr:not([data-properties~="thread-children"]) .thread-card-container {
+      border-top: 1px solid var(--thread-card-border-color);
+    }
+
+    &:has(+ tr:not([data-properties~="thread-children"])) {
+      --thread-line-height: 50%;
+      box-shadow: var(--thread-card-shadow-children-inverse);
+
+      & .thread-card-container {
+        border-bottom: none;
+      }
+    }
+
+    &:not([data-properties~="unread"]) {
+      &:hover {
+        & .thread-card-container::after {
+          --indicator-icon-fill: var(--listbox-hover);
+        }
+      }
+
+      &.selected {
+        & .thread-card-container::after {
+          --indicator-icon-fill: var(--card-view-background-selected-unfocused);
+        }
+
+        &:focus-within {
+          & .thread-card-container::after {
+            --indicator-icon-fill: var(--card-view-background-selected-focused);
+          }
+        }
+      }
+    }
+  }
 }
 
 .thread-card-container {
@@ -647,65 +748,23 @@ tr[is="thread-card"][data-properties~="new"] {
   justify-content: center;
   gap: var(--thread-pane-container-gap);
   height: 100%;
-  padding-inline-start: 24px;
-  padding-inline-end: 12px;
+  padding-inline-start: var(--thread-card-padding-inline-start);
+  padding-inline-end: var(--thread-card-padding-inline-end);
   box-sizing: border-box;
-}
 
-tr[is="thread-card"] + tr[is="thread-card"]:not(.context-menu-target) .thread-card-container::before {
-  display: block;
-  content: "";
-  position: absolute;
-  height: 1px;
-  background-color: var(--layout-background-3);
-  inset: 0;
-}
-
-@media (-moz-overlay-scrollbars) {
-  .thread-card-container {
-    padding-inline-end: env(scrollbar-inline-size);
-  }
-}
-
-tr[data-properties~="thread-children"] {
-  background-color: var(--thread-pane-child-card-bg);
-}
-
-.thread-card-container::after {
-  position: absolute;
-  content: var(--indicator-icon);
-  inset-inline-start: var(--indicator-offset-inline);
-  inset-block-start: var(--indicator-offset-block);
-  -moz-context-properties: fill, stroke;
-  fill: var(--indicator-fill);
-  stroke: var(--indicator-stroke);
-}
-
-tr[is="thread-card"] {
-  &[data-properties~="new"] {
-    --indicator-icon: var(--icon-sparkle-star-sm);
-    --indicator-fill: var(--color-yellow-30);
-    --indicator-stroke: var(--color-amber-50);
+  &::after {
+    position: absolute;
+    content: var(--indicator-icon);
+    inset-inline-start: var(--indicator-icon-offset-inline);
+    inset-block-start: var(--indicator-icon-offset-block);
+    -moz-context-properties: fill, stroke;
+    fill: var(--indicator-icon-fill);
+    stroke: var(--indicator-icon-stroke);
   }
 
-  &[data-properties~="unread"]:not([data-properties~="new"]) {
-    --indicator-icon: var(--icon-dot-sm);
-    --indicator-fill: var(--color-green-40);
-    --indicator-stroke: var(--color-green-60);
+  @media (-moz-overlay-scrollbars) {
+    padding-inline-end: max(env(scrollbar-inline-size), var(--thread-card-padding-inline-end));
   }
-}
-
-tr[data-properties~="thread-children"] .thread-card-container {
-  margin-inline-start: 24px;
-  border-bottom: none;
-}
-
-tr[data-properties~="thread-children"] + tr[data-properties~="thread-children"] .thread-card-container {
-  border-top: 1px solid var(--layout-background-3);
-}
-
-tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-children"]) .thread-card-container {
-  border-top: 1px solid var(--layout-background-3);
 }
 
 .thread-card-row {

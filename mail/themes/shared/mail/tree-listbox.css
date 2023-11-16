@@ -46,25 +46,25 @@
 
 @media not (prefers-contrast) {
   :root {
-    --listbox-color: var(--color-gray-80);
-    --listbox-selected-bg: var(--color-gray-20);
-    --listbox-focused-selected-bg: var(--selected-item-color);
-    --listbox-selected-color: var(--selected-item-text-color);
-    --listbox-focused-selected-color: var(--selected-item-text-color);
-    --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
-    --listbox-border-type: dashed;
     --tree-view-bg: var(--color-white);
     --tree-view-color: var(--color-ink-90);
     --tree-view-header-hover-bg: var(--color-gray-20);
     --tree-view-header-hover-active-bg: var(--color-gray-30);
     --tree-view-header-border-color: var(--color-gray-30);
     --tree-row-delete-button-color: var(--color-red-60);
+    --listbox-color: var(--color-gray-80);
+    --listbox-selected-bg: var(--color-gray-20);
+    --listbox-focused-selected-bg: var(--selected-item-color);
+    --listbox-selected-color: var(--selected-item-text-color);
+    --listbox-focused-selected-color: var(--selected-item-text-color);
+    --listbox-hover: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-blue-10)), color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-blue-90)));
+    --listbox-border-type: dashed;
     --card-view-color: light-dark(var(--color-blue-80), var(--color-blue-40));
     --card-view-sender-color: var(--layout-color-1);
     --card-view-subject-color: var(--layout-color-2);
     --card-view-date-color: var(--layout-color-2);
-    --card-view-background-selected-unfocused: light-dark(color-mix(in srgb, transparent 25%, var(--color-gray-20)), color-mix(in srgb, transparent 25%, var(--color-gray-70)));
-    --card-view-background-selected-focused: light-dark(color-mix(in srgb, transparent 25%, var(--color-blue-10)), color-mix(in srgb, transparent 25%, var(--color-blue-90)));
+    --card-view-background-selected-unfocused: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-gray-20)), color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-gray-70)));
+    --card-view-background-selected-focused: var(--listbox-hover);
     --selection-indicator-background-selected-unfocused: light-dark(var(--color-gray-30), var(--color-gray-50));
     --selection-indicator-background-selected-focused: var(--color-blue-50);
     --selection-indicator-border-selected-unfocused: light-dark(var(--color-gray-50), var(--color-gray-70));
@@ -88,27 +88,27 @@
 
 @media (prefers-contrast) {
   :root {
-    --listbox-color: currentColor;
-    --listbox-selected-color: SelectedItemText;
-    --listbox-focused-selected-bg: SelectedItem;
-    --listbox-selected-bg: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
-    --listbox-selected-outline: 2px solid SelectedItem;
-    --listbox-border-type: solid;
     --tree-view-bg: Field;
     --tree-view-color: FieldText;
     --tree-view-header-hover-bg: color-mix(in srgb, Field 70%, hsl(0, 0%, 50%));
     --tree-view-header-border-color: ThreeDShadow;
+    --listbox-color: currentColor;
+    --listbox-selected-color: SelectedItemText;
+    --listbox-focused-selected-bg: SelectedItem;
+    --listbox-hover: color-mix(in srgb, var(--tree-view-bg) 90%, SelectedItem);
+    --listbox-selected-bg: color-mix(in srgb, var(--tree-view-bg) 80%, var(--listbox-focused-selected-bg));
+    --listbox-selected-outline: 2px solid SelectedItem;
+    --listbox-border-type: solid;
     --card-view-color-selected-focused: SelectedItemText;
     --card-view-background-selected-focused: SelectedItem;
-    --card-view-background-selected-unfocused: color-mix(in srgb, transparent 80%, var(--card-view-background-selected-focused));
     --selection-indicator-background-selected-unfocused: SelectedItem;
     --selection-indicator-background-selected-focused: SelectedItemText;
   }
 }
 
 :root[lwt-tree] {
-  --listbox-selected-bg: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
-  --listbox-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
+  --listbox-selected-bg: color-mix(in srgb, var(--tree-view-bg) 70%, var(--sidebar-highlight-background-color));
+  --listbox-hover: color-mix(in srgb, var(--tree-view-bg) 80%, var(--sidebar-highlight-background-color));
   --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--selected-item-color));
   --listbox-selected-color: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
 }
