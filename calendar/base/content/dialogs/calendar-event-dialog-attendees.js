@@ -1284,6 +1284,7 @@ function updateRange() {
 
     handleEvent(event) {
       if (
+        // Change, e.g. due to blur.
         event.type == "change" ||
         (event.type == "keydown" && event.key == "Enter") ||
         // A click on the line of the input field.
@@ -1334,6 +1335,8 @@ function updateRange() {
           const attendeeAddresses = MailServices.headerParser.makeFromDisplayAddress(
             this.#input.value
           );
+          // Clear input so possible later events won't try to add again.
+          this.#input.value = "";
           const resolvedMailboxes = attendeeAddresses.reduce(
             resolveAddressesToMailboxes,
             new Map()
