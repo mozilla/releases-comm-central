@@ -102,7 +102,7 @@ async function initKeyWiz() {
   if (window.arguments[0].isCreate) {
     document.getElementById("openPgpKeyChoices").value = 0;
 
-    switchSection();
+    switchSection(true);
   }
 
   // Switch directly to the import screen if requested by the user.
@@ -113,7 +113,7 @@ async function initKeyWiz() {
     // See bug 1689980.
     kDialog.getButton("accept").setAttribute("disabled", true);
 
-    switchSection();
+    switchSection(true);
   }
 }
 
@@ -223,9 +223,13 @@ function wizardContinue(event) {
   // Disable the `Continue` button.
   kDialog.getButton("accept").setAttribute("disabled", true);
 
-  kStartSection.addEventListener("transitionend", switchSection, {
-    once: true,
-  });
+  kStartSection.addEventListener(
+    "transitionend",
+    switchSection.bind(null, false),
+    {
+      once: true,
+    }
+  );
   kStartSection.classList.add("hide");
 }
 
@@ -233,7 +237,7 @@ function wizardContinue(event) {
  * Separated method dealing with the section switching to allow the removal of
  * the event listener to prevent stacking.
  */
-function switchSection() {
+function switchSection(isKeyManager = false) {
   kStartSection.setAttribute("hidden", true);
 
   // Save the current label of the accept button in order to restore it later.
@@ -254,8 +258,9 @@ function switchSection() {
       break;
   }
 
-  // Show the `Go back` button.
-  kDialog.getButton("extra1").hidden = false;
+  if (!isKeyManager) {
+    kDialog.getButton("extra1").hidden = false;
+  }
   resizeDialog();
 }
 

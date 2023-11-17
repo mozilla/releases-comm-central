@@ -346,6 +346,57 @@ add_task(async function add_external_key() {
   );
 });
 
+/**
+ * Test that the "Go Back" button does not appear when the Key Wizard is opened
+ * from the key manager.
+ */
+add_task(async function check_for_go_back_button() {
+  const keyManagerPromise = BrowserTestUtils.domWindowOpened(
+    null,
+    async win => {
+      await BrowserTestUtils.waitForEvent(win, "load");
+      return (
+        win.document.documentURI ===
+        "chrome://openpgp/content/ui/enigmailKeyManager.xhtml"
+      );
+    }
+  );
+  //Open the key manager from the "OpenPGP Key Manager" button.
+  const openPGPKeyManagerButton = tabDocument.getElementById(
+    "openOpenPGPKeyManagerButton"
+  );
+  EventUtils.synthesizeMouseAtCenter(openPGPKeyManagerButton, {}, tabWindow);
+
+  const kmWindow = await keyManagerPromise;
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://openpgp/content/ui/keyWizard.xhtml",
+    {
+      callback(win) {
+        const doc = win.document;
+        const dialog = doc.querySelector("dialog");
+        const goBackButton = dialog.getButton("extra1");
+
+        // The "Go Back" button should not be visible.
+        Assert.equal(
+          goBackButton.hidden,
+          true,
+          "The Go Back button should not be visible."
+        );
+
+        doc.querySelector("dialog").getButton("cancel").click();
+      },
+    }
+  );
+  // Open the key wizard from the "New Key Pair" menu option.
+  kmWindow.document.getElementById("genKey").click();
+
+  await dialogPromise;
+
+  kmWindow.close();
+});
+
 registerCleanupFunction(async function () {
   document.getElementById("tabmail").closeTab(gTab);
   gTab = null;
