@@ -161,12 +161,12 @@
   }
 }
 
-[is="tree-view-table-body"] > tr[is="thread-row"].selected {
+[is="tree-view-table-body"] > tr:not([is="thread-card"]).selected {
   background-color: var(--listbox-selected-bg);
 }
 
-[is="tree-view-table-body"]:focus > tr[is="thread-row"].selected,
-[is="tree-view-table-body"]:focus-within > tr[is="thread-row"].selected {
+[is="tree-view-table-body"]:focus > tr:not([is="thread-card"]).selected,
+[is="tree-view-table-body"]:focus-within > tr:not([is="thread-card"]).selected {
   color: var(--listbox-selected-color);
 }
 
@@ -195,9 +195,9 @@
   }
 
   /* Thread row selection styles */
-  &:focus > [is="thread-row"].selected,
-  &:focus-within > [is="thread-row"].selected,
-  & > [is="thread-row"].selected:focus-within {
+  &:focus > .selected:not([is="thread-card"]),
+  &:focus-within > .selected:not([is="thread-card"]),
+  & > .selected:not([is="thread-card"]):focus-within {
     color: var(--listbox-selected-color);
     background-color: var(--listbox-focused-selected-bg);
 
