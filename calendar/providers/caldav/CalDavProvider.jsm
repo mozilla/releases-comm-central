@@ -5,7 +5,7 @@
 var EXPORTED_SYMBOLS = ["CalDavProvider"];
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
+var { DNS } = ChromeUtils.importESModule("resource:///modules/DNS.sys.mjs");
 
 var { CalDavPropfindRequest } = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
 

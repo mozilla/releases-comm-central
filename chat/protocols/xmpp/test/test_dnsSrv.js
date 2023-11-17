@@ -7,7 +7,13 @@ var { XMPPAccountPrototype } = ChromeUtils.importESModule(
 var { XMPPSession } = ChromeUtils.importESModule(
   "resource:///modules/xmpp-session.sys.mjs"
 );
-var { SRVRecord } = ChromeUtils.import("resource:///modules/DNS.jsm");
+
+function SRVRecord(aPrio, aWeight, aHost, aPort) {
+  this.prio = aPrio;
+  this.weight = aWeight;
+  this.host = aHost;
+  this.port = aPort;
+}
 
 function FakeXMPPSession() {}
 FakeXMPPSession.prototype = {

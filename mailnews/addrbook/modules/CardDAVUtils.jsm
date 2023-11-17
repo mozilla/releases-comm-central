@@ -4,10 +4,10 @@
 
 const EXPORTED_SYMBOLS = ["CardDAVUtils", "NotificationCallbacks"];
 
+const { DNS } = ChromeUtils.importESModule("resource:///modules/DNS.sys.mjs");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );

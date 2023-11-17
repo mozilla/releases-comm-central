@@ -11,7 +11,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
 
-const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
+import { DNS } from "resource:///modules/DNS.sys.mjs";
+
 const { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
 
 const {

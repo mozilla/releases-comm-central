@@ -8,7 +8,7 @@ const { CardDAVDirectory } = ChromeUtils.import(
 const { CardDAVServer } = ChromeUtils.import(
   "resource://testing-common/CardDAVServer.jsm"
 );
-const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
+const { DNS } = ChromeUtils.importESModule("resource:///modules/DNS.sys.mjs");
 
 // A list of books returned by CardDAVServer unless changed.
 const DEFAULT_BOOKS = [

@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { CalDAVServer } = ChromeUtils.import("resource://testing-common/calendar/CalDAVServer.jsm");
-var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
+var { DNS } = ChromeUtils.importESModule("resource:///modules/DNS.sys.mjs");
 
 async function openWizard(...args) {
   await CalendarTestUtils.openCalendarTab(window);

@@ -17,8 +17,10 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  DNS: "resource:///modules/DNS.sys.mjs",
+});
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  DNS: "resource:///modules/DNS.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailZBase32: "chrome://openpgp/content/modules/zbase32.jsm",
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",

@@ -1,39 +1,27 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * This module is responsible for performing DNS queries using ctypes for
- * loading system DNS libraries on Linux, Mac and Windows.
- */
+/* eslint-env worker */
+/* globals ctypes */
 
-const EXPORTED_SYMBOLS = ["DNS", "SRVRecord"];
-
-var DNS = null;
-
-if (typeof Components !== "undefined") {
-  var { ctypes } = ChromeUtils.importESModule(
-    "resource://gre/modules/ctypes.sys.mjs"
-  );
-  var { BasePromiseWorker } = ChromeUtils.importESModule(
-    "resource://gre/modules/PromiseWorker.sys.mjs"
-  );
-}
-
-var LOCATION = "resource:///modules/DNS.jsm";
+// We are in a worker, wait for our message then execute the wanted method.
+/* import-globals-from /toolkit/components/workerloader/require.js */
+importScripts("resource://gre/modules/workers/require.js");
+const PromiseWorker = require("resource://gre/modules/workers/PromiseWorker.js");
 
 // These constants are luckily shared, but with different names
-var NS_T_TXT = 16; // DNS_TYPE_TXT
-var NS_T_SRV = 33; // DNS_TYPE_SRV
-var NS_T_MX = 15; // DNS_TYPE_MX
+const NS_T_TXT = 16; // DNS_TYPE_TXT
+const NS_T_SRV = 33; // DNS_TYPE_SRV
+const NS_T_MX = 15; // DNS_TYPE_MX
 
 // For Linux and Mac.
-function load_libresolv(os) {
-  this._open(os);
-}
+class load_libresolv {
+  library = null;
 
-load_libresolv.prototype = {
-  library: null,
+  constructor(os) {
+    this._open(os);
+  }
 
   // Tries to find and load library.
   _open(os) {
@@ -151,12 +139,12 @@ load_libresolv.prototype = {
     this.NS_QFIXEDSZ = 4;
     this.NS_RRFIXEDSZ = 10;
     this.NS_C_IN = 1;
-  },
+  }
 
   close() {
     this.library.close();
     this.library = null;
-  },
+  }
 
   // Maps record to SRVRecord, TXTRecord, or MXRecord according to aTypeID and
   // returns it.
@@ -196,7 +184,7 @@ load_libresolv.prototype = {
       return new MXRecord(prio, host);
     }
     return {};
-  },
+  }
 
   // Performs a DNS query for aTypeID on a certain address (aName) and returns
   // array of records of aTypeID.
@@ -252,16 +240,16 @@ load_libresolv.prototype = {
       idx += dataLength;
     }
     return results;
-  },
-};
-
-// For Windows.
-function load_dnsapi() {
-  this._open();
+  }
 }
 
-load_dnsapi.prototype = {
-  library: null,
+// For Windows.
+class load_dnsapi {
+  library = null;
+
+  constructor() {
+    this._open();
+  }
 
   // Tries to find and load library.
   _open() {
@@ -331,12 +319,12 @@ load_dnsapi.prototype = {
     this.ERROR_SUCCESS = ctypes.Int64(0);
     this.DNS_QUERY_STANDARD = 0;
     this.DnsFreeRecordList = 1;
-  },
+  }
 
   close() {
     this.library.close();
     this.library = null;
-  },
+  }
 
   // Maps record to SRVRecord, TXTRecord, or MXRecord according to aTypeID and
   // returns it.
@@ -361,7 +349,7 @@ load_dnsapi.prototype = {
       return new MXRecord(mxdata.wPriority, mxdata.pNameTarget.readString());
     }
     return {};
-  },
+  }
 
   // Performs a DNS query for aTypeID on a certain address (aName) and returns
   // array of records of aTypeID (e.g. SRVRecord, TXTRecord, or MXRecord).
@@ -400,8 +388,8 @@ load_dnsapi.prototype = {
 
     this.DnsRecordListFree(queryResultsSet, this.DnsFreeRecordList);
     return results;
-  },
-};
+  }
+}
 
 // Used to make results of different libraries consistent for SRV queries.
 function SRVRecord(aPrio, aWeight, aHost, aPort) {
@@ -422,72 +410,19 @@ function MXRecord(aPrio, aHost) {
   this.host = aHost;
 }
 
-if (typeof Components === "undefined") {
-  /* eslint-env worker */
+const worker = new PromiseWorker.AbstractWorker();
+worker.dispatch = function (aMethod, aArgs = []) {
+  return self[aMethod](...aArgs);
+};
+worker.postMessage = function (...aArgs) {
+  self.postMessage(...aArgs);
+};
+worker.close = function () {
+  self.close();
+};
+self.addEventListener("message", msg => worker.handleMessage(msg));
 
-  // We are in a worker, wait for our message then execute the wanted method.
-  /* import-globals-from /toolkit/components/workerloader/require.js */
-  importScripts("resource://gre/modules/workers/require.js");
-  const PromiseWorker = require("resource://gre/modules/workers/PromiseWorker.js");
-
-  const worker = new PromiseWorker.AbstractWorker();
-  worker.dispatch = function (aMethod, aArgs = []) {
-    return self[aMethod](...aArgs);
-  };
-  worker.postMessage = function (...aArgs) {
-    self.postMessage(...aArgs);
-  };
-  worker.close = function () {
-    self.close();
-  };
-  self.addEventListener("message", msg => worker.handleMessage(msg));
-
-  // eslint-disable-next-line no-unused-vars
-  function execute(aOS, aMethod, aArgs) {
-    const DNS = aOS == "WINNT" ? new load_dnsapi() : new load_libresolv(aOS);
-    return DNS[aMethod].apply(DNS, aArgs);
-  }
-} else {
-  // We are loaded as a JSM, provide the async front that will start the
-  // worker.
-  var dns_async_front = {
-    /**
-     * Constants for use with the lookup function.
-     */
-    TXT: NS_T_TXT,
-    SRV: NS_T_SRV,
-    MX: NS_T_MX,
-
-    /**
-     * Do an asynchronous DNS lookup. The returned promise resolves with
-     * one of the Answer objects as defined above, or rejects with the
-     * error from the worker.
-     *
-     * Example: DNS.lookup("_caldavs._tcp.example.com", DNS.SRV)
-     *
-     * @param aName           The aName to look up.
-     * @param aTypeID         The RR type to look up as a constant.
-     * @returns A promise resolved when completed.
-     */
-    lookup(aName, aTypeID) {
-      const worker = new BasePromiseWorker(LOCATION);
-      return worker.post("execute", [
-        Services.appinfo.OS,
-        "lookup",
-        [...arguments],
-      ]);
-    },
-
-    /** Convenience functions */
-    srv(aName) {
-      return this.lookup(aName, NS_T_SRV);
-    },
-    txt(aName) {
-      return this.lookup(aName, NS_T_TXT);
-    },
-    mx(aName) {
-      return this.lookup(aName, NS_T_MX);
-    },
-  };
-  DNS = dns_async_front;
+function execute(aOS, aMethod, aArgs) {
+  const DNS = aOS == "WINNT" ? new load_dnsapi() : new load_libresolv(aOS);
+  return DNS[aMethod].apply(DNS, aArgs);
 }

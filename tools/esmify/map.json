@@ -133,7 +133,6 @@
   "resource:///modules/CustomizableUI.jsm": "comm/mail/components/customizableui/CustomizableUI.jsm",
   "resource:///modules/CustomizableWidgets.jsm": "comm/mail/components/customizableui/CustomizableWidgets.jsm",
   "resource:///modules/DBViewWrapper.jsm": "comm/mail/modules/DBViewWrapper.jsm",
-  "resource:///modules/DNS.jsm": "comm/mail/modules/DNS.jsm",
   "resource:///modules/DisplayNameUtils.jsm": "comm/mail/modules/DisplayNameUtils.jsm",
   "resource:///modules/Feed.jsm": "comm/mailnews/extensions/newsblog/Feed.jsm",
   "resource:///modules/FeedItem.jsm": "comm/mailnews/extensions/newsblog/FeedItem.jsm",
