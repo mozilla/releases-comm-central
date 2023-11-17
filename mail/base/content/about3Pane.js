@@ -6387,7 +6387,9 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.subjectLine = this.querySelector(".subject");
       this.dateLine = this.querySelector(".date");
       this.starButton = this.querySelector(".button-star");
-      this.tagIcon = this.querySelector(".tag-icon");
+      this.threadCardTagsInfo = this.querySelector(".thread-card-tags-info");
+      this.tagIcons = this.querySelectorAll(".tag-icon");
+      this.tagsMore = this.querySelector(".tag-more");
     }
 
     get index() {
@@ -6424,15 +6426,40 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.senderLine.textContent = cellTexts[1];
       this.senderLine.title = cellTexts[1];
       this.dateLine.textContent = cellTexts[2];
-      this.tagIcon.title = cellTexts[3];
 
+      let tagColor;
       const matchesTags = [];
+      const matchesColors = [];
       for (const tag of MailServices.tags.getAllTags()) {
         if (cellTexts[3].includes(tag.tag)) {
-          matchesTags.push(tag.tag.toString());
+          matchesTags.push(tag.tag);
+          tagColor = tag.color;
+          matchesColors.push(tagColor);
         }
       }
-      this.tagIcon.title = matchesTags.join(", ");
+      this.threadCardTagsInfo.title = matchesTags.join(", ");
+
+      // Clears the text span displaying the extra amount of the tags to prevent stale content.
+      const tagCount = matchesTags.length;
+      this.tagsMore.hidden = tagCount <= 3;
+
+      // Show or hide tags based on its index and the amount of tags.
+      for (const [index, tag] of this.tagIcons.entries()) {
+        tag.hidden = index >= tagCount;
+        // If any tag is active, we reset the tags colors.
+        tag.style.setProperty("--tag-color", matchesColors[index]);
+      }
+
+      // Updates the text span displaying the extra amount of the tags
+      if (tagCount > 3) {
+        this.tagsMore.hidden = false;
+        this.tagsMore.textContent = new Intl.NumberFormat(
+          Services.locale.appLocaleAsBCP47,
+          {
+            signDisplay: "always",
+          }
+        ).format(tagCount - 3);
+      }
 
       // Follow the layout order.
       ariaLabelPromises.push(cellTexts[1]);

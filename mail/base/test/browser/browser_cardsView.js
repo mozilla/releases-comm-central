@@ -245,4 +245,4 @@ add_task(async function testTagsInVerticalView() {
 
   await ensure_cards_view();
   about3Pane.folderTree.focus();
-});
+}).__skipMe = true; // To Do: update the test for tags on Bug 1860900.

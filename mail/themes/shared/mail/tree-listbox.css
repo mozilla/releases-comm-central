@@ -273,7 +273,6 @@
       border-color: var(--selection-indicator-border-selected-focused);
     }
     & img {
-      fill: color-mix(in srgb, currentColor 40%, transparent);
       stroke: currentColor;
     }
   }

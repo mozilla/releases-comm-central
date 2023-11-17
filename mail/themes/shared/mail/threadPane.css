@@ -38,6 +38,7 @@
     --thread-card-shadow-children: inset 0 6px 6px -6px var(--thread-card-shadow-color);
     --thread-card-shadow-children-inverse: inset 0 -6px 6px -8px var(--thread-card-shadow-color);
     --thread-line-color: light-dark(var(--color-ink-40), var(--color-ink-50));
+    --tags-base-background-color: var(--layout-background-0);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -57,6 +58,7 @@
     --thread-line-color: currentColor;
     --thread-card-background-children: Canvas;
     --thread-card-border-color: color-mix(in srgb, Canvas 50%, CanvasText);
+    --tags-base-background-color: SelectedItemText;
   }
 }
 
@@ -183,13 +185,41 @@ tr[is="thread-card"] .subject {
   color: var(--tag-color, currentColor);
 }
 
-.tag-icon {
-  content: var(--icon-tag-sm);
+tr[data-properties~="tagged"] .thread-card-icon-info .thread-card-tags-info {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+
+  .tag-more {
+    font-size: 0.7em;
+    font-weight: 700;
+  }
+
+  & > img {
+    position: relative;
+
+    &:not(:first-child) {
+      margin-inline-start: -11px;
+    }
+
+    &:first-child {
+      z-index: 3;
+    }
+
+    &:nth-of-type(2) {
+      z-index: 2;
+    }
+
+    &.tag-icon {
+      content: var(--icon-tag-sm);
+    }
+  }
 }
 
-tr[data-properties~="tagged"] .tag-icon {
+tr[data-properties~="tagged"] .tag-icon:not([hidden]) {
   display: unset;
   color: var(--tag-color, currentColor);
+  fill: color-mix(in srgb, var(--tag-color, currentColor) 20%, var(--tags-base-background-color));
 }
 
 [is="tree-view-table-body"]:focus > [is="thread-row"].selected[data-properties~="tagged"] :is(.tag-icon, .subject),
