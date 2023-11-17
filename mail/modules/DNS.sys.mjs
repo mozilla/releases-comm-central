@@ -14,6 +14,9 @@ const NS_T_TXT = 16; // DNS_TYPE_TXT
 const NS_T_SRV = 33; // DNS_TYPE_SRV
 const NS_T_MX = 15; // DNS_TYPE_MX
 
+// References to all active workers, so they don't get GC'ed while busy.
+const workers = new Set();
+
 export const DNS = {
   /**
    * Constants for use with the lookup function.
@@ -33,13 +36,20 @@ export const DNS = {
    * @param aTypeID         The RR type to look up as a constant.
    * @returns A promise resolved when completed.
    */
-  lookup(aName, aTypeID) {
+  async lookup(aName, aTypeID) {
     const worker = new BasePromiseWorker("resource:///modules/dnsWorker.js");
-    return worker.post("execute", [
-      Services.appinfo.OS,
-      "lookup",
-      [...arguments],
-    ]);
+    workers.add(worker);
+    let result;
+    try {
+      result = await worker.post("execute", [
+        Services.appinfo.OS,
+        "lookup",
+        [...arguments],
+      ]);
+    } finally {
+      workers.delete(worker);
+    }
+    return result;
   },
 
   /** Convenience functions */
