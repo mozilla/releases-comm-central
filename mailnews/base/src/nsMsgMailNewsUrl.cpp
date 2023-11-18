@@ -659,6 +659,15 @@ nsMsgMailNewsUrl::GetHasRef(bool* result) {
   return m_baseURL->GetHasRef(result);
 }
 
+NS_IMETHODIMP nsMsgMailNewsUrl::GetHasUserPass(bool* aHasUserPass) {
+  nsAutoCString username;
+  GetUsername(username);
+  nsAutoCString password;
+  GetPassword(password);
+  *aHasUserPass = !username.IsEmpty() || !password.IsEmpty();
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgMailNewsUrl::SchemeIs(const char* aScheme, bool* _retval) {
   return m_baseURL->SchemeIs(aScheme, _retval);
 }

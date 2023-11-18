@@ -518,6 +518,11 @@ nsMailtoUrl::GetDisplayPrePath(nsACString& aPrePath) {
 NS_IMETHODIMP
 nsMailtoUrl::GetHasRef(bool* result) { return m_baseURL->GetHasRef(result); }
 
+NS_IMETHODIMP nsMailtoUrl::GetHasUserPass(bool* aHasUserPass) {
+  *aHasUserPass = false;
+  return NS_OK;
+}
+
 NS_IMETHODIMP
 nsMailtoUrl::GetFilePath(nsACString& aFilePath) {
   return m_baseURL->GetFilePath(aFilePath);

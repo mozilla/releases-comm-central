@@ -549,6 +549,11 @@ nsLDAPURL::GetDisplayPrePath(nsACString& aPrePath) {
 NS_IMETHODIMP
 nsLDAPURL::GetHasRef(bool* result) { return mBaseURL->GetHasRef(result); }
 
+NS_IMETHODIMP nsLDAPURL::GetHasUserPass(bool* aHasUserPass) {
+  *aHasUserPass = false;
+  return NS_OK;
+}
+
 NS_IMETHODIMP
 nsLDAPURL::GetFilePath(nsACString& aFilePath) {
   return mBaseURL->GetFilePath(aFilePath);
