@@ -4358,10 +4358,12 @@ var threadPane = {
     threadTree.dataset.selectDelay = this.selectDelay;
 
     window.addEventListener("uidensitychange", () => {
-      this.densityChange();
-      threadTree.reset();
+      this.updateThreadItemSize();
     });
-    this.densityChange();
+    window.addEventListener("uifontsizechange", () => {
+      this.updateThreadItemSize();
+    });
+    this.updateThreadItemSize();
 
     XPCOMUtils.defineLazyGetter(this, "notificationBox", () => {
       const container = document.getElementById("threadPaneNotificationBox");
@@ -4949,20 +4951,34 @@ var threadPane = {
     // different scope. But we can get it from customElements.
     const rowClass = customElements.get("thread-row");
     const cardClass = customElements.get("thread-card");
+    const currentFontSize = UIFontSize.prefValue || 12;
+    const cardRows = 3;
+    let cardRowHeight;
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
         rowClass.ROW_HEIGHT = 18;
-        cardClass.ROW_HEIGHT = 62;
+        // Calculation based on card components:
+        // currentFontSize, subject height, line height, and number of rows.
+        cardRowHeight = Math.round(currentFontSize * 1.3 * 1.1 * cardRows);
         break;
       case UIDensity.MODE_TOUCH:
         rowClass.ROW_HEIGHT = 32;
-        cardClass.ROW_HEIGHT = 84;
+        cardRowHeight = (currentFontSize + 7) * cardRows + 12;
         break;
       default:
         rowClass.ROW_HEIGHT = 26;
-        cardClass.ROW_HEIGHT = 74;
+        cardRowHeight = (currentFontSize + 6) * cardRows + 6;
         break;
     }
+    cardClass.ROW_HEIGHT = cardRowHeight < 50 ? 50 : cardRowHeight;
+  },
+
+  /**
+   * Update thread item size in DOM (thread cards and rows).
+   */
+  updateThreadItemSize() {
+    this.densityChange();
+    threadTree.reset();
   },
 
   /**

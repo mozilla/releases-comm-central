@@ -59,6 +59,8 @@ function updateWindow(win) {
 
   UIFontSize.updateMessageBrowser(browser);
   UIFontSize.updateAppMenuButton(win);
+
+  win.dispatchEvent(new win.CustomEvent("uifontsizechange"));
 }
 
 /**
