@@ -61,13 +61,13 @@ var EnigmailURIs = {
   },
 
   /**
-   * Determine message number and folder from mailnews URI
+   * Determine message number and folder from mailnews URI.
    *
-   * @param url - nsIURI object
+   * @param {nsIURI} url - nsIURI object.
    *
-   * @returns Object:
-   *    - msgNum: String - the message number, or "" if no URI Scheme fits
-   *    - folder: String - the folder (or newsgroup) name
+   * @returns {?object} obj
+   * @returns {string} obj.msgNum - The message number, or "" if no URI scheme fits.
+   * @returns {string} obj.folder - The folder (or newsgroup) name.
    */
   msgIdentificationFromUrl(url) {
     // sample URLs in Thunderbird
