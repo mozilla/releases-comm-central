@@ -2374,30 +2374,58 @@ var cardsPane = {
       this.cardsList.view.getCardFromRow(index)
     );
 
-    const addresses = cards.map(makeMimeAddressFromCard);
+    // When dragging cards to the filesystem:
+    // - Windows fetches application/x-moz-file-promise-url and writes it to
+    //     a file.
+    // - Linux uses the flavor data provider, if a single card is dragged.
+    //     If multiple cards are dragged AND text/x-moz-url exists, it fetches
+    //     application/x-moz-file-promise-url and writes it to a file.
+    // - MacOS always uses the flavor data provider.
+
+    const addresses = cards.map(makeMimeAddressFromCard).join(",");
     event.dataTransfer.mozSetDataAt("moz/abcard-array", cards, 0);
     event.dataTransfer.setData("text/x-moz-address", addresses);
     event.dataTransfer.setData("text/plain", addresses);
 
-    const card = this.cardsList.view.getCardFromRow(row.index);
-    if (card && card.displayName && !card.isMailList) {
+    let transferIndex = 0;
+    for (const card of cards) {
+      if (!card?.displayName || card.isMailList) {
+        continue;
+      }
       try {
         // A card implementation may throw NS_ERROR_NOT_IMPLEMENTED.
         // Don't break drag-and-drop if that happens.
         const vCard = card.translateTo("vcard");
-        event.dataTransfer.setData("text/vcard", decodeURIComponent(vCard));
-        event.dataTransfer.setData(
+
+        // This is a huge hack. text/x-moz-url must be present or Linux won't
+        // attempt to drag to the filesystem. It doesn't actually _use_ this
+        // value, instead it fetches application/x-moz-file-promise-url.
+        event.dataTransfer.mozSetDataAt(
+          "text/x-moz-url",
+          URL.createObjectURL(new Blob([decodeURIComponent(vCard)])),
+          transferIndex
+        );
+        event.dataTransfer.mozSetDataAt(
+          "text/vcard",
+          decodeURIComponent(vCard),
+          transferIndex
+        );
+        event.dataTransfer.mozSetDataAt(
           "application/x-moz-file-promise-dest-filename",
-          `${card.displayName}.vcf`.replace(/(.{74}).*(.{10})$/u, "$1...$2")
+          `${card.displayName}.vcf`.replace(/(.{74}).*(.{10})$/u, "$1...$2"),
+          transferIndex
         );
-        event.dataTransfer.setData(
+        event.dataTransfer.mozSetDataAt(
           "application/x-moz-file-promise-url",
-          "data:text/vcard," + vCard
+          "data:text/vcard," + vCard,
+          transferIndex
         );
-        event.dataTransfer.setData(
+        event.dataTransfer.mozSetDataAt(
           "application/x-moz-file-promise",
-          this._flavorDataProvider
+          this._flavorDataProvider,
+          transferIndex
         );
+        transferIndex++;
       } catch (ex) {
         console.error(ex);
       }

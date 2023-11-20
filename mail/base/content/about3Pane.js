@@ -4696,7 +4696,15 @@ var threadPane = {
 
       msgFileName = msgFileName + ".eml";
 
-      // This type should be unnecessary, but getFlavorData can't get at
+      // When dragging messages to the filesystem:
+      // - Windows fetches application/x-moz-file-promise-url and writes it to
+      //     a file.
+      // - Linux uses the flavor data provider, if a single message is dragged.
+      //     If multiple messages are dragged AND text/x-moz-url exists, it
+      //     fetches application/x-moz-file-promise-url and writes it to a file.
+      // - MacOS always uses the flavor data provider.
+
+      // text/plain should be unnecessary, but getFlavorData can't get at
       // text/x-moz-message for some reason.
       event.dataTransfer.mozSetDataAt("text/plain", uri, index);
       event.dataTransfer.mozSetDataAt("text/x-moz-message", uri, index);
@@ -4705,11 +4713,6 @@ var threadPane = {
         msgService.getUrlForUri(uri).spec,
         index
       );
-      // When dragging messages to the filesystem:
-      // - Windows fetches this value and writes it to a file.
-      // - Linux does the same if there are multiple files, but for a single
-      //     file it uses the flavor data provider below.
-      // - MacOS always uses the flavor data provider.
       event.dataTransfer.mozSetDataAt(
         "application/x-moz-file-promise-url",
         msgService.getUrlForUri(uri).spec,

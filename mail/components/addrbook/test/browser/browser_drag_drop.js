@@ -136,69 +136,119 @@ add_task(async function test_drag() {
   const abWindow = await openAddressBookWindow();
   const cardsList = abWindow.document.getElementById("cards");
 
+  async function check(cards) {
+    const transferCards = dataTransfer.mozGetDataAt("moz/abcard-array", 0);
+    Assert.equal(transferCards.length, cards.length);
+    for (const [index, card] of Object.entries(cards)) {
+      Assert.ok(transferCards[index].equals(card));
+    }
+
+    const transferPlain = dataTransfer.mozGetDataAt("text/plain", 0);
+    Assert.equal(
+      transferPlain,
+      cards.map(card => `${card.displayName} <${card.primaryEmail}>`).join(",")
+    );
+
+    for (const [index, card] of Object.entries(cards)) {
+      const transferVCard = dataTransfer.mozGetDataAt("text/vcard", index);
+      Assert.stringContains(transferVCard, `\r\nUID:${card.UID}\r\n`);
+
+      const transferURL = dataTransfer.mozGetDataAt(
+        "application/x-moz-file-promise-url",
+        index
+      );
+      Assert.ok(transferURL.startsWith("data:text/vcard,BEGIN%3AVCARD%0D%0A"));
+
+      const transferFilename = dataTransfer.mozGetDataAt(
+        "application/x-moz-file-promise-dest-filename",
+        index
+      );
+      Assert.equal(transferFilename, `${card.displayName}.vcf`);
+
+      const flavorDataProvider = dataTransfer.mozGetDataAt(
+        "application/x-moz-file-promise",
+        index
+      );
+      Assert.ok(flavorDataProvider.QueryInterface(Ci.nsIFlavorDataProvider));
+
+      // Create a fake nsITransferable, mimicking what happens when a dragged
+      // message is dropped in a filesystem window.
+
+      const transferable = Cc[
+        "@mozilla.org/widget/transferable;1"
+      ].createInstance(Ci.nsITransferable);
+      transferable.init(window.docShell);
+
+      const supportsVCard = Cc["@mozilla.org/supports-string;1"].createInstance(
+        Ci.nsISupportsString
+      );
+      supportsVCard.data = transferVCard;
+      transferable.setTransferData("text/vcard", supportsVCard);
+
+      const supportsURI = Cc["@mozilla.org/supports-string;1"].createInstance(
+        Ci.nsISupportsString
+      );
+      supportsURI.data = transferURL;
+      transferable.setTransferData("text/plain", supportsURI);
+
+      const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+      tempFile.append(transferFilename);
+      if (tempFile.exists()) {
+        tempFile.remove(false);
+      }
+      Assert.ok(!tempFile.exists());
+
+      const supportsLeafName = Cc[
+        "@mozilla.org/supports-string;1"
+      ].createInstance(Ci.nsISupportsString);
+      supportsLeafName.data = tempFile.leafName;
+      transferable.setTransferData(
+        "application/x-moz-file-promise-dest-filename",
+        supportsLeafName
+      );
+      transferable.setTransferData(
+        "application/x-moz-file-promise-dir",
+        tempFile.parent
+      );
+
+      flavorDataProvider.getFlavorData(
+        transferable,
+        "application/x-moz-file-promise",
+        {}
+      );
+      Assert.ok(tempFile.exists());
+
+      const fileContent = await IOUtils.readUTF8(tempFile.path);
+      Assert.stringContains(fileContent, `\r\nFN:${card.displayName}\r\n`);
+      Assert.stringContains(fileContent, `\r\nUID:${card.UID}\r\n`);
+    }
+  }
+
   // Drag just contact1.
 
   dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
-
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   let [, dataTransfer] = doDrag(0, null, {}, "none");
-
-  let transferCards = dataTransfer.mozGetDataAt("moz/abcard-array", 0);
-  Assert.equal(transferCards.length, 1);
-  Assert.ok(transferCards[0].equals(contact1));
-
-  let transferUnicode = dataTransfer.getData("text/plain");
-  Assert.equal(transferUnicode, "contact 1 <contact.1@invalid>");
-
-  let transferVCard = dataTransfer.getData("text/vcard");
-  Assert.stringContains(transferVCard, `\r\nUID:${contact1.UID}\r\n`);
-
+  await check([contact1]);
   dragService.endDragSession(true);
 
   // Drag contact2 without selecting it.
 
   dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
-
   [, dataTransfer] = doDrag(1, null, {}, "none");
-
-  transferCards = dataTransfer.mozGetDataAt("moz/abcard-array", 0);
-  Assert.equal(transferCards.length, 1);
-  Assert.ok(transferCards[0].equals(contact2));
-
-  transferUnicode = dataTransfer.getData("text/plain");
-  Assert.equal(transferUnicode, "contact 2 <contact.2@invalid>");
-
-  transferVCard = dataTransfer.getData("text/vcard");
-  Assert.stringContains(transferVCard, `\r\nUID:${contact2.UID}\r\n`);
-
+  await check([contact2]);
   dragService.endDragSession(true);
 
   // Drag all contacts.
 
   dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
-
   EventUtils.synthesizeMouseAtCenter(
     cardsList.getRowAtIndex(2),
     { shiftKey: true },
     abWindow
   );
   [, dataTransfer] = doDrag(0, null, {}, "none");
-
-  transferCards = dataTransfer.mozGetDataAt("moz/abcard-array", 0);
-  Assert.equal(transferCards.length, 3);
-  Assert.ok(transferCards[0].equals(contact1));
-  Assert.ok(transferCards[1].equals(contact2));
-  Assert.ok(transferCards[2].equals(contact3));
-
-  transferUnicode = dataTransfer.getData("text/plain");
-  Assert.equal(
-    transferUnicode,
-    "contact 1 <contact.1@invalid>,contact 2 <contact.2@invalid>,contact 3 <contact.3@invalid>"
-  );
-
-  transferVCard = dataTransfer.getData("text/vcard");
-  Assert.stringContains(transferVCard, `\r\nUID:${contact1.UID}\r\n`);
-
+  await check([contact1, contact2, contact3]);
   dragService.endDragSession(true);
 
   await closeAddressBookWindow();
