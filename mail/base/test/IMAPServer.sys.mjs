@@ -4,6 +4,7 @@
 
 const {
   IMAP_GMAIL_extension,
+  IMAP_RFC2087_extension,
   IMAP_RFC2197_extension,
   IMAP_RFC2342_extension,
   IMAP_RFC3348_extension,
@@ -106,5 +107,34 @@ export class GmailServer extends IMAPServer {
     this.server.start();
 
     this.testScope.registerCleanupFunction(() => this.close());
+  }
+}
+
+/**
+ * A simple IMAP server, with RFC2087 extension, for testing purposes.
+ */
+export class QuotaServer extends IMAPServer {
+  open() {
+    this.daemon = new ImapDaemon();
+    this.server = new nsMailServer(daemon => {
+      const handler = new IMAP_RFC3501_handler(daemon, {
+        username: this.username,
+      });
+      mixinExtension(handler, IMAP_RFC2087_extension);
+      return handler;
+    }, this.daemon);
+    this.server.start();
+
+    this.testScope.registerCleanupFunction(() => this.close());
+  }
+
+  setQuota(folder, name, usage, limit) {
+    const mailbox = this.daemon.getMailbox(folder.name);
+    mailbox.quota = mailbox.quota ?? {};
+    if (limit) {
+      mailbox.quota[name] = { usage, limit };
+    } else {
+      delete mailbox.quota[name];
+    }
   }
 }

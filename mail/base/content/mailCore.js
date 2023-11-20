@@ -674,7 +674,7 @@ function openActivityMgr() {
 function openFolderQuota() {
   document
     .getElementById("tabmail")
-    .currentAbout3Pane?.folderPane.editFolder("QuotaTab");
+    .currentAbout3Pane?.folderPane.editFolder(undefined, "QuotaTab");
 }
 
 function openIMAccountMgr() {

@@ -13,6 +13,7 @@ var EXPORTED_SYMBOLS = [
   "IMAP_GMAIL_extension",
   "IMAP_MOVE_extension",
   "IMAP_CUSTOM_extension",
+  "IMAP_RFC2087_extension",
   "IMAP_RFC2197_extension",
   "IMAP_RFC2342_extension",
   "IMAP_RFC3348_extension",
@@ -2183,6 +2184,23 @@ var IMAP_CUSTOM_extension = {
     return "BAD can't fetch X-CUSTOM-LIST";
   },
   kCapabilities: ["X-CUSTOM1"],
+};
+
+// RFC 2087: Quota (incomplete implementation)
+var IMAP_RFC2087_extension = {
+  GETQUOTAROOT(args) {
+    const mailbox = this._daemon.getMailbox(args[0]);
+    const quota = mailbox.quota ?? {};
+    const response = [`* QUOTAROOT INBOX ""`];
+    for (const [name, { usage, limit }] of Object.entries(quota)) {
+      response.push(`* QUOTA "" (${name} ${usage} ${limit})`);
+    }
+    response.push("OK Getquota completed");
+    return response.join("\0");
+  },
+  kCapabilities: ["QUOTA"],
+  _argFormat: { GETQUOTAROOT: ["mailbox"] },
+  _enabledCommands: { 1: ["GETQUOTAROOT"], 2: ["GETQUOTAROOT"] },
 };
 
 // RFC 2197: ID
