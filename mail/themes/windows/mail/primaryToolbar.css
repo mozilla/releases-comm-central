@@ -9,24 +9,6 @@
   appearance: none;
 }
 
-@media not (prefers-contrast) {
-  #menubar-items > #mail-menubar > menu[disabled="true"] {
-    background-color: transparent;
-  }
-
-  #menubar-items > #mail-menubar >
-    menu:not([disabled="true"])[_moz-menuactive="true"] {
-    background-color: hsla(0, 0%, 0%, .12);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    #menubar-items > #mail-menubar >
-      menu:not([disabled="true"])[_moz-menuactive="true"] {
-      background-color: hsla(0, 0%, 100%, .2);
-    }
-  }
-}
-
 .mail-toolbox::after,
 .contentTabToolbox::after {
   content: "";
@@ -37,14 +19,4 @@
 
 .mail-toolbox > toolbar:not([type="menubar"]) {
   padding: 1px;
-}
-
-/* ::::: toolbar buttons on tabbar toolbar ::::: */
-
-@media not (prefers-contrast) {
-  #navigation-toolbox > #toolbar-menubar {
-    background-color: transparent;
-    padding-top: 0;
-    padding-bottom: 0 !important;
-  }
 }

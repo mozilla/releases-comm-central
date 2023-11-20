@@ -8,17 +8,16 @@
 .contentTabToolbox {
   appearance: none;
   background-color: var(--toolbar-bgcolor);
-}
 
-.mail-toolbox:-moz-lwtheme,
-.contentTabToolbox:-moz-lwtheme {
-  color: var(--toolbar-color, inherit);
-  background-color: var(--lwt-accent-color);
-  background-image: linear-gradient(var(--lwt-selected-tab-background-color, transparent),
-                    var(--lwt-selected-tab-background-color, transparent)),
-                    linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)),
-                    var(--lwt-header-image, none);
-  background-position: right top, var(--lwt-background-alignment);
+  &:-moz-lwtheme {
+    color: var(--toolbar-color, inherit);
+    background-color: var(--lwt-accent-color);
+    background-image: linear-gradient(var(--lwt-selected-tab-background-color, transparent),
+                      var(--lwt-selected-tab-background-color, transparent)),
+                      linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)),
+                      var(--lwt-header-image, none);
+    background-position: right top, var(--lwt-background-alignment);
+  }
 }
 
 .mail-toolbox > toolbar {
@@ -26,131 +25,31 @@
   counter-reset: smallicons;
 }
 
-#button-getmsg {
-  list-style-image: var(--icon-cloud-download);
-}
-
-#button-newmsg {
-  list-style-image: var(--icon-pencil);
-}
-
-#button-address {
-  list-style-image: var(--icon-address-book);
-}
-
-#button-reply {
-  list-style-image: var(--icon-reply);
-}
-
-#button-replyall {
-  list-style-image: var(--icon-reply-all);
-}
-
-#button-replylist {
-  list-style-image: var(--icon-reply-list);
-}
-
-#button-forward {
-  list-style-image: var(--icon-forward);
-}
-
-#button-redirect {
-  list-style-image: var(--icon-redirect);
-}
-
-.delete-button {
-  list-style-image: var(--icon-trash);
-}
-
-.junk-button {
-  list-style-image: var(--icon-spam);
-}
-
-#button-print {
-  list-style-image: var(--icon-print);
-}
-
-#button-stop {
-  list-style-image: var(--icon-close);
-}
-
-#button-file {
-  list-style-image: var(--icon-file);
-}
-
-#button-nextUnread {
-  list-style-image: var(--icon-nav-down-unread);
-}
-
-#button-previousUnread {
-  list-style-image: var(--icon-nav-up-unread);
-}
-
-#button-mark {
-  list-style-image: var(--icon-unread);
-}
-
-#button-tag {
-  list-style-image: var(--icon-tag);
-}
-
-#button-goback {
-  list-style-image: var(--icon-nav-back);
-}
-
-#button-goforward {
-  list-style-image: var(--icon-nav-forward);
-}
-
-#button-compact {
-  list-style-image: var(--icon-compress);
-}
-
-#button-archive {
-  list-style-image: var(--icon-archive);
-}
-
-#button-chat {
-  -moz-context-properties: fill, stroke, fill-opacity;
-}
-
-#button-nextMsg {
-  list-style-image: var(--icon-nav-down);
-}
-
-#button-previousMsg {
-  list-style-image: var(--icon-nav-up);
-}
-
-#qfb-show-filter-bar {
-  list-style-image: var(--icon-filter);
-}
-
-#button-showconversation {
-  list-style-image: var(--icon-conversation);
-}
-
-#button-addons {
-  list-style-image: var(--icon-extension);
-}
-
 .button-appmenu {
   list-style-image: var(--icon-app-menu);
   min-width: 35px !important;
   margin-inline: 4px;
-}
 
-.button-appmenu[badge-status] {
-  list-style-image: var(--icon-app-menu-badged);
+  &[badge-status] {
+    list-style-image: var(--icon-app-menu-badged);
+  }
+
+  & .toolbarbutton-text {
+    display: none;
+  }
+
+  toolbar[mode="text"] & .toolbarbutton-icon {
+    display: flex;
+  }
 }
 
 #button-chat[unreadMessages="true"] {
   fill: color-mix(in srgb, var(--toolbarbutton-icon-fill-attention) 20%, transparent);
   stroke: var(--toolbarbutton-icon-fill-attention);
-}
 
-toolbar[mode="text"] > #button-chat[unreadMessages="true"] {
-  color: var(--toolbarbutton-icon-fill-attention);
+  toolbar[mode="text"] > & {
+    color: var(--toolbarbutton-icon-fill-attention);
+  }
 }
 
 #button-newMsgPopup .menuitem-iconic {
@@ -161,14 +60,6 @@ toolbar[mode="text"] > #button-chat[unreadMessages="true"] {
 /* remove the small icons checkbox in Customize window */
 #smallicons {
   display: none;
-}
-
-.button-appmenu .toolbarbutton-text {
-  display: none;
-}
-
-toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
-  display: flex;
 }
 
 #folder-location-container {
@@ -186,11 +77,11 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 #palette-box #button-chat {
   background: var(--icon-chat) no-repeat center;
-}
 
-/* Hide the toolbarbutton-icon when the button is removed from the toolbar */
-#palette-box #button-chat > stack > .toolbarbutton-icon {
-  display: none;
+  /* Hide the toolbarbutton-icon when the button is removed from the toolbar */
+  & > stack > .toolbarbutton-icon {
+    display: none;
+  }
 }
 
 /* ::::: message notification bar style rules ::::: */
