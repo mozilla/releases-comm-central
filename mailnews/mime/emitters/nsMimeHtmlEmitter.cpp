@@ -28,6 +28,7 @@
 #include "mozilla/Components.h"
 #include "nsIMailChannel.h"
 #include "nsIProgressEventSink.h"
+#include "mozilla/ProfilerMarkers.h"
 
 #define VIEW_ALL_HEADERS 2
 
@@ -230,6 +231,10 @@ NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(
 
 nsresult nsMimeHtmlDisplayEmitter::EndHeader(const nsACString& name) {
   if (mDocHeader && (mFormat != nsMimeOutput::nsMimeMessageFilterSniffer)) {
+    PROFILER_MARKER_TEXT(
+        "MIME HTML Emitter", OTHER,
+        mozilla::MarkerOptions(mozilla::MarkerTiming::IntervalStart()),
+        "HTML output"_ns);
     // Start with a UTF-8 BOM so this can't be mistaken for another charset.
     UtilityWriteCRLF("\xEF\xBB\xBF<!DOCTYPE html>");
     UtilityWriteCRLF("<html>");
@@ -252,7 +257,10 @@ nsresult nsMimeHtmlDisplayEmitter::EndHeader(const nsACString& name) {
     UtilityWriteCRLF("<body>");
   }
 
+  PROFILER_MARKER_TEXT("MIME HTML Emitter", OTHER, {}, "Headers begin"_ns);
   WriteHTMLHeaders(name);
+  PROFILER_MARKER_TEXT("MIME HTML Emitter", OTHER, {}, "Headers end"_ns);
+  PROFILER_MARKER_TEXT("MIME HTML Emitter", OTHER, {}, "Body begins"_ns);
 
   return NS_OK;
 }
@@ -326,6 +334,8 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
   // Add the list of attachments. This is only visible when printing.
 
   if (mFirst) {
+    PROFILER_MARKER_TEXT("MIME HTML Emitter", OTHER, {},
+                         "Attachments begin"_ns);
     UtilityWrite(
         "<fieldset class=\"moz-mime-attachment-header moz-print-only\">");
     if (!name.IsEmpty()) {
@@ -410,6 +420,7 @@ nsresult nsMimeHtmlDisplayEmitter::EndAttachment() {
 nsresult nsMimeHtmlDisplayEmitter::EndAllAttachments() {
   UtilityWrite("</table>");
   UtilityWrite("</div>");
+  PROFILER_MARKER_TEXT("MIME HTML Emitter", OTHER, {}, "Attachments end"_ns);
 
   // Notify the front end that we've finished reading the body.
   nsresult rv;
@@ -421,6 +432,10 @@ nsresult nsMimeHtmlDisplayEmitter::EndAllAttachments() {
     listener->OnAttachmentsComplete(mailChannel);
   }
 
+  PROFILER_MARKER_TEXT(
+      "MIME HTML Emitter", OTHER,
+      mozilla::MarkerOptions(mozilla::MarkerTiming::IntervalEnd()),
+      "HTML output"_ns);
   return NS_OK;
 }
 
@@ -434,6 +449,7 @@ nsresult nsMimeHtmlDisplayEmitter::EndBody() {
   if (mFormat != nsMimeOutput::nsMimeMessageFilterSniffer) {
     UtilityWriteCRLF("</body>");
     UtilityWriteCRLF("</html>");
+    PROFILER_MARKER_TEXT("MIME HTML Emitter", OTHER, {}, "Body ends"_ns);
   }
 
   // Notify the front end that we've finished reading the body.
