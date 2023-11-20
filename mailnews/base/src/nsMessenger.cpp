@@ -1349,6 +1349,9 @@ done:
   else
     mListenerUri = url;
 
+  nsCOMPtr<nsIObserverService> obs = services::GetObserverService();
+  obs->NotifyObservers(nullptr, "message-saved", nullptr);
+
   return rv;
 }
 
