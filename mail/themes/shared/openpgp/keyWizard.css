@@ -23,16 +23,16 @@ description {
 
 .wizard-section {
   transition: transform 230ms ease, opacity 230ms ease;
-}
 
-.wizard-section.hide {
-  transform: translateY(-100%);
-  opacity: 0;
-}
+  &.hide {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
 
-.wizard-section.hide-reverse {
-  transform: translateY(100%);
-  opacity: 0;
+  &.hide-reverse {
+    transform: translateY(100%);
+    opacity: 0;
+  }
 }
 
 .grid-size {
@@ -92,12 +92,12 @@ description {
   border: 1px solid var(--in-content-border-color);
   background-color: rgba(215, 215, 219, 0.2);
   margin-bottom: 6px;
-}
 
-.key-import-row.selected {
-  border: 1px solid #45A1FF;
-  background-color: rgba(69, 161, 255, 0.2);
-  margin-bottom: 0;
+  &.selected {
+    border: 1px solid #45A1FF;
+    background-color: rgba(69, 161, 255, 0.2);
+    margin-bottom: 0;
+  }
 }
 
 .openpgp-key-id {
@@ -145,8 +145,8 @@ description {
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
-}
 
-.input-container input:not([type="number"],[type="color"]) {
-  flex: 1;
+  & input:not([type="number"],[type="color"]) {
+    flex: 1;
+  }
 }

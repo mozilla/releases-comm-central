@@ -11,9 +11,9 @@ html {
 fieldset {
   margin-inline: 20px;
   margin-block: 4px;
-}
 
-fieldset > div {
-  display: flex;
-  align-items: center;
+  & > div {
+    display: flex;
+    align-items: center;
+  }
 }

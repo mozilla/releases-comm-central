@@ -42,10 +42,10 @@
 
 .enigmailKeyImportDetails {
   color: blue;
-}
 
-.enigmailKeyImportDetails:hover {
-  text-decoration: underline;
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 treechildren::-moz-tree-cell-text(enigmailOwnKey) {

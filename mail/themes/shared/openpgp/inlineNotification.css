@@ -2,28 +2,52 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-.inline-notification-container:not([collapsed="true"],[hidden]) {
-  display: flex;
-  border-radius: 3px;
-  padding: 6px 8px;
-  margin: 10px 3px;
-}
-
 .inline-notification-container {
   color: inherit;
+
+  &:not([collapsed="true"],[hidden]) {
+    display: flex;
+    border-radius: 3px;
+    padding: 6px 8px;
+    margin: 10px 3px;
+  }
+
+  /* Info variation */
+
+  &.info-container {
+    background-color: rgba(69, 161, 255, 0.2);
+  }
+
+  /* error variation */
+
+  &.error-container {
+    background-color: #f7b6b6;
+    color: #410303;
+  }
+
+  /* success variation */
+
+  &.success-container {
+    background-color: #c1f7b6;
+    color: #043a08;
+  }
 }
 
 .inline-notification-wrapper {
   display: flex;
   align-items: flex-start;
-}
 
-.inline-notification-wrapper.align-center {
-  align-items: center;
-}
+  &.align-center {
+    align-items: center;
 
-.inline-notification-wrapper description {
-  flex: 1;
+    & .notification-image {
+      margin-top: 0;
+    }
+  }
+
+  & description {
+    flex: 1;
+  }
 }
 
 .notification-image {
@@ -32,28 +56,4 @@
   margin-inline: 4px 8px;
   margin-top: 4px;
   width: 16px;
-}
-
-.inline-notification-wrapper.align-center .notification-image {
-  margin-top: 0;
-}
-
-/* Info variation */
-
-.inline-notification-container.info-container {
-  background-color: rgba(69, 161, 255, 0.2);
-}
-
-/* error variation */
-
-.inline-notification-container.error-container {
-  background-color: #f7b6b6;
-  color: #410303;
-}
-
-/* success variation */
-
-.inline-notification-container.success-container {
-  background-color: #c1f7b6;
-  color: #043a08;
 }
