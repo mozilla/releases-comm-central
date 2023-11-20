@@ -651,8 +651,6 @@ pref("mail.serverDefaultStoreContractID", "@mozilla.org/msgstore/berkeleystore;1
 // this number is divided by 100 before it is used. The classifier can be fine tuned
 // by changing this pref. Typical values are .99, .95, .90, .5, etc.
 pref("mail.adaptivefilters.junk_threshold", 90);
-// used to determine when to migrate global spam settings
-pref("mail.spam.version", 0);
 pref("mail.spam.logging.enabled", false);
 pref("mail.spam.manualMark", false);
 pref("mail.spam.markAsReadOnSpam", false);

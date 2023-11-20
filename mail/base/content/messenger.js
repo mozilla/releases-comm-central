@@ -471,10 +471,6 @@ function switchToMailTab() {
 async function loadPostAccountWizard() {
   InitMsgWindow();
 
-  MigrateJunkMailSettings();
-  MigrateFolderViews();
-  MigrateOpenMessageBehavior();
-
   MailServices.accounts.setSpecialFolders();
 
   try {
@@ -860,97 +856,6 @@ function SelectFolder(folderUri) {
 }
 
 function ReloadMessage() {}
-
-// Some of the per account junk mail settings have been
-// converted to global prefs. Let's try to migrate some
-// of those settings from the default account.
-function MigrateJunkMailSettings() {
-  var junkMailSettingsVersion = Services.prefs.getIntPref("mail.spam.version");
-  if (!junkMailSettingsVersion) {
-    // Get the default account, check to see if we have values for our
-    // globally migrated prefs.
-    const defaultAccount = MailServices.accounts.defaultAccount;
-    if (defaultAccount) {
-      // we only care about
-      var prefix = "mail.server." + defaultAccount.incomingServer.key + ".";
-      if (Services.prefs.prefHasUserValue(prefix + "manualMark")) {
-        Services.prefs.setBoolPref(
-          "mail.spam.manualMark",
-          Services.prefs.getBoolPref(prefix + "manualMark")
-        );
-      }
-      if (Services.prefs.prefHasUserValue(prefix + "manualMarkMode")) {
-        Services.prefs.setIntPref(
-          "mail.spam.manualMarkMode",
-          Services.prefs.getIntPref(prefix + "manualMarkMode")
-        );
-      }
-      if (Services.prefs.prefHasUserValue(prefix + "spamLoggingEnabled")) {
-        Services.prefs.setBoolPref(
-          "mail.spam.logging.enabled",
-          Services.prefs.getBoolPref(prefix + "spamLoggingEnabled")
-        );
-      }
-      if (Services.prefs.prefHasUserValue(prefix + "markAsReadOnSpam")) {
-        Services.prefs.setBoolPref(
-          "mail.spam.markAsReadOnSpam",
-          Services.prefs.getBoolPref(prefix + "markAsReadOnSpam")
-        );
-      }
-    }
-    // bump the version so we don't bother doing this again.
-    Services.prefs.setIntPref("mail.spam.version", 1);
-  }
-}
-
-// The first time a user runs a build that supports folder views, pre-populate the favorite folders list
-// with the existing INBOX folders.
-function MigrateFolderViews() {
-  var folderViewsVersion = Services.prefs.getIntPref(
-    "mail.folder.views.version"
-  );
-  if (!folderViewsVersion) {
-    for (const server of MailServices.accounts.allServers) {
-      if (server) {
-        const inbox = MailUtils.getInboxFolder(server);
-        if (inbox) {
-          inbox.setFlag(Ci.nsMsgFolderFlags.Favorite);
-        }
-      }
-    }
-    Services.prefs.setIntPref("mail.folder.views.version", 1);
-  }
-}
-
-// Do a one-time migration of the old mailnews.reuse_message_window pref to the
-// newer mail.openMessageBehavior. This does the migration only if the old pref
-// is defined.
-function MigrateOpenMessageBehavior() {
-  const openMessageBehaviorVersion = Services.prefs.getIntPref(
-    "mail.openMessageBehavior.version"
-  );
-  if (!openMessageBehaviorVersion) {
-    // Don't touch this if it isn't defined
-    if (
-      Services.prefs.getPrefType("mailnews.reuse_message_window") ==
-      Ci.nsIPrefBranch.PREF_BOOL
-    ) {
-      if (Services.prefs.getBoolPref("mailnews.reuse_message_window")) {
-        Services.prefs.setIntPref(
-          "mail.openMessageBehavior",
-          MailConsts.OpenMessageBehavior.EXISTING_WINDOW
-        );
-      } else {
-        Services.prefs.setIntPref(
-          "mail.openMessageBehavior",
-          MailConsts.OpenMessageBehavior.NEW_TAB
-        );
-      }
-    }
-
-    Services.prefs.setIntPref("mail.openMessageBehavior.version", 1);
-  }
-}
 
 function messageFlavorDataProvider() {}
 

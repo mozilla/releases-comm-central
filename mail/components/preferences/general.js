@@ -46,7 +46,6 @@ const AUTO_UPDATE_CHANGED_TOPIC = "auto-update-config-change";
 
 Preferences.addAll([
   { id: "mail.pane_config.dynamic", type: "int" },
-  { id: "mailnews.reuse_message_window", type: "bool" },
   { id: "mailnews.start_page.enabled", type: "bool" },
   { id: "mailnews.start_page.url", type: "string" },
   { id: "mail.biff.show_tray_icon", type: "bool" },

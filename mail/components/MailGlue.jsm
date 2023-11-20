@@ -1179,7 +1179,6 @@ function reportPreferences() {
     "mailnews.database.global.indexer.enabled",
     "mailnews.mark_message_read.auto",
     "mailnews.mark_message_read.delay",
-    "mailnews.reuse_message_window",
     "mailnews.start_page.enabled",
     "searchintegration.enable",
 

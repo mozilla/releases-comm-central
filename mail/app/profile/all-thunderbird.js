@@ -277,8 +277,6 @@ pref("general.autoScroll", true);
 pref("mail.shell.checkDefaultClient", true);
 pref("mail.spellcheck.inline", true);
 
-pref("mail.folder.views.version", 0);
-
 // Force the unit shown for the size of all folders. If empty, the unit
 // is determined automatically for each folder. Allowed values: KB/MB/<empty string>
 pref("mail.folderpane.sizeUnits", "");
@@ -334,7 +332,6 @@ pref("mail.showCondensedAddresses", true); // show the friendly display name for
 pref("mailnews.attachments.display.start_expanded", false);
 // hidden pref for changing how we present attachments in the message pane
 pref("mail.pane_config.dynamic", 2);
-pref("mailnews.reuse_thread_window2",     true);
 pref("editor.singleLine.pasteNewlines", 4);  // substitute commas for new lines in single line text boxes
 pref("editor.CR_creates_new_p", true);
 pref("mail.compose.default_to_paragraph", true);
@@ -545,7 +542,6 @@ pref("dom.disable_window_status_change",          true);
 // 1 - open it in an existing window
 // 2 - open it in a new tab
 pref("mail.openMessageBehavior", 2);
-pref("mail.openMessageBehavior.version", 0);
 // If messages or folders are opened using the context menu or a middle click,
 // should we open them in the foreground or in the background?
 pref("mail.tabs.loadInBackground", true);

@@ -75,8 +75,6 @@ NS_IMETHODIMP nsMessengerBootstrap::OpenMessengerWindowWithUri(
       do_GetService(NS_WINDOWWATCHER_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // we need to use the "mailnews.reuse_thread_window2" pref
-  // to determine if we should open a new window, or use an existing one.
   nsCOMPtr<mozIDOMWindowProxy> newWindow;
   return wwatch->OpenWindow(0, chromeUrl, "_blank"_ns,
                             "chrome,all,dialog=no"_ns, argsArray,
