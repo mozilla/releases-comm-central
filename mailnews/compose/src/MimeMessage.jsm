@@ -527,6 +527,7 @@ class MimeMessage {
   async _writePart(curPart, depth = 0) {
     let bodyString;
     try {
+      // `getEncodedBodyString()` returns a binary string.
       bodyString = await curPart.getEncodedBodyString();
     } catch (e) {
       if (e.data && /^data:/i.test(e.data.url)) {
@@ -548,7 +549,8 @@ class MimeMessage {
       }
     }
 
-    // Write out headers.
+    // Write out headers, there could be non-ASCII in the headers
+    // which we need to encode into UTF-8.
     this._writeString(curPart.getHeaderString());
 
     // Start crypto encapsulation if needed.
@@ -561,22 +563,30 @@ class MimeMessage {
       // single part message
       if (curPart.parts.length === 1) {
         await this._writePart(curPart.parts[0], depth + 1);
-        this._writeString(`${bodyString}`);
+        this._writeBinaryString(bodyString);
         return;
       }
 
-      this._writeString("\r\n");
+      // We can safely use `_writeBinaryString()` for ASCII strings.
+      this._writeBinaryString("\r\n");
       if (depth == 0) {
         // Current part is a top part and multipart container.
-        this._writeString("This is a multi-part message in MIME format.\r\n");
+        this._writeBinaryString(
+          "This is a multi-part message in MIME format.\r\n"
+        );
       }
 
       // multipart message
       for (const part of curPart.parts) {
-        this._writeString(`--${curPart.separator}\r\n`);
+        this._writeBinaryString(`--${curPart.separator}\r\n`);
         await this._writePart(part, depth + 1);
       }
-      this._writeString(`\r\n--${curPart.separator}--\r\n`);
+      this._writeBinaryString(`\r\n--${curPart.separator}--\r\n`);
+      if (depth > 1) {
+        // If more separators follow, make sure there is a blank line after
+        // this one.
+        this._writeBinaryString("\r\n");
+      }
     } else {
       this._writeBinaryString(`\r\n`);
     }
@@ -588,7 +598,7 @@ class MimeMessage {
     // OpenPGP or S/MIME signatures. For example see bug 1731529.
 
     // Write out body.
-    this._writeBinaryString(`${bodyString}`);
+    this._writeBinaryString(bodyString);
   }
 
   /**
