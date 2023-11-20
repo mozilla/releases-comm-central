@@ -91,7 +91,7 @@ const OpenPGPTestUtils = {
    */
   async initOpenPGP() {
     Assert.ok(await lazy.RNP.init(), "librnp did load");
-    lazy.EnigmailCore.init();
+    await lazy.EnigmailCore.init();
     lazy.EnigmailKeyRing.init();
     await lazy.OpenPGPAlias.load();
   },
