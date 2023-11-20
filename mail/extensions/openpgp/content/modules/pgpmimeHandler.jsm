@@ -158,13 +158,7 @@ PgpMimeHandler.prototype = {
       uri = ctxt;
     }
 
-    if (!lazy.EnigmailCore.getService()) {
-      // Ensure Enigmail is initialized
-      if (ct.search(/application\/(x-)?pkcs7-signature/i) > 0) {
-        return this.handleSmime(mimeSvc, uri);
-      }
-      return null;
-    }
+    lazy.EnigmailCore.init();
 
     lazy.EnigmailLog.DEBUG("pgpmimeHandler.js: onStartRequest\n");
     lazy.EnigmailLog.DEBUG("pgpmimeHandler.js: ct= " + ct + "\n");
@@ -281,15 +275,9 @@ class Factory {
 }
 
 var EnigmailPgpmimeHander = {
-  startup(reason) {
+  startup() {
     try {
       this.factory = new Factory(PgpMimeHandler);
     } catch (ex) {}
-  },
-
-  shutdown(reason) {
-    if (this.factory) {
-      this.factory.unregister();
-    }
   },
 };

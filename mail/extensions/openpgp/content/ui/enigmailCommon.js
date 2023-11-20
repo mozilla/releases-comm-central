@@ -13,19 +13,8 @@ var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 
 var l10nCommon = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
-var gEnigmailSvc;
-function GetEnigmailSvc() {
-  if (!gEnigmailSvc) {
-    gEnigmailSvc = EnigmailCore.getService();
-  }
-  return gEnigmailSvc;
-}
-
 async function EnigRevokeKey(keyObj, callbackFunc) {
-  var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc) {
-    return;
-  }
+  EnigmailCore.init();
 
   if (keyObj.keyTrust == "r") {
     Services.prompt.alert(

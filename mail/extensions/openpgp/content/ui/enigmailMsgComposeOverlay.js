@@ -705,10 +705,7 @@ Enigmail.msg = {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.extractAndAttachKey: \n"
     );
-    var enigmailSvc = EnigmailCore.getService();
-    if (!enigmailSvc) {
-      return null;
-    }
+    EnigmailCore.init();
 
     var tmpFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     tmpFile.append("key.asc");
@@ -878,7 +875,7 @@ Enigmail.msg = {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.doPgpButton: what=" + what + "\n");
 
     if (Enigmail.msg.wasEnigmailEnabledForIdentity()) {
-      EnigmailCore.getService(); // try to access Enigmail to launch the wizard if needed
+      EnigmailCore.init();
     }
 
     // ignore settings for this account?
@@ -1313,10 +1310,7 @@ Enigmail.msg = {
 
     const fromAddr = this.getSenderUserId();
 
-    const enigmailSvc = EnigmailCore.getService();
-    if (!enigmailSvc) {
-      return true;
-    }
+    EnigmailCore.init();
 
     const senderKeyUsable = await EnigmailEncryption.determineOwnKeyUsability(
       sendFlags,
@@ -1941,10 +1935,7 @@ Enigmail.msg = {
     const SIGN = EnigmailConstants.SEND_SIGNED;
     const ENCRYPT = EnigmailConstants.SEND_ENCRYPTED;
 
-    var enigmailSvc = EnigmailCore.getService();
-    if (!enigmailSvc) {
-      return false;
-    }
+    EnigmailCore.init();
 
     if (Services.prefs.getBoolPref("mail.strictly_mime")) {
       if (
@@ -2339,10 +2330,7 @@ Enigmail.msg = {
       return;
     }
 
-    var enigmailSvc = EnigmailCore.getService();
-    if (!enigmailSvc) {
-      return;
-    }
+    EnigmailCore.init();
 
     const dce = Ci.nsIDocumentEncoder;
     var encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;

@@ -4,8 +4,6 @@
 
 "use strict";
 
-/* global GetEnigmailSvc */
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -32,6 +30,9 @@ var { EnigmailWindows } = ChromeUtils.import(
 );
 var { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
+var { EnigmailCore } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/core.jsm"
 );
 
 ChromeUtils.defineESModuleGetters(this, {
@@ -622,17 +623,7 @@ async function openPgpKeygenStart() {
   gGeneratedKey = null;
   gAllData = "";
 
-  const enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc) {
-    openPgpWarning.collapsed = false;
-    document.l10n.setAttributes(
-      openPgpWarningText,
-      "openpgp-keygen-error-core"
-    );
-    closeOverlay();
-
-    throw new Error("GetEnigmailSvc failed");
-  }
+  EnigmailCore.init();
 
   // Show wizard overlay before the start of the generation process. This is
   // necessary because the generation happens synchronously and blocks the UI.

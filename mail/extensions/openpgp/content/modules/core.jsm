@@ -22,20 +22,17 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 
 var EXPORTED_SYMBOLS = ["EnigmailCore"];
 
-var gEnigmailService = null; // Global Enigmail Service
-
 var EnigmailCore = {
-  /**
-   * Create a new instance of Enigmail, or return the already existing one
-   */
-  createInstance() {
-    if (!gEnigmailService) {
-      gEnigmailService = new Enigmail();
-    }
-    return gEnigmailService;
-  },
+  _initialized: false,
 
-  async startup(reason) {
+  /**
+   * Initialize the main parts of Enigmail
+   */
+  async init() {
+    if (this._initialized) {
+      return;
+    }
+
     initializeLogDirectory();
 
     lazy.EnigmailLog.DEBUG("core.jsm: startup()\n");
@@ -47,45 +44,12 @@ var EnigmailCore = {
     lazy.EnigmailVerify.registerPGPMimeHandler();
     //EnigmailFiltersWrapper.onStartup();
 
-    lazy.EnigmailMimeEncrypt.startup(reason);
+    lazy.EnigmailMimeEncrypt.init();
     //EnigmailOverlays.startup();
     this.factories.push(new Factory(lazy.EnigmailMimeEncrypt.Handler));
-  },
 
-  shutdown(reason) {
-    if (this.factories) {
-      for (const fct of this.factories) {
-        fct.unregister();
-      }
-    }
-
-    //EnigmailFiltersWrapper.onShutdown();
-    lazy.EnigmailVerify.unregisterPGPMimeHandler();
-
-    lazy.EnigmailLog.onShutdown();
-
-    lazy.EnigmailLog.setLogLevel(3);
-    gEnigmailService = null;
-  },
-
-  /**
-   * Get and or initialize the Enigmail service.
-   *
-   * @returns {Promise<Enigmail|null>}
-   */
-  async getService() {
-    // Lazy initialization of Enigmail JS component (for efficiency)
-
-    if (gEnigmailService) {
-      return gEnigmailService.initialized ? gEnigmailService : null;
-    }
-
-    try {
-      this.createInstance();
-      return gEnigmailService.getService();
-    } catch (ex) {
-      return null;
-    }
+    lazy.EnigmailPgpmimeHander.startup();
+    this._initialized = true;
   },
 };
 
@@ -105,49 +69,6 @@ function initializeLogDirectory() {
     "core.jsm: Logging debug output to " + dir + "/enigdbug.txt\n"
   );
 }
-
-function Enigmail() {
-  this.wrappedJSObject = this;
-}
-
-Enigmail.prototype = {
-  initialized: false,
-  initializationAttempted: false,
-
-  initialize() {
-    this.initializationAttempted = true;
-
-    lazy.EnigmailLog.DEBUG("core.jsm: Enigmail.initialize: START\n");
-
-    if (this.initialized) {
-      return;
-    }
-
-    this.initialized = true;
-
-    lazy.EnigmailLog.DEBUG("core.jsm: Enigmail.initialize: END\n");
-  },
-
-  reinitialize() {
-    lazy.EnigmailLog.DEBUG("core.jsm: Enigmail.reinitialize:\n");
-    this.initialized = false;
-    this.initializationAttempted = true;
-
-    this.initialized = true;
-  },
-
-  async getService() {
-    lazy.EnigmailLog.DEBUG("core.jsm: svc = " + this + "\n");
-
-    if (!this.initialized) {
-      // Initialize enigmail
-      this.initialize();
-    }
-    await EnigmailCore.startup(0);
-    lazy.EnigmailPgpmimeHander.startup(0);
-    return this.initialized ? this : null;
-  },
-}; // Enigmail.prototype
 
 class Factory {
   constructor(component) {

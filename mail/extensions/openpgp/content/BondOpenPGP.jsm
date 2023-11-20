@@ -72,7 +72,7 @@ var BondOpenPGP = {
     }
 
     // trigger service init
-    await lazy.EnigmailCore.getService();
+    await lazy.EnigmailCore.init();
   },
 
   getRNPLibStatus() {

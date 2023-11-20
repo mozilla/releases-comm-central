@@ -6,7 +6,7 @@
 
 "use strict";
 
-/* global GetEnigmailSvc, EnigRevokeKey */
+/* global EnigRevokeKey */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -84,10 +84,7 @@ function enigmailKeyManagerLoad() {
   EnigmailLog.DEBUG("enigmailKeyManager.js: enigmailKeyManagerLoad\n");
 
   // Close the key manager if GnuPG is not available
-  if (!EnigmailCore.getService()) {
-    window.close();
-    return;
-  }
+  EnigmailCore.init();
 
   gUserList = document.getElementById("pgpKeyList");
   gSearchInput = document.getElementById("filterKey");

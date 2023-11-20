@@ -731,24 +731,19 @@ function LOCAL_DEBUG(str) {
   }
 }
 
-function initModule() {
-  lazy.EnigmailLog.DEBUG("mimeEncrypt.jsm: initModule()\n");
-  const nspr_log_modules = Services.env.get("NSPR_LOG_MODULES");
-  const matches = nspr_log_modules.match(/mimeEncrypt:(\d+)/);
-
-  if (matches && matches.length > 1) {
-    gDebugLogLevel = matches[1];
-    LOCAL_DEBUG("mimeEncrypt.js: enabled debug logging\n");
-  }
-}
-
 var EnigmailMimeEncrypt = {
   Handler: PgpMimeEncrypt,
 
-  startup(reason) {
-    initModule();
+  init() {
+    lazy.EnigmailLog.DEBUG("mimeEncrypt.jsm: initModule()\n");
+    const nspr_log_modules = Services.env.get("NSPR_LOG_MODULES");
+    const matches = nspr_log_modules.match(/mimeEncrypt:(\d+)/);
+
+    if (matches && matches.length > 1) {
+      gDebugLogLevel = matches[1];
+      LOCAL_DEBUG("mimeEncrypt.js: enabled debug logging\n");
+    }
   },
-  shutdown(reason) {},
 
   createMimeEncrypt(sMimeSecurityInfo) {
     return new PgpMimeEncrypt(sMimeSecurityInfo);

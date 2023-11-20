@@ -139,10 +139,7 @@ MimeDecryptHandler.prototype = {
   ),
 
   onStartRequest(request, uri) {
-    if (!lazy.EnigmailCore.getService()) {
-      // Ensure Enigmail is initialized
-      return;
-    }
+    lazy.EnigmailCore.init();
     lazy.EnigmailLog.DEBUG("mimeDecrypt.jsm: onStartRequest\n"); // always log this one
 
     ++gNumProc;
@@ -503,9 +500,7 @@ MimeDecryptHandler.prototype = {
         this.outQueue = lazy.EnigmailData.decodeBase64(this.outQueue) + "\n";
       }
 
-      if (!lazy.EnigmailDecryption.isReady()) {
-        return;
-      }
+      lazy.EnigmailCore.init();
 
       // limit output to 100 times message size to avoid DoS attack
       const maxOutput = this.outQueue.length * 100;

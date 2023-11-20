@@ -5,7 +5,7 @@
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
 /* import-globals-from ../../../mailnews/base/prefs/content/am-identity-edit.js */
 
-/* global GetEnigmailSvc, EnigRevokeKey */
+/* global EnigRevokeKey */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -31,6 +31,9 @@ var { EnigmailCryptoAPI } = ChromeUtils.import(
 );
 var { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
+var { EnigmailCore } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/core.jsm"
 );
 
 var email_signing_cert_usage = 4; // SECCertUsage.certUsageEmailSigner
@@ -1556,9 +1559,7 @@ async function exportSecretKey(password, fprArray, file, confirmed = false) {
  * Remove the saved external GnuPG Key.
  */
 async function removeExternalKey() {
-  if (!GetEnigmailSvc()) {
-    return;
-  }
+  EnigmailCore.init();
 
   // Interrupt if the external key is currently being used.
   if (

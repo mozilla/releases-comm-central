@@ -130,7 +130,7 @@ const filterActionCopyDecrypt = {
 const filterActionEncrypt = {
   async applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     // Ensure KeyRing is loaded.
-    lazy.EnigmailCore.getService();
+    lazy.EnigmailCore.init();
     lazy.EnigmailKeyRing.getAllKeys();
 
     lazy.EnigmailLog.DEBUG(
@@ -189,7 +189,7 @@ const filterActionEncrypt = {
   validateActionValue(value, folder, type) {
     // Initialize KeyRing. Ugly as it blocks the GUI but
     // we need it.
-    lazy.EnigmailCore.getService();
+    lazy.EnigmailCore.init();
     lazy.EnigmailKeyRing.getAllKeys();
 
     lazy.EnigmailLog.DEBUG(

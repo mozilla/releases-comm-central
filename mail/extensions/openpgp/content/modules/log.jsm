@@ -86,16 +86,19 @@ var EnigmailLog = {
   },
 
   DEBUG(str) {
+    console.debug(str);
     try {
       EnigmailLog.WRITE("[DEBUG] " + str);
     } catch (ex) {}
   },
 
   WARNING(str) {
+    console.warn(str);
     EnigmailLog.WRITE("[WARN] " + str);
   },
 
   ERROR(str) {
+    console.error(str);
     try {
       var consoleSvc = Services.console;
       var scriptError = Cc["@mozilla.org/scripterror;1"].createInstance(

@@ -21,9 +21,9 @@ const { EnigmailConstants } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
+  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
-  EnigmailDecryption: "chrome://openpgp/content/modules/decryption.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
@@ -578,9 +578,7 @@ MimeVerify.prototype = {
     }
 
     if (this.protocol === PGPMIME_PROTO) {
-      if (!lazy.EnigmailDecryption.isReady()) {
-        return;
-      }
+      lazy.EnigmailCore.init();
 
       const options = { mimeSignatureData: this.sigData };
       if (mimeSvc.mailChannel) {

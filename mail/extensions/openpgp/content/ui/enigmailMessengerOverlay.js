@@ -60,10 +60,6 @@ XPCOMUtils.defineLazyGetter(this, "l10n", () => {
 
 var Enigmail = {};
 
-Enigmail.getEnigmailSvc = function () {
-  return EnigmailCore.getService();
-};
-
 Enigmail.msg = {
   decryptedMessage: null,
   securityInfo: null,
@@ -526,7 +522,6 @@ Enigmail.msg = {
   async messageDecryptCb(event, isAuto, mimeMsg) {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageDecryptCb:\n");
 
-    let enigmailSvc;
     let contentType = "";
     try {
       if (!mimeMsg) {
@@ -742,10 +737,7 @@ Enigmail.msg = {
         ) >= 0;
       if (!smime && (msgSigned || msgEncrypted)) {
         // PGP/MIME messages
-        enigmailSvc = Enigmail.getEnigmailSvc();
-        if (!enigmailSvc) {
-          return;
-        }
+        EnigmailCore.init();
 
         if (!Enigmail.msg.checkPgpmimeHandler()) {
           return;
@@ -1190,10 +1182,7 @@ Enigmail.msg = {
       return;
     }
 
-    var enigmailSvc = Enigmail.getEnigmailSvc();
-    if (!enigmailSvc) {
-      return;
-    }
+    EnigmailCore.init();
 
     var plainText;
     var exitCode;
@@ -1789,10 +1778,7 @@ Enigmail.msg = {
       return "No decrypted message found!\n";
     }
 
-    var enigmailSvc = Enigmail.getEnigmailSvc();
-    if (!enigmailSvc) {
-      return "";
-    }
+    EnigmailCore.init();
 
     var headerList = Enigmail.msg.decryptedMessage.headerList;
     var statusLine = Enigmail.msg.securityInfo
@@ -2115,10 +2101,7 @@ Enigmail.msg = {
         "\n"
     );
 
-    var enigmailSvc = Enigmail.getEnigmailSvc();
-    if (!enigmailSvc) {
-      return;
-    }
+    EnigmailCore.init();
 
     var origAtt, signatureAtt;
     var isEncrypted = false;
