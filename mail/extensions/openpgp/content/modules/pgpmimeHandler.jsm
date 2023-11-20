@@ -2,12 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 /**
  *  Module for handling PGP/MIME encrypted and/or signed messages
  *  implemented as an XPCOM object
  */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+const EXPORTED_SYMBOLS = ["EnigmailPgpmimeHander"];
+
+const { manager: Cm } = Components;
+Cm.QueryInterface(Ci.nsIComponentRegistrar);
+
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
 
 const lazy = {};
 
@@ -125,11 +134,14 @@ UnknownProtoHandler.prototype = {
   },
 };
 
-export function PgpMimeHandler() {
+function PgpMimeHandler() {
   lazy.EnigmailLog.DEBUG("pgpmimeHandler.js: PgpMimeHandler()\n"); // always log this one
 }
 
 PgpMimeHandler.prototype = {
+  classDescription: "Enigmail JS Decryption Handler",
+  classID: Components.ID("{7514cbeb-2bfd-4b2c-829b-1a4691fa0ac8}"),
+  contractID: "@mozilla.org/mime/pgp-mime-js-decrypt;1",
   QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
   inStream: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
     Ci.nsIScriptableInputStream
@@ -234,5 +246,38 @@ PgpMimeHandler.prototype = {
     }
 
     return null;
+  },
+};
+
+class Factory {
+  constructor(component) {
+    this.component = component;
+    this.register();
+    Object.freeze(this);
+  }
+
+  createInstance(iid) {
+    return new this.component();
+  }
+
+  register() {
+    Cm.registerFactory(
+      this.component.prototype.classID,
+      this.component.prototype.classDescription,
+      this.component.prototype.contractID,
+      this
+    );
+  }
+
+  unregister() {
+    Cm.unregisterFactory(this.component.prototype.classID, this);
+  }
+}
+
+var EnigmailPgpmimeHander = {
+  startup() {
+    try {
+      this.factory = new Factory(PgpMimeHandler);
+    } catch (ex) {}
   },
 };
