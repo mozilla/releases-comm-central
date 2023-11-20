@@ -38,3 +38,18 @@
 #unifinder-searchBox:-moz-lwtheme {
   border-bottom-color: var(--splitter-color);
 }
+
+#bottom-events-box {
+  min-height: 100px;
+}
+
+#view-box {
+  min-height: 30vh;
+}
+
+#calendar-deactivated-notification-location-events {
+  flex: 0;
+}
+#calendar-deactivated-notification-location-events:has(notification-message) {
+  min-height: 40px;
+}
