@@ -35,7 +35,7 @@ add_setup(function () {
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  accountPOP3 = MailServices.accounts.FindAccountForServer(server);
+  accountPOP3 = MailServices.accounts.findAccountForServer(server);
 
   // There may be pre-existing accounts from other tests.
   originalAccountCount = MailServices.accounts.allServers.length;

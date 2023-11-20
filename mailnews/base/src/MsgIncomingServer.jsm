@@ -640,7 +640,7 @@ class MsgIncomingServer {
   }
 
   get isDeferredTo() {
-    const account = MailServices.accounts.FindAccountForServer(this);
+    const account = MailServices.accounts.findAccountForServer(this);
     if (!account) {
       return false;
     }

@@ -1396,7 +1396,7 @@ class MessageSend {
   _accountKeyForIdentity(identity) {
     const servers = MailServices.accounts.getServersForIdentity(identity);
     return servers.length
-      ? MailServices.accounts.FindAccountForServer(servers[0])?.key
+      ? MailServices.accounts.findAccountForServer(servers[0])?.key
       : null;
   }
 }

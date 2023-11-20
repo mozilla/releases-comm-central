@@ -134,7 +134,7 @@ function doChecks(server) {
    */
 
   // setup
-  const account = MailServices.accounts.FindAccountForServer(server);
+  const account = MailServices.accounts.findAccountForServer(server);
   const identity = MailServices.accounts.createIdentity();
   // start with an email that does not match
   identity.email = "iAmNotTheSender@test.invalid";

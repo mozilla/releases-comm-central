@@ -82,7 +82,7 @@ var accountsTracker = new (class extends EventEmitter {
     // If the account of this folder is unknown, it is new and this is the
     // initial root folder after the account has been created.
     const server = folder.server;
-    const nativeAccount = MailServices.accounts.FindAccountForServer(server);
+    const nativeAccount = MailServices.accounts.findAccountForServer(server);
     if (nativeAccount && !this.monitoredAccounts.has(nativeAccount.key)) {
       this.monitoredAccounts.set(
         nativeAccount.key,
@@ -110,7 +110,7 @@ var accountsTracker = new (class extends EventEmitter {
               return;
             }
             const nativeAccount =
-              MailServices.accounts.FindAccountForServer(server);
+              MailServices.accounts.findAccountForServer(server);
 
             const name = this.getChangedMonitoredProperty(
               nativeAccount,

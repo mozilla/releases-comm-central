@@ -137,7 +137,7 @@ class MessageInjection {
         //  case.
       }
 
-      const localAccount = MailServices.accounts.FindAccountForServer(
+      const localAccount = MailServices.accounts.findAccountForServer(
         MailServices.accounts.localFoldersServer
       );
 

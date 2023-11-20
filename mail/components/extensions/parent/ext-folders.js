@@ -199,7 +199,7 @@ var folderTracker = new (class extends EventEmitter {
     // Deleting an account, will trigger delete notifications for its folders,
     // but the account lookup fails, so skip them.
     const server = oldFolder.server;
-    const account = MailServices.accounts.FindAccountForServer(server);
+    const account = MailServices.accounts.findAccountForServer(server);
     if (account) {
       this.emit("folder-deleted", new CachedFolder(oldFolder), account.key);
     }

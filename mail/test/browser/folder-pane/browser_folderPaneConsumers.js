@@ -30,7 +30,7 @@ add_setup(function () {
   gFolderTreeView.selectFolder(gFolderTreeView._enumerateFolders[1]);
 
   const server = setupLocalServer(NNTP_PORT);
-  nntpAccount = MailServices.accounts.FindAccountForServer(server);
+  nntpAccount = MailServices.accounts.findAccountForServer(server);
 });
 
 add_task(async function test_virtual_folder_selection_tree() {

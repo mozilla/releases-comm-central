@@ -16,13 +16,13 @@ interface nsIFolderListener;
 [scriptable, uuid(d5ab0eea-49c5-42f2-b2e6-8ad306606d8b)]
 interface nsIMsgAccountManager : nsISupports {
 
-  ACString getUniqueAccountKey();
+  AUTF8String getUniqueAccountKey();
 
   nsIMsgAccount createAccount();
   /*
    * Return the account with the provided key, or null if none found.
    */
-  nsIMsgAccount getAccount(in ACString key);
+  nsIMsgAccount getAccount(in AUTF8String key);
 
   /**
    * Removes the account from the list of accounts.
@@ -40,7 +40,7 @@ interface nsIMsgAccountManager : nsISupports {
   /**
    * Scan the preferences to find a unique server key.
    */
-  ACString getUniqueServerKey();
+  AUTF8String getUniqueServerKey();
 
   /*
    * creates a new server and assigns it a new, unique "key"
@@ -49,9 +49,9 @@ interface nsIMsgAccountManager : nsISupports {
    *  @param type "imap", "pop3", "nntp", "none", "rss", "generic"
    * (suffix of contract ID @mozilla.org/messenger/server;1?type= )
    */
-  nsIMsgIncomingServer createIncomingServer(in ACString username,
-                                            in ACString hostname,
-                                            in ACString type);
+  nsIMsgIncomingServer createIncomingServer(in AUTF8String username,
+                                            in AUTF8String hostname,
+                                            in AUTF8String type);
 
   /**
    * Removes the server from the list of servers
@@ -67,14 +67,14 @@ interface nsIMsgAccountManager : nsISupports {
    * get the identity with the given key
    * if the identity does not exist, it will be created
    */
-  nsIMsgIdentity getIdentity(in ACString key);
+  nsIMsgIdentity getIdentity(in AUTF8String key);
 
   /*
    * Gets the existing incoming server with the given key
    * if the server's type does not exist in the preference,
    * an error is returned/thrown
    */
-  nsIMsgIncomingServer getIncomingServer(in ACString key);
+  nsIMsgIncomingServer getIncomingServer(in AUTF8String key);
 
   /* account list stuff */
 
@@ -119,9 +119,9 @@ interface nsIMsgAccountManager : nsISupports {
    * the type is the same as is specified in the preferences,
    * i.e. "imap", "pop3", "none", or "nntp"
    */
-  nsIMsgIncomingServer findServer(in ACString userName,
-                                  in ACString hostname,
-                                  in ACString type,
+  nsIMsgIncomingServer findServer(in AUTF8String userName,
+                                  in AUTF8String hostname,
+                                  in AUTF8String type,
                                   [optional] in long port);
 
   /*
@@ -133,7 +133,7 @@ interface nsIMsgAccountManager : nsISupports {
   /**
    * find the index of this server in the (ordered) list of accounts
    */
-  long FindServerIndex(in nsIMsgIncomingServer server);
+  long findServerIndex(in nsIMsgIncomingServer server);
 
   /**
    * Finds an account for the given incoming server.
@@ -142,7 +142,7 @@ interface nsIMsgAccountManager : nsISupports {
    * @return        If found, the nsIMsgAccount representing the account found.
    *                Otherwise returns null.
    */
-  nsIMsgAccount FindAccountForServer(in nsIMsgIncomingServer server);
+  nsIMsgAccount findAccountForServer(in nsIMsgIncomingServer server);
 
   /* given a server, return all identities in accounts that have this server
    * returns an array of nsIMsgIdentity
@@ -189,17 +189,17 @@ interface nsIMsgAccountManager : nsISupports {
 
   void loadVirtualFolders();
 
-  void WriteToFolderCache(in nsIMsgFolderCache folderCache);
+  void writeToFolderCache(in nsIMsgFolderCache folderCache);
   void saveVirtualFolders();
   void closeCachedConnections();
   void shutdownServers();
 
-  void CleanupOnExit();
-  void SetFolderDoingEmptyTrash(in nsIMsgFolder folder);
-  boolean GetEmptyTrashInProgress();
+  void cleanupOnExit();
+  void setFolderDoingEmptyTrash(in nsIMsgFolder folder);
+  boolean getEmptyTrashInProgress();
 
-  void SetFolderDoingCleanupInbox(in nsIMsgFolder folder);
-  boolean GetCleanupInboxInProgress();
+  void setFolderDoingCleanupInbox(in nsIMsgFolder folder);
+  boolean getCleanupInboxInProgress();
 
   void addRootFolderListener(in nsIFolderListener listener);
   void removeRootFolderListener(in nsIFolderListener listener);
@@ -208,8 +208,6 @@ interface nsIMsgAccountManager : nsISupports {
   void addIncomingServerListener(in nsIIncomingServerListener serverListener);
   void removeIncomingServerListener(in nsIIncomingServerListener serverListener);
 
-  // these are going away in favor of nsIMsgFolder::NotifyEvent(in ACString event);
-  // XXX what does this mean? There is no such function yet.
   void notifyServerLoaded(in nsIMsgIncomingServer server);
   void notifyServerUnloaded(in nsIMsgIncomingServer server);
   void notifyServerChanged(in nsIMsgIncomingServer server);
@@ -217,7 +215,7 @@ interface nsIMsgAccountManager : nsISupports {
   // force account info out to prefs file
   void saveAccountInfo();
 
-  ACString getChromePackageName(in ACString aExtensionName);
+  AUTF8String getChromePackageName(in AUTF8String aExtensionName);
 
   /// Enumerate all incoming servers and their folders and return in an array.
   readonly attribute Array<nsIMsgFolder> allFolders;
@@ -240,7 +238,7 @@ interface nsIMsgAccountManager : nsISupports {
    *
    * @param accountKeys - Account keys in the new preferred order.
    */
-  void reorderAccounts(in Array<ACString> accountKeys);
+  void reorderAccounts(in Array<AUTF8String> accountKeys);
 };
 
 %{C++
@@ -250,7 +248,7 @@ interface nsIMsgAccountManager : nsISupports {
 [scriptable, uuid(70032DE0-CD59-41ba-839D-FC1B65367EE7)]
 interface nsIMsgAccountManagerExtension : nsISupports
 {
-  readonly attribute ACString name;   // examples:  mdn
+  readonly attribute AUTF8String name;   // examples:  mdn
   boolean showPanel(in nsIMsgIncomingServer server);
-  readonly attribute ACString chromePackageName;  // example:  messenger, chrome://messenger/content/am-mdn.xhtml and chrome://messenger/locale/am-mdn.properties
+  readonly attribute AUTF8String chromePackageName;  // example:  messenger, chrome://messenger/content/am-mdn.xhtml and chrome://messenger/locale/am-mdn.properties
 };

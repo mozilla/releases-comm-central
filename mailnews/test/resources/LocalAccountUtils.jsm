@@ -53,7 +53,7 @@ var localAccountUtils = {
     MailServices.accounts.createLocalMailAccount();
 
     this.incomingServer = MailServices.accounts.localFoldersServer;
-    this.msgAccount = MailServices.accounts.FindAccountForServer(
+    this.msgAccount = MailServices.accounts.findAccountForServer(
       this.incomingServer
     );
 

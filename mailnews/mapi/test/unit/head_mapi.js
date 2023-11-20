@@ -53,7 +53,7 @@ function getBasicSmtpServer() {
     "password"
   );
   // We also need to have a working identity, including an email address.
-  const account = MailServices.accounts.FindAccountForServer(incoming);
+  const account = MailServices.accounts.findAccountForServer(incoming);
   localAccountUtils.associate_servers(account, server, true);
   const identity = account.defaultIdentity;
   identity.email = "tinderbox@tinderbox.invalid";

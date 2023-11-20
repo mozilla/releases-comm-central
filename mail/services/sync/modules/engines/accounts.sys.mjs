@@ -176,7 +176,7 @@ AccountStore.prototype = {
       return;
     }
 
-    const account = MailServices.accounts.FindAccountForServer(server);
+    const account = MailServices.accounts.findAccountForServer(server);
     if (account) {
       MailServices.accounts.removeAccount(account, true);
     } else {

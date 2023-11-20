@@ -51,7 +51,7 @@ function createAccount(type = "none") {
 
   if (type == "local") {
     MailServices.accounts.createLocalMailAccount();
-    account = MailServices.accounts.FindAccountForServer(
+    account = MailServices.accounts.findAccountForServer(
       MailServices.accounts.localFoldersServer
     );
   } else {
@@ -113,7 +113,7 @@ function addIdentity(account, email = "xpcshell@localhost") {
 async function createSubfolder(parent, name) {
   if (parent.server.type == "nntp") {
     createNewsgroup(name);
-    const account = MailServices.accounts.FindAccountForServer(parent.server);
+    const account = MailServices.accounts.findAccountForServer(parent.server);
     subscribeNewsgroup(account, name);
     return parent.getChildNamed(name);
   }

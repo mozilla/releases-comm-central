@@ -24,7 +24,7 @@ function getControls() {
 }
 
 function getLocalFoldersAccount() {
-  return MailServices.accounts.FindAccountForServer(
+  return MailServices.accounts.findAccountForServer(
     MailServices.accounts.localFoldersServer
   );
 }
@@ -123,7 +123,7 @@ function onOk(event) {
         break;
       case "otherAccount":
         const server = picker.selectedItem._folder.server;
-        const account = MailServices.accounts.FindAccountForServer(server);
+        const account = MailServices.accounts.findAccountForServer(server);
         gServerSettings.deferredToAccount = account.key;
         break;
     }

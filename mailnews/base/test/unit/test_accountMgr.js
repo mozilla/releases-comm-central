@@ -83,7 +83,7 @@ function run_test() {
   server.rootFolder.flags;
 
   MailServices.accounts.removeAccount(
-    MailServices.accounts.FindAccountForServer(server)
+    MailServices.accounts.findAccountForServer(server)
   );
   Assert.equal(MailServices.accounts.accounts.length, 2);
   Assert.equal(

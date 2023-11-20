@@ -212,7 +212,7 @@ function setup_accounts() {
     // Add the newly created server to the array for testing.
     gIncomingServers.push(server);
 
-    const account = MailServices.accounts.FindAccountForServer(server);
+    const account = MailServices.accounts.findAccountForServer(server);
     for (const smtpDetails of details.smtpServers) {
       const outgoing = localAccountUtils.create_outgoing_server(
         smtpDetails.port,

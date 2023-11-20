@@ -36,7 +36,7 @@ async function subtest_check_set_port_number(tab, dontSet) {
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  const account = MailServices.accounts.FindAccountForServer(server);
+  const account = MailServices.accounts.findAccountForServer(server);
 
   const accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
   await click_account_tree_row(tab, accountRow);

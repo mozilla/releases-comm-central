@@ -46,7 +46,7 @@ add_setup(function setupTest() {
   const identity = MailServices.accounts.createIdentity();
   identity.fullName = "Normal Person";
   identity.email = "fake@acme.invalid";
-  MailServices.accounts.FindAccountForServer(localserver).addIdentity(identity);
+  MailServices.accounts.findAccountForServer(localserver).addIdentity(identity);
 
   dummyMsgWindow = new DummyMsgWindow();
 });

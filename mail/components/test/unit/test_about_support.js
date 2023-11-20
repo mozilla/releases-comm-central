@@ -98,7 +98,7 @@ function setup_accounts() {
     server.socketType = details.socketType;
     server.authMethod = details.authMethod;
     gSensitiveData.push(details.password);
-    const account = MailServices.accounts.FindAccountForServer(server);
+    const account = MailServices.accounts.findAccountForServer(server);
     for (const smtpDetails of details.smtpServers) {
       const outgoing = localAccountUtils.create_outgoing_server(
         smtpDetails.port,

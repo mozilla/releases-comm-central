@@ -21,7 +21,7 @@ async function setup() {
 
   // Create account.
   MailServices.accounts.createLocalMailAccount();
-  const account = MailServices.accounts.FindAccountForServer(
+  const account = MailServices.accounts.findAccountForServer(
     MailServices.accounts.localFoldersServer
   );
   const root = account.incomingServer.rootFolder;

@@ -27,7 +27,7 @@ add_setup(function () {
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  gAccount = MailServices.accounts.FindAccountForServer(server);
+  gAccount = MailServices.accounts.findAccountForServer(server);
   const serverKey = server.key;
 
   gKeyString = "mail.server." + serverKey + ".whiteListAbURI";

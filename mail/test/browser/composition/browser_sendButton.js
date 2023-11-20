@@ -46,7 +46,7 @@ add_setup(async function () {
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  account = MailServices.accounts.FindAccountForServer(server);
+  account = MailServices.accounts.findAccountForServer(server);
   const inbox = await get_special_folder(
     Ci.nsMsgFolderFlags.Inbox,
     false,

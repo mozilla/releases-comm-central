@@ -1,6 +1,6 @@
 localAccountUtils.loadLocalMailAccount();
 
-var localAccount = MailServices.accounts.FindAccountForServer(
+var localAccount = MailServices.accounts.findAccountForServer(
   localAccountUtils.incomingServer
 );
 var identity = MailServices.accounts.createIdentity();

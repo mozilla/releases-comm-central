@@ -45,7 +45,7 @@ add_setup(async function () {
   await make_message_sets_in_folders([folderA], [{ count: 1 }]);
 
   const server = setupLocalServer(NNTP_PORT);
-  NNTPAccount = MailServices.accounts.FindAccountForServer(server);
+  NNTPAccount = MailServices.accounts.findAccountForServer(server);
 
   registerCleanupFunction(() => {
     folderA.deleteSelf(null);

@@ -151,7 +151,7 @@ add_task(async function test_account_actions() {
   });
 
   // Local Folders account: can't be removed, can't be default.
-  var localFoldersAccount = MailServices.accounts.FindAccountForServer(
+  var localFoldersAccount = MailServices.accounts.findAccountForServer(
     MailServices.accounts.localFoldersServer
   );
   await open_advanced_settings(async function (tab) {

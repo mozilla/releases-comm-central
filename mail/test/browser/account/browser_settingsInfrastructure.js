@@ -401,7 +401,7 @@ async function subtest_check_replyTo_leak(tab) {
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  const firstAccount = MailServices.accounts.FindAccountForServer(firstServer);
+  const firstAccount = MailServices.accounts.findAccountForServer(firstServer);
 
   accountRow = get_account_tree_row(firstAccount.key, null, tab);
   await click_account_tree_row(tab, accountRow);

@@ -17,7 +17,7 @@ function incomingPageValidate() {
   const server = NntpUtils.findServer(hostName);
   if (server) {
     // It's OK if a server exists, as long as it's not used by any account.
-    hasAccount = MailServices.accounts.FindAccountForServer(server);
+    hasAccount = MailServices.accounts.findAccountForServer(server);
   }
   // Can advance if it's a legal host name and we do not already have a server
   // in use with the same host name.

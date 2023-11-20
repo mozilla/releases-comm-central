@@ -156,7 +156,7 @@ IdentityStore.prototype = {
     for (const server of MailServices.accounts.getServersForIdentity(
       identity
     )) {
-      const account = MailServices.accounts.FindAccountForServer(server);
+      const account = MailServices.accounts.findAccountForServer(server);
       account.removeIdentity(identity);
       // Removing the identity from one account should destroy it.
       // No need to continue.
@@ -280,7 +280,7 @@ IdentityStore.prototype = {
     for (const server of MailServices.accounts.getServersForIdentity(
       identity
     )) {
-      const account = MailServices.accounts.FindAccountForServer(server);
+      const account = MailServices.accounts.findAccountForServer(server);
       if (account) {
         record.accounts.push({
           id: server.UID,

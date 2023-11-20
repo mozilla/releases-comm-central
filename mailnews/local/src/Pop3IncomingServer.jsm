@@ -168,7 +168,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
     if (!account || !account.incomingServer || account.incomingServer.hidden) {
       let localAccount;
       try {
-        localAccount = MailServices.accounts.FindAccountForServer(
+        localAccount = MailServices.accounts.findAccountForServer(
           MailServices.accounts.localFoldersServer
         );
       } catch (e) {
@@ -291,7 +291,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
    *   are deferred to.
    */
   _getDeferedServers(dstServer) {
-    const dstAccount = MailServices.accounts.FindAccountForServer(dstServer);
+    const dstAccount = MailServices.accounts.findAccountForServer(dstServer);
     if (!dstAccount) {
       return [];
     }

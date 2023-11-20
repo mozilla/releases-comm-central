@@ -278,7 +278,7 @@ export class FolderManager {
     }
     if (!accountId) {
       const server = folder.server;
-      const account = MailServices.accounts.FindAccountForServer(server);
+      const account = MailServices.accounts.findAccountForServer(server);
       accountId = account.key;
     }
 

@@ -37,7 +37,7 @@ var friendName = "Carl Sagan";
 var headertoFieldMe;
 
 add_setup(async function () {
-  localAccount = MailServices.accounts.FindAccountForServer(
+  localAccount = MailServices.accounts.findAccountForServer(
     MailServices.accounts.localFoldersServer
   );
 

@@ -50,7 +50,7 @@ function resetSmartMailboxes() {
   const oldServer = getSmartServer();
   // Clean up any leftover server from an earlier test.
   if (oldServer) {
-    const oldAccount = MailServices.accounts.FindAccountForServer(oldServer);
+    const oldAccount = MailServices.accounts.findAccountForServer(oldServer);
     MailServices.accounts.removeAccount(oldAccount, false);
   }
 }

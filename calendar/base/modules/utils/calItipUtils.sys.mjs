@@ -1391,7 +1391,7 @@ export var itip = {
         let [server] = MailServices.accounts.getServersForIdentity(identity);
 
         if (server) {
-          let account = MailServices.accounts.FindAccountForServer(server);
+          let account = MailServices.accounts.findAccountForServer(server);
           return new lazy.CalItipDefaultEmailTransport(account, identity);
         }
       }
