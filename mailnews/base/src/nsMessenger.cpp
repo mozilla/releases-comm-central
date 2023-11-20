@@ -441,6 +441,15 @@ nsMessenger::DetachAttachmentsWOPrompts(
 // If a saveState is used, it can also contain a nsIUrlListener which
 // will be invoked when _all_ the saves are complete.
 //
+// SaveAttachment() takes ownership of the saveState passed in.
+// If SaveAttachment() fails, then
+// saveState->m_overallListener->OnStopRunningUrl()
+// will be invoked and saveState itself will be deleted.
+//
+// Even though SaveAttachment() takes ownership of saveState,
+// nsSaveMsgListener is responsible for finally deleting it when the
+// last save operation successfully completes.
+//
 // Yes, this is convoluted. Bug 1788159 covers simplifying all this stuff.
 nsresult nsMessenger::SaveAttachment(nsIFile* aFile, const nsACString& aURL,
                                      const nsACString& aMessageUri,
@@ -658,6 +667,7 @@ nsresult nsMessenger::SaveOneAttachment(const nsACString& aContentType,
       contentTypeArray, urlArray, displayNameArray, messageUriArray,
       dirName.get(), detaching, nullptr);
 
+  // SaveAttachment takes ownership of saveState.
   return SaveAttachment(localFile, aURL, aMessageUri, aContentType, saveState,
                         nullptr);
 }
@@ -712,12 +722,8 @@ nsresult nsMessenger::SaveAllAttachments(
   rv = SetLastSaveDirectory(localFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsSaveAllAttachmentsState* saveState = nullptr;
   PathString dirName = localFile->NativePath();
 
-  saveState = new nsSaveAllAttachmentsState(contentTypeArray, urlArray,
-                                            displayNameArray, messageUriArray,
-                                            dirName.get(), detaching, nullptr);
   nsString unescapedName;
   ConvertAndSanitizeFileName(displayNameArray[0], unescapedName);
   rv = localFile->Append(unescapedName);
@@ -726,6 +732,10 @@ nsresult nsMessenger::SaveAllAttachments(
   rv = PromptIfFileExists(localFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsSaveAllAttachmentsState* saveState = new nsSaveAllAttachmentsState(
+      contentTypeArray, urlArray, displayNameArray, messageUriArray,
+      dirName.get(), detaching, nullptr);
+  // SaveAttachment takes ownership of saveState.
   rv = SaveAttachment(localFile, urlArray[0], messageUriArray[0],
                       contentTypeArray[0], saveState, nullptr);
   return rv;
@@ -1520,8 +1530,14 @@ nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsresult status) {
       rv = m_messenger->SaveAttachment(
           localFile, state->m_urlArray[i], state->m_messageUriArray[i],
           state->m_contentTypeArray[i], state, nullptr);
-    done:
       if (NS_FAILED(rv)) {
+        // If SaveAttachment() fails, state will have been deleted, and
+        // m_overallListener->OnStopRunningUrl() will have been called.
+        state = nullptr;
+        m_saveAllAttachmentsState = nullptr;
+      }
+    done:
+      if (NS_FAILED(rv) && state) {
         if (state->m_overallListener) {
           state->m_overallListener->OnStopRunningUrl(nullptr, rv);
         }
