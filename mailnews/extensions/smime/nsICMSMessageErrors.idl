@@ -29,6 +29,7 @@ interface nsICMSMessageErrors : nsISupports
   const long VERIFY_HEADER_MISMATCH = 1038;
   const long VERIFY_NOT_YET_ATTEMPTED = 1039;
   const long VERIFY_CERT_WITHOUT_ADDRESS = 1040;
+  const long VERIFY_TIME_MISMATCH = 1041;
 
   const long ENCRYPT_NO_BULK_ALG = 1056;
   const long ENCRYPT_INCOMPLETE = 1057;

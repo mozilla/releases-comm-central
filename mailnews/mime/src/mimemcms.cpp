@@ -105,12 +105,10 @@ typedef struct MimeMultCMSdata {
 extern bool MimeAnyParentCMSSigned(MimeObject* obj);
 extern void MimeCMSGetFromSender(MimeObject* obj, nsCString& from_addr,
                                  nsCString& from_name, nsCString& sender_addr,
-                                 nsCString& sender_name);
-extern bool MimeCMSHeadersAndCertsMatch(
-    MimeObject* obj, nsICMSMessage*, bool* signing_cert_without_email_address);
+                                 nsCString& sender_name, nsCString& msg_date);
 extern void MimeCMSRequestAsyncSignatureVerification(
     nsICMSMessage* aCMSMsg, const char* aFromAddr, const char* aFromName,
-    const char* aSenderAddr, const char* aSenderName,
+    const char* aSenderAddr, const char* aSenderName, const char* aMsgDate,
     nsIMsgSMIMEHeaderSink* aHeaderSink, int32_t aMimeNestingLevel,
     const nsCString& aMsgNeckoURL, const nsCString& aOriginMimePartNumber,
     const nsTArray<uint8_t>& aDigestData, int16_t aDigestType);
@@ -473,9 +471,10 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
   nsCString from_name;
   nsCString sender_addr;
   nsCString sender_name;
+  nsCString msg_date;
 
   MimeCMSGetFromSender(data->self, from_addr, from_name, sender_addr,
-                       sender_name);
+                       sender_name, msg_date);
 
   nsTArray<uint8_t> digest;
   digest.AppendElements(data->item_data, data->item_len);
@@ -483,8 +482,8 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
   if (!data->reject_signature && data->smimeHeaderSink) {
     MimeCMSRequestAsyncSignatureVerification(
         data->content_info, from_addr.get(), from_name.get(), sender_addr.get(),
-        sender_name.get(), data->smimeHeaderSink, aRelativeNestLevel, data->url,
-        partnum, digest, data->hash_type);
+        sender_name.get(), msg_date.get(), data->smimeHeaderSink,
+        aRelativeNestLevel, data->url, partnum, digest, data->hash_type);
   }
 
   if (data->content_info) {

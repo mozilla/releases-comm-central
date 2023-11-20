@@ -232,6 +232,12 @@ var gMessages = [
     sig_good: true,
   },
   {
+    filename: "alice.future.dsig.SHA256.multipart.eml",
+    enc: false,
+    sig: true,
+    sig_good: false,
+  },
+  {
     filename: "alice.dsig.SHA256.multipart.env.eml",
     enc: true,
     sig: true,

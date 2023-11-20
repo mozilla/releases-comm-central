@@ -146,6 +146,23 @@ NS_IMETHODIMP nsCMSMessage::GetEncryptionCert(nsIX509Cert**) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
+NS_IMETHODIMP nsCMSMessage::GetSigningTime(PRTime* aTime) {
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::GetSigningTime"));
+  NS_ENSURE_ARG(aTime);
+
+  NSSCMSSignerInfo* si = GetTopLevelSignerInfo();
+  if (!si) {
+    return NS_ERROR_FAILURE;
+  }
+
+  SECStatus getSigningTimeResult = NSS_CMSSignerInfo_GetSigningTime(si, aTime);
+  MOZ_LOG(gCMSLog, LogLevel::Debug,
+          ("nsCMSMessage::GetSigningTime result: %s",
+           (getSigningTimeResult ? "ok" : "fail")));
+
+  return getSigningTimeResult == SECSuccess ? NS_OK : NS_ERROR_FAILURE;
+}
+
 NS_IMETHODIMP
 nsCMSMessage::VerifyDetachedSignature(int32_t verifyFlags,
                                       const nsTArray<uint8_t>& aDigestData,

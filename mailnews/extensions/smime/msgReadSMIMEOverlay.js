@@ -105,6 +105,7 @@ function loadSmimeMessageSecurityInfo() {
     case Ci.nsICMSMessageErrors.VERIFY_ERROR_UNVERIFIED:
     case Ci.nsICMSMessageErrors.VERIFY_ERROR_PROCESSING:
     case Ci.nsICMSMessageErrors.VERIFY_MALFORMED_SIGNATURE:
+    case Ci.nsICMSMessageErrors.VERIFY_TIME_MISMATCH:
       sigInfoLabel = "SIInvalidLabel";
       sigInfoHeader = "SIInvalidHeader";
       sigInfo_clueless = true;

@@ -39,6 +39,7 @@ interface nsICMSMessage : nsISupports
   void getSignerEmailAddress(out string aEmail);
   void getSignerCert(out nsIX509Cert scert);
   void getEncryptionCert(out nsIX509Cert ecert);
+  void getSigningTime(out PRTime aTime);
 
   /**
    * @param verifyFlags - Optional flags from nsICMSVerifyFlags.
