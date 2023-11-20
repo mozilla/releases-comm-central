@@ -36,7 +36,6 @@ openpgp.jar:
   content/openpgp/modules/msgRead.jsm          (content/modules/msgRead.jsm)
   content/openpgp/modules/OpenPGPAlias.jsm     (content/modules/OpenPGPAlias.jsm)
   content/openpgp/modules/persistentCrypto.jsm (content/modules/persistentCrypto.jsm)
-  content/openpgp/modules/pgpmimeHandler.jsm   (content/modules/pgpmimeHandler.jsm)
   content/openpgp/modules/RNP.jsm              (content/modules/RNP.jsm)
   content/openpgp/modules/RNPLib.jsm           (content/modules/RNPLib.jsm)
   content/openpgp/modules/singletons.jsm       (content/modules/singletons.jsm)
