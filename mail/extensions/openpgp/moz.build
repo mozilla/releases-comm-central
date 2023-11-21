@@ -4,4 +4,8 @@
 
 JAR_MANIFESTS += ["jar.mn"]
 
+EXTRA_JS_MODULES += ["PgpMimeHandler.sys.mjs"]
+
 XPCSHELL_TESTS_MANIFESTS += ["test/unit/rnp/xpcshell.ini"]
+
+XPCOM_MANIFESTS += ["components.conf"]

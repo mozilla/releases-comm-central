@@ -22,6 +22,10 @@ const OPENPGP_KEY_PATH = PathUtils.join(
   "alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
 );
 
+add_setup(async () => {
+  await OpenPGPTestUtils.initOpenPGP();
+});
+
 /**
  * Test the messages.getRaw and messages.getFull functions. Since each message
  * is unique and there are minor differences between the account
@@ -986,7 +990,6 @@ add_task(
 
     await extension.awaitMessage("load key");
     info(`Adding key from ${OPENPGP_KEY_PATH}`);
-    await OpenPGPTestUtils.initOpenPGP();
     const [id] = await OpenPGPTestUtils.importPrivateKey(
       null,
       new FileUtils.File(OPENPGP_KEY_PATH)
