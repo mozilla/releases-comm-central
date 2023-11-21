@@ -20,4 +20,5 @@ webext-perms-description-messagesMove = Copy or move your email messages (includ
 webext-perms-description-messagesDelete=Permanently delete your email messages
 webext-perms-description-messagesRead=Read your email messages and mark or tag them
 webext-perms-description-messagesTags=Create, modify and delete message tags
+webext-perms-description-messagesTagsList=List message tags
 webext-perms-description-sensitiveDataUpload=Transfer sensitive user data (if access has been granted) to a remote server for further processing

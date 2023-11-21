@@ -13,6 +13,7 @@
               "messagesMove",
               "messagesRead",
               "messagesTags",
+              "messagesTagsList",
               "sensitiveDataUpload"
             ]
           }
@@ -211,7 +212,7 @@
           },
           "tags": {
             "type": "array",
-            "description": "Tags associated with this message. For a list of available tags, call the listTags method.",
+            "description": "Tags associated with this message. For a list of available tags, call the :ref:`messages.tags.list` method.",
             "optional": true,
             "items": {
               "type": "string"
@@ -690,7 +691,7 @@
               "tags": {
                 "$ref": "messages.tags.TagsDetail",
                 "optional": true,
-                "description": "Returns only messages with the specified tags. For a list of available tags, call the :ref:`messages.listTags` method."
+                "description": "Returns only messages with the specified tags. For a list of available tags, call the :ref:`messages.tags.list` method."
               },
               "toDate": {
                 "$ref": "extensionTypes.Date",
@@ -1038,7 +1039,6 @@
   },
   {
     "namespace": "messages.tags",
-    "permissions": ["messagesRead"],
     "types": [
       {
         "id": "MessageTag",
@@ -1069,7 +1069,7 @@
         "properties": {
           "tags": {
             "type": "object",
-            "description": "A <em>dictionary object</em> with one or more filter condition as <em>key-value</em> pairs, the <em>key</em> being the tag to filter on, and the <em>value</em> being a boolean expression, requesting whether a message must include (<value>true</value>) or exclude (<value>false</value>) the tag. For a list of available tags, call the :ref:`messages.listTags` method.",
+            "description": "A <em>dictionary object</em> with one or more filter condition as <em>key-value</em> pairs, the <em>key</em> being the tag to filter on, and the <em>value</em> being a boolean expression, requesting whether a message must include (<value>true</value>) or exclude (<value>false</value>) the tag. For a list of available tags, call the :ref:`messages.tags.list` method.",
             "patternProperties": {
               ".*": {
                 "type": "boolean"
@@ -1090,6 +1090,7 @@
         "type": "function",
         "description": "Returns a list of tags that can be set on messages, and their human-friendly name, colour, and sort order.",
         "async": "callback",
+        "permissions": ["messagesTagsList"],
         "parameters": [
           {
             "type": "function",
