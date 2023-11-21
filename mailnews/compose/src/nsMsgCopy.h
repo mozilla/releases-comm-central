@@ -67,7 +67,7 @@ class nsMsgCopy : public nsIMsgCopy, public nsIUrlListener {
   //////////////////////////////////////////////////////////////////////
   //
   nsresult DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
-                  nsIMsgDBHdr* aMsgToReplace, bool aIsDraft,
+                  nsIMsgDBHdr* aMsgToReplace, bool aIsDraft, uint32_t aMsgFlags,
                   nsIMsgWindow* msgWindow, nsIMsgSend* aMsgSendObj);
 
   nsresult GetUnsentMessagesFolder(nsIMsgIdentity* userIdentity,
@@ -88,6 +88,7 @@ class nsMsgCopy : public nsIMsgCopy, public nsIUrlListener {
   nsCOMPtr<nsIMsgFolder> mDstFolder;
   nsCOMPtr<nsIMsgDBHdr> mMsgToReplace;
   bool mIsDraft;
+  uint32_t mMsgFlags;
   nsCOMPtr<nsIMsgSend> mMsgSendObj;
   char* mSavePref;
 
