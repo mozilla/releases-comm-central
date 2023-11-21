@@ -716,7 +716,15 @@ MimeDecryptHandler.prototype = {
       console.debug(ex);
     }
 
+    let mightNeedWrapper = true;
+
+    // It's unclear which scenario this check is supposed to fix.
+    // Based on a comment in mimeVerify (which seems code seems to be
+    // derived from), it might be intended to fix forwarding of empty
+    // messages. Not sure this is still necessary. We should check if
+    // this code can be removed.
     const i = this.decryptedData.search(/\n\r?\n/);
+    // It's unknown why this test checks for > instead of >=
     if (i > 0) {
       var hdr = this.decryptedData.substr(0, i).split(/\r?\n/);
       for (let j = 0; j < hdr.length; j++) {
@@ -728,11 +736,20 @@ MimeDecryptHandler.prototype = {
           );
 
           this.addWrapperToDecryptedResult();
+          mightNeedWrapper = false;
           break;
         }
       }
+    }
 
-      if (!/^Content-Type:/im.test(this.decryptedData)) {
+    if (mightNeedWrapper) {
+      const headerBoundaryPosition = this.decryptedData.search(/\n\r?\n/);
+      if (
+        headerBoundaryPosition >= 0 &&
+        !/^Content-Type:/im.test(
+          this.decryptedData.substr(0, headerBoundaryPosition)
+        )
+      ) {
         this.decryptedData =
           "Content-Type: text/plain; charset=utf-8\r\n\r\n" +
           this.decryptedData;
