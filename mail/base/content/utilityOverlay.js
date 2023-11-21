@@ -50,17 +50,6 @@ function goUpdatePasteMenuItems() {
   goUpdateCommand("cmd_paste");
 }
 
-function goCopyImage() {
-  // Always copy the image data. It doesn't make sense to insert an image
-  // as a http(s) reference since the recipient might block it.
-  const param = Cu.createCommandParams();
-  param.setLongValue("imageCopy", Ci.nsIContentViewerEdit.COPY_IMAGE_DATA);
-  document.commandDispatcher
-    .getControllerForCommand("cmd_copyImage")
-    .QueryInterface(Ci.nsICommandController)
-    .doCommandWithParams("cmd_copyImage", param);
-}
-
 // update Find As You Type menu items, they rely on focus
 function goUpdateFindTypeMenuItems() {
   goUpdateCommand("cmd_findTypeText");

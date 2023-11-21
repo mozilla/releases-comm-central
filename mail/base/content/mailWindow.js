@@ -278,7 +278,6 @@ function InitMsgWindow() {
   // Ensure we don't load xul error pages into the main window
   msgWindow.rootDocShell.useErrorPages = false;
 
-  document.addEventListener("copy", onCopyOrDragStart, true);
   document.addEventListener("dragstart", onCopyOrDragStart, true);
 
   const keypressListener = {
@@ -1084,14 +1083,16 @@ var contentProgress = {
   },
 };
 
-// Add a progress listener to any about:message content browser that comes
-// along. This often happens after the tab is opened so the usual mechanism
-// doesn't work. It also works for standalone message windows.
-window.addEventListener("aboutMessageLoaded", event =>
+window.addEventListener("aboutMessageLoaded", event => {
+  // Add a progress listener to any about:message content browser that comes
+  // along. This often happens after the tab is opened so the usual mechanism
+  // doesn't work. It also works for standalone message windows.
   contentProgress.addProgressListenerToBrowser(
     event.target.getMessagePaneBrowser()
-  )
-);
+  );
+  // Also add a copy listener so we can process images.
+  event.target.document.addEventListener("copy", onCopyOrDragStart, true);
+});
 
 // Listener to correctly set the busy flag on the webBrowser in about:3pane. All
 // other content tabs are handled by tabmail.js.

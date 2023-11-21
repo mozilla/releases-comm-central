@@ -10,8 +10,7 @@
 /* globals goDoCommand */ // globalOverlay.js
 /* globals gDBView, gFolder, gViewWrapper, messengerBundle */
 
-// mailCommon.js
-/* globals gEncryptedURIService */
+/* globals gEncryptedURIService */ // mailCommon.js
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -540,7 +539,7 @@ var mailContextMenu = {
 
       // Images
       case "mailContext-copyimage":
-        goDoCommand("cmd_copyImage");
+        goDoCommand("cmd_copyImageContents");
         break;
       case "mailContext-saveimage":
         top.saveURL(
