@@ -7,7 +7,7 @@
 Build the Flatpak .desktop file. Needs to run in the Python virtualenv
 due to dependencies.
 
-python3 /scripts/build-desktop-file.py -o "$WORKSPACE/org.mozilla.Thunderbird.desktop" \
+python3 /scripts/build_desktop_file.py -o "$WORKSPACE/org.mozilla.Thunderbird.desktop" \
   -t "/scripts/org.mozilla.Thunderbird.desktop.jinja2" \
   -l "$WORKSPACE/l10n-central" \
   -L "$WORKSPACE/shipped-locales" \

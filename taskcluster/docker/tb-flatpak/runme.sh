@@ -65,7 +65,7 @@ done
 # Download artifacts from dependencies and build the .desktop file.
 (
 source /scripts/venv/bin/activate
-python3 /scripts/build-desktop-file.py -o "$WORKSPACE/org.mozilla.Thunderbird.desktop" \
+python3 /scripts/build_desktop_file.py -o "$WORKSPACE/org.mozilla.Thunderbird.desktop" \
   -t "/scripts/org.mozilla.Thunderbird.desktop.jinja2" \
   -l "$WORKSPACE/l10n-central" \
   -L "$WORKSPACE/l10n-changesets.json" \
@@ -76,7 +76,7 @@ python3 /scripts/build-desktop-file.py -o "$WORKSPACE/org.mozilla.Thunderbird.de
 # Generate AppData XML from template, add various 
 envsubst < "$SCRIPT_DIRECTORY/org.mozilla.Thunderbird.appdata.xml.in" > "${WORKSPACE}/org.mozilla.Thunderbird.appdata.xml"
 cp -v "$SCRIPT_DIRECTORY/distribution.ini" "$WORKSPACE"
-cp -v "$SCRIPT_DIRECTORY/launch-script.sh" "$WORKSPACE"
+cp -v "$SCRIPT_DIRECTORY/launch_script.sh" "$WORKSPACE"
 cd "${WORKSPACE}"
 
 # Fetch and install Firefox base app (as user, not system-wide)
@@ -128,7 +128,7 @@ done
 appstream-compose --prefix="${appdir}" --origin=flatpak --basename=org.mozilla.Thunderbird org.mozilla.Thunderbird
 appstream-util mirror-screenshots "${appdir}"/share/app-info/xmls/org.mozilla.Thunderbird.xml.gz "https://dl.flathub.org/repo/screenshots/org.mozilla.Thunderbird-${FLATPAK_BRANCH}" build/screenshots "build/screenshots/org.mozilla.Thunderbird-${FLATPAK_BRANCH}"
 
-# Install locales, distribution, and launch-script.sh into appdir
+# Install locales, distribution, and launch_script.sh into appdir
 #
 # We must install each locale individually, since we're symlinking
 # each one.
@@ -143,7 +143,7 @@ for locale in $locales; do
     ln -sf "/app/share/runtime/langpack/${locale%%-*}/langpack-${locale}@thunderbird.mozilla.org.xpi" "${appdir}/lib/thunderbird/distribution/extensions/langpack-${locale}@thunderbird.mozilla.org.xpi"
 done
 install -D -m644 -t "${appdir}/lib/thunderbird/distribution" distribution.ini
-install -D -m755 launch-script.sh "${appdir}/bin/thunderbird"
+install -D -m755 launch_script.sh "${appdir}/bin/thunderbird"
 
 # Build Flatpak
 #

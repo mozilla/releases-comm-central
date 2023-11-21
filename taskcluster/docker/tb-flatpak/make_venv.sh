@@ -9,4 +9,4 @@ cd /scripts || exit 1
 
 python -m venv --system-site-packages venv
 source ./venv/bin/activate
-python -m pip install -r fluent-requirements.txt
+python -m pip install -r fluent_requirements.txt
