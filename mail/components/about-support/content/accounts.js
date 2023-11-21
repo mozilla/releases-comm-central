@@ -67,6 +67,9 @@ var AboutSupport = {
     for (const identity of aAccount.identities) {
       const isDefault = identity == defaultIdentity;
       const smtpServer = MailServices.smtp.getServerByIdentity(identity);
+      if (!smtpServer) {
+        continue;
+      }
       smtpDetails.push({
         identityName: identity.identityName,
         name: smtpServer.displayname,
