@@ -43,8 +43,8 @@ var taskEdit = {
    * @param aEvent    The DOM focus event
    */
   onFocus(aEvent) {
-    let edit = aEvent.target;
-    let calendar = getSelectedCalendar();
+    const edit = aEvent.target;
+    const calendar = getSelectedCalendar();
     edit.showsInstructions = true;
 
     if (calendar.getProperty("capabilities.tasks.supported") === false) {
@@ -63,8 +63,8 @@ var taskEdit = {
    * @param aEvent    The DOM blur event
    */
   onBlur(aEvent) {
-    let edit = aEvent.target;
-    let calendar = getSelectedCalendar();
+    const edit = aEvent.target;
+    const calendar = getSelectedCalendar();
     if (!calendar) {
       // this must be a first run, we don't have a calendar yet
       return;
@@ -91,9 +91,9 @@ var taskEdit = {
    */
   onKeyPress(aEvent) {
     if (aEvent.key == "Enter") {
-      let edit = aEvent.target;
+      const edit = aEvent.target;
       if (edit.value && edit.value.length > 0) {
-        let item = new CalTodo();
+        const item = new CalTodo();
         setDefaultItemValues(item);
         item.title = edit.value;
 
@@ -108,7 +108,7 @@ var taskEdit = {
    * "task-edit-field".
    */
   callOnBlurForAllTaskFields() {
-    let taskEditFields = document.getElementsByClassName("task-edit-field");
+    const taskEditFields = document.getElementsByClassName("task-edit-field");
     for (let i = 0; i < taskEditFields.length; i++) {
       taskEdit.onBlur({ target: taskEditFields[i] });
     }

@@ -29,9 +29,9 @@ var gCategoriesPane = {
     // On non-instant-apply platforms, once this pane has been loaded,
     // attach our "revert all changes" function to the parent prefwindow's
     // "ondialogcancel" event.
-    let parentPrefWindow = document.documentElement;
+    const parentPrefWindow = document.documentElement;
     if (!parentPrefWindow.instantApply) {
-      let existingOnDialogCancel = parentPrefWindow.getAttribute("ondialogcancel");
+      const existingOnDialogCancel = parentPrefWindow.getAttribute("ondialogcancel");
       parentPrefWindow.setAttribute(
         "ondialogcancel",
         "gCategoriesPane.panelOnCancel(); " + existingOnDialogCancel
@@ -70,7 +70,7 @@ var gCategoriesPane = {
 
   updateCategoryList() {
     this.updatePrefs();
-    let listbox = document.getElementById("categorieslist");
+    const listbox = document.getElementById("categorieslist");
 
     listbox.clearSelection();
     this.updateButtons();
@@ -80,16 +80,16 @@ var gCategoriesPane = {
     }
 
     for (let i = 0; i < gCategoryList.length; i++) {
-      let newListItem = document.createXULElement("richlistitem");
-      let categoryName = document.createXULElement("label");
+      const newListItem = document.createXULElement("richlistitem");
+      const categoryName = document.createXULElement("label");
       categoryName.setAttribute("id", gCategoryList[i]);
       categoryName.setAttribute("flex", "1");
       categoryName.setAttribute("value", gCategoryList[i]);
-      let categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[i]);
+      const categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[i]);
 
-      let categoryColor = document.createXULElement("box");
+      const categoryColor = document.createXULElement("box");
       categoryColor.style.width = "150px";
-      let colorCode = categoryPrefBranch.getCharPref(categoryNameFix, "");
+      const colorCode = categoryPrefBranch.getCharPref(categoryNameFix, "");
       if (colorCode) {
         categoryColor.style.backgroundColor = colorCode;
       }
@@ -105,10 +105,10 @@ var gCategoriesPane = {
    * set up the category.
    */
   async addCategory() {
-    let listbox = document.getElementById("categorieslist");
+    const listbox = document.getElementById("categorieslist");
     listbox.clearSelection();
     this.updateButtons();
-    let params = {
+    const params = {
       title: await document.l10n.formatValue("category-new-label"),
       category: "",
       color: null,
@@ -120,11 +120,11 @@ var gCategoriesPane = {
    * Edits the currently selected category using the edit category dialog.
    */
   async editCategory() {
-    let list = document.getElementById("categorieslist");
-    let categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[list.selectedIndex]);
-    let currentColor = categoryPrefBranch.getCharPref(categoryNameFix, "");
+    const list = document.getElementById("categorieslist");
+    const categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[list.selectedIndex]);
+    const currentColor = categoryPrefBranch.getCharPref(categoryNameFix, "");
 
-    let params = {
+    const params = {
       title: await document.l10n.formatValue("category-edit-label"),
       category: gCategoryList[list.selectedIndex],
       color: currentColor,
@@ -138,12 +138,12 @@ var gCategoriesPane = {
    * Removes the selected category.
    */
   deleteCategory() {
-    let list = document.getElementById("categorieslist");
+    const list = document.getElementById("categorieslist");
     if (list.selectedCount < 1) {
       return;
     }
 
-    let categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[list.selectedIndex]);
+    const categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[list.selectedIndex]);
     this.backupData(categoryNameFix);
     try {
       categoryPrefBranch.clearUserPref(categoryNameFix);
@@ -154,9 +154,9 @@ var gCategoriesPane = {
     // Remove category entry from listbox and gCategoryList.
     let newSelection =
       list.selectedItem.nextElementSibling || list.selectedItem.previousElementSibling;
-    let selectedItems = Array.from(list.selectedItems);
+    const selectedItems = Array.from(list.selectedItems);
     for (let i = list.selectedCount - 1; i >= 0; i--) {
-      let item = selectedItems[i];
+      const item = selectedItems[i];
       if (item == newSelection) {
         newSelection = newSelection.nextElementSibling || newSelection.previousElementSibling;
       }
@@ -177,7 +177,7 @@ var gCategoriesPane = {
    * @param categoryColor     The color of the category
    */
   async saveCategory(categoryName, categoryColor) {
-    let list = document.getElementById("categorieslist");
+    const list = document.getElementById("categorieslist");
     // Check to make sure another category doesn't have the same name
     let toBeDeleted = -1;
     for (let i = 0; i < gCategoryList.length; i++) {
@@ -186,7 +186,7 @@ var gCategoriesPane = {
       }
 
       if (categoryName.toLowerCase() == gCategoryList[i].toLowerCase()) {
-        let [title, description] = await document.l10n.formatValues([
+        const [title, description] = await document.l10n.formatValues([
           { id: "category-overwrite-title" },
           { id: "category-overwrite" },
         ]);
@@ -204,12 +204,12 @@ var gCategoriesPane = {
     }
 
     if (categoryName.length == 0) {
-      let warning = await document.l10n.formatValue("category-blank-warning");
+      const warning = await document.l10n.formatValue("category-blank-warning");
       Services.prompt.alert(null, null, warning);
       return;
     }
 
-    let categoryNameFix = cal.view.formatStringForCSSRule(categoryName);
+    const categoryNameFix = cal.view.formatStringForCSSRule(categoryName);
     if (list.selectedIndex == -1) {
       this.backupData(categoryNameFix);
       gCategoryList.push(categoryName);
@@ -230,7 +230,7 @@ var gCategoriesPane = {
 
     this.updateCategoryList();
 
-    let updatedCategory = gCategoryList.indexOf(categoryName);
+    const updatedCategory = gCategoryList.indexOf(categoryName);
     list.ensureIndexIsVisible(updatedCategory);
     list.selectedIndex = updatedCategory;
   },
@@ -239,7 +239,7 @@ var gCategoriesPane = {
    * Enable the edit and delete category buttons.
    */
   updateButtons() {
-    let categoriesList = document.getElementById("categorieslist");
+    const categoriesList = document.getElementById("categorieslist");
     document.getElementById("deleteCButton").disabled = categoriesList.selectedCount <= 0;
     document.getElementById("editCButton").disabled = categoriesList.selectedCount != 1;
   },
@@ -251,7 +251,7 @@ var gCategoriesPane = {
    * @param categoryNameFix     The formatted category name.
    */
   backupData(categoryNameFix) {
-    let currentColor = categoryPrefBranch.getCharPref(categoryNameFix, "##NEW");
+    const currentColor = categoryPrefBranch.getCharPref(categoryNameFix, "##NEW");
 
     for (let i = 0; i < parent.backupPrefList.length; i++) {
       if (categoryNameFix == parent.backupPrefList[i].name) {

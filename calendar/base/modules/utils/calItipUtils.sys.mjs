@@ -76,7 +76,7 @@ export var itip = {
     let dtstamp = null;
 
     if (itip.isAttendee(aItem)) {
-      let stamp = aItem.getProperty("RECEIVED-DTSTAMP");
+      const stamp = aItem.getProperty("RECEIVED-DTSTAMP");
       if (stamp) {
         dtstamp = lazy.cal.createDateTime(stamp);
       }
@@ -84,7 +84,7 @@ export var itip = {
       // Unless the below is standardized, we store the last original
       // REQUEST/PUBLISH DTSTAMP in X-MOZ-RECEIVED-DTSTAMP to test against it
       // when updates come in:
-      let stamp = aItem.getProperty("X-MOZ-RECEIVED-DTSTAMP");
+      const stamp = aItem.getProperty("X-MOZ-RECEIVED-DTSTAMP");
       if (stamp) {
         dtstamp = lazy.cal.createDateTime(stamp);
       } else {
@@ -121,8 +121,8 @@ export var itip = {
    *                                                    or 0 if both are equal
    */
   compareSequence(aItem1, aItem2) {
-    let seq1 = itip.getSequence(aItem1);
-    let seq2 = itip.getSequence(aItem2);
+    const seq1 = itip.getSequence(aItem1);
+    const seq2 = itip.getSequence(aItem2);
     if (seq1 > seq2) {
       return 1;
     } else if (seq1 < seq2) {
@@ -140,8 +140,8 @@ export var itip = {
    *                                                    or 0 if both are equal
    */
   compareStamp(aItem1, aItem2) {
-    let st1 = itip.getStamp(aItem1);
-    let st2 = itip.getStamp(aItem2);
+    const st1 = itip.getStamp(aItem1);
+    const st2 = itip.getStamp(aItem2);
     if (st1 && st2) {
       return st1.compare(st2);
     } else if (!st1 && st2) {
@@ -159,11 +159,11 @@ export var itip = {
    * @returns {calIAttendee} The organizer attendee
    */
   createOrganizer(aCalendar) {
-    let orgId = aCalendar.getProperty("organizerId");
+    const orgId = aCalendar.getProperty("organizerId");
     if (!orgId) {
       return null;
     }
-    let organizer = new lazy.CalAttendee();
+    const organizer = new lazy.CalAttendee();
     organizer.id = orgId;
     organizer.commonName = aCalendar.getProperty("organizerCN");
     organizer.role = "REQ-PARTICIPANT";
@@ -219,16 +219,16 @@ export var itip = {
     }
     lazy.cal.LOG("iTIP method: " + imipMethod);
 
-    let isWritableCalendar = function (aCalendar) {
+    const isWritableCalendar = function (aCalendar) {
       /* TODO: missing ACL check for existing items (require callback API) */
       return (
         itip.isSchedulingCalendar(aCalendar) && lazy.cal.acl.userCanAddItemsToCalendar(aCalendar)
       );
     };
 
-    let writableCalendars = lazy.cal.manager.getCalendars().filter(isWritableCalendar);
+    const writableCalendars = lazy.cal.manager.getCalendars().filter(isWritableCalendar);
     if (writableCalendars.length > 0) {
-      let compCal = Cc["@mozilla.org/calendar/calendar;1?type=composite"].createInstance(
+      const compCal = Cc["@mozilla.org/calendar/calendar;1?type=composite"].createInstance(
         Ci.calICompositeCalendar
       );
       writableCalendars.forEach(compCal.addCalendar, compCal);
@@ -294,7 +294,7 @@ export var itip = {
         return lazy.cal.l10n.getLtnString("imipBarDeclineCounterText");
       default:
         lazy.cal.ERROR("Unknown iTIP method: " + method);
-        let appName = lazy.cal.l10n.getAnyString("branding", "brand", "brandShortName");
+        const appName = lazy.cal.l10n.getAnyString("branding", "brand", "brandShortName");
         return lazy.cal.l10n.getLtnString("imipBarUnsupportedText2", [appName]);
     }
   },
@@ -324,15 +324,15 @@ export var itip = {
     if (itipItem.receivedMethod) {
       imipLabel = itip.getMethodText(itipItem.receivedMethod);
     }
-    let data = { label: imipLabel, showItems: [], hideItems: [] };
-    let separateButtons = Services.prefs.getBoolPref(
+    const data = { label: imipLabel, showItems: [], hideItems: [] };
+    const separateButtons = Services.prefs.getBoolPref(
       "calendar.itip.separateInvitationButtons",
       false
     );
 
     let disallowedCounter = false;
     if (foundItems && foundItems.length) {
-      let disallow = foundItems[0].getProperty("X-MICROSOFT-DISALLOW-COUNTER");
+      const disallow = foundItems[0].getProperty("X-MICROSOFT-DISALLOW-COUNTER");
       disallowedCounter = disallow && disallow == "TRUE";
     }
     if (!calendarDeactivator.isCalendarActivated) {
@@ -356,8 +356,8 @@ export var itip = {
             data.label = lazy.cal.l10n.getLtnString("imipBarDisallowedCounterText");
           } else {
             let comparison;
-            for (let item of itipItem.getItemList()) {
-              let attendees = lazy.cal.itip.getAttendeesBySender(
+            for (const item of itipItem.getItemList()) {
+              const attendees = lazy.cal.itip.getAttendeesBySender(
                 item.getAttendees(),
                 itipItem.sender
               );
@@ -376,11 +376,11 @@ export var itip = {
       } else if (itipItem.receivedMethod == "REPLY") {
         // The item has been previously removed from the available calendars or the calendar
         // containing the item is not available
-        let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+        const delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
           Ci.calIDeletedItems
         );
         let delTime = null;
-        let items = itipItem.getItemList();
+        const items = itipItem.getItemList();
         if (items && items.length) {
           delTime = delmgr.getDeletedDate(items[0].id);
         }
@@ -411,7 +411,7 @@ export var itip = {
         case "REQUEST:NEEDS-ACTION":
         case "REQUEST": {
           let isRecurringMaster = false;
-          for (let item of itipItem.getItemList()) {
+          for (const item of itipItem.getItemList()) {
             if (item.recurrenceInfo) {
               isRecurringMaster = true;
             }
@@ -493,12 +493,12 @@ export var itip = {
           break;
         }
         default:
-          let appName = lazy.cal.l10n.getAnyString("branding", "brand", "brandShortName");
+          const appName = lazy.cal.l10n.getAnyString("branding", "brand", "brandShortName");
           data.label = lazy.cal.l10n.getLtnString("imipBarUnsupportedText2", [appName]);
           break;
       }
     } else {
-      let appName = lazy.cal.l10n.getAnyString("branding", "brand", "brandShortName");
+      const appName = lazy.cal.l10n.getAnyString("branding", "brand", "brandShortName");
       data.label = lazy.cal.l10n.getLtnString("imipBarUnsupportedText2", [appName]);
     }
 
@@ -513,11 +513,11 @@ export var itip = {
    * @returns {string} The email address of the intended recipient.
    */
   getMessageSender(aMsgHdr) {
-    let author = (aMsgHdr && aMsgHdr.author) || "";
-    let compFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
+    const author = (aMsgHdr && aMsgHdr.author) || "";
+    const compFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
       Ci.nsIMsgCompFields
     );
-    let addresses = compFields.splitRecipients(author, true);
+    const addresses = compFields.splitRecipients(author, true);
     if (addresses.length != 1) {
       lazy.cal.LOG("No unique email address for lookup in message.\r\n" + lazy.cal.STACK(20));
     }
@@ -547,12 +547,12 @@ export var itip = {
       identities = MailServices.accounts.getIdentitiesForServer(aMsgHdr.folder.server);
     }
 
-    let emailMap = {};
+    const emailMap = {};
     if (!identities || identities.length == 0) {
       let identity;
       // If we were not able to retrieve identities above, then we have no
       // choice but to revert to the default identity.
-      let defaultAccount = MailServices.accounts.defaultAccount;
+      const defaultAccount = MailServices.accounts.defaultAccount;
       if (defaultAccount) {
         identity = defaultAccount.defaultIdentity;
       }
@@ -560,7 +560,7 @@ export var itip = {
         // If there isn't a default identity (i.e Local Folders is your
         // default identity), then go ahead and use the first available
         // identity.
-        let allIdentities = MailServices.accounts.allIdentities;
+        const allIdentities = MailServices.accounts.allIdentities;
         if (allIdentities.length > 0) {
           identity = allIdentities[0];
         } else {
@@ -571,14 +571,14 @@ export var itip = {
       emailMap[identity.email.toLowerCase()] = true;
     } else {
       // Build a map of usable email addresses
-      for (let identity of identities) {
+      for (const identity of identities) {
         emailMap[identity.email.toLowerCase()] = true;
       }
     }
 
     // First check the recipient list
-    let toList = MailServices.headerParser.makeFromDisplayAddress(aMsgHdr.recipients || "");
-    for (let recipient of toList) {
+    const toList = MailServices.headerParser.makeFromDisplayAddress(aMsgHdr.recipients || "");
+    for (const recipient of toList) {
       if (recipient.email.toLowerCase() in emailMap) {
         // Return the first found recipient
         return recipient;
@@ -586,8 +586,8 @@ export var itip = {
     }
 
     // Maybe we are in the CC list?
-    let ccList = MailServices.headerParser.makeFromDisplayAddress(aMsgHdr.ccList || "");
-    for (let recipient of ccList) {
+    const ccList = MailServices.headerParser.makeFromDisplayAddress(aMsgHdr.ccList || "");
+    for (const recipient of ccList) {
       if (recipient.email.toLowerCase() in emailMap) {
         // Return the first found recipient
         return recipient;
@@ -637,7 +637,7 @@ export var itip = {
      * @returns {boolean} true, if the action succeeded
      */
     function _execAction(aActionFunc, aItipItem, aWindow, aPartStat, aExtResponse) {
-      let method = aActionFunc.method;
+      const method = aActionFunc.method;
       if (lazy.cal.itip.promptCalendar(aActionFunc.method, aItipItem, aWindow)) {
         if (
           method == "REQUEST" &&
@@ -646,7 +646,7 @@ export var itip = {
           return false;
         }
 
-        let isDeclineCounter = aPartStat == "X-DECLINECOUNTER";
+        const isDeclineCounter = aPartStat == "X-DECLINECOUNTER";
         // filter out fake partstats
         if (aPartStat.startsWith("X-")) {
           aParticipantStatus = "";
@@ -656,7 +656,7 @@ export var itip = {
           aUpdateFunction({ resetButtons: true });
         }
 
-        let opListener = {
+        const opListener = {
           QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
           onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
             isFirstProcessing = false;
@@ -666,7 +666,7 @@ export var itip = {
                 // we can rely on the received itipItem to reply at this stage
                 // already, the checks have been done in cal.itip.processFoundItems
                 // when setting up the respective aActionFunc
-                let attendees = lazy.cal.itip.getAttendeesBySender(
+                const attendees = lazy.cal.itip.getAttendeesBySender(
                   aItem.getAttendees(),
                   aItipItem.sender
                 );
@@ -676,7 +676,7 @@ export var itip = {
                   // counterproposal - to make it easy, we simply use the received
                   // item and just remove a comment, if any
                   try {
-                    let item = aItem.clone();
+                    const item = aItem.clone();
                     item.calendar = aFoundItems[0].calendar;
                     item.deleteProperty("COMMENT");
                     // once we have full support to deal with for multiple items
@@ -703,7 +703,7 @@ export var itip = {
               });
             }
             // For now, we just state the status for the user something very simple
-            let label = lazy.cal.itip.getCompleteText(aStatus, aOperationType);
+            const label = lazy.cal.itip.getCompleteText(aStatus, aOperationType);
             aUpdateFunction({ label });
 
             if (!Components.isSuccessCode(aStatus)) {
@@ -741,19 +741,19 @@ export var itip = {
         if (aParticipantStatus == "X-RESCHEDULE") {
           // TODO most of the following should be moved to the actionFunc defined in
           // calItipUtils
-          let proposedItem = aItipItem.getItemList()[0];
-          let proposedRID = proposedItem.getProperty("RECURRENCE-ID");
+          const proposedItem = aItipItem.getItemList()[0];
+          const proposedRID = proposedItem.getProperty("RECURRENCE-ID");
           if (proposedRID) {
             // if this is a counterproposal for a specific occurrence, we use
             // that to compare with
             item = item.recurrenceInfo.getOccurrenceFor(proposedRID).clone();
           }
-          let parsedProposal = lazy.cal.invitation.parseCounter(proposedItem, item);
-          let potentialProposers = lazy.cal.itip.getAttendeesBySender(
+          const parsedProposal = lazy.cal.invitation.parseCounter(proposedItem, item);
+          const potentialProposers = lazy.cal.itip.getAttendeesBySender(
             proposedItem.getAttendees(),
             aItipItem.sender
           );
-          let proposingAttendee = potentialProposers.length == 1 ? potentialProposers[0] : null;
+          const proposingAttendee = potentialProposers.length == 1 ? potentialProposers[0] : null;
           if (
             proposingAttendee &&
             ["OK", "OUTDATED", "NOTLATESTUPDATE"].includes(parsedProposal.result.type)
@@ -804,14 +804,14 @@ export var itip = {
         // Instead of a dialog, this might be implemented as a separate container inside the
         // imip-overlay as proposed in bug 458578
       }
-      let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+      const delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
         Ci.calIDeletedItems
       );
-      let items = aItipItem.getItemList();
+      const items = aItipItem.getItemList();
       if (items && items.length) {
-        let delTime = delmgr.getDeletedDate(items[0].id);
-        let dialogText = lazy.cal.l10n.getLtnString("confirmProcessInvitation");
-        let dialogTitle = lazy.cal.l10n.getLtnString("confirmProcessInvitationTitle");
+        const delTime = delmgr.getDeletedDate(items[0].id);
+        const dialogText = lazy.cal.l10n.getLtnString("confirmProcessInvitation");
+        const dialogTitle = lazy.cal.l10n.getLtnString("confirmProcessInvitationTitle");
         if (delTime && !Services.prompt.confirm(aWindow, dialogTitle, dialogText)) {
           return false;
         }
@@ -819,14 +819,14 @@ export var itip = {
 
       if (aParticipantStatus == "X-SAVECOPY") {
         // we create and adopt copies of the respective events
-        let saveitems = aItipItem
+        const saveitems = aItipItem
           .getItemList()
           .map(lazy.cal.itip.getPublishLikeItemCopy.bind(lazy.cal));
         if (saveitems.length > 0) {
-          let methods = { receivedMethod: "PUBLISH", responseMethod: "PUBLISH" };
-          let newItipItem = lazy.cal.itip.getModifiedItipItem(aItipItem, saveitems, methods);
+          const methods = { receivedMethod: "PUBLISH", responseMethod: "PUBLISH" };
+          const newItipItem = lazy.cal.itip.getModifiedItipItem(aItipItem, saveitems, methods);
           // setup callback and trigger re-processing
-          let storeCopy = function (aItipItem, aRc, aActionFunc, aFoundItems) {
+          const storeCopy = function (aItipItem, aRc, aActionFunc, aFoundItems) {
             if (isFirstProcessing && aActionFunc && Components.isSuccessCode(aRc)) {
               _execAction(aActionFunc, aItipItem, aWindow, aParticipantStatus);
             }
@@ -878,8 +878,8 @@ export var itip = {
       if (aItipItem.receivedMethod == "REQUEST") {
         // try to further limit down the list to those calendars that
         // are configured to a matching attendee;
-        let item = aItipItem.getItemList()[0];
-        let matchingCals = calendars.filter(
+        const item = aItipItem.getItemList()[0];
+        const matchingCals = calendars.filter(
           calendar => itip.getInvitedAttendee(item, calendar) != null
         );
         // if there's none, we will show the whole list of calendars:
@@ -889,7 +889,7 @@ export var itip = {
       }
 
       if (calendars.length == 0) {
-        let msg = lazy.cal.l10n.getLtnString("imipNoCalendarAvailable");
+        const msg = lazy.cal.l10n.getLtnString("imipNoCalendarAvailable");
         aWindow.alert(msg);
       } else if (calendars.length == 1) {
         // There's only one calendar, so it's silly to ask what calendar
@@ -897,7 +897,7 @@ export var itip = {
         targetCalendar = calendars[0];
       } else {
         // Ask what calendar to import into
-        let args = {};
+        const args = {};
         args.calendars = calendars;
         args.onOk = aCal => {
           targetCalendar = aCal;
@@ -939,7 +939,7 @@ export var itip = {
    */
   promptInvitedAttendee(window, itipItem, responseMode) {
     let cancelled = false;
-    for (let item of itipItem.getItemList()) {
+    for (const item of itipItem.getItemList()) {
       let att = itip.getInvitedAttendee(item, itipItem.targetCalendar);
       if (!att) {
         window.openDialog(
@@ -976,7 +976,7 @@ export var itip = {
       }
 
       if (att) {
-        let { stampTime, lastModifiedTime } = item;
+        const { stampTime, lastModifiedTime } = item;
 
         // Set this so we know who accepted the event.
         item.setProperty("X-MOZ-INVITED-ATTENDEE", att.id);
@@ -999,7 +999,7 @@ export var itip = {
    */
   cleanupItipItem(itipItem) {
     if (itipItem) {
-      let itemList = itipItem.getItemList();
+      const itemList = itipItem.getItemList();
       if (itemList.length > 0) {
         // Again, we can assume the id is the same over all items per spec
         ItipItemFinderFactory.cleanup(itemList[0].id);
@@ -1040,7 +1040,7 @@ export var itip = {
       case "REPLY": {
         // Per iTIP spec (new Draft 4), multiple items in an iTIP message MUST have
         // same ID, this simplifies our searching, we can just look for Item[0].id
-        let itemList = itipItem.getItemList();
+        const itemList = itipItem.getItemList();
         if (!itipItem.targetCalendar) {
           optionsFunc(itipItem, Ci.calIErrors.CAL_IS_READONLY);
         } else if (itemList.length > 0) {
@@ -1119,7 +1119,7 @@ export var itip = {
       }
     }
 
-    let hashMajorProps = function (aItem) {
+    const hashMajorProps = function (aItem) {
       const majorProps = {
         DTSTART: true,
         DTEND: true,
@@ -1132,9 +1132,9 @@ export var itip = {
         LOCATION: true,
       };
 
-      let propStrings = [];
-      for (let item of lazy.cal.iterate.items([aItem])) {
-        for (let prop of lazy.cal.iterate.icalProperty(item.icalComponent)) {
+      const propStrings = [];
+      for (const item of lazy.cal.iterate.items([aItem])) {
+        for (const prop of lazy.cal.iterate.icalProperty(item.icalComponent)) {
           if (prop.propertyName in majorProps) {
             propStrings.push(item.recurrenceId + "#" + prop.icalString);
           }
@@ -1144,8 +1144,8 @@ export var itip = {
       return propStrings.join("");
     };
 
-    let hash1 = hashMajorProps(newItem);
-    let hash2 = hashMajorProps(oldItem);
+    const hash1 = hashMajorProps(newItem);
+    const hash2 = hashMajorProps(oldItem);
     if (hash1 != hash2) {
       newItem = newItem.clone();
       // bump SEQUENCE, it never decreases (mind undo scenario here)
@@ -1168,9 +1168,9 @@ export var itip = {
    * @returns {calIItipItem} The copied and modified item
    */
   getModifiedItipItem(aItipItem, aItems = [], aProps = {}) {
-    let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
+    const itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
     let serializedItems = "";
-    for (let item of aItems) {
+    for (const item of aItems) {
       serializedItems += lazy.cal.item.serialize(item);
     }
     itipItem.init(serializedItems);
@@ -1223,7 +1223,7 @@ export var itip = {
     // reset to a new UUID if applicable
     item.id = aUid || lazy.cal.getUUID();
     // add a relation to the original item
-    let relation = new lazy.CalRelation();
+    const relation = new lazy.CalRelation();
     relation.relId = aItem.id;
     relation.relType = "SIBLING";
     item.addRelation(relation);
@@ -1256,7 +1256,7 @@ export var itip = {
    */
   isInvitation(aItem) {
     let isInvitation = false;
-    let calendar = aItem.calendar;
+    const calendar = aItem.calendar;
     if (calendar && calendar.supportsScheduling) {
       isInvitation = calendar.getSchedulingSupport().isInvitation(aItem);
     }
@@ -1294,22 +1294,22 @@ export var itip = {
    * @returns {object} An object with string attributes for delegators and delegatees
    */
   resolveDelegation(aAttendee, aAttendees) {
-    let attendees = aAttendees || [aAttendee];
+    const attendees = aAttendees || [aAttendee];
 
     // this will be replaced by a direct property getter in calIAttendee
     let delegators = [];
     let delegatees = [];
-    let delegatorProp = aAttendee.getProperty("DELEGATED-FROM");
+    const delegatorProp = aAttendee.getProperty("DELEGATED-FROM");
     if (delegatorProp) {
       delegators = typeof delegatorProp == "string" ? [delegatorProp] : delegatorProp;
     }
-    let delegateeProp = aAttendee.getProperty("DELEGATED-TO");
+    const delegateeProp = aAttendee.getProperty("DELEGATED-TO");
     if (delegateeProp) {
       delegatees = typeof delegateeProp == "string" ? [delegateeProp] : delegateeProp;
     }
 
-    for (let att of attendees) {
-      let resolveDelegation = function (e, i, a) {
+    for (const att of attendees) {
+      const resolveDelegation = function (e, i, a) {
         if (e == att.id) {
           a[i] = att.toString();
         }
@@ -1332,7 +1332,7 @@ export var itip = {
    * @returns {?calIAttendee} The attendee that was invited
    */
   getInvitedAttendee(aItem, aCalendar) {
-    let id = aItem.getProperty("X-MOZ-INVITED-ATTENDEE");
+    const id = aItem.getProperty("X-MOZ-INVITED-ATTENDEE");
     if (id) {
       return aItem.getAttendeeById(id);
     }
@@ -1355,14 +1355,14 @@ export var itip = {
    * @returns {calIAttendee[]} Returns an array of matching attendees
    */
   getAttendeesBySender(aAttendees, aEmailAddress) {
-    let attendees = [];
+    const attendees = [];
     // we extract the email address to make it work also for a raw header value
-    let compFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
+    const compFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
       Ci.nsIMsgCompFields
     );
-    let addresses = compFields.splitRecipients(aEmailAddress, true);
+    const addresses = compFields.splitRecipients(aEmailAddress, true);
     if (addresses.length == 1) {
-      let searchFor = lazy.cal.email.prependMailTo(addresses[0]);
+      const searchFor = lazy.cal.email.prependMailTo(addresses[0]);
       aAttendees.forEach(aAttendee => {
         if ([aAttendee.id, aAttendee.getProperty("SENT-BY")].includes(searchFor)) {
           attendees.push(aAttendee);
@@ -1381,17 +1381,19 @@ export var itip = {
    * @param {calIItemBase} item
    */
   getImipTransport(item) {
-    let id = item.getProperty("X-MOZ-INVITED-ATTENDEE");
+    const id = item.getProperty("X-MOZ-INVITED-ATTENDEE");
 
     if (id) {
-      let email = id.split("mailto:").join("");
-      let identity = MailServices.accounts.allIdentities.find(identity => identity.email == email);
+      const email = id.split("mailto:").join("");
+      const identity = MailServices.accounts.allIdentities.find(
+        identity => identity.email == email
+      );
 
       if (identity) {
-        let [server] = MailServices.accounts.getServersForIdentity(identity);
+        const [server] = MailServices.accounts.getServersForIdentity(identity);
 
         if (server) {
-          let account = MailServices.accounts.findAccountForServer(server);
+          const account = MailServices.accounts.findAccountForServer(server);
           return new lazy.CalItipDefaultEmailTransport(account, identity);
         }
       }
@@ -1411,12 +1413,12 @@ export var itip = {
  * @param {calIItipItem} itipItemItem - The received iTIP item
  */
 function setReceivedInfo(item, itipItemItem) {
-  let isAttendee = itip.isAttendee(item);
+  const isAttendee = itip.isAttendee(item);
   item.setProperty(
     isAttendee ? "RECEIVED-SEQUENCE" : "X-MOZ-RECEIVED-SEQUENCE",
     String(itip.getSequence(itipItemItem))
   );
-  let dtstamp = itip.getStamp(itipItemItem);
+  const dtstamp = itip.getStamp(itipItemItem);
   if (dtstamp) {
     item.setProperty(
       isAttendee ? "RECEIVED-DTSTAMP" : "X-MOZ-RECEIVED-DTSTAMP",
@@ -1443,29 +1445,29 @@ function updateItem(item, itipItemItem) {
     // preserve user settings:
     newItem.generation = oldItem.generation;
     newItem.clearAlarms();
-    for (let alarm of oldItem.getAlarms()) {
+    for (const alarm of oldItem.getAlarms()) {
       newItem.addAlarm(alarm);
     }
     newItem.alarmLastAck = oldItem.alarmLastAck;
-    let cats = oldItem.getCategories();
+    const cats = oldItem.getCategories();
     newItem.setCategories(cats);
   }
 
-  let newItem = item.clone();
+  const newItem = item.clone();
   newItem.icalComponent = itipItemItem.icalComponent;
   setReceivedInfo(newItem, itipItemItem);
   updateUserData(newItem, item);
 
-  let recInfo = itipItemItem.recurrenceInfo;
+  const recInfo = itipItemItem.recurrenceInfo;
   if (recInfo) {
     // keep care of installing all overridden items, and mind existing alarms, categories:
-    for (let rid of recInfo.getExceptionIds()) {
-      let excItem = recInfo.getExceptionFor(rid).clone();
+    for (const rid of recInfo.getExceptionIds()) {
+      const excItem = recInfo.getExceptionFor(rid).clone();
       lazy.cal.ASSERT(excItem, "unexpected!");
-      let newExc = newItem.recurrenceInfo.getOccurrenceFor(rid).clone();
+      const newExc = newItem.recurrenceInfo.getOccurrenceFor(rid).clone();
       newExc.icalComponent = excItem.icalComponent;
       setReceivedInfo(newExc, itipItemItem);
-      let existingExcItem = item.recurrenceInfo && item.recurrenceInfo.getExceptionFor(rid);
+      const existingExcItem = item.recurrenceInfo && item.recurrenceInfo.getExceptionFor(rid);
       if (existingExcItem) {
         updateUserData(newExc, existingExcItem);
       }
@@ -1486,8 +1488,8 @@ function updateItem(item, itipItemItem) {
  */
 function copyProviderProperties(itipItem, itipItemItem, item) {
   // Copy over itip properties to the item if requested by the provider
-  let copyProps = item.calendar.getProperty("itip.copyProperties") || [];
-  for (let prop of copyProps) {
+  const copyProps = item.calendar.getProperty("itip.copyProperties") || [];
+  for (const prop of copyProps) {
     if (prop == "METHOD") {
       // Special case, this copies over the received method
       item.setProperty("METHOD", itipItem.receivedMethod.toUpperCase());
@@ -1581,7 +1583,7 @@ var ItipItemFinderFactory = {
    */
   async findItem(aId, aItipItem, aOptionsFunc) {
     this.cleanup(aId);
-    let finder = new ItipItemFinder(aId, aItipItem, aOptionsFunc);
+    const finder = new ItipItemFinder(aId, aItipItem, aOptionsFunc);
     this._findMap[aId] = finder;
     return finder.findItem();
   },
@@ -1594,7 +1596,7 @@ var ItipItemFinderFactory = {
    */
   cleanup(aId) {
     if (aId in this._findMap) {
-      let finder = this._findMap[aId];
+      const finder = this._findMap[aId];
       finder.destroy();
       delete this._findMap[aId];
     }
@@ -1626,7 +1628,7 @@ ItipItemFinder.prototype = {
     this.mFoundItems = [];
     this._unobserveChanges();
 
-    let foundItem = await this.mItipItem.targetCalendar.getItem(this.mSearchId);
+    const foundItem = await this.mItipItem.targetCalendar.getItem(this.mSearchId);
     if (foundItem) {
       this.mFoundItems.push(foundItem);
     }
@@ -1660,11 +1662,11 @@ ItipItemFinder.prototype = {
   },
 
   onModifyItem(aNewItem, aOldItem) {
-    let refItem = aOldItem || aNewItem;
+    const refItem = aOldItem || aNewItem;
     if (refItem.id == this.mSearchId) {
       // Check existing found items to see if it already exists
       let found = false;
-      for (let [idx, item] of Object.entries(this.mFoundItems)) {
+      for (const [idx, item] of Object.entries(this.mFoundItems)) {
         if (item.id == refItem.id && item.calendar.id == refItem.calendar.id) {
           if (aNewItem) {
             this.mFoundItems.splice(idx, 1, aNewItem);
@@ -1702,7 +1704,7 @@ ItipItemFinder.prototype = {
     let rc = Cr.NS_OK;
     const method = this.mItipItem.receivedMethod.toUpperCase();
     let actionMethod = method;
-    let operations = [];
+    const operations = [];
 
     if (this.mFoundItems.length > 0) {
       // Save the target calendar on the itip item
@@ -1726,7 +1728,7 @@ ItipItemFinder.prototype = {
         case "DECLINECOUNTER":
           for (let itipItemItem of this.mItipItem.getItemList()) {
             for (let item of this.mFoundItems) {
-              let rid = itipItemItem.recurrenceId; //  XXX todo support multiple
+              const rid = itipItemItem.recurrenceId; //  XXX todo support multiple
               if (rid) {
                 // actually applies to individual occurrence(s)
                 if (item.recurrenceInfo) {
@@ -1743,12 +1745,12 @@ ItipItemFinder.prototype = {
               switch (method) {
                 case "REFRESH": {
                   // xxx todo test
-                  let attendees = itipItemItem.getAttendees();
+                  const attendees = itipItemItem.getAttendees();
                   lazy.cal.ASSERT(attendees.length == 1, "invalid number of attendees in REFRESH!");
                   if (attendees.length > 0) {
-                    let action = function (opListener, partStat, extResponse) {
+                    const action = function (opListener, partStat, extResponse) {
                       if (!item.organizer) {
-                        let org = itip.createOrganizer(item.calendar);
+                        const org = itip.createOrganizer(item.calendar);
                         if (org) {
                           item = item.clone();
                           item.organizer = org;
@@ -1774,8 +1776,8 @@ ItipItemFinder.prototype = {
                     item.calendar.getProperty("itip.disableRevisionChecks") ||
                     itip.compare(itipItemItem, item) > 0
                   ) {
-                    let newItem = updateItem(item, itipItemItem);
-                    let action = function (opListener, partStat, extResponse) {
+                    const newItem = updateItem(item, itipItemItem);
+                    const action = function (opListener, partStat, extResponse) {
                       return newItem.calendar.modifyItem(newItem, item).then(
                         item =>
                           opListener.onOperationComplete(
@@ -1800,7 +1802,7 @@ ItipItemFinder.prototype = {
                   }
                   break;
                 case "REQUEST": {
-                  let newItem = updateItem(item, itipItemItem);
+                  const newItem = updateItem(item, itipItemItem);
                   let att = itip.getInvitedAttendee(newItem);
                   if (!att) {
                     // fall back to using configured organizer
@@ -1838,7 +1840,7 @@ ItipItemFinder.prototype = {
                     ) {
                       actionMethod = "REQUEST:NEEDS-ACTION";
                       operations.push((opListener, partStat, extResponse) => {
-                        let changedItem = firstFoundItem.clone();
+                        const changedItem = firstFoundItem.clone();
                         changedItem.removeAttendee(foundAttendee);
                         foundAttendee = foundAttendee.clone();
                         if (partStat) {
@@ -1846,7 +1848,11 @@ ItipItemFinder.prototype = {
                         }
                         changedItem.addAttendee(foundAttendee);
 
-                        let listener = new ItipOpListener(opListener, firstFoundItem, extResponse);
+                        const listener = new ItipOpListener(
+                          opListener,
+                          firstFoundItem,
+                          extResponse
+                        );
                         return changedItem.calendar.modifyItem(changedItem, firstFoundItem).then(
                           item =>
                             listener.onOperationComplete(
@@ -1872,12 +1878,12 @@ ItipItemFinder.prototype = {
                     ) {
                       addScheduleAgentClient(newItem, item.calendar);
 
-                      let isMinorUpdate = itip.getSequence(newItem) == itip.getSequence(item);
+                      const isMinorUpdate = itip.getSequence(newItem) == itip.getSequence(item);
                       actionMethod = isMinorUpdate ? method + ":UPDATE-MINOR" : method + ":UPDATE";
                       operations.push((opListener, partStat, extResponse) => {
                         if (!partStat) {
                           // keep PARTSTAT
-                          let att_ = itip.getInvitedAttendee(item);
+                          const att_ = itip.getInvitedAttendee(item);
                           partStat = att_ ? att_.participationStatus : "NEEDS-ACTION";
                         }
                         newItem.removeAttendee(att);
@@ -1885,7 +1891,7 @@ ItipItemFinder.prototype = {
                         att.participationStatus = partStat;
                         newItem.addAttendee(att);
 
-                        let listener = new ItipOpListener(opListener, item, extResponse);
+                        const listener = new ItipOpListener(opListener, item, extResponse);
                         return newItem.calendar.modifyItem(newItem, item).then(
                           item =>
                             listener.onOperationComplete(
@@ -1936,7 +1942,7 @@ ItipItemFinder.prototype = {
                     // attendees, so we always have one for REPLY
                     replyer = attendees[0];
                   }
-                  let noCheck = item.calendar.getProperty("itip.disableRevisionChecks");
+                  const noCheck = item.calendar.getProperty("itip.disableRevisionChecks");
                   let revCheck = false;
                   if (replyer && !noCheck) {
                     revCheck = itip.compare(itipItemItem, replyer) > 0;
@@ -1946,25 +1952,25 @@ ItipItemFinder.prototype = {
                   }
 
                   if (replyer && (noCheck || revCheck)) {
-                    let newItem = item.clone();
+                    const newItem = item.clone();
                     newItem.removeAttendee(replyer);
                     replyer = replyer.clone();
                     setReceivedInfo(replyer, itipItemItem);
-                    let newPS = itipItemItem.getAttendeeById(replyer.id).participationStatus;
+                    const newPS = itipItemItem.getAttendeeById(replyer.id).participationStatus;
                     replyer.participationStatus = newPS;
                     newItem.addAttendee(replyer);
 
                     // Make sure the provider-specified properties are copied over
                     copyProviderProperties(this.mItipItem, itipItemItem, newItem);
 
-                    let action = function (opListener, partStat, extResponse) {
+                    const action = function (opListener, partStat, extResponse) {
                       // n.b.: this will only be processed in case of reply or
                       // declining the counter request - of sending the
                       // appropriate reply will be taken care within the
                       // opListener (defined in imip-bar.js)
                       // TODO: move that from imip-bar.js to here
 
-                      let listener = newItem.calendar.getProperty("itip.notify-replies")
+                      const listener = newItem.calendar.getProperty("itip.notify-replies")
                         ? new ItipOpListener(opListener, item, extResponse)
                         : opListener;
                       return newItem.calendar.modifyItem(newItem, item).then(
@@ -1995,10 +2001,10 @@ ItipItemFinder.prototype = {
           }
           break;
         case "CANCEL": {
-          let modifiedItems = {};
-          for (let itipItemItem of this.mItipItem.getItemList()) {
-            for (let item of this.mFoundItems) {
-              let rid = itipItemItem.recurrenceId; //  XXX todo support multiple
+          const modifiedItems = {};
+          for (const itipItemItem of this.mItipItem.getItemList()) {
+            for (const item of this.mFoundItems) {
+              const rid = itipItemItem.recurrenceId; //  XXX todo support multiple
               if (rid) {
                 // actually a CANCEL of occurrence(s)
                 if (item.recurrenceInfo) {
@@ -2094,12 +2100,12 @@ ItipItemFinder.prototype = {
       // if an item was added or removed
       this._observeChanges(this.mItipItem.targetCalendar);
 
-      for (let itipItemItem of this.mItipItem.getItemList()) {
+      for (const itipItemItem of this.mItipItem.getItemList()) {
         switch (method) {
           case "REQUEST":
           case "PUBLISH": {
-            let action = (opListener, partStat, extResponse) => {
-              let newItem = itipItemItem.clone();
+            const action = (opListener, partStat, extResponse) => {
+              const newItem = itipItemItem.clone();
               setReceivedInfo(newItem, itipItemItem);
               newItem.parentItem.calendar = this.mItipItem.targetCalendar;
               addScheduleAgentClient(newItem, this.mItipItem.targetCalendar);
@@ -2109,7 +2115,7 @@ ItipItemFinder.prototype = {
                   lazy.cal.alarms.setDefaultValues(newItem);
                 }
 
-                let att = itip.getInvitedAttendee(newItem);
+                const att = itip.getInvitedAttendee(newItem);
                 if (!att) {
                   lazy.cal.WARN(
                     `Encountered item without invited attendee! id=${newItem.id}, method=${method} Exiting...`
@@ -2125,7 +2131,7 @@ ItipItemFinder.prototype = {
                 lazy.cal.alarms.setDefaultValues(newItem);
               }
 
-              let listener =
+              const listener =
                 method == "REQUEST"
                   ? new ItipOpListener(opListener, null, extResponse)
                   : opListener;
@@ -2166,7 +2172,7 @@ ItipItemFinder.prototype = {
     let actionFunc = null;
     if (operations.length > 0) {
       actionFunc = function (opListener, partStat = null, extResponse = null) {
-        for (let operation of operations) {
+        for (const operation of operations) {
           try {
             operation(opListener, partStat, extResponse);
           } catch (exc) {

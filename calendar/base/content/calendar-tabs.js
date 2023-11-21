@@ -38,8 +38,8 @@ var calendarTabMonitor = {
     } else if (window.calItemSaveControls) {
       // we need to reset the labels of the menu controls for saving if we
       // are not switching to an item tab and displayed an item tab before
-      let saveMenu = document.getElementById("calendar-save-menuitem");
-      let saveandcloseMenu = document.getElementById("calendar-save-and-close-menuitem");
+      const saveMenu = document.getElementById("calendar-save-menuitem");
+      const saveandcloseMenu = document.getElementById("calendar-save-and-close-menuitem");
       saveMenu.label = window.calItemSaveControls.saveMenu.label;
       saveandcloseMenu.label = window.calItemSaveControls.saveandcloseMenu.label;
     }
@@ -85,7 +85,7 @@ var calendarTabType = {
       closeTab(tab) {},
 
       persistTab(tab) {
-        let tabmail = document.getElementById("tabmail");
+        const tabmail = document.getElementById("tabmail");
         return {
           // Since we do strange tab switching logic in calSwitchToCalendarMode,
           // we should store the current tab state ourselves.
@@ -118,7 +118,7 @@ var calendarTabType = {
       closeTab(tab) {},
 
       persistTab(tab) {
-        let tabmail = document.getElementById("tabmail");
+        const tabmail = document.getElementById("tabmail");
         return {
           // Since we do strange tab switching logic in calSwitchToTaskMode,
           // we should store the current tab state ourselves.
@@ -179,8 +179,8 @@ var calendarItemTabType = {
     // Create a clone to use for this tab. Remove the cloned toolbox
     // and move the original toolbox into its place. There is only
     // one toolbox/toolbar so its settings are the same for all item tabs.
-    let original = document.getElementById("calendarItemPanel").firstElementChild;
-    let clone = original.cloneNode(true);
+    const original = document.getElementById("calendarItemPanel").firstElementChild;
+    const clone = original.cloneNode(true);
 
     clone.querySelector("toolbox").remove();
     moveEventToolbox(clone);
@@ -197,7 +197,7 @@ var calendarItemTabType = {
     // Set up the iframe and store the iframe's id.  The iframe's
     // src is set in onLoadCalendarItemPanel() that is called below.
     aTab.iframe = aTab.panel.querySelector("iframe");
-    let iframeId = "calendarItemTabIframe" + this.idNumber;
+    const iframeId = "calendarItemTabIframe" + this.idNumber;
     aTab.iframe.setAttribute("id", iframeId);
     gItemTabIds.push(iframeId);
 
@@ -213,7 +213,7 @@ var calendarItemTabType = {
       throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
     // name is "New Event", "Edit Task", etc.
-    let name = cal.l10n.getCalString(strName);
+    const name = cal.l10n.getCalString(strName);
     aTab.title = name + ": " + (aArgs.calendarEvent.title || name);
 
     // allowTabClose prevents the tab from being closed until we ask
@@ -242,13 +242,13 @@ var calendarItemTabType = {
     Object.assign(aTab.itemTabConfig, gConfig);
 
     // clear statusbar
-    let statusbar = document.getElementById("status-bar");
-    let items = statusbar.getElementsByClassName("event-dialog");
-    for (let item of items) {
+    const statusbar = document.getElementById("status-bar");
+    const items = statusbar.getElementsByClassName("event-dialog");
+    for (const item of items) {
       item.setAttribute("collapsed", true);
     }
     // move toolbox to the place where it can be accessed later
-    let to = document.getElementById("calendarItemPanel").firstElementChild;
+    const to = document.getElementById("calendarItemPanel").firstElementChild;
     moveEventToolbox(to);
   },
   /**
@@ -286,7 +286,7 @@ var calendarItemTabType = {
    */
   closeTab(aTab) {
     // Remove the iframe id from the array where they are stored.
-    let index = gItemTabIds.indexOf(aTab.iframe.id);
+    const index = gItemTabIds.indexOf(aTab.iframe.id);
     if (index != -1) {
       gItemTabIds.splice(index, 1);
     }
@@ -294,8 +294,8 @@ var calendarItemTabType = {
 
     // If this is the last item tab that is closing, then delete
     // window.calItemSaveControls, so mochitests won't complain.
-    let tabmail = document.getElementById("tabmail");
-    let calendarItemTabCount =
+    const tabmail = document.getElementById("tabmail");
+    const calendarItemTabCount =
       tabmail.tabModes.calendarEvent.tabs.length + tabmail.tabModes.calendarTask.tabs.length;
     if (calendarItemTabCount == 1) {
       delete window.calItemSaveControls;
@@ -308,7 +308,7 @@ var calendarItemTabType = {
    * @param {object} aTab - A tab info object
    */
   persistTab(aTab) {
-    let args = aTab.iframe.contentWindow.arguments[0];
+    const args = aTab.iframe.contentWindow.arguments[0];
     // Serialize args, with manual handling of some properties.
     // persistTab is called even for new events/tasks in tabs that
     // were closed and never saved (for 'undo close tab'
@@ -323,12 +323,12 @@ var calendarItemTabType = {
       return {};
     }
 
-    let calendarId = args.calendar.id;
-    let itemId = args.calendarEvent.id;
+    const calendarId = args.calendar.id;
+    const itemId = args.calendarEvent.id;
     // Handle null args.initialStartDateValue, just for good measure.
     // Note that this is not the start date for the event or task.
-    let hasDateValue = args.initialStartDateValue && args.initialStartDateValue.icalString;
-    let initialStartDate = hasDateValue ? args.initialStartDateValue.icalString : null;
+    const hasDateValue = args.initialStartDateValue && args.initialStartDateValue.icalString;
+    const initialStartDate = hasDateValue ? args.initialStartDateValue.icalString : null;
 
     args.calendar = null;
     args.calendarEvent = null;
@@ -373,7 +373,7 @@ var calendarItemTabType = {
 };
 
 window.addEventListener("load", e => {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.registerTabType(calendarTabType);
   tabmail.registerTabType(calendarItemTabType);
   tabmail.registerTabMonitor(calendarTabMonitor);
@@ -410,10 +410,10 @@ function switchCalendarView(aType, aShow) {
  * @param {Node} aDestination - Destination where the toolbox will be moved
  */
 function moveEventToolbox(aDestination) {
-  let toolbox = document.getElementById("event-toolbox");
+  const toolbox = document.getElementById("event-toolbox");
   // the <toolbarpalette> has to be copied manually
-  let palette = toolbox.palette;
-  let iframe = aDestination.querySelector("iframe");
+  const palette = toolbox.palette;
+  const iframe = aDestination.querySelector("iframe");
   aDestination.insertBefore(toolbox, iframe);
   toolbox.palette = palette;
 }

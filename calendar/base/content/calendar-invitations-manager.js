@@ -134,10 +134,10 @@ InvitationsManager.prototype = {
    *   provided, the panel will not be displayed.
    */
   toggleInvitationsPanel(items) {
-    let invitationsBox = document.getElementById("calendar-invitations-panel");
+    const invitationsBox = document.getElementById("calendar-invitations-panel");
     if (items) {
-      let count = items.length;
-      let value = cal.l10n.getLtnString("invitationsLink.label", [count]);
+      const count = items.length;
+      const value = cal.l10n.getLtnString("invitationsLink.label", [count]);
       document.getElementById("calendar-invitations-label").value = value;
       if (count) {
         invitationsBox.removeAttribute("hidden");
@@ -172,7 +172,7 @@ InvitationsManager.prototype = {
     this.updateStartDate();
     this.deleteAllItems();
 
-    let streams = [];
+    const streams = [];
     for (let calendar of cal.manager.getCalendars()) {
       if (!cal.acl.isCalendarWritable(calendar) || calendar.getProperty("disabled")) {
         continue;
@@ -184,7 +184,7 @@ InvitationsManager.prototype = {
         continue;
       }
 
-      let endDate = this.mStartDate.clone();
+      const endDate = this.mStartDate.clone();
       endDate.year += 1;
       streams.push(
         calendar.getItems(
@@ -200,8 +200,8 @@ InvitationsManager.prototype = {
       );
     }
 
-    let self = this;
-    let mHandledItems = {};
+    const self = this;
+    const mHandledItems = {};
     return CalReadableStreamFactory.createReadableStream({
       async start(controller) {
         await self.cancelPendingRequests();
@@ -210,12 +210,12 @@ InvitationsManager.prototype = {
           CalReadableStreamFactory.createCombinedReadableStream(streams)
         );
 
-        for await (let items of self.mPendingRequests) {
+        for await (const items of self.mPendingRequests) {
           for (let item of items) {
             // we need to retrieve by occurrence to properly filter exceptions,
             // should be fixed with bug 416975
             item = item.parentItem;
-            let hid = item.hashId;
+            const hid = item.hashId;
             if (!mHandledItems[hid]) {
               mHandledItems[hid] = true;
               self.addItem(item);
@@ -243,7 +243,7 @@ InvitationsManager.prototype = {
    * sounds fishy to me. Maybe there is a more encapsulated solution.
    */
   openInvitationsDialog() {
-    let args = {};
+    const args = {};
     args.queue = [];
     args.finishedCallBack = () => this.scheduleInvitationsUpdate(FIRST_DELAY_RESCHEDULE);
     args.invitationsManager = this;
@@ -268,12 +268,12 @@ InvitationsManager.prototype = {
   async processJobQueue(queue) {
     // TODO: undo/redo
     for (let i = 0; i < queue.length; i++) {
-      let job = queue[i];
-      let oldItem = job.oldItem;
-      let newItem = job.newItem;
+      const job = queue[i];
+      const oldItem = job.oldItem;
+      const newItem = job.newItem;
       switch (job.action) {
         case "modify":
-          let item = await newItem.calendar.modifyItem(newItem, oldItem);
+          const item = await newItem.calendar.modifyItem(newItem, oldItem);
           cal.itip.checkAndSend(Ci.calIOperationListener.MODIFY, item, oldItem);
           this.deleteItem(item);
           this.addItem(item);
@@ -292,7 +292,7 @@ InvitationsManager.prototype = {
    * @returns A boolean value indicating if the item was found.
    */
   hasItem(item) {
-    let hid = item.hashId;
+    const hid = item.hashId;
     return this.mItemList.some(item_ => hid == item_.hashId);
   },
 
@@ -303,12 +303,12 @@ InvitationsManager.prototype = {
    * @param item      The item to add.
    */
   addItem(item) {
-    let recInfo = item.recurrenceInfo;
+    const recInfo = item.recurrenceInfo;
     if (recInfo && !cal.itip.isOpenInvitation(item)) {
       // scan exceptions:
-      let ids = recInfo.getExceptionIds();
-      for (let id of ids) {
-        let ex = recInfo.getExceptionFor(id);
+      const ids = recInfo.getExceptionIds();
+      for (const id of ids) {
+        const ex = recInfo.getExceptionFor(id);
         if (ex && this.validateItem(ex) && !this.hasItem(ex)) {
           this.mItemList.push(ex);
         }
@@ -325,7 +325,7 @@ InvitationsManager.prototype = {
    * @param item      The item to remove.
    */
   deleteItem(item) {
-    let id = item.id;
+    const id = item.id;
     this.mItemList.filter(item_ => id != item_.id);
   },
 
@@ -344,7 +344,7 @@ InvitationsManager.prototype = {
    * @returns Potential start date.
    */
   getStartDate() {
-    let date = cal.dtz.now();
+    const date = cal.dtz.now();
     date.second = 0;
     date.minute = 0;
     date.hour = 0;
@@ -358,7 +358,7 @@ InvitationsManager.prototype = {
    */
   updateStartDate() {
     if (this.mStartDate) {
-      let startDate = this.getStartDate();
+      const startDate = this.getStartDate();
       if (startDate.compare(this.mStartDate) > 0) {
         this.mStartDate = startDate;
       }
@@ -379,7 +379,7 @@ InvitationsManager.prototype = {
     if (item.calendar instanceof Ci.calISchedulingSupport && !item.calendar.isInvitation(item)) {
       return false; // exclude if organizer has invited himself
     }
-    let start = item[cal.dtz.startDateProp(item)] || item[cal.dtz.endDateProp(item)];
+    const start = item[cal.dtz.startDateProp(item)] || item[cal.dtz.endDateProp(item)];
     return cal.itip.isOpenInvitation(item) && start.compare(this.mStartDate) >= 0;
   },
 };

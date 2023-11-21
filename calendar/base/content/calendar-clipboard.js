@@ -19,7 +19,7 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
  */
 function canPaste() {
   if (Services.prefs.getBoolPref("calendar.paste.intoSelectedCalendar", false)) {
-    let selectedCal = getSelectedCalendar();
+    const selectedCal = getSelectedCalendar();
     if (
       !selectedCal ||
       !cal.acl.isCalendarWritable(selectedCal) ||
@@ -28,7 +28,7 @@ function canPaste() {
       return false;
     }
   } else {
-    let calendars = cal.manager
+    const calendars = cal.manager
       .getCalendars()
       .filter(cal.acl.isCalendarWritable)
       .filter(cal.acl.userCanAddItemsToCalendar);
@@ -69,7 +69,7 @@ function copyToClipboard(aCalendarItemArray = null, aCutMode = false) {
     return;
   }
   if (aCutMode) {
-    let items = calendarItemArray.filter(
+    const items = calendarItemArray.filter(
       aItem =>
         cal.acl.userCanModifyItem(aItem) ||
         (aItem.calendar && cal.acl.userCanDeleteItemsFromCalendar(aItem.calendar))
@@ -80,7 +80,7 @@ function copyToClipboard(aCalendarItemArray = null, aCutMode = false) {
     }
     calendarItemArray = items;
   }
-  let [targetItems, , response] = promptOccurrenceModification(
+  const [targetItems, , response] = promptOccurrenceModification(
     calendarItemArray,
     true,
     aCutMode ? "cut" : "copy"
@@ -90,14 +90,14 @@ function copyToClipboard(aCalendarItemArray = null, aCutMode = false) {
     return;
   }
 
-  let icsSerializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+  const icsSerializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
     Ci.calIIcsSerializer
   );
   icsSerializer.addItems(targetItems);
-  let icsString = icsSerializer.serializeToString();
+  const icsString = icsSerializer.serializeToString();
 
-  let clipboard = Services.clipboard;
-  let trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);
+  const clipboard = Services.clipboard;
+  const trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);
 
   if (trans && clipboard) {
     // Register supported data flavors
@@ -106,7 +106,7 @@ function copyToClipboard(aCalendarItemArray = null, aCutMode = false) {
     trans.addDataFlavor("text/plain");
 
     // Create the data objects
-    let icsWrapper = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
+    const icsWrapper = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
     icsWrapper.data = icsString;
 
     // Add data objects to transferable
@@ -118,7 +118,7 @@ function copyToClipboard(aCalendarItemArray = null, aCutMode = false) {
     clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
     if (aCutMode) {
       // check for MODIFICATION_PARENT
-      let useParent = response == 3;
+      const useParent = response == 3;
       calendarViewController.deleteOccurrences(targetItems, useParent, true);
     }
   }
@@ -133,8 +133,8 @@ function pasteFromClipboard() {
     return;
   }
 
-  let clipboard = Services.clipboard;
-  let trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);
+  const clipboard = Services.clipboard;
+  const trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);
 
   if (!trans || !clipboard) {
     return;
@@ -149,14 +149,14 @@ function pasteFromClipboard() {
   clipboard.getData(trans, Ci.nsIClipboard.kGlobalClipboard);
 
   // Ask transferable for the best flavor.
-  let flavor = {};
+  const flavor = {};
   let data = {};
   trans.getAnyTransferData(flavor, data);
   data = data.value.QueryInterface(Ci.nsISupportsString).data;
   switch (flavor.value) {
     case "text/calendar":
     case "text/plain": {
-      let icsParser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+      const icsParser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
       try {
         icsParser.parseString(data);
       } catch (e) {
@@ -164,7 +164,7 @@ function pasteFromClipboard() {
         // there will just be 0 items.
       }
 
-      let items = icsParser.getItems();
+      const items = icsParser.getItems();
       if (items.length == 0) {
         return;
       }
@@ -172,7 +172,7 @@ function pasteFromClipboard() {
       // If there are multiple items on the clipboard, the earliest
       // should be set to the selected day and the rest adjusted.
       let earliestDate = null;
-      for (let item of items) {
+      for (const item of items) {
         let date = null;
         if (item.startDate) {
           date = item.startDate.clone();
@@ -190,7 +190,7 @@ function pasteFromClipboard() {
           earliestDate = date;
         }
       }
-      let firstDate = currentView().selectedDay;
+      const firstDate = currentView().selectedDay;
 
       let offset = null;
       if (earliestDate) {
@@ -200,13 +200,13 @@ function pasteFromClipboard() {
         earliestDate = earliestDate.getInTimezone(cal.dtz.defaultTimezone);
         earliestDate.isDate = true;
         offset = firstDate.subtractDate(earliestDate);
-        let deltaDST = firstDate.timezoneOffset - earliestDate.timezoneOffset;
+        const deltaDST = firstDate.timezoneOffset - earliestDate.timezoneOffset;
         offset.inSeconds += deltaDST;
       }
 
       // we only will need to ask whether to send notifications, if there
       // are attendees at all
-      let withAttendees = items.filter(aItem => aItem.getAttendees().length > 0);
+      const withAttendees = items.filter(aItem => aItem.getAttendees().length > 0);
 
       let notify = Ci.calIItipItem.USER;
       let destCal = null;
@@ -226,25 +226,25 @@ function pasteFromClipboard() {
             pasteText += "s";
           }
         }
-        let validPasteText = pasteText != "paste" && !pasteText.endsWith("Item");
+        const validPasteText = pasteText != "paste" && !pasteText.endsWith("Item");
         pasteText += items.length == withAttendees.length ? "Only" : "Also";
 
-        let calendars = cal.manager
+        const calendars = cal.manager
           .getCalendars()
           .filter(cal.acl.isCalendarWritable)
           .filter(cal.acl.userCanAddItemsToCalendar)
           .filter(aCal => {
-            let status = aCal.getProperty("currentStatus");
+            const status = aCal.getProperty("currentStatus");
             return Components.isSuccessCode(status);
           });
         if (calendars.length > 1) {
-          let args = {};
+          const args = {};
           args.calendars = calendars;
           args.promptText = cal.l10n.getCalString("pastePrompt");
 
           if (validPasteText) {
             pasteText = cal.l10n.getCalString(pasteText);
-            let note = cal.l10n.getCalString("pasteNotifyAbout", [pasteText]);
+            const note = cal.l10n.getCalString("pasteNotifyAbout", [pasteText]);
             args.promptNotify = note;
 
             args.labelExtra1 = cal.l10n.getCalString("pasteDontNotifyLabel");
@@ -278,11 +278,11 @@ function pasteFromClipboard() {
       }
 
       startBatchTransaction();
-      for (let item of items) {
+      for (const item of items) {
         // TODO: replace the UUID only it it already exists in the
         // calendar to avoid to break invitation scenarios where remote
         // parties rely on the UUID.
-        let newItem = item.clone();
+        const newItem = item.clone();
         // Set new UID to allow multiple paste actions of the same
         // clipboard content.
         newItem.id = cal.getUUID();
@@ -290,7 +290,7 @@ function pasteFromClipboard() {
           cal.item.shiftOffset(newItem, offset);
         }
 
-        let extResp = { responseMode: Ci.calIItipItem.NONE };
+        const extResp = { responseMode: Ci.calIItipItem.NONE };
         if (item.getAttendees().length > 0) {
           extResp.responseMode = notify;
         }

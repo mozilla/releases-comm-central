@@ -47,7 +47,7 @@ export var provider = {
     aExistingChannel = null,
     aForceNewAuth = false
   ) {
-    let originAttributes = {};
+    const originAttributes = {};
 
     // The current nsIHttpChannel implementation separates connections only
     // by hosts, which causes issues with cookies and password caching for
@@ -71,7 +71,7 @@ export var provider = {
         // Use a try/catch because there may not be a calICalendar interface.
         // For example, when there is no calendar associated with a request,
         // as in calendar detection.
-        let calendar = aNotificationCallbacks.getInterface(Ci.calICalendar);
+        const calendar = aNotificationCallbacks.getInterface(Ci.calICalendar);
         if (calendar && calendar.getProperty("capabilities.username.supported") === true) {
           originAttributes.userContextId = lazy.cal.auth.containerMap.getUserContextIdForUsername(
             calendar.getProperty("username")
@@ -86,10 +86,10 @@ export var provider = {
 
     // We cannot use a system principal here since the connection setup will fail if
     // same-site cookie protection is enabled in TB and server-side.
-    let principal = aExistingChannel
+    const principal = aExistingChannel
       ? null
       : Services.scriptSecurityManager.createContentPrincipal(aUri, originAttributes);
-    let channel =
+    const channel =
       aExistingChannel ||
       Services.io.newChannelFromURI(
         aUri,
@@ -202,12 +202,12 @@ export var provider = {
       // we'll just take the first available calendar window. We also need to
       // do this on a timer so that the modal window doesn't block the
       // network request.
-      let calWindow = lazy.cal.window.getCalendarWindow();
+      const calWindow = lazy.cal.window.getCalendarWindow();
 
-      let timerCallback = {
+      const timerCallback = {
         calendar: this.calendar,
         notify(timer) {
-          let params = {
+          const params = {
             exceptionAdded: false,
             securityInfo: secInfo,
             prefetchCert: true,
@@ -239,12 +239,12 @@ export var provider = {
    * @param {calICalendar} [calendar] - A calendar associated with the request, may be null.
    */
   checkBadCertStatus(request, status, calendar) {
-    let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
+    const nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
       Ci.nsINSSErrorsService
     );
     let isCertError = false;
     try {
-      let errorType = nssErrorsService.getErrorClass(status);
+      const errorType = nssErrorsService.getErrorClass(status);
       if (errorType == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
         isCertError = true;
       }
@@ -253,8 +253,8 @@ export var provider = {
     }
 
     if (isCertError && request.securityInfo) {
-      let secInfo = request.securityInfo.QueryInterface(Ci.nsITransportSecurityInfo);
-      let badCertHandler = new provider.BadCertHandler(calendar);
+      const secInfo = request.securityInfo.QueryInterface(Ci.nsITransportSecurityInfo);
+      const badCertHandler = new provider.BadCertHandler(calendar);
       badCertHandler.notifyCertProblem(secInfo, request.originalURI.displayHostPort);
     }
   },
@@ -306,10 +306,10 @@ export var provider = {
    */
   getEmailIdentityOfCalendar(aCalendar, outAccount) {
     lazy.cal.ASSERT(aCalendar, "no calendar!", Cr.NS_ERROR_INVALID_ARG);
-    let key = aCalendar.getProperty("imip.identity.key");
+    const key = aCalendar.getProperty("imip.identity.key");
     if (key === null) {
       // take default account/identity:
-      let findIdentity = function (account) {
+      const findIdentity = function (account) {
         if (account && account.identities.length) {
           return account.defaultIdentity || account.identities[0];
         }
@@ -320,8 +320,8 @@ export var provider = {
       let foundIdentity = findIdentity(foundAccount);
 
       if (!foundAccount || !foundIdentity) {
-        for (let account of MailServices.accounts.accounts) {
-          let identity = findIdentity(account);
+        for (const account of MailServices.accounts.accounts) {
+          const identity = findIdentity(account);
 
           if (account && identity) {
             foundAccount = account;
@@ -370,8 +370,8 @@ export var provider = {
    * @returns {boolean} True, if the item should be overwritten
    */
   promptOverwrite(aMode, aItem) {
-    let window = lazy.cal.window.getCalendarWindow();
-    let args = {
+    const window = lazy.cal.window.getCalendarWindow();
+    const args = {
       item: aItem,
       mode: aMode,
       overwrite: false,
@@ -394,7 +394,7 @@ export var provider = {
    */
   getCalendarDirectory() {
     if (provider.getCalendarDirectory.mDir === undefined) {
-      let dir = Services.dirsvc.get("ProfD", Ci.nsIFile);
+      const dir = Services.dirsvc.get("ProfD", Ci.nsIFile);
       dir.append("calendar-data");
       if (!dir.exists()) {
         try {
@@ -465,9 +465,9 @@ export var provider = {
       this.mID = aValue;
 
       // make all properties persistent that have been set so far:
-      for (let aName in this.mProperties) {
+      for (const aName in this.mProperties) {
         if (!this.constructor.mTransientProperties[aName]) {
-          let value = this.mProperties[aName];
+          const value = this.mProperties[aName];
           if (value !== null) {
             lazy.cal.manager.setCalendarPref_(this, aName, value);
           }
@@ -672,7 +672,7 @@ export var provider = {
             ret = provider.getEmailIdentityOfCalendar(this);
             break;
           case "imip.account": {
-            let outAccount = {};
+            const outAccount = {};
             if (provider.getEmailIdentityOfCalendar(this, outAccount)) {
               ret = outAccount.value;
             }
@@ -680,13 +680,13 @@ export var provider = {
           }
           case "organizerId": {
             // itip/imip default: derived out of imip.identity
-            let identity = this.getProperty("imip.identity");
+            const identity = this.getProperty("imip.identity");
             ret = identity ? "mailto:" + identity.QueryInterface(Ci.nsIMsgIdentity).email : null;
             break;
           }
           case "organizerCN": {
             // itip/imip default: derived out of imip.identity
-            let identity = this.getProperty("imip.identity");
+            const identity = this.getProperty("imip.identity");
             ret = identity ? identity.QueryInterface(Ci.nsIMsgIdentity).fullName : null;
             break;
           }
@@ -716,7 +716,7 @@ export var provider = {
 
     // void setProperty(in AUTF8String aName, in nsIVariant aValue);
     setProperty(aName, aValue) {
-      let oldValue = this.getProperty(aName);
+      const oldValue = this.getProperty(aName);
       if (oldValue != aValue) {
         this.mProperties[aName] = aValue;
         switch (aName) {
@@ -761,9 +761,9 @@ export var provider = {
     isInvitation(aItem) {
       if (!this.mACLEntry || !this.mACLEntry.hasAccessControl) {
         // No ACL support - fallback to the old method
-        let id = aItem.getProperty("X-MOZ-INVITED-ATTENDEE") || this.getProperty("organizerId");
+        const id = aItem.getProperty("X-MOZ-INVITED-ATTENDEE") || this.getProperty("organizerId");
         if (id) {
-          let org = aItem.organizer;
+          const org = aItem.organizer;
           if (!org || !org.id || org.id.toLowerCase() == id.toLowerCase()) {
             return false;
           }
@@ -790,9 +790,9 @@ export var provider = {
       // We check if :
       // - the organizer of the event is NOT within the owner's identities of this calendar
       // - if the one of the owner's identities of this calendar is in the attendees
-      let ownerIdentities = this.mACLEntry.getOwnerIdentities();
+      const ownerIdentities = this.mACLEntry.getOwnerIdentities();
       for (let i = 0; i < ownerIdentities.length; i++) {
-        let identity = "mailto:" + ownerIdentities[i].email.toLowerCase();
+        const identity = "mailto:" + ownerIdentities[i].email.toLowerCase();
         if (org.id.toLowerCase() == identity) {
           return false;
         }
@@ -807,11 +807,11 @@ export var provider = {
 
     // calIAttendee getInvitedAttendee(in calIItemBase aItem);
     getInvitedAttendee(aItem) {
-      let id = this.getProperty("organizerId");
+      const id = this.getProperty("organizerId");
       let attendee = id ? aItem.getAttendeeById(id) : null;
 
       if (!attendee && this.mACLEntry && this.mACLEntry.hasAccessControl) {
-        let ownerIdentities = this.mACLEntry.getOwnerIdentities();
+        const ownerIdentities = this.mACLEntry.getOwnerIdentities();
         if (ownerIdentities.length > 0) {
           let identity;
           for (let i = 0; !attendee && i < ownerIdentities.length; i++) {

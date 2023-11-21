@@ -188,13 +188,13 @@ CalStorageCalendar.prototype = {
 
   // Promise<calIItemBase> addItem(in calIItemBase aItem);
   async addItem(aItem) {
-    let newItem = aItem.clone();
+    const newItem = aItem.clone();
     return this.adoptItem(newItem);
   },
 
   // Promise<calIItemBase> adoptItem(in calIItemBase aItem);
   async adoptItem(aItem) {
-    let onError = async (message, exception) => {
+    const onError = async (message, exception) => {
       this.notifyOperationComplete(
         null,
         exception,
@@ -213,7 +213,7 @@ CalStorageCalendar.prototype = {
       // is this an error?  Or should we generate an IID?
       aItem.id = cal.getUUID();
     } else {
-      let olditem = await this.mItemModel.getItemById(aItem.id);
+      const olditem = await this.mItemModel.getItemById(aItem.id);
       if (olditem) {
         if (this.relaxedMode) {
           // we possibly want to interact with the user before deleting
@@ -243,10 +243,10 @@ CalStorageCalendar.prototype = {
   async modifyItem(aNewItem, aOldItem) {
     // HACK Just modifying the item would clear the offline flag, we need to
     // retrieve the flag and pass it to the real modify function.
-    let offlineFlag = await this.getItemOfflineFlag(aOldItem);
-    let oldOfflineFlag = offlineFlag;
+    const offlineFlag = await this.getItemOfflineFlag(aOldItem);
+    const oldOfflineFlag = offlineFlag;
 
-    let reportError = (errStr, errId = Cr.NS_ERROR_FAILURE) => {
+    const reportError = (errStr, errId = Cr.NS_ERROR_FAILURE) => {
       this.notifyOperationComplete(
         null,
         errId,
@@ -268,12 +268,12 @@ CalStorageCalendar.prototype = {
       return reportError("ID for modifyItem item is null");
     }
 
-    let modifiedItem = aNewItem.parentItem.clone();
+    const modifiedItem = aNewItem.parentItem.clone();
     if (this.getProperty("capabilities.propagate-sequence")) {
       // Ensure the exception, its parent and the other exceptions have the
       // same sequence number, to make sure we can send our changes to the
       // server if the event has been updated via the blue bar
-      let newSequence = aNewItem.getProperty("SEQUENCE");
+      const newSequence = aNewItem.getProperty("SEQUENCE");
       this._propagateSequence(modifiedItem, newSequence);
     }
 
@@ -342,7 +342,7 @@ CalStorageCalendar.prototype = {
 
   // Promise<void> deleteItem(in calIItemBase item)
   async deleteItem(item) {
-    let onError = async (message, exception) => {
+    const onError = async (message, exception) => {
       this.notifyOperationComplete(
         null,
         exception,
@@ -387,7 +387,7 @@ CalStorageCalendar.prototype = {
   //                                       in calIDateTime rangeStart,
   //                                       in calIDateTime rangeEnd);
   getItems(itemFilter, count, rangeStart, rangeEnd) {
-    let query = {
+    const query = {
       rangeStart,
       rangeEnd,
       filters: {
@@ -423,13 +423,13 @@ CalStorageCalendar.prototype = {
   // calIOfflineStorage interface
   //
   async addOfflineItem(aItem) {
-    let newOfflineJournalFlag = cICL.OFFLINE_FLAG_CREATED_RECORD;
+    const newOfflineJournalFlag = cICL.OFFLINE_FLAG_CREATED_RECORD;
     await this.mOfflineModel.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
   },
 
   async modifyOfflineItem(aItem) {
-    let oldOfflineJournalFlag = await this.getItemOfflineFlag(aItem);
-    let newOfflineJournalFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+    const oldOfflineJournalFlag = await this.getItemOfflineFlag(aItem);
+    const newOfflineJournalFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
     if (
       oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
       oldOfflineJournalFlag == cICL.OFFLINE_FLAG_DELETED_RECORD
@@ -442,7 +442,7 @@ CalStorageCalendar.prototype = {
   },
 
   async deleteOfflineItem(aItem) {
-    let oldOfflineJournalFlag = await this.getItemOfflineFlag(aItem);
+    const oldOfflineJournalFlag = await this.getItemOfflineFlag(aItem);
     if (oldOfflineJournalFlag) {
       // Delete item if flag is set
       if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
@@ -545,12 +545,12 @@ CalStorageCalendar.prototype = {
     } else {
       aItem.deleteProperty("SEQUENCE");
     }
-    let rec = aItem.recurrenceInfo;
+    const rec = aItem.recurrenceInfo;
     if (rec) {
-      let exceptions = rec.getExceptionIds();
+      const exceptions = rec.getExceptionIds();
       if (exceptions.length > 0) {
-        for (let exid of exceptions) {
-          let ex = rec.getExceptionFor(exid);
+        for (const exid of exceptions) {
+          const ex = rec.getExceptionFor(exid);
           if (newSequence) {
             ex.setProperty("SEQUENCE", newSequence);
           } else {

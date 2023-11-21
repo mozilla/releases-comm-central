@@ -31,21 +31,21 @@ CalIcsSerializer.prototype = {
   },
 
   serializeToString() {
-    let calComp = this.getIcalComponent();
+    const calComp = this.getIcalComponent();
     return calComp.serializeToICS();
   },
 
   serializeToInputStream(aStream) {
-    let calComp = this.getIcalComponent();
+    const calComp = this.getIcalComponent();
     return calComp.serializeToICSStream();
   },
 
   serializeToStream(aStream) {
-    let str = this.serializeToString();
+    const str = this.serializeToString();
 
     // Convert the javascript string to an array of bytes, using the
     // UTF8 encoder
-    let convStream = Cc["@mozilla.org/intl/converter-output-stream;1"].createInstance(
+    const convStream = Cc["@mozilla.org/intl/converter-output-stream;1"].createInstance(
       Ci.nsIConverterOutputStream
     );
     convStream.init(aStream, "UTF-8");
@@ -55,20 +55,20 @@ CalIcsSerializer.prototype = {
   },
 
   getIcalComponent() {
-    let calComp = cal.icsService.createIcalComponent("VCALENDAR");
+    const calComp = cal.icsService.createIcalComponent("VCALENDAR");
     cal.item.setStaticProps(calComp);
 
     // xxx todo: think about that the below code doesn't clone the properties/components,
     //           thus ownership is moved to returned VCALENDAR...
 
-    for (let prop of this.mProperties) {
+    for (const prop of this.mProperties) {
       calComp.addProperty(prop);
     }
-    for (let comp of this.mComponents) {
+    for (const comp of this.mComponents) {
       calComp.addSubcomponent(comp);
     }
 
-    for (let item of cal.iterate.items(this.mItems)) {
+    for (const item of cal.iterate.items(this.mItems)) {
       calComp.addSubcomponent(item.icalComponent);
     }
 

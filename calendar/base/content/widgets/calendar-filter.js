@@ -134,15 +134,15 @@ calFilterProperties.prototype = {
     if (!(aFilterProps instanceof calFilterProperties)) {
       return false;
     }
-    let props = ["start", "end", "due", "status", "category", "occurrences", "onfilter"];
+    const props = ["start", "end", "due", "status", "category", "occurrences", "onfilter"];
     return props.every(function (prop) {
       return this[prop] == aFilterProps[prop];
     }, this);
   },
 
   clone() {
-    let cloned = new calFilterProperties();
-    let props = ["start", "end", "due", "status", "category", "occurrences", "onfilter"];
+    const cloned = new calFilterProperties();
+    const props = ["start", "end", "due", "status", "category", "occurrences", "onfilter"];
     props.forEach(function (prop) {
       cloned[prop] = this[prop];
     }, this);
@@ -196,7 +196,7 @@ calFilter.prototype = {
    * Initializes the predefined filters.
    */
   initDefinedFilters() {
-    let filters = [
+    const filters = [
       "all",
       "notstarted",
       "overdue",
@@ -226,7 +226,7 @@ calFilter.prototype = {
    *                  not predefined.
    */
   getPreDefinedFilterProperties(aFilter) {
-    let props = new calFilterProperties();
+    const props = new calFilterProperties();
 
     if (!aFilter) {
       return props;
@@ -359,7 +359,7 @@ calFilter.prototype = {
    *                            not previously defined.
    */
   getDefinedFilterName(aFilterProperties) {
-    for (let filter in this.mDefinedFilters) {
+    for (const filter in this.mDefinedFilters) {
       if (this.mDefinedFilters[filter].equals(aFilterProperties)) {
         return filter;
       }
@@ -379,15 +379,15 @@ calFilter.prototype = {
       return true;
     }
 
-    let searchText = this.mFilterText.toLowerCase();
+    const searchText = this.mFilterText.toLowerCase();
 
     if (!searchText.length || searchText.match(/^\s*$/)) {
       return true;
     }
 
     // TODO: Support specifying which fields to search on
-    for (let field of ["SUMMARY", "DESCRIPTION", "LOCATION", "URL"]) {
-      let val = aItem.getProperty(field);
+    for (const field of ["SUMMARY", "DESCRIPTION", "LOCATION", "URL"]) {
+      const val = aItem.getProperty(field);
       if (val && val.toLowerCase().includes(searchText)) {
         return true;
       }
@@ -417,7 +417,7 @@ calFilter.prototype = {
    */
   propertyFilter(aItem) {
     let result;
-    let props = this.mFilterProperties;
+    const props = this.mFilterProperties;
     if (!props) {
       return false;
     }
@@ -454,9 +454,9 @@ calFilter.prototype = {
 
     // test the status property. Only applies to tasks.
     if (result && props.status != null && aItem.isTodo()) {
-      let completed = aItem.isCompleted;
-      let current = !aItem.completedDate || today.compare(aItem.completedDate) <= 0;
-      let percent = aItem.percentComplete || 0;
+      const completed = aItem.isCompleted;
+      const current = !aItem.completedDate || today.compare(aItem.completedDate) <= 0;
+      const percent = aItem.percentComplete || 0;
 
       result =
         (props.status & props.FILTER_STATUS_INCOMPLETE || !(!completed && percent == 0)) &&
@@ -467,8 +467,8 @@ calFilter.prototype = {
 
     // test the due property. Only applies to tasks.
     if (result && props.due != null && aItem.isTodo()) {
-      let due = aItem.dueDate;
-      let now = cal.dtz.now();
+      const due = aItem.dueDate;
+      const now = cal.dtz.now();
 
       result =
         (props.due & props.FILTER_DUE_PAST || !(due && due.compare(now) < 0)) &&
@@ -524,13 +524,13 @@ calFilter.prototype = {
    * @returns The calculated date for the property.
    */
   getDateForProperty(prop, start) {
-    let props = this.mFilterProperties || new calFilterProperties();
+    const props = this.mFilterProperties || new calFilterProperties();
     let result = null;
-    let selectedDate = this.mSelectedDate || currentView().selectedDay || cal.dtz.now();
-    let nowDate = cal.dtz.now();
+    const selectedDate = this.mSelectedDate || currentView().selectedDay || cal.dtz.now();
+    const nowDate = cal.dtz.now();
 
     if (typeof prop == "string") {
-      let duration = cal.createDuration(prop);
+      const duration = cal.createDuration(prop);
       if (duration) {
         result = nowDate;
         result.addDuration(duration);
@@ -549,8 +549,8 @@ calFilter.prototype = {
           break;
         case props.FILTER_DATE_SELECTED_OR_NOW: {
           result = selectedDate.clone();
-          let resultJSDate = cal.dtz.dateTimeToJsDate(result);
-          let nowJSDate = cal.dtz.dateTimeToJsDate(nowDate);
+          const resultJSDate = cal.dtz.dateTimeToJsDate(result);
+          const nowJSDate = cal.dtz.dateTimeToJsDate(nowDate);
           if ((start && resultJSDate > nowJSDate) || (!start && resultJSDate < nowJSDate)) {
             result = nowDate;
           }
@@ -599,7 +599,7 @@ calFilter.prototype = {
 
       // swap the start and end dates if necessary
       if (startDate && endDate && startDate.compare(endDate) > 0) {
-        let swap = startDate;
+        const swap = startDate;
         endDate = startDate;
         startDate = swap;
       }
@@ -733,7 +733,7 @@ calFilter.prototype = {
       if (aFilter in this.mDefinedFilters) {
         this.mFilterProperties = this.getDefinedFilterProperties(aFilter);
       } else {
-        let dur = cal.createDuration(aFilter);
+        const dur = cal.createDuration(aFilter);
         if (dur.inSeconds > 0) {
           this.mFilterProperties = new calFilterProperties();
           this.mFilterProperties.start = this.mFilterProperties.FILTER_DATE_NOW;
@@ -765,7 +765,7 @@ calFilter.prototype = {
    * @returns The current [startDate, endDate] for the applied filter.
    */
   updateFilterDates() {
-    let [startDate, endDate] = this.getDatesForFilter();
+    const [startDate, endDate] = this.getDatesForFilter();
     this.mStartDate = startDate;
     this.mEndDate = endDate;
 
@@ -796,7 +796,7 @@ calFilter.prototype = {
     }
 
     return aItems.filter(function (aItem) {
-      let result = this.isItemInFilters(aItem);
+      const result = this.isItemInFilters(aItem);
 
       if (aCallback && typeof aCallback == "function") {
         aCallback(aItem, result, this.mFilterProperties, this);
@@ -837,7 +837,7 @@ calFilter.prototype = {
     // Otherwise, we only need to check the exceptions.
     if (this.isItemInFilters(aItem)) {
       while (count++ < this.mMaxIterations) {
-        let next = aItem.recurrenceInfo.getNextOccurrence(start);
+        const next = aItem.recurrenceInfo.getNextOccurrence(start);
         if (!next) {
           // there are no more occurrences
           return null;
@@ -857,7 +857,7 @@ calFilter.prototype = {
     // that matches the filter
     let exMatch = null;
     aItem.recurrenceInfo.getExceptionIds().forEach(function (rID) {
-      let ex = aItem.recurrenceInfo.getExceptionFor(rID);
+      const ex = aItem.recurrenceInfo.getExceptionFor(rID);
       if (
         ex &&
         cal.dtz.now().compare(ex.startDate || ex.entryDate) < 0 &&
@@ -882,7 +882,7 @@ calFilter.prototype = {
     if (!this.mFilterProperties) {
       return null;
     }
-    let props = this.mFilterProperties;
+    const props = this.mFilterProperties;
     let occs;
 
     if (
@@ -902,7 +902,7 @@ calFilter.prototype = {
       if (props.occurrences == props.FILTER_OCCURRENCES_PAST_AND_NEXT && !this.mEndDate) {
         // we have an unbound date range and the occurrence filter specifies
         // that we also want the next matching occurrence if available.
-        let next = this.getNextOccurrence(aItem);
+        const next = this.getNextOccurrence(aItem);
         if (next) {
           occs.push(next);
         }
@@ -922,7 +922,7 @@ calFilter.prototype = {
     if (!this.mFilterProperties) {
       return CalReadableStreamFactory.createEmptyReadableStream();
     }
-    let props = this.mFilterProperties;
+    const props = this.mFilterProperties;
 
     // Build the filter argument for calICalendar.getItems() from the filter properties.
     let filter = this.mItemType;
@@ -974,7 +974,7 @@ calFilter.prototype = {
           // get parent items returned here, so we need to let the getOccurrences
           // function handle occurrence expansion.
           items = [];
-          for (let item of chunk) {
+          for (const item of chunk) {
             items = items.concat(this.getOccurrences(item));
           }
         } else {
@@ -1199,12 +1199,12 @@ let CalendarFilteredViewMixin = Base =>
       }
 
       // Create a new refresh job.
-      let refresh = (this.#currentRefresh = { completed: false });
+      const refresh = (this.#currentRefresh = { completed: false });
 
       // Collect items from all of the calendars.
       this.clearItems();
-      let promises = [];
-      for (let calendar of cal.manager.getCalendars()) {
+      const promises = [];
+      for (const calendar of cal.manager.getCalendars()) {
         promises.push(this.#refreshCalendar(calendar));
       }
 
@@ -1224,7 +1224,7 @@ let CalendarFilteredViewMixin = Base =>
      * Cancels any refresh in progress.
      */
     #invalidate() {
-      for (let iterator of this.#iterators) {
+      for (const iterator of this.#iterators) {
         iterator.cancel();
       }
       this.#iterators.clear();
@@ -1265,9 +1265,9 @@ let CalendarFilteredViewMixin = Base =>
       if (!this.#canRefreshItems || !this.#isCalendarVisible(calendar)) {
         return;
       }
-      let iterator = cal.iterate.streamValues(this.#filter.getItems(calendar));
+      const iterator = cal.iterate.streamValues(this.#filter.getItems(calendar));
       this.#iterators.add(iterator);
-      for await (let chunk of iterator) {
+      for await (const chunk of iterator) {
         this.addItems(chunk);
       }
       this.#iterators.delete(iterator);
@@ -1322,7 +1322,7 @@ let CalendarFilteredViewMixin = Base =>
           return;
         }
 
-        let occurrences = this.self.#filter.getOccurrences(item);
+        const occurrences = this.self.#filter.getOccurrences(item);
         if (occurrences.length) {
           this.self.addItems(occurrences);
         }
@@ -1337,12 +1337,12 @@ let CalendarFilteredViewMixin = Base =>
         // unreliable in some situations, so instead we remove and replace
         // the occurrences.
 
-        let oldOccurrences = this.self.#filter.getOccurrences(oldItem);
+        const oldOccurrences = this.self.#filter.getOccurrences(oldItem);
         if (oldOccurrences.length) {
           this.self.removeItems(oldOccurrences);
         }
 
-        let newOccurrences = this.self.#filter.getOccurrences(newItem);
+        const newOccurrences = this.self.#filter.getOccurrences(newItem);
         if (newOccurrences.length) {
           this.self.addItems(newOccurrences);
         }

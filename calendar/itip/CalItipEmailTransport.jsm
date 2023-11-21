@@ -47,14 +47,14 @@ class CalItipEmailTransport {
    */
   static createInstance() {
     try {
-      let defaultAccount = MailServices.accounts.defaultAccount;
+      const defaultAccount = MailServices.accounts.defaultAccount;
       let defaultIdentity = defaultAccount ? defaultAccount.defaultIdentity : null;
 
       if (!defaultIdentity) {
         // If there isn't a default identity (i.e Local Folders is your
         // default identity, then go ahead and use the first available
         // identity.
-        let allIdentities = MailServices.accounts.allIdentities;
+        const allIdentities = MailServices.accounts.allIdentities;
         if (allIdentities.length > 0) {
           defaultIdentity = allIdentities[0];
         }
@@ -72,24 +72,24 @@ class CalItipEmailTransport {
   }
 
   _prepareItems(aItipItem, aFromAttendee) {
-    let item = aItipItem.getItemList()[0];
+    const item = aItipItem.getItemList()[0];
 
     // Get ourselves some default text - when we handle organizer properly
     // We'll need a way to configure the Common Name attribute and we should
     // use it here rather than the email address
 
-    let summary = item.getProperty("SUMMARY") || "";
+    const summary = item.getProperty("SUMMARY") || "";
     let subject = "";
     let body = "";
     switch (aItipItem.responseMethod) {
       case "REQUEST": {
-        let usePrefixes = Services.prefs.getBoolPref(
+        const usePrefixes = Services.prefs.getBoolPref(
           "calendar.itip.useInvitationSubjectPrefixes",
           true
         );
         if (usePrefixes) {
-          let seq = item.getProperty("SEQUENCE");
-          let subjectKey = seq && seq > 0 ? "itipRequestUpdatedSubject2" : "itipRequestSubject2";
+          const seq = item.getProperty("SEQUENCE");
+          const subjectKey = seq && seq > 0 ? "itipRequestUpdatedSubject2" : "itipRequestSubject2";
           subject = cal.l10n.getLtnString(subjectKey, [summary]);
         } else {
           subject = summary;
@@ -128,8 +128,8 @@ class CalItipEmailTransport {
 
         // work around BUG 351589, the below just removes RSVP:
         aItipItem.setAttendeeStatus(aFromAttendee.id, aFromAttendee.participationStatus);
-        let myPartStat = aFromAttendee.participationStatus;
-        let name = aFromAttendee.toString();
+        const myPartStat = aFromAttendee.participationStatus;
+        const name = aFromAttendee.toString();
 
         // Generate proper body from my participation status
         let subjectKey, bodyKey;
@@ -164,7 +164,7 @@ class CalItipEmailTransport {
   }
 
   _sendXpcomMail(aToList, aSubject, aBody, aItipItem) {
-    let { identity, account } = this.getIdentityAndAccount(aItipItem);
+    const { identity, account } = this.getIdentityAndAccount(aItipItem);
 
     switch (aItipItem.autoResponse) {
       case Ci.calIItipItem.USER: {
@@ -175,7 +175,7 @@ class CalItipEmailTransport {
         if (parent.closed) {
           parent = cal.window.getCalendarWindow();
         }
-        let cancelled = Services.prompt.confirmEx(
+        const cancelled = Services.prompt.confirmEx(
           parent,
           cal.l10n.getLtnString("imipSendMail.title"),
           cal.l10n.getLtnString("imipSendMail.text"),
@@ -197,24 +197,24 @@ class CalItipEmailTransport {
         if (aItipItem.autoResponse == Ci.calIItipItem.AUTO) {
           cal.LOG("sendXpcomMail: Found AUTO autoResponse type.");
         }
-        let cbEmail = function (aVal, aInd, aArr) {
-          let email = cal.email.getAttendeeEmail(aVal, true);
+        const cbEmail = function (aVal, aInd, aArr) {
+          const email = cal.email.getAttendeeEmail(aVal, true);
           if (!email.length) {
             cal.LOG("sendXpcomMail: Invalid recipient for email transport: " + aVal.toString());
           }
           return email;
         };
-        let toMap = aToList.map(cbEmail).filter(value => value.length);
+        const toMap = aToList.map(cbEmail).filter(value => value.length);
         if (toMap.length < aToList.length) {
           // at least one invalid recipient, so we skip sending for this message
           return false;
         }
-        let toList = toMap.join(", ");
-        let composeUtils = Cc["@mozilla.org/messengercompose/computils;1"].createInstance(
+        const toList = toMap.join(", ");
+        const composeUtils = Cc["@mozilla.org/messengercompose/computils;1"].createInstance(
           Ci.nsIMsgCompUtils
         );
-        let messageId = composeUtils.msgGenerateMessageId(identity, null);
-        let mailFile = this._createTempImipFile(
+        const messageId = composeUtils.msgGenerateMessageId(identity, null);
+        const mailFile = this._createTempImipFile(
           toList,
           aSubject,
           aBody,
@@ -224,11 +224,11 @@ class CalItipEmailTransport {
         );
         if (mailFile) {
           // compose fields for message: from/to etc need to be specified both here and in the file
-          let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
+          const composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
             Ci.nsIMsgCompFields
           );
           composeFields.to = toList;
-          let mailfrom = identity.fullName.length
+          const mailfrom = identity.fullName.length
             ? identity.fullName + " <" + identity.email + ">"
             : identity.email;
           composeFields.from =
@@ -288,16 +288,16 @@ class CalItipEmailTransport {
 
   _createTempImipFile(aToList, aSubject, aBody, aItipItem, aIdentity, aMessageId) {
     try {
-      let itemList = aItipItem.getItemList();
-      let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+      const itemList = aItipItem.getItemList();
+      const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
         Ci.calIIcsSerializer
       );
       serializer.addItems(itemList);
-      let methodProp = cal.icsService.createIcalProperty("METHOD");
+      const methodProp = cal.icsService.createIcalProperty("METHOD");
       methodProp.value = aItipItem.responseMethod;
       serializer.addProperty(methodProp);
-      let calText = serializer.serializeToString();
-      let utf8CalText = cal.invitation.encodeUTF8(calText);
+      const calText = serializer.serializeToString();
+      const utf8CalText = cal.invitation.encodeUTF8(calText);
 
       // Home-grown mail composition; I'd love to use nsIMimeEmitter, but it's not clear to me whether
       // it can cope with nested attachments,
@@ -336,11 +336,11 @@ class CalItipEmailTransport {
         "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)--\r\n";
       cal.LOG("mail text:\n" + mailText);
 
-      let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+      const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
       tempFile.append("itipTemp");
       tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
 
-      let outputStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
+      const outputStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
         Ci.nsIFileOutputStream
       );
       // Let's write the file - constants from file-utils.js
@@ -406,7 +406,7 @@ class CalItipEmailTransport {
 
   sendItems(aRecipients, aItipItem, aFromAttendee) {
     cal.LOG("sendItems: Preparing to send an invitation email...");
-    let items = this._prepareItems(aItipItem, aFromAttendee);
+    const items = this._prepareItems(aItipItem, aFromAttendee);
     if (items === false) {
       return false;
     }

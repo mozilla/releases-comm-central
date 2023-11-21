@@ -15,9 +15,9 @@ var customColorSelected = false;
  * Load Handler, called when the edit category dialog is loaded
  */
 function editCategoryLoad() {
-  let winArg = window.arguments[0];
-  let color = winArg.color || cal.view.hashColor(winArg.category);
-  let hasColor = !!winArg.color;
+  const winArg = window.arguments[0];
+  const color = winArg.color || cal.view.hashColor(winArg.category);
+  const hasColor = !!winArg.color;
   document.getElementById("categoryName").value = winArg.category;
   document.getElementById("categoryColor").value = color;
   document.getElementById("useColor").checked = hasColor;
@@ -32,11 +32,11 @@ function editCategoryLoad() {
  * the opener should further process the selected name and color
  */
 document.addEventListener("dialogaccept", () => {
-  let color = document.getElementById("useColor").checked
+  const color = document.getElementById("useColor").checked
     ? document.getElementById("categoryColor").value
     : null;
 
-  let categoryName = document.getElementById("categoryName").value;
+  const categoryName = document.getElementById("categoryName").value;
   window.opener.gCategoriesPane.saveCategory(categoryName, color);
 });
 
@@ -44,7 +44,7 @@ document.addEventListener("dialogaccept", () => {
  * Handler function to be called when the category name changed
  */
 function categoryNameChanged() {
-  let newValue = document.getElementById("categoryName").value;
+  const newValue = document.getElementById("categoryName").value;
 
   // The user removed the category name, assign the color automatically again.
   if (newValue == "") {
@@ -69,8 +69,8 @@ function colorPickerChanged() {
  * Handler called when the use color checkbox is toggled.
  */
 function toggleColor() {
-  let useColor = document.getElementById("useColor").checked;
-  let categoryColor = document.getElementById("categoryColor");
+  const useColor = document.getElementById("useColor").checked;
+  const categoryColor = document.getElementById("categoryColor");
 
   if (useColor) {
     categoryColor.removeAttribute("disabled");
@@ -89,7 +89,7 @@ function toggleColor() {
  * when clicked.
  */
 function clickColor() {
-  let categoryColor = document.getElementById("categoryColor");
+  const categoryColor = document.getElementById("categoryColor");
   if (categoryColor.hasAttribute("disabled")) {
     colorPickerChanged();
     toggleColor();

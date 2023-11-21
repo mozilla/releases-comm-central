@@ -81,15 +81,15 @@ class CalItipMessageSender {
 
       if (originalItem.recurrenceInfo && item.recurrenceInfo) {
         // check whether the two differ only in EXDATEs
-        let clonedItem = item.clone();
-        let exdates = [];
-        for (let ritem of clonedItem.recurrenceInfo.getRecurrenceItems()) {
-          let wrappedRItem = cal.wrapInstance(ritem, Ci.calIRecurrenceDate);
+        const clonedItem = item.clone();
+        const exdates = [];
+        for (const ritem of clonedItem.recurrenceInfo.getRecurrenceItems()) {
+          const wrappedRItem = cal.wrapInstance(ritem, Ci.calIRecurrenceDate);
           if (
             ritem.isNegative &&
             wrappedRItem &&
             !originalItem.recurrenceInfo.getRecurrenceItems().some(recitem => {
-              let wrappedR = cal.wrapInstance(recitem, Ci.calIRecurrenceDate);
+              const wrappedR = cal.wrapInstance(recitem, Ci.calIRecurrenceDate);
               return (
                 recitem.isNegative && wrappedR && wrappedR.date.compare(wrappedRItem.date) == 0
               );
@@ -100,7 +100,7 @@ class CalItipMessageSender {
         }
         if (exdates.length > 0) {
           // check whether really only EXDATEs have been added:
-          let recInfo = clonedItem.recurrenceInfo;
+          const recInfo = clonedItem.recurrenceInfo;
           exdates.forEach(recInfo.deleteRecurrenceItem, recInfo);
           if (cal.item.compareContent(clonedItem, originalItem)) {
             // transition into "delete occurrence(s)"
@@ -114,7 +114,7 @@ class CalItipMessageSender {
     }
 
     // for backward compatibility, we assume USER mode if not set otherwise
-    let autoResponse = { mode: Ci.calIItipItem.USER };
+    const autoResponse = { mode: Ci.calIItipItem.USER };
     if (extResponse && extResponse.hasOwnProperty("responseMode")) {
       switch (extResponse.responseMode) {
         case Ci.calIItipItem.AUTO:
@@ -155,7 +155,7 @@ class CalItipMessageSender {
        * userAddresses. If they aren't equal, it means that
        * someone is accepting invitations on behalf of an other user. */
       if (item.calendar.aclEntry) {
-        let userAddresses = item.calendar.aclEntry.getUserAddresses();
+        const userAddresses = item.calendar.aclEntry.getUserAddresses();
         if (
           userAddresses.length > 0 &&
           !cal.email.attendeeMatchesAddresses(invitedAttendee, userAddresses)
@@ -195,14 +195,14 @@ class CalItipMessageSender {
 
           // if the event was delegated to the replying attendee, we may also notify also
           // the delegator due to chapter 3.2.2.3. of RfC 5546
-          let replyTo = [];
-          let delegatorIds = invitedAttendee.getProperty("DELEGATED-FROM");
+          const replyTo = [];
+          const delegatorIds = invitedAttendee.getProperty("DELEGATED-FROM");
           if (
             delegatorIds &&
             Services.prefs.getBoolPref("calendar.itip.notifyDelegatorOnReply", false)
           ) {
-            let getDelegator = function (aDelegatorId) {
-              let delegator = originalItem.getAttendeeById(aDelegatorId);
+            const getDelegator = function (aDelegatorId) {
+              const delegator = originalItem.getAttendeeById(aDelegatorId);
               if (delegator) {
                 replyTo.push(delegator);
               }
@@ -214,7 +214,7 @@ class CalItipMessageSender {
             // we end up in different return types of getProperty. A native exposure of
             // DELEGATED-FROM and DELEGATED-TO in calIAttendee may change this.
             if (Array.isArray(delegatorIds)) {
-              for (let delegatorId of delegatorIds) {
+              for (const delegatorId of delegatorIds) {
                 getDelegator(delegatorId);
               }
             } else if (typeof delegatorIds == "string") {
@@ -250,25 +250,25 @@ class CalItipMessageSender {
     }
 
     if (opType == Ci.calIOperationListener.DELETE) {
-      let attendees = this.#filterOwnerFromAttendees(item.getAttendees(), item.calendar);
+      const attendees = this.#filterOwnerFromAttendees(item.getAttendees(), item.calendar);
       this.pendingMessages.push(
         new CalItipOutgoingMessage("CANCEL", attendees, item, null, autoResponse)
       );
       return this.pendingMessageCount;
     } // else ADD, MODIFY:
 
-    let originalAtt = originalItem ? originalItem.getAttendees() : [];
-    let itemAtt = item.getAttendees();
+    const originalAtt = originalItem ? originalItem.getAttendees() : [];
+    const itemAtt = item.getAttendees();
     let canceledAttendees = [];
-    let addedAttendees = [];
+    const addedAttendees = [];
 
     if (itemAtt.length > 0 || originalAtt.length > 0) {
-      let attMap = {};
-      for (let att of originalAtt) {
+      const attMap = {};
+      for (const att of originalAtt) {
         attMap[att.id.toLowerCase()] = att;
       }
 
-      for (let att of itemAtt) {
+      for (const att of itemAtt) {
         if (att.id.toLowerCase() in attMap) {
           // Attendee was in original item.
           delete attMap[att.id.toLowerCase()];
@@ -278,8 +278,8 @@ class CalItipMessageSender {
         }
       }
 
-      for (let id in attMap) {
-        let cancAtt = attMap[id];
+      for (const id in attMap) {
+        const cancAtt = attMap[id];
         canceledAttendees.push(cancAtt);
       }
     }
@@ -289,21 +289,21 @@ class CalItipMessageSender {
       // REQUEST
       // check whether it's a simple UPDATE (no SEQUENCE change) or real (RE)REQUEST,
       // in case of time or location/description change.
-      let isMinorUpdate =
+      const isMinorUpdate =
         originalItem && cal.itip.getSequence(item) == cal.itip.getSequence(originalItem);
 
       if (
         !isMinorUpdate ||
         !cal.item.compareContent(stripUserData(item), stripUserData(originalItem))
       ) {
-        let requestItem = item.clone();
+        const requestItem = item.clone();
         if (!requestItem.organizer) {
           requestItem.organizer = cal.itip.createOrganizer(requestItem.calendar);
         }
 
         // Fix up our attendees for invitations using some good defaults
         let recipients = [];
-        let reqItemAtt = requestItem.getAttendees();
+        const reqItemAtt = requestItem.getAttendees();
         if (!isMinorUpdate) {
           requestItem.removeAllAttendees();
         }
@@ -349,9 +349,9 @@ class CalItipMessageSender {
 
     // Cancel the event for all canceled attendees
     if (canceledAttendees.length > 0) {
-      let cancelItem = originalItem.clone();
+      const cancelItem = originalItem.clone();
       cancelItem.removeAllAttendees();
-      for (let att of canceledAttendees) {
+      for (const att of canceledAttendees) {
         cancelItem.addAttendee(att);
       }
       canceledAttendees = this.#filterOwnerFromAttendees(canceledAttendees, cancelItem.calendar);
@@ -396,16 +396,16 @@ class CalItipMessageSender {
  * @returns {calIItemBase} - The stripped item
  */
 function stripUserData(item_) {
-  let item = item_.clone();
-  let stamp = item.stampTime;
-  let lastModified = item.lastModifiedTime;
+  const item = item_.clone();
+  const stamp = item.stampTime;
+  const lastModified = item.lastModifiedTime;
   item.clearAlarms();
   item.alarmLastAck = null;
   item.setCategories([]);
   item.deleteProperty("RECEIVED-SEQUENCE");
   item.deleteProperty("RECEIVED-DTSTAMP");
-  for (let [name] of item.properties) {
-    let pname = name;
+  for (const [name] of item.properties) {
+    const pname = name;
     if (pname.substr(0, "X-MOZ-".length) == "X-MOZ-") {
       item.deleteProperty(name);
     }
@@ -417,7 +417,7 @@ function stripUserData(item_) {
 
   // according to RfC 6638, the following items must not be exposed in client side
   // scheduling messages, so let's remove it if present
-  let removeSchedulingParams = aCalUser => {
+  const removeSchedulingParams = aCalUser => {
     aCalUser.deleteProperty("SCHEDULE-AGENT");
     aCalUser.deleteProperty("SCHEDULE-FORCE-SEND");
     aCalUser.deleteProperty("SCHEDULE-STATUS");

@@ -13,7 +13,7 @@ var EXPORTED_SYMBOLS = ["CalStartupService"];
  * @param services      The array of service objects to call on.
  */
 function callOrderedServices(method, services) {
-  let service = services.shift();
+  const service = services.shift();
   if (service) {
     service[method]({
       onResult() {
@@ -52,21 +52,21 @@ CalStartupService.prototype = {
    * @returns The startup order as an array.
    */
   getStartupOrder() {
-    let self = this;
+    const self = this;
 
-    let tzService = Cc["@mozilla.org/calendar/timezone-service;1"]
+    const tzService = Cc["@mozilla.org/calendar/timezone-service;1"]
       .getService(Ci.calITimezoneService)
       .QueryInterface(Ci.calIStartupService);
 
-    let calMgr = Cc["@mozilla.org/calendar/manager;1"]
+    const calMgr = Cc["@mozilla.org/calendar/manager;1"]
       .getService(Ci.calICalendarManager)
       .QueryInterface(Ci.calIStartupService);
 
     // Localization service
-    let locales = {
+    const locales = {
       startup(aCompleteListener) {
-        let packaged = Services.locale.packagedLocales;
-        let fileSrc = new L10nFileSource(
+        const packaged = Services.locale.packagedLocales;
+        const fileSrc = new L10nFileSource(
           "calendar",
           "app",
           packaged,
@@ -81,7 +81,7 @@ CalStartupService.prototype = {
     };
 
     // Notification object
-    let notify = {
+    const notify = {
       startup(aCompleteListener) {
         self.started = true;
         Services.obs.notifyObservers(null, "calendar-startup-done");

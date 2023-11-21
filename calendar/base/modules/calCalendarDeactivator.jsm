@@ -61,7 +61,7 @@ var calendarDeactivator = {
    * @returns {boolean} True if any calendars are enabled, false if all are disabled.
    */
   checkCalendarsEnabled() {
-    for (let calendar of this.calendars) {
+    for (const calendar of this.calendars) {
       if (!calendar.getProperty("disabled")) {
         return true;
       }
@@ -74,13 +74,13 @@ var calendarDeactivator = {
    * UI and background processes/services accordingly.
    */
   refreshDeactivatedState() {
-    let someCalsEnabled = this.checkCalendarsEnabled();
+    const someCalsEnabled = this.checkCalendarsEnabled();
 
     if (someCalsEnabled == this.isCalendarActivated) {
       return;
     }
 
-    for (let window of this.windows) {
+    for (const window of this.windows) {
       if (someCalsEnabled) {
         window.document.documentElement.removeAttribute("calendar-deactivated");
       } else {
@@ -104,7 +104,7 @@ var calendarDeactivator = {
    * @param {boolean} isEnabled - Whether any calendars are enabled.
    */
   refreshNotificationBoxes(window, isEnabled) {
-    let notificationboxes = [
+    const notificationboxes = [
       [
         window.calendarTabType.modes.calendar.notificationbox,
         "calendar-deactivated-notification-events",
@@ -115,9 +115,9 @@ var calendarDeactivator = {
       ],
     ];
 
-    let value = "calendarDeactivated";
-    for (let [notificationbox, l10nId] of notificationboxes) {
-      let existingNotification = notificationbox.getNotificationWithValue(value);
+    const value = "calendarDeactivated";
+    for (const [notificationbox, l10nId] of notificationboxes) {
+      const existingNotification = notificationbox.getNotificationWithValue(value);
 
       if (isEnabled) {
         notificationbox.removeNotification(existingNotification);

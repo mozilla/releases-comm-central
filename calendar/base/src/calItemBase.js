@@ -84,7 +84,7 @@ calItemBase.prototype = {
    */
   get aclEntry() {
     let aclEntry = this.mACLEntry;
-    let aclManager = this.calendar && this.calendar.superCalendar.aclManager;
+    const aclManager = this.calendar && this.calendar.superCalendar.aclManager;
 
     if (!aclEntry && aclManager) {
       this.mACLEntry = aclManager.getItemEntry(this);
@@ -102,8 +102,8 @@ calItemBase.prototype = {
   // readonly attribute AUTF8String hashId;
   get hashId() {
     if (this.mHashId === null) {
-      let rid = this.recurrenceId;
-      let calendar = this.calendar;
+      const rid = this.recurrenceId;
+      const calendar = this.calendar;
       // some unused delim character:
       this.mHashId = [
         encodeURIComponent(this.id),
@@ -203,7 +203,7 @@ calItemBase.prototype = {
    */
   ensureNotDirty() {
     if (this.mDirty) {
-      let now = cal.dtz.jsDateToDateTime(new Date());
+      const now = cal.dtz.jsDateToDateTime(new Date());
       this.setProperty("LAST-MODIFIED", now);
       this.setProperty("DTSTAMP", now);
       this.mDirty = false;
@@ -228,19 +228,19 @@ calItemBase.prototype = {
       this.mOrganizer.makeImmutable();
     }
     if (this.mAttendees) {
-      for (let att of this.mAttendees) {
+      for (const att of this.mAttendees) {
         att.makeImmutable();
       }
     }
 
-    for (let propValue of this.mProperties.values()) {
+    for (const propValue of this.mProperties.values()) {
       if (propValue?.isMutable) {
         propValue.makeImmutable();
       }
     }
 
     if (this.mAlarms) {
-      for (let alarm of this.mAlarms) {
+      for (const alarm of this.mAlarms) {
         alarm.makeImmutable();
       }
     }
@@ -310,7 +310,7 @@ calItemBase.prototype = {
     cloned.mOrganizer = org;
 
     cloned.mAttendees = [];
-    for (let att of this.getAttendees()) {
+    for (const att of this.getAttendees()) {
       cloned.mAttendees.push(att.clone());
     }
 
@@ -322,10 +322,10 @@ calItemBase.prototype = {
 
       cloned.mProperties.set(name, value);
 
-      let propBucket = this.mPropertyParams[name];
+      const propBucket = this.mPropertyParams[name];
       if (propBucket) {
-        let newBucket = {};
-        for (let param in propBucket) {
+        const newBucket = {};
+        for (const param in propBucket) {
           newBucket[param] = propBucket[param];
         }
         cloned.mPropertyParams[name] = newBucket;
@@ -333,19 +333,19 @@ calItemBase.prototype = {
     }
 
     cloned.mAttachments = [];
-    for (let att of this.getAttachments()) {
+    for (const att of this.getAttachments()) {
       cloned.mAttachments.push(att.clone());
     }
 
     cloned.mRelations = [];
-    for (let rel of this.getRelations()) {
+    for (const rel of this.getRelations()) {
       cloned.mRelations.push(rel.clone());
     }
 
     cloned.mCategories = this.getCategories();
 
     cloned.mAlarms = [];
-    for (let alarm of this.getAlarms()) {
+    for (const alarm of this.getAlarms()) {
       // Clone alarms into new item, assume the alarms from the old item
       // are valid and don't need validation.
       cloned.mAlarms.push(alarm.clone());
@@ -400,7 +400,7 @@ calItemBase.prototype = {
 
   // attribute AUTF8string descriptionHTML;
   get descriptionHTML() {
-    let altrep = this.getPropertyParameter("DESCRIPTION", "ALTREP");
+    const altrep = this.getPropertyParameter("DESCRIPTION", "ALTREP");
     if (altrep?.startsWith("data:text/html,")) {
       try {
         return decodeURIComponent(altrep.slice("data:text/html,".length));
@@ -413,7 +413,7 @@ calItemBase.prototype = {
     if (!description) {
       return null;
     }
-    let mode = Ci.mozITXTToHTMLConv.kStructPhrase | Ci.mozITXTToHTMLConv.kURLs;
+    const mode = Ci.mozITXTToHTMLConv.kStructPhrase | Ci.mozITXTToHTMLConv.kURLs;
     description = gTextToHtmlConverter.scanTXT(description, mode);
     return description.replace(/\r?\n/g, "<br>");
   },
@@ -423,11 +423,11 @@ calItemBase.prototype = {
       // We need to output a plaintext version of the description, even if we're
       // using the ALTREP parameter. We use the "preformatted" option in case
       // the HTML contains a <pre/> tag with newlines.
-      let mode =
+      const mode =
         Ci.nsIDocumentEncoder.OutputDropInvisibleBreak |
         Ci.nsIDocumentEncoder.OutputLFLineBreak |
         Ci.nsIDocumentEncoder.OutputPreformatted;
-      let text = gParserUtils.convertToPlainText(html, mode, 0);
+      const text = gParserUtils.convertToPlainText(html, mode, 0);
 
       this.setProperty("DESCRIPTION", text);
 
@@ -453,8 +453,8 @@ calItemBase.prototype = {
   get properties() {
     let properties = this.mProperties;
     if (this.mIsProxy) {
-      let parentProperties = this.mParentItem.wrappedJSObject.mProperties;
-      let thisProperties = this.mProperties;
+      const parentProperties = this.mParentItem.wrappedJSObject.mProperties;
+      const thisProperties = this.mProperties;
       properties = new Map(
         (function* () {
           yield* parentProperties;
@@ -468,7 +468,7 @@ calItemBase.prototype = {
 
   // nsIVariant getProperty(in AString name);
   getProperty(aName) {
-    let name = aName.toUpperCase();
+    const name = aName.toUpperCase();
     if (this.mProperties.has(name)) {
       return this.mProperties.get(name);
     }
@@ -515,8 +515,8 @@ calItemBase.prototype = {
   // AString getPropertyParameter(in AString aPropertyName,
   //                              in AString aParameterName);
   getPropertyParameter(aPropName, aParamName) {
-    let propName = aPropName.toUpperCase();
-    let paramName = aParamName.toUpperCase();
+    const propName = aPropName.toUpperCase();
+    const paramName = aParamName.toUpperCase();
     if (propName in this.mPropertyParams) {
       if (paramName in this.mPropertyParams[propName]) {
         // If the property is not in mPropertyParams, then this just means
@@ -538,8 +538,8 @@ calItemBase.prototype = {
   //                           in AString aParameterName,
   //                           in AUTF8String aParameterValue);
   setPropertyParameter(aPropName, aParamName, aParamValue) {
-    let propName = aPropName.toUpperCase();
-    let paramName = aParamName.toUpperCase();
+    const propName = aPropName.toUpperCase();
+    const paramName = aParamName.toUpperCase();
     this.modify();
     if (!(propName in this.mPropertyParams)) {
       if (this.hasProperty(propName)) {
@@ -558,7 +558,7 @@ calItemBase.prototype = {
 
   // Array<AString> getParameterNames(in AString aPropertyName);
   getParameterNames(aPropName) {
-    let propName = aPropName.toUpperCase();
+    const propName = aPropName.toUpperCase();
     if (!(propName in this.mPropertyParams)) {
       if (this.mIsProxy) {
         return this.mParentItem.getParameterNames(aPropName);
@@ -581,9 +581,9 @@ calItemBase.prototype = {
 
   // calIAttendee getAttendeeById(in AUTF8String id);
   getAttendeeById(id) {
-    let attendees = this.getAttendees();
-    let lowerCaseId = id.toLowerCase();
-    for (let attendee of attendees) {
+    const attendees = this.getAttendees();
+    const lowerCaseId = id.toLowerCase();
+    for (const attendee of attendees) {
       // This match must be case insensitive to deal with differing
       // cases of things like MAILTO:
       if (attendee.id.toLowerCase() == lowerCaseId) {
@@ -596,10 +596,10 @@ calItemBase.prototype = {
   // void removeAttendee(in calIAttendee attendee);
   removeAttendee(attendee) {
     this.modify();
-    let found = false,
-      newAttendees = [];
-    let attendees = this.getAttendees();
-    let attIdLowerCase = attendee.id.toLowerCase();
+    let found = false;
+    const newAttendees = [];
+    const attendees = this.getAttendees();
+    const attIdLowerCase = attendee.id.toLowerCase();
 
     for (let i = 0; i < attendees.length; i++) {
       if (attendees[i].id.toLowerCase() == attIdLowerCase) {
@@ -626,7 +626,7 @@ calItemBase.prototype = {
       return;
     }
     // the duplicate check is migration code for bug 1204255
-    let exists = this.getAttendeeById(attendee.id);
+    const exists = this.getAttendeeById(attendee.id);
     if (exists) {
       cal.LOG(
         "Ignoring attendee duplicate for item " + this.id + " (" + this.title + "): " + exists.id
@@ -680,7 +680,7 @@ calItemBase.prototype = {
   // void removeAttachment(in calIAttachment attachment);
   removeAttachment(aAttachment) {
     this.modify();
-    for (let attIndex in this.mAttachments) {
+    for (const attIndex in this.mAttachments) {
       if (cal.data.compareObjects(this.mAttachments[attIndex], aAttachment, Ci.calIAttachment)) {
         this.modify();
         this.mAttachments.splice(attIndex, 1);
@@ -718,7 +718,7 @@ calItemBase.prototype = {
   // void removeRelation(in calIRelation relation);
   removeRelation(aRelation) {
     this.modify();
-    for (let attIndex in this.mRelations) {
+    for (const attIndex in this.mRelations) {
       // Could we have the same item as parent and as child ?
       if (
         this.mRelations[attIndex].relId == aRelation.relId &&
@@ -848,8 +848,8 @@ calItemBase.prototype = {
    */
   mapPropsFromICS(icalcomp, propmap) {
     for (let i = 0; i < propmap.length; i++) {
-      let prop = propmap[i];
-      let val = icalcomp[prop.ics];
+      const prop = propmap[i];
+      const val = icalcomp[prop.ics];
       if (val != null && val != Ci.calIIcalComponent.INVALID_VALUE) {
         this.setProperty(prop.cal, val);
       }
@@ -866,8 +866,8 @@ calItemBase.prototype = {
    */
   mapPropsToICS(icalcomp, propmap) {
     for (let i = 0; i < propmap.length; i++) {
-      let prop = propmap[i];
-      let val = this.getProperty(prop.cal);
+      const prop = propmap[i];
+      const val = this.getProperty(prop.cal);
       if (val != null && val != Ci.calIIcalComponent.INVALID_VALUE) {
         icalcomp[prop.ics] = val;
       }
@@ -891,28 +891,28 @@ calItemBase.prototype = {
     this.mapPropsFromICS(icalcomp, this.icsBasePropMap);
 
     this.mAttendees = []; // don't inherit anything from parent
-    for (let attprop of cal.iterate.icalProperty(icalcomp, "ATTENDEE")) {
-      let att = new CalAttendee();
+    for (const attprop of cal.iterate.icalProperty(icalcomp, "ATTENDEE")) {
+      const att = new CalAttendee();
       att.icalProperty = attprop;
       this.addAttendee(att);
     }
 
     this.mAttachments = []; // don't inherit anything from parent
-    for (let attprop of cal.iterate.icalProperty(icalcomp, "ATTACH")) {
-      let att = new CalAttachment();
+    for (const attprop of cal.iterate.icalProperty(icalcomp, "ATTACH")) {
+      const att = new CalAttachment();
       att.icalProperty = attprop;
       this.addAttachment(att);
     }
 
     this.mRelations = []; // don't inherit anything from parent
-    for (let relprop of cal.iterate.icalProperty(icalcomp, "RELATED-TO")) {
-      let rel = new CalRelation();
+    for (const relprop of cal.iterate.icalProperty(icalcomp, "RELATED-TO")) {
+      const rel = new CalRelation();
       rel.icalProperty = relprop;
       this.addRelation(rel);
     }
 
     let org = null;
-    let orgprop = icalcomp.getFirstProperty("ORGANIZER");
+    const orgprop = icalcomp.getFirstProperty("ORGANIZER");
     if (orgprop) {
       org = new CalAttendee();
       org.icalProperty = orgprop;
@@ -921,14 +921,14 @@ calItemBase.prototype = {
     this.mOrganizer = org;
 
     this.mCategories = [];
-    for (let catprop of cal.iterate.icalProperty(icalcomp, "CATEGORIES")) {
+    for (const catprop of cal.iterate.icalProperty(icalcomp, "CATEGORIES")) {
       this.mCategories.push(catprop.value);
     }
 
     // find recurrence properties
     let rec = null;
     if (!this.recurrenceId) {
-      for (let recprop of cal.iterate.icalProperty(icalcomp)) {
+      for (const recprop of cal.iterate.icalProperty(icalcomp)) {
         let ritem = null;
         switch (recprop.propertyName) {
           case "RRULE":
@@ -953,8 +953,8 @@ calItemBase.prototype = {
     this.mRecurrenceInfo = rec;
 
     this.mAlarms = []; // don't inherit anything from parent
-    for (let alarmComp of cal.iterate.icalSubcomponent(icalcomp, "VALARM")) {
-      let alarm = new CalAlarm();
+    for (const alarmComp of cal.iterate.icalSubcomponent(icalcomp, "VALARM")) {
+      const alarm = new CalAlarm();
       try {
         alarm.icalComponent = alarmComp;
         this.addAlarm(alarm, true);
@@ -971,7 +971,7 @@ calItemBase.prototype = {
       }
     }
 
-    let lastAck = icalcomp.getFirstProperty("X-MOZ-LASTACK");
+    const lastAck = icalcomp.getFirstProperty("X-MOZ-LASTACK");
     this.mAlarmLastAck = null;
     if (lastAck) {
       this.mAlarmLastAck = cal.createDateTime(lastAck.value);
@@ -988,11 +988,11 @@ calItemBase.prototype = {
    * @param promoted      The map of promoted properties.
    */
   importUnpromotedProperties(icalcomp, promoted) {
-    for (let prop of cal.iterate.icalProperty(icalcomp)) {
-      let propName = prop.propertyName;
+    for (const prop of cal.iterate.icalProperty(icalcomp)) {
+      const propName = prop.propertyName;
       if (!promoted[propName]) {
         this.setProperty(propName, prop.value);
-        for (let [paramName, paramValue] of cal.iterate.icalParameter(prop)) {
+        for (const [paramName, paramValue] of cal.iterate.icalParameter(prop)) {
           if (!(propName in this.mPropertyParams)) {
             this.mPropertyParams[propName] = {};
           }
@@ -1017,7 +1017,7 @@ calItemBase.prototype = {
 
   // attribute PRUint32 generation;
   get generation() {
-    let gen = this.getProperty("X-MOZ-GENERATION");
+    const gen = this.getProperty("X-MOZ-GENERATION");
     return gen ? parseInt(gen, 10) : 0;
   },
   set generation(aValue) {
@@ -1034,44 +1034,44 @@ calItemBase.prototype = {
 
     this.mapPropsToICS(icalcomp, this.icsBasePropMap);
 
-    let org = this.organizer;
+    const org = this.organizer;
     if (org) {
       icalcomp.addProperty(org.icalProperty);
     }
 
-    for (let attendee of this.getAttendees()) {
+    for (const attendee of this.getAttendees()) {
       icalcomp.addProperty(attendee.icalProperty);
     }
 
-    for (let attachment of this.getAttachments()) {
+    for (const attachment of this.getAttachments()) {
       icalcomp.addProperty(attachment.icalProperty);
     }
 
-    for (let relation of this.getRelations()) {
+    for (const relation of this.getRelations()) {
       icalcomp.addProperty(relation.icalProperty);
     }
 
     if (this.mRecurrenceInfo) {
-      for (let ritem of this.mRecurrenceInfo.getRecurrenceItems()) {
+      for (const ritem of this.mRecurrenceInfo.getRecurrenceItems()) {
         icalcomp.addProperty(ritem.icalProperty);
       }
     }
 
-    for (let cat of this.getCategories()) {
-      let catprop = cal.icsService.createIcalProperty("CATEGORIES");
+    for (const cat of this.getCategories()) {
+      const catprop = cal.icsService.createIcalProperty("CATEGORIES");
       catprop.value = cat;
       icalcomp.addProperty(catprop);
     }
 
     if (this.mAlarms) {
-      for (let alarm of this.mAlarms) {
+      for (const alarm of this.mAlarms) {
         icalcomp.addSubcomponent(alarm.icalComponent);
       }
     }
 
-    let alarmLastAck = this.alarmLastAck;
+    const alarmLastAck = this.alarmLastAck;
     if (alarmLastAck) {
-      let lastAck = cal.icsService.createIcalProperty("X-MOZ-LASTACK");
+      const lastAck = cal.icsService.createIcalProperty("X-MOZ-LASTACK");
       // - should we further ensure that those are UTC or rely on calAlarmService doing so?
       lastAck.value = alarmLastAck.icalString;
       icalcomp.addProperty(lastAck);
@@ -1160,10 +1160,10 @@ makeMemberAttrProperty(calItemBase, "ALARMTIME", "alarmTime");
  * @param {*} dflt - The default value in case none is set.
  */
 function makeMemberAttr(ctor, varname, attr, dflt) {
-  let getter = function () {
+  const getter = function () {
     return varname in this ? this[varname] : dflt;
   };
-  let setter = function (value) {
+  const setter = function (value) {
     this.modify();
     this[varname] = value;
     return value;
@@ -1186,10 +1186,10 @@ function makeMemberAttr(ctor, varname, attr, dflt) {
  * @param {string} attr - The attribute name to be used.
  */
 function makeMemberAttrProperty(ctor, name, attr) {
-  let getter = function () {
+  const getter = function () {
     return this.getProperty(name);
   };
-  let setter = function (value) {
+  const setter = function (value) {
     this.modify();
     return this.setProperty(name, value);
   };

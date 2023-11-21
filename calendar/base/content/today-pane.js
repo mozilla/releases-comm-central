@@ -77,7 +77,7 @@ var TodayPane = {
       return;
     }
     let agendaIsVisible = document.getElementById("agenda-panel").isVisible(gCurrentMode);
-    let todoIsVisible = document.getElementById("todo-tab-panel").isVisible(gCurrentMode);
+    const todoIsVisible = document.getElementById("todo-tab-panel").isVisible(gCurrentMode);
     let index = 2;
     if (agendaIsVisible && todoIsVisible) {
       index = 0;
@@ -94,18 +94,18 @@ var TodayPane = {
       document.getElementById("agenda-panel").setVisible(agendaIsVisible);
       index = 2;
     }
-    let todayHeader = document.getElementById("today-pane-header");
+    const todayHeader = document.getElementById("today-pane-header");
     todayHeader.setAttribute("index", index);
     todayHeader.setAttribute("value", this.paneViews[index]);
-    let todayPaneSplitter = document.getElementById("today-pane-splitter");
+    const todayPaneSplitter = document.getElementById("today-pane-splitter");
     todayPaneSplitter.hidden = index != 0;
-    let todayIsVisible = document.getElementById("today-pane-panel").isVisible();
+    const todayIsVisible = document.getElementById("today-pane-panel").isVisible();
 
     // Disable or enable the today pane menuitems that have an attribute
     // name="minidisplay" depending on the visibility of elements.
-    let menupopup = document.getElementById("calTodayPaneMenuPopup");
+    const menupopup = document.getElementById("calTodayPaneMenuPopup");
     if (menupopup) {
-      for (let child of menupopup.children) {
+      for (const child of menupopup.children) {
         if (child.getAttribute("name") == "minidisplay") {
           child.disabled = !todayIsVisible || !agendaIsVisible;
         }
@@ -139,7 +139,7 @@ var TodayPane = {
    * @param {string} [filter] - The filter name to set.
    */
   updateCalendarToDoUnifinder(filter) {
-    let tree = document.getElementById("unifinder-todo-tree");
+    const tree = document.getElementById("unifinder-todo-tree");
     if (!tree.hasBeenVisible) {
       tree.hasBeenVisible = true;
       tree.refresh();
@@ -159,9 +159,9 @@ var TodayPane = {
         }
       });
 
-    let showCompleted = document.getElementById("show-completed-checkbox").checked;
+    const showCompleted = document.getElementById("show-completed-checkbox").checked;
     if (!showCompleted) {
-      let filterProps = tree.mFilter.getDefinedFilterProperties(filter);
+      const filterProps = tree.mFilter.getDefinedFilterProperties(filter);
       if (filterProps) {
         filterProps.status =
           (filterProps.status || filterProps.FILTER_STATUS_ALL) &
@@ -203,7 +203,7 @@ var TodayPane = {
     if (aEvent.button != 0) {
       return;
     }
-    let element = aEvent.target;
+    const element = aEvent.target;
     if (element.id == "previous-day-button" || element.id == "next-day-button") {
       // Start switching days by pressing, without release, the navigation buttons
       element.addEventListener("mouseout", TodayPane.stopSwitching);
@@ -229,11 +229,11 @@ var TodayPane = {
    */
   onMousemove(aEvent) {
     const MIN_DRAG_DISTANCE_SQ = 49;
-    let x = aEvent.clientX - TodayPane.minidayDrag.startX;
-    let y = aEvent.clientY - TodayPane.minidayDrag.startY;
+    const x = aEvent.clientX - TodayPane.minidayDrag.startX;
+    const y = aEvent.clientY - TodayPane.minidayDrag.startY;
     if (TodayPane.minidayDrag.session) {
       if (x * x + y * y >= MIN_DRAG_DISTANCE_SQ) {
-        let distance = Math.floor(Math.sqrt(x * x + y * y) - Math.sqrt(MIN_DRAG_DISTANCE_SQ));
+        const distance = Math.floor(Math.sqrt(x * x + y * y) - Math.sqrt(MIN_DRAG_DISTANCE_SQ));
         // Dragging on the left/right side, the day date decrease/increase
         TodayPane.minidayDrag.distance = x > 0 ? distance : -distance;
       } else {
@@ -243,11 +243,11 @@ var TodayPane = {
       // move the mouse a bit before starting the drag session
       window.addEventListener("mouseout", TodayPane.stopSwitching);
       TodayPane.minidayDrag.session = true;
-      let dragCenterImage = document.getElementById("dragCenter-image");
+      const dragCenterImage = document.getElementById("dragCenter-image");
       dragCenterImage.removeAttribute("hidden");
       // Move the starting point in the center so we have a fixed
       // point where stopping the day switching while still dragging
-      let centerObj = dragCenterImage.getBoundingClientRect();
+      const centerObj = dragCenterImage.getBoundingClientRect();
       TodayPane.minidayDrag.startX = Math.floor(centerObj.x + centerObj.width / 2);
       TodayPane.minidayDrag.startY = Math.floor(centerObj.y + centerObj.height / 2);
 
@@ -267,11 +267,14 @@ var TodayPane = {
     const SECOND_STEP_TIME = 200;
     if (TodayPane.minidayDrag.session) {
       // Dragging the day label: days switch with cursor distance and time.
-      let dir = (TodayPane.minidayDrag.distance > 0) - (TodayPane.minidayDrag.distance < 0);
+      const dir = (TodayPane.minidayDrag.distance > 0) - (TodayPane.minidayDrag.distance < 0);
       TodayPane.advance(dir);
-      let distance = Math.abs(TodayPane.minidayDrag.distance);
+      const distance = Math.abs(TodayPane.minidayDrag.distance);
       // Linear relation between distance and switching speed
-      let timeInterval = Math.max(Math.ceil(INITIAL_TIME - distance * REL_DISTANCE), MINIMUM_TIME);
+      const timeInterval = Math.max(
+        Math.ceil(INITIAL_TIME - distance * REL_DISTANCE),
+        MINIMUM_TIME
+      );
       TodayPane.minidayTimer = setTimeout(
         TodayPane.updateAdvanceTimer.bind(TodayPane, null, null),
         timeInterval
@@ -301,7 +304,7 @@ var TodayPane = {
    * NOTE: This function is usually called without the correct this pointer.
    */
   stopSwitching(aEvent) {
-    let element = aEvent.target;
+    const element = aEvent.target;
     if (
       TodayPane.minidayDrag.session &&
       aEvent.type == "mouseout" &&
@@ -313,13 +316,13 @@ var TodayPane = {
       clearTimeout(TodayPane.minidayTimer);
       delete TodayPane.minidayTimer;
       if (TodayPane.switchCounter == 0 && !TodayPane.minidayDrag.session) {
-        let dir = element.getAttribute("dir");
+        const dir = element.getAttribute("dir");
         TodayPane.advance(parseInt(dir, 10));
       }
     }
     if (element.id == "previous-day-button" || element.id == "next-day-button") {
       TodayPane.switchCounter = 0;
-      let button = document.getElementById(element.id);
+      const button = document.getElementById(element.id);
       button.removeEventListener("mouseout", TodayPane.stopSwitching);
     }
     if (TodayPane.minidayDrag.session) {
@@ -344,16 +347,16 @@ var TodayPane = {
     }
     let index = parseInt(document.getElementById("today-pane-header").getAttribute("index"), 10);
     index = index + aCycleForward;
-    let nViewLen = this.paneViews.length;
+    const nViewLen = this.paneViews.length;
     if (index >= nViewLen) {
       index = 0;
     } else if (index == -1) {
       index = nViewLen - 1;
     }
-    let agendaPanel = document.getElementById("agenda-panel");
-    let todoPanel = document.getElementById("todo-tab-panel");
-    let isTodoPanelVisible = index != 2 && todoPanel.isVisibleInMode(gCurrentMode);
-    let isAgendaPanelVisible = index != 1 && agendaPanel.isVisibleInMode(gCurrentMode);
+    const agendaPanel = document.getElementById("agenda-panel");
+    const todoPanel = document.getElementById("todo-tab-panel");
+    const isTodoPanelVisible = index != 2 && todoPanel.isVisibleInMode(gCurrentMode);
+    const isAgendaPanelVisible = index != 1 && agendaPanel.isVisibleInMode(gCurrentMode);
     todoPanel.setVisible(isTodoPanelVisible);
     agendaPanel.setVisible(isAgendaPanelVisible);
     this.updateDisplay();
@@ -390,18 +393,18 @@ var TodayPane = {
     this.setDay.alreadySettingDay = true;
     this.start = aNewDate.clone();
 
-    let daylabel = document.getElementById("datevalue-label");
+    const daylabel = document.getElementById("datevalue-label");
     daylabel.value = this.start.day;
 
     document
       .getElementById("weekdayNameLabel")
       .setAttribute("value", cal.l10n.getDateFmtString(`day.${this.start.weekday + 1}.Mmm`));
 
-    let monthnamelabel = document.getElementById("monthNameContainer");
+    const monthnamelabel = document.getElementById("monthNameContainer");
     monthnamelabel.value =
       cal.dtz.formatter.shortMonthName(this.start.month) + " " + this.start.year;
 
-    let currentweeklabel = document.getElementById("currentWeek-label");
+    const currentweeklabel = document.getElementById("currentWeek-label");
     currentweeklabel.value =
       cal.l10n.getCalString("shortcalendarweek") +
       " " +
@@ -469,7 +472,7 @@ var TodayPane = {
   onModeModified() {
     TodayPane.updateDisplay();
     TodayPane.updateSplitterState();
-    let todayPanePanel = document.getElementById("today-pane-panel");
+    const todayPanePanel = document.getElementById("today-pane-panel");
     const currentWidth = todayPanePanel.getModeAttribute("modewidths");
     if (currentWidth != 0) {
       todayPanePanel.style.width = `${currentWidth}px`;
@@ -496,7 +499,7 @@ var TodayPane = {
    * Update the today-splitter state.
    */
   updateSplitterState() {
-    let splitter = document.getElementById("today-splitter");
+    const splitter = document.getElementById("today-splitter");
     if (this.isVisible) {
       splitter.removeAttribute("hidden");
       splitter.setAttribute("state", "open");
@@ -510,9 +513,9 @@ var TodayPane = {
    * is being collapsed or uncollapsed.
    */
   onCommandTodaySplitter() {
-    let todaypane = document.getElementById("today-pane-panel");
-    let splitter = document.getElementById("today-splitter");
-    let splitterCollapsed = splitter.getAttribute("state") == "collapsed";
+    const todaypane = document.getElementById("today-pane-panel");
+    const splitter = document.getElementById("today-splitter");
+    const splitterCollapsed = splitter.getAttribute("state") == "collapsed";
 
     todaypane.setModeAttribute("modewidths", todaypane.getAttribute("width"));
 
@@ -525,7 +528,7 @@ var TodayPane = {
    * Checks if the todayPaneStatusLabel should be hidden.
    */
   showTodayPaneStatusLabel() {
-    let hideLabel = !Services.prefs.getBoolPref("calendar.view.showTodayPaneStatusLabel", true);
+    const hideLabel = !Services.prefs.getBoolPref("calendar.view.showTodayPaneStatusLabel", true);
     document
       .getElementById("calendar-status-todaypane-button")
       .toggleAttribute("hideLabel", hideLabel);

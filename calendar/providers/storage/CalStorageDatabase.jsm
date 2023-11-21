@@ -9,7 +9,7 @@ const { AsyncShutdown } = ChromeUtils.importESModule(
 );
 const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
-let connections = new Map();
+const connections = new Map();
 
 /**
  * Checks for an existing SQLite connection to `file`, or creates a new one.
@@ -20,14 +20,14 @@ let connections = new Map();
  * @returns {mozIStorageConnection}
  */
 function openConnectionTo(file) {
-  let data = connections.get(file.path);
+  const data = connections.get(file.path);
 
   if (data) {
     data.useCount++;
     return data.connection;
   }
 
-  let connection = Services.storage.openDatabase(file);
+  const connection = Services.storage.openDatabase(file);
   connections.set(file.path, { connection, useCount: 1 });
   return connection;
 }
@@ -40,8 +40,8 @@ function openConnectionTo(file) {
  *   if the database is still in use.
  */
 function closeConnection(connection, forceClosed) {
-  let file = connection.databaseFile;
-  let data = connections.get(file.path);
+  const file = connection.databaseFile;
+  const data = connections.get(file.path);
 
   if (forceClosed || !data || --data.useCount == 0) {
     return new Promise(resolve => {
@@ -60,8 +60,8 @@ function closeConnection(connection, forceClosed) {
 // Clean up all open databases at shutdown. All storage statements must be closed by now,
 // which CalStorageCalendar does during profile-change-teardown.
 AsyncShutdown.profileBeforeChange.addBlocker("Calendar: closing databases", async () => {
-  let promises = [];
-  for (let data of connections.values()) {
+  const promises = [];
+  for (const data of connections.values()) {
     promises.push(closeConnection(data.connection, true));
   }
   await Promise.allSettled(promises);
@@ -107,7 +107,7 @@ class CalStorageDatabase {
    */
   static connect(uri, calendarId) {
     if (uri.schemeIs("file")) {
-      let fileURL = uri.QueryInterface(Ci.nsIFileURL);
+      const fileURL = uri.QueryInterface(Ci.nsIFileURL);
 
       if (!fileURL) {
         throw new Components.Exception("Invalid file", Cr.NS_ERROR_NOT_IMPLEMENTED);
@@ -116,7 +116,7 @@ class CalStorageDatabase {
       return new CalStorageDatabase(openConnectionTo(fileURL.file), calendarId);
     } else if (uri.schemeIs("moz-storage-calendar")) {
       // New style uri, no need for migration here
-      let localDB = cal.provider.getCalendarDirectory();
+      const localDB = cal.provider.getCalendarDirectory();
       localDB.append("local.sqlite");
 
       if (!localDB.exists()) {
@@ -205,7 +205,7 @@ class CalStorageDatabase {
   }
 
   prepareAsyncParams(aArray) {
-    let params = aArray.newBindingParams();
+    const params = aArray.newBindingParams();
     params.bindByName("cal_id", this.calendarId);
     return params;
   }
@@ -221,7 +221,7 @@ class CalStorageDatabase {
       aStmts = [aStmts];
     }
 
-    let self = this;
+    const self = this;
     return new Promise((resolve, reject) => {
       this.db.executeAsync(aStmts, {
         resultPromises: [],
@@ -310,7 +310,7 @@ class CalStorageDatabase {
       logMessage += "\nLast DB Statement: " + this.lastStatement;
       // Async statements do not allow enumeration of parameters.
       if (this.lastStatement instanceof Ci.mozIStorageStatement && this.lastStatement.params) {
-        for (let param in this.lastStatement.params) {
+        for (const param in this.lastStatement.params) {
           logMessage +=
             "\nLast Statement param [" + param + "]: " + this.lastStatement.params[param];
         }

@@ -53,7 +53,7 @@ CalTodo.prototype = {
   }),
 
   cloneShallow(aNewParent) {
-    let cloned = new CalTodo();
+    const cloned = new CalTodo();
     this.cloneItemBaseInto(cloned, aNewParent);
     return cloned;
   },
@@ -61,13 +61,13 @@ CalTodo.prototype = {
   createProxy(aRecurrenceId) {
     cal.ASSERT(!this.mIsProxy, "Tried to create a proxy for an existing proxy!", true);
 
-    let proxy = new CalTodo();
+    const proxy = new CalTodo();
 
     // override proxy's DTSTART/DUE/RECURRENCE-ID
     // before master is set (and item might get immutable):
-    let duration = this.duration;
+    const duration = this.duration;
     if (duration) {
-      let dueDate = aRecurrenceId.clone();
+      const dueDate = aRecurrenceId.clone();
       dueDate.addDuration(duration);
       proxy.dueDate = dueDate;
     }
@@ -106,7 +106,7 @@ CalTodo.prototype = {
   },
 
   get duration() {
-    let dur = this.getProperty("DURATION");
+    const dur = this.getProperty("DURATION");
     // pick up duration if available, otherwise calculate difference
     // between start and enddate
     if (dur) {
@@ -139,28 +139,28 @@ CalTodo.prototype = {
   },
 
   get icalString() {
-    let calcomp = cal.icsService.createIcalComponent("VCALENDAR");
+    const calcomp = cal.icsService.createIcalComponent("VCALENDAR");
     cal.item.setStaticProps(calcomp);
     calcomp.addSubcomponent(this.icalComponent);
     return calcomp.serializeToICS();
   },
 
   get icalComponent() {
-    let icalcomp = cal.icsService.createIcalComponent("VTODO");
+    const icalcomp = cal.icsService.createIcalComponent("VTODO");
     this.fillIcalComponentFromBase(icalcomp);
     this.mapPropsToICS(icalcomp, this.icsEventPropMap);
 
-    for (let [name, value] of this.properties) {
+    for (const [name, value] of this.properties) {
       try {
         // When deleting a property of an occurrence, the property is not actually deleted
         // but instead set to null, so we need to prevent adding those properties.
-        let wasReset = this.mIsProxy && value === null;
+        const wasReset = this.mIsProxy && value === null;
         if (!this.todoPromotedProps[name] && !wasReset) {
-          let icalprop = cal.icsService.createIcalProperty(name);
+          const icalprop = cal.icsService.createIcalProperty(name);
           icalprop.value = value;
-          let propBucket = this.mPropertyParams[name];
+          const propBucket = this.mPropertyParams[name];
           if (propBucket) {
-            for (let paramName in propBucket) {
+            for (const paramName in propBucket) {
               try {
                 icalprop.setParameter(paramName, propBucket[paramName]);
               } catch (e) {
@@ -221,7 +221,7 @@ CalTodo.prototype = {
     // the appropriate method here to adjust the internal structure in
     // order to free clients from worrying about such details.
     if (this.parentItem == this) {
-      let rec = this.recurrenceInfo;
+      const rec = this.recurrenceInfo;
       if (rec) {
         rec.onStartDateChange(value, this.entryDate);
       }
@@ -240,8 +240,8 @@ CalTodo.prototype = {
     if (dueDate === undefined) {
       dueDate = this.getProperty("DUE");
       if (!dueDate) {
-        let entryDate = this.entryDate;
-        let dur = this.getProperty("DURATION");
+        const entryDate = this.entryDate;
+        const dur = this.getProperty("DURATION");
         if (entryDate && dur) {
           // If there is a duration set on the todo, calculate the right end time.
           dueDate = entryDate.clone();

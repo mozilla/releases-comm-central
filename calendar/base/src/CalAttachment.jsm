@@ -30,8 +30,8 @@ CalAttachment.prototype = {
 
   get hashId() {
     if (!this.mHashId) {
-      let cryptoHash = Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
-      let data = new TextEncoder().encode(this.rawData);
+      const cryptoHash = Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
+      const data = new TextEncoder().encode(this.rawData);
       cryptoHash.init(cryptoHash.MD5);
       cryptoHash.update(data, data.length);
       this.mHashId = cryptoHash.finish(true);
@@ -90,9 +90,9 @@ CalAttachment.prototype = {
   },
 
   get icalProperty() {
-    let icalatt = cal.icsService.createIcalProperty("ATTACH");
+    const icalatt = cal.icsService.createIcalProperty("ATTACH");
 
-    for (let [key, value] of this.mProperties.entries()) {
+    for (const [key, value] of this.mProperties.entries()) {
       try {
         icalatt.setParameter(key, value);
       } catch (e) {
@@ -118,17 +118,17 @@ CalAttachment.prototype = {
     this.mProperties = new Map();
     this.setData(attProp.value);
 
-    for (let [name, value] of cal.iterate.icalParameter(attProp)) {
+    for (const [name, value] of cal.iterate.icalParameter(attProp)) {
       this.setParameter(name, value);
     }
   },
 
   get icalString() {
-    let comp = this.icalProperty;
+    const comp = this.icalProperty;
     return comp ? comp.icalString : "";
   },
   set icalString(val) {
-    let prop = cal.icsService.createIcalPropertyFromString(val);
+    const prop = cal.icsService.createIcalPropertyFromString(val);
     if (prop.propertyName != "ATTACH") {
       throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
@@ -151,10 +151,10 @@ CalAttachment.prototype = {
   },
 
   clone() {
-    let newAttachment = new CalAttachment();
+    const newAttachment = new CalAttachment();
     newAttachment.mData = this.mData;
     newAttachment.mHashId = this.mHashId;
-    for (let [name, value] of this.mProperties.entries()) {
+    for (const [name, value] of this.mProperties.entries()) {
       newAttachment.mProperties.set(name, value);
     }
     return newAttachment;

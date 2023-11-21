@@ -28,10 +28,10 @@ export var email = {
    * @param {nsIMsgIdentity} aIdentity - The email identity to use for sending
    */
   sendTo(aRecipient, aSubject, aBody, aIdentity) {
-    let msgParams = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(
+    const msgParams = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(
       Ci.nsIMsgComposeParams
     );
-    let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
+    const composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
       Ci.nsIMsgCompFields
     );
 
@@ -54,8 +54,8 @@ export var email = {
    * @param {Function} aFunc - The function to be called for each identity and account
    */
   iterateIdentities(aFunc) {
-    for (let account of MailServices.accounts.accounts) {
-      for (let identity of account.identities) {
+    for (const account of MailServices.accounts.accounts) {
+      for (const identity of account.identities) {
         if (!aFunc(identity, account)) {
           break;
         }
@@ -90,8 +90,8 @@ export var email = {
    * @returns {string} Valid string to use in a 'to' header of an email
    */
   createRecipientList(aAttendees) {
-    let cbEmail = function (aVal) {
-      let attendeeEmail = email.getAttendeeEmail(aVal, true);
+    const cbEmail = function (aVal) {
+      const attendeeEmail = email.getAttendeeEmail(aVal, true);
       if (!attendeeEmail.length) {
         lazy.cal.LOG("Dropping invalid recipient for email transport: " + aVal.toString());
       }
@@ -140,14 +140,14 @@ export var email = {
    * @returns {string} A validated comma-seperated list of e-mail addresses
    */
   validateRecipientList(aRecipients) {
-    let compFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
+    const compFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
       Ci.nsIMsgCompFields
     );
     // Resolve the list considering also configured common names
-    let members = compFields.splitRecipients(aRecipients, false);
-    let list = [];
+    const members = compFields.splitRecipients(aRecipients, false);
+    const list = [];
     let prefix = "";
-    for (let member of members) {
+    for (const member of members) {
       if (prefix != "") {
         // the previous member had no email address - this happens if a recipients CN
         // contains a ',' or ';' (splitRecipients(..) behaves wrongly here and produces an
@@ -155,16 +155,16 @@ export var email = {
         // address while the next has the second part of the CN and the according email
         // address) - we still need to identify the original delimiter to append it to the
         // prefix
-        let memberCnPart = member.match(/(.*) <.*>/);
+        const memberCnPart = member.match(/(.*) <.*>/);
         if (memberCnPart) {
-          let pattern = new RegExp(prefix + "([;,] *)" + memberCnPart[1]);
-          let delimiter = aRecipients.match(pattern);
+          const pattern = new RegExp(prefix + "([;,] *)" + memberCnPart[1]);
+          const delimiter = aRecipients.match(pattern);
           if (delimiter) {
             prefix = prefix + delimiter[1];
           }
         }
       }
-      let parts = (prefix + member).match(/(.*)( <.*>)/);
+      const parts = (prefix + member).match(/(.*)( <.*>)/);
       if (parts) {
         if (parts[2] == " <>") {
           // CN but no email address - we keep the CN part to prefix the next member's CN
@@ -202,14 +202,14 @@ export var email = {
     if (!attId.match(/^mailto:/i)) {
       // Looks like its not a normal attendee, possibly urn:uuid:...
       // Try getting the email through the EMAIL property.
-      let emailProp = aRefAttendee.getProperty("EMAIL");
+      const emailProp = aRefAttendee.getProperty("EMAIL");
       if (emailProp) {
         attId = emailProp;
       }
     }
 
     attId = attId.toLowerCase().replace(/^mailto:/, "");
-    for (let address of aAddresses) {
+    for (const address of aAddresses) {
       if (attId == address.toLowerCase().replace(/^mailto:/, "")) {
         return true;
       }

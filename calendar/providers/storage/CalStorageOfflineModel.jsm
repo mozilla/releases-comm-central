@@ -22,7 +22,7 @@ class CalStorageOfflineModel extends CalStorageModelBase {
    */
   async getItemOfflineFlag(item) {
     let flag = null;
-    let query = item.isEvent() ? this.statements.mSelectEvent : this.statements.mSelectTodo;
+    const query = item.isEvent() ? this.statements.mSelectEvent : this.statements.mSelectTodo;
     this.db.prepareStatement(query);
     query.params.id = item.id;
     await this.db.executeAsync(query, row => {
@@ -38,8 +38,8 @@ class CalStorageOfflineModel extends CalStorageModelBase {
    * @param {number} flag
    */
   async setOfflineJournalFlag(item, flag) {
-    let id = item.id;
-    let query = item.isEvent()
+    const id = item.id;
+    const query = item.isEvent()
       ? this.statements.mEditEventOfflineFlag
       : this.statements.mEditTodoOfflineFlag;
     this.db.prepareStatement(query);

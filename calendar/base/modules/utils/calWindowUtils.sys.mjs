@@ -26,7 +26,7 @@ export var window = {
    * @param aCallback  a function to be performed after calendar creation
    */
   openCalendarWizard(aWindow, aCallback) {
-    let dialogWindow = aWindow || window.getCalendarWindow();
+    const dialogWindow = aWindow || window.getCalendarWindow();
     dialogWindow.openDialog(
       "chrome://calendar/content/calendar-creation.xhtml",
       "caEditServer",
@@ -49,7 +49,7 @@ export var window = {
    * @param {OpenCalendarPropertiesArgs} args - Passed directly to the window.
    */
   openCalendarProperties(aWindow, args) {
-    let dialogWindow = aWindow || window.getCalendarWindow();
+    const dialogWindow = aWindow || window.getCalendarWindow();
     dialogWindow.openDialog(
       "chrome://calendar/content/calendar-properties-dialog.xhtml",
       "CalendarPropertiesDialog",
@@ -74,7 +74,7 @@ export var window = {
    * window open. Called when clicking the imip bar's calendar button.
    */
   goToCalendar() {
-    let openCal = mainWindow => {
+    const openCal = mainWindow => {
       mainWindow.focus();
       mainWindow.document.getElementById("tabmail").openTab("calendar");
     };
@@ -93,7 +93,7 @@ export var window = {
       );
 
       // Wait until calendar is set up in the new window.
-      let calStartupObserver = {
+      const calStartupObserver = {
         observe(subject, topic, data) {
           openCal(mainWindow);
           Services.obs.removeObserver(calStartupObserver, "calendar-startup-done");
@@ -114,7 +114,7 @@ export var window = {
    */
   promptDeleteItems(items, byPassPref) {
     items = Array.isArray(items) ? items : [items];
-    let pref = Services.prefs.getBoolPref("calendar.item.promptDelete", true);
+    const pref = Services.prefs.getBoolPref("calendar.item.promptDelete", true);
 
     // Recurring events will be handled by the recurring event prompt.
     if ((!pref && !byPassPref) || items.some(item => item.parentItem != item)) {
@@ -123,7 +123,7 @@ export var window = {
 
     let deletingEvents;
     let deletingTodos;
-    for (let item of items) {
+    for (const item of items) {
       if (!deletingEvents) {
         deletingEvents = item.isEvent();
       }
@@ -159,8 +159,8 @@ export var window = {
       return Services.prompt.confirm(null, title, message);
     }
 
-    let checkResult = { value: false };
-    let result = Services.prompt.confirmEx(
+    const checkResult = { value: false };
+    const result = Services.prompt.confirmEx(
       null,
       title,
       message,

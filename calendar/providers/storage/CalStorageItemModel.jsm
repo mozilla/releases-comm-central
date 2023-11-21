@@ -113,7 +113,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    */
   getItems(query) {
     let { filters, count } = query;
-    let self = this;
+    const self = this;
     return CalReadableStreamFactory.createBoundedReadableStream(
       count,
       CalReadableStreamFactory.defaultQueueSize,
@@ -121,14 +121,14 @@ class CalStorageItemModel extends CalStorageModelBase {
         async start(controller) {
           if (filters) {
             if (filters.wantEvents) {
-              for await (let value of cal.iterate.streamValues(self.#getEvents(query))) {
+              for await (const value of cal.iterate.streamValues(self.#getEvents(query))) {
                 controller.enqueue(value);
               }
             }
 
             count = count && count - controller.count;
             if (filters.wantTodos && (!count || count > 0)) {
-              for await (let value of cal.iterate.streamValues(
+              for await (const value of cal.iterate.streamValues(
                 self.#getTodos({ ...query, count })
               )) {
                 controller.enqueue(value);
@@ -150,7 +150,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @returns {ReadableStream<calIEvent>}
    */
   #getEvents(query) {
-    let { filters, rangeStart, rangeEnd } = query;
+    const { filters, rangeStart, rangeEnd } = query;
     let startTime = DEFAULT_START_TIME;
     let endTime = DEFAULT_END_TIME;
 
@@ -171,7 +171,7 @@ class CalStorageItemModel extends CalStorageModelBase {
     } else if (filters.wantOfflineModifiedItems) {
       requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
     }
-    let self = this;
+    const self = this;
     return CalReadableStreamFactory.createBoundedReadableStream(
       query.count,
       CalReadableStreamFactory.defaultQueueSize,
@@ -191,7 +191,7 @@ class CalStorageItemModel extends CalStorageModelBase {
             await self.db.executeAsync(
               self.statements.mSelectNonRecurringEventsByRange,
               async row => {
-                let event = self.#expandOccurrences(
+                const event = self.#expandOccurrences(
                   await self.getEventFromRow(row),
                   startTime,
                   rangeStart,
@@ -207,9 +207,9 @@ class CalStorageItemModel extends CalStorageModelBase {
 
           if (!controller.maxTotalItemsReached) {
             // Process the recurring events
-            let [recEvents, recEventFlags] = await self.getFullRecurringEventAndFlagMaps();
-            for (let [id, evitem] of recEvents.entries()) {
-              let cachedJournalFlag = recEventFlags.get(id);
+            const [recEvents, recEventFlags] = await self.getFullRecurringEventAndFlagMaps();
+            for (const [id, evitem] of recEvents.entries()) {
+              const cachedJournalFlag = recEventFlags.get(id);
               // No need to return flagged unless asked i.e. requestedOfflineJournal == cachedJournalFlag
               // Return created and modified offline records if requestedOfflineJournal is null alongwith events that have no flag
               if (
@@ -241,7 +241,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @returns {ReadableStream<calITodo>}
    */
   #getTodos(query) {
-    let { filters, rangeStart, rangeEnd } = query;
+    const { filters, rangeStart, rangeEnd } = query;
     let startTime = DEFAULT_START_TIME;
     let endTime = DEFAULT_END_TIME;
 
@@ -263,10 +263,10 @@ class CalStorageItemModel extends CalStorageModelBase {
       requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
     }
 
-    let checkCompleted = item =>
+    const checkCompleted = item =>
       item.isCompleted ? filters.itemCompletedFilter : filters.itemNotCompletedFilter;
 
-    let self = this;
+    const self = this;
     return CalReadableStreamFactory.createBoundedReadableStream(
       query.count,
       CalReadableStreamFactory.defaultQueueSize,
@@ -286,7 +286,7 @@ class CalStorageItemModel extends CalStorageModelBase {
             await self.db.executeAsync(
               self.statements.mSelectNonRecurringTodosByRange,
               async row => {
-                let todo = self.#expandOccurrences(
+                const todo = self.#expandOccurrences(
                   await self.getTodoFromRow(row),
                   startTime,
                   rangeStart,
@@ -307,9 +307,9 @@ class CalStorageItemModel extends CalStorageModelBase {
             //       Moreover item.todo_complete etc seems to be a leftover...
 
             // process the recurring todos
-            let [recTodos, recTodoFlags] = await self.getFullRecurringTodoAndFlagMaps();
-            for (let [id, todoitem] of recTodos) {
-              let cachedJournalFlag = recTodoFlags.get(id);
+            const [recTodos, recTodoFlags] = await self.getFullRecurringTodoAndFlagMaps();
+            for (const [id, todoitem] of recTodos) {
+              const cachedJournalFlag = recTodoFlags.get(id);
               if (
                 (requestedOfflineJournal == null &&
                   (cachedJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD ||
@@ -340,7 +340,7 @@ class CalStorageItemModel extends CalStorageModelBase {
   }
 
   #checkUnrespondedInvitation(item) {
-    let att = this.#schedulingSupport.getInvitedAttendee(item);
+    const att = this.#schedulingSupport.getInvitedAttendee(item);
     return att && att.participationStatus == "NEEDS-ACTION";
   }
 
@@ -438,15 +438,15 @@ class CalStorageItemModel extends CalStorageModelBase {
    */
   async getRecurringEventAndFlagMaps(callback) {
     await startupPromise;
-    let events = new Map();
-    let flags = new Map();
+    const events = new Map();
+    const flags = new Map();
     this.db.prepareStatement(this.statements.mSelectEventsWithRecurrence);
     await this.db.executeAsync(this.statements.mSelectEventsWithRecurrence, async row => {
-      let item_id = row.getResultByName("id");
+      const item_id = row.getResultByName("id");
       if (callback) {
         callback(item_id);
       }
-      let item = await this.getEventFromRow(row, false);
+      const item = await this.getEventFromRow(row, false);
       events.set(item_id, item);
       flags.set(item_id, row.getResultByName("offline_journal") || null);
     });
@@ -460,7 +460,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @returns {Promise<[Map<string, calIEvent>, Map<string, number>]>}
    */
   async getFullRecurringEventAndFlagMaps() {
-    let [events, flags] = await this.getRecurringEventAndFlagMaps();
+    const [events, flags] = await this.getRecurringEventAndFlagMaps();
     return [await this.getAdditionalDataForItemMap(events), flags];
   }
 
@@ -474,15 +474,15 @@ class CalStorageItemModel extends CalStorageModelBase {
    */
   async getRecurringTodoAndFlagMaps(callback) {
     await startupPromise;
-    let todos = new Map();
-    let flags = new Map();
+    const todos = new Map();
+    const flags = new Map();
     this.db.prepareStatement(this.statements.mSelectTodosWithRecurrence);
     await this.db.executeAsync(this.statements.mSelectTodosWithRecurrence, async row => {
-      let item_id = row.getResultByName("id");
+      const item_id = row.getResultByName("id");
       if (callback) {
         callback(item_id);
       }
-      let item = await this.getTodoFromRow(row, false);
+      const item = await this.getTodoFromRow(row, false);
       todos.set(item_id, item);
       flags.set(item_id, row.getResultByName("offline_journal") || null);
     });
@@ -496,7 +496,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @returns {Promise<[Map<string, calITodo>, Map<string, number>]>}
    */
   async getFullRecurringTodoAndFlagMaps() {
-    let [todos, flags] = await this.getRecurringTodoAndFlagMaps();
+    const [todos, flags] = await this.getRecurringTodoAndFlagMaps();
     return [await this.getAdditionalDataForItemMap(todos), flags];
   }
 
@@ -528,12 +528,12 @@ class CalStorageItemModel extends CalStorageModelBase {
     //to the number of queries executed here.
     this.db.prepareStatement(this.statements.mSelectAllAttendees);
     await this.db.executeAsync(this.statements.mSelectAllAttendees, row => {
-      let item = itemsMap.get(row.getResultByName("item_id"));
+      const item = itemsMap.get(row.getResultByName("item_id"));
       if (!item) {
         return;
       }
 
-      let attendee = new lazy.CalAttendee(this.#unfoldIcalString(row));
+      const attendee = new lazy.CalAttendee(this.#unfoldIcalString(row));
       if (attendee && attendee.id) {
         if (attendee.isOrganizer) {
           item.organizer = attendee;
@@ -553,23 +553,23 @@ class CalStorageItemModel extends CalStorageModelBase {
 
     this.db.prepareStatement(this.statements.mSelectAllProperties);
     await this.db.executeAsync(this.statements.mSelectAllProperties, row => {
-      let item = itemsMap.get(row.getResultByName("item_id"));
+      const item = itemsMap.get(row.getResultByName("item_id"));
       if (!item) {
         return;
       }
 
-      let name = row.getResultByName("key");
+      const name = row.getResultByName("key");
       switch (name) {
         case "DURATION":
           // for events DTEND/DUE is enforced by calEvent/calTodo, so suppress DURATION:
           break;
         case "CATEGORIES": {
-          let cats = cal.category.stringToArray(row.getResultByName("value"));
+          const cats = cal.category.stringToArray(row.getResultByName("value"));
           item.setCategories(cats);
           break;
         }
         default:
-          let value = row.getResultByName("value");
+          const value = row.getResultByName("value");
           item.setProperty(name, value);
           break;
       }
@@ -577,20 +577,20 @@ class CalStorageItemModel extends CalStorageModelBase {
 
     this.db.prepareStatement(this.statements.mSelectAllParameters);
     await this.db.executeAsync(this.statements.mSelectAllParameters, row => {
-      let item = itemsMap.get(row.getResultByName("item_id"));
+      const item = itemsMap.get(row.getResultByName("item_id"));
       if (!item) {
         return;
       }
 
-      let prop = row.getResultByName("key1");
-      let param = row.getResultByName("key2");
-      let value = row.getResultByName("value");
+      const prop = row.getResultByName("key1");
+      const param = row.getResultByName("key2");
+      const value = row.getResultByName("value");
       item.setPropertyParameter(prop, param, value);
     });
 
     this.db.prepareStatement(this.statements.mSelectAllRecurrences);
     await this.db.executeAsync(this.statements.mSelectAllRecurrences, row => {
-      let item = itemsMap.get(row.getResultByName("item_id"));
+      const item = itemsMap.get(row.getResultByName("item_id"));
       if (!item) {
         return;
       }
@@ -601,37 +601,37 @@ class CalStorageItemModel extends CalStorageModelBase {
         item.recurrenceInfo = recInfo;
       }
 
-      let ritem = this.#getRecurrenceItemFromRow(row);
+      const ritem = this.#getRecurrenceItemFromRow(row);
       recInfo.appendRecurrenceItem(ritem);
     });
 
     this.db.prepareStatement(this.statements.mSelectAllEventExceptions);
     await this.db.executeAsync(this.statements.mSelectAllEventExceptions, async row => {
-      let item = itemsMap.get(row.getResultByName("id"));
+      const item = itemsMap.get(row.getResultByName("id"));
       if (!item) {
         return;
       }
 
-      let rec = item.recurrenceInfo;
-      let exc = await this.getEventFromRow(row);
+      const rec = item.recurrenceInfo;
+      const exc = await this.getEventFromRow(row);
       rec.modifyException(exc, true);
     });
 
     this.db.prepareStatement(this.statements.mSelectAllTodoExceptions);
     await this.db.executeAsync(this.statements.mSelectAllTodoExceptions, async row => {
-      let item = itemsMap.get(row.getResultByName("id"));
+      const item = itemsMap.get(row.getResultByName("id"));
       if (!item) {
         return;
       }
 
-      let rec = item.recurrenceInfo;
-      let exc = await this.getTodoFromRow(row);
+      const rec = item.recurrenceInfo;
+      const exc = await this.getTodoFromRow(row);
       rec.modifyException(exc, true);
     });
 
     this.db.prepareStatement(this.statements.mSelectAllAttachments);
     await this.db.executeAsync(this.statements.mSelectAllAttachments, row => {
-      let item = itemsMap.get(row.getResultByName("item_id"));
+      const item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
         item.addAttachment(new lazy.CalAttachment(this.#unfoldIcalString(row)));
       }
@@ -639,7 +639,7 @@ class CalStorageItemModel extends CalStorageModelBase {
 
     this.db.prepareStatement(this.statements.mSelectAllRelations);
     await this.db.executeAsync(this.statements.mSelectAllRelations, row => {
-      let item = itemsMap.get(row.getResultByName("item_id"));
+      const item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
         item.addRelation(new lazy.CalRelation(this.#unfoldIcalString(row)));
       }
@@ -647,13 +647,13 @@ class CalStorageItemModel extends CalStorageModelBase {
 
     this.db.prepareStatement(this.statements.mSelectAllAlarms);
     await this.db.executeAsync(this.statements.mSelectAllAlarms, row => {
-      let item = itemsMap.get(row.getResultByName("item_id"));
+      const item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
         item.addAlarm(new lazy.CalAlarm(this.#unfoldIcalString(row)));
       }
     });
 
-    for (let item of itemsMap.values()) {
+    for (const item of itemsMap.values()) {
       this.#fixGoogleCalendarDescriptionIfNeeded(item);
       item.makeImmutable();
     }
@@ -668,9 +668,9 @@ class CalStorageItemModel extends CalStorageModelBase {
    */
   #fixGoogleCalendarDescriptionIfNeeded(item) {
     if (item.id && item.id.endsWith("@google.com")) {
-      let description = item.getProperty("DESCRIPTION");
+      const description = item.getProperty("DESCRIPTION");
       if (description) {
-        let altrep = item.getPropertyParameter("DESCRIPTION", "ALTREP");
+        const altrep = item.getPropertyParameter("DESCRIPTION", "ALTREP");
         if (!altrep) {
           cal.view.fixGoogleCalendarDescription(item);
         }
@@ -683,8 +683,8 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @param {boolean} getAdditionalData
    */
   async getEventFromRow(row, getAdditionalData = true) {
-    let item = new lazy.CalEvent();
-    let flags = row.getResultByName("flags");
+    const item = new lazy.CalEvent();
+    const flags = row.getResultByName("flags");
 
     if (row.getResultByName("event_start")) {
       item.startDate = newDateTime(
@@ -720,8 +720,8 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @param {boolean} getAdditionalData
    */
   async getTodoFromRow(row, getAdditionalData = true) {
-    let item = new lazy.CalTodo();
-    let flags = row.getResultByName("flags");
+    const item = new lazy.CalTodo();
+    const flags = row.getResultByName("flags");
 
     if (row.getResultByName("todo_entry")) {
       item.entryDate = newDateTime(
@@ -771,7 +771,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    */
   async #getAdditionalDataForItem(item, flags) {
     // This is needed to keep the modification time intact.
-    let savedLastModifiedTime = item.lastModifiedTime;
+    const savedLastModifiedTime = item.lastModifiedTime;
 
     if (flags & CAL_ITEM_FLAG.HAS_ATTENDEES) {
       let selectItem = null;
@@ -786,7 +786,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         this.db.prepareStatement(selectItem);
         selectItem.params.item_id = item.id;
         await this.db.executeAsync(selectItem, row => {
-          let attendee = new lazy.CalAttendee(this.#unfoldIcalString(row));
+          const attendee = new lazy.CalAttendee(this.#unfoldIcalString(row));
           if (attendee && attendee.id) {
             if (attendee.isOrganizer) {
               item.organizer = attendee;
@@ -821,18 +821,18 @@ class CalStorageItemModel extends CalStorageModelBase {
         this.db.prepareStatement(selectItem);
         selectItem.params.item_id = item.id;
         await this.db.executeAsync(selectItem, row => {
-          let name = row.getResultByName("key");
+          const name = row.getResultByName("key");
           switch (name) {
             case "DURATION":
               // for events DTEND/DUE is enforced by calEvent/calTodo, so suppress DURATION:
               break;
             case "CATEGORIES": {
-              let cats = cal.category.stringToArray(row.getResultByName("value"));
+              const cats = cal.category.stringToArray(row.getResultByName("value"));
               item.setCategories(cats);
               break;
             }
             default:
-              let value = row.getResultByName("value");
+              const value = row.getResultByName("value");
               item.setProperty(name, value);
               break;
           }
@@ -841,9 +841,9 @@ class CalStorageItemModel extends CalStorageModelBase {
         this.db.prepareStatement(selectParam);
         selectParam.params.item_id = item.id;
         await this.db.executeAsync(selectParam, row => {
-          let prop = row.getResultByName("key1");
-          let param = row.getResultByName("key2");
-          let value = row.getResultByName("value");
+          const prop = row.getResultByName("key1");
+          const param = row.getResultByName("key2");
+          const value = row.getResultByName("value");
           item.setPropertyParameter(prop, param, value);
         });
       } catch (e) {
@@ -859,14 +859,14 @@ class CalStorageItemModel extends CalStorageModelBase {
         throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
       }
 
-      let recInfo = new lazy.CalRecurrenceInfo(item);
+      const recInfo = new lazy.CalRecurrenceInfo(item);
       item.recurrenceInfo = recInfo;
 
       try {
         this.db.prepareStatement(this.statements.mSelectRecurrenceForItem);
         this.statements.mSelectRecurrenceForItem.params.item_id = item.id;
         await this.db.executeAsync(this.statements.mSelectRecurrenceForItem, row => {
-          let ritem = this.#getRecurrenceItemFromRow(row);
+          const ritem = this.#getRecurrenceItemFromRow(row);
           recInfo.appendRecurrenceItem(ritem);
         });
       } catch (e) {
@@ -885,14 +885,14 @@ class CalStorageItemModel extends CalStorageModelBase {
         throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
       }
 
-      let rec = item.recurrenceInfo;
+      const rec = item.recurrenceInfo;
 
       if (item.isEvent()) {
         this.statements.mSelectEventExceptions.params.id = item.id;
         this.db.prepareStatement(this.statements.mSelectEventExceptions);
         try {
           await this.db.executeAsync(this.statements.mSelectEventExceptions, async row => {
-            let exc = await this.getEventFromRow(row, false);
+            const exc = await this.getEventFromRow(row, false);
             rec.modifyException(exc, true);
           });
         } catch (e) {
@@ -906,7 +906,7 @@ class CalStorageItemModel extends CalStorageModelBase {
         this.db.prepareStatement(this.statements.mSelectTodoExceptions);
         try {
           await this.db.executeAsync(this.statements.mSelectTodoExceptions, async row => {
-            let exc = await this.getTodoFromRow(row, false);
+            const exc = await this.getTodoFromRow(row, false);
             rec.modifyException(exc, true);
           });
         } catch (e) {
@@ -987,7 +987,7 @@ class CalStorageItemModel extends CalStorageModelBase {
 
   #getRecurrenceItemFromRow(row) {
     let ritem;
-    let prop = cal.icsService.createIcalPropertyFromString(this.#unfoldIcalString(row));
+    const prop = cal.icsService.createIcalPropertyFromString(this.#unfoldIcalString(row));
     switch (prop.propertyName) {
       case "RDATE":
       case "EXDATE":
@@ -1041,8 +1041,8 @@ class CalStorageItemModel extends CalStorageModelBase {
   #setDateParamHelper(params, entryname, cdt) {
     if (cdt) {
       params.bindByName(entryname, cdt.nativeTime);
-      let timezone = cdt.timezone;
-      let ownTz = cal.timezoneService.getTimezone(timezone.tzid);
+      const timezone = cdt.timezone;
+      const ownTz = cal.timezoneService.getTimezone(timezone.tzid);
       if (ownTz) {
         // if we know that TZID, we use it
         params.bindByName(entryname + "_tz", ownTz.tzid);
@@ -1066,9 +1066,9 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @param {calIItemBase} item
    */
   async addItem(item) {
-    let stmts = new Map();
+    const stmts = new Map();
     this.#prepareItem(stmts, item);
-    for (let [stmt, array] of stmts) {
+    for (const [stmt, array] of stmts) {
       stmt.bindParameters(array);
     }
     await this.db.executeAsync([...stmts.keys()]);
@@ -1099,14 +1099,14 @@ class CalStorageItemModel extends CalStorageModelBase {
   }
 
   #prepareEvent(stmts, item, flags) {
-    let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertEvent);
-    let params = this.db.prepareAsyncParams(array);
+    const array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertEvent);
+    const params = this.db.prepareAsyncParams(array);
 
     this.#setupItemBaseParams(item, params);
 
     this.#setDateParamHelper(params, "event_start", item.startDate);
     this.#setDateParamHelper(params, "event_end", item.endDate);
-    let dtstamp = item.stampTime;
+    const dtstamp = item.stampTime;
     params.bindByName("event_stamp", dtstamp && dtstamp.nativeTime);
 
     if (item.startDate.isDate) {
@@ -1119,20 +1119,20 @@ class CalStorageItemModel extends CalStorageModelBase {
   }
 
   #prepareTodo(stmts, item, flags) {
-    let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertTodo);
-    let params = this.db.prepareAsyncParams(array);
+    const array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertTodo);
+    const params = this.db.prepareAsyncParams(array);
 
     this.#setupItemBaseParams(item, params);
 
     this.#setDateParamHelper(params, "todo_entry", item.entryDate);
     this.#setDateParamHelper(params, "todo_due", item.dueDate);
-    let dtstamp = item.stampTime;
+    const dtstamp = item.stampTime;
     params.bindByName("todo_stamp", dtstamp && dtstamp.nativeTime);
     this.#setDateParamHelper(params, "todo_completed", item.getProperty("COMPLETED"));
 
     params.bindByName("todo_complete", item.getProperty("PERCENT-COMPLETED"));
 
-    let someDate = item.entryDate || item.dueDate;
+    const someDate = item.entryDate || item.dueDate;
     if (someDate && someDate.isDate) {
       flags |= CAL_ITEM_FLAG.EVENT_ALLDAY;
     }
@@ -1168,9 +1168,9 @@ class CalStorageItemModel extends CalStorageModelBase {
       attendees.push(item.organizer);
     }
     if (attendees.length > 0) {
-      let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertAttendee);
-      for (let att of attendees) {
-        let params = this.db.prepareAsyncParams(array);
+      const array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertAttendee);
+      for (const att of attendees) {
+        const params = this.db.prepareAsyncParams(array);
         params.bindByName("item_id", item.id);
         this.#setDateParamHelper(params, "recurrence_id", item.recurrenceId);
         params.bindByName("icalString", att.icalString);
@@ -1184,10 +1184,10 @@ class CalStorageItemModel extends CalStorageModelBase {
   }
 
   #prepareProperty(stmts, item, propName, propValue) {
-    let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertProperty);
-    let params = this.db.prepareAsyncParams(array);
+    const array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertProperty);
+    const params = this.db.prepareAsyncParams(array);
     params.bindByName("key", propName);
-    let wPropValue = cal.wrapInstance(propValue, Ci.calIDateTime);
+    const wPropValue = cal.wrapInstance(propValue, Ci.calIDateTime);
     if (wPropValue) {
       params.bindByName("value", wPropValue.nativeTime);
     } else {
@@ -1209,11 +1209,11 @@ class CalStorageItemModel extends CalStorageModelBase {
   }
 
   #prepareParameter(stmts, item, propName, paramName, propValue) {
-    let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertParameter);
-    let params = this.db.prepareAsyncParams(array);
+    const array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertParameter);
+    const params = this.db.prepareAsyncParams(array);
     params.bindByName("key1", propName);
     params.bindByName("key2", paramName);
-    let wPropValue = cal.wrapInstance(propValue, Ci.calIDateTime);
+    const wPropValue = cal.wrapInstance(propValue, Ci.calIDateTime);
     if (wPropValue) {
       params.bindByName("value", wPropValue.nativeTime);
     } else {
@@ -1244,14 +1244,14 @@ class CalStorageItemModel extends CalStorageModelBase {
       this.#prepareProperty(stmts, item, name, value);
       // Overridden parameters still enumerate even if their value is now empty.
       if (item.hasProperty(name)) {
-        for (let param of item.getParameterNames(name)) {
+        for (const param of item.getParameterNames(name)) {
           value = item.getPropertyParameter(name, param);
           this.#prepareParameter(stmts, item, name, param, value);
         }
       }
     }
 
-    let cats = item.getCategories();
+    const cats = item.getCategories();
     if (cats.length > 0) {
       ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
       this.#prepareProperty(stmts, item, "CATEGORIES", cal.category.arrayToString(cats));
@@ -1263,27 +1263,27 @@ class CalStorageItemModel extends CalStorageModelBase {
   #prepareRecurrence(stmts, item) {
     let flags = 0;
 
-    let rec = item.recurrenceInfo;
+    const rec = item.recurrenceInfo;
     if (rec) {
       flags = CAL_ITEM_FLAG.HAS_RECURRENCE;
-      let ritems = rec.getRecurrenceItems();
-      let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertRecurrence);
-      for (let ritem of ritems) {
-        let params = this.db.prepareAsyncParams(array);
+      const ritems = rec.getRecurrenceItems();
+      const array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertRecurrence);
+      for (const ritem of ritems) {
+        const params = this.db.prepareAsyncParams(array);
         params.bindByName("item_id", item.id);
         params.bindByName("icalString", ritem.icalString);
         array.addParams(params);
       }
 
-      let exceptions = rec.getExceptionIds();
+      const exceptions = rec.getExceptionIds();
       if (exceptions.length > 0) {
         flags |= CAL_ITEM_FLAG.HAS_EXCEPTIONS;
 
         // we need to serialize each exid as a separate
         // event/todo; setupItemBase will handle
         // writing the recurrenceId for us
-        for (let exid of exceptions) {
-          let ex = rec.getExceptionFor(exid);
+        for (const exid of exceptions) {
+          const ex = rec.getExceptionFor(exid);
           if (!ex) {
             throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
           }
@@ -1298,11 +1298,11 @@ class CalStorageItemModel extends CalStorageModelBase {
   }
 
   #prepareAttachments(stmts, item) {
-    let attachments = item.getAttachments();
+    const attachments = item.getAttachments();
     if (attachments && attachments.length > 0) {
-      let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertAttachment);
-      for (let att of attachments) {
-        let params = this.db.prepareAsyncParams(array);
+      const array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertAttachment);
+      for (const att of attachments) {
+        const params = this.db.prepareAsyncParams(array);
         this.#setDateParamHelper(params, "recurrence_id", item.recurrenceId);
         params.bindByName("item_id", item.id);
         params.bindByName("icalString", att.icalString);
@@ -1315,11 +1315,11 @@ class CalStorageItemModel extends CalStorageModelBase {
   }
 
   #prepareRelations(stmts, item) {
-    let relations = item.getRelations();
+    const relations = item.getRelations();
     if (relations && relations.length > 0) {
-      let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertRelation);
-      for (let rel of relations) {
-        let params = this.db.prepareAsyncParams(array);
+      const array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertRelation);
+      for (const rel of relations) {
+        const params = this.db.prepareAsyncParams(array);
         this.#setDateParamHelper(params, "recurrence_id", item.recurrenceId);
         params.bindByName("item_id", item.id);
         params.bindByName("icalString", rel.icalString);
@@ -1332,14 +1332,14 @@ class CalStorageItemModel extends CalStorageModelBase {
   }
 
   #prepareAlarms(stmts, item) {
-    let alarms = item.getAlarms();
+    const alarms = item.getAlarms();
     if (alarms.length < 1) {
       return 0;
     }
 
-    let array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertAlarm);
-    for (let alarm of alarms) {
-      let params = this.db.prepareAsyncParams(array);
+    const array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertAlarm);
+    for (const alarm of alarms) {
+      const params = this.db.prepareAsyncParams(array);
       this.#setDateParamHelper(params, "recurrence_id", item.recurrenceId);
       params.bindByName("item_id", item.id);
       params.bindByName("icalString", alarm.icalString);
@@ -1357,7 +1357,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @param {boolean} keepMeta If true, leave metadata for the item.
    */
   async deleteItemById(id, keepMeta) {
-    let stmts = [];
+    const stmts = [];
     this.db.prepareItemStatement(stmts, this.statements.mDeleteAttendees, "item_id", id);
     this.db.prepareItemStatement(stmts, this.statements.mDeleteProperties, "item_id", id);
     this.db.prepareItemStatement(stmts, this.statements.mDeleteRecurrence, "item_id", id);

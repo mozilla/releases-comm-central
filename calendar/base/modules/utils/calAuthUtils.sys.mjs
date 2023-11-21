@@ -81,7 +81,7 @@ class ContainerMap extends Map {
   _add(username) {
     let nextUserContextId;
     if (this.full) {
-      let oldestUsernameEntry = this.order.shift();
+      const oldestUsernameEntry = this.order.shift();
       nextUserContextId = this.get(oldestUsernameEntry);
       this.delete(oldestUsernameEntry);
     } else {
@@ -166,8 +166,8 @@ export var auth = {
       let password;
       let found = false;
 
-      let logins = Services.logins.findLogins(aPasswordRealm.prePath, null, aPasswordRealm.realm);
-      for (let login of logins) {
+      const logins = Services.logins.findLogins(aPasswordRealm.prePath, null, aPasswordRealm.realm);
+      for (const login of logins) {
         if (!aRequestedUser || aRequestedUser == login.username) {
           username = login.username;
           password = login.password;
@@ -176,8 +176,8 @@ export var auth = {
         }
       }
       if (found) {
-        let keyStr = aPasswordRealm.prePath + ":" + aPasswordRealm.realm + ":" + aRequestedUser;
-        let now = new Date();
+        const keyStr = aPasswordRealm.prePath + ":" + aPasswordRealm.realm + ":" + aRequestedUser;
+        const now = new Date();
         // Remove the saved password if it was already returned less
         // than 60 seconds ago. The reason for the timestamp check is that
         // nsIHttpChannel can call the nsIAuthPrompt2 interface
@@ -209,22 +209,22 @@ export var auth = {
     //                    in uint32_t level,
     //                    in nsIAuthInformation authInfo)
     promptAuth(aChannel, aLevel, aAuthInfo) {
-      let hostRealm = {};
+      const hostRealm = {};
       hostRealm.prePath = aChannel.URI.prePath;
       hostRealm.realm = aAuthInfo.realm;
       let port = aChannel.URI.port;
       if (port == -1) {
-        let handler = Services.io
+        const handler = Services.io
           .getProtocolHandler(aChannel.URI.scheme)
           .QueryInterface(Ci.nsIProtocolHandler);
         port = handler.defaultPort;
       }
       hostRealm.passwordRealm = aChannel.URI.host + ":" + port + " (" + aAuthInfo.realm + ")";
 
-      let requestedUser = lazy.cal.auth.containerMap.getUsernameForUserContextId(
+      const requestedUser = lazy.cal.auth.containerMap.getUsernameForUserContextId(
         aChannel.loadInfo.originAttributes.userContextId
       );
-      let pwInfo = this.getPasswordInfo(hostRealm, requestedUser);
+      const pwInfo = this.getPasswordInfo(hostRealm, requestedUser);
       aAuthInfo.username = pwInfo.username;
       if (pwInfo && pwInfo.found) {
         aAuthInfo.password = pwInfo.password;
@@ -238,8 +238,8 @@ export var auth = {
           "rememberPassword"
         );
       }
-      let savePassword = {};
-      let returnValue = new lazy.MsgAuthPrompt().promptAuth(
+      const savePassword = {};
+      const returnValue = new lazy.MsgAuthPrompt().promptAuth(
         aChannel,
         aLevel,
         aAuthInfo,
@@ -263,14 +263,14 @@ export var auth = {
     //                               in uint32_t level,
     //                               in nsIAuthInformation authInfo);
     asyncPromptAuth(aChannel, aCallback, aContext, aLevel, aAuthInfo) {
-      let self = this;
-      let promptlistener = {
+      const self = this;
+      const promptlistener = {
         onPromptStartAsync(callback) {
           callback.onAuthResult(this.onPromptStart());
         },
 
         onPromptStart() {
-          let res = self.promptAuth(aChannel, aLevel, aAuthInfo);
+          const res = self.promptAuth(aChannel, aLevel, aAuthInfo);
           if (res) {
             gAuthCache.setAuthInfo(hostKey, aAuthInfo);
             this.onPromptAuthAvailable();
@@ -282,7 +282,7 @@ export var auth = {
         },
 
         onPromptAuthAvailable() {
-          let authInfo = gAuthCache.retrieveAuthInfo(hostKey);
+          const authInfo = gAuthCache.retrieveAuthInfo(hostKey);
           if (authInfo) {
             aAuthInfo.username = authInfo.username;
             aAuthInfo.password = authInfo.password;
@@ -296,20 +296,20 @@ export var auth = {
         },
       };
 
-      let requestedUser = lazy.cal.auth.containerMap.getUsernameForUserContextId(
+      const requestedUser = lazy.cal.auth.containerMap.getUsernameForUserContextId(
         aChannel.loadInfo.originAttributes.userContextId
       );
-      let hostKey = aChannel.URI.prePath + ":" + aAuthInfo.realm + ":" + requestedUser;
+      const hostKey = aChannel.URI.prePath + ":" + aAuthInfo.realm + ":" + requestedUser;
       gAuthCache.planForAuthInfo(hostKey);
 
-      let queuePrompt = function () {
-        let asyncprompter = Cc["@mozilla.org/messenger/msgAsyncPrompter;1"].getService(
+      const queuePrompt = function () {
+        const asyncprompter = Cc["@mozilla.org/messenger/msgAsyncPrompter;1"].getService(
           Ci.nsIMsgAsyncPrompter
         );
         asyncprompter.queueAsyncAuthPrompt(hostKey, false, promptlistener);
       };
 
-      let finalSteps = function () {
+      const finalSteps = function () {
         // the prompt will fail if we are too early
         if (self.mWindow.document.readyState == "complete") {
           queuePrompt();
@@ -318,7 +318,7 @@ export var auth = {
         }
       };
 
-      let tryUntilReady = function () {
+      const tryUntilReady = function () {
         self.mWindow = lazy.cal.window.getCalendarWindow();
         if (!self.mWindow) {
           lazy.setTimeout(tryUntilReady, 1000);
@@ -360,7 +360,7 @@ export var auth = {
       throw new Components.Exception("", Cr.NS_ERROR_XPC_NEED_OUT_OBJECT);
     }
 
-    let prompter = new lazy.MsgAuthPrompt();
+    const prompter = new lazy.MsgAuthPrompt();
 
     // Only show the save password box if we are supposed to.
     let savepassword = null;
@@ -399,7 +399,7 @@ export var auth = {
    */
   _ensureOrigin(aOrigin) {
     try {
-      let { prePath, spec } = Services.io.newURI(aOrigin);
+      const { prePath, spec } = Services.io.newURI(aOrigin);
       if (prePath == "oauth:") {
         return spec;
       }
@@ -421,7 +421,7 @@ export var auth = {
     lazy.cal.ASSERT(aUsername);
     lazy.cal.ASSERT(aPassword);
 
-    let origin = this._ensureOrigin(aOrigin);
+    const origin = this._ensureOrigin(aOrigin);
 
     if (!Services.logins.getLoginSavingEnabled(origin)) {
       throw new Components.Exception(
@@ -431,13 +431,13 @@ export var auth = {
     }
 
     try {
-      let logins = Services.logins.findLogins(origin, null, aRealm);
+      const logins = Services.logins.findLogins(origin, null, aRealm);
 
-      let newLoginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+      const newLoginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
         Ci.nsILoginInfo
       );
       newLoginInfo.init(origin, null, aRealm, aUsername, aPassword, "", "");
-      for (let login of logins) {
+      for (const login of logins) {
         if (aUsername == login.username) {
           Services.logins.modifyLogin(login, newLoginInfo);
           return;
@@ -467,11 +467,11 @@ export var auth = {
       throw new Components.Exception("", Cr.NS_ERROR_XPC_NEED_OUT_OBJECT);
     }
 
-    let origin = this._ensureOrigin(aOrigin);
+    const origin = this._ensureOrigin(aOrigin);
 
     try {
-      let logins = Services.logins.findLogins(origin, null, "");
-      for (let loginInfo of logins) {
+      const logins = Services.logins.findLogins(origin, null, "");
+      for (const loginInfo of logins) {
         if (
           loginInfo.username == aUsername &&
           (loginInfo.httpRealm == aRealm || loginInfo.httpRealm.split(" ").includes(aRealm))
@@ -497,11 +497,11 @@ export var auth = {
   passwordManagerRemove(aUsername, aOrigin, aRealm) {
     lazy.cal.ASSERT(aUsername);
 
-    let origin = this._ensureOrigin(aOrigin);
+    const origin = this._ensureOrigin(aOrigin);
 
     try {
-      let logins = Services.logins.findLogins(origin, null, aRealm);
-      for (let loginInfo of logins) {
+      const logins = Services.logins.findLogins(origin, null, aRealm);
+      for (const loginInfo of logins) {
         if (loginInfo.username == aUsername) {
           Services.logins.removeLogin(loginInfo);
           return true;
@@ -532,7 +532,7 @@ export var auth = {
 var gAuthCache = {
   _authInfoCache: new Map(),
   planForAuthInfo(hostKey) {
-    let authInfo = this._authInfoCache.get(hostKey);
+    const authInfo = this._authInfoCache.get(hostKey);
     if (authInfo) {
       authInfo.refCnt++;
     } else {
@@ -541,7 +541,7 @@ var gAuthCache = {
   },
 
   setAuthInfo(hostKey, aAuthInfo) {
-    let authInfo = this._authInfoCache.get(hostKey);
+    const authInfo = this._authInfoCache.get(hostKey);
     if (authInfo) {
       authInfo.username = aAuthInfo.username;
       authInfo.password = aAuthInfo.password;
@@ -549,7 +549,7 @@ var gAuthCache = {
   },
 
   retrieveAuthInfo(hostKey) {
-    let authInfo = this._authInfoCache.get(hostKey);
+    const authInfo = this._authInfoCache.get(hostKey);
     if (authInfo) {
       authInfo.refCnt--;
 

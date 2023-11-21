@@ -56,7 +56,7 @@ class XMLResponseHandler {
    * walking the node tree.
    */
   async handleResponse() {
-    let parser = new DOMParser();
+    const parser = new DOMParser();
     let doc;
     try {
       doc = parser.parseFromString(this._xmlString, "application/xml");
@@ -65,7 +65,7 @@ class XMLResponseHandler {
       this.fatalError();
     }
 
-    let treeWalker = doc.createTreeWalker(doc.documentElement, NodeFilter.SHOW_ELEMENT);
+    const treeWalker = doc.createTreeWalker(doc.documentElement, NodeFilter.SHOW_ELEMENT);
     this.startDocument();
     await this._walk(treeWalker);
     await this.endDocument();
@@ -85,7 +85,7 @@ class XMLResponseHandler {
    * @returns {Uint8Array}.
    */
   _binaryStringToTypedArray(str) {
-    let arr = new Uint8Array(str.length);
+    const arr = new Uint8Array(str.length);
     for (let i = 0; i < str.length; i++) {
       arr[i] = str.charCodeAt(i);
     }
@@ -96,12 +96,12 @@ class XMLResponseHandler {
    * Walk the tree node by node, call startElement and endElement when appropriate.
    */
   async _walk(treeWalker) {
-    let currentNode = treeWalker.currentNode;
+    const currentNode = treeWalker.currentNode;
     if (currentNode) {
       this.startElement("", currentNode.localName, currentNode.nodeName, "");
 
       // Traverse children first.
-      let firstChild = treeWalker.firstChild();
+      const firstChild = treeWalker.firstChild();
       if (firstChild) {
         await this._walk(treeWalker);
         // TreeWalker has reached a leaf node, reset the cursor to continue the traversal.
@@ -164,7 +164,7 @@ class CalDavEtagsHandler extends XMLResponseHandler {
    * @see nsIRequestObserver
    */
   onStartRequest(request) {
-    let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
+    const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
     let responseStatus;
     try {
@@ -187,7 +187,7 @@ class CalDavEtagsHandler extends XMLResponseHandler {
   }
 
   async onStopRequest(request, statusCode) {
-    let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
+    const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
     let responseStatus;
     try {
@@ -213,7 +213,7 @@ class CalDavEtagsHandler extends XMLResponseHandler {
 
     let needsRefresh = false;
     try {
-      for (let path in this.calendar.mHrefIndex) {
+      for (const path in this.calendar.mHrefIndex) {
         if (path in this.itemsReported || path.substr(0, this.baseUri.length) == this.baseUri) {
           // If the item is also on the server, check the next.
           continue;
@@ -221,10 +221,12 @@ class CalDavEtagsHandler extends XMLResponseHandler {
         // If an item has been deleted from the server, delete it here too.
         // Since the target calendar's operations are synchronous, we can
         // safely set variables from this function.
-        let foundItem = await this.calendar.mOfflineStorage.getItem(this.calendar.mHrefIndex[path]);
+        const foundItem = await this.calendar.mOfflineStorage.getItem(
+          this.calendar.mHrefIndex[path]
+        );
 
         if (foundItem) {
-          let wasInboxItem = this.calendar.mItemInfoCache[foundItem.id].isInboxItem;
+          const wasInboxItem = this.calendar.mItemInfoCache[foundItem.id].isInboxItem;
           if (
             (wasInboxItem && this.calendar.isInbox(this.baseUri.spec)) ||
             (wasInboxItem === false && !this.calendar.isInbox(this.baseUri.spec))
@@ -243,7 +245,7 @@ class CalDavEtagsHandler extends XMLResponseHandler {
     // Avoid sending empty multiget requests update views if something has
     // been deleted server-side.
     if (this.itemsNeedFetching.length) {
-      let multiget = new CalDavMultigetSyncHandler(
+      const multiget = new CalDavMultigetSyncHandler(
         this.itemsNeedFetching,
         this.calendar,
         this.baseUri,
@@ -322,7 +324,7 @@ class CalDavEtagsHandler extends XMLResponseHandler {
     switch (aLocalName) {
       case "response": {
         this.tag = null;
-        let resp = this.currentResponse;
+        const resp = this.currentResponse;
         if (
           resp.getetag &&
           resp.getetag.length &&
@@ -349,7 +351,7 @@ class CalDavEtagsHandler extends XMLResponseHandler {
             if (resp.href && resp.href.length) {
               this.itemsReported[resp.href] = resp.getetag;
 
-              let itemUid = this.calendar.mHrefIndex[resp.href];
+              const itemUid = this.calendar.mHrefIndex[resp.href];
               if (!itemUid || resp.getetag != this.calendar.mItemInfoCache[itemUid].etag) {
                 this.itemsNeedFetching.push(resp.href);
               }
@@ -419,11 +421,11 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
 
     let syncTokenString = "<sync-token/>";
     if (this.calendar.mWebdavSyncToken && this.calendar.mWebdavSyncToken.length > 0) {
-      let syncToken = cal.xml.escapeString(this.calendar.mWebdavSyncToken);
+      const syncToken = cal.xml.escapeString(this.calendar.mWebdavSyncToken);
       syncTokenString = "<sync-token>" + syncToken + "</sync-token>";
     }
 
-    let queryXml =
+    const queryXml =
       XML_HEADER +
       '<sync-collection xmlns="DAV:">' +
       syncTokenString +
@@ -434,14 +436,14 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
       "</prop>" +
       "</sync-collection>";
 
-    let requestUri = this.calendar.makeUri(null, this.baseUri);
+    const requestUri = this.calendar.makeUri(null, this.baseUri);
 
     if (this.calendar.verboseLogging()) {
       cal.LOG(`CalDAV: send (REPORT ${requestUri.spec}): ${queryXml}`);
     }
     cal.LOG("CalDAV: webdav-sync Token: " + this.calendar.mWebdavSyncToken);
 
-    let onSetupChannel = channel => {
+    const onSetupChannel = channel => {
       // The depth header adheres to an older version of the webdav-sync
       // spec and has been replaced by the <sync-level> tag above.
       // Unfortunately some servers still depend on the depth header,
@@ -449,7 +451,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
       channel.setRequestHeader("Depth", "1", false);
       channel.requestMethod = "REPORT";
     };
-    let request = new CalDavLegacySAXRequest(
+    const request = new CalDavLegacySAXRequest(
       this.calendar.session,
       this.calendar,
       requestUri,
@@ -474,7 +476,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
    * @see nsIRequestObserver
    */
   onStartRequest(request) {
-    let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
+    const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
     let responseStatus;
     try {
@@ -491,7 +493,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
   }
 
   async onStopRequest(request, statusCode) {
-    let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
+    const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
     let responseStatus;
     try {
@@ -574,7 +576,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
       // null token means reset or first refresh indicating we did
       // a full sync; remove local items that were not returned in this full
       // sync
-      for (let path in this.calendar.mHrefIndex) {
+      for (const path in this.calendar.mHrefIndex) {
         if (!this.itemsReported[path]) {
           await this.calendar.deleteTargetCalendarItem(path);
         }
@@ -583,7 +585,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
     this.calendar.superCalendar.endBatch();
 
     if (this.itemsNeedFetching.length) {
-      let multiget = new CalDavMultigetSyncHandler(
+      const multiget = new CalDavMultigetSyncHandler(
         this.itemsNeedFetching,
         this.calendar,
         this.baseUri,
@@ -600,7 +602,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
         cal.LOG("CalDAV: New webdav-sync Token: " + this.calendar.mWebdavSyncToken);
 
         if (this.additionalSyncNeeded) {
-          let wds = new CalDavWebDavSyncHandler(
+          const wds = new CalDavWebDavSyncHandler(
             this.calendar,
             this.baseUri,
             this.changeLogListener
@@ -649,7 +651,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
       case "response": // WebDAV Sync draft 3
       case "sync-response": {
         // WebDAV Sync draft 0,1,2
-        let resp = this.currentResponse;
+        const resp = this.currentResponse;
         if (resp.href && resp.href.length) {
           resp.href = this.calendar.ensureDecodedPath(resp.href);
         }
@@ -696,8 +698,8 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
         ) {
           // and status 201 and 204 the same
           this.itemsReported[resp.href] = resp.getetag;
-          let itemId = this.calendar.mHrefIndex[resp.href];
-          let oldEtag = itemId && this.calendar.mItemInfoCache[itemId].etag;
+          const itemId = this.calendar.mHrefIndex[resp.href];
+          const oldEtag = itemId && this.calendar.mItemInfoCache[itemId].etag;
 
           if (!oldEtag || oldEtag != resp.getetag) {
             // Etag mismatch, getting new/updated item.
@@ -830,11 +832,11 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
       batchSize--;
       // ensureEncodedPath extracts only the path component of the item and
       // encodes it before it is sent to the server
-      let locpath = this.calendar.ensureEncodedPath(this.itemsNeedFetching.pop());
+      const locpath = this.calendar.ensureEncodedPath(this.itemsNeedFetching.pop());
       hrefString += "<D:href>" + cal.xml.escapeString(locpath) + "</D:href>";
     }
 
-    let queryXml =
+    const queryXml =
       XML_HEADER +
       '<C:calendar-multiget xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">' +
       "<D:prop>" +
@@ -844,16 +846,16 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
       hrefString +
       "</C:calendar-multiget>";
 
-    let requestUri = this.calendar.makeUri(null, this.baseUri);
+    const requestUri = this.calendar.makeUri(null, this.baseUri);
     if (this.calendar.verboseLogging()) {
       cal.LOG(`CalDAV: send (REPORT ${requestUri.spec}): ${queryXml}`);
     }
 
-    let onSetupChannel = channel => {
+    const onSetupChannel = channel => {
       channel.requestMethod = "REPORT";
       channel.setRequestHeader("Depth", "1", false);
     };
-    let request = new CalDavLegacySAXRequest(
+    const request = new CalDavLegacySAXRequest(
       this.calendar.session,
       this.calendar,
       requestUri,
@@ -878,7 +880,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
    * @see nsIRequestObserver
    */
   onStartRequest(request) {
-    let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
+    const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
     let responseStatus;
     try {
@@ -892,7 +894,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
       // server error (i.e 50x).
       httpchannel.contentType = "application/xml";
     } else {
-      let errorMsg =
+      const errorMsg =
         "CalDAV: Error: got status " +
         responseStatus +
         " fetching calendar data for " +
@@ -904,7 +906,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
   }
 
   async onStopRequest(request, statusCode) {
-    let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
+    const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
     let responseStatus;
     try {
@@ -939,7 +941,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
     if (this.itemsNeedFetching.length > 0) {
       cal.LOG("CalDAV: Still need to fetch " + this.itemsNeedFetching.length + " elements.");
       this.resetXMLResponseHandler();
-      let timerCallback = {
+      const timerCallback = {
         requestHandler: this,
         notify(timer) {
           // Call multiget again to get another batch
@@ -949,7 +951,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
       this.timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
       this.timer.initWithCallback(timerCallback, 0, Ci.nsITimer.TYPE_ONE_SHOT);
     } else if (this.additionalSyncNeeded) {
-      let wds = new CalDavWebDavSyncHandler(this.calendar, this.baseUri, this.changeLogListener);
+      const wds = new CalDavWebDavSyncHandler(this.calendar, this.baseUri, this.changeLogListener);
       wds.doWebDAVSync();
     } else {
       this.calendar.finalizeUpdatedItems(this.changeLogListener, this.baseUri);
@@ -1020,7 +1022,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
   async endElement(aUri, aLocalName, aQName) {
     switch (aLocalName) {
       case "response": {
-        let resp = this.currentResponse;
+        const resp = this.currentResponse;
         if (resp.href && resp.href.length) {
           resp.href = this.calendar.ensureDecodedPath(resp.href);
         }
@@ -1046,7 +1048,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
           resp.calendardata.length
         ) {
           let oldEtag;
-          let itemId = this.calendar.mHrefIndex[resp.href];
+          const itemId = this.calendar.mHrefIndex[resp.href];
           if (itemId) {
             oldEtag = this.calendar.mItemInfoCache[itemId].etag;
           } else {

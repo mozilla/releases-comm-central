@@ -21,9 +21,9 @@ const EXPORTED_SYMBOLS = [
  * @returns {string} An xmlns string that can be inserted into xml documents
  */
 function CalDavXmlns(...aRequested) {
-  let namespaces = [];
-  for (let namespace of aRequested) {
-    let nsUri = CalDavNsResolver(namespace);
+  const namespaces = [];
+  for (const namespace of aRequested) {
+    const nsUri = CalDavNsResolver(namespace);
     if (namespace) {
       namespaces.push(`xmlns:${namespace}='${nsUri}'`);
     }
@@ -40,7 +40,7 @@ function CalDavXmlns(...aRequested) {
  * @returns {string} The complete namespace string
  */
 function CalDavTagsToXmlns(...aTags) {
-  let namespaces = new Set(aTags.map(tag => tag.split(":")[0]));
+  const namespaces = new Set(aTags.map(tag => tag.split(":")[0]));
   return CalDavXmlns(...namespaces.values());
 }
 

@@ -23,11 +23,11 @@ export var iterate = {
    * @yields {calIItemBase}
    */
   *items(items) {
-    for (let item of items) {
+    for (const item of items) {
       yield item;
-      let rec = item.recurrenceInfo;
+      const rec = item.recurrenceInfo;
       if (rec) {
-        for (let exid of rec.getExceptionIds()) {
+        for (const exid of rec.getExceptionIds()) {
           yield rec.getExceptionFor(exid);
         }
       }
@@ -56,25 +56,25 @@ export var iterate = {
     function forEach(iterable, body, completed = null) {
       // This should be a const one day, lets keep it a pref for now though until we
       // find a sane value.
-      let LATENCY = Services.prefs.getIntPref("calendar.threading.latency", 250);
+      const LATENCY = Services.prefs.getIntPref("calendar.threading.latency", 250);
 
       if (typeof iterable == "object" && !iterable[Symbol.iterator]) {
         iterable = Object.entries(iterable);
       }
 
-      let ourIter = iterable[Symbol.iterator]();
-      let currentThread = Services.tm.currentThread;
+      const ourIter = iterable[Symbol.iterator]();
+      const currentThread = Services.tm.currentThread;
 
       // This is our dispatcher, it will be used for the iterations
-      let dispatcher = {
+      const dispatcher = {
         run() {
-          let startTime = new Date().getTime();
+          const startTime = new Date().getTime();
           while (new Date().getTime() - startTime < LATENCY) {
-            let next = ourIter.next();
+            const next = ourIter.next();
             let done = next.done;
 
             if (!done) {
-              let rc = body(next.value);
+              const rc = body(next.value);
               if (rc == lazy.cal.iterate.forEach.BREAK) {
                 done = true;
               }
@@ -119,7 +119,7 @@ export var iterate = {
     if (aComponent && aComponent.componentType == "VCALENDAR") {
       yield* lazy.cal.iterate.icalSubcomponent(aComponent, aCompType);
     } else if (aComponent && aComponent.componentType == "XROOT") {
-      for (let calComp of lazy.cal.iterate.icalSubcomponent(aComponent, "VCALENDAR")) {
+      for (const calComp of lazy.cal.iterate.icalSubcomponent(aComponent, "VCALENDAR")) {
         yield* lazy.cal.iterate.icalSubcomponent(calComp, aCompType);
       }
     } else if (aComponent && (aCompType == "ANY" || aCompType == aComponent.componentType)) {
@@ -180,7 +180,7 @@ export var iterate = {
    * @yields {[String, String]}                  An iterator object to iterate the properties.
    */
   *icalParameter(aProperty) {
-    let paramSet = new Set();
+    const paramSet = new Set();
     for (
       let paramName = aProperty.getFirstParameterName();
       paramName;
@@ -216,8 +216,8 @@ export var iterate = {
    * @returns {*[]}
    */
   async mapStream(stream, func) {
-    let buffer = [];
-    for await (let value of iterate.streamValues(stream)) {
+    const buffer = [];
+    for await (const value of iterate.streamValues(stream)) {
       buffer.push.apply(buffer, await func(value));
     }
     return buffer;

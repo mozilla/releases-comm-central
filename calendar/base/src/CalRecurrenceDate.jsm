@@ -41,7 +41,7 @@ CalRecurrenceDate.prototype = {
   },
 
   clone() {
-    let other = new CalRecurrenceDate();
+    const other = new CalRecurrenceDate();
     other.mDate = this.mDate ? this.mDate.clone() : null;
     other.mIsNegative = this.mIsNegative;
     return other;
@@ -86,12 +86,12 @@ CalRecurrenceDate.prototype = {
   },
 
   get icalString() {
-    let comp = this.icalProperty;
+    const comp = this.icalProperty;
     return comp ? comp.icalString : "";
   },
   set icalString(val) {
-    let prop = cal.icsService.createIcalPropertyFromString(val);
-    let propName = prop.propertyName;
+    const prop = cal.icsService.createIcalPropertyFromString(val);
+    const propName = prop.propertyName;
     if (propName != "RDATE" && propName != "EXDATE") {
       throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
@@ -100,7 +100,7 @@ CalRecurrenceDate.prototype = {
   },
 
   get icalProperty() {
-    let prop = cal.icsService.createIcalProperty(this.mIsNegative ? "EXDATE" : "RDATE");
+    const prop = cal.icsService.createIcalProperty(this.mIsNegative ? "EXDATE" : "RDATE");
     prop.valueAsDatetime = this.mDate;
     return prop;
   },
@@ -108,7 +108,7 @@ CalRecurrenceDate.prototype = {
     if (prop.propertyName == "RDATE") {
       this.mIsNegative = false;
       if (prop.getParameter("VALUE") == "PERIOD") {
-        let period = new lazy.CalPeriod();
+        const period = new lazy.CalPeriod();
         period.icalString = prop.valueAsIcalString;
         this.mDate = period.start;
       } else {

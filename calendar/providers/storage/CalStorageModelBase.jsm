@@ -44,15 +44,15 @@ class CalStorageModelBase {
    * is associated with.
    */
   async deleteCalendar() {
-    let stmts = [];
+    const stmts = [];
     if (this.statements.mDeleteEventExtras) {
-      for (let stmt of this.statements.mDeleteEventExtras) {
+      for (const stmt of this.statements.mDeleteEventExtras) {
         stmts.push(this.db.prepareStatement(stmt));
       }
     }
 
     if (this.statements.mDeleteTodoExtras) {
-      for (let stmt of this.statements.mDeleteTodoExtras) {
+      for (const stmt of this.statements.mDeleteTodoExtras) {
         stmts.push(this.db.prepareStatement(stmt));
       }
     }

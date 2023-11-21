@@ -27,28 +27,28 @@ export var cal = {
   // These functions exist to reduce boilerplate code for creating instances
   // as well as getting services and other (cached) objects.
   createDateTime(value) {
-    let instance = new lazy.CalDateTime();
+    const instance = new lazy.CalDateTime();
     if (value) {
       instance.icalString = value;
     }
     return instance;
   },
   createDuration(value) {
-    let instance = new lazy.CalDuration();
+    const instance = new lazy.CalDuration();
     if (value) {
       instance.icalString = value;
     }
     return instance;
   },
   createRecurrenceDate(value) {
-    let instance = new lazy.CalRecurrenceDate();
+    const instance = new lazy.CalRecurrenceDate();
     if (value) {
       instance.icalString = value;
     }
     return instance;
   },
   createRecurrenceRule(value) {
-    let instance = new lazy.CalRecurrenceRule();
+    const instance = new lazy.CalRecurrenceRule();
     if (value) {
       instance.icalString = value;
     }
@@ -121,9 +121,9 @@ export var cal = {
       return;
     }
 
-    let string = `Assert failed: ${aMessage}\n ${cal.STACK(0, 1)}`;
+    const string = `Assert failed: ${aMessage}\n ${cal.STACK(0, 1)}`;
     if (aCritical) {
-      let rescode = aCritical === true ? Cr.NS_ERROR_UNEXPECTED : aCritical;
+      const rescode = aCritical === true ? Cr.NS_ERROR_UNEXPECTED : aCritical;
       throw new Components.Exception(string, rescode);
     } else {
       console.error(string);
@@ -148,11 +148,11 @@ export var cal = {
       return ChromeUtils.generateQI(aInterfaces);
     }
     /* Note that Ci[Ci.x] == Ci.x for all x */
-    let names = [];
+    const names = [];
     if (aInterfaces) {
       for (let i = 0; i < aInterfaces.length; i++) {
-        let iface = aInterfaces[i];
-        let name = (iface && iface.name) || String(iface);
+        const iface = aInterfaces[i];
+        const name = (iface && iface.name) || String(iface);
         if (name in Ci) {
           names.push(name);
         }
@@ -174,9 +174,9 @@ export var cal = {
       throw Error("In generateCI, don't use a component for generating classInfo");
     }
     /* Note that Ci[Ci.x] == Ci.x for all x */
-    let _interfaces = [];
+    const _interfaces = [];
     for (let i = 0; i < classInfo.interfaces.length; i++) {
-      let iface = classInfo.interfaces[i];
+      const iface = classInfo.interfaces[i];
       if (Ci[iface]) {
         _interfaces.push(Ci[iface]);
       }
@@ -214,7 +214,7 @@ export var cal = {
    */
   createAdapter(iface, template) {
     let methods;
-    let adapter = template || {};
+    const adapter = template || {};
     switch (iface.name || iface) {
       case "calIObserver":
         methods = [
@@ -243,7 +243,7 @@ export var cal = {
         break;
     }
 
-    for (let method of methods) {
+    for (const method of methods) {
       if (!(method in template)) {
         adapter[method] = function () {};
       }
@@ -272,7 +272,7 @@ export var cal = {
    * @param oneTime whether to listen only once
    */
   addObserver(func, topic, oneTime) {
-    let observer = {
+    const observer = {
       // nsIObserver:
       observe(subject, topic_, data) {
         if (topic == topic_) {
@@ -456,7 +456,7 @@ function shutdownCleanup(obj, prop) {
   if (!shutdownCleanup.mEntries) {
     shutdownCleanup.mEntries = [];
     cal.addShutdownObserver(() => {
-      for (let entry of shutdownCleanup.mEntries) {
+      for (const entry of shutdownCleanup.mEntries) {
         if (entry.mProp) {
           delete entry.mObj[entry.mProp];
         } else {

@@ -141,12 +141,12 @@ async function unifinderSelect(event) {
     return;
   }
 
-  let selectedItems = [];
+  const selectedItems = [];
 
   // Get the selected events from the tree
-  let start = {};
-  let end = {};
-  let numRanges = currentSelection.getRangeCount();
+  const start = {};
+  const end = {};
+  const numRanges = currentSelection.getRangeCount();
 
   for (let range = 0; range < numRanges; range++) {
     currentSelection.getRangeAt(range, start, end);
@@ -247,8 +247,8 @@ function updateUnifinderFilterText() {
  * selection.
  */
 function refreshUnifinderFilterInterval() {
-  let view = currentView();
-  let today = cal.dtz.now();
+  const view = currentView();
+  const today = cal.dtz.now();
   today.isDate = true;
 
   let startDate, endDate;

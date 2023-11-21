@@ -22,7 +22,7 @@ class CalStorageMetaDataModel extends CalStorageModelBase {
   addMetaData(id, value) {
     try {
       this.db.prepareStatement(this.statements.mInsertMetaData);
-      let params = this.statements.mInsertMetaData.params;
+      const params = this.statements.mInsertMetaData.params;
       params.item_id = id;
       params.value = value;
       this.statements.mInsertMetaData.executeStep();
@@ -53,7 +53,7 @@ class CalStorageMetaDataModel extends CalStorageModelBase {
    * @param {string} id
    */
   getMetaData(id) {
-    let query = this.statements.mSelectMetaData;
+    const query = this.statements.mSelectMetaData;
     let value = null;
     try {
       this.db.prepareStatement(query);
@@ -77,8 +77,8 @@ class CalStorageMetaDataModel extends CalStorageModelBase {
    * @param {string} key - Specifies which column to return.
    */
   getAllMetaData(key) {
-    let query = this.statements.mSelectAllMetaData;
-    let results = [];
+    const query = this.statements.mSelectAllMetaData;
+    const results = [];
     try {
       this.db.prepareStatement(query);
       while (query.executeStep()) {

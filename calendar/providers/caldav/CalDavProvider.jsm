@@ -43,14 +43,14 @@ var CalDavProvider = {
     savePassword = false,
     extraProperties = {}
   ) {
-    let uri = cal.provider.detection.locationToUri(location);
+    const uri = cal.provider.detection.locationToUri(location);
     if (!uri) {
       throw new Error("Could not infer location from username");
     }
 
-    let detector = new CalDavDetector(username, password, savePassword);
+    const detector = new CalDavDetector(username, password, savePassword);
 
-    for (let method of [
+    for (const method of [
       "attemptGoogleOauth",
       "attemptLocation",
       "dnsSRV",
@@ -59,19 +59,19 @@ var CalDavProvider = {
     ]) {
       try {
         cal.LOG(`[CalDavProvider] Trying to detect calendar using ${method} method`);
-        let calendars = await detector[method](uri);
+        const calendars = await detector[method](uri);
         if (calendars) {
           return calendars;
         }
       } catch (e) {
         // e may be an Error object or a response object like CalDavSimpleResponse.
         // It can even be a string, as with the OAuth2 error below.
-        let message = `[CalDavProvider] Could not detect calendar using method ${method}`;
+        const message = `[CalDavProvider] Could not detect calendar using method ${method}`;
 
-        let errorDetails = err =>
+        const errorDetails = err =>
           ` - ${err.fileName || err.filename}:${err.lineNumber}: ${err} - ${err.stack}`;
 
-        let responseDetails = response => ` - HTTP response status ${response.status}`;
+        const responseDetails = response => ` - HTTP response status ${response.status}`;
 
         // A special thing the OAuth2 code throws.
         if (e == '{ "error": "cancelled"}') {
@@ -149,7 +149,7 @@ class CalDavDetector {
     }
 
     let dnshost = location.host;
-    let secure = location.schemeIs("http") ? "" : "s";
+    const secure = location.schemeIs("http") ? "" : "s";
     let dnsres = await DNS.srv(`_caldav${secure}._tcp.${dnshost}`);
 
     if (!dnsres.length) {
@@ -177,12 +177,12 @@ class CalDavDetector {
     pathres.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
     pathres = pathres.filter(result => result.data.startsWith("path="));
     // Get the string after `path=`.
-    let path = pathres.length ? pathres[0].data.substr(5) : "";
+    const path = pathres.length ? pathres[0].data.substr(5) : "";
 
     let calendars;
     if (path) {
       // If the server has SRV and TXT entries, we already have a full context path to test.
-      let uri = `http${secure}://${dnsres[0].host}:${dnsres[0].port}${path}`;
+      const uri = `http${secure}://${dnsres[0].host}:${dnsres[0].port}${path}`;
       cal.LOG(`[CalDavProvider] Trying ${uri} from SRV and TXT response`);
       calendars = await this.detectCollection(Services.io.newURI(uri));
     }
@@ -192,7 +192,7 @@ class CalDavDetector {
       // well-known), or no calendars could be detected at that location (in which case we
       // need to repeat with well-known).
 
-      let baseloc = Services.io.newURI(
+      const baseloc = Services.io.newURI(
         `http${secure}://${dnsres[0].host}:${dnsres[0].port}/.well-known/caldav`
       );
       cal.LOG(`[CalDavProvider] Trying ${baseloc.spec} from SRV response with .well-known`);
@@ -210,7 +210,7 @@ class CalDavDetector {
    * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async wellKnown(location) {
-    let wellKnownUri = Services.io.newURI("/.well-known/caldav", null, location);
+    const wellKnownUri = Services.io.newURI("/.well-known/caldav", null, location);
     cal.LOG(`[CalDavProvider] Trying .well-known URI without dns at ${wellKnownUri.spec}`);
     return this.detectCollection(wellKnownUri);
   }
@@ -222,7 +222,7 @@ class CalDavDetector {
    * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   attemptRoot(location) {
-    let rootUri = Services.io.newURI("/", null, location);
+    const rootUri = Services.io.newURI("/", null, location);
     return this.detectCollection(rootUri);
   }
 
@@ -237,18 +237,18 @@ class CalDavDetector {
     if (!usesGoogleOAuth) {
       // Not using Google OAuth that we know of, but we could check the mx entry.
       // If mail is handled by Google then this is likely a Google Apps domain.
-      let mxRecords = await DNS.mx(calURI.host);
+      const mxRecords = await DNS.mx(calURI.host);
       usesGoogleOAuth = mxRecords.some(r => /\bgoogle\.com$/.test(r.host));
     }
 
     if (usesGoogleOAuth) {
       // If we were given a full URL to a calendar, try to use it.
-      let spec = this.username
+      const spec = this.username
         ? `https://apidata.googleusercontent.com/caldav/v2/${encodeURIComponent(
             this.username
           )}/user`
         : calURI.spec;
-      let uri = Services.io.newURI(spec);
+      const uri = Services.io.newURI(spec);
       return this.handlePrincipal(uri);
     }
     return null;
@@ -262,7 +262,7 @@ class CalDavDetector {
    * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async detectCollection(location) {
-    let props = [
+    const props = [
       "D:resourcetype",
       "D:owner",
       "D:displayname",
@@ -273,11 +273,11 @@ class CalDavDetector {
     ];
 
     cal.LOG(`[CalDavProvider] Checking collection type at ${location.spec}`);
-    let request = new CalDavPropfindRequest(this.session, null, location, props);
+    const request = new CalDavPropfindRequest(this.session, null, location, props);
 
     // `request.commit()` can throw; errors should be caught by calling functions.
-    let response = await request.commit();
-    let target = response.uri;
+    const response = await request.commit();
+    const target = response.uri;
 
     if (response.authError) {
       throw new cal.provider.detection.AuthFailedError();
@@ -286,26 +286,26 @@ class CalDavDetector {
       return null;
     }
 
-    let resprops = response.firstProps;
-    let resourceType = resprops["D:resourcetype"];
+    const resprops = response.firstProps;
+    const resourceType = resprops["D:resourcetype"];
 
     if (resourceType.has("C:calendar")) {
       cal.LOG(`[CalDavProvider] ${target.spec} is a calendar`);
       return [this.handleCalendar(target, resprops)];
     } else if (resourceType.has("D:principal")) {
       cal.LOG(`[CalDavProvider] ${target.spec} is a principal, looking at home set`);
-      let homeSet = resprops["C:calendar-home-set"];
-      let homeSetUrl = Services.io.newURI(homeSet, null, target);
+      const homeSet = resprops["C:calendar-home-set"];
+      const homeSetUrl = Services.io.newURI(homeSet, null, target);
       return this.handleHomeSet(homeSetUrl);
     } else if (resprops["D:current-user-principal"]) {
       cal.LOG(
         `[CalDavProvider] ${target.spec} is something else, looking at current-user-principal`
       );
-      let principalUrl = Services.io.newURI(resprops["D:current-user-principal"], null, target);
+      const principalUrl = Services.io.newURI(resprops["D:current-user-principal"], null, target);
       return this.handlePrincipal(principalUrl);
     } else if (resprops["D:owner"]) {
       cal.LOG(`[CalDavProvider] ${target.spec} is something else, looking at collection owner`);
-      let principalUrl = Services.io.newURI(resprops["D:owner"], null, target);
+      const principalUrl = Services.io.newURI(resprops["D:owner"], null, target);
       return this.handlePrincipal(principalUrl);
     }
 
@@ -321,14 +321,14 @@ class CalDavDetector {
    * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async handlePrincipal(location) {
-    let props = ["D:resourcetype", "C:calendar-home-set"];
-    let request = new CalDavPropfindRequest(this.session, null, location, props);
+    const props = ["D:resourcetype", "C:calendar-home-set"];
+    const request = new CalDavPropfindRequest(this.session, null, location, props);
     cal.LOG(`[CalDavProvider] Checking collection type at ${location.spec}`);
 
     // `request.commit()` can throw; errors should be caught by calling functions.
-    let response = await request.commit();
-    let homeSets = response.firstProps["C:calendar-home-set"];
-    let target = response.uri;
+    const response = await request.commit();
+    const homeSets = response.firstProps["C:calendar-home-set"];
+    const target = response.uri;
 
     if (response.authError) {
       throw new cal.provider.detection.AuthFailedError();
@@ -336,11 +336,11 @@ class CalDavDetector {
       cal.LOG(`[CalDavProvider] ${target.spec} is not a principal collection`);
       return null;
     } else if (homeSets) {
-      let calendars = [];
-      for (let homeSet of homeSets) {
+      const calendars = [];
+      for (const homeSet of homeSets) {
         cal.LOG(`[CalDavProvider] ${target.spec} has a home set at ${homeSet}, checking that`);
-        let homeSetUrl = Services.io.newURI(homeSet, null, target);
-        let discoveredCalendars = await this.handleHomeSet(homeSetUrl);
+        const homeSetUrl = Services.io.newURI(homeSet, null, target);
+        const discoveredCalendars = await this.handleHomeSet(homeSetUrl);
         if (discoveredCalendars) {
           calendars.push(...discoveredCalendars);
         }
@@ -360,26 +360,26 @@ class CalDavDetector {
    * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async handleHomeSet(location) {
-    let props = [
+    const props = [
       "D:resourcetype",
       "D:displayname",
       "D:current-user-privilege-set",
       "A:calendar-color",
     ];
-    let request = new CalDavPropfindRequest(this.session, null, location, props, 1);
+    const request = new CalDavPropfindRequest(this.session, null, location, props, 1);
 
     // `request.commit()` can throw; errors should be caught by calling functions.
-    let response = await request.commit();
-    let target = response.uri;
+    const response = await request.commit();
+    const target = response.uri;
 
     if (response.authError) {
       throw new cal.provider.detection.AuthFailedError();
     }
 
-    let calendars = [];
-    for (let [href, resprops] of Object.entries(response.data)) {
+    const calendars = [];
+    for (const [href, resprops] of Object.entries(response.data)) {
       if (resprops["D:resourcetype"].has("C:calendar")) {
-        let hrefUri = Services.io.newURI(href, null, target);
+        const hrefUri = Services.io.newURI(href, null, target);
         calendars.push(this.handleCalendar(hrefUri, resprops));
       }
     }
@@ -400,14 +400,14 @@ class CalDavDetector {
     let displayName = props["D:displayname"];
     let color = props["A:calendar-color"];
     if (!displayName) {
-      let fileName = decodeURI(uri.spec).split("/").filter(Boolean).pop();
+      const fileName = decodeURI(uri.spec).split("/").filter(Boolean).pop();
       displayName = fileName || uri.spec;
     }
 
     // Some servers provide colors as an 8-character hex string. Strip the alpha component.
     color = color?.replace(/^(#[0-9A-Fa-f]{6})[0-9A-Fa-f]{2}$/, "$1");
 
-    let calendar = cal.manager.createCalendar("caldav", uri);
+    const calendar = cal.manager.createCalendar("caldav", uri);
     calendar.setProperty("color", color || cal.view.hashColor(uri.spec));
     calendar.name = displayName;
     calendar.id = cal.getUUID();
@@ -415,7 +415,7 @@ class CalDavDetector {
     calendar.wrappedJSObject.session = this.session.toBaseSession();
 
     // Attempt to discover if the user is allowed to write to this calendar.
-    let privs = props["D:current-user-privilege-set"];
+    const privs = props["D:current-user-privilege-set"];
     if (privs && privs instanceof Set) {
       calendar.readOnly = !["D:write", "D:write-content", "D:write-properties", "D:all"].some(
         priv => privs.has(priv)

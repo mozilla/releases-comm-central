@@ -21,9 +21,9 @@ var MODE_TRUNCATE = 0x20;
  * @returns {calIItemBase[]} Array of calendar items.
  */
 function getItemsFromIcsFile(file) {
-  let importer = Cc["@mozilla.org/calendar/import;1?type=ics"].getService(Ci.calIImporter);
+  const importer = Cc["@mozilla.org/calendar/import;1?type=ics"].getService(Ci.calIImporter);
 
-  let inputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+  const inputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
     Ci.nsIFileInputStream
   );
   let items = [];
@@ -100,9 +100,9 @@ async function putItemsIntoCal(destCal, aItems, aListener) {
   startBatchTransaction();
 
   let count = 0;
-  let total = aItems.length;
+  const total = aItems.length;
 
-  for (let item of aItems) {
+  for (const item of aItems) {
     try {
       await destCal.addItem(item);
     } catch (e) {
@@ -136,7 +136,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
   }
 
   // Show the 'Save As' dialog and ask for a filename to save to
-  let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+  const picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   picker.init(window, cal.l10n.getCalString("filepickerTitleExport"), Ci.nsIFilePicker.modeSave);
 
   let filename;
@@ -153,11 +153,11 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
   picker.defaultExtension = "ics";
 
   // Get a list of exporters
-  let contractids = [];
+  const contractids = [];
   let currentListLength = 0;
   let defaultCIDIndex = 0;
-  for (let { data } of Services.catMan.enumerateCategory("cal-exporters")) {
-    let contractid = Services.catMan.getCategoryEntry("cal-exporters", data);
+  for (const { data } of Services.catMan.enumerateCategory("cal-exporters")) {
+    const contractid = Services.catMan.getCategoryEntry("cal-exporters", data);
     let exporter;
     try {
       exporter = Cc[contractid].getService(Ci.calIExporter);
@@ -165,8 +165,8 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
       cal.WARN("Could not initialize exporter: " + contractid + "\nError: " + e);
       continue;
     }
-    let types = exporter.getFileTypes();
-    for (let type of types) {
+    const types = exporter.getFileTypes();
+    for (const type of types) {
       picker.appendFilter(type.description, type.extensionFilter);
       if (type.extensionFilter == "*." + picker.defaultExtension) {
         picker.filterIndex = currentListLength;
@@ -189,18 +189,17 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
       filterIndex = defaultCIDIndex;
     }
 
-    let exporter = Cc[contractids[filterIndex]].getService(Ci.calIExporter);
+    const exporter = Cc[contractids[filterIndex]].getService(Ci.calIExporter);
 
     let filePath = picker.file.path;
     if (!filePath.includes(".")) {
       filePath += "." + exporter.getFileTypes()[0].defaultExtension;
     }
 
-    let outputStream;
-    let localFileInstance = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    const localFileInstance = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     localFileInstance.initWithPath(filePath);
 
-    outputStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
+    const outputStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
       Ci.nsIFileOutputStream
     );
     try {
@@ -228,15 +227,15 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
  * @param aCalendar     (optional) A specific calendar to export
  */
 function exportEntireCalendar(aCalendar) {
-  let getItemsFromCal = async function (aCal) {
-    let items = await aCal.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
+  const getItemsFromCal = async function (aCal) {
+    const items = await aCal.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
     saveEventsToFile(items, aCal.name);
   };
 
   if (aCalendar) {
     getItemsFromCal(aCalendar);
   } else {
-    let calendars = cal.manager.getCalendars();
+    const calendars = cal.manager.getCalendars();
 
     if (calendars.length == 1) {
       // There's only one calendar, so it's silly to ask what calendar
@@ -244,7 +243,7 @@ function exportEntireCalendar(aCalendar) {
       getItemsFromCal(calendars[0]);
     } else {
       // Ask what calendar to import into
-      let args = {};
+      const args = {};
       args.onOk = getItemsFromCal;
       args.promptText = cal.l10n.getCalString("exportPrompt");
       openDialog(

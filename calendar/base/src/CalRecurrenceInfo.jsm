@@ -10,7 +10,7 @@ function getRidKey(date) {
   if (!date) {
     return null;
   }
-  let timezone = date.timezone;
+  const timezone = date.timezone;
   if (!timezone.isUTC && !timezone.isFloating) {
     date = date.getInTimezone(cal.dtz.UTC);
   }
@@ -62,7 +62,7 @@ CalRecurrenceInfo.prototype = {
     if (!this.mPositiveRules || !this.mNegativeRules) {
       this.mPositiveRules = [];
       this.mNegativeRules = [];
-      for (let ritem of this.mRecurrenceItems) {
+      for (const ritem of this.mRecurrenceItems) {
         if (ritem.isNegative) {
           this.mNegativeRules.push(ritem);
         } else {
@@ -83,14 +83,14 @@ CalRecurrenceInfo.prototype = {
       return;
     }
 
-    for (let ritem of this.mRecurrenceItems) {
+    for (const ritem of this.mRecurrenceItems) {
       if (ritem.isMutable) {
         ritem.makeImmutable();
       }
     }
 
-    for (let ex in this.mExceptionMap) {
-      let item = this.mExceptionMap[ex];
+    for (const ex in this.mExceptionMap) {
+      const item = this.mExceptionMap[ex];
       if (item.isMutable) {
         item.makeImmutable();
       }
@@ -100,17 +100,17 @@ CalRecurrenceInfo.prototype = {
   },
 
   clone() {
-    let cloned = new CalRecurrenceInfo();
+    const cloned = new CalRecurrenceInfo();
     cloned.mBaseItem = this.mBaseItem;
 
-    let clonedItems = [];
-    for (let ritem of this.mRecurrenceItems) {
+    const clonedItems = [];
+    for (const ritem of this.mRecurrenceItems) {
       clonedItems.push(ritem.clone());
     }
     cloned.mRecurrenceItems = clonedItems;
 
-    let clonedExceptions = {};
-    for (let exitem in this.mExceptionMap) {
+    const clonedExceptions = {};
+    for (const exitem in this.mExceptionMap) {
       clonedExceptions[exitem] = this.mExceptionMap[exitem].cloneShallow(this.mBaseItem);
     }
     cloned.mExceptionMap = clonedExceptions;
@@ -130,8 +130,8 @@ CalRecurrenceInfo.prototype = {
     value = cal.unwrapInstance(value);
     this.mBaseItem = value;
     // patch exception's parentItem:
-    for (let ex in this.mExceptionMap) {
-      let exitem = this.mExceptionMap[ex];
+    for (const ex in this.mExceptionMap) {
+      const exitem = this.mExceptionMap[ex];
       exitem.parentItem = value;
     }
   },
@@ -139,7 +139,7 @@ CalRecurrenceInfo.prototype = {
   get isFinite() {
     this.ensureBaseItem();
 
-    for (let ritem of this.mRecurrenceItems) {
+    for (const ritem of this.mRecurrenceItems) {
       if (!ritem.isFinite) {
         return false;
       }
@@ -185,19 +185,19 @@ CalRecurrenceInfo.prototype = {
     if (this.mEndDate === null) {
       if (this.isFinite) {
         this.mEndDate = MIN_PRTIME;
-        let lastOccurrence = this.getPreviousOccurrence(cal.createDateTime("99991231T235959Z"));
+        const lastOccurrence = this.getPreviousOccurrence(cal.createDateTime("99991231T235959Z"));
         if (lastOccurrence) {
-          let endingDate = this.getItemEndingDate(lastOccurrence);
+          const endingDate = this.getItemEndingDate(lastOccurrence);
           if (endingDate) {
             this.mEndDate = endingDate.nativeTime;
           }
         }
 
         // A modified occurrence may have a new ending date positioned after last occurrence one.
-        for (let rid in this.mExceptionMap) {
-          let item = this.mExceptionMap[rid];
+        for (const rid in this.mExceptionMap) {
+          const item = this.mExceptionMap[rid];
 
-          let endingDate = this.getItemEndingDate(item);
+          const endingDate = this.getItemEndingDate(item);
           if (endingDate && this.mEndDate < endingDate.nativeTime) {
             this.mEndDate = endingDate.nativeTime;
           }
@@ -275,7 +275,7 @@ CalRecurrenceInfo.prototype = {
 
   deleteRecurrenceItem(aItem) {
     aItem = cal.unwrapInstance(aItem);
-    let pos = this.mRecurrenceItems.indexOf(aItem);
+    const pos = this.mRecurrenceItems.indexOf(aItem);
     if (pos > -1) {
       this.deleteRecurrenceItemAt(pos);
     } else {
@@ -318,15 +318,15 @@ CalRecurrenceInfo.prototype = {
     this.ensureBaseItem();
     this.ensureSortedRecurrenceRules();
 
-    let startDate = this.mBaseItem.recurrenceStartDate;
-    let nextOccurrences = [];
+    const startDate = this.mBaseItem.recurrenceStartDate;
+    const nextOccurrences = [];
     let invalidOccurrences;
-    let negMap = {};
+    const negMap = {};
     let minOccRid;
 
     // Go through all negative rules to create a map of occurrences that
     // should be skipped when going through occurrences.
-    for (let ritem of this.mNegativeRules) {
+    for (const ritem of this.mNegativeRules) {
       // TODO Infinite rules (i.e EXRULE) are not taken into account,
       // because its very performance hungry and could potentially
       // lead to a deadlock (i.e RRULE is canceled out by an EXRULE).
@@ -336,9 +336,9 @@ CalRecurrenceInfo.prototype = {
         // This is fine, since there will never be an EXDATE that
         // occurs before the event started and its illegal to EXDATE an
         // RDATE.
-        let rdates = ritem.getOccurrences(startDate, startDate, null, 0);
+        const rdates = ritem.getOccurrences(startDate, startDate, null, 0);
         // Map all negative dates.
-        for (let rdate of rdates) {
+        for (const rdate of rdates) {
           negMap[getRidKey(rdate)] = true;
         }
       } else {
@@ -363,12 +363,12 @@ CalRecurrenceInfo.prototype = {
       // If in a loop at least one rid is valid (i.e not an exception, not
       // an exdate, is after aTime), then remember the lowest one.
       for (let i = 0; i < this.mPositiveRules.length; i++) {
-        let rDateInstance = cal.wrapInstance(this.mPositiveRules[i], Ci.calIRecurrenceDate);
-        let rRuleInstance = cal.wrapInstance(this.mPositiveRules[i], Ci.calIRecurrenceRule);
+        const rDateInstance = cal.wrapInstance(this.mPositiveRules[i], Ci.calIRecurrenceDate);
+        const rRuleInstance = cal.wrapInstance(this.mPositiveRules[i], Ci.calIRecurrenceRule);
         if (rDateInstance) {
           // RDATEs are special. there is only one date in this rule,
           // so no need to search anything.
-          let rdate = rDateInstance.date;
+          const rdate = rDateInstance.date;
           if (!nextOccurrences[i] && rdate.compare(aTime) > 0) {
             // The RDATE falls into range, save it.
             nextOccurrences[i] = rdate;
@@ -383,13 +383,13 @@ CalRecurrenceInfo.prototype = {
           // the pattern is only valid afterwards. If an occurrence
           // was found in a previous round, we can go ahead and start
           // searching from that occurrence.
-          let searchStart = nextOccurrences[i] || startDate;
+          const searchStart = nextOccurrences[i] || startDate;
 
           // Search for the next occurrence after aTime. If the last
           // round was invalid, then in this round we need to search
           // after nextOccurrences[i] to make sure getNextOccurrence()
           // doesn't find the same occurrence again.
-          let searchDate =
+          const searchDate =
             nextOccurrences[i] && nextOccurrences[i].compare(aTime) > 0
               ? nextOccurrences[i]
               : aTime;
@@ -398,10 +398,10 @@ CalRecurrenceInfo.prototype = {
         }
 
         // As decided in bug 734245, an EXDATE of type DATE shall also match a DTSTART of type DATE-TIME
-        let nextKey = getRidKey(nextOccurrences[i]);
-        let isInExceptionMap =
+        const nextKey = getRidKey(nextOccurrences[i]);
+        const isInExceptionMap =
           nextKey && (this.mExceptionMap[nextKey.substring(0, 8)] || this.mExceptionMap[nextKey]);
-        let isInNegMap = nextKey && (negMap[nextKey.substring(0, 8)] || negMap[nextKey]);
+        const isInNegMap = nextKey && (negMap[nextKey.substring(0, 8)] || negMap[nextKey]);
         if (nextKey && (isInNegMap || isInExceptionMap)) {
           // If the found recurrence id points to either an exception
           // (will handle later) or an EXDATE, then nextOccurrences[i]
@@ -439,9 +439,9 @@ CalRecurrenceInfo.prototype = {
 
     // Scan exceptions for any dates earlier than the above found
     // minOccDate, but still after aTime.
-    for (let ex in this.mExceptionMap) {
-      let exc = this.mExceptionMap[ex];
-      let start = exc.recurrenceStartDate;
+    for (const ex in this.mExceptionMap) {
+      const exc = this.mExceptionMap[ex];
+      const start = exc.recurrenceStartDate;
       if (start.compare(aTime) > 0 && (!minOccDate || start.compare(minOccDate) <= 0)) {
         // This exception is earlier, save its rid (for getting the
         // occurrence later on) and its date (for comparing to other
@@ -461,10 +461,10 @@ CalRecurrenceInfo.prototype = {
     // recurrence start. Since rangeStart cannot be null for recurrence
     // items like calIRecurrenceRule, we need to work around by supplying a
     // very early date. Again, this might have a high performance penalty.
-    let early = cal.createDateTime();
+    const early = cal.createDateTime();
     early.icalString = "00000101T000000Z";
 
-    let rids = this.calculateDates(early, aTime, 0);
+    const rids = this.calculateDates(early, aTime, 0);
     // The returned dates are sorted, so the last one is a good
     // candidate, if it exists.
     return rids.length > 0 ? this.getOccurrenceFor(rids[rids.length - 1].id) : null;
@@ -476,23 +476,23 @@ CalRecurrenceInfo.prototype = {
     this.ensureSortedRecurrenceRules();
 
     // workaround for UTC- timezones
-    let rangeStart = cal.dtz.ensureDateTime(aRangeStart);
-    let rangeEnd = cal.dtz.ensureDateTime(aRangeEnd);
+    const rangeStart = cal.dtz.ensureDateTime(aRangeStart);
+    const rangeEnd = cal.dtz.ensureDateTime(aRangeEnd);
 
     // If aRangeStart falls in the middle of an occurrence, libical will
     // not return that occurrence when we go and ask for an
     // icalrecur_iterator_new.  This actually seems fairly rational, so
     // instead of hacking libical, I'm going to move aRangeStart back far
     // enough to make sure we get the occurrences we might miss.
-    let searchStart = rangeStart.clone();
-    let baseDuration = this.mBaseItem.duration;
+    const searchStart = rangeStart.clone();
+    const baseDuration = this.mBaseItem.duration;
     if (baseDuration) {
-      let duration = baseDuration.clone();
+      const duration = baseDuration.clone();
       duration.isNegative = true;
       searchStart.addDuration(duration);
     }
 
-    let startDate = this.mBaseItem.recurrenceStartDate;
+    const startDate = this.mBaseItem.recurrenceStartDate;
     if (startDate == null) {
       // Todo created by other apps may have a saved recurrence but
       // start and due dates disabled.  Since no recurrenceStartDate,
@@ -504,10 +504,10 @@ CalRecurrenceInfo.prototype = {
 
     // toss in exceptions first. Save a map of all exceptions ids, so we
     // don't add the wrong occurrences later on.
-    let occurrenceMap = {};
-    for (let ex in this.mExceptionMap) {
-      let item = this.mExceptionMap[ex];
-      let occDate = cal.item.checkIfInRange(item, aRangeStart, aRangeEnd, true);
+    const occurrenceMap = {};
+    for (const ex in this.mExceptionMap) {
+      const item = this.mExceptionMap[ex];
+      const occDate = cal.item.checkIfInRange(item, aRangeStart, aRangeEnd, true);
       occurrenceMap[ex] = true;
       if (occDate) {
         dates.push({ id: item.recurrenceId, rstart: occDate });
@@ -516,8 +516,8 @@ CalRecurrenceInfo.prototype = {
 
     // DTSTART/DUE is always part of the (positive) expanded set:
     // DTSTART always equals RECURRENCE-ID for items expanded from RRULE
-    let baseOccDate = cal.item.checkIfInRange(this.mBaseItem, aRangeStart, aRangeEnd, true);
-    let baseOccDateKey = getRidKey(baseOccDate);
+    const baseOccDate = cal.item.checkIfInRange(this.mBaseItem, aRangeStart, aRangeEnd, true);
+    const baseOccDateKey = getRidKey(baseOccDate);
     if (baseOccDate && !occurrenceMap[baseOccDateKey]) {
       occurrenceMap[baseOccDateKey] = true;
       dates.push({ id: baseOccDate, rstart: baseOccDate });
@@ -534,8 +534,8 @@ CalRecurrenceInfo.prototype = {
     }
 
     // Apply positive rules
-    for (let ritem of this.mPositiveRules) {
-      let cur_dates = ritem.getOccurrences(startDate, searchStart, rangeEnd, maxCount);
+    for (const ritem of this.mPositiveRules) {
+      const cur_dates = ritem.getOccurrences(startDate, searchStart, rangeEnd, maxCount);
       if (cur_dates.length == 0) {
         continue;
       }
@@ -544,12 +544,12 @@ CalRecurrenceInfo.prototype = {
       // but only if they're not already there
 
       let index = 0;
-      let len = cur_dates.length;
+      const len = cur_dates.length;
 
       // skip items before rangeStart due to searchStart libical hack:
       if (rangeStart && baseDuration) {
         for (; index < len; ++index) {
-          let date = cur_dates[index].clone();
+          const date = cur_dates[index].clone();
           date.addDuration(baseDuration);
           if (rangeStart.compare(date) < 0) {
             break;
@@ -557,8 +557,8 @@ CalRecurrenceInfo.prototype = {
         }
       }
       for (; index < len; ++index) {
-        let date = cur_dates[index];
-        let dateKey = getRidKey(date);
+        const date = cur_dates[index];
+        const dateKey = getRidKey(date);
         if (occurrenceMap[dateKey]) {
           // Don't add occurrences twice (i.e exception was
           // already added before)
@@ -572,8 +572,8 @@ CalRecurrenceInfo.prototype = {
     dates.sort((a, b) => a.rstart.compare(b.rstart));
 
     // Apply negative rules
-    for (let ritem of this.mNegativeRules) {
-      let cur_dates = ritem.getOccurrences(startDate, searchStart, rangeEnd, maxCount);
+    for (const ritem of this.mNegativeRules) {
+      const cur_dates = ritem.getOccurrences(startDate, searchStart, rangeEnd, maxCount);
       if (cur_dates.length == 0) {
         continue;
       }
@@ -582,12 +582,12 @@ CalRecurrenceInfo.prototype = {
       // (like, you can't make a date "real" by defining an RECURRENCE-ID which
       // is an EXDATE, and then giving it a real DTSTART) -- so we don't
       // check exceptions here
-      for (let dateToRemove of cur_dates) {
-        let dateToRemoveKey = getRidKey(dateToRemove);
+      for (const dateToRemove of cur_dates) {
+        const dateToRemoveKey = getRidKey(dateToRemove);
         if (dateToRemove.isDate) {
           // As decided in bug 734245, an EXDATE of type DATE shall also match a DTSTART of type DATE-TIME
-          let toRemove = [];
-          for (let occurenceKey in occurrenceMap) {
+          const toRemove = [];
+          for (const occurenceKey in occurrenceMap) {
             if (occurrenceMap[occurenceKey] && occurenceKey.substring(0, 8) == dateToRemoveKey) {
               dates = dates.filter(date => date.id.compare(dateToRemove) != 0);
               toRemove.push(occurenceKey);
@@ -623,8 +623,8 @@ CalRecurrenceInfo.prototype = {
   },
 
   getOccurrences(aRangeStart, aRangeEnd, aMaxCount) {
-    let results = [];
-    let dates = this.calculateDates(aRangeStart, aRangeEnd, aMaxCount);
+    const results = [];
+    const dates = this.calculateDates(aRangeStart, aRangeEnd, aMaxCount);
     if (dates.length) {
       let count;
       if (aMaxCount) {
@@ -641,7 +641,7 @@ CalRecurrenceInfo.prototype = {
   },
 
   getOccurrenceFor(aRecurrenceId) {
-    let proxy = this.getExceptionFor(aRecurrenceId);
+    const proxy = this.getExceptionFor(aRecurrenceId);
     if (!proxy) {
       return this.item.createProxy(aRecurrenceId);
     }
@@ -652,7 +652,7 @@ CalRecurrenceInfo.prototype = {
     this.ensureBaseItem();
     this.ensureMutable();
 
-    let rdate = cal.createRecurrenceDate();
+    const rdate = cal.createRecurrenceDate();
     rdate.isNegative = true;
     rdate.date = aRecurrenceId.clone();
 
@@ -667,7 +667,7 @@ CalRecurrenceInfo.prototype = {
     this.ensureSortedRecurrenceRules();
 
     for (let i = 0; i < this.mRecurrenceItems.length; i++) {
-      let rdate = cal.wrapInstance(this.mRecurrenceItems[i], Ci.calIRecurrenceDate);
+      const rdate = cal.wrapInstance(this.mRecurrenceItems[i], Ci.calIRecurrenceDate);
       if (rdate) {
         if (rdate.isNegative && rdate.date.compare(aRecurrenceId) == 0) {
           return this.deleteRecurrenceItemAt(i);
@@ -739,7 +739,7 @@ CalRecurrenceInfo.prototype = {
     // we're going to assume that the recurrenceId is valid here,
     // because presumably the item came from one of our functions
 
-    let exKey = getRidKey(itemtoadd.recurrenceId);
+    const exKey = getRidKey(itemtoadd.recurrenceId);
     this.mExceptionMap[exKey] = itemtoadd;
   },
 
@@ -760,9 +760,9 @@ CalRecurrenceInfo.prototype = {
   getExceptionIds() {
     this.ensureBaseItem();
 
-    let ids = [];
-    for (let ex in this.mExceptionMap) {
-      let item = this.mExceptionMap[ex];
+    const ids = [];
+    for (const ex in this.mExceptionMap) {
+      const item = this.mExceptionMap[ex];
       ids.push(item.recurrenceId);
     }
     return ids;
@@ -782,21 +782,21 @@ CalRecurrenceInfo.prototype = {
     }
 
     // convert both dates to UTC since subtractDate is not timezone aware.
-    let timeDiff = aNewStartTime
+    const timeDiff = aNewStartTime
       .getInTimezone(cal.dtz.UTC)
       .subtractDate(aOldStartTime.getInTimezone(cal.dtz.UTC));
 
-    let rdates = {};
+    const rdates = {};
 
     // take RDATE's and EXDATE's into account.
     const kCalIRecurrenceDate = Ci.calIRecurrenceDate;
-    let ritems = this.getRecurrenceItems();
+    const ritems = this.getRecurrenceItems();
     for (let ritem of ritems) {
-      let rDateInstance = cal.wrapInstance(ritem, kCalIRecurrenceDate);
-      let rRuleInstance = cal.wrapInstance(ritem, Ci.calIRecurrenceRule);
+      const rDateInstance = cal.wrapInstance(ritem, kCalIRecurrenceDate);
+      const rRuleInstance = cal.wrapInstance(ritem, Ci.calIRecurrenceRule);
       if (rDateInstance) {
         ritem = rDateInstance;
-        let date = ritem.date;
+        const date = ritem.date;
         date.addDuration(timeDiff);
         if (!ritem.isNegative) {
           rdates[getRidKey(date)] = date;
@@ -805,7 +805,7 @@ CalRecurrenceInfo.prototype = {
       } else if (rRuleInstance) {
         ritem = rRuleInstance;
         if (!ritem.isByCount) {
-          let untilDate = ritem.untilDate;
+          const untilDate = ritem.untilDate;
           if (untilDate) {
             untilDate.addDuration(timeDiff);
             ritem.untilDate = untilDate;
@@ -814,16 +814,16 @@ CalRecurrenceInfo.prototype = {
       }
     }
 
-    let startTimezone = aNewStartTime.timezone;
-    let modifiedExceptions = [];
-    for (let exid of this.getExceptionIds()) {
+    const startTimezone = aNewStartTime.timezone;
+    const modifiedExceptions = [];
+    for (const exid of this.getExceptionIds()) {
       let ex = this.getExceptionFor(exid);
       if (ex) {
         ex = ex.clone();
         // track RECURRENCE-IDs in DTSTART's or RDATE's timezone,
         // otherwise those won't match any longer w.r.t DST:
         let rid = ex.recurrenceId;
-        let rdate = rdates[getRidKey(rid)];
+        const rdate = rdates[getRidKey(rid)];
         rid = rid.getInTimezone(rdate ? rdate.timezone : startTimezone);
         rid.addDuration(timeDiff);
         ex.recurrenceId = rid;
@@ -832,15 +832,15 @@ CalRecurrenceInfo.prototype = {
         this.removeExceptionFor(exid);
       }
     }
-    for (let modifiedEx of modifiedExceptions) {
+    for (const modifiedEx of modifiedExceptions) {
       this.modifyException(modifiedEx, true);
     }
   },
 
   onIdChange(aNewId) {
     // patch all overridden items' id:
-    for (let ex in this.mExceptionMap) {
-      let item = this.mExceptionMap[ex];
+    for (const ex in this.mExceptionMap) {
+      const item = this.mExceptionMap[ex];
       item.id = aNewId;
     }
   },

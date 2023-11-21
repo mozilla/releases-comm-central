@@ -46,16 +46,16 @@
 
       this.setAttribute("orient", "vertical");
 
-      let monthDayLabels = document.createElement("h2");
+      const monthDayLabels = document.createElement("h2");
       monthDayLabels.classList.add("calendar-month-day-box-dates");
 
-      let weekLabel = document.createElement("span");
+      const weekLabel = document.createElement("span");
       weekLabel.setAttribute("data-label", "week");
       weekLabel.setAttribute("hidden", "true");
       weekLabel.style.pointerEvents = "none";
       weekLabel.classList.add("calendar-month-day-box-week-label", "calendar-month-week-label");
 
-      let dayLabel = document.createElement("span");
+      const dayLabel = document.createElement("span");
       dayLabel.setAttribute("data-label", "day");
       dayLabel.style.pointerEvents = "none";
       dayLabel.classList.add("calendar-month-day-box-date-label", "calendar-month-day-label");
@@ -81,7 +81,7 @@
     }
 
     get selected() {
-      let sel = this.getAttribute("selected");
+      const sel = this.getAttribute("selected");
       if (sel && sel == "true") {
         return true;
       }
@@ -147,7 +147,7 @@
       }
 
       // Set up DOM attributes for custom CSS coloring.
-      let weekTitle = cal.weekInfoService.getWeekTitle(aDate);
+      const weekTitle = cal.weekInfoService.getWeekTitle(aDate);
       this.setAttribute("year", aDate.year);
       this.setAttribute("month", aDate.month + 1);
       this.setAttribute("week", weekTitle);
@@ -165,14 +165,14 @@
         this.removeItem(aItem);
       }
 
-      let cssSafeId = cal.view.formatStringForCSSRule(aItem.calendar.id);
-      let box = document.createXULElement("calendar-month-day-box-item");
-      let context = this.getAttribute("item-context") || this.getAttribute("context");
+      const cssSafeId = cal.view.formatStringForCSSRule(aItem.calendar.id);
+      const box = document.createXULElement("calendar-month-day-box-item");
+      const context = this.getAttribute("item-context") || this.getAttribute("context");
       box.setAttribute("context", context);
       box.style.setProperty("--item-backcolor", `var(--calendar-${cssSafeId}-backcolor)`);
       box.style.setProperty("--item-forecolor", `var(--calendar-${cssSafeId}-forecolor)`);
 
-      let listItemWrapper = document.createElement("li");
+      const listItemWrapper = document.createElement("li");
       listItemWrapper.classList.add("calendar-month-day-box-list-item");
       listItemWrapper.appendChild(box);
       cal.data.binaryInsertNode(
@@ -209,18 +209,18 @@
     removeItem(aItem) {
       if (aItem.hashId in this.mItemHash) {
         // Delete the list item wrapper.
-        let node = this.mItemHash[aItem.hashId].parentNode;
+        const node = this.mItemHash[aItem.hashId].parentNode;
         node.remove();
         delete this.mItemHash[aItem.hashId];
       }
     }
 
     setDropShadow(on) {
-      let existing = this.dayList.querySelector(".dropshadow");
+      const existing = this.dayList.querySelector(".dropshadow");
       if (on) {
         if (!existing) {
           // Insert an empty list item.
-          let dropshadow = document.createElement("li");
+          const dropshadow = document.createElement("li");
           dropshadow.classList.add("dropshadow", "calendar-month-day-box-list-item");
           this.dayList.insertBefore(dropshadow, this.dayList.firstElementChild);
         }
@@ -235,16 +235,16 @@
       // Changing the drop day allows to compensate a possible difference.
 
       // Figure out if the timezones cause a days difference.
-      let start = (
+      const start = (
         aItem[cal.dtz.startDateProp(aItem)] || aItem[cal.dtz.endDateProp(aItem)]
       ).clone();
-      let dayboxDate = this.mDate.clone();
+      const dayboxDate = this.mDate.clone();
       if (start.timezone != dayboxDate.timezone) {
-        let startInDefaultTz = start.clone().getInTimezone(dayboxDate.timezone);
+        const startInDefaultTz = start.clone().getInTimezone(dayboxDate.timezone);
         start.isDate = true;
         startInDefaultTz.isDate = true;
         startInDefaultTz.timezone = start.timezone;
-        let dayDiff = start.subtractDate(startInDefaultTz);
+        const dayDiff = start.subtractDate(startInDefaultTz);
         // Change the day where to drop the item.
         dayboxDate.addDuration(dayDiff);
       }
@@ -346,17 +346,17 @@
       if (val.isEvent()) {
         let type;
         if (!val.startDate.isDate) {
-          let formatter = cal.dtz.formatter;
-          let parentTime = this.parentBox.date.clone();
+          const formatter = cal.dtz.formatter;
+          const parentTime = this.parentBox.date.clone();
           // Convert to the date-time for the start of the day.
           parentTime.isDate = false;
           // NOTE: Since this event was placed in this box, then we should be
           // able to assume that the event starts before or on the same day, and
           // it ends after or on the same day.
-          let startCompare = val.startDate.compare(parentTime);
+          const startCompare = val.startDate.compare(parentTime);
           // Go to the end of the day (midnight).
           parentTime.day++;
-          let endCompare = val.endDate.compare(parentTime);
+          const endCompare = val.endDate.compare(parentTime);
           if (startCompare == -1) {
             // Starts before this day.
             switch (endCompare) {
@@ -388,7 +388,7 @@
             );
           }
         }
-        let icon = this.querySelector(".item-type-icon");
+        const icon = this.querySelector(".item-type-icon");
         icon.classList.toggle("rotated-to-read-direction", !!type);
         switch (type) {
           case "start":
@@ -494,11 +494,11 @@
 
       this.mClickedTime = null;
 
-      let dayHeaderRow = this.querySelector("thead > tr");
+      const dayHeaderRow = this.querySelector("thead > tr");
       this.dayHeaders = new Array(7);
       for (let i = 0; i < 7; i++) {
-        let hdr = document.createXULElement("calendar-day-label");
-        let headerCell = document.createElement("th");
+        const hdr = document.createXULElement("calendar-day-label");
+        const headerCell = document.createElement("th");
         headerCell.setAttribute("scope", "col");
         // NOTE: At the time of implementation, the natural columnheader role is
         // lost, probably from setting the CSS display of the container table
@@ -515,10 +515,10 @@
 
       this.monthbody = this.querySelector(".monthbody");
       for (let week = 1; week <= 6; week++) {
-        let weekRow = document.createElement("tr");
+        const weekRow = document.createElement("tr");
         for (let day = 1; day <= 7; day++) {
-          let dayCell = document.createElement("td");
-          let dayContent = document.createXULElement("calendar-month-day-box");
+          const dayCell = document.createElement("td");
+          const dayContent = document.createXULElement("calendar-month-day-box");
           dayCell.appendChild(dayContent);
           weekRow.appendChild(dayCell);
           // Set the grid row for the element. This is needed to ensure the
@@ -654,7 +654,7 @@
 
       // The start and end dates to query calendars with (in CalendarFilteredViewMixin).
       this.startDate = viewStart;
-      let viewEndPlusOne = viewEnd.clone();
+      const viewEndPlusOne = viewEnd.clone();
       viewEndPlusOne.day++;
       this.endDate = viewEndPlusOne;
 
@@ -770,7 +770,7 @@
      * prevent horizontal scrollbars from appearing briefly.
      */
     adjustWeekdayLength() {
-      let dayLabels = this.querySelectorAll("calendar-day-label");
+      const dayLabels = this.querySelectorAll("calendar-day-label");
       if (!this.longWeekdayTotalPixels) {
         let maxDayWidth = 0;
 
@@ -785,9 +785,9 @@
           this.longWeekdayTotalPixels = 0;
         }
       }
-      let useShortNames = this.longWeekdayTotalPixels > 0.95 * this.clientWidth;
+      const useShortNames = this.longWeekdayTotalPixels > 0.95 * this.clientWidth;
 
-      for (let label of dayLabels) {
+      for (const label of dayLabels) {
         label.shortWeekNames = useShortNames;
       }
     }
@@ -798,7 +798,7 @@
      * @param {Element} viewElement - A calendar view element (calICalendarView).
      */
     onResize() {
-      let { width, height } = this.getBoundingClientRect();
+      const { width, height } = this.getBoundingClientRect();
       if (width == this.mWidth && height == this.mHeight) {
         // Return early if we're still the previous size.
         return;
@@ -859,7 +859,7 @@
         // collapse the rest of the rows, otherwise expand them if needed.
         row.toggleAttribute("hidden", finished);
         if (finished) {
-          for (let cell of row.cells) {
+          for (const cell of row.cells) {
             // Clear out the hidden cells for to avoid holding events in memory
             // for no reason. Also prevents tests failing due to stray event
             // boxes from months that are no longer displayed.
@@ -977,7 +977,7 @@
     setDateBoxRelations() {
       const today = this.today();
 
-      for (let header of this.dayHeaders) {
+      for (const header of this.dayHeaders) {
         if (header.weekDay == today.weekday) {
           header.setAttribute("relation", "today");
         } else {
@@ -985,7 +985,7 @@
         }
       }
 
-      for (let daybox of this.mDateBoxes) {
+      for (const daybox of this.mDateBoxes) {
         // Set up date relations.
         switch (daybox.mDate.compare(today)) {
           case -1:
@@ -1028,7 +1028,7 @@
         const dayOff = this.mDaysOffArray.includes(dayForColumn) && !this.mDisplayDaysOff;
         // Set the hidden attribute on the parentNode td.
         this.dayHeaders[colNum].parentNode.toggleAttribute("hidden", dayOff);
-        for (let row of rows) {
+        for (const row of rows) {
           row.children[colNum].toggleAttribute("hidden", dayOff);
         }
       }
@@ -1164,7 +1164,7 @@
      * Removes all items so they are no longer displayed.
      */
     clearItems() {
-      for (let dayBox of this.querySelectorAll("calendar-month-day-box")) {
+      for (const dayBox of this.querySelectorAll("calendar-month-day-box")) {
         dayBox.clear();
       }
     }

@@ -29,7 +29,7 @@ function launchBrowser(url, event) {
   }
 
   if (/^mid:/i.test(url)) {
-    let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+    const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
     MailUtils.openMessageByMessageId(url.slice(4));
     return;
   }

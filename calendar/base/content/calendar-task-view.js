@@ -28,9 +28,9 @@ var taskDetailsView = {
       return flag;
     }
 
-    let dateFormatter = cal.dtz.formatter;
+    const dateFormatter = cal.dtz.formatter;
 
-    let item = document.getElementById("calendar-task-tree").currentTask;
+    const item = document.getElementById("calendar-task-tree").currentTask;
     if (
       displayElement("calendar-task-details-container", item != null) &&
       displayElement("calendar-task-view-splitter", item != null)
@@ -40,7 +40,7 @@ var taskDetailsView = {
         ? item.title.replace(/\n/g, " ")
         : "";
 
-      let organizer = item.organizer;
+      const organizer = item.organizer;
       if (
         !document
           .getElementById("calendar-task-details-organizer-row")
@@ -50,8 +50,8 @@ var taskDetailsView = {
         if (!name || name.length <= 0) {
           if (organizer.id && organizer.id.length) {
             name = organizer.id;
-            let re = new RegExp("^mailto:(.*)", "i");
-            let matches = re.exec(name);
+            const re = new RegExp("^mailto:(.*)", "i");
+            const matches = re.exec(name);
             if (matches) {
               name = matches[1];
             }
@@ -77,13 +77,13 @@ var taskDetailsView = {
       displayElement("calendar-task-details-priority-normal", priority == 5);
       displayElement("calendar-task-details-priority-high", priority >= 1 && priority <= 4);
 
-      let status = item.getProperty("STATUS");
+      const status = item.getProperty("STATUS");
       if (
         !document
           .getElementById("calendar-task-details-status-row")
           .toggleAttribute("hidden", !status)
       ) {
-        let statusDetails = document.getElementById("calendar-task-details-status");
+        const statusDetails = document.getElementById("calendar-task-details-status");
         switch (status) {
           case "NEEDS-ACTION": {
             statusDetails.textContent = cal.l10n.getCalString("taskDetailsStatusNeedsAction");
@@ -91,7 +91,7 @@ var taskDetailsView = {
           }
           case "IN-PROCESS": {
             let percent = 0;
-            let property = item.getProperty("PERCENT-COMPLETE");
+            const property = item.getProperty("PERCENT-COMPLETE");
             if (property != null) {
               percent = parseInt(property, 10);
             }
@@ -102,7 +102,7 @@ var taskDetailsView = {
           }
           case "COMPLETED": {
             if (item.completedDate) {
-              let completedDate = item.completedDate.getInTimezone(cal.dtz.defaultTimezone);
+              const completedDate = item.completedDate.getInTimezone(cal.dtz.defaultTimezone);
               statusDetails.textContent = cal.l10n.getCalString("taskDetailsStatusCompletedOn", [
                 dateFormatter.formatDateTime(completedDate),
               ]);
@@ -121,7 +121,7 @@ var taskDetailsView = {
           }
         }
       }
-      let categories = item.getCategories();
+      const categories = item.getCategories();
       if (
         !document
           .getElementById("calendar-task-details-category-row")
@@ -131,14 +131,14 @@ var taskDetailsView = {
           categories.join(", ");
       }
 
-      let taskStartDate = item[cal.dtz.startDateProp(item)];
+      const taskStartDate = item[cal.dtz.startDateProp(item)];
       if (taskStartDate) {
         document.getElementById("task-start-date").textContent =
           cal.dtz.getStringForDateTime(taskStartDate);
       }
       document.getElementById("task-start-row").toggleAttribute("hidden", !taskStartDate);
 
-      let taskDueDate = item[cal.dtz.endDateProp(item)];
+      const taskDueDate = item[cal.dtz.endDateProp(item)];
       if (taskDueDate) {
         document.getElementById("task-due-date").textContent =
           cal.dtz.getStringForDateTime(taskDueDate);
@@ -150,36 +150,36 @@ var taskDetailsView = {
         // XXXdbo Didn't we want to get rid of these checks?
         parentItem = parentItem.parentItem;
       }
-      let recurrenceInfo = parentItem.recurrenceInfo;
-      let recurStart = parentItem.recurrenceStartDate;
+      const recurrenceInfo = parentItem.recurrenceInfo;
+      const recurStart = parentItem.recurrenceStartDate;
       if (
         !document
           .getElementById("calendar-task-details-repeat-row")
           .toggleAttribute("hidden", !recurrenceInfo || !recurStart)
       ) {
-        let kDefaultTimezone = cal.dtz.defaultTimezone;
-        let startDate = recurStart.getInTimezone(kDefaultTimezone);
-        let endDate = item.dueDate ? item.dueDate.getInTimezone(kDefaultTimezone) : null;
-        let detailsString = recurrenceRule2String(
+        const kDefaultTimezone = cal.dtz.defaultTimezone;
+        const startDate = recurStart.getInTimezone(kDefaultTimezone);
+        const endDate = item.dueDate ? item.dueDate.getInTimezone(kDefaultTimezone) : null;
+        const detailsString = recurrenceRule2String(
           recurrenceInfo,
           startDate,
           endDate,
           startDate.isDate
         );
         if (detailsString) {
-          let rpv = document.getElementById("calendar-task-details-repeat");
+          const rpv = document.getElementById("calendar-task-details-repeat");
           rpv.textContent = detailsString.split("\n").join(" ");
         }
       }
-      let iframe = document.getElementById("calendar-task-details-description");
-      let docFragment = cal.view.textToHtmlDocumentFragment(
+      const iframe = document.getElementById("calendar-task-details-description");
+      const docFragment = cal.view.textToHtmlDocumentFragment(
         item.descriptionText,
         iframe.contentDocument,
         item.descriptionHTML
       );
 
       // Make any links open in the user's default browser, not in Thunderbird.
-      for (let anchor of docFragment.querySelectorAll("a")) {
+      for (const anchor of docFragment.querySelectorAll("a")) {
         anchor.addEventListener("click", function (event) {
           event.preventDefault();
           if (event.isTrusted) {
@@ -188,20 +188,20 @@ var taskDetailsView = {
         });
       }
       iframe.contentDocument.body.replaceChildren(docFragment);
-      let link = iframe.contentDocument.createElement("link");
+      const link = iframe.contentDocument.createElement("link");
       link.rel = "stylesheet";
       link.href = "chrome://messenger/skin/shared/editorContent.css";
       iframe.contentDocument.head.replaceChildren(link);
-      let attachmentRows = document.getElementById("calendar-task-details-attachment-rows");
+      const attachmentRows = document.getElementById("calendar-task-details-attachment-rows");
       while (attachmentRows.lastChild) {
         attachmentRows.lastChild.remove();
       }
-      let attachments = item.getAttachments();
+      const attachments = item.getAttachments();
       if (displayElement("calendar-task-details-attachment-row", attachments.length > 0)) {
         displayElement("calendar-task-details-attachment-rows", true);
-        for (let attachment of attachments) {
-          let url = attachment.calIAttachment.uri.spec;
-          let urlLabel = document.createXULElement("label");
+        for (const attachment of attachments) {
+          const url = attachment.calIAttachment.uri.spec;
+          const urlLabel = document.createXULElement("label");
           urlLabel.setAttribute("class", "text-link");
           urlLabel.setAttribute("value", url);
           urlLabel.setAttribute("tooltiptext", url);
@@ -215,25 +215,25 @@ var taskDetailsView = {
   },
 
   loadCategories() {
-    let categoryPopup = document.getElementById("task-actions-category-popup");
-    let item = document.getElementById("calendar-task-tree").currentTask;
+    const categoryPopup = document.getElementById("task-actions-category-popup");
+    const item = document.getElementById("calendar-task-tree").currentTask;
 
-    let itemCategories = item.getCategories();
-    let categoryList = cal.category.fromPrefs();
-    for (let cat of itemCategories) {
+    const itemCategories = item.getCategories();
+    const categoryList = cal.category.fromPrefs();
+    for (const cat of itemCategories) {
       if (!categoryList.includes(cat)) {
         categoryList.push(cat);
       }
     }
     cal.l10n.sortArrayByLocaleCollator(categoryList);
 
-    let maxCount = item.calendar.getProperty("capabilities.categories.maxCount");
+    const maxCount = item.calendar.getProperty("capabilities.categories.maxCount");
 
     while (categoryPopup.childElementCount > 2) {
       categoryPopup.lastChild.remove();
     }
     if (maxCount == 1) {
-      let menuitem = document.createXULElement("menuitem");
+      const menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("class", "menuitem-iconic");
       menuitem.setAttribute("label", cal.l10n.getCalString("None"));
       menuitem.setAttribute("type", "radio");
@@ -242,8 +242,8 @@ var taskDetailsView = {
       }
       categoryPopup.appendChild(menuitem);
     }
-    for (let cat of categoryList) {
-      let menuitem = document.createXULElement("menuitem");
+    for (const cat of categoryList) {
+      const menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("class", "menuitem-iconic calendar-category");
       menuitem.setAttribute("label", cat);
       menuitem.setAttribute("value", cat);
@@ -256,11 +256,11 @@ var taskDetailsView = {
   },
 
   saveCategories(event) {
-    let categoryPopup = document.getElementById("task-actions-category-popup");
-    let item = document.getElementById("calendar-task-tree").currentTask;
+    const categoryPopup = document.getElementById("task-actions-category-popup");
+    const item = document.getElementById("calendar-task-tree").currentTask;
 
-    let oldCategories = item.getCategories();
-    let categories = Array.from(
+    const oldCategories = item.getCategories();
+    const categories = Array.from(
       categoryPopup.querySelectorAll("menuitem.calendar-category[checked]"),
       menuitem => menuitem.value
     );
@@ -270,7 +270,7 @@ var taskDetailsView = {
     }
 
     if (!unchanged) {
-      let newItem = item.clone();
+      const newItem = item.clone();
       newItem.setCategories(categories);
       doTransaction("modify", newItem, newItem.calendar, item, null);
       return false;
@@ -281,12 +281,12 @@ var taskDetailsView = {
 
   categoryTextboxKeypress(event) {
     let category = event.target.value;
-    let categoryPopup = document.getElementById("task-actions-category-popup");
+    const categoryPopup = document.getElementById("task-actions-category-popup");
 
     switch (event.key) {
       case " ": {
         // The menu popup seems to eat this keypress.
-        let start = event.target.selectionStart;
+        const start = event.target.selectionStart;
         event.target.value =
           category.substring(0, start) + " " + category.substring(event.target.selectionEnd);
         event.target.selectionStart = event.target.selectionEnd = start + 1;
@@ -298,7 +298,7 @@ var taskDetailsView = {
         event.target.blur();
         event.preventDefault();
 
-        let key = event.key == "ArrowUp" ? "ArrowUp" : "ArrowDown";
+        const key = event.key == "ArrowUp" ? "ArrowUp" : "ArrowDown";
         categoryPopup.dispatchEvent(new KeyboardEvent("keydown", { key }));
         categoryPopup.dispatchEvent(new KeyboardEvent("keyup", { key }));
         return;
@@ -336,13 +336,13 @@ var taskDetailsView = {
       }
     } else {
       const localeCollator = new Intl.Collator();
-      let compare = localeCollator.compare;
+      const compare = localeCollator.compare;
       newIndex = cal.data.binaryInsert(categories, category, compare, true);
 
-      let item = document.getElementById("calendar-task-tree").currentTask;
-      let maxCount = item.calendar.getProperty("capabilities.categories.maxCount");
+      const item = document.getElementById("calendar-task-tree").currentTask;
+      const maxCount = item.calendar.getProperty("capabilities.categories.maxCount");
 
-      let menuitem = document.createXULElement("menuitem");
+      const menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("class", "menuitem-iconic calendar-category");
       menuitem.setAttribute("label", category);
       menuitem.setAttribute("value", category);
@@ -357,8 +357,8 @@ var taskDetailsView = {
       categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category[checked]");
       categories = Array.from(categoryList, cat => cat.getAttribute("value"));
 
-      let item = document.getElementById("calendar-task-tree").currentTask;
-      let newItem = item.clone();
+      const item = document.getElementById("calendar-task-tree").currentTask;
+      const newItem = item.clone();
       newItem.setCategories(categories);
       doTransaction("modify", newItem, newItem.calendar, item, null);
     }
@@ -375,12 +375,12 @@ var taskDetailsView = {
  */
 function taskViewUpdate(filter) {
   if (!filter) {
-    let taskFilterGroup = document.getElementById("task-tree-filtergroup");
+    const taskFilterGroup = document.getElementById("task-tree-filtergroup");
     filter = taskFilterGroup.value || "all";
   }
 
-  let tree = document.getElementById("calendar-task-tree");
-  let oldFilter = tree.getAttribute("filterValue");
+  const tree = document.getElementById("calendar-task-tree");
+  const oldFilter = tree.getAttribute("filterValue");
   if (filter != oldFilter) {
     tree.setAttribute("filterValue", filter);
     document
@@ -395,7 +395,7 @@ function taskViewUpdate(filter) {
           item.removeAttribute("checked");
         }
       });
-    let radio = document.querySelector(
+    const radio = document.querySelector(
       `radio[command="calendar_task_filter_command"][value="${filter}"]`
     );
     if (radio) {
@@ -413,31 +413,31 @@ function taskViewUpdate(filter) {
  * consolidate or make name more clear.
  */
 function sendMailToOrganizer() {
-  let item = document.getElementById("calendar-task-tree").currentTask;
+  const item = document.getElementById("calendar-task-tree").currentTask;
   if (item != null) {
-    let organizer = item.organizer;
-    let email = cal.email.getAttendeeEmail(organizer, true);
-    let emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [
+    const organizer = item.organizer;
+    const email = cal.email.getAttendeeEmail(organizer, true);
+    const emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [
       item.title,
     ]);
-    let identity = item.calendar.getProperty("imip.identity");
+    const identity = item.calendar.getProperty("imip.identity");
     cal.email.sendTo(email, emailSubject, null, identity);
   }
 }
 
 // Install event listeners for the display deck change and connect task tree to filter field
 function taskViewOnLoad() {
-  let calendarDisplayBox = document.getElementById("calendarDisplayBox");
-  let tree = document.getElementById("calendar-task-tree");
+  const calendarDisplayBox = document.getElementById("calendarDisplayBox");
+  const tree = document.getElementById("calendar-task-tree");
 
   if (calendarDisplayBox && tree) {
     tree.textFilterField = "task-text-filter-field";
 
     // setup the platform-dependent placeholder for the text filter field
-    let textFilter = document.getElementById("task-text-filter-field");
+    const textFilter = document.getElementById("task-text-filter-field");
     if (textFilter) {
-      let base = textFilter.getAttribute("emptytextbase");
-      let keyLabel = textFilter.getAttribute(
+      const base = textFilter.getAttribute("emptytextbase");
+      const keyLabel = textFilter.getAttribute(
         AppConstants.platform == "macosx" ? "keyLabelMac" : "keyLabelNonMac"
       );
 
@@ -448,7 +448,7 @@ function taskViewOnLoad() {
   }
 
   // Setup customizeDone handler for the task action toolbox.
-  let toolbox = document.getElementById("task-actions-toolbox");
+  const toolbox = document.getElementById("task-actions-toolbox");
   toolbox.customizeDone = function (aEvent) {
     MailToolboxCustomizeDone(aEvent, "CustomizeTaskActionsToolbar");
   };
@@ -463,8 +463,8 @@ function taskViewOnLoad() {
  */
 function taskViewCopyLink(linkNode) {
   if (linkNode) {
-    let linkAddress = linkNode.value;
-    let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
+    const linkAddress = linkNode.value;
+    const clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
     clipboard.copyString(linkAddress);
   }
 }

@@ -63,7 +63,7 @@
      * @type {calIDateTime}
      */
     set date(value) {
-      let { month, day, year } = getParts(cal.dtz.dateTimeToJsDate(value));
+      const { month, day, year } = getParts(cal.dtz.dateTimeToJsDate(value));
       this._monthSpan.textContent = month;
       this._daySpan.textContent = day;
       this._yearSpan.textContent = year;

@@ -75,10 +75,10 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
     // storing them in the item cache. Items need to be expunged from the
     // existing item cache to avoid get(Event|Todo)FromRow providing stale
     // values.
-    let expunge = id => this.itemCache.delete(id);
-    let [events, eventFlags] = await this.getRecurringEventAndFlagMaps(expunge);
-    let [todos, todoFlags] = await this.getRecurringTodoAndFlagMaps(expunge);
-    let itemsMap = await this.getAdditionalDataForItemMap(new Map([...events, ...todos]));
+    const expunge = id => this.itemCache.delete(id);
+    const [events, eventFlags] = await this.getRecurringEventAndFlagMaps(expunge);
+    const [todos, todoFlags] = await this.getRecurringTodoAndFlagMaps(expunge);
+    const itemsMap = await this.getAdditionalDataForItemMap(new Map([...events, ...todos]));
 
     this.itemCache = new Map([...this.itemCache, ...itemsMap]);
     this.#recurringEventsCache = new Map([...this.#recurringEventsCache, ...events]);
@@ -98,8 +98,8 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
    * @returns {ReadableStream<calIItemBase>
    */
   getItems(query) {
-    let self = this;
-    let getStream = () => super.getItems(query);
+    const self = this;
+    const getStream = () => super.getItems(query);
     return CalReadableStreamFactory.createReadableStream({
       async start(controller) {
         // HACK because recurring offline events/todos objects don't have offline_journal information
@@ -114,7 +114,7 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
           // If there's an existing Promise and it's not complete, wait for it - something else is
           // already waiting and we don't want to break that by throwing away the caches. If it IS
           // complete, we'll continue immediately.
-          let recItemCachePromise = self.mRecItemCachePromise;
+          const recItemCachePromise = self.mRecItemCachePromise;
           await recItemCachePromise;
           await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
           // Check in case someone else already threw away the caches.
@@ -124,7 +124,7 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
         }
         await self.#ensureRecurringItemCaches();
 
-        for await (let value of cal.iterate.streamValues(getStream())) {
+        for await (const value of cal.iterate.streamValues(getStream())) {
           controller.enqueue(value);
         }
         controller.close();
@@ -183,7 +183,7 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
 
   async getItemById(id) {
     await this.#ensureRecurringItemCaches();
-    let item = this.itemCache.get(id);
+    const item = this.itemCache.get(id);
     if (item) {
       return item;
     }

@@ -78,14 +78,14 @@ CalAlarm.prototype = {
     }
 
     const objectMembers = ["mAbsoluteDate", "mOffset", "mDuration", "mLastAck"];
-    for (let member of objectMembers) {
+    for (const member of objectMembers) {
       if (this[member] && this[member].isMutable) {
         this[member].makeImmutable();
       }
     }
 
     // Properties
-    for (let propval of this.mProperties.values()) {
+    for (const propval of this.mProperties.values()) {
       if (propval?.isMutable) {
         propval.makeImmutable();
       }
@@ -95,7 +95,7 @@ CalAlarm.prototype = {
   },
 
   clone() {
-    let cloned = new CalAlarm();
+    const cloned = new CalAlarm();
 
     cloned.mImmutable = false;
 
@@ -105,19 +105,19 @@ CalAlarm.prototype = {
 
     const objectMembers = ["mAbsoluteDate", "mOffset", "mDuration", "mLastAck"];
 
-    for (let member of simpleMembers) {
+    for (const member of simpleMembers) {
       cloned[member] = this[member];
     }
 
-    for (let member of arrayMembers) {
-      let newArray = [];
-      for (let oldElem of this[member]) {
+    for (const member of arrayMembers) {
+      const newArray = [];
+      for (const oldElem of this[member]) {
         newArray.push(oldElem.clone());
       }
       cloned[member] = newArray;
     }
 
-    for (let member of objectMembers) {
+    for (const member of objectMembers) {
       if (this[member] && this[member].clone) {
         cloned[member] = this[member].clone();
       } else {
@@ -134,10 +134,10 @@ CalAlarm.prototype = {
 
       cloned.mProperties.set(name, value);
 
-      let propBucket = this.mPropertyParams[name];
+      const propBucket = this.mPropertyParams[name];
       if (propBucket) {
-        let newBucket = {};
-        for (let param in propBucket) {
+        const newBucket = {};
+        for (const param in propBucket) {
           newBucket[param] = propBucket[param];
         }
         cloned.mPropertyParams[name] = newBucket;
@@ -268,7 +268,7 @@ CalAlarm.prototype = {
       return null;
     }
 
-    let alarmDate = this.mAbsoluteDate.clone();
+    const alarmDate = this.mAbsoluteDate.clone();
 
     // All Day events are handled as 00:00:00
     alarmDate.isDate = false;
@@ -300,7 +300,7 @@ CalAlarm.prototype = {
   },
 
   deleteAttendee(aAttendee) {
-    let deleteId = aAttendee.id;
+    const deleteId = aAttendee.id;
     for (let i = 0; i < this.mAttendees.length; i++) {
       if (this.mAttendees[i].id == deleteId) {
         this.mAttendees.splice(i, 1);
@@ -341,7 +341,7 @@ CalAlarm.prototype = {
   },
 
   deleteAttachment(aAttachment) {
-    let deleteHash = aAttachment.hashId;
+    const deleteHash = aAttachment.hashId;
     for (let i = 0; i < this.mAttachments.length; i++) {
       if (this.mAttachments[i].hashId == deleteHash) {
         this.mAttachments.splice(i, 1);
@@ -355,7 +355,7 @@ CalAlarm.prototype = {
   },
 
   get icalString() {
-    let comp = this.icalComponent;
+    const comp = this.icalComponent;
     return comp ? comp.serializeToICS() : "";
   },
   set icalString(val) {
@@ -378,15 +378,15 @@ CalAlarm.prototype = {
   },
 
   get icalComponent() {
-    let comp = cal.icsService.createIcalComponent("VALARM");
+    const comp = cal.icsService.createIcalComponent("VALARM");
 
     // Set up action (REQUIRED)
-    let actionProp = cal.icsService.createIcalProperty("ACTION");
+    const actionProp = cal.icsService.createIcalProperty("ACTION");
     actionProp.value = this.action;
     comp.addProperty(actionProp);
 
     // Set up trigger (REQUIRED)
-    let triggerProp = cal.icsService.createIcalProperty("TRIGGER");
+    const triggerProp = cal.icsService.createIcalProperty("TRIGGER");
     if (this.related == ALARM_RELATED_ABSOLUTE && this.mAbsoluteDate) {
       // Set the trigger to a specific datetime
       triggerProp.setParameter("VALUE", "DATE-TIME");
@@ -406,8 +406,8 @@ CalAlarm.prototype = {
     // Set up repeat and duration (OPTIONAL, but if one exists, the other
     // MUST also exist)
     if (this.repeat && this.repeatOffset) {
-      let repeatProp = cal.icsService.createIcalProperty("REPEAT");
-      let durationProp = cal.icsService.createIcalProperty("DURATION");
+      const repeatProp = cal.icsService.createIcalProperty("REPEAT");
+      const durationProp = cal.icsService.createIcalProperty("DURATION");
 
       repeatProp.value = this.repeat;
       durationProp.valueAsIcalString = this.repeatOffset.icalString;
@@ -421,7 +421,7 @@ CalAlarm.prototype = {
         if (this.action == "EMAIL" && !this.getAttendees().length) {
             throw Cr.NS_ERROR_NOT_INITIALIZED;
         } */
-    for (let attendee of this.getAttendees()) {
+    for (const attendee of this.getAttendees()) {
       comp.addProperty(attendee.icalProperty);
     }
 
@@ -430,13 +430,13 @@ CalAlarm.prototype = {
             throw Cr.NS_ERROR_NOT_INITIALIZED;
         } */
 
-    for (let attachment of this.getAttachments()) {
+    for (const attachment of this.getAttachments()) {
       comp.addProperty(attachment.icalProperty);
     }
 
     // Set up summary (REQUIRED for EMAIL)
     if (this.summary || this.action == "EMAIL") {
-      let summaryProp = cal.icsService.createIcalProperty("SUMMARY");
+      const summaryProp = cal.icsService.createIcalProperty("SUMMARY");
       // Summary needs to have a non-empty value
       summaryProp.value = this.summary || cal.l10n.getCalString("alarmDefaultSummary");
       comp.addProperty(summaryProp);
@@ -444,7 +444,7 @@ CalAlarm.prototype = {
 
     // Set up the description (REQUIRED for DISPLAY and EMAIL)
     if (this.description || this.action == "DISPLAY" || this.action == "EMAIL") {
-      let descriptionProp = cal.icsService.createIcalProperty("DESCRIPTION");
+      const descriptionProp = cal.icsService.createIcalProperty("DESCRIPTION");
       // description needs to have a non-empty value
       descriptionProp.value = this.description || cal.l10n.getCalString("alarmDefaultDescription");
       comp.addProperty(descriptionProp);
@@ -452,21 +452,21 @@ CalAlarm.prototype = {
 
     // Set up lastAck
     if (this.lastAck) {
-      let lastAckProp = cal.icsService.createIcalProperty("X-MOZ-LASTACK");
+      const lastAckProp = cal.icsService.createIcalProperty("X-MOZ-LASTACK");
       lastAckProp.value = this.lastAck;
       comp.addProperty(lastAckProp);
     }
 
     // Set up X-Props. mProperties contains only non-promoted props
     // eslint-disable-next-line array-bracket-spacing
-    for (let [propName, propValue] of this.mProperties.entries()) {
-      let icalprop = cal.icsService.createIcalProperty(propName);
+    for (const [propName, propValue] of this.mProperties.entries()) {
+      const icalprop = cal.icsService.createIcalProperty(propName);
       icalprop.value = propValue;
 
       // Add parameters
-      let propBucket = this.mPropertyParams[propName];
+      const propBucket = this.mPropertyParams[propName];
       if (propBucket) {
-        for (let paramName in propBucket) {
+        for (const paramName in propBucket) {
           try {
             icalprop.setParameter(paramName, propBucket[paramName]);
           } catch (e) {
@@ -493,13 +493,13 @@ CalAlarm.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
-    let actionProp = aComp.getFirstProperty("ACTION");
-    let triggerProp = aComp.getFirstProperty("TRIGGER");
-    let repeatProp = aComp.getFirstProperty("REPEAT");
-    let durationProp = aComp.getFirstProperty("DURATION");
-    let summaryProp = aComp.getFirstProperty("SUMMARY");
-    let descriptionProp = aComp.getFirstProperty("DESCRIPTION");
-    let lastAckProp = aComp.getFirstProperty("X-MOZ-LASTACK");
+    const actionProp = aComp.getFirstProperty("ACTION");
+    const triggerProp = aComp.getFirstProperty("TRIGGER");
+    const repeatProp = aComp.getFirstProperty("REPEAT");
+    const durationProp = aComp.getFirstProperty("DURATION");
+    const summaryProp = aComp.getFirstProperty("SUMMARY");
+    const descriptionProp = aComp.getFirstProperty("DESCRIPTION");
+    const lastAckProp = aComp.getFirstProperty("X-MOZ-LASTACK");
 
     if (actionProp) {
       this.action = actionProp.value;
@@ -514,7 +514,7 @@ CalAlarm.prototype = {
       } else {
         this.mOffset = cal.createDuration(triggerProp.valueAsIcalString);
 
-        let related = triggerProp.getParameter("RELATED");
+        const related = triggerProp.getParameter("RELATED");
         this.related = related == "END" ? ALARM_RELATED_END : ALARM_RELATED_START;
       }
     } else {
@@ -533,16 +533,16 @@ CalAlarm.prototype = {
 
     // Set up attendees
     this.clearAttendees();
-    for (let attendeeProp of cal.iterate.icalProperty(aComp, "ATTENDEE")) {
-      let attendee = new lazy.CalAttendee();
+    for (const attendeeProp of cal.iterate.icalProperty(aComp, "ATTENDEE")) {
+      const attendee = new lazy.CalAttendee();
       attendee.icalProperty = attendeeProp;
       this.addAttendee(attendee);
     }
 
     // Set up attachments
     this.clearAttachments();
-    for (let attachProp of cal.iterate.icalProperty(aComp, "ATTACH")) {
-      let attach = new lazy.CalAttachment();
+    for (const attachProp of cal.iterate.icalProperty(aComp, "ATTACH")) {
+      const attach = new lazy.CalAttachment();
       attach.icalProperty = attachProp;
       this.addAttachment(attach);
     }
@@ -562,11 +562,11 @@ CalAlarm.prototype = {
     this.mPropertyParams = {};
 
     // Other properties
-    for (let prop of cal.iterate.icalProperty(aComp)) {
+    for (const prop of cal.iterate.icalProperty(aComp)) {
       if (!this.promotedProps[prop.propertyName]) {
         this.setProperty(prop.propertyName, prop.value);
 
-        for (let [paramName, param] of cal.iterate.icalParameter(prop)) {
+        for (const [paramName, param] of cal.iterate.icalParameter(prop)) {
           if (!(prop.propertyName in this.mPropertyParams)) {
             this.mPropertyParams[prop.propertyName] = {};
           }
@@ -581,7 +581,7 @@ CalAlarm.prototype = {
   },
 
   getProperty(aName) {
-    let name = aName.toUpperCase();
+    const name = aName.toUpperCase();
     if (name in this.promotedProps) {
       if (this.promotedProps[name] === true) {
         // Complex promoted props will return undefined
@@ -594,7 +594,7 @@ CalAlarm.prototype = {
 
   setProperty(aName, aValue) {
     this.ensureMutable();
-    let name = aName.toUpperCase();
+    const name = aName.toUpperCase();
     if (name in this.promotedProps) {
       if (this.promotedProps[name] === true) {
         cal.WARN(`Attempted to set complex property ${name} to a simple value ${aValue}`);
@@ -609,7 +609,7 @@ CalAlarm.prototype = {
 
   deleteProperty(aName) {
     this.ensureMutable();
-    let name = aName.toUpperCase();
+    const name = aName.toUpperCase();
     if (name in this.promotedProps) {
       this[this.promotedProps[name]] = null;
     } else {
@@ -634,7 +634,7 @@ CalAlarm.prototype = {
     if (this.related == ALARM_RELATED_ABSOLUTE && this.mAbsoluteDate) {
       // this is an absolute alarm. Use the calendar default timezone and
       // format it.
-      let formatDate = this.mAbsoluteDate.getInTimezone(cal.dtz.defaultTimezone);
+      const formatDate = this.mAbsoluteDate.getInTimezone(cal.dtz.defaultTimezone);
       return cal.dtz.formatter.formatDateTime(formatDate);
     } else if (this.related != ALARM_RELATED_ABSOLUTE && this.mOffset) {
       // Relative alarm length
@@ -660,8 +660,8 @@ CalAlarm.prototype = {
       } else {
         unit = "unitMinutes";
       }
-      let localeUnitString = cal.l10n.getCalString(unit);
-      let unitString = PluralForm.get(alarmlen, localeUnitString).replace("#1", alarmlen);
+      const localeUnitString = cal.l10n.getCalString(unit);
+      const unitString = PluralForm.get(alarmlen, localeUnitString).replace("#1", alarmlen);
       let originStringName = "reminderCustomOrigin";
 
       // Origin
@@ -680,7 +680,7 @@ CalAlarm.prototype = {
         originStringName += "After";
       }
 
-      let originString = cal.l10n.getString("calendar-alarms", alarmString(originStringName));
+      const originString = cal.l10n.getString("calendar-alarms", alarmString(originStringName));
       return cal.l10n.getString("calendar-alarms", "reminderCustomTitle", [
         unitString,
         originString,

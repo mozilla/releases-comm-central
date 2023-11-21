@@ -64,7 +64,7 @@ var CalMetronome = {
   _timer: Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer),
 
   init() {
-    let now = new Date();
+    const now = new Date();
     this._lastFireTime = now.valueOf();
     this._lastHour = now.getHours();
     this._lastDay = now.getDay();
@@ -90,8 +90,8 @@ var CalMetronome = {
   _startNext() {
     this._timer.cancel();
 
-    let now = new Date();
-    let next = new Date(
+    const now = new Date();
+    const next = new Date(
       now.getFullYear(),
       now.getMonth(),
       now.getDate(),
@@ -109,29 +109,29 @@ var CalMetronome = {
   },
 
   notify() {
-    let now = new Date();
-    let elapsedSinceLastFire = now.valueOf() - this._lastFireTime;
+    const now = new Date();
+    const elapsedSinceLastFire = now.valueOf() - this._lastFireTime;
     this._lastFireTime = now.valueOf();
 
-    let minute = now.getMinutes();
+    const minute = now.getMinutes();
     if (minute != this._lastMinute || elapsedSinceLastFire > MINUTE_IN_MS) {
       this._lastMinute = minute;
       this.emit("minute", now);
     }
 
-    let hour = now.getHours();
+    const hour = now.getHours();
     if (hour != this._lastHour || elapsedSinceLastFire > HOUR_IN_MS) {
       this._lastHour = hour;
       this.emit("hour", now);
     }
 
-    let day = now.getDay();
+    const day = now.getDay();
     if (day != this._lastDay || elapsedSinceLastFire > DAY_IN_MS) {
       this._lastDay = day;
       this.emit("day", now);
     }
 
-    let slack = now.getSeconds();
+    const slack = now.getSeconds();
     if (slack >= 1 && slack < 59) {
       this._startNext();
     } else if (this._timer.type == Ci.nsITimer.TYPE_ONE_SHOT) {

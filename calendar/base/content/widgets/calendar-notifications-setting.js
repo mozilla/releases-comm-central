@@ -28,13 +28,13 @@
     get value() {
       return [...this._elList.children]
         .map(row => {
-          let count = row.querySelector("input").value;
-          let unit = row.querySelector(".unit-menu").value;
+          const count = row.querySelector("input").value;
+          const unit = row.querySelector(".unit-menu").value;
           let [relation, tag] = row.querySelector(".relation-menu").value.split("-");
 
           tag = tag == "END" ? "END:" : "";
           relation = relation == "before" ? "-" : "";
-          let durTag = unit == "D" ? "P" : "PT";
+          const durTag = unit == "D" ? "P" : "PT";
           return `${tag}${relation}${durTag}${count}${unit}`;
         })
         .join(",");
@@ -43,8 +43,8 @@
     set value(value) {
       // An array of notifications times, each item is in the form of [5, "M",
       // "before-start"], i.e. a triple of time, unit and relation.
-      let items = [];
-      let durations = value?.split(",") || [];
+      const items = [];
+      const durations = value?.split(",") || [];
       for (let dur of durations) {
         dur = dur.trim();
         if (!dur) {
@@ -65,7 +65,7 @@
         if (prefix != "PT") {
           prefix = value[0];
         }
-        let unit = value.slice(-1);
+        const unit = value.slice(-1);
         if ((prefix == "P" && unit != "D") || (prefix == "PT" && !["M", "H"].includes(unit))) {
           continue;
         }
@@ -87,7 +87,7 @@
      * Update the disabled attributes of all form controls to this._disabled.
      */
     _updateDisabled() {
-      for (let el of this.querySelectorAll("label, input, button, menulist")) {
+      for (const el of this.querySelectorAll("label, input, button, menulist")) {
         el.disabled = this._disabled;
       }
     }
@@ -116,7 +116,7 @@
       });
 
       this._elList.addEventListener("command", e => {
-        let el = e.target;
+        const el = e.target;
         if (el.tagName == "menuitem") {
           this._emit();
         } else if (el.tagName == "button") {
@@ -173,7 +173,7 @@
      * unit menulist, a relation menulist and a remove button.
      */
     _addNewRow(value, unit, relation) {
-      let fragment = MozXULElement.parseXULToFragment(`
+      const fragment = MozXULElement.parseXULToFragment(`
         <hbox class="calendar-notifications-row" align="center">
           <html:input class="size3" value="${value}" type="number" min="0"/>
           <menulist class="unit-menu" crop="none" value="${unit}">
@@ -219,11 +219,11 @@
      * value (time).
      */
     _updateMenuLists() {
-      for (let row of this._elList.children) {
-        let input = row.querySelector("input");
-        let menulist = row.querySelector(".unit-menu");
+      for (const row of this._elList.children) {
+        const input = row.querySelector("input");
+        const menulist = row.querySelector(".unit-menu");
         this._updateMenuList(input.value, menulist);
-        for (let menuItem of row.querySelectorAll(".relation-menu menuitem")) {
+        for (const menuItem of row.querySelectorAll(".relation-menu menuitem")) {
           menuItem.label = cal.l10n.getString("calendar-alarms", menuItem.dataset.id);
         }
       }
@@ -233,14 +233,14 @@
      * Update the plurality of a menulist (unit) options to the input value (time).
      */
     _updateMenuList(length, menu) {
-      let getUnitEntry = unit =>
+      const getUnitEntry = unit =>
         ({
           M: "unitMinutes",
           H: "unitHours",
           D: "unitDays",
         }[unit] || "unitMinutes");
 
-      for (let menuItem of menu.getElementsByTagName("menuitem")) {
+      for (const menuItem of menu.getElementsByTagName("menuitem")) {
         menuItem.label = PluralForm.get(length, cal.l10n.getCalString(getUnitEntry(menuItem.value)))
           .replace("#1", "")
           .trim();

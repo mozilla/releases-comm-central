@@ -35,7 +35,7 @@ var gShutdownDetected = false;
  */
 var gShutdownObserver = {
   observe() {
-    let windows = Array.from(Services.wm.getEnumerator("mail:3pane"));
+    const windows = Array.from(Services.wm.getEnumerator("mail:3pane"));
     if (windows.filter(win => !win.closed).length == 0) {
       gShutdownDetected = true;
       window.close();
@@ -78,7 +78,7 @@ function getAlarmService() {
  */
 function onSnoozeAlarm(event) {
   // reschedule alarm:
-  let duration = getDuration(event.detail);
+  const duration = getDuration(event.detail);
   if (aboveSnoozeLimit(duration)) {
     // we prevent snoozing too far if the alarm wouldn't be displayed
     return;
@@ -101,12 +101,12 @@ function onDismissAlarm(event) {
  */
 function onDismissAllAlarms() {
   // removes widgets on the fly:
-  let alarmRichlist = document.getElementById("alarm-richlist");
-  let parentItems = {};
-  let widgets = [];
+  const alarmRichlist = document.getElementById("alarm-richlist");
+  const parentItems = {};
+  const widgets = [];
 
   // Make a copy of the child nodes as they get modified live
-  for (let node of alarmRichlist.children) {
+  for (const node of alarmRichlist.children) {
     // Check if the node is a valid alarm and is still part of DOM
     if (
       node.parentNode &&
@@ -119,7 +119,7 @@ function onDismissAllAlarms() {
       widgets.push({ item: node.item, alarm: node.alarm });
     }
   }
-  for (let widget of widgets) {
+  for (const widget of widgets) {
     getAlarmService().dismissAlarm(widget.item, widget.alarm);
   }
 }
@@ -133,7 +133,7 @@ function onDismissAllAlarms() {
 function onItemDetails(event) {
   // We want this to happen in a calendar window if possible. Otherwise open
   // it using our window.
-  let calWindow = cal.window.getCalendarWindow();
+  const calWindow = cal.window.getCalendarWindow();
   if (calWindow) {
     calWindow.modifyEventWithDialog(event.target.item, true);
   } else {
@@ -151,9 +151,9 @@ function setupWindow() {
   // setTimeout to wait until we are there, then setInterval to execute every
   // minute. Since setInterval is not totally exact, we may run into problems
   // here. I hope not!
-  let current = new Date();
+  const current = new Date();
 
-  let timeout = (60 - current.getSeconds()) * 1000;
+  const timeout = (60 - current.getSeconds()) * 1000;
   gRelativeDateUpdateTimer = setTimeout(() => {
     updateRelativeDates();
     gRelativeDateUpdateTimer = setInterval(updateRelativeDates, 60 * 1000);
@@ -177,7 +177,7 @@ function finishWindow() {
     return;
   }
 
-  let alarmRichlist = document.getElementById("alarm-richlist");
+  const alarmRichlist = document.getElementById("alarm-richlist");
 
   if (alarmRichlist.children.length > 0) {
     // If there are still items, the window wasn't closed using dismiss
@@ -210,8 +210,8 @@ function onFocusWindow() {
  * Timer callback to update all relative date labels
  */
 function updateRelativeDates() {
-  let alarmRichlist = document.getElementById("alarm-richlist");
-  for (let node of alarmRichlist.children) {
+  const alarmRichlist = document.getElementById("alarm-richlist");
+  for (const node of alarmRichlist.children) {
     if (node.item && node.alarm) {
       node.updateRelativeDateLabel();
     }
@@ -224,17 +224,17 @@ function updateRelativeDates() {
  * @param aDurationMinutes    The duration in minutes
  */
 function snoozeAllItems(aDurationMinutes) {
-  let duration = getDuration(aDurationMinutes);
+  const duration = getDuration(aDurationMinutes);
   if (aboveSnoozeLimit(duration)) {
     // we prevent snoozing too far if the alarm wouldn't be displayed
     return;
   }
 
-  let alarmRichlist = document.getElementById("alarm-richlist");
-  let parentItems = {};
+  const alarmRichlist = document.getElementById("alarm-richlist");
+  const parentItems = {};
 
   // Make a copy of the child nodes as they get modified live
-  for (let node of alarmRichlist.children) {
+  for (const node of alarmRichlist.children) {
     // Check if the node is a valid alarm and is still part of DOM
     if (
       node.parentNode &&
@@ -265,10 +265,10 @@ function getDuration(aMinutes) {
 
   // converting to weeks if any is required to avoid an integer overflow of duration.minutes as
   // this is of type short
-  let weeks = Math.floor(aMinutes / MINUTESINWEEK);
+  const weeks = Math.floor(aMinutes / MINUTESINWEEK);
   aMinutes -= weeks * MINUTESINWEEK;
 
-  let duration = cal.createDuration();
+  const duration = cal.createDuration();
   duration.minutes = aMinutes;
   duration.weeks = weeks;
   duration.normalize();
@@ -285,13 +285,13 @@ function getDuration(aMinutes) {
 function aboveSnoozeLimit(aDuration) {
   const LIMIT = Ci.calIAlarmService.MAX_SNOOZE_MONTHS;
 
-  let currentTime = cal.dtz.now().getInTimezone(cal.dtz.UTC);
-  let limitTime = currentTime.clone();
+  const currentTime = cal.dtz.now().getInTimezone(cal.dtz.UTC);
+  const limitTime = currentTime.clone();
   limitTime.month += LIMIT;
 
-  let durationUntilLimit = limitTime.subtractDate(currentTime);
+  const durationUntilLimit = limitTime.subtractDate(currentTime);
   if (aDuration.compare(durationUntilLimit) > 0) {
-    let msg = PluralForm.get(LIMIT, cal.l10n.getCalString("alarmSnoozeLimitExceeded"));
+    const msg = PluralForm.get(LIMIT, cal.l10n.getCalString("alarmSnoozeLimitExceeded"));
     cal.showError(msg.replace("#1", LIMIT), window);
     return true;
   }
@@ -302,10 +302,10 @@ function aboveSnoozeLimit(aDuration) {
  * Sets up the window title, counting the number of alarms in the window.
  */
 function setupTitle() {
-  let alarmRichlist = document.getElementById("alarm-richlist");
-  let reminders = alarmRichlist.children.length;
+  const alarmRichlist = document.getElementById("alarm-richlist");
+  const reminders = alarmRichlist.children.length;
 
-  let title = PluralForm.get(reminders, cal.l10n.getCalString("alarmWindowTitle.label"));
+  const title = PluralForm.get(reminders, cal.l10n.getCalString("alarmWindowTitle.label"));
   document.title = title.replace("#1", reminders);
 }
 
@@ -325,8 +325,8 @@ function widgetAlarmComptor(aItem, aWidgetItem) {
   }
 
   // Get the dates to compare
-  let aDate = aItem[cal.dtz.startDateProp(aItem)];
-  let bDate = aWidgetItem[cal.dtz.startDateProp(aWidgetItem)];
+  const aDate = aItem[cal.dtz.startDateProp(aItem)];
+  const bDate = aWidgetItem[cal.dtz.startDateProp(aWidgetItem)];
 
   return aDate.compare(bDate);
 }
@@ -338,10 +338,10 @@ function widgetAlarmComptor(aItem, aWidgetItem) {
  * @param aAlarm      The alarm to add a widget for.
  */
 function addWidgetFor(aItem, aAlarm) {
-  let widget = document.createXULElement("richlistitem", {
+  const widget = document.createXULElement("richlistitem", {
     is: "calendar-alarm-widget-richlistitem",
   });
-  let alarmRichlist = document.getElementById("alarm-richlist");
+  const alarmRichlist = document.getElementById("alarm-richlist");
 
   // Add widgets sorted by start date ascending
   cal.data.binaryInsertNode(alarmRichlist, widget, aItem, widgetAlarmComptor, false);
@@ -375,12 +375,12 @@ function addWidgetFor(aItem, aAlarm) {
  * @param aAlarm      The alarm to remove the widget for.
  */
 function removeWidgetFor(aItem, aAlarm) {
-  let hashId = aItem.hashId;
-  let alarmRichlist = document.getElementById("alarm-richlist");
-  let nodes = alarmRichlist.children;
+  const hashId = aItem.hashId;
+  const alarmRichlist = document.getElementById("alarm-richlist");
+  const nodes = alarmRichlist.children;
   let notfound = true;
   for (let i = nodes.length - 1; notfound && i >= 0; --i) {
-    let widget = nodes[i];
+    const widget = nodes[i];
     if (
       widget.item &&
       widget.item.hashId == hashId &&
@@ -415,26 +415,26 @@ function removeWidgetFor(aItem, aAlarm) {
  */
 function doReadOnlyChecks() {
   let countRO = 0;
-  let alarmRichlist = document.getElementById("alarm-richlist");
-  for (let node of alarmRichlist.children) {
+  const alarmRichlist = document.getElementById("alarm-richlist");
+  for (const node of alarmRichlist.children) {
     if (!cal.acl.isCalendarWritable(node.item.calendar) || !cal.acl.userCanModifyItem(node.item)) {
       countRO++;
     }
   }
 
   // we disable the button if there are only alarms for not-writable items
-  let snoozeAllButton = document.getElementById("alarm-snooze-all-button");
+  const snoozeAllButton = document.getElementById("alarm-snooze-all-button");
   snoozeAllButton.disabled = countRO && countRO == alarmRichlist.children.length;
   if (snoozeAllButton.disabled) {
-    let tooltip = cal.l10n.getString("calendar-alarms", "reminderDisabledSnoozeButtonTooltip");
+    const tooltip = cal.l10n.getString("calendar-alarms", "reminderDisabledSnoozeButtonTooltip");
     snoozeAllButton.setAttribute("tooltiptext", tooltip);
   } else {
     snoozeAllButton.removeAttribute("tooltiptext");
   }
 
-  let notification = gReadOnlyNotification.getNotificationWithValue("calendar-readonly");
+  const notification = gReadOnlyNotification.getNotificationWithValue("calendar-readonly");
   if (countRO && !notification) {
-    let message = cal.l10n.getString("calendar-alarms", "reminderReadonlyNotification", [
+    const message = cal.l10n.getString("calendar-alarms", "reminderReadonlyNotification", [
       snoozeAllButton.label,
     ]);
     gReadOnlyNotification.appendNotification(
@@ -454,7 +454,7 @@ function doReadOnlyChecks() {
  * Close the alarm dialog if there are no further alarm widgets
  */
 function closeIfEmpty() {
-  let alarmRichlist = document.getElementById("alarm-richlist");
+  const alarmRichlist = document.getElementById("alarm-richlist");
 
   // we don't want to close if the alarm service is still loading, as the
   // removed alarms may be immediately added again.
@@ -469,7 +469,7 @@ function closeIfEmpty() {
  * @param event         The DOM event from the click action
  */
 function onSelectAlarm(event) {
-  let richList = document.getElementById("alarm-richlist");
+  const richList = document.getElementById("alarm-richlist");
   if (richList == event.target) {
     richList.ensureElementIsVisible(richList.getSelectedItem(0));
     richList.userSelectedWidget = true;

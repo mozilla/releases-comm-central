@@ -26,7 +26,7 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
  * Populates the identity menu list with the available identities.
  */
 function onLoad() {
-  let label = document.getElementById("identity-menu-label");
+  const label = document.getElementById("identity-menu-label");
   document.l10n.setAttributes(
     label,
     window.arguments[0].responseMode == Ci.calIItipItem.NONE
@@ -34,9 +34,9 @@ function onLoad() {
       : "calendar-itip-identity-label"
   );
 
-  let identityMenu = document.getElementById("identity-menu");
-  for (let identity of window.arguments[0].identities) {
-    let menuitem = addMenuItem(identityMenu, identity.fullAddress, identity.fullAddress);
+  const identityMenu = document.getElementById("identity-menu");
+  for (const identity of window.arguments[0].identities) {
+    const menuitem = addMenuItem(identityMenu, identity.fullAddress, identity.fullAddress);
     menuitem.identity = identity;
   }
 

@@ -91,7 +91,7 @@ CalCompositeCalendar.prototype = {
 
   set prefPrefix(aPrefPrefix) {
     if (this.mPrefPrefix) {
-      for (let calendar of this.mCalendars) {
+      for (const calendar of this.mCalendars) {
         this.removeCalendar(calendar);
       }
     }
@@ -99,7 +99,7 @@ CalCompositeCalendar.prototype = {
     this.mPrefPrefix = aPrefPrefix;
     this.mActivePref = aPrefPrefix + "-in-composite";
     this.mDefaultPref = aPrefPrefix + "-default";
-    let cals = cal.manager.getCalendars();
+    const cals = cal.manager.getCalendars();
 
     cals.forEach(function (calendar) {
       if (calendar.getProperty(this.mActivePref)) {
@@ -139,8 +139,8 @@ CalCompositeCalendar.prototype = {
   },
 
   removeCalendar(aCalendar) {
-    let id = aCalendar.id;
-    let newCalendars = this.mCalendars.filter(calendar => calendar.id != id);
+    const id = aCalendar.id;
+    const newCalendars = this.mCalendars.filter(calendar => calendar.id != id);
     if (newCalendars.length != this.mCalendars) {
       this.mCalendars = newCalendars;
       if (this.mPrefPrefix) {
@@ -153,7 +153,7 @@ CalCompositeCalendar.prototype = {
   },
 
   getCalendarById(aId) {
-    for (let calendar of this.mCalendars) {
+    for (const calendar of this.mCalendars) {
       if (calendar.id == aId) {
         return calendar;
       }
@@ -270,7 +270,7 @@ CalCompositeCalendar.prototype = {
   mCompositeObservers: null,
   mObservers: null,
   addObserver(aObserver) {
-    let wrappedCObserver = cal.wrapInstance(aObserver, Ci.calICompositeObserver);
+    const wrappedCObserver = cal.wrapInstance(aObserver, Ci.calICompositeObserver);
     if (wrappedCObserver) {
       this.mCompositeObservers.add(wrappedCObserver);
     }
@@ -279,7 +279,7 @@ CalCompositeCalendar.prototype = {
 
   // void removeObserver( in calIObserver observer );
   removeObserver(aObserver) {
-    let wrappedCObserver = cal.wrapInstance(aObserver, Ci.calICompositeObserver);
+    const wrappedCObserver = cal.wrapInstance(aObserver, Ci.calICompositeObserver);
     if (wrappedCObserver) {
       this.mCompositeObservers.delete(wrappedCObserver);
     }
@@ -293,7 +293,7 @@ CalCompositeCalendar.prototype = {
         this.mCalendars.length
       );
     }
-    for (let calendar of this.enabledCalendars) {
+    for (const calendar of this.enabledCalendars) {
       try {
         if (calendar.canRefresh) {
           calendar.refresh();
@@ -332,8 +332,8 @@ CalCompositeCalendar.prototype = {
 
   // Promise<calIItemBase|null> getItem(in string aId);
   async getItem(aId) {
-    for (let calendar of this.enabledCalendars) {
-      let item = await calendar.getItem(aId);
+    for (const calendar of this.enabledCalendars) {
+      const item = await calendar.getItem(aId);
       if (item) {
         return item;
       }
@@ -347,7 +347,7 @@ CalCompositeCalendar.prototype = {
   //                                      in calIDateTime rangeEnd)
   getItems(itemFilter, count, rangeStart, rangeEnd) {
     // If there are no calendars return early.
-    let enabledCalendars = this.enabledCalendars;
+    const enabledCalendars = this.enabledCalendars;
     if (enabledCalendars.length == 0) {
       return CalReadableStreamFactory.createEmptyReadableStream();
     }
@@ -357,19 +357,19 @@ CalCompositeCalendar.prototype = {
       }
     }
 
-    let compositeCal = this;
+    const compositeCal = this;
     return CalReadableStreamFactory.createBoundedReadableStream(
       count,
       CalReadableStreamFactory.defaultQueueSize,
       {
         iterators: [],
         async start(controller) {
-          for (let calendar of enabledCalendars) {
-            let iterator = cal.iterate.streamValues(
+          for (const calendar of enabledCalendars) {
+            const iterator = cal.iterate.streamValues(
               calendar.getItems(itemFilter, count, rangeStart, rangeEnd)
             );
             this.iterators.push(iterator);
-            for await (let items of iterator) {
+            for await (const items of iterator) {
               controller.enqueue(items);
             }
 
@@ -384,7 +384,7 @@ CalCompositeCalendar.prototype = {
         },
 
         async cancel(reason) {
-          for (let iterator of this.iterators) {
+          for (const iterator of this.iterators) {
             await iterator.cancel(reason);
           }
           if (compositeCal.statusDisplayed) {

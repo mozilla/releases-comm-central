@@ -138,8 +138,8 @@ export var formatter = {
    * @returns {string} A string representing the datetime.
    */
   formatDateTime(aDate) {
-    let formattedDate = this.formatDate(aDate);
-    let formattedTime = this.formatTime(aDate);
+    const formattedDate = this.formatDate(aDate);
+    const formattedTime = this.formatTime(aDate);
 
     if (lazy.timeBeforeDate) {
       return formattedTime + " " + formattedDate;
@@ -181,7 +181,7 @@ export var formatter = {
    * @returns {string} - A string describing the interval in a legible form.
    */
   formatInterval(startDate, endDate) {
-    let format = this.formatIntervalParts(startDate, endDate);
+    const format = this.formatIntervalParts(startDate, endDate);
     switch (format.type) {
       case "task-without-dates":
         return lazy.cal.l10n.getCalString("datetimeIntervalTaskWithoutDate");
@@ -320,11 +320,11 @@ export var formatter = {
 
     // Here there are only events or tasks with both start and due date.
     // make sure start and end use the same timezone when formatting intervals:
-    let testdate = startDate.clone();
+    const testdate = startDate.clone();
     testdate.isDate = true;
-    let originalEndDate = endDate.clone();
+    const originalEndDate = endDate.clone();
     endDate = endDate.getInTimezone(startDate.timezone);
-    let sameDay = testdate.compare(endDate) == 0;
+    const sameDay = testdate.compare(endDate) == 0;
     if (startDate.isDate) {
       // All-day interval, so we should leave out the time part
       if (sameDay) {
@@ -334,10 +334,10 @@ export var formatter = {
         };
       }
 
-      let startDay = this.formatDayWithOrdinal(startDate.day);
-      let startYear = String(startDate.year);
-      let endDay = this.formatDayWithOrdinal(endDate.day);
-      let endYear = String(endDate.year);
+      const startDay = this.formatDayWithOrdinal(startDate.day);
+      const startYear = String(startDate.year);
+      const endDay = this.formatDayWithOrdinal(endDate.day);
+      const endYear = String(endDate.year);
       if (startDate.year != endDate.year) {
         return {
           type: "all-day-between-years",
@@ -386,10 +386,10 @@ export var formatter = {
       };
     }
 
-    let startDateString = this.formatDate(startDate);
-    let startTime = this.formatTime(startDate);
-    let endDateString = this.formatDate(endDate);
-    let endTime = this.formatTime(endDate);
+    const startDateString = this.formatDate(startDate);
+    const startTime = this.formatTime(startDate);
+    const endDateString = this.formatDate(endDate);
+    const endTime = this.formatTime(endDate);
     // non-allday, so need to return date and time
     if (sameDay) {
       // End is on the same day as start, so we can leave out the end date
@@ -433,8 +433,8 @@ export var formatter = {
    * @returns {string} The monthday number in ordinal format in the current locale.
    */
   formatDayWithOrdinal(aDay) {
-    let ordinalSymbols = lazy.gDateStringBundle.GetStringFromName("dayOrdinalSymbol").split(",");
-    let dayOrdinalSymbol = ordinalSymbols[aDay - 1] || ordinalSymbols[0];
+    const ordinalSymbols = lazy.gDateStringBundle.GetStringFromName("dayOrdinalSymbol").split(",");
+    const dayOrdinalSymbol = ordinalSymbols[aDay - 1] || ordinalSymbols[0];
     return aDay + dayOrdinalSymbol;
   },
 
@@ -447,7 +447,7 @@ export var formatter = {
   getItemDates(item) {
     let start = item[lazy.cal.dtz.startDateProp(item)];
     let end = item[lazy.cal.dtz.endDateProp(item)];
-    let kDefaultTimezone = lazy.cal.dtz.defaultTimezone;
+    const kDefaultTimezone = lazy.cal.dtz.defaultTimezone;
     // Check for tasks without start and/or due date
     if (start) {
       start = start.getInTimezone(kDefaultTimezone);
@@ -491,7 +491,7 @@ export var formatter = {
    * @returns {string} The month name in the current locale.
    */
   monthName(aMonthIndex) {
-    let oneBasedMonthIndex = aMonthIndex + 1;
+    const oneBasedMonthIndex = aMonthIndex + 1;
     return lazy.gDateStringBundle.GetStringFromName("month." + oneBasedMonthIndex + ".name");
   },
 
@@ -502,7 +502,7 @@ export var formatter = {
    * @returns {string} The abbreviated month name in the current locale.
    */
   shortMonthName(aMonthIndex) {
-    let oneBasedMonthIndex = aMonthIndex + 1;
+    const oneBasedMonthIndex = aMonthIndex + 1;
     return lazy.gDateStringBundle.GetStringFromName("month." + oneBasedMonthIndex + ".Mmm");
   },
 
@@ -513,7 +513,7 @@ export var formatter = {
    * @returns {string} The day name in the current locale.
    */
   dayName(aDayIndex) {
-    let oneBasedDayIndex = aDayIndex + 1;
+    const oneBasedDayIndex = aDayIndex + 1;
     return lazy.gDateStringBundle.GetStringFromName("day." + oneBasedDayIndex + ".name");
   },
 
@@ -524,7 +524,7 @@ export var formatter = {
    * @returns {string} The abbrevidated day name in the current locale.
    */
   shortDayName(aDayIndex) {
-    let oneBasedDayIndex = aDayIndex + 1;
+    const oneBasedDayIndex = aDayIndex + 1;
     return lazy.gDateStringBundle.GetStringFromName("day." + oneBasedDayIndex + ".Mmm");
   },
 };
@@ -597,14 +597,14 @@ function getDateTimeAsAdjustedJsDate(dateTime) {
  * @returns {DateTimeFormatter} - The formatter.
  */
 function getFormatter(formatOptions) {
-  let cacheKey = JSON.stringify(formatOptions);
+  const cacheKey = JSON.stringify(formatOptions);
   if (formatCache.has(cacheKey)) {
     return formatCache.get(cacheKey);
   }
 
   // Use en-US when running in a test to make the result independent of the test
   // machine.
-  let locale = Services.appinfo.name == "xpcshell" ? "en-US" : undefined;
+  const locale = Services.appinfo.name == "xpcshell" ? "en-US" : undefined;
   let formatter;
   if ("hourCycle" in formatOptions) {
     // FIXME: The hourCycle property is currently ignored by Services.intl, so

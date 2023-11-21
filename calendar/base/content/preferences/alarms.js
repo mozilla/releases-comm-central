@@ -53,7 +53,7 @@ var gAlarmsPane = {
   convertURLToLocalFile(aFileURL) {
     // Convert the file url into a nsIFile
     if (aFileURL) {
-      let fph = Services.io.getProtocolHandler("file").QueryInterface(Ci.nsIFileProtocolHandler);
+      const fph = Services.io.getProtocolHandler("file").QueryInterface(Ci.nsIFileProtocolHandler);
       return fph.getFileFromURLSpec(aFileURL);
     }
     return null;
@@ -64,7 +64,7 @@ var gAlarmsPane = {
    * changed. Updates the label in the dialog.
    */
   readSoundLocation() {
-    let soundUrl = document.getElementById("alarmSoundFileField");
+    const soundUrl = document.getElementById("alarmSoundFileField");
     soundUrl.value = Preferences.get("calendar.alarms.soundURL").value;
     if (soundUrl.value.startsWith("file://")) {
       soundUrl.label = gAlarmsPane.convertURLToLocalFile(soundUrl.value).leafName;
@@ -79,7 +79,7 @@ var gAlarmsPane = {
    * Causes the default sound to be selected in the dialog controls
    */
   useDefaultSound() {
-    let defaultSoundUrl = "chrome://calendar/content/sound.wav";
+    const defaultSoundUrl = "chrome://calendar/content/sound.wav";
     Preferences.get("calendar.alarms.soundURL").value = defaultSoundUrl;
     document.getElementById("alarmSoundCheckbox").checked = true;
     this.readSoundLocation();
@@ -89,17 +89,17 @@ var gAlarmsPane = {
    * Opens a filepicker to open a local sound for the alarm.
    */
   browseAlarm() {
-    let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+    const picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     // If we already have a sound file, then use the path for that sound file
     // as the initial path in the dialog.
-    let currentValue = Preferences.get("calendar.alarms.soundURL").value;
+    const currentValue = Preferences.get("calendar.alarms.soundURL").value;
     if (currentValue && currentValue.startsWith("file://")) {
-      let localFile = Services.io.newURI(currentValue).QueryInterface(Ci.nsIFileURL).file;
+      const localFile = Services.io.newURI(currentValue).QueryInterface(Ci.nsIFileURL).file;
       picker.displayDirectory = localFile.parent;
     }
 
-    let title = document.getElementById("bundlePreferences").getString("soundFilePickerTitle");
+    const title = document.getElementById("bundlePreferences").getString("soundFilePickerTitle");
 
     picker.init(window, title, Ci.nsIFilePicker.modeOpen);
     picker.appendFilters(Ci.nsIFilePicker.filterAudio);
@@ -125,7 +125,7 @@ var gAlarmsPane = {
     } else {
       soundUrl = Preferences.get("calendar.alarms.soundURL").value;
     }
-    let soundIfc = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
+    const soundIfc = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
     let url;
     try {
       soundIfc.init();
@@ -146,14 +146,14 @@ var gAlarmsPane = {
    * playing a sound.
    */
   alarmsPlaySoundPrefChanged() {
-    let alarmsPlaySoundPref = Preferences.get("calendar.alarms.playsound");
-    let alarmsSoundType = Preferences.get("calendar.alarms.soundType");
+    const alarmsPlaySoundPref = Preferences.get("calendar.alarms.playsound");
+    const alarmsSoundType = Preferences.get("calendar.alarms.soundType");
 
-    for (let item of ["alarmSoundType", "calendar.prefs.alarm.sound.play"]) {
+    for (const item of ["alarmSoundType", "calendar.prefs.alarm.sound.play"]) {
       document.getElementById(item).disabled = !alarmsPlaySoundPref.value;
     }
 
-    for (let item of ["alarmSoundFileField", "calendar.prefs.alarm.sound.browse"]) {
+    for (const item of ["alarmSoundFileField", "calendar.prefs.alarm.sound.browse"]) {
       document.getElementById(item).disabled =
         alarmsSoundType.value != 1 || !alarmsPlaySoundPref.value;
     }

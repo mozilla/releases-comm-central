@@ -87,7 +87,7 @@ class CalTransactionManager {
    * @returns {CalBatchTrasaction}
    */
   beginBatch() {
-    let trn = new CalBatchTransaction();
+    const trn = new CalBatchTransaction();
     this.undoStack.push(trn);
     return trn;
   }
@@ -114,7 +114,7 @@ class CalTransactionManager {
         Cr.NS_ERROR_FAILURE
       );
     }
-    let trn = this.undoStack.pop();
+    const trn = this.undoStack.pop();
     this.redoStack.push(trn);
     return trn.undoTransaction();
   }
@@ -126,7 +126,7 @@ class CalTransactionManager {
    * @returns {boolean}
    */
   canUndo() {
-    let trn = this.peekUndoStack();
+    const trn = this.peekUndoStack();
     return Boolean(trn?.canWrite());
   }
 
@@ -152,7 +152,7 @@ class CalTransactionManager {
         Cr.NS_ERROR_FAILURE
       );
     }
-    let trn = this.redoStack.pop();
+    const trn = this.redoStack.pop();
     this.undoStack.push(trn);
     return trn.doTransaction();
   }
@@ -164,7 +164,7 @@ class CalTransactionManager {
    * @returns {boolean}
    */
   canRedo() {
-    let trn = this.peekRedoStack();
+    const trn = this.peekRedoStack();
     return Boolean(trn?.canWrite());
   }
 }
@@ -222,13 +222,13 @@ class CalBatchTransaction extends CalTransaction {
   }
 
   async doTransaction() {
-    for (let trn of this.transactions) {
+    for (const trn of this.transactions) {
       await trn.doTransaction();
     }
   }
 
   async undoTransaction() {
-    for (let trn of this.transactions.slice().reverse()) {
+    for (const trn of this.transactions.slice().reverse()) {
       await trn.undoTransaction();
     }
   }
@@ -295,7 +295,7 @@ class CalBaseTransaction extends CalTransaction {
  */
 class CalAddTransaction extends CalBaseTransaction {
   async doTransaction() {
-    let item = await this.calendar.addItem(this.item);
+    const item = await this.calendar.addItem(this.item);
     this._dispatch(OP_ADD, item, this.oldItem);
     this.item = item;
   }

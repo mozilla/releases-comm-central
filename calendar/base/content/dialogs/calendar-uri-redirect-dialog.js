@@ -4,7 +4,7 @@
 
 window.addEventListener("DOMContentLoaded", onLoad, { once: true });
 function onLoad() {
-  let { calendarName, originalURI, targetURI } = window.arguments[0];
+  const { calendarName, originalURI, targetURI } = window.arguments[0];
 
   document.l10n.setAttributes(
     document.getElementById("calendar-uri-redirect-description"),

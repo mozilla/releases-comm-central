@@ -42,8 +42,8 @@ export var detection = {
    * @type {Map<string, calICalendarProvider>}
    */
   get providers() {
-    let providers = new Map();
-    for (let [type, provider] of cal.provider.providers) {
+    const providers = new Map();
+    for (const [type, provider] of cal.provider.providers) {
       if (provider.detectCalendars) {
         providers.set(type, provider);
       }
@@ -71,7 +71,7 @@ export var detection = {
   locationToUri(aLocation, aUsername) {
     let uri = null;
     if (!aLocation) {
-      let match = aUsername.match(/[^@]+@([^.]+\..*)/);
+      const match = aUsername.match(/[^@]+@([^.]+\..*)/);
       if (match) {
         uri = Services.io.newURI("https://" + match[1]);
       }
@@ -109,7 +109,7 @@ export var detection = {
     aPreDetectFilters,
     aExtraProperties
   ) {
-    let providers = this.providers;
+    const providers = this.providers;
 
     if (!providers.size) {
       throw new detection.NoneFoundError(
@@ -118,14 +118,14 @@ export var detection = {
     }
 
     // Filter out the providers that should not be used (for the location, username, etc.).
-    for (let func of aPreDetectFilters) {
-      let typesToFilterOut = func(providers.keys(), aLocation, aUsername);
+    for (const func of aPreDetectFilters) {
+      const typesToFilterOut = func(providers.keys(), aLocation, aUsername);
       typesToFilterOut.forEach(type => providers.delete(type));
     }
 
-    let resolutions = await Promise.allSettled(
+    const resolutions = await Promise.allSettled(
       [...providers.values()].map(provider => {
-        let detectionResult = provider.detectCalendars(
+        const detectionResult = provider.detectCalendars(
           aUsername,
           aPassword,
           aLocation,
@@ -141,9 +141,9 @@ export var detection = {
 
     let failCount = 0;
     let lastError;
-    let results = new Map(
+    const results = new Map(
       resolutions.reduce((res, resolution) => {
-        let { provider, status, detail } = resolution.value || resolution.reason;
+        const { provider, status, detail } = resolution.value || resolution.reason;
 
         if (Components.isSuccessCode(status) && detail && detail.length) {
           res.push([provider, detail]);

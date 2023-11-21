@@ -337,10 +337,10 @@ class CalStorageStatements {
     // but that doesn't work with floating start or end times. The logic
     // is the same though.
     // For readability, a few helpers:
-    let floatingEventStart = "event_start_tz = 'floating' AND event_start";
-    let nonFloatingEventStart = "event_start_tz != 'floating' AND event_start";
-    let floatingEventEnd = "event_end_tz = 'floating' AND event_end";
-    let nonFloatingEventEnd = "event_end_tz != 'floating' AND event_end";
+    const floatingEventStart = "event_start_tz = 'floating' AND event_start";
+    const nonFloatingEventStart = "event_start_tz != 'floating' AND event_start";
+    const floatingEventEnd = "event_end_tz = 'floating' AND event_end";
+    const nonFloatingEventEnd = "event_end_tz != 'floating' AND event_end";
     // The query needs to take both floating and non floating into account.
     this.mSelectNonRecurringEventsByRange = db.createAsyncStatement(
       `SELECT * FROM cal_events 
@@ -367,12 +367,12 @@ class CalStorageStatements {
     //       (due IS NULL  AND  (entry >= rangeStart  AND  entry < rangeEnd)) OR
     //       (entry IS NULL  AND  (completed > rangeStart  OR  completed IS NULL))
     //
-    let floatingTodoEntry = "todo_entry_tz = 'floating' AND todo_entry";
-    let nonFloatingTodoEntry = "todo_entry_tz != 'floating' AND todo_entry";
-    let floatingTodoDue = "todo_due_tz = 'floating' AND todo_due";
-    let nonFloatingTodoDue = "todo_due_tz != 'floating' AND todo_due";
-    let floatingCompleted = "todo_completed_tz = 'floating' AND todo_completed";
-    let nonFloatingCompleted = "todo_completed_tz != 'floating' AND todo_completed";
+    const floatingTodoEntry = "todo_entry_tz = 'floating' AND todo_entry";
+    const nonFloatingTodoEntry = "todo_entry_tz != 'floating' AND todo_entry";
+    const floatingTodoDue = "todo_due_tz = 'floating' AND todo_due";
+    const nonFloatingTodoDue = "todo_due_tz != 'floating' AND todo_due";
+    const floatingCompleted = "todo_completed_tz = 'floating' AND todo_completed";
+    const nonFloatingCompleted = "todo_completed_tz != 'floating' AND todo_completed";
 
     this.mSelectNonRecurringTodosByRange = db.createAsyncStatement(
       `SELECT * FROM cal_todos
@@ -692,7 +692,7 @@ class CalStorageStatements {
     );
 
     // These are only used when deleting an entire calendar
-    let extrasTables = [
+    const extrasTables = [
       "cal_attendees",
       "cal_properties",
       "cal_parameters",
@@ -706,7 +706,7 @@ class CalStorageStatements {
     this.mDeleteEventExtras = [];
     this.mDeleteTodoExtras = [];
 
-    for (let table in extrasTables) {
+    for (const table in extrasTables) {
       this.mDeleteEventExtras[table] = db.createAsyncStatement(
         `DELETE FROM ${extrasTables[table]}
             WHERE item_id IN
@@ -736,15 +736,15 @@ class CalStorageStatements {
    * calling their finalize() method.
    */
   finalize() {
-    for (let key of Object.keys(this)) {
+    for (const key of Object.keys(this)) {
       if (this[key] instanceof Ci.mozIStorageBaseStatement) {
         this[key].finalize();
       }
     }
-    for (let stmt of this.mDeleteEventExtras) {
+    for (const stmt of this.mDeleteEventExtras) {
       stmt.finalize();
     }
-    for (let stmt of this.mDeleteTodoExtras) {
+    for (const stmt of this.mDeleteTodoExtras) {
       stmt.finalize();
     }
   }

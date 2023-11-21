@@ -17,7 +17,7 @@ function nowUTC() {
 }
 
 function newTimerWithCallback(aCallback, aDelay, aRepeating) {
-  let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+  const timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
 
   timer.initWithCallback(
     aCallback,
@@ -51,8 +51,8 @@ const IgnoredAlarmsStore = {
    * @param {calIItemBase} item
    */
   add(item) {
-    let cache = this._getCache(item);
-    let id = item.parentItem.hashId;
+    const cache = this._getCache(item);
+    const id = item.parentItem.hashId;
     if (!cache.includes(id)) {
       if (cache.length >= this.maxItemsPerCalendar) {
         cache[0] = id;
@@ -234,7 +234,7 @@ CalAlarmService.prototype = {
 
     // Make sure we're working with the parent, otherwise we'll accidentally
     // create an exception
-    let newEvent = aItem.parentItem.clone();
+    const newEvent = aItem.parentItem.clone();
     let alarmTime = nowUTC();
 
     // Set the last acknowledged time to now.
@@ -255,7 +255,7 @@ CalAlarmService.prototype = {
 
     // calling modifyItem will cause us to get the right callback
     // and update the alarm properly
-    let modifiedItem = await newEvent.calendar.modifyItem(newEvent, aItem.parentItem);
+    const modifiedItem = await newEvent.calendar.modifyItem(newEvent, aItem.parentItem);
 
     if (modifiedItem.getProperty(propName) == alarmTime.icalString) {
       return;
@@ -269,13 +269,13 @@ CalAlarmService.prototype = {
 
   async dismissAlarm(aItem, aAlarm) {
     if (cal.acl.isCalendarWritable(aItem.calendar) && cal.acl.userCanModifyItem(aItem)) {
-      let now = nowUTC();
+      const now = nowUTC();
       // We want the parent item, otherwise we're going to accidentally
       // create an exception.  We've relnoted (for 0.1) the slightly odd
       // behavior this can cause if you move an event after dismissing an
       // alarm
-      let oldParent = aItem.parentItem;
-      let newParent = oldParent.clone();
+      const oldParent = aItem.parentItem;
+      const newParent = oldParent.clone();
       newParent.alarmLastAck = now;
       // Make sure to clear out any snoozes that were here.
       if (aItem.recurrenceId) {
@@ -284,7 +284,7 @@ CalAlarmService.prototype = {
         newParent.deleteProperty("X-MOZ-SNOOZE-TIME");
       }
 
-      let modifiedItem = await newParent.calendar.modifyItem(newParent, oldParent);
+      const modifiedItem = await newParent.calendar.modifyItem(newParent, oldParent);
       if (modifiedItem.alarmLastAck && now.compare(modifiedItem.alarmLastAck) == 0) {
         return;
       }
@@ -326,15 +326,15 @@ CalAlarmService.prototype = {
 
     cal.manager.addObserver(this.calendarManagerObserver);
 
-    for (let calendar of cal.manager.getCalendars()) {
+    for (const calendar of cal.manager.getCalendars()) {
       this.observeCalendar(calendar);
     }
 
     /* set up a timer to update alarms every N hours */
-    let timerCallback = {
+    const timerCallback = {
       alarmService: this,
       notify() {
-        let now = nowUTC();
+        const now = nowUTC();
         let start;
         if (this.alarmService.mRangeEnd) {
           // This is a subsequent search, so we got all the past alarms before
@@ -348,11 +348,11 @@ CalAlarmService.prototype = {
           start.month -= Ci.calIAlarmService.MAX_SNOOZE_MONTHS;
           this.alarmService.mRangeStart = start.clone();
         }
-        let until = now.clone();
+        const until = now.clone();
         until.month += Ci.calIAlarmService.MAX_SNOOZE_MONTHS;
 
         // We don't set timers for every future alarm, only those within 6 hours
-        let end = now.clone();
+        const end = now.clone();
         end.hour += kHoursBetweenUpdates;
         this.alarmService.mRangeEnd = end.getInTimezone(cal.dtz.UTC);
 
@@ -382,7 +382,7 @@ CalAlarmService.prototype = {
     cal.manager.removeObserver(this.calendarManagerObserver);
 
     // Stop observing all calendars. This will also clear the timers.
-    for (let calendar of cal.manager.getCalendars()) {
+    for (const calendar of cal.manager.getCalendars()) {
       this.unobserveCalendar(calendar);
     }
 
@@ -412,10 +412,10 @@ CalAlarmService.prototype = {
       return;
     }
 
-    let showMissed = Services.prefs.getBoolPref("calendar.alarms.showmissed", true);
+    const showMissed = Services.prefs.getBoolPref("calendar.alarms.showmissed", true);
 
-    let alarms = aItem.getAlarms();
-    for (let alarm of alarms) {
+    const alarms = aItem.getAlarms();
+    for (const alarm of alarms) {
       let alarmDate = cal.alarms.calculateAlarmDate(aItem, alarm);
 
       if (!alarmDate || alarm.action != "DISPLAY") {
@@ -465,11 +465,11 @@ CalAlarmService.prototype = {
       if (alarmDate.compare(now) >= 0) {
         // We assume that future alarms haven't been acknowledged
         // Delay is in msec, so don't forget to multiply
-        let timeout = alarmDate.subtractDate(now).inSeconds * 1000;
+        const timeout = alarmDate.subtractDate(now).inSeconds * 1000;
 
         // No sense in keeping an extra timeout for an alarm that's past
         // our range.
-        let timeUntilRefresh = this.mRangeEnd.subtractDate(now).inSeconds * 1000;
+        const timeUntilRefresh = this.mRangeEnd.subtractDate(now).inSeconds * 1000;
         if (timeUntilRefresh < timeout) {
           continue;
         }
@@ -483,7 +483,7 @@ CalAlarmService.prototype = {
         // This alarm is in the past and the calendar is writable, so we
         // could snooze or dismiss alarms. See if it has been previously
         // ack'd.
-        let lastAck = aItem.parentItem.alarmLastAck;
+        const lastAck = aItem.parentItem.alarmLastAck;
         if (lastAck && lastAck.compare(alarmDate) >= 0) {
           // The alarm was previously dismissed or snoozed, no further
           // action required.
@@ -502,7 +502,7 @@ CalAlarmService.prototype = {
     // make sure already fired alarms are purged out of the alarm window:
     this.mObservers.notify("onRemoveAlarmsByItem", [aItem]);
     // Purge alarms specifically for this item (i.e exception)
-    for (let alarm of aItem.getAlarms()) {
+    for (const alarm of aItem.getAlarms()) {
       this.removeTimer(aItem, alarm);
     }
 
@@ -516,18 +516,18 @@ CalAlarmService.prototype = {
    * @returns {number[]} Timeouts of notifications in milliseconds in ascending order.
    */
   calculateNotificationTimeouts(item) {
-    let now = nowUTC();
-    let until = now.clone();
+    const now = nowUTC();
+    const until = now.clone();
     until.month += 1;
     // We only care about items no more than a month ahead.
     if (!cal.item.checkIfInRange(item, now, until)) {
       return [];
     }
-    let startDate = item[cal.dtz.startDateProp(item)];
-    let endDate = item[cal.dtz.endDateProp(item)];
-    let timeouts = [];
+    const startDate = item[cal.dtz.startDateProp(item)];
+    const endDate = item[cal.dtz.endDateProp(item)];
+    const timeouts = [];
     // The calendar level notifications setting overrides the global setting.
-    let prefValue = (
+    const prefValue = (
       item.calendar.getProperty("notifications.times") || this.gNotificationsTimes
     ).split(",");
     for (let entry of prefValue) {
@@ -556,7 +556,7 @@ CalAlarmService.prototype = {
         continue;
       }
       fireDate.addDuration(duration);
-      let timeout = fireDate.subtractDate(now).inSeconds * 1000;
+      const timeout = fireDate.subtractDate(now).inSeconds * 1000;
       if (timeout > 0) {
         timeouts.push(timeout);
       }
@@ -570,14 +570,16 @@ CalAlarmService.prototype = {
    * @param {calIItemBase} item - A calendar item instance.
    */
   addNotificationForItem(item) {
-    let alarmTimerCallback = {
+    const alarmTimerCallback = {
       notify: () => {
         this.mObservers.notify("onNotification", [item]);
         this.removeFiredNotificationTimer(item);
       },
     };
-    let timeouts = this.calculateNotificationTimeouts(item);
-    let timers = timeouts.map(timeout => newTimerWithCallback(alarmTimerCallback, timeout, false));
+    const timeouts = this.calculateNotificationTimeouts(item);
+    const timers = timeouts.map(timeout =>
+      newTimerWithCallback(alarmTimerCallback, timeout, false)
+    );
 
     if (timers.length > 0) {
       this._logger.debug(
@@ -602,7 +604,7 @@ CalAlarmService.prototype = {
       return;
     }
 
-    for (let timer of this.mNotificationTimerMap[item.calendar.id][item.hashId]) {
+    for (const timer of this.mNotificationTimerMap[item.calendar.id][item.hashId]) {
       timer.cancel();
     }
 
@@ -621,9 +623,9 @@ CalAlarmService.prototype = {
    */
   removeFiredNotificationTimer(item) {
     // The first timer is fired first.
-    let removed = this.mNotificationTimerMap[item.calendar.id][item.hashId].shift();
+    const removed = this.mNotificationTimerMap[item.calendar.id][item.hashId].shift();
 
-    let remainingTimersCount = this.mNotificationTimerMap[item.calendar.id][item.hashId].length;
+    const remainingTimersCount = this.mNotificationTimerMap[item.calendar.id][item.hashId].length;
     this._logger.debug(
       `removeFiredNotificationTimer hashId=${item.hashId}: removed=${removed.delay}, remaining ${remainingTimersCount} timers`
     );
@@ -640,7 +642,7 @@ CalAlarmService.prototype = {
   getOccurrencesInRange(aItem) {
     // We search 1 month in each direction for alarms.  Therefore,
     // we need occurrences between initial start date and 1 month from now
-    let until = nowUTC();
+    const until = nowUTC();
     until.month += 1;
 
     if (aItem && aItem.recurrenceInfo) {
@@ -650,14 +652,14 @@ CalAlarmService.prototype = {
   },
 
   addAlarmsForOccurrences(aParentItem) {
-    let occs = this.getOccurrencesInRange(aParentItem);
+    const occs = this.getOccurrencesInRange(aParentItem);
 
     // Add an alarm for each occurrence
     occs.forEach(this.addAlarmsForItem, this);
   },
 
   removeAlarmsForOccurrences(aParentItem) {
-    let occs = this.getOccurrencesInRange(aParentItem);
+    const occs = this.getOccurrencesInRange(aParentItem);
 
     // Remove alarm for each occurrence
     occs.forEach(this.removeAlarmsForItem, this);
@@ -668,14 +670,14 @@ CalAlarmService.prototype = {
     this.mTimerMap[aItem.calendar.id][aItem.hashId] =
       this.mTimerMap[aItem.calendar.id][aItem.hashId] || {};
 
-    let self = this;
-    let alarmTimerCallback = {
+    const self = this;
+    const alarmTimerCallback = {
       notify() {
         self.alarmFired(aItem, aAlarm);
       },
     };
 
-    let timer = newTimerWithCallback(alarmTimerCallback, aTimeout, false);
+    const timer = newTimerWithCallback(alarmTimerCallback, aTimeout, false);
     this.mTimerMap[aItem.calendar.id][aItem.hashId][aAlarm.icalString] = timer;
   },
 
@@ -689,7 +691,7 @@ CalAlarmService.prototype = {
       aAlarm.icalString in this.mTimerMap[aItem.calendar.id][aItem.hashId]
     ) {
       // First cancel the existing timer
-      let timer = this.mTimerMap[aItem.calendar.id][aItem.hashId][aAlarm.icalString];
+      const timer = this.mTimerMap[aItem.calendar.id][aItem.hashId][aAlarm.icalString];
       timer.cancel();
 
       // Remove the alarm from the item map
@@ -708,20 +710,20 @@ CalAlarmService.prototype = {
   },
 
   disposeCalendarTimers(aCalendars) {
-    for (let calendar of aCalendars) {
+    for (const calendar of aCalendars) {
       if (calendar.id in this.mTimerMap) {
-        for (let hashId in this.mTimerMap[calendar.id]) {
-          let itemTimerMap = this.mTimerMap[calendar.id][hashId];
-          for (let icalString in itemTimerMap) {
-            let timer = itemTimerMap[icalString];
+        for (const hashId in this.mTimerMap[calendar.id]) {
+          const itemTimerMap = this.mTimerMap[calendar.id][hashId];
+          for (const icalString in itemTimerMap) {
+            const timer = itemTimerMap[icalString];
             timer.cancel();
           }
         }
         delete this.mTimerMap[calendar.id];
       }
       if (calendar.id in this.mNotificationTimerMap) {
-        for (let timers of Object.values(this.mNotificationTimerMap[calendar.id])) {
-          for (let timer of timers) {
+        for (const timers of Object.values(this.mNotificationTimerMap[calendar.id])) {
+          for (const timer of timers) {
             timer.cancel();
           }
         }
@@ -732,7 +734,7 @@ CalAlarmService.prototype = {
 
   async findAlarms(aCalendars, aStart, aUntil) {
     const calICalendar = Ci.calICalendar;
-    let filter =
+    const filter =
       calICalendar.ITEM_FILTER_COMPLETED_ALL |
       calICalendar.ITEM_FILTER_CLASS_OCCURRENCES |
       calICalendar.ITEM_FILTER_TYPE_ALL;
@@ -748,7 +750,7 @@ CalAlarmService.prototype = {
         // Assuming that suppressAlarms does not change anymore until next refresh.
         this.mLoadedCalendars[calendar.id] = false;
 
-        for await (let items of cal.iterate.streamValues(
+        for await (const items of cal.iterate.streamValues(
           calendar.getItems(filter, 0, aStart, aUntil)
         )) {
           await new Promise((resolve, reject) => {
@@ -786,7 +788,7 @@ CalAlarmService.prototype = {
     this.disposeCalendarTimers(aCalendars);
 
     // Purge out all alarms from dialog belonging to the refreshed/loaded calendars
-    for (let calendar of aCalendars) {
+    for (const calendar of aCalendars) {
       this.mLoadedCalendars[calendar.id] = false;
       this.mObservers.notify("onRemoveAlarmsByCalendar", [calendar]);
     }
@@ -795,8 +797,8 @@ CalAlarmService.prototype = {
     // alarms +/- 1 month from now.  If someone sets an alarm more than
     // a month ahead of an event, or doesn't start Thunderbird
     // for a month, they'll miss some, but that's a slim chance
-    let start = nowUTC();
-    let until = start.clone();
+    const start = nowUTC();
+    const until = start.clone();
     start.month -= Ci.calIAlarmService.MAX_SNOOZE_MONTHS;
     until.month += Ci.calIAlarmService.MAX_SNOOZE_MONTHS;
     this.findAlarms(aCalendars, start, until);
@@ -813,11 +815,11 @@ CalAlarmService.prototype = {
   },
 
   get isLoading() {
-    for (let calId in this.mLoadedCalendars) {
+    for (const calId in this.mLoadedCalendars) {
       // we need to exclude calendars which failed to load explicitly to
       // prevent the alaram dialog to stay opened after dismissing all
       // alarms if there is a network calendar that failed to load
-      let currentStatus = cal.manager.getCalendarById(calId).getProperty("currentStatus");
+      const currentStatus = cal.manager.getCalendarById(calId).getProperty("currentStatus");
       if (!this.mLoadedCalendars[calId] && Components.isSuccessCode(currentStatus)) {
         return true;
       }

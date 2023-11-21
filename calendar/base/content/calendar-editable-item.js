@@ -85,7 +85,7 @@
         }
 
         if (this.calendarView && this.calendarView.controller) {
-          let item = event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence;
+          const item = event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence;
           if (Services.prefs.getBoolPref("calendar.events.defaultActionEdit", true)) {
             this.calendarView.controller.modifyOccurrence(item);
             return;
@@ -106,8 +106,8 @@
         if (document.monthDragEvent?.localName == "calendar-event-box") {
           return;
         }
-        let item = this.occurrence;
-        let isInvitation =
+        const item = this.occurrence;
+        const isInvitation =
           item.calendar instanceof Ci.calISchedulingSupport && item.calendar.isInvitation(item);
         if (
           !cal.acl.isCalendarWritable(item.calendar) ||
@@ -216,7 +216,7 @@
     }
 
     addEventNameTextboxListener() {
-      let stopPropagationIfEditing = event => {
+      const stopPropagationIfEditing = event => {
         if (this.mEditing) {
           event.stopPropagation();
         }
@@ -243,32 +243,32 @@
     }
 
     setEditableLabel() {
-      let label = this.eventNameLabel;
-      let item = this.mOccurrence;
+      const label = this.eventNameLabel;
+      const item = this.mOccurrence;
       label.textContent = item.title
         ? item.title.replace(/\n/g, " ")
         : cal.l10n.getCalString("eventUntitled");
     }
 
     setLocationLabel() {
-      let locationLabel = this.querySelector(".location-desc");
-      let location = this.mOccurrence.getProperty("LOCATION");
-      let showLocation = Services.prefs.getBoolPref("calendar.view.showLocation", false);
+      const locationLabel = this.querySelector(".location-desc");
+      const location = this.mOccurrence.getProperty("LOCATION");
+      const showLocation = Services.prefs.getBoolPref("calendar.view.showLocation", false);
 
       locationLabel.textContent = showLocation && location ? location : "";
       locationLabel.hidden = !showLocation || !location;
     }
 
     setCSSClasses() {
-      let item = this.mOccurrence;
-      let cssSafeId = cal.view.formatStringForCSSRule(item.calendar.id);
+      const item = this.mOccurrence;
+      const cssSafeId = cal.view.formatStringForCSSRule(item.calendar.id);
       this.style.setProperty("--item-backcolor", `var(--calendar-${cssSafeId}-backcolor)`);
       this.style.setProperty("--item-forecolor", `var(--calendar-${cssSafeId}-forecolor)`);
-      let categoriesBox = this.querySelector(".calendar-category-box");
+      const categoriesBox = this.querySelector(".calendar-category-box");
 
-      let categoriesArray = item.getCategories().map(cal.view.formatStringForCSSRule);
+      const categoriesArray = item.getCategories().map(cal.view.formatStringForCSSRule);
       // Find the first category with a colour.
-      let firstCategory = categoriesArray.find(
+      const firstCategory = categoriesArray.find(
         category => Services.prefs.getStringPref("calendar.category.color." + category, "") != ""
       );
       if (firstCategory) {
@@ -279,9 +279,9 @@
       }
 
       // Add alarm icons as needed.
-      let alarms = item.getAlarms();
+      const alarms = item.getAlarms();
       if (alarms.length && Services.prefs.getBoolPref("calendar.alarms.indicator.show", true)) {
-        let iconsBox = this.querySelector(".alarm-icons-box");
+        const iconsBox = this.querySelector(".alarm-icons-box");
         // Set suppressed status on the icons box.
         iconsBox.toggleAttribute("suppressed", item.calendar.getProperty("suppressAlarms"));
 
@@ -289,7 +289,7 @@
       }
 
       // Item classification / privacy.
-      let classificationIcon = this.querySelector(".item-classification-icon");
+      const classificationIcon = this.querySelector(".item-classification-icon");
       if (classificationIcon) {
         switch (item.privacy) {
           case "PRIVATE":
@@ -322,7 +322,7 @@
         }
       }
 
-      let recurrenceIcon = this.querySelector(".item-recurrence-icon");
+      const recurrenceIcon = this.querySelector(".item-recurrence-icon");
       if (item.parentItem != item && item.parentItem.recurrenceInfo) {
         if (item.parentItem.recurrenceInfo.getExceptionFor(item.recurrenceId)) {
           recurrenceIcon.setAttribute(
@@ -350,7 +350,7 @@
         this.setAttribute("allday", "true");
       }
       if (item.isTodo()) {
-        let icon = this.querySelector(".item-type-icon");
+        const icon = this.querySelector(".item-type-icon");
         if (cal.item.getProgressAtom(item) === "completed") {
           icon.setAttribute("src", "chrome://calendar/skin/shared/todo-complete.svg");
           document.l10n.setAttributes(icon, "calendar-editable-item-todo-icon-completed-task");
@@ -421,7 +421,7 @@
       let items = this.calendarView.mSelectedItems.slice();
       if (event.ctrlKey || event.metaKey) {
         if (this.selected) {
-          let pos = items.indexOf(this.mOccurrence);
+          const pos = items.indexOf(this.mOccurrence);
           items.splice(pos, 1);
         } else {
           items.push(this.mOccurrence);

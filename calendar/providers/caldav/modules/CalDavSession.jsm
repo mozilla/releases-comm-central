@@ -25,7 +25,7 @@ class CalDavOAuth extends OAuth2 {
    * Returns true if the token has expired, or will expire within the grace time.
    */
   get tokenExpired() {
-    let now = new Date().getTime();
+    const now = new Date().getTime();
     return this.tokenExpires - OAUTH_GRACE_TIME < now;
   }
 
@@ -35,7 +35,7 @@ class CalDavOAuth extends OAuth2 {
   get refreshToken() {
     cal.ASSERT(this.id, `This ${this.constructor.name} object has no id.`);
     if (!this._refreshToken) {
-      let pass = { value: null };
+      const pass = { value: null };
       try {
         cal.auth.passwordManagerGet(this.id, pass, this.origin, this.pwMgrId);
       } catch (e) {
@@ -83,7 +83,7 @@ class CalDavOAuth extends OAuth2 {
     return new Promise(resolve => {
       // eslint-disable-next-line func-names, require-jsdoc
       function postpone() {
-        let win = cal.window.getCalendarWindow();
+        const win = cal.window.getCalendarWindow();
         if (!win || win.document.readyState != "complete") {
           setTimeout(postpone, 0);
         } else {
@@ -105,8 +105,8 @@ class CalDavOAuth extends OAuth2 {
   promiseConnect(aWithUI = true, aRefresh = true) {
     return this.waitForCalendarWindow().then(() => {
       return new Promise((resolve, reject) => {
-        let self = this;
-        let asyncprompter = Cc["@mozilla.org/messenger/msgAsyncPrompter;1"].getService(
+        const self = this;
+        const asyncprompter = Cc["@mozilla.org/messenger/msgAsyncPrompter;1"].getService(
           Ci.nsIMsgAsyncPrompter
         );
         asyncprompter.queueAsyncAuthPrompt(this.id, false, {
@@ -151,7 +151,7 @@ class CalDavOAuth extends OAuth2 {
       await this.promiseConnect();
     }
 
-    let hdr = "Bearer " + this.accessToken;
+    const hdr = "Bearer " + this.accessToken;
     aChannel.setRequestHeader("Authorization", hdr, false);
   }
 
@@ -163,7 +163,7 @@ class CalDavOAuth extends OAuth2 {
    */
   async prepareRedirect(aOldChannel, aNewChannel) {
     try {
-      let hdrValue = aOldChannel.getRequestHeader("Authorization");
+      const hdrValue = aOldChannel.getRequestHeader("Authorization");
       if (hdrValue) {
         aNewChannel.setRequestHeader("Authorization", hdrValue, false);
       }
@@ -185,7 +185,7 @@ class CalDavOAuth extends OAuth2 {
    */
   async completeRequest(aResponse) {
     // Check for OAuth errors
-    let wwwauth = aResponse.getHeader("WWW-Authenticate");
+    const wwwauth = aResponse.getHeader("WWW-Authenticate");
     if (this.oauth && wwwauth && wwwauth.startsWith("Bearer") && wwwauth.includes("error=")) {
       this.oauth.accessToken = null;
 
@@ -414,7 +414,7 @@ class CalDavSession {
    * @returns {*} Return value specific to the adapter method
    */
   async _callAdapter(aHost, aMethod, ...aArgs) {
-    let adapter = this.authAdapters[aHost] || null;
+    const adapter = this.authAdapters[aHost] || null;
     if (adapter) {
       return adapter[aMethod](...aArgs);
     }

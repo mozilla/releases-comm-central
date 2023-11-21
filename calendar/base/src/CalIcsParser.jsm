@@ -41,7 +41,7 @@ CalIcsParser.prototype = {
     }
 
     if (!calComp) {
-      let message = "Parser Error. Could not find 'VCALENDAR' component.\n";
+      const message = "Parser Error. Could not find 'VCALENDAR' component.\n";
       try {
         // we try to also provide the parsed component - if that fails due to an error in
         // libical, we append the error message of the caught exception, which includes
@@ -52,19 +52,19 @@ CalIcsParser.prototype = {
       }
     }
 
-    let self = this;
-    let state = new parserState(this, aAsyncParsing);
+    const self = this;
+    const state = new parserState(this, aAsyncParsing);
 
     while (calComp) {
       // Get unknown properties from the VCALENDAR
-      for (let prop of cal.iterate.icalProperty(calComp)) {
+      for (const prop of cal.iterate.icalProperty(calComp)) {
         if (prop.propertyName != "VERSION" && prop.propertyName != "PRODID") {
           this.mProperties.push(prop);
         }
       }
 
-      let isGCal = /^-\/\/Google Inc\/\/Google Calendar /.test(calComp.prodid);
-      for (let subComp of cal.iterate.icalSubcomponent(calComp)) {
+      const isGCal = /^-\/\/Google Inc\/\/Google Calendar /.test(calComp.prodid);
+      for (const subComp of cal.iterate.icalSubcomponent(calComp)) {
         state.submit(subComp, isGCal);
       }
       calComp = rootComp.getNextSubcomponent("VCALENDAR");
@@ -72,9 +72,9 @@ CalIcsParser.prototype = {
 
     // eslint-disable-next-line mozilla/use-returnValue
     state.join(() => {
-      let fakedParents = {};
+      const fakedParents = {};
       // tag "exceptions", i.e. items with rid:
-      for (let item of state.excItems) {
+      for (const item of state.excItems) {
         let parent = state.uid2parent[item.id];
 
         if (!parent) {
@@ -89,7 +89,7 @@ CalIcsParser.prototype = {
           state.items.push(parent);
         }
         if (item.id in fakedParents) {
-          let rdate = cal.createRecurrenceDate();
+          const rdate = cal.createRecurrenceDate();
           rdate.date = item.recurrenceId;
           parent.recurrenceInfo.appendRecurrenceItem(rdate);
           // we'll keep the parentless-API until we switch over using itip-process for import (e.g. in dnd code)
@@ -103,11 +103,11 @@ CalIcsParser.prototype = {
         // Use an alert rather than a prompt because problems may appear in
         // remote subscribed calendars the user cannot change.
         if (Cc["@mozilla.org/alerts-service;1"]) {
-          let notifier = Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
-          let title = cal.l10n.getCalString("TimezoneErrorsAlertTitle");
-          let text = cal.l10n.getCalString("TimezoneErrorsSeeConsole");
+          const notifier = Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
+          const title = cal.l10n.getCalString("TimezoneErrorsAlertTitle");
+          const text = cal.l10n.getCalString("TimezoneErrorsSeeConsole");
           try {
-            let alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
+            const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
               Ci.nsIAlertNotification
             );
             alert.init(title, "", title, text);
@@ -130,7 +130,7 @@ CalIcsParser.prototype = {
 
   parseString(aICSString, aAsyncParsing) {
     if (aAsyncParsing) {
-      let self = this;
+      const self = this;
 
       // We are using two types of very similar listeners here:
       // aAsyncParsing is a calIcsParsingListener that returns the ics
@@ -149,7 +149,7 @@ CalIcsParser.prototype = {
       });
     } else {
       try {
-        let icalComp = cal.icsService.parseICS(aICSString);
+        const icalComp = cal.icsService.parseICS(aICSString);
         this.processIcalComponent(icalComp);
       } catch (exc) {
         cal.ERROR(exc.message + " when parsing\n" + aICSString);
@@ -162,7 +162,7 @@ CalIcsParser.prototype = {
     // because likely, the file is utf8. The multibyte chars show up as multiple
     // 'chars' in this string. So call it an array of octets for now.
 
-    let stringData = NetUtil.readInputStreamToString(aStream, aStream.available(), {
+    const stringData = NetUtil.readInputStreamToString(aStream, aStream.available(), {
       charset: "utf-8",
     });
     this.parseString(stringData, aAsyncParsing);
@@ -226,16 +226,16 @@ parserState.prototype = {
     }
 
     if (date && isPhantomTimezone(date.timezone)) {
-      let tzid = date.timezone.tzid;
-      let hid = item.hashId + "#" + tzid;
+      const tzid = date.timezone.tzid;
+      const hid = item.hashId + "#" + tzid;
       if (!(hid in this.tzErrors)) {
         // For now, publish errors to console and alert user.
         // In future, maybe make them available through an interface method
         // so this UI code can be removed from the parser, and caller can
         // choose whether to alert, or show user the problem items and ask
         // for fixes, or something else.
-        let msgArgs = [tzid, item.title, cal.dtz.formatter.formatDateTime(date)];
-        let msg = cal.l10n.getCalString("unknownTimezoneInItem", msgArgs);
+        const msgArgs = [tzid, item.title, cal.dtz.formatter.formatDateTime(date)];
+        const msg = cal.l10n.getCalString("unknownTimezoneInItem", msgArgs);
 
         cal.ERROR(msg + "\n" + item.icalString);
         this.tzErrors[hid] = true;
@@ -250,8 +250,8 @@ parserState.prototype = {
    * @param isGCal        If this is a Google Calendar invitation
    */
   submit(subComp, isGCal) {
-    let self = this;
-    let runner = {
+    const self = this;
+    const runner = {
       run() {
         let item = null;
         switch (subComp.componentType) {
@@ -282,7 +282,7 @@ parserState.prototype = {
         }
 
         if (item) {
-          let rid = item.recurrenceId;
+          const rid = item.recurrenceId;
           if (rid) {
             self.excItems.push(item);
           } else {

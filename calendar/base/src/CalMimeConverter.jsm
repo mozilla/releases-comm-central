@@ -18,14 +18,14 @@ CalMimeConverter.prototype = {
   uri: null,
 
   convertToHTML(contentType, data) {
-    let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+    const parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseString(data);
     let event = null;
     for (let item of parser.getItems()) {
       if (item.isEvent()) {
         if (item.hasProperty("X-MOZ-FAKED-MASTER")) {
           // if it's a faked master, take any overridden item to get a real occurrence:
-          let exc = item.recurrenceInfo.getExceptionFor(item.startDate);
+          const exc = item.recurrenceInfo.getExceptionFor(item.startDate);
           cal.ASSERT(exc, "unexpected!");
           if (exc) {
             item = exc;
@@ -39,13 +39,13 @@ CalMimeConverter.prototype = {
       return "";
     }
 
-    let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
+    const itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
     itipItem.init(data);
 
     // this.uri is the message URL that we are processing.
     if (this.uri) {
       try {
-        let msgUrl = this.uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
+        const msgUrl = this.uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
         itipItem.sender = msgUrl.mimeHeaders.extractHeader("From", false);
       } catch (exc) {
         // msgWindow is optional in some scenarios
@@ -58,7 +58,7 @@ CalMimeConverter.prototype = {
     let msgOverlay = "";
 
     if (!Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
-      let dom = cal.invitation.createInvitationOverlay(event, itipItem);
+      const dom = cal.invitation.createInvitationOverlay(event, itipItem);
       msgOverlay = cal.xml.serializeDOM(dom);
     }
 

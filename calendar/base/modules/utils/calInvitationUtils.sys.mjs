@@ -28,10 +28,10 @@ export var invitation = {
     let header;
 
     if (aItipItem) {
-      let item = aItipItem.getItemList()[0];
-      let summary = item.getProperty("SUMMARY") || "";
-      let organizer = item.organizer;
-      let organizerString = organizer ? organizer.commonName || organizer.toString() : "";
+      const item = aItipItem.getItemList()[0];
+      const summary = item.getProperty("SUMMARY") || "";
+      const organizer = item.organizer;
+      const organizerString = organizer ? organizer.commonName || organizer.toString() : "";
 
       switch (aItipItem.responseMethod) {
         case "REQUEST":
@@ -43,13 +43,13 @@ export var invitation = {
         case "COUNTER":
         // falls through
         case "REPLY": {
-          let attendees = item.getAttendees();
-          let sender = cal.itip.getAttendeesBySender(attendees, aItipItem.sender);
+          const attendees = item.getAttendees();
+          const sender = cal.itip.getAttendeesBySender(attendees, aItipItem.sender);
           if (sender.length == 1) {
             if (aItipItem.responseMethod == "COUNTER") {
               header = cal.l10n.getLtnString("itipCounterBody", [sender[0].toString(), summary]);
             } else {
-              let statusString =
+              const statusString =
                 sender[0].participationStatus == "DECLINED"
                   ? "itipReplyBodyDecline"
                   : "itipReplyBodyAccept";
@@ -74,13 +74,13 @@ export var invitation = {
   },
 
   _createAddedElement(doc) {
-    let el = doc.createElement("ins");
+    const el = doc.createElement("ins");
     el.classList.add("added");
     return el;
   },
 
   _createRemovedElement(doc) {
-    let el = doc.createElement("del");
+    const el = doc.createElement("del");
     el.classList.add("removed");
     return el;
   },
@@ -100,9 +100,9 @@ export var invitation = {
    * @returns {HTMLDivElement} - The new attendee label.
    */
   createAttendeeLabel(doc, attendee, attendeeList, oldAttendee, oldAttendeeList) {
-    let userType = attendee.userType || "INDIVIDUAL";
-    let role = attendee.role || "REQ-PARTICIPANT";
-    let partstat = attendee.participationStatus || "NEEDS-ACTION";
+    const userType = attendee.userType || "INDIVIDUAL";
+    const role = attendee.role || "REQ-PARTICIPANT";
+    const partstat = attendee.participationStatus || "NEEDS-ACTION";
 
     let modified =
       oldAttendee &&
@@ -111,28 +111,31 @@ export var invitation = {
         (oldAttendee.participationStatus || "NEEDS-ACTION") != partstat);
 
     // resolve delegatees/delegators to display also the CN
-    let del = cal.itip.resolveDelegation(attendee, attendeeList);
+    const del = cal.itip.resolveDelegation(attendee, attendeeList);
     if (oldAttendee && !modified) {
-      let oldDel = cal.itip.resolveDelegation(oldAttendee, oldAttendeeList);
+      const oldDel = cal.itip.resolveDelegation(oldAttendee, oldAttendeeList);
       modified = oldDel.delegatees !== del.delegatees || oldDel.delegator !== del.delegator;
     }
 
-    let userTypeString = cal.l10n.getLtnString("imipHtml.attendeeUserType2." + userType, [
+    const userTypeString = cal.l10n.getLtnString("imipHtml.attendeeUserType2." + userType, [
       attendee.toString(),
     ]);
-    let roleString = cal.l10n.getLtnString("imipHtml.attendeeRole2." + role, [userTypeString]);
-    let partstatString = cal.l10n.getLtnString("imipHtml.attendeePartStat2." + partstat, [
+    const roleString = cal.l10n.getLtnString("imipHtml.attendeeRole2." + role, [userTypeString]);
+    const partstatString = cal.l10n.getLtnString("imipHtml.attendeePartStat2." + partstat, [
       attendee.commonName || attendee.toString(),
       del.delegatees,
     ]);
-    let tooltip = cal.l10n.getLtnString("imipHtml.attendee.combined", [roleString, partstatString]);
+    const tooltip = cal.l10n.getLtnString("imipHtml.attendee.combined", [
+      roleString,
+      partstatString,
+    ]);
 
     let name = attendee.toString();
     if (del.delegators) {
       name += " " + cal.l10n.getLtnString("imipHtml.attendeeDelegatedFrom", [del.delegators]);
     }
 
-    let attendeeLabel = doc.createElement("div");
+    const attendeeLabel = doc.createElement("div");
     attendeeLabel.classList.add("attendee-label");
     // NOTE: tooltip will not appear when the top level is XUL.
     attendeeLabel.setAttribute("title", tooltip);
@@ -147,14 +150,14 @@ export var invitation = {
     // problem is that the icon image is set in CSS on the itip-icon class
     // with a background image that changes with the role attribute. This is
     // generally inaccessible (see Bug 1702560).
-    let icon = doc.createElement("div");
+    const icon = doc.createElement("div");
     icon.classList.add("itip-icon");
     icon.setAttribute("partstat", partstat);
     icon.setAttribute("usertype", userType);
     icon.setAttribute("attendeerole", role);
     attendeeLabel.appendChild(icon);
 
-    let text = doc.createElement("div");
+    const text = doc.createElement("div");
     text.classList.add("attendee-name");
     text.appendChild(doc.createTextNode(name));
     attendeeLabel.appendChild(text);
@@ -173,7 +176,7 @@ export var invitation = {
    * return {HTMLLIElement} - The attendee list item.
    */
   createAttendeeListItem(doc, attendeeLabel) {
-    let listItem = doc.createElement("li");
+    const listItem = doc.createElement("li");
     listItem.classList.add("attendee-list-item");
     listItem.appendChild(attendeeLabel);
     return listItem;
@@ -190,19 +193,19 @@ export var invitation = {
    * @returns {HTMLUListElement} - The list of attendees.
    */
   createAttendeesList(doc, attendees, oldAttendees) {
-    let list = doc.createElement("ul");
+    const list = doc.createElement("ul");
     list.classList.add("attendee-list");
 
     let oldAttendeeData;
     if (oldAttendees) {
       oldAttendeeData = [];
-      for (let attendee of oldAttendees) {
-        let data = { attendee, item: null };
+      for (const attendee of oldAttendees) {
+        const data = { attendee, item: null };
         oldAttendeeData.push(data);
       }
     }
 
-    for (let attendee of attendees) {
+    for (const attendee of attendees) {
       let attendeeLabel;
       let oldData;
       if (oldAttendeeData) {
@@ -224,7 +227,7 @@ export var invitation = {
       } else {
         attendeeLabel = this.createAttendeeLabel(doc, attendee, attendees);
       }
-      let listItem = this.createAttendeeListItem(doc, attendeeLabel);
+      const listItem = this.createAttendeeListItem(doc, attendeeLabel);
       if (oldData) {
         oldData.item = listItem;
       }
@@ -235,12 +238,12 @@ export var invitation = {
       let next = null;
       // Traverse from the end of the list to the start.
       for (let i = oldAttendeeData.length - 1; i >= 0; i--) {
-        let data = oldAttendeeData[i];
+        const data = oldAttendeeData[i];
         if (!data.item) {
           // Removed attendee.
-          let attendeeLabel = this._createRemovedElement(doc);
+          const attendeeLabel = this._createRemovedElement(doc);
           attendeeLabel.appendChild(this.createAttendeeLabel(doc, data.attendee, attendees));
-          let listItem = this.createAttendeeListItem(doc, attendeeLabel);
+          const listItem = this.createAttendeeListItem(doc, attendeeLabel);
           data.item = listItem;
 
           // Insert the removed attendee list item *before* the list item that
@@ -289,7 +292,7 @@ export var invitation = {
   createInvitationOverlay(event, itipItem) {
     // Creates HTML using the Node strings in the properties file
     const parser = new DOMParser();
-    let doc = parser.parseFromString(invitation.htmlTemplate, "text/html");
+    const doc = parser.parseFromString(invitation.htmlTemplate, "text/html");
     this.updateInvitationOverlay(doc, event, itipItem);
     return doc;
   },
@@ -315,12 +318,12 @@ export var invitation = {
    *   show as updated.
    */
   updateInvitationOverlay(doc, event, itipItem, oldEvent) {
-    let headerDescr = doc.getElementById("imipHtml-header");
+    const headerDescr = doc.getElementById("imipHtml-header");
     if (headerDescr) {
       headerDescr.textContent = invitation.getItipHeader(itipItem);
     }
 
-    let formatter = cal.dtz.formatter;
+    const formatter = cal.dtz.formatter;
 
     /**
      * Set whether the given field should be shown.
@@ -328,8 +331,8 @@ export var invitation = {
      * @param {string} fieldName - The name of the field.
      * @param {boolean} show - Whether the field should be shown.
      */
-    let showField = (fieldName, show) => {
-      let row = doc.getElementById("imipHtml-" + fieldName + "-row");
+    const showField = (fieldName, show) => {
+      const row = doc.getElementById("imipHtml-" + fieldName + "-row");
       if (row.hidden && show) {
         // Make sure the field name is set.
         doc.getElementById("imipHtml-" + fieldName + "-descr").textContent = cal.l10n.getLtnString(
@@ -349,7 +352,7 @@ export var invitation = {
      * @param {string} [html] - The html to use as the value. This is only used
      *   if convert is set to true.
      */
-    let setElementValue = (element, value, convert = false, html) => {
+    const setElementValue = (element, value, convert = false, html) => {
       if (convert) {
         element.appendChild(cal.view.textToHtmlDocumentFragment(value, doc, html));
       } else {
@@ -373,30 +376,30 @@ export var invitation = {
      *   to a sanitised document fragment.
      * @param {Function} [getHtml] - A method to retrieve the value as a html.
      */
-    let setField = (fieldName, getValue, convert = false, getHtml) => {
-      let cell = doc.getElementById("imipHtml-" + fieldName + "-content");
+    const setField = (fieldName, getValue, convert = false, getHtml) => {
+      const cell = doc.getElementById("imipHtml-" + fieldName + "-content");
       while (cell.lastChild) {
         cell.lastChild.remove();
       }
-      let value = getValue(event);
-      let oldValue = oldEvent && getValue(oldEvent);
-      let html = getHtml && getHtml(event);
-      let oldHtml = oldEvent && getHtml && getHtml(event);
+      const value = getValue(event);
+      const oldValue = oldEvent && getValue(oldEvent);
+      const html = getHtml && getHtml(event);
+      const oldHtml = oldEvent && getHtml && getHtml(event);
       if (oldEvent && (oldValue || value) && oldValue !== value) {
         // Different values, with at least one being truthy.
         showField(fieldName, true);
         if (!oldValue) {
-          let added = this._createAddedElement(doc);
+          const added = this._createAddedElement(doc);
           setElementValue(added, value, convert, html);
           cell.appendChild(added);
         } else if (!value) {
-          let removed = this._createRemovedElement(doc);
+          const removed = this._createRemovedElement(doc);
           setElementValue(removed, oldValue, convert, oldHtml);
           cell.appendChild(removed);
         } else {
-          let added = this._createAddedElement(doc);
+          const added = this._createAddedElement(doc);
           setElementValue(added, value, convert, html);
-          let removed = this._createRemovedElement(doc);
+          const removed = this._createRemovedElement(doc);
           setElementValue(removed, oldValue, convert, oldHtml);
 
           cell.appendChild(added);
@@ -415,12 +418,12 @@ export var invitation = {
     setField("summary", ev => ev.title, true);
     setField("location", ev => ev.getProperty("LOCATION"), true);
 
-    let kDefaultTimezone = cal.dtz.defaultTimezone;
+    const kDefaultTimezone = cal.dtz.defaultTimezone;
     setField("when", ev => {
       if (ev.recurrenceInfo) {
-        let startDate = ev.startDate?.getInTimezone(kDefaultTimezone) ?? null;
-        let endDate = ev.endDate?.getInTimezone(kDefaultTimezone) ?? null;
-        let repeatString = recurrenceRule2String(
+        const startDate = ev.startDate?.getInTimezone(kDefaultTimezone) ?? null;
+        const endDate = ev.endDate?.getInTimezone(kDefaultTimezone) ?? null;
+        const repeatString = recurrenceRule2String(
           ev.recurrenceInfo,
           startDate,
           endDate,
@@ -437,16 +440,16 @@ export var invitation = {
       if (!ev.recurrenceInfo) {
         return null;
       }
-      let formattedExDates = [];
+      const formattedExDates = [];
 
       // Show removed instances
-      for (let exc of ev.recurrenceInfo.getRecurrenceItems()) {
+      for (const exc of ev.recurrenceInfo.getRecurrenceItems()) {
         if (
           (exc instanceof lazy.CalRecurrenceDate || exc instanceof Ci.calIRecurrenceDate) &&
           exc.isNegative
         ) {
           // This is an EXDATE
-          let excDate = exc.date.getInTimezone(kDefaultTimezone);
+          const excDate = exc.date.getInTimezone(kDefaultTimezone);
           formattedExDates.push(formatter.formatDateTime(excDate));
         }
       }
@@ -456,27 +459,27 @@ export var invitation = {
       return null;
     });
 
-    let dateComptor = (a, b) => a.startDate.compare(b.startDate);
+    const dateComptor = (a, b) => a.startDate.compare(b.startDate);
 
     setField("modifiedOccurrences", ev => {
       if (!ev.recurrenceInfo) {
         return null;
       }
-      let modifiedOccurrences = [];
+      const modifiedOccurrences = [];
 
-      for (let exc of ev.recurrenceInfo.getRecurrenceItems()) {
+      for (const exc of ev.recurrenceInfo.getRecurrenceItems()) {
         if (
           (exc instanceof lazy.CalRecurrenceDate || exc instanceof Ci.calIRecurrenceDate) &&
           !exc.isNegative
         ) {
           // This is an RDATE, close enough to a modified occurrence
-          let excItem = ev.recurrenceInfo.getOccurrenceFor(exc.date);
+          const excItem = ev.recurrenceInfo.getOccurrenceFor(exc.date);
           cal.data.binaryInsert(modifiedOccurrences, excItem, dateComptor, true);
         }
       }
-      for (let recurrenceId of ev.recurrenceInfo.getExceptionIds()) {
-        let exc = ev.recurrenceInfo.getExceptionFor(recurrenceId);
-        let excLocation = exc.getProperty("LOCATION");
+      for (const recurrenceId of ev.recurrenceInfo.getExceptionIds()) {
+        const exc = ev.recurrenceInfo.getExceptionFor(recurrenceId);
+        const excLocation = exc.getProperty("LOCATION");
 
         // Only show modified occurrence if start, duration or location
         // has changed.
@@ -491,11 +494,11 @@ export var invitation = {
       }
 
       if (modifiedOccurrences.length > 0) {
-        let evLocation = ev.getProperty("LOCATION");
+        const evLocation = ev.getProperty("LOCATION");
         return modifiedOccurrences
           .map(occ => {
             let formattedExc = formatter.formatItemInterval(occ);
-            let occLocation = occ.getProperty("LOCATION");
+            const occLocation = occ.getProperty("LOCATION");
             if (occLocation != evLocation) {
               formattedExc +=
                 " (" + cal.l10n.getLtnString("imipHtml.newLocation", [occLocation]) + ")";
@@ -520,8 +523,8 @@ export var invitation = {
       "attachments",
       ev => {
         // ATTACH - we only display URI but no BINARY type attachments here
-        let links = [];
-        for (let attachment of ev.getAttachments()) {
+        const links = [];
+        for (const attachment of ev.getAttachments()) {
           if (attachment.uri) {
             links.push(attachment.uri.spec);
           }
@@ -532,17 +535,17 @@ export var invitation = {
     );
 
     // ATTENDEE and ORGANIZER fields
-    let attendees = event.getAttendees();
-    let oldAttendees = oldEvent?.getAttendees();
+    const attendees = event.getAttendees();
+    const oldAttendees = oldEvent?.getAttendees();
 
-    let organizerCell = doc.getElementById("imipHtml-organizer-cell");
+    const organizerCell = doc.getElementById("imipHtml-organizer-cell");
     while (organizerCell.lastChild) {
       organizerCell.lastChild.remove();
     }
 
-    let organizer = event.organizer;
+    const organizer = event.organizer;
     if (oldEvent) {
-      let oldOrganizer = oldEvent.organizer;
+      const oldOrganizer = oldEvent.organizer;
       if (!organizer && !oldOrganizer) {
         showField("organizer", false);
       } else {
@@ -565,12 +568,12 @@ export var invitation = {
         }
         // Append added first.
         if (added) {
-          let addedEl = this._createAddedElement(doc);
+          const addedEl = this._createAddedElement(doc);
           addedEl.appendChild(this.createAttendeeLabel(doc, organizer, attendees));
           organizerCell.appendChild(addedEl);
         }
         if (removed) {
-          let removedEl = this._createRemovedElement(doc);
+          const removedEl = this._createRemovedElement(doc);
           removedEl.appendChild(this.createAttendeeLabel(doc, oldOrganizer, oldAttendees));
           organizerCell.appendChild(removedEl);
         }
@@ -582,7 +585,7 @@ export var invitation = {
       organizerCell.appendChild(this.createAttendeeLabel(doc, organizer, attendees));
     }
 
-    let attendeesCell = doc.getElementById("imipHtml-attendees-cell");
+    const attendeesCell = doc.getElementById("imipHtml-attendees-cell");
     while (attendeesCell.lastChild) {
       attendeesCell.lastChild.remove();
     }
@@ -605,8 +608,8 @@ export var invitation = {
    * @returns {string} the source code of the header section of the email
    */
   getHeaderSection(aMessageId, aIdentity, aToList, aSubject) {
-    let recipient = aIdentity.fullName + " <" + aIdentity.email + ">";
-    let from = aIdentity.fullName.length
+    const recipient = aIdentity.fullName + " <" + aIdentity.email + ">";
+    const from = aIdentity.fullName.length
       ? cal.email.validateRecipientList(recipient)
       : aIdentity.email;
     let header =
@@ -656,8 +659,8 @@ export var invitation = {
    *                             Date.toString() like "Fri, 20 Nov 2015 09:45:36 +0100"
    */
   getRfc5322FormattedDate(aDate = null) {
-    let date = aDate || new Date();
-    let str = date
+    const date = aDate || new Date();
+    const str = date
       .toString()
       .replace(
         /^(\w{3}) (\w{3}) (\d{2}) (\d{4}) ([0-9:]{8}) GMT([+-])(\d{4}).*$/,
@@ -665,7 +668,7 @@ export var invitation = {
       );
     // according to section 3.3 of RfC5322, +0000 should be used for defined timezones using
     // UTC time, while -0000 should indicate a floating time instead
-    let timezone = cal.dtz.defaultTimezone;
+    const timezone = cal.dtz.defaultTimezone;
     if (timezone && timezone.isFloating) {
       str.replace(/\+0000$/, "-0000");
     }
@@ -691,7 +694,7 @@ export var invitation = {
    * @returns {string} the encoded string
    */
   encodeMimeHeader(aHeader, aIsEmail = false) {
-    let fieldNameLen = aHeader.indexOf(": ") + 2;
+    const fieldNameLen = aHeader.indexOf(": ") + 2;
     return MailServices.mimeConverter.encodeMimePartIIStr_UTF8(
       aHeader,
       aIsEmail,
@@ -713,7 +716,7 @@ export var invitation = {
    * @returns {string} JsObject.comment           A comment of the attendee, if any
    */
   parseCounter(aProposedItem, aExistingItem) {
-    let isEvent = aProposedItem.isEvent();
+    const isEvent = aProposedItem.isEvent();
     // atm we only support a subset of properties, for a full list see RfC 5546 section 3.2.7
     let properties = ["SUMMARY", "LOCATION", "DTSTART", "DTEND", "COMMENT"];
     if (!isEvent) {
@@ -721,8 +724,8 @@ export var invitation = {
       properties = [];
     }
 
-    let diff = [];
-    let status = { descr: "", type: "OK" };
+    const diff = [];
+    const status = { descr: "", type: "OK" };
     // As required in https://tools.ietf.org/html/rfc5546#section-3.2.7 a valid counterproposal
     // is referring to as existing UID and must include the same sequence number and organizer as
     // the original request being countered
@@ -732,8 +735,8 @@ export var invitation = {
       aExistingItem.organizer &&
       aProposedItem.organizer.id == aExistingItem.organizer.id
     ) {
-      let proposedSequence = aProposedItem.getProperty("SEQUENCE") || 0;
-      let existingSequence = aExistingItem.getProperty("SEQUENCE") || 0;
+      const proposedSequence = aProposedItem.getProperty("SEQUENCE") || 0;
+      const existingSequence = aExistingItem.getProperty("SEQUENCE") || 0;
       if (existingSequence >= proposedSequence) {
         if (existingSequence > proposedSequence) {
           // in this case we prompt the organizer with the additional information that the
@@ -747,9 +750,9 @@ export var invitation = {
           status.descr = "This is a counterproposal not based on the latest event update.";
           status.type = "NOTLATESTUPDATE";
         }
-        for (let prop of properties) {
-          let newValue = aProposedItem.getProperty(prop) || null;
-          let oldValue = aExistingItem.getProperty(prop) || null;
+        for (const prop of properties) {
+          const newValue = aProposedItem.getProperty(prop) || null;
+          const oldValue = aExistingItem.getProperty(prop) || null;
           if (
             (["DTSTART", "DTEND"].includes(prop) && newValue.toString() != oldValue.toString()) ||
             (!["DTSTART", "DTEND"].includes(prop) && newValue != oldValue)

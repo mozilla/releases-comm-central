@@ -36,9 +36,9 @@ var gCalendarGeneralPane = {
   init() {
     this.onChangedUseSystemTimezonePref();
 
-    let formatter = cal.dtz.formatter;
-    let dateFormattedLong = formatter.formatDateLong(cal.dtz.now());
-    let dateFormattedShort = formatter.formatDateShort(cal.dtz.now());
+    const formatter = cal.dtz.formatter;
+    const dateFormattedLong = formatter.formatDateLong(cal.dtz.now());
+    const dateFormattedShort = formatter.formatDateShort(cal.dtz.now());
 
     // menu items include examples of current date formats.
     document.l10n.setAttributes(
@@ -57,23 +57,23 @@ var gCalendarGeneralPane = {
     updateUnitLabelPlural("defaultlength", "defaultlengthunit", "minutes");
     this.updateDefaultTodoDates();
 
-    let tzMenuList = document.getElementById("calendar-timezone-menulist");
-    let tzMenuPopup = document.getElementById("calendar-timezone-menupopup");
+    const tzMenuList = document.getElementById("calendar-timezone-menulist");
+    const tzMenuPopup = document.getElementById("calendar-timezone-menupopup");
 
-    let tzids = {};
-    let displayNames = [];
+    const tzids = {};
+    const displayNames = [];
     // don't rely on what order the timezone-service gives you
-    for (let timezoneId of cal.timezoneService.timezoneIds) {
-      let timezone = cal.timezoneService.getTimezone(timezoneId);
+    for (const timezoneId of cal.timezoneService.timezoneIds) {
+      const timezone = cal.timezoneService.getTimezone(timezoneId);
       if (timezone && !timezone.isFloating && !timezone.isUTC) {
-        let displayName = timezone.displayName;
+        const displayName = timezone.displayName;
         displayNames.push(displayName);
         tzids[displayName] = timezone.tzid;
       }
     }
     // the display names need to be sorted
     displayNames.sort((a, b) => a.localeCompare(b));
-    for (let displayName of displayNames) {
+    for (const displayName of displayNames) {
       addMenuItem(tzMenuPopup, displayName, tzids[displayName]);
     }
 
@@ -88,9 +88,9 @@ var gCalendarGeneralPane = {
   },
 
   updateDefaultTodoDates() {
-    let defaultDue = document.getElementById("default_task_due").value;
-    let defaultStart = document.getElementById("default_task_start").value;
-    let offsetValues = ["offsetcurrent", "offsetnexthour"];
+    const defaultDue = document.getElementById("default_task_due").value;
+    const defaultStart = document.getElementById("default_task_start").value;
+    const offsetValues = ["offsetcurrent", "offsetnexthour"];
 
     document.getElementById("default_task_due_offset").style.visibility = offsetValues.includes(
       defaultDue
@@ -109,10 +109,10 @@ var gCalendarGeneralPane = {
 
   initializeTodaypaneMenu() {
     // Assign the labels for the menuitem
-    let menulist = document.getElementById("agenda-days-menulist");
-    let items = menulist.getElementsByTagName("menuitem");
-    for (let menuItem of items) {
-      let menuitemValue = Number(menuItem.value);
+    const menulist = document.getElementById("agenda-days-menulist");
+    const items = menulist.getElementsByTagName("menuitem");
+    for (const menuItem of items) {
+      const menuitemValue = Number(menuItem.value);
       if (menuitemValue > 7) {
         menuItem.label = unitPluralForm(menuitemValue / 7, "weeks");
       } else {
@@ -120,13 +120,13 @@ var gCalendarGeneralPane = {
       }
     }
 
-    let pref = Preferences.get("calendar.agenda.days");
+    const pref = Preferences.get("calendar.agenda.days");
     let value = pref.value;
 
     // Check if the preference has been edited with a wrong value.
     if (value > 0 && value <= 28) {
       if (value % 7 != 0) {
-        let intValue = Math.floor(value / 7) * 7;
+        const intValue = Math.floor(value / 7) * 7;
         value = intValue == 0 ? value : intValue;
         pref.value = value;
       }
@@ -136,7 +136,7 @@ var gCalendarGeneralPane = {
   },
 
   onChangedUseSystemTimezonePref() {
-    let useSystemTimezonePref = Preferences.get("calendar.timezone.useSystemTimezone");
+    const useSystemTimezonePref = Preferences.get("calendar.timezone.useSystemTimezone");
 
     document.getElementById("calendar-timezone-menulist").disabled = useSystemTimezonePref.value;
   },

@@ -214,14 +214,14 @@ class CalExtractParseNode {
    */
   getDescendant(name) {
     // It is important the direct descendants are checked first.
-    let node = this.descendants.find(node => node.symbol == name);
+    const node = this.descendants.find(node => node.symbol == name);
     if (node) {
       return node;
     }
 
     // Now try any optional descendants.
-    for (let node of this.descendants) {
-      let hit = node.isOptional() && node != this && node.getDescendant(name);
+    for (const node of this.descendants) {
+      const hit = node.isOptional() && node != this && node.getDescendant(name);
       if (hit) {
         return hit;
       }
@@ -349,11 +349,11 @@ class CalExtractParser {
    *                                CalExtractTokens.
    */
   tokenize(str) {
-    let allTokens = [];
-    let sentences = str.split(this.options.sentenceBoundary).filter(Boolean);
+    const allTokens = [];
+    const sentences = str.split(this.options.sentenceBoundary).filter(Boolean);
 
     for (let i = 0; i < sentences.length; i++) {
-      let sentence = sentences[i];
+      const sentence = sentences[i];
       let pos = 0;
       let tokens = [];
       let buffer = "";
@@ -361,7 +361,7 @@ class CalExtractParser {
       let matched;
       while (pos < sentence.length) {
         buffer = sentence.substr(pos);
-        for (let [pattern, type] of this.tokenRules) {
+        for (const [pattern, type] of this.tokenRules) {
           matched = pattern.exec(buffer);
           if (matched) {
             if (type) {
@@ -400,10 +400,10 @@ class CalExtractParser {
       }
 
       let lookahead = null;
-      let stack = [];
+      const stack = [];
       while (true) {
         if (tokens.length) {
-          let next = tokens.shift();
+          const next = tokens.shift();
           stack.push([next.type, next]);
           lookahead = tokens[0] ? tokens[0].type : null;
           while (this.reduceStack(stack, lookahead)) {
@@ -431,7 +431,7 @@ class CalExtractParser {
    */
   reduceStack(stack, lookahead) {
     for (let i = 0; i < stack.length; i++) {
-      for (let rule of this.parseRules) {
+      for (const rule of this.parseRules) {
         let node = rule.graph;
         let n = i;
         let matchCount = 0;
@@ -441,8 +441,8 @@ class CalExtractParser {
             node.isEnd ||
             (n == stack.length - 1 && !lookahead && (node.isCyclic() || node.canEnd()))
           ) {
-            let result = [rule.name, null];
-            let matched = stack.splice(i, matchCount, result);
+            const result = [rule.name, null];
+            const matched = stack.splice(i, matchCount, result);
             result[1] = rule.action(prepareArguments(rule, matched));
             return true;
           }
@@ -462,18 +462,18 @@ class CalExtractParser {
  * @returns {CalExtractExtParseRule}
  */
 function extendParseRule(rule) {
-  let { name, action } = rule;
-  let flags = [];
-  let patterns = [];
-  let start = new CalExtractParseNode(null, null);
+  const { name, action } = rule;
+  const flags = [];
+  const patterns = [];
+  const start = new CalExtractParseNode(null, null);
   let graph = start;
 
   for (let pattern of rule.patterns) {
-    let patternFlag = pattern[pattern.length - 1];
+    const patternFlag = pattern[pattern.length - 1];
     let bits = 0;
 
     // Compute the flag value.
-    for (let [flag, value] of flagBits) {
+    for (const [flag, value] of flagBits) {
       if (patternFlag == flag) {
         bits = bits | value;
       }
@@ -520,7 +520,7 @@ function prepareArguments(rule, matched) {
   return rule.patterns.map((pattern, index) => {
     if (rule.flags[index] & FLAG_MULTIPLE) {
       let c = index;
-      let arrayArg = [];
+      const arrayArg = [];
 
       while (c < matched.length && matched[c][0] == pattern) {
         arrayArg.push(matched[c][1]);

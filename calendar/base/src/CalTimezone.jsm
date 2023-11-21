@@ -32,7 +32,7 @@ CalTimezone.prototype = {
   },
 
   get icalComponent() {
-    let innerComp = this.innerObject.component;
+    const innerComp = this.innerObject.component;
     let comp = null;
     if (innerComp) {
       comp = cal.icsService.createIcalComponent("VTIMEZONE");
@@ -56,7 +56,7 @@ CalTimezone.prototype = {
   get displayName() {
     // Localization is currently only used for floating/UTC until we have a
     // better story around timezone localization and display
-    let stringName = "pref.timezone." + this.tzid.replace(/\//g, ".");
+    const stringName = "pref.timezone." + this.tzid.replace(/\//g, ".");
     let displayName = this.tzid;
 
     try {

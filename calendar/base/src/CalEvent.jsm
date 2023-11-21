@@ -45,7 +45,7 @@ CalEvent.prototype = {
   }),
 
   cloneShallow(aNewParent) {
-    let cloned = new CalEvent();
+    const cloned = new CalEvent();
     this.cloneItemBaseInto(cloned, aNewParent);
     return cloned;
   },
@@ -53,11 +53,11 @@ CalEvent.prototype = {
   createProxy(aRecurrenceId) {
     cal.ASSERT(!this.mIsProxy, "Tried to create a proxy for an existing proxy!", true);
 
-    let proxy = new CalEvent();
+    const proxy = new CalEvent();
 
     // override proxy's DTSTART/DTEND/RECURRENCE-ID
     // before master is set (and item might get immutable):
-    let endDate = aRecurrenceId.clone();
+    const endDate = aRecurrenceId.clone();
     endDate.addDuration(this.duration);
     proxy.endDate = endDate;
     proxy.startDate = aRecurrenceId;
@@ -98,28 +98,28 @@ CalEvent.prototype = {
   },
 
   get icalString() {
-    let calcomp = cal.icsService.createIcalComponent("VCALENDAR");
+    const calcomp = cal.icsService.createIcalComponent("VCALENDAR");
     cal.item.setStaticProps(calcomp);
     calcomp.addSubcomponent(this.icalComponent);
     return calcomp.serializeToICS();
   },
 
   get icalComponent() {
-    let icalcomp = cal.icsService.createIcalComponent("VEVENT");
+    const icalcomp = cal.icsService.createIcalComponent("VEVENT");
     this.fillIcalComponentFromBase(icalcomp);
     this.mapPropsToICS(icalcomp, this.icsEventPropMap);
 
-    for (let [name, value] of this.properties) {
+    for (const [name, value] of this.properties) {
       try {
         // When deleting a property of an occurrence, the property is not deleted
         // but instead set to null, so we need to prevent adding those properties.
-        let wasReset = this.mIsProxy && value === null;
+        const wasReset = this.mIsProxy && value === null;
         if (!this.eventPromotedProps[name] && !wasReset) {
-          let icalprop = cal.icsService.createIcalProperty(name);
+          const icalprop = cal.icsService.createIcalProperty(name);
           icalprop.value = value;
-          let propBucket = this.mPropertyParams[name];
+          const propBucket = this.mPropertyParams[name];
           if (propBucket) {
-            for (let paramName in propBucket) {
+            for (const paramName in propBucket) {
               try {
                 icalprop.setParameter(paramName, propBucket[paramName]);
               } catch (e) {
@@ -181,7 +181,7 @@ CalEvent.prototype = {
     // the appropriate method here to adjust the internal structure in
     // order to free clients from worrying about such details.
     if (this.parentItem == this) {
-      let rec = this.recurrenceInfo;
+      const rec = this.recurrenceInfo;
       if (rec) {
         rec.onStartDateChange(value, this.startDate);
       }
@@ -201,7 +201,7 @@ CalEvent.prototype = {
       endDate = this.getProperty("DTEND");
       if (!endDate && this.startDate) {
         endDate = this.startDate.clone();
-        let dur = this.getProperty("DURATION");
+        const dur = this.getProperty("DURATION");
         if (dur) {
           // If there is a duration set on the event, calculate the right end time.
           endDate.addDuration(cal.createDuration(dur));

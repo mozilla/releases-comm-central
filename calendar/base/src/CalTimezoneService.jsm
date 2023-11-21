@@ -161,12 +161,12 @@ CalTimezoneService.prototype = {
   _initDefaultTimezone() {
     // If the "use system timezone" preference is unset, we default to enabling
     // it if the user's system supports it
-    let isSetSystemTimezonePref = Services.prefs.prefHasUserValue(
+    const isSetSystemTimezonePref = Services.prefs.prefHasUserValue(
       "calendar.timezone.useSystemTimezone"
     );
 
     if (!isSetSystemTimezonePref) {
-      let canUseSystemTimezone = AppConstants.MOZ_CAN_FOLLOW_SYSTEM_TIME;
+      const canUseSystemTimezone = AppConstants.MOZ_CAN_FOLLOW_SYSTEM_TIME;
 
       Services.prefs.setBoolPref("calendar.timezone.useSystemTimezone", canUseSystemTimezone);
     }
@@ -175,11 +175,11 @@ CalTimezoneService.prototype = {
   },
 
   _updateDefaultTimezone() {
-    let prefUseSystemTimezone = Services.prefs.getBoolPref(
+    const prefUseSystemTimezone = Services.prefs.getBoolPref(
       "calendar.timezone.useSystemTimezone",
       true
     );
-    let prefTzid = Services.prefs.getStringPref("calendar.timezone.local", null);
+    const prefTzid = Services.prefs.getStringPref("calendar.timezone.local", null);
 
     let tzid;
     if (prefUseSystemTimezone || prefTzid === null || prefTzid === "floating") {

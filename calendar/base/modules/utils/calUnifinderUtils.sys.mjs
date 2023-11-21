@@ -49,7 +49,7 @@ export var unifinder = {
         return aItem.getProperty("LOCATION") || "";
 
       case "status": {
-        let statusSet = aItem.isEvent() ? eventStatus : taskStatus;
+        const statusSet = aItem.isEvent() ? eventStatus : taskStatus;
         return statusSet.indexOf(aItem.status);
       }
       case "calendar":
@@ -100,10 +100,10 @@ export var unifinder = {
    * @param {?number} aModifier - Either 1 or -1, to indicate sort direction
    */
   sortItems(aItems, aSortKey, aModifier = 1) {
-    let comparer = unifinder.sortEntryComparer(aSortKey);
+    const comparer = unifinder.sortEntryComparer(aSortKey);
     aItems.sort((a, b) => {
-      let sortvalA = unifinder.getItemSortKey(a, aSortKey);
-      let sortvalB = unifinder.getItemSortKey(b, aSortKey);
+      const sortvalA = unifinder.getItemSortKey(a, aSortKey);
+      const sortvalB = unifinder.getItemSortKey(b, aSortKey);
       return comparer(sortvalA, sortvalB, aModifier);
     });
   },

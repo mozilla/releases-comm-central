@@ -38,7 +38,7 @@ class CalItipOutgoingMessage {
    */
   send(transport) {
     if (this.item.calendar && this.item.calendar.supportsScheduling) {
-      let calendar = this.item.calendar.getSchedulingSupport();
+      const calendar = this.item.calendar.getSchedulingSupport();
       if (calendar.canNotify(this.method, this.item)) {
         // provider will handle that, so we return - we leave it also to the provider to
         // deal with user canceled notifications (if possible), so set the return value
@@ -51,9 +51,9 @@ class CalItipOutgoingMessage {
       return false;
     }
 
-    let { method, sender, autoResponse } = this;
-    let _sendItem = function (aSendToList, aSendItem) {
-      let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
+    const { method, sender, autoResponse } = this;
+    const _sendItem = function (aSendToList, aSendItem) {
+      const itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
       itipItem.init(cal.item.serialize(aSendItem));
       itipItem.responseMethod = method;
       itipItem.targetCalendar = aSendItem.calendar;
@@ -74,11 +74,11 @@ class CalItipOutgoingMessage {
       this.method != "REFRESH" &&
       this.method != "COUNTER"
     ) {
-      for (let recipient of this.recipients) {
+      for (const recipient of this.recipients) {
         // create a list with a single recipient
-        let sendToList = [recipient];
+        const sendToList = [recipient];
         // remove other recipients from vevent attendee list
-        let sendItem = this.item.clone();
+        const sendItem = this.item.clone();
         sendItem.removeAllAttendees();
         sendItem.addAttendee(recipient);
         // send message

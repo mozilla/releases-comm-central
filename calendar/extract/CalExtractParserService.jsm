@@ -197,14 +197,14 @@ class CalExtractParserService {
    * @param {string} locale
    */
   extract(source, ctx = { now: new Date() }, locale = "en-US") {
-    let rules = this.rules.get(locale);
+    const rules = this.rules.get(locale);
     if (!rules) {
       return null;
     }
 
-    let [lex, parse] = rules;
-    let parser = CalExtractParser.createInstance(lex, parse);
-    let result = parser.parse(source).sort((a, b) => a - b)[0];
+    const [lex, parse] = rules;
+    const parser = CalExtractParser.createInstance(lex, parse);
+    const result = parser.parse(source).sort((a, b) => a - b)[0];
     return result && convertDurationToEndTime(populateTimes(result, ctx.now));
   }
 }
@@ -233,7 +233,7 @@ function populateTimes(guess, now) {
  * @returns {object}
  */
 function populateTime(guess, now, prop) {
-  let time = guess[prop];
+  const time = guess[prop];
 
   if (!time) {
     return guess;
@@ -265,7 +265,7 @@ function normalizeHour(hour, meridiem) {
     return hour + 12;
   }
 
-  let dayStart = Services.prefs.getIntPref("calendar.view.daystarthour", 6);
+  const dayStart = Services.prefs.getIntPref("calendar.view.daystarthour", 6);
   if (hour < dayStart && hour <= 11) {
     return hour + 12;
   }
@@ -283,17 +283,17 @@ function normalizeHour(hour, meridiem) {
  */
 function convertDurationToEndTime(guess) {
   if (guess.startTime && guess.endTime && guess.endTime.type == "duration-time") {
-    let startTime = guess.startTime;
-    let duration = guess.endTime.duration;
+    const startTime = guess.startTime;
+    const duration = guess.endTime.duration;
     if (duration != 0) {
-      let startDate = new Date(startTime.year, startTime.month - 1, startTime.day);
+      const startDate = new Date(startTime.year, startTime.month - 1, startTime.day);
       if ("hour" in startTime) {
         startDate.setHours(startTime.hour);
         startDate.setMinutes(startTime.minute);
       }
 
-      let endDate = new Date(startDate.getTime() + duration * 60 * 1000);
-      let endTime = { type: "date-time" };
+      const endDate = new Date(startDate.getTime() + duration * 60 * 1000);
+      const endTime = { type: "date-time" };
       endTime.year = endDate.getFullYear();
       endTime.month = endDate.getMonth() + 1;
       endTime.day = endDate.getDate();

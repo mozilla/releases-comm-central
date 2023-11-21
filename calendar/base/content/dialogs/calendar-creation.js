@@ -133,8 +133,8 @@ function registerCalendarType(type) {
   gCalendarTypes.set(type.id, type);
 
   // Add an option for this type to the "select calendar type" panel.
-  let radiogroup = document.getElementById("calendar-type");
-  let radio = document.createXULElement("radio");
+  const radiogroup = document.getElementById("calendar-type");
+  const radio = document.createXULElement("radio");
   radio.setAttribute("value", type.id);
   radio.setAttribute("label", type.label);
   radiogroup.appendChild(radio);
@@ -161,8 +161,8 @@ function unregisterCalendarType(id) {
   gCalendarTypes.set(id, undefined);
 
   // Remove the option for this type from the "select calendar type" panel.
-  let radiogroup = document.getElementById("calendar-type");
-  let radio = radiogroup.querySelector(`[value="${id}"]`);
+  const radiogroup = document.getElementById("calendar-type");
+  const radio = radiogroup.querySelector(`[value="${id}"]`);
   if (radio) {
     radiogroup.removeChild(radio);
   }
@@ -234,7 +234,7 @@ var gProviderUsage = {
    * @param {string} nonPreferredType - The non-preferred provider type.
    */
   addPostDetectPreference(preferredType, nonPreferredType) {
-    let prefs = this._postDetectPreferences;
+    const prefs = this._postDetectPreferences;
 
     if (this.detectPreferenceCycle(prefs, preferredType, nonPreferredType)) {
       cal.WARN(
@@ -243,7 +243,7 @@ var gProviderUsage = {
           `not adding this preference to prevent a cycle`
       );
     } else {
-      let current = prefs.get(nonPreferredType);
+      const current = prefs.get(nonPreferredType);
       if (current) {
         current.add(preferredType);
       } else {
@@ -265,7 +265,7 @@ var gProviderUsage = {
   detectPreferenceCycle(prefs, preferred, nonPreferred) {
     let cycle = false;
 
-    let innerDetect = preferredSet => {
+    const innerDetect = preferredSet => {
       if (cycle) {
         // Bail out, a cycle has already been detected.
         return;
@@ -275,8 +275,8 @@ var gProviderUsage = {
         return;
       }
       // Recursively check each preferred type.
-      for (let item of preferredSet) {
-        let nextPreferredSet = prefs.get(item);
+      for (const item of preferredSet) {
+        const nextPreferredSet = prefs.get(item);
         if (nextPreferredSet) {
           innerDetect(nextPreferredSet);
         }
@@ -297,16 +297,16 @@ gProviderUsage.addPostDetectPreference("caldav", "ics");
  * @param {string} id - The id of the panel node to select.
  */
 function selectPanel(id) {
-  for (let element of document.getElementById("calendar-creation-dialog").children) {
+  for (const element of document.getElementById("calendar-creation-dialog").children) {
     element.hidden = element.id != id;
   }
-  let panel = document.getElementById(id);
+  const panel = document.getElementById(id);
   updateButton("accept", panel);
   updateButton("extra2", panel);
   selectNetworkStatus("none");
   checkRequired();
 
-  let firstInput = panel.querySelector("input");
+  const firstInput = panel.querySelector("input");
   if (firstInput) {
     firstInput.focus();
   }
@@ -319,7 +319,7 @@ function selectPanel(id) {
  * @param {string} status - The status to set.
  */
 function selectNetworkStatus(status) {
-  for (let row of document.querySelectorAll(".network-status-row")) {
+  for (const row of document.querySelectorAll(".network-status-row")) {
     row.setAttribute("status", status);
   }
 }
@@ -331,12 +331,12 @@ function selectNetworkStatus(status) {
  * @param {Element} sourceNode - The source node to take attribute values from.
  */
 function updateButton(name, sourceNode) {
-  let dialog = document.getElementById("calendar-creation-dialog");
-  let button = dialog.getButton(name);
-  let label = sourceNode.getAttribute("buttonlabel" + name);
-  let accesskey = sourceNode.getAttribute("buttonaccesskey" + name);
+  const dialog = document.getElementById("calendar-creation-dialog");
+  const button = dialog.getButton(name);
+  const label = sourceNode.getAttribute("buttonlabel" + name);
+  const accesskey = sourceNode.getAttribute("buttonaccesskey" + name);
 
-  let handler = gButtonHandlers.forNodeId[sourceNode.id][name];
+  const handler = gButtonHandlers.forNodeId[sourceNode.id][name];
 
   if (label) {
     button.setAttribute("label", label);
@@ -348,7 +348,7 @@ function updateButton(name, sourceNode) {
   button.setAttribute("accesskey", accesskey || "");
 
   // 'dialogaccept', 'dialogextra2', etc.
-  let eventName = "dialog" + name;
+  const eventName = "dialog" + name;
 
   document.removeEventListener(eventName, gButtonHandlers[name]);
   if (handler) {
@@ -363,9 +363,9 @@ function updateButton(name, sourceNode) {
  * required fields, based on the current panel.
  */
 function checkRequired() {
-  let dialog = document.getElementById("calendar-creation-dialog");
+  const dialog = document.getElementById("calendar-creation-dialog");
   let selectedPanel = null;
-  for (let element of dialog.children) {
+  for (const element of dialog.children) {
     if (!element.hidden) {
       selectedPanel = element;
     }
@@ -381,8 +381,8 @@ function checkRequired() {
       disabled = !selectedPanel.querySelector("form").checkValidity();
       break;
     case "panel-network-calendar-settings": {
-      let location = document.getElementById("network-location-input");
-      let username = document.getElementById("network-username-input");
+      const location = document.getElementById("network-location-input");
+      const username = document.getElementById("network-username-input");
 
       disabled = !location.value && !username.value.split("@")[1];
       break;
@@ -402,10 +402,10 @@ function checkRequired() {
  * the default placeholder.
  */
 function fillLocationPlaceholder() {
-  let location = document.getElementById("network-location-input");
-  let userval = document.getElementById("network-username-input").value;
-  let parts = userval.split("@");
-  let domain = parts.length == 2 && parts[1] ? parts[1] : null;
+  const location = document.getElementById("network-location-input");
+  const userval = document.getElementById("network-username-input").value;
+  const parts = userval.split("@");
+  const domain = parts.length == 2 && parts[1] ? parts[1] : null;
 
   if (domain) {
     location.setAttribute("placeholder", domain);
@@ -434,31 +434,31 @@ function setSingleProvider(isSingle) {
  * @returns {Element} The selected menuitem.
  */
 function fillProviders(providerTypes) {
-  let menulist = document.getElementById("network-selectcalendar-providertype-menulist");
-  let popup = menulist.menupopup;
+  const menulist = document.getElementById("network-selectcalendar-providertype-menulist");
+  const popup = menulist.menupopup;
   while (popup.lastChild) {
     popup.removeChild(popup.lastChild);
   }
 
-  let providers = cal.provider.detection.providers;
+  const providers = cal.provider.detection.providers;
 
-  for (let type of providerTypes) {
-    let provider = providers.get(type);
-    let menuitem = document.createXULElement("menuitem");
+  for (const type of providerTypes) {
+    const provider = providers.get(type);
+    const menuitem = document.createXULElement("menuitem");
     menuitem.value = type;
     menuitem.setAttribute("label", provider.displayName || type);
     popup.appendChild(menuitem);
   }
 
   // Select a provider menu item based on provider preferences.
-  let preferredTypes = new Set(providerTypes);
+  const preferredTypes = new Set(providerTypes);
 
-  for (let [nonPreferred, preferredSet] of gProviderUsage.postDetectPreferences) {
+  for (const [nonPreferred, preferredSet] of gProviderUsage.postDetectPreferences) {
     if (preferredTypes.has(nonPreferred) && setsIntersect(preferredSet, preferredTypes)) {
       preferredTypes.delete(nonPreferred);
     }
   }
-  let preferredIndex = providerTypes.findIndex(type => preferredTypes.has(type));
+  const preferredIndex = providerTypes.findIndex(type => preferredTypes.has(type));
   menulist.selectedIndex = preferredIndex == -1 ? 0 : preferredIndex;
 
   return menulist.selectedItem;
@@ -472,7 +472,7 @@ function fillProviders(providerTypes) {
  * @returns {boolean}
  */
 function setsIntersect(setA, setB) {
-  for (let item of setA) {
+  for (const item of setA) {
     if (setB.has(item)) {
       return true;
     }
@@ -488,10 +488,10 @@ function setsIntersect(setA, setB) {
  * @param {string} type - The provider type to select.
  */
 function selectProvider(type) {
-  let providerMap = findCalendars.lastResult;
-  let calendarList = document.getElementById("network-calendar-list");
+  const providerMap = findCalendars.lastResult;
+  const calendarList = document.getElementById("network-calendar-list");
 
-  let calendars = providerMap.get(type) || [];
+  const calendars = providerMap.get(type) || [];
   renderCalendarList(calendarList, calendars);
 }
 
@@ -505,29 +505,29 @@ function renderCalendarList(calendarList, calendars) {
   while (calendarList.hasChildNodes()) {
     calendarList.lastChild.remove();
   }
-  let propertiesButtonLabel = calendarList.getAttribute("propertiesbuttonlabel");
+  const propertiesButtonLabel = calendarList.getAttribute("propertiesbuttonlabel");
   calendars.forEach((calendar, index) => {
-    let item = document.createXULElement("richlistitem");
+    const item = document.createXULElement("richlistitem");
     item.calendar = calendar;
 
-    let checkbox = document.createXULElement("checkbox");
-    let checkboxId = "checkbox" + index;
+    const checkbox = document.createXULElement("checkbox");
+    const checkboxId = "checkbox" + index;
     checkbox.id = checkboxId;
     checkbox.classList.add("calendar-selected");
     item.appendChild(checkbox);
 
-    let colorMarker = document.createElement("div");
+    const colorMarker = document.createElement("div");
     colorMarker.classList.add("calendar-color");
     colorMarker.style.backgroundColor = calendar.getProperty("color");
     item.appendChild(colorMarker);
 
-    let label = document.createXULElement("label");
+    const label = document.createXULElement("label");
     label.classList.add("calendar-name");
     label.value = calendar.name;
     label.control = checkboxId;
     item.appendChild(label);
 
-    let propertiesButton = document.createXULElement("button");
+    const propertiesButton = document.createXULElement("button");
     propertiesButton.classList.add("calendar-edit-button");
     propertiesButton.label = propertiesButtonLabel;
     propertiesButton.addEventListener("command", openCalendarPropertiesFromEvent);
@@ -567,8 +567,8 @@ function updateNoCredentials(noCredentials) {
 function selectCalendarType(event) {
   event.preventDefault();
   event.stopPropagation();
-  let radiogroup = document.getElementById("calendar-type");
-  let calendarType = gCalendarTypes.get(radiogroup.value);
+  const radiogroup = document.getElementById("calendar-type");
+  const calendarType = gCalendarTypes.get(radiogroup.value);
 
   if (!calendarType.builtIn && calendarType !== gSelectedCalendarType) {
     setUpAddonCalendarSettingsPanel(calendarType);
@@ -590,7 +590,7 @@ function setUpAddonCalendarSettingsPanel(calendarType) {
     browser.setAttribute("type", "content");
     browser.setAttribute("src", src);
   }
-  let panel = document.getElementById("panel-addon-calendar-settings");
+  const panel = document.getElementById("panel-addon-calendar-settings");
   let browser = panel.lastElementChild;
 
   if (browser) {
@@ -656,8 +656,8 @@ function registerLocalCalendar() {
  */
 function findCalendars(password, savePassword = false) {
   selectNetworkStatus("loading");
-  let username = document.getElementById("network-username-input");
-  let location = document.getElementById("network-location-input");
+  const username = document.getElementById("network-username-input");
+  const location = document.getElementById("network-location-input");
   let locationValue = location.value || username.value.split("@")[1] || "";
 
   // webcal(s): doesn't work with content principal.
@@ -685,12 +685,12 @@ function findCalendars(password, savePassword = false) {
 function onDetectionSuccess(providerMap) {
   // Disable the calendars the user has already subscribed to. In the future
   // we should show a string when all calendars are already subscribed.
-  let existing = new Set(cal.manager.getCalendars({}).map(calendar => calendar.uri.spec));
+  const existing = new Set(cal.manager.getCalendars({}).map(calendar => calendar.uri.spec));
 
-  let calendarsMap = new Map();
-  for (let [provider, calendars] of providerMap.entries()) {
-    let newCalendars = calendars.map(calendar => {
-      let newCalendar = prepareNetworkCalendar(calendar);
+  const calendarsMap = new Map();
+  for (const [provider, calendars] of providerMap.entries()) {
+    const newCalendars = calendars.map(calendar => {
+      const newCalendar = prepareNetworkCalendar(calendar);
       if (existing.has(calendar.uri.spec)) {
         newCalendar.setProperty("disabled", true);
       }
@@ -709,7 +709,7 @@ function onDetectionSuccess(providerMap) {
   setSingleProvider(calendarsMap.size <= 1);
   findCalendars.lastResult = calendarsMap;
 
-  let selectedItem = fillProviders([...calendarsMap.keys()]);
+  const selectedItem = fillProviders([...calendarsMap.keys()]);
   selectProvider(selectedItem.value);
 
   // Select the panel and validate the fields.
@@ -751,10 +751,10 @@ function onDetectionError(password, location, error) {
  * @param {string} location - The location input from the dialog.
  */
 function findCalendarsWithPassword(location) {
-  let password = { value: "" };
-  let savePassword = { value: 1 };
+  const password = { value: "" };
+  const savePassword = { value: 1 };
 
-  let okWasClicked = new MsgAuthPrompt().promptPassword2(
+  const okWasClicked = new MsgAuthPrompt().promptPassword2(
     null,
     cal.l10n.getAnyString("messenger-mapi", "mapi", "loginText", [location]),
     password,
@@ -779,10 +779,10 @@ function findCalendarsWithPassword(location) {
  *                                            any extra values.
  */
 function prepareNetworkCalendar(calendar) {
-  let cached = document.getElementById("network-cache-checkbox").checked;
+  const cached = document.getElementById("network-cache-checkbox").checked;
 
   if (!calendar.getProperty("cache.always")) {
-    let cacheSupported = calendar.getProperty("cache.supported") !== false;
+    const cacheSupported = calendar.getProperty("cache.supported") !== false;
     calendar.setProperty("cache.enabled", cacheSupported ? cached : false);
   }
 
@@ -795,7 +795,7 @@ function prepareNetworkCalendar(calendar) {
  * close.
  */
 function createNetworkCalendars() {
-  for (let listItem of document.getElementById("network-calendar-list").children) {
+  for (const listItem of document.getElementById("network-calendar-list").children) {
     if (listItem.querySelector(".calendar-selected").checked) {
       cal.manager.registerCalendar(listItem.calendar);
     }
@@ -808,9 +808,9 @@ function createNetworkCalendars() {
  * @param {Event} event - The triggering event.
  */
 function openCalendarPropertiesFromEvent(event) {
-  let listItem = event.target.closest("richlistitem");
+  const listItem = event.target.closest("richlistitem");
   if (listItem) {
-    let calendar = listItem.calendar;
+    const calendar = listItem.calendar;
     if (calendar && !calendar.getProperty("disabled")) {
       cal.window.openCalendarProperties(window, { calendar, canDisable: false });
 
@@ -826,7 +826,7 @@ window.addEventListener("load", () => {
   fillLocationPlaceholder();
   selectPanel("panel-select-calendar-type");
   if (window.arguments[0]) {
-    let spec = window.arguments[0].spec;
+    const spec = window.arguments[0].spec;
     if (/^webcals?:\/\//.test(spec)) {
       selectPanel("panel-network-calendar-settings");
       document.getElementById("network-location-input").value = spec;

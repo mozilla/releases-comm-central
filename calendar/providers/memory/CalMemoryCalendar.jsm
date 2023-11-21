@@ -118,7 +118,7 @@ CalMemoryCalendar.prototype = {
 
   // Promise<calIItemBase> addItem(in calIItemBase aItem);
   async addItem(aItem) {
-    let newItem = aItem.clone();
+    const newItem = aItem.clone();
     return this.adoptItem(newItem);
   },
 
@@ -189,7 +189,7 @@ CalMemoryCalendar.prototype = {
       throw Components.Exception("aNewItem must be set", Cr.NS_ERROR_INVALID_ARG);
     }
 
-    let reportError = (errStr, errId = Cr.NS_ERROR_FAILURE) => {
+    const reportError = (errStr, errId = Cr.NS_ERROR_FAILURE) => {
       this.notifyOperationComplete(
         null,
         errId,
@@ -205,7 +205,7 @@ CalMemoryCalendar.prototype = {
       return reportError("ID for modifyItem item is null");
     }
 
-    let modifiedItem = aNewItem.parentItem.clone();
+    const modifiedItem = aNewItem.parentItem.clone();
     if (aNewItem.parentItem != aNewItem) {
       modifiedItem.recurrenceInfo.modifyException(aNewItem, false);
     }
@@ -238,7 +238,7 @@ CalMemoryCalendar.prototype = {
       }
 
       aOldItem = aOldItem.parentItem;
-      let storedOldItem = this.mItems[aOldItem.id];
+      const storedOldItem = this.mItems[aOldItem.id];
 
       // compareItems is not suitable here. See bug 418805.
       // Cannot compare here due to bug 380060
@@ -282,7 +282,7 @@ CalMemoryCalendar.prototype = {
 
   // Promise<void> deleteItem(in calIItemBase item);
   async deleteItem(item) {
-    let onError = async (message, exception) => {
+    const onError = async (message, exception) => {
       this.notifyOperationComplete(
         null,
         exception,
@@ -347,28 +347,28 @@ CalMemoryCalendar.prototype = {
       wantUnrespondedInvitations = false;
     }
     function checkUnrespondedInvitation(item) {
-      let att = superCal.getInvitedAttendee(item);
+      const att = superCal.getInvitedAttendee(item);
       return att && att.participationStatus == "NEEDS-ACTION";
     }
 
     // item base type
-    let wantEvents = (itemFilter & calICalendar.ITEM_FILTER_TYPE_EVENT) != 0;
-    let wantTodos = (itemFilter & calICalendar.ITEM_FILTER_TYPE_TODO) != 0;
+    const wantEvents = (itemFilter & calICalendar.ITEM_FILTER_TYPE_EVENT) != 0;
+    const wantTodos = (itemFilter & calICalendar.ITEM_FILTER_TYPE_TODO) != 0;
     if (!wantEvents && !wantTodos) {
       // bail.
       return CalReadableStreamFactory.createEmptyReadableStream();
     }
 
     // completed?
-    let itemCompletedFilter = (itemFilter & calICalendar.ITEM_FILTER_COMPLETED_YES) != 0;
-    let itemNotCompletedFilter = (itemFilter & calICalendar.ITEM_FILTER_COMPLETED_NO) != 0;
+    const itemCompletedFilter = (itemFilter & calICalendar.ITEM_FILTER_COMPLETED_YES) != 0;
+    const itemNotCompletedFilter = (itemFilter & calICalendar.ITEM_FILTER_COMPLETED_NO) != 0;
     function checkCompleted(item) {
       item.QueryInterface(Ci.calITodo);
       return item.isCompleted ? itemCompletedFilter : itemNotCompletedFilter;
     }
 
     // return occurrences?
-    let itemReturnOccurrences = (itemFilter & calICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0;
+    const itemReturnOccurrences = (itemFilter & calICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0;
 
     rangeStart = cal.dtz.ensureDateTime(rangeStart);
     rangeEnd = cal.dtz.ensureDateTime(rangeEnd);
@@ -386,7 +386,7 @@ CalMemoryCalendar.prototype = {
       requestedFlag = cICL.OFFLINE_FLAG_DELETED_RECORD;
     }
 
-    let matchOffline = function (itemFlag, reqFlag) {
+    const matchOffline = function (itemFlag, reqFlag) {
       // Same as storage calendar sql query. For comparison:
       // reqFlag is :offline_journal (parameter),
       // itemFlag is offline_journal (field value)
@@ -402,7 +402,7 @@ CalMemoryCalendar.prototype = {
       );
     };
 
-    let self = this;
+    const self = this;
     return CalReadableStreamFactory.createBoundedReadableStream(
       count,
       CalReadableStreamFactory.defaultQueueSize,
@@ -412,7 +412,7 @@ CalMemoryCalendar.prototype = {
             cal.iterate.forEach(
               self.mItems,
               ([id, item]) => {
-                let isEvent_ = item.isEvent();
+                const isEvent_ = item.isEvent();
                 if (isEvent_) {
                   if (!wantEvents) {
                     return cal.iterate.forEach.CONTINUE;
@@ -421,8 +421,8 @@ CalMemoryCalendar.prototype = {
                   return cal.iterate.forEach.CONTINUE;
                 }
 
-                let hasItemFlag = item.id in self.mOfflineFlags;
-                let itemFlag = hasItemFlag ? self.mOfflineFlags[item.id] : 0;
+                const hasItemFlag = item.id in self.mOfflineFlags;
+                const itemFlag = hasItemFlag ? self.mOfflineFlags[item.id] : 0;
 
                 // If the offline flag doesn't match, skip the item
                 if (!matchOffline(itemFlag, requestedFlag)) {
@@ -484,7 +484,7 @@ CalMemoryCalendar.prototype = {
   },
 
   async modifyOfflineItem(aItem) {
-    let oldFlag = this.mOfflineFlags[aItem.id];
+    const oldFlag = this.mOfflineFlags[aItem.id];
     if (
       oldFlag != cICL.OFFLINE_FLAG_CREATED_RECORD &&
       oldFlag != cICL.OFFLINE_FLAG_DELETED_RECORD
@@ -497,7 +497,7 @@ CalMemoryCalendar.prototype = {
   },
 
   async deleteOfflineItem(aItem) {
-    let oldFlag = this.mOfflineFlags[aItem.id];
+    const oldFlag = this.mOfflineFlags[aItem.id];
     if (oldFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
       delete this.mItems[aItem.id];
       delete this.mOfflineFlags[aItem.id];

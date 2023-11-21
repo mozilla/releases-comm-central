@@ -19,12 +19,12 @@ function getDString(aKey) {
 }
 
 function onLoad() {
-  let action = window.arguments[0].action || "edit";
+  const action = window.arguments[0].action || "edit";
   // the calling code prevents sending no items
-  let multiple = window.arguments[0].items.length == 1 ? "single" : "multiple";
+  const multiple = window.arguments[0].items.length == 1 ? "single" : "multiple";
   let itemType;
-  for (let item of window.arguments[0].items) {
-    let type = item.isEvent() ? "event" : "task";
+  for (const item of window.arguments[0].items) {
+    const type = item.isEvent() ? "event" : "task";
     if (itemType != type) {
       itemType = itemType ? "mixed" : type;
     }
@@ -32,7 +32,7 @@ function onLoad() {
 
   // Set up title and type label
   document.title = getDString(`windowtitle.${itemType}.${action}`);
-  let title = document.getElementById("title-label");
+  const title = document.getElementById("title-label");
   if (multiple == "multiple") {
     title.value = getDString("windowtitle.multipleitems");
     document.getElementById("isrepeating-label").value = getDString(

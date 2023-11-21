@@ -60,7 +60,7 @@ var gCalendarStatusFeedback = {
       this.mStatusProgressPanel.removeAttribute("collapsed");
       if (this.mProgressMode == Ci.calIStatusObserver.DETERMINED_PROGRESS) {
         this.mStatusBar.value = 0;
-        let commonStatus = cal.l10n.getCalString("gettingCalendarInfoCommon");
+        const commonStatus = cal.l10n.getCalString("gettingCalendarInfoCommon");
         this.showStatusString(commonStatus);
       }
       if (this.mThrobber) {
@@ -95,7 +95,7 @@ var gCalendarStatusFeedback = {
           this.mCalendars[aCalendar.id] = true;
           this.mStatusBar.value = parseInt(this.mStatusBar.value, 10) + this.mCalendarStep;
           this.mCurIndex++;
-          let curStatus = cal.l10n.getCalString("gettingCalendarInfoDetail", [
+          const curStatus = cal.l10n.getCalString("gettingCalendarInfoDetail", [
             this.mCurIndex,
             this.mCalendarCount,
           ]);

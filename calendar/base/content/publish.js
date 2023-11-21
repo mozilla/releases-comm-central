@@ -14,7 +14,7 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
  * Show publish dialog, ask for URL and publish all selected items.
  */
 function publishCalendarData() {
-  let args = {};
+  const args = {};
 
   args.onOk = self.publishCalendarDataDialogResponse;
 
@@ -46,7 +46,7 @@ function publishCalendarDataDialogResponse(CalendarPublishObject, aProgressDialo
  */
 function publishEntireCalendar(aCalendar) {
   if (!aCalendar) {
-    let calendars = cal.manager.getCalendars();
+    const calendars = cal.manager.getCalendars();
 
     if (calendars.length == 1) {
       // Do not ask user for calendar if only one calendar exists
@@ -56,7 +56,7 @@ function publishEntireCalendar(aCalendar) {
       // publishEntireCalendar() will be called again if OK is pressed
       // in the dialog and the selected calendar will be passed in.
       // Therefore return after openDialog().
-      let args = {};
+      const args = {};
       args.onOk = publishEntireCalendar;
       args.promptText = cal.l10n.getCalString("publishPrompt");
       openDialog(
@@ -69,15 +69,15 @@ function publishEntireCalendar(aCalendar) {
     }
   }
 
-  let args = {};
-  let publishObject = {};
+  const args = {};
+  const publishObject = {};
 
   args.onOk = self.publishEntireCalendarDialogResponse;
 
   publishObject.calendar = aCalendar;
 
   // restore the remote ics path preference from the calendar passed in
-  let remotePath = aCalendar.getProperty("remote-ics-path");
+  const remotePath = aCalendar.getProperty("remote-ics-path");
   if (remotePath) {
     publishObject.remotePath = remotePath;
   }
@@ -100,8 +100,8 @@ async function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgr
   CalendarPublishObject.calendar.setProperty("remote-ics-path", CalendarPublishObject.remotePath);
 
   aProgressDialog.onStartUpload();
-  let oldCalendar = CalendarPublishObject.calendar;
-  let items = await oldCalendar.getItemsAsArray(
+  const oldCalendar = CalendarPublishObject.calendar;
+  const items = await oldCalendar.getItemsAsArray(
     Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
     0,
     null,
@@ -111,11 +111,7 @@ async function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgr
 }
 
 function publishItemArray(aItemArray, aPath, aProgressDialog) {
-  let outputStream;
-  let inputStream;
-  let storageStream;
-
-  let icsURL = Services.io.newURI(aPath);
+  const icsURL = Services.io.newURI(aPath);
 
   let channel = Services.io.newChannelFromURI(
     icsURL,
@@ -145,25 +141,25 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
       return;
   }
 
-  let uploadChannel = channel.QueryInterface(Ci.nsIUploadChannel);
+  const uploadChannel = channel.QueryInterface(Ci.nsIUploadChannel);
   uploadChannel.notificationCallbacks = notificationCallbacks;
 
-  storageStream = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
+  const storageStream = Cc["@mozilla.org/storagestream;1"].createInstance(Ci.nsIStorageStream);
   storageStream.init(32768, 0xffffffff, null);
-  outputStream = storageStream.getOutputStream(0);
+  const outputStream = storageStream.getOutputStream(0);
 
-  let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+  const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
     Ci.calIIcsSerializer
   );
   serializer.addItems(aItemArray);
   // Outlook requires METHOD:PUBLISH property:
-  let methodProp = cal.icsService.createIcalProperty("METHOD");
+  const methodProp = cal.icsService.createIcalProperty("METHOD");
   methodProp.value = "PUBLISH";
   serializer.addProperty(methodProp);
   serializer.serializeToStream(outputStream);
   outputStream.close();
 
-  inputStream = storageStream.newInputStream(0);
+  const inputStream = storageStream.newInputStream(0);
 
   uploadChannel.setUploadStream(inputStream, "text/calendar", -1);
   try {
@@ -220,7 +216,7 @@ class PublishingListener {
 
     if (channel && !requestSucceeded) {
       this.progressDialog.wrappedJSObject.onStopUpload(0);
-      let body = cal.l10n.getCalString("httpPutError", [
+      const body = cal.l10n.getCalString("httpPutError", [
         channel.responseStatus,
         channel.responseStatusText,
       ]);
@@ -228,7 +224,7 @@ class PublishingListener {
     } else if (!channel && !Components.isSuccessCode(request.status)) {
       this.progressDialog.wrappedJSObject.onStopUpload(0);
       // XXX this should be made human-readable.
-      let body = cal.l10n.getCalString("otherPutError", [request.status.toString(16)]);
+      const body = cal.l10n.getCalString("otherPutError", [request.status.toString(16)]);
       Services.prompt.alert(null, cal.l10n.getCalString("genericErrorTitle"), body);
     } else {
       this.progressDialog.wrappedJSObject.onStopUpload(100);

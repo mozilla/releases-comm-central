@@ -40,7 +40,7 @@ function textToDate(text) {
   let timezone = "UTC";
 
   if (text[0] == "Z") {
-    let strs = text.substr(2).split(":");
+    const strs = text.substr(2).split(":");
     textval = parseInt(strs[0], 10);
     timezone = strs[1].replace(/%:/g, ":").replace(/%%/g, "%");
   } else {
@@ -108,7 +108,7 @@ function newDateTime(aNativeTime, aTimezone) {
 
   date.nativeTime = aNativeTime;
   if (aTimezone) {
-    let timezone = getTimezone(aTimezone);
+    const timezone = getTimezone(aTimezone);
     if (timezone) {
       date = date.getInTimezone(timezone);
     } else {

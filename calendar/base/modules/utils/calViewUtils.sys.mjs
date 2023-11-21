@@ -86,7 +86,7 @@ export var view = {
   formatStringForCSSRule(aString) {
     function toReplacement(char) {
       // char code is natural number (positive integer)
-      let nat = char.charCodeAt(0);
+      const nat = char.charCodeAt(0);
       switch (nat) {
         case 0x20: // space
           return "_";
@@ -105,7 +105,7 @@ export var view = {
    */
   getCompositeCalendar(aWindow) {
     if (typeof aWindow._compositeCalendar == "undefined") {
-      let comp = (aWindow._compositeCalendar = Cc[
+      const comp = (aWindow._compositeCalendar = Cc[
         "@mozilla.org/calendar/calendar;1?type=composite"
       ].createInstance(Ci.calICompositeCalendar));
       const prefix = "calendar-main";
@@ -114,7 +114,7 @@ export var view = {
         QueryInterface: ChromeUtils.generateQI([Ci.calICalendarManagerObserver]),
 
         onCalendarRegistered(calendar) {
-          let inComposite = calendar.getProperty(prefix + "-in-composite");
+          const inComposite = calendar.getProperty(prefix + "-in-composite");
           if (inComposite === null && !calendar.getProperty("disabled")) {
             comp.addCalendar(calendar);
           }
@@ -225,7 +225,7 @@ export var view = {
       "#330033",
     ];
 
-    let sum = Array.from(str || " ", e => e.charCodeAt(0)).reduce((a, b) => a + b);
+    const sum = Array.from(str || " ", e => e.charCodeAt(0)).reduce((a, b) => a + b);
     return colorPalette[sum % colorPalette.length];
   },
 
@@ -236,13 +236,13 @@ export var view = {
    * @param bgColor   the background color as a "#RRGGBB" string
    */
   getContrastingTextColor(bgColor) {
-    let calcColor = bgColor.replace(/#/g, "");
-    let red = parseInt(calcColor.substring(0, 2), 16);
-    let green = parseInt(calcColor.substring(2, 4), 16);
-    let blue = parseInt(calcColor.substring(4, 6), 16);
+    const calcColor = bgColor.replace(/#/g, "");
+    const red = parseInt(calcColor.substring(0, 2), 16);
+    const green = parseInt(calcColor.substring(2, 4), 16);
+    const blue = parseInt(calcColor.substring(4, 6), 16);
 
     // Calculate the brightness (Y) value using the YUV color system.
-    let brightness = 0.299 * red + 0.587 * green + 0.114 * blue;
+    const brightness = 0.299 * red + 0.587 * green + 0.114 * blue;
 
     // Consider all colors with less than 56% brightness as dark colors and
     // use white as the foreground color, otherwise use black.
@@ -268,11 +268,11 @@ export var view = {
       return 1;
     }
 
-    let aIsEvent = a.isEvent();
-    let aIsTodo = a.isTodo();
+    const aIsEvent = a.isEvent();
+    const aIsTodo = a.isTodo();
 
-    let bIsEvent = b.isEvent();
-    let bIsTodo = b.isTodo();
+    const bIsEvent = b.isEvent();
+    const bIsTodo = b.isTodo();
 
     // sort todos before events
     if (aIsTodo && bIsEvent) {
@@ -283,10 +283,10 @@ export var view = {
     }
 
     // sort items of the same type according to date-time
-    let aStartDate = a.startDate || a.entryDate || a.dueDate;
-    let bStartDate = b.startDate || b.entryDate || b.dueDate;
-    let aEndDate = a.endDate || a.dueDate || a.entryDate;
-    let bEndDate = b.endDate || b.dueDate || b.entryDate;
+    const aStartDate = a.startDate || a.entryDate || a.dueDate;
+    const bStartDate = b.startDate || b.entryDate || b.dueDate;
+    const aEndDate = a.endDate || a.dueDate || a.entryDate;
+    const bEndDate = b.endDate || b.dueDate || b.entryDate;
     if (!aStartDate || !bStartDate) {
       return 0;
     }
@@ -339,7 +339,7 @@ export var view = {
    */
   textToHtmlDocumentFragment(text, doc, html) {
     if (!html) {
-      let mode =
+      const mode =
         Ci.mozITXTToHTMLConv.kStructPhrase |
         Ci.mozITXTToHTMLConv.kGlyphSubstitution |
         Ci.mozITXTToHTMLConv.kURLs;
@@ -348,12 +348,12 @@ export var view = {
     }
 
     // Sanitize and convert the HTML into a document fragment.
-    let flags =
+    const flags =
       lazy.gParserUtils.SanitizerLogRemovals |
       lazy.gParserUtils.SanitizerDropForms |
       lazy.gParserUtils.SanitizerDropMedia;
 
-    let uri = Services.io.newURI(doc.baseURI);
+    const uri = Services.io.newURI(doc.baseURI);
     return lazy.gParserUtils.parseFragment(html, flags, false, uri, doc.createElement("div"));
   },
 
@@ -375,7 +375,7 @@ export var view = {
       // text representation.
       let description = item.descriptionText.replace(/&#?\w+;?/g, potentialEntity => {
         // Attempt to parse the pattern match as an HTML entity.
-        let body = new DOMParser().parseFromString(potentialEntity, "text/html").body;
+        const body = new DOMParser().parseFromString(potentialEntity, "text/html").body;
 
         // Don't replace text that didn't parse as an entity or that parsed as
         // an entity which could break HTML parsing below.
@@ -389,8 +389,8 @@ export var view = {
 
       // Setting the HTML description will mark the item dirty, but we want to
       // avoid unnecessary updates; preserve modification time.
-      let stamp = item.stampTime;
-      let lastModified = item.lastModifiedTime;
+      const stamp = item.stampTime;
+      const lastModified = item.lastModifiedTime;
 
       item.descriptionHTML = description.replace(/\r?\n/g, "<br>");
 
@@ -429,23 +429,23 @@ view.colorTracker = {
     this.addColorsToDocument(aWindow.document);
   },
   addColorsToDocument(aDocument) {
-    for (let calendar of this.calendars) {
+    for (const calendar of this.calendars) {
       this._addCalendarToDocument(aDocument, calendar);
     }
     this._addAllCategoriesToDocument(aDocument);
   },
 
   _addCalendarToDocument(aDocument, aCalendar) {
-    let cssSafeId = view.formatStringForCSSRule(aCalendar.id);
-    let style = aDocument.documentElement.style;
-    let backColor = aCalendar.getProperty("color") || "#a8c2e1";
-    let foreColor = view.getContrastingTextColor(backColor);
+    const cssSafeId = view.formatStringForCSSRule(aCalendar.id);
+    const style = aDocument.documentElement.style;
+    const backColor = aCalendar.getProperty("color") || "#a8c2e1";
+    const foreColor = view.getContrastingTextColor(backColor);
     style.setProperty(`--calendar-${cssSafeId}-backcolor`, backColor);
     style.setProperty(`--calendar-${cssSafeId}-forecolor`, foreColor);
   },
   _removeCalendarFromDocument(aDocument, aCalendar) {
-    let cssSafeId = view.formatStringForCSSRule(aCalendar.id);
-    let style = aDocument.documentElement.style;
+    const cssSafeId = view.formatStringForCSSRule(aCalendar.id);
+    const style = aDocument.documentElement.style;
     style.removeProperty(`--calendar-${cssSafeId}-backcolor`);
     style.removeProperty(`--calendar-${cssSafeId}-forecolor`);
   },
@@ -457,7 +457,7 @@ view.colorTracker = {
       return;
     }
 
-    let style = aDocument.documentElement.style;
+    const style = aDocument.documentElement.style;
     let color = this.categoryBranch.getStringPref(aCategoryName, "");
     if (color == "") {
       // Don't use the getStringPref default, the value might actually be ""
@@ -467,7 +467,7 @@ view.colorTracker = {
     style.setProperty(`--category-${aCategoryName}-color`, color);
   },
   _addAllCategoriesToDocument(aDocument) {
-    for (let categoryName of this.categoryBranch.getChildList("")) {
+    for (const categoryName of this.categoryBranch.getChildList("")) {
       this._addCategoryToDocument(aDocument, categoryName);
     }
   },
@@ -475,13 +475,13 @@ view.colorTracker = {
   // calICalendarManagerObserver methods
   onCalendarRegistered(aCalendar) {
     this.calendars.add(aCalendar);
-    for (let window of this.windows) {
+    for (const window of this.windows) {
       this._addCalendarToDocument(window.document, aCalendar);
     }
   },
   onCalendarUnregistering(aCalendar) {
     this.calendars.delete(aCalendar);
-    for (let window of this.windows) {
+    for (const window of this.windows) {
       this._removeCalendarFromDocument(window.document, aCalendar);
     }
   },
@@ -497,7 +497,7 @@ view.colorTracker = {
   onError(aCalendar, aErrNo, aMessage) {},
   onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
     if (aName == "color") {
-      for (let window of this.windows) {
+      for (const window of this.windows) {
         this._addCalendarToDocument(window.document, aCalendar);
       }
     }
@@ -507,7 +507,7 @@ view.colorTracker = {
   // nsIObserver method
   observe(aSubject, aTopic, aData) {
     if (aTopic == "nsPref:changed") {
-      for (let window of this.windows) {
+      for (const window of this.windows) {
         this._addCategoryToDocument(window.document, aData);
       }
       // TODO Currently, the only way to find out if categories are removed is

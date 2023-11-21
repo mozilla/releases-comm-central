@@ -77,6 +77,8 @@ module.exports = {
     complexity: ["error", 80],
     "func-names": ["error", "never"],
     "mozilla/prefer-boolean-length-check": "off",
+    // Enforce using `let` only when variables are reassigned.
+    "prefer-const": ["error", { destructuring: "all" }],
   },
 
   overrides: [
@@ -142,8 +144,6 @@ module.exports = {
             vars: "local",
           },
         ],
-        // Enforce using `let` only when variables are reassigned.
-        "prefer-const": ["error", { destructuring: "all" }],
       },
     },
     {

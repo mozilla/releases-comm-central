@@ -57,7 +57,7 @@ CalRecurrenceRule.prototype = {
    * @returns {boolean}
    */
   freqSupported() {
-    let { freq } = this.innerObject;
+    const { freq } = this.innerObject;
     if (freq == "SECONDLY" || freq == "MINUTELY") {
       cal.WARN(
         `The frequency value "${freq}" is currently not supported. No occurrences will be generated.`
@@ -88,8 +88,8 @@ CalRecurrenceRule.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
-    let occurrences = [];
-    let rangeStart = aRangeStart.clone();
+    const occurrences = [];
+    const rangeStart = aRangeStart.clone();
     rangeStart.isDate = false;
 
     let dtend = null;
@@ -104,10 +104,10 @@ CalRecurrenceRule.prototype = {
       }
     }
 
-    let iter = this.innerObject.iterator(aStartTime);
+    const iter = this.innerObject.iterator(aStartTime);
 
     for (let next = iter.next(); next; next = iter.next()) {
-      let dtNext = next.clone();
+      const dtNext = next.clone();
       dtNext.isDate = false;
 
       if (dtNext.compare(rangeStart) < 0) {
@@ -143,7 +143,7 @@ CalRecurrenceRule.prototype = {
   },
 
   get icalProperty() {
-    let prop = new ICAL.Property("rrule");
+    const prop = new ICAL.Property("rrule");
     prop.setValue(this.innerObject);
     return new lazy.CalIcalProperty(prop);
   },
@@ -224,11 +224,11 @@ CalRecurrenceRule.prototype = {
   },
 
   getComponent(aType) {
-    let values = this.innerObject.getComponent(aType);
+    const values = this.innerObject.getComponent(aType);
     if (aType == "BYDAY") {
       // BYDAY values are alphanumeric: SU, MO, TU, etc..
       for (let i = 0; i < values.length; i++) {
-        let match = /^([+-])?(5[0-3]|[1-4][0-9]|[1-9])?(SU|MO|TU|WE|TH|FR|SA)$/.exec(values[i]);
+        const match = /^([+-])?(5[0-3]|[1-4][0-9]|[1-9])?(SU|MO|TU|WE|TH|FR|SA)$/.exec(values[i]);
         if (!match) {
           cal.ERROR("Malformed BYDAY rule\n" + cal.STACK(10));
           return [];
@@ -249,14 +249,14 @@ CalRecurrenceRule.prototype = {
   },
 
   setComponent(aType, aValues) {
-    let values = aValues;
+    const values = aValues;
     if (aType == "BYDAY") {
       // BYDAY values are alphanumeric: SU, MO, TU, etc..
       for (let i = 0; i < values.length; i++) {
-        let absValue = Math.abs(values[i]);
+        const absValue = Math.abs(values[i]);
         if (absValue > 7) {
-          let ordinal = Math.trunc(values[i] / 8);
-          let day = ICAL.Recur.numericDayToIcalDay(absValue % 8);
+          const ordinal = Math.trunc(values[i] / 8);
+          const day = ICAL.Recur.numericDayToIcalDay(absValue % 8);
           values[i] = ordinal + day;
         } else {
           values[i] = ICAL.Recur.numericDayToIcalDay(values[i]);

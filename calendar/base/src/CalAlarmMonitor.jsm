@@ -57,7 +57,9 @@ CalAlarmMonitor.prototype = {
    * nsIObserver
    */
   observe(aSubject, aTopic, aData) {
-    let alarmService = Cc["@mozilla.org/calendar/alarm-service;1"].getService(Ci.calIAlarmService);
+    const alarmService = Cc["@mozilla.org/calendar/alarm-service;1"].getService(
+      Ci.calIAlarmService
+    );
     switch (aTopic) {
       case "alarm-service-startup":
         alarmService.addObserver(this);
@@ -66,9 +68,9 @@ CalAlarmMonitor.prototype = {
         alarmService.removeObserver(this);
         break;
       case "alertclickcallback": {
-        let item = this._notifyingItems.get(aData);
+        const item = this._notifyingItems.get(aData);
         if (item) {
-          let calWindow = cal.window.getCalendarWindow();
+          const calWindow = cal.window.getCalendarWindow();
           if (calWindow) {
             calWindow.openEventDialogForViewing(item, true);
           }
@@ -98,8 +100,8 @@ CalAlarmMonitor.prototype = {
       // events that fire an alarm in the same minute, then the alarm
       // sound will only play 5 times. All alarms will be shown in the
       // dialog nevertheless.
-      let maxAlarmSoundCount = Services.prefs.getIntPref("calendar.alarms.maxsoundsperminute", 5);
-      let now = new Date();
+      const maxAlarmSoundCount = Services.prefs.getIntPref("calendar.alarms.maxsoundsperminute", 5);
+      const now = new Date();
 
       if (!this.mLastAlarmSoundDate || now - this.mLastAlarmSoundDate >= 60000) {
         // Last alarm was long enough ago, reset counters. Note
@@ -136,7 +138,7 @@ CalAlarmMonitor.prototype = {
       return;
     }
 
-    let calAlarmWindow = peekAlarmWindow();
+    const calAlarmWindow = peekAlarmWindow();
     if (!calAlarmWindow && (!this.mWindowOpening || this.mWindowOpening.closed)) {
       this.mWindowOpening = Services.ww.openWindow(
         null,
@@ -170,8 +172,8 @@ CalAlarmMonitor.prototype = {
       return;
     }
 
-    let alert = Cc["@mozilla.org/alert-notification;1"].createInstance(Ci.nsIAlertNotification);
-    let alertsService = Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
+    const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(Ci.nsIAlertNotification);
+    const alertsService = Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
     alert.init(
       item.id, // name
       "chrome://messenger/skin/icons/new-mail-alert.png",
@@ -185,10 +187,10 @@ CalAlarmMonitor.prototype = {
   },
 
   window_onLoad() {
-    let calAlarmWindow = this.mWindowOpening;
+    const calAlarmWindow = this.mWindowOpening;
     this.mWindowOpening = null;
     if (this.mAlarms.length > 0) {
-      for (let [item, alarm] of this.mAlarms) {
+      for (const [item, alarm] of this.mAlarms) {
         calAlarmWindow.addWidgetFor(item, alarm);
       }
     } else {
@@ -199,9 +201,9 @@ CalAlarmMonitor.prototype = {
   },
 
   onRemoveAlarmsByItem(aItem) {
-    let calAlarmWindow = peekAlarmWindow();
+    const calAlarmWindow = peekAlarmWindow();
     this.mAlarms = this.mAlarms.filter(([thisItem, alarm]) => {
-      let ret = aItem.hashId != thisItem.hashId;
+      const ret = aItem.hashId != thisItem.hashId;
       if (!ret && calAlarmWindow) {
         // window is open
         calAlarmWindow.removeWidgetFor(thisItem, alarm);
@@ -211,9 +213,9 @@ CalAlarmMonitor.prototype = {
   },
 
   onRemoveAlarmsByCalendar(calendar) {
-    let calAlarmWindow = peekAlarmWindow();
+    const calAlarmWindow = peekAlarmWindow();
     this.mAlarms = this.mAlarms.filter(([thisItem, alarm]) => {
-      let ret = calendar.id != thisItem.calendar.id;
+      const ret = calendar.id != thisItem.calendar.id;
 
       if (!ret && calAlarmWindow) {
         // window is open
@@ -225,7 +227,7 @@ CalAlarmMonitor.prototype = {
 
   onAlarmsLoaded(aCalendar) {
     // the alarm dialog won't close while alarms are loading, check again now
-    let calAlarmWindow = peekAlarmWindow();
+    const calAlarmWindow = peekAlarmWindow();
     if (calAlarmWindow && this.mAlarms.length == 0) {
       calAlarmWindow.closeIfEmpty();
     }

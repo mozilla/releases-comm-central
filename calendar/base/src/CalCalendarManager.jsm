@@ -68,8 +68,8 @@ CalCalendarManager.prototype = {
   },
 
   shutdown(aCompleteListener) {
-    for (let id in this.mCache) {
-      let calendar = this.mCache[id];
+    for (const id in this.mCache) {
+      const calendar = this.mCache[id];
       calendar.removeObserver(this.mCalObservers[calendar.id]);
     }
 
@@ -99,14 +99,14 @@ CalCalendarManager.prototype = {
     switch (aTopic) {
       case "timer-callback": {
         // Refresh all the calendars that can be refreshed.
-        for (let calendar of this.getCalendars()) {
+        for (const calendar of this.getCalendars()) {
           maybeRefreshCalendar(calendar);
         }
         break;
       }
       case "network:offline-status-changed": {
-        for (let id in this.mCache) {
-          let calendar = this.mCache[id];
+        for (const id in this.mCache) {
+          const calendar = this.mCache[id];
           if (calendar instanceof calCachedCalendar) {
             calendar.onOfflineStatusChanged(aData == "offline");
           }
@@ -115,16 +115,16 @@ CalCalendarManager.prototype = {
       }
       case "http-on-examine-response": {
         try {
-          let channel = aSubject.QueryInterface(Ci.nsIHttpChannel);
+          const channel = aSubject.QueryInterface(Ci.nsIHttpChannel);
           if (channel.notificationCallbacks) {
             // We use the notification callbacks to get the calendar interface, which likely works
             // for our requests since getInterface is called from the calendar provider context.
             let authHeader = channel.getResponseHeader("WWW-Authenticate");
-            let calendar = channel.notificationCallbacks.getInterface(Ci.calICalendar);
+            const calendar = channel.notificationCallbacks.getInterface(Ci.calICalendar);
             if (calendar && !calendar.getProperty("capabilities.realmrewrite.disabled")) {
               // The provider may choose to explicitly disable the rewriting, for example if all
               // calendars on a domain have the same credentials
-              let escapedName = calendar.name.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+              const escapedName = calendar.name.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
               authHeader = appendToRealm(authHeader, "(" + escapedName + ")");
               channel.setResponseHeader("WWW-Authenticate", authHeader, false);
             }
@@ -154,7 +154,7 @@ CalCalendarManager.prototype = {
           Ci.calICalendar
         );
       } else if (this.providerImplementations[type]) {
-        let CalendarProvider = this.providerImplementations[type];
+        const CalendarProvider = this.providerImplementations[type];
         calendar = new CalendarProvider();
         if (calendar.QueryInterface) {
           calendar = calendar.QueryInterface(Ci.calICalendar);
@@ -172,13 +172,13 @@ CalCalendarManager.prototype = {
         rc = ex.result;
       }
 
-      let uiMessage = cal.l10n.getCalString("unableToCreateProvider", [uri.spec]);
+      const uiMessage = cal.l10n.getCalString("unableToCreateProvider", [uri.spec]);
 
       // Log the original exception via error console to provide more debug info
       cal.ERROR(ex);
 
       // Log the possibly translated message via the UI.
-      let paramBlock = Cc["@mozilla.org/embedcomp/dialogparam;1"].createInstance(
+      const paramBlock = Cc["@mozilla.org/embedcomp/dialogparam;1"].createInstance(
         Ci.nsIDialogParamBlock
       );
       paramBlock.SetNumberStrings(3);
@@ -239,12 +239,12 @@ CalCalendarManager.prototype = {
    * @param {boolean} [clearCache=false] - If true, the calendar cache is also cleared.
    */
   updateDummyCalendarRegistration(type, clearCache = false) {
-    let hasImplementation = !!this.providerImplementations[type];
+    const hasImplementation = !!this.providerImplementations[type];
 
-    let calendars = Object.values(this.mCache).filter(calendar => {
+    const calendars = Object.values(this.mCache).filter(calendar => {
       // Calendars backed by providers despite missing provider implementation, or dummy calendars
       // despite having a provider implementation.
-      let isDummyCalendar = calendar instanceof calDummyCalendar;
+      const isDummyCalendar = calendar instanceof calDummyCalendar;
       return calendar.type == type && hasImplementation == isDummyCalendar;
     });
     this.updateCalendarRegistration(calendars, clearCache);
@@ -259,19 +259,19 @@ CalCalendarManager.prototype = {
    * @param {boolean} [clearCache=false] - If true, the calendar cache is also cleared.
    */
   updateCalendarRegistration(calendars, clearCache = false) {
-    let sortOrderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "").split(" ");
-    let sortOrder = {};
+    const sortOrderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "").split(" ");
+    const sortOrder = {};
     for (let i = 0; i < sortOrderPref.length; i++) {
       sortOrder[sortOrderPref[i]] = i;
     }
 
-    let needsRefresh = [];
-    for (let calendar of calendars) {
+    const needsRefresh = [];
+    for (const calendar of calendars) {
       try {
         this.notifyObservers("onCalendarUnregistering", [calendar]);
         this.unsetupCalendar(calendar, clearCache);
 
-        let replacement = this.initializeCalendar(calendar.id, calendar.type, calendar.uri);
+        const replacement = this.initializeCalendar(calendar.id, calendar.type, calendar.uri);
         replacement.setProperty("initialSortOrderPos", sortOrder[calendar.id]);
 
         this.setupCalendar(replacement);
@@ -284,7 +284,7 @@ CalCalendarManager.prototype = {
     }
 
     // Do this in a second pass so that all provider calendars are available.
-    for (let calendar of needsRefresh) {
+    for (const calendar of needsRefresh) {
       maybeRefreshCalendar(calendar);
       this.notifyObservers("onCalendarRegistered", [calendar]);
     }
@@ -373,7 +373,7 @@ CalCalendarManager.prototype = {
     this.mCache[calendar.id] = calendar;
 
     // Add an observer to track readonly-mode triggers
-    let newObserver = new calMgrCalendarObserver(calendar, this);
+    const newObserver = new calMgrCalendarObserver(calendar, this);
     calendar.addObserver(newObserver);
     this.mCalObservers[calendar.id] = newObserver;
 
@@ -458,7 +458,9 @@ CalCalendarManager.prototype = {
   removeCalendar(calendar, mode = 0) {
     const cICM = Ci.calICalendarManager;
 
-    let removeModes = new Set(calendar.getProperty("capabilities.removeModes") || ["unsubscribe"]);
+    const removeModes = new Set(
+      calendar.getProperty("capabilities.removeModes") || ["unsubscribe"]
+    );
     if (!removeModes.has("unsubscribe") && !removeModes.has("delete")) {
       // Removing is not allowed
       return;
@@ -476,7 +478,7 @@ CalCalendarManager.prototype = {
 
     // For deleting, we also call the deleteCalendar method from the provider.
     if (removeModes.has("delete") && (mode & cICM.REMOVE_NO_DELETE) == 0) {
-      let wrappedCalendar = calendar.QueryInterface(Ci.calICalendarProvider);
+      const wrappedCalendar = calendar.QueryInterface(Ci.calICalendarProvider);
       wrappedCalendar.deleteCalendar(calendar, null);
     }
   },
@@ -490,9 +492,9 @@ CalCalendarManager.prototype = {
 
   getCalendars() {
     this.assureCache();
-    let calendars = [];
-    for (let id in this.mCache) {
-      let calendar = this.mCache[id];
+    const calendars = [];
+    for (const id in this.mCache) {
+      const calendar = this.mCache[id];
       calendars.push(calendar);
     }
     return calendars;
@@ -510,16 +512,16 @@ CalCalendarManager.prototype = {
     this.mCache = {};
     this.mCalObservers = {};
 
-    let allCals = {};
-    for (let key of Services.prefs.getChildList(REGISTRY_BRANCH)) {
+    const allCals = {};
+    for (const key of Services.prefs.getChildList(REGISTRY_BRANCH)) {
       // merge down all keys
       allCals[key.substring(0, key.indexOf(".", REGISTRY_BRANCH.length))] = true;
     }
 
-    for (let calBranch in allCals) {
-      let id = calBranch.substring(REGISTRY_BRANCH.length);
-      let ctype = Services.prefs.getStringPref(calBranch + ".type", null);
-      let curi = Services.prefs.getStringPref(calBranch + ".uri", null);
+    for (const calBranch in allCals) {
+      const id = calBranch.substring(REGISTRY_BRANCH.length);
+      const ctype = Services.prefs.getStringPref(calBranch + ".type", null);
+      const curi = Services.prefs.getStringPref(calBranch + ".uri", null);
 
       try {
         if (!ctype || !curi) {
@@ -528,8 +530,8 @@ CalCalendarManager.prototype = {
           continue;
         }
 
-        let uri = Services.io.newURI(curi);
-        let calendar = this.initializeCalendar(id, ctype, uri);
+        const uri = Services.io.newURI(curi);
+        const calendar = this.initializeCalendar(id, ctype, uri);
         this.setupCalendar(calendar);
       } catch (exc) {
         cal.ERROR(`Can't create calendar for ${id} (${ctype}, ${curi}): ${exc}`);
@@ -545,7 +547,7 @@ CalCalendarManager.prototype = {
 
     // do refreshing in a second step, when *all* calendars are already available
     // via getCalendars():
-    for (let calendar of Object.values(this.mCache)) {
+    for (const calendar of Object.values(this.mCache)) {
       let delay = 0;
 
       // The special-casing of ICS here is a very ugly hack. We can delay most
@@ -589,8 +591,8 @@ CalCalendarManager.prototype = {
           calendar.uri.prePath == "https://apidata.googleusercontent.com"
         ) {
           cal.LOG(`CalDAV: Resetting sync token of ${calendar.name} to perform a full resync`);
-          let calCachedCalendar = calendar.wrappedJSObject;
-          let calDavCalendar = calCachedCalendar.mUncachedCalendar.wrappedJSObject;
+          const calCachedCalendar = calendar.wrappedJSObject;
+          const calDavCalendar = calCachedCalendar.mUncachedCalendar.wrappedJSObject;
           calDavCalendar.mWebdavSyncToken = null;
           calDavCalendar.saveCalendarProperties();
         }
@@ -610,11 +612,11 @@ CalCalendarManager.prototype = {
     cal.ASSERT(calendar.id !== null, "Calendar id needs to be set!");
     cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
 
-    let branch = getPrefBranchFor(calendar.id) + name;
+    const branch = getPrefBranchFor(calendar.id) + name;
     let value = Preferences.get(branch, null);
 
     if (typeof value == "string" && value.startsWith("bignum:")) {
-      let converted = Number(value.substr(7));
+      const converted = Number(value.substr(7));
       if (!isNaN(converted)) {
         value = converted;
       }
@@ -627,7 +629,7 @@ CalCalendarManager.prototype = {
     cal.ASSERT(calendar.id !== null, "Calendar id needs to be set!");
     cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
 
-    let branch = getPrefBranchFor(calendar.id) + name;
+    const branch = getPrefBranchFor(calendar.id) + name;
 
     if (
       typeof value == "number" &&
@@ -764,7 +766,7 @@ calMgrCalendarObserver.prototype = {
 
     if (aOldValue != aValue) {
       // Try to find the current sort order
-      let sortOrderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "").split(" ");
+      const sortOrderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "").split(" ");
       let initialSortOrderPos = null;
       for (let i = 0; i < sortOrderPref.length; ++i) {
         if (sortOrderPref[i] == aCalendar.id) {
@@ -776,13 +778,13 @@ calMgrCalendarObserver.prototype = {
       // calCachedCalendar facade saving the user the need to
       // restart Thunderbird and making sure a new Id is used.
       this.calMgr.removeCalendar(aCalendar, cICM.REMOVE_NO_DELETE);
-      let newCal = this.calMgr.createCalendar(aCalendar.type, aCalendar.uri);
+      const newCal = this.calMgr.createCalendar(aCalendar.type, aCalendar.uri);
       newCal.name = aCalendar.name;
 
       // TODO: if properties get added this list will need to be adjusted,
       // ideally we should add a "getProperties" method to calICalendar.idl
       // to retrieve all non-transient properties for a calendar.
-      let propsToCopy = [
+      const propsToCopy = [
         "color",
         "disabled",
         "auto-enabled",
@@ -795,7 +797,7 @@ calMgrCalendarObserver.prototype = {
         "imip.identity.key",
         "username",
       ];
-      for (let prop of propsToCopy) {
+      for (const prop of propsToCopy) {
         newCal.setProperty(prop, aCalendar.getProperty(prop));
       }
 
@@ -816,10 +818,10 @@ calMgrCalendarObserver.prototype = {
 
   // Error announcer specific functions
   announceError(aCalendar, aErrNo, aMessage) {
-    let paramBlock = Cc["@mozilla.org/embedcomp/dialogparam;1"].createInstance(
+    const paramBlock = Cc["@mozilla.org/embedcomp/dialogparam;1"].createInstance(
       Ci.nsIDialogParamBlock
     );
-    let props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
+    const props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
     let errMsg;
     paramBlock.SetNumberStrings(3);
     if (!this.storedReadOnly && this.calendar.readOnly) {
@@ -839,7 +841,7 @@ calMgrCalendarObserver.prototype = {
     const calIErrors = Ci.calIErrors;
     // Check if it is worth enumerating all the error codes.
     if (aErrNo & calIErrors.ERROR_BASE) {
-      for (let err in calIErrors) {
+      for (const err in calIErrors) {
         if (calIErrors[err] == aErrNo) {
           errCode = err;
         }
@@ -870,9 +872,9 @@ calMgrCalendarObserver.prototype = {
     paramBlock.SetString(2, message);
 
     this.storedReadOnly = this.calendar.readOnly;
-    let errorCode = cal.l10n.getCalString("errorCode", [errCode]);
-    let errorDescription = cal.l10n.getCalString("errorDescription", [message]);
-    let summary = errMsg + " " + errorCode + ". " + errorDescription;
+    const errorCode = cal.l10n.getCalString("errorCode", [errCode]);
+    const errorDescription = cal.l10n.getCalString("errorDescription", [message]);
+    const summary = errMsg + " " + errorCode + ". " + errorDescription;
 
     // Log warnings in error console.
     // Report serious errors in both error console and in prompt window.
@@ -888,7 +890,7 @@ calMgrCalendarObserver.prototype = {
     function awaitLoad(event) {
       promptWindow.addEventListener("unload", awaitUnload, { capture: false, once: true });
     }
-    let awaitUnload = event => {
+    const awaitUnload = event => {
       // unloaded (user closed prompt window),
       // remove paramBlock and unload listener.
       try {
@@ -917,9 +919,9 @@ calMgrCalendarObserver.prototype = {
     // unloaded [to clean it?] before loading, so wait for detected load
     // event before detecting unload event that signifies user closed this
     // prompt window.)
-    let promptUrl = "chrome://calendar/content/calendar-error-prompt.xhtml";
-    let features = "chrome,dialog=yes,alwaysRaised=yes";
-    let promptWindow = Services.ww.openWindow(null, promptUrl, "_blank", features, paramBlock);
+    const promptUrl = "chrome://calendar/content/calendar-error-prompt.xhtml";
+    const features = "chrome,dialog=yes,alwaysRaised=yes";
+    const promptWindow = Services.ww.openWindow(null, promptUrl, "_blank", features, paramBlock);
     promptWindow.addEventListener("load", awaitLoad, { capture: false, once: true });
   },
 };
@@ -951,7 +953,7 @@ function getPrefBranchFor(id) {
  * @param {string} id - ID of the calendar to remove.
  */
 function deletePrefBranch(id) {
-  for (let prefName of Services.prefs.getChildList(getPrefBranchFor(id))) {
+  for (const prefName of Services.prefs.getChildList(getPrefBranchFor(id))) {
     Services.prefs.clearUserPref(prefName);
   }
 }
@@ -963,7 +965,7 @@ function deletePrefBranch(id) {
  */
 function maybeRefreshCalendar(calendar) {
   if (!calendar.getProperty("disabled") && calendar.canRefresh) {
-    let refreshInterval = calendar.getProperty("refreshInterval");
+    const refreshInterval = calendar.getProperty("refreshInterval");
     if (refreshInterval != "0") {
       calendar.refresh();
     }
@@ -1028,7 +1030,7 @@ var gCalendarManagerAddonListener = {
   queryUninstallProvider(aAddon) {
     const uri = "chrome://calendar/content/calendar-providerUninstall-dialog.xhtml";
     const features = "chrome,titlebar,resizable,modal";
-    let affectedCalendars = cal.manager
+    const affectedCalendars = cal.manager
       .getCalendars()
       .filter(calendar => calendar.providerID == aAddon.id);
     if (!affectedCalendars.length) {
@@ -1036,12 +1038,12 @@ var gCalendarManagerAddonListener = {
       return true;
     }
 
-    let args = { shouldUninstall: false, extension: aAddon };
+    const args = { shouldUninstall: false, extension: aAddon };
 
     // Now find a window. The best choice would be the most recent
     // addons window, otherwise the most recent calendar window, or we
     // create a new toplevel window.
-    let win =
+    const win =
       Services.wm.getMostRecentWindow("Extension:Manager") || cal.window.getCalendarWindow();
     if (win) {
       win.openDialog(uri, "CalendarProviderUninstallDialog", features, args);
@@ -1062,7 +1064,7 @@ function appendToRealm(authHeader, appendStr) {
     let remain = authHeader.substr(idx + 7);
     idx += 7;
     while (remain.length && !isEscaped) {
-      let match = remain.match(/(.*?)(\\*)"/);
+      const match = remain.match(/(.*?)(\\*)"/);
       idx += match[0].length;
 
       isEscaped = match[2].length % 2 == 0;

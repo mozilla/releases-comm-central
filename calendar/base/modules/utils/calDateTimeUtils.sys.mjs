@@ -42,7 +42,7 @@ export var dtz = {
    * @param aTzid     The timezone id to add
    */
   saveRecentTimezone(aTzid) {
-    let recentTimezones = dtz.getRecentTimezones();
+    const recentTimezones = dtz.getRecentTimezones();
     const MAX_RECENT_TIMEZONES = 5; // We don't need a pref for *everything*.
 
     if (aTzid != dtz.defaultTimezone.tzid && !recentTimezones.includes(aTzid)) {
@@ -58,7 +58,7 @@ export var dtz = {
    * default timezone.
    */
   now() {
-    let date = dtz.jsDateToDateTime(new Date());
+    const date = dtz.jsDateToDateTime(new Date());
     return date.getInTimezone(dtz.defaultTimezone);
   },
 
@@ -72,7 +72,7 @@ export var dtz = {
   getDefaultStartDate(aReferenceDate) {
     let startDate = dtz.now();
     if (aReferenceDate) {
-      let savedHour = startDate.hour;
+      const savedHour = startDate.hour;
       startDate = aReferenceDate;
       if (!startDate.isMutable) {
         startDate = startDate.clone();
@@ -163,7 +163,7 @@ export var dtz = {
     if (!aDate || !aDate.isDate) {
       return aDate;
     }
-    let newDate = aDate.clone();
+    const newDate = aDate.clone();
     newDate.isDate = false;
     return newDate;
   },
@@ -181,7 +181,7 @@ export var dtz = {
    *           but only its local time portions are be taken.
    */
   jsDateToDateTime(aDate, aTimezone) {
-    let newDate = lazy.cal.createDateTime();
+    const newDate = lazy.cal.createDateTime();
     if (aTimezone) {
       newDate.resetTo(
         aDate.getFullYear(),
@@ -237,16 +237,16 @@ export var dtz = {
   fromRFC3339(aStr, aTimezone) {
     // XXX I have not covered leapseconds (matches[8]), this might need to
     // be done. The only reference to leap seconds I found is bug 227329.
-    let dateTime = lazy.cal.createDateTime();
+    const dateTime = lazy.cal.createDateTime();
 
     // Killer regex to parse RFC3339 dates
-    let re = new RegExp(
+    const re = new RegExp(
       "^([0-9]{4})-([0-9]{2})-([0-9]{2})" +
         "([Tt]([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]+)?)?" +
         "(([Zz]|([+-])([0-9]{2}):([0-9]{2})))?"
     );
 
-    let matches = re.exec(aStr);
+    const matches = re.exec(aStr);
 
     if (!matches) {
       return null;
@@ -277,7 +277,7 @@ export var dtz = {
 
       dateTime.timezone = aTimezone;
     } else {
-      let offset_in_s = (matches[11] == "-" ? -1 : 1) * (matches[12] * 3600 + matches[13] * 60);
+      const offset_in_s = (matches[11] == "-" ? -1 : 1) * (matches[12] * 3600 + matches[13] * 60);
 
       // try local timezone first
       dateTime.timezone = aTimezone;
@@ -289,7 +289,7 @@ export var dtz = {
         // TODO A patch to Bug 363191 should make this more efficient.
 
         // Enumerate timezones, set them, check their offset
-        for (let id of lazy.cal.timezoneService.timezoneIds) {
+        for (const id of lazy.cal.timezoneService.timezoneIds) {
           dateTime.timezone = lazy.cal.timezoneService.getTimezone(id);
           if (dateTime.timezoneOffset == offset_in_s) {
             // This is our last step, so go ahead and return
@@ -319,10 +319,10 @@ export var dtz = {
       return "";
     }
 
-    let full_tzoffset = aDateTime.timezoneOffset;
-    let tzoffset_hr = Math.floor(Math.abs(full_tzoffset) / 3600);
+    const full_tzoffset = aDateTime.timezoneOffset;
+    const tzoffset_hr = Math.floor(Math.abs(full_tzoffset) / 3600);
 
-    let tzoffset_mn = ((Math.abs(full_tzoffset) / 3600).toFixed(2) - tzoffset_hr) * 60;
+    const tzoffset_mn = ((Math.abs(full_tzoffset) / 3600).toFixed(2) - tzoffset_hr) * 60;
 
     let str =
       aDateTime.year +
@@ -373,9 +373,9 @@ export var dtz = {
     }
 
     if (aConvertZones) {
-      let oldZonesLength = recentTimezones.length;
+      const oldZonesLength = recentTimezones.length;
       for (let i = 0; i < recentTimezones.length; i++) {
-        let timezone = lazy.cal.timezoneService.getTimezone(recentTimezones[i]);
+        const timezone = lazy.cal.timezoneService.getTimezone(recentTimezones[i]);
         if (timezone) {
           // Replace id with found timezone
           recentTimezones[i] = timezone;
@@ -407,13 +407,13 @@ export var dtz = {
    */
   getStringForDateTime(dateTime) {
     const kDefaultTimezone = lazy.cal.dtz.defaultTimezone;
-    let localTime = dateTime.getInTimezone(kDefaultTimezone);
-    let formatter = lazy.cal.dtz.formatter;
-    let formattedLocalTime = formatter.formatDateTime(localTime);
+    const localTime = dateTime.getInTimezone(kDefaultTimezone);
+    const formatter = lazy.cal.dtz.formatter;
+    const formattedLocalTime = formatter.formatDateTime(localTime);
 
     if (!dateTime.timezone.isFloating && dateTime.timezone.tzid != kDefaultTimezone.tzid) {
       // Additionally display the original datetime with timezone.
-      let originalTime = lazy.cal.l10n.getCalString("datetimeWithTimezone", [
+      const originalTime = lazy.cal.l10n.getCalString("datetimeWithTimezone", [
         formatter.formatDateTime(dateTime),
         dateTime.timezone.tzid,
       ]);

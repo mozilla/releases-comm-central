@@ -80,7 +80,7 @@ cal.HashedArray.prototype = {
     if (this.mBatch > 0) {
       throw new Error("Accessing Array Indexes not supported in batch mode");
     }
-    let hashId = this.hashAccessor(item);
+    const hashId = this.hashAccessor(item);
     return hashId in this.mHash ? this.mHash[hashId] : -1;
   },
 
@@ -93,7 +93,7 @@ cal.HashedArray.prototype = {
     if (this.mBatch > 0) {
       throw new Error("Remvoing by ID in batch mode is not supported"); /* TODO */
     }
-    let index = this.mHash[id];
+    const index = this.mHash[id];
     delete this.mHash[id];
     this.mArray.splice(index, 1);
     this.reindex(index);
@@ -127,7 +127,7 @@ cal.HashedArray.prototype = {
    * @returns The index of the added item.
    */
   addItem(item) {
-    let index = this.mArray.length;
+    const index = this.mArray.length;
     this.mArray.push(item);
     this.reindex(index);
     return index;
@@ -142,9 +142,9 @@ cal.HashedArray.prototype = {
    * @returns The (new) index.
    */
   modifyItem(item) {
-    let hashId = this.hashAccessor(item);
+    const hashId = this.hashAccessor(item);
     if (hashId in this.mHash) {
-      let index = this.mHash[this.hashAccessor(item)];
+      const index = this.mHash[this.hashAccessor(item)];
       this.mArray[index] = item;
       return index;
     }
@@ -173,7 +173,7 @@ cal.HashedArray.prototype = {
     to = Math.min(this.mArray.length - 1, Math.max(0, to));
 
     if (from > to) {
-      let tmp = from;
+      const tmp = from;
       from = to;
       to = tmp;
     }
@@ -232,23 +232,23 @@ cal.SortedHashedArray.prototype = {
   mCompFunc: null,
 
   addItem(item) {
-    let newIndex = cal.data.binaryInsert(this.mArray, item, this.mCompFunc, false);
+    const newIndex = cal.data.binaryInsert(this.mArray, item, this.mCompFunc, false);
     this.reindex(newIndex);
     return newIndex;
   },
 
   modifyItem(item) {
-    let hashId = this.hashAccessor(item);
+    const hashId = this.hashAccessor(item);
     if (hashId in this.mHash) {
-      let cmp = this.mCompFunc(item, this.mArray[this.mHash[hashId]]);
+      const cmp = this.mCompFunc(item, this.mArray[this.mHash[hashId]]);
       if (cmp == 0) {
         // The item will be at the same index, we just need to replace it
         this.mArray[this.mHash[hashId]] = item;
         return this.mHash[hashId];
       }
-      let oldIndex = this.mHash[hashId];
+      const oldIndex = this.mHash[hashId];
 
-      let newIndex = cal.data.binaryInsert(this.mArray, item, this.mCompFunc, false);
+      const newIndex = cal.data.binaryInsert(this.mArray, item, this.mCompFunc, false);
       this.mArray.splice(oldIndex, 1);
       this.reindex(oldIndex, newIndex);
       return newIndex;

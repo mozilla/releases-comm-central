@@ -158,7 +158,7 @@ class CalBoundedReadableStreamController {
    * @param {calIItemBase[]} items
    */
   enqueue(items) {
-    for (let item of items) {
+    for (const item of items) {
       if (this.queueFull) {
         this.flush();
       }
@@ -182,7 +182,7 @@ class CalBoundedReadableStreamController {
       if (this.maxTotalItemsReached) {
         return;
       }
-      let buffer = this._buffer.slice(0, this.remainingItemCount);
+      const buffer = this._buffer.slice(0, this.remainingItemCount);
       this._controller.enqueue(buffer);
       this.count += buffer.length;
       this._buffer = [];
@@ -282,8 +282,8 @@ class CalReadableStreamFactory {
   static createCombinedReadableStream(streams) {
     return new ReadableStream({
       async start(controller) {
-        for (let stream of streams) {
-          for await (let chunk of cal.iterate.streamValues(stream)) {
+        for (const stream of streams) {
+          for await (const chunk of cal.iterate.streamValues(stream)) {
             controller.enqueue(chunk);
           }
         }
@@ -304,7 +304,7 @@ class CalReadableStreamFactory {
   static createMappedReadableStream(stream, func) {
     return new ReadableStream({
       async start(controller) {
-        for await (let chunk of cal.iterate.streamValues(stream)) {
+        for await (const chunk of cal.iterate.streamValues(stream)) {
           controller.enqueue(await func(chunk));
         }
         controller.close();

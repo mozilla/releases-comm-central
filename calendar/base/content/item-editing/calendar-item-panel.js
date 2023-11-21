@@ -131,7 +131,7 @@ function receiveMessage(aEvent) {
       removeDisableAndCollapseOnReadonly();
       break;
     case "setElementAttribute": {
-      let arg = aEvent.data.argument;
+      const arg = aEvent.data.argument;
       document.getElementById(arg.id)[arg.attribute] = arg.value;
       break;
     }
@@ -159,10 +159,10 @@ window.addEventListener("message", receiveMessage);
  * @param {string} aIframeId - (optional) id of an iframe to send the message to
  */
 function sendMessage(aMessage, aIframeId) {
-  let iframeId = gTabmail
+  const iframeId = gTabmail
     ? aIframeId || gTabmail.currentTabInfo.iframe.id
     : "calendar-item-panel-iframe";
-  let iframe = document.getElementById(iframeId);
+  const iframe = document.getElementById(iframeId);
   iframe.contentWindow.postMessage(aMessage, "*");
 }
 
@@ -179,7 +179,7 @@ function handleWindowClose(aResponse) {
     // Cancel was clicked, just leave the window open. We're done.
   } else if (gItemTabIdsCopy.length > 0) {
     // There are more unsaved changes in tabs to prompt the user about.
-    let nextId = gItemTabIdsCopy.shift();
+    const nextId = gItemTabIdsCopy.shift();
     sendMessage({ command: "closingWindowWithTabs", id: nextId }, nextId);
   } else {
     // Close the window, there are no more unsaved changes in tabs.
@@ -210,7 +210,7 @@ function windowCloseListener(aEvent) {
 function onLoadCalendarItemPanel(aIframeId, aUrl) {
   let iframe;
   let iframeSrc;
-  let dialog = document.querySelector("dialog");
+  const dialog = document.querySelector("dialog");
 
   if (!gTabmail) {
     gTabmail = document.getElementById("tabmail") || null;
@@ -223,7 +223,7 @@ function onLoadCalendarItemPanel(aIframeId, aUrl) {
   }
   if (gTabmail) {
     // tab case
-    let iframeId = aIframeId || gTabmail.currentTabInfo.iframe.id;
+    const iframeId = aIframeId || gTabmail.currentTabInfo.iframe.id;
     iframe = document.getElementById(iframeId);
     iframeSrc = aUrl;
 
@@ -245,11 +245,11 @@ function onLoadCalendarItemPanel(aIframeId, aUrl) {
       () => {
         // Push setting dimensions to the end of the event queue.
         setTimeout(() => {
-          let body = iframe.contentDocument.body;
+          const body = iframe.contentDocument.body;
           // Make sure the body does not exceed its content's size.
           body.style.width = "fit-content";
           body.style.height = "fit-content";
-          let { scrollHeight, scrollWidth } = body;
+          const { scrollHeight, scrollWidth } = body;
           iframe.style.minHeight = `${scrollHeight}px`;
           iframe.style.minWidth = `${scrollWidth}px`;
           // Reset the body.
@@ -267,14 +267,14 @@ function onLoadCalendarItemPanel(aIframeId, aUrl) {
     iframe.contentWindow.arguments = [window.arguments[0]];
 
     // hide the ok and cancel dialog buttons
-    let accept = dialog.getButton("accept");
-    let cancel = dialog.getButton("cancel");
+    const accept = dialog.getButton("accept");
+    const cancel = dialog.getButton("cancel");
     accept.setAttribute("collapsed", "true");
     cancel.setAttribute("collapsed", "true");
     cancel.parentNode.setAttribute("collapsed", "true");
 
     document.addEventListener("dialogaccept", event => {
-      let itemTitle = iframe.contentDocument.documentElement.querySelector("#item-title");
+      const itemTitle = iframe.contentDocument.documentElement.querySelector("#item-title");
       // Prevent dialog from saving if title is empty.
       if (!itemTitle.value) {
         event.preventDefault();
@@ -296,7 +296,7 @@ function onLoadCalendarItemPanel(aIframeId, aUrl) {
   }
 
   // event or task
-  let calendarItem = iframe.contentWindow.arguments[0].calendarEvent;
+  const calendarItem = iframe.contentWindow.arguments[0].calendarEvent;
   gConfig.isEvent = calendarItem.isEvent();
 
   // for tasks in a window dialog, set the dialog id for CSS selection.
@@ -348,8 +348,8 @@ function updateItemTabState(aArg) {
     attachUrlCommand: updateAttachment,
     timezonesEnabled: updateTimezoneCommand,
   };
-  for (let key of Object.keys(aArg)) {
-    let procedure = lookup[key];
+  for (const key of Object.keys(aArg)) {
+    const procedure = lookup[key];
     if (procedure) {
       procedure(aArg);
     }
@@ -363,7 +363,7 @@ function updateItemTabState(aArg) {
  * @param {string} aAccessKey - The access key for the menu
  */
 function initializeItemMenu(aLabel, aAccessKey) {
-  let menuItem = document.getElementById("item-menu");
+  const menuItem = document.getElementById("item-menu");
   menuItem.setAttribute("label", aLabel);
   menuItem.setAttribute("accesskey", aAccessKey);
 }
@@ -389,7 +389,7 @@ function closeWindowOrTab(iframeId) {
   if (gTabmail) {
     if (iframeId) {
       // Find the tab associated with this iframeId, and close it.
-      let myTabInfo = gTabmail.tabInfo.filter(x => "iframe" in x && x.iframe.id == iframeId)[0];
+      const myTabInfo = gTabmail.tabInfo.filter(x => "iframe" in x && x.iframe.id == iframeId)[0];
       myTabInfo.allowTabClose = true;
       gTabmail.closeTab(myTabInfo);
     } else {
@@ -423,11 +423,11 @@ function onCommandDeleteItem() {
  * @param {boolean} disabled - True if the save options needs to be disabled else false.
  */
 function disableSaving(disabled) {
-  let cmdSave = document.getElementById("cmd_save");
+  const cmdSave = document.getElementById("cmd_save");
   if (cmdSave) {
     cmdSave.setAttribute("disabled", disabled);
   }
-  let cmdAccept = document.getElementById("cmd_accept");
+  const cmdAccept = document.getElementById("cmd_accept");
   if (cmdAccept) {
     cmdAccept.setAttribute("disabled", disabled);
   }
@@ -441,7 +441,7 @@ function disableSaving(disabled) {
  */
 function updateTitle(prefix, title) {
   disableSaving(!title);
-  let newTitle = prefix + ": " + title;
+  const newTitle = prefix + ": " + title;
   if (gTabmail) {
     gTabmail.currentTabInfo.title = newTitle;
     gTabmail.setTabTitle(gTabmail.currentTabInfo);
@@ -512,7 +512,7 @@ function editPrivacy(aTarget, aEvent) {
     aEvent.stopPropagation();
   }
   // "privacy" is indeed the correct attribute to use here
-  let newPrivacy = aTarget.getAttribute("privacy");
+  const newPrivacy = aTarget.getAttribute("privacy");
   editConfigState({ privacy: newPrivacy });
 }
 
@@ -534,10 +534,10 @@ function updatePrivacy(aArg) {
     let menupopup = document.getElementById("event-privacy-menupopup");
     if (menupopup) {
       // Only update the toolbar if the button is actually there
-      for (let node of menupopup.children) {
-        let currentProvider = node.getAttribute("provider");
+      for (const node of menupopup.children) {
+        const currentProvider = node.getAttribute("provider");
         if (node.hasAttribute("privacy")) {
-          let currentPrivacyValue = node.getAttribute("privacy");
+          const currentPrivacyValue = node.getAttribute("privacy");
           // Collapsed state
 
           // Hide the toolbar if the value is unsupported or is for a
@@ -564,10 +564,10 @@ function updatePrivacy(aArg) {
     // Update privacy capabilities (menu) but only if we are not in a tab.
     if (!gTabmail) {
       menupopup = document.getElementById("options-privacy-menupopup");
-      for (let node of menupopup.children) {
-        let currentProvider = node.getAttribute("provider");
+      for (const node of menupopup.children) {
+        const currentProvider = node.getAttribute("provider");
         if (node.hasAttribute("privacy")) {
-          let currentPrivacyValue = node.getAttribute("privacy");
+          const currentPrivacyValue = node.getAttribute("privacy");
           // Collapsed state
 
           // Hide the menu if the value is unsupported or is for a
@@ -592,12 +592,12 @@ function updatePrivacy(aArg) {
     }
 
     // Update privacy capabilities (statusbar)
-    let privacyPanel = document.getElementById("status-privacy");
+    const privacyPanel = document.getElementById("status-privacy");
     let hasAnyPrivacyValue = false;
-    for (let node of privacyPanel.children) {
-      let currentProvider = node.getAttribute("provider");
+    for (const node of privacyPanel.children) {
+      const currentProvider = node.getAttribute("provider");
       if (node.hasAttribute("privacy")) {
-        let currentPrivacyValue = node.getAttribute("privacy");
+        const currentPrivacyValue = node.getAttribute("privacy");
 
         // Hide the panel if the value is unsupported or is for a
         // specific provider and doesn't belong to the current provider,
@@ -626,7 +626,7 @@ function updatePrivacy(aArg) {
     document.getElementById("button-privacy").disabled = true;
     document.getElementById("status-privacy").collapsed = true;
     // in the tab case the menu item does not exist
-    let privacyMenuItem = document.getElementById("options-privacy-menu");
+    const privacyMenuItem = document.getElementById("options-privacy-menu");
     if (privacyMenuItem) {
       document.getElementById("options-privacy-menu").disabled = true;
     }
@@ -639,7 +639,7 @@ function updatePrivacy(aArg) {
  * @param {Node} aTarget - Has the new priority in its "value" attribute
  */
 function editPriority(aTarget) {
-  let newPriority = parseInt(aTarget.getAttribute("value"), 10);
+  const newPriority = parseInt(aTarget.getAttribute("value"), 10);
   editConfigState({ priority: newPriority });
 }
 
@@ -670,10 +670,10 @@ function updatePriority(aArg) {
       priorityLevel = "low";
     }
 
-    let priorityNone = document.getElementById("cmd_priority_none");
-    let priorityLow = document.getElementById("cmd_priority_low");
-    let priorityNormal = document.getElementById("cmd_priority_normal");
-    let priorityHigh = document.getElementById("cmd_priority_high");
+    const priorityNone = document.getElementById("cmd_priority_none");
+    const priorityLow = document.getElementById("cmd_priority_low");
+    const priorityNormal = document.getElementById("cmd_priority_normal");
+    const priorityHigh = document.getElementById("cmd_priority_high");
 
     priorityNone.setAttribute("checked", priorityLevel == "none" ? "true" : "false");
     priorityLow.setAttribute("checked", priorityLevel == "low" ? "true" : "false");
@@ -681,8 +681,8 @@ function updatePriority(aArg) {
     priorityHigh.setAttribute("checked", priorityLevel == "high" ? "true" : "false");
 
     // Status bar panel
-    let priorityPanel = document.getElementById("status-priority");
-    let image = priorityPanel.querySelector("img");
+    const priorityPanel = document.getElementById("status-priority");
+    const image = priorityPanel.querySelector("img");
     if (priorityLevel === "none") {
       // If the priority is none, don't show the status bar panel
       priorityPanel.setAttribute("collapsed", "true");
@@ -706,7 +706,7 @@ function updatePriority(aArg) {
  * @param {Node} aTarget - Has the new status in its "value" attribute
  */
 function editStatus(aTarget) {
-  let newStatus = aTarget.getAttribute("value");
+  const newStatus = aTarget.getAttribute("value");
   editConfigState({ status: newStatus });
 }
 
@@ -731,8 +731,8 @@ function updateStatus(aArg) {
   let found = false;
   document.getElementById("status-status").collapsed = true;
   commands.forEach((aElement, aIndex, aArray) => {
-    let node = document.getElementById(aElement);
-    let matches = node.getAttribute("value") == aArg.status;
+    const node = document.getElementById(aElement);
+    const matches = node.getAttribute("value") == aArg.status;
     found = found || matches;
 
     node.setAttribute("checked", matches ? "true" : "false");
@@ -757,7 +757,7 @@ function updateStatus(aArg) {
  * @param {Node} aTarget - Has the new transparency in its "value" attribute
  */
 function editShowTimeAs(aTarget) {
-  let newValue = aTarget.getAttribute("value");
+  const newValue = aTarget.getAttribute("value");
   editConfigState({ showTimeAs: newValue });
 }
 
@@ -768,8 +768,8 @@ function editShowTimeAs(aTarget) {
  * @param {string} aArg.showTimeAs - The new transparency value
  */
 function updateShowTimeAs(aArg) {
-  let showAsBusy = document.getElementById("cmd_showtimeas_busy");
-  let showAsFree = document.getElementById("cmd_showtimeas_free");
+  const showAsBusy = document.getElementById("cmd_showtimeas_busy");
+  const showAsFree = document.getElementById("cmd_showtimeas_free");
 
   showAsBusy.setAttribute("checked", aArg.showTimeAs == "OPAQUE" ? "true" : "false");
   showAsFree.setAttribute("checked", aArg.showTimeAs == "TRANSPARENT" ? "true" : "false");
@@ -799,8 +799,8 @@ function editToDoStatus(aPercentComplete) {
 function updateMarkCompletedMenuItem(aArg) {
   // Command only for tab case, function only to be executed in dialog windows.
   if (gTabmail) {
-    let completedCommand = document.getElementById("calendar_toggle_completed_command");
-    let isCompleted = aArg.percentComplete == 100;
+    const completedCommand = document.getElementById("calendar_toggle_completed_command");
+    const isCompleted = aArg.percentComplete == 100;
     completedCommand.setAttribute("checked", isCompleted);
   }
 }
@@ -823,7 +823,7 @@ function postponeTask(aDuration) {
  * @returns {boolean} True is active/checked and false is inactive/unchecked
  */
 function getTimezoneCommandState() {
-  let cmdTimezone = document.getElementById("cmd_timezone");
+  const cmdTimezone = document.getElementById("cmd_timezone");
   return cmdTimezone.getAttribute("checked") == "true";
 }
 
@@ -835,7 +835,7 @@ function getTimezoneCommandState() {
  * @param {boolean} aArg.timezonesEnabled - Are timezones enabled?
  */
 function updateTimezoneCommand(aArg) {
-  let cmdTimezone = document.getElementById("cmd_timezone");
+  const cmdTimezone = document.getElementById("cmd_timezone");
   cmdTimezone.setAttribute("checked", aArg.timezonesEnabled);
   gConfig.timezonesEnabled = aArg.timezonesEnabled;
 }
@@ -844,8 +844,8 @@ function updateTimezoneCommand(aArg) {
  * Toggles the command that allows enabling the timezone links in the dialog.
  */
 function toggleTimezoneLinks() {
-  let cmdTimezone = document.getElementById("cmd_timezone");
-  let currentState = getTimezoneCommandState();
+  const cmdTimezone = document.getElementById("cmd_timezone");
+  const currentState = getTimezoneCommandState();
   cmdTimezone.setAttribute("checked", currentState ? "false" : "true");
   gConfig.timezonesEnabled = !currentState;
   sendMessage({ command: "toggleTimezoneLinks", checked: !currentState });
@@ -894,12 +894,12 @@ function enableAcceptCommand(aEnable) {
  * collapse-on-readonly.
  */
 function removeDisableAndCollapseOnReadonly() {
-  let enableElements = document.getElementsByAttribute("disable-on-readonly", "true");
-  for (let element of enableElements) {
+  const enableElements = document.getElementsByAttribute("disable-on-readonly", "true");
+  for (const element of enableElements) {
     element.removeAttribute("disabled");
   }
-  let collapseElements = document.getElementsByAttribute("collapse-on-readonly", "true");
-  for (let element of collapseElements) {
+  const collapseElements = document.getElementsByAttribute("collapse-on-readonly", "true");
+  for (const element of collapseElements) {
     element.removeAttribute("collapsed");
   }
 }
@@ -911,14 +911,14 @@ function removeDisableAndCollapseOnReadonly() {
  * @param {string} aMenuitemId - The corresponding menuitem in the view menu
  */
 function onCommandViewToolbar(aToolbarId, aMenuItemId) {
-  let toolbar = document.getElementById(aToolbarId);
-  let menuItem = document.getElementById(aMenuItemId);
+  const toolbar = document.getElementById(aToolbarId);
+  const menuItem = document.getElementById(aMenuItemId);
 
   if (!toolbar || !menuItem) {
     return;
   }
 
-  let toolbarCollapsed = toolbar.collapsed;
+  const toolbarCollapsed = toolbar.collapsed;
 
   // toggle the checkbox
   menuItem.setAttribute("checked", toolbarCollapsed);
@@ -939,9 +939,9 @@ function onCommandViewToolbar(aToolbarId, aMenuItemId) {
  */
 function dialogToolboxCustomizeDone(aToolboxChanged) {
   // Re-enable menu items (disabled during toolbar customization).
-  let menubarId = gTabmail ? "mail-menubar" : "event-menubar";
-  let menubar = document.getElementById(menubarId);
-  for (let menuitem of menubar.children) {
+  const menubarId = gTabmail ? "mail-menubar" : "event-menubar";
+  const menubar = document.getElementById(menubarId);
+  for (const menuitem of menubar.children) {
     menuitem.removeAttribute("disabled");
   }
 
@@ -962,15 +962,15 @@ function dialogToolboxCustomizeDone(aToolboxChanged) {
 function onCommandCustomize() {
   // install the callback that handles what needs to be
   // done after a toolbar has been customized.
-  let toolboxId = "event-toolbox";
+  const toolboxId = "event-toolbox";
 
-  let toolbox = document.getElementById(toolboxId);
+  const toolbox = document.getElementById(toolboxId);
   toolbox.customizeDone = dialogToolboxCustomizeDone;
 
   // Disable menu items during toolbar customization.
-  let menubarId = gTabmail ? "mail-menubar" : "event-menubar";
-  let menubar = document.getElementById(menubarId);
-  for (let menuitem of menubar.children) {
+  const menubarId = gTabmail ? "mail-menubar" : "event-menubar";
+  const menubar = document.getElementById(menubarId);
+  for (const menuitem of menubar.children) {
     menuitem.setAttribute("disabled", true);
   }
 
@@ -1005,7 +1005,7 @@ function loadCloudProviders(aItemObjects) {
    * @param {Node} aParentNode - A menupopup containing menu items
    */
   function deleteAlreadyExisting(aParentNode) {
-    for (let node of aParentNode.children) {
+    for (const node of aParentNode.children) {
       if (node.cloudProviderAccountKey) {
         aParentNode.removeChild(node);
       }
@@ -1015,18 +1015,18 @@ function loadCloudProviders(aItemObjects) {
   // Delete any existing menu items with a cloudProviderAccountKey,
   // needed for the tab case to prevent duplicate menu items, and
   // helps keep the menu items current.
-  let toolbarPopup = document.getElementById("button-attach-menupopup");
+  const toolbarPopup = document.getElementById("button-attach-menupopup");
   if (toolbarPopup) {
     deleteAlreadyExisting(toolbarPopup);
   }
-  let optionsPopup = document.getElementById("options-attachments-menupopup");
+  const optionsPopup = document.getElementById("options-attachments-menupopup");
   if (optionsPopup) {
     deleteAlreadyExisting(optionsPopup);
   }
 
-  for (let itemObject of aItemObjects) {
+  for (const itemObject of aItemObjects) {
     // Create a menu item.
-    let item = document.createXULElement("menuitem");
+    const item = document.createXULElement("menuitem");
     item.setAttribute("label", itemObject.label);
     item.setAttribute("observes", "cmd_attach_cloud");
     item.setAttribute(
@@ -1071,12 +1071,12 @@ function updateSaveControls(aSendNotSave) {
     return;
   }
 
-  let saveBtn = document.getElementById("button-save");
-  let saveandcloseBtn = document.getElementById("button-saveandclose");
-  let saveMenu =
+  const saveBtn = document.getElementById("button-save");
+  const saveandcloseBtn = document.getElementById("button-saveandclose");
+  const saveMenu =
     document.getElementById("item-save-menuitem") ||
     document.getElementById("calendar-save-menuitem");
-  let saveandcloseMenu =
+  const saveandcloseMenu =
     document.getElementById("item-saveandclose-menuitem") ||
     document.getElementById("calendar-save-and-close-menuitem");
 

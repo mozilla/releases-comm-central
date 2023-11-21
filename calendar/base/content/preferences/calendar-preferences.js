@@ -15,8 +15,8 @@ Preferences.add({ id: "calendar.preferences.lightning.selectedTabIndex", type: "
 
 var gCalendarPane = {
   init() {
-    let elements = document.querySelectorAll("#paneCalendar preference");
-    for (let element of elements) {
+    const elements = document.querySelectorAll("#paneCalendar preference");
+    for (const element of elements) {
       element.updateElements();
     }
     gCalendarGeneralPane.init();

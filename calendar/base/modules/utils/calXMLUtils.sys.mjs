@@ -26,11 +26,11 @@ export var xml = {
    */
   evalXPath(aNode, aExpr, aResolver, aType) {
     /** @type Document */
-    let doc = aNode.ownerDocument ? aNode.ownerDocument : aNode;
-    let resolver = aResolver || doc.createNSResolver(doc.documentElement);
-    let resultType = aType || XPathResult.ANY_TYPE;
+    const doc = aNode.ownerDocument ? aNode.ownerDocument : aNode;
+    const resolver = aResolver || doc.createNSResolver(doc.documentElement);
+    const resultType = aType || XPathResult.ANY_TYPE;
 
-    let result = doc.evaluate(aExpr, aNode, resolver, resultType, null);
+    const result = doc.evaluate(aExpr, aNode, resolver, resultType, null);
     let returnResult, next;
     switch (result.resultType) {
       case XPathResult.NUMBER_TYPE:
@@ -100,7 +100,7 @@ export var xml = {
    * @returns The result, see above for details.
    */
   evalXPathFirst(aNode, aExpr, aResolver, aType) {
-    let result = xml.evalXPath(aNode, aExpr, aResolver, aType);
+    const result = xml.evalXPath(aNode, aExpr, aResolver, aType);
 
     if (Array.isArray(result)) {
       return result[0];
@@ -115,7 +115,7 @@ export var xml = {
    * @returns The parsed DOM Document
    */
   parseString(str) {
-    let parser = new DOMParser();
+    const parser = new DOMParser();
     parser.forceEnableXULXBL();
     return parser.parseFromString(str, "application/xml");
   },
@@ -128,7 +128,7 @@ export var xml = {
    * @returns The DOM Document resulting from the file.
    */
   parseFile(uri) {
-    let req = new XMLHttpRequest();
+    const req = new XMLHttpRequest();
     req.open("GET", uri, false);
     req.overrideMimeType("text/xml");
     req.send(null);
@@ -142,7 +142,7 @@ export var xml = {
    * @returns The DOM document as a string.
    */
   serializeDOM(doc) {
-    let serializer = new XMLSerializer();
+    const serializer = new XMLSerializer();
     return serializer.serializeToString(doc);
   },
 

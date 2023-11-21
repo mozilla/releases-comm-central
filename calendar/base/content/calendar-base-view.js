@@ -483,13 +483,13 @@
     // are implemented in subclasses).
 
     addItems(items) {
-      for (let item of items) {
+      for (const item of items) {
         this.doAddItem(item);
       }
     }
 
     removeItems(items) {
-      for (let item of items) {
+      for (const item of items) {
         this.doRemoveItem(item);
       }
     }

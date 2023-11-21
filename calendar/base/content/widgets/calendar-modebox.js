@@ -55,7 +55,7 @@
 
     attributeChangedCallback(name, oldValue, newValue) {
       if (name == "current" && oldValue != newValue) {
-        let display = this.isVisibleInMode(newValue);
+        const display = this.isVisibleInMode(newValue);
         this.setVisible(display, false, true);
       }
     }
@@ -89,8 +89,8 @@
       if (!this.hasAttribute(attributeName)) {
         return;
       }
-      let attributeValues = this.getAttribute(attributeName).split(",");
-      let modes = this.getAttribute("mode").split(",");
+      const attributeValues = this.getAttribute(attributeName).split(",");
+      const modes = this.getAttribute("mode").split(",");
       attributeValues[modes.indexOf(mode)] = value;
       this.setAttribute(attributeName, attributeValues.join(","));
     }
@@ -109,8 +109,8 @@
       if (!this.hasAttribute(attributeName)) {
         return "";
       }
-      let attributeValues = this.getAttribute(attributeName).split(",");
-      let modes = this.getAttribute("mode").split(",");
+      const attributeValues = this.getAttribute(attributeName).split(",");
+      const modes = this.getAttribute("mode").split(",");
       return attributeValues[modes.indexOf(mode)];
     }
 
@@ -124,8 +124,8 @@
      * @param {boolean} [toNotifyRefControl=true] - Whether to notify the `refcontrol`.
      */
     setVisible(visible, toPushModeCollapsedAttribute = true, toNotifyRefControl = true) {
-      let pushModeCollapsedAttribute = toPushModeCollapsedAttribute === true;
-      let notifyRefControl = toNotifyRefControl === true;
+      const pushModeCollapsedAttribute = toPushModeCollapsedAttribute === true;
+      const notifyRefControl = toNotifyRefControl === true;
 
       let collapsedModes = [];
       let modeIndex = -1;
@@ -164,7 +164,7 @@
       }
 
       if (notifyRefControl && this.hasAttribute("refcontrol")) {
-        let command = document.getElementById(this.getAttribute("refcontrol"));
+        const command = document.getElementById(this.getAttribute("refcontrol"));
         if (command) {
           command.setAttribute("checked", display);
           command.disabled = !this.isVisibleInMode();
@@ -183,7 +183,7 @@
       if (!this.isVisibleInMode(mode)) {
         return false;
       }
-      let collapsedModes = this.getAttribute("collapsedinmodes").split(",");
+      const collapsedModes = this.getAttribute("collapsedinmodes").split(",");
       return !collapsedModes.includes(mode);
     }
 
@@ -205,8 +205,8 @@
      * @param {Event} event - An event with a command (with a checked attribute) as its target.
      */
     togglePane(event) {
-      let command = event.target;
-      let newValue = command.getAttribute("checked") == "true" ? "false" : "true";
+      const command = event.target;
+      const newValue = command.getAttribute("checked") == "true" ? "false" : "true";
       command.setAttribute("checked", newValue);
       this.setVisible(newValue == "true", true, true);
     }
@@ -217,7 +217,7 @@
      * @param {Event} event - An event with a target that has a `checked` attribute.
      */
     onCheckboxStateChange(event) {
-      let newValue = event.target.checked;
+      const newValue = event.target.checked;
       this.setVisible(newValue, true, true);
     }
   }

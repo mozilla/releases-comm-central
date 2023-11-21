@@ -80,8 +80,8 @@ Extractor.prototype = {
   },
 
   checkBundle(locale) {
-    let path = this.bundleUrl.replace(/LOCALE/g, locale);
-    let bundle = Services.strings.createBundle(path);
+    const path = this.bundleUrl.replace(/LOCALE/g, locale);
+    const bundle = Services.strings.createBundle(path);
 
     try {
       bundle.GetStringFromName("from.today");
@@ -96,14 +96,14 @@ Extractor.prototype = {
     let cnt = 0;
 
     for (let i = 0; i < this.email.length; i++) {
-      let char = this.email.charCodeAt(i);
+      const char = this.email.charCodeAt(i);
       if (char > 128) {
         sum += char;
         cnt++;
       }
     }
 
-    let nonAscii = sum / cnt || 0;
+    const nonAscii = sum / cnt || 0;
     cal.LOG("[calExtract] Average non-ascii charcode: " + nonAscii);
     return nonAscii;
   },
@@ -125,13 +125,13 @@ Extractor.prototype = {
 
       path = this.bundleUrl.replace(/LOCALE/g, this.fallbackLocale);
 
-      let pref = "calendar.patterns.last.used.languages";
-      let lastUsedLangs = Services.prefs.getStringPref(pref, "");
+      const pref = "calendar.patterns.last.used.languages";
+      const lastUsedLangs = Services.prefs.getStringPref(pref, "");
       if (lastUsedLangs == "") {
         Services.prefs.setStringPref(pref, this.fallbackLocale);
       } else {
-        let langs = lastUsedLangs.split(",");
-        let idx = langs.indexOf(this.fallbackLocale);
+        const langs = lastUsedLangs.split(",");
+        const idx = langs.indexOf(this.fallbackLocale);
         if (idx == -1) {
           Services.prefs.setStringPref(pref, this.fallbackLocale + "," + lastUsedLangs);
         } else {
@@ -140,11 +140,11 @@ Extractor.prototype = {
         }
       }
     } else {
-      let spellchecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(
+      const spellchecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(
         Ci.mozISpellCheckingEngine
       );
 
-      let dicts = spellchecker.getDictionaryList();
+      const dicts = spellchecker.getDictionaryList();
 
       if (dicts.length == 0) {
         cal.LOG(
@@ -155,22 +155,22 @@ Extractor.prototype = {
       }
 
       let patterns;
-      let words = this.email.split(/\s+/);
+      const words = this.email.split(/\s+/);
       let most = 0;
       let mostLocale;
-      for (let dict in dicts) {
+      for (const dict in dicts) {
         // dictionary locale and patterns locale match
         if (this.checkBundle(dicts[dict])) {
-          let time1 = new Date().getTime();
+          const time1 = new Date().getTime();
           spellchecker.dictionaries = [dicts[dict]];
-          let dur = new Date().getTime() - time1;
+          const dur = new Date().getTime() - time1;
           cal.LOG("[calExtract] Loading " + dicts[dict] + " dictionary took " + dur + "ms");
           patterns = dicts[dict];
           // beginning of dictionary locale matches patterns locale
         } else if (this.checkBundle(dicts[dict].substring(0, 2))) {
-          let time1 = new Date().getTime();
+          const time1 = new Date().getTime();
           spellchecker.dictionaries = [dicts[dict]];
-          let dur = new Date().getTime() - time1;
+          const dur = new Date().getTime() - time1;
           cal.LOG("[calExtract] Loading " + dicts[dict] + " dictionary took " + dur + "ms");
           patterns = dicts[dict].substring(0, 2);
           // dictionary for which patterns aren't present
@@ -181,7 +181,7 @@ Extractor.prototype = {
 
         let correct = 0;
         let total = 0;
-        for (let word in words) {
+        for (const word in words) {
           words[word] = words[word].replace(/[()\d,;:?!#.]/g, "");
           if (words[word].length >= 2) {
             total++;
@@ -191,7 +191,7 @@ Extractor.prototype = {
           }
         }
 
-        let percentage = (correct / total) * 100.0;
+        const percentage = (correct / total) * 100.0;
         cal.LOG("[calExtract] " + dicts[dict] + " dictionary matches " + percentage + "% of words");
 
         if (percentage > 50.0 && percentage > most) {
@@ -200,7 +200,7 @@ Extractor.prototype = {
         }
       }
 
-      let avgCharCode = this.avgNonAsciiCharCode();
+      const avgCharCode = this.avgNonAsciiCharCode();
 
       // using dictionaries for language recognition with non-latin letters doesn't work
       // very well, possibly because of bug 471799
@@ -251,7 +251,7 @@ Extractor.prototype = {
    * @returns sorted list of extracted datetime objects
    */
   extract(title, body, now, sel) {
-    let initial = {};
+    const initial = {};
     this.collected = [];
     this.email = title + "\r\n" + body;
     if (now != null) {
@@ -354,21 +354,21 @@ Extractor.prototype = {
   },
 
   extractDayMonthYear(pattern, relation) {
-    let alts = this.getRepPatterns(pattern, ["(\\d{1,2})", "(\\d{1,2})", "(\\d{2,4})"]);
+    const alts = this.getRepPatterns(pattern, ["(\\d{1,2})", "(\\d{1,2})", "(\\d{2,4})"]);
 
     let res;
-    for (let alt in alts) {
-      let positions = alts[alt].positions;
-      let re = new RegExp(alts[alt].pattern, "ig");
+    for (const alt in alts) {
+      const positions = alts[alt].positions;
+      const re = new RegExp(alts[alt].pattern, "ig");
 
       while ((res = re.exec(this.email)) != null) {
         if (!this.limitNums(res, this.email) && !this.limitChars(res, this.email)) {
-          let day = parseInt(res[positions[1]], 10);
-          let month = parseInt(res[positions[2]], 10);
-          let year = parseInt(this.normalizeYear(res[positions[3]]), 10);
+          const day = parseInt(res[positions[1]], 10);
+          const month = parseInt(res[positions[2]], 10);
+          const year = parseInt(this.normalizeYear(res[positions[3]]), 10);
 
           if (this.isValidDay(day) && this.isValidMonth(month) && this.isValidYear(year)) {
-            let rev = this.prefixSuffixStartEnd(res, relation, this.email);
+            const rev = this.prefixSuffixStartEnd(res, relation, this.email);
             this.guess(
               year,
               month,
@@ -388,28 +388,28 @@ Extractor.prototype = {
   },
 
   extractDayMonthNameYear(pattern, relation) {
-    let alts = this.getRepPatterns(pattern, [
+    const alts = this.getRepPatterns(pattern, [
       "(\\d{1,2})",
       "(" + this.allMonths + ")",
       "(\\d{2,4})",
     ]);
 
     let res;
-    for (let alt in alts) {
-      let exp = alts[alt].pattern.split(this.marker).join("|");
-      let positions = alts[alt].positions;
-      let re = new RegExp(exp, "ig");
+    for (const alt in alts) {
+      const exp = alts[alt].pattern.split(this.marker).join("|");
+      const positions = alts[alt].positions;
+      const re = new RegExp(exp, "ig");
 
       while ((res = re.exec(this.email)) != null) {
         if (!this.limitNums(res, this.email) && !this.limitChars(res, this.email)) {
-          let day = parseInt(res[positions[1]], 10);
-          let month = res[positions[2]];
-          let year = parseInt(this.normalizeYear(res[positions[3]]), 10);
+          const day = parseInt(res[positions[1]], 10);
+          const month = res[positions[2]];
+          const year = parseInt(this.normalizeYear(res[positions[3]]), 10);
 
           if (this.isValidDay(day)) {
             for (let i = 0; i < 12; i++) {
               if (this.months[i].split("|").includes(month.toLowerCase())) {
-                let rev = this.prefixSuffixStartEnd(res, relation, this.email);
+                const rev = this.prefixSuffixStartEnd(res, relation, this.email);
                 this.guess(
                   year,
                   i + 1,
@@ -432,12 +432,12 @@ Extractor.prototype = {
   },
 
   extractRelativeDay(pattern, relation, offset) {
-    let re = new RegExp(this.getPatterns(pattern), "ig");
+    const re = new RegExp(this.getPatterns(pattern), "ig");
     let res;
     if ((res = re.exec(this.email)) != null) {
       if (!this.limitChars(res, this.email)) {
-        let item = new Date(this.now.getTime() + 60 * 60 * 24 * 1000 * offset);
-        let rev = this.prefixSuffixStartEnd(res, relation, this.email);
+        const item = new Date(this.now.getTime() + 60 * 60 * 24 * 1000 * offset);
+        const rev = this.prefixSuffixStartEnd(res, relation, this.email);
         this.guess(
           item.getFullYear(),
           item.getMonth() + 1,
@@ -455,29 +455,29 @@ Extractor.prototype = {
   },
 
   extractDayMonthName(pattern, relation) {
-    let alts = this.getRepPatterns(pattern, [
+    const alts = this.getRepPatterns(pattern, [
       "(\\d{1,2}" + this.marker + this.dailyNumbers + ")",
       "(" + this.allMonths + ")",
     ]);
     let res;
-    for (let alt in alts) {
-      let exp = alts[alt].pattern.split(this.marker).join("|");
-      let positions = alts[alt].positions;
-      let re = new RegExp(exp, "ig");
+    for (const alt in alts) {
+      const exp = alts[alt].pattern.split(this.marker).join("|");
+      const positions = alts[alt].positions;
+      const re = new RegExp(exp, "ig");
 
       while ((res = re.exec(this.email)) != null) {
         if (!this.limitNums(res, this.email) && !this.limitChars(res, this.email)) {
-          let day = this.parseNumber(res[positions[1]], this.numbers);
-          let month = res[positions[2]];
+          const day = this.parseNumber(res[positions[1]], this.numbers);
+          const month = res[positions[2]];
 
           if (this.isValidDay(day)) {
             for (let i = 0; i < 12; i++) {
-              let months = this.unescape(this.months[i]).split("|");
+              const months = this.unescape(this.months[i]).split("|");
               if (months.includes(month.toLowerCase())) {
-                let date = { year: this.now.getFullYear(), month: i + 1, day };
+                const date = { year: this.now.getFullYear(), month: i + 1, day };
                 if (this.isPastDate(date, this.now)) {
                   // find next such date
-                  let item = new Date(this.now.getTime());
+                  const item = new Date(this.now.getTime());
                   while (true) {
                     item.setDate(item.getDate() + 1);
                     if (item.getMonth() == date.month - 1 && item.getDate() == date.day) {
@@ -487,7 +487,7 @@ Extractor.prototype = {
                   }
                 }
 
-                let rev = this.prefixSuffixStartEnd(res, relation, this.email);
+                const rev = this.prefixSuffixStartEnd(res, relation, this.email);
                 this.guess(
                   date.year,
                   date.month,
@@ -510,23 +510,23 @@ Extractor.prototype = {
   },
 
   extractDayMonth(pattern, relation) {
-    let alts = this.getRepPatterns(pattern, ["(\\d{1,2})", "(\\d{1,2})"]);
+    const alts = this.getRepPatterns(pattern, ["(\\d{1,2})", "(\\d{1,2})"]);
     let res;
-    for (let alt in alts) {
-      let re = new RegExp(alts[alt].pattern, "ig");
-      let positions = alts[alt].positions;
+    for (const alt in alts) {
+      const re = new RegExp(alts[alt].pattern, "ig");
+      const positions = alts[alt].positions;
 
       while ((res = re.exec(this.email)) != null) {
         if (!this.limitNums(res, this.email) && !this.limitChars(res, this.email)) {
-          let day = parseInt(res[positions[1]], 10);
-          let month = parseInt(res[positions[2]], 10);
+          const day = parseInt(res[positions[1]], 10);
+          const month = parseInt(res[positions[2]], 10);
 
           if (this.isValidMonth(month) && this.isValidDay(day)) {
-            let date = { year: this.now.getFullYear(), month, day };
+            const date = { year: this.now.getFullYear(), month, day };
 
             if (this.isPastDate(date, this.now)) {
               // find next such date
-              let item = new Date(this.now.getTime());
+              const item = new Date(this.now.getTime());
               while (true) {
                 item.setDate(item.getDate() + 1);
                 if (item.getMonth() == date.month - 1 && item.getDate() == date.day) {
@@ -536,7 +536,7 @@ Extractor.prototype = {
               }
             }
 
-            let rev = this.prefixSuffixStartEnd(res, relation, this.email);
+            const rev = this.prefixSuffixStartEnd(res, relation, this.email);
             this.guess(
               date.year,
               date.month,
@@ -556,17 +556,19 @@ Extractor.prototype = {
   },
 
   extractDate(pattern, relation) {
-    let alts = this.getRepPatterns(pattern, ["(\\d{1,2}" + this.marker + this.dailyNumbers + ")"]);
+    const alts = this.getRepPatterns(pattern, [
+      "(\\d{1,2}" + this.marker + this.dailyNumbers + ")",
+    ]);
     let res;
-    for (let alt in alts) {
-      let exp = alts[alt].pattern.split(this.marker).join("|");
-      let re = new RegExp(exp, "ig");
+    for (const alt in alts) {
+      const exp = alts[alt].pattern.split(this.marker).join("|");
+      const re = new RegExp(exp, "ig");
 
       while ((res = re.exec(this.email)) != null) {
         if (!this.limitNums(res, this.email) && !this.limitChars(res, this.email)) {
-          let day = this.parseNumber(res[1], this.numbers);
+          const day = this.parseNumber(res[1], this.numbers);
           if (this.isValidDay(day)) {
-            let item = new Date(this.now.getTime());
+            const item = new Date(this.now.getTime());
             if (this.now.getDate() != day) {
               // find next nth date
               while (true) {
@@ -577,7 +579,7 @@ Extractor.prototype = {
               }
             }
 
-            let rev = this.prefixSuffixStartEnd(res, relation, this.email);
+            const rev = this.prefixSuffixStartEnd(res, relation, this.email);
             this.guess(
               item.getFullYear(),
               item.getMonth() + 1,
@@ -598,22 +600,22 @@ Extractor.prototype = {
   },
 
   extractWeekDay(pattern, relation) {
-    let days = [];
+    const days = [];
     for (let i = 0; i < 7; i++) {
       days[i] = this.getPatterns(pattern + i);
-      let re = new RegExp(days[i], "ig");
-      let res = re.exec(this.email);
+      const re = new RegExp(days[i], "ig");
+      const res = re.exec(this.email);
       if (res) {
         if (!this.limitChars(res, this.email)) {
-          let date = new Date();
+          const date = new Date();
           date.setDate(this.now.getDate());
           date.setMonth(this.now.getMonth());
           date.setYear(this.now.getFullYear());
 
-          let diff = (i - date.getDay() + 7) % 7;
+          const diff = (i - date.getDay() + 7) % 7;
           date.setDate(date.getDate() + diff);
 
-          let rev = this.prefixSuffixStartEnd(res, relation, this.email);
+          const rev = this.prefixSuffixStartEnd(res, relation, this.email);
           this.guess(
             date.getFullYear(),
             date.getMonth() + 1,
@@ -633,11 +635,13 @@ Extractor.prototype = {
   },
 
   extractHour(pattern, relation, meridiem) {
-    let alts = this.getRepPatterns(pattern, ["(\\d{1,2}" + this.marker + this.hourlyNumbers + ")"]);
+    const alts = this.getRepPatterns(pattern, [
+      "(\\d{1,2}" + this.marker + this.hourlyNumbers + ")",
+    ]);
     let res;
-    for (let alt in alts) {
-      let exp = alts[alt].pattern.split(this.marker).join("|");
-      let re = new RegExp(exp, "ig");
+    for (const alt in alts) {
+      const exp = alts[alt].pattern.split(this.marker).join("|");
+      const re = new RegExp(exp, "ig");
 
       while ((res = re.exec(this.email)) != null) {
         if (!this.limitNums(res, this.email) && !this.limitChars(res, this.email)) {
@@ -652,7 +656,7 @@ Extractor.prototype = {
           }
 
           if (this.isValidHour(res[1])) {
-            let rev = this.prefixSuffixStartEnd(res, relation, this.email);
+            const rev = this.prefixSuffixStartEnd(res, relation, this.email);
             this.guess(
               null,
               null,
@@ -673,11 +677,13 @@ Extractor.prototype = {
   },
 
   extractHalfHour(pattern, relation, direction) {
-    let alts = this.getRepPatterns(pattern, ["(\\d{1,2}" + this.marker + this.hourlyNumbers + ")"]);
+    const alts = this.getRepPatterns(pattern, [
+      "(\\d{1,2}" + this.marker + this.hourlyNumbers + ")",
+    ]);
     let res;
-    for (let alt in alts) {
-      let exp = alts[alt].pattern.split(this.marker).join("|");
-      let re = new RegExp(exp, "ig");
+    for (const alt in alts) {
+      const exp = alts[alt].pattern.split(this.marker).join("|");
+      const re = new RegExp(exp, "ig");
 
       while ((res = re.exec(this.email)) != null) {
         if (!this.limitNums(res, this.email) && !this.limitChars(res, this.email)) {
@@ -693,7 +699,7 @@ Extractor.prototype = {
           }
 
           if (this.isValidHour(hour)) {
-            let rev = this.prefixSuffixStartEnd(res, relation, this.email);
+            const rev = this.prefixSuffixStartEnd(res, relation, this.email);
             this.guess(
               null,
               null,
@@ -714,16 +720,16 @@ Extractor.prototype = {
   },
 
   extractHourMinutes(pattern, relation, meridiem) {
-    let alts = this.getRepPatterns(pattern, ["(\\d{1,2})", "(\\d{2})"]);
+    const alts = this.getRepPatterns(pattern, ["(\\d{1,2})", "(\\d{2})"]);
     let res;
-    for (let alt in alts) {
-      let positions = alts[alt].positions;
-      let re = new RegExp(alts[alt].pattern, "ig");
+    for (const alt in alts) {
+      const positions = alts[alt].positions;
+      const re = new RegExp(alts[alt].pattern, "ig");
 
       while ((res = re.exec(this.email)) != null) {
         if (!this.limitNums(res, this.email) && !this.limitChars(res, this.email)) {
           let hour = parseInt(res[positions[1]], 10);
-          let minute = parseInt(res[positions[2]], 10);
+          const minute = parseInt(res[positions[2]], 10);
 
           if (meridiem == "ante" && hour == 12) {
             hour = hour - 12;
@@ -734,7 +740,7 @@ Extractor.prototype = {
           }
 
           if (this.isValidHour(hour) && this.isValidMinute(hour)) {
-            let rev = this.prefixSuffixStartEnd(res, relation, this.email);
+            const rev = this.prefixSuffixStartEnd(res, relation, this.email);
             this.guess(
               null,
               null,
@@ -754,11 +760,11 @@ Extractor.prototype = {
   },
 
   extractTime(pattern, relation, hour, minute) {
-    let re = new RegExp(this.getPatterns(pattern), "ig");
+    const re = new RegExp(this.getPatterns(pattern), "ig");
     let res;
     if ((res = re.exec(this.email)) != null) {
       if (!this.limitChars(res, this.email)) {
-        let rev = this.prefixSuffixStartEnd(res, relation, this.email);
+        const rev = this.prefixSuffixStartEnd(res, relation, this.email);
         this.guess(
           null,
           null,
@@ -776,17 +782,19 @@ Extractor.prototype = {
   },
 
   extractDuration(pattern, unit) {
-    let alts = this.getRepPatterns(pattern, ["(\\d{1,2}" + this.marker + this.dailyNumbers + ")"]);
+    const alts = this.getRepPatterns(pattern, [
+      "(\\d{1,2}" + this.marker + this.dailyNumbers + ")",
+    ]);
     let res;
-    for (let alt in alts) {
-      let exp = alts[alt].pattern.split(this.marker).join("|");
-      let re = new RegExp(exp, "ig");
+    for (const alt in alts) {
+      const exp = alts[alt].pattern.split(this.marker).join("|");
+      const re = new RegExp(exp, "ig");
 
       while ((res = re.exec(this.email)) != null) {
         if (!this.limitNums(res, this.email) && !this.limitChars(res, this.email)) {
-          let length = this.parseNumber(res[1], this.numbers);
-          let guess = {};
-          let rev = this.prefixSuffixStartEnd(res, "duration", this.email);
+          const length = this.parseNumber(res[1], this.numbers);
+          const guess = {};
+          const rev = this.prefixSuffixStartEnd(res, "duration", this.email);
           guess.duration = length * unit;
           guess.start = rev.start;
           guess.end = rev.end;
@@ -834,7 +842,7 @@ Extractor.prototype = {
       for (let i = 0; i < sel.rangeCount; i++) {
         cal.LOG("[calExtract] Selection " + i + " is " + sel);
         for (let j = 0; j < this.collected.length; j++) {
-          let selection = sel.getRangeAt(i).toString();
+          const selection = sel.getRangeAt(i).toString();
 
           if (
             !selection.includes(this.collected[j].str) &&
@@ -890,17 +898,17 @@ Extractor.prototype = {
    * @returns datetime object for start time
    */
   guessStart(isTask) {
-    let startTimes = this.collected.filter(val => val.relation == "start");
+    const startTimes = this.collected.filter(val => val.relation == "start");
     if (startTimes.length == 0) {
       return {};
     }
 
-    for (let val in startTimes) {
+    for (const val in startTimes) {
       cal.LOG("[calExtract] Start: " + JSON.stringify(startTimes[val]));
     }
 
-    let guess = {};
-    let wDayInit = startTimes.filter(val => val.day != null && val.start === undefined);
+    const guess = {};
+    const wDayInit = startTimes.filter(val => val.day != null && val.start === undefined);
 
     // with tasks we don't try to guess start but assume email date
     if (isTask) {
@@ -912,11 +920,11 @@ Extractor.prototype = {
       return guess;
     }
 
-    let wDay = startTimes.filter(val => val.day != null && val.start !== undefined);
-    let wDayNA = wDay.filter(val => val.ambiguous === undefined);
+    const wDay = startTimes.filter(val => val.day != null && val.start !== undefined);
+    const wDayNA = wDay.filter(val => val.ambiguous === undefined);
 
-    let wMinute = startTimes.filter(val => val.minute != null && val.start !== undefined);
-    let wMinuteNA = wMinute.filter(val => val.ambiguous === undefined);
+    const wMinute = startTimes.filter(val => val.minute != null && val.start !== undefined);
+    const wMinuteNA = wMinute.filter(val => val.ambiguous === undefined);
 
     if (wMinuteNA.length != 0) {
       guess.hour = wMinuteNA[0].hour;
@@ -942,7 +950,7 @@ Extractor.prototype = {
       (wDayInit[0].hour > guess.hour ||
         (wDayInit[0].hour == guess.hour && wDayInit[0].minute > guess.minute))
     ) {
-      let nextDay = new Date(wDayInit[0].year, wDayInit[0].month - 1, wDayInit[0].day);
+      const nextDay = new Date(wDayInit[0].year, wDayInit[0].month - 1, wDayInit[0].day);
       nextDay.setTime(nextDay.getTime() + 60 * 60 * 24 * 1000);
       guess.year = nextDay.getFullYear();
       guess.month = nextDay.getMonth() + 1;
@@ -966,20 +974,20 @@ Extractor.prototype = {
    * @returns datetime object for end time
    */
   guessEnd(start, doGuessStart) {
-    let guess = {};
-    let endTimes = this.collected.filter(val => val.relation == "end");
-    let durations = this.collected.filter(val => val.relation == "duration");
+    const guess = {};
+    const endTimes = this.collected.filter(val => val.relation == "end");
+    const durations = this.collected.filter(val => val.relation == "duration");
     if (endTimes.length == 0 && durations.length == 0) {
       return {};
     }
-    for (let val in endTimes) {
+    for (const val in endTimes) {
       cal.LOG("[calExtract] End: " + JSON.stringify(endTimes[val]));
     }
 
-    let wDay = endTimes.filter(val => val.day != null);
-    let wDayNA = wDay.filter(val => val.ambiguous === undefined);
-    let wMinute = endTimes.filter(val => val.minute != null);
-    let wMinuteNA = wMinute.filter(val => val.ambiguous === undefined);
+    const wDay = endTimes.filter(val => val.day != null);
+    const wDayNA = wDay.filter(val => val.ambiguous === undefined);
+    const wMinute = endTimes.filter(val => val.minute != null);
+    const wMinuteNA = wMinute.filter(val => val.ambiguous === undefined);
 
     // first set non-ambiguous dates
     let pos = doGuessStart ? 0 : wDayNA.length - 1;
@@ -1005,7 +1013,7 @@ Extractor.prototype = {
           wMinuteNA[pos].hour < start.hour ||
           (wMinuteNA[pos].hour == start.hour && wMinuteNA[pos].minute < start.minute)
         ) {
-          let nextDay = new Date(start.year, start.month - 1, start.day);
+          const nextDay = new Date(start.year, start.month - 1, start.day);
           nextDay.setTime(nextDay.getTime() + 60 * 60 * 24 * 1000);
           guess.year = nextDay.getFullYear();
           guess.month = nextDay.getMonth() + 1;
@@ -1022,7 +1030,7 @@ Extractor.prototype = {
           wMinute[pos].hour < start.hour ||
           (wMinute[pos].hour == start.hour && wMinute[pos].minute < start.minute)
         ) {
-          let nextDay = new Date(start.year, start.month - 1, start.day);
+          const nextDay = new Date(start.year, start.month - 1, start.day);
           nextDay.setTime(nextDay.getTime() + 60 * 60 * 24 * 1000);
           guess.year = nextDay.getFullYear();
           guess.month = nextDay.getMonth() + 1;
@@ -1042,13 +1050,13 @@ Extractor.prototype = {
     if (guess.day == null && guess.hour == null) {
       let duration = 0;
 
-      for (let val in durations) {
+      for (const val in durations) {
         duration += durations[val].duration;
         cal.LOG("[calExtract] Dur: " + JSON.stringify(durations[val]));
       }
 
       if (duration != 0) {
-        let startDate = new Date(start.year, start.month - 1, start.day);
+        const startDate = new Date(start.year, start.month - 1, start.day);
         if ("hour" in start) {
           startDate.setHours(start.hour);
           startDate.setMinutes(start.minute);
@@ -1057,7 +1065,7 @@ Extractor.prototype = {
           startDate.setMinutes(0);
         }
 
-        let endTime = new Date(startDate.getTime() + duration * 60 * 1000);
+        const endTime = new Date(startDate.getTime() + duration * 60 * 1000);
         guess.year = endTime.getFullYear();
         guess.month = endTime.getMonth() + 1;
         guess.day = endTime.getDate();
@@ -1069,14 +1077,14 @@ Extractor.prototype = {
     }
 
     // no zero or negative length events/tasks
-    let startTime = new Date(
+    const startTime = new Date(
       start.year || 0,
       start.month - 1 || 0,
       start.day || 0,
       start.hour || 0,
       start.minute || 0
     ).getTime();
-    let guessTime = new Date(
+    const guessTime = new Date(
       guess.year || 0,
       guess.month - 1 || 0,
       guess.day || 0,
@@ -1109,7 +1117,7 @@ Extractor.prototype = {
         return this.defPattern;
       }
 
-      let vals = this.cleanPatterns(value).split("|");
+      const vals = this.cleanPatterns(value).split("|");
       for (let idx = vals.length - 1; idx >= 0; idx--) {
         if (vals[idx].trim() == "") {
           vals.splice(idx, 1);
@@ -1120,7 +1128,7 @@ Extractor.prototype = {
       if (this.overrides[name] !== undefined && this.overrides[name].add !== undefined) {
         let additions = this.overrides[name].add;
         additions = this.cleanPatterns(additions).split("|");
-        for (let pattern in additions) {
+        for (const pattern in additions) {
           vals.push(additions[pattern]);
           cal.LOG("[calExtract] Added " + additions[pattern] + " to " + name);
         }
@@ -1129,8 +1137,8 @@ Extractor.prototype = {
       if (this.overrides[name] !== undefined && this.overrides[name].remove !== undefined) {
         let removals = this.overrides[name].remove;
         removals = this.cleanPatterns(removals).split("|");
-        for (let pattern in removals) {
-          let idx = vals.indexOf(removals[pattern]);
+        for (const pattern in removals) {
+          const idx = vals.indexOf(removals[pattern]);
           if (idx != -1) {
             vals.splice(idx, 1);
             cal.LOG("[calExtract] Removed " + removals[pattern] + " from " + name);
@@ -1149,17 +1157,17 @@ Extractor.prototype = {
   },
 
   getRepPatterns(name, replaceables) {
-    let alts = [];
-    let patterns = [];
+    const alts = [];
+    const patterns = [];
 
     try {
-      let value = this.bundle.GetStringFromName(name);
+      const value = this.bundle.GetStringFromName(name);
       if (value.trim() == "") {
         cal.LOG("[calExtract] Pattern empty: " + name);
         return alts;
       }
 
-      let vals = this.cleanPatterns(value).split("|");
+      const vals = this.cleanPatterns(value).split("|");
       for (let idx = vals.length - 1; idx >= 0; idx--) {
         if (vals[idx].trim() == "") {
           vals.splice(idx, 1);
@@ -1170,7 +1178,7 @@ Extractor.prototype = {
       if (this.overrides[name] !== undefined && this.overrides[name].add !== undefined) {
         let additions = this.overrides[name].add;
         additions = this.cleanPatterns(additions).split("|");
-        for (let pattern in additions) {
+        for (const pattern in additions) {
           vals.push(additions[pattern]);
           cal.LOG("[calExtract] Added " + additions[pattern] + " to " + name);
         }
@@ -1179,8 +1187,8 @@ Extractor.prototype = {
       if (this.overrides[name] !== undefined && this.overrides[name].remove !== undefined) {
         let removals = this.overrides[name].remove;
         removals = this.cleanPatterns(removals).split("|");
-        for (let pattern in removals) {
-          let idx = vals.indexOf(removals[pattern]);
+        for (const pattern in removals) {
+          const idx = vals.indexOf(removals[pattern]);
           if (idx != -1) {
             vals.splice(idx, 1);
             cal.LOG("[calExtract] Removed " + removals[pattern] + " from " + name);
@@ -1189,7 +1197,7 @@ Extractor.prototype = {
       }
 
       vals.sort((a, b) => b.length - a.length);
-      for (let val in vals) {
+      for (const val in vals) {
         let pattern = vals[val];
         for (let cnt = 1; cnt <= replaceables.length; cnt++) {
           pattern = pattern.split("#" + cnt).join(replaceables[cnt - 1]);
@@ -1197,7 +1205,7 @@ Extractor.prototype = {
         patterns.push(pattern);
       }
 
-      for (let val in vals) {
+      for (const val in vals) {
         let positions = [];
         if (replaceables.length == 1) {
           positions[1] = 1;
@@ -1213,8 +1221,8 @@ Extractor.prototype = {
   },
 
   getPositionsFor(str, name, count) {
-    let positions = [];
-    let re = /#(\d)/g;
+    const positions = [];
+    const re = /#(\d)/g;
     let match;
     let i = 0;
     while ((match = re.exec(str))) {
@@ -1235,7 +1243,7 @@ Extractor.prototype = {
 
   cleanPatterns(pattern) {
     // remove whitespace around | if present
-    let value = pattern.replace(/\s*\|\s*/g, "|");
+    const value = pattern.replace(/\s*\|\s*/g, "|");
     // allow matching for patterns with missing or excessive whitespace
     return this.sanitize(value).replace(/\s+/g, "\\s*");
   },
@@ -1262,7 +1270,7 @@ Extractor.prototype = {
 
   isPastDate(date, referenceDate) {
     // avoid changing original refDate
-    let refDate = new Date(referenceDate.getTime());
+    const refDate = new Date(referenceDate.getTime());
     refDate.setHours(0);
     refDate.setMinutes(0);
     refDate.setSeconds(0);
@@ -1286,44 +1294,44 @@ Extractor.prototype = {
   },
 
   limitNums(res, email) {
-    let pattern = email.substring(res.index, res.index + res[0].length);
-    let before = email.charAt(res.index - 1);
-    let after = email.charAt(res.index + res[0].length);
-    let result =
+    const pattern = email.substring(res.index, res.index + res[0].length);
+    const before = email.charAt(res.index - 1);
+    const after = email.charAt(res.index + res[0].length);
+    const result =
       (/\d/.exec(before) && /\d/.exec(pattern.charAt(0))) ||
       (/\d/.exec(pattern.charAt(pattern.length - 1)) && /\d/.exec(after));
     return result != null;
   },
 
   limitChars(res, email) {
-    let alphabet = this.getPatterns("alphabet");
+    const alphabet = this.getPatterns("alphabet");
     // for languages without regular alphabet surrounding characters are ignored
     if (alphabet == this.defPattern) {
       return false;
     }
 
-    let pattern = email.substring(res.index, res.index + res[0].length);
-    let before = email.charAt(res.index - 1);
-    let after = email.charAt(res.index + res[0].length);
+    const pattern = email.substring(res.index, res.index + res[0].length);
+    const before = email.charAt(res.index - 1);
+    const after = email.charAt(res.index + res[0].length);
 
-    let re = new RegExp("[" + alphabet + "]");
-    let result =
+    const re = new RegExp("[" + alphabet + "]");
+    const result =
       (re.exec(before) && re.exec(pattern.charAt(0))) ||
       (re.exec(pattern.charAt(pattern.length - 1)) && re.exec(after));
     return result != null;
   },
 
   prefixSuffixStartEnd(res, relation, email) {
-    let pattern = email.substring(res.index, res.index + res[0].length);
-    let prev = email.substring(0, res.index);
-    let next = email.substring(res.index + res[0].length);
-    let prefixSuffix = {
+    const pattern = email.substring(res.index, res.index + res[0].length);
+    const prev = email.substring(0, res.index);
+    const next = email.substring(res.index + res[0].length);
+    const prefixSuffix = {
       start: res.index,
       end: res.index + res[0].length,
       pattern,
       relation,
     };
-    let char = "\\s*";
+    const char = "\\s*";
     let psres;
 
     let re = new RegExp("(" + this.getPatterns("end.prefix") + ")" + char + "$", "ig");
@@ -1369,13 +1377,13 @@ Extractor.prototype = {
   },
 
   parseNumber(numberString, numbers) {
-    let number = parseInt(numberString, 10);
+    const number = parseInt(numberString, 10);
     // number comes in as plain text, numbers are already adjusted for usage
     // in regular expression
-    let cleanNumberString = this.cleanPatterns(numberString);
+    const cleanNumberString = this.cleanPatterns(numberString);
     if (isNaN(number)) {
       for (let i = 0; i <= 31; i++) {
-        let numberparts = numbers[i].split("|");
+        const numberparts = numbers[i].split("|");
         if (numberparts.includes(cleanNumberString.toLowerCase())) {
           return i;
         }
@@ -1386,7 +1394,7 @@ Extractor.prototype = {
   },
 
   guess(year, month, day, hour, minute, start, end, str, relation, pattern, ambiguous) {
-    let dateGuess = {
+    const dateGuess = {
       year,
       month,
       day,

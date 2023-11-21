@@ -67,12 +67,12 @@
       }
       super.connectedCallback();
 
-      let metronomeCallback = () => {
+      const metronomeCallback = () => {
         if (!this.showsToday) {
           return;
         }
 
-        for (let item of this.children) {
+        for (const item of this.children) {
           item.setRelativeTime();
         }
       };
@@ -95,13 +95,13 @@
      * @param {calIItemBase[]} items
      */
     addItems(items) {
-      for (let item of items) {
+      for (const item of items) {
         if (document.getElementById(`agenda-listitem-${item.hashId}`)) {
           // Item already added.
           continue;
         }
 
-        let startItem = document.createElement("li", { is: "agenda-listitem" });
+        const startItem = document.createElement("li", { is: "agenda-listitem" });
         startItem.item = item;
         this.insertListItem(startItem);
 
@@ -118,8 +118,8 @@
      * @param {calIItemBase[]} items
      */
     removeItems(items) {
-      for (let item of items) {
-        let startItem = document.getElementById(`agenda-listitem-${item.hashId}`);
+      for (const item of items) {
+        const startItem = document.getElementById(`agenda-listitem-${item.hashId}`);
         if (!startItem) {
           // Item not found.
           continue;
@@ -136,7 +136,7 @@
      * @param {string} calendarId
      */
     removeItemsFromCalendar(calendarId) {
-      for (let li of [...this.children]) {
+      for (const li of [...this.children]) {
         if (li.item.calendar.id == calendarId) {
           if (li.displayDateHeader && li.nextElementSibling?.dateString == li.dateString) {
             li.nextElementSibling.displayDateHeader = true;
@@ -153,7 +153,7 @@
      * @param {calIDateTime} date
      */
     async update(date) {
-      let today = cal.dtz.now();
+      const today = cal.dtz.now();
 
       this.startDate = date.clone();
       this.startDate.isDate = true;
@@ -227,7 +227,7 @@
      * @returns {number}
      */
     _compareListItems(a, b) {
-      let cmp = a.sortValue - b.sortValue;
+      const cmp = a.sortValue - b.sortValue;
       if (cmp != 0) {
         return cmp;
       }
@@ -250,14 +250,14 @@
      * @param {MouseEvent} event
      */
     _showContextMenu(event) {
-      let row = event.target.closest("li");
+      const row = event.target.closest("li");
       if (!row) {
         return;
       }
       this.selectedIndex = this.rows.indexOf(row);
 
-      let popup = document.getElementById("agenda-menupopup");
-      let menu = document.getElementById("calendar-today-pane-menu-attendance-menu");
+      const popup = document.getElementById("agenda-menupopup");
+      const menu = document.getElementById("calendar-today-pane-menu-attendance-menu");
       setupAttendanceMenu(menu, [this.selectedItem]);
       popup.openPopupAtScreen(event.screenX, event.screenY, true);
     }
@@ -286,7 +286,7 @@
      * @param {Event} event
      */
     _fillTooltip(event) {
-      let element = document.elementFromPoint(event.clientX, event.clientY);
+      const element = document.elementFromPoint(event.clientX, event.clientY);
       if (!this.contains(element)) {
         // Not on the agenda, ignore.
         return;
@@ -337,8 +337,8 @@
       this.setAttribute("is", "agenda-listitem");
       this.classList.add("agenda-listitem");
 
-      let template = document.getElementById("agenda-listitem");
-      for (let element of template.content.children) {
+      const template = document.getElementById("agenda-listitem");
+      for (const element of template.content.children) {
         this.appendChild(element.cloneNode(true));
       }
 
@@ -402,9 +402,9 @@
     set dateString(value) {
       this._dateString = value.substring(0, 8);
 
-      let date = cal.createDateTime(value);
-      let today = cal.dtz.now();
-      let tomorrow = cal.dtz.now();
+      const date = cal.createDateTime(value);
+      const today = cal.dtz.now();
+      const tomorrow = cal.dtz.now();
       tomorrow.day++;
 
       if (date.year == today.year && date.month == today.month && date.day == today.day) {
@@ -447,10 +447,10 @@
     set item(item) {
       this._item = item;
 
-      let isAllDay = item.startDate.isDate;
+      const isAllDay = item.startDate.isDate;
       this.classList.toggle("agenda-listitem-all-day", isAllDay);
 
-      let defaultTimezone = cal.dtz.defaultTimezone;
+      const defaultTimezone = cal.dtz.defaultTimezone;
       this._localStartDate = item.startDate;
       if (this._localStartDate.timezone.tzid != defaultTimezone.tzid) {
         this._localStartDate = this._localStartDate.getInTimezone(defaultTimezone);
@@ -467,7 +467,7 @@
         this.id = `agenda-listitem-end-${item.hashId}`;
         this.overlapsDayStart = true;
 
-        let sortDate = this._localEndDate.clone();
+        const sortDate = this._localEndDate.clone();
         if (isAllDay) {
           // Sort all-day events at midnight on the previous day.
           sortDate.day--;
@@ -507,7 +507,7 @@
         }
         this.dateString = sortDate.icalString;
 
-        let nextDay = cal.createDateTime();
+        const nextDay = cal.createDateTime();
         nextDay.resetTo(sortDate.year, sortDate.month, sortDate.day + 1, 0, 0, 0, defaultTimezone);
         this.overlapsDayEnd = this._localEndDate.compare(nextDay) > 0;
         this.overlapsDisplayEnd =
@@ -534,7 +534,7 @@
 
       // Set the element's colours.
 
-      let cssSafeCalendar = cal.view.formatStringForCSSRule(this.item.calendar.id);
+      const cssSafeCalendar = cal.view.formatStringForCSSRule(this.item.calendar.id);
       this.style.setProperty("--item-backcolor", `var(--calendar-${cssSafeCalendar}-backcolor)`);
       this.style.setProperty("--item-forecolor", `var(--calendar-${cssSafeCalendar}-forecolor)`);
 
@@ -625,7 +625,7 @@
       this.classList.remove("agenda-listitem-now");
       this.relativeElement.textContent = "";
 
-      let now = cal.dtz.now();
+      const now = cal.dtz.now();
 
       // The event has started.
       if (this._localStartDate.compare(now) <= 0) {
@@ -639,7 +639,7 @@
         return;
       }
 
-      let relative = this._localStartDate.subtractDate(now);
+      const relative = this._localStartDate.subtractDate(now);
 
       // Should we display a label? Is the event today or less than 12 hours away?
       if (this._localStartDate.day == now.day || relative.inSeconds < 12 * 60 * 60) {

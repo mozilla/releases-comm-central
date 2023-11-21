@@ -29,10 +29,10 @@ export var alarms = {
    * @param aItem     The item to apply the default alarm values to.
    */
   setDefaultValues(aItem) {
-    let type = aItem.isEvent() ? "event" : "todo";
+    const type = aItem.isEvent() ? "event" : "todo";
     if (Services.prefs.getIntPref("calendar.alarms.onfor" + type + "s", 0) == 1) {
-      let alarmOffset = lazy.cal.createDuration();
-      let alarm = new lazy.CalAlarm();
+      const alarmOffset = lazy.cal.createDuration();
+      const alarm = new lazy.CalAlarm();
       let units = Services.prefs.getStringPref("calendar.alarms." + type + "alarmunit", "minutes");
 
       // Make sure the alarm pref is valid, default to minutes otherwise
@@ -52,7 +52,7 @@ export var alarms = {
 
       // Default to a display alarm, unless the calendar doesn't support
       // it or we have no calendar yet. (Man this is hard to wrap)
-      let actionValues = (aItem.calendar &&
+      const actionValues = (aItem.calendar &&
         aItem.calendar.getProperty("capabilities.alarms.actionValues")) || ["DISPLAY"];
 
       alarm.action = actionValues.includes("DISPLAY") ? "DISPLAY" : actionValues[0];
@@ -83,12 +83,12 @@ export var alarms = {
       // have a well defined startTime.  We just consider the start/end
       // to be midnight in the user's timezone.
       if (returnDate.isDate) {
-        let timezone = lazy.cal.dtz.defaultTimezone;
+        const timezone = lazy.cal.dtz.defaultTimezone;
         // This returns a copy, so no extra cloning needed.
         returnDate = returnDate.getInTimezone(timezone);
         returnDate.isDate = false;
       } else if (returnDate.timezone.tzid == "floating") {
-        let timezone = lazy.cal.dtz.defaultTimezone;
+        const timezone = lazy.cal.dtz.defaultTimezone;
         returnDate = returnDate.getInTimezone(timezone);
       } else {
         // Clone the date to correctly add the duration.
@@ -114,10 +114,10 @@ export var alarms = {
       container.lastChild.remove();
     }
 
-    let document = container.ownerDocument;
-    let suppressed = container.hasAttribute("suppressed");
-    let actionSet = [];
-    for (let reminder of reminderSet) {
+    const document = container.ownerDocument;
+    const suppressed = container.hasAttribute("suppressed");
+    const actionSet = [];
+    for (const reminder of reminderSet) {
       // Up to one icon per action
       if (actionSet.includes(reminder.action)) {
         continue;
@@ -149,7 +149,7 @@ export var alarms = {
           continue;
       }
 
-      let image = document.createElement("img");
+      const image = document.createElement("img");
       image.setAttribute("class", "reminder-icon");
       image.setAttribute("value", reminder.action);
       image.setAttribute("src", src);

@@ -57,18 +57,18 @@ CalWeekInfoService.prototype = {
     // The number of days since the start of the week.
     // Notice that the result of the subtraction might be negative.
     // We correct for that by adding 7, and then using the remainder operator.
-    let sinceStartOfWeek = (aDateTime.weekday - lazy.startWeekday + 7) % 7;
+    const sinceStartOfWeek = (aDateTime.weekday - lazy.startWeekday + 7) % 7;
 
     // The number of days to Thursday is the difference between Thursday
     // and the start-day of the week (again corrected for negative values).
-    let startToThursday = (THURSDAY - lazy.startWeekday + 7) % 7;
+    const startToThursday = (THURSDAY - lazy.startWeekday + 7) % 7;
 
     // The yearday number of the Thursday this week.
     let thisWeeksThursday = aDateTime.yearday - sinceStartOfWeek + startToThursday;
 
     if (thisWeeksThursday < 1) {
       // For the first few days of the year, we still are in week 52 or 53.
-      let lastYearDate = aDateTime.clone();
+      const lastYearDate = aDateTime.clone();
       lastYearDate.year -= 1;
       thisWeeksThursday += lastYearDate.endOfYear.yearday;
     } else if (thisWeeksThursday > aDateTime.endOfYear.yearday) {
@@ -76,7 +76,7 @@ CalWeekInfoService.prototype = {
       thisWeeksThursday -= aDateTime.endOfYear.yearday;
     }
 
-    let weekNumber = Math.ceil(thisWeeksThursday / 7);
+    const weekNumber = Math.ceil(thisWeeksThursday / 7);
     return weekNumber;
   },
 
@@ -88,9 +88,9 @@ CalWeekInfoService.prototype = {
    * @returns a dateTime-object denoting the first day of the week
    */
   getStartOfWeek(aDate) {
-    let date = aDate.clone();
+    const date = aDate.clone();
     date.isDate = true;
-    let offset = lazy.startWeekday - aDate.weekday;
+    const offset = lazy.startWeekday - aDate.weekday;
     date.day += offset;
     if (offset > 0) {
       date.day -= 7;
@@ -106,7 +106,7 @@ CalWeekInfoService.prototype = {
    * @returns a dateTime-object denoting the last day of the week
    */
   getEndOfWeek(aDate) {
-    let date = this.getStartOfWeek(aDate);
+    const date = this.getStartOfWeek(aDate);
     date.day += 6;
     return date;
   },

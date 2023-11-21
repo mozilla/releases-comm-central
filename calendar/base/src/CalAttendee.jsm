@@ -45,18 +45,18 @@ CalAttendee.prototype = {
   },
 
   clone() {
-    let a = new CalAttendee();
+    const a = new CalAttendee();
 
     if (this.mIsOrganizer) {
       a.isOrganizer = true;
     }
 
     const allProps = ["id", "commonName", "rsvp", "role", "participationStatus", "userType"];
-    for (let prop of allProps) {
+    for (const prop of allProps) {
       a[prop] = this[prop];
     }
 
-    for (let [key, value] of this.mProperties.entries()) {
+    for (const [key, value] of this.mProperties.entries()) {
       a.setProperty(key, value);
     }
 
@@ -86,8 +86,8 @@ CalAttendee.prototype = {
     this.id = icalatt.valueAsIcalString;
     this.mIsOrganizer = icalatt.propertyName == "ORGANIZER";
 
-    let promotedProps = {};
-    for (let prop of this.icalAttendeePropMap) {
+    const promotedProps = {};
+    for (const prop of this.icalAttendeePropMap) {
       this[prop.cal] = icalatt.getParameter(prop.ics);
       // Don't copy these to the property bag.
       promotedProps[prop.ics] = true;
@@ -97,7 +97,7 @@ CalAttendee.prototype = {
     // from the ical property.
     this.mProperties = new Map();
 
-    for (let [name, value] of cal.iterate.icalParameter(icalatt)) {
+    for (const [name, value] of cal.iterate.icalParameter(icalatt)) {
       if (!promotedProps[name]) {
         this.setProperty(name, value);
       }
@@ -117,7 +117,7 @@ CalAttendee.prototype = {
     }
     icalatt.valueAsIcalString = this.id;
     for (let i = 0; i < this.icalAttendeePropMap.length; i++) {
-      let prop = this.icalAttendeePropMap[i];
+      const prop = this.icalAttendeePropMap[i];
       if (this[prop.cal]) {
         try {
           icalatt.setParameter(prop.ics, this[prop.cal]);
@@ -132,7 +132,7 @@ CalAttendee.prototype = {
         }
       }
     }
-    for (let [key, value] of this.mProperties.entries()) {
+    for (const [key, value] of this.mProperties.entries()) {
       try {
         icalatt.setParameter(key, value);
       } catch (e) {
@@ -149,11 +149,11 @@ CalAttendee.prototype = {
   },
 
   get icalString() {
-    let comp = this.icalProperty;
+    const comp = this.icalProperty;
     return comp ? comp.icalString : "";
   },
   set icalString(val) {
-    let prop = cal.icsService.createIcalPropertyFromString(val);
+    const prop = cal.icsService.createIcalPropertyFromString(val);
     if (prop.propertyName != "ORGANIZER" && prop.propertyName != "ATTENDEE") {
       throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
@@ -195,7 +195,7 @@ CalAttendee.prototype = {
   toString() {
     const emailRE = new RegExp("^mailto:", "i");
     let stringRep = (this.id || "").replace(emailRE, "");
-    let commonName = this.commonName;
+    const commonName = this.commonName;
 
     if (commonName) {
       stringRep = commonName + " <" + stringRep + ">";

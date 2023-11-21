@@ -63,7 +63,7 @@ CalDeletedItems.prototype = {
     stmt.params.id = aId;
     try {
       if (stmt.executeStep()) {
-        let date = cal.createDateTime();
+        const date = cal.createDateTime();
         date.nativeTime = stmt.row.time_deleted;
         return date.getInTimezone(cal.dtz.defaultTimezone);
       }
@@ -96,8 +96,10 @@ CalDeletedItems.prototype = {
       return;
     }
 
-    let nsFile = Components.Constructor("@mozilla.org/file/local;1", "nsIFile", "initWithPath");
-    let file = new nsFile(PathUtils.join(PathUtils.profileDir, "calendar-data", "deleted.sqlite"));
+    const nsFile = Components.Constructor("@mozilla.org/file/local;1", "nsIFile", "initWithPath");
+    const file = new nsFile(
+      PathUtils.join(PathUtils.profileDir, "calendar-data", "deleted.sqlite")
+    );
     if (!file.exists()) {
       file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o755);
     }
@@ -135,38 +137,38 @@ CalDeletedItems.prototype = {
     }
 
     if (!this.stmtMarkDelete) {
-      let stmt =
+      const stmt =
         "INSERT OR REPLACE INTO cal_deleted_items (cal_id, id, time_deleted, recurrence_id) VALUES(:calId, :id, :time, :rid)";
       this.stmtMarkDelete = this.mDB.createStatement(stmt);
     }
     if (!this.stmtUnmarkDelete) {
-      let stmt = "DELETE FROM cal_deleted_items WHERE id = :id";
+      const stmt = "DELETE FROM cal_deleted_items WHERE id = :id";
       this.stmtUnmarkDelete = this.mDB.createStatement(stmt);
     }
     if (!this.stmtGetWithCal) {
-      let stmt = "SELECT time_deleted FROM cal_deleted_items WHERE cal_id = :calId AND id = :id";
+      const stmt = "SELECT time_deleted FROM cal_deleted_items WHERE cal_id = :calId AND id = :id";
       this.stmtGetWithCal = this.mDB.createStatement(stmt);
     }
     if (!this.stmtGet) {
-      let stmt = "SELECT time_deleted FROM cal_deleted_items WHERE id = :id";
+      const stmt = "SELECT time_deleted FROM cal_deleted_items WHERE id = :id";
       this.stmtGet = this.mDB.createStatement(stmt);
     }
     if (!this.stmtFlush) {
-      let stmt = "DELETE FROM cal_deleted_items WHERE time_deleted < :stale_time";
+      const stmt = "DELETE FROM cal_deleted_items WHERE time_deleted < :stale_time";
       this.stmtFlush = this.mDB.createStatement(stmt);
     }
   },
 
   shutdown() {
     try {
-      let stmts = [
+      const stmts = [
         this.stmtMarkDelete,
         this.stmtUnmarkDelete,
         this.stmtGet,
         this.stmtGetWithCal,
         this.stmtFlush,
       ];
-      for (let stmt of stmts) {
+      for (const stmt of stmts) {
         stmt.finalize();
       }
 

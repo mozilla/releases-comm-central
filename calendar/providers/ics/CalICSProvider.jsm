@@ -44,16 +44,16 @@ var CalICSProvider = {
     savePassword = false,
     extraProperties = {}
   ) {
-    let uri = cal.provider.detection.locationToUri(location);
+    const uri = cal.provider.detection.locationToUri(location);
     if (!uri) {
       throw new Error("Could not infer location from username");
     }
 
-    let detector = new ICSDetector(username, password, savePassword);
+    const detector = new ICSDetector(username, password, savePassword);
 
     // To support ics files hosted by simple HTTP server, attempt HEAD/GET
     // before PROPFIND.
-    for (let method of [
+    for (const method of [
       "attemptHead",
       "attemptGet",
       "attemptDAVLocation",
@@ -62,18 +62,18 @@ var CalICSProvider = {
     ]) {
       try {
         cal.LOG(`[CalICSProvider] Trying to detect calendar using ${method} method`);
-        let calendars = await detector[method](uri);
+        const calendars = await detector[method](uri);
         if (calendars) {
           return calendars;
         }
       } catch (e) {
         // e may be an Error object or a response object like CalDavSimpleResponse.
-        let message = `[CalICSProvider] Could not detect calendar using method ${method}`;
+        const message = `[CalICSProvider] Could not detect calendar using method ${method}`;
 
-        let errorDetails = err =>
+        const errorDetails = err =>
           ` - ${err.fileName || err.filename}:${err.lineNumber}: ${err} - ${err.stack}`;
 
-        let responseDetails = response => ` - HTTP response status ${response.status}`;
+        const responseDetails = response => ` - HTTP response status ${response.status}`;
 
         // We want to pass on any autodetect errors that will become results.
         if (e instanceof cal.provider.detection.Error) {
@@ -238,12 +238,12 @@ class ICSDetector {
    * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async attemptDAVLocation(location) {
-    let props = ["D:getcontenttype", "D:resourcetype", "D:displayname", "A:calendar-color"];
-    let request = new CalDavPropfindRequest(this.session, null, location, props);
+    const props = ["D:getcontenttype", "D:resourcetype", "D:displayname", "A:calendar-color"];
+    const request = new CalDavPropfindRequest(this.session, null, location, props);
 
     // `request.commit()` can throw; errors should be caught by calling functions.
-    let response = await request.commit();
-    let target = response.uri;
+    const response = await request.commit();
+    const target = response.uri;
 
     if (response.authError) {
       throw new cal.provider.detection.AuthFailedError();
@@ -252,8 +252,8 @@ class ICSDetector {
       return null;
     }
 
-    let resprops = response.firstProps;
-    let resourceType = resprops["D:resourcetype"] || new Set();
+    const resprops = response.firstProps;
+    const resourceType = resprops["D:resourcetype"] || new Set();
 
     if (resourceType.has("C:calendar") || resprops["D:getcontenttype"] == "text/calendar") {
       cal.LOG(`[calICSProvider] ${target.spec} is a calendar`);
@@ -274,23 +274,23 @@ class ICSDetector {
    * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async _attemptMethod(method, location) {
-    let request = new CalDavGenericRequest(this.session, null, method, location, {
+    const request = new CalDavGenericRequest(this.session, null, method, location, {
       Accept: "text/calendar, application/ics, text/plain;q=0.9",
     });
 
     // `request.commit()` can throw; errors should be caught by calling functions.
-    let response = await request.commit();
+    const response = await request.commit();
 
     // The content type header may include a charset, so use 'string.includes'.
     if (response.ok) {
-      let header = response.getHeader("Content-Type");
+      const header = response.getHeader("Content-Type");
 
       if (
         header.includes("text/calendar") ||
         header.includes("application/ics") ||
         (response.text && response.text.includes("BEGIN:VCALENDAR"))
       ) {
-        let target = response.uri;
+        const target = response.uri;
         cal.LOG(`[calICSProvider] ${target.spec} has valid content type (via ${method} request)`);
         return [this.handleCalendar(target)];
       }
@@ -314,7 +314,7 @@ class ICSDetector {
    * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async attemptPut(location) {
-    let request = new CalDavGenericRequest(
+    const request = new CalDavGenericRequest(
       this.session,
       null,
       "PUT",
@@ -324,8 +324,8 @@ class ICSDetector {
       "text/plain"
     );
     // `request.commit()` can throw; errors should be caught by calling functions.
-    let response = await request.commit();
-    let target = response.uri;
+    const response = await request.commit();
+    const target = response.uri;
 
     if (response.conflict) {
       // The etag didn't match, which means we can generally write here but our crafted etag
@@ -351,17 +351,17 @@ class ICSDetector {
    */
   async attemptLocalFile(location) {
     if (location.schemeIs("file")) {
-      let fullPath = location.QueryInterface(Ci.nsIFileURL).file.path;
-      let pathToDir = PathUtils.parent(fullPath);
-      let dirExists = await IOUtils.exists(pathToDir);
+      const fullPath = location.QueryInterface(Ci.nsIFileURL).file.path;
+      const pathToDir = PathUtils.parent(fullPath);
+      const dirExists = await IOUtils.exists(pathToDir);
 
       if (dirExists || pathToDir == "") {
-        let calendar = this.handleCalendar(location);
+        const calendar = this.handleCalendar(location);
         if (calendar) {
           // Check whether we have write permission on the calendar file.
           // Calling stat on a non-existent file is an error so we check for
           // it's existence first.
-          let { permissions } = (await IOUtils.exists(fullPath))
+          const { permissions } = (await IOUtils.exists(fullPath))
             ? await IOUtils.stat(fullPath)
             : await IOUtils.stat(pathToDir);
 
@@ -385,25 +385,25 @@ class ICSDetector {
    * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async handleDirectory(location) {
-    let props = [
+    const props = [
       "D:getcontenttype",
       "D:current-user-privilege-set",
       "D:displayname",
       "A:calendar-color",
     ];
-    let request = new CalDavPropfindRequest(this.session, null, location, props, 1);
+    const request = new CalDavPropfindRequest(this.session, null, location, props, 1);
 
     // `request.commit()` can throw; errors should be caught by calling functions.
-    let response = await request.commit();
-    let target = response.uri;
+    const response = await request.commit();
+    const target = response.uri;
 
-    let calendars = [];
-    for (let [href, resprops] of Object.entries(response.data)) {
+    const calendars = [];
+    for (const [href, resprops] of Object.entries(response.data)) {
       if (resprops["D:getcontenttype"] != "text/calendar") {
         continue;
       }
 
-      let uri = Services.io.newURI(href, null, target);
+      const uri = Services.io.newURI(href, null, target);
       calendars.push(this.handleCalendar(uri, resprops));
     }
 
@@ -422,20 +422,20 @@ class ICSDetector {
    */
   handleCalendar(uri, props = new Set()) {
     let displayName = props["D:displayname"];
-    let color = props["A:calendar-color"];
+    const color = props["A:calendar-color"];
     if (!displayName) {
-      let lastPath = uri.filePath.split("/").filter(Boolean).pop() || "";
-      let fileName = lastPath.split(".").slice(0, -1).join(".");
+      const lastPath = uri.filePath.split("/").filter(Boolean).pop() || "";
+      const fileName = lastPath.split(".").slice(0, -1).join(".");
       displayName = fileName || lastPath || uri.spec;
     }
 
-    let calendar = cal.manager.createCalendar("ics", uri);
+    const calendar = cal.manager.createCalendar("ics", uri);
     calendar.setProperty("color", color || cal.view.hashColor(uri.spec));
     calendar.name = displayName;
     calendar.id = cal.getUUID();
 
     // Attempt to discover if the user is allowed to write to this calendar.
-    let privs = props["D:current-user-privilege-set"];
+    const privs = props["D:current-user-privilege-set"];
     if (privs && privs instanceof Set) {
       calendar.readOnly = !["D:write", "D:write-content", "D:write-properties", "D:all"].some(
         priv => privs.has(priv)

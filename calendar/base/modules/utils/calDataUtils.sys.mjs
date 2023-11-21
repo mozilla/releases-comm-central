@@ -33,8 +33,8 @@ class ListenerSet extends Set {
   }
 
   notify(func, args = []) {
-    let currentObservers = [...this.values()];
-    for (let observer of currentObservers) {
+    const currentObservers = [...this.values()];
+    for (const observer of currentObservers) {
       try {
         observer[func](...args);
       } catch (ex) {
@@ -70,7 +70,7 @@ class ObserverSet extends ListenerSet {
     if (!this.has(item)) {
       // Replay batch notifications, because the onEndBatch notifications are yet to come.
       // We may think about doing the reverse on remove, though I currently see no need:
-      for (let calendar of this.mCalendarsInBatch) {
+      for (const calendar of this.mCalendarsInBatch) {
         item.onStartBatch(calendar);
       }
     }
@@ -144,14 +144,14 @@ class OperationGroup {
   cancel(aStatus = Ci.calIErrors.OPERATION_CANCELLED) {
     if (this.isPending) {
       this.notifyCompleted(aStatus);
-      let cancelFunc = this.mCancelFunc;
+      const cancelFunc = this.mCancelFunc;
       if (cancelFunc) {
         this.mCancelFunc = null;
         cancelFunc();
       }
-      let subOperations = this.mSubOperations;
+      const subOperations = this.mSubOperations;
       this.mSubOperations = [];
-      for (let operation of subOperations) {
+      for (const operation of subOperations) {
         operation.cancel(Ci.calIErrors.OPERATION_CANCELLED);
       }
     }
@@ -189,8 +189,8 @@ export var data = {
         return low + (comptor(newItem, itemArray[low]) < 0 ? 0 : 1);
       }
 
-      let mid = Math.floor(low + (high - low) / 2);
-      let cmp = comptor(newItem, itemArray[mid]);
+      const mid = Math.floor(low + (high - low) / 2);
+      const cmp = comptor(newItem, itemArray[mid]);
       if (cmp > 0) {
         return binarySearchInternal(mid + 1, high);
       } else if (cmp < 0) {
@@ -225,7 +225,7 @@ export var data = {
    *                               If null, this function will be used: function(n) n.item
    */
   binaryInsertNode(parentNode, insertNode, aItem, comptor, discardDuplicates, itemAccessor) {
-    let accessor = itemAccessor || data.binaryInsertNodeDefaultAccessor;
+    const accessor = itemAccessor || data.binaryInsertNodeDefaultAccessor;
 
     // Get the index of the node before which the inserNode will be inserted
     let newIndex = data.binarySearch(Array.from(parentNode.children, accessor), aItem, comptor);
@@ -242,7 +242,7 @@ export var data = {
     ) {
       // Only add the node if duplicates should not be discarded, or if
       // they should and the childNode[newIndex] == node.
-      let node = parentNode.children[newIndex];
+      const node = parentNode.children[newIndex];
       parentNode.insertBefore(insertNode, node);
     }
     return newIndex;
@@ -297,13 +297,13 @@ export var data = {
     if (!aIID) {
       aIID = Ci.nsISupports;
     }
-    let sip1 = Cc["@mozilla.org/supports-interface-pointer;1"].createInstance(
+    const sip1 = Cc["@mozilla.org/supports-interface-pointer;1"].createInstance(
       Ci.nsISupportsInterfacePointer
     );
     sip1.data = aObject;
     sip1.dataIID = aIID;
 
-    let sip2 = Cc["@mozilla.org/supports-interface-pointer;1"].createInstance(
+    const sip2 = Cc["@mozilla.org/supports-interface-pointer;1"].createInstance(
       Ci.nsISupportsInterfacePointer
     );
     sip2.data = aOtherObject;

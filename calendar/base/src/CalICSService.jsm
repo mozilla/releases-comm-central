@@ -57,7 +57,7 @@ CalIcalProperty.prototype = {
   },
 
   get valueAsIcalString() {
-    let propertyStr = this.innerObject.toICALString();
+    const propertyStr = this.innerObject.toICALString();
     if (propertyStr.match(/:/g).length == 1) {
       // For property containing only one colon, e.g. `GEO:latitude;longitude`,
       // the left hand side must be the property name, the right hand side must
@@ -67,7 +67,7 @@ CalIcalProperty.prototype = {
     // For property containing many or no colons, retrieve the property value
     // according to its type. An example is
     // `ATTENDEE;MEMBER="mailto:foo@example.com": mailto:bar@example.com`
-    let type = this.innerObject.type;
+    const type = this.innerObject.type;
     return this.innerObject
       .getValues()
       .map(val => {
@@ -83,8 +83,8 @@ CalIcalProperty.prototype = {
       .join(",");
   },
   set valueAsIcalString(val) {
-    let mockLine = this.propertyName + ":" + val;
-    let prop = ICAL.Property.fromString(mockLine, ICAL.design.icalendar);
+    const mockLine = this.propertyName + ":" + val;
+    const prop = ICAL.Property.fromString(mockLine, ICAL.design.icalendar);
 
     if (this.innerObject.isMultiValue) {
       this.innerObject.setValues(prop.getValues());
@@ -94,8 +94,8 @@ CalIcalProperty.prototype = {
   },
 
   get valueAsDatetime() {
-    let val = this.innerObject.getFirstValue();
-    let isIcalTime =
+    const val = this.innerObject.getFirstValue();
+    const isIcalTime =
       val && typeof val == "object" && "icalclass" in val && val.icalclass == "icaltime";
     return isIcalTime ? new lazy.CalDateTime(val) : null;
   },
@@ -112,7 +112,7 @@ CalIcalProperty.prototype = {
         ) {
           this.innerObject.setParameter("TZID", val.zone.tzid);
           if (this.parent) {
-            let tzref = wrapGetter(lazy.CalTimezone, val.zone);
+            const tzref = wrapGetter(lazy.CalTimezone, val.zone);
             this.parent.addTimezoneReference(tzref);
           }
         } else {
@@ -132,7 +132,7 @@ CalIcalProperty.prototype = {
     // Unfortunately getting the "VALUE" parameter won't work, since in
     // jCal it has been translated to the value type id.
     if (name == "VALUE") {
-      let defaultType = this.innerObject.getDefaultType();
+      const defaultType = this.innerObject.getDefaultType();
       if (this.innerObject.type != defaultType) {
         // Default type doesn't match object type, so we have a VALUE
         // parameter
@@ -150,21 +150,21 @@ CalIcalProperty.prototype = {
     // set the value again.
     if (name == "VALUE") {
       let oldValues;
-      let type = this.innerObject.type;
-      let designSet = this.innerObject._designSet;
+      const type = this.innerObject.type;
+      const designSet = this.innerObject._designSet;
 
-      let wasMultiValue = this.innerObject.isMultiValue;
+      const wasMultiValue = this.innerObject.isMultiValue;
       if (wasMultiValue) {
         oldValues = this.innerObject.getValues();
       } else {
-        let oldValue = this.innerObject.getFirstValue();
+        const oldValue = this.innerObject.getFirstValue();
         oldValues = oldValue ? [oldValue] : [];
       }
 
       this.innerObject.resetType(value.toLowerCase());
       try {
         oldValues = oldValues.map(oldValue => {
-          let strvalue = ICAL.stringify.value(oldValue.toString(), type, designSet);
+          const strvalue = ICAL.stringify.value(oldValue.toString(), type, designSet);
           return ICAL.parse._parseValue(strvalue, value, designSet);
         });
       } catch (e) {
@@ -189,9 +189,9 @@ CalIcalProperty.prototype = {
     // kind of like resetting it to the default type. So find out the
     // default type and then set the value parameter to it.
     if (name == "VALUE") {
-      let propname = this.innerObject.name.toLowerCase();
+      const propname = this.innerObject.name.toLowerCase();
       if (propname in ICAL.design.icalendar.property) {
-        let details = ICAL.design.icalendar.property[propname];
+        const details = ICAL.design.icalendar.property[propname];
         if ("defaultType" in details) {
           this.setParameter("VALUE", details.defaultType);
         }
@@ -209,15 +209,15 @@ CalIcalProperty.prototype = {
 
   paramIterator: null,
   getFirstParameterName() {
-    let innerObject = this.innerObject;
+    const innerObject = this.innerObject;
     this.paramIterator = (function* () {
-      let defaultType = innerObject.getDefaultType();
+      const defaultType = innerObject.getDefaultType();
       if (defaultType != innerObject.type) {
         yield "VALUE";
       }
 
-      let paramNames = Object.keys(innerObject.jCal[1] || {});
-      for (let name of paramNames) {
+      const paramNames = Object.keys(innerObject.jCal[1] || {});
+      for (const name of paramNames) {
         yield name.toUpperCase();
       }
     })();
@@ -226,7 +226,7 @@ CalIcalProperty.prototype = {
 
   getNextParameterName() {
     if (this.paramIterator) {
-      let next = this.paramIterator.next();
+      const next = this.paramIterator.next();
       if (next.done) {
         this.paramIterator = null;
       }
@@ -272,11 +272,11 @@ calIcalComponent.prototype = {
     } else if (kind) {
       kind = kind.toLowerCase();
     }
-    let innerObject = this.innerObject;
+    const innerObject = this.innerObject;
     this.componentIterator = (function* () {
-      let comps = innerObject.getAllSubcomponents(kind);
+      const comps = innerObject.getAllSubcomponents(kind);
       if (comps) {
-        for (let comp of comps) {
+        for (const comp of comps) {
           yield new calIcalComponent(comp);
         }
       }
@@ -285,7 +285,7 @@ calIcalComponent.prototype = {
   },
   getNextSubcomponent(kind) {
     if (this.componentIterator) {
-      let next = this.componentIterator.next();
+      const next = this.componentIterator.next();
       if (next.done) {
         this.componentIterator = null;
       }
@@ -373,8 +373,8 @@ calIcalComponent.prototype = {
     // If there is no value for this integer property, then we must return
     // the designated INVALID_VALUE.
     const INVALID_VALUE = Ci.calIIcalComponent.INVALID_VALUE;
-    let prop = this.innerObject.getFirstProperty("priority");
-    let val = prop ? prop.getFirstValue() : null;
+    const prop = this.innerObject.getFirstProperty("priority");
+    const val = prop ? prop.getFirstValue() : null;
     return val === null ? INVALID_VALUE : val;
   },
   set priority(val) {
@@ -382,7 +382,7 @@ calIcalComponent.prototype = {
   },
 
   _setTimeAttr(propName, val) {
-    let prop = this.innerObject.updatePropertyWithValue(propName, val);
+    const prop = this.innerObject.updatePropertyWithValue(propName, val);
     if (
       val &&
       val.zone &&
@@ -465,7 +465,7 @@ calIcalComponent.prototype = {
 
   addSubcomponent(comp) {
     comp.getReferencedTimezones().forEach(this.addTimezoneReference, this);
-    let jscomp = unwrapSingle(ICAL.Component, comp);
+    const jscomp = unwrapSingle(ICAL.Component, comp);
     this.innerObject.addSubcomponent(jscomp);
   },
 
@@ -476,19 +476,19 @@ calIcalComponent.prototype = {
     } else if (kind) {
       kind = kind.toLowerCase();
     }
-    let innerObject = this.innerObject;
+    const innerObject = this.innerObject;
     this.propertyIterator = (function* () {
-      let props = innerObject.getAllProperties(kind);
+      const props = innerObject.getAllProperties(kind);
       if (!props) {
         return;
       }
-      for (let prop of props) {
-        let hell = prop.getValues();
+      for (const prop of props) {
+        const hell = prop.getValues();
         if (hell.length > 1) {
           // Uh oh, multiple property values. Our code expects each as one
           // property. I hate API incompatibility!
-          for (let devil of hell) {
-            let thisprop = new ICAL.Property(prop.toJSON(), prop.parent);
+          for (const devil of hell) {
+            const thisprop = new ICAL.Property(prop.toJSON(), prop.parent);
             thisprop.removeAllValues();
             thisprop.setValue(devil);
             yield new CalIcalProperty(thisprop);
@@ -504,7 +504,7 @@ calIcalComponent.prototype = {
 
   getNextProperty(kind) {
     if (this.propertyIterator) {
-      let next = this.propertyIterator.next();
+      const next = this.propertyIterator.next();
       if (next.done) {
         this.propertyIterator = null;
       }
@@ -524,7 +524,7 @@ calIcalComponent.prototype = {
 
   addProperty(prop) {
     try {
-      let datetime = prop.valueAsDatetime;
+      const datetime = prop.valueAsDatetime;
       if (datetime && datetime.timezone) {
         this._getNextParentVCalendar().addTimezoneReference(datetime.timezone);
       }
@@ -533,14 +533,14 @@ calIcalComponent.prototype = {
       // that break adding the property.
     }
 
-    let jsprop = unwrapSingle(ICAL.Property, prop);
+    const jsprop = unwrapSingle(ICAL.Property, prop);
     this.innerObject.addProperty(jsprop);
   },
 
   addTimezoneReference(timezone) {
     if (timezone) {
       if (!(timezone.tzid in this.mReferencedZones) && this.componentType == "VCALENDAR") {
-        let comp = timezone.icalComponent;
+        const comp = timezone.icalComponent;
         if (comp) {
           this.addSubcomponent(comp);
         }
@@ -555,8 +555,8 @@ calIcalComponent.prototype = {
   },
 
   serializeToICSStream() {
-    let data = this.innerObject.toString();
-    let stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
+    const data = this.innerObject.toString();
+    const stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
       Ci.nsIStringInputStream
     );
     stream.setUTF8Data(data, data.length);
@@ -573,14 +573,14 @@ CalICSService.prototype = {
   classID: Components.ID("{c61cb903-4408-41b3-bc22-da0b27efdfe1}"),
 
   parseICS(serialized) {
-    let comp = ICAL.parse(serialized);
+    const comp = ICAL.parse(serialized);
     return new calIcalComponent(new ICAL.Component(comp));
   },
 
   parseICSAsync(serialized, listener) {
-    let worker = new ChromeWorker("resource:///components/calICSService-worker.js");
+    const worker = new ChromeWorker("resource:///components/calICSService-worker.js");
     worker.onmessage = function (event) {
-      let icalComp = new calIcalComponent(new ICAL.Component(event.data));
+      const icalComp = new calIcalComponent(new ICAL.Component(event.data));
       listener.onParsingComplete(Cr.OK, icalComp);
     };
     worker.onerror = function (event) {

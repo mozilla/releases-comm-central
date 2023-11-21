@@ -75,9 +75,9 @@
       {
         id: "when",
         getValue(item) {
-          let tz = cal.dtz.defaultTimezone;
-          let startDate = item.startDate?.getInTimezone(tz) ?? null;
-          let endDate = item.endDate?.getInTimezone(tz) ?? null;
+          const tz = cal.dtz.defaultTimezone;
+          const startDate = item.startDate?.getInTimezone(tz) ?? null;
+          const endDate = item.endDate?.getInTimezone(tz) ?? null;
           return `${startDate.icalString}-${endDate?.icalString}`;
         },
         show(intervalNode, newValue, oldValue, item) {
@@ -87,7 +87,7 @@
       {
         id: "recurrence",
         getValue(item) {
-          let parent = item.parentItem;
+          const parent = item.parentItem;
           if (!parent.recurrenceInfo) {
             return null;
           }
@@ -167,7 +167,7 @@
       this.attachShadow({ mode: "open" });
       document.l10n.connectRoot(this.shadowRoot);
 
-      let link = document.createElement("link");
+      const link = document.createElement("link");
       link.rel = "stylesheet";
       link.href = "chrome://calendar/skin/shared/widgets/calendar-invitation-panel.css";
       this.shadowRoot.appendChild(link);
@@ -193,28 +193,28 @@
 
     connectedCallback() {
       if (this.item && this.mode) {
-        let template = document.getElementById(`calendarInvitationPanel`);
+        const template = document.getElementById(`calendarInvitationPanel`);
         this.shadowRoot.appendChild(template.content.cloneNode(true));
 
         if (this.foundItem && this.foundItem.title != this.item.title) {
-          let indicator = this.shadowRoot.getElementById("titleChangeIndicator");
+          const indicator = this.shadowRoot.getElementById("titleChangeIndicator");
           indicator.status = PROPERTY_MODIFIED;
           indicator.hidden = false;
         }
         this.shadowRoot.getElementById("title").textContent = this.item.title;
 
-        let statusBar = this.shadowRoot.querySelector("calendar-invitation-panel-status-bar");
+        const statusBar = this.shadowRoot.querySelector("calendar-invitation-panel-status-bar");
         statusBar.status = this.mode;
 
         this.shadowRoot.querySelector("calendar-minidate").date = this.item.startDate;
 
-        for (let prop of InvitationPanel.propertyDescriptors) {
-          let el = this.shadowRoot.getElementById(prop.id);
-          let value = prop.getValue(this.item);
+        for (const prop of InvitationPanel.propertyDescriptors) {
+          const el = this.shadowRoot.getElementById(prop.id);
+          const value = prop.getValue(this.item);
           let result = PROPERTY_UNCHANGED;
 
           if (prop.isList) {
-            let oldValue = this.foundItem ? prop.getValue(this.foundItem) : [];
+            const oldValue = this.foundItem ? prop.getValue(this.foundItem) : [];
             if (value.length || oldValue.length) {
               el.oldValue = oldValue;
               el.value = value;
@@ -223,11 +223,11 @@
             continue;
           }
 
-          let oldValue = this.foundItem ? prop.getValue(this.foundItem) : null;
+          const oldValue = this.foundItem ? prop.getValue(this.foundItem) : null;
           if (this.foundItem) {
             result = this.compare(oldValue, value);
             if (result) {
-              let indicator = this.shadowRoot.getElementById(`${prop.id}ChangeIndicator`);
+              const indicator = this.shadowRoot.getElementById(`${prop.id}ChangeIndicator`);
               if (indicator) {
                 indicator.type = result;
                 indicator.hidden = false;
@@ -244,7 +244,7 @@
           this.mode == InvitationPanel.MODE_NEW ||
           this.mode == InvitationPanel.MODE_UPDATE_MAJOR
         ) {
-          for (let button of this.shadowRoot.querySelectorAll("#actionButtons > button")) {
+          for (const button of this.shadowRoot.querySelectorAll("#actionButtons > button")) {
             button.addEventListener("click", e =>
               this.dispatchEvent(
                 new CustomEvent("calendar-invitation-panel-action", {
@@ -379,10 +379,10 @@
      * @type {string} status
      */
     set status(value) {
-      let opts = this.notices[value];
-      let priority = opts.priority || this.notificationBox.PRIORITY_INFO_LOW;
-      let buttons = opts.buttons || [];
-      let notification = this.notificationBox.appendNotification(
+      const opts = this.notices[value];
+      const priority = opts.priority || this.notificationBox.PRIORITY_INFO_LOW;
+      const buttons = opts.buttons || [];
+      const notification = this.notificationBox.appendNotification(
         "invitationStatus",
         {
           label: { "l10n-id": opts.label },
@@ -394,10 +394,10 @@
     }
 
     _showMoreMenu(event, menuitems) {
-      let menu = document.getElementById("calendarInvitationPanelMoreMenu");
+      const menu = document.getElementById("calendarInvitationPanelMoreMenu");
       menu.replaceChildren();
-      for (let { type, l10nId, name, command } of menuitems) {
-        let menuitem = document.createXULElement("menuitem");
+      for (const { type, l10nId, name, command } of menuitems) {
+        const menuitem = document.createXULElement("menuitem");
         if (type) {
           menuitem.type = type;
         }
@@ -427,9 +427,9 @@
      * @type {calIEvent}
      */
     set item(value) {
-      let [startDate, endDate] = cal.dtz.formatter.getItemDates(value);
-      let timezone = startDate.timezone.displayName;
-      let parts = cal.dtz.formatter.formatIntervalParts(startDate, endDate);
+      const [startDate, endDate] = cal.dtz.formatter.getItemDates(value);
+      const timezone = startDate.timezone.displayName;
+      const parts = cal.dtz.formatter.formatIntervalParts(startDate, endDate);
       document.l10n.setAttributes(this, `calendar-invitation-interval-${parts.type}`, {
         ...parts,
         timezone,
@@ -458,7 +458,7 @@
      * @type {calIAttendee[]}
      */
     set attendees(attendees) {
-      let counts = {
+      const counts = {
         ACCEPTED: 0,
         DECLINED: 0,
         TENTATIVE: 0,
@@ -467,7 +467,7 @@
         OTHER: 0,
       };
 
-      for (let { participationStatus } of attendees) {
+      for (const { participationStatus } of attendees) {
         if (counts.hasOwnProperty(participationStatus)) {
           counts[participationStatus]++;
         } else {
@@ -480,10 +480,10 @@
         { count: counts.TOTAL }
       );
 
-      let shownPartStats = partStatOrder.filter(partStat => counts[partStat]);
-      let breakdown = this.querySelector("#partStatBreakdown");
-      for (let partStat of shownPartStats) {
-        let span = document.createElement("span");
+      const shownPartStats = partStatOrder.filter(partStat => counts[partStat]);
+      const breakdown = this.querySelector("#partStatBreakdown");
+      for (const partStat of shownPartStats) {
+        const span = document.createElement("span");
         span.setAttribute("class", "calendar-invitation-panel-partstat-summary");
 
         // calendar-invitation-panel-partstat-accepted
@@ -526,7 +526,7 @@
     listItem;
 
     _createListItem(value, status) {
-      let li = document.createElement("li", { is: this.listItem });
+      const li = document.createElement("li", { is: this.listItem });
       li.changeStatus = status;
       li.value = value;
       return li;
@@ -540,12 +540,12 @@
      */
     set value(list) {
       if (!this.oldValue.length) {
-        for (let value of list) {
+        for (const value of list) {
           this.append(this._createListItem(value));
         }
         return;
       }
-      for (let [value, status] of this.getChanges(this.oldValue, list)) {
+      for (const [value, status] of this.getChanges(this.oldValue, list)) {
         this.appendChild(this._createListItem(value, status));
       }
     }
@@ -586,7 +586,7 @@
     set value(itemValue) {
       this.build(itemValue);
       if (this.changeStatus) {
-        let changeIndicator = document.createElement("calendar-invitation-change-indicator");
+        const changeIndicator = document.createElement("calendar-invitation-change-indicator");
         changeIndicator.type = this.changeStatus;
         this.append(changeIndicator);
       }
@@ -611,9 +611,9 @@
     listItem = "calendar-invitation-panel-attendee-list-item";
 
     getChanges(oldValue, newValue) {
-      let diff = [];
-      for (let att of newValue) {
-        let oldAtt = oldValue.find(oldAtt => oldAtt.id == att.id);
+      const diff = [];
+      for (const att of newValue) {
+        const oldAtt = oldValue.find(oldAtt => oldAtt.id == att.id);
         if (!oldAtt) {
           diff.push([att, PROPERTY_ADDED]); // New attendee.
         } else if (oldAtt.participationStatus != att.participationStatus) {
@@ -624,8 +624,8 @@
       }
 
       // Insert removed attendees into the diff.
-      for (let [idx, att] of oldValue.entries()) {
-        let found = newValue.find(newAtt => newAtt.id == att.id);
+      for (const [idx, att] of oldValue.entries()) {
+        const found = newValue.find(newAtt => newAtt.id == att.id);
         if (!found) {
           diff.splice(idx, 0, [att, PROPERTY_REMOVED]);
         }
@@ -643,7 +643,7 @@
    */
   class InvitationAttendeeListItem extends BaseInvitationChangeListItem {
     build(value) {
-      let span = document.createElement("span");
+      const span = document.createElement("span");
       if (this.changeStatus == PROPERTY_REMOVED) {
         span.setAttribute("class", "removed");
       }
@@ -667,12 +667,12 @@
     listItem = "calendar-invitation-panel-attachment-list-item";
 
     getChanges(oldValue, newValue) {
-      let diff = [];
-      for (let attch of newValue) {
+      const diff = [];
+      for (const attch of newValue) {
         if (!attch.uri) {
           continue;
         }
-        let oldAttch = oldValue.find(
+        const oldAttch = oldValue.find(
           oldAttch => oldAttch.uri && oldAttch.uri.spec == attch.uri.spec
         );
 
@@ -694,11 +694,11 @@
       }
 
       // Insert removed attachments into the diff.
-      for (let [idx, attch] of oldValue.entries()) {
+      for (const [idx, attch] of oldValue.entries()) {
         if (!attch.uri) {
           continue;
         }
-        let found = newValue.find(newAtt => newAtt.uri && newAtt.uri.spec == attch.uri.spec);
+        const found = newValue.find(newAtt => newAtt.uri && newAtt.uri.spec == attch.uri.spec);
         if (!found) {
           diff.splice(idx, 0, [attch, PROPERTY_REMOVED]);
         }
@@ -730,7 +730,7 @@
      * @param {calIAttachment}
      */
     build(value) {
-      let icon = document.createElement("img");
+      const icon = document.createElement("img");
       let iconSrc = value.uri.spec.length ? value.uri.spec : "dummy.html";
       if (!value.uri.schemeIs("file")) {
         // Using an uri directly, with e.g. a http scheme, wouldn't render any icon.
@@ -738,7 +738,7 @@
           iconSrc = "goat?contentType=" + value.formatType;
         } else {
           // Let's try to auto-detect.
-          let parts = iconSrc.substr(value.uri.scheme.length + 2).split("/");
+          const parts = iconSrc.substr(value.uri.scheme.length + 2).split("/");
           if (parts.length) {
             iconSrc = parts[parts.length - 1];
           }
@@ -747,14 +747,14 @@
       icon.setAttribute("src", "moz-icon://" + iconSrc);
       this.append(icon);
 
-      let title = value.getParameter("FILENAME") || value.uri.spec;
+      const title = value.getParameter("FILENAME") || value.uri.spec;
       if (this.changeStatus == PROPERTY_REMOVED) {
-        let span = document.createElement("span");
+        const span = document.createElement("span");
         span.setAttribute("class", "removed");
         span.textContent = title;
         this.append(span);
       } else {
-        let link = document.createElement("a");
+        const link = document.createElement("a");
         link.textContent = title;
         link.setAttribute("href", value.uri.spec);
         link.addEventListener("click", event => {
@@ -791,7 +791,7 @@
      * @type {number}
      */
     set type(value) {
-      let key = this._typeMap[value];
+      const key = this._typeMap[value];
       document.l10n.setAttributes(this, `calendar-invitation-change-indicator-${key}`);
     }
   }

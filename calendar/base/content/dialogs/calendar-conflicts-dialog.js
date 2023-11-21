@@ -9,14 +9,14 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 window.addEventListener("DOMContentLoaded", onLoad);
 
 function onLoad() {
-  let dialog = document.querySelector("dialog");
-  let item = window.arguments[0].item;
-  let vbox = getPreviewForItem(item, false);
+  const dialog = document.querySelector("dialog");
+  const item = window.arguments[0].item;
+  const vbox = getPreviewForItem(item, false);
   if (vbox) {
     document.getElementById("item-box").replaceWith(vbox);
   }
 
-  let descr = document.getElementById("conflicts-description");
+  const descr = document.getElementById("conflicts-description");
 
   // TODO These strings should move to Fluent.
   // For that matter, this dialog should be reworked!

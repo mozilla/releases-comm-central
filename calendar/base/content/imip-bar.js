@@ -113,9 +113,9 @@ var calImipBar = {
     if (!Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
       calImipBar.overlayLoaded = true;
 
-      let doc = document.getElementById("messagepane").contentDocument;
-      let details = doc.getElementById("imipHTMLDetails");
-      let msgbody = doc.querySelector("div.moz-text-html");
+      const doc = document.getElementById("messagepane").contentDocument;
+      const details = doc.getElementById("imipHTMLDetails");
+      const msgbody = doc.querySelector("div.moz-text-html");
       if (!msgbody) {
         details.setAttribute("open", "open");
       } else {
@@ -173,10 +173,10 @@ var calImipBar = {
    * Resets all buttons and its menuitems, all buttons are hidden thereafter
    */
   resetButtons() {
-    let buttons = calImipBar.getButtons();
-    for (let button of buttons) {
+    const buttons = calImipBar.getButtons();
+    for (const button of buttons) {
       button.setAttribute("hidden", "true");
-      for (let item of calImipBar.getMenuItems(button)) {
+      for (const item of calImipBar.getMenuItems(button)) {
         item.removeAttribute("hidden");
       }
     }
@@ -186,7 +186,7 @@ var calImipBar = {
    * Provides a list of all available buttons
    */
   getButtons() {
-    let toolbarbuttons = document
+    const toolbarbuttons = document
       .getElementById("imip-view-toolbar")
       .getElementsByTagName("toolbarbutton");
     return Array.from(toolbarbuttons);
@@ -198,10 +198,10 @@ var calImipBar = {
    * @param aButton        button node
    */
   getMenuItems(aButton) {
-    let items = [];
-    let mitems = aButton.getElementsByTagName("menuitem");
+    const items = [];
+    const mitems = aButton.getElementsByTagName("menuitem");
     if (mitems != null && mitems.length > 0) {
-      for (let mitem of mitems) {
+      for (const mitem of mitems) {
         items.push(mitem);
       }
     }
@@ -215,12 +215,12 @@ var calImipBar = {
    */
   conformButtonType() {
     // check only needed on visible and not simple buttons
-    let buttons = calImipBar
+    const buttons = calImipBar
       .getButtons()
       .filter(aElement => aElement.hasAttribute("type") && !aElement.hidden);
     // change button if appropriate
-    for (let button of buttons) {
-      let items = calImipBar.getMenuItems(button).filter(aItem => !aItem.hidden);
+    for (const button of buttons) {
+      const items = calImipBar.getMenuItems(button).filter(aItem => !aItem.hidden);
       if (button.type == "menu" && items.length == 0) {
         // hide non functional buttons
         button.hidden = true;
@@ -266,14 +266,14 @@ var calImipBar = {
     // We need this to determine whether this is an outgoing or incoming message because
     // Thunderbird doesn't provide a distinct flag on message level to do so. Relying on
     // folder flags only may lead to false positives.
-    let isOutgoing = function (aMsgHdr) {
+    const isOutgoing = function (aMsgHdr) {
       if (!aMsgHdr) {
         return false;
       }
-      let author = aMsgHdr.mime2DecodedAuthor;
-      let isSentFolder = aMsgHdr.folder && aMsgHdr.folder.flags & Ci.nsMsgFolderFlags.SentMail;
+      const author = aMsgHdr.mime2DecodedAuthor;
+      const isSentFolder = aMsgHdr.folder && aMsgHdr.folder.flags & Ci.nsMsgFolderFlags.SentMail;
       if (author && isSentFolder) {
-        for (let identity of MailServices.accounts.allIdentities) {
+        for (const identity of MailServices.accounts.allIdentities) {
           if (author.includes(identity.email) && !identity.fccReplyFollowsParent) {
             return true;
           }
@@ -304,10 +304,10 @@ var calImipBar = {
     // now we update the visible items - buttons are hidden by default
     // apart from that, we need this to adapt the accept button depending on
     // whether three or four button style is present
-    for (let item of data.hideItems) {
+    for (const item of data.hideItems) {
       document.getElementById(item).setAttribute("hidden", "true");
     }
-    for (let item of data.showItems) {
+    for (const item of data.showItems) {
       document.getElementById(item).removeAttribute("hidden");
     }
     // adjust button style if necessary
@@ -333,10 +333,10 @@ var calImipBar = {
       return;
     }
 
-    let itipItem = calImipBar.itipItem;
-    let foundEvent = calImipBar.foundItems[0];
-    let currentEvent = itipItem.getItemList()[0];
-    let diff = cal.itip.compare(currentEvent, foundEvent);
+    const itipItem = calImipBar.itipItem;
+    const foundEvent = calImipBar.foundItems[0];
+    const currentEvent = itipItem.getItemList()[0];
+    const diff = cal.itip.compare(currentEvent, foundEvent);
     if (diff != 0) {
       let newEvent;
       let oldEvent;
@@ -352,8 +352,8 @@ var calImipBar = {
         newEvent = foundEvent;
       }
 
-      let browser = document.getElementById("messagepane");
-      let doUpdate = () => {
+      const browser = document.getElementById("messagepane");
+      const doUpdate = () => {
         if (Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
           return;
         }
@@ -410,7 +410,7 @@ var calImipBar = {
    */
   doNotShowImipBar() {
     Services.prefs.setBoolPref("calendar.itip.showImipBar", false);
-    for (let window of Services.ww.getWindowEnumerator()) {
+    for (const window of Services.ww.getWindowEnumerator()) {
       if (window.calImipBar) {
         window.calImipBar.resetBar();
       }
@@ -419,7 +419,7 @@ var calImipBar = {
 };
 
 {
-  let msgHeaderView = document.getElementById("msgHeaderView");
+  const msgHeaderView = document.getElementById("msgHeaderView");
   if (msgHeaderView && msgHeaderView.loaded) {
     calImipBar.load();
   } else {

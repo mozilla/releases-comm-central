@@ -86,7 +86,7 @@ CalItipItem.prototype = {
   mItemList: {},
 
   init(aIcalString) {
-    let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+    const parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseString(aIcalString);
 
     // - User specific alarms as well as X-MOZ- properties are irrelevant w.r.t. iTIP messages,
@@ -96,13 +96,13 @@ CalItipItem.prototype = {
 
     function cleanItem(item) {
       // the following changes will bump LAST-MODIFIED/DTSTAMP, we want to preserve the originals:
-      let stamp = item.stampTime;
-      let lastModified = item.lastModifiedTime;
+      const stamp = item.stampTime;
+      const lastModified = item.lastModifiedTime;
       item.clearAlarms();
       item.alarmLastAck = null;
       item.deleteProperty("RECEIVED-SEQUENCE");
       item.deleteProperty("RECEIVED-DTSTAMP");
-      for (let [name] of item.properties) {
+      for (const [name] of item.properties) {
         if (name != "X-MOZ-FAKED-MASTER" && name.substr(0, "X-MOZ-".length) == "X-MOZ-") {
           item.deleteProperty(name);
         }
@@ -115,7 +115,7 @@ CalItipItem.prototype = {
 
       // according to RfC 6638, the following items must not be exposed in client side
       // email scheduling messages, so let's remove it if present
-      let removeSchedulingParams = aCalUser => {
+      const removeSchedulingParams = aCalUser => {
         aCalUser.deleteProperty("SCHEDULE-AGENT");
         aCalUser.deleteProperty("SCHEDULE-FORCE-SEND");
         aCalUser.deleteProperty("SCHEDULE-STATUS");
@@ -131,7 +131,7 @@ CalItipItem.prototype = {
     }
 
     this.mItemList = [];
-    for (let item of cal.iterate.items(parser.getItems())) {
+    for (const item of cal.iterate.items(parser.getItems())) {
       cleanItem(item);
       // only push non-faked master items or
       // the overridden instances of faked master items
@@ -150,7 +150,7 @@ CalItipItem.prototype = {
     // method is (using user feedback, prefs, etc.) for the given
     // receivedMethod.  The RFC tells us to treat items without a METHOD
     // as if they were METHOD:REQUEST.
-    for (let prop of parser.getProperties()) {
+    for (const prop of parser.getProperties()) {
       if (prop.propertyName == "METHOD") {
         this.mReceivedMethod = prop.value;
         this.mResponseMethod = prop.value;
@@ -162,7 +162,7 @@ CalItipItem.prototype = {
   },
 
   clone() {
-    let newItem = new CalItipItem();
+    const newItem = new CalItipItem();
     newItem.mItemList = this.mItemList.map(item => item.clone());
     newItem.mReceivedMethod = this.mReceivedMethod;
     newItem.mResponseMethod = this.mResponseMethod;
@@ -197,7 +197,7 @@ CalItipItem.prototype = {
       aAttendeeId = "mailto:" + aAttendeeId;
     }
 
-    for (let item of this.mItemList) {
+    for (const item of this.mItemList) {
       let attendee = item.getAttendeeById(aAttendeeId);
       if (attendee) {
         // Replies should not have the RSVP property.

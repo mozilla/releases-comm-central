@@ -122,25 +122,25 @@ class CalDavRequestBase {
     }
 
     if (cal.verboseLogEnabled && this.uploadData) {
-      let method = this.channel.requestMethod;
+      const method = this.channel.requestMethod;
       cal.LOGverbose(`CalDAV: send (${method} ${this.uri.spec}): ${this.uploadData}`);
     }
 
-    let ResponseClass = this.responseClass;
+    const ResponseClass = this.responseClass;
     this.response = new ResponseClass(this);
     this.response.lastRedirectStatus = null;
     this.channel.asyncOpen(this.response.listener, this.channel);
 
     await this.response.responded;
 
-    let action = await this.session.completeRequest(this.response);
+    const action = await this.session.completeRequest(this.response);
     if (action == CalDavSession.RESTART_REQUEST) {
       this.reset();
       return this.commit();
     }
 
     if (cal.verboseLogEnabled) {
-      let text = this.response.text;
+      const text = this.response.text;
       if (text) {
         cal.LOGverbose("CalDAV: recv: " + text);
       }
@@ -160,7 +160,7 @@ class CalDavRequestBase {
      */
     function tryGetInterface(aObj) {
       try {
-        let requestor = aObj.QueryInterface(Ci.nsIInterfaceRequestor);
+        const requestor = aObj.QueryInterface(Ci.nsIInterfaceRequestor);
         return requestor.getInterface(aIID);
       } catch (e) {
         return null;
@@ -175,7 +175,7 @@ class CalDavRequestBase {
     // First check if the session has what we need. It may have an auth prompt implementation
     // that should go first. Ideally we should move the auth prompt to the session anyway, but
     // this is a task for another day (tm).
-    let iface = tryGetInterface(this.session) || tryGetInterface(this.calendar);
+    const iface = tryGetInterface(this.session) || tryGetInterface(this.calendar);
     if (iface) {
       return iface;
     }
@@ -191,7 +191,7 @@ class CalDavRequestBase {
      */
     function copyHeader(aHdr) {
       try {
-        let hdrValue = aOldChannel.getRequestHeader(aHdr);
+        const hdrValue = aOldChannel.getRequestHeader(aHdr);
         if (hdrValue) {
           aNewChannel.setRequestHeader(aHdr, hdrValue, false);
         }
@@ -205,8 +205,8 @@ class CalDavRequestBase {
     }
 
     let uploadData, uploadContent;
-    let oldUploadChannel = cal.wrapInstance(aOldChannel, Ci.nsIUploadChannel);
-    let oldHttpChannel = cal.wrapInstance(aOldChannel, Ci.nsIHttpChannel);
+    const oldUploadChannel = cal.wrapInstance(aOldChannel, Ci.nsIUploadChannel);
+    const oldHttpChannel = cal.wrapInstance(aOldChannel, Ci.nsIHttpChannel);
     if (oldUploadChannel && oldHttpChannel && oldUploadChannel.uploadStream) {
       uploadData = oldUploadChannel.uploadStream;
       uploadContent = oldHttpChannel.getRequestHeader("Content-Type");
@@ -479,7 +479,7 @@ class CalDavGenericRequest extends CalDavRequestBase {
     super(aSession, aCalendar, aUri, aUploadData, aUploadType, channel => {
       channel.requestMethod = aMethod;
 
-      for (let [name, value] of Object.entries(aHeaders)) {
+      for (const [name, value] of Object.entries(aHeaders)) {
         channel.setRequestHeader(name, value, false);
       }
     });
@@ -542,7 +542,7 @@ class LegacySAXResponse extends CalDavResponseBase {
 
         onStartRequest: aRequest => {
           try {
-            let result = this.request._handler.onStartRequest(aRequest);
+            const result = this.request._handler.onStartRequest(aRequest);
             this._onresponded();
             return result;
           } catch (e) {
@@ -552,7 +552,7 @@ class LegacySAXResponse extends CalDavResponseBase {
         },
         onStopRequest: (aRequest, aStatusCode) => {
           try {
-            let result = this.request._handler.onStopRequest(aRequest, aStatusCode);
+            const result = this.request._handler.onStopRequest(aRequest, aStatusCode);
             this._onresponded();
             return result;
           } catch (e) {
@@ -589,11 +589,11 @@ class CalDavItemRequest extends CalDavRequestBase {
    */
   constructor(aSession, aCalendar, aUri, aItem, aEtag = null) {
     aItem = fixGoogleDescription(aItem, aUri);
-    let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+    const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
     serializer.addItems([aItem], 1);
-    let serializedItem = serializer.serializeToString();
+    const serializedItem = serializer.serializeToString();
 
     super(aSession, aCalendar, aUri, serializedItem, MIME_TEXT_CALENDAR, channel => {
       if (aEtag == "*") {
@@ -681,7 +681,7 @@ class CalDavPropfindRequest extends CalDavRequestBase {
    * @param {number} aDepth - The depth for the request, defaults to 0
    */
   constructor(aSession, aCalendar, aUri, aProps, aDepth = 0) {
-    let xml =
+    const xml =
       XML_HEADER +
       `<D:propfind ${CalDavTagsToXmlns("D", ...aProps)}><D:prop>` +
       aProps.map(prop => `<${prop}/>`).join("") +
@@ -715,7 +715,7 @@ class PropfindResponse extends CalDavSimpleResponse {
      * @returns {?string} The text content, or null if empty
      */
     function textContent(node) {
-      let text = node.textContent;
+      const text = node.textContent;
       return text ? text.trim() : null;
     }
 
@@ -736,7 +736,7 @@ class PropfindResponse extends CalDavSimpleResponse {
      * @returns {?string} The trimmed text content
      */
     function singleHref(node) {
-      let hrefval = node.querySelector(":scope > href");
+      const hrefval = node.querySelector(":scope > href");
       return hrefval ? hrefval.textContent.trim() : null;
     }
 
@@ -750,7 +750,7 @@ class PropfindResponse extends CalDavSimpleResponse {
     function nodeNames(path, parent) {
       return new Set(
         [...parent.querySelectorAll(path)].map(node => {
-          let prefix = CalDavNsUnresolver(node.namespaceURI) || node.prefix;
+          const prefix = CalDavNsUnresolver(node.namespaceURI) || node.prefix;
           return prefix + ":" + node.localName;
         })
       );
@@ -821,17 +821,17 @@ class PropfindResponse extends CalDavSimpleResponse {
   get data() {
     if (!this._data) {
       this._data = {};
-      for (let response of this.xml.querySelectorAll(":scope > response")) {
-        let href = response.querySelector(":scope > href").textContent;
+      for (const response of this.xml.querySelectorAll(":scope > response")) {
+        const href = response.querySelector(":scope > href").textContent;
         this._data[href] = {};
 
         // This will throw 200's and 400's in one pot, but since 400's are empty that is ok
         // for our needs.
-        for (let propStat of response.querySelectorAll(":scope > propstat")) {
-          let status = propStat.querySelector(":scope > status").textContent;
-          for (let prop of propStat.querySelectorAll(":scope > prop > *")) {
-            let prefix = CalDavNsUnresolver(prop.namespaceURI) || prop.prefix;
-            let qname = prefix + ":" + prop.localName;
+        for (const propStat of response.querySelectorAll(":scope > propstat")) {
+          const status = propStat.querySelector(":scope > status").textContent;
+          for (const prop of propStat.querySelectorAll(":scope > prop > *")) {
+            const prefix = CalDavNsUnresolver(prop.namespaceURI) || prop.prefix;
+            const qname = prefix + ":" + prop.localName;
             if (qname in this.decorators) {
               this._data[href][qname] = this.decorators[qname](prop, status) || null;
             } else {
@@ -891,8 +891,8 @@ class DAVHeaderResponse extends CalDavSimpleResponse {
    */
   get features() {
     if (!this._features) {
-      let dav = this.getHeader("dav") || "";
-      let features = dav.split(/,\s*/);
+      const dav = this.getHeader("dav") || "";
+      const features = dav.split(/,\s*/);
       features.shift();
       this._features = new Set(features);
     }
@@ -903,7 +903,7 @@ class DAVHeaderResponse extends CalDavSimpleResponse {
    * The version from the DAV header
    */
   get version() {
-    let dav = this.getHeader("dav");
+    const dav = this.getHeader("dav");
     return parseInt(dav.substr(0, dav.indexOf(",")), 10);
   }
 }
@@ -924,7 +924,7 @@ class CalDavPrincipalPropertySearchRequest extends CalDavRequestBase {
    * @param {number} aDepth - The depth of the query, defaults to 1
    */
   constructor(aSession, aCalendar, aUri, aMatch, aSearchProp, aProps, aDepth = 1) {
-    let xml =
+    const xml =
       XML_HEADER +
       `<D:principal-property-search ${CalDavTagsToXmlns("D", aSearchProp, ...aProps)}>` +
       "<D:property-search>" +
@@ -969,12 +969,12 @@ class CalDavOutboxRequest extends CalDavRequestBase {
    */
   constructor(aSession, aCalendar, aUri, aOrganizer, aRecipients, aResponseMethod, aItem) {
     aItem = fixGoogleDescription(aItem, aUri);
-    let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+    const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
     serializer.addItems([aItem], 1);
 
-    let method = cal.icsService.createIcalProperty("METHOD");
+    const method = cal.icsService.createIcalProperty("METHOD");
     method.value = aResponseMethod;
     serializer.addProperty(method);
 
@@ -987,7 +987,7 @@ class CalDavOutboxRequest extends CalDavRequestBase {
       channel => {
         channel.requestMethod = "POST";
         channel.setRequestHeader("Originator", aOrganizer, false);
-        for (let recipient of aRecipients) {
+        for (const recipient of aRecipients) {
           channel.setRequestHeader("Recipient", recipient, true);
         }
       }
@@ -1014,9 +1014,9 @@ class OutboxResponse extends CalDavSimpleResponse {
       this._data = {};
       // TODO The following queries are currently untested code, as I don't have
       // a caldav-sched server available. If you find someone who does, please test!
-      for (let response of this.xml.querySelectorAll(":scope > response")) {
-        let recipient = response.querySelector(":scope > recipient > href").textContent;
-        let status = response.querySelector(":scope > request-status").textContent;
+      for (const response of this.xml.querySelectorAll(":scope > response")) {
+        const recipient = response.querySelector(":scope > recipient > href").textContent;
+        const status = response.querySelector(":scope > request-status").textContent;
         this.data[recipient] = status;
       }
     }
@@ -1045,25 +1045,25 @@ class CalDavFreeBusyRequest extends CalDavRequestBase {
    * @param {calIDateTime} aRangeEnd - The end of the range
    */
   constructor(aSession, aCalendar, aUri, aOrganizer, aRecipient, aRangeStart, aRangeEnd) {
-    let vcalendar = cal.icsService.createIcalComponent("VCALENDAR");
+    const vcalendar = cal.icsService.createIcalComponent("VCALENDAR");
     cal.item.setStaticProps(vcalendar);
 
-    let method = cal.icsService.createIcalProperty("METHOD");
+    const method = cal.icsService.createIcalProperty("METHOD");
     method.value = "REQUEST";
     vcalendar.addProperty(method);
 
-    let freebusy = cal.icsService.createIcalComponent("VFREEBUSY");
+    const freebusy = cal.icsService.createIcalComponent("VFREEBUSY");
     freebusy.uid = cal.getUUID();
     freebusy.stampTime = cal.dtz.now().getInTimezone(cal.dtz.UTC);
     freebusy.startTime = aRangeStart.getInTimezone(cal.dtz.UTC);
     freebusy.endTime = aRangeEnd.getInTimezone(cal.dtz.UTC);
     vcalendar.addSubcomponent(freebusy);
 
-    let organizer = cal.icsService.createIcalProperty("ORGANIZER");
+    const organizer = cal.icsService.createIcalProperty("ORGANIZER");
     organizer.value = aOrganizer;
     freebusy.addProperty(organizer);
 
-    let attendee = cal.icsService.createIcalProperty("ATTENDEE");
+    const attendee = cal.icsService.createIcalProperty("ATTENDEE");
     attendee.setParameter("PARTSTAT", "NEEDS-ACTION");
     attendee.setParameter("ROLE", "REQ-PARTICIPANT");
     attendee.setParameter("CUTYPE", "INDIVIDUAL");
@@ -1115,17 +1115,17 @@ class FreeBusyResponse extends CalDavSimpleResponse {
      * @returns {string} The trimmed text content
      */
     function querySelectorText(aParent, aPath) {
-      let node = aParent.querySelector(aPath);
+      const node = aParent.querySelector(aPath);
       return node ? node.textContent.trim() : "";
     }
 
     if (!this._data) {
       this._data = {};
-      for (let response of this.xml.querySelectorAll(":scope > response")) {
-        let recipient = querySelectorText(response, ":scope > recipient > href");
-        let status = querySelectorText(response, ":scope > request-status");
-        let caldata = querySelectorText(response, ":scope > calendar-data");
-        let intervals = [];
+      for (const response of this.xml.querySelectorAll(":scope > response")) {
+        const recipient = querySelectorText(response, ":scope > recipient > href");
+        const status = querySelectorText(response, ":scope > request-status");
+        const caldata = querySelectorText(response, ":scope > calendar-data");
+        const intervals = [];
         if (caldata) {
           let component;
           try {
@@ -1135,8 +1135,8 @@ class FreeBusyResponse extends CalDavSimpleResponse {
             continue;
           }
 
-          for (let fbcomp of cal.iterate.icalComponent(component, "VFREEBUSY")) {
-            let fbstart = fbcomp.startTime;
+          for (const fbcomp of cal.iterate.icalComponent(component, "VFREEBUSY")) {
+            const fbstart = fbcomp.startTime;
             if (fbstart && this.request._rangeStart.compare(fbstart) < 0) {
               intervals.push({
                 type: "UNKNOWN",
@@ -1145,11 +1145,11 @@ class FreeBusyResponse extends CalDavSimpleResponse {
               });
             }
 
-            for (let fbprop of cal.iterate.icalProperty(fbcomp, "FREEBUSY")) {
-              let type = fbprop.getParameter("FBTYPE");
+            for (const fbprop of cal.iterate.icalProperty(fbcomp, "FREEBUSY")) {
+              const type = fbprop.getParameter("FBTYPE");
 
-              let parts = fbprop.value.split("/");
-              let begin = cal.createDateTime(parts[0]);
+              const parts = fbprop.value.split("/");
+              const begin = cal.createDateTime(parts[0]);
               let end;
               if (parts[1].startsWith("P")) {
                 // this is a duration
@@ -1163,7 +1163,7 @@ class FreeBusyResponse extends CalDavSimpleResponse {
               intervals.push({ type, begin, end });
             }
 
-            let fbend = fbcomp.endTime;
+            const fbend = fbcomp.endTime;
             if (fbend && this.request._rangeEnd.compare(fbend) > 0) {
               intervals.push({
                 type: "UNKNOWN",

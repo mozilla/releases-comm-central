@@ -66,7 +66,7 @@ export var item = {
       load(items) {
         this._expectState(this.STATE_INITIAL | this.STATE_LOADING, "load");
 
-        for (let calendarItem of items) {
+        for (const calendarItem of items) {
           this.mInitialItems[calendarItem.hashId] = calendarItem;
         }
 
@@ -89,9 +89,9 @@ export var item = {
         this.mModifiedItems.startBatch();
         this.mAddedItems.startBatch();
 
-        for (let calendarItem of items) {
+        for (const calendarItem of items) {
           if (calendarItem.hashId in this.mInitialItems) {
-            let oldItem = this.mInitialItems[calendarItem.hashId];
+            const oldItem = this.mInitialItems[calendarItem.hashId];
             this.mModifiedOldItems.addItem(oldItem);
             this.mModifiedItems.addItem(calendarItem);
           } else {
@@ -119,8 +119,8 @@ export var item = {
 
         this.mDeletedItems.startBatch();
 
-        for (let hashId in this.mInitialItems) {
-          let calendarItem = this.mInitialItems[hashId];
+        for (const hashId in this.mInitialItems) {
+          const calendarItem = this.mInitialItems[hashId];
           this.mDeletedItems.addItem(calendarItem);
         }
 
@@ -220,7 +220,7 @@ export var item = {
   checkIfInRange(calendarItem, rangeStart, rangeEnd, returnDtstartOrDue) {
     let startDate;
     let endDate;
-    let queryStart = cal.dtz.ensureDateTime(rangeStart);
+    const queryStart = cal.dtz.ensureDateTime(rangeStart);
     if (calendarItem.isEvent()) {
       startDate = calendarItem.startDate;
       if (!startDate) {
@@ -241,7 +241,7 @@ export var item = {
         // A "VTODO" calendar component without the "DTSTART" and "DUE" (or
         // "DURATION") properties specifies a to-do that will be associated
         // with each successive calendar date, until it is completed.
-        let completedDate = cal.dtz.ensureDateTime(calendarItem.completedDate);
+        const completedDate = cal.dtz.ensureDateTime(calendarItem.completedDate);
         dueDate = cal.dtz.ensureDateTime(dueDate);
         return (
           !completedDate ||
@@ -253,9 +253,9 @@ export var item = {
       endDate = dueDate || startDate;
     }
 
-    let start = cal.dtz.ensureDateTime(startDate);
-    let end = cal.dtz.ensureDateTime(endDate);
-    let queryEnd = cal.dtz.ensureDateTime(rangeEnd);
+    const start = cal.dtz.ensureDateTime(startDate);
+    const end = cal.dtz.ensureDateTime(endDate);
+    const queryEnd = cal.dtz.ensureDateTime(rangeEnd);
 
     if (start.compare(end) == 0) {
       if (
@@ -274,9 +274,9 @@ export var item = {
   },
 
   setItemProperty(calendarItem, propertyName, aValue, aCapability) {
-    let isSupported =
+    const isSupported =
       calendarItem.calendar.getProperty("capabilities." + aCapability + ".supported") !== false;
-    let value = aCapability && !isSupported ? null : aValue;
+    const value = aCapability && !isSupported ? null : aValue;
 
     switch (propertyName) {
       case "startDate":
@@ -404,7 +404,7 @@ export var item = {
      * @returns True, if items match.
      */
   compareContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams) {
-    let ignoreProps = arr2hash(
+    const ignoreProps = arr2hash(
       aIgnoreProps || [
         "SEQUENCE",
         "DTSTAMP",
@@ -416,14 +416,14 @@ export var item = {
       ]
     );
 
-    let ignoreParams = aIgnoreParams || { ATTENDEE: ["CN"], ORGANIZER: ["CN"] };
-    for (let x in ignoreParams) {
+    const ignoreParams = aIgnoreParams || { ATTENDEE: ["CN"], ORGANIZER: ["CN"] };
+    for (const x in ignoreParams) {
       ignoreParams[x] = arr2hash(ignoreParams[x]);
     }
 
     function arr2hash(arr) {
-      let hash = {};
-      for (let x of arr) {
+      const hash = {};
+      for (const x of arr) {
         hash[x] = true;
       }
       return hash;
@@ -433,7 +433,7 @@ export var item = {
     // in the same order
     function normalizeComponent(comp) {
       let props = [];
-      for (let prop of cal.iterate.icalProperty(comp)) {
+      for (const prop of cal.iterate.icalProperty(comp)) {
         if (!(prop.propertyName in ignoreProps)) {
           props.push(normalizeProperty(prop));
         }
@@ -441,7 +441,7 @@ export var item = {
       props = props.sort();
 
       let comps = [];
-      for (let subcomp of cal.iterate.icalSubcomponent(comp)) {
+      for (const subcomp of cal.iterate.icalSubcomponent(comp)) {
         comps.push(normalizeComponent(subcomp));
       }
       comps = comps.sort();
@@ -450,7 +450,7 @@ export var item = {
     }
 
     function normalizeProperty(prop) {
-      let params = [...cal.iterate.icalParameter(prop)]
+      const params = [...cal.iterate.icalParameter(prop)]
         .filter(
           ([k, v]) =>
             !(prop.propertyName in ignoreParams) || !(k in ignoreParams[prop.propertyName])
@@ -487,12 +487,12 @@ export var item = {
     } else {
       /* isToDo */
       if (calendarItem.entryDate) {
-        let date = calendarItem.entryDate.clone();
+        const date = calendarItem.entryDate.clone();
         date.addDuration(offset);
         calendarItem.entryDate = date;
       }
       if (calendarItem.dueDate) {
-        let date = calendarItem.dueDate.clone();
+        const date = calendarItem.dueDate.clone();
         date.addDuration(offset);
         calendarItem.dueDate = date;
       }
@@ -507,11 +507,11 @@ export var item = {
    * @returns The modified item
    */
   moveToDate(aOldItem, aNewDate) {
-    let newItem = aOldItem.clone();
-    let start = (
+    const newItem = aOldItem.clone();
+    const start = (
       aOldItem[cal.dtz.startDateProp(aOldItem)] || aOldItem[cal.dtz.endDateProp(aOldItem)]
     ).clone();
-    let isDate = start.isDate;
+    const isDate = start.isDate;
     start.resetTo(
       aNewDate.year,
       aNewDate.month,
@@ -524,9 +524,9 @@ export var item = {
     start.isDate = isDate;
     if (newItem[cal.dtz.startDateProp(newItem)]) {
       newItem[cal.dtz.startDateProp(newItem)] = start;
-      let oldDuration = aOldItem.duration;
+      const oldDuration = aOldItem.duration;
       if (oldDuration) {
-        let oldEnd = aOldItem[cal.dtz.endDateProp(aOldItem)];
+        const oldEnd = aOldItem[cal.dtz.endDateProp(aOldItem)];
         let newEnd = start.clone();
         newEnd.addDuration(oldDuration);
         newEnd = newEnd.getInTimezone(oldEnd.timezone);
@@ -542,7 +542,7 @@ export var item = {
    * Shortcut function to serialize an item (including all overridden items).
    */
   serialize(aItem) {
-    let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+    const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
     serializer.addItems([aItem]);
@@ -584,7 +584,7 @@ export var item = {
    */
   findWindow(aItem) {
     // check for existing dialog windows
-    for (let dlg of Services.wm.getEnumerator("Calendar:EventDialog")) {
+    for (const dlg of Services.wm.getEnumerator("Calendar:EventDialog")) {
       if (
         dlg.arguments[0] &&
         dlg.arguments[0].mode == "modify" &&
@@ -595,7 +595,7 @@ export var item = {
       }
     }
     // check for existing summary windows
-    for (let dlg of Services.wm.getEnumerator("Calendar:EventSummaryDialog")) {
+    for (const dlg of Services.wm.getEnumerator("Calendar:EventSummaryDialog")) {
       if (dlg.calendarItem && dlg.calendarItem.hashId == aItem.hashId) {
         return dlg;
       }
@@ -614,7 +614,7 @@ export var item = {
     let start = aItem[cal.dtz.startDateProp(aItem)];
     let end = aItem[cal.dtz.endDateProp(aItem)];
     if (start || end) {
-      let calendarItem = aItem.clone();
+      const calendarItem = aItem.clone();
       if (start && start.isDate != aIsDate) {
         start = start.clone();
         start.isDate = aIsDate;
@@ -638,7 +638,7 @@ export var item = {
    * @returns The progress atom.
    */
   getProgressAtom(aTask) {
-    let nowdate = new Date();
+    const nowdate = new Date();
 
     if (aTask.recurrenceInfo) {
       return "repeating";

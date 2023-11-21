@@ -36,7 +36,7 @@ export var acl = {
    * @returns True if the calendar is writable
    */
   userCanAddItemsToCalendar(aCalendar) {
-    let aclEntry = aCalendar.aclEntry;
+    const aclEntry = aCalendar.aclEntry;
     return (
       !aclEntry || !aclEntry.hasAccessControl || aclEntry.userIsOwner || aclEntry.userCanAddItems
     );
@@ -50,7 +50,7 @@ export var acl = {
    * @returns True if the calendar is writable
    */
   userCanDeleteItemsFromCalendar(aCalendar) {
-    let aclEntry = aCalendar.aclEntry;
+    const aclEntry = aCalendar.aclEntry;
     return (
       !aclEntry || !aclEntry.hasAccessControl || aclEntry.userIsOwner || aclEntry.userCanDeleteItems
     );
@@ -65,7 +65,7 @@ export var acl = {
    * @returns True if the item is modifiable
    */
   userCanModifyItem(aItem) {
-    let aclEntry = aItem.aclEntry;
+    const aclEntry = aItem.aclEntry;
     return (
       !aclEntry ||
       !aclEntry.calendarEntry.hasAccessControl ||
@@ -83,7 +83,7 @@ export var acl = {
    *                        responded to.
    */
   userCanRespondToInvitation(aItem) {
-    let aclEntry = aItem.aclEntry;
+    const aclEntry = aItem.aclEntry;
     // TODO check if || is really wanted here
     return acl.userCanModifyItem(aItem) || aclEntry.userCanRespond;
   },

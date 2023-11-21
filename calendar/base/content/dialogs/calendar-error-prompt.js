@@ -5,13 +5,13 @@
 window.addEventListener("DOMContentLoaded", loadErrorPrompt);
 
 function loadErrorPrompt() {
-  let args = window.arguments[0].QueryInterface(Ci.nsIDialogParamBlock);
+  const args = window.arguments[0].QueryInterface(Ci.nsIDialogParamBlock);
   document.getElementById("general-text").value = args.GetString(0);
   document.getElementById("error-code").value = args.GetString(1);
   document.getElementById("error-description").value = args.GetString(2);
 }
 function toggleDetails() {
-  let options = document.getElementById("details-box");
+  const options = document.getElementById("details-box");
   options.collapsed = !options.collapsed;
   // Grow the window height if the details overflow.
   window.resizeTo(

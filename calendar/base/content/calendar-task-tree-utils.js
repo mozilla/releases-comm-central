@@ -25,14 +25,14 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
  * @param aEvent    The popupshowing event of the opening menu
  */
 function addCalendarNames(aEvent) {
-  let calendarMenuPopup = aEvent.target;
+  const calendarMenuPopup = aEvent.target;
   while (calendarMenuPopup.hasChildNodes()) {
     calendarMenuPopup.lastChild.remove();
   }
-  let tasks = getSelectedTasks();
-  let tasksSelected = tasks.length > 0;
+  const tasks = getSelectedTasks();
+  const tasksSelected = tasks.length > 0;
   if (tasksSelected) {
-    let selIndex = appendCalendarItems(
+    const selIndex = appendCalendarItems(
       tasks[0],
       calendarMenuPopup,
       null,
@@ -53,7 +53,7 @@ function addCalendarNames(aEvent) {
  * @param aElement {Element} - The parent node.
  */
 function setAttributeOnChildrenOrTheirCommands(aAttribute, aValue, aElement) {
-  for (let child of aElement.children) {
+  for (const child of aElement.children) {
     const commandName = child.getAttribute("command");
     const command = commandName && document.getElementById(commandName);
 
@@ -85,8 +85,8 @@ function changeContextMenuForTask(aEvent) {
   document.getElementById("task-context-menu-filter-todaypane").hidden = isMainTaskTree;
   document.getElementById("task-context-menu-separator-filter").hidden = isMainTaskTree;
 
-  let items = getSelectedTasks();
-  let tasksSelected = items.length > 0;
+  const items = getSelectedTasks();
+  const tasksSelected = items.length > 0;
 
   setAttributeOnChildrenOrTheirCommands("disabled", !tasksSelected, aEvent.target);
 
@@ -116,7 +116,7 @@ function changeContextMenuForTask(aEvent) {
 
   changeMenuForTask();
 
-  let menu = document.getElementById("task-context-menu-attendance-menu");
+  const menu = document.getElementById("task-context-menu-attendance-menu");
   setupAttendanceMenu(menu, items);
 }
 
@@ -130,7 +130,7 @@ function handleTaskContextMenuStateChange(aEvent) {
     return;
   }
 
-  let tree = aEvent.target.triggerNode.closest(".calendar-task-tree");
+  const tree = aEvent.target.triggerNode.closest(".calendar-task-tree");
 
   if (tree) {
     tree.updateFocus();
@@ -142,7 +142,7 @@ function handleTaskContextMenuStateChange(aEvent) {
  */
 function changeMenuForTask() {
   // Make sure to update the status of some commands.
-  let commands = [
+  const commands = [
     "calendar_delete_todo_command",
     "calendar_toggle_completed_command",
     "calendar_general-progress_command",
@@ -151,10 +151,10 @@ function changeMenuForTask() {
   ];
   commands.forEach(goUpdateCommand);
 
-  let tasks = getSelectedTasks();
-  let tasksSelected = tasks.length > 0;
+  const tasks = getSelectedTasks();
+  const tasksSelected = tasks.length > 0;
   if (tasksSelected) {
-    let cmd = document.getElementById("calendar_toggle_completed_command");
+    const cmd = document.getElementById("calendar_toggle_completed_command");
     if (tasks.every(task => task.isCompleted == tasks[0].isCompleted)) {
       cmd.checked = tasks[0].isCompleted;
     } else {
@@ -174,9 +174,9 @@ function contextChangeTaskProgress(aProgress) {
     editToDoStatus(aProgress);
   } else {
     startBatchTransaction();
-    let tasks = getSelectedTasks();
-    for (let task of tasks) {
-      let newTask = task.clone().QueryInterface(Ci.calITodo);
+    const tasks = getSelectedTasks();
+    for (const task of tasks) {
+      const newTask = task.clone().QueryInterface(Ci.calITodo);
       newTask.percentComplete = aProgress;
       switch (aProgress) {
         case 0:
@@ -204,9 +204,9 @@ function contextChangeTaskProgress(aProgress) {
  */
 function contextChangeTaskCalendar(aEvent) {
   startBatchTransaction();
-  let tasks = getSelectedTasks();
-  for (let task of tasks) {
-    let newTask = task.clone();
+  const tasks = getSelectedTasks();
+  for (const task of tasks) {
+    const newTask = task.clone();
     newTask.calendar = aEvent.target.calendar;
     doTransaction("modify", newTask, newTask.calendar, task, null);
   }
@@ -220,14 +220,14 @@ function contextChangeTaskCalendar(aEvent) {
  * @param {short} aPriority - The priority to set on the task(s)
  */
 function contextChangeTaskPriority(aPriority) {
-  let tabType = gTabmail && gTabmail.currentTabInfo.mode.type;
+  const tabType = gTabmail && gTabmail.currentTabInfo.mode.type;
   if (tabType == "calendarTask" || tabType == "calendarEvent") {
     editConfigState({ priority: aPriority });
   } else {
     startBatchTransaction();
-    let tasks = getSelectedTasks();
-    for (let task of tasks) {
-      let newTask = task.clone().QueryInterface(Ci.calITodo);
+    const tasks = getSelectedTasks();
+    for (const task of tasks) {
+      const newTask = task.clone().QueryInterface(Ci.calITodo);
       newTask.priority = aPriority;
       doTransaction("modify", newTask, newTask.calendar, task, null);
     }
@@ -245,7 +245,7 @@ function contextChangeTaskPriority(aPriority) {
  * @param {string} aDuration - The duration to postpone in ISO 8601 format
  */
 function contextPostponeTask(aDuration) {
-  let duration = cal.createDuration(aDuration);
+  const duration = cal.createDuration(aDuration);
   if (!duration) {
     cal.LOG("[calendar-task-tree] Postpone Task - Invalid duration " + aDuration);
     return;
@@ -255,11 +255,11 @@ function contextPostponeTask(aDuration) {
     postponeTask(aDuration);
   } else {
     startBatchTransaction();
-    let tasks = getSelectedTasks();
+    const tasks = getSelectedTasks();
 
     tasks.forEach(task => {
       if (task.entryDate || task.dueDate) {
-        let newTask = task.clone();
+        const newTask = task.clone();
         cal.item.shiftOffset(newTask, duration);
         doTransaction("modify", newTask, newTask.calendar, task, null);
       }
@@ -275,8 +275,8 @@ function contextPostponeTask(aDuration) {
  * @param initialDate   (optional) The initial date for new task datepickers
  */
 function modifyTaskFromContext(initialDate) {
-  let tasks = getSelectedTasks();
-  for (let task of tasks) {
+  const tasks = getSelectedTasks();
+  for (const task of tasks) {
     modifyEventWithDialog(task, true, initialDate);
   }
 }
@@ -287,7 +287,7 @@ function modifyTaskFromContext(initialDate) {
  * @param aDoNotConfirm   If true, the user will not be asked to delete.
  */
 function deleteToDoCommand(aDoNotConfirm) {
-  let tasks = getSelectedTasks();
+  const tasks = getSelectedTasks();
   calendarViewController.deleteOccurrences(tasks, false, aDoNotConfirm);
 }
 
@@ -307,7 +307,7 @@ function getTaskTree() {
  * Gets the tasks selected in the currently visible task tree.
  */
 function getSelectedTasks() {
-  let taskTree = getTaskTree();
+  const taskTree = getTaskTree();
   return taskTree ? taskTree.selectedTasks : [];
 }
 
@@ -315,7 +315,7 @@ function getSelectedTasks() {
  * Convert selected tasks to emails.
  */
 function tasksToMail() {
-  let tasks = getSelectedTasks();
+  const tasks = getSelectedTasks();
   calendarMailButtonDNDObserver.onDropItems(tasks);
 }
 
@@ -323,7 +323,7 @@ function tasksToMail() {
  * Convert selected tasks to events.
  */
 function tasksToEvents() {
-  let tasks = getSelectedTasks();
+  const tasks = getSelectedTasks();
   calendarCalendarButtonDNDObserver.onDropItems(tasks);
 }
 

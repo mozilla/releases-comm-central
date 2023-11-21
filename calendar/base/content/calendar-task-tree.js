@@ -59,7 +59,7 @@
           this.tree.mFilter.getOccurrences(oldItem)
         );
         // We also need to notify potential listeners.
-        let event = document.createEvent("Events");
+        const event = document.createEvent("Events");
         event.initEvent("select", true, false);
         this.tree.dispatchEvent(event);
       }
@@ -247,7 +247,7 @@
           // We should only drag treechildren, not for example the scrollbar.
           return;
         }
-        let item = this.mTreeView.getItemFromEvent(event);
+        const item = this.mTreeView.getItemFromEvent(event);
         if (!item || item.calendar.readOnly) {
           return;
         }
@@ -295,9 +295,9 @@
     }
 
     get selectedTasks() {
-      let tasks = [];
-      let start = {};
-      let end = {};
+      const tasks = [];
+      const start = {};
+      const end = {};
       if (!this.mTreeView.selection) {
         return tasks;
       }
@@ -308,7 +308,7 @@
         this.mTreeView.selection.getRangeAt(range, start, end);
 
         for (let i = start.value; i <= end.value; i++) {
-          let task = this.getTaskAtRow(i);
+          const task = this.getTaskAtRow(i);
           if (task) {
             tasks.push(this.getTaskAtRow(i));
           }
@@ -373,11 +373,11 @@
      * state of the columns across restarts. Used with `persistTaskTreeColumnState` function.
      */
     restoreColumnState() {
-      let visibleColumns = this.getAttribute("visible-columns").split(" ");
-      let ordinals = this.getAttribute("ordinals").split(" ");
-      let widths = this.getAttribute("widths").split(" ");
-      let sorted = this.getAttribute("sort-active");
-      let sortDirection = this.getAttribute("sort-direction") || "ascending";
+      const visibleColumns = this.getAttribute("visible-columns").split(" ");
+      const ordinals = this.getAttribute("ordinals").split(" ");
+      const widths = this.getAttribute("widths").split(" ");
+      const sorted = this.getAttribute("sort-active");
+      const sortDirection = this.getAttribute("sort-direction") || "ascending";
 
       this.querySelectorAll("treecol").forEach(col => {
         const itemProperty = col.getAttribute("itemproperty");
@@ -399,7 +399,7 @@
       });
       // Update the ordinal positions of splitters to even numbers, so that
       // they are in between columns.
-      let splitters = this.getElementsByTagName("splitter");
+      const splitters = this.getElementsByTagName("splitter");
       for (let i = 0; i < splitters.length; i++) {
         splitters[i].style.MozBoxOrdinalGroup = (i + 1) * 2;
       }
@@ -474,7 +474,7 @@
         return;
       }
 
-      let refreshJob = {
+      const refreshJob = {
         QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
         tree: this,
         calendar: null,
@@ -498,7 +498,7 @@
           this.tree.mPendingRefreshJobs[calendar.id] = this;
           this.operation = cal.iterate.streamValues(this.tree.mFilter.getItems(calendar));
 
-          for await (let items of this.operation) {
+          for await (const items of this.operation) {
             this.items = this.items.concat(items);
           }
 
@@ -511,7 +511,7 @@
             delete this.tree.mPendingRefreshJobs[calendar.id];
           }
 
-          let oldItems = this.tree.mTaskArray.filter(item => item.calendar.id == calendar.id);
+          const oldItems = this.tree.mTaskArray.filter(item => item.calendar.id == calendar.id);
           this.tree.mTreeView.modifyItems(this.items, oldItems);
           this.tree.dispatchEvent(new CustomEvent("refresh", { bubbles: false }));
         },
@@ -559,9 +559,9 @@
 
     sortItems() {
       if (this.mTreeView.selectedColumn) {
-        let column = this.mTreeView.selectedColumn;
-        let modifier = this.mTreeView.sortDirection == "descending" ? -1 : 1;
-        let sortKey = column.getAttribute("sortKey") || column.getAttribute("itemproperty");
+        const column = this.mTreeView.selectedColumn;
+        const modifier = this.mTreeView.sortDirection == "descending" ? -1 : 1;
+        const sortKey = column.getAttribute("sortKey") || column.getAttribute("itemproperty");
 
         cal.unifinder.sortItems(this.mTaskArray, sortKey, modifier);
       }
@@ -586,12 +586,12 @@
 
     doUpdateFilter(filter) {
       let needsRefresh = false;
-      let oldStart = this.mFilter.mStartDate;
-      let oldEnd = this.mFilter.mEndDate;
-      let filterText = this.mFilter.filterText || "";
+      const oldStart = this.mFilter.mStartDate;
+      const oldEnd = this.mFilter.mEndDate;
+      const filterText = this.mFilter.filterText || "";
 
       if (filter) {
-        let props = this.mFilter.filterProperties;
+        const props = this.mFilter.filterProperties;
         this.mFilter.applyFilter(filter);
         needsRefresh = !props || !props.equals(this.mFilter.filterProperties);
       } else {
@@ -599,7 +599,7 @@
       }
 
       if (this.mTextFilterField) {
-        let field = document.getElementById(this.mTextFilterField);
+        const field = document.getElementById(this.mTextFilterField);
         if (field) {
           this.mFilter.filterText = field.value;
           needsRefresh =
@@ -632,13 +632,13 @@
 
       // We need to consider the tree focused if the context menu is open.
       if (this.hasAttribute("context")) {
-        let context = document.getElementById(this.getAttribute("context"));
+        const context = document.getElementById(this.getAttribute("context"));
         if (context && context.state) {
           menuOpen = context.state == "open" || context.state == "showing";
         }
       }
 
-      let focused = document.activeElement == this || menuOpen;
+      const focused = document.activeElement == this || menuOpen;
 
       calendarController.onSelectionChanged({ detail: focused ? this.selectedTasks : [] });
       calendarController.todo_tasktree_focused = focused;

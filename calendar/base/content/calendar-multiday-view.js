@@ -114,7 +114,7 @@
       );
       this.hourBoxContainer = this.querySelector(".multiday-hour-box-container");
       for (let hour = 0; hour < 24; hour++) {
-        let hourBox = document.createElement("div");
+        const hourBox = document.createElement("div");
         hourBox.classList.add("multiday-hour-box");
         this.hourBoxContainer.appendChild(hourBox);
         this.hourBoxes.push(hourBox);
@@ -147,7 +147,7 @@
         this.calendarView.selectedDay = this.date;
 
         // If the selected calendar is readOnly, we don't want any sweeping.
-        let calendar = getSelectedCalendar();
+        const calendar = getSelectedCalendar();
         if (
           !cal.acl.isCalendarWritable(calendar) ||
           calendar.getProperty("capabilities.events.supported") === false
@@ -299,7 +299,7 @@
      *   as selected.
      */
     selectEvent(eventItem, select) {
-      let data = this.eventDataMap.get(eventItem.hashId);
+      const data = this.eventDataMap.get(eventItem.hashId);
       if (!data) {
         return;
       }
@@ -345,7 +345,7 @@
 
     setAttribute(attr, val) {
       // this should be done using lookupMethod(), see bug 286629
-      let ret = super.setAttribute(attr, val);
+      const ret = super.setAttribute(attr, val);
 
       if (attr == "orient" && this.getAttribute("orient") != val) {
         this.relayout();
@@ -421,17 +421,17 @@
       }
       this._clearElements();
 
-      let orient = this.getAttribute("orient");
+      const orient = this.getAttribute("orient");
 
-      let configBox = this.querySelector("calendar-event-box");
+      const configBox = this.querySelector("calendar-event-box");
       configBox.removeAttribute("hidden");
-      let minSize = configBox.getOptimalMinSize(orient);
+      const minSize = configBox.getOptimalMinSize(orient);
       configBox.setAttribute("hidden", "true");
       // The minimum event duration in minutes that would give at least the
       // desired minSize in the layout.
-      let minDuration = Math.ceil(minSize / this.pixelsPerMinute);
+      const minDuration = Math.ceil(minSize / this.pixelsPerMinute);
 
-      let dayPx = `${MINUTES_IN_DAY * this.pixelsPerMinute}px`;
+      const dayPx = `${MINUTES_IN_DAY * this.pixelsPerMinute}px`;
       if (orient == "vertical") {
         this.hourBoxContainer.style.height = dayPx;
         this.hourBoxContainer.style.width = null;
@@ -444,16 +444,16 @@
       this.fgboxes.box.setAttribute("orient", orient);
       this.querySelector(".fgdragspacer").setAttribute("orient", orient);
 
-      for (let eventData of this.eventDataMap.values()) {
+      for (const eventData of this.eventDataMap.values()) {
         if (!eventData.needsUpdate) {
           continue;
         }
         eventData.needsUpdate = false;
         // Create a new wrapper.
-        let eventElement = document.createElement("li");
+        const eventElement = document.createElement("li");
         eventElement.classList.add("multiday-event-listitem");
         // Set up the event box.
-        let eventBox = document.createXULElement("calendar-event-box");
+        const eventBox = document.createXULElement("calendar-event-box");
         eventElement.appendChild(eventBox);
 
         // Trigger connectedCallback
@@ -485,22 +485,22 @@
         eventElement.remove();
       }
 
-      let eventLayoutList = this.computeEventLayoutInfo(minDuration);
+      const eventLayoutList = this.computeEventLayoutInfo(minDuration);
 
-      for (let eventInfo of eventLayoutList) {
+      for (const eventInfo of eventLayoutList) {
         // Note that we store the calendar-event-box in the eventInfo, so we
         // grab its parent to get the wrapper list item.
         // NOTE: This may be a newly created element or a non-updated element
         // that was removed from the eventsListElement in _clearElements. We
         // still hold a reference to it, so we can re-add it in the new ordering
         // and change its dimensions.
-        let eventElement = eventInfo.element.parentNode;
+        const eventElement = eventInfo.element.parentNode;
         // FIXME: offset and length should be in % of parent's dimension, so we
         // can avoid pixelsPerMinute.
-        let offset = `${eventInfo.start * this.pixelsPerMinute}px`;
-        let length = `${(eventInfo.end - eventInfo.start) * this.pixelsPerMinute}px`;
-        let secondaryOffset = `${eventInfo.secondaryOffset * 100}%`;
-        let secondaryLength = `${eventInfo.secondaryLength * 100}%`;
+        const offset = `${eventInfo.start * this.pixelsPerMinute}px`;
+        const length = `${(eventInfo.end - eventInfo.start) * this.pixelsPerMinute}px`;
+        const secondaryOffset = `${eventInfo.secondaryOffset * 100}%`;
+        const secondaryLength = `${eventInfo.secondaryLength * 100}%`;
         if (orient == "vertical") {
           eventElement.style.height = length;
           eventElement.style.width = secondaryLength;
@@ -515,7 +515,7 @@
         this.eventsListElement.appendChild(eventElement);
       }
 
-      let boxToEdit = this.eventDataMap.get(this.eventToEdit)?.element;
+      const boxToEdit = this.eventDataMap.get(this.eventToEdit)?.element;
       if (boxToEdit) {
         boxToEdit.startEditing();
       }
@@ -559,7 +559,7 @@
       function sortByStart(aEventInfo, bEventInfo) {
         // If you pass in tasks without both entry and due dates, I will
         // kill you.
-        let startComparison = aEventInfo.startDate.compare(bEventInfo.startDate);
+        const startComparison = aEventInfo.startDate.compare(bEventInfo.startDate);
         if (startComparison == 0) {
           // If the items start at the same time, return the longer one
           // first.
@@ -574,8 +574,8 @@
       // properties, as opposed to using minutes from the start of the day
       // because we want to sort the events relative to their absolute start
       // times.
-      let eventList = Array.from(this.eventDataMap.values(), eventData => {
-        let element = eventData.element;
+      const eventList = Array.from(this.eventDataMap.values(), eventData => {
+        const element = eventData.element;
         let { startDate, endDate, startMinute, endMinute } = element.updateRelativeStartEndDates(
           this.date
         );
@@ -591,9 +591,9 @@
         }
         // Any events that start or end on a different day are clipped to the
         // start/end minutes of this day instead.
-        let start = Math.max(startMinute, 0);
+        const start = Math.max(startMinute, 0);
         // NOTE: The end can overflow the end of the day due to the minDuration.
-        let end = Math.max(start + minDuration, Math.min(endMinute, MINUTES_IN_DAY));
+        const end = Math.max(start + minDuration, Math.min(endMinute, MINUTES_IN_DAY));
         return { element, startDate, endDate, start, end };
       });
       eventList.sort(sortByStart);
@@ -625,13 +625,13 @@
       // All the event Blocks in this calendar column, ordered by their start
       // time. Each Block will be an array of Columns, which will in turn be an
       // array of Events.
-      let allEventBlocks = [];
+      const allEventBlocks = [];
       // The current Block.
       let blockColumns = [];
       let blockEnd = eventList[0].end;
 
-      for (let eventInfo of eventList) {
-        let start = eventInfo.start;
+      for (const eventInfo of eventList) {
+        const start = eventInfo.start;
         if (blockColumns.length && start >= blockEnd) {
           // There is a gap between this Event and the end of the Block. We also
           // know from the ordering of eventList that all other Events start at
@@ -647,14 +647,14 @@
 
         // Find the earliest Column that the Event fits in.
         let foundCol = false;
-        for (let column of blockColumns) {
+        for (const column of blockColumns) {
           // We know from the ordering of eventList that all Events already in a
           // Column have a start time that is equal to or earlier than this
           // Event's start time. Therefore, in order for this Event to not
           // overlap anything else in this Column, it must have a start time
           // that is later than or equal to the end time of the last Event in
           // this column.
-          let colEnd = column[column.length - 1].end;
+          const colEnd = column[column.length - 1].end;
           if (start >= colEnd) {
             // It fits in this Column, so we push it to the end (preserving the
             // eventList ordering within the Column).
@@ -673,15 +673,15 @@
         allEventBlocks.push(blockColumns);
       }
 
-      for (let blockColumns of allEventBlocks) {
-        let totalCols = blockColumns.length;
+      for (const blockColumns of allEventBlocks) {
+        const totalCols = blockColumns.length;
         for (let colIndex = 0; colIndex < totalCols; colIndex++) {
-          for (let eventInfo of blockColumns[colIndex]) {
+          for (const eventInfo of blockColumns[colIndex]) {
             if (eventInfo.processed) {
               // Already processed this Event in an earlier Column.
               continue;
             }
-            let { start, end } = eventInfo;
+            const { start, end } = eventInfo;
             let colSpan = 1;
             // Currently, the Event is only contained in one Column. We want to
             // first try and stretch it across several continuous columns.
@@ -694,13 +694,13 @@
               neighbourColIndex < totalCols;
               neighbourColIndex++
             ) {
-              let neighbourColumn = blockColumns[neighbourColIndex];
+              const neighbourColumn = blockColumns[neighbourColIndex];
               // Test if this Event overlaps any of the other Events in the
               // neighbouring Column.
               let overlapsCol = false;
               let indexInCol;
               for (indexInCol = 0; indexInCol < neighbourColumn.length; indexInCol++) {
-                let otherEventInfo = neighbourColumn[indexInCol];
+                const otherEventInfo = neighbourColumn[indexInCol];
                 if (end <= otherEventInfo.start) {
                   // The end of this Event is before or equal to the start of
                   // the other Event, so it cannot overlap.
@@ -770,7 +770,7 @@
       if (start < 0) {
         offset = Math.ceil(Math.abs(start) / MINUTES_IN_DAY);
         shadows += offset;
-        let remainder = Math.abs(start) % MINUTES_IN_DAY;
+        const remainder = Math.abs(start) % MINUTES_IN_DAY;
         startMin = remainder ? MINUTES_IN_DAY - remainder : 0;
       } else {
         startMin = start;
@@ -783,7 +783,7 @@
      * Clear a dragging sequence that is owned by this column.
      */
     clearDragging() {
-      for (let col of this.calendarView.getEventColumns()) {
+      for (const col of this.calendarView.getEventColumns()) {
         col.fgboxes.dragbox.removeAttribute("dragging");
         col.fgboxes.box.removeAttribute("dragging");
         // We remove the height and width attributes as well.
@@ -811,7 +811,7 @@
       let startStr;
       // Tasks without Entry or Due date have a string as first label
       // instead of the time.
-      let item = this.mDragState.dragOccurrence;
+      const item = this.mDragState.dragOccurrence;
       if (item?.isTodo()) {
         if (!item.dueDate) {
           startStr = cal.l10n.getCalString("dragLabelTasksWithOnlyEntryDate");
@@ -820,29 +820,29 @@
         }
       }
 
-      let { startMin, endMin, offset, shadows } = this.mDragState;
-      let jsTime = new Date();
-      let formatter = cal.dtz.formatter;
+      const { startMin, endMin, offset, shadows } = this.mDragState;
+      const jsTime = new Date();
+      const formatter = cal.dtz.formatter;
       if (!startStr) {
         jsTime.setHours(0, startMin, 0);
         startStr = formatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
       }
       jsTime.setHours(0, endMin, 0);
-      let endStr = formatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
+      const endStr = formatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
 
-      let allColumns = this.calendarView.getEventColumns();
-      let thisIndex = allColumns.indexOf(this);
+      const allColumns = this.calendarView.getEventColumns();
+      const thisIndex = allColumns.indexOf(this);
       // NOTE: startIndex and endIndex be before or after the start and end of
       // the week, respectively, if the event spans multiple days.
-      let startIndex = thisIndex - offset;
-      let endIndex = startIndex + shadows - 1;
+      const startIndex = thisIndex - offset;
+      const endIndex = startIndex + shadows - 1;
 
       // All columns have the same orient and pixels per minutes.
-      let sizeProp = this.getAttribute("orient") == "vertical" ? "height" : "width";
-      let pixPerMin = this.pixelsPerMinute;
+      const sizeProp = this.getAttribute("orient") == "vertical" ? "height" : "width";
+      const pixPerMin = this.pixelsPerMinute;
 
       for (let i = 0; i < allColumns.length; i++) {
-        let fgboxes = allColumns[i].fgboxes;
+        const fgboxes = allColumns[i].fgboxes;
         if (i == startIndex) {
           fgboxes.dragbox.setAttribute("dragging", "true");
           fgboxes.box.setAttribute("dragging", "true");
@@ -874,7 +874,7 @@
     }
 
     onEventSweepKeypress(event) {
-      let col = document.calendarEventColumnDragging;
+      const col = document.calendarEventColumnDragging;
       if (col && event.key == "Escape") {
         col.clearDragging();
       }
@@ -882,17 +882,17 @@
 
     // Event sweep handlers.
     onEventSweepMouseMove(event) {
-      let col = document.calendarEventColumnDragging;
+      const col = document.calendarEventColumnDragging;
       if (!col) {
         return;
       }
 
-      let dragState = col.mDragState;
+      const dragState = col.mDragState;
 
       // FIXME: Use mouseenter and mouseleave to detect column changes since
       // they fire when scrolling changes the mouse target, but mousemove does
       // not.
-      let newcol = col.calendarView.findEventColumnThatContains(event.target);
+      const newcol = col.calendarView.findEventColumnThatContains(event.target);
       // If we leave the view, then stop our internal sweeping and start a
       // real drag session. Someday we need to fix the sweep to soely be a
       // drag session, no sweeping.
@@ -900,7 +900,7 @@
         // Remove the drag state.
         col.clearDragging();
 
-        let item = dragState.dragOccurrence;
+        const item = dragState.dragOccurrence;
 
         // The multiday view currently exhibits a less than optimal strategy
         // in terms of item selection. items don't get automatically selected
@@ -909,7 +909,7 @@
         // targets will ask for selected items in order to pull the data from
         // the packets. that's why we need to make sure at least the currently
         // dragged event is contained in the set of selected items.
-        let selectedItems = this.getSelectedItems();
+        const selectedItems = this.getSelectedItems();
         if (!selectedItems.some(aItem => aItem.hashId == item.hashId)) {
           col.calendarView.setSelectedItems([event.ctrlKey ? item.parentItem : item]);
         }
@@ -925,17 +925,17 @@
       // Check if we need to jump a column.
       if (newcol && newcol != col) {
         // Find how many columns we are jumping by subtracting the dates.
-        let dur = newcol.date.subtractDate(col.date);
-        let jumpedColumns = dur.isNegative ? -dur.days : dur.days;
+        const dur = newcol.date.subtractDate(col.date);
+        const jumpedColumns = dur.isNegative ? -dur.days : dur.days;
         if (dragState.dragType == "modify-start") {
           // Prevent dragging the start date after the end date in a new column.
-          let limitEndMin = dragState.limitEndMin - MINUTES_IN_DAY * jumpedColumns;
+          const limitEndMin = dragState.limitEndMin - MINUTES_IN_DAY * jumpedColumns;
           if (limitEndMin < 0) {
             return;
           }
           dragState.limitEndMin = limitEndMin;
         } else if (dragState.dragType == "modify-end") {
-          let limitStartMin = dragState.limitStartMin - MINUTES_IN_DAY * jumpedColumns;
+          const limitStartMin = dragState.limitStartMin - MINUTES_IN_DAY * jumpedColumns;
           // Prevent dragging the end date before the start date in a new column.
           if (limitStartMin > MINUTES_IN_DAY) {
             return;
@@ -967,7 +967,7 @@
      * @param {number} clientY - The y position.
      */
     updateDragPosition(clientX, clientY) {
-      let col = document.calendarEventColumnDragging;
+      const col = document.calendarEventColumnDragging;
       if (!col) {
         return;
       }
@@ -978,7 +978,7 @@
         this.updateDragPosition(clientX, clientY)
       );
 
-      let dragState = col.mDragState;
+      const dragState = col.mDragState;
 
       let mouseMinute = this.getMouseMinute({ clientX, clientY });
       if (mouseMinute < 0) {
@@ -986,7 +986,7 @@
       } else if (mouseMinute > MINUTES_IN_DAY) {
         mouseMinute = MINUTES_IN_DAY;
       }
-      let snappedMouseMinute = snapMinute(
+      const snappedMouseMinute = snapMinute(
         mouseMinute - dragState.mouseMinuteOffset,
         dragState.snapIntMin
       );
@@ -1061,12 +1061,12 @@
     }
 
     onEventSweepMouseUp(event) {
-      let col = document.calendarEventColumnDragging;
+      const col = document.calendarEventColumnDragging;
       if (!col) {
         return;
       }
 
-      let dragState = col.mDragState;
+      const dragState = col.mDragState;
 
       col.clearDragging();
       col.calendarView.clearMagicScroll();
@@ -1074,7 +1074,7 @@
       // If the user didn't sweep out at least a few pixels, ignore
       // unless we're in a different column.
       if (dragState.origColumn == col) {
-        let position = col.getAttribute("orient") == "vertical" ? event.clientY : event.clientX;
+        const position = col.getAttribute("orient") == "vertical" ? event.clientY : event.clientX;
         if (Math.abs(position - dragState.origLoc) < 3) {
           return;
         }
@@ -1084,13 +1084,13 @@
       let newEnd;
       let startTZ;
       let endTZ;
-      let dragDay = col.date;
+      const dragDay = col.date;
       if (dragState.dragType != "new") {
-        let oldStart =
+        const oldStart =
           dragState.dragOccurrence.startDate ||
           dragState.dragOccurrence.entryDate ||
           dragState.dragOccurrence.dueDate;
-        let oldEnd =
+        const oldEnd =
           dragState.dragOccurrence.endDate ||
           dragState.dragOccurrence.dueDate ||
           dragState.dragOccurrence.entryDate;
@@ -1131,8 +1131,8 @@
           newEnd.timezone
         );
       } else if (dragState.dragType == "new") {
-        let startDay = dragState.origColumn.date;
-        let draggedForward = dragDay.compare(startDay) > 0;
+        const startDay = dragState.origColumn.date;
+        const draggedForward = dragDay.compare(startDay) > 0;
         newStart = draggedForward ? startDay.clone() : dragDay.clone();
         newEnd = draggedForward ? dragDay.clone() : startDay.clone();
         newStart.isDate = false;
@@ -1173,7 +1173,7 @@
       } else if (dragState.dragType == "move") {
         // Figure out the new date-times of the event by adding the duration
         // of the total movement (days and minutes) to the old dates.
-        let duration = dragDay.subtractDate(dragState.origColumn.date);
+        const duration = dragDay.subtractDate(dragState.origColumn.date);
         let minutes = dragState.lastStart - dragState.realStart;
 
         // Since both boxDate and beginMove are dates (note datetimes),
@@ -1265,14 +1265,14 @@
         this.mDragState.origLoc = position.clientX;
       }
 
-      let stdate = eventItem.startDate || eventItem.entryDate || eventItem.dueDate;
-      let enddate = eventItem.endDate || eventItem.dueDate || eventItem.entryDate;
+      const stdate = eventItem.startDate || eventItem.entryDate || eventItem.dueDate;
+      const enddate = eventItem.endDate || eventItem.dueDate || eventItem.entryDate;
 
       // Get the start and end times in minutes, relative to the start of the
       // day. This may be negative or exceed the length of the day if the event
       // spans more than one day.
-      let realStart = Math.floor(stdate.subtractDate(this.date).inSeconds / 60);
-      let realEnd = Math.floor(enddate.subtractDate(this.date).inSeconds / 60);
+      const realStart = Math.floor(stdate.subtractDate(this.date).inSeconds / 60);
+      const realEnd = Math.floor(enddate.subtractDate(this.date).inSeconds / 60);
 
       if (where == "start") {
         this.mDragState.dragType = "modify-start";
@@ -1285,7 +1285,7 @@
         this.mDragState.origMin = snapMinute(realStart, snapIntMin);
 
         // Show the shadows and drag labels when clicking on gripbars.
-        let shadowElements = this.getShadowElements(
+        const shadowElements = this.getShadowElements(
           this.mDragState.origMin,
           this.mDragState.limitEndMin
         );
@@ -1305,7 +1305,7 @@
         this.mDragState.origMin = snapMinute(realEnd, snapIntMin);
 
         // Show the shadows and drag labels when clicking on gripbars.
-        let shadowElements = this.getShadowElements(
+        const shadowElements = this.getShadowElements(
           this.mDragState.limitStartMin,
           this.mDragState.origMin
         );
@@ -1331,7 +1331,7 @@
         // of the drag session to calculate the new start and end datetimes.
         this.mDragState.realStart = realStart;
 
-        let shadowElements = this.getShadowElements(
+        const shadowElements = this.getShadowElements(
           this.mDragState.origMinStart,
           this.mDragState.origMinEnd
         );
@@ -1359,7 +1359,7 @@
       if (dayStartHour < 0 || dayStartHour > dayEndHour || dayEndHour > 24) {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
-      for (let [hour, hourBox] of this.hourBoxes.entries()) {
+      for (const [hour, hourBox] of this.hourBoxes.entries()) {
         hourBox.classList.toggle(
           "multiday-hour-box-off-time",
           hour < dayStartHour || hour >= dayEndHour
@@ -1382,7 +1382,7 @@
      *   'element' that this event points to.
      */
     getMouseMinute(mouseEvent, element = this) {
-      let rect = element.getBoundingClientRect();
+      const rect = element.getBoundingClientRect();
       let pos;
       if (this.getAttribute("orient") == "vertical") {
         pos = mouseEvent.clientY - rect.top;
@@ -1403,8 +1403,8 @@
      * @returns {calDateTime} - A new datetime that the mouseEvent points to.
      */
     getMouseDateTime(mouseEvent) {
-      let clickMinute = this.getMouseMinute(mouseEvent);
-      let newStart = this.date.clone();
+      const clickMinute = this.getMouseMinute(mouseEvent);
+      const newStart = this.date.clone();
       newStart.isDate = false;
       newStart.hour = 0;
       // Round to nearest 15 minutes.
@@ -1479,14 +1479,14 @@
      *   element for.
      */
     addEvent(eventItem) {
-      let existing = this.eventElements.get(eventItem.hashId);
+      const existing = this.eventElements.get(eventItem.hashId);
       if (existing) {
         // Remove the wrapper list item. We'll insert a replacement below.
         existing.parentNode.remove();
       }
 
-      let itemBox = document.createXULElement("calendar-editable-item");
-      let listItemWrapper = document.createElement("li");
+      const itemBox = document.createXULElement("calendar-editable-item");
+      const listItemWrapper = document.createElement("li");
       listItemWrapper.classList.add("allday-event-listitem");
       listItemWrapper.appendChild(itemBox);
       cal.data.binaryInsertNode(
@@ -1521,7 +1521,7 @@
      * @param {calItemBase} eventItem - The event item to remove the element of.
      */
     deleteEvent(eventItem) {
-      let current = this.eventElements.get(eventItem.hashId);
+      const current = this.eventElements.get(eventItem.hashId);
       if (current) {
         // Need to remove the wrapper list item.
         current.parentNode.remove();
@@ -1549,11 +1549,11 @@
       // NOTE: Adding or removing drop shadows may change our size, but we won't
       // let the calendar view know about these since they are temporary and we
       // don't want the view to be re-adjusting on every hover.
-      let existing = this.eventsListElement.querySelector(".dropshadow");
+      const existing = this.eventsListElement.querySelector(".dropshadow");
       if (on) {
         if (!existing) {
           // Insert an empty list item.
-          let dropshadow = document.createElement("li");
+          const dropshadow = document.createElement("li");
           dropshadow.classList.add("dropshadow", "allday-event-listitem");
           this.eventsListElement.insertBefore(dropshadow, this.eventsListElement.firstElementChild);
         }
@@ -1577,7 +1577,7 @@
      *   as selected.
      */
     selectEvent(eventItem, select) {
-      let element = this.eventElements.get(eventItem.hashId);
+      const element = this.eventElements.get(eventItem.hashId);
       if (!element) {
         return;
       }
@@ -1601,7 +1601,7 @@
         }
       }
       if (event.button == 2) {
-        let newStart = this.calendarView.selectedDay.clone();
+        const newStart = this.calendarView.selectedDay.clone();
         newStart.isDate = true;
         this.calendarView.selectedDateTime = newStart;
         event.stopPropagation();
@@ -1618,7 +1618,7 @@
      *   matches its scroll direction.
      */
     wheelOnScrollableArea(event) {
-      let scrollArea = this.eventsListElement;
+      const scrollArea = this.eventsListElement;
       return (
         event.deltaY &&
         scrollArea.contains(event.target) &&
@@ -1703,8 +1703,8 @@
           return;
         }
 
-        let deltaX = Math.abs(event.clientX - this.mouseDownPosition.clientX);
-        let deltaY = Math.abs(event.clientY - this.mouseDownPosition.clientY);
+        const deltaX = Math.abs(event.clientX - this.mouseDownPosition.clientX);
+        const deltaY = Math.abs(event.clientY - this.mouseDownPosition.clientY);
         // More than a 3 pixel move?
         const movedMoreThan3Pixels = deltaX * deltaX + deltaY * deltaY > 9;
         if (movedMoreThan3Pixels && this.parentColumn) {
@@ -1796,9 +1796,9 @@
      * @returns {Element} - A newly created gripbar.
      */
     createGripbar(side) {
-      let gripbar = document.createElement("div");
+      const gripbar = document.createElement("div");
       gripbar.classList.add(side == "start" ? "gripbar-start" : "gripbar-end");
-      let img = document.createElement("img");
+      const img = document.createElement("img");
       img.setAttribute("src", "chrome://calendar/skin/shared/event-grippy.png");
       /* Make sure the img doesn't interfere with dragging the gripbar to
        * resize. */
@@ -1827,12 +1827,12 @@
      *   given day that the event ends.
      */
     updateRelativeStartEndDates(day) {
-      let item = this.occurrence;
+      const item = this.occurrence;
 
       // Get closed bounds for the day. I.e. inclusive of midnight the next day.
-      let closedDayStart = day.clone();
+      const closedDayStart = day.clone();
       closedDayStart.isDate = false;
-      let closedDayEnd = day.clone();
+      const closedDayEnd = day.clone();
       closedDayEnd.day++;
       closedDayEnd.isDate = false;
 
@@ -1870,9 +1870,9 @@
     }
 
     getOptimalMinSize(orient) {
-      let label = this.querySelector(".event-name-label");
+      const label = this.querySelector(".event-name-label");
       if (orient == "vertical") {
-        let minHeight =
+        const minHeight =
           getOptimalMinimumHeight(label) +
           getSummarizedStyleValues(label.parentNode, ["padding-bottom", "padding-top"]) +
           getSummarizedStyleValues(this, ["border-bottom-width", "border-top-width"]);
@@ -1881,7 +1881,7 @@
         return minHeight;
       }
       label.style.minWidth = "2em";
-      let minWidth = getOptimalMinimumWidth(this.eventNameLabel);
+      const minWidth = getOptimalMinimumWidth(this.eventNameLabel);
       this.style.minWidth = minWidth + "px";
       this.style.minHeight = "1px";
       return minWidth;
@@ -2051,10 +2051,10 @@
       this.nowIndicator.hidden = true;
       this.timebar.appendChild(this.nowIndicator);
 
-      let formatter = cal.dtz.formatter;
-      let jsTime = new Date();
+      const formatter = cal.dtz.formatter;
+      const jsTime = new Date();
       for (let hour = 0; hour < 24; hour++) {
-        let hourBox = document.createElement("div");
+        const hourBox = document.createElement("div");
         hourBox.classList.add("multiday-hour-box", "multiday-timebar-time");
         // Set the time label.
         jsTime.setHours(hour, 0, 0);
@@ -2087,7 +2087,7 @@
         if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
           return;
         }
-        let deltaTime = this.getAttribute("orient") == "horizontal" ? event.deltaX : event.deltaY;
+        const deltaTime = this.getAttribute("orient") == "horizontal" ? event.deltaX : event.deltaY;
         if (!deltaTime) {
           // Scroll is not in the same direction as the time axis, so just do
           // the default scroll (if any).
@@ -2101,7 +2101,7 @@
           event.preventDefault();
           return;
         }
-        let header = this.dayColumns.find(col => col.header.contains(event.target))?.header;
+        const header = this.dayColumns.find(col => col.header.contains(event.target))?.header;
         if (header) {
           if (!header.wheelOnScrollableArea(event)) {
             // Prevent any scrolling in this header.
@@ -2125,7 +2125,7 @@
           }
           minute = scrollHour * 60;
         } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
-          let minDiff = deltaTime / this.pixelsPerMinute;
+          const minDiff = deltaTime / this.pixelsPerMinute;
           minute += minDiff < 0 ? Math.floor(minDiff) : Math.ceil(minDiff);
         } else {
           return;
@@ -2252,8 +2252,8 @@
       const now = cal.dtz.now();
       const nowMinutes = now.hour * 60 + now.minute;
 
-      let position = `${this.pixelsPerMinute * nowMinutes - 1}px`;
-      let isVertical = this.getAttribute("orient") == "vertical";
+      const position = `${this.pixelsPerMinute * nowMinutes - 1}px`;
+      const isVertical = this.getAttribute("orient") == "vertical";
 
       // Control the position of the dot in the time bar, which is present even
       // when the view does not show the current day. Inline start controls
@@ -2316,12 +2316,12 @@
      */
     doResizingHeaderOperation(header, operation) {
       // Capture scrollMinute before we potentially change the size of the view.
-      let scrollMinute = this.scrollMinute;
-      let beforeRect = header.getBoundingClientRect();
+      const scrollMinute = this.scrollMinute;
+      const beforeRect = header.getBoundingClientRect();
 
       operation();
 
-      let afterRect = header.getBoundingClientRect();
+      const afterRect = header.getBoundingClientRect();
       this.readjustView(
         beforeRect.height != afterRect.height,
         beforeRect.width != afterRect.width,
@@ -2350,13 +2350,13 @@
         return;
       }
 
-      let isHorizontal = this.getAttribute("orient") == "horizontal";
+      const isHorizontal = this.getAttribute("orient") == "horizontal";
 
       // Adjust the headings. We do this before measuring the pixels per minute
       // because this may adjust the size of the headings.
       if (this.headingDatesChanged) {
         this.shortHeadingContentWidth = 0;
-        for (let dayCol of this.dayColumns) {
+        for (const dayCol of this.dayColumns) {
           // Make sure both headings are visible for measuring.
           // We will hide one of them again further below.
           dayCol.shortHeading.hidden = false;
@@ -2364,7 +2364,7 @@
 
           // We can safely measure the widths of the short and long headings
           // because their headingContainer does not grow or shrink them.
-          let longHeadingRect = dayCol.longHeading.getBoundingClientRect();
+          const longHeadingRect = dayCol.longHeading.getBoundingClientRect();
           if (!this.headingContentHeight) {
             // We assume this is constant and the same for each heading.
             this.headingContentHeight = longHeadingRect.height;
@@ -2404,7 +2404,7 @@
           adjustHeadingPositioning = true;
         }
         if (adjustHeadingPositioning) {
-          for (let dayCol of this.dayColumns) {
+          for (const dayCol of this.dayColumns) {
             // The header is sticky, so we need to position it. We want a constant
             // position, so we offset the header by the heading width.
             // NOTE: We assume there is no margin between the two.
@@ -2434,7 +2434,7 @@
           adjustHeadingPositioning = true;
         }
         if (adjustHeadingPositioning) {
-          for (let dayCol of this.dayColumns) {
+          for (const dayCol of this.dayColumns) {
             // We offset the header by the heading height.
             dayCol.header.style.insetBlockStart = `${this.headingHeight}px`;
             dayCol.header.style.insetInlineStart = null;
@@ -2450,7 +2450,7 @@
       // We only need to do this when the view has been rotated, or when new
       // headings have been added. adjustHeadingPosition covers both of these.
       if (isHorizontal && adjustHeadingPositioning) {
-        for (let dayCol of this.dayColumns) {
+        for (const dayCol of this.dayColumns) {
           dayCol.shortHeading.hidden = false;
           dayCol.longHeading.hidden = true;
         }
@@ -2474,7 +2474,7 @@
         // The time indicators will be corrected in updateTimeIndicatorPosition.
         this.nowIndicator.style.insetInlineStart = null;
         this.nowIndicator.style.insetBlockStart = null;
-        let todayIndicator = this.findColumnForDate(this.today())?.column.timeIndicatorBox;
+        const todayIndicator = this.findColumnForDate(this.today())?.column.timeIndicatorBox;
         if (todayIndicator) {
           todayIndicator.style.marginInlineStart = null;
           todayIndicator.style.marginBlockStart = null;
@@ -2494,7 +2494,7 @@
           this.timebar.style.height = null;
           this.timebar.style.width = "min-content";
           let maxWidth = 0;
-          for (let hourBox of this.hourBoxes) {
+          for (const hourBox of this.hourBoxes) {
             maxWidth = Math.max(maxWidth, hourBox.getBoundingClientRect().width);
           }
           // NOTE: We assume no margin between the boxes.
@@ -2507,7 +2507,7 @@
           this.timebar.style.width = null;
           this.timebar.style.height = "min-content";
           let maxHeight = 0;
-          for (let hourBox of this.hourBoxes) {
+          for (const hourBox of this.hourBoxes) {
             maxHeight = Math.max(maxHeight, hourBox.getBoundingClientRect().height);
           }
           // NOTE: We assume no margin between the boxes.
@@ -2528,18 +2528,18 @@
         // content length in the time-direction, this should only happen in edge
         // cases (e.g. scrollbar being added from a time-direction overflow also
         // causes the non-time-direction to overflow).
-        let scrollArea = this.getScrollAreaRect();
-        let dayScale = 24 / this.visibleHours;
-        let dayPixels = isHorizontal
+        const scrollArea = this.getScrollAreaRect();
+        const dayScale = 24 / this.visibleHours;
+        const dayPixels = isHorizontal
           ? Math.max((scrollArea.right - scrollArea.left) * dayScale, this.timebarMinWidth)
           : Math.max((scrollArea.bottom - scrollArea.top) * dayScale, this.timebarMinHeight);
-        let pixelsPerMinute = dayPixels / MINUTES_IN_DAY;
+        const pixelsPerMinute = dayPixels / MINUTES_IN_DAY;
         if (this.rotationChanged || pixelsPerMinute != this.pixelsPerMinute) {
           ppmHasChanged = true;
           this.pixelsPerMinute = pixelsPerMinute;
 
           // Use the same calculation as in the event columns.
-          let dayPx = `${MINUTES_IN_DAY * pixelsPerMinute}px`;
+          const dayPx = `${MINUTES_IN_DAY * pixelsPerMinute}px`;
           if (isHorizontal) {
             this.timebar.style.width = dayPx;
             this.timebar.style.height = null;
@@ -2567,13 +2567,13 @@
       if (!isHorizontal && (horizontalResize || adjustHeadingPositioning)) {
         // Use short headings if *any* heading would horizontally overflow with
         // a long heading.
-        let widthOffset = this.headingContentToBorderOffset.inline;
-        let useShortHeadings = this.dayColumns.some(
+        const widthOffset = this.headingContentToBorderOffset.inline;
+        const useShortHeadings = this.dayColumns.some(
           col =>
             col.headingContainer.getBoundingClientRect().width <
             col.longHeadingContentAreaWidth + widthOffset
         );
-        for (let dayCol of this.dayColumns) {
+        for (const dayCol of this.dayColumns) {
           dayCol.shortHeading.hidden = !useShortHeadings;
           dayCol.longHeading.hidden = useShortHeadings;
         }
@@ -2600,7 +2600,7 @@
       }
       // We cache the offset. We expect these styles to differ between the
       // rotated and non-rotated views, but to otherwise be constant.
-      let style = getComputedStyle(this.dayColumns[0].headingContainer);
+      const style = getComputedStyle(this.dayColumns[0].headingContainer);
       return {
         inline:
           parseFloat(style.paddingInlineStart) +
@@ -2711,7 +2711,7 @@
 
       // The start and end dates to query calendars with (in CalendarFilteredViewMixin).
       this.startDate = viewStart;
-      let viewEndPlusOne = viewEnd.clone();
+      const viewEndPlusOne = viewEnd.clone();
       viewEndPlusOne.day++;
       this.endDate = viewEndPlusOne;
 
@@ -2868,9 +2868,9 @@
         }
       }
 
-      let halfDurationMinutes = (highMinute - lowMinute) / 2;
+      const halfDurationMinutes = (highMinute - lowMinute) / 2;
       if (this.mSelectedItems.length && halfDurationMinutes >= 0) {
-        let halfVisibleMinutes = this.visibleHours * 30;
+        const halfVisibleMinutes = this.visibleHours * 30;
         if (halfDurationMinutes <= halfVisibleMinutes) {
           // If the full duration fits in the view, then center the middle of
           // the region.
@@ -2927,8 +2927,8 @@
      * @param {string} value - The value to set.
      */
     setAttribute(attr, value) {
-      let rotated = attr == "orient" && this.getAttribute("orient") != value;
-      let context = attr == "context" || attr == "item-context";
+      const rotated = attr == "orient" && this.getAttribute("orient") != value;
+      const context = attr == "context" || attr == "item-context";
 
       // This should be done using lookupMethod(), see bug 286629.
       const ret = XULElement.prototype.setAttribute.call(this, attr, value);
@@ -2959,15 +2959,15 @@
       if (!changes) {
         changes = { dates: true, rotated: true, context: true };
       }
-      let scrollMinute = this.scrollMinute;
+      const scrollMinute = this.scrollMinute;
 
       const orient = this.getAttribute("orient") || "vertical";
       this.grid.classList.toggle("multiday-grid-rotated", orient == "horizontal");
 
-      let context = this.getAttribute("context");
-      let itemContext = this.getAttribute("item-context") || context;
+      const context = this.getAttribute("context");
+      const itemContext = this.getAttribute("item-context") || context;
 
-      for (let dayCol of this.dayColumns) {
+      for (const dayCol of this.dayColumns) {
         dayCol.column.startLayoutBatchChange();
       }
 
@@ -2993,9 +2993,9 @@
         this.setSelectedItems([], true);
 
         // Get today's date.
-        let today = this.today();
+        const today = this.today();
 
-        let dateFormatter = cal.dtz.formatter;
+        const dateFormatter = cal.dtz.formatter;
 
         // Assume the heading widths are no longer valid because the displayed
         // dates are likely to change.
@@ -3004,7 +3004,7 @@
         this.headingDatesChanged = true;
         let colIndex;
         for (colIndex = 0; colIndex < computedDateList.length; colIndex++) {
-          let dayDate = computedDateList[colIndex];
+          const dayDate = computedDateList[colIndex];
           let dayCol = this.dayColumns[colIndex];
           if (dayCol) {
             dayCol.column.clear();
@@ -3066,12 +3066,12 @@
             this.mDaysOffArray.includes(dayDate.weekday)
           );
 
-          let isToday = dayDate.compare(today) == 0;
+          const isToday = dayDate.compare(today) == 0;
           dayCol.column.timeIndicatorBox.hidden = !isToday;
           dayCol.container.classList.toggle("day-column-today", isToday);
         }
         // Remove excess columns.
-        for (let dayCol of this.dayColumns.splice(colIndex)) {
+        for (const dayCol of this.dayColumns.splice(colIndex)) {
           dayCol.column.endLayoutBatchChange();
           dayCol.container.remove();
         }
@@ -3079,20 +3079,20 @@
 
       if (changes.rotated) {
         this.rotationChanged = true;
-        for (let dayCol of this.dayColumns) {
+        for (const dayCol of this.dayColumns) {
           dayCol.column.setAttribute("orient", orient);
         }
       }
 
       if (changes.context) {
-        for (let dayCol of this.dayColumns) {
+        for (const dayCol of this.dayColumns) {
           dayCol.column.setAttribute("context", context);
           dayCol.column.setAttribute("item-context", itemContext);
         }
       }
 
       // Let the columns relayout themselves before we readjust the view.
-      for (let dayCol of this.dayColumns) {
+      for (const dayCol of this.dayColumns) {
         dayCol.column.endLayoutBatchChange();
       }
 
@@ -3295,7 +3295,7 @@
      * Removes all items so they are no longer displayed.
      */
     clearItems() {
-      for (let dayCol of this.dayColumns) {
+      for (const dayCol of this.dayColumns) {
         dayCol.column.clear();
         dayCol.header.clear();
       }
@@ -3375,20 +3375,20 @@
       // If we are at the bottom or top of the view (or left/right when
       // rotated), calculate the difference and start accelerating the
       // scrollbar.
-      let scrollArea = this.getScrollAreaRect();
+      const scrollArea = this.getScrollAreaRect();
 
       // Distance the mouse is from the edge.
-      let diffTop = Math.max(clientY - scrollArea.top, 0);
-      let diffBottom = Math.max(scrollArea.bottom - clientY, 0);
-      let diffLeft = Math.max(clientX - scrollArea.left, 0);
-      let diffRight = Math.max(scrollArea.right - clientX, 0);
+      const diffTop = Math.max(clientY - scrollArea.top, 0);
+      const diffBottom = Math.max(scrollArea.bottom - clientY, 0);
+      const diffLeft = Math.max(clientX - scrollArea.left, 0);
+      const diffRight = Math.max(scrollArea.right - clientX, 0);
 
       // How close to the edge we need to be to trigger scrolling.
-      let primaryZone = 50;
-      let secondaryZone = 20;
+      const primaryZone = 50;
+      const secondaryZone = 20;
       // How many pixels to scroll by.
-      let primaryFactor = Math.max(4 * this.pixelsPerMinute, 8);
-      let secondaryFactor = 4;
+      const primaryFactor = Math.max(4 * this.pixelsPerMinute, 8);
+      const secondaryFactor = 4;
 
       let left;
       let top;
@@ -3416,28 +3416,26 @@
     getScrollAreaRect() {
       // We want the viewport coordinates of the view's scrollable area. This is
       // the same as the padding area minus the sticky headers and scrollbars.
-      let scrollTop;
-      let scrollBottom;
       let scrollLeft;
       let scrollRight;
-      let view = this.grid;
-      let viewRect = view.getBoundingClientRect();
-      let headerRect = this.headerCorner.getBoundingClientRect();
+      const view = this.grid;
+      const viewRect = view.getBoundingClientRect();
+      const headerRect = this.headerCorner.getBoundingClientRect();
 
       // paddingTop is the top of the view's padding area. We translate from
       // the border area of the view to the padding area by adding clientTop,
       // which is the view's top border width.
-      let paddingTop = viewRect.top + view.clientTop;
+      const paddingTop = viewRect.top + view.clientTop;
       // The top of the scroll area is the bottom of the sticky header.
-      scrollTop = headerRect.bottom;
+      const scrollTop = headerRect.bottom;
       // To get the bottom we add the clientHeight, which is the height of the
       // padding area minus the scrollbar.
-      scrollBottom = paddingTop + view.clientHeight;
+      const scrollBottom = paddingTop + view.clientHeight;
 
       // paddingLeft is the left of the view's padding area. We translate from
       // the border area to the padding area by adding clientLeft, which is the
       // left border width (plus the scrollbar in right-to-left).
-      let paddingLeft = viewRect.left + view.clientLeft;
+      const paddingLeft = viewRect.left + view.clientLeft;
       if (document.dir == "rtl") {
         scrollLeft = paddingLeft;
         // The right of the scroll area is the left of the sticky header.
@@ -3458,7 +3456,7 @@
      * @param {number} minute - The minute to scroll to.
      */
     scrollToMinute(minute) {
-      let pos = Math.round(Math.max(0, minute) * this.pixelsPerMinute);
+      const pos = Math.round(Math.max(0, minute) * this.pixelsPerMinute);
       if (this.getAttribute("orient") == "horizontal") {
         this.grid.scrollLeft = document.dir == "rtl" ? -pos : pos;
       } else {
@@ -3484,13 +3482,13 @@
       this.dayStartHour = dayStartHour;
       this.dayEndHour = dayEndHour;
       // Also update on the timebar.
-      for (let [hour, hourBox] of this.hourBoxes.entries()) {
+      for (const [hour, hourBox] of this.hourBoxes.entries()) {
         hourBox.classList.toggle(
           "multiday-hour-box-off-time",
           hour < dayStartHour || hour >= dayEndHour
         );
       }
-      for (let dayCol of this.dayColumns) {
+      for (const dayCol of this.dayColumns) {
         dayCol.column.setDayStartEndHours(dayStartHour, dayEndHour);
       }
     }

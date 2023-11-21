@@ -136,15 +136,15 @@ var eventDialogCalendarObserver = {
       // The item has been modified outside the dialog. We only need to
       // prompt if there have been local changes also.
       if (isItemChanged()) {
-        let promptTitle = cal.l10n.getCalString("modifyConflictPromptTitle");
-        let promptMessage = cal.l10n.getCalString("modifyConflictPromptMessage");
-        let promptButton1 = cal.l10n.getCalString("modifyConflictPromptButton1");
-        let promptButton2 = cal.l10n.getCalString("modifyConflictPromptButton2");
-        let flags =
+        const promptTitle = cal.l10n.getCalString("modifyConflictPromptTitle");
+        const promptMessage = cal.l10n.getCalString("modifyConflictPromptMessage");
+        const promptButton1 = cal.l10n.getCalString("modifyConflictPromptButton1");
+        const promptButton2 = cal.l10n.getCalString("modifyConflictPromptButton2");
+        const flags =
           Ci.nsIPromptService.BUTTON_TITLE_IS_STRING * Ci.nsIPromptService.BUTTON_POS_0 +
           Ci.nsIPromptService.BUTTON_TITLE_IS_STRING * Ci.nsIPromptService.BUTTON_POS_1;
 
-        let choice = Services.prompt.confirmEx(
+        const choice = Services.prompt.confirmEx(
           window,
           promptTitle,
           promptMessage,
@@ -218,7 +218,7 @@ var eventDialogCalendarObserver = {
  */
 function canNotifyAttendees(aCalendar, aItem) {
   try {
-    let calendar = aCalendar.QueryInterface(Ci.calISchedulingSupport);
+    const calendar = aCalendar.QueryInterface(Ci.calISchedulingSupport);
     return calendar.canNotify("REQUEST", aItem) && calendar.canNotify("CANCEL", aItem);
   } catch (exc) {
     return false;
@@ -243,7 +243,7 @@ function sendMessage(aMessage) {
  * @param {MessageEvent} aEvent - Contains the message being received
  */
 function receiveMessage(aEvent) {
-  let validOrigin = gTabmail ? "chrome://messenger" : "chrome://calendar";
+  const validOrigin = gTabmail ? "chrome://messenger" : "chrome://calendar";
   if (aEvent.origin !== validOrigin) {
     return;
   }
@@ -278,7 +278,7 @@ function receiveMessage(aEvent) {
       break;
     }
     case "editToDoStatus": {
-      let textbox = document.getElementById("percent-complete-textbox");
+      const textbox = document.getElementById("percent-complete-textbox");
       textbox.value = aEvent.data.value;
       updateToDoStatus("percent-changed");
       break;
@@ -291,7 +291,7 @@ function receiveMessage(aEvent) {
       updateDateTime();
       break;
     case "closingWindowWithTabs": {
-      let response = onCancel(aEvent.data.id, true);
+      const response = onCancel(aEvent.data.id, true);
       sendMessage({
         command: "replyToClosingWindowWithTabs",
         response,
@@ -316,7 +316,7 @@ function onLoad() {
 
   // first of all retrieve the array of
   // arguments this window has been called with.
-  let args = window.arguments[0];
+  const args = window.arguments[0];
 
   intializeTabOrWindowVariables();
 
@@ -328,7 +328,7 @@ function onLoad() {
 
   // the most important attribute we expect from the
   // arguments is the item we'll edit in the dialog.
-  let item = args.calendarEvent;
+  const item = args.calendarEvent;
 
   // set the iframe's top level id for event vs task
   if (item.isTodo()) {
@@ -364,9 +364,9 @@ function onLoad() {
     window.organizer = item.organizer.clone();
   } else if (attendees.length > 0) {
     // Previous versions of calendar may not have set the organizer correctly.
-    let organizerId = item.calendar.getProperty("organizerId");
+    const organizerId = item.calendar.getProperty("organizerId");
     if (organizerId) {
-      let organizer = new CalAttendee();
+      const organizer = new CalAttendee();
       organizer.id = cal.email.removeMailTo(organizerId);
       organizer.commonName = item.calendar.getProperty("organizerCN");
       organizer.isOrganizer = true;
@@ -390,7 +390,7 @@ function onLoad() {
 
   // Set initial values for datepickers in New Tasks dialog
   if (item.isTodo()) {
-    let initialDatesValue = cal.dtz.dateTimeToJsDate(args.initialStartDateValue);
+    const initialDatesValue = cal.dtz.dateTimeToJsDate(args.initialStartDateValue);
     document.getElementById("completed-date-picker").value = initialDatesValue;
     document.getElementById("todo-entrydate").value = initialDatesValue;
     document.getElementById("todo-duedate").value = initialDatesValue;
@@ -486,19 +486,19 @@ function onCommandCancel() {
     gTabmail.switchToTab(gTabInfoObject);
   }
 
-  let promptTitle = cal.l10n.getCalString(
+  const promptTitle = cal.l10n.getCalString(
     window.calendarItem.isEvent() ? "askSaveTitleEvent" : "askSaveTitleTask"
   );
-  let promptMessage = cal.l10n.getCalString(
+  const promptMessage = cal.l10n.getCalString(
     window.calendarItem.isEvent() ? "askSaveMessageEvent" : "askSaveMessageTask"
   );
 
-  let flags =
+  const flags =
     Ci.nsIPromptService.BUTTON_TITLE_SAVE * Ci.nsIPromptService.BUTTON_POS_0 +
     Ci.nsIPromptService.BUTTON_TITLE_CANCEL * Ci.nsIPromptService.BUTTON_POS_1 +
     Ci.nsIPromptService.BUTTON_TITLE_DONT_SAVE * Ci.nsIPromptService.BUTTON_POS_2;
 
-  let choice = Services.prompt.confirmEx(
+  const choice = Services.prompt.confirmEx(
     null,
     promptTitle,
     promptMessage,
@@ -511,7 +511,7 @@ function onCommandCancel() {
   );
   switch (choice) {
     case 0: // Save
-      let itemTitle = document.getElementById("item-title");
+      const itemTitle = document.getElementById("item-title");
       if (!itemTitle.value) {
         itemTitle.value = cal.l10n.getCalString("eventUntitled");
       }
@@ -590,8 +590,8 @@ function loadDialog(aItem) {
   document.getElementById("item-location").value = aItem.getProperty("LOCATION");
 
   // add calendars to the calendar menulist
-  let calendarList = document.getElementById("item-calendar");
-  let indexToSelect = appendCalendarItems(
+  const calendarList = document.getElementById("item-calendar");
+  const indexToSelect = appendCalendarItems(
     aItem,
     calendarList,
     aItem.calendar || window.arguments[0].calendar
@@ -606,10 +606,10 @@ function loadDialog(aItem) {
   // Attachment
   loadCloudProviders();
 
-  let hasAttachments = capSupported("attachments");
-  let attachments = aItem.getAttachments();
+  const hasAttachments = capSupported("attachments");
+  const attachments = aItem.getAttachments();
   if (hasAttachments && attachments && attachments.length > 0) {
-    for (let attachment of attachments) {
+    for (const attachment of attachments) {
       addAttachment(attachment);
     }
   } else {
@@ -617,28 +617,28 @@ function loadDialog(aItem) {
   }
 
   // URL link
-  let itemUrl = window.calendarItem.getProperty("URL")?.trim() || "";
-  let showLink = showOrHideItemURL(itemUrl);
+  const itemUrl = window.calendarItem.getProperty("URL")?.trim() || "";
+  const showLink = showOrHideItemURL(itemUrl);
   updateItemURL(showLink, itemUrl);
 
   // Description
-  let editorElement = document.getElementById("item-description");
-  let editor = editorElement.getHTMLEditor(editorElement.contentWindow);
+  const editorElement = document.getElementById("item-description");
+  const editor = editorElement.getHTMLEditor(editorElement.contentWindow);
 
-  let link = editorElement.contentDocument.createElement("link");
+  const link = editorElement.contentDocument.createElement("link");
   link.rel = "stylesheet";
   link.href = "chrome://messenger/skin/shared/editorContent.css";
   editorElement.contentDocument.head.appendChild(link);
 
   try {
-    let checker = editor.getInlineSpellChecker(true);
+    const checker = editor.getInlineSpellChecker(true);
     checker.enableRealTimeSpell = Services.prefs.getBoolPref("mail.spellcheck.inline", true);
   } catch (ex) {
     // No dictionaries.
   }
 
   if (aItem.descriptionText) {
-    let docFragment = cal.view.textToHtmlDocumentFragment(
+    const docFragment = cal.view.textToHtmlDocumentFragment(
       aItem.descriptionText,
       editorElement.contentDocument,
       aItem.descriptionHTML
@@ -665,7 +665,7 @@ function loadDialog(aItem) {
 
     // Task percent complete
     let percentCompleteInteger = 0;
-    let percentCompleteProperty = aItem.getProperty("PERCENT-COMPLETE");
+    const percentCompleteProperty = aItem.getProperty("PERCENT-COMPLETE");
     if (percentCompleteProperty != null) {
       percentCompleteInteger = parseInt(percentCompleteProperty, 10);
     }
@@ -680,13 +680,13 @@ function loadDialog(aItem) {
 
   // When in a window, set Item-Menu label to Event or Task
   if (!gInTab) {
-    let isEvent = aItem.isEvent();
+    const isEvent = aItem.isEvent();
 
-    let labelString = isEvent ? "itemMenuLabelEvent" : "itemMenuLabelTask";
-    let label = cal.l10n.getString("calendar-event-dialog", labelString);
+    const labelString = isEvent ? "itemMenuLabelEvent" : "itemMenuLabelTask";
+    const label = cal.l10n.getString("calendar-event-dialog", labelString);
 
-    let accessKeyString = isEvent ? "itemMenuAccesskeyEvent2" : "itemMenuAccesskeyTask2";
-    let accessKey = cal.l10n.getString("calendar-event-dialog", accessKeyString);
+    const accessKeyString = isEvent ? "itemMenuAccesskeyEvent2" : "itemMenuAccesskeyTask2";
+    const accessKey = cal.l10n.getString("calendar-event-dialog", accessKeyString);
     sendMessage({
       command: "initializeItemMenu",
       label,
@@ -695,37 +695,38 @@ function loadDialog(aItem) {
   }
 
   // Repeat details
-  let [repeatType, untilDate] = getRepeatTypeAndUntilDate(aItem);
+  const [repeatType, untilDate] = getRepeatTypeAndUntilDate(aItem);
   loadRepeat(repeatType, untilDate, aItem);
 
   // load reminders details
-  let alarmsMenu = document.querySelector(".item-alarm");
+  const alarmsMenu = document.querySelector(".item-alarm");
   window.gLastAlarmSelection = loadReminders(aItem.getAlarms(), alarmsMenu, getCurrentCalendar());
 
   // Synchronize link-top-image with keep-duration-button status
-  let keepAttribute = document.getElementById("keepduration-button").getAttribute("keep") == "true";
+  const keepAttribute =
+    document.getElementById("keepduration-button").getAttribute("keep") == "true";
   document.getElementById("link-image-top").setAttribute("keep", keepAttribute);
 
   updateDateTime();
 
   updateCalendar();
 
-  let notifyCheckbox = document.getElementById("notify-attendees-checkbox");
-  let undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
-  let disallowcounterCheckbox = document.getElementById("disallow-counter-checkbox");
+  const notifyCheckbox = document.getElementById("notify-attendees-checkbox");
+  const undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
+  const disallowcounterCheckbox = document.getElementById("disallow-counter-checkbox");
   if (canNotifyAttendees(aItem.calendar, aItem)) {
     // visualize that the server will send out mail:
     notifyCheckbox.checked = true;
     // hide these controls as this a client only feature
     undiscloseCheckbox.disabled = true;
   } else {
-    let itemProp = aItem.getProperty("X-MOZ-SEND-INVITATIONS");
+    const itemProp = aItem.getProperty("X-MOZ-SEND-INVITATIONS");
     notifyCheckbox.checked =
       aItem.calendar.getProperty("imip.identity") &&
       (itemProp === null
         ? Services.prefs.getBoolPref("calendar.itip.notify", true)
         : itemProp == "TRUE");
-    let undiscloseProp = aItem.getProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED");
+    const undiscloseProp = aItem.getProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED");
     undiscloseCheckbox.checked =
       undiscloseProp === null
         ? Services.prefs.getBoolPref("calendar.itip.separateInvitationPerAttendee")
@@ -735,7 +736,7 @@ function loadDialog(aItem) {
   }
   // this may also be a server exposed calendar property from exchange servers - if so, this
   // probably should overrule the client-side config option
-  let disallowCounterProp = aItem.getProperty("X-MICROSOFT-DISALLOW-COUNTER");
+  const disallowCounterProp = aItem.getProperty("X-MICROSOFT-DISALLOW-COUNTER");
   disallowcounterCheckbox.checked = disallowCounterProp == "TRUE";
   // if we're in reschedule mode, it's pointless to enable the control
   disallowcounterCheckbox.disabled = !!window.counterProposal;
@@ -752,8 +753,8 @@ function loadDialog(aItem) {
     }
     updateConfigState({ status: gConfig.status });
   } else {
-    let itemStatus = aItem.getProperty("STATUS");
-    let todoStatus = document.getElementById("todo-status");
+    const itemStatus = aItem.getProperty("STATUS");
+    const todoStatus = document.getElementById("todo-status");
     todoStatus.value = itemStatus;
     if (!todoStatus.selectedItem) {
       // No selected item means there was no <menuitem> that matches the
@@ -771,8 +772,8 @@ function loadDialog(aItem) {
   updateConfigState(gConfig);
 
   if (aItem.getAttendees().length && !aItem.descriptionText) {
-    let tabs = document.getElementById("event-grid-tabs");
-    let attendeeTab = document.getElementById("event-grid-tab-attendees");
+    const tabs = document.getElementById("event-grid-tabs");
+    const attendeeTab = document.getElementById("event-grid-tab-attendees");
     tabs.selectedItem = attendeeTab;
   }
 }
@@ -781,8 +782,8 @@ function loadDialog(aItem) {
  * Enables/disables undiscloseCheckbox on (un)checking notifyCheckbox
  */
 function changeUndiscloseCheckboxStatus() {
-  let notifyCheckbox = document.getElementById("notify-attendees-checkbox");
-  let undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
+  const notifyCheckbox = document.getElementById("notify-attendees-checkbox");
+  const undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
   undiscloseCheckbox.disabled = !notifyCheckbox.checked;
   updateParentSaveControls();
 }
@@ -793,9 +794,9 @@ function changeUndiscloseCheckboxStatus() {
  * @param aItem     The item to load into the category panel
  */
 function loadCategories(aItem) {
-  let itemCategories = aItem.getCategories();
-  let categoryList = cal.category.fromPrefs();
-  for (let cat of itemCategories) {
+  const itemCategories = aItem.getCategories();
+  const categoryList = cal.category.fromPrefs();
+  for (const cat of itemCategories) {
     if (!categoryList.includes(cat)) {
       categoryList.push(cat);
     }
@@ -803,12 +804,12 @@ function loadCategories(aItem) {
   cal.l10n.sortArrayByLocaleCollator(categoryList);
 
   // Make sure the maximum number of categories is applied to the listbox
-  let calendar = getCurrentCalendar();
-  let maxCount = calendar.getProperty("capabilities.categories.maxCount");
+  const calendar = getCurrentCalendar();
+  const maxCount = calendar.getProperty("capabilities.categories.maxCount");
 
-  let categoryPopup = document.getElementById("item-categories-popup");
+  const categoryPopup = document.getElementById("item-categories-popup");
   if (maxCount == 1) {
-    let item = document.createXULElement("menuitem");
+    const item = document.createXULElement("menuitem");
     item.setAttribute("class", "menuitem-iconic");
     item.setAttribute("label", cal.l10n.getCalString("None"));
     item.setAttribute("type", "radio");
@@ -817,8 +818,8 @@ function loadCategories(aItem) {
     }
     categoryPopup.appendChild(item);
   }
-  for (let cat of categoryList) {
-    let item = document.createXULElement("menuitem");
+  for (const cat of categoryList) {
+    const item = document.createXULElement("menuitem");
     item.setAttribute("class", "menuitem-iconic calendar-category");
     item.setAttribute("label", cat);
     item.setAttribute("value", cat);
@@ -826,7 +827,7 @@ function loadCategories(aItem) {
     if (itemCategories.includes(cat)) {
       item.setAttribute("checked", "true");
     }
-    let cssSafeId = cal.view.formatStringForCSSRule(cat);
+    const cssSafeId = cal.view.formatStringForCSSRule(cat);
     item.style.setProperty("--item-color", `var(--category-${cssSafeId}-color)`);
     categoryPopup.appendChild(item);
   }
@@ -839,19 +840,19 @@ function loadCategories(aItem) {
  * selected categories in the category panel
  */
 function updateCategoryMenulist() {
-  let categoryMenulist = document.getElementById("item-categories");
-  let categoryPopup = document.getElementById("item-categories-popup");
+  const categoryMenulist = document.getElementById("item-categories");
+  const categoryPopup = document.getElementById("item-categories-popup");
 
   // Make sure the maximum number of categories is applied to the listbox
-  let calendar = getCurrentCalendar();
-  let maxCount = calendar.getProperty("capabilities.categories.maxCount");
+  const calendar = getCurrentCalendar();
+  const maxCount = calendar.getProperty("capabilities.categories.maxCount");
 
   // Hide the categories listbox and label in case categories are not
   // supported
   document.getElementById("event-grid-category-row").toggleAttribute("hidden", maxCount === 0);
 
   let label;
-  let categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category[checked]");
+  const categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category[checked]");
   if (categoryList.length > 1) {
     label = cal.l10n.getCalString("multipleCategories");
   } else if (categoryList.length == 1) {
@@ -861,16 +862,16 @@ function updateCategoryMenulist() {
   }
   categoryMenulist.setAttribute("label", label);
 
-  let labelBox = categoryMenulist.shadowRoot.querySelector("#label-box");
-  let labelLabel = labelBox.querySelector("#label");
-  for (let box of labelBox.querySelectorAll("box")) {
+  const labelBox = categoryMenulist.shadowRoot.querySelector("#label-box");
+  const labelLabel = labelBox.querySelector("#label");
+  for (const box of labelBox.querySelectorAll("box")) {
     box.remove();
   }
   for (let i = 0; i < categoryList.length; i++) {
-    let box = labelBox.insertBefore(document.createXULElement("box"), labelLabel);
+    const box = labelBox.insertBefore(document.createXULElement("box"), labelLabel);
     // Normal CSS selectors like :first-child don't work on shadow DOM items,
     // so we have to set up something they do work on.
-    let parts = ["color"];
+    const parts = ["color"];
     if (i == 0) {
       parts.push("first");
     }
@@ -890,8 +891,8 @@ function updateCategoryMenulist() {
  */
 function categoryPopupHiding(event) {
   updateCategoryMenulist();
-  let calendar = getCurrentCalendar();
-  let maxCount = calendar.getProperty("capabilities.categories.maxCount");
+  const calendar = getCurrentCalendar();
+  const maxCount = calendar.getProperty("capabilities.categories.maxCount");
   if (maxCount === null || maxCount > 1) {
     return event.target.localName != "menuitem";
   }
@@ -903,7 +904,7 @@ function categoryPopupHiding(event) {
  */
 function categoryTextboxKeypress(event) {
   let category = event.target.value;
-  let categoryPopup = document.getElementById("item-categories-popup");
+  const categoryPopup = document.getElementById("item-categories-popup");
   switch (event.key) {
     case "Tab":
     case "ArrowDown":
@@ -911,7 +912,7 @@ function categoryTextboxKeypress(event) {
       event.target.blur();
       event.preventDefault();
 
-      let keyCode = event.key == "ArrowUp" ? KeyboardEvent.DOM_VK_UP : KeyboardEvent.DOM_VK_DOWN;
+      const keyCode = event.key == "ArrowUp" ? KeyboardEvent.DOM_VK_UP : KeyboardEvent.DOM_VK_DOWN;
       categoryPopup.dispatchEvent(new KeyboardEvent("keydown", { keyCode }));
       categoryPopup.dispatchEvent(new KeyboardEvent("keyup", { keyCode }));
       return;
@@ -935,21 +936,21 @@ function categoryTextboxKeypress(event) {
   }
   event.preventDefault();
 
-  let categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category");
-  let categories = Array.from(categoryList, cat => cat.getAttribute("value"));
+  const categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category");
+  const categories = Array.from(categoryList, cat => cat.getAttribute("value"));
 
   let newIndex = categories.indexOf(category);
   if (newIndex > -1) {
     categoryList[newIndex].setAttribute("checked", true);
   } else {
     const localeCollator = new Intl.Collator();
-    let compare = localeCollator.compare;
+    const compare = localeCollator.compare;
     newIndex = cal.data.binaryInsert(categories, category, compare, true);
 
-    let calendar = getCurrentCalendar();
-    let maxCount = calendar.getProperty("capabilities.categories.maxCount");
+    const calendar = getCurrentCalendar();
+    const maxCount = calendar.getProperty("capabilities.categories.maxCount");
 
-    let item = document.createXULElement("menuitem");
+    const item = document.createXULElement("menuitem");
     item.setAttribute("class", "menuitem-iconic calendar-category");
     item.setAttribute("label", category);
     item.setAttribute("value", category);
@@ -970,8 +971,8 @@ function categoryTextboxKeypress(event) {
  * @param aItem     The item to set the categories on
  */
 function saveCategories(aItem) {
-  let categoryPopup = document.getElementById("item-categories-popup");
-  let categoryList = Array.from(
+  const categoryPopup = document.getElementById("item-categories-popup");
+  const categoryList = Array.from(
     categoryPopup.querySelectorAll("menuitem.calendar-category[checked]"),
     cat => cat.getAttribute("label")
   );
@@ -984,11 +985,11 @@ function saveCategories(aItem) {
  * @param item      The item to parse information out of.
  */
 function loadDateTime(item) {
-  let kDefaultTimezone = cal.dtz.defaultTimezone;
+  const kDefaultTimezone = cal.dtz.defaultTimezone;
   if (item.isEvent()) {
     let startTime = item.startDate;
     let endTime = item.endDate;
-    let duration = endTime.subtractDate(startTime);
+    const duration = endTime.subtractDate(startTime);
 
     // Check if an all-day event has been passed in (to adapt endDate).
     if (startTime.isDate) {
@@ -1014,7 +1015,7 @@ function loadDateTime(item) {
     let endTime = null;
     let duration = null;
 
-    let hasEntryDate = item.entryDate != null;
+    const hasEntryDate = item.entryDate != null;
     if (hasEntryDate) {
       startTime = item.entryDate;
       gStartTimezone = startTime.timezone;
@@ -1022,7 +1023,7 @@ function loadDateTime(item) {
     } else {
       gStartTimezone = kDefaultTimezone;
     }
-    let hasDueDate = item.dueDate != null;
+    const hasDueDate = item.dueDate != null;
     if (hasDueDate) {
       endTime = item.dueDate;
       gEndTimezone = endTime.timezone;
@@ -1054,8 +1055,8 @@ function loadDateTime(item) {
  * Toggles the "keep" attribute every time the keepduration-button is pressed.
  */
 function toggleKeepDuration() {
-  let kdb = document.getElementById("keepduration-button");
-  let keepAttribute = kdb.getAttribute("keep") == "true";
+  const kdb = document.getElementById("keepduration-button");
+  const keepAttribute = kdb.getAttribute("keep") == "true";
   // To make the "keep" attribute persistent, it mustn't be removed when in
   // false state (bug 15232).
   kdb.setAttribute("keep", keepAttribute ? "false" : "true");
@@ -1078,8 +1079,9 @@ function dateTimeControls2State(aStartDatepicker) {
   if (gIgnoreUpdate) {
     return;
   }
-  let keepAttribute = document.getElementById("keepduration-button").getAttribute("keep") == "true";
-  let allDay = document.getElementById("event-all-day").checked;
+  const keepAttribute =
+    document.getElementById("keepduration-button").getAttribute("keep") == "true";
+  const allDay = document.getElementById("event-all-day").checked;
   let startWidgetId;
   let endWidgetId;
   if (window.calendarItem.isEvent()) {
@@ -1096,9 +1098,9 @@ function dateTimeControls2State(aStartDatepicker) {
     endWidgetId = "todo-duedate";
   }
 
-  let saveStartTime = gStartTime;
-  let saveEndTime = gEndTime;
-  let kDefaultTimezone = cal.dtz.defaultTimezone;
+  const saveStartTime = gStartTime;
+  const saveEndTime = gEndTime;
+  const kDefaultTimezone = cal.dtz.defaultTimezone;
 
   if (gStartTime) {
     // jsDate is always in OS timezone, thus we create a calIDateTime
@@ -1145,7 +1147,7 @@ function dateTimeControls2State(aStartDatepicker) {
       if (keepAttribute && gItemDuration) {
         // Keepduration-button links the the Start to the End date. We
         // have to change the Start date in order to keep the duration.
-        let fduration = gItemDuration.clone();
+        const fduration = gItemDuration.clone();
         fduration.isNegative = true;
         gStartTime = gEndTime.clone();
         gStartTime.addDuration(fduration);
@@ -1181,7 +1183,7 @@ function dateTimeControls2State(aStartDatepicker) {
   // Preset the date in the until-datepicker's minimonth to the new start
   // date if it has changed.
   if (startChanged) {
-    let startDate = cal.dtz.dateTimeToJsDate(gStartTime.getInTimezone(cal.dtz.floating));
+    const startDate = cal.dtz.dateTimeToJsDate(gStartTime.getInTimezone(cal.dtz.floating));
     document.getElementById("repeat-until-datepicker").extraDate = startDate;
   }
 
@@ -1221,7 +1223,7 @@ function dateTimeControls2State(aStartDatepicker) {
     // warning dialog is showed.
     enableAcceptCommand(false);
     gWarning = true;
-    let callback = function () {
+    const callback = function () {
       Services.prompt.alert(null, document.title, stringWarning);
       gWarning = false;
       updateAccept();
@@ -1281,12 +1283,12 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
   aDatePickerId.value = document.getElementById(aDatePickerId).value;
 
   // first of all disable the datetime picker if we don't have a date
-  let hasDate = document.getElementById(aCheckboxId).checked;
+  const hasDate = document.getElementById(aCheckboxId).checked;
   aDatePickerId.disabled = !hasDate;
 
   // create a new datetime object if date is now checked for the first time
   if (hasDate && !aDateTime.isValid()) {
-    let date = cal.dtz.jsDateToDateTime(
+    const date = cal.dtz.jsDateToDateTime(
       document.getElementById(aDatePickerId).value,
       cal.dtz.defaultTimezone
     );
@@ -1296,11 +1298,11 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
   }
 
   // calculate the duration if possible
-  let hasEntryDate = document.getElementById("todo-has-entrydate").checked;
-  let hasDueDate = document.getElementById("todo-has-duedate").checked;
+  const hasEntryDate = document.getElementById("todo-has-entrydate").checked;
+  const hasDueDate = document.getElementById("todo-has-duedate").checked;
   if (hasEntryDate && hasDueDate) {
-    let start = cal.dtz.jsDateToDateTime(document.getElementById("todo-entrydate").value);
-    let end = cal.dtz.jsDateToDateTime(document.getElementById("todo-duedate").value);
+    const start = cal.dtz.jsDateToDateTime(document.getElementById("todo-entrydate").value);
+    const end = cal.dtz.jsDateToDateTime(document.getElementById("todo-duedate").value);
     gItemDuration = end.subtractDate(start);
   } else {
     gItemDuration = null;
@@ -1317,7 +1319,7 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
  * @returns {string[]} An array of two strings: [repeatType, untilDate]
  */
 function getRepeatTypeAndUntilDate(aItem) {
-  let recurrenceInfo = window.recurrenceInfo;
+  const recurrenceInfo = window.recurrenceInfo;
   let repeatType = "none";
   let untilDate = "forever";
 
@@ -1326,7 +1328,7 @@ function getRepeatTypeAndUntilDate(aItem) {
    *
    * @param aRule  The recurrence rule
    */
-  let updateUntilDate = aRule => {
+  const updateUntilDate = aRule => {
     if (!aRule.isByCount) {
       if (aRule.isFinite) {
         gUntilDate = aRule.untilDate.clone().getInTimezone(cal.dtz.defaultTimezone);
@@ -1339,10 +1341,10 @@ function getRepeatTypeAndUntilDate(aItem) {
 
   if (recurrenceInfo) {
     repeatType = "custom";
-    let ritems = recurrenceInfo.getRecurrenceItems();
-    let rules = [];
-    let exceptions = [];
-    for (let ritem of ritems) {
+    const ritems = recurrenceInfo.getRecurrenceItems();
+    const rules = [];
+    const exceptions = [];
+    for (const ritem of ritems) {
       if (ritem.isNegative) {
         exceptions.push(ritem);
       } else {
@@ -1350,11 +1352,11 @@ function getRepeatTypeAndUntilDate(aItem) {
       }
     }
     if (rules.length == 1) {
-      let rule = cal.wrapInstance(rules[0], Ci.calIRecurrenceRule);
+      const rule = cal.wrapInstance(rules[0], Ci.calIRecurrenceRule);
       if (rule) {
         switch (rule.type) {
           case "DAILY": {
-            let byparts = [
+            const byparts = [
               "BYSECOND",
               "BYMINUTE",
               "BYHOUR",
@@ -1365,7 +1367,7 @@ function getRepeatTypeAndUntilDate(aItem) {
               "BYSETPOS",
             ];
             if (!checkRecurrenceRule(rule, byparts)) {
-              let ruleComp = rule.getComponent("BYDAY");
+              const ruleComp = rule.getComponent("BYDAY");
               if (rule.interval == 1) {
                 if (ruleComp.length > 0) {
                   if (ruleComp.length == 5) {
@@ -1390,7 +1392,7 @@ function getRepeatTypeAndUntilDate(aItem) {
             break;
           }
           case "WEEKLY": {
-            let byparts = [
+            const byparts = [
               "BYSECOND",
               "BYMINUTE",
               "BYDAY",
@@ -1402,7 +1404,7 @@ function getRepeatTypeAndUntilDate(aItem) {
               "BYSETPOS",
             ];
             if (!checkRecurrenceRule(rule, byparts)) {
-              let weekType = ["weekly", "bi.weekly"];
+              const weekType = ["weekly", "bi.weekly"];
               if (
                 (rule.interval == 1 || rule.interval == 2) &&
                 (!rule.isFinite || !rule.isByCount)
@@ -1414,7 +1416,7 @@ function getRepeatTypeAndUntilDate(aItem) {
             break;
           }
           case "MONTHLY": {
-            let byparts = [
+            const byparts = [
               "BYSECOND",
               "BYMINUTE",
               "BYDAY",
@@ -1434,7 +1436,7 @@ function getRepeatTypeAndUntilDate(aItem) {
             break;
           }
           case "YEARLY": {
-            let byparts = [
+            const byparts = [
               "BYSECOND",
               "BYMINUTE",
               "BYDAY",
@@ -1469,7 +1471,7 @@ function getRepeatTypeAndUntilDate(aItem) {
  */
 function loadRepeat(aRepeatType, aUntilDate, aItem) {
   document.getElementById("item-repeat").value = aRepeatType;
-  let repeatMenu = document.getElementById("item-repeat");
+  const repeatMenu = document.getElementById("item-repeat");
   gLastRepeatSelection = repeatMenu.selectedIndex;
 
   if (aItem.parentItem != aItem) {
@@ -1539,19 +1541,19 @@ function saveDialog(item) {
   item.removeAllAttachments();
 
   // Now add back the new ones
-  for (let hashId in gAttachMap) {
-    let att = gAttachMap[hashId];
+  for (const hashId in gAttachMap) {
+    const att = gAttachMap[hashId];
     item.addAttachment(att);
   }
 
   // Description
-  let editorElement = document.getElementById("item-description");
-  let editor = editorElement.getHTMLEditor(editorElement.contentWindow);
+  const editorElement = document.getElementById("item-description");
+  const editor = editorElement.getHTMLEditor(editorElement.contentWindow);
   if (editor.documentModified) {
     // Get editor output as HTML. We request raw output to avoid any
     // pretty-printing which may cause issues with Google Calendar (see comments
     // in calViewUtils.fixGoogleCalendarDescription() for more information).
-    let mode =
+    const mode =
       Ci.nsIDocumentEncoder.OutputRaw |
       Ci.nsIDocumentEncoder.OutputDropInvisibleBreak |
       Ci.nsIDocumentEncoder.OutputBodyOnly;
@@ -1573,7 +1575,7 @@ function saveDialog(item) {
       item.deleteProperty("STATUS");
     }
   } else {
-    let status = document.getElementById("todo-status").value;
+    const status = document.getElementById("todo-status").value;
     if (status != "COMPLETED") {
       item.completedDate = null;
     }
@@ -1604,7 +1606,7 @@ function saveDialog(item) {
   cal.item.setItemProperty(item, "CLASS", gConfig.privacy, "privacy");
 
   if (item.status == "COMPLETED" && item.isTodo()) {
-    let elementValue = document.getElementById("completed-date-picker").value;
+    const elementValue = document.getElementById("completed-date-picker").value;
     item.completedDate = cal.dtz.jsDateToDateTime(elementValue);
   }
 
@@ -1623,7 +1625,7 @@ function saveDateTime(item) {
   if (item.isEvent()) {
     let startTime = gStartTime.getInTimezone(gStartTimezone);
     let endTime = gEndTime.getInTimezone(gEndTimezone);
-    let isAllDay = document.getElementById("event-all-day").checked;
+    const isAllDay = document.getElementById("event-all-day").checked;
     if (isAllDay) {
       startTime = startTime.clone();
       endTime = endTime.clone();
@@ -1640,8 +1642,8 @@ function saveDateTime(item) {
     cal.item.setItemProperty(item, "endDate", endTime);
   }
   if (item.isTodo()) {
-    let startTime = gStartTime && gStartTime.getInTimezone(gStartTimezone);
-    let endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
+    const startTime = gStartTime && gStartTime.getInTimezone(gStartTimezone);
+    const endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
     cal.item.setItemProperty(item, "entryDate", startTime);
     cal.item.setItemProperty(item, "dueDate", endTime);
   }
@@ -1657,15 +1659,15 @@ function saveDateTime(item) {
 function untilDateCompensation(aItem) {
   // The current start date in the item is always the date that we get
   // when opening the dialog or after the last save.
-  let startDate = aItem[cal.dtz.startDateProp(aItem)];
+  const startDate = aItem[cal.dtz.startDateProp(aItem)];
 
   if (aItem.recurrenceInfo) {
-    let rrules = splitRecurrenceRules(aItem.recurrenceInfo);
-    let rule = rrules[0][0];
+    const rrules = splitRecurrenceRules(aItem.recurrenceInfo);
+    const rule = rrules[0][0];
     if (!rule.isByCount && rule.isFinite && startDate) {
-      let compensation = startDate.subtractDate(gStartTime);
+      const compensation = startDate.subtractDate(gStartTime);
       if (compensation != "PT0S") {
-        let untilDate = rule.untilDate.clone();
+        const untilDate = rule.untilDate.clone();
         untilDate.addDuration(compensation);
         rule.untilDate = untilDate;
       }
@@ -1700,10 +1702,10 @@ function updateTitle() {
  */
 function updateAccept() {
   let enableAccept = true;
-  let kDefaultTimezone = cal.dtz.defaultTimezone;
+  const kDefaultTimezone = cal.dtz.defaultTimezone;
   let startDate;
   let endDate;
-  let isEvent = window.calendarItem.isEvent();
+  const isEvent = window.calendarItem.isEvent();
 
   // don't allow for end dates to be before start dates
   if (isEvent) {
@@ -1720,7 +1722,7 @@ function updateAccept() {
 
   if (startDate && endDate) {
     if (gTimezonesEnabled) {
-      let startTimezone = gStartTimezone;
+      const startTimezone = gStartTimezone;
       let endTimezone = gEndTimezone;
       if (endTimezone.isUTC) {
         if (!cal.data.compareObjects(gStartTimezone, gEndTimezone)) {
@@ -1790,8 +1792,8 @@ function onUpdateAllDay() {
   if (!window.calendarItem.isEvent()) {
     return;
   }
-  let allDay = document.getElementById("event-all-day").checked;
-  let kDefaultTimezone = cal.dtz.defaultTimezone;
+  const allDay = document.getElementById("event-all-day").checked;
+  const kDefaultTimezone = cal.dtz.defaultTimezone;
 
   if (allDay) {
     // Store date-times and related timezones so we can restore
@@ -1803,8 +1805,8 @@ function onUpdateAllDay() {
     // When events that end at 0:00 become all-day events, we need to
     // subtract a day from the end date because the real end is midnight.
     if (gEndTime.hour == 0 && gEndTime.minute == 0) {
-      let tempStartTime = gStartTime.clone();
-      let tempEndTime = gEndTime.clone();
+      const tempStartTime = gStartTime.clone();
+      const tempEndTime = gEndTime.clone();
       tempStartTime.isDate = true;
       tempEndTime.isDate = true;
       tempStartTime.day++;
@@ -1860,7 +1862,7 @@ function updateAllDay() {
     return;
   }
 
-  let allDay = document.getElementById("event-all-day").checked;
+  const allDay = document.getElementById("event-all-day").checked;
   if (allDay) {
     document.getElementById("event-starttime").setAttribute("timepickerdisabled", true);
     document.getElementById("event-endtime").setAttribute("timepickerdisabled", true);
@@ -1884,8 +1886,8 @@ function updateAllDay() {
  * item's calendar
  */
 function openNewEvent() {
-  let item = window.calendarItem;
-  let args = window.arguments[0];
+  const item = window.calendarItem;
+  const args = window.arguments[0];
   args.onNewEvent(item.calendar);
 }
 
@@ -1894,8 +1896,8 @@ function openNewEvent() {
  * item's calendar
  */
 function openNewTask() {
-  let item = window.calendarItem;
-  let args = window.arguments[0];
+  const item = window.calendarItem;
+  const args = window.arguments[0];
   args.onNewTodo(item.calendar);
 }
 
@@ -1911,23 +1913,23 @@ function setShowTimeAs(allDay) {
 }
 
 function editAttendees() {
-  let savedWindow = window;
-  let calendar = getCurrentCalendar();
+  const savedWindow = window;
+  const calendar = getCurrentCalendar();
 
-  let callback = function (attendees, organizer, startTime, endTime) {
+  const callback = function (attendees, organizer, startTime, endTime) {
     savedWindow.attendees = attendees;
     savedWindow.organizer = organizer;
 
     // if a participant was added or removed we switch to the attendee
     // tab, so the user can see the change directly
-    let tabs = document.getElementById("event-grid-tabs");
-    let attendeeTab = document.getElementById("event-grid-tab-attendees");
+    const tabs = document.getElementById("event-grid-tabs");
+    const attendeeTab = document.getElementById("event-grid-tab-attendees");
     tabs.selectedItem = attendeeTab;
 
-    let duration = endTime.subtractDate(startTime);
+    const duration = endTime.subtractDate(startTime);
     startTime = startTime.clone();
     endTime = endTime.clone();
-    let kDefaultTimezone = cal.dtz.defaultTimezone;
+    const kDefaultTimezone = cal.dtz.defaultTimezone;
     gStartTimezone = startTime.timezone;
     gEndTimezone = endTime.timezone;
     gStartTime = startTime.getInTimezone(kDefaultTimezone);
@@ -1942,10 +1944,10 @@ function editAttendees() {
     }
   };
 
-  let startTime = gStartTime.getInTimezone(gStartTimezone);
-  let endTime = gEndTime.getInTimezone(gEndTimezone);
+  const startTime = gStartTime.getInTimezone(gStartTimezone);
+  const endTime = gEndTime.getInTimezone(gEndTimezone);
 
-  let isAllDay = document.getElementById("event-all-day").checked;
+  const isAllDay = document.getElementById("event-all-day").checked;
   if (isAllDay) {
     startTime.isDate = true;
     endTime.isDate = true;
@@ -1954,7 +1956,7 @@ function editAttendees() {
     startTime.isDate = false;
     endTime.isDate = false;
   }
-  let args = {};
+  const args = {};
   args.startTime = startTime;
   args.endTime = endTime;
   args.displayTimezone = gTimezonesEnabled;
@@ -2017,9 +2019,9 @@ function updateConfigState(aArg) {
  * Add menu items to the UI for attaching files using cloud providers.
  */
 function loadCloudProviders() {
-  let cloudFileEnabled = Services.prefs.getBoolPref("mail.cloud_files.enabled", false);
-  let cmd = document.getElementById("cmd_attach_cloud");
-  let message = {
+  const cloudFileEnabled = Services.prefs.getBoolPref("mail.cloud_files.enabled", false);
+  const cmd = document.getElementById("cmd_attach_cloud");
+  const message = {
     command: "setElementAttribute",
     argument: { id: "cmd_attach_cloud", attribute: "hidden", value: null },
   };
@@ -2032,16 +2034,16 @@ function loadCloudProviders() {
     return;
   }
 
-  let isHidden = cloudFileAccounts.configuredAccounts.length == 0;
+  const isHidden = cloudFileAccounts.configuredAccounts.length == 0;
   cmd.hidden = isHidden;
   message.argument.value = isHidden;
   sendMessage(message);
 
-  let itemObjects = [];
+  const itemObjects = [];
 
-  for (let cloudProvider of cloudFileAccounts.configuredAccounts) {
+  for (const cloudProvider of cloudFileAccounts.configuredAccounts) {
     // Create a serializable object to pass in a message outside the iframe
-    let itemObject = {};
+    const itemObject = {};
     itemObject.displayName = cloudFileAccounts.getDisplayName(cloudProvider);
     itemObject.label = cal.l10n.getString("calendar-event-dialog", "attachViaFilelink", [
       itemObject.displayName,
@@ -2055,7 +2057,7 @@ function loadCloudProviders() {
     itemObjects.push(itemObject);
 
     // Create a menu item from the serializable object
-    let item = document.createXULElement("menuitem");
+    const item = document.createXULElement("menuitem");
     item.setAttribute("label", itemObject.label);
     item.setAttribute("observes", "cmd_attach_cloud");
     item.setAttribute(
@@ -2069,7 +2071,7 @@ function loadCloudProviders() {
     }
 
     // Add the menu item to places inside the iframe where we advertise cloud providers
-    let attachmentPopup = document.getElementById("attachment-popup");
+    const attachmentPopup = document.getElementById("attachment-popup");
     attachmentPopup.appendChild(item).cloudProvider = cloudProvider;
   }
 
@@ -2083,8 +2085,8 @@ function loadCloudProviders() {
 function attachURL() {
   if (Services.prompt) {
     // ghost in an example...
-    let result = { value: "http://" };
-    let confirm = Services.prompt.prompt(
+    const result = { value: "http://" };
+    const confirm = Services.prompt.prompt(
       window,
       cal.l10n.getString("calendar-event-dialog", "specifyLinkLocation"),
       cal.l10n.getString("calendar-event-dialog", "enterLinkLocation"),
@@ -2096,13 +2098,13 @@ function attachURL() {
     if (confirm) {
       try {
         // If something bogus was entered, Services.io.newURI may fail.
-        let attachment = new CalAttachment();
+        const attachment = new CalAttachment();
         attachment.uri = Services.io.newURI(result.value);
         addAttachment(attachment);
         // we switch to the attachment tab if it is not already displayed
         // to allow the user to see the attachment was added
-        let tabs = document.getElementById("event-grid-tabs");
-        let attachTab = document.getElementById("event-grid-tab-attachments");
+        const tabs = document.getElementById("event-grid-tabs");
+        const attachTab = document.getElementById("event-grid-tab-attachments");
         tabs.selectedItem = attachTab;
       } catch (e) {
         // TODO We might want to show a warning instead of just not
@@ -2118,7 +2120,7 @@ function attachURL() {
  * @param {string} aAccountKey - The accountKey for a cloud provider
  */
 function attachFileByAccountKey(aAccountKey) {
-  for (let cloudProvider of cloudFileAccounts.configuredAccounts) {
+  for (const cloudProvider of cloudFileAccounts.configuredAccounts) {
     if (aAccountKey == cloudProvider.accountKey) {
       attachFile(cloudProvider);
       return;
@@ -2138,7 +2140,7 @@ function attachFile(cloudProvider) {
     );
   }
 
-  let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+  const filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   filePicker.init(
     window,
     cal.l10n.getString("calendar-event-dialog", "selectAFile"),
@@ -2146,7 +2148,7 @@ function attachFile(cloudProvider) {
   );
 
   // Check for the last directory
-  let lastDir = lastDirectory();
+  const lastDir = lastDirectory();
   if (lastDir) {
     filePicker.displayDirectory = lastDir;
   }
@@ -2157,11 +2159,11 @@ function attachFile(cloudProvider) {
     }
 
     // Create the attachment
-    for (let file of filePicker.files) {
-      let fileHandler = Services.io
+    for (const file of filePicker.files) {
+      const fileHandler = Services.io
         .getProtocolHandler("file")
         .QueryInterface(Ci.nsIFileProtocolHandler);
-      let uriSpec = fileHandler.getURLSpecFromActualFile(file);
+      const uriSpec = fileHandler.getURLSpecFromActualFile(file);
 
       if (!(uriSpec in gAttachMap)) {
         // If the attachment hasn't been added, then set the last display
@@ -2169,7 +2171,7 @@ function attachFile(cloudProvider) {
         lastDirectory(uriSpec);
 
         // ... and add the attachment.
-        let attachment = new CalAttachment();
+        const attachment = new CalAttachment();
         if (cloudProvider) {
           attachment.uri = Services.io.newURI(uriSpec);
         } else {
@@ -2192,8 +2194,8 @@ function attachFile(cloudProvider) {
 function lastDirectory(aFileUri) {
   if (aFileUri) {
     // Act similar to a setter, save the passed uri.
-    let uri = Services.io.newURI(aFileUri);
-    let file = uri.QueryInterface(Ci.nsIFileURL).file;
+    const uri = Services.io.newURI(aFileUri);
+    const file = uri.QueryInterface(Ci.nsIFileURL).file;
     lastDirectory.mValue = file.parent.QueryInterface(Ci.nsIFile);
   }
 
@@ -2229,8 +2231,8 @@ function makePrettyName(aUri) {
  * @param listItem          The listitem in attachment-link listbox to update.
  */
 function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
-  let file = attachment.uri.QueryInterface(Ci.nsIFileURL).file;
-  let image = listItem.querySelector("img");
+  const file = attachment.uri.QueryInterface(Ci.nsIFileURL).file;
+  const image = listItem.querySelector("img");
   listItem.attachCloudFileAccount = cloudFileAccount;
   image.setAttribute("src", "chrome://global/skin/icons/loading.png");
   // WebExtension APIs do not support calendar tabs.
@@ -2282,16 +2284,16 @@ function addAttachment(attachment, cloudFileAccount) {
 
   // We currently only support uri attachments
   if (attachment.uri) {
-    let documentLink = document.getElementById("attachment-link");
-    let listItem = document.createXULElement("richlistitem");
-    let image = document.createElement("img");
+    const documentLink = document.getElementById("attachment-link");
+    const listItem = document.createXULElement("richlistitem");
+    const image = document.createElement("img");
     image.setAttribute("alt", "");
     image.width = "24";
     image.height = "24";
     // Allow the moz-icon src to be invalid.
     image.classList.add("invisible-on-broken");
     listItem.appendChild(image);
-    let label = document.createXULElement("label");
+    const label = document.createXULElement("label");
     label.setAttribute("value", makePrettyName(attachment.uri));
     label.setAttribute("crop", "end");
     listItem.appendChild(label);
@@ -2302,9 +2304,9 @@ function addAttachment(attachment, cloudFileAccount) {
         image.setAttribute("src", "chrome://messenger/skin/icons/connecting.png");
         uploadCloudAttachment(attachment, cloudFileAccount, listItem);
       } else {
-        let cloudFileIconURL = attachment.getParameter("X-SERVICE-ICONURL");
+        const cloudFileIconURL = attachment.getParameter("X-SERVICE-ICONURL");
         image.setAttribute("src", cloudFileIconURL);
-        let leafName = attachment.getParameter("FILENAME");
+        const leafName = attachment.getParameter("FILENAME");
         if (leafName) {
           listItem.setAttribute("label", leafName);
         }
@@ -2312,9 +2314,9 @@ function addAttachment(attachment, cloudFileAccount) {
     } else if (attachment.uri.schemeIs("file")) {
       image.setAttribute("src", "moz-icon://" + attachment.uri.spec);
     } else {
-      let leafName = attachment.getParameter("FILENAME");
-      let cloudFileIconURL = attachment.getParameter("X-SERVICE-ICONURL");
-      let cloudFileEnabled = Services.prefs.getBoolPref("mail.cloud_files.enabled", false);
+      const leafName = attachment.getParameter("FILENAME");
+      const cloudFileIconURL = attachment.getParameter("X-SERVICE-ICONURL");
+      const cloudFileEnabled = Services.prefs.getBoolPref("mail.cloud_files.enabled", false);
 
       if (leafName) {
         // TODO security issues?
@@ -2328,7 +2330,7 @@ function addAttachment(attachment, cloudFileAccount) {
           iconSrc = "goat?contentType=" + attachment.formatType;
         } else {
           // let's try to auto-detect
-          let parts = iconSrc.substr(attachment.uri.scheme.length + 2).split("/");
+          const parts = iconSrc.substr(attachment.uri.scheme.length + 2).split("/");
           if (parts.length) {
             iconSrc = parts[parts.length - 1];
           }
@@ -2357,8 +2359,8 @@ function addAttachment(attachment, cloudFileAccount) {
  * XXX This could use a dialog maybe?
  */
 function deleteAttachment() {
-  let documentLink = document.getElementById("attachment-link");
-  let item = documentLink.selectedItem;
+  const documentLink = document.getElementById("attachment-link");
+  const item = documentLink.selectedItem;
   delete gAttachMap[item.attachment.hashId];
 
   if (item.attachCloudFileAccount && item.attachCloudFileUpload) {
@@ -2393,16 +2395,16 @@ function deleteAttachment() {
  * Removes all attachments from the dialog controls.
  */
 function deleteAllAttachments() {
-  let documentLink = document.getElementById("attachment-link");
-  let itemCount = documentLink.getRowCount();
+  const documentLink = document.getElementById("attachment-link");
+  const itemCount = documentLink.getRowCount();
   let canRemove = itemCount < 2;
 
   if (itemCount > 1) {
-    let removeText = PluralForm.get(
+    const removeText = PluralForm.get(
       itemCount,
       cal.l10n.getString("calendar-event-dialog", "removeAttachmentsText")
     );
-    let removeTitle = cal.l10n.getString("calendar-event-dialog", "removeCalendarsTitle");
+    const removeTitle = cal.l10n.getString("calendar-event-dialog", "removeCalendarsTitle");
     canRemove = Services.prompt.confirm(
       window,
       removeTitle,
@@ -2428,10 +2430,10 @@ function deleteAllAttachments() {
  */
 function openAttachment() {
   // Only one file has to be selected and we don't handle base64 files at all
-  let documentLink = document.getElementById("attachment-link");
+  const documentLink = document.getElementById("attachment-link");
   if (documentLink.selectedItem) {
-    let attURI = documentLink.selectedItem.attachment.uri;
-    let externalLoader = Cc["@mozilla.org/uriloader/external-protocol-service;1"].getService(
+    const attURI = documentLink.selectedItem.attachment.uri;
+    const externalLoader = Cc["@mozilla.org/uriloader/external-protocol-service;1"].getService(
       Ci.nsIExternalProtocolService
     );
     // TODO There should be a nicer dialog
@@ -2443,10 +2445,10 @@ function openAttachment() {
  * Copies the link location of the first selected attachment to the clipboard
  */
 function copyAttachment() {
-  let documentLink = document.getElementById("attachment-link");
+  const documentLink = document.getElementById("attachment-link");
   if (documentLink.selectedItem) {
-    let attURI = documentLink.selectedItem.attachment.uri.spec;
-    let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
+    const attURI = documentLink.selectedItem.attachment.uri.spec;
+    const clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
     clipboard.copyString(attURI);
   }
 }
@@ -2497,7 +2499,7 @@ function attachmentClick(aEvent) {
     item = item.parentNode;
   }
 
-  for (let node of aEvent.target.children) {
+  for (const node of aEvent.target.children) {
     if (item.localName == "richlistitem" || node.id == "attachment-popup-attachPage") {
       node.removeAttribute("hidden");
     } else {
@@ -2523,7 +2525,7 @@ function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) 
       info: gEventNotification.PRIORITY_INFO_MEDIUM,
       critical: gEventNotification.PRIORITY_CRITICAL_MEDIUM,
     };
-    let prio = prioMap[aPriority] || gEventNotification.PRIORITY_WARNING_MEDIUM;
+    const prio = prioMap[aPriority] || gEventNotification.PRIORITY_WARNING_MEDIUM;
     gEventNotification.appendNotification(
       aValue,
       {
@@ -2543,7 +2545,7 @@ function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) 
  * @param {string} aValue - string identifying the notification to remove
  */
 function removeNotification(aValue) {
-  let notification = gEventNotification.getNotificationWithValue(aValue);
+  const notification = gEventNotification.getNotificationWithValue(aValue);
   if (notification) {
     gEventNotification.removeNotification(notification);
   }
@@ -2554,9 +2556,9 @@ function removeNotification(aValue) {
  */
 function updateCalendar() {
   let item = window.calendarItem;
-  let calendar = getCurrentCalendar();
+  const calendar = getCurrentCalendar();
 
-  let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
+  const cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
   document
     .getElementById("item-calendar")
     .style.setProperty("--item-color", `var(--calendar-${cssSafeId}-backcolor)`);
@@ -2568,7 +2570,7 @@ function updateCalendar() {
   }
 
   // We might have to change the organizer, let's see
-  let calendarOrgId = calendar.getProperty("organizerId");
+  const calendarOrgId = calendar.getProperty("organizerId");
   if (window.organizer && calendarOrgId && calendar.id != gPreviousCalendarId) {
     window.organizer.id = calendarOrgId;
     window.organizer.commonName = calendar.getProperty("organizerCN");
@@ -2595,8 +2597,8 @@ function updateCalendar() {
   // them again based on the specific logic build into those function. is this
   // really a good idea?
   if (gIsReadOnly) {
-    let disableElements = document.getElementsByAttribute("disable-on-readonly", "true");
-    for (let element of disableElements) {
+    const disableElements = document.getElementsByAttribute("disable-on-readonly", "true");
+    for (const element of disableElements) {
       if (element.namespaceURI == "http://www.w3.org/1999/xhtml") {
         element.setAttribute("disabled", "disabled");
       } else {
@@ -2613,23 +2615,23 @@ function updateCalendar() {
       }
     }
 
-    let collapseElements = document.getElementsByAttribute("collapse-on-readonly", "true");
-    for (let element of collapseElements) {
+    const collapseElements = document.getElementsByAttribute("collapse-on-readonly", "true");
+    for (const element of collapseElements) {
       element.setAttribute("collapsed", "true");
     }
   } else {
     sendMessage({ command: "removeDisableAndCollapseOnReadonly" });
 
-    let enableElements = document.getElementsByAttribute("disable-on-readonly", "true");
-    for (let element of enableElements) {
+    const enableElements = document.getElementsByAttribute("disable-on-readonly", "true");
+    for (const element of enableElements) {
       element.removeAttribute("disabled");
       if (element.hasAttribute("hyperlink")) {
         element.classList.add("text-link");
       }
     }
 
-    let collapseElements = document.getElementsByAttribute("collapse-on-readonly", "true");
-    for (let element of collapseElements) {
+    const collapseElements = document.getElementsByAttribute("collapse-on-readonly", "true");
+    for (const element of collapseElements) {
       element.removeAttribute("collapsed");
     }
 
@@ -2647,10 +2649,10 @@ function updateCalendar() {
     if (item.parentItem != item) {
       document.getElementById("item-repeat").setAttribute("disabled", "true");
       document.getElementById("repeat-until-datepicker").setAttribute("disabled", "true");
-      let repeatDetails = document.getElementById("repeat-details");
-      let numChilds = repeatDetails.children.length;
+      const repeatDetails = document.getElementById("repeat-details");
+      const numChilds = repeatDetails.children.length;
       for (let i = 0; i < numChilds; i++) {
-        let node = repeatDetails.children[i];
+        const node = repeatDetails.children[i];
         node.setAttribute("disabled", "true");
         node.removeAttribute("class");
         node.removeAttribute("onclick");
@@ -2682,13 +2684,13 @@ function updateCalendar() {
  * rules.
  */
 function editRepeat() {
-  let args = {};
+  const args = {};
   args.calendarEvent = window.calendarItem;
   args.recurrenceInfo = window.recurrenceInfo;
   args.startTime = gStartTime;
   args.endTime = gEndTime;
 
-  let savedWindow = window;
+  const savedWindow = window;
   args.onOk = function (recurrenceInfo) {
     savedWindow.recurrenceInfo = recurrenceInfo;
   };
@@ -2736,16 +2738,16 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
     }
   }
 
-  let repeatMenu = document.getElementById("item-repeat");
-  let repeatValue = repeatMenu.selectedItem.getAttribute("value");
-  let repeatUntilDate = document.getElementById("repeat-untilDate");
-  let repeatDetails = document.getElementById("repeat-details");
+  const repeatMenu = document.getElementById("item-repeat");
+  const repeatValue = repeatMenu.selectedItem.getAttribute("value");
+  const repeatUntilDate = document.getElementById("repeat-untilDate");
+  const repeatDetails = document.getElementById("repeat-details");
 
   if (repeatValue == "none") {
     repeatUntilDate.hidden = true;
     repeatDetails.hidden = true;
     window.recurrenceInfo = null;
-    let item = window.calendarItem;
+    const item = window.calendarItem;
     if (item.isTodo()) {
       enableElementWithLock("todo-has-entrydate", "repeat-lock");
     }
@@ -2754,14 +2756,14 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
     // up the appropriate dialog in order to let the user specify the
     // new rule. First of all, retrieve the item we want to specify
     // the custom repeat pattern for.
-    let item = window.calendarItem;
+    const item = window.calendarItem;
 
     setUpEntrydateForTask(item);
 
     // retrieve the current recurrence info, we need this
     // to find out whether or not the user really created
     // a new repeat pattern.
-    let recurrenceInfo = window.recurrenceInfo;
+    const recurrenceInfo = window.recurrenceInfo;
 
     // now bring up the recurrence dialog.
     // don't pop up the dialog if aSuppressDialogs was specified or if
@@ -2773,8 +2775,8 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
     // Assign gUntilDate on the first run or when returning from the
     // edit recurrence dialog.
     if (window.recurrenceInfo) {
-      let rrules = splitRecurrenceRules(window.recurrenceInfo);
-      let rule = rrules[0][0];
+      const rrules = splitRecurrenceRules(window.recurrenceInfo);
+      const rule = rrules[0][0];
       gUntilDate = null;
       if (!rule.isByCount && rule.isFinite && rule.untilDate) {
         gUntilDate = rule.untilDate.clone().getInTimezone(cal.dtz.defaultTimezone);
@@ -2804,18 +2806,18 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
       // "every weekday" don't need the recurrence details text when they
       // have only the until date. The getRepeatTypeAndUntilDate()
       // function verifies whether this is the case.
-      let [repeatType, untilDate] = getRepeatTypeAndUntilDate(item);
+      const [repeatType, untilDate] = getRepeatTypeAndUntilDate(item);
       loadRepeat(repeatType, untilDate, window.calendarItem);
     }
   } else {
-    let item = window.calendarItem;
+    const item = window.calendarItem;
     let recurrenceInfo = window.recurrenceInfo || item.recurrenceInfo;
-    let proposedUntilDate = (gStartTime || window.initialStartDateValue).clone();
+    const proposedUntilDate = (gStartTime || window.initialStartDateValue).clone();
 
     if (recurrenceInfo) {
       recurrenceInfo = recurrenceInfo.clone();
-      let rrules = splitRecurrenceRules(recurrenceInfo);
-      let rule = rrules[0][0];
+      const rrules = splitRecurrenceRules(recurrenceInfo);
+      const rule = rrules[0][0];
 
       // If the previous rule was "custom" we have to recover the until
       // date, or the last occurrence's date in order to set the
@@ -2831,10 +2833,10 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
           }
         } else {
           // Try to recover the last occurrence in 10(?) years.
-          let endDate = gStartTime.clone();
+          const endDate = gStartTime.clone();
           endDate.year += 10;
           let lastOccurrenceDate = null;
-          let dates = recurrenceInfo.getOccurrenceDates(gStartTime, endDate, 0);
+          const dates = recurrenceInfo.getOccurrenceDates(gStartTime, endDate, 0);
           if (dates) {
             lastOccurrenceDate = dates[dates.length - 1];
           }
@@ -2855,7 +2857,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
     repeatUntilDate.hidden = false;
     repeatDetails.hidden = true;
 
-    let recRule = cal.createRecurrenceRule();
+    const recRule = cal.createRecurrenceRule();
     recRule.interval = 1;
     switch (repeatValue) {
       case "daily":
@@ -2894,7 +2896,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
     }
 
     // Preset the until-datepicker's minimonth to the start date.
-    let startDate = cal.dtz.dateTimeToJsDate(gStartTime.getInTimezone(cal.dtz.floating));
+    const startDate = cal.dtz.dateTimeToJsDate(gStartTime.getInTimezone(cal.dtz.floating));
     document.getElementById("repeat-until-datepicker").extraDate = startDate;
   }
 
@@ -2915,23 +2917,23 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
  */
 function updateUntildateRecRule(recRule) {
   if (!recRule) {
-    let recurrenceInfo = window.recurrenceInfo;
+    const recurrenceInfo = window.recurrenceInfo;
     if (!recurrenceInfo) {
       return;
     }
-    let rrules = splitRecurrenceRules(recurrenceInfo);
+    const rrules = splitRecurrenceRules(recurrenceInfo);
     recRule = rrules[0][0];
   }
-  let defaultTimezone = cal.dtz.defaultTimezone;
+  const defaultTimezone = cal.dtz.defaultTimezone;
   let repeatUntilDate = null;
 
-  let itemRepeat = document.getElementById("item-repeat").selectedItem.value;
+  const itemRepeat = document.getElementById("item-repeat").selectedItem.value;
   if (itemRepeat == "none") {
     return;
   } else if (itemRepeat == "custom") {
     repeatUntilDate = gUntilDate;
   } else {
-    let untilDatepickerDate = document.getElementById("repeat-until-datepicker").value;
+    const untilDatepickerDate = document.getElementById("repeat-until-datepicker").value;
     if (untilDatepickerDate != "forever") {
       repeatUntilDate = cal.dtz.jsDateToDateTime(untilDatepickerDate, defaultTimezone);
     }
@@ -2971,14 +2973,14 @@ function updateToDoStatus(aStatus, aCompletedDate = null) {
 
   // remember the original values
   let oldPercentComplete = parseInt(document.getElementById("percent-complete-textbox").value, 10);
-  let oldCompletedDate = document.getElementById("completed-date-picker").value;
+  const oldCompletedDate = document.getElementById("completed-date-picker").value;
 
   // If the percent completed has changed to 100 or from 100 to another
   // value, the status must change.
   if (aStatus == "percent-changed") {
-    let selectedIndex = document.getElementById("todo-status").selectedIndex;
-    let menuItemCompleted = selectedIndex == 3;
-    let menuItemNotSpecified = selectedIndex == 0;
+    const selectedIndex = document.getElementById("todo-status").selectedIndex;
+    const menuItemCompleted = selectedIndex == 3;
+    const menuItemNotSpecified = selectedIndex == 0;
     if (oldPercentComplete == 100) {
       aStatus = "COMPLETED";
     } else if (menuItemCompleted || menuItemNotSpecified) {
@@ -3058,8 +3060,8 @@ function saveItem() {
   // (even if it happens to be mutable) in order to guarantee
   // that providers see a proper oldItem/newItem pair in case
   // they rely on this fact (e.g. WCAP does).
-  let originalItem = window.calendarItem;
-  let item = originalItem.clone();
+  const originalItem = window.calendarItem;
+  const item = originalItem.clone();
 
   // override item's recurrenceInfo *before* serializing date/time-objects.
   if (!item.recurrenceId) {
@@ -3073,17 +3075,17 @@ function saveItem() {
 
   item.removeAllAttendees();
   if (window.attendees && window.attendees.length > 0) {
-    for (let attendee of window.attendees) {
+    for (const attendee of window.attendees) {
       item.addAttendee(attendee);
     }
 
-    let notifyCheckbox = document.getElementById("notify-attendees-checkbox");
+    const notifyCheckbox = document.getElementById("notify-attendees-checkbox");
     if (notifyCheckbox.disabled) {
       item.deleteProperty("X-MOZ-SEND-INVITATIONS");
     } else {
       item.setProperty("X-MOZ-SEND-INVITATIONS", notifyCheckbox.checked ? "TRUE" : "FALSE");
     }
-    let undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
+    const undiscloseCheckbox = document.getElementById("undisclose-attendees-checkbox");
     if (undiscloseCheckbox.disabled) {
       item.deleteProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED");
     } else {
@@ -3092,8 +3094,8 @@ function saveItem() {
         undiscloseCheckbox.checked ? "TRUE" : "FALSE"
       );
     }
-    let disallowcounterCheckbox = document.getElementById("disallow-counter-checkbox");
-    let xProp = window.calendarItem.getProperty("X-MICROSOFT-DISALLOW-COUNTER");
+    const disallowcounterCheckbox = document.getElementById("disallow-counter-checkbox");
+    const xProp = window.calendarItem.getProperty("X-MICROSOFT-DISALLOW-COUNTER");
     // we want to leave an existing x-prop in case the checkbox is disabled as we need to
     // roundtrip x-props that are not exclusively under our control
     if (!disallowcounterCheckbox.disabled) {
@@ -3111,12 +3113,12 @@ function saveItem() {
   // If it's different, that is because someone is acting on behalf of
   // the organizer.
   if (item.organizer && item.calendar.aclEntry) {
-    let userAddresses = item.calendar.aclEntry.getUserAddresses();
+    const userAddresses = item.calendar.aclEntry.getUserAddresses();
     if (
       userAddresses.length > 0 &&
       !cal.email.attendeeMatchesAddresses(item.organizer, userAddresses)
     ) {
-      let organizer = item.organizer.clone();
+      const organizer = item.organizer.clone();
       organizer.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
       item.organizer = organizer;
     }
@@ -3148,9 +3150,9 @@ function onCommandSave(aIsClosing) {
 
   eventDialogCalendarObserver.cancel();
 
-  let originalItem = window.calendarItem;
-  let item = saveItem();
-  let calendar = getCurrentCalendar();
+  const originalItem = window.calendarItem;
+  const item = saveItem();
+  const calendar = getCurrentCalendar();
   adaptScheduleAgent(item);
 
   item.makeImmutable();
@@ -3165,10 +3167,10 @@ function onCommandSave(aIsClosing) {
   // the call is complete? This might help when the user tries to save twice
   // before the call is complete. In that case, we do need a progress bar and
   // the ability to cancel the operation though.
-  let listener = {
+  const listener = {
     onTransactionComplete(aItem) {
-      let aId = aItem.id;
-      let aCalendar = aItem.calendar;
+      const aId = aItem.id;
+      const aCalendar = aItem.calendar;
       // Check if the current window has a calendarItem first, because in case of undo
       // window refers to the main window and we would get a 'calendarItem is undefined' warning.
       if (!aIsClosing && "calendarItem" in window) {
@@ -3182,7 +3184,7 @@ function onCommandSave(aIsClosing) {
             // TODO This workaround needs to be removed in bug 396182
             // We are editing an occurrence. Make sure that the returned
             // item is the same occurrence, not its parent item.
-            let occ = aItem.recurrenceInfo.getOccurrenceFor(window.calendarItem.recurrenceId);
+            const occ = aItem.recurrenceInfo.getOccurrenceFor(window.calendarItem.recurrenceId);
             window.calendarItem = occ;
           } else {
             // We are editing the parent item, no workarounds needed
@@ -3202,10 +3204,10 @@ function onCommandSave(aIsClosing) {
     },
     onGetResult(calendarItem, status, itemType, detail, items) {},
   };
-  let resp = document.getElementById("notify-attendees-checkbox").checked
+  const resp = document.getElementById("notify-attendees-checkbox").checked
     ? Ci.calIItipItem.AUTO
     : Ci.calIItipItem.NONE;
-  let extResponse = { responseMode: resp };
+  const extResponse = { responseMode: resp };
   window.onAcceptCallback(item, calendar, originalItem, listener, extResponse);
 }
 
@@ -3225,7 +3227,7 @@ function onCommandDeleteItem() {
   if (window.mode == "new") {
     cancelItem();
   } else {
-    let deleteListener = {
+    const deleteListener = {
       // when deletion of item is complete, close the dialog
       onTransactionComplete(item) {
         // Check if the current window has a calendarItem first, because in case of undo
@@ -3255,7 +3257,7 @@ function onCommandDeleteItem() {
         );
       } else {
         // we just need to remove the occurrence
-        let newItem = window.calendarItem.parentItem.clone();
+        const newItem = window.calendarItem.parentItem.clone();
         newItem.recurrenceInfo.removeOccurrenceAt(window.calendarItem.recurrenceId);
         gMainWindow.doTransaction(
           "modify",
@@ -3286,7 +3288,7 @@ function onCommandDeleteItem() {
  * @param {string} aDuration - A duration in ISO 8601 format
  */
 function postponeTask(aDuration) {
-  let duration = cal.createDuration(aDuration);
+  const duration = cal.createDuration(aDuration);
   if (gStartTime != null) {
     gStartTime.addDuration(duration);
   }
@@ -3337,12 +3339,12 @@ editEndTimezone.complete = function (datetime) {
  * @param event     The event with a target that holds the timezone id value.
  */
 function chooseRecentTimezone(event) {
-  let tzid = event.target.value;
-  let timezonePopup = document.getElementById("timezone-popup");
+  const tzid = event.target.value;
+  const timezonePopup = document.getElementById("timezone-popup");
 
   if (tzid != "custom") {
-    let zone = cal.timezoneService.getTimezone(tzid);
-    let datetime = timezonePopup.dateTime.getInTimezone(zone);
+    const zone = cal.timezoneService.getTimezone(tzid);
+    const datetime = timezonePopup.dateTime.getInTimezone(zone);
     timezonePopup.editTimezone.complete(datetime);
   }
 }
@@ -3361,11 +3363,11 @@ function showTimezonePopup(event, dateTime, editFunc) {
     return;
   }
 
-  let timezonePopup = document.getElementById("timezone-popup");
-  let timezoneDefaultItem = document.getElementById("timezone-popup-defaulttz");
-  let timezoneSeparator = document.getElementById("timezone-popup-menuseparator");
-  let defaultTimezone = cal.dtz.defaultTimezone;
-  let recentTimezones = cal.dtz.getRecentTimezones(true);
+  const timezonePopup = document.getElementById("timezone-popup");
+  const timezoneDefaultItem = document.getElementById("timezone-popup-defaulttz");
+  const timezoneSeparator = document.getElementById("timezone-popup-menuseparator");
+  const defaultTimezone = cal.dtz.defaultTimezone;
+  const recentTimezones = cal.dtz.getRecentTimezones(true);
 
   // Set up the right editTimezone function, so the custom item can use it.
   timezonePopup.editTimezone = editFunc;
@@ -3381,8 +3383,8 @@ function showTimezonePopup(event, dateTime, editFunc) {
   }
 
   // Fill in the new recent timezones
-  for (let timezone of recentTimezones) {
-    let menuItem = document.createXULElement("menuitem");
+  for (const timezone of recentTimezones) {
+    const menuItem = document.createXULElement("menuitem");
     menuItem.setAttribute("value", timezone.tzid);
     menuItem.setAttribute("label", timezone.displayName);
     timezonePopup.insertBefore(menuItem, timezoneDefaultItem.nextElementSibling);
@@ -3406,7 +3408,7 @@ function editTimezone(aElementId, aDateTime, aCallback) {
   }
 
   // prepare the arguments that will be passed to the dialog
-  let args = {};
+  const args = {};
   args.time = aDateTime;
   args.calendar = getCurrentCalendar();
   args.onOk = function (datetime) {
@@ -3443,13 +3445,13 @@ function editTimezone(aElementId, aDateTime, aCallback) {
 function updateDateTime() {
   gIgnoreUpdate = true;
 
-  let item = window.calendarItem;
+  const item = window.calendarItem;
   // Convert to default timezone if the timezone option
   // is *not* checked, otherwise keep the specific timezone
   // and display the labels in order to modify the timezone.
   if (gTimezonesEnabled) {
     if (item.isEvent()) {
-      let startTime = gStartTime.getInTimezone(gStartTimezone);
+      const startTime = gStartTime.getInTimezone(gStartTimezone);
       let endTime = gEndTime.getInTimezone(gEndTimezone);
 
       document.getElementById("event-all-day").checked = startTime.isDate;
@@ -3478,8 +3480,8 @@ function updateDateTime() {
     if (item.isTodo()) {
       let startTime = gStartTime && gStartTime.getInTimezone(gStartTimezone);
       let endTime = gEndTime && gEndTime.getInTimezone(gEndTimezone);
-      let hasEntryDate = startTime != null;
-      let hasDueDate = endTime != null;
+      const hasEntryDate = startTime != null;
+      const hasDueDate = endTime != null;
 
       if (hasEntryDate && hasDueDate) {
         document.getElementById("todo-has-entrydate").checked = hasEntryDate;
@@ -3513,11 +3515,11 @@ function updateDateTime() {
       }
     }
   } else {
-    let kDefaultTimezone = cal.dtz.defaultTimezone;
+    const kDefaultTimezone = cal.dtz.defaultTimezone;
 
     if (item.isEvent()) {
-      let startTime = gStartTime.getInTimezone(kDefaultTimezone);
-      let endTime = gEndTime.getInTimezone(kDefaultTimezone);
+      const startTime = gStartTime.getInTimezone(kDefaultTimezone);
+      const endTime = gEndTime.getInTimezone(kDefaultTimezone);
       document.getElementById("event-all-day").checked = startTime.isDate;
 
       // before feeding the date/time value into the control we need
@@ -3532,8 +3534,8 @@ function updateDateTime() {
     if (item.isTodo()) {
       let startTime = gStartTime && gStartTime.getInTimezone(kDefaultTimezone);
       let endTime = gEndTime && gEndTime.getInTimezone(kDefaultTimezone);
-      let hasEntryDate = startTime != null;
-      let hasDueDate = endTime != null;
+      const hasEntryDate = startTime != null;
+      const hasDueDate = endTime != null;
 
       if (hasEntryDate && hasDueDate) {
         document.getElementById("todo-has-entrydate").checked = hasEntryDate;
@@ -3585,7 +3587,7 @@ function updateDateTime() {
  */
 function updateTimezone() {
   function updateTimezoneElement(aTimezone, aId, aDateTime) {
-    let element = document.getElementById(aId);
+    const element = document.getElementById(aId);
     if (!element) {
       return;
     }
@@ -3635,13 +3637,13 @@ function updateTimezone() {
  * Updates dialog controls related to item attachments
  */
 function updateAttachment() {
-  let hasAttachments = capSupported("attachments");
+  const hasAttachments = capSupported("attachments");
   document.getElementById("cmd_attach_url").setAttribute("disabled", !hasAttachments);
 
   // update the attachment tab label to make the number of (uri) attachments visible
   // even if another tab is displayed
-  let attachments = Object.values(gAttachMap).filter(aAtt => aAtt.uri);
-  let attachmentTab = document.getElementById("event-grid-tab-attachments");
+  const attachments = Object.values(gAttachMap).filter(aAtt => aAtt.uri);
+  const attachmentTab = document.getElementById("event-grid-tab-attachments");
   if (attachments.length) {
     attachmentTab.label = cal.l10n.getString("calendar-event-dialog", "attachmentsTabLabel", [
       attachments.length,
@@ -3698,7 +3700,7 @@ function updateItemURL(aShow, aUrl) {
   if (aShow && aUrl.length) {
     setTimeout(() => {
       // HACK the url-link doesn't crop when setting the value in onLoad
-      let label = document.getElementById("url-link");
+      const label = document.getElementById("url-link");
       label.setAttribute("value", aUrl);
       label.setAttribute("href", aUrl);
     }, 0);
@@ -3710,17 +3712,17 @@ function updateItemURL(aShow, aUrl) {
  */
 function updateAttendeeInterface() {
   // sending email invitations currently only supported for events
-  let attendeeTab = document.getElementById("event-grid-tab-attendees");
-  let attendeePanel = document.getElementById("event-grid-tabpanel-attendees");
-  let notifyOptions = document.getElementById("notify-options");
+  const attendeeTab = document.getElementById("event-grid-tab-attendees");
+  const attendeePanel = document.getElementById("event-grid-tabpanel-attendees");
+  const notifyOptions = document.getElementById("notify-options");
   if (window.calendarItem.isEvent()) {
     attendeeTab.removeAttribute("collapsed");
     attendeePanel.removeAttribute("collapsed");
     notifyOptions.removeAttribute("collapsed");
 
-    let organizerRow = document.getElementById("item-organizer-row");
+    const organizerRow = document.getElementById("item-organizer-row");
     if (window.organizer && window.organizer.id) {
-      let existingLabel = organizerRow.querySelector(":scope > .attendee-label");
+      const existingLabel = organizerRow.querySelector(":scope > .attendee-label");
       if (existingLabel) {
         organizerRow.removeChild(existingLabel);
       }
@@ -3732,12 +3734,12 @@ function updateAttendeeInterface() {
       organizerRow.hidden = true;
     }
 
-    let attendeeContainer = document.querySelector(".item-attendees-list-container");
+    const attendeeContainer = document.querySelector(".item-attendees-list-container");
     if (attendeeContainer.firstChild) {
       attendeeContainer.firstChild.remove();
     }
     attendeeContainer.appendChild(cal.invitation.createAttendeesList(document, window.attendees));
-    for (let label of attendeeContainer.querySelectorAll(".attendee-label")) {
+    for (const label of attendeeContainer.querySelectorAll(".attendee-label")) {
       label.addEventListener("dblclick", attendeeDblClick);
       label.setAttribute("tabindex", "0");
     }
@@ -3763,7 +3765,7 @@ function updateAttendeeInterface() {
  * exist for this event and notifying is enabled
  */
 function updateParentSaveControls() {
-  let mode =
+  const mode =
     window.calendarItem.isEvent() &&
     window.organizer &&
     window.organizer.id &&
@@ -3784,22 +3786,22 @@ function updateParentSaveControls() {
 function updateRepeatDetails() {
   // Don't try to show the details text for
   // anything but a custom recurrence rule.
-  let recurrenceInfo = window.recurrenceInfo;
-  let itemRepeat = document.getElementById("item-repeat");
-  let repeatDetails = document.getElementById("repeat-details");
+  const recurrenceInfo = window.recurrenceInfo;
+  const itemRepeat = document.getElementById("item-repeat");
+  const repeatDetails = document.getElementById("repeat-details");
   if (itemRepeat.value == "custom" && recurrenceInfo && !hasUnsupported(recurrenceInfo)) {
-    let item = window.calendarItem;
+    const item = window.calendarItem;
     document.getElementById("repeat-untilDate").hidden = true;
     // Try to create a descriptive string from the rule(s).
-    let kDefaultTimezone = cal.dtz.defaultTimezone;
-    let event = item.isEvent();
+    const kDefaultTimezone = cal.dtz.defaultTimezone;
+    const event = item.isEvent();
 
     let startDate = document.getElementById(event ? "event-starttime" : "todo-entrydate").value;
     let endDate = document.getElementById(event ? "event-endtime" : "todo-duedate").value;
     startDate = cal.dtz.jsDateToDateTime(startDate, kDefaultTimezone);
     endDate = cal.dtz.jsDateToDateTime(endDate, kDefaultTimezone);
 
-    let allDay = document.getElementById("event-all-day").checked;
+    const allDay = document.getElementById("event-all-day").checked;
     let detailsString = recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay);
 
     if (!detailsString) {
@@ -3808,14 +3810,14 @@ function updateRepeatDetails() {
     repeatDetails.hidden = false;
 
     // Now display the string.
-    let lines = detailsString.split("\n");
+    const lines = detailsString.split("\n");
     while (repeatDetails.children.length > lines.length) {
       repeatDetails.lastChild.remove();
     }
-    let numChilds = repeatDetails.children.length;
+    const numChilds = repeatDetails.children.length;
     for (let i = 0; i < lines.length; i++) {
       if (i >= numChilds) {
-        let newNode = repeatDetails.children[0].cloneNode(true);
+        const newNode = repeatDetails.children[0].cloneNode(true);
         repeatDetails.appendChild(newNode);
       }
       repeatDetails.children[i].value = lines[i];
@@ -3861,9 +3863,9 @@ function attendeeDblClick(aEvent) {
 function setAttendeeContext(aEvent) {
   if (window.attendees.length == 0) {
     // we just need the option to open the attendee dialog in this case
-    let popup = document.getElementById("attendee-popup");
-    let invite = document.getElementById("attendee-popup-invite-menuitem");
-    for (let node of popup.children) {
+    const popup = document.getElementById("attendee-popup");
+    const invite = document.getElementById("attendee-popup-invite-menuitem");
+    for (const node of popup.children) {
       if (node == invite) {
         node.removeAttribute("hidden");
       } else {
@@ -3872,7 +3874,7 @@ function setAttendeeContext(aEvent) {
     }
   } else {
     if (window.attendees.length > 1) {
-      let removeall = document.getElementById("attendee-popup-removeallattendees-menuitem");
+      const removeall = document.getElementById("attendee-popup-removeallattendees-menuitem");
       removeall.removeAttribute("hidden");
     }
     document.getElementById("attendee-popup-sendemail-menuitem").removeAttribute("hidden");
@@ -3880,13 +3882,13 @@ function setAttendeeContext(aEvent) {
     document.getElementById("attendee-popup-first-separator").removeAttribute("hidden");
 
     // setup attendee specific menu items if appropriate otherwise hide respective menu items
-    let mailto = document.getElementById("attendee-popup-emailattendee-menuitem");
-    let remove = document.getElementById("attendee-popup-removeattendee-menuitem");
-    let secondSeparator = document.getElementById("attendee-popup-second-separator");
-    let attId =
+    const mailto = document.getElementById("attendee-popup-emailattendee-menuitem");
+    const remove = document.getElementById("attendee-popup-removeattendee-menuitem");
+    const secondSeparator = document.getElementById("attendee-popup-second-separator");
+    const attId =
       aEvent.target.getAttribute("attendeeid") ||
       aEvent.target.parentNode.getAttribute("attendeeid");
-    let attendee = window.attendees.find(aAtt => aAtt.id == attId);
+    const attendee = window.attendees.find(aAtt => aAtt.id == attId);
     if (attendee) {
       mailto.removeAttribute("hidden");
       remove.removeAttribute("hidden");
@@ -3936,7 +3938,7 @@ function removeAllAttendees() {
  * @param aAttendees    The attendees to check.
  */
 function sendMailToUndecidedAttendees(aAttendees) {
-  let targetAttendees = aAttendees.filter(isAttendeeUndecided);
+  const targetAttendees = aAttendees.filter(isAttendeeUndecided);
   sendMailToAttendees(targetAttendees);
 }
 
@@ -3946,10 +3948,12 @@ function sendMailToUndecidedAttendees(aAttendees) {
  * @param aAttendees    The attendees to send mail to.
  */
 function sendMailToAttendees(aAttendees) {
-  let toList = cal.email.createRecipientList(aAttendees);
-  let item = saveItem();
-  let emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [item.title]);
-  let identity = window.calendarItem.calendar.getProperty("imip.identity");
+  const toList = cal.email.createRecipientList(aAttendees);
+  const item = saveItem();
+  const emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [
+    item.title,
+  ]);
+  const identity = window.calendarItem.calendar.getProperty("imip.identity");
   cal.email.sendTo(toList, emailSubject, null, identity);
 }
 
@@ -3976,8 +3980,8 @@ function updateCapabilities() {
  * @return:    true if the values in the Dialog have changed. False otherwise.
  */
 function isItemChanged() {
-  let newItem = saveItem();
-  let oldItem = window.calendarItem;
+  const newItem = saveItem();
+  const oldItem = window.calendarItem;
 
   if (newItem.calendar.id == oldItem.calendar.id && cal.item.compareContent(newItem, oldItem)) {
     return false;
@@ -3991,7 +3995,7 @@ function isItemChanged() {
  * @param aCap      The capability from "capabilities.<aCap>.supported"
  */
 function capSupported(aCap) {
-  let calendar = getCurrentCalendar();
+  const calendar = getCurrentCalendar();
   return calendar.getProperty("capabilities." + aCap + ".supported") !== false;
 }
 
@@ -4002,8 +4006,8 @@ function capSupported(aCap) {
  * @returns The values for this capability
  */
 function capValues(aCap, aDefault) {
-  let calendar = getCurrentCalendar();
-  let vals = calendar.getProperty("capabilities." + aCap + ".values");
+  const calendar = getCurrentCalendar();
+  const vals = calendar.getProperty("capabilities." + aCap + ".values");
   return vals === null ? aDefault : vals;
 }
 
@@ -4014,7 +4018,7 @@ function capValues(aCap, aDefault) {
  * the dialog when the user enters a wrong until date.
  */
 function checkUntilDate() {
-  let repeatUntilDate = document.getElementById("repeat-until-datepicker").value;
+  const repeatUntilDate = document.getElementById("repeat-until-datepicker").value;
   if (repeatUntilDate == "forever") {
     updateRepeat();
     // "forever" is never earlier than another date.
@@ -4022,8 +4026,8 @@ function checkUntilDate() {
   }
 
   // Check whether the date is valid. Set the correct time just in this case.
-  let untilDate = cal.dtz.jsDateToDateTime(repeatUntilDate, gStartTime.timezone);
-  let startDate = gStartTime.clone();
+  const untilDate = cal.dtz.jsDateToDateTime(repeatUntilDate, gStartTime.timezone);
+  const startDate = gStartTime.clone();
   startDate.isDate = true;
   if (untilDate.compare(startDate) < 0) {
     // Invalid date: restore the previous date. Since we are checking an
@@ -4032,7 +4036,7 @@ function checkUntilDate() {
       ? cal.dtz.dateTimeToJsDate(gUntilDate.getInTimezone(cal.dtz.floating))
       : "forever";
     gWarning = true;
-    let callback = function () {
+    const callback = function () {
       // Disable the "Save" and "Save and Close" commands as long as the
       // warning dialog is showed.
       enableAcceptCommand(false);
@@ -4065,28 +4069,28 @@ function displayCounterProposal() {
     return;
   }
 
-  let propLabels = document.getElementById("counter-proposal-property-labels");
-  let propValues = document.getElementById("counter-proposal-property-values");
+  const propLabels = document.getElementById("counter-proposal-property-labels");
+  const propValues = document.getElementById("counter-proposal-property-values");
   let idCounter = 0;
   let comment;
 
-  for (let proposal of window.counterProposal.proposal) {
+  for (const proposal of window.counterProposal.proposal) {
     if (proposal.property == "COMMENT") {
       if (proposal.proposed && !proposal.original) {
         comment = proposal.proposed;
       }
     } else {
-      let label = lookupCounterLabel(proposal);
-      let value = formatCounterValue(proposal);
+      const label = lookupCounterLabel(proposal);
+      const value = formatCounterValue(proposal);
       if (label && value) {
         // setup label node
-        let propLabel = propLabels.firstElementChild.cloneNode(false);
+        const propLabel = propLabels.firstElementChild.cloneNode(false);
         propLabel.id = propLabel.id + "-" + idCounter;
         propLabel.control = propLabel.control + "-" + idCounter;
         propLabel.removeAttribute("collapsed");
         propLabel.value = label;
         // setup value node
-        let propValue = propValues.firstElementChild.cloneNode(false);
+        const propValue = propValues.firstElementChild.cloneNode(false);
         propValue.id = propLabel.control;
         propValue.removeAttribute("collapsed");
         propValue.value = value;
@@ -4098,7 +4102,7 @@ function displayCounterProposal() {
     }
   }
 
-  let attendeeId =
+  const attendeeId =
     window.counterProposal.attendee.CN ||
     cal.email.removeMailTo(window.counterProposal.attendee.id || "");
   let partStat = window.counterProposal.attendee.participationStatus;
@@ -4163,8 +4167,8 @@ function displayCounterProposal() {
  * @returns {string | null} The label to display or null if no such label
  */
 function lookupCounterLabel(aProperty) {
-  let nodeIds = getPropertyMap();
-  let labels =
+  const nodeIds = getPropertyMap();
+  const labels =
     nodeIds.has(aProperty.property) &&
     document.getElementsByAttribute("control", nodeIds.get(aProperty.property));
   let labelValue;
@@ -4194,10 +4198,10 @@ function formatCounterValue(aProperty) {
 
   let val;
   if (dateProps.includes(aProperty.property)) {
-    let localTime = aProperty.proposed.getInTimezone(cal.dtz.defaultTimezone);
+    const localTime = aProperty.proposed.getInTimezone(cal.dtz.defaultTimezone);
     val = cal.dtz.formatter.formatDateTime(localTime);
     if (gTimezonesEnabled) {
-      let tzone = localTime.timezone.displayName || localTime.timezone.tzid;
+      const tzone = localTime.timezone.displayName || localTime.timezone.tzid;
       val += " " + tzone;
     }
   } else if (stringProps.includes(aProperty.property)) {
@@ -4216,7 +4220,7 @@ function formatCounterValue(aProperty) {
  * @returns {Map}
  */
 function getPropertyMap() {
-  let map = new Map();
+  const map = new Map();
   map.set("SUMMARY", "item-title");
   map.set("LOCATION", "item-location");
   map.set("DTSTART", "event-starttime");
@@ -4233,7 +4237,7 @@ function applyValues(aType) {
   if (!window.counterProposal || (aType != "proposed" && aType != "original")) {
     return;
   }
-  let originalBtn = document.getElementById("counter-original-btn");
+  const originalBtn = document.getElementById("counter-original-btn");
   if (originalBtn.disabled) {
     // The button is disabled when opening the dialog/tab, which makes it more obvious to the
     // user that he/she needs to apply the proposal values prior to saving & sending.
@@ -4241,10 +4245,10 @@ function applyValues(aType) {
     // to avoid needing to listen to manual changes to do that correctly
     originalBtn.removeAttribute("disabled");
   }
-  let nodeIds = getPropertyMap();
+  const nodeIds = getPropertyMap();
   window.counterProposal.proposal.forEach(aProperty => {
     if (aProperty.property != "COMMENT") {
-      let valueNode =
+      const valueNode =
         nodeIds.has(aProperty.property) && document.getElementById(nodeIds.get(aProperty.property));
       if (valueNode) {
         if (["DTSTART", "DTEND"].includes(aProperty.property)) {
@@ -4266,35 +4270,35 @@ function applyValues(aType) {
  * in the parent process, we can just listen directly to the event.
  */
 function openEditorContextMenu(event) {
-  let popup = document.getElementById("editorContext");
+  const popup = document.getElementById("editorContext");
   popup.openPopupAtScreen(event.screenX, event.screenY, true, event);
   event.preventDefault();
 }
 
 // Thunderbird's dialog is mail-centric, but we just want a lightweight prompt.
 function insertLink() {
-  let href = { value: "" };
-  let editor = GetCurrentEditor();
-  let existingLink = editor.getSelectedElement("href");
+  const href = { value: "" };
+  const editor = GetCurrentEditor();
+  const existingLink = editor.getSelectedElement("href");
   if (existingLink) {
     editor.selectElement(existingLink);
     href.value = existingLink.getAttribute("href");
   }
-  let text = GetSelectionAsText().trim() || href.value || GetString("EmptyHREFError");
-  let title = GetString("Link");
+  const text = GetSelectionAsText().trim() || href.value || GetString("EmptyHREFError");
+  const title = GetString("Link");
   if (Services.prompt.prompt(window, title, text, href, null, {})) {
     if (!href.value) {
       // Remove the link
       EditorRemoveTextProperty("href", "");
     } else if (editor.selection.isCollapsed) {
       // Insert a link with its href as the text
-      let link = editor.createElementWithDefaults("a");
+      const link = editor.createElementWithDefaults("a");
       link.setAttribute("href", href.value);
       link.textContent = href.value;
       editor.insertElementAtSelection(link, false);
     } else {
       // Change the href of the selection
-      let link = editor.createElementWithDefaults("a");
+      const link = editor.createElementWithDefaults("a");
       link.setAttribute("href", href.value);
       editor.insertLinkAroundSelection(link);
     }

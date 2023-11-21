@@ -26,7 +26,7 @@ class CalProtocolHandlerWebcal {
   }
 
   newChannel(aUri, aLoadInfo) {
-    let uri = aUri.mutate().setScheme(this.httpScheme).finalize();
+    const uri = aUri.mutate().setScheme(this.httpScheme).finalize();
 
     let channel;
     if (aLoadInfo) {

@@ -26,14 +26,14 @@ window.addEventListener("DOMContentLoaded", onLoad);
  */
 function onLoad() {
   /** @type {{ calendar: calICalendar, canDisable: boolean}} */
-  let args = window.arguments[0];
+  const args = window.arguments[0];
 
   gCalendar = args.calendar; // eslint-disable-line no-global-assign
 
   // Some servers provide colors as an 8-character hex string, which the color
   // picker can't handle. Strip the alpha component.
   let calColor = gCalendar.getProperty("color");
-  let alphaHex = calColor?.match(/^(#[0-9A-Fa-f]{6})[0-9A-Fa-f]{2}$/);
+  const alphaHex = calColor?.match(/^(#[0-9A-Fa-f]{6})[0-9A-Fa-f]{2}$/);
   if (alphaHex) {
     gCalendar.setProperty("color", alphaHex[1]);
     calColor = alphaHex[1];
@@ -65,9 +65,9 @@ function onLoad() {
   initRefreshInterval();
 
   // Set up the cache field
-  let cacheBox = document.getElementById("cache");
-  let canCache = gCalendar.getProperty("cache.supported") !== false;
-  let alwaysCache = gCalendar.getProperty("cache.always");
+  const cacheBox = document.getElementById("cache");
+  const canCache = gCalendar.getProperty("cache.supported") !== false;
+  const alwaysCache = gCalendar.getProperty("cache.always");
   if (!canCache || alwaysCache) {
     cacheBox.setAttribute("disable-capability", "true");
     cacheBox.hidden = true;
@@ -76,8 +76,8 @@ function onLoad() {
   cacheBox.checked = alwaysCache || (canCache && gCalendar.getProperty("cache.enabled"));
 
   // Set up the show alarms row and checkbox
-  let suppressAlarmsRow = document.getElementById("calendar-suppressAlarms-row");
-  let suppressAlarms = gCalendar.getProperty("suppressAlarms");
+  const suppressAlarmsRow = document.getElementById("calendar-suppressAlarms-row");
+  const suppressAlarms = gCalendar.getProperty("suppressAlarms");
   document.getElementById("fire-alarms").checked = !suppressAlarms;
 
   suppressAlarmsRow.toggleAttribute(
@@ -107,7 +107,7 @@ function onLoad() {
     document.getElementById("calendar-name").focus();
   }
 
-  let notificationsSetting = document.getElementById("calendar-notifications-setting");
+  const notificationsSetting = document.getElementById("calendar-notifications-setting");
   notificationsSetting.value = gCalendar.getProperty("notifications.times");
 }
 
@@ -134,12 +134,12 @@ function onAcceptDialog() {
 
   // Save refresh interval
   if (gCalendar.canRefresh) {
-    let value = document.getElementById("calendar-refreshInterval-menulist").value;
+    const value = document.getElementById("calendar-refreshInterval-menulist").value;
     gCalendar.setProperty("refreshInterval", value);
   }
 
   // Save cache options
-  let alwaysCache = gCalendar.getProperty("cache.always");
+  const alwaysCache = gCalendar.getProperty("cache.always");
   if (!alwaysCache) {
     gCalendar.setProperty("cache.enabled", document.getElementById("cache").checked);
   }
@@ -178,8 +178,8 @@ function onChangeIdentity(aEvent) {
  * When the calendar is disabled, we need to disable a number of other elements
  */
 function setupEnabledCheckbox() {
-  let isEnabled = document.getElementById("calendar-enabled-checkbox").checked;
-  let els = document.getElementsByAttribute("disable-with-calendar", "true");
+  const isEnabled = document.getElementById("calendar-enabled-checkbox").checked;
+  const els = document.getElementsByAttribute("disable-with-calendar", "true");
   for (let i = 0; i < els.length; i++) {
     els[i].disabled = !isEnabled || els[i].getAttribute("disable-capability") == "true";
   }
@@ -196,11 +196,11 @@ document.addEventListener("dialogextra1", () => {
 
 function initRefreshInterval() {
   function createMenuItem(minutes) {
-    let menuitem = document.createXULElement("menuitem");
+    const menuitem = document.createXULElement("menuitem");
     menuitem.setAttribute("value", minutes);
 
-    let everyMinuteString = cal.l10n.getCalString("calendarPropertiesEveryMinute");
-    let label = PluralForm.get(minutes, everyMinuteString).replace("#1", minutes);
+    const everyMinuteString = cal.l10n.getCalString("calendarPropertiesEveryMinute");
+    const label = PluralForm.get(minutes, everyMinuteString).replace("#1", minutes);
     menuitem.setAttribute("label", label);
 
     return menuitem;
@@ -217,10 +217,10 @@ function initRefreshInterval() {
     }
 
     let foundValue = false;
-    let separator = document.getElementById("calendar-refreshInterval-manual-separator");
-    let menulist = document.getElementById("calendar-refreshInterval-menulist");
-    for (let min of [1, 5, 15, 30, 60]) {
-      let menuitem = createMenuItem(min);
+    const separator = document.getElementById("calendar-refreshInterval-manual-separator");
+    const menulist = document.getElementById("calendar-refreshInterval-menulist");
+    for (const min of [1, 5, 15, 30, 60]) {
+      const menuitem = createMenuItem(min);
 
       separator.parentNode.insertBefore(menuitem, separator);
       if (refreshInterval == min) {
@@ -236,7 +236,7 @@ function initRefreshInterval() {
 
     if (!foundValue) {
       // Special menuitem in case the user changed the value in the config editor.
-      let menuitem = createMenuItem(refreshInterval);
+      const menuitem = createMenuItem(refreshInterval);
       separator.parentNode.insertBefore(menuitem, separator.nextElementSibling);
       menulist.selectedItem = menuitem;
     }

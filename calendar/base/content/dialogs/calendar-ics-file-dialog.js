@@ -27,13 +27,13 @@ const gModel = {
 async function onWindowLoad() {
   // Workaround to add padding to the dialog buttons area which is in shadow dom.
   // If the padding value changes here it should also change in the CSS.
-  let dialog = document.getElementsByTagName("dialog")[0];
+  const dialog = document.getElementsByTagName("dialog")[0];
   dialog.shadowRoot.querySelector(".dialog-button-box").style = "padding-inline: 10px;";
 
   gModel.file = window.arguments[0];
   document.getElementById("calendar-ics-file-dialog-file-path").value = gModel.file.path;
 
-  let calendars = cal.manager.getCalendars();
+  const calendars = cal.manager.getCalendars();
   gModel.calendars = getCalendarsThatCanImport(calendars);
   if (!gModel.calendars.length) {
     // No calendars to import into. Show error dialog and close the window.
@@ -42,14 +42,14 @@ async function onWindowLoad() {
     return;
   }
 
-  let composite = cal.view.getCompositeCalendar(window);
-  let defaultCalendarId = composite && composite.defaultCalendar?.id;
+  const composite = cal.view.getCompositeCalendar(window);
+  const defaultCalendarId = composite && composite.defaultCalendar?.id;
   setUpCalendarMenu(gModel.calendars, defaultCalendarId);
   cal.view.colorTracker.registerWindow(window);
 
   // Finish laying out and displaying the window, then come back to do the hard work.
   Services.tm.dispatchToMainThread(async () => {
-    let startTime = Date.now();
+    const startTime = Date.now();
 
     getItemsFromIcsFile(gModel.file).forEach((item, index) => {
       gModel.itemsToImport.set(index, item);
@@ -63,7 +63,9 @@ async function onWindowLoad() {
 
     // We know that if `getItemsFromIcsFile` took a long time, then `setUpItemSummaries` will also
     // take a long time. Show a loading message so the user knows something is happening.
-    let loadingMessage = document.getElementById("calendar-ics-file-dialog-items-loading-message");
+    const loadingMessage = document.getElementById(
+      "calendar-ics-file-dialog-items-loading-message"
+    );
     if (Date.now() - startTime > 150) {
       loadingMessage.removeAttribute("hidden");
       await new Promise(resolve => requestAnimationFrame(resolve));
@@ -92,7 +94,7 @@ window.addEventListener("load", onWindowLoad);
  * @returns {calICalendar[]} Sorted array of calendars that can import items.
  */
 function getCalendarsThatCanImport(calendars) {
-  let calendarsThatCanImport = calendars.filter(
+  const calendarsThatCanImport = calendars.filter(
     calendar =>
       !calendar.getProperty("disabled") &&
       !calendar.readOnly &&
@@ -108,15 +110,15 @@ function getCalendarsThatCanImport(calendars) {
  * @param {string | null} defaultCalendarId - ID of the default (currently selected) calendar.
  */
 function setUpCalendarMenu(calendars, defaultCalendarId) {
-  let menulist = document.getElementById("calendar-ics-file-dialog-calendar-menu");
-  for (let calendar of calendars) {
-    let menuitem = addMenuItem(menulist, calendar.name, calendar.name);
-    let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
+  const menulist = document.getElementById("calendar-ics-file-dialog-calendar-menu");
+  for (const calendar of calendars) {
+    const menuitem = addMenuItem(menulist, calendar.name, calendar.name);
+    const cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
     menuitem.style.setProperty("--item-color", `var(--calendar-${cssSafeId}-backcolor)`);
     menuitem.classList.add("menuitem-iconic");
   }
 
-  let index = defaultCalendarId
+  const index = defaultCalendarId
     ? calendars.findIndex(calendar => calendar.id == defaultCalendarId)
     : 0;
 
@@ -128,7 +130,7 @@ function setUpCalendarMenu(calendars, defaultCalendarId) {
  * Update to reflect a change in the selected calendar.
  */
 function updateCalendarMenu() {
-  let menulist = document.getElementById("calendar-ics-file-dialog-calendar-menu");
+  const menulist = document.getElementById("calendar-ics-file-dialog-calendar-menu");
   menulist.style.setProperty(
     "--item-color",
     menulist.selectedItem.style.getPropertyValue("--item-color")
@@ -139,19 +141,19 @@ function updateCalendarMenu() {
  * Display summaries of each calendar item from the file being imported.
  */
 async function setUpItemSummaries() {
-  let items = [...gModel.itemsToImport];
-  let itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
+  const items = [...gModel.itemsToImport];
+  const itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
 
   // Sort the items, chronologically first, tasks without a date to the end,
   // then alphabetically.
-  let collator = new Intl.Collator(undefined, { numeric: true });
+  const collator = new Intl.Collator(undefined, { numeric: true });
   items.sort(([, a], [, b]) => {
-    let aStartDate =
+    const aStartDate =
       a.startDate?.nativeTime ||
       a.entryDate?.nativeTime ||
       a.dueDate?.nativeTime ||
       Number.MAX_SAFE_INTEGER;
-    let bStartDate =
+    const bStartDate =
       b.startDate?.nativeTime ||
       b.entryDate?.nativeTime ||
       b.dueDate?.nativeTime ||
@@ -159,25 +161,25 @@ async function setUpItemSummaries() {
     return aStartDate - bStartDate || collator.compare(a.title, b.title);
   });
 
-  let [eventButtonText, taskButtonText] = await document.l10n.formatValues([
+  const [eventButtonText, taskButtonText] = await document.l10n.formatValues([
     "calendar-ics-file-dialog-import-event-button-label",
     "calendar-ics-file-dialog-import-task-button-label",
   ]);
 
   items.forEach(([index, item]) => {
-    let itemFrame = document.createXULElement("vbox");
+    const itemFrame = document.createXULElement("vbox");
     itemFrame.classList.add("calendar-ics-file-dialog-item-frame");
 
-    let importButton = document.createXULElement("button");
+    const importButton = document.createXULElement("button");
     importButton.classList.add("calendar-ics-file-dialog-item-import-button");
     importButton.setAttribute("label", item.isEvent() ? eventButtonText : taskButtonText);
     importButton.addEventListener("command", importSingleItem.bind(null, item, index));
 
-    let buttonBox = document.createXULElement("hbox");
+    const buttonBox = document.createXULElement("hbox");
     buttonBox.setAttribute("pack", "end");
     buttonBox.setAttribute("align", "end");
 
-    let summary = document.createXULElement("calendar-item-summary");
+    const summary = document.createXULElement("calendar-item-summary");
     summary.setAttribute("id", "import-item-summary-" + index);
 
     itemFrame.appendChild(summary);
@@ -198,7 +200,7 @@ async function setUpItemSummaries() {
  * @param {searchString} [searchString] - Terms to search for.
  */
 function filterItemSummaries(searchString = "") {
-  let itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
+  const itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
 
   searchString = searchString.trim();
   // Nothing to search for. Display all item summaries.
@@ -238,7 +240,7 @@ function filterItemSummaries(searchString = "") {
   // Check the title and description of each item for matches.
   gModel.itemSummaries.forEach(s => {
     let title, description;
-    let matches = searchTokens.every(term => {
+    const matches = searchTokens.every(term => {
       if (title === undefined) {
         title = s.item.title.toLowerCase().normalize();
       }
@@ -263,11 +265,11 @@ function filterItemSummaries(searchString = "") {
  * @param {Event} event - The oncommand event that triggered this sort.
  */
 function sortItemSummaries(event) {
-  let [key, direction] = event.target.value.split(" ");
+  const [key, direction] = event.target.value.split(" ");
 
   let comparer;
   if (key == "title") {
-    let collator = new Intl.Collator(undefined, { numeric: true });
+    const collator = new Intl.Collator(undefined, { numeric: true });
     if (direction == "ascending") {
       comparer = (a, b) => collator.compare(a.item.title, b.item.title);
     } else {
@@ -284,14 +286,14 @@ function sortItemSummaries(event) {
     throw new Error(`Unexpected sort key: ${key}`);
   }
 
-  let items = [...gModel.itemSummaries.values()].sort(comparer);
-  let itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
-  for (let item of items) {
+  const items = [...gModel.itemSummaries.values()].sort(comparer);
+  const itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
+  for (const item of items) {
     itemsContainer.appendChild(item.closest(".calendar-ics-file-dialog-item-frame"));
   }
   itemsContainer.scrollTo(0, 0);
 
-  for (let menuitem of document.querySelectorAll(
+  for (const menuitem of document.querySelectorAll(
     "#calendar-ics-file-dialog-sort-popup > menuitem"
   )) {
     menuitem.checked = menuitem == event.target;
@@ -304,8 +306,8 @@ function sortItemSummaries(event) {
  * @returns {calICalendar} The currently selected calendar.
  */
 function getCurrentlySelectedCalendar() {
-  let menulist = document.getElementById("calendar-ics-file-dialog-calendar-menu");
-  let calendar = gModel.calendars[menulist.selectedIndex];
+  const menulist = document.getElementById("calendar-ics-file-dialog-calendar-menu");
+  const calendar = gModel.calendars[menulist.selectedIndex];
   return calendar;
 }
 
@@ -319,14 +321,14 @@ function getCurrentlySelectedCalendar() {
  * @param {Event} event - The button event.
  */
 async function importSingleItem(item, itemIndex, event) {
-  let dialog = document.getElementsByTagName("dialog")[0];
-  let acceptButton = dialog.getButton("accept");
-  let cancelButton = dialog.getButton("cancel");
+  const dialog = document.getElementsByTagName("dialog")[0];
+  const acceptButton = dialog.getButton("accept");
+  const cancelButton = dialog.getButton("cancel");
 
   acceptButton.disabled = true;
   cancelButton.disabled = true;
 
-  let calendar = getCurrentlySelectedCalendar();
+  const calendar = getCurrentlySelectedCalendar();
 
   await putItemsIntoCal(calendar, [item], {
     onDuplicate(item, error) {
@@ -370,28 +372,28 @@ async function importSingleItem(item, itemIndex, event) {
 async function importRemainingItems(event) {
   event.preventDefault();
 
-  let dialog = document.getElementsByTagName("dialog")[0];
-  let acceptButton = dialog.getButton("accept");
-  let cancelButton = dialog.getButton("cancel");
+  const dialog = document.getElementsByTagName("dialog")[0];
+  const acceptButton = dialog.getButton("accept");
+  const cancelButton = dialog.getButton("cancel");
 
   acceptButton.disabled = true;
   cancelButton.disabled = true;
 
-  let calendar = getCurrentlySelectedCalendar();
-  let filteredSummaries = [...gModel.itemSummaries.values()].filter(
+  const calendar = getCurrentlySelectedCalendar();
+  const filteredSummaries = [...gModel.itemSummaries.values()].filter(
     summary => !summary.closest(".calendar-ics-file-dialog-item-frame").hidden
   );
-  let remainingItems = filteredSummaries.map(summary => summary.item);
+  const remainingItems = filteredSummaries.map(summary => summary.item);
 
-  let progressElement = document.getElementById("calendar-ics-file-dialog-progress");
-  let duplicatesElement = document.getElementById("calendar-ics-file-dialog-duplicates-message");
-  let errorsElement = document.getElementById("calendar-ics-file-dialog-errors-message");
+  const progressElement = document.getElementById("calendar-ics-file-dialog-progress");
+  const duplicatesElement = document.getElementById("calendar-ics-file-dialog-duplicates-message");
+  const errorsElement = document.getElementById("calendar-ics-file-dialog-errors-message");
 
-  let optionsPane = document.getElementById("calendar-ics-file-dialog-options-pane");
-  let progressPane = document.getElementById("calendar-ics-file-dialog-progress-pane");
-  let resultPane = document.getElementById("calendar-ics-file-dialog-result-pane");
+  const optionsPane = document.getElementById("calendar-ics-file-dialog-options-pane");
+  const progressPane = document.getElementById("calendar-ics-file-dialog-progress-pane");
+  const resultPane = document.getElementById("calendar-ics-file-dialog-result-pane");
 
-  let importListener = {
+  const importListener = {
     count: 0,
     duplicatesCount: 0,
     errorsCount: 0,
@@ -428,13 +430,13 @@ async function importRemainingItems(event) {
       });
       errorsElement.hidden = this.errorsCount == 0;
 
-      let [acceptButtonLabel, cancelButtonLabel] = await document.l10n.formatValues([
+      const [acceptButtonLabel, cancelButtonLabel] = await document.l10n.formatValues([
         { id: "calendar-ics-file-accept-button-ok-label" },
         { id: "calendar-ics-file-cancel-button-close-label" },
       ]);
 
       filteredSummaries.forEach(summary => {
-        let itemIndex = parseInt(summary.id.substring("import-item-summary-".length), 10);
+        const itemIndex = parseInt(summary.id.substring("import-item-summary-".length), 10);
         gModel.itemsToImport.delete(itemIndex);
         gModel.itemSummaries.delete(itemIndex);
         summary.closest(".calendar-ics-file-dialog-item-frame").remove();
@@ -442,7 +444,7 @@ async function importRemainingItems(event) {
 
       document.getElementById("calendar-ics-file-dialog-search-input").value = "";
       filterItemSummaries();
-      let itemsRemain = !!document.querySelector(".calendar-ics-file-dialog-item-frame");
+      const itemsRemain = !!document.querySelector(".calendar-ics-file-dialog-item-frame");
 
       // An artificial delay so the progress pane doesn't appear then immediately disappear.
       setTimeout(() => {

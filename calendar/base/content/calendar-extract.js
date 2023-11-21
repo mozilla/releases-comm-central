@@ -24,15 +24,15 @@ XPCOMUtils.defineLazyGetter(this, "extractService", () => {
 
 var calendarExtract = {
   onShowLocaleMenu(target) {
-    let localeList = document.getElementById(target.id);
-    let langs = [];
-    let chrome = Cc["@mozilla.org/chrome/chrome-registry;1"]
+    const localeList = document.getElementById(target.id);
+    const langs = [];
+    const chrome = Cc["@mozilla.org/chrome/chrome-registry;1"]
       .getService(Ci.nsIXULChromeRegistry)
       .QueryInterface(Ci.nsIToolkitChromeRegistry);
-    let langRegex = /^(([^-]+)-*(.*))$/;
+    const langRegex = /^(([^-]+)-*(.*))$/;
 
-    for (let locale of chrome.getLocalesForPackage("calendar")) {
-      let localeParts = langRegex.exec(locale);
+    for (const locale of chrome.getLocalesForPackage("calendar")) {
+      const localeParts = langRegex.exec(locale);
       let langName = localeParts[2];
 
       try {
@@ -50,12 +50,12 @@ var calendarExtract = {
     }
 
     // sort
-    let pref = "calendar.patterns.last.used.languages";
-    let lastUsedLangs = Services.prefs.getStringPref(pref, "");
+    const pref = "calendar.patterns.last.used.languages";
+    const lastUsedLangs = Services.prefs.getStringPref(pref, "");
 
     langs.sort((a, b) => {
-      let idx_a = lastUsedLangs.indexOf(a[1]);
-      let idx_b = lastUsedLangs.indexOf(b[1]);
+      const idx_a = lastUsedLangs.indexOf(a[1]);
+      const idx_b = lastUsedLangs.indexOf(b[1]);
 
       if (idx_a == -1 && idx_b == -1) {
         return a[0].localeCompare(b[0]);
@@ -70,27 +70,27 @@ var calendarExtract = {
       localeList.lastChild.remove();
     }
 
-    for (let lang of langs) {
+    for (const lang of langs) {
       addMenuItem(localeList, lang[0], lang[1], null);
     }
   },
 
   extractWithLocale(event, isEvent) {
     event.stopPropagation();
-    let locale = event.target.value;
+    const locale = event.target.value;
     this.extractFromEmail(null, isEvent, true, locale);
   },
 
   async extractFromEmail(message, isEvent, fixedLang, fixedLocale) {
-    let folder = message.folder;
-    let title = message.mime2DecodedSubject;
+    const folder = message.folder;
+    const title = message.mime2DecodedSubject;
 
     let content = "";
     await new Promise((resolve, reject) => {
-      let listener = {
+      const listener = {
         QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
         onDataAvailable(request, inputStream, offset, count) {
-          let text = folder.getMsgTextFromStream(
+          const text = folder.getMsgTextFromStream(
             inputStream,
             message.charset,
             count, // bytesToRead
@@ -110,23 +110,23 @@ var calendarExtract = {
           resolve();
         },
       };
-      let uri = message.folder.getUriForMsg(message);
+      const uri = message.folder.getUriForMsg(message);
       MailServices.messageServiceFromURI(uri).streamMessage(uri, listener, null, null, false, "");
     });
 
     cal.LOG("[calExtract] Original email content: \n" + title + "\r\n" + content);
-    let date = new Date(message.date / 1000);
-    let time = new Date().getTime();
+    const date = new Date(message.date / 1000);
+    const time = new Date().getTime();
 
-    let item = isEvent ? new CalEvent() : new CalTodo();
+    const item = isEvent ? new CalEvent() : new CalTodo();
     item.title = message.mime2DecodedSubject;
     item.calendar = getSelectedCalendar();
     item.setProperty("DESCRIPTION", content);
     item.setProperty("URL", `mid:${message.messageId}`);
     cal.dtz.setDefaultStartEndHour(item);
     cal.alarms.setDefaultValues(item);
-    let tabmail = document.getElementById("tabmail");
-    let messagePaneBrowser =
+    const tabmail = document.getElementById("tabmail");
+    const messagePaneBrowser =
       tabmail?.currentTabInfo.chromeBrowser.contentWindow.visibleMessagePaneBrowser?.() ||
       tabmail?.currentAboutMessage?.getMessagePaneBrowser() ||
       document.getElementById("messageBrowser")?.contentWindow?.getMessagePaneBrowser();
@@ -149,7 +149,7 @@ var calendarExtract = {
     let collected = [];
     let useService = Services.prefs.getBoolPref("calendar.extract.service.enabled");
     if (useService) {
-      let result = extractService.extract(content, { now: date });
+      const result = extractService.extract(content, { now: date });
       if (!result) {
         useService = false;
       } else {
@@ -159,8 +159,8 @@ var calendarExtract = {
     }
 
     if (!useService) {
-      let locale = Services.locale.requestedLocale;
-      let dayStart = Services.prefs.getIntPref("calendar.view.daystarthour", 6);
+      const locale = Services.locale.requestedLocale;
+      const dayStart = Services.prefs.getIntPref("calendar.view.daystarthour", 6);
       if (fixedLang) {
         extractor = new Extractor(fixedLocale, dayStart);
       } else {
@@ -178,7 +178,7 @@ var calendarExtract = {
         guessed = extractor.guessStart(!isEvent);
         endGuess = extractor.guessEnd(guessed, !isEvent);
       }
-      let allDay = (guessed.hour == null || guessed.minute == null) && isEvent;
+      const allDay = (guessed.hour == null || guessed.minute == null) && isEvent;
 
       if (isEvent) {
         if (guessed.year != null) {
@@ -219,8 +219,8 @@ var calendarExtract = {
           item.endDate.minute = endGuess.minute;
         }
       } else {
-        let dtz = cal.dtz.defaultTimezone;
-        let dueDate = new Date();
+        const dtz = cal.dtz.defaultTimezone;
+        const dueDate = new Date();
         // set default
         dueDate.setHours(0);
         dueDate.setMinutes(0);
@@ -256,7 +256,7 @@ var calendarExtract = {
       }
     }
 
-    let timeSpent = new Date().getTime() - time;
+    const timeSpent = new Date().getTime() - time;
     cal.LOG(
       "[calExtract] Total time spent for conversion (including loading of dictionaries): " +
         timeSpent +

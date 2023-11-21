@@ -46,7 +46,7 @@ CalRelation.prototype = {
   },
 
   get icalProperty() {
-    let icalatt = cal.icsService.createIcalProperty("RELATED-TO");
+    const icalatt = cal.icsService.createIcalProperty("RELATED-TO");
     if (this.mId) {
       icalatt.value = this.mId;
     }
@@ -55,7 +55,7 @@ CalRelation.prototype = {
       icalatt.setParameter("RELTYPE", this.mType);
     }
 
-    for (let [key, value] of this.mProperties.entries()) {
+    for (const [key, value] of this.mProperties.entries()) {
       try {
         icalatt.setParameter(key, value);
       } catch (e) {
@@ -79,7 +79,7 @@ CalRelation.prototype = {
     if (attProp.value) {
       this.mId = attProp.value;
     }
-    for (let [name, value] of cal.iterate.icalParameter(attProp)) {
+    for (const [name, value] of cal.iterate.icalParameter(attProp)) {
       if (name == "RELTYPE") {
         this.mType = value;
         continue;
@@ -90,11 +90,11 @@ CalRelation.prototype = {
   },
 
   get icalString() {
-    let comp = this.icalProperty;
+    const comp = this.icalProperty;
     return comp ? comp.icalString : "";
   },
   set icalString(val) {
-    let prop = cal.icsService.createIcalPropertyFromString(val);
+    const prop = cal.icsService.createIcalPropertyFromString(val);
     if (prop.propertyName != "RELATED-TO") {
       throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
@@ -114,10 +114,10 @@ CalRelation.prototype = {
   },
 
   clone() {
-    let newRelation = new CalRelation();
+    const newRelation = new CalRelation();
     newRelation.mId = this.mId;
     newRelation.mType = this.mType;
-    for (let [name, value] of this.mProperties.entries()) {
+    for (const [name, value] of this.mProperties.entries()) {
       newRelation.mProperties.set(name, value);
     }
     return newRelation;

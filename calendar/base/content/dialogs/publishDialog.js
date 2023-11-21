@@ -11,7 +11,7 @@ window.addEventListener("DOMContentLoaded", loadCalendarPublishDialog);
  * Called when the dialog is loaded.
  */
 function loadCalendarPublishDialog() {
-  let args = window.arguments[0];
+  const args = window.arguments[0];
 
   gOnOkFunction = args.onOk;
 
@@ -29,7 +29,7 @@ function loadCalendarPublishDialog() {
 
   checkURLField();
 
-  let firstFocus = document.getElementById("publish-remotePath-textbox");
+  const firstFocus = document.getElementById("publish-remotePath-textbox");
   firstFocus.focus();
 }
 
@@ -43,7 +43,7 @@ function onOKCommand(event) {
 
   // call caller's on OK function
   gOnOkFunction(gPublishObject, progressDialog);
-  let dialog = document.querySelector("dialog");
+  const dialog = document.querySelector("dialog");
   dialog.getButton("accept").setAttribute("label", dialog.getAttribute("buttonlabelaccept2"));
   event.preventDefault();
 }

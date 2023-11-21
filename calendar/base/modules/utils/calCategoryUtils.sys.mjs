@@ -21,16 +21,16 @@ export var category = {
    * @returns The default set of categories as a comma separated string.
    */
   setupDefaultCategories() {
-    let defaultBranch = Services.prefs.getDefaultBranch("");
+    const defaultBranch = Services.prefs.getDefaultBranch("");
 
     // First, set up the category names
-    let categories = lazy.cal.l10n.getString("categories", "categories2");
+    const categories = lazy.cal.l10n.getString("categories", "categories2");
     defaultBranch.setStringPref("calendar.categories.names", categories);
 
     // Now, initialize the category default colors
-    let categoryArray = category.stringToArray(categories);
-    for (let categoryToInit of categoryArray) {
-      let prefName = lazy.cal.view.formatStringForCSSRule(categoryToInit);
+    const categoryArray = category.stringToArray(categories);
+    for (const categoryToInit of categoryArray) {
+      const prefName = lazy.cal.view.formatStringForCSSRule(categoryToInit);
       defaultBranch.setStringPref(
         "calendar.category.color." + prefName,
         lazy.cal.view.hashColor(categoryToInit)
@@ -74,7 +74,7 @@ export var category = {
     }
     /* eslint-disable no-control-regex */
     // \u001A is the unicode "SUBSTITUTE" character
-    let categories = aCategories
+    const categories = aCategories
       .replace(/\\,/g, "\u001A")
       .split(",")
       .map(name => name.replace(/\u001A/g, ","));

@@ -22,7 +22,7 @@ CalFreeBusyListener.prototype = {
   opGroup: null,
 
   notifyResult(result) {
-    let listener = this.mFinalListener;
+    const listener = this.mFinalListener;
     if (listener) {
       if (!this.opGroup.isPending) {
         this.mFinalListener = null;
@@ -40,7 +40,7 @@ CalFreeBusyListener.prototype = {
           this.opGroup.notifyCompleted();
         }
       }
-      let opStatus = aOperation ? aOperation.status : Cr.NS_OK;
+      const opStatus = aOperation ? aOperation.status : Cr.NS_OK;
       if (Components.isSuccessCode(opStatus) && aResult && Array.isArray(aResult)) {
         this.notifyResult(aResult);
       } else {
@@ -62,12 +62,12 @@ CalFreeBusyService.prototype = {
 
   // calIFreeBusyProvider:
   getFreeBusyIntervals(aCalId, aRangeStart, aRangeEnd, aBusyTypes, aListener) {
-    let groupListener = new CalFreeBusyListener(this.mProviders.size, aListener);
+    const groupListener = new CalFreeBusyListener(this.mProviders.size, aListener);
     if (this.mProviders.size == 0) {
       groupListener.onResult(null, []);
     }
-    for (let provider of this.mProviders.values()) {
-      let operation = provider.getFreeBusyIntervals(
+    for (const provider of this.mProviders.values()) {
+      const operation = provider.getFreeBusyIntervals(
         aCalId,
         aRangeStart,
         aRangeEnd,

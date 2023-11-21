@@ -192,7 +192,7 @@
     }
 
     static get alarmMenulistFragment() {
-      let frag = document.importNode(
+      const frag = document.importNode(
         MozXULElement.parseXULToFragment(
           `<hbox align="center">
             <menulist class="item-alarm"
@@ -299,7 +299,7 @@
 
       this.mIsToDoItem = null;
 
-      let urlLink = this.querySelector(".url-link");
+      const urlLink = this.querySelector(".url-link");
       urlLink.addEventListener("click", event => {
         launchBrowser(urlLink.getAttribute("href"), event);
       });
@@ -358,8 +358,8 @@
         // Setup not complete, do nothing for now.
         return;
       }
-      let item = this.item;
-      let isToDoItem = this.mIsToDoItem;
+      const item = this.item;
+      const isToDoItem = this.mIsToDoItem;
 
       this.querySelector(".item-title").textContent = item.title;
 
@@ -369,10 +369,10 @@
       }
 
       // Show start date.
-      let itemStartDate = item[cal.dtz.startDateProp(item)];
+      const itemStartDate = item[cal.dtz.startDateProp(item)];
 
-      let itemStartRowLabel = this.querySelector(".item-start-row-label");
-      let itemDateRowStartDate = this.querySelector(".item-date-row-start-date");
+      const itemStartRowLabel = this.querySelector(".item-start-row-label");
+      const itemDateRowStartDate = this.querySelector(".item-date-row-start-date");
 
       itemStartRowLabel.style.visibility = itemStartDate ? "visible" : "collapse";
       itemDateRowStartDate.style.visibility = itemStartDate ? "visible" : "collapse";
@@ -387,8 +387,8 @@
       // Show due date / end date.
       let itemDueDate = item[cal.dtz.endDateProp(item)];
 
-      let itemDueRowLabel = this.querySelector(".item-due-row-label");
-      let itemDateRowEndDate = this.querySelector(".item-date-row-end-date");
+      const itemDueRowLabel = this.querySelector(".item-due-row-label");
+      const itemDateRowEndDate = this.querySelector(".item-date-row-end-date");
 
       itemDueRowLabel.style.visibility = itemDueDate ? "visible" : "collapse";
       itemDateRowEndDate.style.visibility = itemDueDate ? "visible" : "collapse";
@@ -405,10 +405,10 @@
         itemDateRowEndDate.textContent = cal.dtz.getStringForDateTime(itemDueDate);
       }
 
-      let alarms = item.getAlarms();
-      let hasAlarms = alarms && alarms.length;
-      let canShowReadOnlyReminders = hasAlarms && item.calendar;
-      let shouldShowReminderMenu =
+      const alarms = item.getAlarms();
+      const hasAlarms = alarms && alarms.length;
+      const canShowReadOnlyReminders = hasAlarms && item.calendar;
+      const shouldShowReminderMenu =
         !this.readOnly &&
         this.isInvitation &&
         item.calendar &&
@@ -421,9 +421,9 @@
       if (shouldShowReminderMenu) {
         if (!this.mAlarmsMenu) {
           // Attempt to vertically align the label. It's not perfect but it's the best we've got.
-          let reminderLabel = this.querySelector(".reminder-label");
+          const reminderLabel = this.querySelector(".reminder-label");
           reminderLabel.style.verticalAlign = "middle";
-          let reminderCell = this.querySelector(".reminder-details");
+          const reminderCell = this.querySelector(".reminder-details");
           while (reminderCell.lastChild) {
             reminderCell.lastChild.remove();
           }
@@ -459,7 +459,7 @@
         this.querySelector(".reminder-row").removeAttribute("hidden");
       }
 
-      let recurrenceDetails = recurrenceStringFromItem(
+      const recurrenceDetails = recurrenceStringFromItem(
         item,
         "calendar-event-dialog",
         "ruleTooComplexSummary"
@@ -467,20 +467,20 @@
       this.updateRecurrenceDetails(recurrenceDetails);
       this.updateAttendees(item);
 
-      let url = item.getProperty("URL")?.trim() || "";
+      const url = item.getProperty("URL")?.trim() || "";
 
-      let link = this.querySelector(".url-link");
+      const link = this.querySelector(".url-link");
       link.setAttribute("href", url);
       link.setAttribute("value", url);
       // Hide the row if there is no url.
       this.querySelector(".event-grid-link-row").hidden = !url;
 
-      let location = item.getProperty("LOCATION");
+      const location = item.getProperty("LOCATION");
       if (location) {
         this.updateLocation(location);
       }
 
-      let categories = item.getCategories();
+      const categories = item.getCategories();
       if (categories.length > 0) {
         this.querySelector(".category-row").removeAttribute("hidden");
         // TODO: this join is unfriendly for l10n (categories.join(", ")).
@@ -491,17 +491,17 @@
         this.updateOrganizer(item);
       }
 
-      let status = item.getProperty("STATUS");
+      const status = item.getProperty("STATUS");
       if (status && status.length) {
         this.updateStatus(status, isToDoItem);
       }
 
-      let descriptionText = item.descriptionText?.trim();
+      const descriptionText = item.descriptionText?.trim();
       if (descriptionText) {
         this.updateDescription(descriptionText, item.descriptionHTML);
       }
 
-      let attachments = item.getAttachments();
+      const attachments = item.getAttachments();
       if (attachments.length) {
         this.updateAttachments(attachments);
       }
@@ -528,9 +528,9 @@
      * Depends on updateReminder() to get the text to display.
      */
     updateReminderReadOnly(alarms) {
-      let reminderLabel = this.querySelector(".reminder-label");
+      const reminderLabel = this.querySelector(".reminder-label");
       reminderLabel.style.verticalAlign = null;
-      let reminderCell = this.querySelector(".reminder-details");
+      const reminderCell = this.querySelector(".reminder-details");
       while (reminderCell.lastChild) {
         reminderCell.lastChild.remove();
       }
@@ -544,7 +544,7 @@
           reminderCell.textContent = alarms[0].toString(this.item);
           break;
         default:
-          for (let a of alarms) {
+          for (const a of alarms) {
             reminderCell.appendChild(document.createTextNode(a.toString(this.item)));
             reminderCell.appendChild(document.createElement("br"));
           }
@@ -560,8 +560,8 @@
      *                                  Passing null hides the recurrence row.
      */
     updateRecurrenceDetails(details) {
-      let repeatRow = this.querySelector(".repeat-row");
-      let repeatDetails = repeatRow.querySelector(".repeat-details");
+      const repeatRow = this.querySelector(".repeat-row");
+      const repeatDetails = repeatRow.querySelector(".repeat-details");
 
       repeatRow.toggleAttribute("hidden", !details);
       repeatDetails.textContent = details ? details.replace(/\n/g, " ") : "";
@@ -571,7 +571,7 @@
      * Updates the attendee listbox, displaying all attendees invited to the item.
      */
     updateAttendees(item) {
-      let attendees = item.getAttendees();
+      const attendees = item.getAttendees();
       if (attendees && attendees.length) {
         this.querySelector(".item-attendees").removeAttribute("hidden");
         this.querySelector(".item-attendees-list-container").appendChild(
@@ -587,18 +587,18 @@
      */
     updateLocation(location) {
       this.querySelector(".location-row").removeAttribute("hidden");
-      let urlMatch = location.match(/(https?:\/\/[^ ]*)/);
-      let url = urlMatch && urlMatch[1];
-      let itemLocation = this.querySelector(".item-location");
+      const urlMatch = location.match(/(https?:\/\/[^ ]*)/);
+      const url = urlMatch && urlMatch[1];
+      const itemLocation = this.querySelector(".item-location");
       if (url) {
-        let link = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
+        const link = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
         link.setAttribute("class", "item-location-link text-link");
         link.setAttribute("href", url);
         link.title = url;
         link.setAttribute("onclick", "launchBrowser(this.getAttribute('href'), event)");
         link.setAttribute("oncommand", "launchBrowser(this.getAttribute('href'), event)");
 
-        let label = document.createXULElement("label");
+        const label = document.createXULElement("label");
         label.setAttribute("context", "location-link-context-menu");
         label.textContent = location;
         link.appendChild(label);
@@ -616,12 +616,12 @@
      */
     updateOrganizer(item) {
       this.querySelector(".item-organizer-row").removeAttribute("hidden");
-      let organizerLabel = cal.invitation.createAttendeeLabel(
+      const organizerLabel = cal.invitation.createAttendeeLabel(
         document,
         item.organizer,
         item.getAttendees()
       );
-      let organizerName = organizerLabel.querySelector(".attendee-name");
+      const organizerName = organizerLabel.querySelector(".attendee-name");
       organizerName.classList.add("text-link");
       organizerName.addEventListener("click", () => sendMailToOrganizer(this.mItem));
       this.querySelector(".item-organizer-cell").appendChild(organizerLabel);
@@ -634,8 +634,8 @@
      * @param {boolean} isToDoItem - True if the calendar item is a todo, false if an event.
      */
     updateStatus(status, isToDoItem) {
-      let statusRow = this.querySelector(".status-row");
-      let statusRowData = this.querySelector(".status-row-td");
+      const statusRow = this.querySelector(".status-row");
+      const statusRowData = this.querySelector(".status-row-td");
 
       for (let i = 0; i < statusRowData.children.length; i++) {
         if (statusRowData.children[i].getAttribute("status") == status) {
@@ -660,7 +660,7 @@
      */
     async updateDescription(descriptionText, descriptionHTML) {
       this.querySelector(".item-description-box").removeAttribute("hidden");
-      let itemDescription = this.querySelector(".item-description");
+      const itemDescription = this.querySelector(".item-description");
       if (itemDescription.contentDocument.readyState != "complete") {
         // The iframe's document hasn't loaded yet. If we add to it now, what we add will be
         // overwritten. Wait for the initial document to load.
@@ -684,14 +684,14 @@
           );
         });
       }
-      let docFragment = cal.view.textToHtmlDocumentFragment(
+      const docFragment = cal.view.textToHtmlDocumentFragment(
         descriptionText,
         itemDescription.contentDocument,
         descriptionHTML
       );
 
       // Make any links open in the user's default browser, not in Thunderbird.
-      for (let anchor of docFragment.querySelectorAll("a")) {
+      for (const anchor of docFragment.querySelectorAll("a")) {
         anchor.addEventListener("click", function (event) {
           event.preventDefault();
           if (event.isTrusted) {
@@ -719,18 +719,18 @@
       let attCounter = 0;
       attachments.forEach(aAttachment => {
         if (aAttachment.uri && aAttachment.uri.spec != "about:blank") {
-          let attachment = this.querySelector(".attachment-template").cloneNode(true);
+          const attachment = this.querySelector(".attachment-template").cloneNode(true);
           attachment.removeAttribute("id");
           attachment.removeAttribute("hidden");
 
-          let label = attachment.querySelector("label");
+          const label = attachment.querySelector("label");
           label.setAttribute("value", aAttachment.uri.spec);
 
           label.addEventListener("click", () => {
             openAttachmentFromItemSummary(aAttachment.hashId, this.mItem);
           });
 
-          let icon = attachment.querySelector("img");
+          const icon = attachment.querySelector("img");
           let iconSrc = aAttachment.uri.spec.length ? aAttachment.uri.spec : "dummy.html";
           if (aAttachment.uri && !aAttachment.uri.schemeIs("file")) {
             // Using an uri directly, with e.g. a http scheme, wouldn't render any icon.
@@ -738,7 +738,7 @@
               iconSrc = "goat?contentType=" + aAttachment.formatType;
             } else {
               // Let's try to auto-detect.
-              let parts = iconSrc.substr(aAttachment.uri.scheme.length + 2).split("/");
+              const parts = iconSrc.substr(aAttachment.uri.scheme.length + 2).split("/");
               if (parts.length) {
                 iconSrc = parts[parts.length - 1];
               }

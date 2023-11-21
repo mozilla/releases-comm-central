@@ -89,20 +89,20 @@ ItipContentHandler.prototype = {
   classID: Components.ID("{47c31f2b-b4de-11d9-bfe6-001124736B74}"),
 
   handleContent(contentType, windowTarget, request) {
-    let channel = request.QueryInterface(Ci.nsIChannel);
-    let uri = channel.URI.spec;
+    const channel = request.QueryInterface(Ci.nsIChannel);
+    const uri = channel.URI.spec;
     if (!uri.startsWith("moz-cal-handle-itip:")) {
       throw Components.Exception(`Unexpected iTIP uri: ${uri}`, Cr.NS_ERROR_WONT_HANDLE_CONTENT);
     }
-    let paramString = uri.substring("moz-cal-handle-itip:///".length);
-    let paramArray = paramString.split("&");
-    let paramBlock = {};
+    const paramString = uri.substring("moz-cal-handle-itip:///".length);
+    const paramArray = paramString.split("&");
+    const paramBlock = {};
     paramArray.forEach(value => {
-      let parts = value.split("=");
+      const parts = value.split("=");
       paramBlock[parts[0]] = unescape(unescape(parts[1]));
     });
     // dump("content-handler: have params " + paramBlock.toSource() + "\n");
-    let event = new lazy.CalEvent(paramBlock.data);
+    const event = new lazy.CalEvent(paramBlock.data);
     dump(
       "Processing iTIP event '" +
         event.title +
@@ -112,7 +112,7 @@ ItipContentHandler.prototype = {
         event.id +
         ")\n"
     );
-    let cals = cal.manager.getCalendars();
+    const cals = cal.manager.getCalendars();
     cals[0].addItem(event);
   },
 };

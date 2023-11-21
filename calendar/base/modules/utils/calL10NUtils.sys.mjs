@@ -19,20 +19,20 @@
  * @returns {string} The formatted string
  */
 function _getString(aComponent, aBundleName, aStringName, aParams = []) {
-  let propName = `chrome://${aComponent}/locale/${aBundleName}.properties`;
+  const propName = `chrome://${aComponent}/locale/${aBundleName}.properties`;
 
   try {
     if (!(propName in _getString._bundleCache)) {
       _getString._bundleCache[propName] = Services.strings.createBundle(propName);
     }
-    let props = _getString._bundleCache[propName];
+    const props = _getString._bundleCache[propName];
 
     if (aParams && aParams.length) {
       return props.formatStringFromName(aStringName, aParams);
     }
     return props.GetStringFromName(aStringName);
   } catch (ex) {
-    let msg = `Failed to read '${aStringName}' from ${propName}.`;
+    const msg = `Failed to read '${aStringName}' from ${propName}.`;
     console.error(`${msg} Error: ${ex}`);
     return aStringName;
   }
@@ -59,7 +59,7 @@ function _calendarInfo(aLocale = null, aResetCache = false) {
   // when starting to use it to determine the first week of a year, we would
   // need to at least reset that cached properties on pref change.
   if (!("firstDayOfWeek" in _calendarInfo._startup) || aLocale) {
-    let info = Services.intl.getCalendarInfo(aLocale || Services.locale.regionalPrefsLocales[0]);
+    const info = Services.intl.getCalendarInfo(aLocale || Services.locale.regionalPrefsLocales[0]);
     if (aLocale) {
       return info;
     }

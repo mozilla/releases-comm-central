@@ -6,29 +6,29 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 
 window.addEventListener("DOMContentLoaded", onLoad);
 function onLoad() {
-  let extension = window.arguments[0].extension;
+  const extension = window.arguments[0].extension;
   document.getElementById("provider-name-label").value = extension.name;
 
-  let calendarList = document.getElementById("calendar-list");
+  const calendarList = document.getElementById("calendar-list");
 
-  for (let calendar of cal.manager.getCalendars()) {
+  for (const calendar of cal.manager.getCalendars()) {
     if (calendar.providerID != extension.id) {
       continue;
     }
 
-    let item = document.createXULElement("richlistitem");
+    const item = document.createXULElement("richlistitem");
     item.setAttribute("calendar-id", calendar.id);
 
-    let checkbox = document.createXULElement("checkbox");
+    const checkbox = document.createXULElement("checkbox");
     checkbox.classList.add("calendar-selected");
     item.appendChild(checkbox);
 
-    let colorMarker = document.createElement("div");
+    const colorMarker = document.createElement("div");
     colorMarker.classList.add("calendar-color");
     item.appendChild(colorMarker);
     colorMarker.style.backgroundColor = calendar.getProperty("color");
 
-    let label = document.createXULElement("label");
+    const label = document.createXULElement("label");
     label.classList.add("calendar-name");
     label.value = calendar.name;
     item.appendChild(label);
@@ -39,13 +39,13 @@ function onLoad() {
 
 document.addEventListener("dialogaccept", () => {
   // Tell our caller that the extension should be uninstalled.
-  let args = window.arguments[0];
+  const args = window.arguments[0];
   args.shouldUninstall = true;
 
-  let calendarList = document.getElementById("calendar-list");
+  const calendarList = document.getElementById("calendar-list");
 
   // Unsubscribe from all selected calendars
-  for (let item of calendarList.children) {
+  for (const item of calendarList.children) {
     if (item.querySelector(".calendar-selected").checked) {
       cal.manager.unregisterCalendar(cal.manager.getCalendarById(item.getAttribute("calendar-id")));
     }
@@ -53,6 +53,6 @@ document.addEventListener("dialogaccept", () => {
 });
 
 document.addEventListener("dialogcancel", () => {
-  let args = window.arguments[0];
+  const args = window.arguments[0];
   args.shouldUninstall = false;
 });

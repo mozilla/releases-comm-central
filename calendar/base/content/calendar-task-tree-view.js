@@ -86,23 +86,23 @@ class CalendarTaskTreeView {
    * @param {boolean} [selectNew] - Whether to select the new tasks.
    */
   modifyItems(newItems = [], oldItems = [], doNotSort, selectNew) {
-    let selItem = this.tree.currentTask;
+    const selItem = this.tree.currentTask;
     let selIndex = this.tree.currentIndex;
     let firstHash = null;
-    let remIndexes = [];
+    const remIndexes = [];
 
     this.tree.beginUpdateBatch();
 
-    let idiff = new cal.item.ItemDiff();
+    const idiff = new cal.item.ItemDiff();
     idiff.load(oldItems);
     idiff.difference(newItems);
     idiff.complete();
-    let delItems = idiff.deletedItems;
-    let addItems = idiff.addedItems;
-    let modItems = idiff.modifiedItems;
+    const delItems = idiff.deletedItems;
+    const addItems = idiff.addedItems;
+    const modItems = idiff.modifiedItems;
 
     // Find the indexes of the old items that need to be removed.
-    for (let item of delItems.mArray) {
+    for (const item of delItems.mArray) {
       if (item.hashId in this.tree.mHash2Index) {
         // The old item needs to be removed.
         remIndexes.push(this.tree.mHash2Index[item.hashId]);
@@ -111,7 +111,7 @@ class CalendarTaskTreeView {
     }
 
     // Modified items need to be updated.
-    for (let item of modItems.mArray) {
+    for (const item of modItems.mArray) {
       if (item.hashId in this.tree.mHash2Index) {
         // Make sure we're using the new version of a modified item.
         this.tree.mTaskArray[this.tree.mHash2Index[item.hashId]] = item;
@@ -127,9 +127,9 @@ class CalendarTaskTreeView {
       });
 
     // Add the new items.
-    for (let item of addItems.mArray) {
+    for (const item of addItems.mArray) {
       if (!(item.hashId in this.tree.mHash2Index)) {
-        let index = this.tree.mTaskArray.length;
+        const index = this.tree.mTaskArray.length;
         this.tree.mTaskArray.push(item);
         this.tree.mHash2Index[item.hashId] = index;
         this.tree.rowCountChanged(index, 1);
@@ -166,7 +166,7 @@ class CalendarTaskTreeView {
    * Remove all tasks from the list/tree.
    */
   clear() {
-    let count = this.tree.mTaskArray.length;
+    const count = this.tree.mTaskArray.length;
     if (count > 0) {
       this.tree.mTaskArray = [];
       this.tree.mHash2Index = {};
@@ -181,7 +181,7 @@ class CalendarTaskTreeView {
    * @param {object} item - The task object to refresh.
    */
   updateItem(item) {
-    let index = this.tree.mHash2Index[item.hashId];
+    const index = this.tree.mHash2Index[item.hashId];
     if (index) {
       this.tree.invalidateRow(index);
     }
@@ -197,7 +197,7 @@ class CalendarTaskTreeView {
    * @returns {object | false} The task object related to the event or false if none found.
    */
   getItemFromEvent(event, col, row) {
-    let { col: eventColumn, row: eventRow } = this.tree.getCellAt(event.clientX, event.clientY);
+    const { col: eventColumn, row: eventRow } = this.tree.getCellAt(event.clientX, event.clientY);
     if (col) {
       col.value = eventColumn;
     }
@@ -214,8 +214,8 @@ class CalendarTaskTreeView {
   }
 
   getCellProperties(row, col) {
-    let rowProps = this.getRowProperties(row);
-    let colProps = this.getColumnProperties(col);
+    const rowProps = this.getRowProperties(row);
+    const colProps = this.getColumnProperties(col);
     return rowProps + (rowProps && colProps ? " " : "") + colProps;
   }
 
@@ -225,7 +225,7 @@ class CalendarTaskTreeView {
 
   getRowProperties(row) {
     let properties = [];
-    let item = this.tree.mTaskArray[row];
+    const item = this.tree.mTaskArray[row];
     if (item.priority > 0 && item.priority < 5) {
       properties.push("highpriority");
     } else if (item.priority > 5 && item.priority < 10) {
@@ -254,7 +254,7 @@ class CalendarTaskTreeView {
   }
 
   cycleCell(row, col) {
-    let task = this.tree.mTaskArray[row];
+    const task = this.tree.mTaskArray[row];
 
     // Prevent toggling completed status for parent items of
     // repeating tasks or when the calendar is read-only.
@@ -262,9 +262,9 @@ class CalendarTaskTreeView {
       return;
     }
     if (col != null) {
-      let content = col.element.getAttribute("itemproperty");
+      const content = col.element.getAttribute("itemproperty");
       if (content == "completed") {
-        let newTask = task.clone().QueryInterface(Ci.calITodo);
+        const newTask = task.clone().QueryInterface(Ci.calITodo);
         newTask.isCompleted = !task.completedDate;
         doTransaction("modify", newTask, newTask.calendar, task, null);
       }
@@ -280,19 +280,19 @@ class CalendarTaskTreeView {
       this.sortDirection = "descending";
     }
     this.selectedColumn = col.element;
-    let selectedItems = this.tree.selectedTasks;
+    const selectedItems = this.tree.selectedTasks;
     this.tree.sortItems();
     if (selectedItems != undefined) {
       this.tree.view.selection.clearSelection();
-      for (let item of selectedItems) {
-        let index = this.tree.mHash2Index[item.hashId];
+      for (const item of selectedItems) {
+        const index = this.tree.mHash2Index[item.hashId];
         this.tree.view.selection.toggleSelect(index);
       }
     }
   }
 
   getCellText(row, col) {
-    let task = this.tree.mTaskArray[row];
+    const task = this.tree.mTaskArray[row];
     if (!task) {
       return "";
     }
@@ -329,7 +329,7 @@ class CalendarTaskTreeView {
   }
 
   getCellValue(row, col) {
-    let task = this.tree.mTaskArray[row];
+    const task = this.tree.mTaskArray[row];
     if (!task) {
       return null;
     }
@@ -453,13 +453,13 @@ class CalendarTaskTreeView {
       }
       case " ": {
         if (this.tree.currentIndex > -1) {
-          let col = this.tree.querySelector("[itemproperty='completed']");
+          const col = this.tree.querySelector("[itemproperty='completed']");
           this.cycleCell(this.tree.currentIndex, { element: col });
         }
         break;
       }
       case "Enter": {
-        let index = this.tree.currentIndex;
+        const index = this.tree.currentIndex;
         if (index > -1) {
           modifyEventWithDialog(this.tree.mTaskArray[index]);
         }
