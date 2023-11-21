@@ -4322,7 +4322,7 @@ var threadPane = {
   cardColumns: getDefaultColumnsForCardsView(gFolder),
 
   async init() {
-    quickFilterBar.init();
+    await quickFilterBar.init();
 
     this.setUpTagStyles();
     Services.prefs.addObserver("mailnews.tags.", this);
