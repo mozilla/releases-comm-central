@@ -271,6 +271,7 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
   if (!rowCountBeforeSort) {
     // Still need to setup our flags even when no articles - bug 98183.
     m_sortType = sortType;
+    m_sortOrder = sortOrder;
     if (sortType == nsMsgViewSortType::byThread &&
         !(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)) {
       SetViewFlags(m_viewFlags | nsMsgViewFlagsType::kThreadedDisplay);

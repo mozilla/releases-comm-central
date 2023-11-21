@@ -563,8 +563,7 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
     );
   }
 
-  const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  await invoke_column_picker_option([
+  const menuItems = [
     { class: "applyTo-menu" },
     {
       class: aChildrenToo
@@ -572,9 +571,14 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
         : "applyToFolder-menu",
     },
     { label: "Local Folders" },
-    { label: folder.name },
-    { label: folder.name },
-  ]);
+  ];
+  if (!folder.isServer) {
+    menuItems.push({ label: folder.name });
+  }
+  menuItems.push(menuItems.at(-1));
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  await invoke_column_picker_option(menuItems);
   await dialogPromise;
 
   if (notificatonPromise) {
@@ -732,6 +736,36 @@ add_task(async function test_apply_to_folder_and_children_swapped() {
   assert_visible_columns(conExtraSwapped);
   await be_in_folder(folderChild2);
   assert_visible_columns(conExtraSwapped);
+});
+
+/**
+ * Change settings in a folder, apply them to the root folder and its children.
+ * Make sure the children change.
+ */
+add_task(async function test_apply_to_root_folder_and_children() {
+  // No need to throttle ourselves during testing.
+  MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
+
+  await be_in_folder(folderSource);
+
+  // Reset!
+  await invoke_column_picker_option([{ label: "Restore column order" }]);
+  const cols = get_visible_threadtree_columns();
+
+  // Permute!
+  const conExtra = cols.concat(["locationCol"]);
+  await toggleColumn("locationCol");
+  assert_visible_columns(conExtra);
+
+  // Apply to the root folder and its descendants.
+  await _apply_to_folder_common(true, folderSource.rootFolder);
+
+  // Make sure it is copied to all folders of this server.
+  for (const folder of folderSource.rootFolder.descendants) {
+    await be_in_folder(folder);
+    assert_visible_columns(conExtra);
+    folder.msgDatabase = null;
+  }
 });
 
 /**

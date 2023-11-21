@@ -107,8 +107,7 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
     notificatonPromise = TestUtils.topicObserved("msg-folder-views-propagated");
   }
 
-  const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  await invoke_column_picker_option([
+  const menuItems = [
     { class: "applyViewTo-menu" },
     {
       class: aChildrenToo
@@ -116,9 +115,14 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
         : "applyViewToFolder-menu",
     },
     { label: "Local Folders" },
-    { label: folder.name },
-    { label: folder.name },
-  ]);
+  ];
+  if (!folder.isServer) {
+    menuItems.push({ label: folder.name });
+  }
+  menuItems.push(menuItems.at(-1));
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  await invoke_column_picker_option(menuItems);
   await dialogPromise;
 
   if (notificatonPromise) {
@@ -139,6 +143,11 @@ add_task(async function test_apply_to_folder_no_children() {
     child1Info.viewFlags,
     Ci.nsMsgViewFlagsType.kThreadedDisplay,
     "viewFlags for child1 should start threaded"
+  );
+  Assert.equal(
+    child1Info.sortType,
+    Ci.nsMsgViewSortType.byDate,
+    "sortType for child1 should start byDate"
   );
   Assert.equal(
     child1Info.sortOrder,
@@ -198,6 +207,11 @@ add_task(async function test_apply_to_folder_and_children() {
     "viewFlags for child1 should start threaded"
   );
   Assert.equal(
+    child1Info.sortType,
+    Ci.nsMsgViewSortType.byDate,
+    "sortType for child1 should start byDate"
+  );
+  Assert.equal(
     child1Info.sortOrder,
     Ci.nsMsgViewSortOrder.descending,
     "sortOrder for child1 should start descending"
@@ -240,5 +254,60 @@ add_task(async function test_apply_to_folder_and_children() {
       folderSource.msgDatabase.dBFolderInfo.sortOrder,
       "sortOrder should have been applied to children"
     );
+  }
+});
+
+/**
+ * Change settings in a folder, apply them to the root folder and its children.
+ * Make sure the children change.
+ */
+add_task(async function test_apply_to_root_folder_and_children() {
+  const info = folderSource.msgDatabase.dBFolderInfo;
+  await be_in_folder(folderSource);
+
+  const about3Pane = get_about_3pane();
+  const junkStatusCol = about3Pane.document.getElementById("junkStatusCol");
+  EventUtils.synthesizeMouseAtCenter(
+    junkStatusCol,
+    { clickCount: 1 },
+    about3Pane
+  );
+  Assert.equal(
+    info.viewFlags,
+    Ci.nsMsgViewFlagsType.kNone,
+    "viewFlags should be set to none"
+  );
+  Assert.equal(
+    info.sortType,
+    Ci.nsMsgViewSortType.byJunkStatus,
+    "sortType should be set to junkStatus"
+  );
+  Assert.equal(
+    info.sortOrder,
+    Ci.nsMsgViewSortOrder.ascending,
+    "sortOrder should be set to ascending"
+  );
+
+  // Apply to the root folder and its descendants.
+  await _apply_to_folder_common(true, folderSource.rootFolder);
+
+  // Make sure it is copied to all folders of this server.
+  for (const folder of folderSource.rootFolder.descendants) {
+    Assert.equal(
+      folder.msgDatabase.dBFolderInfo.viewFlags,
+      Ci.nsMsgViewFlagsType.kNone,
+      `viewFlags should have been applied to ${folder.name}`
+    );
+    Assert.equal(
+      folder.msgDatabase.dBFolderInfo.sortType,
+      Ci.nsMsgViewSortType.byJunkStatus,
+      `sortType should have been applied to ${folder.name}`
+    );
+    Assert.equal(
+      folder.msgDatabase.dBFolderInfo.sortOrder,
+      Ci.nsMsgViewSortOrder.ascending,
+      `sortOrder should have been applied to ${folder.name}`
+    );
+    folder.msgDatabase = null;
   }
 });

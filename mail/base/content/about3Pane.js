@@ -5481,6 +5481,9 @@ var threadPane = {
      * @param {nsIMsgFolder} folder - The message folder.
      */
     const commitColumnsState = folder => {
+      if (folder.isServer) {
+        return;
+      }
       // Check if the destination folder we're trying to update matches the same
       // special state of the folder we're getting the column state from.
       const colStateString =
@@ -5555,6 +5558,9 @@ var threadPane = {
      * @param {nsIMsgFolder} folder - The message folder.
      */
     const commitViewState = folder => {
+      if (folder.isServer) {
+        return;
+      }
       folder.msgDatabase.dBFolderInfo.viewFlags = viewFlags;
       folder.msgDatabase.dBFolderInfo.sortType = sortType;
       folder.msgDatabase.dBFolderInfo.sortOrder = sortOrder;
