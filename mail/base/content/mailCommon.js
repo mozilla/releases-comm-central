@@ -960,7 +960,10 @@ var dbViewWrapperListener = {
   onCreatedView() {
     if (window.threadTree) {
       window.threadPane.setTreeView(gViewWrapper.dbView);
-      window.threadPane.restoreThreadState();
+      // There is no persisted thread last expanded state for synthetic views.
+      if (!gViewWrapper.isSynthetic) {
+        window.threadPane.restoreThreadState();
+      }
       window.threadPane.isFirstScroll = true;
       window.threadPane.scrollDetected = false;
       window.threadPane.scrollToLatestRowIfNoSelection();
