@@ -8,26 +8,21 @@ import { MailTabButton } from "chrome://messenger/content/unifiedtoolbar/mail-ta
  * Unified toolbar button for toggling the quick filter bar.
  */
 class QuickFilterBarToggle extends MailTabButton {
-  observed3PaneEvents = ["folderURIChanged", "qfbtoggle"];
+  observed3PaneEvents = ["folderURIChanged", "select", "qfbtoggle"];
   observedAboutMessageEvents = [];
 
   onCommandContextChange() {
     super.onCommandContextChange();
     const tabmail = document.getElementById("tabmail");
     const about3Pane = tabmail.currentAbout3Pane;
-    if (!about3Pane) {
+    if (
+      !about3Pane?.paneLayout ||
+      about3Pane.paneLayout.accountCentralVisible
+    ) {
       this.disabled = true;
       this.setAttribute("aria-pressed", "false");
       return;
     }
-
-    const { gFolder } = about3Pane;
-    if (!gFolder?.parent) {
-      this.disabled = true;
-      this.setAttribute("aria-pressed", "false");
-      return;
-    }
-
     const active = about3Pane.quickFilterBar.filterer.visible;
     this.setAttribute("aria-pressed", active.toString());
   }
