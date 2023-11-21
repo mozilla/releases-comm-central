@@ -33,7 +33,6 @@ var { AppConstants } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   Color: "resource://gre/modules/Color.sys.mjs",
-  ctypes: "resource://gre/modules/ctypes.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -67,74 +66,6 @@ XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function () {
     return null;
   }
 });
-
-/**
- * Gets the service pack and build information on Windows platforms. The initial version
- * was copied from nsUpdateService.js.
- *
- * @returns An object containing the service pack major and minor versions, along with the
- *         build number.
- */
-function getWindowsVersionInfo() {
-  const UNKNOWN_VERSION_INFO = {
-    servicePackMajor: null,
-    servicePackMinor: null,
-    buildNumber: null,
-  };
-
-  if (AppConstants.platform !== "win") {
-    return UNKNOWN_VERSION_INFO;
-  }
-
-  const BYTE = ctypes.uint8_t;
-  const WORD = ctypes.uint16_t;
-  const DWORD = ctypes.uint32_t;
-  const WCHAR = ctypes.char16_t;
-  const BOOL = ctypes.int;
-
-  // This structure is described at:
-  // http://msdn.microsoft.com/en-us/library/ms724833%28v=vs.85%29.aspx
-  const SZCSDVERSIONLENGTH = 128;
-  const OSVERSIONINFOEXW = new ctypes.StructType("OSVERSIONINFOEXW", [
-    { dwOSVersionInfoSize: DWORD },
-    { dwMajorVersion: DWORD },
-    { dwMinorVersion: DWORD },
-    { dwBuildNumber: DWORD },
-    { dwPlatformId: DWORD },
-    { szCSDVersion: ctypes.ArrayType(WCHAR, SZCSDVERSIONLENGTH) },
-    { wServicePackMajor: WORD },
-    { wServicePackMinor: WORD },
-    { wSuiteMask: WORD },
-    { wProductType: BYTE },
-    { wReserved: BYTE },
-  ]);
-
-  const kernel32 = ctypes.open("kernel32");
-  try {
-    const GetVersionEx = kernel32.declare(
-      "GetVersionExW",
-      ctypes.winapi_abi,
-      BOOL,
-      OSVERSIONINFOEXW.ptr
-    );
-    const winVer = OSVERSIONINFOEXW();
-    winVer.dwOSVersionInfoSize = OSVERSIONINFOEXW.size;
-
-    if (0 === GetVersionEx(winVer.address())) {
-      throw new Error("Failure in GetVersionEx (returned 0)");
-    }
-
-    return {
-      servicePackMajor: winVer.wServicePackMajor,
-      servicePackMinor: winVer.wServicePackMinor,
-      buildNumber: winVer.dwBuildNumber,
-    };
-  } catch (e) {
-    return UNKNOWN_VERSION_INFO;
-  } finally {
-    kernel32.close();
-  }
-}
 
 /* This is where functions related to the 3 pane window are kept */
 
