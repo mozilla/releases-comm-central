@@ -656,7 +656,12 @@ add_task(
       manifest: {
         manifest_version: 2,
         background: { scripts: ["utils.js", "background.js"] },
-        permissions: ["messagesRead", "accountsRead", "messagesTags"],
+        permissions: [
+          "messagesRead",
+          "accountsRead",
+          "messagesTags",
+          "messagesUpdate",
+        ],
       },
     });
 

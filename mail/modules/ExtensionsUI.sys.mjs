@@ -20,6 +20,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 import {
   PERMISSIONS_WITH_MESSAGE,
+  PERMISSION_L10N_ID_OVERRIDES,
   PERMISSION_L10N,
 } from "resource://gre/modules/ExtensionPermissionMessages.sys.mjs";
 
@@ -189,9 +190,7 @@ const ERROR_L10N_IDS = new Map([
   [-8, ["addon-install-error-invalid-domain"]],
 ]);
 
-// Add Thunderbird specific permissions so localization will work. Add entries
-// to PERMISSION_L10N_ID_OVERRIDES here in case a permission string needs to be
-// overridden.
+// Add Thunderbird specific permissions so localization will work.
 for (const perm of [
   "accountsFolders",
   "accountsIdentities",
@@ -210,6 +209,14 @@ for (const perm of [
   "sensitiveDataUpload",
 ]) {
   PERMISSIONS_WITH_MESSAGE.add(perm);
+}
+
+// Add entries to PERMISSION_L10N_ID_OVERRIDES here in case a permission string
+// needs to be overridden.
+for (const { perm, l10n } of [
+  { perm: "messagesRead", l10n: "webext-perms-description-messagesRead2" },
+]) {
+  PERMISSION_L10N_ID_OVERRIDES.set(perm, l10n);
 }
 
 /**

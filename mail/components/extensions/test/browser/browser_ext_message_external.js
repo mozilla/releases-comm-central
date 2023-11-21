@@ -360,6 +360,7 @@ add_task(async function testExternalMessage() {
         "messagesRead",
         "messagesMove",
         "messagesDelete",
+        "messagesUpdate",
       ],
     },
   });

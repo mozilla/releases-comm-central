@@ -297,7 +297,12 @@ add_task(
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
-        permissions: ["accountsRead", "messagesRead", "messagesTagsList"],
+        permissions: [
+          "accountsRead",
+          "messagesRead",
+          "messagesTagsList",
+          "messagesUpdate",
+        ],
         browser_specific_settings: {
           gecko: { id: "messages.update@mochi.test" },
         },

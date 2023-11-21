@@ -399,7 +399,7 @@ add_task(async function test_query() {
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["accountsRead", "messagesRead"],
+      permissions: ["accountsRead", "messagesRead", "messagesUpdate"],
     },
   });
 
