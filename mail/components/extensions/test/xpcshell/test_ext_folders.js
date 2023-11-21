@@ -752,9 +752,14 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
       }
 
       // Recent.
-      await queryCheck({ folderId: rootFolder.id, mostRecent: true }, [
-        "OtherTest",
-      ]);
+      await queryCheck(
+        {
+          folderId: rootFolder.id,
+          recent: true,
+          limit: browser.folders.DEFAULT_MOST_RECENT_LIMIT,
+        },
+        ["OtherTest"]
+      );
       await queryCheck({ folderId: rootFolder.id, recent: true }, [
         "InfoTest",
         "OtherTest",
@@ -1187,7 +1192,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
     extension.sendMessage();
   });
 
-  // Set max_recent to 1 to be able to test the difference between mostRecent
+  // Set max_recent to 1 to be able to test the difference between most recent
   // and recent.
   Services.prefs.setIntPref("mail.folder_widget.max_recent", 1);
 

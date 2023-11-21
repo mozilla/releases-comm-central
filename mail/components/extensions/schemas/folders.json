@@ -230,6 +230,12 @@
         }
       }
     ],
+    "properties": {
+      "DEFAULT_MOST_RECENT_LIMIT": {
+        "value": -1,
+        "description": "The number of most recent folders used in Thunderbird's UI. Controled by the <value>mail.folder_widget.max_recent</value> preference."
+      }
+    },
     "functions": [
       {
         "name": "query",
@@ -341,10 +347,10 @@
                 "optional": true,
                 "description": "Whether the folder is a root folder, or not."
               },
-              "mostRecent": {
-                "type": "boolean",
+              "limit": {
+                "type": "integer",
                 "optional": true,
-                "description": "Whether the folder (excluding subfolders) has been used within the last month. The returned folders will be sorted by their recentness and limited to the most recent ones, which is controlled by the <value>mail.folder_widget.max_recent</value> preference. A value of <value>false</value> is ignored."
+                "description": "Limits the number of returned folders. If used together with <value>recent</value>, supports being set to :ref:`folders.DEFAULT_MOST_RECENT_LIMIT`"
               },
               "name": {
                 "choices": [
@@ -373,7 +379,7 @@
               "recent": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the folder (excluding subfolders) has been used within the last month, or not. The returned folders will be sorted by their recentness. Ignored if <value>mostRecent</value> is specified."
+                "description": "Whether the folder (excluding subfolders) has been used within the last month, or not. The returned folders will be sorted by their recentness."
               },
               "specialUse": {
                 "type": "array",

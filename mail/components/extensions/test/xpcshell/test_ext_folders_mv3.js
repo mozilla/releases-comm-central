@@ -544,16 +544,10 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
     extension.sendMessage();
   });
 
-  // Set max_recent to 1 to be able to test the difference between mostRecent
-  // and recent.
-  Services.prefs.setIntPref("mail.folder_widget.max_recent", 1);
-
   await extension.startup();
   extension.sendMessage(account.key, startTime);
   await extension.awaitFinish("finished");
   await extension.unload();
-
-  Services.prefs.clearUserPref("mail.folder_widget.max_recent");
 });
 
 add_task(

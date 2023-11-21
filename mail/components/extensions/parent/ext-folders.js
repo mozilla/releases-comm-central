@@ -823,16 +823,16 @@ this.folders = class extends ExtensionAPIPersistent {
             }
           }
 
-          if (queryInfo.mostRecent) {
-            foundFolders = FolderUtils.getMostRecentFolders(
-              foundFolders,
-              Services.prefs.getIntPref("mail.folder_widget.max_recent"),
-              "MRUTime"
-            );
-          } else if (queryInfo.recent != null) {
+          if (queryInfo.recent != null) {
+            let limit = queryInfo.limit || Infinity;
+            if (limit == -1) {
+              limit = Services.prefs.getIntPref(
+                "mail.folder_widget.max_recent"
+              );
+            }
             const recentFolders = FolderUtils.getMostRecentFolders(
               foundFolders,
-              Infinity,
+              limit,
               "MRUTime"
             );
             if (queryInfo.recent) {
@@ -842,6 +842,10 @@ this.folders = class extends ExtensionAPIPersistent {
                 x => !recentFolders.includes(x)
               );
             }
+          } else if (queryInfo.limit && queryInfo.limit > 0) {
+            // If limit is used without recent, mail.folder_widget.max_recent is
+            // ignored.
+            foundFolders = foundFolders.slice(0, queryInfo.limit);
           }
 
           return foundFolders.map(folder =>
