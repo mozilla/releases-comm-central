@@ -13,8 +13,6 @@
 #include "nsCOMPtr.h"
 #include "nsIMsgSearchNotify.h"
 #include "nsIMsgFolder.h"
-#include "nsIMsgFolderCache.h"
-#include "nsIMsgFolderCacheElement.h"
 
 class nsMsgPurgeService : public nsIMsgPurgeService, public nsIMsgSearchNotify {
  public:
