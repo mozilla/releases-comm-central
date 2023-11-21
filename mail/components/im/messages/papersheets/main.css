@@ -67,8 +67,8 @@ span.date {
 span.date-next {
   opacity: 0.4;
   margin-top: -6px;
-  -moz-transition-property: opacity;
-  -moz-transition-duration: 0.3s;
+  transition-property: opacity;
+  transition-duration: 0.3s;
 }
 
 p:hover > span.date-next {

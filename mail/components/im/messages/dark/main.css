@@ -37,8 +37,8 @@ p.event-messages {
   margin: 5px 0px 5px 0px;
   text-align: center;
   opacity: 0.4;
-  -moz-transition-property: opacity;
-  -moz-transition-duration: 0.3s;
+  transition-property: opacity;
+  transition-duration: 0.3s;
 }
 
 p.event-messages:hover {
@@ -100,8 +100,8 @@ p *:any-link img {
   color: white !important;
   background-color: black;
   opacity: 0.4;
-  -moz-transition-property: opacity;
-  -moz-transition-duration: 0.3s;
+  transition-property: opacity;
+  transition-duration: 0.3s;
 }
 
 .ib-nick[left]:hover {
