@@ -66,7 +66,7 @@ add_task(async function test_plain_mv2() {
 
         browser.test.assertEq("Big Meeting Today", message.subject);
         browser.test.assertEq(
-          '"Andy Anway" <andy@anway.invalid>',
+          "Andy Anway <andy@anway.invalid>",
           message.author
         );
 
@@ -224,7 +224,7 @@ add_task(async function test_plain_mv3() {
 
         browser.test.assertEq("Small Party Tomorrow", message.subject);
         browser.test.assertEq(
-          '"Chris Clarke" <chris@clarke.invalid>',
+          "Chris Clarke <chris@clarke.invalid>",
           message.author
         );
 
@@ -443,7 +443,7 @@ add_task(async function test_encoding() {
         "02.eml@mime.sample": {
           msgHeaders: {
             subject: "Test message from Microsoft Outlook 00",
-            author: '"Doug Sauder" <doug@example.com>',
+            author: "Doug Sauder <doug@example.com>",
           },
           msgParts: {
             contentType: "message/rfc822",

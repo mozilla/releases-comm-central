@@ -156,7 +156,7 @@ add_task(async function testUpdateTabs_WebExtProtocolHandler() {
 
       // Test a compose window.
 
-      const details1 = { to: ["Mr. Holmes <holmes@bakerstreet.invalid>"] };
+      const details1 = { to: ['"Mr. Holmes" <holmes@bakerstreet.invalid>'] };
       const composeTab = await browser.compose.beginNew(details1);
       browser.test.assertEq(
         "messageCompose",
@@ -482,7 +482,7 @@ add_task(async function testUpdateReloadTabs() {
 
       // Test a compose window.
 
-      const details1 = { to: ["Mr. Holmes <holmes@bakerstreet.invalid>"] };
+      const details1 = { to: ['"Mr. Holmes" <holmes@bakerstreet.invalid>'] };
       const composeTab = await browser.compose.beginNew(details1);
       browser.test.assertEq(
         "messageCompose",

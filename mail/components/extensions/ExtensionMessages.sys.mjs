@@ -46,6 +46,26 @@ XPCOMUtils.defineLazyPreferenceGetter(
 );
 
 /**
+ * Parse an address header containing one or more email addresses, and return an
+ * array of RFC 5322 compliant mailbox strings.
+ *
+ * @param {string} headerString
+ * @param {boolean} emailAddressOnly - return only the email address
+ *
+ * @returns {string[]}
+ */
+export function parseEncodedAddrHeader(headerString, emailAddressOnly) {
+  return MailServices.headerParser
+    .parseEncodedHeaderW(headerString)
+    .map(hdr => {
+      if (emailAddressOnly || !hdr.name) {
+        return hdr.email;
+      }
+      return MailServices.headerParser.makeMimeAddress(hdr.name, hdr.email);
+    });
+}
+
+/**
  * Returns the msgUrl of the given msgHdr, which is usable with,
  * nsIMsgMessageService.streamMessage().
  *
@@ -1208,10 +1228,6 @@ export class MessageManager {
       return null;
     }
 
-    const composeFields = Cc[
-      "@mozilla.org/messengercompose/composefields;1"
-    ].createInstance(Ci.nsIMsgCompFields);
-
     // Cache msgHdr to reduce XPCOM requests.
     const cachedHdr = new CachedMsgHeader(msgHdr);
 
@@ -1235,16 +1251,14 @@ export class MessageManager {
     const messageObject = {
       id: this._messageTracker.getId(cachedHdr),
       date: new Date(Math.round(cachedHdr.date / 1000)),
-      author: cachedHdr.mime2DecodedAuthor,
-      recipients: cachedHdr.mime2DecodedRecipients
-        ? composeFields.splitRecipients(cachedHdr.mime2DecodedRecipients, false)
-        : [],
-      ccList: cachedHdr.ccList
-        ? composeFields.splitRecipients(cachedHdr.ccList, false)
-        : [],
-      bccList: cachedHdr.bccList
-        ? composeFields.splitRecipients(cachedHdr.bccList, false)
-        : [],
+      author:
+        parseEncodedAddrHeader(cachedHdr.mime2DecodedAuthor).shift() || "",
+      recipients: parseEncodedAddrHeader(
+        cachedHdr.mime2DecodedRecipients,
+        false
+      ),
+      ccList: parseEncodedAddrHeader(cachedHdr.ccList, false),
+      bccList: parseEncodedAddrHeader(cachedHdr.bccList, false),
       subject: cachedHdr.mime2DecodedSubject,
       read: cachedHdr.isRead,
       new: !!(cachedHdr.flags & Ci.nsMsgMessageFlags.New),
@@ -1318,10 +1332,6 @@ export class MessageQuery {
 
     this.checkSearchCriteriaFn =
       checkSearchCriteriaFn || this.checkSearchCriteria;
-
-    this.composeFields = Cc[
-      "@mozilla.org/messengercompose/composefields;1"
-    ].createInstance(Ci.nsIMsgCompFields);
 
     this.autoPaginationTimeout = queryInfo.autoPaginationTimeout ?? 1000;
   }
@@ -1555,9 +1565,9 @@ export class MessageQuery {
     // Check toMe (case insensitive email address match).
     if (this.queryInfo.toMe !== null) {
       const recipients = [].concat(
-        this.composeFields.splitRecipients(msgHdr.recipients, true),
-        this.composeFields.splitRecipients(msgHdr.ccList, true),
-        this.composeFields.splitRecipients(msgHdr.bccList, true)
+        parseEncodedAddrHeader(msgHdr.recipients, true),
+        parseEncodedAddrHeader(msgHdr.ccList, true),
+        parseEncodedAddrHeader(msgHdr.bccList, true)
       );
 
       if (
@@ -1572,10 +1582,7 @@ export class MessageQuery {
 
     // Check fromMe (case insensitive email address match).
     if (this.queryInfo.fromMe !== null) {
-      const authors = this.composeFields.splitRecipients(
-        msgHdr.mime2DecodedAuthor,
-        true
-      );
+      const authors = parseEncodedAddrHeader(msgHdr.mime2DecodedAuthor, true);
       if (
         this.queryInfo.fromMe !=
         authors.some(email =>

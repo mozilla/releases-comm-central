@@ -26,7 +26,7 @@ var { getFolder } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
 
-var { CachedMsgHeader } = ChromeUtils.importESModule(
+var { CachedMsgHeader, parseEncodedAddrHeader } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionMessages.sys.mjs"
 );
 
@@ -420,10 +420,10 @@ async function getComposeDetails(composeWindow, extension) {
   }
 
   const details = {
-    from: composeFields.splitRecipients(composeFields.from, false).shift(),
-    to: composeFields.splitRecipients(composeFields.to, false),
-    cc: composeFields.splitRecipients(composeFields.cc, false),
-    bcc: composeFields.splitRecipients(composeFields.bcc, false),
+    from: parseEncodedAddrHeader(composeFields.from, false).shift(),
+    to: parseEncodedAddrHeader(composeFields.to, false),
+    cc: parseEncodedAddrHeader(composeFields.cc, false),
+    bcc: parseEncodedAddrHeader(composeFields.bcc, false),
     overrideDefaultFcc,
     overrideDefaultFccFolder: overrideDefaultFcc
       ? overrideDefaultFccFolder
@@ -431,8 +431,8 @@ async function getComposeDetails(composeWindow, extension) {
     additionalFccFolder,
     type,
     relatedMessageId,
-    replyTo: composeFields.splitRecipients(composeFields.replyTo, false),
-    followupTo: composeFields.splitRecipients(composeFields.followupTo, false),
+    replyTo: parseEncodedAddrHeader(composeFields.replyTo, false),
+    followupTo: parseEncodedAddrHeader(composeFields.followupTo, false),
     newsgroups: composeFields.newsgroups
       ? composeFields.newsgroups.split(",")
       : [],

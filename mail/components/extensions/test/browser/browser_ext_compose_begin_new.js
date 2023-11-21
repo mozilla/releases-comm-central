@@ -33,7 +33,7 @@ add_task(async function testComposerIsReady() {
 
       const details = {
         plainTextBody: "This is Text",
-        to: ["Mr. Holmes <holmes@bakerstreet.invalid>"],
+        to: ['"Mr. Holmes" <holmes@bakerstreet.invalid>'],
         subject: "Test Email",
       };
 

@@ -14,7 +14,7 @@ createMessages(gTestFolder, 4);
 add_task(async function testHeaders() {
   const files = {
     "background.js": async () => {
-      async function checkWindow(expected) {
+      async function checkAPI(expected) {
         const state = await browser.compose.getComposeDetails(createdTab.id);
         for (const field of [
           "to",
@@ -52,8 +52,6 @@ add_task(async function testHeaders() {
         } else {
           browser.test.assertTrue(!state.subject, "subject is empty");
         }
-
-        await window.sendMessage("checkWindow", expected);
       }
 
       const [account] = await browser.accounts.list();
@@ -97,7 +95,10 @@ add_task(async function testHeaders() {
         windowId: createdWindow.id,
       });
 
-      await checkWindow({ identityId: defaultIdentity.id });
+      await checkAPI({ identityId: defaultIdentity.id });
+      await window.sendMessage("checkWindow", {
+        identityId: defaultIdentity.id,
+      });
 
       const tests = [
         {
@@ -142,15 +143,25 @@ add_task(async function testHeaders() {
           expected: { to: ["John Watson <john@bakerstreet.invalid>"] },
         },
         {
-          // Name with a comma, not quoted per RFC 822. This is how
-          // getComposeDetails returns names with a comma.
+          // Name with a comma, not quoted per RFC 822. The API returns the addr
+          // quoted as per RFC 5322, the UI is not using quotes.
           input: { to: ["Holmes, Mycroft <mycroft@bakerstreet.invalid>"] },
-          expected: { to: ["Holmes, Mycroft <mycroft@bakerstreet.invalid>"] },
+          expected_API: {
+            to: ['"Holmes, Mycroft" <mycroft@bakerstreet.invalid>'],
+          },
+          expected_UI: {
+            to: ["Holmes, Mycroft <mycroft@bakerstreet.invalid>"],
+          },
         },
         {
           // Name with a comma, quoted per RFC 822. This should work too.
           input: { to: [`"Holmes, Mycroft" <mycroft@bakerstreet.invalid>`] },
-          expected: { to: ["Holmes, Mycroft <mycroft@bakerstreet.invalid>"] },
+          expected_API: {
+            to: ['"Holmes, Mycroft" <mycroft@bakerstreet.invalid>'],
+          },
+          expected_UI: {
+            to: ["Holmes, Mycroft <mycroft@bakerstreet.invalid>"],
+          },
         },
         {
           // Name and address with non-ASCII characters.
@@ -353,18 +364,21 @@ add_task(async function testHeaders() {
       ];
       for (const test of tests) {
         browser.test.log(`Checking input: ${JSON.stringify(test.input)}`);
+        const expected_API = test.expected || test.expected_API;
+        const expected_UI = test.expected || test.expected_UI;
 
-        if (test.expected.errorRejected) {
+        if (expected_API.errorRejected) {
           await browser.test.assertRejects(
             browser.compose.setComposeDetails(createdTab.id, test.input),
-            test.expected.errorRejected,
-            test.expected.errorDescription
+            expected_API.errorRejected,
+            expected_API.errorDescription
           );
           continue;
         }
 
         await browser.compose.setComposeDetails(createdTab.id, test.input);
-        await checkWindow(test.expected);
+        await checkAPI(expected_API);
+        await window.sendMessage("checkWindow", expected_UI);
 
         if (test.expectIdentityChanged) {
           browser.test.assertEq(

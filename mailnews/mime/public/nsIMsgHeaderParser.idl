@@ -193,8 +193,6 @@ interface nsIMsgHeaderParser : nsISupports {
   /**
    * Given a name and email address, produce a string that is suitable for
    * emitting in a MIME header (after applying RFC 2047 encoding).
-   *
-   * @note This is a temporary method.
    */
-  /* @deprecated */ AString makeMimeAddress(in AString aName, in AString aEmail);
+  AString makeMimeAddress(in AString aName, in AString aEmail);
 };
