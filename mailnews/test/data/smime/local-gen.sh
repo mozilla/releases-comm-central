@@ -40,7 +40,10 @@ mkdir $TMPDIR
 
 BOUNDARY="--------BOUNDARY"
 
+EMAILDATE=`date --rfc-email --utc`
+
 MSGHEADER="MIME-Version: 1.0
+Date: ${EMAILDATE}
 From: Alice <alice@example.com>
 To: Bob <bob@example.com>
 Subject: a message
@@ -83,5 +86,12 @@ MSG=$TMPDIR/msg.eml
 } > $MSG
 
 mv $MSG "$MILLDIR/multipart-alternative.eml"
+
+# Create a message with a mismatching message date (use a later time,
+# because the test certificates aren't valid at earlier times).
+
+GOOD_DATE=`cat "alice.dsig.SHA256.multipart.eml" | grep ^Date | sed 's/^Date: //'`
+FUTURE_DATE=`date --utc --rfc-email --date="${GOOD_DATE} + 6 hours"`
+cat "alice.dsig.SHA256.multipart.eml" | sed "s/^Date: .*$/Date: ${FUTURE_DATE}/" > "alice.future.dsig.SHA256.multipart.eml"
 
 rm -rf $TMPDIR
