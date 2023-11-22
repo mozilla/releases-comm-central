@@ -5,6 +5,10 @@
 
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
 
+window.addEventListener("load", event => {
+  enableDisableAllowedReceipts();
+});
+
 Preferences.addAll([
   { id: "mail.receipt.request_return_receipt_on", type: "bool" },
   { id: "mail.incorporate.return_receipt", type: "int" },
