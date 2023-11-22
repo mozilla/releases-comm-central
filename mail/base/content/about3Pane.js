@@ -4954,7 +4954,7 @@ var threadPane = {
     // different scope. But we can get it from customElements.
     const rowClass = customElements.get("thread-row");
     const cardClass = customElements.get("thread-card");
-    const currentFontSize = UIFontSize.prefValue || 12;
+    const currentFontSize = UIFontSize.size;
     const cardRows = 3;
     let cardRowHeight;
     switch (UIDensity.prefValue) {
