@@ -2292,18 +2292,19 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
         CopyAllSubFolders(srcFolder, nullptr, nullptr, mCopyState->m_isMove);
       }
 
-      if (mCopyState->m_msgWindow && mCopyState->m_undoMsgTxn) {
-        nsCOMPtr<nsITransactionManager> txnMgr;
-        mCopyState->m_msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
-        if (txnMgr) {
-          RefPtr<nsLocalMoveCopyMsgTxn> txn = mCopyState->m_undoMsgTxn;
-          txnMgr->DoTransaction(txn);
-        }
-      }
-
       // If this is done on move of selected messages between "mailbox" folders,
       // the source messages are never deleted. So do this only on msg copy.
       if (!mCopyState->m_isMove) {
+        if (mCopyState->m_msgWindow && mCopyState->m_undoMsgTxn) {
+          nsCOMPtr<nsITransactionManager> txnMgr;
+          mCopyState->m_msgWindow->GetTransactionManager(
+              getter_AddRefs(txnMgr));
+          if (txnMgr) {
+            RefPtr<nsLocalMoveCopyMsgTxn> txn = mCopyState->m_undoMsgTxn;
+            txnMgr->DoTransaction(txn);
+          }
+        }
+
         // enable the dest folder
         EnableNotifications(allMessageCountNotifications, true);
         if (srcFolder && !mCopyState->m_isFolder) {
