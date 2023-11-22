@@ -31,7 +31,7 @@
 
 // gecko
 #include "nsLayoutCID.h"
-#include "nsIContentViewer.h"
+#include "nsIDocumentViewer.h"
 
 /* for access to docshell */
 #include "nsPIDOMWindow.h"

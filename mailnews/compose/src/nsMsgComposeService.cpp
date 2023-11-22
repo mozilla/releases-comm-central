@@ -16,7 +16,7 @@
 #include "nsISupportsPrimitives.h"
 #include "nsIWindowWatcher.h"
 #include "mozIDOMWindow.h"
-#include "nsIContentViewer.h"
+#include "nsIDocumentViewer.h"
 #include "nsIMsgWindow.h"
 #include "nsIDocShell.h"
 #include "nsPIDOMWindow.h"

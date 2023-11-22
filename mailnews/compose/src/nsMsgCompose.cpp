@@ -40,7 +40,7 @@
 #include "nsImapCore.h"
 #include "nsUnicharUtils.h"
 #include "nsNetUtil.h"
-#include "nsIContentViewer.h"
+#include "nsIDocumentViewer.h"
 #include "nsIMsgMdnGenerator.h"
 #include "plbase64.h"
 #include "nsIMsgAccountManager.h"
