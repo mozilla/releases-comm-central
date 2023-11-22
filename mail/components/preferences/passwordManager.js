@@ -8,7 +8,6 @@ var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
 /* eslint-disable-next-line no-var */
-/* eslint-disable-next-line no-var */
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -36,6 +35,13 @@ let signonsIntro;
 let removeButton;
 let removeAllButton;
 let signonsTree;
+
+window.addEventListener("load", event => {
+  Startup();
+});
+window.addEventListener("unload", event => {
+  Shutdown();
+});
 
 const signonReloadDisplay = {
   async observe(subject, topic, data) {
