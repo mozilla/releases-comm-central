@@ -636,22 +636,22 @@ nsMsgMailNewsUrl::GetSpecIgnoringRef(nsACString& result) {
 
 NS_IMETHODIMP
 nsMsgMailNewsUrl::GetDisplaySpec(nsACString& aUnicodeSpec) {
-  return GetSpec(aUnicodeSpec);
+  return m_baseURL->GetDisplaySpec(aUnicodeSpec);
 }
 
 NS_IMETHODIMP
-nsMsgMailNewsUrl::GetDisplayHostPort(nsACString& aUnicodeHostPort) {
-  return GetHostPort(aUnicodeHostPort);
+nsMsgMailNewsUrl::GetDisplayHostPort(nsACString& aHostPort) {
+  return m_baseURL->GetDisplayHostPort(aHostPort);
 }
 
 NS_IMETHODIMP
-nsMsgMailNewsUrl::GetDisplayHost(nsACString& aUnicodeHost) {
-  return GetHost(aUnicodeHost);
+nsMsgMailNewsUrl::GetDisplayHost(nsACString& aHost) {
+  return m_baseURL->GetDisplayHost(aHost);
 }
 
 NS_IMETHODIMP
 nsMsgMailNewsUrl::GetDisplayPrePath(nsACString& aPrePath) {
-  return GetPrePath(aPrePath);
+  return m_baseURL->GetDisplayPrePath(aPrePath);
 }
 
 NS_IMETHODIMP

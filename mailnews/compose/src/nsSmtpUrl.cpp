@@ -497,22 +497,22 @@ nsMailtoUrl::GetSpecIgnoringRef(nsACString& result) {
 
 NS_IMETHODIMP
 nsMailtoUrl::GetDisplaySpec(nsACString& aUnicodeSpec) {
-  return GetSpec(aUnicodeSpec);
+  return m_baseURL->GetDisplaySpec(aUnicodeSpec);
 }
 
 NS_IMETHODIMP
 nsMailtoUrl::GetDisplayHostPort(nsACString& aUnicodeHostPort) {
-  return GetHostPort(aUnicodeHostPort);
+  return m_baseURL->GetDisplayHostPort(aUnicodeHostPort);
 }
 
 NS_IMETHODIMP
 nsMailtoUrl::GetDisplayHost(nsACString& aUnicodeHost) {
-  return GetHost(aUnicodeHost);
+  return m_baseURL->GetDisplayHost(aUnicodeHost);
 }
 
 NS_IMETHODIMP
 nsMailtoUrl::GetDisplayPrePath(nsACString& aPrePath) {
-  return GetPrePath(aPrePath);
+  return m_baseURL->GetDisplayPrePath(aPrePath);
 }
 
 NS_IMETHODIMP

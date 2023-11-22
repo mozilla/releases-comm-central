@@ -4417,7 +4417,10 @@ nsMsgDBFolder::GetFilePath(nsIFile** aFile) {
   // alters the underlying file object.
   nsCOMPtr<nsIFile> file = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (!mPath) parseURI(true);
+  if (!mPath) {
+    rv = parseURI(true);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
   rv = file->InitWithFile(mPath);
   file.forget(aFile);
   return NS_OK;

@@ -141,6 +141,13 @@ nsresult nsMsgAccountManager::Init() {
     return NS_ERROR_NOT_AVAILABLE;
   }
 
+  // Make sure URI->GetDisplayHost can be used in the expected way
+  // for FindServerByURI.
+  if (mozilla::Preferences::GetBool("network.IDN_show_punycode")) {
+    mozilla::Preferences::SetBool("network.IDN_show_punycode", false);
+  }
+  mozilla::Preferences::Lock("network.IDN_show_punycode");
+
   nsresult rv;
 
   m_prefs = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
@@ -1827,7 +1834,8 @@ nsMsgAccountManager::FindServerByURI(nsIURI* aURI,
 
   nsAutoCString hostname;
   nsAutoCString escapedHostname;
-  rv = aURI->GetHost(escapedHostname);
+  // Use GetDisplayHost() as GetHost() would give non-ascii as punycode.
+  rv = aURI->GetDisplayHost(escapedHostname);
   if (NS_SUCCEEDED(rv) && !escapedHostname.IsEmpty())
     MsgUnescapeString(escapedHostname, 0, hostname);
 
