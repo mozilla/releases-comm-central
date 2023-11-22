@@ -25,6 +25,70 @@
   counter-reset: smallicons;
 }
 
+#button-getmsg {
+  list-style-image: var(--icon-cloud-download);
+}
+
+#button-newmsg {
+  list-style-image: var(--icon-pencil);
+}
+
+#button-address {
+  list-style-image: var(--icon-address-book);
+}
+
+#button-print {
+  list-style-image: var(--icon-print);
+}
+
+#button-file {
+  list-style-image: var(--icon-file);
+}
+
+#button-nextUnread {
+  list-style-image: var(--icon-nav-down-unread);
+}
+
+#button-previousUnread {
+  list-style-image: var(--icon-nav-up-unread);
+}
+
+#button-mark {
+  list-style-image: var(--icon-unread);
+}
+
+#button-tag {
+  list-style-image: var(--icon-tag);
+}
+
+#button-goback {
+  list-style-image: var(--icon-nav-back);
+}
+
+#button-goforward {
+  list-style-image: var(--icon-nav-forward);
+}
+
+#button-chat {
+  -moz-context-properties: fill, stroke, fill-opacity;
+}
+
+#button-nextMsg {
+  list-style-image: var(--icon-nav-down);
+}
+
+#button-previousMsg {
+  list-style-image: var(--icon-nav-up);
+}
+
+#button-showconversation {
+  list-style-image: var(--icon-conversation);
+}
+
+#button-addons {
+  list-style-image: var(--icon-extension);
+}
+
 .button-appmenu {
   list-style-image: var(--icon-app-menu);
   min-width: 35px !important;
