@@ -27,7 +27,7 @@ def get_thunderbird_xc_config(topsrcdir, strings_path):
         "source": {
             "comm-central": {
                 "path": topsrcdir / "comm",
-                "url": "https://hg.mozilla.org/comm-central/",
+                "url": "https://hg.mozilla.org/comm-unified/",
                 "heads": {
                     # This list of repositories is ordered, starting with the
                     # one with the most recent content (central) to the oldest
@@ -35,6 +35,7 @@ def get_thunderbird_xc_config(topsrcdir, strings_path):
                     # ESR goes last (e.g. esr102 goes after esr115).
                     "comm": "comm-central",
                     "comm-beta": "releases/comm-beta",
+                    "comm-release": "releases/comm-release",
                     "comm-esr115": "releases/comm-esr115",
                 },
                 "config_files": [
