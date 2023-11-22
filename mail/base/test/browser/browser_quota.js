@@ -34,7 +34,16 @@ add_setup(async function () {
     .getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox)
     .QueryInterface(Ci.nsIMsgImapMailFolder);
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
+    await TestUtils.waitForCondition(() => {
+      try {
+        return imapAccount.incomingServer.numIdleConnections;
+      } catch (ex) {
+        console.error(ex);
+      }
+      return 0;
+    }, "waiting for IMAP connection to become idle");
+
     MailServices.accounts.removeAccount(imapAccount, false);
     Services.prefs.clearUserPref("mail.server.default.max_cached_connections");
   });
