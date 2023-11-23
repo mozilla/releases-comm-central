@@ -736,6 +736,13 @@ MimeDecryptHandler.prototype = {
       }
     }
 
+    // If there is no Content-Type header prior to the first double
+    // newline sequence (which is interpreted as the separator between
+    // a header section and the body), then assume the first section is
+    // actually NOT an email header, but rather part of the message body.
+    // To ensure all data is shown to the user, to ensure the initial
+    // paragraph isn't hidden, we wrap a text/plain content-type header
+    // around the result data.
     if (mightNeedWrapper) {
       const headerBoundaryPosition = this.decryptedData.search(/\n\r?\n/);
       if (
