@@ -9,7 +9,9 @@
 /* import-globals-from mailCore.js */
 /* globals contentProgress, statusFeedback */
 
-var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
+ChromeUtils.defineESModuleGetters(this, {
+  UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
+});
 
 // Wrap in a block to prevent leaking to window scope.
 {

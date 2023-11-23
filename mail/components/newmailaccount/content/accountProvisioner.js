@@ -17,11 +17,11 @@ ChromeUtils.defineESModuleGetters(this, {
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
   AccountCreationUtils:
     "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs",
+  UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   UIDensity: "resource:///modules/UIDensity.jsm",
-  UIFontSize: "resource:///modules/UIFontSize.jsm",
 });
 
 var { gAccountSetupLogger } = AccountCreationUtils;

@@ -37,10 +37,13 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
-var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
+
+ChromeUtils.defineESModuleGetters(this, {
+  UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
+});
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",

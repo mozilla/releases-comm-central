@@ -48,6 +48,7 @@ var { ExtensionParent } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(this, {
   SelectionUtils: "resource://gre/modules/SelectionUtils.sys.mjs",
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.sys.mjs",
+  UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -55,7 +56,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailUtils: "resource:///modules/MailUtils.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
-  UIFontSize: "resource:///modules/UIFontSize.jsm",
   UIDensity: "resource:///modules/UIDensity.jsm",
 });
 

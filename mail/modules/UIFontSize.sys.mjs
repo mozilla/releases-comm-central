@@ -2,20 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-"use strict";
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
-const EXPORTED_SYMBOLS = ["UIFontSize"];
-
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
-var langGroup = Services.prefs.getComplexValue(
+const langGroup = Services.prefs.getComplexValue(
   "font.language.group",
   Ci.nsIPrefLocalizedString
 ).data;
 
-var registeredWindows = new Set();
+const registeredWindows = new Set();
 
 /**
  * Update the font size of the registered window.
@@ -75,7 +69,7 @@ function updateAllWindows() {
 /**
  * The object controlling the global font size.
  */
-var UIFontSize = {
+export const UIFontSize = {
   // Default value is 0 so we know the font wasn't changed.
   DEFAULT: 0,
   // Font size limit to avoid unusable UI.

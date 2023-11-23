@@ -25,15 +25,15 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
-
   BrowserToolboxLauncher:
     "resource://devtools/client/framework/browser-toolbox/Launcher.sys.mjs",
+  UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   MailUtils: "resource:///modules/MailUtils.jsm",
   MimeParser: "resource:///modules/mimeParser.jsm",
   UIDensity: "resource:///modules/UIDensity.jsm",
-  UIFontSize: "resource:///modules/UIFontSize.jsm",
 });
 
 Object.defineProperty(this, "BrowserConsoleManager", {

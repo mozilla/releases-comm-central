@@ -36,7 +36,7 @@ EXTRA_JS_MODULES += [
     "TagUtils.jsm",
     "TBDistCustomizer.jsm",
     "UIDensity.jsm",
-    "UIFontSize.jsm",
+    "UIFontSize.sys.mjs",
 ]
 
 EXTRA_JS_MODULES.sessionstore += [

@@ -8,7 +8,10 @@ var { MailServices } = ChromeUtils.import(
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
-var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
+
+ChromeUtils.defineESModuleGetters(this, {
+  UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
+});
 
 var gSelectedServer = null;
 var gSelectedFolder = null;

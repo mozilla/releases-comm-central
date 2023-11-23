@@ -26,11 +26,11 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
+  UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   UIDensity: "resource:///modules/UIDensity.jsm",
-  UIFontSize: "resource:///modules/UIFontSize.jsm",
 });
 
 const messengerBundle = Services.strings.createBundle(

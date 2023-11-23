@@ -38,7 +38,10 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
-var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
+
+ChromeUtils.defineESModuleGetters(this, {
+  UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
+});
 
 ChromeUtils.defineModuleGetter(
   this,

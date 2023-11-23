@@ -24,10 +24,13 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   UIDensity: "resource:///modules/UIDensity.jsm",
-  UIFontSize: "resource:///modules/UIFontSize.jsm",
 });
 
 var messageBrowser;
