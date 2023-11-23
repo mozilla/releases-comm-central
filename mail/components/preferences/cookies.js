@@ -6,9 +6,19 @@
 var { PluralForm } = ChromeUtils.importESModule(
   "resource:///modules/PluralForm.sys.mjs"
 );
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
 ChromeUtils.defineESModuleGetters(this, {
   ContextualIdentityService:
     "resource://gre/modules/ContextualIdentityService.sys.mjs",
+});
+
+window.addEventListener("load", event => {
+  gCookiesWindow.init();
+});
+window.addEventListener("unload", event => {
+  gCookiesWindow.uninit();
 });
 
 var gCookiesWindow = {
@@ -32,6 +42,8 @@ var gCookiesWindow = {
       document.getElementById("userContext").hidden = true;
       document.getElementById("userContextLabel").hidden = true;
     }
+    document.getElementById("closeButton").hidden =
+      AppConstants.platform == "macosx";
   },
 
   uninit() {

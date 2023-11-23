@@ -43,7 +43,7 @@ messenger.jar:
     content/messenger/preferences/offline.js
     content/messenger/preferences/offline.xhtml
     content/messenger/preferences/cookies.js
-*   content/messenger/preferences/cookies.xhtml
+    content/messenger/preferences/cookies.xhtml
     content/messenger/preferences/passwordManager.js
     content/messenger/preferences/passwordManager.xhtml
     content/messenger/preferences/permissions.js

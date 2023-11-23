@@ -3,118 +3,211 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE dialog>
-
-<window id="CookiesDialog"
-        class="windowDialog"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        data-l10n-id="cookies-window-dialog2"
-        onload="gCookiesWindow.init();"
-        onunload="gCookiesWindow.uninit();"
-        persist="width height">
-
-  <script src="chrome://messenger/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/preferences/cookies.js"/>
-
-  <stringbundle id="bundlePreferences"
-                src="chrome://messenger/locale/preferences/preferences.properties"/>
-
-  <linkset>
-    <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-    <html:link
+<!DOCTYPE html>
+<html
+  id="CookiesDialog"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  class="windowDialog"
+  scrolling="false"
+>
+  <head>
+    <title data-l10n-id="cookies-dialog-title"></title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link
       rel="stylesheet"
-      href="chrome://messenger/skin/input-fields.css"
+      href="chrome://messenger/skin/preferences/cookies.css"
     />
+    <link rel="localization" href="messenger/preferences/cookies.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/preferences/cookies.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <stringbundle
+      id="bundlePreferences"
+      src="chrome://messenger/locale/preferences/preferences.properties"
+    />
+    <keyset>
+      <key
+        data-l10n-id="window-close-key"
+        data-l10n-attrs="key"
+        modifiers="accel"
+        oncommand="window.close();"
+      />
+      <key
+        data-l10n-id="window-focus-search-key"
+        data-l10n-attrs="key"
+        modifiers="accel"
+        oncommand="gCookiesWindow.focusFilterBox();"
+      />
+      <key
+        data-l10n-id="window-focus-search-alt-key"
+        data-l10n-attrs="key"
+        modifiers="accel"
+        oncommand="gCookiesWindow.focusFilterBox();"
+      />
+    </keyset>
 
-    <html:link rel="localization" href="messenger/preferences/cookies.ftl"/>
-  </linkset>
-
-  <keyset>
-    <key data-l10n-id="window-close-key" data-l10n-attrs="key"
-         modifiers="accel" oncommand="window.close();"/>
-    <key data-l10n-id="window-focus-search-key" data-l10n-attrs="key"
-         modifiers="accel" oncommand="gCookiesWindow.focusFilterBox();"/>
-    <key data-l10n-id="window-focus-search-alt-key" data-l10n-attrs="key"
-         modifiers="accel" oncommand="gCookiesWindow.focusFilterBox();"/>
-  </keyset>
-
-  <vbox flex="1" class="contentPane largeDialogContainer">
-    <hbox align="center">
-      <label data-l10n-id="filter-search-label" control="filter"/>
-      <search-textbox id="filter"
-                      flex="1"
-                      aria-controls="cookiesList"
-                      oncommand="gCookiesWindow.filter();"/>
+    <vbox flex="1" class="contentPane largeDialogContainer">
+      <hbox align="center">
+        <label data-l10n-id="filter-search-label" control="filter" />
+        <search-textbox
+          id="filter"
+          flex="1"
+          aria-controls="cookiesList"
+          oncommand="gCookiesWindow.filter();"
+        />
+      </hbox>
+      <separator class="thin" />
+      <label
+        control="cookiesList"
+        id="cookiesIntro"
+        data-l10n-id="cookies-on-system-label"
+      />
+      <separator class="thin" />
+      <tree
+        id="cookiesList"
+        onkeypress="gCookiesWindow.onCookieKeyPress(event)"
+        onselect="gCookiesWindow.onCookieSelected();"
+        hidecolumnpicker="true"
+        seltype="single"
+      >
+        <treecols>
+          <treecol
+            id="domainCol"
+            data-l10n-id="treecol-site-header"
+            primary="true"
+            persist="width"
+            onclick="gCookiesWindow.sort('rawHost');"
+          />
+          <splitter class="tree-splitter" />
+          <treecol
+            id="nameCol"
+            data-l10n-id="treecol-name-header"
+            persist="width"
+            onclick="gCookiesWindow.sort('name');"
+          />
+        </treecols>
+        <treechildren id="cookiesChildren" />
+      </tree>
+      <html:table id="cookieInfoSettings">
+        <html:tr>
+          <html:th>
+            <label
+              id="nameLabel"
+              control="name"
+              data-l10n-id="props-name-label"
+            />
+          </html:th>
+          <html:td>
+            <html:input id="name" type="text" readonly="readonly" />
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:th>
+            <label
+              id="valueLabel"
+              control="value"
+              data-l10n-id="props-value-label"
+            />
+          </html:th>
+          <html:td>
+            <html:input id="value" type="text" readonly="readonly" />
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:th>
+            <label
+              id="isDomain"
+              control="host"
+              data-l10n-id="props-domain-label"
+            />
+          </html:th>
+          <html:td>
+            <html:input id="host" type="text" readonly="readonly" />
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:th>
+            <label
+              id="pathLabel"
+              control="path"
+              data-l10n-id="props-path-label"
+            />
+          </html:th>
+          <html:td>
+            <html:input id="path" type="text" readonly="readonly" />
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:th>
+            <label
+              id="isSecureLabel"
+              control="isSecure"
+              data-l10n-id="props-secure-label"
+            />
+          </html:th>
+          <html:td>
+            <html:input id="isSecure" type="text" readonly="readonly" />
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:th>
+            <label
+              id="expiresLabel"
+              control="expires"
+              data-l10n-id="props-expires-label"
+            />
+          </html:th>
+          <html:td>
+            <html:input id="expires" type="text" readonly="readonly" />
+          </html:td>
+        </html:tr>
+        <html:tr id="userContextLabel">
+          <html:th>
+            <label control="userContext" data-l10n-id="props-container-label" />
+          </html:th>
+          <html:td>
+            <html:input id="userContext" type="text" readonly="readonly" />
+          </html:td>
+        </html:tr>
+      </html:table>
+    </vbox>
+    <hbox align="end">
+      <hbox class="actionButtons" flex="1">
+        <button
+          id="removeSelectedCookies"
+          disabled="true"
+          data-l10n-id="remove-cookie-button"
+          oncommand="gCookiesWindow.deleteCookie();"
+        />
+        <button
+          id="removeAllCookies"
+          disabled="true"
+          data-l10n-id="remove-all-cookies-button"
+          oncommand="gCookiesWindow.deleteAllCookies();"
+        />
+        <spacer flex="1" />
+        <button
+          id="closeButton"
+          oncommand="window.close();"
+          data-l10n-id="cookie-close-button"
+        />
+      </hbox>
     </hbox>
-    <separator class="thin"/>
-    <label control="cookiesList" id="cookiesIntro" data-l10n-id="cookies-on-system-label"/>
-    <separator class="thin"/>
-    <tree id="cookiesList" flex="1" style="height: 10em;"
-          onkeypress="gCookiesWindow.onCookieKeyPress(event)"
-          onselect="gCookiesWindow.onCookieSelected();"
-          hidecolumnpicker="true" seltype="single">
-      <treecols>
-        <treecol id="domainCol" data-l10n-id="treecol-site-header"
-                 primary="true"
-                 persist="width"
-                 onclick="gCookiesWindow.sort('rawHost');"/>
-        <splitter class="tree-splitter"/>
-        <treecol id="nameCol" data-l10n-id="treecol-name-header"
-                 persist="width"
-                 onclick="gCookiesWindow.sort('name');"/>
-      </treecols>
-      <treechildren id="cookiesChildren"/>
-    </tree>
-    <hbox id="cookieInfoSettings" flex="1">
-      <vbox>
-        <vbox flex="1" pack="center" align="end">
-          <label id="nameLabel" control="name" data-l10n-id="props-name-label"/>
-        </vbox>
-        <vbox flex="1" pack="center" align="end">
-          <label id="valueLabel" control="value" data-l10n-id="props-value-label"/>
-        </vbox>
-        <vbox flex="1" pack="center" align="end">
-          <label id="isDomain" control="host" data-l10n-id="props-domain-label"/>
-        </vbox>
-        <vbox flex="1" pack="center" align="end">
-          <label id="pathLabel" control="path" data-l10n-id="props-path-label"/>
-        </vbox>
-        <vbox flex="1" pack="center" align="end">
-          <label id="isSecureLabel" control="isSecure" data-l10n-id="props-secure-label"/>
-        </vbox>
-        <vbox flex="1" pack="center" align="end">
-          <label id="expiresLabel" control="expires" data-l10n-id="props-expires-label"/>
-        </vbox>
-        <vbox id="userContextLabel" flex="1" pack="center" align="end">
-          <label control="userContext" data-l10n-id="props-container-label"/>
-        </vbox>
-      </vbox>
-      <vbox flex="1">
-        <html:input id="name" type="text" readonly="readonly"/>
-        <html:input id="value" type="text" readonly="readonly"/>
-        <html:input id="host" type="text" readonly="readonly"/>
-        <html:input id="path" type="text" readonly="readonly"/>
-        <html:input id="isSecure" type="text" readonly="readonly"/>
-        <html:input id="expires" type="text" readonly="readonly"/>
-        <html:input id="userContext" type="text" readonly="readonly"/>
-      </vbox>
-    </hbox>
-  </vbox>
-  <hbox align="end">
-    <hbox class="actionButtons" flex="1">
-      <button id="removeSelectedCookies" disabled="true"
-              data-l10n-id="remove-cookie-button"
-              oncommand="gCookiesWindow.deleteCookie();"/>
-      <button id="removeAllCookies" disabled="true"
-              data-l10n-id="remove-all-cookies-button"
-              oncommand="gCookiesWindow.deleteAllCookies();"/>
-      <spacer flex="1"/>
-#ifndef XP_MACOSX
-      <button oncommand="window.close();"
-              data-l10n-id="cookie-close-button"/>
-#endif
-    </hbox>
-  </hbox>
-</window>
+  </html:body>
+</html>

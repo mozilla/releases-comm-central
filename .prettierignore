@@ -68,7 +68,6 @@ mail/components/downloads/content/aboutDownloads.xhtml
 mail/components/extensions/extensionPopup.xhtml
 mail/components/migration/content/migration.xhtml
 mail/components/preferences/colors.xhtml
-mail/components/preferences/cookies.xhtml
 mail/components/preferences/dockoptions.xhtml
 mail/components/preferences/preferences.xhtml
 mail/extensions/am-e2e/am-e2e.xhtml
