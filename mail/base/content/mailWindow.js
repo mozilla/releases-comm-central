@@ -346,6 +346,8 @@ nsMsgStatusFeedback.prototype = {
   _progressBarVisible: false,
   _activeProcesses: null,
   _statusFeedbackProgress: -1,
+  _statusLastShown: 0,
+  _lastStatusText: null,
 
   // unload - call to remove links to listeners etc.
   unload() {
@@ -442,7 +444,36 @@ nsMsgStatusFeedback.prototype = {
     } else {
       this._defaultStatusText = "";
     }
-    this._statusText.value = statusText;
+    // Let's make sure the display doesn't flicker.
+    const timeBetweenDisplay = 500;
+    const now = Date.now();
+    if (now - this._statusLastShown > timeBetweenDisplay) {
+      // Cancel any pending status message. The timeout is not guaranteed
+      // to run within timeBetweenDisplay milliseconds.
+      this._lastStatusText = null;
+
+      this._statusLastShown = now;
+      if (this._statusText.value != statusText) {
+        this._statusText.value = statusText;
+      }
+    } else {
+      if (this._lastStatusText !== null) {
+        // There's already a pending display. Replace it.
+        this._lastStatusText = statusText;
+        return;
+      }
+      // Arrange for this to be shown in timeBetweenDisplay milliseconds.
+      this._lastStatusText = statusText;
+      setTimeout(() => {
+        if (this._lastStatusText !== null) {
+          this._statusLastShown = Date.now();
+          if (this._statusText.value != this._lastStatusText) {
+            this._statusText.value = this._lastStatusText;
+          }
+          this._lastStatusText = null;
+        }
+      }, timeBetweenDisplay);
+    }
   },
 
   setStatusString(status) {
