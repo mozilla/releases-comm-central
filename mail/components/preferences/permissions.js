@@ -11,6 +11,16 @@ var { AppConstants } = ChromeUtils.importESModule(
 
 var NOTIFICATION_FLUSH_PERMISSIONS = "flush-pending-permissions";
 
+window.addEventListener("load", event => {
+  gPermissionManager.onLoad();
+});
+window.addEventListener("unload", event => {
+  gPermissionManager.uninit();
+});
+window.addEventListener("keypress", event => {
+  gPermissionManager.onWindowKeyPress(event);
+});
+
 /**
  * Magic URI base used so the permission manager can store
  * remote content permissions for a given email address.
