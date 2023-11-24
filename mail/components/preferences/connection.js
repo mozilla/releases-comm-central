@@ -6,6 +6,10 @@
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
 /* import-globals-from ./extensionControlled.js */
 
+window.addEventListener("load", event => {
+  gConnectionsDialog.checkForSystemProxy();
+});
+
 Preferences.addAll([
   // Add network.proxy.autoconfig_url before network.proxy.type so they're
   // both initialized when network.proxy.type initialization triggers a call to
