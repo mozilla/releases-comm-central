@@ -419,7 +419,10 @@ class MimeMessage {
       let part;
       if (attachment.htmlAnnotation) {
         part = new MimePart();
-        part.bodyText = attachment.htmlAnnotation;
+        // MimePart.bodyText should be binary string.
+        part.bodyText = jsmime.mimeutils.typedArrayToString(
+          new TextEncoder().encode(attachment.htmlAnnotation)
+        );
         part.setHeader("content-type", "text/html; charset=utf-8");
 
         const suffix = /\.html$/i.test(attachment.name) ? "" : ".html";
