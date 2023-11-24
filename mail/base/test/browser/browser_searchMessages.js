@@ -118,6 +118,7 @@ add_task(async function () {
 
   // Search. Emily didn't send a message about hovercraft, so no results.
   EventUtils.synthesizeMouseAtCenter(searchButton, {}, win);
+  // Allows 5 seconds for expected statusText to appear.
   await TestUtils.waitForCondition(
     () => statusText.value == "No matches found",
     "waiting for status text to update"
@@ -139,7 +140,13 @@ add_task(async function () {
     () => threadTree.view.rowCount == 10,
     "waiting for tree view to be filled"
   );
-  Assert.equal(statusText.value, "10 matches found");
+  // statusText changes on 500 ms time base.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
+  await TestUtils.waitForCondition(
+    () => statusText.value == "10 matches found",
+    "waiting for status text to update"
+  );
 
   // Test tree sort column and direction.
 
