@@ -42,13 +42,10 @@ input {
   }
 
   @media (-moz-windows-accent-color-in-titlebar) {
-    &:not(:-moz-lwtheme):focus-visible {
+    /* Apply only to unified toolbar. QFB search input has maxlength="192" */
+    &[maxlength="null"]:not(:-moz-lwtheme):focus-visible {
       outline-offset: var(--focus-outline-offset);
       outline-color: var(--windows-accent-outline-color);
-    }
-
-    & .button-flat.icon-button:not(:-moz-lwtheme):focus-visible {
-      outline-offset: -4px;
     }
   }
 }
