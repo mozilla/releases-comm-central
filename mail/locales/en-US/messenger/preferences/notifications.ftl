@@ -2,8 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-notifications-dialog-window =
-    .title = Customize New Mail Alert
+notifications-dialog-title = Customize New Mail Alert
 
 customize-alert-description = Choose which fields to show in the alert notification:
 
