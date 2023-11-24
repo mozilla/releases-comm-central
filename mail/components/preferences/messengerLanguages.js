@@ -22,6 +22,10 @@ ChromeUtils.defineESModuleGetters(this, {
  * the user has opted to search for more languages.
  */
 
+window.addEventListener("load", event => {
+  gMessengerLanguagesDialog.onLoad();
+});
+
 class OrderedListBox {
   constructor({ richlistbox, upButton, downButton, removeButton, onRemove }) {
     this.richlistbox = richlistbox;
