@@ -5,6 +5,10 @@
 // applications.js
 /* globals gGeneralPane */
 
+window.addEventListener("load", event => {
+  gAppManagerDialog.init();
+});
+
 var gAppManagerDialog = {
   _removed: [],
 
