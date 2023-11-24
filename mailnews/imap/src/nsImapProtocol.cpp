@@ -6832,8 +6832,8 @@ bool nsImapProtocol::RenameMailboxRespectingSubscriptions(
 
 bool nsImapProtocol::RenameHierarchyByHand(const char* oldParentMailboxName,
                                            const char* newParentMailboxName) {
-  MOZ_ASSERT(oldParentMailboxName);
-  MOZ_ASSERT(newParentMailboxName);
+  NS_ENSURE_TRUE(oldParentMailboxName, false);
+  NS_ENSURE_TRUE(newParentMailboxName, false);
 
   bool renameSucceeded = true;
   char onlineDirSeparator = kOnlineHierarchySeparatorUnknown;

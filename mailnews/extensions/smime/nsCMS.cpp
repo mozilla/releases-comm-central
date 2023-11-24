@@ -25,7 +25,6 @@
 #include "secerr.h"
 #include "smime.h"
 #include "mozilla/StaticMutex.h"
-#include "nsIPrefBranch.h"
 
 using namespace mozilla;
 using namespace mozilla::psm;

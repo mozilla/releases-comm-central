@@ -203,7 +203,7 @@ Services.prefs.addObserver("mail.displayname.version", () => {
 });
 
 // When this prefence has been updated, we need to update the
-// mail.displayname.version, which notifies it's preference observer (above).
+// mail.displayname.version, which notifies its preference observer (above).
 // This will then notify the addrbook-displayname-changed observer, and change
 // the displayname in the thread tree and message header.
 Services.prefs.addObserver("mail.showCondensedAddresses", () => {

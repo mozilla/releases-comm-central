@@ -622,7 +622,7 @@ calItemBase.prototype = {
   // void addAttendee(in calIAttendee attendee);
   addAttendee(attendee) {
     if (!attendee.id) {
-      cal.LOG("Tried to add invalid attended");
+      cal.LOG("Tried to add invalid attendee");
       return;
     }
     // the duplicate check is migration code for bug 1204255

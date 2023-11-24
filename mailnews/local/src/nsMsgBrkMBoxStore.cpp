@@ -697,8 +697,8 @@ NS_IMETHODIMP
 nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
                                      const nsACString& aMsgToken,
                                      nsIInputStream** aResult) {
-  MOZ_ASSERT(aMsgFolder);
-  MOZ_ASSERT(aResult);
+  NS_ENSURE_ARG_POINTER(aMsgFolder);
+  NS_ENSURE_ARG_POINTER(aResult);
   MOZ_ASSERT(!aMsgToken.IsEmpty());
 
   uint64_t offset = ParseUint64Str(PromiseFlatCString(aMsgToken).get());
