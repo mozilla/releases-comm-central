@@ -27,6 +27,8 @@ XPCOMUtils.defineLazyPreferenceGetter(
 );
 
 (async function () {
+  window.MozXULElement.insertFTLIfNeeded("branding/brand.ftl");
+  window.MozXULElement.insertFTLIfNeeded("toolkit/about/aboutAddons.ftl");
   window.MozXULElement.insertFTLIfNeeded("messenger/aboutAddonsExtra.ftl");
   // Needed for webext-perms-description-experiment.
   window.MozXULElement.insertFTLIfNeeded("messenger/extensionPermissions.ftl");
