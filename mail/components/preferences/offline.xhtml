@@ -3,75 +3,84 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window>
-
-<window
-  type="child"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  onload="gOfflineDialog.dialogSetup();"
-  data-l10n-id="offline-dialog-window"
+  type="child"
+  scrolling="false"
 >
-  <dialog id="OfflineSettingsDialog" dlgbuttons="accept,cancel">
-    <script src="chrome://global/content/preferencesBindings.js" />
-    <script src="chrome://messenger/content/preferences/offline.js" />
+  <head>
+    <title data-l10n-id="offline-dialog-title"></title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="localization" href="messenger/preferences/offline.ftl" />
+    <script
+      defer="defer"
+      src="chrome://global/content/preferencesBindings.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/preferences/offline.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog id="OfflineSettingsDialog">
+      <checkbox
+        data-l10n-id="autodetect-online-label"
+        preference="offline.autoDetect"
+      />
+      <separator class="thin" />
 
-    <linkset>
-      <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
+      <label
+        data-l10n-id="offline-preference-startup-label"
+        control="whenStartingUp"
+      />
+      <radiogroup
+        id="whenStartingUp"
+        class="indent"
+        preference="offline.startup_state"
+      >
+        <radio value="0" data-l10n-id="status-radio-remember" />
+        <radio value="1" data-l10n-id="status-radio-ask" />
+        <radio value="2" data-l10n-id="status-radio-always-online" />
+        <radio value="3" data-l10n-id="status-radio-always-offline" />
+        <radio value="4" hidden="true" />
+      </radiogroup>
 
-      <html:link rel="localization" href="messenger/preferences/offline.ftl" />
-    </linkset>
+      <separator />
 
-    <checkbox
-      data-l10n-id="autodetect-online-label"
-      preference="offline.autoDetect"
-    />
+      <label data-l10n-id="going-online-label" control="whengoingOnlinestate" />
+      <radiogroup
+        id="whengoingOnlinestate"
+        orient="horizontal"
+        class="indent"
+        preference="offline.send.unsent_messages"
+      >
+        <radio value="1" data-l10n-id="going-online-auto" />
+        <radio value="2" data-l10n-id="going-online-not" />
+        <radio value="0" data-l10n-id="going-online-ask" />
+      </radiogroup>
 
-    <separator class="thin" />
+      <separator class="thin" />
 
-    <label
-      data-l10n-id="offline-preference-startup-label"
-      control="whenStartingUp"
-    />
-    <radiogroup
-      id="whenStartingUp"
-      class="indent"
-      preference="offline.startup_state"
-    >
-      <radio value="0" data-l10n-id="status-radio-remember" />
-      <radio value="1" data-l10n-id="status-radio-ask" />
-      <radio value="2" data-l10n-id="status-radio-always-online" />
-      <radio value="3" data-l10n-id="status-radio-always-offline" />
-      <radio value="4" hidden="true" />
-    </radiogroup>
-
-    <separator />
-
-    <label data-l10n-id="going-online-label" control="whengoingOnlinestate" />
-    <radiogroup
-      id="whengoingOnlinestate"
-      orient="horizontal"
-      class="indent"
-      preference="offline.send.unsent_messages"
-    >
-      <radio value="1" data-l10n-id="going-online-auto" />
-      <radio value="2" data-l10n-id="going-online-not" />
-      <radio value="0" data-l10n-id="going-online-ask" />
-    </radiogroup>
-
-    <separator class="thin" />
-
-    <label data-l10n-id="going-offline-label" control="whengoingOfflinestate" />
-    <radiogroup
-      id="whengoingOfflinestate"
-      orient="horizontal"
-      class="indent"
-      preference="offline.download.download_messages"
-    >
-      <radio value="1" data-l10n-id="going-offline-auto" />
-      <radio value="2" data-l10n-id="going-offline-not" />
-      <radio value="0" data-l10n-id="going-offline-ask" />
-    </radiogroup>
-    <separator />
-  </dialog>
-</window>
+      <label
+        data-l10n-id="going-offline-label"
+        control="whengoingOfflinestate"
+      />
+      <radiogroup
+        id="whengoingOfflinestate"
+        orient="horizontal"
+        class="indent"
+        preference="offline.download.download_messages"
+      >
+        <radio value="1" data-l10n-id="going-offline-auto" />
+        <radio value="2" data-l10n-id="going-offline-not" />
+        <radio value="0" data-l10n-id="going-offline-ask" />
+      </radiogroup>
+      <separator />
+    </dialog>
+  </html:body>
+</html>

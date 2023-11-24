@@ -4,6 +4,10 @@
 
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
 
+window.addEventListener("load", event => {
+  gOfflineDialog.dialogSetup();
+});
+
 Preferences.addAll([
   { id: "offline.autoDetect", type: "bool" },
   { id: "offline.startup_state", type: "int" },
