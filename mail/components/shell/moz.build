@@ -3,8 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DEFINES["MOZ_APP_NAME"] = '"%s"' % CONFIG["MOZ_APP_NAME"]
-
 XPIDL_SOURCES += [
     "nsIShellService.idl",
 ]
@@ -18,6 +16,11 @@ if CONFIG["OS_ARCH"] == "WINNT":
     LOCAL_INCLUDES += [
         "/other-licenses/nsis/Contrib/CityHash/cityhash",
     ]
+    OS_LIBS += [
+        "bcrypt",
+        "crypt32",
+        "propsys",
+    ]
 
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
     SOURCES += [
@@ -30,6 +33,13 @@ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
 
 if SOURCES:
     FINAL_LIBRARY = "mailcomps"
+
+for var in (
+    "MOZ_APP_DISPLAYNAME",
+    "MOZ_APP_NAME",
+    "MOZ_APP_VERSION",
+):
+    DEFINES[var] = '"%s"' % CONFIG[var]
 
 if CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
     CXXFLAGS += CONFIG["MOZ_GTK3_CFLAGS"]
