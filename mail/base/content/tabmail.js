@@ -1530,32 +1530,6 @@ ChromeUtils.defineESModuleGetters(this, {
       return null;
     }
 
-    /**
-     * getBrowserForDocumentId is used to find the browser for a specific
-     * document via its id attribute.
-     */
-    getBrowserForDocumentId(aDocumentId) {
-      for (let i = 0; i < this.tabInfo.length; ++i) {
-        const browserFunc =
-          this.tabInfo[i].mode.getBrowser ||
-          this.tabInfo[i].mode.tabType.getBrowser;
-        if (browserFunc) {
-          const possBrowser = browserFunc.call(
-            this.tabInfo[i].mode.tabType,
-            this.tabInfo[i]
-          );
-          if (
-            possBrowser &&
-            possBrowser.contentDocument.documentElement.id == aDocumentId
-          ) {
-            return this.tabInfo[i];
-          }
-        }
-      }
-
-      return null;
-    }
-
     getTabForBrowser(aBrowser) {
       // Check the selected browser first, since that's the most likely.
       if (this.getBrowserForSelectedTab() == aBrowser) {
