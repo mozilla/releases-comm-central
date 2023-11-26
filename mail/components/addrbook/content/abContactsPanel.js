@@ -7,6 +7,13 @@
 /* import-globals-from ../../../base/content/globalOverlay.js */
 /* import-globals-from abCommon.js */
 
+window.addEventListener("load", event => {
+  AbPanelLoad();
+});
+window.addEventListener("unload", event => {
+  AbPanelUnload();
+});
+
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { getSearchTokens, getModelQuery, generateQueryURI } = ChromeUtils.import(
   "resource:///modules/ABQueryUtils.jsm"

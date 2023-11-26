@@ -1,240 +1,265 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % abResultsPaneDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPane.dtd">
+<!DOCTYPE html [ <!ENTITY % abResultsPaneDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPane.dtd">
 %abResultsPaneDTD;
 <!ENTITY % abContactsPanelDTD SYSTEM "chrome://messenger/locale/addressbook/abContactsPanel.dtd" >
 %abContactsPanelDTD;
 <!ENTITY % abMainWindowDTD SYSTEM "chrome://messenger/locale/addressbook/abMainWindow.dtd" >
 %abMainWindowDTD; ]>
-
-<window
-  id="abContactsPanel"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  id="abContactsPanel"
+  scrolling="false"
   lightweightthemes="true"
-  onload="AbPanelLoad();"
-  onunload="AbPanelUnload();"
 >
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/searchBox.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/addressbook/abContactsPanel.css"
-  />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
-
-  <html:link
-    rel="localization"
-    href="messenger/addressbook/aboutAddressBook.ftl"
-  />
-
-  <script src="chrome://messenger/content/globalOverlay.js" />
-  <script src="chrome://global/content/editMenuOverlay.js" />
-  <script src="chrome://communicator/content/utilityOverlay.js" />
-  <script src="chrome://messenger/content/addressbook/abDragDrop.js" />
-  <script src="chrome://messenger/content/addressbook/abCommon.js" />
-  <script src="chrome://messenger/content/addressbook/abResultsPane.js" />
-  <script src="chrome://messenger/content/addressbook/abContactsPanel.js" />
-  <script src="chrome://messenger/content/jsTreeView.js" />
-  <script src="chrome://messenger/content/addressbook/abView.js" />
-
-  <commandset
-    id="CommandUpdate_AddressBook"
-    commandupdater="true"
-    events="focus,addrbook-select"
-    oncommandupdate="CommandUpdate_AddressBook()"
+  <head>
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/searchBox.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/addressbook/abContactsPanel.css"
+    />
+    <link
+      rel="localization"
+      href="messenger/addressbook/aboutAddressBook.ftl"
+    />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://communicator/content/utilityOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/addressbook/abDragDrop.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/addressbook/abCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/addressbook/abResultsPane.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/jsTreeView.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/addressbook/abView.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/addressbook/abContactsPanel.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
-    <command
-      id="cmd_addrTo"
-      oncommand="addSelectedAddresses('addr_to')"
-      disabled="true"
-    />
-    <command
-      id="cmd_addrCc"
-      oncommand="addSelectedAddresses('addr_cc')"
-      disabled="true"
-    />
-    <command
-      id="cmd_addrBcc"
-      oncommand="addSelectedAddresses('addr_bcc')"
-      disabled="true"
-    />
-    <command id="cmd_delete" oncommand="goDoCommand('cmd_delete');" />
-  </commandset>
-
-  <keyset id="keyset_abContactsPanel">
-    <!-- This key (key_delete) does not trigger any command, but it is used
-         only to show the hotkey on the corresponding menuitem. -->
-    <key id="key_delete" keycode="VK_DELETE" internal="true" />
-  </keyset>
-
-  <menupopup id="cardProperties">
-    <menuitem
-      label="&addtoToFieldMenu.label;"
-      accesskey="&addtoToFieldMenu.accesskey;"
-      command="cmd_addrTo"
-    />
-    <menuitem
-      label="&addtoCcFieldMenu.label;"
-      accesskey="&addtoCcFieldMenu.accesskey;"
-      command="cmd_addrCc"
-    />
-    <menuitem
-      label="&addtoBccFieldMenu.label;"
-      accesskey="&addtoBccFieldMenu.accesskey;"
-      command="cmd_addrBcc"
-    />
-    <menuseparator />
-    <menuitem
-      label="&deleteAddrBookCard.label;"
-      accesskey="&deleteAddrBookCard.accesskey;"
-      key="key_delete"
-      command="cmd_delete"
-    />
-    <menuseparator id="abContextBeforeEditContact" hidden="true" />
-    <menuitem
-      id="abContextEditContact"
-      label="&editContactContext.label;"
-      accesskey="&editContactContext.accesskey;"
-      oncommand="editSelectedAddress();"
-      hidden="true"
-    />
-  </menupopup>
-
-  <menupopup
-    id="sidebarAbContextMenu"
-    class="no-accel-menupopup"
-    onpopupshowing="onAbContextShowing();"
-  >
-    <menuitem
-      id="sidebarAbContext-startupDir"
-      label="&showAsDefault.label;"
-      accesskey="&showAsDefault.accesskey;"
-      type="checkbox"
-      checked="false"
-      oncommand="abToggleSelectedDirStartup();"
-    />
-  </menupopup>
-
-  <vbox id="results_box" flex="1">
-    <separator class="thin" />
-    <hbox id="AbPickerHeader" class="themeable-full">
-      <label
-        value="&addressbookPicker.label;"
-        accesskey="&addressbookPicker.accesskey;"
-        control="addressbookList"
-      />
-      <spacer flex="1" />
-      <button
-        id="abContextMenuButton"
-        tooltiptext="&abContextMenuButton.tooltip;"
-        oncommand="abContextMenuButtonOnCommand(event);"
-      />
-    </hbox>
-    <hbox id="panel-bar" class="themeable-full" align="center">
-      <menulist
-        is="menulist-addrbooks"
-        id="addressbookList"
-        alladdressbooks="true"
-        oncommand="AddressBookMenuListChange(this.value);"
-        flex="1"
-      />
-    </hbox>
-
-    <separator class="thin" />
-
-    <vbox>
-      <label
-        value="&searchContacts.label;"
-        accesskey="&searchContacts.accesskey;"
-        control="peopleSearchInput"
-      />
-      <search-textbox
-        id="peopleSearchInput"
-        class="searchBox"
-        flex="1"
-        timeout="800"
-        placeholder="&SearchNameOrEmail.label;"
-        oncommand="onEnterInSearchBar();"
-      />
-    </vbox>
-
-    <separator class="thin" />
-
-    <tree
-      id="abResultsTree"
-      flex="1"
-      class="plain"
-      sortCol="GeneratedName"
-      persist="sortCol"
-      contextSelection="cardProperties"
-      contextNoSelection="sidebarAbContextMenu"
-      oncontextmenu="contactsListOnContextMenu(event);"
-      onclick="contactsListOnClick(event);"
-      onselect="this.view.selectionChanged(); document.commandDispatcher.updateCommands('addrbook-select');"
+    <commandset
+      id="CommandUpdate_AddressBook"
+      commandupdater="true"
+      events="focus,addrbook-select"
+      oncommandupdate="CommandUpdate_AddressBook()"
     >
-      <treecols>
-        <!-- these column ids must match up to the mork column names, see nsIAddrDatabase.idl -->
-        <treecol
-          id="GeneratedName"
-          persist="hidden ordinal width sortDirection"
-          style="flex: 1 auto"
-          label="&GeneratedName.label;"
-          primary="true"
-        />
-        <splitter class="tree-splitter" />
-        <treecol
-          id="addrbook"
-          persist="hidden ordinal width sortDirection"
-          hidden="true"
-          style="flex: 1 auto"
-          label="&Addrbook.label;"
-        />
-        <splitter class="tree-splitter" />
-        <treecol
-          id="PrimaryEmail"
-          persist="hidden ordinal width sortDirection"
-          hidden="true"
-          style="flex: 1 auto"
-          label="&PrimaryEmail.label;"
-        />
-      </treecols>
-      <treechildren ondragstart="abResultsPaneObserver.onDragStart(event);" />
-    </tree>
+      <command
+        id="cmd_addrTo"
+        oncommand="addSelectedAddresses('addr_to')"
+        disabled="true"
+      />
+      <command
+        id="cmd_addrCc"
+        oncommand="addSelectedAddresses('addr_cc')"
+        disabled="true"
+      />
+      <command
+        id="cmd_addrBcc"
+        oncommand="addSelectedAddresses('addr_bcc')"
+        disabled="true"
+      />
+      <command id="cmd_delete" oncommand="goDoCommand('cmd_delete');" />
+    </commandset>
 
-    <separator class="thin" />
+    <keyset id="keyset_abContactsPanel">
+      <!-- This key (key_delete) does not trigger any command, but it is used
+         only to show the hotkey on the corresponding menuitem. -->
+      <key id="key_delete" keycode="VK_DELETE" internal="true" />
+    </keyset>
 
-    <hbox pack="center">
+    <menupopup id="cardProperties">
+      <menuitem
+        label="&addtoToFieldMenu.label;"
+        accesskey="&addtoToFieldMenu.accesskey;"
+        command="cmd_addrTo"
+      />
+      <menuitem
+        label="&addtoCcFieldMenu.label;"
+        accesskey="&addtoCcFieldMenu.accesskey;"
+        command="cmd_addrCc"
+      />
+      <menuitem
+        label="&addtoBccFieldMenu.label;"
+        accesskey="&addtoBccFieldMenu.accesskey;"
+        command="cmd_addrBcc"
+      />
+      <menuseparator />
+      <menuitem
+        label="&deleteAddrBookCard.label;"
+        accesskey="&deleteAddrBookCard.accesskey;"
+        key="key_delete"
+        command="cmd_delete"
+      />
+      <menuseparator id="abContextBeforeEditContact" hidden="true" />
+      <menuitem
+        id="abContextEditContact"
+        label="&editContactContext.label;"
+        accesskey="&editContactContext.accesskey;"
+        oncommand="editSelectedAddress();"
+        hidden="true"
+      />
+    </menupopup>
+
+    <menupopup
+      id="sidebarAbContextMenu"
+      class="no-accel-menupopup"
+      onpopupshowing="onAbContextShowing();"
+    >
+      <menuitem
+        id="sidebarAbContext-startupDir"
+        label="&showAsDefault.label;"
+        accesskey="&showAsDefault.accesskey;"
+        type="checkbox"
+        checked="false"
+        oncommand="abToggleSelectedDirStartup();"
+      />
+    </menupopup>
+
+    <vbox id="results_box" flex="1">
+      <separator class="thin" />
+      <hbox id="AbPickerHeader" class="themeable-full">
+        <label
+          value="&addressbookPicker.label;"
+          accesskey="&addressbookPicker.accesskey;"
+          control="addressbookList"
+        />
+        <spacer flex="1" />
+        <button
+          id="abContextMenuButton"
+          tooltiptext="&abContextMenuButton.tooltip;"
+          oncommand="abContextMenuButtonOnCommand(event);"
+        />
+      </hbox>
+      <hbox id="panel-bar" class="themeable-full" align="center">
+        <menulist
+          is="menulist-addrbooks"
+          id="addressbookList"
+          alladdressbooks="true"
+          oncommand="AddressBookMenuListChange(this.value);"
+          flex="1"
+        />
+      </hbox>
+
+      <separator class="thin" />
+
       <vbox>
-        <button
-          id="toButton"
-          label="&toButton.label;"
-          accesskey="&toButton.accesskey;"
-          command="cmd_addrTo"
+        <label
+          value="&searchContacts.label;"
+          accesskey="&searchContacts.accesskey;"
+          control="peopleSearchInput"
         />
-        <button
-          id="ccButton"
-          label="&ccButton.label;"
-          accesskey="&ccButton.accesskey;"
-          command="cmd_addrCc"
-        />
-        <button
-          id="bccButton"
-          label="&bccButton.label;"
-          accesskey="&bccButton.accesskey;"
-          command="cmd_addrBcc"
+        <search-textbox
+          id="peopleSearchInput"
+          class="searchBox"
+          flex="1"
+          timeout="800"
+          placeholder="&SearchNameOrEmail.label;"
+          oncommand="onEnterInSearchBar();"
         />
       </vbox>
-    </hbox>
 
-    <separator class="thin" />
-  </vbox>
-</window>
+      <separator class="thin" />
+
+      <tree
+        id="abResultsTree"
+        flex="1"
+        class="plain"
+        sortCol="GeneratedName"
+        persist="sortCol"
+        contextSelection="cardProperties"
+        contextNoSelection="sidebarAbContextMenu"
+        oncontextmenu="contactsListOnContextMenu(event);"
+        onclick="contactsListOnClick(event);"
+        onselect="this.view.selectionChanged(); document.commandDispatcher.updateCommands('addrbook-select');"
+      >
+        <treecols>
+          <!-- these column ids must match up to the mork column names, see nsIAddrDatabase.idl -->
+          <treecol
+            id="GeneratedName"
+            persist="hidden ordinal width sortDirection"
+            style="flex: 1 auto"
+            label="&GeneratedName.label;"
+            primary="true"
+          />
+          <splitter class="tree-splitter" />
+          <treecol
+            id="addrbook"
+            persist="hidden ordinal width sortDirection"
+            hidden="true"
+            style="flex: 1 auto"
+            label="&Addrbook.label;"
+          />
+          <splitter class="tree-splitter" />
+          <treecol
+            id="PrimaryEmail"
+            persist="hidden ordinal width sortDirection"
+            hidden="true"
+            style="flex: 1 auto"
+            label="&PrimaryEmail.label;"
+          />
+        </treecols>
+        <treechildren ondragstart="abResultsPaneObserver.onDragStart(event);" />
+      </tree>
+
+      <separator class="thin" />
+
+      <hbox pack="center">
+        <vbox>
+          <button
+            id="toButton"
+            label="&toButton.label;"
+            accesskey="&toButton.accesskey;"
+            command="cmd_addrTo"
+          />
+          <button
+            id="ccButton"
+            label="&ccButton.label;"
+            accesskey="&ccButton.accesskey;"
+            command="cmd_addrCc"
+          />
+          <button
+            id="bccButton"
+            label="&bccButton.label;"
+            accesskey="&bccButton.accesskey;"
+            command="cmd_addrBcc"
+          />
+        </vbox>
+      </hbox>
+
+      <separator class="thin" />
+    </vbox>
+  </html:body>
+</html>

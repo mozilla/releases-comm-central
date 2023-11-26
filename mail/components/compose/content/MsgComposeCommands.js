@@ -10630,7 +10630,7 @@ function setContactsSidebarVisibility(show, focus) {
     if (contactsBrowser.getAttribute("src") == "") {
       // Url not yet set, load contacts side bar and focus the search
       // input if applicable: We pass "?focus" as a URL querystring, then via
-      // onload event of <window id="abContactsPanel">, in AbPanelLoad() of
+      // onload event of id="abContactsPanel", in AbPanelLoad() of
       // abContactsPanel.js, we do the focusing first thing to avoid timing
       // issues when trying to focus from here while contacts side bar is still
       // loading.
