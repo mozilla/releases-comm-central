@@ -22,6 +22,7 @@ job-defaults:
         max-run-time: 900
         env:
             MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE: system
+    use-system-python: false
     locale-list: comm/mail/locales/onchange-locales
     comm-locales-file: comm/mail/locales/l10n-changesets.json
     browser-locales-file: browser/locales/l10n-changesets.json
