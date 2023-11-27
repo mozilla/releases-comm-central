@@ -4,7 +4,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
 <!ENTITY % baseMenuOverlayDTD SYSTEM "chrome://messenger/locale/baseMenuOverlay.dtd">
@@ -12,40 +12,36 @@
 <!ENTITY % sourceDTD SYSTEM "chrome://messenger/locale/viewSource.dtd" >
 %sourceDTD;
 ]>
-
-<window id="viewSource"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        contenttitlesetting="true"
-        title="&mainWindow.title;"
-        titlemodifier="&mainWindow.titlemodifier;"
-        titlepreface="&mainWindow.preface;"
-        titlemenuseparator ="&mainWindow.titlemodifierseparator;"
-        windowtype="navigator:view-source"
-        width="640" height="480"
-        screenX="10" screenY="10"
-        persist="screenX screenY width height sizemode">
-
-<linkset>
-  <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
-
-  <html:link rel="localization" href="branding/brand.ftl"/>
-  <html:link rel="localization" href="messenger/messenger.ftl"/>
-  <html:link rel="localization" href="messenger/menubar.ftl"/>
-  <html:link rel="localization" href="messenger/appmenu.ftl"/>
-  <html:link rel="localization" href="messenger/viewSource.ftl"/>
-  <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
-  <html:link rel="localization" href="toolkit/printing/printUI.ftl" />
-</linkset>
-
-  <script src="chrome://messenger/content/globalOverlay.js"/>
-  <script src="chrome://global/content/contentAreaUtils.js"/>
-  <script src="chrome://messenger/content/mailCore.js"/>
-  <script src="chrome://messenger/content/viewSource.js"/>
-  <script src="chrome://messenger/content/viewZoomOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-
+<html id="viewSource" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false"
+      titlemodifier="&mainWindow.titlemodifier;"
+      titlepreface="&mainWindow.preface;"
+      titlemenuseparator ="&mainWindow.titlemodifierseparator;"
+      windowtype="navigator:view-source"
+      width="640" height="480"
+      screenX="10" screenY="10"
+      persist="screenX screenY width height sizemode">
+<head>
+  <title>&mainWindow.title;</title>
+  <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+  <link rel="localization" href="branding/brand.ftl" />
+  <link rel="localization" href="messenger/messenger.ftl" />
+  <link rel="localization" href="messenger/menubar.ftl" />
+  <link rel="localization" href="messenger/appmenu.ftl" />
+  <link rel="localization" href="messenger/viewSource.ftl" />
+  <link rel="localization" href="toolkit/global/textActions.ftl" />
+  <link rel="localization" href="toolkit/printing/printUI.ftl" />
+  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
+  <script defer="defer" src="chrome://messenger/content/viewSource.js"></script>
+  <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <stringbundle id="viewSourceBundle" src="chrome://messenger/locale/viewSource.properties"/>
 
   <command id="cmd_savePage" oncommand="ViewSourceSavePage();"/>
@@ -242,4 +238,5 @@
   </vbox>
 
 #include tabDialogs.inc.xhtml
-</window>
+</html:body>
+</html>
