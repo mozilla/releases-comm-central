@@ -331,6 +331,7 @@ class nsImapProtocol : public nsIImapProtocol,
   void XServerInfo();
   void Netscape();
   void XMailboxInfo(const char* mailboxName);
+  void XAOL_Option(const char* option);
   void MailboxData();
   void GetMyRightsForFolder(const char* mailboxName);
   void Bodystructure(const nsCString& messageId, bool idIsUid);

@@ -3150,12 +3150,14 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                     : (ImapOnlineCopyState)ImapOnlineCopyStateType::kFailedCopy;
           if (m_imapMailFolderSink)
             m_imapMailFolderSink->OnlineCopyCompleted(this, copyState);
-          // Don't mark message 'Deleted' for servers that support the MOVE
-          // extension, since we already issued a 'move' command.
+          // Don't mark message 'Deleted' for AOL servers or standard imap
+          // servers that support MOVE since we already issued an 'xaol-move'
+          // or 'move' command.
           if (GetServerStateParser().LastCommandSuccessful() &&
               (m_imapAction == nsIImapUrl::nsImapOnlineMove) &&
-              !(GetServerStateParser().GetCapabilityFlag() &
-                kHasMoveCapability)) {
+              !(GetServerStateParser().ServerIsAOLServer() ||
+                GetServerStateParser().GetCapabilityFlag() &
+                    kHasMoveCapability)) {
             // Simulate MOVE for servers that don't support MOVE: do
             // COPY-DELETE-EXPUNGE.
             Store(messageIdString, "+FLAGS (\\Deleted \\Seen)",
@@ -3527,6 +3529,8 @@ void nsImapProtocol::FetchMessage(const nsCString& messageIds,
       if (GetServerStateParser().ServerHasIMAP4Rev1Capability()) {
         eIMAPCapabilityFlags server_capabilityFlags =
             GetServerStateParser().GetCapabilityFlag();
+        bool aolImapServer =
+            ((server_capabilityFlags & kAOLImapCapability) != 0);
         bool downloadAllHeaders = false;
         // checks if we're filtering on "any header" or running a spam filter
         // requiring all headers
@@ -3571,7 +3575,11 @@ void nsImapProtocol::FetchMessage(const nsCString& messageIds,
             commandString.AppendLiteral(" %s (UID ");
             if (m_isGmailServer)
               commandString.AppendLiteral("X-GM-MSGID X-GM-THRID X-GM-LABELS ");
-            commandString.AppendLiteral("RFC822.SIZE FLAGS");
+            if (aolImapServer)
+              commandString.AppendLiteral(" XAOL.SIZE");
+            else
+              commandString.AppendLiteral("RFC822.SIZE");
+            commandString.AppendLiteral(" FLAGS");
             commandString.Append(what);
             PR_Free(what);
           } else {
@@ -7812,8 +7820,12 @@ void nsImapProtocol::Copy(const char* messageList,
     IncrementCommandTagNumber();
     nsAutoCString protocolString(GetServerCommandTag());
     if (idsAreUid) protocolString.AppendLiteral(" uid");
+    // If it's a MOVE operation on aol servers then use 'xaol-move' cmd.
     if ((m_imapAction == nsIImapUrl::nsImapOnlineMove) &&
-        GetServerStateParser().GetCapabilityFlag() & kHasMoveCapability)
+        GetServerStateParser().ServerIsAOLServer())
+      protocolString.AppendLiteral(" xaol-move ");
+    else if ((m_imapAction == nsIImapUrl::nsImapOnlineMove) &&
+             GetServerStateParser().GetCapabilityFlag() & kHasMoveCapability)
       protocolString.AppendLiteral(" move ");
     else
       protocolString.AppendLiteral(" copy ");
@@ -8134,6 +8146,18 @@ void nsImapProtocol::ImapClose(bool shuttingDown /* = false */,
     m_transport->SetTimeout(nsISocketTransport::TIMEOUT_READ_WRITE, 5);
 
   if (NS_SUCCEEDED(rv) && waitForResponse) ParseIMAPandCheckForNewMail();
+}
+
+void nsImapProtocol::XAOL_Option(const char* option) {
+  IncrementCommandTagNumber();
+
+  nsCString command(GetServerCommandTag());
+  command.AppendLiteral(" XAOL-OPTION ");
+  command.Append(option);
+  command.Append(CRLF);
+
+  nsresult rv = SendData(command.get());
+  if (NS_SUCCEEDED(rv)) ParseIMAPandCheckForNewMail();
 }
 
 void nsImapProtocol::Check() {

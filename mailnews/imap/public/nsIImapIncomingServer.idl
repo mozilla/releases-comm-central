@@ -43,6 +43,7 @@ interface nsIImapIncomingServer : nsISupports {
   attribute AUTF8String manageMailAccountUrl;
   attribute boolean fetchByChunks;
   attribute boolean sendID;
+  attribute boolean isAOLServer;
   attribute boolean useIdle;
   attribute boolean checkAllFoldersForNew;
 

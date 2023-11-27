@@ -593,6 +593,8 @@ void nsImapServerResponseParser::response_data() {
           xserverinfo_data();
         else if (!PL_strcasecmp(fNextToken, "XMAILBOXINFO"))
           xmailboxinfo_data();
+        else if (!PL_strcasecmp(fNextToken, "XAOL-OPTION"))
+          skip_to_CRLF();
         else if (!PL_strcasecmp(fNextToken, "XLIST"))
           mailbox_data();
         else {
@@ -1038,7 +1040,8 @@ void nsImapServerResponseParser::msg_fetch() {
           }
         }
       }
-    } else if (!PL_strcasecmp(fNextToken, "RFC822.SIZE")) {
+    } else if (!PL_strcasecmp(fNextToken, "RFC822.SIZE") ||
+               !PL_strcasecmp(fNextToken, "XAOL.SIZE")) {
       AdvanceToNextToken();
       if (ContinueParse()) {
         bool sendEndMsgDownload =
@@ -1146,6 +1149,11 @@ void nsImapServerResponseParser::msg_fetch() {
       if (!bNeedEndMessageDownload) BeginMessageDownload(MESSAGE_RFC822);
       bNeedEndMessageDownload = true;
       internal_date();
+    } else if (!PL_strcasecmp(fNextToken, "XAOL-ENVELOPE")) {
+      fDownloadingHeaders = true;
+      if (!bNeedEndMessageDownload) BeginMessageDownload(MESSAGE_RFC822);
+      bNeedEndMessageDownload = true;
+      xaolenvelope_data();
     } else {
       nsImapAction imapAction;
       if (!fServerConnection.GetCurrentUrl()) return;
@@ -1273,6 +1281,62 @@ void nsImapServerResponseParser::envelope_data() {
   // Now we should be at the end of the envelope and have *fToken == ')'.
   // Skip this last parenthesis.
   AdvanceToNextToken();
+}
+
+void nsImapServerResponseParser::xaolenvelope_data() {
+  // eat the opening '('
+  fNextToken++;
+
+  if (ContinueParse() && (*fNextToken != ')')) {
+    AdvanceToNextToken();
+    fNextToken++;  // eat '('
+    nsAutoCString subject;
+    subject.Adopt(CreateNilString());
+    nsAutoCString subjectLine("Subject: ");
+    subjectLine += subject;
+    fServerConnection.HandleMessageDownLoadLine(subjectLine.get(), false);
+    fNextToken++;  // eat the next '('
+    if (ContinueParse()) {
+      AdvanceToNextToken();
+      if (ContinueParse()) {
+        nsAutoCString fromLine;
+        if (!strcmp(GetSelectedMailboxName(), "Sent Items")) {
+          // xaol envelope switches the From with the To, so we switch them back
+          // and create a fake from line From: user@aol.com
+          fromLine.AppendLiteral("To: ");
+          nsAutoCString fakeFromLine("From: "_ns);
+          fakeFromLine.Append(fServerConnection.GetImapUserName());
+          fakeFromLine.AppendLiteral("@aol.com");
+          fServerConnection.HandleMessageDownLoadLine(fakeFromLine.get(),
+                                                      false);
+        } else {
+          fromLine.AppendLiteral("From: ");
+        }
+        parse_address(fromLine);
+        fServerConnection.HandleMessageDownLoadLine(fromLine.get(), false);
+        if (ContinueParse()) {
+          AdvanceToNextToken();  // ge attachment size
+          int32_t attachmentSize = atoi(fNextToken);
+          if (attachmentSize != 0) {
+            nsAutoCString attachmentLine("X-attachment-size: ");
+            attachmentLine.AppendInt(attachmentSize);
+            fServerConnection.HandleMessageDownLoadLine(attachmentLine.get(),
+                                                        false);
+          }
+        }
+        if (ContinueParse()) {
+          AdvanceToNextToken();  // skip image size
+          int32_t imageSize = atoi(fNextToken);
+          if (imageSize != 0) {
+            nsAutoCString imageLine("X-image-size: ");
+            imageLine.AppendInt(imageSize);
+            fServerConnection.HandleMessageDownLoadLine(imageLine.get(), false);
+          }
+        }
+        if (ContinueParse()) AdvanceToNextToken();  // skip )
+      }
+    }
+  }
 }
 
 void nsImapServerResponseParser::parse_address(nsAutoCString& addressLine) {
@@ -1871,6 +1935,8 @@ void nsImapServerResponseParser::capability_data() {
         fCapabilityFlag |= kUidplusCapability;
       else if (token.Equals("LITERAL+", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kLiteralPlusCapability;
+      else if (token.Equals("XAOL-OPTION", nsCaseInsensitiveCStringComparator))
+        fCapabilityFlag |= kAOLImapCapability;
       else if (token.Equals("X-GM-EXT-1", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kGmailImapCapability;
       else if (token.Equals("QUOTA", nsCaseInsensitiveCStringComparator))

@@ -1466,6 +1466,27 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIUrlListener* aListener) {
   nsCOMPtr<nsIMsgFolder> trashFolder;
   nsresult rv = GetTrashFolder(getter_AddRefs(trashFolder));
   if (NS_SUCCEEDED(rv)) {
+    nsCOMPtr<nsIMsgAccountManager> accountManager =
+        do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    // if we are emptying trash on exit and we are an aol server then don't
+    // perform this operation because it's causing a hang that we haven't been
+    // able to figure out yet this is an rtm fix and we'll look for the right
+    // solution post rtm.
+    bool empytingOnExit = false;
+    accountManager->GetEmptyTrashInProgress(&empytingOnExit);
+    if (empytingOnExit) {
+      nsCOMPtr<nsIImapIncomingServer> imapServer;
+      rv = GetImapIncomingServer(getter_AddRefs(imapServer));
+      if (imapServer) {
+        bool isAOLServer = false;
+        imapServer->GetIsAOLServer(&isAOLServer);
+        if (isAOLServer)
+          return NS_ERROR_FAILURE;  // we will not be performing an empty
+                                    // trash....
+      }                             // if we fetched an imap server
+    }  // if emptying trash on exit which is done through the account manager.
+
     if (WeAreOffline()) {
       nsCOMPtr<nsIMsgDatabase> trashDB;
       rv = trashFolder->GetMsgDatabase(getter_AddRefs(trashDB));

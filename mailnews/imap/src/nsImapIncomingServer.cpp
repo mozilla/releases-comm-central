@@ -397,6 +397,22 @@ NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, FetchByChunks, "fetch_by_chunks")
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, SendID, "send_client_info")
 
 NS_IMETHODIMP
+nsImapIncomingServer::GetIsAOLServer(bool* aBool) {
+  NS_ENSURE_ARG_POINTER(aBool);
+  *aBool = ((m_capability & kAOLImapCapability) != 0);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsImapIncomingServer::SetIsAOLServer(bool aBool) {
+  if (aBool)
+    m_capability |= kAOLImapCapability;
+  else
+    m_capability &= ~kAOLImapCapability;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsImapIncomingServer::UpdateTrySTARTTLSPref(bool aStartTLSSucceeded) {
   SetSocketType(aStartTLSSucceeded ? nsMsgSocketType::alwaysSTARTTLS
                                    : nsMsgSocketType::plain);

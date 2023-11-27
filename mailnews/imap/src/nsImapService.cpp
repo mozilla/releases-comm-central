@@ -1400,7 +1400,18 @@ NS_IMETHODIMP nsImapService::DeleteFolder(nsIMsgFolder* aImapMailFolder,
                                           nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
-  return FolderCommand(aImapMailFolder, aUrlListener, "/delete>",
+  // If it's an aol server then use 'deletefolder' url to
+  // remove all msgs first and then remove the folder itself.
+  bool removeFolderAndMsgs = false;
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  if (NS_SUCCEEDED(aImapMailFolder->GetServer(getter_AddRefs(server))) &&
+      server) {
+    nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryInterface(server);
+    if (imapServer) imapServer->GetIsAOLServer(&removeFolderAndMsgs);
+  }
+
+  return FolderCommand(aImapMailFolder, aUrlListener,
+                       removeFolderAndMsgs ? "/deletefolder>" : "/delete>",
                        nsIImapUrl::nsImapDeleteFolder, aMsgWindow, nullptr);
 }
 
