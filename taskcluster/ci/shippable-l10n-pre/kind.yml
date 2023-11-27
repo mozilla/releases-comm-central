@@ -24,7 +24,6 @@ job-defaults:
         max-run-time: 900
         env:
             MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE: system
-    use-system-python: false
     attributes:
         shippable: true
     locale-list:
