@@ -100,9 +100,6 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   bool ServerHasServerInfo() {
     return ((fCapabilityFlag & kXServerInfoCapability) != 0);
   }
-  bool ServerIsAOLServer() {
-    return ((fCapabilityFlag & kAOLImapCapability) != 0);
-  }
   void SetFetchingFlags(bool aFetchFlags) { fFetchingAllFlags = aFetchFlags; }
   void ResetCapabilityFlag();
 
@@ -136,7 +133,6 @@ class nsImapServerResponseParser : public nsImapGenericParser {
  protected:
   virtual void flags();
   virtual void envelope_data();
-  virtual void xaolenvelope_data();
   virtual void parse_address(nsAutoCString& addressLine);
   virtual void internal_date();
   virtual nsresult BeginMessageDownload(const char* content_type);
