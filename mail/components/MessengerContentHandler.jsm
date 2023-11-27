@@ -298,6 +298,8 @@ MailDefaultHandler.prototype = {
 
     var chromeParam = cmdLine.handleFlagWithParam("chrome", false);
     if (chromeParam) {
+      // The parameter specifies the window to open. This code should *not*
+      // open messenger.xhtml as well.
       try {
         const argstring = Cc["@mozilla.org/supports-string;1"].createInstance(
           Ci.nsISupportsString
@@ -310,14 +312,12 @@ MailDefaultHandler.prototype = {
             Ci.nsIProtocolHandler.URI_INHERITS_SECURITY_CONTEXT
           )
         ) {
-          getOrOpen3PaneWindow().then(win =>
-            Services.ww.openWindow(
-              win,
-              _uri.spec,
-              "_blank",
-              "chrome,dialog=no,all",
-              argstring
-            )
+          Services.ww.openWindow(
+            null,
+            _uri.spec,
+            "_blank",
+            "chrome,dialog=no,all",
+            argstring
           );
           cmdLine.preventDefault = true;
         }
