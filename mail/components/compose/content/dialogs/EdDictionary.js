@@ -8,6 +8,10 @@
 var gSpellChecker;
 var gWordToAdd;
 
+window.addEventListener("load", event => {
+  Startup();
+});
+
 function Startup() {
   if (!GetCurrentEditor()) {
     window.close();
