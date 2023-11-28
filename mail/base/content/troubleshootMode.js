@@ -7,6 +7,10 @@ var { XPIDatabase } = ChromeUtils.import(
   "resource://gre/modules/addons/XPIDatabase.jsm"
 );
 
+window.addEventListener("load", event => {
+  onLoad();
+});
+
 function restartApp() {
   Services.startup.quit(
     Services.startup.eForceQuit | Services.startup.eRestart

@@ -3,52 +3,54 @@
   - License, v. 2.0. If a copy of the MPL was not distributed with this
   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
+<!DOCTYPE html [ <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
 %utilityDTD; ]>
-
-<window
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  data-l10n-id="troubleshoot-mode-window"
-  data-l10n-attrs="title,style"
-  onload="onLoad();"
+  style="max-width: 600px"
+  scrolling="false"
 >
-  <dialog
-    id="safeModeDialog"
-    style="width: inherit"
-    buttons="accept,cancel,extra1"
-    buttonidaccept="troubleshoot-mode-change-and-restart"
-    buttonidcancel="troubleshoot-mode-quit"
-    buttonidextra1="troubleshoot-mode-continue"
-    buttondisabledaccept="true"
+  <head>
+    <title data-l10n-id="troubleshoot-mode-dialog-title"></title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="messenger/troubleshootMode.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/troubleshootMode.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
-    <script src="chrome://messenger/content/troubleshootMode.js" />
+    <dialog
+      id="safeModeDialog"
+      buttons="accept,cancel,extra1"
+      buttonidaccept="troubleshoot-mode-change-and-restart"
+      buttonidcancel="troubleshoot-mode-quit"
+      buttonidextra1="troubleshoot-mode-continue"
+      buttondisabledaccept="true"
+    >
+      <vbox>
+        <description data-l10n-id="troubleshoot-mode-description" />
 
-    <linkset>
-      <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
+        <separator class="thin" />
 
-      <html:link rel="localization" href="branding/brand.ftl" />
-      <html:link rel="localization" href="messenger/troubleshootMode.ftl" />
-    </linkset>
-
-    <vbox>
-      <description data-l10n-id="troubleshoot-mode-description" />
-
-      <separator class="thin" />
-
-      <label data-l10n-id="troubleshoot-mode-description2" />
-      <vbox id="tasks">
-        <checkbox
-          id="disableAddons"
-          data-l10n-id="troubleshoot-mode-disable-addons"
-        />
-        <checkbox
-          id="resetToolbars"
-          data-l10n-id="troubleshoot-mode-reset-toolbars"
-        />
+        <label data-l10n-id="troubleshoot-mode-description2" />
+        <vbox id="tasks">
+          <checkbox
+            id="disableAddons"
+            data-l10n-id="troubleshoot-mode-disable-addons"
+          />
+          <checkbox
+            id="resetToolbars"
+            data-l10n-id="troubleshoot-mode-reset-toolbars"
+          />
+        </vbox>
       </vbox>
-    </vbox>
-
-    <separator class="thin" />
-  </dialog>
-</window>
+      <separator class="thin" />
+    </dialog>
+  </html:body>
+</html>
