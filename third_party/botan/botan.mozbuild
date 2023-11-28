@@ -36,7 +36,6 @@ else:
 botan_generated = [
     'build/build.h',
     'build/build_config.json',
-    'CMakeLists.txt',
     ]
 
 if CONFIG['COMPILE_ENVIRONMENT']:

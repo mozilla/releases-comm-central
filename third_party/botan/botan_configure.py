@@ -3,10 +3,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from __future__ import print_function, absolute_import, unicode_literals
 import os
-import sys
 import subprocess
+import sys
+
 from mozbuild.util import system_encoding
 
 # This script is a wrapper for Botan's configure.py to adapt it for moz.build.
@@ -108,6 +108,8 @@ def main(output, *args):
             with open(output.name, "r") as fp:
                 data = fp.read()
                 output.write(data)
+        if os.path.isfile("CMakeLists.txt"):
+            os.remove("CMakeLists.txt")
         else:
             # Probably an error
             raise Exception("Unable to locate real output at {}".format(output.name))
