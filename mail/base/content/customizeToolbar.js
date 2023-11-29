@@ -13,6 +13,13 @@ var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
 
+window.addEventListener("load", event => {
+  overlayOnLoad();
+});
+window.addEventListener("unload", event => {
+  onUnload();
+});
+
 function onLoad() {
   if ("arguments" in window && window.arguments[0]) {
     InitWithToolbox(window.arguments[0]);
@@ -43,6 +50,72 @@ function InitWithToolbox(aToolbox) {
   }
 
   initDialog();
+}
+
+function overlayOnLoad() {
+  const restoreButton = document
+    .getElementById("main-box")
+    .querySelector("[oncommand*='restore']");
+  restoreButton.setAttribute("oncommand", "overlayRestoreDefaultSet();");
+
+  // Add the textBesideIcon menu item if it's not already there.
+  let menuitem = document.getElementById("textbesideiconItem");
+  if (!menuitem) {
+    const menulist = document.getElementById("modelist");
+    const label = document
+      .getElementById("iconsBesideText.label")
+      .getAttribute("value");
+    menuitem = menulist.appendItem(label, "textbesideicon");
+    menuitem.id = "textbesideiconItem";
+  }
+
+  // If they have a mode of full and a labelalign of true,
+  // then pretend the mode is textbesideicon when populating the popup.
+  let toolbox = null;
+  if ("arguments" in window && window.arguments[0]) {
+    toolbox = window.arguments[0];
+  } else if (window.frameElement && "toolbox" in window.frameElement) {
+    toolbox = window.frameElement.toolbox;
+  }
+
+  const toolbarWindow = document.getElementById("CustomizeToolbarWindow");
+  toolbarWindow.setAttribute("toolboxId", toolbox.id);
+  toolbox.setAttribute("doCustomization", "true");
+
+  const mode = toolbox.getAttribute("mode");
+  const align = toolbox.getAttribute("labelalign");
+  if (mode == "full" && align == "end") {
+    toolbox.setAttribute("mode", "textbesideicon");
+  }
+
+  onLoad();
+  overlayRepositionDialog();
+
+  // Re-set and re-persist the mode, if we changed it above.
+  if (mode == "full" && align == "end") {
+    toolbox.setAttribute("mode", mode);
+    Services.xulStore.persist(toolbox, "mode");
+  }
+}
+
+function overlayRepositionDialog() {
+  // Position the dialog so it is fully visible on the screen
+  // (if possible)
+
+  // Seems to be necessary to get the correct dialog height/width
+  window.sizeToContent();
+  var wH = window.outerHeight;
+  var wW = window.outerWidth;
+  var sH = window.screen.height;
+  var sW = window.screen.width;
+  var sX = window.screenX;
+  var sY = window.screenY;
+  var sAL = window.screen.availLeft;
+  var sAT = window.screen.availTop;
+
+  var nX = Math.max(Math.min(sX, sW - wW), sAL);
+  var nY = Math.max(Math.min(sY, sH - wH), sAT);
+  window.moveTo(nX, nY);
 }
 
 function onClose() {

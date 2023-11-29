@@ -1,129 +1,126 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE dialog [ <!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
 %customizeToolbarDTD; ]>
-
-<window
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
   id="CustomizeToolbarWindow"
-  title="&dialog.title;"
+  scrolling="false"
   lightweightthemes="true"
   windowtype="mailnews:customizeToolbar"
-  onload="overlayOnLoad();"
-  onunload="onUnload();"
   style="max-width: 92ch; min-height: 36em"
-  persist="width height"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  xmlns:html="http://www.w3.org/1999/xhtml"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/customizeToolbar.css"
-  />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/messageHeader.css"
-  />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/primaryToolbar.css"
-  />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/chat.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/messengercompose/messengercompose.css"
-  />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-  <html:link
-    rel="stylesheet"
-    href="chrome://calendar/skin/calendar-task-view.css"
-  />
-  <html:link
-    rel="stylesheet"
-    href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css"
-  />
-  <html:link
-    rel="stylesheet"
-    href="chrome://calendar/skin/shared/calendar-toolbar.css"
-  />
-
-  <script src="chrome://messenger/content/customizeToolbar.js" />
-  <script src="chrome://messenger/content/mailCore.js" />
-  <stringbundle
-    id="stringBundle"
-    src="chrome://messenger/locale/customizeToolbar.properties"
-  />
-
-  <keyset id="CustomizeToolbarKeyset">
-    <key id="cmd_close1" keycode="VK_ESCAPE" oncommand="onClose();" />
-    <key id="cmd_close2" keycode="VK_RETURN" oncommand="onClose();" />
-  </keyset>
-
-  <vbox id="main-box" flex="1">
-    <description id="instructions"> &instructions.description; </description>
-
-    <vbox
-      flex="1"
-      id="palette-box"
-      ondragstart="onToolbarDragStart(event)"
-      ondragover="onPaletteDragOver(event)"
-      ondrop="onPaletteDrop(event)"
+  <head>
+    <title>&dialog.title;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/messageHeader.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/primaryToolbar.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/chat.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/messengercompose/messengercompose.css"
+    />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://calendar/skin/calendar-task-view.css"
+    />
+    <link
+      rel="stylesheet"
+      href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css"
+    />
+    <link
+      rel="stylesheet"
+      href="chrome://calendar/skin/shared/calendar-toolbar.css"
+    />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/customizeToolbar.css"
+    />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/customizeToolbar.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <stringbundle
+      id="stringBundle"
+      src="chrome://messenger/locale/customizeToolbar.properties"
     />
 
-    <hbox id="buttonBox" align="center">
-      <hbox id="titlebarSettings" hidden="true">
+    <keyset id="CustomizeToolbarKeyset">
+      <key id="cmd_close1" keycode="VK_ESCAPE" oncommand="onClose();" />
+      <key id="cmd_close2" keycode="VK_RETURN" oncommand="onClose();" />
+    </keyset>
+
+    <vbox id="main-box" flex="1">
+      <description id="instructions"> &instructions.description; </description>
+
+      <vbox
+        flex="1"
+        id="palette-box"
+        ondragstart="onToolbarDragStart(event)"
+        ondragover="onPaletteDragOver(event)"
+        ondrop="onPaletteDrop(event)"
+      />
+
+      <hbox id="buttonBox" align="center">
+        <hbox id="titlebarSettings" hidden="true">
+          <checkbox
+            id="showTitlebar"
+            oncommand="updateTitlebar();"
+            label="&showTitlebar2.label;"
+          />
+        </hbox>
+        <label id="modelistLabel" value="&show.label;" control="modelist" />
+        <menulist
+          id="modelist"
+          value="icons"
+          oncommand="overlayUpdateToolbarMode(this.value, 'mail-toolbox');"
+        >
+          <menupopup id="modelistpopup">
+            <menuitem id="modefull" value="full" label="&iconsAndText.label;" />
+            <menuitem id="modeicons" value="icons" label="&icons.label;" />
+            <menuitem id="modetext" value="text" label="&text.label;" />
+            <menuitem
+              id="textbesideiconItem"
+              value="textbesideicon"
+              label="&iconsBesideText.label;"
+            />
+          </menupopup>
+        </menulist>
         <checkbox
-          id="showTitlebar"
-          oncommand="updateTitlebar();"
-          label="&showTitlebar2.label;"
+          id="smallicons"
+          oncommand="updateIconSize(this.checked ? 'small' : 'large');"
+          label="&useSmallIcons.label;"
         />
       </hbox>
-      <label id="modelistLabel" value="&show.label;" control="modelist" />
-      <menulist
-        id="modelist"
-        value="icons"
-        oncommand="overlayUpdateToolbarMode(this.value, 'mail-toolbox');"
-      >
-        <menupopup id="modelistpopup">
-          <menuitem id="modefull" value="full" label="&iconsAndText.label;" />
-          <menuitem id="modeicons" value="icons" label="&icons.label;" />
-          <menuitem id="modetext" value="text" label="&text.label;" />
-          <menuitem
-            id="textbesideiconItem"
-            value="textbesideicon"
-            label="&iconsBesideText.label;"
-          />
-        </menupopup>
-      </menulist>
-      <checkbox
-        id="smallicons"
-        oncommand="updateIconSize(this.checked ? 'small' : 'large');"
-        label="&useSmallIcons.label;"
-      />
-    </hbox>
-    <hbox align="center">
-      <button
-        id="restoreDefault"
-        label="&restoreDefaultSet.label;"
-        oncommand="restoreDefaultSet();"
-      />
-      <spacer flex="1" />
-      <button
-        id="donebutton"
-        label="&saveChanges.label;"
-        oncommand="onClose();"
-        default="true"
-      />
-    </hbox>
-  </vbox>
-</window>
+      <hbox align="center">
+        <button
+          id="restoreDefault"
+          label="&restoreDefaultSet.label;"
+          oncommand="restoreDefaultSet();"
+        />
+        <spacer flex="1" />
+        <button
+          id="donebutton"
+          label="&saveChanges.label;"
+          oncommand="onClose();"
+          default="true"
+        />
+      </hbox>
+    </vbox>
+  </html:body>
+</html>
