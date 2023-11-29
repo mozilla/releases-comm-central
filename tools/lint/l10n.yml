@@ -11,20 +11,17 @@ l10n:
         - comm/mail/branding/tb_beta/locales/en-US
         - comm/mail/branding/thunderbird/locales/en-US
         - comm/mail/locales/en-US
-        - comm/tools/lint/l10n.yml
-        - devtools/client/locales/en-US
-        - devtools/shared/locales/en-US
-        - devtools/startup/locales/en-US
-        - dom/locales/en-US
-        - netwerk/locales/en-US
-        - security/manager/locales/en-US
-        - toolkit/locales/en-US
     # files not supported by compare-locales,
     # and also not relevant to this linter
     exclude:
         - comm/mail/locales/en-US/all-l10n.js
         - comm/mail/extensions/openpgp/test
         - comm/calendar/locales/en-US/README.txt
+    extensions:
+        - .dtd
+        - .properties
+        - .ini
+        - .ftl
     l10n_configs:
         - comm/mail/locales/l10n.toml
         - comm/calendar/locales/l10n.toml
