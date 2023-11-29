@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
 /* Hide the duration dropdown suffix label if it's empty.  Otherwise it
    takes up a little space, causing the end of the dropdown to not be aligned
    with the warning box. */

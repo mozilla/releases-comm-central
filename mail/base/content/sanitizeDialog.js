@@ -4,6 +4,10 @@
 
 /* import-globals-from sanitize.js */
 
+window.addEventListener("load", event => {
+  gSanitizePromptDialog.init();
+});
+
 var gSanitizePromptDialog = {
   get bundleBrowser() {
     if (!this._bundleBrowser) {
@@ -98,8 +102,6 @@ var gSanitizePromptDialog = {
       window.resizeBy(0, -warningBox.getBoundingClientRect().height);
       warningBox.hidden = true;
     }
-    window.document.title =
-      window.document.documentElement.getAttribute("noneverythingtitle");
   },
 
   sanitize() {

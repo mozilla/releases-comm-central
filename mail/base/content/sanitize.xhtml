@@ -1,98 +1,115 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [
-  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-  <!ENTITY % sanitizeDTD SYSTEM "chrome://messenger/locale/sanitize.dtd">
-  %brandDTD;
-  %sanitizeDTD;
-]>
-
-<window type="child"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&sanitizeDialog2.title;"
-        noneverythingtitle="&sanitizeDialog2.title;"
-        style="min-width: &dialog.width;"
-        lightweightthemes="true"
-        onload="gSanitizePromptDialog.init();">
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/shared/sanitizeDialog.css"
-  />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-<dialog id="SanitizeDialog"
-        dlgbuttons="accept,cancel">
-
-  <vbox id="SanitizeDialogPane">
-    <stringbundle id="bundleBrowser"
-            src="chrome://messenger/locale/messenger.properties"/>
-
-    <script src="chrome://messenger/content/sanitize.js"/>
-    <script src="chrome://messenger/content/sanitizeDialog.js"/>
-    <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
-    <hbox id="SanitizeDurationBox" align="center">
-      <label value="&clearTimeDuration.label;"
-             accesskey="&clearTimeDuration.accesskey;"
-             control="sanitizeDurationChoice"
-             id="sanitizeDurationLabel"/>
-      <menulist id="sanitizeDurationChoice"
-                onselect="gSanitizePromptDialog.selectByTimespan();"
-                flex="1">
-        <menupopup id="sanitizeDurationPopup">
-          <menuitem label="&clearTimeDuration.lastHour;" value="1"/>
-          <menuitem label="&clearTimeDuration.last2Hours;" value="2"/>
-          <menuitem label="&clearTimeDuration.last4Hours;" value="3"/>
-          <menuitem label="&clearTimeDuration.today;" value="4"/>
-          <menuseparator/>
-          <menuitem label="&clearTimeDuration.everything;" value="0"/>
-        </menupopup>
-      </menulist>
-      <label id="sanitizeDurationSuffixLabel"
-             value="&clearTimeDuration.suffix;"/>
-    </hbox>
-
-      <vbox id="sanitizeEverythingWarningBox">
-        <spacer flex="1"/>
-        <hbox align="center">
-          <html:img id="sanitizeEverythingWarningIcon" alt="" />
-          <vbox id="sanitizeEverythingWarningDescBox" flex="1">
-            <description id="sanitizeEverythingWarning"/>
-            <description id="sanitizeEverythingUndoWarning">&sanitizeEverythingUndoWarning;</description>
-          </vbox>
+<!DOCTYPE html [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+<!ENTITY % sanitizeDTD SYSTEM "chrome://messenger/locale/sanitize.dtd">
+%brandDTD; %sanitizeDTD; ]>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  scrolling="false"
+  style="min-width: 28em"
+  type="child"
+>
+  <head>
+    <title>&sanitizeDialog2.title;</title>
+    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/sanitizeDialog.css"
+    />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script defer="defer" src="chrome://messenger/content/sanitize.js"></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/sanitizeDialog.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog id="SanitizeDialog">
+      <stringbundle
+        id="bundleBrowser"
+        src="chrome://messenger/locale/messenger.properties"
+      />
+      <vbox id="SanitizeDialogPane">
+        <hbox id="SanitizeDurationBox" align="center">
+          <label
+            value="&clearTimeDuration.label;"
+            accesskey="&clearTimeDuration.accesskey;"
+            control="sanitizeDurationChoice"
+            id="sanitizeDurationLabel"
+          />
+          <menulist
+            id="sanitizeDurationChoice"
+            onselect="gSanitizePromptDialog.selectByTimespan();"
+            flex="1"
+          >
+            <menupopup id="sanitizeDurationPopup">
+              <menuitem label="&clearTimeDuration.lastHour;" value="1" />
+              <menuitem label="&clearTimeDuration.last2Hours;" value="2" />
+              <menuitem label="&clearTimeDuration.last4Hours;" value="3" />
+              <menuitem label="&clearTimeDuration.today;" value="4" />
+              <menuseparator />
+              <menuitem label="&clearTimeDuration.everything;" value="0" />
+            </menupopup>
+          </menulist>
+          <label
+            id="sanitizeDurationSuffixLabel"
+            value="&clearTimeDuration.suffix;"
+          />
         </hbox>
-        <spacer flex="1"/>
+
+        <vbox id="sanitizeEverythingWarningBox">
+          <spacer flex="1" />
+          <hbox align="center">
+            <html:img id="sanitizeEverythingWarningIcon" alt="" />
+            <vbox id="sanitizeEverythingWarningDescBox" flex="1">
+              <description id="sanitizeEverythingWarning" />
+              <description id="sanitizeEverythingUndoWarning"
+                >&sanitizeEverythingUndoWarning;</description
+              >
+            </vbox>
+          </hbox>
+          <spacer flex="1" />
+        </vbox>
+
+        <label id="historyGroupLabel" value="&historyGroup.label;" />
+        <vbox id="historyGroup">
+          <checkbox
+            label="&itemHistory.label;"
+            accesskey="&itemHistory.accesskey;"
+            preference="privacy.cpd.history"
+            oncommand="gSanitizePromptDialog.onReadGeneric();"
+          />
+          <checkbox
+            label="&itemCookies.label;"
+            accesskey="&itemCookies.accesskey;"
+            preference="privacy.cpd.cookies"
+            oncommand="gSanitizePromptDialog.onReadGeneric();"
+          />
+          <checkbox
+            label="&itemCache.label;"
+            accesskey="&itemCache.accesskey;"
+            preference="privacy.cpd.cache"
+            oncommand="gSanitizePromptDialog.onReadGeneric();"
+          />
+        </vbox>
+        <separator class="thin" />
       </vbox>
-
-    <label id="historyGroupLabel" value="&historyGroup.label;"/>
-    <vbox id="historyGroup">
-      <checkbox label="&itemHistory.label;"
-                accesskey="&itemHistory.accesskey;"
-                preference="privacy.cpd.history"
-                oncommand="gSanitizePromptDialog.onReadGeneric();"/>
-      <checkbox label="&itemCookies.label;"
-                accesskey="&itemCookies.accesskey;"
-                preference="privacy.cpd.cookies"
-                oncommand="gSanitizePromptDialog.onReadGeneric();"/>
-      <checkbox label="&itemCache.label;"
-                accesskey="&itemCache.accesskey;"
-                preference="privacy.cpd.cache"
-                oncommand="gSanitizePromptDialog.onReadGeneric();"/>
-    </vbox>
-    <separator class="thin"/>
-
-  </vbox>
-</dialog>
-</window>
+    </dialog>
+  </html:body>
+</html>
