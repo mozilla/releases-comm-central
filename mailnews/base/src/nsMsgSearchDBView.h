@@ -84,6 +84,10 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   NS_IMETHOD GetThreadContainingMsgHdr(nsIMsgDBHdr* msgHdr,
                                        nsIMsgThread** pThread) override;
 
+  NS_IMETHOD ApplyCommandToIndices(
+      nsMsgViewCommandTypeValue command,
+      nsTArray<nsMsgViewIndex> const& selection) override;
+
  protected:
   virtual ~nsMsgSearchDBView();
   virtual void InternalClose() override;

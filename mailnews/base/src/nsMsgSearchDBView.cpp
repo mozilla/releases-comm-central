@@ -824,6 +824,13 @@ nsresult nsMsgSearchDBView::RemoveByIndex(nsMsgViewIndex index) {
   return nsMsgDBView::RemoveByIndex(index);
 }
 
+NS_IMETHODIMP nsMsgSearchDBView::ApplyCommandToIndices(
+    nsMsgViewCommandTypeValue command,
+    nsTArray<nsMsgViewIndex> const& selection) {
+  mCommand = command;
+  return nsMsgDBView::ApplyCommandToIndices(command, selection);
+}
+
 nsresult nsMsgSearchDBView::DeleteMessages(
     nsIMsgWindow* window, nsTArray<nsMsgViewIndex> const& selection,
     bool deleteStorage) {
