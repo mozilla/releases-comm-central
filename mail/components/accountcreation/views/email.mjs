@@ -2,6 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { AccountCreationUtils } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
+);
+const { AccountConfig } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/AccountConfig.sys.mjs"
+);
+const { GuessConfig } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/GuessConfig.sys.mjs"
+);
+const { Sanitizer } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/Sanitizer.sys.mjs"
+);
+
+const { CancelledException, gAccountSetupLogger } = AccountCreationUtils;
+
 class AccountHubEmail extends HTMLElement {
   /**
    * The email setup form.
@@ -220,6 +235,14 @@ class AccountHubEmail extends HTMLElement {
    */
   #cancelButton;
 
+  /**
+   * Store methods to interrupt abortable operations like testing
+   * a server configuration or installing an add-on.
+   *
+   * @type {Object}
+   */
+  #abortable;
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -256,10 +279,10 @@ class AccountHubEmail extends HTMLElement {
       "#outgoingConnectionSecurity"
     );
     this.#incomingAuthenticationMethod = this.querySelector(
-      "#incomingAuthenticationMethod"
+      "#incomingAuthMethod"
     );
     this.#outgoingAuthenticationMethod = this.querySelector(
-      "#outgoingAuthenticationMethod"
+      "#outgoingAuthMethod"
     );
     this.#incomingUsername = this.querySelector("#incomingUsername");
     this.#outgoingUsername = this.querySelector("#outgoingUsername");
@@ -286,10 +309,12 @@ class AccountHubEmail extends HTMLElement {
 
   initUI(subview) {
     this.hideSubviews();
+    this.clearNotifications();
 
     switch (subview) {
       case "manualEmail":
         this.#manualConfigureEmailFormSubview.hidden = false;
+        this.setNotificationBar("manualEmail");
         this.setFooterButtons("manualEmail");
         this.#checkValidManualEmailForm();
         break;
@@ -313,6 +338,7 @@ class AccountHubEmail extends HTMLElement {
         }
 
         this.#realName.focus();
+        this.setNotificationBar("email");
         this.setFooterButtons("email");
         this.#checkValidEmailForm();
         break;
@@ -346,6 +372,13 @@ class AccountHubEmail extends HTMLElement {
       this.initUI("manualEmail");
     });
 
+    this.#incomingHostname.addEventListener("input", () =>
+      this.#checkValidManualEmailForm()
+    );
+    this.#outgoingHostname.addEventListener("input", () =>
+      this.#checkValidManualEmailForm()
+    );
+
     // Set the Cancel button.
     this.#cancelButton.addEventListener("click", () => {
       // Go back to the main account hub view.
@@ -356,6 +389,12 @@ class AccountHubEmail extends HTMLElement {
           detail: { type: "START" },
         })
       );
+    });
+
+    // Set the manual email config button. This should hide the current email
+    // form and display the manual configuration email form.
+    this.#retestButton.addEventListener("click", event => {
+      this.testManualConfig();
     });
 
     this.#manualConfigureEmailFormSubview.addEventListener("submit", event => {
@@ -380,6 +419,7 @@ class AccountHubEmail extends HTMLElement {
     this.#domain = isValidForm
       ? this.#email.value.split("@")[1].toLowerCase()
       : "";
+
     this.#continueButton.disabled = !isValidForm;
     this.#manualConfigButton.hidden = !isValidForm;
   }
@@ -390,6 +430,15 @@ class AccountHubEmail extends HTMLElement {
 
     this.#retestButton.disabled = !isValidForm;
     this.#continueButton.disabled = !isValidForm;
+
+    // Enable Retest button if there are hostnames for outgoing and incoming.
+    if (
+      this.#incomingHostname.checkValidity() &&
+      this.#outgoingHostname.checkValidity()
+    ) {
+      //TODO: Properly validate hostnames
+      this.#retestButton.disabled = false;
+    }
   }
 
   /**
@@ -416,6 +465,197 @@ class AccountHubEmail extends HTMLElement {
         ? "account-setup-password-toggle-hide"
         : "account-setup-password-toggle-show"
     );
+  }
+
+  /**
+   * Click handler for re-test button. Guesses the email account config after
+   * a user has inputted all manual config fields and pressed re-test.
+   *
+   *
+   */
+  async testManualConfig() {
+    // Show loading view.
+    this.initUI("loading");
+
+    // Clear error notifications.
+    this.clearNotifications();
+
+    const userConfig = this.getManualUserConfig();
+
+    this.#abortable = GuessConfig.guessConfig(
+      this._domain,
+      (type, hostname, port, ssl, done, config) => {
+        gAccountSetupLogger.debug(
+          `progress callback host: ${hostname}, port: ${port}, type: ${type}`
+        );
+      },
+      config => {
+        // TODO: Success - Refill and validate inputs, enable continue button.
+        this.#abortable = null;
+      },
+      (error, config) => {
+        this.#abortable = null;
+
+        // guessConfig failed.
+        if (error instanceof CancelledException) {
+          return;
+        }
+        gAccountSetupLogger.warn(`guessConfig failed: ${error}`);
+
+        // Load the manual config view again and show an error notification.
+        this.initUI("manualEmail");
+        this.showErrorNotification("account-hub-find-settings-failed", "");
+      },
+      userConfig,
+      userConfig.outgoing.existingServerKey ? "incoming" : "both"
+    );
+  }
+
+  /**
+   * Returns an Account Config object with all the sanitized user-inputted
+   * data for a manual config email guess attempt.
+   *
+   * @returns {AccountConfig}
+   */
+  getManualUserConfig() {
+    const config = new AccountConfig();
+    config.source = AccountConfig.kSourceUser;
+
+    // Incoming server.
+    try {
+      const inHostnameValue = this.#incomingHostname.value;
+      config.incoming.hostname = Sanitizer.hostname(inHostnameValue);
+      this.#incomingHostname.value = config.incoming.hostname;
+    } catch (error) {
+      gAccountSetupLogger.warn(error);
+    }
+
+    try {
+      config.incoming.port = Sanitizer.integerRange(
+        this.#incomingPort.valueAsNumber,
+        1,
+        65535
+      );
+    } catch (error) {
+      // Include default "Auto".
+      config.incoming.port = undefined;
+    }
+
+    config.incoming.type = Sanitizer.translate(this.#incomingProtocol.value, {
+      1: "imap",
+      2: "pop3",
+      3: "exchange",
+      0: null,
+    });
+    config.incoming.socketType = Sanitizer.integer(
+      this.#incomingConnectionSecurity.value
+    );
+    config.incoming.auth = Sanitizer.integer(
+      this.#incomingAuthenticationMethod.value
+    );
+    config.incoming.username = this.#incomingUsername.value;
+
+    // Outgoing server.
+
+    config.outgoing.username = this.#outgoingUsername.value;
+
+    // The user specified a custom SMTP server.
+    config.outgoing.existingServerKey = null;
+    config.outgoing.addThisServer = true;
+    config.outgoing.useGlobalPreferredServer = false;
+
+    try {
+      const input = this.#outgoingHostname.value;
+      config.outgoing.hostname = Sanitizer.hostname(input);
+      this.#outgoingHostname.value = config.outgoing.hostname;
+    } catch (error) {
+      gAccountSetupLogger.warn(error);
+    }
+
+    try {
+      config.outgoing.port = Sanitizer.integerRange(
+        this.#outgoingPort.valueAsNumber,
+        1,
+        65535
+      );
+    } catch (error) {
+      // Include default "Auto".
+      config.outgoing.port = undefined;
+    }
+
+    config.outgoing.socketType = Sanitizer.integer(
+      this.#outgoingConnectionSecurity.value
+    );
+    config.outgoing.auth = Sanitizer.integer(
+      this.#outgoingAuthenticationMethod.value
+    );
+
+    return config;
+  }
+
+  /**
+   * Show an error notification in-case something went wrong.
+   *
+   * @param {string} titleStringID - The ID of the fluent string that needs to
+   *   be attached to the title of the notification.
+   * @param {string} textStringID - The ID of the fluent string that needs to
+   *   be attached to the text area of the notification.
+   */
+  async showErrorNotification(titleStringID, textStringID) {
+    gAccountSetupLogger.debug(
+      `Status error: ${titleStringID}. ${textStringID}`
+    );
+
+    // Hide the notification bar.
+    this.clearNotifications();
+
+    // Fetch the fluent string.
+    document.l10n.setAttributes(
+      this.querySelector("#emailFormNotificationTitle"),
+      titleStringID
+    );
+
+    this.querySelector("#emailFormNotification").hidden = false;
+
+    if (textStringID) {
+      document.l10n.setAttributes(
+        this.querySelector("#emailFormNotificationText"),
+        textStringID
+      );
+      this.querySelector("#emailFormNotificationText").hidden = false;
+    }
+  }
+
+  /**
+   * Set the notification bar for the subview
+   *
+   * @param {string} subview - Subview for which bar is initialized.
+   */
+  setNotificationBar(subview) {
+    const notificationBar = this.querySelector("#emailFormNotification");
+
+    switch (subview) {
+      case "email":
+        this.querySelector("#emailFormHeader").append(notificationBar);
+        break;
+      case "manualEmail":
+        this.querySelector("#manualConfigureEmailFormHeader").append(
+          notificationBar
+        );
+        break;
+      default:
+        break;
+    }
+  }
+
+  clearNotifications() {
+    const notificationTitle = this.querySelector("#emailFormNotificationTitle");
+    const notificationText = this.querySelector("#emailFormNotificationText");
+    notificationText.hidden = true;
+    delete notificationText.dataset.l10nId;
+    delete notificationTitle.dataset.l10nId;
+
+    this.querySelector("#emailFormNotification").hidden = true;
   }
 
   /**
@@ -529,4 +769,5 @@ class AccountHubEmail extends HTMLElement {
     return true;
   }
 }
+
 customElements.define("account-hub-email", AccountHubEmail);

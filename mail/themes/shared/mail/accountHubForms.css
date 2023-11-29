@@ -18,6 +18,25 @@ form {
     margin-inline: 0;
   }
 
+  .notification-bar {
+    background-color: var(--hub-notification-background-color-warning);
+    padding: 6px 16px;
+    border-radius: 4px;
+    box-shadow: var(--hub-box-shadow);
+    text-align: start;
+    margin: 16px 75px 5px;
+    color: var(--color-gray-90);
+
+    .notification-title {
+      font-size: 1.2rem;
+      margin-block: 4px;
+    }
+
+    .notification-text {
+      font-size: 0.8rem;
+    }
+  }
+
   .hub-body.flex-direction-row {
     max-width: 700px;
   }

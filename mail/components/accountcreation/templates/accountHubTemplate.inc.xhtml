@@ -74,8 +74,12 @@
 <html:template id="accountHubEmailSetup" xmlns="http://www.w3.org/1999/xhtml">
   <!-- Email/Password Form Subview -->
   <form id="emailFormSubview" class="account-hub-form">
-    <header class="hub-header">
+    <header id="emailFormHeader" class="hub-header">
       <h1 class="sub-view-title" data-l10n-id="account-hub-add-email-title"></h1>
+      <div id="emailFormNotification" class="notification-bar">
+        <h1 id="emailFormNotificationTitle" class="notification-title"></h1>
+        <span id="emailFormNotificationText" class="notification-text"></span>
+      </div>
     </header>
 
     <div class="hub-body">
@@ -210,7 +214,7 @@
     id="manualConfigureEmailFormSubview"
     class="account-hub-form"
     hidden="hidden">
-    <header class="hub-header">
+    <header id="manualConfigureEmailFormHeader" class="hub-header">
       <h1
         class="sub-view-title"
         data-l10n-id="account-hub-manually-configure-email-title">
