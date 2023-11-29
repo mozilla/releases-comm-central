@@ -2,7 +2,7 @@
 file-whitespace:
     description: File content sanity check
     include:
-        - comm/.
+        - comm/
     extensions:
         - .c
         - .cc
@@ -18,7 +18,10 @@ file-whitespace:
         - .py
         - .rs
         - .rst
+        - .toml
         - .webidl
+        - .yaml
+        - .yml
         - .xhtml
     support-files:
         - 'tools/lint/file-whitespace/**'

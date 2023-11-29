@@ -26,12 +26,14 @@ file-perm:
         - .rs
         - .rst
         - .svg
+        - .toml
         - .ttf
         - .wasm
         - .webidl
         - .xhtml
         - .xml
         - .xul
+        - .yaml
         - .yml
     support-files:
         - 'tools/lint/file-perm/**'
