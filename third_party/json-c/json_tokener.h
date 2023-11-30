@@ -40,6 +40,7 @@ enum json_tokener_error
 	json_tokener_error_parse_string,
 	json_tokener_error_parse_comment,
 	json_tokener_error_parse_utf8_string,
+	json_tokener_error_memory,
 	json_tokener_error_size
 };
 

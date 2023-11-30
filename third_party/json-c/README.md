@@ -4,14 +4,16 @@
 ========
 
 1. [Overview and Build Status](#overview)
-2. [Building on Unix](#buildunix)
+2. [Getting Help](#gettinghelp)
+3. [Building on Unix](#buildunix)
     * [Prerequisites](#installprereq)
     * [Build commands](#buildcmds)
-3. [CMake options](#CMake)
-4. [Testing](#testing)
-5. [Building with `vcpkg`](#buildvcpkg)
-6. [Linking to libjson-c](#linking)
-7. [Using json-c](#using)
+4. [CMake options](#CMake)
+5. [Testing](#testing)
+6. [Building with `vcpkg`](#buildvcpkg)
+7. [Building for Android](#android)
+7. [Linking to libjson-c](#linking)
+8. [Using json-c](#using)
 
 JSON-C - A JSON implementation in C <a name="overview"></a>
 -----------------------------------
@@ -19,7 +21,7 @@ JSON-C - A JSON implementation in C <a name="overview"></a>
 JSON-C implements a reference counting object model that allows you to easily
 construct JSON objects in C, output them as JSON formatted strings and parse
 JSON formatted strings back into the C representation of JSON objects.
-It aims to conform to [RFC 7159](https://tools.ietf.org/html/rfc7159).
+It aims to conform to [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259).
 
 Skip down to [Using json-c](#using)
 or check out the [API docs](https://json-c.github.io/json-c/),
@@ -27,18 +29,36 @@ if you already have json-c installed and ready to use.
 
 Home page for json-c: https://github.com/json-c/json-c/wiki
 
-Build Status
-* [AppVeyor Build](https://ci.appveyor.com/project/hawicz/json-c) ![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/json-c/json-c?branch=master&svg=true)
-* [Travis Build](https://travis-ci.org/json-c/json-c) ![Travis Build Status](https://travis-ci.org/json-c/json-c.svg?branch=master)
+Getting Help <a name="gettinghelp"></a>
+------------
 
-Test Status
-* [Coveralls](https://coveralls.io/github/json-c/json-c?branch=master) [![Coverage Status](https://coveralls.io/repos/github/json-c/json-c/badge.svg?branch=master)](https://coveralls.io/github/json-c/json-c?branch=master)
+If you have questions about using json-c, please start a thread on
+our forums at: https://groups.google.com/forum/#!forum/json-c
+
+If you believe you've discovered a bug, report it at 
+(https://github.com/json-c/json-c/issues).  Please be sure to include
+the version of json-c you're using, the OS you're running on, and any
+other relevant details.  Fully reproducible test cases and/or patches
+to fix problems are greatly appreciated.
+
+Fixes for bugs, or small new features can be directly submitted as a 
+[pull request](https://github.com/json-c/json-c/pulls).  For major new
+features or large changes of any kind, please first start a discussion
+on the [forums](https://groups.google.com/forum/#!forum/json-c).
+
 
 Building on Unix with `git`, `gcc` and `cmake` <a name="buildunix"></a>
 --------------------------------------------------
 
 If you already have json-c installed, see [Linking to `libjson-c`](#linking)
 for how to build and link your program against it.
+
+Build Status
+* [AppVeyor Build](https://ci.appveyor.com/project/hawicz/json-c) ![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/json-c/json-c?branch=master&svg=true)
+* [Travis Build](https://app.travis-ci.com/github/json-c/json-c) ![Travis Build Status](https://api.travis-ci.com/json-c/json-c.svg?branch=master)
+
+Test Status
+* [Coveralls](https://coveralls.io/github/json-c/json-c?branch=master) [![Coverage Status](https://coveralls.io/repos/github/json-c/json-c/badge.svg?branch=master)](https://coveralls.io/github/json-c/json-c?branch=master)
 
 ### Prerequisites: <a name="installprereq"></a>
 
@@ -81,7 +101,7 @@ Then:
 $ make
 $ make test
 $ make USE_VALGRIND=0 test   # optionally skip using valgrind
-$ make install
+$ sudo make install          # it could be necessary to execute make install
 ```
 
 
@@ -112,6 +132,8 @@ DISABLE_STATIC_FPIC          | Bool   | The default builds position independent 
 DISABLE_BSYMBOLIC            | Bool   | Disable use of -Bsymbolic-functions.
 DISABLE_THREAD_LOCAL_STORAGE | Bool   | Disable use of Thread-Local Storage (HAVE___THREAD).
 DISABLE_WERROR               | Bool   | Disable use of -Werror.
+DISABLE_EXTRA_LIBS           | Bool   | Disable use of extra libraries, libbsd
+DISABLE_JSON_POINTER         | Bool   | Omit json_pointer support from the build.
 ENABLE_RDRAND                | Bool   | Enable RDRAND Hardware RNG Hash Seed.
 ENABLE_THREADING             | Bool   | Enable partial threading support.
 OVERRIDE_GET_RANDOM_SEED     | String | A block of code to use instead of the default implementation of json_c_get_random_seed(), e.g. on embedded platforms where not even the fallback to time() works.  Must be a single line.
@@ -215,6 +237,29 @@ You can download and install JSON-C using the [vcpkg](https://github.com/Microso
 
 The JSON-C port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
 
+Building for Android <a name="android">
+----------------------
+
+Building on Android is now particularly well supported, but there
+have been some reports of success using
+https://developer.android.com/ndk/guides/cmake
+
+```
+mkdir json-c-build
+cd json-c-build/
+export NDK_HOME=~/Library/Android/sdk/ndk/22.1.7171670/
+cmake \
+    --toolchain=$NDK_HOME/build/cmake/android.toolchain.cmake \
+    -DANDROID_STL=none \
+    -DANDROID_ABI=arm64-v8a \
+    -DANDROID_PLATFORM=android-29 \
+    -DANDROID_LD=lld \
+    -DCMAKE_BUILD_TYPE=MinSizeRel \
+    -DCMAKE_INSTALL_PREFIX=<install prefix> \
+    -DENABLE_THREADING=true \
+    ..
+make install
+```
 
 Linking to `libjson-c` <a name="linking">
 ----------------------
