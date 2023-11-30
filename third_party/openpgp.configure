@@ -329,6 +329,8 @@ with only_when(in_tree_librnp):
         have_locale_h = check_header("locale.h")
         have_strings_h = check_header("strings.h")
 
+        set_config("HAVE_STDINT_H", noset_check_header("stdint.h"))
+
         check_headers("stdarg.h", "dlfcn.h", "endian.h", "memory.h", "xlocale.h")
 
         set_define("HAVE_DECL__ISNAN", check_symbol_exists("_isnan", "float.h"))
