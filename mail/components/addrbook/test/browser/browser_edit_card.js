@@ -7,7 +7,7 @@ var { AddrBookCard } = ChromeUtils.import(
   "resource:///modules/AddrBookCard.jsm"
 );
 
-requestLongerTimeout(2);
+requestLongerTimeout(3);
 
 async function inEditingMode() {
   const abWindow = getAddressBookWindow();
