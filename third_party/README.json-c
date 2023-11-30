@@ -1,8 +1,19 @@
-Directory ./json-c contains a copy of version 0.16 of the json-c library,
-which has been obtained from https://s3.amazonaws.com/json-c_releases/releases/json-c-0.16-nodoc.tar.gz .
-(Link at https://github.com/json-c/json-c/wiki).
+Directory ./json-c contains a copy of json-c, which has been obtained from:
+https://github.com/json-c/json-c
 
 For licensing information, please refer to the included documentation.
+
+[tag json-c-0.16-20220414]
+
+Updating:
+- cd $topsrcdir/comm
+- ../mach vendor -r <tag_name> third_party/json-c/moz.yaml
+- Review the changes
+- Commit the changes
+
+The tag information in this file is automatically updated. The moz.yaml file
+is automatically updated. If upstream changes require updating moz.build, that
+must be done with a manual step.
 
 The SHA256SUM of the imported file is:
 ac8a3dd6820daaca579b23fbc74664310fbc3d67f52f6707cda67d21dde5570f  json-c-0.16-nodoc.tar.gz
@@ -21,7 +32,11 @@ tests/
 .travis.yml
 Android.configure.mk
 CMakeLists.txt
+INSTALL
+NEWS
 README
+RELEASE_CHECKLIST.txt
+STYLE.txt
 appveyor.yml
 cmake-configure
 issues_closed_for_0.{13,14,15,16}.md
@@ -32,5 +47,6 @@ json-c.sym
 The following files were added to the source's root by MZLA Technologies:
 config.h.in (modified copy from cmake/config.h.in)
 moz.build
+moz.yaml
 
 

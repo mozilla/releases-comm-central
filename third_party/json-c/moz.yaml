@@ -1,0 +1,51 @@
+---
+schema: 1
+
+bugzilla:
+  product: "Thunderbird"
+  component: "Build Config"
+
+origin:
+  name: "json-c"
+  description: "JSON C library"
+
+  url: "https://github.com/json-c/json-c"
+  license: MIT
+
+  release: json-c-0.16-20220414
+
+  revision: json-c-0.16-20220414
+
+  license-file: COPYING
+
+vendoring:
+  url: https://github.com/json-c/json-c
+  source-hosting: github
+  tracking: tag
+
+  skip-vendoring-steps:
+    - hg-add
+    - spurious-check
+    - update-moz-build
+
+  exclude:
+    - "**"
+    - ".*"
+    - ".github/**"
+
+  include:
+    - '*.c'
+    - '*.h'
+    - cmake/*.h.in
+    - AUTHORS
+    - ChangeLog
+    - COPYING
+    - README.html
+    - README.md
+    - json.h.cmakein
+
+  update-actions:
+    - action: replace-in-file-regex
+      file: '{yaml_dir}/../README.json-c'
+      pattern: '\[tag json-c-[0-9\.\-]+\]'
+      with: '[tag {revision}]'

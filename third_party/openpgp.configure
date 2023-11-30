@@ -331,8 +331,6 @@ with only_when(in_tree_librnp):
 
         check_headers("stdarg.h", "dlfcn.h", "endian.h", "memory.h", "xlocale.h")
 
-        set_define("JSON_C_HAVE_INTTYPES_H", noset_check_header("inttypes.h"))
-
         set_define("HAVE_DECL__ISNAN", check_symbol_exists("_isnan", "float.h"))
 
         set_define("HAVE_DECL__FINITE", check_symbol_exists("_finite", "float.h"))

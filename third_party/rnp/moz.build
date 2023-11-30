@@ -62,6 +62,7 @@ IQuote(
 
 # Set up defines for src/lib/config.h
 rnp_defines = {
+    "RNP_USE_STD_REGEX": True,
     "HAVE_BZLIB_H": True,
     "HAVE_ZLIB_H": True,
     "ENABLE_SM2": False,

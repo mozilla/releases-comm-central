@@ -29,6 +29,7 @@ def process_cmake_define_file(output, input_file, extra_defines):
         "#define NAME" is unchanged
         "#define NAME ORIGINAL_VALUE" is turned into "#define NAME VALUE"
         "#undef UNKNOWN_NAME" is turned into "/* #undef UNKNOWN_NAME */"
+        "#define UNKNOWN_NAME" is turned into "/* #undef UNKNOWN_NAME */"
         "#cmakedefine UNKNOWN_NAME" is turned into "/* #undef UNKNOWN_NAME */"
         Whitespaces are preserved.
     """
@@ -59,6 +60,13 @@ def process_cmake_define_file(output, input_file, extra_defines):
                                 + str(defines[name])
                                 + line[m.end("value") :]
                             )
+                        elif name not in defines:
+                            line = (
+                                "/* #undef "
+                                + line[m.start("name") : m.end("name")]
+                                + " */"
+                                + line[m.end("name") :]
+                            )
                     elif cmd in ("undef", "cmakedefine"):
                         if name in defines:
                             line = (
@@ -77,6 +85,7 @@ def process_cmake_define_file(output, input_file, extra_defines):
                                 + line[m.end("name") :]
                             )
 
+            line = re.sub(r' *"?@.*@"?$', "", line)
             output.write(line)
 
 
