@@ -8,19 +8,13 @@
 #include "plstr.h"
 #include "prmem.h"
 #include "prprf.h"
-
-#include "nsIServiceManager.h"
 #include "nsCOMPtr.h"
 #include "nsString.h"
-#include "nsMemory.h"
-#include "nsISupportsPrimitives.h"
-
 #include "nsIMsgBiffManager.h"
 #include "nsIMsgFolder.h"
 #include "nsMsgDBFolder.h"
 #include "nsIMsgFolderCache.h"
 #include "nsIMsgPluggableStore.h"
-#include "nsIMsgFolderCacheElement.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgProtocolInfo.h"
@@ -31,10 +25,7 @@
 #include "nsIAuthPrompt.h"
 #include "nsNetUtil.h"
 #include "nsIWindowWatcher.h"
-#include "nsIStringBundle.h"
 #include "nsIMsgHdr.h"
-#include "nsIInterfaceRequestor.h"
-#include "nsIInterfaceRequestorUtils.h"
 #include "nsILoginInfo.h"
 #include "nsILoginManager.h"
 #include "nsIMsgAccountManager.h"
@@ -49,7 +40,7 @@
 #include "nsIObserverService.h"
 #include "mozilla/Unused.h"
 #include "nsIUUIDGenerator.h"
-#include "nsArrayUtils.h"
+#include "nsIArray.h"
 
 #define PORT_NOT_SET -1
 
@@ -60,7 +51,6 @@ nsMsgIncomingServer::nsMsgIncomingServer()
       m_biffState(nsIMsgFolder::nsMsgBiffState_Unknown),
       m_serverBusy(false),
       m_canHaveFilters(true),
-      m_displayStartupPage(true),
       mPerformingBiff(false) {}
 
 nsresult nsMsgIncomingServer::Init() {
@@ -243,12 +233,6 @@ nsMsgIncomingServer::SetUID(const nsACString& uid) {
   return SetCharValue("uid", uid);
 }
 
-NS_IMETHODIMP
-nsMsgIncomingServer::SetRootFolder(nsIMsgFolder* aRootFolder) {
-  m_rootFolder = aRootFolder;
-  return NS_OK;
-}
-
 // this will return the root folder of this account,
 // even if this server is deferred.
 NS_IMETHODIMP
@@ -345,13 +329,6 @@ nsMsgIncomingServer::CloseCachedConnections() {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetDownloadMessagesAtStartup(bool* getMessagesAtStartup) {
-  // derived class should override if they need to do this.
-  *getMessagesAtStartup = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgIncomingServer::GetCanHaveFilters(bool* canHaveFilters) {
   NS_ENSURE_ARG_POINTER(canHaveFilters);
   *canHaveFilters = m_canHaveFilters;
@@ -376,15 +353,6 @@ nsMsgIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
   // derived class should override if they need to do this.
   NS_ENSURE_ARG_POINTER(canSearchMessages);
   *canSearchMessages = false;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgIncomingServer::GetCanCompactFoldersOnServer(
-    bool* canCompactFoldersOnServer) {
-  // derived class should override if they need to do this.
-  NS_ENSURE_ARG_POINTER(canCompactFoldersOnServer);
-  *canCompactFoldersOnServer = true;
   return NS_OK;
 }
 
@@ -1477,19 +1445,6 @@ NS_IMETHODIMP nsMsgIncomingServer::SetRetentionSettings(
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgIncomingServer::GetDisplayStartupPage(bool* displayStartupPage) {
-  NS_ENSURE_ARG_POINTER(displayStartupPage);
-  *displayStartupPage = m_displayStartupPage;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgIncomingServer::SetDisplayStartupPage(bool displayStartupPage) {
-  m_displayStartupPage = displayStartupPage;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgIncomingServer::GetDownloadSettings(
     nsIMsgDownloadSettings** settings) {
   NS_ENSURE_ARG_POINTER(settings);
@@ -1549,25 +1504,6 @@ nsMsgIncomingServer::GetOfflineSupportLevel(int32_t* aSupportLevel) {
   if (*aSupportLevel == OFFLINE_SUPPORT_LEVEL_UNDEFINED)
     *aSupportLevel = OFFLINE_SUPPORT_LEVEL_NONE;
   return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgIncomingServer::SetOfflineSupportLevel(int32_t aSupportLevel) {
-  SetIntValue("offline_support_level", aSupportLevel);
-  return NS_OK;
-}
-
-// Called only during the migration process. A unique name is generated for the
-// migrated account.
-NS_IMETHODIMP
-nsMsgIncomingServer::GeneratePrettyNameForMigration(nsAString& aPrettyName) {
-  /**
-   * 4.x had provisions for multiple imap servers to be maintained under
-   * single identity. So, when migrated each of those server accounts need
-   * to be represented by unique account name. nsImapIncomingServer will
-   * override the implementation for this to do the right thing.
-   */
-  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
@@ -2112,26 +2048,6 @@ NS_IMETHODIMP nsMsgIncomingServer::IsNewHdrDuplicate(nsIMsgDBHdr* aNewHdr,
     }
   }
   return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgIncomingServer::GetForcePropertyEmpty(const char* aPropertyName,
-                                           bool* _retval) {
-  NS_ENSURE_ARG_POINTER(_retval);
-  nsAutoCString nameEmpty(aPropertyName);
-  nameEmpty.AppendLiteral(".empty");
-  nsCString value;
-  GetCharValue(nameEmpty.get(), value);
-  *_retval = value.EqualsLiteral("true");
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgIncomingServer::SetForcePropertyEmpty(const char* aPropertyName,
-                                           bool aValue) {
-  nsAutoCString nameEmpty(aPropertyName);
-  nameEmpty.AppendLiteral(".empty");
-  return SetCharValue(nameEmpty.get(), aValue ? "true"_ns : ""_ns);
 }
 
 NS_IMETHODIMP

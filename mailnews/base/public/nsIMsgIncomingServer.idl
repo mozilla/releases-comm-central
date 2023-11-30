@@ -166,7 +166,7 @@ interface nsIMsgIncomingServer : nsISupports {
   readonly attribute AUTF8String serverURI;
 
   /* the root folder for this server, even if server is deferred */
-  attribute nsIMsgFolder rootFolder;
+  readonly attribute nsIMsgFolder rootFolder;
 
   /* root folder for this account
      - if account is deferred, root folder of deferred-to account */
@@ -359,9 +359,6 @@ interface nsIMsgIncomingServer : nsISupports {
   /* used for comparing nsIMsgIncomingServers */
   boolean equals(in nsIMsgIncomingServer server);
 
-  /* Get Messages at startup */
-  readonly attribute boolean downloadMessagesAtStartup;
-
   /* check to this if the server supports filters */
   attribute boolean canHaveFilters;
 
@@ -384,8 +381,6 @@ interface nsIMsgIncomingServer : nsISupports {
   /* check if this server allows search operations */
   readonly attribute boolean canSearchMessages;
 
-  /* display startup page once per account per session */
-  attribute boolean displayStartupPage;
   attribute nsIMsgDownloadSettings downloadSettings;
 
   /*
@@ -404,10 +399,7 @@ interface nsIMsgIncomingServer : nsISupports {
    * IMAP level 10 and NEWS with level 20.
    *
    */
-  attribute long offlineSupportLevel;
-
-  /* create pretty name for migrated accounts */
-  AString generatePrettyNameForMigration();
+  readonly attribute long offlineSupportLevel;
 
   /* does this server have disk space settings? */
   readonly attribute boolean supportsDiskSpace;
@@ -438,9 +430,6 @@ interface nsIMsgIncomingServer : nsISupports {
 
   /* can this server allows message filing ? */
   attribute boolean canFileMessagesOnServer;
-
-  /* can this server allow compacting folders ? */
-  readonly attribute boolean canCompactFoldersOnServer;
 
   /* can this server allow undo delete ? */
   readonly attribute boolean canUndoDeleteOnServer;
@@ -499,25 +488,6 @@ interface nsIMsgIncomingServer : nsISupports {
 
   // check if new hdr is a duplicate of a recently arrived header
   boolean isNewHdrDuplicate(in nsIMsgDBHdr aNewHdr);
-
-  /**
-   * Set a boolean to force an inherited propertyName to return empty instead
-   * of inheriting from a parent folder, server, or the global
-   *
-   * @param propertyName         The name of the property
-   * @param aForcePropertyEmpty  true if an empty inherited property should be returned
-   */
-  void setForcePropertyEmpty(in string propertyName, in boolean aForcePropertyEmpty);
-
-  /**
-   * Get a boolean to force an inherited propertyName to return empty instead
-   * of inheriting from a parent folder, server, or the global
-   *
-   * @param propertyName      The name of the property
-   *
-   * @return                  true if an empty inherited property should be returned
-   */
-  boolean getForcePropertyEmpty(in string propertyName);
 
   /**
    * Return the order in which this server type should appear in the folder pane.

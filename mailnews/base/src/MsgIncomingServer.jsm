@@ -251,12 +251,9 @@ class MsgIncomingServer {
     this.performingBiff = false;
     this.accountManagerChrome = "am-main.xhtml";
     this.biffState = Ci.nsIMsgFolder.nsMsgBiffState_Unknown;
-    this.downloadMessagesAtStartup = false;
     this.canHaveFilters = true;
     this.canBeDefaultServer = false;
-    this.displayStartupPage = true;
     this.supportsDiskSpace = true;
-    this.canCompactFoldersOnServer = true;
     this.canUndoDeleteOnServer = true;
     this.sortOrder = 100000000;
 
@@ -690,10 +687,6 @@ class MsgIncomingServer {
     return level == OFFLINE_SUPPORT_LEVEL_UNDEFINED
       ? OFFLINE_SUPPORT_LEVEL_NONE
       : level;
-  }
-
-  set offlineSupportLevel(value) {
-    this.setIntValue("offline_support_level", value);
   }
 
   get filterScope() {
@@ -1220,14 +1213,6 @@ class MsgIncomingServer {
     if (filter) {
       this._filterList.removeFilter(filter);
     }
-  }
-
-  getForcePropertyEmpty(name) {
-    return this.getCharValue(`${name}.empty`) == "true";
-  }
-
-  setForcePropertyEmpty(name, value) {
-    return this.setCharValue(`${name}.empty`, value ? "true" : "");
   }
 
   performExpand(msgWindow) {}

@@ -2157,58 +2157,31 @@ nsMsgDBFolder::SetStringProperty(const char* propertyName,
   return NS_OK;
 }
 
-// Get/Set ForcePropertyEmpty is only used with inherited properties
-NS_IMETHODIMP
-nsMsgDBFolder::GetForcePropertyEmpty(const char* aPropertyName, bool* _retval) {
-  NS_ENSURE_ARG_POINTER(_retval);
-  nsAutoCString nameEmpty(aPropertyName);
-  nameEmpty.AppendLiteral(".empty");
-  nsCString value;
-  GetStringProperty(nameEmpty.get(), value);
-  *_retval = value.EqualsLiteral("true");
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgDBFolder::SetForcePropertyEmpty(const char* aPropertyName, bool aValue) {
-  nsAutoCString nameEmpty(aPropertyName);
-  nameEmpty.AppendLiteral(".empty");
-  return SetStringProperty(nameEmpty.get(), aValue ? "true"_ns : ""_ns);
-}
-
 NS_IMETHODIMP
 nsMsgDBFolder::GetInheritedStringProperty(const char* aPropertyName,
                                           nsACString& aPropertyValue) {
   NS_ENSURE_ARG_POINTER(aPropertyName);
   nsCString value;
+
   nsCOMPtr<nsIMsgIncomingServer> server;
-
-  bool forceEmpty = false;
-
-  if (!mIsServer) {
-    GetForcePropertyEmpty(aPropertyName, &forceEmpty);
-  } else {
-    // root folders must get their values from the server
+  if (mIsServer) {
     GetServer(getter_AddRefs(server));
-    if (server) server->GetForcePropertyEmpty(aPropertyName, &forceEmpty);
-  }
-
-  if (forceEmpty) {
-    aPropertyValue.Truncate();
-    return NS_OK;
   }
 
   // servers will automatically inherit from the preference
   // mail.server.default.(propertyName)
-  if (server) return server->GetCharValue(aPropertyName, aPropertyValue);
+  if (server) {
+    return server->GetCharValue(aPropertyName, aPropertyValue);
+  }
 
   GetStringProperty(aPropertyName, value);
   if (value.IsEmpty()) {
     // inherit from the parent
     nsCOMPtr<nsIMsgFolder> parent;
     GetParent(getter_AddRefs(parent));
-    if (parent)
+    if (parent) {
       return parent->GetInheritedStringProperty(aPropertyName, aPropertyValue);
+    }
   }
 
   aPropertyValue.Assign(value);

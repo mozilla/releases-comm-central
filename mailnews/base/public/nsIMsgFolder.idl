@@ -877,25 +877,6 @@ interface nsIMsgFolder : nsISupports {
   ACString getInheritedStringProperty(in string propertyName);
 
   /**
-   * Set a boolean to force an inherited propertyName to return empty instead
-   * of inheriting from a parent folder, server, or the global
-   *
-   * @param propertyName         The name of the property
-   * @param aForcePropertyEmpty  true if an empty inherited property should be returned
-   */
-  void setForcePropertyEmpty(in string propertyName, in boolean aForcePropertyEmpty);
-
-  /**
-   * Get a boolean to force an inherited propertyName to return empty instead
-   * of inheriting from a parent folder, server, or the global
-   *
-   * @param propertyName      The name of the property
-   *
-   * @return                  true if an empty inherited property should be returned
-   */
-  boolean getForcePropertyEmpty(in string propertyName);
-
-  /**
    * Pluggable store for this folder. Currently, this will always be the same
    * as the pluggable store for the server.
    */

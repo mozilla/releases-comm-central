@@ -30,14 +30,11 @@
 // for the memory cache...
 #include "nsICacheEntry.h"
 #include "nsImapUrl.h"
-#include "nsIMsgProtocolInfo.h"
 #include "nsIMsgMailSession.h"
 #include "nsImapNamespace.h"
-#include "nsArrayUtils.h"
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "nsCRTGlue.h"
 #include "mozilla/Components.h"
 #include "nsNetUtil.h"
 #include "mozilla/Utf8.h"
@@ -2406,17 +2403,6 @@ nsImapIncomingServer::GetCanBeDefaultServer(bool* canBeDefaultServer) {
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::GetCanCompactFoldersOnServer(
-    bool* canCompactFoldersOnServer) {
-  NS_ENSURE_ARG_POINTER(canCompactFoldersOnServer);
-  // Initialize canCompactFoldersOnServer true, a default value for IMAP
-  *canCompactFoldersOnServer = true;
-  GetPrefForServerAttribute("canCompactFoldersOnServer",
-                            canCompactFoldersOnServer);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsImapIncomingServer::GetCanUndoDeleteOnServer(bool* canUndoDeleteOnServer) {
   NS_ENSURE_ARG_POINTER(canUndoDeleteOnServer);
   // Initialize canUndoDeleteOnServer true, a default value for IMAP
@@ -2535,77 +2521,6 @@ nsImapIncomingServer::GetOfflineSupportLevel(int32_t* aSupportLevel) {
   if (NS_FAILED(rv))  // set default value
     *aSupportLevel = OFFLINE_SUPPORT_LEVEL_REGULAR;
   return NS_OK;
-}
-
-// Called only during the migration process. This routine enables the generation
-// of unique account name based on the username, hostname and the port. If the
-// port is valid and not a default one, it will be appended to the account name.
-NS_IMETHODIMP
-nsImapIncomingServer::GeneratePrettyNameForMigration(nsAString& aPrettyName) {
-  nsCString userName;
-  nsCString hostName;
-
-  /**
-   * Pretty name for migrated account is of format username@hostname:<port>,
-   * provided the port is valid and not the default
-   */
-  // Get user name to construct pretty name
-  nsresult rv = GetUsername(userName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Get host name to construct pretty name
-  rv = GetHostName(hostName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  int32_t defaultServerPort;
-  int32_t defaultSecureServerPort;
-
-  // Here, the final contract ID is already known, so use it directly for
-  // efficiency.
-  nsCOMPtr<nsIMsgProtocolInfo> protocolInfo =
-      do_GetService("@mozilla.org/messenger/protocol/info;1?type=imap", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Get the default port
-  rv = protocolInfo->GetDefaultServerPort(false, &defaultServerPort);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Get the default secure port
-  rv = protocolInfo->GetDefaultServerPort(true, &defaultSecureServerPort);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Get the current server port
-  int32_t serverPort = PORT_NOT_SET;
-  rv = GetPort(&serverPort);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Is the server secure ?
-  int32_t socketType;
-  rv = GetSocketType(&socketType);
-  NS_ENSURE_SUCCESS(rv, rv);
-  bool isSecure = (socketType == nsMsgSocketType::SSL);
-
-  // Is server port a default port ?
-  bool isItDefaultPort = false;
-  if (((serverPort == defaultServerPort) && !isSecure) ||
-      ((serverPort == defaultSecureServerPort) && isSecure))
-    isItDefaultPort = true;
-
-  // Construct pretty name from username and hostname
-  nsAutoString constructedPrettyName;
-  CopyASCIItoUTF16(userName, constructedPrettyName);
-  constructedPrettyName.Append('@');
-  constructedPrettyName.Append(NS_ConvertASCIItoUTF16(hostName));
-
-  // If the port is valid and not default, add port value to the pretty name
-  if ((serverPort > 0) && (!isItDefaultPort)) {
-    constructedPrettyName.Append(':');
-    constructedPrettyName.AppendInt(serverPort);
-  }
-
-  // Format the pretty name
-  return GetFormattedStringFromName(constructedPrettyName,
-                                    "imapDefaultAccountName", aPrettyName);
 }
 
 nsresult nsImapIncomingServer::GetFormattedStringFromName(

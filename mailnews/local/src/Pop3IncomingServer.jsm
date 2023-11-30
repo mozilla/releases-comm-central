@@ -40,7 +40,6 @@ class Pop3IncomingServer extends MsgIncomingServer {
     // nsIMsgIncomingServer attributes.
     this.localStoreType = "mailbox";
     this.localDatabaseType = "mailbox";
-    this.downloadMessagesAtStartup = true;
     this.canBeDefaultServer = true;
 
     Object.defineProperty(this, "canCreateFoldersOnServer", {
