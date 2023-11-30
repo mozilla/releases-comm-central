@@ -12,7 +12,7 @@ origin:
   url: "https://www.rnpgp.org/"
   license: BSD-2-Clause
 
-  release: v0.17.0 (2023-05-02T08:01:48Z).
+  release: v0.17.0 (2023-05-02T11:01:48+03:00).
 
   revision: v0.17.0
 
@@ -68,6 +68,7 @@ vendoring:
 
   patches:
     - ../patches/rnp/bug1843535_gcc13_missing_header.patch
+    - ../patches/rnp/pr2145.patch
 
   update-actions:
     - action: replace-in-file-regex

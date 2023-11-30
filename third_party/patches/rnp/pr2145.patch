@@ -1,0 +1,27 @@
+From d211911a54080b6dd551572c9a7cad5611bfa7bc Mon Sep 17 00:00:00 2001
+From: Rob Lemley <rob@thunderbird.net>
+Date: Wed, 8 Nov 2023 11:23:13 -0500
+Subject: [PATCH] Use typedef for Windows ssize_t. Fixes #2144.
+
+---
+ src/common/uniwin.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/common/uniwin.h b/src/common/uniwin.h
+index 095c325b..b7e2b52d 100644
+--- a/src/common/uniwin.h
++++ b/src/common/uniwin.h
+@@ -35,9 +35,9 @@
+ #include <direct.h> /* for _getcwd() and _chdir() */
+ 
+ #ifdef _WIN64
+-#define ssize_t __int64
++typedef __int64 ssize_t;
+ #else
+-#define ssize_t long
++typedef long ssize_t;
+ #endif
+ 
+ #define STDIN_FILENO 0
+-- 
+2.42.1

@@ -29,9 +29,4 @@ is at rnp/moz.yaml.
     > mach vendor ./moz.yaml --patch-mode none
     # followed by
     > mach vendor ./moz.yaml --patch-mode only
-
-
-Build notes:
-
-
-
+   
