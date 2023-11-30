@@ -1,9 +1,13 @@
 <?xml version="1.0"?>
-
-<window align="start" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/menulist.css" />
-
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false">
+  <head>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/menulist.css" />
+  </head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <button id="before" label="I'm just a button" onclick="alert('I\'m a button!')"/>
 
   <menulist>
@@ -28,4 +32,5 @@
   </menulist>
 
   <button id="after" label="I'm just a button"/>
-</window>
+</html:body>
+</html>
