@@ -4132,35 +4132,39 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
         if (m_flagState->GetPartialUIDFetch()) {
           uint32_t numExists = GetServerStateParser().NumberOfMessages();
           uint32_t numPrevExists = mFolderTotalMsgCount;
-
-          if (MOZ_LOG_TEST(IMAP_CS, LogLevel::Debug)) {
-            int32_t addedByPartialFetch;
-            m_flagState->GetNumberOfMessages(&addedByPartialFetch);
-            MOZ_LOG(IMAP_CS, LogLevel::Debug,
-                    ("Sanity, deleted=%" PRId32 ", numPrevExists=%" PRIu32
-                     ", numExists=%" PRIu32,
-                     m_flagState->NumberOfDeletedMessages(), numPrevExists,
-                     numExists));
-            // clang-format off
-            MOZ_LOG(IMAP_CS, LogLevel::Debug,
-                    ("Sanity, addedByPartialFetch=%" PRId32, addedByPartialFetch));
-            // clang-format on
-          }
-
+          MOZ_LOG(IMAP_CS, LogLevel::Debug,
+                  ("Sanity, deleted=%" PRId32 ", numPrevExists=%" PRIu32
+                   ", numExists=%" PRIu32,
+                   m_flagState->NumberOfDeletedMessages(), numPrevExists,
+                   numExists));
           // Determine the number of new UIDs just fetched that are greater than
           // the saved highest UID for the folder. numToCheck will contain the
           // number of UIDs just fetched and, of course, not all are new.
           uint32_t numNewUIDs = 0;
           uint32_t numToCheck = m_flagState->GetNumAdded();
           bool flagChangeDetected = false;
+          bool expungeHappened = false;
           MOZ_LOG(IMAP_CS, LogLevel::Debug,
                   ("numToCheck=%" PRIu32, numToCheck));
           if (numToCheck && mFolderHighestUID) {
             uint32_t uid;
             int32_t topIndex;
             m_flagState->GetNumberOfMessages(&topIndex);
+            MOZ_LOG(
+                IMAP_CS, LogLevel::Debug,
+                ("Partial fetching. Number of UIDs stored=%" PRId32, topIndex));
             do {
               topIndex--;
+              // Check for potential infinite loop here. This has happened but
+              // don't know why. If topIndex is negative at this point, set
+              // expungeHappened true to recover by doing a full flag fetch.
+              if (topIndex < 0) {
+                expungeHappened = true;
+                MOZ_LOG(IMAP_CS, LogLevel::Error,
+                        ("Zero or negative number of UIDs stored, do full flag "
+                         "fetch"));
+                break;
+              }
               m_flagState->GetUidOfMessage(topIndex, &uid);
               if (uid && uid != nsMsgKey_None) {
                 if (uid > mFolderHighestUID) {
@@ -4177,6 +4181,10 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
                           ("Not new uid=%" PRIu32, uid));
                   break;
                 }
+              } else {
+                MOZ_LOG(IMAP_CS, LogLevel::Debug,
+                        ("UID is 0 or a gap, uid=0x%" PRIx32, uid));
+                break;
               }
             } while (numToCheck);
           }
@@ -4184,7 +4192,8 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
           // Another client expunged at least one message if the number of new
           // UIDs is not equal to the observed change in the number of messages
           // existing in the folder.
-          bool expungeHappened = numNewUIDs != (numExists - numPrevExists);
+          expungeHappened =
+              expungeHappened || numNewUIDs != (numExists - numPrevExists);
           if (expungeHappened) {
             // Sanity check failed - need full fetch to remove expunged msgs.
             MOZ_LOG(IMAP_CS, LogLevel::Debug,
