@@ -14,6 +14,8 @@ Thunderbird Source Tree Documentation
 
    l10n/index
 
+   rust/index
+
    storybook/index
 
    telemetry/index

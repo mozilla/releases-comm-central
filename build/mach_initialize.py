@@ -68,6 +68,7 @@ def initialize(topsrcdir, args=()):
         "tb-l10n-quarantine-to-strings": MachCommandReference("comm/python/l10n/mach_commands.py"),
         "tb-l10n-x-channel": MachCommandReference("comm/python/l10n/mach_commands.py"),
         "tb-esmify": MachCommandReference("comm/tools/esmify/mach_commands.py"),
+        "tb-rust": MachCommandReference("comm/rust/mach_commands.py"),
         "tb-storybook": MachCommandReference("comm/mail/components/storybook/mach_commands.py"),
     }
     MACH_COMMANDS.update(COMM_MACH_COMMANDS)

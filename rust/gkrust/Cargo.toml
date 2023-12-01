@@ -1,0 +1,106 @@
+
+[package]
+name = "gkrust"
+version = "0.1.0"
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["staticlib"]
+test = false
+doctest = false
+bench = false
+doc = false
+plugin = false
+harness = false
+
+[dependencies]
+mozilla-central-workspace-hack = { version = "0.1", features = ['gkrust'], optional = true }
+gkrust-shared = { version = "0.1.0", path = "../../../toolkit/library/rust/shared" }
+aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "ed4206ea11703580cd1d4fc63371a527b29d8252" }
+app_services_logger = { path = "../../../services/common/app_services_logger" }
+audio_thread_priority = { version = "0.30" }
+audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "6be424d75f1367e70f2f5ddcacd6d0237e81a6a9", optional = true }
+audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "6be424d75f1367e70f2f5ddcacd6d0237e81a6a9", optional = true }
+authrs_bridge = { path = "../../../dom/webauthn/authrs_bridge" }
+binary_http = { path = "../../../netwerk/protocol/http/binary_http" }
+bitsdownload = { path = "../../../toolkit/components/bitsdownload", optional = true }
+bookmark_sync = { path = "../../../toolkit/components/places/bookmark_sync", optional = true }
+cascade_bloom_filter = { path = "../../../toolkit/components/cascade_bloom_filter" }
+cert_storage = { path = "../../../security/manager/ssl/cert_storage" }
+chardetng_c = { version = "0.1.1" }
+cose-c = { version = "0.1.5" }
+crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
+cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "5d779af33219625a510df6bbc48a641b8a70bbc5", optional = true }
+cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "c04c4d2c7f2291cb81a1c48f5a8c425748f18cd8", optional = true, features = ['pulse-dlopen'] }
+cubeb-sys = { version = "0.10.3", optional = true, features = ['gecko-in-tree'] }
+dap_ffi = { path = "../../../toolkit/components/telemetry/dap/ffi" }
+data-encoding-ffi = { path = "../../../dom/fs/parent/rust/data-encoding-ffi" }
+data_storage = { path = "../../../security/manager/ssl/data_storage" }
+dom = { path = "../../../dom/base/rust" }
+encoding_glue = { path = "../../../intl/encoding_glue" }
+fallible_collections = { version = "0.4", features = ['rust_1_57'] }
+fluent = { version = "0.16.0", features = ['fluent-pseudo'] }
+fluent-fallback = { version = "0.7.0" }
+fluent-ffi = { path = "../../../intl/l10n/rust/fluent-ffi" }
+fluent-langneg = { version = "0.13", features = ['cldr'] }
+fluent-langneg-ffi = { path = "../../../intl/locale/rust/fluent-langneg-ffi" }
+fog_control = { path = "../../../toolkit/components/glean" }
+gecko-profiler = { path = "../../../tools/profiler/rust-api" }
+gecko_logger = { path = "../../../xpcom/rust/gecko_logger" }
+geckoservo = { path = "../../../servo/ports/geckolib" }
+gkrust_utils = { path = "../../../xpcom/rust/gkrust_utils" }
+http_sfv = { path = "../../../netwerk/base/http-sfv" }
+jog = { path = "../../../toolkit/components/glean/bindings/jog" }
+jsrust_shared = { path = "../../../js/src/rust/shared" }
+kvstore = { path = "../../../toolkit/components/kvstore" }
+l10nregistry = { path = "../../../intl/l10n/rust/l10nregistry-rs" }
+l10nregistry-ffi = { path = "../../../intl/l10n/rust/l10nregistry-ffi" }
+lmdb-rkv-sys = { version = "0.11", features = ['mdb_idl_logn_9'] }
+localization-ffi = { path = "../../../intl/l10n/rust/localization-ffi" }
+log = { version = "0.4", features = ['release_max_level_info'] }
+mapped_hyph = { git = "https://github.com/jfkthame/mapped_hyph.git", rev = "c7651a0cffff41996ad13c44f689bd9cd2192c01" }
+mdns_service = { path = "../../../dom/media/webrtc/transport/mdns_service", optional = true }
+midir_impl = { path = "../../../dom/midi/midir_impl", optional = true }
+mime-guess-ffi = { path = "../../../dom/fs/parent/rust/mime-guess-ffi" }
+moz_asserts = { version = "0.1" }
+mozannotation_client = { path = "../../../toolkit/crashreporter/mozannotation_client", optional = true }
+mozannotation_server = { path = "../../../toolkit/crashreporter/mozannotation_server", optional = true }
+mozglue-static = { path = "../../../mozglue/static/rust" }
+mozurl = { path = "../../../netwerk/base/mozurl" }
+mp4parse_capi = { git = "https://github.com/mozilla/mp4parse-rust", rev = "d262e40e7b80f949dcdb4db21caa6dbf1a8b2043", features = ['missing-pixi-permitted'] }
+neqo_glue = { path = "../../../netwerk/socket/neqo_glue" }
+netwerk_helper = { path = "../../../netwerk/base/rust-helper" }
+nserror = { path = "../../../xpcom/rust/nserror" }
+nsstring = { path = "../../../xpcom/rust/nsstring" }
+oblivious_http = { path = "../../../netwerk/protocol/http/oblivious_http" }
+origin-trials-ffi = { path = "../../../dom/origin-trials/ffi" }
+oxilangtag = { version = "0.1.3" }
+oxilangtag-ffi = { path = "../../../intl/locale/rust/oxilangtag-ffi" }
+prefs_parser = { path = "../../../modules/libpref/parser" }
+processtools = { path = "../../../toolkit/components/processtools" }
+profiler_helper = { path = "../../../tools/profiler/rust-helper", optional = true }
+qcms = { path = "../../../gfx/qcms", features = ['c_bindings', 'neon'] }
+rsdparsa_capi = { path = "../../../dom/media/webrtc/sdp/rsdparsa_capi" }
+rure = { version = "0.2.2" }
+rusqlite = { version = "0.29.0", features = ['modern_sqlite', 'in_gecko'] }
+rust_minidump_writer_linux = { path = "../../../toolkit/crashreporter/rust_minidump_writer_linux", optional = true }
+static_prefs = { path = "../../../modules/libpref/init/static_prefs" }
+storage = { path = "../../../storage/rust" }
+unic-langid = { version = "0.9", features = ['likelysubtags'] }
+unic-langid-ffi = { path = "../../../intl/locale/rust/unic-langid-ffi" }
+uniffi-example-arithmetic = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "c0e64b839018728d8153ce1758d391b7782e2e21", optional = true }
+uniffi-example-custom-types = { path = "../../../toolkit/components/uniffi-example-custom-types", optional = true }
+uniffi-example-geometry = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "c0e64b839018728d8153ce1758d391b7782e2e21", optional = true }
+uniffi-example-rondpoint = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "c0e64b839018728d8153ce1758d391b7782e2e21", optional = true }
+uniffi-example-sprites = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "c0e64b839018728d8153ce1758d391b7782e2e21", optional = true }
+uniffi-example-todolist = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "c0e64b839018728d8153ce1758d391b7782e2e21", optional = true }
+uniffi-fixture-callbacks = { path = "../../../toolkit/components/uniffi-fixture-callbacks", optional = true }
+uniffi-fixture-external-types = { path = "../../../toolkit/components/uniffi-fixture-external-types", optional = true }
+url = { version = "2.5.0" }
+webrender_bindings = { path = "../../../gfx/webrender_bindings" }
+wgpu_bindings = { path = "../../../gfx/wgpu_bindings" }
+wpf-gpu-raster = { git = "https://github.com/FirefoxGraphics/wpf-gpu-raster", rev = "99979da091fd58fba8477e7fcdf5ec0727102916" }
+xpcom = { path = "../../../xpcom/rust/xpcom" }
+
+[package.metadata.cargo-udeps.ignore]
+normal = ["mozilla-central-workspace-hack"]

@@ -1,0 +1,124 @@
+[source.crates-io]
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/FirefoxGraphics/aa-stroke?rev=ed4206ea11703580cd1d4fc63371a527b29d8252"]
+git = "https://github.com/FirefoxGraphics/aa-stroke"
+rev = "ed4206ea11703580cd1d4fc63371a527b29d8252"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/FirefoxGraphics/wpf-gpu-raster?rev=99979da091fd58fba8477e7fcdf5ec0727102916"]
+git = "https://github.com/FirefoxGraphics/wpf-gpu-raster"
+rev = "99979da091fd58fba8477e7fcdf5ec0727102916"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/chris-zen/coremidi.git?rev=fc68464b5445caf111e41f643a2e69ccce0b4f83"]
+git = "https://github.com/chris-zen/coremidi.git"
+rev = "fc68464b5445caf111e41f643a2e69ccce0b4f83"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/franziskuskiefer/cose-rust?rev=43c22248d136c8b38fe42ea709d08da6355cf04b"]
+git = "https://github.com/franziskuskiefer/cose-rust"
+rev = "43c22248d136c8b38fe42ea709d08da6355cf04b"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/gfx-rs/wgpu?rev=ff7b2c399301cca9bcbc5b19a869feb3c29ef785"]
+git = "https://github.com/gfx-rs/wgpu"
+rev = "ff7b2c399301cca9bcbc5b19a869feb3c29ef785"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/hsivonen/chardetng?rev=3484d3e3ebdc8931493aa5df4d7ee9360a90e76b"]
+git = "https://github.com/hsivonen/chardetng"
+rev = "3484d3e3ebdc8931493aa5df4d7ee9360a90e76b"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/hsivonen/chardetng_c?rev=ed8a4c6f900a90d4dbc1d64b856e61490a1c3570"]
+git = "https://github.com/hsivonen/chardetng_c"
+rev = "ed8a4c6f900a90d4dbc1d64b856e61490a1c3570"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/jfkthame/mapped_hyph.git?rev=c7651a0cffff41996ad13c44f689bd9cd2192c01"]
+git = "https://github.com/jfkthame/mapped_hyph.git"
+rev = "c7651a0cffff41996ad13c44f689bd9cd2192c01"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/mozilla-spidermonkey/jsparagus?rev=64ba08e24749616de2344112f226d1ef4ba893ae"]
+git = "https://github.com/mozilla-spidermonkey/jsparagus"
+rev = "64ba08e24749616de2344112f226d1ef4ba893ae"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/mozilla/application-services?rev=c82bccfa500813f273f4db0ead64fc73bfa2b34c"]
+git = "https://github.com/mozilla/application-services"
+rev = "c82bccfa500813f273f4db0ead64fc73bfa2b34c"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/mozilla/audioipc?rev=6be424d75f1367e70f2f5ddcacd6d0237e81a6a9"]
+git = "https://github.com/mozilla/audioipc"
+rev = "6be424d75f1367e70f2f5ddcacd6d0237e81a6a9"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=5d779af33219625a510df6bbc48a641b8a70bbc5"]
+git = "https://github.com/mozilla/cubeb-coreaudio-rs"
+rev = "5d779af33219625a510df6bbc48a641b8a70bbc5"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/mozilla/cubeb-pulse-rs?rev=c04c4d2c7f2291cb81a1c48f5a8c425748f18cd8"]
+git = "https://github.com/mozilla/cubeb-pulse-rs"
+rev = "c04c4d2c7f2291cb81a1c48f5a8c425748f18cd8"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/mozilla/midir.git?rev=519e651241e867af3391db08f9ae6400bc023e18"]
+git = "https://github.com/mozilla/midir.git"
+rev = "519e651241e867af3391db08f9ae6400bc023e18"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/mozilla/mp4parse-rust?rev=d262e40e7b80f949dcdb4db21caa6dbf1a8b2043"]
+git = "https://github.com/mozilla/mp4parse-rust"
+rev = "d262e40e7b80f949dcdb4db21caa6dbf1a8b2043"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/mozilla/neqo?tag=v0.6.8"]
+git = "https://github.com/mozilla/neqo"
+tag = "v0.6.8"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/mozilla/uniffi-rs.git?rev=c0e64b839018728d8153ce1758d391b7782e2e21"]
+git = "https://github.com/mozilla/uniffi-rs.git"
+rev = "c0e64b839018728d8153ce1758d391b7782e2e21"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/rust-lang/rust-bindgen?rev=86f3dbe846020e2ba573d6eb38d1434d0cbcbb40"]
+git = "https://github.com/rust-lang/rust-bindgen"
+rev = "86f3dbe846020e2ba573d6eb38d1434d0cbcbb40"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/seanmonstar/warp?rev=9d081461ae1167eb321585ce424f4fef6cf0092b"]
+git = "https://github.com/seanmonstar/warp"
+rev = "9d081461ae1167eb321585ce424f4fef6cf0092b"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/servo/rust-cssparser?rev=aaa966d9d6ae70c4b8a62bb5e3a14c068bb7dff0"]
+git = "https://github.com/servo/rust-cssparser"
+rev = "aaa966d9d6ae70c4b8a62bb5e3a14c068bb7dff0"
+replace-with = "vendored-sources"
+
+
+# Take advantage of the fact that cargo will treat lines starting with #
+# as comments to add preprocessing directives. This file can thus by copied
+# as-is to $topsrcdir/.cargo/config with no preprocessing to be used there
+# (for e.g. independent tasks building rust code), or be preprocessed by
+# the build system to produce a .cargo/config with the right content.
+#define REPLACE_NAME vendored-sources
+#define VENDORED_DIRECTORY comm/third_party/rust
+# We explicitly exclude the following section when preprocessing because
+# it would overlap with the preprocessed [source."@REPLACE_NAME@"], and
+# cargo would fail.
+#ifndef REPLACE_NAME
+[source.vendored-sources]
+directory = "../third_party/rust"
+#endif
+
+# Thankfully, @REPLACE_NAME@ is unlikely to be a legitimate source, so
+# cargo will ignore it when it's here verbatim.
+#filter substitution
+[source."@REPLACE_NAME@"]
+directory = "@top_srcdir@/@VENDORED_DIRECTORY@"

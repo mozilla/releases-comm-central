@@ -99,5 +99,11 @@ def thunderbird_official_branding(milestone, update_channel):
 set_config("THUNDERBIRD_OFFICIAL_BRANDING", thunderbird_official_branding)
 add_old_configure_assignment("THUNDERBIRD_OFFICIAL_BRANDING", thunderbird_official_branding)
 
+# Enable Rust overrides
+option("--enable-thunderbird-rust", help="Enable Rust support within Thunderbird")
+set_config("MOZ_OVERRIDE_GKRUST", True, when="--enable-thunderbird-rust")
+set_config(
+    "MOZ_OVERRIDE_CARGO_CONFIG", "comm/rust/.cargo/config.in", when="--enable-thunderbird-rust"
+)
 
 include("../../toolkit/moz.configure")

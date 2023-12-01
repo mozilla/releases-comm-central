@@ -48,3 +48,4 @@ third_party/asn1js/node_modules/
 # Built documentation
 docs/_build
 docs/_venv
+^rust/target/
