@@ -6,7 +6,7 @@
   --thread-pane-container-gap: 3px;
   --thread-pane-header-padding: 3px;
   --indicator-icon-offset-inline: 7px;
-  --indicator-icon-offset-block: 5px;
+  --indicator-icon-offset-block: 3px;
   --thread-card-padding-inline-start: 24px;
   --thread-card-padding-inline-end: 12px;
   --thread-line-inset-inline-start: calc(var(--thread-card-padding-inline-start) / 2);
@@ -15,12 +15,12 @@
 
 :root[uidensity="compact"] {
   --thread-pane-container-gap: 0;
-  --indicator-icon-offset-block: 3px;
+  --indicator-icon-offset-block: 1px;
 }
 
 :root[uidensity="touch"] {
   --thread-pane-header-padding: 6px;
-  --indicator-icon-offset-block: 7px;
+  --indicator-icon-offset-block: 6px;
 }
 
 @media not (prefers-contrast) {

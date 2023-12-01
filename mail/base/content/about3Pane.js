@@ -4973,7 +4973,7 @@ var threadPane = {
         break;
       default:
         rowClass.ROW_HEIGHT = 26;
-        cardRowHeight = (currentFontSize + 6) * cardRows + 6;
+        cardRowHeight = (currentFontSize + 7) * cardRows + 6;
         break;
     }
     cardClass.ROW_HEIGHT = cardRowHeight < 50 ? 50 : cardRowHeight;
