@@ -2904,7 +2904,7 @@ var folderPane = {
       folderTree.expandRow(this._expandRow);
       delete this._expandRow;
       delete this._expandTimer;
-    }, 500);
+    }, 1000);
   },
 
   _clearDropTarget() {
