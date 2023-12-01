@@ -32,21 +32,15 @@ input {
   }
 
   &:focus-visible {
-    outline: var(--focus-outline);
-    outline-offset: -1px;
+    outline-style: solid;
+    outline-width: 2px;
+    outline-color: var(--search-focus-outline-color);
+    outline-offset: var(--search-outline-offset);
   }
 
   &:-moz-lwtheme:focus-visible {
     color: var(--toolbar-field-focus-color);
     background-color: var(--toolbar-field-focus-background-color);
-  }
-
-  @media (-moz-windows-accent-color-in-titlebar) {
-    /* Apply only to unified toolbar. QFB search input has maxlength="192" */
-    &[maxlength="null"]:not(:-moz-lwtheme):focus-visible {
-      outline-offset: var(--focus-outline-offset);
-      outline-color: var(--windows-accent-outline-color);
-    }
   }
 }
 

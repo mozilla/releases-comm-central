@@ -89,6 +89,13 @@ unified-toolbar {
   & .spacer {
     -moz-window-dragging: drag;
   }
+
+  @media (-moz-windows-accent-color-in-titlebar) {
+    & .search-bar {
+      --search-focus-outline-color: var(--windows-accent-outline-color);
+      --search-outline-offset: var(--focus-outline-offset);
+    }
+  }
 }
 
 unified-toolbar-customization {

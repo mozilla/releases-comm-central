@@ -57,6 +57,8 @@
   --new-folder-color: light-dark(var(--color-blue-60), var(--color-blue-40));
   --lwt-header-image: none;
   --search-field-placeholder: color-mix(in srgb, currentColor 50%, transparent);
+  --search-focus-outline-color: var(--focus-outline-color);
+  --search-outline-offset: -1px;
   --selected-item-color: light-dark(var(--color-blue-60), var(--color-blue-50));
   --selected-item-text-color: var(--color-white);
   --splitter-color: var(--sidebar-border-color, var(--layout-border-0));
