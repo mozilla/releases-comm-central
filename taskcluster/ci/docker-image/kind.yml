@@ -14,6 +14,11 @@ reference-jobs:
     - debian8-i386-raw
     - debian8-packages
     - debian8-raw
+    - deb11-toolchain-build
+    - debian11-amd64-build
+    - debian11-base
+    - debian11-packages
+    - debian11-raw
     - deb12-toolchain-build
     - debian12-amd64-build
     - debian12-base
