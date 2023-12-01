@@ -52,7 +52,7 @@ xpcshell:
             default: 5
     worker-type:
         by-test-platform:
-            windows11-64-2009-ccov-qr/opt: win11-64-2009
+            windows11-64-2009-ccov-qr/opt: win11-64-2009-ssd
             default: default
     instance-size: default
     max-run-time:
@@ -177,7 +177,7 @@ mochitest-thunderbird:
                     - unittests/thunderbird_extra.py
     worker-type:
         by-test-platform:
-            windows11-64-2009-ccov-qr/opt: win11-64-2009
+            windows11-64-2009-ccov-qr/opt: win11-64-2009-ssd
             default: default
     instance-size:
         by-test-platform:

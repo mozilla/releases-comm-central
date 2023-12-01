@@ -279,7 +279,7 @@ workers:
             implementation: generic-worker
             os: macosx
             worker-type: 'gecko-{alias}'
-        win11-64-2009:
+        win11-64-2009(|-ssd):
             provisioner: comm-t
             implementation: generic-worker
             os: windows
