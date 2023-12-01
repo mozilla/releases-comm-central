@@ -58,7 +58,7 @@
   --checkbox-checked-bgcolor: var(--selected-item-color);
   --checkbox-checked-hover-bgcolor: color-mix(in srgb, black 10%, var(--selected-item-color));
   --checkbox-checked-active-bgcolor: color-mix(in srgb, black 20%, var(--selected-item-color));
-  --chrome-content-separator-color: ThreeDShadow;
+  --chrome-content-separator-color: light-dark(var(--color-gray-30), var(--color-gray-90));
   --focus-outline-color: var(--toolbar-field-focus-border-color);
   --focus-outline-offset: 2px;
   --focus-outline: 2px solid var(--focus-outline-color);
@@ -136,10 +136,9 @@
     --button-background: #d2d2d3;
     --button-background-hover: #c2c2c3;
     --button-background-active: #b2b2b3;
-    --chrome-content-separator-color: rgba(0,0,0,.3);
     --panel-separator-color: light-dark(hsla(210, 4%, 10%, 0.14), rgba(249, 249, 250, 0.1));
     --toolbar-color: var(--lwt-text-color, inherit);
-    --toolbar-bgcolor: rgba(255, 255, 255, .4);
+    --toolbar-bgcolor: rgba(255, 255, 255, 0.4);
     --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25);
     --toolbarbutton-icon-fill-opacity: 1;
   }
