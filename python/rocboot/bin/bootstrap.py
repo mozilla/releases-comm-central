@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -16,8 +16,8 @@
 import sys
 
 major, minor = sys.version_info[:2]
-if (major < 3) or (major == 3 and minor < 5):
-    print("Bootstrap currently only runs on Python 3.5+." "Please try re-running with python3.5+.")
+if (major < 3) or (major == 3 and minor < 8):
+    print("Bootstrap currently only runs on Python 3.8+." "Please try re-running with python3.8+.")
     sys.exit(1)
 
 import ctypes
@@ -32,7 +32,7 @@ CLONE_MERCURIAL_PULL_FAIL = """
 Failed to pull from hg.mozilla.org.
 
 This is most likely because of unstable network connection.
-Try running `cd %s && hg pull https://hg.mozilla.org/comm-central` manually,
+Try running `cd %s && hg pull https://hg.mozilla.org/comm-unified` manually,
 or download a mercurial bundle and use it:
 https://firefox-source-docs.mozilla.org/contributing/vcs/mercurial_bundles.html"""
 
@@ -48,16 +48,16 @@ def which(name):
 
     It returns the path of an executable or None if it couldn't be found.
     """
-    # git-cinnabar.exe doesn't exist, but .exe versions of the other executables
-    # do.
-    if WINDOWS and name != "git-cinnabar":
-        name += ".exe"
     search_dirs = os.environ["PATH"].split(os.pathsep)
+    potential_names = [name]
+    if WINDOWS:
+        potential_names.insert(0, name + ".exe")
 
     for path in search_dirs:
-        test = Path(path) / name
-        if test.is_file() and os.access(test, os.X_OK):
-            return test
+        for executable_name in potential_names:
+            test = Path(path) / executable_name
+            if test.is_file() and os.access(test, os.X_OK):
+                return test
 
     return None
 
@@ -101,7 +101,7 @@ def input_clone_dest(vcs, no_interactive):
             return None
 
 
-def hg_clone(hg: Path, repo, dest: Path, watchman: Path):
+def hg_clone(hg: Path, repo, dest: Path, watchman, head_repo, head_rev):
     print(f"Cloning {repo} to {dest}...")
     # We create an empty repo then modify the config before adding data.
     # This is necessary to ensure storage settings are optimally
@@ -136,26 +136,33 @@ def hg_clone(hg: Path, repo, dest: Path, watchman: Path):
         fh.write("# This is necessary to keep performance in check\n")
         fh.write("maxchainlen = 10000\n")
 
+    # Pulling a specific revision into an empty repository induces a lot of
+    # load on the Mercurial server, so we always pull from mozilla-unified (which,
+    # when done from an empty repository, is equivalent to a clone), and then pull
+    # the specific revision we want (if we want a specific one, otherwise we just
+    # use the "central" bookmark), at which point it will be an incremental pull,
+    # that the server can process more easily.
+    # This is the same thing that robustcheckout does on automation.
     res = subprocess.call(
         [str(hg), "pull", "https://hg.mozilla.org/{}".format(repo)], cwd=str(dest)
     )
+    if not res and head_repo:
+        res = subprocess.call([str(hg), "pull", head_repo, "-r", head_rev], cwd=str(dest))
     print("")
     if res:
         print(CLONE_MERCURIAL_PULL_FAIL % dest)
         return None
 
-    update_rev = {"mozilla-unified": "central", "comm-central": "tip"}[repo]
-    print("updating to {}".format(update_rev))
-    res = subprocess.call([str(hg), "update", "-r", update_rev], cwd=str(dest))
+    update_rev = {"mozilla-unified": "central", "comm-unified": "comm"}[repo]
+    head_rev = head_rev or update_rev
+    print("updating to {}".format(head_rev))
+    res = subprocess.call([str(hg), "update", "-r", head_rev], cwd=str(dest))
     if res:
-        print(
-            f"error updating; you will need to `cd {dest} && hg update -r {update_rev}` "
-            "manually"
-        )
+        print(f"error updating; you will need to `cd {dest} && hg update -r {head_rev}` manually")
     return dest
 
 
-def git_clone(git: Path, repo, dest: Path, watchman: Path):
+def git_clone(git: Path, repo, dest: Path, watchman: Path, head_repo, head_rev):
     print(f"Cloning {repo} to {dest}...")
     tempdir = None
     cinnabar = None
@@ -163,24 +170,22 @@ def git_clone(git: Path, repo, dest: Path, watchman: Path):
     try:
         cinnabar = which("git-cinnabar")
         if not cinnabar:
+            from urllib.request import urlopen
+
             cinnabar_url = "https://github.com/glandium/git-cinnabar/"
             # If git-cinnabar isn't installed already, that's fine; we can
-            # download a temporary copy. `mach bootstrap` will clone a full copy
-            # of the repo in the state dir; we don't want to copy all that logic
-            # to this tiny bootstrapping script.
+            # download a temporary copy. `mach bootstrap` will install a copy
+            # in the state dir; we don't want to copy all that logic to this
+            # tiny bootstrapping script.
             tempdir = Path(tempfile.mkdtemp())
-            cinnabar_dir = tempdir / "git-cinnabar-master"
+            with open(tempdir / "download.py", "wb") as fh:
+                shutil.copyfileobj(urlopen(f"{cinnabar_url}/raw/master/download.py"), fh)
+
             subprocess.check_call(
-                [str(git), "clone", "--depth=1", str(cinnabar_url), str(cinnabar_dir)],
+                [sys.executable, str(tempdir / "download.py")],
                 cwd=str(tempdir),
-                env=env,
             )
-            env["PATH"] = str(cinnabar_dir) + os.pathsep + env["PATH"]
-            subprocess.check_call(
-                [sys.executable, str(cinnabar_dir / "download.py")],
-                cwd=str(cinnabar_dir),
-                env=env,
-            )
+            env["PATH"] = str(tempdir) + os.pathsep + env["PATH"]
             print(
                 "WARNING! git-cinnabar is required for Firefox development  "
                 "with git. After the clone is complete, the bootstrapper "
@@ -191,22 +196,32 @@ def git_clone(git: Path, repo, dest: Path, watchman: Path):
 
         # We're guaranteed to have `git-cinnabar` installed now.
         # Configure git per the git-cinnabar requirements.
-        cmd = [
-            str(git),
-            "clone",
-        ]
-        if repo == "mozilla-unified":
-            cmd += [
-                "-b",
-                "bookmarks/central",
-            ]
-        cmd += [
-            "hg::https://hg.mozilla.org/{}".format(repo),
-            str(dest),
-        ]
-        subprocess.check_call(cmd, env=env)
+        subprocess.check_call(
+            [
+                str(git),
+                "clone",
+                "--no-checkout",
+                f"hg::https://hg.mozilla.org/{repo}",
+                str(dest),
+            ],
+            env=env,
+        )
         subprocess.check_call([str(git), "config", "fetch.prune", "true"], cwd=str(dest), env=env)
         subprocess.check_call([str(git), "config", "pull.ff", "only"], cwd=str(dest), env=env)
+
+        if head_repo:
+            subprocess.check_call(
+                [str(git), "cinnabar", "fetch", f"hg::{head_repo}", head_rev],
+                cwd=str(dest),
+                env=env,
+            )
+
+        bookmark = {"mozilla-unified": "bookmarks/central", "comm-unified": "bookmarks/comm"}[repo]
+        subprocess.check_call(
+            [str(git), "checkout", "FETCH_HEAD" if head_rev else bookmark],
+            cwd=str(dest),
+            env=env,
+        )
 
         watchman_sample = dest / ".git/hooks/fsmonitor-watchman.sample"
         # Older versions of git didn't include fsmonitor-watchman.sample.
@@ -231,12 +246,6 @@ def git_clone(git: Path, repo, dest: Path, watchman: Path):
             subprocess.check_call(config_args, cwd=str(dest), env=env)
         return dest
     finally:
-        if not cinnabar:
-            print(
-                "Failed to install git-cinnabar. Try performing a manual "
-                "installation: https://github.com/glandium/git-cinnabar/wiki/"
-                "Mozilla:-A-git-workflow-for-Gecko-development"
-            )
         if tempdir:
             shutil.rmtree(str(tempdir))
 
@@ -288,29 +297,25 @@ def clone(options):
     no_interactive = options.no_interactive
     no_system_changes = options.no_system_changes
 
-    hg = which("hg")
-    if not hg:
-        print(
-            "Mercurial is not installed. Mercurial is required to clone "
-            "Thunderbird%s." % (", even when cloning with Git" if vcs == "git" else "")
-        )
-        try:
-            # We're going to recommend people install the Mercurial package with
-            # pip3. That will work if `pip3` installs binaries to a location
-            # that's in the PATH, but it might not be. To help out, if we CAN
-            # import "mercurial" (in which case it's already been installed),
-            # offer that as a solution.
-            import mercurial  # noqa: F401
-
-            print(
-                "Hint: have you made sure that Mercurial is installed to a "
-                "location in your PATH?"
-            )
-        except ImportError:
-            print("Try installing hg with `pip3 install Mercurial`.")
-        return None
-
     if vcs == "hg":
+        hg = which("hg")
+        if not hg:
+            print("Mercurial is not installed. Mercurial is required to clone Thunderbird.")
+            try:
+                # We're going to recommend people install the Mercurial package with
+                # pip3. That will work if `pip3` installs binaries to a location
+                # that's in the PATH, but it might not be. To help out, if we CAN
+                # import "mercurial" (in which case it's already been installed),
+                # offer that as a solution.
+                import mercurial  # noqa: F401
+
+                print(
+                    "Hint: have you made sure that Mercurial is installed to a "
+                    "location in your PATH?"
+                )
+            except ImportError:
+                print("Try installing hg with `pip3 install Mercurial`.")
+            return None
         binary = hg
     else:
         binary = which(vcs)
@@ -331,13 +336,21 @@ def clone(options):
         clone_func = git_clone
     watchman = which("watchman")
 
-    mc = clone_func(binary, "mozilla-unified", dest, watchman)
+    print(f"Cloning Thunderbird {VCS_HUMAN_READABLE[vcs]} repository to {dest}")
+
+    gecko_head_repo = os.environ.get("GECKO_HEAD_REPOSITORY")
+    gecko_head_rev = os.environ.get("GECKO_HEAD_REV")
+
+    comm_head_repo = os.environ.get("COMM_HEAD_REPOSITORY")
+    comm_head_rev = os.environ.get("COMM_HEAD_REV")
+
+    mc = clone_func(binary, "mozilla-unified", dest, watchman, gecko_head_repo, gecko_head_rev)
     # Funny logic... the return value if successful needs to be the path
     # to mozilla-central. Only return "cc" if cloning comm-central
     # fails.
     if mc == dest:
         cc_dest = Path(dest) / "comm"
-        cc = clone_func(binary, "comm-central", cc_dest, watchman)
+        cc = clone_func(binary, "comm-unified", cc_dest, watchman, comm_head_repo, comm_head_rev)
         if cc:
             return mc
         else:
@@ -405,7 +418,6 @@ def main(args):
     )
 
     options, leftover = parser.parse_args(args)
-
     try:
         srcdir = clone(options)
         if not srcdir:
