@@ -91,9 +91,11 @@ add_setup(async function () {
   testFolder = rootFolder
     .getChildNamed("messageMenu")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  testFolder.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
-  );
+  const messages = [
+    ...generator.makeMessages({ count: 5 }),
+    ...generator.makeMessages({ count: 5, msgsPerThread: 5 }),
+  ];
+  testFolder.addMessageBatch(messages.map(message => message.toMboxString()));
   testFolder.addMessage(
     generator
       .makeMessage({
@@ -235,7 +237,7 @@ add_task(async function testSingleSelection() {
   });
 
   // This message has an attachment.
-  tabmail.currentAbout3Pane.threadTree.selectedIndex = 5;
+  tabmail.currentAbout3Pane.threadTree.selectedIndex = 6;
   await BrowserTestUtils.browserLoaded(
     tabmail.currentAboutMessage.getMessagePaneBrowser()
   );
@@ -249,7 +251,7 @@ add_task(async function testSingleSelection() {
   });
 
   // This message is from a mailing list.
-  tabmail.currentAbout3Pane.threadTree.selectedIndex = 6;
+  tabmail.currentAbout3Pane.threadTree.selectedIndex = 7;
   await BrowserTestUtils.browserLoaded(
     tabmail.currentAboutMessage.getMessagePaneBrowser()
   );
@@ -287,6 +289,15 @@ add_task(async function testMultiSelection() {
     markFlaggedMenuItem: { checked: true },
     tagMenu: {},
     "tagMenu-tagRemoveAll": {},
+  });
+
+  // Messages in a collapsed thread.
+  tabmail.currentAbout3Pane.threadTree.selectedIndex = 5;
+  await helper.testItems({
+    replyMainMenu: { disabled: true },
+    menu_replyToAll: { disabled: true },
+    menu_redirectMsg: { disabled: true },
+    menu_editMsgAsNew: { disabled: true },
   });
 });
 

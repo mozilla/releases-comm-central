@@ -58,8 +58,18 @@ const allThreePane = [
   ...singleSelectionMessagePane,
   ...singleSelectionThreadPane,
   "multipleMessagesTree",
+  "collapsedThreadTree",
   "multipleDraftsFolderTree",
   "multipleTemplatesFolderTree",
+];
+const noCollapsedThreads = [
+  ...singleSelectionMessagePane,
+  ...singleSelectionThreadPane,
+  "multipleMessagesTree",
+  "multipleDraftsFolderTree",
+  "multipleTemplatesFolderTree",
+  ...onePane,
+  ...external,
 ];
 const notExternal = [...allThreePane, ...onePane];
 const singleNotExternal = [
@@ -97,6 +107,7 @@ const mailContextData = {
     ...singleSelectionMessagePane,
     ...singleSelectionThreadPane,
     ...onePane,
+    "collapsedThreadTree",
   ],
   "mailContext-openContainingFolder": [
     "syntheticFolderDraft",
@@ -105,8 +116,8 @@ const mailContextData = {
     "syntheticFolderTree",
     ...onePane,
   ],
-  "mailContext-replySender": true,
-  "mailContext-replyAll": true,
+  "mailContext-replySender": noCollapsedThreads,
+  "mailContext-replyAll": noCollapsedThreads,
   "mailContext-replyList": ["listFolder", "listFolderTree"],
   "mailContext-forward": allSingleSelection,
   "mailContext-forwardAsMenu": allSingleSelection,
@@ -115,8 +126,8 @@ const mailContextData = {
     "multipleDraftsFolderTree",
     "multipleTemplatesFolderTree",
   ],
-  "mailContext-redirect": true,
-  "mailContext-editAsNew": true,
+  "mailContext-redirect": noCollapsedThreads,
+  "mailContext-editAsNew": noCollapsedThreads,
   "mailContext-tags": notExternal,
   "mailContext-mark": notExternal,
   "mailContext-archive": notExternal,
@@ -124,6 +135,7 @@ const mailContextData = {
   "mailContext-copyMenu": true,
   "mailContext-decryptToFolder": [
     "multipleMessagesTree",
+    "collapsedThreadTree",
     "multipleDraftsFolderTree",
     "multipleTemplatesFolderTree",
   ],
@@ -136,6 +148,7 @@ const mailContextData = {
   "mailContext-print": true,
   "mailContext-downloadSelected": [
     "multipleMessagesTree",
+    "collapsedThreadTree",
     "multipleDraftsFolderTree",
     "multipleTemplatesFolderTree",
   ],
@@ -408,12 +421,12 @@ add_task(async function testSingleMessage() {
 });
 
 /**
- * Tests the mailContext menu on the thread tree and message pane when more
- * than one message is selected.
+ * Tests the mailContext menu on the thread tree when more than one message is
+ * selected.
  */
 add_task(async function testMultipleMessages() {
   await TestUtils.waitForCondition(
-    () => ConversationOpener.isMessageIndexed(testMessages[1]),
+    () => ConversationOpener.isMessageIndexed(testMessages[6]),
     "waiting for Gloda to finish indexing",
     1000
   );
@@ -441,14 +454,32 @@ add_task(async function testMultipleMessages() {
   checkMenuitems(mailContext);
 
   // Open the menu from the thread pane.
+
+  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(2),
     { type: "contextmenu" },
     about3Pane
   );
+  await shownPromise;
   checkMenuitems(mailContext, "multipleMessagesTree");
 
+  // Select a collapsed thread and open the menu.
+
+  threadTree.scrollToIndex(6, true);
+  threadTree.selectedIndices = [6];
+
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree.getRowAtIndex(6),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await shownPromise;
+  checkMenuitems(mailContext, "collapsedThreadTree");
+
   // Open the menu in the thread pane on a message scrolled out of view.
+
   threadTree.selectAll();
   threadTree.currentIndex = 200;
   await TestUtils.waitForTick();
@@ -460,7 +491,7 @@ add_task(async function testMultipleMessages() {
     "Current row is scrolled out of view"
   );
 
-  const shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree,
     { type: "contextmenu", button: 0 },
@@ -633,6 +664,7 @@ add_task(async function testListMessage() {
   );
   threadTree.selectedIndex = 0;
   await loadedPromise;
+
   // Open the menu from the message pane.
 
   Assert.ok(

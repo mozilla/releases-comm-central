@@ -540,10 +540,13 @@ var commandController = {
       case "cmd_forwardAttachment":
       case "cmd_redirect":
       case "cmd_editAsNew":
-        if (!hasIdentities) {
-          return false;
-        }
-      // Falls through.
+        return (
+          hasIdentities &&
+          (numSelectedMessages == 1 ||
+            (numSelectedMessages > 1 &&
+              // Exclude collapsed threads.
+              numSelectedMessages == gDBView.selection.count))
+        );
       case "cmd_copyMessage":
       case "cmd_saveAsFile":
         return numSelectedMessages >= 1;
