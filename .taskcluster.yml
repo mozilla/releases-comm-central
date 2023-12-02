@@ -197,7 +197,7 @@ tasks:
                       # run-task uses these to check out the source; the inputs
                       # to `mach taskgraph decision` are all on the command line.
                       $merge:
-                          - COMM_BASE_REPOSITORY: '${repoUrl}'
+                          - COMM_BASE_REPOSITORY: 'https://hg.mozilla.org/comm-unified'
                             COMM_BASE_REV: '${push.base_revision}'
                             COMM_HEAD_REPOSITORY: '${repoUrl}'
                             COMM_HEAD_REF: '${push.revision}'

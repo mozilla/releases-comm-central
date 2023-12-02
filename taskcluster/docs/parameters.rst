@@ -15,7 +15,7 @@ repository to checkout. All parameters are required.
 
 ``comm_base_repository``
    The repository from which to do an initial clone, utilizing any available
-   caching. In practice this is always set to ``https://hg.mozilla.org/comm-central``.
+   caching. In practice this is always set to ``https://hg.mozilla.org/comm-unified``.
 
 ``comm_base_rev``
   The previous revision before ``comm_head_rev`` got merged into.
