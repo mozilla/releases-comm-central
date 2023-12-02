@@ -1,0 +1,53 @@
+---
+app_version: '120.0'
+backstop: true
+base_ref: default
+base_repository: https://hg.mozilla.org/mozilla-unified
+base_rev: fc01df84fa6d91b9dabb4b608eb947cef3230871
+build_date: 1700061384
+build_number: 1
+comm_base_ref: default
+comm_base_repository: https://hg.mozilla.org/releases/comm-beta
+comm_base_rev: 67cd1eab1cd7d4347d7052c0d007a1a6cbcbea94
+comm_head_ref: 5fef80a909002a7ff1e94299c0e0f212233f91d4
+comm_head_repository: https://hg.mozilla.org/releases/comm-beta
+comm_head_rev: 5fef80a909002a7ff1e94299c0e0f212233f91d4
+comm_src_path: comm/
+do_not_optimize: []
+existing_tasks: {}
+filters: [target_tasks_method]
+head_ref: FIREFOX_RELEASE_120_BASE
+head_repository: https://hg.mozilla.org/releases/mozilla-beta
+head_rev: e2b2510f97612093f381ee1f4220e71ff949d845
+head_tag: ''
+hg_branch: default
+level: '3'
+message: ' '
+# morph_templates: {}
+moz_build_date: '20171028042225'
+optimize_target_tasks: false
+owner: tb-builds@thunderbird.net
+phabricator_diff:
+project: comm-beta
+pushdate: 1700061384
+pushlog_id: '4449'
+release_enable_emefree: false
+release_enable_partner_attribution: false
+release_enable_partner_repack: false
+release_eta:
+release_history: {}
+release_partner_build_number: 1
+release_partner_config: {}
+release_partners:
+release_product: thunderbird
+release_type: beta
+repository_type: hg
+required_signoffs: []
+signoff_urls: {}
+target_tasks_method: promote_desktop
+tasks_for: hg-push
+test_manifest_loader: default
+try_mode:
+try_options:
+try_task_config: {}
+version: "120.0b7"

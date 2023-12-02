@@ -16,8 +16,7 @@ comm_src_path: comm/
 do_not_optimize: []
 enable_always_target: true
 existing_tasks: {}
-filters:
-    - target_tasks_method
+filters: [target_tasks_method]
 head_ref: default
 head_repository: https://hg.mozilla.org/mozilla-central
 head_rev: 925231a8fb5eccf055afb3e9921596d8f990128b
@@ -26,11 +25,11 @@ hg_branch: default
 level: '1'
 message: 'try: -b o -p all -u all --artifact'
 moz_build_date: '20231106201348'
-next_version: null
-optimize_strategies: null
+next_version:
+optimize_strategies:
 optimize_target_tasks: true
-owner: mkmelin@iki.fi
-phabricator_diff: null
+owner: tb-builds@thunderbird.net
+phabricator_diff:
 project: try-comm-central
 pushdate: 1699301628
 pushlog_id: '25712'
@@ -42,7 +41,7 @@ release_history: {}
 release_partner_build_number: 1
 release_partner_config: {}
 release_partners: []
-release_product: null
+release_product:
 release_type: ''
 repository_type: hg
 required_signoffs: []
@@ -55,13 +54,13 @@ try_options:
     build_types: o
     include_nightly: false
     interactive: false
-    jobs: null
+    jobs:
     no_retry: false
-    notifications: null
+    notifications:
     platforms: all
     raptor: none
     raptor_trigger_tests: 1
-    tag: null
+    tag:
     talos: none
     talos_trigger_tests: 1
     taskcluster_worker: false
