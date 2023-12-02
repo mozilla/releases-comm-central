@@ -128,22 +128,41 @@
 .titlebar-min {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-minimize;
-  -moz-box-ordinal-group: env(-moz-gtk-csd-minimize-button-position);
+  order: env(-moz-gtk-csd-minimize-button-position);
+
+  &:-moz-lwtheme {
+    list-style-image: url(chrome://messenger/skin/window-controls/minimize.svg);
+  }
 }
+
 .titlebar-max {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-maximize;
-  -moz-box-ordinal-group: env(-moz-gtk-csd-maximize-button-position);
+  order: env(-moz-gtk-csd-maximize-button-position);
+
+  &:-moz-lwtheme {
+    list-style-image: url(chrome://messenger/skin/window-controls/maximize.svg);
+  }
 }
+
 .titlebar-restore {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-restore;
-  -moz-box-ordinal-group: env(-moz-gtk-csd-maximize-button-position);
+  order: env(-moz-gtk-csd-maximize-button-position);
+
+  &:-moz-lwtheme {
+    list-style-image: url(chrome://messenger/skin/window-controls/restore.svg);
+  }
 }
+
 .titlebar-close {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-close;
-  -moz-box-ordinal-group: env(-moz-gtk-csd-close-button-position);
+  order: env(-moz-gtk-csd-close-button-position);
+
+  &:-moz-lwtheme {
+    list-style-image: url(chrome://messenger/skin/window-controls/close.svg);
+  }
 }
 
 /* When using lightweight themes, use our own buttons since native ones might
@@ -154,6 +173,14 @@
   margin-inline: 5px;
   padding: 1px;
 
+  &:hover {
+    background-color: color-mix(in srgb, currentColor 20%, transparent);
+
+    &:active {
+      background-color: color-mix(in srgb, currentColor 28%, transparent);
+    }
+  }
+
   & > .toolbarbutton-icon {
     display: inline-flex;
     padding: 3px;
@@ -161,30 +188,14 @@
     stroke: currentColor;
   }
 }
-.titlebar-min:-moz-lwtheme {
-  list-style-image: url(chrome://messenger/skin/window-controls/minimize.svg);
-}
-.titlebar-max:-moz-lwtheme {
-  list-style-image: url(chrome://messenger/skin/window-controls/maximize.svg);
-}
-.titlebar-restore:-moz-lwtheme {
-  list-style-image: url(chrome://messenger/skin/window-controls/restore.svg);
-}
-.titlebar-close:-moz-lwtheme {
-  list-style-image: url(chrome://messenger/skin/window-controls/close.svg);
-}
-.titlebar-button:-moz-lwtheme:hover {
-  background-color: color-mix(in srgb, currentColor 20%, transparent);
-}
-.titlebar-button:-moz-lwtheme:hover:active {
-  background-color: color-mix(in srgb, currentColor 28%, transparent);
-}
+
 .titlebar-close:-moz-lwtheme:hover {
   background-color: #d70022;
   color: white;
-}
-.titlebar-close:-moz-lwtheme:hover:active {
-  background-color: #ff0039;
+
+  &:active {
+    background-color: #ff0039;
+  }
 }
 
 @media not (-moz-gtk-csd-minimize-button) {
@@ -207,7 +218,6 @@
 @media (-moz-gtk-csd-reversed-placement) {
   .titlebar-buttonbox-container {
     margin-inline-start: 6px;
-    transform: scaleX(-1);
   }
 }
 
