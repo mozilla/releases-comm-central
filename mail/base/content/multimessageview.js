@@ -20,6 +20,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   TagUtils: "resource:///modules/TagUtils.jsm",
 });
 
+ChromeUtils.defineESModuleGetters(this, {
+  UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
+});
+
 var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 // Set up our string formatter for localizing strings.
@@ -32,70 +36,77 @@ XPCOMUtils.defineLazyGetter(this, "formatString", function () {
   };
 });
 
+window.addEventListener("DOMContentLoaded", event => {
+  if (event.target != document) {
+    return;
+  }
+
+  // TODO: UIDensity.registerWindow(window);
+  UIFontSize.registerWindow(window);
+});
+
 /**
  * A LimitIterator is a utility class that allows limiting the maximum number
  * of items to iterate over.
- *
- * @param aArray     The array to iterate over (can be anything with a .length
- *                   property and a subscript operator.
- * @param aMaxLength The maximum number of items to iterate over.
  */
-function LimitIterator(aArray, aMaxLength) {
-  this._array = aArray;
-  this._maxLength = aMaxLength;
-}
+class LimitIterator {
+  /**
+   *
+   * @param {any[]} aArray - The array to iterate over (can be anything with a
+   *   .length property and a subscript operator.
+   * @param {int} aMaxLength - The maximum number of items to iterate over.
+   */
+  constructor(aArray, aMaxLength) {
+    this._array = aArray;
+    this._maxLength = aMaxLength;
+  }
 
-LimitIterator.prototype = {
+  /**
+   * Iterate over the array until we hit the end or the maximum length,
+   * whichever comes first.
+   */
+  *[Symbol.iterator]() {
+    const length = this.length;
+    for (let i = 0; i < length; i++) {
+      yield this._array[i];
+    }
+  }
+
   /**
    * Returns true if the iterator won't actually iterate over everything in the
    * array.
    */
   get limited() {
     return this._array.length > this._maxLength;
-  },
+  }
 
   /**
    * Returns the number of elements that will actually be iterated over.
    */
   get length() {
     return Math.min(this._array.length, this._maxLength);
-  },
+  }
 
   /**
    * Returns the real number of elements in the array.
    */
   get trueLength() {
     return this._array.length;
-  },
-};
-
-var JS_HAS_SYMBOLS = typeof Symbol === "function";
-var ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
-
-/**
- * Iterate over the array until we hit the end or the maximum length,
- * whichever comes first.
- */
-LimitIterator.prototype[ITERATOR_SYMBOL] = function* () {
-  const length = this.length;
-  for (let i = 0; i < length; i++) {
-    yield this._array[i];
   }
-};
+}
 
 /**
  * The MultiMessageSummary class is responsible for populating the message pane
  * with a reasonable summary of a set of messages.
  */
-function MultiMessageSummary() {
-  this._summarizers = {};
-}
-
-MultiMessageSummary.prototype = {
+class MultiMessageSummary {
+  constructor() {
+    this._summarizers = {};
+  }
   /**
    * The maximum number of messages to examine in any way.
    */
-  kMaxMessages: 10000,
+  kMaxMessages = 10000;
 
   /**
    * Register a summarizer for a particular type of message summary.
@@ -105,7 +116,7 @@ MultiMessageSummary.prototype = {
   registerSummarizer(aSummarizer) {
     this._summarizers[aSummarizer.name] = aSummarizer;
     aSummarizer.onregistered(this);
-  },
+  }
 
   /**
    * Store a mapping from a message header to the summary node in the DOM. We
@@ -117,7 +128,7 @@ MultiMessageSummary.prototype = {
   mapMsgToNode(aMsgHdr, aNode) {
     const key = aMsgHdr.messageKey + aMsgHdr.folder.URI;
     this._msgNodes[key] = aNode;
-  },
+  }
 
   /**
    * Clear all the content from the summary.
@@ -136,7 +147,7 @@ MultiMessageSummary.prototype = {
 
     // Clear the notice.
     document.getElementById("notice").textContent = "";
-  },
+  }
 
   /**
    * Fill in the summary pane describing the selected messages.
@@ -191,7 +202,7 @@ MultiMessageSummary.prototype = {
       this
     );
     this._computeSize(messages);
-  },
+  }
 
   /**
    * Set the heading for the summary.
@@ -204,7 +215,7 @@ MultiMessageSummary.prototype = {
     const subtitleNode = document.getElementById("summary_subtitle");
     titleNode.textContent = title || "";
     subtitleNode.textContent = subtitle || "";
-  },
+  }
 
   /**
    * Create a summary item for a message or thread.
@@ -358,7 +369,7 @@ MultiMessageSummary.prototype = {
       }
     }
     return row;
-  },
+  }
 
   /**
    * Show an informative notice about the summarized messages (e.g. if we only
@@ -369,7 +380,7 @@ MultiMessageSummary.prototype = {
   showNotice(aNoticeText) {
     const notice = document.getElementById("notice");
     notice.textContent = aNoticeText;
-  },
+  }
 
   /**
    * Given a msgHdr, return a list of tag objects. This function just does the
@@ -386,7 +397,7 @@ MultiMessageSummary.prototype = {
     return allTags.filter(function (tag) {
       return keywords.has(tag.key);
     });
-  },
+  }
 
   /**
    * Add a list of tags to a DOM node.
@@ -419,7 +430,7 @@ MultiMessageSummary.prototype = {
       tagNode.textContent = tag.tag;
       aTagsNode.appendChild(tagNode);
     }
-  },
+  }
 
   /**
    * Compute the size of the messages in the selection and display it in the
@@ -440,14 +451,14 @@ MultiMessageSummary.prototype = {
     document.getElementById("size").textContent = formatString(format, [
       gMessenger.formatFileSize(numBytes),
     ]);
-  },
+  }
 
   // These are listeners for the gloda collections.
-  onItemsAdded(aItems) {},
+  onItemsAdded(aItems) {}
   onItemsModified(aItems) {
     this._processItems(aItems);
-  },
-  onItemsRemoved(aItems) {},
+  }
+  onItemsRemoved(aItems) {}
 
   /**
    * Given a set of items from a gloda collection, process them and update
@@ -502,7 +513,7 @@ MultiMessageSummary.prototype = {
       }
       this._addTagNodes(flags.tags, tagsNode);
     }
-  },
+  }
 
   onQueryCompleted(aCollection) {
     // If we need something that's just available from GlodaMessages, this is
@@ -510,31 +521,29 @@ MultiMessageSummary.prototype = {
     if (this._listener) {
       this._listener.onLoadCompleted();
     }
-  },
-};
+  }
+}
 
 /**
  * A summarizer to use for a single thread.
  */
-function ThreadSummarizer() {}
-
-ThreadSummarizer.prototype = {
+class ThreadSummarizer {
   /**
    * The maximum number of messages to summarize.
    */
-  kMaxSummarizedMessages: 100,
+  kMaxSummarizedMessages = 100;
 
   /**
    * The length of message snippets to fetch from Gloda.
    */
-  kSnippetLength: 300,
+  kSnippetLength = 300;
 
   /**
    * Returns a canonical name for this summarizer.
    */
   get name() {
     return "thread";
-  },
+  }
 
   /**
    * A function to be called once the summarizer has been registered with the
@@ -544,7 +553,7 @@ ThreadSummarizer.prototype = {
    */
   onregistered(aContext) {
     this.context = aContext;
-  },
+  }
 
   /**
    * Summarize a list of messages.
@@ -612,31 +621,29 @@ ThreadSummarizer.prototype = {
       );
     }
     return summarizedMessages;
-  },
-};
+  }
+}
 
 /**
  * A summarizer to use when multiple threads are selected.
  */
-function MultipleSelectionSummarizer() {}
-
-MultipleSelectionSummarizer.prototype = {
+class MultipleSelectionSummarizer {
   /**
    * The maximum number of threads to summarize.
    */
-  kMaxSummarizedThreads: 100,
+  kMaxSummarizedThreads = 100;
 
   /**
    * The length of message snippets to fetch from Gloda.
    */
-  kSnippetLength: 300,
+  kSnippetLength = 300;
 
   /**
    * Returns a canonical name for this summarizer.
    */
   get name() {
     return "multipleselection";
-  },
+  }
 
   /**
    * A function to be called once the summarizer has been registered with the
@@ -646,7 +653,7 @@ MultipleSelectionSummarizer.prototype = {
    */
   onregistered(aContext) {
     this.context = aContext;
-  },
+  }
 
   /**
    * Summarize a list of messages.
@@ -706,7 +713,7 @@ MultipleSelectionSummarizer.prototype = {
     // Return everything, since we're showing all the threads. Don't forget to
     // turn it into an array, though!
     return [...aMessages];
-  },
+  }
 
   /**
    * Group all the messages to be summarized into threads.
@@ -728,11 +735,10 @@ MultipleSelectionSummarizer.prototype = {
       }
     }
     return threads;
-  },
-};
+  }
+}
 
 var gMessageSummary = new MultiMessageSummary();
-
 gMessageSummary.registerSummarizer(new ThreadSummarizer());
 gMessageSummary.registerSummarizer(new MultipleSelectionSummarizer());
 

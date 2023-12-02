@@ -141,6 +141,7 @@ body {
 #messagePane {
   grid-area: message;
   box-sizing: border-box;
+  background-color: var(--layout-background-1);
   /* Matches the collapse-height and collapse-width on the splitter. */
   min-height: 100px;
   min-width: 300px;

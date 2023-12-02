@@ -35,7 +35,7 @@
 }
 
 body {
-  font-family: sans-serif;
+  background-color: var(--layout-background-0);
   margin: 0;
   padding: 0;
   display: flex;
@@ -57,7 +57,7 @@ body {
 
 #heading {
   flex: 1;
-  font-size: large;
+  font-size: 1.3rem;
   font-weight: normal;
   margin: 0;
   padding: 0;
@@ -65,7 +65,7 @@ body {
 
 #summary_subtitle {
   margin-inline-start: 1em;
-  font-size: small;
+  font-size: 1.1rem;
   white-space: nowrap;
 }
 
@@ -75,7 +75,6 @@ body {
   flex: 1 1 0;
   overflow: auto;
   padding: 1ex 1em;
-  font-size: initial;
 }
 
 #message_list {
@@ -191,6 +190,7 @@ a:hover {
 
 #header-view-toolbox {
   font: message-box;
+  font-size: 1rem;
 }
 
 #header-view-toolbar {
