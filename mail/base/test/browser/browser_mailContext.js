@@ -278,6 +278,9 @@ add_setup(async function () {
   cal.manager.getCalendars()[0].setProperty("disabled", false);
 
   registerCleanupFunction(() => {
+    for (const folder of MailServices.accounts.allFolders) {
+      Gloda.setFolderIndexingPriority(folder, -1);
+    }
     MailServices.accounts.removeAccount(account, false);
     Services.prefs.clearUserPref("mail.openMessageBehavior");
     cal.manager.getCalendars()[0].setProperty("disabled", true);
