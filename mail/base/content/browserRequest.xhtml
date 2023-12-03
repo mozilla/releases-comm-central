@@ -1,44 +1,40 @@
 <?xml version="1.0"?>
-<!--# This Source Code Form is subject to the terms of the Mozilla Public
-    # License, v. 2.0. If a copy of the MPL was not distributed with this file,
-    # You can obtain one at http://mozilla.org/MPL/2.0/.
- -->
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd">
 %messengerDTD;
 ]>
-<window id="browserRequest"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        buttons=","
-        onload="loadRequestedUrl()"
-        onclose="reportUserClosed()"
-        title=""
-        width="800"
-        height="500"
-        orient="vertical">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      id="browserRequest"
+      scrolling="false"
+      buttons=","
+      width="800"
+      height="500"
+      orient="vertical">
+<head>
+  <link rel="stylesheet" href="chrome://global/skin/global.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/tabmail.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/searchBox.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/browserRequest.css" />
+  <link rel="localization" href="messenger/messenger.ftl" />
+  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/browserRequest.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <popupset id="mainPopupSet">
 #define NO_BROWSERCONTEXT
 #include widgets/browserPopups.inc.xhtml
   </popupset>
-
-  <script src="chrome://messenger/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/viewZoomOverlay.js"/>
-  <script src="chrome://messenger/content/browserRequest.js"/>
-
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/tabmail.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/searchBox.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/browserRequest.css"
-  />
-
-  <html:link rel="localization" href="messenger/messenger.ftl"/>
 
   <keyset id="mainKeyset">
     <key id="key_close" key="w" modifiers="accel" oncommand="cancelRequest()"/>
@@ -58,4 +54,5 @@
            maychangeremoteness="true"
            flex="1"
            autocompletepopup="PopupAutoComplete"/>
-</window>
+</html:body>
+</html>

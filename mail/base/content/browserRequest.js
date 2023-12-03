@@ -6,6 +6,9 @@ var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
 
+window.addEventListener("load", loadRequestedUrl);
+window.addEventListener("close", reportUserClosed);
+
 /* Magic global things the <browser> and its entourage of logic expect. */
 var PopupNotifications = {
   show(browser, id, message) {
