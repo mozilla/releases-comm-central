@@ -3,51 +3,57 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window>
-
-<window
+<!DOCTYPE html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  onload="gSystemIntegrationDialog.onLoad();"
-  data-l10n-id="system-integration-title"
-  style="min-width: 33em"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  scrolling="false"
 >
-  <dialog
-    id="systemIntegrationDialog"
-    buttons="accept,cancel"
-    data-l10n-id="system-integration-dialog"
-    data-l10n-attrs="buttonlabelaccept, buttonlabelcancel, buttonlabelcancel2"
-  >
-    <script src="chrome://messenger/content/systemIntegrationDialog.js" />
-
-    <linkset>
-      <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-
-      <html:link rel="localization" href="branding/brand.ftl" />
-      <html:link
-        rel="localization"
-        href="messenger/preferences/system-integration.ftl"
-      />
-    </linkset>
-
-    <label control="defaultClientList" data-l10n-id="default-client-intro" />
-    <vbox id="defaultClientList" role="group">
-      <checkbox id="checkMail" data-l10n-id="checkbox-email-label" />
-      <checkbox id="checkNews" data-l10n-id="checkbox-newsgroups-label" />
-      <checkbox id="checkRSS" data-l10n-id="checkbox-feeds-label" />
-      <checkbox id="checkCalendar" data-l10n-id="checkbox-calendar-label" />
-    </vbox>
-
-    <separator class="groove" />
-
-    <checkbox
-      id="searchIntegration"
-      hidden="true"
-      data-l10n-id="system-search-integration-label"
+  <head>
+    <title data-l10n-id="system-integration-dialog-title"></title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/systemIntegrationDialog.css"
     />
+    <link rel="localization" href="branding/brand.ftl" />
+    <link
+      rel="localization"
+      href="messenger/preferences/system-integration.ftl"
+    />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/systemIntegrationDialog.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog
+      id="systemIntegrationDialog"
+      data-l10n-id="system-integration-dialog"
+      data-l10n-attrs="buttonlabelaccept, buttonlabelcancel, buttonlabelcancel2"
+    >
+      <label control="defaultClientList" data-l10n-id="default-client-intro" />
+      <vbox id="defaultClientList" role="group">
+        <checkbox id="checkMail" data-l10n-id="checkbox-email-label" />
+        <checkbox id="checkNews" data-l10n-id="checkbox-newsgroups-label" />
+        <checkbox id="checkRSS" data-l10n-id="checkbox-feeds-label" />
+        <checkbox id="checkCalendar" data-l10n-id="checkbox-calendar-label" />
+      </vbox>
 
-    <separator class="thin" />
+      <separator class="groove" />
 
-    <checkbox id="checkOnStartup" data-l10n-id="check-on-startup-label" />
-  </dialog>
-</window>
+      <checkbox
+        id="searchIntegration"
+        hidden="true"
+        data-l10n-id="system-search-integration-label"
+      />
+
+      <separator class="thin" />
+
+      <checkbox id="checkOnStartup" data-l10n-id="check-on-startup-label" />
+    </dialog>
+  </html:body>
+</html>

@@ -9,6 +9,10 @@ var { SearchIntegration } = ChromeUtils.import(
   "resource:///modules/SearchIntegration.jsm"
 );
 
+window.addEventListener("load", event => {
+  gSystemIntegrationDialog.onLoad();
+});
+
 var gSystemIntegrationDialog = {
   _shellSvc: Cc["@mozilla.org/mail/shell-service;1"].getService(
     Ci.nsIShellService

@@ -137,6 +137,7 @@
 #endif
   skin/classic/messenger/profileDowngrade.css                    (../shared/mail/profileDowngrade.css)
   skin/classic/messenger/subscribe.css                        (../shared/mail/subscribe.css)
+  skin/classic/messenger/systemIntegrationDialog.css          (../shared/mail/systemIntegrationDialog.css)
   skin/classic/messenger/tagColors.css                        (../shared/mail/tagColors.css)
   skin/classic/messenger/vcard.css                            (../shared/mail/vcard.css)
   skin/classic/messenger/wizard.css                           (../shared/mail/wizard.css)
