@@ -395,7 +395,7 @@ checkbox {
   background-color: var(--field-background-color);
 
   &[selected] {
-    list-style-image: url("chrome://global/skin/icons/radio.svg");
+    /* list-style-image: url("chrome://global/skin/icons/radio.svg"); */
     -moz-context-properties: fill;
     color: var(--checkbox-checked-border-color, currentColor);
     fill: var(--checkbox-checked-color, AccentColorText);

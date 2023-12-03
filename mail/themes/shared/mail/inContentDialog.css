@@ -208,7 +208,7 @@ dialog input[type="radio"]:checked {
   fill: currentColor;
   color: var(--dialog-highlight-text-color);
   background-color: var(--dialog-highlight-color);
-  background-image: url("chrome://global/skin/icons/radio.svg");
+  /* background-image: url("chrome://global/skin/icons/radio.svg"); */
   border-color: var(--dialog-primary-background-active);
   color-adjust: exact;
 }
