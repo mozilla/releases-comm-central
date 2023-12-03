@@ -4,6 +4,10 @@
 
 /* import-globals-from ../../../../../toolkit/components/prompts/content/selectDialog.js */
 
+window.addEventListener("load", event => {
+  cloudfileDialogOnLoad();
+});
+
 function cloudfileDialogOnLoad() {
   const icons = propBag.getProperty("icons");
   const listItems = listBox.itemChildren;

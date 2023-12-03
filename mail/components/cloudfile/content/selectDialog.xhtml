@@ -1,38 +1,39 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window>
-
-<window
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  onload="cloudfileDialogOnLoad();"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/cloudfileSelectDialog.css"
-  />
-
-  <dialog>
-    <script
-      type="application/javascript"
-      src="chrome://messenger/content/cloudfile/selectDialog.js"
+  <head>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/cloudfileSelectDialog.css"
     />
+    <link rel="localization" href="branding/brand.ftl" />
     <script
-      type="application/javascript"
+      defer="defer"
       src="chrome://global/content/selectDialog.js"
-    />
-    <keyset id="dialogKeys" />
-    <vbox style="width: 24em; margin: 5px">
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/cloudfile/selectDialog.js"
+    ></script>
+  </head>
+  <body>
+    <xul:dialog
+      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    >
       <label id="info.txt" />
-      <vbox>
-        <richlistbox id="list" class="theme-listbox" style="height: 8em" />
+      <vbox id="listWrapper">
+        <richlistbox id="list" class="theme-listbox" />
       </vbox>
-    </vbox>
-  </dialog>
-</window>
+    </xul:dialog>
+  </body>
+</html>

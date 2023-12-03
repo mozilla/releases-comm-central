@@ -2,6 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+html {
+  min-width: 450px;
+  min-height: 210px;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+dialog {
+ margin: 5px;
+ flex: 1 1 0;
+}
+
+#listWrapper,
+#list {
+  flex: 1 1 0;
+}
+
 richlistitem {
   display: flex;
   align-items: center;
