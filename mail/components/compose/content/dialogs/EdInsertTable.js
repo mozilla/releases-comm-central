@@ -14,6 +14,7 @@ var gActiveEditor;
 
 // dialog initialization code
 
+window.addEventListener("load", Startup);
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 

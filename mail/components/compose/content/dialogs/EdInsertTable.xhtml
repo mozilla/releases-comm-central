@@ -1,129 +1,145 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % edInsertTable SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertTable.dtd">
+<!DOCTYPE html [ <!ENTITY % edInsertTable SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertTable.dtd">
 %edInsertTable;
 <!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
 %edDialogOverlay; ]>
 
-<window
-  title="&windowTitle.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   lightweightthemes="true"
-  onload="Startup()"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-  <dialog>
-    <!-- Methods common to all editor dialogs -->
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <script src="chrome://messenger/content/messengercompose/EdInsertTable.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
-    <html:table>
-      <html:tr>
-        <html:th>
-          <label
-            control="rowsInput"
-            value="&numRowsEditField.label;"
-            accesskey="&numRowsEditField.accessKey;"
+  <head>
+    <title>&windowTitle.label;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdInsertTable.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog>
+      <spacer id="location" offsetY="50" persist="offsetX offsetY" />
+      <html:table>
+        <html:tr>
+          <html:th>
+            <label
+              control="rowsInput"
+              value="&numRowsEditField.label;"
+              accesskey="&numRowsEditField.accessKey;"
+            />
+          </html:th>
+          <html:td>
+            <html:input
+              id="rowsInput"
+              type="number"
+              class="narrow input-inline"
+              oninput="ChangeRowOrColumn(this.id)"
+            />
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:th>
+            <label
+              control="columnsInput"
+              value="&numColumnsEditField.label;"
+              accesskey="&numColumnsEditField.accessKey;"
+            />
+          </html:th>
+          <html:td>
+            <html:input
+              id="columnsInput"
+              type="number"
+              class="narrow input-inline"
+              oninput="ChangeRowOrColumn(this.id)"
+            />
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:th>
+            <label
+              control="widthInput"
+              value="&widthEditField.label;"
+              accesskey="&widthEditField.accessKey;"
+            />
+          </html:th>
+          <html:td>
+            <html:input
+              id="widthInput"
+              type="number"
+              class="narrow input-inline"
+              oninput="forceInteger(this.id)"
+            />
+          </html:td>
+          <html:td>
+            <menulist
+              id="widthPixelOrPercentMenulist"
+              class="menulist-narrow"
+            />
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:th>
+            <label
+              control="borderInput"
+              value="&borderEditField.label;"
+              accesskey="&borderEditField.accessKey;"
+              tooltiptext="&borderEditField.tooltip;"
+            />
+          </html:th>
+          <html:td>
+            <html:input
+              id="borderInput"
+              type="number"
+              class="narrow input-inline"
+              oninput="forceInteger(this.id)"
+            />
+          </html:td>
+          <html:td>
+            <label value="&pixels.label;" />
+          </html:td>
+        </html:tr>
+      </html:table>
+      <vbox id="AdvancedEdit">
+        <hbox flex="1" style="margin-top: 0.2em" align="center">
+          <!-- This will right-align the button -->
+          <spacer flex="1" />
+          <button
+            id="AdvancedEditButton1"
+            oncommand="onAdvancedEdit()"
+            label="&AdvancedEditButton.label;"
+            accesskey="&AdvancedEditButton.accessKey;"
+            tooltiptext="&AdvancedEditButton.tooltip;"
           />
-        </html:th>
-        <html:td>
-          <html:input
-            id="rowsInput"
-            type="number"
-            class="narrow input-inline"
-            oninput="ChangeRowOrColumn(this.id)"
-          />
-        </html:td>
-      </html:tr>
-      <html:tr>
-        <html:th>
-          <label
-            control="columnsInput"
-            value="&numColumnsEditField.label;"
-            accesskey="&numColumnsEditField.accessKey;"
-          />
-        </html:th>
-        <html:td>
-          <html:input
-            id="columnsInput"
-            type="number"
-            class="narrow input-inline"
-            oninput="ChangeRowOrColumn(this.id)"
-          />
-        </html:td>
-      </html:tr>
-      <html:tr>
-        <html:th>
-          <label
-            control="widthInput"
-            value="&widthEditField.label;"
-            accesskey="&widthEditField.accessKey;"
-          />
-        </html:th>
-        <html:td>
-          <html:input
-            id="widthInput"
-            type="number"
-            class="narrow input-inline"
-            oninput="forceInteger(this.id)"
-          />
-        </html:td>
-        <html:td>
-          <menulist id="widthPixelOrPercentMenulist" class="menulist-narrow" />
-        </html:td>
-      </html:tr>
-      <html:tr>
-        <html:th>
-          <label
-            control="borderInput"
-            value="&borderEditField.label;"
-            accesskey="&borderEditField.accessKey;"
-            tooltiptext="&borderEditField.tooltip;"
-          />
-        </html:th>
-        <html:td>
-          <html:input
-            id="borderInput"
-            type="number"
-            class="narrow input-inline"
-            oninput="forceInteger(this.id)"
-          />
-        </html:td>
-        <html:td>
-          <label value="&pixels.label;" />
-        </html:td>
-      </html:tr>
-    </html:table>
-    <vbox id="AdvancedEdit">
-      <hbox flex="1" style="margin-top: 0.2em" align="center">
-        <!-- This will right-align the button -->
-        <spacer flex="1" />
-        <button
-          id="AdvancedEditButton1"
-          oncommand="onAdvancedEdit()"
-          label="&AdvancedEditButton.label;"
-          accesskey="&AdvancedEditButton.accessKey;"
-          tooltiptext="&AdvancedEditButton.tooltip;"
-        />
-      </hbox>
-      <separator id="advancedSeparator" class="groove" />
-    </vbox>
-  </dialog>
-</window>
+        </hbox>
+        <separator id="advancedSeparator" class="groove" />
+      </vbox>
+    </dialog>
+  </html:body>
+</html>
