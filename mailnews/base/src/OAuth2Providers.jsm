@@ -18,6 +18,7 @@ const GOOGLE_SCOPES =
   "https://mail.google.com/ https://www.googleapis.com/auth/carddav https://www.googleapis.com/auth/calendar";
 const FASTMAIL_SCOPES =
   "https://www.fastmail.com/dev/protocol-imap https://www.fastmail.com/dev/protocol-pop https://www.fastmail.com/dev/protocol-smtp https://www.fastmail.com/dev/protocol-carddav https://www.fastmail.com/dev/protocol-caldav";
+const COMCAST_SCOPES = "https://email.comcast.net/ profile openid";
 
 /**
  * Map of hostnames to [issuer, scope].
@@ -70,6 +71,10 @@ var kHostnames = new Map([
     "carddav.fastmail.com",
     ["www.fastmail.com", "https://www.fastmail.com/dev/protocol-carddav"],
   ],
+
+  ["imap.comcast.net", ["comcast.net", COMCAST_SCOPES]],
+  ["pop.comcast.net", ["comcast.net", COMCAST_SCOPES]],
+  ["smtp.comcast.net", ["comcast.net", COMCAST_SCOPES]],
 
   // For testing purposes.
   ["mochi.test", ["mochi.test", "test_scope"]],
@@ -156,6 +161,17 @@ var kIssuers = new Map([
       clientId: "35f141ae",
       authorizationEndpoint: "https://api.fastmail.com/oauth/authorize",
       tokenEndpoint: "https://api.fastmail.com/oauth/refresh",
+      usePKCE: true,
+    },
+  ],
+
+  [
+    "comcast.net",
+    {
+      clientId: "thunderbird-oauth",
+      clientSecret: "fc5d0a314549bb3d059e0cec751fa4bd40a9cc7b",
+      authorizationEndpoint: "https://oauth.xfinity.com/oauth/authorize",
+      tokenEndpoint: "https://oauth.xfinity.com/oauth/token",
       usePKCE: true,
     },
   ],
