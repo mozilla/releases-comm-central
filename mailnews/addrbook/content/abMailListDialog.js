@@ -22,6 +22,10 @@ var gAWContentHeight = 0;
 var gAWRowHeight = 0;
 var gNumberOfCols = 0;
 
+window.addEventListener("load", onAbListDialogLoad);
+window.addEventListener("dragover", DragOverAddressListTree);
+window.addEventListener("drop", DropOnAddressListTree);
+
 function onAbListDialogLoad() {
   if (window.arguments[0].listURI) {
     document.getElementById("abListSelector").hidden = true;
