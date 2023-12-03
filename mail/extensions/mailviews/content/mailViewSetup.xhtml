@@ -3,45 +3,37 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % mailViewDTD SYSTEM "chrome://messenger/locale/mailViewSetup.dtd">
   %mailViewDTD;
   <!ENTITY % searchTermDTD SYSTEM "chrome://messenger/locale/searchTermOverlay.dtd">
   %searchTermDTD;
 ]>
-
-<window id="mailViewSetupDialog"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        lightweightthemes="true"
-        onload="mailViewOnLoad();"
-        onunload="mailViewOnUnLoad();"
-        windowtype="mailnews:mailview"
-        title="&mailViewSetupTitle.label;"
-        style="min-width: 52em; min-height: 22em;"
-        persist="screenX screenY width height">
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/shared/input-fields.css"
-  />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/searchDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-<dialog buttons="accept,cancel">
-
-  <script src="chrome://messenger/content/globalOverlay.js"/>
-  <script src="chrome://messenger/content/mailViewSetup.js"/>
-  <script src="chrome://messenger/content/searchTerm.js"/>
-  <script src="chrome://messenger/content/searchWidgets.js"/>
-  <script src="chrome://messenger/content/dateFormat.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
-  <vbox flex="1">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      id="mailViewSetupDialog"
+      lightweightthemes="true"
+      windowtype="mailnews:mailview"
+      scrolling="false">
+<head>
+  <title>&mailViewSetupTitle.label;</title>
+  <link rel="stylesheet" href="chrome://messenger/skin/shared/input-fields.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/searchDialog.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/mailViewSetup.css" />
+  <link rel="localization" href="branding/brand.ftl" />
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/searchTerm.js"></script>
+  <script defer="defer" src="chrome://messenger/content/searchWidgets.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dateFormat.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailViewSetup.js"></script>
+</head>
+<body>
+<xul:dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <separator class="thin"/>
     <vbox>
       <hbox align="center">
@@ -61,7 +53,6 @@
       <vbox id="searchTermListBox" flex="1">
 #include ../../../../mailnews/search/content/searchTerm.inc.xhtml
     </hbox>
-  </vbox>
-
-</dialog>
-</window>
+</xul:dialog>
+</body>
+</html>
