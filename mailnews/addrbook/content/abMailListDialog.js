@@ -22,6 +22,15 @@ var gAWContentHeight = 0;
 var gAWRowHeight = 0;
 var gNumberOfCols = 0;
 
+function onAbListDialogLoad() {
+  if (window.arguments[0].listURI) {
+    document.getElementById("abListSelector").hidden = true;
+    OnLoadEditList();
+    return;
+  }
+  OnLoadNewMailList();
+}
+
 var test_addresses_sequence = false;
 
 if (

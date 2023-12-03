@@ -400,7 +400,7 @@ add_task(async function test_rename_and_delete() {
   });
 
   dialogPromise = promiseLoadSubDialog(
-    "chrome://messenger/content/addressbook/abEditListDialog.xhtml"
+    "chrome://messenger/content/addressbook/abMailListDialog.xhtml"
   ).then(async function (dialogWindow) {
     const dialogDocument = dialogWindow.document;
 

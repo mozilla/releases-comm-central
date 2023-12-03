@@ -593,7 +593,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       const list = book.childNodes.find(l => l.UID == row.dataset.uid);
 
       SubDialog.open(
-        "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
+        "chrome://messenger/content/addressbook/abMailListDialog.xhtml",
         { features: "resizable=no", closedCallback: updateAbCommands },
         { listURI: list.URI }
       );
@@ -3504,7 +3504,7 @@ var detailsPane = {
       this.editCurrentContact();
     } else if (this.currentList) {
       SubDialog.open(
-        "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
+        "chrome://messenger/content/addressbook/abMailListDialog.xhtml",
         { features: "resizable=no", closedCallback: updateAbCommands },
         { listURI: this.currentList.mailListURI }
       );

@@ -4,7 +4,6 @@
 
 messenger.jar:
     content/messenger/addressbook/abCommon.js                   (content/abCommon.js)
-    content/messenger/addressbook/abEditListDialog.xhtml        (content/abEditListDialog.xhtml)
     content/messenger/addressbook/abMailListDialog.xhtml        (content/abMailListDialog.xhtml)
     content/messenger/addressbook/abContactsPanel.xhtml         (content/abContactsPanel.xhtml)
     content/messenger/addressbook/abContactsPanel.js            (content/abContactsPanel.js)

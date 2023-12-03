@@ -1,16 +1,14 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/abMailListDialog.dtd">
-
 <window
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   title="&mailListWindowAdd.title;"
-  onload="OnLoadNewMailList();"
+  onload="onAbListDialogLoad();"
   ondragover="DragOverAddressListTree(event);"
   ondrop="DropOnAddressListTree(event);"
 >
@@ -31,22 +29,24 @@
     <script src="chrome://messenger/content/addressbook/abCommon.js" />
     <script src="chrome://messenger/content/addressbook/abMailListDialog.js" />
 
-    <hbox align="center">
-      <label
-        control="abPopup"
-        value="&addToAddressBook.label;"
-        accesskey="&addToAddressBook.accesskey;"
-      />
-      <menulist
-        is="menulist-addrbooks"
-        id="abPopup"
-        supportsmaillists="true"
-        flex="1"
-        writable="true"
-      />
-    </hbox>
+    <vbox id="abListSelector">
+      <hbox align="center">
+        <label
+          control="abPopup"
+          value="&addToAddressBook.label;"
+          accesskey="&addToAddressBook.accesskey;"
+        />
+        <menulist
+          is="menulist-addrbooks"
+          id="abPopup"
+          supportsmaillists="true"
+          flex="1"
+          writable="true"
+        />
+      </hbox>
 
-    <spacer style="height: 1em" />
+      <spacer style="height: 1em" />
+    </vbox>
 
     <vbox id="editlist">
       <html:div class="grid-two-column-fr grid-items-center">

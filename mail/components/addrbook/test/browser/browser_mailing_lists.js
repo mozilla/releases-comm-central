@@ -180,7 +180,7 @@ add_task(async () => {
  */
 add_task(async () => {
   const mailingListWindowPromise = promiseLoadSubDialog(
-    "chrome://messenger/content/addressbook/abEditListDialog.xhtml"
+    "chrome://messenger/content/addressbook/abMailListDialog.xhtml"
   ).then(async function (mlWindow) {
     const mlDocument = mlWindow.document;
     const mlDocElement = mlDocument.querySelector("dialog");
@@ -360,7 +360,7 @@ add_task(async () => {
  */
 add_task(async () => {
   const mailingListWindowPromise = promiseLoadSubDialog(
-    "chrome://messenger/content/addressbook/abEditListDialog.xhtml"
+    "chrome://messenger/content/addressbook/abMailListDialog.xhtml"
   ).then(async function (mailingListWindow) {
     const mlDocument = mailingListWindow.document;
     const mlDocElement = mlDocument.querySelector("dialog");
