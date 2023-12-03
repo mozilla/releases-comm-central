@@ -3,53 +3,76 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<window
-  id="window"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  id="window"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin" />
-
-  <script src="chrome://messenger/content/viewZoomOverlay.js" />
-  <script>
-    <![CDATA[
-        function getBrowser() {
-            return document.getElementById('browser');
-        }
-      ]]>
-  </script>
-  <commandset id="selectEditMenuItems">
-    <command id="cmd_fullZoomReduce" oncommand="ZoomManager.reduce();" />
-    <command id="cmd_fullZoomEnlarge" oncommand="ZoomManager.enlarge();" />
-    <command id="cmd_fullZoomReset" oncommand="ZoomManager.reset();" />
-  </commandset>
-  <keyset>
-    <!--move to locale-->
-    <key
-      id="key_fullZoomEnlarge"
-      key="+"
-      command="cmd_fullZoomEnlarge"
-      modifiers="accel"
+  <head>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <style>
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+      }
+    </style>
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/viewZoomOverlay.js"
+    ></script>
+    <script>
+      // <![CDATA[
+      function getBrowser() {
+        return document.getElementById("browser");
+      }
+      // ]]>
+    </script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <commandset id="selectEditMenuItems">
+      <command id="cmd_fullZoomReduce" oncommand="ZoomManager.reduce();" />
+      <command id="cmd_fullZoomEnlarge" oncommand="ZoomManager.enlarge();" />
+      <command id="cmd_fullZoomReset" oncommand="ZoomManager.reset();" />
+    </commandset>
+    <keyset>
+      <!--move to locale-->
+      <key
+        id="key_fullZoomEnlarge"
+        key="+"
+        command="cmd_fullZoomEnlarge"
+        modifiers="accel"
+      />
+      <key
+        id="key_fullZoomEnlarge2"
+        key="="
+        command="cmd_fullZoomEnlarge"
+        modifiers="accel"
+      />
+      <key
+        id="key_fullZoomReduce"
+        key="-"
+        command="cmd_fullZoomReduce"
+        modifiers="accel"
+      />
+      <key
+        id="key_fullZoomReset"
+        key="0"
+        command="cmd_fullZoomReset"
+        modifiers="accel"
+      />
+    </keyset>
+    <tooltip id="aHTMLTooltip" page="true" />
+    <browser
+      id="browser"
+      flex="1"
+      disablehistory="true"
+      tooltip="aHTMLTooltip"
     />
-    <key
-      id="key_fullZoomEnlarge2"
-      key="="
-      command="cmd_fullZoomEnlarge"
-      modifiers="accel"
-    />
-    <key
-      id="key_fullZoomReduce"
-      key="-"
-      command="cmd_fullZoomReduce"
-      modifiers="accel"
-    />
-    <key
-      id="key_fullZoomReset"
-      key="0"
-      command="cmd_fullZoomReset"
-      modifiers="accel"
-    />
-  </keyset>
-  <tooltip id="aHTMLTooltip" page="true" />
-  <browser id="browser" flex="1" disablehistory="true" tooltip="aHTMLTooltip" />
-</window>
+  </html:body>
+</html>
