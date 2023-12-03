@@ -1333,10 +1333,8 @@ SuiteGlue.prototype = {
     // Make sure chrome debugging is enabled, no sense in starting otherwise.
     DebuggerServer.allowChromeProcess = true;
 
-    if (!DebuggerServer.initialized) {
-      DebuggerServer.init();
-      DebuggerServer.addBrowserActors();
-    }
+    DebuggerServer.init();
+    DebuggerServer.registerAllActors();
     try {
       let listener = DebuggerServer.createListener();
       listener.portOrPath = port;
