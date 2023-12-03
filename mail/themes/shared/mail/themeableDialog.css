@@ -220,10 +220,6 @@ html|input[type="color"] {
   padding: 4px;
 }
 
-#folderCompactDialog {
-  width: 50em;
-}
-
 #resetColor {
   list-style-image: url("chrome://messenger/skin/icons/forget.svg");
   -moz-context-properties: fill;

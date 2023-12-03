@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", compactDialogOnDOMContentLoaded);
 // Bug 1720540: Call sizeToContent only after the entire window has been loaded,
 // including the shadow DOM and the updated fluent strings.
 window.addEventListener("load", window.sizeToContent);
+window.addEventListener("unload", compactDialogOnUnload);
 
 function compactDialogOnDOMContentLoaded() {
   propBag = window.arguments[0]

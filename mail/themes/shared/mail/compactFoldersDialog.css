@@ -1,0 +1,28 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+html {
+  min-width: 750px;
+  min-height: 170px;
+}
+
+body {
+  width: 750px;
+  min-width: 100vw;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+#contentWrapper {
+  display: flex;
+}
+
+#contentWrapper img {
+  width: 48px;
+  height: 48px;
+  margin: 1em;
+  margin-inline-start: 0;
+}
+
