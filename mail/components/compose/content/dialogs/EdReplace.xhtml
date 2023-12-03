@@ -1,132 +1,144 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorReplace.dtd">
-
-<window
-  id="replaceDlg"
-  title="&replaceDialog.title;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/messengercompose/EditorReplace.dtd">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  id="replaceDlg"
+  scrolling="false"
   persist="screenX screenY"
   lightweightthemes="true"
-  onload="onLoad()"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/shared/grid-layout.css"
-  />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-  <dialog buttons="cancel">
-    <!-- Methods common to all editor dialogs -->
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <script src="chrome://messenger/content/messengercompose/EdReplace.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <stringbundle
-      id="findBundle"
-      src="chrome://global/locale/finddialog.properties"
+  <head>
+    <title>&replaceDialog.title;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/grid-layout.css"
     />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdReplace.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog buttons="cancel">
+      <stringbundle
+        id="findBundle"
+        src="chrome://global/locale/finddialog.properties"
+      />
 
-    <hbox>
-      <vbox>
+      <hbox>
+        <vbox>
+          <spacer class="spacer" />
+          <html:div class="grid-two-column">
+            <html:div class="flex-items-center">
+              <label
+                value="&findField.label;"
+                accesskey="&findField.accesskey;"
+                control="dialog.findInput"
+              />
+            </html:div>
+            <html:div>
+              <html:input
+                id="dialog.findInput"
+                class="input-inline"
+                oninput="doEnabling();"
+              />
+            </html:div>
+            <html:div class="flex-items-center">
+              <label
+                value="&replaceField.label;"
+                accesskey="&replaceField.accesskey;"
+                control="dialog.replaceInput"
+              />
+            </html:div>
+            <html:div>
+              <html:input
+                id="dialog.replaceInput"
+                class="input-inline"
+                oninput="doEnabling();"
+              />
+            </html:div>
+            <html:div class="grid-item-col2">
+              <vbox align="start">
+                <checkbox
+                  id="dialog.caseSensitive"
+                  label="&caseSensitiveCheckbox.label;"
+                  accesskey="&caseSensitiveCheckbox.accesskey;"
+                />
+                <checkbox
+                  id="dialog.wrap"
+                  label="&wrapCheckbox.label;"
+                  accesskey="&wrapCheckbox.accesskey;"
+                />
+                <checkbox
+                  id="dialog.searchBackwards"
+                  label="&backwardsCheckbox.label;"
+                  accesskey="&backwardsCheckbox.accesskey;"
+                />
+              </vbox>
+            </html:div>
+          </html:div>
+        </vbox>
         <spacer class="spacer" />
-        <html:div class="grid-two-column">
-          <html:div class="flex-items-center">
-            <label
-              value="&findField.label;"
-              accesskey="&findField.accesskey;"
-              control="dialog.findInput"
-            />
-          </html:div>
-          <html:div>
-            <html:input
-              id="dialog.findInput"
-              class="input-inline"
-              oninput="doEnabling();"
-            />
-          </html:div>
-          <html:div class="flex-items-center">
-            <label
-              value="&replaceField.label;"
-              accesskey="&replaceField.accesskey;"
-              control="dialog.replaceInput"
-            />
-          </html:div>
-          <html:div>
-            <html:input
-              id="dialog.replaceInput"
-              class="input-inline"
-              oninput="doEnabling();"
-            />
-          </html:div>
-          <html:div class="grid-item-col2">
-            <vbox align="start">
-              <checkbox
-                id="dialog.caseSensitive"
-                label="&caseSensitiveCheckbox.label;"
-                accesskey="&caseSensitiveCheckbox.accesskey;"
-              />
-              <checkbox
-                id="dialog.wrap"
-                label="&wrapCheckbox.label;"
-                accesskey="&wrapCheckbox.accesskey;"
-              />
-              <checkbox
-                id="dialog.searchBackwards"
-                label="&backwardsCheckbox.label;"
-                accesskey="&backwardsCheckbox.accesskey;"
-              />
-            </vbox>
-          </html:div>
-        </html:div>
-      </vbox>
-      <spacer class="spacer" />
-      <vbox>
-        <button
-          id="findNext"
-          label="&findNextButton.label;"
-          accesskey="&findNextButton.accesskey;"
-          oncommand="onFindNext();"
-          default="true"
-        />
-        <button
-          id="replace"
-          label="&replaceButton.label;"
-          accesskey="&replaceButton.accesskey;"
-          oncommand="onReplace();"
-        />
-        <button
-          id="replaceAndFind"
-          label="&replaceAndFindButton.label;"
-          accesskey="&replaceAndFindButton.accesskey;"
-          oncommand="onReplace(); onFindNext();"
-        />
-        <button
-          id="replaceAll"
-          label="&replaceAllButton.label;"
-          accesskey="&replaceAllButton.accesskey;"
-          oncommand="onReplaceAll();"
-        />
-        <button
-          dlgtype="cancel"
-          label="&closeButton.label;"
-          accesskey="&closeButton.accesskey;"
-        />
-      </vbox>
-    </hbox>
-  </dialog>
-</window>
+        <vbox>
+          <button
+            id="findNext"
+            label="&findNextButton.label;"
+            accesskey="&findNextButton.accesskey;"
+            oncommand="onFindNext();"
+            default="true"
+          />
+          <button
+            id="replace"
+            label="&replaceButton.label;"
+            accesskey="&replaceButton.accesskey;"
+            oncommand="onReplace();"
+          />
+          <button
+            id="replaceAndFind"
+            label="&replaceAndFindButton.label;"
+            accesskey="&replaceAndFindButton.accesskey;"
+            oncommand="onReplace(); onFindNext();"
+          />
+          <button
+            id="replaceAll"
+            label="&replaceAllButton.label;"
+            accesskey="&replaceAllButton.accesskey;"
+            oncommand="onReplaceAll();"
+          />
+          <button
+            dlgtype="cancel"
+            label="&closeButton.label;"
+            accesskey="&closeButton.accesskey;"
+          />
+        </vbox>
+      </hbox>
+    </dialog>
+  </html:body>
+</html>
