@@ -237,7 +237,7 @@ var mailContextMenu = {
       context.onLink && !context.onMailtoLink
     );
     showItem("mailContext-copylink", context.onLink && !context.onMailtoLink);
-    showItem("mailContext-savelink", context.onLink);
+    showItem("mailContext-savelink", context.onLink && !context.onMailtoLink);
     showItem(
       "mailContext-reportPhishingURL",
       context.onLink && !context.onMailtoLink

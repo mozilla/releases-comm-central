@@ -313,12 +313,38 @@ async function ensure_table_view() {
   );
 }
 
+/**
+ * Wait for a message to be fully loaded in the given about:message.
+ * @param {browser} aboutMessageBrowser - The browser for the about:message
+ *   window displaying the message.
+ */
+async function messageLoadedIn(aboutMessageBrowser) {
+  await TestUtils.waitForCondition(
+    () =>
+      aboutMessageBrowser.contentDocument.readyState == "complete" &&
+      aboutMessageBrowser.currentURI.spec == "about:message"
+  );
+
+  const messagePaneBrowser =
+    aboutMessageBrowser.contentWindow.getMessagePaneBrowser();
+  if (
+    messagePaneBrowser.webProgress?.isLoadingDocument ||
+    messagePaneBrowser.currentURI.spec == "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(
+      messagePaneBrowser,
+      null,
+      url => url != "about:blank"
+    );
+  }
+}
+
 // Report and remove any remaining accounts/servers. If we register a cleanup
 // function here, it will run before any other cleanup function has had a
 // chance to run. Instead, when it runs register another cleanup function
 // which will run last.
 registerCleanupFunction(function () {
-  registerCleanupFunction(function () {
+  registerCleanupFunction(async function () {
     Services.prefs.clearUserPref("mail.pane_config.dynamic");
     Services.xulStore.removeValue(
       "chrome://messenger/content/messenger.xhtml",
@@ -359,13 +385,10 @@ registerCleanupFunction(function () {
     resetSmartMailboxes();
     ensure_cards_view();
 
-    // Some tests that open new windows don't return focus to the main window
-    // in a way that satisfies mochitest, and the test times out.
-    Services.focus.focusedWindow = window;
-    // Focus an element in the main window, then blur it again to avoid it
-    // hijacking keypresses.
-    const mainWindowElement = document.getElementById("button-appmenu");
-    mainWindowElement.focus();
-    mainWindowElement.blur();
+    // Some tests that open new windows confuse mochitest, which waits for a
+    // focus event on the main window, and the test times out. If we focus a
+    // different window (browser-harness.xhtml should be the only other window
+    // at this point) then mochitest gets its focus event and the test ends.
+    await SimpleTest.promiseFocus([...Services.wm.getEnumerator(null)][1]);
   });
 });

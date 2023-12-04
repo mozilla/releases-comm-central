@@ -19,7 +19,8 @@ Content-Transfer-Encoding: 7bit
   </head>
   <body>
     <p>This is a page of sample content for tests.</p>
-    <p><a href="https://www.thunderbird.net/">Link to a web page</a></p>
+    <p><a href="https://example.com/">Link to a web page</a></p>
+    <p><a href="mailto:kate@kurtz.invalid">Link to an email address</a></p>
     <form>
       <input type="text" />
     </form>

@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Tests that items on the mail context menu are correctly shown in context.
+ */
+
 var { ConversationOpener } = ChromeUtils.import(
   "resource:///modules/ConversationOpener.jsm"
 );
@@ -20,9 +24,6 @@ var { MessageGenerator } = ChromeUtils.import(
 var { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
 );
-
-const TEST_MESSAGE_URL =
-  "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.eml";
 
 const tabmail = document.getElementById("tabmail");
 let testFolder, testMessages;
@@ -79,11 +80,23 @@ const singleNotExternal = [
 ];
 
 const mailContextData = {
+  "mailContext-openInBrowser": [],
+  "mailContext-openLinkInBrowser": [],
+  "mailContext-copylink": [],
+  "mailContext-savelink": [],
+  "mailContext-reportPhishingURL": [],
+  "mailContext-addemail": [],
+  "mailContext-composeemailto": [],
+  "mailContext-copyemail": [],
+  "mailContext-copyimage": [],
+  "mailContext-saveimage": [],
+  "mailContext-copy": [],
   "mailContext-selectall": [
     ...singleSelectionMessagePane,
     ...onePane,
     ...external,
   ],
+  "mailContext-searchTheWeb": [],
   "mailContext-editDraftMsg": [
     "draftsFolder",
     "draftsFolderTree",
@@ -116,6 +129,7 @@ const mailContextData = {
     "syntheticFolderTree",
     ...onePane,
   ],
+  "mailContext-replyNewsgroup": [],
   "mailContext-replySender": noCollapsedThreads,
   "mailContext-replyAll": noCollapsedThreads,
   "mailContext-replyList": ["listFolder", "listFolderTree"],
@@ -127,12 +141,15 @@ const mailContextData = {
     "multipleTemplatesFolderTree",
   ],
   "mailContext-redirect": noCollapsedThreads,
+  "mailContext-cancel": [],
   "mailContext-editAsNew": noCollapsedThreads,
   "mailContext-tags": notExternal,
   "mailContext-mark": notExternal,
+  "mailContext-copyMessageUrl": [],
   "mailContext-archive": notExternal,
   "mailContext-moveMenu": notExternal,
   "mailContext-copyMenu": true,
+  "mailContext-moveToFolderAgain": [],
   "mailContext-decryptToFolder": [
     "multipleMessagesTree",
     "collapsedThreadTree",
@@ -215,8 +232,6 @@ add_setup(async function () {
   testFolder = rootFolder
     .getChildNamed("mailContextFolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  const message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
-  testFolder.addMessageBatch([message]);
   const messages = [
     ...generator.makeMessages({ count: 5 }),
     ...generator.makeMessages({ count: 5, msgsPerThread: 5 }),
@@ -345,8 +360,8 @@ add_task(async function testSingleMessage() {
   const about3Pane = tabmail.currentAbout3Pane;
   const mailContext = about3Pane.document.getElementById("mailContext");
   const { gDBView, messageBrowser, threadTree } = about3Pane;
-  const messagePaneBrowser =
-    messageBrowser.contentWindow.getMessagePaneBrowser();
+  const aboutMessage = messageBrowser.contentWindow;
+  const messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
 
   const loadedPromise = BrowserTestUtils.browserLoaded(
     messagePaneBrowser,
@@ -364,29 +379,26 @@ add_task(async function testSingleMessage() {
     "message browser should be visible"
   );
 
-  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
     messagePaneBrowser
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "singleMessage");
 
   // Open the menu from the thread pane.
 
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(0),
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "singleMessageTree");
 
   // Open the menu through the keyboard.
 
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   const row = threadTree.getRowAtIndex(0);
   row.focus();
   EventUtils.synthesizeMouseAtCenter(
@@ -394,7 +406,7 @@ add_task(async function testSingleMessage() {
     { type: "contextmenu", button: 0 },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   Assert.ok(
     BrowserTestUtils.is_visible(mailContext),
     "Context menu is shown through keyboard action"
@@ -403,7 +415,6 @@ add_task(async function testSingleMessage() {
 
   // Open the menu on a message that is scrolled out of view.
 
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   threadTree.scrollToIndex(200, true);
   await new Promise(resolve => window.requestAnimationFrame(resolve));
   Assert.ok(!row.parentNode, "Row element should no longer be attached");
@@ -417,7 +428,7 @@ add_task(async function testSingleMessage() {
     { type: "contextmenu", button: 0 },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   Assert.ok(
     threadTree.getRowAtIndex(threadTree.currentIndex),
     "Current row is scrolled into view when showing context menu"
@@ -433,7 +444,7 @@ add_task(async function testSingleMessage() {
  */
 add_task(async function testMultipleMessages() {
   await TestUtils.waitForCondition(
-    () => ConversationOpener.isMessageIndexed(testMessages[6]),
+    () => ConversationOpener.isMessageIndexed(testMessages[5]),
     "waiting for Gloda to finish indexing",
     1000
   );
@@ -462,27 +473,25 @@ add_task(async function testMultipleMessages() {
 
   // Open the menu from the thread pane.
 
-  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(2),
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "multipleMessagesTree");
 
   // Select a collapsed thread and open the menu.
 
-  threadTree.scrollToIndex(6, true);
-  threadTree.selectedIndices = [6];
+  threadTree.scrollToIndex(5, true);
+  threadTree.selectedIndices = [5];
 
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(6),
+    threadTree.getRowAtIndex(5),
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "collapsedThreadTree");
 
   // Open the menu in the thread pane on a message scrolled out of view.
@@ -498,13 +507,12 @@ add_task(async function testMultipleMessages() {
     "Current row is scrolled out of view"
   );
 
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree,
     { type: "contextmenu", button: 0 },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   Assert.ok(
     threadTree.getRowAtIndex(threadTree.currentIndex),
     "Current row is scrolled into view when popup is shown"
@@ -545,36 +553,33 @@ add_task(async function testDraftsFolder() {
     BrowserTestUtils.is_visible(messageBrowser),
     "message browser should be visible"
   );
-  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
     messagePaneBrowser
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "draftsFolder");
 
   // Open the menu from the thread pane.
 
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(0),
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "draftsFolderTree");
 
   threadTree.scrollToIndex(1, true);
   threadTree.selectedIndices = [1, 2, 3];
 
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(2),
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "multipleDraftsFolderTree");
 });
 
@@ -611,36 +616,33 @@ add_task(async function testTemplatesFolder() {
     BrowserTestUtils.is_visible(messageBrowser),
     "message browser should be visible"
   );
-  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
     messagePaneBrowser
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "templatesFolder");
 
   // Open the menu from the thread pane.
 
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(0),
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "templatesFolderTree");
 
   threadTree.scrollToIndex(1, true);
   threadTree.selectedIndices = [1, 2, 3];
 
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(2),
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "multipleTemplatesFolderTree");
 });
 
@@ -648,7 +650,6 @@ add_task(async function testTemplatesFolder() {
  * Tests the mailContext menu on the thread tree and message pane of a
  * mailing list message.
  */
-
 add_task(async function testListMessage() {
   const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({ folderURI: listFolder.URI });
@@ -678,24 +679,22 @@ add_task(async function testListMessage() {
     BrowserTestUtils.is_visible(messageBrowser),
     "message browser should be visible"
   );
-  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
     messagePaneBrowser
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "listFolder");
 
   // Open the menu from the thread pane.
 
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(0),
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "listFolderTree");
 });
 
@@ -752,24 +751,22 @@ add_task(async function testSyntheticFolder() {
     BrowserTestUtils.is_visible(messageBrowser),
     "message browser should be visible"
   );
-  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
     messagePaneBrowser
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "syntheticFolderDraft");
 
   // Open the menu from the thread pane.
 
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(0),
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "syntheticFolderDraftTree");
 
   loadedPromise = BrowserTestUtils.browserLoaded(
@@ -786,24 +783,22 @@ add_task(async function testSyntheticFolder() {
     BrowserTestUtils.is_visible(messageBrowser),
     "message browser should be visible"
   );
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
     messagePaneBrowser
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "syntheticFolder");
 
   // Open the menu from the thread pane.
 
-  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(5),
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "syntheticFolderTree");
 
   tabmail.closeOtherTabs(0);
@@ -813,21 +808,25 @@ add_task(async function testSyntheticFolder() {
  * Tests the mailContext menu on the message pane of a message in a tab.
  */
 add_task(async function testMessageTab() {
-  const tabPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  const tabPromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabOpen"
+  );
   window.OpenMessageInNewTab(testMessages[0], { background: false });
-  await tabPromise;
-  await new Promise(resolve => setTimeout(resolve));
+  const {
+    detail: { tabInfo },
+  } = await tabPromise;
+  await messageLoadedIn(tabInfo.chromeBrowser);
 
-  const aboutMessage = tabmail.currentAboutMessage;
+  const aboutMessage = tabInfo.chromeBrowser.contentWindow;
   const mailContext = aboutMessage.document.getElementById("mailContext");
 
-  const shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
     aboutMessage.getMessagePaneBrowser()
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "messageTab");
 
   tabmail.closeOtherTabs(0);
@@ -837,7 +836,10 @@ add_task(async function testMessageTab() {
  * Tests the mailContext menu on the message pane of a file message in a tab.
  */
 add_task(async function testExternalMessageTab() {
-  const tabPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  const tabPromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabOpen"
+  );
   const messageFile = new FileUtils.File(
     getTestFilePath("files/sampleContent.eml")
   );
@@ -850,19 +852,20 @@ add_task(async function testExternalMessageTab() {
     messageFile,
     Services.io.newFileURI(messageFile)
   );
-  await tabPromise;
-  await new Promise(resolve => setTimeout(resolve));
+  const {
+    detail: { tabInfo },
+  } = await tabPromise;
+  await messageLoadedIn(tabInfo.chromeBrowser);
 
-  const aboutMessage = tabmail.currentAboutMessage;
+  const aboutMessage = tabInfo.chromeBrowser.contentWindow;
   const mailContext = aboutMessage.document.getElementById("mailContext");
 
-  const shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
     aboutMessage.getMessagePaneBrowser()
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "externalMessageTab");
 
   tabmail.closeOtherTabs(0);
@@ -875,19 +878,18 @@ add_task(async function testMessageWindow() {
   const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   window.MsgOpenNewWindowForMessage(testMessages[0]);
   const win = await winPromise;
-  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
-  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
+  await messageLoadedIn(win.messageBrowser);
+  await SimpleTest.promiseFocus(win);
 
   const aboutMessage = win.messageBrowser.contentWindow;
   const mailContext = aboutMessage.document.getElementById("mailContext");
 
-  const shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
     aboutMessage.getMessagePaneBrowser()
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "messageWindow");
 
   await BrowserTestUtils.closeWindow(win);
@@ -911,19 +913,18 @@ add_task(async function testExternalMessageWindow() {
     Services.io.newFileURI(messageFile)
   );
   const win = await winPromise;
-  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
-  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
+  await messageLoadedIn(win.messageBrowser);
+  await SimpleTest.promiseFocus(win);
 
   const aboutMessage = win.messageBrowser.contentWindow;
   const mailContext = aboutMessage.document.getElementById("mailContext");
 
-  const shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
     aboutMessage.getMessagePaneBrowser()
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "externalMessageWindow");
 
   await BrowserTestUtils.closeWindow(win);
