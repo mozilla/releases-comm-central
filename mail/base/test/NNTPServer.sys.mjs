@@ -50,7 +50,12 @@ export class NNTPServer {
    */
   addMessages(group, messages) {
     messages.forEach(message => {
-      const article = new NewsArticle(message.toMessageString());
+      message = message.toMessageString();
+      // The NNTP daemon needs a trailing empty line.
+      if (!message.endsWith("\r\n")) {
+        message += "\r\n";
+      }
+      const article = new NewsArticle(message);
       article.groups = [group];
       this.daemon.addArticle(article);
     });
