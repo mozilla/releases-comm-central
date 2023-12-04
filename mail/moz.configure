@@ -80,14 +80,14 @@ imply_option("--enable-app-system-headers", True)
 @imports("re")
 def thunderbird_official_branding(milestone, update_channel):
     rv = "nightly"
-    if update_channel == "release":
+    if update_channel in ("release", "esr"):  # No separate "esr" branding, use same as release
         rv = "thunderbird"
     elif update_channel == "beta":
         rv = "tb_beta"
     elif update_channel == "default":  # For distros that want official branding but updates
         version_display = milestone.app_version_display
         m = re.search(r"([ab])\d+", version_display)
-        if m:  # Alpha or beta
+        if m:  # Alpha or beta, alpha will fall back to nightly
             if m.group(1) == "b":
                 rv = "tb_beta"
         else:  # Release
