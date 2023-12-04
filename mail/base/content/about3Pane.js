@@ -6046,6 +6046,10 @@ function restoreState({
     document.body.classList.remove("account-central");
     accountCentralBrowser.hidden = true;
     threadPaneHeader.onFolderSelected();
+
+    window.dispatchEvent(
+      new CustomEvent("folderURIChanged", { bubbles: true })
+    );
   }
 
   if (
