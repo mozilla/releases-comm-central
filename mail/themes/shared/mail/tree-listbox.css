@@ -69,6 +69,7 @@
     --selection-indicator-background-selected-focused: var(--color-blue-50);
     --selection-indicator-border-selected-unfocused: light-dark(var(--color-gray-50), var(--color-gray-70));
     --selection-indicator-border-selected-focused: var(--color-blue-70);
+    --unread-color: var(--layout-color-0);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -191,6 +192,16 @@
 
     &[is="thread-card"] {
       outline-offset: var(--card-outline-offset);
+    }
+  }
+
+  [data-properties~="unread"] {
+    &[is="thread-row"]:not([data-properties~="tagged"]) {
+      color: var(--unread-color);
+    }
+
+    &[is="thread-card"] .subject {
+      color: var(--unread-color);
     }
   }
 

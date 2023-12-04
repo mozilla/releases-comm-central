@@ -181,8 +181,7 @@
   }
 }
 
-tr[is="thread-row"],
-tr[is="thread-card"] .subject {
+tr[is="thread-row"] {
   color: var(--tag-color, currentColor);
 }
 
