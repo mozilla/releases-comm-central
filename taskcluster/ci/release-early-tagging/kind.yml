@@ -9,38 +9,30 @@ transforms:
     - gecko_taskgraph.transforms.release_version_bump:transforms
     - gecko_taskgraph.transforms.task:transforms
 
-kind-dependencies:
-    - release-beetmover-push-to-release
-
 job-defaults:
-    description: Release Promotion version bump/tag
+    description: Release Promotion version tag for buildN
     run-on-projects: []
-    shipping-phase: ship
+    shipping-phase: promote
     worker-type: tree
     worker:
         implementation: treescript
+        tags: ['buildN']
+        bump: false
         dontbuild: true
-        tags: ['release']
-        bump: true
-        bump-files:
-            by-project:
-                default: ["mail/config/version_display.txt"]
-                comm-(beta|esr.*):
-                    - "mail/config/version.txt"
-                    - "mail/config/version_display.txt"
         push:
             by-project:
-                comm-(beta|esr.*): true
+                comm-(beta|release|esr.*): true
                 default: false
 
+
 jobs:
-    thunderbird-comm:
-        name: thunderbird-comm-version-bump
+    thunderbird:
+        name: thunderbird-tag-buildN
         worker:
             repo-param-prefix: comm_
         shipping-product: thunderbird
         treeherder:
             platform: thunderbird-release/opt
-            symbol: Rel(VerBump)
+            symbol: Rel(TagBuild)
             tier: 1
             kind: build
