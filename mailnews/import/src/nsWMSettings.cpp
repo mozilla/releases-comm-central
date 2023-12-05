@@ -380,7 +380,7 @@ bool WMSettings::DoPOP3Server(nsIMsgAccountManager* pMgr,
         // code to the generic nsImportSettings code
         // if the other import modules end up needing to do this too.
         // if Local Folders does not exist already, create it
-        rv = pMgr->CreateLocalMailAccount();
+        rv = pMgr->CreateLocalMailAccount(nullptr);
         if (NS_FAILED(rv)) {
           IMPORT_LOG0("*** Failed to create Local Folders!\n");
           return false;

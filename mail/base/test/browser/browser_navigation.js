@@ -27,8 +27,7 @@ add_setup(async function () {
 
   const generator = new MessageGenerator();
 
-  MailServices.accounts.createLocalMailAccount();
-  const account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.createLocalMailAccount();
   account.addIdentity(MailServices.accounts.createIdentity());
   const rootFolder = account.incomingServer.rootFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder

@@ -14,8 +14,7 @@ var testAccount;
 
 add_setup(function () {
   // Set up two folders.
-  window.MailServices.accounts.createLocalMailAccount();
-  testAccount = window.MailServices.accounts.accounts[0];
+  testAccount = MailServices.accounts.createLocalMailAccount();
   const rootFolder = testAccount.incomingServer.rootFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
   );

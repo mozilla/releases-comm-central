@@ -165,7 +165,7 @@ interface nsIMsgAccountManager : nsISupports {
   attribute nsIMsgIncomingServer localFoldersServer;
 
   // Create the account for that special server.
-  void createLocalMailAccount();
+  nsIMsgAccount createLocalMailAccount();
 
   /**
    * Kicks off the creation of all accounts. You do not need to call this and

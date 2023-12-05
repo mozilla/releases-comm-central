@@ -13,8 +13,7 @@ const { threadTree } = about3Pane;
 
 add_setup(async function () {
   // Create an account for the test.
-  MailServices.accounts.createLocalMailAccount();
-  const account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.createLocalMailAccount();
   account.addIdentity(MailServices.accounts.createIdentity());
 
   // Create a folder for the account to store test messages.

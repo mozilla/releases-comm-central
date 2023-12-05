@@ -9,10 +9,7 @@ var { MailServices } = ChromeUtils.import(
 
 function run_test() {
   // Create a local mail account (we need this first)
-  MailServices.accounts.createLocalMailAccount();
-
-  // Get the account
-  const account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.createLocalMailAccount();
 
   // Get the root folder
   var root = account.incomingServer.rootFolder;

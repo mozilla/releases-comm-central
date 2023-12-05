@@ -19,8 +19,7 @@ add_setup(async function () {
   const list2 = personalBook.addMailList(createMailingList("list 2"));
   list2.addCard(card3);
 
-  MailServices.accounts.createLocalMailAccount();
-  const account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.createLocalMailAccount();
   account.addIdentity(MailServices.accounts.createIdentity());
 
   const calendar = CalendarTestUtils.createCalendar();

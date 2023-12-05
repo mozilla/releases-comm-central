@@ -339,7 +339,7 @@ bool OutlookSettings::DoPOP3Server(nsIMsgAccountManager* aMgr,
     // XXX: We may need to move this local folder creation code to the generic
     // nsImportSettings code if the other import modules end up needing to do
     // this too. if Local Folders does not exist already, create it
-    rv = aMgr->CreateLocalMailAccount();
+    rv = aMgr->CreateLocalMailAccount(nullptr);
     if (NS_FAILED(rv)) {
       IMPORT_LOG0("*** Failed to create Local Folders!\n");
       return false;

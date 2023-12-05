@@ -165,10 +165,7 @@ function createAccount(type = "none") {
   let account;
 
   if (type == "local") {
-    MailServices.accounts.createLocalMailAccount();
-    account = MailServices.accounts.findAccountForServer(
-      MailServices.accounts.localFoldersServer
-    );
+    account = MailServices.accounts.createLocalMailAccount();
   } else {
     account = MailServices.accounts.createAccount();
     account.incomingServer = MailServices.accounts.createIncomingServer(

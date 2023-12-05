@@ -17,8 +17,7 @@ let rootFolder;
 let inboxFolder;
 
 add_setup(async function () {
-  MailServices.accounts.createLocalMailAccount();
-  const account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.createLocalMailAccount();
   rootFolder = account.incomingServer.rootFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
   );

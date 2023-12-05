@@ -411,8 +411,7 @@ add_task(async function test_persistence() {
  * Tests the context menu compose items.
  */
 add_task(async function test_context_menu_compose() {
-  MailServices.accounts.createLocalMailAccount();
-  const account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.createLocalMailAccount();
   account.addIdentity(MailServices.accounts.createIdentity());
 
   registerCleanupFunction(async () => {

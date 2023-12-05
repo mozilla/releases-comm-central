@@ -2173,7 +2173,7 @@ nsresult nsMsgAccountManager::GetLocalFoldersPrettyName(
 }
 
 NS_IMETHODIMP
-nsMsgAccountManager::CreateLocalMailAccount() {
+nsMsgAccountManager::CreateLocalMailAccount(nsIMsgAccount** _retval) {
   // create the server
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = CreateIncomingServer("nobody"_ns, "Local Folders"_ns, "none"_ns,
@@ -2187,7 +2187,7 @@ nsMsgAccountManager::CreateLocalMailAccount() {
 
   nsCOMPtr<nsINoIncomingServer> noServer;
   noServer = do_QueryInterface(server, &rv);
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // create the directory structure for old 4.x "Local Mail"
   // under <profile dir>/Mail/Local Folders or
@@ -2197,23 +2197,23 @@ nsMsgAccountManager::CreateLocalMailAccount() {
 
   // we want <profile>/Mail
   rv = NS_GetSpecialDirectory(NS_APP_MAIL_50_DIR, getter_AddRefs(mailDir));
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   rv = mailDir->Exists(&dirExists);
   if (NS_SUCCEEDED(rv) && !dirExists)
     rv = mailDir->Create(nsIFile::DIRECTORY_TYPE, 0775);
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // set the default local path for "none"
   rv = server->SetDefaultLocalPath(mailDir);
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // Create an account when valid server values are established.
   // This will keep the status of accounts sane by avoiding the addition of
   // incomplete accounts.
   nsCOMPtr<nsIMsgAccount> account;
   rv = CreateAccount(getter_AddRefs(account));
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // notice, no identity for local mail
   // hook the server to the account
@@ -2222,7 +2222,13 @@ nsMsgAccountManager::CreateLocalMailAccount() {
   account->SetIncomingServer(server);
 
   // remember this as the local folders server
-  return SetLocalFoldersServer(server);
+  rv = SetLocalFoldersServer(server);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (_retval) {
+    account.forget(_retval);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP

@@ -50,12 +50,9 @@ var localAccountUtils = {
     }
 
     this._mailboxStoreContractID = storeID;
-    MailServices.accounts.createLocalMailAccount();
 
-    this.incomingServer = MailServices.accounts.localFoldersServer;
-    this.msgAccount = MailServices.accounts.findAccountForServer(
-      this.incomingServer
-    );
+    this.msgAccount = MailServices.accounts.createLocalMailAccount();
+    this.incomingServer = this.msgAccount.incomingServer;
 
     this.rootFolder = this.incomingServer.rootMsgFolder.QueryInterface(
       Ci.nsIMsgLocalMailFolder

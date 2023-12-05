@@ -21,8 +21,7 @@ function createAccount() {
     MailServices.accounts.accounts.forEach(cleanUpAccount);
   });
 
-  MailServices.accounts.createLocalMailAccount();
-  const account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.createLocalMailAccount();
   info(`Created account ${account.toString()}`);
 
   return account;

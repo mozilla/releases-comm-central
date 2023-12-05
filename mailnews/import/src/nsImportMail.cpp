@@ -694,7 +694,7 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder** ppFolder) {
   rv = accMgr->GetLocalFoldersServer(getter_AddRefs(server));
   // if Local Folders does not exist already, create it
   if (NS_FAILED(rv) || !server) {
-    rv = accMgr->CreateLocalMailAccount();
+    rv = accMgr->CreateLocalMailAccount(nullptr);
     if (NS_FAILED(rv)) {
       IMPORT_LOG0("*** Failed to create Local Folders!\n");
       return false;

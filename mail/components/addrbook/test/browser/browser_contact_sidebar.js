@@ -10,8 +10,7 @@ var dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
 );
 
 add_task(async function () {
-  MailServices.accounts.createLocalMailAccount();
-  const account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.createLocalMailAccount();
   account.addIdentity(MailServices.accounts.createIdentity());
 
   const book1 = createAddressBook("Book 1");

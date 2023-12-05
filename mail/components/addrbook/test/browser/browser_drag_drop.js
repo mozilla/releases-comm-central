@@ -414,8 +414,7 @@ add_task(async function test_drop_on_books_list() {
 });
 
 add_task(async function test_drop_on_compose() {
-  MailServices.accounts.createLocalMailAccount();
-  const account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.createLocalMailAccount();
   account.addIdentity(MailServices.accounts.createIdentity());
 
   registerCleanupFunction(async () => {
