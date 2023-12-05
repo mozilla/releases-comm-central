@@ -18,11 +18,11 @@ add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  rootFolder = account.incomingServer.rootFolder;
-
-  rootFolder.createSubfolder("cardsView", null);
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
   testFolder = rootFolder
-    .getChildNamed("cardsView")
+    .createLocalSubfolder("cardsView")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   const generator = new MessageGenerator();

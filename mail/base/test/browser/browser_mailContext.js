@@ -222,15 +222,17 @@ function checkMenuitems(menu, mode) {
 }
 
 add_setup(async function () {
+  Services.prefs.clearUserPref("mail.last_msg_movecopy_target_uri");
   const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("mailContextFolder", null);
+  const rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
   testFolder = rootFolder
-    .getChildNamed("mailContextFolder")
+    .createLocalSubfolder("mailContextFolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   const messages = [
     ...generator.makeMessages({ count: 5 }),
@@ -240,9 +242,8 @@ add_setup(async function () {
   const messageStrings = messages.map(message => message.toMessageString());
   testFolder.addMessageBatch(messageStrings);
   testMessages = [...testFolder.messages];
-  rootFolder.createSubfolder("mailContextDrafts", null);
   draftsFolder = rootFolder
-    .getChildNamed("mailContextDrafts")
+    .createLocalSubfolder("mailContextDrafts")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   draftsFolder.setFlag(Ci.nsMsgFolderFlags.Drafts);
   draftsFolder.addMessageBatch(
@@ -251,9 +252,8 @@ add_setup(async function () {
       .map(message => message.toMessageString())
   );
   draftsMessages = [...draftsFolder.messages];
-  rootFolder.createSubfolder("mailContextTemplates", null);
   templatesFolder = rootFolder
-    .getChildNamed("mailContextTemplates")
+    .createLocalSubfolder("mailContextTemplates")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   templatesFolder.setFlag(Ci.nsMsgFolderFlags.Templates);
   templatesFolder.addMessageBatch(
@@ -262,9 +262,8 @@ add_setup(async function () {
       .map(message => message.toMessageString())
   );
   templatesMessages = [...templatesFolder.messages];
-  rootFolder.createSubfolder("mailContextMailingList", null);
   listFolder = rootFolder
-    .getChildNamed("mailContextMailingList")
+    .createLocalSubfolder("mailContextMailingList")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   listFolder.addMessage(
     "From - Mon Jan 01 00:00:00 2001\n" +

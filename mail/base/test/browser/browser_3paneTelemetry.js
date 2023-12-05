@@ -15,15 +15,15 @@ var folders = {};
 add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
-  const rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
   for (const type of ["Drafts", "SentMail", "Templates", "Junk", "Archive"]) {
-    rootFolder.createSubfolder(`telemetry${type}`, null);
-    folders[type] = rootFolder.getChildNamed(`telemetry${type}`);
+    folders[type] = rootFolder.createLocalSubfolder(`telemetry${type}`);
     folders[type].setFlag(Ci.nsMsgFolderFlags[type]);
   }
-  rootFolder.createSubfolder("telemetryPlain", null);
-  folders.Other = rootFolder.getChildNamed("telemetryPlain");
+  folders.Other = rootFolder.createLocalSubfolder("telemetryPlain");
 
   const { paneLayout } = tabmail.currentAbout3Pane;
   const folderPaneVisibleAtStart = paneLayout.folderPaneVisible;

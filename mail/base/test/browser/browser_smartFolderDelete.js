@@ -19,8 +19,9 @@ let inboxFolder;
 add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
-  rootFolder = account.incomingServer.rootFolder;
-  rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
   // Set the active modes of the folder pane. In theory we only need the "smart"
   // mode to test with, but in practice we also need the "all" mode to generate

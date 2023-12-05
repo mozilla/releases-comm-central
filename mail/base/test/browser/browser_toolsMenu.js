@@ -50,11 +50,12 @@ add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  rootFolder = account.incomingServer.rootFolder;
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
-  rootFolder.createSubfolder("tools menu", null);
   testFolder = rootFolder
-    .getChildNamed("tools menu")
+    .createLocalSubfolder("tools menu")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   testFolder.addMessageBatch(
     generator

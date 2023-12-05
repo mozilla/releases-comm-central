@@ -23,14 +23,15 @@ add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  rootFolder = account.incomingServer.rootFolder;
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
   // Quick Filter Bar needs to be toggled on for F6 focus shift to be accurate.
   goDoCommand("cmd_showQuickFilterBar");
 
-  rootFolder.createSubfolder("paneFocus", null);
   testFolder = rootFolder
-    .getChildNamed("paneFocus")
+    .createLocalSubfolder("paneFocus")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   testFolder.addMessageBatch(
     generator

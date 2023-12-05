@@ -26,11 +26,12 @@ add_setup(async function () {
 
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
-  const rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
-  rootFolder.createSubfolder("mailTabsA", null);
   folderA = rootFolder
-    .getChildNamed("mailTabsA")
+    .createLocalSubfolder("mailTabsA")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderA.addMessageBatch(
     generator
@@ -39,9 +40,8 @@ add_setup(async function () {
   );
   messagesA = [...folderA.messages];
 
-  rootFolder.createSubfolder("mailTabsB", null);
   folderB = rootFolder
-    .getChildNamed("mailTabsB")
+    .createLocalSubfolder("mailTabsB")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderB.addMessageBatch(
     generator

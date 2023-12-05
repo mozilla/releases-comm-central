@@ -169,13 +169,14 @@ add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("formPickerFolder", null);
+  const rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
   testFolder = rootFolder
-    .getChildNamed("formPickerFolder")
+    .createLocalSubfolder("formPickerFolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   const message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
-  testFolder.addMessageBatch([message]);
+  testFolder.addMessage(message);
 
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(account, false);

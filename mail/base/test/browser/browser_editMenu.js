@@ -59,19 +59,21 @@ add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  rootFolder = account.incomingServer.rootFolder;
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
-  rootFolder.createSubfolder("edit menu", null);
   testFolder = rootFolder
-    .getChildNamed("edit menu")
+    .createLocalSubfolder("edit menu")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   testFolder.addMessageBatch(
     generator.makeMessages({}).map(message => message.toMessageString())
   );
   testMessages = [...testFolder.messages];
 
-  rootFolder.createSubfolder("edit menu virtual", null);
-  virtualFolder = rootFolder.getChildNamed("edit menu virtual");
+  virtualFolder = rootFolder
+    .createLocalSubfolder("edit menu virtual")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
   virtualFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
   const msgDatabase = virtualFolder.msgDatabase;
   const folderInfo = msgDatabase.dBFolderInfo;

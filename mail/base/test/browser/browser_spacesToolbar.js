@@ -16,11 +16,11 @@ add_setup(function () {
   // Set up two folders.
   window.MailServices.accounts.createLocalMailAccount();
   testAccount = window.MailServices.accounts.accounts[0];
-  const rootFolder = testAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("spacesToolbarA", null);
-  folderA = rootFolder.findSubFolder("spacesToolbarA");
-  rootFolder.createSubfolder("spacesToolbarB", null);
-  folderB = rootFolder.findSubFolder("spacesToolbarB");
+  const rootFolder = testAccount.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  folderA = rootFolder.createLocalSubfolder("spacesToolbarA");
+  folderB = rootFolder.createLocalSubfolder("spacesToolbarB");
 });
 
 registerCleanupFunction(async () => {

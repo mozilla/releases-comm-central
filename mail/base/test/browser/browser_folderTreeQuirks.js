@@ -40,27 +40,26 @@ const messageInjection = new MessageInjection(
 
 add_setup(async function () {
   account = MailServices.accounts.accounts[0];
-  rootFolder = account.incomingServer.rootFolder;
-  inboxFolder = rootFolder.getChildNamed("Inbox");
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
+  inboxFolder = rootFolder
+    .getChildNamed("Inbox")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
   trashFolder = rootFolder.getChildNamed("Trash");
   outboxFolder = rootFolder.getChildNamed("Outbox");
+  folderA = rootFolder
+    .createLocalSubfolder("folderTreeQuirksA")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderB = folderA
+    .createLocalSubfolder("folderTreeQuirksB")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderC = folderB
+    .createLocalSubfolder("folderTreeQuirksC")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+
   moreButton = about3Pane.document.querySelector("#folderPaneMoreButton");
   moreContext = about3Pane.document.getElementById("folderPaneMoreContext");
-
-  rootFolder.createSubfolder("folderTreeQuirksA", null);
-  folderA = rootFolder
-    .getChildNamed("folderTreeQuirksA")
-    .QueryInterface(Ci.nsIMsgLocalMailFolder);
-
-  folderA.createSubfolder("folderTreeQuirksB", null);
-  folderB = folderA
-    .getChildNamed("folderTreeQuirksB")
-    .QueryInterface(Ci.nsIMsgLocalMailFolder);
-
-  folderB.createSubfolder("folderTreeQuirksC", null);
-  folderC = folderB
-    .getChildNamed("folderTreeQuirksC")
-    .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   messageInjection.addSetsToFolders(
     [folderA, folderB, folderC],
@@ -386,14 +385,12 @@ add_task(async function testSmartFolders() {
   ]);
 
   // Add some subfolders of existing folders.
-  rootFolder.createSubfolder("folderTreeQuirksX", null);
-  let folderX = rootFolder.getChildNamed("folderTreeQuirksX");
-  inboxFolder.createSubfolder("folderTreeQuirksY", null);
-  let folderY = inboxFolder.getChildNamed("folderTreeQuirksY");
-  folderY.createSubfolder("folderTreeQuirksYY", null);
-  let folderYY = folderY.getChildNamed("folderTreeQuirksYY");
-  folderB.createSubfolder("folderTreeQuirksZ", null);
-  let folderZ = folderB.getChildNamed("folderTreeQuirksZ");
+  let folderX = rootFolder.createLocalSubfolder("folderTreeQuirksX");
+  let folderY = inboxFolder
+    .createLocalSubfolder("folderTreeQuirksY")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  let folderYY = folderY.createLocalSubfolder("folderTreeQuirksYY");
+  let folderZ = folderB.createLocalSubfolder("folderTreeQuirksZ");
 
   // Check the folders are listed in the right order.
   await checkModeListItems("smart", [
@@ -564,8 +561,7 @@ add_task(async function testSmartFolders() {
  * with any subfolders if they should be shown.
  */
 add_task(async function testFolderMove() {
-  rootFolder.createSubfolder("new parent", null);
-  const newParentFolder = rootFolder.getChildNamed("new parent");
+  const newParentFolder = rootFolder.createLocalSubfolder("new parent");
   [...folderC.messages][6].markRead(false);
   folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
@@ -672,9 +668,8 @@ add_task(async function testFolderMove() {
 add_task(async function testFolderRename() {
   const extraFolders = {};
   for (const name of ["aaa", "ggg", "zzz"]) {
-    rootFolder.createSubfolder(name, null);
     extraFolders[name] = rootFolder
-      .getChildNamed(name)
+      .createLocalSubfolder(name)
       .QueryInterface(Ci.nsIMsgLocalMailFolder);
     extraFolders[name].addMessage(generator.makeMessage({}).toMessageString());
     extraFolders[name].setFlag(Ci.nsMsgFolderFlags.Favorite);

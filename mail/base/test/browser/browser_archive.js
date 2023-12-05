@@ -42,10 +42,11 @@ add_setup(async function () {
   });
 
   // Create a folder for the account to store test messages.
-  const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test-archive", null);
+  const rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
   const testFolder = rootFolder
-    .getChildNamed("test-archive")
+    .createLocalSubfolder("test-archive")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   // Generate test messages.

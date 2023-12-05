@@ -387,15 +387,16 @@ add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("mailContext messageContent", null);
+  const rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
   const testFolder = rootFolder
-    .getChildNamed("mailContext messageContent")
+    .createLocalSubfolder("mailContext messageContent")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   const message = await fetch(TEST_MESSAGE_URL).then(response =>
     response.text()
   );
-  testFolder.addMessageBatch([message]);
+  testFolder.addMessage(message);
   testMessage = testFolder.messages.getNext();
 
   tabmail.currentAbout3Pane.restoreState({

@@ -139,11 +139,12 @@ add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  rootFolder = account.incomingServer.rootFolder;
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
-  rootFolder.createSubfolder("view menu", null);
   inboxFolder = rootFolder
-    .getChildNamed("view menu")
+    .createLocalSubfolder("view menu")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   inboxFolder.addMessageBatch(
     generator

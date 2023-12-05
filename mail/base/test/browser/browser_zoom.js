@@ -18,10 +18,11 @@ add_setup(async function () {
   account.addIdentity(MailServices.accounts.createIdentity());
 
   // Create a folder for the account to store test messages.
-  const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("zoom", null);
+  const rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
   const testFolder = rootFolder
-    .getChildNamed("zoom")
+    .createLocalSubfolder("zoom")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   // Generate test messages.

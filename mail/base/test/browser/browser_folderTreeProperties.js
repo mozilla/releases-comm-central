@@ -26,13 +26,14 @@ add_setup(async function () {
     "none"
   );
   account.addIdentity(MailServices.accounts.createIdentity());
-  rootFolder = account.incomingServer.rootFolder;
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
   trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
   trashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
-  rootFolder.createSubfolder("folderTreePropsVirtual", null);
-  virtualFolder = rootFolder.getChildNamed("folderTreePropsVirtual");
+  virtualFolder = rootFolder.createLocalSubfolder("folderTreePropsVirtual");
   virtualFolder.flags |=
     Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Favorite;
   const virtualFolderInfo = virtualFolder.msgDatabase.dBFolderInfo;

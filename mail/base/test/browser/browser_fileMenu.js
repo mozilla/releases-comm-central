@@ -63,11 +63,12 @@ add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  rootFolder = account.incomingServer.rootFolder;
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
-  rootFolder.createSubfolder("file menu inbox", null);
   inboxFolder = rootFolder
-    .getChildNamed("file menu inbox")
+    .createLocalSubfolder("file menu inbox")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   inboxFolder.setFlag(Ci.nsMsgFolderFlags.Inbox);
   inboxFolder.addMessageBatch(
@@ -77,9 +78,9 @@ add_setup(async function () {
   );
   testMessages = [...inboxFolder.messages];
 
-  rootFolder.createSubfolder("file menu plain", null);
-  plainFolder = rootFolder.getChildNamed("file menu plain");
-
+  plainFolder = rootFolder
+    .createLocalSubfolder("file menu plain")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
   trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
 
   window.OpenMessageInNewTab(testMessages[0], { background: true });

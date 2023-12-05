@@ -24,11 +24,12 @@ add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  rootFolder = account.incomingServer.rootFolder;
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
-  rootFolder.createSubfolder("threads", null);
   testFolder = rootFolder
-    .getChildNamed("threads")
+    .createLocalSubfolder("threads")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   testFolder.addMessageBatch(

@@ -30,11 +30,12 @@ add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  const rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
-  rootFolder.createSubfolder("Navigation A", null);
   folderA = rootFolder
-    .getChildNamed("Navigation A")
+    .createLocalSubfolder("Navigation A")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderA.addMessageBatch(
     generator
@@ -44,9 +45,8 @@ add_setup(async function () {
   folderAMessages = [...folderA.messages];
   folderA.markAllMessagesRead(null);
 
-  rootFolder.createSubfolder("Navigation B", null);
   folderB = rootFolder
-    .getChildNamed("Navigation B")
+    .createLocalSubfolder("Navigation B")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderB.addMessageBatch(
     generator
@@ -56,9 +56,8 @@ add_setup(async function () {
   folderBMessages = [...folderB.messages];
   folderB.markAllMessagesRead(null);
 
-  rootFolder.createSubfolder("Navigation C", null);
   folderC = rootFolder
-    .getChildNamed("Navigation C")
+    .createLocalSubfolder("Navigation C")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   // Add a lot of messages so scrolling can be tested.
   folderC.addMessageBatch(
@@ -74,9 +73,8 @@ add_setup(async function () {
   folderCMessages = [...folderC.messages];
   folderC.markAllMessagesRead(null);
 
-  rootFolder.createSubfolder("Navigation D", null);
   folderD = rootFolder
-    .getChildNamed("Navigation D")
+    .createLocalSubfolder("Navigation D")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderD.addMessageBatch(
     generator

@@ -37,10 +37,11 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(account, false);
   });
 
-  const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("preferDisplayName", null);
+  const rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
   testFolder = rootFolder
-    .getChildNamed("preferDisplayName")
+    .createLocalSubfolder("preferDisplayName")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   testFolder.addMessageBatch(
     generator

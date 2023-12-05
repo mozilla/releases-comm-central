@@ -77,6 +77,7 @@ let rootFolder, testFolder, testMessages;
 let draftsFolder, draftsMessages, templatesFolder, templatesMessages;
 
 add_setup(async function () {
+  Services.prefs.clearUserPref("mail.last_msg_movecopy_target_uri");
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
@@ -85,11 +86,12 @@ add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
-  rootFolder = account.incomingServer.rootFolder;
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
 
-  rootFolder.createSubfolder("messageMenu", null);
   testFolder = rootFolder
-    .getChildNamed("messageMenu")
+    .createLocalSubfolder("messageMenu")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   const messages = [
     ...generator.makeMessages({ count: 5 }),
@@ -133,9 +135,8 @@ add_setup(async function () {
   );
   testMessages = [...testFolder.messages];
 
-  rootFolder.createSubfolder("messageMenuDrafts", null);
   draftsFolder = rootFolder
-    .getChildNamed("messageMenuDrafts")
+    .createLocalSubfolder("messageMenuDrafts")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   draftsFolder.setFlag(Ci.nsMsgFolderFlags.Drafts);
   draftsFolder.addMessageBatch(
@@ -144,9 +145,8 @@ add_setup(async function () {
       .map(message => message.toMessageString())
   );
   draftsMessages = [...draftsFolder.messages];
-  rootFolder.createSubfolder("messageMenuTemplates", null);
   templatesFolder = rootFolder
-    .getChildNamed("messageMenuTemplates")
+    .createLocalSubfolder("messageMenuTemplates")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   templatesFolder.setFlag(Ci.nsMsgFolderFlags.Templates);
   templatesFolder.addMessageBatch(

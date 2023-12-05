@@ -66,10 +66,11 @@ add_setup(async function () {
 
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
-  const rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("tagsMenu", null);
+  const rootFolder = account.incomingServer.rootFolder.QueryInterface(
+    Ci.nsIMsgLocalMailFolder
+  );
   testFolder = rootFolder
-    .getChildNamed("tagsMenu")
+    .createLocalSubfolder("tagsMenu")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   testFolder.addMessageBatch(
     generator.makeMessages({}).map(message => message.toMessageString())
