@@ -1172,6 +1172,7 @@ function reportPreferences() {
     "layers.acceleration.disabled",
     "mail.biff.play_sound",
     "mail.close_message_window.on_delete",
+    "mail.delete_matches_sort_order",
     "mail.display_glyph",
     "mail.mailnews.scroll_to_new_message",
     "mail.prompt_purge_threshhold",
