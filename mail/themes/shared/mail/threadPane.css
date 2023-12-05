@@ -67,6 +67,7 @@
   fill: currentColor;
   background-color: var(--tree-view-bg);
   color: var(--tree-view-color);
+  overflow-anchor: none;
 }
 
 #threadTree tbody [data-properties~="dummy"]:not(:hover, .selected) {
