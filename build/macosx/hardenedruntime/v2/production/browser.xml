@@ -21,6 +21,9 @@
     <!-- Thunderbird needs to access the location on sites the user allows -->
     <key>com.apple.security.personal-information.location</key><true/>
 
+    <!-- Thunderbird uses the macOS addressbook for contacts storage. -->
+    <key>com.apple.security.personal-information.addressbook</key><true/>
+
     <!-- For SmartCardServices(7) -->
     <key>com.apple.security.smartcard</key><true/>
   </dict>
