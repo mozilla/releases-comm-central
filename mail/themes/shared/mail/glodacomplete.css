@@ -20,7 +20,7 @@
 }
 
 #PopupGlodaAutocomplete .ac-url-text {
-  color: -moz-nativehyperlinktext;
+  color: LinkText;
   font-size: 0.95em;
 }
 

@@ -175,7 +175,7 @@ body {
 }
 
 a {
-  color: -moz-nativehyperlinktext;
+  color: LinkText;
   font-weight: bold;
 }
 

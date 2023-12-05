@@ -11,5 +11,5 @@
   --row-grouped-header-bg-color: -moz-dialog;
   --row-grouped-header-bg-color-selected: var(--selected-item-color);
   --panel-separator-color: ThreeDShadow;
-  --autocomplete-popup-url-color: -moz-nativehyperlinktext;
+  --autocomplete-popup-url-color: LinkText;
 }

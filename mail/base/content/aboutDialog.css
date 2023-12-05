@@ -6,7 +6,7 @@
   --dialog-background: #fefefe;
   --dialog-box-color: #222;
   --client-box-background: #f7f7f7;
-  --link-color: -moz-nativehyperlinktext;
+  --link-color: LinkText;
   --link-decoration: inherit;
 }
 
@@ -25,7 +25,7 @@
     --dialog-background: -moz-Dialog;
     --dialog-box-color: -moz-DialogText;
     --client-box-background: -moz-Dialog;
-    --link-color: -moz-nativehyperlinktext;
+    --link-color: LinkText;
     --link-decoration: inherit;
   }
 }

@@ -659,7 +659,7 @@ label.label {
 #calendar-event-summary-dialog .item-description a,
 #calendar-task-summary-dialog .item-description a,
 #calendar-ics-file-dialog .item-description a {
-  color: -moz-nativehyperlinktext;
+  color: LinkText;
 }
 
 :root[lwt-tree-brighttext] #calendar-summary-dialog .item-description a,

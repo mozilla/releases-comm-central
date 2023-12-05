@@ -5,7 +5,7 @@
 @import url("chrome://messenger/skin/shared/variables.css");
 
 :root {
-  --autocomplete-popup-url-color: -moz-nativehyperlinktext;
+  --autocomplete-popup-url-color: LinkText;
   --tabline-color: var(--selected-item-color);
   --glassShadowColor: hsla(240, 5%, 5%, 0.3);
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255, 255, 255, 0.15),
