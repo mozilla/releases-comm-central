@@ -453,7 +453,6 @@
   skin/classic/messenger/openpgp/keyWizard.css                (../shared/openpgp/keyWizard.css)
   skin/classic/messenger/openpgp/inlineNotification.css       (../shared/openpgp/inlineNotification.css)
 
-  skin/classic/messenger/openpgp/openPgpComposeStatus.css     (../shared/openpgp/openPgpComposeStatus.css)
   skin/classic/messenger/smime/msgCompSecurityInfo.css        (../shared/smime/msgCompSecurityInfo.css)
 
 # Illustrations

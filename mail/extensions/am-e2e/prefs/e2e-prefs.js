@@ -47,8 +47,6 @@ pref("mail.openpgp.separate_mime_layers", false);
 // If you need to specify a path, use a file:// URL
 pref("mail.openpgp.alias_rules_file", "");
 
-pref("mail.openpgp.key_assistant.enable", true);
-
 // If set to true, enable user interface that allows the user to optionally set
 // and manage individual, user-defined passphrases for OpenPGP secret keys.
 // If set to false, the respective user interface will be hidden.

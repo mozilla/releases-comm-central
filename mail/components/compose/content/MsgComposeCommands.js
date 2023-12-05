@@ -1845,23 +1845,7 @@ function setSecuritySettings(menu_id) {
  */
 function showMessageComposeSecurityStatus(isSending = false) {
   if (gSelectedTechnologyIsPGP) {
-    if (
-      Services.prefs.getBoolPref("mail.openpgp.key_assistant.enable", false)
-    ) {
-      gKeyAssistant.show(getEncryptionCompatibleRecipients(), isSending);
-    } else {
-      Recipients2CompFields(gMsgCompose.compFields);
-      window.openDialog(
-        "chrome://openpgp/content/ui/composeKeyStatus.xhtml",
-        "",
-        "chrome,modal,resizable,centerscreen",
-        {
-          compFields: gMsgCompose.compFields,
-          currentIdentity: gCurrentIdentity,
-        }
-      );
-      checkEncryptionState();
-    }
+    gKeyAssistant.show(getEncryptionCompatibleRecipients(), isSending);
   } else {
     Recipients2CompFields(gMsgCompose.compFields);
     // Copy current flags to S/MIME composeSecure object.
