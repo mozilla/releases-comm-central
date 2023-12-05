@@ -73,7 +73,11 @@ function tryLoadGPGME(name, suffix) {
 function loadExternalGPGMELib() {
   if (!libgpgme) {
     if (systemOS === "winnt") {
-      tryLoadGPGME("libgpgme-11", "");
+      tryLoadGPGME("libgpgme6-11", "");
+
+      if (!libgpgme) {
+        tryLoadGPGME("libgpgme-11", "");
+      }
 
       if (!libgpgme) {
         tryLoadGPGME("gpgme-11", "");
