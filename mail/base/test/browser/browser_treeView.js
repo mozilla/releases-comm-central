@@ -1260,12 +1260,27 @@ async function subtestExpandCollapse() {
     "rows property"
   );
 
+  function checkCurrent(expectedIndex) {
+    Assert.equal(list.currentIndex, expectedIndex, "currentIndex is correct");
+    const current = list.querySelectorAll(".current");
+    if (expectedIndex == -1) {
+      Assert.equal(current.length, 0, "no rows have the 'current' class");
+    } else {
+      Assert.equal(current.length, 1, "only one row has the 'current' class");
+      Assert.equal(
+        current[0].index,
+        expectedIndex,
+        "correct row has the 'current' class"
+      );
+    }
+  }
+
   function checkMultiSelect(...expectedIds) {
     const selected = [...list.querySelectorAll(".selected")].map(row => row.id);
     Assert.deepEqual(selected, expectedIds, "selection should be correct");
   }
 
-  function checkSelected(expectedIndex, expectedId) {
+  function checkSelectedAndCurrent(expectedIndex, expectedId) {
     Assert.equal(list.selectedIndex, expectedIndex, "selectedIndex is correct");
     const selected = [...list.querySelectorAll(".selected")].map(row => row.id);
     Assert.deepEqual(
@@ -1273,10 +1288,11 @@ async function subtestExpandCollapse() {
       [expectedId],
       "correct rows have the 'selected' class"
     );
+    checkCurrent(expectedIndex);
   }
 
   list.selectedIndex = 0;
-  checkSelected(0, "row-1");
+  checkSelectedAndCurrent(0, "row-1");
 
   // Click the twisties of rows without children.
 
@@ -1345,7 +1361,7 @@ async function subtestExpandCollapse() {
     Assert.equal(list.querySelector(".selected").id, id);
   }
 
-  checkSelected(7, "row-3-1-2");
+  checkSelectedAndCurrent(7, "row-3-1-2");
 
   // Click the twisties of rows with children.
 
@@ -1377,49 +1393,49 @@ async function subtestExpandCollapse() {
 
   clickTwisty("row-2", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2");
-  checkSelected(5, "row-3-1-2");
+  checkSelectedAndCurrent(5, "row-3-1-2");
 
   // Collapse row 3.
 
   clickTwisty("row-3", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
-  checkSelected(2, "row-3");
+  checkSelectedAndCurrent(2, "row-3");
 
   // Expand row 2.
 
   clickTwisty("row-2", "expanded");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   // Expand row 3.
 
   clickTwisty("row-3", "expanded");
   checkRowsAreHidden();
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   // Collapse row 3-1.
 
   clickTwisty("row-3-1", "collapsed");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   // Collapse row 3.
 
   clickTwisty("row-3", "collapsed");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   // Expand row 3.
 
   clickTwisty("row-3", "expanded");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   // Expand row 3-1.
 
   clickTwisty("row-3-1", "expanded");
   checkRowsAreHidden();
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   // Test key presses.
 
@@ -1434,103 +1450,103 @@ async function subtestExpandCollapse() {
 
   list.selectedIndex = 0;
   pressKey("row-1", "VK_LEFT");
-  checkSelected(0, "row-1");
+  checkSelectedAndCurrent(0, "row-1");
   pressKey("row-1", "VK_RIGHT");
-  checkSelected(0, "row-1");
+  checkSelectedAndCurrent(0, "row-1");
 
   // Collapse row 2.
 
   list.selectedIndex = 1;
   pressKey("row-2", "VK_LEFT", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2");
-  checkSelected(1, "row-2");
+  checkSelectedAndCurrent(1, "row-2");
 
   pressKey("row-2", "VK_LEFT");
   checkRowsAreHidden("row-2-1", "row-2-2");
-  checkSelected(1, "row-2");
+  checkSelectedAndCurrent(1, "row-2");
 
   // Collapse row 3.
 
   list.selectedIndex = 2;
   pressKey("row-3", "VK_LEFT", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
-  checkSelected(2, "row-3");
+  checkSelectedAndCurrent(2, "row-3");
 
   pressKey("row-3", "VK_LEFT");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
-  checkSelected(2, "row-3");
+  checkSelectedAndCurrent(2, "row-3");
 
   // Expand row 2.
 
   list.selectedIndex = 1;
   pressKey("row-2", "VK_RIGHT", "expanded");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
-  checkSelected(1, "row-2");
+  checkSelectedAndCurrent(1, "row-2");
 
   // Expand row 3.
 
   list.selectedIndex = 4;
   pressKey("row-3", "VK_RIGHT", "expanded");
   checkRowsAreHidden();
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   // Go down the tree to row 3-1-1.
 
   pressKey("row-3", "VK_RIGHT");
   checkRowsAreHidden();
-  checkSelected(5, "row-3-1");
+  checkSelectedAndCurrent(5, "row-3-1");
 
   pressKey("row-3", "VK_RIGHT");
   checkRowsAreHidden();
-  checkSelected(6, "row-3-1-1");
+  checkSelectedAndCurrent(6, "row-3-1-1");
 
   pressKey("row-3-1-1", "VK_RIGHT");
   checkRowsAreHidden();
-  checkSelected(6, "row-3-1-1");
+  checkSelectedAndCurrent(6, "row-3-1-1");
 
   // Collapse row 3-1.
 
   pressKey("row-3-1-1", "VK_LEFT");
   checkRowsAreHidden();
-  checkSelected(5, "row-3-1");
+  checkSelectedAndCurrent(5, "row-3-1");
 
   pressKey("row-3-1", "VK_LEFT", "collapsed");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
-  checkSelected(5, "row-3-1");
+  checkSelectedAndCurrent(5, "row-3-1");
 
   // Collapse row 3.
 
   pressKey("row-3-1", "VK_LEFT");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   pressKey("row-3", "VK_LEFT", "collapsed");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   // Expand row 3.
 
   pressKey("row-3", "VK_RIGHT", "expanded");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   pressKey("row-3", "VK_RIGHT");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
-  checkSelected(5, "row-3-1");
+  checkSelectedAndCurrent(5, "row-3-1");
 
   // Expand row 3-1.
 
   pressKey("row-3-1", "VK_RIGHT", "expanded");
   checkRowsAreHidden();
-  checkSelected(5, "row-3-1");
+  checkSelectedAndCurrent(5, "row-3-1");
 
   pressKey("row-3-1", "VK_RIGHT");
   checkRowsAreHidden();
-  checkSelected(6, "row-3-1-1");
+  checkSelectedAndCurrent(6, "row-3-1-1");
 
   pressKey("row-3-1-1", "VK_RIGHT");
   checkRowsAreHidden();
-  checkSelected(6, "row-3-1-1");
+  checkSelectedAndCurrent(6, "row-3-1-1");
 
   // Same again, with a RTL tree.
 
@@ -1541,103 +1557,103 @@ async function subtestExpandCollapse() {
 
   list.selectedIndex = 0;
   pressKey("row-1", "VK_RIGHT");
-  checkSelected(0, "row-1");
+  checkSelectedAndCurrent(0, "row-1");
   pressKey("row-1", "VK_LEFT");
-  checkSelected(0, "row-1");
+  checkSelectedAndCurrent(0, "row-1");
 
   // Collapse row 2.
 
   list.selectedIndex = 1;
   pressKey("row-2", "VK_RIGHT", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2");
-  checkSelected(1, "row-2");
+  checkSelectedAndCurrent(1, "row-2");
 
   pressKey("row-2", "VK_RIGHT");
   checkRowsAreHidden("row-2-1", "row-2-2");
-  checkSelected(1, "row-2");
+  checkSelectedAndCurrent(1, "row-2");
 
   // Collapse row 3.
 
   list.selectedIndex = 2;
   pressKey("row-3", "VK_RIGHT", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
-  checkSelected(2, "row-3");
+  checkSelectedAndCurrent(2, "row-3");
 
   pressKey("row-3", "VK_RIGHT");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
-  checkSelected(2, "row-3");
+  checkSelectedAndCurrent(2, "row-3");
 
   // Expand row 2.
 
   list.selectedIndex = 1;
   pressKey("row-2", "VK_LEFT", "expanded");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
-  checkSelected(1, "row-2");
+  checkSelectedAndCurrent(1, "row-2");
 
   // Expand row 3.
 
   list.selectedIndex = 4;
   pressKey("row-3", "VK_LEFT", "expanded");
   checkRowsAreHidden();
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   // Go down the tree to row 3-1-1.
 
   pressKey("row-3", "VK_LEFT");
   checkRowsAreHidden();
-  checkSelected(5, "row-3-1");
+  checkSelectedAndCurrent(5, "row-3-1");
 
   pressKey("row-3", "VK_LEFT");
   checkRowsAreHidden();
-  checkSelected(6, "row-3-1-1");
+  checkSelectedAndCurrent(6, "row-3-1-1");
 
   pressKey("row-3-1-1", "VK_LEFT");
   checkRowsAreHidden();
-  checkSelected(6, "row-3-1-1");
+  checkSelectedAndCurrent(6, "row-3-1-1");
 
   // Collapse row 3-1.
 
   pressKey("row-3-1-1", "VK_RIGHT");
   checkRowsAreHidden();
-  checkSelected(5, "row-3-1");
+  checkSelectedAndCurrent(5, "row-3-1");
 
   pressKey("row-3-1", "VK_RIGHT", "collapsed");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
-  checkSelected(5, "row-3-1");
+  checkSelectedAndCurrent(5, "row-3-1");
 
   // Collapse row 3.
 
   pressKey("row-3-1", "VK_RIGHT");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   pressKey("row-3", "VK_RIGHT", "collapsed");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   // Expand row 3.
 
   pressKey("row-3", "VK_LEFT", "expanded");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
 
   pressKey("row-3", "VK_LEFT");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
-  checkSelected(5, "row-3-1");
+  checkSelectedAndCurrent(5, "row-3-1");
 
   // Expand row 3-1.
 
   pressKey("row-3-1", "VK_LEFT", "expanded");
   checkRowsAreHidden();
-  checkSelected(5, "row-3-1");
+  checkSelectedAndCurrent(5, "row-3-1");
 
   pressKey("row-3-1", "VK_LEFT");
   checkRowsAreHidden();
-  checkSelected(6, "row-3-1-1");
+  checkSelectedAndCurrent(6, "row-3-1-1");
 
   pressKey("row-3-1-1", "VK_LEFT");
   checkRowsAreHidden();
-  checkSelected(6, "row-3-1-1");
+  checkSelectedAndCurrent(6, "row-3-1-1");
 
   // Use the class methods for expanding and collapsing.
 
@@ -1672,7 +1688,7 @@ async function subtestExpandCollapse() {
   );
   Assert.equal(listener.collapsedIndex, 5, "row-3-1 fired 'collapsed' event");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
-  checkSelected(5, "row-3-1");
+  checkSelectedAndCurrent(5, "row-3-1");
   selectHandler.reset();
   listener.reset();
 
@@ -1680,7 +1696,7 @@ async function subtestExpandCollapse() {
   Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
   Assert.equal(listener.expandedIndex, 5, "row-3-1 fired 'expanded' event");
   checkRowsAreHidden();
-  checkSelected(5, "row-3-1");
+  checkSelectedAndCurrent(5, "row-3-1");
   listener.reset();
 
   list.selectedIndex = 7;
@@ -1695,7 +1711,7 @@ async function subtestExpandCollapse() {
   );
   Assert.equal(listener.collapsedIndex, 4, "row-3 fired 'collapsed' event");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
   selectHandler.reset();
   listener.reset();
 
@@ -1703,7 +1719,7 @@ async function subtestExpandCollapse() {
   Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
   Assert.equal(listener.expandedIndex, 4, "row-3 fired 'expanded' event");
   checkRowsAreHidden();
-  checkSelected(4, "row-3");
+  checkSelectedAndCurrent(4, "row-3");
   listener.reset();
 
   // Click thread for already expanded thread. Should select all in thread.
@@ -1717,6 +1733,7 @@ async function subtestExpandCollapse() {
   );
   checkRowsAreHidden();
   checkMultiSelect("row-3", "row-3-1", "row-3-1-1", "row-3-1-2");
+  checkCurrent(4);
 
   // Click thread for collapsed thread. Should expand the thread and select all
   // children.
@@ -1726,6 +1743,21 @@ async function subtestExpandCollapse() {
   clickThread("row-2", "expanded");
   Assert.equal(listener.expandedIndex, 1, "row-2 fired 'expanded' event");
   checkMultiSelect("row-2", "row-2-1", "row-2-2");
+  checkCurrent(1);
+
+  // Select multiple messages in an expanded thread by keyboard, ending with a
+  // child message, then collapse the thread. After that, currentIndex should
+  // be the root message.
+  selectHandler.reset();
+  list.selectedIndex = 1;
+  checkSelectedAndCurrent(1, "row-2");
+  info(`pressing VK_DOWN with shift key twice`);
+  EventUtils.synthesizeKey("VK_DOWN", { shiftKey: true }, content);
+  EventUtils.synthesizeKey("VK_DOWN", { shiftKey: true }, content);
+  checkMultiSelect("row-2", "row-2-1", "row-2-2");
+  checkCurrent(3);
+  clickTwisty("row-2", "collapsed");
+  checkSelectedAndCurrent(1, "row-2");
 
   list.removeEventListener("collapsed", listener);
   list.removeEventListener("expanded", listener);

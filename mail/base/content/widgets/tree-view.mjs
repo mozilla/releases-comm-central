@@ -1253,13 +1253,15 @@ class TreeView extends HTMLElement {
     }
 
     // If the selected row is going to be collapsed, move the selection.
+    // Even if the row to be collapsed is already selected, set
+    // selectIndex to ensure currentIndex also points to the correct row.
     let selectedIndex = this.selectedIndex;
-    while (selectedIndex > index) {
-      selectedIndex = this._view.getParentIndex(selectedIndex);
+    while (selectedIndex >= index) {
       if (selectedIndex == index) {
         this.selectedIndex = index;
         break;
       }
+      selectedIndex = this._view.getParentIndex(selectedIndex);
     }
 
     // Check if the view calls rowCountChanged. If it didn't, we'll have to
