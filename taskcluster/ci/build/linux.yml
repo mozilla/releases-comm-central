@@ -13,7 +13,6 @@ job-defaults:
         script: "mozharness/scripts/fx_desktop_build.py"
     fetches:
         toolchain:
-            - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms

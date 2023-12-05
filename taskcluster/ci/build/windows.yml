@@ -42,7 +42,6 @@ win32/opt:
         skip-suite-only: null
     fetches:
         toolchain:
-            - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -99,7 +98,6 @@ win32-shippable/opt:
         skip-suite-only: null
     fetches:
         toolchain:
-            - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -151,7 +149,6 @@ win32/debug:
         skip-suite-only: null
     fetches:
         toolchain:
-            - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -203,7 +200,6 @@ win64/opt:
         skip-suite-only: null
     fetches:
         toolchain:
-            - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -260,7 +256,6 @@ win64-shippable/opt:
         skip-suite-only: null
     fetches:
         toolchain:
-            - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -312,7 +307,6 @@ win64/debug:
         skip-suite-only: null
     fetches:
         toolchain:
-            - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -452,7 +446,6 @@ win64-asan/opt:
         skip-unless-backstop-no-suite: null
     fetches:
         toolchain:
-            - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms
@@ -515,7 +508,6 @@ win64-asan-reporter-shippable/opt:
         skip-unless-backstop-no-suite: null
     fetches:
         toolchain:
-            - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump_syms

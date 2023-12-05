@@ -26,7 +26,6 @@ linux32-libotr:
     fetches:
         toolchain:
             - linux64-clang
-            - linux64-binutils
             - sysroot-i686-linux-gnu
 
 linux64-libotr:
@@ -37,7 +36,6 @@ linux64-libotr:
     fetches:
         toolchain:
             - linux64-clang
-            - linux64-binutils
             - sysroot-x86_64-linux-gnu
 
 linux-aarch64-libotr:
@@ -50,7 +48,6 @@ linux-aarch64-libotr:
         toolchain:
             - sysroot-aarch64-linux-gnu
             - linux64-clang
-            - linux64-binutils
 
 macosx64-x64-libotr:
     treeherder:
@@ -63,10 +60,9 @@ macosx64-x64-libotr:
         arguments: ['macosx64']
     fetches:
         toolchain:
-            - linux64-binutils
             - linux64-cctools-port
             - linux64-clang
-            # Uses the sdk for builds, not the -toolchain sdk
+            # Uses the SDK for builds, not the -toolchain SDK
             - macosx64-sdk
 
 macosx64-aarch64-libotr:
@@ -80,7 +76,6 @@ macosx64-aarch64-libotr:
         arguments: ['macosx64-aarch64']
     fetches:
         toolchain:
-            - linux64-binutils
             - linux64-cctools-port
             - linux64-clang
             - macosx64-sdk
