@@ -147,10 +147,10 @@ const JSWINDOWACTORS = {
 
   LinkClickHandler: {
     parent: {
-      moduleURI: "resource:///actors/LinkClickHandlerParent.jsm",
+      esModuleURI: "resource:///actors/LinkClickHandlerParent.sys.mjs",
     },
     child: {
-      moduleURI: "resource:///actors/LinkClickHandlerChild.jsm",
+      esModuleURI: "resource:///actors/LinkClickHandlerChild.sys.mjs",
       events: {
         click: {},
       },
@@ -207,10 +207,10 @@ const JSWINDOWACTORS = {
 
   MailLink: {
     parent: {
-      moduleURI: "resource:///actors/MailLinkParent.jsm",
+      esModuleURI: "resource:///actors/MailLinkParent.sys.mjs",
     },
     child: {
-      moduleURI: "resource:///actors/MailLinkChild.jsm",
+      esModuleURI: "resource:///actors/MailLinkChild.sys.mjs",
       events: {
         click: {},
       },
@@ -231,7 +231,7 @@ const JSWINDOWACTORS = {
 
   Prompt: {
     parent: {
-      moduleURI: "resource:///actors/PromptParent.jsm",
+      esModuleURI: "resource:///actors/PromptParent.sys.mjs",
     },
     includeChrome: true,
     allFrames: true,
@@ -239,10 +239,10 @@ const JSWINDOWACTORS = {
 
   StrictLinkClickHandler: {
     parent: {
-      moduleURI: "resource:///actors/LinkClickHandlerParent.jsm",
+      esModuleURI: "resource:///actors/LinkClickHandlerParent.sys.mjs",
     },
     child: {
-      moduleURI: "resource:///actors/LinkClickHandlerChild.jsm",
+      esModuleURI: "resource:///actors/LinkClickHandlerChild.sys.mjs",
       events: {
         click: {},
       },
@@ -253,10 +253,10 @@ const JSWINDOWACTORS = {
 
   VCard: {
     parent: {
-      moduleURI: "resource:///actors/VCardParent.jsm",
+      esModuleURI: "resource:///actors/VCardParent.sys.mjs",
     },
     child: {
-      moduleURI: "resource:///actors/VCardChild.jsm",
+      esModuleURI: "resource:///actors/VCardChild.sys.mjs",
       events: {
         click: {},
       },

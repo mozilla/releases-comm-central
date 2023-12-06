@@ -3,16 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-"use strict";
-
-const EXPORTED_SYMBOLS = [
-  "LinkClickHandlerChild",
-  "StrictLinkClickHandlerChild",
-];
-
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
@@ -74,7 +65,7 @@ function hRefForClickEvent(aEvent) {
  *
  * This actor applies to browsers in the "single-site" message manager group.
  */
-class LinkClickHandlerChild extends JSWindowActorChild {
+export class LinkClickHandlerChild extends JSWindowActorChild {
   handleEvent(event) {
     // Don't handle events that:
     //   a) are in the parent process (handled by onclick),
@@ -139,7 +130,7 @@ class LinkClickHandlerChild extends JSWindowActorChild {
  *
  * This actor applies to browsers in the "single-page" message manager group.
  */
-class StrictLinkClickHandlerChild extends JSWindowActorChild {
+export class StrictLinkClickHandlerChild extends JSWindowActorChild {
   handleEvent(event) {
     // Don't handle events that:
     //   a) are in the parent process (handled by onclick),

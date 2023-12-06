@@ -3,10 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-"use strict";
-
-var EXPORTED_SYMBOLS = ["PromptParent"];
-
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -30,7 +26,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
  */
 const gBrowserPrompts = new WeakMap();
 
-class PromptParent extends JSWindowActorParent {
+export class PromptParent extends JSWindowActorParent {
   didDestroy() {
     // In the event that the subframe or tab crashed, make sure that
     // we close any active Prompts.

@@ -3,13 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-"use strict";
-
-const EXPORTED_SYMBOLS = ["MailLinkChild"];
-
 const PROTOCOLS = ["mailto:", "mid:", "news:", "snews:"];
 
-class MailLinkChild extends JSWindowActorChild {
+export class MailLinkChild extends JSWindowActorChild {
   handleEvent(event) {
     const href = event.target.href;
     const location = this.document.location;

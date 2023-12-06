@@ -3,11 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-"use strict";
-
-const EXPORTED_SYMBOLS = ["VCardParent"];
-
-class VCardParent extends JSWindowActorParent {
+export class VCardParent extends JSWindowActorParent {
   receiveMessage({ data, target }) {
     target.browsingContext.topChromeWindow.toAddressBook([
       "cmd_newCard",
