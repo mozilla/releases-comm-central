@@ -183,40 +183,7 @@ dialog .radio-list li {
 /* Radio button */
 
 dialog input[type="radio"] {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  border: 1px solid var(--dialog-box-border-color);
-  border-radius: 100%;
-  margin-block: 2px;
-  margin-inline: 0 6px;
-  background-color: var(--dialog-box-background-color);
-  background-position: center;
-}
-
-dialog input[type="radio"]:enabled:hover {
-  background-color: var(--dialog-button-background-color-hover);
-}
-
-dialog input[type="radio"]:enabled:hover:active {
-  background-color: var(--dialog-button-background-color-active);
-}
-
-dialog input[type="radio"]:checked {
-  -moz-context-properties: fill;
-  fill: currentColor;
-  color: var(--dialog-highlight-text-color);
-  background-color: var(--dialog-highlight-color);
-  /* background-image: url("chrome://global/skin/icons/radio.svg"); */
-  border-color: var(--dialog-primary-background-active);
-  color-adjust: exact;
-}
-
-dialog input[type="radio"]:enabled:checked:hover {
-  background-color: var(--dialog-primary-background-hover);
-  border-color: var(--dialog-primary-background-active);
-}
+  appearance: auto;
 
 /* Buttons area */
 

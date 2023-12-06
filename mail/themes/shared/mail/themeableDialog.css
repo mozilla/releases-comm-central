@@ -16,9 +16,6 @@
   --box-text-color: MenuText;
   --box-background-color: Menu;
   --box-border-color: ThreeDShadow;
-  --checkbox-border-color: var(--field-border-color);
-  --checkbox-unchecked-bgcolor: var(--field-background-color);
-  --checkbox-unchecked-hover-bgcolor: var(--field-background-color);
   --field-text-color: FieldText;
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, 0.6);
@@ -70,9 +67,6 @@
   --box-text-color: MenuText;
   --box-background-color: Menu;
   --box-border-color: ThreeDShadow;
-  --checkbox-border-color: rgba(128, 128, 128, 0.6);
-  --checkbox-unchecked-bgcolor: Field;
-  --checkbox-unchecked-hover-bgcolor: Field;
   --field-text-color: FieldText;
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, 0.6);
@@ -372,11 +366,7 @@ label {
 
 radio,
 checkbox {
-  appearance: none;
-
-  &[disabled="true"] {
-    color: #999;
-  }
+  accent-color: var(--selected-item-color);
 }
 
 checkbox {
@@ -385,27 +375,10 @@ checkbox {
 }
 
 .radio-check {
-  appearance: none;
   width: 16px;
   height: 16px;
-  border: 1px solid var(--field-border-color);
-  border-radius: 50%;
   margin: 0;
   margin-inline-end: 6px;
-  background-color: var(--field-background-color);
-
-  &[selected] {
-    /* list-style-image: url("chrome://global/skin/icons/radio.svg"); */
-    -moz-context-properties: fill;
-    color: var(--checkbox-checked-border-color, currentColor);
-    fill: var(--checkbox-checked-color, AccentColorText);
-    background-color: var(--checkbox-checked-bgcolor, AccentColor);
-  }
-}
-
-radio:not([disabled="true"]):hover > .radio-check,
-checkbox:not([disabled="true"]):hover > .checkbox-check {
-  border-color: var(--selected-item-color);
 }
 
 :root[lwt-tree] {

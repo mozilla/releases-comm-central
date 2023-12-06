@@ -145,6 +145,10 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   border-bottom: 1px solid -moz-Dialog;
 }
 
+#task-tree-filtergroup {
+  accent-color: var(--selected-item-color);
+}
+
 .selected-text {
   font-weight: bold;
 }
