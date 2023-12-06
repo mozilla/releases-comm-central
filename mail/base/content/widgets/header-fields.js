@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global gMessageHeader, gShowCondensedEmailAddresses, openUILink */
+/* global gMessageHeader, gShowCondensedEmailAddresses */
 
 {
   const { MailServices } = ChromeUtils.import(
@@ -19,6 +19,9 @@
     lazy,
     "TagUtils",
     "resource:///modules/TagUtils.jsm"
+  );
+  const { openUILink } = ChromeUtils.importESModule(
+    "resource:///modules/LinkHelper.sys.mjs"
   );
 
   class MultiRecipientRow extends HTMLDivElement {

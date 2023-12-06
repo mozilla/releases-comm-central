@@ -25,6 +25,10 @@ XPCOMUtils.defineLazyPreferenceGetter(
   "canonicalAddonServerUrl",
   "extensions.canonicalAddonServer.url"
 );
+
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 /**
  * Extract the href from the link click event.
  * We look for HTMLAnchorElement, HTMLAreaElement, HTMLLinkElement,

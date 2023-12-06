@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // mail/base/content/contentAreaClick.js
-/* globals hRefForClickEvent, openLinkExternally */
+/* globals hRefForClickEvent */
 // mail/base/content/specialTabs.js
 /* globals specialTabs */
 

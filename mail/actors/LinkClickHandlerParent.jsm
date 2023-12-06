@@ -10,15 +10,8 @@ const EXPORTED_SYMBOLS = [
   "StrictLinkClickHandlerParent",
 ];
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
-XPCOMUtils.defineLazyScriptGetter(
-  // eslint-disable-next-line mozilla/reject-global-this
-  this,
-  "openLinkExternally",
-  "chrome://browser/content/utilityOverlay.js"
+const { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
 );
 
 class LinkClickHandlerParent extends JSWindowActorParent {

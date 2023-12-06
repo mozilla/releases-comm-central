@@ -18,6 +18,9 @@ var { MailServices } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
+var { openLinkExternally, openWebSearch } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   calendarDeactivator:
@@ -495,7 +498,7 @@ var mailContextMenu = {
       //   break;
       case "mailContext-openLinkInBrowser":
         // Only called in about:message.
-        top.openLinkExternally(this.context.linkURL);
+        openLinkExternally(this.context.linkURL);
         break;
       case "mailContext-copylink":
         goDoCommand("cmd_copyLink");
@@ -567,7 +570,7 @@ var mailContextMenu = {
 
       // Search
       case "mailContext-searchTheWeb":
-        top.openWebSearch(this.selectionInfo.text);
+        openWebSearch(this.selectionInfo.text);
         break;
 
       // Open messages

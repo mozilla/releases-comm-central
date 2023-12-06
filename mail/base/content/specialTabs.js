@@ -21,6 +21,9 @@ var { ExtensionParent } = ChromeUtils.importESModule(
 var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
+var { PlacesUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/PlacesUtils.sys.mjs"
+);
 
 function tabProgressListener(aTab, aStartsBlank) {
   this.mTab = aTab;

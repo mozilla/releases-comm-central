@@ -7,8 +7,8 @@
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { PlacesUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/PlacesUtils.sys.mjs"
+var { openLinkExternally, openUILink } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
 );
 
 var gShowBiDi = false;
@@ -169,26 +169,6 @@ function togglePaneSplitter(splitterId) {
   }
 }
 
-// openUILink handles clicks on UI elements that cause URLs to load.
-// We currently only react to left click in Thunderbird.
-function openUILink(url, event) {
-  if (!event.button) {
-    PlacesUtils.history
-      .insert({
-        url,
-        visits: [
-          {
-            date: new Date(),
-          },
-        ],
-      })
-      .catch(console.error);
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadURI(Services.io.newURI(url));
-  }
-}
-
 function openLinkText(event, what) {
   switch (what) {
     case "getInvolvedURL":
@@ -210,27 +190,6 @@ function openLinkText(event, what) {
       openUILink("https://connect.mozilla.org/", event);
       break;
   }
-}
-
-/**
- * Open a web search in the default browser for a given query.
- *
- * @param query the string to search for
- * @param engine (optional) the search engine to use
- */
-function openWebSearch(query, engine) {
-  return Services.search.init().then(async () => {
-    if (!engine) {
-      engine = await Services.search.getDefault();
-      openLinkExternally(engine.getSubmission(query).uri.spec);
-
-      Services.telemetry.keyedScalarAdd(
-        "tb.websearch.usage",
-        engine.name.toLowerCase(),
-        1
-      );
-    }
-  });
 }
 
 /**
@@ -441,35 +400,6 @@ function openLinkIn(url, where, openParams) {
       openParams.resolveOnContentBrowserCreated(win.gBrowser.selectedBrowser)
     );
   }
-}
-
-/**
- * Forces a url to open in an external application according to the protocol
- * service settings.
- *
- * @param url  A url string or an nsIURI containing the url to open.
- */
-function openLinkExternally(url) {
-  let uri = url;
-  if (!(uri instanceof Ci.nsIURI)) {
-    uri = Services.io.newURI(url);
-  }
-
-  // This can fail if there is a problem with the places database.
-  PlacesUtils.history
-    .insert({
-      url, // accepts both string and nsIURI
-      visits: [
-        {
-          date: new Date(),
-        },
-      ],
-    })
-    .catch(console.error);
-
-  Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-    .getService(Ci.nsIExternalProtocolService)
-    .loadURI(uri);
 }
 
 /**
