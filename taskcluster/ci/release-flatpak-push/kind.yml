@@ -37,5 +37,6 @@ job-defaults:
 jobs:
     thunderbird:
         shipping-product: thunderbird
+        flathub-scope: "flathub"
         treeherder:
             symbol: Flatpak(push)
