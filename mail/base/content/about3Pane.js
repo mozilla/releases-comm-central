@@ -5025,7 +5025,7 @@ var threadPane = {
         cardRowHeight = (currentFontSize + 7) * cardRows + 6;
         break;
     }
-    cardClass.ROW_HEIGHT = cardRowHeight < 50 ? 50 : cardRowHeight;
+    cardClass.ROW_HEIGHT = Math.max(cardRowHeight, 50);
   },
 
   /**
