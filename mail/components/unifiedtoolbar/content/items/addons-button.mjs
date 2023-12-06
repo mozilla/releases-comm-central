@@ -9,9 +9,7 @@ import { UnifiedToolbarButton } from "chrome://messenger/content/unifiedtoolbar/
  */
 class AddonsButton extends UnifiedToolbarButton {
   handleClick = event => {
-    document
-      .getElementById("tabmail")
-      .openTab("contentTab", { url: "about:addons" });
+    window.openAddonsMgr();
     event.preventDefault();
     event.stopPropagation();
   };
