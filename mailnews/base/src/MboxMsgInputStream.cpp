@@ -590,6 +590,9 @@ class MboxParser {
           return true;
         }
         ++it;
+        if (it == end) {
+          return true;
+        }
       }
     }
     return true;  // That'll do nicely.

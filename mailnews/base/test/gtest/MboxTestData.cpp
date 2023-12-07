@@ -330,6 +330,29 @@ nsTArray<MboxCase> mboxValidCases({
          "\r\n"
          "This is the second body.\r\n"_ns,
      }},
+
+    // Message with folded (multi-line) headers
+    {"From \r\n"
+     "X-Blah: multi-line\r\n"
+     "        headers\r\n"
+     "\tcan use tabs\r\n"
+     "   or spaces\r\n"
+     "Message-ID: multi-line-header\r\n"
+     "To: alice@invalid\r\n"
+     "\r\n"
+     "body here.\r\n"
+     "\r\n"_ns,
+     {
+         "X-Blah: multi-line\r\n"
+         "        headers\r\n"
+         "\tcan use tabs\r\n"
+         "   or spaces\r\n"
+         "Message-ID: multi-line-header\r\n"
+         "To: alice@invalid\r\n"
+         "\r\n"
+         "body here.\r\n"_ns,
+     }},
+
 });
 
 // Odd-looking mboxes we want to be able to read, where we know clearly what
@@ -404,6 +427,31 @@ nsTArray<MboxCase> mboxOddCases({
            "\r\n"
            "Line one\r\n"
            ">>>From "_ns,
+       }},
+      // Second message truncated after a folded (multi-line) header (Bug
+      // 1868504)
+      {"From \r\n"
+       "To: bob@invalid\r\n"
+       "From: alice@invalid\r\n"
+       "\r\n"
+       "Hi bob!\r\n"
+       "\r\n"
+       "From \r\n"
+       "X-Blah: multi-line\r\n"
+       "        headers\r\n"
+       "\tcan use tabs\r\n"
+       "   or spaces\r\n"_ns,
+       {
+           // 1st
+           "To: bob@invalid\r\n"
+           "From: alice@invalid\r\n"
+           "\r\n"
+           "Hi bob!\r\n"_ns,
+           // 2nd
+           "X-Blah: multi-line\r\n"
+           "        headers\r\n"
+           "\tcan use tabs\r\n"
+           "   or spaces\r\n"_ns,
        }},
 });
 
