@@ -24,13 +24,13 @@ var { ExtensionSupport } = ChromeUtils.importESModule(
 var { calendarDeactivator } = ChromeUtils.import(
   "resource:///modules/calendar/calCalendarDeactivator.jsm"
 );
-var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 
 var paneDeck = document.getElementById("paneDeck");
 var defaultPane = "paneGeneral";
 
 ChromeUtils.defineESModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
+  UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 

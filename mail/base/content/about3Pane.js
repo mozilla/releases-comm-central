@@ -36,12 +36,12 @@ var { FolderTreeProperties } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 

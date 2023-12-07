@@ -10,7 +10,6 @@ var { MailServices } = ChromeUtils.import(
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
 );
@@ -26,6 +25,7 @@ ChromeUtils.defineESModuleGetters(this, {
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
+  UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 

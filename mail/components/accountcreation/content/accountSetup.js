@@ -25,13 +25,13 @@ ChromeUtils.defineESModuleGetters(this, {
   FetchConfig: "resource:///modules/accountcreation/FetchConfig.sys.mjs",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+  UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
-  UIDensity: "resource:///modules/UIDensity.jsm",
 });
 
 var {

@@ -20,7 +20,6 @@ var { ShortcutUtils } = ChromeUtils.importESModule(
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -30,6 +29,7 @@ ChromeUtils.defineESModuleGetters(this, {
   CustomizableUI: "resource:///modules/CustomizableUI.sys.mjs",
   PanelMultiView: "resource:///modules/PanelMultiView.sys.mjs",
   ExtensionsUI: "resource:///modules/ExtensionsUI.sys.mjs",
+  UIDensity: "resource:///modules/UIDensity.sys.mjs",
 });
 
 /**

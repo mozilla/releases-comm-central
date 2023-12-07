@@ -259,7 +259,6 @@
   "resource:///modules/ThunderbirdProfileImporter.jsm": "comm/mailnews/import/modules/ThunderbirdProfileImporter.jsm",
   "resource:///modules/ThunderbirdProfileMigrator.jsm": "comm/mail/components/migration/src/ThunderbirdProfileMigrator.jsm",
   "resource:///modules/ToLocaleFormat.jsm": "comm/chat/modules/ToLocaleFormat.jsm",
-  "resource:///modules/UIDensity.jsm": "comm/mail/modules/UIDensity.jsm",
   "resource:///modules/VCardUtils.jsm": "comm/mailnews/addrbook/modules/VCardUtils.jsm",
   "resource:///modules/VirtualFolderWrapper.jsm": "comm/mailnews/base/src/VirtualFolderWrapper.jsm",
   "resource:///modules/WinUnreadBadge.jsm": "comm/mailnews/base/src/WinUnreadBadge.jsm",

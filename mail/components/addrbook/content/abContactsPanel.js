@@ -14,10 +14,13 @@ window.addEventListener("unload", event => {
   AbPanelUnload();
 });
 
-var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { getSearchTokens, getModelQuery, generateQueryURI } = ChromeUtils.import(
   "resource:///modules/ABQueryUtils.jsm"
 );
+
+ChromeUtils.defineESModuleGetters(this, {
+  UIDensity: "resource:///modules/UIDensity.sys.mjs",
+});
 
 // A boolean variable determining whether AB column should be shown
 // in Contacts Sidebar in compose window.

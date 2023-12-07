@@ -36,7 +36,7 @@ EXTRA_JS_MODULES += [
     "SummaryFrameManager.jsm",
     "TagUtils.jsm",
     "TBDistCustomizer.jsm",
-    "UIDensity.jsm",
+    "UIDensity.sys.mjs",
     "UIFontSize.sys.mjs",
 ]
 

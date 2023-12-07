@@ -2,13 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["UIDensity"];
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
-var registeredWindows = new Set();
+const registeredWindows = new Set();
 
 function updateWindow(win) {
   switch (UIDensity.prefValue) {
@@ -38,7 +34,7 @@ function updateAllWindows() {
   }
 }
 
-var UIDensity = {
+export const UIDensity = {
   MODE_COMPACT: 0,
   MODE_NORMAL: 1,
   MODE_TOUCH: 2,
