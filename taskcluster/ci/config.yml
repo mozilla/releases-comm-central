@@ -11,7 +11,6 @@ treeherder:
         # Images/Packages/Toolchain
         'Deb8': 'Packages for Debian 8'
         'Deb8-32': 'Packages for Debian 8 32-bits'
-        'Deb11': 'Packages for Debian 11'
         'Deb12': 'Packages for Debian 12'
         'Fetch': 'Fetch and store content'
         'Ub18': 'Packages for Ubuntu 18.04'
