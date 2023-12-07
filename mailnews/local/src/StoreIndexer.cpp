@@ -12,9 +12,16 @@
 
 NS_IMPL_ISUPPORTS(StoreIndexer, nsIStoreScanListener)
 
-// 32KB buffer a bit arbitrary. Gut feeling is that it should be at least
+// 32KB buffer is a bit arbitrary. Gut feeling is that it should be at least
 // a few times larger than filesystem block size (often 4KB).
-StoreIndexer::StoreIndexer() : mBuf(32768) {}
+StoreIndexer::StoreIndexer()
+    : mExpectedTotalCount(0),
+      mCurrentCount(0),
+      mCurrentMsgSize(0),
+      mBuf(32768),
+      mUsed(0),
+      mUnused(0),
+      mIsStupidlyLongLine(false) {}
 
 StoreIndexer::~StoreIndexer() { ReleaseFolder(); }
 
