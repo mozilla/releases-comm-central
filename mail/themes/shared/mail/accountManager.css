@@ -242,7 +242,7 @@ body {
 #accountActionsButton > .button-box > .button-menu-dropmarker {
   appearance: none;
   display: flex;
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  content: url("chrome://global/skin/icons/arrow-down-12.svg");
   -moz-context-properties: fill;
   fill: currentColor;
   width: 12px;
