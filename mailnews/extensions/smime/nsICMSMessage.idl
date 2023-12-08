@@ -11,12 +11,6 @@ interface nsISMimeVerificationListener;
 #define NS_CMSMESSAGE_CONTRACTID "@mozilla.org/nsCMSMessage;1"
 %}
 
-/*
- * At the time the ptr type is eliminated in both interfaces, both should be
- * made scriptable.
- */
-[ptr] native UnsignedCharPtr(unsigned char);
-
 interface nsIX509Cert;
 
 [uuid(cd76ec81-02f0-41a3-8852-c0acce0bab53)]
@@ -27,19 +21,18 @@ interface nsICMSVerifyFlags : nsISupports
 };
 
 /**
- * nsICMSMessage
- *  Interface to a CMS Message
+ * nsICMSMessage - Interface to a CMS Message.
  */
 [uuid(c6d51c22-73e9-4dad-86b9-bde584e33c63)]
 interface nsICMSMessage : nsISupports
 {
-  void contentIsSigned(out boolean aSigned);
-  void contentIsEncrypted(out boolean aEncrypted);
-  void getSignerCommonName(out string aName);
-  void getSignerEmailAddress(out string aEmail);
-  void getSignerCert(out nsIX509Cert scert);
-  void getEncryptionCert(out nsIX509Cert ecert);
-  void getSigningTime(out PRTime aTime);
+  readonly attribute boolean contentIsSigned;
+  readonly attribute boolean contentIsEncrypted;
+  readonly attribute string signerCommonName;
+  readonly attribute string signerEmailAddress;
+  readonly attribute nsIX509Cert signerCert;
+  readonly attribute nsIX509Cert encryptionCert;
+  readonly attribute PRTime signingTime;
 
   /**
    * @param verifyFlags - Optional flags from nsICMSVerifyFlags.
@@ -52,10 +45,10 @@ interface nsICMSMessage : nsISupports
   void verifyDetachedSignature(in long verifyFlags,
                                in Array<octet> aDigestData,
                                in int16_t aDigestType);
-  void CreateEncrypted(in Array<nsIX509Cert> aRecipientCerts);
+  void createEncrypted(in Array<nsIX509Cert> aRecipientCerts);
 
-  /* The parameter aDigestType must be one of the values in nsICryptoHash */
-  void CreateSigned(in nsIX509Cert scert, in nsIX509Cert ecert,
+  /** The parameter aDigestType must be one of the values in nsICryptoHash */
+  void createSigned(in nsIX509Cert scert, in nsIX509Cert ecert,
                     in Array<octet> aDigestData, in int16_t aDigestType);
 
   /**

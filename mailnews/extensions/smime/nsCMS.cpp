@@ -92,8 +92,8 @@ NS_IMETHODIMP nsCMSMessage::GetSignerCommonName(char** aName) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsCMSMessage::ContentIsEncrypted(bool* isEncrypted) {
-  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::ContentIsEncrypted"));
+NS_IMETHODIMP nsCMSMessage::GetContentIsEncrypted(bool* isEncrypted) {
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::GetContentIsEncrypted"));
   NS_ENSURE_ARG(isEncrypted);
 
   if (!m_cmsMsg) return NS_ERROR_FAILURE;
@@ -103,8 +103,8 @@ NS_IMETHODIMP nsCMSMessage::ContentIsEncrypted(bool* isEncrypted) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsCMSMessage::ContentIsSigned(bool* isSigned) {
-  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::ContentIsSigned"));
+NS_IMETHODIMP nsCMSMessage::GetContentIsSigned(bool* isSigned) {
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::GetContentIsSigned"));
   NS_ENSURE_ARG(isSigned);
 
   if (!m_cmsMsg) return NS_ERROR_FAILURE;

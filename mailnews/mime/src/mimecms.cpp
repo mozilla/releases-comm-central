@@ -127,7 +127,7 @@ bool MimeEncryptedCMS_encrypted_p(MimeObject* obj) {
     MimeEncrypted* enc = (MimeEncrypted*)obj;
     MimeCMSdata* data = (MimeCMSdata*)enc->crypto_closure;
     if (!data || !data->content_info) return false;
-    data->content_info->ContentIsEncrypted(&encrypted);
+    data->content_info->GetContentIsEncrypted(&encrypted);
     return encrypted;
   }
   return false;
@@ -144,7 +144,7 @@ bool MimeEncOrMP_CMS_signed_p(MimeObject* obj) {
     MimeEncrypted* enc = (MimeEncrypted*)obj;
     MimeCMSdata* data = (MimeCMSdata*)enc->crypto_closure;
     if (!data || !data->content_info) return false;
-    data->content_info->ContentIsSigned(&is_signed);
+    data->content_info->GetContentIsSigned(&is_signed);
     return is_signed;
   }
   return false;
@@ -592,7 +592,7 @@ void MimeCMSGetFromSender(MimeObject* obj, nsCString& from_addr,
    of this object (remember, crypto objects nest.) */
   MimeObject* o2 = obj;
   msg_headers = o2->headers;
-  while (o2 && o2->parent &&
+  while (o2->parent &&
          !mime_typep(o2->parent, (MimeObjectClass*)&mimeMessageClass)) {
     o2 = o2->parent;
     msg_headers = o2->headers;
@@ -719,7 +719,7 @@ static int MimeCMS_eof(void* crypto_closure, bool abort_p) {
 
     data->ci_is_encrypted = true;
   } else {
-    rv = data->content_info->ContentIsEncrypted(&data->ci_is_encrypted);
+    rv = data->content_info->GetContentIsEncrypted(&data->ci_is_encrypted);
 
     if (NS_SUCCEEDED(rv) && data->ci_is_encrypted) {
       data->content_info->GetEncryptionCert(getter_AddRefs(certOfInterest));
@@ -728,7 +728,7 @@ static int MimeCMS_eof(void* crypto_closure, bool abort_p) {
       // signed. Make sure it indeed is signed.
 
       bool testIsSigned;
-      rv = data->content_info->ContentIsSigned(&testIsSigned);
+      rv = data->content_info->GetContentIsSigned(&testIsSigned);
 
       if (NS_FAILED(rv) || !testIsSigned) {
         // Neither signed nor encrypted?
