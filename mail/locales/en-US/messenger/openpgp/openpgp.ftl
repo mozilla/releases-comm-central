@@ -500,8 +500,7 @@ filter-encrypt-label = Encrypt to key (OpenPGP)
 
 ## Strings in enigmailKeyImportInfo.js
 
-import-info-title =
-    .title = Success! Keys imported
+import-info-dialog-title = Success! Keys imported
 import-info-bits = Bits
 import-info-created = Created
 import-info-fpr = Fingerprint

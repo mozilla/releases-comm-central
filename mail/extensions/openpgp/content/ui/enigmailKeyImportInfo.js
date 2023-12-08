@@ -4,18 +4,20 @@
 
 "use strict";
 
-var EnigmailWindows = ChromeUtils.import(
+var { EnigmailWindows } = ChromeUtils.import(
   "chrome://openpgp/content/modules/windows.jsm"
-).EnigmailWindows;
-var EnigmailKeyRing = ChromeUtils.import(
+);
+var { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
-).EnigmailKeyRing;
-var EnigmailDialog = ChromeUtils.import(
+);
+var { EnigmailDialog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
-).EnigmailDialog;
-var EnigmailData = ChromeUtils.import(
+);
+var { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
-).EnigmailData;
+);
+
+window.addEventListener("load", onLoad);
 
 async function onLoad() {
   const dlg = document.getElementById("enigmailKeyImportInfo");

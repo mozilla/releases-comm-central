@@ -1,51 +1,47 @@
 <?xml version="1.0"?>
-<!--
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
--->
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-%brandDTD; ]>
-
-<window
-  data-l10n-id="import-info-title"
-  onload="onLoad();"
-  style="min-width: 100px; max-width: 750px"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  style="min-width: 400px; max-width: 750px; min-height: 250px"
+  scrolling="false"
 >
-  <dialog id="enigmailKeyImportInfo" buttons="accept">
-    <script
-      type="application/x-javascript"
-      src="chrome://openpgp/content/ui/enigmailKeyImportInfo.js"
+  <head>
+    <title data-l10n-id="import-info-dialog-title"></title>
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/openpgp/enigmail.css"
     />
-    <linkset>
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/messenger.css"
-      />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/openpgp/enigmail.css"
-      />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/shared/grid-layout.css"
-      />
-
-      <html:link rel="localization" href="messenger/openpgp/openpgp.ftl" />
-    </linkset>
-
-    <vbox align="center" flex="1" style="overflow: auto" id="outerbox">
-      <hbox align="center" flex="1">
-        <description
-          flex="1"
-          id="keyInfo"
-          class="plain"
-          style="white-space: pre"
-        />
-      </hbox>
-    </vbox>
-  </dialog>
-</window>
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/grid-layout.css"
+    />
+    <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+    <script
+      defer="defer"
+      src="chrome://openpgp/content/ui/enigmailKeyImportInfo.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog id="enigmailKeyImportInfo" buttons="accept" style="width: 100vw">
+      <vbox align="center" flex="1" style="overflow: auto" id="outerbox">
+        <hbox align="center" flex="1">
+          <description
+            flex="1"
+            id="keyInfo"
+            class="plain"
+            style="white-space: pre"
+          />
+        </hbox>
+      </vbox>
+    </dialog>
+  </html:body>
+</html>
