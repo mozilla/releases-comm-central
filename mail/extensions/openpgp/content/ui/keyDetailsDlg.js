@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-// from enigmailKeyManager.js:
-/* global l10n */
-
 "use strict";
 
 var { CommonUtils } = ChromeUtils.importESModule(
@@ -38,6 +35,8 @@ var { RNP, RnpPrivateKeyUnlockTracker } = ChromeUtils.import(
 ChromeUtils.defineESModuleGetters(this, {
   LoginHelper: "resource://gre/modules/LoginHelper.sys.mjs",
 });
+
+var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 var gModePersonal = false;
 
