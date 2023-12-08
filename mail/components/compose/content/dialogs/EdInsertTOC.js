@@ -26,6 +26,9 @@ const kMozTocIdPrefixLength = 8;
 const kMozTocClassPrefix = "mozToc";
 const kMozTocClassPrefixLength = 6;
 
+window.addEventListener("load", event => {
+  Startup();
+});
 document.addEventListener("dialogaccept", () => BuildTOC(true));
 
 // Startup() is called when EdInsertTOC.xhtml is opened
