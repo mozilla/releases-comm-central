@@ -3,120 +3,136 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window>
-
-<window
-  id="commonDialogWindow"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  xmlns:html="http://www.w3.org/1999/xhtml"
+<!DOCTYPE html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  id="commonDialogWindow"
+  scrolling="false"
   aria-describedby="infoBody"
   headerparent="dialogGrid"
-  onunload="commonDialogOnUnload();"
 >
-  <dialog id="commonDialog" buttonpack="end">
-    <linkset>
-      <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-      <html:link
-        rel="stylesheet"
-        href="chrome://global/content/commonDialog.css"
-      />
-      <html:link
-        rel="stylesheet"
-        href="chrome://global/skin/commonDialog.css"
-      />
-      <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/variables.css"
-      />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/themeableDialog.css"
-      />
-
-      <html:link rel="localization" href="branding/brand.ftl" />
-      <html:link rel="localization" href="toolkit/global/commonDialog.ftl" />
-    </linkset>
-    <script src="chrome://global/content/adjustableTitle.js" />
-    <script src="chrome://global/content/commonDialog.js" />
-    <script src="chrome://messenger/content/globalOverlay.js" />
-    <script src="chrome://global/content/editMenuOverlay.js" />
-    <script src="chrome://global/content/customElements.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
+  <head>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://global/content/commonDialog.css" />
+    <link rel="stylesheet" href="chrome://global/skin/commonDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <style>
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+      }
+    </style>
+    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="toolkit/global/commonDialog.ftl" />
+    <script
+      defer="defer"
+      src="chrome://global/content/adjustableTitle.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/commonDialog.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/customElements.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
     <script>
       /* eslint-disable no-undef */
-      document.addEventListener("DOMContentLoaded", function () {
-        commonDialogOnLoad();
-      });
+      document.addEventListener("DOMContentLoaded", commonDialogOnLoad);
+      window.addEventListener("unload", commonDialogOnUnload);
     </script>
-
-    <commandset id="selectEditMenuItems">
-      <command
-        id="cmd_copy"
-        oncommand="goDoCommand('cmd_copy')"
-        disabled="true"
-      />
-      <command id="cmd_selectAll" oncommand="goDoCommand('cmd_selectAll')" />
-    </commandset>
-
-    <popupset id="contentAreaContextSet">
-      <menupopup
-        id="contentAreaContextMenu"
-        onpopupshowing="goUpdateCommand('cmd_copy')"
-      >
-        <menuitem
-          id="context-copy"
-          data-l10n-id="common-dialog-copy-cmd"
-          command="cmd_copy"
+  </head>
+  <body>
+    <xul:dialog
+      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      id="commonDialog"
+      buttonpack="end"
+    >
+      <commandset id="selectEditMenuItems">
+        <command
+          id="cmd_copy"
+          oncommand="goDoCommand('cmd_copy')"
           disabled="true"
         />
-        <menuitem
-          id="context-selectall"
-          data-l10n-id="common-dialog-select-all-cmd"
-          command="cmd_selectAll"
-        />
-      </menupopup>
-    </popupset>
+        <command id="cmd_selectAll" oncommand="goDoCommand('cmd_selectAll')" />
+      </commandset>
 
-    <!-- The <div> was added in bug 1606617 to workaround bug 1614447 -->
-    <div xmlns="http://www.w3.org/1999/xhtml">
-      <div id="dialogGrid">
-        <div class="dialogRow" id="infoRow" hidden="hidden">
-          <div id="iconContainer">
-            <img id="infoIcon" src="" alt="" role="presentation" />
+      <popupset id="contentAreaContextSet">
+        <menupopup
+          id="contentAreaContextMenu"
+          onpopupshowing="goUpdateCommand('cmd_copy')"
+        >
+          <menuitem
+            id="context-copy"
+            data-l10n-id="common-dialog-copy-cmd"
+            command="cmd_copy"
+            disabled="true"
+          />
+          <menuitem
+            id="context-selectall"
+            data-l10n-id="common-dialog-select-all-cmd"
+            command="cmd_selectAll"
+          />
+        </menupopup>
+      </popupset>
+
+      <!-- The <div> was added in bug 1606617 to workaround bug 1614447 -->
+      <div xmlns="http://www.w3.org/1999/xhtml">
+        <div id="dialogGrid">
+          <div class="dialogRow" id="infoRow" hidden="hidden">
+            <div id="iconContainer">
+              <img id="infoIcon" src="" alt="" role="presentation" />
+            </div>
+            <div id="infoContainer">
+              <xul:description id="infoTitle" />
+              <xul:description
+                id="infoBody"
+                context="contentAreaContextMenu"
+                noinitialfocus="true"
+              />
+            </div>
           </div>
-          <div id="infoContainer">
-            <xul:description id="infoTitle" />
-            <xul:description
-              id="infoBody"
-              context="contentAreaContextMenu"
-              noinitialfocus="true"
+          <div id="loginContainer" class="dialogRow" hidden="hidden">
+            <xul:label
+              id="loginLabel"
+              data-l10n-id="common-dialog-username"
+              control="loginTextbox"
             />
+            <input type="text" id="loginTextbox" dir="ltr" />
           </div>
-        </div>
-        <div id="loginContainer" class="dialogRow" hidden="hidden">
-          <xul:label
-            id="loginLabel"
-            data-l10n-id="common-dialog-username"
-            control="loginTextbox"
-          />
-          <input type="text" id="loginTextbox" dir="ltr" />
-        </div>
-        <div id="password1Container" class="dialogRow" hidden="hidden">
-          <xul:label
-            id="password1Label"
-            data-l10n-id="common-dialog-password"
-            control="password1Textbox"
-          />
-          <input type="password" id="password1Textbox" dir="ltr" />
-        </div>
-        <div id="checkboxContainer" class="dialogRow" hidden="hidden">
-          <div />
-          <!-- spacer -->
-          <xul:checkbox id="checkbox" oncommand="Dialog.onCheckbox()" />
+          <div id="password1Container" class="dialogRow" hidden="hidden">
+            <xul:label
+              id="password1Label"
+              data-l10n-id="common-dialog-password"
+              control="password1Textbox"
+            />
+            <input type="password" id="password1Textbox" dir="ltr" />
+          </div>
+          <div id="checkboxContainer" class="dialogRow" hidden="hidden">
+            <div />
+            <!-- spacer -->
+            <xul:checkbox id="checkbox" oncommand="Dialog.onCheckbox()" />
+          </div>
         </div>
       </div>
-    </div>
-  </dialog>
-</window>
+    </xul:dialog>
+  </body>
+</html>
