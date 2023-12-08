@@ -80,6 +80,8 @@ var gShowInvalidKeys = null;
 var gShowOthersKeys = null;
 var gTimeoutId = null;
 
+window.addEventListener("load", enigmailKeyManagerLoad);
+
 function enigmailKeyManagerLoad() {
   EnigmailLog.DEBUG("enigmailKeyManager.js: enigmailKeyManagerLoad\n");
 

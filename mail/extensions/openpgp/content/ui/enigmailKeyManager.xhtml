@@ -3,416 +3,409 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window>
-
-<window
-  id="enigmailKeyManager"
-  data-l10n-id="openpgp-key-man-title"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  id="enigmailKeyManager"
   lightweightthemes="true"
-  onload="enigmailKeyManagerLoad();"
-  height="450"
-  width="700"
   style="min-height: 450px"
+  scrolling="false"
 >
-  <dialog
-    id="openPgpKeyManagerDialog"
-    data-l10n-id="openpgp-card-details-close-window-label"
-    data-l10n-attrs="buttonlabelaccept"
-    buttons="accept"
-  >
-    <script
-      type="application/x-javascript"
-      src="chrome://openpgp/content/ui/enigmailCommon.js"
+  <head>
+    <title data-l10n-id="openpgp-key-man-dialog-title"></title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/openpgp/enigmail.css"
     />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+    <script src="chrome://openpgp/content/ui/enigmailCommon.js"></script>
     <script
-      type="application/x-javascript"
-      src="chrome://openpgp/content/ui/enigmailKeyManager.js"
-    />
-    <script
-      type="application/x-javascript"
-      src="chrome://openpgp/content/ui/commonWorkflows.js"
-    />
-    <script
-      type="application/x-javascript"
+      defer="defer"
       src="chrome://messenger/content/dialogShadowDom.js"
-    />
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://openpgp/content/ui/commonWorkflows.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://openpgp/content/ui/enigmailKeyManager.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog
+      id="openPgpKeyManagerDialog"
+      data-l10n-id="openpgp-card-details-close-window-label"
+      data-l10n-attrs="buttonlabelaccept"
+      buttons="accept"
+    >
+      <commandset id="tasksCommands" />
 
-    <linkset>
-      <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/messenger.css"
-      />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/contextMenu.css"
-      />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/openpgp/enigmail.css"
-      />
-      <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/themeableDialog.css"
-      />
+      <command id="cmd_close" oncommand="window.close()" />
+      <command id="cmd_enigmailDeleteKey" oncommand="enigmailDeleteKey()" />
 
-      <html:link rel="localization" href="messenger/openpgp/openpgp.ftl" />
-    </linkset>
-
-    <commandset id="tasksCommands" />
-
-    <command id="cmd_close" oncommand="window.close()" />
-    <command id="cmd_enigmailDeleteKey" oncommand="enigmailDeleteKey()" />
-
-    <keyset id="winKeys">
-      <key
-        id="key_selectAll"
-        data-l10n-id="openpgp-key-man-select-all-key"
-        oncommand="enigmailSelectAllKeys()"
-        modifiers="accel"
-      />
-
-      <key
-        id="key_keyDetails"
-        data-l10n-id="openpgp-key-man-key-details-key"
-        oncommand="enigmailKeyDetails()"
-        modifiers="accel"
-      />
-
-      <key
-        id="key_enigDelete"
-        keycode="VK_DELETE"
-        command="cmd_enigmailDeleteKey"
-      />
-      <key id="key_close" />
-      <key id="key_quit" />
-    </keyset>
-
-    <toolbar type="menubar" style="margin-inline: -8px -10px; margin-top: -8px">
-      <menubar id="main-menubar">
-        <menu id="menu_File" data-l10n-id="openpgp-key-man-file-menu">
-          <menupopup id="menu_FilePopup" onpopupshowing="enigmailKeyMenu();">
-            <menuitem
-              id="importPubFromFile"
-              data-l10n-id="openpgp-key-man-import-public-from-file"
-              oncommand="EnigmailCommon_importObjectFromFile('pub');"
-            />
-            <menuitem
-              id="importSecFromFile"
-              data-l10n-id="openpgp-key-man-import-secret-from-file"
-              oncommand="openKeyWizard(true)"
-            />
-            <menuitem
-              id="importSigFromFile"
-              data-l10n-id="openpgp-key-man-import-sig-from-file"
-              oncommand="EnigmailCommon_importObjectFromFile('rev');"
-            />
-            <menuseparator />
-            <menuitem
-              id="exportPublicKey"
-              class="requires-key-selection"
-              data-l10n-id="openpgp-key-man-export-to-file"
-              oncommand="enigmailExportKeys('public');"
-            />
-            <menuitem
-              id="sendKey"
-              data-l10n-id="openpgp-key-man-send-keys"
-              class="requires-key-selection"
-              oncommand="enigCreateKeyMsg();"
-            />
-            <menuseparator />
-            <menuitem
-              id="backupSecretKey"
-              data-l10n-id="openpgp-key-man-backup-secret-keys"
-              oncommand="enigmailExportKeys('secret');"
-            />
-            <menuseparator />
-            <menuitem
-              id="refreshKeys"
-              data-l10n-id="openpgp-key-man-reload"
-              oncommand="clearKeyCache();"
-            />
-            <!-- add Close and Exit menu items -->
-            <menuitem
-              id="menu_close"
-              data-l10n-id="openpgp-key-man-close"
-              oncommand="onDialogClose()"
-            />
-          </menupopup>
-        </menu>
-
-        <menu data-l10n-id="openpgp-key-man-edit-menu">
-          <menupopup onpopupshowing="enigmailKeyMenu();">
-            <menuitem
-              id="importFromClipbrd"
-              data-l10n-id="openpgp-key-man-import-from-clipbrd"
-              oncommand="enigmailImportFromClipbrd();"
-            />
-            <menuitem
-              id="importFromUrl"
-              data-l10n-id="openpgp-key-man-import-from-url"
-              oncommand="enigmailImportKeysFromUrl();"
-            />
-            <menuitem
-              id="copyFprs"
-              data-l10n-id="openpgp-key-man-copy-fprs"
-              data-l10n-args='{"count": 0}'
-              class="requires-key-selection enigmail-bulk-key-operation"
-              oncommand="copyOpenPGPFingerPrints()"
-            />
-            <menuitem
-              id="copyKeyIds"
-              data-l10n-id="openpgp-key-man-copy-key-ids"
-              data-l10n-args='{"count": 0}'
-              class="requires-key-selection enigmail-bulk-key-operation"
-              oncommand="copyOpenPGPKeyIds()"
-            />
-            <menuitem
-              id="copyToClipbrd"
-              data-l10n-id="openpgp-key-man-copy-to-clipboard"
-              data-l10n-args='{"count": 0}'
-              class="requires-key-selection enigmail-bulk-key-operation"
-              oncommand="enigmailCopyToClipbrd();"
-            />
-            <menuseparator />
-
-            <menuitem
-              id="revokeKey"
-              data-l10n-id="openpgp-key-man-revoke-key"
-              oncommand="enigmailRevokeKey()"
-            />
-
-            <menuitem
-              id="deleteKey"
-              data-l10n-id="openpgp-key-man-del-key"
-              key="key_enigDelete"
-              class="requires-key-selection"
-              oncommand="enigmailDeleteKey();"
-            />
-
-            <menuseparator />
-
-            <menuitem
-              id="selectAll"
-              data-l10n-id="openpgp-key-man-select-all"
-              oncommand="enigmailSelectAllKeys()"
-              key="key_selectAll"
-            />
-          </menupopup>
-        </menu>
-
-        <menu id="viewMenu" data-l10n-id="openpgp-key-man-view-menu">
-          <menupopup onpopupshowing="enigmailKeyMenu()">
-            <!-- view menu -->
-            <menuitem
-              id="keyDetails"
-              data-l10n-id="openpgp-key-man-key-props"
-              class="requires-single-key-selection"
-              key="key_keyDetails"
-              oncommand="enigmailKeyDetails();"
-            />
-            <menuseparator />
-            <menuitem
-              id="showInvalidKeys"
-              data-l10n-id="openpgp-key-man-show-invalid-keys"
-              type="checkbox"
-              checked="true"
-              persist="checked"
-              oncommand="applyFilter();"
-            />
-            <menuitem
-              id="showOthersKeys"
-              data-l10n-id="openpgp-key-man-show-others-keys"
-              type="checkbox"
-              checked="true"
-              persist="checked"
-              oncommand="applyFilter();"
-            />
-          </menupopup>
-        </menu>
-
-        <menu id="keyserverMenu" data-l10n-id="openpgp-key-man-keyserver-menu">
-          <menupopup onpopupshowing="enigmailKeyMenu()">
-            <menuitem
-              id="importFromServer"
-              data-l10n-id="openpgp-key-man-discover-cmd"
-              oncommand="enigmailSearchKey()"
-            />
-            <menuitem
-              id="uploadToServer"
-              data-l10n-id="openpgp-key-man-publish-cmd"
-              oncommand="enigmailUploadKey()"
-            />
-          </menupopup>
-        </menu>
-
-        <menu id="generateMenu" data-l10n-id="openpgp-key-man-generate-menu">
-          <menupopup onpopupshowing="enigmailKeyMenu();">
-            <!-- generate menu -->
-            <menuitem
-              id="genKey"
-              data-l10n-id="openpgp-key-man-generate"
-              oncommand="openKeyWizard()"
-            />
-          </menupopup>
-        </menu>
-      </menubar>
-    </toolbar>
-
-    <popupset>
-      <menupopup id="ctxmenu" onpopupshowing="return enigmailKeyMenu();">
-        <menu id="ctxmenu-copy" data-l10n-id="openpgp-key-man-ctx-copy">
-          <menupopup id="ctxmenu-copy-popup">
-            <menuitem
-              id="ctxCopyFprs"
-              data-l10n-id="openpgp-key-man-ctx-copy-fprs"
-              data-l10n-args='{"count": 0}'
-              class="requires-key-selection enigmail-bulk-key-operation"
-              oncommand="copyOpenPGPFingerPrints()"
-            />
-            <menuitem
-              id="ctxCopyKeyIds"
-              data-l10n-id="openpgp-key-man-ctx-copy-key-ids"
-              data-l10n-args='{"count": 0}'
-              class="requires-key-selection enigmail-bulk-key-operation"
-              oncommand="copyOpenPGPKeyIds()"
-            />
-            <menuitem
-              id="ctxCopyPublicKeys"
-              data-l10n-id="openpgp-key-man-ctx-copy-public-keys"
-              data-l10n-args='{"count": 0}'
-              class="requires-key-selection enigmail-bulk-key-operation"
-              oncommand="enigmailCopyToClipbrd()"
-            />
-          </menupopup>
-        </menu>
-        <menuitem
-          data-l10n-id="openpgp-key-man-export-to-file"
-          id="ctxExport"
-          oncommand="enigmailExportKeys('public')"
-        />
-        <menuitem
-          data-l10n-id="openpgp-key-man-send-keys"
-          id="ctxSendKey"
-          oncommand="enigCreateKeyMsg()"
+      <keyset id="winKeys">
+        <key
+          id="key_selectAll"
+          data-l10n-id="openpgp-key-man-select-all-key"
+          oncommand="enigmailSelectAllKeys()"
+          modifiers="accel"
         />
 
-        <menuseparator />
-
-        <menuitem
-          id="ctxRevokeKey"
-          data-l10n-id="openpgp-key-man-revoke-key"
-          oncommand="enigmailRevokeKey()"
-        />
-        <menuitem
-          id="ctxDeleteKey"
-          data-l10n-id="openpgp-key-man-del-key"
-          class="requires-key-selection"
-          oncommand="enigmailDeleteKey()"
-        />
-        <menuitem
-          id="ctxDetails"
-          data-l10n-id="openpgp-key-man-key-props"
-          class="requires-single-key-selection"
+        <key
+          id="key_keyDetails"
+          data-l10n-id="openpgp-key-man-key-details-key"
           oncommand="enigmailKeyDetails()"
+          modifiers="accel"
         />
-      </menupopup>
-    </popupset>
 
-    <separator class="thin" />
+        <key
+          id="key_enigDelete"
+          keycode="VK_DELETE"
+          command="cmd_enigmailDeleteKey"
+        />
+        <key id="key_close" />
+        <key id="key_quit" />
+      </keyset>
 
-    <hbox flex="0" align="center">
-      <html:input
-        id="filterKey"
-        size="35"
-        data-l10n-id="openpgp-key-man-filter-label"
-      />
-    </hbox>
-
-    <tooltip
-      id="nothingFound"
-      data-l10n-id="openpgp-key-man-nothing-found-tooltip"
-      noautohide="true"
-    />
-    <tooltip
-      id="pleaseWait"
-      data-l10n-id="openpgp-key-man-please-wait-tooltip"
-      noautohide="true"
-    />
-
-    <separator class="thin" />
-
-    <hbox flex="1" style="min-height: 300px">
-      <tree
-        id="pgpKeyList"
-        flex="1"
-        enableColumnDrag="true"
-        seltype="multiple"
-        persist="sortDirection sortResource"
-        sortDirection="ascending"
-        sortResource="enigUserNameCol"
-        hidecolumnpicker="false"
-        context="ctxmenu"
+      <toolbar
+        type="menubar"
+        style="margin-inline: -8px -10px; margin-top: -8px"
       >
-        <treecols>
-          <treecol
-            id="enigUserNameCol"
-            primary="true"
-            class="sortDirectionIndicator"
-            onclick="sortTree(this)"
-            data-l10n-id="openpgp-key-man-user-id-label"
-            style="width: 400px; flex: 1 auto"
-            persist="width ordinal hidden"
-          />
-          <splitter class="tree-splitter" />
-          <treecol
-            id="keyCol"
-            style="width: 100px; flex: 1 auto"
-            data-l10n-id="openpgp-key-id-label"
-            class="sortDirectionIndicator"
-            onclick="sortTree(this)"
-            persist="width ordinal hidden"
-          />
-          <splitter class="tree-splitter" />
-          <treecol
-            id="createdCol"
-            style="width: 70px; flex: 1 auto"
-            data-l10n-id="openpgp-key-created-label"
-            class="sortDirectionIndicator"
-            onclick="sortTree(this)"
-            persist="width ordinal hidden"
-          />
-          <splitter class="tree-splitter" />
-          <treecol
-            id="expCol"
-            style="width: 70px; flex: 1 auto"
-            data-l10n-id="openpgp-key-expiry-label"
-            class="sortDirectionIndicator"
-            onclick="sortTree(this)"
-            persist="width ordinal hidden"
-          />
-          <splitter class="tree-splitter" />
-          <treecol
-            id="fprCol"
-            style="width: 70px; flex: 1 auto"
-            data-l10n-id="openpgp-key-man-fingerprint-label"
-            class="sortDirectionIndicator"
-            onclick="sortTree(this)"
-            hidden="true"
-            persist="width ordinal hidden"
-          />
-        </treecols>
+        <menubar id="main-menubar">
+          <menu id="menu_File" data-l10n-id="openpgp-key-man-file-menu">
+            <menupopup id="menu_FilePopup" onpopupshowing="enigmailKeyMenu();">
+              <menuitem
+                id="importPubFromFile"
+                data-l10n-id="openpgp-key-man-import-public-from-file"
+                oncommand="EnigmailCommon_importObjectFromFile('pub');"
+              />
+              <menuitem
+                id="importSecFromFile"
+                data-l10n-id="openpgp-key-man-import-secret-from-file"
+                oncommand="openKeyWizard(true)"
+              />
+              <menuitem
+                id="importSigFromFile"
+                data-l10n-id="openpgp-key-man-import-sig-from-file"
+                oncommand="EnigmailCommon_importObjectFromFile('rev');"
+              />
+              <menuseparator />
+              <menuitem
+                id="exportPublicKey"
+                class="requires-key-selection"
+                data-l10n-id="openpgp-key-man-export-to-file"
+                oncommand="enigmailExportKeys('public');"
+              />
+              <menuitem
+                id="sendKey"
+                data-l10n-id="openpgp-key-man-send-keys"
+                class="requires-key-selection"
+                oncommand="enigCreateKeyMsg();"
+              />
+              <menuseparator />
+              <menuitem
+                id="backupSecretKey"
+                data-l10n-id="openpgp-key-man-backup-secret-keys"
+                oncommand="enigmailExportKeys('secret');"
+              />
+              <menuseparator />
+              <menuitem
+                id="refreshKeys"
+                data-l10n-id="openpgp-key-man-reload"
+                oncommand="clearKeyCache();"
+              />
+              <!-- add Close and Exit menu items -->
+              <menuitem
+                id="menu_close"
+                data-l10n-id="openpgp-key-man-close"
+                oncommand="onDialogClose()"
+              />
+            </menupopup>
+          </menu>
 
-        <treechildren id="pgpKeyListChildren" properties="" />
-      </tree>
-    </hbox>
+          <menu data-l10n-id="openpgp-key-man-edit-menu">
+            <menupopup onpopupshowing="enigmailKeyMenu();">
+              <menuitem
+                id="importFromClipbrd"
+                data-l10n-id="openpgp-key-man-import-from-clipbrd"
+                oncommand="enigmailImportFromClipbrd();"
+              />
+              <menuitem
+                id="importFromUrl"
+                data-l10n-id="openpgp-key-man-import-from-url"
+                oncommand="enigmailImportKeysFromUrl();"
+              />
+              <menuitem
+                id="copyFprs"
+                data-l10n-id="openpgp-key-man-copy-fprs"
+                data-l10n-args='{"count": 0}'
+                class="requires-key-selection enigmail-bulk-key-operation"
+                oncommand="copyOpenPGPFingerPrints()"
+              />
+              <menuitem
+                id="copyKeyIds"
+                data-l10n-id="openpgp-key-man-copy-key-ids"
+                data-l10n-args='{"count": 0}'
+                class="requires-key-selection enigmail-bulk-key-operation"
+                oncommand="copyOpenPGPKeyIds()"
+              />
+              <menuitem
+                id="copyToClipbrd"
+                data-l10n-id="openpgp-key-man-copy-to-clipboard"
+                data-l10n-args='{"count": 0}'
+                class="requires-key-selection enigmail-bulk-key-operation"
+                oncommand="enigmailCopyToClipbrd();"
+              />
+              <menuseparator />
 
-    <hbox id="statusLine">
-      <label id="statusText" value="" />
-      <html:progress id="progressBar" style="visibility: collapsed" />
-    </hbox>
-  </dialog>
-</window>
+              <menuitem
+                id="revokeKey"
+                data-l10n-id="openpgp-key-man-revoke-key"
+                oncommand="enigmailRevokeKey()"
+              />
+
+              <menuitem
+                id="deleteKey"
+                data-l10n-id="openpgp-key-man-del-key"
+                key="key_enigDelete"
+                class="requires-key-selection"
+                oncommand="enigmailDeleteKey();"
+              />
+
+              <menuseparator />
+
+              <menuitem
+                id="selectAll"
+                data-l10n-id="openpgp-key-man-select-all"
+                oncommand="enigmailSelectAllKeys()"
+                key="key_selectAll"
+              />
+            </menupopup>
+          </menu>
+
+          <menu id="viewMenu" data-l10n-id="openpgp-key-man-view-menu">
+            <menupopup onpopupshowing="enigmailKeyMenu()">
+              <!-- view menu -->
+              <menuitem
+                id="keyDetails"
+                data-l10n-id="openpgp-key-man-key-props"
+                class="requires-single-key-selection"
+                key="key_keyDetails"
+                oncommand="enigmailKeyDetails();"
+              />
+              <menuseparator />
+              <menuitem
+                id="showInvalidKeys"
+                data-l10n-id="openpgp-key-man-show-invalid-keys"
+                type="checkbox"
+                checked="true"
+                persist="checked"
+                oncommand="applyFilter();"
+              />
+              <menuitem
+                id="showOthersKeys"
+                data-l10n-id="openpgp-key-man-show-others-keys"
+                type="checkbox"
+                checked="true"
+                persist="checked"
+                oncommand="applyFilter();"
+              />
+            </menupopup>
+          </menu>
+
+          <menu
+            id="keyserverMenu"
+            data-l10n-id="openpgp-key-man-keyserver-menu"
+          >
+            <menupopup onpopupshowing="enigmailKeyMenu()">
+              <menuitem
+                id="importFromServer"
+                data-l10n-id="openpgp-key-man-discover-cmd"
+                oncommand="enigmailSearchKey()"
+              />
+              <menuitem
+                id="uploadToServer"
+                data-l10n-id="openpgp-key-man-publish-cmd"
+                oncommand="enigmailUploadKey()"
+              />
+            </menupopup>
+          </menu>
+
+          <menu id="generateMenu" data-l10n-id="openpgp-key-man-generate-menu">
+            <menupopup onpopupshowing="enigmailKeyMenu();">
+              <!-- generate menu -->
+              <menuitem
+                id="genKey"
+                data-l10n-id="openpgp-key-man-generate"
+                oncommand="openKeyWizard()"
+              />
+            </menupopup>
+          </menu>
+        </menubar>
+      </toolbar>
+
+      <popupset>
+        <menupopup id="ctxmenu" onpopupshowing="return enigmailKeyMenu();">
+          <menu id="ctxmenu-copy" data-l10n-id="openpgp-key-man-ctx-copy">
+            <menupopup id="ctxmenu-copy-popup">
+              <menuitem
+                id="ctxCopyFprs"
+                data-l10n-id="openpgp-key-man-ctx-copy-fprs"
+                data-l10n-args='{"count": 0}'
+                class="requires-key-selection enigmail-bulk-key-operation"
+                oncommand="copyOpenPGPFingerPrints()"
+              />
+              <menuitem
+                id="ctxCopyKeyIds"
+                data-l10n-id="openpgp-key-man-ctx-copy-key-ids"
+                data-l10n-args='{"count": 0}'
+                class="requires-key-selection enigmail-bulk-key-operation"
+                oncommand="copyOpenPGPKeyIds()"
+              />
+              <menuitem
+                id="ctxCopyPublicKeys"
+                data-l10n-id="openpgp-key-man-ctx-copy-public-keys"
+                data-l10n-args='{"count": 0}'
+                class="requires-key-selection enigmail-bulk-key-operation"
+                oncommand="enigmailCopyToClipbrd()"
+              />
+            </menupopup>
+          </menu>
+          <menuitem
+            data-l10n-id="openpgp-key-man-export-to-file"
+            id="ctxExport"
+            oncommand="enigmailExportKeys('public')"
+          />
+          <menuitem
+            data-l10n-id="openpgp-key-man-send-keys"
+            id="ctxSendKey"
+            oncommand="enigCreateKeyMsg()"
+          />
+
+          <menuseparator />
+
+          <menuitem
+            id="ctxRevokeKey"
+            data-l10n-id="openpgp-key-man-revoke-key"
+            oncommand="enigmailRevokeKey()"
+          />
+          <menuitem
+            id="ctxDeleteKey"
+            data-l10n-id="openpgp-key-man-del-key"
+            class="requires-key-selection"
+            oncommand="enigmailDeleteKey()"
+          />
+          <menuitem
+            id="ctxDetails"
+            data-l10n-id="openpgp-key-man-key-props"
+            class="requires-single-key-selection"
+            oncommand="enigmailKeyDetails()"
+          />
+        </menupopup>
+      </popupset>
+
+      <separator class="thin" />
+
+      <hbox flex="0" align="center">
+        <html:input
+          id="filterKey"
+          size="35"
+          data-l10n-id="openpgp-key-man-filter-label"
+        />
+      </hbox>
+
+      <tooltip
+        id="nothingFound"
+        data-l10n-id="openpgp-key-man-nothing-found-tooltip"
+        noautohide="true"
+      />
+      <tooltip
+        id="pleaseWait"
+        data-l10n-id="openpgp-key-man-please-wait-tooltip"
+        noautohide="true"
+      />
+
+      <separator class="thin" />
+
+      <hbox flex="1" style="min-height: 300px">
+        <tree
+          id="pgpKeyList"
+          flex="1"
+          enableColumnDrag="true"
+          seltype="multiple"
+          persist="sortDirection sortResource"
+          sortDirection="ascending"
+          sortResource="enigUserNameCol"
+          hidecolumnpicker="false"
+          context="ctxmenu"
+        >
+          <treecols>
+            <treecol
+              id="enigUserNameCol"
+              primary="true"
+              class="sortDirectionIndicator"
+              onclick="sortTree(this)"
+              data-l10n-id="openpgp-key-man-user-id-label"
+              style="width: 400px; flex: 1 auto"
+              persist="width ordinal hidden"
+            />
+            <splitter class="tree-splitter" />
+            <treecol
+              id="keyCol"
+              style="width: 100px; flex: 1 auto"
+              data-l10n-id="openpgp-key-id-label"
+              class="sortDirectionIndicator"
+              onclick="sortTree(this)"
+              persist="width ordinal hidden"
+            />
+            <splitter class="tree-splitter" />
+            <treecol
+              id="createdCol"
+              style="width: 70px; flex: 1 auto"
+              data-l10n-id="openpgp-key-created-label"
+              class="sortDirectionIndicator"
+              onclick="sortTree(this)"
+              persist="width ordinal hidden"
+            />
+            <splitter class="tree-splitter" />
+            <treecol
+              id="expCol"
+              style="width: 70px; flex: 1 auto"
+              data-l10n-id="openpgp-key-expiry-label"
+              class="sortDirectionIndicator"
+              onclick="sortTree(this)"
+              persist="width ordinal hidden"
+            />
+            <splitter class="tree-splitter" />
+            <treecol
+              id="fprCol"
+              style="width: 70px; flex: 1 auto"
+              data-l10n-id="openpgp-key-man-fingerprint-label"
+              class="sortDirectionIndicator"
+              onclick="sortTree(this)"
+              hidden="true"
+              persist="width ordinal hidden"
+            />
+          </treecols>
+
+          <treechildren id="pgpKeyListChildren" properties="" />
+        </tree>
+      </hbox>
+
+      <hbox id="statusLine">
+        <label id="statusText" value="" />
+        <html:progress id="progressBar" style="visibility: collapsed" />
+      </hbox>
+    </dialog>
+  </html:body>
+</html>

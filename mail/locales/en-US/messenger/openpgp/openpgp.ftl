@@ -47,8 +47,7 @@ openpgp-key-id-label =
 
 openpgp-cannot-change-expiry = This is a key with a complex structure, changing its expiry date isn’t supported.
 
-openpgp-key-man-title =
-    .title = OpenPGP Key Manager
+openpgp-key-man-dialog-title = OpenPGP Key Manager
 openpgp-key-man-generate =
     .label = New Key Pair
     .accesskey = K
