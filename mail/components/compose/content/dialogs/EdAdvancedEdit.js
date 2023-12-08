@@ -27,6 +27,8 @@ var gUpdateTreeValue = true;
 
 /** ************ INITIALISATION && SETUP */
 
+window.addEventListener("load", Startup);
+
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
