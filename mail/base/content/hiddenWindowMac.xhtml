@@ -1,47 +1,47 @@
 <?xml version="1.0"?>
-
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 #include messenger-doctype.inc.dtd
 ]>
-
-<window id="hidden-window"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="hiddenWindowStartup();">
-
-<script src="chrome://messenger/content/globalOverlay.js"/>
-<script src="chrome://messenger/content/mailWindow.js"/>
-<script src="chrome://messenger/content/messenger.js"/>
-<script src="chrome://messenger/content/mail3PaneWindowCommands.js"/>
-<script src="chrome://messenger/content/searchBar.js"/>
-<script src="chrome://messenger/content/hiddenWindowMac.js"/>
-<script src="chrome://messenger/content/mailCommands.js"/>
-<script src="chrome://messenger/content/mailWindowOverlay.js"/>
-<script src="chrome://messenger/content/mailTabs.js"/>
-<script src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
-<script src="chrome://messenger/content/accountUtils.js"/>
-<script src="chrome://messenger/content/mail-offline.js"/>
-<script src="chrome://messenger/content/msgViewPickerOverlay.js"/>
-<script src="chrome://messenger/content/viewZoomOverlay.js"/>
-<script src="chrome://communicator/content/utilityOverlay.js"/>
-<script src="chrome://messenger/content/mailCore.js"/>
-<script src="chrome://messenger/content/newmailaccount/uriListener.js"/>
-<script src="chrome://global/content/macWindowMenu.js"/>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      id="hidden-window"
+      scrolling="false"
+>
+<head>
+  <link rel="localization" href="branding/brand.ftl" />
+  <link rel="localization" href="messenger/messenger.ftl" />
+  <link rel="localization" href="messenger/menubar.ftl" />
+  <link rel="localization" href="messenger/appmenu.ftl" />
+  <link rel="localization" href="toolkit/global/textActions.ftl" />
+  <link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl" />
+  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailWindow.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messenger.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mail3PaneWindowCommands.js"></script>
+  <script defer="defer" src="chrome://messenger/content/searchBar.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailTabs.js"></script>
+  <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mail-offline.js"></script>
+  <script defer="defer" src="chrome://messenger/content/msgViewPickerOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
+  <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
+  <script defer="defer" src="chrome://messenger/content/newmailaccount/uriListener.js"></script>
+  <script defer="defer" src="chrome://global/content/macWindowMenu.js"></script>
+  <script defer="defer" src="chrome://messenger/content/hiddenWindowMac.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
-
-<linkset>
-  <html:link rel="localization" href="branding/brand.ftl"/>
-  <html:link rel="localization" href="messenger/messenger.ftl"/>
-  <html:link rel="localization" href="messenger/menubar.ftl"/>
-  <html:link rel="localization" href="messenger/appmenu.ftl"/>
-  <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
-  <html:link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl"/>
-</linkset>
 
 <!-- keys are appended from the overlay -->
 <keyset id="mailKeys">
@@ -96,4 +96,5 @@
 
 <browser id="hiddenBrowser" disablehistory="true"/>
 
-</window>
+</html:body>
+</html>
