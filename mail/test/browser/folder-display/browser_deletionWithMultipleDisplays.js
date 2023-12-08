@@ -42,8 +42,12 @@ var folder,
   multipleDeletionFolder3,
   multipleDeletionFolder4;
 
-// Adjust timeout to take care of code coverage runs needing twice as long.
-requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 4 : 2);
+// Adjust timeout to take care of runs needing more time to run.
+requestLongerTimeout(
+  AppConstants.MOZ_CODE_COVERAGE || AppConstants.DEBUG || AppConstants.ASAN
+    ? 5
+    : 2
+);
 
 add_setup(async function () {
   // Use an ascending order because this test relies on message arrays matching.
