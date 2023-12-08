@@ -258,8 +258,11 @@ NS_IMETHODIMP StoreIndexer::OnStopRequest(nsIRequest* req, nsresult status) {
     // The parser chose not to include the message.
     // Likely, it was expunged/deleted.
     nsCOMPtr<nsIDBFolderInfo> folderInfo;
-    mParser->m_mailDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
-    folderInfo->ChangeExpungedBytes(mCurrentMsgSize);
+    nsresult rv =
+        mParser->m_mailDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
+    if (NS_SUCCEEDED(rv) && folderInfo) {
+      folderInfo->ChangeExpungedBytes(mCurrentMsgSize);
+    }
   }
 
   // Clear up our per-message vars.
