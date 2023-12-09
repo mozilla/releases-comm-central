@@ -527,7 +527,7 @@ async function toImport(tabId = "start") {
   }
 
   if (messengerWindow.tabmail.globalOverlay) {
-    return null;
+    return;
   }
 
   const tab = messengerWindow.openTab("contentTab", {
