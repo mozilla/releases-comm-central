@@ -90,13 +90,11 @@ int32_t nsMsgBodyHandler::GetNextLine(nsCString& buf, nsCString& charset) {
 
   if (outLength < 0) return -1;  // eof out
 
-  // For non-multipart messages, the entire message minus headers is encoded
-  // ApplyTransformations can only decode a part
+  // For non-multipart messages, the entire message minus headers is encoded.
   if (!m_isMultipart && m_base64part) {
     Base64Decode(buf);
+    outLength = buf.Length();
     m_base64part = false;
-    // And reapply our transformations...
-    outLength = ApplyTransformations(buf, buf.Length(), eatThisLine, buf);
   }
 
   // Process aggregated HTML.
@@ -233,9 +231,6 @@ int32_t nsMsgBodyHandler::ApplyTransformations(const nsCString& line,
         NS_WARNING("Trying to transform an empty buffer");
         eatThisLine = true;
       } else {
-        // It is wrong to call ApplyTransformations() here since this will
-        // lead to the buffer being doubled-up at |buf.Append(line);|
-        // below. ApplyTransformations(buf, buf.Length(), eatThisLine, buf);
         // Avoid spurious failures
         eatThisLine = false;
       }
