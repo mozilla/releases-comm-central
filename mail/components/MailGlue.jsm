@@ -436,8 +436,14 @@ MailGlue.prototype = {
           .initializeDBViewStrings();
         const windows = Services.wm.getEnumerator("mail:3pane");
         while (windows.hasMoreElements()) {
-          const win = windows.getNext();
-          win.document.getElementById("threadTree")?.invalidate();
+          const tabmail = windows.getNext().document.getElementById("tabmail");
+          if (tabmail) {
+            for (const tab of tabmail.tabInfo) {
+              if (tab.mode.name == "mail3PaneTab") {
+                tab.chromeBrowser?.contentWindow.threadTree?.invalidate();
+              }
+            }
+          }
         }
         // Refresh the folder tree.
         const fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
