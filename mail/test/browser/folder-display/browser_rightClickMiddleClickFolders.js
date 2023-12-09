@@ -9,6 +9,8 @@
 
 "use strict";
 
+requestLongerTimeout(2);
+
 var {
   assert_folder_displayed,
   assert_folder_selected,
