@@ -48,9 +48,9 @@ if CONFIG["CC_TYPE"] == "clang-cl":
 
     OS_LIBS += ["shell32"]
 
-    if CONFIG["CPU_ARCH"] == "x86":
+    if CONFIG["TARGET_CPU"] == "x86":
         LDFLAGS += ["clang_rt.builtins-i386.lib"]
-    elif CONFIG["CPU_ARCH"] == "x86_64":
+    elif CONFIG["TARGET_CPU"] == "x86_64":
         LDFLAGS += ["clang_rt.builtins-x86_64.lib"]
 
     SOURCES += [
