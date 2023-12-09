@@ -365,6 +365,37 @@
             }
           }
         }
+      },
+      {
+        "id": "SingleMenuIconPath",
+        "choices": [
+          {
+            "type": "string",
+            "format": "imageDataOrStrictRelativeUrl"
+          },
+          {
+            "type": "string",
+            "pattern": "^(moz-extension|blob):.*$"
+          }
+        ],
+        "description": "The provided path may be a relative path to an icon file, an image <value>data:</value> URL, a <value>blob:</value> URL or a <value>moz-extension:<value> URL. The <value>data:</value> or <value>blob:</value> URLs can be retrieved as follows: <literalinclude>includes/DataBlobUrls.js<lang>JavaScript</lang></literalinclude>,"
+      },
+      {
+        "id": "MenuIconPath",
+        "choices": [
+          {
+            "$ref": "SingleMenuIconPath"
+          },
+          {
+            "type": "object",
+            "patternProperties": {
+              "^[1-9]\\d*$": {
+                "$ref": "SingleMenuIconPath"
+              }
+            }
+          }
+        ],
+        "description": "Either a <em>string</em> to specify a single icon path to be used for all sizes, or a <em>dictionary object</em> to specify paths for multiple icons in different sizes, so the icon does not have to be scaled for a device with a different pixel density. Each entry is a <em>name-value</em> pair with <em>name</em> being a size and <em>value</em> being a path to the icon for the specified size. Example: <literalinclude>includes/MenuIconPath.json<lang>JSON</lang></literalinclude>See the `MDN documentation about choosing icon sizes <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_action#choosing_icon_sizes>`__ for more information on this. "
       }
     ],
     "functions": [
@@ -399,7 +430,7 @@
                 "description": "The unique ID to assign to this item. Mandatory for event pages. Cannot be the same as another ID for this extension."
               },
               "icons": {
-                "$ref": "manifest.IconPath",
+                "$ref": "MenuIconPath",
                 "optional": true,
                 "description": "Custom icons to display next to the menu item. Custom icons can only be set for items appearing in submenus."
               },
@@ -540,7 +571,7 @@
                 "optional": true
               },
               "icons": {
-                "$ref": "manifest.IconPath",
+                "$ref": "MenuIconPath",
                 "optional": "omit-key-if-missing"
               },
               "title": {
