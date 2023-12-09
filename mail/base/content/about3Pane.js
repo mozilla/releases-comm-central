@@ -3927,6 +3927,11 @@ class FolderTreeRow extends HTMLLIElement {
     this._nameStyle = "server";
     this._serverName = server.prettyName;
     this._setName();
+    const isCollapsed = this.classList.contains("collapsed");
+    if (isCollapsed) {
+      this.unreadCount = server.rootFolder.getNumUnread(isCollapsed);
+      this.totalCount = server.rootFolder.getTotalMessages(isCollapsed);
+    }
     this.setFolderPropertiesFromFolder(server.rootFolder);
   }
 
