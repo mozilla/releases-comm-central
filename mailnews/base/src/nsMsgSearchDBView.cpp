@@ -1274,7 +1274,17 @@ nsresult nsMsgSearchDBView::RemoveMsgFromHashTables(nsIMsgDBHdr* msgHdr) {
 
 nsMsgGroupThread* nsMsgSearchDBView::CreateGroupThread(
     nsIMsgDatabase* /* db */) {
-  return new nsMsgXFGroupThread();
+  nsMsgViewSortOrderValue threadSortOrder = nsMsgViewSortOrder::descending;
+  if (m_sortType == nsMsgViewSortType::byDate ||
+      m_sortType == nsMsgViewSortType::byReceived) {
+    threadSortOrder = m_sortOrder;
+  } else {
+    if (mozilla::Preferences::GetInt("mailnews.default_sort_order") ==
+        nsMsgViewSortOrder::ascending) {
+      threadSortOrder = nsMsgViewSortOrder::ascending;
+    }
+  }
+  return new nsMsgXFGroupThread(threadSortOrder);
 }
 
 NS_IMETHODIMP

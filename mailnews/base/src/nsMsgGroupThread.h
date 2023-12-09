@@ -19,8 +19,8 @@ class nsMsgGroupThread : public nsIMsgThread {
  public:
   friend class nsMsgGroupView;
 
-  nsMsgGroupThread();
-  explicit nsMsgGroupThread(nsIMsgDatabase* db);
+  explicit nsMsgGroupThread(nsIMsgDatabase* db,
+                            nsMsgViewSortOrderValue sortOrder);
 
   NS_DECL_NSIMSGTHREAD
   NS_DECL_ISUPPORTS
@@ -28,7 +28,6 @@ class nsMsgGroupThread : public nsIMsgThread {
  protected:
   virtual ~nsMsgGroupThread();
 
-  void Init();
   nsMsgViewIndex AddChildFromGroupView(nsIMsgDBHdr* child, nsMsgDBView* view);
   nsresult RemoveChild(nsMsgKey msgKey);
   nsresult RerootThread(nsIMsgDBHdr* newParentOfOldRoot, nsIMsgDBHdr* oldRoot,
@@ -61,11 +60,12 @@ class nsMsgGroupThread : public nsIMsgThread {
   nsTArray<nsMsgKey> m_keys;
   bool m_dummy;  // top level msg is a dummy, e.g., grouped by age.
   nsCOMPtr<nsIMsgDatabase> m_db;  // should we make a weak ref or just a ptr?
+  nsMsgViewSortOrderValue m_sortOrder;
 };
 
 class nsMsgXFGroupThread : public nsMsgGroupThread {
  public:
-  nsMsgXFGroupThread();
+  explicit nsMsgXFGroupThread(nsMsgViewSortOrderValue sortOrder);
 
   NS_IMETHOD GetNumChildren(uint32_t* aNumChildren) override;
   NS_IMETHOD GetChildKeyAt(uint32_t aIndex, nsMsgKey* aResult) override;

@@ -12,20 +12,16 @@
 
 NS_IMPL_ISUPPORTS(nsMsgGroupThread, nsIMsgThread)
 
-nsMsgGroupThread::nsMsgGroupThread() { Init(); }
-
-nsMsgGroupThread::nsMsgGroupThread(nsIMsgDatabase* db) {
-  m_db = db;
-  Init();
-}
-
-void nsMsgGroupThread::Init() {
+nsMsgGroupThread::nsMsgGroupThread(nsIMsgDatabase* db,
+                                   nsMsgViewSortOrderValue sortOrder) {
   m_threadKey = nsMsgKey_None;
   m_threadRootKey = nsMsgKey_None;
   m_numUnreadChildren = 0;
   m_flags = 0;
   m_newestMsgDate = 0;
   m_dummy = false;
+  m_db = db;
+  m_sortOrder = sortOrder;
 }
 
 nsMsgGroupThread::~nsMsgGroupThread() {}
@@ -115,27 +111,8 @@ nsMsgViewIndex nsMsgGroupThread::AddMsgHdrInDateOrder(nsIMsgDBHdr* child,
   // since we're sorted by date, we could do a binary search for the
   // insert point. Or, we could start at the end...
   if (m_keys.Length() > 0) {
-    nsMsgViewSortTypeValue sortType;
-    nsMsgViewSortOrderValue sortOrder;
-    (void)view->GetSortType(&sortType);
-    (void)view->GetSortOrder(&sortOrder);
-    // historical behavior is ascending date order unless our primary sort is
-    //  on date
-    nsMsgViewSortOrderValue threadSortOrder =
-        (sortType == nsMsgViewSortType::byDate &&
-         sortOrder == nsMsgViewSortOrder::descending)
-            ? nsMsgViewSortOrder::descending
-            : nsMsgViewSortOrder::ascending;
-    // new behavior is tricky and uses the secondary sort order if the secondary
-    //  sort is on the date
-    nsMsgViewSortTypeValue secondarySortType;
-    nsMsgViewSortOrderValue secondarySortOrder;
-    (void)view->GetSecondarySortType(&secondarySortType);
-    (void)view->GetSecondarySortOrder(&secondarySortOrder);
-    if (secondarySortType == nsMsgViewSortType::byDate)
-      threadSortOrder = secondarySortOrder;
     // sort by date within group.
-    insertIndex = GetInsertIndexFromView(view, child, threadSortOrder);
+    insertIndex = GetInsertIndexFromView(view, child, m_sortOrder);
   }
   m_keys.InsertElementAt(insertIndex, newHdrKey);
   if (!insertIndex) m_threadRootKey = newHdrKey;
@@ -654,7 +631,8 @@ NS_IMETHODIMP nsMsgGroupThread::SetNewestMsgDate(uint32_t aNewestMsgDate) {
   return NS_OK;
 }
 
-nsMsgXFGroupThread::nsMsgXFGroupThread() {}
+nsMsgXFGroupThread::nsMsgXFGroupThread(nsMsgViewSortOrderValue sortOrder)
+    : nsMsgGroupThread(nullptr, sortOrder) {}
 
 nsMsgXFGroupThread::~nsMsgXFGroupThread() {}
 

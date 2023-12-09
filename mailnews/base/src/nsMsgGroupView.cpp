@@ -91,14 +91,16 @@ nsresult nsMsgGroupView::GetAgeBucketValue(nsIMsgDBHdr* aMsgHdr,
   NS_ENSURE_ARG_POINTER(aAgeBucket);
 
   PRTime dateOfMsg;
+  uint32_t rcvDateSecs;
   nsresult rv;
-  if (!rcvDate)
-    rv = aMsgHdr->GetDate(&dateOfMsg);
-  else {
-    uint32_t rcvDateSecs;
+
+  // Silently return Date: instead if Received: is unavailable.
+  if (rcvDate) {
     rv = aMsgHdr->GetUint32Property("dateReceived", &rcvDateSecs);
-    Seconds2PRTime(rcvDateSecs, &dateOfMsg);
+    if (rcvDateSecs != 0) Seconds2PRTime(rcvDateSecs, &dateOfMsg);
   }
+
+  if (!rcvDate || rcvDateSecs == 0) rv = aMsgHdr->GetDate(&dateOfMsg);
   NS_ENSURE_SUCCESS(rv, rv);
 
   PRTime currentTime = PR_Now();
@@ -241,7 +243,14 @@ nsresult nsMsgGroupView::HashHdr(nsIMsgDBHdr* msgHdr, nsString& aHashKey) {
 }
 
 nsMsgGroupThread* nsMsgGroupView::CreateGroupThread(nsIMsgDatabase* db) {
-  return new nsMsgGroupThread(db);
+  nsMsgViewSortOrderValue threadSortOrder = nsMsgViewSortOrder::descending;
+  if (m_sortType == nsMsgViewSortType::byDate ||
+      m_sortType == nsMsgViewSortType::byReceived) {
+    threadSortOrder = m_sortOrder;
+  } else {
+    m_db->GetDefaultSortOrder(&threadSortOrder);
+  }
+  return new nsMsgGroupThread(db, threadSortOrder);
 }
 
 nsMsgGroupThread* nsMsgGroupView::AddHdrToThread(nsIMsgDBHdr* msgHdr,
@@ -792,7 +801,7 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         break;
       }
       case nsMsgViewSortType::bySubject:
-        FetchSubject(msgHdr, m_flags[aRow], aValue);
+        FetchSubject(msgHdr, m_flags[aRow] & ~nsMsgMessageFlags::HasRe, aValue);
         break;
       case nsMsgViewSortType::byAuthor:
         FetchAuthor(msgHdr, aValue);
