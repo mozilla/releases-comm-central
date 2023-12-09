@@ -841,8 +841,8 @@ function OpenMessageInNewTab(msgHdr, tabParams = {}) {
 }
 
 function GetSelectedMsgFolders() {
-  const tabInfo = document.getElementById("tabmail").currentTabInfo;
-  if (tabInfo.mode.name == "mail3PaneTab") {
+  const tabInfo = document.getElementById("tabmail")?.currentTabInfo;
+  if (tabInfo?.mode.name == "mail3PaneTab") {
     const folder = tabInfo.folder;
     if (folder) {
       return [folder];

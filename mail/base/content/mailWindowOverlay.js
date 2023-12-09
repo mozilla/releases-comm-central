@@ -320,7 +320,7 @@ function view_init(event) {
   const folderPaneAppMenuItem = document.getElementById(
     "appmenu_showFolderPane"
   );
-  if (!folderPaneAppMenuItem.hidden) {
+  if (folderPaneAppMenuItem && !folderPaneAppMenuItem.hidden) {
     // Hidden in the standalone msg window.
     folderPaneAppMenuItem.setAttribute("checked", folderPaneVisible);
   }
@@ -333,7 +333,7 @@ function view_init(event) {
   const threadPaneAppMenuItem = document.getElementById(
     "appmenu_toggleThreadPaneHeader"
   );
-  threadPaneAppMenuItem.toggleAttribute("disabled", !threadPaneHeaderVisible);
+  threadPaneAppMenuItem?.toggleAttribute("disabled", !threadPaneHeaderVisible);
 
   // Disable some menus if account manager is showing
   document.getElementById("viewSortMenu").disabled = accountCentralVisible;

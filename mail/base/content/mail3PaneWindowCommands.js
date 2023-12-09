@@ -62,7 +62,7 @@ var DefaultController = {
   },
 
   isCommandEnabled(command) {
-    if (document.getElementById("tabmail").globalOverlay) {
+    if (document.getElementById("tabmail")?.globalOverlay) {
       return false;
     }
     switch (command) {
@@ -72,7 +72,9 @@ var DefaultController = {
       case "cmd_viewNormalHeader":
         return true;
       case "cmd_undoCloseTab":
-        return document.getElementById("tabmail").recentlyClosedTabs.length > 0;
+        return (
+          document.getElementById("tabmail")?.recentlyClosedTabs.length > 0
+        );
       case "cmd_stop":
         return window.MsgStatusFeedback?._meteorsSpinning;
       case "cmd_undo":
@@ -101,7 +103,7 @@ var DefaultController = {
         return !!chatHandler;
       case "cmd_newCard":
         return (
-          document.getElementById("tabmail").selectedTab.mode.name !=
+          document.getElementById("tabmail")?.selectedTab.mode.name !=
           "addressBookTab"
         );
     }

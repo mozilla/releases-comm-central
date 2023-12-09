@@ -507,8 +507,30 @@ function showChatTab() {
  * @param {"start"|"app"|"addressBook"|"calendar"|"export"} [tabId] - The tab
  *  to open in about:import.
  */
-function toImport(tabId = "start") {
-  const tab = toMessengerWindow().openTab("contentTab", {
+async function toImport(tabId = "start") {
+  const messengerWindow = toMessengerWindow();
+
+  if (messengerWindow.document.readyState != "complete") {
+    await new Promise(resolve => {
+      Services.obs.addObserver(
+        {
+          observe(subject) {
+            if (subject == messengerWindow) {
+              Services.obs.removeObserver(this, "mail-tabs-session-restored");
+              resolve();
+            }
+          },
+        },
+        "mail-tabs-session-restored"
+      );
+    });
+  }
+
+  if (messengerWindow.tabmail.globalOverlay) {
+    return null;
+  }
+
+  const tab = messengerWindow.openTab("contentTab", {
     url: "about:import",
     onLoad(event, browser) {
       if (tabId) {

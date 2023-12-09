@@ -1504,10 +1504,10 @@ function showTab(tabId, reset = false) {
  * Restart the import wizard. Resets all previous choices.
  */
 function restart() {
-  startController.reset();
-  profileController.reset();
-  addrBookController.reset();
-  calendarController.reset();
+  startController?.reset();
+  profileController?.reset();
+  addrBookController?.reset();
+  calendarController?.reset();
   Steps.backTo(0);
 }
 
