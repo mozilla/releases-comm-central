@@ -26,16 +26,14 @@ var tagName = "href";
 
 // dialog initialization code
 
+window.addEventListener("load", Startup);
+
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
 function Startup() {
   gActiveEditor = GetCurrentEditor();
-  if (!gActiveEditor) {
-    dump("Failed to get active editor!\n");
-    window.close();
-    return;
-  }
+
   // Message was wrapped in a <label> or <div>, so actual text is a child text node
   gDialog.linkTextCaption = document.getElementById("linkTextCaption");
   gDialog.linkTextMessage = document.getElementById("linkTextMessage");
@@ -104,8 +102,6 @@ function Startup() {
     // No existing link -- create a new one
     anchorElement = gActiveEditor.createElementWithDefaults(tagName);
     insertNew = true;
-    // Hide message about removing existing link
-    // document.getElementById("RemoveLinkMsg").hidden = true;
   }
   if (!anchorElement) {
     dump("Failed to get selected element or create a new one!\n");

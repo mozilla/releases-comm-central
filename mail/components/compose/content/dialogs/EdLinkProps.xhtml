@@ -1,115 +1,127 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % linkPropertiesDTD SYSTEM "chrome://messenger/locale/messengercompose/EditorLinkProperties.dtd">
+<!DOCTYPE html [ <!ENTITY % linkPropertiesDTD SYSTEM "chrome://messenger/locale/messengercompose/EditorLinkProperties.dtd">
 %linkPropertiesDTD;
 <!ENTITY % composeEditorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/mailComposeEditorOverlay.dtd">
 %composeEditorOverlayDTD;
 <!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
 %edDialogOverlay; ]>
-
-<window
-  title="&windowTitle.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   lightweightthemes="true"
-  onload="Startup()"
   style="min-height: 26em"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-  <dialog id="linkDlg" style="width: 50ch">
-    <script src="chrome://messenger/content/globalOverlay.js" />
-    <script src="chrome://global/content/editMenuOverlay.js" />
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <script src="chrome://messenger/content/messengercompose/EdLinkProps.js" />
-    <script src="chrome://messenger/content/messengercompose/EdImageLinkLoader.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
-
-    <vbox>
-      <html:fieldset>
-        <html:legend><label id="linkTextCaption" /></html:legend>
-        <vbox>
-          <label id="linkTextMessage" control="linkTextInput" />
-          <html:input
-            id="linkTextInput"
-            type="text"
-            class="input-inline"
-            aria-labelledby="linkTextMessage"
-          />
-        </vbox>
-      </html:fieldset>
-
-      <html:fieldset id="LinkURLBox">
-        <html:legend>&LinkURLBox.label;</html:legend>
-        <vbox id="LinkLocationBox">
-          <label
-            id="hrefLabel"
-            control="hrefInput"
-            accesskey="&LinkURLEditField2.accessKey;"
-            width="1"
-            >&LinkURLEditField2.label;</label
-          >
-          <html:input
-            id="hrefInput"
-            type="text"
-            class="input-inline uri-element padded"
-            oninput="ChangeLinkLocation();"
-            aria-labelledby="hrefLabel"
-          />
-          <hbox align="center">
-            <checkbox
-              id="MakeRelativeLink"
-              for="hrefInput"
-              label="&makeUrlRelative.label;"
-              accesskey="&makeUrlRelative.accessKey;"
-              oncommand="MakeInputValueRelativeOrAbsolute(this);"
-              tooltiptext="&makeUrlRelative.tooltip;"
+  <head>
+    <title>&windowTitle.label;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdImageLinkLoader.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdLinkProps.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog id="linkDlg" style="width: 50ch">
+      <spacer id="location" offsetY="50" persist="offsetX offsetY" />
+      <vbox>
+        <html:fieldset>
+          <html:legend><label id="linkTextCaption" /></html:legend>
+          <vbox>
+            <label id="linkTextMessage" control="linkTextInput" />
+            <html:input
+              id="linkTextInput"
+              type="text"
+              class="input-inline"
+              aria-labelledby="linkTextMessage"
             />
-            <spacer flex="1" />
-            <button
-              label="&chooseFileLinkButton.label;"
-              accesskey="&chooseFileLinkButton.accessKey;"
-              oncommand="chooseLinkFile();"
+          </vbox>
+        </html:fieldset>
+
+        <html:fieldset id="LinkURLBox">
+          <html:legend>&LinkURLBox.label;</html:legend>
+          <vbox id="LinkLocationBox">
+            <label
+              id="hrefLabel"
+              control="hrefInput"
+              accesskey="&LinkURLEditField2.accessKey;"
+              width="1"
+              >&LinkURLEditField2.label;</label
+            >
+            <html:input
+              id="hrefInput"
+              type="text"
+              class="input-inline uri-element padded"
+              oninput="ChangeLinkLocation();"
+              aria-labelledby="hrefLabel"
             />
-          </hbox>
-        </vbox>
-        <checkbox
-          id="AttachSourceToMail"
-          hidden="true"
-          label="&attachLinkSource.label;"
-          accesskey="&attachLinkSource.accesskey;"
-          oncommand="DoAttachSourceCheckbox()"
-        />
-      </html:fieldset>
-    </vbox>
-    <vbox id="AdvancedEdit">
-      <hbox flex="1" style="margin-top: 0.2em" align="center">
-        <!-- This will right-align the button -->
-        <spacer flex="1" />
-        <button
-          id="AdvancedEditButton1"
-          oncommand="onAdvancedEdit()"
-          label="&AdvancedEditButton.label;"
-          accesskey="&AdvancedEditButton.accessKey;"
-          tooltiptext="&AdvancedEditButton.tooltip;"
-        />
-      </hbox>
-      <separator id="advancedSeparator" class="groove" />
-    </vbox>
-  </dialog>
-</window>
+            <hbox align="center">
+              <button
+                label="&chooseFileLinkButton.label;"
+                accesskey="&chooseFileLinkButton.accessKey;"
+                oncommand="chooseLinkFile();"
+              />
+            </hbox>
+          </vbox>
+          <checkbox
+            id="AttachSourceToMail"
+            hidden="true"
+            label="&attachLinkSource.label;"
+            accesskey="&attachLinkSource.accesskey;"
+            oncommand="DoAttachSourceCheckbox()"
+          />
+        </html:fieldset>
+      </vbox>
+      <vbox id="AdvancedEdit">
+        <hbox flex="1" style="margin-top: 0.2em" align="center">
+          <!-- This will right-align the button -->
+          <spacer flex="1" />
+          <button
+            id="AdvancedEditButton1"
+            oncommand="onAdvancedEdit()"
+            label="&AdvancedEditButton.label;"
+            accesskey="&AdvancedEditButton.accessKey;"
+            tooltiptext="&AdvancedEditButton.tooltip;"
+          />
+        </hbox>
+        <separator id="advancedSeparator" class="groove" />
+      </vbox>
+    </dialog>
+  </html:body>
+</html>
