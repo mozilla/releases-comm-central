@@ -11,17 +11,12 @@ var gLinkElement = null;
 var gOriginalHref = "";
 var gHNodeArray = {};
 
-// dialog initialization code
-
+window.addEventListener("load", Startup);
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
 function Startup() {
   var editor = GetCurrentEditor();
-  if (!editor) {
-    window.close();
-    return;
-  }
 
   ImageStartup();
   gDialog.hrefInput = document.getElementById("hrefInput");

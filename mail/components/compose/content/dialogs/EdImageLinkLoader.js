@@ -11,6 +11,9 @@ var gMsgCompPrevInputValue = null;
 var gMsgCompPrevMozDoNotSendAttribute;
 var gMsgCompAttachSourceElement = null;
 
+window.addEventListener("load", OnLoadDialog);
+document.addEventListener("dialogaccept", OnAcceptDialog, true);
+
 function OnLoadDialog() {
   gMsgCompAttachSourceElement = document.getElementById("AttachSourceToMail");
   var editor = GetCurrentEditor();
@@ -42,7 +45,6 @@ function OnLoadDialog() {
     }
   }
 }
-addEventListener("load", OnLoadDialog, false);
 
 function OnAcceptDialog() {
   // Auto-convert file URLs to data URLs. If we're in the link properties
@@ -57,7 +59,6 @@ function OnAcceptDialog() {
   }
   DoAttachSourceCheckbox();
 }
-document.addEventListener("dialogaccept", OnAcceptDialog, true);
 
 function SetAttachCheckbox() {
   var resetCheckbox = false;

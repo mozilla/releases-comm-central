@@ -3,458 +3,466 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % edImageProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorImageProperties.dtd">
+<!DOCTYPE html [ <!ENTITY % edImageProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorImageProperties.dtd">
 %edImageProperties;
 <!ENTITY % composeEditorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/mailComposeEditorOverlay.dtd">
 %composeEditorOverlayDTD;
 <!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
 %edDialogOverlay; ]>
-
-<!-- dialog containing a control requiring initial setup -->
-<window
-  windowtype="Mail:image"
-  title="&windowTitle.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   style="min-height: 24em"
   lightweightthemes="true"
-  onload="Startup()"
+  windowtype="Mail:image"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/shared/grid-layout.css"
-  />
-
-  <dialog id="imageDlg" buttons="accept,cancel" style="width: 68ch">
-    <script src="chrome://messenger/content/globalOverlay.js" />
-    <script src="chrome://global/content/editMenuOverlay.js" />
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <script src="chrome://messenger/content/messengercompose/EdImageProps.js" />
-    <script src="chrome://messenger/content/messengercompose/EdImageDialog.js" />
-    <script src="chrome://messenger/content/messengercompose/EdImageLinkLoader.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
-
-    <tabbox id="TabBox">
-      <tabs flex="1">
-        <tab id="imageLocationTab" label="&imageLocationTab.label;" />
-        <tab id="imageDimensionsTab" label="&imageDimensionsTab.label;" />
-        <tab id="imageAppearanceTab" label="&imageAppearanceTab.label;" />
-        <tab id="imageLinkTab" label="&imageLinkTab.label;" />
-      </tabs>
-      <tabpanels>
-        <vbox id="imageLocation">
-          <spacer class="spacer" />
-          <label
-            id="srcLabel"
-            control="srcInput"
-            value="&locationEditField.label;"
-            accesskey="&locationEditField.accessKey;"
-            tooltiptext="&locationEditField.tooltip;"
-          />
-          <tooltip id="shortenedDataURI">
-            <label value="&locationEditField.shortenedDataURI;" />
-          </tooltip>
-          <html:input
-            id="srcInput"
-            type="text"
-            oninput="ChangeImageSrc();"
-            tabindex="1"
-            class="uri-element input-inline"
-            title="&locationEditField.tooltip;"
-            aria-labelledby="srcLabel"
-          />
-          <hbox id="MakeRelativeHbox">
-            <checkbox
-              id="MakeRelativeCheckbox"
-              tabindex="2"
-              label="&makeUrlRelative.label;"
-              accesskey="&makeUrlRelative.accessKey;"
-              oncommand="MakeInputValueRelativeOrAbsolute(this);"
-              tooltiptext="&makeUrlRelative.tooltip;"
+  <head>
+    <title>&windowTitle.label;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/grid-layout.css"
+    />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdImageDialog.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdImageProps.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdImageLinkLoader.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog id="imageDlg" buttons="accept,cancel" style="width: 68ch">
+      <spacer id="location" offsetY="50" persist="offsetX offsetY" />
+      <tabbox id="TabBox">
+        <tabs flex="1">
+          <tab id="imageLocationTab" label="&imageLocationTab.label;" />
+          <tab id="imageDimensionsTab" label="&imageDimensionsTab.label;" />
+          <tab id="imageAppearanceTab" label="&imageAppearanceTab.label;" />
+          <tab id="imageLinkTab" label="&imageLinkTab.label;" />
+        </tabs>
+        <tabpanels>
+          <vbox id="imageLocation">
+            <spacer class="spacer" />
+            <label
+              id="srcLabel"
+              control="srcInput"
+              value="&locationEditField.label;"
+              accesskey="&locationEditField.accessKey;"
+              tooltiptext="&locationEditField.tooltip;"
             />
-            <checkbox
-              id="AttachSourceToMail"
-              hidden="true"
-              label="&attachImageSource.label;"
-              accesskey="&attachImageSource.accesskey;"
-              oncommand="DoAttachSourceCheckbox()"
+            <tooltip id="shortenedDataURI">
+              <label value="&locationEditField.shortenedDataURI;" />
+            </tooltip>
+            <html:input
+              id="srcInput"
+              type="text"
+              oninput="ChangeImageSrc();"
+              tabindex="1"
+              class="uri-element input-inline"
+              title="&locationEditField.tooltip;"
+              aria-labelledby="srcLabel"
             />
-            <spacer flex="1" />
-            <button
-              id="ChooseFile"
-              tabindex="3"
-              oncommand="chooseFile()"
-              label="&chooseFileButton.label;"
-              accesskey="&chooseFileButton.accessKey;"
-            />
-          </hbox>
-          <spacer class="spacer" />
-          <radiogroup id="altTextRadioGroup" flex="1">
-            <hbox>
-              <vbox>
-                <hbox align="center" flex="1">
-                  <label
-                    id="titleLabel"
-                    style="margin-left: 26px"
-                    control="titleInput"
-                    accesskey="&title.accessKey;"
-                    value="&title.label;"
-                    tooltiptext="&title.tooltip;"
-                  />
-                </hbox>
-                <hbox align="center" flex="1">
-                  <radio
-                    id="altTextRadio"
-                    value="usealt-yes"
-                    label="&altText.label;"
-                    accesskey="&altText.accessKey;"
-                    tooltiptext="&altTextEditField.tooltip;"
-                    persist="selected"
-                    oncommand="SetAltTextDisabled(false);"
-                    tabindex="5"
-                  />
-                </hbox>
-              </vbox>
-              <vbox flex="1">
-                <html:input
-                  id="titleInput"
-                  type="text"
-                  class="MinWidth20em input-inline"
-                  title="&title.tooltip;"
-                  tabindex="4"
-                  aria-labelledby="titleLabel"
-                />
-                <html:input
-                  id="altTextInput"
-                  type="text"
-                  class="MinWidth20em input-inline"
-                  title="&altTextEditField.tooltip;"
-                  oninput="SetAltTextDisabled(false);"
-                  tabindex="6"
-                  aria-labelledby="altTextRadio"
-                />
-              </vbox>
-            </hbox>
-            <radio
-              id="noAltTextRadio"
-              value="usealt-no"
-              label="&noAltText.label;"
-              accesskey="&noAltText.accessKey;"
-              persist="selected"
-              oncommand="SetAltTextDisabled(true);"
-            />
-          </radiogroup>
-        </vbox>
-
-        <vbox id="imageDimensions" align="start">
-          <spacer class="spacer" />
-          <hbox>
-            <radiogroup id="imgSizeGroup">
-              <radio
-                id="actualSizeRadio"
-                label="&actualSizeRadio.label;"
-                accesskey="&actualSizeRadio.accessKey;"
-                tooltiptext="&actualSizeRadio.tooltip;"
-                oncommand="SetActualSize()"
-                value="actual"
+            <hbox id="MakeRelativeHbox">
+              <checkbox
+                id="AttachSourceToMail"
+                hidden="true"
+                label="&attachImageSource.label;"
+                accesskey="&attachImageSource.accesskey;"
+                oncommand="DoAttachSourceCheckbox()"
               />
+              <spacer flex="1" />
+              <button
+                id="ChooseFile"
+                tabindex="3"
+                oncommand="chooseFile()"
+                label="&chooseFileButton.label;"
+                accesskey="&chooseFileButton.accessKey;"
+              />
+            </hbox>
+            <spacer class="spacer" />
+            <radiogroup id="altTextRadioGroup" flex="1">
+              <hbox>
+                <vbox>
+                  <hbox align="center" flex="1">
+                    <label
+                      id="titleLabel"
+                      style="margin-left: 26px"
+                      control="titleInput"
+                      accesskey="&title.accessKey;"
+                      value="&title.label;"
+                      tooltiptext="&title.tooltip;"
+                    />
+                  </hbox>
+                  <hbox align="center" flex="1">
+                    <radio
+                      id="altTextRadio"
+                      value="usealt-yes"
+                      label="&altText.label;"
+                      accesskey="&altText.accessKey;"
+                      tooltiptext="&altTextEditField.tooltip;"
+                      persist="selected"
+                      oncommand="SetAltTextDisabled(false);"
+                      tabindex="5"
+                    />
+                  </hbox>
+                </vbox>
+                <vbox flex="1">
+                  <html:input
+                    id="titleInput"
+                    type="text"
+                    class="MinWidth20em input-inline"
+                    title="&title.tooltip;"
+                    tabindex="4"
+                    aria-labelledby="titleLabel"
+                  />
+                  <html:input
+                    id="altTextInput"
+                    type="text"
+                    class="MinWidth20em input-inline"
+                    title="&altTextEditField.tooltip;"
+                    oninput="SetAltTextDisabled(false);"
+                    tabindex="6"
+                    aria-labelledby="altTextRadio"
+                  />
+                </vbox>
+              </hbox>
               <radio
-                id="customSizeRadio"
-                label="&customSizeRadio.label;"
-                selected="true"
-                accesskey="&customSizeRadio.accessKey;"
-                tooltiptext="&customSizeRadio.tooltip;"
-                oncommand="doDimensionEnabling();"
-                value="custom"
+                id="noAltTextRadio"
+                value="usealt-no"
+                label="&noAltText.label;"
+                accesskey="&noAltText.accessKey;"
+                persist="selected"
+                oncommand="SetAltTextDisabled(true);"
               />
             </radiogroup>
-            <spacer flex="1" />
-            <vbox>
+          </vbox>
+
+          <vbox id="imageDimensions" align="start">
+            <spacer class="spacer" />
+            <hbox>
+              <radiogroup id="imgSizeGroup">
+                <radio
+                  id="actualSizeRadio"
+                  label="&actualSizeRadio.label;"
+                  accesskey="&actualSizeRadio.accessKey;"
+                  tooltiptext="&actualSizeRadio.tooltip;"
+                  oncommand="SetActualSize()"
+                  value="actual"
+                />
+                <radio
+                  id="customSizeRadio"
+                  label="&customSizeRadio.label;"
+                  selected="true"
+                  accesskey="&customSizeRadio.accessKey;"
+                  tooltiptext="&customSizeRadio.tooltip;"
+                  oncommand="doDimensionEnabling();"
+                  value="custom"
+                />
+              </radiogroup>
               <spacer flex="1" />
-              <checkbox
-                id="constrainCheckbox"
-                label="&constrainCheckbox.label;"
-                accesskey="&constrainCheckbox.accessKey;"
-                oncommand="ToggleConstrain()"
-                tooltiptext="&constrainCheckbox.tooltip;"
-              />
-            </vbox>
+              <vbox>
+                <spacer flex="1" />
+                <checkbox
+                  id="constrainCheckbox"
+                  label="&constrainCheckbox.label;"
+                  accesskey="&constrainCheckbox.accessKey;"
+                  oncommand="ToggleConstrain()"
+                  tooltiptext="&constrainCheckbox.tooltip;"
+                />
+              </vbox>
+              <spacer flex="1" />
+            </hbox>
+            <spacer class="spacer" />
+            <hbox class="indent">
+              <html:table>
+                <html:tr>
+                  <html:th>
+                    <label
+                      id="widthLabel"
+                      control="widthInput"
+                      accesskey="&widthEditField.accessKey;"
+                      value="&widthEditField.label;"
+                    />
+                  </html:th>
+                  <html:td>
+                    <html:input
+                      id="widthInput"
+                      type="number"
+                      min="0"
+                      class="narrow input-inline"
+                      oninput="constrainProportions(this.id,'heightInput')"
+                      aria-labelledby="widthLabel"
+                    />
+                  </html:td>
+                  <html:td>
+                    <menulist
+                      id="widthUnitsMenulist"
+                      oncommand="doDimensionEnabling();"
+                    />
+                  </html:td>
+                </html:tr>
+                <html:tr>
+                  <html:th>
+                    <label
+                      id="heightLabel"
+                      control="heightInput"
+                      accesskey="&heightEditField.accessKey;"
+                      value="&heightEditField.label;"
+                    />
+                  </html:th>
+                  <html:td>
+                    <html:input
+                      id="heightInput"
+                      type="number"
+                      min="0"
+                      class="narrow input-inline"
+                      oninput="constrainProportions(this.id,'widthInput')"
+                      aria-labelledby="heightLabel"
+                    />
+                  </html:td>
+                  <html:td>
+                    <menulist
+                      id="heightUnitsMenulist"
+                      oncommand="doDimensionEnabling();"
+                    />
+                  </html:td>
+                </html:tr>
+              </html:table>
+            </hbox>
             <spacer flex="1" />
-          </hbox>
-          <spacer class="spacer" />
-          <hbox class="indent">
+          </vbox>
+
+          <vbox id="imageAppearance">
+            <html:legend id="spacingLabel">&spacingBox.label;</html:legend>
             <html:table>
               <html:tr>
                 <html:th>
                   <label
-                    id="widthLabel"
-                    control="widthInput"
-                    accesskey="&widthEditField.accessKey;"
-                    value="&widthEditField.label;"
+                    id="leftrightLabel"
+                    class="align-right"
+                    control="imageleftrightInput"
+                    accesskey="&leftRightEditField.accessKey;"
+                    value="&leftRightEditField.label;"
                   />
                 </html:th>
                 <html:td>
                   <html:input
-                    id="widthInput"
+                    id="imageleftrightInput"
                     type="number"
                     min="0"
                     class="narrow input-inline"
-                    oninput="constrainProportions(this.id,'heightInput')"
-                    aria-labelledby="widthLabel"
+                    aria-labelledby="leftrightLabel"
                   />
                 </html:td>
-                <html:td>
-                  <menulist
-                    id="widthUnitsMenulist"
-                    oncommand="doDimensionEnabling();"
-                  />
+                <html:td id="leftrighttypeLabel"> &pixelsPopup.value; </html:td>
+                <html:td style="width: 80%">
+                  <spacer />
                 </html:td>
               </html:tr>
               <html:tr>
                 <html:th>
                   <label
-                    id="heightLabel"
-                    control="heightInput"
-                    accesskey="&heightEditField.accessKey;"
-                    value="&heightEditField.label;"
+                    id="topbottomLabel"
+                    class="align-right"
+                    control="imagetopbottomInput"
+                    accesskey="&topBottomEditField.accessKey;"
+                    value="&topBottomEditField.label;"
                   />
                 </html:th>
                 <html:td>
                   <html:input
-                    id="heightInput"
+                    id="imagetopbottomInput"
                     type="number"
                     min="0"
                     class="narrow input-inline"
-                    oninput="constrainProportions(this.id,'widthInput')"
-                    aria-labelledby="heightLabel"
+                    aria-labelledby="topbottomLabel"
                   />
                 </html:td>
+                <html:td id="topbottomtypeLabel"> &pixelsPopup.value; </html:td>
                 <html:td>
-                  <menulist
-                    id="heightUnitsMenulist"
-                    oncommand="doDimensionEnabling();"
+                  <spacer />
+                </html:td>
+              </html:tr>
+              <html:tr>
+                <html:th>
+                  <label
+                    id="borderLabel"
+                    class="align-right"
+                    control="border"
+                    accesskey="&borderEditField.accessKey;"
+                    value="&borderEditField.label;"
                   />
+                </html:th>
+                <html:td>
+                  <html:input
+                    id="border"
+                    type="number"
+                    min="0"
+                    class="narrow input-inline"
+                    aria-labelledby="borderLabel"
+                  />
+                </html:td>
+                <html:td id="bordertypeLabel"> &pixelsPopup.value; </html:td>
+                <html:td>
+                  <spacer />
                 </html:td>
               </html:tr>
             </html:table>
-          </hbox>
-          <spacer flex="1" />
-        </vbox>
-
-        <vbox id="imageAppearance">
-          <html:legend id="spacingLabel">&spacingBox.label;</html:legend>
-          <html:table>
-            <html:tr>
-              <html:th>
-                <label
-                  id="leftrightLabel"
-                  class="align-right"
-                  control="imageleftrightInput"
-                  accesskey="&leftRightEditField.accessKey;"
-                  value="&leftRightEditField.label;"
+            <separator class="thin" />
+            <html:legend id="alignLabel">&alignment.label;</html:legend>
+            <menulist id="alignTypeSelect" class="align-menu">
+              <menupopup>
+                <menuitem
+                  class="align-menu menuitem-iconic"
+                  value="top"
+                  label="&topPopup.value;"
                 />
-              </html:th>
-              <html:td>
-                <html:input
-                  id="imageleftrightInput"
-                  type="number"
-                  min="0"
-                  class="narrow input-inline"
-                  aria-labelledby="leftrightLabel"
+                <menuitem
+                  class="align-menu menuitem-iconic"
+                  value="middle"
+                  label="&centerPopup.value;"
                 />
-              </html:td>
-              <html:td id="leftrighttypeLabel"> &pixelsPopup.value; </html:td>
-              <html:td style="width: 80%">
-                <spacer />
-              </html:td>
-            </html:tr>
-            <html:tr>
-              <html:th>
-                <label
-                  id="topbottomLabel"
-                  class="align-right"
-                  control="imagetopbottomInput"
-                  accesskey="&topBottomEditField.accessKey;"
-                  value="&topBottomEditField.label;"
+                <menuitem
+                  class="align-menu menuitem-iconic"
+                  value="bottom"
+                  label="&bottomPopup.value;"
                 />
-              </html:th>
-              <html:td>
-                <html:input
-                  id="imagetopbottomInput"
-                  type="number"
-                  min="0"
-                  class="narrow input-inline"
-                  aria-labelledby="topbottomLabel"
+                <!-- HTML attribute value is opposite of the button label on purpose -->
+                <menuitem
+                  class="align-menu menuitem-iconic"
+                  value="right"
+                  label="&wrapLeftPopup.value;"
                 />
-              </html:td>
-              <html:td id="topbottomtypeLabel"> &pixelsPopup.value; </html:td>
-              <html:td>
-                <spacer />
-              </html:td>
-            </html:tr>
-            <html:tr>
-              <html:th>
-                <label
-                  id="borderLabel"
-                  class="align-right"
-                  control="border"
-                  accesskey="&borderEditField.accessKey;"
-                  value="&borderEditField.label;"
+                <menuitem
+                  class="align-menu menuitem-iconic"
+                  value="left"
+                  label="&wrapRightPopup.value;"
                 />
-              </html:th>
-              <html:td>
-                <html:input
-                  id="border"
-                  type="number"
-                  min="0"
-                  class="narrow input-inline"
-                  aria-labelledby="borderLabel"
-                />
-              </html:td>
-              <html:td id="bordertypeLabel"> &pixelsPopup.value; </html:td>
-              <html:td>
-                <spacer />
-              </html:td>
-            </html:tr>
-          </html:table>
-          <separator class="thin" />
-          <html:legend id="alignLabel">&alignment.label;</html:legend>
-          <menulist id="alignTypeSelect" class="align-menu">
-            <menupopup>
-              <menuitem
-                class="align-menu menuitem-iconic"
-                value="top"
-                label="&topPopup.value;"
+              </menupopup>
+            </menulist>
+            <separator class="thin" />
+            <html:legend id="imagemapLabel">&imagemapBox.label;</html:legend>
+            <html:div class="grid-two-column-equalsize">
+              <button
+                id="removeImageMap"
+                oncommand="removeImageMap()"
+                accesskey="&removeImageMapButton.accessKey;"
+                label="&removeImageMapButton.label;"
               />
-              <menuitem
-                class="align-menu menuitem-iconic"
-                value="middle"
-                label="&centerPopup.value;"
+              <spacer /><!-- remove when we restore Image Map Editor -->
+            </html:div>
+          </vbox>
+          <vbox>
+            <spacer class="spacer" />
+            <vbox id="LinkLocationBox">
+              <label
+                id="hrefLabel"
+                control="hrefInput"
+                accesskey="&LinkURLEditField2.accessKey;"
+                width="1"
+                >&LinkURLEditField2.label;</label
+              >
+              <html:input
+                id="hrefInput"
+                type="text"
+                class="uri-element padded input-inline"
+                oninput="ChangeLinkLocation();"
+                aria-labelledby="hrefLabel"
               />
-              <menuitem
-                class="align-menu menuitem-iconic"
-                value="bottom"
-                label="&bottomPopup.value;"
-              />
-              <!-- HTML attribute value is opposite of the button label on purpose -->
-              <menuitem
-                class="align-menu menuitem-iconic"
-                value="right"
-                label="&wrapLeftPopup.value;"
-              />
-              <menuitem
-                class="align-menu menuitem-iconic"
-                value="left"
-                label="&wrapRightPopup.value;"
-              />
-            </menupopup>
-          </menulist>
-          <separator class="thin" />
-          <html:legend id="imagemapLabel">&imagemapBox.label;</html:legend>
-          <html:div class="grid-two-column-equalsize">
-            <button
-              id="removeImageMap"
-              oncommand="removeImageMap()"
-              accesskey="&removeImageMapButton.accessKey;"
-              label="&removeImageMapButton.label;"
-            />
-            <spacer /><!-- remove when we restore Image Map Editor -->
-          </html:div>
-        </vbox>
-        <vbox>
-          <spacer class="spacer" />
-          <vbox id="LinkLocationBox">
-            <label
-              id="hrefLabel"
-              control="hrefInput"
-              accesskey="&LinkURLEditField2.accessKey;"
-              width="1"
-              >&LinkURLEditField2.label;</label
-            >
-            <html:input
-              id="hrefInput"
-              type="text"
-              class="uri-element padded input-inline"
-              oninput="ChangeLinkLocation();"
-              aria-labelledby="hrefLabel"
-            />
-            <hbox align="center">
+              <hbox align="center">
+                <spacer flex="1" />
+                <button
+                  label="&chooseFileLinkButton.label;"
+                  accesskey="&chooseFileLinkButton.accessKey;"
+                  oncommand="chooseLinkFile();"
+                />
+              </hbox>
+            </vbox>
+            <spacer class="spacer" />
+            <hbox>
               <checkbox
-                id="MakeRelativeLink"
-                for="hrefInput"
-                label="&makeUrlRelative.label;"
-                accesskey="&makeUrlRelative.accessKey;"
-                oncommand="MakeInputValueRelativeOrAbsolute(this);"
-                tooltiptext="&makeUrlRelative.tooltip;"
+                id="showLinkBorder"
+                label="&showImageLinkBorder.label;"
+                accesskey="&showImageLinkBorder.accessKey;"
+                oncommand="ToggleShowLinkBorder();"
               />
               <spacer flex="1" />
+            </hbox>
+            <separator class="thin" />
+            <hbox pack="end">
               <button
-                label="&chooseFileLinkButton.label;"
-                accesskey="&chooseFileLinkButton.accessKey;"
-                oncommand="chooseLinkFile();"
+                id="LinkAdvancedEditButton"
+                label="&LinkAdvancedEditButton.label;"
+                accesskey="&LinkAdvancedEditButton.accessKey;"
+                tooltiptext="&LinkAdvancedEditButton.tooltip;"
+                oncommand="onLinkAdvancedEdit();"
               />
             </hbox>
           </vbox>
-          <spacer class="spacer" />
-          <hbox>
-            <checkbox
-              id="showLinkBorder"
-              label="&showImageLinkBorder.label;"
-              accesskey="&showImageLinkBorder.accessKey;"
-              oncommand="ToggleShowLinkBorder();"
-            />
-            <spacer flex="1" />
-          </hbox>
-          <separator class="thin" />
-          <hbox pack="end">
-            <button
-              id="LinkAdvancedEditButton"
-              label="&LinkAdvancedEditButton.label;"
-              accesskey="&LinkAdvancedEditButton.accessKey;"
-              tooltiptext="&LinkAdvancedEditButton.tooltip;"
-              oncommand="onLinkAdvancedEdit();"
-            />
-          </hbox>
-        </vbox>
-      </tabpanels>
-    </tabbox>
+        </tabpanels>
+      </tabbox>
 
-    <spacer flex="1" />
+      <spacer flex="1" />
 
-    <html:fieldset id="imagePreview" hidden="hidden">
-      <html:legend>&previewBox.label;</html:legend>
+      <html:fieldset id="imagePreview" hidden="hidden">
+        <html:legend>&previewBox.label;</html:legend>
 
-      <html:figure>
-        <html:img id="preview-image" style="display: inline-block" alt="" />
-        <html:figcaption style="float: right">
-          <label value="&actualSize.label;" />
-          <label id="PreviewWidth" />x<label id="PreviewHeight" />
-        </html:figcaption>
-      </html:figure>
-    </html:fieldset>
+        <html:figure>
+          <html:img id="preview-image" style="display: inline-block" alt="" />
+          <html:figcaption style="float: right">
+            <label value="&actualSize.label;" />
+            <label id="PreviewWidth" />x<label id="PreviewHeight" />
+          </html:figcaption>
+        </html:figure>
+      </html:fieldset>
 
-    <hbox pack="end">
-      <button
-        id="AdvancedEditButton1"
-        oncommand="onAdvancedEdit()"
-        label="&AdvancedEditButton.label;"
-        accesskey="&AdvancedEditButton.accessKey;"
-        tooltiptext="&AdvancedEditButton.tooltip;"
-      />
-    </hbox>
+      <hbox pack="end">
+        <button
+          id="AdvancedEditButton1"
+          oncommand="onAdvancedEdit()"
+          label="&AdvancedEditButton.label;"
+          accesskey="&AdvancedEditButton.accessKey;"
+          tooltiptext="&AdvancedEditButton.tooltip;"
+        />
+      </hbox>
 
-    <separator class="groove" />
-  </dialog>
-</window>
+      <separator class="groove" />
+    </dialog>
+  </html:body>
+</html>
