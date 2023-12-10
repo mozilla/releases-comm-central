@@ -160,7 +160,6 @@
   locale/@AB_CD@/messenger/preferences/applications.properties          (%chrome/messenger/preferences/applications.properties)
   locale/@AB_CD@/messenger/preferences/applicationManager.properties    (%chrome/messenger/preferences/applicationManager.properties)
   locale/@AB_CD@/messenger/preferences/preferences.properties           (%chrome/messenger/preferences/preferences.properties)
-  locale/@AB_CD@/messenger/migration/migration.dtd                      (%chrome/messenger/migration/migration.dtd)
   locale/@AB_CD@/messenger/migration/migration.properties               (%chrome/messenger/migration/migration.properties)
   locale/@AB_CD@/messenger/activity.dtd                                 (%chrome/messenger/activity.dtd)
   locale/@AB_CD@/messenger/activity.properties                          (%chrome/messenger/activity.properties)

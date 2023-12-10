@@ -189,7 +189,6 @@
   "resource:///modules/MailtoProtocolHandler.jsm": "comm/mailnews/compose/src/MailtoProtocolHandler.jsm",
   "resource:///modules/MessageArchiver.jsm": "comm/mail/modules/MessageArchiver.jsm",
   "resource:///modules/MessageSend.jsm": "comm/mailnews/compose/src/MessageSend.jsm",
-  "resource:///modules/MessengerContentHandler.jsm": "comm/mail/components/MessengerContentHandler.jsm",
   "resource:///modules/MimeEncoder.jsm": "comm/mailnews/compose/src/MimeEncoder.jsm",
   "resource:///modules/MimeJSComponents.jsm": "comm/mailnews/mime/src/MimeJSComponents.jsm",
   "resource:///modules/MimeMessage.jsm": "comm/mailnews/compose/src/MimeMessage.jsm",
