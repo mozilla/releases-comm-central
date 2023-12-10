@@ -35,7 +35,7 @@ EXTRA_JS_MODULES += [
     "AboutRedirector.jsm",
     "AppIdleManager.jsm",
     "MailGlue.jsm",
-    "MessengerContentHandler.sys.mjs",
+    "MessengerContentHandler.jsm",
 ]
 
 if CONFIG["MOZ_DEBUG"] or CONFIG["NIGHTLY_BUILD"]:

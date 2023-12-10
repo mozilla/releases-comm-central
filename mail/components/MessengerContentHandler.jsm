@@ -3,8 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+var EXPORTED_SYMBOLS = [
+  "MessengerContentHandler",
+  "MessageDisplayContentHandler",
+];
 
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -187,34 +193,18 @@ function openURI(uri) {
   loader.openURI(channel, true, listener);
 }
 
-/**
- * Handles command line arguments.
- *
- * @implements {nsICommandLineHandler}
- * @implements {nsICommandLineValidator}
- * @implements {nsIContentHandler}
- * @implements {nsIProfileMigrator}
- * @implements {nsIFactory}
- */
-export class MessengerContentHandler {
-  QueryInterface = ChromeUtils.generateQI([
+function MailDefaultHandler() {}
+
+MailDefaultHandler.prototype = {
+  QueryInterface: ChromeUtils.generateQI([
     "nsICommandLineHandler",
     "nsICommandLineValidator",
-    "nsIContentHandler",
-    "nsIProfileMigrator",
     "nsIFactory",
-  ]);
+  ]),
 
-  static #isMigration = false;
+  /* nsICommandLineHandler */
 
-  /** @see {nsICommandLineHandler} */
   handle(cmdLine) {
-    // Migration is also handled by this class. But differently: the flag
-    // is already removed by toolkit. We don't want any other windows.
-    if (MessengerContentHandler.#isMigration) {
-      return;
-    }
-
     if (
       cmdLine.state == Ci.nsICommandLine.STATE_INITIAL_LAUNCH &&
       Services.startup.wasSilentlyStarted
@@ -661,9 +651,9 @@ export class MessengerContentHandler {
     } else {
       getOrOpen3PaneWindow();
     }
-  }
+  },
 
-  /** @see {nsICommandLineValidator} */
+  /* nsICommandLineValidator */
   validate(cmdLine) {
     var osintFlagIdx = cmdLine.findFlag("osint", false);
     if (osintFlagIdx == -1) {
@@ -697,15 +687,14 @@ export class MessengerContentHandler {
       }
       cmdLine.handleFlag("osint", false);
     }
-  }
+  },
 
   openInExternal(uri) {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(uri);
-  }
+  },
 
-  /** @see {nsIContentHandler} */
   handleContent(aContentType, aWindowContext, aRequest) {
     try {
       if (
@@ -731,39 +720,43 @@ export class MessengerContentHandler {
 
     this.openInExternal(aRequest.URI);
     aRequest.cancel(Cr.NS_BINDING_ABORTED);
-  }
+  },
 
-  /** @see {nsICommandLineHandle} */
-  helpInfo =
+  helpInfo:
     "  -mail              Go to the mail tab.\n" +
     "  -addressbook       Go to the address book tab.\n" +
     "  -calendar          Go to the calendar tab.\n" +
     "  -options           Go to the settings tab.\n" +
     "  -file              Open the specified email file or ICS calendar file.\n" +
     "  -setDefaultMail    Set this app as the default mail client.\n" +
-    "  -keymanager        Open the OpenPGP Key Manager.\n";
+    "  -keymanager        Open the OpenPGP Key Manager.\n",
 
-  /** @see {nsIProfileMigrator} */
-  migrate(startup, key, profileName) {
-    MessengerContentHandler.#isMigration = true;
-    getOrOpen3PaneWindow().then(win => {
-      win.toImport();
-      MessengerContentHandler.#isMigration = false;
-    });
-  }
+  /* nsIFactory */
 
-  /** @see {nsIFactory} */
   createInstance(iid) {
     return this.QueryInterface(iid);
+  },
+};
+
+function MessengerContentHandler() {
+  if (!gMessengerContentHandler) {
+    gMessengerContentHandler = this;
   }
+  return gMessengerContentHandler;
 }
+
+MessengerContentHandler.prototype = {
+  QueryInterface: ChromeUtils.generateQI(["nsIContentHandler"]),
+};
+
+var gMessengerContentHandler = new MailDefaultHandler();
 
 /**
  * Open a message/rfc822 or eml file in a new msg window.
  *
  * @implements {nsIContentHandler}
  */
-export class MessageDisplayContentHandler {
+class MessageDisplayContentHandler {
   QueryInterface = ChromeUtils.generateQI(["nsIContentHandler"]);
 
   handleContent(contentType, windowContext, request) {
