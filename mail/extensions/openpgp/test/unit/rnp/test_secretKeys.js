@@ -336,6 +336,38 @@ add_task(async function testNoSecretForExistingPublicSubkey() {
   Assert.ok(importResult.exitCode == 0);
 });
 
+add_task(async function testImportAndBackupUntweakedECCKey() {
+  const untweakedFile = do_get_file(`${keyDir}/untweaked-secret.asc`);
+  const untweakedSecKey = await IOUtils.readUTF8(untweakedFile.path);
+
+  const getGoodPasswordForTweaked = function (win, keyId, resultFlags) {
+    return "pass112233";
+  };
+
+  const importResult = await RNP.importSecKeyBlockImpl(
+    null,
+    getGoodPasswordForTweaked,
+    false,
+    untweakedSecKey
+  );
+
+  Assert.ok(importResult.exitCode == 0);
+  const fpr = "492965A6F56DAD2423B3506E849F29B0020707F7";
+
+  const backupPassword = "new-password-1234";
+  const backupKeyBlock = await RNP.backupSecretKeys([fpr], backupPassword);
+  const expectedString = "END PGP PRIVATE KEY BLOCK";
+
+  Assert.ok(
+    backupKeyBlock.includes(expectedString),
+    "backup of secret key should contain the string: " + expectedString
+  );
+
+  await RNP.deleteKey(fpr, true);
+
+  EnigmailKeyRing.clearCache();
+});
+
 // Sanity check for bug 1790610 and bug 1792450, test that our passphrase
 // reading code, which can run through repair code for corrupted profiles,
 // will not replace our existing and good data.
