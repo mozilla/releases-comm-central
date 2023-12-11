@@ -4142,7 +4142,10 @@ var threadPaneHeader = {
     this.displayButton = document.getElementById("threadPaneDisplayButton");
     this.displayContext = document.getElementById("threadPaneDisplayContext");
     this.displayButton.addEventListener("click", event => {
-      this.displayContext.openPopup(event.target, { triggerEvent: event });
+      this.displayContext.openPopup(event.target, {
+        position: "after_end",
+        triggerEvent: event,
+      });
     });
   },
 

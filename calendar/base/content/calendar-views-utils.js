@@ -460,7 +460,10 @@ function toggleShowCompletedInView() {
  */
 function showCalControlBarMenuPopup(event) {
   const moreContext = document.getElementById("calControlBarMenuPopup");
-  moreContext.openPopup(event.target, { triggerEvent: event });
+  moreContext.openPopup(event.target, {
+    position: "after_end",
+    triggerEvent: event,
+  });
 }
 
 /**

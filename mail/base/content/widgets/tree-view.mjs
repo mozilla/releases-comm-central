@@ -2440,7 +2440,10 @@ class TreeViewTableColumnPicker extends HTMLTableCellElement {
     });
 
     this.#button.addEventListener("click", event => {
-      this.#context.openPopup(event.target, { triggerEvent: event });
+      this.#context.openPopup(event.target, {
+        position: "after_end",
+        triggerEvent: event,
+      });
     });
   }
 
