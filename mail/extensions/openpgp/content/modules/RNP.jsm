@@ -212,13 +212,23 @@ class RnpPrivateKeyUnlockTracker {
    * unlocked.
    */
   unprotect() {
-    if (
-      !this.#rnpKeyHandle ||
-      !this.#isLocked ||
-      !this.#wasUnlocked ||
-      !this.#rememberUnlockPasswordForUnprotect
-    ) {
+    if (!this.#rnpKeyHandle) {
       return;
+    }
+
+    const is_protected = new lazy.ctypes.bool();
+    if (
+      RNPLib.rnp_key_is_protected(this.#rnpKeyHandle, is_protected.address())
+    ) {
+      throw new Error("rnp_key_is_protected failed");
+    }
+    if (!is_protected.value) {
+      return;
+    }
+
+    if (!this.#wasUnlocked || !this.#rememberUnlockPasswordForUnprotect) {
+      // This precondition ensures we have the correct password cached.
+      throw new Error("Key should have been unlocked already.");
     }
 
     if (RNPLib.rnp_key_unprotect(this.#rnpKeyHandle, this.#unlockPassword)) {

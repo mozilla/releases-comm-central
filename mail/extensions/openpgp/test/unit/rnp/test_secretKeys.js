@@ -336,6 +336,11 @@ add_task(async function testNoSecretForExistingPublicSubkey() {
   Assert.ok(importResult.exitCode == 0);
 });
 
+// Test that old ECC secret keys, which were created using older RNP
+// versions (as used in Thunderbird versions older then 91.8),
+// can be correctly backed up. This test ensures that we successfully
+// removed the key protection prior to the call to perform the
+// binary key tweaking.
 add_task(async function testImportAndBackupUntweakedECCKey() {
   const untweakedFile = do_get_file(`${keyDir}/untweaked-secret.asc`);
   const untweakedSecKey = await IOUtils.readUTF8(untweakedFile.path);
