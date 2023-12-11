@@ -93,20 +93,20 @@ function onAccept() {
 
   try {
     if (gDialog.editText.checked) {
-      editor.setShouldTxnSetSelection(false);
-
       while (labelElement.firstChild) {
-        editor.deleteNode(labelElement.firstChild);
+        editor.deleteNode(
+          labelElement.firstChild,
+          true /* preserve selection */
+        );
       }
       if (gDialog.labelText.value) {
         editor.insertNode(
           editor.document.createTextNode(gDialog.labelText.value),
           labelElement,
-          0
+          0,
+          true /* preserve selection */
         );
       }
-
-      editor.setShouldTxnSetSelection(true);
     }
 
     editor.cloneAttributes(labelElement, globalElement);

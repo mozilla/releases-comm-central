@@ -520,8 +520,9 @@ function PrependHeadElement(element) {
     var editor = GetCurrentEditor();
     try {
       // Use editor's undoable transaction
-      // XXX Here tried to prevent updating Selection with unknown 4th argument,
-      //     but nsIEditor.setShouldTxnSetSelection is not used for that.
+      // XXX Here tried to prevent updating Selection with unknown 4th argument
+      //     before bug 1764895, but nsIEditor.setShouldTxnSetSelection was not
+      //     used for that.
       editor.insertNode(element, head, 0);
     } catch (e) {}
   }
@@ -538,8 +539,9 @@ function AppendHeadElement(element) {
     var editor = GetCurrentEditor();
     try {
       // Use editor's undoable transaction
-      // XXX Here tried to prevent updating Selection with unknown 4th argument,
-      //     but nsIEditor.setShouldTxnSetSelection is not used for that.
+      // XXX Here tried to prevent updating Selection with unknown 4th argument
+      //     before bug 1764895, but nsIEditor.setShouldTxnSetSelection was not
+      //     used for that.
       editor.insertNode(element, head, position);
     } catch (e) {}
   }
@@ -768,26 +770,26 @@ function InsertElementAroundSelection(element) {
     }
 
     // Now insert the node
-    // XXX Here tried to prevent updating Selection with unknown 4th argument,
-    //     but nsIEditor.setShouldTxnSetSelection is not used for that.
+    // XXX Here tried to prevent updating Selection with unknown 4th argument
+    //     before bug 1764895, but nsIEditor.setShouldTxnSetSelection was not
+    //     used for that.
     editor.insertNode(element, range.commonAncestorContainer, offset);
     offset = element.childNodes.length;
-    if (!editor.nodeIsBlock(element)) {
-      editor.setShouldTxnSetSelection(false);
-    }
 
     // Move all the old child nodes to the element
+    const preserveSelection = !editor.nodeIsBlock(element);
     var empty = true;
     while (start != end) {
       var next = start.nextSibling;
-      editor.deleteNode(start);
-      editor.insertNode(start, element, element.childNodes.length);
+      editor.deleteNode(start, preserveSelection);
+      editor.insertNode(start, element, element.childNodes.length, preserveSelection);
       empty = false;
       start = next;
     }
-    if (!editor.nodeIsBlock(element)) {
-      editor.setShouldTxnSetSelection(true);
-    } else {
+    // FYI: nsIHTMLEditor.nodeIsBlock may return different value if it's moved
+    // or removed from the old position or the style has been changed.
+    // Therefore, the result may be different from `!preserveSelection`.
+    if (editor.nodeIsBlock(element)) {
       // Also move a trailing <br>
       if (start && start.localName == "br") {
         editor.deleteNode(start);

@@ -151,17 +151,21 @@ function onAccept() {
     // undoably set value
     var initialText = gDialog.textareaValue.value;
     if (initialText != textareaElement.value) {
-      editor.setShouldTxnSetSelection(false);
-
       while (textareaElement.hasChildNodes()) {
-        editor.deleteNode(textareaElement.lastChild);
+        editor.deleteNode(
+          textareaElement.lastChild,
+          true /* preserve selection */
+        );
       }
       if (initialText) {
         var textNode = editor.document.createTextNode(initialText);
-        editor.insertNode(textNode, textareaElement, 0);
+        editor.insertNode(
+          textNode,
+          textareaElement,
+          0,
+          true /* preserve selection */
+        );
       }
-
-      editor.setShouldTxnSetSelection(true);
     }
   } finally {
     editor.endTransaction();

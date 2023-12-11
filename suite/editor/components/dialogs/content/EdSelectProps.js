@@ -617,10 +617,11 @@ function onAccept() {
       editor.insertElementAtSelection(selectElement, true);
     }
 
-    editor.setShouldTxnSetSelection(false);
-
     while (selectElement.lastChild) {
-      editor.deleteNode(selectElement.lastChild);
+      editor.deleteNode(
+        selectElement.lastChild,
+        true /* preserver selection */
+      );
     }
 
     var offset = 0;
@@ -628,11 +629,14 @@ function onAccept() {
       if (itemArray[i].level > 1) {
         selectElement.lastChild.appendChild(itemArray[i].element);
       } else {
-        editor.insertNode(itemArray[i].element, selectElement, offset++);
+        editor.insertNode(
+          itemArray[i].element,
+          selectElement,
+          offset++,
+          true /* preserve selection */
+        );
       }
     }
-
-    editor.setShouldTxnSetSelection(true);
   } finally {
     editor.endTransaction();
   }

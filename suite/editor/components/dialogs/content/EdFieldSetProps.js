@@ -167,26 +167,31 @@ function onAccept() {
       }
       InsertElementAroundSelection(fieldsetElement);
     } else if (gDialog.editText.checked) {
-      editor.setShouldTxnSetSelection(false);
-
       if (gDialog.legendText.value) {
         if (newLegend) {
-          editor.insertNode(legendElement, fieldsetElement, 0);
+          editor.insertNode(
+            legendElement,
+            fieldsetElement,
+            0,
+            true /* preserve selection */
+          );
         } else {
           while (legendElement.firstChild) {
-            editor.deleteNode(legendElement.lastChild);
+            editor.deleteNode(
+              legendElement.lastChild,
+              true /* preserve selection */
+            );
           }
         }
         editor.insertNode(
           editor.document.createTextNode(gDialog.legendText.value),
           legendElement,
-          0
+          0,
+          true /* preserve selection */
         );
       } else if (!newLegend) {
-        editor.deleteNode(legendElement);
+        editor.deleteNode(legendElement, true /* preserve selection */);
       }
-
-      editor.setShouldTxnSetSelection(true);
     }
   } finally {
     editor.endTransaction();

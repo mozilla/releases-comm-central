@@ -173,9 +173,7 @@ function onAccept(event) {
       if (gImageMap && gInsertNewIMap) {
         // Insert the ImageMap element at beginning of document
         var body = editor.rootElement;
-        editor.setShouldTxnSetSelection(false);
-        editor.insertNode(gImageMap, body, 0);
-        editor.setShouldTxnSetSelection(true);
+        editor.insertNode(gImageMap, body, 0, true /* preserve selection */);
       }
     } catch (e) {}
 

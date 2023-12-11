@@ -302,9 +302,12 @@ function onAccept(event) {
 
           // Insert the anchor into the document,
           //  but don't let the transaction change the selection
-          gActiveEditor.setShouldTxnSetSelection(false);
-          gActiveEditor.insertNode(anchorNode, gHNodeArray[href], 0);
-          gActiveEditor.setShouldTxnSetSelection(true);
+          gActiveEditor.insertNode(
+            anchorNode,
+            gHNodeArray[href],
+            0,
+            true /* preserve selection */
+          );
         }
       }
       gActiveEditor.endTransaction();
