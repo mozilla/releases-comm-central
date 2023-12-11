@@ -122,7 +122,7 @@
                   oncommand="openQAUrl('https://treestatus.mozilla-releng.net/static/ui/treestatus/');"/>
         <menuseparator/>
         <menuitem label="Recent SeaMonkey website Checkins"
-                  oncommand="openQAUrl('https://hg.mozilla.org/SeaMonkey/seamonkey-project-org/pushloghtml?startdate=2+weeks+ago&amp;enddate=now');"/>
+                  oncommand="openQAUrl('https://foss.heptapod.net/seamonkey/website/activity/');"/>
         <menuitem label="Recent gitlab SeaMonkey website Checkins"
                   oncommand="openQAUrl('https://gitlab.com/seamonkey-project/website/activity/');"/>
         <menuseparator/>
