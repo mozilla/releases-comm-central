@@ -181,10 +181,6 @@ var notificationCallbacks = {
         return new cal.auth.Prompt();
       }
     }
-    if (iid.equals(Ci.nsIAuthPrompt)) {
-      // use the window watcher service to get a nsIAuthPrompt impl
-      return Services.ww.getNewAuthPrompter(null);
-    }
 
     throw Components.Exception(`${iid} not implemented`, Cr.NS_ERROR_NO_INTERFACE);
   },

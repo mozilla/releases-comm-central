@@ -880,16 +880,10 @@ class MsgIncomingServer {
     const outUsername = {};
     const outPassword = {};
     let ok;
-    let authPrompt;
-    try {
-      // This prompt has a checkbox for saving password.
-      authPrompt = Cc["@mozilla.org/messenger/msgAuthPrompt;1"].getService(
-        Ci.nsIAuthPrompt
-      );
-    } catch (e) {
-      // Often happens in tests. This prompt has no checkbox for saving password.
-      authPrompt = Services.ww.getNewAuthPrompter(null);
-    }
+    // This prompt has a checkbox for saving password.
+    const authPrompt = Cc["@mozilla.org/messenger/msgAuthPrompt;1"].getService(
+      Ci.nsIAuthPrompt
+    );
     if (this.username) {
       ok = authPrompt.promptPassword(
         promptTitle,

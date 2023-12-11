@@ -28,7 +28,6 @@
 #include "nsILineInputStream.h"
 
 #include "nsIMsgWindow.h"
-#include "nsIWindowWatcher.h"
 
 #include "nsNetUtil.h"
 #include "nsIAuthPrompt.h"
@@ -1063,10 +1062,7 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow* aMsgWindow,
     nsCOMPtr<nsIAuthPrompt> authPrompt =
         do_GetService("@mozilla.org/messenger/msgAuthPrompt;1");
     if (!authPrompt) {
-      nsCOMPtr<nsIWindowWatcher> wwatch(
-          do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-      if (wwatch) wwatch->GetNewAuthPrompter(0, getter_AddRefs(authPrompt));
-      if (!authPrompt) return NS_ERROR_FAILURE;
+      return NS_ERROR_FAILURE;
     }
 
     if (authPrompt) {
