@@ -6,7 +6,6 @@
 SOURCES += [
     "nsMailProfileMigratorUtils.cpp",
     "nsNetscapeProfileMigratorBase.cpp",
-    "nsProfileMigrator.cpp",
     "nsSeamonkeyProfileMigrator.cpp",
 ]
 

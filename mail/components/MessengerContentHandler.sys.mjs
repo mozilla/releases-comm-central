@@ -3,14 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = [
-  "MessengerContentHandler",
-  "MessageDisplayContentHandler",
-];
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -193,18 +187,32 @@ function openURI(uri) {
   loader.openURI(channel, true, listener);
 }
 
-function MailDefaultHandler() {}
+let isMigration = false;
 
-MailDefaultHandler.prototype = {
-  QueryInterface: ChromeUtils.generateQI([
+/**
+ * Handles command line arguments.
+ *
+ * @implements {nsICommandLineHandler}
+ * @implements {nsICommandLineValidator}
+ * @implements {nsIContentHandler}
+ * @implements {nsIFactory}
+ */
+export class MessengerContentHandler {
+  QueryInterface = ChromeUtils.generateQI([
     "nsICommandLineHandler",
     "nsICommandLineValidator",
+    // "nsIContentHandler", // Don't! FIXME: remove QI and implementation?
     "nsIFactory",
-  ]),
+  ]);
 
-  /* nsICommandLineHandler */
-
+  /** @see {nsICommandLineHandler} */
   handle(cmdLine) {
+    // Migration is also handled from command line. But differently: the flag
+    // is already removed by toolkit. We don't want any other windows.
+    if (isMigration) {
+      return;
+    }
+
     if (
       cmdLine.state == Ci.nsICommandLine.STATE_INITIAL_LAUNCH &&
       Services.startup.wasSilentlyStarted
@@ -651,9 +659,9 @@ MailDefaultHandler.prototype = {
     } else {
       getOrOpen3PaneWindow();
     }
-  },
+  }
 
-  /* nsICommandLineValidator */
+  /** @see {nsICommandLineValidator} */
   validate(cmdLine) {
     var osintFlagIdx = cmdLine.findFlag("osint", false);
     if (osintFlagIdx == -1) {
@@ -687,14 +695,15 @@ MailDefaultHandler.prototype = {
       }
       cmdLine.handleFlag("osint", false);
     }
-  },
+  }
 
   openInExternal(uri) {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(uri);
-  },
+  }
 
+  /** @see {nsIContentHandler} */
   handleContent(aContentType, aWindowContext, aRequest) {
     try {
       if (
@@ -720,43 +729,46 @@ MailDefaultHandler.prototype = {
 
     this.openInExternal(aRequest.URI);
     aRequest.cancel(Cr.NS_BINDING_ABORTED);
-  },
+  }
 
-  helpInfo:
+  /** @see {nsICommandLineHandle} */
+  helpInfo =
     "  -mail              Go to the mail tab.\n" +
     "  -addressbook       Go to the address book tab.\n" +
     "  -calendar          Go to the calendar tab.\n" +
     "  -options           Go to the settings tab.\n" +
     "  -file              Open the specified email file or ICS calendar file.\n" +
     "  -setDefaultMail    Set this app as the default mail client.\n" +
-    "  -keymanager        Open the OpenPGP Key Manager.\n",
+    "  -keymanager        Open the OpenPGP Key Manager.\n";
 
-  /* nsIFactory */
-
+  /** @see {nsIFactory} */
   createInstance(iid) {
     return this.QueryInterface(iid);
-  },
-};
-
-function MessengerContentHandler() {
-  if (!gMessengerContentHandler) {
-    gMessengerContentHandler = this;
   }
-  return gMessengerContentHandler;
 }
 
-MessengerContentHandler.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIContentHandler"]),
-};
+/*
+ * @implements {nsIProfileMigrator}
+ */
+export class MessengerProfileMigrator {
+  QueryInterface = ChromeUtils.generateQI(["nsIProfileMigrator"]);
 
-var gMessengerContentHandler = new MailDefaultHandler();
+  /** @see {nsIProfileMigrator} */
+  migrate(startup, key, profileName) {
+    isMigration = true;
+    getOrOpen3PaneWindow().then(win => {
+      win.toImport();
+      isMigration = false;
+    });
+  }
+}
 
 /**
  * Open a message/rfc822 or eml file in a new msg window.
  *
  * @implements {nsIContentHandler}
  */
-class MessageDisplayContentHandler {
+export class MessageDisplayContentHandler {
   QueryInterface = ChromeUtils.generateQI(["nsIContentHandler"]);
 
   handleContent(contentType, windowContext, request) {
