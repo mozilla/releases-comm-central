@@ -235,6 +235,13 @@ function displayMessage(uri, viewWrapper) {
       );
   }
 
+  if (gMessage.flags & Ci.nsMsgMessageFlags.Partial) {
+    document.body.classList.add("partial-message");
+  } else if (document.body.classList.contains("partial-message")) {
+    document.body.classList.remove("partial-message");
+    document.body.classList.add("completed-message");
+  }
+
   // @implements {nsIUrlListener}
   const urlListener = {
     OnStartRunningUrl(url) {},
