@@ -27,6 +27,12 @@
     "permissions": ["messagesRead"],
     "types": [
       {
+        "id": "MessageId",
+        "type": "integer",
+        "minimum": 1,
+        "description": "A unique id representing a :ref:`messages.MessageHeader` and the associated message. This id doesn’t refer to the Message-ID email header. It is an internal tracking number that does not remain after a restart. Nor does it follow an email that has been moved to a different folder."
+      },
+      {
         "id": "MessageHeader",
         "type": "object",
         "description": "Basic information about a message.",
@@ -73,8 +79,7 @@
             "type": "boolean"
           },
           "id": {
-            "type": "integer",
-            "minimum": 1
+            "$ref": "messages.MessageId"
           },
           "junk": {
             "description": "Whether the message has been marked as junk. Always <value>false</value> for news/nntp messages and external messages.",
@@ -427,7 +432,7 @@
         "parameters": [
           {
             "name": "messageId",
-            "type": "integer"
+            "$ref": "messages.MessageId"
           },
           {
             "type": "function",
@@ -449,7 +454,7 @@
         "parameters": [
           {
             "name": "messageId",
-            "type": "integer"
+            "$ref": "messages.MessageId"
           },
           {
             "type": "function",
@@ -471,7 +476,7 @@
         "parameters": [
           {
             "name": "messageId",
-            "type": "integer"
+            "$ref": "messages.MessageId"
           },
           {
             "name": "options",
@@ -525,7 +530,7 @@
         "parameters": [
           {
             "name": "messageId",
-            "type": "integer"
+            "$ref": "messages.MessageId"
           },
           {
             "type": "function",
@@ -550,7 +555,7 @@
         "parameters": [
           {
             "name": "messageId",
-            "type": "integer"
+            "$ref": "messages.MessageId"
           },
           {
             "name": "partName",
@@ -579,7 +584,7 @@
         "parameters": [
           {
             "name": "messageId",
-            "type": "integer"
+            "$ref": "messages.MessageId"
           },
           {
             "name": "partName",
@@ -776,8 +781,7 @@
         "parameters": [
           {
             "name": "messageId",
-            "type": "integer",
-            "minimum": 1
+            "$ref": "messages.MessageId"
           },
           {
             "name": "newProperties",
@@ -797,8 +801,7 @@
             "type": "array",
             "description": "The IDs of the messages to move.",
             "items": {
-              "type": "integer",
-              "minimum": 1
+              "$ref": "messages.MessageId"
             }
           },
           {
@@ -829,8 +832,7 @@
             "type": "array",
             "description": "The IDs of the messages to copy.",
             "items": {
-              "type": "integer",
-              "minimum": 1
+              "$ref": "messages.MessageId"
             }
           },
           {
@@ -861,8 +863,7 @@
             "type": "array",
             "description": "The IDs of the messages to delete.",
             "items": {
-              "type": "integer",
-              "minimum": 1
+              "$ref": "messages.MessageId"
             }
           },
           {
@@ -929,8 +930,7 @@
             "type": "array",
             "description": "The IDs of the messages to archive.",
             "items": {
-              "type": "integer",
-              "minimum": 1
+              "$ref": "messages.MessageId"
             }
           }
         ]

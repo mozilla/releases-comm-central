@@ -196,12 +196,12 @@ add_task(
           browser.test.assertEq("textAttachment", await file.text());
 
           await browser.test.assertRejects(
-            browser.messages.listAttachments(0),
+            browser.messages.listAttachments(100),
             /^Message not found: \d+\.$/,
             "Bad message ID should throw"
           );
           await browser.test.assertRejects(
-            browser.messages.getAttachmentFile(0, "1.2"),
+            browser.messages.getAttachmentFile(100, "1.2"),
             /^Message not found: \d+\.$/,
             "Bad message ID should throw"
           );

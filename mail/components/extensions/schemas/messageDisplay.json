@@ -113,9 +113,8 @@
                 "description": "The DOM file object of a message to be opened."
               },
               "messageId": {
-                "type": "integer",
+                "$ref": "messages.MessageId",
                 "optional": true,
-                "minimum": 1,
                 "description": "The id of a message to be opened. Will throw an <em>ExtensionError</em>, if the provided ``messageId`` is unknown or invalid."
               },
               "headerMessageId": {

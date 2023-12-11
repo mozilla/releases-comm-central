@@ -157,7 +157,7 @@
           },
           "relatedMessageId": {
             "description": "The id of the original message (in case of draft, template, forward or reply). Read-only. Is <value>null</value> in all other cases or if the original message was opened from file.",
-            "type": "integer",
+            "$ref": "messages.MessageId",
             "optional": true
           },
           "subject": {
@@ -498,9 +498,8 @@
           {
             "name": "messageId",
             "description": "If specified, the message or template to edit as a new message.",
-            "type": "integer",
-            "optional": true,
-            "minimum": 1
+            "$ref": "messages.MessageId",
+            "optional": true
           },
           {
             "name": "details",
@@ -529,8 +528,7 @@
           {
             "name": "messageId",
             "description": "The message to reply to, as retrieved using other APIs.",
-            "type": "integer",
-            "minimum": 1
+            "$ref": "messages.MessageId"
           },
           {
             "name": "replyType",
@@ -565,8 +563,7 @@
           {
             "name": "messageId",
             "description": "The message to forward, as retrieved using other APIs.",
-            "type": "integer",
-            "minimum": 1
+            "$ref": "messages.MessageId"
           },
           {
             "name": "forwardType",
