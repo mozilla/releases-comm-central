@@ -13,7 +13,7 @@
   --table-header-cell-icon-min-width: 24px;
   --table-row-cell-img-margin-inline-start: 6px;
   --table-row-cell-button-margin-inline-start: 4px;
-  --card-outline-offset: -2px;
+  --card-outline-offset: -3px;
   --selection-indicator-width: 4px;
 }
 
@@ -63,12 +63,22 @@
     --card-view-sender-color: var(--layout-color-1);
     --card-view-subject-color: var(--layout-color-2);
     --card-view-date-color: var(--layout-color-2);
+    --card-view-background-hover: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-blue-10)), color-mix(in srgb, var(--tree-view-bg) 60%, var(--color-blue-90)));
+    --card-view-background-selected-hover: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-blue-20)), color-mix(in srgb, var(--tree-view-bg) 50%, var(--color-blue-80)));
+    --card-view-background-selected-unfocused-hover: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-gray-30)), color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-gray-60)));
+    --card-view-background-unselected-focused: --card-view-background-hover;
     --card-view-background-selected-unfocused: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-gray-20)), color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-gray-70)));
-    --card-view-background-selected-focused: var(--listbox-hover);
+    --card-view-background-selected-focused: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-blue-10)), color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-blue-90)));
+    --card-view-offset-outline-color: light-dark(var(--color-blue-70), var(--color-blue-50));
+    --card-view-offset-outline-color-unselected: light-dark(var(--color-gray-50), var(--color-gray-70));
     --selection-indicator-background-selected-unfocused: light-dark(var(--color-gray-30), var(--color-gray-50));
     --selection-indicator-background-selected-focused: var(--color-blue-50);
+    --selection-indicator-background-unselected-focused: light-dark(var(--color-blue-10), var(--color-blue-90));
+    --selection-indicator-background-right-click: light-dark(var(--color-blue-20), var(--color-blue-80));
     --selection-indicator-border-selected-unfocused: light-dark(var(--color-gray-50), var(--color-gray-70));
     --selection-indicator-border-selected-focused: var(--color-blue-70);
+    --selection-indicator-border-unselected-focused: light-dark(var(--color-blue-20), var(--color-blue-80));
+    --selection-indicator-border-right-click: light-dark(var(--color-blue-30), var(--color-blue-70));
     --unread-color: var(--layout-color-0);
   }
 
@@ -102,8 +112,17 @@
     --listbox-border-type: solid;
     --card-view-color-selected-focused: SelectedItemText;
     --card-view-background-selected-focused: SelectedItem;
+    --card-view-offset-outline-color: SelectedItem;
+    --card-view-outline-selected-hover: SelectedItemText;
+    --card-view-offset-outline-color-unselected: SelectedItemText;
+    --card-view-background-selected-hover: color-mix(in srgb, var(--tree-view-bg) 20%, SelectedItem);
+    --card-view-background-unselected-focused: color-mix(in srgb, transparent 90%, var(--card-view-background-selected-focused));
     --selection-indicator-background-selected-unfocused: SelectedItem;
     --selection-indicator-background-selected-focused: SelectedItemText;
+    --selection-indicator-background-unselected-focused: SelectedItem;
+    --selection-indicator-background-right-click: SelectedItem;
+    --selection-indicator-border-selected-focused: SelectedItem;
+    --icon-color-prefers-contrast-selected-focused: SelectedItemText;
   }
 }
 
@@ -153,11 +172,32 @@
         outline-offset: var(--card-outline-offset);
       }
     }
+
     /* Thread card selection focused styles */
     &:focus > [is="thread-card"].selected,
     &:focus-within > [is="thread-card"].selected,
     & > [is="thread-card"].selected:focus-within {
       color: var(--card-view-color-selected-focused);
+      &:hover {
+        .thread-card-container {
+          outline-offset: var(--card-outline-offset);
+          outline: 1px var(--listbox-border-type) SelectedItemText;
+          border-radius: 1px;
+        }
+      }
+
+      & > td::before {
+        height: calc(100% - 2px);
+        border: 1px solid var(--selection-indicator-border-selected-focused);
+      }
+
+      img {
+        color: var(--icon-color-prefers-contrast-selected-focused);
+
+        .tag-icon {
+          fill: color-mix(in srgb, var(--icon-color-prefers-contrast-selected-focusedt) 40%, transparent);
+        }
+      }
     }
   }
 }
@@ -171,8 +211,8 @@
   color: var(--listbox-selected-color);
 }
 
-[is="tree-view-table-body"]:focus > .current:not(.selected),
-[is="tree-view-table-body"]:focus-within > .current:not(.selected) {
+[is="tree-view-table-body"]:focus > .current:not([is="thread-card"], .selected),
+[is="tree-view-table-body"]:focus-within > .current:not([is="thread-card"], .selected) {
   outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
   outline-offset: -1px;
 }
@@ -181,17 +221,39 @@
   &:focus,
   &:focus-within {
     & > [is="thread-card"].current:not(.selected) {
-      outline-offset: var(--card-outline-offset);
+      .thread-card-container {
+        outline-offset: var(--card-outline-offset);
+        outline: 1px var(--listbox-border-type) var(--card-view-offset-outline-color);
+        border-radius: 1px;
+      }
+
+      & > td::before {
+        background-color: var(--selection-indicator-background-unselected-focused);
+        border-color: var(--selection-indicator-border-unselected-focused);
+      }
     }
   }
 
-  tr.context-menu-target {
-    background-color: color-mix(in srgb, var(--treeitem-background-active) 10%, transparent);
-    outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
-    outline-offset: -1px;
+  /* Right click state styles */
+  tr.context-menu-target:not(.selected) {
+    &:not([is="thread-card"]) {
+      background-color: color-mix(in srgb, var(--treeitem-background-active) 10%, transparent);
+      outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
+      outline-offset: -1px;
+    }
 
     &[is="thread-card"] {
-      outline-offset: var(--card-outline-offset);
+      .thread-card-container {
+        outline-offset: var(--card-outline-offset);
+        outline: 1px var(--listbox-border-type) var(--card-view-offset-outline-color);
+        border-radius: 1px;
+        background-color: var(--card-view-background-unselected-focused);
+      }
+
+      & > td::before {
+        background-color: var(--selection-indicator-background-right-click);
+        border-color: var(--selection-indicator-border-right-click);
+      }
     }
   }
 
@@ -226,8 +288,18 @@
     color: currentColor;
   }
 
+  &:not(:focus, :focus-within) > [is="thread-card"].selected:not(:focus-within):hover {
+    &:not([data-properties~="thread-children"]) {
+      background-color: var(--card-view-background-selected-unfocused-hover);
+    }
+  }
+
   /* Thread card selection styles */
   & > [is="thread-card"] {
+    &:hover {
+      background-color: var(--card-view-background-hover);
+    }
+
     .thread-card-icon-info {
         color: var(--card-view-color);
       }
@@ -242,6 +314,11 @@
 
     .date {
       color: var(--card-view-date-color);
+    }
+
+    .thread-card-container {
+      margin-inline-start: calc(var(--selection-indicator-width) + 1px);
+      padding-inline-start: calc(23px - var(--selection-indicator-width));
     }
 
     img {
@@ -267,6 +344,10 @@
     &.selected {
       background: var(--card-view-background-selected-unfocused);
 
+      &:hover {
+        background-color: var(--card-view-background-selected-unfocused-hover);
+      }
+
       & > td::before {
         background-color: var(--selection-indicator-background-selected-unfocused);
         border-color: var(--selection-indicator-border-selected-unfocused);
@@ -279,10 +360,15 @@
   & > [is="thread-card"].selected:focus-within {
     background: var(--card-view-background-selected-focused);
 
+    &:hover {
+      background-color: var(--card-view-background-selected-hover);
+    }
+
     & > td::before {
       background-color: var(--selection-indicator-background-selected-focused);
       border-color: var(--selection-indicator-border-selected-focused);
     }
+
     & img {
       stroke: currentColor;
     }
@@ -296,8 +382,21 @@
       outline: 1px var(--listbox-border-type) var(--listbox-selected-color);
       outline-offset: -1px;
     }
-    & > [is="thread-card"].selected.current {
-      outline-offset: var(--card-outline-offset);
+
+    & > [is="thread-card"].current {
+      .thread-card-container {
+        outline-offset: var(--card-outline-offset);
+        outline: 1px var(--listbox-border-type);
+        border-radius: 1px;
+      }
+
+      &.selected > .thread-card-container {
+        outline-color: var(--card-view-offset-outline-color);
+      }
+
+      &:not(.selected) > .thread-card-container {
+        outline-color: var(---card-view-offset-outline-color-unselected);
+      }
     }
   }
 }
