@@ -2,7 +2,11 @@
 yamllint:
     description: YAML linter
     include:
-        - comm/
+        - comm/mail/config
+        - comm/taskcluster
+        - comm/.cron.yml
+        - comm/.gecko_rev.yml
+        - comm/.taskcluster.yml
     extensions: ['yml', 'yaml']
     support-files:
         - '**/.yamllint'

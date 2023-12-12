@@ -33,9 +33,8 @@ codespell:
         tier: 2
     run:
         mach: >
-            lint -v -l codespell -f treeherder
+            commlint -v -l codespell -f treeherder
             -f json:/builds/worker/mozlint.json
-            --config-path=comm/tools/lint
             comm/*
     optimization:
         skip-unless-mozlint:
@@ -70,9 +69,8 @@ file-perm:
         tier: 2
     run:
         mach: >
-            lint -v -l file-perm -f treeherder
+            commlint -v -l file-perm -f treeherder
             -f json:/builds/worker/mozlint.json
-            --config-path=comm/tools/lint
             comm/*
     optimization:
         skip-unless-mozlint:
@@ -89,9 +87,8 @@ file-whitespace:
         tier: 2
     run:
         mach: >
-            lint -v -l file-whitespace -f treeherder
+            commlint -v -l file-whitespace -f treeherder
             -f json:/builds/worker/mozlint.json
-            --config-path=comm/tools/lint
             comm/*
     optimization:
         skip-unless-mozlint:
@@ -104,9 +101,8 @@ fluent-lint:
         symbol: l10n(fluent)
     run:
         mach: >
-            lint -l fluent-lint -f treeherder
+            commlint -l fluent-lint -f treeherder
             -f json:/builds/worker/mozlint.json
-            --config-path=comm/tools/lint
             comm/*
     optimization:
         skip-unless-mozlint:
@@ -119,9 +115,8 @@ license:
         symbol: pedantic(license)
     run:
         mach: >
-            lint -v -l license -f treeherder
+            commlint -v -l license -f treeherder
             -f json:/builds/worker/mozlint.json
-            --config-path=comm/tools/lint
             comm/*
     optimization:
         skip-unless-mozlint:
@@ -136,9 +131,8 @@ l10n-conflicts:
     run-on-projects: []
     run:
         mach: >
-            lint -W -l l10n -f treeherder
+            commlint -W -l l10n -f treeherder
             -f json:/builds/worker/mozlint.json
-            --config-path=comm/tools/lint
             comm/*
     optimization:
         skip-unless-mozlint:
@@ -151,8 +145,7 @@ localization:
         symbol: l10n(l1nt)
     run:
         mach: >
-            lint -v -l l10n -f treeherder
-            --config-path=comm/tools/lint
+            commlint -v -l l10n -f treeherder
             comm/*
     attributes:
         code-review: false
@@ -167,9 +160,8 @@ lintpref:
         symbol: misc(pref)
     run:
         mach: >
-            lint -v -l lintpref -f treeherder
+            commlint -v -l lintpref -f treeherder
             -f json:/builds/worker/mozlint.json
-            --config-path=comm/tools/lint
             comm/*
     optimization:
         skip-unless-mozlint:
@@ -182,9 +174,8 @@ mingw-cap:
         symbol: misc(mingw)
     run:
         mach: >
-            lint -v -l mingw-capitalization -f treeherder
+            commlint -v -l mingw-capitalization -f treeherder
             -f json:/builds/worker/mozlint.json
-            --config-path=comm/tools/lint
             comm/*
     optimization:
         skip-unless-mozlint:
@@ -197,9 +188,8 @@ py-black:
         symbol: py(black)
     run:
         mach: >
-              lint -v -l black -f treeherder
+              commlint -v -l black -f treeherder
               -f json:/builds/worker/mozlint.json
-              --config-path=comm/tools/lint
               comm/*
     optimization:
         skip-unless-mozlint:
@@ -227,9 +217,8 @@ shellcheck:
     run-on-projects: []
     run:
         mach: >
-            lint -v -l shellcheck -f treeherder
+            commlint -v -l shellcheck -f treeherder
             -f json:/builds/worker/mozlint.json
-            --config-path=comm/tools/lint
             comm/*
     optimization:
         skip-unless-mozlint:
@@ -260,9 +249,8 @@ trojan-source:
         symbol: misc(trojan-source)
     run:
         mach: >
-              lint -v -l trojan-source -f treeherder
+              commlint -v -l trojan-source -f treeherder
               -f json:/builds/worker/mozlint.json
-              --config-path=comm/tools/lint
               comm/*
     optimization:
         skip-unless-mozlint:
@@ -275,9 +263,8 @@ yaml:
         symbol: pedantic(yaml)
     run:
         mach: >
-            lint -v -l yaml -f treeherder
+            commlint -v -l yaml -f treeherder
             -f json:/builds/worker/mozlint.json
-            --config-path=comm/tools/lint
             comm/mail/config
             comm/taskcluster
             comm/.*.yml
