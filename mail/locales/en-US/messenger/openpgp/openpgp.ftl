@@ -768,13 +768,6 @@ quoted-printable-warn =
 minimal-line-wrapping =
     You have set line wrapping to { $width } characters. For correct encryption and/or signing, this value needs to be at least 68.
     Do you wish to change line wrapping to 68 characters now?
-sending-news =
-    Encrypted send operation aborted.
-    This message cannot be encrypted because there are newsgroup recipients. Please re-send the message without encryption.
-send-to-news-warning =
-    Warning: you are about to send an encrypted email to a newsgroup.
-    This is discouraged because it only makes sense if all members of the group can decrypt the message, i.e. the message needs to be encrypted with the keys of all group participants. Please send this message only if you know exactly what you are doing.
-    Continue?
 save-attachment-header = Save decrypted attachment
 possibly-pgp-mime = Possibly PGP/MIME encrypted or signed message; use ‘Decrypt/Verify’ function to verify
 # Variables:

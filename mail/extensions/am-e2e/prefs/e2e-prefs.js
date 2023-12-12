@@ -210,10 +210,6 @@ pref("temp.openpgp.warnOnMissingOwnerTrust", true);
 // use GnuPG's default instead of Enigmail/Mozilla comment of for signed messages
 pref("temp.openpgp.useDefaultComment", true);
 
-// allow encryption to newsgroups
-pref("temp.openpgp.encryptToNews", false);
-pref("temp.openpgp.warnOnSendingNewsgroups", true);
-
 // holds the timestamp of the last check for GnuPG updates
 pref("temp.openpgp.gpgLastUpdate", "0");
 

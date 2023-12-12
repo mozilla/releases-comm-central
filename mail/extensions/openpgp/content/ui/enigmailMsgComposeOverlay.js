@@ -1516,7 +1516,6 @@ Enigmail.msg = {
 
     let optSendFlags = 0;
     const msgCompFields = gMsgCompose.compFields;
-    const newsgroups = msgCompFields.newsgroups;
 
     if (Services.prefs.getBoolPref("temp.openpgp.encryptToSelf")) {
       optSendFlags |= EnigmailConstants.SEND_ENCRYPT_TO_SELF;
@@ -1528,12 +1527,6 @@ Enigmail.msg = {
     if (userIdValue) {
       fromAddr = userIdValue;
     }
-
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.determineMsgRecipients:gMsgCompose=" +
-        gMsgCompose +
-        "\n"
-    );
 
     const splitRecipients = msgCompFields.splitRecipients;
 
@@ -1552,28 +1545,6 @@ Enigmail.msg = {
     if (msgCompFields.bcc.length > 0) {
       recList = splitRecipients(msgCompFields.bcc, true, arrLen);
       this.addRecipients(bccAddrList, recList);
-    }
-
-    if (newsgroups) {
-      toAddrList.push(newsgroups);
-
-      if (sendFlags & EnigmailConstants.SEND_ENCRYPTED) {
-        if (!Services.prefs.getBoolPref("temp.openpgp.encryptToNews")) {
-          document.l10n.formatValue("sending-news").then(value => {
-            EnigmailDialog.alert(window, value);
-          });
-          return false;
-        } else if (
-          !EnigmailDialog.confirmBoolPref(
-            window,
-            await l10nOpenPGP.formatValue("send-to-news-warning"),
-            "temp.openpgp.warnOnSendingNewsgroups",
-            await l10nOpenPGP.formatValue("msg-compose-button-send")
-          )
-        ) {
-          return false;
-        }
-      }
     }
 
     return {

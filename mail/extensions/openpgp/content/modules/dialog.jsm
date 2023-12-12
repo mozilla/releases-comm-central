@@ -142,62 +142,6 @@ var EnigmailDialog = {
     return result.value;
   },
 
-  /**
-   * Display a confirmation dialog with OK / Cancel buttons (both customizable) and
-   * a checkbox to remember the selected choice.
-   *
-   *
-   * @param {nsIWindow} win - Parent window to display modal dialog; can be null
-   * @param {mesg} - Mssage text
-   * @param {pref} - Full name of preference to read/store the future display status.
-   *
-   * @param {string} [okLabel] - Label for Ok button.
-   * @param {string} [cancelLabel] - Label for Cancel button.
-   *
-   * @returns {integer} 1: Ok pressed / 0: Cancel pressed / -1: ESC pressed
-   *
-   * If the dialog is not displayed:
-   *  - if @prefText is type Boolean: return 1
-   *  - if @prefText is type Number:  return the last choice of the user
-   */
-  confirmBoolPref(win, mesg, pref, okLabel, cancelLabel) {
-    var prefValue = Services.prefs.getBoolPref(pref);
-    // boolean: "do not show this dialog anymore" (and return default)
-    switch (prefValue) {
-      case true: {
-        // display
-        const checkBoxObj = {
-          value: false,
-        };
-        const buttonPressed = EnigmailDialog.msgBox(
-          win,
-          {
-            msgtext: mesg,
-            button1: okLabel
-              ? okLabel
-              : lazy.l10n.formatValueSync("dlg-button-ok"),
-            cancelButton: cancelLabel
-              ? cancelLabel
-              : lazy.l10n.formatValueSync("dlg-button-cancel"),
-            checkboxLabel: lazy.l10n.formatValueSync("dlg-no-prompt"),
-            iconType: lazy.EnigmailConstants.ICONTYPE_QUESTION,
-            dialogTitle: lazy.l10n.formatValueSync("enig-confirm"),
-          },
-          checkBoxObj
-        );
-
-        if (checkBoxObj.value) {
-          Services.prefs.setBoolPref(pref, false);
-        }
-        return buttonPressed === 0 ? 1 : 0;
-      }
-      case false: // don't display
-        return 1;
-      default:
-        return -1;
-    }
-  },
-
   confirmIntPref(win, mesg, pref, okLabel, cancelLabel) {
     const prefValue = Services.prefs.getIntPref(pref);
     // number: remember user's choice
