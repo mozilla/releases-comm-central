@@ -1,0 +1,90 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+[External="remote_settings"]
+typedef extern RemoteSettingsConfig;
+
+namespace suggest {
+
+boolean raw_suggestion_url_matches([ByRef] string raw_url, [ByRef] string url);
+
+};
+
+[Error]
+interface SuggestApiError {
+    Other(string reason);
+};
+
+enum SuggestionProvider {
+    "Amp",
+    "Pocket",
+    "Wikipedia",
+    "Amo",
+};
+
+[Enum]
+interface Suggestion {
+    Amp(
+        string title,
+        string url,
+        string raw_url,
+        sequence<u8>? icon,
+        string full_keyword,
+        i64 block_id,
+        string advertiser,
+        string iab_category,
+        string impression_url,
+        string click_url,
+        string raw_click_url
+    );
+    Pocket(
+        string title,
+        string url,
+        f64 score,
+        boolean is_top_pick
+    );
+    Wikipedia(
+        string title,
+        string url,
+        sequence<u8>? icon,
+        string full_keyword
+    );
+    Amo(
+        string title,
+        string url,
+        string icon_url,
+        string description,
+        string? rating,
+        i64 number_of_ratings,
+        string guid,
+        f64 score
+    );
+};
+
+dictionary SuggestionQuery {
+    string keyword;
+    sequence<SuggestionProvider> providers;
+    i32? limit = null;
+};
+
+dictionary SuggestIngestionConstraints {
+    u64? max_suggestions = null;
+};
+
+interface SuggestStore {
+    [Throws=SuggestApiError]
+    constructor([ByRef] string path, optional RemoteSettingsConfig? settings_config = null);
+
+    [Throws=SuggestApiError]
+    sequence<Suggestion> query(SuggestionQuery query);
+
+    void interrupt();
+
+    [Throws=SuggestApiError]
+    void ingest(SuggestIngestionConstraints constraints);
+
+    [Throws=SuggestApiError]
+    void clear();
+};
