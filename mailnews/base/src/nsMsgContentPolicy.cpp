@@ -30,6 +30,7 @@
 #include "nsSandboxFlags.h"
 #include "nsQueryObject.h"
 #include "mozilla/dom/WindowGlobalParent.h"
+#include "mozilla/SyncRunnable.h"
 #include "nsIObserverService.h"
 
 static const char kBlockRemoteImages[] =
@@ -196,7 +197,18 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
       // setting on a subdocument, so we don't worry about TYPE_SUBDOCUMENT
       // here.
 
-      rv = SetDisableItemsOnMailNewsUrlDocshells(aContentLocation, aLoadInfo);
+      if (NS_IsMainThread()) {
+        rv = SetDisableItemsOnMailNewsUrlDocshells(aContentLocation, aLoadInfo);
+      } else {
+        auto SetDisabling = [&, location = nsCOMPtr(aContentLocation),
+                             loadInfo = nsCOMPtr(aLoadInfo)]() -> auto {
+          rv = SetDisableItemsOnMailNewsUrlDocshells(location, loadInfo);
+        };
+        nsCOMPtr<nsIRunnable> task =
+            NS_NewRunnableFunction("SetDisabling", SetDisabling);
+        mozilla::SyncRunnable::DispatchToThread(
+            mozilla::GetMainThreadSerialEventTarget(), task);
+      }
       // if something went wrong during the tweaking, reject this content
       if (NS_FAILED(rv)) {
         NS_WARNING("Failed to set disable items on docShells");
