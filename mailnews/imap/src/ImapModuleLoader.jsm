@@ -107,6 +107,10 @@ ImapModuleLoader.prototype = {
       );
     } else {
       dump("[ImapModuleLoader] Using nsImapService.cpp\n");
+      // Ensure the imap protocol is actually registered.
+      Cc["@mozilla.org/network/protocol;1?name=imap"].getService(
+        Ci.nsIImapService
+      );
     }
   },
 };
