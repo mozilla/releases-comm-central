@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!-- -*- Mode: SGML; indent-tabs-mode: nil; -*- -->
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
@@ -21,7 +20,6 @@
     <link rel="stylesheet" href="chrome://messenger/skin/folderProps.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/folderColors.css" />
-
     <link rel="localization" href="messenger/folderprops.ftl" />
     <script
       defer="defer"
@@ -47,11 +45,7 @@
   <html:body
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
-    <!-- NOTE: The body both has a -moz-box display (from messenger.css). We give
-   - the child dialog a style `width` of `0` as a kind of "flex-basis". This
-   - ensures that sizeToContent (called in dialog.js) does not stretch the
-   - dialog to the max-content width of the xul:description elements. -->
-    <dialog id="folderPropertiesDialog" buttons="accept,cancel">
+    <dialog id="folderPropertiesDialog">
       <tabbox id="folderPropTabBox">
         <tabs id="folderPropTabs">
           <tab id="GeneralTab" label="&generalInfo.label;" />

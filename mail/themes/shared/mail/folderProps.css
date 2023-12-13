@@ -2,9 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#folderPropertiesDialog {
-  min-height: 25em;
-  max-width: 50em;
+html {
+  min-height: 370px;
+  min-width: 750px;
+}
+
+body {
+  height: 100vh;
+  margin: 0;
+}
+
+description {
+  max-width: 80vw;
 }
 
 #nameBox {
