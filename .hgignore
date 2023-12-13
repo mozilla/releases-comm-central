@@ -29,8 +29,8 @@
 \.cproject$
 \.settings/
 
-# Ignore the files and directory that JetBrains IDEs create.
-\.idea/
+# Ignore the files and directories that JetBrains IDEs create
+^\.idea/
 \.iml$
 
 # Ignore Storybook generated files
