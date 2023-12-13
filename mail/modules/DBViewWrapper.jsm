@@ -1193,13 +1193,17 @@ DBViewWrapper.prototype = {
     //  so no one else has to do this.
     dbView.QueryInterface(Ci.nsITreeView);
 
-    // clock through the rest of the sorts, if there are any
-    for (let iSort = this._sort.length - 2; iSort >= 0; iSort--) {
-      [sortType, sortOrder, sortCustomCol] = this._getSortDetails(iSort);
-      if (sortCustomCol) {
-        dbView.curCustomColumn = sortCustomCol;
+    // If Grouped By, the view has already been opened with the most specific
+    // sort (groups themselves are always sorted by date).
+    if (!(viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort)) {
+      // clock through the rest of the sorts, if there are any
+      for (let iSort = this._sort.length - 2; iSort >= 0; iSort--) {
+        [sortType, sortOrder, sortCustomCol] = this._getSortDetails(iSort);
+        if (sortCustomCol) {
+          dbView.curCustomColumn = sortCustomCol;
+        }
+        dbView.sort(sortType, sortOrder);
       }
-      dbView.sort(sortType, sortOrder);
     }
 
     return dbView;
