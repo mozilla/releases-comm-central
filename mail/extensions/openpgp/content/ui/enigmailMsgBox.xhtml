@@ -1,83 +1,75 @@
 <?xml version="1.0"?>
-<!--
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
--->
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-%brandDTD; ]>
-
-<window
-  title=""
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  buttons="accept,help,cancel,extra1,extra2"
-  onload="onLoad();"
+<!DOCTYPE html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  buttons="accept,help,cancel,extra1,extra2"
+  scrolling="false"
 >
-  <dialog id="enigmailMsgBox" buttonpack="center">
-    <script
-      type="application/x-javascript"
-      src="chrome://openpgp/content/ui/enigmailMsgBox.js"
+  <head>
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/openpgp/enigmail.css"
     />
-    <linkset>
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/messenger.css"
-      />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/contextMenu.css"
-      />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/openpgp/enigmail.css"
-      />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/shared/grid-layout.css"
-      />
-
-      <html:link rel="localization" href="messenger/openpgp/openpgp.ftl" />
-    </linkset>
-
-    <popupset>
-      <menupopup id="ctxmenu">
-        <menuitem
-          data-l10n-id="openpgp-copy-cmd-label"
-          oncommand="copyToClipbrd()"
-        />
-      </menupopup>
-    </popupset>
-
-    <hbox id="filler" style="min-width: 0%">
-      <spacer style="width: 29em" />
-    </hbox>
-
-    <html:div class="grid-two-column-fr">
-      <html:div class="flex-items-center">
-        <image id="infoImage" class="spaced" collapsed="true" />
-      </html:div>
-      <html:div class="flex-items-center">
-        <vbox id="infoContainer" pack="center">
-          <label
-            id="macosDialogTitle"
-            collapsed="true"
-            class="enigmailDialogTitle"
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/grid-layout.css"
+    />
+    <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+    <script
+      defer="defer"
+      src="chrome://openpgp/content/ui/enigmailMsgBox.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog id="enigmailMsgBox">
+      <popupset>
+        <menupopup id="ctxmenu">
+          <menuitem
+            data-l10n-id="openpgp-copy-cmd-label"
+            oncommand="copyToClipbrd()"
           />
-          <vbox id="msgContainer" style="max-width: 45em">
-            <description
-              id="msgtext"
-              context="ctxmenu"
-              noinitialfocus="true"
-              class="enigmailDialogBody"
+        </menupopup>
+      </popupset>
+
+      <hbox id="filler" style="min-width: 0%">
+        <spacer style="width: 29em" />
+      </hbox>
+
+      <html:div class="grid-two-column-fr">
+        <html:div class="flex-items-center">
+          <image id="infoImage" class="spaced" collapsed="true" />
+        </html:div>
+        <html:div class="flex-items-center">
+          <vbox id="infoContainer" pack="center">
+            <label
+              id="macosDialogTitle"
+              collapsed="true"
+              class="enigmailDialogTitle"
             />
+            <vbox id="msgContainer" style="max-width: 45em">
+              <description
+                id="msgtext"
+                context="ctxmenu"
+                noinitialfocus="true"
+                class="enigmailDialogBody"
+              />
+            </vbox>
           </vbox>
-        </vbox>
+        </html:div>
+        <html:div id="checkboxContainer" class="grid-item-col2" hidden="hidden">
+          <checkbox id="theCheckBox" oncommand="checkboxCb()" />
+        </html:div>
       </html:div>
-      <html:div id="checkboxContainer" class="grid-item-col2" hidden="hidden">
-        <checkbox id="theCheckBox" oncommand="checkboxCb()" />
-      </html:div>
-    </html:div>
-  </dialog>
-</window>
+    </dialog>
+  </html:body>
+</html>

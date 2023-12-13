@@ -10,6 +10,9 @@ var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
 
+window.addEventListener("load", onLoad);
+window.addEventListener("keypress", onKeyPress);
+
 function onLoad() {
   var dlg = document.getElementById("enigmailMsgBox");
   dlg.getButton("cancel").setAttribute("hidden", "true");
@@ -55,7 +58,7 @@ function onLoad() {
       t.removeAttribute("collapsed");
     }
 
-    dlg.setAttribute("title", args.dialogTitle);
+    document.title = args.dialogTitle;
   } else {
     document.l10n.setAttributes(dlg, "enig-alert-title");
   }
@@ -82,27 +85,6 @@ function onLoad() {
   dlg.getButton("accept").focus();
   const textbox = document.getElementById("msgtext");
   textbox.appendChild(textbox.ownerDocument.createTextNode(msgtext));
-
-  window.addEventListener("keypress", onKeyPress);
-  setTimeout(resizeDlg, 0);
-}
-
-function resizeDlg() {
-  const availHeight = screen.availHeight;
-  if (window.outerHeight > availHeight - 100) {
-    const box = document.getElementById("msgContainer");
-    const dlg = document.getElementById("enigmailMsgBox");
-    const btnHeight = dlg.getButton("accept").parentNode.clientHeight + 20;
-    const boxHeight = box.clientHeight;
-    const dlgHeight = dlg.clientHeight;
-
-    box.setAttribute("style", "overflow: auto;");
-    box.setAttribute(
-      "height",
-      boxHeight - btnHeight - (dlgHeight - availHeight)
-    );
-    window.resizeTo(window.outerWidth, availHeight);
-  }
 }
 
 function setButton(buttonId, label) {
