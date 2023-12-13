@@ -16,10 +16,8 @@
   --folder-pane-icon-more: var(--icon-more);
   --folder-pane-icon-download: var(--icon-cloud-download);
   --folder-pane-icon-kebab: var(--icon-kebab);
-}
 
-@media not (prefers-contrast) {
-  :root {
+  @media not (prefers-contrast) {
     --foldertree-background: var(--color-gray-05);
     --folderpane-unread-count-background: var(--color-gray-50);
     --folderpane-unread-count-text: var(--color-white);
@@ -31,10 +29,8 @@
     --treeitem-text-active: var(--color-white);
     --treeitem-background-active: var(--color-blue-50);
     --in-content-item-selected-unfocused: var(--color-gray-20);
-  }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
+    @media (prefers-color-scheme: dark) {
       --foldertree-background: var(--color-gray-80);
       --folderpane-unread-new-count-background: var(--color-blue-50);
       --folderpane-total-count-background: var(--color-gray-60);
@@ -49,46 +45,45 @@
       --in-content-focus-outline-color: #45a1ff;
     }
   }
-}
 
-@media (prefers-contrast) {
-  :root:not(:-moz-lwtheme) {
-    --folderpane-unread-count-background: var(--selected-item-color);
-    --folderpane-unread-count-text: var(--selected-item-text-color);
-    --folderpane-total-count-background: var(--selected-item-color);
-    --folderpane-total-count-text: var(--selected-item-text-color);
-    --folderpane-unread-new-count-background: ButtonShadow;
-    --treeitem-background-selected: transparent;
-    --treeitem-background-hover: transparent;
-    --treeitem-outline-hover: 2px solid var(--selected-item-color);
-    --treeitem-text-active: var(--selected-item-text-color);
-    --treeitem-background-active: var(--selected-item-color);
+  &[lwt-tree] {
+    --foldertree-background: var(--sidebar-background-color);
+    --treeitem-background-selected: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
+    --treeitem-background-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
+    --treeitem-text-active: var(--sidebar-highlight-text-color);
+    --treeitem-background-active: var(--sidebar-highlight-background-color);
+  }
+
+  &[uidensity="compact"] {
+    --folder-mode-name-padding: 3px;
+    --folder-tree-header-gap: 6px;
+    --folder-tree-header-padding: 4px 6px 3px;
+  }
+
+  &[uidensity="touch"] {
+    --folder-mode-name-padding: 9px;
+    --folder-tree-header-gap: 12px;
+    --folder-pane-icon-size: 20px;
+    --folder-pane-icon-new: var(--icon-add-md);
+    --folder-pane-icon-more: var(--icon-more-md);
+    --folder-pane-icon-download: var(--icon-cloud-download-md);
+  }
+
+  @media (prefers-contrast) {
+    &:not(:-moz-lwtheme) {
+      --folderpane-unread-count-background: var(--selected-item-color);
+      --folderpane-unread-count-text: var(--selected-item-text-color);
+      --folderpane-total-count-background: var(--selected-item-color);
+      --folderpane-total-count-text: var(--selected-item-text-color);
+      --folderpane-unread-new-count-background: ButtonShadow;
+      --treeitem-background-selected: transparent;
+      --treeitem-background-hover: transparent;
+      --treeitem-outline-hover: 2px solid var(--selected-item-color);
+      --treeitem-text-active: var(--selected-item-text-color);
+      --treeitem-background-active: var(--selected-item-color);
+    }
   }
 }
-
-:root[lwt-tree] {
-  --foldertree-background: var(--sidebar-background-color);
-  --treeitem-background-selected: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
-  --treeitem-background-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
-  --treeitem-text-active: var(--sidebar-highlight-text-color);
-  --treeitem-background-active: var(--sidebar-highlight-background-color);
-}
-
-:root[uidensity="compact"] {
-  --folder-mode-name-padding: 3px;
-  --folder-tree-header-gap: 6px;
-  --folder-tree-header-padding: 4px 6px 3px;
-}
-
-:root[uidensity="touch"] {
-  --folder-mode-name-padding: 9px;
-  --folder-tree-header-gap: 12px;
-  --folder-pane-icon-size: 20px;
-  --folder-pane-icon-new: var(--icon-add-md);
-  --folder-pane-icon-more: var(--icon-more-md);
-  --folder-pane-icon-download: var(--icon-cloud-download-md);
-}
-
 
 html {
   height: 100%;
@@ -103,6 +98,46 @@ body {
   --folderPaneSplitter-width: 18em;
   --messagePaneSplitter-width: 54em;
   --messagePaneSplitter-height: 36em;
+
+  /* Classic layout: folder tree on the left, thread tree and message browser on the right. */
+  &.layout-classic {
+    grid-template: "folders folderPaneSplitter threads" minmax(auto, 1fr)
+                   "folders folderPaneSplitter messagePaneSplitter" min-content
+                   "folders folderPaneSplitter message" minmax(auto, var(--messagePaneSplitter-height))
+                   / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
+  }
+
+  /* Vertical layout: three columns. */
+  &.layout-vertical {
+    grid-template: "folders folderPaneSplitter threads messagePaneSplitter message" auto
+                   / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr) min-content minmax(auto, var(--messagePaneSplitter-width));
+  }
+
+  /* Wide layout: folder tree and thread tree on the top, and message browser on the bottom. */
+  &.layout-wide {
+    grid-template: "folders folderPaneSplitter threads" minmax(auto, 1fr)
+                   "messagePaneSplitter messagePaneSplitter messagePaneSplitter" min-content
+                   "message message message" minmax(auto, var(--messagePaneSplitter-height))
+                   / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
+  }
+
+  /* If Account Central is shown, it overrides the layout setting. */
+  &.account-central {
+    grid-template: "folders folderPaneSplitter account-central" auto
+                   / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
+  }
+
+  &.account-central :is(
+    #threadPane,
+    #messagePaneSplitter,
+    #messagePane,
+  ) {
+    display: none;
+  }
+
+  &:not(.account-central) #accountCentralBrowser {
+    display: none;
+  }
 }
 
 /* Different layouts */
@@ -170,46 +205,6 @@ body {
   display: none;
 }
 
-/* Classic layout: folder tree on the left, thread tree and message browser on the right. */
-body.layout-classic {
-  grid-template: "folders folderPaneSplitter threads" minmax(auto, 1fr)
-                 "folders folderPaneSplitter messagePaneSplitter" min-content
-                 "folders folderPaneSplitter message" minmax(auto, var(--messagePaneSplitter-height))
-                 / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
-}
-
-/* Vertical layout: three columns. */
-body.layout-vertical {
-  grid-template: "folders folderPaneSplitter threads messagePaneSplitter message" auto
-                 / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr) min-content minmax(auto, var(--messagePaneSplitter-width));
-}
-
-/* Wide layout: folder tree and thread tree on the top, and message browser on the bottom. */
-body.layout-wide {
-  grid-template: "folders folderPaneSplitter threads" minmax(auto, 1fr)
-                 "messagePaneSplitter messagePaneSplitter messagePaneSplitter" min-content
-                 "message message message" minmax(auto, var(--messagePaneSplitter-height))
-                 / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
-}
-
-/* If Account Central is shown, it overrides the layout setting. */
-body.account-central {
-  grid-template: "folders folderPaneSplitter account-central" auto
-                 / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
-}
-
-body.account-central :is(
-  #threadPane,
-  #messagePaneSplitter,
-  #messagePane,
-) {
-  display: none;
-}
-
-body:not(.account-central) #accountCentralBrowser {
-  display: none;
-}
-
 /* Folder tree pane. */
 
 #folderPaneHeaderBar:not([hidden]) {
@@ -255,57 +250,261 @@ body:not(.account-central) #accountCentralBrowser {
   background-image: var(--folder-pane-icon-new);
 }
 
-#folderTree,
-#folderTree ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  --depth: 0;
-  --indent: calc(16px * var(--depth));
-}
+#folderTree {
+  &,
+  & ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    --depth: 0;
+    --indent: calc(16px * var(--depth));
+  }
 
-#folderTree ul {
-  overflow: hidden;
-  height: auto;
-}
+  & ul {
+    overflow: hidden;
+    height: auto;
+  }
 
-#folderTree:focus-visible {
-  outline: none;
-}
+  &:focus-visible {
+    outline: none;
+  }
 
-#folderTree li[data-mode] {
-  margin-bottom: 3px;
-}
+  & li[data-mode] {
+    margin-bottom: 3px;
+  }
 
-#folderTree > li:not(:first-of-type) > .mode-container {
-  justify-content: space-between;
-  border-top: 1px solid var(--sidebar-border-color, var(--splitter-color));
-}
+  #folderPaneHeaderBar[hidden] + & > li.unselectable:first-of-type > .mode-container {
+    border-top-style: none;
+  }
 
-#folderTree > li.unselectable > .mode-container {
-  margin: 0;
-  border-radius: 0;
-}
+  &:focus-within li.selected > .container,
+  & li.drop-target > .container {
+    background-color: var(--treeitem-background-active);
+    color: var(--treeitem-text-active);
+  }
 
-#folderTree > li.unselectable > .mode-container:hover {
-  background-color: transparent;
-}
+  & .icon {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    background-image: var(--icon-folder);
+    background-repeat: no-repeat;
+    --icon-color: var(--folder-color-folder);
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, var(--icon-color, var(--folder-color-folder)) 20%, transparent);
+    stroke: var(--icon-color, var(--folder-color-folder));
+  }
 
-#folderTree > li > .mode-container > .mode-name {
-  font-weight: 600;
-  font-size: 1.1rem;
-  min-height: initial;
-  padding-block: var(--folder-mode-name-padding);
-  padding-inline-start: 12px;
-  flex: 1;
-}
+  & li {
+    & .twisty {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--list-item-buttons-size);
+      height: var(--list-item-buttons-size);
+    }
 
-#folderTree > li > .mode-container > .mode-button {
-  background-image: var(--icon-kebab);
-}
+    &:not(.children) .twisty-icon {
+      display: none;
+    }
 
-#folderPaneHeaderBar[hidden] + #folderTree > li.unselectable:first-of-type > .mode-container {
-  border-top-style: none;
+    &.children.collapsed {
+      & > .container .twisty-icon {
+        transform: rotate(-90deg);
+      }
+
+      &:dir(rtl) > .container .twisty-icon {
+        transform: rotate(90deg);
+      }
+    }
+
+    &[data-server-type] > .container > .icon {
+      --icon-color: var(--primary);
+    }
+
+    &:is([data-server-type="imap"], [data-server-type="pop3"]) > .container > .icon {
+      background-image: var(--icon-mail);
+    }
+
+    &:is([data-server-type="imap"], [data-server-type="pop3"])[data-server-secure="true"]
+      > .container > .icon {
+      background-image: var(--icon-mail-secure);
+    }
+
+    &[data-server-type="none"] > .container > .icon {
+      background-image: var(--icon-folder);
+    }
+
+    &[data-server-type="nntp"] > .container > .icon {
+      background-image: var(--icon-globe);
+    }
+
+    &[data-server-type="nntp"][data-server-secure="true"] > .container > .icon {
+      background-image: var(--icon-globe-secure);
+    }
+
+    &[data-server-type="rss"] > .container > .icon {
+      background-image: var(--icon-rss);
+    }
+
+    &[data-server-type="rss"] > ul > li:not([data-folder-type], [data-is-busy="true"]) .icon {
+      --icon-color: currentColor;
+      fill: var(--icon-color);
+    }
+
+    &[data-folder-type="archive"] > .container > .icon {
+      background-image: var(--icon-archive);
+      --icon-color: var(--folder-color-archive);
+    }
+
+    &[data-folder-type="drafts"] > .container > .icon {
+      background-image: var(--icon-draft);
+      --icon-color: var(--folder-color-draft);
+    }
+
+    &[data-folder-type="inbox"] > .container > .icon {
+      background-image: var(--icon-inbox);
+      --icon-color: var(--folder-color-inbox);
+    }
+
+    &[data-folder-type="junk"] > .container > .icon {
+      background-image: var(--icon-spam);
+      --icon-color: var(--folder-color-spam);
+    }
+
+    &[data-folder-type="outbox"] > .container > .icon {
+      background-image: var(--icon-outbox);
+      --icon-color: var(--folder-color-outbox);
+    }
+
+    &[data-folder-type="sent"] > .container > .icon {
+      background-image: var(--icon-sent);
+      --icon-color: var(--folder-color-sent);
+    }
+
+    &[data-folder-type="templates"] > .container > .icon {
+      background-image: var(--icon-template);
+      --icon-color: var(--folder-color-template);
+    }
+
+    &[data-folder-type="trash"] > .container > .icon {
+      background-image: var(--icon-trash);
+      --icon-color: var(--folder-color-trash);
+    }
+
+    &[data-folder-type="virtual"] > .container > .icon {
+      background-image: var(--icon-folder-filter);
+      --icon-color: var(--folder-color-folder-filter);
+    }
+
+    &[data-server-type="nntp"] ul .icon {
+      background-image: var(--icon-newsletter);
+      --icon-color: var(--folder-color-newsletter);
+    }
+
+    &[data-is-paused="true"] > .container > .icon,
+    &[data-is-paused="true"] > .container > .name,
+    &[data-is-paused="true"] ul > li > .container > .icon,
+    &[data-is-paused="true"] ul > li > .container > .name {
+      opacity: 0.6;
+    }
+
+    &[data-is-busy="true"] > .container > .icon {
+      content: var(--icon-clock) !important;
+      background-image: none;
+      --icon-color: var(--button-primary-background-color);
+
+      @media (prefers-reduced-motion: no-preference) {
+        content: var(--icon-loading) !important;
+        animation: activity-indicator-3pane 1.05s steps(30) infinite;
+        object-fit: cover;
+        object-position: 0px 0;
+      }
+    }
+
+    &[data-has-error="true"] > .container > .icon {
+      content: var(--icon-warning) !important;
+      background-image: none;
+      fill: var(--color-amber-30);
+      stroke: var(--color-amber-60);
+    }
+
+    &[data-tag-key] > .container > .icon {
+      background-image: var(--icon-tag);
+    }
+
+    &[data-server-type] > .container > .name {
+      font-weight: bold;
+    }
+  }
+
+  &:focus-within li {
+    &.selected > .container {
+      & > .icon {
+        --icon-color: currentColor !important; /* Override the user customized folder color. */
+      }
+
+      & > .unread-count {
+        background-color: var(--folderpane-unread-count-text);
+        color: var(--treeitem-background-active);
+      }
+
+      & > .folder-size {
+        color: currentColor;
+      }
+    }
+
+    &.noselect-folder.selected > .container > .name {
+      opacity: 0.8;
+    }
+
+    &.selected.new-messages > .container > .name {
+      color: currentColor;
+    }
+
+    &.selected.unread.children.collapsed > .container > .unread-count {
+      color: var(--folderpane-unread-count-text);
+      background-color: transparent;
+      border-color: var(--folderpane-unread-count-text);
+    }
+  }
+
+  & > li {
+    &:not(:first-of-type) > .mode-container {
+      justify-content: space-between;
+      border-top: 1px solid var(--sidebar-border-color, var(--splitter-color));
+    }
+
+    &.unselectable > .mode-container {
+      margin: 0;
+      border-radius: 0;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    & > .mode-container {
+      & > .mode-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        min-height: initial;
+        padding-block: var(--folder-mode-name-padding);
+        padding-inline-start: 12px;
+        flex: 1;
+      }
+
+      & > .mode-button {
+        background-image: var(--icon-kebab);
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    & .twisty-icon {
+      transition: transform var(--transition-duration) var(--transition-timing);
+    }
+  }
 }
 
 .mode-container:not([hidden]) {
@@ -322,204 +521,42 @@ body:not(.account-central) #accountCentralBrowser {
   fill: currentColor;
   cursor: default;
   padding-inline-start: var(--indent);
-}
 
-li.selected > .container {
-  background-color: var(--treeitem-background-selected);
-}
+  li.selected > & {
+    background-color: var(--treeitem-background-selected);
+  }
 
-li:not(.selected) > .container:hover {
-  background-color: var(--treeitem-background-hover);
-}
+  li:not(.selected) > &:hover {
+    background-color: var(--treeitem-background-hover);
+  }
 
-@media (prefers-contrast) {
-  li:not(:focus-visible) > .container:hover {
-    outline: var(--treeitem-outline-hover);
-    outline-offset: -2px;
+  @media (prefers-contrast) {
+    li:not(:focus-visible) > &:hover {
+      outline: var(--treeitem-outline-hover);
+      outline-offset: -2px;
+    }
+  }
+
+  li.context-menu-target:not(.selected) > &,
+  li.context-menu-target:not(.selected) > &:hover {
+    background-color: color-mix(in srgb, var(--treeitem-background-active) 10%, transparent);
+    outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
+    outline-offset: -1px;
+  }
+
+  .new-messages:not([data-server-type]) > & > .icon::after {
+    position: absolute;
+    content: var(--icon-sparkle-star-xs);
+    inset-inline-start: -4px;
+    inset-block-start: -4px;
+    -moz-context-properties: fill, stroke;
+    fill: var(--color-yellow-30);
+    stroke: var(--color-amber-50);
   }
 }
 
-li.context-menu-target:not(.selected) > .container,
-li.context-menu-target:not(.selected) > .container:hover {
-  background-color: color-mix(in srgb, var(--treeitem-background-active) 10%, transparent);
-  outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
-  outline-offset: -1px;
-}
-
-#folderTree:focus-within li.selected > .container,
-#folderTree li.drop-target > .container {
-  background-color: var(--treeitem-background-active);
-  color: var(--treeitem-text-active);
-}
-
-#folderTree li .twisty {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--list-item-buttons-size);
-  height: var(--list-item-buttons-size);
-}
-
-#folderTree li:not(.children) .twisty-icon {
-  display: none;
-}
-
-#folderTree li.children.collapsed > .container .twisty-icon {
-  transform: rotate(-90deg);
-}
-
-#folderTree li.children.collapsed:dir(rtl) > .container .twisty-icon {
-  transform: rotate(90deg);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  #folderTree .twisty-icon {
-    transition: transform var(--transition-duration) var(--transition-timing);
-  }
-}
-
-#folderTree .icon {
-  position: relative;
-  width: 16px;
-  height: 16px;
-  background-image: var(--icon-folder);
-  background-repeat: no-repeat;
-  --icon-color: var(--folder-color-folder);
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, var(--icon-color, var(--folder-color-folder)) 20%, transparent);
-  stroke: var(--icon-color, var(--folder-color-folder));
-}
-
-.new-messages:not([data-server-type]) > .container > .icon::after {
-  position: absolute;
-  content: var(--icon-sparkle-star-xs);
-  inset-inline-start: -4px;
-  inset-block-start: -4px;
-  -moz-context-properties: fill, stroke;
-  fill: var(--color-yellow-30);
-  stroke: var(--color-amber-50);
-}
-
-#folderTree:focus-within li.selected > .container > .icon {
-  --icon-color: currentColor !important; /* Override the user customized folder color. */
-}
-
-#folderTree li[data-server-type] > .container > .icon {
-  --icon-color: var(--primary);
-}
-
-#folderTree li:is([data-server-type="imap"], [data-server-type="pop3"]) > .container > .icon {
-  background-image: var(--icon-mail);
-}
-
-#folderTree li:is([data-server-type="imap"], [data-server-type="pop3"])[data-server-secure="true"]
-  > .container > .icon {
-  background-image: var(--icon-mail-secure);
-}
-
-#folderTree li[data-server-type="none"] > .container > .icon {
-  background-image: var(--icon-folder);
-}
-
-#folderTree li[data-server-type="nntp"] > .container > .icon {
-  background-image: var(--icon-globe);
-}
-
-#folderTree li[data-server-type="nntp"][data-server-secure="true"] > .container > .icon {
-  background-image: var(--icon-globe-secure);
-}
-
-#folderTree li[data-server-type="rss"] > .container > .icon {
-  background-image: var(--icon-rss);
-}
-
-#folderTree li[data-server-type="rss"] > ul > li:not([data-folder-type], [data-is-busy="true"]) .icon {
-  --icon-color: currentColor;
-  fill: var(--icon-color);
-}
-
-#folderTree li[data-folder-type="archive"] > .container > .icon {
-  background-image: var(--icon-archive);
-  --icon-color: var(--folder-color-archive);
-}
-
-#folderTree li[data-folder-type="drafts"] > .container > .icon {
-  background-image: var(--icon-draft);
-  --icon-color: var(--folder-color-draft);
-}
-
-#folderTree li[data-folder-type="inbox"] > .container > .icon {
-  background-image: var(--icon-inbox);
-  --icon-color: var(--folder-color-inbox);
-}
-
-#folderTree li[data-folder-type="junk"] > .container > .icon {
-  background-image: var(--icon-spam);
-  --icon-color: var(--folder-color-spam);
-}
-
-#folderTree li[data-folder-type="outbox"] > .container > .icon {
-  background-image: var(--icon-outbox);
-  --icon-color: var(--folder-color-outbox);
-}
-
-#folderTree li[data-folder-type="sent"] > .container > .icon {
-  background-image: var(--icon-sent);
-  --icon-color: var(--folder-color-sent);
-}
-
-#folderTree li[data-folder-type="templates"] > .container > .icon {
-  background-image: var(--icon-template);
-  --icon-color: var(--folder-color-template);
-}
-
-#folderTree li[data-folder-type="trash"] > .container > .icon {
-  background-image: var(--icon-trash);
-  --icon-color: var(--folder-color-trash);
-}
-
-#folderTree li[data-folder-type="virtual"] > .container > .icon {
-  background-image: var(--icon-folder-filter);
-  --icon-color: var(--folder-color-folder-filter);
-}
-
-#folderTree li[data-server-type="nntp"] ul .icon {
-  background-image: var(--icon-newsletter);
-  --icon-color: var(--folder-color-newsletter);
-}
-
-#folderTree li[data-is-paused="true"] > .container > .icon,
-#folderTree li[data-is-paused="true"] > .container > .name,
-#folderTree li[data-is-paused="true"] ul > li > .container > .icon,
-#folderTree li[data-is-paused="true"] ul > li > .container > .name {
-  opacity: 0.6;
-}
-
-#folderTree li[data-is-busy="true"] > .container > .icon {
-  content: var(--icon-clock) !important;
-  background-image: none;
-  --icon-color: var(--button-primary-background-color);
-
-  @media (prefers-reduced-motion: no-preference) {
-    content: var(--icon-loading) !important;
-    animation: activity-indicator-3pane 1.05s steps(30) infinite;
-    object-fit: cover;
-    object-position: 0px 0;
-  }
-}
 @keyframes activity-indicator-3pane {
   100% { object-position: -480px 0; }
-}
-
-#folderTree li[data-has-error="true"] > .container > .icon {
-  content: var(--icon-warning) !important;
-  background-image: none;
-  fill: var(--color-amber-30);
-  stroke: var(--color-amber-60);
-}
-
-#folderTree li[data-tag-key] > .container > .icon {
-  background-image: var(--icon-tag);
 }
 
 .name {
@@ -528,32 +565,20 @@ li.context-menu-target:not(.selected) > .container:hover {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow-x: hidden;
-}
 
-#folderTree li[data-server-type] > .container > .name {
-  font-weight: bold;
-}
+  .noselect-folder > .container > & {
+    font-style: italic;
+    opacity: 0.6;
+  }
 
-.noselect-folder > .container > .name {
-  font-style: italic;
-  opacity: 0.6;
-}
+  .unread > .container > &,
+  .new-messages > .container > & {
+    font-weight: bold;
+  }
 
-#folderTree:focus-within li.noselect-folder.selected > .container > .name {
-  opacity: 0.8;
-}
-
-.unread > .container > .name,
-.new-messages > .container > .name {
-  font-weight: bold;
-}
-
-.new-messages > .container > .name {
-  color: var(--new-folder-color);
-}
-
-#folderTree:focus-within li.selected.new-messages > .container > .name {
-  color: currentColor;
+  .new-messages > .container > & {
+    color: var(--new-folder-color);
+  }
 }
 
 .folder-count-badge {
@@ -576,40 +601,31 @@ li.context-menu-target:not(.selected) > .container:hover {
   background-color: var(--folderpane-total-count-background);
 }
 
-.unread > .container > .unread-count {
-  display: unset;
-  background-color: var(--folderpane-unread-count-background);
-}
-
 .total > .container > .total-count:not([hidden]) {
   display: unset;
 }
 
-.new-messages > .container > .unread-count {
-  background-color: var(--folderpane-unread-new-count-background);
-}
+.container > .unread-count {
+  .unread & {
+    display: unset;
+    background-color: var(--folderpane-unread-count-background);
+  }
 
-#folderTree:focus-within li.selected > .container > .unread-count {
-  background-color: var(--folderpane-unread-count-text);
-  color: var(--treeitem-background-active);
-}
+  .new-messages & {
+    background-color: var(--folderpane-unread-new-count-background);
+  }
 
-.unread.children.collapsed > .container > .unread-count {
-  color: var(--folderpane-unread-count-background);
-  background-color: transparent;
-  border: 1px solid var(--folderpane-unread-count-background);
-  padding-block: 0;
-}
+  .unread.children.collapsed & {
+    color: var(--folderpane-unread-count-background);
+    background-color: transparent;
+    border: 1px solid var(--folderpane-unread-count-background);
+    padding-block: 0;
+  }
 
-.new-messages.unread.children.collapsed > .container > .unread-count {
-  color: var(--folderpane-unread-new-count-background);
-  border-color: var(--folderpane-unread-new-count-background);
-}
-
-#folderTree:focus-within li.selected.unread.children.collapsed > .container > .unread-count {
-  color: var(--folderpane-unread-count-text);
-  background-color: transparent;
-  border-color: var(--folderpane-unread-count-text);
+  .new-messages.unread.children.collapsed & {
+    color: var(--folderpane-unread-new-count-background);
+    border-color: var(--folderpane-unread-new-count-background);
+  }
 }
 
 .folder-size {
@@ -617,10 +633,6 @@ li.context-menu-target:not(.selected) > .container:hover {
   font-weight: bold;
   color: var(--layout-color-3);
   margin-inline-end: 6px;
-}
-
-#folderTree:focus-within li.selected > .container > .folder-size {
-  color: currentColor;
 }
 
 /* Message browser pane. */

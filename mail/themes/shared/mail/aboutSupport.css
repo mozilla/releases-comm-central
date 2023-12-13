@@ -16,11 +16,11 @@
 
 #support-buttons {
   display: flex;
-}
 
-#support-buttons > div {
-  display: inherit;
-  align-items: center;
+  & > div {
+    display: inherit;
+    align-items: center;
+  }
 }
 
 #contents.show-private-data .data-public {
@@ -53,15 +53,17 @@ td.data-private {
   color: #333;
 }
 
-.calendar-table > thead > th:nth-of-type(1) {
-  width: 25%;
-}
+.calendar-table {
+  & + & {
+    margin-top: 3em;
+  }
 
-.calendar-table + .calendar-table {
-  margin-top: 50px;
-}
+  & > thead > th:nth-of-type(1) {
+    width: 25%;
+  }
 
-.calendar-table caption {
-  margin-bottom: 5px;
-  font-weight: bold;
+  & caption {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
 }

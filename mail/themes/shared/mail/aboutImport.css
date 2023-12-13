@@ -56,13 +56,13 @@ dl {
   display: grid;
   grid-template-columns: [label] max-content [value] minmax(min-content, auto);
   column-gap: 1ch;
-}
 
-dl div {
-  display: grid;
-  grid-column: 1 / 3;
-  grid-template-columns: subgrid;
-  grid-template-rows: subgrid;
+  & div {
+    display: grid;
+    grid-column: 1 / 3;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+  }
 }
 
 dt {
@@ -75,104 +75,110 @@ dd {
   margin: 0;
 }
 
-#csvFieldMap table {
-  margin-top: 1rem;
-  table-layout: fixed;
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 1rem;
-}
-
-#csvFieldMap th {
-  font-weight: 600;
-}
-
-#csvFieldMap th,
-#csvFieldMap td {
-  border-bottom: 1px solid var(--in-content-page-color);
-}
-
-#csvFieldMap th:last-child {
-  width: 2rem;
-}
-
-#csvFieldMap td:last-child {
-  text-align: end;
-}
-
 #csvFieldMap {
   margin-top: 2rem;
   display: block;
-}
 
-#csvFieldMap select {
-  line-height: 1.2;
-  background-position-x: right 10px;
-  padding-inline-start: 8px;
-  margin-inline-start: 0;
-  width: 100%;
-}
+  & table {
+    margin-top: 1rem;
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+  }
 
-#csvFieldMap select:dir(rtl) {
-  background-position-x: left 10px;
-}
+  & th {
+    font-weight: 600;
+  }
 
-#csvFieldMap input {
-  margin-top: 4px;
+  & th,
+  & td {
+    border-bottom: 1px solid var(--in-content-page-color);
+  }
+
+  & th:last-child {
+    width: 2rem;
+  }
+
+  & td:last-child {
+    text-align: end;
+  }
+
+  & select {
+    line-height: 1.2;
+    background-position-x: right 10px;
+    padding-inline-start: 8px;
+    margin-inline-start: 0;
+    width: 100%;
+
+    &:dir(rtl) {
+      background-position-x: left 10px;
+    }
+  }
+
+  & input {
+    margin-top: 4px;
+  }
 }
 
 #main {
   margin: 4em;
   min-width: 400px;
   max-width: 600px;
+
+  & .buttons-container {
+    margin-top: 1.5em;
+    display: flex;
+    justify-content: space-between;
+
+    & button {
+      margin: 0;
+    }
+
+    & .continue {
+      margin-inline-start: auto;
+    }
+  }
 }
 
-#main .buttons-container {
-  margin-top: 1.5em;
-  display: flex;
-  justify-content: space-between;
-}
+.tabPane {
+  & > section {
+    background-color: var(--in-content-box-background);
+    border-radius: var(--in-content-button-border-radius);
+    padding: 2em calc(var(--main-title-size) + var(--title-icon-margin) + 1em);
+  }
 
-#main .buttons-container button {
-  margin: 0;
-}
+  & h1 {
+    position: relative;
+  }
 
-#main .buttons-container .continue {
-  margin-inline-start: auto;
-}
+  & h1::before {
+    content: "";
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+    color: var(--primary);
+    margin-inline-end: var(--title-icon-margin);
+    position: absolute;
+    inset-inline-start: calc(-1 * (var(--main-title-size) + var(--title-icon-margin)));
+  }
 
-.tabPane > section {
-  background-color: var(--in-content-box-background);
-  border-radius: var(--in-content-button-border-radius);
-  padding: 2em calc(var(--main-title-size) + var(--title-icon-margin) + 1em);
-}
+  #tabPane-start& h1::before {
+    background-image: var(--icon-import-lg);
+  }
 
-.tabPane h1 {
-  position: relative;
-}
+  #tabPane-export& h1::before {
+    background-image: var(--icon-export-lg);
+  }
 
-.tabPane h1::before {
-  content: "";
-  background-repeat: no-repeat;
-  background-position: bottom center;
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-  color: var(--primary);
-  margin-inline-end: var(--title-icon-margin);
-  position: absolute;
-  inset-inline-start: calc(-1 * (var(--main-title-size) + var(--title-icon-margin)));
-}
-
-#tabPane-start.tabPane h1::before {
-  background-image: var(--icon-import-lg);
-}
-
-#tabPane-export.tabPane h1::before {
-  background-image: var(--icon-export-lg);
+  & > section > .center-button {
+    margin-inline: auto;
+  }
 }
 
 .source-list {
@@ -192,12 +198,12 @@ dd {
   margin-top: 1rem;
   display: flex;
   align-items: center;
-}
 
-#calendarItemsTools input {
-  flex: 1;
-  padding-inline: 0.5rem;
-  height: 32px;
+  & input {
+    flex: 1;
+    padding-inline: 0.5rem;
+    height: 32px;
+  }
 }
 
 #calendar-item-list {
@@ -228,26 +234,26 @@ dd {
     ". desc";
   margin-block: 1em;
   line-height: 1.5;
-}
 
-.toggle-container-with-text:last-child {
-  margin-block-end: 0;
-}
+  &:last-child {
+    margin-block-end: 0;
+  }
 
-.toggle-container-with-text input {
-  grid-area: i;
-}
+  & input {
+    grid-area: i;
+  }
 
-.toggle-container-with-text p:last-of-type {
-  grid-area: desc;
-}
+  & p:last-of-type {
+    grid-area: desc;
+  }
 
-.toggle-container-with-text p:first-of-type {
-  grid-area: text;
-}
+  & p:first-of-type {
+    grid-area: text;
+  }
 
-.toggle-container-with-text .tip-caption dt {
-  color: var(--in-content-page-color);
+  & .tip-caption dt {
+    color: var(--in-content-page-color);
+  }
 }
 
 #tabPane-export p {
@@ -278,18 +284,14 @@ calendar-item-summary {
   line-height: 1.8;
 }
 
-.tabPane > section > .center-button,
-.center-button {
-  margin-inline: auto;
-}
-
 .center-button {
   display: block;
   margin-block: 1em;
-}
+  margin-inline: auto;
 
-a.center-button {
-  max-width: max-content;
+  a& {
+    max-width: max-content;
+  }
 }
 
 .progressPane,
@@ -333,14 +335,14 @@ a.center-button {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-}
 
-.icon.info {
-  color: var(--primary);
-}
+  &.info {
+    color: var(--primary);
+  }
 
-.icon.warn {
-  color: var(--color-orange-40);
+  &.warn {
+    color: var(--color-orange-40);
+  }
 }
 
 .back {
@@ -350,11 +352,11 @@ a.center-button {
   -moz-context-properties: stroke;
   stroke: currentColor;
   padding-inline-start: 1em;
-}
 
-.back:dir(rtl) {
-  background-image: var(--icon-nav-right);
-  background-position-x: right 0.5em;
+  &:dir(rtl) {
+    background-image: var(--icon-nav-right);
+    background-position-x: right 0.5em;
+  }
 }
 
 #importFooter {
@@ -374,53 +376,53 @@ a.center-button {
   margin-block-end: 2em;
   margin-inline: 1em;
   --step-size: var(--in-content-button-height);
-}
 
-#stepNav li {
-  flex-grow: 1;
-  font-size: 1.4rem;
-  display: flex;
-  align-items: center;
-}
+  & button {
+    border-radius: var(--step-size);
+    height: var(--step-size);
+    width: var(--step-size);
+    min-width: var(--step-size);
+    padding: 0;
+    margin: 0;
+    opacity: 1;
+    box-sizing: border-box;
+    font-weight: 600;
+  }
 
-#stepNav li:first-child {
-  flex-grow: 0;
-}
+  & li {
+    flex-grow: 1;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
 
-#stepNav button {
-  border-radius: var(--step-size);
-  height: var(--step-size);
-  width: var(--step-size);
-  min-width: var(--step-size);
-  padding: 0;
-  margin: 0;
-  opacity: 1;
-  box-sizing: border-box;
-  font-weight: 600;
-}
+    &:first-child {
+      flex-grow: 0;
+    }
 
-#stepNav li:not(:first-child)::before {
-  content: "";
-  border-block-start: 2px dashed var(--in-content-button-background);
-  display: block;
-  margin-block-start: 1px;
-  flex-grow: 1;
-}
+    &:not(:first-child)::before {
+      content: "";
+      border-block-start: 2px dashed var(--in-content-button-background);
+      display: block;
+      margin-block-start: 1px;
+      flex-grow: 1;
+    }
 
-#stepNav li.current button {
-  border: 3px solid var(--primary);
-  background: var(--in-content-box-background);
-  color: var(--primary);
-}
+    &.current button {
+      border: 3px solid var(--primary);
+      background: var(--in-content-box-background);
+      color: var(--primary);
+    }
 
-#stepNav li.completed button {
-  background: var(--primary);
-  color: var(--in-content-box-background);
-}
+    &.completed button {
+      background: var(--primary);
+      color: var(--in-content-box-background);
+    }
 
-#stepNav li.completed:not(:first-child)::before,
-#stepNav li.current:not(:first-child)::before {
-  border-block-start: 2px solid var(--primary);
+    &.completed:not(:first-child)::before,
+    &.current:not(:first-child)::before {
+      border-block-start: 2px solid var(--primary);
+    }
+  }
 }
 
 #navConfirm button {

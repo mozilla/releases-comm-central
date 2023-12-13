@@ -25,20 +25,16 @@
     --ab-card-line-height: 1.4em;
     --ab-card-table-row-height: 32px;
   }
-}
 
-@media (prefers-contrast) {
-  :root {
+  @media (prefers-contrast) {
     background-color: transparent;
     color: currentColor;
 
     --address-book-cards-list-bg: transparent;
     --address-book-icons-color: currentColor;
   }
-}
 
-@media not (prefers-contrast) {
-  :root {
+  @media not (prefers-contrast) {
     background: var(--layout-background-0);
     color: var(--layout-color-0);
 

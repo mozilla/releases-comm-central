@@ -12,13 +12,11 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    :root {
-      --in-content-button-background: rgba(249, 249, 250, 0.1);
-      --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
-      --in-content-button-background-active: rgba(249, 249, 250, 0.2);
-      --in-content-primary-button-background: #45a1ff;
-      --in-content-focus-outline-color: #45a1ff;
-    }
+    --in-content-button-background: rgba(249, 249, 250, 0.1);
+    --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
+    --in-content-button-background-active: rgba(249, 249, 250, 0.2);
+    --in-content-primary-button-background: #45a1ff;
+    --in-content-focus-outline-color: #45a1ff;
   }
 }
 
@@ -36,25 +34,31 @@ body {
 
 #downloadBottomBox {
   padding: 15px 18px;
-}
 
-#downloadBottomBox:-moz-lwtheme {
-  text-shadow: none;
+  &:-moz-lwtheme {
+    text-shadow: none;
+  }
 }
 
 #msgDownloadsRichListBox {
   margin-block: 0;
-}
 
-#msgDownloadsRichListBox > .download {
-  min-height: 5em;
-  border-bottom: 1px solid hsla(0, 0%, 50%, .3);
-  border-radius: 3px;
-}
+  & > .download {
+    min-height: 5em;
+    border-bottom: 1px solid hsla(0, 0%, 50%, .3);
+    border-radius: 3px;
+  }
 
-#msgDownloadsRichListBox > .download > vbox {
-  display: flex;
-  flex-direction: column;
+  & > .download > vbox {
+    display: flex;
+    flex-direction: column;
+  }
+
+  :root:not([lwt-tree]) & > .download[selected] {
+    color: var(--selected-item-text-color);
+    background-color: var(--selected-item-color);
+    --in-content-button-text-color-hover: var(--selected-item-text-color);
+  }
 }
 
 #clearDownloads {
@@ -67,12 +71,6 @@ body {
 #searchBox {
   width: 22em;
   margin-inline-end: 0;
-}
-
-:root:not([lwt-tree]) #msgDownloadsRichListBox > .download[selected] {
-  color: var(--selected-item-text-color);
-  background-color: var(--selected-item-color);
-  --in-content-button-text-color-hover: var(--selected-item-text-color);
 }
 
 .fileTypeIcon {
@@ -108,30 +106,30 @@ body {
   outline: none !important;
   color: inherit;
   padding: 0 12px;
-}
 
-.downloadButton > .button-box {
-  appearance: none;
-  padding: 8px;
-}
+  & > .button-box {
+    appearance: none;
+    padding: 8px;
 
-.downloadButton > .button-box > .button-icon {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
+    & > .button-icon {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      -moz-context-properties: fill;
+      fill: currentColor;
+    }
 
-.downloadButton > .button-box > .button-text {
-  display: none;
-}
+    & > .button-text {
+      display: none;
+    }
+  }
 
-.downloadButton:hover > .button-box {
-  background-color: var(--in-content-button-background-hover);
-  border-radius: 50%;
-}
+  &:hover > .button-box {
+    background-color: var(--in-content-button-background-hover);
+    border-radius: 50%;
+  }
 
-.downloadButton:hover:active > .button-box {
-  background-color: var(--in-content-button-background-active);
+  &:hover:active > .button-box {
+    background-color: var(--in-content-button-background-active);
+  }
 }

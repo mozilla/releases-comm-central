@@ -21,19 +21,19 @@ body {
 
 /** Categories **/
 
+#categories hr {
+  border-top-color: rgba(255, 255, 255, 0.15);
+}
+
 .category {
   cursor: pointer;
   /* Center category names */
   display: flex;
   align-items: center;
-}
 
-.category .category-name {
-  pointer-events: none;
-}
-
-#categories hr {
-  border-top-color: rgba(255,255,255,0.15);
+  & .category-name {
+    pointer-events: none;
+  }
 }
 
 /** Content area **/
@@ -50,12 +50,14 @@ body {
   width: 100%;
 }
 
-tbody tr {
-  transition: background cubic-bezier(.07, .95, 0, 1) 250ms;
-}
+tbody {
+  & tr {
+    transition: background cubic-bezier(0.07, 0.95, 0, 1) 250ms;
 
-tbody tr:hover {
-  background-color: var(--in-content-item-hover);
+    &:hover {
+      background-color: var(--in-content-item-hover);
+    }
+  }
 }
 
 th, td, table {
@@ -108,8 +110,8 @@ tbody:nth-child(4n + 1) {
   height: 14px;
   vertical-align: middle;
   width: 14px;
-  margin-top: -.125rem;
-  margin-left: .5rem;
+  margin-top: -0.125rem;
+  margin-inline-start: 0.5rem;
 }
 
 .collapsible {
