@@ -9,14 +9,14 @@
     --in-content-button-background: var(--grey-90-a10);
     --in-content-button-background-hover: var(--grey-90-a20);
     --in-content-button-background-active: var(--grey-90-a30);
-  }
 
-  @media (prefers-color-scheme: dark) {
-    --in-content-button-background: rgba(249, 249, 250, 0.1);
-    --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
-    --in-content-button-background-active: rgba(249, 249, 250, 0.2);
-    --in-content-primary-button-background: #45a1ff;
-    --in-content-focus-outline-color: #45a1ff;
+    @media (prefers-color-scheme: dark) {
+      --in-content-button-background: rgba(249, 249, 250, 0.1);
+      --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
+      --in-content-button-background-active: rgba(249, 249, 250, 0.2);
+      --in-content-primary-button-background: #45a1ff;
+      --in-content-focus-outline-color: #45a1ff;
+    }
   }
 }
 
