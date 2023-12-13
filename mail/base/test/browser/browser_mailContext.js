@@ -411,12 +411,44 @@ add_task(async function testSingleMessage() {
   );
   mailContext.hidePopup();
 
+  // Open the menu through the keyboard on a message that is scrolled slightly
+  // out of view.
+
+  threadTree.selectedIndex = 5;
+  threadTree.scrollToIndex(threadTree.getLastVisibleIndex() + 7, true);
+  await new Promise(resolve => window.requestAnimationFrame(resolve));
+  Assert.equal(threadTree.currentIndex, 5, "Row 5 is the current row");
+  Assert.ok(row.parentNode, "Row element should still be attached");
+  Assert.greater(
+    threadTree.getFirstVisibleIndex(),
+    5,
+    "Selected row should no longer be visible"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree,
+    { type: "contextmenu", button: 0 },
+    about3Pane
+  );
+  await new Promise(resolve => window.requestAnimationFrame(resolve));
+  await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
+  Assert.greaterOrEqual(
+    5,
+    threadTree.getFirstVisibleIndex(),
+    "Current row is greater than or equal to first visible index"
+  );
+  Assert.lessOrEqual(
+    5,
+    threadTree.getLastVisibleIndex(),
+    "Current row is less than or equal to last visible index"
+  );
+  mailContext.hidePopup();
+
   // Open the menu on a message that is scrolled out of view.
 
   threadTree.scrollToIndex(200, true);
   await new Promise(resolve => window.requestAnimationFrame(resolve));
   Assert.ok(!row.parentNode, "Row element should no longer be attached");
-  Assert.equal(threadTree.currentIndex, 0, "Row 0 is the current row");
+  Assert.equal(threadTree.currentIndex, 5, "Row 5 is the current row");
   Assert.ok(
     !threadTree.getRowAtIndex(threadTree.currentIndex),
     "Current row is scrolled out of view"
@@ -430,6 +462,16 @@ add_task(async function testSingleMessage() {
   Assert.ok(
     threadTree.getRowAtIndex(threadTree.currentIndex),
     "Current row is scrolled into view when showing context menu"
+  );
+  Assert.greaterOrEqual(
+    5,
+    threadTree.getFirstVisibleIndex(),
+    "Current row is greater than or equal to first visible index"
+  );
+  Assert.lessOrEqual(
+    5,
+    threadTree.getLastVisibleIndex(),
+    "Current row is less than or equal to last visible index"
   );
   mailContext.hidePopup();
 

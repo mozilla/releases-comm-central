@@ -4635,7 +4635,10 @@ var threadPane = {
   },
 
   _onItemActivate(event) {
-    if (gDBView.getFlagsAt(threadTree.selectedIndex) & MSG_VIEW_FLAG_DUMMY) {
+    if (
+      threadTree.selectedIndex < 0 ||
+      gDBView.getFlagsAt(threadTree.selectedIndex) & MSG_VIEW_FLAG_DUMMY
+    ) {
       return;
     }
 
@@ -4863,14 +4866,19 @@ var threadPane = {
       event.target.closest(`tr[is^="thread-"]`) ||
       threadTree.getRowAtIndex(threadTree.currentIndex);
     const isMouse = event.button == 2;
-    if (!isMouse && !row) {
+    if (!isMouse) {
+      if (threadTree.selectedIndex < 0) {
+        return;
+      }
       // Scroll selected row we're triggering the context menu for into view.
       threadTree.scrollToIndex(threadTree.currentIndex, true);
-      row = threadTree.getRowAtIndex(threadTree.currentIndex);
-      // Try again once in the next frame.
-      if (!row && !retry) {
-        window.requestAnimationFrame(() => this._onContextMenu(event, true));
-        return;
+      if (!row) {
+        row = threadTree.getRowAtIndex(threadTree.currentIndex);
+        // Try again once in the next frame.
+        if (!row && !retry) {
+          window.requestAnimationFrame(() => this._onContextMenu(event, true));
+          return;
+        }
       }
     }
     if (!row || gDBView.getFlagsAt(row.index) & MSG_VIEW_FLAG_DUMMY) {
