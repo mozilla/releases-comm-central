@@ -4504,16 +4504,20 @@ var threadPane = {
   },
 
   handleEvent(event) {
+    const notOnEmptySpace = event.target !== threadTree;
     switch (event.type) {
       case "contextmenu":
-        this._onContextMenu(event);
+        if (notOnEmptySpace) {
+          this._onContextMenu(event);
+        }
         break;
       case "dblclick":
-        this._onDoubleClick(event);
+        if (notOnEmptySpace) {
+          this._onDoubleClick(event);
+        }
         break;
-
       case "auxclick":
-        if (event.button == 1) {
+        if (event.button == 1 && notOnEmptySpace) {
           this._onMiddleClick(event);
         }
         break;
