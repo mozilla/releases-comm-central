@@ -221,7 +221,7 @@ PgpMimeHandler.prototype = {
       uri = uri.QueryInterface(Ci.nsIURI);
     }
 
-    mimeSvc.mailChannel?.smimeHeaderSink.handleSMimeMessage(uri);
+    mimeSvc.mailChannel?.smimeHeaderSink?.handleSMimeMessage(uri);
   },
 
   getMessengerWindow() {
