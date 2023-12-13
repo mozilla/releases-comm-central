@@ -1,44 +1,49 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % mailViewLisDTD SYSTEM "chrome://messenger/locale/mailViewList.dtd">
+<!DOCTYPE html [ <!ENTITY % mailViewLisDTD SYSTEM "chrome://messenger/locale/mailViewList.dtd">
 %mailViewLisDTD;
 <!ENTITY % FilterListDialogDTD SYSTEM "chrome://messenger/locale/FilterListDialog.dtd">
 %FilterListDialogDTD; ]>
-
-<window
-  id="mailViewListDialog"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  onload="mailViewListOnLoad();"
+  id="mailViewListDialog"
   windowtype="mailnews:mailviewlist"
   lightweightthemes="true"
-  title="&mailViewListTitle.label;"
-  width="400"
-  height="340"
-  persist="screenX screenY width height"
+  style="min-width: 400px; min-height: 150px"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-  <dialog buttons="accept">
-    <script src="chrome://messenger/content/mailViewList.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <vbox flex="1">
+  <head>
+    <title>&mailViewListTitle.label;</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/mailViewList.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog buttons="accept">
       <hbox flex="1">
-        <richlistbox
-          id="mailViewList"
-          flex="1"
-          onselect="onMailViewSelect(event);"
-        />
+        <vbox style="min-width: 0; flex: 1 1 0">
+          <richlistbox
+            id="mailViewList"
+            style="flex: 1 1 0"
+            onselect="onMailViewSelect(event);"
+          />
+        </vbox>
 
         <vbox>
           <button
@@ -61,6 +66,6 @@
           />
         </vbox>
       </hbox>
-    </vbox>
-  </dialog>
-</window>
+    </dialog>
+  </html:body>
+</html>
