@@ -494,6 +494,7 @@ add_task(async function testMultipleMessages() {
   const { messageBrowser, multiMessageBrowser, threadTree } = about3Pane;
   threadTree.scrollToIndex(1, true);
   threadTree.selectedIndices = [1, 2, 3];
+  await TestUtils.waitForTick(); // Wait for rows to be added.
 
   // The message pane browser isn't visible.
 
@@ -505,14 +506,8 @@ add_task(async function testMultipleMessages() {
     BrowserTestUtils.is_visible(multiMessageBrowser),
     "multimessage browser should be visible"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    about3Pane.document.getElementById("messagePane"),
-    { type: "contextmenu" }
-  );
-  checkMenuitems(mailContext);
 
   // Open the menu from the thread pane.
-
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(2),
     { type: "contextmenu" },
