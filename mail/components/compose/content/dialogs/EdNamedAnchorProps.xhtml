@@ -1,70 +1,87 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % edNamedAnchorProperties SYSTEM "chrome://messenger/locale/messengercompose/EdNamedAnchorProperties.dtd">
+<!DOCTYPE html [ <!ENTITY % edNamedAnchorProperties SYSTEM "chrome://messenger/locale/messengercompose/EdNamedAnchorProperties.dtd">
 %edNamedAnchorProperties;
 <!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
 %edDialogOverlay; ]>
-
-<window
-  title="&windowTitle.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   lightweightthemes="true"
-  onload="Startup()"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-  <dialog>
-    <script src="chrome://messenger/content/globalOverlay.js" />
-    <script src="chrome://global/content/editMenuOverlay.js" />
-    <!-- Methods common to all editor dialogs -->
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <script src="chrome://messenger/content/messengercompose/EdNamedAnchorProps.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
-
-    <label
-      id="nameLabel"
-      control="nameInput"
-      value="&anchorNameEditField.label;"
-      accesskey="&anchorNameEditField.accessKey;"
-    />
-    <html:input
-      id="nameInput"
-      type="text"
-      class="MinWidth20em input-inline"
-      oninput="ChangeName()"
-      title="&nameInput.tooltip;"
-      aria-labelledby="nameLabel"
-    />
-    <spacer class="spacer" />
-    <vbox id="AdvancedEdit">
-      <hbox flex="1" style="margin-top: 0.2em" align="center">
-        <!-- This will right-align the button -->
-        <spacer flex="1" />
-        <button
-          id="AdvancedEditButton1"
-          oncommand="onAdvancedEdit()"
-          label="&AdvancedEditButton.label;"
-          accesskey="&AdvancedEditButton.accessKey;"
-          tooltiptext="&AdvancedEditButton.tooltip;"
-        />
-      </hbox>
-      <separator id="advancedSeparator" class="groove" />
-    </vbox>
-  </dialog>
-</window>
+  <head>
+    <title>&windowTitle.label;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdNamedAnchorProps.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog>
+      <spacer id="location" offsetY="50" persist="offsetX offsetY" />
+      <label
+        id="nameLabel"
+        control="nameInput"
+        value="&anchorNameEditField.label;"
+        accesskey="&anchorNameEditField.accessKey;"
+      />
+      <html:input
+        id="nameInput"
+        type="text"
+        class="MinWidth20em input-inline"
+        oninput="ChangeName()"
+        title="&nameInput.tooltip;"
+        aria-labelledby="nameLabel"
+      />
+      <spacer class="spacer" />
+      <vbox id="AdvancedEdit">
+        <hbox flex="1" style="margin-top: 0.2em" align="center">
+          <!-- This will right-align the button -->
+          <spacer flex="1" />
+          <button
+            id="AdvancedEditButton1"
+            oncommand="onAdvancedEdit()"
+            label="&AdvancedEditButton.label;"
+            accesskey="&AdvancedEditButton.accessKey;"
+            tooltiptext="&AdvancedEditButton.tooltip;"
+          />
+        </hbox>
+        <separator id="advancedSeparator" class="groove" />
+      </vbox>
+    </dialog>
+  </html:body>
+</html>

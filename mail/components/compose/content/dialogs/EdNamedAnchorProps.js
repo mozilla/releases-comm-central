@@ -10,8 +10,7 @@ var gAnchorElement = null;
 var gOriginalName = "";
 const kTagName = "anchor";
 
-// dialog initialization code
-
+window.addEventListener("load", Startup);
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
