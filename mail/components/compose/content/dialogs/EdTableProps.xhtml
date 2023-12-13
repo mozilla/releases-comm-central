@@ -1,478 +1,498 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % edTableProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorTableProperties.dtd">
+<!DOCTYPE html [ <!ENTITY % edTableProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorTableProperties.dtd">
 %edTableProperties;
 <!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
 %edDialogOverlay; ]>
-
-<window
-  title="&tableWindow.title;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   lightweightthemes="true"
-  onload="Startup()"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/shared/grid-layout.css"
-  />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-  <dialog
-    id="tableDlg"
-    buttons="accept,extra1,cancel"
-    buttonlabelclose="&closeButton.label;"
-    buttonlabelextra1="&applyButton.label;"
-    buttonaccesskeyextra1="&applyButton.accesskey;"
+  <head>
+    <title>&tableWindow.title;</title>
+    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/grid-layout.css"
+    />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdTableProps.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
-    <!-- Methods common to all editor dialogs -->
-    <script src="chrome://messenger/content/globalOverlay.js" />
-    <script src="chrome://global/content/editMenuOverlay.js" />
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <script src="chrome://messenger/content/messengercompose/EdTableProps.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
-
-    <tabbox id="TabBox">
-      <tabs flex="1">
-        <tab id="TableTab" label="&tableTab.label;" />
-        <tab id="CellTab" label="&cellTab.label;" />
-      </tabs>
-      <tabpanels>
-        <!-- TABLE PANEL -->
-        <vbox>
-          <html:fieldset orient="horizontal">
-            <html:legend>&size.label;</html:legend>
-            <hbox>
-              <vbox>
-                <hbox>
-                  <vbox>
-                    <hbox align="center" flex="1">
-                      <label
-                        id="TableRowsLabel"
-                        value="&tableRows.label;"
-                        accesskey="&tableRows.accessKey;"
-                        control="TableRowsInput"
-                      />
-                    </hbox>
-                    <hbox align="center" flex="1">
-                      <label
-                        id="TableColumnsLabel"
-                        value="&tableColumns.label;"
-                        accesskey="&tableColumns.accessKey;"
-                        control="TableColumnsInput"
-                      />
-                    </hbox>
-                  </vbox>
-                  <vbox>
-                    <html:input
-                      id="TableRowsInput"
-                      type="number"
-                      class="narrow input-inline"
-                      aria-labelledby="TableRowsLabel"
-                    />
-                    <html:input
-                      id="TableColumnsInput"
-                      type="number"
-                      class="narrow input-inline"
-                      aria-labelledby="TableColumnsLabel"
-                    />
-                  </vbox>
-                </hbox>
-              </vbox>
-              <vbox>
-                <html:div class="grid-three-column">
-                  <html:div class="flex-items-center">
-                    <label
-                      id="TableHeightLabel"
-                      value="&tableHeight.label;"
-                      accesskey="&tableHeight.accessKey;"
-                      control="TableHeightInput"
-                    />
-                  </html:div>
-                  <html:div>
-                    <html:input
-                      id="TableHeightInput"
-                      type="number"
-                      class="narrow input-inline"
-                      aria-labelledby="TableHeightLabel"
-                    />
-                  </html:div>
-                  <html:div class="flex-items-center">
-                    <menulist id="TableHeightUnits" />
-                  </html:div>
-                  <html:div class="flex-items-center">
-                    <label
-                      id="TableWidthLabel"
-                      value="&tableWidth.label;"
-                      accesskey="&tableWidth.accessKey;"
-                      control="TableWidthInput"
-                    />
-                  </html:div>
-                  <html:div class="flex-items-center">
-                    <html:input
-                      id="TableWidthInput"
-                      type="number"
-                      class="narrow input-inline"
-                      aria-labelledby="TableWidthLabel"
-                    />
-                  </html:div>
-                  <html:div class="flex-items-center">
-                    <menulist id="TableWidthUnits" />
-                  </html:div>
-                </html:div>
-              </vbox>
-            </hbox>
-          </html:fieldset>
-          <html:fieldset>
-            <html:legend>&tableBorderSpacing.label;</html:legend>
-            <hbox>
-              <vbox>
-                <hbox flex="1" align="center">
-                  <label
-                    id="BorderWidthLabel"
-                    control="BorderWidthInput"
-                    value="&tableBorderWidth.label;"
-                    accesskey="&tableBorderWidth.accessKey;"
-                  />
-                </hbox>
-                <hbox flex="1" align="center">
-                  <label
-                    id="SpacingLabel"
-                    control="SpacingInput"
-                    value="&tableSpacing.label;"
-                    accesskey="&tableSpacing.accessKey;"
-                  />
-                </hbox>
-                <hbox flex="1" align="center">
-                  <label
-                    id="PaddingLabel"
-                    control="PaddingInput"
-                    value="&tablePadding.label;"
-                    accesskey="&tablePadding.accessKey;"
-                  />
-                </hbox>
-              </vbox>
-              <vbox>
-                <html:input
-                  id="BorderWidthInput"
-                  type="number"
-                  class="narrow input-inline"
-                  aria-labelledby="BorderWidthLabel"
-                />
-                <html:input
-                  id="SpacingInput"
-                  type="number"
-                  class="narrow input-inline"
-                  aria-labelledby="SpacingLabel"
-                />
-                <html:input
-                  id="PaddingInput"
-                  type="number"
-                  class="narrow input-inline"
-                  aria-labelledby="PaddingLabel"
-                />
-              </vbox>
-              <vbox>
-                <hbox flex="1" align="center">
-                  <label align="start" value="&pixels.label;" />
-                </hbox>
-                <hbox flex="1" align="center">
-                  <label value="&tablePxBetwCells.label;" />
-                </hbox>
-                <hbox flex="1" align="center">
-                  <label value="&tablePxBetwBrdrCellContent.label;" />
-                </hbox>
-              </vbox>
-            </hbox>
-          </html:fieldset>
-          <!-- Table Alignment and Caption -->
-          <hbox flex="1" align="center">
-            <label
-              control="TableAlignList"
-              value="&tableAlignment.label;"
-              accesskey="&tableAlignment.accessKey;"
-            />
-            <menulist id="TableAlignList">
-              <menupopup>
-                <menuitem label="&AlignLeft.label;" value="left" />
-                <menuitem label="&AlignCenter.label;" value="center" />
-                <menuitem label="&AlignRight.label;" value="right" />
-              </menupopup>
-            </menulist>
-            <spacer class="spacer" />
-            <label
-              control="TableCaptionList"
-              value="&tableCaption.label;"
-              accesskey="&tableCaption.accessKey;"
-            />
-            <menulist id="TableCaptionList">
-              <menupopup>
-                <menuitem label="&tableCaptionNone.label;" value="" />
-                <menuitem label="&tableCaptionAbove.label;" value="top" />
-                <menuitem label="&tableCaptionBelow.label;" value="bottom" />
-                <menuitem label="&tableCaptionLeft.label;" value="left" />
-                <menuitem label="&tableCaptionRight.label;" value="right" />
-              </menupopup>
-            </menulist>
-          </hbox>
-          <separator class="groove" />
-          <hbox align="center">
-            <label value="&backgroundColor.label;" />
-            <button
-              id="tableBackground"
-              class="color-button"
-              oncommand="GetColorAndUpdate('tableBackgroundCW');"
-            >
-              <spacer id="tableBackgroundCW" class="color-well" />
-            </button>
-            <spacer class="spacer" />
-            <label
-              id="TableInheritColor"
-              value="&tableInheritColor.label;"
-              collapsed="true"
-            />
-          </hbox>
-          <separator class="groove" />
-          <hbox flex="1" align="center">
-            <spacer flex="1" />
-            <button
-              id="AdvancedEditButton"
-              oncommand="onAdvancedEdit();"
-              label="&AdvancedEditButton.label;"
-              accesskey="&AdvancedEditButton.accessKey;"
-              tooltiptext="&AdvancedEditButton.tooltip;"
-            />
-          </hbox>
-          <spacer flex="1" /> </vbox
-        ><!-- Table Panel -->
-
-        <!-- CELL PANEL -->
-        <vbox>
-          <html:fieldset>
-            <html:legend>&cellSelection.label;</html:legend>
-            <vbox>
-              <menulist
-                id="SelectionList"
-                oncommand="ChangeSelection(event.target.value)"
-              >
-                <menupopup>
-                  <!-- JS code assumes order is Cell, Row, Column -->
-                  <menuitem label="&cellSelectCell.label;" value="1" />
-                  <menuitem label="&cellSelectRow.label;" value="2" />
-                  <menuitem label="&cellSelectColumn.label;" value="3" />
-                </menupopup>
-              </menulist>
-              <hbox>
-                <button
-                  id="PreviousButton"
-                  label="&cellSelectPrevious.label;"
-                  accesskey="&cellSelectPrevious.accessKey;"
-                  oncommand="MoveSelection(0)"
-                />
-                <button
-                  id="NextButton"
-                  label="&cellSelectNext.label;"
-                  accesskey="&cellSelectNext.accessKey;"
-                  oncommand="MoveSelection(1)"
-                />
-              </hbox>
-              <hbox flex="1"> &applyBeforeChange.label; </hbox>
-            </vbox>
-          </html:fieldset>
-
-          <separator class="groove" />
-
-          <hbox align="center">
-            <html:fieldset>
+    <dialog
+      id="tableDlg"
+      buttons="accept,extra1,cancel"
+      buttonlabelclose="&closeButton.label;"
+      buttonlabelextra1="&applyButton.label;"
+      buttonaccesskeyextra1="&applyButton.accesskey;"
+    >
+      <spacer id="location" offsetY="50" persist="offsetX offsetY" />
+      <tabbox id="TabBox">
+        <tabs flex="1">
+          <tab id="TableTab" label="&tableTab.label;" />
+          <tab id="CellTab" label="&cellTab.label;" />
+        </tabs>
+        <tabpanels>
+          <!-- TABLE PANEL -->
+          <vbox>
+            <html:fieldset orient="horizontal">
               <html:legend>&size.label;</html:legend>
               <hbox>
                 <vbox>
-                  <hbox flex="1" align="center">
-                    <checkbox
-                      id="CellHeightCheckbox"
-                      label="&tableHeight.label;"
-                      accesskey="&tableHeight.accessKey;"
-                    />
-                  </hbox>
-                  <hbox flex="1" align="center">
-                    <checkbox
-                      id="CellWidthCheckbox"
-                      label="&tableWidth.label;"
-                      accesskey="&tableWidth.accessKey;"
-                    />
-                  </hbox>
-                </vbox>
-                <vbox flex="1">
-                  <hbox flex="1" align="center">
-                    <html:input
-                      id="CellHeightInput"
-                      type="number"
-                      class="narrow input-inline"
-                      onchange="ChangeIntTextbox('CellHeightCheckbox');"
-                      aria-labelledby="CellHeightCheckbox"
-                    />
-                  </hbox>
-                  <hbox flex="1" align="center">
-                    <html:input
-                      id="CellWidthInput"
-                      type="number"
-                      class="narrow input-inline"
-                      onchange="ChangeIntTextbox('CellWidthCheckbox');"
-                      aria-labelledby="CellWidthCheckbox"
-                    />
+                  <hbox>
+                    <vbox>
+                      <hbox align="center" flex="1">
+                        <label
+                          id="TableRowsLabel"
+                          value="&tableRows.label;"
+                          accesskey="&tableRows.accessKey;"
+                          control="TableRowsInput"
+                        />
+                      </hbox>
+                      <hbox align="center" flex="1">
+                        <label
+                          id="TableColumnsLabel"
+                          value="&tableColumns.label;"
+                          accesskey="&tableColumns.accessKey;"
+                          control="TableColumnsInput"
+                        />
+                      </hbox>
+                    </vbox>
+                    <vbox>
+                      <html:input
+                        id="TableRowsInput"
+                        type="number"
+                        class="narrow input-inline"
+                        aria-labelledby="TableRowsLabel"
+                      />
+                      <html:input
+                        id="TableColumnsInput"
+                        type="number"
+                        class="narrow input-inline"
+                        aria-labelledby="TableColumnsLabel"
+                      />
+                    </vbox>
                   </hbox>
                 </vbox>
                 <vbox>
-                  <hbox flex="1" align="center">
-                    <menulist
-                      id="CellHeightUnits"
-                      oncommand="SetCheckbox('CellHeightCheckbox');"
-                    />
-                  </hbox>
-                  <hbox flex="1" align="center">
-                    <menulist
-                      id="CellWidthUnits"
-                      oncommand="SetCheckbox('CellWidthCheckbox');"
-                    />
-                  </hbox>
+                  <html:div class="grid-three-column">
+                    <html:div class="flex-items-center">
+                      <label
+                        id="TableHeightLabel"
+                        value="&tableHeight.label;"
+                        accesskey="&tableHeight.accessKey;"
+                        control="TableHeightInput"
+                      />
+                    </html:div>
+                    <html:div>
+                      <html:input
+                        id="TableHeightInput"
+                        type="number"
+                        class="narrow input-inline"
+                        aria-labelledby="TableHeightLabel"
+                      />
+                    </html:div>
+                    <html:div class="flex-items-center">
+                      <menulist id="TableHeightUnits" />
+                    </html:div>
+                    <html:div class="flex-items-center">
+                      <label
+                        id="TableWidthLabel"
+                        value="&tableWidth.label;"
+                        accesskey="&tableWidth.accessKey;"
+                        control="TableWidthInput"
+                      />
+                    </html:div>
+                    <html:div class="flex-items-center">
+                      <html:input
+                        id="TableWidthInput"
+                        type="number"
+                        class="narrow input-inline"
+                        aria-labelledby="TableWidthLabel"
+                      />
+                    </html:div>
+                    <html:div class="flex-items-center">
+                      <menulist id="TableWidthUnits" />
+                    </html:div>
+                  </html:div>
                 </vbox>
               </hbox>
             </html:fieldset>
             <html:fieldset>
-              <html:legend>&cellContentAlignment.label;</html:legend>
+              <html:legend>&tableBorderSpacing.label;</html:legend>
               <hbox>
                 <vbox>
-                  <hbox align="center" flex="1">
-                    <checkbox
-                      id="CellVAlignCheckbox"
-                      label="&cellVertical.label;"
-                      accesskey="&cellVertical.accessKey;"
+                  <hbox flex="1" align="center">
+                    <label
+                      id="BorderWidthLabel"
+                      control="BorderWidthInput"
+                      value="&tableBorderWidth.label;"
+                      accesskey="&tableBorderWidth.accessKey;"
                     />
                   </hbox>
-                  <hbox align="center" flex="1">
-                    <checkbox
-                      id="CellHAlignCheckbox"
-                      label="&cellHorizontal.label;"
-                      accesskey="&cellHorizontal.accessKey;"
+                  <hbox flex="1" align="center">
+                    <label
+                      id="SpacingLabel"
+                      control="SpacingInput"
+                      value="&tableSpacing.label;"
+                      accesskey="&tableSpacing.accessKey;"
+                    />
+                  </hbox>
+                  <hbox flex="1" align="center">
+                    <label
+                      id="PaddingLabel"
+                      control="PaddingInput"
+                      value="&tablePadding.label;"
+                      accesskey="&tablePadding.accessKey;"
                     />
                   </hbox>
                 </vbox>
-                <vbox flex="1">
-                  <menulist
-                    id="CellVAlignList"
-                    oncommand="SetCheckbox('CellVAlignCheckbox');"
-                  >
-                    <menupopup>
-                      <menuitem label="&cellAlignTop.label;" value="top" />
-                      <menuitem
-                        label="&cellAlignMiddle.label;"
-                        value="middle"
-                      />
-                      <menuitem
-                        label="&cellAlignBottom.label;"
-                        value="bottom"
-                      />
-                    </menupopup>
-                  </menulist>
-                  <menulist id="CellHAlignList" oncommand="SelectCellHAlign()">
-                    <menupopup>
-                      <menuitem label="&AlignLeft.label;" value="left" />
-                      <menuitem label="&AlignCenter.label;" value="center" />
-                      <menuitem label="&AlignRight.label;" value="right" />
-                      <menuitem
-                        label="&cellAlignJustify.label;"
-                        value="justify"
-                      />
-                    </menupopup>
-                  </menulist>
+                <vbox>
+                  <html:input
+                    id="BorderWidthInput"
+                    type="number"
+                    class="narrow input-inline"
+                    aria-labelledby="BorderWidthLabel"
+                  />
+                  <html:input
+                    id="SpacingInput"
+                    type="number"
+                    class="narrow input-inline"
+                    aria-labelledby="SpacingLabel"
+                  />
+                  <html:input
+                    id="PaddingInput"
+                    type="number"
+                    class="narrow input-inline"
+                    aria-labelledby="PaddingLabel"
+                  />
+                </vbox>
+                <vbox>
+                  <hbox flex="1" align="center">
+                    <label align="start" value="&pixels.label;" />
+                  </hbox>
+                  <hbox flex="1" align="center">
+                    <label value="&tablePxBetwCells.label;" />
+                  </hbox>
+                  <hbox flex="1" align="center">
+                    <label value="&tablePxBetwBrdrCellContent.label;" />
+                  </hbox>
                 </vbox>
               </hbox>
             </html:fieldset>
-          </hbox>
-          <spacer class="spacer" />
-          <hbox align="center">
-            <checkbox
-              id="CellStyleCheckbox"
-              label="&cellStyle.label;"
-              accesskey="&cellStyle.accessKey;"
-            />
-            <menulist
-              id="CellStyleList"
-              oncommand="SetCheckbox('CellStyleCheckbox');"
-            >
-              <menupopup>
-                <menuitem label="&cellNormal.label;" value="td" />
-                <menuitem label="&cellHeader.label;" value="th" />
-              </menupopup>
-            </menulist>
-            <spacer flex="1" />
-            <checkbox
-              id="TextWrapCheckbox"
-              label="&cellTextWrap.label;"
-              accesskey="&cellTextWrap.accessKey;"
-            />
-            <menulist
-              id="TextWrapList"
-              oncommand="SetCheckbox('TextWrapCheckbox');"
-            >
-              <menupopup>
-                <menuitem label="&cellWrap.label;" value="wrap" />
-                <menuitem label="&cellNoWrap.label;" value="nowrap" />
-              </menupopup>
-            </menulist>
-          </hbox>
-          <separator class="groove" />
-          <hbox align="center">
-            <checkbox
-              id="CellColorCheckbox"
-              label="&backgroundColor.label;"
-              accesskey="&backgroundColor.accessKey;"
-            />
-            <button
-              class="color-button"
-              oncommand="GetColorAndUpdate('cellBackgroundCW');"
-            >
-              <spacer id="cellBackgroundCW" class="color-well" />
-            </button>
+            <!-- Table Alignment and Caption -->
+            <hbox flex="1" align="center">
+              <label
+                control="TableAlignList"
+                value="&tableAlignment.label;"
+                accesskey="&tableAlignment.accessKey;"
+              />
+              <menulist id="TableAlignList">
+                <menupopup>
+                  <menuitem label="&AlignLeft.label;" value="left" />
+                  <menuitem label="&AlignCenter.label;" value="center" />
+                  <menuitem label="&AlignRight.label;" value="right" />
+                </menupopup>
+              </menulist>
+              <spacer class="spacer" />
+              <label
+                control="TableCaptionList"
+                value="&tableCaption.label;"
+                accesskey="&tableCaption.accessKey;"
+              />
+              <menulist id="TableCaptionList">
+                <menupopup>
+                  <menuitem label="&tableCaptionNone.label;" value="" />
+                  <menuitem label="&tableCaptionAbove.label;" value="top" />
+                  <menuitem label="&tableCaptionBelow.label;" value="bottom" />
+                  <menuitem label="&tableCaptionLeft.label;" value="left" />
+                  <menuitem label="&tableCaptionRight.label;" value="right" />
+                </menupopup>
+              </menulist>
+            </hbox>
+            <separator class="groove" />
+            <hbox align="center">
+              <label value="&backgroundColor.label;" />
+              <button
+                id="tableBackground"
+                class="color-button"
+                oncommand="GetColorAndUpdate('tableBackgroundCW');"
+              >
+                <spacer id="tableBackgroundCW" class="color-well" />
+              </button>
+              <spacer class="spacer" />
+              <label
+                id="TableInheritColor"
+                value="&tableInheritColor.label;"
+                collapsed="true"
+              />
+            </hbox>
+            <separator class="groove" />
+            <hbox flex="1" align="center">
+              <spacer flex="1" />
+              <button
+                id="AdvancedEditButton"
+                oncommand="onAdvancedEdit();"
+                label="&AdvancedEditButton.label;"
+                accesskey="&AdvancedEditButton.accessKey;"
+                tooltiptext="&AdvancedEditButton.tooltip;"
+              />
+            </hbox>
+            <spacer flex="1" /> </vbox
+          ><!-- Table Panel -->
+
+          <!-- CELL PANEL -->
+          <vbox>
+            <html:fieldset>
+              <html:legend>&cellSelection.label;</html:legend>
+              <vbox>
+                <menulist
+                  id="SelectionList"
+                  oncommand="ChangeSelection(event.target.value)"
+                >
+                  <menupopup>
+                    <!-- JS code assumes order is Cell, Row, Column -->
+                    <menuitem label="&cellSelectCell.label;" value="1" />
+                    <menuitem label="&cellSelectRow.label;" value="2" />
+                    <menuitem label="&cellSelectColumn.label;" value="3" />
+                  </menupopup>
+                </menulist>
+                <hbox>
+                  <button
+                    id="PreviousButton"
+                    label="&cellSelectPrevious.label;"
+                    accesskey="&cellSelectPrevious.accessKey;"
+                    oncommand="MoveSelection(0)"
+                  />
+                  <button
+                    id="NextButton"
+                    label="&cellSelectNext.label;"
+                    accesskey="&cellSelectNext.accessKey;"
+                    oncommand="MoveSelection(1)"
+                  />
+                </hbox>
+                <hbox flex="1"> &applyBeforeChange.label; </hbox>
+              </vbox>
+            </html:fieldset>
+
+            <separator class="groove" />
+
+            <hbox align="center">
+              <html:fieldset>
+                <html:legend>&size.label;</html:legend>
+                <hbox>
+                  <vbox>
+                    <hbox flex="1" align="center">
+                      <checkbox
+                        id="CellHeightCheckbox"
+                        label="&tableHeight.label;"
+                        accesskey="&tableHeight.accessKey;"
+                      />
+                    </hbox>
+                    <hbox flex="1" align="center">
+                      <checkbox
+                        id="CellWidthCheckbox"
+                        label="&tableWidth.label;"
+                        accesskey="&tableWidth.accessKey;"
+                      />
+                    </hbox>
+                  </vbox>
+                  <vbox flex="1">
+                    <hbox flex="1" align="center">
+                      <html:input
+                        id="CellHeightInput"
+                        type="number"
+                        class="narrow input-inline"
+                        onchange="ChangeIntTextbox('CellHeightCheckbox');"
+                        aria-labelledby="CellHeightCheckbox"
+                      />
+                    </hbox>
+                    <hbox flex="1" align="center">
+                      <html:input
+                        id="CellWidthInput"
+                        type="number"
+                        class="narrow input-inline"
+                        onchange="ChangeIntTextbox('CellWidthCheckbox');"
+                        aria-labelledby="CellWidthCheckbox"
+                      />
+                    </hbox>
+                  </vbox>
+                  <vbox>
+                    <hbox flex="1" align="center">
+                      <menulist
+                        id="CellHeightUnits"
+                        oncommand="SetCheckbox('CellHeightCheckbox');"
+                      />
+                    </hbox>
+                    <hbox flex="1" align="center">
+                      <menulist
+                        id="CellWidthUnits"
+                        oncommand="SetCheckbox('CellWidthCheckbox');"
+                      />
+                    </hbox>
+                  </vbox>
+                </hbox>
+              </html:fieldset>
+              <html:fieldset>
+                <html:legend>&cellContentAlignment.label;</html:legend>
+                <hbox>
+                  <vbox>
+                    <hbox align="center" flex="1">
+                      <checkbox
+                        id="CellVAlignCheckbox"
+                        label="&cellVertical.label;"
+                        accesskey="&cellVertical.accessKey;"
+                      />
+                    </hbox>
+                    <hbox align="center" flex="1">
+                      <checkbox
+                        id="CellHAlignCheckbox"
+                        label="&cellHorizontal.label;"
+                        accesskey="&cellHorizontal.accessKey;"
+                      />
+                    </hbox>
+                  </vbox>
+                  <vbox flex="1">
+                    <menulist
+                      id="CellVAlignList"
+                      oncommand="SetCheckbox('CellVAlignCheckbox');"
+                    >
+                      <menupopup>
+                        <menuitem label="&cellAlignTop.label;" value="top" />
+                        <menuitem
+                          label="&cellAlignMiddle.label;"
+                          value="middle"
+                        />
+                        <menuitem
+                          label="&cellAlignBottom.label;"
+                          value="bottom"
+                        />
+                      </menupopup>
+                    </menulist>
+                    <menulist
+                      id="CellHAlignList"
+                      oncommand="SelectCellHAlign()"
+                    >
+                      <menupopup>
+                        <menuitem label="&AlignLeft.label;" value="left" />
+                        <menuitem label="&AlignCenter.label;" value="center" />
+                        <menuitem label="&AlignRight.label;" value="right" />
+                        <menuitem
+                          label="&cellAlignJustify.label;"
+                          value="justify"
+                        />
+                      </menupopup>
+                    </menulist>
+                  </vbox>
+                </hbox>
+              </html:fieldset>
+            </hbox>
             <spacer class="spacer" />
-            <label
-              id="CellInheritColor"
-              value="&cellInheritColor.label;"
-              collapsed="true"
-            />
-          </hbox>
-          <separator class="groove" />
-          <hbox align="center">
-            <description class="wrap" flex="1" style="width: 1em"
-              >&cellUseCheckboxHelp.label;</description
-            >
-            <button
-              id="AdvancedEditButton2"
-              oncommand="onAdvancedEdit()"
-              label="&AdvancedEditButton.label;"
-              accesskey="&AdvancedEditButton.accessKey;"
-              tooltiptext="&AdvancedEditButton.tooltip;"
-            />
-          </hbox>
-          <spacer flex="1" /> </vbox
-        ><!-- Cell Panel -->
-      </tabpanels>
-    </tabbox>
-    <spacer class="spacer" />
-  </dialog>
-</window>
+            <hbox align="center">
+              <checkbox
+                id="CellStyleCheckbox"
+                label="&cellStyle.label;"
+                accesskey="&cellStyle.accessKey;"
+              />
+              <menulist
+                id="CellStyleList"
+                oncommand="SetCheckbox('CellStyleCheckbox');"
+              >
+                <menupopup>
+                  <menuitem label="&cellNormal.label;" value="td" />
+                  <menuitem label="&cellHeader.label;" value="th" />
+                </menupopup>
+              </menulist>
+              <spacer flex="1" />
+              <checkbox
+                id="TextWrapCheckbox"
+                label="&cellTextWrap.label;"
+                accesskey="&cellTextWrap.accessKey;"
+              />
+              <menulist
+                id="TextWrapList"
+                oncommand="SetCheckbox('TextWrapCheckbox');"
+              >
+                <menupopup>
+                  <menuitem label="&cellWrap.label;" value="wrap" />
+                  <menuitem label="&cellNoWrap.label;" value="nowrap" />
+                </menupopup>
+              </menulist>
+            </hbox>
+            <separator class="groove" />
+            <hbox align="center">
+              <checkbox
+                id="CellColorCheckbox"
+                label="&backgroundColor.label;"
+                accesskey="&backgroundColor.accessKey;"
+              />
+              <button
+                class="color-button"
+                oncommand="GetColorAndUpdate('cellBackgroundCW');"
+              >
+                <spacer id="cellBackgroundCW" class="color-well" />
+              </button>
+              <spacer class="spacer" />
+              <label
+                id="CellInheritColor"
+                value="&cellInheritColor.label;"
+                collapsed="true"
+              />
+            </hbox>
+            <separator class="groove" />
+            <hbox align="center">
+              <description class="wrap" flex="1" style="width: 1em"
+                >&cellUseCheckboxHelp.label;</description
+              >
+              <button
+                id="AdvancedEditButton2"
+                oncommand="onAdvancedEdit()"
+                label="&AdvancedEditButton.label;"
+                accesskey="&AdvancedEditButton.accessKey;"
+                tooltiptext="&AdvancedEditButton.tooltip;"
+              />
+            </hbox>
+            <spacer flex="1" /> </vbox
+          ><!-- Cell Panel -->
+        </tabpanels>
+      </tabbox>
+      <spacer class="spacer" />
+    </dialog>
+  </html:body>
+</html>

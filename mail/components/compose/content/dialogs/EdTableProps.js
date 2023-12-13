@@ -73,8 +73,7 @@ var gCanDelete = false;
 var gUseCSS = true;
 var gActiveEditor;
 
-// dialog initialization code
-
+window.addEventListener("load", Startup);
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogextra1", Apply);
 document.addEventListener("dialogcancel", onCancel);
