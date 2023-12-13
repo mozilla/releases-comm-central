@@ -4,6 +4,10 @@
 
 @import url("chrome://messenger/skin/messenger.css");
 
+.inline-notification-wrapper {
+  max-width: 95vw;
+}
+
 description {
   padding-inline: 2px;
 }

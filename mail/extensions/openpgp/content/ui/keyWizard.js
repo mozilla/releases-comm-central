@@ -77,7 +77,8 @@ before importing and publishing this revocation certificate.
 
 var syncl10n = new Localization(["messenger/openpgp/keyWizard.ftl"], true);
 
-// Dialog event listeners.
+window.addEventListener("load", initKeyWiz);
+
 document.addEventListener("dialogaccept", wizardContinue);
 document.addEventListener("dialogextra1", goBack);
 document.addEventListener("dialogcancel", onClose);
@@ -85,7 +86,7 @@ document.addEventListener("dialogcancel", onClose);
 /**
  * Initialize the keyWizard dialog.
  */
-async function init() {
+async function initKeyWiz() {
   gSubDialog = window.arguments[0].gSubDialog;
   gIdentity = window.arguments[0].identity || null;
   gIdentityList = document.getElementById("userIdentity");
