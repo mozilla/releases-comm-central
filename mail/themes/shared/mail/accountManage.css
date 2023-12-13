@@ -28,10 +28,10 @@ fieldset {
   margin: 0 0 32px;
   padding: initial;
   border-style: none;
-}
 
-fieldset:last-of-type {
-  margin-bottom: 0;
+  &:last-of-type {
+    margin-bottom: 0;
+  }
 }
 
 .openpgp-more-btn > menupopup {
@@ -41,28 +41,28 @@ fieldset:last-of-type {
   --panel-border-radius: 2px;
   --panel-background: var(--in-content-box-background);
   --panel-color: var(--in-content-text-color);
-  --panel-padding: 0;
-}
+  --panel-padding: 3px 0;
 
-.openpgp-more-btn > menupopup > menuitem {
-  appearance: none;
-  color: var(--in-content-text-color);
-  padding-block: 0.2em;
-  padding-inline: 10px 30px;
-}
+  & > menuitem {
+    appearance: none;
+    color: var(--in-content-text-color);
+    padding-block: 0.2em;
+    padding-inline: 10px 30px;
 
-.openpgp-more-btn > menupopup > menuitem[_moz-menuactive="true"] {
-  color: var(--in-content-item-hover-text);
-  background-color: var(--in-content-item-hover);
-}
+    &[_moz-menuactive="true"] {
+      color: var(--in-content-item-hover-text);
+      background-color: var(--in-content-item-hover);
+    }
 
-.openpgp-more-btn > menupopup > menuitem[selected="true"] {
-  color: var(--in-content-item-selected-text);
-  background-color: var(--in-content-item-selected);
-}
+    &[selected="true"] {
+      color: var(--in-content-item-selected-text);
+      background-color: var(--in-content-item-selected);
+    }
+  }
 
-.openpgp-more-btn > menupopup > menuseparator {
-  padding-inline: 8px;
+  & > menuseparator {
+    padding-inline: 8px;
+  }
 }
 
 #archiveHierarchyButton,
@@ -89,74 +89,65 @@ fieldset:last-of-type {
 .input-container:not([hidden="true"]) {
   display: flex;
   align-items: center;
-}
 
-.input-container.container-column:not([hidden="true"]) {
-  flex-direction: column;
-}
-
-.input-container:not([hidden="true"]) > .input-inline {
-  flex: 1;
+  & > .input-inline {
+    flex: 1;
+  }
 }
 
 menulist.input-inline {
   margin: 2px 4px;
 }
 
-.identity-table {
-  margin-inline-end: 14px;
-}
-
 menupopup[is="folder-menupopup"] {
   appearance: none;
 }
 
-menulist > menupopup menu,
-menulist > menupopup menuitem {
-  padding-inline-end: 5px;
-}
+menulist > menupopup {
+  & :is(menu, menuitem) {
+    padding-inline-end: 5px;
+  }
 
-/* Needed for additional menupopup levels */
-menulist > menupopup menupopup {
-  font: inherit;
-}
+  /* Needed for additional menupopup levels */
+  & menupopup {
+    font: inherit;
 
-menulist > menupopup menupopup > menu,
-menulist > menupopup menupopup > menuitem {
-  border: 1px solid transparent;
-}
+    & > :is(menu, menuitem) {
+      border: 1px solid transparent;
 
-menulist > menupopup menupopup > menu:not([disabled="true"])[_moz-menuactive="true"],
-menulist > menupopup menupopup > menuitem:not([disabled="true"])[_moz-menuactive="true"] {
-  color: var(--in-content-text-color);
-  background-color: var(--in-content-item-hover);
-}
+      &:not([disabled="true"])[_moz-menuactive="true"] {
+        color: var(--in-content-text-color);
+        background-color: var(--in-content-item-hover);
+      }
 
-menulist > menupopup menupopup > menu[disabled="true"],
-menulist > menupopup menupopup > menuitem[disabled="true"] {
-  color: #999;
-  /* override the [_moz-menuactive="true"] background color from
-     global/menu.css */
-  background-color: transparent;
-}
+      &[disabled="true"] {
+        color: #999;
+        /* override the [_moz-menuactive="true"] background color from
+           global/menu.css */
+        background-color: transparent;
+      }
+    }
 
-menulist > menupopup .menu-right {
-  appearance: none;
-  -moz-context-properties: fill;
-  list-style-image: url("chrome://global/skin/icons/arrow-left-12.svg");
-  fill: currentColor;
-}
+    & menuseparator {
+      appearance: none;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid var(--in-content-box-border-color);
+      border-bottom: none;
+    }
+  }
 
-menulist > menupopup .menu-right:-moz-locale-dir(ltr) {
-  transform: scaleX(-1);
-}
+  & .menu-right {
+    appearance: none;
+    margin-inline-end: 5px;
+    -moz-context-properties: fill;
+    list-style-image: url("chrome://global/skin/icons/arrow-left-12.svg");
+    fill: currentColor;
 
-menulist > menupopup menupopup menuseparator {
-  appearance: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--in-content-box-border-color);
-  border-bottom: none;
+    &:-moz-locale-dir(ltr) {
+      transform: scaleX(-1);
+    }
+  }
 }
 
 .specialFolderPickerGrid {
@@ -200,12 +191,14 @@ richlistitem[default="true"],
   margin-inline-end: 12px;
 }
 
-#whiteListAbURI richlistitem {
-  padding-inline-start: 10px;
-}
+#whiteListAbURI {
+  & richlistitem {
+    padding-inline-start: 10px;
+  }
 
-#whiteListAbURI checkbox {
-  -moz-user-focus: none;
+  & checkbox {
+    -moz-user-focus: none;
+  }
 }
 
 #identitiesList richlistitem {
@@ -216,10 +209,10 @@ richlistitem[default="true"],
 
 #identityDialog.doScroll {
   margin-inline: 0;
-}
 
-#identityDialog.doScroll::part(content-box) {
-  contain: initial;
+  &::part(content-box) {
+    contain: initial;
+  }
 }
 
 #identityTabsPanels > vbox {
@@ -232,17 +225,17 @@ richlistitem[default="true"],
 #amServerSetting {
   display: inline-grid;
   grid-template-columns: max-content 1fr auto;
-}
 
-#amServerSetting div:not([hidden]) {
-  /* Do not override display: none when hidden. */
-  display: flex;
-  align-items: center;
-}
+  & div:not([hidden]) {
+    /* Do not override display: none when hidden. */
+    display: flex;
+    align-items: center;
+  }
 
-#amServerSetting .input-flex {
-  flex-grow: 1;
-  width: 14ch;
+  & .input-flex {
+    flex-grow: 1;
+    width: 14ch;
+  }
 }
 
 /* ::::: SMTP Server Panel :::::: */
@@ -259,19 +252,19 @@ richlistitem[default="true"],
   border-radius: 4px;
   border-spacing: 0;
   background-color: rgba(215, 215, 219, 0.2);
-}
 
-#smtpServerInfoBox th {
-  height: 1.7em;
-  padding: 0;
-  text-align: end;
-  width: 10%;
-  white-space: nowrap;
-}
+  & th {
+    height: 1.7em;
+    padding: 0;
+    text-align: end;
+    width: 10%;
+    white-space: nowrap;
+  }
 
-#smtpServerInfoBox td {
-  padding: 0;
-  padding-inline-start: 8px;
+  & td {
+    padding: 0;
+    padding-inline-start: 8px;
+  }
 }
 
 /* ::::: dialog header ::::: */
@@ -285,17 +278,21 @@ richlistitem[default="true"],
   color: var(--in-content-text-color);
 }
 
-.identity-table th {
-  font-weight: normal;
-  text-align: left;
-}
+.identity-table {
+  margin-inline-end: -4px;
 
-.identity-table td {
-  padding-inline-end: 10px;
-}
+  & th {
+    font-weight: normal;
+    text-align: start;
+  }
 
-.identity-table td input {
-  width: 100%;
+  & td {
+    padding-inline-end: 10px;
+
+    & input {
+      width: 100%;
+    }
+  }
 }
 
 /* ::::: e2e encryption ::::: */
@@ -325,16 +322,16 @@ richlistitem[default="true"],
   -moz-context-properties: fill, stroke;
   margin-inline-end: 2px;
   width: 16px;
-}
 
-.openpgp-status.status-success {
-  fill: color-mix(in srgb, var(--color-green-50) 20%, transparent);
-  stroke: var(--color-green-50);
-}
+  &.status-success {
+    fill: color-mix(in srgb, var(--color-green-50) 20%, transparent);
+    stroke: var(--color-green-50);
+  }
 
-.openpgp-status.status-error {
-  fill: color-mix(in srgb, var(--color-red-50) 20%, transparent);
-  stroke: var(--color-red-50);
+  &.status-error {
+    fill: color-mix(in srgb, var(--color-red-50) 20%, transparent);
+    stroke: var(--color-red-50);
+  }
 }
 
 /* ::::: OpenPGP key selection ::::: */
@@ -364,20 +361,45 @@ richlistitem[default="true"],
   padding: 9px;
   border: 1px solid var(--in-content-border-color);
   background-color: rgba(215, 215, 219, 0.2);
-}
 
-.content-blocking-category.disabled {
-  opacity: 0.5;
-}
+  &.selected {
+    border: 1px solid #45A1FF;
+    background-color: rgba(69, 161, 255, 0.2);
+  }
 
-.content-blocking-category.disabled .radio-check {
-  opacity: 1;
+  &.disabled {
+    opacity: 0.5;
+
+    & .radio-check {
+      opacity: 1;
+    }
+  }
+
+  &.expanded {
+    & .content-blocking-extra-information {
+      visibility: visible;
+      display: flex;
+      flex-direction: column;
+      align-content: stretch;
+      margin-bottom: 10px;
+    }
+
+    &:not(.selected) .content-blocking-warning {
+      background-color: var(--grey-90-a10);
+    }
+  }
+
+  /* Apply display: block to the containers of all the category information, as
+   * without this the flex-wrapped blocks inside don't stretch vertically to
+   * enclose their content. */
+  & > .indent {
+    display: block;
+  }
 }
 
 .content-blocking-warning > .indent,
 .content-blocking-category > .indent {
-  margin-inline-end: 28px;
-  margin-inline-start: 30px;
+  margin-inline: 28px 30px;
 }
 
 .arrowhead {
@@ -393,28 +415,19 @@ richlistitem[default="true"],
   padding: 3px;
   -moz-context-properties: stroke;
   stroke: currentColor;
-}
 
-.arrowhead:not([disabled]):hover {
-  cursor: pointer;
-  background-color: var(--grey-90-a10);
-}
+  &:not([disabled]):hover {
+    cursor: pointer;
+    background-color: var(--grey-90-a10);
 
-.arrowhead:not([disabled]):hover:active {
-  background-color: var(--grey-90-a20);
-}
+    &:active {
+      background-color: var(--grey-90-a20);
+    }
+  }
 
-.arrowhead.up {
-  list-style-image: url("chrome://messenger/skin/icons/new/nav-up-sm.svg");
-}
-
-.content-blocking-category.expanded:not(.selected) .content-blocking-warning {
-  background-color: var(--grey-90-a10);
-}
-
-.content-blocking-category.selected {
-  border: 1px solid #45A1FF;
-  background-color: rgba(69, 161, 255, 0.2);
+  &.up {
+    list-style-image: url("chrome://messenger/skin/icons/new/nav-up-sm.svg");
+  }
 }
 
 .content-blocking-warning-title,
@@ -424,6 +437,10 @@ richlistitem[default="true"],
 
 .content-blocking-extra-information {
   visibility: collapse;
+
+  & > .custom-option {
+    margin: 10px 0;
+  }
 }
 
 .extra-information-label {
@@ -432,25 +449,11 @@ richlistitem[default="true"],
   row-gap: 10px;
   align-items: center;
   margin-block: 18px;
-}
 
-/* Apply display: block to the containers of all the category information, as
- * without this the flex-wrapped blocks inside don't stretch vertically to
- * enclose their content. */
-.content-blocking-category > .indent {
-  display: block;
-}
-
-.content-blocking-category.expanded .content-blocking-extra-information {
-  visibility: visible;
-  display: flex;
-  flex-direction: column;
-  align-content: stretch;
-  margin-bottom: 10px;
-}
-
-.content-blocking-extra-information > .custom-option {
-  margin: 10px 0;
+  /* Key info icons */
+  & > img {
+    margin-inline-end: 5px;
+  }
 }
 
 .content-blocking-warning {
@@ -458,10 +461,10 @@ richlistitem[default="true"],
   border-radius: 4px;
   padding: 10px 0;
   margin: 10px 0;
-}
 
-.content-blocking-warning:not([hidden]) + .content-blocking-warning {
-  margin-top: 0;
+  &:not([hidden]) + & {
+    margin-top: 0;
+  }
 }
 
 .content-blocking-category-description {
@@ -476,20 +479,22 @@ richlistitem[default="true"],
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
   width: 16px;
+
+  &:not([src]) {
+    display: none;
+  }
 }
 
-.expiration-date-icon:not([src]) {
-  display: none;
-}
+.expiration-date-container.key-expired {
+  & description {
+    color: var(--color-red-50);
+    font-weight: 600;
+  }
 
-.expiration-date-container.key-expired description {
-  color: var(--color-red-50);
-  font-weight: 600;
-}
-
-.expiration-date-container.key-expired .expiration-date-icon {
-  fill: color-mix(in srgb, var(--color-amber-50) 20%, transparent);
-  stroke: var(--color-amber-50);
+  & .expiration-date-icon {
+    fill: color-mix(in srgb, var(--color-amber-50) 20%, transparent);
+    stroke: var(--color-amber-50);
+  }
 }
 
 .first-element {
@@ -512,25 +517,20 @@ richlistitem[default="true"],
   margin-inline-end: 4px;
 }
 
-/* Key info icons */
-.extra-information-label > img {
-  margin-inline-end: 5px;
-}
-
 .openpgp-key-details {
   margin-bottom: 18px;
   border: 1px solid var(--in-content-box-border-color);
   border-radius: 4px;
   overflow: hidden;
   background-color: var(--in-content-page-background);
-}
 
-.openpgp-key-details tabs {
-  border-top: none;
-}
+  & tabs {
+    border-top: none;
+  }
 
-.openpgp-key-details tabpanels {
-  padding: 0 10px 18px;
+  & tabpanels {
+    padding: 0 10px 18px;
+  }
 }
 
 .openpgp-image-btn .button-icon {
@@ -589,12 +589,12 @@ richlistitem[default="true"],
   list-style-type: none;
   margin: 0;
   padding: 0;
-}
 
-.chat-encryption-sessions li {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  & li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
 }
 
 .chat-current-session > span {
