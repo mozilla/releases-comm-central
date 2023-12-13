@@ -1,76 +1,99 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
-- License, v. 2.0. If a copy of the MPL was not distributed with this
-- file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertMath.dtd">
-
-<window
-  title="&windowTitle.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertMath.dtd">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   lightweightthemes="true"
-  onload="Startup();"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-  <dialog
-    buttonlabelaccept="&insertButton.label;"
-    buttonaccesskeyaccept="&insertButton.accesskey;"
+  <head>
+    <title>&windowTitle.label;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdInsertMath.js"
+    ></script>
+    <link rel="localization" href="branding/brand.ftl" />
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
-    <!-- Methods common to all editor dialogs -->
-    <script src="chrome://messenger/content/globalOverlay.js" />
-    <script src="chrome://global/content/editMenuOverlay.js" />
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <script src="chrome://messenger/content/messengercompose/EdInsertMath.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
-
-    <label id="srcMessage" value="&sourceEditField.label;" />
-    <html:textarea
-      id="input"
-      rows="5"
-      oninput="updateMath();"
-      placeholder="\sqrt{x_1} + \frac{π^3}{2}"
-    />
-    <vbox flex="1" style="overflow: auto; width: 30em; height: 5em">
-      <description id="output" />
-    </vbox>
-    <tabbox id="tabboxInsertLaTeXCommand">
-      <tabs />
-      <tabpanels oncommand="insertLaTeXCommand(event.target);" />
-    </tabbox>
-    <spacer class="spacer" />
-    <html:fieldset>
-      <html:legend>&options.label;</html:legend>
-      <hbox>
-        <radiogroup id="optionMode" oncommand="updateMode();">
-          <radio
-            label="&optionInline.label;"
-            accesskey="&optionInline.accesskey;"
-          />
-          <radio
-            label="&optionDisplay.label;"
-            accesskey="&optionDisplay.accesskey;"
-          />
-        </radiogroup>
-        <radiogroup id="optionDirection" oncommand="updateDirection();">
-          <radio label="&optionLTR.label;" accesskey="&optionLTR.accesskey;" />
-          <radio label="&optionRTL.label;" accesskey="&optionRTL.accesskey;" />
-        </radiogroup>
-      </hbox>
-    </html:fieldset>
-    <spacer class="spacer" />
-    <separator class="groove" />
-  </dialog>
-</window>
+    <dialog
+      buttonlabelaccept="&insertButton.label;"
+      buttonaccesskeyaccept="&insertButton.accesskey;"
+    >
+      <spacer id="location" offsetY="50" persist="offsetX offsetY" />
+      <label id="srcMessage" value="&sourceEditField.label;" />
+      <html:textarea
+        id="input"
+        rows="5"
+        oninput="updateMath();"
+        placeholder="\sqrt{x_1} + \frac{π^3}{2}"
+      />
+      <vbox flex="1" style="overflow: auto; width: 30em; height: 5em">
+        <description id="output" />
+      </vbox>
+      <tabbox id="tabboxInsertLaTeXCommand">
+        <tabs />
+        <tabpanels oncommand="insertLaTeXCommand(event.target);" />
+      </tabbox>
+      <spacer class="spacer" />
+      <html:fieldset>
+        <html:legend>&options.label;</html:legend>
+        <hbox>
+          <radiogroup id="optionMode" oncommand="updateMode();">
+            <radio
+              label="&optionInline.label;"
+              accesskey="&optionInline.accesskey;"
+            />
+            <radio
+              label="&optionDisplay.label;"
+              accesskey="&optionDisplay.accesskey;"
+            />
+          </radiogroup>
+          <radiogroup id="optionDirection" oncommand="updateDirection();">
+            <radio
+              label="&optionLTR.label;"
+              accesskey="&optionLTR.accesskey;"
+            />
+            <radio
+              label="&optionRTL.label;"
+              accesskey="&optionRTL.accesskey;"
+            />
+          </radiogroup>
+        </hbox>
+      </html:fieldset>
+      <spacer class="spacer" />
+      <separator class="groove" />
+    </dialog>
+  </html:body>
+</html>
