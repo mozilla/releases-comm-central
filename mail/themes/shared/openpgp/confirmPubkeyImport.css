@@ -4,8 +4,14 @@
 
 @import url("chrome://messenger/skin/messenger.css");
 
+html {
+  min-width: 55em;
+  min-height: 560px;
+}
+
 #confirmPubkeyImportDialog {
-  width: 55em;
+  height: 100vh;
+  width: 100vw;
 
   @media not (-moz-platform: macos) {
     &::part(content-box) {

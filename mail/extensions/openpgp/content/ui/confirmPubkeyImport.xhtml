@@ -3,59 +3,60 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window>
-
-<window
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  scrolling="false"
 >
-  <dialog
-    id="confirmPubkeyImportDialog"
-    data-l10n-id="pubkey-import-button"
-    data-l10n-attrs="buttonlabelaccept"
-    buttons="accept,cancel"
+  <head>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/openpgp/inlineNotification.css"
+    />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/openpgp/confirmPubkeyImport.css"
+    />
+    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+    <link rel="localization" href="messenger/openpgp/oneRecipientStatus.ftl" />
+    <script
+      defer="defer"
+      src="chrome://openpgp/content/ui/confirmPubkeyImport.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
-    <script src="chrome://openpgp/content/ui/confirmPubkeyImport.js" />
+    <dialog
+      id="confirmPubkeyImportDialog"
+      data-l10n-id="pubkey-import-button"
+      data-l10n-attrs="buttonlabelaccept"
+    >
+      <vbox>
+        <description id="importInfo" />
 
-    <linkset>
-      <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/openpgp/confirmPubkeyImport.css"
-      />
-      <html:link
-        rel="stylesheet"
-        href="chrome://messenger/skin/openpgp/inlineNotification.css"
-      />
+        <vbox id="importKeyListContainer">
+          <vbox id="importKeyList" />
+        </vbox>
 
-      <html:link rel="localization" href="branding/brand.ftl" />
-      <html:link rel="localization" href="messenger/openpgp/openpgp.ftl" />
-      <html:link
-        rel="localization"
-        href="messenger/openpgp/oneRecipientStatus.ftl"
-      />
-    </linkset>
+        <separator />
 
-    <vbox>
-      <description id="importInfo" />
-
-      <vbox id="importKeyListContainer">
-        <vbox id="importKeyList" />
+        <vbox id="acceptancePanel">
+          <description id="acceptInfo" />
+          <html:div>
+            <html:fieldset>
+              <radiogroup id="acceptanceRadio" class="indent">
+                <radio id="acceptUndecided" value="undecided" selected="true" />
+                <radio id="acceptUnverified" value="unverified" />
+              </radiogroup>
+            </html:fieldset>
+          </html:div>
+        </vbox>
       </vbox>
-
-      <separator />
-
-      <vbox id="acceptancePanel">
-        <description id="acceptInfo" />
-        <html:div>
-          <html:fieldset>
-            <radiogroup id="acceptanceRadio" class="indent">
-              <radio id="acceptUndecided" value="undecided" selected="true" />
-              <radio id="acceptUnverified" value="unverified" />
-            </radiogroup>
-          </html:fieldset>
-        </html:div>
-      </vbox>
-    </vbox>
-  </dialog>
-</window>
+    </dialog>
+  </html:body>
+</html>
