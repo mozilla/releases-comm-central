@@ -48,6 +48,11 @@ add_task(async function testSetViewSingle() {
     "viewFlags should start threaded"
   );
   Assert.equal(
+    info.sortType,
+    Ci.nsMsgViewSortType.byDate,
+    "sortType should start byDate"
+  );
+  Assert.equal(
     info.sortOrder,
     Ci.nsMsgViewSortOrder.descending,
     "sortOrder should start descending"
@@ -73,6 +78,22 @@ add_task(async function testSetViewSingle() {
   await TestUtils.waitForCondition(
     () => info.sortOrder == Ci.nsMsgViewSortOrder.descending,
     "should change sortOrder to sort descending"
+  );
+
+  Assert.equal(
+    info.viewFlags,
+    Ci.nsMsgViewFlagsType.kNone,
+    "viewFlags should now be unthreaded"
+  );
+  Assert.equal(
+    info.sortType,
+    Ci.nsMsgViewSortType.bySubject,
+    "sortType should now be bySubject"
+  );
+  Assert.equal(
+    info.sortOrder,
+    Ci.nsMsgViewSortOrder.descending,
+    "sortOrder should now be descending"
   );
 });
 
@@ -136,9 +157,6 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
  */
 add_task(async function test_apply_to_folder_no_children() {
   const child1Info = folderChild1.msgDatabase.dBFolderInfo;
-  const child1InfoViewFlags = child1Info.viewFlags;
-  const child1InfoSortType = child1Info.sortType;
-  const child1InfoSortOrder = child1Info.sortOrder;
   Assert.equal(
     child1Info.viewFlags,
     Ci.nsMsgViewFlagsType.kThreadedDisplay,
@@ -161,34 +179,34 @@ add_task(async function test_apply_to_folder_no_children() {
   // Should apply to the folderParent.
   Assert.equal(
     folderParent.msgDatabase.dBFolderInfo.viewFlags,
-    folderSource.msgDatabase.dBFolderInfo.viewFlags,
+    Ci.nsMsgViewFlagsType.kNone,
     "viewFlags should have been applied"
   );
   Assert.equal(
     folderParent.msgDatabase.dBFolderInfo.sortType,
-    folderSource.msgDatabase.dBFolderInfo.sortType,
+    Ci.nsMsgViewSortType.bySubject,
     "sortType should have been applied"
   );
   Assert.equal(
     folderParent.msgDatabase.dBFolderInfo.sortOrder,
-    folderSource.msgDatabase.dBFolderInfo.sortOrder,
+    Ci.nsMsgViewSortOrder.descending,
     "sortOrder should have been applied"
   );
 
   // Shouldn't have applied to its children.
   Assert.equal(
     folderChild1.msgDatabase.dBFolderInfo.viewFlags,
-    child1InfoViewFlags,
+    Ci.nsMsgViewFlagsType.kThreadedDisplay,
     "viewFlags should not have been applied to children"
   );
   Assert.equal(
     folderChild1.msgDatabase.dBFolderInfo.sortType,
-    child1InfoSortType,
+    Ci.nsMsgViewSortType.byDate,
     "sortType should not have been applied to children"
   );
   Assert.equal(
     folderChild1.msgDatabase.dBFolderInfo.sortOrder,
-    child1InfoSortOrder,
+    Ci.nsMsgViewSortOrder.descending,
     "sortOrder should not have been applied to children"
   );
 });
@@ -223,17 +241,17 @@ add_task(async function test_apply_to_folder_and_children() {
   // Should apply to the folderParent.
   Assert.equal(
     folderParent.msgDatabase.dBFolderInfo.viewFlags,
-    folderSource.msgDatabase.dBFolderInfo.viewFlags,
+    Ci.nsMsgViewFlagsType.kNone,
     "viewFlags should have been applied to parent"
   );
   Assert.equal(
     folderParent.msgDatabase.dBFolderInfo.sortType,
-    folderSource.msgDatabase.dBFolderInfo.sortType,
+    Ci.nsMsgViewSortType.bySubject,
     "sortType should have been applied to parent"
   );
   Assert.equal(
     folderParent.msgDatabase.dBFolderInfo.sortOrder,
-    folderSource.msgDatabase.dBFolderInfo.sortOrder,
+    Ci.nsMsgViewSortOrder.descending,
     "sortOrder should have been applied"
   );
 
@@ -241,17 +259,17 @@ add_task(async function test_apply_to_folder_and_children() {
   for (const child of folderParent.descendants) {
     Assert.equal(
       child.msgDatabase.dBFolderInfo.viewFlags,
-      folderSource.msgDatabase.dBFolderInfo.viewFlags,
+      Ci.nsMsgViewFlagsType.kNone,
       "viewFlags should have been applied to children"
     );
     Assert.equal(
       child.msgDatabase.dBFolderInfo.sortType,
-      folderSource.msgDatabase.dBFolderInfo.sortType,
+      Ci.nsMsgViewSortType.bySubject,
       "sortType should have been applied to children"
     );
     Assert.equal(
       child.msgDatabase.dBFolderInfo.sortOrder,
-      folderSource.msgDatabase.dBFolderInfo.sortOrder,
+      Ci.nsMsgViewSortOrder.descending,
       "sortOrder should have been applied to children"
     );
   }
@@ -275,7 +293,7 @@ add_task(async function test_apply_to_root_folder_and_children() {
   Assert.equal(
     info.viewFlags,
     Ci.nsMsgViewFlagsType.kNone,
-    "viewFlags should be set to none"
+    "viewFlags should be set to unthreaded"
   );
   Assert.equal(
     info.sortType,
