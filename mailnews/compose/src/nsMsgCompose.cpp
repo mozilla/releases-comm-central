@@ -682,14 +682,14 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
             if (brBeforeDiv) {
               tagLocalName = brBeforeDiv->LocalName();
               if (tagLocalName.EqualsLiteral("br")) {
-                rv = htmlEditor->DeleteNode(brBeforeDiv);
+                rv = htmlEditor->DeleteNode(brBeforeDiv, false, 1);
                 NS_ENSURE_SUCCESS(rv, rv);
               }
             }
           }
 
           // Clean up the <br> we inserted.
-          rv = htmlEditor->DeleteNode(extraBr);
+          rv = htmlEditor->DeleteNode(extraBr, false, 1);
           NS_ENSURE_SUCCESS(rv, rv);
         }
 
@@ -4968,7 +4968,7 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity* aIdentity) {
       nsCOMPtr<nsIEditor> editor(m_editor);  // Strong reference.
       editor->BeginTransaction();
       tempNode = node->GetPreviousSibling();
-      rv = editor->DeleteNode(node);
+      rv = editor->DeleteNode(node, false, 1);
       if (NS_FAILED(rv)) {
         editor->EndTransaction();
         return rv;
@@ -4977,7 +4977,8 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity* aIdentity) {
       // Also, remove the <br> right before the signature.
       if (tempNode) {
         tagLocalName = tempNode->LocalName();
-        if (tagLocalName.EqualsLiteral("br")) editor->DeleteNode(tempNode);
+        if (tagLocalName.EqualsLiteral("br"))
+          editor->DeleteNode(tempNode, false, 1);
       }
       editor->EndTransaction();
     }
