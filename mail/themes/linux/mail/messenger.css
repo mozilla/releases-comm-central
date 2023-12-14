@@ -20,6 +20,14 @@
   }
 }
 
+/* Override toolkit */
+:root:-moz-lwtheme {
+  toolbar {
+    color-scheme: light dark;
+    background-color: transparent;
+  }
+}
+
 #tabs-toolbar {
   --toolbarbutton-hover-background: light-dark(var(--lwt-toolbarbutton-hover-background,
                                                hsla(240, 5%, 5%, .1)),
@@ -82,6 +90,7 @@
   #toolbar-menubar {
     appearance: none;
     color: inherit;
+    background-color: transparent;
   }
 
   #mail-menubar {
