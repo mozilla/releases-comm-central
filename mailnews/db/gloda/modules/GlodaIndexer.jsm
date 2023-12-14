@@ -732,7 +732,9 @@ var GlodaIndexer = {
       if ("_indexingFolder" in indexer) {
         prettyName =
           indexer._indexingFolder != null
-            ? indexer._indexingFolder.prettyName
+            ? indexer._indexingFolder.prettyPath +
+              " - " +
+              indexer._indexingFolder.server.prettyName
             : null;
       } else {
         prettyName = null;
