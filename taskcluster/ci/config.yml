@@ -132,6 +132,38 @@ merge-automation:
             from-branch: 'comm'
             to-repo: 'https://hg.mozilla.org/releases/comm-beta'
             to-branch: 'comm-beta'
+        comm-beta-to-release:
+            fetch-version-from: "mail/config/version.txt"
+            version-files:
+                - filename: "mail/config/version_display.txt"
+                  new-suffix: ''
+            replacements:
+                - - suite/config/version_display.txt
+                  - b1
+                  - ''
+                - - .gecko_rev.yml
+                  - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/releases/mozilla-beta"
+                  - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/releases/mozilla-release"
+            merge-old-head: true
+            base-tag: 'RELEASE_{major_version}_BASE'
+            end-tag: 'RELEASE_{major_version}_END'
+            from-repo: 'https://hg.mozilla.org/releases/comm-beta'
+            from-branch: 'comm-beta'
+            to-repo: 'https://hg.mozilla.org/releases/comm-release'
+            to-branch: 'comm-release'
+        comm-release-to-esr:
+            fetch-version-from: "mail/config/version.txt"
+            version-files:
+                - filename: "mail/config/version_display.txt"
+                  new-suffix: 'esr'
+            replacements:
+                - - .gecko_rev.yml
+                  - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/releases/mozilla-release"
+                  - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/releases/mozilla-esr115"
+            merge-old-head: false
+            end-tag: "ESR_{major_version}_BASE"
+            to-repo: 'https://hg.mozilla.org/releases/comm-esr115'
+            to-branch: 'comm-esr115'
         comm-bump-central:
             fetch-version-from: "mail/config/version.txt"
             version-files:
@@ -152,6 +184,17 @@ merge-automation:
             end-tag: 'NIGHTLY_{major_version}_END'
             to-repo: 'https://hg.mozilla.org/comm-central'
             to-branch: 'comm'
+        comm-bump-esr115:
+            fetch-version-from: "mail/config/version.txt"
+            version-files:
+                - filename: "mail/config/version.txt"
+                  version-bump: "minor"
+                - filename: "mail/config/version_display.txt"
+                  version-bump: "minor"
+            replacements: []
+            merge-old-head: false
+            to-repo: 'https://hg.mozilla.org/releases/comm-esr115'
+            to-branch: 'comm-esr115'
 
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
