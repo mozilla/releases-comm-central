@@ -27,12 +27,6 @@ XPCOMUtils.defineLazyGetter(lazy, "dialogsBundle", function () {
   );
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "passwordsBundle", function () {
-  return Services.strings.createBundle(
-    "chrome://passwordmgr/locale/passwordmgr.properties"
-  );
-});
-
 XPCOMUtils.defineLazyGetter(lazy, "brandFullName", function () {
   return Services.strings
     .createBundle("chrome://branding/locale/brand.properties")
@@ -196,6 +190,8 @@ MsgAsyncPrompter.prototype = {
 class MsgAuthPrompt {
   QueryInterface = ChromeUtils.generateQI(["nsIAuthPrompt"]);
 
+  static l10n = new Localization(["messenger/msgAuthPrompt.ftl"], true);
+
   _getFormattedOrigin(aURI) {
     let uri;
     if (aURI instanceof Ci.nsIURI) {
@@ -223,13 +219,6 @@ class MsgAuthPrompt {
     const formattedOrigin = this._getFormattedOrigin(uri);
 
     return [formattedOrigin, formattedOrigin + pathname, uri.username];
-  }
-
-  _getLocalizedString(key, formatArgs) {
-    if (formatArgs) {
-      return lazy.passwordsBundle.formatStringFromName(key, formatArgs);
-    }
-    return lazy.passwordsBundle.GetStringFromName(key);
   }
 
   /**
@@ -296,7 +285,9 @@ class MsgAuthPrompt {
 
       // if checkBoxLabel is null, the checkbox won't be shown at all.
       if (canRememberLogin) {
-        checkBoxLabel = this._getLocalizedString("rememberPassword");
+        checkBoxLabel = this.l10n.formatValueSync(
+          "remember-password-checkbox-label"
+        );
       }
 
       for (const login of Services.logins.findLogins(origin, null, realm)) {
@@ -373,7 +364,9 @@ class MsgAuthPrompt {
 
       // if checkBoxLabel is null, the checkbox won't be shown at all.
       if (canRememberLogin) {
-        checkBoxLabel = this._getLocalizedString("rememberPassword");
+        checkBoxLabel = this.l10n.formatValueSync(
+          "remember-password-checkbox-label"
+        );
       }
 
       if (!aPassword.value) {

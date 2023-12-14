@@ -643,9 +643,9 @@ class NotificationCallbacks {
     let savePasswordLabel = null;
     const savePassword = {};
     if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
-      savePasswordLabel = Services.strings
-        .createBundle("chrome://passwordmgr/locale/passwordmgr.properties")
-        .GetStringFromName("rememberPassword");
+      savePasswordLabel = lazy.MsgAuthPrompt.l10n.formatValueSync(
+        "remember-password-checkbox-label"
+      );
       savePassword.value = true;
     }
 
