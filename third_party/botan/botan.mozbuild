@@ -44,7 +44,7 @@ if CONFIG['COMPILE_ENVIRONMENT']:
     botan_build.script = 'botan_configure.py'
     botan_build.flags = [
         '--cc-bin={}'.format(CONFIG['CXX']),
-        '--cpu={}'.format(CONFIG['target_cpu']),
+        '--cpu={}'.format(CONFIG['TARGET_CPU']),
         '--os={}'.format(botan_os),
         '--with-build-dir={}'.format(OBJDIR),
         '--minimized-build',
