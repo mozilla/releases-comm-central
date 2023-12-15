@@ -2,7 +2,6 @@
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import json
 import os
 import sys
 
@@ -19,28 +18,6 @@ def mk_hg_url(repo, revision):
     Return a URL to a specific revision in the given repo.
     """
     return "{}/rev/{}".format(repo, revision)
-
-
-def gen_treeherder_build_links(output):
-    """
-    Create a JSON file that is used by Treeherder to display "Built from" links.
-    """
-    gecko_repo = buildconfig.substs.get("MOZ_GECKO_SOURCE_REPO")
-    gecko_rev = buildconfig.substs.get("MOZ_GECKO_SOURCE_CHANGESET")
-    comm_repo = buildconfig.substs.get("MOZ_COMM_SOURCE_REPO")
-    comm_rev = buildconfig.substs.get("MOZ_COMM_SOURCE_CHANGESET")
-
-    def mk_built_from_line(repo, revision):
-        repo_name = repo.split("/")[-1]  # Last component of base URL
-        title = "Built from {} revision {}".format(repo_name, revision)
-        url = mk_hg_url(repo, revision)
-        return dict(title=title, value=revision, url=url)
-
-    built_from = [
-        mk_built_from_line(gecko_repo, gecko_rev),
-        mk_built_from_line(comm_repo, comm_rev),
-    ]
-    json.dump(built_from, output)
 
 
 def gen_platformini(output, platform_ini):

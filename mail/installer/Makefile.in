@@ -135,7 +135,6 @@ MOZ_PACKAGER_MINIFY=1
 
 NON_OMNIJAR_FILES = defaults/messenger/mailViews.dat
 
-UPLOAD_EXTRA_FILES = $(MOZ_BUILT_FROM_FILE)
 include $(topsrcdir)/toolkit/mozapps/installer/packager.mk
 
 ifeq (Darwin,$(OS_TARGET))

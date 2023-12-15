@@ -17,6 +17,7 @@ from taskgraph.taskgraph import TaskGraph
 from taskgraph.util.taskcluster import get_artifact
 from taskgraph.util.vcs import get_repository
 
+from gecko_taskgraph.decision import ARTIFACTS_DIR, write_artifact
 from gecko_taskgraph.util.backstop import is_backstop
 from gecko_taskgraph.util.hg import get_hg_commit_message
 from gecko_taskgraph.util.partials import populate_release_history
@@ -79,6 +80,35 @@ CRON_OPTIONS = {
         ),
     }
 }
+
+
+def write_build_artifact(filename, data):
+    build_artifact_path = os.path.dirname(os.path.join(ARTIFACTS_DIR, filename))
+    if not os.path.isdir(build_artifact_path):
+        os.mkdir(build_artifact_path)
+    write_artifact(filename, data)
+
+
+def gen_treeherder_build_links(params):
+    """
+    Create a JSON file that is used by Treeherder to display "Built from" links.
+    """
+    gecko_repo = params.get("head_repository")
+    gecko_rev = params.get("head_rev")
+    comm_repo = params.get("comm_head_repository")
+    comm_rev = params.get("comm_head_rev")
+
+    def mk_built_from_line(repo, revision):
+        repo_name = repo.split("/")[-1]  # Last component of base URL
+        title = f"Built from {repo_name} revision {revision}"
+        url = f"{repo}/rev/{revision}"
+        return dict(title=title, value=revision, url=url)
+
+    built_from = [
+        mk_built_from_line(gecko_repo, gecko_rev),
+        mk_built_from_line(comm_repo, comm_rev),
+    ]
+    write_build_artifact("build/built_from.json", built_from)
 
 
 def restore_options():
@@ -179,6 +209,8 @@ def get_decision_parameters(graph_config, parameters):
     ):
         logger.info("This is a suite-only push; setting target_tasks_method to 'nothing'.")
         parameters["target_tasks_method"] = "nothing"
+
+    gen_treeherder_build_links(parameters)
 
 
 def get_existing_tasks(parameters, graph_config):
