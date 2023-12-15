@@ -18,6 +18,7 @@ const WINDOW_URLS = [
   "chrome://messenger/content/messenger.xhtml",
   "chrome://messenger/content/messageWindow.xhtml",
   "about:3pane",
+  "about:addressbook",
   "about:message",
 ];
 
@@ -40,6 +41,16 @@ const UI_TARGET_ELEMENTS = [
 // when iterating JavaScript will guarantee that ordering and so we will find
 // the most specific area first.
 const MESSENGER_UI_CONTAINER_IDS = {
+  // Address Book.
+  toolbox: "addressbook",
+  booksPane: "addressbook",
+  cardsPane: "addressbook",
+  detailsPane: "addressbook",
+  photoDialog: "addressbook",
+  bookContext: "addressbook",
+  sortContext: "addressbook",
+  cardContext: "addressbook",
+
   // Calendar.
   "today-pane-panel": "calendar",
   calendarTabPanel: "calendar",
