@@ -44,6 +44,7 @@ const MESSENGER_UI_CONTAINER_IDS = {
   "today-pane-panel": "calendar",
   calendarTabPanel: "calendar",
   "calendar-popupset": "calendar",
+  calControlBarMenuPopup: "calendar",
 
   // Chat.
   chatTabPanel: "chat",
@@ -57,6 +58,7 @@ const MESSENGER_UI_CONTAINER_IDS = {
   folderPaneHeaderBar: "message-display",
   folderPaneGetMessagesContext: "message-display",
   folderPaneMoreContext: "message-display",
+  folderPaneModeContext: "message-display",
   folderPaneContext: "message-display",
   threadPaneHeaderBar: "message-display",
   threadPaneDisplayContext: "message-display",
@@ -71,15 +73,36 @@ const MESSENGER_UI_CONTAINER_IDS = {
   attachmentListContext: "message-display",
   "attachment-toolbar-context-menu": "message-display",
   copyUrlPopup: "message-display",
+  simpleCopyPopup: "message-display",
   newsgroupPopup: "message-display",
+  remoteContentOptions: "message-display",
+  phishingOptions: "message-display",
 
-  // The tab bar and the toolbox.
+  // The toolbox, menu bar, tab bar, spaces toolbar and status bar.
   "navigation-toolbox": "toolbox",
   "mail-toolbox": "toolbox",
   "quick-filter-bar": "toolbox",
   "appMenu-popup": "toolbox",
+  unifiedToolbarMenu: "toolbox",
+  "toolbar-context-menu": "toolbox",
   tabContextMenu: "toolbox",
   spacesToolbar: "toolbox",
+  spacesContextMenu: "toolbox",
+  settingsContextMenu: "toolbox",
+  spacesToolbarContextMenu: "toolbox",
+  spacesToolbarAddonsPopup: "toolbox",
+  spacesToolbarCustomizationPanel: "toolbox",
+  "status-bar": "toolbox",
+  customizationTargetMenu: "toolbox",
+  customizationPaletteMenu: "toolbox",
+  toolbarMoveToPopup: "toolbox",
+  toolbarFolderLocationPopup: "toolbox",
+  toolbarTagPopup: "toolbox",
+  toolbarMarkPopup: "toolbox",
+  toolbarViewPickerPopup: "toolbox",
+  messageHistoryPopup: "toolbox",
+  toolbarGetMessagesContext: "toolbox",
+  unifiedToolbarCreateBook: "toolbox",
 };
 
 const KNOWN_ADDONS = [];
