@@ -519,7 +519,7 @@ HostDetector.prototype = {
     // assumption is generally sound, but not always: mechanisms like
     // the pref network.proxy.no_proxies_on can make imap.domain and
     // pop.domain resolve differently.
-    doProxy(this._hostsToTry[0].hostname, function (proxy) {
+    doProxy(this._hostsToTry[0].hostname, async function (proxy) {
       for (let i = 0; i < me._hostsToTry.length; i++) {
         const thisTry = me._hostsToTry[i]; // {HostTry}
         if (thisTry.status != kNotTried) {
@@ -561,6 +561,11 @@ HostDetector.prototype = {
           }
         );
         thisTry.status = kOngoing;
+
+        // Pause briefly before testing the next candidate. This is to stop
+        // the fake servers failing in a test, but giving the UI a moment
+        // to breathe can't hurt.
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
     });
   },
@@ -1333,4 +1338,5 @@ export const GuessConfigForTests = {
   doProxy,
   HostDetector,
   SocketUtil,
+  SSLErrorHandler,
 };

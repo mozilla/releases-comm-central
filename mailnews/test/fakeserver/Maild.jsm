@@ -41,6 +41,11 @@ var ServerSocket = CC(
   "nsIServerSocket",
   "init"
 );
+var TLSServerSocket = CC(
+  "@mozilla.org/network/tls-server-socket;1",
+  "nsITLSServerSocket",
+  "init"
+);
 var BinaryInputStream = CC(
   "@mozilla.org/binaryinputstream;1",
   "nsIBinaryInputStream",
@@ -134,27 +139,42 @@ class nsMailServer {
       dump("Received Connection from " + trans.host + ":" + trans.port + "\n");
     }
 
+    if (this.tlsCert) {
+      const connectionInfo = trans.securityCallbacks.getInterface(
+        Ci.nsITLSServerConnectionInfo
+      );
+      connectionInfo.setSecurityObserver(this);
+    }
+
     const SEGMENT_SIZE = 1024;
     const SEGMENT_COUNT = 1024;
-    var input = trans
+    this.input = trans
       .openInputStream(0, SEGMENT_SIZE, SEGMENT_COUNT)
       .QueryInterface(Ci.nsIAsyncInputStream);
-    this._inputStreams.push(input);
+    this._inputStreams.push(this.input);
 
     var handler = this._handlerCreator(this._daemon);
-    var reader = new nsMailReader(
+    this.reader = new nsMailReader(
       this,
       handler,
       trans,
       this._debug,
       this._logTransactions
     );
-    this._readers.push(reader);
+    this._readers.push(this.reader);
 
+    if (!this.tlsCert) {
+      this.onHandshakeDone(socket, null);
+    }
+  }
+
+  onHandshakeDone(socket, status) {
     // Note: must use main thread here, or we might get a GC that will cause
     //       threadsafety assertions.  We really need to fix XPConnect so that
     //       you can actually do things in multi-threaded JS.  :-(
-    input.asyncWait(reader, 0, 0, Services.tm.mainThread);
+    this.input.asyncWait(this.reader, 0, 0, Services.tm.mainThread);
+    delete this.input;
+    delete this.reader;
     this._test = true;
   }
 
@@ -189,11 +209,17 @@ class nsMailServer {
     }
     this._socketClosed = false;
 
-    var socket = new ServerSocket(
-      this._port,
-      true, // loopback only
-      -1
-    ); // default number of pending connections
+    let socket;
+    if (this.tlsCert) {
+      socket = new TLSServerSocket(this._port, true, -1);
+      socket.setVersionRange(
+        Ci.nsITLSClientStatus.TLS_VERSION_1_2,
+        Ci.nsITLSClientStatus.TLS_VERSION_1_3
+      );
+      socket.serverCert = this.tlsCert;
+    } else {
+      socket = new ServerSocket(this._port, true, -1);
+    }
 
     socket.asyncListen(this);
     this._socket = socket;
@@ -238,7 +264,10 @@ class nsMailServer {
   //
   // see nsISupports.QueryInterface
   //
-  QueryInterface = ChromeUtils.generateQI(["nsIServerSocketListener"]);
+  QueryInterface = ChromeUtils.generateQI([
+    "nsIServerSocketListener",
+    "nsITLSServerSecurityObserver",
+  ]);
 
   // NON-XPCOM PUBLIC API
 

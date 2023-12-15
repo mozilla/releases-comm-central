@@ -27,6 +27,7 @@ export class POP3Server {
       const handler = new POP3_RFC5034_handler(daemon, this.options);
       return handler;
     }, this.daemon);
+    this.server.tlsCert = this.options.tlsCert;
     this.server.start();
     dump(`POP3 server at localhost:${this.server.port} opened\n`);
 

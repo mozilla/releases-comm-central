@@ -27,6 +27,7 @@ export class SMTPServer {
       const handler = new SMTP_RFC2821_handler(daemon, this.options);
       return handler;
     }, this.daemon);
+    this.server.tlsCert = this.options.tlsCert;
     this.server.start();
     dump(`SMTP server at localhost:${this.server.port} opened\n`);
 

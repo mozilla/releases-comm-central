@@ -34,6 +34,7 @@ export class IMAPServer {
       }
       return handler;
     }, this.daemon);
+    this.server.tlsCert = this.options.tlsCert;
     this.server.start();
     dump(`IMAP server at localhost:${this.server.port} opened\n`);
 
