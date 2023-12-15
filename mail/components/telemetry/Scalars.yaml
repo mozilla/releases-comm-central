@@ -557,6 +557,22 @@ tb.ui.interaction:
     record_in_processes:
       - "main"
 
+  message_compose:
+    bug_numbers:
+      - 1868480
+    description: >
+      Records a count of interactions with items in the message composer.
+    expires: never
+    kind: uint
+    keyed: true
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    products:
+      - "thunderbird"
+    release_channel_collection: opt-out
+    record_in_processes:
+      - "main"
+
   message_display:
     bug_numbers:
       - 1736739

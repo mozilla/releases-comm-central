@@ -11,12 +11,13 @@ const EXPORTED_SYMBOLS = ["MailUsageTelemetry"];
 const DOMWINDOW_OPENED_TOPIC = "domwindowopened";
 
 // Window types we're interested in.
-const WINDOW_TYPES = ["mail:3pane", "mail:messageWindow"];
+const WINDOW_TYPES = ["mail:3pane", "mail:messageWindow", "msgcompose"];
 
 // Window URLs we're interested in.
 const WINDOW_URLS = [
   "chrome://messenger/content/messenger.xhtml",
   "chrome://messenger/content/messageWindow.xhtml",
+  "chrome://messenger/content/messengercompose/messengercompose.xhtml",
   "about:3pane",
   "about:addressbook",
   "about:message",
@@ -64,6 +65,9 @@ const MESSENGER_UI_CONTAINER_IDS = {
   "chat-toolbar-context-menu": "chat",
   chatContextMenu: "chat",
   participantListContextMenu: "chat",
+
+  // Message composition.
+  msgcomposeWindow: "message-compose",
 
   // Anything to do with the 3-pane tab or message window.
   folderPaneHeaderBar: "message-display",
@@ -318,7 +322,10 @@ let MailUsageTelemetry = {
     }
 
     // This is what events targeted at content will actually look like.
-    if (sourceEvent.target.localName == "browser") {
+    if (
+      sourceEvent.target.localName == "browser" ||
+      sourceEvent.target.localName == "editor"
+    ) {
       return;
     }
 
