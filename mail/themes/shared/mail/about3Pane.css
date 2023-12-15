@@ -605,24 +605,24 @@ body {
   display: unset;
 }
 
-.container > .unread-count {
-  .unread & {
+.unread-count {
+  .unread > .container > & {
     display: unset;
     background-color: var(--folderpane-unread-count-background);
   }
 
-  .new-messages & {
+  .new-messages > .container > & {
     background-color: var(--folderpane-unread-new-count-background);
   }
 
-  .unread.children.collapsed & {
+  .unread.children.collapsed > .container > & {
     color: var(--folderpane-unread-count-background);
     background-color: transparent;
     border: 1px solid var(--folderpane-unread-count-background);
     padding-block: 0;
   }
 
-  .new-messages.unread.children.collapsed & {
+  .new-messages.unread.children.collapsed > .container > & {
     color: var(--folderpane-unread-new-count-background);
     border-color: var(--folderpane-unread-new-count-background);
   }
