@@ -1,134 +1,150 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % edHLineProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorHLineProperties.dtd">
+<!DOCTYPE html [ <!ENTITY % edHLineProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorHLineProperties.dtd">
 %edHLineProperties;
 <!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
 %edDialogOverlay; ]>
-
-<window
-  title="&windowTitle.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   lightweightthemes="true"
-  onload="Startup()"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-  <dialog>
-    <script src="chrome://messenger/content/globalOverlay.js" />
-    <script src="chrome://global/content/editMenuOverlay.js" />
-    <!-- Methods common to all editor dialogs -->
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <!--- Element-specific methods -->
-    <script src="chrome://messenger/content/messengercompose/EdHLineProps.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
-
-    <html:fieldset>
-      <html:legend>&dimensionsBox.label;</html:legend>
-      <html:table>
-        <html:tr>
-          <html:th>
-            <label
-              id="widthLabel"
-              control="width"
-              value="&widthEditField.label;"
-              accesskey="&widthEditField.accessKey;"
-            />
-          </html:th>
-          <html:td>
-            <html:input
-              id="width"
-              type="number"
-              class="narrow input-inline"
-              aria-labelledby="widthLabel"
-            />
-          </html:td>
-          <html:td>
-            <menulist id="pixelOrPercentMenulist" />
-          </html:td>
-        </html:tr>
-        <html:tr>
-          <html:th>
-            <label
-              id="heightLabel"
-              control="height"
-              value="&heightEditField.label;"
-              accesskey="&heightEditField.accessKey;"
-            />
-          </html:th>
-          <html:td>
-            <html:input
-              id="height"
-              type="number"
-              class="narrow input-inline"
-              aria-labelledby="heightLabel"
-            />
-          </html:td>
-          <html:td>
-            <label value="&pixelsPopup.value;" />
-          </html:td>
-        </html:tr>
-      </html:table>
-      <checkbox
-        id="3dShading"
-        label="&threeDShading.label;"
-        accesskey="&threeDShading.accessKey;"
-      />
-    </html:fieldset>
-    <html:fieldset>
-      <html:legend>&alignmentBox.label;</html:legend>
-      <radiogroup id="alignmentGroup" orient="horizontal">
-        <spacer class="spacer" />
-        <radio
-          id="leftAlign"
-          label="&leftRadio.label;"
-          accesskey="&leftRadio.accessKey;"
+  <head>
+    <title>&windowTitle.label;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdHLineProps.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog>
+      <spacer id="location" offsetY="50" persist="offsetX offsetY" />
+      <html:fieldset>
+        <html:legend>&dimensionsBox.label;</html:legend>
+        <html:table>
+          <html:tr>
+            <html:th>
+              <label
+                id="widthLabel"
+                control="width"
+                value="&widthEditField.label;"
+                accesskey="&widthEditField.accessKey;"
+              />
+            </html:th>
+            <html:td>
+              <html:input
+                id="width"
+                type="number"
+                class="narrow input-inline"
+                aria-labelledby="widthLabel"
+              />
+            </html:td>
+            <html:td>
+              <menulist id="pixelOrPercentMenulist" />
+            </html:td>
+          </html:tr>
+          <html:tr>
+            <html:th>
+              <label
+                id="heightLabel"
+                control="height"
+                value="&heightEditField.label;"
+                accesskey="&heightEditField.accessKey;"
+              />
+            </html:th>
+            <html:td>
+              <html:input
+                id="height"
+                type="number"
+                class="narrow input-inline"
+                aria-labelledby="heightLabel"
+              />
+            </html:td>
+            <html:td>
+              <label value="&pixelsPopup.value;" />
+            </html:td>
+          </html:tr>
+        </html:table>
+        <checkbox
+          id="3dShading"
+          label="&threeDShading.label;"
+          accesskey="&threeDShading.accessKey;"
         />
-        <radio
-          id="centerAlign"
-          label="&centerRadio.label;"
-          accesskey="&centerRadio.accessKey;"
+      </html:fieldset>
+      <html:fieldset>
+        <html:legend>&alignmentBox.label;</html:legend>
+        <radiogroup id="alignmentGroup" orient="horizontal">
+          <spacer class="spacer" />
+          <radio
+            id="leftAlign"
+            label="&leftRadio.label;"
+            accesskey="&leftRadio.accessKey;"
+          />
+          <radio
+            id="centerAlign"
+            label="&centerRadio.label;"
+            accesskey="&centerRadio.accessKey;"
+          />
+          <radio
+            id="rightAlign"
+            label="&rightRadio.label;"
+            accesskey="&rightRadio.accessKey;"
+          />
+        </radiogroup>
+      </html:fieldset>
+      <spacer class="spacer" />
+      <hbox>
+        <button
+          id="SaveDefault"
+          label="&saveSettings.label;"
+          accesskey="&saveSettings.accessKey;"
+          oncommand="onSaveDefault()"
+          tooltiptext="&saveSettings.tooltip;"
         />
-        <radio
-          id="rightAlign"
-          label="&rightRadio.label;"
-          accesskey="&rightRadio.accessKey;"
+        <spacer flex="1" />
+        <button
+          id="AdvancedEditButton"
+          oncommand="onAdvancedEdit();"
+          label="&AdvancedEditButton.label;"
+          accesskey="&AdvancedEditButton.accessKey;"
+          tooltiptext="&AdvancedEditButton.tooltip;"
         />
-      </radiogroup>
-    </html:fieldset>
-    <spacer class="spacer" />
-    <hbox>
-      <button
-        id="SaveDefault"
-        label="&saveSettings.label;"
-        accesskey="&saveSettings.accessKey;"
-        oncommand="onSaveDefault()"
-        tooltiptext="&saveSettings.tooltip;"
-      />
-      <spacer flex="1" />
-      <button
-        id="AdvancedEditButton"
-        oncommand="onAdvancedEdit();"
-        label="&AdvancedEditButton.label;"
-        accesskey="&AdvancedEditButton.accessKey;"
-        tooltiptext="&AdvancedEditButton.tooltip;"
-      />
-    </hbox>
-    <separator class="groove" />
-  </dialog>
-</window>
+      </hbox>
+      <separator class="groove" />
+    </dialog>
+  </html:body>
+</html>

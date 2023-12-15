@@ -13,8 +13,7 @@ var align;
 var shading;
 const gMaxHRSize = 1000; // This is hard-coded in nsHTMLHRElement::StringToAttribute()
 
-// dialog initialization code
-
+window.addEventListener("load", Startup);
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
