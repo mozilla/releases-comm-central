@@ -236,10 +236,10 @@ def regen_toml_files(command_context, workspace):
 
     workspace_members = members
     workspace_patches = ""
-    workspace_dependencies = ""
+    workspace_dependencies = []
 
     for dep in mc_workspace.workspace_deps:
-        workspace_dependencies += inline_encoded_toml(dep, mc_workspace.workspace_deps[dep])
+        workspace_dependencies.append(inline_encoded_toml(dep, mc_workspace.workspace_deps[dep]))
 
     # Patch emission
     for section in patches:
@@ -261,7 +261,7 @@ def regen_toml_files(command_context, workspace):
     with open(comm_workspace_toml, "w") as cargo:
         cargo_toml = (
             workspace_template.format(
-                dependencies=workspace_dependencies,
+                dependencies="\n".join(workspace_dependencies),
                 members=workspace_members,
                 features=tomlkit.dumps(features),
                 patches=workspace_patches,
