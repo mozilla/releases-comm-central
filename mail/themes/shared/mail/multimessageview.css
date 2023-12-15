@@ -2,28 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- @import url("chrome://messenger/skin/icons.css");
+@import url("chrome://messenger/skin/icons.css");
+@import url("chrome://messenger/skin/shared/threadPane.css");
 
 /* Generic (cross-platform) multimessage view CSS.  Some bits will be overridden
   by theme specific files */
 
 :root {
-  --body-background-color: Field;
-  --body-text-color: FieldText;
-  --info-text-color: GrayText;
-  background-color: var(--body-background-color);
-  color: var(--body-text-color);
-  appearance: none;
   user-select: auto; /* Overrides messenger.css. */
+
+  --heading-wrapper-padding: 6px 9px;
+  --content-padding: 6px 18px;
+
+  &[uidensity="compact"] {
+    --heading-wrapper-padding: 3px 6px;
+    --content-padding: 3px 12px;
+  }
+
+  &[uidensity="touch"] {
+    --heading-wrapper-padding: 6px 12px;
+    --content-padding: 9px 21px;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --body-background-color: #2a2a2e;
-    --body-text-color: rgb(249, 249, 250);
-    --info-text-color: #b1b1b3;
-  }
-
   #headingWrapper {
     --toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
     --toolbarbutton-hover-bordercolor: rgba(179, 179, 179, 0.4);
@@ -36,6 +38,7 @@
 
 body {
   background-color: var(--layout-background-0);
+  font-size: 1.1rem;
   margin: 0;
   padding: 0;
   display: flex;
@@ -46,10 +49,11 @@ body {
 
 #headingWrapper {
   display: flex;
-  flex-direction: row-reverse;
-  gap: 6px;
   flex-wrap: wrap;
-  padding: 9px 6px;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 6px;
+  padding: var(--heading-wrapper-padding);
   color: var(--layout-color-1);
   background-color: var(--layout-background-1);
   border-bottom: 1px solid var(--splitter-color);
@@ -63,10 +67,10 @@ body {
   padding: 0;
 }
 
-#summary_subtitle {
-  margin-inline-start: 1em;
+#summarySubtitle {
   font-size: 1.1rem;
   white-space: nowrap;
+  margin-inline-start: 9px;
 }
 
 /* The main content area */
@@ -74,118 +78,113 @@ body {
 #content {
   flex: 1 1 0;
   overflow: auto;
-  padding: 1ex 1em;
+  padding: var(--content-padding);
 }
 
-#message_list {
+#messageList {
   margin: 0;
   padding: 0;
   list-style-type: none;
-}
 
-#footer {
-  margin-top: 1em;
-  padding-inline-start: 1em;
-}
-
-.info {
-  font-size: small;
-}
-
-/* The message/thread summary rows */
-
-#message_list > li {
-  position: relative;
-  margin-bottom: 1ex;
-  border-width: 2px;
-  border-radius: 2px;
-  border: 1px solid transparent;
-  border-bottom-color: lightgrey;
-}
-
-#message_list > li.thread {
-  border-color: lightgrey;
+  & > li {
+    position: relative;
+    margin-bottom: 9px;
+    padding-bottom: 9px;
+    padding-inline: 12px 9px;
+    border-bottom: 1px solid var(--layout-background-4);
+  }
 }
 
 .star {
   width: 16px;
   height: 16px;
   position: absolute;
+  inset-inline-start: -7px;
+  inset-block-start: 6px;
   background-repeat: no-repeat;
 }
 
 .starred .star {
-  background-image: url("chrome://messenger/skin/icons/flagged.svg");
+  background-image: var(--icon-star);
   background-size: contain;
-  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
-  fill: #f4bc44;
-  fill-opacity: 1;
-  stroke: #f4bc44;
-  stroke-opacity: 1;
+  -moz-context-properties: fill, stroke;
+  fill: var(--thread-pane-flag-fill);
+  stroke: var(--thread-pane-flag-stroke);
 }
 
-.item_summary {
-  margin-inline-start: 19px;
-  padding: 0.3ex 0;
+.item-header {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  padding-block: 6px;
+  margin-block: 0;
+  font-weight: normal;
+
+  & .left-block {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 3px 6px;
+  }
+
+  & .author {
+    text-align: end;
+  }
+
+  & .link {
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
 }
 
-.item_header {
-  padding-inline-end: 18px;
-  padding-top: 6px;
-  padding-bottom: 6px;
-}
-
-.unread .primary_header  {
+.unread .primary {
   font-weight: bold;
 }
 
-.right {
-  float: inline-end;
-}
-
 .count {
+  font-weight: 600;
   white-space: nowrap;
-  margin-inline-start: 1ch;
 }
 
 .tags {
-  padding-top: 4px;
-  margin-inline-start: 1ch;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .tag {
-  display: inline-block; /* to avoid splitting 'To' and 'Do' e.g. */
-  margin-inline-start: 0;
-  margin-inline-end: 3px;
-  padding: 0 0.5ex;
+  display: inline-block;
+  white-space: nowrap;
+  padding: 2px 4px;
+  line-height: 1em;
   border-radius: 3px;
-  border: 1px solid color-mix(in srgb, currentColor 50%, transparent);
+}
+
+.count,
+.info,
+.date,
+.snippet {
+  color: var(--layout-color-2);
 }
 
 .snippet {
-  opacity: .65;
-  padding-inline-end: 1.5em;
-  padding-bottom: 1ex;
-}
-
-.count, .info, .date,
-.message > .header > .snippet,
-.message > .header > .senders {
-  color: var(--info-text-color);
+  margin: 0;
 }
 
 a {
   color: LinkText;
   font-weight: bold;
-}
 
-a:hover {
-  text-decoration: underline;
-}
-
-.link:hover {
-  text-decoration: underline;
-  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 #header-view-toolbox {

@@ -21,6 +21,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 ChromeUtils.defineESModuleGetters(this, {
+  UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 
@@ -41,7 +42,7 @@ window.addEventListener("DOMContentLoaded", event => {
     return;
   }
 
-  // TODO: UIDensity.registerWindow(window);
+  UIDensity.registerWindow(window);
   UIFontSize.registerWindow(window);
 });
 
@@ -140,10 +141,8 @@ class MultiMessageSummary {
     this._msgNodes = {};
 
     // Clear the messages list.
-    const messageList = document.getElementById("message_list");
-    while (messageList.hasChildNodes()) {
-      messageList.lastChild.remove();
-    }
+    const messageList = document.getElementById("messageList");
+    messageList.replaceChildren();
 
     // Clear the notice.
     document.getElementById("notice").textContent = "";
@@ -211,8 +210,8 @@ class MultiMessageSummary {
    * @param subtitle A smaller subtitle for the heading.
    */
   setHeading(title, subtitle) {
-    const titleNode = document.getElementById("summary_title");
-    const subtitleNode = document.getElementById("summary_subtitle");
+    const titleNode = document.getElementById("summaryTitle");
+    const subtitleNode = document.getElementById("summarySubtitle");
     titleNode.textContent = title || "";
     subtitleNode.textContent = subtitle || "";
   }
@@ -220,140 +219,95 @@ class MultiMessageSummary {
   /**
    * Create a summary item for a message or thread.
    *
-   * @param aMsgOrThread An nsIMsgDBHdr or an array thereof
-   * @param [aOptions]   An optional object to customize the output:
-   *                      showSubject: true if the subject of the message
-   *                        should be shown; defaults to false
-   *                      snippetLength: the length in bytes of the message
-   *                        snippet; defaults to undefined (let Gloda decide)
-   * @returns A DOM node for the summary item.
+   * @param {nsIMsgDBHdr[]} messages - An array of messages to summarize.
+   * @param {Object} [options={}] - Optional object to customize the output:
+   *   - showSubject: true if the subject of the message should be shown.
+   *   - snippetLength: the length in bytes of the message snippet.
+   *   - belongsToThread: true if we're rendering a message that belongs to the
+   *   currently single selected thread.
+   * @returns {HTMLLIElement} - The list item node.
    */
-  makeSummaryItem(aMsgOrThread, aOptions) {
-    let message, thread, numUnread, isStarred, tags;
-    if (aMsgOrThread instanceof Ci.nsIMsgDBHdr) {
-      thread = null;
-      message = aMsgOrThread;
+  makeSummaryItem(messages, options = {}) {
+    const firstMessage = messages[0];
+    const isStarred = messages.some(message => message.isFlagged);
 
-      numUnread = message.isRead ? 0 : 1;
-      isStarred = message.isFlagged;
-
-      tags = this._getTagsForMsg(message);
-    } else {
-      thread = aMsgOrThread;
-      message = thread[0];
-
-      numUnread = thread.reduce(function (x, hdr) {
-        return x + (hdr.isRead ? 0 : 1);
-      }, 0);
-      isStarred = thread.some(function (hdr) {
-        return hdr.isFlagged;
-      });
-
-      tags = new Set();
-      for (const message of thread) {
-        for (const tag of this._getTagsForMsg(message)) {
-          tags.add(tag);
-        }
+    const unreadCount = messages.filter(message => !message.isRead).length;
+    const tags = new Set();
+    for (const message of messages) {
+      for (const tag of this._getTagsForMsg(message)) {
+        tags.add(tag);
       }
     }
 
-    const row = document.createElement("li");
-    row.dataset.messageId = message.messageId;
-    row.classList.toggle("thread", thread && thread.length > 1);
-    row.classList.toggle("unread", numUnread > 0);
-    row.classList.toggle("starred", isStarred);
+    const listItem = document
+      .getElementById(
+        options.belongsToThread ? "threadTemplate" : "multiSelectionTemplate"
+      )
+      .content.cloneNode(true).firstElementChild;
+    listItem.dataset.messageId = firstMessage.messageId;
+    listItem.classList.toggle("unread", unreadCount);
+    listItem.classList.toggle("starred", isStarred);
 
-    row.appendChild(document.createElement("div")).classList.add("star");
-
-    const summary = document.createElement("div");
-    summary.classList.add("item_summary");
-    summary
-      .appendChild(document.createElement("div"))
-      .classList.add("item_header");
-    summary.appendChild(document.createElement("div")).classList.add("snippet");
-    row.appendChild(summary);
-
-    const itemHeaderNode = row.querySelector(".item_header");
-
-    const authorNode = document.createElement("span");
-    authorNode.classList.add("author");
-    authorNode.textContent = DisplayNameUtils.formatDisplayNameList(
-      message.mime2DecodedAuthor,
+    const author = listItem.querySelector(".author");
+    author.textContent = DisplayNameUtils.formatDisplayNameList(
+      firstMessage.mime2DecodedAuthor,
       "from"
     );
 
-    if (aOptions && aOptions.showSubject) {
-      authorNode.classList.add("right");
-      itemHeaderNode.appendChild(authorNode);
-
-      const subjectNode = document.createElement("span");
-      subjectNode.classList.add("subject", "primary_header", "link");
+    if (options.showSubject) {
+      const subjectNode = listItem.querySelector(".subject");
       subjectNode.textContent =
-        message.mime2DecodedSubject || formatString("noSubject");
-      subjectNode.addEventListener("click", () => this._selectCallback(thread));
-      itemHeaderNode.appendChild(subjectNode);
+        firstMessage.mime2DecodedSubject || formatString("noSubject");
+      subjectNode.addEventListener("click", () =>
+        this._selectCallback(messages)
+      );
 
-      if (thread && thread.length > 1) {
+      if (messages?.length > 1) {
         let numUnreadStr = "";
-        if (numUnread) {
+        if (unreadCount) {
           numUnreadStr = formatString(
             "numUnread",
-            [numUnread.toLocaleString()],
-            numUnread
+            [unreadCount.toLocaleString()],
+            unreadCount
           );
         }
-        const countStr =
-          "(" +
-          formatString(
-            "numMessages",
-            [thread.length.toLocaleString()],
-            thread.length
-          ) +
-          numUnreadStr +
-          ")";
+        const countStr = `(${formatString(
+          "numMessages",
+          [messages.length.toLocaleString()],
+          messages.length
+        )}${numUnreadStr})`;
 
-        const countNode = document.createElement("span");
-        countNode.classList.add("count");
-        countNode.textContent = countStr;
-        itemHeaderNode.appendChild(countNode);
+        listItem.querySelector(".count").textContent = countStr;
       }
     } else {
-      const dateNode = document.createElement("span");
-      dateNode.classList.add("date", "right");
-      dateNode.textContent = makeFriendlyDateAgo(new Date(message.date / 1000));
-      itemHeaderNode.appendChild(dateNode);
-
-      authorNode.classList.add("primary_header", "link");
-      authorNode.addEventListener("click", () => {
-        this._selectCallback([message]);
+      listItem.querySelector(".date").textContent = makeFriendlyDateAgo(
+        new Date(firstMessage.date / 1000)
+      );
+      author.addEventListener("click", () => {
+        this._selectCallback(messages);
       });
-      itemHeaderNode.appendChild(authorNode);
     }
 
-    const tagNode = document.createElement("span");
-    tagNode.classList.add("tags");
-    this._addTagNodes(tags, tagNode);
-    itemHeaderNode.appendChild(tagNode);
+    this._addTagNodes(tags, listItem.querySelector(".tags"));
 
-    const snippetNode = row.querySelector(".snippet");
+    const snippetNode = listItem.querySelector(".snippet");
     try {
-      const kSnippetLength = aOptions && aOptions.snippetLength;
       MsgHdrToMimeMessage(
-        message,
+        firstMessage,
         null,
-        function (aMsgHdr, aMimeMsg) {
-          if (aMimeMsg == null) {
+        function (messageHeader, mimeMessage) {
+          if (mimeMessage == null) {
             // Shouldn't happen, but sometimes does?
             return;
           }
           const [text, meta] = mimeMsgToContentSnippetAndMeta(
-            aMimeMsg,
-            aMsgHdr.folder,
-            kSnippetLength
+            mimeMessage,
+            messageHeader.folder,
+            options.snippetLength
           );
           snippetNode.textContent = text;
           if (meta.author) {
-            authorNode.textContent = meta.author;
+            author.textContent = meta.author;
           }
         },
         false,
@@ -368,7 +322,7 @@ class MultiMessageSummary {
         throw e;
       }
     }
-    return row;
+    return listItem;
   }
 
   /**
@@ -508,9 +462,8 @@ class MultiMessageSummary {
       // Clear out all the tags and start fresh, just to make sure we don't get
       // out of sync.
       const tagsNode = headerNode.querySelector(".tags");
-      while (tagsNode.hasChildNodes()) {
-        tagsNode.lastChild.remove();
-      }
+      tagsNode.replaceChildren();
+
       this._addTagNodes(flags.tags, tagsNode);
     }
   }
@@ -562,7 +515,7 @@ class ThreadSummarizer {
    * @returns An array of the messages actually summarized.
    */
   summarize(aMessages, aDBView) {
-    const messageList = document.getElementById("message_list");
+    const messageList = document.getElementById("messageList");
 
     // Remove all ignored messages from summarization.
     const summarizedMessages = [];
@@ -587,8 +540,9 @@ class ThreadSummarizer {
         subject = msgHdr.mime2DecodedSubject;
       }
 
-      const msgNode = this.context.makeSummaryItem(msgHdr, {
+      const msgNode = this.context.makeSummaryItem([msgHdr], {
         snippetLength: this.kSnippetLength,
+        belongsToThread: true,
       });
       messageList.appendChild(msgNode);
 
@@ -661,7 +615,7 @@ class MultipleSelectionSummarizer {
    * @param aMessages The messages to summarize.
    */
   summarize(aMessages, aDBView) {
-    const messageList = document.getElementById("message_list");
+    const messageList = document.getElementById("messageList");
 
     const threads = this._buildThreads(aMessages, aDBView);
     const threadsCount = threads.length;
@@ -686,6 +640,7 @@ class MultipleSelectionSummarizer {
       const msgNode = this.context.makeSummaryItem(msgs, {
         showSubject: true,
         snippetLength: this.kSnippetLength,
+        belongsToThread: false,
       });
       messageList.appendChild(msgNode);
 

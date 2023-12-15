@@ -859,7 +859,7 @@ tr[is="thread-card"] {
 
 .thread-card-subject-container .subject {
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: normal;
   flex: 1 1 0;
   overflow: hidden;
   text-overflow: ellipsis;

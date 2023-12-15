@@ -31,7 +31,6 @@ classic.jar:
   skin/classic/messenger/searchDialog.css                     (mail/searchDialog.css)
   skin/classic/messenger/spacesToolbar.css                    (mail/spacesToolbar.css)
   skin/classic/messenger/filterDialog.css                     (mail/filterDialog.css)
-  skin/classic/messenger/multimessageview.css                 (mail/multimessageview.css)
   skin/classic/messenger/glodaFacetView.css                   (mail/glodaFacetView.css)
   skin/classic/messenger/panelUI.css                          (mail/panelUI.css)
   skin/classic/messenger/tabmail.css                          (mail/tabmail.css)

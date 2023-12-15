@@ -29,7 +29,6 @@
   locale/@AB_CD@/messenger/virtualFolderProperties.dtd                  (%chrome/messenger/virtualFolderProperties.dtd)
   locale/@AB_CD@/messenger/virtualFolderListDialog.dtd                  (%chrome/messenger/virtualFolderListDialog.dtd)
   locale/@AB_CD@/messenger/multimessageview.properties                  (%chrome/messenger/multimessageview.properties)
-  locale/@AB_CD@/messenger/multimessageview.dtd                         (%chrome/messenger/multimessageview.dtd)
   locale/@AB_CD@/messenger/mailOverlay.dtd                              (%chrome/messenger/mailOverlay.dtd)
   locale/@AB_CD@/messenger/messenger.dtd                                (%chrome/messenger/messenger.dtd)
   locale/@AB_CD@/messenger/viewZoomOverlay.dtd                          (%chrome/messenger/viewZoomOverlay.dtd)

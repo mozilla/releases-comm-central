@@ -199,17 +199,17 @@ add_task(async function test_summarization_thread_detection() {
   await toggle_thread_row(0);
   await assert_messages_summarized(window, messages);
   // count the number of messages represented
-  assert_summary_contains_N_elts("#message_list > li", 10);
+  assert_summary_contains_N_elts("#messageList > li", 10);
   await select_shift_click_row(1);
   // this should have shifted to the multi-message view
-  assert_summary_contains_N_elts(".item_header > .date", 0);
-  assert_summary_contains_N_elts(".item_header > .subject", 2);
+  assert_summary_contains_N_elts(".item-header > .date", 0);
+  assert_summary_contains_N_elts(".item-header > .subject", 2);
   await select_none();
   await assert_nothing_selected();
   await select_click_row(1); // select a single message
   await select_shift_click_row(2); // add a thread
-  assert_summary_contains_N_elts(".item_header > .date", 0);
-  assert_summary_contains_N_elts(".item_header > .subject", 2);
+  assert_summary_contains_N_elts(".item-header > .date", 0);
+  assert_summary_contains_N_elts(".item-header > .subject", 2);
 });
 
 /**
@@ -338,8 +338,8 @@ add_task(async function test_summary_when_multiple_identities() {
     window.gFolderDisplay.selectedMessages
   );
   // Thread summary shows a date, while multimessage summary shows a subject.
-  assert_summary_contains_N_elts(".item_header > .subject", 0);
-  assert_summary_contains_N_elts(".item_header > .date", 2);
+  assert_summary_contains_N_elts(".item-header > .subject", 0);
+  assert_summary_contains_N_elts(".item-header > .date", 2);
 
   // Second half of the test, makes sure MultiMessageSummary groups messages
   // according to their view thread id
@@ -348,7 +348,7 @@ add_task(async function test_summary_when_multiple_identities() {
   await be_in_folder(folderVirtual);
   await select_shift_click_row(1);
 
-  assert_summary_contains_N_elts(".item_header > .subject", 2);
+  assert_summary_contains_N_elts(".item-header > .subject", 2);
 });
 
 function extract_first_address(thread) {

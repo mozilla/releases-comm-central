@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-%brandDTD;
-<!ENTITY % startDTD SYSTEM "chrome://messenger/locale/multimessageview.dtd">
-%startDTD; ]>
-
+<!DOCTYPE html>
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -37,7 +32,7 @@
       rel="stylesheet"
       media="screen, print"
       type="text/css"
-      href="chrome://messenger/skin/multimessageview.css"
+      href="chrome://messenger/skin/shared/multimessageview.css"
     />
     <link rel="stylesheet" href="chrome://global/skin/global.css" />
 
@@ -65,16 +60,44 @@
         </hbox>
       </vbox>
       <h1 id="heading">
-        <span id="summary_title" data-l10n-id="selected-messages-label"></span
-        >&#x200B;
-        <span id="summary_subtitle" />
+        <span id="summaryTitle"></span>
+        <span id="summarySubtitle"></span>
       </h1>
     </div>
     <div id="content">
-      <ul id="message_list" />
+      <ul id="messageList"></ul>
       <div id="footer">
-        <span class="info" id="size" /> <span class="info" id="notice" />
+        <span class="info" id="size"></span>
+        <span class="info" id="notice"></span>
       </div>
     </div>
+    <template id="threadTemplate">
+      <li>
+        <span class="star"></span>
+        <h2 class="item-header">
+          <span class="left-block">
+            <span class="author link primary"></span>
+            <span class="tags"></span>
+          </span>
+          <span class="date"></span>
+        </h2>
+        <p class="snippet"></p>
+      </li>
+    </template>
+
+    <template id="multiSelectionTemplate">
+      <li>
+        <span class="star"></span>
+        <h2 class="item-header">
+          <span class="left-block">
+            <span class="subject link primary"></span>
+            <span class="count"></span>
+            <span class="tags"></span>
+          </span>
+          <span class="author"></span>
+        </h2>
+        <p class="snippet"></p>
+      </li>
+    </template>
   </body>
 </html>
