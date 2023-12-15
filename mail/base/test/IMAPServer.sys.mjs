@@ -2,18 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {
-  IMAP_GMAIL_extension,
-  IMAP_RFC2087_extension,
-  IMAP_RFC2197_extension,
-  IMAP_RFC2342_extension,
-  IMAP_RFC3348_extension,
-  IMAP_RFC3501_handler,
-  IMAP_RFC4315_extension,
-  ImapDaemon,
-  ImapMessage,
-  mixinExtension,
-} = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
+const ImapD = ChromeUtils.import(
+  "resource://testing-common/mailnews/Imapd.jsm"
+);
+const { IMAP_RFC3501_handler, ImapDaemon, ImapMessage, mixinExtension } = ImapD;
 const { nsMailServer } = ChromeUtils.import(
   "resource://testing-common/mailnews/Maild.jsm"
 );
@@ -25,21 +17,30 @@ const { mailTestUtils } = ChromeUtils.import(
  * A simple IMAP server for testing purposes.
  */
 export class IMAPServer {
-  constructor(testScope, username) {
+  constructor(testScope, options = {}) {
     this.testScope = testScope;
-    this.username = username;
-    this.open();
+    this.options = options;
+    this.open(options.extensions);
   }
 
-  open() {
-    this.daemon = new ImapDaemon();
-    this.server = new nsMailServer(
-      daemon => new IMAP_RFC3501_handler(daemon, { username: this.username }),
-      this.daemon
-    );
+  open(extensions = []) {
+    if (!this.daemon) {
+      this.daemon = new ImapDaemon();
+    }
+    this.server = new nsMailServer(daemon => {
+      const handler = new IMAP_RFC3501_handler(daemon, this.options);
+      for (const ext of extensions) {
+        mixinExtension(handler, ImapD[`IMAP_${ext}_extension`]);
+      }
+      return handler;
+    }, this.daemon);
     this.server.start();
+    dump(`IMAP server at localhost:${this.server.port} opened\n`);
 
-    this.testScope.registerCleanupFunction(() => this.close());
+    this.testScope.registerCleanupFunction(() => {
+      this.close();
+      dump(`IMAP server at localhost:${this.server.port} closed\n`);
+    });
   }
 
   close() {
@@ -95,18 +96,7 @@ export class GmailServer extends IMAPServer {
       subscribed: true,
       specialUseFlag: "\\AllMail",
     });
-    this.server = new nsMailServer(daemon => {
-      const handler = new IMAP_RFC3501_handler(daemon);
-      mixinExtension(handler, IMAP_GMAIL_extension);
-      mixinExtension(handler, IMAP_RFC2197_extension);
-      mixinExtension(handler, IMAP_RFC2342_extension);
-      mixinExtension(handler, IMAP_RFC3348_extension);
-      mixinExtension(handler, IMAP_RFC4315_extension);
-      return handler;
-    }, this.daemon);
-    this.server.start();
-
-    this.testScope.registerCleanupFunction(() => this.close());
+    super.open(["GMAIL", "RFC2197", "RFC2342", "RFC3348", "RFC4315"]);
   }
 }
 
@@ -115,17 +105,7 @@ export class GmailServer extends IMAPServer {
  */
 export class QuotaServer extends IMAPServer {
   open() {
-    this.daemon = new ImapDaemon();
-    this.server = new nsMailServer(daemon => {
-      const handler = new IMAP_RFC3501_handler(daemon, {
-        username: this.username,
-      });
-      mixinExtension(handler, IMAP_RFC2087_extension);
-      return handler;
-    }, this.daemon);
-    this.server.start();
-
-    this.testScope.registerCleanupFunction(() => this.close());
+    super.open(["RFC2087"]);
   }
 
   setQuota(folder, name, usage, limit) {

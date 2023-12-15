@@ -79,7 +79,7 @@ function guessConfig(
   assert(typeof errorCallback == "function", "need errorCallback");
 
   // Servers that we know enough that they support OAuth2 do not need guessing.
-  if (resultConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
+  if (resultConfig?.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
     successCallback(resultConfig);
     return new Abortable();
   }
@@ -410,7 +410,9 @@ HostDetector.prototype = {
       if (thisTry.abortable) {
         thisTry.abortable.cancel(ex);
       }
-      thisTry.status = kFailed; // or don't set? Maybe we want to continue.
+      if (thisTry.status != kSuccess) {
+        thisTry.status = kFailed;
+      }
     }
     if (ex instanceof CancelOthersException) {
       return;
@@ -866,6 +868,10 @@ function sortTriesByPreference(tries) {
  * @returns {HostTry[]} Hosts to try.
  */
 function getIncomingTryOrder(host, protocol, socketType, port) {
+  assert(
+    [UNKNOWN, IMAP, POP].includes(protocol),
+    `need IMAP or POP3 as protocol for incoming, is: ${protocol}`
+  );
   var lowerCaseHost = host.toLowerCase();
 
   if (
@@ -907,7 +913,10 @@ function getIncomingTryOrder(host, protocol, socketType, port) {
  * @returns {Array of {HostTry}}
  */
 function getOutgoingTryOrder(host, protocol, socketType, port) {
-  assert(protocol == SMTP, "need SMTP as protocol for outgoing");
+  assert(
+    protocol == SMTP,
+    `need SMTP as protocol for outgoing, is: ${protocol}`
+  );
   if (socketType == UNKNOWN) {
     if (port == UNKNOWN) {
       // neither SSL nor port known
@@ -1207,6 +1216,12 @@ function SocketUtil(
               await socketTransport.tlsSocketControl?.asyncGetSecurityInfo();
             sslErrorHandler.processCertError(secInfo, hostname + ":" + port);
           }
+        } else if (!Components.isSuccessCode(status)) {
+          // Some other failure. Report it to the error callback.
+          throw new Components.Exception(
+            `Connection to ${hostname}:${port} failed`,
+            status
+          );
         }
         resultCallback(this.data.length ? this.data : null);
       } catch (e) {
@@ -1222,6 +1237,10 @@ function SocketUtil(
             // Send the next request to the server.
             const outputData = commands[index++];
             outstream.write(outputData, outputData.length);
+          } else {
+            // If the server doesn't hang up, do it ourselves, or we won't get
+            // to onStopRequest until the connection times out.
+            setTimeout(() => transport.close(Cr.NS_OK), 500);
           }
         }
       } catch (e) {
@@ -1308,4 +1327,10 @@ export const GuessConfig = {
   getIncomingTryOrder,
   getOutgoingTryOrder,
   guessConfig,
+};
+
+export const GuessConfigForTests = {
+  doProxy,
+  HostDetector,
+  SocketUtil,
 };

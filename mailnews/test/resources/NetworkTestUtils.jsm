@@ -55,7 +55,12 @@ SocksClient.prototype = {
   // ... implement nsIInputStreamCallback ...
   QueryInterface: ChromeUtils.generateQI(["nsIInputStreamCallback"]),
   onInputStreamReady(input) {
-    var len = input.available();
+    try {
+      var len = input.available();
+    } catch {
+      // It turns out the input stream wasn't ready.
+      return;
+    }
     var bin = new BinaryInputStream(input);
     var data = bin.readByteArray(len);
     this.inbuf = this.inbuf.concat(data);
@@ -175,8 +180,8 @@ SocksClient.prototype = {
     const tunnelInput = trans.openInputStream(0, 1024, 1024);
     const tunnelOutput = trans.openOutputStream(0, 1024, 1024);
     this.sub_transport = trans;
-    NetUtil.asyncCopy(tunnelInput, this.client_out);
-    NetUtil.asyncCopy(this.client_in, tunnelOutput);
+    NetUtil.asyncCopy(tunnelInput, this.client_out, () => this.close());
+    NetUtil.asyncCopy(this.client_in, tunnelOutput, () => this.close());
   },
 
   close() {
@@ -214,6 +219,7 @@ SocksTestServer.prototype = {
     }
     this.client_connections = [];
     if (this.listener) {
+      dump("Closing SOCKS server on " + this.listener.port + "\n");
       this.listener.close();
       this.listener = null;
     }
@@ -239,50 +245,51 @@ var NetworkTestUtils = {
   configureProxy(hostName, hostPort, localRemappedPort) {
     if (gSocksServer == null) {
       gSocksServer = new SocksTestServer();
-      // Using PAC makes much more sense here. However, it turns out that PAC
-      // appears to be broken with synchronous proxy resolve, so enabling the
-      // PAC mode requires bug 791645 to be fixed first.
-      /*
-      let pac = 'data:text/plain,function FindProxyForURL(url, host) {' +
-        "if (host == 'localhost' || host == '127.0.0.1') {" +
-          'return "DIRECT";' +
-        '}' +
-        'return "SOCKS5 127.0.0.1:' + gSocksServer.port + '";' +
-      '}';
-      dump(pac + '\n');
+
+      // Save the existing proxy PAC for later restoration.
+      this._oldProxyType = Services.prefs.getIntPref("network.proxy.type");
+      this._oldProxyPAC = Services.prefs.getCharPref(
+        "network.proxy.autoconfig_url"
+      );
+
+      // Create a PAC that sends most requests to our SOCKS server.
+      // For some specific domains this replicates the usual Mochitest proxy,
+      // so that if we need it we can use the Mochitest HTTP server.
+      const pac = `data:text/plain,function FindProxyForURL(url, host) {
+        if (host == "localhost" || host == "127.0.0.1") {
+          return "DIRECT";
+        }
+        if (url.startsWith("http://mochi.test")) {
+          return "PROXY 127.0.0.1:8888";
+        }
+        if (url.startsWith("https://example.org")) {
+          return "PROXY 127.0.0.1:4443";
+        }
+        return "SOCKS5 127.0.0.1:${gSocksServer.port}";
+      }`;
       Services.prefs.setIntPref("network.proxy.type", 2);
       Services.prefs.setCharPref("network.proxy.autoconfig_url", pac);
-      */
-
-      // Until then, we'll serve the actual proxy via a proxy filter.
-      const pps = Cc[
-        "@mozilla.org/network/protocol-proxy-service;1"
-      ].getService(Ci.nsIProtocolProxyService);
-      const filter = {
-        QueryInterface: ChromeUtils.generateQI(["nsIProtocolProxyFilter"]),
-        applyFilter(aURI, aProxyInfo, aCallback) {
-          if (aURI.host != "localhost" && aURI.host != "127.0.0.1") {
-            aCallback.onProxyFilterResult(
-              pps.newProxyInfo(
-                "socks",
-                "localhost",
-                gSocksServer.port,
-                "",
-                "",
-                Ci.nsIProxyInfo.TRANSPARENT_PROXY_RESOLVES_HOST,
-                0,
-                null
-              )
-            );
-            return;
-          }
-          aCallback.onProxyFilterResult(aProxyInfo);
-        },
-      };
-      pps.registerFilter(filter, 0);
     }
+
     dump("Requesting to map " + hostName + ":" + hostPort + "\n");
     gPortMap.set(hostName + ":" + hostPort, localRemappedPort);
+  },
+
+  /**
+   * Shut down the SOCKS server and restore the proxy to its earlier state.
+   */
+  clearProxy() {
+    this.shutdownServers();
+    gPortMap.clear();
+
+    if (this._oldProxyPAC) {
+      // Restore the earlier proxy.
+      Services.prefs.setIntPref("network.proxy.type", this._oldProxyType);
+      Services.prefs.setCharPref(
+        "network.proxy.autoconfig_url",
+        this._oldProxyPAC
+      );
+    }
   },
 
   /**

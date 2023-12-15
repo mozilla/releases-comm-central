@@ -23,7 +23,7 @@ add_setup(async function () {
   Services.prefs.setIntPref("mail.server.default.max_cached_connections", 1);
 
   const imapAccount = MailServices.accounts.createAccount();
-  imapServer = new IMAPServer(this, `${imapAccount.key}user`);
+  imapServer = new IMAPServer(this, { username: `${imapAccount.key}user` });
   imapServer.daemon.createMailbox("Bar", { subscribed: false });
   imapServer.daemon.createMailbox("Baz", { subscribed: true });
   imapServer.daemon.createMailbox("Foo", { subscribed: false });

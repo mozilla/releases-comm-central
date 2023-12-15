@@ -5,6 +5,10 @@
 
 // Much of the original code is taken from netwerk's httpserver implementation
 
+const { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
+
 var EXPORTED_SYMBOLS = [
   "nsMailServer",
   "gThreadManager", // TODO: kill this export
@@ -204,7 +208,7 @@ class nsMailServer {
     this._socket = null;
 
     for (const reader of this._readers) {
-      reader._realCloseSocket();
+      reader._realCloseSocket(true);
     }
 
     if (this._readers.some(e => e.observer.forced)) {
@@ -535,11 +539,18 @@ class nsMailReader {
   closeSocket() {
     this._signalStop = true;
   }
-  _realCloseSocket() {
+  _realCloseSocket(immediately) {
     this._isRunning = false;
-    this._output.close();
-    this._transport.close(Cr.NS_OK);
     this._server.stopTest();
+    if (immediately) {
+      this._transport.close(Cr.NS_OK);
+      return;
+    }
+
+    // Wait a moment, then close the connection. Closing immediately can
+    // prevent the last output stream message from reaching the client
+    // (although that's not supposed to happen).
+    setTimeout(() => this._transport.close(Cr.NS_OK), 50);
   }
 
   setMultiline(multi) {

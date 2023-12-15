@@ -23,10 +23,6 @@ const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-const { NetworkTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/NetworkTestUtils.jsm"
-);
-
 var daemon, localserver, server;
 var highWater = 0;
 
@@ -116,6 +112,5 @@ add_task(async function trigger_bug() {
 });
 
 add_task(async function cleanUp() {
-  NetworkTestUtils.shutdownServers();
   localserver.closeCachedConnections();
 });
