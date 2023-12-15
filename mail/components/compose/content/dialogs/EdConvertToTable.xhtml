@@ -1,89 +1,106 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EdConvertToTable.dtd">
-
-<window
-  title="&windowTitle.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/messengercompose/EdConvertToTable.dtd">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  onload="Startup()"
   lightweightthemes="true"
   style="min-width: 20em"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-  <dialog>
-    <script src="chrome://messenger/content/globalOverlay.js" />
-    <script src="chrome://global/content/editMenuOverlay.js" />
-    <!-- Methods common to all editor dialogs -->
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <!--- Element-specific methods -->
-    <script src="chrome://messenger/content/messengercompose/EdConvertToTable.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
-    <description class="wrap" flex="1">&instructions1.label;</description>
-    <description class="wrap" flex="1">&instructions2.label;</description>
-    <radiogroup
-      id="SepRadioGroup"
-      persist="index character"
-      index="0"
-      character=""
-    >
-      <radio
-        id="comma"
-        label="&commaRadio.label;"
-        oncommand="SelectCharacter('0');"
-      />
-      <radio
-        id="space"
-        label="&spaceRadio.label;"
-        oncommand="SelectCharacter('1');"
-      />
-      <hbox>
-        <spacer class="radio-spacer" />
-        <checkbox
-          id="CollapseSpaces"
-          label="&collapseSpaces.label;"
-          checked="true"
-          persist="checked"
-          tooltiptext="&collapseSpaces.tooltip;"
-        />
-      </hbox>
-      <hbox align="center">
+  <head>
+    <title>&windowTitle.label;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdConvertToTable.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog>
+      <spacer id="location" offsetY="50" persist="offsetX offsetY" />
+      <html:p>&instructions1.label;</html:p>
+      <html:p>&instructions2.label;</html:p>
+      <radiogroup
+        id="SepRadioGroup"
+        persist="index character"
+        index="0"
+        character=""
+      >
         <radio
-          id="other"
-          label="&otherRadio.label;"
-          oncommand="SelectCharacter('2');"
+          id="comma"
+          label="&commaRadio.label;"
+          oncommand="SelectCharacter('0');"
         />
-        <html:input
-          id="SepCharacterInput"
-          type="text"
-          aria-labelledby="other"
-          class="narrow input-inline"
-          oninput="InputSepCharacter()"
+        <radio
+          id="space"
+          label="&spaceRadio.label;"
+          oncommand="SelectCharacter('1');"
         />
-      </hbox>
-    </radiogroup>
-    <spacer class="spacer" />
-    <checkbox
-      id="DeleteSepCharacter"
-      label="&deleteCharCheck.label;"
-      persist="checked"
-    />
-    <spacer class="spacer" />
-  </dialog>
-</window>
+        <hbox>
+          <spacer class="radio-spacer" />
+          <checkbox
+            id="CollapseSpaces"
+            label="&collapseSpaces.label;"
+            checked="true"
+            persist="checked"
+            tooltiptext="&collapseSpaces.tooltip;"
+          />
+        </hbox>
+        <hbox align="center">
+          <radio
+            id="other"
+            label="&otherRadio.label;"
+            oncommand="SelectCharacter('2');"
+          />
+          <html:input
+            id="SepCharacterInput"
+            type="text"
+            aria-labelledby="other"
+            class="narrow input-inline"
+            oninput="InputSepCharacter()"
+          />
+        </hbox>
+      </radiogroup>
+      <spacer class="spacer" />
+      <checkbox
+        id="DeleteSepCharacter"
+        label="&deleteCharCheck.label;"
+        persist="checked"
+      />
+      <spacer class="spacer" />
+    </dialog>
+  </html:body>
+</html>

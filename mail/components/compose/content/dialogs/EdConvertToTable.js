@@ -5,6 +5,7 @@
 /* import-globals-from ../editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
 
+window.addEventListener("load", Startup);
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
@@ -15,11 +16,6 @@ var gOtherIndex = "2";
 
 // dialog initialization code
 function Startup() {
-  if (!GetCurrentEditor()) {
-    window.close();
-    return;
-  }
-
   gDialog.sepRadioGroup = document.getElementById("SepRadioGroup");
   gDialog.sepCharacterInput = document.getElementById("SepCharacterInput");
   gDialog.deleteSepCharacter = document.getElementById("DeleteSepCharacter");
