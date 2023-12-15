@@ -733,6 +733,7 @@
 # XS - 12x12px icons
   skin/classic/messenger/icons/xs/dot.svg                      (../shared/mail/icons/xs/dot.svg)
   skin/classic/messenger/icons/xs/sparkle-star.svg             (../shared/mail/icons/xs/sparkle-star.svg)
+  skin/classic/messenger/icons/xs/replies.svg                  (../shared/mail/icons/xs/replies.svg)
 
 # SM - 16x16px icons
   skin/classic/messenger/icons/sm/dot.svg                      (../shared/mail/icons/sm/dot.svg)

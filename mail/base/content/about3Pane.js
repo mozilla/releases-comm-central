@@ -6491,6 +6491,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.threadCardTagsInfo = this.querySelector(".thread-card-tags-info");
       this.tagIcons = this.querySelectorAll(".tag-icon");
       this.tagsMore = this.querySelector(".tag-more");
+      this.replies = this.querySelector(".thread-replies");
     }
 
     get index() {
@@ -6602,6 +6603,14 @@ customElements.whenDefined("tree-view-table-row").then(() => {
         ariaLabelPromises.push(
           document.l10n.formatValue("threadpane-attachments-cell-label")
         );
+      }
+
+      // Display number of replies in the twisty button.
+      const repliesAmount = parseInt(cellTexts[4]) - 1;
+      if (repliesAmount > 0) {
+        document.l10n.setAttributes(this.replies, "threadpane-replies", {
+          count: repliesAmount,
+        });
       }
 
       Promise.allSettled(ariaLabelPromises).then(results => {

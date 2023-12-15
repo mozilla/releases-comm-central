@@ -8,6 +8,7 @@
   /* XS - 12x12px icons */
   --icon-dot-xs: url("chrome://messenger/skin/icons/xs/dot.svg");
   --icon-sparkle-star-xs: url("chrome://messenger/skin/icons/xs/sparkle-star.svg");
+  --icon-replies-xs: url("chrome://messenger/skin/icons/xs/replies.svg");
 
   /* SM - 16x16px icons */
   --icon-dot-sm: url("chrome://messenger/skin/icons/sm/dot.svg");
