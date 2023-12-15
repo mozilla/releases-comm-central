@@ -53,8 +53,7 @@ const gLowerRomanCSS = "lower-roman";
 const gUpperAlphaCSS = "upper-alpha";
 const gLowerAlphaCSS = "lower-alpha";
 
-// dialog initialization code
-
+window.addEventListener("load", Startup);
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 

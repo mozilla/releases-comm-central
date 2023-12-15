@@ -3,102 +3,120 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % edListProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorListProperties.dtd">
+<!DOCTYPE html [ <!ENTITY % edListProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorListProperties.dtd">
 %edListProperties;
 <!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
 %edDialogOverlay; ]>
-
-<window
-  title="&windowTitle.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   lightweightthemes="true"
-  onload="Startup()"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-  <dialog>
-    <script src="chrome://messenger/content/globalOverlay.js" />
-    <script src="chrome://global/content/editMenuOverlay.js" />
-    <!-- Methods common to all editor dialogs -->
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <script src="chrome://messenger/content/messengercompose/EdListProps.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
-
-    <html:fieldset>
-      <html:legend>&ListType.label;</html:legend>
-      <menulist id="ListType" oncommand="SelectListType()">
-        <menupopup>
-          <menuitem label="&none.value;" />
-          <menuitem value="ul" label="&bulletList.value;" />
-          <menuitem value="ol" label="&numberList.value;" />
-          <menuitem value="dl" label="&definitionList.value;" />
-        </menupopup>
-      </menulist>
-    </html:fieldset>
-    <spacer class="spacer" />
-
-    <!-- message text and list items are set in JS
-       text value should be identical to string with id=BulletStyle in editor.properties
-  -->
-    <html:fieldset>
-      <html:legend id="BulletStyleLabel">&bulletStyle.label;</html:legend>
-      <menulist id="BulletStyle" oncommand="SelectBulletStyle()">
-        <menupopup />
-      </menulist>
+  <head>
+    <title>&windowTitle.label;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdListProps.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog>
+      <spacer id="location" offsetY="50" persist="offsetX offsetY" />
+      <html:fieldset>
+        <html:legend>&ListType.label;</html:legend>
+        <menulist id="ListType" oncommand="SelectListType()">
+          <menupopup>
+            <menuitem label="&none.value;" />
+            <menuitem value="ul" label="&bulletList.value;" />
+            <menuitem value="ol" label="&numberList.value;" />
+            <menuitem value="dl" label="&definitionList.value;" />
+          </menupopup>
+        </menulist>
+      </html:fieldset>
       <spacer class="spacer" />
-      <hbox align="center">
-        <label
-          id="StartingNumberLabel"
-          control="StartingNumber"
-          value="&startingNumber.label;"
-          accesskey="&startingNumber.accessKey;"
+
+      <!-- message text and list items are set in JS
+       text value should be identical to string with id=BulletStyle in editor.properties
+      -->
+      <html:fieldset>
+        <html:legend id="BulletStyleLabel">&bulletStyle.label;</html:legend>
+        <menulist id="BulletStyle" oncommand="SelectBulletStyle()">
+          <menupopup />
+        </menulist>
+        <spacer class="spacer" />
+        <hbox align="center">
+          <label
+            id="StartingNumberLabel"
+            control="StartingNumber"
+            value="&startingNumber.label;"
+            accesskey="&startingNumber.accessKey;"
+          />
+          <html:input
+            id="StartingNumber"
+            type="number"
+            class="narrow input-inline"
+            aria-labelledby="StartingNumberLabel"
+          />
+          <spacer />
+        </hbox>
+      </html:fieldset>
+      <radiogroup id="RadioGroup" index="0" persist="index">
+        <radio
+          id="ChangeAll"
+          label="&changeEntireListRadio.label;"
+          accesskey="&changeEntireListRadio.accessKey;"
         />
-        <html:input
-          id="StartingNumber"
-          type="number"
-          class="narrow input-inline"
-          aria-labelledby="StartingNumberLabel"
+        <radio
+          id="ChangeSelected"
+          label="&changeSelectedRadio.label;"
+          accesskey="&changeSelectedRadio.accessKey;"
         />
-        <spacer />
-      </hbox>
-    </html:fieldset>
-    <radiogroup id="RadioGroup" index="0" persist="index">
-      <radio
-        id="ChangeAll"
-        label="&changeEntireListRadio.label;"
-        accesskey="&changeEntireListRadio.accessKey;"
-      />
-      <radio
-        id="ChangeSelected"
-        label="&changeSelectedRadio.label;"
-        accesskey="&changeSelectedRadio.accessKey;"
-      />
-    </radiogroup>
-    <vbox id="AdvancedEdit">
-      <hbox flex="1" style="margin-top: 0.2em" align="center">
-        <!-- This will right-align the button -->
-        <spacer flex="1" />
-        <button
-          id="AdvancedEditButton1"
-          oncommand="onAdvancedEdit()"
-          label="&AdvancedEditButton.label;"
-          accesskey="&AdvancedEditButton.accessKey;"
-          tooltiptext="&AdvancedEditButton.tooltip;"
-        />
-      </hbox>
-      <separator id="advancedSeparator" class="groove" />
-    </vbox>
-  </dialog>
-</window>
+      </radiogroup>
+      <vbox id="AdvancedEdit">
+        <hbox flex="1" style="margin-top: 0.2em" align="center">
+          <!-- This will right-align the button -->
+          <spacer flex="1" />
+          <button
+            id="AdvancedEditButton1"
+            oncommand="onAdvancedEdit()"
+            label="&AdvancedEditButton.label;"
+            accesskey="&AdvancedEditButton.accessKey;"
+            tooltiptext="&AdvancedEditButton.tooltip;"
+          />
+        </hbox>
+        <separator id="advancedSeparator" class="groove" />
+      </vbox>
+    </dialog>
+  </html:body>
+</html>
