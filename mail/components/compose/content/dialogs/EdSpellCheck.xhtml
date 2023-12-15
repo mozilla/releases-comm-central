@@ -1,45 +1,67 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorSpellCheck.dtd">
-
-<!-- dialog containing a control requiring initial setup -->
-<window
-  id="spellCheckDlg"
-  title="&windowTitle.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/messengercompose/EditorSpellCheck.dtd">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  id="spellCheckDlg"
   persist="screenX screenY"
   lightweightthemes="true"
-  onload="Startup()"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/shared/grid-layout.css"
-  />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-  <dialog buttons="cancel">
-    <script src="chrome://messenger/content/globalOverlay.js" />
-    <script src="chrome://global/content/editMenuOverlay.js" />
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <script src="chrome://communicator/content/utilityOverlay.js" />
-    <script src="chrome://messenger/content/messengercompose/EdSpellCheck.js" />
-    <script src="chrome://global/content/contentAreaUtils.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
+  <head>
+    <title>&windowTitle.label;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/grid-layout.css"
+    />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://communicator/content/utilityOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/contentAreaUtils.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdSpellCheck.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
     <stringbundle
       id="languageBundle"
       src="chrome://global/locale/languageNames.properties"
@@ -48,168 +70,169 @@
       id="regionBundle"
       src="chrome://global/locale/regionNames.properties"
     />
-
-    <html:div class="grid-three-column-auto-x-auto">
-      <html:div class="flex-items-center">
-        <label id="MisspelledWordLabel" value="&misspelledWord.label;" />
-      </html:div>
-      <html:div class="flex-items-center">
-        <label id="MisspelledWord" class="bold" crop="end" />
-      </html:div>
-      <html:div class="flex-items-center">
-        <button
-          class="spell-check"
-          label="&recheckButton2.label;"
-          oncommand="Recheck();"
-          accesskey="&recheckButton2.accessKey;"
-        />
-      </html:div>
-      <html:div class="flex-items-center">
-        <label
-          id="ReplaceWordLabel"
-          value="&wordEditField.label;"
-          control="ReplaceWordInput"
-          accesskey="&wordEditField.accessKey;"
-        />
-      </html:div>
-      <html:div>
-        <hbox flex="1" class="input-container">
-          <html:input
-            id="ReplaceWordInput"
-            type="text"
-            class="input-inline"
-            onchange="ChangeReplaceWord()"
-            aria-labelledby="ReplaceWordLabel"
-          />
-        </hbox>
-      </html:div>
-      <html:div class="flex-items-center">
-        <button
-          id="CheckWord"
-          class="spell-check"
-          oncommand="CheckWord()"
-          label="&checkwordButton.label;"
-          accesskey="&checkwordButton.accessKey;"
-        />
-      </html:div>
-    </html:div>
-    <label
-      id="SuggestedListLabel"
-      value="&suggestions.label;"
-      control="SuggestedList"
-      accesskey="&suggestions.accessKey;"
-    />
-    <hbox flex="1" class="display-flex">
-      <html:div class="grid-two-column-x-auto flex-1">
-        <html:div class="display-flex">
-          <richlistbox
-            id="SuggestedList"
-            class="display-flex flex-1"
-            onselect="SelectSuggestedWord()"
-            ondblclick="if (gAllowSelectWord) { Replace(event.target.value); }"
+    <dialog buttons="cancel">
+      <html:div class="grid-three-column-auto-x-auto">
+        <html:div class="flex-items-center">
+          <label id="MisspelledWordLabel" value="&misspelledWord.label;" />
+        </html:div>
+        <html:div class="flex-items-center">
+          <label id="MisspelledWord" class="bold" crop="end" />
+        </html:div>
+        <html:div class="flex-items-center">
+          <button
+            class="spell-check"
+            label="&recheckButton2.label;"
+            oncommand="Recheck();"
+            accesskey="&recheckButton2.accessKey;"
           />
         </html:div>
-        <html:div>
-          <vbox>
-            <html:div class="grid-two-column-equalsize">
-              <button
-                id="Replace"
-                class="spell-check"
-                label="&replaceButton.label;"
-                oncommand="Replace(gDialog.ReplaceWordInput.value);"
-                accesskey="&replaceButton.accessKey;"
-              />
-              <button
-                id="Ignore"
-                class="spell-check"
-                oncommand="Ignore();"
-                label="&ignoreButton.label;"
-                accesskey="&ignoreButton.accessKey;"
-              />
-              <button
-                id="ReplaceAll"
-                class="spell-check"
-                oncommand="ReplaceAll();"
-                label="&replaceAllButton.label;"
-                accesskey="&replaceAllButton.accessKey;"
-              />
-              <button
-                id="IgnoreAll"
-                class="spell-check"
-                oncommand="IgnoreAll();"
-                label="&ignoreAllButton.label;"
-                accesskey="&ignoreAllButton.accessKey;"
-              />
-            </html:div>
-            <separator />
-            <label value="&userDictionary.label;" />
-            <hbox align="start">
-              <button
-                id="AddToDictionary"
-                class="spell-check"
-                oncommand="AddToDictionary()"
-                label="&addToUserDictionaryButton.label;"
-                accesskey="&addToUserDictionaryButton.accessKey;"
-              />
-              <button
-                id="EditDictionary"
-                class="spell-check"
-                oncommand="EditDictionary()"
-                label="&editUserDictionaryButton.label;"
-                accesskey="&editUserDictionaryButton.accessKey;"
-              />
-            </hbox>
-          </vbox>
-        </html:div>
-        <html:div class="grid-item-span-row">
+        <html:div class="flex-items-center">
           <label
-            value="&languagePopup.label;"
-            control="LanguageMenulist"
-            accesskey="&languagePopup.accessKey;"
+            id="ReplaceWordLabel"
+            value="&wordEditField.label;"
+            control="ReplaceWordInput"
+            accesskey="&wordEditField.accessKey;"
           />
         </html:div>
         <html:div>
-          <html:ul id="dictionary-list"> </html:ul>
-          <html:template id="language-item"
-            ><html:li>
-              <html:label
-                ><html:input type="checkbox"></html:input>
-                <html:span class="checkbox-label"></html:span
-              ></html:label> </html:li
-          ></html:template>
-          <html:a onclick="openDictionaryList()" href=""
-            >&moreDictionaries.label;</html:a
-          >
-        </html:div>
-        <html:div>
-          <hbox class="display-flex">
-            <button
-              id="Stop"
-              class="spell-check"
-              dlgtype="cancel"
-              label="&stopButton.label;"
-              oncommand="CancelSpellCheck();"
-              accesskey="&stopButton.accessKey;"
-            />
-            <spacer class="flex-1" />
-            <button
-              id="Close"
-              class="spell-check"
-              label="&closeButton.label;"
-              oncommand="onClose();"
-              accesskey="&closeButton.accessKey;"
-            />
-            <button
-              id="Send"
-              class="spell-check"
-              label="&sendButton.label;"
-              oncommand="onClose();"
-              accesskey="&sendButton.accessKey;"
-              hidden="true"
+          <hbox flex="1" class="input-container">
+            <html:input
+              id="ReplaceWordInput"
+              type="text"
+              class="input-inline"
+              onchange="ChangeReplaceWord()"
+              aria-labelledby="ReplaceWordLabel"
             />
           </hbox>
         </html:div>
+        <html:div class="flex-items-center">
+          <button
+            id="CheckWord"
+            class="spell-check"
+            oncommand="CheckWord()"
+            label="&checkwordButton.label;"
+            accesskey="&checkwordButton.accessKey;"
+          />
+        </html:div>
       </html:div>
-    </hbox>
-  </dialog>
-</window>
+      <label
+        id="SuggestedListLabel"
+        value="&suggestions.label;"
+        control="SuggestedList"
+        accesskey="&suggestions.accessKey;"
+      />
+      <hbox flex="1" class="display-flex">
+        <html:div class="grid-two-column-x-auto flex-1">
+          <html:div class="display-flex">
+            <richlistbox
+              id="SuggestedList"
+              class="display-flex flex-1"
+              onselect="SelectSuggestedWord()"
+              ondblclick="if (gAllowSelectWord) { Replace(event.target.value); }"
+            />
+          </html:div>
+          <html:div>
+            <vbox>
+              <html:div class="grid-two-column-equalsize">
+                <button
+                  id="Replace"
+                  class="spell-check"
+                  label="&replaceButton.label;"
+                  oncommand="Replace(gDialog.ReplaceWordInput.value);"
+                  accesskey="&replaceButton.accessKey;"
+                />
+                <button
+                  id="Ignore"
+                  class="spell-check"
+                  oncommand="Ignore();"
+                  label="&ignoreButton.label;"
+                  accesskey="&ignoreButton.accessKey;"
+                />
+                <button
+                  id="ReplaceAll"
+                  class="spell-check"
+                  oncommand="ReplaceAll();"
+                  label="&replaceAllButton.label;"
+                  accesskey="&replaceAllButton.accessKey;"
+                />
+                <button
+                  id="IgnoreAll"
+                  class="spell-check"
+                  oncommand="IgnoreAll();"
+                  label="&ignoreAllButton.label;"
+                  accesskey="&ignoreAllButton.accessKey;"
+                />
+              </html:div>
+              <separator />
+              <label value="&userDictionary.label;" />
+              <hbox align="start">
+                <button
+                  id="AddToDictionary"
+                  class="spell-check"
+                  oncommand="AddToDictionary()"
+                  label="&addToUserDictionaryButton.label;"
+                  accesskey="&addToUserDictionaryButton.accessKey;"
+                />
+                <button
+                  id="EditDictionary"
+                  class="spell-check"
+                  oncommand="EditDictionary()"
+                  label="&editUserDictionaryButton.label;"
+                  accesskey="&editUserDictionaryButton.accessKey;"
+                />
+              </hbox>
+            </vbox>
+          </html:div>
+          <html:div class="grid-item-span-row">
+            <label
+              value="&languagePopup.label;"
+              control="LanguageMenulist"
+              accesskey="&languagePopup.accessKey;"
+            />
+          </html:div>
+          <html:div>
+            <html:ul id="dictionary-list"> </html:ul>
+            <html:template id="language-item"
+              ><html:li>
+                <html:label
+                  ><html:input type="checkbox"></html:input>
+                  <html:span class="checkbox-label"></html:span
+                ></html:label> </html:li
+            ></html:template>
+            <html:a onclick="openDictionaryList()" href=""
+              >&moreDictionaries.label;</html:a
+            >
+          </html:div>
+          <html:div>
+            <hbox class="display-flex">
+              <button
+                id="Stop"
+                class="spell-check"
+                dlgtype="cancel"
+                label="&stopButton.label;"
+                oncommand="CancelSpellCheck();"
+                accesskey="&stopButton.accessKey;"
+              />
+              <spacer class="flex-1" />
+              <button
+                id="Close"
+                class="spell-check"
+                label="&closeButton.label;"
+                oncommand="onClose();"
+                accesskey="&closeButton.accessKey;"
+              />
+              <button
+                id="Send"
+                class="spell-check"
+                label="&sendButton.label;"
+                oncommand="onClose();"
+                accesskey="&sendButton.accessKey;"
+                hidden="true"
+              />
+            </hbox>
+          </html:div>
+        </html:div>
+      </hbox>
+    </dialog>
+  </html:body>
+</html>

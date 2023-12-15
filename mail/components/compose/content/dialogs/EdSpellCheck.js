@@ -17,6 +17,7 @@ var gPreviousReplaceWord = "";
 var gFirstTime = true;
 var gDictCount = 0;
 
+window.addEventListener("load", Startup);
 document.addEventListener("dialogaccept", doDefault);
 document.addEventListener("dialogcancel", CancelSpellCheck);
 
