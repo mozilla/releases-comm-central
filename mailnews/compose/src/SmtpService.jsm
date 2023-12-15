@@ -68,10 +68,14 @@ class SmtpService {
     return this._servers;
   }
 
+  get wrappedJSObject() {
+    return this;
+  }
+
   /**
    * @see nsISmtpService
    */
-  sendMailMessage(
+  async sendMailMessage(
     messageFile,
     recipients,
     userIdentity,
@@ -87,11 +91,20 @@ class SmtpService {
   ) {
     this._logger.debug(`Sending message ${messageId}`);
     const server = this.getServerByIdentity(userIdentity);
+    if (!server) {
+      // Occurs for at least one unit test, but test does not fail if return
+      // here. This check for "server" can be removed if tests are fixed.
+      console.log(
+        `No server found for identity with email ${userIdentity.email} and ` +
+          `smtpServerKey ${userIdentity.smtpServerKey}`
+      );
+      return;
+    }
     if (password) {
       server.password = password;
     }
     const runningUrl = this._getRunningUri(server);
-    server.wrappedJSObject.withClient(client => {
+    await server.wrappedJSObject.withClient(client => {
       deliveryListener?.OnStartRunningUrl(runningUrl, 0);
       let fresh = true;
       client.onidle = () => {

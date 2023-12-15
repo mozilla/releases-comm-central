@@ -818,7 +818,7 @@ class MessageSend {
       this._deliverAsNews();
       return;
     }
-    this._deliverAsMail();
+    await this._deliverAsMail();
   }
 
   /**
@@ -1118,7 +1118,7 @@ class MessageSend {
   /**
    * Send this._deliveryFile to smtp service.
    */
-  _deliverAsMail() {
+  async _deliverAsMail() {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_SMTP;
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("sendingMessage")
@@ -1149,7 +1149,9 @@ class MessageSend {
         ? this._sendProgress
         : this._statusFeedback;
     this._smtpRequest = {};
-    MailServices.smtp.sendMailMessage(
+    // Do async call. This is necessary to ensure _smtpRequest is set so that
+    // cancel function can be obtained.
+    await MailServices.smtp.wrappedJSObject.sendMailMessage(
       this._deliveryFile,
       encodedRecipients,
       this._userIdentity,
