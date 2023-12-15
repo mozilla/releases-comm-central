@@ -17,6 +17,8 @@ var TCount = 28;
 var NCount = VCount * TCount;
 // End of Unicode 3.0
 
+window.addEventListener("load", Startup);
+window.addEventListener("focus", onFocus);
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onClose);
 
