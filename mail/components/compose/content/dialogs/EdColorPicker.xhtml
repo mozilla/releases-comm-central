@@ -3,104 +3,118 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EdColorPicker.dtd">
-
-<window
-  title="&windowTitle.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/messengercompose/EdColorPicker.dtd">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   lightweightthemes="true"
-  onload="Startup()"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
+  <head>
+    <title>&windowTitle.label;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdColorPicker.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog>
+      <spacer id="location" offsetY="50" persist="offsetX offsetY" />
 
-  <dialog>
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <script src="chrome://messenger/content/messengercompose/EdColorPicker.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
-
-    <hbox id="TableOrCellGroup" align="center" collapsed="true">
-      <label
-        control="CellOrTableGroup"
-        value="&background.label;"
-        accesskey="&background.accessKey;"
-      />
-      <radiogroup id="CellOrTableGroup" orient="horizontal">
-        <radio
-          id="TableRadio"
-          label="&table.label;"
-          accesskey="&table.accessKey;"
-        />
-        <radio
-          id="CellRadio"
-          label="&cell.label;"
-          accesskey="&cell.accessKey;"
-        />
-      </radiogroup>
-    </hbox>
-    <hbox align="center">
-      <label value="&chooseColor1.label;" />
-      <html:input
-        type="color"
-        id="ColorPicker"
-        onclick="SetDefaultToOk();"
-        ondblclick="if (onAccept()) { window.close(); }"
-        onkeypress="SelectColorByKeypress(event);"
-        onchange="SelectColor();"
-      />
-      <spacer flex="1" />
-      <button
-        id="LastPickedButton"
-        label="&lastPickedColor.label;"
-        accesskey="&lastPickedColor.accessKey;"
-        crop="right"
-        oncommand="SelectLastPickedColor();"
-      >
-        <spacer
-          id="LastPickedColor"
-          LastTextColor=""
-          LastBackgroundColor=""
-          persist="LastTextColor LastBackgroundColor"
-        />
-      </button>
-    </hbox>
-
-    <spacer class="spacer" />
-    <hbox align="center" flex="1">
-      <vbox>
+      <hbox id="TableOrCellGroup" align="center" collapsed="true">
         <label
-          class="tip-caption"
-          value="&chooseColor2.label;"
-          accesskey="&chooseColor2.accessKey;"
-          control="ColorInput"
+          control="CellOrTableGroup"
+          value="&background.label;"
+          accesskey="&background.accessKey;"
         />
-        <label class="tip-caption" value="&setColorExample.label;" />
-      </vbox>
-      <html:input
-        id="ColorInput"
-        type="text"
-        style="width: 8em"
-        oninput="SetColorSwatch(); SetDefaultToOk();"
-      />
-      <label id="ColorPickerSwatch" />
-      <spacer flex="1" />
-      <button
-        id="DefaultColorButton"
-        label="&default.label;"
-        accesskey="&default.accessKey;"
-        oncommand="RemoveColor()"
-      />
-    </hbox>
-    <separator class="groove" />
-  </dialog>
-</window>
+        <radiogroup id="CellOrTableGroup" orient="horizontal">
+          <radio
+            id="TableRadio"
+            label="&table.label;"
+            accesskey="&table.accessKey;"
+          />
+          <radio
+            id="CellRadio"
+            label="&cell.label;"
+            accesskey="&cell.accessKey;"
+          />
+        </radiogroup>
+      </hbox>
+      <hbox align="center">
+        <label value="&chooseColor1.label;" />
+        <html:input
+          type="color"
+          id="ColorPicker"
+          onclick="SetDefaultToOk();"
+          ondblclick="if (onAccept()) { window.close(); }"
+          onkeypress="SelectColorByKeypress(event);"
+          onchange="SelectColor();"
+        />
+        <spacer flex="1" />
+        <button
+          id="LastPickedButton"
+          label="&lastPickedColor.label;"
+          accesskey="&lastPickedColor.accessKey;"
+          crop="right"
+          oncommand="SelectLastPickedColor();"
+        >
+          <spacer
+            id="LastPickedColor"
+            LastTextColor=""
+            LastBackgroundColor=""
+            persist="LastTextColor LastBackgroundColor"
+          />
+        </button>
+      </hbox>
+
+      <spacer class="spacer" />
+      <hbox align="center" flex="1">
+        <vbox>
+          <label
+            class="tip-caption"
+            value="&chooseColor2.label;"
+            accesskey="&chooseColor2.accessKey;"
+            control="ColorInput"
+          />
+          <label class="tip-caption" value="&setColorExample.label;" />
+        </vbox>
+        <html:input
+          id="ColorInput"
+          type="text"
+          style="width: 8em"
+          oninput="SetColorSwatch(); SetDefaultToOk();"
+        />
+        <label id="ColorPickerSwatch" />
+        <spacer flex="1" />
+        <button
+          id="DefaultColorButton"
+          label="&default.label;"
+          accesskey="&default.accessKey;"
+          oncommand="RemoveColor()"
+        />
+      </hbox>
+      <separator class="groove" />
+    </dialog>
+  </html:body>
+</html>

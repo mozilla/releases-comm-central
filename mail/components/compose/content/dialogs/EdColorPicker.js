@@ -5,8 +5,6 @@
 /* import-globals-from ../editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
 
-// Cancel() is in EdDialogCommon.js
-
 var insertNew = true;
 var tagname = "TAG NAME";
 var gColor = "";
@@ -21,15 +19,11 @@ var gColorObj;
 
 // dialog initialization code
 
+window.addEventListener("load", Startup);
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancelColor);
 
 function Startup() {
-  if (!window.arguments[1]) {
-    dump("EdColorPicker: Missing color object param\n");
-    return;
-  }
-
   // window.arguments[1] is object to get initial values and return color data
   gColorObj = window.arguments[1];
   gColorObj.Cancel = false;
