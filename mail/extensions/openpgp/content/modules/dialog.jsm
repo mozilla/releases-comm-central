@@ -143,40 +143,6 @@ var EnigmailDialog = {
   },
 
   /**
-   * Display an alert message with an OK button and a checkbox to hide
-   * the message in the future.
-   * In case the checkbox was pressed in the past, the dialog is skipped
-   *
-   * @win:      nsIWindow - the parent window to hold the modal dialog
-   * @mesg:     String    - the localized message to display
-   * @prefText: String    - the name of the Enigmail preference to read/store the
-   *                        the future display status
-   */
-  alertPref(win, mesg, prefText) {
-    const prefValue = Services.prefs.getBoolPref("temp.openpgp." + prefText);
-    if (prefValue) {
-      const checkBoxObj = {
-        value: false,
-      };
-
-      const buttonPressed = EnigmailDialog.msgBox(
-        win,
-        {
-          msgtext: mesg,
-          dialogTitle: lazy.l10n.formatValueSync("enig-info"),
-          iconType: lazy.EnigmailConstants.ICONTYPE_INFO,
-          checkboxLabel: lazy.l10n.formatValueSync("dlg-no-prompt"),
-        },
-        checkBoxObj
-      );
-
-      if (checkBoxObj.value && buttonPressed === 0) {
-        Services.prefs.setBoolPref(prefText, false);
-      }
-    }
-  },
-
-  /**
    * Display a confirmation dialog with OK / Cancel buttons (both customizable) and
    * a checkbox to remember the selected choice.
    *
