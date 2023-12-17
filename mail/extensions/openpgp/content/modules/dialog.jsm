@@ -370,12 +370,6 @@ var EnigmailDialog = {
 
     return result.value;
   },
-  /**
-   * return a pre-initialized prompt service
-   */
-  getPromptSvc() {
-    return Services.prompt;
-  },
 
   /**
    * Asks user to confirm the import of the given public keys.

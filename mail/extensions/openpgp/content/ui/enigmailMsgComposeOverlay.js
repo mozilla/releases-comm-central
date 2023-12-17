@@ -2104,14 +2104,13 @@ Enigmail.msg = {
           value: false,
         };
         var bundle = document.getElementById("bundle_composeMsgs");
-        var buttonPressed = EnigmailDialog.getPromptSvc().confirmEx(
+        var buttonPressed = Services.prompt.confirmEx(
           window,
           bundle.getString("sendMessageCheckWindowTitle"),
           bundle.getString("sendMessageCheckLabel"),
-          EnigmailDialog.getPromptSvc().BUTTON_TITLE_IS_STRING *
-            EnigmailDialog.getPromptSvc().BUTTON_POS_0 +
-            EnigmailDialog.getPromptSvc().BUTTON_TITLE_CANCEL *
-              EnigmailDialog.getPromptSvc().BUTTON_POS_1,
+          Services.prompt.BUTTON_TITLE_IS_STRING *
+            Services.prompt.BUTTON_POS_0 +
+            Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1,
           bundle.getString("sendMessageCheckSendButtonLabel"),
           null,
           null,
