@@ -13,9 +13,15 @@ add_setup(async function () {
   personalBook.addCard(createContact("romeo", "test", undefined, ""));
   const card3 = personalBook.addCard(createContact("oscar", "test"));
   personalBook.addCard(createContact("mike", "test", undefined, ""));
+  const card5 = personalBook.addCard(createContact("xray", "test"));
+  const card6 = personalBook.addCard(createContact("yankee", "test"));
+  const card7 = personalBook.addCard(createContact("zulu", "test"));
   const list1 = personalBook.addMailList(createMailingList("list 1"));
   list1.addCard(card1);
   list1.addCard(card3);
+  list1.addCard(card5);
+  list1.addCard(card6);
+  list1.addCard(card7);
   const list2 = personalBook.addMailList(createMailingList("list 2"));
   list2.addCard(card3);
 
@@ -25,15 +31,12 @@ add_setup(async function () {
   const calendar = CalendarTestUtils.createCalendar();
 
   registerCleanupFunction(async () => {
-    personalBook.deleteDirectory(list1);
-    personalBook.deleteDirectory(list2);
-    personalBook.deleteCards(personalBook.childCards);
     MailServices.accounts.removeAccount(account, true);
     CalendarTestUtils.removeCalendar(calendar);
   });
 });
 
-add_task(async function testDisplayMultiple() {
+add_task(async function testSelectMultiple() {
   const abWindow = await openAddressBookWindow();
   openDirectory(personalBook);
 
@@ -41,8 +44,8 @@ add_task(async function testDisplayMultiple() {
   const cardsList = abDocument.getElementById("cards");
   const detailsPane = abDocument.getElementById("detailsPane");
 
-  // In order; list 1, list 2, mike, oscar, romeo, victor.
-  Assert.equal(cardsList.view.rowCount, 6);
+  // In order; list 1, list 2, mike, oscar, romeo, victor, xray, yankee, zulu.
+  Assert.equal(cardsList.view.rowCount, 9);
   Assert.ok(detailsPane.hidden);
 
   // Select list 1 and check the list display.
@@ -51,9 +54,21 @@ add_task(async function testDisplayMultiple() {
   await checkActionButtons(
     ["list 1 <list 1>"],
     [],
-    ["victor test <victor.test@invalid>", "oscar test <oscar.test@invalid>"]
+    [
+      "victor test <victor.test@invalid>",
+      "oscar test <oscar.test@invalid>",
+      "xray test <xray.test@invalid>",
+      "yankee test <yankee.test@invalid>",
+      "zulu test <zulu.test@invalid>",
+    ]
   );
-  await checkList(["oscar test", "victor test"]);
+  await checkList([
+    "oscar test",
+    "victor test",
+    "xray test",
+    "yankee test",
+    "zulu test",
+  ]);
 
   // list 1 and list 2.
   EventUtils.synthesizeMouseAtCenter(
@@ -146,6 +161,126 @@ add_task(async function testDisplayMultiple() {
     "victor test",
   ]);
 
+  await closeAddressBookWindow();
+});
+
+add_task(async function testDeleteMultiple() {
+  const abWindow = await openAddressBookWindow();
+  const booksList = abWindow.booksList;
+
+  // Open mailing list list1.
+  booksList.getRowAtIndex(2).click();
+
+  const abDocument = abWindow.document;
+  const cardsList = abDocument.getElementById("cards");
+  const detailsPane = abDocument.getElementById("detailsPane");
+
+  // In order; oscar, victor, xray, yankee, zulu.
+  Assert.equal(cardsList.view.rowCount, 5);
+  Assert.ok(detailsPane.hidden);
+
+  // Select victor and yankee.
+  await TestUtils.waitForTick();
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(3),
+    { accelKey: true },
+    abWindow
+  );
+  await checkHeader({ selectionCount: 2, selectionType: "contacts" });
+  await checkList(["victor test", "yankee test"]);
+
+  // Delete victor and yankee.
+  let deletePromise = BrowserTestUtils.promiseAlertDialog("accept");
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await deletePromise;
+  await TestUtils.topicObserved("addrbook-list-member-removed");
+  Assert.equal(cardsList.view.rowCount, 3);
+  Assert.ok(
+    detailsPane.hidden,
+    "The details pane should be cleared after removing two mailing list members."
+  );
+
+  // Select all contacts.
+  await TestUtils.waitForTick();
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(2),
+    { shiftKey: true },
+    abWindow
+  );
+  await checkHeader({ selectionCount: 3, selectionType: "contacts" });
+  await checkList(["oscar test", "xray test", "zulu test"]);
+
+  // Delete all contacts.
+  deletePromise = BrowserTestUtils.promiseAlertDialog("accept");
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await deletePromise;
+  await TestUtils.topicObserved("addrbook-list-member-removed");
+  Assert.equal(cardsList.view.rowCount, 0);
+  Assert.ok(
+    detailsPane.hidden,
+    "The details pane should be cleared after removing all mailing list members."
+  );
+
+  // Open address book personalBook.
+  booksList.getRowAtIndex(1).click();
+
+  // In order; list 1, list 2, mike, oscar, romeo, victor, xray, yankee, zulu.
+  Assert.equal(cardsList.view.rowCount, 9);
+  Assert.ok(detailsPane.hidden);
+
+  // Select list 2 and victor.
+  await TestUtils.waitForTick();
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(5),
+    { accelKey: true },
+    abWindow
+  );
+  await checkHeader({ selectionCount: 2, selectionType: "mixed" });
+  await checkList(["list 2", "victor test"]);
+
+  // Delete list 2 and victor.
+  deletePromise = BrowserTestUtils.promiseAlertDialog("accept");
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await deletePromise;
+  await TestUtils.topicObserved("addrbook-contact-deleted");
+  Assert.equal(cardsList.view.rowCount, 7);
+  Assert.ok(
+    detailsPane.hidden,
+    "The details pane should be cleared after deleting one list and one contact."
+  );
+
+  // Select all contacts.
+  await TestUtils.waitForTick();
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(6),
+    { shiftKey: true },
+    abWindow
+  );
+  await checkHeader({ selectionCount: 7, selectionType: "mixed" });
+  await checkList([
+    "list 1",
+    "mike test",
+    "oscar test",
+    "romeo test",
+    "xray test",
+    "yankee test",
+    "zulu test",
+  ]);
+
+  // Delete all contacts.
+  deletePromise = BrowserTestUtils.promiseAlertDialog("accept");
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await deletePromise;
+  await TestUtils.topicObserved("addrbook-contact-deleted");
+  Assert.equal(cardsList.view.rowCount, 0);
+  Assert.ok(
+    detailsPane.hidden,
+    "The details pane should be cleared after removing all contacts."
+  );
   await closeAddressBookWindow();
 });
 
@@ -330,42 +465,3 @@ function checkList(names) {
     names
   );
 }
-
-/**
- * Tests that when the last contacts of an address book are deleted via a
- * multiple selection the display of the selected cards gets updated and do not
- * shows the deleted contacts.
- */
-add_task(async function testLastContactsViaSelectionRemoved() {
-  const book1 = createAddressBook("Book 1");
-  book1.addCard(createContact("daniel", "test"));
-  book1.addCard(createContact("jonathan", "test"));
-
-  const abWindow = await openAddressBookWindow();
-  openDirectory(book1);
-
-  const abDocument = abWindow.document;
-  const cardsList = abDocument.getElementById("cards");
-  const detailsPane = abDocument.getElementById("detailsPane");
-
-  // Select all contacts.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(1),
-    { shiftKey: true },
-    abWindow
-  );
-  await checkList(["daniel test", "jonathan test"]);
-
-  // Delete all selected contacts.
-  const deletePromise = BrowserTestUtils.promiseAlertDialog("accept");
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
-  await deletePromise;
-
-  await TestUtils.topicObserved("addrbook-contact-deleted");
-  // await TestUtils.topicObserved("addrbook-contact-deleted");
-  Assert.ok(detailsPane.hidden, "The details pane is cleared.");
-
-  await closeAddressBookWindow();
-  await promiseDirectoryRemoved(book1.URI);
-});
