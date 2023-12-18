@@ -5,7 +5,6 @@
 @import url("chrome://messenger/skin/shared/variables.css");
 
 :root {
-  --tabline-color: AccentColor;
   --toolbar-non-lwt-bgimage: none;
   --row-grouped-header-bg-color: #d5d5d5;
   --row-grouped-header-bg-color-selected: #3874d1;

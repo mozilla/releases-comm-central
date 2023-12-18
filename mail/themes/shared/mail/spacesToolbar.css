@@ -8,8 +8,8 @@
   --spaces-bg-color: #e8e8e8;
   --spaces-bg-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.05) 100%);
   --spaces-button-text-color: currentColor;
-  --spaces-button-active-text-color: var(--selected-item-text-color);
-  --spaces-button-active-bg-color: var(--selected-item-color);
+  --spaces-button-active-text-color: var(--button-primary-text-color);
+  --spaces-button-active-bg-color: var(--button-primary-background-color);
   --spaces-button-badge-text-color: var(--color-white);
   --spaces-button-badge-bg-color: var(--color-red-70);
   --spaces-button-opacity: 1;

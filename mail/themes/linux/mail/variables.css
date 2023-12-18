@@ -5,7 +5,6 @@
 @import url("chrome://messenger/skin/shared/variables.css");
 
 :root {
-  --tabline-color: var(--selected-item-color);
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255, 255, 255, 0.15),
                                              rgba(255, 255, 255, 0.15));
   --row-grouped-header-bg-color: -moz-dialog;

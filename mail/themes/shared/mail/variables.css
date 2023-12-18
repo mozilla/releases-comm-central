@@ -31,11 +31,13 @@
   --button-text-color: var(--layout-color-1);
   --button-margin: 6px;
   --button-padding: 6px;
-  --button-primary-background-color: var(--color-blue-60);
-  --button-primary-hover-background-color: color-mix(in srgb, var(--color-blue-50) 50%, var(--color-blue-60));
-  --button-primary-active-background-color: var(--color-blue-70);
-  --button-primary-text-color: var(--color-white);
-  --button-primary-border-color: light-dark(var(--color-blue-80), var(--color-blue-50));
+
+  --button-primary-background-color: AccentColor;
+  --button-primary-hover-background-color: color-mix(in srgb, AccentColor 80%, black);
+  --button-primary-active-background-color: color-mix(in srgb, AccentColor 70%, black);
+  --button-primary-text-color: AccentColorText;
+  --button-primary-border-color: color-mix(in srgb, AccentColor 85%, black);
+
   --button-destructive-background-color: var(--color-red-60);
   --button-destructive-hover-background-color: color-mix(in srgb, var(--color-red-50) 50%, var(--color-red-60));
   --button-destructive-active-background-color: var(--color-red-70);
@@ -45,8 +47,6 @@
   --button-link-active-text-color: light-dark(var(--color-blue-70), var(--color-blue-50));
   --button-pressed-shadow: light-dark(inset 0 1px 3px color-mix(in srgb, var(--color-gray-90) 30%, transparent),
                                       inset 0 1px 3px color-mix(in srgb, var(--color-black) 50%, transparent));
-  --button-pressed-indicator-background-color: light-dark(var(--color-blue-50), var(--color-blue-30));
-  --button-pressed-indicator-border-color: light-dark(var(--color-blue-60), var(--color-blue-40));
   --button-pressed-indicator-shadow: light-dark(0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0.25));
   --button-pressed-indicator-padding: 6px;
   --chrome-content-separator-color: light-dark(var(--color-gray-30), var(--color-gray-90));
@@ -121,6 +121,8 @@
   --button-primary-active-bgcolor: var(--button-primary-active-background-color);
   --button-primary-color: var(--button-primary-text-color);
 
+  --tabline-color: AccentColor;
+
   /* LW-themes enabled */
 
   &:-moz-lwtheme {
@@ -134,6 +136,8 @@
     --toolbar-bgcolor: rgba(255, 255, 255, 0.4);
     --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25);
     --toolbarbutton-icon-fill-opacity: 1;
+
+    --tabline-color: var(--lwt-tab-line-color, currentColor);
   }
 
   &[lwt-tree] {
@@ -185,8 +189,6 @@
     --button-link-text-color: LinkText;
     --button-link-active-text-color: ActiveText;
     --button-pressed-shadow: none;
-    --button-pressed-indicator-background-color: SelectedItem;
-    --button-pressed-indicator-border-color: SelectedItem;
     --search-field-placeholder: GrayText;
     --selected-item-color: SelectedItem;
     --selected-item-text-color: SelectedItemText;
@@ -198,6 +200,8 @@
     --toolbar-field-background-color: Field;
     --toolbar-field-color: FieldText;
     --toolbar-field-border-color: ThreeDShadow;
+
+    --tabline-color: SelectedItem;
   }
 }
 

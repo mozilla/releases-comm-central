@@ -414,8 +414,8 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"][checked="true"] {
   --appmenu-icons-fill: color-mix(in srgb, currentColor 20%, transparent);
   --appmenu-icons-stroke: currentColor;
-  background-color: var(--select-focus-background-color);
-  color: var(--select-focus-text-color);
+  background-color: var(--button-primary-background-color);
+  color: var(--button-primary-text-color);
 }
 
 .subview-subheader {

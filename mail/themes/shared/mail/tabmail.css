@@ -38,10 +38,6 @@
   color-scheme: light dark;
   padding-top: 3px;
   padding-inline: 3px;
-
-  &:-moz-lwtheme {
-    --tabline-color: var(--lwt-tab-line-color, currentColor);
-  }
 }
 
 #tabpanelcontainer {

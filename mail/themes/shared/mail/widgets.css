@@ -263,8 +263,8 @@
     }
 
     &[aria-pressed="true"]::before {
-      background-color: var(--button-pressed-indicator-background-color);
-      border-color: var(--button-pressed-indicator-border-color);
+      background-color: var(--button-primary-background-color);
+      border-color: var(--button-primary-border-color);
       box-shadow: var(--button-pressed-indicator-shadow);
     }
   }

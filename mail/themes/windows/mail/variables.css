@@ -6,7 +6,6 @@
 
 :root {
   --autocomplete-popup-url-color: LinkText;
-  --tabline-color: var(--selected-item-color);
   --glassShadowColor: hsla(240, 5%, 5%, 0.3);
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255, 255, 255, 0.15),
                                              rgba(255, 255, 255, 0.15));
@@ -17,7 +16,6 @@
 
 @media not (prefers-contrast) {
   :root {
-    --tabline-color: #0a84ff;
     --toolbar-non-lwt-bgimage: none;
     --panel-separator-color: hsla(210, 4%, 10%, 0.14);
     --autocomplete-popup-url-color: hsl(210, 77%, 47%);
@@ -43,7 +41,6 @@
 @media (prefers-contrast) {
   :root:not(:-moz-lwtheme) {
     --lwt-tabs-border-color: ThreeDShadow;
-    --tabline-color: SelectedItem;
     --item-focus-selected-border-color: SelectedItemText;
     --new-folder-color: Highlight;
     --menuitem-vertical-padding: 3px;
