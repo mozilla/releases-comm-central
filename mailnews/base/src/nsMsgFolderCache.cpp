@@ -305,8 +305,7 @@ nsresult nsMsgFolderCache::SaveFolderCache(nsIFile* outFile) {
 NS_IMETHODIMP nsMsgFolderCache::GetCacheElement(
     const nsACString& pathKey, bool createIfMissing,
     nsIMsgFolderCacheElement** result) {
-  nsAutoCString key(pathKey);
-  if (mRoot->isMember(key.get()) || createIfMissing) {
+  if (mRoot->isMember(PromiseFlatCString(pathKey).get()) || createIfMissing) {
     nsCOMPtr<nsIMsgFolderCacheElement> element =
         new nsMsgFolderCacheElement(this, pathKey);
     element.forget(result);
