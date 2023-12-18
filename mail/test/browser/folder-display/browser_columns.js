@@ -51,6 +51,8 @@ var CARDS_SENT_DEFAULTS;
 var VIRTUAL_DEFAULTS;
 var GLODA_DEFAULTS;
 
+requestLongerTimeout(2);
+
 add_setup(async function () {
   useCorrespondent = Services.prefs.getBoolPref(
     "mail.threadpane.use_correspondents"
@@ -65,7 +67,13 @@ add_setup(async function () {
     "junkStatusCol",
     "dateCol",
   ];
-  CARDS_INBOX_DEFAULT = ["subjectCol", "senderCol", "dateCol", "tagsCol"];
+  CARDS_INBOX_DEFAULT = [
+    "subjectCol",
+    "senderCol",
+    "dateCol",
+    "tagsCol",
+    "totalCol",
+  ];
   SENT_DEFAULTS = [
     "threadCol",
     "flaggedCol",
@@ -76,7 +84,13 @@ add_setup(async function () {
     "junkStatusCol",
     "dateCol",
   ];
-  CARDS_SENT_DEFAULTS = ["subjectCol", "recipientCol", "dateCol", "tagsCol"];
+  CARDS_SENT_DEFAULTS = [
+    "subjectCol",
+    "recipientCol",
+    "dateCol",
+    "tagsCol",
+    "totalCol",
+  ];
   VIRTUAL_DEFAULTS = [
     "threadCol",
     "flaggedCol",
@@ -208,7 +222,7 @@ async function toggleColumn(columnID) {
  * Make sure we set the proper defaults for an Inbox.
  */
 add_task(async function test_column_defaults_inbox() {
-  // just use the inbox; comes from test-folder-display-helpers
+  // just use the inbox; comes from FolderDisplayHelpers
   folderInbox = inboxFolder;
   await enter_folder(folderInbox);
   await ensure_table_view();
