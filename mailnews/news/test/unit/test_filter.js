@@ -32,7 +32,7 @@ var attribResults = {
 };
 function testAttrib(handler, daemon, localserver) {
   var server = makeServer(handler, daemon);
-  server.setDebugLevel(fsDebugAll);
+  server.setDebugLevel(nsMailServer.debugAll);
   server.start();
   localserver.port = server.port;
 

@@ -104,7 +104,7 @@ add_task(async function verifyContentLength() {
 
   gIMAPIncomingServer.closeCachedConnections();
   gIMAPServer.stop();
-  const thread = gThreadManager.currentThread;
+  const thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

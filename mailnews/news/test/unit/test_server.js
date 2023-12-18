@@ -67,7 +67,7 @@ function testRFC977() {
   }
   server.stop();
 
-  var thread = gThreadManager.currentThread;
+  var thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }
@@ -93,7 +93,7 @@ function testConnectionLimit() {
   Assert.ok("us" in server.playTransaction());
   server.stop();
 
-  var thread = gThreadManager.currentThread;
+  var thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }
@@ -109,7 +109,7 @@ function testReentrantClose() {
     OnStartRunningUrl(url) {},
     OnStopRunningUrl(url, rv) {
       // Spin the event loop (entering nsNNTPProtocol::ProcessProtocolState)
-      const thread = gThreadManager.currentThread;
+      const thread = Services.tm.currentThread;
       while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
       }
@@ -130,7 +130,7 @@ function testReentrantClose() {
   });
   server.performTest("GROUP");
   dump("Stopping server\n");
-  gThreadManager.currentThread.dispatch(
+  Services.tm.currentThread.dispatch(
     {
       run() {
         _server.closeCachedConnections();

@@ -496,7 +496,7 @@ add_task(function endTest() {
   // this test, comment out this line.
   gInbox.filePath.remove(false);
   Services.prefs.clearUserPref("mailnews.allowMboxOver4GB");
-  var thread = gThreadManager.currentThread;
+  var thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

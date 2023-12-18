@@ -128,7 +128,7 @@ add_task(function endTest() {
   // Clean up nicely the test.
   server.stop();
 
-  var thread = gThreadManager.currentThread;
+  var thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

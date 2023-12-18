@@ -104,7 +104,7 @@ function nextTest() {
     var server = makeServer(daemon, "", {
       kAuthSchemes: thisTest.serverAuthMethods,
     });
-    server.setDebugLevel(fsDebugAll);
+    server.setDebugLevel(nsMailServer.debugAll);
 
     // If Mailnews ever caches server capabilities, delete and re-create the incomingServer here
     var incomingServer = createLocalIMAPServer(server.port);
@@ -156,7 +156,7 @@ function run_test() {
 }
 
 function endTest() {
-  var thread = gThreadManager.currentThread;
+  var thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

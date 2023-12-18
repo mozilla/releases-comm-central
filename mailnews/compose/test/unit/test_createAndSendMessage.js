@@ -46,7 +46,7 @@ MessageListener.prototype = {
     } finally {
       server.stop();
 
-      var thread = gThreadManager.currentThread;
+      var thread = Services.tm.currentThread;
       while (thread.hasPendingEvents()) {
         thread.processNextEvent(false);
       }
@@ -162,7 +162,7 @@ add_task(async function testCreateAndSendMessage() {
   } finally {
     server.stop();
 
-    var thread = gThreadManager.currentThread;
+    var thread = Services.tm.currentThread;
     while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
     }

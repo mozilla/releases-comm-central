@@ -115,7 +115,7 @@ add_setup(async function () {
 
   // Set up the server.
   server = setupServerDaemon();
-  server.setDebugLevel(fsDebugRecv);
+  server.setDebugLevel(nsMailServer.debugRecv);
 });
 
 add_task(async function test_sendMessageLater2_message1() {

@@ -80,7 +80,7 @@ async function test_8bitmime(aStrictMime, aServer8bit) {
   } finally {
     server.stop();
 
-    var thread = gThreadManager.currentThread;
+    var thread = Services.tm.currentThread;
     while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
     }

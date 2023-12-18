@@ -9,44 +9,24 @@ const { setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
 );
 
-var EXPORTED_SYMBOLS = [
-  "nsMailServer",
-  "gThreadManager", // TODO: kill this export
-  "fsDebugNone",
-  "fsDebugAll",
-  "fsDebugRecv",
-  "fsDebugRecvSend",
-];
-
-var CC = Components.Constructor;
-
-/**
- * The XPCOM thread manager. This declaration is obsolete and exists only
- * because deleting it breaks several dozen tests at the moment.
- */
-var gThreadManager = Services.tm;
-
-var fsDebugNone = 0;
-var fsDebugRecv = 1;
-var fsDebugRecvSend = 2;
-var fsDebugAll = 3;
+var EXPORTED_SYMBOLS = ["nsMailServer"];
 
 /**
  * JavaScript constructors for commonly-used classes; precreating these is a
  * speedup over doing the same from base principles.  See the docs at
  * http://developer.mozilla.org/en/Components.Constructor for details.
  */
-var ServerSocket = CC(
+var ServerSocket = Components.Constructor(
   "@mozilla.org/network/server-socket;1",
   "nsIServerSocket",
   "init"
 );
-var TLSServerSocket = CC(
+var TLSServerSocket = Components.Constructor(
   "@mozilla.org/network/tls-server-socket;1",
   "nsITLSServerSocket",
   "init"
 );
-var BinaryInputStream = CC(
+var BinaryInputStream = Components.Constructor(
   "@mozilla.org/binaryinputstream;1",
   "nsIBinaryInputStream",
   "setInputStream"
@@ -99,8 +79,13 @@ var TIMEOUT = 3 * 60 * 1000;
  * do_test_finished();
  */
 class nsMailServer {
+  static debugNone = 0;
+  static debugRecv = 1;
+  static debugRecvSend = 2;
+  static debugAll = 3;
+
   constructor(handlerCreator, daemon) {
-    this._debug = fsDebugNone;
+    this._debug = nsMailServer.debugNone;
 
     /** The port on which this server listens. */
     this._port = -1;
@@ -135,7 +120,7 @@ class nsMailServer {
   }
 
   onSocketAccepted(socket, trans) {
-    if (this._debug != fsDebugNone) {
+    if (this._debug != nsMailServer.debugNone) {
       dump("Received Connection from " + trans.host + ":" + trans.port + "\n");
     }
 
@@ -179,7 +164,7 @@ class nsMailServer {
   }
 
   onStopListening(socket, status) {
-    if (this._debug != fsDebugNone) {
+    if (this._debug != nsMailServer.debugNone) {
       dump("Connection Lost " + status + "\n");
     }
 
@@ -460,7 +445,7 @@ class nsMailReader {
     while (this._lines.length > 0) {
       var line = this._lines.shift();
 
-      if (this._debug != fsDebugNone) {
+      if (this._debug != nsMailServer.debugNone) {
         dump("RECV: " + line + "\n");
       }
 
@@ -487,7 +472,7 @@ class nsMailReader {
           // By convention, commands are uppercase
           command = command.toUpperCase();
 
-          if (this._debug == fsDebugAll) {
+          if (this._debug == nsMailServer.debugAll) {
             dump("Received command " + command + "\n");
           }
 
@@ -523,9 +508,9 @@ class nsMailReader {
         response = response + "\r\n";
       }
 
-      if (this._debug == fsDebugRecvSend) {
+      if (this._debug == nsMailServer.debugRecvSend) {
         dump("SEND: " + response.split(" ", 1)[0] + "\n");
-      } else if (this._debug == fsDebugAll) {
+      } else if (this._debug == nsMailServer.debugAll) {
         var responses = response.split("\n");
         responses.forEach(function (line) {
           dump("SEND: " + line + "\n");

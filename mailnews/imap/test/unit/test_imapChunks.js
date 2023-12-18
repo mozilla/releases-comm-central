@@ -96,7 +96,7 @@ add_task(async function run_the_test() {
 function endTest() {
   gIMAPIncomingServer.closeCachedConnections();
   gServer.stop();
-  var thread = gThreadManager.currentThread;
+  var thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

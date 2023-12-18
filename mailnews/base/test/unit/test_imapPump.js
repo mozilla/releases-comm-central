@@ -20,12 +20,9 @@ var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
 var { ImapMessage } = ChromeUtils.import(
   "resource://testing-common/mailnews/Imapd.jsm"
 );
-
-var { fsDebugAll } = ChromeUtils.import(
+var { nsMailServer } = ChromeUtils.import(
   "resource://testing-common/mailnews/Maild.jsm"
 );
-
-// Globals
 
 // Messages to load must have CRLF line endings, that is Windows style
 var gMessage = "bugmail10"; // message file used as the test message
@@ -40,7 +37,7 @@ var gTestArray = [
 
   // optionally set server parameters, here enabling debug messages
   function serverParms() {
-    IMAPPump.server.setDebugLevel(fsDebugAll);
+    IMAPPump.server.setDebugLevel(nsMailServer.debugAll);
   },
 
   // the main test

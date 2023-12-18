@@ -82,7 +82,7 @@ MsgSendListener.prototype = {
       do_throw(e);
     } finally {
       server.stop();
-      var thread = gThreadManager.currentThread;
+      var thread = Services.tm.currentThread;
       while (thread.hasPendingEvents()) {
         thread.processNextEvent(false);
       }
@@ -181,7 +181,7 @@ async function doSendTest(aRecipient, aRecipientExpected, waitForPrompt) {
     Assert.ok(false, "Send fail: " + e);
   } finally {
     server.stop();
-    var thread = gThreadManager.currentThread;
+    var thread = Services.tm.currentThread;
     while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
     }

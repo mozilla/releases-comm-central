@@ -46,7 +46,7 @@ var urlListener = {
       do_timeout(0, endTest);
     } catch (e) {
       server.stop();
-      var thread = gThreadManager.currentThread;
+      var thread = Services.tm.currentThread;
       while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
       }
@@ -60,7 +60,7 @@ function endTest() {
   // No more tests, let everything finish
   server.stop();
 
-  var thread = gThreadManager.currentThread;
+  var thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }
@@ -119,7 +119,7 @@ function run_test() {
 
     do_throw(e);
   } finally {
-    var thread = gThreadManager.currentThread;
+    var thread = Services.tm.currentThread;
     while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
     }

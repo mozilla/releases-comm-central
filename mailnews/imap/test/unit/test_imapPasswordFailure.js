@@ -86,7 +86,7 @@ add_task(async function () {
     kUsername: kUserName,
     kPassword: kValidPassword,
   });
-  server.setDebugLevel(fsDebugAll);
+  server.setDebugLevel(nsMailServer.debugAll);
 
   incomingServer = createLocalIMAPServer(server.port);
 
@@ -170,7 +170,7 @@ function endTest() {
   incomingServer.closeCachedConnections();
   server.stop();
 
-  var thread = gThreadManager.currentThread;
+  var thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

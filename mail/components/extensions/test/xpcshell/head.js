@@ -14,7 +14,7 @@ var { mailTestUtils } = ChromeUtils.import(
 var { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-var { fsDebugAll, gThreadManager, nsMailServer } = ChromeUtils.import(
+var { nsMailServer } = ChromeUtils.import(
   "resource://testing-common/mailnews/Maild.jsm"
 );
 var { PromiseTestUtils } = ChromeUtils.import(

@@ -158,7 +158,7 @@ function endTest() {
   server.stop();
 
   dump("emptying event loop\n");
-  var thread = gThreadManager.currentThread;
+  var thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     dump("next event\n");
     thread.processNextEvent(true);

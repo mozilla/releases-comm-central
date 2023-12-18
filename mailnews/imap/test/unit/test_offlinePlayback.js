@@ -26,10 +26,7 @@ var gOfflineManager;
 var tests = [
   setupIMAPPump,
   function serverParms() {
-    var { fsDebugAll } = ChromeUtils.import(
-      "resource://testing-common/mailnews/Maild.jsm"
-    );
-    IMAPPump.server.setDebugLevel(fsDebugAll);
+    IMAPPump.server.setDebugLevel(nsMailServer.debugAll);
   },
   setup,
 

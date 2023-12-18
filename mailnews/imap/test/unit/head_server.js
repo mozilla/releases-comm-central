@@ -35,14 +35,9 @@ updateAppInfo();
 do_get_profile();
 
 // Import fakeserver
-var {
-  nsMailServer,
-  gThreadManager,
-  fsDebugNone,
-  fsDebugAll,
-  fsDebugRecv,
-  fsDebugRecvSend,
-} = ChromeUtils.import("resource://testing-common/mailnews/Maild.jsm");
+var { nsMailServer } = ChromeUtils.import(
+  "resource://testing-common/mailnews/Maild.jsm"
+);
 
 var {
   ImapDaemon,

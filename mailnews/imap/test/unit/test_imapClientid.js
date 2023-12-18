@@ -37,7 +37,7 @@ add_task(async function () {
     kUsername: kUserName,
     kPassword: kValidPassword,
   });
-  server.setDebugLevel(fsDebugAll);
+  server.setDebugLevel(nsMailServer.debugAll);
   incomingServer = createLocalIMAPServer(server.port);
 
   // Turn on CLIENTID and populate the clientid with a uuid.
@@ -57,7 +57,7 @@ registerCleanupFunction(function () {
   incomingServer.closeCachedConnections();
   server.stop();
 
-  var thread = gThreadManager.currentThread;
+  var thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

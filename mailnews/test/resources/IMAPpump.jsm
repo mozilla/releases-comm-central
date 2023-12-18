@@ -19,7 +19,7 @@ var { MailServices } = ChromeUtils.import(
 var { localAccountUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/LocalAccountUtils.jsm"
 );
-var { gThreadManager, nsMailServer } = ChromeUtils.import(
+var { nsMailServer } = ChromeUtils.import(
   "resource://testing-common/mailnews/Maild.jsm"
 );
 var Imapd = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
@@ -120,7 +120,7 @@ function setupIMAPPump(extensions) {
 // This will clear not only the imap accounts but also local accounts.
 function teardownIMAPPump() {
   // try to finish any pending operations
-  const thread = gThreadManager.currentThread;
+  const thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

@@ -251,7 +251,7 @@ add_task(function teardown() {
   } catch (ex) {
     throw new Error(ex);
   }
-  const thread = gThreadManager.currentThread;
+  const thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

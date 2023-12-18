@@ -146,7 +146,7 @@ add_task(function endTest() {
   server = null;
   daemon = null;
   incomingServer = null;
-  var thread = gThreadManager.currentThread;
+  var thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

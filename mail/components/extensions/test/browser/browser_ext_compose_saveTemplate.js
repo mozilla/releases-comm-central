@@ -9,14 +9,9 @@ var { localAccountUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/LocalAccountUtils.jsm"
 );
 // Import the smtp server scripts
-var {
-  nsMailServer,
-  gThreadManager,
-  fsDebugNone,
-  fsDebugAll,
-  fsDebugRecv,
-  fsDebugRecvSend,
-} = ChromeUtils.import("resource://testing-common/mailnews/Maild.jsm");
+var { nsMailServer } = ChromeUtils.import(
+  "resource://testing-common/mailnews/Maild.jsm"
+);
 var { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
   "resource://testing-common/mailnews/Smtpd.jsm"
 );

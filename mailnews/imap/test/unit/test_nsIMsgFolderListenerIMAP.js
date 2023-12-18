@@ -354,7 +354,7 @@ function endTest() {
   gIMAPIncomingServer.closeCachedConnections();
   gServer.performTest();
   gServer.stop();
-  const thread = gThreadManager.currentThread;
+  const thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

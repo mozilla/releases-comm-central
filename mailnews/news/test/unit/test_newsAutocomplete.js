@@ -100,7 +100,7 @@ function run_test() {
   acs.startSearch("empty", paramsF, null, obs);
   Assert.equal(obs._result.matchCount, 1);
 
-  const thread = gThreadManager.currentThread;
+  const thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

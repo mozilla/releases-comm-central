@@ -43,7 +43,7 @@ add_task(async function goOffline() {
   Services.prefs.setIntPref("offline.download.download_messages", 2);
 
   IMAPPump.incomingServer.closeCachedConnections();
-  const thread = gThreadManager.currentThread;
+  const thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

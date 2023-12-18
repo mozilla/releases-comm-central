@@ -28,14 +28,9 @@ var gDEPTH = "../../../../";
 /* import-globals-from ../../../test/fakeserver/Maild.jsm */
 /* import-globals-from ../../../test/fakeserver/Auth.jsm */
 /* import-globals-from ../../../test/fakeserver/Pop3d.jsm */
-var {
-  nsMailServer,
-  gThreadManager,
-  fsDebugNone,
-  fsDebugAll,
-  fsDebugRecv,
-  fsDebugRecvSend,
-} = ChromeUtils.import("resource://testing-common/mailnews/Maild.jsm");
+var { nsMailServer } = ChromeUtils.import(
+  "resource://testing-common/mailnews/Maild.jsm"
+);
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
 );

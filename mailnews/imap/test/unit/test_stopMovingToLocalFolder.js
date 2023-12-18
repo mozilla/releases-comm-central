@@ -19,7 +19,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
 function stop_server() {
   IMAPPump.incomingServer.closeCachedConnections();
   IMAPPump.server.stop();
-  const thread = gThreadManager.currentThread;
+  const thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }
@@ -88,7 +88,7 @@ add_task(function endTest() {
     dump(ex);
   }
   IMAPPump.server.stop();
-  const thread = gThreadManager.currentThread;
+  const thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

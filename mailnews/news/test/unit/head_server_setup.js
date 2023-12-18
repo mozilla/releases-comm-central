@@ -22,7 +22,7 @@ do_get_profile();
 var gDEPTH = "../../../../";
 
 // Import the servers
-var { fsDebugAll, gThreadManager, nsMailServer } = ChromeUtils.import(
+var { nsMailServer } = ChromeUtils.import(
   "resource://testing-common/mailnews/Maild.jsm"
 );
 var {

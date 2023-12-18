@@ -79,7 +79,7 @@ var urlListener = {
       do_timeout(0, checkBusy);
     } catch (e) {
       server.stop();
-      var thread = gThreadManager.currentThread;
+      var thread = Services.tm.currentThread;
       while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
       }
@@ -96,7 +96,7 @@ function checkBusy() {
     // No more tests, let everything finish
     server.stop();
 
-    var thread = gThreadManager.currentThread;
+    var thread = Services.tm.currentThread;
     while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
     }

@@ -64,7 +64,7 @@ var gTestArray = [
   setupIMAPPump,
   // optionally set server parameters, here enabling debug messages
   // function serverParms() {
-  //   IMAPPump.server.setDebugLevel(fsDebugAll);
+  //   IMAPPump.server.setDebugLevel(nsMailServer.debugAll);
   // },
   setupSmtpServer,
   setupFilters,

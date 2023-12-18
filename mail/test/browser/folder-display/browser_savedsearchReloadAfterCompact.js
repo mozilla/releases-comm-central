@@ -9,10 +9,6 @@
 
 "use strict";
 
-var { gThreadManager } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
-);
-
 var {
   be_in_folder,
   create_folder,
@@ -91,7 +87,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
 add_task(async function endTest() {
   // Fixing possible nsIMsgDBHdr.markHasAttachments onEndMsgDownload runs.
   //  Found in chaosmode.
-  var thread = gThreadManager.currentThread;
+  var thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }

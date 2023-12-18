@@ -46,7 +46,7 @@ var urlListener = {
       // If we have an error, clean up nicely before we throw it.
       server.stop();
 
-      var thread = gThreadManager.currentThread;
+      var thread = Services.tm.currentThread;
       while (thread.hasPendingEvents()) {
         thread.processNextEvent(true);
       }
@@ -66,7 +66,7 @@ function checkBusy() {
     // No more tests, let everything finish
     server.stop();
 
-    var thread = gThreadManager.currentThread;
+    var thread = Services.tm.currentThread;
     while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
     }
@@ -110,7 +110,7 @@ function testNext() {
 
     do_throw(e);
   } finally {
-    var thread = gThreadManager.currentThread;
+    var thread = Services.tm.currentThread;
     while (thread.hasPendingEvents()) {
       thread.processNextEvent(true);
     }
