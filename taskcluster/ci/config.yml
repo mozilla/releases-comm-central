@@ -384,6 +384,7 @@ mac-signing:
                       - "/Contents/MacOS/*.dylib"
                       - "/Contents/MacOS/rnp-cli"
                       - "/Contents/MacOS/rnpkeys"
+                      - "/Contents/Frameworks/ChannelPrefs.framework"
 
                 - deep: false
                   runtime: true
@@ -420,6 +421,7 @@ mac-signing:
                       - "/Contents/MacOS/minidump-analyzer"
                       - "/Contents/MacOS/rnp-cli"
                       - "/Contents/MacOS/rnpkeys"
+                      - "/Contents/Frameworks/ChannelPrefs.framework"
 
                 - deep: false
                   runtime: true
