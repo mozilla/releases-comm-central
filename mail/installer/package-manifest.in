@@ -266,7 +266,10 @@
 
 ; default pref files
 @RESPATH@/defaults/pref/all-thunderbird.js
+# channel-prefs.js has been removed on macOS.
+#ifndef XP_MACOSX
 @RESPATH@/defaults/pref/channel-prefs.js
+#endif
 @RESPATH@/defaults/pref/composer.js
 @RESPATH@/defaults/pref/mailnews.js
 @RESPATH@/defaults/pref/mdn.js
