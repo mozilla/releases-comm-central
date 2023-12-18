@@ -32,7 +32,9 @@ var {
   NNTP_RFC4643_extension,
   NNTP_RFC977_handler,
   NntpDaemon,
-} = ChromeUtils.import("resource://testing-common/mailnews/Nntpd.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Nntpd.sys.mjs"
+);
 
 var kSimpleNewsArticle =
   "From: John Doe <john.doe@example.com>\n" +

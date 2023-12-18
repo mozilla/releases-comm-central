@@ -50,7 +50,7 @@ TEST_HARNESS_FILES.testing.mochitest.fakeserver += [
     "../../../mailnews/test/fakeserver/Auth.jsm",
     "../../../mailnews/test/fakeserver/Imapd.sys.mjs",
     "../../../mailnews/test/fakeserver/Maild.sys.mjs",
-    "../../../mailnews/test/fakeserver/Nntpd.jsm",
+    "../../../mailnews/test/fakeserver/Nntpd.sys.mjs",
     "../../../mailnews/test/fakeserver/Pop3d.sys.mjs",
     "../../../mailnews/test/fakeserver/Smtpd.sys.mjs",
 ]

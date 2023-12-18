@@ -56,7 +56,7 @@ TESTING_JS_MODULES.mailnews += [
     "test/fakeserver/Imapd.sys.mjs",
     "test/fakeserver/Ldapd.jsm",
     "test/fakeserver/Maild.sys.mjs",
-    "test/fakeserver/Nntpd.jsm",
+    "test/fakeserver/Nntpd.sys.mjs",
     "test/fakeserver/Pop3d.sys.mjs",
     "test/fakeserver/Smtpd.sys.mjs",
     "test/resources/IMAPpump.jsm",

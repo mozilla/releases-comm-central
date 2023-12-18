@@ -15,9 +15,10 @@ const EXPORTED_SYMBOLS = [
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { NewsArticle, NNTP_RFC977_handler, NntpDaemon } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Nntpd.jsm"
-);
+var { NewsArticle, NNTP_RFC977_handler, NntpDaemon } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mailnews/Nntpd.sys.mjs"
+  );
 var { nsMailServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Maild.sys.mjs"
 );

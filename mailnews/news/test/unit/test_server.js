@@ -1,17 +1,17 @@
 // Protocol tests for NNTP. These actually aren't too important, but their main
 // purpose is to make sure that maild is working properly and to provide
-// examples for how using maild. They also help make sure that I coded Nntpd.jsm
+// examples for how using maild. They also help make sure that I coded Nntpd.sys.mjs
 // right, both logically and for RFC compliance.
 // TODO:
 // * We need to hook up mochitest,
 // * TLS negotiation.
 
-// The basic daemon to use for testing Nntpd.jsm implementations
+// The basic daemon to use for testing Nntpd.sys.mjs implementations
 var daemon = setupNNTPDaemon();
 
 // NNTP SERVER TESTS
 // -----------------
-// Functions in order as defined in Nntpd.jsm. Each function tests the URLs
+// Functions in order as defined in Nntpd.sys.mjs. Each function tests the URLs
 // that are located over the implementation of nsNNTPProtocol::LoadURL and
 // added in bug 400331. Furthermore, they are tested in rough order as they
 // would be expected to be used in a session. If more URL types are modified,

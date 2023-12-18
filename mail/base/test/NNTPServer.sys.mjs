@@ -4,9 +4,11 @@
 
 import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
 
-const { NewsArticle, NNTP_RFC977_handler, NntpDaemon } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Nntpd.jsm"
-);
+import {
+  NewsArticle,
+  NNTP_RFC977_handler,
+  NntpDaemon,
+} from "resource://testing-common/mailnews/Nntpd.sys.mjs";
 
 /**
  * A simple IMAP server for testing purposes.

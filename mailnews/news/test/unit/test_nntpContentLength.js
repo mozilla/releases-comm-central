@@ -11,7 +11,7 @@
  * that are run externally.
  */
 
-// The basic daemon to use for testing Nntpd.jsm implementations
+// The basic daemon to use for testing Nntpd.sys.mjs implementations
 var daemon = setupNNTPDaemon();
 
 var server;

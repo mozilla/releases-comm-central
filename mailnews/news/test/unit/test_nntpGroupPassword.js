@@ -3,7 +3,7 @@
  * Authentication tests for NNTP (based on RFC4643).
  */
 
-// The basic daemon to use for testing Nntpd.jsm implementations
+// The basic daemon to use for testing Nntpd.sys.mjs implementations
 var daemon = setupNNTPDaemon();
 
 add_task(async function () {

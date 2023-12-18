@@ -6,19 +6,7 @@
 
 const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
-var EXPORTED_SYMBOLS = [
-  "NntpDaemon",
-  "NewsArticle",
-  "NNTP_POSTABLE",
-  "NNTP_REAL_LENGTH",
-  "NNTP_RFC977_handler",
-  "NNTP_RFC2980_handler",
-  "NNTP_RFC3977_handler",
-  "NNTP_Giganews_handler",
-  "NNTP_RFC4643_extension",
-];
-
-class NntpDaemon {
+export class NntpDaemon {
   constructor(flags) {
     this._groups = {};
     this._messages = {};
@@ -92,7 +80,7 @@ class NntpDaemon {
   }
 }
 
-function NewsArticle(text) {
+export function NewsArticle(text) {
   this.headers = new Map();
   this.body = "";
   this.messageID = "";
@@ -144,9 +132,9 @@ function wildmat2regex(wildmat) {
 }
 
 // NNTP FLAGS
-var NNTP_POSTABLE = 0x0001;
+export var NNTP_POSTABLE = 0x0001;
 
-var NNTP_REAL_LENGTH = 0x0100;
+export var NNTP_REAL_LENGTH = 0x0100;
 
 function hasFlag(flags, flag) {
   return (flags & flag) == flag;
@@ -173,7 +161,7 @@ function hasFlag(flags, flag) {
 // This handler implements the bare minimum required by RFC 977. Actually, not
 // even that much: IHAVE and SLAVE are not implemented, as those two are
 // explicitly server implementations.
-class NNTP_RFC977_handler {
+export class NNTP_RFC977_handler {
   constructor(daemon) {
     this._daemon = daemon;
     this.closing = false;
@@ -419,7 +407,7 @@ class NNTP_RFC977_handler {
   }
 }
 
-class NNTP_RFC2980_handler extends NNTP_RFC977_handler {
+export class NNTP_RFC2980_handler extends NNTP_RFC977_handler {
   DATE(args) {
     return "502 Command not implemented";
   }
@@ -538,7 +526,7 @@ class NNTP_RFC2980_handler extends NNTP_RFC977_handler {
   }
 }
 
-class NNTP_Giganews_handler extends NNTP_RFC2980_handler {
+export class NNTP_Giganews_handler extends NNTP_RFC2980_handler {
   XHDR(args) {
     var header = args.split(" ")[0].toLowerCase();
     if (
@@ -550,7 +538,7 @@ class NNTP_Giganews_handler extends NNTP_RFC2980_handler {
   }
 }
 
-class NNTP_RFC4643_extension extends NNTP_RFC2980_handler {
+export class NNTP_RFC4643_extension extends NNTP_RFC2980_handler {
   constructor(daemon) {
     super(daemon);
 

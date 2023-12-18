@@ -232,8 +232,8 @@ function createNewsgroup(group) {
 
 var NNTPServer = {
   open() {
-    const { NNTP_RFC977_handler, NntpDaemon } = ChromeUtils.import(
-      "resource://testing-common/mailnews/Nntpd.jsm"
+    const { NNTP_RFC977_handler, NntpDaemon } = ChromeUtils.importESModule(
+      "resource://testing-common/mailnews/Nntpd.sys.mjs"
     );
 
     this.daemon = new NntpDaemon();
@@ -262,8 +262,8 @@ var NNTPServer = {
   },
 
   addMessages(folder, messages) {
-    const { NewsArticle } = ChromeUtils.import(
-      "resource://testing-common/mailnews/Nntpd.jsm"
+    const { NewsArticle } = ChromeUtils.importESModule(
+      "resource://testing-common/mailnews/Nntpd.sys.mjs"
     );
 
     const group = folder.name;

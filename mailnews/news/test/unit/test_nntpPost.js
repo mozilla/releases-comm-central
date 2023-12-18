@@ -31,7 +31,7 @@ add_task(async function test_nntpPost() {
   );
   await urlListener.promise;
 
-  // Because Nntpd.jsm undone the dot-stuffing, handler.post should be the same
+  // Because Nntpd.sys.mjs undone the dot-stuffing, handler.post should be the same
   // as the original post.
   equal(handler.post, await IOUtils.readUTF8(testFile.path));
 });

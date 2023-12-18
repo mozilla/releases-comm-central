@@ -9,7 +9,7 @@
 /* import-globals-from ../../../test/resources/passwordStorage.js */
 load("../../../resources/passwordStorage.js");
 
-// The basic daemon to use for testing Nntpd.jsm implementations
+// The basic daemon to use for testing Nntpd.sys.mjs implementations
 var daemon = setupNNTPDaemon();
 
 add_task(async function () {
