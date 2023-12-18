@@ -150,6 +150,13 @@ function updateMailListMembers(mailList, parentDirectory) {
   const addressObjectsToAdd = addressObjects.filter(
     aObj => !existingCardAddresses.includes(aObj.email)
   );
+  // Eliminate duplicate emails while retaining the first occurrence.
+  const addressesToAdd = new Map(
+    addressObjectsToAdd
+      .reverse()
+      .map(obj => [obj.email, obj.name])
+      .reverse()
+  );
 
   // ... and which need to be removed.
   const addressObjectAddresses = addressObjects.map(aObj => aObj.email);
@@ -157,7 +164,7 @@ function updateMailListMembers(mailList, parentDirectory) {
     card => !addressObjectAddresses.includes(card.primaryEmail)
   );
 
-  for (const { email, name } of addressObjectsToAdd) {
+  for (const [email, name] of addressesToAdd) {
     let card = parentDirectory.cardForEmailAddress(email);
     if (!card) {
       card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
