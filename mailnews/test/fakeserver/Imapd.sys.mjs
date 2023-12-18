@@ -44,9 +44,11 @@
 // + Messages: A message is represented internally as an annotated URI.
 
 const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Auth.jsm"
-);
+import {
+  AuthPLAIN,
+  AuthLOGIN,
+  AuthCRAM,
+} from "resource://testing-common/mailnews/Auth.sys.mjs";
 
 export class ImapDaemon {
   constructor(flags, syncFunc) {

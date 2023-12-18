@@ -54,8 +54,8 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Imapd.sys.mjs"
 );
-var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Auth.jsm"
+var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Auth.sys.mjs"
 );
 var { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Smtpd.sys.mjs"

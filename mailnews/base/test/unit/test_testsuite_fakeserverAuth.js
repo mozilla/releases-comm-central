@@ -1,5 +1,5 @@
 /**
- * Tests functions in mailnews/test/fakeserver/Auth.jsm
+ * Tests functions in mailnews/test/fakeserver/Auth.sys.mjs
  * which are responsible for the authentication in the
  * fakeserver.
  *
@@ -7,8 +7,8 @@
  * just check roundtrips, against static values etc..
  */
 
-var { AuthPLAIN, AuthCRAM } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Auth.jsm"
+var { AuthPLAIN, AuthCRAM } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Auth.sys.mjs"
 );
 
 var kUsername = "fred1";

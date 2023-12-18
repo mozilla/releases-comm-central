@@ -24,13 +24,11 @@ do_get_profile();
 
 var gDEPTH = "../../../../";
 
-// Import the pop3 server scripts
-/* import-globals-from ../../../test/fakeserver/Auth.jsm */
 var { nsMailServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Maild.sys.mjs"
 );
-var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Auth.jsm"
+var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Auth.sys.mjs"
 );
 var {
   Pop3Daemon,

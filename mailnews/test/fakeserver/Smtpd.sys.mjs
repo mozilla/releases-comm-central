@@ -1,9 +1,11 @@
 /* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 // This file implements test SMTP servers
 
-var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Auth.jsm"
-);
+import {
+  AuthPLAIN,
+  AuthLOGIN,
+  AuthCRAM,
+} from "resource://testing-common/mailnews/Auth.sys.mjs";
 
 export class SmtpDaemon {
   _messages = {};

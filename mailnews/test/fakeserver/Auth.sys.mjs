@@ -13,14 +13,12 @@
  * @author Ben Bucksch <ben.bucksch beonex.com>
  */
 
-var EXPORTED_SYMBOLS = ["AuthPLAIN", "AuthLOGIN", "AuthCRAM"];
-
 /**
  * Implements AUTH PLAIN
  *
  * @see RFC 4616
  */
-var AuthPLAIN = {
+export var AuthPLAIN = {
   /**
    * Takes full PLAIN auth line, and decodes it.
    *
@@ -70,7 +68,7 @@ var AuthPLAIN = {
   },
 };
 
-var AuthLOGIN = {
+export var AuthLOGIN = {
   /**
    * Takes full LOGIN auth line, and decodes it.
    * It may contain either username or password,
@@ -91,7 +89,7 @@ var AuthLOGIN = {
  *
  * @see RFC 2195, RFC 2104
  */
-var AuthCRAM = {
+export var AuthCRAM = {
   /**
    * First part of CRAM exchange is that the server sends
    * a challenge to the client. The client response depends on

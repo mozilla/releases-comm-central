@@ -12,8 +12,8 @@ var { nsMailServer } = ChromeUtils.importESModule(
 var { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Smtpd.sys.mjs"
 );
-var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Auth.jsm"
+var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Auth.sys.mjs"
 );
 
 // Setup the daemon and server

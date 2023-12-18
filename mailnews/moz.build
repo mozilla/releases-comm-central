@@ -51,7 +51,7 @@ DEFINES["MOZ_WIDGET_TOOLKIT"] = CONFIG["MOZ_WIDGET_TOOLKIT"]
 JAR_MANIFESTS += ["jar.mn"]
 
 TESTING_JS_MODULES.mailnews += [
-    "test/fakeserver/Auth.jsm",
+    "test/fakeserver/Auth.sys.mjs",
     "test/fakeserver/Binaryd.jsm",
     "test/fakeserver/Imapd.sys.mjs",
     "test/fakeserver/Ldapd.jsm",

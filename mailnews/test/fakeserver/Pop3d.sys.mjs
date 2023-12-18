@@ -6,9 +6,12 @@
 /* This file implements test POP3 servers
  */
 
-var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Auth.jsm"
-);
+import {
+  AuthPLAIN,
+  AuthLOGIN,
+  AuthCRAM,
+} from "resource://testing-common/mailnews/Auth.sys.mjs";
+
 var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
