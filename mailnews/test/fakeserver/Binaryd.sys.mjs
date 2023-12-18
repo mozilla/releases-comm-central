@@ -3,8 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["BinaryServer"];
-
 const CC = Components.Constructor;
 
 const ServerSocket = CC(
@@ -42,7 +40,7 @@ const BinaryOutputStream = CC(
  *
  */
 
-class BinaryServer {
+export class BinaryServer {
   /**
    * The handler function should be of the form:
    * async function handlerFn(conn, daemon)

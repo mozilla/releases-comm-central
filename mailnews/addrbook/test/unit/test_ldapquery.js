@@ -7,11 +7,11 @@
  * Test basic LDAP querying.
  */
 
-const { LDAPDaemon, LDAPHandlerFn } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Ldapd.jsm"
+const { LDAPDaemon, LDAPHandlerFn } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Ldapd.sys.mjs"
 );
-const { BinaryServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Binaryd.jsm"
+const { BinaryServer } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Binaryd.sys.mjs"
 );
 
 /**

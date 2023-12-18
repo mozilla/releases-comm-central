@@ -3,8 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["LDAPDaemon", "LDAPHandlerFn"];
-
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );
@@ -377,7 +375,7 @@ class BERParser {
  * So tests can set up test data here, shared by any number of LDAPHandlerFn
  * connections.
  */
-class LDAPDaemon {
+export class LDAPDaemon {
   constructor() {
     // An entry is an object of the form:
     // {dn:"....", attributes: {attr1: [val1], attr2:[val2,val3], ...}}
@@ -662,7 +660,7 @@ class LDAPHandler {
 /**
  * Handler function to deal with a connection to our LDAP server.
  */
-async function LDAPHandlerFn(conn, daemon) {
+export async function LDAPHandlerFn(conn, daemon) {
   const handler = new LDAPHandler(conn, daemon);
   await handler.run();
 }
