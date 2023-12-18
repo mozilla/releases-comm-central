@@ -96,8 +96,8 @@ var IMAPServer = {
 
 var SMTPServer = {
   open() {
-    const { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
-      "resource://testing-common/mailnews/Smtpd.jsm"
+    const { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.importESModule(
+      "resource://testing-common/mailnews/Smtpd.sys.mjs"
     );
     const { nsMailServer } = ChromeUtils.importESModule(
       "resource://testing-common/mailnews/Maild.sys.mjs"

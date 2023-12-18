@@ -52,7 +52,7 @@ TEST_HARNESS_FILES.testing.mochitest.fakeserver += [
     "../../../mailnews/test/fakeserver/Maild.sys.mjs",
     "../../../mailnews/test/fakeserver/Nntpd.jsm",
     "../../../mailnews/test/fakeserver/Pop3d.sys.mjs",
-    "../../../mailnews/test/fakeserver/Smtpd.jsm",
+    "../../../mailnews/test/fakeserver/Smtpd.sys.mjs",
 ]
 
 TEST_HARNESS_FILES.testing.mochitest.resources += [

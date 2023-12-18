@@ -33,8 +33,8 @@ load("../../../resources/abSetup.js");
 var { nsMailServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Maild.sys.mjs"
 );
-var { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Smtpd.jsm"
+var { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Smtpd.sys.mjs"
 );
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"

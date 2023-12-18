@@ -1,13 +1,11 @@
 /* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 // This file implements test SMTP servers
 
-var EXPORTED_SYMBOLS = ["SmtpDaemon", "SMTP_RFC2821_handler"];
-
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
 );
 
-class SmtpDaemon {
+export class SmtpDaemon {
   _messages = {};
 }
 
@@ -25,7 +23,7 @@ var kStateAuthenticated = 3;
  * If dropOnAuthFailure is set, the server will drop the connection
  * on authentication errors, to simulate servers that do the same.
  */
-class SMTP_RFC2821_handler {
+export class SMTP_RFC2821_handler {
   kAuthRequired = false;
   kUsername = "testsmtp";
   kPassword = "smtptest";

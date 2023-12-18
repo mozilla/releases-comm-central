@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Smtpd.jsm"
-);
+import {
+  SmtpDaemon,
+  SMTP_RFC2821_handler,
+} from "resource://testing-common/mailnews/Smtpd.sys.mjs";
 import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
 
 /**

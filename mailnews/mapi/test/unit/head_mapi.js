@@ -19,8 +19,8 @@ do_get_profile();
 var { nsMailServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Maild.sys.mjs"
 );
-var { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Smtpd.jsm"
+var { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Smtpd.sys.mjs"
 );
 
 var SMTP_PORT = 1024 + 120;
