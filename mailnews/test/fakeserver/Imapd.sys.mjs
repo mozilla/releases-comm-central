@@ -3,25 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 // This file implements test IMAP servers
 
-var EXPORTED_SYMBOLS = [
-  "ImapDaemon",
-  "ImapMailbox",
-  "ImapMessage",
-  "IMAP_RFC3501_handler",
-  "configurations",
-  "mixinExtension",
-  "IMAP_GMAIL_extension",
-  "IMAP_MOVE_extension",
-  "IMAP_CUSTOM_extension",
-  "IMAP_RFC2087_extension",
-  "IMAP_RFC2197_extension",
-  "IMAP_RFC2342_extension",
-  "IMAP_RFC3348_extension",
-  "IMAP_RFC4315_extension",
-  "IMAP_RFC5258_extension",
-  "IMAP_RFC2195_extension",
-];
-
 // IMAP DAEMON ORGANIZATION
 // ------------------------
 // The large numbers of RFCs all induce some implicit assumptions as to the
@@ -67,7 +48,7 @@ var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
 );
 
-class ImapDaemon {
+export class ImapDaemon {
   constructor(flags, syncFunc) {
     this._flags = flags;
 
@@ -230,7 +211,7 @@ class ImapDaemon {
   }
 }
 
-class ImapMailbox {
+export class ImapMailbox {
   constructor(name, parent, state) {
     this.name = name;
     this._parent = parent;
@@ -392,7 +373,7 @@ class ImapMailbox {
   }
 }
 
-class ImapMessage {
+export class ImapMessage {
   constructor(URI, uid, flags) {
     this._URI = URI;
     this.uid = uid;
@@ -719,7 +700,7 @@ function formatArg(argument, spec) {
  * argument that is an array of data items instead of a string representing the
  * rest of the line.
  */
-class IMAP_RFC3501_handler {
+export class IMAP_RFC3501_handler {
   constructor(
     daemon,
     { username = "user", password = "password", authSchemes = [] } = {}
@@ -1901,7 +1882,7 @@ class IMAP_RFC3501_handler {
 
 // Note that UIDPLUS (RFC4315) should be mixed in last (or at least after the
 // MOVE extension) because it changes behavior of that extension.
-var configurations = {
+export var configurations = {
   Cyrus: ["RFC2342", "RFC2195", "RFC5258"],
   UW: ["RFC2342", "RFC2195"],
   Dovecot: ["RFC2195", "RFC5258"],
@@ -1912,7 +1893,7 @@ var configurations = {
   GMail: ["GMAIL", "RFC2197", "RFC2342", "RFC3348", "RFC4315"],
 };
 
-function mixinExtension(handler, extension) {
+export function mixinExtension(handler, extension) {
   if (extension.preload) {
     extension.preload(handler);
   }
@@ -1941,7 +1922,7 @@ function mixinExtension(handler, extension) {
 }
 
 // Support for Gmail extensions: XLIST and X-GM-EXT-1
-var IMAP_GMAIL_extension = {
+export var IMAP_GMAIL_extension = {
   preload(toBeThis) {
     toBeThis._preGMAIL_STORE = toBeThis.STORE;
     toBeThis._preGMAIL_STORE_argFormat = toBeThis._argFormat.STORE;
@@ -2064,7 +2045,7 @@ var IMAP_GMAIL_extension = {
   _enabledCommands: { 1: ["XLIST"], 2: ["XLIST"] },
 };
 
-var IMAP_MOVE_extension = {
+export var IMAP_MOVE_extension = {
   MOVE(args, uid) {
     const messages = this._parseSequenceSet(args[0], uid);
 
@@ -2105,7 +2086,7 @@ var IMAP_MOVE_extension = {
 };
 
 // Provides methods for testing fetchCustomAttribute and issueCustomCommand
-var IMAP_CUSTOM_extension = {
+export var IMAP_CUSTOM_extension = {
   preload(toBeThis) {
     toBeThis._preCUSTOM_STORE = toBeThis.STORE;
     toBeThis._preCUSTOM_STORE_argFormat = toBeThis._argFormat.STORE;
@@ -2190,7 +2171,7 @@ var IMAP_CUSTOM_extension = {
 };
 
 // RFC 2087: Quota (incomplete implementation)
-var IMAP_RFC2087_extension = {
+export var IMAP_RFC2087_extension = {
   GETQUOTAROOT(args) {
     const mailbox = this._daemon.getMailbox(args[0]);
     const quota = mailbox.quota ?? {};
@@ -2207,7 +2188,7 @@ var IMAP_RFC2087_extension = {
 };
 
 // RFC 2197: ID
-var IMAP_RFC2197_extension = {
+export var IMAP_RFC2197_extension = {
   ID(args) {
     let clientID = "(";
     for (const i of args) {
@@ -2231,7 +2212,7 @@ var IMAP_RFC2197_extension = {
 };
 
 // RFC 2342: IMAP4 Namespace (NAMESPACE)
-var IMAP_RFC2342_extension = {
+export var IMAP_RFC2342_extension = {
   NAMESPACE(args) {
     var namespaces = [[], [], []];
     for (const namespace of this._daemon.namespaces) {
@@ -2264,12 +2245,12 @@ var IMAP_RFC2342_extension = {
 };
 
 // RFC 3348 Child Mailbox (CHILDREN)
-var IMAP_RFC3348_extension = {
+export var IMAP_RFC3348_extension = {
   kCapabilities: ["CHILDREN"],
 };
 
 // RFC 4315: UIDPLUS
-var IMAP_RFC4315_extension = {
+export var IMAP_RFC4315_extension = {
   preload(toBeThis) {
     toBeThis._preRFC4315UID = toBeThis.UID;
     toBeThis._preRFC4315APPEND = toBeThis.APPEND;
@@ -2344,7 +2325,7 @@ var IMAP_RFC4315_extension = {
 };
 
 // RFC 5258: LIST-EXTENDED
-var IMAP_RFC5258_extension = {
+export var IMAP_RFC5258_extension = {
   preload(toBeThis) {
     toBeThis._argFormat.LIST = [
       "[(atom)]",
@@ -2416,7 +2397,7 @@ var IMAP_RFC5258_extension = {
  * This implements AUTH schemes. Could be moved into RFC3501 actually.
  * The test can en-/disable auth schemes by modifying kAuthSchemes.
  */
-var IMAP_RFC2195_extension = {
+export var IMAP_RFC2195_extension = {
   kAuthSchemes: ["CRAM-MD5", "PLAIN", "LOGIN"],
 
   preload(handler) {

@@ -51,7 +51,9 @@ var {
   IMAP_RFC4315_extension,
   IMAP_RFC5258_extension,
   IMAP_RFC2195_extension,
-} = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Imapd.sys.mjs"
+);
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
 );

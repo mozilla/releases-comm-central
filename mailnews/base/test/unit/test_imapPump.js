@@ -17,8 +17,8 @@ const { PromiseTestUtils } = ChromeUtils.import(
 var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
   "resource://testing-common/mailnews/IMAPpump.jsm"
 );
-var { ImapMessage } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Imapd.jsm"
+var { ImapMessage } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Imapd.sys.mjs"
 );
 var { nsMailServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Maild.sys.mjs"

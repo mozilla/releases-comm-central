@@ -174,7 +174,9 @@ async function getUtilsJS() {
 var IMAPServer = {
   open() {
     const { ImapDaemon, ImapMessage, IMAP_RFC3501_handler } =
-      ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
+      ChromeUtils.importESModule(
+        "resource://testing-common/mailnews/Imapd.sys.mjs"
+      );
     IMAPServer.ImapMessage = ImapMessage;
 
     this.daemon = new ImapDaemon();

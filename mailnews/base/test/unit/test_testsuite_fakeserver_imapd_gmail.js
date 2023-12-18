@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Test that Imapd.jsm fakeserver correctly emulates GMail server
+// Test that Imapd.sys.mjs fakeserver correctly emulates GMail server
 // That means X-GM-EXT-1 capability and GMail flavor XLIST
 // per https://developers.google.com/google-apps/gmail/imap_extensions
 

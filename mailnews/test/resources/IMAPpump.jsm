@@ -22,7 +22,9 @@ var { localAccountUtils } = ChromeUtils.import(
 var { nsMailServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Maild.sys.mjs"
 );
-var Imapd = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
+var Imapd = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Imapd.sys.mjs"
+);
 var { updateAppInfo } = ChromeUtils.importESModule(
   "resource://testing-common/AppInfo.sys.mjs"
 );

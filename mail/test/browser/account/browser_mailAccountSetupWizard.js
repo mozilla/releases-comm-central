@@ -62,7 +62,9 @@ var IMAPServer = {
       IMAP_RFC2195_extension,
       IMAP_RFC3501_handler,
       mixinExtension,
-    } = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
+    } = ChromeUtils.importESModule(
+      "resource://testing-common/mailnews/Imapd.sys.mjs"
+    );
     const { nsMailServer } = ChromeUtils.importESModule(
       "resource://testing-common/mailnews/Maild.sys.mjs"
     );

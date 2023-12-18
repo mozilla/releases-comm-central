@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const ImapD = ChromeUtils.import(
-  "resource://testing-common/mailnews/Imapd.jsm"
-);
+import * as ImapD from "resource://testing-common/mailnews/Imapd.sys.mjs";
+
 const { IMAP_RFC3501_handler, ImapDaemon, ImapMessage, mixinExtension } = ImapD;
 import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
 

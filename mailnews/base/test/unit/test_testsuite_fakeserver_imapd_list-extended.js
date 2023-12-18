@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Test that Imapd.jsm fakeserver correctly implements LIST-EXTENDED imap
+// Test that Imapd.sys.mjs fakeserver correctly implements LIST-EXTENDED imap
 // extension (RFC 5258 - http://tools.ietf.org/html/rfc5258)
 
 // IMAP pump

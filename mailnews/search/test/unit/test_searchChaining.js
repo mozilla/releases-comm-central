@@ -14,8 +14,8 @@ load("../../../resources/MessageGenerator.jsm");
 var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
   "resource://testing-common/mailnews/IMAPpump.jsm"
 );
-var { ImapMessage } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Imapd.jsm"
+var { ImapMessage } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Imapd.sys.mjs"
 );
 const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
