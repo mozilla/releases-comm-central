@@ -887,7 +887,7 @@ class ImapClient {
    * @param {TCPSocketEvent} event - The data event.
    */
   _onData = async event => {
-    // Without this, some tests are blocked waiting for response from Maild.jsm.
+    // Without this, some tests are blocked waiting for response from Maild.sys.mjs.
     // Don't know the real cause, but possibly because ImapClient and Maild runs
     // on the same process. We also have this in Pop3Client.
     await new Promise(resolve => setTimeout(resolve));

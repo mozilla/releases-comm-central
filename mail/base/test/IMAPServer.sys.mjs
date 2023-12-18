@@ -6,9 +6,8 @@ const ImapD = ChromeUtils.import(
   "resource://testing-common/mailnews/Imapd.jsm"
 );
 const { IMAP_RFC3501_handler, ImapDaemon, ImapMessage, mixinExtension } = ImapD;
-const { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
-);
+import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
+
 const { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );

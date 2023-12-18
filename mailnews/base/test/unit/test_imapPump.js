@@ -20,8 +20,8 @@ var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
 var { ImapMessage } = ChromeUtils.import(
   "resource://testing-common/mailnews/Imapd.jsm"
 );
-var { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
+var { nsMailServer } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Maild.sys.mjs"
 );
 
 // Messages to load must have CRLF line endings, that is Windows style

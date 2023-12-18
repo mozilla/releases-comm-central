@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
-);
+import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
+
 const { NewsArticle, NNTP_RFC977_handler, NntpDaemon } = ChromeUtils.import(
   "resource://testing-common/mailnews/Nntpd.jsm"
 );

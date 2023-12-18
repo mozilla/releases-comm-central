@@ -400,7 +400,6 @@
   "resource://testing-common/mailnews/Ldapd.jsm": "comm/mailnews/test/fakeserver/Ldapd.jsm",
   "resource://testing-common/mailnews/LocalAccountUtils.jsm": "comm/mailnews/test/resources/LocalAccountUtils.jsm",
   "resource://testing-common/mailnews/MailTestUtils.jsm": "comm/mailnews/test/resources/MailTestUtils.jsm",
-  "resource://testing-common/mailnews/Maild.jsm": "comm/mailnews/test/fakeserver/Maild.jsm",
   "resource://testing-common/mailnews/MessageGenerator.jsm": "comm/mailnews/test/resources/MessageGenerator.jsm",
   "resource://testing-common/mailnews/MessageInjection.jsm": "comm/mailnews/test/resources/MessageInjection.jsm",
   "resource://testing-common/mailnews/NetworkTestUtils.jsm": "comm/mailnews/test/resources/NetworkTestUtils.jsm",

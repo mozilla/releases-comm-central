@@ -35,7 +35,7 @@ const certOverrideService = Cc[
 ].getService(Ci.nsICertOverrideService);
 let tlsCert;
 
-// Change this for more server debugging output. See Maild.jsm for values.
+// Change this for more server debugging output. See Maild.sys.mjs for values.
 const serverDebugLevel = 0;
 
 // Something in this test causes NSS shutdown to fail. Ignore it.

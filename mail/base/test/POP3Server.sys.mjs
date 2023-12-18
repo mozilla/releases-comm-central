@@ -5,9 +5,7 @@
 const { Pop3Daemon, POP3_RFC5034_handler } = ChromeUtils.import(
   "resource://testing-common/mailnews/Pop3d.jsm"
 );
-const { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
-);
+import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
 
 /**
  * A simple POP3 server for testing purposes.

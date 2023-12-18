@@ -5,11 +5,7 @@
 
 // Much of the original code is taken from netwerk's httpserver implementation
 
-const { setTimeout } = ChromeUtils.importESModule(
-  "resource://gre/modules/Timer.sys.mjs"
-);
-
-var EXPORTED_SYMBOLS = ["nsMailServer"];
+import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 /**
  * JavaScript constructors for commonly-used classes; precreating these is a
@@ -78,7 +74,7 @@ var TIMEOUT = 3 * 60 * 1000;
  *
  * do_test_finished();
  */
-class nsMailServer {
+export class nsMailServer {
   static debugNone = 0;
   static debugRecv = 1;
   static debugRecvSend = 2;

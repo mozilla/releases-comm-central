@@ -55,7 +55,7 @@ TESTING_JS_MODULES.mailnews += [
     "test/fakeserver/Binaryd.jsm",
     "test/fakeserver/Imapd.jsm",
     "test/fakeserver/Ldapd.jsm",
-    "test/fakeserver/Maild.jsm",
+    "test/fakeserver/Maild.sys.mjs",
     "test/fakeserver/Nntpd.jsm",
     "test/fakeserver/Pop3d.jsm",
     "test/fakeserver/Smtpd.jsm",

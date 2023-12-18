@@ -18,8 +18,8 @@ var { MailServices } = ChromeUtils.import(
 var { NewsArticle, NNTP_RFC977_handler, NntpDaemon } = ChromeUtils.import(
   "resource://testing-common/mailnews/Nntpd.jsm"
 );
-var { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
+var { nsMailServer } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Maild.sys.mjs"
 );
 
 var kSimpleNewsArticle =

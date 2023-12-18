@@ -5,9 +5,7 @@
 const { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
   "resource://testing-common/mailnews/Smtpd.jsm"
 );
-const { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
-);
+import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
 
 /**
  * A simple SMTP server for testing purposes.

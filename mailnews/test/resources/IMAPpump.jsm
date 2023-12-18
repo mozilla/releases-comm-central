@@ -19,8 +19,8 @@ var { MailServices } = ChromeUtils.import(
 var { localAccountUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/LocalAccountUtils.jsm"
 );
-var { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
+var { nsMailServer } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Maild.sys.mjs"
 );
 var Imapd = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
 var { updateAppInfo } = ChromeUtils.importESModule(

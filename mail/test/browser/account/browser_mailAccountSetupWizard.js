@@ -63,8 +63,8 @@ var IMAPServer = {
       IMAP_RFC3501_handler,
       mixinExtension,
     } = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
-    const { nsMailServer } = ChromeUtils.import(
-      "resource://testing-common/mailnews/Maild.jsm"
+    const { nsMailServer } = ChromeUtils.importESModule(
+      "resource://testing-common/mailnews/Maild.sys.mjs"
     );
     IMAPServer.ImapMessage = ImapMessage;
 
@@ -97,8 +97,8 @@ var SMTPServer = {
     const { SmtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
       "resource://testing-common/mailnews/Smtpd.jsm"
     );
-    const { nsMailServer } = ChromeUtils.import(
-      "resource://testing-common/mailnews/Maild.jsm"
+    const { nsMailServer } = ChromeUtils.importESModule(
+      "resource://testing-common/mailnews/Maild.sys.mjs"
     );
 
     this.daemon = new SmtpDaemon();

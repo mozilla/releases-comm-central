@@ -25,11 +25,10 @@ do_get_profile();
 var gDEPTH = "../../../../";
 
 // Import the pop3 server scripts
-/* import-globals-from ../../../test/fakeserver/Maild.jsm */
 /* import-globals-from ../../../test/fakeserver/Auth.jsm */
 /* import-globals-from ../../../test/fakeserver/Pop3d.jsm */
-var { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
+var { nsMailServer } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Maild.sys.mjs"
 );
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"

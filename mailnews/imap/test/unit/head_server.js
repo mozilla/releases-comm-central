@@ -35,8 +35,8 @@ updateAppInfo();
 do_get_profile();
 
 // Import fakeserver
-var { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
+var { nsMailServer } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Maild.sys.mjs"
 );
 
 var {
