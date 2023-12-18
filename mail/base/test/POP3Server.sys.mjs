@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Pop3Daemon, POP3_RFC5034_handler } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Pop3d.jsm"
-);
+import {
+  Pop3Daemon,
+  POP3_RFC5034_handler,
+} from "resource://testing-common/mailnews/Pop3d.sys.mjs";
 import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
 
 /**

@@ -16,7 +16,7 @@ var expectedTransaction = [
   "STAT",
 ];
 
-const kStateAuthNeeded = 1; // the same value as in Pop3d.jsm
+const kStateAuthNeeded = 1; // the same value as in Pop3d.sys.mjs
 
 var urlListener = {
   OnStartRunningUrl(url) {},

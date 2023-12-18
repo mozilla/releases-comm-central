@@ -26,7 +26,6 @@ var gDEPTH = "../../../../";
 
 // Import the pop3 server scripts
 /* import-globals-from ../../../test/fakeserver/Auth.jsm */
-/* import-globals-from ../../../test/fakeserver/Pop3d.jsm */
 var { nsMailServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Maild.sys.mjs"
 );
@@ -38,7 +37,9 @@ var {
   POP3_RFC1939_handler,
   POP3_RFC2449_handler,
   POP3_RFC5034_handler,
-} = ChromeUtils.import("resource://testing-common/mailnews/Pop3d.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/Pop3d.sys.mjs"
+);
 
 // Setup the daemon and server
 // If the debugOption is set, then it will be applied to the server.

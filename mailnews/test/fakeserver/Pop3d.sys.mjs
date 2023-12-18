@@ -6,13 +6,6 @@
 /* This file implements test POP3 servers
  */
 
-var EXPORTED_SYMBOLS = [
-  "Pop3Daemon",
-  "POP3_RFC1939_handler",
-  "POP3_RFC2449_handler",
-  "POP3_RFC5034_handler",
-];
-
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
 );
@@ -58,7 +51,7 @@ function readFile(fileName) {
   return mailTestUtils.loadFileToString(file);
 }
 
-class Pop3Daemon {
+export class Pop3Daemon {
   messages = [];
   _messages = [];
   _totalMessageSize = 0;
@@ -111,7 +104,7 @@ var kStateTransaction = 3; // Authenticated, can fetch and delete mail
  * If dropOnAuthFailure is set, the server will drop the connection
  * on authentication errors, to simulate servers that do the same.
  */
-class POP3_RFC1939_handler {
+export class POP3_RFC1939_handler {
   kUsername = "fred";
   kPassword = "wilma";
 
@@ -267,7 +260,7 @@ class POP3_RFC1939_handler {
  *
  * @see RFC 2449
  */
-class POP3_RFC2449_handler extends POP3_RFC1939_handler {
+export class POP3_RFC2449_handler extends POP3_RFC1939_handler {
   kCapabilities = ["UIDL", "TOP"]; // the test may adapt this as necessary
 
   CAPA(args) {
@@ -289,7 +282,7 @@ class POP3_RFC2449_handler extends POP3_RFC1939_handler {
  * @see RFC 5034
  * @author Ben Bucksch <ben.bucksch beonex.com> <http://business.beonex.com>
  */
-class POP3_RFC5034_handler extends POP3_RFC2449_handler {
+export class POP3_RFC5034_handler extends POP3_RFC2449_handler {
   kAuthSchemes = ["CRAM-MD5", "PLAIN", "LOGIN"]; // the test may adapt this as necessary
   _usedCRAMMD5Challenge = null; // not base64-encoded
 
