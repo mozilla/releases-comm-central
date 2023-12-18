@@ -20,10 +20,7 @@
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, 0.6);
   --field-border-hover-color: rgba(128, 128, 128, 0.8);
-  --selected-item-color: var(--color-blue-60);
-  --primary-text-color: var(--selected-item-text-color);
-  --primary-background-hover: color-mix(in srgb, var(--selected-item-color) 85%, black);
-  --primary-background-active: color-mix(in srgb, var(--selected-item-color) 78%, black);
+  --selected-item-color: var(--focus-outline-color);
   --primary-focus-border: -moz-Dialog;
   --richlist-button-background: -moz-Dialog;
   --tab-hover-background: hsla(0, 0%, 50%, 0.15);
@@ -71,7 +68,6 @@
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, 0.6);
   --field-border-hover-color: rgba(128, 128, 128, 0.8);
-  --selected-item-color: var(--color-blue-60);
   --lwt-accent-color: -moz-Dialog;
   --richlist-button-background: -moz-Dialog;
   --tab-hover-background: hsla(0, 0%, 50%, 0.15);
@@ -89,9 +85,7 @@
     --field-background-color: var(--color-gray-70);
     --field-border-color: hsla(0, 0%, 70%, 0.4);
     --field-border-hover-color: hsla(0, 0%, 70%, 0.5);
-    --selected-item-color: var(--color-blue-50);
     --highlight-background: var(--color-white);
-    --primary-text-color: var(--color-ink-10);
     --tab-hover-background: hsla(0, 0%, 50%, 0.3);
     --tab-selected-background: hsla(0, 0%, 50%, 0.5);
   }
@@ -107,7 +101,6 @@
     --button-border-color: ThreeDShadow;
     --field-border-color: ThreeDShadow;
     --field-border-hover-color: SelectedItemText;
-    --primary-text-color: SelectedItemText;
     --selected-item-color: SelectedItem;
     --tab-hover-background: SelectedItem;
     --tab-selected-background: SelectedItem;
@@ -256,8 +249,8 @@ html|input[type="color"]:not([disabled="true"]):hover:active {
 }
 
 button[default] {
-  background-color: var(--selected-item-color);
-  color: var(--primary-text-color) !important;
+  background-color: var(--button-primary-background-color);
+  color: var(--button-primary-text-color) !important;
 
   &:focus-visible {
     border-color: var(--primary-focus-border);
@@ -265,10 +258,10 @@ button[default] {
   }
 
   &:not([disabled="true"]):hover {
-    background-color: var(--primary-background-hover);
+    background-color: var(--button-primary-hover-background-color);
 
     &:active {
-      background-color: var(--primary-background-active);
+      background-color: var(--button-primary-active-background-color);
     }
   }
 }
@@ -366,7 +359,7 @@ label {
 
 radio,
 checkbox {
-  accent-color: var(--selected-item-color);
+  accent-color: var(--button-primary-background-color);
 }
 
 checkbox {
@@ -497,7 +490,7 @@ tab {
   &[visuallyselected="true"] {
     margin-block: 0;
     background-color: var(--tab-selected-background);
-    border-bottom-color: var(--lwt-tab-line-color, var(--selected-item-color));
+    border-bottom-color: var(--lwt-tab-line-color, var(--tabline-color));
   }
 }
 
