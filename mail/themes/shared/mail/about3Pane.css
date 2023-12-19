@@ -147,10 +147,12 @@ body {
   box-sizing: border-box;
   /* Matches the collapse-width on the splitter. */
   min-width: 100px;
-  overflow: hidden auto;
+  overflow: hidden;
   background-color: var(--sidebar-background-color, var(--foldertree-background));
   color: var(--sidebar-text-color, inherit);
   user-select: none;
+  display: flex;
+  flex-direction: column;
 }
 
 #folderPaneSplitter {
@@ -214,8 +216,6 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: var(--folder-tree-header-gap);
-  position: sticky;
-  top: 0;
   background-color: var(--sidebar-background-color, var(--foldertree-background));
   color: var(--layout-color-2);
   padding: var(--folder-tree-header-padding);
@@ -251,6 +251,8 @@ body {
 }
 
 #folderTree {
+  overflow-y: auto;
+
   &,
   & ul {
     margin: 0;

@@ -52,7 +52,7 @@
   <script defer="defer" src="chrome://messenger/content/about3Pane.js"></script>
 </head>
 <body class="layout-classic">
-  <div id="folderPane" class="collapsed-by-splitter no-overscroll" tabindex="-1">
+  <div id="folderPane" class="collapsed-by-splitter" tabindex="-1">
     <div id="folderPaneHeaderBar" hidden="hidden">
 # Force a reverse tabindex to work alongside the `flex-direction: row-reverse`
 # in order to guarantee a consistent end alignment of the `#folderPaneMoreButton`.
@@ -74,7 +74,7 @@
               tabindex="1"
               disabled="disabled"></button>
     </div>
-    <ul id="folderTree" is="tree-listbox" role="tree"></ul>
+    <ul id="folderTree" is="tree-listbox" role="tree" class="no-overscroll"></ul>
     <template id="modeTemplate">
       <li class="unselectable">
         <div class="mode-container">
