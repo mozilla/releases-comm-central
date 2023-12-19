@@ -12,7 +12,9 @@
    * Provides keyboard and mouse interaction to a (possibly nested) list.
    * It is intended for lists with a small number (up to 1000?) of items.
    * Only one item can be selected at a time. Maintenance of the items in the
-   * list is not managed here. Styling of the list is not managed here.
+   * list is not managed here. Styling of the list is not managed here. Expects
+   * the tree itself to scroll and not any of its parents. List items must have
+   * at least one child which contains the main content of the list item.
    *
    * The following class names apply to list items:
    * - selected: Indicates the currently selected list item.
@@ -22,7 +24,15 @@
    * List items can provide their own twisty element, which will operate when
    * clicked on if given the class name "twisty".
    *
-   * This class fires "collapsed", "expanded" and "select" events.
+   * If a list item can't be selected it should have the "unselectable" class.
+   *
+   * @mixin
+   * @fires {CustomEvent} collapsed - Fired on a row when it is collapsed.
+   *   Bubbles.
+   * @fires {CustomEvent} expanded - Fired on a row when it is expanded. Bubbles.
+   * @fires {CustomEvent} select - Fired when the selection changes.
+   * @attribute {"tree"|"listbox"} role - Must be either tree or listbox,
+   *   depending on the mode of the widget.
    */
   const TreeListboxMixin = Base =>
     class extends Base {
@@ -609,6 +619,10 @@
 
   /**
    * An unordered list with the functionality of TreeListboxMixin.
+   *
+   * @extends HTMLUListElement
+   * @mixes TreeListboxMixin
+   * @tagname tree-listbox
    */
   class TreeListbox extends TreeListboxMixin(HTMLUListElement) {}
   customElements.define("tree-listbox", TreeListbox, { extends: "ul" });
@@ -617,10 +631,13 @@
    * An ordered list with the functionality of TreeListboxMixin, plus the
    * ability to re-order the top-level list by drag-and-drop/Alt+Up/Alt+Down.
    *
-   * This class fires an "ordered" event when the list is re-ordered.
-   *
+   * @fires {CustomEvent} ordered - Fired when the list is re-ordered. The
+   *   detail field contains the row that was re-ordered.
    * @note All children of this element should be HTML. If there are XUL
-   * elements, you're gonna have a bad time.
+   *   elements, you're gonna have a bad time.
+   * @extends HTMLOListElement
+   * @mixes TreeListboxMixin
+   * @tagname orderable-tree-listbox
    */
   class OrderableTreeListbox extends TreeListboxMixin(HTMLOListElement) {
     connectedCallback() {
