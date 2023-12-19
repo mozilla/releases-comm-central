@@ -121,7 +121,7 @@ body {
   padding-block-start: 30px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
   background-color: var(--layout-background-2);
 }
 
@@ -132,6 +132,7 @@ body {
 #books {
   flex: 1;
   font-size: 1.1rem;
+  overflow-y: auto;
   scroll-behavior: smooth;
   -moz-user-select: none;
 
