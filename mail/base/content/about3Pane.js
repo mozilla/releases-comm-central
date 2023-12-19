@@ -6864,7 +6864,7 @@ var sortController = {
       }
 
       if (gViewWrapper.isSingleFolder) {
-        if (gViewWrapper.isVirtual) {
+        if (gViewWrapper.isVirtual || gViewWrapper.search.hasSearchTerms) {
           gViewWrapper.showGroupedBySort = false;
         } else {
           // Must ensure rows are collapsed and kExpandAll is unset.
@@ -6881,7 +6881,10 @@ var sortController = {
 
     // Restore Grouped By state post sort direction change.
     if (grouped) {
-      if (gViewWrapper.isVirtual && gViewWrapper.isSingleFolder) {
+      if (
+        gViewWrapper.isSingleFolder &&
+        (gViewWrapper.isVirtual || gViewWrapper.search.hasSearchTerms)
+      ) {
         this.groupBySort();
       }
       // Restore Grouped By selection post sort direction change.
