@@ -61,9 +61,6 @@ function UnknownProtoHandler() {
 UnknownProtoHandler.prototype = {
   onStartRequest(request, ctxt) {
     this.mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
-    if (!("outputDecryptedData" in this.mimeSvc)) {
-      this.mimeSvc.onStartRequest(null, ctxt);
-    }
     this.bound = lazy.EnigmailMime.getBoundary(this.mimeSvc.contentType);
     /*
       readMode:
@@ -105,24 +102,13 @@ UnknownProtoHandler.prototype = {
 
         if (this.readMode >= 1 && startIndex < l.length) {
           const out = l.slice(startIndex, endIndex).join("\n") + "\n";
-
-          if ("outputDecryptedData" in this.mimeSvc) {
-            // TB >= 57
-            this.mimeSvc.outputDecryptedData(out, out.length);
-          } else {
-            gConv.setData(out, out.length);
-            this.mimeSvc.onDataAvailable(null, null, gConv, 0, out.length);
-          }
+          this.mimeSvc.outputDecryptedData(out, out.length);
         }
       }
     }
   },
 
-  onStopRequest() {
-    if (!("outputDecryptedData" in this.mimeSvc)) {
-      this.mimeSvc.onStopRequest(null, 0);
-    }
-  },
+  onStopRequest() {},
 };
 
 export function PgpMimeHandler() {
@@ -138,13 +124,7 @@ PgpMimeHandler.prototype = {
   onStartRequest(request, ctxt) {
     const mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
     const ct = mimeSvc.contentType;
-
-    let uri = null;
-    if ("messageURI" in mimeSvc) {
-      uri = mimeSvc.messageURI;
-    } else {
-      uri = ctxt;
-    }
+    const uri = mimeSvc.messageURI;
 
     lazy.EnigmailCore.init();
 
@@ -155,8 +135,7 @@ PgpMimeHandler.prototype = {
 
     if (ct.search(/^multipart\/encrypted/i) === 0) {
       if (uri) {
-        const u = uri.QueryInterface(Ci.nsIURI);
-        gLastEncryptedUri = u.spec;
+        gLastEncryptedUri = uri.spec;
       }
       // PGP/MIME encrypted message
 

@@ -2131,18 +2131,12 @@ Enigmail.msg = {
 
   /**
    * set non-standard message Header
-   * (depending on TB version)
    *
    * hdr: String: header type (e.g. X-Enigmail-Version)
    * val: String: header data (e.g. 1.2.3.4)
    */
   setAdditionalHeader(hdr, val) {
-    if ("otherRandomHeaders" in gMsgCompose.compFields) {
-      // TB <= 36
-      gMsgCompose.compFields.otherRandomHeaders += hdr + ": " + val + "\r\n";
-    } else {
-      gMsgCompose.compFields.setHeader(hdr, val);
-    }
+    gMsgCompose.compFields.setHeader(hdr, val);
   },
 
   unsetAdditionalHeader(hdr) {

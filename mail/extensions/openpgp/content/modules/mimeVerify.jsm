@@ -192,18 +192,8 @@ MimeVerify.prototype = {
 
     this.mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
     this.msgUriSpec = EnigmailVerify.lastMsgUri;
-
-    if ("mimePart" in this.mimeSvc) {
-      this.mimePartNumber = this.mimeSvc.mimePart;
-    } else {
-      this.mimePartNumber = "";
-    }
-
-    if ("messageURI" in this.mimeSvc) {
-      this.uri = this.mimeSvc.messageURI;
-    } else if (uri) {
-      this.uri = uri.QueryInterface(Ci.nsIURI);
-    }
+    this.mimePartNumber = this.mimeSvc.mimePart;
+    this.uri = this.mimeSvc.messageURI;
 
     this.dataCount = 0;
     this.foundMsg = false;

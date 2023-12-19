@@ -152,15 +152,8 @@ MimeDecryptHandler.prototype = {
 
     this.initOk = true;
     const mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
-    if ("mimePart" in mimeSvc) {
-      this.mimePartNumber = mimeSvc.mimePart;
-    } else {
-      this.mimePartNumber = "";
-    }
-
-    if ("allowNestedDecrypt" in mimeSvc) {
-      this.allowNestedDecrypt = mimeSvc.allowNestedDecrypt;
-    }
+    this.mimePartNumber = mimeSvc.mimePart;
+    this.allowNestedDecrypt = mimeSvc.allowNestedDecrypt;
 
     if (this.allowNestedDecrypt) {
       // We want to ignore signature status of the top level part "1".
@@ -178,20 +171,13 @@ MimeDecryptHandler.prototype = {
       mimeSvc.mailChannel?.smimeHeaderSink.ignoreStatusFrom("1");
     }
 
-    if ("messageURI" in mimeSvc) {
-      this.uri = mimeSvc.messageURI;
-      if (this.uri) {
-        lazy.EnigmailLog.DEBUG(
-          "mimeDecrypt.jsm: onStartRequest: uri='" + this.uri.spec + "'\n"
-        );
-      } else {
-        lazy.EnigmailLog.DEBUG("mimeDecrypt.jsm: onStartRequest: uri=null\n");
-      }
-    } else if (uri) {
-      this.uri = uri.QueryInterface(Ci.nsIURI);
+    this.uri = mimeSvc.messageURI;
+    if (this.uri) {
       lazy.EnigmailLog.DEBUG(
         "mimeDecrypt.jsm: onStartRequest: uri='" + this.uri.spec + "'\n"
       );
+    } else {
+      lazy.EnigmailLog.DEBUG("mimeDecrypt.jsm: onStartRequest: uri=null\n");
     }
     this.pipe = null;
     this.closePipe = false;
@@ -811,9 +797,7 @@ MimeDecryptHandler.prototype = {
           "mimeDecrypt.jsm: returnData: using direct verification\n"
         );
         mimeSvc.contentType = ct;
-        if ("mimePart" in mimeSvc) {
-          mimeSvc.mimePart = mimeSvc.mimePart + ".1";
-        }
+        mimeSvc.mimePart = mimeSvc.mimePart + ".1";
         const veri = lazy.EnigmailVerify.newVerifier(proto);
         veri.onStartRequest(mimeSvc, this.uri);
         veri.onTextData(data);
