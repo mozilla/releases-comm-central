@@ -216,17 +216,20 @@ add_task(async function testAddressBookTab() {
   EventUtils.synthesizeMouseAtCenter(row.querySelector("span"), {}, abWindow);
 
   Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
-  // NOTE: When the "cards" element first receives focus it will select the
-  // first item, which causes the panel to be displayed.
+  // Select first contact.
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  Assert.equal(getActiveElement(), cardsList.table.body);
+  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
   cycle(
-    searchInput,
-    cardsList.table.body,
     editButton,
     addressBookButton,
     globalSearch,
     booksList,
-    searchInput
+    searchInput,
+    cardsList.table.body,
+    editButton
   );
+  // Still visible.
   Assert.ok(BrowserTestUtils.is_visible(detailsPane));
 
   // Check with no selection.

@@ -236,7 +236,7 @@ async function subtestKeyboardAndMouse(variant) {
   }
 
   checkCurrent(0);
-  checkSelected(0);
+  checkSelected();
 
   // Click on some individual rows.
 
@@ -268,7 +268,7 @@ async function subtestKeyboardAndMouse(variant) {
     );
   }
 
-  await clickOnRow(0, {}, false);
+  await clickOnRow(0);
   checkCurrent(0);
   checkSelected(0);
 

@@ -238,17 +238,10 @@ class TreeView extends HTMLElement {
         if (
           ["Tab", "F6"].includes(event.key) &&
           this.currentIndex == -1 &&
+          this.selectedIndex == -1 &&
           this._view?.rowCount
         ) {
-          let selectionChanged = false;
-          if (this.selectedIndex == -1) {
-            this._selection.select(0);
-            selectionChanged = true;
-          }
-          this.currentIndex = this.selectedIndex;
-          if (selectionChanged) {
-            this.onSelectionChanged();
-          }
+          this.currentIndex = this.#firstVisibleRowIndex;
         }
         break;
       }
