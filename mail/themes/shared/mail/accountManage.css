@@ -549,7 +549,7 @@ richlistitem[default="true"],
 }
 
 .openpgp-more-btn .button-menu-dropmarker {
-  list-style-image: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
+  content: url("chrome://global/skin/icons/arrow-down-12.svg");
   -moz-context-properties: stroke;
   stroke: currentColor;
 }
