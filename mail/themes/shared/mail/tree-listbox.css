@@ -317,7 +317,6 @@
     }
 
     .thread-card-container {
-      margin-inline-start: calc(var(--selection-indicator-width) + 1px);
       padding-inline-start: calc(23px - var(--selection-indicator-width));
     }
 
