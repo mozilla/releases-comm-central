@@ -772,7 +772,8 @@ tr[is="thread-card"] {
       border-top: 1px solid var(--thread-card-border-color);
     }
 
-    &:has(+ tr:not([data-properties~="thread-children"])) {
+    &:has(+ tr:not([data-properties~="thread-children"])),
+    &:last-child {
       --thread-line-height: 50%;
       box-shadow: var(--thread-card-shadow-children-inverse);
 
