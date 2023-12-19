@@ -205,9 +205,6 @@ function InitDialog() {
   // Must use getAttribute, not "globalElement.href",
   //  or foreign chars aren't converted correctly!
   gDialog.hrefInput.value = globalElement.getAttribute("href");
-
-  // Set "Relativize" checkbox according to current URL state
-  SetRelativeCheckbox(gDialog.makeRelativeLink);
 }
 
 function doEnabling() {
@@ -224,7 +221,6 @@ function doEnabling() {
 }
 
 function ChangeLinkLocation() {
-  SetRelativeCheckbox(gDialog.makeRelativeLink);
   // Set OK button enable state
   doEnabling();
 }

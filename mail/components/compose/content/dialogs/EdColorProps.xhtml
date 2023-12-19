@@ -3,212 +3,223 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [ <!ENTITY % edColorPropertiesDTD SYSTEM "chrome://messenger/locale/messengercompose/EditorColorProperties.dtd">
+<!DOCTYPE html [ <!ENTITY % edColorPropertiesDTD SYSTEM "chrome://messenger/locale/messengercompose/EditorColorProperties.dtd">
 %edColorPropertiesDTD;
 <!ENTITY % composeEditorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/mailComposeEditorOverlay.dtd">
 %composeEditorOverlayDTD;
 <!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
 %edDialogOverlay; ]>
-
-<window
-  title="&windowTitle.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   lightweightthemes="true"
-  onload="Startup()"
+  scrolling="false"
 >
-  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
-
-  <dialog>
-    <script src="chrome://messenger/content/globalOverlay.js" />
-    <script src="chrome://global/content/editMenuOverlay.js" />
-    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
-    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
-    <script src="chrome://messenger/content/messengercompose/EdColorProps.js" />
-    <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
-
-    <html:fieldset align="start">
-      <html:legend>&pageColors.label;</html:legend>
-      <radiogroup id="PageColorGroup">
-        <radio
-          id="DefaultColorsRadio"
-          label="&defaultColorsRadio.label;"
-          oncommand="UseDefaultColors()"
-          accesskey="&defaultColorsRadio.accessKey;"
-          tooltiptext="&defaultColorsRadio.tooltip;"
-        />
-        <radio
-          id="CustomColorsRadio"
-          label="&customColorsRadio.label;"
-          oncommand="UseCustomColors()"
-          accesskey="&customColorsRadio.accessKey;"
-          tooltiptext="&customColorsRadio.tooltip;"
-        />
-      </radiogroup>
-      <hbox class="indent">
-        <hbox>
-          <vbox>
-            <hbox flex="1" align="center">
-              <label
-                id="Text"
-                control="TextButton"
-                value="&normalText.label;&colon.character;"
-                accesskey="&normalText.accessKey;"
-              />
-            </hbox>
-            <hbox flex="1" align="center">
-              <label
-                id="Link"
-                flex="1"
-                control="LinkButton"
-                value="&linkText.label;&colon.character;"
-                accesskey="&linkText.accessKey;"
-              />
-            </hbox>
-            <hbox flex="1" align="center">
-              <label
-                id="Active"
-                flex="1"
-                control="ActiveLinkButton"
-                value="&activeLinkText.label;&colon.character;"
-                accesskey="&activeLinkText.accessKey;"
-              />
-            </hbox>
-            <hbox flex="1" align="center">
-              <label
-                id="Visited"
-                flex="1"
-                control="VisitedLinkButton"
-                value="&visitedLinkText.label;&colon.character;"
-                accesskey="&visitedLinkText.accessKey;"
-              />
-            </hbox>
-            <hbox flex="1" align="center">
-              <label
-                id="Background"
-                flex="1"
-                control="BackgroundButton"
-                value="&background.label;"
-                accesskey="&background.accessKey;"
-              />
-            </hbox>
+  <head>
+    <title>&windowTitle.label;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdColorProps.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog>
+      <spacer id="location" offsetY="50" persist="offsetX offsetY" />
+      <html:fieldset align="start">
+        <html:legend>&pageColors.label;</html:legend>
+        <radiogroup id="PageColorGroup">
+          <radio
+            id="DefaultColorsRadio"
+            label="&defaultColorsRadio.label;"
+            oncommand="UseDefaultColors()"
+            accesskey="&defaultColorsRadio.accessKey;"
+            tooltiptext="&defaultColorsRadio.tooltip;"
+          />
+          <radio
+            id="CustomColorsRadio"
+            label="&customColorsRadio.label;"
+            oncommand="UseCustomColors()"
+            accesskey="&customColorsRadio.accessKey;"
+            tooltiptext="&customColorsRadio.tooltip;"
+          />
+        </radiogroup>
+        <hbox class="indent">
+          <hbox>
+            <vbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="Text"
+                  control="TextButton"
+                  value="&normalText.label;&colon.character;"
+                  accesskey="&normalText.accessKey;"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="Link"
+                  flex="1"
+                  control="LinkButton"
+                  value="&linkText.label;&colon.character;"
+                  accesskey="&linkText.accessKey;"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="Active"
+                  flex="1"
+                  control="ActiveLinkButton"
+                  value="&activeLinkText.label;&colon.character;"
+                  accesskey="&activeLinkText.accessKey;"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="Visited"
+                  flex="1"
+                  control="VisitedLinkButton"
+                  value="&visitedLinkText.label;&colon.character;"
+                  accesskey="&visitedLinkText.accessKey;"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="Background"
+                  flex="1"
+                  control="BackgroundButton"
+                  value="&background.label;"
+                  accesskey="&background.accessKey;"
+                />
+              </hbox>
+            </vbox>
+            <vbox>
+              <button
+                id="TextButton"
+                class="color-button"
+                oncommand="GetColorAndUpdate('textCW');"
+              >
+                <spacer id="textCW" class="color-well" />
+              </button>
+              <button
+                id="LinkButton"
+                class="color-button"
+                oncommand="GetColorAndUpdate('linkCW');"
+              >
+                <spacer id="linkCW" class="color-well" />
+              </button>
+              <button
+                id="ActiveLinkButton"
+                class="color-button"
+                oncommand="GetColorAndUpdate('activeCW');"
+              >
+                <spacer id="activeCW" class="color-well" />
+              </button>
+              <button
+                id="VisitedLinkButton"
+                class="color-button"
+                oncommand="GetColorAndUpdate('visitedCW');"
+              >
+                <spacer id="visitedCW" class="color-well" />
+              </button>
+              <button
+                id="BackgroundButton"
+                class="color-button"
+                oncommand="GetColorAndUpdate('backgroundCW');"
+              >
+                <spacer id="backgroundCW" class="color-well" />
+              </button>
+            </vbox>
+          </hbox>
+          <vbox id="ColorPreview">
+            <spacer flex="1" />
+            <label class="larger" id="NormalText" value="&normalText.label;" />
+            <spacer flex="1" />
+            <label class="larger" id="LinkText" value="&linkText.label;" />
+            <spacer flex="1" />
+            <label
+              class="larger"
+              id="ActiveLinkText"
+              value="&activeLinkText.label;"
+            />
+            <spacer flex="1" />
+            <label
+              class="larger"
+              id="VisitedLinkText"
+              value="&visitedLinkText.label;"
+            />
+            <spacer flex="1" />
           </vbox>
-          <vbox>
-            <button
-              id="TextButton"
-              class="color-button"
-              oncommand="GetColorAndUpdate('textCW');"
-            >
-              <spacer id="textCW" class="color-well" />
-            </button>
-            <button
-              id="LinkButton"
-              class="color-button"
-              oncommand="GetColorAndUpdate('linkCW');"
-            >
-              <spacer id="linkCW" class="color-well" />
-            </button>
-            <button
-              id="ActiveLinkButton"
-              class="color-button"
-              oncommand="GetColorAndUpdate('activeCW');"
-            >
-              <spacer id="activeCW" class="color-well" />
-            </button>
-            <button
-              id="VisitedLinkButton"
-              class="color-button"
-              oncommand="GetColorAndUpdate('visitedCW');"
-            >
-              <spacer id="visitedCW" class="color-well" />
-            </button>
-            <button
-              id="BackgroundButton"
-              class="color-button"
-              oncommand="GetColorAndUpdate('backgroundCW');"
-            >
-              <spacer id="backgroundCW" class="color-well" />
-            </button>
-          </vbox>
+          <spacer flex="1" />
         </hbox>
-        <vbox id="ColorPreview">
-          <spacer flex="1" />
-          <label class="larger" id="NormalText" value="&normalText.label;" />
-          <spacer flex="1" />
-          <label class="larger" id="LinkText" value="&linkText.label;" />
-          <spacer flex="1" />
-          <label
-            class="larger"
-            id="ActiveLinkText"
-            value="&activeLinkText.label;"
-          />
-          <spacer flex="1" />
-          <label
-            class="larger"
-            id="VisitedLinkText"
-            value="&visitedLinkText.label;"
-          />
-          <spacer flex="1" />
-        </vbox>
-        <spacer flex="1" />
-      </hbox>
+        <spacer class="spacer" />
+      </html:fieldset>
       <spacer class="spacer" />
-    </html:fieldset>
-    <spacer class="spacer" />
-    <label
-      control="BackgroundImageInput"
-      value="&backgroundImage.label;"
-      tooltiptext="&backgroundImage.tooltip;"
-      accesskey="&backgroundImage.accessKey;"
-    />
-    <tooltip id="shortenedDataURI">
-      <label value="&backgroundImage.shortenedDataURI;" />
-    </tooltip>
-    <html:input
-      id="BackgroundImageInput"
-      type="text"
-      class="uri-element input-inline"
-      onchange="ChangeBackgroundImage()"
-      aria-label="&backgroundImage.tooltip;"
-    />
-    <hbox align="center">
-      <checkbox
-        id="MakeRelativeCheckbox"
-        for="BackgroundImageInput"
-        label="&makeUrlRelative.label;"
-        accesskey="&makeUrlRelative.accessKey;"
-        oncommand="MakeInputValueRelativeOrAbsolute(this);"
-        tooltiptext="&makeUrlRelative.tooltip;"
+      <label
+        control="BackgroundImageInput"
+        value="&backgroundImage.label;"
+        tooltiptext="&backgroundImage.tooltip;"
+        accesskey="&backgroundImage.accessKey;"
       />
-      <spacer flex="1" />
-      <button
-        id="ChooseFile"
-        oncommand="chooseFile()"
-        label="&chooseFileButton.label;"
-        accesskey="&chooseFileButton.accessKey;"
+      <tooltip id="shortenedDataURI">
+        <label value="&backgroundImage.shortenedDataURI;" />
+      </tooltip>
+      <html:input
+        id="BackgroundImageInput"
+        type="text"
+        class="uri-element input-inline"
+        onchange="ChangeBackgroundImage()"
+        aria-label="&backgroundImage.tooltip;"
       />
-    </hbox>
-    <spacer class="smallspacer" />
-    <hbox>
-      <spacer flex="1" />
-      <button
-        id="AdvancedEditButton"
-        oncommand="onAdvancedEdit();"
-        label="&AdvancedEditButton.label;"
-        accesskey="&AdvancedEditButton.accessKey;"
-        tooltiptext="&AdvancedEditButton.tooltip;"
-      />
-    </hbox>
-    <separator class="groove" />
-  </dialog>
-</window>
+      <hbox align="center">
+        <spacer flex="1" />
+        <button
+          id="ChooseFile"
+          oncommand="chooseFile()"
+          label="&chooseFileButton.label;"
+          accesskey="&chooseFileButton.accessKey;"
+        />
+      </hbox>
+      <spacer class="smallspacer" />
+      <hbox>
+        <spacer flex="1" />
+        <button
+          id="AdvancedEditButton"
+          oncommand="onAdvancedEdit();"
+          label="&AdvancedEditButton.label;"
+          accesskey="&AdvancedEditButton.accessKey;"
+          tooltiptext="&AdvancedEditButton.tooltip;"
+        />
+      </hbox>
+      <separator class="groove" />
+    </dialog>
+  </html:body>
+</html>

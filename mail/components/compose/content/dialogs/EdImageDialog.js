@@ -82,9 +82,6 @@ function InitImage() {
     shortenImageData(src, gDialog.srcInput);
   }
 
-  // Set "Relativize" checkbox according to current URL state
-  SetRelativeCheckbox();
-
   // Force loading of image from its source and show preview image
   LoadPreviewImage();
 
@@ -223,14 +220,8 @@ function chooseFile() {
   SetTextboxFocus(gDialog.srcInput);
 
   GetLocalFileURL("img").then(fileURL => {
-    // Always try to relativize local file URLs
-    if (gHaveDocumentUrl) {
-      fileURL = MakeRelativeUrl(fileURL);
-    }
-
     gDialog.srcInput.value = fileURL;
 
-    SetRelativeCheckbox();
     doOverallEnabling();
     LoadPreviewImage();
   });
@@ -287,9 +278,6 @@ function LoadPreviewImage() {
     //  (if we don't do this, loads after the first will always use image cache
     //   and we won't see image edit changes or be able to get actual width and height)
 
-    // We must have an absolute URL to preview it or remove it from the cache
-    imageSrc = MakeAbsoluteUrl(imageSrc);
-
     if (GetScheme(imageSrc)) {
       const uri = Services.io.newURI(imageSrc);
       if (uri) {
@@ -322,7 +310,6 @@ function ChangeImageSrc() {
 
   gTimerID = setTimeout(LoadPreviewImage, 800);
 
-  SetRelativeCheckbox();
   doOverallEnabling();
 }
 

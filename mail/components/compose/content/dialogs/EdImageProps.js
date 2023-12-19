@@ -125,7 +125,6 @@ function InitDialog() {
 
 function ChangeLinkLocation() {
   var href = TrimString(gDialog.hrefInput.value);
-  SetRelativeCheckbox(gDialog.makeRelativeLink);
   gDialog.showLinkBorder.disabled = !href;
   gDialog.linkAdvanced.disabled = !href;
   gLinkElement.setAttribute("href", href);

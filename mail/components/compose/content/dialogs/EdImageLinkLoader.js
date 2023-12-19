@@ -22,9 +22,6 @@ function OnLoadDialog() {
     editor &&
     editor.flags & Ci.nsIEditor.eEditorMailMask
   ) {
-    SetRelativeCheckbox = function () {
-      SetAttachCheckbox();
-    };
     // initialize the AttachSourceToMail checkbox
     gMsgCompAttachSourceElement.hidden = false;
 

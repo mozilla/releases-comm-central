@@ -426,89 +426,6 @@ function onCancel() {
   SaveWindowLocation();
 }
 
-function SetRelativeCheckbox(checkbox) {
-  if (!checkbox) {
-    checkbox = document.getElementById("MakeRelativeCheckbox");
-    if (!checkbox) {
-      return;
-    }
-  }
-
-  var editor = GetCurrentEditor();
-  // Mail never allows relative URLs, so hide the checkbox
-  if (editor && editor.flags & Ci.nsIEditor.eEditorMailMask) {
-    checkbox.collapsed = true;
-    return;
-  }
-
-  var input = document.getElementById(checkbox.getAttribute("for"));
-  if (!input) {
-    return;
-  }
-
-  var url = TrimString(input.value);
-  var urlScheme = GetScheme(url);
-
-  // Check it if url is relative (no scheme).
-  checkbox.checked = url.length > 0 && !urlScheme;
-
-  // Now do checkbox enabling:
-  var enable = false;
-
-  var docUrl = GetDocumentBaseUrl();
-  var docScheme = GetScheme(docUrl);
-
-  if (url && docUrl && docScheme) {
-    if (urlScheme) {
-      // Url is absolute
-      // If we can make a relative URL, then enable must be true!
-      // (this lets the smarts of MakeRelativeUrl do all the hard work)
-      enable = GetScheme(MakeRelativeUrl(url)).length == 0;
-    } else if (url[0] == "#") {
-      // Url is relative
-      // Check if url is a named anchor
-      //  but document doesn't have a filename
-      // (it's probably "index.html" or "index.htm",
-      //  but we don't want to allow a malformed URL)
-      var docFilename = GetFilename(docUrl);
-      enable = docFilename.length > 0;
-    } else {
-      // Any other url is assumed
-      //  to be ok to try to make absolute
-      enable = true;
-    }
-  }
-
-  SetElementEnabled(checkbox, enable);
-}
-
-// oncommand handler for the Relativize checkbox in EditorOverlay.xhtml
-function MakeInputValueRelativeOrAbsolute(checkbox) {
-  var input = document.getElementById(checkbox.getAttribute("for"));
-  if (!input) {
-    return;
-  }
-
-  var docUrl = GetDocumentBaseUrl();
-  if (!docUrl) {
-    // Checkbox should be disabled if not saved,
-    //  but keep this error message in case we change that
-    Services.prompt.alert(window, "", GetString("SaveToUseRelativeUrl"));
-    window.focus();
-  } else {
-    // Note that "checked" is opposite of its last state,
-    //  which determines what we want to do here
-    if (checkbox.checked) {
-      input.value = MakeRelativeUrl(input.value);
-    } else {
-      input.value = MakeAbsoluteUrl(input.value);
-    }
-
-    // Reset checkbox to reflect url state
-    SetRelativeCheckbox(checkbox);
-  }
-}
-
 var IsBlockParent = [
   "applet",
   "blockquote",
@@ -665,11 +582,6 @@ function createMenuItem(label) {
 // Shared by Image and Link dialogs for the "Choose" button for links
 function chooseLinkFile() {
   GetLocalFileURL("html, img").then(fileURL => {
-    // Always try to relativize local file URLs
-    if (gHaveDocumentUrl) {
-      fileURL = MakeRelativeUrl(fileURL);
-    }
-
     gDialog.hrefInput.value = fileURL;
 
     // Do stuff specific to a particular dialog
