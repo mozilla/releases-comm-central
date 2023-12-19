@@ -397,15 +397,18 @@ var PgpSqliteDb2 = {
 };
 
 /**
- * use a promise to open the Enigmail database.
+ * Use a promise to open the Enigmail database.
  *
  * it's possible that there will be an NS_ERROR_STORAGE_BUSY
  * so we're willing to retry for a little while.
  *
- * @param {Function} resolve: function to call when promise succeeds
- * @param {Function} reject: - function to call when promise fails
- * @param {number}   waitms:  Integer - number of milliseconds to wait before trying again in case of NS_ERROR_STORAGE_BUSY
- * @param {number}   maxtime: Integer - unix epoch (in milliseconds) of the point at which we should give up.
+ * @param {string} filename - Path of the sqlite database.
+ * @param {Function} resolve - Function to call when promise succeeds.
+ * @param {Function} reject - Function to call when promise fails.
+ * @param {integer} waitms - Number of milliseconds to wait before trying again
+ *   in case of NS_ERROR_STORAGE_BUSY.
+ * @param {integer} maxtime - Unix epoch (in milliseconds) of the point at
+ *   which we should give up.
  */
 function openDatabaseConn(filename, resolve, reject, waitms, maxtime) {
   lazy.EnigmailLog.DEBUG("sqliteDb.jsm: openDatabaseConn()\n");
