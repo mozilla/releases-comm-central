@@ -76,10 +76,20 @@
   <form id="emailFormSubview" class="account-hub-form">
     <header id="emailFormHeader" class="hub-header">
       <h1 class="sub-view-title" data-l10n-id="account-hub-add-email-title"></h1>
-      <div id="emailFormNotification" class="notification-bar">
-        <h1 id="emailFormNotificationTitle" class="notification-title"></h1>
-        <span id="emailFormNotificationText" class="notification-text"></span>
-      </div>
+      <details id="emailFormNotification" class="notification-bar">
+        <summary id="emailFormNotificationSummary" class="notification-title-container">
+          <img
+            class="form-icon notification-icon warning-icon"
+            src=""
+            alt="" />
+          <p id="emailFormNotificationTitle" class="notification-title"></p>
+          <div id="emailFormNotificationToggle">
+            <span data-l10n-id="account-hub-notification-show-more"></span>
+            <span data-l10n-id="account-hub-notification-show-less"></span>
+          </div>
+        </summary>
+        <p id="emailFormNotificationText" class="notification-text"></p>
+      </details>
     </header>
 
     <div class="hub-body">

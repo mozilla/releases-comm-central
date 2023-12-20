@@ -18,6 +18,26 @@ form {
     margin-inline: 0;
   }
 
+  details {
+    &[open=""] {
+      span:first-of-type {
+        display: none;
+      }
+
+      span:last-of-type {
+        display: flex
+      }
+    }
+
+    span:first-of-type {
+      display: flex;
+    }
+
+    span:last-of-type {
+      display: none;
+    }
+  }
+
   .notification-bar {
     background-color: var(--hub-notification-background-color-warning);
     padding: 6px 16px;
@@ -27,13 +47,31 @@ form {
     margin: 16px 75px 5px;
     color: var(--color-gray-90);
 
+    &[aria-disabled="true"] {
+      pointer-events: none;
+    }
+
+    .notification-title-container {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      span {
+        font-size: 1.1rem;
+        padding-inline-start: 5px;
+        text-decoration: underline;
+        margin-inline-start: auto;
+        white-space: nowrap;
+      }
+    }
+
     .notification-title {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       margin-block: 4px;
     }
 
     .notification-text {
-      font-size: 0.8rem;
+      margin-block: 6px;
+      font-size: 1rem;
     }
   }
 
@@ -120,6 +158,16 @@ div:has(legend) {
   stroke: currentColor;
   fill-opacity: 0.7;
   margin-inline: -26px 10px;
+
+  &.notification-icon {
+    margin-inline: 0 10px;
+    height: 16px;
+    width: 16px;
+
+    &.warning-icon {
+      content: var(--icon-warning);
+    }
+  }
 }
 
 .form-toggle-button {

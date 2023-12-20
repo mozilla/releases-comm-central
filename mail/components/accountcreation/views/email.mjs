@@ -618,11 +618,17 @@ class AccountHubEmail extends HTMLElement {
     this.querySelector("#emailFormNotification").hidden = false;
 
     if (textStringID) {
+      this.querySelector("#emailFormNotificationToggle").hidden = false;
+
       document.l10n.setAttributes(
         this.querySelector("#emailFormNotificationText"),
         textStringID
       );
-      this.querySelector("#emailFormNotificationText").hidden = false;
+    } else {
+      this.querySelector("#emailFormNotification").setAttribute(
+        "aria-disabled",
+        true
+      );
     }
   }
 
@@ -651,11 +657,14 @@ class AccountHubEmail extends HTMLElement {
   clearNotifications() {
     const notificationTitle = this.querySelector("#emailFormNotificationTitle");
     const notificationText = this.querySelector("#emailFormNotificationText");
-    notificationText.hidden = true;
     delete notificationText.dataset.l10nId;
     delete notificationTitle.dataset.l10nId;
 
+    this.querySelector("#emailFormNotification").removeAttribute(
+      "aria-disabled"
+    );
     this.querySelector("#emailFormNotification").hidden = true;
+    this.querySelector("#emailFormNotificationToggle").hidden = true;
   }
 
   /**

@@ -114,3 +114,7 @@ account-hub-adding-account-subheader = Re-testing account configuration settings
 account-hub-account-added-title = Account Added
 
 account-hub-find-settings-failed = { -brand-full-name } failed to find the settings for your email account.
+
+account-hub-notification-show-more = Show more
+
+account-hub-notification-show-less = Show less
