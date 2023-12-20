@@ -4792,7 +4792,7 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
         else
           AlertUserEventUsingName(TestFlag(IMAP_RECEIVED_GREETING)
                                       ? "imapServerDisconnected"
-                                      : "imapServerDroppedConnection");
+                                      : "imapServerDroppedConnection2");
         break;
       default:
         // This is probably a TLS error. Usually TLS errors won't show up until
