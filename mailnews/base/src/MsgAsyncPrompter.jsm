@@ -285,7 +285,7 @@ class MsgAuthPrompt {
 
       // if checkBoxLabel is null, the checkbox won't be shown at all.
       if (canRememberLogin) {
-        checkBoxLabel = this.l10n.formatValueSync(
+        checkBoxLabel = MsgAuthPrompt.l10n.formatValueSync(
           "remember-password-checkbox-label"
         );
       }
@@ -364,7 +364,7 @@ class MsgAuthPrompt {
 
       // if checkBoxLabel is null, the checkbox won't be shown at all.
       if (canRememberLogin) {
-        checkBoxLabel = this.l10n.formatValueSync(
+        checkBoxLabel = MsgAuthPrompt.l10n.formatValueSync(
           "remember-password-checkbox-label"
         );
       }
