@@ -107,16 +107,6 @@ NS_IMPL_ISUPPORTS_INHERITED(nsMsgLocalMailFolder, nsMsgDBFolder,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-nsresult nsMsgLocalMailFolder::CreateChildFromURI(const nsACString& uri,
-                                                  nsIMsgFolder** folder) {
-  nsMsgLocalMailFolder* newFolder = new nsMsgLocalMailFolder;
-  if (!newFolder) return NS_ERROR_OUT_OF_MEMORY;
-
-  NS_ADDREF(*folder = newFolder);
-  newFolder->Init(uri);
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgLocalMailFolder::CreateLocalSubfolder(
     const nsAString& aFolderName, nsIMsgFolder** aChild) {
   NS_ENSURE_ARG_POINTER(aChild);

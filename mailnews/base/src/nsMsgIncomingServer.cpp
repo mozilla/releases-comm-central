@@ -336,12 +336,6 @@ nsMsgIncomingServer::GetCanHaveFilters(bool* canHaveFilters) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetCanHaveFilters(bool aCanHaveFilters) {
-  m_canHaveFilters = aCanHaveFilters;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgIncomingServer::GetCanBeDefaultServer(bool* canBeDefaultServer) {
   // derived class should override if they need to do this.
   *canBeDefaultServer = false;
@@ -1541,7 +1535,6 @@ NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, DownloadOnBiff, "download_on_biff")
 NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, Valid, "valid")
 NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, EmptyTrashOnExit,
                         "empty_trash_on_exit")
-NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, CanDelete, "canDelete")
 NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, LoginAtStartUp, "login_at_startup")
 NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer,
                         DefaultCopiesAndFoldersPrefsToServer,

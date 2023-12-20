@@ -359,14 +359,6 @@ NS_IMETHODIMP nsMsgNewsFolder::SetNewsrcHasChanged(bool newsrcHasChanged) {
   return nntpServer->SetNewsrcHasChanged(newsrcHasChanged);
 }
 
-nsresult nsMsgNewsFolder::CreateChildFromURI(const nsACString& uri,
-                                             nsIMsgFolder** folder) {
-  nsMsgNewsFolder* newFolder = new nsMsgNewsFolder;
-  NS_ADDREF(*folder = newFolder);
-  newFolder->Init(uri);
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(const nsAString& newsgroupName,
                                                nsIMsgWindow* msgWindow) {
   nsresult rv = NS_OK;

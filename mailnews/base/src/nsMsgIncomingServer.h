@@ -70,8 +70,6 @@ class nsMsgIncomingServer : public nsIMsgIncomingServer,
       nsTArray<RefPtr<nsIPop3IncomingServer>>& aServers);
 
   nsresult CreateRootFolder();
-  virtual nsresult CreateRootFolderFromUri(const nsACString& serverUri,
-                                           nsIMsgFolder** rootFolder) = 0;
 
   nsresult InternalSetHostName(const nsACString& aHostname,
                                const char* prefName);

@@ -102,12 +102,6 @@ nsresult JaBaseCppMsgFolder::CreateDummyFile(nsIMsgFolder* aMailFolder) {
   return NS_OK;
 }
 
-// AFAICT this is unused in mailnews code.
-nsresult JaBaseCppMsgFolder::CreateChildFromURI(const nsACString& uri,
-                                                nsIMsgFolder** folder) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 // Delegator object to bypass JS method override.
 
 JaCppMsgFolderDelegator::JaCppMsgFolderDelegator()

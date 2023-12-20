@@ -17,12 +17,3 @@ nsMailboxServer::GetLocalDatabaseType(nsACString& type) {
   type.AssignLiteral("mailbox");
   return NS_OK;
 }
-
-nsresult nsMailboxServer::CreateRootFolderFromUri(const nsACString& serverUri,
-                                                  nsIMsgFolder** rootFolder) {
-  nsMsgLocalMailFolder* newRootFolder = new nsMsgLocalMailFolder;
-  if (!newRootFolder) return NS_ERROR_OUT_OF_MEMORY;
-  NS_ADDREF(*rootFolder = newRootFolder);
-  newRootFolder->Init(serverUri);
-  return NS_OK;
-}

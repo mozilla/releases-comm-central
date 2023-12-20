@@ -885,7 +885,7 @@ function onRemoveAccount(event) {
 
   const server = currentAccount.incomingServer;
 
-  const canDelete = server.protocolInfo.canDelete || server.canDelete;
+  const canDelete = server.protocolInfo.canDelete;
   if (!canDelete) {
     return;
   }
@@ -1135,7 +1135,7 @@ function updateItems(
       canSetDefault = true;
     }
 
-    canDelete = server.protocolInfo.canDelete || server.canDelete;
+    canDelete = server.protocolInfo.canDelete;
   }
 
   setEnabled(addAccountItem, true);

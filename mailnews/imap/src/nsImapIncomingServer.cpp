@@ -931,14 +931,6 @@ nsImapIncomingServer::CloseCachedConnections() {
   return NS_OK;
 }
 
-nsresult nsImapIncomingServer::CreateRootFolderFromUri(
-    const nsACString& serverUri, nsIMsgFolder** rootFolder) {
-  nsImapMailFolder* newRootFolder = new nsImapMailFolder;
-  newRootFolder->Init(serverUri);
-  NS_ADDREF(*rootFolder = newRootFolder);
-  return NS_OK;
-}
-
 // nsIImapServerSink impl
 // aNewFolder will not be set if we're listing for the subscribe UI, since
 // that's the way 4.x worked.

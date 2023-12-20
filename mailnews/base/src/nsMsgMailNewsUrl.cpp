@@ -1061,14 +1061,6 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetFolder(nsIMsgFolder** /* aFolder */) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetIsMessageUri(bool* aIsMessageUri) {
-  NS_ENSURE_ARG(aIsMessageUri);
-  nsAutoCString scheme;
-  m_baseURL->GetScheme(scheme);
-  *aIsMessageUri = StringEndsWith(scheme, "-message"_ns);
-  return NS_OK;
-}
-
 NS_IMPL_ISUPPORTS(nsMsgMailNewsUrl::Mutator, nsIURISetters, nsIURIMutator)
 
 NS_IMETHODIMP

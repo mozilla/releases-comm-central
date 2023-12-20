@@ -96,8 +96,6 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   nsresult CreateSubFolders(nsIFile* path);
   nsresult AddDirectorySeparator(nsIFile* path);
   nsresult GetDatabase() override;
-  virtual nsresult CreateChildFromURI(const nsACString& uri,
-                                      nsIMsgFolder** folder) override;
 
   nsresult LoadNewsrcFileAndCreateNewsgroups();
   int32_t RememberLine(const nsACString& line);

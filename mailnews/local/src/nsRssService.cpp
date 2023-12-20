@@ -41,7 +41,7 @@ NS_IMETHODIMP nsRssService::SetDefaultLocalPath(nsIFile* aDefaultLocalPath) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsRssService::GetServerIID(nsIID** aServerIID) {
+NS_IMETHODIMP nsRssService::GetServerIID(nsIID& aServerIID) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

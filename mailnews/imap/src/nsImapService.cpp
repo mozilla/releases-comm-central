@@ -2611,8 +2611,8 @@ NS_IMETHODIMP nsImapService::GetDefaultLocalPath(nsIFile** aResult) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapService::GetServerIID(nsIID** aServerIID) {
-  *aServerIID = new nsIID(NS_GET_IID(nsIImapIncomingServer));
+NS_IMETHODIMP nsImapService::GetServerIID(nsIID& aServerIID) {
+  aServerIID = nsIID(NS_GET_IID(nsIImapIncomingServer));
   return NS_OK;
 }
 

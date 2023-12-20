@@ -32,10 +32,6 @@ class JaBaseCppIncomingServer : public nsMsgIncomingServer,
   NS_DECL_NSIINTERFACEREQUESTOR
   JaBaseCppIncomingServer() {}
 
-  // nsMsgIncomingServer overrides
-  nsresult CreateRootFolderFromUri(const nsACString& serverUri,
-                                   nsIMsgFolder** rootFolder) override;
-
  protected:
   virtual ~JaBaseCppIncomingServer() {}
 };

@@ -69,8 +69,6 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
  protected:
   virtual ~nsImapIncomingServer();
   nsresult GetFolder(const nsACString& name, nsIMsgFolder** pFolder);
-  virtual nsresult CreateRootFolderFromUri(const nsACString& serverUri,
-                                           nsIMsgFolder** rootFolder) override;
   nsresult ResetFoldersToUnverified(nsIMsgFolder* parentFolder);
   void GetUnverifiedSubFolders(nsIMsgFolder* parentFolder,
                                nsCOMArray<nsIMsgImapMailFolder>& aFoldersArray);

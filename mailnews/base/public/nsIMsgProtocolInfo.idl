@@ -25,7 +25,7 @@ interface nsIMsgProtocolInfo : nsISupports
      * the IID of the protocol-specific interface for this server
      * usually used from JS to dynamically get server-specific attributes
      */
-    readonly attribute nsIIDPtr serverIID;
+    readonly attribute nsIIDRef serverIID;
 
     /**
      * does this server type require a username?

@@ -138,9 +138,6 @@ interface nsIMsgMailNewsUrl : nsIURL {
   boolean IsUrlType(in unsigned long type);
   nsIStreamListener getSaveAsListener(in boolean addDummyEnvelope, in nsIFile aFile);
 
-  /// Returns true if the URI is for a message (e.g., imap-message://)
-  readonly attribute boolean isMessageUri;
-
   /**
    * Loads the URI in a docshell. This will give priority to loading the
    * URI in the passed-in docshell. If it can't be loaded there

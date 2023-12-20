@@ -380,8 +380,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
 
   nsresult ExpungeAndCompact(nsIUrlListener* aListener,
                              nsIMsgWindow* aMsgWindow);
-  virtual nsresult CreateChildFromURI(const nsACString& uri,
-                                      nsIMsgFolder** folder) override;
   void FindKeysToAdd(const nsTArray<nsMsgKey>& existingKeys,
                      nsTArray<nsMsgKey>& keysToFetch, uint32_t& numNewUnread,
                      nsIImapFlagAndUidState* flagState);

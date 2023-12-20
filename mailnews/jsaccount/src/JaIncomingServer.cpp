@@ -16,12 +16,6 @@ namespace mailnews {
 NS_IMPL_ISUPPORTS_INHERITED(JaBaseCppIncomingServer, nsMsgIncomingServer,
                             nsIInterfaceRequestor)
 
-// nsMsgIncomingServer overrides
-nsresult JaBaseCppIncomingServer::CreateRootFolderFromUri(
-    const nsACString& serverUri, nsIMsgFolder** rootFolder) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 // nsIInterfaceRequestor implementation
 NS_IMETHODIMP
 JaBaseCppIncomingServer::GetInterface(const nsIID& aIID, void** aSink) {

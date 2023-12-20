@@ -234,7 +234,6 @@ class MsgIncomingServer {
       ["Bool", "downloadOnBiff", "download_on_biff"],
       ["Bool", "valid"],
       ["Bool", "emptyTrashOnExit", "empty_trash_on_exit"],
-      ["Bool", "canDelete"],
       ["Bool", "loginAtStartUp", "login_at_startup"],
       [
         "Bool",

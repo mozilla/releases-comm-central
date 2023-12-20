@@ -6,17 +6,12 @@
 #ifndef nsMailboxServer_h__
 #define nsMailboxServer_h__
 
-#include "mozilla/Attributes.h"
 #include "nsMsgIncomingServer.h"
 
 class nsMailboxServer : public nsMsgIncomingServer {
  public:
   NS_IMETHOD GetLocalStoreType(nsACString& type) override;
   NS_IMETHOD GetLocalDatabaseType(nsACString& type) override;
-
- protected:
-  virtual nsresult CreateRootFolderFromUri(const nsACString& serverUri,
-                                           nsIMsgFolder** rootFolder) override;
 };
 
 #endif

@@ -39,8 +39,6 @@ class JaBaseCppMsgFolder : public nsMsgDBFolder,
 
   // nsMsgDBFolder overrides
 
-  nsresult CreateChildFromURI(const nsACString& uri,
-                              nsIMsgFolder** folder) override;
   nsresult GetDatabase() override;
 
   // Local Utility Functions
