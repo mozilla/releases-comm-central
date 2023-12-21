@@ -14,6 +14,7 @@ window.addEventListener("load", onLoad);
 window.addEventListener("keypress", onKeyPress);
 
 function onLoad() {
+  document.documentElement.style.minHeight = "120px";
   var dlg = document.getElementById("enigmailMsgBox");
   dlg.getButton("cancel").setAttribute("hidden", "true");
   dlg.getButton("extra1").setAttribute("hidden", "true");
