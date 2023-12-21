@@ -2414,14 +2414,14 @@ var folderPane = {
       while (collapsedAncestor) {
         const next = collapsedAncestor.parentElement?.closest("li.collapsed");
         if (!next) {
-          collapsedAncestor.updateNewMessages();
+          collapsedAncestor.updateNewMessages(hasNewMessages);
           break;
         }
         collapsedAncestor = next;
       }
 
       // Update the row itself.
-      row.updateNewMessages();
+      row.updateNewMessages(hasNewMessages);
     });
   },
 
@@ -3964,13 +3964,20 @@ class FolderTreeRow extends HTMLLIElement {
     }
   }
 
-  updateNewMessages() {
+  /**
+   * Update new message state of the row.
+   *
+   * @param {boolean} [notifiedOfNewMessages=false] - When true there are new
+   *   messages on the server, but they may not yet be downloaded locally.
+   */
+  updateNewMessages(notifiedOfNewMessages = false) {
     const folder = MailServices.folderLookup.getFolderForURL(this.uri);
+    const foldersHaveNewMessages = this.classList.contains("collapsed")
+      ? folder.hasFolderOrSubfolderNewMessages
+      : folder.hasNewMessages;
     this.classList.toggle(
       "new-messages",
-      this.classList.contains("collapsed")
-        ? folder.hasFolderOrSubfolderNewMessages
-        : folder.hasNewMessages
+      notifiedOfNewMessages || foldersHaveNewMessages
     );
   }
 
