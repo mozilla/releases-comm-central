@@ -658,9 +658,7 @@ var gGeneralPane = {
         item.className = "menuitem-iconic";
         item.setAttribute(
           "image",
-          engine.iconURI
-            ? engine.iconURI.spec
-            : "resource://gre-resources/broken-image.png"
+          engine.getIconURL() || "resource://gre-resources/broken-image.png"
         );
         if (engine == defaultEngine) {
           engineList.selectedItem = item;
@@ -765,9 +763,7 @@ var gGeneralPane = {
     item.className = "menuitem-iconic";
     item.setAttribute(
       "image",
-      engine.iconURI
-        ? engine.iconURI.spec
-        : "resource://gre-resources/broken-image.png"
+      engine.getIconURL() || "resource://gre-resources/broken-image.png"
     );
     engineList.selectedIndex =
       engineList.firstElementChild.childElementCount - 1;
