@@ -479,6 +479,7 @@ button.email-action-button:focus-visible {
   justify-content: stretch;
   /* Allow the area to shrink. */
   min-width: 0;
+  overflow: hidden;
 }
 
 #attachmentView,
