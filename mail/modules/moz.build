@@ -15,6 +15,7 @@ EXTRA_JS_MODULES += [
     "dnsWorker.js",
     "ExtensionsUI.sys.mjs",
     "ExtensionSupport.sys.mjs",
+    "FolderPaneUtils.sys.mjs",
     "FolderTreeProperties.jsm",
     "GlobalPopupNotifications.jsm",
     "LinkHelper.sys.mjs",
