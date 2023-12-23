@@ -41,9 +41,9 @@
  *
  * @param {string} maildir - Path to the source maildir.
  * @param {string} mboxFilename - Path of the mbox file to create.
- * @param {Function(number)} progressFn - Function to be invoked regularly with
- *                                        progress updates. Param is number of
- *                                        "units" processed since last update.
+ * @param {function(integer):void} progressFn - Function to be invoked regularly
+ *   with progress updates. Takes param specifying numbers of "units" processed
+ *   since last update.
  */
 async function maildirToMBox(maildir, mboxFilename, progressFn) {
   // Helper to format dates
@@ -133,10 +133,9 @@ async function maildirToMBox(maildir, mboxFilename, progressFn) {
  *
  * @param {string} mboxPath - Path of the mbox file to split.
  * @param {string} maildirPath - Path of the maildir to create.
- * @param {Function(number)} progressFn - Function to be invoked regularly with
- *                                        progress updates. One parameter is
- *                                        passed - the number of "cost units"
- *                                        since the previous update.
+ * @param {function(integer):void} progressFn - Function to be invoked regularly
+ *   with progress updates. Takes param specifying numbers of "units" processed
+ *   since last update.
  */
 async function mboxToMaildir(mboxPath, maildirPath, progressFn) {
   // Create the maildir structure.
@@ -426,9 +425,9 @@ async function calcMBoxCost(srcPath) {
  *
  * @param {string} srcPath - Root path containing mboxes.
  * @param {string} destPath - Where to create destination root.
- * @param {Function(number)} progressFn - Function to be invoked regularly with
- *                                        progress updates (called with number of
- *                                        cost "units" since last update)
+ * @param {function(integer):void} progressFn - Function to be invoked regularly
+ *   with progress updates. Takes param specifying numbers of "units" processed
+ *   since last update.
  */
 async function convertTreeMBoxToMaildir(srcPath, destPath, progressFn) {
   await IOUtils.makeDirectory(destPath);
@@ -456,9 +455,9 @@ async function convertTreeMBoxToMaildir(srcPath, destPath, progressFn) {
  *
  * @param {string} srcPath - Root path containing maildirs.
  * @param {string} destPath - Where to create destination root.
- * @param {Function(number)} progressFn - Function to be invoked regularly with
- *                                        progress updates (called with number of
- *                                        cost "units" since last update)
+ * @param {function(integer):void} progressFn - Function to be invoked regularly
+ *   with progress updates. Takes param specifying numbers of "units" processed
+ *   since last update.
  */
 async function convertTreeMaildirToMBox(srcPath, destPath, progressFn) {
   await IOUtils.makeDirectory(destPath);
