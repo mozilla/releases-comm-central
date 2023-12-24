@@ -26,14 +26,12 @@
     --in-content-item-hover: color-mix(in srgb, currentColor 12%, transparent);
     --in-content-item-selected: color-mix(in srgb, currentColor 20%, transparent);
     --in-content-item-selected-text: var(--in-content-page-color);
-
-    @media (prefers-color-scheme: dark) {
-      --in-content-primary-button-background: #45a1ff;
-      --in-content-primary-button-background-hover: #65c1ff;
-      --in-content-primary-button-background-active: #85e1ff;
-      --in-content-focus-outline-color: #45a1ff;
-      --focus-outline-color: #45a1ff;
-    }
+    --in-content-primary-button-background: AccentColor;
+    --in-content-primary-button-background-hover: color-mix(in srgb, AccentColor 80%, black);
+    --in-content-primary-button-background-active: color-mix(in srgb, AccentColor 70%, black);
+    --in-content-primary-button-text-color: AccentColorText;
+    --in-content-focus-outline-color: AccentColor;
+    --focus-outline-color: AccentColor;
   }
 
   @media (prefers-contrast) {
@@ -41,6 +39,11 @@
     --in-content-box-info-border: currentColor;
     --in-content-categories-background: transparent;
     --in-content-categories-border: currentColor;
+    --in-content-primary-button-background: SelectedItem;
+    --in-content-primary-button-background-hover: SelectedItem;
+    --in-content-primary-button-background-active: SelectedItem;
+    --in-content-primary-button-text-color: SelectedItemText;
+    --in-content-primary-button-text-color-active: SelectedItemText;
   }
 }
 

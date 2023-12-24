@@ -340,7 +340,7 @@ body {
 
   &:focus {
     border-color: transparent;
-    outline: 2px solid var(--color-blue-60);
+    outline: 2px solid var(--in-content-focus-outline-color);
     outline-offset: -1px;
   }
 }

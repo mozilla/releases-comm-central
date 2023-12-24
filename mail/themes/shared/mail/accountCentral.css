@@ -84,6 +84,10 @@ html {
   display: none !important; /* Ensure flex items obey hidden="hidden". */
 }
 
+:focus-visible {
+  outline: 2px solid var(--focus-outline-color);
+}
+
 body {
   /* Overwrite rules in messenger.css. */
   display: block;
@@ -302,7 +306,7 @@ aside.settings-btn-container {
     min-width: 140px;
   }
 
-  &:focus:not(:hover) {
+  &:focus-visible:not(:hover) {
     color: var(--primary-color) !important;
   }
 
@@ -438,8 +442,9 @@ aside.settings-btn-container {
     color: var(--primary-color-hover);
   }
 
-  &:focus:not(:hover) {
-    outline: 1px dotted var(--selected-item-color);
+  &:focus-visible:not(:hover) {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
   }
 }
 
@@ -472,8 +477,9 @@ aside.settings-btn-container {
   transition: color .2s;
   cursor: pointer;
 
-  &:focus:not(:hover) {
-    outline: 1px dotted var(--selected-item-color);
+  &:focus-visible:not(:hover) {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
   }
 }
 
