@@ -180,7 +180,7 @@ var commandController = {
       if (parent.location.href == "about:3pane") {
         // If we're in about:message inside about:3pane, it's the parent
         // window that needs to advance to the next message.
-        parent.commandController.doCommand("cmd_moveMessage");
+        parent.commandController.doCommand("cmd_moveMessage", destFolder);
         return;
       }
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
@@ -573,7 +573,6 @@ var commandController = {
       case "cmd_toggleRead":
       case "cmd_markReadByDate":
       case "cmd_markAsFlagged":
-      case "cmd_moveMessage":
       case "cmd_applyFiltersToSelection":
         return numSelectedMessages >= 1 && !isDummyMessage;
       case "cmd_copyDecryptedTo": {
@@ -646,6 +645,9 @@ var commandController = {
             gViewWrapper.isSingleFolder
           )
         );
+      case "cmd_moveMessage": {
+        return canMove();
+      }
       case "cmd_moveToFolderAgain": {
         // Disable "Move to <folder> Again" for news and other read only
         // folders since we can't really move messages from there - only copy.
