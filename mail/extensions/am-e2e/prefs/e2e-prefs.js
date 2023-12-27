@@ -168,9 +168,6 @@ pref("temp.openpgp.mimeHashAlgorithm", 0);
 // no passphrase for GnuPG key needed
 pref("temp.openpgp.noPassphrase", false);
 
-// show quoted printable warning message (and remember selected state)
-pref("temp.openpgp.quotedPrintableWarn", 0);
-
 // use http proxy settings as set in Mozilla/Thunderbird
 pref("temp.openpgp.respectHttpProxy", true);
 

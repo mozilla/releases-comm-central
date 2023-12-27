@@ -1910,10 +1910,10 @@ Enigmail.msg = {
 
     if (Services.prefs.getBoolPref("mail.strictly_mime")) {
       if (
-        EnigmailDialog.confirmIntPref(
-          window,
-          await l10nOpenPGP.formatValue("quoted-printable-warn"),
-          "temp.openpgp.quotedPrintableWarn"
+        Services.prompt.confirm(
+          null,
+          null,
+          await l10nOpenPGP.formatValue("quoted-printable-warn")
         )
       ) {
         Services.prefs.setBoolPref("mail.strictly_mime", false);

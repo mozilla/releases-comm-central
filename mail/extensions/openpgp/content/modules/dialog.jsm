@@ -142,45 +142,6 @@ var EnigmailDialog = {
     return result.value;
   },
 
-  confirmIntPref(win, mesg, pref, okLabel, cancelLabel) {
-    const prefValue = Services.prefs.getIntPref(pref);
-    // number: remember user's choice
-    switch (prefValue) {
-      case 0: {
-        // not set
-        const checkBoxObj = {
-          value: false,
-        };
-        const buttonPressed = EnigmailDialog.msgBox(
-          win,
-          {
-            msgtext: mesg,
-            button1: okLabel
-              ? okLabel
-              : lazy.l10n.formatValueSync("dlg-button-ok"),
-            cancelButton: cancelLabel
-              ? cancelLabel
-              : lazy.l10n.formatValueSync("dlg-button-cancel"),
-            checkboxLabel: lazy.l10n.formatValueSync("dlg-keep-setting"),
-            iconType: lazy.EnigmailConstants.ICONTYPE_QUESTION,
-            dialogTitle: lazy.l10n.formatValueSync("enig-confirm"),
-          },
-          checkBoxObj
-        );
-
-        if (checkBoxObj.value) {
-          Services.prefs.setIntPref(pref, buttonPressed === 0 ? 1 : 0);
-        }
-        return buttonPressed === 0 ? 1 : 0;
-      }
-      case 1: // yes
-        return 1;
-      case 2: // no
-        return 0;
-    }
-    return -1;
-  },
-
   /**
    *  Display a "open file" or "save file" dialog
    *
