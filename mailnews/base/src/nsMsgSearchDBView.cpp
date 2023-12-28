@@ -481,6 +481,8 @@ nsresult nsMsgSearchDBView::AddHdrFromFolder(nsIMsgDBHdr* msgHdr,
         } else {
           // The new header is the root, so we need to adjust all the children.
           InsertMsgHdrAt(threadIndex, msgHdr, msgKey, msgFlags, 0);
+          OrExtraFlag(threadIndex,
+                      MSG_VIEW_FLAG_HASCHILDREN | MSG_VIEW_FLAG_ISTHREAD);
 
           NoteChange(threadIndex, 1, nsMsgViewNotificationCode::insertOrDelete);
           nsMsgViewIndex i;
