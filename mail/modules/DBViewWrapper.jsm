@@ -1331,6 +1331,9 @@ DBViewWrapper.prototype = {
 
     // we will have to re-create the view, so nuke the view now.
     if (this.dbView) {
+      // Save the view's flags that will be restored in
+      // _compactedFolder(aFolder).
+      this.__viewFlags = this.dbView.viewFlags;
       this.listener.onDestroyingView(true);
       this.search.dissociateView(this.dbView);
       this.dbView.close();
