@@ -280,7 +280,7 @@ nsMsgXFViewThread::RemoveChildHdr(nsIMsgDBHdr* child,
 
   for (uint32_t childIndex = 0; childIndex < m_keys.Length(); childIndex++) {
     if (m_keys[childIndex] == msgKey && m_folders[childIndex] == msgFolder) {
-      uint8_t levelRemoved = m_keys[childIndex];
+      uint8_t levelRemoved = m_levels[childIndex];
       // Adjust the levels of all the children of this header.
       nsMsgViewIndex i;
       for (i = childIndex + 1;
