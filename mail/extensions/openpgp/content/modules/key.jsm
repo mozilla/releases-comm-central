@@ -77,7 +77,7 @@ var EnigmailKey = {
             keyId,
           })
           .then(value => {
-            lazy.EnigmailDialog.info(null, value);
+            Services.prompt.alert(null, null, value);
           });
       } else {
         const userId = key.userId + " - 0x" + key.keyId;

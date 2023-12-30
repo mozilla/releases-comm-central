@@ -2233,8 +2233,9 @@ Enigmail.msg = {
     const cApi = EnigmailCryptoAPI();
     const promise = cApi.verifyAttachment(outFile1.path, outFile2.path);
     promise.then(async function (message) {
-      EnigmailDialog.info(
+      Services.prompt.alert(
         window,
+        null,
         l10n.formatValueSync("signature-verified-ok", {
           attachment: EnigmailMsgRead.getAttachmentName(origAtt),
         }) +
@@ -2243,8 +2244,9 @@ Enigmail.msg = {
       );
     });
     promise.catch(async function (err) {
-      EnigmailDialog.alert(
+      Services.prompt.alert(
         window,
+        null,
         l10n.formatValueSync("signature-verify-failed", {
           attachment: EnigmailMsgRead.getAttachmentName(origAtt),
         }) +
@@ -2446,8 +2448,9 @@ Enigmail.msg = {
 
           exitStatus = EnigmailDialog.confirmDlg(window, title, button);
         } else {
-          EnigmailDialog.info(
+          Services.prompt.alert(
             window,
+            null,
             await document.l10n.formatValue("decrypt-ok-no-sig")
           );
         }
@@ -2456,7 +2459,7 @@ Enigmail.msg = {
         if (errorMsgObj.errorMsg) {
           msg += "\n\n" + errorMsgObj.errorMsg;
         }
-        EnigmailDialog.info(window, msg);
+        Services.prompt.alert(window, null, msg);
         exitStatus = false;
       }
     }

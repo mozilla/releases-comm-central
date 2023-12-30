@@ -664,7 +664,11 @@ var EnigmailKeyRing = {
       );
       return;
     }
-    lazy.EnigmailDialog.info(window, lazy.l10n.formatValueSync("save-keys-ok"));
+    Services.prompt.alert(
+      window,
+      null,
+      lazy.l10n.formatValueSync("save-keys-ok")
+    );
   },
 
   backupSecretKeysInteractive(window, defaultFileName, fprArray) {
@@ -718,13 +722,15 @@ var EnigmailKeyRing = {
 
     await IOUtils.writeUTF8(file.path, backupKeyBlock)
       .then(async () => {
-        lazy.EnigmailDialog.info(
+        Services.prompt.alert(
+          null,
           null,
           await lazy.l10n.formatValue("save-keys-ok")
         );
       })
       .catch(async () => {
         Services.prompt.alert(
+          null,
           null,
           await lazy.l10n.formatValue("file-write-failed", {
             output: file.path,
@@ -2174,32 +2180,6 @@ function createAndSortKeyList(
     getSortFunction(sortColumn.toLowerCase(), gKeyListObj, sortDirection)
   );
 }
-
-/*
-function runKeyUsabilityCheck() {
-  EnigmailLog.DEBUG("keyRing.jsm: runKeyUsabilityCheck()\n");
-
-  setTimeout(function() {
-    try {
-      let msg = getKeyUsability().keyExpiryCheck();
-
-      if (msg && msg.length > 0) {
-        EnigmailDialog.info(null, msg);
-      } else {
-        getKeyUsability().checkOwnertrust();
-      }
-    } catch (ex) {
-      EnigmailLog.DEBUG(
-        "keyRing.jsm: runKeyUsabilityCheck: exception " +
-          ex.message +
-          "\n" +
-          ex.stack +
-          "\n"
-      );
-    }
-  }, 60 * 1000); // 1 minute
-}
-*/
 
 function waitForKeyList() {
   const mainThread = Services.tm.mainThread;

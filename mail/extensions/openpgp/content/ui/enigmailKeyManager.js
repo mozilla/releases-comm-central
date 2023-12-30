@@ -618,7 +618,7 @@ async function enigmailCopyToClipbrd() {
   var keyList = getSelectedKeyIds();
   if (keyList.length === 0) {
     document.l10n.formatValue("no-key-selected").then(value => {
-      EnigmailDialog.info(window, value);
+      Services.prompt.alert(window, null, value);
     });
     return;
   }
@@ -644,16 +644,16 @@ async function enigmailCopyToClipbrd() {
     });
     return;
   }
-  navigator.clipboard
+  await navigator.clipboard
     .writeText(keyData)
     .then(() => {
       l10n.formatValue("copy-to-clipbrd-ok").then(value => {
-        EnigmailDialog.info(window, value);
+        Services.prompt.alert(window, null, value);
       });
     })
     .catch(err => {
       l10n.formatValue("copy-to-clipbrd-failed").then(value => {
-        EnigmailDialog.alert(window, value);
+        Services.prompt.alert(window, null, value);
       });
     });
 }

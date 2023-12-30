@@ -74,27 +74,6 @@ var EnigmailDialog = {
   },
 
   /**
-   * Displays an information dialog.
-   *
-   * @win:         nsIWindow - parent window to display modal dialog; can be null
-   * @mesg:        String    - message text
-   *
-   * no return value
-   */
-  info(win, mesg) {
-    EnigmailDialog.msgBox(
-      win,
-      {
-        msgtext: mesg,
-        button1: lazy.l10n.formatValueSync("dlg-button-close"),
-        iconType: lazy.EnigmailConstants.ICONTYPE_INFO,
-        dialogTitle: lazy.l10n.formatValueSync("enig-info"),
-      },
-      null
-    );
-  },
-
-  /**
    * Displays a message box with 1-3 optional buttons.
    *
    * @win:           nsIWindow - parent window to display modal dialog; can be null

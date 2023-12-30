@@ -2049,8 +2049,9 @@ Enigmail.msg = {
       if (errorMsg !== "") {
         txt = errorMsg + "\n" + txt;
       }
-      EnigmailDialog.info(
+      Services.prompt.alert(
         window,
+        null,
         (await document.l10n.formatValue("send-aborted")) + "\n" + txt
       );
     } else {
@@ -2058,7 +2059,7 @@ Enigmail.msg = {
         { id: "send-aborted" },
         { id: "msg-compose-internal-error" },
       ]);
-      EnigmailDialog.info(window, title + "\n" + message);
+      Services.prompt.alert(window, title, message);
     }
   },
 
@@ -2451,7 +2452,7 @@ Enigmail.msg = {
         displayMsg = statusLines.join("\n");
 
         if (interactive) {
-          EnigmailDialog.info(window, displayMsg);
+          Services.prompt.alert(window, null, displayMsg);
         }
       }
     }
@@ -2765,7 +2766,7 @@ Enigmail.msg = {
         accessKey,
         label,
         callback(aNotificationBar, aButton) {
-          EnigmailDialog.info(window, detailsText);
+          Services.prompt.alert(window, null, detailsText);
         },
       });
     }
