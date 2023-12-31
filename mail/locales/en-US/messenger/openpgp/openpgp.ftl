@@ -824,7 +824,6 @@ dlg-button-cancel = &Cancel
 dlg-no-prompt = Do not show me this dialog again
 enig-prompt = OpenPGP Prompt
 enig-confirm = OpenPGP Confirmation
-enig-alert = OpenPGP Alert
 
 ## Strings used in persistentCrypto.jsm
 

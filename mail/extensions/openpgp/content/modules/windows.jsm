@@ -15,7 +15,6 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
 });
@@ -346,7 +345,7 @@ var EnigmailWindows = {
     const ioService = Services.io;
     if (ioService && ioService.offline) {
       lazy.l10n.formatValue("need-online").then(value => {
-        lazy.EnigmailDialog.alert(win, value);
+        Services.prompt.alert(win, null, value);
       });
       return;
     }

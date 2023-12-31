@@ -1236,7 +1236,7 @@ async function amE2eUploadKey(key) {
     }
   );
 
-  EnigmailDialog.alert(null, msg);
+  Services.prompt.alert(null, null, msg);
 }
 
 /**

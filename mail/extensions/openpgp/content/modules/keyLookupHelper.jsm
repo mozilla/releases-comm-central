@@ -203,7 +203,7 @@ var KeyLookupHelper = {
         msgId = "no-key-found2";
       }
       const value = await lazy.l10n.formatValue(msgId);
-      lazy.EnigmailDialog.alert(window, value);
+      Services.prompt.alert(window, null, value);
     }
     return importResult.keyImported;
   },
@@ -341,7 +341,7 @@ var KeyLookupHelper = {
         msgId = "no-key-found2";
       }
       const value = await lazy.l10n.formatValue(msgId);
-      lazy.EnigmailDialog.alert(window, value);
+      Services.prompt.alert(window, null, value);
     }
 
     return resultKeyImported;

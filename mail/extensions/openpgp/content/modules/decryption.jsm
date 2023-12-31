@@ -425,8 +425,9 @@ var EnigmailDecryption = {
 
         if (exitStatus > 0) {
           l10n.formatValue("cant-import").then(value => {
-            EnigmailDialog.alert(
+            Services.prompt.alert(
               parent,
+              null,
               value + "\n" + importErrorMsgObj.value
             );
           });

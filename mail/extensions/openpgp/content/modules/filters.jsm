@@ -33,7 +33,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
-  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
@@ -69,7 +68,7 @@ const filterActionMoveDecrypt = {
 
   validateActionValue(value, folder, type) {
     l10n.formatValue("filter-decrypt-move-warn-experimental").then(value => {
-      lazy.EnigmailDialog.alert(null, value);
+      Services.prompt.alert(null, null, value);
     });
 
     if (value === "") {
@@ -227,7 +226,7 @@ const filterActionEncrypt = {
           desc: value,
         })
         .then(value => {
-          lazy.EnigmailDialog.alert(null, value);
+          Services.prompt.alert(null, null, value);
         });
     }
 

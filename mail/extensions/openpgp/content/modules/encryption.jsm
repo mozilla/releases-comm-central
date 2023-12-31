@@ -18,7 +18,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
-  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
@@ -448,7 +447,7 @@ var EnigmailEncryption = {
 
     if (resultStatus.exitCode) {
       if (resultStatus.errorMsg.length) {
-        lazy.EnigmailDialog.alert(win, resultStatus.errorMsg);
+        Services.prompt.alert(win, null, resultStatus.errorMsg);
       }
     } else if (encrypted) {
       listener.addCryptoOutput(encrypted);

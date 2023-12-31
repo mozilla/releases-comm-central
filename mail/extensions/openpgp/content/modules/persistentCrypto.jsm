@@ -590,7 +590,7 @@ CryptMessageIntoFolder.prototype = {
 
     if (!data || data.length === 0) {
       if (statusFlagsObj.value & lazy.EnigmailConstants.DISPLAY_MESSAGE) {
-        lazy.EnigmailDialog.alert(null, errorMsgObj.value);
+        Services.prompt.alert(null, null, errorMsgObj.value);
         throw new Error("Decryption impossible");
       }
     }
@@ -892,7 +892,7 @@ CryptMessageIntoFolder.prototype = {
           );
           if (!plaintext || plaintext.length === 0) {
             if (statusFlagsObj.value & lazy.EnigmailConstants.DISPLAY_MESSAGE) {
-              lazy.EnigmailDialog.alert(null, errorMsgObj.value);
+              Services.prompt.alert(null, null, errorMsgObj.value);
               this.cryptoChanged = false;
               this.decryptFailure = true;
               return -1;

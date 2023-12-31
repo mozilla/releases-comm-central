@@ -105,7 +105,7 @@ var EnigmailKey = {
             errorMsgObj
           ) > 0
         ) {
-          lazy.EnigmailDialog.alert(null, errorMsgObj.value);
+          Services.prompt.alert(null, null, errorMsgObj.value);
         }
       }
     } else {
@@ -115,7 +115,7 @@ var EnigmailKey = {
           keyId,
         })
         .then(value => {
-          lazy.EnigmailDialog.alert(null, value);
+          Services.prompt.alert(null, null, value);
         });
     }
   },

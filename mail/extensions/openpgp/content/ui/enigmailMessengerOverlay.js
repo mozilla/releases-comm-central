@@ -1266,7 +1266,7 @@ Enigmail.msg = {
 
     if (importOnly) {
       if (interactive && errorMsg) {
-        EnigmailDialog.alert(window, errorMsg);
+        Services.prompt.alert(window, null, errorMsg);
       }
       return;
     }
@@ -1627,7 +1627,7 @@ Enigmail.msg = {
       );
     } else {
       document.l10n.formatValue("preview-failed").then(value => {
-        EnigmailDialog.alert(window, value + "\n" + errorMsgObj.value);
+        Services.prompt.alert(window, null, value + "\n" + errorMsgObj.value);
       });
     }
   },
@@ -1706,8 +1706,9 @@ Enigmail.msg = {
       })
       .catch(async function (ex) {
         console.debug(ex);
-        EnigmailDialog.alert(
+        Services.prompt.alert(
           window,
+          null,
           await l10n.formatValue("fix-broken-exchange-msg-failed")
         );
       });
@@ -2173,8 +2174,9 @@ Enigmail.msg = {
     }
 
     if (!signatureAtt) {
-      EnigmailDialog.alert(
+      Services.prompt.alert(
         window,
+        null,
         l10n.formatValueSync("attachment-no-match-to-signature", {
           attachment: EnigmailMsgRead.getAttachmentName(origAtt),
         })
@@ -2182,8 +2184,9 @@ Enigmail.msg = {
       return;
     }
     if (!origAtt) {
-      EnigmailDialog.alert(
+      Services.prompt.alert(
         window,
+        null,
         l10n.formatValueSync("attachment-no-match-from-signature", {
           attachment: EnigmailMsgRead.getAttachmentName(signatureAtt),
         })
@@ -2417,7 +2420,7 @@ Enigmail.msg = {
         );
       } else {
         document.l10n.formatValue("preview-failed").then(value => {
-          EnigmailDialog.alert(window, value + "\n" + errorMsgObj.value);
+          Services.prompt.alert(window, null, value + "\n" + errorMsgObj.value);
         });
       }
       outFile.remove(true);

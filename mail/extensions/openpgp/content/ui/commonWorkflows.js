@@ -111,7 +111,7 @@ async function EnigmailCommon_importObjectFromFile(what) {
   for (const file of files) {
     if (file.fileSize > 5000000) {
       document.l10n.formatValue("file-to-big-to-import").then(value => {
-        EnigmailDialog.alert(window, value);
+        Services.prompt.alert(window, null, value);
       });
       continue;
     }
@@ -144,7 +144,7 @@ async function EnigmailCommon_importObjectFromFile(what) {
 
     if (!preview || !preview.length || errorMsgObj.value) {
       document.l10n.formatValue("import-keys-failed").then(value => {
-        EnigmailDialog.alert(window, value + "\n\n" + errorMsgObj.value);
+        Services.prompt.alert(window, null, value + "\n\n" + errorMsgObj.value);
       });
       continue;
     }
@@ -182,7 +182,11 @@ async function EnigmailCommon_importObjectFromFile(what) {
 
         if (importExitCode !== 0) {
           document.l10n.formatValue("import-keys-failed").then(value => {
-            EnigmailDialog.alert(window, value + "\n\n" + errorMsgObj.value);
+            Services.prompt.alert(
+              window,
+              null,
+              value + "\n\n" + errorMsgObj.value
+            );
           });
           continue;
         }

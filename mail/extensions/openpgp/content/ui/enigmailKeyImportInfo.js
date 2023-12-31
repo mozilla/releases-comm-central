@@ -66,8 +66,9 @@ async function onLoad() {
 
     keysInfoBox.appendChild(keyBox);
   } else {
-    EnigmailDialog.alert(
+    Services.prompt.alert(
       window,
+      null,
       await document.l10n.formatValue("import-info-no-keys")
     );
     setTimeout(window.close, 0);

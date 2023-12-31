@@ -725,7 +725,7 @@ Enigmail.msg = {
     );
     if (exitCodeObj.value !== 0) {
       if (warnOnError) {
-        EnigmailDialog.alert(window, errorMsgObj.value);
+        Services.prompt.alert(window, null, errorMsgObj.value);
       }
       return null;
     }
@@ -926,7 +926,7 @@ Enigmail.msg = {
         this.sendMode |= ENCRYPT;
         break;
       default:
-        EnigmailDialog.alert(window, "Enigmail.msg.setSendMode - unexpected value: " + sendMode);
+        Services.prompt.alert(window, null, "Enigmail.msg.setSendMode - unexpected value: " + sendMode);
         break;
     }
     // sendMode changed ?
@@ -1322,7 +1322,7 @@ Enigmail.msg = {
         "msg-compose-cannot-save-draft"
       );
       fullAlert += " - " + senderKeyUsable.errorMsg;
-      EnigmailDialog.alert(window, fullAlert);
+      Services.prompt.alert(window, null, fullAlert);
       return false;
     }
 
@@ -1678,7 +1678,7 @@ Enigmail.msg = {
     ) {
       // don't attempt to send message if no recipient specified
       var bundle = document.getElementById("bundle_composeMsgs");
-      EnigmailDialog.alert(window, bundle.getString("12511"));
+      Services.prompt.alert(window, null, bundle.getString("12511"));
       return false;
     }
 
@@ -1691,7 +1691,7 @@ Enigmail.msg = {
       const fullAlert = await document.l10n.formatValue(msgId, {
         key: gCurrentIdentity.email,
       });
-      EnigmailDialog.alert(window, fullAlert);
+      Services.prompt.alert(window, null, fullAlert);
       return false;
     }
 
@@ -1712,7 +1712,7 @@ Enigmail.msg = {
             problem: senderKeyUsable.errorMsg,
           }
         );
-        EnigmailDialog.alert(window, fullAlert);
+        Services.prompt.alert(window, null, fullAlert);
         return false;
       }
     }
@@ -1726,8 +1726,9 @@ Enigmail.msg = {
     }
 
     if (gWindowLocked) {
-      EnigmailDialog.alert(
+      Services.prompt.alert(
         window,
+        null,
         await document.l10n.formatValue("window-locked")
       );
       return false;

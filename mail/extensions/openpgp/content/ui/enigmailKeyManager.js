@@ -444,7 +444,7 @@ async function enigCreateKeyMsg() {
     errorMsgObj
   );
   if (exitCodeObj.value !== 0) {
-    EnigmailDialog.alert(window, errorMsgObj.value);
+    Services.prompt.alert(window, null, errorMsgObj.value);
     return;
   }
 
@@ -591,7 +591,7 @@ async function enigmailImportFromClipbrd() {
     }
   } else {
     document.l10n.formatValue("preview-failed").then(value => {
-      EnigmailDialog.alert(window, value);
+      Services.prompt.alert(window, null, value);
     });
   }
 }
@@ -640,7 +640,7 @@ async function enigmailCopyToClipbrd() {
   );
   if (exitCodeObj.value !== 0) {
     l10n.formatValue("copy-to-clipbrd-failed").then(value => {
-      EnigmailDialog.alert(window, value);
+      Services.prompt.alert(window, null, value);
     });
     return;
   }
@@ -715,7 +715,7 @@ async function enigmailUploadKey() {
       keyserver: ks,
     })
     .then(value => {
-      EnigmailDialog.alert(window, value);
+      Services.prompt.alert(window, null, value);
     });
 }
 
@@ -774,8 +774,9 @@ function enigmailImportKeysFromUrl() {
           resolve(errorMsgObj);
         }
       } else {
-        EnigmailDialog.alert(
+        Services.prompt.alert(
           window,
+          null,
           await document.l10n.formatValue("preview-failed")
         );
       }
@@ -802,8 +803,9 @@ function enigmailImportKeysFromUrl() {
     EnigmailDialog.keyImportDlg(window, keyList);
     refreshKeys();
   }).catch(async function (reason) {
-    EnigmailDialog.alert(
+    Services.prompt.alert(
       window,
+      null,
       await document.l10n.formatValue("general-error", {
         reason: reason.value,
       })

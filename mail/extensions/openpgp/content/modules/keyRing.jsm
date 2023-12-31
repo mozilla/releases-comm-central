@@ -440,7 +440,7 @@ var EnigmailKeyRing = {
         failed =
           !res || res.exitCode || !res.importedKeys || !res.importedKeys.length;
       } catch (ex) {
-        lazy.EnigmailDialog.alert(win, ex);
+        Services.prompt.alert(win, null, ex);
       }
 
       if (failed) {
@@ -454,8 +454,9 @@ var EnigmailKeyRing = {
             tryAgain = true;
           }
         } else {
-          lazy.EnigmailDialog.alert(
+          Services.prompt.alert(
             win,
+            null,
             lazy.l10n.formatValueSync("import-keys-failed")
           );
         }
@@ -658,8 +659,9 @@ var EnigmailKeyRing = {
       errorMsgObj
     );
     if (exitCodeObj.value !== 0) {
-      lazy.EnigmailDialog.alert(
+      Services.prompt.alert(
         window,
+        null,
         lazy.l10n.formatValueSync("save-keys-failed")
       );
       return;
@@ -912,8 +914,9 @@ var EnigmailKeyRing = {
           }
         } else if (askToConfirm) {
           // if !askToConfirm the caller is responsible to handle the error
-          lazy.EnigmailDialog.alert(
+          Services.prompt.alert(
             parent,
+            null,
             lazy.l10n.formatValueSync("import-keys-failed")
           );
         }
@@ -973,13 +976,17 @@ var EnigmailKeyRing = {
           somethingWasImported = true;
         } else {
           lazy.l10n.formatValue("fail-key-import").then(value => {
-            lazy.EnigmailDialog.alert(window, value + "\n" + errorMsgObj.value);
+            Services.prompt.alert(
+              window,
+              null,
+              value + "\n" + errorMsgObj.value
+            );
           });
         }
       }
     } else {
       lazy.l10n.formatValue("no-key-found2").then(value => {
-        lazy.EnigmailDialog.alert(window, value);
+        Services.prompt.alert(window, null, value);
       });
     }
     return somethingWasImported;
@@ -1030,13 +1037,13 @@ var EnigmailKeyRing = {
           somethingWasImported = true;
         } else {
           lazy.l10n.formatValue("fail-key-import").then(value => {
-            lazy.EnigmailDialog.alert(window, value + allErrors);
+            Services.prompt.alert(window, null, value + allErrors);
           });
         }
       }
     } else {
       lazy.l10n.formatValue("no-key-found2").then(value => {
-        lazy.EnigmailDialog.alert(window, value);
+        Services.prompt.alert(window, null, value);
       });
     }
     return somethingWasImported;
