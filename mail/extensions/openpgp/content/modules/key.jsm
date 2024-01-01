@@ -18,7 +18,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
-  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
 
@@ -82,10 +81,16 @@ var EnigmailKey = {
       } else {
         const userId = key.userId + " - 0x" + key.keyId;
         if (
-          !lazy.EnigmailDialog.confirmDlg(
+          Services.prompt.confirmEx(
+            null,
             null,
             lazy.l10n.formatValueSync("revoke-key-question", { userId }),
-            lazy.l10n.formatValueSync("key-man-button-revoke-key")
+            Services.prompt.STD_OK_CANCEL_BUTTONS,
+            lazy.l10n.formatValueSync("key-man-button-revoke-key"),
+            null,
+            null,
+            null,
+            {}
           )
         ) {
           return;

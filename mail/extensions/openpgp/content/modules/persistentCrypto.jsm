@@ -30,7 +30,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailFixExchangeMsg:
     "chrome://openpgp/content/modules/fixExchangeMessage.jsm",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.jsm",
-  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
@@ -920,11 +919,16 @@ CryptMessageIntoFolder.prototype = {
               );
 
               if (
-                !lazy.EnigmailDialog.confirmDlg(
+                Services.prompt.confirmEx(
+                  null,
                   null,
                   msg,
+                  Services.prompt.STD_OK_CANCEL_BUTTONS,
                   lazy.l10n.formatValueSync("dlg-button-retry"),
-                  lazy.l10n.formatValueSync("dlg-button-skip")
+                  lazy.l10n.formatValueSync("dlg-button-skip"),
+                  null,
+                  null,
+                  {}
                 )
               ) {
                 this.cryptoChanged = false;

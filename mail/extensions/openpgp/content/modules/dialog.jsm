@@ -1,8 +1,6 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
 
@@ -15,91 +13,10 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
-  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
-});
-
 var EnigmailDialog = {
-  /***
-   * Confirmation dialog with OK / Cancel buttons (both customizable)
-   *
-   * @win:         nsIWindow - parent window to display modal dialog; can be null
-   * @mesg:        String    - message text
-   * @okLabel:     String    - OPTIONAL label for OK button
-   * @cancelLabel: String    - OPTIONAL label for cancel button
-   *
-   * @return:      Boolean   - true: OK pressed / false: Cancel or ESC pressed
-   */
-  confirmDlg(win, mesg, okLabel, cancelLabel) {
-    const buttonPressed = EnigmailDialog.msgBox(
-      win,
-      {
-        msgtext: mesg,
-        button1: okLabel ? okLabel : lazy.l10n.formatValueSync("dlg-button-ok"),
-        cancelButton: cancelLabel
-          ? cancelLabel
-          : lazy.l10n.formatValueSync("dlg-button-cancel"),
-        iconType: lazy.EnigmailConstants.ICONTYPE_QUESTION,
-        dialogTitle: lazy.l10n.formatValueSync("enig-confirm"),
-      },
-      null
-    );
-
-    return buttonPressed === 0;
-  },
-
-  /**
-   * Displays a message box with 1-3 optional buttons.
-   *
-   * @win:           nsIWindow - parent window to display modal dialog; can be null
-   * @argsObj:       Object:
-   *   - msgtext:       String    - message text
-   *   - dialogTitle:   String    - title of the dialog
-   *   - checkboxLabel: String    - if not null, display checkbox with text; the
-   *                                checkbox state is returned in checkedObj.value
-   *   - iconType:      Number    - Icon type: 1=Message / 2=Question / 3=Alert / 4=Error
-   *
-   *   - buttonX:       String    - Button label (button 1-3) [button1 = "accept" button]
-   *                                use "&" to indicate access key
-   *   - cancelButton   String    - Label for cancel button
-   *     use "buttonType:label" or ":buttonType" to indicate special button types
-   *        (buttonType is one of cancel, help, extra1, extra2)
-   *     if no button is provided, OK will be displayed
-   *
-   * @checkedObj:    Object    - holding the checkbox value
-   *
-   * @return: 0-2: button Number pressed
-   *          -1: cancel button, ESC or close window button pressed
-   *
-   */
-  msgBox(win, argsObj, checkedObj) {
-    var result = {
-      value: -1,
-      checked: false,
-    };
-
-    if (!win) {
-      win = lazy.EnigmailWindows.getBestParentWin();
-    }
-
-    win.openDialog(
-      "chrome://openpgp/content/ui/enigmailMsgBox.xhtml",
-      "",
-      "chrome,dialog,modal,centerscreen,resizable",
-      argsObj,
-      result
-    );
-
-    if (argsObj.checkboxLabel) {
-      checkedObj.value = result.checked;
-    }
-    return result.value;
-  },
-
   /**
    *  Display a "open file" or "save file" dialog
    *

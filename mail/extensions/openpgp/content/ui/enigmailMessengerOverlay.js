@@ -2449,7 +2449,17 @@ Enigmail.msg = {
             { id: "msg-ovl-button-cont-anyway" },
           ]);
 
-          exitStatus = EnigmailDialog.confirmDlg(window, title, button);
+          exitStatus = !Services.prompt.confirmEx(
+            window,
+            null,
+            title,
+            Services.prompt.STD_OK_CANCEL_BUTTONS,
+            button,
+            null,
+            null,
+            null,
+            {}
+          );
         } else {
           Services.prompt.alert(
             window,

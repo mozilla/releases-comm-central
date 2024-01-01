@@ -445,11 +445,13 @@ var EnigmailKeyRing = {
 
       if (failed) {
         if (!permissive) {
-          const agreed = lazy.EnigmailDialog.confirmDlg(
-            win,
-            lazy.l10n.formatValueSync("confirm-permissive-import")
-          );
-          if (agreed) {
+          if (
+            Services.prompt.confirm(
+              win,
+              null,
+              lazy.l10n.formatValueSync("confirm-permissive-import")
+            )
+          ) {
             permissive = true;
             tryAgain = true;
           }
@@ -865,10 +867,16 @@ var EnigmailKeyRing = {
 
     if (askToConfirm) {
       if (
-        !lazy.EnigmailDialog.confirmDlg(
+        Services.prompt.confirmEx(
           parent,
+          null,
           lazy.l10n.formatValueSync("import-key-confirm"),
-          lazy.l10n.formatValueSync("key-man-button-import")
+          Services.prompt.STD_OK_CANCEL_BUTTONS,
+          lazy.l10n.formatValueSync("key-man-button-import"),
+          null,
+          null,
+          null,
+          {}
         )
       ) {
         errorMsgObj.value = lazy.l10n.formatValueSync("fail-cancel");
@@ -904,11 +912,13 @@ var EnigmailKeyRing = {
         !result.importedKeys.length;
       if (failed) {
         if (allowPermissiveFallbackWithPrompt && !permissive) {
-          const agreed = lazy.EnigmailDialog.confirmDlg(
-            parent,
-            lazy.l10n.formatValueSync("confirm-permissive-import")
-          );
-          if (agreed) {
+          if (
+            Services.prompt.confirm(
+              parent,
+              null,
+              lazy.l10n.formatValueSync("confirm-permissive-import")
+            )
+          ) {
             permissive = true;
             tryAgain = true;
           }

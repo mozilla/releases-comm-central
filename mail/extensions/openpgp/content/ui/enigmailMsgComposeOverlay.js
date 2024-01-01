@@ -1170,14 +1170,10 @@ Enigmail.msg = {
 
       var wrapWidth = Services.prefs.getIntPref("mailnews.wraplength");
       if (wrapWidth > 0 && wrapWidth < 68 && editor.wrapWidth > 0) {
-        if (
-          EnigmailDialog.confirmDlg(
-            window,
-            await l10nOpenPGP.formatValue("minimal-line-wrapping", {
-              width: wrapWidth,
-            })
-          )
-        ) {
+        const text = await l10nOpenPGP.formatValue("minimal-line-wrapping", {
+          width: wrapWidth,
+        });
+        if (Services.prompt.confirm(window, null, text)) {
           wrapWidth = 68;
           Services.prefs.setIntPref("mailnews.wraplength", wrapWidth);
         }

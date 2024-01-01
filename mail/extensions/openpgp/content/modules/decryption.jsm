@@ -544,13 +544,18 @@ var EnigmailDecryption = {
       // attachment appears to be a PGP key file
 
       if (
-        lazy.EnigmailDialog.confirmDlg(
+        !Services.prompt.confirmEx(
           parent,
+          null,
           lazy.l10n.formatValueSync("attachment-pgp-key", {
             name: displayName,
           }),
+          Services.prompt.STD_OK_CANCEL_BUTTONS,
           lazy.l10n.formatValueSync("key-man-button-import"),
-          lazy.l10n.formatValueSync("dlg-button-view")
+          lazy.l10n.formatValueSync("dlg-button-view"),
+          null,
+          null,
+          {}
         )
       ) {
         const preview = await lazy.EnigmailKey.getKeyListFromKeyBlock(

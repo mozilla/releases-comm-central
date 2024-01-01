@@ -351,35 +351,19 @@ function enigmailKeyDetails(keyId = null) {
 }
 
 async function enigmailDeleteKey() {
-  var keyList = getSelectedKeys();
-  var deleteSecret = false;
-
+  const keyList = getSelectedKeys();
+  let deleteSecret = false;
+  let text;
   if (keyList.length == 1) {
     // one key selected
-    var userId = gKeyList[keyList[0]].userId;
-    if (gKeyList[keyList[0]].secretAvailable) {
-      if (
-        !EnigmailDialog.confirmDlg(
-          window,
-          l10n.formatValueSync("delete-secret-key", {
-            userId,
-          }),
-          l10n.formatValueSync("dlg-button-delete")
-        )
-      ) {
-        return;
-      }
-      deleteSecret = true;
-    } else if (
-      !EnigmailDialog.confirmDlg(
-        window,
-        l10n.formatValueSync("delete-pub-key", {
-          userId,
-        }),
-        l10n.formatValueSync("dlg-button-delete")
-      )
-    ) {
-      return;
+    const userId = gKeyList[keyList[0]].userId;
+    deleteSecret = gKeyList[keyList[0]].secretAvailable;
+    if (deleteSecret) {
+      text = l10n.formatValueSync("delete-secret-key", { userId });
+    } else {
+      text = l10n.formatValueSync("delete-pub-key", {
+        userId,
+      });
     }
   } else {
     // several keys selected
@@ -390,24 +374,26 @@ async function enigmailDeleteKey() {
     }
 
     if (deleteSecret) {
-      if (
-        !EnigmailDialog.confirmDlg(
-          window,
-          l10n.formatValueSync("delete-mix"),
-          l10n.formatValueSync("dlg-button-delete")
-        )
-      ) {
-        return;
-      }
-    } else if (
-      !EnigmailDialog.confirmDlg(
-        window,
-        l10n.formatValueSync("delete-selected-pub-key"),
-        l10n.formatValueSync("dlg-button-delete")
-      )
-    ) {
-      return;
+      text = l10n.formatValueSync("delete-mix");
+    } else {
+      text = l10n.formatValueSync("delete-selected-pub-key");
     }
+  }
+
+  if (
+    Services.prompt.confirmEx(
+      window,
+      null,
+      text,
+      Services.prompt.STD_OK_CANCEL_BUTTONS,
+      l10n.formatValueSync("dlg-button-delete"),
+      null,
+      null,
+      null,
+      {}
+    )
+  ) {
+    return;
   }
 
   const cApi = EnigmailCryptoAPI();
@@ -541,10 +527,16 @@ async function enigmailExportKeys(which) {
 
 async function enigmailImportFromClipbrd() {
   if (
-    !EnigmailDialog.confirmDlg(
+    Services.prompt.confirmEx(
       window,
+      null,
       l10n.formatValueSync("import-from-clip"),
-      l10n.formatValueSync("key-man-button-import")
+      Services.prompt.STD_OK_CANCEL_BUTTONS,
+      l10n.formatValueSync("key-man-button-import"),
+      null,
+      null,
+      null,
+      {}
     )
   ) {
     return;
