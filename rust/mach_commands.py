@@ -2,6 +2,7 @@
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
 #  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+
 from mach.decorators import Command, SubCommand
 
 
@@ -45,3 +46,14 @@ def tb_cargo_vendor(command_context):
     from rocbuild.rust import run_tb_rust_vendor
 
     return run_tb_rust_vendor(command_context)
+
+
+@SubCommand(
+    "tb-rust",
+    "check-upstream",
+    description="Verify that vendored Rust libraries are in sync with upstream.",
+)
+def check_upstream(command_context):
+    from rocbuild.rust import verify_vendored_dependencies
+
+    verify_vendored_dependencies(command_context.topsrcdir)

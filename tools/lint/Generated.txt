@@ -4,4 +4,5 @@ comm/mailnews/extensions/newsblog/test/unit/resources/feeds-simple/feeds.json
 comm/rust/.cargo/config.in
 comm/rust/Cargo.toml
 comm/rust/Cargo.lock
+comm/rust/checksums.json
 comm/rust/gkrust/Cargo.toml

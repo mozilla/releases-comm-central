@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import hashlib
+import json
 import logging
 import os.path
 import shutil
@@ -185,6 +187,47 @@ class CargoFile:
             self.workspace_members = data["members"]
 
 
+def check_vendored_dependencies(topsrcdir):
+    """
+    Checks current checksums of Cargo.toml files against
+    the saved values. Returns a list of mismatched paths.
+
+    :rtype: hlist[str]: List of paths to Cargo.toml files
+    """
+    checksums_file = os.path.join(topsrcdir, "comm", "rust", "checksums.json")
+    try:
+        checksum_data = json.load(open(checksums_file))
+    except FileNotFoundError:
+        print(f"Checksum file {checksums_file} not found.\n")
+        return list(CARGO_FILES.values())
+
+    current_checksums = get_current_checksums(topsrcdir)
+
+    return [
+        CARGO_FILES[k]
+        for k in current_checksums
+        if current_checksums[k] != checksum_data.get(k, None)
+    ]
+
+
+def get_current_checksums(topsrcdir):
+    current_checksums = {}
+    for key, path in CARGO_FILES.items():
+        filename = os.path.join(topsrcdir, path)
+        if os.path.isfile(filename):
+            with open(filename) as f:
+                content = f.read().encode("utf-8")
+                current_checksums[key] = hashlib.sha512(content).hexdigest()
+    return current_checksums
+
+
+def save_vendored_checksums(topsrcdir):
+    current_checksums = get_current_checksums(topsrcdir)
+    checksums_file = os.path.join(topsrcdir, "comm", "rust", "checksums.json")
+    with open(checksums_file, "w") as fp:
+        json.dump(current_checksums, fp)
+
+
 def run_tb_cargo_sync(command_context):
     cargo = get_cargo(command_context)
 
@@ -344,6 +387,8 @@ def regen_toml_files(command_context, workspace):
         )
         cargo.write(cargo_toml)
 
+    save_vendored_checksums(command_context.topsrcdir)
+
 
 def run_cargo_update(cargo, workspace):
     """
@@ -381,3 +426,24 @@ def inline_encoded_toml(id, data):
             ret += " "
         ret += f"{key} = {value}"
     return ret + " }"
+
+
+def verify_vendored_dependencies(topsrcdir):
+    result = check_vendored_dependencies(topsrcdir)
+    if result:
+        print("Rust dependencies are out of sync. Run `mach tb-vendor`.\n")
+        print("\n".join(result))
+        sys.exit(1)
+
+    print("Rust dependencies are okay.")
+
+
+if __name__ == "__main__":
+    import sys
+
+    import buildconfig
+
+    if len(sys.argv) >= 2:
+        args = sys.argv[1:]
+        if args[0] == "verify_vendored_dependencies":
+            verify_vendored_dependencies(buildconfig.topsrcdir)

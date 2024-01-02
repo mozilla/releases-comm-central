@@ -128,3 +128,4 @@ third_party/**
 mailnews/extensions/newsblog/test/unit/resources/feeds-missing-timestamp/feeds.json
 mailnews/extensions/newsblog/test/unit/resources/feeds-simple/feeditems.json
 mailnews/extensions/newsblog/test/unit/resources/feeds-simple/feeds.json
+rust/checksums.json
