@@ -90,25 +90,20 @@ async function EnigmailCommon_importObjectFromFile(what) {
     throw new Error(`Can't import. Invalid argument: ${what}`);
   }
 
-  const importingRevocation = what == "rev";
-  const promptStr = importingRevocation ? "import-rev-file" : "import-key-file";
-
-  const files = EnigmailDialog.filePicker(
-    window,
-    l10n.formatValueSync(promptStr),
-    "",
-    false,
-    true,
-    "*.asc",
-    "",
-    [l10n.formatValueSync("gnupg-file"), "*.asc;*.gpg;*.pgp"]
+  const title = l10n.formatValueSync(
+    what == "rev" ? "import-rev-file" : "import-key-file"
   );
-
-  if (!files.length) {
+  const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+  fp.init(window, title, Ci.nsIFilePicker.modeOpenMultiple);
+  fp.defaultExtension = "*.asc";
+  fp.appendFilter(l10n.formatValueSync("gnupg-file"), "*.asc;*.gpg;*.pgp");
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
+  const rv = await new Promise(resolve => fp.open(resolve));
+  if (rv != Ci.nsIFilePicker.returnOK || !fp.files) {
     return;
   }
 
-  for (const file of files) {
+  for (const file of fp.files) {
     if (file.fileSize > 5000000) {
       document.l10n.formatValue("file-to-big-to-import").then(value => {
         Services.prompt.alert(window, null, value);
@@ -116,9 +111,7 @@ async function EnigmailCommon_importObjectFromFile(what) {
       continue;
     }
 
-    const errorMsgObj = {};
-
-    if (importingRevocation) {
+    if (what == "rev") {
       await EnigmailKeyRing.importRevFromFile(file);
       continue;
     }
@@ -133,6 +126,7 @@ async function EnigmailCommon_importObjectFromFile(what) {
       keyBlock = MailStringUtils.uint8ArrayToByteString(data);
     }
 
+    const errorMsgObj = {};
     // Generate a preview of the imported key.
     const preview = await EnigmailKey.getKeyListFromKeyBlock(
       keyBlock,

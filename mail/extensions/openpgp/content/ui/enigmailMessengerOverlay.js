@@ -2346,19 +2346,19 @@ Enigmail.msg = {
     */
 
     if (callbackArg.actionType == "saveAttachment") {
-      outFile = EnigmailDialog.filePicker(
-        window,
-        l10n.formatValueSync("save-attachment-header"),
-        Enigmail.msg.lastSaveDir,
-        true,
-        false,
-        "",
-        rawFileName,
-        null
+      const title = l10n.formatValueSync("save-attachment-header");
+      const fp = Cc["@mozilla.org/filepicker;1"].createInstance(
+        Ci.nsIFilePicker
       );
-      if (!outFile) {
+      fp.init(window, title, Ci.nsIFilePicker.modeSave);
+      fp.defaultString = rawFileName;
+      fp.displayDirectory = Enigmail.msg.lastSaveDir;
+      fp.appendFilters(Ci.nsIFilePicker.filterAll);
+      const rv = await new Promise(resolve => fp.open(resolve));
+      if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
         return;
       }
+      outFile = fp.file;
     } else if (callbackArg.actionType.substr(0, 10) == "revealName") {
       if (origFilename && origFilename.length > 0) {
         Enigmail.msg.setAttachmentName(

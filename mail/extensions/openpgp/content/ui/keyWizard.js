@@ -811,26 +811,21 @@ function hideOverlay(event) {
 }
 
 async function importSecretKey() {
+  // Reset the array of selected files.
+  gFiles = [];
+
   const [importTitle, importType] = await document.l10n.formatValues([
     { id: "import-key-file" },
     { id: "gnupg-file" },
   ]);
 
-  // Reset the array of selected files.
-  gFiles = [];
-
-  const files = EnigmailDialog.filePicker(
-    window,
-    importTitle,
-    "",
-    false,
-    true,
-    "*.asc",
-    "",
-    [importType, "*.asc;*.gpg;*.pgp"]
-  );
-
-  if (!files.length) {
+  const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+  fp.init(window, importTitle, Ci.nsIFilePicker.modeOpenMultiple);
+  fp.defaultExtension = "*.asc";
+  fp.appendFilter(importType, "*.asc;*.gpg;*.pgp");
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
+  const rv = await new Promise(resolve => fp.open(resolve));
+  if (rv != Ci.nsIFilePicker.returnOK || !fp.files) {
     return;
   }
 
@@ -844,7 +839,7 @@ async function importSecretKey() {
   }
 
   let keyCount = 0;
-  for (const file of files) {
+  for (const file of fp.files) {
     // Skip the file and show a warning message if larger than 5MB.
     if (file.fileSize > 5000000) {
       document.l10n.setAttributes(

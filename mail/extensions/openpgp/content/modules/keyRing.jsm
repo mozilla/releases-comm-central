@@ -34,7 +34,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 });
 
 XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
-  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
+  return new Localization(["messenger/openpgp/openpgp.ftl"]);
 });
 
 let gKeyListObj = null;
@@ -449,7 +449,7 @@ var EnigmailKeyRing = {
             Services.prompt.confirm(
               win,
               null,
-              lazy.l10n.formatValueSync("confirm-permissive-import")
+              await lazy.l10n.formatValue("confirm-permissive-import")
             )
           ) {
             permissive = true;
@@ -459,7 +459,7 @@ var EnigmailKeyRing = {
           Services.prompt.alert(
             win,
             null,
-            lazy.l10n.formatValueSync("import-keys-failed")
+            await lazy.l10n.formatValue("import-keys-failed")
           );
         }
       }
@@ -604,7 +604,7 @@ var EnigmailKeyRing = {
       idArrayMinimal
     );
     if (!keyBlock) {
-      errorMsgObj.value = lazy.l10n.formatValueSync("fail-key-extract");
+      errorMsgObj.value = await lazy.l10n.formatValue("fail-key-extract");
       return "";
     }
 
@@ -625,24 +625,24 @@ var EnigmailKeyRing = {
     return keyBlock;
   },
 
-  promptKeyExport2AsciiFilename(window, label, defaultFilename) {
-    return lazy.EnigmailDialog.filePicker(
-      window,
-      label,
-      "",
-      true,
-      false,
-      "*.asc",
-      defaultFilename,
-      [lazy.l10n.formatValueSync("ascii-armor-file"), "*.asc"]
-    );
+  async promptKeyExport2AsciiFilename(window, title, defaultFilename) {
+    const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+    fp.init(window, title, Ci.nsIFilePicker.modeSave);
+    fp.defaultString = defaultFilename;
+    fp.defaultExtension = "*.asc";
+    fp.appendFilter(await lazy.l10n.formatValue("ascii-armor-file"), "*.asc");
+    fp.appendFilters(Ci.nsIFilePicker.filterAll);
+    const rv = await new Promise(resolve => fp.open(resolve));
+    if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
+      return null;
+    }
+    return fp.file;
   },
 
   async exportPublicKeysInteractive(window, defaultFileName, keyIdArray) {
-    const label = lazy.l10n.formatValueSync("export-to-file");
-    const outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
+    const outFile = await EnigmailKeyRing.promptKeyExport2AsciiFilename(
       window,
-      label,
+      await lazy.l10n.formatValue("export-to-file"),
       defaultFileName
     );
     if (!outFile) {
@@ -664,22 +664,21 @@ var EnigmailKeyRing = {
       Services.prompt.alert(
         window,
         null,
-        lazy.l10n.formatValueSync("save-keys-failed")
+        await lazy.l10n.formatValue("save-keys-failed")
       );
       return;
     }
     Services.prompt.alert(
       window,
       null,
-      lazy.l10n.formatValueSync("save-keys-ok")
+      await lazy.l10n.formatValue("save-keys-ok")
     );
   },
 
-  backupSecretKeysInteractive(window, defaultFileName, fprArray) {
-    const label = lazy.l10n.formatValueSync("export-keypair-to-file");
-    const outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
+  async backupSecretKeysInteractive(window, defaultFileName, fprArray) {
+    const outFile = await EnigmailKeyRing.promptKeyExport2AsciiFilename(
       window,
-      label,
+      await lazy.l10n.formatValue("export-keypair-to-file"),
       defaultFileName
     );
 
@@ -719,7 +718,7 @@ var EnigmailKeyRing = {
     if (!backupKeyBlock) {
       Services.prompt.alert(
         null,
-        lazy.l10n.formatValueSync("save-keys-failed")
+        await lazy.l10n.formatValue("save-keys-failed")
       );
       return;
     }
@@ -850,12 +849,12 @@ var EnigmailKeyRing = {
         {}
       );
       if (!blockType) {
-        errorMsgObj.value = lazy.l10n.formatValueSync("no-pgp-block");
+        errorMsgObj.value = await lazy.l10n.formatValue("no-pgp-block");
         return 1;
       }
 
       if (blockType.search(/^(PUBLIC|PRIVATE) KEY BLOCK$/) !== 0) {
-        errorMsgObj.value = lazy.l10n.formatValueSync("not-first-block");
+        errorMsgObj.value = await lazy.l10n.formatValue("not-first-block");
         return 1;
       }
 
@@ -870,16 +869,16 @@ var EnigmailKeyRing = {
         Services.prompt.confirmEx(
           parent,
           null,
-          lazy.l10n.formatValueSync("import-key-confirm"),
+          await lazy.l10n.formatValue("import-key-confirm"),
           Services.prompt.STD_OK_CANCEL_BUTTONS,
-          lazy.l10n.formatValueSync("key-man-button-import"),
+          await lazy.l10n.formatValue("key-man-button-import"),
           null,
           null,
           null,
           {}
         )
       ) {
-        errorMsgObj.value = lazy.l10n.formatValueSync("fail-cancel");
+        errorMsgObj.value = await lazy.l10n.formatValue("fail-cancel");
         return -1;
       }
     }
@@ -916,7 +915,7 @@ var EnigmailKeyRing = {
             Services.prompt.confirm(
               parent,
               null,
-              lazy.l10n.formatValueSync("confirm-permissive-import")
+              await lazy.l10n.formatValue("confirm-permissive-import")
             )
           ) {
             permissive = true;
@@ -927,7 +926,7 @@ var EnigmailKeyRing = {
           Services.prompt.alert(
             parent,
             null,
-            lazy.l10n.formatValueSync("import-keys-failed")
+            await lazy.l10n.formatValue("import-keys-failed")
           );
         }
       }

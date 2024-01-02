@@ -506,7 +506,7 @@ async function enigmailExportKeys(which) {
     for (const id of keyList) {
       fprArray.push(gKeyList[id].fpr);
     }
-    EnigmailKeyRing.backupSecretKeysInteractive(
+    await EnigmailKeyRing.backupSecretKeysInteractive(
       window,
       defaultFileName,
       fprArray
