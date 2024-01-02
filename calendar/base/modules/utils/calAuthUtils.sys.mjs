@@ -232,10 +232,8 @@ export var auth = {
       }
       let savePasswordLabel = null;
       if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
-        savePasswordLabel = lazy.cal.l10n.getAnyString(
-          "passwordmgr",
-          "passwordmgr",
-          "rememberPassword"
+        savePasswordLabel = lazy.MsgAuthPrompt.l10n.formatValueSync(
+          "remember-password-checkbox-label"
         );
       }
       const savePassword = {};
@@ -360,12 +358,10 @@ export var auth = {
       throw new Components.Exception("", Cr.NS_ERROR_XPC_NEED_OUT_OBJECT);
     }
 
-    const prompter = new lazy.MsgAuthPrompt();
-
     // Only show the save password box if we are supposed to.
     let savepassword = null;
     if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
-      savepassword = lazy.cal.l10n.getAnyString("passwordmgr", "passwordmgr", "rememberPassword");
+      savepassword = lazy.MsgAuthPrompt.l10n.formatValueSync("remember-password-checkbox-label");
     }
 
     let aText;
@@ -374,12 +370,18 @@ export var auth = {
         aUsername.value,
         aCalendarName,
       ]);
-      return prompter.promptPassword(aTitle, aText, aPassword, savepassword, aSavePassword);
+      return new lazy.MsgAuthPrompt().promptPassword(
+        aTitle,
+        aText,
+        aPassword,
+        savepassword,
+        aSavePassword
+      );
     }
     aText = lazy.cal.l10n.getAnyString("global", "commonDialogs", "EnterUserPasswordFor2", [
       aCalendarName,
     ]);
-    return prompter.promptUsernameAndPassword(
+    return new lazy.MsgAuthPrompt().promptUsernameAndPassword(
       aTitle,
       aText,
       aUsername,

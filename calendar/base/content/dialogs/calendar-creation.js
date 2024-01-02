@@ -758,7 +758,7 @@ function findCalendarsWithPassword(location) {
     null,
     cal.l10n.getAnyString("messenger-mapi", "mapi", "loginText", [location]),
     password,
-    cal.l10n.getAnyString("passwordmgr", "passwordmgr", "rememberPassword"),
+    MsgAuthPrompt.l10n.formatValueSync("remember-password-checkbox-label"),
     savePassword
   );
 
