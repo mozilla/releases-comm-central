@@ -7,9 +7,8 @@
   --thread-pane-header-padding: 3px;
   --indicator-icon-offset-inline: 7px;
   --indicator-icon-offset-block: 3px;
-  --thread-card-padding-inline-start: 24px;
-  --thread-card-padding-inline-end: 12px;
-  --thread-line-inset-inline-start: calc(var(--thread-card-padding-inline-start) / 2);
+  --thread-card-inline: 12px;
+  --thread-card-inline-doubled: calc(var(--thread-card-inline) * 2);
   --thread-line-height: 100%;
 }
 
@@ -735,7 +734,7 @@ tr[is="thread-card"] {
     }
 
     &[data-properties~="thread-children"] .thread-card-container::after {
-      --indicator-icon-offset-inline: calc(var(--thread-line-inset-inline-start) - 8px);
+      --indicator-icon-offset-inline: calc(var(--thread-card-inline) - 8px);
     }
   }
 
@@ -745,11 +744,11 @@ tr[is="thread-card"] {
     }
 
     & .thread-card-container {
-      padding-inline-start: var(--thread-card-padding-inline-end);
-      margin-inline-start: var(--thread-card-padding-inline-start);
+      padding-inline: var(--thread-card-inline);
+      margin-inline-start: var(--thread-card-inline-doubled);
 
       &::after {
-        --indicator-icon-offset-inline: calc(var(--thread-line-inset-inline-start) - 6px);
+        --indicator-icon-offset-inline: calc(var(--thread-card-inline) - 6px);
         --indicator-icon-offset-block: calc(50% - 8px);
         --indicator-icon: var(--icon-dot-xs);
         --indicator-icon-fill: var(--thread-card-background-children);
@@ -763,7 +762,8 @@ tr[is="thread-card"] {
         height: var(--thread-line-height);
         width: 1px;
         border-inline-start: 1px dashed var(--thread-line-color);
-        inset-inline-start: calc(var(--thread-line-inset-inline-start) - 0.025rem);
+        /* Placement uses rem units due to pixels not being able to be split in half. */
+        inset-inline-start: calc(var(--thread-card-inline) - 0.025rem);
         inset-block: 0;
       }
     }
@@ -810,8 +810,8 @@ tr[is="thread-card"] {
   justify-content: center;
   gap: var(--thread-pane-container-gap);
   height: 100%;
-  padding-inline-start: var(--thread-card-padding-inline-start);
-  padding-inline-end: var(--thread-card-padding-inline-end);
+  padding-inline-start: var(--thread-card-inline-doubled);
+  padding-inline-end: var(--thread-card-inline);
   box-sizing: border-box;
 
   &::after {
