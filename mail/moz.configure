@@ -101,6 +101,7 @@ add_old_configure_assignment("THUNDERBIRD_OFFICIAL_BRANDING", thunderbird_offici
 
 # Enable Rust overrides
 option("--enable-thunderbird-rust", help="Enable Rust support within Thunderbird")
+set_config("MOZ_THUNDERBIRD_RUST", True, when="--enable-thunderbird-rust")
 set_config("MOZ_OVERRIDE_GKRUST", True, when="--enable-thunderbird-rust")
 set_config(
     "MOZ_OVERRIDE_CARGO_CONFIG", "comm/rust/.cargo/config.in", when="--enable-thunderbird-rust"

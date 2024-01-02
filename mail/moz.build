@@ -25,6 +25,9 @@ if CONFIG["MOZ_BUNDLED_FONTS"]:
 if CONFIG["NIGHTLY_BUILD"]:
     DIRS += ["services/sync"]
 
+if CONFIG["MOZ_THUNDERBIRD_RUST"]:
+    DEFINES["MOZ_THUNDERBIRD_RUST"] = 1
+
 DIRS += [
     "../python",
     "../taskcluster",

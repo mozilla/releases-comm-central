@@ -22,3 +22,12 @@ endif
 libs:: $(DIST)/bin/platform.ini
 	$(PYTHON3) $(commtopsrcdir)/build/source_repos.py gen_platformini \
 		$(DIST)/bin/platform.ini
+
+
+vendored-rust-check:
+ifdef MOZ_THUNDERBIRD_RUST
+	@echo "Checking vendored Rust libs"
+	$(PYTHON3) $(commtopsrcdir)/python/rocbuild/rocbuild/rust.py verify_vendored_dependencies
+endif
+
+export:: vendored-rust-check
