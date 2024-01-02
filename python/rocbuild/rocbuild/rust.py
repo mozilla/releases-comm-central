@@ -2,11 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import logging
 import os.path
+import shutil
 import subprocess
 
 import tomlkit
 from tomlkit.toml_file import TOMLFile
+
+from mozbuild.vendor.vendor_rust import VendorRust
 
 config_footer = """
 # Take advantage of the fact that cargo will treat lines starting with #
@@ -71,6 +75,28 @@ members = {members}
 {patches}
 """
 
+CARGO_FILES = {
+    "mc_workspace_toml": "Cargo.toml",
+    "mc_gkrust_toml": "toolkit/library/rust/shared/Cargo.toml",
+    "mc_cargo_lock": "Cargo.lock",
+}
+
+
+def get_cargo(command_context):
+    """
+    Ensures all the necessary cargo bits are installed.
+
+    Returns the path to cargo if successful, None otherwise.
+    :rtype: str: path to cargo
+    """
+    vendor_rust = VendorRust(
+        command_context.topsrcdir, command_context.settings, command_context.log_manager
+    )
+    cargo = vendor_rust.get_cargo_path()
+    if not vendor_rust.check_cargo_version(cargo):
+        raise Exception("Cargo not found or version mismatch.")
+    return cargo
+
 
 class CargoFile:
     """
@@ -120,18 +146,18 @@ class CargoFile:
                 self.features = data["features"]
 
     def _handle_dependencies(self, data):
-        """Store each dependnency"""
+        """Store each dependency"""
         deps = dict()
 
-        for id in data:
-            dep = data[id]
+        for _id in data:
+            dep = data[_id]
             # Direct version field
             if isinstance(dep, str):
                 dep = {"version": dep}
             if "path" in dep:
                 path = os.path.abspath(os.path.join(self.our_directory, dep["path"]))
                 dep["path"] = path
-            deps[id] = dep
+            deps[_id] = dep
 
         return deps
 
@@ -159,14 +185,62 @@ class CargoFile:
             self.workspace_members = data["members"]
 
 
+def run_tb_cargo_sync(command_context):
+    cargo = get_cargo(command_context)
+
+    mc_lock = os.path.join(command_context.topsrcdir, "Cargo.lock")
+    workspace = os.path.join(command_context.topsrcdir, "comm", "rust")
+    our_lock = os.path.join(workspace, "Cargo.lock")
+
+    regen_toml_files(command_context, workspace)
+    command_context.log(logging.INFO, "tb-rust", {}, f"[INFO] Syncing {mc_lock} with {our_lock}")
+    shutil.copyfile(mc_lock, our_lock)
+    command_context.log(logging.INFO, "tb-rust", {}, "[INFO] Updating gkrust in our workspace")
+    run_cargo_update(cargo, workspace)
+
+
+def run_tb_rust_vendor(command_context):
+    cargo = get_cargo(command_context)
+
+    run_tb_cargo_sync(command_context)
+    workspace = os.path.join(command_context.topsrcdir, "comm", "rust")
+    config = os.path.join(workspace, ".cargo", "config.in")
+    third_party = os.path.join(command_context.topsrcdir, "comm", "third_party", "rust")
+
+    if os.path.exists(third_party):
+        command_context.log(logging.INFO, "tb-rust", {}, "[INFO] Removing comm/third_party/rust")
+        shutil.rmtree(third_party)
+    else:
+        command_context.log(
+            logging.WARNING,
+            "tb-rust",
+            {},
+            "[WARNING] Cannot find comm/third_party/rust",
+        )
+
+    cmd = [
+        cargo,
+        "vendor",
+        "-s",
+        "comm/rust/Cargo.toml",
+        "comm/third_party/rust",
+    ]
+
+    command_context.log(logging.INFO, "tb-rust", {}, "[INFO] Running cargo vendor")
+    proc = subprocess.run(
+        cmd, cwd=command_context.topsrcdir, check=True, stdout=subprocess.PIPE, encoding="utf-8"
+    )
+    with open(config, "w") as config_file:
+        config_file.writelines([f"{x}\n" for x in proc.stdout.splitlines()[0:-2]])
+        config_file.write(config_footer)
+
+
 def regen_toml_files(command_context, workspace):
     """
     Regenerate the TOML files within the gkrust workspace
     """
-    mc_workspace_toml = os.path.join(command_context.topsrcdir, "Cargo.toml")
-    mc_gkrust_toml = os.path.join(
-        command_context.topsrcdir, "toolkit", "library", "rust", "shared", "Cargo.toml"
-    )
+    mc_workspace_toml = os.path.join(command_context.topsrcdir, CARGO_FILES["mc_workspace_toml"])
+    mc_gkrust_toml = os.path.join(command_context.topsrcdir, CARGO_FILES["mc_gkrust_toml"])
 
     mc_workspace = CargoFile(mc_workspace_toml)
     mc_gkrust = CargoFile(mc_gkrust_toml)
@@ -251,11 +325,11 @@ def regen_toml_files(command_context, workspace):
             workspace_patches += (
                 inline_encoded_toml("mozilla-central-workspace-hack", {"path": "."}) + "\n"
             )
-        for id in data:
-            patch = data[id]
+        for _id in data:
+            patch = data[_id]
             if "path" in patch:
                 patch["path"] = os.path.relpath(patch["path"], workspace)
-            workspace_patches += inline_encoded_toml(id, patch) + "\n"
+            workspace_patches += inline_encoded_toml(_id, patch) + "\n"
         workspace_patches += "\n"
 
     with open(comm_workspace_toml, "w") as cargo:
@@ -271,13 +345,13 @@ def regen_toml_files(command_context, workspace):
         cargo.write(cargo_toml)
 
 
-def run_cargo_update(workspace):
+def run_cargo_update(cargo, workspace):
     """
     Run cargo to regenerate the lockfile
     """
     subprocess.run(
         [
-            "cargo",
+            cargo,
             "update",
             "-p",
             "gkrust",
