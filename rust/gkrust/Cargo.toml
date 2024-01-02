@@ -30,9 +30,9 @@ cert_storage = { path = "../../../security/manager/ssl/cert_storage" }
 chardetng_c = { version = "0.1.1" }
 cose-c = { version = "0.1.5" }
 crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
-cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "5d779af33219625a510df6bbc48a641b8a70bbc5", optional = true }
+cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "89abc256a2eab3398f880e114b2d8308f5bc1d1a", optional = true }
 cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "c04c4d2c7f2291cb81a1c48f5a8c425748f18cd8", optional = true, features = ['pulse-dlopen'] }
-cubeb-sys = { version = "0.10.3", optional = true, features = ['gecko-in-tree'] }
+cubeb-sys = { version = "0.10.7", optional = true, features = ['gecko-in-tree'] }
 dap_ffi = { path = "../../../toolkit/components/telemetry/dap/ffi" }
 data-encoding-ffi = { path = "../../../dom/fs/parent/rust/data-encoding-ffi" }
 data_storage = { path = "../../../security/manager/ssl/data_storage" }
@@ -82,7 +82,7 @@ profiler_helper = { path = "../../../tools/profiler/rust-helper", optional = tru
 qcms = { path = "../../../gfx/qcms", features = ['c_bindings', 'neon'] }
 rsdparsa_capi = { path = "../../../dom/media/webrtc/sdp/rsdparsa_capi" }
 rure = { version = "0.2.2" }
-rusqlite = { version = "0.29.0", features = ['modern_sqlite', 'in_gecko'] }
+rusqlite = { workspace = true, features = ['modern_sqlite', 'in_gecko'] }
 rust_minidump_writer_linux = { path = "../../../toolkit/crashreporter/rust_minidump_writer_linux", optional = true }
 static_prefs = { path = "../../../modules/libpref/init/static_prefs" }
 storage = { path = "../../../storage/rust" }
