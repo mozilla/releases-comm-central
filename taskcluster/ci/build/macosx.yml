@@ -84,6 +84,36 @@ macosx64/opt:
             - macosx64-x64-libotr
             - macosx64-sdk
 
+macosx64-rust/opt:
+    description: "MacOS X x64 Cross-compile w/ Rust"
+    index:
+        job-name: macosx64-rust-opt
+    attributes:
+        enable-build-signing: true
+        enable-full-crashsymbols: true
+    treeherder:
+        platform: osx-cross/opt
+        symbol: Brust
+        tier: 2
+    worker:
+        max-run-time: 7200
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            PERFHERDER_EXTRA_OPTIONS: rusty
+    run:
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_mac_64_cross_builds.py
+        extra-config:
+            extra_mozconfig_content:
+                - ac_add_options --enable-thunderbird-rust
+    use-sccache: true
+    fetches:
+        toolchain:
+            - linux64-sccache
+            - macosx64-x64-libotr
+            - macosx64-sdk
+
 macosx64-x64-shippable/opt:
     description: "MacOS X x64 Cross-compile"
     attributes:

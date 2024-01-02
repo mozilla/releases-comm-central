@@ -218,6 +218,59 @@ win64/opt:
         fetch:
             - upx-3.95-win
 
+win64-rust/opt:
+    description: "Win64 Opt (Cross) w/ Rust"
+    index:
+        product: thunderbird
+        job-name: win64-rust-opt
+    attributes:
+        enable-build-signing: true
+        enable-full-crashsymbols: true
+    treeherder:
+        platform: windows2012-64/opt
+        symbol: Brust
+        tier: 2
+    worker-type: b-linux-gcp
+    worker:
+        max-run-time: 7200
+        env:
+            PERFHERDER_EXTRA_OPTIONS: rusty
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+    run:
+        actions: [build]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        extra-config:
+            stage_platform: win64
+            mozconfig_platform: win64
+            extra_mozconfig_content:
+                - ac_add_options --enable-thunderbird-rust
+    use-sccache: true
+    optimization:
+        skip-suite-only: null
+    fetches:
+        toolchain:
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-dump_syms
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-cross
+            - linux64-rust-size
+            - linux64-sccache
+            - linux64-winchecksec
+            - linux64-wine
+            - nsis
+            - sysroot-wasm32-wasi
+            - sysroot-x86_64-linux-gnu
+            - win64-libotr
+            - vs
+        fetch:
+            - upx-3.95-win
+
 win64-shippable/opt:
     description: "Win64 Opt Shippable"
     index:

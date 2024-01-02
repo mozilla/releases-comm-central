@@ -49,6 +49,37 @@ linux64/opt:
             - linux64-sccache
             - sysroot-x86_64-linux-gnu
 
+linux64-rust/opt:
+    description: "Linux64 Opt w/ Rust Enabled"
+    index:
+        product: thunderbird
+        job-name: linux64-rust-opt
+    treeherder:
+        platform: linux64/opt
+        symbol: Brust
+        tier: 2
+    worker:
+        max-run-time: 7200
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            PERFHERDER_EXTRA_OPTIONS: rusty
+    run:
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        extra-config:
+            extra_mozconfig_content:
+                - ac_add_options --enable-thunderbird-rust
+    use-sccache: true
+    optimization:
+        skip-suite-only: null
+    fetches:
+        toolchain:
+            - linux64-libotr
+            - linux64-rust
+            - linux64-sccache
+            - sysroot-x86_64-linux-gnu
+
 linux64-shippable/opt:
     description: "Linux64 Shippable"
     attributes:
