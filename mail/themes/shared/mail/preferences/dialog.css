@@ -36,6 +36,7 @@ dialog.doScroll::part(content-box) {
 }
 
 dialog.doScroll {
+  min-height: 100vh;
   margin-inline: -4px;
 
   &::part(content-box) {

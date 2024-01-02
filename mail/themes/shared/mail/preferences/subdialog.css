@@ -71,7 +71,16 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
   min-width: 40ch;
 }
 
+.contentPane {
+  padding: 0 4px 4px;
+
+  &.doScroll {
+    margin-inline: -4px;
+  }
+}
+
 .largeDialogContainer.doScroll {
   overflow-y: auto;
   flex: 1;
+  min-height: 100vh;
 }

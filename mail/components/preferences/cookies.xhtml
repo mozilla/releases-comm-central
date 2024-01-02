@@ -186,28 +186,28 @@
           </html:td>
         </html:tr>
       </html:table>
-    </vbox>
-    <hbox align="end">
-      <hbox class="actionButtons" flex="1">
-        <button
-          id="removeSelectedCookies"
-          disabled="true"
-          data-l10n-id="remove-cookie-button"
-          oncommand="gCookiesWindow.deleteCookie();"
-        />
-        <button
-          id="removeAllCookies"
-          disabled="true"
-          data-l10n-id="remove-all-cookies-button"
-          oncommand="gCookiesWindow.deleteAllCookies();"
-        />
-        <spacer flex="1" />
-        <button
-          id="closeButton"
-          oncommand="window.close();"
-          data-l10n-id="cookie-close-button"
-        />
+      <hbox align="end">
+        <hbox class="actionButtons" flex="1">
+          <button
+            id="removeSelectedCookies"
+            disabled="true"
+            data-l10n-id="remove-cookie-button"
+            oncommand="gCookiesWindow.deleteCookie();"
+          />
+          <button
+            id="removeAllCookies"
+            disabled="true"
+            data-l10n-id="remove-all-cookies-button"
+            oncommand="gCookiesWindow.deleteAllCookies();"
+          />
+          <spacer flex="1" />
+          <button
+            id="closeButton"
+            oncommand="window.close();"
+            data-l10n-id="cookie-close-button"
+          />
+        </hbox>
       </hbox>
-    </hbox>
+    </vbox>
   </html:body>
 </html>

@@ -79,8 +79,6 @@
       <separator class="thin" />
       <tree
         id="permissionsTree"
-        flex="1"
-        style="height: 18em"
         hidecolumnpicker="true"
         onkeypress="gPermissionManager.onPermissionKeyPress(event)"
         onselect="gPermissionManager.onPermissionSelected();"
@@ -102,9 +100,7 @@
         </treecols>
         <treechildren />
       </tree>
-    </vbox>
-    <vbox>
-      <hbox class="actionButtons" flex="1">
+      <hbox class="actionButtons">
         <button
           id="removePermission"
           disabled="true"
@@ -117,8 +113,7 @@
           oncommand="gPermissionManager.onAllPermissionsDeleted();"
         />
       </hbox>
-      <spacer flex="1" />
-      <hbox class="actionButtons" pack="end" flex="1">
+      <hbox class="actionButtons" pack="end">
         <button oncommand="window.close();" data-l10n-id="cancel-button" />
         <button
           id="btnApplyChanges"

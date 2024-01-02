@@ -668,6 +668,15 @@ checkbox {
   margin-top: 0;
 }
 
+#PermissionsDialog > body {
+  min-height: 100vh;
+  display: flex;
+}
+
+#permissionsTree {
+  flex: 1 1 0;
+}
+
 /* Menulist styles */
 .label-item {
   font-size: .8em;
