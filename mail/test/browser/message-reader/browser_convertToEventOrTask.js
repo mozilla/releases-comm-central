@@ -100,6 +100,7 @@ add_task(async function test_convertToEvent() {
     const dt = cal.dtz.now();
     dt.month = 5;
     dt.day = 30;
+    dt.year = 2023; // message.date is used...
     Assert.equal(
       startDate._datepicker._inputField.value,
       cal.dtz.formatter.formatDateShort(dt),
