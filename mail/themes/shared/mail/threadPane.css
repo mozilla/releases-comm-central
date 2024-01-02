@@ -825,7 +825,7 @@ tr[is="thread-card"] {
   }
 
   @media (-moz-overlay-scrollbars) {
-    padding-inline-end: max(env(scrollbar-inline-size), var(--thread-card-padding-inline-end));
+    padding-inline-end: max(env(scrollbar-inline-size), var(--thread-card-inline));
   }
 }
 
