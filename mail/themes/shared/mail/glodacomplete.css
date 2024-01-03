@@ -2,50 +2,49 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#PopupGlodaAutocomplete .explanation, .gloda-single-identity {
+.gloda-single-identity,
+#PopupGlodaAutocomplete .explanation {
   margin-inline-start: 1em;
-  margin-top: 2px;
-  margin-bottom: 2px;
+  margin-block: 2px;
 }
 
-#PopupGlodaAutocomplete .autocomplete-richlistbox {
-  display: flex;
-  justify-content: flex-start;
-  flex-direction: column;
-}
+#PopupGlodaAutocomplete {
 
-#PopupGlodaAutocomplete .ac-comment {
-  font-size: 1.1em;
-  margin-inline-start: 0;
-}
+  & .autocomplete-richlistbox {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+  }
 
-#PopupGlodaAutocomplete .ac-url-text {
-  color: LinkText;
-  font-size: 0.95em;
-}
+  & .ac-comment {
+    font-size: 1.1em;
+    margin-inline-start: 0;
+  }
 
-#PopupGlodaAutocomplete span.ac-emphasize-text {
-  font-weight: bold;
-}
+  & .ac-url-text {
+    color: LinkText;
+    font-size: 0.95em;
 
-#PopupGlodaAutocomplete .ac-url-text[selected="true"] {
-  color: inherit !important;
-}
+    &[selected="true"] {
+      color: inherit;
+    }
+  }
 
-#PopupGlodaAutocomplete .gloda-single-identity[selected="true"] .ac-url{
-  color: white;
-}
+  & span.ac-emphasize-text {
+    font-weight: bold;
+  }
 
-#PopupGlodaAutocomplete .parameters {
-  font-style: italic;
-  margin-inline-start: 1em;
-}
+  & .parameters {
+    font-style: italic;
+    margin-inline-start: 1em;
+  }
 
-/**
- * Match type gloda-single-tag-richlistitem, gloda-single-identity-richlistitem,
- * gloda-fulltext-single-richlistitem, gloda-fulltext-all, gloda-contact-chunk-richlistitem
- * and gloda-multi.
- */
-#PopupGlodaAutocomplete .autocomplete-richlistitem[type^="gloda"] {
-  overflow: clip;
+  /**
+   * Match type gloda-single-tag-richlistitem, gloda-single-identity-richlistitem,
+   * gloda-fulltext-single-richlistitem, gloda-fulltext-all, gloda-contact-chunk-richlistitem
+   * and gloda-multi.
+   */
+  & .autocomplete-richlistitem[type^="gloda"] {
+    overflow: clip;
+  }
 }

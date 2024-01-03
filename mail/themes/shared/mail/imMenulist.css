@@ -4,10 +4,13 @@
 
 
 /* Fix the icons in the menulist by undoing things from menu.css */
-menulist > menupopup > .menuitem-iconic > .menu-iconic-left {
-  display: flex !important;
-}
+menulist > menupopup > .menuitem-iconic {
 
-menulist > menupopup > .menuitem-iconic > .menu-iconic-text {
-  margin-left: 2px !important;
+  & > .menu-iconic-left {
+    display: flex !important;
+  }
+
+  & > .menu-iconic-text {
+    margin-inline-start: 2px !important;
+  }
 }

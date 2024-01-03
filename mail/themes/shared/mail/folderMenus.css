@@ -6,96 +6,95 @@
   == Icons for menus which represent mail folder.
   ======================================================================= */
 
-.folderMenuItem::part(icon),
-.folderMenuItem > .menu-iconic-left > .menu-iconic-icon {
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-}
-
 /* ::::: Folder icons for menus   ::::: */
 
 /* Folders */
 .folderMenuItem {
   list-style-image: var(--icon-folder);
-}
 
-/* Newsgroup */
-.folderMenuItem[ServerType="nntp"] {
-  list-style-image: var(--icon-newsletter);
-}
+  /* Newsgroup */
+  &[ServerType="nntp"] {
+    list-style-image: var(--icon-newsletter);
+  }
 
-/* Feed folder */
-.folderMenuItem[IsFeedFolder="true"] {
-  list-style-image: var(--icon-folder-rss);
-}
+  /* Feed folder */
+  &[IsFeedFolder="true"] {
+    list-style-image: var(--icon-folder-rss);
+  }
 
-/* Special folders */
+  /* Special folders */
 
-.folderMenuItem[SpecialFolder="Inbox"] {
-  list-style-image: var(--icon-inbox);
-}
+  &[SpecialFolder="Inbox"] {
+    list-style-image: var(--icon-inbox);
+  }
 
-.folderMenuItem[SpecialFolder="Sent"] {
-  list-style-image: var(--icon-sent);
-}
+  &[SpecialFolder="Sent"] {
+    list-style-image: var(--icon-sent);
+  }
 
-.folderMenuItem[SpecialFolder="Outbox"] {
-  list-style-image: var(--icon-outbox);
-}
+  &[SpecialFolder="Outbox"] {
+    list-style-image: var(--icon-outbox);
+  }
 
-.folderMenuItem[SpecialFolder="Drafts"] {
-  list-style-image: var(--icon-draft);
-}
+  &[SpecialFolder="Drafts"] {
+    list-style-image: var(--icon-draft);
+  }
 
-.folderMenuItem[SpecialFolder="Templates"] {
-  list-style-image: var(--icon-template);
-}
+  &[SpecialFolder="Templates"] {
+    list-style-image: var(--icon-template);
+  }
 
-.folderMenuItem[SpecialFolder="Junk"] {
-  list-style-image: var(--icon-spam);
-}
+  &[SpecialFolder="Junk"] {
+    list-style-image: var(--icon-spam);
+  }
 
-.folderMenuItem[SpecialFolder="Trash"] {
-  list-style-image: var(--icon-trash);
-}
+  &[SpecialFolder="Trash"] {
+    list-style-image: var(--icon-trash);
+  }
 
-.folderMenuItem[SpecialFolder="Archive"] {
-  list-style-image: var(--icon-archive);
-}
+  &[SpecialFolder="Archive"] {
+    list-style-image: var(--icon-archive);
+  }
 
-.folderMenuItem[SpecialFolder="Virtual"] {
-  list-style-image: var(--icon-folder-filter);
+  &[SpecialFolder="Virtual"] {
+    list-style-image: var(--icon-folder-filter);
 
-}
+  }
 
-/* IMAP/POP server */
-.folderMenuItem[IsServer="true"] {
-  list-style-image: var(--icon-mail);
-}
+  /* IMAP/POP server */
+  &[IsServer="true"] {
+    list-style-image: var(--icon-mail);
 
-/* IMAP/POP secure server */
-.folderMenuItem[IsServer="true"][ServerType="imap"][IsSecure="true"],
-.folderMenuItem[IsServer="true"][ServerType="pop3"][IsSecure="true"] {
-  list-style-image: var(--icon-mail-secure);
-}
+    /* IMAP/POP secure server */
+    &:is([ServerType="imap"], [ServerType="pop3"])[IsSecure="true"] {
+      list-style-image: var(--icon-mail-secure);
+    }
 
-/* Local server */
-.folderMenuItem[IsServer="true"][ServerType="none"] {
-  list-style-image: var(--icon-folder);
-}
+    /* Local server */
+    &[ServerType="none"] {
+      list-style-image: var(--icon-folder);
+    }
 
-/* News server */
-.folderMenuItem[IsServer="true"][ServerType="nntp"] {
-  list-style-image: var(--icon-globe);
-}
+    /* News server */
+    &[ServerType="nntp"] {
+      list-style-image: var(--icon-globe);
 
-/** Secure news server */
-.folderMenuItem[IsServer="true"][ServerType="nntp"][IsSecure="true"] {
-  list-style-image: var(--icon-globe-secure);
-}
+      /* Secure news server */
+      &[IsSecure="true"] {
+        list-style-image: var(--icon-globe-secure);
+      }
+    }
 
-/* Feed server */
-.folderMenuItem[IsServer="true"][ServerType="rss"] {
-  list-style-image: var(--icon-rss);
+    /* Feed server */
+    &[ServerType="rss"] {
+      list-style-image: var(--icon-rss);
+    }
+  }
+
+  &::part(icon),
+  & > .menu-iconic-left > .menu-iconic-icon {
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+  }
 }

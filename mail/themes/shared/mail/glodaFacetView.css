@@ -26,18 +26,14 @@ body {
   --dateHLColor: var(--selected-item-color);
   --panelHoverColor: inherit;
   --linkColor: var(--color-blue-70);
-}
 
-@media (prefers-color-scheme: dark) {
-  #body {
+  @media (prefers-color-scheme: dark) {
     --dateColor: var(--color-gray-60);
     --dateTextColor: var(--color-white);
     --linkColor: var(--color-blue-30);
   }
-}
 
-@media (prefers-contrast) {
-  #body {
+  @media (prefers-contrast) {
     --panelHoverColor: SelectedItemText;
     --linkColor: -moz-NativehyperlinkText;
   }
@@ -91,42 +87,33 @@ body {
   border-radius: 8px;
   background-color: var(--arrowpanel-background);
   box-shadow: 0 0 4px hsla(210, 4%, 10%, .2);
+
+  &[variety="remainder"] .undo {
+    display: none;
+  }
+
+  &:is([variety="include"], [variety="exclude"]) :is(.top, .bottom) {
+    display: none;
+  }
+
+  &[variety="invisible"] {
+    display: none;
+  }
 }
 
 .popup-menuitem {
   font: menu;
   padding: 4px 10px;
   border-radius: 3px;
-}
 
-.popup-menuitem:hover,
-.popup-menuitem:focus {
-  background-color: var(--arrowpanel-dimmed);
-  color: var(--panelHoverColor);
-}
+  &:is(:hover, :focus) {
+    background-color: var(--arrowpanel-dimmed);
+    color: var(--panelHoverColor);
+  }
 
-.popup-menu[variety="remainder"] .undo {
-  display: none;
-}
-.popup-menu[variety="include"] .top {
-  display: none;
-}
-.popup-menu[variety="include"] .bottom {
-  display: none;
-}
-.popup-menu[variety="exclude"] .top {
-  display: none;
-}
-.popup-menu[variety="exclude"] .bottom {
-  display: none;
-}
-
-.popup-menuitem:focus {
-  cursor: pointer;
-}
-
-.popup-menu[variety="invisible"] {
-  display: none;
+  &:focus {
+    cursor: pointer;
+  }
 }
 
 /* ===== Query Explanation ===== */
@@ -160,18 +147,20 @@ body {
 
 /* ===== Facets ===== */
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   cursor: default;
-}
-
-.facetious[uninitialized] {
-  display: none !important;
 }
 
 .facetious {
   display: list-item; /* take the whole column width */
   list-style: none;
   padding: 2px;
+
+  &[uninitialized] {
+    display: none !important;
+  }
 }
 
 .facet-included-header[state="empty"],
@@ -186,89 +175,81 @@ h1, h2, h3 {
   display: none;
 }
 
-.facet-excluded > .bar > .bar-link {
-  text-decoration: line-through; /* strike the names of excluded facets */
-}
-
 .date-wrapper {
   position: relative;
   height: 80px;
   display: block;
-  padding: 0;
-  padding-top: 0.5em;
   margin-inline-end: 1em;
-  padding-inline-start: 2em;
-  padding-bottom: 1em;
+  padding-block: 0.5em 1em;
+  padding-inline: 2em 0;
 }
 
 .gloda-timeline-button {
   margin-inline-start: 8px;
-}
 
-.gloda-timeline-button > img {
-  /* Icon is squashed. */
-  width: 14px;
-  height: 10px;
-  margin-inline-end: 2px;
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
+  &[checked="true"] {
+    background: var(--toolbarbutton-active-background);
+    border-color: var(--toolbarbutton-active-bordercolor);
+    box-shadow: var(--toolbarbutton-active-boxshadow);
+  }
 
-.gloda-timeline-button[checked="true"] {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
+  & > img {
+    /* Icon is squashed. */
+    width: 14px;
+    height: 10px;
+    margin-inline-end: 2px;
+    -moz-context-properties: fill;
+    fill: currentColor;
+  }
 }
 
 .facet-date-zoom-out {
   position: absolute;
   top: -18px;
-  left: 0;
+  inset-inline-start: 0;
   width: 24px !important;
   height: 24px !important;
   background-position: center center;
   background-repeat: no-repeat;
   border: 1px solid transparent;
   border-radius: var(--button-border-radius);
-}
 
-html[dir="rtl"] .facet-date-zoom-out {
-  left: auto;
-  right: 0;
-}
+  .facetious[type="date"][zoomedout="false"] & {
+    background-image: url("chrome://messenger/skin/icons/zoomout.svg");
+    cursor: pointer;
+    -moz-context-properties: fill;
+    fill: currentColor;
 
-.facetious[type="date"][zoomedout="false"] .facet-date-zoom-out {
-  background-image: url("chrome://messenger/skin/icons/zoomout.svg");
-  cursor: pointer;
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
+    &:-moz-locale-dir(rtl) {
+      transform: scaleX(-1);
+    }
 
-.facetious[type="date"][zoomedout="false"] .facet-date-zoom-out:hover {
-  fill: var(--selected-item-text-color);
-  background-color: var(--selected-item-color);
-  border-color: Field;
+    &:hover {
+      fill: var(--selected-item-text-color);
+      background-color: var(--selected-item-color);
+      border-color: Field;
+    }
+  }
 }
 
 .date-vis-frame {
   position: absolute;
   top: 0;
-  left: 0;
-}
-
-html[dir="rtl"] .date-vis-frame {
-  left: auto;
-  right: 0;
+  inset-inline-start: 0;
 }
 
 /* === Boolean Facet === */
 
-#facet-fromMe, #facet-toMe, #facet-star, #facet-attachmentTypes {
+#facet-fromMe,
+#facet-toMe,
+#facet-star,
+#facet-attachmentTypes {
   display: inline-block; /* override the general .facetious list-item style */
 }
 
 /* special case: hide these two facets when they don't match */
-#facet-star[disabled], #facet-attachmentTypes[disabled] {
+#facet-star[disabled],
+#facet-attachmentTypes[disabled] {
   display: none;
 }
 
@@ -278,27 +259,27 @@ html[dir="rtl"] .date-vis-frame {
   padding-inline-end: 6px;
   border-radius: var(--button-border-radius);
   cursor: pointer;
-}
 
-.facet-checkbox-bubble > input {
-  display: none;
+  & > input {
+    display: none;
+  }
+
+  facet-boolean[disabled] > &,
+  facet-boolean-filtered[disabled] > & {
+    cursor: default;
+  }
+
+  facet-boolean:not([disabled]):hover > &,
+  facet-boolean-filtered:not([disabled]):hover > &,
+  facet-boolean[checked="true"]:not([disabled]) > &,
+  facet-boolean-filtered[checked="true"]:not([disabled]) > & {
+    background-color: var(--selected-item-color);
+    color: var(--selected-item-text-color);
+  }
 }
 
 facet-boolean[disabled] {
   opacity: 0.6;
-}
-
-facet-boolean[disabled] > .facet-checkbox-bubble,
-facet-boolean-filtered[disabled] > .facet-checkbox-bubble {
-  cursor: default;
-}
-
-facet-boolean:not([disabled]):hover > .facet-checkbox-bubble,
-facet-boolean-filtered:not([disabled]):hover > .facet-checkbox-bubble,
-facet-boolean[checked="true"]:not([disabled]) > .facet-checkbox-bubble,
-facet-boolean-filtered[checked="true"]:not([disabled]) > .facet-checkbox-bubble {
-  background-color: var(--selected-item-color);
-  color: var(--selected-item-text-color);
 }
 
 .facet-checkbox-label,
@@ -306,27 +287,32 @@ facet-boolean-filtered[checked="true"]:not([disabled]) > .facet-checkbox-bubble 
   margin: 3px;
 }
 
-.facetious:not(:hover) > .facet-checkbox-count {
-  color: var(--layout-color-3);
-}
-.facet-checkbox-count:empty {
-  display: none;
-}
-.facet-checkbox-count::before {
-  content: "(";
-}
-.facet-checkbox-count::after {
-  content: ")";
+.facet-checkbox-count {
+  .facetious:not(:hover) > & {
+    color: var(--layout-color-3);
+  }
+
+  &:empty {
+    display: none;
+  }
+
+  &::before {
+    content: "(";
+  }
+
+  &::after {
+    content: ")";
+  }
 }
 
 /* === Boolean Filtered === */
 
-facet-boolean-filtered:not([checked]) > .facet-filter-list {
-  display: none
-}
-
 .facet-filter-list {
   display: block;
+
+  facet-boolean-filtered:not([checked]) > & {
+    display: none;
+  }
 }
 
 /* === Discrete Facet === */
@@ -341,15 +327,10 @@ facet-boolean-filtered:not([checked]) > .facet-filter-list {
   margin: 1px;
   margin-top: 0.5em;
   cursor: pointer;
-}
 
-.facet-more[needed="true"] {
-  display: inline-block;
-}
-
-html[dir="rtl"] .bar-count {
-  right: auto;
-  left: 3px;
+  &[needed="true"] {
+    display: inline-block;
+  }
 }
 
 .barry {
@@ -362,59 +343,54 @@ html[dir="rtl"] .bar-count {
   position: relative;
   cursor: pointer;
   border-bottom: 1px solid var(--layout-color-3);
-}
 
-.bar[selected="true"] {
-  background-color: var(--selected-item-color);
-  color: var(--selected-item-text-color);
-}
+  &[selected="true"] {
+    background-color: var(--selected-item-color);
+    color: var(--selected-item-text-color);
+  }
 
-.bar:hover,
-.bar:focus {
-  background-color: var(--selected-item-color);
-  outline: none;
+  &:is(:hover, :focus) {
+    background-color: var(--selected-item-color);
+    outline: none;
+
+    & > :is(.bar-link, .bar-count) {
+      color: var(--selected-item-text-color);
+    }
+  }
 }
 
 .bar-link {
   text-decoration: none;
   display: block;
   color: var(--linkColor);
-  padding-top: 0.3em;
-  padding-bottom: 0.3em;
-  padding-inline-start: 0.5em;
-  padding-inline-end: 4em;
+  padding-block: 0.3em;
+  padding-inline: 0.5em 4em;
   position: relative;
   z-index: 2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  .facet-excluded > .bar > & {
+    text-decoration: line-through; /* strike the names of excluded facets */
+  }
+
+  .bar[selected="true"] > & {
+    color: var(--selected-item-text-color);
+  }
 }
 
 .bar-count {
   position: absolute;
   display: block;
-  right: 0;
+  inset-inline-end: 0;
   margin-inline-end: 8px;
   line-height: 1.6em;
   color: var(--layout-color-3);
-}
 
-html[dir="rtl"] .bar-link {
-  padding: 0.3em 0.5em 0.3em 2em;
-}
-
-.bar:hover > .bar-link,
-.bar:hover > .bar-count,
-.bar:focus > .bar-link,
-.bar:focus > .bar-count {
-  color: var(--selected-item-text-color);
-}
-
-.bar[selected="true"]> .bar-link {
-  color: var(--selected-item-text-color);
-}
-.bar[selected="true"] > .bar-count {
-  color: var(--selected-item-text-color);
+  .bar[selected="true"] > & {
+    color: var(--selected-item-text-color);
+  }
 }
 
 /* ===== Results ===== */
@@ -425,11 +401,11 @@ html[dir="rtl"] .bar-link {
   padding: 4px 2px;
   padding-inline-end: 0;
   margin-bottom: 0.5em;
-}
 
-#results[state="some"] .results-message-header {
-  display: flex;
-  align-items: center;
+  #results[state="some"] & {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .results-message-count {
@@ -443,21 +419,24 @@ html[dir="rtl"] .bar-link {
   color: var(--linkColor);
   cursor: pointer;
   padding: 4px;
-  border-radius: var(--button-border-radius);
   padding-inline-end: 20px;
   margin-inline-end: 2px;
+  border-radius: var(--button-border-radius);
   -moz-context-properties: fill;
   fill: currentColor;
   background-image: url("chrome://messenger/skin/icons/new-window.svg");
   background-position: right 4px center;
   background-size: 11px;
   background-repeat: no-repeat;
-}
 
-.results-message-showall-button:hover,
-.results-message-showall-button:focus {
-  background-color: var(--selected-item-color);
-  color: var(--selected-item-text-color);
+  &:-moz-locale-dir(rtl) {
+    background-position-x: left 4px;
+  }
+
+  &:is(:hover, :focus) {
+    background-color: var(--selected-item-color);
+    color: var(--selected-item-text-color);
+  }
 }
 
 .results-message-sort-bar {
@@ -482,16 +461,15 @@ html[dir="rtl"] .bar-link {
   background-size: auto 12px;
   -moz-context-properties: fill;
   fill: currentColor;
-}
 
-#sortby:dir(rtl) {
-  background-position-x: left 4px;
-}
+  &:-moz-locale-dir(rtl) {
+    background-position-x: left 4px;
+  }
 
-#sortby:hover,
-#sortby:focus {
-  background-color: var(--button-hover-background-color);
-  cursor: pointer;
+  &:is(:hover, :focus) {
+    background-color: var(--button-hover-background-color);
+    cursor: pointer;
+  }
 }
 
 /* ===== Messages ===== */
@@ -506,38 +484,40 @@ html[dir="rtl"] .bar-link {
   border-radius: var(--button-border-radius);
   color: var(--layout-color-1);
   overflow: hidden;
-}
-.message:not(:first-child) {
-  border-top-style: none;
-}
-.message:last-child {
-  border-bottom-color: transparent;
-}
 
-.message:hover {
-  border-color: lightgrey;
-  box-shadow: 0 0 1px lightgrey inset, 0 0 1px lightgrey inset, 0 0 1px lightgrey inset;
-}
+  &:not(:first-child) {
+    border-top-style: none;
+  }
 
-.message:hover .message-subject {
-  color: var(--selected-item-color);
-}
+  &:last-child {
+    border-bottom-color: transparent;
+  }
 
-.message .message-subject:hover,
-.message .message-subject:focus {
-  background-color: var(--selected-item-color);
-  color: var(--selected-item-text-color);
-}
+  &:hover {
+    border-color: lightgrey;
+    box-shadow: 0 0 1px lightgrey inset, 0 0 1px lightgrey inset, 0 0 1px lightgrey inset;
 
-.message:focus,
-.message[unread="true"]:focus {
-  border: 1px dotted lightgrey;
-  padding: 1em 0;
+    & .message-subject {
+      color: var(--selected-item-color);
+    }
+  }
+
+  & .message-subject:is(:hover, :focus) {
+    background-color: var(--selected-item-color);
+    color: var(--selected-item-text-color);
+  }
+
+  &:focus,
+  &[unread="true"]:focus {
+    border: 1px dotted lightgrey;
+    padding: 1em 0;
+  }
 }
 
 .message-header {
   margin-bottom: 0.5em;
 }
+
 .message-meta {
   float: inline-end;
   padding-inline-start: 2em;
@@ -559,26 +539,22 @@ html[dir="rtl"] .bar-link {
   display: inline-block;
   white-space: nowrap;
   padding-inline-start: 1ex;
-}
 
-.message-attachment::after {
-  content: ", ";
-}
-.message-attachment:last-child::after {
-  content: "";
+  &::after {
+    content: ", ";
+  }
+  &:last-child::after {
+    content: "";
+  }
 }
 
 .message-attachment-icon {
   display: inline-block;
   width: 16px;
   height: 16px;
-  background: url("chrome://messenger/skin/icons/attach.svg") transparent no-repeat center right;
+  background: url("chrome://messenger/skin/icons/attach.svg") transparent no-repeat center;
   -moz-context-properties: fill;
   fill: currentColor;
-}
-
-html[dir="rtl"] .message-attachment-icon {
-  background-position: center left;
 }
 
 .message-line {
@@ -610,7 +586,8 @@ html[dir="rtl"] .message-attachment-icon {
   padding-inline-start: 2px; /* to line up the subjects with the "Top N messages out of M" */
 }
 
-.message-author, .message-recipients {
+.message-author,
+.message-recipients {
   text-align: end;
   display: inline;
   color: var(--layout-color-1);
@@ -619,10 +596,10 @@ html[dir="rtl"] .message-attachment-icon {
 .message-subject {
   color: var(--linkColor);
   font-size: medium;
-}
 
-.message-subject:hover {
-  cursor: pointer;
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .message-body {
@@ -661,58 +638,58 @@ html[dir="rtl"] .message-attachment-icon {
   align-self: flex-end;
 }
 
-div.loading,
-div.empty {
-  margin: 0 auto;
-  text-align: center;
+:is(.loading, .empty) {
+  div& {
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  span& {
+    color: var(--layout-color-2);
+    background-color: var(--layout-background-2);
+    border: 1px outset var(--layout-border-2);
+    border-radius: var(--button-border-radius);
+  }
+
+  img& {
+    margin: 0 1ex;
+    padding: 0;
+    border: none;
+    vertical-align: middle;
+  }
 }
 
-span.loading,
-span.empty {
-  color: var(--layout-color-2);
-  background-color: var(--layout-background-2);
-  border: 1px outset var(--layout-border-2);
-  border-radius: var(--button-border-radius);
-}
+.empty {
 
-img.loading,
-img.empty {
-  margin: 0 1ex;
-  padding: 0;
-  border: none;
-  vertical-align: middle;
-}
+  div& {
+    display: none;
+  }
 
-html[dir="rtl"] img.empty {
-  transform: scaleX(-1);
-}
+  span& {
+    background-color: inherit;
+    border: none;
+    font-size: large;
+    color: var(--color-blue-70);
+    -moz-context-properties: fill;
+    fill: currentColor;
+  }
 
-div.empty {
-  display: none;
-}
-
-span.empty {
-  background-color: inherit;
-  border: none;
-  font-size: large;
-  color: var(--color-blue-70);
-  -moz-context-properties: fill;
-  fill: currentColor;
+  img&:-moz-locale-dir(rtl) {
+    transform: scaleX(-1);
+  }
 }
 
 #facet-date {
   max-height: 104px;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding-block: 2px;
   overflow: visible;
   /* Put facet-date at the top */
   order: -1;
-}
 
-#facet-date[hide="true"] {
-  max-height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
+  &[hide="true"] {
+    max-height: 0;
+    padding-block: 0;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

@@ -16,10 +16,8 @@
   --folder-color-folder: var(--color-yellow-50);
   --folder-color-folder-filter: var(--color-magenta-60);
   --folder-color-folder-rss: var(--color-orange-60);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
+  @media (prefers-color-scheme: dark) {
     --folder-color-inbox: var(--color-blue-30);
     --folder-color-draft: var(--color-purple-30);
     --folder-color-sent: var(--color-green-30);

@@ -24,10 +24,10 @@ description {
 #quotaDetails {
   padding-inline-start: 6px;
   list-style: none;
-}
 
-#quotaDetails > li {
-  margin-block-end: 4px;
+  & > li {
+    margin-block-end: 4px;
+  }
 }
 
 progress.quota-percentage {

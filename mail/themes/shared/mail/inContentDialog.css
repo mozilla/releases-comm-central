@@ -5,6 +5,13 @@
  @import url("chrome://messenger/skin/colors.css");
 
 dialog {
+  border: 1px solid transparent;
+  border-radius: var(--arrowpanel-border-radius);
+  background-color: var(--dialog-background-color);
+  color: var(--dialog-text-color);
+  padding: 15px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+
   --dialog-text-color: var(--arrowpanel-color);
   --dialog-background-color: var(--arrowpanel-background);
   --dialog-box-text-color: #181920;
@@ -19,10 +26,8 @@ dialog {
   --dialog-highlight-text-color: var(--in-content-primary-button-text-color, var(--selected-item-text-color));
   --dialog-primary-background-hover: color-mix(in srgb, var(--dialog-highlight-color) 85%, black);
   --dialog-primary-background-active: color-mix(in srgb, var(--dialog-highlight-color) 78%, black);
-}
 
-@media (prefers-color-scheme: dark) {
-  dialog {
+  @media (prefers-color-scheme: dark) {
     --dialog-text-color: rgb(251, 251, 254);
     --dialog-background-color: #2a2a2e;
     --dialog-box-text-color: #f9f9fa;
@@ -32,10 +37,8 @@ dialog {
     --dialog-highlight-color: #45a1ff;
     --dialog-highlight-text-color: rgb(43, 42, 51);
   }
-}
 
-@media (prefers-contrast) {
-  dialog {
+  @media (prefers-contrast) {
     --dialog-box-text-color: color-mix(in srgb, currentColor 41%, transparent);
     --dialog-box-background-color: color-mix(in srgb, currentColor 41%, transparent);
     --dialog-box-border-color: -moz-DialogText;
@@ -45,12 +48,105 @@ dialog {
     --dialog-button-background-color-active: SelectedItem;
     border-color: WindowText !important;
   }
-}
 
-/* Global overrides */
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
 
-dialog *[hidden] {
-  display: none !important;
+  &.dialog-critical {
+    box-shadow: 0 2px 20px -8px var(--red-70);
+  }
+
+  /* Global overrides */
+
+  & *[hidden] {
+    display: none !important;
+  }
+
+  & :focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: 1px;
+  }
+
+  /* Typography */
+
+  & h1 {
+    margin-block-start: 0;
+    font-size: 1.17em;
+  }
+
+  & p {
+    margin-block-end: 6px;
+    font-size: 1.1em;
+    line-height: 1.4em;
+  }
+
+  & .tip-caption {
+    opacity: 0.8;
+    font-size: 1em;
+  }
+
+  /* Lists */
+
+  & .radio-list {
+    margin-block: 12px;
+
+    & li {
+      margin-block-end: 12px;
+    }
+  }
+
+  /* Buttons */
+
+  & .button-link {
+    appearance: none;
+    background-color: transparent !important;
+    color: LinkText;
+    border-style: none;
+    padding: 0 3px;
+    margin: 0;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: auto;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  & button {
+    &:not([disabled]):hover {
+    background-color: var(--dialog-button-background-color-hover);
+    color: var(--dialog-button-text-color-hover);
+
+      &:active {
+        background-color: var(--dialog-button-background-color-active);
+      }
+    }
+
+    &.primary {
+      background-color: var(--dialog-highlight-color);
+      color: var(--dialog-highlight-text-color) !important;
+
+      &:not([disabled]):hover {
+        background-color: var(--dialog-primary-background-hover);
+
+        &:active {
+          background-color: var(--dialog-primary-background-active);
+        }
+      }
+    }
+
+    &[disabled] {
+      opacity: 0.4;
+    }
+  }
+
+  /* Radio button */
+
+  & input[type="radio"] {
+    appearance: auto;
+  }
 }
 
 .reset-list {
@@ -61,29 +157,10 @@ dialog *[hidden] {
 
 /* General UI */
 
-dialog {
-  border: 1px solid transparent;
-  border-radius: var(--arrowpanel-border-radius);
-  background-color: var(--dialog-background-color);
-  color: var(--dialog-text-color);
-  padding: 15px;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
-}
-
-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
-}
-
-dialog :focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: 1px;
-}
-
 .dialog-title {
   display: flex;
   align-items: center;
-  margin-block: 0 15px;
-  margin-inline: 15px;
+  margin: 0 15px 15px;
   font-size: 1.4em;
   font-weight: 500;
 }
@@ -92,11 +169,11 @@ dialog :focus-visible {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
-}
 
-.dialog-container.vertical {
-  flex-direction: column;
-  align-items: stretch;
+  &.vertical {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .dialog-header-image {
@@ -105,10 +182,10 @@ dialog :focus-visible {
   stroke: var(--dialog-highlight-color);
   margin-inline-end: 12px;
   height: 32px;
-}
 
-.dialog-header-image.small {
-  height: 16px;
+  &.small {
+    height: 16px;
+  }
 }
 
 .dialog-description {
@@ -117,10 +194,6 @@ dialog :focus-visible {
 }
 
 /* Warning dialog */
-
-dialog.dialog-critical {
-  box-shadow: 0 2px 20px -8px var(--red-70);
-}
 
 .warning-title {
   display: flex;
@@ -152,40 +225,6 @@ dialog.dialog-critical {
   line-height: 1.4em;
 }
 
-/* Typography */
-
-dialog h1 {
-  margin-block-start: 0;
-  font-size: 1.17em;
-}
-
-dialog p {
-  margin-block-end: 6px;
-  font-size: 1.1em;
-  line-height: 1.4em;
-}
-
-dialog .tip-caption {
-  opacity: 0.8;
-  font-size: 1em;
-}
-
-/* Lists */
-
-dialog .radio-list {
-  margin-block: 12px;
-}
-
-dialog .radio-list li {
-  margin-block-end: 12px;
-}
-
-/* Radio button */
-
-dialog input[type="radio"] {
-  appearance: auto;
-}
-
 /* Buttons area */
 
 .vertical-buttons-container {
@@ -208,58 +247,14 @@ dialog input[type="radio"] {
   background-color: var(--dialog-background-color);
   position: sticky;
   bottom: 0;
-}
 
-.dialog-menu-container.two-columns {
-  justify-content: space-between;
-}
+  &.two-columns {
+    justify-content: space-between;
+  }
 
-.dialog-menu-container.menu-in-body {
-  margin-inline: -10px;
-}
-
-/* Buttons */
-
-dialog .button-link {
-  appearance: none;
-  background-color: transparent !important;
-  color: LinkText;
-  border-style: none;
-  padding: 0 3px;
-  margin: 0;
-  font-weight: 600;
-  cursor: pointer;
-  min-height: auto;
-}
-
-dialog .button-link:hover {
-  text-decoration: underline;
-}
-
-dialog button:not([disabled]):hover {
-  background-color: var(--dialog-button-background-color-hover);
-  color: var(--dialog-button-text-color-hover);
-}
-
-dialog button:not([disabled]):hover:active {
-  background-color: var(--dialog-button-background-color-active);
-}
-
-dialog button.primary {
-  background-color: var(--dialog-highlight-color);
-  color: var(--dialog-highlight-text-color) !important;
-}
-
-dialog button.primary:not([disabled]):hover {
-  background-color: var(--dialog-primary-background-hover);
-}
-
-dialog button.primary:not([disabled]):hover:active {
-  background-color: var(--dialog-primary-background-active);
-}
-
-dialog button[disabled] {
-  opacity: 0.4;
+  &.menu-in-body {
+    margin-inline: -10px;
+  }
 }
 
 /* Loading states */
@@ -284,20 +279,20 @@ span.loading-inline {
   width: 16px;
   color: var(--selected-item-color);
   vertical-align: sub;
-}
 
-span.loading-inline::after {
-  position: absolute;
-  content: '';
-  background-image: url("chrome://messenger/skin/icons/loading.svg");
-  background-position: right center;
-  background-repeat: no-repeat;
-  width: 480px;
-  height: 100%;
-  animation: loading-animation 1.05s steps(30) infinite;
-}
+  &::after {
+    position: absolute;
+    content: '';
+    background-image: url("chrome://messenger/skin/icons/loading.svg");
+    background-position: right center;
+    background-repeat: no-repeat;
+    width: 480px;
+    height: 100%;
+    animation: loading-animation 1.05s steps(30) infinite;
+  }
 
-span.loading-inline:dir(rtl)::after {
-  background-position-x: left;
-  animation: loading-animation-rtl 1.05s steps(30) infinite;
+  &:dir(rtl)::after {
+    background-position-x: left;
+    animation: loading-animation-rtl 1.05s steps(30) infinite;
+  }
 }

@@ -10,8 +10,8 @@
 }
 
 #accountsNotificationBox {
-  margin: 0;
   appearance: none;
+  margin: 0;
 }
 
 #noAccountScreen {
@@ -19,11 +19,11 @@
   background-color: Field;
   overflow: auto;
   border-block: 1px solid var(--splitter-color);
-}
 
-:root[lwt-tree] #noAccountScreen {
-  color: var(--sidebar-text-color);
-  background-color: var(--sidebar-background-color);
+  :root[lwt-tree] & {
+    color: var(--sidebar-text-color);
+    background-color: var(--sidebar-background-color);
+  }
 }
 
 #noAccountBox {
@@ -34,6 +34,10 @@
   fill: currentColor;
   margin-inline: 1.5em;
   padding-inline: 3.5em;
+
+  &:-moz-locale-dir(rtl) {
+    background-position-x: right;
+  }
 }
 
 #noAccountInnerBox {
@@ -67,72 +71,74 @@
 }
 
 /* List Items */
-richlistitem:not([selected="true"]) .account-buttons {
-  display: none;
-}
+richlistitem {
 
-richlistitem:not([state="connected"]) .connected,
-richlistitem:not([state="connecting"]) .connecting,
-richlistitem:not([state="disconnected"]) .disconnected,
-richlistitem:not([state="disconnecting"]) .disconnecting,
-richlistitem:not([error="true"]) .error,
-richlistitem:not([state="disconnected"]) .error,
-richlistitem[error="true"] .disconnected,
-richlistitem[selected="true"]:not([state="disconnected"]) .connectButton,
-richlistitem[selected="true"][state="disconnected"] .disconnectButton,
-richlistitem[selected="true"][state="disconnecting"] .disconnectButton,
-richlistitem:not([selected="true"]) .addException,
-richlistitem:not([selected="true"]) .autoSignOn,
-richlistitem:not([reconnectPending="true"]) description[anonid="reconnect"]
-{
-  display: none;
-}
+  &[state="disconnected"]:not([selected="true"]) {
+    color: #999;
+  }
 
-richlistitem[state="disconnected"] .accountIcon {
-  opacity: 0.3;
-}
-richlistitem[state="connecting"] .accountIcon,
-richlistitem[state="disconnected"][selected="true"] .accountIcon {
-  opacity: 0.7;
-}
-richlistitem[state="disconnected"]:not([selected="true"]) {
-  color: #999;
-}
+  &[dragover="down"] {
+    border-bottom: 3px solid var(--selected-item-color);
+  }
 
-richlistitem[error="true"] .accountName {
-  color: rgb(150, 0, 0);
-}
+  &[dragover="up"] {
+    border-top: 3px solid var(--selected-item-color);
+  }
 
-/* When the error message was too long, the buttons were too small */
-richlistitem .account-buttons button {
-  min-height: 1.8em;
-}
+  & .account-buttons {
+    margin-top: 2px;
 
-richlistitem .account-buttons {
-  margin-top: 2px;
-}
+    /* When the error message was too long, the buttons were too small */
+    & button {
+      min-height: 1.8em;
+    }
+  }
 
-richlistitem[dragover="down"] {
-  border-bottom: 3px solid var(--selected-item-color);
-}
+  &:not([selected="true"]) .account-buttons {
+    display: none;
+  }
 
-richlistitem[dragover="up"] {
-  border-top: 3px solid var(--selected-item-color);
+  &:not([state="connected"]) .connected,
+  &:not([state="connecting"]) .connecting,
+  &:not([state="disconnected"]) .disconnected,
+  &:not([state="disconnecting"]) .disconnecting,
+  &:not([error="true"]) .error,
+  &:not([state="disconnected"]) .error,
+  &[error="true"] .disconnected,
+  &[selected="true"]:not([state="disconnected"]) .connectButton,
+  &[selected="true"][state="disconnected"] .disconnectButton,
+  &[selected="true"][state="disconnecting"] .disconnectButton,
+  &:not([selected="true"]) .addException,
+  &:not([selected="true"]) .autoSignOn,
+  &:not([reconnectPending="true"]) description[anonid="reconnect"] {
+    display: none;
+  }
+
+  &[state="disconnected"] .accountIcon {
+    opacity: 0.3;
+  }
+
+  &[state="connecting"] .accountIcon,
+  &[state="disconnected"][selected="true"] .accountIcon {
+    opacity: 0.7;
+  }
+
+  &[error="true"] .accountName {
+    color: rgb(150, 0, 0);
+  }
 }
 
 :root:not([lwt-tree]) #bottombuttons button,
 :root:not([lwt-tree]) richlistbox > richlistitem button {
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
-}
 
-:root:not([lwt-tree]) #bottombuttons button:hover,
-:root:not([lwt-tree]) richlistbox > richlistitem button:hover {
-  border: 1px solid var(--toolbarbutton-active-bordercolor);
-}
+  &:hover {
+    border: 1px solid var(--toolbarbutton-active-bordercolor);
 
-:root:not([lwt-tree]) #bottombuttons button:hover:active,
-:root:not([lwt-tree]) richlistbox > richlistitem button:hover:active {
-  box-shadow: var(--toolbarbutton-active-boxshadow);
+    &:active {
+      box-shadow: var(--toolbarbutton-active-boxshadow);
+    }
+  }
 }
 
 .error {
@@ -154,17 +160,16 @@ richlistitem[dragover="up"] {
   grid-template-columns: 1fr;
   gap: 4px;
   flex: 1 1 auto;
-}
 
-#displayNameAndstatusMessageGrid > * {
-  margin: 0;
-}
+  & > * {
+    margin: 0;
+  }
 
-#displayNameAndstatusMessageGrid > hr {
-  height: 0;
-  border-block-start: 1px solid hsla(0, 0%, 50%, 0.5);
-  border-block-end: none;
-  border-inline: none;
+  & > hr {
+    height: 0;
+    border: none;
+    border-block-start: 1px solid hsla(0, 0%, 50%, 0.5);
+  }
 }
 
 #displayName[usingDefault]:not([editing]) {
@@ -179,12 +184,12 @@ richlistitem[dragover="up"] {
 
 #userIcon {
   border-color: hsla(0, 0%, 50%, 0.3);
-}
 
-#userIcon:hover {
-  border-color: hsla(0, 0%, 50%, 0.5);
-  background-color: hsla(0, 0%, 50%, 0.3);
-  opacity: .4;
+  &:hover {
+    border-color: hsla(0, 0%, 50%, 0.5);
+    background-color: hsla(0, 0%, 50%, 0.3);
+    opacity: .4;
+  }
 }
 
 #statusImageStack > #statusTypeIcon {

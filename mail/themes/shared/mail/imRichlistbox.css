@@ -6,10 +6,7 @@
 
 /* List Items */
 richlistitem {
-  padding-top: 6px;
-  padding-bottom: 6px;
-  padding-inline-start: 4px;
-  padding-inline-end: 4px;
+  padding: 6px 4px;
   min-height: 25px;
   border-bottom: 1px solid var(--splitter-color);
 }
