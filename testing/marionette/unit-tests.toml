@@ -1,0 +1,2 @@
+# mail tests
+["include:../../mail/test/marionette/manifest.ini"]
