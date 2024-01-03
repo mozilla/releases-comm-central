@@ -155,6 +155,11 @@
   text-align: end;
 }
 
+.totalcol-column,
+.unreadcol-column {
+  font-variant-numeric: tabular-nums;
+}
+
 /* Add on the end aligned columns a padding when they are at the end of the row. */
 .sizecol-column[colspan="2"],
 .unreadcol-column[colspan="2"],
