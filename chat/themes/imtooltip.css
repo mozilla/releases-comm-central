@@ -8,16 +8,15 @@
 
 .tooltipTable {
   border-spacing: 0;
-}
 
-.tooltipTable th {
-  text-align: left;
-  white-space: nowrap;
-}
+  & th {
+    text-align: start;
+    white-space: nowrap;
+  }
 
-.tooltipTable th,
-.tooltipTable td {
-  line-height: 1.5em;
+  & :is(th, td) {
+    line-height: 1.5em;
+  }
 }
 
 .chatTooltipSeparator {

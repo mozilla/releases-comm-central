@@ -10,20 +10,18 @@
   --thread-card-inline: 12px;
   --thread-card-inline-doubled: calc(var(--thread-card-inline) * 2);
   --thread-line-height: 100%;
-}
 
-:root[uidensity="compact"] {
-  --thread-pane-container-gap: 0;
-  --indicator-icon-offset-block: 1px;
-}
+  &[uidensity="compact"] {
+    --thread-pane-container-gap: 0;
+    --indicator-icon-offset-block: 1px;
+  }
 
-:root[uidensity="touch"] {
-  --thread-pane-header-padding: 6px;
-  --indicator-icon-offset-block: 6px;
-}
+  &[uidensity="touch"] {
+    --thread-pane-header-padding: 6px;
+    --indicator-icon-offset-block: 6px;
+  }
 
-@media not (prefers-contrast) {
-  :root {
+  @media not (prefers-contrast) {
     --thread-pane-flag-fill: var(--color-orange-30);
     --thread-pane-flag-stroke: var(--color-orange-60);
     --thread-pane-unread-fill: var(--color-green-60);
@@ -38,10 +36,8 @@
     --thread-card-shadow-children-inverse: inset 0 -6px 6px -8px var(--thread-card-shadow-color);
     --thread-line-color: light-dark(var(--color-ink-40), var(--color-ink-50));
     --tags-base-background-color: var(--layout-background-0);
-  }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
+    @media (prefers-color-scheme: dark) {
       --thread-pane-flag-fill: var(--color-orange-40);
       --thread-pane-flag-stroke: var(--color-orange-50);
       --thread-pane-unread-fill: var(--color-green-50);
@@ -50,10 +46,8 @@
       --thread-pane-spam-stroke: var(--color-red-50);
     }
   }
-}
 
-@media (prefers-contrast) {
-  :root {
+  @media (prefers-contrast) {
     --thread-line-color: currentColor;
     --thread-card-background-children: Canvas;
     --thread-card-border-color: color-mix(in srgb, Canvas 50%, CanvasText);
@@ -69,62 +63,81 @@
   overflow-anchor: none;
 }
 
-#threadTree tbody [data-properties~="dummy"]:not(:hover, .selected) {
-  background-color: var(--layout-background-2);
-}
+#threadTree tbody {
 
-#threadTree tbody [data-properties~="dummy"] .subject-line {
-  margin-inline-start: 6px;
-}
+  & button {
+    min-height: auto;
+    min-width: auto;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    border: none;
+  }
 
-#threadTree tbody [data-properties~="dummy"] :is(button:not(.twisty), .subject-line > img) {
-  display: none;
-}
+  & [data-properties~="dummy"] {
+    &:not(:hover, .selected) {
+      background-color: var(--layout-background-2);
+    }
 
-#threadTree tbody [data-properties~="unread"] {
-  font-weight: bold;
-}
+    & .subject-line {
+      margin-inline-start: 6px;
+    }
 
-#threadTree tbody [data-properties~="imapdeleted"] :is(td, .subject-line) {
-  text-decoration: line-through;
-}
+    & :is(button:not(.twisty), .subject-line > img) {
+      display: none;
+    }
+  }
 
-.tree-button-delete img {
-  content: var(--icon-trash-sm);
-}
+  & [data-properties~="unread"] {
+    font-weight: bold;
+  }
 
-.tree-button-restore img {
-  content: var(--icon-restore);
-}
+  & .tree-button-delete img {
+    content: var(--icon-trash-sm);
+  }
 
-#threadTree tbody button.tree-button-restore {
-  display: none;
-}
+  & button.tree-button-restore {
+    display: none;
+  }
 
-#threadTree tbody [data-properties~="imapdeleted"] .tree-button-delete {
-  display: none;
-}
+  & [data-properties~="imapdeleted"] {
+    & .tree-button-delete {
+      display: none;
+    }
 
-#threadTree tbody [data-properties~="imapdeleted"] .tree-button-restore {
-  display: block;
-}
+    & .tree-button-restore {
+      display: block;
 
-#threadTree tbody .children.collapsed[data-properties~="hasUnread"][data-properties~="read"]
-  :where(td, .subject-line) {
-  text-decoration: underline;
+      & img {
+        content: var(--icon-restore);
+      }
+    }
+
+    & :is(td, .subject-line) {
+      text-decoration: line-through;
+    }
+  }
+
+  & .children.collapsed[data-properties~="hasUnread"][data-properties~="read"]
+    :where(td, .subject-line) {
+    text-decoration: underline;
+  }
+
+  & [data-properties~="ignore"] .tree-view-row-thread img {
+    content: var(--icon-thread-ignored);
+  }
+
+  & [data-properties~="ignoreSubthread"] .tree-view-row-thread img {
+    content: var(--icon-subthread-ignored);
+  }
+
+  & [data-properties~="watch"] .tree-view-row-thread img {
+    content: var(--icon-eye);
+  }
 }
 
 #threadTree thead[is="tree-view-table-header"] th::before {
   display: none;
-}
-
-#threadTree tbody button {
-  min-height: auto;
-  min-width: auto;
-  padding: 0;
-  margin: 0;
-  background-color: transparent;
-  border: none;
 }
 
 #sizeCol,
@@ -148,12 +161,8 @@
 .totalcol-column[colspan="2"] {
   /* 25px is the width of the column picker. */
   padding-inline-end: 25px;
-}
 
-@media (-moz-overlay-scrollbars) {
-  .sizecol-column[colspan="2"],
-  .unreadcol-column[colspan="2"],
-  .totalcol-column[colspan="2"] {
+  @media (-moz-overlay-scrollbars) {
     padding-inline-end: calc(25px + env(scrollbar-inline-size));
   }
 }
@@ -248,18 +257,6 @@ tr[data-properties~="tagged"] .tag-icon:not([hidden]) {
   pointer-events: none;
 }
 
-#threadTree tbody [data-properties~="ignore"] .tree-view-row-thread img {
-  content: var(--icon-thread-ignored);
-}
-
-#threadTree tbody [data-properties~="ignoreSubthread"] .tree-view-row-thread img {
-  content: var(--icon-subthread-ignored);
-}
-
-#threadTree tbody [data-properties~="watch"] .tree-view-row-thread img {
-  content: var(--icon-eye);
-}
-
 [is="tree-view-table-body"]:focus > .selected .tree-view-row-thread img,
 [is="tree-view-table-body"]:focus-within > .selected .tree-view-row-thread img,
 [is="tree-view-table-body"] > .selected:focus-within .tree-view-row-thread img {
@@ -279,6 +276,10 @@ tr[data-properties~="tagged"] .tag-icon:not([hidden]) {
 .tree-view-row-flag button {
   color: var(--tree-view-color);
   opacity: 0.8;
+
+ &:hover {
+    opacity: 1;
+  }
 }
 
 .tree-view-row-flag img {
@@ -286,10 +287,8 @@ tr[data-properties~="tagged"] .tag-icon:not([hidden]) {
   pointer-events: none;
   fill: color-mix(in srgb, currentColor 10%, transparent);
   stroke: color-mix(in srgb, currentColor 30%, transparent);
-}
 
-@media (prefers-color-scheme: dark) {
-  .tree-view-row-flag img {
+  @media (prefers-color-scheme: dark) {
     stroke: color-mix(in srgb, currentColor 40%, transparent);
   }
 }
@@ -299,22 +298,18 @@ tr[data-properties~="tagged"] .tag-icon:not([hidden]) {
   background-image: var(--icon-star);
   fill: color-mix(in srgb, currentColor 10%, transparent);
   stroke: color-mix(in srgb, currentColor 30%, transparent);
-}
 
-[is="tree-view-table-body"]:focus > .selected:not([data-properties~="flagged"]) .button-star,
-[is="tree-view-table-body"]:focus-within > .selected:not([data-properties~="flagged"]) .button-star {
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: color-mix(in srgb, currentColor 70%, transparent);
+  [is="tree-view-table-body"]:is(:focus, :focus-within) >
+    .selected:not([data-properties~="flagged"]) & {
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: color-mix(in srgb, currentColor 70%, transparent);
+  }
 }
 
 tr[data-properties~="flagged"] .tree-view-row-flag > .tree-button-flag > img,
 tr[data-properties~="flagged"] .button-star {
   fill: var(--thread-pane-flag-fill);
   stroke: var(--thread-pane-flag-stroke);
-}
-
-.tree-view-row-flag button:hover {
-  opacity: 1;
 }
 
 /* Attachment column variations */
@@ -330,12 +325,10 @@ tr[data-properties~="flagged"] .button-star {
   opacity: 0.7;
 }
 
-[is="tree-view-table-body"]:focus >
-    [is="thread-row"].selected :is(.attachmentcol-column img, .attachment-icon),
-[is="tree-view-table-body"]:focus-within >
-    [is="thread-row"].selected :is(.attachmentcol-column img, .attachment-icon),
+[is="tree-view-table-body"]:is(:focus, :focus-within) >
+  [is="thread-row"].selected :is(.attachmentcol-column img, .attachment-icon),
 [is="tree-view-table-body"] >
-    [is="thread-row"].selected:focus-within :is(.attachmentcol-column img, .attachment-icon) {
+  [is="thread-row"].selected:focus-within :is(.attachmentcol-column img, .attachment-icon) {
   color: currentColor;
 }
 
@@ -349,16 +342,23 @@ tr:not([data-properties~="attach"]) :is(.attachmentcol-column img, .attachment-i
   content: var(--icon-unread-sm);
 }
 
-.tree-view-row-unread button {
+.tree-view-row-unread {
+
+  & button {
   color: var(--tree-view-color);
   opacity: 0.8;
-}
 
-.tree-view-row-unread img {
-  content: var(--icon-dot-xs);
-  pointer-events: none;
-  fill: color-mix(in srgb, currentColor 10%, transparent);
-  stroke: color-mix(in srgb, currentColor 30%, transparent);
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  & img {
+    content: var(--icon-dot-xs);
+    pointer-events: none;
+    fill: color-mix(in srgb, currentColor 10%, transparent);
+    stroke: color-mix(in srgb, currentColor 30%, transparent);
+  }
 }
 
 tr[data-properties~="unread"] .tree-view-row-unread > .tree-button-unread > img {
@@ -366,16 +366,14 @@ tr[data-properties~="unread"] .tree-view-row-unread > .tree-button-unread > img 
   stroke: var(--thread-pane-unread-stroke);
 }
 
-[is="tree-view-table-body"]:focus > .selected > .tree-view-row-unread > .tree-button-unread > img,
-[is="tree-view-table-body"]:focus-within > .selected > .tree-view-row-unread > .tree-button-unread > img,
+[is="tree-view-table-body"]:is(:focus, :focus-within) > .selected >
+  .tree-view-row-unread > .tree-button-unread > img,
 [is="tree-view-table-body"] > .selected:focus-within > .tree-view-row-unread > .tree-button-unread > img {
   fill: transparent;
   stroke: currentColor;
 }
 
-[is="tree-view-table-body"]:focus > tr[data-properties~="unread"].selected >
-  .tree-view-row-unread > .tree-button-unread > img,
-[is="tree-view-table-body"]:focus-within > tr[data-properties~="unread"].selected >
+[is="tree-view-table-body"]:is(:focus, :focus-within) > tr[data-properties~="unread"].selected >
   .tree-view-row-unread > .tree-button-unread > img,
 [is="tree-view-table-body"] > tr[data-properties~="unread"].selected:focus-within >
  .tree-view-row-unread > .tree-button-unread > img {
@@ -386,52 +384,51 @@ tr[data-properties~="unread"].selected .tree-view-row-unread button {
   opacity: 1;
 }
 
-.tree-view-row-unread button:hover {
-  opacity: 1;
-}
-
 /* Subject column variations */
 
 #subjectColButton {
   /* TODO: make this density aware. */
   padding-inline-start: 19px;
   text-indent: 0;
+
+  .threaded & {
+    /* TODO: make this density aware. */
+    padding-inline-start: 41px;
+  }
 }
 
-.threaded #subjectColButton {
-  /* TODO: make this density aware. */
-  padding-inline-start: 41px;
-}
+tr[is="thread-row"] {
 
-tr[is="thread-row"] td > .thread-container {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  max-height: inherit;
-  box-sizing: border-box;
-}
+  & td > .thread-container {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-height: inherit;
+    box-sizing: border-box;
+  }
 
-tr[is="thread-row"] .subject-line {
-  margin-inline-start: calc(16px * var(--thread-level));
-  pointer-events: none;
-  /* Line height px exception to avoid vertical cut off of characters. This
-     should follow and match the density variation height of the row. */
-  line-height: 22px;
+  & .subject-line {
+    margin-inline-start: calc(16px * var(--thread-level));
+    pointer-events: none;
+    /* Line height px exception to avoid vertical cut off of characters. This
+       should follow and match the density variation height of the row. */
+    line-height: 22px;
+
+    & img {
+      visibility: hidden;
+      width: 16px;
+      height: 16px;
+      vertical-align: middle;
+      margin-block-start: -2px;
+      margin-inline-end: 3px;
+    }
+  }
 }
 
 [is="tree-view-table-body"][role="treegrid"] tr[is="thread-row"]:not(.children) .subject-line {
   padding-inline-start: 22px;
-}
-
-tr[is="thread-row"] .subject-line img {
-  visibility: hidden;
-  width: 16px;
-  height: 16px;
-  vertical-align: middle;
-  margin-block-start: -2px;
-  margin-inline-end: 3px;
 }
 
 tr[is="thread-card"] .state {
@@ -497,9 +494,10 @@ tr[data-properties~="replied"][data-properties~="forwarded"][data-properties~="r
   stroke: var(--color-purple-50);
 }
 
-[is="tree-view-table-body"]:focus > [is="thread-row"].selected :is(.subject-line img, .state),
-[is="tree-view-table-body"]:focus-within > [is="thread-row"].selected :is(.subject-line img, .state),
-[is="tree-view-table-body"] > [is="thread-row"].selected:focus-within :is(.subject-line img, .state) {
+[is="tree-view-table-body"]:is(:focus, :focus-within) >
+  [is="thread-row"].selected :is(.subject-line img, .state),
+[is="tree-view-table-body"] > [is="thread-row"].selected:focus-within
+  :is(.subject-line img, .state) {
   fill: currentColor !important;
   stroke: currentColor !important;
 }
@@ -552,28 +550,29 @@ tr[is="thread-row"] .twisty {
   }
 }
 
-tr:is([is="thread-row"], [is="thread-card"]):not(.children) .twisty {
-  display: none;
-}
+tr:is([is="thread-row"], [is="thread-card"]) {
 
-tr:is([is="thread-row"], [is="thread-card"]) .twisty-icon {
-  width: 12px;
-  height: 12px;
-  content: var(--icon-nav-down-sm);
-  margin: 1px;
-}
+  &:not(.children) .twisty {
+    display: none;
+  }
 
-tr:is([is="thread-row"], [is="thread-card"]).children.collapsed .twisty-icon {
-  transform: rotate(-90deg);
-}
+  & .twisty-icon {
+    width: 12px;
+    height: 12px;
+    content: var(--icon-nav-down-sm);
+    margin: 1px;
 
-tr:is([is="thread-row"], [is="thread-card"]).children.collapsed:dir(rtl) .twisty-icon {
-  transform: rotate(90deg);
-}
+    @media (prefers-reduced-motion: no-preference) {
+      transition: transform 200ms ease;
+    }
+  }
 
-@media (prefers-reduced-motion: no-preference) {
-  tr:is([is="thread-row"], [is="thread-card"]) .twisty-icon {
-    transition: transform 200ms ease;
+  &.children.collapsed .twisty-icon {
+    transform: rotate(-90deg);
+
+    &:dir(rtl) {
+      transform: rotate(90deg);
+    }
   }
 }
 
@@ -605,10 +604,8 @@ tr:is([is="thread-row"], [is="thread-card"]).children.collapsed:dir(rtl) .twisty
 :is(.tree-view-row-spam img, .button-spam) {
   fill: color-mix(in srgb, currentColor 10%, transparent);
   stroke: color-mix(in srgb, currentColor 30%, transparent);
-}
 
-@media (prefers-color-scheme: dark) {
-  :is(.tree-view-row-spam img, .button-spam) {
+  @media (prefers-color-scheme: dark) {
     stroke: color-mix(in srgb, currentColor 40%, transparent);
   }
 }
@@ -630,17 +627,13 @@ tr[data-properties~="junk"] :is(.tree-view-row-spam > .tree-button-spam > img, .
 #threadTree tr[data-properties~="junk"] :is(.date, .subject) {
   color: var(--color-red-60);
   font-weight: 600;
-}
 
-@media (prefers-color-scheme: dark) {
-  #threadTree tr[data-properties~="junk"] :is(.date, .subject) {
+  @media (prefers-color-scheme: dark) {
     color: var(--color-red-40);
   }
 }
 
-#threadTree [is="tree-view-table-body"]:focus >
-  .selected[data-properties~="junk"] :is(.date, .subject),
-#threadTree [is="tree-view-table-body"]:focus-within >
+#threadTree [is="tree-view-table-body"]:is(:focus, :focus-within) >
   .selected[data-properties~="junk"] :is(.date, .subject),
 #threadTree [is="tree-view-table-body"] >
   .selected[data-properties~="junk"]:focus-within :is(.date, .subject) {
@@ -665,18 +658,18 @@ tr[data-properties~="junk"] :is(.tree-view-row-spam > .tree-button-spam > img, .
   -moz-context-properties: stroke, fill-opacity;
   stroke: currentColor;
   fill-opacity: 0.3;
-}
 
-.correspondentcol-column:dir(rtl) {
-  background-position-x: right 1px;
+  &:dir(rtl) {
+    background-position-x: right 1px;
+  }
 }
 
 tr[data-properties~="outgoing"] .correspondentcol-column {
   background-image: var(--icon-nav-forward);
-}
 
-tr[data-properties~="outgoing"] .correspondentcol-column:dir(rtl) {
-  background-image: var(--icon-nav-back);
+  &:dir(rtl) {
+    background-image: var(--icon-nav-back);
+  }
 }
 
 tr[data-properties~="outgoing"].selected .correspondentcol-column {
@@ -690,6 +683,7 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
 }
 
 tr[is="thread-card"] {
+
   &[aria-expanded="true"] + tr[data-properties~="thread-children"] {
     box-shadow: var(--thread-card-shadow-children);
 
@@ -827,6 +821,45 @@ tr[is="thread-card"] {
   @media (-moz-overlay-scrollbars) {
     padding-inline-end: max(env(scrollbar-inline-size), var(--thread-card-inline));
   }
+
+  & .sender {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  & .date {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    opacity: 0.85;
+  }
+
+  #threadTree [data-properties~="unread"] & :is(.sender, .subject) {
+    font-weight: bold;
+  }
+
+  #threadTree [data-properties~="new"]:not(.selected) & :is(.subject, .date) {
+    color: var(--new-folder-color);
+  }
+}
+
+.thread-card-subject-container {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: 1 1 0;
+
+  & .sender {
+    font-weight: 400;
+  }
+
+  & .subject {
+    font-size: 1.1rem;
+    font-weight: normal;
+    flex: 1 1 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .thread-card-row {
@@ -841,79 +874,41 @@ tr[is="thread-card"] {
   &:not(.thread-card-last-row) {
     margin-inline-start: 3px;
   }
-}
 
-.thread-card-row > :is(.sender, .subject) {
-  flex: 1 1 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  & > :is(.sender, .subject) {
+    flex: 1 1 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-.thread-card-row > .thread-card-icon-info {
-  display: flex;
-  margin-inline-start: auto;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-}
+  & > .thread-card-icon-info {
+    display: flex;
+    margin-inline-start: auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
 
-.is-outgoing [data-properties~="outgoing"] .thread-card-row > .sender {
-  background-position-x: 0;
-  background-position-y: center;
-  background-repeat: no-repeat;
-  background-image: var(--icon-nav-forward);
-  -moz-context-properties: stroke, fill-opacity;
-  stroke: currentColor;
-  fill-opacity: 0.3;
-  padding-inline-start: 18px;
-}
+  .is-outgoing [data-properties~="outgoing"] & > .sender {
+    background-position-x: 0;
+    background-position-y: center;
+    background-repeat: no-repeat;
+    background-image: var(--icon-nav-forward);
+    -moz-context-properties: stroke, fill-opacity;
+    stroke: currentColor;
+    fill-opacity: 0.3;
+    padding-inline-start: 18px;
 
-.is-outgoing [data-properties~="outgoing"] .thread-card-row > .sender:dir(rtl)::before {
-  background-image: var(--icon-nav-back);
-}
+    &:dir(rtl) {
+      background-image: var(--icon-nav-back);
+      background-position-x: 100%
+    }
+  }
 
-[data-properties~="dummy"] > td > .thread-card-container > .thread-card-row:first-child {
-  display: none;
-}
-
-.thread-card-container .sender {
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.thread-card-subject-container .sender {
-  font-weight: 400;
-}
-
-.thread-card-subject-container {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  flex: 1 1 0;
-}
-
-.thread-card-subject-container .subject {
-  font-size: 1.1rem;
-  font-weight: normal;
-  flex: 1 1 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.thread-card-container .date {
-  flex: 0 0 auto;
-  white-space: nowrap;
-  font-size: 0.95rem;
-  opacity: 0.85;
-}
-
-#threadTree [data-properties~="unread"] .thread-card-container :is(.sender, .subject) {
-  font-weight: bold;
-}
-
-#threadTree [data-properties~="new"]:not(.selected) .thread-card-container :is(.subject, .date) {
-  color: var(--new-folder-color);
+  [data-properties~="dummy"] > td > .thread-card-container > &:first-child {
+    display: none;
+  }
 }
 
 /* Header bar */

@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 button {
-  padding-inline: 9px;
-  padding-block: 10px 6px;
+  padding: 10px 9px 6px;
   box-sizing: border-box;
   border-radius: 4px 4px 0 0;
   cursor: default;
@@ -34,10 +33,10 @@ button {
   &[aria-selected="true"] {
     background-color: var(--layout-background-1);
     box-shadow: 0 2px 8px -5px var(--color-black);
-  }
 
-  &[aria-selected="true"]::before {
-    background-color: var(--primary);
+    &::before {
+      background-color: var(--primary);
+    }
   }
 
   &:not([aria-selected="true"]):hover {

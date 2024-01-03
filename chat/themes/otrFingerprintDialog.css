@@ -45,10 +45,10 @@ dialog {
   padding-inline: 6px 30px;
   flex-grow: 1;
   margin: 2px 4px;
-}
 
-.input-field:invalid {
-  box-shadow: 0 0 2px 1px var(--warning-color);
+  &:invalid {
+    box-shadow: 0 0 2px 1px var(--warning-color);
+  }
 }
 
 .input-helper {

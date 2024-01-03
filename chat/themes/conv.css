@@ -14,11 +14,11 @@
 /* disable overflow in themes until bug 42676 is fixed in Mozilla */
 #Chat {
   overflow: hidden !important;
-}
 
-#Chat * {
-  overflow: visible !important;
-  unicode-bidi: plaintext;
+  & * {
+    overflow: visible !important;
+    unicode-bidi: plaintext;
+  }
 }
 
 #unread-ruler {
@@ -30,10 +30,10 @@
 
 .ib-nick {
   font-weight: bold;
-}
 
-.ib-nick[left] {
-  color: grey;
+  &[left] {
+    color: grey;
+  }
 }
 
 .monospaced {

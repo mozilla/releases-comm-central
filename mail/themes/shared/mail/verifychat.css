@@ -9,9 +9,9 @@ p {
 #challengePresentation {
   text-align: center;
   font-weight: bold;
-}
 
-#challengePresentation span:not([hidden]) {
-  /* Make each span start on a newline. */
-  display: block;
+  & span:not([hidden]) {
+    /* Make each span start on a newline. */
+    display: block;
+  }
 }

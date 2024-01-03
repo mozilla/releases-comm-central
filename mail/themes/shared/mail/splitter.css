@@ -24,139 +24,130 @@ hr[is="pane-splitter"] {
   --splitter-margin-size: calc(var(--splitter-occupy-size) - var(--splitter-content-size));
   border-width: var(--splitter-occupy-size);
   border-color: var(--splitter-color);
-}
 
-hr[is="pane-splitter"]:not([resize-direction="horizontal"]):not(.splitter-before) {
-  height: var(--splitter-content-size);
-  border-block-start-style: solid;
-  margin-block-end: var(--splitter-margin-size);
-}
+  &:not([resize-direction="horizontal"]) {
+    &:not(.splitter-before) {
+      height: var(--splitter-content-size);
+      border-block-start-style: solid;
+      margin-block-end: var(--splitter-margin-size);
+    }
 
-hr[is="pane-splitter"]:not([resize-direction="horizontal"]).splitter-before {
-  height: var(--splitter-content-size);
-  border-block-end-style: solid;
-  margin-block-start: var(--splitter-margin-size);
-}
-
-hr[is="pane-splitter"][resize-direction="horizontal"]:not(.splitter-before) {
-  width: var(--splitter-content-size);
-  border-inline-start-style: solid;
-  margin-inline-end: var(--splitter-margin-size);
-}
-
-hr[is="pane-splitter"][resize-direction="horizontal"].splitter-before {
-  width: var(--splitter-content-size);
-  border-inline-end-style: solid;
-  margin-inline-start: var(--splitter-margin-size);
-}
-
-/* Collapsed splitters. */
-
-hr[is="pane-splitter"].splitter-collapsed {
-  /* Occupy zero space. */
-  --splitter-occupy-size: 0px;
-  /* Make sure we appear above other splitters. */
-  z-index: calc(var(--splitter-z-index) + 1);
-}
-
-hr[is="pane-splitter"]::after {
-  /* We create a pseudo-element that occupies the splitter content. We will only
-   * show this when the splitter is collapsed and being resized or hovered. */
-  background-color: var(--selected-item-color);
-  content: "";
-  display: block;
-  width: 100%;
-  height: 100%;
-  /* We hide this element with scaleY(0) or scaleX(0) so we can smoothly
-   * grow the element between the hidden and full-height or full-width
-   * states. */
-  transform: scaleY(0);
-}
-
-hr[is="pane-splitter"]:not(.splitter-before)::after {
-  /* Grow top-to-bottom. */
-  transform-origin: top;
-}
-
-hr[is="pane-splitter"].splitter-before::after {
-  transform-origin: bottom;
-}
-
-hr[is="pane-splitter"][resize-direction="horizontal"]::after {
-  /* Grow left-to-right or right-to-left instead. */
-  transform: scaleX(0);
-}
-
-hr[is="pane-splitter"][resize-direction="horizontal"]:is(
-  :not(.splitter-before):dir(ltr),
-  .splitter-before:dir(rtl)
-)::after {
-  transform-origin: left;
-}
-
-hr[is="pane-splitter"][resize-direction="horizontal"]:is(
-  .splitter-before:dir(ltr),
-  :not(.splitter-before):dir(rtl)
-)::after {
-  transform-origin: right;
-}
-
-hr[is="pane-splitter"]:not([disabled]).splitter-collapsed:is(
-  :hover,
-  .splitter-resizing
-)::after {
-  /* Grow to full height. */
-  transform: scaleY(1);
-}
-
-hr[is="pane-splitter"][resize-direction="horizontal"]:not([disabled]).splitter-collapsed:is(
-  :hover,
-  .splitter-resizing
-)::after {
-  /* Grow to full width. */
-  transform: scaleX(1);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  /* NOTE: We only show a smooth transition from scale 0 to scale 1, or
-   * vice versa, whilst the splitter is collapsed. In particular, we do *not*
-   * want a smooth transition when we switch from collapsed to not collapsed: in
-   * this case we want to immediately shrink back to zero size. In contrast, the
-   * switch from not collapsed to collapsed whilst dragging *is* a smooth
-   * transition. */
-  hr[is="pane-splitter"].splitter-collapsed::after {
-    transition: transform 200ms ease;
+    &.splitter-before {
+      height: var(--splitter-content-size);
+      border-block-end-style: solid;
+      margin-block-start: var(--splitter-margin-size);
+    }
   }
-}
 
-/* Splitter cursors. */
+  &[resize-direction="horizontal"] {
+    &:not(.splitter-before) {
+      width: var(--splitter-content-size);
+      border-inline-start-style: solid;
+      margin-inline-end: var(--splitter-margin-size);
+    }
 
-hr[is="pane-splitter"]:not([disabled]) {
-  cursor: ns-resize;
-}
+    &.splitter-before {
+      width: var(--splitter-content-size);
+      border-inline-end-style: solid;
+      margin-inline-start: var(--splitter-margin-size);
+    }
+  }
 
-hr[is="pane-splitter"]:not([disabled]).splitter-collapsed:not(.splitter-before) {
-  cursor: s-resize;
-}
+  /* Collapsed splitters. */
 
-hr[is="pane-splitter"]:not([disabled]).splitter-collapsed.splitter-before {
-  cursor: n-resize;
-}
+  &.splitter-collapsed {
+    /* Occupy zero space. */
+    --splitter-occupy-size: 0px;
+    /* Make sure we appear above other splitters. */
+    z-index: calc(var(--splitter-z-index) + 1);
+  }
 
-hr[is="pane-splitter"][resize-direction="horizontal"]:not([disabled]) {
-  cursor: ew-resize;
-}
+  &::after {
+    /* We create a pseudo-element that occupies the splitter content. We will only
+     * show this when the splitter is collapsed and being resized or hovered. */
+    background-color: var(--selected-item-color);
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* We hide this element with scaleY(0) or scaleX(0) so we can smoothly
+     * grow the element between the hidden and full-height or full-width
+     * states. */
+    transform: scaleY(0);
+  }
 
-hr[is="pane-splitter"][resize-direction="horizontal"]:not([disabled]).splitter-collapsed:is(
-  .splitter-before:dir(ltr),
-  :not(.splitter-before):dir(rtl)
-) {
-  cursor: w-resize;
-}
+  &:not(.splitter-before)::after {
+    /* Grow top-to-bottom. */
+    transform-origin: top;
+  }
 
-hr[is="pane-splitter"][resize-direction="horizontal"]:not([disabled]).splitter-collapsed:is(
-  :not(.splitter-before):dir(ltr),
-  .splitter-before:dir(rtl)
-) {
-  cursor: e-resize;
+  &.splitter-before::after {
+    transform-origin: bottom;
+  }
+
+  &[resize-direction="horizontal"] {
+    &::after {
+      /* Grow left-to-right or right-to-left instead. */
+      transform: scaleX(0);
+    }
+
+    &:is(:not(.splitter-before):dir(ltr), .splitter-before:dir(rtl))::after {
+      transform-origin: left;
+    }
+
+    &:is(.splitter-before:dir(ltr), :not(.splitter-before):dir(rtl))::after {
+      transform-origin: right;
+    }
+  }
+
+  &:not([disabled]).splitter-collapsed:is(:hover, .splitter-resizing)::after {
+    /* Grow to full height. */
+    transform: scaleY(1);
+  }
+
+  &[resize-direction="horizontal"]:not([disabled]).splitter-collapsed:is(
+    :hover,
+    .splitter-resizing
+  )::after {
+    /* Grow to full width. */
+    transform: scaleX(1);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* NOTE: We only show a smooth transition from scale 0 to scale 1, or
+     * vice versa, whilst the splitter is collapsed. In particular, we do *not*
+     * want a smooth transition when we switch from collapsed to not collapsed: in
+     * this case we want to immediately shrink back to zero size. In contrast, the
+     * switch from not collapsed to collapsed whilst dragging *is* a smooth
+     * transition. */
+    &.splitter-collapsed::after {
+      transition: transform 200ms ease;
+    }
+  }
+
+  /* Splitter cursors. */
+
+  &:not([disabled]) {
+    cursor: ns-resize;
+
+    &.splitter-collapsed:not(.splitter-before) {
+      cursor: s-resize;
+    }
+
+    &.splitter-collapsed.splitter-before {
+      cursor: n-resize;
+    }
+  }
+
+  &[resize-direction="horizontal"]:not([disabled]) {
+    cursor: ew-resize;
+
+    &.splitter-collapsed:is(.splitter-before:dir(ltr), :not(.splitter-before):dir(rtl)) {
+      cursor: w-resize;
+    }
+
+    &.splitter-collapsed:is(:not(.splitter-before):dir(ltr), .splitter-before:dir(rtl)) {
+      cursor: e-resize;
+    }
+  }
 }
