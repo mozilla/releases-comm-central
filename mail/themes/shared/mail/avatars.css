@@ -10,30 +10,26 @@
 
   --recipient-avatar-color: var(--color-gray-50);
   --recipient-avatar-background-color: var(--color-gray-30);
-}
 
-:root[uidensity="compact"] {
-  --recipient-avatar-size: 24px;
-  --recipient-avatar-placeholder-size: contain;
-  --recipient-multi-line-gap: 0;
-}
+  &[uidensity="compact"] {
+    --recipient-avatar-size: 24px;
+    --recipient-avatar-placeholder-size: contain;
+    --recipient-multi-line-gap: 0;
+  }
 
-:root[uidensity="touch"] {
-  --recipient-avatar-size: 32px;
-  --recipient-avatar-placeholder-size: 16px;
-}
+  &[uidensity="touch"] {
+    --recipient-avatar-size: 32px;
+    --recipient-avatar-placeholder-size: 16px;
+  }
 
-@media not (prefers-contrast) {
-  @media (prefers-color-scheme: dark) {
-    :root {
+  @media not (prefers-contrast) {
+    @media (prefers-color-scheme: dark) {
       --recipient-avatar-color: var(--color-gray-30);
       --recipient-avatar-background-color: var(--color-gray-60);
     }
   }
-}
 
-@media (prefers-contrast) {
-  :root {
+  @media (prefers-contrast) {
     --recipient-avatar-color: currentColor;
     --recipient-avatar-background-color: color-mix(in srgb, currentColor 30%, transparent);
   }
@@ -52,20 +48,20 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-}
 
-.recipient-avatar.is-mail-list {
-  background: none;
-}
+  & img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-.recipient-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+  &.is-mail-list {
+    background: none;
 
-.recipient-avatar.is-mail-list img {
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
+    & img {
+      -moz-context-properties: fill, stroke;
+      fill: color-mix(in srgb, currentColor 20%, transparent);
+      stroke: currentColor;
+    }
+  }
 }

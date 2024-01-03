@@ -28,15 +28,15 @@ richlistitem {
   display: flex;
   align-items: center;
   padding: 4px 8px;
-}
 
-richlistitem > label {
-  flex: 1 1 auto;
-}
+  & > label {
+    flex: 1 1 auto;
+  }
 
-richlistitem > img {
-  flex: 0 0 auto;
-  margin-inline-end: 8px;
-  width: 32px;
-  height: 32px;
+  & > img {
+    flex: 0 0 auto;
+    margin-inline-end: 8px;
+    width: 32px;
+    height: 32px;
+  }
 }

@@ -11,12 +11,14 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:-moz-lwtheme .attachmentList .attachmentItem[selected="true"] {
-    color: var(--lwt-text-color);
-    background: rgba(249, 249, 250, .1);
-  }
+  :root:-moz-lwtheme .attachmentList {
+    & .attachmentItem[selected="true"] {
+      color: var(--lwt-text-color);
+      background: rgba(249, 249, 250, 0.1);
+    }
 
-  :root:-moz-lwtheme .attachmentList:focus .attachmentItem[selected="true"] {
-    background: var(--dark-lwt-highlight-color);
+    &:focus .attachmentItem[selected="true"] {
+      background: var(--dark-lwt-highlight-color);
+    }
   }
 }

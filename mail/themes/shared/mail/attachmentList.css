@@ -17,11 +17,16 @@
   flex: 1;
   flex-direction: row;
   flex-wrap: wrap;
-}
 
-.attachmentList[collapsed] {
-  display: none;
-  height: 0;
+  &[collapsed] {
+    display: none;
+    height: 0;
+  }
+
+  :root[lwt-tree] & {
+    background-color: var(--sidebar-background-color);
+    color: var(--sidebar-text-color);
+  }
 }
 
 .attachmentItem {
@@ -32,100 +37,107 @@
   display: flex;
   align-items: baseline;
   flex-shrink: 1;
-}
 
-.attachmentItem > * {
-  /* We treat the entire attachment item as a single object for click events.
-   * This ensures that dragging will drag the entire widget by default, and
-   * click event targets will point to the attachmentItem, rather than a
-   * descendant. */
-  pointer-events: none;
-}
+  & > * {
+    /* We treat the entire attachment item as a single object for click events.
+     * This ensures that dragging will drag the entire widget by default, and
+     * click event targets will point to the attachmentItem, rather than a
+     * descendant. */
+    pointer-events: none;
+  }
 
-.attachmentList:focus > .attachmentItem[selected="true"] > * {
-  color: inherit;
-}
+  & > .attachmentcell-icon {
+    flex: 0 0 auto;
+    align-self: center;
+  }
 
-.attachmentItem > .attachmentcell-icon {
-  flex: 0 0 auto;
-  align-self: center;
-}
+  & > .attachmentcell-name {
+    flex: 0 1 auto;
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+  }
 
-.attachmentItem > .attachmentcell-name {
-  flex: 0 1 auto;
-  white-space: nowrap;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
-}
+  & > .attachmentcell-extension {
+    /* The extension part grows to fill the available space after the attachment
+     * name, but the name part shrinks when we do not have enough space. */
+    flex: 1 0 auto;
+  }
 
-.attachmentItem > .attachmentcell-extension {
-  /* The extension part grows to fill the available space after the attachment
-   * name, but the name part shrinks when we do not have enough space. */
-  flex: 1 0 auto;
-}
+  & > .attachmentcell-size {
+    flex: 0 0 auto;
+  }
 
-.attachmentItem > .attachmentcell-size {
-  flex: 0 0 auto;
-}
+  &:not(.notfound):hover .text-link {
+    text-decoration: underline;
+  }
 
-.attachmentList[seltype="multiple"]:focus .attachmentItem[current="true"] {
-  border-color: var(--selected-item-color);
-  outline: none;
-}
+  .attachmentList:focus &[selected="true"] {
+    background-color: var(--button-primary-background-color)
 
-/* Hide the drop indicator for the message pane attachment list. */
-#attachmentList .attachmentItem .attach-drop-indicator {
-  display: none;
-}
+    & .attachmentcell-size {
+      opacity: 0.8;
+    }
 
-#attachmentBucket .attachmentItem .attach-drop-indicator {
-  position: absolute;
-  z-index: 3;
-  display: none;
-  margin: -6px -6px -4px;
-  transform: scale(0.8);
-}
+    & > * {
+      color: inherit;
+    }
+  }
 
-#attachmentBucket .attachmentItem[dropOn="before"] .attach-drop-indicator.before {
-  display: inline;
-}
+  .attachmentList[seltype="multiple"]:focus &[current="true"] {
+    border-color: var(--selected-item-color);
+    outline: none;
 
-#attachmentBucket .attachmentItem[dropOn="after"] .attach-drop-indicator.after {
-  display: inline;
-}
+    &[selected="true"] {
+      border-color: var(--sidebar-highlight-border-color,
+                        var(--item-focus-selected-border-color));
+    }
+  }
 
-.attachmentList[seltype="multiple"]:focus
-  .attachmentItem[current="true"][selected="true"] {
-  border-color: var(--sidebar-highlight-border-color, var(--item-focus-selected-border-color));
-}
+  /* Hide the drop indicator for the message pane attachment list. */
+  #attachmentList & .attach-drop-indicator {
+    display: none;
+  }
 
-:root[lwt-tree] .attachmentList {
-  background-color: var(--sidebar-background-color);
-  color: var(--sidebar-text-color);
-}
+  #attachmentBucket & .attach-drop-indicator {
+    position: absolute;
+    z-index: 3;
+    display: none;
+    margin: -6px -6px -4px;
+    transform: scale(0.8);
+  }
 
-:root[lwt-tree] .attachmentList .attachmentItem {
-  color: var(--sidebar-text-color) !important;
-}
+  #attachmentBucket &[dropOn="before"] .attach-drop-indicator.before {
+    display: inline;
+  }
 
-:root[lwt-tree] .attachmentList .attachmentItem:hover {
-  background-color: hsla(0, 0%, 50%, .15);
-  border-color: transparent;
-}
+  #attachmentBucket &[dropOn="after"] .attach-drop-indicator.after {
+    display: inline;
+  }
 
-:root[lwt-tree] .attachmentList .attachmentItem[selected="true"] {
-  border-color: hsla(0, 0%, 50%, 0.2);
-  background: hsla(0, 0%, 50%, 0.2);
-  color: var(--sidebar-text-color);
-}
+  :root[lwt-tree] .attachmentList & {
+    color: var(--sidebar-text-color) !important;
+  }
 
-:root[lwt-tree] .attachmentList:focus .attachmentItem[selected="true"] {
-  background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, .3));
-  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color)) !important;
-}
+  :root[lwt-tree] .attachmentList &:hover {
+    background-color: hsla(0, 0%, 50%, 0.15);
+    border-color: transparent;
+  }
 
-:root[lwt-tree-brighttext] .attachmentList:focus .attachmentItem[selected="true"] {
-  background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
+  :root[lwt-tree] .attachmentList &[selected="true"] {
+    border-color: hsla(0, 0%, 50%, 0.2);
+    background: hsla(0, 0%, 50%, 0.2);
+    color: var(--sidebar-text-color);
+  }
+
+  :root[lwt-tree] .attachmentList:focus &[selected="true"] {
+    background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.3));
+    color: var(--sidebar-highlight-text-color, var(--sidebar-text-color)) !important;
+  }
+
+  :root[lwt-tree-brighttext] .attachmentList:focus &[selected="true"] {
+    background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.1));
+  }
 }
 
 #attachmentName.notfound,
@@ -158,12 +170,4 @@
 
 .attachmentcell-size {
   opacity: 0.6;
-}
-
-.attachmentList:focus .attachmentItem[selected="true"] .attachmentcell-size {
-  opacity: 0.8;
-}
-
-.attachmentItem:not(.notfound):hover .text-link {
-  text-decoration: underline;
 }

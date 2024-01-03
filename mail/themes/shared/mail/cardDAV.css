@@ -8,17 +8,17 @@
   border-radius: 2px;
   padding: 3px 4px;
   color: var(--text-color);
-}
 
-#carddav-statusArea[status=error] {
-  background-color: #FFE900;
-  border-color: #F2D00F;
-  color: -moz-DialogText;
-}
+  &[status=error] {
+    background-color: #FFE900;
+    border-color: #F2D00F;
+    color: -moz-DialogText;
+  }
 
-#carddav-statusArea[status=loading] {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.1);
+  &[status=loading] {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
 }
 
 #carddav-statusContainer {
@@ -28,14 +28,14 @@
   /* center align */
   max-width: max-content;
   margin-inline: auto;
-}
 
-#carddav-statusContainer > #carddav-statusImage {
-  flex: 0 0 auto;
-}
+  & > #carddav-statusImage {
+    flex: 0 0 auto;
+  }
 
-#carddav-statusContainer > #carddav-statusMessage {
-  flex: 1 1 auto;
+  & > #carddav-statusMessage {
+    flex: 1 1 auto;
+  }
 }
 
 #carddav-statusImage {
@@ -43,15 +43,14 @@
   fill: currentColor;
   width: 16px;
   height: 16px;
-}
 
-#carddav-statusImage:not([src]) {
-  display: none;
+  &:not([src]) {
+    display: none;
+  }
 }
 
 #carddav-resultsArea {
-  margin-block-start: 6px;
-  margin-block-end: 6px;
+  margin-block: 6px;
 }
 
 #carddav-availableBooksHeader {
@@ -71,10 +70,10 @@
 
 .input-container {
   display: flex;
-}
 
-.input-container > * {
-  flex: 1;
+  & > * {
+    flex: 1;
+  }
 }
 
 #carddav-refreshActive-cell {

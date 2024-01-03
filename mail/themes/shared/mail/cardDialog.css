@@ -17,6 +17,10 @@ window {
 
 .input-inline {
   margin-inline-end: 0 !important;
+
+  .showingPhonetic & {
+    max-width: 16ch;
+  }
 }
 
 /* ::::: Card Edit dialog ::::: */
@@ -35,10 +39,6 @@ window {
 
 .align-end {
   text-align: end;
-}
-
-.showingPhonetic .input-inline {
-  max-width: 16ch;
 }
 
 #BirthMonth[value="-1"],
@@ -100,10 +100,10 @@ menulist::part(icon) {
 
 panel[type="autocomplete-richlistbox"] {
   border: 1px solid var(--in-content-box-border-color, ThreeDShadow);
-}
 
-panel[type="autocomplete-richlistbox"]::part(content) {
-  border-width: 0;
+  &::part(content) {
+    border-width: 0;
+  }
 }
 
 .autocomplete-richlistbox {
@@ -137,10 +137,10 @@ panel[type="autocomplete-richlistbox"]::part(content) {
 
 #PhotoDropTarget {
   margin-top: 5px;
-}
 
-#PhotoDropTarget:hover {
-  border: 1px dashed hsla(0, 0%, 50%, 0.5);
+  &:hover {
+    border: 1px dashed hsla(0, 0%, 50%, 0.5);
+  }
 }
 
 #PhotoFile {
@@ -153,8 +153,9 @@ panel[type="autocomplete-richlistbox"]::part(content) {
   max-height: 0;
   transition: all .5s ease-out;
   overflow: hidden;
-}
-#ProgressContainer.expanded {
-  margin-top: 10px;
-  max-height: 40px; /* something higher than the actual height, but not too large */
+
+  &.expanded {
+    margin-top: 10px;
+    max-height: 40px; /* something higher than the actual height, but not too large */
+  }
 }

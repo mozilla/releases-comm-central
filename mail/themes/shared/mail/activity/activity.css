@@ -15,16 +15,16 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-}
 
-#activityContainer > #activityView {
-  min-height: 0;
-  flex: 1 1 auto;
-}
+  & > #activityView {
+    min-height: 0;
+    flex: 1 1 auto;
+  }
 
-#activityContainer > #clearListButton {
-  align-self: start;
-  flex: 0 0 auto;
+  & > #clearListButton {
+    align-self: start;
+    flex: 0 0 auto;
+  }
 }
 
 ul.activityview {
@@ -36,49 +36,52 @@ ul.activityview {
   background-color: var(--field-background-color);
 }
 
-li.activitygroup {
-  display: block;
-}
+li {
 
-li.activityitem {
-  display: grid;
-  grid-template:
-    "icon display time" auto
-    "icon progress progress" auto
-    "icon status status" 1fr / auto 1fr auto;
-  align-items: baseline;
+  &.activitygroup {
+    display: block;
+  }
+
+  &.activityitem {
+    display: grid;
+    grid-template:
+      "icon display time" auto
+      "icon progress progress" auto
+      "icon status status" 1fr / auto 1fr auto;
+    align-items: baseline;
+  }
 }
 
 .activityitem {
   padding: 7px 4px;
   border-bottom: 1px solid var(--field-border-color);
-}
 
-.activitygroup-list .activityitem {
-  padding-inline-start: 12px;
-}
+  .activitygroup-list & {
+    padding-inline-start: 12px;
+  }
 
-.activityitem > img {
-  width: 48px;
-  height: 48px;
-  grid-area: icon;
-  align-self: start;
-}
+  & > img {
+    width: 48px;
+    height: 48px;
+    grid-area: icon;
+    align-self: start;
+  }
 
-.activityitem > .displayText {
-  grid-area: display;
-}
+  & > .displayText {
+    grid-area: display;
+  }
 
-.activityitem > .dateTime {
-  grid-area: time;
-}
+  & > .dateTime {
+    grid-area: time;
+  }
 
-.activityitem > .progressmeter {
-  grid-area: progress;
-}
+  & > .progressmeter {
+    grid-area: progress;
+  }
 
-.activityitem > .statusText {
-  grid-area: status;
+  & > .statusText {
+    grid-area: status;
+  }
 }
 
 .contextDisplayText,
