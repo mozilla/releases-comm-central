@@ -12,6 +12,7 @@ var numberElement = null;
 var nntpServer = null;
 var args = null;
 
+window.addEventListener("load", OnLoad);
 document.addEventListener("dialogaccept", OkButtonCallback);
 document.addEventListener("dialogcancel", CancelButtonCallback);
 

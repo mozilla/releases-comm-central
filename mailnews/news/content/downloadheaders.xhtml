@@ -3,83 +3,93 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/downloadheaders.dtd">
-
-<dialog
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/downloadheaders.dtd">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  style="max-width: 27em; padding: 10px"
-  buttonpack="center"
+  scrolling="false"
+  style="max-width: 27em"
   lightweightthemes="true"
-  onload="OnLoad();"
 >
-  <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
-  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-  <html:link
-    rel="stylesheet"
-    href="chrome://messenger/skin/themeableDialog.css"
-  />
+  <head>
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/downloadheaders.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog>
+      <stringbundle
+        id="bundle_news"
+        src="chrome://messenger/locale/news.properties"
+      />
 
-  <stringbundle
-    id="bundle_news"
-    src="chrome://messenger/locale/news.properties"
-  />
-  <script src="chrome://messenger/content/downloadheaders.js" />
-  <script src="chrome://messenger/content/dialogShadowDom.js" />
-
-  <label
-    id="newsgroupLabel"
-    control="downloadGroup"
-    class="header"
-    style="width: 25em; max-width: 25em; margin-inline-start: 6px"
-  />
-  <description
-    style="width: 25em; max-width: 25em"
-    id="info"
-    control="downloadGroup"
-  />
-  <separator class="thin" />
-  <vbox class="indent">
-    <radiogroup id="downloadGroup">
-      <radio
-        id="all"
-        label="&all.label;"
-        accesskey="&all.accesskey;"
-        oncommand="setupDownloadUI(false);"
-        value="all"
+      <label
+        id="newsgroupLabel"
+        control="downloadGroup"
+        class="header"
+        style="width: 25em; max-width: 25em; margin-inline-start: 6px"
+      />
+      <description
+        style="width: 25em; max-width: 25em"
+        id="info"
+        control="downloadGroup"
       />
       <separator class="thin" />
-      <hbox align="center">
-        <radio
-          id="some"
-          selected="true"
-          label="&download.label;"
-          accesskey="&download.accesskey;"
-          oncommand="setupDownloadUI(true);"
-          aria-labelledby="some number headers"
-          value="some"
-        />
-        <html:input
-          id="number"
-          type="number"
-          min="1"
-          aria-labelledby="some number headers"
-        />
-        <label
-          id="headers"
-          control="number"
-          value="&headers.label;"
-          accesskey="&headers.accesskey;"
-        />
-      </hbox>
-    </radiogroup>
+      <vbox class="indent">
+        <radiogroup id="downloadGroup">
+          <radio
+            id="all"
+            label="&all.label;"
+            accesskey="&all.accesskey;"
+            oncommand="setupDownloadUI(false);"
+            value="all"
+          />
+          <separator class="thin" />
+          <hbox align="center">
+            <radio
+              id="some"
+              selected="true"
+              label="&download.label;"
+              accesskey="&download.accesskey;"
+              oncommand="setupDownloadUI(true);"
+              aria-labelledby="some number headers"
+              value="some"
+            />
+            <html:input
+              id="number"
+              type="number"
+              min="1"
+              aria-labelledby="some number headers"
+            />
+            <label
+              id="headers"
+              control="number"
+              value="&headers.label;"
+              accesskey="&headers.accesskey;"
+            />
+          </hbox>
+        </radiogroup>
 
-    <hbox class="indent" align="start">
-      <checkbox
-        id="markread"
-        label="&mark.label;"
-        accesskey="&mark.accesskey;"
-      />
-    </hbox>
-  </vbox>
-</dialog>
+        <hbox class="indent" align="start">
+          <checkbox
+            id="markread"
+            label="&mark.label;"
+            accesskey="&mark.accesskey;"
+          />
+        </hbox>
+      </vbox>
+    </dialog>
+  </html:body>
+</html>
