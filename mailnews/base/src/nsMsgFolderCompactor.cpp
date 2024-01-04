@@ -987,10 +987,13 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest* request,
   nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
   nsCOMPtr<nsIChannel> channel;
   bool done = false;
+  nsresult rv = status;
+  if (!m_msgOut) {
+    goto done;
+  }
 
   // Close/flush the current message
-  MOZ_ASSERT(m_msgOut);
-  nsresult rv = m_msgOut->Close();
+  rv = m_msgOut->Close();
   m_msgOut = nullptr;
   if (NS_FAILED(rv)) {
     goto done;
@@ -1172,12 +1175,12 @@ nsFolderCompactState::EndCopy(nsIURI* uri, nsresult status) {
   nsCOMPtr<nsIMsgDBHdr> newMsgHdr;
 
   if (m_curIndex >= m_keys.Length()) {
-    NS_ASSERTION(false, "m_curIndex out of bounds");
-    return NS_OK;
+    NS_WARNING("m_curIndex out of bounds");
+    return NS_ERROR_UNEXPECTED;
   }
 
   // Close/flush the current message.
-  MOZ_ASSERT(m_msgOut);
+  NS_ENSURE_STATE(m_msgOut);
   nsresult rv = m_msgOut->Close();
   m_msgOut = nullptr;
   if (NS_FAILED(rv)) {
