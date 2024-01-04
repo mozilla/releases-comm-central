@@ -8,17 +8,25 @@
   padding: 0 7px;
 }
 
-/* Adaptation from #folderTree */
-:root:not([lwt-tree]) #listPaneBox {
-  appearance: none;
-  background-color: Field;
-  color: FieldText;
-}
+#listPaneBox {
 
-#listPaneBox > * {
-  background: transparent !important;
-  appearance: none !important;
-  border: none;
+  & > * {
+    background: transparent !important;
+    appearance: none !important;
+    border: none;
+  }
+  /* Adaptation from #folderTree */
+  :root:not([lwt-tree]) & {
+    appearance: none;
+    background-color: Field;
+    color: FieldText;
+  }
+
+  @media not (prefers-contrast) {
+    :root:not([lwt-tree],:-moz-lwtheme) & {
+      background-color: var(--layout-background-1);
+    }
+  }
 }
 
 #conversationsBox {
@@ -34,11 +42,11 @@
   padding-inline-end: 5px;
   margin-inline-end: 2px;
   margin-bottom: 2px !important; /* override 4px from description */
-}
 
-.conv-counter[value^="-"] {
-  margin-inline-end: 2px;
-  padding-inline-end: 4px;
+  &[value^="-"] {
+    margin-inline-end: 2px;
+    padding-inline-end: 4px;
+  }
 }
 
 .splitter.conv-chat {
@@ -115,9 +123,5 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   #chat-status-selector > vbox > .statusMessageToolbarItem[editing] {
     appearance: none;
     padding-inline: 2px;
-  }
-
-  :root:not([lwt-tree],:-moz-lwtheme) #listPaneBox {
-    background-color: var(--layout-background-1);
   }
 }

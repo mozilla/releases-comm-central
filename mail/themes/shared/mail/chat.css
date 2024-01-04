@@ -9,11 +9,11 @@
   --imbox-selected-background-color: Field;
   --imgroup-selected-background-color: ThreeDLightShadow;
   overflow: hidden;
-}
 
-:root[lwt-tree-brighttext] #chatTabPanel {
-  --imbox-selected-text-color: #f9f9fa;
-  --imbox-selected-background-color: #18181a;
+  :root[lwt-tree-brighttext] & {
+    --imbox-selected-text-color: #f9f9fa;
+    --imbox-selected-background-color: #18181a;
+  }
 }
 
 .im-placeholder-screen {
@@ -22,11 +22,11 @@
   overflow: auto;
   font-size: 15px;
   font-weight: normal;
-}
 
-:root[lwt-tree-brighttext] .im-placeholder-screen {
-  color: var(--sidebar-text-color);
-  background-color: var(--sidebar-background-color);
+  :root[lwt-tree-brighttext] & {
+    color: var(--sidebar-text-color);
+    background-color: var(--sidebar-background-color);
+  }
 }
 
 .im-placeholder-box {
@@ -36,10 +36,12 @@
   -moz-context-properties: fill;
   fill: currentColor;
   background-size: 3em;
-  margin-right: .5em;
-  margin-left: .5em;
-  padding-right: 4.5em;
-  padding-left: 4.5em;
+  margin-inline: .5em;
+  padding-inline: 4.5em;
+
+  &:-moz-locale-dir(rtl) {
+    background-position-x: right;
+  }
 }
 
 .im-placeholder-innerbox {
@@ -57,56 +59,41 @@
 }
 
 .im-placeholder-desc {
-  margin-right: 0;
-  margin-left: 0;
+  margin-inline: 0;
 }
 
 #noPreviousConvDesc {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-block: 0;
 }
 
 .im-placeholder-button-box > button {
-  appearance: none;
   /* override forms.css */
   font: inherit;
   min-height: 30px;
-  color: inherit;
-  border: 1px solid var(--button-border-color);
-  border-radius: var(--button-border-radius);
-  background-color: var(--button-background-color);
-}
 
-.im-placeholder-button-box > button:hover {
-  background-color: var(--button-hover-background-color);
-}
+  &:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
+  }
 
-.im-placeholder-button-box > button:hover:active {
-  background-color: var(--button-active-background-color);
-}
-
-.im-placeholder-button-box > button:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-outline-offset);
-}
-
-.im-placeholder-button-box > button > .button-box {
-  padding-inline: 10px;
+  & > .button-box {
+    padding-inline: 10px;
+  }
 }
 
 #listPaneBox {
   border-inline-end: 1px solid var(--splitter-color);
-}
 
-:root[lwt-tree] #listPaneBox {
-  appearance: none;
-  background-color: var(--sidebar-background-color);
-  border-inline-end-color: var(--sidebar-border-color);
-  color: var(--sidebar-text-color);
-}
+  :root[lwt-tree] & {
+    appearance: none;
+    background-color: var(--sidebar-background-color);
+    border-inline-end-color: var(--sidebar-border-color);
+    color: var(--sidebar-text-color);
+  }
 
-:root[lwt-tree-brighttext] #listPaneBox {
-  border-inline-end-color: var(--sidebar-border-color);
+  :root[lwt-tree-brighttext] & {
+    border-inline-end-color: var(--sidebar-border-color);
+  }
 }
 
 #contactlistbox {
@@ -116,27 +103,60 @@
      margin-inline-start because of the inverted direction */
   margin-inline-start: -1px;
   contain: size;
-}
 
-/* move the scrollbar to the left */
-#contactlistbox:-moz-locale-dir(ltr),
-#contactlistbox:-moz-locale-dir(rtl) > richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]) {
-  direction: rtl;
-}
+  /* move the scrollbar to the left */
+  &:-moz-locale-dir(ltr),
+  &:-moz-locale-dir(rtl) > richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]) {
+    direction: rtl;
+  }
 
-#contactlistbox:-moz-locale-dir(rtl),
-#contactlistbox:-moz-locale-dir(ltr) > richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]) {
-  direction: ltr;
+  &:-moz-locale-dir(rtl),
+  &:-moz-locale-dir(ltr) > richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]) {
+    direction: ltr;
+  }
 }
 
 richlistitem[is="chat-group-richlistitem"] {
   align-items: center;
   padding-inline-start: 4px;
   margin-inline-end: 1px;
-}
 
-richlistitem[is="chat-group-richlistitem"] > label {
-  margin-inline-start: 4px;
+  & > label {
+    margin-inline-start: 4px;
+  }
+
+  &[selected="true"] {
+    background-color: var(--imgroup-selected-background-color);
+    color: var(--imbox-selected-text-color);
+
+    richlistbox:focus > & {
+      background-color: var(--imgroup-selected-background-color);
+      color: var(--imbox-selected-text-color);
+    }
+  }
+
+  & .twisty {
+    padding-top: 1px;
+    width: 10px;
+    height: 10px;
+    margin-inline-start: 5px;
+    background: var(--icon-nav-down-sm) no-repeat center;
+    background-size: contain;
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: transform 200ms ease;
+    }
+  }
+
+  &.closed .twisty {
+    transform: rotate(-90deg);
+
+    &:-moz-locale-dir(rtl) {
+      transform: rotate(90deg);
+    }
+  }
 }
 
 richlistitem[is="chat-group-richlistitem"],
@@ -148,44 +168,10 @@ richlistitem[is="chat-imconv-richlistitem"][attention] {
   color: blue;
 }
 
-richlistitem[is="chat-group-richlistitem"][selected] {
-  background-color: var(--imgroup-selected-background-color);
-  color: var(--imbox-selected-text-color);
-}
-
-richlistbox:focus > richlistitem[is="chat-group-richlistitem"][selected="true"] {
-  background-color: var(--imgroup-selected-background-color);
-  color: var(--imbox-selected-text-color);
-}
-
 richlistitem[is="chat-imconv-richlistitem"],
 richlistitem[is="chat-contact-richlistitem"] {
-  border-top: 1px solid transparent;
-  border-bottom: 1px solid transparent;
+  border-block: 1px solid transparent;
   align-items: center;
-}
-
-.contact-hbox {
-  align-items: center;
-  overflow: hidden;
-}
-
-.conv-hbox {
-  overflow: hidden;
-}
-
-.box-line {
-  width: 2px;
-  height: 100%;
-}
-
-richlistitem[is="chat-contact-richlistitem"] > .box-line {
-  /* equalize the space, the .closeConversationButton uses */
-  margin-inline-end: 22px;
-}
-
-.box-line[selected=true] {
-  background-color: var(--tabline-color);
 }
 
 richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]) {
@@ -193,7 +179,7 @@ richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"]
 }
 
 richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]):not([selected=true]):hover {
-  background-color: rgba(0,0,0,.1);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 :root[lwt-tree] richlistitem[is="chat-group-richlistitem"],
@@ -224,7 +210,29 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
   visibility: hidden;
 }
 
-/* From instantbird/themes/blist.css */
+.contact-hbox {
+  align-items: center;
+  overflow: hidden;
+}
+
+.conv-hbox {
+  overflow: hidden;
+}
+
+.box-line {
+  width: 2px;
+  height: 100%;
+
+  &[selected=true] {
+    background-color: var(--tabline-color);
+  }
+
+  richlistitem[is="chat-contact-richlistitem"] > & {
+    /* equalize the space, the .closeConversationButton uses */
+    margin-inline-end: 22px;
+  }
+}
+
 .contactStatusText,
 .convStatusText {
   color: GrayText;
@@ -304,10 +312,10 @@ richlistitem[is="chat-group-richlistitem"] > label {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-}
 
-richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
-  display: flex;
+  richlistitem[is="chat-contact-richlistitem"][cansend]:hover & {
+    display: flex;
+  }
 }
 
 .closeConversationButton > .button-box > .button-icon {
@@ -320,7 +328,8 @@ richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
   margin: 0 0;
 }
 
-.conv-bottom, .conv-nicklist {
+.conv-bottom,
+.conv-nicklist {
   margin: 0 0;
 }
 
@@ -342,19 +351,19 @@ richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
 }
 
 .userIcon {
-  border: 2px solid rgba(0,0,0,0.15);
+  border: 2px solid rgba(0, 0, 0, 0.15);
   border-radius: 5px;
   object-fit: contain;
   width: 48px;
   height: 48px;
-}
 
-:root[lwt-tree-brighttext] .userIcon {
-  border-color: rgba(255,255,255,0.15);
-}
+  :root[lwt-tree-brighttext] & {
+    border-color: rgba(255, 255, 255, 0.15);
+  }
 
-.userIcon:not([src]) {
-  display: none;
+  &:not([src]) {
+    display: none;
+  }
 }
 
 .fillUserIcon {
@@ -363,7 +372,8 @@ richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
   fill-opacity: 0.3;
 }
 
-.statusTypeIcon, .smallStatusIcon {
+.statusTypeIcon,
+.smallStatusIcon {
   /* Place in opposite corner. */
   /* NOTE: unlike position: absolute, the image will still take up space if its
    * sibling (such as .userIcon) is hidden. */
@@ -377,16 +387,12 @@ richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, var(--color-ink-50) 20%, transparent);
   stroke: var(--color-ink-50);
-}
 
-#statusTypeIcon:not([disabled]) {
-  cursor: pointer;
-}
-
-.userIcon:not([src]) + .statusTypeIcon {
-  /* If userIcon is invisible (for chat) we still keep the status icon in the
-   * same position. */
-  padding-block-start: 32px;
+  .userIcon:not([src]) + & {
+    /* If userIcon is invisible (for chat) we still keep the status icon in the
+     * same position. */
+    padding-block-start: 32px;
+  }
 }
 
 /* Used with protoIcon. */
@@ -421,6 +427,19 @@ richlistitem:not([selected]) .protoIconDimmed {
   opacity: 0.5;
 }
 
+#statusTypeIcon {
+  min-width: 40px;
+
+  &:not([disabled]) {
+    cursor: pointer;
+  }
+
+  /* show the status icon also in text mode */
+  toolbar[mode="text"] & > .toolbarbutton-icon {
+    display: flex;
+  }
+}
+
 #statusTypeIcon[status="available"],
 #statusTypeAvailable,
 #imStatusAvailable {
@@ -450,12 +469,12 @@ richlistitem:not([selected]) .protoIconDimmed {
   padding: 6px;
   display: flex;
   gap: 6px;
-}
 
-/* User image and status stack. */
-.displayUserAccount > stack {
-  flex: 0 0 auto;
-  align-self: start;
+  /* User image and status stack. */
+  & > stack {
+    flex: 0 0 auto;
+    align-self: start;
+  }
 }
 
 .nameAndStatusGrid {
@@ -464,21 +483,25 @@ richlistitem:not([selected]) .protoIconDimmed {
   align-items: center;
   gap: 4px;
   flex: 1 1 auto;
-}
 
-.nameAndStatusGrid > * {
-  margin: 0;
-}
+  & > * {
+    margin: 0;
+  }
 
-.nameAndStatusGrid > :is(hr, .statusMessage, .statusMessageInput) {
-  grid-column: 1 / 3;
-}
+  & > :is(hr, .statusMessage, .statusMessageInput) {
+    grid-column: 1 / 3;
+  }
 
-.nameAndStatusGrid > hr {
-  height: 0;
-  border-block-start: 1px solid hsla(0, 0%, 50%, 0.5);
-  border-block-end: none;
-  border-inline: none;
+  & > hr {
+    height: 0;
+    border-block-start: 1px solid hsla(0, 0%, 50%, 0.5);
+    border-block-end: none;
+    border-inline: none;
+  }
+
+  & > .displayName:empty + hr {
+    display: none;
+  }
 }
 
 .displayName {
@@ -486,16 +509,12 @@ richlistitem:not([selected]) .protoIconDimmed {
   display: block;
 }
 
-.nameAndStatusGrid > .displayName:empty + hr {
-  display: none;
-}
-
 .statusMessage {
   display: inline-block;
-}
 
-.statusMessage[noTopic] {
-  font-style: italic;
+  &[noTopic] {
+    font-style: italic;
+  }
 }
 
 .statusMessageInput[editing] {
@@ -506,7 +525,6 @@ richlistitem:not([selected]) .protoIconDimmed {
   min-width: 150px;
 }
 
-/* Animation copied from the find bar in Firefox - http://dxr.mozilla.org/mozilla-central/source/toolkit/themes/linux/global/findBar.css#7 */
 .conv-status-container {
   display: block;
   height: 20px;
@@ -515,15 +533,15 @@ richlistitem:not([selected]) .protoIconDimmed {
   transition-property: margin-top, opacity, visibility;
   transition-duration: 150ms, 150ms, 0s;
   transition-timing-function: ease-in-out, ease-in-out, linear;
-}
 
-.conv-status-container[hidden] {
-  /* Override display:none to make the transition work. */
-  display: flex;
-  visibility: collapse;
-  margin-top: -1em;
-  opacity: 0;
-  transition-delay: 0s, 0s, 150ms;
+  &[hidden] {
+    /* Override display:none to make the transition work. */
+    display: flex;
+    visibility: collapse;
+    margin-top: -1em;
+    opacity: 0;
+    transition-delay: 0s, 0s, 150ms;
+  }
 }
 
 .conv-textbox {
@@ -534,20 +552,20 @@ richlistitem:not([selected]) .protoIconDimmed {
   padding: 2px;
   box-sizing: content-box;
   border: 2px solid transparent;
-}
 
-:root[lwt-tree] .conv-textbox {
-  background-color: var(--toolbar-field-background-color);
-  color: var(--toolbar-field-color);
-}
+  :root[lwt-tree] & {
+    background-color: var(--toolbar-field-background-color);
+    color: var(--toolbar-field-color);
+  }
 
-.conv-textbox:focus-visible {
-  border-color: var(--toolbar-field-focus-border-color);
-  outline-style: none;
-}
+  &:focus-visible {
+    border-color: var(--toolbar-field-focus-border-color);
+    outline-style: none;
+  }
 
-.conv-textbox[invalidInput="true"] {
-  border-color: red;
+  &[invalidInput="true"] {
+    border-color: red;
+  }
 }
 
 .conv-counter {
@@ -557,37 +575,28 @@ richlistitem:not([selected]) .protoIconDimmed {
   background-color: rgba(246, 246, 246, 0.7);
   border-inline-start: 1px solid rgb(200, 200, 200);
   border-top: 1px solid rgb(200, 200, 200);
+  border-start-start-radius: 3px;
   /* Padding that gets flipped to margins in .conv-counter[value^="0"] to avoid the red border. */
   font-size: 130%;
-  padding-top: 0;
-  padding-bottom: 1px;
-  padding-inline-start: 5px;
-  padding-inline-end: 6px;
+  padding-block: 0 1px;
+  padding-inline: 5px 6px;
   margin: 0;
-}
 
-:root[lwt-tree-brighttext] .conv-counter {
-  color: var(--sidebar-text-color);
-  background-color: rgba(22, 22, 22, 0.2);
-  border-inline-start: 1px solid var(--splitter-color);
-  border-top: 1px solid var(--splitter-color);
-}
+  :root[lwt-tree-brighttext] & {
+    color: var(--sidebar-text-color);
+    background-color: rgba(22, 22, 22, 0.2);
+    border-inline-start: 1px solid var(--splitter-color);
+    border-top: 1px solid var(--splitter-color);
+  }
 
-.conv-counter:-moz-locale-dir(ltr) {
-  border-top-left-radius: 3px;
-}
+  &[value=""] {
+    display: none;
+  }
 
-.conv-counter:-moz-locale-dir(rtl) {
-  border-top-right-radius: 3px;
-}
-
-.conv-counter[value=""] {
-  display: none;
-}
-
-/* Negative counter values (user went over the character limit). */
-.conv-counter[value^="-"] {
-  color: red;
+  /* Negative counter values (user went over the character limit). */
+  &[value^="-"] {
+    color: red;
+  }
 }
 
 .splitter[orient="vertical"],
@@ -622,20 +631,20 @@ richlistitem:not([selected]) .protoIconDimmed {
   border-inline-start: 1px solid transparent;
   /* make only the splitter border visible */
   margin-inline-end: -5px;
-}
 
-#listSplitter[state="collapsed"]:hover {
-  border-inline-start: 4px solid var(--selected-item-color);
+  &[state="collapsed"]:hover {
+    border-inline-start: 4px solid var(--selected-item-color);
+  }
 }
 
 #contextSplitter {
   border-inline-end: 1px solid var(--splitter-color);
   /* make only the splitter border visible */
   margin-inline-start: -5px;
-}
 
-#contextSplitter[state="collapsed"]:hover {
-  border-inline-end: 4px solid var(--selected-item-color);
+  &[state="collapsed"]:hover {
+    border-inline-end: 4px solid var(--selected-item-color);
+  }
 }
 
 #conv-toolbar {
@@ -660,25 +669,26 @@ richlistitem:not([selected]) .protoIconDimmed {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-}
 
-.conv-nicklist-image:not([src]) {
-  visibility: hidden;
+  &:not([src]) {
+    visibility: hidden;
+  }
+
+  #nicklist > richlistitem[inactive] > & {
+    opacity: 0.45;
+  }
+
+  #nicklist > richlistitem[inactive][selected] > & {
+    opacity: 0.7;
+  }
 }
 
 .conv-logs-header-label {
   appearance: auto;
   -moz-default-appearance: treeheadercell;
-  margin: 0 -1px 0 0;
-  padding-left: 3px;
-}
-
-#nicklist > richlistitem[inactive] > .conv-nicklist-image {
-  opacity: 0.45;
-}
-
-#nicklist > richlistitem[inactive][selected] > .conv-nicklist-image {
-  opacity: 0.7;
+  margin: 0;
+  margin-inline-end: -1px;
+  padding-inline-start: 3px;
 }
 
 #nicklist > richlistitem[inactive] > label {
@@ -690,32 +700,6 @@ richlistitem:not([selected]) .protoIconDimmed {
   color: var(--selected-item-text-color) !important;
 }
 
-/* from instantbird/themes/blist.css */
-richlistitem[is="chat-group-richlistitem"] .twisty {
-  padding-top: 1px;
-  width: 10px;
-  height: 10px;
-  margin-inline-start: 5px;
-  background: var(--icon-nav-down-sm) no-repeat center;
-  background-size: contain;
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-}
-
-richlistitem[is="chat-group-richlistitem"].closed .twisty {
-  transform: rotate(-90deg);
-}
-
-richlistitem[is="chat-group-richlistitem"].closed:-moz-locale-dir(rtl) .twisty {
-  transform: rotate(90deg);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  richlistitem[is="chat-group-richlistitem"] .twisty {
-    transition: transform 200ms ease;
-  }
-}
-
 .prplBuddyIcon {
   margin: 2px 0;
 }
@@ -724,15 +708,6 @@ richlistitem[is="chat-group-richlistitem"].closed:-moz-locale-dir(rtl) .twisty {
   -moz-context-properties: fill;
   fill: currentColor;
   opacity: 0.54;
-}
-
-#statusTypeIcon {
-  min-width: 40px;
-}
-
-/* show the status icon also in text mode */
-toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
-  display: flex;
 }
 
 .status-container {
@@ -754,29 +729,27 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   border: 1px solid transparent;
   border-radius: var(--button-border-radius);
   background-clip: padding-box;
-}
 
-#chat-status-selector:hover > vbox > .statusMessageToolbarItem,
-.statusMessageToolbarItem:focus {
-  color: var(--toolbar-field-color);
-  background-color: var(--toolbar-field-background-color);
-  border-color: var(--toolbar-field-border-color);
-}
+  #chat-status-selector:hover > vbox > &,
+  &:focus {
+    color: var(--toolbar-field-color);
+    background-color: var(--toolbar-field-background-color);
+    border-color: var(--toolbar-field-border-color);
+  }
 
-#chat-status-selector > vbox > .statusMessageToolbarItem[editing],
-.statusMessageToolbarItem:-moz-lwtheme:focus {
-  appearance: none;
-  padding-inline-start: 4px;
-  padding-inline-end: 4px;
-  color: var(--toolbar-field-color);
-  background-color: var(--toolbar-field-focus-background-color);
-  border-color: var(--toolbar-field-focus-border-color);
-  outline: 1px solid var(--toolbar-field-focus-border-color);
-}
+  #chat-status-selector > vbox > &[editing],
+  &:-moz-lwtheme:focus {
+    appearance: none;
+    padding-inline: 4px;
+    color: var(--toolbar-field-color);
+    background-color: var(--toolbar-field-focus-background-color);
+    border-color: var(--toolbar-field-focus-border-color);
+    outline: 1px solid var(--toolbar-field-focus-border-color);
+  }
 
-.statusMessageToolbarItem[statusType="offline"],
-.statusMessageToolbarItem[disabled] {
-  border: none;
+  &:is([disabled], [statusType="offline"]) {
+    border: none;
+  }
 }
 
 .alltabs-item[style*="chat.svg"] {
@@ -807,11 +780,11 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-}
 
-#contextPaneFlexibleBox vbox.conv-chat {
-  flex: 1 1 0;
-  min-height: 0;
+  & vbox.conv-chat {
+    flex: 1 1 0;
+    min-height: 0;
+  }
 }
 
 #previousConversations {
@@ -830,7 +803,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 :root[lwt-tree-brighttext] #nicklist,
 :root[lwt-tree-brighttext] .conv-nicklist-header,
 :root[lwt-tree-brighttext] .conv-logs-header-label {
-  border-bottom-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+  border-bottom-color: var(--sidebar-border-color, rgba(249, 249, 250, 0.2));
 }
 
 .conv-header-label {
@@ -840,10 +813,10 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 #participantCount {
   background: transparent;
   width: 0;
-}
 
-:root[lwt-tree] #participantCount {
-  color: var(--sidebar-text-color);
+  :root[lwt-tree] & {
+    color: var(--sidebar-text-color);
+  }
 }
 
 :root[lwt-tree] .conv-nicklist > richlistitem {
@@ -892,15 +865,15 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   box-shadow: none;
   transition-property: background-color, border-color, box-shadow;
   transition-duration: 150ms;
-}
 
-#goToConversation:hover {
-  background-color: hsla(0, 0%, 50%, 0.3) !important;
-}
+  &:hover {
+    background-color: hsla(0, 0%, 50%, 0.3) !important;
 
-#goToConversation:hover:active {
-  background-color: hsla(0, 0%, 50%, 0.4) !important;
-  box-shadow: 0 0 1px hsla(0, 0%, 50%, 0.15) inset;
+    &:active {
+      background-color: hsla(0, 0%, 50%, 0.4) !important;
+      box-shadow: 0 0 1px hsla(0, 0%, 50%, 0.15) inset;
+    }
+  }
 }
 
 
@@ -920,14 +893,12 @@ toolbar[mode="text"] #button-chat {
   min-width: 1em;
   text-align: center;
   margin-top: -4px;
-  margin-inline-start: 5px;
-  margin-inline-end: 0;
-  padding-inline: 1px;
-  padding-block: 1px 0;
-}
+  margin-inline: 5px 0;
+  padding: 1px 1px 0;
 
-toolbar[mode="text"] .badgeButton-badge {
-  margin: 0;
+  toolbar[mode="text"] & {
+    margin: 0;
+  }
 }
 
 .badgeButton-badgeLabel {
@@ -979,28 +950,28 @@ toolbar[mode="text"] .badgeButton-badge {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-}
 
-.encryption-button:not([disabled="true"]):not([open="true"]):hover {
-  background: var(--toolbarbutton-active-background) !important;
-  border-color: var(--toolbarbutton-active-bordercolor);
-}
+  &:not([disabled="true"]):not([open="true"]):hover {
+    background: var(--toolbarbutton-active-background) !important;
+    border-color: var(--toolbarbutton-active-bordercolor);
+  }
 
-.encryption-button[open="true"] {
-  background: var(--toolbarbutton-active-background) !important;
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-}
+  &[open="true"] {
+    background: var(--toolbarbutton-active-background) !important;
+    border-color: var(--toolbarbutton-active-bordercolor);
+    box-shadow: var(--toolbarbutton-active-boxshadow);
+  }
 
-.encryption-button > image {
-  margin-inline-end: 3px !important;
-  width: 14px;
-}
+  & > image {
+    margin-inline-end: 3px !important;
+    width: 14px;
+  }
 
-.encryption-button .toolbarbutton-menu-dropmarker {
-  appearance: none !important;
-  list-style-image: var(--icon-nav-down-sm);
-  margin-inline: 3px 0;
-  -moz-context-properties: stroke;
-  stroke: currentColor;
+  & .toolbarbutton-menu-dropmarker {
+    appearance: none !important;
+    list-style-image: var(--icon-nav-down-sm);
+    margin-inline: 3px 0;
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+  }
 }

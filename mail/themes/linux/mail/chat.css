@@ -27,15 +27,18 @@
   padding-inline: 8px;
 }
 
-/* Adaptation from #folderTree */
-:root:not([lwt-tree]) #listPaneBox {
-  background-color: -moz-OddTreeRow;
-}
+#listPaneBox {
 
-#listPaneBox > * {
-  background: transparent !important;
-  appearance: none !important;
-  border: none;
+  & > * {
+    background: transparent !important;
+    appearance: none !important;
+    border: none;
+  }
+
+  /* Adaptation from #folderTree */
+  :root:not([lwt-tree]) & {
+    background-color: -moz-OddTreeRow;
+  }
 }
 
 .conv-textbox > .textbox-input-box {
