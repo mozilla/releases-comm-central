@@ -5,15 +5,18 @@
 @import url("chrome://messenger/skin/shared/input-fields.css");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-html|input.input-inline {
-  padding-inline-start: 4px;
-}
+html|input {
 
-html|input.input-filefield {
-  padding-inline-start: 25px !important;
-  background: center left 6px / 16px no-repeat;
-}
+  &.input-inline {
+    padding-inline-start: 4px;
+  }
 
-html|input.input-filefield:-moz-locale-dir(rtl) {
-  background-position-x: right 6px;
+  &.input-filefield {
+    padding-inline-start: 25px !important;
+    background: center left 6px / 16px no-repeat;
+
+    &:-moz-locale-dir(rtl) {
+      background-position-x: right 6px;
+    }
+  }
 }

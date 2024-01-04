@@ -14,42 +14,43 @@
 @import url("chrome://messenger/skin/messageIcons.css");
 @import url("chrome://messenger/skin/shared/mailWindow1.css");
 
-:root:not([lwt-tree]) #folderTree {
-  background-color: -moz-OddTreeRow;
-}
+#folderTree {
 
-@media (prefers-contrast) {
-  :root:not([lwt-tree]) #folderTree {
-    background-color: Field;
+  :root:not([lwt-tree]) & {
+    background-color: -moz-OddTreeRow;
+
+    @media (prefers-contrast) {
+      background-color: Field;
+    }
   }
-}
 
-#folderTree treechildren::-moz-tree-indentation {
- background-color: black !important;
-}
+  & treechildren::-moz-tree-indentation {
+   background-color: black !important;
+  }
 
-#folderTree treechildren::-moz-tree-row {
-  padding-inline-start: 2px !important;
-  padding-bottom: 2px;
-  background: transparent;
-}
+  & treechildren::-moz-tree-row {
+    padding-inline-start: 2px !important;
+    padding-bottom: 2px;
+    background: transparent;
+  }
 
-#folderTree treechildren::-moz-tree-row(hover) {
-  background-color: hsla(0, 0%, 50%, 0.15);
-}
+  & treechildren::-moz-tree-row(hover) {
+    background-color: hsla(0, 0%, 50%, 0.15);
+  }
 
-#folderTree treechildren::-moz-tree-row(selected) {
-  color: -moz-cellhighlighttext;
-  background-color: -moz-cellhighlight;
-}
+  & treechildren::-moz-tree-row(selected) {
+    color: -moz-cellhighlighttext;
+    background-color: -moz-cellhighlight;
+  }
 
-#folderTree treechildren::-moz-tree-row(selected, focus) {
-  background-color: var(--selected-item-color);
-}
+  & treechildren::-moz-tree-row(selected, focus) {
+    background-color: var(--selected-item-color);
+  }
 
-#folderTree treechildren::-moz-tree-cell-text {
-  font-family: -apple-system, sans-serif;
-  font-weight: 400;
+  & treechildren::-moz-tree-cell-text {
+    font-family: -apple-system, sans-serif;
+    font-weight: 400;
+  }
 }
 
 /* ::::: thread decoration ::::: */
@@ -69,8 +70,8 @@ treechildren::-moz-tree-row(dummy) {
   appearance: none;
   background: transparent;
   margin-top: 4px;
-}
 
-#notification-popup::part(content) {
-  margin: 1px;
+  &::part(content) {
+    margin: 1px;
+  }
 }

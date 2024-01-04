@@ -30,27 +30,30 @@
 
 /* ..... status bar adjustments ..... */
 
-#threadTree > treechildren::-moz-tree-row(odd) {
-  background-color: transparent;
-}
+#threadTree {
 
-#threadTree > treechildren::-moz-tree-row(dummy, odd) {
-  background-color: var(--row-grouped-header-bg-color);
-}
+  & > treechildren::-moz-tree-row(odd) {
+    background-color: transparent;
+  }
 
-#threadTree > treechildren::-moz-tree-row(odd, hover),
-#threadTree > treechildren::-moz-tree-row(dummy, odd, hover) {
-  background-color: hsla(0, 0%, 50%, 0.15);
-}
+  & > treechildren::-moz-tree-row(dummy, odd) {
+    background-color: var(--row-grouped-header-bg-color);
+  }
 
-#threadTree > treechildren::-moz-tree-row(selected) {
-  color: -moz-cellhighlighttext;
-  background-color: -moz-cellhighlight;
-}
+  & > treechildren::-moz-tree-row(odd, hover),
+  & > treechildren::-moz-tree-row(dummy, odd, hover) {
+    background-color: hsla(0, 0%, 50%, 0.15);
+  }
 
-#threadTree > treechildren::-moz-tree-row(selected, focus) {
-  color: var(--selected-item-text-color);
-  background-color: var(--selected-item-color);
+  & > treechildren::-moz-tree-row(selected) {
+    color: -moz-cellhighlighttext;
+    background-color: -moz-cellhighlight;
+  }
+
+  & > treechildren::-moz-tree-row(selected, focus) {
+    color: var(--selected-item-text-color);
+    background-color: var(--selected-item-color);
+  }
 }
 
 /* ..... tabs ..... */

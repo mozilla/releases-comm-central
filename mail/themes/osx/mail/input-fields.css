@@ -5,14 +5,21 @@
 @import url("chrome://messenger/skin/shared/input-fields.css");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-html|input.input-inline {
-  padding-inline-start: 4px;
-}
+html|input {
 
-html|input.input-filefield {
-  background: center left 2px / 16px no-repeat;
-}
+  &.input-inline {
+    padding-inline-start: 4px;
+  }
 
-html|input[type="number"] {
-  padding-inline-end: 0;
+  &.input-filefield {
+    background: center left 2px / 16px no-repeat;
+
+    &:-moz-locale-dir(rtl) {
+      background-position-x: right 2px;
+    }
+  }
+
+  &[type="number"] {
+    padding-inline-end: 0;
+  }
 }

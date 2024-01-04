@@ -74,6 +74,40 @@ treechildren::-moz-tree-cell-text(dummy) {
   color: var(--sidebar-highlight-text-color);
 }
 
+#folderPickerTree {
+
+  & > treechildren::-moz-tree-image(folderNameCol) {
+    -moz-context-properties: fill, fill-opacity, stroke;
+    fill: color-mix(in srgb, var(--default) 20%, transparent);
+    stroke: var(--default);
+  }
+
+  & > treechildren::-moz-tree-image(folderNameCol, isServer-true) {
+    fill: color-mix(in srgb, var(--primary) 20%, transparent);
+    stroke: var(--primary);
+  }
+
+  & > treechildren::-moz-tree-image(selectedColumn) {
+    width: 14px;
+    height: 14px;
+    list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
+    -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+    fill: currentColor;
+    stroke: currentColor;
+    fill-opacity: 0;
+    stroke-opacity: 0;
+  }
+
+  & > treechildren::-moz-tree-image(selectedColumn, selected-true) {
+    fill-opacity: 1;
+  }
+
+  & > treechildren::-moz-tree-image(selectedColumn, selected, focus) {
+    fill: var(--select-focus-text-color);
+    stroke: var(--select-focus-text-color);
+  }
+}
+
 /* ..... message pane adjustments ..... */
 
 /* We need to hide overflow in messagepanebox, so that resizing doesn't spill
@@ -104,20 +138,10 @@ treechildren::-moz-tree-cell-text(dummy) {
   border-inline-start: 1px solid var(--splitter-color);
   /* make only the splitter border visible */
   margin-inline-end: -4px;
-}
 
-#folderpane_splitter[state="collapsed"]:hover {
-  border-inline-start: 4px solid var(--selected-item-color);
-}
-
-#threadpane-splitter:not([orient="vertical"]) {
-  border-inline-end: 1px solid var(--splitter-color);
-  /* make only the splitter border visible */
-  margin-inline-start: -4px;
-}
-
-#threadpane-splitter[state="collapsed"]:not([orient="vertical"]):hover {
-  border-inline-end: 4px solid var(--selected-item-color);
+  &[state="collapsed"]:hover {
+    border-inline-start: 4px solid var(--selected-item-color);
+  }
 }
 
 #threadpane-splitter {
@@ -130,15 +154,25 @@ treechildren::-moz-tree-cell-text(dummy) {
   margin-top: -5px;
   position: relative;
   z-index: 10;
-  transition: border-width .3s ease-in;
-}
+  transition: border-width 0.3s ease-in;
 
-#threadpane-splitter[state="collapsed"] {
-  transition: border-color .3s;
-}
+  &:not([orient="vertical"]) {
+    border-inline-end: 1px solid var(--splitter-color);
+    /* make only the splitter border visible */
+    margin-inline-start: -4px;
+  }
 
-#threadpane-splitter[state="collapsed"]:hover {
-  border-bottom: 4px solid var(--selected-item-color);
+  &[state="collapsed"] {
+    transition: border-color 0.3s;
+
+    &:hover {
+      border-bottom: 4px solid var(--selected-item-color);
+    }
+  }
+
+  &[state="collapsed"]:not([orient="vertical"]):hover {
+    border-inline-end: 4px solid var(--selected-item-color);
+  }
 }
 
 /* Quick-Filter-Bar */
@@ -152,37 +186,6 @@ treechildren::-moz-tree-cell-text(dummy) {
   background-color: -moz-dialog;
 }
 
-#folderPickerTree > treechildren::-moz-tree-image(folderNameCol) {
-  -moz-context-properties: fill, fill-opacity, stroke;
-  fill: color-mix(in srgb, var(--default) 20%, transparent);
-  stroke: var(--default);
-}
-
-#folderPickerTree > treechildren::-moz-tree-image(folderNameCol, isServer-true) {
-  fill: color-mix(in srgb, var(--primary) 20%, transparent);
-  stroke: var(--primary);
-}
-
-#folderPickerTree > treechildren::-moz-tree-image(selectedColumn) {
-  width: 14px;
-  height: 14px;
-  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
-  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
-  fill: currentColor;
-  stroke: currentColor;
-  fill-opacity: 0;
-  stroke-opacity: 0;
-}
-
-#folderPickerTree > treechildren::-moz-tree-image(selectedColumn, selected-true) {
-  fill-opacity: 1;
-}
-
-#folderPickerTree > treechildren::-moz-tree-image(selectedColumn, selected, focus) {
-  fill: var(--select-focus-text-color);
-  stroke: var(--select-focus-text-color);
-}
-
 /* Global notification popup */
 
 #notification-popup {
@@ -192,9 +195,9 @@ treechildren::-moz-tree-cell-text(dummy) {
   --panel-border-radius: var(--arrowpanel-border-radius);
   --panel-padding: var(--arrowpanel-padding);
   margin-block: 0;
-}
 
-#notification-popup::part(content) {
-  padding: 0;
-  overflow: hidden; /* Don't let panel content overflow the border */
+  &::part(content) {
+    padding: 0;
+    overflow: hidden; /* Don't let panel content overflow the border */
+  }
 }

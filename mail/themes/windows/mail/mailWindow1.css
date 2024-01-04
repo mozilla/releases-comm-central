@@ -92,170 +92,171 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   padding: 9px 17px;
   -moz-context-properties: stroke;
   stroke: currentColor;
-}
 
-@media not (prefers-contrast) {
-  @media (-moz-windows-accent-color-in-titlebar) {
-    .titlebar-button:not(:-moz-window-inactive,:-moz-lwtheme) {
-      stroke: AccentColorText;
+  @media not (prefers-contrast) {
+    @media (-moz-windows-accent-color-in-titlebar) {
+      &:not(:-moz-window-inactive, :-moz-lwtheme) {
+        stroke: AccentColorText;
+      }
     }
   }
-}
 
-.titlebar-buttonbox > .titlebar-button > .toolbarbutton-icon {
-  display: inline-flex;
-  width: 12px;
-  height: 12px;
+  & > .toolbarbutton-icon {
+    display: inline-flex;
+    width: 12px;
+    height: 12px;
+
+    /* the 12px image renders a 10px icon, and the 10px upscaled gets rounded to 12.5, which
+     * rounds up to 13px, which makes the icon one pixel too big on 1.25dppx. Fix: */
+    @media (1.20dppx <= resolution <= 1.45dppx) {
+      .titlebar-button > .toolbarbutton-icon {
+        width: 11.5px;
+        height: 11.5px;
+      }
+    }
+  }
+
+  /* 175% dpi should result in the same device pixel sizes as 150% dpi. */
+  @media (1.70dppx <= resolution <= 1.95dppx) {
+    padding-inline: 14.1px;
+
+    & > .toolbarbutton-icon {
+      width: 10.8px;
+      height: 10.8px;
+    }
+  }
+
+  /* 225% dpi should result in the same device pixel sizes as 200% dpi. */
+  @media (2.20dppx <= resolution <= 2.45dppx) {
+    padding-inline: 15.3333px;
+
+    & > .toolbarbutton-icon {
+      width: 10.8px;
+      height: 10.8px;
+    }
+  }
+
+  /* 275% dpi should result in the same device pixel sizes as 250% dpi. */
+  @media (2.70dppx <= resolution <= 2.95dppx) {
+    /* NB: todo: this should also change padding on the buttons
+     * themselves, but without a device to test this on, it's
+     * impossible to know by how much. */
+    & > .toolbarbutton-icon {
+      width: 10.8px;
+      height: 10.8px;
+    }
+  }
+
+  @media not (prefers-contrast) {
+    &:hover {
+      background-color: hsla(0, 0%, 0%, 0.12);
+
+      &:active {
+        background-color: hsla(0, 0%, 0%, 0.22);
+      }
+    }
+
+    &:not(:hover) > .toolbarbutton-icon:-moz-window-inactive {
+      opacity: 0.5;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      &:hover {
+        background-color: hsla(0, 0%, 100%, 0.12);
+
+        &:active {
+          background-color: hsla(0, 0%, 100%, 0.22);
+        }
+      }
+    }
+  }
+
+  :root[lwtheme-image] & {
+    -moz-context-properties: unset;
+  }
+
+  @media (prefers-contrast) {
+    stroke: ButtonText;
+    background-color: Field;
+
+    &:hover {
+      stroke: SelectedItemText;
+      background-color: SelectedItem;
+    }
+  }
 }
 
 .titlebar-min {
   list-style-image: url("chrome://messenger/skin/window-controls/minimize.svg");
   margin-inline-end: 2px;
+
+  :root[lwtheme-image] & {
+    list-style-image: url("chrome://messenger/skin/window-controls/minimize-themes.svg");
+  }
+
+  @media (prefers-contrast) {
+    list-style-image: url("chrome://messenger/skin/window-controls/minimize-highcontrast.svg");
+  }
 }
 
 .titlebar-max {
   list-style-image: url("chrome://messenger/skin/window-controls/maximize.svg");
+
+  :root[lwtheme-image] & {
+    list-style-image: url("chrome://messenger/skin/window-controls/maximize-themes.svg");
+  }
+
+  @media (prefers-contrast) {
+    list-style-image: url("chrome://messenger/skin/window-controls/maximize-highcontrast.svg");
+  }
 }
 
 .titlebar-restore {
   list-style-image: url("chrome://messenger/skin/window-controls/restore.svg");
-}
 
-.titlebar-restore:-moz-locale-dir(rtl) {
-  transform: scaleX(-1);
+  &:-moz-locale-dir(rtl) {
+    transform: scaleX(-1);
+  }
+
+  :root[lwtheme-image] & {
+    list-style-image: url("chrome://messenger/skin/window-controls/restore-themes.svg");
+  }
+
+  @media (prefers-contrast) {
+    list-style-image: url("chrome://messenger/skin/window-controls/restore-highcontrast.svg");
+  }
 }
 
 .titlebar-close {
   list-style-image: url("chrome://messenger/skin/window-controls/close.svg");
-}
 
-:root[lwtheme-image] .titlebar-button {
-  -moz-context-properties: unset;
-}
-:root[lwtheme-image] .titlebar-min {
-  list-style-image: url("chrome://messenger/skin/window-controls/minimize-themes.svg");
-}
-:root[lwtheme-image] .titlebar-max {
-  list-style-image: url("chrome://messenger/skin/window-controls/maximize-themes.svg");
-}
-:root[lwtheme-image] .titlebar-restore {
-  list-style-image: url("chrome://messenger/skin/window-controls/restore-themes.svg");
-}
-:root[lwtheme-image] .titlebar-close {
-  list-style-image: url("chrome://messenger/skin/window-controls/close-themes.svg");
-}
-
-/* the 12px image renders a 10px icon, and the 10px upscaled gets rounded to 12.5, which
- * rounds up to 13px, which makes the icon one pixel too big on 1.25dppx. Fix: */
-@media (min-resolution: 1.20dppx) and (max-resolution: 1.45dppx) {
-  .titlebar-button > .toolbarbutton-icon {
-    width: 11.5px;
-    height: 11.5px;
-  }
-}
-
-/* 175% dpi should result in the same device pixel sizes as 150% dpi. */
-@media (min-resolution: 1.70dppx) and (max-resolution: 1.95dppx) {
-  .titlebar-button {
-    padding-left: 14.1px;
-    padding-right: 14.1px;
+  :root[lwtheme-image] & {
+    list-style-image: url("chrome://messenger/skin/window-controls/close-themes.svg");
   }
 
-  .titlebar-button > .toolbarbutton-icon {
-    width: 10.8px;
-    height: 10.8px;
-  }
-}
-
-/* 225% dpi should result in the same device pixel sizes as 200% dpi. */
-@media (min-resolution: 2.20dppx) and (max-resolution: 2.45dppx) {
-  .titlebar-button {
-    padding-left: 15.3333px;
-    padding-right: 15.3333px;
-  }
-
-  .titlebar-button > .toolbarbutton-icon {
-    width: 10.8px;
-    height: 10.8px;
-  }
-}
-
-/* 275% dpi should result in the same device pixel sizes as 250% dpi. */
-@media (min-resolution: 2.70dppx) and (max-resolution: 2.95dppx) {
-  /* NB: todo: this should also change padding on the buttons
-   * themselves, but without a device to test this on, it's
-   * impossible to know by how much. */
-  .titlebar-button > .toolbarbutton-icon {
-    width: 10.8px;
-    height: 10.8px;
-  }
-}
-
-@media not (prefers-contrast) {
-  .titlebar-button:hover {
-    background-color: hsla(0, 0%, 0%, .12);
-  }
-
-  .titlebar-button:hover:active {
-    background-color: hsla(0, 0%, 0%, .22);
-  }
-
-  .titlebar-button:not(:hover) > .toolbarbutton-icon:-moz-window-inactive {
-    opacity: 0.5;
-  }
-
-  .titlebar-close:hover {
-    stroke: white;
-    background-color: var(--color-red-60);
-  }
-
-  .titlebar-close:hover:active {
-    background-color: var(--color-red-50);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .titlebar-button:hover {
-      background-color: hsla(0, 0%, 100%, .12);
-    }
-
-    .titlebar-button:hover:active {
-      background-color: hsla(0, 0%, 100%, .22);
-    }
-
-    .titlebar-close:hover {
-      background-color: var(--color-red-70);
-    }
-
-    .titlebar-close:hover:active {
-      background-color: var(--color-red-60);
-    }
-  }
-}
-
-@media (prefers-contrast) {
-  .titlebar-button {
-    stroke: ButtonText;
-    background-color: Field;
-  }
-  .titlebar-button:hover {
-    stroke: SelectedItemText;
-    background-color: SelectedItem;
-  }
-
-  .titlebar-min {
-    list-style-image: url("chrome://messenger/skin/window-controls/minimize-highcontrast.svg");
-  }
-
-  .titlebar-max {
-    list-style-image: url("chrome://messenger/skin/window-controls/maximize-highcontrast.svg");
-  }
-
-  .titlebar-restore {
-    list-style-image: url("chrome://messenger/skin/window-controls/restore-highcontrast.svg");
-  }
-
-  .titlebar-close {
+  @media (prefers-contrast) {
     list-style-image: url("chrome://messenger/skin/window-controls/close-highcontrast.svg");
+  }
+
+  @media not (prefers-contrast) {
+    &:hover {
+      stroke: white;
+      background-color: var(--color-red-60);
+
+      &:hover:active {
+        background-color: var(--color-red-50);
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      &:hover {
+        background-color: var(--color-red-70);
+
+        &:hover:active {
+          background-color: var(--color-red-60);
+        }
+      }
+    }
   }
 }
 
@@ -271,7 +272,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
-:root:not([lwt-tree],:-moz-lwtheme) #folderTree {
+:root:not([lwt-tree], :-moz-lwtheme) #folderTree {
   background-color: #fafafa;
 }
 

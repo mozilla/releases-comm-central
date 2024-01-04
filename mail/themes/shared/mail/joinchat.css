@@ -5,19 +5,19 @@
 #joinChatGrid {
   display: inline-grid;
   grid-template-columns: auto auto auto;
-}
 
-#joinChatGrid textbox, menulist {
-  width: 100%;
-}
+  & textbox, menulist {
+    width: 100%;
+  }
 
-#joinChatGrid div {
-  display: flex;
-  align-items: center;
-}
+  & div {
+    display: flex;
+    align-items: center;
+  }
 
-#joinChatGrid input:not([type="number"],[type="color"]) {
-  flex: 1;
+  & input:not([type="number"],[type="color"]) {
+    flex: 1;
+  }
 }
 
 .required {

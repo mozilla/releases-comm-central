@@ -4,48 +4,49 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-html|input.plain {
-  background-color: transparent;
-}
+html|input {
 
-html|input.input-filefield {
-  padding-inline-start: 20px !important;
-}
+  &.plain {
+    background-color: transparent;
+  }
 
-html|input.input-filefield:-moz-locale-dir(rtl) {
-  background-position-x: right 2px;
-}
+  &.input-filefield {
+    padding-inline-start: 20px !important;
+  }
 
-html|input.input-inline-color {
-  margin: 2px 4px;
+  &.input-inline-color {
+    margin: 2px 4px;
+  }
+
+  &[type="number"] {
+    &.input-number-inline {
+      flex: 1 !important;
+      padding: 2px 2px 3px;
+      margin-inline-start: 2px;
+    }
+
+    &::-moz-number-spin-box {
+      padding-inline-start: 4px;
+    }
+  }
 }
 
 .input-container {
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
-}
 
-.input-container.items-stretch {
-  align-items: stretch;
-}
+  &.items-stretch {
+    align-items: stretch;
+  }
 
-.input-container.wrap-container {
-  flex-wrap: wrap;
-}
+  &.wrap-container {
+    flex-wrap: wrap;
+  }
 
-.input-container html|input:not([type="number"],[type="color"]),
-.input-container .label-inline,
-.input-container .spacer-inline {
-  flex: 1;
-}
-
-html|input[type="number"].input-number-inline {
-  flex: 1 !important;
-  padding: 2px 2px 3px;
-  margin-inline-start: 2px;
-}
-
-html|input[type="number"]::-moz-number-spin-box {
-  padding-inline-start: 4px;
+  & :is(html|input:not([type="number"],[type="color"]),
+        .label-inline,
+        .spacer-inline) {
+    flex: 1;
+  }
 }
