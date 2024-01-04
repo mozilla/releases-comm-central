@@ -73,6 +73,7 @@
 #include "nsXULAppAPI.h"
 #include "nsICacheStorageService.h"
 #include "UrlListener.h"
+#include "nsIIDNService.h"
 
 #define PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS "mail.accountmanager.accounts"
 #define PREF_MAIL_ACCOUNTMANAGER_DEFAULTACCOUNT \
@@ -1877,6 +1878,9 @@ nsresult nsMsgAccountManager::findServerInternal(
     return NS_OK;
   }
 
+  nsCOMPtr<nsIIDNService> idnService =
+      do_GetService("@mozilla.org/network/idn-service;1");
+
   for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
     // Find matching server by user+host+type+port.
     nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();
@@ -1886,6 +1890,9 @@ nsresult nsMsgAccountManager::findServerInternal(
     nsresult rv;
     nsCString thisHostname;
     rv = server->GetHostName(thisHostname);
+    if (NS_FAILED(rv)) continue;
+
+    rv = idnService->Normalize(thisHostname, thisHostname);
     if (NS_FAILED(rv)) continue;
 
     // If the hostname was a IP with trailing dot, that dot gets removed

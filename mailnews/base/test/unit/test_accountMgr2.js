@@ -114,6 +114,86 @@ add_task(async function () {
   );
   Assert.equal(
     Services.prefs.getCharPref("mail.accountmanager.accounts"),
-    "account2,account3"
+    "account2,account3",
+    "listed accounts should be correct after testing blank host"
+  );
+
+  // Test that an account that had punycode hostname entered is found.
+  const acc5 = MailServices.accounts.createAccount();
+  acc5.incomingServer = MailServices.accounts.createIncomingServer(
+    "bob_imap5",
+    "xn--thnderbird-beb.test",
+    "imap"
+  );
+  const id5 = MailServices.accounts.createIdentity();
+  id5.email = "bob_imap5@xn--thnderbird-beb.test";
+  acc5.addIdentity(id5);
+
+  MailServices.accounts.unloadAccounts();
+  MailServices.accounts.loadAccounts();
+
+  Assert.equal(
+    MailServices.accounts.accounts.length,
+    3,
+    "added acc5 should still be listed"
+  );
+
+  Assert.equal(
+    Services.prefs.getCharPref("mail.accountmanager.accounts"),
+    "account2,account5,account3",
+    "listed accounts should be correct after testing punycode host"
+  );
+  const punyServer = MailServices.accounts.findServerByURI(
+    Services.io.newURI("imap://xn--thnderbird-beb.test:143/INBOX")
+  );
+  Assert.ok(
+    punyServer?.hostName,
+    "should find server by uri for punycode hostname"
+  );
+
+  const punyServer2 = MailServices.accounts.findServerByURI(
+    Services.io.newURI("imap://thünderbird.test:143/INBOX")
+  );
+  Assert.ok(
+    punyServer2?.hostName,
+    "should find ACE server by normalized IDN hostname"
+  );
+
+  // Test that an account with IDN hostname entered is found.
+  const acc6 = MailServices.accounts.createAccount();
+  acc6.incomingServer = MailServices.accounts.createIncomingServer(
+    "bob_imap6",
+    "thünderbird.example",
+    "imap"
+  );
+  const id6 = MailServices.accounts.createIdentity();
+  id6.email = "bob_imap6@thünderbird.example";
+  acc6.addIdentity(id6);
+
+  MailServices.accounts.unloadAccounts();
+  MailServices.accounts.loadAccounts();
+
+  Assert.equal(
+    MailServices.accounts.accounts.length,
+    4,
+    "added acc6 should still be listed"
+  );
+
+  Assert.equal(
+    Services.prefs.getCharPref("mail.accountmanager.accounts"),
+    "account2,account5,account6,account3",
+    "listed accounts should be correct after testing IDN host"
+  );
+  const idnServer = MailServices.accounts.findServerByURI(
+    Services.io.newURI("imap://thünderbird.example:143/INBOX")
+  );
+  Assert.ok(idnServer?.hostName, "should find server by uri for IDN hostname");
+
+  const idnServer2 = MailServices.accounts.findServerByURI(
+    Services.io.newURI("imap://xn--thnderbird-beb.example:143/INBOX")
+  );
+  Assert.ok(
+    idnServer2?.hostName,
+    "should find idn server by by ACE encodeed uri"
   );
 });
