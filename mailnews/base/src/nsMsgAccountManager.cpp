@@ -142,13 +142,6 @@ nsresult nsMsgAccountManager::Init() {
     return NS_ERROR_NOT_AVAILABLE;
   }
 
-  // Make sure URI->GetDisplayHost can be used in the expected way
-  // for FindServerByURI.
-  if (mozilla::Preferences::GetBool("network.IDN_show_punycode")) {
-    mozilla::Preferences::SetBool("network.IDN_show_punycode", false);
-  }
-  mozilla::Preferences::Lock("network.IDN_show_punycode");
-
   nsresult rv;
 
   m_prefs = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
@@ -1835,10 +1828,10 @@ nsMsgAccountManager::FindServerByURI(nsIURI* aURI,
 
   nsAutoCString hostname;
   nsAutoCString escapedHostname;
-  // Use GetDisplayHost() as GetHost() would give non-ascii as punycode.
-  rv = aURI->GetDisplayHost(escapedHostname);
-  if (NS_SUCCEEDED(rv) && !escapedHostname.IsEmpty())
+  rv = aURI->GetHost(escapedHostname);
+  if (NS_SUCCEEDED(rv) && !escapedHostname.IsEmpty()) {
     MsgUnescapeString(escapedHostname, 0, hostname);
+  }
 
   nsAutoCString type;
   rv = aURI->GetScheme(type);
@@ -1868,18 +1861,22 @@ nsMsgAccountManager::FindServerByURI(nsIURI* aURI,
 }
 
 nsresult nsMsgAccountManager::findServerInternal(
-    const nsACString& username, const nsACString& hostname,
+    const nsACString& username, const nsACString& serverHostname,
     const nsACString& type, int32_t port, nsIMsgIncomingServer** aResult) {
   if ((m_lastFindServerUserName.Equals(username)) &&
-      (m_lastFindServerHostName.Equals(hostname)) &&
+      (m_lastFindServerHostName.Equals(serverHostname)) &&
       (m_lastFindServerType.Equals(type)) && (m_lastFindServerPort == port) &&
       m_lastFindServerResult) {
     NS_ADDREF(*aResult = m_lastFindServerResult);
     return NS_OK;
   }
 
+  nsresult rv;
+  nsCString hostname;
   nsCOMPtr<nsIIDNService> idnService =
       do_GetService("@mozilla.org/network/idn-service;1");
+  rv = idnService->Normalize(serverHostname, hostname);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
     // Find matching server by user+host+type+port.
@@ -1887,7 +1884,6 @@ nsresult nsMsgAccountManager::findServerInternal(
 
     if (!server) continue;
 
-    nsresult rv;
     nsCString thisHostname;
     rv = server->GetHostName(thisHostname);
     if (NS_FAILED(rv)) continue;
