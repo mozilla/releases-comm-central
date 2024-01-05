@@ -8,6 +8,7 @@ import logging
 import os.path
 import shutil
 import subprocess
+import sys
 
 import tomlkit
 from tomlkit.toml_file import TOMLFile
@@ -439,8 +440,6 @@ def verify_vendored_dependencies(topsrcdir):
 
 
 if __name__ == "__main__":
-    import sys
-
     import buildconfig
 
     if len(sys.argv) >= 2:
