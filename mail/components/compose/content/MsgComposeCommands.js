@@ -8091,11 +8091,16 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
         Ci.nsIFile
       );
       tempDir.initWithPath(pathTempDir);
-
+      // Ensure we don't mess with an existing file in saveAttachmentToFolder.
+      const uniquePath = await IOUtils.createUniqueFile(
+        pathTempDir,
+        attachment.name.replaceAll(/[/:*?\"<>|]/g, "_")
+      );
+      const uniqueTmpFile = await IOUtils.getFile(uniquePath);
       const tempFile = gMessenger.saveAttachmentToFolder(
         attachment.contentType,
         attachment.url,
-        encodeURIComponent(attachment.name),
+        encodeURIComponent(uniqueTmpFile.leafName),
         attachment.msgUri,
         tempDir
       );
