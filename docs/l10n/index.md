@@ -11,6 +11,7 @@ Coordinator. Contact information is on the
 [Thunderbird Project page in Pontoon](https://pontoon.mozilla.org/projects/thunderbird/info/).
 
 ```{toctree}
+cross_channel
 fluent_migrations
 testing_migrations
 ```
