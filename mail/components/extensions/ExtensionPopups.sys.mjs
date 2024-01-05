@@ -6,8 +6,6 @@
 
 /* This file is a much-modified copy of browser/components/extensions/ExtensionPopups.sys.mjs. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -23,7 +21,7 @@ var { DefaultWeakMap, ExtensionError, promiseEvent } = ExtensionUtils;
 
 const POPUP_LOAD_TIMEOUT_MS = 200;
 
-XPCOMUtils.defineLazyGetter(lazy, "standaloneStylesheets", () => {
+ChromeUtils.defineLazyGetter(lazy, "standaloneStylesheets", () => {
   const stylesheets = [];
 
   if (AppConstants.platform === "macosx") {

@@ -49,7 +49,7 @@ addEventListener("DOMContentLoaded", () => {
   });
 });
 
-XPCOMUtils.defineLazyGetter(this, "gReadOnlyNotification", () => {
+ChromeUtils.defineLazyGetter(this, "gReadOnlyNotification", () => {
   return new MozElements.NotificationBox(element => {
     element.setAttribute("notificationside", "top");
     document.getElementById("readonly-notification").append(element);

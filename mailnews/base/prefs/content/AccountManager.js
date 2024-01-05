@@ -55,7 +55,7 @@ var { ChatIcons } = ChromeUtils.importESModule(
   "resource:///modules/chatIcons.sys.mjs"
 );
 
-XPCOMUtils.defineLazyGetter(this, "gSubDialog", function () {
+ChromeUtils.defineLazyGetter(this, "gSubDialog", function () {
   const { SubDialogManager } = ChromeUtils.importESModule(
     "resource://gre/modules/SubDialog.sys.mjs"
   );

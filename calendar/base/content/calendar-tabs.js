@@ -144,13 +144,13 @@ var calendarTabType = {
   saveTabState(tab) {},
 };
 
-XPCOMUtils.defineLazyGetter(calendarTabType.modes.calendar, "notificationbox", () => {
+ChromeUtils.defineLazyGetter(calendarTabType.modes.calendar, "notificationbox", () => {
   return new MozElements.NotificationBox(element => {
     document.getElementById("calendar-deactivated-notification-location-events").append(element);
   });
 });
 
-XPCOMUtils.defineLazyGetter(calendarTabType.modes.tasks, "notificationbox", () => {
+ChromeUtils.defineLazyGetter(calendarTabType.modes.tasks, "notificationbox", () => {
   return new MozElements.NotificationBox(element => {
     document.getElementById("calendar-deactivated-notification-location-tasks").append(element);
   });

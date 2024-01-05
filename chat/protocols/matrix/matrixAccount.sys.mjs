@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   nsSimpleEnumerator,
   l10nHelper,
@@ -23,11 +22,11 @@ import {
 
 const lazy = {};
 
-XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+ChromeUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
 
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   lazy,
   "l10n",
   () => new Localization(["chat/matrix.ftl"], true)

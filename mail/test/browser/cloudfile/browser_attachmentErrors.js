@@ -8,7 +8,7 @@
 
 "use strict";
 
-XPCOMUtils.defineLazyGetter(this, "brandShortName", () =>
+ChromeUtils.defineLazyGetter(this, "brandShortName", () =>
   Services.strings
     .createBundle("chrome://branding/locale/brand.properties")
     .GetStringFromName("brandShortName")

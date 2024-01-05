@@ -22,7 +22,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   exportAttributes: "resource:///modules/AddrBookUtils.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "d3", () => {
+ChromeUtils.defineLazyGetter(lazy, "d3", () => {
   const d3Scope = Cu.Sandbox(null);
   Services.scriptloader.loadSubScript(
     "chrome://global/content/third_party/d3/d3.js",

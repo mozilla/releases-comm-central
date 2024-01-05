@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
 
 const ParserUtils = Cc["@mozilla.org/parserutils;1"].getService(
@@ -21,18 +19,18 @@ var DEFAULT_THEMES = ["bubbles", "dark", "mail", "papersheets", "simple"];
 
 var kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
-XPCOMUtils.defineLazyGetter(lazy, "gPrefBranch", () =>
+ChromeUtils.defineLazyGetter(lazy, "gPrefBranch", () =>
   Services.prefs.getBranch(kMessagesStylePrefBranch)
 );
 
-XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
+ChromeUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
   const cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(
     Ci.mozITXTToHTMLConv
   );
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "gTimeFormatter", () => {
+ChromeUtils.defineLazyGetter(lazy, "gTimeFormatter", () => {
   return new Services.intl.DateTimeFormat(undefined, {
     hour: "2-digit",
     minute: "2-digit",

@@ -8,10 +8,8 @@
  * http://pubs.opengroup.org/onlinepubs/007908799/xsh/strftime.html
  */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   lazy,
   "dateTimeFormatter",
   () =>
@@ -20,7 +18,7 @@ XPCOMUtils.defineLazyGetter(
       timeStyle: "long",
     })
 );
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   lazy,
   "dateFormatter",
   () =>
@@ -28,7 +26,7 @@ XPCOMUtils.defineLazyGetter(
       dateStyle: "full",
     })
 );
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   lazy,
   "timeFormatter",
   () =>

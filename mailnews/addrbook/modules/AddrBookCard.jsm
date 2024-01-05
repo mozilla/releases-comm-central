@@ -30,7 +30,7 @@ function AddrBookCard() {
   ]);
 
   this._hasVCard = false;
-  XPCOMUtils.defineLazyGetter(this, "_vCardProperties", () => {
+  ChromeUtils.defineLazyGetter(this, "_vCardProperties", () => {
     // Lazy creation of the VCardProperties object. Change the `_properties`
     // object as much as you like (e.g. loading in properties from a database)
     // before running this code. After it runs, the `_vCardProperties` object

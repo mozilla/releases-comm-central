@@ -17,7 +17,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-XPCOMUtils.defineLazyGetter(this, "ABQueryUtils", function () {
+ChromeUtils.defineLazyGetter(this, "ABQueryUtils", function () {
   return ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 });
 
@@ -41,7 +41,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   VCardProperties: "resource:///modules/VCardUtils.jsm",
   VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
 });
-XPCOMUtils.defineLazyGetter(this, "SubDialog", function () {
+ChromeUtils.defineLazyGetter(this, "SubDialog", function () {
   const { SubDialogManager } = ChromeUtils.importESModule(
     "resource://gre/modules/SubDialog.sys.mjs"
   );

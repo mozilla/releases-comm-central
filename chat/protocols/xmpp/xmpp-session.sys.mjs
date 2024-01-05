@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { DNS } from "resource:///modules/DNS.sys.mjs";
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { Socket } from "resource:///modules/socket.sys.mjs";
 import { Stanza, XMPPParser } from "resource:///modules/xmpp-xml.sys.mjs";
@@ -11,7 +10,7 @@ import { XMPPAuthMechanisms } from "resource:///modules/xmpp-authmechs.sys.mjs";
 
 const lazy = {};
 
-XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+ChromeUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 

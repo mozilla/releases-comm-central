@@ -26,7 +26,7 @@ XPCOMUtils.defineLazyServiceGetters(lazy, {
   gMIMEService: ["@mozilla.org/mime;1", "nsIMIMEService"],
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "messengerBundle", () => {
+ChromeUtils.defineLazyGetter(lazy, "messengerBundle", () => {
   return Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );

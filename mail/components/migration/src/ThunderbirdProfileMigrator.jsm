@@ -4,14 +4,11 @@
 
 const EXPORTED_SYMBOLS = ["ThunderbirdProfileMigrator"];
 
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 const lazy = {};
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   lazy,
   "l10n",
   () => new Localization(["messenger/importDialog.ftl"])

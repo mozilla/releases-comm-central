@@ -20,10 +20,10 @@ import {
 } from "resource:///modules/jsProtoHelper.sys.mjs";
 
 const lazy = {};
-XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+ChromeUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/accounts.properties")
 );
-XPCOMUtils.defineLazyGetter(lazy, "_maxDebugMessages", () =>
+ChromeUtils.defineLazyGetter(lazy, "_maxDebugMessages", () =>
   Services.prefs.getIntPref("messenger.accounts.maxDebugMessages")
 );
 XPCOMUtils.defineLazyServiceGetter(

@@ -17,10 +17,6 @@ customElements.whenDefined("autocomplete-input").then(() => {
   const { AppConstants } = ChromeUtils.importESModule(
     "resource://gre/modules/AppConstants.sys.mjs"
   );
-  const { XPCOMUtils } = ChromeUtils.importESModule(
-    "resource://gre/modules/XPCOMUtils.sys.mjs"
-  );
-
   const lazy = {};
   ChromeUtils.defineESModuleGetters(lazy, {
     GlodaIMSearcher: "resource:///modules/GlodaIMSearcher.sys.mjs",
@@ -41,7 +37,7 @@ customElements.whenDefined("autocomplete-input").then(() => {
     "resource:///modules/gloda/GlodaConstants.jsm"
   );
 
-  XPCOMUtils.defineLazyGetter(
+  ChromeUtils.defineLazyGetter(
     lazy,
     "glodaCompleter",
     () =>

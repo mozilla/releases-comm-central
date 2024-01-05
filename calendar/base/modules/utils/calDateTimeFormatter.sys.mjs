@@ -10,7 +10,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "gDateStringBundle", () =>
+ChromeUtils.defineLazyGetter(lazy, "gDateStringBundle", () =>
   Services.strings.createBundle("chrome://calendar/locale/dateFormat.properties")
 );
 

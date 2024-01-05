@@ -79,7 +79,7 @@ var gConfig = {
 // parent context, so that they are already set before iframe content load:
 //   - gTimezoneEnabled
 
-XPCOMUtils.defineLazyGetter(this, "gEventNotification", () => {
+ChromeUtils.defineLazyGetter(this, "gEventNotification", () => {
   return new MozElements.NotificationBox(element => {
     document.getElementById("event-dialog-notifications").append(element);
   });

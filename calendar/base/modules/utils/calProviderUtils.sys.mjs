@@ -883,7 +883,7 @@ export var provider = {
 };
 
 // Initialize `cal.provider.providers` with the built-in providers.
-XPCOMUtils.defineLazyGetter(provider, "providers", () => {
+ChromeUtils.defineLazyGetter(provider, "providers", () => {
   const { CalICSProvider } = ChromeUtils.import("resource:///modules/CalICSProvider.jsm");
   const { CalDavProvider } = ChromeUtils.import("resource:///modules/CalDavProvider.jsm");
   return new Map([
@@ -893,7 +893,7 @@ XPCOMUtils.defineLazyGetter(provider, "providers", () => {
 });
 
 // This is the transport returned by getImipTransport().
-XPCOMUtils.defineLazyGetter(provider, "defaultImipTransport", () => {
+ChromeUtils.defineLazyGetter(provider, "defaultImipTransport", () => {
   const { CalItipEmailTransport } = ChromeUtils.import(
     "resource:///modules/CalItipEmailTransport.jsm"
   );

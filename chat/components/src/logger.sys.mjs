@@ -12,7 +12,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   ToLocaleFormat: "resource:///modules/ToLocaleFormat.sys.mjs",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+ChromeUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/logger.properties")
 );
 

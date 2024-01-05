@@ -17,7 +17,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 var allowedActionsMap = {};
 var suppressListUpdate = false;
 
-XPCOMUtils.defineLazyGetter(this, "gReminderNotification", () => {
+ChromeUtils.defineLazyGetter(this, "gReminderNotification", () => {
   return new MozElements.NotificationBox(element => {
     document.getElementById("reminder-notifications").append(element);
   });

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   ClassInfo,
   executeSoon,
@@ -35,10 +34,10 @@ ChromeUtils.defineESModuleGetters(lazy, {
   ircHandlers: "resource:///modules/ircHandlers.sys.mjs",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "_conv", () =>
+ChromeUtils.defineLazyGetter(lazy, "_conv", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")
 );
-XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+ChromeUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
 );
 

@@ -32,7 +32,7 @@ const ABOUT_CONTRACT = "@mozilla.org/network/protocol/about;1?what=";
 
 const isXpcshell = Services.env.exists("XPCSHELL_TEST_PROFILE_DIR");
 
-XPCOMUtils.defineLazyGetter(lazy, "log", () => {
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
   const { ConsoleAPI } = ChromeUtils.importESModule(
     "resource://gre/modules/Console.sys.mjs"
   );

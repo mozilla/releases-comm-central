@@ -6,11 +6,10 @@ var EXPORTED_SYMBOLS = ["CalTimezone"];
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 const lazy = {};
 
-XPCOMUtils.defineLazyGetter(lazy, "l10nBundle", () => {
+ChromeUtils.defineLazyGetter(lazy, "l10nBundle", () => {
   // Prepare localized timezone display values
   const bundleURL = "chrome://calendar/locale/timezones.properties";
   return Services.strings.createBundle(bundleURL);

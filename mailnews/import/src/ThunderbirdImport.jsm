@@ -4,13 +4,8 @@
 
 const EXPORTED_SYMBOLS = ["ThunderbirdImport"];
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
 const lazy = {};
-
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   lazy,
   "l10n",
   () => new Localization(["messenger/importDialog.ftl"], true)

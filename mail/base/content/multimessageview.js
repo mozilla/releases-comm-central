@@ -28,7 +28,7 @@ ChromeUtils.defineESModuleGetters(this, {
 var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 // Set up our string formatter for localizing strings.
-XPCOMUtils.defineLazyGetter(this, "formatString", function () {
+ChromeUtils.defineLazyGetter(this, "formatString", function () {
   const formatter = new PluralStringFormatter(
     "chrome://messenger/locale/multimessageview.properties"
   );

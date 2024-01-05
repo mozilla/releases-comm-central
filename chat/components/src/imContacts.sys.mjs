@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   executeSoon,
   ClassInfo,
@@ -12,7 +11,7 @@ import {
 
 const lazy = {};
 
-XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+ChromeUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/contacts.properties")
 );
 

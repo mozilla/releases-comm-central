@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 var kLogLevelPref = "purple.debug.loglevel";
 
 /**
@@ -98,7 +96,7 @@ export function initLogModule(aModule, aObj = {}) {
 }
 
 const lazy = {};
-XPCOMUtils.defineLazyGetter(lazy, "gLogLevels", function () {
+ChromeUtils.defineLazyGetter(lazy, "gLogLevels", function () {
   // This object functions both as an obsever as well as a dict keeping the
   // log levels with prefs; the log levels all start with "level" (i.e. "level"
   // for the global level, "level.irc" for the IRC module).  The dual-purpose

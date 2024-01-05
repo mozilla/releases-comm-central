@@ -15,7 +15,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "extractService", () => {
+ChromeUtils.defineLazyGetter(this, "extractService", () => {
   const { CalExtractParserService } = ChromeUtils.import(
     "resource:///modules/calendar/extract/CalExtractParserService.jsm"
   );

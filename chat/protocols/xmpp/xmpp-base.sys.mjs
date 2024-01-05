@@ -42,11 +42,11 @@ XPCOMUtils.defineLazyServiceGetter(
   "imgITools"
 );
 
-XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+ChromeUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
-XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
+ChromeUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
   const cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(
     Ci.mozITXTToHTMLConv
   );

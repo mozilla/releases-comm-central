@@ -9,10 +9,8 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.window namespace.
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   lazy,
   "l10nDeletePrompt",
   () => new Localization(["calendar/calendar-delete-prompt.ftl"], true)

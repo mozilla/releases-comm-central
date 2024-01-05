@@ -4,11 +4,10 @@
 
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import { OTR } from "resource:///modules/OTR.sys.mjs";
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   lazy,
   "l10n",
   () => new Localization(["messenger/otr/otrUI.ftl"], true)

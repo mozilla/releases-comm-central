@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { ExtensionShortcuts } from "resource://gre/modules/ExtensionShortcuts.sys.mjs";
 
 const lazy = {};
@@ -11,15 +10,15 @@ ChromeUtils.defineESModuleGetters(lazy, {
   ExtensionParent: "resource://gre/modules/ExtensionParent.sys.mjs",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "browserActionFor", () => {
+ChromeUtils.defineLazyGetter(lazy, "browserActionFor", () => {
   return lazy.ExtensionParent.apiManager.global.browserActionFor;
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "composeActionFor", () => {
+ChromeUtils.defineLazyGetter(lazy, "composeActionFor", () => {
   return lazy.ExtensionParent.apiManager.global.composeActionFor;
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "messageDisplayActionFor", () => {
+ChromeUtils.defineLazyGetter(lazy, "messageDisplayActionFor", () => {
   return lazy.ExtensionParent.apiManager.global.messageDisplayActionFor;
 });
 

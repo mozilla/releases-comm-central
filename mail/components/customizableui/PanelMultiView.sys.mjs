@@ -97,11 +97,9 @@
  *       └───┴───┴── Open views
  */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
 
-XPCOMUtils.defineLazyGetter(lazy, "gBundle", function () {
+ChromeUtils.defineLazyGetter(lazy, "gBundle", function () {
   return Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );

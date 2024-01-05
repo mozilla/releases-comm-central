@@ -12,7 +12,7 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
-XPCOMUtils.defineLazyGetter(this, "gIdentityNotification", () => {
+ChromeUtils.defineLazyGetter(this, "gIdentityNotification", () => {
   return new MozElements.NotificationBox(element => {
     document.getElementById("no-identity-notification").append(element);
   });

@@ -12,7 +12,6 @@
  *  https://github.com/atheme/charybdis/blob/master/include/numeric.h
  *  https://github.com/unrealircd/unrealircd/blob/unreal42/include/numeric.h
  */
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 import {
@@ -21,7 +20,7 @@ import {
 } from "resource:///modules/ircUtils.sys.mjs";
 
 const lazy = {};
-XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+ChromeUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
 );
 

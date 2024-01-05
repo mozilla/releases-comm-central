@@ -4,11 +4,9 @@
 
 /** Used to add smileys to the content of a textnode. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
 
-XPCOMUtils.defineLazyGetter(lazy, "gTextDecoder", () => {
+ChromeUtils.defineLazyGetter(lazy, "gTextDecoder", () => {
   return new TextDecoder();
 });
 

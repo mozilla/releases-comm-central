@@ -34,7 +34,7 @@ XPCOMUtils.defineLazyServiceGetters(this, {
   gMIMEService: ["@mozilla.org/mime;1", "nsIMIMEService"],
 });
 
-XPCOMUtils.defineLazyGetter(this, "gIsPackagedApp", () => {
+ChromeUtils.defineLazyGetter(this, "gIsPackagedApp", () => {
   return Services.sysinfo.getProperty("isPackagedApp");
 });
 

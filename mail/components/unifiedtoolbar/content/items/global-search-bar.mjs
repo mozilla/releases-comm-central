@@ -4,10 +4,6 @@
 
 import { SearchBar } from "chrome://messenger/content/search-bar.mjs";
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -28,7 +24,7 @@ ChromeUtils.defineModuleGetter(
   "Gloda",
   "resource:///modules/gloda/GlodaPublic.jsm"
 );
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   lazy,
   "glodaCompleter",
   () =>

@@ -34,7 +34,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 

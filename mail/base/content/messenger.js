@@ -44,7 +44,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   SessionStoreManager: "resource:///modules/SessionStoreManager.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function () {
+ChromeUtils.defineLazyGetter(this, "PopupNotifications", function () {
   const { PopupNotifications } = ChromeUtils.import(
     "resource:///modules/GlobalPopupNotifications.jsm"
   );

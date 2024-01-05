@@ -59,7 +59,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   this,
   "l10nCompose",
   () =>
@@ -69,7 +69,7 @@ XPCOMUtils.defineLazyGetter(
     ])
 );
 
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   this,
   "l10nComposeSync",
   () =>
@@ -445,7 +445,7 @@ function ReleaseGlobalVariables() {
 }
 
 // Notification box shown at the bottom of the window.
-XPCOMUtils.defineLazyGetter(this, "gComposeNotification", () => {
+ChromeUtils.defineLazyGetter(this, "gComposeNotification", () => {
   return new MozElements.NotificationBox(element => {
     element.setAttribute("notificationside", "bottom");
     document.getElementById("compose-notification-bottom").append(element);

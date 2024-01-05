@@ -6,10 +6,6 @@
 
 var EXPORTED_SYMBOLS = ["PromptCollection"];
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
 /**
  * Implements nsIPromptCollection
  *
@@ -78,7 +74,7 @@ class PromptCollection {
   }
 }
 
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   PromptCollection.prototype,
   "domBundle",
   function () {

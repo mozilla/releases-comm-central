@@ -54,7 +54,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+ChromeUtils.defineLazyGetter(this, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 

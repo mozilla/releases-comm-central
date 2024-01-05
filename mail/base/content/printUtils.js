@@ -15,7 +15,7 @@ var { MailE10SUtils } = ChromeUtils.import(
 );
 
 // Load PrintUtils lazily and modify it to suit.
-XPCOMUtils.defineLazyGetter(this, "PrintUtils", () => {
+ChromeUtils.defineLazyGetter(this, "PrintUtils", () => {
   const scope = {};
   Services.scriptloader.loadSubScript(
     "chrome://global/content/printUtils.js",

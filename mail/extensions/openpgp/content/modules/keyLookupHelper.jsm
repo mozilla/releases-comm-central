@@ -24,7 +24,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailWkdLookup: "chrome://openpgp/content/modules/wkdLookup.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 

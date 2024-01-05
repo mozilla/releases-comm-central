@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   initLogModule,
   nsSimpleEnumerator,
@@ -13,11 +12,11 @@ import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
 const lazy = {};
 
-XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+ChromeUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")
 );
 
-XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
+ChromeUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
   const cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(
     Ci.mozITXTToHTMLConv
   );

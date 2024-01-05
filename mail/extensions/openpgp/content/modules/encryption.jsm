@@ -24,7 +24,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 

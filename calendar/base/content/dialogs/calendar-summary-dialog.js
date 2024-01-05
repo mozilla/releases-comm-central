@@ -15,7 +15,7 @@ ChromeUtils.defineESModuleGetters(this, {
   SelectionUtils: "resource://gre/modules/SelectionUtils.sys.mjs",
 });
 
-XPCOMUtils.defineLazyGetter(this, "gStatusNotification", () => {
+ChromeUtils.defineLazyGetter(this, "gStatusNotification", () => {
   return new MozElements.NotificationBox(async element => {
     const box = document.getElementById("status-notifications");
     // Fix window size after the notification animation is done.

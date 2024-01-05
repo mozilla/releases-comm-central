@@ -604,6 +604,6 @@ var quickFilterBar = {
     this.reflectFiltererState();
   },
 };
-XPCOMUtils.defineLazyGetter(quickFilterBar, "domNode", () =>
+ChromeUtils.defineLazyGetter(quickFilterBar, "domNode", () =>
   document.getElementById("quick-filter-bar")
 );

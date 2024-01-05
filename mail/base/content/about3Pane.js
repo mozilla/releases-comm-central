@@ -4041,7 +4041,7 @@ var threadPane = {
     });
     this.updateThreadItemSize();
 
-    XPCOMUtils.defineLazyGetter(this, "notificationBox", () => {
+    ChromeUtils.defineLazyGetter(this, "notificationBox", () => {
       const container = document.getElementById("threadPaneNotificationBox");
       return new MozElements.NotificationBox(element =>
         container.append(element)

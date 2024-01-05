@@ -4,10 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["TBDistCustomizer"];
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
 var TBDistCustomizer = {
   applyPrefDefaults() {
     this._prefDefaultsApplied = true;
@@ -138,7 +134,7 @@ var TBDistCustomizer = {
   },
 };
 
-XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_ini", function () {
+ChromeUtils.defineLazyGetter(TBDistCustomizer, "_ini", function () {
   let ini = null;
   const iniFile = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
   iniFile.append("distribution");
@@ -151,7 +147,7 @@ XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_ini", function () {
   return ini;
 });
 
-XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_locale", function () {
+ChromeUtils.defineLazyGetter(TBDistCustomizer, "_locale", function () {
   return Services.locale.requestedLocale;
 });
 

@@ -7,11 +7,10 @@ import { ctypes } from "resource://gre/modules/ctypes.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import { CLib } from "resource:///modules/CLib.sys.mjs";
 import { OTRLibLoader } from "resource:///modules/OTRLib.sys.mjs";
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   lazy,
   "l10n",
   () => new Localization(["messenger/otr/otr.ftl"], true)

@@ -22,7 +22,6 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 import { FileUtils } from "resource://gre/modules/FileUtils.sys.mjs";
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
@@ -54,7 +53,7 @@ var ScriptableInputStream = CC(
 // job to actually carrying it out.
 var kIndexingDelay = 5000; // in milliseconds
 
-XPCOMUtils.defineLazyGetter(lazy, "MailFolder", () =>
+ChromeUtils.defineLazyGetter(lazy, "MailFolder", () =>
   Cc["@mozilla.org/mail/folder-factory;1?name=mailbox"].createInstance(
     Ci.nsIMsgFolder
   )

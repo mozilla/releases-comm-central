@@ -287,7 +287,7 @@ class ImporterController {
   }
 }
 
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   ImporterController,
   "percentFormatter",
   () =>
@@ -295,7 +295,7 @@ XPCOMUtils.defineLazyGetter(
       style: "percent",
     })
 );
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   ImporterController,
   "notificationBox",
   () =>

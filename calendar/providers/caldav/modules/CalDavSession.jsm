@@ -5,7 +5,6 @@
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { OAuth2 } = ChromeUtils.import("resource:///modules/OAuth2.jsm");
 var { setTimeout } = ChromeUtils.importESModule("resource://gre/modules/Timer.sys.mjs");
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 const lazy = {};
 
@@ -367,17 +366,17 @@ class CalDavSession {
     this.name = aName;
 
     // Only create an auth adapter if we're going to use it.
-    XPCOMUtils.defineLazyGetter(
+    ChromeUtils.defineLazyGetter(
       this.authAdapters,
       "apidata.googleusercontent.com",
       () => new CalDavGoogleOAuth(aSessionId, aName)
     );
-    XPCOMUtils.defineLazyGetter(
+    ChromeUtils.defineLazyGetter(
       this.authAdapters,
       "caldav.fastmail.com",
       () => new CalDavFastmailOAuth(aSessionId, aName)
     );
-    XPCOMUtils.defineLazyGetter(
+    ChromeUtils.defineLazyGetter(
       this.authAdapters,
       "mochi.test",
       () => new CalDavTestOAuth(aSessionId, aName)

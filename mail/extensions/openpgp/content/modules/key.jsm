@@ -21,7 +21,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 

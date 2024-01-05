@@ -659,7 +659,7 @@
       }
     }
   }
-  XPCOMUtils.defineLazyGetter(
+  ChromeUtils.defineLazyGetter(
     AgendaListItem,
     "relativeFormatter",
     () => new Intl.RelativeTimeFormat(undefined, { numeric: "auto", style: "short" })

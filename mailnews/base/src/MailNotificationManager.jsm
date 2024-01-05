@@ -21,7 +21,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   WinUnreadBadge: "resource:///modules/WinUnreadBadge.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(
+ChromeUtils.defineLazyGetter(
   lazy,
   "l10n",
   () => new Localization(["messenger/messenger.ftl"])
@@ -62,7 +62,7 @@ class MailNotificationManager {
 
     // Ensure that OS integration is defined before we attempt to initialize the
     // system tray icon.
-    XPCOMUtils.defineLazyGetter(this, "_osIntegration", () => {
+    ChromeUtils.defineLazyGetter(this, "_osIntegration", () => {
       try {
         return Cc["@mozilla.org/messenger/osintegration;1"].getService(
           Ci.nsIMessengerOSIntegration

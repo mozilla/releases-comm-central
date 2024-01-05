@@ -19,14 +19,14 @@ const lazy = {};
 
 // lazy module getter
 
-XPCOMUtils.defineLazyGetter(lazy, "gMailBundle", function () {
+ChromeUtils.defineLazyGetter(lazy, "gMailBundle", function () {
   return Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );
 });
 
 if (AppConstants.NIGHTLY_BUILD) {
-  XPCOMUtils.defineLazyGetter(
+  ChromeUtils.defineLazyGetter(
     lazy,
     "WeaveService",
     () => Cc["@mozilla.org/weave/service;1"].getService().wrappedJSObject

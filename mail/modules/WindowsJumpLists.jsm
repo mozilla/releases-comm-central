@@ -16,7 +16,7 @@ var PREF_TASKBAR_TASKS = "tasks.enabled";
 
 const lazy = {};
 
-XPCOMUtils.defineLazyGetter(lazy, "_stringBundle", function () {
+ChromeUtils.defineLazyGetter(lazy, "_stringBundle", function () {
   return Services.strings.createBundle(
     "chrome://messenger/locale/taskbar.properties"
   );
@@ -29,7 +29,7 @@ XPCOMUtils.defineLazyServiceGetter(
   "nsIWinTaskbar"
 );
 
-XPCOMUtils.defineLazyGetter(lazy, "_prefs", function () {
+ChromeUtils.defineLazyGetter(lazy, "_prefs", function () {
   return Services.prefs.getBranch(PREF_TASKBAR_BRANCH);
 });
 

@@ -2127,20 +2127,20 @@ var FeedUtils = {
   },
 };
 
-XPCOMUtils.defineLazyGetter(FeedUtils, "log", function () {
+ChromeUtils.defineLazyGetter(FeedUtils, "log", function () {
   return console.createInstance({
     prefix: "feeds",
     maxLogLevelPref: "feeds.loglevel",
   });
 });
 
-XPCOMUtils.defineLazyGetter(FeedUtils, "strings", function () {
+ChromeUtils.defineLazyGetter(FeedUtils, "strings", function () {
   return Services.strings.createBundle(
     "chrome://messenger-newsblog/locale/newsblog.properties"
   );
 });
 
-XPCOMUtils.defineLazyGetter(FeedUtils, "stringsPrefs", function () {
+ChromeUtils.defineLazyGetter(FeedUtils, "stringsPrefs", function () {
   return Services.strings.createBundle(
     "chrome://messenger/locale/prefs.properties"
   );

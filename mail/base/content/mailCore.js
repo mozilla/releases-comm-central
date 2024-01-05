@@ -26,7 +26,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function () {
+ChromeUtils.defineLazyGetter(this, "gViewSourceUtils", function () {
   const scope = {};
   Services.scriptloader.loadSubScript(
     "chrome://global/content/viewSourceUtils.js",

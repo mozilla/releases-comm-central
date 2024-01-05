@@ -17,7 +17,6 @@
  *   RFC 1459: Internet Relay Chat Protocol
  *     http://tools.ietf.org/html/rfc1459
  */
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   l10nHelper,
   nsSimpleEnumerator,
@@ -32,7 +31,7 @@ import {
 } from "resource:///modules/ircUtils.sys.mjs";
 
 const lazy = {};
-XPCOMUtils.defineLazyGetter(lazy, "_", () =>
+ChromeUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
 );
 

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Status } from "resource:///modules/imStatusUtils.sys.mjs";
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { ClassInfo } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { Message } from "resource:///modules/jsProtoHelper.sys.mjs";
 
@@ -12,7 +11,7 @@ var gLastPrplConvId = 0;
 
 const lazy = {};
 
-XPCOMUtils.defineLazyGetter(lazy, "bundle", () =>
+ChromeUtils.defineLazyGetter(lazy, "bundle", () =>
   Services.strings.createBundle("chrome://chat/locale/conversations.properties")
 );
 

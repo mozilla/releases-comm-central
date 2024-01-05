@@ -4,10 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["MsgAsyncPrompter", "MsgAuthPrompt"];
 
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
 const LoginInfo = Components.Constructor(
   "@mozilla.org/login-manager/loginInfo;1",
   "nsILoginInfo",
@@ -21,13 +17,13 @@ ChromeUtils.defineESModuleGetters(lazy, {
   PromptUtils: "resource://gre/modules/PromptUtils.sys.mjs",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "dialogsBundle", function () {
+ChromeUtils.defineLazyGetter(lazy, "dialogsBundle", function () {
   return Services.strings.createBundle(
     "chrome://global/locale/commonDialogs.properties"
   );
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "brandFullName", function () {
+ChromeUtils.defineLazyGetter(lazy, "brandFullName", function () {
   return Services.strings
     .createBundle("chrome://branding/locale/brand.properties")
     .GetStringFromName("brandFullName");
