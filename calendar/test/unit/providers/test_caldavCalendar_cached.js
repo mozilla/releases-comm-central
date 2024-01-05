@@ -23,8 +23,8 @@ add_setup(async function () {
 registerCleanupFunction(() => CalDAVServer.close());
 
 add_task(async function () {
-  calendarObserver._onAddItemPromise = PromiseUtils.defer();
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onAddItemPromise = Promise.withResolvers();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   const calendar = createCalendar("caldav", CalDAVServer.url, true);
   await calendarObserver._onAddItemPromise.promise;
   await calendarObserver._onLoadPromise.promise;
@@ -34,12 +34,12 @@ add_task(async function () {
 
   info("creating the item");
   calendarObserver._batchRequired = true;
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   await runAddItem(calendar);
   await calendarObserver._onLoadPromise.promise;
 
   info("modifying the item");
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   await runModifyItem(calendar);
   await calendarObserver._onLoadPromise.promise;
 
@@ -55,7 +55,7 @@ add_task(async function () {
  */
 add_task(async function testCalendarWithNoPrivSupport() {
   CalDAVServer.privileges = null;
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
 
   const calendar = createCalendar("caldav", CalDAVServer.url, true);
   await calendarObserver._onLoadPromise.promise;
@@ -100,8 +100,8 @@ add_task(async function testModifyItemWithNoChanges() {
  * items from the local calendar.
  */
 add_task(async function testSyncError1() {
-  calendarObserver._onAddItemPromise = PromiseUtils.defer();
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onAddItemPromise = Promise.withResolvers();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   const calendar = createCalendar("caldav", CalDAVServer.url, true);
   await calendarObserver._onAddItemPromise.promise;
   await calendarObserver._onLoadPromise.promise;
@@ -114,7 +114,7 @@ add_task(async function testSyncError1() {
 
   info("syncing with rate limit error");
   CalDAVServer.throwRateLimitErrors = true;
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   calendar.refresh();
   await calendarObserver._onLoadPromise.promise;
   CalDAVServer.throwRateLimitErrors = false;
@@ -132,7 +132,7 @@ add_task(async function testSyncError1() {
   );
 
   info("syncing without rate limit error");
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   calendar.refresh();
   await calendarObserver._onLoadPromise.promise;
   info("sync without rate limit error complete");
@@ -171,8 +171,8 @@ add_task(async function testSyncError2() {
     );
   }
 
-  calendarObserver._onAddItemPromise = PromiseUtils.defer();
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onAddItemPromise = Promise.withResolvers();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   const calendar = createCalendar("caldav", CalDAVServer.url, true);
   await calendarObserver._onAddItemPromise.promise;
   await calendarObserver._onLoadPromise.promise;
@@ -184,7 +184,7 @@ add_task(async function testSyncError2() {
   info("forced syncing with multiple pages");
   calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject.mWebdavSyncToken = null;
   calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject.saveCalendarProperties();
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   calendar.refresh();
   await calendarObserver._onLoadPromise.promise;
   info("forced sync with multiple pages complete");

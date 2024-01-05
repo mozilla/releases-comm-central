@@ -14,7 +14,7 @@ add_setup(async function () {
     loginInfo.init(CalDAVServer.origin, null, "test", "bob", "bob", "", "");
     await Services.logins.addLoginAsync(loginInfo);
   }
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   calendar = createCalendar("caldav", CalDAVServer.url, true);
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");

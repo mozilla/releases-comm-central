@@ -79,7 +79,7 @@ add_task(async function testCreateCard() {
   // Saving the contact will get an immediate notification.
   // Delay the server response so we can test the state of the UI.
   const promise1 = TestUtils.topicObserved("addrbook-contact-created");
-  CardDAVServer.responseDelay = PromiseUtils.defer();
+  CardDAVServer.responseDelay = Promise.withResolvers();
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await promise1;
   await notInEditingMode();
@@ -105,7 +105,7 @@ add_task(async function testCreateCard() {
   // Saving the contact will get an immediate notification.
   // Delay the server response so we can test the state of the UI.
   const promise3 = TestUtils.topicObserved("addrbook-contact-updated");
-  CardDAVServer.responseDelay = PromiseUtils.defer();
+  CardDAVServer.responseDelay = Promise.withResolvers();
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await promise3;
   await notInEditingMode();
@@ -129,7 +129,7 @@ add_task(async function testCreateCard() {
   // Saving the contact will get an immediate notification.
   // Delay the server response so we can test the state of the UI.
   const promise5 = TestUtils.topicObserved("addrbook-contact-deleted");
-  CardDAVServer.responseDelay = PromiseUtils.defer();
+  CardDAVServer.responseDelay = Promise.withResolvers();
   BrowserTestUtils.promiseAlertDialog("accept");
   EventUtils.synthesizeMouseAtCenter(deleteButton, {}, abWindow);
   await promise5;
@@ -178,7 +178,7 @@ add_task(async function testCreateCardWithUIDChange() {
   // Saving the contact will get an immediate notification.
   // Delay the server response so we can test the state of the UI.
   const promise1 = TestUtils.topicObserved("addrbook-contact-created");
-  CardDAVServer.responseDelay = PromiseUtils.defer();
+  CardDAVServer.responseDelay = Promise.withResolvers();
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await promise1;
   await notInEditingMode();
@@ -219,7 +219,7 @@ add_task(async function testCreateCardWithUIDChange() {
   // Saving the contact will get an immediate notification.
   // Delay the server response so we can test the state of the UI.
   const promise4 = TestUtils.topicObserved("addrbook-contact-deleted");
-  CardDAVServer.responseDelay = PromiseUtils.defer();
+  CardDAVServer.responseDelay = Promise.withResolvers();
   BrowserTestUtils.promiseAlertDialog("accept");
   EventUtils.synthesizeMouseAtCenter(deleteButton, {}, abWindow);
   await promise4;

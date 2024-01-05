@@ -21,7 +21,7 @@ add_setup(async function () {
   // Remove the next line when this is fixed.
   calendarObserver._batchRequired = false;
 
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   calendar = createCalendar("ics", ICSServer.url, true);
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");

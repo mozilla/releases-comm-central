@@ -70,7 +70,7 @@ const tabListener = {
   awaitTabReady(nativeTabInfo) {
     let deferred = this.tabReadyPromises.get(nativeTabInfo);
     if (!deferred) {
-      deferred = PromiseUtils.defer();
+      deferred = Promise.withResolvers();
       const browser = getTabBrowser(nativeTabInfo);
       if (
         !this.initializingTabs.has(nativeTabInfo) &&

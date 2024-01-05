@@ -167,7 +167,7 @@ add_task(async function test_search() {
 add_task(async function test_grouplist() {
   // This tests nsNntpService::GetListOfGroupsOnServer.
   const subserver = localserver.QueryInterface(Ci.nsISubscribableServer);
-  const subscribablePromise = PromiseUtils.defer();
+  const subscribablePromise = Promise.withResolvers();
   const subscribeListener = {
     OnDonePopulating() {
       subscribablePromise.resolve();
@@ -271,7 +271,7 @@ class DummyMsgWindow {
   ]);
 
   constructor() {
-    this._deferredPromise = PromiseUtils.defer();
+    this._deferredPromise = Promise.withResolvers();
   }
 
   get statusFeedback() {
@@ -290,7 +290,7 @@ class DummyMsgWindow {
   }
 
   deferPromise() {
-    this._deferredPromise = PromiseUtils.defer();
+    this._deferredPromise = Promise.withResolvers();
   }
 
   get promise() {

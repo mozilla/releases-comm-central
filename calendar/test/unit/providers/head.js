@@ -111,8 +111,8 @@ async function runAddItem(calendar) {
   event.startDate = cal.createDateTime("20200303T205500Z");
   event.endDate = cal.createDateTime("20200303T210200Z");
 
-  calendarObserver._onAddItemPromise = PromiseUtils.defer();
-  calendarObserver._onModifyItemPromise = PromiseUtils.defer();
+  calendarObserver._onAddItemPromise = Promise.withResolvers();
+  calendarObserver._onModifyItemPromise = Promise.withResolvers();
   await calendar.addItem(event);
   await Promise.any([
     calendarObserver._onAddItemPromise.promise,
@@ -133,7 +133,7 @@ async function runModifyItem(calendar) {
   const clone = event.clone();
   clone.title = "Modified event";
 
-  calendarObserver._onModifyItemPromise = PromiseUtils.defer();
+  calendarObserver._onModifyItemPromise = Promise.withResolvers();
   await calendar.modifyItem(clone, event);
   await calendarObserver._onModifyItemPromise.promise;
 }
@@ -146,7 +146,7 @@ async function runModifyItem(calendar) {
 async function runDeleteItem(calendar) {
   const event = await calendar.getItem("6b7dd6f6-d6f0-4e93-a953-bb5473c4c47a");
 
-  calendarObserver._onDeleteItemPromise = PromiseUtils.defer();
+  calendarObserver._onDeleteItemPromise = Promise.withResolvers();
   await calendar.deleteItem(event);
   await calendarObserver._onDeleteItemPromise.promise;
 }

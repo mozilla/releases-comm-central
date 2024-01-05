@@ -23,8 +23,8 @@ add_setup(async function () {
 registerCleanupFunction(() => CalDAVServer.close());
 
 add_task(async function () {
-  calendarObserver._onAddItemPromise = PromiseUtils.defer();
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onAddItemPromise = Promise.withResolvers();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   const calendar = createCalendar("caldav", CalDAVServer.url, false);
   await calendarObserver._onAddItemPromise.promise;
   await calendarObserver._onLoadPromise.promise;
@@ -34,12 +34,12 @@ add_task(async function () {
 
   info("creating the item");
   calendarObserver._batchRequired = true;
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   await runAddItem(calendar);
   await calendarObserver._onLoadPromise.promise;
 
   info("modifying the item");
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   await runModifyItem(calendar);
   await calendarObserver._onLoadPromise.promise;
 
@@ -55,7 +55,7 @@ add_task(async function () {
  */
 add_task(async function testCalendarWithNoPrivSupport() {
   CalDAVServer.privileges = null;
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
 
   const calendar = createCalendar("caldav", CalDAVServer.url, false);
   await calendarObserver._onLoadPromise.promise;

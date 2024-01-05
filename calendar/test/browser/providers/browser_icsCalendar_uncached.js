@@ -14,7 +14,7 @@ add_setup(async function () {
     loginInfo.init(ICSServer.origin, null, "test", "bob", "bob", "", "");
     await Services.logins.addLoginAsync(loginInfo);
   }
-  calendarObserver._onLoadPromise = PromiseUtils.defer();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
   calendar = createCalendar("ics", ICSServer.url, false);
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");

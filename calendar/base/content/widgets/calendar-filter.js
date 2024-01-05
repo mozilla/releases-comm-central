@@ -1027,7 +1027,7 @@ let CalendarFilteredViewMixin = Base =>
      *
      * @type {object}
      */
-    #deferred = PromiseUtils.defer();
+    #deferred = Promise.withResolvers();
 
     /**
      * Any async iterator currently reading from a calendar.
@@ -1232,7 +1232,7 @@ let CalendarFilteredViewMixin = Base =>
         // If a previous refresh completed, start a new Promise that resolves when the next refresh
         // completes. Otherwise, continue with the current Promise.
         // If #currentRefresh is completed, #deferred is already resolved, so we can safely discard it.
-        this.#deferred = PromiseUtils.defer();
+        this.#deferred = Promise.withResolvers();
       }
       this.#currentRefresh = null;
     }

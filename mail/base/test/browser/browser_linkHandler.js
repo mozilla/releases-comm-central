@@ -84,7 +84,7 @@ const webProgressListener = {
       Ci.nsIWebProgress.NOTIFY_STATE_ALL | Ci.nsIWebProgress.NOTIFY_LOCATION
     );
 
-    this._deferred = PromiseUtils.defer();
+    this._deferred = Promise.withResolvers();
     return this._deferred.promise;
   },
 
@@ -114,7 +114,7 @@ const mockExternalProtocolService = {
   },
 
   promiseEvent() {
-    this._deferred = PromiseUtils.defer();
+    this._deferred = Promise.withResolvers();
     return this._deferred.promise;
   },
 

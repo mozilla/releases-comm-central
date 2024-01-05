@@ -47,7 +47,7 @@ var msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
 );
 
 var messageListener;
-var onStopCopyPromise = PromiseUtils.defer();
+var onStopCopyPromise = Promise.withResolvers();
 
 /* exported OnStopCopy */
 // for head_compose.js
@@ -184,7 +184,7 @@ async function sendMessageLater(aTestFileIndex) {
   );
   await onStopCopyPromise.promise;
   // Reset onStopCopyPromise.
-  onStopCopyPromise = PromiseUtils.defer();
+  onStopCopyPromise = Promise.withResolvers();
 }
 
 function resetCounts() {
@@ -214,7 +214,7 @@ async function sendUnsentMessages() {
 // sequence and ensures the data is correct.
 class MsgSendLaterListener {
   constructor() {
-    this._deferredPromise = PromiseUtils.defer();
+    this._deferredPromise = Promise.withResolvers();
   }
 
   checkMessageSend(aCurrentMessage) {
@@ -292,7 +292,7 @@ class MsgSendLaterListener {
   }
 
   deferPromise() {
-    this._deferredPromise = PromiseUtils.defer();
+    this._deferredPromise = Promise.withResolvers();
   }
 
   get promise() {

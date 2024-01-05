@@ -44,7 +44,7 @@ const contents = "Sundays are nothing without callaloo.";
  */
 const headerSink = {
   expectResults(maxLen) {
-    this._deferred = PromiseUtils.defer();
+    this._deferred = Promise.withResolvers();
     this.expectedCount = maxLen;
     this.countReceived = 0;
     this.results = [];

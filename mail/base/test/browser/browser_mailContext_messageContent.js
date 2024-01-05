@@ -501,7 +501,7 @@ const mockExternalProtocolService = {
   },
 
   promiseEvent() {
-    this._deferred = PromiseUtils.defer();
+    this._deferred = Promise.withResolvers();
     return this._deferred.promise;
   },
 

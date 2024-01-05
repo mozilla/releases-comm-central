@@ -6,10 +6,6 @@
 
 var EXPORTED_SYMBOLS = ["PopupNotifications"];
 
-const { PromiseUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/PromiseUtils.sys.mjs"
-);
-
 const NOTIFICATION_EVENT_DISMISSED = "dismissed";
 const NOTIFICATION_EVENT_REMOVED = "removed";
 const NOTIFICATION_EVENT_SHOWING = "showing";
@@ -638,7 +634,7 @@ PopupNotifications.prototype = {
     if (this._ignoreDismissal) {
       return this._ignoreDismissal.promise;
     }
-    const deferred = PromiseUtils.defer();
+    const deferred = Promise.withResolvers();
     this._ignoreDismissal = deferred;
     this.panel.hidePopup();
     return deferred.promise;

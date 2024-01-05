@@ -209,7 +209,7 @@ add_task(async function testBccWithSendLater() {
   );
   await promise;
 
-  const onStopSendingPromise = PromiseUtils.defer();
+  const onStopSendingPromise = Promise.withResolvers();
   const msgSendLater = Cc[
     "@mozilla.org/messengercompose/sendlater;1"
   ].getService(Ci.nsIMsgSendLater);
@@ -299,7 +299,7 @@ add_task(async function testBccOnlyWithSendLater() {
   );
   await promise;
 
-  const onStopSendingPromise = PromiseUtils.defer();
+  const onStopSendingPromise = Promise.withResolvers();
   const msgSendLater = Cc[
     "@mozilla.org/messengercompose/sendlater;1"
   ].getService(Ci.nsIMsgSendLater);

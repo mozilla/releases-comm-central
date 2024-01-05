@@ -354,7 +354,7 @@ var gBrowserInit = {
 
     const initiallyFocusedElement = document.commandDispatcher.focusedElement;
     const promise = gBrowser.selectedBrowser.isRemoteBrowser
-      ? PromiseUtils.defer().promise
+      ? Promise.withResolvers().promise
       : Promise.resolve();
 
     contentProgress.addListener({

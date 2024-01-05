@@ -50,12 +50,12 @@ var gDBView;
 var gTreeView;
 
 var CommandUpdaterWithPromise = function () {
-  this.deferred = PromiseUtils.defer();
+  this.deferred = Promise.withResolvers();
 };
 CommandUpdaterWithPromise.prototype = {
   async promiseSelectionSummarized() {
     await this.deferred.promise;
-    this.deferred = PromiseUtils.defer();
+    this.deferred = Promise.withResolvers();
     return this.deferred.promise;
   },
 

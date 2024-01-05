@@ -102,7 +102,7 @@ class MockAlertsService {
   QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
 
   constructor() {
-    this._deferredPromise = PromiseUtils.defer();
+    this._deferredPromise = Promise.withResolvers();
   }
 
   showAlert() {
@@ -110,7 +110,7 @@ class MockAlertsService {
   }
 
   deferPromise() {
-    this._deferredPromise = PromiseUtils.defer();
+    this._deferredPromise = Promise.withResolvers();
   }
 
   get promise() {

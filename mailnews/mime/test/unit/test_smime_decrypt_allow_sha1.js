@@ -101,7 +101,7 @@ var smimeDataDirectory = "../../../data/smime/";
 const smimeHeaderSink = {
   expectResults(maxLen) {
     // dump("Restarting for next test\n");
-    this._deferred = PromiseUtils.defer();
+    this._deferred = Promise.withResolvers();
     this._expectedEvents = maxLen;
     this.countReceived = 0;
     this._results = [];
@@ -621,7 +621,7 @@ var gMessages = [
   },
 ];
 
-const gCopyWaiter = PromiseUtils.defer();
+const gCopyWaiter = Promise.withResolvers();
 
 add_task(async function copy_messages() {
   for (const msg of gMessages) {
