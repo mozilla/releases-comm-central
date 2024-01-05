@@ -54,13 +54,13 @@ treecolpicker {
 
 richlistitem {
   padding-block: 1px;
-}
 
-richlistitem > checkbox {
-  width: 100px;
-  min-width: 100px;
-  margin: 0;
-  -moz-user-focus: none;
+  & > checkbox {
+    width: 100px;
+    min-width: 100px;
+    margin: 0;
+    -moz-user-focus: none;
+  }
 }
 
 checkbox:not([label]) .checkbox-label-box {
@@ -100,37 +100,35 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
   background-color: var(--button-background-color);
   border: 1px solid var(--button-border-color);
   border-radius: var(--button-border-radius);
-}
 
-toolbarbutton[is="toolbarbutton-menu-button"] > toolbarbutton {
-  appearance: none;
-  margin-block: 0;
-  padding-block: 0 !important;
-  font-weight: inherit;
-  background-color: transparent;
-  border-width: 0;
-  border-inline-end: 1px solid var(--button-border-color);
-}
+  &:hover {
+    background-color: var(--button-hover-background-color);
 
-toolbarbutton[is="toolbarbutton-menu-button"]:hover,
-toolbarbutton[is="toolbarbutton-menu-button"] > toolbarbutton:hover {
-  background-color: var(--button-hover-background-color);
-}
+    &:active {
+      background-color: var(--button-active-background-color);
+    }
+  }
 
-toolbarbutton[is="toolbarbutton-menu-button"]:hover:active,
-toolbarbutton[is="toolbarbutton-menu-button"] > toolbarbutton:hover:active {
-  background-color: var(--button-active-background-color);
-}
+  & > toolbarbutton {
+    appearance: none;
+    margin-block: 0;
+    padding-block: 0 !important;
+    font-weight: inherit;
+    background-color: transparent;
+    border-width: 0;
+    border-inline-end: 1px solid var(--button-border-color);
+  }
 
-toolbarbutton[is="toolbarbutton-menu-button"] > dropmarker {
-  appearance: none;
-  list-style-image: var(--icon-nav-down-sm);
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-  display: inline-flex;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
+  & > dropmarker {
+    appearance: none;
+    content: var(--icon-nav-down-sm);
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+    display: inline-flex;
+    flex: 0;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 #filterListGrid toolbarbutton *:focus-visible {

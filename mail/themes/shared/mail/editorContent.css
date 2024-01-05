@@ -10,11 +10,16 @@
 */
 
 a[name] {
-  min-height: 17px; margin-left: 2px; margin-top: 2px;
-  padding-left: 20px;
+  margin-top: 2px;
+  margin-inline-start: 2px;
+  padding-inline-start: 20px;
   background-image: url(chrome://messenger/content/messengercompose/images/tag-anchor.gif);
   background-repeat: no-repeat;
   background-position: top left;
+
+  &:dir(rtl) {
+    background-position-x: right;
+  }
 }
 
 /* Force border display for empty cells
@@ -27,31 +32,22 @@ table {
 /* give a red dotted border to tables and cells with no border
    otherwise they are invisible
 */
-table[empty-cells],
-  table[border="0"],
-  /* next two selectors on line below for the case where tbody is omitted */
-  table[border="0"] > tr > td, table[border="0"] > tr > th,
-  table[border="0"] > thead > tr > td, table[border="0"] > tbody > tr > td, table[border="0"] > tfoot > tr > td,
-  table[border="0"] > thead > tr > th, table[border="0"] > tbody > tr > th, table[border="0"] > tfoot > tr > th,
-  table:not([border]),
-  /* next two selectors on line below for the case where tbody is omitted */
-  table:not([border]) > tr > td, table:not([border]) > tr >  th,
-  table:not([border]) > thead > tr > td, table:not([border]) > tbody > tr > td, table:not([border]) > tfoot > tr > td,
-  table:not([border]) > thead > tr > th, table:not([border]) > tbody > tr > th, table:not([border]) > tfoot > tr > th
-{
+table:is([empty-cells], [border="0"], :not([border])),
+/* next selector on line below for the case where tbody is omitted */
+table:is([border="0"], :not([border])) > tr > :is(td, th),
+table:is([border="0"], :not([border])) > :is(thead, tbody, tfoot) > tr > :is(td, th) {
   border: 1px dotted red;
 }
 
 /* give a green dashed border to forms otherwise they are invisible
 */
-form
-{
+form {
   border: 2px dashed green;
 }
+
 /* give a green dotted border to labels otherwise they are invisible
 */
-label
-{
+label {
   border: 1px dotted green;
 }
 
@@ -59,40 +55,42 @@ img {
   -moz-force-broken-image-icon: 1;
 }
 
-.moz-card.loading {
-  opacity: 0;
-}
 .moz-card {
   position: relative;
   opacity: 1;
   transition: opacity 1.5s;
-}
 
-.moz-card .remove-card {
-  position: absolute;
-  inset-inline-end: 15px;
-  top: 15px;
-  width: 20px;
-  height: 20px;
-  opacity: 0.3;
-  cursor: pointer;
+  &.loading {
+    opacity: 0;
+  }
 
-  font-size: 1.4em;
-  line-height: 18px;
-  border: 1px solid #f9f9fa;
-  border-radius: 15px;
-  float: inline-end;
-  font-weight: 600;
-  display: inline-block;
-  transform: rotate(45deg);
-  margin-block: -0.2em 0.2em;
-  margin-inline: 0.2em -0.2em;
+  & .remove-card {
+    position: absolute;
+    inset-inline-end: 15px;
+    top: 15px;
+    width: 20px;
+    height: 20px;
+    opacity: 0.3;
+    cursor: pointer;
 
-  color: #2a2a2e;
-  background-color: white;
-}
-.moz-card .remove-card:hover {
-  opacity: 1;
+    font-size: 1.4em;
+    line-height: 18px;
+    border: 1px solid #f9f9fa;
+    border-radius: 15px;
+    float: inline-end;
+    font-weight: 600;
+    display: inline-block;
+    transform: rotate(45deg);
+    margin-block: -0.2em 0.2em;
+    margin-inline: 0.2em -0.2em;
+
+    color: #2a2a2e;
+    background-color: white;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
 }
 
 /* Can be removed when it is in messageQuotes.css enabled again */

@@ -22,66 +22,64 @@
   overflow: auto;
   display: block;
   min-height: 3em;
-  background-color: hsla(0, 0%, 100%, .3);
-  border: 1px solid hsla(0, 0%, 50%, .4);
-}
+  background-color: hsla(0, 0%, 100%, 0.3);
+  border: 1px solid hsla(0, 0%, 50%, 0.4);
 
-:root[lwt-tree] #palette-box {
-  scrollbar-color: rgba(204, 204, 204, .5) rgba(230, 230, 235, .5);
-}
+  :root[lwt-tree] & {
+    scrollbar-color: rgba(204, 204, 204, 0.5) rgba(230, 230, 235, 0.5);
+  }
 
-:root[lwt-tree-brighttext] #palette-box {
-  scrollbar-color: rgba(249, 249, 250, .4) rgba(20, 20, 25, .3);
-}
-
-#palette-box > toolbarpaletteitem {
-  padding: 8px 2px;
-  margin: 0 8px;
+  :root[lwt-tree-brighttext] & {
+    scrollbar-color: rgba(249, 249, 250, 0.4) rgba(20, 20, 25, 0.3);
+  }
 }
 
 toolbarpaletteitem {
   -moz-window-dragging: no-drag;
   justify-content: flex-start;
-}
 
-toolbarpaletteitem[place="palette"] {
-  flex-direction: column;
-  width: 10em;
-  max-width: 10em;
-  /* icon (16) + margin (9 + 12) + 4 lines of text: */
-  height: calc(39px + 4em);
-  margin-bottom: 5px;
-  margin-inline-end: 24px;
-  overflow: visible;
-  display: inline-flex;
-  vertical-align: top;
-}
+  #palette-box > & {
+    padding: 8px 2px;
+    margin: 0 8px;
+  }
 
-toolbarpaletteitem[place=palette]::after {
-  content: attr(title);
-  display: block;
-  text-align: center;
-}
+  &[place="palette"] {
+    flex-direction: column;
+    width: 10em;
+    max-width: 10em;
+    /* icon (16) + margin (9 + 12) + 4 lines of text: */
+    height: calc(39px + 4em);
+    margin-bottom: 5px;
+    margin-inline-end: 24px;
+    overflow: visible;
+    display: inline-flex;
+    vertical-align: top;
+  }
 
-toolbarpaletteitem > toolbarbutton,
-toolbarpaletteitem > toolbarseparator,
-toolbarpaletteitem > toolbaritem {
-  /* Prevent children from getting events */
-  pointer-events: none;
-  justify-content: center;
-  flex: 1;
-}
+  &[place=palette]::after {
+    content: attr(title);
+    display: block;
+    text-align: center;
+  }
 
-toolbarpaletteitem[type="separator"][place="palette"] {
-  align-items: center;
-}
+  & > :is(toolbarbutton, toolbarseparator, toolbaritem) {
+    /* Prevent children from getting events */
+    pointer-events: none;
+    justify-content: center;
+    flex: 1;
+  }
 
-toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
-  background-color: currentColor;
-}
+  &[type="separator"][place="palette"] {
+    align-items: center;
 
-toolbarpaletteitem[type="spacer"][place="palette"] toolbarspacer {
-  flex: 1000 1000;
+    & toolbarseparator {
+      background-color: currentColor;
+    }
+  }
+
+  &[type="spacer"][place="palette"] toolbarspacer {
+    flex: 1000 1000;
+  }
 }
 
 #main-box > box {

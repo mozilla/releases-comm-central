@@ -35,10 +35,10 @@
 .small-button {
   min-width: 3em;
   margin: 1px 2px;
-}
 
-.small-button + .small-button {
-  margin-inline: 0 4px;
+  & + & {
+    margin-inline: 0 4px;
+  }
 }
 
 toolbarbutton[is="toolbarbutton-menu-button"] > toolbarbutton {

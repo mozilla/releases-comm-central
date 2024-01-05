@@ -34,10 +34,10 @@
   padding-block: 0 1px;
   padding-inline: 0 1px;
   margin: 4px 0;
-}
 
-.small-button:first-child {
-  margin-inline-start: 2px;
+  &:first-child {
+    margin-inline-start: 2px;
+  }
 }
 
 listcell > hbox {

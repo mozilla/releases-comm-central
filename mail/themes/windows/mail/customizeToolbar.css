@@ -6,11 +6,11 @@
 
 #palette-box {
   margin: 0 4px 10px;
-}
 
-@media (prefers-contrast) {
-  :root:not(:-moz-lwtheme) #palette-box {
-    background-color: transparent;
-    border-color: ThreeDShadow;
+  @media (prefers-contrast) {
+    :root:not(:-moz-lwtheme) & {
+      background-color: transparent;
+      border-color: ThreeDShadow;
+    }
   }
 }

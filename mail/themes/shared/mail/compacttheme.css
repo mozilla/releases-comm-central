@@ -11,16 +11,16 @@
 :root:-moz-lwtheme {
   --toolbar-non-lwt-bgimage: none;
   --new-focused-folder-color: var(--sidebar-highlight-text-color);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root:-moz-lwtheme {
+  @media (prefers-color-scheme: dark) {
     /* Toolbar buttons */
     --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
     --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
     --autocomplete-popup-highlight-background: #0060DF;
   }
+}
 
+@media (prefers-color-scheme: dark) {
   #folderTree:-moz-lwtheme
     treechildren::-moz-tree-image(folderNameCol, newMessages-true),
   #folderTree:-moz-lwtheme

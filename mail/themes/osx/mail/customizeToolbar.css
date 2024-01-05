@@ -10,6 +10,10 @@
 
 #titlebarSettings {
   margin-inline-start: 6px;
+
+  :root[toolboxId="mail-toolbox"] & {
+    display: flex;
+  }
 }
 
 hbox button {
@@ -18,8 +22,4 @@ hbox button {
 
 #main-box > box > button {
   font: message-box;
-}
-
-:root[toolboxId="mail-toolbox"] #titlebarSettings {
-  display: flex;
 }
