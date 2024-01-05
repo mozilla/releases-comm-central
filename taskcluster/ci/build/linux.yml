@@ -71,6 +71,7 @@ linux64-rust/opt:
             extra_mozconfig_content:
                 - ac_add_options --enable-thunderbird-rust
     use-sccache: true
+    run-on-projects: ['comm-central']
     optimization:
         skip-suite-only: null
     fetches:
