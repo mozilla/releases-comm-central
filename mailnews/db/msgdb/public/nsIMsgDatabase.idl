@@ -414,6 +414,7 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   attribute nsIMsgDownloadSettings msgDownloadSettings;
 
   boolean hasNew();
+  void sortNewKeysIfNeeded();
   void clearNewList(in boolean notify);
   void addToNewList(in nsMsgKey key);
 

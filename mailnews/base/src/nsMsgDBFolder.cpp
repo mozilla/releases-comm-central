@@ -675,10 +675,15 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
         // folderInfo->GetImapUnreadPendingMessages(&mNumPendingUnreadMessages);
 
         if (db) {
+          // Except for the sort, this is a noop. But this seems to be the only
+          // place that new keys are detected and, without the sort, new
+          // messages are not detected for yahoo (returns imap UIDs highest
+          // first unlike other imap server types).
           bool hasnew;
           nsresult rv;
           rv = db->HasNew(&hasnew);
-          if (NS_FAILED(rv)) return rv;
+          NS_ENSURE_SUCCESS(rv, rv);
+          if (hasnew) db->SortNewKeysIfNeeded();
         }
         if (weOpenedDB) CloseDBIfFolderNotOpen(false);
       }
@@ -946,15 +951,16 @@ NS_IMETHODIMP nsMsgDBFolder::OnHdrFlagsChanged(
 }
 
 nsresult nsMsgDBFolder::CheckWithNewMessagesStatus(bool messageAdded) {
-  bool hasNewMessages;
   if (messageAdded)
     SetHasNewMessages(true);
   else  // message modified or deleted
   {
     if (mDatabase) {
+      bool hasNewMessages;
       nsresult rv = mDatabase->HasNew(&hasNewMessages);
       NS_ENSURE_SUCCESS(rv, rv);
       SetHasNewMessages(hasNewMessages);
+      if (hasNewMessages) mDatabase->SortNewKeysIfNeeded();
     }
   }
 

@@ -2398,9 +2398,18 @@ NS_IMETHODIMP nsMsgDatabase::MarkAllRead(nsTArray<nsMsgKey>& aThoseMarked) {
 }
 
 NS_IMETHODIMP nsMsgDatabase::AddToNewList(nsMsgKey key) {
-  // we add new keys in increasing order...
-  if (m_newSet.IsEmpty() || (m_newSet[m_newSet.Length() - 1] < key))
+  // Typically, we add new keys in increasing order...
+  // Most servers provide the keys (for imap, keys are UIDs) in increasing
+  // (ascending) order, so if the new key is larger than the last key stored
+  // in the array, we append it. But some servers (e.g. yahoo) return the keys
+  // in reverse order so we still add them to the array if the key is not
+  // already there. Before using the array, the keys must be sorted in ascending
+  // order so that all new messages are marked properly (with orange dot) when
+  // first displayed. See SortNewKeysIfNeeded().
+  if (m_newSet.IsEmpty() || key > m_newSet[m_newSet.Length() - 1] ||
+      !m_newSet.Contains(key)) {
     m_newSet.AppendElement(key);
+  }
   return NS_OK;
 }
 
@@ -2436,6 +2445,19 @@ NS_IMETHODIMP nsMsgDatabase::HasNew(bool* _retval) {
   if (!_retval) return NS_ERROR_NULL_POINTER;
 
   *_retval = (m_newSet.Length() > 0);
+  return NS_OK;
+}
+
+/**
+ * Ensure the keys for new messages are in ascending order (lowest first).
+ * Sorting is needed only for servers that return keys in descending order and
+ * when there is more than 1 new key in the "new" array. See AddToNewList().
+ */
+NS_IMETHODIMP nsMsgDatabase::SortNewKeysIfNeeded() {
+  size_t hiIdx = m_newSet.Length() - 1;
+  if (hiIdx > 0 && m_newSet.ElementAt(hiIdx - 1) > m_newSet.ElementAt(hiIdx)) {
+    m_newSet.Sort();
+  }
   return NS_OK;
 }
 

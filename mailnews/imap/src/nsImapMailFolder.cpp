@@ -218,6 +218,7 @@ nsImapMailFolder::nsImapMailFolder()
     : m_initialized(false),
       m_haveDiscoveredAllFolders(false),
       m_curMsgUid(0),
+      m_previousHighestUid(0),
       m_nextMessageByteLength(0),
       m_urlRunning(false),
       m_verifiedAsOnlineFolder(false),
@@ -2862,12 +2863,41 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
     mFolderSize += messageSize;
   m_msgMovedByFilter = false;
 
-  nsMsgKey highestUID = 0;
+  nsMsgKey highestUid = 0;
   nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
   if (mDatabase) mDatabase->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
-  if (dbFolderInfo)
+  if (dbFolderInfo) {
     dbFolderInfo->GetUint32Property(kHighestRecordedUIDPropertyName, 0,
-                                    &highestUID);
+                                    &highestUid);
+    MOZ_LOG(IMAP_CS, mozilla::LogLevel::Debug,
+            ("NormalEndHeaderParseStream(): got stored highest UID=%" PRIu32
+             " for folder=%s",
+             highestUid, m_onlineFolderName.get()));
+    if (m_curMsgUid > highestUid) {
+      // Most imap servers fetch UIDs in increasing/ascending order so only
+      // this "if" branch will occur. Servers that fetch in descending order
+      // (e.g., Yahoo) will take this branch the on the first header fetch and
+      // then take the "else" branch for any remaining headers using the saved
+      // previous highest UID.
+      m_previousHighestUid = highestUid;
+      MOZ_LOG(IMAP_CS, mozilla::LogLevel::Debug,
+              ("NormalEndHeaderParseStream(): store new highest UID=%" PRIu32
+               " for folder=%s",
+               m_curMsgUid, m_onlineFolderName.get()));
+      dbFolderInfo->SetUint32Property(kHighestRecordedUIDPropertyName,
+                                      m_curMsgUid);
+    } else {
+      // Some imap servers fetch UIDs in descending order, e.g., Yahoo.
+      // This only occurs if more than one header for new messages are fetched
+      // and the UID for this header is smaller than the saved previous UID.
+      highestUid = m_previousHighestUid;
+      MOZ_LOG(
+          IMAP_CS, mozilla::LogLevel::Debug,
+          ("NormalEndHeaderParseStream(): (descending) got highest UID=%" PRIu32
+           " for folder=%s",
+           highestUid, m_onlineFolderName.get()));
+    }
+  }
 
   // If this is the inbox, try to apply filters. Otherwise, test the inherited
   // folder property "applyIncomingFilters" (which defaults to empty). If this
@@ -2887,7 +2917,7 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
     // clang-format off
     bool doFilter = filterOnHighwater
       // Filter on largest UUID and not deleted.
-      ? m_curMsgUid > highestUID && !(msgFlags & nsMsgMessageFlags::IMAPDeleted)
+      ? m_curMsgUid > highestUid && !(msgFlags & nsMsgMessageFlags::IMAPDeleted)
       // Filter on unread and not deleted.
       : !(msgFlags & (nsMsgMessageFlags::Read | nsMsgMessageFlags::IMAPDeleted));
     // clang-format on
@@ -2980,17 +3010,6 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
     if (notifier) notifier->NotifyMsgAdded(newMsgHdr);
     // mark the header as not yet reported classified
     OrProcessingFlags(m_curMsgUid, nsMsgProcessingFlags::NotReportedClassified);
-  }
-  // adjust highestRecordedUID
-  if (dbFolderInfo) {
-    if (m_curMsgUid > highestUID) {
-      MOZ_LOG(IMAP_CS, mozilla::LogLevel::Debug,
-              ("NormalEndHeaderParseStream(): Store new highest UID=%" PRIu32
-               " for folder=%s",
-               m_curMsgUid, m_onlineFolderName.get()));
-      dbFolderInfo->SetUint32Property(kHighestRecordedUIDPropertyName,
-                                      m_curMsgUid);
-    }
   }
 
   if (m_isGmailServer) {
