@@ -67,7 +67,7 @@ rnp_defines = {
     "HAVE_ZLIB_H": True,
     "ENABLE_SM2": False,
     "ENABLE_IDEA": True,
-    "ENABLE_AEAD": True,
+    "ENABLE_AEAD": False,
     "ENABLE_BLOWFISH": True,
     "ENABLE_CAST5": True,
     "ENABLE_RIPEMD160": True,
