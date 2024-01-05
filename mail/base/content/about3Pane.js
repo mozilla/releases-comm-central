@@ -903,6 +903,13 @@ var folderPane = {
         MailServices.accounts.saveVirtualFolders();
       },
 
+      regenerateMode() {
+        if (this._smartServer) {
+          MailServices.accounts.removeIncomingServer(this._smartServer, true);
+        }
+        this.init();
+      },
+
       _addSearchedFolder(folderType, parentFolder, childFolder) {
         if (folderType.flag & childFolder.flags) {
           // The folder has the flag for this type.
@@ -1987,7 +1994,16 @@ var folderPane = {
    */
   _initMode(mode) {
     if (typeof mode.init == "function") {
-      mode.init();
+      try {
+        mode.init();
+      } catch (e) {
+        console.warn(`Error intiating ${mode.name} mode.`, e);
+        if (typeof mode.regenerateMode != "function") {
+          return;
+        }
+        mode.containerList.replaceChildren();
+        mode.regenerateMode();
+      }
     }
     if (typeof mode.initServer != "function") {
       return;
