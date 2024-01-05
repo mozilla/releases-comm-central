@@ -109,7 +109,7 @@ class SmtpService {
       let fresh = true;
       client.onidle = () => {
         // onidle can occur multiple times, but we should only init sending
-        // when sending a new message(fresh is true) or when a new connection
+        // when sending a new message (fresh is true) or when a new connection
         // replaces the original connection due to error 4xx response
         // (client.isRetry is true).
         if (!fresh && !client.isRetry) {

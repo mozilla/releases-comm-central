@@ -30,7 +30,7 @@ const EXPORTED_SYMBOLS = ["SmtpClient"];
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { setTimeout } = ChromeUtils.importESModule(
+var { setTimeout, clearTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
 );
 var { MailStringUtils } = ChromeUtils.import(
@@ -47,6 +47,12 @@ class SmtpClient {
   /**
    * The number of RCPT TO commands sent on the connection by this client.
    * This can count-up over multiple messages.
+   * Per RFC, the minimum total number of recipients that MUST be buffered
+   * is 100 recipients.
+   *
+   * @see https://datatracker.ietf.org/doc/html/rfc5321#section-4.5.3.1.8
+   * When 100 or more recipients have been counted on a connection, a new
+   * connection will be established to handle the additional recipients.
    */
   rcptCount = 0;
 
@@ -54,6 +60,11 @@ class SmtpClient {
    * Set true only when doing a retry.
    */
   isRetry = false;
+
+  /**
+   * Becomes false when either recipient or message count reaches their limit.
+   */
+  reuseConnection = true;
 
   /**
    * Creates a connection object to a SMTP server and allows to send mail through it.
@@ -140,8 +151,19 @@ class SmtpClient {
 
       this.socket.onerror = this._onError;
       this.socket.onopen = this._onOpen;
+
+      // Reset these counters when a new connection is opened. When the number
+      // of messages sent or the number of recipients for the messages reaches
+      // their respective threshold, a new connection will be established.
+      this._numMessages = 0;
+      this.rcptCount = 0;
     }
     this._freed = false;
+    const msgsPerConn = this._server._getIntPrefWithDefault(
+      "max_messages_per_connection",
+      10
+    );
+    this._messagesPerConnection = msgsPerConn > 0 ? msgsPerConn : 0;
   }
 
   /**
@@ -149,7 +171,6 @@ class SmtpClient {
    */
   quit() {
     this._authenticating = false;
-    this._freed = true;
     this._sendCommand("QUIT");
     this._currentAction = this.close;
   }
@@ -191,6 +212,13 @@ class SmtpClient {
    * @param {boolean} envelope.messageId - The message id.
    */
   useEnvelope(envelope) {
+    // First on a new message, clear the QUIT timer if it's running.
+    if (this._quitTimer) {
+      this.logger.debug("Clearing QUIT timer");
+      clearTimeout(this._quitTimer);
+      this._quitTimer = null;
+    }
+
     this._envelope = envelope || {};
     this._envelope.from = [].concat(
       this._envelope.from || "anonymous@" + this._getHelloArgument()
@@ -551,7 +579,6 @@ class SmtpClient {
   _onClose = () => {
     this.logger.debug("Socket closed.");
     this._free();
-    this.rcptCount = 0;
     if (this._authenticating) {
       // In some cases, socket is closed for invalid username/password.
       this._onAuthFailed({ data: "Socket closed." });
@@ -1330,6 +1357,36 @@ class SmtpClient {
       } else {
         this.logger.debug("Message sent successfully.");
         this.isRetry = false;
+      }
+      this._numMessages++; // Number of messages sent on current connection.
+
+      // Recipient count has reached the limit or message count per connection
+      // is enabled and has reached the limit, set flag to cause QUIT to be
+      // sent by onFree() called below.
+      if (
+        this.rcptCount > 99 ||
+        (this._messagesPerConnection > 0 &&
+          this._numMessages >= this._messagesPerConnection)
+      ) {
+        this.reuseConnection = false;
+      }
+
+      // If reuseConnection is set false above, don't start the QUIT timer
+      // below since the connection will be closed and a new connection
+      // established.
+      // If reuseConnection is true, the timer will be started. It will only
+      // timeout and send QUIT if another message is NOT sent within the set
+      // time. Also, if another send becomes active right before the timeout
+      // occurs, don't send the QUIT.
+      if (this.reuseConnection) {
+        this._server.sendIsActive = false;
+        this.logger.debug("Start 5 second QUIT timer");
+        this._quitTimer = setTimeout(() => {
+          if (this.socket?.readyState == "open" && !this._server.sendIsActive) {
+            this.quit();
+          }
+          this._quitTimer = null;
+        }, 5000);
       }
 
       this._currentAction = this._actionIdle;

@@ -530,7 +530,18 @@ pref("mail.smtpserver.default.clientid", "");
 //  https://bugzilla.mozilla.org/show_bug.cgi?id=1565379
 pref("mail.server.default.clientidEnabled", false);
 pref("mail.smtpserver.default.clientidEnabled", false);
-pref("mail.smtpserver.default.max_cached_connections", 3);
+
+// This limits the number of simultaneous SMTP connection to a server.
+// Currently if this is set to other than 1, it is changed to 1 internally, so
+// only 1 connection per server can actually occur.
+pref("mail.smtpserver.default.max_cached_connections", 1);
+
+// If set greater than 0, this limits the number of messages that can be sent
+// serially on an SMTP connection before the connection is closed and a new
+// connection is established to handle any additional messages, also subject to
+// this limit. Setting this to zero or less removes any message count per
+// connection limit.
+pref("mail.smtpserver.default.max_messages_per_connection", 10);
 
 pref("mail.smtpservers", "");
 pref("mail.accountmanager.accounts", "");

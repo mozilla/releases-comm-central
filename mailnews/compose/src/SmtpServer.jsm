@@ -206,18 +206,20 @@ class SmtpServer {
   }
 
   /**
-   * If pref max_cached_connection is set to less than 1, allow only one
-   * connection and one message to be sent on that connection. Otherwise, allow
-   * up to max_cached_connection (default to 3) with each connection allowed to
-   * send multiple messages.
+   * Obtain the user configured number of simultaneous SMTP connections per
+   * server that will be allowed. If pref set to 0 or less, allow 1 connection.
+   *
+   * Note: Currently the pref setting is ignored and the number of connections
+   * per server is set to 1 here. The code to allow multiple connections
+   * remains in place if needed in the future.
    */
   get maximumConnectionsNumber() {
     const maxConnections = this._getIntPrefWithDefault(
       "max_cached_connections",
-      3
+      1
     );
-    // Always return a value >= 0.
-    return maxConnections > 0 ? maxConnections : 0;
+    // return maxConnections < 1 ? 1 : maxConnections;
+    return maxConnections ? 1 : 1;
   }
 
   set maximumConnectionsNumber(value) {
@@ -490,18 +492,13 @@ class SmtpServer {
    *   instance, and do some actions.
    */
   async withClient(handler) {
+    // Flag that a send is progress. Precludes sending QUIT during the transfer.
+    this.sendIsActive = true;
     const client = await this._getNextClient();
     client.onFree = () => {
       this._busyConnections = this._busyConnections.filter(c => c != client);
-      // Per RFC, the minimum total number of recipients that MUST be buffered
-      // is 100 recipients.
-      // @see https://datatracker.ietf.org/doc/html/rfc5321#section-4.5.3.1.8
-      // So use a new connection for the next message to avoid running into
-      // recipient limits.
-      // If user has set SMTP pref max_cached_connection to less than 1,
-      // use a new connection for each message.
-      if (this.maximumConnectionsNumber == 0 || client.rcptCount > 99) {
-        // Send QUIT, server will then terminate the connection
+      // Check if the connection should be terminated by doing smtp QUIT
+      if (!client.reuseConnection) {
         client.quit();
       } else {
         // Keep using this connection
