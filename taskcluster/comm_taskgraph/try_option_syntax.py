@@ -2,6 +2,7 @@
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import fnmatch
 import logging
 
 from gecko_taskgraph.target_tasks import (
@@ -24,10 +25,6 @@ class TryCCOptionSyntax(TryOptionSyntax):
         if platform_arg == "all":
             return None
 
-        results = []
-        for build in platform_arg.split(","):
-            results.append(build)
-
         test_platforms = {
             t.attributes["test_platform"]
             for t in full_task_graph.tasks.values()
@@ -38,6 +35,15 @@ class TryCCOptionSyntax(TryOptionSyntax):
             for t in full_task_graph.tasks.values()
             if "build_platform" in t.attributes
         }
+
+        results = []
+        for build in platform_arg.split(","):
+            if build.startswith("*"):
+                matching = fnmatch.filter(build_platforms, build)
+                results.extend(matching)
+                continue
+            results.append(build)
+
         all_platforms = test_platforms | build_platforms
         bad_platforms = set(results) - all_platforms
         if bad_platforms:
