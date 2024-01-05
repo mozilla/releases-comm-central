@@ -67,6 +67,8 @@ class nsMsgXFGroupThread : public nsMsgGroupThread {
  public:
   explicit nsMsgXFGroupThread(nsMsgViewSortOrderValue sortOrder);
 
+  already_AddRefed<nsMsgXFGroupThread> Clone();
+
   NS_IMETHOD GetNumChildren(uint32_t* aNumChildren) override;
   NS_IMETHOD GetChildKeyAt(uint32_t aIndex, nsMsgKey* aResult) override;
   NS_IMETHOD GetChildHdrAt(uint32_t aIndex, nsIMsgDBHdr** aResult) override;
