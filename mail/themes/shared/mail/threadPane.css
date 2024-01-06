@@ -268,7 +268,7 @@ tr[data-properties~="tagged"] .tag-icon:not([hidden]) {
   color: currentColor;
 }
 
-#threadTree tr:not(.children, [data-properties~="ignoreSubthread"]) .tree-view-row-thread > button {
+#threadTree tr:not(.children, [data-properties~="ignoreSubthread"], [data-properties~="ignore"], [data-properties~="watch"]) .tree-view-row-thread > button {
   display: none;
 }
 

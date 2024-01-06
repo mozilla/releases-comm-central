@@ -278,6 +278,52 @@ add_task(async function testWatchThread() {
   checkRowThreadState(21, false);
 });
 
+add_task(async function testIconsUnThreaded() {
+  // Show the ignored messages.
+  goDoCommand("cmd_viewIgnoredThreads");
+  goDoCommand("cmd_expandAllThreads");
+
+  threadTree.selectedIndex = 0;
+  await checkContextMenu(
+    0,
+    { "mailContext-ignoreThread": false },
+    "mailContext-ignoreThread"
+  );
+  goDoCommand("cmd_expandAllThreads");
+
+  threadTree.selectedIndex = 17;
+  await checkMessageMenu({ killSubthread: false });
+  await checkContextMenu(
+    17,
+    { "mailContext-ignoreSubthread": false },
+    "mailContext-ignoreSubthread"
+  );
+
+  threadTree.selectedIndex = 20;
+  await checkMessageMenu({ watchThread: false });
+  await checkContextMenu(
+    20,
+    { "mailContext-watchThread": false },
+    "mailContext-watchThread"
+  );
+
+  goDoCommand("cmd_sort", { target: { value: "unthreaded" } });
+
+  // Switched to unthreaded and test again.
+  threadTree.selectedIndex = 0;
+  checkRowUnThreadState(0, "ignore");
+  checkRowUnThreadState(1, "ignore");
+
+  threadTree.selectedIndex = 17;
+  checkRowUnThreadState(17, "ignoreSubthread");
+  checkRowUnThreadState(18, "ignoreSubthread");
+  checkRowUnThreadState(19, "ignoreSubthread");
+
+  threadTree.selectedIndex = 20;
+  checkRowUnThreadState(20, "watched");
+  checkRowUnThreadState(21, "watched");
+});
+
 async function checkContextMenu(index, expectedStates, itemToActivate) {
   const contextMenu = about3Pane.document.getElementById("mailContext");
   const row = threadTree.getRowAtIndex(index);
@@ -338,6 +384,37 @@ function assertCheckedState(menuItem, checkedState) {
       !menuItem.hasAttribute("checked") ||
         menuItem.getAttribute("checked") == "false"
     );
+  }
+}
+
+function checkRowUnThreadState(index, expected) {
+  const row = threadTree.getRowAtIndex(index);
+  const icon = row.querySelector(".threadcol-column img");
+
+  Assert.ok(
+    !row.classList.contains("children"),
+    "row should not have the 'children' class"
+  );
+
+  Assert.ok(BrowserTestUtils.is_visible(icon), "icon should be visible");
+
+  const iconContent = getComputedStyle(icon).content;
+  switch (expected) {
+    case true:
+      Assert.stringContains(iconContent, "/thread-sm.svg");
+      break;
+    case "ignore":
+      Assert.stringContains(row.dataset.properties, "ignore");
+      Assert.stringContains(iconContent, "/thread-ignored.svg");
+      break;
+    case "ignoreSubthread":
+      Assert.stringContains(row.dataset.properties, "ignoreSubthread");
+      Assert.stringContains(iconContent, "/subthread-ignored.svg");
+      break;
+    case "watched":
+      Assert.stringContains(row.dataset.properties, "watch");
+      Assert.stringContains(iconContent, "/eye.svg");
+      break;
   }
 }
 
