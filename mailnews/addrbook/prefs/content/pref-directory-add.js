@@ -429,7 +429,6 @@ function onAccept(event) {
 
       Services.prompt.alert(window, document.title, errorText);
       event.preventDefault();
-      return;
     }
   } catch (outer) {
     console.error(
