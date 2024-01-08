@@ -1,3 +1,3 @@
 subject:test.test
 extension:extKeyUsage:serverAuth
-extension:subjectAlternativeName:test.test,alt.test.test
+extension:subjectAlternativeName:test.test,alt.test.test,imap.test.test,pop3.test.test,smtp.test.test

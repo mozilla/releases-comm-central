@@ -35,6 +35,7 @@ const certOverrideService = Cc[
 ].getService(Ci.nsICertOverrideService);
 let tlsCert, expiredCert;
 
+let imapTLSServer, pop3TLSServer, smtpTLSServer;
 // Change this for more server debugging output. See Maild.sys.mjs for values.
 const serverDebugLevel = 0;
 
@@ -57,7 +58,7 @@ add_setup(async function () {
   NetworkTestUtils.configureProxy("test.test", 143, imapServer.port);
   NetworkTestUtils.configureProxy("alt.test.test", 143, imapServer.port);
 
-  const imapTLSServer = new IMAPServer(this, {
+  imapTLSServer = new IMAPServer(this, {
     extensions: ["RFC2195"],
     tlsCert,
   });
@@ -85,7 +86,7 @@ add_setup(async function () {
   NetworkTestUtils.configureProxy("test.test", 110, pop3Server.port);
   NetworkTestUtils.configureProxy("alt.test.test", 110, pop3Server.port);
 
-  const pop3TLSServer = new POP3Server(this, { tlsCert });
+  pop3TLSServer = new POP3Server(this, { tlsCert });
   pop3TLSServer.server.setDebugLevel(serverDebugLevel);
   NetworkTestUtils.configureProxy("test.test", 995, pop3TLSServer.port);
   NetworkTestUtils.configureProxy("alt.test.test", 995, pop3TLSServer.port);
@@ -95,7 +96,7 @@ add_setup(async function () {
   NetworkTestUtils.configureProxy("test.test", 587, smtpServer.port);
   NetworkTestUtils.configureProxy("alt.test.test", 587, smtpServer.port);
 
-  const smtpTLSServer = new SMTPServer(this, { tlsCert });
+  smtpTLSServer = new SMTPServer(this, { tlsCert });
   smtpTLSServer.server.setDebugLevel(serverDebugLevel);
   NetworkTestUtils.configureProxy("test.test", 465, smtpTLSServer.port);
   NetworkTestUtils.configureProxy("alt.test.test", 465, smtpTLSServer.port);
@@ -729,6 +730,70 @@ add_task(async function testGuessConfig() {
   ]);
 
   Assert.deepEqual(outgoingAlternatives, []);
+});
+
+/**
+ * Tests a complete `guessConfig` operation returns a correct `AccountConfig`
+ * result for the configured servers, preferring well-known subdomains over
+ * the base domain.
+ */
+add_task(async function testGuessConfigKnownSubdomains() {
+  NetworkTestUtils.configureProxy("imap.test.test", 993, imapTLSServer.port);
+  NetworkTestUtils.configureProxy("pop3.test.test", 995, pop3TLSServer.port);
+  NetworkTestUtils.configureProxy("smtp.test.test", 465, smtpTLSServer.port);
+
+  const { promise, resolve, reject } = Promise.withResolvers();
+  GuessConfig.guessConfig(
+    "test.test",
+    function progressCallback() {},
+    function successCallback(accountConfig) {
+      resolve(accountConfig);
+    },
+    function errorCallback(exception) {
+      reject(exception);
+    }
+  );
+
+  const accountConfig = await promise;
+  const { incoming, incomingAlternatives, outgoing, outgoingAlternatives } =
+    accountConfig;
+
+  Assert.equal(incoming.type, "imap");
+  Assert.equal(incoming.hostname, "imap.test.test");
+  Assert.equal(incoming.port, 993);
+  Assert.equal(incoming.socketType, Ci.nsMsgSocketType.SSL);
+  Assert.equal(incoming.auth, Ci.nsMsgAuthMethod.passwordEncrypted);
+  Assert.deepEqual(incoming.authAlternatives, [
+    Ci.nsMsgAuthMethod.passwordCleartext,
+  ]);
+
+  Assert.equal(incomingAlternatives.length, 1);
+  Assert.equal(incomingAlternatives[0].type, "pop3");
+  Assert.equal(incomingAlternatives[0].hostname, "pop3.test.test");
+  Assert.equal(incomingAlternatives[0].port, 995);
+  Assert.equal(incomingAlternatives[0].socketType, Ci.nsMsgSocketType.SSL);
+  Assert.equal(
+    incomingAlternatives[0].auth,
+    Ci.nsMsgAuthMethod.passwordEncrypted
+  );
+  Assert.deepEqual(incomingAlternatives[0].authAlternatives, [
+    Ci.nsMsgAuthMethod.passwordCleartext,
+  ]);
+
+  Assert.equal(outgoing.type, "smtp");
+  Assert.equal(outgoing.hostname, "smtp.test.test");
+  Assert.equal(outgoing.port, 465);
+  Assert.equal(outgoing.socketType, Ci.nsMsgSocketType.SSL);
+  Assert.equal(outgoing.auth, Ci.nsMsgAuthMethod.passwordEncrypted);
+  Assert.deepEqual(outgoing.authAlternatives, [
+    Ci.nsMsgAuthMethod.passwordCleartext,
+  ]);
+
+  Assert.deepEqual(outgoingAlternatives, []);
+
+  NetworkTestUtils.unconfigureProxy("imap.test.test", 993);
+  NetworkTestUtils.unconfigureProxy("pop3.test.test", 995);
+  NetworkTestUtils.unconfigureProxy("smtp.test.test", 465);
 });
 
 /**

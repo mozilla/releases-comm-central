@@ -232,17 +232,17 @@ var gPortMap = new Map();
 
 var NetworkTestUtils = {
   /**
-   * Set up a proxy entry such that requesting a connection to hostName:port
+   * Set up a proxy entry such that requesting a connection to hostname:port
    * will instead cause a connection to localRemappedPort. This will use a SOCKS
    * proxy (because any other mechanism is too complicated). Since this is
    * starting up a server, it does behoove you to call shutdownServers when you
    * no longer need to use the proxy server.
    *
-   * @param {string} hostName - The DNS name to use for the client.
-   * @param {integer} hostPort - The port number to use for the client.
+   * @param {string} hostname - The DNS name to use for the client.
+   * @param {integer} port - The port number to use for the client.
    * @param {integer} localRemappedPort - The port number on which the real server sits.
    */
-  configureProxy(hostName, hostPort, localRemappedPort) {
+  configureProxy(hostname, port, localRemappedPort) {
     if (gSocksServer == null) {
       gSocksServer = new SocksTestServer();
 
@@ -271,8 +271,19 @@ var NetworkTestUtils = {
       Services.prefs.setCharPref("network.proxy.autoconfig_url", pac);
     }
 
-    dump("Requesting to map " + hostName + ":" + hostPort + "\n");
-    gPortMap.set(hostName + ":" + hostPort, localRemappedPort);
+    dump("Requesting to map " + hostname + ":" + port + "\n");
+    gPortMap.set(hostname + ":" + port, localRemappedPort);
+  },
+
+  /**
+   * Remove up a proxy entry.
+   *
+   * @param {string} hostname - The DNS name to use for the client.
+   * @param {integer} port - The port number to use for the client.
+   */
+  unconfigureProxy(hostname, port) {
+    dump("Requesting to remove " + hostname + ":" + port + "\n");
+    gPortMap.delete(hostname + ":" + port);
   },
 
   /**
