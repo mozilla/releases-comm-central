@@ -141,7 +141,6 @@ bool nsMsgContentPolicy::IsTrustedDomain(nsIURI* aContentLocation) {
 
 NS_IMETHODIMP
 nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
-                               const nsACString& aMimeGuess,
                                int16_t* aDecision) {
   nsresult rv = NS_OK;
   ExtContentPolicyType aContentType = aLoadInfo->GetExternalContentPolicyType();
@@ -877,9 +876,7 @@ nsresult nsMsgContentPolicy::GetOriginatingURIForContext(
 
 NS_IMETHODIMP
 nsMsgContentPolicy::ShouldProcess(nsIURI* aContentLocation,
-                                  nsILoadInfo* aLoadInfo,
-                                  const nsACString& aMimeGuess,
-                                  int16_t* aDecision) {
+                                  nsILoadInfo* aLoadInfo, int16_t* aDecision) {
   // XXX Returning ACCEPT is presumably only a reasonable thing to do if we
   // think that ShouldLoad is going to catch all possible cases (i.e. that
   // everything we use to make decisions is going to be available at
