@@ -16,7 +16,6 @@ webext-perms-description-compose-save=Save composed email messages as drafts or 
 webext-perms-description-experiment=Have full, unrestricted access to { -brand-short-name }, and your computer
 webext-perms-description-messagesImport=Import messages into Thunderbird
 webext-perms-description-messagesModify=Read and modify your email messages as they are displayed to you
-webext-perms-description-messagesModifyPermanent=Permanently modify the source of your messages (including headers, body and attachments)
 webext-perms-description-messagesMove = Copy or move your email messages (including moving them to the trash folder)
 webext-perms-description-messagesDelete=Permanently delete your email messages
 webext-perms-description-messagesRead2=Read your email messages

@@ -15,7 +15,6 @@
               "messagesTags",
               "messagesTagsList",
               "messagesUpdate",
-              "messagesModifyPermanent",
               "sensitiveDataUpload"
             ]
           }
@@ -234,7 +233,7 @@
         "properties": {
           "contentType": {
             "type": "string",
-            "description": "The content type of the attachment. A value of <value>text/x-moz-deleted</value> indicates that the original attachment was permanently deleted and replaced by a placeholder text attachment with some meta information about the original attachment."
+            "description": "The content type of the attachment."
           },
           "name": {
             "type": "string",
@@ -574,29 +573,6 @@
                 "additionalProperties": true
               }
             ]
-          }
-        ]
-      },
-      {
-        "name": "deleteAttachments",
-        "type": "function",
-        "description": "Deletes the specified attachments and replaces them by placeholder text attachments with meta information about the original attachments and a <value>text/x-moz-deleted</value> content type. This permanently modifies the message.",
-        "permissions": ["messagesModifyPermanent"],
-        "async": "callback",
-        "parameters": [
-          {
-            "name": "messageId",
-            "type": "integer"
-          },
-          {
-            "name": "partNames",
-            "type": "array",
-            "description": "An array of attachments, identifiying the to be detached attachments by their <value>partName</value>.",
-            "items": {
-              "type": "string",
-              "pattern": "^\\d+(\\.\\d+)*$",
-              "minimum": 1
-            }
           }
         ]
       },

@@ -561,9 +561,7 @@ this.messages = class extends ExtensionAPIPersistent {
             contentType: attachment.contentType,
             url: attachment.url,
             name: attachment.name,
-            uri: msgHdr.folder
-              ? msgHdr.getUriForMsg(msgHdr)
-              : msgHdr.getStringProperty("dummyMsgUrl"),
+            uri: msgHdr.folder.getUriForMsg(msgHdr),
             isExternalAttachment: attachment.isExternal,
             message: msgHdr,
           });
@@ -579,74 +577,6 @@ this.messages = class extends ExtensionAPIPersistent {
               `Part ${partName} could not be opened: ${ex}.`
             );
           }
-        },
-        async deleteAttachments(messageId, partNames) {
-          const msgHdr = messageManager.get(messageId);
-          if (!msgHdr) {
-            throw new ExtensionError(`Message not found: ${messageId}.`);
-          }
-
-          if (!msgHdr.folder) {
-            throw new ExtensionError(
-              `Operation not permitted for external messages`
-            );
-          }
-
-          const attachmentInfos = [];
-          for (const partName of partNames) {
-            const attachment = await getAttachment(msgHdr, partName);
-            if (!attachment) {
-              throw new ExtensionError(
-                `Part ${partName} not found in message ${messageId}.`
-              );
-            }
-
-            const attachmentInfo = new AttachmentInfo({
-              contentType: attachment.contentType,
-              url: attachment.url,
-              name: attachment.name,
-              uri: msgHdr.folder.getUriForMsg(msgHdr),
-              isExternalAttachment: attachment.isExternal,
-              message: msgHdr,
-            });
-
-            const external = attachmentInfo.isExternalAttachment;
-            if (external) {
-              throw new ExtensionError(
-                `Operation not permitted for external attachment ${partName} in message ${messageId}.`
-              );
-            }
-
-            const deleted = !attachmentInfo.hasFile;
-            if (deleted) {
-              throw new ExtensionError(
-                `Operation not permitted for deleted attachment ${partName} in message ${messageId}.`
-              );
-            }
-
-            attachmentInfos.push(attachmentInfo);
-          }
-
-          await new Promise(resolve => {
-            const listener = {
-              OnStartRunningUrl(aUrl) {},
-              OnStopRunningUrl(aUrl, aExitCode) {
-                resolve();
-              },
-            };
-            const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-              Ci.nsIMessenger
-            );
-            messenger.detachAllAttachments(
-              attachmentInfos.map(attachmentInfo => attachmentInfo.contentType),
-              attachmentInfos.map(attachmentInfo => attachmentInfo.url),
-              attachmentInfos.map(attachmentInfo => attachmentInfo.name),
-              attachmentInfos.map(attachmentInfo => attachmentInfo.uri),
-              false, // aSaveFirst
-              true, // withoutWarning
-              listener
-            );
-          });
         },
         async query(queryInfo) {
           const messageQuery = new MessageQuery(
