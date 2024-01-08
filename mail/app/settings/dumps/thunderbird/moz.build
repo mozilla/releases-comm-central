@@ -12,6 +12,8 @@ FINAL_TARGET_FILES.defaults.settings.thunderbird += [
     "fingerprinting-protection-overrides.json",
     "hijack-blocklists.json",
     "password-recipes.json",
+    "search-config-overrides-v2.json",
+    "search-config-overrides.json",
     "search-config.json",
     "url-classifier-skip-urls.json",
 ]
