@@ -61,37 +61,6 @@ var quickFilterBar = {
     this._bindUI();
     this.updateRovingTab();
 
-    // Enable any filters set by the user.
-    // If keep filters applied/sticky setting is enabled, enable sticky.
-    const xulStickyVal = Services.xulStore.getValue(
-      XULSTORE_URL,
-      "quickFilterBarSticky",
-      "enabled"
-    );
-    if (xulStickyVal) {
-      this.filterer.setFilterValue("sticky", xulStickyVal == "true");
-
-      // If sticky is set, show saved filters.
-      // Otherwise do not display saved filters on load.
-      if (xulStickyVal == "true") {
-        // If any filter settings are enabled, retrieve the enabled filters.
-        const enabledTopFiltersVal = Services.xulStore.getValue(
-          XULSTORE_URL,
-          "quickFilter",
-          "enabledTopFilters"
-        );
-
-        // Set any enabled filters to enabled in the UI.
-        if (enabledTopFiltersVal) {
-          const enabledTopFilters = JSON.parse(enabledTopFiltersVal);
-          for (const filterName of enabledTopFilters) {
-            this.activeTopLevelFilters.add(filterName);
-            this.filterer.setFilterValue(filterName, true);
-          }
-        }
-      }
-    }
-
     // Hide the toolbar, unless it has been previously shown.
     if (
       Services.xulStore.getValue(
@@ -343,6 +312,46 @@ var quickFilterBar = {
   },
 
   /**
+   * Reflect persisted user settings in the DOM.
+   */
+  reflectPersistedFilters() {
+    if (!this._filterer.visible) {
+      return;
+    }
+
+    // If keep filters applied/sticky setting is enabled, enable sticky.
+    const xulStickyVal = Services.xulStore.getValue(
+      XULSTORE_URL,
+      "quickFilterBarSticky",
+      "enabled"
+    );
+    if (!xulStickyVal) {
+      return;
+    }
+    this.filterer.setFilterValue("sticky", xulStickyVal == "true");
+
+    // If sticky setting is set, show any saved filters.
+    // Otherwise do not display saved filters on load.
+    if (xulStickyVal != "true") {
+      return;
+    }
+    const enabledTopFiltersVal = Services.xulStore.getValue(
+      XULSTORE_URL,
+      "quickFilter",
+      "enabledTopFilters"
+    );
+    if (!enabledTopFiltersVal) {
+      return;
+    }
+    // Set any enabled filters to enabled in the UI.
+    const enabledTopFilters = JSON.parse(enabledTopFiltersVal);
+    for (const filterName of enabledTopFilters) {
+      this.activeTopLevelFilters.add(filterName);
+      this.filterer.setFilterValue(filterName, true);
+    }
+  },
+
+  /**
    * Update enabled filters in XULStore.
    */
   updateFiltersSettings(filterName, filterValue) {
@@ -528,14 +537,13 @@ var quickFilterBar = {
    */
   _showFilterBar(show, init = false) {
     this.filterer.visible = show;
+    // Clear all filters if the QFB is hidden.
     if (!show) {
       this.filterer.clear();
-      this.updateSearch();
-      // Cannot call the below function when threadTree hasn't been initialized yet.
-      if (!init) {
-        threadTree.table.body.focus();
-      }
     }
+
+    // Update the UI of toggled filters.
+    this.reflectPersistedFilters();
     this.reflectFiltererState();
     Services.xulStore.setValue(
       XULSTORE_URL,
@@ -543,6 +551,13 @@ var quickFilterBar = {
       "collapsed",
       !show
     );
+
+    // Update the message list to reflect the filters status.
+    this.updateSearch();
+    // Cannot call the below function when threadTree hasn't been initialized yet.
+    if (!init) {
+      threadTree.table.body.focus();
+    }
 
     window.dispatchEvent(new Event("qfbtoggle"));
   },
@@ -598,6 +613,15 @@ var quickFilterBar = {
   _testHelperResetFilterState() {
     if (!this._filterer) {
       return;
+    }
+    // Unset sticky value.
+    if (this._filterer?.filterValues.sticky) {
+      Services.xulStore.setValue(
+        XULSTORE_URL,
+        "quickFilterBarSticky",
+        "enabled",
+        "false"
+      );
     }
     this._filterer = new QuickFilterState();
     this.updateSearch();

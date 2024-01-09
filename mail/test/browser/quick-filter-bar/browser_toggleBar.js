@@ -100,7 +100,7 @@ add_task(async function test_constraints_disappear_when_collapsed() {
   await toggle_quick_filter_bar();
   assert_messages_in_view([setUnstarred, setStarred]);
 
-  // there better be no constraints left!
+  // Starred constraint should not be retained.
   assert_constraints_expressed({});
   teardownTest();
 });
