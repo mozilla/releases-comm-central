@@ -14,6 +14,7 @@
     getCurrentTheme: "resource:///modules/imThemes.sys.mjs",
     getDocumentFragmentFromHTML: "resource:///modules/imThemes.sys.mjs",
     getHTMLForMessage: "resource:///modules/imThemes.sys.mjs",
+    IMServices: "resource:///modules/IMServices.sys.mjs",
     initHTMLDocument: "resource:///modules/imThemes.sys.mjs",
     insertHTMLForMessage: "resource:///modules/imThemes.sys.mjs",
     isNextMessage: "resource:///modules/imThemes.sys.mjs",
@@ -42,6 +43,7 @@
   class MozConversationBrowser extends customElements.get("browser") {
     constructor() {
       super();
+      LazyModules.IMServices.core.init();
 
       this._conv = null;
 
