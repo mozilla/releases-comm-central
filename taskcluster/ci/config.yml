@@ -389,7 +389,6 @@ mac-signing:
                   force: true
                   entitlements: comm/build/macosx/hardenedruntime/v2/production/browser.xml
                   globs:
-                      - "/Contents/MacOS/thunderbird-bin"
                       - "/"  # The .app
 
             default:
@@ -434,7 +433,6 @@ mac-signing:
                   force: true
                   entitlements: comm/build/macosx/hardenedruntime/v2/developer/browser.xml
                   globs:
-                      - "/Contents/MacOS/thunderbird-bin"
                       - "/"  # The .app
 
 expiration-policy:

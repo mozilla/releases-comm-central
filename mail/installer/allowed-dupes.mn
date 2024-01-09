@@ -50,8 +50,10 @@ crashreporter.app/Contents/Resources/English.lproj/MainMenuRTL.nib/classes.nib
 
 # Variants of paths in mozilla/browser/installer/allowed-dupes.mn:
 # bug 658850
+#ifndef XP_MACOSX
 @MOZ_APP_NAME@
 @MOZ_APP_NAME@-bin
+#endif
 
 # Row and column icons are duplicated
 res/table-remove-column-active.gif
