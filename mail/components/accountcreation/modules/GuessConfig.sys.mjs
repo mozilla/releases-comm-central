@@ -576,15 +576,15 @@ HostDetector.prototype = {
    */
   _processResult(thisTry, wiredata) {
     if (thisTry._gotCertError) {
-      if (thisTry._gotCertError == Ci.nsICertOverrideService.ERROR_MISMATCH) {
+      if (thisTry._gotCertError == "ERROR_MISMATCH") {
         thisTry._gotCertError = 0;
         thisTry.status = kFailed;
         return;
       }
 
       if (
-        thisTry._gotCertError == Ci.nsICertOverrideService.ERROR_UNTRUSTED ||
-        thisTry._gotCertError == Ci.nsICertOverrideService.ERROR_TIME
+        thisTry._gotCertError == "ERROR_UNTRUSTED" ||
+        thisTry._gotCertError == "ERROR_TIME"
       ) {
         this._log.info(
           thisTry.desc + ": TRYING AGAIN, hopefully with exception recorded"
@@ -1051,13 +1051,23 @@ SSLErrorHandler.prototype = {
      * and he will likely approve it.
      */
 
-    if (secInfo.isDomainMismatch) {
-      this._try._gotCertError = Ci.nsICertOverrideService.ERROR_MISMATCH;
-    } else if (secInfo.isUntrusted) {
+    if (
+      secInfo.overridableErrorCategory ==
+      Ci.nsITransportSecurityInfo.ERROR_DOMAIN
+    ) {
+      this._try._gotCertError = "ERROR_MISMATCH";
+      return;
+    }
+    if (
+      secInfo.overridableErrorCategory ==
+      Ci.nsITransportSecurityInfo.ERROR_TRUST
+    ) {
       // e.g. self-signed
-      this._try._gotCertError = Ci.nsICertOverrideService.ERROR_UNTRUSTED;
-    } else if (secInfo.isNotValidAtThisTime) {
-      this._try._gotCertError = Ci.nsICertOverrideService.ERROR_TIME;
+      this._try._gotCertError = "ERROR_UNTRUSTED";
+    } else if (
+      secInfo.overridableErrorCategory == Ci.nsITransportSecurityInfo.ERROR_TIME
+    ) {
+      this._try._gotCertError = "ERROR_TIME";
     } else {
       this._try._gotCertError = -1; // other
     }
