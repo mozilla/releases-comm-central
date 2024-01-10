@@ -4690,19 +4690,20 @@ NS_IMETHODIMP nsMsgDBFolder::ThrowAlertMsg(const char* msgName,
   nsresult rv = GetBaseStringBundle(getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Assemble a pretty folder identifier, e.g. "Trash on bob@example.com".
+  // Assemble a pretty folder identifier including its path, e.g.
+  // "Inbox/Subfolder on bob@example.com".
   nsAutoString ident;
-  nsAutoString folderName;
-  GetName(folderName);
+  nsAutoString folderPath;
+  GetPrettyPath(folderPath);
   nsAutoString serverName;
   nsCOMPtr<nsIMsgIncomingServer> server;
   if (NS_SUCCEEDED(GetServer(getter_AddRefs(server)))) {
     server->GetPrettyName(serverName);
     bundle->FormatStringFromName("verboseFolderFormat",
-                                 {folderName, serverName}, ident);
+                                 {folderPath, serverName}, ident);
   }
   if (ident.IsEmpty()) {
-    ident = folderName;  // Fallback, just in case.
+    ident = folderPath;  // Fallback, just in case.
   }
 
   // Format the actual error message (NOTE: not all error messages use the
