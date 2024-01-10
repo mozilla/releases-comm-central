@@ -51,7 +51,8 @@ class nsMessenger : public nsIMessenger, public nsSupportsWeakReference {
                               const nsTArray<nsCString>& urlArray,
                               const nsTArray<nsCString>& displayNameArray,
                               const nsTArray<nsCString>& messageUriArray,
-                              bool detaching);
+                              bool detaching,
+                              nsIUrlListener* aListener = nullptr);
   nsresult SaveOneAttachment(const nsACString& aContentType,
                              const nsACString& aURL,
                              const nsACString& aDisplayName,

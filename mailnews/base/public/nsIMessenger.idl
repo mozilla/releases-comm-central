@@ -86,7 +86,6 @@ interface nsIMessenger : nsISupports {
      *  suitable for use in test and filtering.
      *
      * @param aDestFolder       Folder to save files in
-     * @param aCount            Number of attachments to save
      * @param aContentTypeArray Content types of the attachments
      * @param aUrlArray         Urls for the attachments
      * @param aDisplayNameArray Files names to save attachments to. Unique
@@ -107,12 +106,18 @@ interface nsIMessenger : nsISupports {
                           in AUTF8String messageUri,
                           in boolean saveFirst,
                           [optional] in boolean withoutWarning);
+
+    // The nsIUrlListener will notify once the entire operation is over, including
+    // updating the IMAP server and reloading the modified messages. It is not
+    // limited to the file operation caused by the optional saveFirst.
     void detachAllAttachments(in Array<AUTF8String> contentTypeArray,
                               in Array<AUTF8String> urlArray,
                               in Array<AUTF8String> displayNameArray,
                               in Array<AUTF8String> messageUriArray,
                               in boolean saveFirst,
-                              [optional] in boolean withoutWarning);
+                              [optional] in boolean withoutWarning,
+                              [optional] in nsIUrlListener aListener);
+
     // saveAttachmentToFolder is used by the drag and drop code to drop an attachment to a destination folder
     // We need to return the actual file path (including the filename).
     nsIFile saveAttachmentToFolder(in AUTF8String contentType,

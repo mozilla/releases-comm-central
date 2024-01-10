@@ -692,7 +692,8 @@ nsresult nsMessenger::SaveAllAttachments(
     const nsTArray<nsCString>& contentTypeArray,
     const nsTArray<nsCString>& urlArray,
     const nsTArray<nsCString>& displayNameArray,
-    const nsTArray<nsCString>& messageUriArray, bool detaching) {
+    const nsTArray<nsCString>& messageUriArray, bool detaching,
+    nsIUrlListener* aListener) {
   nsresult rv = NS_ERROR_OUT_OF_MEMORY;
   nsCOMPtr<nsIFilePicker> filePicker =
       do_CreateInstance("@mozilla.org/filepicker;1", &rv);
@@ -737,7 +738,7 @@ nsresult nsMessenger::SaveAllAttachments(
       dirName.get(), detaching, nullptr);
   // SaveAttachment takes ownership of saveState.
   rv = SaveAttachment(localFile, urlArray[0], messageUriArray[0],
-                      contentTypeArray[0], saveState, nullptr);
+                      contentTypeArray[0], saveState, aListener);
   return rv;
 }
 
@@ -2319,8 +2320,8 @@ nsMessenger::DetachAllAttachments(const nsTArray<nsCString>& aContentTypeArray,
                                   const nsTArray<nsCString>& aUrlArray,
                                   const nsTArray<nsCString>& aDisplayNameArray,
                                   const nsTArray<nsCString>& aMessageUriArray,
-                                  bool aSaveFirst,
-                                  bool withoutWarning = false) {
+                                  bool aSaveFirst, bool withoutWarning = false,
+                                  nsIUrlListener* aListener = nullptr) {
   NS_ENSURE_ARG_MIN(aContentTypeArray.Length(), 1);
   MOZ_ASSERT(aContentTypeArray.Length() == aUrlArray.Length() &&
              aUrlArray.Length() == aDisplayNameArray.Length() &&
@@ -2328,10 +2329,10 @@ nsMessenger::DetachAllAttachments(const nsTArray<nsCString>& aContentTypeArray,
 
   if (aSaveFirst)
     return SaveAllAttachments(aContentTypeArray, aUrlArray, aDisplayNameArray,
-                              aMessageUriArray, true);
+                              aMessageUriArray, true, aListener);
   else
     return DetachAttachments(aContentTypeArray, aUrlArray, aDisplayNameArray,
-                             aMessageUriArray, nullptr, nullptr,
+                             aMessageUriArray, nullptr, aListener,
                              withoutWarning);
 }
 
