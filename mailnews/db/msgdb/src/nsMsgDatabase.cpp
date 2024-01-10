@@ -2658,11 +2658,27 @@ NS_IMETHODIMP nsMsgDatabase::AddNewHdrToDB(nsIMsgDBHdr* newHdr, bool notify) {
     // use raw flags instead of GetFlags, because GetFlags will
     // pay attention to what's in m_newSet, and this new hdr isn't
     // in m_newSet yet.
+
+    // do this after we've put the new hdr in the thread
+    nsCOMPtr<nsIMsgThread> thread;
+    uint32_t threadFlags = 0;
+    nsresult rv = GetThreadContainingMsgHdr(hdr, getter_AddRefs(thread));
+    if (NS_SUCCEEDED(rv)) {
+      thread->GetFlags(&threadFlags);
+    }
+    bool isIgnored = false;
+    hdr->GetIsKilled(&isIgnored);
+    isIgnored |= threadFlags & nsMsgMessageFlags::Ignored;
+
     if (flags & nsMsgMessageFlags::New) {
       uint32_t newFlags;
       newHdr->AndFlags(~nsMsgMessageFlags::New,
                        &newFlags);  // make sure not filed out
-      AddToNewList(key);
+      if (!isIgnored) {
+        AddToNewList(key);
+      } else {
+        flags &= ~nsMsgMessageFlags::New;
+      }
     }
     if (m_dbFolderInfo) {
       m_dbFolderInfo->ChangeNumMessages(1);
@@ -2673,6 +2689,15 @@ NS_IMETHODIMP nsMsgDatabase::AddNewHdrToDB(nsIMsgDBHdr* newHdr, bool notify) {
     }
 
     err = m_mdbAllMsgHeadersTable->AddRow(GetEnv(), hdr->GetMDBRow());
+
+    if (isIgnored) {
+      AutoTArray<RefPtr<nsIMsgDBHdr>, 1> msg;
+      msg.AppendElement(newHdr);
+      // This marks the message as read and, in the case of an IMAP folder,
+      // synchronizes its flags.
+      m_folder->MarkMessagesRead(msg, true);
+    }
+
     if (notify) {
       nsMsgKey threadParent;
 

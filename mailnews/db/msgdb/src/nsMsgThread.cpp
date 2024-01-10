@@ -355,11 +355,6 @@ NS_IMETHODIMP nsMsgThread::AddChild(nsIMsgDBHdr* child, nsIMsgDBHdr* inReplyTo,
     m_mdbTable->MoveRow(m_mdbDB->GetEnv(), hdrRow, -1, moveIndex, &outPos);
   }
 
-  // do this after we've put the new hdr in the thread
-  bool isKilled;
-  child->GetIsKilled(&isKilled);
-  if ((m_flags & nsMsgMessageFlags::Ignored || isKilled) && m_mdbDB)
-    m_mdbDB->MarkHdrRead(child, true, nullptr);
 #ifdef DEBUG_David_Bienvenu
   nsMsgKey msgHdrThreadKey;
   child->GetThreadId(&msgHdrThreadKey);
