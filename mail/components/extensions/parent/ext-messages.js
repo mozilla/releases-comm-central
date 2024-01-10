@@ -562,7 +562,7 @@ this.messages = class extends ExtensionAPIPersistent {
             url: attachment.url,
             name: attachment.name,
             uri: msgHdr.folder
-              ? msgHdr.getUriForMsg(msgHdr)
+              ? msgHdr.folder.getUriForMsg(msgHdr)
               : msgHdr.getStringProperty("dummyMsgUrl"),
             isExternalAttachment: attachment.isExternal,
             message: msgHdr,

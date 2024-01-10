@@ -582,7 +582,7 @@
         "type": "function",
         "description": "Deletes the specified attachments and replaces them by placeholder text attachments with meta information about the original attachments and a <value>text/x-moz-deleted</value> content type. This permanently modifies the message.",
         "permissions": ["messagesModifyPermanent"],
-        "async": "callback",
+        "async": true,
         "parameters": [
           {
             "name": "messageId",
@@ -594,9 +594,9 @@
             "description": "An array of attachments, identifiying the to be detached attachments by their <value>partName</value>.",
             "items": {
               "type": "string",
-              "pattern": "^\\d+(\\.\\d+)*$",
-              "minItems": 1
-            }
+              "pattern": "^\\d+(\\.\\d+)*$"
+            },
+            "minItems": 1
           }
         ]
       },
