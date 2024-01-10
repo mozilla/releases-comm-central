@@ -66,9 +66,6 @@ const { getDefaultColumns, getDefaultColumnsForCardsView, isOutgoing } =
     "chrome://messenger/content/thread-pane-columns.mjs"
   );
 
-import("chrome://messenger/content/folder-tree-row.mjs");
-import("chrome://messenger/content/tree-view.mjs");
-
 // As defined in nsMsgDBView.h.
 const MSG_VIEW_FLAG_DUMMY = 0x20000000;
 
