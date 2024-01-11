@@ -9,7 +9,7 @@
 
 % override chrome://global/skin/wizard.css chrome://messenger/skin/wizard.css
 % override chrome://global/skin/in-content/common.css chrome://messenger/skin/common.css
-% override chrome://global/content/elements/message-bar.css chrome://messenger/skin/message-bar.css
+% override chrome://global/content/elements/infobar.css chrome://messenger/skin/infobar.css
 % override chrome://browser/skin/developer.svg chrome://messenger/skin/icons/developer.svg
 
 # Devtools overrides
@@ -128,6 +128,7 @@
   skin/classic/messenger/imMenulist.css                       (../shared/mail/imMenulist.css)
   skin/classic/messenger/imRichlistbox.css                    (../shared/mail/imRichlistbox.css)
   skin/classic/messenger/inContentDialog.css                  (../shared/mail/inContentDialog.css)
+  skin/classic/messenger/infobar.css                          (../shared/mail/infobar.css)
   skin/classic/messenger/joinchat.css                         (../shared/mail/joinchat.css)
   skin/classic/messenger/mailViewSetup.css                    (../shared/mail/mailViewSetup.css)
   skin/classic/messenger/messageQuotes.css                    (../shared/mail/messageQuotes.css)
@@ -387,7 +388,6 @@
   skin/classic/messenger/shared/preferences/privacy-security.svg  (../shared/mail/preferences/privacy-security.svg)
   skin/classic/messenger/shared/mailWindow1.css               (../shared/mail/mailWindow1.css)
   skin/classic/messenger/shared/menulist.css                  (../shared/mail/menulist.css)
-  skin/classic/messenger/shared/message-bar.css               (../shared/mail/message-bar.css)
   skin/classic/messenger/shared/messageBody.css               (../shared/mail/messageBody.css)
   skin/classic/messenger/shared/messageHeader.css             (../shared/mail/messageHeader.css)
   skin/classic/messenger/shared/messageIcons.css              (../shared/mail/messageIcons.css)

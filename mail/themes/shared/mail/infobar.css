@@ -1,0 +1,237 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/shared/contextMenu.css");
+
+:host(notification-message) {
+  border-radius: 4px;
+  border-width: 0;
+
+  --icon-size: 16px;
+  --close-icon-size: 32px;
+  --message-bar-background-color: var(--in-content-box-info-background);
+  --message-bar-text-color: var(--in-content-text-color);
+  --message-bar-icon-url: var(--icon-info);
+  --panel-border-radius: 3px;
+
+  @media not (prefers-contrast) {
+    --in-content-button-color: #0c0c0d;
+    --in-content-button-border: #c2c2c3;
+    --in-content-button-background: #e2e2e3;
+    --in-content-button-color-hover: #0c0c0d;
+    --in-content-button-background-hover: #d2d2d3;
+    --in-content-button-border-active: #a2a2a3;
+    --in-content-button-color-active: #0c0c0d;
+    --in-content-button-background-active: #c2c2c3;
+    --in-content-box-info-background: light-dark(var(--layout-background-0), var(--layout-background-2));
+
+    @media (prefers-color-scheme: dark) {
+      --in-content-button-color: #f9f9fa;
+      --in-content-button-border: #828283;
+      --in-content-button-background: #636364;
+      --in-content-button-color-hover: #f9f9fa;
+      --in-content-button-background-hover: #777778;
+      --in-content-button-color-active: #f9f9fa;
+      --in-content-button-border-active: #878788;
+      --in-content-button-background-active: #878788;
+    }
+  }
+
+  @media (prefers-contrast) {
+    --in-content-box-info-background: hsla(0, 0%, 50%, 0.15);
+    --in-content-button-color: ButtonText;
+    --in-content-button-border: ThreeDLightShadow;
+    --in-content-button-background: ButtonFace;
+    --in-content-button-color-hover: SelectedItemText;
+    --in-content-button-background-hover: SelectedItem;
+    --in-content-button-border-active: ThreeDFace;
+    --in-content-button-color-active: SelectedItemText;
+    --in-content-button-background-active: SelectedItem;
+  }
+}
+
+:host([message-bar-type=infobar]) {
+  --close-icon-size: 24px;
+  margin: 0 4px 4px;
+}
+
+:host([message-bar-type=infobar]:first-of-type) {
+  margin-top: 4px;
+}
+
+:host(notification-message[type=warning]) {
+  --message-bar-background-color: light-dark(#fff160, #ffe900);
+  --message-bar-text-color: #000;
+  --message-bar-icon-url: var(--icon-warning);
+}
+
+:host(notification-message[type=success]) {
+  --message-bar-background-color: var(--color-green-60);
+  --message-bar-text-color: #ffffff;
+  --message-bar-icon-url: var(--icon-check);
+  --icon-color-success: #fff;
+}
+
+:host(notification-message:is([type=error], [type=critical])) {
+  --message-bar-background-color: var(--color-red-60);
+  --message-bar-text-color: #fff;
+  --message-bar-icon-url: var(--icon-error-circle);
+  --icon-color-critical: #fff;
+}
+
+:host([value=attachmentReminder]) {
+  --message-bar-icon-url: var(--icon-attachment);
+}
+
+:host([value=draftMsgContent]) {
+  --message-bar-icon-url: var(--icon-pencil);
+}
+
+:host([value=junkContent]) {
+  --message-bar-icon-url: var(--icon-spam);
+}
+
+:host([value=remoteContent]) {
+  --message-bar-icon-url: var(--icon-photo-ban);
+}
+
+:host([value=accountSetupLoading]) {
+  --message-bar-icon-url: url("chrome://messenger/skin/icons/hourglass.svg");
+
+  & .icon-container {
+    overflow: hidden;
+    width: var(--message-bar-icon-size);
+    justify-content: start;
+  }
+
+  & .icon {
+    fill: currentColor;
+    opacity: 0.7;
+
+    @media (prefers-reduced-motion: no-preference) {
+      width: 480px;
+      content: var(--icon-loading);
+      padding: 0;
+      animation: loading-animation 1.05s steps(30) infinite;
+
+      &:dir(rtl) {
+        animation-name: loading-animation-rtl;
+      }
+    }
+  }
+}
+
+/* MessageBar Grid Layout */
+
+div.container {
+  background-color: var(--message-bar-background-color);
+  color: var(--message-bar-text-color);
+  padding: 0;
+  padding-inline: 8px;
+  position: relative;
+  border-radius: 4px;
+  /* Ensure that the message bar shadow dom elements are vertically aligned. */
+  align-items: center;
+  text-shadow: none;
+
+  @media not (prefers-contrast) {
+    box-shadow: 0 1px 2px rgba(58, 57, 68, 0.3);
+  }
+}
+
+.content {
+  margin: 0 4px;
+  display: inline-block;
+  /* Ensure that the message bar content is vertically aligned. */
+  align-items: center;
+  /* Ensure that the message bar content is wrapped. */
+  word-break: break-word;
+}
+
+.text-container {
+  flex-grow: 1;
+}
+
+/* MessageBar icon style */
+
+img.icon {
+  padding: 4px;
+  fill: color-mix(in srgb ,currentColor 20%, transparent);
+  content: var(--message-bar-icon-url);
+
+  :host([type=system]) & {
+    display: none;
+  }
+
+  :host([type=info]) & {
+    color: light-dark(#0090ed, #45a1ff);
+  }
+
+  :host([type=warning]) & {
+    color: inherit;
+  }
+
+  :host([value=draftMsgContent]) & {
+    color: inherit;
+  }
+}
+
+/* Close icon styles */
+
+button.close {
+  background-image: var(--icon-close);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb ,currentColor 20%, transparent);
+  stroke: currentColor;
+  width: var(--close-icon-size);
+  height: var(--close-icon-size);
+
+  @media not (prefers-contrast) {
+    color: inherit;
+
+    &.ghost-button:enabled:hover {
+      background-color: color-mix(in srgb, currentColor 15%, transparent);
+
+      &:active {
+        background-color: color-mix(in srgb, currentColor 25%, transparent);
+      }
+    }
+  }
+
+  @media (prefers-contrast) {
+    &.ghost-button:enabled:hover {
+      color: var(--in-content-button-color-hover);
+      background-color: var(--in-content-button-background-hover);
+    }
+  }
+}
+
+/* Infobars styling. */
+
+strong {
+  font-weight: 600;
+}
+
+.text-link:hover {
+  cursor: pointer;
+}
+
+/* Attachment reminder variations */
+
+#attachmentKeywords {
+  font-weight: bold;
+  margin-inline-start: 3px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes loading-animation {
+    100% { transform: translateX(-480px); }
+  }
+
+  @keyframes loading-animation-rtl {
+    100% { transform: translateX(100%); }
+  }
+}

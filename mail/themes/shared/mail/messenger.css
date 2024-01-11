@@ -1471,3 +1471,107 @@ printpreview-pagination:focus-within,
   /* Make dialogs overlap with upper chrome UI. */
   margin-top: 5px;
 }
+
+
+/* Infobar styles */
+
+.notification-button-container {
+  display: flex;
+}
+
+.notification-button {
+  margin: 4px;
+  border: 1px solid var(--in-content-button-border);
+  border-radius: 3px;
+  color: var(--in-content-button-color);
+  background-color: var(--in-content-button-background);
+
+  &:not([disabled]):hover {
+    color: var(--in-content-button-color-hover);
+    background-color: var(--in-content-button-background-hover);
+
+    &:active {
+      border-color: var(--in-content-button-border-active);
+      color: var(--in-content-button-color-active);
+      background-color: var(--in-content-button-background-active);
+    }
+  }
+
+  &:first-of-type {
+    /* When the buttons wrap to their own line we want to match the 8px on the message. */
+    margin-inline-start: 0;
+  }
+
+  &.small-button {
+    font-size: inherit;
+    font-weight: 400;
+    min-height: 24px;
+    margin: 4px;
+  }
+
+  /* Button variations */
+
+  &.button-menu-list {
+    appearance: none;
+    padding-inline-end: 18px;
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 12px;
+    background-image: var(--icon-nav-down-sm);
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+
+    &:-moz-locale-dir(rtl) {
+      background-position-x: left 4px;
+    }
+  }
+
+  toolbarbutton&[is="toolbarbutton-menu-button"] {
+    align-items: center;
+    margin: 4px 6px;
+    padding-block: 0;
+    padding-inline: 0 11px;
+    background-color: var(--in-content-button-background);
+
+    & > toolbarbutton {
+      margin-block: 0;
+      margin-inline: 0 2px;
+      min-height: 22px;
+      border-start-start-radius: 2px;
+      border-start-end-radius: 2px;
+      border-start-end-radius: 0;
+      border-end-end-radius: 0;
+      padding: 2px 15px;
+      font-weight: inherit;
+      background-color: var(--in-content-button-background);
+      border-width: 0;
+      border-inline-end: 1px solid var(--in-content-button-border);
+    }
+
+    &:hover,
+    & > toolbarbutton:hover {
+      background-color: var(--in-content-button-background-hover);
+      color: var(--in-content-button-text-color-hover);
+      border-color: var(--in-content-button-border-color-hover);
+
+      &:active {
+        background-color: var(--in-content-button-background-active);
+        color: var(--in-content-button-text-color-active);
+        border-color: var(--in-content-button-border-color-active);
+      }
+    }
+
+    & > dropmarker {
+      appearance: none;
+      content: var(--icon-nav-down-sm);
+      -moz-context-properties: stroke;
+      stroke: currentColor;
+      margin-inline-end: -5px;
+      padding-inline-start: 5px;
+      border-start-start-radius: 0;
+      border-start-end-radius: 0;
+      pointer-events: none;
+      display: inline-flex;
+    }
+  }
+}

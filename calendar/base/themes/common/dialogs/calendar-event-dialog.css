@@ -609,7 +609,7 @@ label.label {
 
 #status-notifications > .notificationbox-stack {
   background-color: transparent;
-  margin-inline: 6px;
+  padding-inline: 6px;
 }
 
 #calendar-item-summary {

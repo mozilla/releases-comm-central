@@ -386,3 +386,13 @@ treechildren::-moz-tree-row {
 :root[uidensity="touch"] treechildren::-moz-tree-row {
   height: 2.4rem;
 }
+
+/* Infobar styles */
+
+.notification-button.small-button {
+  padding-block: 3px;
+}
+
+#reminderBarPopup {
+  margin-top: -4px;
+}
