@@ -7,9 +7,6 @@
  * mail, but should exist in the mail copy (e.g. Sent folder).
  */
 
-var { PromiseUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/PromiseUtils.sys.mjs"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

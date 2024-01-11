@@ -21,9 +21,6 @@ const { TreeSelection } = ChromeUtils.importESModule(
 var { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
 );
-var { PromiseUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/PromiseUtils.sys.mjs"
-);
 var { dump_view_contents } = ChromeUtils.import(
   "resource://testing-common/mozmill/ViewHelpers.jsm"
 );

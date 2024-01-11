@@ -15,9 +15,6 @@ var { MailServices } = ChromeUtils.import(
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
-var { PromiseUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/PromiseUtils.sys.mjs"
-);
 
 var daemon, localserver, server;
 

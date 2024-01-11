@@ -19,9 +19,6 @@ var { MockRegistrar } = ChromeUtils.importESModule(
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
-var { PromiseUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/PromiseUtils.sys.mjs"
-);
 
 alertHook.init();
 

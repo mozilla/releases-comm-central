@@ -6,7 +6,6 @@
 
 /* exported CalendarFilteredViewMixin */
 
-var { PromiseUtils } = ChromeUtils.importESModule("resource://gre/modules/PromiseUtils.sys.mjs");
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { CalReadableStreamFactory } = ChromeUtils.import(
   "resource:///modules/CalReadableStreamFactory.jsm"
@@ -1022,7 +1021,7 @@ let CalendarFilteredViewMixin = Base =>
     #currentRefresh = null;
 
     /**
-     * The current PromiseUtils.jsm `Deferred` object (containing a Promise
+     * The current  Promise.withResolvers() `Deferred` object (containing a Promise
      * and methods to resolve/reject it).
      *
      * @type {object}

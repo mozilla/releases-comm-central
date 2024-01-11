@@ -20,9 +20,6 @@ var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
 var { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
 );
-var { PromiseUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/PromiseUtils.sys.mjs"
-);
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 

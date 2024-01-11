@@ -24,10 +24,6 @@ XPCOMUtils.defineLazyScriptGetter(
   "chrome://messenger/content/printUtils.js"
 );
 
-ChromeUtils.defineESModuleGetters(this, {
-  PromiseUtils: "resource://gre/modules/PromiseUtils.sys.mjs",
-});
-
 var gContextMenu;
 
 /* globals reporterListener */
