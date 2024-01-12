@@ -2022,6 +2022,15 @@ function enableRNPLibJS() {
       ctypes.uint32_t
     ),
 
+    rnp_dump_packets_to_output: librnp.declare(
+      "rnp_dump_packets_to_output",
+      abi,
+      rnp_result_t,
+      rnp_input_t,
+      rnp_output_t,
+      ctypes.uint32_t
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,

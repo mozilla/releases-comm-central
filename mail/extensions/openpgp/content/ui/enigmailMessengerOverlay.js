@@ -755,9 +755,8 @@ Enigmail.msg = {
               "", // sigDetails
               await l10n.formatValue("possibly-pgp-mime"), // infoMsg
               null, // blockSeparation
-              null, // encToDetails
-              null
-            ); // xtraStatus
+              null // extraDetails
+            );
           }
         } else if (!isAuto) {
           Enigmail.msg.messageReload(false);
@@ -867,6 +866,16 @@ Enigmail.msg = {
       msgText = msgText.replace(/^[ \t\xA0]+/gm, "");
     }
     return msgText;
+  },
+
+  async viewPacketDump() {
+    if (!Enigmail.hdrView.packetDump) {
+      return;
+    }
+
+    const prefix = (await l10n.formatValue("debug-log-title")) + "\n\n";
+
+    this.setDisplayToText(0, prefix + Enigmail.hdrView.packetDump, "utf-8");
   },
 
   async messageParse(
@@ -1196,7 +1205,7 @@ Enigmail.msg = {
     var keyIdObj = {};
     var userIdObj = {};
     var sigDetailsObj = {};
-    var encToDetailsObj = {};
+    var extraDetailsObj = {};
 
     var blockSeparationObj = {
       value: "",
@@ -1241,7 +1250,7 @@ Enigmail.msg = {
       sigDetailsObj,
       errorMsgObj,
       blockSeparationObj,
-      encToDetailsObj
+      extraDetailsObj
     );
 
     //EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageParseCallback: plainText='"+plainText+"'\n");
@@ -1295,9 +1304,8 @@ Enigmail.msg = {
         sigDetailsObj.value,
         errorMsg,
         null, // blockSeparation
-        encToDetailsObj.value,
-        null
-      ); // xtraStatus
+        extraDetailsObj.value
+      );
     }
 
     var noSecondTry =
@@ -1478,8 +1486,12 @@ Enigmail.msg = {
       false
     );
 
-    var node;
-    var bodyElement = Enigmail.msg.getBodyElement(pbMessageIndex);
+    this.setDisplayToText(pbMessageIndex, messageContent, charset);
+  },
+
+  setDisplayToText(pbMessageIndex, messageContent, charset) {
+    let node;
+    const bodyElement = Enigmail.msg.getBodyElement(pbMessageIndex);
 
     if (bodyElement.firstChild) {
       node = bodyElement.firstChild;
@@ -1525,15 +1537,7 @@ Enigmail.msg = {
         }
         node = node.nextSibling;
       }
-
-      if (preFound) {
-        return;
-      }
     }
-
-    EnigmailLog.ERROR(
-      "enigmailMessengerOverlay.js: no node found to replace message display\n"
-    );
   },
 
   importAttachedSenderKey() {
@@ -3321,6 +3325,9 @@ Enigmail.msg = {
     document.getElementById("encryptionExplanation").textContent =
       // eslint-disable-next-line mozilla/prefer-formatValues
       await document.l10n.formatValue(encInfo);
+
+    document.getElementById("packetDumpView").hidden =
+      !Enigmail.hdrView.packetDump;
 
     if (Enigmail.hdrView.msgSignatureKeyId) {
       const sigKeyInfo = EnigmailKeyRing.getKeyById(

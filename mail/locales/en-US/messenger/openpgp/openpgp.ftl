@@ -800,10 +800,6 @@ attachment-pgp-key =
     Click ‘Import’ to import the keys contained or ‘View’ to view the file contents in a browser window
 dlg-button-view = &View
 
-## Strings used in enigmailMsgHdrViewOverlay.js
-
-decrypted-msg-with-format-error = Decrypted message (restored broken PGP email format probably caused by an old Exchange server, so that the result might not be perfect to read)
-
 ## Strings used in encryption.jsm
 
 not-required = Error - no encryption required

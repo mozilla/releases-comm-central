@@ -47,6 +47,7 @@ Enigmail.hdrView = {
 
   ignoreStatusFromMimePart: "",
   receivedStatusFromParts: new Set(),
+  packetDump: "",
 
   reset() {
     this.msgSignedStateString = null;
@@ -63,6 +64,7 @@ Enigmail.hdrView = {
     }
     this.ignoreStatusFromMimePart = "";
     this.receivedStatusFromParts = new Set();
+    this.packetDump = "";
   },
 
   hdrViewLoad() {
@@ -119,8 +121,7 @@ Enigmail.hdrView = {
     sigDetails,
     errorMsg,
     blockSeparation,
-    encToDetails,
-    xtraStatus,
+    extraDetails,
     mimePartNumber
   ) {
     EnigmailLog.DEBUG(
@@ -138,16 +139,6 @@ Enigmail.hdrView = {
         errorMsg +
         "\n"
     );
-
-    /*
-    if (
-      Enigmail.msg.securityInfo &&
-      Enigmail.msg.securityInfo.xtraStatus &&
-      Enigmail.msg.securityInfo.xtraStatus === "wks-request"
-    ) {
-      return;
-    }
-    */
 
     if (gMessageURI) {
       this.lastEncryptedMsgKey = gMessageURI;
@@ -238,9 +229,19 @@ Enigmail.hdrView = {
 
     this.msgSignatureKeyId = keyId;
 
-    if (encToDetails) {
-      this.msgEncryptionKeyId = encToDetails.myRecipKey;
-      this.msgEncryptionAllKeyIds = encToDetails.allRecipKeys;
+    if (extraDetails) {
+      try {
+        const o = JSON.parse(extraDetails);
+        if ("encryptedTo" in o) {
+          this.msgEncryptionKeyId = o.encryptedTo.myRecipKey;
+          this.msgEncryptionAllKeyIds = o.encryptedTo.allRecipKeys;
+        }
+        if ("packetDump" in o && o.packetDump) {
+          this.packetDump = o.packetDump;
+        }
+      } catch (x) {
+        console.debug(x);
+      }
     }
 
     this.msgSignatureDate = sigDetails?.sigDate;
@@ -252,7 +253,7 @@ Enigmail.hdrView = {
       userId,
       msgSigned,
       blockSeparation,
-      xtraStatus,
+      extraDetails,
       encryptedMimePart,
     };
     Enigmail.msg.securityInfo = tmp;
@@ -323,11 +324,6 @@ Enigmail.hdrView = {
       EnigmailURIs.rememberEncryptedUri(this.lastEncryptedMsgKey);
       encrypted = "ok";
       this.msgEncryptionState = EnigmailConstants.MSG_ENC_OK;
-      if (secInfo.xtraStatus && secInfo.xtraStatus == "buggyMailFormat") {
-        console.log(
-          await document.l10n.formatValue("decrypted-msg-with-format-error")
-        );
-      }
     }
 
     if (
@@ -381,12 +377,6 @@ Enigmail.hdrView = {
       this.msgSignedStateString = signed;
     }
     this.updateVisibleSecurityStatus(triggeredByMimePartNumber);
-
-    /*
-    // special handling after trying to fix buggy mail format (see buggyExchangeEmailContent in code)
-    if (secInfo.xtraStatus && secInfo.xtraStatus == "buggyMailFormat") {
-    }
-    */
 
     if (encrypted) {
       // For telemetry purposes.
@@ -539,9 +529,6 @@ Enigmail.hdrView = {
   messageUnload(event) {
     EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: this.messageUnload\n");
     if (Enigmail.hdrView.flexbuttonAction === null) {
-      if (Enigmail.msg.securityInfo && Enigmail.msg.securityInfo.xtraStatus) {
-        Enigmail.msg.securityInfo.xtraStatus = "";
-      }
       this.forgetEncryptedMsgKey();
     }
   },
@@ -943,19 +930,6 @@ Enigmail.hdrView = {
           statusFlags |= EnigmailConstants.PARTIALLY_PGP;
         }
 
-        let encToDetails = null;
-
-        if (extraDetails && extraDetails.length > 0) {
-          try {
-            const o = JSON.parse(extraDetails);
-            if ("encryptedTo" in o) {
-              encToDetails = o.encryptedTo;
-            }
-          } catch (x) {
-            console.debug(x);
-          }
-        }
-
         Enigmail.hdrView.updatePgpStatus(
           exitCode,
           statusFlags,
@@ -965,8 +939,7 @@ Enigmail.hdrView = {
           sigDetails,
           errorMsg,
           blockSeparation,
-          encToDetails,
-          null,
+          extraDetails,
           mimePartNumber
         );
       }

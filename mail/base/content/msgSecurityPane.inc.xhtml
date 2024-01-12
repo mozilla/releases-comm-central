@@ -86,6 +86,14 @@
         <label id="encryptionHeader" collapsed="true" />
         <description id="encryptionExplanation"/>
 
+        <hbox pack="end">
+          <button id="packetDumpView"
+                  hidden="true"
+                  data-l10n-id="debug-log-title"
+                  class="button-focusable"
+                  oncommand="Enigmail.msg.viewPacketDump()" />
+        </hbox>
+
         <vbox id="encryptionCert" class="message-security-container"
               collapsed="true">
           <hbox>
