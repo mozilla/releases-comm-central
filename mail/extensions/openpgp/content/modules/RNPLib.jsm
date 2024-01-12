@@ -509,6 +509,18 @@ function enableRNPLibJS() {
       );
     },
 
+    /**
+     * Register the default password callback with the default ffi
+     * RNP context (RNPLib.ffi).
+     */
+    setDefaultPasswordCB() {
+      this.rnp_ffi_set_pass_provider(
+        this.ffi,
+        this.keep_password_cb_alive,
+        null
+      );
+    },
+
     async init() {
       this.ffi = this.prepare_ffi();
       if (!this.ffi) {
@@ -522,11 +534,7 @@ function enableRNPLibJS() {
         this, // this value used while executing callback
         false // callback return value if exception is thrown
       );
-      this.rnp_ffi_set_pass_provider(
-        this.ffi,
-        this.keep_password_cb_alive,
-        null
-      );
+      this.setDefaultPasswordCB();
 
       const { pubRingPath, secRingPath } = this.getFilenames();
 
@@ -846,7 +854,7 @@ function enableRNPLibJS() {
       RNPLib.rnp_buffer_destroy(fingerprint);
 
       console.debug(
-        `Internal error, RNP password callback called unexpectedly. ${fpStr}.`
+        `Internal error, default RNP password callback called unexpectedly. ${fpStr}.`
       );
       return false;
     },

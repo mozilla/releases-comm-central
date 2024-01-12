@@ -395,6 +395,20 @@ class RnpPrivateKeyUnlockTracker {
   }
 
   /**
+   * @returns {string} - the password that was previously used to
+   *   unlock the secret key, if a call to setRememberUnlockPassword
+   *   allowed remembering it.
+   *   May return null if the password isn't available.
+   */
+  getUnlockPassword() {
+    if (!this.#rnpKeyHandle) {
+      return null;
+    }
+
+    return this.#unlockPassword;
+  }
+
+  /**
    * Protect the key with the automatic passphrase mechanism, that is,
    * using the classic mechanism that uses an automatically generated
    * passphrase, which is either unprotected, or protected by the
@@ -438,6 +452,32 @@ class RnpPrivateKeyUnlockTracker {
   }
 
   /**
+   * If this tracker object has unlocked the secret key, switch it to
+   * backed to the locked state.
+   */
+  lockIfUnlocked() {
+    if (!this.#rnpKeyHandle) {
+      return;
+    }
+
+    if (!this.#isLocked && this.#wasUnlocked) {
+      RNPLib.rnp_key_lock(this.#rnpKeyHandle);
+      this.#isLocked = true;
+      this.#wasUnlocked = false;
+    }
+  }
+
+  /**
+   * Drop the reference to the underlying key handle and other sensitive
+   * data, without destroying the key handle. This can be used if other
+   * code will handle the cleanup.
+   */
+  forget() {
+    this.#rnpKeyHandle = null;
+    this.#unlockPassword = null;
+  }
+
+  /**
    * Release all data managed by this tracker, if necessary locking the
    * tracked private key, forgetting the remembered unlock password,
    * and destroying the handle.
@@ -448,14 +488,9 @@ class RnpPrivateKeyUnlockTracker {
       return;
     }
 
-    this.#unlockPassword = null;
-    if (!this.#isLocked && this.#wasUnlocked) {
-      RNPLib.rnp_key_lock(this.#rnpKeyHandle);
-      this.#isLocked = true;
-    }
-
+    this.lockIfUnlocked();
     RNPLib.rnp_key_handle_destroy(this.#rnpKeyHandle);
-    this.#rnpKeyHandle = null;
+    this.forget();
   }
 }
 
@@ -1592,107 +1627,6 @@ var RNP = {
     return str.replace(commentLine, "");
   },
 
-  /**
-   * This function analyzes an encrypted message. It will check if one
-   * of the available secret keys can be used to decrypt a message,
-   * without actually performing the decryption.
-   * This is done by performing a decryption attempt in an empty
-   * environment, which doesn't have any keys available. The decryption
-   * attempt allows us to use the RNP APIs that list the key IDs of
-   * keys that would be able to decrypt the object.
-   * If a matching available secret ID is found, then the handle to that
-   * available secret key is returned.
-   *
-   * @param {rnp_input_t} - A prepared RNP input object that contains
-   *   the encrypted message that should be analyzed.
-   * @returns {rnp_key_handle_t} - the handle of a private key that can
-   *   be used to decrypt the message, or null, if no usable key was
-   *   found.
-   */
-  getFirstAvailableDecryptionKeyHandle(encrypted_rnp_input_from_memory) {
-    let resultKey = null;
-
-    const dummyFfi = RNPLib.prepare_ffi();
-    if (!dummyFfi) {
-      return null;
-    }
-
-    const dummy_max_output_size = 1;
-    const dummy_output_to_memory = new RNPLib.rnp_output_t();
-    RNPLib.rnp_output_to_memory(
-      dummy_output_to_memory.address(),
-      dummy_max_output_size
-    );
-
-    const dummy_verify_op = new RNPLib.rnp_op_verify_t();
-    RNPLib.rnp_op_verify_create(
-      dummy_verify_op.address(),
-      dummyFfi,
-      encrypted_rnp_input_from_memory,
-      dummy_output_to_memory
-    );
-
-    // It's expected and ok that this function returns an error,
-    // e.r. RNP_ERROR_NO_SUITABLE_KEY, we'll query detailed results.
-    RNPLib.rnp_op_verify_execute(dummy_verify_op);
-
-    const all_recip_count = new lazy.ctypes.size_t();
-    if (
-      RNPLib.rnp_op_verify_get_recipient_count(
-        dummy_verify_op,
-        all_recip_count.address()
-      )
-    ) {
-      throw new Error("rnp_op_verify_get_recipient_count failed");
-    }
-
-    // Loop is skipped if all_recip_count is zero.
-    for (
-      let recip_i = 0;
-      recip_i < all_recip_count.value && !resultKey;
-      recip_i++
-    ) {
-      const recip_handle = new RNPLib.rnp_recipient_handle_t();
-      if (
-        RNPLib.rnp_op_verify_get_recipient_at(
-          dummy_verify_op,
-          recip_i,
-          recip_handle.address()
-        )
-      ) {
-        throw new Error("rnp_op_verify_get_recipient_at failed");
-      }
-
-      const c_key_id = new lazy.ctypes.char.ptr();
-      if (RNPLib.rnp_recipient_get_keyid(recip_handle, c_key_id.address())) {
-        throw new Error("rnp_recipient_get_keyid failed");
-      }
-      const recip_key_id = c_key_id.readString();
-      RNPLib.rnp_buffer_destroy(c_key_id);
-
-      const recip_key_handle = this.getKeyHandleByKeyIdOrFingerprint(
-        RNPLib.ffi,
-        "0x" + recip_key_id
-      );
-      if (!recip_key_handle.isNull()) {
-        if (
-          RNPLib.getSecretAvailableFromHandle(recip_key_handle) &&
-          RNPLib.isSecretKeyMaterialAvailable(recip_key_handle)
-        ) {
-          resultKey = recip_key_handle;
-        } else {
-          RNPLib.rnp_key_handle_destroy(recip_key_handle);
-        }
-      }
-    }
-
-    RNPLib.rnp_output_destroy(dummy_output_to_memory);
-    RNPLib.rnp_op_verify_destroy(dummy_verify_op);
-    RNPLib.rnp_ffi_destroy(dummyFfi);
-
-    return resultKey;
-  },
-
   async decrypt(encrypted, options, alreadyDecrypted = false) {
     const arr = encrypted.split("").map(e => e.charCodeAt());
     var encrypted_array = lazy.ctypes.uint8_t.array()(arr);
@@ -1714,39 +1648,98 @@ var RNP = {
       result.encToDetails = options.encToDetails;
     }
 
-    // We cannot reuse the same rnp_input_t for both the dummy operation
-    // and the real decryption operation, as the rnp_input_t object
-    // apparently becomes unusable after operating on it.
-    // That's why we produce a separate rnp_input_t based on the same
-    // data for the dummy operation.
-    const dummy_input_from_memory = new RNPLib.rnp_input_t();
-    RNPLib.rnp_input_from_memory(
-      dummy_input_from_memory.address(),
-      encrypted_array,
-      encrypted_array.length,
-      false
+    // Allow compressed encrypted messages, max factor 1200, up to 100 MiB.
+    const max_decrypted_message_size = 100 * 1024 * 1024;
+    const max_out = Math.min(
+      encrypted.length * 1200,
+      max_decrypted_message_size
     );
 
-    let rnpCannotDecrypt = true;
+    let collected_fingerprint = null;
+    let remembered_password = null;
 
-    const decryptKey = new RnpPrivateKeyUnlockTracker(
-      this.getFirstAvailableDecryptionKeyHandle(dummy_input_from_memory)
-    );
-
-    decryptKey.setAllowPromptingUserForPassword(true);
-    decryptKey.setAllowAutoUnlockWithCachedPasswords(true);
-
-    if (decryptKey.available()) {
-      // If the key cannot be automatically unlocked, we'll rely on
-      // the password prompt callback from RNP, and on the user to unlock.
-      await decryptKey.unlock();
+    function collect_key_info_password_cb(
+      ffi,
+      app_ctx,
+      key,
+      pgp_context,
+      buf,
+      buf_len
+    ) {
+      const fingerprint = new lazy.ctypes.char.ptr();
+      if (!RNPLib.rnp_key_get_fprint(key, fingerprint.address())) {
+        collected_fingerprint = fingerprint.readString();
+      }
+      RNPLib.rnp_buffer_destroy(fingerprint);
+      return false;
     }
 
-    // Even if we don't have a matching decryption key, run
-    // through full processing, to obtain all the various status flags,
-    // and because decryption might not be necessary.
-    try {
-      const input_from_memory = new RNPLib.rnp_input_t();
+    function use_remembered_password_cb(
+      ffi,
+      app_ctx,
+      key,
+      pgp_context,
+      buf,
+      buf_len
+    ) {
+      const passCTypes = lazy.ctypes.char.array()(remembered_password); // UTF-8
+
+      if (buf_len < passCTypes.length) {
+        return false;
+      }
+
+      const char_array = lazy.ctypes.cast(
+        buf,
+        lazy.ctypes.char.array(buf_len).ptr
+      ).contents;
+
+      for (let i = 0; i < passCTypes.length; i++) {
+        char_array[i] = passCTypes[i];
+      }
+      char_array[passCTypes.length] = 0;
+      return true;
+    }
+
+    let tryAgain;
+    let isFirstTry = true;
+
+    let verify_op;
+    let input_from_memory;
+    let output_to_memory;
+
+    // We don't know which secret key RNP wants to use for decryption.
+    // We make an initial attempt to ask RNP to decrypt, in which we set
+    // "collect_key_info_password_cb" as the password callback function.
+    // If RNP needs to unlock a key to decrypt, we will remember the
+    // key that needs to be unlocked in "collect_key_info_password_cb",
+    // but will give no password to RNP, which will cause RNP to fail
+    // the decryption operation.
+    // After returning from rnp_op_verify_execute (which performs the
+    // decryption or decryption attempt), we'll learn whether encryption
+    // worked, then we can continue immediately.
+    // Or, we'll learn that RNP needs to unlock a key. In this
+    // scenario, we'll interact with the user to learn the password
+    // that's required to unlock the key. We'll prompt the user, and if
+    // the user enters the correct password, we'll remember that
+    // password temporarily, and try the decryption operation again.
+    // During this second attempt to decrypt, we'll provide
+    // "use_remembered_password_cb" as the password callback function.
+    // When RNP attempts to decrypt and calls use_remembered_password_cb,
+    // we'll pass along the password to RNP, which can then
+    // unlock the key and decrypt the message.
+    // We use this approach, because we cannot easily prompt the user
+    // from within the password callback itself.
+    // (We're starting from JavaScript code, we're calling RNP C code,
+    // which then calls back into a JavaScript callback, and from there
+    // we would have to execute async code, but the RNP code that
+    // calls back into JavaScript isn't able to handle that. To avoid
+    // having to spin a nested event loop for simulating a synchronous
+    // call, we're using the approach described above.)
+
+    do {
+      tryAgain = false;
+
+      input_from_memory = new RNPLib.rnp_input_t();
       RNPLib.rnp_input_from_memory(
         input_from_memory.address(),
         encrypted_array,
@@ -1754,231 +1747,271 @@ var RNP = {
         false
       );
 
-      // Allow compressed encrypted messages, max factor 1200, up to 100 MiB.
-      const max_decrypted_message_size = 100 * 1024 * 1024;
-      const max_out = Math.min(
-        encrypted.length * 1200,
-        max_decrypted_message_size
-      );
-
-      const output_to_memory = new RNPLib.rnp_output_t();
+      output_to_memory = new RNPLib.rnp_output_t();
       RNPLib.rnp_output_to_memory(output_to_memory.address(), max_out);
 
-      const verify_op = new RNPLib.rnp_op_verify_t();
-      // Apparently the exit code here is ignored (replaced below)
-      result.exitCode = RNPLib.rnp_op_verify_create(
+      verify_op = new RNPLib.rnp_op_verify_t();
+      RNPLib.rnp_op_verify_create(
         verify_op.address(),
         RNPLib.ffi,
         input_from_memory,
         output_to_memory
       );
 
+      RNPLib.rnp_ffi_set_pass_provider(
+        RNPLib.ffi,
+        RNPLib.rnp_password_cb_t(
+          isFirstTry
+            ? collect_key_info_password_cb
+            : use_remembered_password_cb,
+          this, // this value used while executing callback
+          false // callback return value if exception is thrown
+        ),
+        null
+      );
       result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
+      RNPLib.setDefaultPasswordCB();
 
-      rnpCannotDecrypt = false;
-      let queryAllEncryptionRecipients = false;
-      let stillUndecidedIfSignatureIsBad = false;
+      if (isFirstTry && result.exitCode != 0 && collected_fingerprint) {
+        const key_handle = this.getKeyHandleByKeyIdOrFingerprint(
+          RNPLib.ffi,
+          "0x" + collected_fingerprint
+        );
+        if (
+          !key_handle.isNull() &&
+          RNPLib.getSecretAvailableFromHandle(key_handle) &&
+          RNPLib.isSecretKeyMaterialAvailable(key_handle)
+        ) {
+          const decryptKey = new RnpPrivateKeyUnlockTracker(key_handle);
+          if (decryptKey.available()) {
+            decryptKey.setAllowPromptingUserForPassword(true);
+            decryptKey.setRememberUnlockPassword(true);
+            await decryptKey.unlock();
+          }
 
-      let useDecodedData;
-      let processSignature;
-      switch (result.exitCode) {
-        case RNPLib.RNP_SUCCESS:
-          useDecodedData = true;
-          processSignature = true;
-          break;
-        case RNPLib.RNP_ERROR_SIGNATURE_INVALID:
-          // Either the signing key is unavailable, or the signature is
-          // indeed bad. Must check signature status below.
-          stillUndecidedIfSignatureIsBad = true;
-          useDecodedData = true;
-          processSignature = true;
-          break;
-        case RNPLib.RNP_ERROR_SIGNATURE_EXPIRED:
-          useDecodedData = true;
-          processSignature = false;
-          result.statusFlags |= lazy.EnigmailConstants.EXPIRED_SIGNATURE;
-          break;
-        case RNPLib.RNP_ERROR_DECRYPT_FAILED:
-          rnpCannotDecrypt = true;
-          useDecodedData = false;
-          processSignature = false;
-          queryAllEncryptionRecipients = true;
-          result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_FAILED;
-          break;
-        case RNPLib.RNP_ERROR_NO_SUITABLE_KEY:
-          rnpCannotDecrypt = true;
-          useDecodedData = false;
-          processSignature = false;
-          queryAllEncryptionRecipients = true;
-          result.statusFlags |=
-            lazy.EnigmailConstants.DECRYPTION_FAILED |
-            lazy.EnigmailConstants.NO_SECKEY;
-          break;
-        default:
-          useDecodedData = false;
-          processSignature = false;
-          console.debug(
-            "rnp_op_verify_execute returned unexpected: " + result.exitCode
-          );
-          break;
+          if (decryptKey.isUnlocked()) {
+            tryAgain = true;
+            remembered_password = decryptKey.getUnlockPassword();
+
+            RNPLib.rnp_input_destroy(input_from_memory);
+            input_from_memory = null;
+            RNPLib.rnp_output_destroy(output_to_memory);
+            output_to_memory = null;
+            RNPLib.rnp_op_verify_destroy(verify_op);
+            verify_op = null;
+          }
+
+          // We don't create the tracker in all scenarios,
+          // so we'll release key_handle manually.
+          decryptKey.lockIfUnlocked();
+          decryptKey.forget();
+        }
+        RNPLib.rnp_key_handle_destroy(key_handle);
       }
 
-      if (useDecodedData && alreadyDecrypted) {
-        result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_OKAY;
-      } else if (useDecodedData && !alreadyDecrypted) {
-        const prot_mode_str = new lazy.ctypes.char.ptr();
-        const prot_cipher_str = new lazy.ctypes.char.ptr();
-        const prot_is_valid = new lazy.ctypes.bool();
+      isFirstTry = false;
+    } while (tryAgain);
 
-        if (
-          RNPLib.rnp_op_verify_get_protection_info(
+    let rnpCannotDecrypt = false;
+    let queryAllEncryptionRecipients = false;
+    let stillUndecidedIfSignatureIsBad = false;
+
+    let useDecodedData;
+    let processSignature;
+    switch (result.exitCode) {
+      case RNPLib.RNP_SUCCESS:
+        useDecodedData = true;
+        processSignature = true;
+        break;
+      case RNPLib.RNP_ERROR_SIGNATURE_INVALID:
+        // Either the signing key is unavailable, or the signature is
+        // indeed bad. Must check signature status below.
+        stillUndecidedIfSignatureIsBad = true;
+        useDecodedData = true;
+        processSignature = true;
+        break;
+      case RNPLib.RNP_ERROR_SIGNATURE_EXPIRED:
+        useDecodedData = true;
+        processSignature = false;
+        result.statusFlags |= lazy.EnigmailConstants.EXPIRED_SIGNATURE;
+        break;
+      case RNPLib.RNP_ERROR_DECRYPT_FAILED:
+        rnpCannotDecrypt = true;
+        useDecodedData = false;
+        processSignature = false;
+        queryAllEncryptionRecipients = true;
+        result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_FAILED;
+        break;
+      case RNPLib.RNP_ERROR_NO_SUITABLE_KEY:
+        rnpCannotDecrypt = true;
+        useDecodedData = false;
+        processSignature = false;
+        queryAllEncryptionRecipients = true;
+        result.statusFlags |=
+          lazy.EnigmailConstants.DECRYPTION_FAILED |
+          lazy.EnigmailConstants.NO_SECKEY;
+        break;
+      default:
+        useDecodedData = false;
+        processSignature = false;
+        console.debug(
+          "rnp_op_verify_execute returned unexpected: " + result.exitCode
+        );
+        break;
+    }
+
+    if (useDecodedData && alreadyDecrypted) {
+      result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_OKAY;
+    } else if (useDecodedData && !alreadyDecrypted) {
+      const prot_mode_str = new lazy.ctypes.char.ptr();
+      const prot_cipher_str = new lazy.ctypes.char.ptr();
+      const prot_is_valid = new lazy.ctypes.bool();
+
+      if (
+        RNPLib.rnp_op_verify_get_protection_info(
+          verify_op,
+          prot_mode_str.address(),
+          prot_cipher_str.address(),
+          prot_is_valid.address()
+        )
+      ) {
+        throw new Error("rnp_op_verify_get_protection_info failed");
+      }
+      const mode = prot_mode_str.readString();
+      const cipher = prot_cipher_str.readString();
+      const validIntegrityProtection = prot_is_valid.value;
+
+      if (mode != "none") {
+        if (!validIntegrityProtection) {
+          useDecodedData = false;
+          result.statusFlags |=
+            lazy.EnigmailConstants.MISSING_MDC |
+            lazy.EnigmailConstants.DECRYPTION_FAILED;
+        } else if (mode == "null" || this.policyForbidsAlg(cipher)) {
+          // don't indicate decryption, because a non-protecting or insecure cipher was used
+          result.statusFlags |= lazy.EnigmailConstants.UNKNOWN_ALGO;
+        } else {
+          queryAllEncryptionRecipients = true;
+
+          const recip_handle = new RNPLib.rnp_recipient_handle_t();
+          let rv = RNPLib.rnp_op_verify_get_used_recipient(
             verify_op,
-            prot_mode_str.address(),
-            prot_cipher_str.address(),
-            prot_is_valid.address()
-          )
-        ) {
-          throw new Error("rnp_op_verify_get_protection_info failed");
-        }
-        const mode = prot_mode_str.readString();
-        const cipher = prot_cipher_str.readString();
-        const validIntegrityProtection = prot_is_valid.value;
+            recip_handle.address()
+          );
+          if (rv) {
+            throw new Error("rnp_op_verify_get_used_recipient failed");
+          }
 
-        if (mode != "none") {
-          if (!validIntegrityProtection) {
-            useDecodedData = false;
-            result.statusFlags |=
-              lazy.EnigmailConstants.MISSING_MDC |
-              lazy.EnigmailConstants.DECRYPTION_FAILED;
-          } else if (mode == "null" || this.policyForbidsAlg(cipher)) {
-            // don't indicate decryption, because a non-protecting or insecure cipher was used
+          const c_alg = new lazy.ctypes.char.ptr();
+          rv = RNPLib.rnp_recipient_get_alg(recip_handle, c_alg.address());
+          if (rv) {
+            throw new Error("rnp_recipient_get_alg failed");
+          }
+
+          if (this.policyForbidsAlg(c_alg.readString())) {
             result.statusFlags |= lazy.EnigmailConstants.UNKNOWN_ALGO;
           } else {
-            queryAllEncryptionRecipients = true;
-
-            const recip_handle = new RNPLib.rnp_recipient_handle_t();
-            let rv = RNPLib.rnp_op_verify_get_used_recipient(
-              verify_op,
-              recip_handle.address()
+            this.getKeyIdsFromRecipHandle(
+              recip_handle,
+              result.encToDetails.myRecipKey
             );
-            if (rv) {
-              throw new Error("rnp_op_verify_get_used_recipient failed");
-            }
-
-            const c_alg = new lazy.ctypes.char.ptr();
-            rv = RNPLib.rnp_recipient_get_alg(recip_handle, c_alg.address());
-            if (rv) {
-              throw new Error("rnp_recipient_get_alg failed");
-            }
-
-            if (this.policyForbidsAlg(c_alg.readString())) {
-              result.statusFlags |= lazy.EnigmailConstants.UNKNOWN_ALGO;
-            } else {
-              this.getKeyIdsFromRecipHandle(
-                recip_handle,
-                result.encToDetails.myRecipKey
-              );
-              result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_OKAY;
-            }
+            result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_OKAY;
           }
         }
       }
+    }
 
-      if (queryAllEncryptionRecipients) {
-        const all_recip_count = new lazy.ctypes.size_t();
-        if (
-          RNPLib.rnp_op_verify_get_recipient_count(
-            verify_op,
-            all_recip_count.address()
-          )
-        ) {
-          throw new Error("rnp_op_verify_get_recipient_count failed");
-        }
-        if (all_recip_count.value > 1) {
-          for (let recip_i = 0; recip_i < all_recip_count.value; recip_i++) {
-            const other_recip_handle = new RNPLib.rnp_recipient_handle_t();
-            if (
-              RNPLib.rnp_op_verify_get_recipient_at(
-                verify_op,
-                recip_i,
-                other_recip_handle.address()
-              )
-            ) {
-              throw new Error("rnp_op_verify_get_recipient_at failed");
-            }
-            const encTo = {};
-            this.getKeyIdsFromRecipHandle(other_recip_handle, encTo);
-            result.encToDetails.allRecipKeys.push(encTo);
+    if (queryAllEncryptionRecipients) {
+      const all_recip_count = new lazy.ctypes.size_t();
+      if (
+        RNPLib.rnp_op_verify_get_recipient_count(
+          verify_op,
+          all_recip_count.address()
+        )
+      ) {
+        throw new Error("rnp_op_verify_get_recipient_count failed");
+      }
+      if (all_recip_count.value > 1) {
+        for (let recip_i = 0; recip_i < all_recip_count.value; recip_i++) {
+          const other_recip_handle = new RNPLib.rnp_recipient_handle_t();
+          if (
+            RNPLib.rnp_op_verify_get_recipient_at(
+              verify_op,
+              recip_i,
+              other_recip_handle.address()
+            )
+          ) {
+            throw new Error("rnp_op_verify_get_recipient_at failed");
           }
+          const encTo = {};
+          this.getKeyIdsFromRecipHandle(other_recip_handle, encTo);
+          result.encToDetails.allRecipKeys.push(encTo);
         }
       }
+    }
 
-      if (useDecodedData) {
-        const result_buf = new lazy.ctypes.uint8_t.ptr();
-        const result_len = new lazy.ctypes.size_t();
-        const rv = RNPLib.rnp_output_memory_get_buf(
-          output_to_memory,
-          result_buf.address(),
-          result_len.address(),
-          false
+    if (useDecodedData) {
+      const result_buf = new lazy.ctypes.uint8_t.ptr();
+      const result_len = new lazy.ctypes.size_t();
+      const rv = RNPLib.rnp_output_memory_get_buf(
+        output_to_memory,
+        result_buf.address(),
+        result_len.address(),
+        false
+      );
+
+      // result_len is of type UInt64, I don't know of a better way
+      // to convert it to an integer.
+      const b_len = parseInt(result_len.value.toString());
+
+      if (!rv) {
+        // type casting the pointer type to an array type allows us to
+        // access the elements by index.
+        const uint8_array = lazy.ctypes.cast(
+          result_buf,
+          lazy.ctypes.uint8_t.array(result_len.value).ptr
+        ).contents;
+
+        let str = "";
+        for (let i = 0; i < b_len; i++) {
+          str += String.fromCharCode(uint8_array[i]);
+        }
+
+        result.decryptedData = str;
+      }
+
+      if (processSignature) {
+        // ignore "no signature" result, that's ok
+        await this.getVerifyDetails(
+          RNPLib.ffi,
+          options.fromAddr,
+          options.msgDate,
+          verify_op,
+          result
         );
 
-        // result_len is of type UInt64, I don't know of a better way
-        // to convert it to an integer.
-        const b_len = parseInt(result_len.value.toString());
-
-        if (!rv) {
-          // type casting the pointer type to an array type allows us to
-          // access the elements by index.
-          const uint8_array = lazy.ctypes.cast(
-            result_buf,
-            lazy.ctypes.uint8_t.array(result_len.value).ptr
-          ).contents;
-
-          let str = "";
-          for (let i = 0; i < b_len; i++) {
-            str += String.fromCharCode(uint8_array[i]);
-          }
-
-          result.decryptedData = str;
-        }
-
-        if (processSignature) {
-          // ignore "no signature" result, that's ok
-          await this.getVerifyDetails(
-            RNPLib.ffi,
-            options.fromAddr,
-            options.msgDate,
-            verify_op,
-            result
-          );
-
-          if (
-            (result.statusFlags &
-              (lazy.EnigmailConstants.GOOD_SIGNATURE |
-                lazy.EnigmailConstants.UNCERTAIN_SIGNATURE |
-                lazy.EnigmailConstants.EXPIRED_SIGNATURE |
-                lazy.EnigmailConstants.BAD_SIGNATURE)) !=
-            0
-          ) {
-            // A decision was already made.
-            stillUndecidedIfSignatureIsBad = false;
-          }
+        if (
+          (result.statusFlags &
+            (lazy.EnigmailConstants.GOOD_SIGNATURE |
+              lazy.EnigmailConstants.UNCERTAIN_SIGNATURE |
+              lazy.EnigmailConstants.EXPIRED_SIGNATURE |
+              lazy.EnigmailConstants.BAD_SIGNATURE)) !=
+          0
+        ) {
+          // A decision was already made.
+          stillUndecidedIfSignatureIsBad = false;
         }
       }
-
-      if (stillUndecidedIfSignatureIsBad) {
-        // We didn't find more details above, so conclude it's bad.
-        result.statusFlags |= lazy.EnigmailConstants.BAD_SIGNATURE;
-      }
-
-      RNPLib.rnp_input_destroy(input_from_memory);
-      RNPLib.rnp_output_destroy(output_to_memory);
-      RNPLib.rnp_op_verify_destroy(verify_op);
-    } finally {
-      decryptKey.release();
-      RNPLib.rnp_input_destroy(dummy_input_from_memory);
     }
+
+    if (stillUndecidedIfSignatureIsBad) {
+      // We didn't find more details above, so conclude it's bad.
+      result.statusFlags |= lazy.EnigmailConstants.BAD_SIGNATURE;
+    }
+
+    RNPLib.rnp_input_destroy(input_from_memory);
+    RNPLib.rnp_output_destroy(output_to_memory);
+    RNPLib.rnp_op_verify_destroy(verify_op);
 
     if (
       rnpCannotDecrypt &&
