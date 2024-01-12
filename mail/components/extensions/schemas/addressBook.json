@@ -384,7 +384,7 @@
       {
         "id": "ContactProperties",
         "type": "object",
-        "description": "A set of individual properties for a particular contact, and its vCard string. Further information can be found in :ref:`howto_contacts`.",
+        "description": "A set of individual properties for a particular contact, and its vCard string. Further information can be found in :doc:`examples/vcard`.",
         "patternProperties": {
           "^\\w+$": {
             "choices": [

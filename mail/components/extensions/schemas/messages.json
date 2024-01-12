@@ -128,7 +128,7 @@
       {
         "id": "MessageList",
         "type": "object",
-        "description": "See :doc:`how-to/messageLists` for more information.",
+        "description": "See :doc:`examples/messageLists` for more information.",
         "properties": {
           "id": {
             "type": "string",
@@ -394,7 +394,7 @@
       {
         "name": "continueList",
         "type": "function",
-        "description": "Returns the next chunk of messages in a list. See :doc:`how-to/messageLists` for more information.",
+        "description": "Returns the next chunk of messages in a list. See :doc:`examples/messageLists` for more information.",
         "async": "callback",
         "parameters": [
           {

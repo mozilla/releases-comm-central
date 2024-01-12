@@ -28,7 +28,7 @@
             "properties": {
               "id": {
                 "type": "string",
-                "description": "The ID of a contact or mailing list from the :doc:`contacts` and :doc:`mailingLists` APIs."
+                "description": "The ID of a contact or mailing list from the :doc:`contacts` and :doc:`mailingLists`."
               },
               "type": {
                 "type": "string",
@@ -75,7 +75,7 @@
         "properties": {
           "identityId": {
             "type": "string",
-            "description": "The ID of an identity from the :doc:`accounts` API. The settings from the identity will be used in the composed message. If ``replyTo`` is also specified, the ``replyTo`` property of the identity is overridden. The permission <permission>accountsRead</permission> is required to include the ``identityId``.",
+            "description": "The ID of an identity from the :doc:`accounts`. The settings from the identity will be used in the composed message. If ``replyTo`` is also specified, the ``replyTo`` property of the identity is overridden. The permission <permission>accountsRead</permission> is required to include the ``identityId``.",
             "optional": true
           },
           "from": {

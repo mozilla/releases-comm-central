@@ -51,7 +51,7 @@
         "properties": {
           "stylesheet": {
             "optional": true,
-            "description": "URL to a stylesheet introducing additional CSS variables, extending the theme-able areas of Thunderbird. The `theme_experiment add-on in our example repository <https://github.com/thunderbird/sample-extensions/tree/master/theme_experiment>`__ is using the stylesheet shown below, to add the <value>--chat-button-color</value> CSS color variable: <literalinclude>includes/theme/theme_experiment_style.css<lang>CSS</lang></literalinclude>The following <em>manifest.json</em> file maps the </value>--chat-button-color</value> CSS color variable to the theme color key <value>exp_chat_button</value> and uses it to set a color for the chat button: <literalinclude>includes/theme/theme_experiment_manifest.json<lang>JSON</lang></literalinclude>",
+            "description": "URL to a stylesheet introducing additional CSS variables, extending the theme-able areas of Thunderbird. The `theme_experiment add-on in our example repository <https://github.com/thunderbird/sample-extensions/tree/master/manifest_v2/theme_experiment>`__ is using the stylesheet shown below, to add the <value>--chat-button-color</value> CSS color variable: <literalinclude>includes/theme/theme_experiment_style.css<lang>CSS</lang></literalinclude>The following <em>manifest.json</em> file maps the </value>--chat-button-color</value> CSS color variable to the theme color key <value>exp_chat_button</value> and uses it to set a color for the chat button: <literalinclude>includes/theme/theme_experiment_manifest.json<lang>JSON</lang></literalinclude>",
             "$ref": "ExtensionURL"
           },
           "images": {
