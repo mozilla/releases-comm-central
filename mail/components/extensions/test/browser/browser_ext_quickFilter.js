@@ -118,7 +118,7 @@ add_task(async () => {
   extension.onMessage("checkVisible", async (...expected) => {
     const actual = [];
     const dbView = about3Pane.gDBView;
-    for (let i = 0; i < dbView.numMsgsInView; i++) {
+    for (let i = 0; i < dbView.rowCount; i++) {
       actual.push(messages.indexOf(dbView.getMsgHdrAt(i)));
     }
 

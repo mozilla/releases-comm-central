@@ -419,7 +419,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
 
         async getListedMessages(tabId) {
           const addListedMessages = async (dbView, messageList) => {
-            for (let i = 0; i < dbView.numMsgsInView; i++) {
+            for (let i = 0; i < dbView.rowCount; i++) {
               await messageList.addMessage(dbView.getMsgHdrAt(i));
             }
             messageList.done();

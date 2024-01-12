@@ -19,36 +19,8 @@ add_setup(async () => {
   messages.at(-5).markRead(true);
   messages.at(-7).markRead(true);
   messages.at(-9).markRead(true);
-  messages.at(-2).markFlagged(true);
-  messages.at(-7).markFlagged(true);
-  messages.at(-1).setStringProperty("keywords", "$label1");
-  messages.at(-2).setStringProperty("keywords", "$label2");
-  messages.at(-4).setStringProperty("keywords", "$label1 $label2");
-  messages.at(-6).setStringProperty("keywords", "$label2");
-  messages.at(-7).setStringProperty("keywords", "$label1");
-  messages.at(-8).setStringProperty("keywords", "$label2 $label3");
-  messages.at(-9).setStringProperty("keywords", "$label3");
-  messages.at(0).setStringProperty("keywords", "$label1 $label2 $label3");
-  messages.at(0).markHasAttachments(true);
-
-  // Add an author to the address book.
-
-  const author = messages.at(-8).author.replace(/["<>]/g, "").split(" ");
-  const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-    Ci.nsIAbCard
-  );
-  card.setProperty("FirstName", author[0]);
-  card.setProperty("LastName", author[1]);
-  card.setProperty("DisplayName", `${author[0]} ${author[1]}`);
-  card.setProperty("PrimaryEmail", author[2]);
-  const ab = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
-  const addedCard = ab.addCard(card);
 
   about3Pane.displayFolder(subFolders[0]);
-
-  registerCleanupFunction(() => {
-    ab.deleteCards([addedCard]);
-  });
 });
 
 add_task(async () => {
@@ -136,7 +108,7 @@ add_task(async () => {
   extension.onMessage("checkVisible", async expected => {
     const actual = [];
     const dbView = about3Pane.gDBView;
-    for (let i = 0; i < dbView.numMsgsInView; i++) {
+    for (let i = 0; i < dbView.rowCount; i++) {
       actual.push(messages.indexOf(dbView.getMsgHdrAt(i)));
     }
 
@@ -147,7 +119,7 @@ add_task(async () => {
   extension.onMessage("checkVisibleSubjects", async expected => {
     const actual = [];
     const dbView = about3Pane.gDBView;
-    for (let i = 0; i < dbView.numMsgsInView; i++) {
+    for (let i = 0; i < dbView.rowCount; i++) {
       actual.push(dbView.getMsgHdrAt(i).subject);
     }
 
