@@ -4293,6 +4293,13 @@ var threadPane = {
           }
           break;
         default:
+          if (gViewWrapper.showGroupedBySort) {
+            const savedIndex = threadTree.currentIndex;
+            threadTree.selectedIndices
+              .filter(i => gViewWrapper.isExpandedGroupedByHeaderAtIndex(i))
+              .forEach(i => threadTree.toggleSelectionAtIndex(i, false, false));
+            threadTree.currentIndex = savedIndex;
+          }
           messagePane.displayMessages(gDBView.getSelectedMsgHdrs());
           threadPaneHeader.updateSelectedCount();
           break;
@@ -4316,13 +4323,17 @@ var threadPane = {
    */
   _onDragStart(event) {
     const row = event.target.closest(`tr[is^="thread-"]`);
-    if (!row) {
+    if (!row || gViewWrapper.isExpandedGroupedByHeaderAtIndex(row.index)) {
       event.preventDefault();
       return;
     }
 
     let messageURIs = gDBView.getURIsForSelection();
     if (!threadTree.selectedIndices.includes(row.index)) {
+      if (gViewWrapper.isGroupedByHeaderAtIndex(row.index)) {
+        event.preventDefault();
+        return;
+      }
       messageURIs = [gDBView.getURIForViewIndex(row.index)];
     }
 

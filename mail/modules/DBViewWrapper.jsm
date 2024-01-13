@@ -2112,6 +2112,22 @@ DBViewWrapper.prototype = {
   },
 
   /**
+   * Check if the row at the given index is the header (dummy row) of an
+   * expanded group, or if the row is anything else..
+   *
+   * @param {integer} aViewIndex - The index of a selected row.
+   * @returns {boolean}
+   */
+  isExpandedGroupedByHeaderAtIndex(aViewIndex) {
+    const flags = this.dbView.getFlagsAt(aViewIndex);
+    return (
+      !(flags & Ci.nsMsgMessageFlags.Elided) &&
+      flags & MSG_VIEW_FLAG_DUMMY &&
+      this.dbView.isContainer(aViewIndex)
+    );
+  },
+
+  /**
    * @returns true if the row at the given index is a grouped view dummy header
    *     row, false if anything else.
    */
