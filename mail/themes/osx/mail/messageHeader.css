@@ -21,16 +21,6 @@
   min-height: 16px;
 }
 
-.button-focusable:focus-visible:not(:hover) {
-  outline-offset: -2px;
-}
-
-button.button-focusable:focus-visible:not(:hover) {
-  outline: none;
-  box-shadow: 0 0 0 3px -moz-mac-focusring;
-}
-
-
 /* Customization options */
 
 .message-header-buttons-only-icons .toolbarbutton-menu-dropmarker {

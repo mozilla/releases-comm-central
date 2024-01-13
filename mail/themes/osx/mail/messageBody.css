@@ -10,19 +10,22 @@ mailattachcount {
 
 /* ::::: message text, incl. quotes ::::: */
 
-.moz-text-plain pre {
-  margin: inherit;
-  font-family: inherit;
-}
+.moz-text-plain {
 
-.moz-text-plain[graphical-quote="false"] blockquote {
-  margin: inherit;
-  border-left: inherit;
-  padding-inline-start: inherit;
-}
+  & pre {
+    margin: inherit;
+    font-family: inherit;
+  }
 
-.moz-text-plain[graphical-quote="true"] blockquote {
-  margin: inherit;
-  border-width: 2px;
-  border-color: gray;
+  &[graphical-quote="false"] blockquote {
+    margin: inherit;
+    border-inline-start: inherit;
+    padding-inline-start: inherit;
+  }
+
+  &[graphical-quote="true"] blockquote {
+    margin: inherit;
+    border-width: 2px;
+    border-color: gray;
+  }
 }

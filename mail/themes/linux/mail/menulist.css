@@ -5,23 +5,26 @@
 @import url("chrome://messenger/skin/shared/menulist.css");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-menulist::part(text-input) {
-  padding: 2px 2px 3px;
-}
+menulist {
 
-menulist[is="menulist-editable"][editable="true"] {
-  padding-inline-end: 2.4em;
-}
+  &::part(text-input) {
+    padding: 2px 2px 3px;
+  }
 
-menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
-  margin-block: -2px;
-  margin-inline-end: -2.4em;
-}
+  &[is="menulist-editable"][editable="true"] {
+    padding-inline-end: 2.4em;
 
-menulist[is="menulist-editable"][editable="true"]::part(text-input) {
-  margin-inline-end: 6px;
-}
+    &::part(dropmarker) {
+      margin-block: -2px;
+      margin-inline-end: -2.4em;
+    }
 
-menulist[open="true"]::part(text-input) {
-  color: FieldText;
+    &::part(text-input) {
+      margin-inline-end: 6px;
+    }
+  }
+
+  &[open="true"]::part(text-input) {
+    color: FieldText;
+  }
 }

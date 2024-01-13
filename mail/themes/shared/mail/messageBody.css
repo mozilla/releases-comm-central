@@ -45,30 +45,33 @@ mailattachcount {
   margin: 0;
 }
 
-.moz-text-plain pre {
-  margin: 0;
-  font-family: inherit;
-}
+.moz-text-plain {
 
-.moz-text-plain[wrap="true"] {
-  white-space: pre-wrap;
-}
+  & pre {
+    margin: 0;
+    font-family: inherit;
+  }
 
-.moz-text-plain[wrap="false"] {
-  white-space: pre;
-}
+  &[wrap="true"] {
+    white-space: pre-wrap;
+  }
 
-.moz-text-plain[wrap="flow"] .moz-txt-sig {
-  white-space: pre-wrap;
-}
+  &[wrap="false"] {
+    white-space: pre;
+  }
 
-.moz-text-plain[graphical-quote="false"] blockquote {
-  border-style: none;
-  padding: 0;
-}
+  &[wrap="flow"] .moz-txt-sig {
+    white-space: pre-wrap;
+  }
 
-.moz-text-plain[graphical-quote="true"] .moz-txt-citetags {
-  display: none;
+  &[graphical-quote="false"] blockquote {
+    border-style: none;
+    padding: 0;
+  }
+
+  &[graphical-quote="true"] .moz-txt-citetags {
+    display: none;
+  }
 }
 
 .moz-txt-underscore {
@@ -127,18 +130,18 @@ img[overflowing][shrinktofit] {
   display: block;
   opacity: .7;
   cursor: pointer;
-}
 
-.moz-vcard-badge:hover {
-  opacity: .8;
-}
+  &:hover {
+    opacity: .8;
 
-.moz-vcard-badge:active {
-  opacity: 1;
-}
+    &:active {
+      opacity: 1;
+    }
+  }
 
-.moz-vcard-badge:focus {
-  outline: none;
+  &:focus {
+    outline: none;
+  }
 }
 
 /* Old style feeds, pre Tb3.0 */
@@ -156,12 +159,11 @@ img[overflowing][shrinktofit] {
 .moz-mime-attachment-header {
   border-style: none;
   border-top: 1px solid GrayText;
-  padding-block-start: 0.625em;
-  padding-block-end: 0.2em;
-}
+  padding-block: 0.625em 0.2em;
 
-.moz-mime-attachment-header.moz-print-only {
-  margin-top: 1em;
+  &.moz-print-only {
+    margin-top: 1em;
+  }
 }
 
 .moz-mime-attachment-header-name {
@@ -178,11 +180,11 @@ img[overflowing][shrinktofit] {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-}
 
-.moz-mime-attachment-table tr + tr > td {
-  border-top: 1px solid GrayText;
-  padding-top: 0.25em;
+  & tr + tr > td {
+    border-top: 1px solid GrayText;
+    padding-top: 0.25em;
+  }
 }
 
 .moz-mime-attachment-file {
@@ -192,7 +194,7 @@ img[overflowing][shrinktofit] {
 .moz-mime-attachment-size {
   vertical-align: top;
   width: 10ch;
-  text-align: right;
+  text-align: start;
 }
 
 .moz-mime-attachment-file,

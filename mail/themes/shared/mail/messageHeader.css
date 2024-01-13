@@ -17,35 +17,33 @@
 
   --recipient-multi-line-gap: 2px;
   --message-header-label-opacity: 0.7;
-}
 
-:root[uidensity="compact"] {
-  --recipient-avatar-size: 20px;
-  --recipient-avatar-placeholder-size: contain;
-  --recipient-avatar-margin-block-start: -2px;
-  --recipient-multi-line-gap: 0;
-}
+  &[uidensity="compact"] {
+    --recipient-avatar-size: 20px;
+    --recipient-avatar-placeholder-size: contain;
+    --recipient-avatar-margin-block-start: -2px;
+    --recipient-multi-line-gap: 0;
 
-:root[uidensity="touch"] {
-  --recipient-avatar-size: 32px;
-  --recipient-avatar-placeholder-size: 16px;
-  --recipient-multi-line-gap: 3px;
-}
+    & .message-header-show-big-avatar {
+      --recipient-avatar-size: 36px;
+    }
+  }
 
-:root .message-header-show-big-avatar {
-  --recipient-avatar-size: 40px;
-}
+  &[uidensity="touch"] {
+    --recipient-avatar-size: 32px;
+    --recipient-avatar-placeholder-size: 16px;
+    --recipient-multi-line-gap: 3px;
 
-:root[uidensity="compact"] .message-header-show-big-avatar {
-  --recipient-avatar-size: 36px;
-}
+    & .message-header-show-big-avatar {
+      --recipient-avatar-size: 44px;
+    }
+  }
 
-:root[uidensity="touch"] .message-header-show-big-avatar {
-  --recipient-avatar-size: 44px;
-}
+  & .message-header-show-big-avatar {
+    --recipient-avatar-size: 40px;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+  @media (prefers-color-scheme: dark) {
     --recipient-avatar-color: var(--color-gray-40);
     --recipient-avatar-background-color: var(--color-gray-60);
   }
@@ -70,10 +68,32 @@
 
 .message-header-container {
   padding: 3px;
+
+  @media (max-width: 768px) {
+    padding: 6px;
+  }
 }
 
-.message-header-row:not([hidden]) {
-  display: flex;
+.message-header-row {
+
+  &:not([hidden]) {
+    display: flex;
+  }
+
+  &.header-row-reverse {
+    flex-direction: row-reverse;
+  }
+
+  &.items-center {
+    /* Variation for those rows that include buttons. */
+    align-items: center;
+  }
+
+  @media (max-width: 768px) {
+    &.items-center {
+      align-items: baseline;
+    }
+  }
 }
 
 #headerSubjectSecurityContainer {
@@ -82,15 +102,13 @@
 
 .message-header-wrap {
   flex-wrap: wrap;
-}
 
-.message-header-row.header-row-reverse {
-  flex-direction: row-reverse;
-}
-
-.message-header-row.items-center {
-  /* Variation for those rows that include buttons. */
-  align-items: center;
+  @media (max-width: 768px) {
+    &:not([hidden]) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
 }
 
 .header-buttons-container {
@@ -98,10 +116,19 @@
   justify-content: end;
   flex-wrap: wrap;
   gap: 3px;
-}
 
-.message-header-buttons-only-icons .header-buttons-container {
-  gap: 5px;
+  .message-header-buttons-only-icons & {
+    gap: 5px;
+  }
+
+  & *:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
+  }
+
+  @media (max-width: 768px) {
+    align-self: end;
+  }
 }
 
 .header-row-grow:not([hidden]) {
@@ -112,10 +139,10 @@
 
 #mail-notification-top {
   border-bottom: 1px solid var(--splitter-color);
-}
 
-#mail-notification-top > .notificationbox-stack[notificationside="top"] {
-  background-color: var(--layout-background-1);
+  & > .notificationbox-stack[notificationside="top"] {
+    background-color: var(--layout-background-1);
+  }
 }
 
 /* ::::: msg header toolbars ::::: */
@@ -149,15 +176,19 @@ mail-tagfield[collapsed="true"] {
   padding-inline: 3px !important;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-}
 
-.message-header-view-button[is="toolbarbutton-menu-button"] {
-  padding: 0 !important;
-}
+  &[is="toolbarbutton-menu-button"] {
+    padding: 0 !important;
 
-.message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button {
-  flex-direction: row;
-  padding-inline: 3px !important;
+    & > .toolbarbutton-menubutton-button {
+      flex-direction: row;
+      padding-inline: 3px !important;
+    }
+  }
+
+  & .toolbarbutton-text {
+    padding-inline-start: 2px;
+  }
 }
 
 #messageHeader:not(.message-header-buttons-only-icons)
@@ -185,16 +216,15 @@ mail-tagfield[collapsed="true"] {
   border-color: var(--toolbarbutton-active-bordercolor);
 }
 
-.message-header-view-button .toolbarbutton-text {
-  padding-inline-start: 2px;
-}
+#msgHeaderView[shrink] {
 
-#msgHeaderView[shrink] .message-header-view-button .toolbarbutton-text {
-  display: none;
-}
+  & .message-header-view-button .toolbarbutton-text {
+    display: none;
+  }
 
-#msgHeaderView[shrink] .toolbarbutton-1 .toolbarbutton-menu-dropmarker {
-  margin-inline: 3px;
+  & .toolbarbutton-1 .toolbarbutton-menu-dropmarker {
+    margin-inline: 3px;
+  }
 }
 
 .hdrReplyToSenderButton,
@@ -226,11 +256,6 @@ mail-tagfield[collapsed="true"] {
 
 .hdrTrashButton {
   list-style-image: var(--icon-trash);
-}
-
-.header-buttons-container *:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-outline-offset);
 }
 
 #attachmentSaveAllSingle,
@@ -283,30 +308,29 @@ mail-tagfield[collapsed="true"] {
   -moz-context-properties: stroke, fill-opacity;
   stroke: currentColor;
   fill-opacity: 1;
-}
 
-#attachmentToggle:not([checked="true"]) > .button-box > .button-icon {
-  transform: rotate(-90deg);
-}
-
-#attachmentToggle:not([checked="true"]):-moz-locale-dir(rtl) >
-  .button-box > .button-icon {
-  transform: rotate(90deg);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  #attachmentToggle > .button-box > .button-icon {
-    transition: transform 200ms ease;
+  &:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: -2px;
   }
-}
 
-#attachmentToggle > .button-box > .button-text {
-  display: none;
-}
+  &:not([checked="true"]) > .button-box > .button-icon {
+    transform: rotate(-90deg);
 
-#attachmentToggle:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: -2px;
+    &:-moz-locale-dir(rtl) {
+      transform: rotate(90deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    & > .button-box > .button-icon {
+      transition: transform 200ms ease;
+    }
+  }
+
+  & > .button-box > .button-text {
+    display: none;
+  }
 }
 
 #attachmentInfo {
@@ -314,16 +338,29 @@ mail-tagfield[collapsed="true"] {
   flex-shrink: 1;
 }
 
-#attachmentName:hover,
-#attachmentName[selected="true"] {
-  cursor: pointer;
-  color: var(--selected-item-text-color);
-  background-color: var(--selected-item-color);
+#attachmentName {
+  -moz-user-focus: normal;
+  margin: 0;
+  margin-inline-end: -3px;
+  padding: 2px 3px;
+  border-radius: 2px;
+
+  &:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: -1px;
+  }
+
+  &:is(:hover, [selected="true"]) {
+    cursor: pointer;
+    color: var(--selected-item-text-color);
+    background-color: var(--selected-item-color);
+  }
 }
 
 #attachmentSize {
   margin: 0;
   margin-inline-start: 8px;
+  opacity: var(--message-header-label-opacity);
 }
 
 #attachmentIcon {
@@ -339,19 +376,6 @@ mail-tagfield[collapsed="true"] {
   margin-inline: 2px 1px;
 }
 
-#attachmentName {
-  -moz-user-focus: normal;
-  margin: 0;
-  margin-inline-end: -3px;
-  padding: 2px 3px;
-  border-radius: 2px;
-}
-
-#attachmentName:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: -1px;
-}
-
 #attachment-splitter {
   appearance: none;
   background-color: transparent;
@@ -364,19 +388,15 @@ mail-tagfield[collapsed="true"] {
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
-  transition: border-width .3s ease-in;
-}
+  transition: border-width .3s ease-in, border-color .3s;
 
-#attachment-splitter:not([state="collapsed"]) {
-  border-bottom: 1px solid transparent;
-}
+  &:not([state="collapsed"]) {
+    border-bottom: 1px solid transparent;
+  }
 
-#attachment-splitter {
-  transition: border-color .3s;
-}
-
-#attachment-splitter[state="collapsed"]:hover {
-  border-bottom: 4px solid var(--selected-item-color);
+  &[state="collapsed"]:hover {
+    border-bottom: 4px solid var(--selected-item-color);
+  }
 }
 
 /* ::::: msg header captions ::::: */
@@ -388,15 +408,17 @@ mail-tagfield[collapsed="true"] {
   text-align: end;
   flex-shrink: 0;
   align-self: baseline;
-}
-
-.message-header-label.header-pill-label {
-  padding-block-start: var(--message-header-field-offset);
-}
-
-.message-header-label,
-#attachmentSize {
   opacity: var(--message-header-label-opacity);
+
+  @media (max-width: 768px) {
+    min-width: 0 !important;
+    margin-inline-start: 0;
+    text-align: start;
+  }
+
+  &.header-pill-label {
+    padding-block-start: var(--message-header-field-offset);
+  }
 }
 
 .headerValue {
@@ -424,10 +446,10 @@ mail-tagfield[collapsed="true"] {
   margin-inline-start: 0;
   border-radius: var(--button-border-radius);
   border: 1px solid transparent;
-}
 
-.tag:not([style]) {
-  border-color: color-mix(in srgb, currentColor 50%, transparent);
+  &:not([style]) {
+    border-color: color-mix(in srgb, currentColor 50%, transparent);
+  }
 }
 
 .message-header-datetime {
@@ -436,11 +458,11 @@ mail-tagfield[collapsed="true"] {
   cursor: text;
   margin: 0 6px;
   white-space: nowrap;
-}
 
-#expandedtoRow .message-header-datetime {
-  align-self: flex-start;
-  margin-block: 2px;
+  #expandedtoRow & {
+    align-self: flex-start;
+    margin-block: 2px;
+  }
 }
 
 /* ::::: msg header email addresses ::::: */
@@ -449,15 +471,14 @@ button.email-action-button {
   margin: 0;
   padding: 0;
   border-radius: 0;
-}
 
-button.email-action-button:hover,
-button.email-action-button:hover:active {
-  background-color: transparent;
-}
+  &:is(:hover, :hover:active) {
+    background-color: transparent;
+  }
 
-button.email-action-button:focus-visible {
-  outline: var(--focus-outline);
+  &:focus-visible {
+    outline: var(--focus-outline);
+  }
 }
 
 .header-row {
@@ -487,20 +508,23 @@ button.email-action-button:focus-visible {
   border-top: 1px solid var(--splitter-color); /* The same color as the splitters */
 }
 
-:root[lwt-tree] #singleMessage,
-:root[lwt-tree] #attachmentView {
-  background-color: var(--toolbar-bgcolor) !important;
-  background-image: none !important;
-  color: var(--lwt-text-color);
-}
+:root[lwt-tree] {
 
-:root[lwt-tree] .headerValue {
-  color: inherit;
-}
+  & #singleMessage,
+  & #attachmentView {
+    background-color: var(--toolbar-bgcolor) !important;
+    background-image: none !important;
+    color: var(--lwt-text-color);
+  }
 
-:root[lwt-tree] #attachmentBar {
-  background-color: hsla(0, 0%, 50%, .15);
-  color: inherit;
+  & .headerValue {
+    color: inherit;
+  }
+
+  & #attachmentBar {
+    background-color: hsla(0, 0%, 50%, 0.15);
+    color: inherit;
+  }
 }
 
 /* OpenPGP and S/MIME encryption and signature status icons */
@@ -519,25 +543,25 @@ button.email-action-button:focus-visible {
   margin-inline-end: 3px;
   fill: currentColor;
   background-color: transparent;
-}
 
-.crypto-button[hidden] {
-  display: none;
-}
+  &[hidden] {
+    display: none;
+  }
 
-.crypto-button > * {
-  vertical-align: middle;
+  & > * {
+    vertical-align: middle;
+  }
 }
 
 /* Encryption security pane */
 #messageSecurityPanel {
   --panel-width: 37rem;
-}
 
-#messageSecurityPanel .security-panel-body {
-  overflow-x: hidden;
-  flex: 1;
-  padding-inline: 6px;
+  & .security-panel-body {
+    overflow-x: hidden;
+    flex: 1;
+    padding-inline: 6px;
+  }
 }
 
 html|header.message-security-header {
@@ -546,20 +570,20 @@ html|header.message-security-header {
   text-align: center;
   align-items: center;
   margin-bottom: 6px;
-}
 
-html|header.message-security-header html|h3 {
-  flex: 1;
-  margin-block: 0;
+  & html|h3 {
+    flex: 1;
+    margin-block: 0;
+  }
 }
 
 .message-security-body {
   overflow-y: auto;
   flex: 1;
-}
 
-.message-security-body > description {
-  margin-bottom: 18px;
+  & > description {
+    margin-bottom: 18px;
+  }
 }
 
 .message-security-label {
@@ -572,6 +596,10 @@ html|header.message-security-header html|h3 {
   margin-bottom: 6px;
   fill: currentColor;
   -moz-context-properties: fill;
+
+  &:-moz-locale-dir(rtl) {
+    background-position-x: right;
+  }
 }
 
 .message-security-label.none,
@@ -580,43 +608,48 @@ html|header.message-security-header html|h3 {
   padding-inline-start: 0;
 }
 
-#signatureLabel.ok {
-  background-image: url("chrome://messenger/skin/icons/message-signed-ok.svg");
+#signatureLabel {
+
+  &.ok {
+    background-image: url("chrome://messenger/skin/icons/message-signed-ok.svg");
+  }
+
+  &.verified {
+    background-image: url("chrome://messenger/skin/icons/message-signed-verified.svg");
+  }
+
+  &.unverified {
+    background-image: url("chrome://messenger/skin/icons/message-signed-unverified.svg");
+  }
+
+  &.unknown {
+    background-image: url("chrome://messenger/skin/icons/message-signed-unknown.svg");
+  }
+
+  &:is(.mismatch, .notok) {
+    background-image: url("chrome://messenger/skin/icons/message-signed-mismatch.svg");
+  }
 }
 
-#signatureLabel.verified {
-  background-image: url("chrome://messenger/skin/icons/message-signed-verified.svg");
-}
+#encryptionLabel {
 
-#signatureLabel.unverified {
-  background-image: url("chrome://messenger/skin/icons/message-signed-unverified.svg");
-}
+  &.ok {
+    background-image: url("chrome://messenger/skin/icons/message-encrypted-ok.svg");
+  }
 
-#signatureLabel.unknown {
-  background-image: url("chrome://messenger/skin/icons/message-signed-unknown.svg");
-}
-
-#signatureLabel.mismatch,
-#signatureLabel.notok {
-  background-image: url("chrome://messenger/skin/icons/message-signed-mismatch.svg");
-}
-
-#encryptionLabel.ok {
-  background-image: url("chrome://messenger/skin/icons/message-encrypted-ok.svg");
-}
-
-#encryptionLabel.notok {
-  background-image: url("chrome://messenger/skin/icons/message-encrypted-notok.svg");
+  &.notok {
+    background-image: url("chrome://messenger/skin/icons/message-encrypted-notok.svg");
+  }
 }
 
 #openpgpImportButton {
   list-style-image: url("chrome://messenger/skin/icons/encryption-key.svg");
   -moz-context-properties: fill;
   fill: currentColor;
-}
 
-#openpgpImportButton .button-icon {
-  margin-inline-end: 2px;
+  & .button-icon {
+    margin-inline-end: 2px;
+  }
 }
 
 .message-security-container {
@@ -663,15 +696,15 @@ html|header.message-security-header html|h3 {
 
 .button-focusable {
   -moz-user-focus: normal;
-}
 
-.button-focusable:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-outline-offset);
-}
+  &:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
+  }
 
-.button-focusable:focus:not(:focus-visible) {
-  outline: none;
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
 }
 
 button.email-action-flagged {
@@ -682,92 +715,64 @@ button.email-action-flagged {
   stroke: color-mix(in srgb, currentColor 30%, transparent);
   align-self: center;
   border-radius: var(--button-border-radius);
-}
 
-button.email-action-flagged.flagged {
-  fill: var(--color-orange-30) !important;
-  stroke: var(--color-orange-60);
-}
-
-.email-action-flagged:not(.flagged):hover {
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-}
-
-/* Responsive style */
-@media (max-width: 768px) {
-  .message-header-row.items-center {
-    align-items: baseline;
+  &.flagged {
+    fill: var(--color-orange-30) !important;
+    stroke: var(--color-orange-60);
   }
 
-  .message-header-container {
-    padding: 6px;
-  }
-
-  .message-header-wrap:not([hidden]) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .header-buttons-container {
-    align-self: end;
-  }
-
-  .message-header-label {
-    min-width: 0 !important;
-    margin-inline-start: 0;
-    text-align: start;
+  &:not(.flagged):hover {
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
   }
 }
-
 
 /* Customization options */
 
 .message-header-hide-label-column {
   padding-inline-start: 9px;
+
+  & .message-header-label {
+    display: none;
+  }
+
+  & :is(.multi-recipient-row:not(#expandedfromBox),
+        .multi-message-ids-row,
+        .header-newsgroups-row) {
+    display: flex;
+
+    & ol {
+      flex: 1 1 auto;
+    }
+  }
+
+  & .row-heading:not(#subjectHeading, #fromHeading, #tagsHeading) {
+    display: flow-root;
+    margin-inline-end: 1ch;
+    font-weight: 600;
+    align-self: baseline;
+    word-break: keep-all;
+    white-space: nowrap;
+    opacity: var(--message-header-label-opacity);
+  }
+
+  & .multi-recipient-row .row-heading:not(#fromHeading),
+  & .row-heading:is(#newsgroupsHeading, #followup-toHeading, #message-idHeading, #referencesHeading, #in-reply-toHeading) {
+    padding-block: var(--message-header-field-offset);
+  }
 }
 
-.message-header-hide-label-column .message-header-label {
-  display: none;
-}
+.message-header-large-subject {
 
-.message-header-hide-label-column .multi-recipient-row:not(#expandedfromBox),
-.message-header-hide-label-column .multi-message-ids-row,
-.message-header-hide-label-column .header-newsgroups-row {
-  display: flex;
-}
+  & #expandedsubjectBox {
+    font-weight: 500;
+    font-size: 1.35em;
+    line-height: 1.35em;
+  }
 
-.message-header-hide-label-column .multi-recipient-row:not(#expandedfromBox) ol,
-.message-header-hide-label-column .multi-message-ids-row ol,
-.message-header-hide-label-column .header-newsgroups-row ol {
-  flex: 1 1 auto;
-}
-
-.message-header-hide-label-column .row-heading:not(#subjectHeading, #fromHeading, #tagsHeading) {
-  display: flow-root;
-  margin-inline-end: 1ch;
-  font-weight: 600;
-  align-self: baseline;
-  word-break: keep-all;
-  white-space: nowrap;
-  opacity: var(--message-header-label-opacity);
-}
-
-.message-header-hide-label-column .multi-recipient-row
-  .row-heading:not(#fromHeading),
-.message-header-hide-label-column
-  .row-heading:is(#newsgroupsHeading, #followup-toHeading, #message-idHeading, #referencesHeading, #in-reply-toHeading) {
-  padding-block: var(--message-header-field-offset);
-}
-
-.message-header-large-subject #expandedsubjectBox {
-  font-weight: 500;
-  font-size: 1.35em;
-  line-height: 1.35em;
-}
-
-.message-header-large-subject #expandedsubjectLabel {
-  margin-top: 5px;
+  & #expandedsubjectLabel {
+    margin-top: 5px;
+  }
 }
 
 .message-header-buttons-only-icons .toolbarbutton-text,
@@ -810,6 +815,10 @@ button.email-action-flagged.flagged {
 
 .header-recipient {
   white-space: nowrap;
+
+  & img {
+    pointer-events: none;
+  }
 }
 
 .header-recipient:hover,
@@ -817,10 +826,6 @@ button.email-action-flagged.flagged {
   color: var(--selected-item-text-color);
   background-color: var(--selected-item-color);
   cursor: pointer;
-}
-
-.header-recipient img {
-  pointer-events: none;
 }
 
 .header-recipient span,
@@ -858,35 +863,35 @@ button.email-action-flagged.flagged {
   cursor: pointer;
   vertical-align: middle;
   background-color: transparent;
-}
 
-.recipient-address-book-button:not([disabled]):hover {
-  background-color: transparent;
-}
+  &:not([disabled]):hover {
+    background-color: transparent;
+  }
 
-.recipient-address-book-button img {
-  display: block;
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-}
+  & img {
+    display: block;
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+  }
 
-.recipient-address-book-button.in-address-book img {
-  fill: color-mix(in srgb, var(--toolbarbutton-icon-fill-attention) 20%, transparent);
-  stroke: var(--toolbarbutton-icon-fill-attention);
-}
+  &.in-address-book img {
+    fill: color-mix(in srgb, var(--toolbarbutton-icon-fill-attention) 20%, transparent);
+    stroke: var(--toolbarbutton-icon-fill-attention);
+  }
 
-.header-recipient:hover .recipient-address-book-button.in-address-book img {
-  fill: var(--selected-item-text-color);
-  stroke: var(--selected-item-text-color);
-}
+  .header-recipient:hover &.in-address-book img {
+    fill: var(--selected-item-text-color);
+    stroke: var(--selected-item-text-color);
+  }
 
-.header-recipient:hover .recipient-address-book-button img {
-  opacity: var(--message-header-label-opacity);
-}
+  .header-recipient:hover & img {
+    opacity: var(--message-header-label-opacity);
+  }
 
-.header-recipient:hover .recipient-address-book-button:not([disabled]):hover img {
-  opacity: 1;
+  .header-recipient:hover &:not([disabled]):hover img {
+    opacity: 1;
+  }
 }
 
 .show-more-recipients,
@@ -899,6 +904,16 @@ button.email-action-flagged.flagged {
   font-weight: 600;
   background-color: var(--selected-item-color);
   color: var(--selected-item-text-color);
+
+  &:is(:not([disabled])):hover {
+    background-color: var(--selected-item-text-color);
+    color: var(--selected-item-color);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
+  }
 }
 
 .show-more-recipients {
@@ -910,18 +925,6 @@ button.email-action-flagged.flagged {
 .show-more-ids {
   padding: 2px 6px;
   font-size: 0.8rem;
-}
-
-button.show-more-recipients:hover,
-button.show-more-ids:hover {
-  background-color: var(--selected-item-text-color);
-  color: var(--selected-item-color);
-}
-
-.show-more-recipients:focus-visible,
-.show-more-ids:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-outline-offset);
 }
 
 /* Avatar */
@@ -939,21 +942,21 @@ button.show-more-ids:hover {
   background-color: var(--recipient-avatar-background-color);
   align-items: center;
   justify-content: center;
-}
 
-.recipient-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+  & img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-.message-header-show-recipient-avatar #expandedfromBox .recipient-avatar {
-  display: inline-flex;
-}
+  .message-header-show-recipient-avatar #expandedfromBox & {
+    display: inline-flex;
+  }
 
-.message-header-show-recipient-avatar .recipient-avatar.has-avatar,
-.message-header-show-sender-full-address .recipient-avatar {
-  vertical-align: middle;
+  .message-header-show-recipient-avatar &.has-avatar,
+  .message-header-show-sender-full-address & {
+    vertical-align: middle;
+  }
 }
 
 .message-header-show-sender-full-address #expandedfromLabel,
@@ -983,11 +986,13 @@ button.show-more-ids:hover {
   opacity: 0.9;
 }
 
+.message-header-show-sender-full-address #expandedfromBox {
 
-.message-header-show-sender-full-address #expandedfromBox .recipient-multi-line {
-  display: inline-flex;
-}
+  & .recipient-multi-line {
+    display: inline-flex;
+  }
 
-.message-header-show-sender-full-address #expandedfromBox .recipient-single-line {
-  display: none;
+  & .recipient-single-line {
+    display: none;
+  }
 }

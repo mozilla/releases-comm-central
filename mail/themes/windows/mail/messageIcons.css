@@ -20,10 +20,18 @@
 
 #subjectCol {
   padding-inline-start: 20px;
-}
 
-#subjectCol[primary="true"] {
-  padding-inline-start: 40px;
+  @media (prefers-contrast) {
+    padding-inline-start: 23px;
+  }
+
+  &[primary="true"] {
+    padding-inline-start: 40px;
+
+    @media (prefers-contrast) {
+      padding-inline-start: 43px;
+    }
+  }
 }
 
 /* ..... attachment column ..... */
@@ -36,14 +44,4 @@ treechildren::-moz-tree-image(attachmentCol) {
 
 treechildren::-moz-tree-image(junkStatusCol) {
   margin-inline-start: 1px;
-}
-
-@media (prefers-contrast) {
-  #subjectCol {
-    padding-inline-start: 23px;
-  }
-
-  #subjectCol[primary="true"] {
-    padding-inline-start: 43px;
-  }
 }

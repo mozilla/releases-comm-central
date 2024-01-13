@@ -6,24 +6,24 @@
 
 menulist[is="menulist-editable"][editable="true"] {
   margin: 4px 2px;
-}
 
-menulist[is="menulist-editable"][editable="true"]:focus-within {
-  outline: var(--focus-outline);
-}
+  &:focus-within {
+    outline: var(--focus-outline);
+  }
 
-menulist[is="menulist-editable"][editable="true"] > menupopup,
-menulist[is="menulist-editable"][editable="true"] > menupopup > menuitem,
-menulist[is="menulist-editable"][editable="true"] > menupopup > menucaption {
-  appearance: none;
-}
+  & > menupopup,
+  & > menupopup > menuitem,
+  & > menupopup > menucaption {
+    appearance: none;
+  }
 
-menulist[is="menulist-editable"][editable="true"] > menupopup > :is(menuitem,menucaption) > .menu-iconic-left {
-  display: none;
-}
+  & > menupopup > :is(menuitem,menucaption) > .menu-iconic-left {
+    display: none;
+  }
 
-menulist[is="menulist-editable"][editable="true"] > menupopup > menuitem[checked="true"]::before,
-menulist[is="menulist-editable"][editable="true"] > menupopup > menuitem[selected="true"]::before {
-  display: none;
-  margin-inline-start: 0;
+  & > menupopup > menuitem[checked="true"]::before,
+  & > menupopup > menuitem[selected="true"]::before {
+    display: none;
+    margin-inline-start: 0;
+  }
 }

@@ -4,21 +4,24 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-menulist[is="menulist-editable"]:not([editable="true"])::part(text-input),
-menulist[is="menulist-editable"][editable="true"]::part(label-box) {
-  display: none;
-}
+menulist {
 
-menulist > html|input {
-  margin: 0;
-}
+  & > html|input {
+    margin: 0;
+  }
 
-menulist::part(text-input) {
-  appearance: none;
-  background: transparent;
-  flex: 1;
-  margin: 0;
-  border: none;
-  padding: 0;
-  font: inherit;
+  &::part(text-input) {
+    appearance: none;
+    background: transparent;
+    flex: 1;
+    margin: 0;
+    border: none;
+    padding: 0;
+    font: inherit;
+  }
+
+  &[is="menulist-editable"]:not([editable="true"])::part(text-input),
+  &[is="menulist-editable"][editable="true"]::part(label-box) {
+    display: none;
+  }
 }

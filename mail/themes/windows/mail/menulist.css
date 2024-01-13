@@ -6,29 +6,28 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-menulist[is="menulist-editable"][editable="true"] {
-  padding: 0;
-}
+menulist {
 
-menulist::part(text-input) {
-  appearance: none;
-  border-style: none;
-  margin-top: -2px;
-  margin-bottom: -2px;
-  margin-inline-start: -2px;
-  margin-inline-end: 3px;
-  padding-top: 1px;
-  padding-bottom: 1px;
-  padding-inline-start: 3px;
-  padding-inline-end: 0;
-}
+  &::part(text-input) {
+    appearance: none;
+    border-style: none;
+    margin-block: -2px;
+    margin-inline: -2px 3px;
+    padding-block: 1px;
+    padding-inline: 3px 0;
+  }
 
-menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
-  display: flex;
-}
+  &[is="menulist-editable"][editable="true"] {
+    padding: 0;
 
-menulist[is="menulist-editable"][editable="true"]::part(text-input) {
-  background-color: Field;
-  color: FieldText;
-  padding-inline-end: 3px;
+    &::part(dropmarker) {
+      display: flex;
+    }
+
+    &::part(text-input) {
+      background-color: Field;
+      color: FieldText;
+      padding-inline-end: 3px;
+    }
+  }
 }
