@@ -13,36 +13,34 @@
   background-color: -moz-Dialog;
   color: -moz-DialogText;
   opacity: 0;
-}
 
-@media (prefers-color-scheme: dark) {
-  #alertContainer {
+  @media (prefers-color-scheme: dark) {
     background-color: #2a2a2e;
     color: #f9f9fa;
   }
-}
 
-#alertContainer[noanimation] {
-  opacity: 1;
-}
+  &[noanimation] {
+    opacity: 1;
+  }
 
-#alertContainer[fade-in] {
-  animation-timing-function: ease-out;
-  animation-duration: 2s;
-  animation-fill-mode: both;
-  animation-name: fade-in;
+  &[fade-in] {
+    animation-timing-function: ease-out;
+    animation-duration: 2s;
+    animation-fill-mode: both;
+    animation-name: fade-in;
+  }
+
+  &[fade-out] {
+    animation-timing-function: ease-in;
+    animation-duration: 2s;
+    animation-fill-mode: both;
+    animation-name: fade-out;
+  }
 }
 
 @keyframes fade-in {
   from {opacity: 0;}
   to {opacity: 1;}
-}
-
-#alertContainer[fade-out] {
-  animation-timing-function: ease-in;
-  animation-duration: 2s;
-  animation-fill-mode: both;
-  animation-name: fade-out;
 }
 
 @keyframes fade-out {
@@ -53,9 +51,9 @@
 #alertImageBox {
   display: block;
   padding: 4px;
-  background-image: linear-gradient(rgba(255, 255, 255, .6),
-                                    rgba(255, 255, 255, .6));
-  border-inline-end: 1px solid rgba(0, 0, 0, .1);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.6),
+                                    rgba(255, 255, 255, 0.6));
+  border-inline-end: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 #alertImage {
@@ -75,14 +73,12 @@
 }
 
 #alertSeparator {
-  margin-inline-start: 11px;
-  border-top: 1px solid -moz-DialogText;
   height: 0;
   margin-block: 0.4em;
-}
+  margin-inline-start: 11px;
+  border-top: 1px solid -moz-DialogText;
 
-@media (prefers-color-scheme: dark) {
-  #alertSeparator {
+  @media (prefers-color-scheme: dark) {
     border-top-color: #f9f9fa;
   }
 }
@@ -97,23 +93,30 @@ folder-summary {
      before cropping kicks in */
   max-width: 450px;
   padding: 0 5px;
+
+  .folderSummaryMessage:hover > & {
+    cursor: pointer;
+    color: -moz-hyperlinktext;
+  }
+
+  .folderSummaryMessage:hover:active > & {
+    color: -moz-activehyperlinktext;
+  }
+}
+
+.folderSummary-sender,
+.folderSummary-subject {
+  cursor: inherit;
 }
 
 .folderSummary-subject {
   font-weight: bold;
-}
-
-.folderSummary-sender, .folderSummary-subject {
-  cursor: inherit;
+  width: 300px;
+  overflow-wrap: anywhere;
 }
 
 .folderSummary-sender {
   width: 150px;
-}
-
-.folderSummary-subject {
-  width: 300px;
-  overflow-wrap: anywhere;
 }
 
 .folderSummary-previewText {
@@ -121,20 +124,11 @@ folder-summary {
   overflow-wrap: anywhere;
 }
 
-.folderSummaryMessage:hover > .folderSummary-message-row {
-  cursor: pointer;
-  color: -moz-hyperlinktext;
-}
-
-.folderSummaryMessage:hover:active > .folderSummary-message-row {
-  color: -moz-activehyperlinktext;
-}
-
 #closeButton {
   align-items: flex-start;
   width: auto;
-}
 
-#closeButton > .toolbarbutton-icon {
-  padding: 5px;
+  & > .toolbarbutton-icon {
+    padding: 5px;
+  }
 }

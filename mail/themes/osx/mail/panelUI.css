@@ -6,9 +6,6 @@
 
 #appMenu-popup {
   margin-top: 4px;
-}
-
-#appMenu-popup {
   margin-inline: 0 -8px;
 }
 
@@ -37,10 +34,10 @@ panelmultiview .toolbaritem-combined-buttons > spacer.before-label {
 menupopup[type="arrow"] {
   appearance: none;
   background-color: transparent;
-}
 
-menupopup[type="arrow"]::part(content) {
-  margin: 1px;
+  &::part(content) {
+    margin: 1px;
+  }
 }
 
 menuitem.subviewbutton-iconic > .menu-iconic-left > .menu-iconic-icon {

@@ -6,9 +6,6 @@
 
 #appMenu-popup {
   margin-top: -1px;
-}
-
-#appMenu-popup {
   margin-inline: 0 -14px;
 }
 
@@ -17,6 +14,10 @@ menuitem.subviewbutton[disabled]:not(.menuitem-iconic) {
   /* This is 16px for an icon + 3px for its margins + 1px for its padding +
    * 2px for its border, see above */
   min-height: 22px;
+}
+
+menu.subviewbutton > .menu-right {
+  margin-inline-end: 0;
 }
 
 @media (prefers-contrast) {
@@ -39,8 +40,4 @@ menuitem.subviewbutton[disabled]:not(.menuitem-iconic) {
     toolbarbutton:not([disabled]):is([open],:hover:active) {
     color: SelectedItemText;
   }
-}
-
-menu.subviewbutton > .menu-right {
-  margin-inline-end: 0;
 }

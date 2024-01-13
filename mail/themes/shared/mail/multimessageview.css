@@ -25,17 +25,6 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  #headingWrapper {
-    --toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
-    --toolbarbutton-hover-bordercolor: rgba(179, 179, 179, 0.4);
-    --toolbarbutton-header-bordercolor: rgba(179, 179, 179, 0.4);
-    --toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
-    --toolbarbutton-active-bordercolor: rgba(179, 179, 179, 0.6);
-    --toolbarbutton-active-boxshadow: none;
-  }
-}
-
 body {
   background-color: var(--layout-background-0);
   font-size: 1.1rem;
@@ -57,6 +46,19 @@ body {
   color: var(--layout-color-1);
   background-color: var(--layout-background-1);
   border-bottom: 1px solid var(--splitter-color);
+
+  @media (prefers-color-scheme: dark) {
+    --toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
+    --toolbarbutton-hover-bordercolor: rgba(179, 179, 179, 0.4);
+    --toolbarbutton-header-bordercolor: rgba(179, 179, 179, 0.4);
+    --toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
+    --toolbarbutton-active-bordercolor: rgba(179, 179, 179, 0.6);
+    --toolbarbutton-active-boxshadow: none;
+  }
+
+  @media print {
+    position: static;
+  }
 }
 
 #heading {
@@ -102,14 +104,14 @@ body {
   inset-inline-start: -7px;
   inset-block-start: 6px;
   background-repeat: no-repeat;
-}
 
-.starred .star {
-  background-image: var(--icon-star);
-  background-size: contain;
-  -moz-context-properties: fill, stroke;
-  fill: var(--thread-pane-flag-fill);
-  stroke: var(--thread-pane-flag-stroke);
+  .starred & {
+    background-image: var(--icon-star);
+    background-size: contain;
+    -moz-context-properties: fill, stroke;
+    fill: var(--thread-pane-flag-fill);
+    stroke: var(--thread-pane-flag-stroke);
+  }
 }
 
 .item-header {
@@ -190,6 +192,10 @@ a {
 #header-view-toolbox {
   font: message-box;
   font-size: 1rem;
+
+  @media print {
+    display: none;
+  }
 }
 
 #header-view-toolbar {
@@ -197,14 +203,4 @@ a {
   align-items: center;
   gap: 6px;
   user-select: none;
-}
-
-@media print {
-  #header-view-toolbox {
-    display: none;
-  }
-
-  #headingWrapper {
-    position: static;
-  }
 }

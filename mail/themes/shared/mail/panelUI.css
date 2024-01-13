@@ -2,60 +2,60 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-:root .cui-widget-panel {
-  --menu-panel-width: 22.35em;
-  --wide-menu-panel-width: 29em;
-  --panel-palette-icon-size: 16px;
-  --panel-separator-margin: 4px 8px;
+.cui-widget-panel {
+  :root & {
+    --menu-panel-width: 22.35em;
+    --wide-menu-panel-width: 29em;
+    --panel-palette-icon-size: 16px;
+    --panel-separator-margin: 4px 8px;
 
-  /* XXX This is the ugliest bit of code I think I've ever written for Mozilla.
-  Basically, the [extra 0.1px in the 1.1px] is there to avoid CSS rounding errors
-  causing buttons to wrap. For gory details, refer to
-  https://bugzilla.mozilla.org/show_bug.cgi?id=963365#c11 */
-  /* stylelint-disable-next-line */
-  --menu-panel-button-width: calc(--menu-panel-width / 3 - 1.1px);
-  /* Complement the .subviewbutton margin. */
-  --arrowpanel-padding: 8px 0;
-  --arrowpanel-menuitem-border-radius: 3px;
-  --appmenu-button-border-color: light-dark(hsla(210, 4%, 10%, 0.14), rgba(249, 249, 250, 0.2));
-  --appmenu-button-margin: 0 8px;
-  --appmenu-button-padding: 6px;
-  --appmenu-combined-radio-button-padding: 4px 8px;
-  --appmenu-fontsize-icon-size: 20px;
-  --appmenu-fontsize-reset-button-width: 47px;
-  --appmenu-warning-background-color: light-dark(#ffefbf, hsla(55, 100%, 50%, 0.1));
-  --appmenu-warning-background-color-hover: light-dark(#ffe8a2, hsla(55, 100%, 50%, 0.2));
-  --appmenu-warning-background-color-active: light-dark(#ffe38f, hsla(55, 100%, 50%, 0.3));
-  --appmenu-warning-color: light-dark(black, #f9f9fa);
-  --appmenu-warning-border-color: light-dark(hsl(45, 100%, 77%), hsla(55, 100%, 50%, 0.3));
-  --appmenu-icons-fill: light-dark(color-mix(in srgb, var(--color-ink-70) 20%, transparent),
-                                   color-mix(in srgb, var(--color-ink-10) 20%, transparent));
-  --appmenu-icons-stroke: light-dark(var(--color-ink-70), var(--color-ink-10));
-}
+    /* XXX This is the ugliest bit of code I think I've ever written for Mozilla.
+    Basically, the [extra 0.1px in the 1.1px] is there to avoid CSS rounding errors
+    causing buttons to wrap. For gory details, refer to
+    https://bugzilla.mozilla.org/show_bug.cgi?id=963365#c11 */
+    /* stylelint-disable-next-line */
+    --menu-panel-button-width: calc(--menu-panel-width / 3 - 1.1px);
+    /* Complement the .subviewbutton margin. */
+    --arrowpanel-padding: 8px 0;
+    --arrowpanel-menuitem-border-radius: 3px;
+    --appmenu-button-border-color: light-dark(hsla(210, 4%, 10%, 0.14), rgba(249, 249, 250, 0.2));
+    --appmenu-button-margin: 0 8px;
+    --appmenu-button-padding: 6px;
+    --appmenu-combined-radio-button-padding: 4px 8px;
+    --appmenu-fontsize-icon-size: 20px;
+    --appmenu-fontsize-reset-button-width: 47px;
+    --appmenu-warning-background-color: light-dark(#ffefbf, hsla(55, 100%, 50%, 0.1));
+    --appmenu-warning-background-color-hover: light-dark(#ffe8a2, hsla(55, 100%, 50%, 0.2));
+    --appmenu-warning-background-color-active: light-dark(#ffe38f, hsla(55, 100%, 50%, 0.3));
+    --appmenu-warning-color: light-dark(black, #f9f9fa);
+    --appmenu-warning-border-color: light-dark(hsl(45, 100%, 77%), hsla(55, 100%, 50%, 0.3));
+    --appmenu-icons-fill: light-dark(color-mix(in srgb, var(--color-ink-70) 20%, transparent),
+                                     color-mix(in srgb, var(--color-ink-10) 20%, transparent));
+    --appmenu-icons-stroke: light-dark(var(--color-ink-70), var(--color-ink-10));
+  }
 
-@media (prefers-contrast) {
-  :root .cui-widget-panel {
+  @media (prefers-contrast) {
     --appmenu-icons-fill: color-mix(in srgb, currentColor 20%, transparent);
     --appmenu-icons-stroke: currentColor;
   }
-}
 
-/* UI Density customization */
+  /* UI Density customization */
 
-:root[uidensity="compact"] .cui-widget-panel {
-  --arrowpanel-padding: 4px 0;
-  --appmenu-button-margin: 0 4px;
-  --appmenu-button-padding: 3px;
-  --appmenu-combined-radio-button-padding: 2px 6px;
-  --appmenu-fontsize-icon-size: 16px;
-  --appmenu-fontsize-reset-button-width: 41px;
-}
+  :root[uidensity="compact"] & {
+    --arrowpanel-padding: 4px 0;
+    --appmenu-button-margin: 0 4px;
+    --appmenu-button-padding: 3px;
+    --appmenu-combined-radio-button-padding: 2px 6px;
+    --appmenu-fontsize-icon-size: 16px;
+    --appmenu-fontsize-reset-button-width: 41px;
+  }
 
-:root[uidensity="touch"] .cui-widget-panel {
-  --appmenu-button-padding: 9px;
-  --appmenu-combined-radio-button-padding: 6px 10px;
-  --appmenu-fontsize-icon-size: 24px;
-  --appmenu-fontsize-reset-button-width: 51px;
+  :root[uidensity="touch"] & {
+    --appmenu-button-padding: 9px;
+    --appmenu-combined-radio-button-padding: 6px 10px;
+    --appmenu-fontsize-icon-size: 24px;
+    --appmenu-fontsize-reset-button-width: 51px;
+  }
 }
 
 #appMenu-popup {
@@ -101,14 +101,29 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
 .subviewbutton.panel-subview-footer {
   box-sizing: border-box;
   min-height: 41px;
-}
+  margin: 0;
+  background-color: var(--arrowpanel-dimmed);
+  border-top: 1px solid var(--panel-separator-color);
+  border-radius: 0;
 
-.cui-widget-panelview menuitem.subviewbutton.panel-subview-footer {
-  margin: 4px 0 0;
-}
+  .cui-widget-panelview menuitem& {
+    margin: 4px 0 0;
+  }
 
-.cui-widget-panelview .subviewbutton.panel-subview-footer > .menu-text {
-  flex: 1;
+  .cui-widget-panelview & > .menu-text {
+    flex: 1;
+  }
+
+  & > .menu-text {
+    appearance: none;
+    padding-inline-start: 0 !important; /* to override menu.css on Windows */
+    padding-inline-end: 6px;
+    flex: 0 0;
+  }
+
+  & > .toolbarbutton-text {
+    padding-inline-start: 0;
+  }
 }
 
 #wrapper-edit-controls:is([place="palette"],[place="menu-panel"]) > #edit-controls {
@@ -118,10 +133,10 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
 #appmenu-edit-button {
   margin-inline: 0 3px;
   padding-inline: 7px;
-}
 
-#appmenu-edit-button::after {
-  margin-inline-start: 0;
+  &::after {
+    margin-inline-start: 0;
+  }
 }
 
 panelview[id^=PanelUI-webext-] {
@@ -154,12 +169,6 @@ panelview:not([mainview]) .toolbarbutton-text,
 
 .cui-widget-panel.cui-widget-panelWithFooter::part(content) {
   padding-bottom: 0;
-}
-
-.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton > .toolbarbutton-icon {
-  min-width: 0;
-  min-height: 0;
-  margin: 0;
 }
 
 .animate-out {
@@ -226,9 +235,45 @@ menuitem.subviewbutton {
   appearance: none !important;
 }
 
-.subviewbutton > .menu-text {
-  appearance: none;
-  margin-inline-start: 0 !important;
+.subviewbutton {
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:is([disabled="true"], [disabled="true"]:hover, [checked="true"][disabled="true"], [checked="true"][disabled="true"]:hover) {
+    color: var(--text-color-deemphasized);
+    background-color: transparent;
+  }
+
+  &[shortcut]::after {
+    content: attr(shortcut);
+    float: inline-end;
+  }
+
+  &[checked="true"] {
+    list-style-image: var(--icon-check);
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+    color: inherit;
+  }
+
+  & > .toolbarbutton-text {
+    padding: 0;
+    padding-inline-start: 24px; /* This is 16px for the icon + 8px for the padding as defined below. */
+  }
+
+  & > .menu-text {
+    appearance: none;
+    margin-inline-start: 0 !important;
+  }
+
+  /* We don't always display: none this item, and if it has forced width (like above)
+   * or margin, that impacts the position of the label. Fix:
+   */
+  & > .toolbarbutton-icon {
+    margin: 0;
+  }
 }
 
 .subview-subheader,
@@ -243,23 +288,6 @@ menu.subviewbutton,
   padding-block: var(--appmenu-button-padding);
   border-radius: var(--arrowpanel-menuitem-border-radius);
   background-color: transparent;
-}
-
-.subviewbutton:focus {
-  outline: 0;
-}
-
-.subviewbutton[disabled="true"],
-.subviewbutton[disabled="true"]:hover,
-.subviewbutton[checked="true"][disabled="true"],
-.subviewbutton[checked="true"][disabled="true"]:hover {
-  color: var(--text-color-deemphasized);
-  background-color: transparent;
-}
-
-.subviewbutton > .toolbarbutton-text {
-  padding: 0;
-  padding-inline-start: 24px; /* This is 16px for the icon + 8px for the padding as defined below. */
 }
 
 .addon-banner-item > .toolbarbutton-text,
@@ -279,37 +307,9 @@ menu.subviewbutton,
   -moz-context-properties: fill, stroke;
 }
 
-.addon-banner-item > .toolbarbutton-icon {
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-}
-
 .subviewbutton-iconic > .toolbarbutton-icon {
   fill: var(--appmenu-icons-fill);
   stroke: var(--appmenu-icons-stroke);
-}
-
-/* We don't always display: none this item, and if it has forced width (like above)
- * or margin, that impacts the position of the label. Fix:
- */
-.subviewbutton > .toolbarbutton-icon {
-  margin: 0;
-}
-
-.subviewbutton.panel-subview-footer > .menu-text {
-  appearance: none;
-  padding-inline-start: 0 !important; /* to override menu.css on Windows */
-  padding-inline-end: 6px;
-  flex: 0 0;
-}
-
-.subviewbutton.panel-subview-footer > .toolbarbutton-text {
-  padding-inline-start: 0;
-}
-
-.subviewbutton[shortcut]::after {
-  content: attr(shortcut);
-  float: inline-end;
 }
 
 .PanelUI-subView .subviewbutton-nav::after {
@@ -325,97 +325,129 @@ menu.subviewbutton,
 }
 
 .subviewbutton[shortcut]::after,
-.subviewbutton[shortcut]::after,
 .PanelUI-subView .subviewbutton-nav::after {
   margin-inline-start: 10px;
 }
 
-.subviewbutton[checked="true"] {
-  list-style-image: var(--icon-check);
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-  color: inherit;
-}
-
-#appMenu-popup .toolbaritem-combined-buttons {
+.PanelUI-subView .toolbaritem-combined-buttons {
   align-items: center;
   flex-direction: row;
   border: 0;
   border-radius: 0;
   margin-inline-end: 6px;
   padding-block: 0;
-}
 
-panelmultiview .toolbaritem-combined-buttons > label {
-  flex: 1;
-  margin: 0;
-  padding-inline-start: 4px;
-}
+  & > label {
+    flex: 1;
+    margin: 0;
+  }
 
-panelmultiview .toolbaritem-combined-buttons > spacer.before-label {
-  width: 36px; /* 12px toolbarbutton padding + 16px icon + 8px label padding start */
-}
+  & > spacer.before-label {
+    width: 36px; /* 12px toolbarbutton padding + 16px icon + 8px label padding start */
+  }
 
-panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
-  flex: 1;
-  width: 20px; /* a little bigger than the width of the scrollbar */
-}
+  & > spacer.after-label {
+    flex: 1;
+    width: 20px; /* a little bigger than the width of the scrollbar */
+  }
 
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton {
-  flex: 0 0;
-  height: auto;
-  margin-inline-start: 18px;
-  min-width: auto;
-  padding-inline: 5px;
-  padding-block: var(--appmenu-button-padding);
-  --focus-outline-offset: 1px;
-}
+  & > .subviewbutton {
+    flex: 0 0;
+    height: auto;
+    margin-inline-start: 18px;
+    min-width: auto;
+    padding-inline: 5px;
+    padding-block: var(--appmenu-button-padding);
+    --focus-outline-offset: 1px;
+  }
 
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton-iconic {
-  padding-inline: var(--appmenu-button-padding);
-}
+  & > .subviewbutton-iconic {
+    padding-inline: var(--appmenu-button-padding);
+  }
 
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton-iconic > .toolbarbutton-text,
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton:not(.subviewbutton-iconic) >
-  .toolbarbutton-icon {
-  display: none;
-}
+  & > .subviewbutton-iconic > .toolbarbutton-text,
+  & > .subviewbutton:not(.subviewbutton-iconic) > .toolbarbutton-icon {
+    display: none;
+  }
 
-.toolbaritem-combined-buttons > .subviewbutton:not(.subviewbutton-iconic) > .toolbarbutton-text {
-  padding-inline-start: 0;
-}
+  & > .subviewbutton:not(.subviewbutton-iconic) > .toolbarbutton-text {
+    padding-inline-start: 0;
+  }
 
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"] {
-  margin-inline-start: 0;
-  margin-block: 1px;
-  padding: var(--appmenu-combined-radio-button-padding);
-  min-height: 22px;
-  border: 1px solid var(--appmenu-button-border-color);
-  border-radius: 0;
-}
+  & > .subviewbutton[type="radio"] {
+    margin-inline-start: 0;
+    margin-block: 1px;
+    padding: var(--appmenu-combined-radio-button-padding);
+    min-height: 22px;
+    border: 1px solid var(--appmenu-button-border-color);
+    border-radius: 0;
 
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:focus {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-outline-offset);
-}
+    &:focus {
+      outline: var(--focus-outline);
+      outline-offset: var(--focus-outline-offset);
+    }
 
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:first-of-type {
-  border-inline-end: none;
-  border-start-start-radius: var(--arrowpanel-menuitem-border-radius);
-  border-end-start-radius: var(--arrowpanel-menuitem-border-radius);
-}
+    &:first-of-type {
+      border-inline-end: none;
+      border-start-start-radius: var(--arrowpanel-menuitem-border-radius);
+      border-end-start-radius: var(--arrowpanel-menuitem-border-radius);
+    }
 
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"]:last-of-type {
-  border-inline-start: none;
-  border-start-end-radius: var(--arrowpanel-menuitem-border-radius);
-  border-end-end-radius: var(--arrowpanel-menuitem-border-radius);
-}
+    &:last-of-type {
+      border-inline-start: none;
+      border-start-end-radius: var(--arrowpanel-menuitem-border-radius);
+      border-end-end-radius: var(--arrowpanel-menuitem-border-radius);
+    }
 
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton[type="radio"][checked="true"] {
-  --appmenu-icons-fill: color-mix(in srgb, currentColor 20%, transparent);
-  --appmenu-icons-stroke: currentColor;
-  background-color: var(--button-primary-background-color);
-  color: var(--button-primary-text-color);
+    &[checked="true"] {
+      --appmenu-icons-fill: color-mix(in srgb, currentColor 20%, transparent);
+      --appmenu-icons-stroke: currentColor;
+      background-color: var(--button-primary-background-color);
+      color: var(--button-primary-text-color);
+    }
+  }
+
+  &:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) {
+    & > toolbarbutton {
+      border: 0;
+      margin: 0;
+      flex-direction: row;
+
+      &:not(.toolbarbutton-1)[disabled] {
+        opacity: 0.4;
+        /* Override toolbarbutton.css which sets the color to GrayText */
+        color: inherit;
+      }
+
+      & > .toolbarbutton-icon {
+        min-width: 0;
+        min-height: 0;
+        margin: 0;
+      }
+    }
+
+    & > separator {
+      appearance: none;
+      align-items: stretch;
+      margin: .5em 0;
+      width: 1px;
+      height: auto;
+      background: var(--panel-separator-color);
+      transition-property: margin;
+      transition-duration: 10ms;
+      transition-timing-function: ease;
+    }
+
+    &:hover > separator {
+      margin: 0;
+    }
+  }
+
+  /* In customize mode, extend the buttons *only* in the panel, just to make them not look stupid */
+  toolbarpaletteitem[place="menu-panel"] > & > toolbarbutton {
+    min-width: var(--menu-panel-button-width);
+    max-width: var(--menu-panel-button-width);
+  }
 }
 
 .subview-subheader {
@@ -449,13 +481,6 @@ menuitem.subviewbutton:not([disabled])[_moz-menuactive]:active,
   color: inherit;
   background-color: var(--arrowpanel-dimmed-further);
   box-shadow: 0 1px 0 hsla(210,4%,10%,.03) inset;
-}
-
-.subviewbutton.panel-subview-footer {
-  margin: 0;
-  background-color: var(--arrowpanel-dimmed);
-  border-top: 1px solid var(--panel-separator-color);
-  border-radius: 0;
 }
 
 menuitem.panel-subview-footer:not([disabled],:active)[_moz-menuactive],
@@ -501,42 +526,6 @@ toolbarpaletteitem[place="palette"] > #search-container {
   max-height: 37px;
 }
 
-.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton {
-  border: 0;
-  margin: 0;
-  flex: 1;
-  padding-block: 4px;
-  flex-direction: row;
-}
-
-/* In customize mode, extend the buttons *only* in the panel, just to make them not look stupid */
-toolbarpaletteitem[place="menu-panel"] > .toolbaritem-combined-buttons > toolbarbutton {
-  min-width: var(--menu-panel-button-width);
-  max-width: var(--menu-panel-button-width);
-}
-
-.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton:not(.toolbarbutton-1)[disabled] {
-  opacity: 0.4;
-  /* Override toolbarbutton.css which sets the color to GrayText */
-  color: inherit;
-}
-
-.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > separator {
-  appearance: none;
-  align-items: stretch;
-  margin: .5em 0;
-  width: 1px;
-  height: auto;
-  background: var(--panel-separator-color);
-  transition-property: margin;
-  transition-duration: 10ms;
-  transition-timing-function: ease;
-}
-
-.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]):hover > separator {
-  margin: 0;
-}
-
 #widget-overflow-mainView .panel-subview-body {
   overflow-y: auto;
   overflow-x: hidden;
@@ -544,13 +533,36 @@ toolbarpaletteitem[place="menu-panel"] > .toolbaritem-combined-buttons > toolbar
 
 .widget-overflow-list {
   width: var(--wide-menu-panel-width);
-}
 
-/* In customize mode, the overflow list is constrained by its container,
- * so we set width: auto to avoid the scrollbar not fitting.
- */
-#customization-panelHolder > .widget-overflow-list {
-  width: auto;
+  /* In customize mode, the overflow list is constrained by its container,
+   * so we set width: auto to avoid the scrollbar not fitting.
+   */
+  #customization-panelHolder > & {
+    width: auto;
+  }
+
+  & .toolbarbutton-1 {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  & .subviewbutton-nav::after {
+    margin-inline-start: 10px;
+    -moz-context-properties: stroke, fill-opacity;
+    content: var(--icon-nav-right-sm);
+    stroke: currentColor;
+    fill-opacity: 0.6;
+    float: inline-end;
+  }
+
+  & .subviewbutton-nav:-moz-locale-dir(rtl)::after {
+    content: var(--icon-nav-left-sm);
+  }
+
+  & .toolbarbutton-1:not(.toolbarbutton-combined) > .toolbarbutton-text {
+    text-align: start;
+    padding-inline-start: .5em;
+  }
 }
 
 toolbaritem[overflowedItem=true],
@@ -561,31 +573,8 @@ toolbaritem[overflowedItem=true],
   background-position: 0 center;
 }
 
-.widget-overflow-list .toolbarbutton-1 {
-  align-items: center;
-  flex-direction: row;
-}
-
-.widget-overflow-list .subviewbutton-nav::after {
-  margin-inline-start: 10px;
-  -moz-context-properties: stroke, fill-opacity;
-  content: var(--icon-nav-right-sm);
-  stroke: currentColor;
-  fill-opacity: 0.6;
-  float: inline-end;
-}
-
-.widget-overflow-list .subviewbutton-nav:-moz-locale-dir(rtl)::after {
-  content: var(--icon-nav-left-sm);
-}
-
 toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   opacity: 0.5;
-}
-
-.widget-overflow-list .toolbarbutton-1:not(.toolbarbutton-combined) > .toolbarbutton-text {
-  text-align: start;
-  padding-inline-start: .5em;
 }
 
 .subviewradio {
@@ -596,34 +585,33 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   background-color: transparent;
   border-radius: 2px;
   border: 1px solid transparent;
-}
 
-.subviewradio:not([disabled],[open],:active):is(:hover,:focus-visible) {
-  background-color: var(--arrowpanel-dimmed);
-  border-color: var(--panel-separator-color);
-}
+  &:not([disabled],[open],:active):is(:hover,:focus-visible) {
+    background-color: var(--arrowpanel-dimmed);
+    border-color: var(--panel-separator-color);
+  }
 
-.subviewradio[selected],
-.subviewradio[selected]:hover,
-.subviewradio:not([disabled]):is([open],:hover:active) {
-  background-color: var(--arrowpanel-dimmed-further);
-  border-color: var(--panel-separator-color);
-  box-shadow: 0 1px 0 hsla(210,4%,10%,.03) inset;
-}
+  &:is([selected], [selected]:hover),
+  &:not([disabled]):is([open],:hover:active) {
+    background-color: var(--arrowpanel-dimmed-further);
+    border-color: var(--panel-separator-color);
+    box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
+  }
 
-.subviewradio > .radio-check {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #e7e7e7;
-  border-radius: 50%;
-  margin: 1px 5px;
-  background-color: #f1f1f1;
-}
+  & > .radio-check {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #e7e7e7;
+    border-radius: 50%;
+    margin: 1px 5px;
+    background-color: #f1f1f1;
 
-.subviewradio > .radio-check[selected] {
-  background-color: #fff;
-  border: 4px solid #177ee6;
+    &[selected] {
+      background-color: #fff;
+      border: 4px solid #177ee6;
+    }
+  }
 }
 
 .panel-header {
@@ -632,112 +620,110 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   display: flex;
   height: 40px; /* fixed item height to prevent flex sizing; height + 2*4px padding */
   padding: 4px;
-}
 
-.panel-header > h1 {
-  display: inline;
-  flex: auto;
-  font-size: inherit;
-  font-weight: 600;
-  margin: 0;
-  text-align: center;
-}
+  & > h1 {
+    display: inline;
+    flex: auto;
+    font-size: inherit;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
 
-.panel-header > h1 > span {
- display: inline-block;
- white-space: pre-wrap;
-}
+    & > span {
+     display: inline-block;
+     white-space: pre-wrap;
+    }
+  }
 
-.panel-header > .subviewbutton-back + h1 {
-  /* Add the size of the back button to center properly. */
-  margin-inline-end: 32px;
-}
+  & > .subviewbutton-back {
+    -moz-context-properties: stroke;
+    stroke: var(--arrowpanel-color);
+    list-style-image: var(--icon-nav-left-sm);
+    padding: 10px;
+    transform: translateY(1px);
+    margin: 0 4px;
 
-.panel-header > .subviewbutton-back {
-  -moz-context-properties: stroke;
-  stroke: var(--arrowpanel-color);
-  list-style-image: var(--icon-nav-left-sm);
-  padding: 10px;
-}
+    &:-moz-locale-dir(rtl) {
+      list-style-image: var(--icon-nav-right-sm);
+    }
 
-.subviewbutton-back {
-  transform: translateY(1px);
-  margin: 0 4px;
-}
+    & + h1 {
+      /* Add the size of the back button to center properly. */
+      margin-inline-end: 32px;
+    }
 
-.subviewbutton-back:-moz-locale-dir(rtl) {
-  list-style-image: var(--icon-nav-right-sm);
-}
+    & > .toolbarbutton-icon {
+      width: 12px;
+      height: 12px;
+    }
 
-.panel-header > .subviewbutton-back > .toolbarbutton-icon {
-  width: 12px;
-  height: 12px;
-}
-
-.subviewbutton-back > .toolbarbutton-text {
-  /* !important to override .cui-widget-panel .toolbarbutton-text
-   * selector further down. */
-  display: none !important;
+    & > .toolbarbutton-text {
+      /* !important to override .cui-widget-panel .toolbarbutton-text
+       * selector further down. */
+      display: none !important;
+    }
+  }
 }
 
 .subviewbutton.download {
   align-items: flex-start;
   min-height: 48px;
   padding-inline-start: 8px;
+
+  & > .toolbarbutton-icon,
+  & > .toolbarbutton-text > label {
+    margin: 4px 0 0;
+  }
+
+  & > .toolbarbutton-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  & > .toolbarbutton-text > .status-text {
+    color: var(--text-color-deemphasized);
+    font-size: .9em;
+  }
 }
 
-.subviewbutton.download > .toolbarbutton-icon,
-.subviewbutton.download > .toolbarbutton-text > label {
-  margin: 4px 0 0;
-}
+.button-appmenu {
 
-.subviewbutton.download > .toolbarbutton-icon {
-  width: 32px;
-  height: 32px;
-}
+  &:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
+  }
 
-.subviewbutton.download > .toolbarbutton-text > .status-text {
-  color: var(--text-color-deemphasized);
-  font-size: .9em;
-}
+  &[badge-status] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
+    display: flex;
+    background: center no-repeat transparent;
+    background-size: contain;
+    border: none;
+    box-shadow: none;
+  }
 
-.button-appmenu[badge-status] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-  display: flex;
-  background: center no-repeat transparent;
-  background-size: contain;
-  border: none;
-  box-shadow: none;
-}
+  &:is([badge-status="update-available"], [badge-status="update-downloading"],
+       [badge-status="update-manual"], [badge-status="update-other-instance"],
+       [badge-status="update-restart"]) > .toolbarbutton-badge-stack > .toolbarbutton-badge {
+    margin-top: -3px !important;
+    margin-inline-end: -2px !important;
+    min-width: 12px;
+    min-height: 12px;
+    -moz-context-properties: fill;
+    fill: var(--color-green-60);
+    background-image: var(--icon-notification-sm);
+    background-size: 12px;
+  }
 
-.button-appmenu[badge-status="update-available"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
-.button-appmenu[badge-status="update-downloading"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
-.button-appmenu[badge-status="update-manual"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
-.button-appmenu[badge-status="update-other-instance"] > .toolbarbutton-badge-stack > .toolbarbutton-badge,
-.button-appmenu[badge-status="update-restart"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-  margin-top: -3px !important;
-  margin-inline-end: -2px !important;
-  min-width: 12px;
-  min-height: 12px;
-  -moz-context-properties: fill;
-  fill: var(--color-green-60);
-  background-image: var(--icon-notification-sm);
-  background-size: 12px;
-}
-
-.button-appmenu[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-  height: 12px;
-  margin-inline-end: -5px !important;
-  background-image: var(--icon-warning-sm);
-  box-shadow: none;
-  border-radius: 0;
-  -moz-context-properties: fill, stroke;
-  fill: var(--color-amber-30);
-  stroke: var(--color-amber-60);
-}
-
-.button-appmenu:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-outline-offset);
+  &[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
+    height: 12px;
+    margin-inline-end: -5px !important;
+    background-image: var(--icon-warning-sm);
+    box-shadow: none;
+    border-radius: 0;
+    -moz-context-properties: fill, stroke;
+    fill: var(--color-amber-30);
+    stroke: var(--color-amber-60);
+  }
 }
 
 /* Main menu banner menuitems */
@@ -753,39 +739,37 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   background-color: color-mix(in srgb, currentColor 7%, transparent);;
   margin-bottom: 4px;
   font-weight: 600;
-}
 
-.panel-banner-item:not([disabled]):hover {
-  background-color: var(--arrowpanel-dimmed);
-}
+  &:not([disabled]):hover {
+    background-color: var(--arrowpanel-dimmed);
 
-.panel-banner-item:not([disabled]):hover:active {
-  background-color: var(--arrowpanel-dimmed-further);
-}
+    &:active {
+      background-color: var(--arrowpanel-dimmed-further);
+    }
+  }
 
-.panel-banner-item > .toolbarbutton-text {
-  display: inline-block;
-  padding: 0;
-}
+  & > .toolbarbutton-text {
+    display: inline-block;
+    padding: 0;
+  }
 
-.panel-banner-item > .toolbarbutton-icon {
-  width: 16px;
-  height: 16px;
-  /* Move the icon to appear after the text label. */
-  order: 2;
-}
+  & > .toolbarbutton-icon {
+    width: 16px;
+    height: 16px;
+    /* Move the icon to appear after the text label. */
+    order: 2;
+  }
 
-.panel-banner-item[notificationid="update-available"] > .toolbarbutton-icon,
-.panel-banner-item[notificationid="update-downloading"] > .toolbarbutton-icon,
-.panel-banner-item[notificationid="update-manual"] > .toolbarbutton-icon,
-.panel-banner-item[notificationid="update-other-instance"] > .toolbarbutton-icon,
-.panel-banner-item[notificationid="update-restart"] > .toolbarbutton-icon {
-  background-image: url(chrome://messenger/skin/icons/app-update-badge.svg);
-  background-repeat: no-repeat;
-  background-position: center;
-  margin-inline-start: 6px;
-  -moz-context-properties: fill;
-  fill: var(--color-green-60);
+  &:is([notificationid="update-available"], [notificationid="update-downloading"],
+       [notificationid="update-manual"], [notificationid="update-other-instance"],
+       [notificationid="update-restart"]) > .toolbarbutton-icon {
+    background-image: url(chrome://messenger/skin/icons/app-update-badge.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    margin-inline-start: 6px;
+    -moz-context-properties: fill;
+    fill: var(--color-green-60);
+  }
 }
 
 .addon-banner-item {
@@ -805,44 +789,48 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, var(--appmenu-warning-color) 20%, transparent);
   stroke: var(--appmenu-warning-color);
-}
 
-.addon-banner-item::after {
-  content: "";
-  width: 16px;
-  height: 16px;
-  margin-inline: 10px 0;
-  display: flex;
-  background: var(--icon-warning) no-repeat center;
-}
+  &::after {
+    content: "";
+    width: 16px;
+    height: 16px;
+    margin-inline: 10px 0;
+    display: flex;
+    background: var(--icon-warning) no-repeat center;
 
-:root[lwt-popup-brighttext] .addon-banner-item::after {
-  -moz-context-properties: fill;
-  fill: var(--color-amber-30);
-}
+    :root[lwt-popup-brighttext] & {
+      -moz-context-properties: fill;
+      fill: var(--color-amber-30);
+    }
+  }
 
-.addon-banner-item:last-child {
-  border-bottom: 1px solid var(--appmenu-warning-border-color);
-}
+  &:last-child {
+    border-bottom: 1px solid var(--appmenu-warning-border-color);
+  }
 
-.addon-banner-item:focus,
-.addon-banner-item:hover {
-  background-color: var(--appmenu-warning-background-color-hover);
-}
+  &:is(:focus, :hover) {
+    background-color: var(--appmenu-warning-background-color-hover);
+  }
 
-.addon-banner-item:hover:active {
-  background-color: var(--appmenu-warning-background-color-active);
+  &:hover:active {
+    background-color: var(--appmenu-warning-background-color-active);
+  }
+
+  & > .toolbarbutton-icon {
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+  }
 }
 
 menulist {
   border: 1px solid var(--button-border-color);
   background-color: var(--button-background-color);
-}
 
-menulist:not([disabled="true"],[open="true"]):hover,
-menulist[open="true"]:not([disabled="true"]) {
-  background-color: var(--button-hover-background-color);
-  border-color: var(--button-border-color);
+  &:not([disabled="true"],[open="true"]):hover,
+  &[open="true"]:not([disabled="true"]) {
+    background-color: var(--button-hover-background-color);
+    border-color: var(--button-border-color);
+  }
 }
 
 /* App Menu items icons */
@@ -853,15 +841,26 @@ menulist[open="true"]:not([disabled="true"]) {
   list-style-image: var(--icon-sync);
 }
 
-#appmenu-submenu-sync-now{
+#appmenu-submenu-sync-now {
   list-style-image: var(--icon-sync);
+
+  @media (prefers-reduced-motion: no-preference) {
+    &[syncstatus="active"] > .toolbarbutton-icon {
+      animation: syncRotate 0.8s linear infinite;
+    }
+  }
+}
+
+@keyframes syncRotate {
+  from { transform: rotate(0); }
+  to { transform: rotate(360deg); }
 }
 
 #appmenu-submenu-sync-settings {
   list-style-image: var(--icon-settings);
 }
 
-#appmenu-submenu-sync-sign-out{
+#appmenu-submenu-sync-sign-out {
   list-style-image: var(--icon-quit);
 }
 
@@ -873,23 +872,12 @@ menulist[open="true"]:not([disabled="true"]) {
   border-radius: 2px;
 }
 
-#appmenu-manage-sync-icon  {
+#appmenu-manage-sync-icon {
   content: var(--icon-contact);
 }
 
 .appmenu-sync-account-email {
   font-weight: 600;
-}
-
-@keyframes syncRotate {
-  from { transform: rotate(0); }
-  to { transform: rotate(360deg); }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  #appmenu-submenu-sync-now[syncstatus="active"] > .toolbarbutton-icon {
-    animation: syncRotate 0.8s linear infinite;
-  }
 }
 
 /* New Account and Create */
@@ -1018,25 +1006,9 @@ menulist[open="true"]:not([disabled="true"]) {
 #appMenu-fontSizeReduce-button {
   list-style-image: var(--font-size-decrease);
 }
+
 #appMenu-fontSizeEnlarge-button {
   list-style-image: var(--font-size-increase);
-}
-
-#appMenu-fontSizeReduce-button:hover,
-#appMenu-fontSizeReduce-button:focus,
-#appMenu-fontSizeReduce-button:active,
-#appMenu-fontSizeReset-button:hover,
-#appMenu-fontSizeReset-button:focus,
-#appMenu-fontSizeReset-button:active,
-#appMenu-fontSizeEnlarge-button:hover,
-#appMenu-fontSizeEnlarge-button:focus,
-#appMenu-fontSizeEnlarge-button:active,
-#appMenu-fullscreen-button:hover,
-#appMenu-fullscreen-button:focus,
-#appMenu-fullscreen-button:active {
-  color: unset;
-  background-color: unset;
-  box-shadow: unset;
 }
 
 #appMenu-fontSizeReduce-button > .toolbarbutton-icon,
@@ -1049,15 +1021,29 @@ menulist[open="true"]:not([disabled="true"]) {
   border-radius: 50%;
   margin-block-start: 1px;
   padding: 0;
+
+  :root[uidensity="compact"] & {
+    margin-block-start: 2px;
+  }
+}
+
+#appMenu-fontSizeReduce-button:hover > .toolbarbutton-icon,
+#appMenu-fontSizeEnlarge-button:hover > .toolbarbutton-icon {
+  fill: var(--button-hover-background-color);
+}
+
+#appMenu-fontSizeReduce-button:active > .toolbarbutton-icon,
+#appMenu-fontSizeEnlarge-button:active > .toolbarbutton-icon {
+  fill: var(--button-active-background-color);
 }
 
 /* Compensate the smaller icon. */
 #appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
   margin-inline-end: -2px;
-}
 
-:root[uidensity="compact"] #appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
-  margin-inline-end: -1px;
+  :root[uidensity="compact"] & {
+    margin-inline-end: -1px;
+  }
 }
 
 #appMenu-fontSizeReset-button > .toolbarbutton-text {
@@ -1073,17 +1059,17 @@ menulist[open="true"]:not([disabled="true"]) {
 #appMenu-fontSizeReset-button:hover > .toolbarbutton-text {
   background-color: var(--button-hover-background-color);
 }
-#appMenu-fontSizeReduce-button:hover > .toolbarbutton-icon,
-#appMenu-fontSizeEnlarge-button:hover > .toolbarbutton-icon {
-  fill: var(--button-hover-background-color);
-}
 
 #appMenu-fontSizeReset-button:active > .toolbarbutton-text {
   background-color: var(--button-active-background-color);
 }
-#appMenu-fontSizeReduce-button:active > .toolbarbutton-icon,
-#appMenu-fontSizeEnlarge-button:active > .toolbarbutton-icon {
-  fill: var(--button-active-background-color);
+
+#appMenu-fontSizeReduce-button:is(:hover, :focus, :active),
+#appMenu-fontSizeReset-button:is(:hover, :focus, :active),
+#appMenu-fontSizeEnlarge-button:is(:hover, :focus, :active) {
+  color: unset;
+  background-color: unset;
+  box-shadow: unset;
 }
 
 #appMenu-fontSizeReset-button:focus > .toolbarbutton-text,
@@ -1100,11 +1086,6 @@ menulist[open="true"]:not([disabled="true"]) {
 
 #appMenu-fontSize-controls > #appMenu-fontSizeEnlarge-button {
   padding-inline-end: 0;
-}
-
-:root[uidensity="compact"] #appMenu-fontSizeReduce-button > .toolbarbutton-icon,
-:root[uidensity="compact"] #appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
-  margin-block-start: 2px;
 }
 
 /* Tools */

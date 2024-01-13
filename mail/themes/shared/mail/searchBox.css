@@ -12,10 +12,10 @@
   height: 16px;
   width: 16px;
   z-index: 2;
-}
 
-.search-icon:-moz-locale-dir(rtl) {
-  transform: scaleX(-1);
+  &:-moz-locale-dir(rtl) {
+    transform: scaleX(-1);
+  }
 }
 
 .searchBox,
@@ -33,10 +33,10 @@
 
 .textbox-search-clear {
   opacity: 0.8;
-}
 
-.textbox-search-clear:not([disabled]):hover {
-  opacity: 1;
+  &:not([disabled]):hover {
+    opacity: 1;
+  }
 }
 
 .themeableSearchBox[disabled] {
@@ -66,15 +66,13 @@
 
 .gloda-search:focus,
 .searchBox[focused="true"],
-.themeableSearchBox:not([disabled="true"]):focus,
-.themeableSearchBox:not([disabled="true"])[focused="true"] {
+.themeableSearchBox:not([disabled="true"]):is(:focus, [focused="true"]) {
   border-color: var(--toolbar-field-focus-border-color);
   outline: 1px solid var(--toolbar-field-focus-border-color);
 }
 
 .gloda-search:-moz-lwtheme:focus,
-:root[lwt-tree] .themeableSearchBox:focus,
-:root[lwt-tree] .themeableSearchBox[focused="true"],
+:root[lwt-tree] .themeableSearchBox:is(:focus, [focused="true"]),
 :root[lwt-tree] #peopleSearchInput[focused="true"],
 .remote-gloda-search:-moz-lwtheme[focused="true"] {
   color: var(--toolbar-field-focus-color);
@@ -88,8 +86,7 @@
 }
 
 .gloda-search:not(:focus)::selection,
-.themeableSearchBox:not(:focus)::selection,
-.themeableSearchBox:not([focused="true"])::selection {
+.themeableSearchBox:not(:focus, [focused="true"])::selection {
   background-color: var(--lwt-toolbar-field-highlight, text-select-disabled-background);
 }
 
@@ -112,15 +109,15 @@
   margin-inline: 2px;
   padding-inline-start: 12px;
   border-radius: 2px;
-}
 
-.autocomplete-richlistitem[type^="gloda-"]:hover {
-  background-color: hsla(0, 0%, 80%, 0.3);
-}
+  &:hover {
+    background-color: hsla(0, 0%, 80%, 0.3);
+  }
 
-.autocomplete-richlistitem[type^="gloda-"][selected] {
-  background: var(--autocomplete-popup-highlight-background);
-  color: var(--autocomplete-popup-highlight-color);
+  &[selected] {
+    background: var(--autocomplete-popup-highlight-background);
+    color: var(--autocomplete-popup-highlight-color);
+  }
 }
 
 .remote-gloda-search-container {

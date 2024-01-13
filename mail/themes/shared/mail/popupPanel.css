@@ -49,19 +49,19 @@ html|input.editContactTextbox {
   border-radius: var(--button-border-radius);
   padding: 3px 8px;
   width: 20em;
-}
 
-html|input.editContactTextbox:focus {
-  border-color: var(--focus-outline-color);
-  outline: 1px solid var(--focus-outline-color);
-}
+  &:focus {
+    border-color: var(--focus-outline-color);
+    outline: 1px solid var(--focus-outline-color);
+  }
 
-html|input.editContactTextbox[readonly] {
-  border-color: transparent !important;
-  background-color: inherit !important;
-  box-shadow: none;
-  color: inherit;
-  outline: none !important;
+  &[readonly] {
+    border-color: transparent !important;
+    background-color: inherit !important;
+    box-shadow: none;
+    color: inherit;
+    outline: none !important;
+  }
 }
 
 #contactMoveDisabledText {
@@ -79,18 +79,18 @@ html|input.editContactTextbox[readonly] {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-}
 
-#editContactAddressBookList:not([disabled="true"],[open="true"]):hover {
-  background-image: linear-gradient(var(--arrowpanel-dimmed),
-                                    var(--arrowpanel-dimmed));
-  background-color: var(--arrowpanel-dimmed);
-}
+  &:not([disabled="true"],[open="true"]):hover {
+    background-image: linear-gradient(var(--arrowpanel-dimmed),
+                                      var(--arrowpanel-dimmed));
+    background-color: var(--arrowpanel-dimmed);
+  }
 
-#editContactAddressBookList[open="true"] {
-  background-image: linear-gradient(var(--arrowpanel-dimmed-further),
-                                    var(--arrowpanel-dimmed-further));
-  box-shadow: 0 1px 0 hsla(210, 4%, 10%, .05) inset;
+  &[open="true"] {
+    background-image: linear-gradient(var(--arrowpanel-dimmed-further),
+                                      var(--arrowpanel-dimmed-further));
+    box-shadow: 0 1px 0 hsla(210, 4%, 10%, .05) inset;
+  }
 }
 
 #spacesToolbarCustomizationPanel {
@@ -99,17 +99,32 @@ html|input.editContactTextbox[readonly] {
 
 .popup-panel {
   margin-block: 0;
+
+  & button:focus-visible,
+  & input[type="color"]:focus-visible {
+    outline: 2px solid var(--focus-outline-color);
+    outline-offset: -1px;
+  }
+
+  & label,
+  & checkbox {
+    margin-inline-start: 0;
+
+    &.indent {
+      margin-inline-start: 23px;
+    }
+  }
 }
 
 .popup-panel-body {
   padding: 9px 15px;
   min-width: 300px;
-}
 
-.popup-panel-body h3 {
-  margin-block: 0 15px;
-  font-size: 1.4em;
-  font-weight: 500;
+  & h3 {
+    margin-block: 0 15px;
+    font-size: 1.4em;
+    font-weight: 500;
+  }
 }
 
 .popup-panel-options-grid {
@@ -118,10 +133,10 @@ html|input.editContactTextbox[readonly] {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 6px;
-}
 
-.popup-panel-options-grid input {
-  margin-inline-end: 0;
+  & input {
+    margin-inline-end: 0;
+  }
 }
 
 .popup-panel-column-container {
@@ -131,83 +146,64 @@ html|input.editContactTextbox[readonly] {
   gap: 6px;
 }
 
-.popup-panel button:focus-visible,
-.popup-panel input[type="color"]:focus-visible {
-  outline: 2px solid var(--focus-outline-color);
-  outline-offset: -1px;
-}
-
-.popup-panel label,
-.popup-panel checkbox {
-  margin-inline-start: 0;
-}
-
-.popup-panel label.indent,
-.popup-panel checkbox.indent {
-  margin-inline-start: 23px;
-}
-
 .popup-panel-buttons-container {
   display: flex;
   align-items: center;
   margin: 0;
   justify-content: end;
-}
 
-.popup-panel-buttons-container > button {
-  appearance: none;
-  border: 0;
-  border-radius: 4px;
-  color: var(--button-color, inherit);
-  background-color: var(--button-background-color, color-mix(in srgb, currentColor 13%, transparent));
-  padding: 8px 16px;
-  font-weight: 600;
-  min-width: 0;
-  margin-inline: 8px 0;
-  margin-bottom: 0;
-}
+  & > button {
+    appearance: none;
+    border: 0;
+    border-radius: 4px;
+    color: var(--button-color, inherit);
+    background-color: var(--button-background-color, color-mix(in srgb, currentColor 13%, transparent));
+    padding: 8px 16px;
+    font-weight: 600;
+    min-width: 0;
+    margin-inline: 8px 0;
+    margin-bottom: 0;
 
-@media (prefers-contrast) {
-  .popup-panel-buttons-container > button {
-    outline: 1px solid var(--button-border-color);
+    @media (prefers-contrast) {
+      outline: 1px solid var(--button-border-color);
+    }
+
+    &[disabled] {
+      opacity: 0.4;
+    }
+
+    &:focus-visible {
+      outline: var(--focus-outline);
+      outline-offset: var(--focus-outline-offset);
+    }
+
+    &:not([disabled]):hover {
+      background-color: var(--button-hover-background-color, color-mix(in srgb, currentColor 17%, transparent));
+      color: var(--button-hover-text-color);
+
+      &:active {
+        background-color: var(--button-active-background-color, color-mix(in srgb, currentColor 30%, transparent));
+      }
+    }
+
+    &.primary:not([disabled]) {
+      color: var(--button-primary-color);
+      background-color: var(--button-primary-background-color);
+
+      &:hover {
+        background-color: var(--button-primary-hover-background-color);
+
+        &:active {
+          background-color: var(--button-primary-active-background-color);
+        }
+      }
+    }
   }
 }
 
-.popup-panel-buttons-container > button[disabled] {
-  opacity: 0.4;
-}
-
-.popup-panel-buttons-container > button:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: var(--focus-outline-offset);
-}
-
-.popup-panel-buttons-container > button:not([disabled]):hover {
-  background-color: var(--button-hover-background-color, color-mix(in srgb, currentColor 17%, transparent));
-  color: var(--button-hover-text-color);
-}
-
-
-.popup-panel-buttons-container > button:not([disabled]):hover:active {
-  background-color: var(--button-active-background-color, color-mix(in srgb, currentColor 30%, transparent));
-}
-
-.popup-panel-buttons-container > button.primary:not([disabled]) {
-  color: var(--button-primary-color);
-  background-color: var(--button-primary-background-color);
-}
-
-.popup-panel-buttons-container > button.primary:not([disabled]):hover {
-  background-color: var(--button-primary-hover-background-color);
-}
-
-.popup-panel-buttons-container > button.primary:not([disabled]):hover:active {
-  background-color: var(--button-primary-active-background-color);
-}
-
 .checkbox-description {
-  margin-inline-start: 23px;
   font-size: 0.95rem;
-  opacity: 0.8;
   margin-block: -5px 6px;
+  margin-inline-start: 23px;
+  opacity: 0.8;
 }

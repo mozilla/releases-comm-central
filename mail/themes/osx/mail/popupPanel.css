@@ -9,14 +9,14 @@
 #editContactAddressBookList {
   margin-inline: 6px;
   padding-inline-start: 8px;
-}
 
-#editContactAddressBookList:focus {
-  outline: var(--focus-outline);
-}
+  &:focus {
+    outline: var(--focus-outline);
+  }
 
-#editContactAddressBookList[disabled="true"] {
-  opacity: .5;
+  &[disabled="true"] {
+    opacity: .5;
+  }
 }
 
 html|input.editContactTextbox {

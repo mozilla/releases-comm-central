@@ -45,37 +45,43 @@ li {
   align-items: center;
 }
 
+.running {
+  font-weight: bold;
+}
+
 .task-icon {
   margin-inline-end: 8px;
   width: 16px;
   height: 16px;
   -moz-context-properties: fill;
   fill: currentColor;
-}
 
-.running {
-  font-weight: bold;
+  .finished & {
+    background-image: url("chrome://global/skin/icons/check.svg");
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .running & {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .running &::before {
+      content: "";
+      position: absolute;
+      background-image: url("chrome://messenger/skin/icons/loading.svg");
+      width: 480px;
+      height: 100%;
+      animation: tab-throbber-animation 1.05s steps(30) infinite;
+    }
+
+    .running &:dir(rtl)::before {
+      animation-name: tab-throbber-animation-rtl;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .running .task-icon {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .running .task-icon::before {
-    content: "";
-    position: absolute;
-    background-image: url("chrome://messenger/skin/icons/loading.svg");
-    width: 480px;
-    height: 100%;
-    animation: tab-throbber-animation 1.05s steps(30) infinite;
-  }
-
-  .running .task-icon:dir(rtl)::before {
-    animation-name: tab-throbber-animation-rtl;
-  }
-
   @keyframes tab-throbber-animation {
     0% { transform: translateX(0); }
     100% { transform: translateX(-100%); }
@@ -85,10 +91,6 @@ li {
     0% { transform: translateX(0); }
     100% { transform: translateX(100%); }
   }
-}
-
-.finished .task-icon {
-  background-image: url("chrome://global/skin/icons/check.svg");
 }
 
 progress {
