@@ -2942,7 +2942,7 @@ var folderPane = {
   },
 
   /**
-   * Set a timer to expand `row` in 500ms. If called again before the timer
+   * Set a timer to expand `row` in 1000ms. If called again before the timer
    * expires and with a different row, the timer is cleared and a new one
    * started. If `row` is falsy or isn't collapsed the timer is cleared.
    *
@@ -2954,6 +2954,8 @@ var folderPane = {
     }
     if (this._expandTimer) {
       clearTimeout(this._expandTimer);
+      delete this._expandRow;
+      delete this._expandTimer;
     }
     if (!row?.classList.contains("collapsed")) {
       return;
