@@ -201,10 +201,13 @@ for (const perm of [
   "experiment",
   "messagesImport",
   "messagesModify",
+  "messagesModifyPermanent",
   "messagesMove",
   "messagesDelete",
   "messagesRead",
+  "messagesUpdate",
   "messagesTags",
+  "messagesTagsList",
   "sensitiveDataUpload",
 ]) {
   PERMISSIONS_WITH_MESSAGE.add(perm);
