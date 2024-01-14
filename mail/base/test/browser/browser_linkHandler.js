@@ -101,6 +101,30 @@ const mockExternalProtocolService = {
 
   _deferred: null,
 
+  externalProtocolHandlerExists() {
+    return false;
+  },
+
+  isExposedProtocol(protocolScheme) {
+    return true;
+  },
+
+  getProtocolHandlerInfo(protocolScheme) {
+    throw Components.Exception(
+      "getProtocolHandlerInfo not implemented",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
+  },
+
+  getProtocolHandlerInfoFromOS(protocolScheme, aFound) {
+    throw Components.Exception(
+      "getProtocolHandlerInfoFromOS not implemented",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
+  },
+
+  setProtocolHandlerDefaults(handlerInfo, osHandlerExists) {},
+
   loadURI(aURI, aWindowContext) {
     if (this._deferred) {
       const deferred = this._deferred;
@@ -111,6 +135,17 @@ const mockExternalProtocolService = {
       this.cancelPromise();
       Assert.ok(false, "unexpected call to external protocol service");
     }
+  },
+
+  getApplicationDescription(scheme) {
+    throw Components.Exception(
+      "getApplicationDescription not implemented",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
+  },
+
+  isCurrentAppOSDefaultForProtocol(scheme) {
+    return true;
   },
 
   promiseEvent() {
