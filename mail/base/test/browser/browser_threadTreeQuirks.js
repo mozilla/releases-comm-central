@@ -551,6 +551,10 @@ add_task(async function testThreadTreeA11yRoles() {
   );
 
   about3Pane.sortController.sortThreaded();
+  await BrowserTestUtils.waitForCondition(
+    () => threadTree.dataset.showGroupedBySort == "false",
+    "The tree view should not be grouped by sort"
+  );
 
   await BrowserTestUtils.waitForCondition(
     () => threadTree.table.body.getAttribute("role") == "treegrid",
@@ -567,6 +571,10 @@ add_task(async function testThreadTreeA11yRoles() {
   );
 
   about3Pane.sortController.groupBySort();
+  await BrowserTestUtils.waitForCondition(
+    () => threadTree.dataset.showGroupedBySort == "true",
+    "The tree view should be grouped by sort"
+  );
   threadTree.scrollToIndex(0, true);
 
   await BrowserTestUtils.waitForCondition(
@@ -584,6 +592,10 @@ add_task(async function testThreadTreeA11yRoles() {
   );
 
   about3Pane.sortController.sortUnthreaded();
+  await BrowserTestUtils.waitForCondition(
+    () => threadTree.dataset.showGroupedBySort == "false",
+    "The tree view should not be grouped by sort"
+  );
 });
 
 async function messageLoaded(index) {

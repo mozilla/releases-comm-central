@@ -4826,6 +4826,7 @@ var threadPane = {
     ) {
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
     }
+    threadTree.dataset.showGroupedBySort = gViewWrapper.showGroupedBySort;
   },
 
   /**

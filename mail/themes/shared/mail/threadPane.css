@@ -681,10 +681,35 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
   fill-opacity: 0.6;
 }
 
-/* Vertical layout cards */
+/* Cards View */
 
 #threadTree[rows="thread-card"] {
   background-color: var(--thread-card-background);
+
+  &[data-show-grouped-by-sort~="true"] tbody [data-properties~="thread-children"] {
+    &:not([data-properties~="unread"]) {
+      & .thread-card-container::after {
+        --indicator-icon-fill: transparent;
+        --indicator-icon-stroke: transparent;
+      }
+    }
+
+    & .thread-card-container {
+      padding-inline-start: var(--thread-card-inline-doubled);
+      margin-inline-start: 0;
+
+      &::after {
+        inset-inline-start: var(--indicator-icon-offset-inline);
+        inset-block-start: var(--indicator-icon-offset-block);
+        --indicator-icon-offset-inline: revert;
+        --indicator-icon-offset-block: revert;
+      }
+
+      &::before {
+        display: none;
+      }
+    }
+  }
 }
 
 tr[is="thread-card"] {
