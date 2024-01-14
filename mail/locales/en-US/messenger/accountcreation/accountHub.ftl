@@ -103,6 +103,9 @@ account-hub-ssl-encrypted-password-option =
 account-hub-ssl-noencryption-option =
     .label = None
 
+account-hub-auth-no-authentication-option =
+    .label = No Authentication
+
 account-hub-auth-label = Authentication method
 
 account-hub-username-label = Username

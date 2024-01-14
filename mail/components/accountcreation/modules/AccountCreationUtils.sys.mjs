@@ -19,6 +19,11 @@ import {
   setTimeout,
 } from "resource://gre/modules/Timer.sys.mjs";
 
+// Helper constants.
+// TODO: Convert to map.
+
+const standardPorts = [143, 993, 110, 995, 587, 25, 465, 443];
+
 // --------------------------
 // Low level, basic functions
 
@@ -705,6 +710,7 @@ export const AccountCreationUtils = {
   PromiseAbortable,
   readURLasUTF8,
   runAsync,
+  standardPorts,
   SuccessiveAbortable,
   TimeoutAbortable,
   UserCancelledException,

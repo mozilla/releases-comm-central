@@ -15,7 +15,12 @@ const { Sanitizer } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/Sanitizer.sys.mjs"
 );
 
-const { CancelledException, gAccountSetupLogger } = AccountCreationUtils;
+const { OAuth2Providers } = ChromeUtils.import(
+  "resource:///modules/OAuth2Providers.jsm"
+);
+
+const { CancelledException, gAccountSetupLogger, standardPorts } =
+  AccountCreationUtils;
 
 class AccountHubEmail extends HTMLElement {
   /**
@@ -243,6 +248,13 @@ class AccountHubEmail extends HTMLElement {
    */
   #abortable;
 
+  /**
+   * The current Account Config object based on the users form element inputs.
+   *
+   * @type {AccountConfig}
+   */
+  #currentConfig;
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -316,7 +328,9 @@ class AccountHubEmail extends HTMLElement {
         this.#manualConfigureEmailFormSubview.hidden = false;
         this.setNotificationBar("manualEmail");
         this.setFooterButtons("manualEmail");
-        this.#checkValidManualEmailForm();
+
+        // Update currentConfig since there are default values on the form.
+        this.#currentConfig = this.getManualUserConfig();
         break;
       case "emailAdded":
         this.#emailAddedSubview.hidden = false;
@@ -354,30 +368,58 @@ class AccountHubEmail extends HTMLElement {
       event.stopPropagation();
     });
 
-    this.#realName.addEventListener("input", () => this.#checkValidEmailForm());
-    this.#email.addEventListener("input", () => this.#checkValidEmailForm());
-    this.#password.addEventListener("input", () => this.#onPasswordInput());
-
     this.#passwordToggleButton.addEventListener("click", event => {
-      this.#togglePasswordInput(
-        event.target.getAttribute("aria-pressed") === "false"
-      );
+      this.#togglePasswordInput(event.target.ariaPressed === "false");
+    });
+
+    // Auto email config event listeners.
+    this.#realName.addEventListener("input", () => {
+      this.#checkValidEmailForm();
+    });
+    this.#email.addEventListener("input", () => {
+      this.#checkValidEmailForm();
+    });
+
+    this.#password.addEventListener("input", () => {
+      this.#onPasswordInput();
+    });
+
+    // Manual email config event listeners.
+    this.#incomingHostname.addEventListener("change", () => {
+      this.#adjustOAuth2Visibility();
+    });
+    this.#outgoingHostname.addEventListener("change", () => {
+      this.#adjustOAuth2Visibility();
+    });
+    this.#incomingPort.addEventListener("change", () => {
+      this.#adjustSSLToPort(true);
+    });
+    this.#outgoingPort.addEventListener("change", () => {
+      this.#adjustSSLToPort(false);
+    });
+    this.#incomingConnectionSecurity.addEventListener("command", () => {
+      this.#adjustPortToSSLAndProtocol(true);
+    });
+    this.#outgoingConnectionSecurity.addEventListener("command", () => {
+      this.#adjustPortToSSLAndProtocol(false);
+    });
+    this.#incomingProtocol.addEventListener("command", () => {
+      this.#adjustPortToSSLAndProtocol(true);
+    });
+
+    this.#outgoingAuthenticationMethod.addEventListener("command", event => {
+      // Disable the outgoing username field if the "No Authentication" option
+      // is selected.
+      this.#outgoingUsername.disabled = event.target.value == 1;
     });
 
     // Set the manual email config button. This should hide the current email
     // form and display the manual configuration email form.
-    this.#manualConfigButton.addEventListener("click", event => {
+    this.#manualConfigButton.addEventListener("click", () => {
       this.#incomingUsername.value = this.#email.value;
       this.#outgoingUsername.value = this.#email.value;
       this.initUI("manualEmail");
     });
-
-    this.#incomingHostname.addEventListener("input", () =>
-      this.#checkValidManualEmailForm()
-    );
-    this.#outgoingHostname.addEventListener("input", () =>
-      this.#checkValidManualEmailForm()
-    );
 
     // Set the Cancel button.
     this.#cancelButton.addEventListener("click", () => {
@@ -419,26 +461,13 @@ class AccountHubEmail extends HTMLElement {
     this.#domain = isValidForm
       ? this.#email.value.split("@")[1].toLowerCase()
       : "";
+    this.#outgoingHostname.value = this.#domain;
+    this.#incomingHostname.value = this.#domain;
+    this.#incomingUsername.value = isValidForm ? this.#email.value : "";
+    this.#outgoingUsername.value = isValidForm ? this.#email.value : "";
 
     this.#continueButton.disabled = !isValidForm;
     this.#manualConfigButton.hidden = !isValidForm;
-  }
-
-  #checkValidManualEmailForm() {
-    // TODO: Put manual config validation here
-    const isValidForm = false;
-
-    this.#retestButton.disabled = !isValidForm;
-    this.#continueButton.disabled = !isValidForm;
-
-    // Enable Retest button if there are hostnames for outgoing and incoming.
-    if (
-      this.#incomingHostname.checkValidity() &&
-      this.#outgoingHostname.checkValidity()
-    ) {
-      //TODO: Properly validate hostnames
-      this.#retestButton.disabled = false;
-    }
   }
 
   /**
@@ -468,10 +497,204 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
+   * Make OAuth2 visible as an authentication method when a hostname that
+   * OAuth2 can be used with is entered.
+   */
+  #adjustOAuth2Visibility() {
+    this.#currentConfig = this.getManualUserConfig();
+    this.#currentConfig.incoming.oauthSettings = {};
+    this.#currentConfig.outgoing.oauthSettings = {};
+
+    // If the incoming server hostname supports OAuth2, enable it.
+    const incomingDetails = OAuth2Providers.getHostnameDetails(
+      this.#currentConfig.incoming.hostname
+    );
+
+    this.querySelector("#incomingAuthMethodOAuth2").hidden = !incomingDetails;
+    if (incomingDetails) {
+      gAccountSetupLogger.debug(
+        `OAuth2 details for incoming server ${
+          this.#currentConfig.incoming.hostname
+        } is ${incomingDetails}`
+      );
+      [
+        this.#currentConfig.incoming.oauthSettings.issuer,
+        this.#currentConfig.incoming.oauthSettings.scope,
+      ] = incomingDetails;
+    }
+
+    // If the smtp hostname supports OAuth2, enable it.
+    const outgoingDetails = OAuth2Providers.getHostnameDetails(
+      this.#currentConfig.outgoing.hostname
+    );
+    this.querySelector("#outgoingAuthMethodOAuth2").hidden = !outgoingDetails;
+    if (outgoingDetails) {
+      gAccountSetupLogger.debug(
+        `OAuth2 details for outgoing server ${
+          this.#currentConfig.outgoing.hostname
+        } is ${outgoingDetails}`
+      );
+      [
+        this.#currentConfig.outgoing.oauthSettings.issuer,
+        this.#currentConfig.outgoing.oauthSettings.scope,
+      ] = outgoingDetails;
+    }
+
+    this.#validateManualConfigForm();
+  }
+
+  /**
+   * Automatically fill port field when connection security has changed in
+   * manual edit, unless the user entered a non-standard port.
+   *
+   * @param {boolean} incoming - True if incoming port, else outgoing port.
+   */
+  #adjustPortToSSLAndProtocol(incoming) {
+    const config = this.getManualUserConfig();
+    const configDirection = incoming ? config.incoming : config.outgoing;
+
+    if (configDirection.port && !standardPorts.includes(configDirection.port)) {
+      return;
+    }
+
+    if (incoming) {
+      switch (configDirection.type) {
+        case "imap":
+          this.#incomingPort.value =
+            configDirection.socketType == Ci.nsMsgSocketType.SSL ? 993 : 143;
+          break;
+
+        case "pop3":
+          this.#incomingPort.value =
+            configDirection.socketType == Ci.nsMsgSocketType.SSL ? 995 : 110;
+          break;
+
+        case "exchange":
+          this.#incomingPort.value = 443;
+          break;
+      }
+      configDirection.port = this.#incomingPort.value;
+      config.incoming = configDirection;
+    } else {
+      // Implicit TLS for SMTP is on port 465.
+      if (configDirection.socketType == Ci.nsMsgSocketType.SSL) {
+        this.#outgoingPort.value = 465;
+      } else if (
+        (configDirection.port == 465 || !configDirection.port) &&
+        configDirection.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS
+      ) {
+        // Implicit TLS for SMTP is on port 465. STARTTLS won't work there.
+        this.#outgoingPort.value = 587;
+      }
+
+      configDirection.port = this.#outgoingPort.value;
+      config.outgoing = configDirection;
+    }
+
+    this.#currentConfig = config;
+    this.#validateManualConfigForm();
+  }
+
+  /**
+   * If the user changed the port manually, adjust the SSL value,
+   * (only) if the new port is impossible with the old SSL value.
+   *
+   * @param {boolean} incoming - True if incoming port, else outgoing port.
+   */
+  #adjustSSLToPort(incoming) {
+    const config = this.getManualUserConfig();
+    const configDirection = incoming ? config.incoming : config.outgoing;
+
+    if (!standardPorts.includes(configDirection.port)) {
+      return;
+    }
+
+    if (incoming) {
+      if (configDirection.type == "imap") {
+        // Implicit TLS for IMAP is on port 993.
+        if (
+          configDirection.port == 993 &&
+          configDirection.socketType != Ci.nsMsgSocketType.SSL
+        ) {
+          this.#incomingConnectionSecurity.value = Ci.nsMsgSocketType.SSL;
+        } else if (
+          configDirection.port == 143 &&
+          configDirection.socketType == Ci.nsMsgSocketType.SSL
+        ) {
+          this.#incomingConnectionSecurity.value =
+            Ci.nsMsgSocketType.alwaysSTARTTLS;
+        }
+      }
+
+      if (configDirection.type == "pop3") {
+        // Implicit TLS for POP3 is on port 995.
+        if (
+          configDirection.port == 995 &&
+          configDirection.socketType != Ci.nsMsgSocketType.SSL
+        ) {
+          this.#incomingConnectionSecurity.value = Ci.nsMsgSocketType.SSL;
+        } else if (
+          configDirection.port == 110 &&
+          configDirection.socketType == Ci.nsMsgSocketType.SSL
+        ) {
+          this.#incomingConnectionSecurity.value =
+            Ci.nsMsgSocketType.alwaysSTARTTLS;
+        }
+      }
+
+      configDirection.socketType = this.#incomingConnectionSecurity.value;
+      config.incoming = configDirection;
+    } else {
+      // Outgoing port change.
+      if (
+        configDirection.port == 465 &&
+        configDirection.socketType != Ci.nsMsgSocketType.SSL
+      ) {
+        this.#outgoingConnectionSecurity.value = Ci.nsMsgSocketType.SSL;
+      } else if (
+        (configDirection.port == 587 || configDirection.port == 25) &&
+        configDirection.socketType == Ci.nsMsgSocketType.SSL
+      ) {
+        // Port 587 and port 25 are for plain or STARTTLS. Not for Implicit TLS.
+        this.#outgoingConnectionSecurity.value =
+          Ci.nsMsgSocketType.alwaysSTARTTLS;
+      }
+
+      configDirection.socketType = this.#outgoingConnectionSecurity.value;
+      config.outgoing = configDirection;
+    }
+
+    this.#currentConfig = config;
+    this.#validateManualConfigForm();
+  }
+
+  /**
+   * This enables the buttons which allow the user to proceed
+   * once they have entered enough information on manual config.
+   *
+   * Once the user has entered (or we detected) all values, they may
+   * do [Create Account] (tests login and if successful creates the account)
+   * or [Advanced Setup] (goes to Account Manager). Esp. in the latter case,
+   * we will not second-guess their setup and just to use their values,
+   * so here we make sure that they at least have entered all values.
+   */
+  #validateManualConfigForm() {
+    this.#retestButton.disabled =
+      !this.#currentConfig.incoming.hostname ||
+      !this.#currentConfig.outgoing.hostname;
+
+    if (this.#currentConfig.isComplete()) {
+      this.#continueButton.disabled = false;
+      // TODO: Enable advanced config button
+      return;
+    }
+
+    this.#continueButton.disabled = true;
+  }
+
+  /**
    * Click handler for re-test button. Guesses the email account config after
    * a user has inputted all manual config fields and pressed re-test.
-   *
-   *
    */
   async testManualConfig() {
     // Show loading view.
@@ -480,10 +703,10 @@ class AccountHubEmail extends HTMLElement {
     // Clear error notifications.
     this.clearNotifications();
 
-    const userConfig = this.getManualUserConfig();
+    this.#currentConfig = this.getManualUserConfig();
 
     this.#abortable = GuessConfig.guessConfig(
-      this._domain,
+      this.#domain,
       (type, hostname, port, ssl, done, config) => {
         gAccountSetupLogger.debug(
           `progress callback host: ${hostname}, port: ${port}, type: ${type}`
@@ -492,6 +715,7 @@ class AccountHubEmail extends HTMLElement {
       config => {
         // TODO: Success - Refill and validate inputs, enable continue button.
         this.#abortable = null;
+        this.#validateManualConfigForm();
       },
       (error, config) => {
         this.#abortable = null;
@@ -506,8 +730,8 @@ class AccountHubEmail extends HTMLElement {
         this.initUI("manualEmail");
         this.showErrorNotification("account-hub-find-settings-failed", "");
       },
-      userConfig,
-      userConfig.outgoing.existingServerKey ? "incoming" : "both"
+      this.#currentConfig,
+      this.#currentConfig.outgoing.existingServerKey ? "incoming" : "both"
     );
   }
 
