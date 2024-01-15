@@ -1013,13 +1013,25 @@ var dbViewWrapperListener = {
     if (!window.threadPane) {
       return;
     }
+
+    // nsMsgQuickSearchDBView::SortThreads leaves all threads expanded in any
+    // case.
+    if (
+      all &&
+      gViewWrapper.isSingleFolder &&
+      gViewWrapper.search.hasSearchTerms &&
+      gViewWrapper.showThreaded &&
+      !gViewWrapper._threadExpandAll
+    ) {
+      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+    }
+
     // Try to restore what was selected. Keep the saved selection (if there is
     // one) until we have all of the messages. This will also reveal selected
     // messages in collapsed threads.
     window.threadPane.restoreSelection({ discard: all });
 
     if (all || gViewWrapper.search.hasSearchTerms) {
-      window.threadPane.ensureThreadStateForQuickSearchView();
       let newMessageFound = false;
       if (window.threadPane.scrollToNewMessage) {
         try {
