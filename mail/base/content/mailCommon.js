@@ -957,8 +957,22 @@ var dbViewWrapperListener = {
   get shouldDeferMessageDisplayUntilAfterServerConnect() {
     return false;
   },
+
+  /**
+   * Let the viewWrapper know if it should mark the messages read when leaving
+   * the provided folder.
+   *
+   * TODO: Consider retiring this in favor of an folders.onLeavingFolder API
+   * event (or something similar) that add-ons could hook into.
+   *
+   * @returns {boolean} true if we should mark this folder as read when leaving
+   * it.
+   */
   shouldMarkMessagesReadOnLeavingFolder(msgFolder) {
-    return false;
+    return Services.prefs.getBoolPref(
+      `mailnews.mark_message_read.${msgFolder.server.type}`,
+      false
+    );
   },
   onFolderLoading(isFolderLoading) {},
   onSearching(isSearching) {},

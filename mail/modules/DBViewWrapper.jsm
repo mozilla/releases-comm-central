@@ -336,22 +336,6 @@ IDBViewWrapperListener.prototype = {
     return false;
   },
 
-  /**
-   * Should we mark all messages in a folder as read on exit?
-   * This is nominally controlled by the "mailnews.mark_message_read.SERVERTYPE"
-   *  preference (on a per-server-type basis).
-   * For the record, this functionality should not remotely be in the core.
-   *
-   * @param aMsgFolder The folder we are leaving and are unsure if we should
-   *     mark all its messages read.  I pass the folder instead of the server
-   *     type because having a crazy feature like this will inevitably lead to
-   *     a more full-featured crazy feature (why not on a per-folder basis, eh?)
-   * @returns true if we should mark all the dudes as read, false if not.
-   */
-  shouldMarkMessagesReadOnLeavingFolder(aMsgFolder) {
-    return false;
-  },
-
   /* ===== Event Notifications ===== */
   /* === Status Changes === */
   /**

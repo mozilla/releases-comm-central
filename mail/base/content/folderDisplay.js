@@ -227,16 +227,6 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * Let the viewWrapper know if it should mark the messages read when leaving
-   *  the provided folder.
-   *
-   * @returns true if the preference is set for the folder's server type.
-   */
-  shouldMarkMessagesReadOnLeavingFolder(aMsgFolder) {
-    return false;
-  },
-
-  /**
    * The view wrapper tells us when it starts loading a folder, and we set the
    *  cursor busy.  Setting the cursor busy on a per-tab basis is us being
    *  nice to the future. Loading a folder is a blocking operation that is going
