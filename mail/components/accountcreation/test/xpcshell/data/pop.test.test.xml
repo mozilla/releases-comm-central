@@ -1,0 +1,21 @@
+<clientConfig version="1.1">
+  <emailProvider id="test.test">
+    <domain>test.test</domain>
+    <displayName>test.test</displayName>
+    <displayShortName>test.test</displayShortName>
+    <incomingServer type="pop3">
+      <hostname>pop.test.test</hostname>
+      <port>110</port>
+      <socketType>STARTTLS</socketType>
+      <authentication>plain</authentication>
+      <username>%EMAILLOCALPART%</username>
+    </incomingServer>
+    <outgoingServer type="smtp">
+      <hostname>smtp.test.test</hostname>
+      <port>587</port>
+      <socketType>STARTTLS</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>plain</authentication>
+    </outgoingServer>
+  </emailProvider>
+</clientConfig>
