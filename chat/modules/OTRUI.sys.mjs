@@ -529,7 +529,7 @@ export var OTRUI = {
     return result;
   },
 
-  askAuth(aObject) {
+  async askAuth(aObject) {
     const uiConv = OTR.getUIConvFromContext(aObject.context);
     if (!uiConv) {
       return;
@@ -562,7 +562,7 @@ export var OTRUI = {
       },
     ];
 
-    const notification = this.globalBox.appendNotification(
+    const notification = await this.globalBox.appendNotification(
       `ask-auth-${name}`,
       {
         label: msg,
@@ -571,7 +571,7 @@ export var OTRUI = {
       buttons
     );
 
-    notification.removeAttribute("dismissable");
+    notification.dismissable = false;
   },
 
   closeAskAuthNotification(aObject) {
@@ -622,12 +622,12 @@ export var OTRUI = {
     const name = context.username;
     for (const notification of this.globalBox.allNotifications) {
       if (name == notification.getAttribute("user")) {
-        notification.removeAttribute("hidden");
+        notification.hidden = false;
       }
     }
   },
 
-  notifyUnverified(context, seen) {
+  async notifyUnverified(context, seen) {
     const uiConv = OTR.getUIConvFromContext(context);
     if (!uiConv) {
       return;
@@ -657,7 +657,7 @@ export var OTRUI = {
       },
     ];
 
-    const notification = this.globalBox.appendNotification(
+    const notification = await this.globalBox.appendNotification(
       name,
       {
         label: _strArgs(`finger-${seen}`, { name }),
@@ -673,7 +673,7 @@ export var OTRUI = {
     notification.setAttribute("protocol", "otr");
     notification.setAttribute("status", AUTH_STATUS_UNVERIFIED);
     // Prevent users from dismissing this notification.
-    notification.removeAttribute("dismissable");
+    notification.dismissable = false;
 
     if (!this.visibleConv) {
       return;
@@ -698,7 +698,7 @@ export var OTRUI = {
     }
   },
 
-  notifyVerification(context, key, cancelable, verifiable) {
+  async notifyVerification(context, key, cancelable, verifiable) {
     const uiConv = OTR.getUIConvFromContext(context);
     if (!uiConv) {
       return;
@@ -763,7 +763,7 @@ export var OTRUI = {
     }
 
     OTRUI.closeUnverified(context);
-    const notification = this.globalBox.appendNotification(
+    const notification = await this.globalBox.appendNotification(
       context.username,
       {
         label: authLabelMap.get(key),
@@ -788,7 +788,7 @@ export var OTRUI = {
     if (!dismissable) {
       // Prevent users from dismissing this notification if something is in
       // progress or an action is required.
-      notification.removeAttribute("dismissable");
+      notification.dismissable = false;
     }
   },
 

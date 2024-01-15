@@ -143,7 +143,7 @@ function saveAndClose(aResponseMode) {
   document.querySelector("dialog").acceptDialog();
 }
 
-function updateToolbar() {
+async function updateToolbar() {
   if (window.readOnly || window.isInvitation !== true) {
     document.getElementById("summary-toolbox").hidden = true;
     return;
@@ -181,14 +181,16 @@ function updateToolbar() {
 
     const msg = cal.l10n.getString("calendar-event-dialog", msgStr[partStat]);
 
-    gStatusNotification.appendNotification(
-      "statusNotification",
-      {
-        label: msg,
-        priority: gStatusNotification.PRIORITY_INFO_MEDIUM,
-      },
-      null
-    );
+    await gStatusNotification
+      .appendNotification(
+        "statusNotification",
+        {
+          label: msg,
+          priority: gStatusNotification.PRIORITY_INFO_MEDIUM,
+        },
+        null
+      )
+      .catch(console.warn);
   } else {
     gStatusNotification.removeAllNotifications();
   }

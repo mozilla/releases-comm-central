@@ -166,7 +166,7 @@ function setupRadioEnabledState(aDisableAll) {
  * Sets up the max reminders notification. Shows or hides the notification
  * depending on if the max reminders limit has been hit or not.
  */
-function setupMaxReminders() {
+async function setupMaxReminders() {
   const args = window.arguments[0];
   const listbox = document.getElementById("reminder-listbox");
   const maxReminders = args.calendar.getProperty("capabilities.alarms.maxCount");
@@ -188,7 +188,7 @@ function setupMaxReminders() {
   );
 
   if (hitMaxReminders) {
-    const notification = gReminderNotification.appendNotification(
+    const notification = await gReminderNotification.appendNotification(
       "reminderNotification",
       {
         label: pluralErrorLabel,
@@ -196,7 +196,7 @@ function setupMaxReminders() {
       },
       null
     );
-    notification.closeButton.hidden = true;
+    notification.closeButtonEl.hidden = true;
   } else {
     gReminderNotification.removeAllNotifications();
   }

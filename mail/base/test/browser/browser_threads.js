@@ -157,13 +157,9 @@ add_task(async function testIgnoreThread() {
 
   const notification =
     notificationBox.getNotificationWithValue("ignoreThreadInfo");
-  const label = notification.shadowRoot.querySelector(
-    "label.notification-message"
-  );
+  const label = notification.messageText;
   Assert.stringContains(label.textContent, testMessages[5].subject);
-  const buttons = notification.shadowRoot.querySelectorAll(
-    "button.notification-button"
-  );
+  const buttons = notification.querySelectorAll("button.notification-button");
   Assert.equal(buttons.length, 2);
 
   // Click the Learn More button, and check it opens the support page in a new tab.
@@ -238,13 +234,9 @@ add_task(async function testIgnoreSubthread() {
 
   const notification =
     notificationBox.getNotificationWithValue("ignoreThreadInfo");
-  const label = notification.shadowRoot.querySelector(
-    "label.notification-message"
-  );
+  const label = notification.messageText;
   Assert.stringContains(label.textContent, testMessages[17].subject);
-  const buttons = notification.shadowRoot.querySelectorAll(
-    "button.notification-button"
-  );
+  const buttons = notification.querySelectorAll("button.notification-button");
   Assert.equal(buttons.length, 2);
 
   // Click the Undo button, and check it stops ignoring the subthread.

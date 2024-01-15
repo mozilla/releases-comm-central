@@ -3258,7 +3258,7 @@ function manageAttachmentNotification(aForce = false) {
     }
   }
 
-  let notification =
+  const notification =
     gComposeNotification.getNotificationWithValue("attachmentReminder");
   if (removeNotification) {
     if (notification) {
@@ -3353,18 +3353,20 @@ function manageAttachmentNotification(aForce = false) {
   });
   remindButton.appendChild(remindLaterMenuPopup);
 
-  notification = gComposeNotification.appendNotification(
-    "attachmentReminder",
-    {
-      label: "",
-      priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
-    },
-    [addButton]
-  );
-  notification.setAttribute("id", "attachmentNotificationBox");
-
-  notification.messageText.appendChild(msg);
-  notification.buttonContainer.appendChild(remindButton);
+  gComposeNotification
+    .appendNotification(
+      "attachmentReminder",
+      {
+        label: "",
+        priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+      },
+      [addButton]
+    )
+    .then(notification => {
+      notification.setAttribute("id", "attachmentNotificationBox");
+      notification.messageText.appendChild(msg);
+      notification.buttonContainer.appendChild(remindButton);
+    }, console.warn);
 }
 
 function clearRecipPillKeyIssues() {
@@ -3751,7 +3753,7 @@ async function checkEncryptionState(trigger) {
           const notification =
             gComposeNotification.getNotificationWithValue(NOTIFICATION_NAME);
           if (!notification) {
-            gComposeNotification.appendNotification(
+            await gComposeNotification.appendNotification(
               NOTIFICATION_NAME,
               {
                 label: { "l10n-id": "auto-disable-e2ee-warning" },
@@ -3857,7 +3859,7 @@ async function checkEncryptionState(trigger) {
  * @param {string} technology - The technology that is possible,
  *   ("OpenPGP" or "SMIME"), or null if none is possible.
  */
-function updateEncryptionTechReminder(technology) {
+async function updateEncryptionTechReminder(technology) {
   const enableNotification =
     gComposeNotification.getNotificationWithValue("enableNotification");
   if (enableNotification) {
@@ -3873,7 +3875,7 @@ function updateEncryptionTechReminder(technology) {
       ? "can-encrypt-openpgp-notification"
       : "can-encrypt-smime-notification";
 
-  gComposeNotification.appendNotification(
+  await gComposeNotification.appendNotification(
     "enableNotification",
     {
       label: { "l10n-id": labelId },
@@ -3910,7 +3912,7 @@ async function notifyIdentityCannotEncrypt(show, addr) {
 
   if (show) {
     if (!notification) {
-      gComposeNotification.appendNotification(
+      await gComposeNotification.appendNotification(
         NOTIFICATION_NAME,
         {
           label: await document.l10n.formatValue(
@@ -3939,7 +3941,7 @@ async function notifyIdentityCannotEncrypt(show, addr) {
  * @param {string[]} emailsWithMissing - The email addresses that prevent
  *   using encryption, because certs/keys are missing.
  */
-function updateKeyCertNotifications(emailsWithMissing) {
+async function updateKeyCertNotifications(emailsWithMissing) {
   const NOTIFICATION_NAME = "keyNotification";
 
   const notification =
@@ -4011,14 +4013,16 @@ function updateKeyCertNotifications(emailsWithMissing) {
     };
   }
 
-  gComposeNotification.appendNotification(
-    NOTIFICATION_NAME,
-    {
-      label,
-      priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
-    },
-    buttons
-  );
+  await gComposeNotification
+    .appendNotification(
+      NOTIFICATION_NAME,
+      {
+        label,
+        priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+      },
+      buttons
+    )
+    .catch(console.warn);
 }
 
 /**
@@ -6683,7 +6687,7 @@ function moveSelectedPillsOnCommand(rowId) {
  * Check if there are too many public recipients and offer to send them as BCC.
  */
 function checkPublicRecipientsLimit() {
-  let notification = gComposeNotification.getNotificationWithValue(
+  const notification = gComposeNotification.getNotificationWithValue(
     "warnPublicRecipientsNotification"
   );
 
@@ -6769,36 +6773,36 @@ function checkPublicRecipientsLimit() {
   // NOTE: setting "public-recipients-notice-single" below, after the notification
   // has been appended, so that the notification can be found and no further
   // notifications are appended.
-  notification = gComposeNotification.appendNotification(
-    "warnPublicRecipientsNotification",
-    {
-      label: "", // "public-recipients-notice-single"
-      priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
-      eventCallback(state) {
-        if (state == "dismissed") {
-          ignoreButton.callback();
-        }
+  gComposeNotification
+    .appendNotification(
+      "warnPublicRecipientsNotification",
+      {
+        label: "", // "public-recipients-notice-single"
+        priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+        eventCallback(state) {
+          if (state == "dismissed") {
+            ignoreButton.callback();
+          }
+        },
       },
-    },
-    [bccButton, ignoreButton]
-  );
-
-  if (notification) {
-    if (publicAddressPillsCount > 1) {
-      document.l10n.setAttributes(
-        notification.messageText,
-        "public-recipients-notice-multi",
-        {
-          count: publicAddressPillsCount,
-        }
-      );
-    } else {
-      document.l10n.setAttributes(
-        notification.messageText,
-        "public-recipients-notice-single"
-      );
-    }
-  }
+      [bccButton, ignoreButton]
+    )
+    .then(notification => {
+      if (publicAddressPillsCount > 1) {
+        document.l10n.setAttributes(
+          notification.messageText,
+          "public-recipients-notice-multi",
+          {
+            count: publicAddressPillsCount,
+          }
+        );
+      } else {
+        document.l10n.setAttributes(
+          notification.messageText,
+          "public-recipients-notice-single"
+        );
+      }
+    }, console.warn);
 }
 
 /**
@@ -6868,7 +6872,7 @@ async function checkEncryptedBccRecipients() {
     },
   };
 
-  gComposeNotification.appendNotification(
+  await gComposeNotification.appendNotification(
     "warnEncryptedBccRecipients",
     {
       label: await document.l10n.formatValue("encrypted-bcc-warning"),
@@ -11284,7 +11288,7 @@ var gComposeNotificationBar = {
     return (this.brandBundle = document.getElementById("brandBundle"));
   },
 
-  setBlockedContent(aBlockedURI) {
+  async setBlockedContent(aBlockedURI) {
     const brandName = this.brandBundle.getString("brandShortName");
     const buttonLabel = getComposeBundle().getString(
       AppConstants.platform == "win"
@@ -11323,7 +11327,7 @@ var gComposeNotificationBar = {
     msg = PluralForm.get(urls.length, msg);
 
     if (!this.isShowingBlockedContentNotification()) {
-      gComposeNotification.appendNotification(
+      await gComposeNotification.appendNotification(
         "blockedContent",
         {
           label: msg,
@@ -11365,19 +11369,21 @@ var gComposeNotificationBar = {
       return;
     }
 
-    gComposeNotification.appendNotification(
-      "identityWarning",
-      {
-        label: await document.l10n.formatValue(
-          "compose-missing-identity-warning",
-          {
-            identity,
-          }
-        ),
-        priority: gComposeNotification.PRIORITY_WARNING_HIGH,
-      },
-      null
-    );
+    await gComposeNotification
+      .appendNotification(
+        "identityWarning",
+        {
+          label: await document.l10n.formatValue(
+            "compose-missing-identity-warning",
+            {
+              identity,
+            }
+          ),
+          priority: gComposeNotification.PRIORITY_WARNING_HIGH,
+        },
+        null
+      )
+      .catch(console.warn);
   },
 
   clearIdentityWarning() {

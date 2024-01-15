@@ -1352,7 +1352,7 @@ var chatHandler = {
       convView.switchingAwayFromPanel(aHidden);
     }
   },
-  observe(aSubject, aTopic, aData) {
+  async observe(aSubject, aTopic, aData) {
     if (aTopic == "chat-core-initialized") {
       this.initAfterChatCore();
       return;
@@ -1491,7 +1491,7 @@ var chatHandler = {
         },
       };
       const box = this.msgNotificationBar;
-      const notification = box.appendNotification(
+      const notification = await box.appendNotification(
         value,
         {
           label: authLabel,
@@ -1499,7 +1499,8 @@ var chatHandler = {
         },
         [acceptButton, denyButton]
       );
-      notification.removeAttribute("dismissable");
+      notification.closeButtonEl?.remove();
+      notification.dismissable = false;
       if (!gChatTab) {
         const tabmail = document.getElementById("tabmail");
         tabmail.openTab("chat", { background: true });
@@ -1564,7 +1565,7 @@ var chatHandler = {
         },
       };
       const box = this.msgNotificationBar;
-      const notification = box.appendNotification(
+      const notification = await box.appendNotification(
         value,
         {
           label: barLabel,
@@ -1572,7 +1573,8 @@ var chatHandler = {
         },
         [acceptButton, denyButton]
       );
-      notification.removeAttribute("dismissable");
+      notification.closeButtonEl?.remove();
+      notification.dismissable = false;
       if (!gChatTab) {
         const tabmail = document.getElementById("tabmail");
         tabmail.openTab("chat", { background: true });
@@ -1621,7 +1623,7 @@ var chatHandler = {
           notification.close();
         }
       });
-      const notification = box.appendNotification(
+      const notification = await box.appendNotification(
         value,
         {
           label: "",
@@ -1636,7 +1638,8 @@ var chatHandler = {
           conversation: aSubject.conversationName,
         }
       );
-      notification.removeAttribute("dismissable");
+      notification.closeButtonEl?.remove();
+      notification.dismissable = false;
       if (!gChatTab) {
         const tabmail = document.getElementById("tabmail");
         tabmail.openTab("chat", { background: true });

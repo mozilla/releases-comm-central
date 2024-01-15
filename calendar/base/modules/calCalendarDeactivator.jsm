@@ -119,17 +119,21 @@ var calendarDeactivator = {
     for (const [notificationbox, l10nId] of notificationboxes) {
       const existingNotification = notificationbox.getNotificationWithValue(value);
 
-      if (isEnabled) {
-        notificationbox.removeNotification(existingNotification);
-      } else if (!existingNotification) {
-        notificationbox.appendNotification(
-          value,
-          {
-            label: { "l10n-id": l10nId },
-            priority: notificationbox.PRIORITY_WARNING_MEDIUM,
-          },
-          null
-        );
+      if (existingNotification) {
+        if (isEnabled) {
+          notificationbox.removeNotification(existingNotification);
+        }
+      } else {
+        notificationbox
+          .appendNotification(
+            value,
+            {
+              label: { "l10n-id": l10nId },
+              priority: notificationbox.PRIORITY_WARNING_MEDIUM,
+            },
+            null
+          )
+          .catch(console.warn);
       }
     }
   },

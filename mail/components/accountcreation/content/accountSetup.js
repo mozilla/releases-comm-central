@@ -899,7 +899,7 @@ var gAccountSetup = {
       return;
     }
 
-    notification = this.notificationBox.appendNotification(
+    notification = await this.notificationBox.appendNotification(
       "accountSetupLoading",
       {
         label: notificationMessage,
@@ -910,7 +910,7 @@ var gAccountSetup = {
     notification.setAttribute("align", "center");
 
     // Hide the close button to prevent dismissing the notification.
-    notification.removeAttribute("dismissable");
+    notification.dismissable = false;
 
     this.ensureVisibleNotification();
   },
@@ -965,7 +965,7 @@ var gAccountSetup = {
 
     const notificationMessage = await document.l10n.formatValue(stringName);
 
-    const notification = this.notificationBox.appendNotification(
+    const notification = await this.notificationBox.appendNotification(
       "accountSetupSuccess",
       {
         label: notificationMessage,
@@ -976,7 +976,7 @@ var gAccountSetup = {
     notification.setAttribute("type", "success");
 
     // Hide the close button to prevent dismissing the notification.
-    notification.removeAttribute("dismissable");
+    notification.dismissable = false;
 
     this.showHelperImage("step3");
   },
@@ -1008,7 +1008,7 @@ var gAccountSetup = {
       ? stringName
       : await document.l10n.formatValue(stringName);
 
-    const notification = this.notificationBox.appendNotification(
+    const notification = await this.notificationBox.appendNotification(
       "accountSetupError",
       {
         label: notificationMessage,
@@ -1018,7 +1018,7 @@ var gAccountSetup = {
     );
 
     // Hide the close button to prevent dismissing the notification.
-    notification.removeAttribute("dismissable");
+    notification.dismissable = false;
 
     this.ensureVisibleNotification();
   },
@@ -2190,7 +2190,7 @@ var gAccountSetup = {
           gAccountSetupLogger.error(errorMessage + ". " + ex);
 
           self.clearNotifications();
-          const notification = self.notificationBox.appendNotification(
+          const notification = await self.notificationBox.appendNotification(
             "accountSetupError",
             {
               label: errorMessage,
@@ -2200,7 +2200,7 @@ var gAccountSetup = {
           );
 
           // Hide the close button to prevent dismissing the notification.
-          notification.removeAttribute("dismissable");
+          notification.dismissable = false;
         });
       },
       function () {
@@ -2420,7 +2420,7 @@ var gAccountSetup = {
     // or calendars.
     gAccountSetupLogger.debug("Fetching linked address books and calendars");
 
-    const notification = this.syncingBox.appendNotification(
+    const notification = await this.syncingBox.appendNotification(
       "accountSetupLoading",
       {
         label: await document.l10n.formatValue(
@@ -2433,7 +2433,7 @@ var gAccountSetup = {
     notification.setAttribute("align", "center");
 
     // Hide the close button to prevent dismissing the notification.
-    notification.removeAttribute("dismissable");
+    notification.dismissable = false;
 
     // Detect linked address books.
     await this.fetchAddressBooks();

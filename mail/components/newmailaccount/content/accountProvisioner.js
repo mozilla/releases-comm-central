@@ -251,7 +251,7 @@ var gAccountProvisioner = {
 
     gAccountSetupLogger.debug(`Status msg: ${notificationMessage}`);
 
-    const notification = this.notificationBox.appendNotification(
+    const notification = await this.notificationBox.appendNotification(
       "accountSetupLoading",
       {
         label: notificationMessage,
@@ -262,7 +262,7 @@ var gAccountProvisioner = {
     notification.setAttribute("align", "center");
 
     // Hide the close button to prevent dismissing the notification.
-    notification.removeAttribute("dismissable");
+    notification.dismissable = false;
 
     this.ensureVisibleNotification();
   },
@@ -287,7 +287,7 @@ var gAccountProvisioner = {
       ? stringName
       : await document.l10n.formatValue(stringName);
 
-    const notification = this.notificationBox.appendNotification(
+    const notification = await this.notificationBox.appendNotification(
       "accountProvisionerError",
       {
         label: notificationMessage,
@@ -297,7 +297,7 @@ var gAccountProvisioner = {
     );
 
     // Hide the close button to prevent dismissing the notification.
-    notification.removeAttribute("dismissable");
+    notification.dismissable = false;
 
     this.ensureVisibleNotification();
   },
@@ -306,7 +306,7 @@ var gAccountProvisioner = {
     // Always remove any leftover notification before creating a new one.
     this.clearNotifications();
 
-    const notification = this.notificationBox.appendNotification(
+    const notification = await this.notificationBox.appendNotification(
       "accountProvisionerSuccess",
       {
         label: await document.l10n.formatValue(stringName),
@@ -316,7 +316,7 @@ var gAccountProvisioner = {
     );
     notification.setAttribute("type", "success");
     // Hide the close button to prevent dismissing the notification.
-    notification.removeAttribute("dismissable");
+    notification.dismissable = false;
 
     this.ensureVisibleNotification();
   },

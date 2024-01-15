@@ -5287,7 +5287,7 @@ var threadPane = {
    * @param {boolean} subthreadOnly - If true, ignoring only `messages` and
    *   their subthreads, otherwise ignoring the whole thread.
    */
-  showIgnoredMessageNotification(messages, subthreadOnly) {
+  async showIgnoredMessageNotification(messages, subthreadOnly) {
     const threadIds = new Set();
     messages.forEach(function (msg) {
       if (!threadIds.has(msg.threadId)) {
@@ -5356,7 +5356,7 @@ var threadPane = {
       }
       const text = ignoredThreadText.replace("#1", subj);
 
-      this.notificationBox.appendNotification(
+      await this.notificationBox.appendNotification(
         "ignoreThreadInfo",
         {
           label: text,
@@ -5376,7 +5376,7 @@ var threadPane = {
         "#1",
         threadIds.size
       );
-      this.notificationBox.appendNotification(
+      await this.notificationBox.appendNotification(
         "ignoreThreadsInfo",
         {
           label: text,

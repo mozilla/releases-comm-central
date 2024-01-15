@@ -117,9 +117,9 @@ async function wait_for_notification_to_stop(aWindow, aBoxId, aValue) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
   }
 
-  const box = nb.querySelector(".notificationbox-stack")._notificationBox;
+  const box = nb.querySelector(".notificationbox-stack")?._notificationBox;
   await TestUtils.waitForCondition(
-    () => !box.getNotificationWithValue(aValue),
+    () => !box?.getNotificationWithValue(aValue),
     "Timed out waiting for notification with value " + aValue + " to stop."
   );
 }

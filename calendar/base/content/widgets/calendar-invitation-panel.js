@@ -385,15 +385,16 @@
       const opts = this.notices[value];
       const priority = opts.priority || this.notificationBox.PRIORITY_INFO_LOW;
       const buttons = opts.buttons || [];
-      const notification = this.notificationBox.appendNotification(
-        "invitationStatus",
-        {
-          label: { "l10n-id": opts.label },
-          priority,
-        },
-        buttons
-      );
-      notification.removeAttribute("dismissable");
+      this.notificationBox
+        .appendNotification(
+          "invitationStatus",
+          {
+            label: { "l10n-id": opts.label },
+            priority,
+          },
+          buttons
+        )
+        .then(notification => (notification.dismissable = false), console.warn);
     }
 
     _showMoreMenu(event, menuitems) {

@@ -896,7 +896,7 @@ var gKeyAssistant = {
         return;
       }
 
-      notification = this.notificationBox.appendNotification(
+      notification = await this.notificationBox.appendNotification(
         "acceptedKeyUpdated",
         {
           label: {

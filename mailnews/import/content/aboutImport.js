@@ -254,7 +254,7 @@ class ImporterController {
    *
    * @param {string} msgId - The error message fluent id.
    */
-  showError(msgId) {
+  async showError(msgId) {
     if (this._inProgress) {
       this._toggleBackButton(true);
       this._el.classList.remove("progress");
@@ -262,17 +262,18 @@ class ImporterController {
       this._inProgress = false;
     }
     ImporterController.notificationBox.removeAllNotifications();
-    const notification = ImporterController.notificationBox.appendNotification(
-      "error",
-      {
-        label: {
-          "l10n-id": msgId,
+    const notification =
+      await ImporterController.notificationBox.appendNotification(
+        "error",
+        {
+          label: {
+            "l10n-id": msgId,
+          },
+          priority: ImporterController.notificationBox.PRIORITY_CRITICAL_HIGH,
         },
-        priority: ImporterController.notificationBox.PRIORITY_CRITICAL_HIGH,
-      },
-      null
-    );
-    notification.removeAttribute("dismissable");
+        null
+      );
+    notification.dismissable = false;
   }
 
   /**

@@ -651,7 +651,7 @@ add_task(async function testWarningNotShownAfterDismissal() {
   const notification = cwc.gComposeNotification.getNotificationWithValue(
     "warnPublicRecipientsNotification"
   );
-  EventUtils.synthesizeMouseAtCenter(notification.closeButton, {}, cwc);
+  EventUtils.synthesizeMouseAtCenter(notification.closeButtonEl, {}, cwc);
 
   await notificationHidden;
 

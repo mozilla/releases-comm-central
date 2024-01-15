@@ -307,7 +307,7 @@ Enigmail.hdrView = {
       }
 
       if (unhideBar) {
-        Enigmail.msg.notificationBox.appendNotification(
+        await Enigmail.msg.notificationBox.appendNotification(
           "decryptionFailed",
           {
             label: await document.l10n.formatValue(infoId),

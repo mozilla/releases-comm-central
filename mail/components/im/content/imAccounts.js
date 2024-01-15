@@ -531,7 +531,7 @@ var gAccountManager = {
     this.modalDialog = false;
   },
 
-  setAutoLoginNotification() {
+  async setAutoLoginNotification() {
     var autoLoginStatus = IMServices.accounts.autoLoginStatus;
     let isOffline = false;
     let crashCount = 0;
@@ -610,7 +610,7 @@ var gAccountManager = {
     const status = IMServices.core.globalUserStatus.statusType;
     this.setOffline(isOffline || status == Ci.imIStatusInfo.STATUS_OFFLINE);
 
-    box.appendNotification(
+    await box.appendNotification(
       "autologinStatus",
       {
         label: barLabel,

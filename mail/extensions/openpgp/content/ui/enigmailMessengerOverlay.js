@@ -412,7 +412,7 @@ Enigmail.msg = {
     if (Enigmail.msg.showPartialDecryptionReminder) {
       Enigmail.msg.showPartialDecryptionReminder = false;
 
-      this.notificationBox.appendNotification(
+      await this.notificationBox.appendNotification(
         "decryptInlinePGReminder",
         {
           label: await document.l10n.formatValue(
@@ -804,7 +804,7 @@ Enigmail.msg = {
 
     // Warn that we can't fix a message that was opened from a local file.
     if (!gFolder) {
-      Enigmail.msg.notificationBox.appendNotification(
+      await Enigmail.msg.notificationBox.appendNotification(
         "brokenExchange",
         {
           label: await document.l10n.formatValue(
@@ -828,7 +828,7 @@ Enigmail.msg = {
       },
     ];
 
-    Enigmail.msg.notificationBox.appendNotification(
+    await Enigmail.msg.notificationBox.appendNotification(
       "brokenExchange",
       {
         label: await document.l10n.formatValue("openpgp-broken-exchange-info"),
@@ -1034,7 +1034,7 @@ Enigmail.msg = {
           },
         ];
 
-        this.notificationBox.appendNotification(
+        await this.notificationBox.appendNotification(
           "decryptInlinePG",
           {
             label: description,
@@ -1682,7 +1682,7 @@ Enigmail.msg = {
   async fixBuggyExchangeMail() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: fixBuggyExchangeMail:\n");
 
-    this.notificationBox.appendNotification(
+    await this.notificationBox.appendNotification(
       "brokenExchangeProgress",
       {
         label: await document.l10n.formatValue("openpgp-broken-exchange-wait"),
@@ -2913,7 +2913,7 @@ Enigmail.msg = {
         Enigmail.msg.authorEmail
       );
     if (hasAreadyAcceptedOther) {
-      Enigmail.msg.notificationBox.appendNotification(
+      await Enigmail.msg.notificationBox.appendNotification(
         "hasConflictingKeyOpenPGP",
         {
           label: await document.l10n.formatValue("openpgp-be-careful-new-key", {
@@ -3032,16 +3032,18 @@ Enigmail.msg = {
         },
       ];
 
-      Enigmail.msg.notificationBox.appendNotification(
-        "hasNestedEncryptedParts",
-        {
-          label: await document.l10n.formatValue(
-            "openpgp-has-nested-encrypted-parts"
-          ),
-          priority: Enigmail.msg.notificationBox.PRIORITY_INFO_HIGH,
-        },
-        buttons
-      );
+      await Enigmail.msg.notificationBox
+        .appendNotification(
+          "hasNestedEncryptedParts",
+          {
+            label: await document.l10n.formatValue(
+              "openpgp-has-nested-encrypted-parts"
+            ),
+            priority: Enigmail.msg.notificationBox.PRIORITY_INFO_HIGH,
+          },
+          buttons
+        )
+        .catch(console.warn);
     }
 
     document.dispatchEvent(

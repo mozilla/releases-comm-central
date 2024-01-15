@@ -2689,7 +2689,7 @@ Enigmail.msg = {
     }
   },
 
-  warnUserThatSenderKeyExpired() {
+  async warnUserThatSenderKeyExpired() {
     const label = {
       "l10n-id": "openpgp-selection-status-error",
       "l10n-args": { key: this.getSenderUserId() },
@@ -2709,7 +2709,7 @@ Enigmail.msg = {
       },
     ];
 
-    gComposeNotification.appendNotification(
+    await gComposeNotification.appendNotification(
       "openpgpSenderKeyExpired",
       {
         label,
@@ -2767,7 +2767,7 @@ Enigmail.msg = {
         },
       });
     }
-    gComposeNotification.appendNotification(
+    await gComposeNotification.appendNotification(
       messageId,
       {
         label: msgText,

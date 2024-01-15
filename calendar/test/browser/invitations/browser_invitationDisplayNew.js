@@ -75,11 +75,25 @@ add_task(async function testShowPanelData() {
     await BrowserTestUtils.waitForEvent(panel.ownerDocument, "L10nMutationsFinished");
   }
 
-  const notification = panel.shadowRoot.querySelector("notification-message");
-  compareShownPanelValues(notification.shadowRoot, {
-    ".notification-message": "You have been invited to this event.",
-    ".notification-button-container > button": "More",
-  });
+  const notification = await TestUtils.waitForCondition(
+    () => panel.shadowRoot.querySelector("notification-message"),
+    "waiting for notification to exist"
+  );
+  await TestUtils.waitForCondition(
+    () => notification.shadowRoot,
+    "waiting for notification shadow root to be attached"
+  );
+
+  Assert.deepEqual(
+    document.l10n.getAttributes(notification.messageText),
+    { id: "calendar-invitation-panel-status-new", args: null },
+    "message text"
+  );
+  Assert.deepEqual(
+    document.l10n.getAttributes(notification.querySelector("button")),
+    { id: "calendar-invitation-panel-more-button", args: null },
+    "button label"
+  );
 
   compareShownPanelValues(panel.shadowRoot, {
     "#title": "Single Event",

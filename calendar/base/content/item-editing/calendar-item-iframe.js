@@ -2518,7 +2518,7 @@ function attachmentClick(aEvent) {
  * @param aButtonset   (optional) array of button descriptions to appear on the notification
  * @param aCallback    (optional) a function to handle events from the notificationbox
  */
-function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) {
+async function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) {
   // only append, if the notification does not already exist
   if (gEventNotification.getNotificationWithValue(aValue) == null) {
     const prioMap = {
@@ -2526,7 +2526,7 @@ function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) 
       critical: gEventNotification.PRIORITY_CRITICAL_MEDIUM,
     };
     const prio = prioMap[aPriority] || gEventNotification.PRIORITY_WARNING_MEDIUM;
-    gEventNotification.appendNotification(
+    await gEventNotification.appendNotification(
       aValue,
       {
         label: aMessage,

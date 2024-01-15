@@ -122,8 +122,16 @@ var gBigFileObserver = {
     return str;
   },
 
-  updateBigFileNotification() {
-    let bigFileNotification =
+  _bigFileNotification: null,
+  async updateBigFileNotification() {
+    if (this._bigFileNotification) {
+      // If `updateBigFileNotification` is called a second time before the
+      // first time has finished, we could end up showing two notifications or
+      // not removing the first notification, because `getNotificationWithValue`
+      // does not account for the async nature of `appendNotification`.
+      await this._bigFileNotification;
+    }
+    const bigFileNotification =
       gComposeNotification.getNotificationWithValue("bigAttachment");
     if (this.bigFiles.length) {
       if (bigFileNotification) {
@@ -159,16 +167,19 @@ var gBigFileObserver = {
         this.bigFiles.length
       );
 
-      bigFileNotification = gComposeNotification.appendNotification(
-        "bigAttachment",
-        {
-          label: msg,
-          priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
-        },
-        buttons
-      );
+      this._bigFileNotification = gComposeNotification
+        .appendNotification(
+          "bigAttachment",
+          {
+            label: msg,
+            priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+          },
+          buttons
+        )
+        .catch(console.warn);
     } else if (bigFileNotification) {
       gComposeNotification.removeNotification(bigFileNotification);
+      this._bigFileNotification = null;
     }
   },
 
@@ -244,7 +255,8 @@ var gBigFileObserver = {
     return true;
   },
 
-  updateUploadingNotification() {
+  _uploadingNotification: null,
+  async updateUploadingNotification() {
     // We will show the uploading notification for a minimum of 2.5 seconds
     // seconds.
     const kThreshold = 2500; // milliseconds
@@ -258,7 +270,14 @@ var gBigFileObserver = {
     }
 
     const activeUploads = this.uploadsInProgress;
-    let notification = gComposeNotification.getNotificationWithValue(
+    if (this._uploadingNotification) {
+      // If `updateUploadingNotification` is called a second time before the
+      // first time has finished, we could end up showing two notifications or
+      // not removing the first notification, because `getNotificationWithValue`
+      // does not account for the async nature of `appendNotification`.
+      await this._uploadingNotification;
+    }
+    const notification = gComposeNotification.getNotificationWithValue(
       kUploadNotificationValue
     );
 
@@ -275,6 +294,7 @@ var gBigFileObserver = {
           }, notification.timeout - now);
         }
       }
+      this._uploadingNotification = null;
       return;
     }
 
@@ -298,15 +318,18 @@ var gBigFileObserver = {
         );
       },
     };
-    notification = gComposeNotification.appendNotification(
-      kUploadNotificationValue,
-      {
-        label: message,
-        priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
-      },
-      [showUploadButton]
-    );
-    notification.timeout = Date.now() + kThreshold;
+    this._uploadingNotification = gComposeNotification
+      .appendNotification(
+        kUploadNotificationValue,
+        {
+          label: message,
+          priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+        },
+        [showUploadButton]
+      )
+      .then(notification => {
+        notification.timeout = Date.now() + kThreshold;
+      }, console.warn);
   },
 
   hidePrivacyNotification() {
@@ -330,7 +353,7 @@ var gBigFileObserver = {
     }
   },
 
-  showPrivacyNotification() {
+  async showPrivacyNotification() {
     if (this.privacyWarned) {
       return;
     }
@@ -345,14 +368,17 @@ var gBigFileObserver = {
     }
 
     const message = this.formatString("cloudFilePrivacyNotification");
-    gComposeNotification.appendNotification(
-      kPrivacyWarningNotificationValue,
-      {
-        label: message,
-        priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
-      },
-      null
-    );
+
+    await gComposeNotification
+      .appendNotification(
+        kPrivacyWarningNotificationValue,
+        {
+          label: message,
+          priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+        },
+        null
+      )
+      .catch(console.warn);
   },
 
   get uploadsInProgress() {

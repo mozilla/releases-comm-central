@@ -31,10 +31,8 @@ add_task(async function testGrantingBuddyRequest() {
   const value = "buddy-auth-request-" + request.account.id + request.userName;
   const notification = notificationBox.getNotificationWithValue(value);
   ok(notification, "notification shown");
-  ok(
-    BrowserTestUtils.is_hidden(notification.closeButton),
-    "Can't dismiss without interacting"
-  );
+  ok(!notification.dimissable, "Can't dismiss without interacting");
+  ok(!notification.closeButtonEl, "Can't dismiss without interacting");
   const closePromise = new Promise(resolve => {
     notification.eventCallback = event => {
       resolve();
@@ -183,10 +181,8 @@ add_task(async function testGrantingChatRequest() {
     "conv-auth-request-" + request.account.id + request.conversationName;
   const notification = notificationBox.getNotificationWithValue(value);
   ok(notification, "notification shown");
-  ok(
-    BrowserTestUtils.is_hidden(notification.closeButton),
-    "Can't dismiss without interacting"
-  );
+  ok(!notification.dimissable, "Can't dismiss without interacting");
+  ok(!notification.closeButtonEl, "Can't dismiss without interacting");
   const closePromise = new Promise(resolve => {
     notification.eventCallback = event => {
       resolve();

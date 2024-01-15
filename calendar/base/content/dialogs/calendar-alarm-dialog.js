@@ -413,7 +413,7 @@ function removeWidgetFor(aItem, aAlarm) {
  * notification based on the readability of the calendars of the alarms visible
  * in the alarm list
  */
-function doReadOnlyChecks() {
+async function doReadOnlyChecks() {
   let countRO = 0;
   const alarmRichlist = document.getElementById("alarm-richlist");
   for (const node of alarmRichlist.children) {
@@ -437,7 +437,7 @@ function doReadOnlyChecks() {
     const message = cal.l10n.getString("calendar-alarms", "reminderReadonlyNotification", [
       snoozeAllButton.label,
     ]);
-    gReadOnlyNotification.appendNotification(
+    await gReadOnlyNotification.appendNotification(
       "calendar-readonly",
       {
         label: message,

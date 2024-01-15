@@ -3706,7 +3706,7 @@ var gMessageNotificationBar = {
     return junkStatus ? 0 : 1;
   },
 
-  setJunkMsg(aMsgHdr) {
+  async setJunkMsg(aMsgHdr) {
     goUpdateCommand("cmd_junk");
 
     const junkBarStatus = this.checkJunkMsgStatus(aMsgHdr);
@@ -3750,7 +3750,7 @@ var gMessageNotificationBar = {
         },
       ];
 
-      this.msgNotificationBar.appendNotification(
+      await this.msgNotificationBar.appendNotification(
         "junkContent",
         {
           label: junkBarMsg,
@@ -3766,7 +3766,7 @@ var gMessageNotificationBar = {
     return !!this.msgNotificationBar.getNotificationWithValue("junkContent");
   },
 
-  setRemoteContentMsg(aMsgHdr, aContentURI, aCanOverride) {
+  async setRemoteContentMsg(aMsgHdr, aContentURI, aCanOverride) {
     // update the allow remote content for sender string
     const brandName = this.brandBundle.getString("brandShortName");
     const remoteContentMsg = this.stringBundle.getFormattedString(
@@ -3807,19 +3807,21 @@ var gMessageNotificationBar = {
     popup.value = origins.join(" ");
 
     if (!this.isShowingRemoteContentNotification()) {
-      const notification = this.msgNotificationBar.appendNotification(
-        "remoteContent",
-        {
-          label: remoteContentMsg,
-          image: "chrome://messenger/skin/icons/remote-blocked.svg",
-          priority: this.msgNotificationBar.PRIORITY_WARNING_MEDIUM,
-        },
-        aCanOverride ? buttons : []
-      );
-
-      notification.buttonContainer.firstElementChild.classList.add(
-        "button-menu-list"
-      );
+      await this.msgNotificationBar
+        .appendNotification(
+          "remoteContent",
+          {
+            label: remoteContentMsg,
+            image: "chrome://messenger/skin/icons/remote-blocked.svg",
+            priority: this.msgNotificationBar.PRIORITY_WARNING_MEDIUM,
+          },
+          aCanOverride ? buttons : []
+        )
+        .then(notification => {
+          notification.buttonContainer.firstElementChild.classList.add(
+            "button-menu-list"
+          );
+        }, console.warn);
     }
   },
 
@@ -3827,7 +3829,7 @@ var gMessageNotificationBar = {
     return !!this.msgNotificationBar.getNotificationWithValue("remoteContent");
   },
 
-  setPhishingMsg() {
+  async setPhishingMsg() {
     const phishingMsgNote = this.stringBundle.getString("phishingBarMessage");
 
     const buttonLabel = this.stringBundle.getString(
@@ -3851,7 +3853,7 @@ var gMessageNotificationBar = {
     ];
 
     if (!this.isShowingPhishingNotification()) {
-      const notification = this.msgNotificationBar.appendNotification(
+      const notification = await this.msgNotificationBar.appendNotification(
         "maybeScam",
         {
           label: phishingMsgNote,
@@ -3871,7 +3873,7 @@ var gMessageNotificationBar = {
     return !!this.msgNotificationBar.getNotificationWithValue("maybeScam");
   },
 
-  setMDNMsg(aMdnGenerator, aMsgHeader, aMimeHdr) {
+  async setMDNMsg(aMdnGenerator, aMsgHeader, aMimeHdr) {
     this.mdnGenerator = aMdnGenerator;
     // Return receipts can be RFC 3798 or not.
     const mdnHdr =
@@ -3922,7 +3924,7 @@ var gMessageNotificationBar = {
       },
     ];
 
-    this.msgNotificationBar.appendNotification(
+    await this.msgNotificationBar.appendNotification(
       "mdnRequested",
       {
         label: mdnBarMsg,
@@ -3932,7 +3934,7 @@ var gMessageNotificationBar = {
     );
   },
 
-  setDraftEditMessage() {
+  async setDraftEditMessage() {
     if (!gMessage || !gFolder) {
       return;
     }
@@ -3952,7 +3954,7 @@ var gMessageNotificationBar = {
         },
       ];
 
-      this.msgNotificationBar.appendNotification(
+      await this.msgNotificationBar.appendNotification(
         "draftMsgContent",
         {
           label: draftMsgNote,

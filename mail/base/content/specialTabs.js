@@ -1120,7 +1120,7 @@ var specialTabs = {
     );
   },
 
-  showTelemetryNotification() {
+  async showTelemetryNotification() {
     const brandBundle = Services.strings.createBundle(
       "chrome://branding/locale/brand.properties"
     );
@@ -1149,7 +1149,7 @@ var specialTabs = {
       },
     ];
 
-    const notification = this.msgNotificationBar.appendNotification(
+    const notification = await this.msgNotificationBar.appendNotification(
       "telemetry",
       {
         label: telemetryText,
@@ -1211,7 +1211,7 @@ var specialTabs = {
     const notifyRightsText = await document.l10n.formatValue(
       "about-rights-notification-text"
     );
-    const notification = this.msgNotificationBar.appendNotification(
+    const notification = await this.msgNotificationBar.appendNotification(
       "about-rights",
       {
         label: notifyRightsText,

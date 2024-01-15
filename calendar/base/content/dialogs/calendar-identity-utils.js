@@ -110,14 +110,14 @@ function saveMailIdentitySelection(aCalendar) {
  *
  * @param {calICalendar} aCalendar - The calendar for the identity selection.
  */
-function notifyOnIdentitySelection(aCalendar) {
+async function notifyOnIdentitySelection(aCalendar) {
   gIdentityNotification.removeAllNotifications();
 
   const msg = cal.l10n.getLtnString("noIdentitySelectedNotification");
   const sel = getMailIdentitySelection(aCalendar);
 
   if (sel == "none") {
-    gIdentityNotification.appendNotification(
+    await gIdentityNotification.appendNotification(
       "noIdentitySelected",
       {
         label: msg,
