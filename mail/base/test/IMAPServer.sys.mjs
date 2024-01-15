@@ -27,6 +27,10 @@ export class IMAPServer {
     }
     this.server = new nsMailServer(daemon => {
       const handler = new IMAP_RFC3501_handler(daemon, this.options);
+      if (this.options.offerStartTLS) {
+        // List startTLS as a capability, even though we don't support it.
+        handler.kCapabilities.push("STARTTLS");
+      }
       for (const ext of extensions) {
         mixinExtension(handler, ImapD[`IMAP_${ext}_extension`]);
       }

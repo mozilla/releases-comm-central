@@ -58,6 +58,17 @@ add_setup(async function () {
   NetworkTestUtils.configureProxy("test.test", 143, imapServer.port);
   NetworkTestUtils.configureProxy("alt.test.test", 143, imapServer.port);
 
+  const imapStartTLSServer = new IMAPServer(this, {
+    extensions: ["RFC2195"],
+    offerStartTLS: true,
+  });
+  imapStartTLSServer.server.setDebugLevel(serverDebugLevel);
+  NetworkTestUtils.configureProxy(
+    "starttls.test.test",
+    143,
+    imapStartTLSServer.port
+  );
+
   imapTLSServer = new IMAPServer(this, {
     extensions: ["RFC2195"],
     tlsCert,
@@ -86,6 +97,14 @@ add_setup(async function () {
   NetworkTestUtils.configureProxy("test.test", 110, pop3Server.port);
   NetworkTestUtils.configureProxy("alt.test.test", 110, pop3Server.port);
 
+  const pop3StartTLSServer = new POP3Server(this, { offerStartTLS: true });
+  pop3StartTLSServer.server.setDebugLevel(serverDebugLevel);
+  NetworkTestUtils.configureProxy(
+    "starttls.test.test",
+    110,
+    pop3StartTLSServer.port
+  );
+
   pop3TLSServer = new POP3Server(this, { tlsCert });
   pop3TLSServer.server.setDebugLevel(serverDebugLevel);
   NetworkTestUtils.configureProxy("test.test", 995, pop3TLSServer.port);
@@ -95,6 +114,14 @@ add_setup(async function () {
   smtpServer.server.setDebugLevel(serverDebugLevel);
   NetworkTestUtils.configureProxy("test.test", 587, smtpServer.port);
   NetworkTestUtils.configureProxy("alt.test.test", 587, smtpServer.port);
+
+  const smtpStartTLSServer = new SMTPServer(this, { offerStartTLS: true });
+  smtpStartTLSServer.server.setDebugLevel(serverDebugLevel);
+  NetworkTestUtils.configureProxy(
+    "starttls.test.test",
+    587,
+    smtpStartTLSServer.port
+  );
 
   smtpTLSServer = new SMTPServer(this, { tlsCert });
   smtpTLSServer.server.setDebugLevel(serverDebugLevel);
@@ -167,6 +194,27 @@ add_task(async function testSocketUtilIMAP() {
   );
   const response = await promise;
   Assert.deepEqual(response.join("").split("\r\n"), expectedIMAPResponse);
+  Assert.ok(!sslErrors._gotCertError);
+});
+
+/**
+ * Tests that `SocketUtil` correctly connects to the startTLS IMAP server and
+ * gets the expected response.
+ */
+add_task(async function testSocketUtilIMAPStartTLS() {
+  const { promise, sslErrors } = await callSocketUtil(
+    "starttls.test.test",
+    143,
+    Ci.nsMsgSocketType.plain,
+    imapCommands
+  );
+  const response = await promise;
+  const expectedResponse = expectedIMAPResponse.slice();
+  expectedResponse[1] = expectedResponse[1].replace(
+    "CLIENTID",
+    "CLIENTID STARTTLS"
+  );
+  Assert.deepEqual(response.join("").split("\r\n"), expectedResponse);
   Assert.ok(!sslErrors._gotCertError);
 });
 
@@ -369,6 +417,24 @@ add_task(async function testSocketUtilPOP3() {
 });
 
 /**
+ * Tests that `SocketUtil` correctly connects to the startTLS POP3 server and
+ * gets the expected response.
+ */
+add_task(async function testSocketUtilPOP3StartTLS() {
+  const { promise, sslErrors } = await callSocketUtil(
+    "starttls.test.test",
+    110,
+    Ci.nsMsgSocketType.alwaysSTARTTLS,
+    pop3Commands
+  );
+  const response = await promise;
+  const expectedResponse = expectedPOP3Response.slice();
+  expectedResponse.splice(4, 0, "STLS");
+  Assert.deepEqual(response.join("").split("\r\n"), expectedResponse);
+  Assert.ok(!sslErrors._gotCertError);
+});
+
+/**
  * Tests that `SocketUtil` correctly connects to the TLS POP3 server and gets
  * the expected response.
  */
@@ -414,6 +480,24 @@ add_task(async function testSocketUtilSMTP() {
 });
 
 /**
+ * Tests that `SocketUtil` correctly connects to the startTLS SMTP server and
+ * gets the expected response.
+ */
+add_task(async function testSocketUtilSMTPStartTLS() {
+  const { promise, sslErrors } = await callSocketUtil(
+    "starttls.test.test",
+    587,
+    Ci.nsMsgSocketType.alwaysSTARTTLS,
+    smtpCommands
+  );
+  const response = await promise;
+  const expectedResponse = expectedSMTPResponse.slice();
+  expectedResponse.splice(5, 0, "250-STARTTLS");
+  Assert.deepEqual(response.join("").split("\r\n"), expectedResponse);
+  Assert.ok(!sslErrors._gotCertError);
+});
+
+/**
  * Tests that `SocketUtil` correctly connects to the TLS SMTP server and gets
  * the expected response.
  */
@@ -430,6 +514,7 @@ add_task(async function testSocketUtilSMTPSecure() {
 });
 
 async function subtestHostDetector({
+  hostname = "test.test",
   type,
   port,
   socketType = -1,
@@ -449,17 +534,19 @@ async function subtestHostDetector({
   );
   detector._hostnamesToTry = hostnamesToTry;
   detector._portsToTry = portsToTry;
-  detector.start("test.test", false, type, port, socketType, authMethod);
+  detector.start(hostname, false, type, port, socketType, authMethod);
   return promise;
 }
 
-async function subtestHostDetectorGivenValues(
+async function subtestHostDetectorGivenValues({
+  hostname = "test.test",
   type,
   port,
   socketType,
-  portsToTry
-) {
+  portsToTry,
+}) {
   const { result } = await subtestHostDetector({
+    hostname,
     type,
     port,
     socketType,
@@ -469,7 +556,7 @@ async function subtestHostDetectorGivenValues(
     },
     portsToTry,
   });
-  Assert.equal(result.hostname, "test.test", "hostname");
+  Assert.equal(result.hostname, hostname, "hostname");
   Assert.equal(result.port, port, "port");
   Assert.equal(result.status, 3, "status");
   Assert.equal(result.socketType, socketType, "socketType");
@@ -493,12 +580,26 @@ async function subtestHostDetectorGivenValues(
  * and returns a correct `HostTry` result.
  */
 add_task(async function testHostDetectorGivenValuesIMAP() {
-  await subtestHostDetectorGivenValues(
-    "imap",
-    143,
-    Ci.nsMsgSocketType.plain,
-    GuessConfig.getIncomingTryOrder
-  );
+  await subtestHostDetectorGivenValues({
+    type: "imap",
+    port: 143,
+    socketType: Ci.nsMsgSocketType.plain,
+    portsToTry: GuessConfig.getIncomingTryOrder,
+  });
+});
+
+/**
+ * Test that `HostDetector` finds the startTLS IMAP server given the
+ * configuration, and returns a correct `HostTry` result.
+ */
+add_task(async function testHostDetectorGivenValuesIMAPStartTLS() {
+  await subtestHostDetectorGivenValues({
+    hostname: "starttls.test.test",
+    type: "imap",
+    port: 143,
+    socketType: Ci.nsMsgSocketType.alwaysSTARTTLS,
+    portsToTry: GuessConfig.getIncomingTryOrder,
+  });
 });
 
 /**
@@ -506,12 +607,12 @@ add_task(async function testHostDetectorGivenValuesIMAP() {
  * and returns a correct `HostTry` result.
  */
 add_task(async function testHostDetectorGivenValuesIMAPSecure() {
-  await subtestHostDetectorGivenValues(
-    "imap",
-    993,
-    Ci.nsMsgSocketType.SSL,
-    GuessConfig.getIncomingTryOrder
-  );
+  await subtestHostDetectorGivenValues({
+    type: "imap",
+    port: 993,
+    socketType: Ci.nsMsgSocketType.SSL,
+    portsToTry: GuessConfig.getIncomingTryOrder,
+  });
 });
 
 /**
@@ -519,12 +620,26 @@ add_task(async function testHostDetectorGivenValuesIMAPSecure() {
  * and returns a correct `HostTry` result.
  */
 add_task(async function testHostDetectorGivenValuesPOP3() {
-  await subtestHostDetectorGivenValues(
-    "pop3",
-    110,
-    Ci.nsMsgSocketType.plain,
-    GuessConfig.getIncomingTryOrder
-  );
+  await subtestHostDetectorGivenValues({
+    type: "pop3",
+    port: 110,
+    socketType: Ci.nsMsgSocketType.plain,
+    portsToTry: GuessConfig.getIncomingTryOrder,
+  });
+});
+
+/**
+ * Test that `HostDetector` finds the startTLS POP3 server given the
+ * configuration, and returns a correct `HostTry` result.
+ */
+add_task(async function testHostDetectorGivenValuesPOP3StartTLS() {
+  await subtestHostDetectorGivenValues({
+    hostname: "starttls.test.test",
+    type: "pop3",
+    port: 110,
+    socketType: Ci.nsMsgSocketType.alwaysSTARTTLS,
+    portsToTry: GuessConfig.getIncomingTryOrder,
+  });
 });
 
 /**
@@ -532,12 +647,12 @@ add_task(async function testHostDetectorGivenValuesPOP3() {
  * and returns a correct `HostTry` result.
  */
 add_task(async function testHostDetectorGivenValuesPOP3Secure() {
-  await subtestHostDetectorGivenValues(
-    "pop3",
-    995,
-    Ci.nsMsgSocketType.SSL,
-    GuessConfig.getIncomingTryOrder
-  );
+  await subtestHostDetectorGivenValues({
+    type: "pop3",
+    port: 995,
+    socketType: Ci.nsMsgSocketType.SSL,
+    portsToTry: GuessConfig.getIncomingTryOrder,
+  });
 });
 
 /**
@@ -545,12 +660,26 @@ add_task(async function testHostDetectorGivenValuesPOP3Secure() {
  * and returns a correct `HostTry` result.
  */
 add_task(async function testHostDetectorGivenValuesSMTP() {
-  await subtestHostDetectorGivenValues(
-    "smtp",
-    587,
-    Ci.nsMsgSocketType.plain,
-    GuessConfig.getOutgoingTryOrder
-  );
+  await subtestHostDetectorGivenValues({
+    type: "smtp",
+    port: 587,
+    socketType: Ci.nsMsgSocketType.plain,
+    portsToTry: GuessConfig.getOutgoingTryOrder,
+  });
+});
+
+/**
+ * Test that `HostDetector` finds the startTLS SMTP server given the
+ * configuration, and returns a correct `HostTry` result.
+ */
+add_task(async function testHostDetectorGivenValuesSMTPStartTLS() {
+  await subtestHostDetectorGivenValues({
+    hostname: "starttls.test.test",
+    type: "smtp",
+    port: 587,
+    socketType: Ci.nsMsgSocketType.alwaysSTARTTLS,
+    portsToTry: GuessConfig.getOutgoingTryOrder,
+  });
 });
 
 /**
@@ -558,12 +687,12 @@ add_task(async function testHostDetectorGivenValuesSMTP() {
  * and returns a correct `HostTry` result.
  */
 add_task(async function testHostDetectorGivenValuesSMTPSecure() {
-  await subtestHostDetectorGivenValues(
-    "smtp",
-    465,
-    Ci.nsMsgSocketType.SSL,
-    GuessConfig.getOutgoingTryOrder
-  );
+  await subtestHostDetectorGivenValues({
+    type: "smtp",
+    port: 465,
+    socketType: Ci.nsMsgSocketType.SSL,
+    portsToTry: GuessConfig.getOutgoingTryOrder,
+  });
 });
 
 async function subtestHostDetectorAuto(type, portsToTry, expectedPort) {

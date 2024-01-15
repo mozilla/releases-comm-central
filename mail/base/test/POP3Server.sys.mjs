@@ -24,6 +24,10 @@ export class POP3Server {
     }
     this.server = new nsMailServer(daemon => {
       const handler = new POP3_RFC5034_handler(daemon, this.options);
+      if (this.options.offerStartTLS) {
+        // List startTLS as a capability, even though we don't support it.
+        handler.kCapabilities.push("STLS");
+      }
       return handler;
     }, this.daemon);
     this.server.tlsCert = this.options.tlsCert;
