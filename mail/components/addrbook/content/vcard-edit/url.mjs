@@ -32,16 +32,15 @@ export class VCardURLComponent extends HTMLElement {
     }
     this.hasConnected = true;
 
-    const template = document.getElementById("template-vcard-edit-type-text");
+    const template = document.getElementById("template-vcard-edit-type-url");
     const clonedTemplate = template.content.cloneNode(true);
     this.appendChild(clonedTemplate);
 
-    this.urlEl = this.querySelector('input[type="text"]');
+    this.urlEl = this.querySelector('input[type="url"]');
     const urlId = vCardIdGen.next().value;
     this.urlEl.id = urlId;
-    const urlLabel = this.querySelector('label[for="text"]');
+    const urlLabel = this.querySelector('label[for="url"]');
     urlLabel.htmlFor = urlId;
-    this.urlEl.type = "url";
     document.l10n.setAttributes(urlLabel, "vcard-url-label");
 
     this.urlEl.addEventListener("input", () => {
@@ -58,6 +57,7 @@ export class VCardURLComponent extends HTMLElement {
     this.vCardType = this.querySelector("vcard-type");
     this.vCardType.createTypeSelection(this.vCardPropertyEntry, {
       createLabel: true,
+      propertyType: "url",
     });
 
     this.querySelector(".remove-property-button").addEventListener(

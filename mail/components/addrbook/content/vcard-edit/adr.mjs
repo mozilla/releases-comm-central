@@ -66,6 +66,7 @@ export class VCardAdrComponent extends HTMLElement {
     this.vCardType = this.querySelector("vcard-type");
     this.vCardType.createTypeSelection(this.vCardPropertyEntry, {
       createLabel: true,
+      propertyType: "adr",
     });
 
     this.fromVCardPropertyEntryToUI();

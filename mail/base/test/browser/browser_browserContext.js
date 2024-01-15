@@ -299,7 +299,7 @@ add_task(async function testExtensionBrowserAction() {
 
   const { panel, browser } = await openExtensionPopup(
     window,
-    "ext-browsercontext\\@mochi.test"
+    "ext-browsercontext@mochi.test"
   );
   await TestUtils.waitForCondition(
     () => browser.clientWidth > 100,

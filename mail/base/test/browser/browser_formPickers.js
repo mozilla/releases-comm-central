@@ -305,7 +305,7 @@ add_task(async function testExtensionBrowserAction() {
 
   const { panel, browser } = await openExtensionPopup(
     window,
-    "ext-formpickers\\@mochi.test"
+    "ext-formpickers@mochi.test"
   );
   await checkABrowser(browser);
   panel.hidePopup();

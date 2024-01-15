@@ -10,6 +10,7 @@ const { EXTENSION_PREFIX } = ChromeUtils.importESModule(
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  ExtensionCommon: "resource://gre/modules/ExtensionCommon.sys.mjs",
   ExtensionParent: "resource://gre/modules/ExtensionParent.sys.mjs",
 });
 const browserActionFor = extensionId =>
@@ -165,6 +166,9 @@ export default class CustomizableElement extends HTMLLIElement {
       is: "extension-action-button",
     });
     extensionButton.setAttribute("extension", extensionId);
+    extensionButton.dataset.telemetryId = `${lazy.ExtensionCommon.makeWidgetId(
+      extensionId
+    )}-browserAction-toolbarbutton`;
     this.querySelector(".live-content").append(extensionButton);
     if (this.disabled) {
       this.attributeChangedCallback("disabled");

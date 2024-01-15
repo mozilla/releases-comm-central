@@ -113,7 +113,8 @@
             data-l10n-id="vcard-org-add"
             class="addr-book-edit-fieldset-button add-property-button icon-button"
             type="button"></button>
-    <button type="button"
+    <button id="vcard-remove-org"
+            type="button"
             class="addr-book-edit-fieldset-button remove-property-button icon-button"
             data-l10n-id="vcard-remove-button"
             hidden="hidden"></button>
@@ -213,6 +214,7 @@
   <td>
     <button type="button"
             class="addr-book-edit-fieldset-button remove-property-button icon-button"
+            data-telemetry-id="vcard-remove-email"
             data-l10n-id="vcard-remove-button-title"></button>
   </td>
 </template>
@@ -220,20 +222,22 @@
 <!-- Phone -->
 <template id="template-vcard-edit-tel">
   <vcard-type></vcard-type>
-  <label class="screen-reader-only" for="text"/>
-  <input type="text"/>
+  <label class="screen-reader-only" for="tel"/>
+  <input type="tel" data-telemetry-id="vcard-tel"/>
   <button type="button"
           class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-telemetry-id="vcard-remove-tel"
           data-l10n-id="vcard-remove-button-title"></button>
 </template>
 
-<!-- Field with type and text -->
-<template id="template-vcard-edit-type-text">
+<!-- Field with type and url -->
+<template id="template-vcard-edit-type-url">
   <vcard-type></vcard-type>
-  <label class="screen-reader-only" for="text"/>
-  <input type="text"/>
+  <label class="screen-reader-only" for="url"/>
+  <input type="url" data-telemetry-id="vcard-url"/>
   <button type="button"
           class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-telemetry-id="vcard-remove-url"
           data-l10n-id="vcard-remove-button-title"></button>
 </template>
 
@@ -244,13 +248,16 @@
   </select>
   <button type="button"
           class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-telemetry-id="vcard-remove-tz"
           data-l10n-id="vcard-remove-button"></button>
 </template>
 
 <!-- IMPP -->
 <template id="template-vcard-edit-impp">
   <label class="screen-reader-only" for="protocol" data-l10n-id="vcard-impp-select"></label>
-  <select name="protocol" class="vcard-type-selection">
+  <select name="protocol"
+          class="vcard-type-selection"
+          data-telemetry-id="vcard-type-selection-impp">
     <option value="matrix:u/john:example.org" data-pattern="matrix:.+/.+:.+">Matrix</option>
     <option value="xmpp:john@example.org" data-pattern="xmpp:.+@.+">XMPP</option>
     <option value="ircs://irc.example.org/john,isuser" data-pattern="ircs?://.+/.+,.+">IRC</option>
@@ -259,9 +266,10 @@
     <option value="" data-l10n-id="vcard-impp-option-other" data-pattern="..+:..+"></option>
   </select>
   <label class="screen-reader-only" for="impp" data-l10n-id="vcard-impp-input-label"></label>
-  <input type="text" name="impp" pattern="..+:..+" />
+  <input type="text" name="impp" pattern="..+:..+" data-telemetry-id="vcard-impp"/>
   <button type="button"
           class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-telemetry-id="vcard-remove-impp"
           data-l10n-id="vcard-remove-button-title"></button>
 </template>
 
@@ -269,27 +277,36 @@
 <template id="template-vcard-edit-bday-anniversary">
   <label class="vcard-type-label screen-reader-only"
          data-l10n-id="vcard-entry-type-label"></label>
-  <select class="vcard-type-selection">
+  <select class="vcard-type-selection"
+          data-telemetry-id="vcard-type-selection-bday-anniversary">
     <option value="bday" data-l10n-id="vcard-bday-label" selected="selected"/>
     <option value="anniversary" data-l10n-id="vcard-anniversary-label"/>
   </select>
 
   <div class="vcard-year-month-day-container">
     <label class="screen-reader-only" for="year" data-l10n-id="vcard-date-year"></label>
-    <input id="year" name="year" type="number" min="1000" max="9999" pattern="[0-9]{4}" class="size5" />
+    <input id="year"
+           name="year"
+           type="number"
+           min="1000"
+           max="9999"
+           pattern="[0-9]{4}"
+           class="size5"
+           data-telemetry-id="vcard-year"/>
 
     <label class="screen-reader-only" for="month" data-l10n-id="vcard-date-month"></label>
-    <select id="month" name="month" class="vcard-month-select">
+    <select id="month" name="month" class="vcard-month-select" data-telemetry-id="vcard-month">
       <option value="" data-l10n-id="vcard-date-month" selected="selected"></option>
     </select>
 
     <label class="screen-reader-only" for="day" data-l10n-id="vcard-date-day"></label>
-    <select id="day" name="day" class="vcard-day-select">
+    <select id="day" name="day" class="vcard-day-select" data-telemetry-id="vcard-day">
       <option value="" data-l10n-id="vcard-date-day" selected="selected"></option>
     </select>
 
     <button type="button"
             class="addr-book-edit-fieldset-button remove-property-button icon-button"
+            data-telemetry-id="vcard-remove-bday-anniversary"
             data-l10n-id="vcard-remove-button-title"></button>
   </div>
 </template>
@@ -301,27 +318,28 @@
     <vcard-type></vcard-type>
     <div class="vcard-adr-inputs">
       <label for="street" data-l10n-id="vcard-adr-street"/>
-      <textarea name="street"></textarea>
+      <textarea name="street" data-telemetry-id="vcard-street"></textarea>
     </div>
     <div class="vcard-adr-inputs">
       <label for="locality" data-l10n-id="vcard-adr-locality"/>
-      <input type="text" name="locality"/>
+      <input type="text" name="locality" data-telemetry-id="vcard-locality"/>
     </div>
     <div class="vcard-adr-inputs">
       <label for="region" data-l10n-id="vcard-adr-region"/>
-      <input type="text" name="region"/>
+      <input type="text" name="region" data-telemetry-id="vcard-region"/>
     </div>
     <div class="vcard-adr-inputs">
       <label for="code" data-l10n-id="vcard-adr-code"/>
-      <input type="text" name="code"/>
+      <input type="text" name="code" data-telemetry-id="vcard-code"/>
     </div>
     <div class="vcard-adr-inputs">
       <label for="country" data-l10n-id="vcard-adr-country"/>
-      <input type="text" name="country"/>
+      <input type="text" name="country" data-telemetry-id="vcard-country"/>
     </div>
   </fieldset>
   <button type="button"
           class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-telemetry-id="vcard-remove-adr"
           data-l10n-id="vcard-remove-button"></button>
 </template>
 
@@ -330,6 +348,7 @@
   <textarea></textarea>
   <button type="button"
           class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-telemetry-id="vcard-remove-note"
           data-l10n-id="vcard-remove-button"></button>
 </template>
 
@@ -337,21 +356,33 @@
 <template id="template-vcard-edit-title">
   <div class="vcard-adr-inputs">
     <label for="title" data-l10n-id="vcard-org-title"/>
-    <input type="text" data-l10n-id="vcard-org-title-input" name="title" />
+    <input type="text"
+           name="title"
+           data-telemetry-id="vcard-title"
+           data-l10n-id="vcard-org-title-input"/>
   </div>
 </template>
 <template id="template-vcard-edit-role">
   <div class="vcard-adr-inputs">
     <label for="role" data-l10n-id="vcard-org-role"/>
-    <input type="text" data-l10n-id="vcard-org-role-input" name="role" />
+    <input type="text"
+           name="role"
+           data-telemetry-id="vcard-role"
+           data-l10n-id="vcard-org-role-input"/>
   </div>
 </template>
 <template id="template-vcard-edit-org">
   <div class="vcard-adr-inputs">
-    <label for="org" data-l10n-id="vcard-org-org" />
-    <input type="text" name="org" data-l10n-id="vcard-org-org-input" />
+    <label for="org" data-l10n-id="vcard-org-org"/>
+    <input type="text"
+           name="org"
+           data-telemetry-id="vcard-org"
+           data-l10n-id="vcard-org-org-input"/>
     <label for="orgUnit" data-l10n-id="vcard-org-org-unit" class="screen-reader-only"/>
-    <input type="text" name="orgUnit" data-l10n-id="vcard-org-org-unit-input" />
+    <input type="text"
+           name="orgUnit"
+           data-telemetry-id="vcard-orgUnit"
+           data-l10n-id="vcard-org-org-unit-input"/>
   </div>
 </template>
 
@@ -359,22 +390,23 @@
 <template id="template-vcard-edit-custom">
   <div class="vcard-adr-inputs">
     <label for="custom1"/>
-    <input type="text"/>
+    <input type="text" data-telemetry-id="vcard-custom"/>
   </div>
   <div class="vcard-adr-inputs">
     <label for="custom2"/>
-    <input type="text"/>
+    <input type="text" data-telemetry-id="vcard-custom"/>
   </div>
   <div class="vcard-adr-inputs">
     <label for="custom3"/>
-    <input type="text"/>
+    <input type="text" data-telemetry-id="vcard-custom"/>
   </div>
   <div class="vcard-adr-inputs">
     <label for="custom4"/>
-    <input type="text"/>
+    <input type="text" data-telemetry-id="vcard-custom"/>
   </div>
   <button type="button"
           class="addr-book-edit-fieldset-button remove-property-button icon-button"
+          data-telemetry-id="vcard-remove-custom"
           data-l10n-id="vcard-remove-button"></button>
 </template>
 

@@ -14,9 +14,10 @@ async function focusWindow(win) {
   );
 }
 
-async function openExtensionPopup(win, buttonId) {
+async function clickExtensionButton(win, buttonId) {
   await focusWindow(win.top);
 
+  buttonId = CSS.escape(buttonId);
   const actionButton = await TestUtils.waitForCondition(
     () =>
       win.document.querySelector(
@@ -29,6 +30,12 @@ async function openExtensionPopup(win, buttonId) {
     "waiting for action button to be visible"
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {}, win);
+
+  return actionButton;
+}
+
+async function openExtensionPopup(win, buttonId) {
+  const actionButton = await clickExtensionButton(win, buttonId);
 
   const panel = win.top.document.getElementById(
     "webextension-remote-preload-panel"

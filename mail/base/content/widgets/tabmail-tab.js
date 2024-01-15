@@ -55,7 +55,8 @@
                  - button creates a new tab stop. See bug 1754097 -->
               <html:button class="plain-button tab-close-button"
                            tabindex="-1"
-                           title="&closeTab.label;">
+                           title="&closeTab.label;"
+                           data-telemetry-id="tab-close-button">
                 <!-- Button title should provide the accessible context. -->
                 <html:img class="tab-close-icon" alt=""
                           src="chrome://global/skin/icons/close.svg" />

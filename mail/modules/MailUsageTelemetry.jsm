@@ -137,19 +137,15 @@ function telemetryId(widgetId, obscureAddons = true) {
     return `addon${pos}`;
   }
 
-  if (widgetId.endsWith("-browserAction-toolbarbutton")) {
+  const actionIdSuffix = [
+    "-browserAction-toolbarbutton",
+    "-messageDisplayAction-toolbarbutton",
+    "-composeAction-toolbarbutton",
+  ].find(suffix => widgetId.endsWith(suffix));
+
+  if (actionIdSuffix) {
     widgetId = addonId(
-      widgetId.substring(
-        0,
-        widgetId.length - "-browserAction-toolbarbutton".length
-      )
-    );
-  } else if (widgetId.endsWith("-messageDisplayAction-toolbarbutton")) {
-    widgetId = addonId(
-      widgetId.substring(
-        0,
-        widgetId.length - "-messageDisplayAction-toolbarbutton".length
-      )
+      widgetId.substring(0, widgetId.length - actionIdSuffix.length)
     );
   } else if (widgetId.startsWith("ext-keyset-id-")) {
     // Webextension command shortcuts don't have an id on their key element so
@@ -226,13 +222,14 @@ let MailUsageTelemetry = {
       return null;
     }
 
-    if (node.id) {
-      return node.id;
+    // Use this where more than one node of a type could be created (similar
+    // to where a CSS class selector would be used instead of an ID selector).
+    if (node.dataset.telemetryId) {
+      return node.dataset.telemetryId;
     }
 
-    // Special case in the tabs.
-    if (node.classList.contains("tab-close-button")) {
-      return "tab-close-button";
+    if (node.id) {
+      return node.id;
     }
 
     // One of these will at least let us know what the widget is for.

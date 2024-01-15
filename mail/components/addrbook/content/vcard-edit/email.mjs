@@ -59,6 +59,7 @@ export class VCardEmailComponent extends HTMLTableRowElement {
     this.vCardType = this.querySelector("vcard-type");
     this.vCardType.createTypeSelection(this.vCardPropertyEntry, {
       labelledBy: "addr-book-edit-email-type",
+      propertyType: "email",
     });
 
     this.querySelector(".remove-property-button").addEventListener(
