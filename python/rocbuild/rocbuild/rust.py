@@ -432,7 +432,7 @@ def inline_encoded_toml(id, data):
 def verify_vendored_dependencies(topsrcdir):
     result = check_vendored_dependencies(topsrcdir)
     if result:
-        print("Rust dependencies are out of sync. Run `mach tb-vendor`.\n")
+        print("Rust dependencies are out of sync. Run `mach tb-rust vendor`.\n")
         print("\n".join(result))
         sys.exit(1)
 
