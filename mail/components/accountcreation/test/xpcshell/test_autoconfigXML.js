@@ -260,7 +260,568 @@ function test_replaceVariables() {
   );
 }
 
+function test_unsupported_OAuth_with_alternative_auth() {
+  const configJXON = parseToJXON(`
+<clientConfig>
+  <emailProvider id="domain.example">
+    <domain>domain.example</domain>
+
+    <incomingServer type="imap">
+      <hostname>imap.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- unsupported -->
+      <authentication>OAuth2</authentication>
+      <!-- supported -->
+      <authentication>password-cleartext</authentication>
+    </incomingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>smtp.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- unsupported -->
+      <authentication>OAuth2</authentication>
+      <!-- supported -->
+      <authentication>password-cleartext</authentication>
+    </outgoingServer>
+
+  </emailProvider>
+</clientConfig>`);
+
+  const result = readFromXML(configJXON);
+
+  Assert.equal(result.incoming.auth, Ci.nsMsgAuthMethod.passwordCleartext);
+  Assert.equal(result.outgoing.auth, Ci.nsMsgAuthMethod.passwordCleartext);
+}
+
+function test_unsupported_OAuth_with_alternative_servers() {
+  const configJXON = parseToJXON(`
+<clientConfig>
+  <emailProvider id="domain.example">
+    <domain>domain.example</domain>
+
+    <incomingServer type="imap">
+      <hostname>imap-modern.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- unsupported -->
+      <authentication>OAuth2</authentication>
+    </incomingServer>
+
+    <incomingServer type="imap">
+      <hostname>imap-legacy.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- supported -->
+      <authentication>password-cleartext</authentication>
+    </incomingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>smtp-modern.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- unsupported -->
+      <authentication>OAuth2</authentication>
+    </outgoingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>smtp-legacy.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- supported -->
+      <authentication>password-cleartext</authentication>
+    </outgoingServer>
+
+  </emailProvider>
+</clientConfig>`);
+
+  const result = readFromXML(configJXON);
+
+  Assert.equal(result.incoming.hostname, "imap-legacy.domain.example");
+  Assert.equal(result.incoming.auth, Ci.nsMsgAuthMethod.passwordCleartext);
+  Assert.equal(result.outgoing.hostname, "smtp-legacy.domain.example");
+  Assert.equal(result.outgoing.auth, Ci.nsMsgAuthMethod.passwordCleartext);
+}
+
+function test_unsupported_OAuth_without_alternatives() {
+  const configJXON = parseToJXON(`
+<clientConfig>
+  <emailProvider id="domain.example">
+    <domain>domain.example</domain>
+
+    <incomingServer type="imap">
+      <hostname>imap.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- unsupported -->
+      <authentication>OAuth2</authentication>
+    </incomingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>smtp.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- unsupported -->
+      <authentication>OAuth2</authentication>
+    </outgoingServer>
+
+  </emailProvider>
+</clientConfig>`);
+
+  try {
+    readFromXML(configJXON);
+    do_throw("readFromXML should throw");
+  } catch (e) {
+    Assert.equal(e.message, "Lacking OAuth2 config for imap.domain.example");
+  }
+}
+
+function test_supported_OAuth() {
+  const configJXON = parseToJXON(`
+<clientConfig>
+  <emailProvider id="domain.example">
+    <domain>domain.example</domain>
+
+    <incomingServer type="imap">
+      <hostname>mochi.test</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- supported -->
+      <authentication>OAuth2</authentication>
+    </incomingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>mochi.test</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- supported -->
+      <authentication>OAuth2</authentication>
+    </outgoingServer>
+
+  </emailProvider>
+</clientConfig>`);
+
+  const result = readFromXML(configJXON);
+
+  Assert.equal(result.incoming.auth, Ci.nsMsgAuthMethod.OAuth2);
+  Assert.equal(result.outgoing.auth, Ci.nsMsgAuthMethod.OAuth2);
+}
+
+function test_supported_OAuth_in_alternative_servers() {
+  const configJXON = parseToJXON(`
+<clientConfig>
+  <emailProvider id="domain.example">
+    <domain>domain.example</domain>
+
+    <incomingServer type="imap">
+      <hostname>imap.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- supported -->
+      <authentication>password-cleartext</authentication>
+    </incomingServer>
+
+    <incomingServer type="imap">
+      <hostname>mochi.test</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- supported -->
+      <authentication>OAuth2</authentication>
+    </incomingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>smtp.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- supported -->
+      <authentication>password-cleartext</authentication>
+    </outgoingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>mochi.test</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- supported -->
+      <authentication>OAuth2</authentication>
+    </outgoingServer>
+
+  </emailProvider>
+</clientConfig>`);
+
+  const result = readFromXML(configJXON);
+
+  Assert.equal(result.incomingAlternatives[0].hostname, "mochi.test");
+  Assert.equal(result.incomingAlternatives[0].auth, Ci.nsMsgAuthMethod.OAuth2);
+  Assert.equal(result.outgoingAlternatives[0].hostname, "mochi.test");
+  Assert.equal(result.outgoingAlternatives[0].auth, Ci.nsMsgAuthMethod.OAuth2);
+}
+
+function test_supported_auth_methods_for_incoming_server() {
+  const configJXON = parseToJXON(`
+<clientConfig>
+  <emailProvider id="domain.example">
+    <domain>domain.example</domain>
+
+    <incomingServer type="imap">
+      <hostname>incoming.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>password-cleartext</authentication>
+    </incomingServer>
+
+    <incomingServer type="imap">
+      <hostname>incoming.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- deprecated, but still supported -->
+      <authentication>plain</authentication>
+    </incomingServer>
+
+    <incomingServer type="imap">
+      <hostname>incoming.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>password-encrypted</authentication>
+    </incomingServer>
+
+    <incomingServer type="imap">
+      <hostname>incoming.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- deprecated, but still supported -->
+      <authentication>secure</authentication>
+    </incomingServer>
+
+    <incomingServer type="imap">
+      <hostname>incoming.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>GSSAPI</authentication>
+    </incomingServer>
+
+    <incomingServer type="imap">
+      <hostname>incoming.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>NTLM</authentication>
+    </incomingServer>
+
+    <!-- OAuth2 support is checked in separate tests -->
+
+    <incomingServer type="imap">
+      <hostname>incoming.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- unsupported for incoming server -->
+      <authentication>none</authentication>
+    </incomingServer>
+
+    <incomingServer type="imap">
+      <hostname>incoming.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- unsupported for incoming server -->
+      <authentication>client-IP-address</authentication>
+    </incomingServer>
+
+    <incomingServer type="imap">
+      <hostname>incoming.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- unsupported for incoming server -->
+      <authentication>smtp-after-pop</authentication>
+    </incomingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>outgoing.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>password-cleartext</authentication>
+    </outgoingServer>
+
+  </emailProvider>
+</clientConfig>`);
+
+  const result = readFromXML(configJXON);
+
+  Assert.equal(result.incoming.auth, Ci.nsMsgAuthMethod.passwordCleartext);
+  Assert.equal(
+    result.incomingAlternatives[0].auth,
+    Ci.nsMsgAuthMethod.passwordCleartext
+  );
+  Assert.equal(
+    result.incomingAlternatives[1].auth,
+    Ci.nsMsgAuthMethod.passwordEncrypted
+  );
+  Assert.equal(
+    result.incomingAlternatives[2].auth,
+    Ci.nsMsgAuthMethod.passwordEncrypted
+  );
+  Assert.equal(result.incomingAlternatives[3].auth, Ci.nsMsgAuthMethod.GSSAPI);
+  Assert.equal(result.incomingAlternatives[4].auth, Ci.nsMsgAuthMethod.NTLM);
+  Assert.equal(result.incomingAlternatives.length, 5);
+}
+
+function test_supported_auth_methods_for_outgoing_server() {
+  const configJXON = parseToJXON(`
+<clientConfig>
+  <emailProvider id="domain.example">
+    <domain>domain.example</domain>
+
+    <incomingServer type="imap">
+      <hostname>incoming.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>password-cleartext</authentication>
+    </incomingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>outgoing.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>none</authentication>
+    </outgoingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>outgoing.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>client-IP-address</authentication>
+    </outgoingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>outgoing.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>smtp-after-pop</authentication>
+    </outgoingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>outgoing.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>password-cleartext</authentication>
+    </outgoingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>outgoing.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- deprecated, but still supported -->
+      <authentication>plain</authentication>
+    </outgoingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>outgoing.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>password-encrypted</authentication>
+    </outgoingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>outgoing.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <!-- deprecated, but still supported -->
+      <authentication>secure</authentication>
+    </outgoingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>outgoing.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>GSSAPI</authentication>
+    </outgoingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>outgoing.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>NTLM</authentication>
+    </outgoingServer>
+
+    <!-- OAuth2 support is checked in separate tests -->
+
+  </emailProvider>
+</clientConfig>`);
+
+  const result = readFromXML(configJXON);
+
+  Assert.equal(result.outgoing.auth, Ci.nsMsgAuthMethod.none);
+  Assert.equal(result.outgoingAlternatives[0].auth, Ci.nsMsgAuthMethod.none);
+  Assert.equal(result.outgoingAlternatives[1].auth, Ci.nsMsgAuthMethod.none);
+  Assert.equal(
+    result.outgoingAlternatives[2].auth,
+    Ci.nsMsgAuthMethod.passwordCleartext
+  );
+  Assert.equal(
+    result.outgoingAlternatives[3].auth,
+    Ci.nsMsgAuthMethod.passwordCleartext
+  );
+  Assert.equal(
+    result.outgoingAlternatives[4].auth,
+    Ci.nsMsgAuthMethod.passwordEncrypted
+  );
+  Assert.equal(
+    result.outgoingAlternatives[5].auth,
+    Ci.nsMsgAuthMethod.passwordEncrypted
+  );
+  Assert.equal(result.outgoingAlternatives[6].auth, Ci.nsMsgAuthMethod.GSSAPI);
+  Assert.equal(result.outgoingAlternatives[7].auth, Ci.nsMsgAuthMethod.NTLM);
+  Assert.equal(result.outgoingAlternatives.length, 8);
+}
+
+function test_missing_auth_method_for_incoming_server() {
+  const configJXON = parseToJXON(`
+<clientConfig>
+  <emailProvider id="domain.example">
+    <domain>domain.example</domain>
+
+    <incomingServer type="imap">
+      <hostname>invalid.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+    </incomingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>outgoing.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>password-cleartext</authentication>
+    </outgoingServer>
+
+  </emailProvider>
+</clientConfig>`);
+
+  try {
+    readFromXML(configJXON);
+    do_throw("readFromXML should throw");
+  } catch (e) {
+    Assert.equal(e.message, "need proper <authentication> in XML");
+  }
+}
+
+function test_missing_auth_method_for_outgoing_server() {
+  const configJXON = parseToJXON(`
+<clientConfig>
+  <emailProvider id="domain.example">
+    <domain>domain.example</domain>
+
+    <incomingServer type="imap">
+      <hostname>incoming.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>password-cleartext</authentication>
+    </incomingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>invalid.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+    </outgoingServer>
+
+  </emailProvider>
+</clientConfig>`);
+
+  try {
+    readFromXML(configJXON);
+    do_throw("readFromXML should throw");
+  } catch (e) {
+    Assert.equal(e.message, "need proper <authentication> in XML");
+  }
+}
+
+function test_skipping_unsupported_auth_methods() {
+  const configJXON = parseToJXON(`
+<clientConfig>
+  <emailProvider id="domain.example">
+    <domain>domain.example</domain>
+
+    <incomingServer type="imap">
+      <hostname>incoming.domain.example</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>unsupported</authentication>
+      <authentication>password-cleartext</authentication>
+    </incomingServer>
+
+    <outgoingServer type="smtp">
+      <hostname>outgoing.domain.example</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <username>%EMAILADDRESS%</username>
+      <authentication>unsupported</authentication>
+      <authentication>password-cleartext</authentication>
+    </outgoingServer>
+
+  </emailProvider>
+</clientConfig>`);
+
+  const result = readFromXML(configJXON);
+
+  Assert.equal(result.incoming.auth, Ci.nsMsgAuthMethod.passwordCleartext);
+  Assert.equal(result.outgoing.auth, Ci.nsMsgAuthMethod.passwordCleartext);
+}
+
+function parseToJXON(xmlString) {
+  const domParser = new DOMParser();
+  const xmlDocument = domParser.parseFromString(xmlString, "text/xml");
+  return JXON.build(xmlDocument);
+}
+
 function run_test() {
   test_readFromXML_config1();
   test_replaceVariables();
+
+  test_unsupported_OAuth_with_alternative_auth();
+  test_unsupported_OAuth_with_alternative_servers();
+  test_unsupported_OAuth_without_alternatives();
+  test_supported_OAuth();
+  test_supported_OAuth_in_alternative_servers();
+
+  test_supported_auth_methods_for_incoming_server();
+  test_supported_auth_methods_for_outgoing_server();
+  test_missing_auth_method_for_incoming_server();
+  test_missing_auth_method_for_outgoing_server();
+  test_skipping_unsupported_auth_methods();
 }
