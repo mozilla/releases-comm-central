@@ -4085,6 +4085,35 @@ NS_IMETHODIMP nsMsgDBFolder::SetSizeOnDisk(int64_t aSizeOnDisk) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgDBFolder::GetSizeOnDiskWithSubFolders(int64_t* sizeOnDisk) {
+  NS_ENSURE_ARG_POINTER(sizeOnDisk);
+
+  int64_t totalSize;
+
+  // Get the size of the current folder.
+  nsresult rv = GetSizeOnDisk(&totalSize);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Iterate over all sub-folders, and add their size to the total.
+  for (auto folder : mSubFolders) {
+    // Ignore virtual folders.
+    uint32_t folderFlags;
+    folder->GetFlags(&folderFlags);
+    if (!(folderFlags & nsMsgFolderFlags::Virtual)) {
+      // Get the nested size on disk for the sub-folder, so it includes any
+      // sub-folder it might have.
+      int64_t size;
+      rv = folder->GetSizeOnDiskWithSubFolders(&size);
+      NS_ENSURE_SUCCESS(rv, rv);
+      totalSize += size;
+    }
+  }
+
+  *sizeOnDisk = totalSize;
+
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgDBFolder::GetUsername(nsACString& userName) {
   nsresult rv;
   nsCOMPtr<nsIMsgIncomingServer> server;

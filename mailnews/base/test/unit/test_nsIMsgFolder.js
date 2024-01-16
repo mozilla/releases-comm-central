@@ -96,4 +96,23 @@ function run_test() {
 
   // test a normal folder is deletable
   Assert.ok(folder1.deletable);
+
+  // Test computing size on disk, both with and without
+  // including sub-folders.
+
+  folder1.createSubfolder("folder2", null);
+  const subFolder = folder2.getChildNamed("folder2");
+
+  folder1.sizeOnDisk = 1;
+  subFolder.sizeOnDisk = 2;
+
+  // Test that getting sizeOnDisk returns the correct result.
+  Assert.equal(folder1.sizeOnDisk, 1);
+  Assert.equal(subFolder.sizeOnDisk, 2);
+
+  // Test that sizeOnDiskWithSubFolders for `folder1` includes the size of
+  // `subFolder`, but that sizeOnDiskWithSubFolders for `subFolder` has the same
+  // value as its non-nested size because it has no sub-folder of its own.
+  Assert.equal(folder1.sizeOnDiskWithSubFolders, 3);
+  Assert.equal(subFolder.sizeOnDiskWithSubFolders, 2);
 }

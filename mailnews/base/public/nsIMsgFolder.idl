@@ -376,6 +376,16 @@ interface nsIMsgFolder : nsISupports {
    */
   attribute long long sizeOnDisk;
 
+  /**
+   * Aggregate size on disk of this folder and any folder
+   * nested under it.
+   *
+   * This attribute is computed by reading the sizeOnDisk attribute of the
+   * current folder and all of its sub-folders. This means its calculation can
+   * become costly if the folder has a lot of sub-folders.
+   */
+  readonly attribute long long sizeOnDiskWithSubFolders;
+
   readonly attribute ACString username;
   readonly attribute ACString hostname;
 
