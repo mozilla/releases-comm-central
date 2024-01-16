@@ -80,23 +80,23 @@
   --icon-color-critical: #fff;
 }
 
-:host([value=attachmentReminder]) {
+:host(notification-message[value=attachmentReminder]) {
   --message-bar-icon-url: var(--icon-attachment);
 }
 
-:host([value=draftMsgContent]) {
+:host(notification-message[value=draftMsgContent]) {
   --message-bar-icon-url: var(--icon-pencil);
 }
 
-:host([value=junkContent]) {
+:host(notification-message[value=junkContent]) {
   --message-bar-icon-url: var(--icon-spam);
 }
 
-:host([value=remoteContent]) {
+:host(notification-message[value=remoteContent]) {
   --message-bar-icon-url: var(--icon-photo-ban);
 }
 
-:host([value=accountSetupLoading]) {
+:host(notification-message[value=accountSetupLoading]) {
   --message-bar-icon-url: url("chrome://messenger/skin/icons/hourglass.svg");
 
   & .icon-container {
@@ -140,17 +140,18 @@ div.container {
   }
 }
 
-.content {
-  margin: 0 4px;
-  display: inline-block;
-  /* Ensure that the message bar content is vertically aligned. */
-  align-items: center;
+div.content {
+  flex-wrap: initial;
   /* Ensure that the message bar content is wrapped. */
   word-break: break-word;
 }
 
 .text-container {
   flex-grow: 1;
+}
+
+.text-content > div {
+  display: inline-flex;
 }
 
 /* MessageBar icon style */

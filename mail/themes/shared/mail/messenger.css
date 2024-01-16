@@ -1530,7 +1530,6 @@ printpreview-pagination:focus-within,
     align-items: center;
     margin: 4px 6px;
     padding-block: 0;
-    padding-inline: 0 11px;
     background-color: var(--in-content-button-background);
 
     & > toolbarbutton {
@@ -1551,13 +1550,12 @@ printpreview-pagination:focus-within,
     &:hover,
     & > toolbarbutton:hover {
       background-color: var(--in-content-button-background-hover);
-      color: var(--in-content-button-text-color-hover);
-      border-color: var(--in-content-button-border-color-hover);
+      color: var(--in-content-button-color-hover);
 
       &:active {
         background-color: var(--in-content-button-background-active);
-        color: var(--in-content-button-text-color-active);
-        border-color: var(--in-content-button-border-color-active);
+        color: var(--in-content-button-color-active);
+        border-color: var(--in-content-button-border-active);
       }
     }
 

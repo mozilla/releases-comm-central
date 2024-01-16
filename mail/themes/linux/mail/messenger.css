@@ -420,8 +420,9 @@ treechildren::-moz-tree-row {
 
 /* Infobar styles */
 
-.notification-button.small-button {
-  padding-block: 2px;
+toolbarbutton.notification-button[is="toolbarbutton-menu-button"] {
+  appearance: none;
+  padding-inline: 6px 12px !important;
 }
 
 #reminderBarPopup {
