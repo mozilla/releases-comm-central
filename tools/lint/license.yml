@@ -50,7 +50,6 @@ license:
         - .svg
         - .xhtml
         - .xml
-        - .xul
     support-files:
         - 'tools/lint/license/**'
     type: external
