@@ -82,34 +82,6 @@ const NOTIFICATION_COLLAPSE_TIME = 200;
   };
 })();
 
-// This function is pretty tightly tied to Extension.jsm.
-// Its job is to fill in the |tab| property of the sender.
-const getSender = (extension, target, sender) => {
-  let tabId = -1;
-  if ("tabId" in sender) {
-    // The message came from a privileged extension page running in a tab. In
-    // that case, it should include a tabId property (which is filled in by the
-    // page-open listener below).
-    tabId = sender.tabId;
-    delete sender.tabId;
-  } else if (
-    ExtensionCommon.instanceOf(target, "XULFrameElement") ||
-    ExtensionCommon.instanceOf(target, "HTMLIFrameElement")
-  ) {
-    tabId = tabTracker.getBrowserData(target).tabId;
-  }
-
-  if (tabId != null && tabId >= 0) {
-    const tab = extension.tabManager.get(tabId, null);
-    if (tab) {
-      sender.tab = tab.convert();
-    }
-  }
-};
-
-// Used by Extension.jsm.
-global.tabGetSender = getSender;
-
 global.clickModifiersFromEvent = event => {
   const map = {
     shiftKey: "Shift",

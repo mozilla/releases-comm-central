@@ -56,7 +56,6 @@ module.exports = {
     messageListTracker: true,
     messageTracker: true,
     spaceTracker: true,
-    tabGetSender: true,
     tabTracker: true,
     waitForMailTabReady: true,
     windowTracker: true,
