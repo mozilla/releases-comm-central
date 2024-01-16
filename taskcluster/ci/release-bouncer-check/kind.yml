@@ -14,8 +14,8 @@ transforms:
     - gecko_taskgraph.transforms.task:transforms
 
 job-defaults:
-    name: bouncer-check
-    description: bouncer check
+    name: release-bouncer-check
+    description: release bouncer check
     run-on-projects: []  # to make sure this never runs as part of CI
     shipping-phase: push
     worker-type: b-linux-gcp
@@ -24,6 +24,19 @@ job-defaults:
         docker-image: {in-tree: "update-verify"}
     run:
         sparse-profile: mozharness
+        comm-checkout: true
+        config:
+            - comm/testing/mozharness/configs/releases/bouncer_thunderbird.py
+        extra-config:
+            by-release-level:
+                production:
+                    locales: ['en-US', 'fr', 'de']
+                    bouncer_prefix: "https://download.mozilla.org/"
+                staging:
+                    locales: ['en-US', 'fr', 'de']
+                    bouncer_prefix: "https://dev.bouncer.nonprod.webservices.mozgcp.net/"
+                    cdn_urls:
+                        - ftp.stage.mozaws.net
     attributes:
         build_platform: linux64
         build_type: opt
@@ -37,18 +50,17 @@ jobs:
         shipping-product: thunderbird
         index:
             product: thunderbird
-            job-name: thunderbird-bouncer-check
+            job-name: thunderbird-release-bouncer-check
         run:
-            comm-checkout: true
             config:
-                - comm/testing/mozharness/configs/releases/bouncer_thunderbird.py
-            extra-config:
-                by-project:
-                    comm-(beta|esr.*):
-                        locales: ['en-US', 'fr', 'de']
-                        bouncer_prefix: "https://download.mozilla.org/"
+                by-release-type:
+                    beta:
+                        - comm/testing/mozharness/configs/releases/bouncer_thunderbird_beta.py
+                    release:
+                        - comm/testing/mozharness/configs/releases/bouncer_thunderbird_release.py
+                    esr.*:
+                        - comm/testing/mozharness/configs/releases/bouncer_thunderbird_esr.py
                     default:
-                        locales: ['en-US', 'fr', 'de']
-                        bouncer_prefix: "https://bouncer-bouncer-releng.stage.mozaws.net/"
+                        - comm/testing/mozharness/configs/releases/bouncer_thunderbird_beta.py
         treeherder:
             platform: thunderbird-release/opt
