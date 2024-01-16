@@ -16,9 +16,7 @@ from taskgraph.util.treeherder import inherit_treeherder_from_dep
 from voluptuous import Any, Optional, Required
 
 from gecko_taskgraph.transforms.task import task_description_schema
-from gecko_taskgraph.util.attributes import (
-    copy_attributes_from_dependent_job,
-)
+from gecko_taskgraph.util.attributes import copy_attributes_from_dependent_job, release_level
 from mozbuild.action.langpack_manifest import get_version_maybe_buildid
 
 transforms = TransformSequence()
@@ -57,6 +55,10 @@ def remove_name(config, jobs):
 @transforms.add
 def make_task_description(config, jobs):
     for job in jobs:
+        # Do not attempt to run when staging releases on try-comm-central
+        if release_level(config.params["project"]) != "production":
+            continue
+
         dep_job = get_primary_dependency(config, job)
         assert dep_job
 
