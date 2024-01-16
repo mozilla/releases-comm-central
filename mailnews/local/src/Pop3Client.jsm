@@ -368,6 +368,12 @@ class Pop3Client {
   _onError = async event => {
     this._logger.error(`${event.name}: a ${event.message} error occurred`);
     this._server.serverBusy = false;
+
+    // `_onClose` should not run before `_onError` finishes, so it will wait
+    // for this promise.
+    const { promise, resolve } = Promise.withResolvers();
+    this._promiseErrorHandled = promise;
+
     this.quit();
     const secInfo =
       await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
@@ -380,18 +386,23 @@ class Pop3Client {
         this._logger.error(`SecurityError cert chain: ${chain.join(" <- ")}`);
       }
       this.runningUri.failedSecInfo = secInfo;
-      // Notify about the error directly. Due to the await above, the _onClose
-      // event is likely to complete before we get here, which means _actionDone
-      // ran and won't run again.
       this.urlListener.OnStopRunningUrl(this.runningUri, event.errorCode);
+      this.runningUri.SetUrlState(false, event.errorCode);
     }
     this._actionDone(event.errorCode);
+
+    // Let `_onClose` continue.
+    resolve();
   };
 
   /**
    * The close event handler.
    */
-  _onClose = () => {
+  _onClose = async () => {
+    // Wait for `_onError` to finish.
+    await this._promiseErrorHandled;
+    delete this._promiseErrorHandled;
+
     this._logger.debug("Connection closed.");
     this._server.serverBusy = false;
     this._destroyed = true;
@@ -1514,7 +1525,11 @@ class Pop3Client {
   _cleanUp = status => {
     this._cleanedUp = true;
     this.close();
-    this.urlListener.OnStopRunningUrl(this.runningUri, status);
+    const runningUrl = {};
+    this.runningUri.GetUrlState(runningUrl);
+    if (runningUrl.value) {
+      this.urlListener.OnStopRunningUrl(this.runningUri, status);
+    }
     this.runningUri.SetUrlState(false, Cr.NS_OK);
     this.onDone?.(status);
     if (this._folderLocked) {

@@ -194,7 +194,13 @@ var moveCopyModule = {
     // When a new account is created we get this notification with an empty named
     // folder that can't return its server. Ignore it.
     // TODO: find out what it is.
-    const server = aFolder.server;
+    let server;
+    try {
+      server = aFolder.server;
+    } catch (ex) {
+      console.warn(ex.message);
+      return;
+    }
     // If the account has been removed, we're going to ignore this notification.
     if (
       !MailServices.accounts.findServer(

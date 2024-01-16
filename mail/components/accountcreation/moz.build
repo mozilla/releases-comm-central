@@ -18,6 +18,10 @@ EXTRA_JS_MODULES.accountcreation += [
     "modules/Sanitizer.sys.mjs",
 ]
 
+BROWSER_CHROME_MANIFESTS += [
+    "test/browser/browser.ini",
+]
+
 XPCSHELL_TESTS_MANIFESTS += [
     "test/xpcshell/xpcshell.ini",
 ]
