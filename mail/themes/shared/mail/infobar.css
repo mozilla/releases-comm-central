@@ -141,7 +141,6 @@ div.container {
 }
 
 div.content {
-  flex-wrap: initial;
   /* Ensure that the message bar content is wrapped. */
   word-break: break-word;
 }
