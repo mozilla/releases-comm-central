@@ -35,7 +35,6 @@ wasi = { path = "../../build/rust/wasi" }
 backtrace = { path = "../../build/rust/backtrace" }
 bindgen_0_63 = { package = "bindgen", path = "../../build/rust/bindgen-0.63" }
 bindgen_0_64 = { package = "bindgen", path = "../../build/rust/bindgen-0.64" }
-bindgen_0_69 = { package = "bindgen", git = "https://github.com/rust-lang/rust-bindgen", rev = "86f3dbe846020e2ba573d6eb38d1434d0cbcbb40" }
 nix = { path = "../../build/rust/nix" }
 indexmap = { path = "../../build/rust/indexmap" }
 derive_more = { path = "../../build/rust/derive_more" }
@@ -57,7 +56,7 @@ firefox-on-glean = { path = "../../toolkit/components/glean/api" }
 icu_capi = { path = "../../intl/icu_capi" }
 icu_segmenter_data = { path = "../../intl/icu_segmenter_data" }
 libudev-sys = { path = "../../dom/webauthn/libudev-sys" }
-midir = { git = "https://github.com/mozilla/midir.git", rev = "519e651241e867af3391db08f9ae6400bc023e18" }
+midir = { git = "https://github.com/mozilla/midir.git", rev = "85156e360a37d851734118104619f86bd18e94c6" }
 warp = { git = "https://github.com/seanmonstar/warp", rev = "9d081461ae1167eb321585ce424f4fef6cf0092b" }
 malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
 interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
