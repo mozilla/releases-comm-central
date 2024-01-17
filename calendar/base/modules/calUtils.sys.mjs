@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-import { ConsoleAPI } from "resource://gre/modules/Console.sys.mjs";
 
 const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 ICAL.design.strict = false;
@@ -17,10 +16,10 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 });
 
 // The calendar console instance
-var gCalendarConsole = new ConsoleAPI({
+var gCalendarConsole = console.createInstance({
   prefix: "Calendar",
   consoleID: "calendar",
-  maxLogLevel: Services.prefs.getBoolPref("calendar.debug.log", false) ? "all" : "warn",
+  maxLogLevel: Services.prefs.getBoolPref("calendar.debug.log", false) ? "All" : "Warn",
 });
 
 export var cal = {
@@ -64,18 +63,18 @@ export var cal = {
    * Logs a calendar message to the console. Needs calendar.debug.log enabled to show messages.
    * Shortcut to cal.console.log()
    */
-  LOG: gCalendarConsole.log,
-  LOGverbose: gCalendarConsole.debug,
+  LOG: gCalendarConsole.log.bind(gCalendarConsole),
+  LOGverbose: gCalendarConsole.debug.bind(gCalendarConsole),
 
   /**
    * Logs a calendar warning to the console. Shortcut to cal.console.warn()
    */
-  WARN: gCalendarConsole.warn,
+  WARN: gCalendarConsole.warn.bind(gCalendarConsole),
 
   /**
    * Logs a calendar error to the console. Shortcut to cal.console.error()
    */
-  ERROR: gCalendarConsole.error,
+  ERROR: gCalendarConsole.error.bind(gCalendarConsole),
 
   /**
    * Uses the prompt service to display an error message. Use this sparingly,

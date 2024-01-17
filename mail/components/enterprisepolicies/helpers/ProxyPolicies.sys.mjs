@@ -7,14 +7,11 @@ const lazy = {};
 const PREF_LOGLEVEL = "browser.policies.loglevel";
 
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
-  const { ConsoleAPI } = ChromeUtils.importESModule(
-    "resource://gre/modules/Console.sys.mjs"
-  );
-  return new ConsoleAPI({
+  return console.createInstance({
     prefix: "ProxyPolicies.jsm",
     // tip: set maxLogLevel to "debug" and use log.debug() to create detailed
     // messages during development. See LOG_LEVELS in Console.jsm for details.
-    maxLogLevel: "error",
+    maxLogLevel: "Error",
     maxLogLevelPref: PREF_LOGLEVEL,
   });
 });

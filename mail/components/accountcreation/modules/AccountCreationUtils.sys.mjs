@@ -12,7 +12,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 import { AddonManager } from "resource://gre/modules/AddonManager.sys.mjs";
-import { ConsoleAPI } from "resource://gre/modules/Console.sys.mjs";
 import {
   clearInterval,
   clearTimeout,
@@ -676,9 +675,9 @@ function deepCopy(org) {
   return result;
 }
 
-var gAccountSetupLogger = new ConsoleAPI({
+var gAccountSetupLogger = console.createInstance({
   prefix: "mail.setup",
-  maxLogLevel: "warn",
+  maxLogLevel: "Warn",
   maxLogLevelPref: "mail.setup.loglevel",
 });
 

@@ -7,10 +7,6 @@
 // mail/base/content/specialTabs.js
 /* globals specialTabs */
 
-var { ConsoleAPI } = ChromeUtils.importESModule(
-  "resource://gre/modules/Console.sys.mjs"
-);
-
 /**
  * A content tab for the account provisioner.  We use Javascript-y magic to
  * "subclass" specialTabs.contentTabType, and then override the appropriate
@@ -29,9 +25,9 @@ var provisionerCheckoutTabType = Object.create(specialTabs.contentTabType, {
     },
   },
   _log: {
-    value: new ConsoleAPI({
+    value: console.createInstance({
       prefix: "mail.provider",
-      maxLogLevel: "warn",
+      maxLogLevel: "Warn",
       maxLogLevelPref: "mail.provider.loglevel",
     }),
   },

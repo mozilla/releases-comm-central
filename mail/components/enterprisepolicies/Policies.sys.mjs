@@ -33,14 +33,11 @@ const ABOUT_CONTRACT = "@mozilla.org/network/protocol/about;1?what=";
 const isXpcshell = Services.env.exists("XPCSHELL_TEST_PROFILE_DIR");
 
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
-  const { ConsoleAPI } = ChromeUtils.importESModule(
-    "resource://gre/modules/Console.sys.mjs"
-  );
-  return new ConsoleAPI({
+  return console.createInstance({
     prefix: "Policies.jsm",
     // tip: set maxLogLevel to "debug" and use log.debug() to create detailed
     // messages during development. See LOG_LEVELS in Console.jsm for details.
-    maxLogLevel: "error",
+    maxLogLevel: "Error",
     maxLogLevelPref: PREF_LOGLEVEL,
   });
 });
