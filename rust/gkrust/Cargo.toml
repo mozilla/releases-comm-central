@@ -88,6 +88,7 @@ static_prefs = { path = "../../../modules/libpref/init/static_prefs" }
 storage = { path = "../../../storage/rust" }
 unic-langid = { version = "0.9", features = ['likelysubtags'] }
 unic-langid-ffi = { path = "../../../intl/locale/rust/unic-langid-ffi" }
+uniffi = { version = "0.25.2" }
 uniffi-example-arithmetic = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "afb29ebdc1d9edf15021b1c5332fc9f285bbe13b", optional = true }
 uniffi-example-custom-types = { path = "../../../toolkit/components/uniffi-example-custom-types", optional = true }
 uniffi-example-geometry = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "afb29ebdc1d9edf15021b1c5332fc9f285bbe13b", optional = true }
@@ -96,7 +97,6 @@ uniffi-example-sprites = { git = "https://github.com/mozilla/uniffi-rs.git", rev
 uniffi-example-todolist = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "afb29ebdc1d9edf15021b1c5332fc9f285bbe13b", optional = true }
 uniffi-fixture-callbacks = { path = "../../../toolkit/components/uniffi-fixture-callbacks", optional = true }
 uniffi-fixture-external-types = { path = "../../../toolkit/components/uniffi-fixture-external-types", optional = true }
-uniffi_core = { version = "0.25.2", features = ['extern-rustbuffer'] }
 url = { version = "2.5.0" }
 webrender_bindings = { path = "../../../gfx/webrender_bindings" }
 wgpu_bindings = { path = "../../../gfx/wgpu_bindings" }

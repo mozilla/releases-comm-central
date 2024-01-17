@@ -21,9 +21,9 @@ git = "https://github.com/franziskuskiefer/cose-rust"
 rev = "43c22248d136c8b38fe42ea709d08da6355cf04b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/gfx-rs/wgpu?rev=4b82121501a61c2c2e11cb472d70ba54af3aa12d"]
+[source."git+https://github.com/gfx-rs/wgpu?rev=c6eea50b04127abe2340b93141123312baf5414b"]
 git = "https://github.com/gfx-rs/wgpu"
-rev = "4b82121501a61c2c2e11cb472d70ba54af3aa12d"
+rev = "c6eea50b04127abe2340b93141123312baf5414b"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/hsivonen/chardetng?rev=3484d3e3ebdc8931493aa5df4d7ee9360a90e76b"]
@@ -41,14 +41,14 @@ git = "https://github.com/jfkthame/mapped_hyph.git"
 rev = "c7651a0cffff41996ad13c44f689bd9cd2192c01"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla-spidermonkey/jsparagus?rev=64ba08e24749616de2344112f226d1ef4ba893ae"]
+[source."git+https://github.com/mozilla-spidermonkey/jsparagus?rev=61f399c53a641ebd3077c1f39f054f6d396a633c"]
 git = "https://github.com/mozilla-spidermonkey/jsparagus"
-rev = "64ba08e24749616de2344112f226d1ef4ba893ae"
+rev = "61f399c53a641ebd3077c1f39f054f6d396a633c"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/application-services?rev=57ecda94fae3226cf67b3e12ce7d6b504e0e2417"]
+[source."git+https://github.com/mozilla/application-services?rev=c1e935d9d1d68e2bee323a236e62165ab1bbb2da"]
 git = "https://github.com/mozilla/application-services"
-rev = "57ecda94fae3226cf67b3e12ce7d6b504e0e2417"
+rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/audioipc?rev=6be424d75f1367e70f2f5ddcacd6d0237e81a6a9"]

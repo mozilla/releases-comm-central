@@ -13,7 +13,7 @@ members = ['gkrust']
 
 [workspace.dependencies]
 uniffi = { version = "0.25.3" }
-rusqlite = { version = "0.29.0" }
+rusqlite = { version = "0.30.0" }
 
 [patch.crates-io]
 mozilla-central-workspace-hack = { path = "." }
@@ -35,7 +35,6 @@ wasi = { path = "../../build/rust/wasi" }
 backtrace = { path = "../../build/rust/backtrace" }
 bindgen_0_63 = { package = "bindgen", path = "../../build/rust/bindgen-0.63" }
 bindgen_0_64 = { package = "bindgen", path = "../../build/rust/bindgen-0.64" }
-bindgen = { path = "../../build/rust/bindgen" }
 bindgen_0_69 = { package = "bindgen", git = "https://github.com/rust-lang/rust-bindgen", rev = "86f3dbe846020e2ba573d6eb38d1434d0cbcbb40" }
 nix = { path = "../../build/rust/nix" }
 indexmap = { path = "../../build/rust/indexmap" }
@@ -61,13 +60,13 @@ libudev-sys = { path = "../../dom/webauthn/libudev-sys" }
 midir = { git = "https://github.com/mozilla/midir.git", rev = "519e651241e867af3391db08f9ae6400bc023e18" }
 warp = { git = "https://github.com/seanmonstar/warp", rev = "9d081461ae1167eb321585ce424f4fef6cf0092b" }
 malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
-interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "57ecda94fae3226cf67b3e12ce7d6b504e0e2417" }
-sql-support = { git = "https://github.com/mozilla/application-services", rev = "57ecda94fae3226cf67b3e12ce7d6b504e0e2417" }
-suggest = { git = "https://github.com/mozilla/application-services", rev = "57ecda94fae3226cf67b3e12ce7d6b504e0e2417" }
-sync15 = { git = "https://github.com/mozilla/application-services", rev = "57ecda94fae3226cf67b3e12ce7d6b504e0e2417" }
-tabs = { git = "https://github.com/mozilla/application-services", rev = "57ecda94fae3226cf67b3e12ce7d6b504e0e2417" }
-viaduct = { git = "https://github.com/mozilla/application-services", rev = "57ecda94fae3226cf67b3e12ce7d6b504e0e2417" }
-webext-storage = { git = "https://github.com/mozilla/application-services", rev = "57ecda94fae3226cf67b3e12ce7d6b504e0e2417" }
+interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
+sql-support = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
+suggest = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
+sync15 = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
+tabs = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
+viaduct = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
+webext-storage = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
 mio = { path = "../../third_party/rust/mio-0.6.23" }
 
 [patch."https://github.com/mozilla/uniffi-rs.git"]
