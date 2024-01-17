@@ -13,7 +13,9 @@ var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 var { GlodaSyntheticView } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaSyntheticView.jsm"
 );
-var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
+var { MailConsts } = ChromeUtils.importESModule(
+  "resource:///modules/MailConsts.sys.mjs"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

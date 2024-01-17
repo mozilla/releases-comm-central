@@ -6,10 +6,7 @@
  * This is a place to store constants and enumerations that are needed only by
  * JavaScript code, especially component/module code.
  */
-
-var EXPORTED_SYMBOLS = ["MailConsts"];
-
-var MailConsts = {
+export const MailConsts = {
   /**
    * Determine how to open a message when it is double-clicked or selected and
    * Enter pressed. The preference to set this is mail.openMessageBehavior.

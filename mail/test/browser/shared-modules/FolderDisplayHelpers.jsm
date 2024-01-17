@@ -162,7 +162,9 @@ var { TestUtils } = ChromeUtils.importESModule(
 );
 
 var nsMsgViewIndex_None = 0xffffffff;
-var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
+var { MailConsts } = ChromeUtils.importESModule(
+  "resource:///modules/MailConsts.sys.mjs"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

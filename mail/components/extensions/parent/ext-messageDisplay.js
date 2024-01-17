@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
+var { MailConsts } = ChromeUtils.importESModule(
+  "resource:///modules/MailConsts.sys.mjs"
+);
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { getMsgStreamUrl } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionMessages.sys.mjs"

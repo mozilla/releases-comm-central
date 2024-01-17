@@ -19,7 +19,7 @@ EXTRA_JS_MODULES += [
     "FolderTreeProperties.jsm",
     "GlobalPopupNotifications.jsm",
     "LinkHelper.sys.mjs",
-    "MailConsts.jsm",
+    "MailConsts.sys.mjs",
     "MailE10SUtils.jsm",
     "MailMigrator.jsm",
     "MailUsageTelemetry.jsm",

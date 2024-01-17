@@ -34,7 +34,9 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
+var { MailConsts } = ChromeUtils.importESModule(
+  "resource:///modules/MailConsts.sys.mjs"
+);
 
 const MSG_TEXT = "Sundays are nothing without callaloo.";
 // TODO: Enable for S/MIME test

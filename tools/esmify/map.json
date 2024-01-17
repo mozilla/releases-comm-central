@@ -173,7 +173,6 @@
   "resource:///modules/LineReader.jsm": "comm/mailnews/base/src/LineReader.jsm",
   "resource:///modules/MDNService.jsm": "comm/mailnews/extensions/mdn/MDNService.jsm",
   "resource:///modules/MailAuthenticator.jsm": "comm/mailnews/base/src/MailAuthenticator.jsm",
-  "resource:///modules/MailConsts.jsm": "comm/mail/modules/MailConsts.jsm",
   "resource:///modules/MailCryptoUtils.jsm": "comm/mailnews/base/src/MailCryptoUtils.jsm",
   "resource:///modules/MailE10SUtils.jsm": "comm/mail/modules/MailE10SUtils.jsm",
   "resource:///modules/MailGlue.jsm": "comm/mail/components/MailGlue.jsm",

@@ -33,11 +33,11 @@ var { AppConstants } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   Color: "resource://gre/modules/Color.sys.mjs",
+  MailConsts: "resource:///modules/MailConsts.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
-  MailConsts: "resource:///modules/MailConsts.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   msgDBCacheManager: "resource:///modules/MsgDBCacheManager.jsm",
   PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.jsm",

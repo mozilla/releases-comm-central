@@ -11,12 +11,12 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  MailConsts: "resource:///modules/MailConsts.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   MimeParser: "resource:///modules/mimeParser.jsm",
 });
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  MailConsts: "resource:///modules/MailConsts.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });
