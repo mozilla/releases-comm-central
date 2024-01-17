@@ -686,27 +686,33 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
 #threadTree[rows="thread-card"] {
   background-color: var(--thread-card-background);
 
-  &[data-show-grouped-by-sort~="true"] tbody [data-properties~="thread-children"] {
-    &:not([data-properties~="unread"]) {
-      & .thread-card-container::after {
-        --indicator-icon-fill: transparent;
-        --indicator-icon-stroke: transparent;
-      }
+  &[data-show-grouped-by-sort~="true"] {
+    button.twisty :is(.replies-icon, .thread-replies) {
+      display: none;
     }
 
-    & .thread-card-container {
-      padding-inline-start: var(--thread-card-inline-doubled);
-      margin-inline-start: 0;
-
-      &::after {
-        inset-inline-start: var(--indicator-icon-offset-inline);
-        inset-block-start: var(--indicator-icon-offset-block);
-        --indicator-icon-offset-inline: revert;
-        --indicator-icon-offset-block: revert;
+    & tbody [data-properties~="thread-children"] {
+      &:not([data-properties~="unread"]) {
+        & .thread-card-container::after {
+          --indicator-icon-fill: transparent;
+          --indicator-icon-stroke: transparent;
+        }
       }
 
-      &::before {
-        display: none;
+      & .thread-card-container {
+        padding-inline-start: var(--thread-card-inline-doubled);
+        margin-inline-start: 0;
+
+        &::after {
+          inset-inline-start: var(--indicator-icon-offset-inline);
+          inset-block-start: var(--indicator-icon-offset-block);
+          --indicator-icon-offset-inline: revert;
+          --indicator-icon-offset-block: revert;
+        }
+
+        &::before {
+          display: none;
+        }
       }
     }
   }
