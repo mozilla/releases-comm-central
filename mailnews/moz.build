@@ -58,6 +58,7 @@ TESTING_JS_MODULES.mailnews += [
     "test/fakeserver/Maild.sys.mjs",
     "test/fakeserver/Nntpd.sys.mjs",
     "test/fakeserver/Pop3d.sys.mjs",
+    "test/fakeserver/ServerTestUtils.sys.mjs",
     "test/fakeserver/Smtpd.sys.mjs",
     "test/resources/IMAPpump.jsm",
     "test/resources/LocalAccountUtils.jsm",
@@ -67,6 +68,12 @@ TESTING_JS_MODULES.mailnews += [
     "test/resources/NetworkTestUtils.jsm",
     "test/resources/PromiseTestUtils.jsm",
     "test/resources/smimeUtils.jsm",
+]
+TESTING_JS_MODULES.mailnews.certs += [
+    "test/fakeserver/certs/expired.cert",
+    "test/fakeserver/certs/expired.key",
+    "test/fakeserver/certs/valid.cert",
+    "test/fakeserver/certs/valid.key",
 ]
 
 if "comm" in CONFIG["MOZ_BUILD_APP"]:

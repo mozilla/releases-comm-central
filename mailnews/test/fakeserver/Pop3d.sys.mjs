@@ -111,8 +111,10 @@ export class POP3_RFC1939_handler {
   kUsername = "fred";
   kPassword = "wilma";
 
-  constructor(daemon) {
+  constructor(daemon, { username = "fred", password = "wilma" } = {}) {
     this._daemon = daemon;
+    this.kUsername = username;
+    this.kPassword = password;
     this.closing = false;
     this.dropOnAuthFailure = false;
     this._multiline = false;
@@ -289,8 +291,8 @@ export class POP3_RFC5034_handler extends POP3_RFC2449_handler {
   kAuthSchemes = ["CRAM-MD5", "PLAIN", "LOGIN"]; // the test may adapt this as necessary
   _usedCRAMMD5Challenge = null; // not base64-encoded
 
-  constructor(daemon) {
-    super(daemon);
+  constructor(daemon, options) {
+    super(daemon, options);
 
     this._kAuthSchemeStartFunction = {
       "CRAM-MD5": this.authCRAMStart,

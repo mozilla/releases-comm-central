@@ -12,18 +12,14 @@
  * connections using a test certificate.
  */
 
-const { IMAPServer } = ChromeUtils.importESModule(
-  "resource://testing-common/IMAPServer.sys.mjs"
-);
 const { NetworkTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/NetworkTestUtils.jsm"
 );
-const { POP3Server } = ChromeUtils.importESModule(
-  "resource://testing-common/POP3Server.sys.mjs"
+const { ServerTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
-const { SMTPServer } = ChromeUtils.importESModule(
-  "resource://testing-common/SMTPServer.sys.mjs"
-);
+const { createServers, getCertificate, serverDefs } = ServerTestUtils;
+
 const { GuessConfig, GuessConfigForTests } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/GuessConfig.sys.mjs"
 );
@@ -35,123 +31,38 @@ const certOverrideService = Cc[
 ].getService(Ci.nsICertOverrideService);
 let tlsCert, expiredCert;
 
-let imapTLSServer, pop3TLSServer, smtpTLSServer;
-// Change this for more server debugging output. See Maild.sys.mjs for values.
-const serverDebugLevel = 0;
-
 // Something in this test causes NSS shutdown to fail. Ignore it.
 Services.env.set("MOZ_IGNORE_NSS_SHUTDOWN_LEAKS", "1");
 
 add_setup(async function () {
-  // Install the test certificate in the database, then set the exceptions.
-  const profile = do_get_profile();
-  do_get_file("certs/cert9.db").copyTo(profile, "cert9.db");
-  do_get_file("certs/key4.db").copyTo(profile, "key4.db");
+  do_get_profile();
+  tlsCert = await getCertificate("valid");
+  expiredCert = await getCertificate("expired");
 
-  tlsCert = await getCertificate("certs/ok");
-  Assert.equal(tlsCert.commonName, "test.test");
-  expiredCert = await getCertificate("certs/expired");
-  Assert.equal(expiredCert.commonName, "expired.test.test");
-
-  const imapServer = new IMAPServer(this, { extensions: ["RFC2195"] });
-  imapServer.server.setDebugLevel(serverDebugLevel);
-  NetworkTestUtils.configureProxy("test.test", 143, imapServer.port);
-  NetworkTestUtils.configureProxy("alt.test.test", 143, imapServer.port);
-
-  const imapStartTLSServer = new IMAPServer(this, {
-    extensions: ["RFC2195"],
-    offerStartTLS: true,
-  });
-  imapStartTLSServer.server.setDebugLevel(serverDebugLevel);
-  NetworkTestUtils.configureProxy(
-    "starttls.test.test",
-    143,
-    imapStartTLSServer.port
-  );
-
-  imapTLSServer = new IMAPServer(this, {
-    extensions: ["RFC2195"],
-    tlsCert,
-  });
-  imapTLSServer.server.setDebugLevel(serverDebugLevel);
-  NetworkTestUtils.configureProxy("test.test", 993, imapTLSServer.port);
-  NetworkTestUtils.configureProxy("alt.test.test", 993, imapTLSServer.port);
-
-  // Serves a certificate that doesn't match the hostname.
-  NetworkTestUtils.configureProxy("mitm.test.test", 993, imapTLSServer.port);
-
-  // Serves an expired certificate.
-  const imapExpiredTLSServer = new IMAPServer(this, {
-    extensions: ["RFC2195"],
-    tlsCert: expiredCert,
-  });
-  imapExpiredTLSServer.server.setDebugLevel(serverDebugLevel);
-  NetworkTestUtils.configureProxy(
-    "expired.test.test",
-    993,
-    imapExpiredTLSServer.port
-  );
-
-  const pop3Server = new POP3Server(this);
-  pop3Server.server.setDebugLevel(serverDebugLevel);
-  NetworkTestUtils.configureProxy("test.test", 110, pop3Server.port);
-  NetworkTestUtils.configureProxy("alt.test.test", 110, pop3Server.port);
-
-  const pop3StartTLSServer = new POP3Server(this, { offerStartTLS: true });
-  pop3StartTLSServer.server.setDebugLevel(serverDebugLevel);
-  NetworkTestUtils.configureProxy(
-    "starttls.test.test",
-    110,
-    pop3StartTLSServer.port
-  );
-
-  pop3TLSServer = new POP3Server(this, { tlsCert });
-  pop3TLSServer.server.setDebugLevel(serverDebugLevel);
-  NetworkTestUtils.configureProxy("test.test", 995, pop3TLSServer.port);
-  NetworkTestUtils.configureProxy("alt.test.test", 995, pop3TLSServer.port);
-
-  const smtpServer = new SMTPServer(this);
-  smtpServer.server.setDebugLevel(serverDebugLevel);
-  NetworkTestUtils.configureProxy("test.test", 587, smtpServer.port);
-  NetworkTestUtils.configureProxy("alt.test.test", 587, smtpServer.port);
-
-  const smtpStartTLSServer = new SMTPServer(this, { offerStartTLS: true });
-  smtpStartTLSServer.server.setDebugLevel(serverDebugLevel);
-  NetworkTestUtils.configureProxy(
-    "starttls.test.test",
-    587,
-    smtpStartTLSServer.port
-  );
-
-  smtpTLSServer = new SMTPServer(this, { tlsCert });
-  smtpTLSServer.server.setDebugLevel(serverDebugLevel);
-  NetworkTestUtils.configureProxy("test.test", 465, smtpTLSServer.port);
-  NetworkTestUtils.configureProxy("alt.test.test", 465, smtpTLSServer.port);
-
-  // Serves an expired certificate.
-  const smtpExpiredTLSServer = new SMTPServer(this, { tlsCert: expiredCert });
-  smtpExpiredTLSServer.server.setDebugLevel(serverDebugLevel);
-  NetworkTestUtils.configureProxy(
-    "expired.test.test",
-    465,
-    smtpExpiredTLSServer.port
-  );
+  await createServers(this, [
+    { ...serverDefs.imap.plain, aliases: [["alt.test.test", 143]] },
+    serverDefs.imap.startTLS,
+    {
+      ...serverDefs.imap.tls,
+      aliases: [
+        ["alt.test.test", 993],
+        ["mitm.test.test", 993],
+      ],
+    },
+    serverDefs.imap.expiredTLS,
+    { ...serverDefs.pop3.plain, aliases: [["alt.test.test", 110]] },
+    serverDefs.pop3.startTLS,
+    { ...serverDefs.pop3.tls, aliases: [["alt.test.test", 995]] },
+    { ...serverDefs.smtp.plain, aliases: [["alt.test.test", 587]] },
+    serverDefs.smtp.startTLS,
+    { ...serverDefs.smtp.tls, aliases: [["alt.test.test", 465]] },
+    serverDefs.smtp.expiredTLS,
+  ]);
 });
 
 registerCleanupFunction(function () {
   NetworkTestUtils.clearProxy();
 });
-
-async function getCertificate(path) {
-  const certDB = Cc["@mozilla.org/security/x509certdb;1"].getService(
-    Ci.nsIX509CertDB
-  );
-  let cert = await IOUtils.readUTF8(do_get_file(path).path);
-  cert = cert.replace("-----BEGIN CERTIFICATE-----", "");
-  cert = cert.replace("-----END CERTIFICATE-----", "");
-  cert = cert.replaceAll(/\s/g, "");
-  return certDB.constructX509FromBase64(cert);
-}
 
 async function callSocketUtil(hostname, port, socketType, commands) {
   const proxy = await new Promise(resolve => doProxy(hostname, resolve));
@@ -867,9 +778,11 @@ add_task(async function testGuessConfig() {
  * the base domain.
  */
 add_task(async function testGuessConfigKnownSubdomains() {
-  NetworkTestUtils.configureProxy("imap.test.test", 993, imapTLSServer.port);
-  NetworkTestUtils.configureProxy("pop3.test.test", 995, pop3TLSServer.port);
-  NetworkTestUtils.configureProxy("smtp.test.test", 465, smtpTLSServer.port);
+  const [imapServer, pop3Server, smtpServer] = await createServers(this, [
+    { ...serverDefs.imap.tls, hostname: "imap.test.test" },
+    { ...serverDefs.pop3.tls, hostname: "pop3.test.test" },
+    { ...serverDefs.smtp.tls, hostname: "smtp.test.test" },
+  ]);
 
   const { promise, resolve, reject } = Promise.withResolvers();
   GuessConfig.guessConfig(
@@ -920,6 +833,9 @@ add_task(async function testGuessConfigKnownSubdomains() {
 
   Assert.deepEqual(outgoingAlternatives, []);
 
+  imapServer.close();
+  pop3Server.close();
+  smtpServer.close();
   NetworkTestUtils.unconfigureProxy("imap.test.test", 993);
   NetworkTestUtils.unconfigureProxy("pop3.test.test", 995);
   NetworkTestUtils.unconfigureProxy("smtp.test.test", 465);
