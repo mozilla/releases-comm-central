@@ -56,6 +56,14 @@ var quickFilterBar = {
    */
   activeElement: null,
 
+  /**
+   * This identifies the timer for the deferred search, which is cleared when
+   * another deferred search is scheduled.
+   *
+   * @type {integer}
+   */
+  searchTimeoutID: 0,
+
   async init() {
     await window.customElements.whenDefined("search-bar");
     this._bindUI();
@@ -490,7 +498,11 @@ var quickFilterBar = {
    *   this function, if any.
    */
   deferredUpdateSearch(activeElement) {
-    setTimeout(() => this.updateSearch(activeElement), 10);
+    clearTimeout(this.searchTimeoutID);
+    this.searchTimeoutID = setTimeout(
+      () => this.updateSearch(activeElement),
+      100
+    );
   },
 
   /**
