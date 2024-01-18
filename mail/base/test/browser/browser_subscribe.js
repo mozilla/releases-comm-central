@@ -19,9 +19,6 @@ let imapRootFolder;
 let nntpRootFolder;
 
 add_setup(async function () {
-  // This test runs much more reliably with only one IMAP connection.
-  Services.prefs.setIntPref("mail.server.default.max_cached_connections", 1);
-
   const imapAccount = MailServices.accounts.createAccount();
   imapServer = new IMAPServer(this, { username: `${imapAccount.key}user` });
   imapServer.daemon.createMailbox("Bar", { subscribed: false });
@@ -57,10 +54,10 @@ add_setup(async function () {
   nntpAccount.incomingServer.port = nntpServer.port;
   nntpRootFolder = nntpAccount.incomingServer.rootFolder;
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async function () {
+    await promiseIMAPIdle(imapAccount.incomingServer);
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
-    Services.prefs.clearUserPref("mail.server.default.max_cached_connections");
   });
 });
 

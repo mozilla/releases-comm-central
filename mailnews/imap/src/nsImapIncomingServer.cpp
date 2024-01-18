@@ -2448,29 +2448,25 @@ nsImapIncomingServer::GetSupportsDiskSpace(bool* aSupportsDiskSpace) {
 
 // count number of non-busy connections in cache
 NS_IMETHODIMP
-nsImapIncomingServer::GetNumIdleConnections(int32_t* aNumIdleConnections) {
-  NS_ENSURE_ARG_POINTER(aNumIdleConnections);
-  *aNumIdleConnections = 0;
+nsImapIncomingServer::GetAllConnectionsIdle(bool* aAllIdle) {
+  NS_ENSURE_ARG_POINTER(aAllIdle);
+  *aAllIdle = true;
 
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIImapProtocol> connection;
-  bool isBusy = false;
+  nsresult rv;
+  bool isBusy;
   bool isInboxConnection;
+
   PR_CEnterMonitor(this);
-
-  int32_t cnt = m_connectionCache.Count();
-
-  // loop counting idle connections
-  for (int32_t i = 0; i < cnt; ++i) {
-    connection = m_connectionCache[i];
-    if (connection) {
-      rv = connection->IsBusy(&isBusy, &isInboxConnection);
-      if (NS_FAILED(rv)) continue;
-      if (!isBusy) (*aNumIdleConnections)++;
+  for (nsCOMPtr<nsIImapProtocol> connection : m_connectionCache) {
+    rv = connection->IsBusy(&isBusy, &isInboxConnection);
+    if (NS_FAILED(rv) || isBusy) {
+      *aAllIdle = false;
+      break;
     }
   }
   PR_CExitMonitor(this);
-  return rv;
+
+  return NS_OK;
 }
 
 /**

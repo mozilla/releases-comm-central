@@ -72,8 +72,8 @@ interface nsIImapIncomingServer : nsISupports {
   /// Max age of messages we will autosync to, or keep in offline store.
   attribute long autoSyncMaxAgeDays;
 
-  /** Count of non-busy connections in cache. */
-  readonly attribute long numIdleConnections;
+  /** True if there are no busy connections in cache. */
+  readonly attribute boolean allConnectionsIdle;
 
   /**
    * See IMAP RFC 6855

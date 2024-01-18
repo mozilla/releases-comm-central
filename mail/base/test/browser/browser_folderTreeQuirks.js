@@ -1091,6 +1091,7 @@ add_task(async function testGmailFolders() {
     folderC,
   ]);
 
+  await promiseIMAPIdle(gmailAccount.incomingServer);
   MailServices.accounts.removeAccount(gmailAccount, false);
 });
 

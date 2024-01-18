@@ -13,9 +13,6 @@ const about3Pane = tabmail.currentAbout3Pane;
 let imapRootFolder, imapFolder;
 
 add_setup(async function () {
-  // This test uses a single IMAP connection so that we can be sure it is idle
-  // before using it.
-  Services.prefs.setIntPref("mail.server.default.max_cached_connections", 1);
   imapServer = new QuotaServer(this);
 
   const imapAccount = MailServices.accounts.createAccount();
@@ -35,17 +32,8 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgImapMailFolder);
 
   registerCleanupFunction(async () => {
-    await TestUtils.waitForCondition(() => {
-      try {
-        return imapAccount.incomingServer.numIdleConnections;
-      } catch (ex) {
-        console.error(ex);
-      }
-      return 0;
-    }, "waiting for IMAP connection to become idle");
-
+    await promiseIMAPIdle(imapAccount.incomingServer);
     MailServices.accounts.removeAccount(imapAccount, false);
-    Services.prefs.clearUserPref("mail.server.default.max_cached_connections");
   });
 });
 
@@ -154,14 +142,7 @@ async function updateQuota(usage, limit) {
   // Drain the event queue so that the folder just displayed starts to use the
   // IMAP connection.
   await TestUtils.waitForTick();
-  await TestUtils.waitForCondition(() => {
-    try {
-      return imapFolder.server.numIdleConnections;
-    } catch (ex) {
-      console.error(ex);
-    }
-    return 0;
-  }, "waiting for IMAP connection to become idle");
+  await promiseIMAPIdle(imapFolder.server);
   imapServer.setQuota(imapFolder, "STORAGE", usage, limit);
   // Force the folder to be updated from the server.
   await new Promise(resolve =>

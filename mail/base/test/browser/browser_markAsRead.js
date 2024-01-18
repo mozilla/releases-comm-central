@@ -50,7 +50,8 @@ add_setup(async function () {
   imapTestFolder = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   await imapServer.addMessages(imapTestFolder, generator.makeMessages({}));
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async function () {
+    await promiseIMAPIdle(imapAccount.incomingServer);
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(imapAccount, false);
     Services.prefs.clearUserPref("mail.server.default.offline_download");

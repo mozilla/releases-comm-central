@@ -108,7 +108,8 @@ add_setup(async function () {
   imapFolder = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   imapServer.addMessages(imapFolder, generator.makeMessages({}));
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async function () {
+    await promiseIMAPIdle(imapAccount.incomingServer);
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
@@ -251,7 +252,8 @@ add_task(async function testDeleteItem() {
   // be sent to the IMAP server.
 
   displayFolder(imapFolder);
-  await TestUtils.waitForCondition(() => threadTree.view.rowCount == 10);
+  await promiseIMAPIdle(imapFolder.server);
+  Assert.equal(threadTree.view.rowCount, 10, "IMAP folder loaded");
   const dbView = about3Pane.gDBView;
   threadTree.selectedIndex = -1;
   await helper.testItems({
@@ -270,8 +272,7 @@ add_task(async function testDeleteItem() {
     l10nID: "menu-edit-delete-messages",
     l10nArgs: { count: 1 },
   });
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await promiseIMAPIdle(imapFolder.server);
   Assert.ok(
     message.flags & Ci.nsMsgMessageFlags.IMAPDeleted,
     "IMAPDeleted flag should be set"
@@ -286,8 +287,7 @@ add_task(async function testDeleteItem() {
     l10nID: "menu-edit-undelete-messages",
     l10nArgs: { count: 1 },
   });
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await promiseIMAPIdle(imapFolder.server);
   Assert.ok(
     !(message.flags & Ci.nsMsgMessageFlags.IMAPDeleted),
     "IMAPDeleted flag should be cleared on message 0"
@@ -314,8 +314,7 @@ add_task(async function testDeleteItem() {
     },
   });
   await helper.activateItem("menu_delete");
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await promiseIMAPIdle(imapFolder.server);
   Assert.ok(
     messages.every(m => m.flags & Ci.nsMsgMessageFlags.IMAPDeleted),
     "IMAPDeleted flags should be set"
@@ -329,8 +328,7 @@ add_task(async function testDeleteItem() {
     l10nID: "menu-edit-undelete-messages",
     l10nArgs: { count: 3 },
   });
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(r => setTimeout(r, 1000));
+  await promiseIMAPIdle(imapFolder.server);
   Assert.ok(
     messages.every(m => !(m.flags & Ci.nsMsgMessageFlags.IMAPDeleted)),
     "IMAPDeleted flags should be cleared"

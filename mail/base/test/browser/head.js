@@ -346,6 +346,13 @@ async function messageLoadedIn(aboutMessageBrowser) {
   }
 }
 
+async function promiseIMAPIdle(server) {
+  await TestUtils.waitForCondition(
+    () => server.allConnectionsIdle,
+    "waiting for IMAP connection to become idle"
+  );
+}
+
 // Report and remove any remaining accounts/servers. If we register a cleanup
 // function here, it will run before any other cleanup function has had a
 // chance to run. Instead, when it runs register another cleanup function
