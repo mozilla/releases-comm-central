@@ -146,6 +146,7 @@ def pin_gecko_rev_yml(config, tasks):
             merge_config = task["worker"]["merge-info"]
             if behavior == "comm-bump-esr115":
                 thunderbird_version = get_thunderbird_version(merge_config["to-repo"])
+                thunderbird_version = thunderbird_version.bump("minor_number")
                 gecko_rev_yml = get_gecko_rev_yml(merge_config["to-repo"])
             else:
                 thunderbird_version = get_thunderbird_version(merge_config["from-repo"])
