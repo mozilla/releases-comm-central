@@ -52,7 +52,7 @@ job-defaults:
         last-watershed:
             by-release-type:
                 beta: "79.0b2"
-                release(-rc)?: "115.0"
+                release(-rc)?: "116.0"
                 esr115: "115.0"
                 default: "default"
 
