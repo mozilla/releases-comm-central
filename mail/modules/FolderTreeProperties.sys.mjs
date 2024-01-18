@@ -7,16 +7,12 @@
  * Data is serialised to the file folderTree.json in the profile directory.
  */
 
-const EXPORTED_SYMBOLS = ["FolderTreeProperties"];
+import { JSONFile } from "resource://gre/modules/JSONFile.sys.mjs";
 
-const { JSONFile } = ChromeUtils.importESModule(
-  "resource://gre/modules/JSONFile.sys.mjs"
-);
-
-var jsonFile = new JSONFile({
+const jsonFile = new JSONFile({
   path: PathUtils.join(PathUtils.profileDir, "folderTree.json"),
 });
-var readyPromise = jsonFile.load();
+const readyPromise = jsonFile.load();
 
 function ensureReady() {
   if (!jsonFile.dataReady) {
@@ -24,7 +20,7 @@ function ensureReady() {
   }
 }
 
-var FolderTreeProperties = {
+export const FolderTreeProperties = {
   get ready() {
     return readyPromise;
   },

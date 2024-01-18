@@ -30,9 +30,6 @@
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { FolderTreeProperties } = ChromeUtils.import(
-  "resource:///modules/FolderTreeProperties.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -42,6 +39,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   FolderPaneUtils: "resource:///modules/FolderPaneUtils.sys.mjs",
+  FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });

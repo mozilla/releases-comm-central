@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { FolderTreeProperties } = ChromeUtils.import(
-  "resource:///modules/FolderTreeProperties.jsm"
+var { FolderTreeProperties } = ChromeUtils.importESModule(
+  "resource:///modules/FolderTreeProperties.sys.mjs"
 );
 
 const TRASH_COLOR_HEX = "#52507c";

@@ -14,8 +14,8 @@ var gFolderBundle = null;
 var gDefaultColor = "";
 var gMsgFolder;
 
-var { FolderTreeProperties } = ChromeUtils.import(
-  "resource:///modules/FolderTreeProperties.jsm"
+var { FolderTreeProperties } = ChromeUtils.importESModule(
+  "resource:///modules/FolderTreeProperties.sys.mjs"
 );
 var { FolderUtils } = ChromeUtils.import("resource:///modules/FolderUtils.jsm");
 var { MailServices } = ChromeUtils.import(

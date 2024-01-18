@@ -9,13 +9,13 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const lazy = {};
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
-  FolderTreeProperties: "resource:///modules/FolderTreeProperties.jsm",
   FolderUtils: "resource:///modules/FolderUtils.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
 });
 
 ChromeUtils.defineESModuleGetters(lazy, {
   FolderPaneUtils: "resource:///modules/FolderPaneUtils.sys.mjs",
+  FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
 });
 
 const XULSTORE_URL = "chrome://messenger/content/messenger.xhtml";

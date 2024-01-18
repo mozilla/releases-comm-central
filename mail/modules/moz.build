@@ -16,7 +16,7 @@ EXTRA_JS_MODULES += [
     "ExtensionsUI.sys.mjs",
     "ExtensionSupport.sys.mjs",
     "FolderPaneUtils.sys.mjs",
-    "FolderTreeProperties.jsm",
+    "FolderTreeProperties.sys.mjs",
     "GlobalPopupNotifications.jsm",
     "LinkHelper.sys.mjs",
     "MailConsts.sys.mjs",

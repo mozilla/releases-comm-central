@@ -5,8 +5,8 @@
 /* import-globals-from retention.js */
 /* global BigInt */
 
-var { FolderTreeProperties } = ChromeUtils.import(
-  "resource:///modules/FolderTreeProperties.jsm"
+var { FolderTreeProperties } = ChromeUtils.importESModule(
+  "resource:///modules/FolderTreeProperties.sys.mjs"
 );
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 
