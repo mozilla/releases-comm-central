@@ -43,22 +43,22 @@ add_task(async function () {
   // Load the folder with no quota.
 
   about3Pane.displayFolder(imapFolder);
-  Assert.ok(BrowserTestUtils.is_hidden(quotaPanel), "panel should be hidden");
+  Assert.ok(BrowserTestUtils.isHidden(quotaPanel), "panel should be hidden");
 
   // Reload the folder with usage below mail.quota.mainwindow_threshold.show.
 
   about3Pane.displayFolder(imapRootFolder);
-  Assert.ok(BrowserTestUtils.is_hidden(quotaPanel), "panel should be hidden");
+  Assert.ok(BrowserTestUtils.isHidden(quotaPanel), "panel should be hidden");
 
   await updateQuota(20, 123);
   about3Pane.displayFolder(imapFolder);
-  Assert.ok(BrowserTestUtils.is_hidden(quotaPanel), "panel should be hidden");
+  Assert.ok(BrowserTestUtils.isHidden(quotaPanel), "panel should be hidden");
 
   // Reload the folder with usage above mail.quota.mainwindow_threshold.show
   // but below mail.quota.mainwindow_threshold.warning.
 
   about3Pane.displayFolder(imapRootFolder);
-  Assert.ok(BrowserTestUtils.is_hidden(quotaPanel), "panel should be hidden");
+  Assert.ok(BrowserTestUtils.isHidden(quotaPanel), "panel should be hidden");
 
   await updateQuota(98, 123);
   about3Pane.displayFolder(imapFolder);
@@ -68,14 +68,14 @@ add_task(async function () {
   // but below mail.quota.mainwindow_threshold.critical.
 
   about3Pane.displayFolder(imapRootFolder);
-  Assert.ok(BrowserTestUtils.is_hidden(quotaPanel), "panel should be hidden");
+  Assert.ok(BrowserTestUtils.isHidden(quotaPanel), "panel should be hidden");
 
   await updateQuota(105, 123);
   about3Pane.displayFolder(imapFolder);
   checkStatus(85, "105 KB", "123 KB", "alert-warning");
 
   about3Pane.displayFolder(imapRootFolder);
-  Assert.ok(BrowserTestUtils.is_hidden(quotaPanel), "panel should be hidden");
+  Assert.ok(BrowserTestUtils.isHidden(quotaPanel), "panel should be hidden");
 
   // Reload the folder with usage above mail.quota.mainwindow_threshold.critical.
 
@@ -104,11 +104,11 @@ add_task(async function () {
           "quota panel should be selected"
         );
         await TestUtils.waitForCondition(
-          () => BrowserTestUtils.is_hidden(quotaStatus),
+          () => BrowserTestUtils.isHidden(quotaStatus),
           "waiting for quota UI to update"
         );
         Assert.ok(
-          BrowserTestUtils.is_visible(quotaDetails),
+          BrowserTestUtils.isVisible(quotaDetails),
           "quota details should be visible"
         );
         Assert.equal(
@@ -165,7 +165,7 @@ function checkStatus(percent, usage, limit, className) {
   const quotaLabel = document.getElementById("quotaLabel");
 
   Assert.ok(
-    BrowserTestUtils.is_visible(quotaPanel),
+    BrowserTestUtils.isVisible(quotaPanel),
     "status bar panel should be visible"
   );
   Assert.equal(

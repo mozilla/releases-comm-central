@@ -38,11 +38,11 @@ add_task(async function testProfileExport() {
   const exportPane = importDocument.getElementById("tabPane-export");
 
   ok(
-    BrowserTestUtils.is_visible(importDocument.getElementById("exportDocs")),
+    BrowserTestUtils.isVisible(importDocument.getElementById("exportDocs")),
     "Export docs link is visible"
   );
   ok(
-    BrowserTestUtils.is_hidden(importDocument.getElementById("importDocs")),
+    BrowserTestUtils.isHidden(importDocument.getElementById("importDocs")),
     "Import docs link is hidden"
   );
 
@@ -57,10 +57,10 @@ add_task(async function testProfileExport() {
     {
       attributes: true,
     },
-    () => BrowserTestUtils.is_visible(progressPane)
+    () => BrowserTestUtils.isVisible(progressPane)
   );
   ok(
-    BrowserTestUtils.is_hidden(importDocument.getElementById("exportButton")),
+    BrowserTestUtils.isHidden(importDocument.getElementById("exportButton")),
     "Export button is hidden while export is in progress"
   );
 
@@ -70,10 +70,10 @@ add_task(async function testProfileExport() {
     {
       attributes: true,
     },
-    () => BrowserTestUtils.is_visible(finish)
+    () => BrowserTestUtils.isVisible(finish)
   );
   ok(
-    BrowserTestUtils.is_visible(progressPane),
+    BrowserTestUtils.isVisible(progressPane),
     "When export succeeds and finish is shown, progress is still displayed"
   );
 

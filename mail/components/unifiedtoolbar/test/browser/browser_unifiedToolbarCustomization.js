@@ -41,21 +41,21 @@ add_task(async function test_open_customization() {
   await TestUtils.waitForCondition(() => customization.hasConnected);
 
   Assert.ok(
-    BrowserTestUtils.is_visible(customization),
+    BrowserTestUtils.isVisible(customization),
     "Customization is visible after being inserted"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(unifiedToolbar),
+    BrowserTestUtils.isVisible(unifiedToolbar),
     "Unified toolbar is still visible during customization"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(
+    BrowserTestUtils.isHidden(
       unifiedToolbar.querySelector("#unifiedToolbarContent")
     ),
     "Toolbar content is hidden during customization"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(document.getElementById("tabmail")),
+    BrowserTestUtils.isHidden(document.getElementById("tabmail")),
     "Tabs are hidden during customization"
   );
 
@@ -89,21 +89,21 @@ add_task(async function test_open_customization() {
 
   EventUtils.synthesizeKey("KEY_Escape");
   Assert.ok(
-    BrowserTestUtils.is_hidden(customization),
+    BrowserTestUtils.isHidden(customization),
     "Customization is closed"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(unifiedToolbar),
+    BrowserTestUtils.isVisible(unifiedToolbar),
     "Unified toolbar is still visible after closing customization"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(
+    BrowserTestUtils.isVisible(
       unifiedToolbar.querySelector("#unifiedToolbarContent")
     ),
     "Toolbar content is visible again after customization"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(document.getElementById("tabmail")),
+    BrowserTestUtils.isVisible(document.getElementById("tabmail")),
     "Tabs are visible again after customization"
   );
   Assert.deepEqual(

@@ -326,8 +326,8 @@ add_task(async function testNNTPSubscribe() {
         Assert.equal(tabs.selectedIndex, 0);
         Assert.ok(!newGroupsTab.collapsed);
 
-        Assert.ok(BrowserTestUtils.is_visible(subscribeTree));
-        Assert.ok(BrowserTestUtils.is_hidden(searchTree));
+        Assert.ok(BrowserTestUtils.isVisible(subscribeTree));
+        Assert.ok(BrowserTestUtils.isHidden(searchTree));
         checkTreeRow(subscribeTree, 0, {
           level: 0,
           name: "subscribe",
@@ -369,8 +369,8 @@ add_task(async function testNNTPSubscribe() {
           () => searchTree.view.rowCount == 1,
           "waiting for search tree view to be populated with search"
         );
-        Assert.ok(BrowserTestUtils.is_hidden(subscribeTree));
-        Assert.ok(BrowserTestUtils.is_visible(searchTree));
+        Assert.ok(BrowserTestUtils.isHidden(subscribeTree));
+        Assert.ok(BrowserTestUtils.isVisible(searchTree));
 
         checkTreeRow(searchTree, 0, {
           name: "subscribe.foo",
@@ -386,8 +386,8 @@ add_task(async function testNNTPSubscribe() {
           () => view.rowCount == 5,
           "waiting for tree view to be populated without search"
         );
-        Assert.ok(BrowserTestUtils.is_visible(subscribeTree));
-        Assert.ok(BrowserTestUtils.is_hidden(searchTree));
+        Assert.ok(BrowserTestUtils.isVisible(subscribeTree));
+        Assert.ok(BrowserTestUtils.isHidden(searchTree));
 
         view.selection.select(1);
         EventUtils.synthesizeMouseAtCenter(unsubscribeButton, {}, win);

@@ -113,7 +113,7 @@ add_task(async function testInvitationIdentityPrompt() {
   const aboutMessage = tabmail.currentAboutMessage;
   const acceptButton = aboutMessage.document.getElementById("imipAcceptButton");
   await TestUtils.waitForCondition(
-    () => BrowserTestUtils.is_visible(acceptButton),
+    () => BrowserTestUtils.isVisible(acceptButton),
     "waiting for accept button to become visible"
   );
   EventUtils.synthesizeMouseAtCenter(acceptButton, {}, aboutMessage);

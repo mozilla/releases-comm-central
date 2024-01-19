@@ -234,7 +234,7 @@ async function test_identity_idx(idx) {
     const propsButton = identityWin.document.querySelector(
       `#openPgpOption${keyId} button.openpgp-props-btn`
     );
-    Assert.ok(BrowserTestUtils.is_visible(propsButton));
+    Assert.ok(BrowserTestUtils.isVisible(propsButton));
     propsButton.scrollIntoView(); // Test window is small on CI...
     EventUtils.synthesizeMouseAtCenter(propsButton, {}, identityWin);
     const keyDetailsDialog = await keyDetailsDialogLoaded;

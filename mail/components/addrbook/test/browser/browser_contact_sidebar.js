@@ -64,7 +64,7 @@ add_task(async function () {
   // Make sure the contacts sidebar is open.
 
   const sidebar = composeDocument.getElementById("contactsSidebar");
-  if (BrowserTestUtils.is_hidden(sidebar)) {
+  if (BrowserTestUtils.isHidden(sidebar)) {
     EventUtils.synthesizeKey("KEY_F9", {}, composeWindow);
   }
   const sidebarBrowser = composeDocument.getElementById("contactsBrowser");
@@ -385,12 +385,12 @@ add_task(async function () {
 
   clickOnRow(0, {});
   EventUtils.synthesizeMouseAtCenter(ccButton, {}, sidebarWindow);
-  Assert.ok(BrowserTestUtils.is_visible(ccAddrRow), "cc row visible");
+  Assert.ok(BrowserTestUtils.isVisible(ccAddrRow), "cc row visible");
   checkPills(ccAddrRow, ["daniel test <daniel.test@invalid>"]);
 
   clickOnRow(2, {});
   EventUtils.synthesizeMouseAtCenter(bccButton, {}, sidebarWindow);
-  Assert.ok(BrowserTestUtils.is_visible(bccAddrRow), "bcc row visible");
+  Assert.ok(BrowserTestUtils.isVisible(bccAddrRow), "bcc row visible");
   checkPills(bccAddrRow, ["jonathan test <jonathan.test@invalid>"]);
 
   clearPills();
@@ -459,7 +459,7 @@ add_task(async function () {
   // Close the compose window and clean up.
 
   EventUtils.synthesizeKey("KEY_F9", {}, composeWindow);
-  await TestUtils.waitForCondition(() => BrowserTestUtils.is_hidden(sidebar));
+  await TestUtils.waitForCondition(() => BrowserTestUtils.isHidden(sidebar));
 
   promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   const closePromise = BrowserTestUtils.windowClosed(composeWindow);

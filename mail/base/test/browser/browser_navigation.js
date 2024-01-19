@@ -957,7 +957,7 @@ async function assertDisplayedThread(firstMessage) {
     "correct thread displayed"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(multiMessageBrowser),
+    BrowserTestUtils.isVisible(multiMessageBrowser),
     "multimessageview visible"
   );
 }
@@ -981,7 +981,7 @@ async function assertNoDisplayedMessage(aboutMessage) {
     "about:blank",
     "no message displayed"
   );
-  Assert.ok(BrowserTestUtils.is_hidden(messageBrowser), "about:message hidden");
+  Assert.ok(BrowserTestUtils.isHidden(messageBrowser), "about:message hidden");
 }
 
 function reportBadSelectEvent() {

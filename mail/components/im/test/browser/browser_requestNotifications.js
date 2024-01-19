@@ -14,7 +14,7 @@ add_task(async function testGrantingBuddyRequest() {
   account.connect();
 
   await openChatTab();
-  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+  ok(BrowserTestUtils.isVisible(document.getElementById("chatPanel")));
 
   const notificationTopic = TestUtils.topicObserved(
     "buddy-authorization-request"
@@ -64,7 +64,7 @@ add_task(async function testCancellingBuddyRequest() {
   account.connect();
 
   await openChatTab();
-  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+  ok(BrowserTestUtils.isVisible(document.getElementById("chatPanel")));
 
   const notificationTopic = TestUtils.topicObserved(
     "buddy-authorization-request"
@@ -119,7 +119,7 @@ add_task(async function testDenyingBuddyRequest() {
   account.connect();
 
   await openChatTab();
-  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+  ok(BrowserTestUtils.isVisible(document.getElementById("chatPanel")));
 
   const notificationTopic = TestUtils.topicObserved(
     "buddy-authorization-request"
@@ -166,7 +166,7 @@ add_task(async function testGrantingChatRequest() {
   account.connect();
 
   await openChatTab();
-  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+  ok(BrowserTestUtils.isVisible(document.getElementById("chatPanel")));
 
   const requestTopic = TestUtils.topicObserved("conv-authorization-request");
   const requestPromise = new Promise((resolve, reject) => {
@@ -217,7 +217,7 @@ add_task(async function testCancellingChatRequest() {
 
   await openChatTab();
   ok(
-    BrowserTestUtils.is_visible(document.getElementById("chatPanel")),
+    BrowserTestUtils.isVisible(document.getElementById("chatPanel")),
     "chat tab visible"
   );
 
@@ -272,7 +272,7 @@ add_task(async function testDenyingChatRequest() {
   account.connect();
 
   await openChatTab();
-  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+  ok(BrowserTestUtils.isVisible(document.getElementById("chatPanel")));
 
   const requestTopic = TestUtils.topicObserved("conv-authorization-request");
   const requestPromise = new Promise((resolve, reject) => {
@@ -321,7 +321,7 @@ add_task(async function testUndenyableChatRequest() {
   account.connect();
 
   await openChatTab();
-  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+  ok(BrowserTestUtils.isVisible(document.getElementById("chatPanel")));
 
   const requestTopic = TestUtils.topicObserved("conv-authorization-request");
   const requestPromise = new Promise(resolve => {

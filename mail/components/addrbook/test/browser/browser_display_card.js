@@ -124,7 +124,7 @@ add_task(async function testDisplay() {
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
+    BrowserTestUtils.isVisible(detailsPane)
   );
 
   // Header.
@@ -133,20 +133,20 @@ add_task(async function testDisplay() {
 
   // Action buttons.
   await checkActionButtons();
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
 
-  Assert.ok(BrowserTestUtils.is_hidden(emailAddressesSection));
-  Assert.ok(BrowserTestUtils.is_hidden(phoneNumbersSection));
-  Assert.ok(BrowserTestUtils.is_hidden(addressesSection));
-  Assert.ok(BrowserTestUtils.is_hidden(notesSection));
-  Assert.ok(BrowserTestUtils.is_hidden(otherInfoSection));
-  Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
+  Assert.ok(BrowserTestUtils.isHidden(emailAddressesSection));
+  Assert.ok(BrowserTestUtils.isHidden(phoneNumbersSection));
+  Assert.ok(BrowserTestUtils.isHidden(addressesSection));
+  Assert.ok(BrowserTestUtils.isHidden(notesSection));
+  Assert.ok(BrowserTestUtils.isHidden(otherInfoSection));
+  Assert.ok(BrowserTestUtils.isHidden(selectedCardsSection));
 
   // Card 1: an basic card.
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
+    BrowserTestUtils.isVisible(detailsPane)
   );
 
   // Header.
@@ -155,10 +155,10 @@ add_task(async function testDisplay() {
 
   // Action buttons.
   await checkActionButtons("basic@invalid", "basic person");
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
 
   // Email section.
-  Assert.ok(BrowserTestUtils.is_visible(emailAddressesSection));
+  Assert.ok(BrowserTestUtils.isVisible(emailAddressesSection));
   let items = emailAddressesSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
   Assert.equal(items[0].querySelector(".entry-type").textContent, "");
@@ -176,17 +176,17 @@ add_task(async function testDisplay() {
   );
 
   // Other sections.
-  Assert.ok(BrowserTestUtils.is_hidden(phoneNumbersSection));
-  Assert.ok(BrowserTestUtils.is_hidden(addressesSection));
-  Assert.ok(BrowserTestUtils.is_hidden(notesSection));
-  Assert.ok(BrowserTestUtils.is_hidden(otherInfoSection));
-  Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
+  Assert.ok(BrowserTestUtils.isHidden(phoneNumbersSection));
+  Assert.ok(BrowserTestUtils.isHidden(addressesSection));
+  Assert.ok(BrowserTestUtils.isHidden(notesSection));
+  Assert.ok(BrowserTestUtils.isHidden(otherInfoSection));
+  Assert.ok(BrowserTestUtils.isHidden(selectedCardsSection));
 
   // Card 2: an complex card.
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
+    BrowserTestUtils.isVisible(detailsPane)
   );
 
   // Header.
@@ -199,10 +199,10 @@ add_task(async function testDisplay() {
     "complex person",
     "primary@invalid secondary@invalid tertiary@invalid"
   );
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
 
   // Email section.
-  Assert.ok(BrowserTestUtils.is_visible(emailAddressesSection));
+  Assert.ok(BrowserTestUtils.isVisible(emailAddressesSection));
   items = emailAddressesSection.querySelectorAll("li");
   Assert.equal(items.length, 3);
 
@@ -238,7 +238,7 @@ add_task(async function testDisplay() {
   );
 
   // Phone numbers section.
-  Assert.ok(BrowserTestUtils.is_visible(phoneNumbersSection));
+  Assert.ok(BrowserTestUtils.isVisible(phoneNumbersSection));
   items = phoneNumbersSection.querySelectorAll("li");
   Assert.equal(items.length, 4);
 
@@ -266,7 +266,7 @@ add_task(async function testDisplay() {
   Assert.equal(items[3].querySelector(".entry-value a").href, `tel:3333333`);
 
   // Addresses section.
-  Assert.ok(BrowserTestUtils.is_visible(addressesSection));
+  Assert.ok(BrowserTestUtils.isVisible(addressesSection));
   items = addressesSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
 
@@ -281,14 +281,14 @@ add_task(async function testDisplay() {
   );
 
   // Notes section.
-  Assert.ok(BrowserTestUtils.is_visible(notesSection));
+  Assert.ok(BrowserTestUtils.isVisible(notesSection));
   Assert.equal(
     notesSection.querySelector("div").textContent,
     "mary had a little lamb\nits fleece was white as snow\nand everywhere that mary went\nthe lamb was sure to go"
   );
 
   // Websites section
-  Assert.ok(BrowserTestUtils.is_visible(websitesSection));
+  Assert.ok(BrowserTestUtils.isVisible(websitesSection));
   items = websitesSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
   Assert.equal(
@@ -315,7 +315,7 @@ add_task(async function testDisplay() {
   );
 
   // Instant messaging section
-  Assert.ok(BrowserTestUtils.is_visible(imppSection));
+  Assert.ok(BrowserTestUtils.isVisible(imppSection));
   items = imppSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
   Assert.equal(
@@ -324,7 +324,7 @@ add_task(async function testDisplay() {
   );
 
   // Other sections.
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  Assert.ok(BrowserTestUtils.isVisible(otherInfoSection));
   items = otherInfoSection.querySelectorAll("li");
   Assert.equal(items.length, 6, "number of <li> in section should be correct");
   Assert.equal(
@@ -372,13 +372,13 @@ add_task(async function testDisplay() {
     items[5].children[1].lastChild.getAttribute("tz"),
     "Pacific/Auckland"
   );
-  Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
+  Assert.ok(BrowserTestUtils.isHidden(selectedCardsSection));
 
   // Card 0, again, just to prove that everything was cleared properly.
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
+    BrowserTestUtils.isVisible(detailsPane)
   );
 
   // Header.
@@ -387,14 +387,14 @@ add_task(async function testDisplay() {
 
   // Action buttons.
   await checkActionButtons();
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
 
-  Assert.ok(BrowserTestUtils.is_hidden(emailAddressesSection));
-  Assert.ok(BrowserTestUtils.is_hidden(phoneNumbersSection));
-  Assert.ok(BrowserTestUtils.is_hidden(addressesSection));
-  Assert.ok(BrowserTestUtils.is_hidden(notesSection));
-  Assert.ok(BrowserTestUtils.is_hidden(otherInfoSection));
-  Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
+  Assert.ok(BrowserTestUtils.isHidden(emailAddressesSection));
+  Assert.ok(BrowserTestUtils.isHidden(phoneNumbersSection));
+  Assert.ok(BrowserTestUtils.isHidden(addressesSection));
+  Assert.ok(BrowserTestUtils.isHidden(notesSection));
+  Assert.ok(BrowserTestUtils.isHidden(otherInfoSection));
+  Assert.ok(BrowserTestUtils.isHidden(selectedCardsSection));
 
   await closeAddressBookWindow();
 });
@@ -414,7 +414,7 @@ add_task(async function testDates() {
     ANNIVERSARY:2005
     END:VCARD
   `);
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  Assert.ok(BrowserTestUtils.isVisible(otherInfoSection));
   let items = otherInfoSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
   Assert.equal(
@@ -431,7 +431,7 @@ add_task(async function testDates() {
     ANNIVERSARY:2006-06
     END:VCARD
   `);
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  Assert.ok(BrowserTestUtils.isVisible(otherInfoSection));
   items = otherInfoSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
   Assert.equal(
@@ -447,7 +447,7 @@ add_task(async function testDates() {
     ANNIVERSARY:--12
     END:VCARD
   `);
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  Assert.ok(BrowserTestUtils.isVisible(otherInfoSection));
   items = otherInfoSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
   Assert.equal(
@@ -463,7 +463,7 @@ add_task(async function testDates() {
     ANNIVERSARY;VALUE=DATE:--0704
     END:VCARD
   `);
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  Assert.ok(BrowserTestUtils.isVisible(otherInfoSection));
   items = otherInfoSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
   Assert.equal(
@@ -479,7 +479,7 @@ add_task(async function testDates() {
     ANNIVERSARY:---30
     END:VCARD
   `);
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  Assert.ok(BrowserTestUtils.isVisible(otherInfoSection));
   items = otherInfoSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
   Assert.equal(
@@ -543,7 +543,7 @@ add_task(async function testCustomProperties() {
   const abWindow = await getAddressBookWindow();
   const otherInfoSection = abWindow.document.getElementById("otherInfo");
 
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  Assert.ok(BrowserTestUtils.isVisible(otherInfoSection));
 
   const items = otherInfoSection.querySelectorAll("li");
   Assert.equal(items.length, 3);
@@ -623,24 +623,24 @@ add_task(async function testReadOnlyActions() {
 
   openDirectory(readOnlyBook);
   Assert.equal(cardsList.view.rowCount, 3);
-  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
   // Without email.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
   Assert.ok(
-    BrowserTestUtils.is_visible(contactView),
+    BrowserTestUtils.isVisible(contactView),
     "contact view should be shown"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(actions),
+    BrowserTestUtils.isHidden(actions),
     "actions section should be hidden"
   );
 
   // With email.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
-  Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
+  Assert.ok(BrowserTestUtils.isVisible(actions), "actions section is shown");
   await checkActionButtons("read.only@invalid", "read-only person with email");
-  Assert.ok(BrowserTestUtils.is_hidden(editButton), "editButton is hidden");
+  Assert.ok(BrowserTestUtils.isHidden(editButton), "editButton is hidden");
 
   // Double clicking on the item will select but not edit it.
   EventUtils.synthesizeMouseAtCenter(
@@ -656,15 +656,15 @@ add_task(async function testReadOnlyActions() {
   // Wait one loop to see if edit form was opened.
   await TestUtils.waitForTick();
   Assert.ok(
-    BrowserTestUtils.is_visible(contactView),
+    BrowserTestUtils.isVisible(contactView),
     "contact view should be shown"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(editForm),
+    BrowserTestUtils.isHidden(editForm),
     "contact form should be hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(actions),
+    BrowserTestUtils.isHidden(actions),
     "actions section should be hidden"
   );
   Assert.equal(
@@ -682,38 +682,38 @@ add_task(async function testReadOnlyActions() {
     `'select' event should get fired`
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(contactView),
+    BrowserTestUtils.isVisible(contactView),
     "contact view should be shown"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(editForm),
+    BrowserTestUtils.isHidden(editForm),
     "contact form should be hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(actions),
+    BrowserTestUtils.isVisible(actions),
     "actions section should be shown"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(editButton),
+    BrowserTestUtils.isHidden(editButton),
     "editButton should be hidden"
   );
 
   EventUtils.synthesizeKey("KEY_Enter", {}, abWindow);
   await TestUtils.waitForTick();
   Assert.ok(
-    BrowserTestUtils.is_visible(contactView),
+    BrowserTestUtils.isVisible(contactView),
     "contact view should be shown"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(editForm),
+    BrowserTestUtils.isHidden(editForm),
     "contact form should be hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(actions),
+    BrowserTestUtils.isVisible(actions),
     "actions section should be shown"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(editForm),
+    BrowserTestUtils.isHidden(editForm),
     "contact form should be hidden"
   );
 
@@ -721,45 +721,45 @@ add_task(async function testReadOnlyActions() {
 
   openDirectory(readOnlyList);
   Assert.equal(cardsList.view.rowCount, 1);
-  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
   // With email.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  Assert.ok(BrowserTestUtils.is_visible(contactView));
-  Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
+  Assert.ok(BrowserTestUtils.isVisible(contactView));
+  Assert.ok(BrowserTestUtils.isVisible(actions), "actions section is shown");
   await checkActionButtons("read.only@invalid", "read-only person with email");
-  Assert.ok(BrowserTestUtils.is_hidden(editButton), "editButton is hidden");
+  Assert.ok(BrowserTestUtils.isHidden(editButton), "editButton is hidden");
 
   // Check contacts with All Address Books displayed.
 
   openAllAddressBooks();
   Assert.equal(cardsList.view.rowCount, 6);
-  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
   // Basic person from Personal Address Books.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
-  Assert.ok(BrowserTestUtils.is_visible(contactView));
-  Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
+  Assert.ok(BrowserTestUtils.isVisible(contactView));
+  Assert.ok(BrowserTestUtils.isVisible(actions), "actions section is shown");
   await checkActionButtons("basic@invalid", "basic person");
-  Assert.ok(BrowserTestUtils.is_visible(editButton), "edit button is shown");
+  Assert.ok(BrowserTestUtils.isVisible(editButton), "edit button is shown");
 
   // Without email.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(4), {}, abWindow);
-  Assert.ok(BrowserTestUtils.is_visible(contactView));
-  Assert.ok(BrowserTestUtils.is_hidden(actions), "actions section is hidden");
+  Assert.ok(BrowserTestUtils.isVisible(contactView));
+  Assert.ok(BrowserTestUtils.isHidden(actions), "actions section is hidden");
 
   // With email.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(5), {}, abWindow);
-  Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
+  Assert.ok(BrowserTestUtils.isVisible(actions), "actions section is shown");
   await checkActionButtons("read.only@invalid", "read-only person with email");
-  Assert.ok(BrowserTestUtils.is_hidden(editButton), "editButton is hidden");
+  Assert.ok(BrowserTestUtils.isHidden(editButton), "editButton is hidden");
 
   // Basic person again, to prove the buttons aren't hidden forever.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
-  Assert.ok(BrowserTestUtils.is_visible(contactView));
-  Assert.ok(BrowserTestUtils.is_visible(actions), "actions section is shown");
+  Assert.ok(BrowserTestUtils.isVisible(contactView));
+  Assert.ok(BrowserTestUtils.isVisible(actions), "actions section is shown");
   await checkActionButtons("basic@invalid", "basic person");
-  Assert.ok(BrowserTestUtils.is_visible(editButton), "edit button is shown");
+  Assert.ok(BrowserTestUtils.isVisible(editButton), "edit button is shown");
 
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(readOnlyBook.URI);
@@ -807,11 +807,11 @@ add_task(async function testGoogleEscaping() {
 
   openDirectory(googleBook);
   Assert.equal(cardsList.view.rowCount, 1);
-  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
+    BrowserTestUtils.isVisible(detailsPane)
   );
 
   // Header.
@@ -820,13 +820,13 @@ add_task(async function testGoogleEscaping() {
 
   // Action buttons.
   await checkActionButtons();
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
 
   // Email section.
-  Assert.ok(BrowserTestUtils.is_hidden(emailAddressesSection));
+  Assert.ok(BrowserTestUtils.isHidden(emailAddressesSection));
 
   // Phone numbers section.
-  Assert.ok(BrowserTestUtils.is_visible(phoneNumbersSection));
+  Assert.ok(BrowserTestUtils.isVisible(phoneNumbersSection));
   let items = phoneNumbersSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
 
@@ -834,17 +834,17 @@ add_task(async function testGoogleEscaping() {
   Assert.equal(items[0].querySelector(".entry-value").textContent, "01234567");
 
   // Addresses section.
-  Assert.ok(BrowserTestUtils.is_hidden(addressesSection));
+  Assert.ok(BrowserTestUtils.isHidden(addressesSection));
 
   // Notes section.
-  Assert.ok(BrowserTestUtils.is_visible(notesSection));
+  Assert.ok(BrowserTestUtils.isVisible(notesSection));
   Assert.equal(
     notesSection.querySelector("div").textContent,
     "notes:\nnotes;\nnotes,\nnotes\\"
   );
 
   // Websites section
-  Assert.ok(BrowserTestUtils.is_visible(websitesSection));
+  Assert.ok(BrowserTestUtils.isVisible(websitesSection));
   items = websitesSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
   Assert.equal(
@@ -868,10 +868,10 @@ add_task(async function testGoogleEscaping() {
   );
 
   // Instant messaging section.
-  Assert.ok(BrowserTestUtils.is_hidden(imppSection));
+  Assert.ok(BrowserTestUtils.isHidden(imppSection));
 
   // Other sections.
-  Assert.ok(BrowserTestUtils.is_visible(otherInfoSection));
+  Assert.ok(BrowserTestUtils.isVisible(otherInfoSection));
   items = otherInfoSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
   Assert.equal(
@@ -883,7 +883,7 @@ add_task(async function testGoogleEscaping() {
     "title:title;title,title\\title\\:title\\;title\\,title\\\\"
   );
 
-  Assert.ok(BrowserTestUtils.is_hidden(selectedCardsSection));
+  Assert.ok(BrowserTestUtils.isHidden(selectedCardsSection));
 
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(googleBook.URI);
@@ -907,7 +907,7 @@ async function addAndDisplayCard(card) {
     abWindow
   );
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
+    BrowserTestUtils.isVisible(detailsPane)
   );
   return card;
 }
@@ -929,7 +929,7 @@ async function checkActionButtons(
   if (primaryEmail) {
     // Write.
     Assert.ok(
-      BrowserTestUtils.is_visible(writeButton),
+      BrowserTestUtils.isVisible(writeButton),
       "write button is visible"
     );
 
@@ -942,7 +942,7 @@ async function checkActionButtons(
 
     // Search. Do this before the event test to stop a strange macOS failure.
     Assert.ok(
-      BrowserTestUtils.is_visible(searchButton),
+      BrowserTestUtils.isVisible(searchButton),
       "search button is visible"
     );
 
@@ -961,7 +961,7 @@ async function checkActionButtons(
 
     // Event.
     Assert.ok(
-      BrowserTestUtils.is_visible(eventButton),
+      BrowserTestUtils.isVisible(eventButton),
       "event button is visible"
     );
 
@@ -998,22 +998,16 @@ async function checkActionButtons(
     await eventWindowPromise;
     Assert.report(false, undefined, undefined, "Item dialog closed");
   } else {
+    Assert.ok(BrowserTestUtils.isHidden(writeButton), "write button is hidden");
+    Assert.ok(BrowserTestUtils.isHidden(eventButton), "event button is hidden");
     Assert.ok(
-      BrowserTestUtils.is_hidden(writeButton),
-      "write button is hidden"
-    );
-    Assert.ok(
-      BrowserTestUtils.is_hidden(eventButton),
-      "event button is hidden"
-    );
-    Assert.ok(
-      BrowserTestUtils.is_hidden(searchButton),
+      BrowserTestUtils.isHidden(searchButton),
       "search button is hidden"
     );
   }
 
   Assert.ok(
-    BrowserTestUtils.is_hidden(newListButton),
+    BrowserTestUtils.isHidden(newListButton),
     "new list button is hidden"
   );
 }

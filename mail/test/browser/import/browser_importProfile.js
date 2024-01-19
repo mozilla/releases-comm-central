@@ -22,20 +22,20 @@ function checkVisiblePane(importDocument, activePaneId, activeStepId) {
   const panes = importDocument.querySelectorAll(".tabPane");
   for (const pane of panes) {
     if (pane.id === activePaneId) {
-      ok(BrowserTestUtils.is_visible(pane), `Pane ${activePaneId} is visible`);
+      ok(BrowserTestUtils.isVisible(pane), `Pane ${activePaneId} is visible`);
       const steps = pane.querySelectorAll("section");
       for (const step of steps) {
         if (step.id === activeStepId) {
           ok(
-            BrowserTestUtils.is_visible(step),
+            BrowserTestUtils.isVisible(step),
             `Step ${activeStepId} is visible`
           );
         } else {
-          ok(BrowserTestUtils.is_hidden(step), `Step ${step.id} is hidden`);
+          ok(BrowserTestUtils.isHidden(step), `Step ${step.id} is hidden`);
         }
       }
     } else {
-      ok(BrowserTestUtils.is_hidden(pane), `Pane ${pane.id} is not visible`);
+      ok(BrowserTestUtils.isHidden(pane), `Pane ${pane.id} is not visible`);
     }
   }
 }
@@ -92,11 +92,11 @@ add_task(async function testProfileImport() {
   const importDocument = tab.browser.contentDocument;
 
   ok(
-    BrowserTestUtils.is_hidden(importDocument.getElementById("exportDocs")),
+    BrowserTestUtils.isHidden(importDocument.getElementById("exportDocs")),
     "Export docs link is hidden"
   );
   ok(
-    BrowserTestUtils.is_visible(importDocument.getElementById("importDocs")),
+    BrowserTestUtils.isVisible(importDocument.getElementById("importDocs")),
     "Import docs link is visible"
   );
 
@@ -108,9 +108,7 @@ add_task(async function testProfileImport() {
     "Thunderbird profile is selected by default"
   );
   ok(
-    BrowserTestUtils.is_hidden(
-      importDocument.getElementById("startBackButton")
-    ),
+    BrowserTestUtils.isHidden(importDocument.getElementById("startBackButton")),
     "Back button is hidden in first step"
   );
   await BrowserTestUtils.synthesizeMouseAtCenter(
@@ -124,13 +122,13 @@ add_task(async function testProfileImport() {
     {
       attributes: true,
     },
-    () => BrowserTestUtils.is_visible(appPane)
+    () => BrowserTestUtils.isVisible(appPane)
   );
 
   checkSteps(importDocument, 2, 4);
   checkVisiblePane(importDocument, "tabPane-app", "app-profiles");
   ok(
-    BrowserTestUtils.is_visible(
+    BrowserTestUtils.isVisible(
       importDocument.getElementById("profileBackButton")
     ),
     "Back button is visible"
@@ -151,7 +149,7 @@ add_task(async function testProfileImport() {
     {
       attributes: true,
     },
-    () => BrowserTestUtils.is_visible(itemsStep)
+    () => BrowserTestUtils.isVisible(itemsStep)
   );
 
   checkSteps(importDocument, 3, 4);
@@ -167,13 +165,13 @@ add_task(async function testProfileImport() {
     {
       attributes: true,
     },
-    () => BrowserTestUtils.is_visible(summaryStep)
+    () => BrowserTestUtils.isVisible(summaryStep)
   );
 
   checkSteps(importDocument, 4, 4);
   checkVisiblePane(importDocument, "tabPane-app", "app-summary");
   ok(
-    BrowserTestUtils.is_hidden(
+    BrowserTestUtils.isHidden(
       importDocument.getElementById("profileNextButton")
     ),
     "Can't advance from summary step"
@@ -193,10 +191,10 @@ add_task(async function testProfileImport() {
     {
       attributes: true,
     },
-    () => BrowserTestUtils.is_visible(progressPane)
+    () => BrowserTestUtils.isVisible(progressPane)
   );
   ok(
-    BrowserTestUtils.is_hidden(importDocument.getElementById("appStartImport")),
+    BrowserTestUtils.isHidden(importDocument.getElementById("appStartImport")),
     "Import button is hidden while import is in progress"
   );
 
@@ -206,10 +204,10 @@ add_task(async function testProfileImport() {
     {
       attributes: true,
     },
-    () => BrowserTestUtils.is_visible(finish)
+    () => BrowserTestUtils.isVisible(finish)
   );
   ok(
-    BrowserTestUtils.is_visible(progressPane),
+    BrowserTestUtils.isVisible(progressPane),
     "When import succeeds and finish is shown, progress is still displayed"
   );
 
@@ -272,9 +270,7 @@ add_task(async function testImportLargeZIP() {
     "Thunderbird profile is selected by default"
   );
   ok(
-    BrowserTestUtils.is_hidden(
-      importDocument.getElementById("startBackButton")
-    ),
+    BrowserTestUtils.isHidden(importDocument.getElementById("startBackButton")),
     "Back button is hidden in first step"
   );
   await BrowserTestUtils.synthesizeMouseAtCenter(
@@ -288,13 +284,13 @@ add_task(async function testImportLargeZIP() {
     {
       attributes: true,
     },
-    () => BrowserTestUtils.is_visible(appPane)
+    () => BrowserTestUtils.isVisible(appPane)
   );
 
   checkSteps(importDocument, 2, 4);
   checkVisiblePane(importDocument, "tabPane-app", "app-profiles");
   ok(
-    BrowserTestUtils.is_visible(
+    BrowserTestUtils.isVisible(
       importDocument.getElementById("profileBackButton")
     ),
     "Back button is visible"

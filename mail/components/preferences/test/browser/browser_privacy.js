@@ -143,7 +143,7 @@ add_task(async function testRemoteContentDialog() {
         );
 
         Assert.ok(
-          BrowserTestUtils.is_hidden(
+          BrowserTestUtils.isHidden(
             dialogDocument.getElementById("btnSession")
           ),
           "session button should be hidden"

@@ -215,11 +215,11 @@ add_task(async function testAddressBookTab() {
   const row = booksList.getRowForUID(addressBook.UID);
   EventUtils.synthesizeMouseAtCenter(row.querySelector("span"), {}, abWindow);
 
-  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  Assert.ok(BrowserTestUtils.isHidden(detailsPane));
   // Select first contact.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   Assert.equal(getActiveElement(), cardsList.table.body);
-  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.isVisible(detailsPane));
   cycle(
     editButton,
     addressBookButton,
@@ -230,7 +230,7 @@ add_task(async function testAddressBookTab() {
     editButton
   );
   // Still visible.
-  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.isVisible(detailsPane));
 
   // Check with no selection.
   EventUtils.synthesizeMouseAtCenter(
@@ -239,7 +239,7 @@ add_task(async function testAddressBookTab() {
     abWindow
   );
   Assert.equal(getActiveElement(), cardsList.table.body);
-  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  Assert.ok(BrowserTestUtils.isHidden(detailsPane));
   cycle(
     addressBookButton,
     globalSearch,
@@ -249,12 +249,12 @@ add_task(async function testAddressBookTab() {
     addressBookButton
   );
   // Still hidden.
-  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
   // Check what happens while editing. It should be nothing.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   Assert.equal(getActiveElement(), cardsList.table.body);
-  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.isVisible(detailsPane));
 
   editButton.scrollIntoView();
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);

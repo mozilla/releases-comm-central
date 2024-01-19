@@ -1629,7 +1629,7 @@ async function wait_for_blank_content_pane(win = mc) {
   );
 
   const browser = aboutMessage.getMessagePaneBrowser();
-  if (BrowserTestUtils.is_hidden(browser)) {
+  if (BrowserTestUtils.isHidden(browser)) {
     return;
   }
 
@@ -1806,7 +1806,7 @@ function assert_message_pane_visible() {
     "The tab does not think that the message pane is visible, but it should!"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(messagePane),
+    BrowserTestUtils.isVisible(messagePane),
     "The message pane should not be collapsed!"
   );
   Assert.equal(
@@ -1838,7 +1838,7 @@ function assert_message_pane_hidden() {
     "The tab thinks that the message pane is visible, but it shouldn't!"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(messagePane),
+    BrowserTestUtils.isHidden(messagePane),
     "The message pane should be collapsed!"
   );
   Assert.equal(
@@ -2388,7 +2388,7 @@ var RECOGNIZED_ELEMENTS = ["folderTree", "threadTree", "attachmentList"];
  */
 function focus_folder_tree() {
   const folderTree = get_about_3pane().document.getElementById("folderTree");
-  Assert.ok(BrowserTestUtils.is_visible(folderTree), "folder tree is visible");
+  Assert.ok(BrowserTestUtils.isVisible(folderTree), "folder tree is visible");
   folderTree.focus();
 }
 
@@ -2407,7 +2407,7 @@ function focus_message_pane() {
   const messageBrowser =
     get_about_3pane().document.getElementById("messageBrowser");
   Assert.ok(
-    BrowserTestUtils.is_visible(messageBrowser),
+    BrowserTestUtils.isVisible(messageBrowser),
     "message browser is visible"
   );
   messageBrowser.focus();
@@ -2421,7 +2421,7 @@ function focus_multimessage_pane() {
     "multiMessageBrowser"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(multiMessageBrowser),
+    BrowserTestUtils.isVisible(multiMessageBrowser),
     "multi message browser is visible"
   );
   multiMessageBrowser.focus();

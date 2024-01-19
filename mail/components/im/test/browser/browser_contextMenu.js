@@ -13,7 +13,7 @@ add_task(async function testContextMenu() {
   account.connect();
 
   await openChatTab();
-  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+  ok(BrowserTestUtils.isVisible(document.getElementById("chatPanel")));
 
   const conversation = account.prplAccount.wrappedJSObject.makeDM("context");
   const convNode = getConversationItem(conversation);
@@ -25,13 +25,13 @@ add_task(async function testContextMenu() {
 
   const chatConv = getChatConversationElement(conversation);
   ok(chatConv, "found conversation");
-  ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
+  ok(BrowserTestUtils.isVisible(chatConv), "conversation visible");
   await BrowserTestUtils.browserLoaded(chatConv.convBrowser);
 
   await conversationLoaded;
 
   const contextMenu = document.getElementById("chatConversationContextMenu");
-  ok(BrowserTestUtils.is_hidden(contextMenu));
+  ok(BrowserTestUtils.isHidden(contextMenu));
 
   const popupShown = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   BrowserTestUtils.synthesizeMouse(
@@ -65,7 +65,7 @@ add_task(async function testMessageContextMenuOnLink() {
   account.connect();
 
   await openChatTab();
-  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+  ok(BrowserTestUtils.isVisible(document.getElementById("chatPanel")));
   const conversation = account.prplAccount.wrappedJSObject.makeDM("linker");
 
   const convNode = getConversationItem(conversation);
@@ -77,7 +77,7 @@ add_task(async function testMessageContextMenuOnLink() {
   ok(chatConv, "found conversation");
   await BrowserTestUtils.browserLoaded(chatConv.convBrowser);
 
-  ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
+  ok(BrowserTestUtils.isVisible(chatConv), "conversation visible");
 
   conversation.addMessages([
     {
@@ -104,7 +104,7 @@ add_task(async function testMessageContextMenuOnLink() {
   } while (chatConv.convBrowser.getPendingMessagesCount() > 0);
 
   const contextMenu = document.getElementById("chatConversationContextMenu");
-  ok(BrowserTestUtils.is_hidden(contextMenu));
+  ok(BrowserTestUtils.isHidden(contextMenu));
 
   const popupShown = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   BrowserTestUtils.synthesizeMouse(
@@ -118,11 +118,11 @@ add_task(async function testMessageContextMenuOnLink() {
   await popupShown;
 
   ok(
-    BrowserTestUtils.is_visible(contextMenu.querySelector("#context-openlink")),
+    BrowserTestUtils.isVisible(contextMenu.querySelector("#context-openlink")),
     "open link"
   );
   ok(
-    BrowserTestUtils.is_visible(contextMenu.querySelector("#context-copylink")),
+    BrowserTestUtils.isVisible(contextMenu.querySelector("#context-copylink")),
     "copy link"
   );
 
@@ -146,9 +146,7 @@ add_task(async function testMessageContextMenuOnLink() {
   await popupShownAgain;
 
   ok(
-    BrowserTestUtils.is_visible(
-      contextMenu.querySelector("#context-copyemail")
-    ),
+    BrowserTestUtils.isVisible(contextMenu.querySelector("#context-copyemail")),
     "copy mail"
   );
 
@@ -176,7 +174,7 @@ add_task(async function testMessageAction() {
   account.connect();
 
   await openChatTab();
-  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+  ok(BrowserTestUtils.isVisible(document.getElementById("chatPanel")));
 
   const conversation = account.prplAccount.wrappedJSObject.makeDM("context");
   const convNode = getConversationItem(conversation);
@@ -188,7 +186,7 @@ add_task(async function testMessageAction() {
   ok(chatConv, "found conversation");
   await BrowserTestUtils.browserLoaded(chatConv.convBrowser);
 
-  ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
+  ok(BrowserTestUtils.isVisible(chatConv), "conversation visible");
 
   const messagePromise = waitForNotification(conversation, "new-text");
   const displayedPromise = BrowserTestUtils.waitForEvent(
@@ -202,7 +200,7 @@ add_task(async function testMessageAction() {
   await displayedPromise;
 
   const contextMenu = document.getElementById("chatConversationContextMenu");
-  ok(BrowserTestUtils.is_hidden(contextMenu));
+  ok(BrowserTestUtils.isHidden(contextMenu));
 
   const popupShown = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   BrowserTestUtils.synthesizeMouse(
@@ -216,7 +214,7 @@ add_task(async function testMessageAction() {
   await popupShown;
 
   const separator = contextMenu.querySelector("#context-sep-messageactions");
-  if (!BrowserTestUtils.is_visible(separator)) {
+  if (!BrowserTestUtils.isVisible(separator)) {
     await BrowserTestUtils.waitForMutationCondition(
       separator,
       {
@@ -225,7 +223,7 @@ add_task(async function testMessageAction() {
         attributes: true,
         attributeFilter: ["hidden"],
       },
-      () => BrowserTestUtils.is_visible(separator)
+      () => BrowserTestUtils.isVisible(separator)
     );
   }
   const item = contextMenu.querySelector(

@@ -298,7 +298,7 @@ add_task(async function test_mail_account_setup() {
   Assert.ok(tabmail.currentTabInfo.folderPaneVisible);
 
   // Confirm that the folder pane is visible.
-  Assert.ok(BrowserTestUtils.is_visible(tabmail.currentAbout3Pane.folderTree));
+  Assert.ok(BrowserTestUtils.isVisible(tabmail.currentAbout3Pane.folderTree));
 
   const promptState = gMockPromptService.promptState;
   Assert.equal("confirm", promptState.method);
@@ -761,7 +761,7 @@ add_task(async function test_full_account_setup() {
   // Wait for the linked address book section to be visible.
   const addressBookSection = tabDocument.getElementById("linkedAddressBooks");
   await TestUtils.waitForCondition(
-    () => BrowserTestUtils.is_visible(addressBookSection),
+    () => BrowserTestUtils.isVisible(addressBookSection),
     "linked address book section visible",
     250
   );
@@ -770,7 +770,7 @@ add_task(async function test_full_account_setup() {
   const abList = tabDocument.querySelector(
     "#addressBooksSetup .linked-services-list"
   );
-  Assert.ok(BrowserTestUtils.is_visible(abList), "address book list visible");
+  Assert.ok(BrowserTestUtils.isVisible(abList), "address book list visible");
 
   // Check the linked address book was found.
   Assert.equal(abList.childElementCount, 1);
@@ -803,7 +803,7 @@ add_task(async function test_full_account_setup() {
   // Wait for the linked calendar section to be visible.
   const calendarSection = tabDocument.getElementById("linkedCalendars");
   await TestUtils.waitForCondition(
-    () => BrowserTestUtils.is_visible(calendarSection),
+    () => BrowserTestUtils.isVisible(calendarSection),
     "linked calendar section visible",
     250
   );
@@ -812,7 +812,7 @@ add_task(async function test_full_account_setup() {
   const calendarList = tabDocument.querySelector(
     "#calendarsSetup .linked-services-list"
   );
-  Assert.ok(BrowserTestUtils.is_visible(calendarList), "calendar list visible");
+  Assert.ok(BrowserTestUtils.isVisible(calendarList), "calendar list visible");
 
   // Check the linked calendar was found.
   Assert.equal(calendarList.childElementCount, 2);

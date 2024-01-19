@@ -479,8 +479,8 @@ add_task(async function testPropertiesSettings() {
         const existingNameInput = doc.getElementById("existingName");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
-        Assert.ok(BrowserTestUtils.is_hidden(nameInput));
-        Assert.ok(BrowserTestUtils.is_visible(existingNameInput));
+        Assert.ok(BrowserTestUtils.isHidden(nameInput));
+        Assert.ok(BrowserTestUtils.isVisible(existingNameInput));
         Assert.equal(
           existingNameInput.value,
           `folderPaneContextVirtual on ${account.incomingServer.prettyName}`
@@ -550,7 +550,7 @@ add_task(async function testMarkAllRead() {
     );
     if (expectedCount) {
       Assert.ok(
-        BrowserTestUtils.is_visible(unreadBadge),
+        BrowserTestUtils.isVisible(unreadBadge),
         "unread count badge should be visible"
       );
       Assert.equal(
@@ -560,7 +560,7 @@ add_task(async function testMarkAllRead() {
       );
     } else {
       Assert.ok(
-        BrowserTestUtils.is_hidden(unreadBadge),
+        BrowserTestUtils.isHidden(unreadBadge),
         "unread count badge should be hidden"
       );
     }

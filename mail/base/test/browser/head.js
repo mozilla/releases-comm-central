@@ -26,7 +26,7 @@ async function clickExtensionButton(win, buttonId) {
     "waiting for the action button to exist"
   );
   await TestUtils.waitForCondition(
-    () => BrowserTestUtils.is_visible(actionButton),
+    () => BrowserTestUtils.isVisible(actionButton),
     "waiting for action button to be visible"
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {}, win);
@@ -119,7 +119,7 @@ class MenuTestHelper {
    */
   checkItem(actual, expected) {
     Assert.equal(
-      BrowserTestUtils.is_hidden(actual),
+      BrowserTestUtils.isHidden(actual),
       !!expected.hidden,
       `${actual.id} hidden`
     );
@@ -184,7 +184,7 @@ class MenuTestHelper {
       delete data[item.id];
 
       if (item.localName == "menu") {
-        if (BrowserTestUtils.is_visible(item) && !item.disabled) {
+        if (BrowserTestUtils.isVisible(item) && !item.disabled) {
           item.openMenu(true);
           await this.iterate(item.menupopup, data, itemsMustBeInData);
         } else {

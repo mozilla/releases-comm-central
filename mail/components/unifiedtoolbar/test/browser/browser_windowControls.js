@@ -82,7 +82,7 @@ function assertWindowControlsVisible() {
       ? titlebarButtons
       : titlebarButtons.querySelector(".titlebar-close");
   Assert.ok(
-    BrowserTestUtils.is_visible(closeButton),
+    BrowserTestUtils.isVisible(closeButton),
     "Close button should be visible by computed styles"
   );
   const closeBoundingBox = closeButton.getBoundingClientRect();

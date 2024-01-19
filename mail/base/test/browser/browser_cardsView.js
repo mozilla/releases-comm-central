@@ -157,12 +157,12 @@ add_task(async function testSwitchToCardsView() {
 
   const row = threadTree.getRowAtIndex(0);
   const star = row.querySelector(".button-star");
-  Assert.ok(BrowserTestUtils.is_visible(star), "star icon should be visible");
+  Assert.ok(BrowserTestUtils.isVisible(star), "star icon should be visible");
   const tag = row.querySelector(".tag-icon");
-  Assert.ok(BrowserTestUtils.is_hidden(tag), "tag icon should be hidden");
+  Assert.ok(BrowserTestUtils.isHidden(tag), "tag icon should be hidden");
   const attachment = row.querySelector(".attachment-icon");
   Assert.ok(
-    BrowserTestUtils.is_hidden(attachment),
+    BrowserTestUtils.isHidden(attachment),
     "attachment icon should be hidden"
   );
 
@@ -187,11 +187,11 @@ add_task(async function testTagsInVerticalView() {
   Assert.ok(row.classList.contains("selected"), "the row should be selected");
 
   const tag = row.querySelector(".tag-icon");
-  Assert.ok(BrowserTestUtils.is_hidden(tag), "tag icon should be hidden");
+  Assert.ok(BrowserTestUtils.isHidden(tag), "tag icon should be hidden");
 
   // Set the important tag.
   EventUtils.synthesizeKey("1", {});
-  Assert.ok(BrowserTestUtils.is_visible(tag), "tag icon should be visible");
+  Assert.ok(BrowserTestUtils.isVisible(tag), "tag icon should be visible");
   Assert.deepEqual(tag.title, "Important", "The important tag should be set");
 
   const row2 = threadTree.getRowAtIndex(2);
@@ -202,11 +202,11 @@ add_task(async function testTagsInVerticalView() {
   );
 
   const tag2 = row2.querySelector(".tag-icon");
-  Assert.ok(BrowserTestUtils.is_hidden(tag2), "tag icon should be hidden");
+  Assert.ok(BrowserTestUtils.isHidden(tag2), "tag icon should be hidden");
 
   // Set the work tag.
   EventUtils.synthesizeKey("2", {});
-  Assert.ok(BrowserTestUtils.is_visible(tag2), "tag icon should be visible");
+  Assert.ok(BrowserTestUtils.isVisible(tag2), "tag icon should be visible");
   Assert.deepEqual(tag2.title, "Work", "The work tag should be set");
 
   // Switch back to a table layout and horizontal view.

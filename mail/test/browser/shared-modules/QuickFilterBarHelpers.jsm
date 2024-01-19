@@ -121,12 +121,12 @@ function assert_quick_filter_bar_visible(aVisible) {
   const bar = about3Pane.document.getElementById("quick-filter-bar");
   if (aVisible) {
     Assert.ok(
-      BrowserTestUtils.is_visible(bar),
+      BrowserTestUtils.isVisible(bar),
       "Quick filter bar should be visible"
     );
   } else {
     Assert.ok(
-      BrowserTestUtils.is_hidden(bar),
+      BrowserTestUtils.isHidden(bar),
       "Quick filter bar should be hidden"
     );
   }
@@ -219,7 +219,7 @@ function assert_tag_constraints_visible(...aArgs) {
   );
   if (aArgs.length > 0) {
     Assert.ok(
-      BrowserTestUtils.is_visible(tagBar),
+      BrowserTestUtils.isVisible(tagBar),
       "The tag bar should not be collapsed!"
     );
   }

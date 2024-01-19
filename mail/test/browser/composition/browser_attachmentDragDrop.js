@@ -546,7 +546,7 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
   // Wait for attachment area to be visible and open in response.
   await TestUtils.waitForCondition(
     () =>
-      BrowserTestUtils.is_visible(srcAttachmentArea) && srcAttachmentArea.open,
+      BrowserTestUtils.isVisible(srcAttachmentArea) && srcAttachmentArea.open,
     "Attachment area is visible and open"
   );
 
@@ -589,7 +589,7 @@ add_task(async function test_cloud_drag_and_drop_between_composition_windows() {
   // Wait for attachment area to be visible and open in response.
   await TestUtils.waitForCondition(
     () =>
-      BrowserTestUtils.is_visible(srcAttachmentArea) && srcAttachmentArea.open,
+      BrowserTestUtils.isVisible(srcAttachmentArea) && srcAttachmentArea.open,
     "Attachment area is visible and open"
   );
 

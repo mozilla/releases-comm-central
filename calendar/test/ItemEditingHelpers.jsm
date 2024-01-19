@@ -599,10 +599,10 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
   const menupopup = iframeDocument.getElementById("timezone-popup");
   const customMenuitem = iframeDocument.getElementById("timezone-custom-menuitem");
 
-  if (!BrowserTestUtils.is_visible(label)) {
+  if (!BrowserTestUtils.isVisible(label)) {
     menuitem.click();
     await TestUtils.waitForCondition(
-      () => BrowserTestUtils.is_visible(label),
+      () => BrowserTestUtils.isVisible(label),
       "Timezone label should become visible"
     );
   }

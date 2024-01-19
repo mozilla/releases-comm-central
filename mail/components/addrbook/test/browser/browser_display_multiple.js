@@ -294,16 +294,16 @@ function checkHeader({ listName, selectionCount, selectionType } = {}) {
   const selectionHeader = abDocument.getElementById("viewSelectionCount");
 
   Assert.ok(
-    BrowserTestUtils.is_hidden(contactPhoto),
+    BrowserTestUtils.isHidden(contactPhoto),
     "contact photo should be hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(contactName),
+    BrowserTestUtils.isHidden(contactName),
     "contact name should be hidden"
   );
   if (listName) {
     Assert.ok(
-      BrowserTestUtils.is_visible(listHeader),
+      BrowserTestUtils.isVisible(listHeader),
       "list header should be visible"
     );
     Assert.equal(
@@ -312,16 +312,16 @@ function checkHeader({ listName, selectionCount, selectionType } = {}) {
       "list header text is correct"
     );
     Assert.ok(
-      BrowserTestUtils.is_hidden(selectionHeader),
+      BrowserTestUtils.isHidden(selectionHeader),
       "selection header should be hidden"
     );
   } else {
     Assert.ok(
-      BrowserTestUtils.is_hidden(listHeader),
+      BrowserTestUtils.isHidden(listHeader),
       "list header should be hidden"
     );
     Assert.ok(
-      BrowserTestUtils.is_visible(selectionHeader),
+      BrowserTestUtils.isVisible(selectionHeader),
       "selection header should be visible"
     );
     Assert.deepEqual(abDocument.l10n.getAttributes(selectionHeader), {
@@ -349,7 +349,7 @@ async function checkActionButtons(
   if (cardAddresses.length || listAddresses.length) {
     // Write.
     Assert.ok(
-      BrowserTestUtils.is_visible(writeButton),
+      BrowserTestUtils.isVisible(writeButton),
       "write button is visible"
     );
 
@@ -365,7 +365,7 @@ async function checkActionButtons(
   if (eventAddresses.length) {
     // Event.
     Assert.ok(
-      BrowserTestUtils.is_visible(eventButton),
+      BrowserTestUtils.isVisible(eventButton),
       "event button is visible"
     );
 
@@ -403,16 +403,13 @@ async function checkActionButtons(
     await new Promise(resolve => abWindow.setTimeout(resolve));
     Assert.report(false, undefined, undefined, "Item dialog closed");
   } else {
-    Assert.ok(
-      BrowserTestUtils.is_hidden(eventButton),
-      "event button is hidden"
-    );
+    Assert.ok(BrowserTestUtils.isHidden(eventButton), "event button is hidden");
   }
 
   if (cardAddresses.length) {
     // New List.
     Assert.ok(
-      BrowserTestUtils.is_visible(newListButton),
+      BrowserTestUtils.isVisible(newListButton),
       "new list button is visible"
     );
     const listWindowPromise = promiseLoadSubDialog(
@@ -432,15 +429,12 @@ async function checkActionButtons(
     EventUtils.synthesizeKey("VK_ESCAPE", {}, listWindow);
   } else {
     Assert.ok(
-      BrowserTestUtils.is_hidden(newListButton),
+      BrowserTestUtils.isHidden(newListButton),
       "new list button is hidden"
     );
   }
 
-  Assert.ok(
-    BrowserTestUtils.is_hidden(searchButton),
-    "search button is hidden"
-  );
+  Assert.ok(BrowserTestUtils.isHidden(searchButton), "search button is hidden");
 }
 
 function checkList(names) {
@@ -452,9 +446,9 @@ function checkList(names) {
     "#detailsBody > section:not(#detailsActions, #selectedCards)"
   );
 
-  Assert.ok(BrowserTestUtils.is_visible(selectedCardsSection));
+  Assert.ok(BrowserTestUtils.isVisible(selectedCardsSection));
   for (const section of otherSections) {
-    Assert.ok(BrowserTestUtils.is_hidden(section), `${section.id} is hidden`);
+    Assert.ok(BrowserTestUtils.isHidden(section), `${section.id} is hidden`);
   }
 
   Assert.deepEqual(

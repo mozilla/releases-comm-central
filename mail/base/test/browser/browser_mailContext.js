@@ -319,7 +319,7 @@ add_task(async function testNoMessages() {
   // The message pane browser isn't visible.
 
   Assert.ok(
-    BrowserTestUtils.is_hidden(messageBrowser),
+    BrowserTestUtils.isHidden(messageBrowser),
     "message browser should be hidden"
   );
   Assert.equal(messageBrowser.currentURI.spec, "about:message");
@@ -375,7 +375,7 @@ add_task(async function testSingleMessage() {
   // Open the menu from the message pane.
 
   Assert.ok(
-    BrowserTestUtils.is_visible(messageBrowser),
+    BrowserTestUtils.isVisible(messageBrowser),
     "message browser should be visible"
   );
 
@@ -408,7 +408,7 @@ add_task(async function testSingleMessage() {
   );
   await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   Assert.ok(
-    BrowserTestUtils.is_visible(mailContext),
+    BrowserTestUtils.isVisible(mailContext),
     "Context menu is shown through keyboard action"
   );
   mailContext.hidePopup();
@@ -477,7 +477,7 @@ add_task(async function testSingleMessage() {
   );
   mailContext.hidePopup();
 
-  Assert.ok(BrowserTestUtils.is_hidden(mailContext), "Context menu is hidden");
+  Assert.ok(BrowserTestUtils.isHidden(mailContext), "Context menu is hidden");
 });
 
 /**
@@ -501,11 +501,11 @@ add_task(async function testMultipleMessages() {
   // The message pane browser isn't visible.
 
   Assert.ok(
-    BrowserTestUtils.is_hidden(messageBrowser),
+    BrowserTestUtils.isHidden(messageBrowser),
     "message browser should be hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(multiMessageBrowser),
+    BrowserTestUtils.isVisible(multiMessageBrowser),
     "multimessage browser should be visible"
   );
 
@@ -587,7 +587,7 @@ add_task(async function testDraftsFolder() {
   // Open the menu from the message pane.
 
   Assert.ok(
-    BrowserTestUtils.is_visible(messageBrowser),
+    BrowserTestUtils.isVisible(messageBrowser),
     "message browser should be visible"
   );
   await BrowserTestUtils.synthesizeMouseAtCenter(
@@ -650,7 +650,7 @@ add_task(async function testTemplatesFolder() {
   // Open the menu from the message pane.
 
   Assert.ok(
-    BrowserTestUtils.is_visible(messageBrowser),
+    BrowserTestUtils.isVisible(messageBrowser),
     "message browser should be visible"
   );
   await BrowserTestUtils.synthesizeMouseAtCenter(
@@ -713,7 +713,7 @@ add_task(async function testListMessage() {
   // Open the menu from the message pane.
 
   Assert.ok(
-    BrowserTestUtils.is_visible(messageBrowser),
+    BrowserTestUtils.isVisible(messageBrowser),
     "message browser should be visible"
   );
   await BrowserTestUtils.synthesizeMouseAtCenter(
@@ -785,7 +785,7 @@ add_task(async function testSyntheticFolder() {
   // Open the menu from the message pane.
 
   Assert.ok(
-    BrowserTestUtils.is_visible(messageBrowser),
+    BrowserTestUtils.isVisible(messageBrowser),
     "message browser should be visible"
   );
   await BrowserTestUtils.synthesizeMouseAtCenter(
@@ -817,7 +817,7 @@ add_task(async function testSyntheticFolder() {
   // Open the menu from the message pane.
 
   Assert.ok(
-    BrowserTestUtils.is_visible(messageBrowser),
+    BrowserTestUtils.isVisible(messageBrowser),
     "message browser should be visible"
   );
   await BrowserTestUtils.synthesizeMouseAtCenter(

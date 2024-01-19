@@ -57,39 +57,39 @@ async function addEvent(title, relativeStart, relativeEnd, isAllDay) {
 function checkEvent(row, { dateHeader, time, title, relative, overlap, classes = [] }) {
   const dateHeaderElement = row.querySelector(".agenda-date-header");
   if (dateHeader) {
-    Assert.ok(BrowserTestUtils.is_visible(dateHeaderElement), "date header is visible");
+    Assert.ok(BrowserTestUtils.isVisible(dateHeaderElement), "date header is visible");
     if (dateHeader instanceof CalDateTime || dateHeader instanceof Ci.calIDateTime) {
       dateHeader = cal.dtz.formatter.formatDateLongWithoutYear(dateHeader);
     }
     Assert.equal(dateHeaderElement.textContent, dateHeader, "date header has correct value");
   } else {
-    Assert.ok(BrowserTestUtils.is_hidden(dateHeaderElement), "date header is hidden");
+    Assert.ok(BrowserTestUtils.isHidden(dateHeaderElement), "date header is hidden");
   }
 
   const calendarElement = row.querySelector(".agenda-listitem-calendar");
   const timeElement = row.querySelector(".agenda-listitem-time");
   if (time) {
-    Assert.ok(BrowserTestUtils.is_visible(calendarElement), "calendar is visible");
-    Assert.ok(BrowserTestUtils.is_visible(timeElement), "time is visible");
+    Assert.ok(BrowserTestUtils.isVisible(calendarElement), "calendar is visible");
+    Assert.ok(BrowserTestUtils.isVisible(timeElement), "time is visible");
     if (time instanceof CalDateTime || time instanceof Ci.calIDateTime) {
       time = cal.dtz.formatter.formatTime(time);
     }
     Assert.equal(timeElement.textContent, time, "time has correct value");
   } else if (time === "") {
-    Assert.ok(BrowserTestUtils.is_visible(calendarElement), "calendar is visible");
-    Assert.ok(BrowserTestUtils.is_hidden(timeElement), "time is hidden");
+    Assert.ok(BrowserTestUtils.isVisible(calendarElement), "calendar is visible");
+    Assert.ok(BrowserTestUtils.isHidden(timeElement), "time is hidden");
   } else {
-    Assert.ok(BrowserTestUtils.is_hidden(calendarElement), "calendar is hidden");
-    Assert.ok(BrowserTestUtils.is_hidden(timeElement), "time is hidden");
+    Assert.ok(BrowserTestUtils.isHidden(calendarElement), "calendar is hidden");
+    Assert.ok(BrowserTestUtils.isHidden(timeElement), "time is hidden");
   }
 
   const titleElement = row.querySelector(".agenda-listitem-title");
-  Assert.ok(BrowserTestUtils.is_visible(titleElement), "title is visible");
+  Assert.ok(BrowserTestUtils.isVisible(titleElement), "title is visible");
   Assert.equal(titleElement.textContent, title, "title has correct value");
 
   const relativeElement = row.querySelector(".agenda-listitem-relative");
   if (Array.isArray(relative)) {
-    Assert.ok(BrowserTestUtils.is_visible(relativeElement), "relative time is visible");
+    Assert.ok(BrowserTestUtils.isVisible(relativeElement), "relative time is visible");
     Assert.report(
       !relative.includes(relativeElement.textContent),
       relative,
@@ -98,12 +98,12 @@ function checkEvent(row, { dateHeader, time, title, relative, overlap, classes =
       "includes"
     );
   } else if (relative !== undefined) {
-    Assert.ok(BrowserTestUtils.is_hidden(relativeElement), "relative time is hidden");
+    Assert.ok(BrowserTestUtils.isHidden(relativeElement), "relative time is hidden");
   }
 
   const overlapElement = row.querySelector(".agenda-listitem-overlap");
   if (overlap) {
-    Assert.ok(BrowserTestUtils.is_visible(overlapElement), "overlap is visible");
+    Assert.ok(BrowserTestUtils.isVisible(overlapElement), "overlap is visible");
     Assert.equal(
       overlapElement.src,
       `chrome://messenger/skin/icons/new/event-${overlap}.svg`,
@@ -115,7 +115,7 @@ function checkEvent(row, { dateHeader, time, title, relative, overlap, classes =
       "overlap has correct alt text"
     );
   } else {
-    Assert.ok(BrowserTestUtils.is_hidden(overlapElement), "overlap is hidden");
+    Assert.ok(BrowserTestUtils.isHidden(overlapElement), "overlap is hidden");
   }
 
   for (const className of classes) {

@@ -272,7 +272,7 @@ add_task(async function () {
   await shownPromise;
 
   let menuItem = composeDocument.getElementById("spellCheckNoSuggestions");
-  Assert.ok(BrowserTestUtils.is_hidden(menuItem));
+  Assert.ok(BrowserTestUtils.isHidden(menuItem));
 
   const suggestions = contextMenu.querySelectorAll(".spell-suggestion");
   Assert.greater(suggestions.length, 0);
@@ -285,7 +285,7 @@ add_task(async function () {
     "spellCheckSuggestionsSeparator",
   ]) {
     menuItem = composeDocument.getElementById(id);
-    Assert.ok(BrowserTestUtils.is_visible(menuItem));
+    Assert.ok(BrowserTestUtils.isVisible(menuItem));
   }
 
   hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");

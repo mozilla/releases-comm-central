@@ -944,7 +944,7 @@ add_task(async function test_restore_attachment_bucket_height() {
   const attachmentBucket = cwc.document.getElementById("attachmentBucket");
 
   Assert.ok(
-    BrowserTestUtils.is_hidden(attachmentArea),
+    BrowserTestUtils.isHidden(attachmentArea),
     "Attachment area should be hidden initially with no attachments"
   );
 
@@ -973,7 +973,7 @@ add_task(async function test_restore_attachment_bucket_height() {
       : { ctrlKey: true, shiftKey: true };
 
   const collapsedPromise = BrowserTestUtils.waitForCondition(
-    () => BrowserTestUtils.is_visible(attachmentArea) && !attachmentArea.open,
+    () => BrowserTestUtils.isVisible(attachmentArea) && !attachmentArea.open,
     "The attachment area should be visible but closed."
   );
 
@@ -982,7 +982,7 @@ add_task(async function test_restore_attachment_bucket_height() {
   await collapsedPromise;
 
   const visiblePromise = BrowserTestUtils.waitForCondition(
-    () => BrowserTestUtils.is_visible(attachmentArea) && attachmentArea.open,
+    () => BrowserTestUtils.isVisible(attachmentArea) && attachmentArea.open,
     "The attachment area should be visible and open."
   );
   // Press Ctrl/Cmd+Shift+M again.

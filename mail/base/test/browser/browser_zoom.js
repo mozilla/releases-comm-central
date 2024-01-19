@@ -74,7 +74,7 @@ add_task(async function testMultiMessageZoom() {
     "The thread row should be selected"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(about3Pane.multiMessageBrowser),
+    BrowserTestUtils.isVisible(about3Pane.multiMessageBrowser),
     "The multi-message browser should be visible"
   );
 

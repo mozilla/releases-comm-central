@@ -21,7 +21,7 @@ add_task(async function testMUCMessageSenderTooltip() {
 
   const chatConv = getChatConversationElement(conversation);
   ok(chatConv);
-  ok(BrowserTestUtils.is_visible(chatConv));
+  ok(BrowserTestUtils.isVisible(chatConv));
   const messageParent = await getChatMessageParent(chatConv);
 
   conversation.addParticipant("foo", "1");
@@ -130,7 +130,7 @@ add_task(async function testTimestampTooltip() {
 
   const chatConv = getChatConversationElement(conversation);
   ok(chatConv);
-  ok(BrowserTestUtils.is_visible(chatConv));
+  ok(BrowserTestUtils.isVisible(chatConv));
 
   const messageTime = Math.floor(Date.now() / 1000);
 
@@ -165,7 +165,7 @@ add_task(async function testTimestampTooltip() {
     await showTooltip(messageSelector, tooltip, chatConv.convBrowser);
 
     const htmlTooltip = tooltip.querySelector(".htmlTooltip");
-    ok(BrowserTestUtils.is_visible(htmlTooltip));
+    ok(BrowserTestUtils.isVisible(htmlTooltip));
     is(htmlTooltip.textContent, expectedText);
     await hideTooltip(tooltip, chatConv.convBrowser);
   } finally {

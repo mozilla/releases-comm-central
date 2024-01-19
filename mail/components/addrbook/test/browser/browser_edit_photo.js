@@ -111,7 +111,7 @@ function checkDialogElements({
   const dropTarget = dialog.querySelector("#photoDropTarget");
   const svg = dialog.querySelector("svg");
   Assert.equal(
-    BrowserTestUtils.is_visible(dropTarget),
+    BrowserTestUtils.isVisible(dropTarget),
     !!dropTargetClass,
     "drop target visibility"
   );
@@ -122,9 +122,9 @@ function checkDialogElements({
       "drop target message"
     );
   }
-  Assert.equal(BrowserTestUtils.is_visible(svg), svgVisible, "SVG visibility");
+  Assert.equal(BrowserTestUtils.isVisible(svg), svgVisible, "SVG visibility");
   Assert.equal(
-    BrowserTestUtils.is_visible(saveButton),
+    BrowserTestUtils.isVisible(saveButton),
     saveButtonVisible,
     "save button visibility"
   );
@@ -134,7 +134,7 @@ function checkDialogElements({
     "save button disabled state"
   );
   Assert.equal(
-    BrowserTestUtils.is_visible(discardButton),
+    BrowserTestUtils.isVisible(discardButton),
     discardButtonVisible,
     "discard button visibility"
   );
@@ -313,7 +313,7 @@ async function subtest_dont_add_photo(book) {
 
   dropFile(photoButton, "data/photo2.jpg");
   await waitForDialogOpenState(true);
-  await TestUtils.waitForCondition(() => BrowserTestUtils.is_visible(svg));
+  await TestUtils.waitForCondition(() => BrowserTestUtils.isVisible(svg));
 
   checkDialogElements({
     svgVisible: true,

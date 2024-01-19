@@ -19,7 +19,7 @@ async function inEditingMode() {
   );
 
   Assert.ok(
-    BrowserTestUtils.is_visible(
+    BrowserTestUtils.isVisible(
       abDocument.getElementById("detailsPaneBackdrop")
     ),
     "backdrop should be visible"
@@ -44,9 +44,7 @@ async function notInEditingMode(expectedFocus) {
   await new Promise(resolve => abWindow.setTimeout(resolve));
 
   Assert.ok(
-    BrowserTestUtils.is_hidden(
-      abDocument.getElementById("detailsPaneBackdrop")
-    ),
+    BrowserTestUtils.isHidden(abDocument.getElementById("detailsPaneBackdrop")),
     "backdrop should be hidden"
   );
   checkToolbarState(true);
@@ -70,7 +68,7 @@ function getInput(entryName, addIfNeeded = false) {
       return abDocument.querySelector("vcard-nickname #vCardNickName");
     case "Prefix":
       const prefixInput = abDocument.querySelector("vcard-n #vcard-n-prefix");
-      if (addIfNeeded && BrowserTestUtils.is_hidden(prefixInput)) {
+      if (addIfNeeded && BrowserTestUtils.isHidden(prefixInput)) {
         EventUtils.synthesizeMouseAtCenter(
           abDocument.querySelector("vcard-n #n-list-component-prefix button"),
           {},
@@ -84,7 +82,7 @@ function getInput(entryName, addIfNeeded = false) {
       const middleNameInput = abDocument.querySelector(
         "vcard-n #vcard-n-middlename"
       );
-      if (addIfNeeded && BrowserTestUtils.is_hidden(middleNameInput)) {
+      if (addIfNeeded && BrowserTestUtils.isHidden(middleNameInput)) {
         EventUtils.synthesizeMouseAtCenter(
           abDocument.querySelector(
             "vcard-n #n-list-component-middlename button"
@@ -98,7 +96,7 @@ function getInput(entryName, addIfNeeded = false) {
       return abDocument.querySelector("vcard-n #vcard-n-lastname");
     case "Suffix":
       const suffixInput = abDocument.querySelector("vcard-n #vcard-n-suffix");
-      if (addIfNeeded && BrowserTestUtils.is_hidden(suffixInput)) {
+      if (addIfNeeded && BrowserTestUtils.isHidden(suffixInput)) {
         EventUtils.synthesizeMouseAtCenter(
           abDocument.querySelector("vcard-n #n-list-component-suffix button"),
           {},
@@ -227,7 +225,7 @@ function getFields(entryName, addIfNeeded = false, count) {
         `Expected focus element should now exist for ${entryName}`
       );
       Assert.ok(
-        BrowserTestUtils.is_visible(expectFocus),
+        BrowserTestUtils.isVisible(expectFocus),
         `Expected focus element for ${entryName} should be visible`
       );
       Assert.equal(
@@ -279,7 +277,7 @@ function checkInputValues(expected) {
       continue;
     }
 
-    Assert.ok(BrowserTestUtils.is_visible(input));
+    Assert.ok(BrowserTestUtils.isVisible(input));
     if (input.type == "checkbox") {
       Assert.equal(input.checked, value, `${key} checked`);
     } else {
@@ -727,7 +725,7 @@ async function editContactAtIndex(index, options) {
     }
 
     await TestUtils.waitForCondition(() =>
-      BrowserTestUtils.is_visible(detailsPane)
+      BrowserTestUtils.isVisible(detailsPane)
     );
 
     if (options.useMouse) {
@@ -782,12 +780,12 @@ add_task(async function test_basic_edit() {
     );
     if (expect) {
       Assert.ok(
-        BrowserTestUtils.is_visible(headingEl),
+        BrowserTestUtils.isVisible(headingEl),
         `Heading ${headingEl.id} should be visible`
       );
     } else {
       Assert.ok(
-        BrowserTestUtils.is_hidden(headingEl),
+        BrowserTestUtils.isHidden(headingEl),
         `Heading ${headingEl.id} should be visible`
       );
     }
@@ -834,14 +832,14 @@ add_task(async function test_basic_edit() {
   Assert.equal(cardsList.view.rowCount, 1);
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
+    BrowserTestUtils.isVisible(detailsPane)
   );
 
   assertViewHeadings("contact 1", "", "contact.1@invalid");
 
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
-  Assert.ok(BrowserTestUtils.is_hidden(cancelEditButton));
-  Assert.ok(BrowserTestUtils.is_hidden(saveEditButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
+  Assert.ok(BrowserTestUtils.isHidden(cancelEditButton));
+  Assert.ok(BrowserTestUtils.isHidden(saveEditButton));
 
   checkDisplayValues({
     emailAddresses: ["contact.1@invalid"],
@@ -896,9 +894,9 @@ add_task(async function test_basic_edit() {
     "focus should be on the body element still"
   );
 
-  Assert.ok(BrowserTestUtils.is_hidden(editButton));
-  Assert.ok(BrowserTestUtils.is_visible(cancelEditButton));
-  Assert.ok(BrowserTestUtils.is_visible(saveEditButton));
+  Assert.ok(BrowserTestUtils.isHidden(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(cancelEditButton));
+  Assert.ok(BrowserTestUtils.isVisible(saveEditButton));
 
   checkInputValues({
     FirstName: "contact",
@@ -941,14 +939,14 @@ add_task(async function test_basic_edit() {
   await promptPromise;
   await new Promise(resolve => abWindow.setTimeout(resolve));
   await notInEditingMode(editButton);
-  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.isVisible(detailsPane));
 
   // Heading reflects initial values.
   assertViewHeadings("contact 1", "", "contact.1@invalid");
 
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
-  Assert.ok(BrowserTestUtils.is_hidden(cancelEditButton));
-  Assert.ok(BrowserTestUtils.is_hidden(saveEditButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
+  Assert.ok(BrowserTestUtils.isHidden(cancelEditButton));
+  Assert.ok(BrowserTestUtils.isHidden(saveEditButton));
 
   checkDisplayValues({
     emailAddresses: ["contact.1@invalid"],
@@ -965,9 +963,9 @@ add_task(async function test_basic_edit() {
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
-  Assert.ok(BrowserTestUtils.is_hidden(editButton));
-  Assert.ok(BrowserTestUtils.is_visible(cancelEditButton));
-  Assert.ok(BrowserTestUtils.is_visible(saveEditButton));
+  Assert.ok(BrowserTestUtils.isHidden(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(cancelEditButton));
+  Assert.ok(BrowserTestUtils.isVisible(saveEditButton));
 
   // Headings are restored.
   assertEditHeadings("contact 1", "", "contact.1@invalid");
@@ -993,14 +991,14 @@ add_task(async function test_basic_edit() {
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode(editButton);
-  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  Assert.ok(BrowserTestUtils.isVisible(detailsPane));
 
   // Headings show new values
   assertViewHeadings("contact one", "contact nickname", "contact.1@invalid");
 
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
-  Assert.ok(BrowserTestUtils.is_hidden(cancelEditButton));
-  Assert.ok(BrowserTestUtils.is_hidden(saveEditButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
+  Assert.ok(BrowserTestUtils.isHidden(cancelEditButton));
+  Assert.ok(BrowserTestUtils.isHidden(saveEditButton));
 
   checkDisplayValues({
     emailAddresses: ["contact.1@invalid", "i@roman.invalid"],
@@ -1018,9 +1016,9 @@ add_task(async function test_basic_edit() {
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
-  Assert.ok(BrowserTestUtils.is_hidden(editButton));
-  Assert.ok(BrowserTestUtils.is_visible(cancelEditButton));
-  Assert.ok(BrowserTestUtils.is_visible(saveEditButton));
+  Assert.ok(BrowserTestUtils.isHidden(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(cancelEditButton));
+  Assert.ok(BrowserTestUtils.isVisible(saveEditButton));
 
   checkInputValues({
     FirstName: "contact",
@@ -1157,8 +1155,8 @@ add_task(async function test_special_fields() {
 
   let phoneticFirstName = abDocument.getElementById("PhoneticFirstName");
   let phoneticLastName = abDocument.getElementById("PhoneticLastName");
-  Assert.ok(BrowserTestUtils.is_visible(phoneticFirstName));
-  Assert.ok(BrowserTestUtils.is_visible(phoneticLastName));
+  Assert.ok(BrowserTestUtils.isVisible(phoneticFirstName));
+  Assert.ok(BrowserTestUtils.isVisible(phoneticLastName));
   Assert.equal(
     phoneticFirstName.compareDocumentPosition(phoneticLastName),
     Node.DOCUMENT_POSITION_FOLLOWING,
@@ -1182,8 +1180,8 @@ add_task(async function test_special_fields() {
 
   phoneticFirstName = abDocument.getElementById("PhoneticFirstName");
   phoneticLastName = abDocument.getElementById("PhoneticLastName");
-  Assert.ok(BrowserTestUtils.is_hidden(phoneticFirstName));
-  Assert.ok(BrowserTestUtils.is_hidden(phoneticLastName));
+  Assert.ok(BrowserTestUtils.isHidden(phoneticFirstName));
+  Assert.ok(BrowserTestUtils.isHidden(phoneticLastName));
 
   await closeAddressBookWindow();
 
@@ -1493,16 +1491,16 @@ add_task(async function test_delete_button() {
   const deleteButton = abDocument.getElementById("detailsDeleteButton");
   const saveEditButton = abDocument.getElementById("saveEditButton");
 
-  Assert.ok(BrowserTestUtils.is_hidden(detailsPane), "details pane is hidden");
+  Assert.ok(BrowserTestUtils.isHidden(detailsPane), "details pane is hidden");
 
   // Create a new card. The delete button shouldn't be visible at this point.
 
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
 
-  Assert.ok(BrowserTestUtils.is_hidden(editButton));
-  Assert.ok(BrowserTestUtils.is_hidden(deleteButton));
-  Assert.ok(BrowserTestUtils.is_visible(saveEditButton));
+  Assert.ok(BrowserTestUtils.isHidden(editButton));
+  Assert.ok(BrowserTestUtils.isHidden(deleteButton));
+  Assert.ok(BrowserTestUtils.isVisible(saveEditButton));
 
   setInputValues({
     FirstName: "delete",
@@ -1512,8 +1510,8 @@ add_task(async function test_delete_button() {
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
   await notInEditingMode(editButton);
 
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
-  Assert.ok(BrowserTestUtils.is_hidden(deleteButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
+  Assert.ok(BrowserTestUtils.isHidden(deleteButton));
 
   Assert.equal(personalBook.childCardCount, 1, "contact was not deleted");
   const contact = personalBook.childCards[0];
@@ -1523,8 +1521,8 @@ add_task(async function test_delete_button() {
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
-  Assert.ok(BrowserTestUtils.is_hidden(editButton));
-  Assert.ok(BrowserTestUtils.is_visible(deleteButton));
+  Assert.ok(BrowserTestUtils.isHidden(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(deleteButton));
 
   // Click to delete, cancel the deletion.
 
@@ -1554,7 +1552,7 @@ add_task(async function test_delete_button() {
     "view didn't change"
   );
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_hidden(detailsPane)
+    BrowserTestUtils.isHidden(detailsPane)
   );
 
   // Now let's delete a contact while viewing a list.
@@ -1568,19 +1566,19 @@ add_task(async function test_delete_button() {
   Assert.equal(cardsList.view.rowCount, 1);
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
+    BrowserTestUtils.isVisible(detailsPane)
   );
 
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
-  Assert.ok(BrowserTestUtils.is_hidden(deleteButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
+  Assert.ok(BrowserTestUtils.isHidden(deleteButton));
 
   // Click to edit.
 
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
-  Assert.ok(BrowserTestUtils.is_hidden(editButton));
-  Assert.ok(BrowserTestUtils.is_visible(deleteButton));
+  Assert.ok(BrowserTestUtils.isHidden(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(deleteButton));
 
   // Click to delete, accept the deletion.
   deletionPromise = TestUtils.topicObserved("addrbook-contact-deleted");
@@ -1595,7 +1593,7 @@ add_task(async function test_delete_button() {
   Assert.equal(personalBook.childCardCount, 0, "contact was deleted");
   Assert.equal(cardsList.view.directory.UID, list.UID, "view didn't change");
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_hidden(detailsPane)
+    BrowserTestUtils.isHidden(detailsPane)
   );
 
   personalBook.deleteDirectory(list);
@@ -1609,12 +1607,12 @@ function checkNFieldState({ prefix, middlename, suffix }) {
   Assert.equal(abDocument.querySelectorAll("vcard-n").length, 1);
 
   Assert.ok(
-    BrowserTestUtils.is_visible(abDocument.getElementById("vcard-n-firstname")),
+    BrowserTestUtils.isVisible(abDocument.getElementById("vcard-n-firstname")),
     "Firstname is always shown."
   );
 
   Assert.ok(
-    BrowserTestUtils.is_visible(abDocument.getElementById("vcard-n-lastname")),
+    BrowserTestUtils.isVisible(abDocument.getElementById("vcard-n-lastname")),
     "Lastname is always shown."
   );
 
@@ -1635,20 +1633,20 @@ function checkNFieldState({ prefix, middlename, suffix }) {
 
     if (inputVisible) {
       Assert.ok(
-        BrowserTestUtils.is_visible(inputEl),
+        BrowserTestUtils.isVisible(inputEl),
         `${subValueName} input is shown with an initial value or a click on the button.`
       );
       Assert.ok(
-        BrowserTestUtils.is_hidden(buttonEl),
+        BrowserTestUtils.isHidden(buttonEl),
         `${subValueName} button is hidden when the input is shown.`
       );
     } else {
       Assert.ok(
-        BrowserTestUtils.is_hidden(inputEl),
+        BrowserTestUtils.isHidden(inputEl),
         `${subValueName} input is not shown initially.`
       );
       Assert.ok(
-        BrowserTestUtils.is_visible(buttonEl),
+        BrowserTestUtils.isVisible(buttonEl),
         `${subValueName} button is shown when the input is hidden.`
       );
     }
@@ -1968,12 +1966,12 @@ async function checkDefaultEmailChoice(
   for (const [index, emailField] of emailFields.entries()) {
     if (expectedDefaultChoiceVisible) {
       await TestUtils.waitForCondition(
-        () => BrowserTestUtils.is_visible(emailField.checkboxEl),
+        () => BrowserTestUtils.isVisible(emailField.checkboxEl),
         `Email at index ${index} has a visible default email choice.`
       );
     } else {
       await TestUtils.waitForCondition(
-        () => BrowserTestUtils.is_hidden(emailField.checkboxEl),
+        () => BrowserTestUtils.isHidden(emailField.checkboxEl),
         `Email at index ${index} has a hidden default email choice.`
       );
     }
@@ -2872,15 +2870,15 @@ add_task(async function test_vCard_minimal() {
   EventUtils.synthesizeMouseAtCenter(addOrgButton, {}, abWindow);
 
   Assert.ok(
-    BrowserTestUtils.is_visible(abDocument.querySelector("vcard-title")),
+    BrowserTestUtils.isVisible(abDocument.querySelector("vcard-title")),
     "Title should be visible"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(abDocument.querySelector("vcard-role")),
+    BrowserTestUtils.isVisible(abDocument.querySelector("vcard-role")),
     "Role should be visible"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(abDocument.querySelector("vcard-org")),
+    BrowserTestUtils.isVisible(abDocument.querySelector("vcard-org")),
     "Organization should be visible"
   );
 
@@ -3177,7 +3175,7 @@ add_task(async function test_special_date_field() {
   EventUtils.synthesizeMouseAtCenter(addSpecialDate, {}, abWindow);
 
   Assert.ok(
-    BrowserTestUtils.is_visible(abDocument.querySelector("vcard-special-date")),
+    BrowserTestUtils.isVisible(abDocument.querySelector("vcard-special-date")),
     "The special date field is visible."
   );
   // Somehow prevents an error on macOS when using <select> widgets that have
@@ -3274,7 +3272,7 @@ add_task(async function testCustomProperties() {
     abWindow
   );
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
+    BrowserTestUtils.isVisible(detailsPane)
   );
 
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
@@ -3341,7 +3339,7 @@ add_task(async function testGoogleEscaping() {
 
   openDirectory(googleBook);
   Assert.equal(cardsList.view.rowCount, 1);
-  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  Assert.ok(BrowserTestUtils.isHidden(detailsPane));
   await editContactAtIndex(0, {});
 
   checkInputValues({
@@ -3388,7 +3386,7 @@ add_task(async function testNickname() {
 
   openDirectory(book);
   Assert.equal(cardsList.view.rowCount, 1);
-  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  Assert.ok(BrowserTestUtils.isHidden(detailsPane));
   await editContactAtIndex(0, {});
 
   checkInputValues({
@@ -3423,7 +3421,7 @@ add_task(async function test_remove_button() {
   );
 
   Assert.ok(
-    BrowserTestUtils.is_visible(
+    BrowserTestUtils.isVisible(
       abDocument
         .getElementById("addr-book-edit-email")
         .querySelector(".remove-property-button")
@@ -3432,7 +3430,7 @@ add_task(async function test_remove_button() {
   );
 
   Assert.ok(
-    BrowserTestUtils.is_hidden(
+    BrowserTestUtils.isHidden(
       abDocument
         .getElementById("addr-book-edit-org")
         .querySelector(".remove-property-button")
@@ -3501,7 +3499,7 @@ add_task(async function test_remove_button() {
     // Time Zone, Notes, Organizational Properties, Custom Properties
     if (addButton) {
       Assert.ok(
-        BrowserTestUtils.is_visible(abDocument.getElementById(addButton)),
+        BrowserTestUtils.isVisible(abDocument.getElementById(addButton)),
         `Add button for ${propertyName} is visible after remove.`
       );
       Assert.equal(

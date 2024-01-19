@@ -333,7 +333,7 @@ add_task(async function test_rename_and_delete() {
 
   await showBooksContext(2);
 
-  Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
+  Assert.ok(BrowserTestUtils.isVisible(propertiesMenuItem));
   Assert.ok(!propertiesMenuItem.disabled);
   Assert.deepEqual(document.l10n.getAttributes(propertiesMenuItem), {
     id: "about-addressbook-books-context-properties",
@@ -393,7 +393,7 @@ add_task(async function test_rename_and_delete() {
 
   await showBooksContext(3);
 
-  Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
+  Assert.ok(BrowserTestUtils.isVisible(propertiesMenuItem));
   Assert.deepEqual(document.l10n.getAttributes(propertiesMenuItem), {
     id: "about-addressbook-books-context-edit-list",
     args: null,
@@ -546,14 +546,14 @@ add_task(async function test_context_menu() {
   for (const index of [1, booksList.rowCount - 1]) {
     await showBooksContext(index);
     Assert.equal(booksList.selectedIndex, index);
-    Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
+    Assert.ok(BrowserTestUtils.isVisible(propertiesMenuItem));
     Assert.ok(!propertiesMenuItem.disabled);
-    Assert.ok(!BrowserTestUtils.is_visible(synchronizeMenuItem));
-    Assert.ok(BrowserTestUtils.is_visible(printMenuItem));
+    Assert.ok(!BrowserTestUtils.isVisible(synchronizeMenuItem));
+    Assert.ok(BrowserTestUtils.isVisible(printMenuItem));
     Assert.ok(!printMenuItem.disabled);
-    Assert.ok(BrowserTestUtils.is_visible(deleteMenuItem));
+    Assert.ok(BrowserTestUtils.isVisible(deleteMenuItem));
     Assert.ok(deleteMenuItem.disabled);
-    Assert.ok(!BrowserTestUtils.is_visible(removeMenuItem));
+    Assert.ok(!BrowserTestUtils.isVisible(removeMenuItem));
     hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.hidePopup();
     await hiddenPromise;
@@ -564,14 +564,14 @@ add_task(async function test_context_menu() {
 
   await showBooksContext(4);
   Assert.equal(booksList.selectedIndex, 4);
-  Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
+  Assert.ok(BrowserTestUtils.isVisible(propertiesMenuItem));
   Assert.ok(!propertiesMenuItem.disabled);
-  Assert.ok(BrowserTestUtils.is_visible(synchronizeMenuItem));
+  Assert.ok(BrowserTestUtils.isVisible(synchronizeMenuItem));
   Assert.ok(!synchronizeMenuItem.disabled);
-  Assert.ok(BrowserTestUtils.is_visible(printMenuItem));
+  Assert.ok(BrowserTestUtils.isVisible(printMenuItem));
   Assert.ok(!printMenuItem.disabled);
-  Assert.ok(!BrowserTestUtils.is_visible(deleteMenuItem));
-  Assert.ok(BrowserTestUtils.is_visible(removeMenuItem));
+  Assert.ok(!BrowserTestUtils.isVisible(deleteMenuItem));
+  Assert.ok(BrowserTestUtils.isVisible(removeMenuItem));
   Assert.ok(!removeMenuItem.disabled);
   let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   let selectPromise = BrowserTestUtils.waitForEvent(booksList, "select");
@@ -592,14 +592,14 @@ add_task(async function test_context_menu() {
     await new Promise(r => abWindow.setTimeout(r, 250));
     await showBooksContext(index);
     Assert.equal(booksList.selectedIndex, index);
-    Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
+    Assert.ok(BrowserTestUtils.isVisible(propertiesMenuItem));
     Assert.ok(!propertiesMenuItem.disabled);
-    Assert.ok(!BrowserTestUtils.is_visible(synchronizeMenuItem));
-    Assert.ok(BrowserTestUtils.is_visible(printMenuItem));
+    Assert.ok(!BrowserTestUtils.isVisible(synchronizeMenuItem));
+    Assert.ok(BrowserTestUtils.isVisible(printMenuItem));
     Assert.ok(!printMenuItem.disabled);
-    Assert.ok(BrowserTestUtils.is_visible(deleteMenuItem));
+    Assert.ok(BrowserTestUtils.isVisible(deleteMenuItem));
     Assert.ok(!deleteMenuItem.disabled);
-    Assert.ok(!BrowserTestUtils.is_visible(removeMenuItem));
+    Assert.ok(!BrowserTestUtils.isVisible(removeMenuItem));
     promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
     selectPromise = BrowserTestUtils.waitForEvent(booksList, "select");
     hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
@@ -651,10 +651,10 @@ add_task(async function test_context_menu_button() {
   for (const row of booksList.rows) {
     info(row.querySelector(".bookRow-name, .listRow-name").textContent);
     const button = row.querySelector(".bookRow-menu, .listRow-menu");
-    Assert.ok(BrowserTestUtils.is_hidden(button), "menu button is hidden");
+    Assert.ok(BrowserTestUtils.isHidden(button), "menu button is hidden");
 
     EventUtils.synthesizeMouse(row, 100, 5, { type: "mousemove" }, abWindow);
-    Assert.ok(BrowserTestUtils.is_visible(button), "menu button is visible");
+    Assert.ok(BrowserTestUtils.isVisible(button), "menu button is visible");
 
     const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
     EventUtils.synthesizeMouseAtCenter(button, {}, abWindow);
@@ -718,7 +718,7 @@ add_task(async function test_collapse_expand() {
   function toggleCollapsedState(book) {
     const twisty = getRowForBook(book).querySelector(".twisty");
     Assert.ok(
-      BrowserTestUtils.is_visible(twisty),
+      BrowserTestUtils.isVisible(twisty),
       `twisty for ${book.dirName} is visible`
     );
     EventUtils.synthesizeMouseAtCenter(twisty, {}, abWindow);

@@ -76,11 +76,11 @@ add_task(async function testExpandCollapseUpdates() {
   // Thread root still selected.
   await validateTree(11, [5], 5);
   Assert.ok(
-    BrowserTestUtils.is_hidden(about3Pane.messageBrowser),
+    BrowserTestUtils.isHidden(about3Pane.messageBrowser),
     "messageBrowser became hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(about3Pane.multiMessageBrowser),
+    BrowserTestUtils.isVisible(about3Pane.multiMessageBrowser),
     "multiMessageBrowser became visible"
   );
 
@@ -95,11 +95,11 @@ add_task(async function testExpandCollapseUpdates() {
   await messageLoaded(10);
   await validateTree(15, [5], 5);
   Assert.ok(
-    BrowserTestUtils.is_hidden(about3Pane.multiMessageBrowser),
+    BrowserTestUtils.isHidden(about3Pane.multiMessageBrowser),
     "multiMessageBrowser became hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(about3Pane.messageBrowser),
+    BrowserTestUtils.isVisible(about3Pane.messageBrowser),
     "messageBrowser became visible"
   );
 
@@ -111,11 +111,11 @@ add_task(async function testExpandCollapseUpdates() {
   // Thread root still selected.
   await validateTree(3, [1], 1);
   Assert.ok(
-    BrowserTestUtils.is_hidden(about3Pane.messageBrowser),
+    BrowserTestUtils.isHidden(about3Pane.messageBrowser),
     "messageBrowser became hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(about3Pane.multiMessageBrowser),
+    BrowserTestUtils.isVisible(about3Pane.multiMessageBrowser),
     "multiMessageBrowser became visible"
   );
 
@@ -127,11 +127,11 @@ add_task(async function testExpandCollapseUpdates() {
   await messageLoaded(10);
   await validateTree(15, [5], 5);
   Assert.ok(
-    BrowserTestUtils.is_hidden(about3Pane.multiMessageBrowser),
+    BrowserTestUtils.isHidden(about3Pane.multiMessageBrowser),
     "multiMessageBrowser became hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(about3Pane.messageBrowser),
+    BrowserTestUtils.isVisible(about3Pane.messageBrowser),
     "messageBrowser became visible"
   );
 
@@ -146,11 +146,11 @@ add_task(async function testExpandCollapseUpdates() {
   // Thread root became selected.
   await validateTree(3, [0], 0);
   Assert.ok(
-    BrowserTestUtils.is_hidden(about3Pane.messageBrowser),
+    BrowserTestUtils.isHidden(about3Pane.messageBrowser),
     "messageBrowser became hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(about3Pane.multiMessageBrowser),
+    BrowserTestUtils.isVisible(about3Pane.multiMessageBrowser),
     "multiMessageBrowser became visible"
   );
 
@@ -162,11 +162,11 @@ add_task(async function testExpandCollapseUpdates() {
   await messageLoaded(5);
   await validateTree(15, [0], 0);
   Assert.ok(
-    BrowserTestUtils.is_hidden(about3Pane.multiMessageBrowser),
+    BrowserTestUtils.isHidden(about3Pane.multiMessageBrowser),
     "multiMessageBrowser became hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(about3Pane.messageBrowser),
+    BrowserTestUtils.isVisible(about3Pane.messageBrowser),
     "messageBrowser became visible"
   );
 
@@ -175,11 +175,11 @@ add_task(async function testExpandCollapseUpdates() {
   threadTree.selectedIndices = [2, 3, 5];
   await selectPromise;
   Assert.ok(
-    BrowserTestUtils.is_hidden(about3Pane.messageBrowser),
+    BrowserTestUtils.isHidden(about3Pane.messageBrowser),
     "messageBrowser became hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(about3Pane.multiMessageBrowser),
+    BrowserTestUtils.isVisible(about3Pane.multiMessageBrowser),
     "multiMessageBrowser became visible"
   );
 
@@ -189,11 +189,11 @@ add_task(async function testExpandCollapseUpdates() {
   // Thread roots became selected.
   await validateTree(3, [0, 1], 1);
   Assert.ok(
-    BrowserTestUtils.is_hidden(about3Pane.messageBrowser),
+    BrowserTestUtils.isHidden(about3Pane.messageBrowser),
     "messageBrowser stayed hidden"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(about3Pane.multiMessageBrowser),
+    BrowserTestUtils.isVisible(about3Pane.multiMessageBrowser),
     "multiMessageBrowser stayed visible"
   );
 });

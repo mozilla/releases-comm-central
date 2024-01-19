@@ -52,7 +52,7 @@ add_task(async function test_open_printpreview() {
   // Ensure we're showing the preview...
   await BrowserTestUtils.waitForCondition(() => {
     preview = document.querySelector(".printPreviewBrowser");
-    return preview && BrowserTestUtils.is_visible(preview);
+    return preview && BrowserTestUtils.isVisible(preview);
   });
 
   const subject = preview.contentDocument.querySelector(
@@ -93,7 +93,7 @@ add_task(async function test_named_page() {
   // Ensure we're showing the preview...
   await BrowserTestUtils.waitForCondition(() => {
     preview = msgc.document.querySelector(".printPreviewBrowser");
-    return preview && BrowserTestUtils.is_visible(preview);
+    return preview && BrowserTestUtils.isVisible(preview);
   });
 
   Assert.equal(

@@ -67,7 +67,7 @@ async function handleWizard(wizardWindow, { username, url, password, expectedCal
 
   const list = wizardDocument.getElementById("network-calendar-list");
   await TestUtils.waitForCondition(
-    () => BrowserTestUtils.is_visible(list),
+    () => BrowserTestUtils.isVisible(list),
     "waiting for calendar list to appear",
     200,
     100

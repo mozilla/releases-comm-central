@@ -176,10 +176,10 @@ add_task(async function test_switchingTabWithMouse() {
   ok(!tab1.tab.hasAttribute("selected"), "First tab is not selected");
   is(tab1.button.tabIndex, -1, "First tab is not in focus ring");
   ok(
-    BrowserTestUtils.is_visible(tab2.pane),
+    BrowserTestUtils.isVisible(tab2.pane),
     "Tab pane for selected tab is visible"
   );
-  ok(BrowserTestUtils.is_hidden(tab1.pane), "Tab pane for first tab is hidden");
+  ok(BrowserTestUtils.isHidden(tab1.pane), "Tab pane for first tab is hidden");
 
   tab1.button.click();
   ok(tab1.tab.hasAttribute("selected"), "First tab is selected");
@@ -187,10 +187,10 @@ add_task(async function test_switchingTabWithMouse() {
   ok(!tab2.tab.hasAttribute("selected"), "Other tab is not selected");
   is(tab2.button.tabIndex, -1, "Other tab is not in focus ring");
   ok(
-    BrowserTestUtils.is_visible(tab1.pane),
+    BrowserTestUtils.isVisible(tab1.pane),
     "Tab pane for first tab is visible"
   );
-  ok(BrowserTestUtils.is_hidden(tab2.pane), "Tab pane for other tab is hidden");
+  ok(BrowserTestUtils.isHidden(tab2.pane), "Tab pane for other tab is hidden");
 });
 
 add_task(async function test_switchingTabWithKeyboard() {
@@ -213,10 +213,10 @@ add_task(async function test_switchingTabWithKeyboard() {
   ok(!tab1.tab.hasAttribute("selected"), "First tab is not selected");
   is(tab1.button.tabIndex, -1, "First tab is not in focus ring");
   ok(
-    BrowserTestUtils.is_visible(tab2.pane),
+    BrowserTestUtils.isVisible(tab2.pane),
     "Tab pane for selected tab is visible"
   );
-  ok(BrowserTestUtils.is_hidden(tab1.pane), "Tab pane for first tab is hidden");
+  ok(BrowserTestUtils.isHidden(tab1.pane), "Tab pane for first tab is hidden");
 
   await BrowserTestUtils.synthesizeKey("KEY_ArrowLeft", {}, browser);
   is(testDocument.activeElement, tab1.tab, "Previous tab is selected");
@@ -230,10 +230,10 @@ add_task(async function test_switchingTabWithKeyboard() {
   ok(!tab2.tab.hasAttribute("selected"), "Other tab is not selected");
   is(tab2.button.tabIndex, -1, "Other tab is not in focus ring");
   ok(
-    BrowserTestUtils.is_visible(tab1.pane),
+    BrowserTestUtils.isVisible(tab1.pane),
     "Tab pane for first tab is visible"
   );
-  ok(BrowserTestUtils.is_hidden(tab2.pane), "Tab pane for other tab is hidden");
+  ok(BrowserTestUtils.isHidden(tab2.pane), "Tab pane for other tab is hidden");
 });
 
 add_task(async function test_switchingTabWithKeyboardRTL() {
@@ -258,10 +258,10 @@ add_task(async function test_switchingTabWithKeyboardRTL() {
   ok(!tab1.tab.hasAttribute("selected"), "First tab is not selected");
   is(tab1.button.tabIndex, -1, "First tab is not in focus ring");
   ok(
-    BrowserTestUtils.is_visible(tab2.pane),
+    BrowserTestUtils.isVisible(tab2.pane),
     "Tab pane for selected tab is visible"
   );
-  ok(BrowserTestUtils.is_hidden(tab1.pane), "Tab pane for first tab is hidden");
+  ok(BrowserTestUtils.isHidden(tab1.pane), "Tab pane for first tab is hidden");
 
   await BrowserTestUtils.synthesizeKey("KEY_ArrowRight", {}, browser);
   is(testDocument.activeElement, tab1.tab, "Previous tab is selected");
@@ -271,10 +271,10 @@ add_task(async function test_switchingTabWithKeyboardRTL() {
   ok(!tab2.tab.hasAttribute("selected"), "Other tab is not selected");
   is(tab2.button.tabIndex, -1, "Other tab is not in focus ring");
   ok(
-    BrowserTestUtils.is_visible(tab1.pane),
+    BrowserTestUtils.isVisible(tab1.pane),
     "Tab pane for first tab is visible"
   );
-  ok(BrowserTestUtils.is_hidden(tab2.pane), "Tab pane for other tab is hidden");
+  ok(BrowserTestUtils.isHidden(tab2.pane), "Tab pane for other tab is hidden");
 
   testDocument.dir = "ltr";
 });

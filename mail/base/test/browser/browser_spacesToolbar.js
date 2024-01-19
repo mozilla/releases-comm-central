@@ -422,12 +422,12 @@ add_task(async function testSpacesToolbarContextMenu() {
     let item = input.item;
     if (!expect.settings) {
       Assert.equal(
-        BrowserTestUtils.is_visible(newTabItem),
+        BrowserTestUtils.isVisible(newTabItem),
         expect.newTab || false,
         `Open in new tab item visibility: ${msg}`
       );
       Assert.equal(
-        BrowserTestUtils.is_visible(newWindowItem),
+        BrowserTestUtils.isVisible(newWindowItem),
         expect.newWindow || false,
         `Open in new window item visibility: ${msg}`
       );

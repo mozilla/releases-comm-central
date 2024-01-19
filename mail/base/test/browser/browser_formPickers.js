@@ -201,8 +201,8 @@ add_task(async function testMessagePaneMessageBrowser() {
   threadTree.scrollToIndex(0, true);
   await loadedPromise;
 
-  Assert.ok(BrowserTestUtils.is_visible(about3Pane.messageBrowser));
-  Assert.ok(BrowserTestUtils.is_visible(messagePaneBrowser));
+  Assert.ok(BrowserTestUtils.isVisible(about3Pane.messageBrowser));
+  Assert.ok(BrowserTestUtils.isVisible(messagePaneBrowser));
   await checkABrowser(messagePaneBrowser);
 });
 
@@ -214,7 +214,7 @@ add_task(async function testMessagePaneWebBrowser() {
   });
 
   about3Pane.messagePane.displayWebPage(TEST_DOCUMENT_URL);
-  Assert.ok(BrowserTestUtils.is_visible(about3Pane.webBrowser));
+  Assert.ok(BrowserTestUtils.isVisible(about3Pane.webBrowser));
   await checkABrowser(about3Pane.webBrowser);
 });
 

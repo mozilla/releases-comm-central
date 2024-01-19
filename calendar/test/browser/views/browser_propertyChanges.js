@@ -81,12 +81,12 @@ async function assertCanDrag(eventBox, draggable, message) {
   EventUtils.synthesizeMouseAtCenter(eventBox, { type: "mouseover" }, window);
   await enterPromise;
   Assert.equal(
-    BrowserTestUtils.is_visible(eventBox.startGripbar),
+    BrowserTestUtils.isVisible(eventBox.startGripbar),
     draggable,
     `Start gripbar should be ${draggable ? "visible" : "hidden"} on hover: ${message}`
   );
   Assert.equal(
-    BrowserTestUtils.is_visible(eventBox.endGripbar),
+    BrowserTestUtils.isVisible(eventBox.endGripbar),
     draggable,
     `End gripbar should be ${draggable ? "visible" : "hidden"} on hover: ${message}`
   );

@@ -444,7 +444,7 @@ add_task(async function test_allowedSpaces() {
     if (!button) {
       return false;
     }
-    return BrowserTestUtils.is_visible(button);
+    return BrowserTestUtils.isVisible(button);
   }
 
   const extension = ExtensionTestUtils.loadExtension({
@@ -533,7 +533,7 @@ add_task(async function test_allowedInAllSpaces() {
     if (!button) {
       return false;
     }
-    return BrowserTestUtils.is_visible(button);
+    return BrowserTestUtils.isVisible(button);
   }
 
   const extension = ExtensionTestUtils.loadExtension({
@@ -619,7 +619,7 @@ add_task(async function test_allowedSpacesDefault() {
     if (!button) {
       return false;
     }
-    return BrowserTestUtils.is_visible(button);
+    return BrowserTestUtils.isVisible(button);
   }
 
   const extension = ExtensionTestUtils.loadExtension({
@@ -708,7 +708,7 @@ add_task(async function test_update_allowedSpaces() {
     if (!button) {
       return false;
     }
-    return BrowserTestUtils.is_visible(button);
+    return BrowserTestUtils.isVisible(button);
   }
 
   async function closeSpaceTab() {

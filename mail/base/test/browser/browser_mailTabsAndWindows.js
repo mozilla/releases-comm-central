@@ -107,16 +107,16 @@ add_task(async function testTabs() {
   Assert.equal(firstTab.browser, firstMessagePane);
   Assert.equal(firstTab.linkedBrowser, firstMessagePane);
 
-  Assert.ok(BrowserTestUtils.is_visible(folderTree));
-  Assert.ok(BrowserTestUtils.is_visible(firstMessageBrowser));
+  Assert.ok(BrowserTestUtils.isVisible(folderTree));
+  Assert.ok(BrowserTestUtils.isVisible(firstMessageBrowser));
 
   paneLayout.folderPaneVisible = false;
-  Assert.ok(BrowserTestUtils.is_hidden(folderTree));
-  Assert.ok(BrowserTestUtils.is_visible(firstMessageBrowser));
+  Assert.ok(BrowserTestUtils.isHidden(folderTree));
+  Assert.ok(BrowserTestUtils.isVisible(firstMessageBrowser));
 
   paneLayout.messagePaneVisible = false;
-  Assert.ok(BrowserTestUtils.is_hidden(folderTree));
-  Assert.ok(BrowserTestUtils.is_hidden(firstMessageBrowser));
+  Assert.ok(BrowserTestUtils.isHidden(folderTree));
+  Assert.ok(BrowserTestUtils.isHidden(firstMessageBrowser));
   Assert.equal(
     tabmail.currentAboutMessage,
     null,
@@ -126,12 +126,12 @@ add_task(async function testTabs() {
   Assert.equal(firstTab.linkedBrowser, null);
 
   paneLayout.folderPaneVisible = true;
-  Assert.ok(BrowserTestUtils.is_visible(folderTree));
-  Assert.ok(BrowserTestUtils.is_hidden(firstMessageBrowser));
+  Assert.ok(BrowserTestUtils.isVisible(folderTree));
+  Assert.ok(BrowserTestUtils.isHidden(firstMessageBrowser));
 
   paneLayout.messagePaneVisible = true;
-  Assert.ok(BrowserTestUtils.is_visible(folderTree));
-  Assert.ok(BrowserTestUtils.is_visible(firstMessageBrowser));
+  Assert.ok(BrowserTestUtils.isVisible(folderTree));
+  Assert.ok(BrowserTestUtils.isVisible(firstMessageBrowser));
   Assert.equal(
     tabmail.currentAboutMessage,
     firstMessageBrowser.contentWindow,
@@ -151,9 +151,9 @@ add_task(async function testTabs() {
     firstChromeBrowser.contentDocument.getElementById("webBrowser");
 
   threadTree.selectedIndices = [1, 2];
-  Assert.ok(BrowserTestUtils.is_hidden(firstWebBrowser));
-  Assert.ok(BrowserTestUtils.is_hidden(firstMessageBrowser));
-  Assert.ok(BrowserTestUtils.is_visible(firstMultiMessageBrowser));
+  Assert.ok(BrowserTestUtils.isHidden(firstWebBrowser));
+  Assert.ok(BrowserTestUtils.isHidden(firstMessageBrowser));
+  Assert.ok(BrowserTestUtils.isVisible(firstMultiMessageBrowser));
   Assert.equal(
     tabmail.currentAboutMessage,
     null,
@@ -171,9 +171,9 @@ add_task(async function testTabs() {
   );
   messagePane.displayWebPage("http://mochi.test:8888/");
   await loadedPromise;
-  Assert.ok(BrowserTestUtils.is_visible(firstWebBrowser));
-  Assert.ok(BrowserTestUtils.is_hidden(firstMessageBrowser));
-  Assert.ok(BrowserTestUtils.is_hidden(firstMultiMessageBrowser));
+  Assert.ok(BrowserTestUtils.isVisible(firstWebBrowser));
+  Assert.ok(BrowserTestUtils.isHidden(firstMessageBrowser));
+  Assert.ok(BrowserTestUtils.isHidden(firstMultiMessageBrowser));
   Assert.equal(firstWebBrowser.currentURI.spec, "http://mochi.test:8888/");
   Assert.equal(
     tabmail.currentAboutMessage,
@@ -186,9 +186,9 @@ add_task(async function testTabs() {
   // Go back to a single selection.
 
   threadTree.selectedIndex = 0;
-  Assert.ok(BrowserTestUtils.is_hidden(firstWebBrowser));
-  Assert.ok(BrowserTestUtils.is_visible(firstMessageBrowser));
-  Assert.ok(BrowserTestUtils.is_hidden(firstMultiMessageBrowser));
+  Assert.ok(BrowserTestUtils.isHidden(firstWebBrowser));
+  Assert.ok(BrowserTestUtils.isVisible(firstMessageBrowser));
+  Assert.ok(BrowserTestUtils.isHidden(firstMultiMessageBrowser));
   Assert.equal(
     tabmail.currentAboutMessage,
     firstMessageBrowser.contentWindow,

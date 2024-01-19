@@ -13,7 +13,7 @@ add_task(async function testCollapse() {
   account.connect();
 
   await openChatTab();
-  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+  ok(BrowserTestUtils.isVisible(document.getElementById("chatPanel")));
 
   const conversation = account.prplAccount.wrappedJSObject.makeDM("collapse");
   const convNode = getConversationItem(conversation);
@@ -23,7 +23,7 @@ add_task(async function testCollapse() {
 
   const chatConv = getChatConversationElement(conversation);
   ok(chatConv, "found conversation");
-  ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
+  ok(BrowserTestUtils.isVisible(chatConv), "conversation visible");
   const messageParent = await getChatMessageParent(chatConv);
 
   await addNotice(conversation, chatConv);
@@ -83,7 +83,7 @@ add_task(async function testGrouping() {
 
   await openChatTab();
   ok(
-    BrowserTestUtils.is_visible(document.getElementById("chatPanel")),
+    BrowserTestUtils.isVisible(document.getElementById("chatPanel")),
     "Chat tab is visible"
   );
 
@@ -95,7 +95,7 @@ add_task(async function testGrouping() {
 
   const chatConv = getChatConversationElement(conversation);
   ok(chatConv, "Found conversation element");
-  ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
+  ok(BrowserTestUtils.isVisible(chatConv), "conversation visible");
   const messageParent = await getChatMessageParent(chatConv);
 
   conversation.addMessages([
@@ -157,7 +157,7 @@ add_task(async function testSystemMessageReplacement() {
 
   await openChatTab();
   ok(
-    BrowserTestUtils.is_visible(document.getElementById("chatPanel")),
+    BrowserTestUtils.isVisible(document.getElementById("chatPanel")),
     "Chat tab is visible"
   );
 
@@ -169,7 +169,7 @@ add_task(async function testSystemMessageReplacement() {
 
   const chatConv = getChatConversationElement(conversation);
   ok(chatConv, "Found conversation element");
-  ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
+  ok(BrowserTestUtils.isVisible(chatConv), "conversation visible");
   const messageParent = await getChatMessageParent(chatConv);
 
   conversation.addMessages([

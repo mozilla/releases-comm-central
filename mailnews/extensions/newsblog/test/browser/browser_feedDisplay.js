@@ -159,13 +159,13 @@ add_task(async () => {
     "The regular date label and the subject date have the same value"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(
+    BrowserTestUtils.isHidden(
       aboutMessage.document.getElementById("dateLabel"),
       "The regular date label is not visible"
     )
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(
+    BrowserTestUtils.isVisible(
       aboutMessage.document.getElementById("dateLabelSubject")
     ),
     "The date label on the subject line is visible"

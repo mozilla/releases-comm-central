@@ -49,14 +49,14 @@ add_task(async function testNonRecurringEvent() {
   );
 
   Assert.ok(
-    !BrowserTestUtils.is_visible(editMenuButton),
+    !BrowserTestUtils.isVisible(editMenuButton),
     "edit dropdown is not visible for non-recurring event"
   );
 
   const editButton = eventWindow.document.querySelector("#calendar-summary-dialog-edit-button");
 
   Assert.ok(
-    BrowserTestUtils.is_visible(editButton),
+    BrowserTestUtils.isVisible(editButton),
     "edit button is visible for non-recurring event"
   );
   await CalendarTestUtils.items.cancelItemDialog(eventWindow);
@@ -115,13 +115,13 @@ add_task(async function testRecurringEvent() {
   const viewWindow = await CalendarTestUtils.monthView.viewItemAt(window, 1, 6, 1);
 
   Assert.ok(
-    !BrowserTestUtils.is_visible(
+    !BrowserTestUtils.isVisible(
       viewWindow.document.querySelector("#calendar-summary-dialog-edit-button")
     ),
     "non-recurring edit button is not visible for recurring event"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(
+    BrowserTestUtils.isVisible(
       viewWindow.document.querySelector("#calendar-summary-dialog-edit-menu-button")
     ),
     "edit dropdown is visible for recurring event"

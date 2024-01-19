@@ -388,7 +388,7 @@ function checkRowUnThreadState(index, expected) {
     "row should not have the 'children' class"
   );
 
-  Assert.ok(BrowserTestUtils.is_visible(icon), "icon should be visible");
+  Assert.ok(BrowserTestUtils.isVisible(icon), "icon should be visible");
 
   const iconContent = getComputedStyle(icon).content;
   switch (expected) {
@@ -419,11 +419,11 @@ function checkRowThreadState(index, expected) {
       !row.classList.contains("children"),
       "row should not have the 'children' class"
     );
-    Assert.ok(BrowserTestUtils.is_hidden(icon), "icon should be hidden");
+    Assert.ok(BrowserTestUtils.isHidden(icon), "icon should be hidden");
     return;
   }
 
-  Assert.ok(BrowserTestUtils.is_visible(icon), "icon should be visible");
+  Assert.ok(BrowserTestUtils.isVisible(icon), "icon should be visible");
 
   let shouldHaveChildrenClass = true;
   const iconContent = getComputedStyle(icon).content;

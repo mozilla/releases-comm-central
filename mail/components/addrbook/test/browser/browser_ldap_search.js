@@ -76,7 +76,7 @@ add_task(async () => {
   LDAPServer.writeSearchResultEntry(ldapContacts.sherlock);
   LDAPServer.writeSearchResultDone();
 
-  Assert.ok(BrowserTestUtils.is_hidden(detailsPane));
+  Assert.ok(BrowserTestUtils.isHidden(detailsPane));
   await waitForCountChange(2);
   checkNamesListed("Mycroft Holmes", "Sherlock Holmes");
   checkPlaceholders();
@@ -84,7 +84,7 @@ add_task(async () => {
   // Check that displaying an LDAP card works without error.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
+    BrowserTestUtils.isVisible(detailsPane)
   );
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
@@ -170,7 +170,7 @@ add_task(async () => {
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultDone();
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(noSearchResults)
+    BrowserTestUtils.isVisible(noSearchResults)
   );
   checkNamesListed();
   checkPlaceholders(["placeholderNoSearchResults"]);

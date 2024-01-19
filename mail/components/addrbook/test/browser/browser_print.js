@@ -145,7 +145,7 @@ async function checkPrintPreview(...expectedContacts) {
 async function waitForPreviewVisible() {
   await TestUtils.waitForCondition(function () {
     const preview = document.querySelector(".printPreviewBrowser");
-    return preview && BrowserTestUtils.is_visible(preview);
+    return preview && BrowserTestUtils.isVisible(preview);
   }, "waiting for print preview to appear");
 }
 

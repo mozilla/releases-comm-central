@@ -312,7 +312,7 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
 
   if (plain) {
     Assert.ok(
-      BrowserTestUtils.is_visible(plainBody),
+      BrowserTestUtils.isVisible(plainBody),
       `Plain part should be visible: ${msg}`
     );
     Assert.equal(
@@ -324,7 +324,7 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
 
   if (html) {
     Assert.ok(
-      BrowserTestUtils.is_visible(htmlBody),
+      BrowserTestUtils.isVisible(htmlBody),
       `HTML part should be visible: ${msg}`
     );
     Assert.equal(

@@ -69,7 +69,7 @@ add_task(async () => {
     );
     await shownPromise;
 
-    Assert.ok(BrowserTestUtils.is_visible(menuItem));
+    Assert.ok(BrowserTestUtils.isVisible(menuItem));
 
     const dialogPromise = promiseLoadSubDialog(
       "chrome://messenger/content/addressbook/abCardDAVProperties.xhtml"

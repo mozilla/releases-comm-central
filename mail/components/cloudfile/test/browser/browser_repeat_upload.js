@@ -95,7 +95,7 @@ add_task(async () => {
   const menu = composeDocument.getElementById(
     "button-attachPopup_attachCloudMenu"
   );
-  ok(!BrowserTestUtils.is_hidden(menu));
+  ok(!BrowserTestUtils.isHidden(menu));
 
   const popupshown = BrowserTestUtils.waitForEvent(menu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(menu, { clickCount: 1 }, composeWindow);

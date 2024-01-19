@@ -140,7 +140,7 @@ async function promiseMessageLoaded(browser, msgHdr) {
 
 async function assertVisibility(element, isVisible, msg) {
   await TestUtils.waitForCondition(
-    () => BrowserTestUtils.is_visible(element) == isVisible,
+    () => BrowserTestUtils.isVisible(element) == isVisible,
     `The ${element.id} should be ${isVisible ? "visible" : "hidden"}: ${msg}`
   );
 }

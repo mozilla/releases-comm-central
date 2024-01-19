@@ -123,7 +123,7 @@ add_task(async function test_spacesToolbarChatBadgeDM() {
   await EventUtils.synthesizeMouseAtCenter(convNode, {});
   const chatConv = getChatConversationElement(conversation);
   ok(chatConv);
-  ok(BrowserTestUtils.is_visible(chatConv));
+  ok(BrowserTestUtils.isVisible(chatConv));
   await unreadCountChanged;
 
   ok(
@@ -246,7 +246,7 @@ add_task(async function test_spacesToolbarPinnedChatBadgeDM() {
   await EventUtils.synthesizeMouseAtCenter(convNode, {});
   const chatConv = getChatConversationElement(conversation);
   ok(chatConv);
-  ok(BrowserTestUtils.is_visible(chatConv));
+  ok(BrowserTestUtils.isVisible(chatConv));
   await unreadCountChanged;
 
   ok(

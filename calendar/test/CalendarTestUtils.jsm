@@ -1073,12 +1073,12 @@ const CalendarTestUtils = {
     EventUtils.synthesizeMouse(eventBox, 8, 8, { type: "mouseover" }, eventBox.ownerGlobal);
     await enterPromise;
     Assert.equal(
-      BrowserTestUtils.is_visible(eventBox.startGripbar),
+      BrowserTestUtils.isVisible(eventBox.startGripbar),
       startDraggable,
       `Start gripbar should be ${startDraggable ? "visible" : "hidden"} on hover: ${message}`
     );
     Assert.equal(
-      BrowserTestUtils.is_visible(eventBox.endGripbar),
+      BrowserTestUtils.isVisible(eventBox.endGripbar),
       endDraggable,
       `End gripbar should be ${endDraggable ? "visible" : "hidden"} on hover: ${message}`
     );

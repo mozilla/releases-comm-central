@@ -277,7 +277,7 @@ function checkPlaceholders(expectedVisible = []) {
 
   if (!expectedVisible.length) {
     Assert.ok(
-      BrowserTestUtils.is_hidden(placeholder),
+      BrowserTestUtils.isHidden(placeholder),
       "placeholders are hidden"
     );
     return;
@@ -286,9 +286,9 @@ function checkPlaceholders(expectedVisible = []) {
   for (const element of placeholder.children) {
     const id = element.id;
     if (expectedVisible.includes(id)) {
-      Assert.ok(BrowserTestUtils.is_visible(element), `${id} is visible`);
+      Assert.ok(BrowserTestUtils.isVisible(element), `${id} is visible`);
     } else {
-      Assert.ok(BrowserTestUtils.is_hidden(element), `${id} is hidden`);
+      Assert.ok(BrowserTestUtils.isHidden(element), `${id} is hidden`);
     }
   }
 }
@@ -491,7 +491,7 @@ function promiseLoadSubDialog(url) {
 
         // Check visibility
         Assert.ok(
-          BrowserTestUtils.is_visible(
+          BrowserTestUtils.isVisible(
             aEvent.detail.dialog._overlay,
             "Overlay is visible"
           )

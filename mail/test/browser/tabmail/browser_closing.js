@@ -320,7 +320,7 @@ add_task(async function test_close_unselected_tab_methods() {
 
   // Can't close the first tab.
   Assert.ok(
-    BrowserTestUtils.is_hidden(tabs[0].node.querySelector(".tab-close-button")),
+    BrowserTestUtils.isHidden(tabs[0].node.querySelector(".tab-close-button")),
     "Close button should be hidden for the first tab"
   );
   // Middle click does nothing.

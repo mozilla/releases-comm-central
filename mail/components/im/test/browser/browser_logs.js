@@ -17,7 +17,7 @@ add_task(async function testTopicRestored() {
   account.connect();
 
   await openChatTab();
-  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+  ok(BrowserTestUtils.isVisible(document.getElementById("chatPanel")));
 
   const conversation =
     account.prplAccount.wrappedJSObject.makeMUC("logs topic");
@@ -32,7 +32,7 @@ add_task(async function testTopicRestored() {
     chatConv.convBrowser,
     "MessagesDisplayed"
   );
-  ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
+  ok(BrowserTestUtils.isVisible(chatConv), "conversation visible");
 
   conversation.addParticipant("topic");
   conversation.addMessages([
@@ -58,7 +58,7 @@ add_task(async function testTopicRestored() {
 
   chatConv = getChatConversationElement(newConversation);
   ok(chatConv, "found conversation");
-  ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
+  ok(BrowserTestUtils.isVisible(chatConv), "conversation visible");
 
   const topicChanged = waitForNotification(
     newConversation,
@@ -82,7 +82,7 @@ add_task(async function testTopicRestored() {
   });
   await conversationLoaded;
 
-  ok(BrowserTestUtils.is_visible(logBrowser));
+  ok(BrowserTestUtils.isVisible(logBrowser));
   is(chatTopInfo.topic.value, "", "Topic is cleared when viewing logs");
 
   EventUtils.synthesizeMouseAtCenter(
@@ -90,7 +90,7 @@ add_task(async function testTopicRestored() {
     {}
   );
 
-  ok(BrowserTestUtils.is_hidden(logBrowser));
+  ok(BrowserTestUtils.isHidden(logBrowser));
   is(chatTopInfo.topic.value, "foo bar");
 
   newConversation.close();

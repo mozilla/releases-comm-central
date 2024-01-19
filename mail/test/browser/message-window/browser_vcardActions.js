@@ -76,7 +76,7 @@ add_task(async function test_check_vcard_icon() {
     "Address Book page properly loaded"
   );
   await TestUtils.waitForCondition(
-    () => BrowserTestUtils.is_visible(saveEditButton),
+    () => BrowserTestUtils.isVisible(saveEditButton),
     "entered edit mode"
   );
   saveEditButton.scrollIntoView();

@@ -434,7 +434,7 @@ add_task(async function test_results_label() {
 
   // no filter, the label should not be visible
   Assert.ok(
-    BrowserTestUtils.is_hidden(
+    BrowserTestUtils.isHidden(
       get_about_3pane().document.getElementById("qfb-results-label")
     ),
     "results label should not be visible"

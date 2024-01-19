@@ -76,7 +76,7 @@ add_task(async function testSectionStates() {
 
   function assertStateVisible(states, visibleState) {
     for (const state of states) {
-      const visible = BrowserTestUtils.is_visible(state);
+      const visible = BrowserTestUtils.isVisible(state);
       Assert.equal(
         visible,
         state == visibleState,
@@ -95,7 +95,7 @@ add_task(async function testSectionStates() {
     assertStateVisible(accountStates, accountState);
     assertStateVisible(loginStates, loginState);
     Assert.equal(
-      BrowserTestUtils.is_visible(fxaDeviceInfo),
+      BrowserTestUtils.isVisible(fxaDeviceInfo),
       deviceInfoVisible,
       `fxaDeviceInfo should be ${deviceInfoVisible ? "visible" : "hidden"}`
     );
@@ -230,15 +230,12 @@ add_task(async function testSectionStates() {
   );
   Assert.ok(deviceNameInput.readOnly, "input is read-only");
   Assert.ok(
-    BrowserTestUtils.is_hidden(deviceNameCancel),
+    BrowserTestUtils.isHidden(deviceNameCancel),
     "cancel button is hidden"
   );
+  Assert.ok(BrowserTestUtils.isHidden(deviceNameSave), "save button is hidden");
   Assert.ok(
-    BrowserTestUtils.is_hidden(deviceNameSave),
-    "save button is hidden"
-  );
-  Assert.ok(
-    BrowserTestUtils.is_visible(deviceNameChange),
+    BrowserTestUtils.isVisible(deviceNameChange),
     "change button is visible"
   );
 
@@ -246,30 +243,27 @@ add_task(async function testSectionStates() {
   Assert.ok(!deviceNameInput.readOnly, "input is writeable");
   Assert.equal(prefsDocument.activeElement, deviceNameInput, "input is active");
   Assert.ok(
-    BrowserTestUtils.is_visible(deviceNameCancel),
+    BrowserTestUtils.isVisible(deviceNameCancel),
     "cancel button is visible"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(deviceNameSave),
+    BrowserTestUtils.isVisible(deviceNameSave),
     "save button is visible"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(deviceNameChange),
+    BrowserTestUtils.isHidden(deviceNameChange),
     "change button is hidden"
   );
 
   EventUtils.synthesizeMouseAtCenter(deviceNameCancel, {}, prefsWindow);
   Assert.ok(deviceNameInput.readOnly, "input is read-only");
   Assert.ok(
-    BrowserTestUtils.is_hidden(deviceNameCancel),
+    BrowserTestUtils.isHidden(deviceNameCancel),
     "cancel button is hidden"
   );
+  Assert.ok(BrowserTestUtils.isHidden(deviceNameSave), "save button is hidden");
   Assert.ok(
-    BrowserTestUtils.is_hidden(deviceNameSave),
-    "save button is hidden"
-  );
-  Assert.ok(
-    BrowserTestUtils.is_visible(deviceNameChange),
+    BrowserTestUtils.isVisible(deviceNameChange),
     "change button is visible"
   );
 

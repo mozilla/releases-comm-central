@@ -85,7 +85,7 @@ add_task(async function testCreateCard() {
   await notInEditingMode();
   Assert.ok(bookRow.classList.contains("requesting"));
   Assert.equal(abDocument.activeElement, editButton);
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
 
   // Now allow the server to respond and check the UI state again.
   const promise2 = TestUtils.topicObserved("addrbook-contact-updated");
@@ -93,7 +93,7 @@ add_task(async function testCreateCard() {
   await promise2;
   Assert.ok(!bookRow.classList.contains("requesting"));
   Assert.equal(abDocument.activeElement, editButton);
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
 
   // Edit the contact.
 
@@ -111,7 +111,7 @@ add_task(async function testCreateCard() {
   await notInEditingMode();
   Assert.ok(bookRow.classList.contains("requesting"));
   Assert.equal(abDocument.activeElement, editButton);
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
 
   // Now allow the server to respond and check the UI state again.
   const promise4 = TestUtils.topicObserved("addrbook-contact-updated");
@@ -119,7 +119,7 @@ add_task(async function testCreateCard() {
   await promise4;
   Assert.ok(!bookRow.classList.contains("requesting"));
   Assert.equal(abDocument.activeElement, editButton);
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
 
   // Delete the contact.
 
@@ -136,7 +136,7 @@ add_task(async function testCreateCard() {
   await notInEditingMode();
   Assert.ok(bookRow.classList.contains("requesting"));
   Assert.equal(abDocument.activeElement, searchInput);
-  Assert.ok(BrowserTestUtils.is_hidden(editButton));
+  Assert.ok(BrowserTestUtils.isHidden(editButton));
 
   // Now allow the server to respond and check the UI state again.
   CardDAVServer.responseDelay.resolve();
@@ -184,7 +184,7 @@ add_task(async function testCreateCardWithUIDChange() {
   await notInEditingMode();
   Assert.ok(bookRow.classList.contains("requesting"));
   Assert.equal(abDocument.activeElement, editButton);
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
 
   const initialCard = abWindow.detailsPane.currentCard;
   Assert.equal(initialCard.getProperty("_href", "RIGHT"), "RIGHT");
@@ -197,7 +197,7 @@ add_task(async function testCreateCardWithUIDChange() {
   const [deletedCard] = await promise3;
   Assert.ok(!bookRow.classList.contains("requesting"));
   Assert.equal(abDocument.activeElement, editButton);
-  Assert.ok(BrowserTestUtils.is_visible(editButton));
+  Assert.ok(BrowserTestUtils.isVisible(editButton));
 
   Assert.equal(changedCard.UID, [...initialCard.UID].reverse().join(""));
   Assert.equal(
@@ -226,7 +226,7 @@ add_task(async function testCreateCardWithUIDChange() {
   await notInEditingMode();
   Assert.ok(bookRow.classList.contains("requesting"));
   Assert.equal(abDocument.activeElement, searchInput);
-  Assert.ok(BrowserTestUtils.is_hidden(editButton));
+  Assert.ok(BrowserTestUtils.isHidden(editButton));
 
   // Now allow the server to respond and check the UI state again.
   CardDAVServer.responseDelay.resolve();
@@ -263,11 +263,11 @@ add_task(async function testModificationUpdatesUI() {
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(detailsPane)
+    BrowserTestUtils.isVisible(detailsPane)
   );
 
   Assert.equal(contactName.textContent, "a person");
-  Assert.ok(BrowserTestUtils.is_visible(emailAddressesSection));
+  Assert.ok(BrowserTestUtils.isVisible(emailAddressesSection));
   let items = emailAddressesSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
   Assert.equal(items[0].querySelector("a").textContent, "a.person@invalid");
@@ -284,7 +284,7 @@ add_task(async function testModificationUpdatesUI() {
 
   await updatePromise;
   Assert.equal(contactName.textContent, "a person");
-  Assert.ok(BrowserTestUtils.is_visible(emailAddressesSection));
+  Assert.ok(BrowserTestUtils.isVisible(emailAddressesSection));
   items = emailAddressesSection.querySelectorAll("li");
   Assert.equal(items.length, 2);
   Assert.equal(items[0].querySelector("a").textContent, "a.person@invalid");
@@ -323,7 +323,7 @@ add_task(async function testModificationUpdatesUI() {
   );
 
   Assert.equal(contactName.textContent, "a person");
-  Assert.ok(BrowserTestUtils.is_visible(emailAddressesSection));
+  Assert.ok(BrowserTestUtils.isVisible(emailAddressesSection));
   items = emailAddressesSection.querySelectorAll("li");
   Assert.equal(items.length, 1);
   Assert.equal(
@@ -349,7 +349,7 @@ add_task(async function testModificationUpdatesUI() {
   await notInEditingMode();
 
   Assert.equal(contactName.textContent, "a different person");
-  Assert.ok(BrowserTestUtils.is_visible(emailAddressesSection));
+  Assert.ok(BrowserTestUtils.isVisible(emailAddressesSection));
   items = emailAddressesSection.querySelectorAll("li");
   Assert.equal(items.length, 2);
   Assert.equal(
