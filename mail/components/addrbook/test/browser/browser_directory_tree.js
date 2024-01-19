@@ -531,7 +531,7 @@ add_task(async function test_context_menu() {
   Assert.equal(booksList.selectedIndex, 0);
   Assert.equal(abDocument.activeElement, booksList);
 
-  const visibleItems = [...menu.children].filter(BrowserTestUtils.is_visible);
+  const visibleItems = [...menu.children].filter(BrowserTestUtils.isVisible);
   Assert.equal(visibleItems.length, 1);
   Assert.equal(
     visibleItems[0],
