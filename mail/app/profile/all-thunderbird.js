@@ -809,6 +809,7 @@ pref("mail.taskbar.lists.tasks.enabled", true);
 pref("mail.provider.providerList", "https://broker.thunderbird.net/provider/list");
 pref("mail.provider.suggestFromName", "https://broker.thunderbird.net/provider/suggest");
 pref("mail.provider.enabled", true);
+pref("mail.provider.loglevel", "Warn");
 
 pref("mail.chat.enabled", true);
 // Whether to show chat notifications or not.
