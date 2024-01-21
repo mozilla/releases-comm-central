@@ -173,6 +173,7 @@ var MailUtils = {
     }
     return false;
   },
+
   /**
    * Display these message headers in new tabs, new windows or existing
    * windows, depending on the preference, the number of messages, and whether
@@ -191,75 +192,125 @@ var MailUtils = {
    *      is used, and the window is brought to the front
    *    - if no 3pane windows are open, a standalone window is opened instead
    *      of a tab
+   * @param {Boolean} [forceTab] - Boolean that let us know when the middle
+   *   click button triggered the event. We then proceed to open the message in
+   *   a new tab.
+   * @param {Boolean} [loadMsgInBackground] - When opening a message in a new
+   *   tab, we take into account if the message list remains as the active tab
+   *   or if the new tab becomes the active tab.
    */
   displayMessages(
     aMsgHdrs,
     aViewWrapperToClone,
     aTabmail,
-    useBackgroundPref = false
+    forceTab = false,
+    loadMsgInBackground = false
   ) {
     const openMessageBehavior = Services.prefs.getIntPref(
       "mail.openMessageBehavior"
     );
 
-    if (openMessageBehavior == lazy.MailConsts.OpenMessageBehavior.NEW_WINDOW) {
-      this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
-    } else if (
-      openMessageBehavior == lazy.MailConsts.OpenMessageBehavior.EXISTING_WINDOW
-    ) {
-      // Try reusing an existing window. If we can't, fall back to opening new
-      // windows
-      if (
-        aMsgHdrs.length > 1 ||
-        !this.openMessageInExistingWindow(aMsgHdrs[0])
-      ) {
-        this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
-      }
-    } else if (
-      openMessageBehavior == lazy.MailConsts.OpenMessageBehavior.NEW_TAB
-    ) {
-      let mail3PaneWindow = null;
-      if (!aTabmail) {
-        // Try opening new tabs in a 3pane window
-        mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
-        if (mail3PaneWindow) {
-          aTabmail = mail3PaneWindow.document.getElementById("tabmail");
-        }
-      }
+    if (forceTab) {
+      this.openMessageInNewTab(
+        aMsgHdrs,
+        aViewWrapperToClone,
+        aTabmail,
+        loadMsgInBackground
+      );
+      return;
+    }
 
-      if (aTabmail) {
+    const behaviorEnum = lazy.MailConsts.OpenMessageBehavior;
+    switch (openMessageBehavior) {
+      case behaviorEnum.NEW_WINDOW:
+        this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
+        break;
+      case behaviorEnum.EXISTING_WINDOW:
+        // Try reusing an existing window. If we can't, fall back to opening
+        // new windows.
         if (
-          this.confirmAction(
-            aMsgHdrs.length,
-            "openTabWarningTitle",
-            "openTabWarningConfirmation",
-            "mailnews.open_tab_warning"
-          )
+          aMsgHdrs.length > 1 ||
+          !this.openMessageInExistingWindow(aMsgHdrs[0])
         ) {
-          return;
+          this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
         }
-        const loadInBackground = useBackgroundPref
-          ? Services.prefs.getBoolPref("mail.tabs.loadInBackground")
-          : false;
+        break;
+      case behaviorEnum.NEW_TAB:
+        this.openMessageInNewTab(
+          aMsgHdrs,
+          aViewWrapperToClone,
+          aTabmail,
+          loadMsgInBackground
+        );
+        break;
+    }
+  },
 
-        // Open all the tabs in the background, except for the last one
-        for (const [i, msgHdr] of aMsgHdrs.entries()) {
-          aTabmail.openTab("mailMessageTab", {
-            messageURI: msgHdr.folder.getUriForMsg(msgHdr),
-            viewWrapper: aViewWrapperToClone,
-            background: i < aMsgHdrs.length - 1 || loadInBackground,
-            disregardOpener: aMsgHdrs.length > 1,
-          });
-        }
-
-        if (mail3PaneWindow) {
-          mail3PaneWindow.focus();
-        }
-      } else {
-        // We still haven't found a tabmail, so we'll need to open new windows
-        this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
+  /**
+   * Open the messages in a Tab.
+   *
+   * @param {nsIMsgHdr[]} aMsgHdrs - An array containing the message headers to
+   *   display. The array should contain at least one message header.
+   * @param {DBViewWrapper} [aViewWrapperToClone] - A DB view wrapper to clone
+   *   for each of the tabs or windows.
+   * @param {Element} [aTabmail] - A tabmail element to use in case we need to
+   *   open tabs. If given, the window containing the tabmail is assumed to be
+   *   in front. If null or not given:
+   *    - if one or more 3pane windows are open, the most recent one's tabmail
+   *      is used, and the window is brought to the front
+   *    - if no 3pane windows are open, a standalone window is opened instead
+   *      of a tab
+   * @param {Boolean} [loadMsgInBackground] - When opening a message in a new
+   *   tab, we take into account if the message list remains as the active tab
+   *   or if the new tab becomes the active tab.
+   */
+  openMessageInNewTab(
+    aMsgHdrs,
+    aViewWrapperToClone,
+    aTabmail,
+    loadMsgInBackground
+  ) {
+    let mail3PaneWindow = null;
+    if (!aTabmail) {
+      // Try opening new tabs in a 3pane window.
+      mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
+      if (mail3PaneWindow) {
+        aTabmail = mail3PaneWindow.document.getElementById("tabmail");
       }
     }
+
+    if (!aTabmail) {
+      // We still haven't found a tabmail, so we'll need to open new windows.
+      this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
+      return;
+    }
+
+    if (
+      this.confirmAction(
+        aMsgHdrs.length,
+        "openTabWarningTitle",
+        "openTabWarningConfirmation",
+        "mailnews.open_tab_warning"
+      )
+    ) {
+      return;
+    }
+
+    const loadInBackground = loadMsgInBackground
+      ? Services.prefs.getBoolPref("mail.tabs.loadInBackground")
+      : false;
+
+    // Open all the tabs in the background, except for the last one.
+    for (const [i, msgHdr] of aMsgHdrs.entries()) {
+      aTabmail.openTab("mailMessageTab", {
+        messageURI: msgHdr.folder.getUriForMsg(msgHdr),
+        viewWrapper: aViewWrapperToClone,
+        background: i < aMsgHdrs.length - 1 || loadInBackground,
+        disregardOpener: aMsgHdrs.length > 1,
+      });
+    }
+
+    mail3PaneWindow?.focus();
   },
 
   /**

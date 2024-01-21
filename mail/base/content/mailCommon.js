@@ -102,11 +102,13 @@ var commandController = {
       }
     },
     cmd_openMessage(event) {
+      const forceTab = event?.button == 1;
       MailUtils.displayMessages(
         gDBView.getSelectedMsgHdrs(),
         gViewWrapper,
         top.document.getElementById("tabmail"),
-        event?.type == "auxclick" && !event?.shiftKey
+        forceTab,
+        forceTab && !event?.shiftKey
       );
     },
     cmd_tag() {
