@@ -634,21 +634,6 @@ NS_IMETHODIMP nsMsgGroupThread::SetNewestMsgDate(uint32_t aNewestMsgDate) {
 nsMsgXFGroupThread::nsMsgXFGroupThread(nsMsgViewSortOrderValue sortOrder)
     : nsMsgGroupThread(nullptr, sortOrder) {}
 
-already_AddRefed<nsMsgXFGroupThread> nsMsgXFGroupThread::Clone() {
-  RefPtr<nsMsgXFGroupThread> thread = new nsMsgXFGroupThread(0);
-  thread->m_threadKey = m_threadKey;
-  thread->m_threadRootKey = m_threadRootKey;
-  thread->m_numUnreadChildren = m_numUnreadChildren;
-  thread->m_flags = m_flags;
-  thread->m_newestMsgDate = m_newestMsgDate;
-  thread->m_dummy = m_dummy;
-  thread->m_sortOrder = m_sortOrder;
-  thread->m_keys = m_keys.Clone();
-  thread->m_folders.SetCapacity(m_folders.Count());
-  thread->m_folders.AppendObjects(m_folders);
-  return thread.forget();
-}
-
 nsMsgXFGroupThread::~nsMsgXFGroupThread() {}
 
 NS_IMETHODIMP nsMsgXFGroupThread::GetNumChildren(uint32_t* aNumChildren) {

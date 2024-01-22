@@ -97,9 +97,6 @@ nsMsgSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
   newMsgDBView->mCommand = mCommand;
   newMsgDBView->mTotalIndices = mTotalIndices;
   newMsgDBView->mCurIndex = mCurIndex;
-  newMsgDBView->m_nextThreadId = m_nextThreadId;
-  newMsgDBView->m_totalMessagesInView = m_totalMessagesInView;
-
   newMsgDBView->m_folders.InsertObjectsAt(m_folders, 0);
   newMsgDBView->m_curCustomColumn = m_curCustomColumn;
   for (auto const& hdrs : m_hdrsForEachFolder) {
@@ -117,9 +114,7 @@ nsMsgSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
   if (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) {
     // We need to clone the thread and msg hdr hash tables.
     for (auto iter = m_threadsTable.Iter(); !iter.Done(); iter.Next()) {
-      newMsgDBView->m_threadsTable.InsertOrUpdate(
-          iter.Key(), static_cast<nsMsgXFViewThread*>(iter.UserData())
-                          ->Clone(newMsgDBView));
+      newMsgDBView->m_threadsTable.InsertOrUpdate(iter.Key(), iter.UserData());
     }
     for (auto iter = m_hdrsTable.Iter(); !iter.Done(); iter.Next()) {
       newMsgDBView->m_hdrsTable.InsertOrUpdate(iter.Key(), iter.UserData());

@@ -20,20 +20,6 @@ nsMsgXFViewThread::nsMsgXFViewThread(nsMsgSearchDBView* view,
   m_threadId = threadId;
 }
 
-already_AddRefed<nsMsgXFViewThread> nsMsgXFViewThread::Clone(
-    nsMsgSearchDBView* view) {
-  RefPtr<nsMsgXFViewThread> thread = new nsMsgXFViewThread(view, m_threadId);
-  thread->m_numUnreadChildren = m_numUnreadChildren;
-  thread->m_numChildren = m_numChildren;
-  thread->m_flags = m_flags;
-  thread->m_newestMsgDate = m_newestMsgDate;
-  thread->m_keys = m_keys.Clone();
-  thread->m_folders.SetCapacity(m_folders.Count());
-  thread->m_folders.AppendObjects(m_folders);
-  thread->m_levels = m_levels.Clone();
-  return thread.forget();
-}
-
 nsMsgXFViewThread::~nsMsgXFViewThread() {}
 
 NS_IMETHODIMP
