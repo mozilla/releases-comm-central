@@ -28,9 +28,12 @@ job-defaults:
     attributes:
         shippable: true
     locale-list:
-        by-release-type:
-            beta|release|esr.*: comm/mail/locales/shipped-locales
-            default: comm/mail/locales/all-locales
+        by-release-level:
+            production:
+                by-release-type:
+                    beta|release|esr.*: comm/mail/locales/shipped-locales
+                    default: comm/mail/locales/all-locales
+            staging: comm/mail/locales/onchange-locales
     comm-locales-file: comm/mail/locales/l10n-changesets.json
     browser-locales-file: browser/locales/l10n-changesets.json
     run:

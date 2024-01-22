@@ -5,6 +5,7 @@
 loader: gecko_taskgraph.loader.transform:loader
 
 transforms:
+    - comm_taskgraph.transforms.l10n:handle_keyed_by_local
     - gecko_taskgraph.transforms.bouncer_submission:transforms
     - gecko_taskgraph.transforms.task:transforms
 
@@ -23,7 +24,10 @@ job-defaults:
                 - project:comm:thunderbird:releng:bouncer:server:staging
     run-on-projects: []
     shipping-phase: promote
-    locales-file: comm/mail/locales/shipped-locales
+    locales-file:
+        by-release-level:
+            production: comm/mail/locales/shipped-locales
+            staging: comm/mail/locales/onchange-locales
     treeherder:
         symbol: Rel(BncSub)
         kind: test

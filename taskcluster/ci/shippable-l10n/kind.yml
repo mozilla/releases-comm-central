@@ -31,9 +31,12 @@ jobs:
         from-deps:
             group-by: platform
         locales-file:
-            by-release-type:
-                beta|release|esr.*: comm/mail/locales/shipped-locales
-                default: comm/mail/locales/all-locales
+            by-release-level:
+                production:
+                    by-release-type:
+                        beta|release|esr.*: comm/mail/locales/shipped-locales
+                        default: comm/mail/locales/all-locales
+                staging: comm/mail/locales/onchange-locales
         locales-per-chunk: 5
         run-on-projects: ['release']
         attributes:
