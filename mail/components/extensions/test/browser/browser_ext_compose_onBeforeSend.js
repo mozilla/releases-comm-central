@@ -416,7 +416,7 @@ add_task(async function testChangeDetails() {
   await messagesInOutbox(2);
 
   const outboxMessages = [...outbox.messages];
-  ok(outboxMessages.length > 0);
+  Assert.greater(outboxMessages.length, 0);
   const sentMessage5 = outboxMessages.shift();
   is(sentMessage5.author, "nondefault@invalid", "author was changed");
   is(sentMessage5.subject, "Changed by listener5", "subject was changed");
@@ -434,7 +434,7 @@ add_task(async function testChangeDetails() {
     });
   });
 
-  ok(outboxMessages.length > 0);
+  Assert.greater(outboxMessages.length, 0);
   const sentMessage6 = outboxMessages.shift();
   is(sentMessage6.author, "nondefault@invalid", "author was changed");
   is(sentMessage6.subject, "Changed by listener6", "subject was changed");
@@ -452,7 +452,7 @@ add_task(async function testChangeDetails() {
     });
   });
 
-  ok(outboxMessages.length == 0);
+  Assert.equal(outboxMessages.length, 0);
 
   await new Promise(resolve => {
     outbox.deleteMessages(
@@ -545,7 +545,7 @@ add_task(async function testChangeAttachments() {
   await messagesInOutbox(1);
 
   const outboxMessages = [...outbox.messages];
-  ok(outboxMessages.length > 0);
+  Assert.greater(outboxMessages.length, 0);
   const sentMessage12 = outboxMessages.shift();
 
   await new Promise(resolve => {
@@ -558,7 +558,7 @@ add_task(async function testChangeAttachments() {
     });
   });
 
-  ok(outboxMessages.length == 0);
+  Assert.equal(outboxMessages.length, 0);
 
   await new Promise(resolve => {
     outbox.deleteMessages(
@@ -724,7 +724,7 @@ add_task(async function testListExpansion() {
   await messagesInOutbox(2);
 
   const outboxMessages = [...outbox.messages];
-  ok(outboxMessages.length > 0);
+  Assert.greater(outboxMessages.length, 0);
   const sentMessage7 = outboxMessages.shift();
   is(sentMessage7.subject, "Changed by listener7", "subject was changed");
   is(
@@ -738,7 +738,7 @@ add_task(async function testListExpansion() {
     "list in changed field was expanded"
   );
 
-  ok(outboxMessages.length > 0);
+  Assert.greater(outboxMessages.length, 0);
   const sentMessage8 = outboxMessages.shift();
   is(sentMessage8.subject, "Test", "subject was not changed");
   is(
@@ -747,7 +747,7 @@ add_task(async function testListExpansion() {
     "list in unchanged field was expanded"
   );
 
-  ok(outboxMessages.length == 0);
+  Assert.equal(outboxMessages.length, 0);
 
   await new Promise(resolve => {
     outbox.deleteMessages(

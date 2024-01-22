@@ -610,7 +610,7 @@ add_task(async function () {
 
 registerCleanupFunction(() => {
   // The appmenu should be closed by the end of the test.
-  ok(PanelUI.panel.state == "closed", "Main menu is closed.");
+  Assert.equal(PanelUI.panel.state, "closed", "Main menu is closed.");
 
   // Any opened tabs should be closed by the end of the test.
   const tabmail = document.getElementById("tabmail");

@@ -12,7 +12,7 @@ add_task(async () => {
     }, "chrome-document-loaded");
     openContentTab(TEST_DOCUMENT_URL);
   });
-  ok(testDocument.URL == TEST_DOCUMENT_URL);
+  Assert.equal(testDocument.URL, TEST_DOCUMENT_URL);
   const testWindow = testDocument.ownerGlobal;
   const MENULIST_CLASS = testWindow.customElements.get("menulist");
   const MENULIST_EDITABLE_CLASS =

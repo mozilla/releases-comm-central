@@ -959,23 +959,23 @@ function test_interface() {
   occ1.QueryInterface(Ci.calIEvent);
   occ1.startDate = cal.createDateTime("20020401T114500");
   rinfo.modifyException(occ1, true);
-  ok(rinfo.getExceptionFor(occDate1) != null);
+  Assert.notEqual(rinfo.getExceptionFor(occDate1), null);
 
   // modifyException immutable
   const occ2 = rinfo.getOccurrenceFor(occDate2);
   occ2.makeImmutable();
   rinfo.modifyException(occ2, true);
-  ok(rinfo.getExceptionFor(occDate2) != null);
+  Assert.notEqual(rinfo.getExceptionFor(occDate2), null);
 
   // getExceptionIds
   const ids = rinfo.getExceptionIds();
   equal(ids.length, 2);
-  ok(ids[0].compare(occDate1) == 0);
-  ok(ids[1].compare(occDate2) == 0);
+  Assert.equal(ids[0].compare(occDate1), 0);
+  Assert.equal(ids[1].compare(occDate2), 0);
 
   // removeExceptionFor
   rinfo.removeExceptionFor(occDate1);
-  ok(rinfo.getExceptionFor(occDate1) == null);
+  Assert.equal(rinfo.getExceptionFor(occDate1), null);
   equal(rinfo.getExceptionIds().length, 1);
 }
 

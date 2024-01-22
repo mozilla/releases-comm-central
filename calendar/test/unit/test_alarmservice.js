@@ -372,8 +372,9 @@ async function doModifyItemTest(aCalendar) {
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_TIMER);
   alarmObserver.checkExpected("doModifyItemTest Test 5, floating timezone");
   const newTimer = alarmObserver.getTimer(aCalendar.id, item.hashId, alarm.icalString);
-  ok(
-    newTimer.delay - oldTimer.delay <= 1000,
+  Assert.lessOrEqual(
+    newTimer.delay - oldTimer.delay,
+    1000,
     "doModifyItemTest Test 5, floating timezone; check timer value"
   );
 }
@@ -423,8 +424,9 @@ async function doAcknowledgeTest(aCalendar) {
 
   // the snoozed alarm timer delay should be close to an hour
   const tmr = alarmObserver.getTimer(aCalendar.id, item.hashId, alarm.icalString);
-  ok(
-    Math.abs(tmr.delay - 3600000) <= 1000,
+  Assert.lessOrEqual(
+    Math.abs(tmr.delay - 3600000),
+    1000,
     "doAcknowledgeTest, snoozed alarm timer delay close to an hour"
   );
 

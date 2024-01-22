@@ -300,7 +300,7 @@ add_task(async function test_user_defined_commands() {
   const keysetID = `ext-keyset-id-${makeWidgetId(extension.id)}`;
 
   let keyset = win1.document.getElementById(keysetID);
-  ok(keyset != null, "Expected keyset to exist");
+  Assert.notEqual(keyset, null, "Expected keyset to exist");
   is(
     keyset.children.length,
     expectedCommandsRegistered,
@@ -308,7 +308,7 @@ add_task(async function test_user_defined_commands() {
   );
 
   keyset = win2.document.getElementById(keysetID);
-  ok(keyset != null, "Expected keyset to exist");
+  Assert.notEqual(keyset, null, "Expected keyset to exist");
   is(
     keyset.children.length,
     expectedCommandsRegistered,
@@ -316,7 +316,7 @@ add_task(async function test_user_defined_commands() {
   );
 
   keyset = win3.document.getElementById(keysetID);
-  ok(keyset != null, "Expected keyset to exist");
+  Assert.notEqual(keyset, null, "Expected keyset to exist");
   is(
     keyset.children.length,
     expectedCommandsRegistered,
@@ -548,7 +548,7 @@ add_task(async function test_commands_MV3_event_page() {
   ];
   for (const i in windows) {
     const keyset = windows[i].window.document.getElementById(keysetID);
-    ok(keyset != null, "Expected keyset to exist");
+    Assert.notEqual(keyset, null, "Expected keyset to exist");
     is(
       keyset.children.length,
       expectedCommandsRegistered,

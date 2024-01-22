@@ -24,8 +24,8 @@ function run_test() {
   const dateTime2050 = cal.createDateTime();
   dateTime2050.year = 2050;
 
-  ok(dateTime1950.nativeTime < dateTime1955.nativeTime);
-  ok(dateTime1955.nativeTime < dateTime1965.nativeTime);
-  ok(dateTime1965.nativeTime < dateTime1990.nativeTime);
-  ok(dateTime1990.nativeTime < dateTime2050.nativeTime);
+  Assert.less(dateTime1950.nativeTime, dateTime1955.nativeTime);
+  Assert.less(dateTime1955.nativeTime, dateTime1965.nativeTime);
+  Assert.less(dateTime1965.nativeTime, dateTime1990.nativeTime);
+  Assert.less(dateTime1990.nativeTime, dateTime2050.nativeTime);
 }

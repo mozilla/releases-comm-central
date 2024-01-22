@@ -311,8 +311,8 @@ add_task(async function testMetaData() {
     values = aCalendar.getAllMetaDataValues();
     equal(values.length, 1);
     equal(ids.length, 1);
-    ok(ids[0] == "item2");
-    ok(values[0] == "meta2");
+    Assert.equal(ids[0], "item2");
+    Assert.equal(values[0], "meta2");
 
     aCalendar.deleteMetaData("item2");
     equal(aCalendar.getMetaData("item2"), null);

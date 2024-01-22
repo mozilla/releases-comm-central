@@ -723,7 +723,7 @@ add_task(async function accountListOverflow() {
     }
   } while (++count < 25);
 
-  ok(count < 24); // If count reaches 25, we have a problem.
+  Assert.less(count, 24); // If count reaches 25, we have a problem.
   ok(!menuButton.hidden);
 
   // Remove the added accounts. The list of buttons should not reappear and the

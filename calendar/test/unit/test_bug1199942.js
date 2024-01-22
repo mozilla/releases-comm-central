@@ -76,6 +76,6 @@ function serializeEvent_test() {
   serializer.addItems([event]);
   const serialized = ics_unfoldline(serializer.serializeToString());
   for (const id of expectedIds) {
-    ok(serialized.search(id) != -1);
+    Assert.notEqual(serialized.search(id), -1);
   }
 }

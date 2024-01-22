@@ -179,7 +179,7 @@ add_task(async () => {
   });
   info("attachment added");
   await promiseAnimationFrame(composeWindow);
-  ok(toolbarButton.open === false);
+  Assert.strictEqual(toolbarButton.open, false);
 
   is(bucket.itemCount, 1);
   const attachment = bucket.itemChildren[0];

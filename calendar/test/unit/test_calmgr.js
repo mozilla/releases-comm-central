@@ -407,7 +407,7 @@ add_test(function test_calprefs() {
   memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
   memory.id = memid;
   prop = memory.getProperty("intpref");
-  ok(prop === null);
+  Assert.strictEqual(prop, null);
 
   // We are done now, start the next test
   run_next_test();

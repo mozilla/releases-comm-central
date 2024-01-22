@@ -108,7 +108,11 @@ async function backgroundUpdateTest(url, id, checkIconFn) {
   addons.children[0].click();
 
   // The click should hide the main menu. This is currently synchronous.
-  ok(PanelUI.panel.state != "open", "Main menu is closed or closing.");
+  Assert.notEqual(
+    PanelUI.panel.state,
+    "open",
+    "Main menu is closed or closing."
+  );
 
   // Wait for the permission prompt, check the contents
   let panel = await popupPromise;

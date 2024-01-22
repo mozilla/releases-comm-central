@@ -538,7 +538,7 @@ var test_logFileSplitting = async function () {
   logWriter._messageCount = messageCountLimit;
   await logMessage(message);
   notEqual(oldPath, logWriter.currentPath);
-  ok(logWriter._startTime > oldStartTime);
+  Assert.greater(logWriter._startTime, oldStartTime);
 
   // Do it again with the same message.
   oldStartTime = logWriter._startTime;
@@ -546,7 +546,7 @@ var test_logFileSplitting = async function () {
   logWriter._messageCount = messageCountLimit;
   await logMessage(message);
   notEqual(oldPath, logWriter.currentPath);
-  ok(logWriter._startTime > oldStartTime);
+  Assert.greater(logWriter._startTime, oldStartTime);
 
   // Clean up.
   await IOUtils.remove(logDirPath, { recursive: true });

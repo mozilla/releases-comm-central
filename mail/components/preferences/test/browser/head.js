@@ -167,8 +167,9 @@ async function testCheckboxes(paneID, scrollPaneTo, ...tests) {
         }
         for (const selector of test.enabledElements) {
           const elements = prefsDocument.querySelectorAll(selector);
-          ok(
-            elements.length >= 1,
+          Assert.greaterOrEqual(
+            elements.length,
+            1,
             `At least one element matched '${selector}'`
           );
           for (const element of elements) {
@@ -256,8 +257,9 @@ async function testRadioButtons(paneID, scrollPaneTo, ...tests) {
           if (state.enabledElements) {
             for (const selector of state.enabledElements) {
               const elements = prefsDocument.querySelectorAll(selector);
-              ok(
-                elements.length >= 1,
+              Assert.greaterOrEqual(
+                elements.length,
+                1,
                 `At least one element matched '${selector}'`
               );
               for (const element of elements) {

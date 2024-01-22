@@ -67,17 +67,17 @@ add_task(async function () {
 
   const dummyUID = "9b9074ff-8fa4-4c58-9c3b-bc9ea2e17db1";
   let searchBook = MailServices.ab.getDirectoryFromUID(dummyUID);
-  ok(searchBook == null, "Dummy directory was removed by extension");
+  Assert.equal(searchBook, null, "Dummy directory was removed by extension");
 
   const UID = "00e1d9af-a846-4ef5-a6ac-15e8926bf6d3";
   searchBook = MailServices.ab.getDirectoryFromUID(UID);
-  ok(searchBook != null, "Extension registered an async directory");
+  Assert.notEqual(searchBook, null, "Extension registered an async directory");
 
   let foundCards = 0;
   await new Promise(resolve => {
     searchBook.search(null, "test", {
       onSearchFoundCard(card) {
-        ok(card != null, "A card was found.");
+        Assert.notEqual(card, null, "A card was found.");
         equal(card.directoryUID, UID, "The card comes from the directory.");
         equal(
           card.primaryEmail,
@@ -128,7 +128,7 @@ add_task(async function () {
 
   await extension.unload();
   searchBook = MailServices.ab.getDirectoryFromUID(UID);
-  ok(searchBook == null, "Extension directory removed after unload");
+  Assert.equal(searchBook, null, "Extension directory removed after unload");
 });
 
 registerCleanupFunction(() => {

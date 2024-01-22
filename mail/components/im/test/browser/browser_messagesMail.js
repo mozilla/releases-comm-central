@@ -54,7 +54,7 @@ add_task(async function testCollapse() {
   const hiddenGroup = messageParent.querySelector(".hide-children");
   const toggle = hiddenGroup.querySelector(".eventToggle");
   ok(toggle);
-  ok(hiddenGroup.querySelectorAll(".event-row").length >= 5);
+  Assert.greaterOrEqual(hiddenGroup.querySelectorAll(".event-row").length, 5);
 
   toggle.click();
   await BrowserTestUtils.waitForMutationCondition(

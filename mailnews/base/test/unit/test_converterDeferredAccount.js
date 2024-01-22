@@ -138,7 +138,10 @@ function run_test() {
 
   // 'gServer1' should be deferred. Get the path of the root folder to which
   // other accounts are deferred.
-  ok(gServer1.rootFolder.filePath.path != gServer1.rootMsgFolder.filePath.path);
+  Assert.notEqual(
+    gServer1.rootFolder.filePath.path,
+    gServer1.rootMsgFolder.filePath.path
+  );
   const deferredToRootFolder = gServer1.rootMsgFolder.filePath.path;
 
   // Account to which other accounts have been deferred.

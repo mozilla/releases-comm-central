@@ -93,5 +93,5 @@ add_task(async function testProfileExport() {
 
   const exportZipStat = await IOUtils.stat(zipFile);
   info(exportZipStat.size);
-  ok(exportZipStat.size > 10, "Zip is not empty");
+  Assert.greater(exportZipStat.size, 10, "Zip is not empty");
 });

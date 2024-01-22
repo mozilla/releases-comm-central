@@ -222,8 +222,9 @@ function test_doubleParameters() {
           "Value " + parValues[parIndex] + " for parameter " + parNames[parIndex]
         );
       }
-      ok(
-        parNames.length == aExpected[att_n].param.length,
+      Assert.equal(
+        parNames.length,
+        aExpected[att_n].param.length,
         "Each parameter has been considered for " + att_n
       );
     }

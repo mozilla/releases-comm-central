@@ -683,8 +683,9 @@ add_task(async function createInvitationOverlay_test() {
       let i;
       for (i = 0; i < test.expected.attendeesList.length; i++) {
         const { name, title, icon } = test.expected.attendeesList[i];
-        ok(
-          attendeeNodes.length > i,
+        Assert.greater(
+          attendeeNodes.length,
+          i,
           `Enough attendees for expected attendee #${i} ${name} (test ${test.name})`
         );
         assertAttendee(attendeeNodes[i], name, title, icon, test.name);
@@ -989,14 +990,30 @@ add_task(async function updateInvitationOverlay_test() {
         ok(node.classList.contains("removed"), `Text "${text}" is removed (test ${testName})`);
         break;
       case "modified":
-        ok(node.tagName !== "DEL", `Text "${text}" is not deleted (test ${testName})`);
-        ok(node.tagName !== "INS", `Text "${text}" is not inserted (test ${testName})`);
+        Assert.notStrictEqual(
+          node.tagName,
+          "DEL",
+          `Text "${text}" is not deleted (test ${testName})`
+        );
+        Assert.notStrictEqual(
+          node.tagName,
+          "INS",
+          `Text "${text}" is not inserted (test ${testName})`
+        );
         ok(node.classList.contains("modified"), `Text "${text}" is modified (test ${testName})`);
         break;
       case "same":
         // NOTE: node may be a Text node.
-        ok(node.tagName !== "DEL", `Text "${text}" is not deleted (test ${testName})`);
-        ok(node.tagName !== "INS", `Text "${text}" is not inserted (test ${testName})`);
+        Assert.notStrictEqual(
+          node.tagName,
+          "DEL",
+          `Text "${text}" is not deleted (test ${testName})`
+        );
+        Assert.notStrictEqual(
+          node.tagName,
+          "INS",
+          `Text "${text}" is not inserted (test ${testName})`
+        );
         if (node.classList) {
           ok(!node.classList.contains("added"), `Text "${text}" is not added (test ${testName})`);
           ok(
@@ -1055,8 +1072,9 @@ add_task(async function updateInvitationOverlay_test() {
       if (first) {
         first = false;
       } else if (insertBreaks) {
-        ok(
-          nodeList.length > nodeIndex,
+        Assert.greater(
+          nodeList.length,
+          nodeIndex,
           `Enough child nodes for expected break node at index ${nodeIndex} (test ${test.name})`
         );
         equal(
@@ -1067,8 +1085,9 @@ add_task(async function updateInvitationOverlay_test() {
         nodeIndex++;
       }
 
-      ok(
-        nodeList.length > nodeIndex,
+      Assert.greater(
+        nodeList.length,
+        nodeIndex,
         `Enough child nodes for expected node at index ${nodeIndex} "${text}" (test ${test.name})`
       );
       assertElement(nodeList[nodeIndex], text, type, test.name);
@@ -1643,12 +1662,14 @@ add_task(async function parseCounter_test() {
         missingProps.push(prop);
       }
     }
-    ok(
-      additionalProps.length == 0,
+    Assert.equal(
+      additionalProps.length,
+      0,
       `(test ${test.name}: should be no additional properties: ${additionalProps})`
     );
-    ok(
-      missingProps.length == 0,
+    Assert.equal(
+      missingProps.length,
+      0,
       `(test ${test.name}: should be no missing properties: ${missingProps})`
     );
   }
