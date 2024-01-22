@@ -228,7 +228,7 @@ export function folderPathToURI(accountId, path) {
       .split("/")
       .map(p =>
         encodeURIComponent(p)
-          .replace(/[!'()*]/g, c => "%" + c.charCodeAt(0).toString(16))
+          .replace(/[~!'()*]/g, c => "%" + c.charCodeAt(0).toString(16))
           // We do not encode "+" chars in folder URIs. Manually convert them
           // back to literal + chars, otherwise folder lookup will fail.
           .replaceAll("%2B", "+")

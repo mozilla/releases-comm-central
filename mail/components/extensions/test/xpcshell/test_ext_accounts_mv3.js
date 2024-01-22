@@ -154,8 +154,8 @@ add_task(async function test_accounts() {
             subFolders: [
               {
                 accountId: account1Id,
-                name: "%foo %test% 'bar'(!)+",
-                path: "/Trash/%foo %test% 'bar'(!)+",
+                name: "%foo.-~ %test% 'bar'(!)+",
+                path: "/Trash/%foo.-~ %test% 'bar'(!)+",
               },
               {
                 accountId: account1Id,
@@ -192,8 +192,8 @@ add_task(async function test_accounts() {
             subFolders: [
               {
                 accountId: account2Id,
-                name: "%foo %test% 'bar'(!)+",
-                path: "/INBOX/%foo %test% 'bar'(!)+",
+                name: "%foo.-~ %test% 'bar'(!)+",
+                path: "/INBOX/%foo.-~ %test% 'bar'(!)+",
               },
               {
                 accountId: account2Id,
@@ -251,15 +251,19 @@ add_task(async function test_accounts() {
 
   await extension.awaitMessage("create folders");
   const inbox1 = account1.incomingServer.rootFolder.subFolders[0];
-  // Test our code can handle characters that might be escaped.
-  inbox1.createSubfolder("%foo %test% 'bar'(!)+", null);
+  // According to the documentation of decodeURIComponent(), encodeURIComponent()
+  // does not escape -.!~*'(), while decodeURIComponent() does unescape them.
+  // Test our path-to-uri and uri-to-path functions can handle these special chars.
+  inbox1.createSubfolder("%foo.-~ %test% 'bar'(!)+", null);
   inbox1.createSubfolder("Ϟ", null); // Test our code can handle unicode.
 
   const inbox2 = account2.incomingServer.rootFolder.subFolders[0];
   inbox2.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter = "/";
-  // Test our code can handle characters that might be escaped.
-  inbox2.createSubfolder("%foo %test% 'bar'(!)+", null);
-  await PromiseTestUtils.promiseFolderAdded("%foo %test% 'bar'(!)+");
+  // According to the documentation of decodeURIComponent(), encodeURIComponent()
+  // does not escape -.!~*'(), while decodeURIComponent() does unescape them.
+  // Test our path-to-uri and uri-to-path functions can handle these special chars.
+  inbox2.createSubfolder("%foo.-~ %test% 'bar'(!)+", null);
+  await PromiseTestUtils.promiseFolderAdded("%foo.-~ %test% 'bar'(!)+");
   inbox2.createSubfolder("Ϟ", null); // Test our code can handle unicode.
   await PromiseTestUtils.promiseFolderAdded("Ϟ");
 
