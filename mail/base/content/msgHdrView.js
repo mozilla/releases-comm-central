@@ -3709,6 +3709,8 @@ var gMessageNotificationBar = {
   async setJunkMsg(aMsgHdr) {
     goUpdateCommand("cmd_junk");
 
+    // Avoid duplication by avoiding any in-progress calls to `setJunkMsg`.
+    await this._junkNotificationPromise;
     const junkBarStatus = this.checkJunkMsgStatus(aMsgHdr);
     if (junkBarStatus == -1) {
       this.msgNotificationBar.removeNotification(
@@ -3750,15 +3752,19 @@ var gMessageNotificationBar = {
         },
       ];
 
-      await this.msgNotificationBar.appendNotification(
-        "junkContent",
-        {
-          label: junkBarMsg,
-          image: "chrome://messenger/skin/icons/junk.svg",
-          priority: this.msgNotificationBar.PRIORITY_WARNING_HIGH,
-        },
-        buttons
-      );
+      this._junkNotificationPromise = this.msgNotificationBar
+        .appendNotification(
+          "junkContent",
+          {
+            label: junkBarMsg,
+            image: "chrome://messenger/skin/icons/junk.svg",
+            priority: this.msgNotificationBar.PRIORITY_WARNING_HIGH,
+          },
+          buttons
+        )
+        .catch(console.warn);
+      await this._junkNotificationPromise;
+      delete this._junkNotificationPromise;
     }
   },
 
@@ -3806,8 +3812,10 @@ var gMessageNotificationBar = {
     }
     popup.value = origins.join(" ");
 
+    // Avoid duplication by avoiding any in-progress calls to `setRemoteContentMsg`.
+    await this._remoteContentNotificationPromise;
     if (!this.isShowingRemoteContentNotification()) {
-      await this.msgNotificationBar
+      this._remoteContentNotificationPromise = this.msgNotificationBar
         .appendNotification(
           "remoteContent",
           {
@@ -3822,6 +3830,8 @@ var gMessageNotificationBar = {
             "button-menu-list"
           );
         }, console.warn);
+      await this._remoteContentNotificationPromise;
+      delete this._remoteContentNotificationPromise;
     }
   },
 
@@ -3852,20 +3862,26 @@ var gMessageNotificationBar = {
       },
     ];
 
+    // Avoid duplication by avoiding any in-progress calls to `setPhishingMsg`.
+    await this._phishingNotificationPromise;
     if (!this.isShowingPhishingNotification()) {
-      const notification = await this.msgNotificationBar.appendNotification(
-        "maybeScam",
-        {
-          label: phishingMsgNote,
-          image: "chrome://messenger/skin/icons/phishing.svg",
-          priority: this.msgNotificationBar.PRIORITY_CRITICAL_MEDIUM,
-        },
-        buttons
-      );
-
-      notification.buttonContainer.firstElementChild.classList.add(
-        "button-menu-list"
-      );
+      this._phishingNotificationPromise = this.msgNotificationBar
+        .appendNotification(
+          "maybeScam",
+          {
+            label: phishingMsgNote,
+            image: "chrome://messenger/skin/icons/phishing.svg",
+            priority: this.msgNotificationBar.PRIORITY_CRITICAL_MEDIUM,
+          },
+          buttons
+        )
+        .then(notification => {
+          notification.buttonContainer.firstElementChild.classList.add(
+            "button-menu-list"
+          );
+        }, console.warn);
+      await this._phishingNotificationPromise;
+      delete this._phishingNotificationPromise;
     }
   },
 
