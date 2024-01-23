@@ -309,6 +309,8 @@ async function LoadSignons() {
   signons.forEach(login => login.QueryInterface(Ci.nsILoginMetaInfo));
   signonsTreeView.rowCount = signons.length;
 
+  // This is needed since bug 1839066.
+  signonsTree.rowCountChanged(0, signons.length);
   // sort and display the table
   signonsTree.view = signonsTreeView;
   // The sort column didn't change. SortTree (called by
