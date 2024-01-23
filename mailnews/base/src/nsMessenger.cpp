@@ -327,7 +327,8 @@ nsresult nsMessenger::PromptIfFileExists(nsIFile* file) {
   NS_ENSURE_SUCCESS(rv, rv);
   nsString saveAttachmentStr;
   GetString(u"SaveAttachment"_ns, saveAttachmentStr);
-  filePicker->Init(mWindow, saveAttachmentStr, nsIFilePicker::modeSave);
+  filePicker->Init(mWindow, saveAttachmentStr, nsIFilePicker::modeSave,
+                   nullptr);
   filePicker->SetDefaultString(path);
   filePicker->AppendFilters(nsIFilePicker::filterAll);
 
@@ -615,7 +616,8 @@ nsresult nsMessenger::SaveOneAttachment(const nsACString& aContentType,
   } else {
     GetString(u"SaveAttachment"_ns, saveAttachmentStr);
   }
-  filePicker->Init(mWindow, saveAttachmentStr, nsIFilePicker::modeSave);
+  filePicker->Init(mWindow, saveAttachmentStr, nsIFilePicker::modeSave,
+                   nullptr);
   filePicker->SetDefaultString(defaultDisplayString);
 
   // Check if the attachment file name has an extension (which must not
@@ -708,7 +710,8 @@ nsresult nsMessenger::SaveAllAttachments(
   } else {
     GetString(u"SaveAllAttachments"_ns, saveAttachmentStr);
   }
-  filePicker->Init(mWindow, saveAttachmentStr, nsIFilePicker::modeGetFolder);
+  filePicker->Init(mWindow, saveAttachmentStr, nsIFilePicker::modeGetFolder,
+                   nullptr);
 
   rv = GetLastSaveDirectory(getter_AddRefs(lastSaveDir));
   if (NS_SUCCEEDED(rv) && lastSaveDir)
@@ -954,7 +957,7 @@ nsresult nsMessenger::GetSaveAsFile(const nsAString& aMsgFilename,
   NS_ENSURE_SUCCESS(rv, rv);
   nsString saveMailAsStr;
   GetString(u"SaveMailAs"_ns, saveMailAsStr);
-  filePicker->Init(mWindow, saveMailAsStr, nsIFilePicker::modeSave);
+  filePicker->Init(mWindow, saveMailAsStr, nsIFilePicker::modeSave, nullptr);
 
   // if we have a non-null filename use it, otherwise use default save message
   // one
@@ -1067,7 +1070,8 @@ nsresult nsMessenger::GetSaveToDir(nsIFile** aSaveDir) {
 
   nsString chooseFolderStr;
   GetString(u"ChooseFolder"_ns, chooseFolderStr);
-  filePicker->Init(mWindow, chooseFolderStr, nsIFilePicker::modeGetFolder);
+  filePicker->Init(mWindow, chooseFolderStr, nsIFilePicker::modeGetFolder,
+                   nullptr);
 
   nsCOMPtr<nsIFile> lastSaveDir;
   rv = GetLastSaveDirectory(getter_AddRefs(lastSaveDir));
