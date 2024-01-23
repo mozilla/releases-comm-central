@@ -617,9 +617,10 @@ var gCloudFile = {
       true
     );
 
-    const options = account.browserStyle
-      ? { stylesheets: ExtensionParent.extensionStylesheets }
-      : {};
+    const options = {};
+    if (account.browserStyle) {
+      options.stylesheets = ["chrome://browser/content/extension.css"];
+    }
     browser.messageManager.sendAsyncMessage("Extension:InitBrowser", options);
 
     browser.fixupAndLoadURIString(url, {
