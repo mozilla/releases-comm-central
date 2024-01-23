@@ -448,7 +448,7 @@ add_setup(async function () {
   Services.prefs.setIntPref("mailnews.default_view_flags", 0);
 
   const tab = tabmail.openTab("contentTab", {
-    url: "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/orderableTreeListbox.xhtml",
+    url: "chrome://mochitests/content/browser/comm/mail/base/test/widgets/files/orderableTreeListbox.xhtml",
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);

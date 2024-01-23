@@ -152,6 +152,8 @@ add_setup(async function () {
   );
   testMessages = [...inboxFolder.messages];
 
+  goDoCommand("cmd_showQuickFilterBar");
+
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(0);
     MailServices.accounts.removeAccount(account, false);

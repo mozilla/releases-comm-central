@@ -7,7 +7,7 @@ var win;
 
 add_setup(async () => {
   tabInfo = window.openContentTab(
-    "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/selectionWidget.xhtml"
+    "chrome://mochitests/content/browser/comm/mail/base/test/widgets/files/selectionWidget.xhtml"
   );
   await BrowserTestUtils.browserLoaded(tabInfo.browser);
 

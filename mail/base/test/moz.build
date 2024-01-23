@@ -11,6 +11,7 @@ BROWSER_CHROME_MANIFESTS += [
     "browser/browser-drawInTitlebar.ini",
     "browser/browser.ini",
     "performance/browser.ini",
+    "widgets/browser.ini",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [

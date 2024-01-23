@@ -114,8 +114,8 @@ add_task(async function () {
 
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   const calendarScalars = scalars["tb.ui.interaction.calendar"];
-  const composeScalars = scalars["tb.ui.interaction.message_compose"];
-  const displayScalars = scalars["tb.ui.interaction.message_display"];
+  let composeScalars = scalars["tb.ui.interaction.message_compose"];
+  let displayScalars = scalars["tb.ui.interaction.message_display"];
   let toolboxScalars = scalars["tb.ui.interaction.toolbox"];
 
   Assert.equal(
@@ -177,10 +177,13 @@ add_task(async function () {
   // action button we clicked on has been recorded for it.
 
   scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+  composeScalars = scalars["tb.ui.interaction.message_compose"];
+  displayScalars = scalars["tb.ui.interaction.message_display"];
   toolboxScalars = scalars["tb.ui.interaction.toolbox"];
 
   addonKeys = Object.keys(toolboxScalars).filter(k => k.startsWith("addon"));
   Assert.equal(addonKeys.length, 2, "second add-on should have been recorded");
+  addonKeys.sort();
   info(`second addon key is ${addonKeys[1]}`);
   Assert.equal(
     toolboxScalars[addonKeys[0]],
@@ -223,6 +226,7 @@ add_task(async function () {
 
   addonKeys = Object.keys(toolboxScalars).filter(k => k.startsWith("addon"));
   Assert.equal(addonKeys.length, 2);
+  addonKeys.sort();
   Assert.equal(
     toolboxScalars[addonKeys[0]],
     2,

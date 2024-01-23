@@ -75,7 +75,7 @@ function is_visible(element) {
 
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
-    url: "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/searchBar.xhtml",
+    url: "chrome://mochitests/content/browser/comm/mail/base/test/widgets/files/searchBar.xhtml",
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);

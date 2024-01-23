@@ -104,7 +104,7 @@ const testRunner = {
 
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
-    url: "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/paneSplitter.xhtml",
+    url: "chrome://mochitests/content/browser/comm/mail/base/test/widgets/files/paneSplitter.xhtml",
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);

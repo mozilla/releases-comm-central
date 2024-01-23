@@ -10,14 +10,14 @@ const { MockRegistrar } = ChromeUtils.importESModule(
 
 const TEST_DOMAIN = "http://example.org";
 const TEST_IP = "http://127.0.0.1:8888";
-const TEST_PATH = "/browser/comm/mail/base/test/browser/files/links.html";
+const TEST_PATH = "/browser/comm/mail/base/test/widgets/files/links.html";
 
 const links = new Map([
   ["#this-hash", `${TEST_PATH}#hash`],
   ["#this-nohash", `${TEST_PATH}`],
   [
     "#local-here",
-    "/browser/comm/mail/base/test/browser/files/sampleContent.html",
+    "/browser/comm/mail/base/test/widgets/files/sampleContent.html",
   ],
   [
     "#local-elsewhere",

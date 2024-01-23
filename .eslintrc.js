@@ -43,6 +43,7 @@ const browserTestPaths = [
   "**/test*/**/browser/",
   "mail/base/test/performance/",
   "mail/base/test/webextensions/",
+  "mail/base/test/widgets/",
   "mail/test/static/",
 ];
 

@@ -24,7 +24,7 @@ const TEST_VARIANTS = ["header", "no-header"];
 async function runTestInSandbox(test, filenameFragment, sandboxArgs = []) {
   // Create a new tab with our custom content.
   const tab = tabmail.openTab("contentTab", {
-    url: `chrome://mochitests/content/browser/comm/mail/base/test/browser/files/tree-element-test-${filenameFragment}.xhtml`,
+    url: `chrome://mochitests/content/browser/comm/mail/base/test/widgets/files/tree-element-test-${filenameFragment}.xhtml`,
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);
