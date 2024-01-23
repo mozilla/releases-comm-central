@@ -69,7 +69,7 @@ const ignoreList = [
 if (!Services.prefs.getBoolPref("layout.css.zoom.enabled")) {
   ignoreList.push({
     sourceName: /\bscrollbars\.css$/i,
-    errorMessage: /Unknown property ‘zoom’/i,
+    errorMessage: /Error in parsing value for ‘zoom’/i,
     isFromDevTools: false,
   });
 }
