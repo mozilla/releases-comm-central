@@ -22,6 +22,8 @@ class nsMsgGroupThread : public nsIMsgThread {
   explicit nsMsgGroupThread(nsIMsgDatabase* db,
                             nsMsgViewSortOrderValue sortOrder);
 
+  already_AddRefed<nsMsgGroupThread> Clone();
+
   NS_DECL_NSIMSGTHREAD
   NS_DECL_ISUPPORTS
 

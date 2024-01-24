@@ -26,6 +26,18 @@ nsMsgGroupThread::nsMsgGroupThread(nsIMsgDatabase* db,
 
 nsMsgGroupThread::~nsMsgGroupThread() {}
 
+already_AddRefed<nsMsgGroupThread> nsMsgGroupThread::Clone() {
+  RefPtr<nsMsgGroupThread> thread = new nsMsgGroupThread(m_db, m_sortOrder);
+  thread->m_threadKey = m_threadKey;
+  thread->m_threadRootKey = m_threadRootKey;
+  thread->m_numUnreadChildren = m_numUnreadChildren;
+  thread->m_flags = m_flags;
+  thread->m_newestMsgDate = m_newestMsgDate;
+  thread->m_dummy = m_dummy;
+  thread->m_keys = m_keys.Clone();
+  return thread.forget();
+}
+
 NS_IMETHODIMP nsMsgGroupThread::SetThreadKey(nsMsgKey threadKey) {
   m_threadKey = threadKey;
   // by definition, the initial thread key is also the thread root key.
