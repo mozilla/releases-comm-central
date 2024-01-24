@@ -326,12 +326,12 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   nsCOMPtr<nsIURI> originatorLocation;
   dom::CanonicalBrowsingContext* cbc = targetContext->Canonical();
   if (cbc) {
-    dom::WindowGlobalParent* wgp = cbc->GetCurrentWindowGlobal();
-    if (wgp) {
-      originatorLocation = wgp->GetDocumentURI();
-    }
+    originatorLocation = cbc->GetCurrentURI();
   }
   if (!originatorLocation) {
+    // We end up here for the load of an iframe created by a script (at least).
+    // TODO: are there cases where this should block?
+    *aDecision = nsIContentPolicy::ACCEPT;
     return NS_OK;
   }
 
