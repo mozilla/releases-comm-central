@@ -9,6 +9,7 @@ kind-dependencies:
     - release-update-verify-config
 
 transforms:
+    - gecko_taskgraph.transforms.release:run_on_releases
     - gecko_taskgraph.transforms.release_deps:transforms
     - gecko_taskgraph.transforms.final_verify:transforms
     - gecko_taskgraph.transforms.job:transforms
@@ -17,6 +18,7 @@ transforms:
 job-defaults:
     name: final-verify
     run-on-projects: []  # to make sure this never runs as part of CI
+    run-on-releases: [beta, esr115]  # Remove after shipping first comm-release
     worker-type: b-linux-gcp
     worker:
         docker-image:

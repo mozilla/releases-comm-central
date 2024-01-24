@@ -5,6 +5,7 @@
 loader: gecko_taskgraph.loader.transform:loader
 
 transforms:
+    - gecko_taskgraph.transforms.release:run_on_releases
     - comm_taskgraph.transforms.update_verify_config:transforms
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
@@ -12,6 +13,7 @@ transforms:
 job-defaults:
     name: update-verify-config
     run-on-projects: []  # to make sure this never runs as part of CI
+    run-on-releases: [beta, esr115]  # Remove after shipping first comm-release
     shipping-phase: promote
     worker-type: b-linux-gcp
     worker:
