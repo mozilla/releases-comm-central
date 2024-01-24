@@ -23,7 +23,7 @@ var gPreventRowDeletionKeysRepeat = false;
  * Convert all the written recipients into string and store them into the
  * msgCompFields array to be printed in the message header.
  *
- * @param {object} msgCompFields - An object to receive the recipients.
+ * @param {nsIMsgCompFields} msgCompFields - An object to receive the recipients.
  */
 function Recipients2CompFields(msgCompFields) {
   if (!msgCompFields) {
@@ -42,7 +42,15 @@ function Recipients2CompFields(msgCompFields) {
     const headerValue = row.querySelector(".address-row-input").value.trim();
     if (headerValue) {
       msgCompFields.setRawHeader(recipientType, headerValue);
-    } else if (otherHeaders.includes(recipientType)) {
+    } else if (
+      otherHeaders.includes(recipientType) &&
+      recipientType.toLowerCase() != "references" &&
+      recipientType.toLowerCase() != "in-reply-to"
+    ) {
+      // Normally drop other headers without value. For that, the UI lets you
+      // add them and fill.
+      // But if the ohther header is really a standard header with a value,
+      // that should be kept.
       msgCompFields.deleteHeader(recipientType);
     }
   }

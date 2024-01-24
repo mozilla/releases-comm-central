@@ -103,7 +103,7 @@ var gShowCondensedEmailAddresses;
 var gMessageListeners = [];
 
 /**
- * List fo common headers that need to be populated.
+ * List of common headers and mapping for how they should be populated.
  *
  * For every possible "view" in the message pane, you need to define the header
  * names you want to see in that view. In addition, include information
@@ -114,10 +114,12 @@ var gMessageListeners = [];
  * @param {string} name - The name of the header. i.e. "to", "subject". This
  *   must be in lower case and the name of the header is used to help
  *   dynamically generate ids for objects in the document.
- * @param {Function} outputFunction - This is a method which takes a headerEntry
+ * @param {function} [outputFunction=updateHeaderValue] - Takes a headerEntry
  *   (see the definition below) and a header value. This allows to provide a
  *   unique methods for determining how the header value is displayed. Defaults
- *   to updateHeaderValue which just sets the header value on the text node.
+ *   to `updateHeaderValue` which just sets the header value on the text node.
+ * @param {boolean} [hidden=false] - True if the header should normally be hidden.
+ *   Modes and preferences may affect whether it's really displayed in the end.
  */
 const gExpandedHeaderList = [
   { name: "subject" },
@@ -129,21 +131,12 @@ const gExpandedHeaderList = [
   { name: "newsgroups", outputFunction: outputNewsgroups },
   { name: "references", outputFunction: outputMessageIds },
   { name: "followup-to", outputFunction: outputNewsgroups },
+  { name: "sender", outputFunction: outputEmailAddresses, hidden: true },
+  { name: "in-reply-to", outputFunction: outputMessageIds, hidden: true },
+  { name: "message-id", outputFunction: outputMessageIds, hidden: true },
   { name: "content-base" },
   { name: "tags", outputFunction: outputTags },
-];
-
-/**
- * These are all the items that use a multi-recipient-row widget and
- * therefore may require updating if the address book changes.
- */
-var gEmailAddressHeaderNames = [
-  "from",
-  "reply-to",
-  "to",
-  "cc",
-  "bcc",
-  "toCcBcc",
+  { name: "organization", hidden: true },
 ];
 
 /**
@@ -293,11 +286,12 @@ function clearFolderDBListener() {
  * A header list just describes how you want a particular header to be
  * presented. The header entry actually has knowledge about the DOM
  * and the actual DOM elements associated with the header.
- *
- * @param prefix  the name of the view (e.g. "expanded")
- * @param headerListInfo  entry from a header list.
  */
 class MsgHeaderEntry {
+  /**
+   * @param {string} prefix - The name of the view (e.g. "expanded").
+   * @param {object} headerListInfo - Entry, from gExpandedHeaderList.
+   */
   constructor(prefix, headerListInfo) {
     this.enclosingBox = document.getElementById(
       `${prefix}${headerListInfo.name}Box`
@@ -306,6 +300,7 @@ class MsgHeaderEntry {
     this.isNewHeader = false;
     this.valid = false;
     this.outputFunction = headerListInfo.outputFunction || updateHeaderValue;
+    this.hidden = !!headerListInfo.hidden;
   }
 }
 
@@ -337,54 +332,34 @@ function initializeHeaderViewTables() {
     .filter(Boolean);
 
   for (const otherHeaderName of otherHeaders) {
-    gExpandedHeaderView[otherHeaderName.toLowerCase()] = new HeaderView(
+    gExpandedHeaderView[otherHeaderName.toLowerCase()] ??= new HeaderView(
       otherHeaderName,
       otherHeaderName
     );
   }
 
   if (Services.prefs.getBoolPref("mailnews.headers.showOrganization")) {
-    var organizationEntry = {
-      name: "organization",
-      outputFunction: updateHeaderValue,
-    };
-    gExpandedHeaderView[organizationEntry.name] = new MsgHeaderEntry(
-      "expanded",
-      organizationEntry
-    );
+    const entry = gExpandedHeaderList.find(h => h.name == "organization");
+    entry.hidden = false;
+    gExpandedHeaderView[entry.name] = new MsgHeaderEntry("expanded", entry);
   }
 
   if (Services.prefs.getBoolPref("mailnews.headers.showUserAgent")) {
-    var userAgentEntry = {
-      name: "user-agent",
-      outputFunction: updateHeaderValue,
-    };
-    gExpandedHeaderView[userAgentEntry.name] = new MsgHeaderEntry(
-      "expanded",
-      userAgentEntry
-    );
+    const entry = gExpandedHeaderList.find(h => h.name == "user-agent");
+    entry.hidden = false;
+    gExpandedHeaderView[entry.name] = new MsgHeaderEntry("expanded", entry);
   }
 
   if (Services.prefs.getBoolPref("mailnews.headers.showMessageId")) {
-    var messageIdEntry = {
-      name: "message-id",
-      outputFunction: outputMessageIds,
-    };
-    gExpandedHeaderView[messageIdEntry.name] = new MsgHeaderEntry(
-      "expanded",
-      messageIdEntry
-    );
+    const entry = gExpandedHeaderList.find(h => h.name == "message-id");
+    entry.hidden = false;
+    gExpandedHeaderView[entry.name] = new MsgHeaderEntry("expanded", entry);
   }
 
   if (Services.prefs.getBoolPref("mailnews.headers.showSender")) {
-    const senderEntry = {
-      name: "sender",
-      outputFunction: outputEmailAddresses,
-    };
-    gExpandedHeaderView[senderEntry.name] = new MsgHeaderEntry(
-      "expanded",
-      senderEntry
-    );
+    const entry = gExpandedHeaderList.find(h => h.name == "sender");
+    entry.hidden = false;
+    gExpandedHeaderView[entry.name] = new MsgHeaderEntry("expanded", entry);
   }
 }
 
@@ -1278,12 +1253,10 @@ function RemoveNewHeaderViews(aHeaderTable) {
  * we received from mime for this message for the expanded header entry table,
  * and see if we have a corresponding entry for that header (i.e.
  * whether the expanded header view cares about this header value)
- * If so, then call updateHeaderEntry
  */
 function UpdateExpandedMessageHeaders() {
   // Iterate over each header we received and see if we have a matching entry
   // in each header view table...
-  var headerName;
 
   // Remove the height attr so that it redraws correctly. Works around a problem
   // that attachment-splitter causes if it's moved high enough to affect
@@ -1293,15 +1266,15 @@ function UpdateExpandedMessageHeaders() {
   // the "more" button" in the header.
   // Remove it so that the height is determined automatically.
 
-  for (headerName in currentHeaderData) {
-    var headerField = currentHeaderData[headerName];
-    var headerEntry = null;
+  for (const headerName in currentHeaderData) {
+    let headerEntry = null;
 
     if (headerName in gExpandedHeaderView) {
       headerEntry = gExpandedHeaderView[headerName];
     }
 
     if (!headerEntry && gViewAllHeaders) {
+      const entry = gExpandedHeaderList.find(h => h.name == headerName);
       // For view all headers, if we don't have a header field for this
       // value, cheat and create one then fill in a headerEntry.
       if (headerName == "message-id" || headerName == "in-reply-to") {
@@ -1313,6 +1286,8 @@ function UpdateExpandedMessageHeaders() {
           "expanded",
           messageIdEntry
         );
+      } else if (entry) {
+        gExpandedHeaderView[headerName] = new MsgHeaderEntry("expanded", entry);
       } else if (headerName != "x-mozilla-localizeddate") {
         // Don't bother showing X-Mozilla-LocalizedDate, since that value is
         // displayed below the message header toolbar.
@@ -1321,7 +1296,6 @@ function UpdateExpandedMessageHeaders() {
           currentHeaderData[headerName].headerName
         );
       }
-
       headerEntry = gExpandedHeaderView[headerName];
     }
 
@@ -1338,9 +1312,10 @@ function UpdateExpandedMessageHeaders() {
         // pref show references is deactivated and the currently displayed
         // message isn't a newsgroup posting.
         headerEntry.valid = false;
-      } else {
-        // Set the row element visible before populating the field with addresses.
+      } else if (!headerEntry.hidden) {
+        // Set the row element visible before populating the field.
         headerEntry.enclosingRow.hidden = false;
+        const headerField = currentHeaderData[headerName];
         headerEntry.outputFunction(headerEntry, headerField.headerValue);
         headerEntry.valid = true;
       }

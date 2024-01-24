@@ -287,11 +287,13 @@ class MimeMessage {
     const rawReferences = headers.get("references");
     if (rawReferences) {
       const references = MsgUtils.getReferences(rawReferences);
-      // Don't reset "references" header if references is undefined.
+      // Don't reset the "References" header if references is undefined.
       if (references) {
         headers.set("references", references);
       }
-      headers.set("in-reply-to", MsgUtils.getInReplyTo(rawReferences));
+      if (!headers.has("in-reply-to")) {
+        headers.set("in-reply-to", MsgUtils.getInReplyTo(rawReferences));
+      }
     }
     if (
       rawReferences &&

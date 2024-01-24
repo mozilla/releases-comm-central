@@ -1545,7 +1545,6 @@
       const labelContainer = document.createXULElement("hbox");
       labelContainer.setAttribute("align", "top");
       labelContainer.setAttribute("pack", "end");
-      labelContainer.setAttribute("flex", 1);
       labelContainer.classList.add("address-label-container");
       labelContainer.setAttribute(
         "style",
@@ -1558,6 +1557,7 @@
       label.setAttribute("control", recipient.inputId);
       label.setAttribute("flex", 1);
       label.setAttribute("crop", "end");
+      label.style.justifyContent = "end";
       labelContainer.appendChild(label);
       row.appendChild(labelContainer);
 

@@ -29,7 +29,7 @@ add_task(async function test_customHeaders() {
   const otherHeaders = Services.prefs.getCharPref("mail.compose.other.header");
   Services.prefs.setCharPref(
     "mail.compose.other.header",
-    "X-Header1, X-Header2, Approved ,Supersedes"
+    "X-Header1, X-Header2, Approved ,Supersedes, References, In-Reply-To"
   );
 
   // Set values to custom headers.
@@ -39,6 +39,9 @@ add_task(async function test_customHeaders() {
   inputs[1].value = "Test 😃";
   inputs[2].value = "moderator@tinderbox.com";
   inputs[3].value = "<message-id-1234@tinderbox.com>";
+  inputs[4].value =
+    "<4682279b-0f22-482e-9de2-b3ea45fa8c57@test> <d13ea217-0672-4c24-b9a9-4ab3771e25e7@test>";
+  inputs[5].value = "<d13ea217-0672-4c24-b9a9-4ab3771e25e7@test>";
 
   await save_compose_message(cwc);
   await close_compose_window(cwc);
@@ -76,14 +79,48 @@ add_task(async function test_customHeaders() {
     ),
     "Correct Supersedes found"
   );
+  Assert.ok(
+    draftMsgLines
+      .join("\n")
+      .includes(
+        "References: <4682279b-0f22-482e-9de2-b3ea45fa8c57@test>\r\n <d13ea217-0672-4c24-b9a9-4ab3771e25e7@test>"
+      ),
+    "Correct References found"
+  );
+  Assert.ok(
+    draftMsgLines.some(
+      line =>
+        line.trim() ==
+        "In-Reply-To: <d13ea217-0672-4c24-b9a9-4ab3771e25e7@test>"
+    ),
+    "Correct In-Reply-To found"
+  );
 
   cwc = await open_compose_from_draft();
   const inputs2 = cwc.document.querySelectorAll(".address-row-raw input");
 
-  Assert.equal(inputs2[0].value, "Test äöü");
-  Assert.equal(inputs2[1].value, "Test 😃");
-  Assert.equal(inputs2[2].value, "moderator@tinderbox.com");
-  Assert.equal(inputs2[3].value, "<message-id-1234@tinderbox.com>");
+  Assert.equal(inputs2[0].value, "Test äöü", "should find correct X-Header1");
+  Assert.equal(inputs2[1].value, "Test 😃", "should find correct X-Header2");
+  Assert.equal(
+    inputs2[2].value,
+    "moderator@tinderbox.com",
+    "should find correct Approved"
+  );
+  Assert.equal(
+    inputs2[3].value,
+    "<message-id-1234@tinderbox.com>",
+    "should find correct Supersedes"
+  );
+  Assert.equal(
+    inputs2[4].value,
+    "<4682279b-0f22-482e-9de2-b3ea45fa8c57@test> <d13ea217-0672-4c24-b9a9-4ab3771e25e7@test>",
+    "should find correct References"
+  );
+  Assert.equal(
+    inputs2[5].value,
+    "<d13ea217-0672-4c24-b9a9-4ab3771e25e7@test>",
+    "should find correct In-Reply-To"
+  );
 
   await close_compose_window(cwc);
 

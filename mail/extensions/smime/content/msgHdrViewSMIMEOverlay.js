@@ -264,10 +264,8 @@ var smimeHeaderSink = {
       }
     }
 
-    const senderInfo = { name: "sender", outputFunction: outputEmailAddresses };
-    const senderEntry = new MsgHeaderEntry("expanded", senderInfo);
-
-    gExpandedHeaderView[senderInfo.name] = senderEntry;
+    const entry = gExpandedHeaderList.find(h => h.name == "sender");
+    entry.hidden = false;
     UpdateExpandedMessageHeaders();
   },
 

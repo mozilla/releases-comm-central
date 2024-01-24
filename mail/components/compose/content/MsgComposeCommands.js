@@ -5067,11 +5067,24 @@ async function ComposeStartup() {
     .map(h => h.trim())
     .filter(Boolean);
   for (let i = 0; i < otherHeaders.length; i++) {
-    if (gMsgCompose.compFields.otherHeaders[i]) {
-      const row = document.getElementById(`addressRow${otherHeaders[i]}`);
+    const headerName = otherHeaders[i];
+    let headerValue = gMsgCompose.compFields.otherHeaders[i];
+    if (!headerValue) {
+      // In case other header was really one of the standard headers,
+      // set the real value now, letting the header show up during compose
+      // with the value prefilled.
+      if (headerName.toLowerCase() == "references") {
+        headerValue = gMsgCompose.compFields.references;
+      } else if (headerName.toLowerCase() == "in-reply-to") {
+        headerValue = gMsgCompose.compFields.inReplyTo;
+      }
+    }
+
+    if (headerValue) {
+      const row = document.getElementById(`addressRow${headerName}`);
       addressRowSetVisibility(row, true);
-      const input = document.getElementById(`${otherHeaders[i]}AddrInput`);
-      input.value = gMsgCompose.compFields.otherHeaders[i];
+      const input = document.getElementById(`${headerName}AddrInput`);
+      input.value = headerValue;
     }
   }
 
