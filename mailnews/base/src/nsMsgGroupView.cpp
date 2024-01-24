@@ -466,7 +466,9 @@ nsMsgGroupView::CopyDBView(nsMsgDBView* aNewMsgDBView,
   // If grouped, we need to clone the group thread hash table.
   if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort) {
     for (auto iter = m_groupsTable.Iter(); !iter.Done(); iter.Next()) {
-      newMsgDBView->m_groupsTable.InsertOrUpdate(iter.Key(), iter.UserData());
+      newMsgDBView->m_groupsTable.InsertOrUpdate(
+          iter.Key(),
+          static_cast<nsMsgXFGroupThread*>(iter.UserData())->Clone());
     }
   }
   return NS_OK;

@@ -20,6 +20,8 @@ class nsMsgXFViewThread : public nsIMsgThread {
  public:
   nsMsgXFViewThread(nsMsgSearchDBView* view, nsMsgKey threadId);
 
+  already_AddRefed<nsMsgXFViewThread> Clone(nsMsgSearchDBView* view);
+
   NS_DECL_NSIMSGTHREAD
   NS_DECL_ISUPPORTS
 
