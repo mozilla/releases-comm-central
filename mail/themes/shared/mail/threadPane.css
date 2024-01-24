@@ -118,11 +118,6 @@
     }
   }
 
-  & .children.collapsed[data-properties~="hasUnread"][data-properties~="read"]
-    :where(td, .subject-line) {
-    text-decoration: underline;
-  }
-
   & [data-properties~="ignore"] .tree-view-row-thread img {
     content: var(--icon-thread-ignored);
   }
@@ -519,11 +514,16 @@ tr[is="thread-row"] .twisty {
   height: auto;
   min-width: 12px;
   min-height: 13px;
-  padding: 1px 3px;
+  padding: 0;
+  border: 1px solid transparent;
 
   &:hover {
-    color: currentColor;
     background-color: var(--layout-background-2);
+    border-color: var(--layout-background-4);
+  }
+
+  [data-properties~="hasUnread"] & {
+    opacity: 1;
   }
 
   .thread-indicator-content {
@@ -532,6 +532,24 @@ tr[is="thread-row"] .twisty {
     justify-content: space-around;
     font-size: 0.9rem;
     font-weight: 700;
+    position: relative;
+    padding: 2px 3px;
+    border-radius: var(--button-border-radius);
+
+    [data-properties~="hasUnread"] & {
+      background-color: var(--layout-background-2);
+      border-color: var(--layout-background-4);
+
+      ::before {
+        position: absolute;
+        inset-inline-start: -3px;
+        inset-block-start: -3px;
+        content: var(--icon-dot-xs);
+        -moz-context-properties: fill, stroke;
+        fill: var(--color-green-40);
+        stroke: var(--color-green-60);
+      }
+    }
   }
 
   img {
@@ -547,6 +565,11 @@ tr[is="thread-row"] .twisty {
 
   .thread-replies {
     margin: 0 2px;
+
+    [data-properties~="hasUnread"] & {
+      font-weight: bold;
+      color: var(--unread-color);
+    }
   }
 
   .twisty-icon {

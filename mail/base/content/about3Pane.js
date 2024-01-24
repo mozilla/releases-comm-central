@@ -6194,10 +6194,10 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       }
 
       // Display number of replies in the twisty button.
-      const repliesAmount = parseInt(cellTexts[4]) - 1;
-      if (repliesAmount > 0) {
+      const repliesCount = parseInt(cellTexts[4]) - 1;
+      if (repliesCount > 0) {
         document.l10n.setAttributes(this.replies, "threadpane-replies", {
-          count: repliesAmount,
+          count: repliesCount,
         });
       }
 
