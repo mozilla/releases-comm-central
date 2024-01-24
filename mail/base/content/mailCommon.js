@@ -981,10 +981,6 @@ var dbViewWrapperListener = {
   onCreatedView() {
     if (window.threadTree) {
       window.threadPane.setTreeView(gViewWrapper.dbView);
-      // There is no persisted thread last expanded state for synthetic views.
-      if (!gViewWrapper.isSynthetic) {
-        window.threadPane.restoreThreadState();
-      }
       window.threadPane.isFirstScroll = true;
       window.threadPane.scrollDetected = false;
       window.threadPane.scrollToLatestRowIfNoSelection();
@@ -1016,16 +1012,9 @@ var dbViewWrapperListener = {
       return;
     }
 
-    // nsMsgQuickSearchDBView::SortThreads leaves all threads expanded in any
-    // case.
-    if (
-      all &&
-      gViewWrapper.isSingleFolder &&
-      gViewWrapper.search.hasSearchTerms &&
-      gViewWrapper.showThreaded &&
-      !gViewWrapper._threadExpandAll
-    ) {
-      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+    // There is no persisted thread last expanded state for synthetic views.
+    if (all && !gViewWrapper.isSynthetic) {
+      window.threadPane.restoreThreadState();
     }
 
     // Try to restore what was selected. Keep the saved selection (if there is

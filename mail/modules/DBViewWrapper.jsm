@@ -956,12 +956,8 @@ DBViewWrapper.prototype = {
     // Make sure the threaded bit is set if group-by-sort is set.  The views
     //  encode 3 states in 2-bits, and we want to avoid that odd-man-out
     //  state.
-    // The expand flag must be set when opening a single virtual folder
-    //  (quicksearch) in grouped view. The user's last set expand/collapse state
-    //  for grouped/threaded in this use case is restored later.
     if (this.__viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort) {
       this.__viewFlags |= Ci.nsMsgViewFlagsType.kThreadedDisplay;
-      this.__viewFlags |= Ci.nsMsgViewFlagsType.kExpandAll;
       this._ensureValidSort();
     }
 
@@ -1079,9 +1075,22 @@ DBViewWrapper.prototype = {
     let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=";
 
     // we will have saved these off when closing our view
-    const viewFlags =
+    let viewFlags =
       this.__viewFlags ??
       Services.prefs.getIntPref("mailnews.default_view_flags", 1);
+
+    if (this.showGroupedBySort && this.isVirtual) {
+      if (this.isSingleFolder) {
+        // The expand flag must be set when opening a single virtual folder
+        // (quicksearch) in grouped view. The user's last set expand/collapse
+        // state for grouped/threaded in this use case is restored later.
+        viewFlags |= Ci.nsMsgViewFlagsType.kExpandAll;
+      } else {
+        // For performance reasons, cross-folder views should be opened with
+        // all groups collapsed.
+        viewFlags &= ~Ci.nsMsgViewFlagsType.kExpandAll;
+      }
+    }
 
     // real folders are subject to the most interest set of possibilities...
     if (this._underlyingData == this.kUnderlyingRealFolder) {
