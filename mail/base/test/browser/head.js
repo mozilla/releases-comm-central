@@ -315,6 +315,31 @@ async function ensure_table_view() {
 }
 
 /**
+ * Opens a .eml file in a standalone message window and waits for it to load.
+ *
+ * @param {nsIFile} file - The file to open.
+ */
+async function openMessageFromFile(file) {
+  const fileURL = Services.io
+    .newFileURI(file)
+    .mutate()
+    .setQuery("type=application/x-message-display")
+    .finalize();
+
+  const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  window.openDialog(
+    "chrome://messenger/content/messageWindow.xhtml",
+    "_blank",
+    "all,chrome,dialog=no,status,toolbar",
+    fileURL
+  );
+  const win = await winPromise;
+  await messageLoadedIn(win.messageBrowser);
+  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
+  return win;
+}
+
+/**
  * Wait for a message to be fully loaded in the given about:message.
  * @param {browser} aboutMessageBrowser - The browser for the about:message
  *   window displaying the message.
@@ -325,26 +350,38 @@ async function messageLoadedIn(aboutMessageBrowser) {
       aboutMessageBrowser.contentDocument.readyState == "complete" &&
       aboutMessageBrowser.currentURI.spec == "about:message"
   );
-
-  const messagePaneBrowser =
-    aboutMessageBrowser.contentWindow.getMessagePaneBrowser();
-  if (
-    messagePaneBrowser.webProgress?.isLoadingDocument ||
-    messagePaneBrowser.currentURI.spec == "about:blank"
-  ) {
-    await BrowserTestUtils.browserLoaded(
-      messagePaneBrowser,
-      null,
-      url => url != "about:blank"
-    );
-  }
+  await TestUtils.waitForCondition(
+    () => aboutMessageBrowser.contentWindow.msgLoaded,
+    "waiting for message to be loaded"
+  );
 }
 
-async function promiseIMAPIdle(server) {
-  await TestUtils.waitForCondition(
-    () => server.allConnectionsIdle,
-    "waiting for IMAP connection to become idle"
-  );
+/**
+ * Wait for network connections to become idle.
+ *
+ * @param {nsIMsgIncomingServer} server - The server with connections to wait for.
+ */
+async function promiseServerIdle(server) {
+  if (server.type == "imap") {
+    await TestUtils.waitForCondition(
+      () => server.allConnectionsIdle,
+      "waiting for IMAP connection to become idle"
+    );
+    return;
+  }
+  if (server.type == "pop3") {
+    await TestUtils.waitForCondition(
+      () => !server.wrappedJSObject.runningClient,
+      "waiting for POP3 connection to become idle"
+    );
+    return;
+  }
+  if (server.type == "nntp") {
+    await TestUtils.waitForCondition(
+      () => server.wrappedJSObject._busyConnections.length == 0,
+      "waiting for NNTP connection to become idle"
+    );
+  }
 }
 
 // Report and remove any remaining accounts/servers. If we register a cleanup

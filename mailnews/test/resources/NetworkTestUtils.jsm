@@ -309,6 +309,7 @@ var NetworkTestUtils = {
   shutdownServers() {
     if (gSocksServer) {
       gSocksServer.close();
+      gSocksServer = null;
     }
   },
 };

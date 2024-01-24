@@ -55,7 +55,6 @@ function readFile(fileName) {
 }
 
 export class Pop3Daemon {
-  messages = [];
   _messages = [];
   _totalMessageSize = 0;
 
@@ -110,6 +109,13 @@ var kStateTransaction = 3; // Authenticated, can fetch and delete mail
 export class POP3_RFC1939_handler {
   kUsername = "fred";
   kPassword = "wilma";
+
+  /**
+   * A copy of `this._daemon._messages` as it was when `LIST` was last called.
+   * Deleting a message mutates that list, so it can not be relied upon to
+   * find a message at any given index. Use this list instead.
+   */
+  _mostRecentList;
 
   constructor(daemon, { username = "fred", password = "wilma" } = {}) {
     this._daemon = daemon;
@@ -170,8 +176,9 @@ export class POP3_RFC1939_handler {
       return "-ERR invalid state";
     }
 
-    var result = "+OK " + this._daemon._messages.length + " messages\r\n";
-    for (var i = 0; i < this._daemon._messages.length; ++i) {
+    this._mostRecentList = this._daemon._messages.slice();
+    let result = "+OK " + this._daemon._messages.length + " messages\r\n";
+    for (let i = 0; i < this._daemon._messages.length; ++i) {
       result += i + 1 + " " + this._daemon._messages[i].size + "\r\n";
     }
 
@@ -212,14 +219,20 @@ export class POP3_RFC1939_handler {
       return "-ERR invalid state";
     }
 
-    var result = "+OK " + this._daemon._messages[args - 1].size + "\r\n";
-    result += this._daemon._messages[args - 1].fileData;
+    const message = this._mostRecentList[args - 1];
+    let result = "+OK " + message.size + "\r\n";
+    result += message.fileData;
     result += ".";
     return result;
   }
   DELE(args) {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
+    }
+    const message = this._mostRecentList[args - 1];
+    const index = this._daemon._messages.findIndex(m => m == message);
+    if (index >= 0) {
+      this._daemon._messages.splice(index, 1);
     }
     return "+OK";
   }

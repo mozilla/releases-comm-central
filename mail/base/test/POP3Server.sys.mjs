@@ -47,4 +47,18 @@ export class POP3Server {
   get port() {
     return this.server.port;
   }
+
+  /**
+   * @param {SyntheticMessage[]} messages
+   */
+  addMessages(messages) {
+    const existingMessages = this.daemon._messages;
+    messages.forEach(message => {
+      if (typeof message != "string") {
+        message = message.toMessageString();
+      }
+      existingMessages.push({ fileData: message + "\r\n" });
+    });
+    this.daemon.setMessages(existingMessages);
+  }
 }

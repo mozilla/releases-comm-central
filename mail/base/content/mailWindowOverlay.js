@@ -7,10 +7,9 @@
 
 /* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
 /* import-globals-from contentAreaClick.js */
-/* import-globals-from mail3PaneWindowCommands.js */
+/* import-globals-from globalOverlay.js */
 /* import-globals-from mailCommands.js */
 /* import-globals-from mailCore.js */
-
 /* import-globals-from utilityOverlay.js */
 
 /* globals messenger */ // From messageWindow.js
@@ -27,6 +26,7 @@ ChromeUtils.defineESModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   BrowserToolboxLauncher:
     "resource://devtools/client/framework/browser-toolbox/Launcher.sys.mjs",
+  PluralForm: "resource:///modules/PluralForm.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
@@ -1561,10 +1561,8 @@ function InformUserOfCertError(secInfo, targetSite) {
  *
  * @implements {nsIUrlListener}
  */
-function TransportErrorUrlListener() {}
-
-TransportErrorUrlListener.prototype = {
-  OnStartRunningUrl(url) {},
+class TransportErrorUrlListener {
+  OnStartRunningUrl(url) {}
 
   OnStopRunningUrl(url, exitCode) {
     if (Components.isSuccessCode(exitCode)) {
@@ -1583,11 +1581,11 @@ TransportErrorUrlListener.prototype = {
     } catch (e) {
       // It's not an NSS error.
     }
-  },
+  }
 
   // nsISupports
-  QueryInterface: ChromeUtils.generateQI(["nsIUrlListener"]),
-};
+  QueryInterface = ChromeUtils.generateQI(["nsIUrlListener"]);
+}
 
 function SendUnsentMessages() {
   const msgSendlater = Cc[

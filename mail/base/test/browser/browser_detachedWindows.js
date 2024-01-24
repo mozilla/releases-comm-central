@@ -214,23 +214,3 @@ async function assertNoDetachedWindows() {
     Assert.report(false, undefined, undefined, "no detached windows");
   }
 }
-
-async function openMessageFromFile(file) {
-  const fileURL = Services.io
-    .newFileURI(file)
-    .mutate()
-    .setQuery("type=application/x-message-display")
-    .finalize();
-
-  const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
-  window.openDialog(
-    "chrome://messenger/content/messageWindow.xhtml",
-    "_blank",
-    "all,chrome,dialog=no,status,toolbar",
-    fileURL
-  );
-  const win = await winPromise;
-  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
-  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
-  return win;
-}

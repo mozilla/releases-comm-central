@@ -55,25 +55,34 @@ export class IMAPServer {
   }
 
   /**
-   * @param {string} group
+   * @param {nsIMsgFolder} folder
    * @param {SyntheticMessage[]} messages
+   * @param {boolean} [update=true] - Whether the client should update the
+   *   folder immediately
+   * @returns {Promise} - Resolves immediately if `update` is false, otherwise
+   *   resolves when `folder` has been updated
    */
-  addMessages(folder, messages) {
+  addMessages(folder, messages, update = true) {
     const fakeFolder = this.daemon.getMailbox(folder.name);
     messages.forEach(message => {
       if (typeof message != "string") {
         message = message.toMessageString();
       }
-      const msgURI = Services.io.newURI(
-        "data:text/plain;base64," + btoa(message)
+
+      const imapMsg = new ImapMessage(
+        "data:text/plain;base64," + btoa(message),
+        fakeFolder.uidnext++,
+        []
       );
-      const imapMsg = new ImapMessage(msgURI.spec, fakeFolder.uidnext++, []);
       fakeFolder.addMessage(imapMsg);
     });
 
-    return new Promise(resolve =>
-      mailTestUtils.updateFolderAndNotify(folder, resolve)
-    );
+    if (update) {
+      return new Promise(resolve =>
+        mailTestUtils.updateFolderAndNotify(folder, resolve)
+      );
+    }
+    return Promise.resolve();
   }
 }
 

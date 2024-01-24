@@ -269,7 +269,9 @@ class NntpClient {
       MailServices.mailSession.alertUser(errorMessage, this.runningUri);
 
       // If we were going to display an article, instead show an error page.
-      this.runningUri.seeOtherURI = uri;
+      if (this.runningUri) {
+        this.runningUri.seeOtherURI = uri;
+      }
     }
 
     this._msgWindow?.statusFeedback?.showStatusString("");

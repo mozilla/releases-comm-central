@@ -12,9 +12,6 @@
  *  get it wrong and it may eventually want to migrate.
  */
 
-var { PluralForm } = ChromeUtils.importESModule(
-  "resource:///modules/PluralForm.sys.mjs"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

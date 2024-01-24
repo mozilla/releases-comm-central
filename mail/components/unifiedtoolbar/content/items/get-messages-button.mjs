@@ -49,6 +49,7 @@ class GetMessagesButton extends UnifiedToolbarButton {
       .map(server => {
         const menuitem = document.createXULElement("menuitem");
         menuitem.classList.add("menuitem-iconic", "server");
+        menuitem.dataset.serverKey = server.key;
         menuitem.dataset.serverType = server.type;
         menuitem.dataset.serverSecure = server.isSecure;
         menuitem.label = server.prettyName;

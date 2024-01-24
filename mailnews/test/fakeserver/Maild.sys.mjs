@@ -120,43 +120,45 @@ export class nsMailServer {
       dump("Received Connection from " + trans.host + ":" + trans.port + "\n");
     }
 
+    const observer = {
+      QueryInterface: ChromeUtils.generateQI(["nsITLSServerSecurityObserver"]),
+
+      onHandshakeDone: (socket, status) => {
+        // Note: must use main thread here, or we might get a GC that will cause
+        // threadsafety assertions.  We really need to fix XPConnect so that
+        // you can actually do things in multi-threaded JS.  :-(
+        input.asyncWait(reader, 0, 0, Services.tm.mainThread);
+        this._test = true;
+      },
+    };
+
     if (this.tlsCert) {
       const connectionInfo = trans.securityCallbacks.getInterface(
         Ci.nsITLSServerConnectionInfo
       );
-      connectionInfo.setSecurityObserver(this);
+      connectionInfo.setSecurityObserver(observer);
     }
 
     const SEGMENT_SIZE = 1024;
     const SEGMENT_COUNT = 1024;
-    this.input = trans
+    const input = trans
       .openInputStream(0, SEGMENT_SIZE, SEGMENT_COUNT)
       .QueryInterface(Ci.nsIAsyncInputStream);
-    this._inputStreams.push(this.input);
+    this._inputStreams.push(input);
 
-    var handler = this._handlerCreator(this._daemon);
-    this.reader = new nsMailReader(
+    const handler = this._handlerCreator(this._daemon);
+    const reader = new nsMailReader(
       this,
       handler,
       trans,
       this._debug,
       this._logTransactions
     );
-    this._readers.push(this.reader);
+    this._readers.push(reader);
 
     if (!this.tlsCert) {
-      this.onHandshakeDone(socket, null);
+      observer.onHandshakeDone(socket, null);
     }
-  }
-
-  onHandshakeDone(socket, status) {
-    // Note: must use main thread here, or we might get a GC that will cause
-    //       threadsafety assertions.  We really need to fix XPConnect so that
-    //       you can actually do things in multi-threaded JS.  :-(
-    this.input.asyncWait(this.reader, 0, 0, Services.tm.mainThread);
-    delete this.input;
-    delete this.reader;
-    this._test = true;
   }
 
   onStopListening(socket, status) {
@@ -245,10 +247,7 @@ export class nsMailServer {
   //
   // see nsISupports.QueryInterface
   //
-  QueryInterface = ChromeUtils.generateQI([
-    "nsIServerSocketListener",
-    "nsITLSServerSecurityObserver",
-  ]);
+  QueryInterface = ChromeUtils.generateQI(["nsIServerSocketListener"]);
 
   // NON-XPCOM PUBLIC API
 

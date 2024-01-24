@@ -55,7 +55,7 @@ add_setup(async function () {
   nntpRootFolder = nntpAccount.incomingServer.rootFolder;
 
   registerCleanupFunction(async function () {
-    await promiseIMAPIdle(imapAccount.incomingServer);
+    await promiseServerIdle(imapAccount.incomingServer);
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
   });

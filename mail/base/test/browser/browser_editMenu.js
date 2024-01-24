@@ -106,10 +106,10 @@ add_setup(async function () {
   imapAccount.incomingServer.deleteModel = Ci.nsMsgImapDeleteModels.IMAPDelete;
   imapRootFolder = imapAccount.incomingServer.rootFolder;
   imapFolder = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
-  imapServer.addMessages(imapFolder, generator.makeMessages({}));
+  await imapServer.addMessages(imapFolder, generator.makeMessages({}));
 
   registerCleanupFunction(async function () {
-    await promiseIMAPIdle(imapAccount.incomingServer);
+    await promiseServerIdle(imapAccount.incomingServer);
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
@@ -253,7 +253,7 @@ add_task(async function testDeleteItem() {
   const SETFLAG_TIMEOUT = 1200;
 
   displayFolder(imapFolder);
-  await promiseIMAPIdle(imapFolder.server);
+  await promiseServerIdle(imapFolder.server);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, SETFLAG_TIMEOUT));
   Assert.equal(threadTree.view.rowCount, 10, "IMAP folder loaded");
@@ -275,7 +275,7 @@ add_task(async function testDeleteItem() {
     l10nID: "menu-edit-delete-messages",
     l10nArgs: { count: 1 },
   });
-  await promiseIMAPIdle(imapFolder.server);
+  await promiseServerIdle(imapFolder.server);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, SETFLAG_TIMEOUT));
   Assert.ok(
@@ -292,7 +292,7 @@ add_task(async function testDeleteItem() {
     l10nID: "menu-edit-undelete-messages",
     l10nArgs: { count: 1 },
   });
-  await promiseIMAPIdle(imapFolder.server);
+  await promiseServerIdle(imapFolder.server);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, SETFLAG_TIMEOUT));
   Assert.ok(
@@ -321,7 +321,7 @@ add_task(async function testDeleteItem() {
     },
   });
   await helper.activateItem("menu_delete");
-  await promiseIMAPIdle(imapFolder.server);
+  await promiseServerIdle(imapFolder.server);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, SETFLAG_TIMEOUT));
   Assert.ok(
@@ -337,7 +337,7 @@ add_task(async function testDeleteItem() {
     l10nID: "menu-edit-undelete-messages",
     l10nArgs: { count: 3 },
   });
-  await promiseIMAPIdle(imapFolder.server);
+  await promiseServerIdle(imapFolder.server);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, SETFLAG_TIMEOUT));
   Assert.ok(

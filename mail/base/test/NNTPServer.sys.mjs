@@ -6,28 +6,34 @@ import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
 
 import {
   NewsArticle,
-  NNTP_RFC977_handler,
+  NNTP_RFC2980_handler,
   NntpDaemon,
 } from "resource://testing-common/mailnews/Nntpd.sys.mjs";
 
 /**
- * A simple IMAP server for testing purposes.
+ * A simple NNTP server for testing purposes.
  */
 export class NNTPServer {
-  constructor(testScope) {
+  constructor(testScope, options = {}) {
     this.testScope = testScope;
+    this.options = options;
     this.open();
   }
 
   open() {
     this.daemon = new NntpDaemon();
     this.server = new nsMailServer(
-      daemon => new NNTP_RFC977_handler(daemon),
+      daemon => new NNTP_RFC2980_handler(daemon),
       this.daemon
     );
+    this.server.tlsCert = this.options.tlsCert;
     this.server.start();
+    dump(`NNTP server at localhost:${this.server.port} opened\n`);
 
-    this.testScope.registerCleanupFunction(() => this.close());
+    this.testScope.registerCleanupFunction(() => {
+      this.close();
+      dump(`NNTP server at localhost:${this.server.port} closed\n`);
+    });
   }
 
   close() {

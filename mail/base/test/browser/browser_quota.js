@@ -32,7 +32,7 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgImapMailFolder);
 
   registerCleanupFunction(async () => {
-    await promiseIMAPIdle(imapAccount.incomingServer);
+    await promiseServerIdle(imapAccount.incomingServer);
     MailServices.accounts.removeAccount(imapAccount, false);
   });
 });
@@ -142,7 +142,7 @@ async function updateQuota(usage, limit) {
   // Drain the event queue so that the folder just displayed starts to use the
   // IMAP connection.
   await TestUtils.waitForTick();
-  await promiseIMAPIdle(imapFolder.server);
+  await promiseServerIdle(imapFolder.server);
   imapServer.setQuota(imapFolder, "STORAGE", usage, limit);
   // Force the folder to be updated from the server.
   await new Promise(resolve =>

@@ -8,6 +8,7 @@
  */
 
 import { IMAPServer } from "resource://testing-common/IMAPServer.sys.mjs";
+import { NNTPServer } from "resource://testing-common/NNTPServer.sys.mjs";
 import { POP3Server } from "resource://testing-common/POP3Server.sys.mjs";
 import { SMTPServer } from "resource://testing-common/SMTPServer.sys.mjs";
 
@@ -17,12 +18,15 @@ const { NetworkTestUtils } = ChromeUtils.import(
 
 const serverConstructors = {
   imap: IMAPServer,
+  nntp: NNTPServer,
   pop3: POP3Server,
   smtp: SMTPServer,
 };
 
 // Change this for more server debugging output. See Maild.sys.mjs for values.
 const serverDebugLevel = 0;
+
+let cleanupFunctionRegistered = false;
 
 /**
  * @typedef ServerDef
@@ -59,6 +63,15 @@ async function createServer(
   for (const [aliasHostname, aliasPort] of aliases) {
     NetworkTestUtils.configureProxy(aliasHostname, aliasPort, server.port);
   }
+
+  if (!cleanupFunctionRegistered) {
+    testScope.registerCleanupFunction(function () {
+      NetworkTestUtils.clearProxy();
+      cleanupFunctionRegistered = false;
+    });
+    cleanupFunctionRegistered = true;
+  }
+
   return server;
 }
 
@@ -213,6 +226,19 @@ const serverDefs = {
       baseOptions: { tlsCertFile: "expired" },
       hostname: "expired.test.test",
       port: 465,
+    },
+  },
+  nntp: {
+    plain: {
+      type: "nntp",
+      hostname: "test.test",
+      port: 119,
+    },
+    expiredTLS: {
+      type: "nntp",
+      baseOptions: { tlsCertFile: "expired" },
+      hostname: "expired.test.test",
+      port: 563,
     },
   },
 };

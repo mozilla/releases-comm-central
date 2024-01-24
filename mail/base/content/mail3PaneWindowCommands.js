@@ -19,9 +19,6 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { PluralForm } = ChromeUtils.importESModule(
-  "resource:///modules/PluralForm.sys.mjs"
-);
 ChromeUtils.defineModuleGetter(
   this,
   "MailUtils",

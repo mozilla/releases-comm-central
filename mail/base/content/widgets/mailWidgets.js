@@ -9,7 +9,6 @@
 /* global MozElements */
 /* global MozXULElement */
 /* global gFolderDisplay */
-/* global PluralForm */
 /* global onRecipientsChanged */
 
 // Wrap in a block to prevent leaking to window scope.

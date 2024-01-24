@@ -130,8 +130,9 @@
             id="menu_getAllNewMsg"
             oncommand="MsgGetMessagesForAccount();">
         <menupopup is="folder-menupopup" id="menu_getAllNewMsgPopup"
-                    expandFolders="false"
-                    oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
+                   mode="getMail"
+                   expandFolders="false"
+                   oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
           <menuitem id="menu_getnewmsgs_all_accounts"
                     label="&getAllNewMsgCmdPopupMenu.label;"
                     accesskey="&getAllNewMsgCmdPopupMenu.accesskey;"

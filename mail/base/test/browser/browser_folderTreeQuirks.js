@@ -1087,7 +1087,7 @@ add_task(async function testGmailFolders() {
     folderC,
   ]);
 
-  await promiseIMAPIdle(gmailAccount.incomingServer);
+  await promiseServerIdle(gmailAccount.incomingServer);
   MailServices.accounts.removeAccount(gmailAccount, false);
 });
 
@@ -1354,9 +1354,8 @@ add_task(async function testAccountOrder() {
   await checkModeListItems("unread", [rootFolder, folderA]);
   await checkModeListItems("favorite", []);
 
-  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
 
   moreContext.activateItem(
     moreContext.querySelector("#folderPaneHeaderToggleLocalFolders")
@@ -1366,18 +1365,28 @@ add_task(async function testAccountOrder() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
-    moreContext,
-    "popuphidden"
-  );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await menuHiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 
   // All instances of local folders shouldn't be present.
   await checkModeListItems("all", []);
   await checkModeListItems("smart", [...smartFolders, trashFolder]);
   await checkModeListItems("unread", []);
   await checkModeListItems("favorite", []);
+
+  EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
+
+  moreContext.activateItem(
+    moreContext.querySelector("#folderPaneHeaderToggleLocalFolders")
+  );
+  // Force a 500ms timeout due to a weird intermittent macOS issue that prevents
+  // the Escape key press from closing the menupopup.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 });
 
 async function checkModeListItems(modeName, folders) {
