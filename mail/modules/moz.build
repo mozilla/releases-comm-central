@@ -39,6 +39,7 @@ EXTRA_JS_MODULES += [
     "TBDistCustomizer.jsm",
     "UIDensity.sys.mjs",
     "UIFontSize.sys.mjs",
+    "XULStoreUtils.sys.mjs",
 ]
 
 EXTRA_JS_MODULES.sessionstore += [

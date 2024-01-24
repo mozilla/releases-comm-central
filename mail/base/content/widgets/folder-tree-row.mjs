@@ -16,14 +16,8 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 ChromeUtils.defineESModuleGetters(lazy, {
   FolderPaneUtils: "resource:///modules/FolderPaneUtils.sys.mjs",
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
+  XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
 });
-
-const XULSTORE_URL = "chrome://messenger/content/messenger.xhtml";
-
-// TODO: This was copied from about3Pane.js. It should be extracted into a
-// XULStore utils file to avoid duplication.
-const isItemVisible = item =>
-  Services.xulStore.getValue(XULSTORE_URL, item, "visible") == "true";
 
 /**
  * Represents a single row in the folder tree. The row can be for a server or
@@ -186,7 +180,7 @@ class FolderTreeRow extends HTMLLIElement {
     }
 
     // If total messages is visible.
-    if (isItemVisible("totalMsgCount")) {
+    if (lazy.XULStoreUtils.isItemVisible("messenger", "totalMsgCount")) {
       ariaLabelPromises.push(
         document.l10n.formatValue("folder-pane-total-aria-label", {
           count: this.totalCount,
@@ -194,7 +188,7 @@ class FolderTreeRow extends HTMLLIElement {
       );
     }
 
-    if (isItemVisible("folderPaneFolderSize")) {
+    if (lazy.XULStoreUtils.isItemVisible("messenger", "folderPaneFolderSize")) {
       ariaLabelPromises.push(this.folderSize);
     }
 
@@ -275,7 +269,7 @@ class FolderTreeRow extends HTMLLIElement {
     const isCollapsed = this.classList.contains("collapsed");
     this.unreadCount = folder.getNumUnread(isCollapsed);
     this.totalCount = folder.getTotalMessages(isCollapsed);
-    if (isItemVisible("folderPaneFolderSize")) {
+    if (lazy.XULStoreUtils.isItemVisible("messenger", "folderPaneFolderSize")) {
       this.folderSize = this.formatFolderSize(folder.sizeOnDisk);
     }
     this.folderSortOrder = folder.sortOrder;
@@ -314,7 +308,7 @@ class FolderTreeRow extends HTMLLIElement {
     this.totalCount = folder.getTotalMessages(
       this.classList.contains("collapsed")
     );
-    if (isItemVisible("folderPaneFolderSize")) {
+    if (lazy.XULStoreUtils.isItemVisible("messenger", "folderPaneFolderSize")) {
       this.updateSizeCount(false, folder);
     }
   }

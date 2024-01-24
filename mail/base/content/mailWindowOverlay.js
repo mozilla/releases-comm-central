@@ -29,6 +29,7 @@ ChromeUtils.defineESModuleGetters(this, {
     "resource://devtools/client/framework/browser-toolbox/Launcher.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
+  XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -450,18 +451,12 @@ function InitViewLayoutStyleMenu(event, appmenu) {
     layoutStyleMenuitem.setAttribute("checked", "true");
   }
 
-  if (
-    Services.xulStore.getValue(
-      "chrome://messenger/content/messenger.xhtml",
-      "threadPaneHeader",
-      "hidden"
-    ) !== "true"
-  ) {
+  if (XULStoreUtils.isItemHidden("messenger", "threadPaneHeader")) {
+    parent.querySelector(`[name="threadheader"]`).removeAttribute("checked");
+  } else {
     parent
       .querySelector(`[name="threadheader"]`)
       .setAttribute("checked", "true");
-  } else {
-    parent.querySelector(`[name="threadheader"]`).removeAttribute("checked");
   }
 }
 

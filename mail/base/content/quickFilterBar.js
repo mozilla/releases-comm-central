@@ -15,6 +15,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   QuickFilterState: "resource:///modules/QuickFilterManager.jsm",
 });
 
+ChromeUtils.defineESModuleGetters(this, {
+  XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
+});
+
 import("chrome://messenger/content/search-bar.mjs");
 
 class ToggleButton extends HTMLButtonElement {
@@ -70,17 +74,10 @@ var quickFilterBar = {
     this.updateRovingTab();
 
     // Hide the toolbar, unless it has been previously shown.
-    if (
-      Services.xulStore.getValue(
-        XULSTORE_URL,
-        "quickFilterBar",
-        "collapsed"
-      ) === "false"
-    ) {
-      this._showFilterBar(true, true);
-    } else {
-      this._showFilterBar(false, true);
-    }
+    this._showFilterBar(
+      XULStoreUtils.isItemVisible("messenger", "quickFilterBar"),
+      true
+    );
 
     commandController.registerCallback("cmd_showQuickFilterBar", () => {
       if (!this.filterer.visible) {
@@ -124,8 +121,8 @@ var quickFilterBar = {
 
     document.getElementById("qfb-sticky").addEventListener("click", event => {
       const stickyValue = event.target.pressed ? "true" : "false";
-      Services.xulStore.setValue(
-        XULSTORE_URL,
+      XULStoreUtils.setValue(
+        "messenger",
         "quickFilterBarSticky",
         "enabled",
         stickyValue
@@ -328,8 +325,8 @@ var quickFilterBar = {
     }
 
     // If keep filters applied/sticky setting is enabled, enable sticky.
-    const xulStickyVal = Services.xulStore.getValue(
-      XULSTORE_URL,
+    const xulStickyVal = XULStoreUtils.getValue(
+      "messenger",
       "quickFilterBarSticky",
       "enabled"
     );
@@ -343,8 +340,8 @@ var quickFilterBar = {
     if (xulStickyVal != "true") {
       return;
     }
-    const enabledTopFiltersVal = Services.xulStore.getValue(
-      XULSTORE_URL,
+    const enabledTopFiltersVal = XULStoreUtils.getValue(
+      "messenger",
       "quickFilter",
       "enabledTopFilters"
     );
@@ -379,8 +376,8 @@ var quickFilterBar = {
     }
 
     // Save enabled filter settings to XULStore.
-    Services.xulStore.setValue(
-      XULSTORE_URL,
+    XULStoreUtils.setValue(
+      "messenger",
       "quickFilter",
       "enabledTopFilters",
       JSON.stringify(Array.from(this.activeTopLevelFilters))
@@ -557,12 +554,7 @@ var quickFilterBar = {
     // Update the UI of toggled filters.
     this.reflectPersistedFilters();
     this.reflectFiltererState();
-    Services.xulStore.setValue(
-      XULSTORE_URL,
-      "quickFilterBar",
-      "collapsed",
-      !show
-    );
+    XULStoreUtils.setValue("messenger", "quickFilterBar", "visible", show);
 
     // Update the message list to reflect the filters status.
     this.updateSearch();
@@ -628,8 +620,8 @@ var quickFilterBar = {
     }
     // Unset sticky value.
     if (this._filterer?.filterValues.sticky) {
-      Services.xulStore.setValue(
-        XULSTORE_URL,
+      XULStoreUtils.setValue(
+        "messenger",
         "quickFilterBarSticky",
         "enabled",
         "false"

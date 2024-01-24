@@ -549,13 +549,13 @@
               type="checkbox"
               closemenu="none"
               data-l10n-id="folder-pane-header-context-toggle-get-messages"
-              oncommand="folderPane.toggleGetMsgsBtn(event);"/>
+              oncommand="folderPane.toggleHeaderButton(event, 'folderPaneGetMessages');"/>
     <menuitem id="folderPaneHeaderToggleNewMessage"
               class="folder-pane-option"
               type="checkbox"
               closemenu="none"
               data-l10n-id="folder-pane-header-context-toggle-new-message"
-              oncommand="folderPane.toggleNewMsgBtn(event);"/>
+              oncommand="folderPane.toggleHeaderButton(event, 'folderPaneWriteMessage');"/>
     <menuseparator id="separatorAfterToggleButtons"/>
     <menuitem id="folderPaneHeaderToggleTotalCount"
               class="folder-pane-option"
@@ -579,7 +579,7 @@
     <menuseparator id="separatorBeforeHideFolderPaneHeaderOption"/>
     <menuitem id="folderPaneHeaderHideMenuItem"
               data-l10n-id="folder-pane-header-context-hide"
-              oncommand="folderPane.toggleHeader(false);"/>
+              oncommand="folderPane.toggleHeader(true);"/>
   </menupopup>
   <menupopup id="folderPaneModeContext"
              class="no-accel-menupopup"

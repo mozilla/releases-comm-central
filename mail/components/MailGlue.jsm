@@ -38,17 +38,14 @@ ChromeUtils.defineESModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   ChatCore: "resource:///modules/chatHandler.sys.mjs",
   ExtensionSupport: "resource:///modules/ExtensionSupport.sys.mjs",
-
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
-
   OsEnvironment: "resource://gre/modules/OsEnvironment.sys.mjs",
   PdfJs: "resource://pdf.js/PdfJs.sys.mjs",
-
   RemoteSecuritySettings:
     "resource://gre/modules/psm/RemoteSecuritySettings.sys.mjs",
-
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
+  XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
@@ -1353,12 +1350,14 @@ function reportPreferences() {
 }
 
 function reportUIConfiguration() {
-  const docURL = "chrome://messenger/content/messenger.xhtml";
-
-  let folderTreeMode = Services.xulStore.getValue(docURL, "folderTree", "mode");
+  let folderTreeMode = lazy.XULStoreUtils.getValue(
+    "messenger",
+    "folderTree",
+    "mode"
+  );
   if (folderTreeMode) {
-    const folderTreeCompact = Services.xulStore.getValue(
-      docURL,
+    const folderTreeCompact = lazy.XULStoreUtils.getValue(
+      "messenger",
       "folderTree",
       "compact"
     );
@@ -1371,8 +1370,8 @@ function reportUIConfiguration() {
     );
   }
 
-  let headerLayout = Services.xulStore.getValue(
-    docURL,
+  let headerLayout = lazy.XULStoreUtils.getValue(
+    "messenger",
     "messageHeader",
     "layout"
   );

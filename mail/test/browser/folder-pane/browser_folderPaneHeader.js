@@ -5,6 +5,9 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+const { XULStoreUtils } = ChromeUtils.importESModule(
+  "resource:///modules/XULStoreUtils.sys.mjs"
+);
 
 var { add_message_sets_to_folders, be_in_folder, create_thread } =
   ChromeUtils.import(
@@ -74,12 +77,7 @@ add_task(async function testHideFolderPaneHeader() {
   await hiddenPromise;
 
   await BrowserTestUtils.waitForCondition(
-    () =>
-      Services.xulStore.getValue(
-        "chrome://messenger/content/messenger.xhtml",
-        "folderPaneHeaderBar",
-        "hidden"
-      ) == "true",
+    () => XULStoreUtils.isItemHidden("messenger", "folderPaneHeaderBar"),
     "The customization data was saved"
   );
 
@@ -152,12 +150,7 @@ add_task(async function testHideFolderPaneHeader() {
     "The folder pane header is visible"
   );
   await BrowserTestUtils.waitForCondition(
-    () =>
-      Services.xulStore.getValue(
-        "chrome://messenger/content/messenger.xhtml",
-        "folderPaneHeaderBar",
-        "hidden"
-      ) == "false",
+    () => !XULStoreUtils.isItemHidden("messenger", "folderPaneHeaderBar"),
     "The customization data was saved"
   );
 });
@@ -289,12 +282,7 @@ add_task(async function testTogglePaneHeaderButtons() {
         ? "folderPaneGetMessages"
         : "folderPaneWriteMessage";
     await BrowserTestUtils.waitForCondition(
-      () =>
-        Services.xulStore.getValue(
-          "chrome://messenger/content/messenger.xhtml",
-          buttonName,
-          "hidden"
-        ) == "true",
+      () => XULStoreUtils.isItemHidden("messenger", buttonName),
       "The customization data was saved"
     );
 
@@ -330,12 +318,7 @@ add_task(async function testTogglePaneHeaderButtons() {
       `The ${toggle.label} button is not hidden`
     );
     await BrowserTestUtils.waitForCondition(
-      () =>
-        Services.xulStore.getValue(
-          "chrome://messenger/content/messenger.xhtml",
-          buttonName,
-          "hidden"
-        ) == "false",
+      () => !XULStoreUtils.isItemHidden("messenger", buttonName),
       "The customization data was saved"
     );
 
@@ -526,11 +509,7 @@ add_task(async function testTotalCountDefaultState() {
   );
   Assert.ok(totalCountBadge.hidden, "The total count badges are hidden");
   Assert.notEqual(
-    Services.xulStore.getValue(
-      "chrome://messenger/content/messenger.xhtml",
-      "totalMsgCount",
-      "visible"
-    ),
+    XULStoreUtils.isItemVisible("messenger", "totalMsgCount"),
     "true",
     "The customization data was saved"
   );
@@ -573,12 +552,7 @@ add_task(async function testTotalCountVisible() {
     "The total count toggle is checked"
   );
   await BrowserTestUtils.waitForCondition(
-    () =>
-      Services.xulStore.getValue(
-        "chrome://messenger/content/messenger.xhtml",
-        "totalMsgCount",
-        "visible"
-      ) == "true",
+    () => XULStoreUtils.isItemVisible("messenger", "totalMsgCount"),
     "The customization data was saved"
   );
 
@@ -603,11 +577,7 @@ add_task(async function testFolderSizeDefaultState() {
   );
   Assert.ok(folderSizeBadge.hidden, "The folder sizes are hidden");
   Assert.notEqual(
-    Services.xulStore.getValue(
-      "chrome://messenger/content/messenger.xhtml",
-      "folderPaneFolderSize",
-      "visible"
-    ),
+    XULStoreUtils.isItemVisible("messenger", "folderPaneFolderSize"),
     "true",
     "The folder size xulStore attribute is set to not visible"
   );
@@ -636,12 +606,7 @@ add_task(async function testFolderSizeVisible() {
     "The folder size toggle is checked"
   );
   await BrowserTestUtils.waitForCondition(
-    () =>
-      Services.xulStore.getValue(
-        "chrome://messenger/content/messenger.xhtml",
-        "folderPaneFolderSize",
-        "visible"
-      ) == "true",
+    () => XULStoreUtils.isItemVisible("messenger", "folderPaneFolderSize"),
     "The folder size xulStore attribute is set to visible"
   );
 
@@ -686,12 +651,7 @@ add_task(async function testFolderSizeHidden() {
   );
 
   await BrowserTestUtils.waitForCondition(
-    () =>
-      Services.xulStore.getValue(
-        "chrome://messenger/content/messenger.xhtml",
-        "folderPaneFolderSize",
-        "visible"
-      ) == "false",
+    () => !XULStoreUtils.isItemVisible("messenger", "folderPaneFolderSize"),
     "The folder size xulStore visible attribute was set to false"
   );
 
@@ -729,12 +689,7 @@ add_task(async function testTotalCountHidden() {
     "The total count toggle is unchecked"
   );
   await BrowserTestUtils.waitForCondition(
-    () =>
-      Services.xulStore.getValue(
-        "chrome://messenger/content/messenger.xhtml",
-        "totalMsgCount",
-        "visible"
-      ) == "false",
+    () => !XULStoreUtils.isItemVisible("messenger", "totalMsgCount"),
     "The customization data was saved"
   );
 
@@ -759,12 +714,7 @@ add_task(async function testHideLocalFoldersXULStore() {
   );
 
   await BrowserTestUtils.waitForCondition(
-    () =>
-      Services.xulStore.getValue(
-        "chrome://messenger/content/messenger.xhtml",
-        "folderPaneLocalFolders",
-        "hidden"
-      ) == "true",
+    () => XULStoreUtils.isItemHidden("messenger", "folderPaneLocalFolders"),
     "The customization data to hide local folders should be saved"
   );
 
@@ -791,12 +741,7 @@ add_task(async function testHideLocalFoldersXULStore() {
   );
 
   await BrowserTestUtils.waitForCondition(
-    () =>
-      Services.xulStore.getValue(
-        "chrome://messenger/content/messenger.xhtml",
-        "folderPaneLocalFolders",
-        "hidden"
-      ) == "false",
+    () => !XULStoreUtils.isItemHidden("messenger", "folderPaneLocalFolders"),
     "The customization data to hide local folders should be saved"
   );
 });
@@ -833,12 +778,7 @@ add_task(async function testBadgesPersistentState() {
     moreContext.querySelector("#folderPaneHeaderToggleLocalFolders")
   );
   await BrowserTestUtils.waitForCondition(
-    () =>
-      Services.xulStore.getValue(
-        "chrome://messenger/content/messenger.xhtml",
-        "folderPaneLocalFolders",
-        "hidden"
-      ) == "true",
+    () => XULStoreUtils.isItemHidden("messenger", "folderPaneLocalFolders"),
     "The customization data to hide local folders should be saved"
   );
   // The test times out on macOS if we don't wait here before dismissing the

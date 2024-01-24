@@ -42,6 +42,7 @@ ChromeUtils.defineESModuleGetters(this, {
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
+  XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -52,8 +53,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
   TagUtils: "resource:///modules/TagUtils.jsm",
 });
-
-const XULSTORE_URL = "chrome://messenger/content/messenger.xhtml";
 
 const messengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
@@ -160,18 +159,14 @@ var paneLayout = {
       [this.messagePaneSplitter, ["height", "width"], "messagepaneboxwrapper"],
     ]) {
       for (const property of properties) {
-        const value = Services.xulStore.getValue(
-          XULSTORE_URL,
-          storeID,
-          property
-        );
+        const value = XULStoreUtils.getValue("messenger", storeID, property);
         if (value) {
           splitter[property] = value;
         }
       }
 
       splitter.storeAttr = function (attrName, attrValue) {
-        Services.xulStore.setValue(XULSTORE_URL, storeID, attrName, attrValue);
+        XULStoreUtils.setValue("messenger", storeID, attrName, attrValue);
       };
 
       splitter.addEventListener("splitter-resized", () => {
@@ -204,7 +199,7 @@ var paneLayout = {
     );
     this.setLayout(this.layoutPreference);
     threadPane.updateThreadView(
-      Services.xulStore.getValue(XULSTORE_URL, "threadPane", "view")
+      XULStoreUtils.getValue("messenger", "threadPane", "view")
     );
   },
 
@@ -1519,14 +1514,8 @@ var folderPane = {
     this._modeTemplate = document.getElementById("modeTemplate");
     this._folderTemplate = document.getElementById("folderTemplate");
 
-    this._isCompact =
-      Services.xulStore.getValue(XULSTORE_URL, "folderTree", "compact") ===
-      "true";
-    let activeModes = Services.xulStore.getValue(
-      XULSTORE_URL,
-      "folderTree",
-      "mode"
-    );
+    this._isCompact = XULStoreUtils.isItemCompact("messenger", "folderTree");
+    let activeModes = XULStoreUtils.getValue("messenger", "folderTree", "mode");
     activeModes = activeModes.split(",");
     this.activeModes = activeModes;
 
@@ -1556,7 +1545,7 @@ var folderPane = {
     folderTree.addEventListener("drop", this);
 
     document.getElementById("folderPaneHeaderBar").hidden =
-      this.isFolderPaneHeaderHidden();
+      XULStoreUtils.isItemHidden("messenger", "folderPaneHeaderBar");
     const folderPaneGetMessages = document.getElementById(
       "folderPaneGetMessages"
     );
@@ -1573,9 +1562,12 @@ var folderPane = {
       .addEventListener("click", event => {
         top.MsgNewMessage(event);
       });
-    folderPaneGetMessages.hidden = this.isFolderPaneGetMsgsBtnHidden();
+    folderPaneGetMessages.hidden = XULStoreUtils.isItemHidden(
+      "messenger",
+      "folderPaneGetMessages"
+    );
     document.getElementById("folderPaneWriteMessage").hidden =
-      this.isFolderPaneNewMsgBtnHidden();
+      XULStoreUtils.isItemHidden("messenger", "folderPaneWriteMessage");
     this.moreContext = document.getElementById("folderPaneMoreContext");
     this.folderPaneModeContext = document.getElementById(
       "folderPaneModeContext"
@@ -1694,7 +1686,10 @@ var folderPane = {
    * @returns {boolean}
    */
   get hideLocalFolders() {
-    this._hideLocalFolders = this.isItemHidden("folderPaneLocalFolders");
+    this._hideLocalFolders = XULStoreUtils.isItemHidden(
+      "messenger",
+      "folderPaneLocalFolders"
+    );
     return this._hideLocalFolders;
   },
 
@@ -1882,8 +1877,8 @@ var folderPane = {
       containerHeader.hidden = modes.length == 1;
       folderTree.appendChild(container);
     }
-    Services.xulStore.setValue(
-      XULSTORE_URL,
+    XULStoreUtils.setValue(
+      "messenger",
       "folderTree",
       "mode",
       this.activeModes.join(",")
@@ -1936,7 +1931,7 @@ var folderPane = {
       mode.containerList.replaceChildren();
       this._initMode(mode);
     }
-    Services.xulStore.setValue(XULSTORE_URL, "folderTree", "compact", value);
+    XULStoreUtils.setValue("messenger", "folderTree", "compact", value);
   },
 
   /**
@@ -2517,7 +2512,7 @@ var folderPane = {
    * @param {nsIMsgFolder} folder
    */
   changeFolderSize(folder) {
-    if (folderPane.isItemVisible("folderPaneFolderSize")) {
+    if (XULStoreUtils.isItemVisible("messenger", "folderPaneFolderSize")) {
       this._changeRows(folder, row => row.updateSizeCount(false, folder));
     }
   },
@@ -3529,26 +3524,6 @@ var folderPane = {
       !canWriteMessages;
   },
 
-  isFolderPaneGetMsgsBtnHidden() {
-    return this.isItemHidden("folderPaneGetMessages");
-  },
-
-  isFolderPaneNewMsgBtnHidden() {
-    return this.isItemHidden("folderPaneWriteMessage");
-  },
-
-  isFolderPaneHeaderHidden() {
-    return this.isItemHidden("folderPaneHeaderBar");
-  },
-
-  isItemHidden(item) {
-    return Services.xulStore.getValue(XULSTORE_URL, item, "hidden") == "true";
-  },
-
-  isItemVisible(item) {
-    return Services.xulStore.getValue(XULSTORE_URL, item, "visible") == "true";
-  },
-
   /**
    * Ensure the pane header context menu items are correctly checked.
    */
@@ -3556,17 +3531,17 @@ var folderPane = {
     for (const item of document.querySelectorAll(".folder-pane-option")) {
       switch (item.id) {
         case "folderPaneHeaderToggleGetMessages":
-          this.isFolderPaneGetMsgsBtnHidden()
+          XULStoreUtils.isItemHidden("messenger", "folderPaneGetMessages")
             ? item.removeAttribute("checked")
             : item.setAttribute("checked", true);
           break;
         case "folderPaneHeaderToggleNewMessage":
-          this.isFolderPaneNewMsgBtnHidden()
+          XULStoreUtils.isItemHidden("messenger", "folderPaneWriteMessage")
             ? item.removeAttribute("checked")
             : item.setAttribute("checked", true);
           break;
         case "folderPaneHeaderToggleTotalCount":
-          this.isTotalMsgCountVisible()
+          XULStoreUtils.isItemVisible("messenger", "totalMsgCount")
             ? item.setAttribute("checked", true)
             : item.removeAttribute("checked");
           break;
@@ -3577,12 +3552,12 @@ var folderPane = {
           this.toggleCompactViewMenuItem();
           break;
         case "folderPaneHeaderToggleFolderSize":
-          this.isItemVisible("folderPaneFolderSize")
+          XULStoreUtils.isItemVisible("messenger", "folderPaneFolderSize")
             ? item.setAttribute("checked", true)
             : item.removeAttribute("checked");
           break;
         case "folderPaneHeaderToggleLocalFolders":
-          this.isItemHidden("folderPaneLocalFolders")
+          XULStoreUtils.isItemHidden("messenger", "folderPaneLocalFolders")
             ? item.setAttribute("checked", true)
             : item.removeAttribute("checked");
           break;
@@ -3593,32 +3568,15 @@ var folderPane = {
     }
   },
 
-  toggleGetMsgsBtn(event) {
-    const show = event.target.hasAttribute("checked");
-    document.getElementById("folderPaneGetMessages").hidden = !show;
-
-    this.updateXULStoreAttribute("folderPaneGetMessages", "hidden", show);
+  toggleHeaderButton(event, id) {
+    const isHidden = !event.target.hasAttribute("checked");
+    document.getElementById(id).hidden = isHidden;
+    XULStoreUtils.setValue("messenger", id, "hidden", isHidden);
   },
 
-  toggleNewMsgBtn(event) {
-    const show = event.target.hasAttribute("checked");
-    document.getElementById("folderPaneWriteMessage").hidden = !show;
-
-    this.updateXULStoreAttribute("folderPaneWriteMessage", "hidden", show);
-  },
-
-  toggleHeader(show) {
-    document.getElementById("folderPaneHeaderBar").hidden = !show;
-    this.updateXULStoreAttribute("folderPaneHeaderBar", "hidden", show);
-  },
-
-  updateXULStoreAttribute(element, attribute, value) {
-    Services.xulStore.setValue(
-      XULSTORE_URL,
-      element,
-      attribute,
-      value ? "false" : "true"
-    );
+  toggleHeader(hide) {
+    document.getElementById("folderPaneHeaderBar").hidden = hide;
+    XULStoreUtils.setValue("messenger", "folderPaneHeaderBar", "hidden", hide);
   },
 
   /**
@@ -3626,27 +3584,20 @@ var folderPane = {
    */
   updateFolderRowUIElements() {
     this.toggleTotalCountBadge();
-    this.toggleFolderSizes(this.isItemVisible("folderPaneFolderSize"));
-  },
-
-  /**
-   * Check XULStore to see if the total message count badges should be hidden.
-   */
-  isTotalMsgCountVisible() {
-    return this.isItemVisible("totalMsgCount");
+    this.toggleFolderSizes();
   },
 
   /**
    * Toggle the total message count badges and update the XULStore.
    */
   toggleTotal(event) {
-    const show = !event.target.hasAttribute("checked");
-    this.updateXULStoreAttribute("totalMsgCount", "visible", show);
+    const show = event.target.hasAttribute("checked");
+    XULStoreUtils.setValue("messenger", "totalMsgCount", "visible", show);
     this.toggleTotalCountBadge();
   },
 
   toggleTotalCountBadge() {
-    const isHidden = !this.isTotalMsgCountVisible();
+    const isHidden = !XULStoreUtils.isItemVisible("messenger", "totalMsgCount");
     for (const row of document.querySelectorAll(`li[is="folder-tree-row"]`)) {
       row.toggleTotalCountBadgeVisibility(isHidden);
     }
@@ -3656,16 +3607,24 @@ var folderPane = {
    * Toggle the folder size option and update the XULStore.
    */
   toggleFolderSize(event) {
-    const show = !event.target.hasAttribute("checked");
-    this.updateXULStoreAttribute("folderPaneFolderSize", "visible", show);
-    this.toggleFolderSizes(!show);
+    const show = event.target.hasAttribute("checked");
+    XULStoreUtils.setValue(
+      "messenger",
+      "folderPaneFolderSize",
+      "visible",
+      show
+    );
+    this.toggleFolderSizes();
   },
 
   /**
    * Toggle the folder size info on each folder.
    */
-  toggleFolderSizes(visible) {
-    const isHidden = !visible;
+  toggleFolderSizes() {
+    const isHidden = !XULStoreUtils.isItemVisible(
+      "messenger",
+      "folderPaneFolderSize"
+    );
     for (const row of document.querySelectorAll(`li[is="folder-tree-row"]`)) {
       row.updateSizeCount(isHidden);
     }
@@ -3676,7 +3635,12 @@ var folderPane = {
    */
   toggleLocalFolders(event) {
     const isHidden = event.target.hasAttribute("checked");
-    this.updateXULStoreAttribute("folderPaneLocalFolders", "hidden", !isHidden);
+    XULStoreUtils.setValue(
+      "messenger",
+      "folderPaneLocalFolders",
+      "hidden",
+      isHidden
+    );
     folderPane.hideLocalFolders = isHidden;
   },
 
@@ -3744,9 +3708,7 @@ var threadPaneHeader = {
   isHidden: false,
 
   init() {
-    this.isHidden =
-      Services.xulStore.getValue(XULSTORE_URL, "threadPaneHeader", "hidden") ===
-      "true";
+    this.isHidden = XULStoreUtils.isItemHidden("messenger", "threadPaneHeader");
     this.bar = document.getElementById("threadPaneHeaderBar");
     this.bar.hidden = this.isHidden;
 
@@ -3854,7 +3816,7 @@ var threadPaneHeader = {
    */
   changePaneView(event) {
     const view = event.target.value;
-    Services.xulStore.setValue(XULSTORE_URL, "threadPane", "view", view);
+    XULStoreUtils.setValue("messenger", "threadPane", "view", view);
     threadPane.updateThreadView(view);
   },
 
@@ -3873,8 +3835,8 @@ var threadPaneHeader = {
     this.isHidden = !this.isHidden;
     this.bar.hidden = this.isHidden;
 
-    Services.xulStore.setValue(
-      XULSTORE_URL,
+    XULStoreUtils.setValue(
+      "messenger",
       "threadPaneHeader",
       "hidden",
       this.isHidden
@@ -4012,11 +3974,14 @@ var threadPane = {
       "threadPaneApplyColumnMenu",
       "threadPaneApplyViewMenu",
     ]);
+    const threadListView = XULStoreUtils.getValue(
+      "messenger",
+      "threadPane",
+      "view"
+    );
     threadTree.setAttribute(
       "rows",
-      !Services.xulStore.hasValue(XULSTORE_URL, "threadPane", "view") ||
-        Services.xulStore.getValue(XULSTORE_URL, "threadPane", "view") ==
-          "cards"
+      !threadListView || threadListView == "cards"
         ? "thread-card"
         : "thread-row"
     );
@@ -4052,7 +4017,7 @@ var threadPane = {
       this.onColumnsReordered(event.detail);
     });
     this.treeTable.addEventListener("column-resized", event => {
-      this.treeTable.setColumnsWidths(XULSTORE_URL, event);
+      this.treeTable.setColumnsWidths("messenger", event);
     });
     this.treeTable.addEventListener("columns-changed", event => {
       this.onColumnsVisibilityChanged(event.detail);
@@ -4938,7 +4903,7 @@ var threadPane = {
       // full table header.
       this.treeTable.setColumns(this.columns);
     }
-    this.treeTable.restoreColumnsWidths(XULSTORE_URL);
+    this.treeTable.restoreColumnsWidths("messenger");
   },
 
   /**
@@ -5644,12 +5609,10 @@ function restoreState({
   paneLayout.folderPaneSplitter.isDisabled = syntheticView;
 
   if (messagePaneVisible === undefined) {
-    messagePaneVisible =
-      Services.xulStore.getValue(
-        XULSTORE_URL,
-        "messagepaneboxwrapper",
-        "collapsed"
-      ) !== "true";
+    messagePaneVisible = !XULStoreUtils.isItemCollapsed(
+      "messenger",
+      "messagepaneboxwrapper"
+    );
   }
   paneLayout.messagePaneSplitter.isCollapsed = !messagePaneVisible;
 

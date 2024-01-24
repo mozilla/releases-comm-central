@@ -30,6 +30,7 @@ ChromeUtils.defineESModuleGetters(this, {
   PanelMultiView: "resource:///modules/PanelMultiView.sys.mjs",
   ExtensionsUI: "resource:///modules/ExtensionsUI.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
+  XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
 });
 
 /**
@@ -486,7 +487,7 @@ const PanelUI = {
     const paneHeaderMenuitem = event.target.querySelector(
       '[name="paneheader"]'
     );
-    if (about3Pane.folderPane.isFolderPaneHeaderHidden()) {
+    if (XULStoreUtils.isItemHidden("messenger", "folderPaneHeaderBar")) {
       paneHeaderMenuitem.removeAttribute("checked");
     } else {
       paneHeaderMenuitem.setAttribute("checked", "true");
@@ -717,7 +718,7 @@ const PanelUI = {
 
     const mode = event.target.getAttribute("value");
     if (mode == "toggle-header") {
-      about3Pane.folderPane.toggleHeader(event.target.hasAttribute("checked"));
+      about3Pane.folderPane.toggleHeader(!event.target.hasAttribute("checked"));
       return;
     }
 

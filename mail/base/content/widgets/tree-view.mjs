@@ -5,6 +5,9 @@
 const { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
+const { XULStoreUtils } = ChromeUtils.importESModule(
+  "resource:///modules/XULStoreUtils.sys.mjs"
+);
 import { TreeSelection } from "chrome://messenger/content/tree-selection.mjs";
 
 // Account for the mac OS accelerator key variation.
@@ -1730,7 +1733,7 @@ class TreeViewTable extends HTMLTableElement {
     let newWidths;
 
     // Check if we already have stored values and update it if so.
-    let columnsWidths = Services.xulStore.getValue(url, "columns", "widths");
+    let columnsWidths = XULStoreUtils.getValue(url, "columns", "widths");
     if (columnsWidths) {
       let updated = false;
       columnsWidths = columnsWidths.split(",");
@@ -1754,7 +1757,7 @@ class TreeViewTable extends HTMLTableElement {
 
     // Store the values as a plain string with the current format:
     //   columnID:width,columnID:width,...
-    Services.xulStore.setValue(url, "columns", "widths", newWidths);
+    XULStoreUtils.setValue(url, "columns", "widths", newWidths);
   }
 
   /**
@@ -1764,7 +1767,7 @@ class TreeViewTable extends HTMLTableElement {
    * @param {string} url - The document URL used to store the values.
    */
   restoreColumnsWidths(url) {
-    const columnsWidths = Services.xulStore.getValue(url, "columns", "widths");
+    const columnsWidths = XULStoreUtils.getValue(url, "columns", "widths");
     if (!columnsWidths) {
       return;
     }

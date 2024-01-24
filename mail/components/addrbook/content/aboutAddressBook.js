@@ -1634,7 +1634,7 @@ var cardsPane = {
    * @param {DOMEvent} event - The dom event bubbling from the resized action.
    */
   _onColumnResized(event) {
-    this.table.setColumnsWidths(cardsPane.URL, event);
+    this.table.setColumnsWidths("addressBook", event);
   },
 
   _onSortChanged(event) {
