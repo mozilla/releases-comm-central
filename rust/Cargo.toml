@@ -21,9 +21,12 @@ cmake = { path = "../../build/rust/cmake" }
 vcpkg = { path = "../../build/rust/vcpkg" }
 mozbuild = { path = "../../build/rust/mozbuild" }
 windows-targets = { path = "../../build/rust/windows-targets" }
+windows-targets_0_48 = { package = "windows-targets", path = "../../build/rust/windows-targets-0.48" }
+windows-sys = { path = "../../build/rust/windows-sys" }
 oslog = { path = "../../build/rust/oslog" }
 terminal_size = { path = "../../build/rust/terminal_size" }
 bitflags = { path = "../../build/rust/bitflags" }
+memmap2_0_5 = { package = "memmap2", path = "../../build/rust/memmap2-0.5" }
 memmap2 = { path = "../../build/rust/memmap2" }
 cfg-if = { path = "../../build/rust/cfg-if" }
 serde_with = { path = "../../build/rust/serde_with" }
@@ -59,13 +62,14 @@ libudev-sys = { path = "../../dom/webauthn/libudev-sys" }
 midir = { git = "https://github.com/mozilla/midir.git", rev = "85156e360a37d851734118104619f86bd18e94c6" }
 warp = { git = "https://github.com/seanmonstar/warp", rev = "9d081461ae1167eb321585ce424f4fef6cf0092b" }
 malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
-interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
-sql-support = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
-suggest = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
-sync15 = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
-tabs = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
-viaduct = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
-webext-storage = { git = "https://github.com/mozilla/application-services", rev = "c1e935d9d1d68e2bee323a236e62165ab1bbb2da" }
+interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "9d1ab279d2aa31e4c6c80dd1ee0baf9345e26253" }
+sql-support = { git = "https://github.com/mozilla/application-services", rev = "9d1ab279d2aa31e4c6c80dd1ee0baf9345e26253" }
+suggest = { git = "https://github.com/mozilla/application-services", rev = "9d1ab279d2aa31e4c6c80dd1ee0baf9345e26253" }
+sync15 = { git = "https://github.com/mozilla/application-services", rev = "9d1ab279d2aa31e4c6c80dd1ee0baf9345e26253" }
+tabs = { git = "https://github.com/mozilla/application-services", rev = "9d1ab279d2aa31e4c6c80dd1ee0baf9345e26253" }
+viaduct = { git = "https://github.com/mozilla/application-services", rev = "9d1ab279d2aa31e4c6c80dd1ee0baf9345e26253" }
+webext-storage = { git = "https://github.com/mozilla/application-services", rev = "9d1ab279d2aa31e4c6c80dd1ee0baf9345e26253" }
+mio_0_8 = { package = "mio", git = "https://github.com/glandium/mio", rev = "9a2ef335c366044ffe73b1c4acabe50a1daefe05" }
 mio = { path = "../../third_party/rust/mio-0.6.23" }
 
 [patch."https://github.com/mozilla/uniffi-rs.git"]
