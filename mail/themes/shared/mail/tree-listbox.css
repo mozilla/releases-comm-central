@@ -640,7 +640,7 @@ table[is="tree-view-table"] tr.selected td.current-cell {
 table[is="tree-view-table"] td {
   max-width: 0;
   height: inherit;
-  overflow: hidden;
+  overflow: clip;
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 0 6px;

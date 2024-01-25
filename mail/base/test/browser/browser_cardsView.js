@@ -155,6 +155,17 @@ add_task(async function testSwitchToCardsView() {
     "The message row should remain as Row Item"
   );
 
+  const tableRow = threadTree.getRowAtIndex(1);
+  const tableData = tableRow.querySelector(".thread-card-container");
+  const rowHeight = getComputedStyle(tableRow).getPropertyValue("height");
+  const containerHeight =
+    getComputedStyle(tableData).getPropertyValue("height");
+  Assert.equal(
+    rowHeight,
+    containerHeight,
+    "The message and content container height should be the same"
+  );
+
   const row = threadTree.getRowAtIndex(0);
   const star = row.querySelector(".button-star");
   Assert.ok(BrowserTestUtils.isVisible(star), "star icon should be visible");
