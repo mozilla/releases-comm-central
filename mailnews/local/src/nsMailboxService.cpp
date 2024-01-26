@@ -121,6 +121,10 @@ nsresult nsMailboxService::FetchMessage(
       msgUrl->SetMsgWindow(aMsgWindow);
       nsCOMPtr<nsIMailboxUrl> mailboxUrl = do_QueryInterface(msgUrl, &rv);
       mailboxUrl->SetMessageSize((uint32_t)fileSize);
+      if (aUrlListener) {
+        rv = msgUrl->RegisterListener(aUrlListener);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
     }
   } else {
     // this happens with forward inline of message/rfc822 attachment
