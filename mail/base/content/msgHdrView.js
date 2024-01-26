@@ -136,6 +136,7 @@ const gExpandedHeaderList = [
   { name: "message-id", outputFunction: outputMessageIds, hidden: true },
   { name: "content-base" },
   { name: "tags", outputFunction: outputTags },
+  { name: "user-agent", hidden: true },
   { name: "organization", hidden: true },
 ];
 
