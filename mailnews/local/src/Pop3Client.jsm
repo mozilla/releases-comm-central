@@ -369,6 +369,38 @@ class Pop3Client {
     this._logger.error(`${event.name}: a ${event.message} error occurred`);
     this._server.serverBusy = false;
 
+    let errorName;
+    switch (event.errorCode) {
+      case Cr.NS_ERROR_UNKNOWN_HOST:
+      case Cr.NS_ERROR_UNKNOWN_PROXY_HOST:
+        errorName = "unknownHostError";
+        break;
+      case Cr.NS_ERROR_CONNECTION_REFUSED:
+        errorName = "connectionRefusedError";
+        break;
+      case Cr.NS_ERROR_PROXY_CONNECTION_REFUSED:
+        errorName = "connectionRefusedError";
+        break;
+      case Cr.NS_ERROR_NET_TIMEOUT:
+        errorName = "netTimeoutError";
+        break;
+      case Cr.NS_ERROR_NET_RESET:
+        errorName = "netResetError";
+        break;
+      case Cr.NS_ERROR_NET_INTERRUPT:
+        errorName = "netInterruptError";
+        break;
+    }
+    if (errorName) {
+      const bundle = Services.strings.createBundle(
+        "chrome://messenger/locale/messenger.properties"
+      );
+      const errorMessage = bundle.formatStringFromName(errorName, [
+        this._server.hostName,
+      ]);
+      MailServices.mailSession.alertUser(errorMessage, this.runningUri);
+    }
+
     // `_onClose` should not run before `_onError` finishes, so it will wait
     // for this promise.
     const { promise, resolve } = Promise.withResolvers();

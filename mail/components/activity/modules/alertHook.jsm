@@ -55,6 +55,10 @@ var alertHook = {
 
     this.activityMgr.addActivity(warning);
 
+    if (Services.prefs.getBoolPref("mail.suppressAlertsForTests", false)) {
+      return true;
+    }
+
     // If we have a message window in the url, then show a warning prompt,
     // just like the modal code used to. Otherwise, don't.
     try {
