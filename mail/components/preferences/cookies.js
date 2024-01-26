@@ -549,6 +549,7 @@ var gCookiesWindow = {
       this._addCookie(strippedHost, cookie, hostCount);
     }
     this._view._rowCount = hostCount.value;
+    this._tree.rowCountChanged(0, hostCount.value);
   },
 
   formatExpiresString(aExpires) {
