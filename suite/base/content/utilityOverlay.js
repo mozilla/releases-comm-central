@@ -1478,6 +1478,7 @@ function openLinkIn(url, where, params)
         params.referrerPolicy : Ci.nsIHttpChannel.REFERRER_POLICY_UNSET);
   var aRelatedToCurrent     = params.relatedToCurrent;
   var aAllowMixedContent    = params.allowMixedContent;
+  var aForceAllowDataURI    = params.forceAllowDataURI;
   var aInBackground         = params.inBackground;
   var aAvoidBrowserFocus    = params.avoidBrowserFocus;
   var aDisallowInheritPrincipal = params.disallowInheritPrincipal;
@@ -1606,6 +1607,9 @@ function openLinkIn(url, where, params)
     }
     if (aDisallowInheritPrincipal) {
       flags |= Ci.nsIWebNavigation.LOAD_FLAGS_DISALLOW_INHERIT_OWNER;
+    }
+    if (aForceAllowDataURI) {
+      flags |= Ci.nsIWebNavigation.LOAD_FLAGS_FORCE_ALLOW_DATA_URI;
     }
 
     if (aForceAboutBlankViewerInCurrent) {

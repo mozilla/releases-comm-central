@@ -1086,6 +1086,7 @@ nsContextMenu.prototype = {
                        Ci.nsIScriptSecurityManager.DISALLOW_SCRIPT);
       openUILinkIn(this.mediaURL, where,
                    { referrerURI: doc.documentURIObject,
+                     forceAllowDataURI: true,
                      triggeringPrincipal: this.target.nodePrincipal,
                    });
     }
