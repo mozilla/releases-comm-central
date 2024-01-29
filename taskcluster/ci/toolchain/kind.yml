@@ -11,7 +11,6 @@ kind-dependencies:
 
 reference-jobs:
     - linux64-aarch64-compiler-rt-17
-    - linux64-cargo-vet
     - linux64-cbindgen
     - linux64-cctools-port
     - linux64-clang-17-profile
