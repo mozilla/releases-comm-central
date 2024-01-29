@@ -2998,6 +2998,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2133b12230591b7e727c8977b96b791bba421cd80ce8eb08b782dcb4a43fa1e9"
 
 [[package]]
+name = "moz_http"
+version = "0.1.0"
+dependencies = [
+ "cstr",
+ "mozilla-central-workspace-hack",
+ "nserror",
+ "nsstring",
+ "thin-vec",
+ "xpcom",
+ "xpcom_async",
+]
+
+[[package]]
 name = "moz_task"
 version = "0.1.0"
 dependencies = [

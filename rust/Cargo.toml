@@ -9,7 +9,7 @@ gkrust = []
 
 
 [workspace]
-members = ['xpcom_async', 'gkrust']
+members = ['xpcom_async', 'moz_http', 'gkrust']
 
 [workspace.dependencies]
 uniffi = { version = "0.25.3" }
