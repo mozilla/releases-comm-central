@@ -165,7 +165,7 @@ class EnigmailKeyObj {
   /**
    * Does the key have secondary user IDs?
    *
-   * @return: Boolean - true if yes; false if no
+   * @returns {boolean} true if the key has secondary userIDs.
    */
   hasSubUserIds() {
     let nUid = 0;
@@ -174,7 +174,6 @@ class EnigmailKeyObj {
         ++nUid;
       }
     }
-
     return nUid >= 2;
   }
 
@@ -182,7 +181,7 @@ class EnigmailKeyObj {
    * Get a formatted version of the fingerprint:
    * 1234 5678 90AB CDEF .... ....
    *
-   * @returns String - the formatted fingerprint
+   * @returns {string} The formatted fingerprint.
    */
   get fprFormatted() {
     let f = lazy.EnigmailKey.formatFpr(this.fpr);
@@ -195,9 +194,9 @@ class EnigmailKeyObj {
   /**
    * Determine if the public key is valid. If not, return a description why it's not
    *
-   * @returns Object:
-   *   - keyValid: Boolean (true if key is valid)
-   *   - reason: String (explanation of invalidity)
+   * @returns {object} validity
+   * @returns {boolean} validity.keyValid - true if key is valid
+   * @returns {string} validity.reason - explanation of invalidity
    */
   getPubKeyValidity(exceptionReason = null) {
     const retVal = {
@@ -229,9 +228,9 @@ class EnigmailKeyObj {
   /**
    * Check whether a key can be used for signing and return a description of why not
    *
-   * @returns Object:
-   *   - keyValid: Boolean (true if key is valid)
-   *   - reason: String (explanation of invalidity)
+   * @returns {object} validity
+   * @returns {boolean} validity.keyValid - true if key is valid
+   * @returns {string} validity.reason - explanation of invalidity
    */
   getSigningValidity(exceptionReason = null) {
     const retVal = this.getPubKeyValidity(exceptionReason);
@@ -318,25 +317,24 @@ class EnigmailKeyObj {
   /**
    * Check whether a key can be used for encryption and return a description of why not
    *
-   * @param {boolean} requireDecryptionKey:
-   *                  If true, require secret key material to be available
-   *                  for at least one encryption key.
-   * @param {string} exceptionReason:
-   *                 Can be used to override the requirement to check for
-   *                 full validity, and accept certain scenarios as valid.
-   *                 If value is set to "ignoreExpired",
-   *                 then an expired key isn't treated as invalid.
-   *                 Set to null to get the default behavior.
-   * @param {string} subId:
-   *                 A key ID of a subkey or null.
-   *                 If subId is null, any part of the key will be
-   *                 considered when looking for a valid encryption key.
-   *                 If subId is non-null, only this subkey will be
-   *                 checked.
+   * @param {boolean} requireDecryptionKey -
+   *   If true, require secret key material to be available for at least one
+   *   encryption key.
+   * @param {?string} exceptionReason -
+   *   Can be used to override the requirement to check for
+   *   full validity, and accept certain scenarios as valid.
+   *   If value is set to "ignoreExpired",
+   *   then an expired key isn't treated as invalid.
+   *   Set to null to get the default behavior.
+   * @param {?string} subId -
+   *   A key ID of a subkey or null.
+   *   If subId is null, any part of the key will be
+   *   considered when looking for a valid encryption key.
+   *   If subId is non-null, only this subkey will be checked.
    *
-   * @returns Object:
-   *   - keyValid: Boolean (true if key is valid)
-   *   - reason: String (explanation of invalidity)
+   * @returns {object} validity
+   * @returns {boolean} validity.keyValid - true if key is valid
+   * @returns {string} validity.reason - explanation of invalidity
    */
   getEncryptionValidity(
     requireDecryptionKey,
@@ -436,7 +434,7 @@ class EnigmailKeyObj {
    * or the maximum expiry date of a signing or encryption subkey. I.e. this returns the next
    * date at which the key cannot be used for signing and/or encryption anymore
    *
-   * @returns Number - The expiry date as seconds after 01/01/1970
+   * @returns {integer} The expiry date as seconds after 01/01/1970
    */
   getKeyExpiry() {
     let expiryDate = Number.MAX_VALUE;
@@ -483,12 +481,12 @@ class EnigmailKeyObj {
    * Export the minimum key for the public key object:
    * public key, desired UID, newest signing/encryption subkey
    *
-   * @param {string} emailAddr: [optional] email address of UID to extract. Use primary UID if null .
-   *
-   * @returns Object:
-   *    - exitCode (0 = success)
-   *    - errorMsg (if exitCode != 0)
-   *    - keyData: BASE64-encded string of key data
+   * @param {string} [emailAddr] - The email address of UID to extract.
+   *   Use primary UID if null.
+   * @returns {object} minimal
+   * @returns {integer} minimal.exitCode 0 for success.
+   * @returns {string} minimal.errorMsg error message, if exitCode != 0.
+   * @returns {string} minimal.keyData BASE64-encded string of key data.
    */
   getMinimalPubKey(emailAddr) {
     lazy.EnigmailLog.DEBUG(
@@ -572,8 +570,7 @@ class EnigmailKeyObj {
    * Obtain a "virtual" key size that allows to compare different algorithms with each other
    * e.g. elliptic curve keys have small key sizes with high cryptographic strength
    *
-   *
-   * @returns Number: a virtual size
+   * @returns {integer} a virtual size
    */
   getVirtualKeySize() {
     lazy.EnigmailLog.DEBUG(
