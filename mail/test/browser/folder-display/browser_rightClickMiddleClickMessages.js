@@ -17,6 +17,7 @@ var {
   assert_message_pane_focused,
   assert_messages_not_in_view,
   assert_nothing_selected,
+  assert_number_of_tabs_open,
   assert_selected,
   assert_selected_and_displayed,
   assert_selected_tab,
@@ -35,11 +36,13 @@ var {
   make_message_sets_in_folders,
   middle_click_on_row,
   reset_context_menu_background_tabs,
+  reset_open_message_behavior,
   right_click_on_row,
   select_click_row,
   select_none,
   select_shift_click_row,
   set_context_menu_background_tabs,
+  set_open_message_behavior,
   switch_tab,
   wait_for_message_display_completion,
   wait_for_popup_to_open,
@@ -71,13 +74,14 @@ add_setup(async function () {
 
   registerCleanupFunction(function () {
     reset_context_menu_background_tabs();
+    reset_open_message_behavior();
   });
 });
 
 /**
  * Make sure that a right-click when there is nothing currently selected does
- *  not cause us to display something, as well as correctly causing a transient
- *  selection to occur.
+ * not cause us to display something, as well as correctly causing a transient
+ * selection to occur.
  */
 add_task(async function test_right_click_with_nothing_selected() {
   await be_in_folder(folder);
@@ -195,20 +199,35 @@ add_task(async function test_right_click_on_existing_multi_selection() {
 });
 
 /**
- * Middle clicking should open a message in a tab, but not affect our selection.
+ * Middle clicking should always open a message in a new tab, without affecting
+ * our selection. Regardless of the user's Open message behaviour.
+ * @param {boolean} aBackground - Whether message should load in the background.
+ * @param {number} clickedRow - Index of clicked row
+ * @param {number} numMessagesToOpen - Number of tabs that should load.
  */
-async function _middle_click_with_nothing_selected_helper(aBackground) {
-  await be_in_folder(folder);
-
-  await select_none();
-  await assert_nothing_selected();
+async function _middle_click_helper(
+  aBackground,
+  clickedRow,
+  numMessagesToOpen
+) {
   const folderTab = document.getElementById("tabmail").currentTabInfo;
-  // Focus the thread tree -- we're going to make sure it's focused when we
-  // come back
-  focus_thread_tree();
-  const [tabMessage, curMessage] = await middle_click_on_row(1);
-  if (aBackground) {
+  const preCount =
+    document.getElementById("tabmail").tabContainer.allTabs.length;
+  const [tabMessage, curMessage] = await middle_click_on_row(clickedRow);
+
+  if (numMessagesToOpen > 1) {
+    await Promise.all(
+      tabmail.tabInfo
+        .slice(1)
+        .map(tab =>
+          BrowserTestUtils.waitForEvent(tab.chromeBrowser, "MsgLoaded")
+        )
+    );
+  } else {
     await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
+  }
+
+  if (aBackground) {
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(folderTab);
     // Now switch to the new tab and check
@@ -218,22 +237,29 @@ async function _middle_click_with_nothing_selected_helper(aBackground) {
   }
 
   await assert_selected_and_displayed(curMessage);
+  // Check that it opens the correct amount of tabs.
+  await assert_number_of_tabs_open(preCount + numMessagesToOpen);
   assert_message_pane_focused();
-  close_tab(tabMessage);
+  tabmail.closeOtherTabs(0);
+}
+
+/**
+ * Middle clicking should open a message in a tab, but not affect our selection.
+ */
+async function _middle_click_with_nothing_selected_helper(aBackground) {
+  await be_in_folder(folder);
+
+  await select_none();
+  await assert_nothing_selected();
+  // Focus the thread tree -- we're going to make sure it's focused when we
+  // come back
+  focus_thread_tree();
+
+  await _middle_click_helper(aBackground, 1, 1);
 
   await assert_nothing_selected();
   assert_thread_tree_focused();
 }
-
-add_task(async function test_middle_click_with_nothing_selected_fg() {
-  set_context_menu_background_tabs(false);
-  await _middle_click_with_nothing_selected_helper(false);
-});
-
-add_task(async function test_middle_click_with_nothing_selected_bg() {
-  set_context_menu_background_tabs(true);
-  await _middle_click_with_nothing_selected_helper(true);
-});
 
 /**
  * One-thing selected, middle-click on something else.
@@ -244,35 +270,11 @@ async function _middle_click_with_one_thing_selected_helper(aBackground) {
   await select_click_row(0);
   await assert_selected_and_displayed(0);
 
-  const folderTab = document.getElementById("tabmail").currentTabInfo;
-  const [tabMessage, curMessage] = await middle_click_on_row(1);
-  if (aBackground) {
-    await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
-    // Make sure we haven't switched to the new tab.
-    assert_selected_tab(folderTab);
-    // Now switch to the new tab and check
-    await switch_tab(tabMessage);
-  } else {
-    await wait_for_message_display_completion();
-  }
-
-  await assert_selected_and_displayed(curMessage);
-  assert_message_pane_focused();
-  close_tab(tabMessage);
+  await _middle_click_helper(aBackground, 1, 1);
 
   await assert_selected_and_displayed(0);
   assert_thread_tree_focused();
 }
-
-add_task(async function test_middle_click_with_one_thing_selected_fg() {
-  set_context_menu_background_tabs(false);
-  await _middle_click_with_one_thing_selected_helper(false);
-});
-
-add_task(async function test_middle_click_with_one_thing_selected_bg() {
-  set_context_menu_background_tabs(true);
-  await _middle_click_with_one_thing_selected_helper(true);
-});
 
 /**
  * Many things selected, middle-click on something that is not in that
@@ -285,34 +287,11 @@ async function _middle_click_with_many_things_selected_helper(aBackground) {
   await select_shift_click_row(5);
   await assert_selected_and_displayed([0, 5]);
 
-  const folderTab = document.getElementById("tabmail").currentTabInfo;
-  const [tabMessage] = await middle_click_on_row(6);
-  if (aBackground) {
-    await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
-    // Make sure we haven't switched to the new tab.
-    assert_selected_tab(folderTab);
-    // Now switch to the new tab and check
-    await switch_tab(tabMessage);
-  } else {
-    await wait_for_message_display_completion();
-  }
-
-  assert_message_pane_focused();
-  tabmail.closeOtherTabs(0);
+  await _middle_click_helper(aBackground, 6, 1);
 
   await assert_selected_and_displayed([0, 5]);
   assert_thread_tree_focused();
 }
-
-add_task(async function test_middle_click_with_many_things_selected_fg() {
-  set_context_menu_background_tabs(false);
-  await _middle_click_with_many_things_selected_helper(false);
-});
-
-add_task(async function test_middle_click_with_many_things_selected_bg() {
-  set_context_menu_background_tabs(true);
-  await _middle_click_with_many_things_selected_helper(true);
-});
 
 /**
  * One thing selected, middle-click on that.
@@ -323,35 +302,11 @@ async function _middle_click_on_existing_single_selection_helper(aBackground) {
   await select_click_row(3);
   await assert_selected_and_displayed(3);
 
-  const folderTab = document.getElementById("tabmail").currentTabInfo;
-  const [tabMessage, curMessage] = await middle_click_on_row(3);
-  if (aBackground) {
-    await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
-    // Make sure we haven't switched to the new tab.
-    assert_selected_tab(folderTab);
-    // Now switch to the new tab and check
-    await switch_tab(tabMessage);
-  } else {
-    await wait_for_message_display_completion();
-  }
-
-  await assert_selected_and_displayed(curMessage);
-  assert_message_pane_focused();
-  close_tab(tabMessage);
+  await _middle_click_helper(aBackground, 3, 1);
 
   await assert_selected_and_displayed(3);
   assert_thread_tree_focused();
 }
-
-add_task(async function test_middle_click_on_existing_single_selection_fg() {
-  set_context_menu_background_tabs(false);
-  await _middle_click_on_existing_single_selection_helper(false);
-});
-
-add_task(async function test_middle_click_on_existing_single_selection_bg() {
-  set_context_menu_background_tabs(true);
-  await _middle_click_on_existing_single_selection_helper(true);
-});
 
 /**
  * Many things selected, middle-click somewhere in the selection.
@@ -363,38 +318,54 @@ async function _middle_click_on_existing_multi_selection_helper(aBackground) {
   await select_shift_click_row(6);
   await assert_selected_and_displayed([3, 6]);
 
-  const folderTab = document.getElementById("tabmail").currentTabInfo;
-  const [tabMessage, curMessage] = await middle_click_on_row(6);
-  await Promise.all(
-    tabmail.tabInfo
-      .slice(1)
-      .map(tab => BrowserTestUtils.waitForEvent(tab.chromeBrowser, "MsgLoaded"))
-  );
-  if (aBackground) {
-    // Make sure we haven't switched to the new tab.
-    assert_selected_tab(folderTab);
-    // Now switch to the new tab and check
-    await switch_tab(tabMessage);
-  } else {
-    await wait_for_message_display_completion();
-  }
-
-  await assert_selected_and_displayed(curMessage);
-  assert_message_pane_focused();
-  tabmail.closeOtherTabs(0);
+  await _middle_click_helper(aBackground, 6, 4);
 
   await assert_selected_and_displayed([3, 6]);
   assert_thread_tree_focused();
 }
 
-add_task(async function test_middle_click_on_existing_multi_selection_fg() {
-  set_context_menu_background_tabs(false);
-  await _middle_click_on_existing_multi_selection_helper(false);
-});
+add_task(async function test_middle_click_interactions() {
+  for (
+    let openMessageBehaviorPref = 0;
+    openMessageBehaviorPref < 3;
+    openMessageBehaviorPref++
+  ) {
+    set_open_message_behavior(openMessageBehaviorPref);
 
-add_task(async function test_middle_click_on_existing_multi_selection_bg() {
-  set_context_menu_background_tabs(true);
-  await _middle_click_on_existing_multi_selection_helper(true);
+    for (
+      let loadInBackgroundPref = 0;
+      loadInBackgroundPref < 2;
+      loadInBackgroundPref++
+    ) {
+      // No message selected
+      set_context_menu_background_tabs(loadInBackgroundPref);
+      await _middle_click_with_nothing_selected_helper(loadInBackgroundPref);
+
+      // one message selected
+      await _middle_click_with_one_thing_selected_helper(loadInBackgroundPref);
+
+      // Many messages selected but middle clicking a different msg
+      await _middle_click_with_many_things_selected_helper(
+        loadInBackgroundPref
+      );
+
+      // Middle Clicking on the only selected message
+      await _middle_click_on_existing_single_selection_helper(
+        loadInBackgroundPref
+      );
+
+      // Middle clicking on a multi message selection
+      await _middle_click_on_existing_multi_selection_helper(
+        loadInBackgroundPref
+      );
+
+      // collapsed thread root
+      await _middle_click_on_collapsed_thread_root_helper(loadInBackgroundPref);
+
+      // expanded thread root
+      await _middle_click_on_expanded_thread_root_helper(loadInBackgroundPref);
+    }
+  }
 });
 
 /**
@@ -440,16 +411,6 @@ async function _middle_click_on_collapsed_thread_root_helper(aBackground) {
   }
   tabmail.closeOtherTabs(0);
 }
-
-add_task(async function test_middle_click_on_collapsed_thread_root_fg() {
-  set_context_menu_background_tabs(false);
-  await _middle_click_on_collapsed_thread_root_helper(false);
-});
-
-add_task(async function test_middle_click_on_collapsed_thread_root_bg() {
-  set_context_menu_background_tabs(true);
-  await _middle_click_on_collapsed_thread_root_helper(true);
-});
 
 /**
  * Middle-click on the root of an expanded thread, making sure that we don't
@@ -501,16 +462,6 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
 
   close_tab(tabMessage);
 }
-
-add_task(async function test_middle_click_on_expanded_thread_root_fg() {
-  set_context_menu_background_tabs(false);
-  await _middle_click_on_expanded_thread_root_helper(false);
-});
-
-add_task(async function test_middle_click_on_expanded_thread_root_bg() {
-  set_context_menu_background_tabs(true);
-  await _middle_click_on_expanded_thread_root_helper(true);
-});
 
 /**
  * Right-click on something and delete it, having no selection previously.
