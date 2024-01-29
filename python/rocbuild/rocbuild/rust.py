@@ -434,7 +434,7 @@ def verify_vendored_dependencies(topsrcdir):
     if result:
         print("Rust dependencies are out of sync. Run `mach tb-rust vendor`.\n")
         print("\n".join(result))
-        sys.exit(1)
+        sys.exit(88)
 
     print("Rust dependencies are okay.")
 
