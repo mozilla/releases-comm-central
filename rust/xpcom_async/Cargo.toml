@@ -1,0 +1,14 @@
+[package]
+name = "xpcom_async"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "xpcom_async"
+
+[dependencies]
+mozilla-central-workspace-hack = { version = "0.1", features = [], optional = true }
+xpcom = { path = "../../../xpcom/rust/xpcom" }
+nserror = { path = "../../../xpcom/rust/nserror" }
+
+thin-vec = "0.2.13"
