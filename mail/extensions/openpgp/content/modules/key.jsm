@@ -6,6 +6,8 @@
 
 "use strict";
 
+/* eslint-enable valid-jsdoc */
+
 var EXPORTED_SYMBOLS = ["EnigmailKey"];
 
 const { XPCOMUtils } = ChromeUtils.importESModule(
@@ -29,13 +31,10 @@ var EnigmailKey = {
   /**
    * Format a key fingerprint
    *
-   * @fingerprint |string|  -  unformatted OpenPGP fingerprint
-   *
-   * @returns |string| - formatted string
+   * @param {string} fingerprint  - Unformatted OpenPGP fingerprint.
+   * @returns {string} The formatted string.
    */
   formatFpr(fingerprint) {
-    //EnigmailLog.DEBUG("key.jsm: EnigmailKey.formatFpr(" + fingerprint + ")\n");
-    // format key fingerprint
     let r = "";
     const fpr = fingerprint.match(
       /(....)(....)(....)(....)(....)(....)(....)(....)(....)?(....)?/
@@ -48,7 +47,12 @@ var EnigmailKey = {
     return r;
   },
 
-  // Extract public key from Status Message
+  /**
+   * Extract the public key from a status message.
+   *
+   * @param {string} statusMsg
+   * @returns {?string} the public key, if one is found.
+   */
   extractPubkey(statusMsg) {
     const matchb = statusMsg.match(/(^|\n)NO_PUBKEY (\w{8})(\w{8})/);
     if (matchb && matchb.length > 3) {
@@ -61,9 +65,12 @@ var EnigmailKey = {
   },
 
   /**
-   * import a revocation certificate form a given keyblock string.
+   * Import a revocation certificate form a given keyblock string.
    * Ask the user before importing the cert, and display an error
    * message in case of failures.
+   *
+   * @param {string} keyId - The keyID to import for.
+   * @param {string} keyBlockStr - The key block to import from.
    */
   importRevocationCert(keyId, keyBlockStr) {
     const key = lazy.EnigmailKeyRing.getKeyById(keyId);
@@ -137,12 +144,18 @@ var EnigmailKey = {
    * @param {boolean} interactive - if in interactive mode, may display dialogs (default: true)
    * @param {boolean} pubkey - load public keys from the given block
    * @param {boolean} seckey - load secret keys from the given block
+   * @param {boolean} [withPubKey=false] - If true, an additional attribute
+   *   "pubKey" will be added to each returned KeyObj, which will
+   *   contain an ascii armor copy of the public key.
    *
-   * @returns {object[]} an array of objects with the following structure:
-   *          - id (key ID)
-   *          - fpr
-   *          - name (the UID of the key)
-   *          - state (one of "old" [existing key], "new" [new key], "invalid" [key cannot not be imported])
+   * @returns {object[]} objects - An array of objects.
+   * @returns {string} objects[].id - Key ID.
+   * @returns {string} objects[].fpr - Fingerprint.
+   * @returns {string} objects[].name - The UID of the key.
+   * @returns {"old"|"new"|"invalid"} objects[].state - One of:
+   *   - "old" [existing key]
+   *   - "new" [new key]
+   *   - "invalid" [key cannot not be imported]
    */
   async getKeyListFromKeyBlock(
     keyBlockStr,
@@ -238,7 +251,11 @@ var EnigmailKey = {
    *
    * @param {nsIFile} file - The file to read.
    * @param {object} errorMsgObj - Object; obj.value will contain error message.
-   *
+   * @param {boolean} pubkey - Load public keys.
+   * @param {boolean} seckey - Load secret keys.
+   * @param {boolean} [withPubKey=false] - If true, an additional attribute
+   *   "pubKey" will be added to each returned KeyObj, which will
+   *   contain an ascii armor copy of the public key.
    * @returns {object[]} An array of objects; see getKeyListFromKeyBlock()
    */
   async getKeyListFromKeyFile(
@@ -261,13 +278,12 @@ var EnigmailKey = {
   },
 
   /**
-   * Compare 2 KeyIds of possible different length (short, long, FPR-length, with or without prefixed
-   * 0x are accepted)
+   * Compare 2 KeyIds of possible different length (short, long, FPR-length,
+   * with or without prefixed 0x are accepted).
    *
-   * @param keyId1       string
-   * @param keyId2       string
-   *
-   * @returns true or false, given the comparison of the last minimum-length characters.
+   * @param {string} keyId1 - First key to compare.
+   * @param {string} keyId2 - Second key to compare.
+   * @returns {boolean} true if the keyIDs are the same.
    */
   compareKeyIds(keyId1, keyId2) {
     var keyId1Raw = keyId1.replace(/^0x/, "").toUpperCase();
