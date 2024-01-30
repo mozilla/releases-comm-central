@@ -129,7 +129,6 @@ add_task(async function startup() {
     "layout.reflow.dumpframebyframecounts",
     "layout.reflow.dumpframecounts",
     "layout.reflow.showframecounts",
-    "layout.scrollbar.side",
   ];
 
   for (const pref of prefsUsedInLayout) {
