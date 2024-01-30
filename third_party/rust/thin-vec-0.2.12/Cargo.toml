@@ -11,23 +11,23 @@
 
 [package]
 edition = "2018"
-name = "audioipc2-client"
-version = "0.6.0"
-authors = [
-    "Matthew Gregan <kinetik@flim.org>",
-    "Dan Glastonbury <dan.glastonbury@gmail.com>",
-]
-description = "Cubeb Backend for talking to remote cubeb server."
-license = "ISC"
+name = "thin-vec"
+version = "0.2.12"
+authors = ["Aria Beingessner <a.beingessner@gmail.com>"]
+description = "A vec that takes up less space on the stack"
+homepage = "https://github.com/gankra/thin-vec"
+readme = "README.md"
+license = "MIT/Apache-2.0"
+repository = "https://github.com/gankra/thin-vec"
 
-[dependencies]
-cubeb-backend = "0.12"
-log = "0.4"
+[dependencies.serde]
+version = "1.0"
+optional = true
 
-[dependencies.audio_thread_priority]
-version = "0.31"
-default-features = false
+[dev-dependencies.serde_test]
+version = "1.0"
 
-[dependencies.audioipc]
-path = "../audioipc"
-package = "audioipc2"
+[features]
+default = []
+gecko-ffi = []
+unstable = []

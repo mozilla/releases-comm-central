@@ -18,9 +18,9 @@ mozilla-central-workspace-hack = { version = "0.1", features = ['gkrust'], optio
 gkrust-shared = { version = "0.1.0", path = "../../../toolkit/library/rust/shared" }
 aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "ed4206ea11703580cd1d4fc63371a527b29d8252" }
 app_services_logger = { path = "../../../services/common/app_services_logger" }
-audio_thread_priority = { version = "0.30" }
-audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "8b391135f9421dc5ab0c45f646c21651a906ce7f", optional = true }
-audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "8b391135f9421dc5ab0c45f646c21651a906ce7f", optional = true }
+audio_thread_priority = { version = "0.31" }
+audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "596bdb7fbb5745ea415726e16bd497e6c850a540", optional = true }
+audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "596bdb7fbb5745ea415726e16bd497e6c850a540", optional = true }
 authrs_bridge = { path = "../../../dom/webauthn/authrs_bridge" }
 binary_http = { path = "../../../netwerk/protocol/http/binary_http" }
 bitsdownload = { path = "../../../toolkit/components/bitsdownload", optional = true }
@@ -30,7 +30,7 @@ cert_storage = { path = "../../../security/manager/ssl/cert_storage" }
 chardetng_c = { version = "0.1.1" }
 cose-c = { version = "0.1.5" }
 crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
-cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "a0534f6e910213fd4f7387a9ed03c980ff20da1d", optional = true }
+cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "4ba39ca14bbb5bb0274843701cd958717a0fe293", optional = true }
 cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "8ff972c8e2ec1782ff262ac4071c0415e69b1367", optional = true, features = ['pulse-dlopen'] }
 cubeb-sys = { version = "0.12.0", optional = true, features = ['gecko-in-tree'] }
 dap_ffi = { path = "../../../toolkit/components/telemetry/dap/ffi" }
