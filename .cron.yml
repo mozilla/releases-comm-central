@@ -96,3 +96,12 @@ jobs:
           - comm-central
       when: [{hour: 12, minute: 0}]
       # when: []
+
+    - name: tb-rust-vendor-check
+      job:
+          type: decision-task
+          treeherder-symbol: tb-rust-vendor-check
+          target-tasks-method: tb_rust_vendor_check
+      run-on-projects:
+          - comm-central
+      when: []  # never (hook only)

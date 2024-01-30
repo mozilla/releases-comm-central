@@ -73,3 +73,13 @@ def target_tasks_ash(full_task_graph, parameters, graph_config):
         )
 
     return [l for l, t in full_task_graph.tasks.items() if _filter(t, parameters)]
+
+
+@_target_task("tb_rust_vendor_check")
+def target_tasks_tb_rust_vendor_check(full_task_graph, parameters, graph_config):
+    """Select the set of tasks required to run tb-rust check-upstream & vendor."""
+
+    def _filter(task):
+        return task.kind in ["repo-update"]
+
+    return [l for l, t in full_task_graph.tasks.items() if _filter(t)]
