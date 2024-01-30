@@ -1728,6 +1728,8 @@ DBViewWrapper.prototype = {
     if (sortTypeType != "number") {
       sortCustomColumn = sortTypeType == "string" ? sortType : sortType.id;
       sortType = Ci.nsMsgViewSortType.byCustom;
+      // Set correct sortType.
+      this._sort[aIndex][0] = sortType;
     }
 
     return [sortType, sortOrder, sortCustomColumn];

@@ -266,7 +266,7 @@ const DEFAULT_COLUMNS = [
  * @param {nsIMsgFolder} folder - The message folder.
  * @returns {boolean} True if the folder is Outgoing.
  */
-export const isOutgoing = folder => {
+const isOutgoing = folder => {
   return folder.isSpecialFolder(
     lazy.DBViewWrapper.prototype.OUTGOING_FOLDER_FLAGS,
     true
@@ -283,7 +283,7 @@ export const isOutgoing = folder => {
  *   the gloda results list.
  * @returns {object[]}
  */
-export function getDefaultColumns(folder, isSynthetic = false) {
+function getDefaultColumns(folder, isSynthetic = false) {
   // Create a clone we can edit.
   const updatedColumns = DEFAULT_COLUMNS.map(column => ({ ...column }));
 
@@ -379,7 +379,206 @@ function getProperSenderForCardsView(folder) {
  * @param {?nsIMsgFolder} folder - The currently viewed folder if available.
  * @returns {string[]}
  */
-export function getDefaultColumnsForCardsView(folder) {
+function getDefaultColumnsForCardsView(folder) {
   const sender = getProperSenderForCardsView(folder);
   return ["subjectCol", sender, "dateCol", "tagsCol", "totalCol"];
 }
+
+/**
+ * @typedef CustomColumnProperties
+ * @property {string} name - Name of the column as displayed in the column
+ *    header of text columns, and in the column picker menu.
+ * @property {boolean} [hidden] - Whether the column should be initially hidden.
+ * @property {boolean} [icon] - Whether the column is an icon column.
+ * @property {IconCellDefinition[]} [iconCellDefinitions] - Cell icon definitions
+ *   for the column. Required if the icon property is set.
+ * @property {string} [iconHeaderUrl] - Header icon url for the column.
+ *   Required if the icon property is set.
+ * @property {boolean} [resizable] - Whether the column should be resizable.
+ * @property {boolean} [sortable] - Whether the column should be sortable.
+ *
+ * @property {TextCallback} textCallback - Callback function to retrieve the
+ *   text to be used for a given msgHdr. Used for sorting if no dedicated
+ *   sortCallback function given. Also used as display name if columns are
+ *   grouped by the sorted column.
+ * @property {IconCallback} [iconCallback] - Callback function to retrieve the
+ *   icon id to be used for a given msgHdr. Required if icon property is set.
+ * @property {SortCallback} [sortCallback] - Callback function to retrieve a
+ *   numeric sort key for a given msgHdr. If not given, column will be sorted
+ *   by the value returned by specified textCallback.
+ */
+
+/**
+ * @typedef IconCellDefinition
+ * @property {string} id - The id of the icon. Must be alphanumeric only.
+ * @property {string} url - The url of the icon.
+ * @property {string} [title] - Optional value for the icon's title attribute.
+ * @property {string} [alt] - Optional value for the icon's alt attribute.
+ */
+
+/**
+ * Callback function to retrieve the icon to be used for the given msgHdr.
+ * @callback IconCallback
+ * @param {nsIMsgDBHdr} msgHdr
+ *
+ * @returns {string} The id of the icon to be used, as specified in the
+ *   iconCellDefinitions property.
+ */
+
+/**
+ * Callback function to retrieve a numeric sort key for the given msgHdr.
+ * @callback SortCallback
+ * @param {nsIMsgDBHdr} msgHdr
+ *
+ * @returns {integer} A numeric sort key.
+ */
+
+/**
+ * Callback function to retrieve the text to be used for the given msgHdr.
+ * @callback TextCallback
+ * @param {nsIMsgDBHdr} msgHdr
+ *
+ * @returns {string} The text content.
+ */
+
+/**
+ * Register a custom column.
+ *
+ * @param {string} id - uniqe id of the custom column
+ * @param {CustomColumnProperties} properties
+ */
+function addCustomColumn(id, properties) {
+  const {
+    name: columnName,
+    resizable = true,
+    hidden = false,
+    icon = false,
+    sortable = false,
+    iconCellDefinitions = [],
+    iconHeaderUrl = "",
+    iconCallback = null,
+    sortCallback = null,
+    textCallback = null,
+  } = properties;
+
+  if (DEFAULT_COLUMNS.some(column => column.id == id)) {
+    throw new Error(`Cannot add custom column, id is already used: ${id}`);
+  }
+  if (!columnName) {
+    throw new Error(`Missing name property for custom column: ${id}`);
+  }
+  if (icon) {
+    if (!iconCellDefinitions || !iconHeaderUrl || !iconCallback) {
+      throw new Error(`Invalid icon properties for custom icon column: ${id}`);
+    }
+    if (iconCellDefinitions.some(e => !e.id || !e.url || /\W/g.test(e.id))) {
+      throw new Error(
+        `Invalid icon definition: ${JSON.stringify(iconCellDefinitions)}`
+      );
+    }
+  }
+  if (!textCallback) {
+    throw new Error(`Missing textCallback property for custom column: ${id}`);
+  }
+
+  const columnDef = {
+    id,
+    name: columnName,
+    ordinal: DEFAULT_COLUMNS.length + 1,
+    resizable,
+    hidden,
+    icon,
+    sortable,
+    custom: true,
+    iconCellDefinitions,
+    iconHeaderUrl,
+    handler: {
+      QueryInterface: ChromeUtils.generateQI(["nsIMsgCustomColumnHandler"]),
+      getCellText: textCallback,
+      // With Bug 1192696, Grouped By Sort was implemented for custom columns.
+      // Implementers should consider that the value returned by GetSortStringForRow
+      // will be displayed in the grouped header row, as well as be used as the
+      // sort string.
+      getSortStringForRow: textCallback,
+      // Allow to provide a dedicated numerical sort function.
+      getSortLongForRow: sortCallback,
+      isString() {
+        return !sortCallback;
+      },
+      getRowProperties(msgHdr) {
+        // Row properties are used for icons.
+        if (icon) {
+          const iconId = iconCallback(msgHdr);
+          if (/\W/g.test(iconId)) {
+            throw new Error(`Invalid icon value used: ${iconId}`);
+          }
+          return `${id}-${iconId}`;
+        }
+        return "";
+      },
+    },
+  };
+  DEFAULT_COLUMNS.push(columnDef);
+
+  Services.obs.notifyObservers(null, "custom-column-added", id);
+}
+
+/**
+ * Unregister a custom column.
+ *
+ * @param {string} id - uniqe id of the custom column
+ */
+function removeCustomColumn(id) {
+  const index = DEFAULT_COLUMNS.findIndex(column => column.id == id);
+  if (index >= 0) {
+    DEFAULT_COLUMNS.splice(index, 1);
+  }
+
+  Services.obs.notifyObservers(null, "custom-column-removed", id);
+}
+
+/**
+ * Refresh display of a custom column.
+ *
+ * @param {string} id - uniqe id of the custom column
+ */
+function refreshCustomColumn(id) {
+  Services.obs.notifyObservers(null, "custom-column-refreshed", id);
+}
+
+/**
+ * Retrieve the registered column information for the column with the given id.
+ *
+ * @param {string} id - uniqe id of the custom column
+ * @returns {object} Entry of the DEFAULT_COLUMNS array with the given id, or null.
+ */
+function getColumn(id) {
+  const columnDef = DEFAULT_COLUMNS.find(column => column.id == id);
+  if (!columnDef) {
+    console.warn(`Found unknown column ${id}`);
+    return null;
+  }
+  return { ...columnDef };
+}
+
+/**
+ * Retrieve the registered column information of all custom columns.
+ *
+ * @returns {object} Entries of the DEFAULT_COLUMNS array of custom columns.
+ */
+function getCustomColumns() {
+  return DEFAULT_COLUMNS.filter(column => column.custom).map(column => ({
+    ...column,
+  }));
+}
+
+export const ThreadPaneColumns = {
+  isOutgoing,
+  getDefaultColumns,
+  getDefaultColumnsForCardsView,
+  addCustomColumn,
+  removeCustomColumn,
+  refreshCustomColumn,
+  getColumn,
+  getCustomColumns,
+};

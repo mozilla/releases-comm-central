@@ -943,16 +943,6 @@ NS_IMETHODIMP
 nsMsgDBView::IsEditable(int32_t row, nsTreeColumn* col, bool* _retval) {
   NS_ENSURE_ARG_POINTER(col);
   NS_ENSURE_ARG_POINTER(_retval);
-  // Attempt to retrieve a custom column handler. If it exists call it and
-  // return.
-  const nsAString& colID = col->GetId();
-  nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(colID);
-
-  if (colHandler) {
-    colHandler->IsEditable(row, col, _retval);
-    return NS_OK;
-  }
-
   *_retval = false;
   return NS_OK;
 }
@@ -1161,7 +1151,7 @@ nsMsgDBView::GetRowProperties(int32_t index, nsAString& properties) {
   // Give the custom column handlers a chance to style the row.
   for (int i = 0; i < m_customColumnHandlers.Count(); i++) {
     nsString extra;
-    m_customColumnHandlers[i]->GetRowProperties(index, extra);
+    m_customColumnHandlers[i]->GetRowProperties(msgHdr, extra);
     if (!extra.IsEmpty()) {
       properties.Append(' ');
       properties.Append(extra);
@@ -1254,11 +1244,7 @@ nsMsgDBView::GetCellProperties(int32_t aRow, nsTreeColumn* col,
   }
 
   const nsAString& colID = col->GetId();
-  nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(colID);
-  if (colHandler != nullptr) {
-    colHandler->GetCellProperties(aRow, col, properties);
-  } else if (colID[0] == 'c') {
-    // Correspondent.
+  if (colID.First() == 'c' && colID.EqualsLiteral("correspondentCol")) {
     if (IsOutgoingMsg(msgHdr))
       properties.AssignLiteral("outgoing");
     else
@@ -1574,16 +1560,6 @@ nsresult nsMsgDBView::GetDBForViewIndex(nsMsgViewIndex index,
 NS_IMETHODIMP
 nsMsgDBView::GetImageSrc(int32_t aRow, nsTreeColumn* aCol, nsAString& aValue) {
   NS_ENSURE_ARG_POINTER(aCol);
-  // Attempt to retrieve a custom column handler. If it exists call it and
-  // return.
-  const nsAString& colID = aCol->GetId();
-  nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(colID);
-
-  if (colHandler) {
-    colHandler->GetImageSrc(aRow, aCol, aValue);
-    return NS_OK;
-  }
-
   return NS_OK;
 }
 
@@ -1839,16 +1815,6 @@ nsMsgDBView::GetCellText(int32_t aRow, nsTreeColumn* aCol, nsAString& aValue) {
   if (!IsValidIndex(aRow)) return NS_MSG_INVALID_DBVIEW_INDEX;
 
   aValue.Truncate();
-
-  // Attempt to retrieve a custom column handler. If it exists call it and
-  // return.
-  nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(colID);
-
-  if (colHandler) {
-    colHandler->GetCellText(aRow, aCol, aValue);
-    return NS_OK;
-  }
-
   return CellTextForColumn(aRow, colID, aValue);
 }
 
@@ -1866,6 +1832,14 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
   if (NS_FAILED(rv) || !msgHdr) {
     ClearHdrCache();
     return NS_MSG_INVALID_DBVIEW_INDEX;
+  }
+
+  // Attempt to retrieve a custom column handler. If it exists call it and
+  // return.
+  nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(aColumnName);
+  if (colHandler) {
+    colHandler->GetCellText(msgHdr, aValue);
+    return NS_OK;
   }
 
   nsCOMPtr<nsIMsgThread> thread;
@@ -2048,15 +2022,6 @@ nsMsgDBView::CycleCell(int32_t row, nsTreeColumn* col) {
   }
 
   const nsAString& colID = col->GetId();
-
-  // Attempt to retrieve a custom column handler. If it exists call it and
-  // return.
-  nsIMsgCustomColumnHandler* colHandler = GetColumnHandler(colID);
-
-  if (colHandler) {
-    colHandler->CycleCell(row, col);
-    return NS_OK;
-  }
 
   // The cyclers below don't work for the grouped header dummy row, currently.
   // A future implementation should consider both collapsed and expanded state.

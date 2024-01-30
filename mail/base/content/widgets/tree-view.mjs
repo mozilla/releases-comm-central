@@ -2228,6 +2228,8 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
 
     if (column.l10n?.header) {
       document.l10n.setAttributes(this.#button, column.l10n.header);
+    } else if (column.name && !column.icon) {
+      this.#button.textContent = column.name;
     }
 
     // Add an image if this is a table header that needs to display an icon,
@@ -2235,7 +2237,7 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
     if (column.icon) {
       this.dataset.type = "icon";
       const img = document.createElement("img");
-      img.src = "";
+      img.src = column.custom && column.icon ? column.iconHeaderUrl : "";
       img.alt = "";
       this.#button.appendChild(img);
     }
@@ -2464,6 +2466,8 @@ class TreeViewTableColumnPicker extends HTMLTableCellElement {
       menuitem.setAttribute("closemenu", "none");
       if (column.l10n?.menuitem) {
         document.l10n.setAttributes(menuitem, column.l10n.menuitem);
+      } else if (column.name) {
+        menuitem.label = column.name;
       }
 
       menuitem.addEventListener("command", () => {

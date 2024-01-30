@@ -36,6 +36,10 @@ var { GlodaSyntheticView } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaSyntheticView.jsm"
 );
 
+var { ThreadPaneColumns } = ChromeUtils.importESModule(
+  "chrome://messenger/content/thread-pane-columns.mjs"
+);
+
 var folderInbox, folderSent, folderVirtual, folderA, folderB;
 // INBOX_DEFAULTS sans 'dateCol' but gains 'tagsCol'
 var columnsB;
@@ -100,7 +104,6 @@ add_setup(async function () {
     useCorrespondent ? "correspondentCol" : "senderCol",
     "junkStatusCol",
     "dateCol",
-    "locationCol",
   ];
   GLODA_DEFAULTS = [
     "threadCol",
@@ -147,10 +150,16 @@ function assert_visible_columns(desiredColumns) {
   const visibleColumns = columns
     .filter(column => !column.hidden)
     .map(column => column.id);
-  const failCol = visibleColumns.filter(x => !desiredColumns.includes(x));
+  let failCol = visibleColumns.filter(x => !desiredColumns.includes(x));
   if (failCol.length) {
     throw new Error(
       `Found unexpected visible columns: '${failCol}'!\ndesired list: ${desiredColumns}\nactual list: ${visibleColumns}`
+    );
+  }
+  failCol = desiredColumns.filter(x => !visibleColumns.includes(x));
+  if (failCol.length) {
+    throw new Error(
+      `Found unexpected hidden columns: '${failCol}'!\ndesired list: ${desiredColumns}\nactual list: ${visibleColumns}`
     );
   }
 }
@@ -530,7 +539,7 @@ add_task(async function test_column_reordering_persists() {
   close_tab(tabB);
 });
 
-async function invoke_column_picker_option(aActions) {
+async function open_column_picker() {
   const tabmail = document.getElementById("tabmail");
   const about3Pane = tabmail.currentAbout3Pane;
 
@@ -547,6 +556,12 @@ async function invoke_column_picker_option(aActions) {
   );
   EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);
   await shownPromise;
+
+  return colPickerPopup;
+}
+
+async function invoke_column_picker_option(aActions) {
+  const colPickerPopup = await open_column_picker();
   await click_menus_in_sequence(colPickerPopup, aActions);
 }
 
@@ -567,6 +582,64 @@ add_task(async function test_reset_to_inbox() {
   await invoke_column_picker_option([{ label: "Restore column order" }]);
   // Ensure the default set was restored.
   assert_visible_columns(INBOX_DEFAULTS);
+});
+
+/**
+ * Registers a custom column and verifies it is added to the thread pane.
+ */
+add_task(async function test_custom_columns() {
+  await enter_folder(inboxFolder);
+  assert_visible_columns(INBOX_DEFAULTS);
+
+  ThreadPaneColumns.addCustomColumn("testCol", {
+    name: "Test",
+    sortCallback(header) {
+      return header.subject.length;
+    },
+    textCallback(header) {
+      return header.subject.length;
+    },
+  });
+  await new Promise(setTimeout);
+
+  assert_visible_columns(INBOX_DEFAULTS);
+
+  let colPickerPopup = await open_column_picker();
+  let columnItem = colPickerPopup.querySelector(
+    `menuitem[type="checkbox"][value="testCol"]`
+  );
+  Assert.ok(columnItem, "Column item should exist");
+  Assert.ok(
+    !columnItem.hasAttribute("checked"),
+    "Column item should not be checked"
+  );
+  colPickerPopup.hidePopup();
+
+  await toggleColumn("testCol");
+  assert_visible_columns([...INBOX_DEFAULTS, "testCol"]);
+
+  colPickerPopup = await open_column_picker();
+  columnItem = colPickerPopup.querySelector(
+    `menuitem[type="checkbox"][value="testCol"]`
+  );
+  Assert.ok(columnItem, "Column item should exist");
+  Assert.equal(
+    columnItem.getAttribute("checked"),
+    "true",
+    "Column item should be checked"
+  );
+  colPickerPopup.hidePopup();
+
+  ThreadPaneColumns.removeCustomColumn("testCol");
+
+  assert_visible_columns(INBOX_DEFAULTS);
+
+  colPickerPopup = await open_column_picker();
+  columnItem = colPickerPopup.querySelector(
+    `menuitem[type="checkbox"][value="testCol"]`
+  );
+  Assert.ok(!columnItem, "Column item should not exist");
+  colPickerPopup.hidePopup();
 });
 
 async function _apply_to_folder_common(aChildrenToo, folder) {

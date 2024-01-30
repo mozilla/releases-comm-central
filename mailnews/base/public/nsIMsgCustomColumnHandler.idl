@@ -3,18 +3,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsITreeView.idl"
+#include "nsISupports.idl"
 
 interface nsIMsgDBHdr;
 
     /* //TODO JavaDoc
-       When implementing a js custom column handler (of type nsITreeView) you must implement the following
-       functions:
+       When implementing a custom column handler, the following methods are
+       currently not supported:
        1. isEditable
        2. GetCellProperties
        3. GetImageSrc
-       4. GetCellText
-       5. CycleCell
+       4. CycleCell
+
+       The following methods of the nsIMsgCustomColumnHandler must be
+       implemented:
+       5. GetCellText
        6. GetSortStringForRow
        7. GetSortLongForRow
        8. isString
@@ -26,14 +29,12 @@ interface nsIMsgDBHdr;
        Implementers should consider that the value returned by GetSortStringForRow
        will be displayed in the grouped header row, as well as be used as the
        sort string.
-
-      If implementing a c++ custom column handler, you must define all
-      nsITreeView and nsIMsgCustomColumnHandler methods.
     */
 
 [scriptable, uuid(00f75b13-3ac4-4a17-a8b9-c6e4dd1b3f32)]
-interface nsIMsgCustomColumnHandler : nsITreeView
-{
+interface nsIMsgCustomColumnHandler : nsISupports {
+  AString getRowProperties(in nsIMsgDBHdr aHdr);
+  AString getCellText(in nsIMsgDBHdr aHdr);
   AString getSortStringForRow(in nsIMsgDBHdr aHdr);
   unsigned long getSortLongForRow(in nsIMsgDBHdr aHdr);
   boolean isString();
