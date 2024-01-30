@@ -13,3 +13,7 @@ tb-flatpak:
 tb-atn:
     symbol: I(tb-atn)
     parent: debian12-base
+
+tb-updatebot:
+    symbol: I(3rdp)
+    parent: push-to-try
