@@ -131,7 +131,7 @@ def commit_changes():
 
 def submit_phabricator():
     if OPERATING_MODE == "prod":
-        subprocess.check_call([MOZ_PHAB, "submit", "-s", "--no-bug"])
+        subprocess.check_call([MOZ_PHAB, "submit", "-s", "--no-bug", "--yes"])
     else:
         log(f"Skipping moz-phab submission in {OPERATING_MODE} mode.")
 
