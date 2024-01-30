@@ -114,11 +114,22 @@ add_setup(async function () {
     "locationCol",
   ];
 
-  // create the source
+  // Create the source.
   folderSource = await create_folder("ColumnsApplySource");
 
+  // Switch to table view.
+  await ensure_table_view();
   registerCleanupFunction(async () => {
     await ensure_cards_view();
+  });
+
+  // Add a message.
+  const [messageSet] = await make_message_sets_in_folders(
+    [inboxFolder],
+    [{ count: 1 }]
+  );
+  registerCleanupFunction(async () => {
+    await delete_messages(messageSet);
   });
 });
 
@@ -234,19 +245,15 @@ add_task(async function test_column_defaults_inbox() {
   // just use the inbox; comes from FolderDisplayHelpers
   folderInbox = inboxFolder;
   await enter_folder(folderInbox);
-  await ensure_table_view();
+
   assert_visible_columns(INBOX_DEFAULTS);
   assert_visible_cards_columns(CARDS_INBOX_DEFAULT);
 });
 
 add_task(async function test_keypress_on_columns() {
-  const [messageSet] = await make_message_sets_in_folders(
-    [folderInbox],
-    [{ count: 1 }]
-  );
-  registerCleanupFunction(async () => {
-    await delete_messages(messageSet);
-  });
+  // just use the inbox; comes from FolderDisplayHelpers
+  folderInbox = inboxFolder;
+  await enter_folder(folderInbox);
 
   const tabmail = document.getElementById("tabmail");
   const about3Pane = tabmail.currentAbout3Pane;
@@ -593,6 +600,7 @@ add_task(async function test_custom_columns() {
 
   ThreadPaneColumns.addCustomColumn("testCol", {
     name: "Test",
+    hidden: true,
     sortCallback(header) {
       return header.subject.length;
     },
@@ -640,6 +648,86 @@ add_task(async function test_custom_columns() {
   );
   Assert.ok(!columnItem, "Column item should not exist");
   colPickerPopup.hidePopup();
+});
+
+add_task(async function test_custom_column_invalidation() {
+  await enter_folder(inboxFolder);
+  assert_visible_columns(INBOX_DEFAULTS);
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+
+  let factor = 1;
+  ThreadPaneColumns.addCustomColumn("testCol1", {
+    name: "Test1",
+    hidden: true,
+    sortCallback(header) {
+      return header.subject.length * factor;
+    },
+    textCallback(header) {
+      return header.subject.length * factor;
+    },
+  });
+  ThreadPaneColumns.addCustomColumn("testCol2", {
+    name: "Test2",
+    hidden: true,
+    sortCallback(header) {
+      return header.subject.length * factor;
+    },
+    textCallback(header) {
+      return header.subject.length * factor;
+    },
+  });
+  await new Promise(setTimeout);
+
+  assert_visible_columns(INBOX_DEFAULTS);
+
+  await toggleColumn("testCol1");
+  await toggleColumn("testCol2");
+  assert_visible_columns([...INBOX_DEFAULTS, "testCol1", "testCol2"]);
+
+  const row = about3Pane.threadTree.getRowAtIndex(0);
+  const value1 = parseInt(
+    row.querySelector(".testcol1-column").textContent,
+    10
+  );
+  const value2 = parseInt(
+    row.querySelector(".testcol2-column").textContent,
+    10
+  );
+  Assert.greater(value1, 0, "Content of custom cell #1 should be non-zero");
+  Assert.greater(value2, 0, "Content of custom cell #2 should be non-zero");
+  Assert.equal(
+    value1,
+    value2,
+    "Content of both custom cells should be identical"
+  );
+
+  factor = 2;
+  ThreadPaneColumns.refreshCustomColumn("testCol1");
+  await new Promise(setTimeout);
+
+  const refreshedValue1 = parseInt(
+    row.querySelector(".testcol1-column").textContent,
+    10
+  );
+  const refreshedValue2 = parseInt(
+    row.querySelector(".testcol2-column").textContent,
+    10
+  );
+  Assert.equal(
+    refreshedValue1,
+    value1 * 2,
+    "Content of custom cell #1 should have doubled"
+  );
+  Assert.equal(
+    refreshedValue2,
+    value2,
+    "Content of custom cell #2 should have not changed"
+  );
+
+  ThreadPaneColumns.removeCustomColumn("testCol1");
+  ThreadPaneColumns.removeCustomColumn("testCol2");
+
+  assert_visible_columns(INBOX_DEFAULTS);
 });
 
 async function _apply_to_folder_common(aChildrenToo, folder) {
