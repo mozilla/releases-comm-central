@@ -628,11 +628,7 @@ add_task(async function testMarkAllRead() {
 
   // Mark the unified inbox as read.
 
-  const smartServer = MailServices.accounts.findServer(
-    "nobody",
-    "smart mailboxes",
-    "none"
-  );
+  const smartServer = getSmartServer();
   const smartInboxFolder = smartServer.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Inbox
   );
@@ -661,11 +657,7 @@ add_task(async function testMarkAllRead() {
 add_task(async function testEmpty() {
   about3Pane.folderPane.activeModes = ["all", "smart"];
 
-  const smartServer = MailServices.accounts.findServer(
-    "nobody",
-    "smart mailboxes",
-    "none"
-  );
+  const smartServer = getSmartServer();
   const smartTrashFolder = smartServer.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Trash
   );

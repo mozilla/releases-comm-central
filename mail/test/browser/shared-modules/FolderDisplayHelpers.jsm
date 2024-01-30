@@ -157,6 +157,9 @@ var { Assert } = ChromeUtils.importESModule(
 var { BrowserTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/BrowserTestUtils.sys.mjs"
 );
+var { SmartServerUtils } = ChromeUtils.importESModule(
+  "resource:///modules/SmartServerUtils.sys.mjs"
+);
 var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
@@ -1376,11 +1379,7 @@ function middle_click_on_folder(aFolder, shiftPressed) {
  * @returns An nsIMsgFolder representing the smart folder with the given name.
  */
 function get_smart_folder_named(aFolderName) {
-  const smartServer = MailServices.accounts.findServer(
-    "nobody",
-    "smart mailboxes",
-    "none"
-  );
+  const smartServer = SmartServerUtils.getSmartServer();
   return smartServer.rootFolder.getChildNamed(aFolderName);
 }
 

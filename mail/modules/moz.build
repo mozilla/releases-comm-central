@@ -34,6 +34,7 @@ EXTRA_JS_MODULES += [
     "SelectionWidgetController.jsm",
     "SessionStoreManager.jsm",
     "ShortcutsManager.jsm",
+    "SmartServerUtils.sys.mjs",
     "SummaryFrameManager.jsm",
     "TagUtils.jsm",
     "TBDistCustomizer.jsm",

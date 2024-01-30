@@ -362,11 +362,7 @@ add_task(async function testSmartFolders() {
     folderB,
     folderC,
   ];
-  const smartServer = MailServices.accounts.findServer(
-    "nobody",
-    "smart mailboxes",
-    "none"
-  );
+  const smartServer = getSmartServer();
   const smartInbox = smartServer.rootFolder.getChildNamed("Inbox");
   const smartInboxFolders = [smartInbox, inboxFolder];
   const otherSmartFolders = [
@@ -1118,11 +1114,7 @@ add_task(async function testAccountOrder() {
     folderB,
     folderC,
   ];
-  const smartServer = MailServices.accounts.findServer(
-    "nobody",
-    "smart mailboxes",
-    "none"
-  );
+  const smartServer = getSmartServer();
   const smartFolders = [
     smartServer.rootFolder.getChildNamed("Inbox"),
     inboxFolder,

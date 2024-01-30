@@ -6,6 +6,11 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  SmartServerUtils: "resource:///modules/SmartServerUtils.sys.mjs",
+});
+
 async function focusWindow(win) {
   win.focus();
   await TestUtils.waitForCondition(
@@ -48,9 +53,8 @@ async function openExtensionPopup(win, buttonId) {
 
   return { actionButton, panel, browser };
 }
-
 function getSmartServer() {
-  return MailServices.accounts.findServer("nobody", "smart mailboxes", "none");
+  return lazy.SmartServerUtils.getSmartServer();
 }
 
 function resetSmartMailboxes() {

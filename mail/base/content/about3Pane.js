@@ -40,6 +40,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(this, {
   FolderPaneUtils: "resource:///modules/FolderPaneUtils.sys.mjs",
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
+  SmartServerUtils: "resource:///modules/SmartServerUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
@@ -767,111 +768,28 @@ var folderPane = {
       active: false,
       canBeCompact: false,
 
-      _folderTypes: [
-        { flag: Ci.nsMsgFolderFlags.Inbox, name: "Inbox" },
-        { flag: Ci.nsMsgFolderFlags.Drafts, name: "Drafts" },
-        { flag: Ci.nsMsgFolderFlags.Templates, name: "Templates" },
-        { flag: Ci.nsMsgFolderFlags.SentMail, name: "Sent" },
-        { flag: Ci.nsMsgFolderFlags.Archive, name: "Archives" },
-        { flag: Ci.nsMsgFolderFlags.Junk, name: "Junk" },
-        { flag: Ci.nsMsgFolderFlags.Trash, name: "Trash" },
-        // { flag: Ci.nsMsgFolderFlags.Queue, name: "Outbox" },
-      ],
+      _folderTypes: SmartServerUtils.folderTypes,
 
       init() {
-        this._smartServer = MailServices.accounts.findServer(
-          "nobody",
-          "smart mailboxes",
-          "none"
-        );
-        if (!this._smartServer) {
-          this._smartServer = MailServices.accounts.createIncomingServer(
-            "nobody",
-            "smart mailboxes",
-            "none"
-          );
-          // We don't want the "smart" server/account leaking out into the ui in
-          // other places, so set it as hidden.
-          this._smartServer.hidden = true;
-          const account = MailServices.accounts.createAccount();
-          account.incomingServer = this._smartServer;
-        }
-        this._smartServer.prettyName =
-          messengerBundle.GetStringFromName("unifiedAccountName");
+        this._smartServer = SmartServerUtils.getSmartServer();
         const smartRoot = this._smartServer.rootFolder.QueryInterface(
           Ci.nsIMsgLocalMailFolder
         );
 
-        let allFlags = 0;
-        this._folderTypes.forEach(folderType => (allFlags |= folderType.flag));
-
+        // Add folders to the UI.
         for (const folderType of this._folderTypes) {
-          let folder = smartRoot.getChildWithURI(
+          const folder = smartRoot.getChildWithURI(
             `${smartRoot.URI}/${folderType.name}`,
             false,
             true
           );
           if (!folder) {
-            try {
-              const searchFolders = [];
-
-              function recurse(folder) {
-                let subFolders;
-                try {
-                  subFolders = folder.subFolders;
-                } catch (ex) {
-                  console.error(
-                    new Error(
-                      `Unable to access the subfolders of ${folder.URI}`,
-                      { cause: ex }
-                    )
-                  );
-                }
-                if (!subFolders?.length) {
-                  return;
-                }
-
-                for (const sf of subFolders) {
-                  // Add all of the subfolders except the ones that belong to
-                  // a different folder type.
-                  if (!(sf.flags & allFlags)) {
-                    searchFolders.push(sf);
-                    recurse(sf);
-                  }
-                }
-              }
-
-              for (const server of MailServices.accounts.allServers) {
-                for (const f of server.rootFolder.getFoldersWithFlags(
-                  folderType.flag
-                )) {
-                  searchFolders.push(f);
-                  recurse(f);
-                }
-              }
-
-              folder = smartRoot.createLocalSubfolder(folderType.name);
-              folder.flags |= Ci.nsMsgFolderFlags.Virtual | folderType.flag;
-
-              const msgDatabase = folder.msgDatabase;
-              const folderInfo = msgDatabase.dBFolderInfo;
-
-              folderInfo.setCharProperty("searchStr", "ALL");
-              folderInfo.setCharProperty(
-                "searchFolderUri",
-                searchFolders.map(f => f.URI).join("|")
-              );
-              folderInfo.setUint32Property("searchFolderFlag", folderType.flag);
-              folderInfo.setBooleanProperty("searchOnline", true);
-              msgDatabase.summaryValid = true;
-              msgDatabase.close(true);
-
-              smartRoot.notifyFolderAdded(folder);
-            } catch (ex) {
-              console.error(ex);
-              continue;
-            }
+            // SmartServerUtils.getSmartServer() failed to create the
+            // child folder and printed an error message to the console. No need
+            // for additional error handling here.
+            continue;
           }
+
           const row = folderPane._createFolderRow(this.name, folder);
           this.containerList.appendChild(row);
           folderType.folderURI = folder.URI;
