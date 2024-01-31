@@ -78,7 +78,9 @@ UIFontSize.registerWindow(window);
 
 var booksList;
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
+  await customElements.whenDefined("tree-listbox");
+
   document
     .getElementById("toolbarCreateBook")
     .addEventListener("command", event => {

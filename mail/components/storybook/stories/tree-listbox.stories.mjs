@@ -4,7 +4,7 @@
 
 import { html } from "lit";
 import { action } from "@storybook/addon-actions";
-import "mail/base/content/widgets/tree-listbox.js"; //eslint-disable-line import/no-unassigned-import
+import "mail/base/content/widgets/tree-listbox.mjs"; //eslint-disable-line import/no-unassigned-import
 
 export default {
   title: "Widgets/Tree/Tree Listbox",
