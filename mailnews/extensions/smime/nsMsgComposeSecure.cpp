@@ -1188,6 +1188,19 @@ nsresult FindSMimeCertTask::CalculateResult() {
   // search for a valid certificate
   for (node = CERT_LIST_HEAD(certlist); !CERT_LIST_END(node, certlist);
        node = CERT_LIST_NEXT(node)) {
+    // TODO: Replace this block with:
+    //   if (!NSS_CMSRecipient_IsSupported(cert)) { continue; }
+    CERTSubjectPublicKeyInfo *spki = &(node->cert->subjectPublicKeyInfo);
+    SECOidTag certalgtag = SECOID_GetAlgorithmTag(&(spki->algorithm));
+    switch (certalgtag) {
+        case SEC_OID_PKCS1_RSA_ENCRYPTION:
+        case SEC_OID_X942_DIFFIE_HELMAN_KEY: /* dh-public-number */
+            break;
+        default:
+            // Not supported
+            continue;
+    }
+
     nsTArray<uint8_t> certBytes(node->cert->derCert.data,
                                 node->cert->derCert.len);
     nsTArray<nsTArray<uint8_t>> unusedCertChain;
