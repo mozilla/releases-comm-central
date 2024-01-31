@@ -818,9 +818,6 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  rv = docShell->SetAllowPlugins(false);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   return NS_OK;
 }
 
