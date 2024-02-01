@@ -250,9 +250,12 @@ add_task(async function testDeleteItem() {
 
   // Note that for each flag change, we wait for a second for the change to
   // be sent to the IMAP server.
+  const SETFLAG_TIMEOUT = 1200;
 
   displayFolder(imapFolder);
   await promiseIMAPIdle(imapFolder.server);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, SETFLAG_TIMEOUT));
   Assert.equal(threadTree.view.rowCount, 10, "IMAP folder loaded");
   const dbView = about3Pane.gDBView;
   threadTree.selectedIndex = -1;
@@ -273,6 +276,8 @@ add_task(async function testDeleteItem() {
     l10nArgs: { count: 1 },
   });
   await promiseIMAPIdle(imapFolder.server);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, SETFLAG_TIMEOUT));
   Assert.ok(
     message.flags & Ci.nsMsgMessageFlags.IMAPDeleted,
     "IMAPDeleted flag should be set"
@@ -288,6 +293,8 @@ add_task(async function testDeleteItem() {
     l10nArgs: { count: 1 },
   });
   await promiseIMAPIdle(imapFolder.server);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, SETFLAG_TIMEOUT));
   Assert.ok(
     !(message.flags & Ci.nsMsgMessageFlags.IMAPDeleted),
     "IMAPDeleted flag should be cleared on message 0"
@@ -315,6 +322,8 @@ add_task(async function testDeleteItem() {
   });
   await helper.activateItem("menu_delete");
   await promiseIMAPIdle(imapFolder.server);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, SETFLAG_TIMEOUT));
   Assert.ok(
     messages.every(m => m.flags & Ci.nsMsgMessageFlags.IMAPDeleted),
     "IMAPDeleted flags should be set"
@@ -329,6 +338,8 @@ add_task(async function testDeleteItem() {
     l10nArgs: { count: 3 },
   });
   await promiseIMAPIdle(imapFolder.server);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, SETFLAG_TIMEOUT));
   Assert.ok(
     messages.every(m => !(m.flags & Ci.nsMsgMessageFlags.IMAPDeleted)),
     "IMAPDeleted flags should be cleared"
