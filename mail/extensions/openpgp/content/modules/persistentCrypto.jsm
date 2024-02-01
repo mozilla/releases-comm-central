@@ -500,13 +500,18 @@ CryptMessageIntoFolder.prototype = {
     // headers are found from the beginning up to the start of the body
     m.initialize(data.substr(0, bodyIndex));
 
-    mimePart.headers._rawHeaders.set("content-type", [
-      m.extractHeader("content-type", false) || "",
-    ]);
-
-    mimePart.headers._rawHeaders.delete("content-transfer-encoding");
-    mimePart.headers._rawHeaders.delete("content-disposition");
-    mimePart.headers._rawHeaders.delete("content-description");
+    for (const hdrName of [
+      "content-type",
+      "content-transfer-encoding",
+      "content-disposition",
+      "content-description",
+    ]) {
+      mimePart.headers._rawHeaders.delete(hdrName);
+      const val = m.extractHeader(hdrName, false);
+      if (val) {
+        mimePart.headers._rawHeaders.set(hdrName, val);
+      }
+    }
 
     mimePart.subParts = [];
     mimePart.body = data.substr(bodyIndex);
