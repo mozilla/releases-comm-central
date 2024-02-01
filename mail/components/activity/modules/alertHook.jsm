@@ -44,13 +44,14 @@ var alertHook = {
     // Create a new warning.
     const warning = new nsActWarning(aMessage, this.activityMgr, "");
 
-    if (aUrl && aUrl.server && aUrl.server.prettyName) {
-      warning.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
-      warning.contextType = "incomingServer";
+    warning.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_STANDALONE;
+    try {
       warning.contextDisplayText = aUrl.server.prettyName;
       warning.contextObj = aUrl.server;
-    } else {
-      warning.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_STANDALONE;
+      warning.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
+      warning.contextType = "incomingServer";
+    } catch (ex) {
+      console.warn(ex);
     }
 
     this.activityMgr.addActivity(warning);

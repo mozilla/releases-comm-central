@@ -198,6 +198,11 @@ nsMsgMailSession::AlertUser(const nsAString& aMessage,
     listenersNotified = listenersNotified || notified;
   }
 
+  // Are alerts disabled by preference?
+  nsCOMPtr<nsIPrefBranch> prefService =
+      do_GetService(NS_PREFSERVICE_CONTRACTID);
+  prefService->GetBoolPref("mail.suppressAlertsForTests", &listenersNotified);
+
   // If the listeners notified the user, then we don't need to. Also exit if
   // aUrl is null because we won't have a nsIMsgWindow in that case.
   if (listenersNotified || !aUrl) return NS_OK;
