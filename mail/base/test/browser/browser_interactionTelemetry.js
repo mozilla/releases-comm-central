@@ -10,7 +10,6 @@ const { TelemetryTestUtils } = ChromeUtils.importESModule(
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
-let composeWindow;
 
 add_setup(async function () {
   const generator = new MessageGenerator();
@@ -31,20 +30,11 @@ add_setup(async function () {
   });
   about3Pane.threadTree.selectedIndex = 0;
 
-  const composeWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
-  const params = Cc[
-    "@mozilla.org/messengercompose/composeparams;1"
-  ].createInstance(Ci.nsIMsgComposeParams);
-  params.composeFields = Cc[
-    "@mozilla.org/messengercompose/composefields;1"
-  ].createInstance(Ci.nsIMsgCompFields);
-  MailServices.compose.OpenComposeWindowWithParams(null, params);
-  composeWindow = await composeWindowPromise;
-
   Services.telemetry.clearScalars();
 
   registerCleanupFunction(async () => {
-    await BrowserTestUtils.closeWindow(composeWindow);
+    // Prevent the test timing out waiting for focus.
+    document.getElementById("button-appmenu").focus();
     MailServices.accounts.removeAccount(account, false);
   });
 });
@@ -72,6 +62,7 @@ add_task(async function () {
     window
   );
   await calendarWindowPromise;
+  await SimpleTest.promiseFocus(window);
 
   // Close the calendar tab.
 
@@ -104,10 +95,21 @@ add_task(async function () {
     tabmail.currentAboutMessage,
     "interaction1_mochi_test-messageDisplayAction-toolbarbutton"
   );
+
+  const composeWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  const params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  params.composeFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  MailServices.compose.OpenComposeWindowWithParams(null, params);
+  const composeWindow = await composeWindowPromise;
   await clickExtensionButton(
     composeWindow,
     "interaction1_mochi_test-composeAction-toolbarbutton"
   );
+  await BrowserTestUtils.closeWindow(composeWindow);
   await SimpleTest.promiseFocus(window);
 
   // Check all of the things we clicked on have been recorded.
