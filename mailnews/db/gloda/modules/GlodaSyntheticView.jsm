@@ -45,7 +45,16 @@ function GlodaSyntheticView(aArgs) {
 }
 GlodaSyntheticView.prototype = {
   defaultSort: [
-    [Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.descending],
+    [
+      Services.prefs.getIntPref(
+        "mailnews.default_sort_type",
+        Ci.nsMsgViewSortType.byDate
+      ),
+      Services.prefs.getIntPref(
+        "mailnews.default_sort_order",
+        Ci.nsMsgViewSortOrder.descending
+      ),
+    ],
   ],
 
   /**
