@@ -6,6 +6,8 @@
 
 "use strict";
 
+/* eslint-enable valid-jsdoc */
+
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -1268,8 +1270,8 @@ function isAttachment(mime) {
 /**
  * If the given MIME part is an attachment, return its filename.
  *
- * @param mime: a MIME part
- * @return:     the filename or null
+ * @param {TreeObject} mime - A MIME tree.
+ * @returns {?string} the filename or null
  */
 function getAttachmentName(mime) {
   if ("headers" in mime && mime.headers.has("content-disposition")) {
