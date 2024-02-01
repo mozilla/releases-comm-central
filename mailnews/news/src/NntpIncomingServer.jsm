@@ -109,6 +109,12 @@ class NntpIncomingServer extends MsgIncomingServer {
     }
   }
 
+  shutdown() {
+    super.shutdown();
+    lazy.clearInterval(this._newsrcTimer);
+    Services.obs.removeObserver(this, "profile-before-change");
+  }
+
   /**
    * Most of nsISubscribableServer interfaces are delegated to
    * this._subscribable.
