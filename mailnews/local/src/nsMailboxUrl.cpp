@@ -182,28 +182,22 @@ NS_IMETHODIMP nsMailboxUrl::GetUri(nsACString& aURI) {
   // if we have been given a uri to associate with this url, then use it
   // otherwise try to reconstruct a URI on the fly....
 
-  if (!mURI.IsEmpty())
+  if (!mURI.IsEmpty()) {
     aURI = mURI;
-  else {
-    if (m_filePath) {
-      nsAutoCString baseUri;
-      nsresult rv;
-      nsCOMPtr<nsIMsgAccountManager> accountManager =
-          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
+  } else if (m_filePath) {
+    // This code path should only ever run for .eml messages
+    // opened from file.
+    nsAutoCString baseUri;
+    nsresult rv = m_baseURL->GetSpec(baseUri);
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCString baseMessageURI;
+    nsCreateLocalBaseMessageURI(baseUri, baseMessageURI);
+    nsBuildLocalMessageURI(baseMessageURI, m_messageKey, aURI);
 
-      // we blow off errors here so that we can open attachments
-      // in .eml files.
-      (void)accountManager->FolderUriForPath(m_filePath, baseUri);
-      if (baseUri.IsEmpty()) {
-        rv = m_baseURL->GetSpec(baseUri);
-        NS_ENSURE_SUCCESS(rv, rv);
-      }
-      nsCString baseMessageURI;
-      nsCreateLocalBaseMessageURI(baseUri, baseMessageURI);
-      nsBuildLocalMessageURI(baseMessageURI, m_messageKey, aURI);
-    } else
-      aURI = "";
+    // Remember this for the next call.
+    mURI = aURI;
+  } else {
+    aURI = "";
   }
 
   return NS_OK;

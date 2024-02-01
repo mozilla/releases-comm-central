@@ -121,10 +121,6 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
                           const nsACString& username, const int32_t port,
                           const nsACString& type);
 
-  // Cache the results of the last call to FolderUriFromDirInProfile
-  nsCOMPtr<nsIFile> m_lastPathLookedUp;
-  nsCString m_lastFolderURIForPath;
-
   /* internal creation routines - updates m_identities and m_incomingServers */
   nsresult createKeyedAccount(const nsCString& key, bool forcePositionToEnd,
                               nsIMsgAccount** _retval);

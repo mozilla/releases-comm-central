@@ -220,16 +220,6 @@ interface nsIMsgAccountManager : nsISupports {
   /// Enumerate all incoming servers and their folders and return in an array.
   readonly attribute Array<nsIMsgFolder> allFolders;
 
-  /**
-   * Iterates over all folders looking for one with the passed in path,
-   * and returns the uri for the matching folder. In the future,
-   * the folder lookup service will provide this functionality.
-   *
-   * @param aLocalPath path of the folder whose uri we want.
-   * @return the URI of the folder that corresponds to aLocalPath
-   */
-  AUTF8String folderUriForPath(in nsIFile aLocalPath);
-
   // Used to sort servers (accounts) for e.g. the folder pane
   long getSortOrder(in nsIMsgIncomingServer server);
 

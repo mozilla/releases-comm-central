@@ -3431,39 +3431,6 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderEvent(nsIMsgFolder* aFolder,
 }
 
 NS_IMETHODIMP
-nsMsgAccountManager::FolderUriForPath(nsIFile* aLocalPath,
-                                      nsACString& aMailboxUri) {
-  NS_ENSURE_ARG_POINTER(aLocalPath);
-  bool equals;
-  if (m_lastPathLookedUp &&
-      NS_SUCCEEDED(aLocalPath->Equals(m_lastPathLookedUp, &equals)) && equals) {
-    aMailboxUri = m_lastFolderURIForPath;
-    return NS_OK;
-  }
-  nsTArray<RefPtr<nsIMsgFolder>> folders;
-  nsresult rv = GetAllFolders(folders);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  for (auto folder : folders) {
-    nsCOMPtr<nsIFile> folderPath;
-    rv = folder->GetFilePath(getter_AddRefs(folderPath));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // Check if we're equal
-    rv = folderPath->Equals(aLocalPath, &equals);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (equals) {
-      rv = folder->GetURI(aMailboxUri);
-      m_lastFolderURIForPath = aMailboxUri;
-      aLocalPath->Clone(getter_AddRefs(m_lastPathLookedUp));
-      return rv;
-    }
-  }
-  return NS_ERROR_FAILURE;
-}
-
-NS_IMETHODIMP
 nsMsgAccountManager::GetSortOrder(nsIMsgIncomingServer* aServer,
                                   int32_t* aSortOrder) {
   NS_ENSURE_ARG_POINTER(aServer);
