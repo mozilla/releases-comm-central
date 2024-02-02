@@ -78,9 +78,7 @@ UIFontSize.registerWindow(window);
 
 var booksList;
 
-window.addEventListener("load", async () => {
-  await customElements.whenDefined("tree-listbox");
-
+window.addEventListener("load", () => {
   document
     .getElementById("toolbarCreateBook")
     .addEventListener("command", event => {
@@ -406,738 +404,755 @@ function updateAbCommands() {
 
 // Books
 
-/**
- * The list of address books.
- *
- * @augments {TreeListbox}
- */
-class AbTreeListbox extends customElements.get("tree-listbox") {
-  connectedCallback() {
-    if (this.hasConnected) {
-      return;
-    }
-
-    super.connectedCallback();
-    this.setAttribute("is", "ab-tree-listbox");
-
-    this.addEventListener("select", this);
-    this.addEventListener("collapsed", this);
-    this.addEventListener("expanded", this);
-    this.addEventListener("keypress", this);
-    this.addEventListener("contextmenu", this);
-    this.addEventListener("dragover", this);
-    this.addEventListener("dragleave", this);
-    this.addEventListener("drop", this);
-
-    for (const book of MailServices.ab.directories) {
-      this.appendChild(this._createBookRow(book));
-    }
-
-    this._abObserver.observe = this._abObserver.observe.bind(this);
-    for (const topic of this._abObserver._notifications) {
-      Services.obs.addObserver(this._abObserver, topic, true);
-    }
-
-    window.addEventListener("unload", this);
-
-    // Add event listener to update the total count of the selected address
-    // book.
-    this.addEventListener("select", e => {
-      updateAddressBookCount();
-    });
-
-    // Row 0 is the "All Address Books" item.
-    document.body.classList.toggle("all-ab-selected", this.selectedIndex === 0);
-  }
-
-  destroy() {
-    this.removeEventListener("select", this);
-    this.removeEventListener("collapsed", this);
-    this.removeEventListener("expanded", this);
-    this.removeEventListener("keypress", this);
-    this.removeEventListener("contextmenu", this);
-    this.removeEventListener("dragover", this);
-    this.removeEventListener("dragleave", this);
-    this.removeEventListener("drop", this);
-
-    for (const topic of this._abObserver._notifications) {
-      Services.obs.removeObserver(this._abObserver, topic);
-    }
-  }
-
-  handleEvent(event) {
-    super.handleEvent(event);
-
-    switch (event.type) {
-      case "select":
-        this._onSelect(event);
-        break;
-      case "collapsed":
-        this._onCollapsed(event);
-        break;
-      case "expanded":
-        this._onExpanded(event);
-        break;
-      case "keypress":
-        this._onKeyPress(event);
-        break;
-      case "contextmenu":
-        this._onContextMenu(event);
-        break;
-      case "dragover":
-        this._onDragOver(event);
-        break;
-      case "dragleave":
-        this._clearDropTarget(event);
-        break;
-      case "drop":
-        this._onDrop(event);
-        break;
-      case "unload":
-        this.destroy();
-        break;
-    }
-  }
-
-  _createBookRow(book) {
-    const row = document
-      .getElementById("bookRow")
-      .content.firstElementChild.cloneNode(true);
-    row.id = `book-${book.UID}`;
-    row.setAttribute("aria-label", book.dirName);
-    row.title = book.dirName;
-    if (
-      Services.xulStore.getValue(cardsPane.URL, row.id, "collapsed") == "true"
-    ) {
-      row.classList.add("collapsed");
-    }
-    if (book.isRemote) {
-      row.classList.add("remote");
-    }
-    if (book.readOnly) {
-      row.classList.add("readOnly");
-    }
-    if (
-      ["ldap_2.servers.history", "ldap_2.servers.pab"].includes(book.dirPrefId)
-    ) {
-      row.classList.add("noDelete");
-    }
-    if (book.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE) {
-      row.classList.add("carddav");
-    }
-    row.dataset.uid = book.UID;
-    row._book = book;
-    row.querySelector("span").textContent = book.dirName;
-
-    for (const list of book.childNodes) {
-      row.querySelector("ul").appendChild(this._createListRow(book.UID, list));
-    }
-    return row;
-  }
-
-  _createListRow(bookUID, list) {
-    const row = document
-      .getElementById("listRow")
-      .content.firstElementChild.cloneNode(true);
-    row.id = `list-${list.UID}`;
-    row.setAttribute("aria-label", list.dirName);
-    row.title = list.dirName;
-    row.dataset.uid = list.UID;
-    row.dataset.book = bookUID;
-    row._list = list;
-    row.querySelector("span").textContent = list.dirName;
-    return row;
-  }
-
+customElements.whenDefined("tree-listbox").then(() => {
   /**
-   * Get the index of the row representing a book or list.
+   * The list of address books.
    *
-   * @param {string|null} uid - The UID of the book or list to find, or null
-   *   for All Address Books.
-   * @returns {integer} - Index of the book or list.
+   * @augments {TreeListbox}
    */
-  getIndexForUID(uid) {
-    if (!uid) {
-      return 0;
-    }
-    return this.rows.findIndex(r => r.dataset.uid == uid);
-  }
+  class AbTreeListbox extends customElements.get("tree-listbox") {
+    connectedCallback() {
+      if (this.hasConnected) {
+        return;
+      }
 
-  /**
-   * Get the row representing a book or list.
-   *
-   * @param {string|null} uid - The UID of the book or list to find, or null
-   *   for All Address Books.
-   * @returns {HTMLLIElement} - Row of the book or list.
-   */
-  getRowForUID(uid) {
-    if (!uid) {
-      return this.firstElementChild;
-    }
-    return this.querySelector(`li[data-uid="${uid}"]`);
-  }
+      super.connectedCallback();
+      this.setAttribute("is", "ab-tree-listbox");
 
-  /**
-   * Show UI to modify the selected address book or list.
-   */
-  showPropertiesOfSelected() {
-    if (this.selectedIndex === 0) {
-      throw new Components.Exception(
-        "Cannot modify the All Address Books item",
-        Cr.NS_ERROR_UNEXPECTED
+      this.addEventListener("select", this);
+      this.addEventListener("collapsed", this);
+      this.addEventListener("expanded", this);
+      this.addEventListener("keypress", this);
+      this.addEventListener("contextmenu", this);
+      this.addEventListener("dragover", this);
+      this.addEventListener("dragleave", this);
+      this.addEventListener("drop", this);
+
+      for (const book of MailServices.ab.directories) {
+        this.appendChild(this._createBookRow(book));
+      }
+
+      this._abObserver.observe = this._abObserver.observe.bind(this);
+      for (const topic of this._abObserver._notifications) {
+        Services.obs.addObserver(this._abObserver, topic, true);
+      }
+
+      window.addEventListener("unload", this);
+
+      // Add event listener to update the total count of the selected address
+      // book.
+      this.addEventListener("select", e => {
+        updateAddressBookCount();
+      });
+
+      // Row 0 is the "All Address Books" item.
+      document.body.classList.toggle(
+        "all-ab-selected",
+        this.selectedIndex === 0
       );
     }
 
-    const row = this.rows[this.selectedIndex];
+    destroy() {
+      this.removeEventListener("select", this);
+      this.removeEventListener("collapsed", this);
+      this.removeEventListener("expanded", this);
+      this.removeEventListener("keypress", this);
+      this.removeEventListener("contextmenu", this);
+      this.removeEventListener("dragover", this);
+      this.removeEventListener("dragleave", this);
+      this.removeEventListener("drop", this);
 
-    if (row.classList.contains("listRow")) {
-      const book = MailServices.ab.getDirectoryFromUID(row.dataset.book);
-      const list = book.childNodes.find(l => l.UID == row.dataset.uid);
+      for (const topic of this._abObserver._notifications) {
+        Services.obs.removeObserver(this._abObserver, topic);
+      }
+    }
+
+    handleEvent(event) {
+      super.handleEvent(event);
+
+      switch (event.type) {
+        case "select":
+          this._onSelect(event);
+          break;
+        case "collapsed":
+          this._onCollapsed(event);
+          break;
+        case "expanded":
+          this._onExpanded(event);
+          break;
+        case "keypress":
+          this._onKeyPress(event);
+          break;
+        case "contextmenu":
+          this._onContextMenu(event);
+          break;
+        case "dragover":
+          this._onDragOver(event);
+          break;
+        case "dragleave":
+          this._clearDropTarget(event);
+          break;
+        case "drop":
+          this._onDrop(event);
+          break;
+        case "unload":
+          this.destroy();
+          break;
+      }
+    }
+
+    _createBookRow(book) {
+      const row = document
+        .getElementById("bookRow")
+        .content.firstElementChild.cloneNode(true);
+      row.id = `book-${book.UID}`;
+      row.setAttribute("aria-label", book.dirName);
+      row.title = book.dirName;
+      if (
+        Services.xulStore.getValue(cardsPane.URL, row.id, "collapsed") == "true"
+      ) {
+        row.classList.add("collapsed");
+      }
+      if (book.isRemote) {
+        row.classList.add("remote");
+      }
+      if (book.readOnly) {
+        row.classList.add("readOnly");
+      }
+      if (
+        ["ldap_2.servers.history", "ldap_2.servers.pab"].includes(
+          book.dirPrefId
+        )
+      ) {
+        row.classList.add("noDelete");
+      }
+      if (book.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE) {
+        row.classList.add("carddav");
+      }
+      row.dataset.uid = book.UID;
+      row._book = book;
+      row.querySelector("span").textContent = book.dirName;
+
+      for (const list of book.childNodes) {
+        row
+          .querySelector("ul")
+          .appendChild(this._createListRow(book.UID, list));
+      }
+      return row;
+    }
+
+    _createListRow(bookUID, list) {
+      const row = document
+        .getElementById("listRow")
+        .content.firstElementChild.cloneNode(true);
+      row.id = `list-${list.UID}`;
+      row.setAttribute("aria-label", list.dirName);
+      row.title = list.dirName;
+      row.dataset.uid = list.UID;
+      row.dataset.book = bookUID;
+      row._list = list;
+      row.querySelector("span").textContent = list.dirName;
+      return row;
+    }
+
+    /**
+     * Get the index of the row representing a book or list.
+     *
+     * @param {string|null} uid - The UID of the book or list to find, or null
+     *   for All Address Books.
+     * @returns {integer} - Index of the book or list.
+     */
+    getIndexForUID(uid) {
+      if (!uid) {
+        return 0;
+      }
+      return this.rows.findIndex(r => r.dataset.uid == uid);
+    }
+
+    /**
+     * Get the row representing a book or list.
+     *
+     * @param {string|null} uid - The UID of the book or list to find, or null
+     *   for All Address Books.
+     * @returns {HTMLLIElement} - Row of the book or list.
+     */
+    getRowForUID(uid) {
+      if (!uid) {
+        return this.firstElementChild;
+      }
+      return this.querySelector(`li[data-uid="${uid}"]`);
+    }
+
+    /**
+     * Show UI to modify the selected address book or list.
+     */
+    showPropertiesOfSelected() {
+      if (this.selectedIndex === 0) {
+        throw new Components.Exception(
+          "Cannot modify the All Address Books item",
+          Cr.NS_ERROR_UNEXPECTED
+        );
+      }
+
+      const row = this.rows[this.selectedIndex];
+
+      if (row.classList.contains("listRow")) {
+        const book = MailServices.ab.getDirectoryFromUID(row.dataset.book);
+        const list = book.childNodes.find(l => l.UID == row.dataset.uid);
+
+        SubDialog.open(
+          "chrome://messenger/content/addressbook/abMailListDialog.xhtml",
+          { features: "resizable=no", closedCallback: updateAbCommands },
+          { listURI: list.URI }
+        );
+        return;
+      }
+
+      const book = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
 
       SubDialog.open(
-        "chrome://messenger/content/addressbook/abMailListDialog.xhtml",
+        book.propertiesChromeURI,
         { features: "resizable=no", closedCallback: updateAbCommands },
-        { listURI: list.URI }
-      );
-      return;
-    }
-
-    const book = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
-
-    SubDialog.open(
-      book.propertiesChromeURI,
-      { features: "resizable=no", closedCallback: updateAbCommands },
-      { selectedDirectory: book }
-    );
-  }
-
-  /**
-   * Synchronize the selected address book. (CardDAV only.)
-   */
-  synchronizeSelected() {
-    const row = this.rows[this.selectedIndex];
-    if (!row.classList.contains("carddav")) {
-      throw new Components.Exception(
-        "Attempting to synchronize a non-CardDAV book.",
-        Cr.NS_ERROR_UNEXPECTED
+        { selectedDirectory: book }
       );
     }
 
-    let directory = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
-    directory = CardDAVDirectory.forFile(directory.fileName);
-    directory.syncWithServer().then(res => {
-      updateAddressBookCount();
-    });
-  }
-
-  /**
-   * Print the selected address book.
-   */
-  printSelected() {
-    if (this.selectedIndex === 0) {
-      printHandler.printDirectory();
-      return;
-    }
-
-    const row = this.rows[this.selectedIndex];
-    if (row.classList.contains("listRow")) {
-      const book = MailServices.ab.getDirectoryFromUID(row.dataset.book);
-      const list = book.childNodes.find(l => l.UID == row.dataset.uid);
-      printHandler.printDirectory(list);
-    } else {
-      const book = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
-      printHandler.printDirectory(book);
-    }
-  }
-
-  /**
-   * Export the selected address book to a file.
-   */
-  exportSelected() {
-    if (this.selectedIndex == 0) {
-      return;
-    }
-
-    const row = this.getRowAtIndex(this.selectedIndex);
-    const directory = row._book || row._list;
-    AddrBookUtils.exportDirectory(directory);
-  }
-
-  /**
-   * Prompt the user and delete the selected address book.
-   */
-  async deleteSelected() {
-    if (this.selectedIndex === 0) {
-      throw new Components.Exception(
-        "Cannot delete the All Address Books item",
-        Cr.NS_ERROR_UNEXPECTED
-      );
-    }
-
-    const row = this.rows[this.selectedIndex];
-    if (row.classList.contains("noDelete")) {
-      throw new Components.Exception(
-        "Refusing to delete a built-in address book",
-        Cr.NS_ERROR_UNEXPECTED
-      );
-    }
-
-    let action, name, uri;
-    if (row.classList.contains("listRow")) {
-      action = "delete-lists";
-      name = row._list.dirName;
-      uri = row._list.URI;
-    } else {
-      if (
-        [
-          Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE,
-          Ci.nsIAbManager.LDAP_DIRECTORY_TYPE,
-        ].includes(row._book.dirType)
-      ) {
-        action = "remove-remote-book";
-      } else {
-        action = "delete-book";
+    /**
+     * Synchronize the selected address book. (CardDAV only.)
+     */
+    synchronizeSelected() {
+      const row = this.rows[this.selectedIndex];
+      if (!row.classList.contains("carddav")) {
+        throw new Components.Exception(
+          "Attempting to synchronize a non-CardDAV book.",
+          Cr.NS_ERROR_UNEXPECTED
+        );
       }
 
-      name = row._book.dirName;
-      uri = row._book.URI;
+      let directory = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
+      directory = CardDAVDirectory.forFile(directory.fileName);
+      directory.syncWithServer().then(res => {
+        updateAddressBookCount();
+      });
     }
 
-    const [title, message] = await document.l10n.formatValues([
-      { id: `about-addressbook-confirm-${action}-title`, args: { count: 1 } },
-      {
-        id: `about-addressbook-confirm-${action}`,
-        args: { name, count: 1 },
-      },
-    ]);
+    /**
+     * Print the selected address book.
+     */
+    printSelected() {
+      if (this.selectedIndex === 0) {
+        printHandler.printDirectory();
+        return;
+      }
 
-    if (
-      Services.prompt.confirmEx(
-        window,
-        title,
-        message,
-        Ci.nsIPromptService.STD_YES_NO_BUTTONS,
-        null,
-        null,
-        null,
-        null,
-        {}
-      ) === 0
-    ) {
-      MailServices.ab.deleteAddressBook(uri);
-    }
-  }
-
-  /**
-   * Set the selected directory to be the one opened when the page opens.
-   */
-  setSelectedAsStartupDefault() {
-    // Once the old Address Book has gone away, this should be changed to use
-    // UIDs instead of URIs. It's just easier to keep as-is for now.
-    Services.prefs.setBoolPref("mail.addr_book.view.startupURIisDefault", true);
-    if (this.selectedIndex === 0) {
-      Services.prefs.clearUserPref("mail.addr_book.view.startupURI");
-      return;
+      const row = this.rows[this.selectedIndex];
+      if (row.classList.contains("listRow")) {
+        const book = MailServices.ab.getDirectoryFromUID(row.dataset.book);
+        const list = book.childNodes.find(l => l.UID == row.dataset.uid);
+        printHandler.printDirectory(list);
+      } else {
+        const book = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
+        printHandler.printDirectory(book);
+      }
     }
 
-    const row = this.rows[this.selectedIndex];
-    const directory = row._book || row._list;
-    Services.prefs.setStringPref(
-      "mail.addr_book.view.startupURI",
-      directory.URI
-    );
-  }
+    /**
+     * Export the selected address book to a file.
+     */
+    exportSelected() {
+      if (this.selectedIndex == 0) {
+        return;
+      }
 
-  /**
-   * Clear the directory to be opened when the page opens. Instead, the
-   * last-selected directory will be opened.
-   */
-  clearStartupDefault() {
-    Services.prefs.setBoolPref(
-      "mail.addr_book.view.startupURIisDefault",
-      false
-    );
-  }
-
-  /**
-   * @returns {boolean} True if a new contact can be created in the current
-   *   address book.
-   */
-  canCreateContact() {
-    if (this.selectedIndex === 0) {
-      return true;
-    }
-    const row = this.rows[this.selectedIndex];
-    if (!row) {
-      return false;
-    }
-    const bookUID = row.dataset.book ?? row.dataset.uid;
-    const book = MailServices.ab.getDirectoryFromUID(bookUID);
-    return !book.readOnly;
-  }
-
-  /**
-   * @returns {boolean} True if a new list can be created in the current
-   *   address book.
-   */
-  canCreateList() {
-    if (this.selectedIndex === 0) {
-      return true;
-    }
-    const row = this.rows[this.selectedIndex];
-    if (!row) {
-      return false;
-    }
-    const bookUID = row.dataset.book ?? row.dataset.uid;
-    const book = MailServices.ab.getDirectoryFromUID(bookUID);
-    return !book.readOnly && book.supportsMailingLists;
-  }
-
-  _onSelect() {
-    const row = this.rows[this.selectedIndex];
-    if (row.classList.contains("listRow")) {
-      cardsPane.displayList(row.dataset.book, row.dataset.uid);
-    } else {
-      cardsPane.displayBook(row.dataset.uid);
+      const row = this.getRowAtIndex(this.selectedIndex);
+      const directory = row._book || row._list;
+      AddrBookUtils.exportDirectory(directory);
     }
 
-    window.browsingContext.topChromeWindow.goUpdateCommand("cmd_newCard");
-    window.browsingContext.topChromeWindow.goUpdateCommand("cmd_createList");
+    /**
+     * Prompt the user and delete the selected address book.
+     */
+    async deleteSelected() {
+      if (this.selectedIndex === 0) {
+        throw new Components.Exception(
+          "Cannot delete the All Address Books item",
+          Cr.NS_ERROR_UNEXPECTED
+        );
+      }
 
-    // Row 0 is the "All Address Books" item.
-    if (this.selectedIndex === 0) {
-      document.getElementById("toolbarCreateContact").disabled = false;
-      document.getElementById("toolbarCreateList").disabled = false;
-      document.body.classList.add("all-ab-selected");
-    } else {
+      const row = this.rows[this.selectedIndex];
+      if (row.classList.contains("noDelete")) {
+        throw new Components.Exception(
+          "Refusing to delete a built-in address book",
+          Cr.NS_ERROR_UNEXPECTED
+        );
+      }
+
+      let action, name, uri;
+      if (row.classList.contains("listRow")) {
+        action = "delete-lists";
+        name = row._list.dirName;
+        uri = row._list.URI;
+      } else {
+        if (
+          [
+            Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE,
+            Ci.nsIAbManager.LDAP_DIRECTORY_TYPE,
+          ].includes(row._book.dirType)
+        ) {
+          action = "remove-remote-book";
+        } else {
+          action = "delete-book";
+        }
+
+        name = row._book.dirName;
+        uri = row._book.URI;
+      }
+
+      const [title, message] = await document.l10n.formatValues([
+        { id: `about-addressbook-confirm-${action}-title`, args: { count: 1 } },
+        {
+          id: `about-addressbook-confirm-${action}`,
+          args: { name, count: 1 },
+        },
+      ]);
+
+      if (
+        Services.prompt.confirmEx(
+          window,
+          title,
+          message,
+          Ci.nsIPromptService.STD_YES_NO_BUTTONS,
+          null,
+          null,
+          null,
+          null,
+          {}
+        ) === 0
+      ) {
+        MailServices.ab.deleteAddressBook(uri);
+      }
+    }
+
+    /**
+     * Set the selected directory to be the one opened when the page opens.
+     */
+    setSelectedAsStartupDefault() {
+      // Once the old Address Book has gone away, this should be changed to use
+      // UIDs instead of URIs. It's just easier to keep as-is for now.
+      Services.prefs.setBoolPref(
+        "mail.addr_book.view.startupURIisDefault",
+        true
+      );
+      if (this.selectedIndex === 0) {
+        Services.prefs.clearUserPref("mail.addr_book.view.startupURI");
+        return;
+      }
+
+      const row = this.rows[this.selectedIndex];
+      const directory = row._book || row._list;
+      Services.prefs.setStringPref(
+        "mail.addr_book.view.startupURI",
+        directory.URI
+      );
+    }
+
+    /**
+     * Clear the directory to be opened when the page opens. Instead, the
+     * last-selected directory will be opened.
+     */
+    clearStartupDefault() {
+      Services.prefs.setBoolPref(
+        "mail.addr_book.view.startupURIisDefault",
+        false
+      );
+    }
+
+    /**
+     * @returns {boolean} True if a new contact can be created in the current
+     *   address book.
+     */
+    canCreateContact() {
+      if (this.selectedIndex === 0) {
+        return true;
+      }
+      const row = this.rows[this.selectedIndex];
+      if (!row) {
+        return false;
+      }
       const bookUID = row.dataset.book ?? row.dataset.uid;
       const book = MailServices.ab.getDirectoryFromUID(bookUID);
-
-      document.getElementById("toolbarCreateContact").disabled = book.readOnly;
-      document.getElementById("toolbarCreateList").disabled =
-        book.readOnly || !book.supportsMailingLists;
-      document.body.classList.remove("all-ab-selected");
-    }
-  }
-
-  _onCollapsed(event) {
-    Services.xulStore.setValue(
-      cardsPane.URL,
-      event.target.id,
-      "collapsed",
-      "true"
-    );
-  }
-
-  _onExpanded(event) {
-    Services.xulStore.removeValue(cardsPane.URL, event.target.id, "collapsed");
-  }
-
-  _onKeyPress(event) {
-    if (event.altKey || event.metaKey || event.shiftKey) {
-      return;
+      return !book.readOnly;
     }
 
-    switch (event.key) {
-      case "Delete":
-        this.deleteSelected();
-        break;
-    }
-  }
-
-  _onClick(event) {
-    super._onClick(event);
-
-    // Only handle left-clicks. Right-clicking on the menu button will cause
-    // the menu to appear anyway, and other buttons can be ignored.
-    if (
-      event.button !== 0 ||
-      !event.target.closest(".bookRow-menu, .listRow-menu")
-    ) {
-      return;
-    }
-
-    this._showContextMenu(event);
-  }
-
-  _onContextMenu(event) {
-    this._showContextMenu(event);
-  }
-
-  _onDragOver(event) {
-    const cards = event.dataTransfer.mozGetDataAt("moz/abcard-array", 0);
-    if (!cards) {
-      return;
-    }
-    if (cards.some(c => c.isMailList)) {
-      return;
-    }
-
-    // TODO: Handle dropping a vCard here.
-
-    const row = event.target.closest("li");
-    if (!row || row.classList.contains("readOnly")) {
-      return;
-    }
-
-    const rowIsList = row.classList.contains("listRow");
-    event.dataTransfer.effectAllowed = rowIsList ? "link" : "copyMove";
-
-    if (rowIsList) {
-      const bookUID = row.dataset.book;
-      for (const card of cards) {
-        if (card.directoryUID != bookUID) {
-          return;
-        }
+    /**
+     * @returns {boolean} True if a new list can be created in the current
+     *   address book.
+     */
+    canCreateList() {
+      if (this.selectedIndex === 0) {
+        return true;
       }
-      event.dataTransfer.dropEffect = "link";
-    } else {
-      const bookUID = row.dataset.uid;
-      for (const card of cards) {
-        // Prevent dropping a card where it already is.
-        if (card.directoryUID == bookUID) {
-          return;
-        }
+      const row = this.rows[this.selectedIndex];
+      if (!row) {
+        return false;
       }
-      event.dataTransfer.dropEffect = event.ctrlKey ? "copy" : "move";
+      const bookUID = row.dataset.book ?? row.dataset.uid;
+      const book = MailServices.ab.getDirectoryFromUID(bookUID);
+      return !book.readOnly && book.supportsMailingLists;
     }
 
-    this._clearDropTarget();
-    row.classList.add("drop-target");
-
-    event.preventDefault();
-  }
-
-  _clearDropTarget() {
-    this.querySelector(".drop-target")?.classList.remove("drop-target");
-  }
-
-  _onDrop(event) {
-    this._clearDropTarget();
-    if (event.dataTransfer.dropEffect == "none") {
-      // Somehow this is possible. It should not be possible.
-      return;
-    }
-
-    const cards = event.dataTransfer.mozGetDataAt("moz/abcard-array", 0);
-    const row = event.target.closest("li");
-
-    if (row.classList.contains("listRow")) {
-      for (const card of cards) {
-        row._list.addCard(card);
+    _onSelect() {
+      const row = this.rows[this.selectedIndex];
+      if (row.classList.contains("listRow")) {
+        cardsPane.displayList(row.dataset.book, row.dataset.uid);
+      } else {
+        cardsPane.displayBook(row.dataset.uid);
       }
-    } else if (event.dataTransfer.dropEffect == "copy") {
-      for (const card of cards) {
-        row._book.dropCard(card, true);
-      }
-    } else {
-      const booksMap = new Map();
-      const bookUID = row.dataset.uid;
-      for (const card of cards) {
-        if (bookUID == card.directoryUID) {
-          continue;
-        }
-        row._book.dropCard(card, false);
-        let bookSet = booksMap.get(card.directoryUID);
-        if (!bookSet) {
-          bookSet = new Set();
-          booksMap.set(card.directoryUID, bookSet);
-        }
-        bookSet.add(card);
-      }
-      for (const [uid, bookSet] of booksMap) {
-        MailServices.ab.getDirectoryFromUID(uid).deleteCards([...bookSet]);
+
+      window.browsingContext.topChromeWindow.goUpdateCommand("cmd_newCard");
+      window.browsingContext.topChromeWindow.goUpdateCommand("cmd_createList");
+
+      // Row 0 is the "All Address Books" item.
+      if (this.selectedIndex === 0) {
+        document.getElementById("toolbarCreateContact").disabled = false;
+        document.getElementById("toolbarCreateList").disabled = false;
+        document.body.classList.add("all-ab-selected");
+      } else {
+        const bookUID = row.dataset.book ?? row.dataset.uid;
+        const book = MailServices.ab.getDirectoryFromUID(bookUID);
+
+        document.getElementById("toolbarCreateContact").disabled =
+          book.readOnly;
+        document.getElementById("toolbarCreateList").disabled =
+          book.readOnly || !book.supportsMailingLists;
+        document.body.classList.remove("all-ab-selected");
       }
     }
 
-    event.preventDefault();
-  }
-
-  _showContextMenu(event) {
-    const row =
-      event.target == this
-        ? this.rows[this.selectedIndex]
-        : event.target.closest("li");
-    if (!row) {
-      return;
-    }
-
-    const popup = document.getElementById("bookContext");
-    const synchronizeItem = document.getElementById("bookContextSynchronize");
-    const exportItem = document.getElementById("bookContextExport");
-    const deleteItem = document.getElementById("bookContextDelete");
-    const removeItem = document.getElementById("bookContextRemove");
-    const startupDefaultItem = document.getElementById(
-      "bookContextStartupDefault"
-    );
-
-    let isDefault = Services.prefs.getBoolPref(
-      "mail.addr_book.view.startupURIisDefault"
-    );
-
-    this.selectedIndex = this.rows.indexOf(row);
-    this.focus();
-    if (this.selectedIndex === 0) {
-      // All Address Books - only the startup default item is relevant.
-      for (const item of popup.children) {
-        item.hidden = item != startupDefaultItem;
-      }
-
-      isDefault =
-        isDefault &&
-        !Services.prefs.prefHasUserValue("mail.addr_book.view.startupURI");
-    } else {
-      for (const item of popup.children) {
-        item.hidden = false;
-      }
-
-      document.l10n.setAttributes(
-        document.getElementById("bookContextProperties"),
-        row.classList.contains("listRow")
-          ? "about-addressbook-books-context-edit-list"
-          : "about-addressbook-books-context-properties"
-      );
-
-      synchronizeItem.hidden = !row.classList.contains("carddav");
-      exportItem.hidden = row.classList.contains("remote");
-
-      deleteItem.disabled = row.classList.contains("noDelete");
-      deleteItem.hidden = row.classList.contains("carddav");
-
-      removeItem.disabled = row.classList.contains("noDelete");
-      removeItem.hidden = !row.classList.contains("carddav");
-
-      const directory = row._book || row._list;
-      isDefault =
-        isDefault &&
-        Services.prefs.getStringPref("mail.addr_book.view.startupURI") ==
-          directory.URI;
-    }
-
-    if (isDefault) {
-      startupDefaultItem.setAttribute("checked", "true");
-    } else {
-      startupDefaultItem.removeAttribute("checked");
-    }
-
-    if (event.type == "contextmenu" && event.button == 2) {
-      // This is a right-click. Open where it happened.
-      popup.openPopupAtScreen(event.screenX, event.screenY, true);
-    } else {
-      // This is a click on the menu button, or the context menu key was
-      // pressed. Open near the menu button.
-      popup.openPopup(
-        row.querySelector(".bookRow-container, .listRow-container"),
-        {
-          triggerEvent: event,
-          position: "end_before",
-          x: -26,
-          y: 30,
-        }
+    _onCollapsed(event) {
+      Services.xulStore.setValue(
+        cardsPane.URL,
+        event.target.id,
+        "collapsed",
+        "true"
       );
     }
-    event.preventDefault();
-  }
 
-  _abObserver = {
-    QueryInterface: ChromeUtils.generateQI([
-      "nsIObserver",
-      "nsISupportsWeakReference",
-    ]),
+    _onExpanded(event) {
+      Services.xulStore.removeValue(
+        cardsPane.URL,
+        event.target.id,
+        "collapsed"
+      );
+    }
 
-    _notifications: [
-      "addrbook-directory-created",
-      "addrbook-directory-updated",
-      "addrbook-directory-deleted",
-      "addrbook-directory-request-start",
-      "addrbook-directory-request-end",
-      "addrbook-list-created",
-      "addrbook-list-updated",
-      "addrbook-list-deleted",
-    ],
+    _onKeyPress(event) {
+      if (event.altKey || event.metaKey || event.shiftKey) {
+        return;
+      }
 
-    // Bound to `booksList`.
-    observe(subject, topic, data) {
-      subject.QueryInterface(Ci.nsIAbDirectory);
-
-      switch (topic) {
-        case "addrbook-directory-created": {
-          const row = this._createBookRow(subject);
-          let next = this.children[1];
-          while (next) {
-            if (
-              AddrBookUtils.compareAddressBooks(
-                subject,
-                MailServices.ab.getDirectoryFromUID(next.dataset.uid)
-              ) < 0
-            ) {
-              break;
-            }
-            next = next.nextElementSibling;
-          }
-          this.insertBefore(row, next);
+      switch (event.key) {
+        case "Delete":
+          this.deleteSelected();
           break;
+      }
+    }
+
+    _onClick(event) {
+      super._onClick(event);
+
+      // Only handle left-clicks. Right-clicking on the menu button will cause
+      // the menu to appear anyway, and other buttons can be ignored.
+      if (
+        event.button !== 0 ||
+        !event.target.closest(".bookRow-menu, .listRow-menu")
+      ) {
+        return;
+      }
+
+      this._showContextMenu(event);
+    }
+
+    _onContextMenu(event) {
+      this._showContextMenu(event);
+    }
+
+    _onDragOver(event) {
+      const cards = event.dataTransfer.mozGetDataAt("moz/abcard-array", 0);
+      if (!cards) {
+        return;
+      }
+      if (cards.some(c => c.isMailList)) {
+        return;
+      }
+
+      // TODO: Handle dropping a vCard here.
+
+      const row = event.target.closest("li");
+      if (!row || row.classList.contains("readOnly")) {
+        return;
+      }
+
+      const rowIsList = row.classList.contains("listRow");
+      event.dataTransfer.effectAllowed = rowIsList ? "link" : "copyMove";
+
+      if (rowIsList) {
+        const bookUID = row.dataset.book;
+        for (const card of cards) {
+          if (card.directoryUID != bookUID) {
+            return;
+          }
         }
-        case "addrbook-directory-updated":
-        case "addrbook-list-updated": {
-          const row = this.getRowForUID(subject.UID);
-          row.querySelector(".bookRow-name, .listRow-name").textContent =
-            subject.dirName;
-          row.setAttribute("aria-label", subject.dirName);
-          if (cardsPane.cardsList.view.directory?.UID == subject.UID) {
-            document.l10n.setAttributes(
-              cardsPane.searchInput,
-              "about-addressbook-search",
-              { name: subject.dirName }
+        event.dataTransfer.dropEffect = "link";
+      } else {
+        const bookUID = row.dataset.uid;
+        for (const card of cards) {
+          // Prevent dropping a card where it already is.
+          if (card.directoryUID == bookUID) {
+            return;
+          }
+        }
+        event.dataTransfer.dropEffect = event.ctrlKey ? "copy" : "move";
+      }
+
+      this._clearDropTarget();
+      row.classList.add("drop-target");
+
+      event.preventDefault();
+    }
+
+    _clearDropTarget() {
+      this.querySelector(".drop-target")?.classList.remove("drop-target");
+    }
+
+    _onDrop(event) {
+      this._clearDropTarget();
+      if (event.dataTransfer.dropEffect == "none") {
+        // Somehow this is possible. It should not be possible.
+        return;
+      }
+
+      const cards = event.dataTransfer.mozGetDataAt("moz/abcard-array", 0);
+      const row = event.target.closest("li");
+
+      if (row.classList.contains("listRow")) {
+        for (const card of cards) {
+          row._list.addCard(card);
+        }
+      } else if (event.dataTransfer.dropEffect == "copy") {
+        for (const card of cards) {
+          row._book.dropCard(card, true);
+        }
+      } else {
+        const booksMap = new Map();
+        const bookUID = row.dataset.uid;
+        for (const card of cards) {
+          if (bookUID == card.directoryUID) {
+            continue;
+          }
+          row._book.dropCard(card, false);
+          let bookSet = booksMap.get(card.directoryUID);
+          if (!bookSet) {
+            bookSet = new Set();
+            booksMap.set(card.directoryUID, bookSet);
+          }
+          bookSet.add(card);
+        }
+        for (const [uid, bookSet] of booksMap) {
+          MailServices.ab.getDirectoryFromUID(uid).deleteCards([...bookSet]);
+        }
+      }
+
+      event.preventDefault();
+    }
+
+    _showContextMenu(event) {
+      const row =
+        event.target == this
+          ? this.rows[this.selectedIndex]
+          : event.target.closest("li");
+      if (!row) {
+        return;
+      }
+
+      const popup = document.getElementById("bookContext");
+      const synchronizeItem = document.getElementById("bookContextSynchronize");
+      const exportItem = document.getElementById("bookContextExport");
+      const deleteItem = document.getElementById("bookContextDelete");
+      const removeItem = document.getElementById("bookContextRemove");
+      const startupDefaultItem = document.getElementById(
+        "bookContextStartupDefault"
+      );
+
+      let isDefault = Services.prefs.getBoolPref(
+        "mail.addr_book.view.startupURIisDefault"
+      );
+
+      this.selectedIndex = this.rows.indexOf(row);
+      this.focus();
+      if (this.selectedIndex === 0) {
+        // All Address Books - only the startup default item is relevant.
+        for (const item of popup.children) {
+          item.hidden = item != startupDefaultItem;
+        }
+
+        isDefault =
+          isDefault &&
+          !Services.prefs.prefHasUserValue("mail.addr_book.view.startupURI");
+      } else {
+        for (const item of popup.children) {
+          item.hidden = false;
+        }
+
+        document.l10n.setAttributes(
+          document.getElementById("bookContextProperties"),
+          row.classList.contains("listRow")
+            ? "about-addressbook-books-context-edit-list"
+            : "about-addressbook-books-context-properties"
+        );
+
+        synchronizeItem.hidden = !row.classList.contains("carddav");
+        exportItem.hidden = row.classList.contains("remote");
+
+        deleteItem.disabled = row.classList.contains("noDelete");
+        deleteItem.hidden = row.classList.contains("carddav");
+
+        removeItem.disabled = row.classList.contains("noDelete");
+        removeItem.hidden = !row.classList.contains("carddav");
+
+        const directory = row._book || row._list;
+        isDefault =
+          isDefault &&
+          Services.prefs.getStringPref("mail.addr_book.view.startupURI") ==
+            directory.URI;
+      }
+
+      if (isDefault) {
+        startupDefaultItem.setAttribute("checked", "true");
+      } else {
+        startupDefaultItem.removeAttribute("checked");
+      }
+
+      if (event.type == "contextmenu" && event.button == 2) {
+        // This is a right-click. Open where it happened.
+        popup.openPopupAtScreen(event.screenX, event.screenY, true);
+      } else {
+        // This is a click on the menu button, or the context menu key was
+        // pressed. Open near the menu button.
+        popup.openPopup(
+          row.querySelector(".bookRow-container, .listRow-container"),
+          {
+            triggerEvent: event,
+            position: "end_before",
+            x: -26,
+            y: 30,
+          }
+        );
+      }
+      event.preventDefault();
+    }
+
+    _abObserver = {
+      QueryInterface: ChromeUtils.generateQI([
+        "nsIObserver",
+        "nsISupportsWeakReference",
+      ]),
+
+      _notifications: [
+        "addrbook-directory-created",
+        "addrbook-directory-updated",
+        "addrbook-directory-deleted",
+        "addrbook-directory-request-start",
+        "addrbook-directory-request-end",
+        "addrbook-list-created",
+        "addrbook-list-updated",
+        "addrbook-list-deleted",
+      ],
+
+      // Bound to `booksList`.
+      observe(subject, topic, data) {
+        subject.QueryInterface(Ci.nsIAbDirectory);
+
+        switch (topic) {
+          case "addrbook-directory-created": {
+            const row = this._createBookRow(subject);
+            let next = this.children[1];
+            while (next) {
+              if (
+                AddrBookUtils.compareAddressBooks(
+                  subject,
+                  MailServices.ab.getDirectoryFromUID(next.dataset.uid)
+                ) < 0
+              ) {
+                break;
+              }
+              next = next.nextElementSibling;
+            }
+            this.insertBefore(row, next);
+            break;
+          }
+          case "addrbook-directory-updated":
+          case "addrbook-list-updated": {
+            const row = this.getRowForUID(subject.UID);
+            row.querySelector(".bookRow-name, .listRow-name").textContent =
+              subject.dirName;
+            row.setAttribute("aria-label", subject.dirName);
+            if (cardsPane.cardsList.view.directory?.UID == subject.UID) {
+              document.l10n.setAttributes(
+                cardsPane.searchInput,
+                "about-addressbook-search",
+                { name: subject.dirName }
+              );
+            }
+            break;
+          }
+          case "addrbook-directory-deleted": {
+            this.getRowForUID(subject.UID).remove();
+            break;
+          }
+          case "addrbook-directory-request-start":
+            this.getRowForUID(data).classList.add("requesting");
+            break;
+          case "addrbook-directory-request-end":
+            this.getRowForUID(data).classList.remove("requesting");
+            break;
+          case "addrbook-list-created": {
+            const row = this.getRowForUID(data);
+            let childList = row.querySelector("ul");
+            if (!childList) {
+              childList = row.appendChild(document.createElement("ul"));
+            }
+
+            const listRow = this._createListRow(data, subject);
+            let next = childList.firstElementChild;
+            while (next) {
+              if (AddrBookUtils.compareAddressBooks(subject, next._list) < 0) {
+                break;
+              }
+              next = next.nextElementSibling;
+            }
+            childList.insertBefore(listRow, next);
+            break;
+          }
+          case "addrbook-list-deleted": {
+            const row = this.getRowForUID(data);
+            const childList = row.querySelector("ul");
+            const listRow = childList.querySelector(
+              `[data-uid="${subject.UID}"]`
             );
-          }
-          break;
-        }
-        case "addrbook-directory-deleted": {
-          this.getRowForUID(subject.UID).remove();
-          break;
-        }
-        case "addrbook-directory-request-start":
-          this.getRowForUID(data).classList.add("requesting");
-          break;
-        case "addrbook-directory-request-end":
-          this.getRowForUID(data).classList.remove("requesting");
-          break;
-        case "addrbook-list-created": {
-          const row = this.getRowForUID(data);
-          let childList = row.querySelector("ul");
-          if (!childList) {
-            childList = row.appendChild(document.createElement("ul"));
-          }
-
-          const listRow = this._createListRow(data, subject);
-          let next = childList.firstElementChild;
-          while (next) {
-            if (AddrBookUtils.compareAddressBooks(subject, next._list) < 0) {
-              break;
+            listRow.remove();
+            if (childList.childElementCount == 0) {
+              setTimeout(() => childList.remove());
             }
-            next = next.nextElementSibling;
+            break;
           }
-          childList.insertBefore(listRow, next);
-          break;
         }
-        case "addrbook-list-deleted": {
-          const row = this.getRowForUID(data);
-          const childList = row.querySelector("ul");
-          const listRow = childList.querySelector(
-            `[data-uid="${subject.UID}"]`
-          );
-          listRow.remove();
-          if (childList.childElementCount == 0) {
-            setTimeout(() => childList.remove());
-          }
-          break;
-        }
-      }
-    },
-  };
-}
-customElements.define("ab-tree-listbox", AbTreeListbox, { extends: "ul" });
+      },
+    };
+  }
+  customElements.define("ab-tree-listbox", AbTreeListbox, { extends: "ul" });
+});
 
 // Cards
 
