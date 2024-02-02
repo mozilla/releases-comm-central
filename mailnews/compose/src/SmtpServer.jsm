@@ -21,17 +21,21 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
  * This class represents a single SMTP server.
  *
  * @implements {nsISmtpServer}
+ * @implements {nsISupportsWeakReference}
  * @implements {nsIObserver}
  */
-
 class SmtpServer {
-  QueryInterface = ChromeUtils.generateQI(["nsISmtpServer", "nsIObserver"]);
+  QueryInterface = ChromeUtils.generateQI([
+    "nsISmtpServer",
+    "nsISupportsWeakReference",
+    "nsIObserver",
+  ]);
 
   constructor() {
     this._key = "";
     this._loadPrefs();
 
-    Services.obs.addObserver(this, "passwordmgr-storage-changed");
+    Services.obs.addObserver(this, "passwordmgr-storage-changed", true);
   }
 
   /**
@@ -53,7 +57,7 @@ class SmtpServer {
         // "removeLogin" or "removeAllLogins".
         otherFullName = subject.origin;
         otherUsername = subject.username;
-      } else if (subject instanceof Ci.nsIArray) {
+      } else if (subject instanceof Ci.nsIArray && subject.length > 0) {
         // Probably a 2 element array containing old and new login info due to
         // aData being "modifyLogin". E.g., a user has modified the password or
         // username in the password manager or an OAuth2 token string has

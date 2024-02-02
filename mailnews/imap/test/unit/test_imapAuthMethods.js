@@ -124,7 +124,6 @@ function nextTest() {
     do {
       incomingServer.closeCachedConnections();
     } while (incomingServer.serverBusy);
-    incomingServer.shutdown();
     deleteIMAPServer(incomingServer);
     incomingServer = null;
     MailServices.accounts.closeCachedConnections();

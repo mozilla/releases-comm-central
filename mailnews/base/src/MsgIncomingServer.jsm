@@ -261,7 +261,7 @@ class MsgIncomingServer {
     this._knownHdrMap = new Map();
     this._hdrIndex = 0;
 
-    Services.obs.addObserver(this, "passwordmgr-storage-changed");
+    Services.obs.addObserver(this, "passwordmgr-storage-changed", true);
   }
 
   /**
@@ -283,7 +283,7 @@ class MsgIncomingServer {
         // "removeLogin" or "removeAllLogins".
         otherFullName = subject.origin;
         otherUsername = subject.username;
-      } else if (subject instanceof Ci.nsIArray) {
+      } else if (subject instanceof Ci.nsIArray && subject.length > 0) {
         // Probably a 2 element array containing old and new login info due to
         // data being "modifyLogin". E.g., a user has modified the password or
         // username in the password manager or an OAuth2 token string has
@@ -940,6 +940,8 @@ class MsgIncomingServer {
       this._spamSettings.logStream = null;
       this._spamSettings = null;
     }
+
+    Services.obs.removeObserver(this, "passwordmgr-storage-changed");
   }
 
   getFilterList(msgWindow) {
