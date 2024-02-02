@@ -46,13 +46,8 @@ class ConversationOpener {
         console.error("Couldn't find a collection for msg: " + this._msgHdr);
       } else {
         const message = collection.items[0];
-        let tabmail = this.window.top.document.getElementById("tabmail");
-        if (!tabmail) {
-          tabmail = Services.wm
-            .getMostRecentWindow("mail:3pane")
-            .document.getElementById("tabmail");
-        }
-        tabmail.openTab("mail3PaneTab", {
+        const tabType = "mail3PaneTab";
+        const tabParams = {
           folderPaneVisible: false,
           syntheticView: new GlodaSyntheticView({
             conversation: message.conversation,
@@ -60,7 +55,36 @@ class ConversationOpener {
           }),
           title: message.conversation.subject,
           background: false,
-        });
+        };
+        const tabmail =
+          this.window.top.document.getElementById("tabmail") ??
+          Services.wm
+            .getMostRecentWindow("mail:3pane")
+            ?.document.getElementById("tabmail");
+        if (tabmail) {
+          tabmail.openTab(tabType, tabParams);
+        } else {
+          const win = Services.ww.openWindow(
+            null,
+            "chrome://messenger/content/messenger.xhtml",
+            "_blank",
+            "chrome,dialog=no,all",
+            Cc["@mozilla.org/supports-string;1"].createInstance(
+              Ci.nsISupportsString
+            )
+          );
+          const mailStartupObserver = {
+            observe(subject) {
+              if (subject == win) {
+                win.document
+                  .getElementById("tabmail")
+                  .openTab(tabType, tabParams);
+                Services.obs.removeObserver(this, "mail-startup-done");
+              }
+            },
+          };
+          Services.obs.addObserver(mailStartupObserver, "mail-startup-done");
+        }
       }
     } catch (e) {
       console.error(e);
