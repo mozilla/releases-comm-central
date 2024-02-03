@@ -10,6 +10,8 @@ Thunderbird Source Tree Documentation
    :caption: Project Information
    :maxdepth: 1
 
+   build/index
+
    mots/index
 
    l10n/index
