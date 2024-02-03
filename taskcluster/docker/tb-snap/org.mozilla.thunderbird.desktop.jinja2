@@ -1,0 +1,33 @@
+[Desktop Entry]
+Name={{ strings.get_message("en-US", "flatpak-desktop-name") }}
+Comment={{ strings.get_message("en-US", "flatpak-desktop-comment") }}
+{%- for line in translate("Comment", "flatpak-desktop-comment") %}
+{{ line }}
+{%- endfor %}
+GenericName={{ strings.get_message("en-US", "flatpak-desktop-generic-name") }}
+{%- for line in translate("GenericName", "flatpak-desktop-generic-name") %}
+{{ line }}
+{%- endfor %}
+Exec=thunderbird %u
+Terminal=false
+Type=Application
+Icon=org.mozilla.Thunderbird
+Categories=Network;Email;
+MimeType=message/rfc822;x-scheme-handler/mailto;text/calendar;text/vcard;text/x-vcard;x-scheme-handler/webcal;x-scheme-handler/webcals;x-scheme-handler/mid;
+StartupNotify=true
+StartupWMClass={{ wmclass }}
+Actions=ComposeMessage;OpenAddressBook;
+
+[Desktop Action ComposeMessage]
+Name={{ strings.get_message("en-US", "flatpak-desktop-action-compose") }}
+{%- for line in translate("Name", "flatpak-desktop-action-compose") %}
+{{ line }}
+{%- endfor %}
+Exec=thunderbird -compose
+
+[Desktop Action OpenAddressBook]
+Name={{ strings.get_message("en-US", "flatpak-desktop-action-addressbook") }}
+{%- for line in translate("Name", "flatpak-desktop-action-addressbook") %}
+{{ line }}
+{%- endfor %}
+Exec=thunderbird -addressbook

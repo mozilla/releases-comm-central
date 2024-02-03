@@ -10,6 +10,9 @@ tb-debian-mingw:
 tb-flatpak:
     symbol: I(flatpak)
 
+tb-snap:
+    symbol: I(snap)
+
 tb-atn:
     symbol: I(tb-atn)
     parent: debian12-base
