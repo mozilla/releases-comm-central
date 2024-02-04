@@ -709,10 +709,15 @@ function loadExtraTabs() {
  * @param aStartMsgHdr The message header to load at window open
  */
 async function loadStartMsgHdr(aStartMsgHdr) {
+  const mailStartupObserver = {
+    observe() {
+      MsgDisplayMessageInFolderTab(aStartMsgHdr);
+      Services.obs.removeObserver(this, "mail-startup-done");
+    },
+  };
+  Services.obs.addObserver(mailStartupObserver, "mail-startup-done");
   // We'll just clobber the default tab
   await atStartupRestoreTabs(true);
-
-  MsgDisplayMessageInFolderTab(aStartMsgHdr);
 }
 
 async function loadStartFolder(initialUri) {
