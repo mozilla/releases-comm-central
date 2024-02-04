@@ -48,13 +48,6 @@ const browserTestPaths = [
 ];
 
 module.exports = {
-  parser: "@babel/eslint-parser",
-  parserOptions: {
-    sourceType: "script",
-    babelOptions: {
-      configFile: path.join(__dirname, "..", ".babel-eslint.rc.js"),
-    },
-  },
   settings: {
     "import/extensions": [".mjs"],
     // To avoid bad interactions of the html plugin with the xml preprocessor in
