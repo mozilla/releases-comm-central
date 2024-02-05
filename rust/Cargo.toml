@@ -29,7 +29,6 @@ bitflags = { path = "../../build/rust/bitflags" }
 memmap2_0_5 = { package = "memmap2", path = "../../build/rust/memmap2-0.5" }
 memmap2 = { path = "../../build/rust/memmap2" }
 cfg-if = { path = "../../build/rust/cfg-if" }
-serde_with = { path = "../../build/rust/serde_with" }
 redox_users = { path = "../../build/rust/redox_users" }
 redox_syscall = { path = "../../build/rust/redox_syscall" }
 tinyvec = { path = "../../build/rust/tinyvec" }
