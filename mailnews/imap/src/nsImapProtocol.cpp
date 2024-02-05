@@ -8443,14 +8443,6 @@ bool nsImapProtocol::TryToLogon() {
   AutoProxyReleaseMsgWindow msgWindow;
   GetMsgWindow(getter_AddRefs(msgWindow));
 
-  // Block other imap threads for this server from attempting to login while
-  // this thread is also attempting to login. This prevents sending too many
-  // potentially invalid passwords that may cause the email provider to lock
-  // out the account. Note: m_server pointer becomes null if the server times
-  // out the connection when the user waits too long to enter the correct
-  // password or to retry the password. So it's saved to a local variable.
-  nsWeakPtr serverPtr = m_server;
-  PR_CEnterMonitor(serverPtr);
   // This loops over 1) auth methods (only one per loop) and 2) password tries
   // (with UI)
   while (!loginSucceeded && !skipLoop && !DeathSignalReceived()) {
@@ -8544,7 +8536,6 @@ bool nsImapProtocol::TryToLogon() {
       }  // all methods failed
     }    // login failed
   }      // while
-  PR_CExitMonitor(serverPtr);
 
   if (loginSucceeded) {
     MOZ_LOG(IMAP, LogLevel::Debug, ("login succeeded"));
