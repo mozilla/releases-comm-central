@@ -2,31 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
-);
-
-/** @implements {nsIExternalProtocolService} */
-const mockExternalProtocolService = {
-  _loadedURLs: [],
-  externalProtocolHandlerExists(protocolScheme) {},
-  getApplicationDescription(scheme) {},
-  getProtocolHandlerInfo(protocolScheme) {
-    return {
-      possibleApplicationHandlers: Cc["@mozilla.org/array;1"].createInstance(
-        Ci.nsIMutableArray
-      ),
-    };
-  },
-  getProtocolHandlerInfoFromOS(protocolScheme, found) {},
-  isExposedProtocol(protocolScheme) {},
-  loadURI(uri, windowContext) {
-    this._loadedURLs.push(uri.spec);
-  },
-  setProtocolHandlerDefaults(handlerInfo, osHandlerExists) {},
-  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-};
-
 var gAccount;
 var gMessages;
 var gFolder;
@@ -48,11 +23,19 @@ add_setup(() => {
 });
 
 /**
- * Update registered WebExtension protocol handler pages.
+ * Update tabs to load registered WebExtension protocol handler pages and check
+ * that it will work only for content tabs and mail tabs.
  */
-add_task(async function testUpdateTabs_WebExtProtocolHandler() {
+add_task(async function testCreateUpdateTabs_WebExtProtocolHandler() {
   const files = {
     "background.js": async () => {
+      function assertEndsWith(expectedEnding, actual, description) {
+        browser.test.assertTrue(
+          actual.endsWith(expectedEnding),
+          `assertEndsWith failed for ${description} - expected ending: ${expectedEnding},  actual string ${actual}`
+        );
+      }
+
       // Test a mail tab.
 
       let [mailTab] = await browser.mailTabs.query({
@@ -61,7 +44,7 @@ add_task(async function testUpdateTabs_WebExtProtocolHandler() {
       });
       browser.test.assertTrue(!!mailTab, "Should have found a mail tab.");
 
-      // Load a message.
+      // Load a message into the mail tab.
       const { messages } = await browser.messages.list(
         mailTab.displayedFolder.id
       );
@@ -79,7 +62,8 @@ add_task(async function testUpdateTabs_WebExtProtocolHandler() {
         "A message should be loaded"
       );
 
-      // Update to a registered WebExtension protocol handler.
+      // Update mail tab to a registered WebExtension protocol handler.
+
       await new Promise(resolve => {
         let urlSeen = false;
         const updateListener = (tabId, changeInfo, tab) => {
@@ -98,12 +82,86 @@ add_task(async function testUpdateTabs_WebExtProtocolHandler() {
       });
 
       mailTab = await browser.tabs.get(mailTab.id);
-      browser.test.assertTrue(
-        mailTab.url.endsWith("handler.html#ext%2Btest%3A1234-1"),
-        "Should have found the correct protocol handler url loaded"
+      assertEndsWith(
+        "handler.html#ext%2Btest%3A1234-1",
+        mailTab.url,
+        "mailTab.url should have the correct ending"
       );
 
-      // Test a message tab.
+      // Update content tab to a registered WebExtension protocol handler.
+
+      let contentTab = await new Promise(resolve => {
+        let urlSeen = false;
+        const updateListener = (tabId, changeInfo, tab) => {
+          if (changeInfo.url == "https://www.example.com/") {
+            urlSeen = true;
+          }
+          if (urlSeen && changeInfo.status == "complete") {
+            resolve(tab);
+          }
+        };
+        browser.tabs.onUpdated.addListener(updateListener);
+        browser.tabs.create({ url: "https://www.example.com/" });
+      });
+
+      browser.test.assertEq(
+        "https://www.example.com/",
+        contentTab.url,
+        "Should have found the correct url loaded"
+      );
+
+      await new Promise(resolve => {
+        let urlSeen = false;
+        const updateListener = (tabId, changeInfo, tab) => {
+          if (
+            changeInfo.url &&
+            changeInfo.url.endsWith("handler.html#ext%2Btest%3A1234-1")
+          ) {
+            urlSeen = true;
+          }
+          if (urlSeen && changeInfo.status == "complete") {
+            resolve();
+          }
+        };
+        browser.tabs.onUpdated.addListener(updateListener);
+        browser.tabs.update(contentTab.id, { url: "ext+test:1234-1" });
+      });
+
+      contentTab = await browser.tabs.get(contentTab.id);
+      assertEndsWith(
+        "handler.html#ext%2Btest%3A1234-1",
+        contentTab.url,
+        "contentTab.url should have the correct ending"
+      );
+      await browser.tabs.remove(contentTab.id);
+
+      // Create a registered WebExtension protocol handler tab.
+
+      const extProtoTab = await new Promise(resolve => {
+        let urlSeen = false;
+        const updateListener = (tabId, changeInfo, tab) => {
+          if (
+            changeInfo.url &&
+            changeInfo.url.endsWith("handler.html#ext%2Btest%3A1234-1")
+          ) {
+            urlSeen = true;
+          }
+          if (urlSeen && changeInfo.status == "complete") {
+            resolve(tab);
+          }
+        };
+        browser.tabs.onUpdated.addListener(updateListener);
+        browser.tabs.create({ url: "ext+test:1234-1" });
+      });
+
+      assertEndsWith(
+        "handler.html#ext%2Btest%3A1234-1",
+        extProtoTab.url,
+        "extProtoTab.url should have the correct ending"
+      );
+      await browser.tabs.remove(extProtoTab.id);
+
+      // Test updating a message tab.
 
       const messageTab = await browser.messageDisplay.open({
         location: "tab",
@@ -128,7 +186,7 @@ add_task(async function testUpdateTabs_WebExtProtocolHandler() {
       );
       browser.tabs.remove(messageTab.id);
 
-      // Test a message window.
+      // Test updating a message window.
 
       const messageWindowTab = await browser.messageDisplay.open({
         location: "window",
@@ -154,7 +212,7 @@ add_task(async function testUpdateTabs_WebExtProtocolHandler() {
 
       browser.tabs.remove(messageWindowTab.id);
 
-      // Test a compose window.
+      // Test updating a compose window.
 
       const details1 = { to: ['"Mr. Holmes" <holmes@bakerstreet.invalid>'] };
       const composeTab = await browser.compose.beginNew(details1);
@@ -212,7 +270,7 @@ add_task(async function testUpdateTabs_WebExtProtocolHandler() {
   await extension.unload();
 });
 
-add_task(async function testUpdateCreateTabs_mailto() {
+add_task(async function testCreateUpdateTabs_mailto() {
   const files = {
     "background.js": async () => {
       function getComposeTabPromise() {
@@ -311,6 +369,41 @@ add_task(async function testUpdateCreateTabs_mailto() {
       await browser.tabs.remove(composeTab4.id);
       await browser.windows.remove(popupWindow.id);
 
+      // Test updating a compose window (like with any other tab, that currently
+      // creates a new compose tab and does not update the current compose tab).
+
+      const details1 = { to: ['"Mr. Holmes" <holmes@bakerstreet.invalid>'] };
+      const newComposeTab = await browser.compose.beginNew(details1);
+      browser.test.assertEq(
+        "messageCompose",
+        newComposeTab.type,
+        "Should have found a compose tab."
+      );
+      const details2 = await browser.compose.getComposeDetails(
+        newComposeTab.id
+      );
+      window.assertDeepEqual(
+        details1.to,
+        details2.to,
+        "We should see the correct compose details."
+      );
+
+      const composeTabPromise5 = getComposeTabPromise();
+      await browser.tabs.update(newComposeTab.id, {
+        url: "mailto:user@invalid5",
+      });
+      const composeTab5 = await composeTabPromise5;
+      const composeDetails5 = await browser.compose.getComposeDetails(
+        composeTab5.id
+      );
+      browser.test.assertEq(
+        "user@invalid5",
+        composeDetails5.to[0],
+        "Composer should have the correct to address"
+      );
+      await browser.tabs.remove(composeTab5.id);
+      await browser.tabs.remove(newComposeTab.id);
+
       browser.test.notifyPass("finished");
     },
     "utils.js": await getUtilsJS(),
@@ -332,18 +425,10 @@ add_task(async function testUpdateCreateTabs_mailto() {
 });
 
 /**
- * Reload and update tabs and check if it fails for forbidden cases, keep track
- * of urls opened externally.
+ * Reload content, message and compose tabs and check if it fails for everything
+ * except for content tabs.
  */
-add_task(async function testUpdateReloadTabs() {
-  const mockExternalProtocolServiceCID = MockRegistrar.register(
-    "@mozilla.org/uriloader/external-protocol-service;1",
-    mockExternalProtocolService
-  );
-  registerCleanupFunction(() => {
-    MockRegistrar.unregister(mockExternalProtocolServiceCID);
-  });
-
+add_task(async function testReloadTabs() {
   const files = {
     "background.js": async () => {
       // Test a mail tab.
@@ -354,7 +439,7 @@ add_task(async function testUpdateReloadTabs() {
       });
       browser.test.assertTrue(!!mailTab, "Should have found a mail tab.");
 
-      // Load a URL.
+      // Load a content URL by updating the mail tab.
       await new Promise(resolve => {
         let urlSeen = false;
         const updateListener = (tabId, changeInfo, tab) => {
@@ -377,17 +462,6 @@ add_task(async function testUpdateReloadTabs() {
 
       // This should not throw.
       await browser.tabs.reload(mailTab.id);
-
-      // Update a tel:// url.
-      await browser.tabs.update(mailTab.id, { url: "tel:1234-1" });
-      await window.sendMessage("check_external_loaded_url", "tel:1234-1");
-
-      // We should still have the same url displayed.
-      browser.test.assertEq(
-        "https://www.example.com/",
-        (await browser.tabs.get(mailTab.id)).url,
-        "Should have found the correct url loaded"
-      );
 
       // Load a message.
       const { messages } = await browser.messages.list(
@@ -418,36 +492,6 @@ add_task(async function testUpdateReloadTabs() {
       let message2 = await browser.messageDisplay.getDisplayedMessage(
         mailTab.id
       );
-      browser.test.assertTrue(
-        !!message2,
-        "We should have a displayed message."
-      );
-      browser.test.assertTrue(
-        message1.id == message2.id,
-        "We should see the same message."
-      );
-
-      // Update a tel:// url.
-      await browser.tabs.update(mailTab.id, { url: "tel:1234-2" });
-      await window.sendMessage("check_external_loaded_url", "tel:1234-2");
-
-      // We should still see the same message.
-      message2 = await browser.messageDisplay.getDisplayedMessage(mailTab.id);
-      browser.test.assertTrue(
-        !!message2,
-        "We should have a displayed message."
-      );
-      browser.test.assertTrue(
-        message1.id == message2.id,
-        "We should see the same message."
-      );
-
-      // Update a non-registered WebExtension protocol handler.
-      await browser.tabs.update(mailTab.id, { url: "ext+test:1234-1" });
-      await window.sendMessage("check_external_loaded_url", "ext+test:1234-1");
-
-      // We should still see the same message.
-      message2 = await browser.messageDisplay.getDisplayedMessage(mailTab.id);
       browser.test.assertTrue(
         !!message2,
         "We should have a displayed message."
@@ -491,41 +535,6 @@ add_task(async function testUpdateReloadTabs() {
         message1.id == message2.id,
         "We should see the same message."
       );
-
-      // Update a tel:// url.
-      await browser.tabs.update(messageTab.id, { url: "tel:1234-3" });
-      await window.sendMessage("check_external_loaded_url", "tel:1234-3");
-
-      // We should still see the same message.
-      message2 = await browser.messageDisplay.getDisplayedMessage(
-        messageTab.id
-      );
-      browser.test.assertTrue(
-        !!message2,
-        "We should have a displayed message."
-      );
-      browser.test.assertTrue(
-        message1.id == message2.id,
-        "We should see the same message."
-      );
-
-      // Update a non-registered WebExtension protocol handler.
-      await browser.tabs.update(mailTab.id, { url: "ext+test:1234-2" });
-      await window.sendMessage("check_external_loaded_url", "ext+test:1234-2");
-
-      // We should still see the same message.
-      message2 = await browser.messageDisplay.getDisplayedMessage(
-        messageTab.id
-      );
-      browser.test.assertTrue(
-        !!message2,
-        "We should have a displayed message."
-      );
-      browser.test.assertTrue(
-        message1.id == message2.id,
-        "We should see the same message."
-      );
-
       browser.tabs.remove(messageTab.id);
 
       // Test a message window.
@@ -562,41 +571,6 @@ add_task(async function testUpdateReloadTabs() {
         message1.id == message2.id,
         "We should see the same message."
       );
-
-      // Update a tel:// url.
-      await browser.tabs.update(messageWindowTab.id, { url: "tel:1234-4" });
-      await window.sendMessage("check_external_loaded_url", "tel:1234-4");
-
-      // We should still see the same message.
-      message2 = await browser.messageDisplay.getDisplayedMessage(
-        messageWindowTab.id
-      );
-      browser.test.assertTrue(
-        !!message2,
-        "We should have a displayed message."
-      );
-      browser.test.assertTrue(
-        message1.id == message2.id,
-        "We should see the same message."
-      );
-
-      // Update a non-registered WebExtension protocol handler.
-      await browser.tabs.update(mailTab.id, { url: "ext+test:1234-3" });
-      await window.sendMessage("check_external_loaded_url", "ext+test:1234-3");
-
-      // We should still see the same message.
-      message2 = await browser.messageDisplay.getDisplayedMessage(
-        messageWindowTab.id
-      );
-      browser.test.assertTrue(
-        !!message2,
-        "We should have a displayed message."
-      );
-      browser.test.assertTrue(
-        message1.id == message2.id,
-        "We should see the same message."
-      );
-
       browser.tabs.remove(messageWindowTab.id);
 
       // Test a compose window.
@@ -632,31 +606,6 @@ add_task(async function testUpdateReloadTabs() {
         details2.to,
         "We should see the correct compose details."
       );
-
-      // Update a tel:// url.
-      await browser.tabs.update(composeTab.id, { url: "tel:1234-5" });
-      await window.sendMessage("check_external_loaded_url", "tel:1234-5");
-
-      // We should still see the same composer.
-      details2 = await browser.compose.getComposeDetails(composeTab.id);
-      window.assertDeepEqual(
-        details1.to,
-        details2.to,
-        "We should see the correct compose details."
-      );
-
-      // Update a non-registered WebExtension protocol handler.
-      await browser.tabs.update(mailTab.id, { url: "ext+test:1234-4" });
-      await window.sendMessage("check_external_loaded_url", "ext+test:1234-4");
-
-      // We should still see the same composer.
-      details2 = await browser.compose.getComposeDetails(composeTab.id);
-      window.assertDeepEqual(
-        details1.to,
-        details2.to,
-        "We should see the correct compose details."
-      );
-
       browser.tabs.remove(composeTab.id);
 
       browser.test.notifyPass("finished");
@@ -674,28 +623,7 @@ add_task(async function testUpdateReloadTabs() {
   const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(gFolder);
 
-  extension.onMessage("check_external_loaded_url", async expected => {
-    Assert.equal(
-      1,
-      mockExternalProtocolService._loadedURLs.length,
-      "Should have found a single loaded url"
-    );
-    Assert.equal(
-      mockExternalProtocolService._loadedURLs[0],
-      expected,
-      "Should have found the expected url"
-    );
-    mockExternalProtocolService._loadedURLs = [];
-    extension.sendMessage();
-  });
-
   await extension.startup();
   await extension.awaitFinish("finished");
   await extension.unload();
-
-  Assert.equal(
-    0,
-    mockExternalProtocolService._loadedURLs.length,
-    "Should not have any unexpected urls loaded externally"
-  );
 });
