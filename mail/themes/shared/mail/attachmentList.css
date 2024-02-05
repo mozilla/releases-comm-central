@@ -73,7 +73,7 @@
   }
 
   .attachmentList:focus &[selected="true"] {
-    background-color: var(--button-primary-background-color)
+    background-color: var(--button-primary-background-color);
 
     & .attachmentcell-size {
       opacity: 0.8;
@@ -85,7 +85,7 @@
   }
 
   .attachmentList[seltype="multiple"]:focus &[current="true"] {
-    border-color: var(--selected-item-color);
+    background-color: AccentColor;
     outline: none;
 
     &[selected="true"] {
