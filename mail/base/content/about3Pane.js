@@ -5681,6 +5681,7 @@ function restoreState({
     document.title = title;
     document.body.classList.remove("account-central");
     accountCentralBrowser.hidden = true;
+    threadPane.restoreSortIndicator();
     threadPaneHeader.onFolderSelected();
 
     window.dispatchEvent(

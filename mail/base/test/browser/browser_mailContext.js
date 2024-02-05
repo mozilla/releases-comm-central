@@ -742,7 +742,7 @@ add_task(async function testListMessage() {
  */
 add_task(async function testSyntheticFolder() {
   await TestUtils.waitForCondition(
-    () => ConversationOpener.isMessageIndexed(testMessages[9]),
+    () => ConversationOpener.isMessageIndexed(testMessages[5]),
     "waiting for Gloda to finish indexing",
     1000
   );
@@ -760,7 +760,7 @@ add_task(async function testSyntheticFolder() {
     syntheticView: new GlodaSyntheticView({
       collection: Gloda.getMessageCollectionForHeaders([
         ...draftsMessages,
-        ...testMessages.slice(6),
+        ...testMessages.slice(0, 6),
       ]),
     }),
     title: "Test gloda results",
@@ -777,9 +777,9 @@ add_task(async function testSyntheticFolder() {
   let loadedPromise = BrowserTestUtils.browserLoaded(
     messagePaneBrowser,
     undefined,
-    url => url.endsWith(gDBView.getKeyAt(0))
+    url => url.endsWith(gDBView.getKeyAt(9))
   );
-  threadTree.selectedIndex = 0;
+  threadTree.selectedIndex = 9;
   await loadedPromise;
 
   // Open the menu from the message pane.
@@ -799,7 +799,7 @@ add_task(async function testSyntheticFolder() {
   // Open the menu from the thread pane.
 
   EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(0),
+    threadTree.getRowAtIndex(9),
     { type: "contextmenu" },
     about3Pane
   );
@@ -809,9 +809,9 @@ add_task(async function testSyntheticFolder() {
   loadedPromise = BrowserTestUtils.browserLoaded(
     messagePaneBrowser,
     undefined,
-    url => url.endsWith(gDBView.getKeyAt(5))
+    url => url.endsWith(gDBView.getKeyAt(4))
   );
-  threadTree.selectedIndex = 5;
+  threadTree.selectedIndex = 4;
   await loadedPromise;
 
   // Open the menu from the message pane.
