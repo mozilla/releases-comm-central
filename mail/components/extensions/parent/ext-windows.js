@@ -5,6 +5,10 @@
 // The ext-* files are imported into the same scopes.
 /* import-globals-from ext-mail.js */
 
+var { openURI } = ChromeUtils.importESModule(
+  "resource:///modules/MessengerContentHandler.sys.mjs"
+);
+
 function sanitizePositionParams(params, window = null, positionOffset = 0) {
   if (params.left === null && params.top === null) {
     return;
@@ -315,6 +319,28 @@ this.windows = class extends ExtensionAPIPersistent {
             const allowScriptsToClose = !!createData.allowScriptsToClose;
             const url = createData.url || "about:blank";
             const urls = Array.isArray(url) ? url : [url];
+
+            for (const idx in urls) {
+              try {
+                if (
+                  !context.checkLoadURL(urls[idx], { dontReportErrors: true })
+                ) {
+                  throw new Error(`Illegal URL: ${urls[idx]}`);
+                }
+
+                if (/(^mailto:)/i.test(urls[idx])) {
+                  // Be compatible with Firefox and allow
+                  // windows.create({type:"popup", url:"mailto:*"}) to create an
+                  // empty window and open a compose window. This will throw, if
+                  // the url is malformed.
+                  // All other non-standard protocols will be handled automatically.
+                  openURI(Services.io.newURI(urls[idx]));
+                  urls[idx] = "about:blank";
+                }
+              } catch (ex) {
+                return Promise.reject({ message: `Illegal URL: ${urls[idx]}` });
+              }
+            }
 
             const args = Cc["@mozilla.org/array;1"].createInstance(
               Ci.nsIMutableArray

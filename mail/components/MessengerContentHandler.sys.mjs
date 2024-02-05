@@ -110,7 +110,7 @@ async function getOrOpen3PaneWindow() {
  * Open the given uri.
  * @param {nsIURI} uri - The uri to open.
  */
-function openURI(uri) {
+export function openURI(uri) {
   if (
     !Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)

@@ -348,7 +348,7 @@
               "url": {
                 "type": "string",
                 "optional": true,
-                "description": "The URL to navigate the tab to initially. Fully-qualified URLs must include a scheme (i.e. <value>http://www.google.com</value>, not <value>www.google.com</value>). Relative URLs will be relative to the current page within the extension."
+                "description": "The URL to navigate the tab to initially. If the URL points to a content page (a web page, an extension page or a registered WebExtension protocol handler page), the tab will navigate to the requested page. All other URLs will be opened externally after creating an empty tab. Fully-qualified URLs must include a scheme (i.e. <value>http://www.google.com</value>, not <value>www.google.com</value>). Relative URLs will be relative to the root of the extension. "
               },
               "active": {
                 "type": "boolean",

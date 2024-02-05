@@ -10,6 +10,10 @@ ChromeUtils.defineModuleGetter(
 
 var { ExtensionError } = ExtensionUtils;
 
+var { openURI } = ChromeUtils.importESModule(
+  "resource:///modules/MessengerContentHandler.sys.mjs"
+);
+
 /**
  * A listener that allows waiting until tabs are fully loaded, e.g. off of about:blank.
  */
@@ -492,12 +496,29 @@ this.tabs = class extends ExtensionAPIPersistent {
             createProperties.windowId
           );
           const tabmail = window.document.getElementById("tabmail");
+
           let url;
           if (createProperties.url) {
             url = context.uri.resolve(createProperties.url);
+            try {
+              if (!context.checkLoadURL(url, { dontReportErrors: true })) {
+                throw new Error(
+                  `Loading URL not allowed: ${createProperties.url}`
+                );
+              }
 
-            if (!context.checkLoadURL(url, { dontReportErrors: true })) {
-              return Promise.reject({ message: `Illegal URL: ${url}` });
+              if (/^mailto:/i.test(url)) {
+                // Be compatible with Firefox and allow tabs.create({url:"mailto:*"})
+                // to create an empty window and open a compose window. This will
+                // throw, if the url is malformed.
+                // All other non-standard protocols will be handled automatically.
+                openURI(Services.io.newURI(url));
+                url = "about:blank";
+              }
+            } catch (ex) {
+              return Promise.reject({
+                message: `Loading URL not allowed: ${createProperties.url}`,
+              });
             }
           }
 
@@ -530,7 +551,7 @@ this.tabs = class extends ExtensionAPIPersistent {
             tabmail.updateCurrentTab();
           }
 
-          if (createProperties.url && createProperties.url !== "about:blank") {
+          if (url && url !== "about:blank") {
             // Mark tabs as initializing, so operations like `executeScript` wait until the
             // requested URL is loaded.
             tabListener.initializingTabs.add(nativeTabInfo);
@@ -560,16 +581,19 @@ this.tabs = class extends ExtensionAPIPersistent {
           const tabmail = getTabTabmail(nativeTabInfo);
 
           if (updateProperties.url) {
-            const url = context.uri.resolve(updateProperties.url);
-            if (!context.checkLoadURL(url, { dontReportErrors: true })) {
-              return Promise.reject({ message: `Illegal URL: ${url}` });
-            }
-
             let uri;
+            const url = context.uri.resolve(updateProperties.url);
             try {
+              if (!context.checkLoadURL(url, { dontReportErrors: true })) {
+                throw new Error(
+                  `Loading URL not allowed: ${updateProperties.url}`
+                );
+              }
               uri = Services.io.newURI(url);
             } catch (e) {
-              throw new ExtensionError(`Url "${url}" seems to be malformed.`);
+              return Promise.reject({
+                message: `Loading URL not allowed: ${updateProperties.url}`,
+              });
             }
 
             // http(s): urls, moz-extension: urls and self-registered protocol
@@ -611,6 +635,8 @@ this.tabs = class extends ExtensionAPIPersistent {
                 }
                 MailE10SUtils.loadURI(browser, url, options);
               }
+            } else if (/^mailto:/i.test(url)) {
+              openURI(uri);
             } else {
               // Send unknown URLs schema to the external protocol handler.
               // This does not change the current tab.

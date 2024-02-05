@@ -212,6 +212,125 @@ add_task(async function testUpdateTabs_WebExtProtocolHandler() {
   await extension.unload();
 });
 
+add_task(async function testUpdateCreateTabs_mailto() {
+  const files = {
+    "background.js": async () => {
+      function getComposeTabPromise() {
+        return new Promise(resolve => {
+          const listener = tab => {
+            if (tab.type == "messageCompose") {
+              browser.tabs.onCreated.removeListener(listener);
+              resolve(tab);
+            }
+          };
+          browser.tabs.onCreated.addListener(listener);
+        });
+      }
+
+      // Create a tab with a mailto url, which should create an empty tab and a
+      // new compose window/tab.
+
+      const composeTabPromise1 = getComposeTabPromise();
+      const contentTab = await browser.tabs.create({
+        url: "mailto:user@invalid1",
+      });
+      browser.test.assertEq(
+        "content",
+        contentTab.type,
+        "We should have found content tab."
+      );
+
+      const composeTab1 = await composeTabPromise1;
+      const composeDetails1 = await browser.compose.getComposeDetails(
+        composeTab1.id
+      );
+      browser.test.assertEq(
+        "user@invalid1",
+        composeDetails1.to[0],
+        "Composer should have the correct to address"
+      );
+      await browser.tabs.remove(composeTab1.id);
+
+      // Update the contentTab with a mailto url, which should open a new
+      // compose window/tab.
+
+      const composeTabPromise2 = getComposeTabPromise();
+      await browser.tabs.update(contentTab.id, { url: "mailto:user@invalid2" });
+      const composeTab2 = await composeTabPromise2;
+      const composeDetails2 = await browser.compose.getComposeDetails(
+        composeTab2.id
+      );
+      browser.test.assertEq(
+        "user@invalid2",
+        composeDetails2.to[0],
+        "Composer should have the correct to address"
+      );
+      await browser.tabs.remove(composeTab2.id);
+      await browser.tabs.remove(contentTab.id);
+
+      // Create a popup window with a mailto url, which should create an empty
+      // popup window and a new compose window/tab.
+
+      const composeTabPromise3 = getComposeTabPromise();
+      const popupWindow = await browser.windows.create({
+        type: "popup",
+        url: "mailto:user@invalid3",
+      });
+      browser.test.assertEq(
+        "popup",
+        popupWindow.type,
+        "We should have found a popup window."
+      );
+
+      const composeTab3 = await composeTabPromise3;
+      const composeDetails3 = await browser.compose.getComposeDetails(
+        composeTab3.id
+      );
+      browser.test.assertEq(
+        "user@invalid3",
+        composeDetails3.to[0],
+        "Composer should have the correct to address"
+      );
+      await browser.tabs.remove(composeTab3.id);
+
+      // Update the popupWindow with a mailto url, which should open a new
+      // compose window/tab.
+
+      const [popupTab] = await browser.tabs.query({ windowId: popupWindow.id });
+      const composeTabPromise4 = getComposeTabPromise();
+      await browser.tabs.update(popupTab.id, { url: "mailto:user@invalid4" });
+      const composeTab4 = await composeTabPromise4;
+      const composeDetails4 = await browser.compose.getComposeDetails(
+        composeTab4.id
+      );
+      browser.test.assertEq(
+        "user@invalid4",
+        composeDetails4.to[0],
+        "Composer should have the correct to address"
+      );
+      await browser.tabs.remove(composeTab4.id);
+      await browser.windows.remove(popupWindow.id);
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  const extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead", "tabs", "compose"],
+    },
+  });
+
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  about3Pane.displayFolder(gFolder);
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
 /**
  * Reload and update tabs and check if it fails for forbidden cases, keep track
  * of urls opened externally.
