@@ -21,6 +21,10 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+const { getMimeTreeFromUrl } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/mimeTree.sys.mjs"
+);
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.jsm",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
@@ -470,15 +474,11 @@ Enigmail.msg = {
       return;
     }
     await new Promise(resolve => {
-      EnigmailMime.getMimeTreeFromUrl(
-        url.spec,
-        false,
-        async function (mimeMsg) {
-          await Enigmail.msg.messageDecryptCb(event, isAuto, mimeMsg);
-          await Enigmail.msg.notifyMessageDecryptDone();
-          resolve();
-        }
-      );
+      getMimeTreeFromUrl(url.spec, false, async function (mimeMsg) {
+        await Enigmail.msg.messageDecryptCb(event, isAuto, mimeMsg);
+        await Enigmail.msg.notifyMessageDecryptDone();
+        resolve();
+      });
     });
   },
 

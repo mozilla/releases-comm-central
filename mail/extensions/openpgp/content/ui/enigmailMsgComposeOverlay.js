@@ -53,9 +53,6 @@ var { EnigmailEncryption } = ChromeUtils.import(
 var { EnigmailWkdLookup } = ChromeUtils.import(
   "chrome://openpgp/content/modules/wkdLookup.jsm"
 );
-var { EnigmailMime } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mime.jsm"
-);
 var { EnigmailMsgRead } = ChromeUtils.import(
   "chrome://openpgp/content/modules/msgRead.jsm"
 );
@@ -72,6 +69,10 @@ const { OpenPGPAlias } = ChromeUtils.import(
   "chrome://openpgp/content/modules/OpenPGPAlias.jsm"
 );
 var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+
+const { getMimeTreeFromUrl } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/mimeTree.sys.mjs"
+);
 
 var l10nOpenPGP = new Localization(["messenger/openpgp/openpgp.ftl"]);
 
@@ -517,7 +518,7 @@ Enigmail.msg = {
       if (msgHdr) {
         try {
           const msgUrl = EnigmailMsgRead.getUrlFromUriSpec(msgUri);
-          EnigmailMime.getMimeTreeFromUrl(msgUrl.spec, false, mimeMsg => {
+          getMimeTreeFromUrl(msgUrl.spec, false, mimeMsg => {
             Enigmail.msg.continueComposeOpenWithMimeTree(
               msgUri,
               msgHdr,

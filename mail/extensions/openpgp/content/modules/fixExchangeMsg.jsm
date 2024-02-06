@@ -17,10 +17,13 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  getMimeTree: "chrome://openpgp/content/modules/mimeTree.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
@@ -165,7 +168,7 @@ var EnigmailFixExchangeMsg = {
       return;
     }
 
-    const msgTree = lazy.EnigmailMime.getMimeTree(msgData, false);
+    const msgTree = lazy.getMimeTree(msgData, false);
 
     try {
       const isIPGMail =
@@ -403,7 +406,7 @@ var EnigmailFixExchangeMsg = {
   },
 
   ensureExpectedStructure(msgData) {
-    const msgTree = lazy.EnigmailMime.getMimeTree(msgData, true);
+    const msgTree = lazy.getMimeTree(msgData, true);
 
     // check message structure
     let ok =

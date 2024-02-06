@@ -22,6 +22,7 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
+  getMimeTree: "chrome://openpgp/content/modules/mimeTree.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
@@ -29,7 +30,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
@@ -245,7 +245,7 @@ function isPGPEncrypted(data) {
   // these kinds of mails will be error prone and better not
   // done through a filter
 
-  var mimeTree = lazy.EnigmailMime.getMimeTree(data, true);
+  var mimeTree = lazy.getMimeTree(data, true);
   if (!mimeTree.subParts.length) {
     // No subParts. Check for PGP Marker in Body
     return mimeTree.body.includes("-----BEGIN PGP MESSAGE-----");

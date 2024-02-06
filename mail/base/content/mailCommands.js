@@ -26,10 +26,9 @@ ChromeUtils.defineModuleGetter(
   "MsgHdrToMimeMessage",
   "resource:///modules/gloda/MimeMessage.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "EnigmailMime",
-  "chrome://openpgp/content/modules/mime.jsm"
+
+const { getMimeTreeFromUrl } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/mimeTree.sys.mjs"
 );
 
 function GetNextNMessages(folder) {
@@ -648,7 +647,7 @@ function viewEncryptedPart(message) {
     }
   }
 
-  EnigmailMime.getMimeTreeFromUrl(url, true, recursiveEmitEncryptedParts);
+  getMimeTreeFromUrl(url, true, recursiveEmitEncryptedParts);
   return true;
 }
 

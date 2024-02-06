@@ -15,10 +15,9 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
+  GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
   MsgUtils: "resource:///modules/MimeMessageUtils.jsm",
-  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
   MimeParser: "resource:///modules/mimeParser.jsm",
 });
 
@@ -32,6 +31,45 @@ var EnigmailMime = {
    */
   createBoundary() {
     return "------------" + lazy.MsgUtils.randomString(24);
+  },
+
+  /**
+   * Format a mime header
+   *
+   * e.g. content-type -> Content-Type
+   */
+  formatHeader(headerLabel) {
+    return headerLabel.replace(/^.|(-.)/g, function (match) {
+      return match.toUpperCase();
+    });
+  },
+
+  formatMimeHeader(headerLabel, headerValue) {
+    if (Array.isArray(headerValue)) {
+      return headerValue
+        .map(v => EnigmailMime.formatHeader(headerLabel) + ": " + v)
+        .join("\r\n");
+    }
+    return EnigmailMime.formatHeader(headerLabel) + ": " + headerValue + "\r\n";
+  },
+
+  prettyPrintHeader(headerLabel, headerData) {
+    if (Array.isArray(headerData)) {
+      const h = [];
+      for (const i in headerData) {
+        h.push(
+          EnigmailMime.formatMimeHeader(
+            headerLabel,
+            lazy.GlodaUtils.deMime(headerData[i])
+          )
+        );
+      }
+      return h.join("\r\n");
+    }
+    return EnigmailMime.formatMimeHeader(
+      headerLabel,
+      lazy.GlodaUtils.deMime(String(headerData))
+    );
   },
 
   /***
@@ -248,128 +286,4 @@ var EnigmailMime = {
 
     return false;
   },
-
-  /**
-   * Parse a MIME message and return a tree structure of TreeObject
-   *
-   * @param url:         String   - the URL to load and parse
-   * @param getBody:     Boolean  - if true, delivers the body text of each MIME part
-   * @param callbackFunc Function - the callback function that is called asynchronously
-   *                                when parsing is complete.
-   *                                Function signature: callBackFunc(TreeObject)
-   *
-   * @returns undefined
-   */
-  getMimeTreeFromUrl(url, getBody = false, callbackFunc) {
-    function onData(data) {
-      const tree = getMimeTree(data, getBody);
-      callbackFunc(tree);
-    }
-
-    const chan = lazy.EnigmailStreams.createChannel(url);
-    const bufferListener = lazy.EnigmailStreams.newStringStreamListener(onData);
-    chan.asyncOpen(bufferListener, null);
-  },
-
-  getMimeTree,
 };
-
-/**
- * Parse a MIME message and return a tree structure of TreeObject.
- *
- * TreeObject contains the following main parts:
- *     - partNum: String
- *     - headers: Map, containing all headers.
- *         Special headers for contentType and charset
- *     - body: String, if getBody == true
- *     - subParts: Array of TreeObject
- *
- * @param {string} mimeStr - A MIME structure to parse.
- * @param {boolean} getBody - If true, delivers the body text of each MIME part.
- * @returns {?object} tree - TreeObject
- * @returns {string} tree.partNum
- * @returns {Map} tree.headers - Map, containing all headers
- * @returns {Map} tree.body - Body, if getBody == true.
- * @returns {object[]} tree.subParts Array of TreeObject
- */
-function getMimeTree(mimeStr, getBody = false) {
-  const mimeTree = {
-    partNum: "",
-    headers: null,
-    body: "",
-    parent: null,
-    subParts: [],
-  };
-  let currentPart = "";
-  let currPartNum = "";
-
-  const jsmimeEmitter = {
-    createPartObj(partNum, headers, parent) {
-      let ct;
-
-      if (headers.has("content-type")) {
-        ct = headers.contentType.type;
-        const it = headers.get("content-type").entries();
-        for (const i of it) {
-          ct += "; " + i[0] + '="' + i[1] + '"';
-        }
-      }
-
-      return {
-        partNum,
-        headers,
-        fullContentType: ct,
-        body: "",
-        parent,
-        subParts: [],
-      };
-    },
-
-    /** JSMime API */
-    startMessage() {
-      currentPart = mimeTree;
-    },
-
-    endMessage() {},
-
-    startPart(partNum, headers) {
-      partNum = "1" + (partNum !== "" ? "." : "") + partNum;
-      const newPart = this.createPartObj(partNum, headers, currentPart);
-
-      if (partNum.indexOf(currPartNum) === 0) {
-        // found sub-part
-        currentPart.subParts.push(newPart);
-      } else {
-        // found same or higher level
-        currentPart.subParts.push(newPart);
-      }
-      currPartNum = partNum;
-      currentPart = newPart;
-    },
-    endPart(partNum) {
-      currentPart = currentPart.parent;
-    },
-
-    deliverPartData(partNum, data) {
-      if (typeof data === "string") {
-        currentPart.body += data;
-      } else {
-        currentPart.body += lazy.MailStringUtils.uint8ArrayToByteString(data);
-      }
-    },
-  };
-
-  const opt = {
-    strformat: "unicode",
-    bodyformat: getBody ? "decode" : "none",
-    stripcontinuations: false,
-  };
-
-  try {
-    const p = new lazy.jsmime.MimeParser(jsmimeEmitter, opt);
-    p.deliverData(mimeStr);
-    return mimeTree.subParts[0];
-  } catch (ex) {
-    return null;
-  }
-}
