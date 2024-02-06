@@ -1,0 +1,32 @@
+[ui]
+no_ansi = True
+
+[vcs]
+safe_mode = False
+
+[git]
+remote =
+command_path =
+
+[hg]
+command_path = /usr/bin/hg
+
+[submit]
+auto_submit = True
+always_blocking = False
+warn_untracked = True
+
+[patch]
+apply_to = base
+create_bookmark = True
+create_topic = False
+always_full_stack = False
+branch_name_template = phab-D{rev_id}
+
+[updater]
+self_last_check = 0
+self_auto_update = False
+get_pre_releases = False
+
+[error_reporting]
+report_to_sentry = False

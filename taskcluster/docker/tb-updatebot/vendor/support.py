@@ -9,6 +9,7 @@ Support functions for comm-central third party code management
 import json
 import os
 import stat
+import subprocess
 from pathlib import Path
 
 import requests
@@ -20,6 +21,24 @@ SECRET_URL_BASE = "http://taskcluster/secrets/v1/secret/"
 
 def log(*args):
     print(*args)
+
+
+def run_cmd(*args, **kwargs):
+    """Wrapper around subprocess.run that logs the command to run."""
+    log(f"Running command: {' '.join(args[0])}")
+    kwargs.update({"capture_output": True, "text": True, "check": True})
+    try:
+        rv = subprocess.run(*args, **kwargs)
+    except subprocess.CalledProcessError as e:
+        rv = e
+    finally:
+        log(f"Return code: {rv.returncode}")
+        log(rv.stdout)
+        log(rv.stderr)
+        if type(rv) is subprocess.CalledProcessError:
+            raise rv
+
+    return rv
 
 
 class TaskClusterSecrets:

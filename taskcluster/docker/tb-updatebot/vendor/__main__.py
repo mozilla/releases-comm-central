@@ -23,6 +23,7 @@ sys.path.append(".")
 from .support import (  # noqa: I001
     TaskClusterSecrets,
     log,
+    run_cmd,
     write_ssh_key,
     write_arcrc,
     write_hgrc_userinfo,
@@ -89,7 +90,7 @@ def run_check_upstream() -> bool:
     log("Running updatebot")
     os.chdir(GECKO_PATH)
     try:
-        subprocess.check_call(["./mach", "tb-rust", "check-upstream"])
+        run_cmd(["./mach", "tb-rust", "check-upstream"])
         log("Rust code is in sync with upstream.")
         return True
     except subprocess.CalledProcessError as e:
@@ -101,37 +102,33 @@ def run_check_upstream() -> bool:
 
 def run_vendor():
     log("Running tb-rust vendor")
-    subprocess.check_call(["./mach", "tb-rust", "vendor"])
+    run_cmd(["./mach", "tb-rust", "vendor"])
 
     os.chdir("comm")
-    result = subprocess.check_output([HG, "id", "-T", "{dirty}\n"])
-    result = result.decode("utf-8")
-    if result[0] != "+":
+    result = run_cmd([HG, "id", "-T", "{dirty}\n"])
+    if result.stdout[0] != "+":
         raise Exception("Whoa there! No changes were found. ABORT ABORT ABORT ABORT ABORT!")
 
 
 def commit_changes():
-    subprocess.check_call([HG, "addremove", "third_party/rust/", "rust/"])
-    with tempfile.NamedTemporaryFile() as fp:
-        fp.write(
-            f"""No bug - Synchronize vendored Rust libraries with mozilla-central. r={REVIEWERS}
+    run_cmd([HG, "addremove", "third_party/rust/", "rust/"])
+    logmsg = f"""No bug - Synchronize vendored Rust libraries with mozilla-central. r={REVIEWERS}
 
-    mozilla-central: {os.environ.get("GECKO_HEAD_REV")}
-    comm-central: {os.environ.get("COMM_HEAD_REV")}
-    """.encode(
-                "utf-8"
-            )
-        )
+mozilla-central: {os.environ.get("GECKO_HEAD_REV")}
+comm-central: {os.environ.get("COMM_HEAD_REV")}
+"""
+    with tempfile.NamedTemporaryFile() as fp:
+        fp.write(logmsg.encode("utf-8"))
         fp.flush()
 
-        subprocess.check_call([HG, "commit", "-l", fp.name])
+        run_cmd([HG, "commit", "-l", fp.name])
 
-    subprocess.check_call([HG, "export", "-r", "tip", "-o", str(HOME_PATH / "hg_diff.patch")])
+    run_cmd([HG, "export", "-r", "tip", "-o", str(HOME_PATH / "hg_diff.patch")])
 
 
 def submit_phabricator():
     if OPERATING_MODE == "prod":
-        subprocess.check_call([MOZ_PHAB, "submit", "-s", "--no-bug", "--yes"])
+        run_cmd([MOZ_PHAB, "submit", "-s", "--no-bug", "--no-lint"])
     else:
         log(f"Skipping moz-phab submission in {OPERATING_MODE} mode.")
 
