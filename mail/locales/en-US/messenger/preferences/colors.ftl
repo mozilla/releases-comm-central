@@ -28,6 +28,10 @@ visited-link-color-label =
     .value = Visited Links:
     .accesskey = V
 
+always-underline-links =
+    .label = Always underline links
+    .accesskey = U
+
 override-color-label =
     .value = Override the colors specified by the content with my selections above:
     .accesskey = O

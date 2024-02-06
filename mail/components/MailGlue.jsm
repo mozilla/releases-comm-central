@@ -1192,6 +1192,7 @@ function reportPreferences() {
 
     // Colors
     "browser.display.use_system_colors",
+    "layout.css.always_underline_links",
 
     // Read receipts
     "mail.mdn.report.enabled",

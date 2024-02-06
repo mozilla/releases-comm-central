@@ -8,6 +8,7 @@ Preferences.addAll([
   { id: "browser.display.document_color_use", type: "int" },
   { id: "browser.anchor_color", type: "string" },
   { id: "browser.visited_color", type: "string" },
+  { id: "layout.css.always_underline_links", type: "bool" },
   { id: "browser.display.foreground_color", type: "string" },
   { id: "browser.display.background_color", type: "string" },
   { id: "browser.display.use_system_colors", type: "bool" },
