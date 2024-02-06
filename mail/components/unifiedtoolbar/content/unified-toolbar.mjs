@@ -280,7 +280,10 @@ class UnifiedToolbar extends HTMLElement {
   #handleKey = event => {
     // Don't handle any key events within menupopups that are children of the
     // toolbar contents.
-    if (event.target.closest("menupopup")) {
+    if (
+      event.target.closest("menupopup") ||
+      event.target.closest(".search-bar")
+    ) {
       return;
     }
     switch (event.key) {
