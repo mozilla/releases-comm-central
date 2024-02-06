@@ -23,6 +23,11 @@ ChromeUtils.defineModuleGetter(
 );
 ChromeUtils.defineModuleGetter(
   lazy,
+  "MimeParser",
+  "resource:///modules/mimeParser.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  lazy,
   "MsgHdrToMimeMessage",
   "resource:///modules/gloda/MimeMessage.jsm"
 );
@@ -290,6 +295,33 @@ export async function getRawMessage(msgHdr) {
       false, // aConvertData
       "" //aAdditionalHeader
     );
+  });
+}
+
+/**
+ * Returns MIME parts found in the message identified by the given nsIMsgDBHdr.
+ * Uses the jsmime parser directly, instead of MsgHdrToMimeMessage.
+ *
+ * @param {nsIMsgDBHdr} msgHdr
+ *
+ * @returns {Promise<MimeMessagePart>}
+ */
+export async function getMimeParts(msgHdr) {
+  // If this message is a sub-message (an attachment of another message), get it
+  // as an attachment from the parent message and return its raw content.
+  const subMsgPartName = getSubMessagePartName(msgHdr);
+  if (subMsgPartName) {
+    const raw = await getRawMessage(msgHdr);
+    return lazy.MimeParser.extractMimeMsg(raw, {
+      includeAttachmentData: false,
+      decodeSubMessages: false,
+    });
+  }
+
+  const msgUri = getMsgStreamUrl(msgHdr);
+  return lazy.MimeParser.streamMimeMsg(msgUri, {
+    includeAttachmentData: false,
+    decodeSubMessages: false,
   });
 }
 

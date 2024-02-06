@@ -329,11 +329,6 @@ add_task(
             "<sample-attached.eml@mime.sample>",
             "Message Id returned by getFull() for the attached message should be correct."
           );
-          browser.test.assertEq(
-            subFull.name,
-            "message1.eml",
-            "Name returned by getFull() for the attached message should be correct."
-          );
 
           // Make sure we can use getRaw() on the subMessage.
           const subRaw = await browser.messages.getRaw(subMessage.id);

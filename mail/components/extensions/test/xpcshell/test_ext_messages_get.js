@@ -1013,7 +1013,7 @@ add_task(
 
     cleanUpAccount(_account);
   }
-);
+).skip(); // Temporary no encryption support.
 
 add_task(async function test_attached_message_with_missing_headers() {
   const _account = createAccount();

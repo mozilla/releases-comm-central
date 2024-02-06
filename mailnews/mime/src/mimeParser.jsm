@@ -6,12 +6,42 @@
 var EXPORTED_SYMBOLS = ["MimeParser"];
 
 var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );
 
-// Emitter helpers, for internal functions later on.
-var ExtractMimeMsgEmitter = {
+// Emitter class, for internal functions later on.
+class ExtractMimeMsgEmitter {
+  constructor(options, resolveCallback, rejectCallback) {
+    this.options = {
+      getMimePart: "",
+      decodeSubMessages: true,
+      includeAttachmentData: true,
+    };
+    // Override default options.
+    for (const option of Object.keys(options)) {
+      this.options[option] = options[option];
+    }
+    this.resolveCallback = resolveCallback;
+    this.rejectCallback = rejectCallback;
+  }
+
+  onStopRequest(statusCode) {
+    if (!Components.isSuccessCode(statusCode)) {
+      if (this.rejectCallback) {
+        this.rejectCallback(statusCode);
+      }
+      return;
+    }
+
+    if (this.resolveCallback) {
+      this.resolveCallback(this.mimeMsg);
+    }
+  }
+
   getAttachmentName(part) {
     if (!part || !part.hasOwnProperty("headers")) {
       return "";
@@ -38,9 +68,11 @@ var ExtractMimeMsgEmitter = {
     }
 
     return "";
-  },
+  }
 
-  // All parts of content-disposition = "attachment" are returned as attachments.
+  // All parts of content-disposition = "attachment" and parts of removed
+  // attachments with content-type = "text/x-moz-deleted" are returned as
+  // attachments.
   // For content-disposition = "inline", all parts except those with content-type
   // text/plain, text/html and text/enriched are returned as attachments.
   isAttachment(part) {
@@ -49,8 +81,11 @@ var ExtractMimeMsgEmitter = {
     }
 
     const contentType = part.contentType || "text/plain";
-    if (contentType.search(/^multipart\//i) === 0) {
+    if (/^multipart\//i.test(contentType)) {
       return false;
+    }
+    if (/^text\/x\-moz\-deleted/i.test(contentType)) {
+      return true;
     }
 
     let contentDisposition = "";
@@ -62,14 +97,14 @@ var ExtractMimeMsgEmitter = {
     }
 
     if (
-      contentDisposition.search(/^attachment/i) === 0 ||
+      /^attachment/i.test(contentDisposition) ||
       contentType.search(/^text\/plain|^text\/html|^text\/enriched/i) === -1
     ) {
       return true;
     }
 
     return false;
-  },
+  }
 
   /** JSMime API */
   startMessage() {
@@ -86,8 +121,7 @@ var ExtractMimeMsgEmitter = {
     // partsPath is a hierarchical stack of parts from the root to the
     // current part.
     this.partsPath = [this.mimeTree];
-    this.options = this.options || {};
-  },
+  }
 
   endMessage() {
     // Prepare the mimeMsg object, which is the final output of the emitter.
@@ -106,7 +140,7 @@ var ExtractMimeMsgEmitter = {
 
     this.mimeTree.attachments.sort((a, b) => a.partName > b.partName);
     this.mimeMsg = this.mimeTree;
-  },
+  }
 
   startPart(partNum, headerMap) {
     const contentType = headerMap.contentType?.type
@@ -162,12 +196,13 @@ var ExtractMimeMsgEmitter = {
       // No support for encryption.
       isEncrypted: false,
     };
+    newPart.isAttachment = this.isAttachment(newPart);
 
     // Add nested new part.
     parentPart.parts.push(newPart);
     // Push the newly added part into the hierarchical parts stack.
     this.partsPath.push(newPart);
-  },
+  }
 
   endPart(partNum) {
     let deleteBody = false;
@@ -175,11 +210,9 @@ var ExtractMimeMsgEmitter = {
     let currentPart = this.partsPath[this.partsPath.length - 1];
 
     // Add size.
-    const size = currentPart.body.length;
-    currentPart.size += size;
     const partSize = currentPart.size;
 
-    if (this.isAttachment(currentPart)) {
+    if (currentPart.isAttachment) {
       currentPart.name = this.getAttachmentName(currentPart);
       this.mimeTree.attachments.push({ ...currentPart });
       deleteBody = !this.options.getMimePart;
@@ -203,7 +236,7 @@ var ExtractMimeMsgEmitter = {
     // Add the size of this part to its parent as well.
     currentPart = this.partsPath[this.partsPath.length - 1];
     currentPart.size += partSize;
-  },
+  }
 
   /**
    * The data parameter is either a string or a Uint8Array.
@@ -211,14 +244,19 @@ var ExtractMimeMsgEmitter = {
   deliverPartData(partNum, data) {
     // Get the most recent part from the hierarchical parts stack.
     const currentPart = this.partsPath[this.partsPath.length - 1];
+    currentPart.size += data.length;
+
+    if (!this.options.includeAttachmentData && currentPart.isAttachment) {
+      return;
+    }
 
     if (typeof data === "string") {
       currentPart.body += data;
     } else {
       currentPart.body += MailStringUtils.uint8ArrayToByteString(data);
     }
-  },
-};
+  }
+}
 
 var ExtractHeadersEmitter = {
   startPart(partNum, headers) {
@@ -389,8 +427,17 @@ var MimeParser = {
   },
 
   /**
-   * Returns a mimeMsg object for the given input. The returned object tries to
-   * be compatible with the return value of MsgHdrToMimeMessage. Differences:
+   * @typedef MimeParseOptions
+   * @property {boolean} [decodeSubMessages] - decode attached messages, instead
+   *   of returning them as attachments
+   * @property {boolean} [includeAttachmentData] - include the data of attachments
+   */
+
+  /**
+   * Returns a mimeMsg object for the given input string. The returned object
+   * tries to be compatible with the return value of MsgHdrToMimeMessage.
+   *
+   * Differences:
    *  - no support for encryption
    *  - returned attachments include the body and not the URL
    *  - returned attachments match either allInlineAttachments or
@@ -399,20 +446,13 @@ var MimeParser = {
    *
    * The input is any type of input that would be accepted by parseSync.
    *
-   * @param input   A string of text to parse.
+   * @param {string} input - A string of text to parse.
+   * @param {MimeParseOptions} options
+   *
+   * @return {MimeMessagePart}
    */
   extractMimeMsg(input, options) {
-    var emitter = Object.create(ExtractMimeMsgEmitter);
-    // Set default options.
-    emitter.options = {
-      getMimePart: "",
-      decodeSubMessages: true,
-    };
-    // Override default options.
-    for (const option of Object.keys(options)) {
-      emitter.options[option] = options[option];
-    }
-
+    const emitter = new ExtractMimeMsgEmitter(options);
     MimeParser.parseSync(input, emitter, {
       // jsmime does not use the "1." prefix for the partName.
       // jsmime uses "$." as sub-message deliminator.
@@ -427,6 +467,53 @@ var MimeParser = {
       strformat: "unicode",
     });
     return emitter.mimeMsg;
+  },
+
+  /**
+   * Returns a Promise for a mimeMsg object for the given msgUri. Uses the same
+   * parser as extractMimeMsg(), but the message is streamed.
+   *
+   * @param {string} msgUri - Uri of message to parse.
+   * @param {MimeParseOptions} options
+   *
+   * @return {Promise<MimeMessagePart>}
+   */
+  streamMimeMsg(msgUri, options) {
+    const {
+      promise: promiseMimeMsg,
+      resolve: resolveCallback,
+      reject: rejectCallback,
+    } = Promise.withResolvers();
+
+    const emitter = new ExtractMimeMsgEmitter(
+      options,
+      resolveCallback,
+      rejectCallback
+    );
+    const parserListener = MimeParser.makeStreamListenerParser(emitter, {
+      // jsmime does not use the "1." prefix for the partName.
+      // jsmime uses "$." as sub-message deliminator.
+      pruneat: emitter.options.getMimePart
+        .split(".")
+        .slice(1)
+        .join(".")
+        .replaceAll(".1.", "$."),
+      decodeSubMessages: emitter.options.decodeSubMessages,
+      bodyformat: "decode",
+      stripcontinuations: true,
+      strformat: "unicode",
+    });
+
+    MailServices.messageServiceFromURI(msgUri).streamMessage(
+      msgUri,
+      parserListener,
+      null, // aMsgWindow
+      null, // aUrlListener
+      false, // aConvertData
+      "" //aAdditionalHeader
+    );
+
+    return promiseMimeMsg;
   },
 
   /**

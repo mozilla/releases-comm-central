@@ -13,6 +13,7 @@ var {
   getAttachment,
   getAttachments,
   getMimeMessage,
+  getMimeParts,
   getMsgStreamUrl,
   getRawMessage,
   getMessagesInFolder,
@@ -476,7 +477,7 @@ this.messages = class extends ExtensionAPIPersistent {
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          const mimeMsg = await getMimeMessage(msgHdr);
+          const mimeMsg = await getMimeParts(msgHdr);
           if (!mimeMsg) {
             throw new ExtensionError(`Error reading message ${messageId}`);
           }
