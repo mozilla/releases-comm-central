@@ -67,25 +67,25 @@ export class MimeTreeDecrypter {
   /**
    *  Walk through the MIME message structure and decrypt the body if there is something to decrypt
    */
-  async decryptMimeTree(mimePart) {
+  async decryptMimeTree(mimeTreePart) {
     lazy.EnigmailLog.DEBUG("mimeTree.sys.mjs: decryptMimeTree:\n");
 
-    if (this.isBrokenByExchange(mimePart)) {
-      this.fixExchangeMessage(mimePart);
+    if (this.isBrokenByExchange(mimeTreePart)) {
+      this.fixExchangeMessage(mimeTreePart);
     }
 
-    if (this.isSMIME(mimePart)) {
-      this.decryptSMIME(mimePart);
-    } else if (this.isPgpMime(mimePart)) {
-      this.decryptPGPMIME(mimePart);
-    } else if (isAttachment(mimePart)) {
-      this.pgpDecryptAttachment(mimePart);
+    if (this.isSMIME(mimeTreePart)) {
+      this.decryptSMIME(mimeTreePart);
+    } else if (this.isPgpMime(mimeTreePart)) {
+      this.decryptPGPMIME(mimeTreePart);
+    } else if (isAttachment(mimeTreePart)) {
+      this.pgpDecryptAttachment(mimeTreePart);
     } else {
-      this.decryptINLINE(mimePart);
+      this.decryptINLINE(mimeTreePart);
     }
 
-    for (const i in mimePart.subParts) {
-      await this.decryptMimeTree(mimePart.subParts[i]);
+    for (const i in mimeTreePart.subParts) {
+      await this.decryptMimeTree(mimeTreePart.subParts[i]);
     }
   }
 
@@ -101,30 +101,38 @@ export class MimeTreeDecrypter {
    *   - https://sourceforge.net/p/enigmail/forum/support/thread/4add2b69/
    */
 
-  isBrokenByExchange(mime) {
+  isBrokenByExchange(mimeTreePart) {
     lazy.EnigmailLog.DEBUG("mimeTree.sys.mjs: isBrokenByExchange:\n");
 
     try {
       if (
-        mime.subParts &&
-        mime.subParts.length === 3 &&
-        mime.fullContentType.toLowerCase().includes("multipart/mixed") &&
-        mime.subParts[0].subParts.length === 0 &&
-        mime.subParts[0].fullContentType.search(/multipart\/encrypted/i) < 0 &&
-        mime.subParts[0].fullContentType.toLowerCase().includes("text/plain") &&
-        mime.subParts[1].fullContentType
+        mimeTreePart.subParts &&
+        mimeTreePart.subParts.length === 3 &&
+        mimeTreePart.fullContentType
+          .toLowerCase()
+          .includes("multipart/mixed") &&
+        mimeTreePart.subParts[0].subParts.length === 0 &&
+        mimeTreePart.subParts[0].fullContentType.search(
+          /multipart\/encrypted/i
+        ) < 0 &&
+        mimeTreePart.subParts[0].fullContentType
+          .toLowerCase()
+          .includes("text/plain") &&
+        mimeTreePart.subParts[1].fullContentType
           .toLowerCase()
           .includes("application/pgp-encrypted") &&
-        mime.subParts[1].fullContentType
+        mimeTreePart.subParts[1].fullContentType
           .toLowerCase()
           .search(/multipart\/encrypted/i) < 0 &&
-        mime.subParts[1].fullContentType
+        mimeTreePart.subParts[1].fullContentType
           .toLowerCase()
           .search(/PGPMIME Versions? Identification/i) >= 0 &&
-        mime.subParts[2].fullContentType
+        mimeTreePart.subParts[2].fullContentType
           .toLowerCase()
           .includes("application/octet-stream") &&
-        mime.subParts[2].fullContentType.toLowerCase().includes("encrypted.asc")
+        mimeTreePart.subParts[2].fullContentType
+          .toLowerCase()
+          .includes("encrypted.asc")
       ) {
         lazy.EnigmailLog.DEBUG(
           "mimeTree.sys.mjs: isBrokenByExchange: found message broken by MS-Exchange\n"
@@ -136,9 +144,9 @@ export class MimeTreeDecrypter {
     return false;
   }
 
-  decryptSMIME(mimePart) {
+  decryptSMIME(mimeTreePart) {
     const encrypted = lazy.MailCryptoUtils.binaryStringToTypedArray(
-      mimePart.body
+      mimeTreePart.body
     );
 
     const cmsDecoderJS = Cc["@mozilla.org/nsCMSDecoderJS;1"].createInstance(
@@ -190,44 +198,48 @@ export class MimeTreeDecrypter {
       "content-disposition",
       "content-description",
     ]) {
-      mimePart.headers._rawHeaders.delete(hdrName);
+      mimeTreePart.headers._rawHeaders.delete(hdrName);
       const val = m.extractHeader(hdrName, false);
       if (val) {
-        mimePart.headers._rawHeaders.set(hdrName, val);
+        mimeTreePart.headers._rawHeaders.set(hdrName, val);
       }
     }
 
-    mimePart.subParts = [];
-    mimePart.body = data.substr(bodyIndex);
+    mimeTreePart.subParts = [];
+    mimeTreePart.body = data.substr(bodyIndex);
 
     this.cryptoChanged = true;
   }
 
-  isSMIME(mimePart) {
-    if (!mimePart.headers.has("content-type")) {
+  isSMIME(mimeTreePart) {
+    if (!mimeTreePart.headers.has("content-type")) {
       return false;
     }
 
     return (
-      mimePart.headers.get("content-type").type.toLowerCase() ===
+      mimeTreePart.headers.get("content-type").type.toLowerCase() ===
         "application/pkcs7-mime" &&
-      mimePart.headers.get("content-type").get("smime-type").toLowerCase() ===
-        "enveloped-data" &&
-      mimePart.subParts.length === 0
+      mimeTreePart.headers
+        .get("content-type")
+        .get("smime-type")
+        .toLowerCase() === "enveloped-data" &&
+      mimeTreePart.subParts.length === 0
     );
   }
 
-  isPgpMime(mimePart) {
+  isPgpMime(mimeTreePart) {
     lazy.EnigmailLog.DEBUG("mimeTree.sys.mjs: isPgpMime()\n");
 
     try {
-      if (mimePart.headers.has("content-type")) {
+      if (mimeTreePart.headers.has("content-type")) {
         if (
-          mimePart.headers.get("content-type").type.toLowerCase() ===
+          mimeTreePart.headers.get("content-type").type.toLowerCase() ===
             "multipart/encrypted" &&
-          mimePart.headers.get("content-type").get("protocol").toLowerCase() ===
-            "application/pgp-encrypted" &&
-          mimePart.subParts.length === 2
+          mimeTreePart.headers
+            .get("content-type")
+            .get("protocol")
+            .toLowerCase() === "application/pgp-encrypted" &&
+          mimeTreePart.subParts.length === 2
         ) {
           return true;
         }
@@ -236,12 +248,12 @@ export class MimeTreeDecrypter {
     return false;
   }
 
-  async decryptPGPMIME(mimePart) {
+  async decryptPGPMIME(mimeTreePart) {
     lazy.EnigmailLog.DEBUG(
-      "mimeTree.sys.mjs: decryptPGPMIME(" + mimePart.partNum + ")\n"
+      "mimeTree.sys.mjs: decryptPGPMIME(" + mimeTreePart.partNum + ")\n"
     );
 
-    if (!mimePart.subParts[1]) {
+    if (!mimeTreePart.subParts[1]) {
       throw new Error("Not a correct PGP/MIME message");
     }
 
@@ -265,7 +277,7 @@ export class MimeTreeDecrypter {
     const data = lazy.EnigmailDecryption.decryptMessage(
       null,
       uiFlags,
-      mimePart.subParts[1].body,
+      mimeTreePart.subParts[1].body,
       null, // date
       signatureObj,
       exitCodeObj,
@@ -318,7 +330,7 @@ export class MimeTreeDecrypter {
     );
     m.initialize(data.substr(0, bodyIndex));
     let ct = m.extractHeader("content-type", false) || "";
-    const part = mimePart.partNum;
+    const part = mimeTreePart.partNum;
 
     if (part.length > 0 && part.search(/[^01.]/) < 0) {
       if (ct.search(/protected-headers/i) >= 0) {
@@ -353,21 +365,21 @@ export class MimeTreeDecrypter {
       }
     }
 
-    let boundary = getBoundary(mimePart);
+    let boundary = getBoundary(mimeTreePart);
     if (!boundary) {
       boundary = lazy.EnigmailMime.createBoundary();
     }
 
     // append relevant headers
-    mimePart.headers.get("content-type").type = "multipart/mixed";
-    mimePart.headers._rawHeaders.set("content-type", [
+    mimeTreePart.headers.get("content-type").type = "multipart/mixed";
+    mimeTreePart.headers._rawHeaders.set("content-type", [
       'multipart/mixed; boundary="' + boundary + '"',
     ]);
-    mimePart.subParts = [
+    mimeTreePart.subParts = [
       {
         body: data,
         decryptedPgpMime: true,
-        partNum: mimePart.partNum + ".1",
+        partNum: mimeTreePart.partNum + ".1",
         headers: {
           _rawHeaders: new Map(),
           get() {
@@ -384,9 +396,9 @@ export class MimeTreeDecrypter {
     this.cryptoChanged = true;
   }
 
-  pgpDecryptAttachment(mimePart) {
+  pgpDecryptAttachment(mimeTreePart) {
     lazy.EnigmailLog.DEBUG("mimeTree.sys.mjs: pgpDecryptAttachment()\n");
-    const attachmentHead = mimePart.body.substr(0, 30);
+    const attachmentHead = mimeTreePart.body.substr(0, 30);
     if (attachmentHead.search(/-----BEGIN PGP \w{5,10} KEY BLOCK-----/) >= 0) {
       // attachment appears to be a PGP key file, skip
       return;
@@ -409,7 +421,7 @@ export class MimeTreeDecrypter {
     var signatureObj = {};
     signatureObj.value = "";
 
-    let attachmentName = getAttachmentName(mimePart);
+    let attachmentName = getAttachmentName(mimeTreePart);
     attachmentName = attachmentName
       ? attachmentName.replace(/\.(pgp|asc|gpg)$/, "")
       : "";
@@ -417,7 +429,7 @@ export class MimeTreeDecrypter {
     const data = lazy.EnigmailDecryption.decryptMessage(
       null,
       uiFlags,
-      mimePart.body,
+      mimeTreePart.body,
       null, // date
       signatureObj,
       exitCodeObj,
@@ -474,13 +486,15 @@ export class MimeTreeDecrypter {
       attachmentName = statusFlagsObj.encryptedFileName;
     }
 
-    mimePart.body = data;
-    mimePart.headers._rawHeaders.set(
+    mimeTreePart.body = data;
+    mimeTreePart.headers._rawHeaders.set(
       "content-disposition",
       `attachment; filename="${attachmentName}"`
     );
-    mimePart.headers._rawHeaders.set("content-transfer-encoding", ["base64"]);
-    const origCt = mimePart.headers.get("content-type");
+    mimeTreePart.headers._rawHeaders.set("content-transfer-encoding", [
+      "base64",
+    ]);
+    const origCt = mimeTreePart.headers.get("content-type");
     let ct = origCt.type;
 
     for (const i of origCt.entries()) {
@@ -490,21 +504,21 @@ export class MimeTreeDecrypter {
       ct += `; ${i[0]}="${i[1]}"`;
     }
 
-    mimePart.headers._rawHeaders.set("content-type", [ct]);
+    mimeTreePart.headers._rawHeaders.set("content-type", [ct]);
   }
 
-  async decryptINLINE(mimePart) {
+  async decryptINLINE(mimeTreePart) {
     lazy.EnigmailLog.DEBUG("mimeTree.sys.mjs: decryptINLINE()\n");
 
-    if ("decryptedPgpMime" in mimePart && mimePart.decryptedPgpMime) {
+    if ("decryptedPgpMime" in mimeTreePart && mimeTreePart.decryptedPgpMime) {
       return 0;
     }
 
-    if ("body" in mimePart && mimePart.body.length > 0) {
-      const ct = getContentType(mimePart);
+    if ("body" in mimeTreePart && mimeTreePart.body.length > 0) {
+      const ct = getContentType(mimeTreePart);
 
       if (ct === "text/html") {
-        mimePart.body = stripHTMLFromArmoredBlocks(mimePart.body);
+        mimeTreePart.body = stripHTMLFromArmoredBlocks(mimeTreePart.body);
       }
 
       var exitCodeObj = {};
@@ -526,7 +540,7 @@ export class MimeTreeDecrypter {
         lazy.EnigmailConstants.UI_IGNORE_MDC_ERROR;
 
       var plaintexts = [];
-      var blocks = lazy.EnigmailArmor.locateArmoredBlocks(mimePart.body);
+      var blocks = lazy.EnigmailArmor.locateArmoredBlocks(mimeTreePart.body);
       var tmp = [];
 
       for (let i = 0; i < blocks.length; i++) {
@@ -546,7 +560,7 @@ export class MimeTreeDecrypter {
       for (let i = 0; i < blocks.length; i++) {
         let plaintext = null;
         do {
-          const ciphertext = mimePart.body.substring(
+          const ciphertext = mimeTreePart.body.substring(
             blocks[i].begin,
             blocks[i].end + 1
           );
@@ -647,8 +661,8 @@ export class MimeTreeDecrypter {
           if (
             i == 0 &&
             subject === "pEp" &&
-            mimePart.partNum.length > 0 &&
-            mimePart.partNum.search(/[^01.]/) < 0
+            mimeTreePart.partNum.length > 0 &&
+            mimeTreePart.partNum.search(/[^01.]/) < 0
           ) {
             const m = lazy.EnigmailMime.extractSubjectFromBody(plaintext);
             if (m) {
@@ -664,38 +678,45 @@ export class MimeTreeDecrypter {
       }
 
       var decryptedMessage =
-        mimePart.body.substring(0, blocks[0].begin) + plaintexts[0];
+        mimeTreePart.body.substring(0, blocks[0].begin) + plaintexts[0];
       for (let i = 1; i < blocks.length; i++) {
         decryptedMessage +=
-          mimePart.body.substring(blocks[i - 1].end + 1, blocks[i].begin + 1) +
-          plaintexts[i];
+          mimeTreePart.body.substring(
+            blocks[i - 1].end + 1,
+            blocks[i].begin + 1
+          ) + plaintexts[i];
       }
 
-      decryptedMessage += mimePart.body.substring(
+      decryptedMessage += mimeTreePart.body.substring(
         blocks[blocks.length - 1].end + 1
       );
 
       // enable base64 encoding if non-ASCII character(s) found
       const j = decryptedMessage.search(/[^\x01-\x7F]/); // eslint-disable-line no-control-regex
       if (j >= 0) {
-        mimePart.headers._rawHeaders.set("content-transfer-encoding", [
+        mimeTreePart.headers._rawHeaders.set("content-transfer-encoding", [
           "base64",
         ]);
       } else {
-        mimePart.headers._rawHeaders.set("content-transfer-encoding", ["8bit"]);
+        mimeTreePart.headers._rawHeaders.set("content-transfer-encoding", [
+          "8bit",
+        ]);
       }
-      mimePart.body = decryptedMessage;
+      mimeTreePart.body = decryptedMessage;
 
-      const origCharset = getCharset(mimePart, "content-type");
+      const origCharset = getCharset(mimeTreePart, "content-type");
       if (origCharset) {
-        mimePart.headers_rawHeaders.set(
+        mimeTreePart.headers_rawHeaders.set(
           "content-type",
-          getHeaderValue(mimePart, "content-type").replace(origCharset, charset)
+          getHeaderValue(mimeTreePart, "content-type").replace(
+            origCharset,
+            charset
+          )
         );
       } else {
-        mimePart.headers._rawHeaders.set(
+        mimeTreePart.headers._rawHeaders.set(
           "content-type",
-          getHeaderValue(mimePart, "content-type") + "; charset=" + charset
+          getHeaderValue(mimeTreePart, "content-type") + "; charset=" + charset
         );
       }
 
@@ -703,7 +724,7 @@ export class MimeTreeDecrypter {
       return 1;
     }
 
-    const ct = getContentType(mimePart);
+    const ct = getContentType(mimeTreePart);
     lazy.EnigmailLog.DEBUG(
       "mimeTree.sys.mjs: Decryption skipped:  " + ct + "\n"
     );
@@ -711,17 +732,17 @@ export class MimeTreeDecrypter {
     return 0;
   }
 
-  fixExchangeMessage(mimePart) {
+  fixExchangeMessage(mimeTreePart) {
     lazy.EnigmailLog.DEBUG("mimeTree.sys.mjs: fixExchangeMessage()\n");
 
-    const msg = mimeTreeToString(mimePart, true);
+    const msg = mimeTreeToString(mimeTreePart, true);
 
     try {
       const fixedMsg = lazy.EnigmailFixExchangeMsg.getRepairedMessage(msg);
       const replacement = getMimeTree(fixedMsg, true);
 
       for (const i in replacement) {
-        mimePart[i] = replacement[i];
+        mimeTreePart[i] = replacement[i];
       }
     } catch (ex) {}
   }
@@ -770,10 +791,14 @@ function getHeaderValue(mimeStruct, header) {
   }
 }
 
-function getContentType(mime) {
+function getContentType(mimeTreePart) {
   try {
-    if (mime && "headers" in mime && mime.headers.has("content-type")) {
-      return mime.headers.get("content-type").type.toLowerCase();
+    if (
+      mimeTreePart &&
+      "headers" in mimeTreePart &&
+      mimeTreePart.headers.has("content-type")
+    ) {
+      return mimeTreePart.headers.get("content-type").type.toLowerCase();
     }
   } catch (e) {
     lazy.EnigmailLog.DEBUG("mimeTree.sys.mjs: getContentType: " + e + "\n");
@@ -782,10 +807,14 @@ function getContentType(mime) {
 }
 
 // return the content of the boundary parameter
-function getBoundary(mime) {
+function getBoundary(mimeTreePart) {
   try {
-    if (mime && "headers" in mime && mime.headers.has("content-type")) {
-      return mime.headers.get("content-type").get("boundary");
+    if (
+      mimeTreePart &&
+      "headers" in mimeTreePart &&
+      mimeTreePart.headers.has("content-type")
+    ) {
+      return mimeTreePart.headers.get("content-type").get("boundary");
     }
   } catch (e) {
     lazy.EnigmailLog.DEBUG("mimeTree.sys.mjs: getBoundary: " + e + "\n");
@@ -793,10 +822,14 @@ function getBoundary(mime) {
   return null;
 }
 
-function getCharset(mime) {
+function getCharset(mimeTreePart) {
   try {
-    if (mime && "headers" in mime && mime.headers.has("content-type")) {
-      const c = mime.headers.get("content-type").get("charset");
+    if (
+      mimeTreePart &&
+      "headers" in mimeTreePart &&
+      mimeTreePart.headers.has("content-type")
+    ) {
+      const c = mimeTreePart.headers.get("content-type").get("charset");
       if (c) {
         return c.toLowerCase();
       }
@@ -807,14 +840,16 @@ function getCharset(mime) {
   return null;
 }
 
-function getTransferEncoding(mime) {
+function getTransferEncoding(mimeTreePart) {
   try {
     if (
-      mime &&
-      "headers" in mime &&
-      mime.headers._rawHeaders.has("content-transfer-encoding")
+      mimeTreePart &&
+      "headers" in mimeTreePart &&
+      mimeTreePart.headers._rawHeaders.has("content-transfer-encoding")
     ) {
-      const c = mime.headers._rawHeaders.get("content-transfer-encoding")[0];
+      const c = mimeTreePart.headers._rawHeaders.get(
+        "content-transfer-encoding"
+      )[0];
       if (c) {
         return c.toLowerCase();
       }
@@ -827,18 +862,18 @@ function getTransferEncoding(mime) {
   return "8Bit";
 }
 
-function isAttachment(mime) {
+function isAttachment(mimeTreePart) {
   try {
-    if (mime && "headers" in mime) {
-      if (mime.fullContentType.search(/^multipart\//i) === 0) {
+    if (mimeTreePart && "headers" in mimeTreePart) {
+      if (mimeTreePart.fullContentType.search(/^multipart\//i) === 0) {
         return false;
       }
-      if (mime.fullContentType.search(/^text\//i) < 0) {
+      if (mimeTreePart.fullContentType.search(/^text\//i) < 0) {
         return true;
       }
 
-      if (mime.headers.has("content-disposition")) {
-        const c = mime.headers.get("content-disposition")[0];
+      if (mimeTreePart.headers.has("content-disposition")) {
+        const c = mimeTreePart.headers.get("content-disposition")[0];
         if (c) {
           if (c.search(/^attachment/i) === 0) {
             return true;
@@ -856,9 +891,12 @@ function isAttachment(mime) {
  * @param {MimeTreePart} mimeTreePart
  * @return {?string} the filename or null
  */
-function getAttachmentName(mime) {
-  if ("headers" in mime && mime.headers.has("content-disposition")) {
-    const c = mime.headers.get("content-disposition")[0];
+function getAttachmentName(mimeTreePart) {
+  if (
+    "headers" in mimeTreePart &&
+    mimeTreePart.headers.has("content-disposition")
+  ) {
+    const c = mimeTreePart.headers.get("content-disposition")[0];
     if (/^attachment/i.test(c)) {
       return lazy.EnigmailMime.getParameter(c, "filename");
     }
