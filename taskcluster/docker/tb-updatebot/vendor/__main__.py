@@ -63,6 +63,9 @@ if REVIEWERS is None:
 
 os.environ["MOZ_FETCHES_DIR"] = os.path.abspath(os.environ["MOZ_FETCHES_DIR"])
 
+GECKO_HEAD_REV = os.environ.get("GECKO_HEAD_REV")
+COMM_HEAD_REV = os.environ.get("COMM_HEAD_REV")
+
 
 def prepare():
     """Retrieve secrets and write out config files."""
@@ -95,6 +98,7 @@ def run_check_upstream() -> bool:
     try:
         run_cmd(["./mach", "tb-rust", "check-upstream"])
         log("Rust code is in sync with upstream.")
+        notify_sheriffs(f"Sheriffs: No rust changes for Gecko head rev {GECKO_HEAD_REV[:12]}.")
         return True
     except subprocess.CalledProcessError as e:
         if e.returncode == 88:
@@ -111,6 +115,7 @@ def run_vendor():
     os.chdir(COMM_PATH)
     result = run_cmd([HG, "id", "-T", "{dirty}\n"])
     if result.stdout[0] != "+":
+        notify_sheriffs(f"Failed to complete Rust vendor automation for {GECKO_HEAD_REV[:12]}.")
         raise Exception("Whoa there! No changes were found. ABORT ABORT ABORT ABORT ABORT!")
 
 
@@ -119,8 +124,8 @@ def commit_changes():
     run_cmd([HG, "addremove", "third_party/rust/", "rust/"])
     logmsg = f"""No bug - Synchronize vendored Rust libraries with mozilla-central. r={REVIEWERS}
 
-mozilla-central: {os.environ.get("GECKO_HEAD_REV")}
-comm-central: {os.environ.get("COMM_HEAD_REV")}
+mozilla-central: {GECKO_HEAD_REV}
+comm-central: {COMM_HEAD_REV}
 """
     with tempfile.NamedTemporaryFile() as fp:
         fp.write(logmsg.encode("utf-8"))
@@ -145,7 +150,9 @@ def submit_phabricator():
         match = re.search(r"/(D\d+)$", line)
         if match:
             phab_rev = match.group(1)
-            notify_sheriffs(phab_rev)
+            notify_sheriffs(
+                f"Sheriffs: Rust vendored libraries update for {GECKO_HEAD_REV[:12]} in {phab_rev}!"
+            )
 
 
 def run_try_cc():

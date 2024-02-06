@@ -19,6 +19,8 @@ import taskcluster
 SECRET_URL_BASE = "http://taskcluster/secrets/v1/secret/"
 NOTIFY_URL_BASE = "http://taskcluster/api/notify/v1/matrix"
 
+TB_SHERIFF_MATRIX_ID = "!TWztIhgqLawNpRBZTC:mozilla.org"
+
 
 def log(*args):
     print(*args)
@@ -105,9 +107,9 @@ def write_try_task_config(comm_src_dir: Path) -> Path:
     return try_task_config_file
 
 
-def notify_sheriffs(phabricator_rev: str):
+def notify_sheriffs(body: str):
     data = {
-        "roomId": "!TWztIhgqLawNpRBZTC:mozilla.org",
-        "body": f"Sheriffs: Rust vendored libraries update in {phabricator_rev}!",
+        "roomId": TB_SHERIFF_MATRIX_ID,
+        "body": body,
     }
     requests.post(NOTIFY_URL_BASE, data=data)
