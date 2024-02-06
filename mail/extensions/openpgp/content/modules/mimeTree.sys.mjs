@@ -504,7 +504,7 @@ export class MimeTreeDecrypter {
       const ct = getContentType(mimePart);
 
       if (ct === "text/html") {
-        mimePart.body = this.stripHTMLFromArmoredBlocks(mimePart.body);
+        mimePart.body = stripHTMLFromArmoredBlocks(mimePart.body);
       }
 
       var exitCodeObj = {};
@@ -711,27 +711,6 @@ export class MimeTreeDecrypter {
     return 0;
   }
 
-  stripHTMLFromArmoredBlocks(text) {
-    var index = 0;
-    var begin = text.indexOf("-----BEGIN PGP");
-    var end = text.indexOf("-----END PGP");
-
-    while (begin > -1 && end > -1) {
-      let sub = text.substring(begin, end);
-
-      sub = sub.replace(/(<([^>]+)>)/gi, "");
-      sub = sub.replace(/&[A-z]+;/gi, "");
-
-      text = text.substring(0, begin) + sub + text.substring(end);
-
-      index = end + 10;
-      begin = text.indexOf("-----BEGIN PGP", index);
-      end = text.indexOf("-----END PGP", index);
-    }
-
-    return text;
-  }
-
   fixExchangeMessage(mimePart) {
     lazy.EnigmailLog.DEBUG("mimeTree.sys.mjs: fixExchangeMessage()\n");
 
@@ -746,6 +725,27 @@ export class MimeTreeDecrypter {
       }
     } catch (ex) {}
   }
+}
+
+function stripHTMLFromArmoredBlocks(text) {
+  var index = 0;
+  var begin = text.indexOf("-----BEGIN PGP");
+  var end = text.indexOf("-----END PGP");
+
+  while (begin > -1 && end > -1) {
+    let sub = text.substring(begin, end);
+
+    sub = sub.replace(/(<([^>]+)>)/gi, "");
+    sub = sub.replace(/&[A-z]+;/gi, "");
+
+    text = text.substring(0, begin) + sub + text.substring(end);
+
+    index = end + 10;
+    begin = text.indexOf("-----BEGIN PGP", index);
+    end = text.indexOf("-----END PGP", index);
+  }
+
+  return text;
 }
 
 function getHeaderValue(mimeStruct, header) {
