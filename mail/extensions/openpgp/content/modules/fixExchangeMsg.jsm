@@ -18,7 +18,7 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
-  getMimeTree: "chrome://openpgp/content/modules/mimeTree.sys.mjs",
+  getMimeTree: "chrome://openpgp/content/modules/MimeTree.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {

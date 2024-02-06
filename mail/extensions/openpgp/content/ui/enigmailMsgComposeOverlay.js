@@ -71,7 +71,7 @@ const { OpenPGPAlias } = ChromeUtils.import(
 var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
 const { getMimeTreeFromUrl } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/mimeTree.sys.mjs"
+  "chrome://openpgp/content/modules/MimeTree.sys.mjs"
 );
 
 var l10nOpenPGP = new Localization(["messenger/openpgp/openpgp.ftl"]);

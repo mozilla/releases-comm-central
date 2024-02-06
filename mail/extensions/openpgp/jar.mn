@@ -32,7 +32,7 @@ openpgp.jar:
   content/openpgp/modules/mimeDecrypt.jsm      (content/modules/mimeDecrypt.jsm)
   content/openpgp/modules/mimeEncrypt.jsm      (content/modules/mimeEncrypt.jsm)
   content/openpgp/modules/mime.jsm             (content/modules/mime.jsm)
-  content/openpgp/modules/mimeTree.sys.mjs     (content/modules/mimeTree.sys.mjs)
+  content/openpgp/modules/MimeTree.sys.mjs     (content/modules/MimeTree.sys.mjs)
   content/openpgp/modules/mimeVerify.jsm       (content/modules/mimeVerify.jsm)
   content/openpgp/modules/msgRead.jsm          (content/modules/msgRead.jsm)
   content/openpgp/modules/OpenPGPAlias.jsm     (content/modules/OpenPGPAlias.jsm)

@@ -28,7 +28,7 @@ ChromeUtils.defineModuleGetter(
 );
 
 const { getMimeTreeFromUrl } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/mimeTree.sys.mjs"
+  "chrome://openpgp/content/modules/MimeTree.sys.mjs"
 );
 
 function GetNextNMessages(folder) {

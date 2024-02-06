@@ -22,7 +22,7 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
-  getMimeTree: "chrome://openpgp/content/modules/mimeTree.sys.mjs",
+  getMimeTree: "chrome://openpgp/content/modules/MimeTree.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {

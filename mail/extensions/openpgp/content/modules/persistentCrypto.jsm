@@ -13,7 +13,7 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 );
 const { MimeTreeDecrypter, getMimeTreeFromUrl, mimeTreeToString } =
   ChromeUtils.importESModule(
-    "chrome://openpgp/content/modules/mimeTree.sys.mjs"
+    "chrome://openpgp/content/modules/MimeTree.sys.mjs"
   );
 
 const lazy = {};
