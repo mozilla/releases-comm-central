@@ -2,3 +2,7 @@
 strip =
 evolve = $HOME/.mozbuild/evolve/hgext3rd/evolve
 push-to-try = $HOME/.mozbuild/version-control-tools/hgext/push-to-try
+
+[paths]
+try-cc = https://hg.mozilla.org/try-comm-central
+try-cc:pushurl = ssh://hg.mozilla.org/try-comm-central

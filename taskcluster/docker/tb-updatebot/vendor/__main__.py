@@ -5,6 +5,7 @@
 
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -17,21 +18,23 @@ sys.path.append(os.path.join(GECKO_PATH, "third_party/python/taskcluster_urls"))
 sys.path.append(os.path.join(GECKO_PATH, "third_party/python/slugid"))
 sys.path.append(os.path.join(GECKO_PATH, "third_party/python/mohawk"))
 
-
 sys.path.append(".")
 
 from .support import (  # noqa: I001
     TaskClusterSecrets,
     log,
+    notify_sheriffs,
     run_cmd,
     write_ssh_key,
     write_arcrc,
     write_hgrc_userinfo,
+    write_try_task_config,
 )
 
 # Bump this number when you need to cause a commit for the job to re-run: 0
 
 HOME_PATH = Path.home()
+COMM_PATH = os.path.join(GECKO_PATH, "comm")
 
 OPERATING_MODE = (
     "prod"
@@ -101,16 +104,18 @@ def run_check_upstream() -> bool:
 
 
 def run_vendor():
+    os.chdir(GECKO_PATH)
     log("Running tb-rust vendor")
     run_cmd(["./mach", "tb-rust", "vendor"])
 
-    os.chdir("comm")
+    os.chdir(COMM_PATH)
     result = run_cmd([HG, "id", "-T", "{dirty}\n"])
     if result.stdout[0] != "+":
         raise Exception("Whoa there! No changes were found. ABORT ABORT ABORT ABORT ABORT!")
 
 
 def commit_changes():
+    os.chdir(COMM_PATH)
     run_cmd([HG, "addremove", "third_party/rust/", "rust/"])
     logmsg = f"""No bug - Synchronize vendored Rust libraries with mozilla-central. r={REVIEWERS}
 
@@ -127,10 +132,28 @@ comm-central: {os.environ.get("COMM_HEAD_REV")}
 
 
 def submit_phabricator():
-    if OPERATING_MODE == "prod":
-        run_cmd([MOZ_PHAB, "submit", "-s", "--no-bug", "--no-lint"])
-    else:
+    if OPERATING_MODE != "prod":
         log(f"Skipping moz-phab submission in {OPERATING_MODE} mode.")
+        return
+
+    os.chdir(COMM_PATH)
+    result = run_cmd([MOZ_PHAB, "submit", "-s", "--no-bug", "--no-lint"])
+
+    # Look for the Phabricator revision URL on the last line of stdout
+    if result.returncode == 0:
+        line = result.stdout.rstrip().split("\n")[-1]
+        match = re.search(r"/(D\d+)$", line)
+        if match:
+            phab_rev = match.group(1)
+            notify_sheriffs(phab_rev)
+
+
+def run_try_cc():
+    os.chdir(COMM_PATH)
+    log("Submitting try-comm-central build.")
+    try_task_config = write_try_task_config(Path(COMM_PATH))
+    run_cmd([HG, "add", try_task_config.name])
+    run_cmd([HG, "push-to-try", "-s", "try-cc", "-m", "Automation: Rust build check"])
 
 
 def main():
@@ -141,6 +164,7 @@ def main():
     run_vendor()
     commit_changes()
     submit_phabricator()
+    run_try_cc()
 
 
 if __name__ == "__main__":

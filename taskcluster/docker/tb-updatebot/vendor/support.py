@@ -17,6 +17,7 @@ import requests
 import taskcluster
 
 SECRET_URL_BASE = "http://taskcluster/secrets/v1/secret/"
+NOTIFY_URL_BASE = "http://taskcluster/api/notify/v1/matrix"
 
 
 def log(*args):
@@ -88,3 +89,25 @@ def write_arcrc(phabricator_url: str, phabricator_token: str):
     with open(arc_filename, "w") as arcrc:
         json.dump(arc_json, arcrc)
     os.chmod(arc_filename, stat.S_IRUSR | stat.S_IWUSR)
+
+
+def write_try_task_config(comm_src_dir: Path) -> Path:
+    try_task_config_file = comm_src_dir / "try_task_config.json"
+    try_task_config = {
+        "tasks": [
+            "build-linux64-rust/opt",
+            "build-macosx64-rust/opt",
+            "build-win64-rust/opt",
+        ]
+    }
+    with open(try_task_config_file, "w") as try_fp:
+        json.dump(try_task_config, try_fp, indent=2)
+    return try_task_config_file
+
+
+def notify_sheriffs(phabricator_rev: str):
+    data = {
+        "roomId": "!TWztIhgqLawNpRBZTC:mozilla.org",
+        "body": f"Sheriffs: Rust vendored libraries update in {phabricator_rev}!",
+    }
+    requests.post(NOTIFY_URL_BASE, data=data)
