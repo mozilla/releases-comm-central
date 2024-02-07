@@ -88,6 +88,7 @@ reference-jobs:
     - win64-sccache
     - win64-vs2019
     - win64-winchecksec
+    - windows-rs
 
 transforms:
     - gecko_taskgraph.transforms.try_job:transforms

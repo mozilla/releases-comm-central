@@ -8,6 +8,11 @@ job-defaults:
         comm-checkout: true
         config-paths:
             - comm/testing/mozharness/configs
+    fetches:
+        toolchain:
+            - nsis
+            - vs
+            - windows-rs
 
 win32/opt:
     description: "Win32 Opt (Cross)"
@@ -52,13 +57,9 @@ win32/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
-            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win32-libotr
-            - vs
-        fetch:
-            - upx-3.95-win
 
 win32-shippable/opt:
     description: "Win32 Opt Shippable"
@@ -107,11 +108,9 @@ win32-shippable/opt:
             - linux64-rust-size
             - linux64-winchecksec
             - linux64-wine
-            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win32-libotr
-            - vs
         fetch:
             - upx-3.95-win
 
@@ -159,11 +158,9 @@ win32/debug:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
-            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win32-libotr
-            - vs
         fetch:
             - upx-3.95-win
 
@@ -210,11 +207,9 @@ win64/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
-            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
-            - vs
         fetch:
             - upx-3.95-win
 
@@ -264,11 +259,9 @@ win64-rust/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
-            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
-            - vs
         fetch:
             - upx-3.95-win
 
@@ -319,11 +312,9 @@ win64-shippable/opt:
             - linux64-rust-size
             - linux64-winchecksec
             - linux64-wine
-            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
-            - vs
         fetch:
             - upx-3.95-win
 
@@ -371,11 +362,9 @@ win64/debug:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
-            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
-            - vs
         fetch:
             - upx-3.95-win
 
@@ -411,7 +400,6 @@ win64-plain/debug:
         skip-unless-backstop-no-suite: null
     fetches:
         toolchain:
-            - nsis
             - sysroot-wasm32-wasi
             - win64-cbindgen
             - win64-clang
@@ -421,7 +409,6 @@ win64-plain/debug:
             - win64-node
             - win64-nasm
             - win64-rust
-            - vs
             - win64-winchecksec
 
 win64-plain/opt:
@@ -455,7 +442,6 @@ win64-plain/opt:
         skip-unless-backstop-no-suite: null
     fetches:
         toolchain:
-            - nsis
             - sysroot-wasm32-wasi
             - win64-cbindgen
             - win64-clang
@@ -465,7 +451,6 @@ win64-plain/opt:
             - win64-node
             - win64-nasm
             - win64-rust
-            - vs
             - win64-winchecksec
 
 win64-asan/opt:
@@ -510,12 +495,10 @@ win64-asan/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
-            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
             - win64-llvm-symbolizer
-            - vs
         fetch:
             - upx-3.95-win
 
@@ -572,12 +555,10 @@ win64-asan-reporter-shippable/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
-            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
             - win64-llvm-symbolizer
-            - vs
         fetch:
             - upx-3.95-win
 
@@ -622,7 +603,6 @@ win64-ccov/opt:
         skip-suite-only: null
     fetches:
         toolchain:
-            - nsis
             - sysroot-wasm32-wasi
             - win64-cbindgen
             - win64-clang
@@ -636,4 +616,3 @@ win64-ccov/opt:
             - win64-rust-size
             - win64-sccache
             - win64-winchecksec
-            - vs
