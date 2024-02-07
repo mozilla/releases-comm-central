@@ -31,9 +31,11 @@ const UI_TARGET_ELEMENTS = [
   "command",
   "checkbox",
   "input",
+  "textarea",
   "button",
   "image",
   "radio",
+  "select",
   "richlistitem",
 ];
 

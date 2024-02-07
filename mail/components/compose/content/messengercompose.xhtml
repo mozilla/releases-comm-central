@@ -793,13 +793,6 @@
            onpopupshowing="onBlockedContentOptionsShowing(event);">
 </menupopup>
 
-<menupopup id="languageMenuList"
-           oncommand="ChangeLanguage(event);"
-           onpopupshowing="OnShowDictionaryMenu(event.target);"
-           onpopupshown="languageMenuListOpened();"
-           onpopuphidden="languageMenuListClosed();">
-</menupopup>
-
 <menupopup id="emailAddressPillPopup"
            class="emailAddressPopup"
            onpopupshowing="onPillPopupShowing(event);">
@@ -1912,8 +1905,7 @@
     <toolbarbutton is="toolbarbutton-menu-button" id="button-encryption-options"
                    type="menu"
                    class="toolbarbutton-1"
-                   data-l10n-id="encryption-options-openpgp"
-                   oncommand="showPopupById('encryptionToolbarMenu', 'button-encryption-options');">
+                   data-l10n-id="encryption-options-openpgp">
       <menupopup id="encryptionToolbarMenu"
                  onpopupshowing="setSecuritySettings('_Toolbar');"
                  oncommand="onEncryptionChoice(event.target.value);">
@@ -1958,10 +1950,12 @@
                    label="&spellingButton.label;"
                    tooltiptext="&spellingButton.tooltip;"
                    command="cmd_spelling">
-      <!-- workaround for the bug that split menu doesn't take popup="popupID" -->
-      <menupopup onpopupshowing="event.preventDefault();
-                                 showPopupById('languageMenuList',
-                                               'spellingButton');"/>
+      <menupopup id="languageMenuList"
+                 oncommand="ChangeLanguage(event);"
+                 onpopupshowing="OnShowDictionaryMenu(event.target);"
+                 onpopupshown="languageMenuListOpened();"
+                 onpopuphidden="languageMenuListClosed();">
+      </menupopup>
     </toolbarbutton>
 
     <toolbarbutton is="toolbarbutton-menu-button" id="button-save"
