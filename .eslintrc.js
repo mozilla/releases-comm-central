@@ -148,10 +148,5 @@ module.exports = {
         "func-names": "off",
       },
     },
-    {
-      files: ["**"],
-      excludedFiles: [".eslintrc.js"],
-      extends: ["plugin:mozilla/valid-jsdoc"],
-    },
   ],
 };
