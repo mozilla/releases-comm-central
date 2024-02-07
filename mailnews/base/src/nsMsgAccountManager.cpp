@@ -117,7 +117,8 @@ nsMsgAccountManager::nsMsgAccountManager()
       m_userAuthenticated(false),
       m_loadingVirtualFolders(false),
       m_virtualFoldersLoaded(false),
-      m_lastFindServerPort(0) {}
+      m_lastFindServerPort(0),
+      m_lastUniqueServerKey(1) {}
 
 nsMsgAccountManager::~nsMsgAccountManager() {
   if (!m_haveShutdown) {
@@ -335,44 +336,24 @@ nsMsgAccountManager::GetUniqueAccountKey(nsACString& aResult) {
 NS_IMETHODIMP
 nsMsgAccountManager::GetUniqueServerKey(nsACString& aResult) {
   nsAutoCString prefResult;
-  bool usePrefsScan = true;
-  nsresult rv;
-  nsCOMPtr<nsIPrefService> prefService(
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) usePrefsScan = false;
+  nsCOMPtr<nsIPrefService> prefService = mozilla::Preferences::GetService();
 
   // Loop over existing pref names mail.server.server(lastKey).type
   nsCOMPtr<nsIPrefBranch> prefBranchServer;
-  if (prefService) {
-    rv = prefService->GetBranch(PREF_MAIL_SERVER_PREFIX,
-                                getter_AddRefs(prefBranchServer));
-    if (NS_FAILED(rv)) usePrefsScan = false;
-  }
+  nsresult rv = prefService->GetBranch(PREF_MAIL_SERVER_PREFIX,
+                                       getter_AddRefs(prefBranchServer));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (usePrefsScan) {
-    nsAutoCString type;
-    nsAutoCString typeKey;
-    for (uint32_t lastKey = 1;; lastKey++) {
-      aResult.AssignLiteral(SERVER_PREFIX);
-      aResult.AppendInt(lastKey);
-      typeKey.Assign(aResult);
-      typeKey.AppendLiteral(".type");
-      prefBranchServer->GetCharPref(typeKey.get(), type);
-      if (type.IsEmpty())  // a server slot with no type is considered empty
-        return NS_OK;
-    }
-  } else {
-    // If pref service fails, try to find a free serverX key
-    // by checking which keys exist.
-    nsAutoCString internalResult;
-    nsCOMPtr<nsIMsgIncomingServer> server;
-    uint32_t i = 1;
-    do {
-      aResult.AssignLiteral(SERVER_PREFIX);
-      aResult.AppendInt(i++);
-      m_incomingServers.Get(aResult, getter_AddRefs(server));
-    } while (server);
-    return NS_OK;
+  nsAutoCString type;
+  nsAutoCString typeKey;
+  for (;; m_lastUniqueServerKey++) {
+    aResult.AssignLiteral(SERVER_PREFIX);
+    aResult.AppendInt(m_lastUniqueServerKey);
+    typeKey.Assign(aResult);
+    typeKey.AppendLiteral(".type");
+    prefBranchServer->GetCharPref(typeKey.get(), type);
+    if (type.IsEmpty())  // a server slot with no type is considered empty
+      return NS_OK;
   }
 }
 
@@ -440,6 +421,7 @@ nsMsgAccountManager::CreateIncomingServer(const nsACString& username,
 
   nsAutoCString key;
   GetUniqueServerKey(key);
+  m_lastUniqueServerKey++;  // Make sure the key won't be used again.
   rv = createKeyedServer(key, username, hostname, type, _retval);
   if (*_retval) {
     nsCString defaultStore;

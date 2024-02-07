@@ -59,9 +59,14 @@ FolderLookupService.prototype = {
    */
   getOrCreateFolderForURL(uri) {
     let folder = this._getExisting(uri);
-    if (folder) {
-      return folder;
-    }
+
+    try {
+      if (folder?.server?.type) {
+        // The folder object exists and it has a server with a type,
+        // indicating that the server hasn't been removed.
+        return folder;
+      }
+    } catch {}
 
     // Create new folder.
 

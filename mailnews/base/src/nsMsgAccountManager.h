@@ -121,6 +121,10 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
                           const nsACString& username, const int32_t port,
                           const nsACString& type);
 
+  // Where to start looking for an empty server key. This should only increase
+  // as servers are created to ensure keys are unique within a session.
+  uint32_t m_lastUniqueServerKey;
+
   /* internal creation routines - updates m_identities and m_incomingServers */
   nsresult createKeyedAccount(const nsCString& key, bool forcePositionToEnd,
                               nsIMsgAccount** _retval);
