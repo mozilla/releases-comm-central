@@ -104,7 +104,7 @@ add_task(
           // Test reject on renaming absolute root.
           await browser.test.assertRejects(
             browser.folders.rename(rootFolder.id, "UhhOh"),
-            `folders.rename() failed, because it cannot rename the root of the account`,
+            `folders.rename() failed, the folder Root cannot be renamed`,
             "browser.folders.rename threw exception"
           );
 

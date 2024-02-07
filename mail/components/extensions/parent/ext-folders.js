@@ -248,18 +248,21 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
   const srcFolder = getFolder(source);
   const dstFolder = getFolder(destination);
 
-  if (dstFolder.folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+  if (!dstFolder.folder.canCreateSubfolders) {
     throw new ExtensionError(
-      `The destination used in ${functionName} cannot be a search folder`
+      `${functionName} failed, cannot create subfolders in ${dstFolder.folder.prettyName}`
     );
   }
 
-  if (
-    srcFolder.folder.server.type == "nntp" ||
-    dstFolder.folder.server.type == "nntp"
-  ) {
+  if (isMove && !srcFolder.folder.deletable) {
     throw new ExtensionError(
-      `folders.${isMove ? "move" : "copy"}() is not supported in news accounts`
+      `${functionName} failed, cannot delete source folder ${srcFolder.folder.prettyName}`
+    );
+  }
+
+  if (dstFolder.folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+    throw new ExtensionError(
+      `The destination used in ${functionName} cannot be a search folder`
     );
   }
 
@@ -270,7 +273,7 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
     )
   ) {
     throw new ExtensionError(
-      `folders.${isMove ? "move" : "copy"}() failed, because ${
+      `${functionName} failed, because ${
         srcFolder.folder.prettyName
       } already exists in ${folderURIToPath(
         dstFolder.accountId,
@@ -327,9 +330,7 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
   });
 
   if (!Components.isSuccessCode(rv.status)) {
-    throw new ExtensionError(
-      `folders.${isMove ? "move" : "copy"}() failed for unknown reasons`
-    );
+    throw new ExtensionError(`${functionName} failed for unknown reasons`);
   }
 
   return extension.folderManager.convert(rv.folder, dstFolder.accountId);
@@ -873,6 +874,12 @@ this.folders = class extends ExtensionAPIPersistent {
             );
           }
 
+          if (!parentFolder.canCreateSubfolders) {
+            throw new ExtensionError(
+              `The destination used in folders.create() does not support to create subfolders.`
+            );
+          }
+
           if (
             parentFolder.hasSubFolders &&
             parentFolder.subFolders.find(f => f.prettyName == childName)
@@ -900,14 +907,10 @@ this.folders = class extends ExtensionAPIPersistent {
         async rename(target, newName) {
           const { folder, accountId } = getFolder(target);
 
-          if (!folder.parent) {
+          if (!folder.canRename) {
+            const name = folder.isServer ? "Root" : folder.prettyName;
             throw new ExtensionError(
-              `folders.rename() failed, because it cannot rename the root of the account`
-            );
-          }
-          if (folder.server.type == "nntp") {
-            throw new ExtensionError(
-              `folders.rename() is not supported in news accounts`
+              `folders.rename() failed, the folder ${name} cannot be renamed`
             );
           }
 
@@ -957,9 +960,10 @@ this.folders = class extends ExtensionAPIPersistent {
 
           const { folder } = getFolder(target);
 
-          if (folder.server.type == "nntp") {
+          if (!folder.deletable) {
+            const name = folder.isServer ? "Root" : folder.prettyName;
             throw new ExtensionError(
-              `folders.delete() is not supported in news accounts`
+              `folders.delete() failed, the folder ${name} cannot be deleted`
             );
           }
 

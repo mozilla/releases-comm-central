@@ -122,7 +122,7 @@ add_task(
           );
           await browser.test.assertRejects(
             browser.folders.rename(forbiddenRootFolder, "UhhOh"),
-            `folders.rename() failed, because it cannot rename the root of the account`,
+            `folders.rename() failed, the folder Root cannot be renamed`,
             "browser.folders.rename threw exception"
           );
 
@@ -794,3 +794,93 @@ add_task(
     await extension.unload();
   }
 );
+
+add_task(async function test_deny_folders_operations() {
+  const files = {
+    "background.js": async () => {
+      const [accountId] = await window.waitForMessage();
+      const account = await browser.accounts.get(accountId);
+
+      // Test folders.create() - Our IMAP test server does not have folders
+      // where subFolders cannot be created.
+
+      if (account.type != "imap") {
+        const folder =
+          account.type == "none"
+            ? account.rootFolder.subFolders.find(f =>
+                f.specialUse.includes("outbox")
+              )
+            : account.rootFolder;
+
+        const capabilities = await browser.folders.getFolderCapabilities(
+          folder
+        );
+        browser.test.assertTrue(
+          !capabilities.canAddSubfolders,
+          "Folder should not allow to create subfolders"
+        );
+
+        await browser.test.assertRejects(
+          browser.folders.create(folder, "Nope"),
+          `The destination used in folders.create() does not support to create subfolders.`,
+          "browser.folders.create() should reject, if the folder does not allow to create subfolders."
+        );
+      }
+
+      // Test folders.rename()
+
+      {
+        const folder = account.rootFolder;
+        const capabilities = await browser.folders.getFolderCapabilities(
+          folder
+        );
+        browser.test.assertTrue(
+          !capabilities.canBeRenamed,
+          "Folder should not allow to be renamed"
+        );
+
+        await browser.test.assertRejects(
+          browser.folders.rename(folder, "Nope"),
+          `folders.rename() failed, the folder ${folder.name} cannot be renamed`,
+          "browser.folders.rename() should reject, if the folder does not allow to be renamed."
+        );
+      }
+
+      // Test folders.delete()
+
+      {
+        const folder = account.rootFolder;
+        const capabilities = await browser.folders.getFolderCapabilities(
+          folder
+        );
+        browser.test.assertTrue(
+          !capabilities.canBeDeleted,
+          "Folder should not allow to be deleted"
+        );
+
+        await browser.test.assertRejects(
+          browser.folders.delete(folder),
+          `folders.delete() failed, the folder ${folder.name} cannot be deleted`,
+          "browser.folders.delete() should reject, if the folder does not allow to be deleted."
+        );
+      }
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  const extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      manifest_version: 2,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "accountsFolders", "messagesDelete"],
+    },
+  });
+
+  const account = createAccount();
+  await extension.startup();
+  extension.sendMessage(account.key);
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
