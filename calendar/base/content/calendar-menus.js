@@ -8,6 +8,8 @@
 /* globals getSelectedTasks, MozElements, MozXULElement,
            setAttributeOnChildrenOrTheirCommands */
 
+/* eslint-enable valid-jsdoc */
+
 "use strict";
 
 // Wrap in a block and use const to define functions to prevent leaking to window scope.
@@ -39,8 +41,8 @@
    * When the propertyValue part of a command's name matches the propertyValue of the tasks,
    * set the command to 'checked=true', as long as the tasks all have the same propertyValue.
    *
-   * @param parent {Element} - Parent element that contains the menu items as direct children.
-   * @param propertyKey {string} - The property key, for example "priority" or "percentComplete".
+   * @param {Element} parent - Parent element that contains the menu items as direct children.
+   * @param {string} propertyKey - The property key, for example "priority" or "percentComplete".
    */
   const updateMenuItemsState = (parent, propertyKey) => {
     setAttributeOnChildrenOrTheirCommands("checked", false, parent);
@@ -65,7 +67,7 @@
    * A menupopup for changing the "progress" (percent complete) status for a task or tasks. It
    * indicates the current status by displaying a checkmark next to the menu item for that status.
    *
-   * @augments MozElements.MozMenuPopup
+   * @augments {MozElements.MozMenuPopup}
    */
   class CalendarTaskProgressMenupopup extends MozElements.MozMenuPopup {
     connectedCallback() {

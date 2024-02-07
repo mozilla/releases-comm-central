@@ -5,6 +5,8 @@
 /* global cal, calendarNavigationBar, CalendarFilteredViewMixin, calFilterProperties, currentView,
      gCurrentMode, MozElements, MozXULElement, Services, toggleOrientation */
 
+/* eslint-enable valid-jsdoc */
+
 "use strict";
 
 // Wrap in a block to prevent leaking to window scope.
@@ -290,8 +292,6 @@
 
     /**
      * Handle resizing by adjusting the view to the new size.
-     *
-     * @param {calICalendarView} [calViewElem] - A calendar view element.
      */
     onResize() {
       // Child classes should provide the implementation.
@@ -585,7 +585,7 @@
     // calICalendarView Methods
 
     /**
-     * @note This is overridden in each of the built-in calendar views.
+     * NOTE: This is overridden in each of the built-in calendar views.
      * It's only left here in case some extension is relying on it.
      */
     goToDay(date) {

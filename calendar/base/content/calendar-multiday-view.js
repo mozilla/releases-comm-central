@@ -4,6 +4,8 @@
 
 "use strict";
 
+/* eslint-enable valid-jsdoc */
+
 /* import-globals-from widgets/mouseoverPreviews.js */
 /* import-globals-from calendar-ui-utils.js */
 
@@ -22,7 +24,7 @@
    * @param {number} minute - The minute to snap.
    * @param {number} snapInterval - The integer number of minutes between snap
    *   points.
-   * @param {"nearest","forward","backward"} [direction="nearest"] - Where to
+   * @param {"nearest"|"forward"|"backward"} [direction="nearest"] - Where to
    *   find the snap point. "nearest" will return the closest snap point,
    *   "forward" will return the closest snap point that is greater (and not
    *   equal), and "backward" will return the closest snap point that is lower
@@ -218,7 +220,7 @@
       /**
        * Event data for all the events displayed in this column.
        *
-       * @type {Map<string, EventData} - A map from an event item's hashId to
+       * @type {Map<string,EventData>} - A map from an event item's hashId to
        *   its data.
        */
       this.eventDataMap = new Map();
@@ -1612,7 +1614,7 @@
      * Determine whether the given wheel event is above a scrollable area and
      * matches the scroll direction.
      *
-     * @param {WheelEvent} - The wheel event.
+     * @param {WheelEvent} event - The wheel event.
      *
      * @returns {boolean} - True if this event is above a scrollable area and
      *   matches its scroll direction.

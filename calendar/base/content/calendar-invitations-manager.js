@@ -12,6 +12,8 @@ var { CalReadableStreamFactory } = ChromeUtils.import(
  *          tearDownInvitationsManager
  */
 
+/* eslint-enable valid-jsdoc */
+
 var gInvitationsManager = null;
 
 /**
@@ -100,7 +102,7 @@ InvitationsManager.prototype = {
   /**
    * Schedule an update for the invitations manager asynchronously.
    *
-   * @param firstDelay          The timeout before the operation should start.
+   * @param {integer} firstDelay - The timeout before the operation should start.
    */
   scheduleInvitationsUpdate(firstDelay) {
     this.cancelInvitationsUpdate();
@@ -130,7 +132,7 @@ InvitationsManager.prototype = {
    * Toggles the display of the invitations panel in the status bar depending
    * on the number of invitation items found.
    *
-   * @param {calIItemBase[]?} items - The invitations found, if empty or not
+   * @param {?calIItemBase[]} items - The invitations found, if empty or not
    *   provided, the panel will not be displayed.
    */
   toggleInvitationsPanel(items) {
@@ -263,7 +265,7 @@ InvitationsManager.prototype = {
    * action, a newItem and and oldItem. This processor only takes "modify"
    * operations into account.
    *
-   * @param queue                         The array of objects to process.
+   * @param {calIItemBase[]} queue - The array of objects to process.
    */
   async processJobQueue(queue) {
     // TODO: undo/redo
@@ -286,10 +288,9 @@ InvitationsManager.prototype = {
 
   /**
    * Checks if the internal item list contains the given item
-   * XXXdbo       Please document these correctly.
    *
-   * @param item      The item to look for.
-   * @returns A boolean value indicating if the item was found.
+   * @param {calIItemBase} item - The item to look for.
+   * @returns {boolean} A boolean value indicating if the item was found.
    */
   hasItem(item) {
     const hid = item.hashId;
@@ -298,9 +299,8 @@ InvitationsManager.prototype = {
 
   /**
    * Adds an item to the internal item list.
-   * XXXdbo       Please document these correctly.
    *
-   * @param item      The item to add.
+   * @param {calIItemBase} item - The item to add.
    */
   addItem(item) {
     const recInfo = item.recurrenceInfo;
@@ -319,10 +319,9 @@ InvitationsManager.prototype = {
   },
 
   /**
-   * Removes an item from the internal item list
-   * XXXdbo       Please document these correctly.
+   * Removes an item from the internal item list.
    *
-   * @param item      The item to remove.
+   * @param {calIItemBase} item - The item to remove.
    */
   deleteItem(item) {
     const id = item.id;
@@ -330,8 +329,7 @@ InvitationsManager.prototype = {
   },
 
   /**
-   * Remove all items from the internal item list
-   * XXXdbo       Please document these correctly.
+   * Remove all items from the internal item list.
    */
   deleteAllItems() {
     this.mItemList = [];
@@ -341,7 +339,7 @@ InvitationsManager.prototype = {
    * Helper function to create a start date to search from. This date is the
    * current time with hour/minute/second set to zero.
    *
-   * @returns Potential start date.
+   * @returns {calIDateTime} The potential start date.
    */
   getStartDate() {
     const date = cal.dtz.now();
@@ -372,8 +370,8 @@ InvitationsManager.prototype = {
    * item is in the range of the invitation manager and if the item is a valid
    * invitation.
    *
-   * @param item      The item to check
-   * @returns A boolean indicating if the item is a valid invitation.
+   * @param {calIItemBase} item - The item to check
+   * @returns {boolean} A boolean indicating if the item is a valid invitation.
    */
   validateItem(item) {
     if (item.calendar instanceof Ci.calISchedulingSupport && !item.calendar.isInvitation(item)) {

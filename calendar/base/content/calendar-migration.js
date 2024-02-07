@@ -7,13 +7,15 @@
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { AppConstants } = ChromeUtils.importESModule("resource://gre/modules/AppConstants.sys.mjs");
 
+/* eslint-enable valid-jsdoc */
+
 /**
  * A data migrator prototype, holding the information for migration
  *
  * @class
- * @param aTitle    The title of the migrator
- * @param aMigrateFunction    The function to call when migrating
- * @param aArguments          The arguments to pass in.
+ * @param {string} aTitle - The title of the migrator
+ * @param {Function} aMigrateFunction - The function to call when migrating
+ * @param {any[]} aArguments - The arguments to pass in.
  */
 function dataMigrator(aTitle, aMigrateFunction, aArguments) {
   this.title = aTitle;
@@ -257,7 +259,7 @@ var gDataMigrator = {
   /**
    * Creates and registers a storage calendar and imports the given ics file into it.
    *
-   * @param icsFile     The nsI(Local)File to import.
+   * @param {nsIFile} icsFile - The nsI(Local)File to import.
    */
   importICSToStorage(icsFile) {
     const uri = "moz-storage-calendar://";

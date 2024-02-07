@@ -10,6 +10,8 @@
  *          calendarTaskButtonDNDObserver
  */
 
+/* eslint-enable valid-jsdoc */
+
 var calendarViewDNDObserver;
 var calendarMailButtonDNDObserver;
 var calendarCalendarButtonDNDObserver;
@@ -281,7 +283,7 @@ var calendarTaskButtonDNDObserver;
      *
      * @param {string} data
      */
-    async handleString() {}
+    async handleString(data) {}
   }
 
   /**
@@ -540,14 +542,14 @@ var calendarTaskButtonDNDObserver;
      *
      * @param {calIItemBase[]} items
      */
-    onDropItems() {}
+    onDropItems(items) {}
 
     /**
      * Handles mail messages.
      *
      * @param {nsIMsgHdr} msgHdr
      */
-    onDropMessage() {}
+    onDropMessage(msgHdr) {}
 
     /**
      * Handles address book data.

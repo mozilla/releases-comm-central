@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* eslint-enable valid-jsdoc */
+
 /* exported addCalendarNames, calendars, changeContextMenuForTask,
  *          contextChangeTaskCalendar, contextChangeTaskPriority,
  *          contextPostponeTask, modifyTaskFromContext, deleteToDoCommand,
@@ -22,7 +24,7 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
  * Add registered calendars to the given menupopup. Removes all previous
  * children.
  *
- * @param aEvent    The popupshowing event of the opening menu
+ * @param {Event} aEvent - The popupshowing event of the opening menu.
  */
 function addCalendarNames(aEvent) {
   const calendarMenuPopup = aEvent.target;
@@ -45,12 +47,13 @@ function addCalendarNames(aEvent) {
 }
 
 /**
- * For each child of an element (for example all menuitems in a menu), if it defines a command
- * set an attribute on the command, otherwise set it on the child node itself.
+ * For each child of an element (for example all menuitems in a menu),
+ * if it defines a command set an attribute on the command, otherwise set it
+ * on the child node itself.
  *
- * @param aAttribute {string} - The attribute to set.
- * @param aValue {boolean|string} - The value to set.
- * @param aElement {Element} - The parent node.
+ * @param {string} aAttribute - The attribute to set.
+ * @param {boolean|string} aValue - The value to set.
+ * @param {Element} aElement - The parent node.
  */
 function setAttributeOnChildrenOrTheirCommands(aAttribute, aValue, aElement) {
   for (const child of aElement.children) {
@@ -65,7 +68,7 @@ function setAttributeOnChildrenOrTheirCommands(aAttribute, aValue, aElement) {
 /**
  * Change the opening context menu for the selected tasks.
  *
- * @param aEvent    The popupshowing event of the opening menu.
+ * @param {Event} aEvent - The popupshowing event of the opening menu.
  */
 function changeContextMenuForTask(aEvent) {
   if (aEvent.target.id !== "taskitem-context-menu") {
@@ -123,7 +126,7 @@ function changeContextMenuForTask(aEvent) {
 /**
  * Notify the task tree that the context menu open state has changed.
  *
- * @param aEvent    The popupshowing or popuphiding event of the menu.
+ * @param {Event} aEvent - The popupshowing or popuphiding event of the menu.
  */
 function handleTaskContextMenuStateChange(aEvent) {
   if (aEvent.target.id !== "taskitem-context-menu") {
@@ -200,7 +203,7 @@ function contextChangeTaskProgress(aProgress) {
  * Handler function to change the calendar of the selected tasks. The targeted
  * menuitem must have "calendar" property that implements calICalendar.
  *
- * @param aEvent      The DOM event that triggered this command.
+ * @param {Event} aEvent - The DOM event that triggered this command.
  */
 function contextChangeTaskCalendar(aEvent) {
   startBatchTransaction();
@@ -272,7 +275,7 @@ function contextPostponeTask(aDuration) {
 /**
  * Modifies the selected tasks with the event dialog
  *
- * @param initialDate   (optional) The initial date for new task datepickers
+ * @param {calIDateTime} [initialDate] - The initial date for new task datepickers.
  */
 function modifyTaskFromContext(initialDate) {
   const tasks = getSelectedTasks();
@@ -282,9 +285,9 @@ function modifyTaskFromContext(initialDate) {
 }
 
 /**
- *  Delete the current selected item with focus from the task tree
+ * Delete the current selected item with focus from the task tree
  *
- * @param aDoNotConfirm   If true, the user will not be asked to delete.
+ * @param {boolean} aDoNotConfirm - If true, the user will not be asked to delete.
  */
 function deleteToDoCommand(aDoNotConfirm) {
   const tasks = getSelectedTasks();
@@ -292,9 +295,9 @@ function deleteToDoCommand(aDoNotConfirm) {
 }
 
 /**
- * Gets the currently visible task tree
+ * Gets the currently visible task tree.
  *
- * @returns The XUL task tree element.
+ * @returns {Element} The XUL task tree element.
  */
 function getTaskTree() {
   if (gCurrentMode == "task") {
@@ -330,7 +333,7 @@ function tasksToEvents() {
 /**
  * Toggle the completed state on selected tasks.
  *
- * @param aEvent    The originating event, can be null.
+ * @param {?Event} aEvent - The originating event, can be null.
  */
 function toggleCompleted(aEvent) {
   if (aEvent.target.getAttribute("checked") == "true") {

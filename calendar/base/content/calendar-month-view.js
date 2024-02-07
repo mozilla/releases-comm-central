@@ -6,6 +6,8 @@
 
 /* import-globals-from calendar-ui-utils.js */
 
+/* eslint-enable valid-jsdoc */
+
 "use strict";
 
 // Wrap in a block to prevent leaking to window scope.
@@ -794,8 +796,6 @@
 
     /**
      * Handle resizing by adjusting the view to the new size.
-     *
-     * @param {Element} viewElement - A calendar view element (calICalendarView).
      */
     onResize() {
       const { width, height } = this.getBoundingClientRect();

@@ -10,6 +10,8 @@
 
 /* globals MozElements */
 
+/* eslint-enable valid-jsdoc */
+
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 var calendarTabMonitor = {
@@ -382,9 +384,9 @@ window.addEventListener("load", e => {
 /**
  * Switch the calendar view, and optionally switch to calendar mode.
  *
- * @param aType     The type of view to select.
- * @param aShow     If true, the mode will be switched to calendar if not
- *                    already there.
+ * @param {string} aType - The type of view to select.
+ * @param {boolean} aShow - If true, the mode will be switched to calendar
+ *   if notalready there.
  */
 function switchCalendarView(aType, aShow) {
   gLastShownCalendarView.set(aType);

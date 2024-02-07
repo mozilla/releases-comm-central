@@ -10,12 +10,14 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 
 /* exported cutToClipboard, pasteFromClipboard */
 
+/* eslint-enable valid-jsdoc */
+
 /**
  * Test if a writable calendar is selected, and if the clipboard has items that
  * can be pasted into Calendar. The data must be of type "text/calendar" or
  * "text/plain".
  *
- * @returns If true, pasting is currently possible.
+ * @returns {boolean} true if pasting is currently possible.
  */
 function canPaste() {
   if (Services.prefs.getBoolPref("calendar.paste.intoSelectedCalendar", false)) {
@@ -45,9 +47,8 @@ function canPaste() {
  * Copy the ics data of the current view's selected events to the clipboard and
  * deletes the events on success
  *
- * @param aCalendarItemArray    (optional) an array of items to cut. If not
- *                                passed, the current view's selected items will
- *                                be used.
+ * @param {calIItemBase[]} [aCalendarItemArray] - An array of items to copy. If not
+ *   passed, the current view's selected items will be used.
  */
 function cutToClipboard(aCalendarItemArray = null) {
   copyToClipboard(aCalendarItemArray, true);
@@ -57,10 +58,9 @@ function cutToClipboard(aCalendarItemArray = null) {
  * Copy the ics data of the items in calendarItemArray to the clipboard. Fills
  * both text/unicode and text/calendar mime types.
  *
- * @param aCalendarItemArray    (optional) an array of items to copy. If not
- *                                passed, the current view's selected items will
- *                                be used.
- * @param aCutMode              (optional) set to true, if this is a cut operation
+ * @param {calIItemBase[]} [aCalendarItemArray] - An array of items to copy. If not
+ *   passed, the current view's selected items will be used.
+ * @param {boolean} [aCutMode=false] - true, if this is a cut operation.
  */
 function copyToClipboard(aCalendarItemArray = null, aCutMode = false) {
   let calendarItemArray = aCalendarItemArray || getSelectedItems();
