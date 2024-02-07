@@ -1354,18 +1354,24 @@ add_task(async function testAccountOrder() {
   await checkModeListItems("unread", [rootFolder, folderA]);
   await checkModeListItems("favorite", []);
 
+  // Test hiding the Local Folders.
+
+  const localFoldersItem = moreContext.querySelector(
+    "#folderPaneHeaderToggleLocalFolders"
+  );
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
-
-  moreContext.activateItem(
-    moreContext.querySelector("#folderPaneHeaderToggleLocalFolders")
+  Assert.ok(
+    !localFoldersItem.hasAttribute("checked"),
+    "local folders should be visible"
   );
-  // Force a 500ms timeout due to a weird intermittent macOS issue that prevents
-  // the Escape key press from closing the menupopup.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  moreContext.activateItem(localFoldersItem);
+  // This doesn't happen instantly on Mac.
+  await TestUtils.waitForCondition(
+    () => localFoldersItem.getAttribute("checked") == "true",
+    "waiting for local folders to become hidden"
+  );
+  moreContext.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 
   // All instances of local folders shouldn't be present.
@@ -1376,16 +1382,18 @@ add_task(async function testAccountOrder() {
 
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(moreContext, "shown");
-
-  moreContext.activateItem(
-    moreContext.querySelector("#folderPaneHeaderToggleLocalFolders")
+  Assert.equal(
+    localFoldersItem.getAttribute("checked"),
+    "true",
+    "local folders should be hidden"
   );
-  // Force a 500ms timeout due to a weird intermittent macOS issue that prevents
-  // the Escape key press from closing the menupopup.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  moreContext.activateItem(localFoldersItem);
+  // This doesn't happen instantly on Mac.
+  await TestUtils.waitForCondition(
+    () => !localFoldersItem.hasAttribute("checked"),
+    "waiting for local folders to become visible"
+  );
+  moreContext.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
 });
 
