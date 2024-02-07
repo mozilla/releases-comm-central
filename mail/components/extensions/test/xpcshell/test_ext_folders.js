@@ -377,832 +377,331 @@ add_task(
   }
 );
 
-add_task(async function test_getParentFolders_getSubFolders() {
-  const files = {
-    "background.js": async () => {
-      const [accountId] = await window.waitForMessage();
-      const account = await browser.accounts.get(accountId);
-
-      async function createSubFolder(folderOrAccount, name) {
-        const subFolder = await browser.folders.create(folderOrAccount, name);
-        let basePath = folderOrAccount.path || "/";
-        if (!basePath.endsWith("/")) {
-          basePath = basePath + "/";
-        }
-        browser.test.assertEq(accountId, subFolder.accountId);
-        browser.test.assertEq(name, subFolder.name);
-        browser.test.assertEq(`${basePath}${name}`, subFolder.path);
-        return subFolder;
-      }
-
-      // Create a new root folder in the account.
-      const root = await createSubFolder(account, "MyRoot");
-
-      // Build a flat list of newly created nested folders in MyRoot.
-      const flatFolders = [root];
-      for (let i = 0; i < 10; i++) {
-        flatFolders.push(await createSubFolder(flatFolders[i], `level${i}`));
-      }
-
-      // Test getParentFolders().
-
-      // Pop out the last child folder and get its parents.
-      const lastChild = flatFolders.pop();
-      const parentsWithSubDefault = await browser.folders.getParentFolders(
-        lastChild
-      );
-      const parentsWithSubFalse = await browser.folders.getParentFolders(
-        lastChild,
-        false
-      );
-      const parentsWithSubTrue = await browser.folders.getParentFolders(
-        lastChild,
-        true
-      );
-
-      browser.test.assertEq(10, parentsWithSubDefault.length, "Correct depth.");
-      browser.test.assertEq(10, parentsWithSubFalse.length, "Correct depth.");
-      browser.test.assertEq(10, parentsWithSubTrue.length, "Correct depth.");
-
-      // Reverse the flatFolders array, to match the expected return value of
-      // getParentFolders().
-      flatFolders.reverse();
-
-      // Build expected nested subfolder structure.
-      lastChild.subFolders = [];
-      const flatFoldersWithSub = [];
-      for (let i = 0; i < 10; i++) {
-        const f = {};
-        Object.assign(f, flatFolders[i]);
-        if (i == 0) {
-          f.subFolders = [lastChild];
-        } else {
-          f.subFolders = [flatFoldersWithSub[i - 1]];
-        }
-        flatFoldersWithSub.push(f);
-      }
-
-      // Test return values of getParentFolders(). The way the flatFolder array
-      // has been created, its entries do not have subFolder properties.
-      for (let i = 0; i < 10; i++) {
-        window.assertDeepEqual(parentsWithSubFalse[i], flatFolders[i]);
-        window.assertDeepEqual(flatFolders[i], parentsWithSubFalse[i]);
-
-        window.assertDeepEqual(parentsWithSubTrue[i], flatFoldersWithSub[i]);
-        window.assertDeepEqual(flatFoldersWithSub[i], parentsWithSubTrue[i]);
-
-        // Default = false
-        window.assertDeepEqual(parentsWithSubDefault[i], flatFolders[i]);
-        window.assertDeepEqual(flatFolders[i], parentsWithSubDefault[i]);
-      }
-
-      // Test getSubFolders().
-
-      const expectedSubsWithSub = [flatFoldersWithSub[8]];
-      const expectedSubsWithoutSub = [flatFolders[8]];
-
-      // Test excluding subfolders (so only the direct subfolder are reported).
-      const subsWithSubFalse = await browser.folders.getSubFolders(root, false);
-      window.assertDeepEqual(expectedSubsWithoutSub, subsWithSubFalse);
-      window.assertDeepEqual(subsWithSubFalse, expectedSubsWithoutSub);
-
-      // Test including all subfolders.
-      const subsWithSubTrue = await browser.folders.getSubFolders(root, true);
-      window.assertDeepEqual(expectedSubsWithSub, subsWithSubTrue);
-      window.assertDeepEqual(subsWithSubTrue, expectedSubsWithSub);
-
-      // Test default subfolder handling of getSubFolders (= true).
-      const subsWithSubDefault = await browser.folders.getSubFolders(root);
-      window.assertDeepEqual(subsWithSubDefault, subsWithSubTrue);
-      window.assertDeepEqual(subsWithSubTrue, subsWithSubDefault);
-
-      browser.test.notifyPass("finished");
-    },
-    "utils.js": await getUtilsJS(),
-  };
-  const extension = ExtensionTestUtils.loadExtension({
-    files,
-    manifest: {
-      manifest_version: 2,
-      background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["accountsRead", "accountsFolders"],
-    },
-  });
-
-  const account = createAccount();
-  // Not all folders appear immediately on IMAP. Creating a new one causes them to appear.
-  await createSubfolder(account.incomingServer.rootFolder, "unused");
-
-  // We should now have three folders. For IMAP accounts they are Inbox,
-  // Trash, and unused. Otherwise they are Trash, Unsent Messages and unused.
-  await extension.startup();
-  extension.sendMessage(account.key);
-  await extension.awaitFinish("finished");
-  await extension.unload();
-});
-
-add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
-  const files = {
-    "background.js": async () => {
-      const [accountId, startTime] = await window.waitForMessage();
-
-      async function queryCheck(queryInfo, expected) {
-        // Do not include root folders in this test per default.
-        if (!queryInfo.hasOwnProperty("isRoot")) {
-          queryInfo.isRoot = false;
-        }
-        const found = await browser.folders.query(queryInfo);
-        window.assertDeepEqual(
-          expected,
-          found.map(f => f.name),
-          `browser.folders.query(${JSON.stringify(
-            queryInfo
-          )}) should return the correct folders`
-        );
-        return found;
-      }
-
-      const account = await browser.accounts.get(accountId);
-      const rootFolder = account.rootFolder;
-
-      let expectedAllFolders;
-      let expectedAccountFolders;
-
-      // Set account specific expected folders and check capabilities.
-      switch (account.type) {
-        case "none":
-          expectedAllFolders = [
-            "Trash",
-            "Outbox",
-            "unused",
-            "Trash",
-            "Outbox",
-            "unused",
-            "MyRoot",
-            "level0",
-            "level1",
-            "level2",
-            "level3",
-            "level4",
-            "level5",
-            "level6",
-            "level7",
-            "level8",
-            "level9",
-            "Trash",
-            "Outbox",
-            "InfoTest",
-            "OtherTest",
-            "Trash",
-            "Outbox",
-            "unused",
-            "folder1",
-            "folder4",
-            "folder4",
-          ];
-          expectedAccountFolders = ["Trash", "Outbox", "InfoTest", "OtherTest"];
-          await queryCheck(
-            { canAddMessages: true, canAddSubfolders: true },
-            expectedAllFolders.filter(f => f != "Outbox")
-          );
-          await queryCheck(
-            { canAddMessages: false },
-            expectedAllFolders.filter(f => f == "Outbox")
-          );
-          await queryCheck(
-            { canAddSubfolders: false },
-            expectedAllFolders.filter(f => f == "Outbox")
-          );
-          await queryCheck(
-            { canBeDeleted: true, canBeRenamed: true },
-            expectedAllFolders.filter(f => !["Outbox", "Trash"].includes(f))
-          );
-          await queryCheck(
-            { canBeDeleted: false, canBeRenamed: false },
-            expectedAllFolders.filter(f => ["Outbox", "Trash"].includes(f))
-          );
-          break;
-
-        case "nntp":
-          expectedAllFolders = [
-            "unused",
-            "MyRoot",
-            "level0",
-            "level1",
-            "level2",
-            "level3",
-            "level4",
-            "level5",
-            "level6",
-            "level7",
-            "level8",
-            "level9",
-            "InfoTest",
-            "OtherTest",
-          ];
-          expectedAccountFolders = ["InfoTest", "OtherTest"];
-          await queryCheck({ canAddMessages: true }, []);
-          await queryCheck({ canAddSubfolders: true }, []);
-          await queryCheck({ canBeDeleted: true }, []);
-          await queryCheck({ canBeRenamed: true }, []);
-          await queryCheck(
+add_task(
+  {
+    // NNTP does not fully support nested folders.
+    skip_if: () => IS_NNTP,
+  },
+  async function test_getParentFolders_getSubFolders() {
+    const files = {
+      "background.js": async () => {
+        const [accountId] = await window.waitForMessage();
+        const account = await browser.accounts.get(accountId);
+        const expectedNestedRootFolder = {
+          id: `${accountId}://NestedRoot`,
+          accountId,
+          name: "NestedRoot",
+          path: "/NestedRoot",
+          specialUse: [],
+          isFavorite: false,
+          isRoot: false,
+          isVirtual: false,
+          subFolders: [
             {
-              canAddMessages: false,
-              canAddSubfolders: false,
-              canBeDeleted: false,
-              canBeRenamed: false,
+              id: `${accountId}://NestedRoot/level0`,
+              accountId,
+              name: "level0",
+              path: "/NestedRoot/level0",
+              specialUse: [],
+              isFavorite: false,
+              isRoot: false,
+              isVirtual: false,
+              subFolders: [
+                {
+                  id: `${accountId}://NestedRoot/level0/level1`,
+                  accountId,
+                  name: "level1",
+                  path: "/NestedRoot/level0/level1",
+                  specialUse: [],
+                  isFavorite: false,
+                  isRoot: false,
+                  isVirtual: false,
+                  subFolders: [
+                    {
+                      id: `${accountId}://NestedRoot/level0/level1/level2`,
+                      accountId,
+                      name: "level2",
+                      path: "/NestedRoot/level0/level1/level2",
+                      specialUse: [],
+                      isFavorite: false,
+                      isRoot: false,
+                      isVirtual: false,
+                      subFolders: [],
+                    },
+                  ],
+                },
+              ],
             },
-            expectedAllFolders
-          );
-          break;
+          ],
+        };
 
-        default:
-          expectedAllFolders = [
-            "Inbox",
-            "Trash",
-            "folder3",
-            "unused",
-            "folder1",
-            "folder4",
-            "folder4",
-            "Inbox",
-            "Trash",
-            "unused",
-            "Inbox",
-            "Trash",
-            "unused",
-            "MyRoot",
-            "level0",
-            "level1",
-            "level2",
-            "level3",
-            "level4",
-            "level5",
-            "level6",
-            "level7",
-            "level8",
-            "level9",
-            "Inbox",
-            "Trash",
-            "InfoTest",
-            "OtherTest",
-          ];
-          expectedAccountFolders = ["Inbox", "Trash", "InfoTest", "OtherTest"];
-          await queryCheck(
-            { canAddMessages: true, canAddSubfolders: true },
-            expectedAllFolders
-          );
-          await queryCheck({ canAddMessages: false }, []);
-          await queryCheck({ canAddSubfolders: false }, []);
-          await queryCheck(
-            { canBeDeleted: true, canBeRenamed: true },
-            expectedAllFolders.filter(f => !["Inbox", "Trash"].includes(f))
-          );
-          await queryCheck(
-            { canBeDeleted: false, canBeRenamed: false },
-            expectedAllFolders.filter(f => ["Inbox", "Trash"].includes(f))
-          );
-      }
-      browser.test.assertEq(
-        expectedAccountFolders.length,
-        account.folders.length
-      );
-
-      const folders = await browser.folders.getSubFolders(account, false);
-      const InfoTestFolder = folders.find(f => f.name == "InfoTest");
-
-      // Verify initial state of the InfoTestFolder.
-      {
+        const nestedRootFolder = account.rootFolder.subFolders.find(
+          f => f.name == "NestedRoot"
+        );
+        const lastChild = Object.assign(
+          {},
+          nestedRootFolder.subFolders[0].subFolders[0].subFolders[0]
+        );
         window.assertDeepEqual(
+          expectedNestedRootFolder,
+          nestedRootFolder,
+          "browser.accounts.get() sould return the correct subfolders",
           {
-            id: `${InfoTestFolder.accountId}:/${InfoTestFolder.path}`,
+            strict: true,
+          }
+        );
+
+        // Test getSubFolders() with includeSubfolders = default.
+
+        {
+          const subFolders2 = await browser.folders.getSubFolders(
+            nestedRootFolder.subFolders[0].subFolders[0]
+          );
+          window.assertDeepEqual(
+            expectedNestedRootFolder.subFolders[0].subFolders[0].subFolders,
+            subFolders2,
+            "browser.folders.getSubFolders(lvl3) should return the correct subfolders",
+            {
+              strict: true,
+            }
+          );
+
+          const subFolders1 = await browser.folders.getSubFolders(
+            nestedRootFolder.subFolders[0]
+          );
+          window.assertDeepEqual(
+            expectedNestedRootFolder.subFolders[0].subFolders,
+            subFolders1,
+            "browser.folders.getSubFolders(lvl2) should return the correct subfolders",
+            {
+              strict: true,
+            }
+          );
+
+          const subFolders0 = await browser.folders.getSubFolders(
+            nestedRootFolder
+          );
+          window.assertDeepEqual(
+            expectedNestedRootFolder.subFolders,
+            subFolders0,
+            "browser.folders.getSubFolders(lvl1) should return the correct subfolders",
+            {
+              strict: true,
+            }
+          );
+        }
+
+        // Test getSubFolders() with includeSubfolders = true.
+
+        {
+          const subFolders2 = await browser.folders.getSubFolders(
+            nestedRootFolder.subFolders[0].subFolders[0],
+            true
+          );
+          window.assertDeepEqual(
+            expectedNestedRootFolder.subFolders[0].subFolders[0].subFolders,
+            subFolders2,
+            "browser.folders.getSubFolders(lvl3, true) should return the correct subfolders",
+            {
+              strict: true,
+            }
+          );
+
+          const subFolders1 = await browser.folders.getSubFolders(
+            nestedRootFolder.subFolders[0],
+            true
+          );
+          window.assertDeepEqual(
+            expectedNestedRootFolder.subFolders[0].subFolders,
+            subFolders1,
+            "browser.folders.getSubFolders(lvl2, true) should return the correct subfolders",
+            {
+              strict: true,
+            }
+          );
+
+          const subFolders0 = await browser.folders.getSubFolders(
+            nestedRootFolder,
+            true
+          );
+          window.assertDeepEqual(
+            expectedNestedRootFolder.subFolders,
+            subFolders0,
+            "browser.folders.getSubFolders(lvl1, true) should return the correct subfolders",
+            {
+              strict: true,
+            }
+          );
+        }
+
+        // Test getSubFolders() with includeSubfolders = false.
+        // In this section we delete the subFolders property from the expected
+        // data.
+
+        {
+          const subFolders2 = await browser.folders.getSubFolders(
+            nestedRootFolder.subFolders[0].subFolders[0],
+            false
+          );
+          delete expectedNestedRootFolder.subFolders[0].subFolders[0]
+            .subFolders[0].subFolders;
+          window.assertDeepEqual(
+            expectedNestedRootFolder.subFolders[0].subFolders[0].subFolders,
+            subFolders2,
+            "browser.folders.getSubFolders(lvl3, false) should return the correct subfolders",
+            {
+              strict: true,
+            }
+          );
+
+          const subFolders1 = await browser.folders.getSubFolders(
+            nestedRootFolder.subFolders[0],
+            false
+          );
+          delete expectedNestedRootFolder.subFolders[0].subFolders[0]
+            .subFolders;
+          window.assertDeepEqual(
+            expectedNestedRootFolder.subFolders[0].subFolders,
+            subFolders1,
+            "browser.folders.getSubFolders(lvl2, false) should return the correct subfolders",
+            {
+              strict: true,
+            }
+          );
+
+          const subFolders0 = await browser.folders.getSubFolders(
+            nestedRootFolder,
+            false
+          );
+          delete expectedNestedRootFolder.subFolders[0].subFolders;
+          window.assertDeepEqual(
+            expectedNestedRootFolder.subFolders,
+            subFolders0,
+            "browser.folders.getSubFolders(lvl1, false) should return the correct subfolders",
+            {
+              strict: true,
+            }
+          );
+        }
+
+        // Test getParentFolders().
+
+        const expectedParentFolders = [
+          {
+            id: `${accountId}://NestedRoot/level0/level1`,
+            accountId,
+            name: "level1",
+            path: "/NestedRoot/level0/level1",
             specialUse: [],
             isFavorite: false,
+            isRoot: false,
+            isVirtual: false,
           },
-          InfoTestFolder,
-          "Returned MailFolder should be correct."
-        );
-
-        const info = await browser.folders.getFolderInfo(InfoTestFolder);
-        window.assertDeepEqual(
           {
-            totalMessageCount: 12,
-            unreadMessageCount: 12,
-            newMessageCount: 12,
-            favorite: false, // Deprecated in MV3.
+            id: `${accountId}://NestedRoot/level0`,
+            accountId,
+            name: "level0",
+            path: "/NestedRoot/level0",
+            specialUse: [],
+            isFavorite: false,
+            isRoot: false,
+            isVirtual: false,
           },
-          info,
-          "Returned MailFolderInfo should be correct."
-        );
+          {
+            id: `${accountId}://NestedRoot`,
+            accountId,
+            name: "NestedRoot",
+            path: "/NestedRoot",
+            specialUse: [],
+            isFavorite: false,
+            isRoot: false,
+            isVirtual: false,
+          },
+        ];
 
-        const capabilities = await browser.folders.getFolderCapabilities(
-          InfoTestFolder
+        // Use default include option which is not to include subfolders.
+        const parentsWithDefSubs = await browser.folders.getParentFolders(
+          lastChild
         );
         window.assertDeepEqual(
+          expectedParentFolders,
+          parentsWithDefSubs,
+          "browser.folders.getParentFolders(lastChild) should return the correct subfolders",
           {
-            canAddMessages: account.type != "nntp",
-            canAddSubfolders: account.type != "nntp",
-            canBeDeleted: account.type != "nntp",
-            canBeRenamed: account.type != "nntp",
-            canDeleteMessages: true,
-          },
-          capabilities
+            strict: true,
+          }
         );
 
-        // Verify lastUsed.
-        const lastUsedSeconds = Math.floor(info.lastUsed.getTime() / 1000);
-        const startTimeSeconds = Math.floor(startTime.getTime() / 1000);
-        browser.test.assertTrue(
-          lastUsedSeconds >= startTimeSeconds,
-          `Should be correct: MailFolder.lastUsed (${lastUsedSeconds}) >= startTime (${startTimeSeconds})`
+        // Request to not include subfolders.
+        const parentsWithoutSubs = await browser.folders.getParentFolders(
+          lastChild,
+          false
         );
-      }
-
-      // Check query results without favorite folder and all messages unread & new.
-
-      // Folders.
-      const f1 = await queryCheck({ isRoot: false }, expectedAllFolders);
-      const f2 = await queryCheck(
-        { isRoot: false, folderId: rootFolder.id },
-        expectedAccountFolders
-      );
-      const f3 = await queryCheck({ isRoot: true, folderId: rootFolder.id }, [
-        "Root",
-      ]);
-      for (const f of f1) {
-        browser.test.assertEq(
-          false,
-          f.isRoot,
-          "The isRoot property should be false"
-        );
-      }
-      for (const f of f2) {
-        browser.test.assertEq(
-          false,
-          f.isRoot,
-          "The isRoot property should be false"
-        );
-      }
-      for (const f of f3) {
-        browser.test.assertEq(
-          true,
-          f.isRoot,
-          "The isRoot property should be true"
-        );
-      }
-
-      // Recent.
-      await queryCheck(
-        {
-          folderId: rootFolder.id,
-          recent: true,
-          limit: browser.folders.DEFAULT_MOST_RECENT_LIMIT,
-        },
-        ["OtherTest"]
-      );
-      await queryCheck({ folderId: rootFolder.id, recent: true }, [
-        "InfoTest",
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { folderId: rootFolder.id, recent: false },
-        expectedAccountFolders.filter(
-          f => !["InfoTest", "OtherTest"].includes(f)
-        )
-      );
-
-      // Name.
-      await queryCheck({ name: "level0" }, ["level0"]);
-      await queryCheck({ name: { regexp: "^Level\\d$", flags: "i" } }, [
-        "level0",
-        "level1",
-        "level2",
-        "level3",
-        "level4",
-        "level5",
-        "level6",
-        "level7",
-        "level8",
-        "level9",
-      ]);
-      await queryCheck({ name: { regexp: "^level\\d$" } }, [
-        "level0",
-        "level1",
-        "level2",
-        "level3",
-        "level4",
-        "level5",
-        "level6",
-        "level7",
-        "level8",
-        "level9",
-      ]);
-
-      // Capabilities.
-      await queryCheck({ canDeleteMessages: false }, []);
-      await queryCheck({ canDeleteMessages: true }, expectedAllFolders);
-
-      // Favorite.
-      await queryCheck({ folderId: rootFolder.id, isFavorite: true }, []);
-      await queryCheck(
-        { folderId: rootFolder.id, isFavorite: false },
-        expectedAccountFolders
-      );
-
-      // SubFolders.
-      await queryCheck(
-        { name: { regexp: "^Level\\d$", flags: "i" }, hasSubFolders: true },
-        [
-          "level0",
-          "level1",
-          "level2",
-          "level3",
-          "level4",
-          "level5",
-          "level6",
-          "level7",
-          "level8",
-        ]
-      );
-      await queryCheck(
-        {
-          name: { regexp: "^Level\\d$", flags: "i" },
-          hasSubFolders: { min: 1 },
-        },
-        [
-          "level0",
-          "level1",
-          "level2",
-          "level3",
-          "level4",
-          "level5",
-          "level6",
-          "level7",
-          "level8",
-        ]
-      );
-      await queryCheck(
-        {
-          name: { regexp: "^Level\\d$", flags: "i" },
-          hasSubFolders: { min: 2 },
-        },
-        []
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasSubFolders: false },
-        expectedAccountFolders
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasSubFolders: { max: 2 } },
-        expectedAccountFolders
-      );
-
-      // Messages.
-      await queryCheck({ folderId: rootFolder.id, hasMessages: true }, [
-        "InfoTest",
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { folderId: rootFolder.id, hasMessages: false },
-        expectedAccountFolders.filter(
-          f => !["InfoTest", "OtherTest"].includes(f)
-        )
-      );
-      await queryCheck({ folderId: rootFolder.id, hasUnreadMessages: true }, [
-        "InfoTest",
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { folderId: rootFolder.id, hasUnreadMessages: false },
-        expectedAccountFolders.filter(
-          f => !["InfoTest", "OtherTest"].includes(f)
-        )
-      );
-      await queryCheck({ folderId: rootFolder.id, hasNewMessages: true }, [
-        "InfoTest",
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { folderId: rootFolder.id, hasNewMessages: false },
-        expectedAccountFolders.filter(
-          f => !["InfoTest", "OtherTest"].includes(f)
-        )
-      );
-      await queryCheck({ folderId: rootFolder.id, hasMessages: { min: 12 } }, [
-        "InfoTest",
-      ]);
-      await queryCheck(
-        { folderId: rootFolder.id, hasMessages: { min: 13 } },
-        []
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasUnreadMessages: { min: 12 } },
-        ["InfoTest"]
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasUnreadMessages: { min: 13 } },
-        []
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasNewMessages: { min: 12 } },
-        ["InfoTest"]
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasNewMessages: { min: 13 } },
-        []
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasNewMessages: { min: 1, max: 2 } },
-        ["OtherTest"]
-      );
-
-      // Special use.
-      await queryCheck(
-        { folderId: rootFolder.id, type: "inbox" },
-        expectedAccountFolders.filter(f => f == "Inbox")
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, specialUse: ["inbox"] },
-        expectedAccountFolders.filter(f => f == "Inbox")
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, specialUse: ["inbox", "trash"] },
-        []
-      );
-      // NNTP does not have a trash folder which is set to be a drafts folder
-      // here, so skip it.
-      if (account.type != "nntp") {
-        const folderUpdatedPromise = new Promise(resolve => {
-          const listener = (oldFolder, newFolder) => {
-            browser.folders.onUpdated.removeListener(listener);
-            resolve({ oldFolder, newFolder });
-          };
-          browser.folders.onUpdated.addListener(listener);
-        });
-
-        await window.sendMessage("setAsDraft");
-        await folderUpdatedPromise;
-
-        await queryCheck(
-          { folderId: rootFolder.id, specialUse: ["drafts", "trash"] },
-          expectedAccountFolders.filter(f => f == "Trash")
-        );
-      }
-
-      // Clear new messages and check FolderInfo and onFolderInfoChanged event.
-      {
-        const onFolderInfoChangedPromise = window.waitForEvent(
-          "folders.onFolderInfoChanged"
-        );
-        await window.sendMessage("clearNewMessages");
-        const [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
         window.assertDeepEqual(
+          expectedParentFolders,
+          parentsWithoutSubs,
+          "browser.folders.getParentFolders(lastChild, false) should return the correct subfolders",
           {
-            newMessageCount: 0,
-          },
-          mailFolderInfo
+            strict: true,
+          }
         );
-        browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
 
-        const info = await browser.folders.getFolderInfo(InfoTestFolder);
+        // Request to include subfolders. Modify expected array to include subfolders.
+        expectedParentFolders[0].subFolders = [lastChild];
+        expectedParentFolders[1].subFolders = [expectedParentFolders[0]];
+        expectedParentFolders[2].subFolders = [expectedParentFolders[1]];
+
+        const parentsWithSubs = await browser.folders.getParentFolders(
+          lastChild,
+          true
+        );
         window.assertDeepEqual(
+          expectedParentFolders,
+          parentsWithSubs,
+          "browser.folders.getParentFolders(lastChild, true) should return the correct subfolders",
           {
-            totalMessageCount: 12,
-            unreadMessageCount: 12,
-            newMessageCount: 0,
-            favorite: false, // Deprecated in MV3.
-          },
-          info
+            strict: true,
+          }
         );
-      }
 
-      // Check query results with all messages still unread but no longer new in
-      // InfoTest.
+        browser.test.assertEq(3, parentsWithDefSubs.length, "Correct depth.");
+        browser.test.assertEq(3, parentsWithoutSubs.length, "Correct depth.");
+        browser.test.assertEq(3, parentsWithSubs.length, "Correct depth.");
 
-      await queryCheck({ folderId: rootFolder.id, hasUnreadMessages: true }, [
-        "InfoTest",
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { folderId: rootFolder.id, hasUnreadMessages: false },
-        expectedAccountFolders.filter(
-          f => !["InfoTest", "OtherTest"].includes(f)
-        )
-      );
-      await queryCheck({ folderId: rootFolder.id, hasNewMessages: true }, [
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { folderId: rootFolder.id, hasNewMessages: false },
-        expectedAccountFolders.filter(f => !["OtherTest"].includes(f))
-      );
-      await queryCheck(
-        {
-          folderId: rootFolder.id,
-          hasUnreadMessages: true,
-          hasNewMessages: false,
-        },
-        ["InfoTest"]
-      );
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    const extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        manifest_version: 2,
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "accountsFolders"],
+      },
+    });
 
-      await queryCheck(
-        { folderId: rootFolder.id, hasUnreadMessages: { min: 12 } },
-        ["InfoTest"]
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasUnreadMessages: { min: 13 } },
-        []
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasNewMessages: { min: 12 } },
-        []
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasNewMessages: { min: 13 } },
-        []
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasNewMessages: { min: 1, max: 2 } },
-        ["OtherTest"]
-      );
+    const account = createAccount();
 
-      // Flip isFavorite to true and mark all messages as read. Check FolderInfo
-      // and onFolderInfoChanged event.
-      {
-        const onFolderInfoChangedPromise = window.waitForEvent(
-          "folders.onFolderInfoChanged"
-        );
-        const onUpdatedPromise = window.waitForEvent("folders.onUpdated");
-        await browser.folders.update(InfoTestFolder, {
-          isFavorite: true,
-        });
-        await browser.folders.markAsRead(InfoTestFolder);
-
-        const [originalFolder, updatedFolder] = await onUpdatedPromise;
-        browser.test.assertEq(false, originalFolder.isFavorite);
-        browser.test.assertEq(true, updatedFolder.isFavorite);
-        browser.test.assertEq(InfoTestFolder.path, originalFolder.path);
-
-        const [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
-        window.assertDeepEqual(
-          {
-            unreadMessageCount: 0,
-            favorite: true, // Deprecated in MV3.
-          },
-          mailFolderInfo
-        );
-        browser.test.assertEq(true, mailFolder.isFavorite);
-        browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
-
-        const info = await browser.folders.getFolderInfo(InfoTestFolder);
-        window.assertDeepEqual(
-          {
-            totalMessageCount: 12,
-            unreadMessageCount: 0,
-            newMessageCount: 0,
-            favorite: true, // Deprecated in MV3.
-          },
-          info
-        );
-      }
-
-      // Check query results with favorite folder and all messages read in InfoTest.
-
-      // Favorite.
-      await queryCheck(
-        { folderId: rootFolder.id, isFavorite: false },
-        expectedAccountFolders.filter(f => f != "InfoTest")
-      );
-      await queryCheck({ folderId: rootFolder.id, isFavorite: true }, [
-        "InfoTest",
-      ]);
-
-      // Messages.
-      await queryCheck({ folderId: rootFolder.id, hasMessages: true }, [
-        "InfoTest",
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { folderId: rootFolder.id, hasMessages: false },
-        expectedAccountFolders.filter(
-          f => !["InfoTest", "OtherTest"].includes(f)
-        )
-      );
-      await queryCheck({ folderId: rootFolder.id, hasUnreadMessages: true }, [
-        "OtherTest",
-      ]);
-      await queryCheck(
-        { folderId: rootFolder.id, hasUnreadMessages: false },
-        expectedAccountFolders.filter(f => !["OtherTest"].includes(f))
-      );
-
-      await queryCheck(
-        { folderId: rootFolder.id, hasUnreadMessages: { min: 12 } },
-        []
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasUnreadMessages: { min: 13 } },
-        []
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasNewMessages: { min: 12 } },
-        []
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasNewMessages: { min: 13 } },
-        []
-      );
-      await queryCheck(
-        { folderId: rootFolder.id, hasNewMessages: { min: 1, max: 2 } },
-        ["OtherTest"]
-      );
-
-      // Test flipping isFavorite back to false.
-      {
-        const onFolderInfoChangedPromise = window.waitForEvent(
-          "folders.onFolderInfoChanged"
-        );
-        await browser.folders.update(InfoTestFolder, { isFavorite: false });
-        const [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
-        window.assertDeepEqual({ favorite: false }, mailFolderInfo); // Deprecated in MV3
-        browser.test.assertEq(false, mailFolder.isFavorite);
-        browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
-      }
-
-      // Test setting some messages back to unread.
-      {
-        const onFolderInfoChangedPromise = window.waitForEvent(
-          "folders.onFolderInfoChanged"
-        );
-        await window.sendMessage("markSomeAsUnread", 5);
-        const [mailFolder, mailFolderInfo] = await onFolderInfoChangedPromise;
-        window.assertDeepEqual({ unreadMessageCount: 5 }, mailFolderInfo);
-        browser.test.assertEq(InfoTestFolder.path, mailFolder.path);
-      }
-
-      browser.test.notifyPass("finished");
-    },
-    "utils.js": await getUtilsJS(),
-  };
-  const extension = ExtensionTestUtils.loadExtension({
-    files,
-    manifest: {
-      manifest_version: 2,
-      background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["accountsRead", "accountsFolders", "messagesDelete"],
-    },
-  });
-
-  const startTime = new Date();
-  const account = createAccount();
-  // Not all folders appear immediately on IMAP. Creating a new one causes them
-  // to appear.
-  const InfoTestFolder = await createSubfolder(
-    account.incomingServer.rootFolder,
-    "InfoTest"
-  );
-  await createMessages(InfoTestFolder, 12);
-
-  const OtherTestFolder = await createSubfolder(
-    account.incomingServer.rootFolder,
-    "OtherTest"
-  );
-  await createMessages(OtherTestFolder, 1);
-
-  extension.onMessage("markSomeAsUnread", count => {
-    const messages = InfoTestFolder.messages;
-    while (messages.hasMoreElements() && count > 0) {
-      const msg = messages.getNext();
-      msg.markRead(false);
-      count--;
-    }
-    extension.sendMessage();
-  });
-
-  extension.onMessage("clearNewMessages", count => {
-    InfoTestFolder.clearNewMessages();
-    extension.sendMessage();
-  });
-
-  extension.onMessage("setAsDraft", () => {
-    const trash = account.incomingServer.rootFolder.subFolders.find(
-      f => f.prettyName == "Trash"
+    // Create a test folder with multiple levels of subFolders.
+    const nestedRoot = await createSubfolder(
+      account.incomingServer.rootFolder,
+      "NestedRoot"
     );
-    trash.setFlag(Ci.nsMsgFolderFlags.Drafts);
-    extension.sendMessage();
-  });
+    const nestedFolders = [nestedRoot];
+    for (let i = 0; i < 3; i++) {
+      nestedFolders.push(await createSubfolder(nestedFolders[i], `level${i}`));
+    }
 
-  // Set max_recent to 1 to be able to test the difference between most recent
-  // and recent.
-  Services.prefs.setIntPref("mail.folder_widget.max_recent", 1);
+    // We should now have three folders.For IMAP accounts they are Inbox, Trash,
+    // and NestedRoot. Otherwise they are Trash, Unsent Messages and NestedRoot.
 
-  await extension.startup();
-  extension.sendMessage(account.key, startTime);
-  await extension.awaitFinish("finished");
-  await extension.unload();
-
-  Services.prefs.clearUserPref("mail.folder_widget.max_recent");
-});
+    await extension.startup();
+    extension.sendMessage(account.key);
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
 
 add_task(
   {

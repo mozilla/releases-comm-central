@@ -643,201 +643,209 @@ add_task(
   }
 );
 
-add_task(async function test_folders_get_getParentFolders_getSubFolders() {
-  const files = {
-    "background.js": async () => {
-      const [accountId] = await window.waitForMessage();
-      const account = await browser.accounts.get(accountId);
-      const rootFolder = account.rootFolder;
+add_task(
+  {
+    // NNTP does not fully support nested folders.
+    skip_if: () => IS_NNTP,
+  },
+  async function test_folders_get_getParentFolders_getSubFolders() {
+    const files = {
+      "background.js": async () => {
+        const [accountId] = await window.waitForMessage();
+        const account = await browser.accounts.get(accountId);
+        const rootFolder = account.rootFolder;
 
-      // Create a new root folder in the account.
-      const root = await browser.folders.create(rootFolder.id, "level0");
+        // Create a new root folder in the account.
+        const root = await browser.folders.create(rootFolder.id, "level0");
 
-      async function createSubFolder(folderId, name) {
-        const subFolder = await browser.folders.create(folderId, name);
-        const baseFolder = await browser.folders.get(folderId);
-        const basePath = baseFolder.path;
-        browser.test.assertEq(accountId, subFolder.accountId);
-        browser.test.assertEq(name, subFolder.name);
-        browser.test.assertEq(`${basePath}/${name}`, subFolder.path);
-        return subFolder;
-      }
+        async function createSubFolder(folderId, name) {
+          const subFolder = await browser.folders.create(folderId, name);
+          const baseFolder = await browser.folders.get(folderId);
+          const basePath = baseFolder.path;
+          browser.test.assertEq(accountId, subFolder.accountId);
+          browser.test.assertEq(name, subFolder.name);
+          browser.test.assertEq(`${basePath}/${name}`, subFolder.path);
+          return subFolder;
+        }
 
-      // Create nested folders and store them in a flat array.
-      const flatFolders = [root];
-      for (let i = 1; i < 10; i++) {
-        flatFolders.push(
-          await createSubFolder(flatFolders[i - 1].id, `level${i}`)
-        );
-      }
+        // Create nested folders and store them in a flat array.
+        const flatFolders = [root];
+        for (let i = 1; i < 10; i++) {
+          flatFolders.push(
+            await createSubFolder(flatFolders[i - 1].id, `level${i}`)
+          );
+        }
 
-      // Tests how many levels of subfolders are returned and if they are correct.
-      // folders.get() returns all subfolder levels (includeSubFolders = true),
-      // or none (includeSubFolders = false). folders.getSubFolders() returns all
-      // subfolder levels (includeSubFolders = true) or just 1 level, all direct
-      // subfolders (includeSubFolders = false).
-      async function testSubFolders(subFolders, expected) {
-        let expectedSubFolders = expected.subFolders;
-        let currentSubs = subFolders;
+        // Tests how many levels of subfolders are returned and if they are correct.
+        // folders.get() returns all subfolder levels (includeSubFolders = true),
+        // or none (includeSubFolders = false). folders.getSubFolders() returns all
+        // subfolder levels (includeSubFolders = true) or just 1 level, all direct
+        // subfolders (includeSubFolders = false).
+        async function testSubFolders(subFolders, expected) {
+          let expectedSubFolders = expected.subFolders;
+          let currentSubs = subFolders;
 
-        // If subfolders are present, the folder has a nested subFolder structure
-        // fom leveli ... level9.
-        for (let i = expected.depth + 1; i < 10; i++) {
-          if (!expectedSubFolders) {
-            break;
+          // If subfolders are present, the folder has a nested subFolder structure
+          // fom leveli ... level9.
+          for (let i = expected.depth + 1; i < 10; i++) {
+            if (!expectedSubFolders) {
+              break;
+            }
+
+            browser.test.assertEq(
+              currentSubs.length,
+              1,
+              "Should have found one subfolder"
+            );
+            browser.test.assertEq(expected.accountId, currentSubs[0].accountId);
+            browser.test.assertEq(`level${i}`, currentSubs[0].name);
+            currentSubs = currentSubs[0].subFolders;
+
+            if (
+              typeof expectedSubFolders != "boolean" &&
+              expectedSubFolders > 0
+            ) {
+              expectedSubFolders--;
+            }
           }
 
-          browser.test.assertEq(
-            currentSubs.length,
-            1,
-            "Should have found one subfolder"
-          );
-          browser.test.assertEq(expected.accountId, currentSubs[0].accountId);
-          browser.test.assertEq(`level${i}`, currentSubs[0].name);
-          currentSubs = currentSubs[0].subFolders;
-
-          if (
-            typeof expectedSubFolders != "boolean" &&
-            expectedSubFolders > 0
-          ) {
-            expectedSubFolders--;
+          if (expectedSubFolders) {
+            // The last folder has no subFolder.
+            browser.test.assertEq(
+              currentSubs.length,
+              0,
+              "Should have found no subfolder"
+            );
+          } else {
+            browser.test.assertFalse(
+              currentSubs,
+              "The subFolders property should be falsy"
+            );
           }
         }
 
-        if (expectedSubFolders) {
-          // The last folder has no subFolder.
+        async function testFolder(folder, expected) {
+          browser.test.assertEq(expected.accountId, folder.accountId);
+          browser.test.assertEq(`level${expected.depth}`, folder.name);
           browser.test.assertEq(
-            currentSubs.length,
-            0,
-            "Should have found no subfolder"
+            `${expected.basePath}/${folder.name}`,
+            folder.path
           );
-        } else {
-          browser.test.assertFalse(
-            currentSubs,
-            "The subFolders property should be falsy"
+
+          // Check subfolders.
+          testSubFolders(folder.subFolders, expected);
+
+          // Check parent folders.
+          const parents = await browser.folders.getParentFolders(folder.id);
+          browser.test.assertEq(
+            expected.depth + 1,
+            parents.length,
+            "Returned parents should have the correct size."
           );
+
+          let depth = expected.depth;
+          for (const parent of parents) {
+            depth--;
+            browser.test.assertEq(expected.accountId, parent.accountId);
+
+            const expectedName = depth < 0 ? "Root" : `level${depth}`;
+            browser.test.assertEq(expectedName, parent.name);
+            browser.test.assertFalse(
+              parent.subFolders,
+              "The subFolders property should be always falsy in MV3"
+            );
+          }
         }
-      }
 
-      async function testFolder(folder, expected) {
-        browser.test.assertEq(expected.accountId, folder.accountId);
-        browser.test.assertEq(`level${expected.depth}`, folder.name);
-        browser.test.assertEq(
-          `${expected.basePath}/${folder.name}`,
-          folder.path
-        );
-
-        // Check subfolders.
-        testSubFolders(folder.subFolders, expected);
-
-        // Check parent folders.
-        const parents = await browser.folders.getParentFolders(folder.id);
-        browser.test.assertEq(
-          expected.depth + 1,
-          parents.length,
-          "Returned parents should have the correct size."
-        );
-
-        let depth = expected.depth;
-        for (const parent of parents) {
-          depth--;
-          browser.test.assertEq(expected.accountId, parent.accountId);
-
-          const expectedName = depth < 0 ? "Root" : `level${depth}`;
-          browser.test.assertEq(expectedName, parent.name);
-          browser.test.assertFalse(
-            parent.subFolders,
-            "The subFolders property should be always falsy in MV3"
+        // Check that we get the subfolders only if requested.
+        let basePath = "";
+        for (let depth = 0; depth < 10; depth++) {
+          const folderTrue = await browser.folders.get(
+            flatFolders[depth].id,
+            true
           );
+          const folderFalse = await browser.folders.get(
+            flatFolders[depth].id,
+            false
+          );
+          const folderDefault = await browser.folders.get(
+            flatFolders[depth].id
+          );
+          testFolder(folderTrue, {
+            accountId,
+            depth,
+            basePath,
+            subFolders: true,
+          });
+          testFolder(folderFalse, {
+            accountId,
+            depth,
+            basePath,
+            subFolders: false,
+          });
+          testFolder(folderDefault, {
+            accountId,
+            depth,
+            basePath,
+            subFolders: true,
+          });
+
+          const subsTrue = await browser.folders.getSubFolders(
+            flatFolders[depth].id,
+            true
+          );
+          const subsFalse = await browser.folders.getSubFolders(
+            flatFolders[depth].id,
+            false
+          );
+          const subsDefault = await browser.folders.getSubFolders(
+            flatFolders[depth].id
+          );
+
+          testSubFolders(subsDefault, {
+            accountId,
+            depth,
+            basePath,
+            subFolders: true,
+          });
+          testSubFolders(subsFalse, {
+            accountId,
+            depth,
+            basePath,
+            subFolders: 1, // Only the direct subFolder level is returned.
+          });
+          testSubFolders(subsTrue, {
+            accountId,
+            depth,
+            basePath,
+            subFolders: true,
+          });
+
+          basePath = folderTrue.path;
         }
-      }
 
-      // Check that we get the subfolders only if requested.
-      let basePath = "";
-      for (let depth = 0; depth < 10; depth++) {
-        const folderTrue = await browser.folders.get(
-          flatFolders[depth].id,
-          true
-        );
-        const folderFalse = await browser.folders.get(
-          flatFolders[depth].id,
-          false
-        );
-        const folderDefault = await browser.folders.get(flatFolders[depth].id);
-        testFolder(folderTrue, {
-          accountId,
-          depth,
-          basePath,
-          subFolders: true,
-        });
-        testFolder(folderFalse, {
-          accountId,
-          depth,
-          basePath,
-          subFolders: false,
-        });
-        testFolder(folderDefault, {
-          accountId,
-          depth,
-          basePath,
-          subFolders: true,
-        });
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    const extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        manifest_version: 3,
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "accountsFolders"],
+      },
+    });
 
-        const subsTrue = await browser.folders.getSubFolders(
-          flatFolders[depth].id,
-          true
-        );
-        const subsFalse = await browser.folders.getSubFolders(
-          flatFolders[depth].id,
-          false
-        );
-        const subsDefault = await browser.folders.getSubFolders(
-          flatFolders[depth].id
-        );
+    const account = createAccount();
+    // Not all folders appear immediately on IMAP. Creating a new one causes them to appear.
+    await createSubfolder(account.incomingServer.rootFolder, "unused");
 
-        testSubFolders(subsDefault, {
-          accountId,
-          depth,
-          basePath,
-          subFolders: true,
-        });
-        testSubFolders(subsFalse, {
-          accountId,
-          depth,
-          basePath,
-          subFolders: 1, // Only the direct subFolder level is returned.
-        });
-        testSubFolders(subsTrue, {
-          accountId,
-          depth,
-          basePath,
-          subFolders: true,
-        });
-
-        basePath = folderTrue.path;
-      }
-
-      browser.test.notifyPass("finished");
-    },
-    "utils.js": await getUtilsJS(),
-  };
-  const extension = ExtensionTestUtils.loadExtension({
-    files,
-    manifest: {
-      manifest_version: 3,
-      background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["accountsRead", "accountsFolders"],
-    },
-  });
-
-  const account = createAccount();
-  // Not all folders appear immediately on IMAP. Creating a new one causes them to appear.
-  await createSubfolder(account.incomingServer.rootFolder, "unused");
-
-  // We should now have three folders. For IMAP accounts they are Inbox,
-  // Trash, and unused. Otherwise they are Trash, Unsent Messages and unused.
-  await extension.startup();
-  extension.sendMessage(account.key);
-  await extension.awaitFinish("finished");
-  await extension.unload();
-});
+    // We should now have three folders. For IMAP accounts they are Inbox,
+    // Trash, and unused. Otherwise they are Trash, Unsent Messages and unused.
+    await extension.startup();
+    extension.sendMessage(account.key);
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
