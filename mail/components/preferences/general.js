@@ -435,12 +435,11 @@ var gGeneralPane = {
       }
       // Initialize Application section.
 
-      // Listen for window unload so we can remove our preference observers.
-      window.addEventListener("unload", this);
-
       Services.obs.addObserver(this, AUTO_UPDATE_CHANGED_TOPIC);
-      Services.prefs.addObserver("mailnews.tags.", this);
     }
+    // Listen for window unload so we can remove our preference observers.
+    window.addEventListener("unload", this);
+    Services.prefs.addObserver("mailnews.tags.", this);
 
     Preferences.addSyncFromPrefListener(
       document.getElementById("allowSmartSize"),
