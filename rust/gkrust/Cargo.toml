@@ -88,6 +88,8 @@ static_prefs = { path = "../../../modules/libpref/init/static_prefs" }
 storage = { path = "../../../storage/rust" }
 unic-langid = { version = "0.9", features = ['likelysubtags'] }
 unic-langid-ffi = { path = "../../../intl/locale/rust/unic-langid-ffi" }
+unicode-bidi = { version = "0.3.15" }
+unicode-bidi-ffi = { path = "../../../intl/bidi/rust/unicode-bidi-ffi" }
 uniffi = { version = "0.25.2" }
 uniffi-example-arithmetic = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "afb29ebdc1d9edf15021b1c5332fc9f285bbe13b", optional = true }
 uniffi-example-custom-types = { path = "../../../toolkit/components/uniffi-example-custom-types", optional = true }

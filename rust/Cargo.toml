@@ -23,6 +23,7 @@ mozbuild = { path = "../../build/rust/mozbuild" }
 windows-targets = { path = "../../build/rust/windows-targets" }
 windows-targets_0_48 = { package = "windows-targets", path = "../../build/rust/windows-targets-0.48" }
 windows-sys = { path = "../../build/rust/windows-sys" }
+windows = { path = "../../build/rust/windows" }
 oslog = { path = "../../build/rust/oslog" }
 terminal_size = { path = "../../build/rust/terminal_size" }
 bitflags = { path = "../../build/rust/bitflags" }
