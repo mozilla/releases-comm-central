@@ -60,6 +60,8 @@ win32/opt:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win32-libotr
+        fetch:
+            - upx-3.95-win
 
 win32-shippable/opt:
     description: "Win32 Opt Shippable"
