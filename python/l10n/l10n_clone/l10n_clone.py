@@ -63,11 +63,11 @@ def get_strings_repos(locale, destination):
         l10n_central.mkdir()
         central_path = l10n_central / locale
         central_revision = get_revision("browser", locale)
-        update_mercurial_repo("hg", central_url, central_path, revision=central_revision)
+        update_mercurial_repo(central_url, central_path, revision=central_revision)
 
         comm_l10n = Path(tmproot) / "comm-l10n"
         comm_revision = get_revision("mail", locale)
-        update_mercurial_repo("hg", COMM_L10N, comm_l10n, revision=comm_revision)
+        update_mercurial_repo(COMM_L10N, comm_l10n, revision=comm_revision)
 
         file_copier = FileCopier()
 

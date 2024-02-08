@@ -129,9 +129,9 @@ def publish_strings(
         command_context.log(
             logging.INFO, "prep", {}, f"Updating comm-strings-quarantine at {quarantine_path}."
         )
-        update_mercurial_repo("hg", COMM_STRINGS_QUARANTINE, quarantine_path)
+        update_mercurial_repo(COMM_STRINGS_QUARANTINE, quarantine_path)
         command_context.log(logging.INFO, "prep", {}, f"Updating comm-l10n at {comm_l10n_path}.")
-        update_mercurial_repo("hg", COMM_L10N, comm_l10n_path)
+        update_mercurial_repo(COMM_L10N, comm_l10n_path)
 
     local_quarantine = HgL10nRepository(
         quarantine_path, COMM_STRINGS_QUARANTINE, command_context.log
