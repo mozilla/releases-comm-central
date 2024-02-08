@@ -222,7 +222,7 @@ function displayMessage(uri, viewWrapper) {
   const browserChanged = MailE10SUtils.changeRemoteness(browser, null);
   // The message pane browser should inherit `docShellIsActive` from the
   // about:message browser, but changing remoteness causes that to not happen.
-  browser.docShellIsActive = !document.hidden;
+  // browser.docShellIsActive = !document.hidden;
   browser.docShell.allowAuth = false;
   browser.docShell.allowDNSPrefetch = false;
 

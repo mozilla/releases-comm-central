@@ -876,7 +876,7 @@ ChromeUtils.defineESModuleGetters(this, {
           this.rememberLastActiveElement(oldTab);
           oldPanel.removeAttribute("selected");
           if (oldTab.chromeBrowser) {
-            oldTab.chromeBrowser.docShellIsActive = false;
+            // oldTab.chromeBrowser.docShellIsActive = false;
           }
         }
 
@@ -884,7 +884,7 @@ ChromeUtils.defineESModuleGetters(this, {
         const tabOpenFunc = tab.mode.openTab || tab.mode.tabType.openTab;
         tabOpenFunc.apply(tab.mode.tabType, [tab, aArgs]);
         if (tab.chromeBrowser) {
-          tab.chromeBrowser.docShellIsActive = !background;
+          // tab.chromeBrowser.docShellIsActive = !background;
         }
 
         if (!t.linkedPanel) {
@@ -1609,7 +1609,7 @@ ChromeUtils.defineESModuleGetters(this, {
           this.rememberLastActiveElement(oldTab);
           oldPanel.removeAttribute("selected");
           if (oldTab.chromeBrowser) {
-            oldTab.chromeBrowser.docShellIsActive = false;
+            // oldTab.chromeBrowser.docShellIsActive = false;
           }
         }
 
@@ -1617,7 +1617,7 @@ ChromeUtils.defineESModuleGetters(this, {
         const showTabFunc = tab.mode.showTab || tab.mode.tabType.showTab;
         showTabFunc.call(tab.mode.tabType, tab);
         if (tab.chromeBrowser) {
-          tab.chromeBrowser.docShellIsActive = true;
+          // tab.chromeBrowser.docShellIsActive = true;
         }
 
         const browser = this.getBrowserForTab(tab);
