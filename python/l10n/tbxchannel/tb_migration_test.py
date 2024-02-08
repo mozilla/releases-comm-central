@@ -38,7 +38,7 @@ def prepare_object_dir(cmd):
     if not os.path.exists(obj_dir):
         os.makedirs(obj_dir)
     state_dir = get_state_dir()
-    update_mercurial_repo("COMM_L10N, mozpath.join(state_dir, "comm-strings"))
+    update_mercurial_repo(COMM_L10N, mozpath.join(state_dir, "comm-strings"))
     return obj_dir
 
 
