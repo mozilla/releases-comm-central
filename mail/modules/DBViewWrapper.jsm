@@ -1233,6 +1233,7 @@ DBViewWrapper.prototype = {
       this.listener.onMessagesLoaded(true);
       return;
     }
+    this._enteredFolder = true;
 
     this.displayedFolder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
 
@@ -1241,8 +1242,6 @@ DBViewWrapper.prototype = {
     this._applyViewChanges();
 
     this.listener.onDisplayingFolder();
-
-    this._enteredFolder = true;
   },
 
   /**
