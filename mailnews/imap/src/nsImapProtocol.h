@@ -445,6 +445,7 @@ class nsImapProtocol : public nsIImapProtocol,
   bool m_nextUrlReadyToRun;
   bool m_idleResponseReadyToHandle;
   nsWeakPtr m_server;
+  nsCOMPtr<nsIMsgFolder> m_rootFolder;
 
   RefPtr<ImapMailFolderSinkProxy> m_imapMailFolderSink;
   RefPtr<ImapMailFolderSinkProxy> m_imapMailFolderSinkSelected;

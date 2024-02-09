@@ -820,6 +820,12 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
       NS_ENSURE_SUCCESS(rv, rv);
       m_server = do_GetWeakReference(server);
     }
+    // Obtain m_rootFolder value for use only in TryToLogon().
+    if (!m_rootFolder) {
+      if (!server && m_server) server = do_QueryReferent(m_server);
+      if (server) server->GetRootFolder(getter_AddRefs(m_rootFolder));
+      MOZ_ASSERT(m_rootFolder, "null m_rootFolder");
+    }
     nsCOMPtr<nsIMsgFolder> folder;
     mailnewsUrl->GetFolder(getter_AddRefs(folder));
     mFolderLastModSeq = 0;
@@ -8443,6 +8449,14 @@ bool nsImapProtocol::TryToLogon() {
   AutoProxyReleaseMsgWindow msgWindow;
   GetMsgWindow(getter_AddRefs(msgWindow));
 
+  // Block other imap threads for this server from attempting to login while
+  // this thread is also attempting to login. This prevents sending too many
+  // potentially invalid passwords that may cause the email provider to lock
+  // out the account.  m_rootFolder (pointer to the server's root folder) is
+  // the same value for all imap threads for a given server. So just using its
+  // value as the parameter to the monitor calls.
+  PR_CEnterMonitor(m_rootFolder);
+  Log("TryToLogon", nullptr, "enter mon");
   // This loops over 1) auth methods (only one per loop) and 2) password tries
   // (with UI)
   while (!loginSucceeded && !skipLoop && !DeathSignalReceived()) {
@@ -8536,6 +8550,8 @@ bool nsImapProtocol::TryToLogon() {
       }  // all methods failed
     }    // login failed
   }      // while
+  Log("TryToLogon", nullptr, "exit mon");
+  PR_CExitMonitor(m_rootFolder);
 
   if (loginSucceeded) {
     MOZ_LOG(IMAP, LogLevel::Debug, ("login succeeded"));
