@@ -6,6 +6,8 @@
 
 "use strict";
 
+/* eslint-enable valid-jsdoc */
+
 var EXPORTED_SYMBOLS = ["EnigmailMsgRead"];
 
 /**
@@ -47,9 +49,9 @@ var EnigmailMsgRead = {
   /**
    * Get a mail URL from a uriSpec
    *
-   * @param uriSpec: String - URI of the desired message
+   * @param {string} uriSpec - URI of the desired message.
    *
-   * @returns Object: nsIURL or nsIMsgMailNewsUrl object
+   * @returns {nsIURI|nsIMsgMailNewsUrl|null}
    */
   getUrlFromUriSpec(uriSpec) {
     return lazy.EnigmailFuncs.getUrlFromUriSpec(uriSpec);
@@ -227,12 +229,12 @@ var EnigmailMsgRead = {
   },
 
   /**
-   * Match the key to the sender's from address
+   * Match the key to the sender's from address.
    *
-   * @param {string}  keyId:    signing key ID
-   * @param {string}  fromAddr: sender's email address
+   * @param {string} keyId - Signing key ID
+   * @param {string} fromAddr - Sender's email address.
    *
-   * @returns Promise<String>: matching email address
+   * @returns {?Promise<String>} the matching email address
    */
   matchUidToSender(keyId, fromAddr) {
     if (!fromAddr || !keyId) {

@@ -10,6 +10,8 @@
 
 "use strict";
 
+/* eslint-enable valid-jsdoc */
+
 const EXPORTED_SYMBOLS = ["EnigmailFuncs"];
 
 const { MailServices } = ChromeUtils.import(
@@ -506,16 +508,15 @@ var EnigmailFuncs = {
    *
    * @param {string} uriSpec - URL spec of the desired message.
    *
-   * @returns {nsIURL|nsIMsgMailNewsUrl|null} The necko url.
+   * @returns {nsIURI|nsIMsgMailNewsUrl|null} The necko url.
    */
   getUrlFromUriSpec(uriSpec) {
     try {
       if (!uriSpec) {
         return null;
       }
-
-      const msgService = MailServices.messageServiceFromURI(uriSpec);
-      const url = msgService.getUrlForUri(uriSpec);
+      const url =
+        MailServices.messageServiceFromURI(uriSpec).getUrlForUri(uriSpec);
 
       if (url.scheme == "file") {
         return url;

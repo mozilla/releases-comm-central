@@ -94,7 +94,8 @@ export class MimeTreeEmitter {
   /**
    * Returns true if this MimeTree has encrypted parts. Returns undefined, if
    * the checkEncryption option is not enabled.
-   * @return {boolean|undefined}
+   *
+   * @returns {boolean|undefined}
    */
   get hasEncryptedParts() {
     return this._hasEncryptedParts;
@@ -103,7 +104,8 @@ export class MimeTreeEmitter {
   /**
    * Returns the MimeTreeDecrypter instance used by this emitter. Returns
    * undefined, if the checkEncryption option is not enabled.
-   * @return {MimeTreeDecrypter|undefined}
+   *
+   * @returns {MimeTreeDecrypter|undefined}
    */
   get decrypter() {
     return this._decrypter;
@@ -257,6 +259,7 @@ export class MimeTreeDecrypter {
   /**
    * Walk through the MIME message structure and decrypt the body if there is
    * something to decrypt
+   *
    * @param {MimeTreePart} mimeTreePart
    */
   async decryptMimeTree(mimeTreePart) {
@@ -591,6 +594,7 @@ export class MimeTreeDecrypter {
   /**
    * Check if this attachment appears to be encrypted. The length of the body
    * needs to be at least 30 chars to properly identify encrypted attachments.
+   *
    * @param {MimeTreePart} mimeTreePart
    * @param {boolean} [lengthCheck] - if set, function will return undefined if
    *   body is too short for encryption detection
@@ -1128,7 +1132,7 @@ function isAttachment(mimeTreePart) {
  * If the given MimeTreePart is an attachment, return its filename.
  *
  * @param {MimeTreePart} mimeTreePart
- * @return {?string} the filename or null
+ * @returns {?string} the filename or null
  */
 function getAttachmentName(mimeTreePart) {
   if (

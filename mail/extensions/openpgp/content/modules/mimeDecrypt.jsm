@@ -4,6 +4,8 @@
 
 "use strict";
 
+/* eslint-enable valid-jsdoc */
+
 const EXPORTED_SYMBOLS = ["EnigmailMimeDecrypt"];
 
 /**
@@ -50,7 +52,7 @@ var gNumProc = 0;
 
 var EnigmailMimeDecrypt = {
   /**
-   * create a new instance of a PGP/MIME decryption handler
+   * Sreate a new instance of a PGP/MIME decryption handler.
    */
   newPgpMimeHandler() {
     return new MimeDecryptHandler();
@@ -59,10 +61,11 @@ var EnigmailMimeDecrypt = {
   /**
    * Wrap the decrypted output into a message/rfc822 attachment
    *
-   * @param {string} decryptingMimePartNum: requested MIME part number
-   * @param {object} uri: nsIURI object of the decrypted message
+   * @param {string} decryptingMimePartNum - Requested MIME part number
+   * @param {nsIURI} uri - nsIURI of the decrypted message.
    *
-   * @returns {string}: prefix for message data
+   * @returns {string} a text block containing the needed MIME headers for
+   *   the MIME part.
    */
   pretendAttachment(decryptingMimePartNum, uri) {
     if (decryptingMimePartNum === "1" || !uri) {
