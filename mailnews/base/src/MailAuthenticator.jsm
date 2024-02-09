@@ -379,6 +379,10 @@ class IncomingServerAuthenticator extends MailAuthenticator {
       });
     });
   }
+
+  promptAuthFailed(msgWindow) {
+    return this._promptAuthFailed(msgWindow, this._server.prettyName);
+  }
 }
 
 /**
@@ -396,10 +400,6 @@ class NntpAuthenticator extends IncomingServerAuthenticator {
 
   set username(value) {
     this._username = value;
-  }
-
-  promptAuthFailed() {
-    return this._promptAuthFailed(null, this._server.prettyName);
   }
 }
 
@@ -430,10 +430,6 @@ class Pop3Authenticator extends IncomingServerAuthenticator {
       promptTitle
     );
   }
-
-  promptAuthFailed() {
-    return this._promptAuthFailed(null, this._server.prettyName);
-  }
 }
 
 /**
@@ -462,9 +458,5 @@ class ImapAuthenticator extends IncomingServerAuthenticator {
       promptString,
       promptTitle
     );
-  }
-
-  promptAuthFailed() {
-    return this._promptAuthFailed(null, this._server.prettyName);
   }
 }

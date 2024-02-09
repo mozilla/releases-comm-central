@@ -184,11 +184,11 @@ class NntpClient {
         this._actionError(NNTP_ERROR_MESSAGE, res.statusText);
         return;
       default:
-        if (
-          res.status != AUTH_FAILED &&
-          res.status >= 400 &&
-          res.status < 500
-        ) {
+        if (res.status == AUTH_FAILED) {
+          this._logger.error(
+            `Got an error id=${res.status}, the server said: ${res.statusText}`
+          );
+        } else if (res.status >= 400 && res.status < 500) {
           if (this._messageId || this._articleNumber) {
             let uri = `about:newserror?r=${res.statusText}`;
 
@@ -876,7 +876,7 @@ class NntpClient {
         this._actionAuthPassword();
         return;
       case AUTH_FAILED:
-        const action = this._authenticator.promptAuthFailed();
+        const action = this._authenticator.promptAuthFailed(this._msgWindow);
         if (action == 1) {
           // Cancel button pressed.
           this._actionDone();
@@ -938,7 +938,9 @@ class NntpClient {
    * @param {string} serverErrorMsg - Error message returned by the server.
    */
   _actionError(errorId, serverErrorMsg) {
-    this._logger.error(`Got an error id=${errorId}`);
+    this._logger.error(
+      `Got an error id=${errorId}, the server said: ${serverErrorMsg}`
+    );
     const msgWindow = this._msgWindow;
 
     if (!msgWindow) {

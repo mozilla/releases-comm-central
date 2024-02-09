@@ -318,13 +318,9 @@ add_task(async function testWrongPassword() {
     await Services.logins.addLoginAsync(loginInfo);
     await addMessagesToServer(inbox.server.type);
 
-    const promptPromise = (
-      inbox.server.type == "pop3"
-        ? BrowserTestUtils.promiseAlertDialog("accept")
-        : Promise.resolve()
-    )
-      .then(() => handleErrorPrompt())
-      .then(() => handlePasswordPrompt("accept", "password", true));
+    const promptPromise = handleErrorPrompt().then(() =>
+      handlePasswordPrompt("accept", "password", true)
+    );
     await fetchMessages(inbox);
     await promptPromise;
     await waitForMessages(inbox);

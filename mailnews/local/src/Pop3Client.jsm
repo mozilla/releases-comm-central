@@ -813,7 +813,7 @@ class Pop3Client {
       );
 
       // Ask user what to do.
-      const action = this._authenticator.promptAuthFailed();
+      const action = this._authenticator.promptAuthFailed(this._msgWindow);
       if (action == 1) {
         // Cancel button pressed.
         this._actionDone(Cr.NS_ERROR_FAILURE);
@@ -1485,10 +1485,14 @@ class Pop3Client {
    * @param {string} serverErrorMsg - Error message returned by the server.
    */
   _actionError(errorName, errorParams, serverErrorMsg) {
-    this._logger.error(`Got an error name=${errorName}`);
-    if (errorName != "pop3PasswordFailed") {
-      this._actionDone(Cr.NS_ERROR_FAILURE);
+    this._logger.error(
+      `Got an error name=${errorName}, the server said: ${serverErrorMsg}`
+    );
+    if (errorName == "pop3PasswordFailed") {
+      return;
     }
+
+    this._actionDone(Cr.NS_ERROR_FAILURE);
 
     if (!this._msgWindow) {
       return;

@@ -1221,7 +1221,7 @@ class ImapClient {
       )
     ) {
       // Ask user what to do.
-      const action = this._authenticator.promptAuthFailed();
+      const action = this._authenticator.promptAuthFailed(this._msgWindow);
       if (action == 1) {
         // Cancel button pressed.
         this._socket.close();
