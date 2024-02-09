@@ -75,6 +75,7 @@ function sanitizePositionParams(params, window = null, positionOffset = 0) {
 /**
  * Update the geometry of the mail window.
  *
+ * @param {Window} window
  * @param {object} options
  *        An object containing new values for the window's geometry.
  * @param {integer} [options.left]
@@ -446,13 +447,7 @@ this.windows = class extends ExtensionAPIPersistent {
             window.addEventListener("load", resolve, { once: true });
           });
 
-          const titlePromise = new Promise(resolve => {
-            window.addEventListener("pagetitlechanged", resolve, {
-              once: true,
-            });
-          });
-
-          await Promise.all([focusPromise, loadPromise, titlePromise]);
+          await Promise.all([focusPromise, loadPromise]);
 
           const win = windowManager.getWrapper(window);
 
@@ -465,6 +460,9 @@ this.windows = class extends ExtensionAPIPersistent {
               "maximized",
             ].includes(createData.state)
           ) {
+            // MacOS sometimes reverts the updated state, if it was applied before
+            // the window was drawn.
+            await new Promise(window.requestAnimationFrame);
             await win.setState(createData.state);
           }
 

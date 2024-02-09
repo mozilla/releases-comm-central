@@ -128,12 +128,22 @@ function cancelRequest() {
 }
 
 function reportUserClosed() {
-  const request = window.arguments[0].wrappedJSObject;
+  const request = window.arguments[0]?.wrappedJSObject;
+  // Bug 1879038: This is also called for WebExtension popup windows, but they do
+  // not send a request.
+  if (!request) {
+    return;
+  }
   request.cancelled();
 }
 
 function loadRequestedUrl() {
-  const request = window.arguments[0].wrappedJSObject;
+  const request = window.arguments[0]?.wrappedJSObject;
+  // Bug 1879038: This is also called for WebExtension popup windows, but they do
+  // not send a request.
+  if (!request) {
+    return;
+  }
 
   var browser = document.getElementById("requestFrame");
   browser.addProgressListener(reporterListener, Ci.nsIWebProgress.NOTIFY_ALL);

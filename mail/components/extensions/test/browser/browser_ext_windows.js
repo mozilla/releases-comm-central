@@ -236,41 +236,65 @@ add_task(async function checkTitlePreface() {
         );`,
       "utils.js": await getUtilsJS(),
       "background.js": async () => {
-        let popup;
+        let popupWindowId;
 
-        // Test titlePreface during window creation.
+        // Test focus and titlePreface during window creation.
         {
           const titlePreface = "PREFACE1";
-          const windowCreatePromise = window.waitForEvent("windows.onCreated");
-          // Do not await the create statement, but instead check if the onCreated
-          // event is delayed correctly to get the correct values.
-          browser.windows.create({
-            titlePreface,
-            url: "content.html",
-            type: "popup",
-            allowScriptsToClose: true,
+
+          const popupWindowCreatedPromise =
+            window.waitForEvent("windows.onCreated");
+          const popupWindowTabPromise = new Promise(resolve => {
+            let urlSeen = false;
+            const updateListener = (tabId, changeInfo, tab) => {
+              if (changeInfo.url?.endsWith("/content.html")) {
+                urlSeen = true;
+              }
+              if (urlSeen && changeInfo.status == "complete") {
+                resolve(tab);
+              }
+            };
+            browser.tabs.onUpdated.addListener(updateListener);
+            browser.windows.create({
+              titlePreface,
+              url: "content.html",
+              type: "popup",
+              allowScriptsToClose: true,
+            });
           });
-          popup = (await windowCreatePromise)[0];
+
+          // Focus should be correct after the Promise returned by windows.create()
+          // has fulfilled.
+          const [popupWindow] = await popupWindowCreatedPromise;
+          browser.test.assertEq(
+            true,
+            popupWindow.focused,
+            `Should find the correct focus state`
+          );
+
+          // Bug 1879004 - Wait for the inner tab to be completed, before checking
+          // the title.
+          await popupWindowTabPromise;
           const [expectedTitle] = await window.sendMessage(
             "checkTitle",
             titlePreface
           );
+          const { title: windowTitle } = await browser.windows.get(
+            popupWindow.id
+          );
           browser.test.assertEq(
             expectedTitle,
-            popup.title,
+            windowTitle,
             `Should find the correct title`
           );
-          browser.test.assertEq(
-            true,
-            popup.focused,
-            `Should find the correct focus state`
-          );
+
+          popupWindowId = popupWindow.id;
         }
 
         // Test titlePreface during window update.
         {
           const titlePreface = "PREFACE2";
-          const updated = await browser.windows.update(popup.id, {
+          const updated = await browser.windows.update(popupWindowId, {
             titlePreface,
           });
           const [expectedTitle] = await window.sendMessage(
@@ -301,21 +325,46 @@ add_task(async function checkTitlePreface() {
 
         // Test title after create without a preface.
         {
-          const popup = await browser.windows.create({
-            url: "content.html",
-            type: "popup",
-            allowScriptsToClose: true,
+          const popupWindowCreatedPromise =
+            window.waitForEvent("windows.onCreated");
+          const popupWindowTabPromise = new Promise(resolve => {
+            let urlSeen = false;
+            const updateListener = (tabId, changeInfo, tab) => {
+              if (changeInfo.url?.endsWith("/content.html")) {
+                urlSeen = true;
+              }
+              if (urlSeen && changeInfo.status == "complete") {
+                resolve(tab);
+              }
+            };
+            browser.tabs.onUpdated.addListener(updateListener);
+            browser.windows.create({
+              url: "content.html",
+              type: "popup",
+              allowScriptsToClose: true,
+            });
           });
-          const [expectedTitle] = await window.sendMessage("checkTitle", "");
-          browser.test.assertEq(
-            expectedTitle,
-            popup.title,
-            `Should find the correct title`
-          );
+
+          // Focus should be correct after the Promise returned by windows.create()
+          // has fulfilled.
+          const [popupWindow] = await popupWindowCreatedPromise;
           browser.test.assertEq(
             true,
-            popup.focused,
+            popupWindow.focused,
             `Should find the correct focus state`
+          );
+
+          // Bug 1879004 - Wait for the inner tab to be completed, before checking
+          // the title.
+          await popupWindowTabPromise;
+          const [expectedTitle] = await window.sendMessage("checkTitle", "");
+          const { title: windowTitle } = await browser.windows.get(
+            popupWindow.id
+          );
+          browser.test.assertEq(
+            expectedTitle,
+            windowTitle,
+            `Should find the correct title`
           );
         }
 
