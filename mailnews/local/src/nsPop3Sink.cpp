@@ -583,8 +583,11 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
     // getting a complete message when a partial exists), then update the new
     // header from the old.
     nsCOMPtr<nsIMsgDBHdr> oldMsgHdr;
-    if (!m_origMessageUri.IsEmpty() && localFolder) {
-      rv = GetMsgDBHdrFromURI(m_origMessageUri, getter_AddRefs(oldMsgHdr));
+    if (localFolder) {
+      rv = !m_origMessageUri.IsEmpty()
+               ? GetMsgDBHdrFromURI(m_origMessageUri, getter_AddRefs(oldMsgHdr))
+               : localFolder->RetrieveHdrOfPartialMessage(hdr,
+                                                     getter_AddRefs(oldMsgHdr));
       if (NS_SUCCEEDED(rv) && oldMsgHdr) {
         localFolder->UpdateNewMsgHdr(oldMsgHdr, hdr);
       }

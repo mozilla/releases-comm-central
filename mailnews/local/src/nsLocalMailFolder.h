@@ -269,14 +269,9 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
   // state variables for DownloadMessagesForOffline
 
-  nsCOMArray<nsIMsgDBHdr> mDownloadMessages;
+  nsCOMArray<nsIMsgDBHdr> mDownloadPartialMessages;
   nsCOMPtr<nsIMsgWindow> mDownloadWindow;
-  nsMsgKey mDownloadSelectKey;
-  uint32_t mDownloadState;
-#define DOWNLOAD_STATE_NONE 0
-#define DOWNLOAD_STATE_INITED 1
-#define DOWNLOAD_STATE_GOTMSG 2
-#define DOWNLOAD_STATE_DIDSEL 3
+  bool mDownloadInProgress;
 };
 
 #endif  // nsMsgLocalMailFolder_h__
