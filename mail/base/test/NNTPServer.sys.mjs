@@ -7,6 +7,7 @@ import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
 import {
   NewsArticle,
   NNTP_RFC2980_handler,
+  NNTP_RFC4643_extension,
   NntpDaemon,
 } from "resource://testing-common/mailnews/Nntpd.sys.mjs";
 
@@ -22,10 +23,12 @@ export class NNTPServer {
 
   open() {
     this.daemon = new NntpDaemon();
-    this.server = new nsMailServer(
-      daemon => new NNTP_RFC2980_handler(daemon),
-      this.daemon
-    );
+    this.server = new nsMailServer(daemon => {
+      if (this.options.username) {
+        return new NNTP_RFC4643_extension(daemon, this.options);
+      }
+      return new NNTP_RFC2980_handler(daemon, this.options);
+    }, this.daemon);
     this.server.tlsCert = this.options.tlsCert;
     this.server.start();
     dump(`NNTP server at localhost:${this.server.port} opened\n`);

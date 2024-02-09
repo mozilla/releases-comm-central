@@ -539,13 +539,13 @@ export class NNTP_Giganews_handler extends NNTP_RFC2980_handler {
 }
 
 export class NNTP_RFC4643_extension extends NNTP_RFC2980_handler {
-  constructor(daemon) {
+  constructor(daemon, { username = "testnews", password = "newstest" } = {}) {
     super(daemon);
 
     this.extraCommands += "\tAUTHINFO USER\n";
     this.extraCommands += "\tAUTHINFO PASS\n";
-    this.expectedUsername = "testnews";
-    this.expectedPassword = "newstest";
+    this.expectedUsername = username;
+    this.expectedPassword = password;
     this.requireBoth = true;
     this.authenticated = false;
     this.usernameReceived = false;

@@ -8497,7 +8497,7 @@ bool nsImapProtocol::TryToLogon() {
         // ask user what to do
         MOZ_LOG(IMAP, LogLevel::Warning,
                 ("IMAP: ask user what to do (after login failed): new "
-                 "passwort, retry, cancel"));
+                 "password, retry, cancel"));
         if (!m_imapServerSink) break;
         // if there's no msg window, don't forget the password
         if (!msgWindow) break;
