@@ -296,12 +296,16 @@ var MailUtils = {
       return;
     }
 
+    const loadInBackground = loadMsgInBackground
+      ? Services.prefs.getBoolPref("mail.tabs.loadInBackground")
+      : false;
+
     // Open all the tabs in the background, except for the last one.
     for (const [i, msgHdr] of aMsgHdrs.entries()) {
       aTabmail.openTab("mailMessageTab", {
         messageURI: msgHdr.folder.getUriForMsg(msgHdr),
         viewWrapper: aViewWrapperToClone,
-        background: i < aMsgHdrs.length - 1 || loadMsgInBackground,
+        background: i < aMsgHdrs.length - 1 || loadInBackground,
         disregardOpener: aMsgHdrs.length > 1,
       });
     }

@@ -106,16 +106,12 @@ var commandController = {
     },
     cmd_openMessage(event) {
       const forceTab = event?.button == 1;
-      const loadMsgInBackground = Services.prefs.getBoolPref(
-        "mail.tabs.loadInBackground"
-      );
       MailUtils.displayMessages(
         gDBView.getSelectedMsgHdrs(),
         gViewWrapper,
         top.document.getElementById("tabmail"),
         forceTab,
-        (loadMsgInBackground && !event?.shiftKey) ||
-          (!loadMsgInBackground && event?.shiftKey)
+        forceTab && !event?.shiftKey
       );
     },
     cmd_tag() {
