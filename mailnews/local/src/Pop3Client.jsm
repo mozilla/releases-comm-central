@@ -1127,7 +1127,6 @@ class Pop3Client {
             [UIDL_FETCH_BODY, UIDL_DELETE].includes(uidlState.status)
           ) {
             // Fetch the full message.
-            this._newMessageTotal++;
             this._messagesToHandle.push({
               ...uidlState,
               messageNumber,

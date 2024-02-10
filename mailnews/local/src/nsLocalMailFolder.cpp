@@ -98,7 +98,7 @@ nsMsgLocalMailFolder::nsMsgLocalMailFolder(void)
       mInitialized(false),
       mCheckForNewMessagesAfterParsing(false),
       m_parsingFolder(false),
-      mDownloadInProgress(false) {}
+      mDownloadState(DOWNLOAD_STATE_NONE) {}
 
 nsMsgLocalMailFolder::~nsMsgLocalMailFolder(void) {}
 
@@ -2800,27 +2800,41 @@ nsMsgLocalMailFolder::MarkMsgsOnPop3Server(
   return rv;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::GetHdrOfPartialMessage(
-    nsIMsgDBHdr* newHdr, nsIMsgDBHdr** oldHdr) {
-  NS_ENSURE_ARG_POINTER(newHdr);
-  NS_ENSURE_ARG_POINTER(oldHdr);
-  *oldHdr = nullptr;
-
+NS_IMETHODIMP nsMsgLocalMailFolder::DeleteDownloadMsg(nsIMsgDBHdr* aMsgHdr) {
+  uint32_t numMsgs;
   char* newMsgId;
-  newHdr->GetMessageId(&newMsgId);
 
-  // Walk through all the selected headers, looking for a matching
-  // Message-ID.
-  for (uint32_t i = 0; i < mDownloadPartialMessages.Length(); i++) {
-    nsCOMPtr<nsIMsgDBHdr> msgDBHdr = mDownloadPartialMessages[i];
-    char* oldMsgId = nullptr;
-    msgDBHdr->GetMessageId(&oldMsgId);
+  // This method is only invoked through DownloadMessagesForOffline()
+  if (mDownloadState != DOWNLOAD_STATE_NONE) {
+    // We only remember the first key, no matter how many
+    // messages were originally selected.
+    if (mDownloadState == DOWNLOAD_STATE_INITED) {
+      aMsgHdr->GetMessageKey(&mDownloadSelectKey);
+      mDownloadState = DOWNLOAD_STATE_GOTMSG;
+    }
 
-    // Return the first match and remove it from the array
-    if (!PL_strcmp(newMsgId, oldMsgId)) {
-      msgDBHdr.forget(oldHdr);
-      mDownloadPartialMessages.RemoveElementAt(i);
-      break;
+    aMsgHdr->GetMessageId(&newMsgId);
+
+    // Walk through all the selected headers, looking for a matching
+    // Message-ID.
+    numMsgs = mDownloadMessages.Length();
+    for (uint32_t i = 0; i < numMsgs; i++) {
+      nsresult rv;
+      nsCOMPtr<nsIMsgDBHdr> msgDBHdr = mDownloadMessages[i];
+      char* oldMsgId = nullptr;
+      msgDBHdr->GetMessageId(&oldMsgId);
+
+      // Delete the first match and remove it from the array
+      if (!PL_strcmp(newMsgId, oldMsgId)) {
+        rv = GetDatabase();
+        if (!mDatabase) return rv;
+
+        UpdateNewMsgHdr(msgDBHdr, aMsgHdr);
+
+        mDatabase->DeleteHeader(msgDBHdr, nullptr, false, true);
+        mDownloadMessages.RemoveElementAt(i);
+        break;
+      }
     }
   }
 
@@ -2829,11 +2843,11 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetHdrOfPartialMessage(
 
 NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
     nsTArray<RefPtr<nsIMsgDBHdr>> const& aMessages, nsIMsgWindow* aWindow) {
-  if (mDownloadInProgress)
+  if (mDownloadState != DOWNLOAD_STATE_NONE)
     return NS_ERROR_FAILURE;  // already has a download in progress
 
   // We're starting a download...
-  mDownloadInProgress = true;
+  mDownloadState = DOWNLOAD_STATE_INITED;
 
   MarkMsgsOnPop3Server(aMessages, POP3_FETCH_BODY);
 
@@ -2843,7 +2857,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
     uint32_t flags = 0;
     hdr->GetFlags(&flags);
     if (flags & nsMsgMessageFlags::Partial) {
-      mDownloadPartialMessages.AppendElement(hdr);
+      mDownloadMessages.AppendElement(hdr);
     }
   }
   mDownloadWindow = aWindow;
@@ -2972,9 +2986,9 @@ nsMsgLocalMailFolder::OnStartRunningUrl(nsIURI* aUrl) {
 NS_IMETHODIMP
 nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   // If we just finished a DownloadMessages call, reset...
-  if (mDownloadInProgress) {
-    mDownloadInProgress = false;
-    mDownloadPartialMessages.Clear();
+  if (mDownloadState != DOWNLOAD_STATE_NONE) {
+    mDownloadState = DOWNLOAD_STATE_NONE;
+    mDownloadMessages.Clear();
     mDownloadWindow = nullptr;
     return nsMsgDBFolder::OnStopRunningUrl(aUrl, aExitCode);
   }
