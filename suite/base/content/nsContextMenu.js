@@ -1248,7 +1248,8 @@ nsContextMenu.prototype = {
     // set up a channel to do the saving
     var channel = NetUtil.newChannel({
                     uri: makeURI(linkURL),
-                    loadUsingSystemPrincipal: true,
+                    loadingPrincipal: this.principal,
+                    contentPolicyType: Ci.nsIContentPolicy.TYPE_SAVEAS_DOWNLOAD,
                     securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL
                   });
 
