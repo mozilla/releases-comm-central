@@ -747,10 +747,12 @@
         switch (type) {
           case "text":
             input = document.createElement("input");
+            input.type = "text";
             input.classList.add("input-inline", "search-value-input");
             break;
           case "date":
             input = document.createElement("input");
+            input.type = "text";
             input.classList.add("input-inline", "search-value-input");
             if (!value) {
               // Newly created date input shows today's date.
