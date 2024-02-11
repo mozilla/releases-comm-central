@@ -9,7 +9,10 @@ const { MockRegistrar } = ChromeUtils.importESModule(
 /** @implements {nsIExternalProtocolService} */
 const mockExternalProtocolService = {
   _loadedURLs: [],
-  externalProtocolHandlerExists(protocolScheme) {},
+  externalProtocolHandlerExists(protocolScheme) {
+    // Signal that we have an external app for this protocol.
+    return true;
+  },
   getApplicationDescription(scheme) {},
   getProtocolHandlerInfo(protocolScheme) {
     return {
@@ -169,8 +172,8 @@ add_task(async function testUpdateTabs_with_application_chooser() {
       );
 
       // Update a tel:// url.
-      await browser.tabs.update(messageTab.id, { url: "tel:1234-3" });
-      await window.sendMessage("check_external_loaded_url", "tel:1234-3");
+      await browser.tabs.update(messageTab.id, { url: "tel:1234-2" });
+      await window.sendMessage("check_external_loaded_url", "tel:1234-2");
 
       // We should still see the same message.
       message2 = await browser.messageDisplay.getDisplayedMessage(
@@ -318,9 +321,8 @@ add_task(async function testUpdateTabs_with_application_chooser() {
   about3Pane.displayFolder(gFolder);
 
   extension.onMessage("check_external_loaded_url", async expected => {
-    Assert.equal(
-      1,
-      mockExternalProtocolService._loadedURLs.length,
+    await TestUtils.waitForCondition(
+      () => mockExternalProtocolService._loadedURLs.length == 1,
       "Should have found a single loaded url"
     );
     Assert.equal(
@@ -343,4 +345,55 @@ add_task(async function testUpdateTabs_with_application_chooser() {
   );
 });
 
-// TODO: add testCreateTabs_with_application_chooser()
+add_task(async function testCreateTabs_with_application_chooser() {
+  const files = {
+    "background.js": async () => {
+      // Create a tab with a tel:// url.
+      const tab1 = await browser.tabs.create({ url: "tel:1234-1" });
+      await window.sendMessage("check_external_loaded_url", "tel:1234-1");
+      await browser.tabs.remove(tab1.id);
+
+      // Create a tab with a non-registered WebExtension protocol handler.
+      const tab2 = await browser.tabs.create({ url: "ext+test:1234-1" });
+      await window.sendMessage("check_external_loaded_url", "ext+test:1234-1");
+      await browser.tabs.remove(tab2.id);
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  const extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead", "tabs", "compose"],
+    },
+  });
+
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  about3Pane.displayFolder(gFolder);
+
+  extension.onMessage("check_external_loaded_url", async expected => {
+    await TestUtils.waitForCondition(
+      () => mockExternalProtocolService._loadedURLs.length == 1,
+      "Should have found a single loaded url"
+    );
+    Assert.equal(
+      mockExternalProtocolService._loadedURLs[0],
+      expected,
+      "Should have found the expected url"
+    );
+    mockExternalProtocolService._loadedURLs = [];
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  Assert.equal(
+    0,
+    mockExternalProtocolService._loadedURLs.length,
+    "Should not have any unexpected urls loaded externally"
+  );
+});
