@@ -6,6 +6,9 @@ const { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
+// The purpose of this test (using a mocked application chooser) is to test that
+// the correct url is being handled and to test the correct tab behavior.
+
 /** @implements {nsIExternalProtocolService} */
 const mockExternalProtocolService = {
   _loadedURLs: [],
@@ -81,6 +84,7 @@ add_task(async function testUpdateTabs_with_application_chooser() {
             urlSeen = true;
           }
           if (urlSeen && changeInfo.status == "complete") {
+            browser.tabs.onUpdated.removeListener(updateListener);
             resolve();
           }
         };
@@ -172,8 +176,8 @@ add_task(async function testUpdateTabs_with_application_chooser() {
       );
 
       // Update a tel:// url.
-      await browser.tabs.update(messageTab.id, { url: "tel:1234-2" });
-      await window.sendMessage("check_external_loaded_url", "tel:1234-2");
+      await browser.tabs.update(messageTab.id, { url: "tel:1234-3" });
+      await window.sendMessage("check_external_loaded_url", "tel:1234-3");
 
       // We should still see the same message.
       message2 = await browser.messageDisplay.getDisplayedMessage(
@@ -305,6 +309,62 @@ add_task(async function testUpdateTabs_with_application_chooser() {
 
       browser.tabs.remove(composeTab.id);
 
+      // Test a popup window.
+
+      const popupTab = await new Promise(resolve => {
+        let urlSeen = false;
+        const updateListener = (tabId, changeInfo, tab) => {
+          if (changeInfo.url == "https://www.example.com/") {
+            urlSeen = true;
+          }
+          if (urlSeen && changeInfo.status == "complete") {
+            browser.tabs.onUpdated.removeListener(updateListener);
+            resolve(tab);
+          }
+        };
+        browser.tabs.onUpdated.addListener(updateListener);
+        browser.windows.create({
+          type: "popup",
+          url: "https://www.example.com",
+        });
+      });
+
+      browser.test.assertEq(
+        "content",
+        popupTab.type,
+        "Should have found a popup content tab."
+      );
+
+      browser.test.assertFalse(
+        mailTab.windowId == popupTab.windowId,
+        "Tab should not be in the main window."
+      );
+
+      // Update a tel:// url.
+      await browser.tabs.update(popupTab.id, { url: "tel:1234-6" });
+      await window.sendMessage("check_external_loaded_url", "tel:1234-6");
+
+      // We should still see the same content page.
+      const { url: popupTabUrl1 } = await browser.tabs.get(popupTab.id);
+      browser.test.assertEq(
+        popupTabUrl1,
+        "https://www.example.com/",
+        "url should be correct"
+      );
+
+      // Update a non-registered WebExtension protocol handler.
+      await browser.tabs.update(mailTab.id, { url: "ext+test:1234-5" });
+      await window.sendMessage("check_external_loaded_url", "ext+test:1234-5");
+
+      // We should still see the same content page.
+      const { url: popupTabUrl2 } = await browser.tabs.get(popupTab.id);
+      browser.test.assertEq(
+        popupTabUrl2,
+        "https://www.example.com/",
+        "url should be correct"
+      );
+      browser.tabs.remove(popupTab.id);
+
       browser.test.notifyPass("finished");
     },
     "utils.js": await getUtilsJS(),
@@ -357,6 +417,22 @@ add_task(async function testCreateTabs_with_application_chooser() {
       const tab2 = await browser.tabs.create({ url: "ext+test:1234-1" });
       await window.sendMessage("check_external_loaded_url", "ext+test:1234-1");
       await browser.tabs.remove(tab2.id);
+
+      // Create a popup tab with a tel:// url.
+      const win1 = await browser.windows.create({
+        type: "popup",
+        url: "tel:1234-2",
+      });
+      await window.sendMessage("check_external_loaded_url", "tel:1234-2");
+      await browser.windows.remove(win1.id);
+
+      // Create a popup with a non-registered WebExtension protocol handler.
+      const win2 = await browser.windows.create({
+        type: "popup",
+        url: "ext+test:1234-2",
+      });
+      await window.sendMessage("check_external_loaded_url", "ext+test:1234-2");
+      await browser.windows.remove(win2.id);
 
       browser.test.notifyPass("finished");
     },
