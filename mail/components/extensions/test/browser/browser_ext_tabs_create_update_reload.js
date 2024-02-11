@@ -161,6 +161,32 @@ add_task(async function testCreateUpdateTabs_WebExtProtocolHandler() {
       );
       await browser.tabs.remove(extProtoTab.id);
 
+      // Create a registered WebExtension protocol handler popup tab.
+
+      const extProtoPopupTab = await new Promise(resolve => {
+        let urlSeen = false;
+        const updateListener = (tabId, changeInfo, tab) => {
+          if (
+            changeInfo.url &&
+            changeInfo.url.endsWith("handler.html#ext%2Btest%3A1234-1")
+          ) {
+            urlSeen = true;
+          }
+          if (urlSeen && changeInfo.status == "complete") {
+            resolve(tab);
+          }
+        };
+        browser.tabs.onUpdated.addListener(updateListener);
+        browser.windows.create({ url: "ext+test:1234-1", type: "popup" });
+      });
+
+      assertEndsWith(
+        "handler.html#ext%2Btest%3A1234-1",
+        extProtoPopupTab.url,
+        "extProtoTab.url should have the correct ending"
+      );
+      await browser.tabs.remove(extProtoPopupTab.id);
+
       // Test updating a message tab.
 
       const messageTab = await browser.messageDisplay.open({
