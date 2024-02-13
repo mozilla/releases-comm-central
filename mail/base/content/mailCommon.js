@@ -987,6 +987,8 @@ var dbViewWrapperListener = {
         gViewWrapper.dbView.addColumnHandler(col.id, col.handler);
       }
       window.threadPane.setTreeView(gViewWrapper.dbView);
+      window.threadPane.restoreSortIndicator();
+      window.threadPaneHeader.onFolderSelected();
       window.threadPane.isFirstScroll = true;
       window.threadPane.scrollDetected = false;
       window.threadPane.scrollToLatestRowIfNoSelection();

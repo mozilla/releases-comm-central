@@ -2500,8 +2500,6 @@ var folderPane = {
       threadPane.updateListRole(
         !gViewWrapper?.showThreaded && !gViewWrapper?.showGroupedBySort
       );
-      threadPane.restoreSortIndicator();
-      threadPaneHeader.onFolderSelected();
     }
 
     this._updateStatusQuota();
