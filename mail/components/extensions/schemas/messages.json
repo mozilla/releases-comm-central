@@ -1013,7 +1013,7 @@
       {
         "name": "updateTag",
         "type": "function",
-        "description": "Updates a message tag.",
+        "description": "Updates a message tag. Throws if the specified tag key does not exist.",
         "async": true,
         "permissions": ["messagesTags"],
         "max_manifest_version": 2,
@@ -1162,7 +1162,7 @@
       {
         "name": "update",
         "type": "function",
-        "description": "Updates a message tag.",
+        "description": "Updates a message tag. Throws if the specified tag key does not exist.",
         "async": true,
         "permissions": ["messagesTags"],
         "parameters": [
