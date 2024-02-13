@@ -1005,8 +1005,8 @@
           {
             "type": "string",
             "name": "color",
-            "description": "Tag color in hex format (i.e.: <value>#000080</value> for navy blue)",
-            "pattern": "^#[0-9a-f]{6}"
+            "description": "Tag color in hex format (i.e.: <value>#000080</value> for navy blue). Value will be stored as upper case.",
+            "pattern": "^#[0-9a-fA-F]{6}"
           }
         ]
       },
@@ -1036,8 +1036,8 @@
               },
               "color": {
                 "type": "string",
-                "pattern": "^#[0-9a-f]{6}",
-                "description": "Tag color in hex format (i.e.: #000080 for navy blue).",
+                "pattern": "^#[0-9a-fA-F]{6}",
+                "description": "Tag color in hex format (i.e.: #000080 for navy blue). Value will be stored as upper case.",
                 "optional": "true"
               }
             }
@@ -1154,8 +1154,8 @@
           {
             "type": "string",
             "name": "color",
-            "description": "Tag color in hex format (i.e.: #000080 for navy blue)",
-            "pattern": "^#[0-9a-f]{6}"
+            "description": "Tag color in hex format (i.e.: #000080 for navy blue). Value will be stored as upper case.",
+            "pattern": "^#[0-9a-fA-F]{6}"
           }
         ]
       },
@@ -1183,8 +1183,8 @@
               },
               "color": {
                 "type": "string",
-                "pattern": "^#[0-9a-f]{6}",
-                "description": "Tag color in hex format (i.e.: #000080 for navy blue).",
+                "pattern": "^#[0-9a-fA-F]{6}",
+                "description": "Tag color in hex format (i.e.: #000080 for navy blue). Value will be stored as upper case.",
                 "optional": "true"
               }
             }

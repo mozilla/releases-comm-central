@@ -298,7 +298,7 @@ add_task(
           "Test?Key",
         ];
         for (const key of goodKeys) {
-          await browser.messages.createTag(key, "Test Tag", "#123456");
+          await browser.messages.createTag(key, "Test Tag", "#cd3456");
           const goodTags = await browser.messages.listTags();
           window.assertDeepEqual(
             [
@@ -335,7 +335,7 @@ add_task(
               {
                 key: key.toLowerCase(),
                 tag: "Test Tag",
-                color: "#123456",
+                color: "#CD3456",
                 ordinal: "",
               },
             ],
@@ -390,7 +390,7 @@ add_task(
 
         await browser.messages.tags.update("$label5", {
           tag: "A Bit Later",
-          color: "#114488",
+          color: "#AB4488",
         });
         const tags3a = await browser.messages.listTags();
         window.assertDeepEqual(
@@ -422,7 +422,7 @@ add_task(
             {
               key: "$label5",
               tag: "A Bit Later",
-              color: "#114488",
+              color: "#AB4488",
               ordinal: "",
             },
             {
@@ -437,7 +437,7 @@ add_task(
 
         await browser.messages.updateTag("$label5", {
           tag: "Much Later",
-          color: "#225599",
+          color: "#cd5599",
         });
         const tags3b = await browser.messages.listTags();
         window.assertDeepEqual(
@@ -469,7 +469,7 @@ add_task(
             {
               key: "$label5",
               tag: "Much Later",
-              color: "#225599",
+              color: "#CD5599",
               ordinal: "",
             },
             {
@@ -599,7 +599,7 @@ add_task(
         await browser.messages.tags.create(
           "custom_tag",
           "Custom Tag",
-          "#123456"
+          "#AB3456"
         );
         const message3 = await browser.messages.get(folder4Messages[0].id);
         window.assertDeepEqual(["custom_tag"], message3.tags);
@@ -636,7 +636,7 @@ add_task(
             {
               key: "custom_tag",
               tag: "Custom Tag",
-              color: "#123456",
+              color: "#AB3456",
               ordinal: "",
             },
           ],

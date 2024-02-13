@@ -939,7 +939,7 @@ this.messages = class extends ExtensionAPIPersistent {
             if (tags.find(t => t.tag == tag)) {
               throw new ExtensionError(`Specified tag already exists: ${tag}`);
             }
-            MailServices.tags.addTagForKey(key, tag, color, "");
+            MailServices.tags.addTagForKey(key, tag, color.toUpperCase(), "");
           },
           async update(key, updateProperties) {
             const tags = MailServices.tags.getAllTags();
@@ -948,8 +948,11 @@ this.messages = class extends ExtensionAPIPersistent {
             if (!tag) {
               throw new ExtensionError(`Specified key does not exist: ${key}`);
             }
-            if (updateProperties.color && tag.color != updateProperties.color) {
-              MailServices.tags.setColorForKey(key, updateProperties.color);
+            if (updateProperties.color) {
+              const newColor = updateProperties.color.toUpperCase();
+              if (newColor != tag.color.toUpperCase()) {
+                MailServices.tags.setColorForKey(key, newColor);
+              }
             }
             if (updateProperties.tag && tag.tag != updateProperties.tag) {
               // Don't let the user edit a tag to the name of another existing tag.
