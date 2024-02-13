@@ -114,21 +114,15 @@ class CalDavOAuth extends OAuth2 {
           },
 
           onPromptAuthAvailable(callback) {
-            self.connect(
+            self.connect(aWithUI, aRefresh).then(
               () => {
-                if (callback) {
-                  callback.onAuthResult(true);
-                }
+                callback?.onAuthResult(true);
                 resolve();
               },
-              () => {
-                if (callback) {
-                  callback.onAuthResult(false);
-                }
-                reject();
-              },
-              aWithUI,
-              aRefresh
+              error => {
+                callback?.onAuthResult(false);
+                reject(Cr.NS_ERROR_ABORT);
+              }
             );
           },
           onPromptCanceled: reject,

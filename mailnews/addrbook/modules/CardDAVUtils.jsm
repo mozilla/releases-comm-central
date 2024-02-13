@@ -378,15 +378,13 @@ var CardDAVUtils = {
       requestParams.oAuth = {
         QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
         connect(withUI, listener) {
-          oAuth.connect(
+          oAuth.connect(withUI, false).then(
             () =>
               listener.onSuccess(
                 // String format based on what OAuth2Module has.
                 btoa(`\x01auth=Bearer ${oAuth.accessToken}`)
               ),
-            () => listener.onFailure(Cr.NS_ERROR_ABORT),
-            withUI,
-            false
+            () => listener.onFailure(Cr.NS_ERROR_ABORT)
           );
         },
       };

@@ -1424,21 +1424,15 @@ CalDavCalendar.prototype = {
         this.onPromptAuthAvailable(callback);
       },
       onPromptAuthAvailable(callback) {
-        self.oauth.connect(
+        self.oauth.connect(true, aRefresh).then(
           () => {
             authSuccessCb();
-            if (callback) {
-              callback.onAuthResult(true);
-            }
+            callback?.onAuthResult(true);
           },
           () => {
             authFailureCb();
-            if (callback) {
-              callback.onAuthResult(false);
-            }
-          },
-          true,
-          aRefresh
+            callback?.onAuthResult(false);
+          }
         );
       },
       onPromptCanceled: authFailureCb,

@@ -69,25 +69,37 @@ OAuth2.prototype = {
   refreshToken: null,
   tokenExpires: 0,
 
-  connect(aSuccess, aFailure, aWithUI, aRefresh) {
-    this.connectSuccessCallback = aSuccess;
-    this.connectFailureCallback = aFailure;
-
+  /**
+   * Obtain an access token for this endpoint. If an access token has already
+   * been obtained, it will be reused unless `aRefresh` is true.
+   *
+   * @param {boolean} aWithUI - If UI can be shown to the user for logging in.
+   * @param {boolean} aRefresh - If any existing access token should be
+   *   ignored and a new one obtained.
+   * @returns {Promise} - Resolves when authorisation is complete and an
+   *   access token is available.
+   */
+  connect(aWithUI, aRefresh) {
     if (this.accessToken && !this.tokenExpired && !aRefresh) {
-      aSuccess();
-    } else if (this.refreshToken) {
+      return this._promise;
+    }
+
+    const { promise, resolve, reject } = Promise.withResolvers();
+    this._promise = promise;
+    this._resolve = resolve;
+    this._reject = reject;
+
+    if (this.refreshToken) {
       this.requestAccessToken(this.refreshToken, true);
+    } else if (!aWithUI) {
+      this._reject('{ "error": "auth_noui" }');
+    } else if (gConnecting[this.authorizationEndpoint]) {
+      this._reject("Window already open");
     } else {
-      if (!aWithUI) {
-        aFailure('{ "error": "auth_noui" }');
-        return;
-      }
-      if (gConnecting[this.authorizationEndpoint]) {
-        aFailure("Window already open");
-        return;
-      }
       this.requestAuthorization();
     }
+
+    return this._promise;
   },
 
   /**
@@ -272,7 +284,7 @@ OAuth2.prototype = {
   },
 
   onAuthorizationFailed(aError, aData) {
-    this.connectFailureCallback(aData);
+    this._reject(aData);
   },
 
   /**
@@ -334,11 +346,9 @@ OAuth2.prototype = {
 
           // Typically in production this would be {"error": "invalid_grant"}.
           // That is, the token expired or was revoked (user changed password?).
-          // Reset the tokens we have and call success so that the auth flow
-          // will be re-triggered.
           this.accessToken = null;
           this.refreshToken = null;
-          this.connectSuccessCallback();
+          this._reject(err);
           return;
         }
 
@@ -355,11 +365,11 @@ OAuth2.prototype = {
         } else {
           this.tokenExpires = Number.MAX_VALUE;
         }
-        this.connectSuccessCallback();
+        this._resolve();
       })
       .catch(err => {
         this.log.info(`Connection to authorization server failed: ${err}`);
-        this.connectFailureCallback(err);
+        this._reject(err);
       });
   },
 };

@@ -170,25 +170,19 @@ OAuth2Module.prototype = {
       },
 
       onPromptAuthAvailable: callback => {
-        oauth.connect(
+        oauth.connect(aWithUI, false).then(
           () => {
             aListener.onSuccess(
               btoa(
                 `user=${this._username}\x01auth=Bearer ${oauth.accessToken}\x01\x01`
               )
             );
-            if (callback) {
-              callback.onAuthResult(true);
-            }
+            callback?.onAuthResult(true);
           },
           () => {
             aListener.onFailure(Cr.NS_ERROR_ABORT);
-            if (callback) {
-              callback.onAuthResult(false);
-            }
-          },
-          aWithUI,
-          false
+            callback?.onAuthResult(false);
+          }
         );
       },
       onPromptCanceled() {
