@@ -1579,7 +1579,7 @@ function GetSelectedMessages() {
   if (tab.mode.name == "mail3PaneTab" && tab.message) {
     return tab.chromeBrowser.contentWindow?.gDBView?.getURIsForSelection();
   } else if (tab.mode.name == "mailMessageTab") {
-    return [tab.messageURI];
+    return [tab.chromeBrowser.contentWindow.gMessageURI];
   }
   return null;
 }
