@@ -143,6 +143,7 @@ unified-toolbar-customization {
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden;
   --customization-footer-padding: 12px;
   box-shadow:
     0 2px 12px -3px rgba(0, 0, 0, 0.5),
