@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  Pop3Daemon,
-  POP3_RFC5034_handler,
-} from "resource://testing-common/mailnews/Pop3d.sys.mjs";
+import * as Pop3D from "resource://testing-common/mailnews/Pop3d.sys.mjs";
 import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
 
 /**
@@ -15,15 +12,18 @@ export class POP3Server {
   constructor(testScope, options = {}) {
     this.testScope = testScope;
     this.options = options;
-    this.open();
+    this.open(options.handler);
   }
 
-  open() {
+  open(handlerName = "RFC5034") {
     if (!this.daemon) {
-      this.daemon = new Pop3Daemon();
+      this.daemon = new Pop3D.Pop3Daemon();
     }
     this.server = new nsMailServer(daemon => {
-      const handler = new POP3_RFC5034_handler(daemon, this.options);
+      const handler = new Pop3D[`POP3_${handlerName}_handler`](
+        daemon,
+        this.options
+      );
       if (this.options.offerStartTLS) {
         // List startTLS as a capability, even though we don't support it.
         handler.kCapabilities.push("STLS");

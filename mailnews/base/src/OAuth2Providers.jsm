@@ -78,6 +78,7 @@ var kHostnames = new Map([
 
   // For testing purposes.
   ["mochi.test", ["mochi.test", "test_scope"]],
+  ["test.test", ["test.test", "test_scope"]],
 ]);
 
 /**
@@ -189,6 +190,16 @@ var kIssuers = new Map([
       // I don't know why, but tests refuse to work with a plain HTTP endpoint
       // (the request is redirected to HTTPS, which we're not listening to).
       // Just use an HTTPS endpoint.
+      redirectionEndpoint: "https://localhost",
+    },
+  ],
+  [
+    "test.test",
+    {
+      clientId: "test_client_id",
+      clientSecret: "test_secret",
+      authorizationEndpoint: "http://oauth.test.test/form",
+      tokenEndpoint: "http://oauth.test.test/token",
       redirectionEndpoint: "https://localhost",
     },
   ],

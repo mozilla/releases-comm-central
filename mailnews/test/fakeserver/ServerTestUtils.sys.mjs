@@ -161,6 +161,12 @@ const serverDefs = {
       hostname: "expired.test.test",
       port: 993,
     },
+    oAuth: {
+      type: "imap",
+      baseOptions: { extensions: ["OAUTH2"], password: "access_token" },
+      hostname: "test.test",
+      port: 143,
+    },
   },
   pop3: {
     plain: {
@@ -198,6 +204,16 @@ const serverDefs = {
       },
       hostname: "expired.test.test",
       port: 995,
+    },
+    oAuth: {
+      type: "pop3",
+      baseOptions: {
+        handler: ["OAUTH2"],
+        username: "user",
+        password: "access_token",
+      },
+      hostname: "test.test",
+      port: 110,
     },
   },
   smtp: {

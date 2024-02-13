@@ -2475,6 +2475,29 @@ export var IMAP_RFC2195_extension = {
   },
 };
 
+/**
+ * Implements XOAUTH2 authentication.
+ */
+export var IMAP_OAUTH2_extension = {
+  kAuthSchemes: ["XOAUTH2"],
+
+  preload(handler) {
+    handler._kAuthSchemeStartFunction.XOAUTH2 = this.authXOAUTH2Start;
+  },
+
+  authXOAUTH2Start(lineRest) {
+    const [user, auth] = atob(lineRest).split("\u0001");
+    if (
+      user == `user=${this.kUsername}` &&
+      auth == `auth=Bearer ${this.kPassword}`
+    ) {
+      this._state = IMAP_STATE_AUTHED;
+      return "OK Yeah, that's the right access token.";
+    }
+    return "BAD Yeah, nah, that's the wrong access token.";
+  },
+};
+
 // FETCH BODYSTRUCTURE
 function bodystructure(msg, extension) {
   if (!msg || msg == "") {

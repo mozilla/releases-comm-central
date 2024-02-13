@@ -25,10 +25,9 @@ var alertHook = {
   },
 
   get alertService() {
-    delete this.alertService;
-    return (this.alertService = Cc["@mozilla.org/alerts-service;1"].getService(
-      Ci.nsIAlertsService
-    ));
+    // Don't store a reference to the alerts service, as it can be swapped out
+    // during tests.
+    return Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
   },
 
   get brandShortName() {

@@ -460,3 +460,33 @@ export class POP3_RFC5034_handler extends POP3_RFC2449_handler {
     return "-ERR Wrong username or password, crook!";
   }
 }
+
+/**
+ * Implements XOAUTH2 authentication.
+ */
+export class POP3_OAUTH2_handler extends POP3_RFC5034_handler {
+  kAuthSchemes = ["XOAUTH2"];
+
+  constructor(daemon, options) {
+    super(daemon, options);
+    this._kAuthSchemeStartFunction.XOAUTH2 = this.authXOAUTH2Start;
+  }
+
+  authXOAUTH2Start(lineRest) {
+    this._nextAuthFunction = this.authXOAUTH2Cred;
+    this._multiline = true;
+
+    return "+";
+  }
+  authXOAUTH2Cred(lineRest) {
+    const [user, auth] = atob(lineRest).split("\u0001");
+    if (
+      user == `user=${this.kUsername}` &&
+      auth == `auth=Bearer ${this.kPassword}`
+    ) {
+      this._state = kStateTransaction;
+      return "+OK Yeah, that's the right access token.";
+    }
+    return "-BAD Yeah, nah, that's the wrong access token.";
+  }
+}
