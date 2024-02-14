@@ -410,7 +410,7 @@ class MailNotificationManager {
       null,
       "chrome://messenger/content/newmailalert.xhtml",
       "_blank",
-      "chrome,dialog,titlebar=no",
+      "chrome,dialog,titlebar=no,alert=yes",
       args
     );
     this._customizedAlertShown = true;
