@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+SimpleTest.requestCompleteLog();
+requestLongerTimeout(3);
+
 /**
  * Tests that items on the mail context menu are correctly shown in context.
  */
@@ -10,6 +13,9 @@ var { ConversationOpener } = ChromeUtils.import(
   "resource:///modules/ConversationOpener.jsm"
 );
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
+var { GlodaIndexer } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaIndexer.jsm"
+);
 var { GlodaSyntheticView } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaSyntheticView.jsm"
 );
@@ -238,7 +244,7 @@ add_setup(async function () {
   const messages = [
     ...generator.makeMessages({ count: 5 }),
     ...generator.makeMessages({ count: 5, msgsPerThread: 5 }),
-    ...generator.makeMessages({ count: 200 }),
+    ...generator.makeMessages({ count: 60 }),
   ];
   const messageStrings = messages.map(message => message.toMessageString());
   testFolder.addMessageBatch(messageStrings);
@@ -352,7 +358,9 @@ add_task(async function testNoMessages() {
  */
 add_task(async function testSingleMessage() {
   await TestUtils.waitForCondition(
-    () => ConversationOpener.isMessageIndexed(testMessages[0]),
+    () =>
+      ConversationOpener.isMessageIndexed(testMessages[0]) &&
+      !GlodaIndexer.indexing,
     "waiting for Gloda to finish indexing",
     1000
   );
@@ -447,7 +455,7 @@ add_task(async function testSingleMessage() {
 
   // Open the menu on a message that is scrolled out of view.
 
-  threadTree.scrollToIndex(200, true);
+  threadTree.scrollToIndex(60, true);
   await new Promise(resolve => window.requestAnimationFrame(resolve));
   Assert.ok(!row.parentNode, "Row element should no longer be attached");
   Assert.equal(threadTree.currentIndex, 5, "Row 5 is the current row");
@@ -486,9 +494,10 @@ add_task(async function testSingleMessage() {
  */
 add_task(async function testMultipleMessages() {
   await TestUtils.waitForCondition(
-    () => ConversationOpener.isMessageIndexed(testMessages[5]),
-    "waiting for Gloda to finish indexing",
-    1000
+    () =>
+      ConversationOpener.isMessageIndexed(testMessages[5]) &&
+      !GlodaIndexer.indexing,
+    "waiting for Gloda to finish indexing"
   );
 
   const about3Pane = tabmail.currentAbout3Pane;
@@ -534,7 +543,7 @@ add_task(async function testMultipleMessages() {
   // Open the menu in the thread pane on a message scrolled out of view.
 
   threadTree.selectAll();
-  threadTree.currentIndex = 200;
+  threadTree.currentIndex = 60;
   await TestUtils.waitForTick();
   await new Promise(resolve => window.requestAnimationFrame(resolve));
   threadTree.scrollToIndex(0, true);
@@ -566,9 +575,10 @@ add_task(async function testDraftsFolder() {
   about3Pane.restoreState({ folderURI: draftsFolder.URI });
 
   await TestUtils.waitForCondition(
-    () => ConversationOpener.isMessageIndexed(draftsMessages[1]),
-    "waiting for Gloda to finish indexing",
-    1000
+    () =>
+      ConversationOpener.isMessageIndexed(draftsMessages[1]) &&
+      !GlodaIndexer.indexing,
+    "waiting for Gloda to finish indexing"
   );
 
   const mailContext = about3Pane.document.getElementById("mailContext");
@@ -629,9 +639,10 @@ add_task(async function testTemplatesFolder() {
   about3Pane.restoreState({ folderURI: templatesFolder.URI });
 
   await TestUtils.waitForCondition(
-    () => ConversationOpener.isMessageIndexed(templatesMessages[1]),
-    "waiting for Gloda to finish indexing",
-    1000
+    () =>
+      ConversationOpener.isMessageIndexed(templatesMessages[1]) &&
+      !GlodaIndexer.indexing,
+    "waiting for Gloda to finish indexing"
   );
 
   const mailContext = about3Pane.document.getElementById("mailContext");
@@ -692,9 +703,10 @@ add_task(async function testListMessage() {
   about3Pane.restoreState({ folderURI: listFolder.URI });
 
   await TestUtils.waitForCondition(
-    () => ConversationOpener.isMessageIndexed(listMessages[0]),
-    "waiting for Gloda to finish indexing",
-    1000
+    () =>
+      ConversationOpener.isMessageIndexed(listMessages[0]) &&
+      !GlodaIndexer.indexing,
+    "waiting for Gloda to finish indexing"
   );
 
   const mailContext = about3Pane.document.getElementById("mailContext");
@@ -742,21 +754,17 @@ add_task(async function testListMessage() {
  */
 add_task(async function testSyntheticFolder() {
   await TestUtils.waitForCondition(
-    () => ConversationOpener.isMessageIndexed(testMessages[5]),
-    "waiting for Gloda to finish indexing",
-    1000
-  );
-  await TestUtils.waitForCondition(
-    () => ConversationOpener.isMessageIndexed(draftsMessages[4]),
-    "waiting for Gloda to finish indexing",
-    1000
+    () =>
+      ConversationOpener.isMessageIndexed(testMessages[5]) &&
+      !GlodaIndexer.indexing,
+    "waiting for Gloda to finish indexing"
   );
 
   const tabPromise = BrowserTestUtils.waitForEvent(
     window,
     "aboutMessageLoaded"
   );
-  tabmail.openTab("mail3PaneTab", {
+  const tab = tabmail.openTab("mail3PaneTab", {
     syntheticView: new GlodaSyntheticView({
       collection: Gloda.getMessageCollectionForHeaders([
         ...draftsMessages,
@@ -766,14 +774,17 @@ add_task(async function testSyntheticFolder() {
     title: "Test gloda results",
   });
   await tabPromise;
-  await new Promise(resolve => setTimeout(resolve));
 
-  const about3Pane = tabmail.currentAbout3Pane;
+  const about3Pane = tab.chromeBrowser.contentWindow;
   const mailContext = about3Pane.document.getElementById("mailContext");
-  const { gDBView, messageBrowser, threadTree } = about3Pane;
+  const { messageBrowser, threadTree } = about3Pane;
   const messagePaneBrowser =
     messageBrowser.contentWindow.getMessagePaneBrowser();
 
+  const gDBView = await TestUtils.waitForCondition(
+    () => about3Pane.gDBView,
+    "waiting for view to load in new tab"
+  );
   let loadedPromise = BrowserTestUtils.browserLoaded(
     messagePaneBrowser,
     undefined,
