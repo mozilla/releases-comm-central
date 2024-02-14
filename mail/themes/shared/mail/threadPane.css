@@ -652,21 +652,6 @@ tr[data-properties~="junk"] :is(.tree-view-row-spam > .tree-button-spam > img, .
   display: none;
 }
 
-#threadTree tr[data-properties~="junk"] :is(.date, .subject) {
-  color: var(--color-red-60);
-  font-weight: 600;
-
-  @media (prefers-color-scheme: dark) {
-    color: var(--color-red-40);
-  }
-}
-
-#threadTree [is="tree-view-table-body"]:is(:focus, :focus-within) >
-  .selected[data-properties~="junk"] :is(.date, .subject),
-#threadTree [is="tree-view-table-body"] >
-  .selected[data-properties~="junk"]:focus-within :is(.date, .subject) {
-  color: inherit;
-}
 
 /* Delete column variations */
 /* TODO: Handle delete button color variations for tagged messages */

@@ -63,20 +63,30 @@
     --card-view-date-color: var(--layout-color-2);
     --card-view-background-hover: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-blue-10)), color-mix(in srgb, var(--tree-view-bg) 60%, var(--color-blue-90)));
     --card-view-background-selected-hover: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-blue-20)), color-mix(in srgb, var(--tree-view-bg) 50%, var(--color-blue-80)));
+    --card-view-background-hover-spam: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-red-10)), color-mix(in srgb, var(--tree-view-bg) 80%, var(--color-red-90)));
+    --card-view-background-selected-hover-spam: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-red-20)), color-mix(in srgb, var(--tree-view-bg) 70%, var(--color-red-80)));
     --card-view-background-selected-unfocused-hover: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-gray-30)), color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-gray-60)));
     --card-view-background-unselected-focused: --card-view-background-hover;
     --card-view-background-selected-unfocused: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-gray-20)), color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-gray-70)));
     --card-view-background-selected-focused: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-blue-10)), color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-blue-90)));
     --card-view-offset-outline-color: light-dark(var(--color-blue-70), var(--color-blue-50));
+    --card-view-background-selected-focused-spam: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-red-10)), color-mix(in srgb, var(--tree-view-bg) 50%, var(--color-red-90)));
+    --card-view-offset-outline-color-spam: light-dark(var(--color-red-70), var(--color-red-50));
     --card-view-offset-outline-color-unselected: light-dark(var(--color-gray-50), var(--color-gray-70));
     --selection-indicator-background-selected-unfocused: light-dark(var(--color-gray-30), var(--color-gray-50));
     --selection-indicator-background-selected-focused: var(--color-blue-50);
+    --selection-indicator-background-selected-focused-spam: var(--color-red-50);
     --selection-indicator-background-unselected-focused: light-dark(var(--color-blue-10), var(--color-blue-90));
+    --selection-indicator-background-unselected-focused-spam: light-dark(var(--color-red-10), var(--color-red-90));
     --selection-indicator-background-right-click: light-dark(var(--color-blue-20), var(--color-blue-80));
+    --selection-indicator-background-right-click-spam: light-dark(var(--color-red-20), var(--color-red-80));
     --selection-indicator-border-selected-unfocused: light-dark(var(--color-gray-50), var(--color-gray-70));
     --selection-indicator-border-selected-focused: var(--color-blue-70);
+    --selection-indicator-border-selected-focused-spam: var(--color-red-70);
     --selection-indicator-border-unselected-focused: light-dark(var(--color-blue-20), var(--color-blue-80));
+    --selection-indicator-border-unselected-focused-spam: light-dark(var(--color-red-20), var(--color-red-80));
     --selection-indicator-border-right-click: light-dark(var(--color-blue-30), var(--color-blue-70));
+    --selection-indicator-border-right-click-spam: light-dark(var(--color-red-30), var(--color-red-70));
     --unread-color: var(--layout-color-0);
 
     @media (prefers-color-scheme: dark) {
@@ -359,6 +369,52 @@
 
     & img {
       stroke: currentColor;
+    }
+  }
+
+  /* Spam thread card selection styles */
+  & > [is="thread-card"][data-properties~="junk"] {
+    &:hover {
+      background-color: var(--card-view-background-hover-spam);
+    }
+  }
+
+  &:is(:focus, :focus-within) > [is="thread-card"][data-properties~="junk"].selected,
+  & > [is="thread-card"][data-properties~="junk"].selected:focus-within {
+    background: var(--card-view-background-selected-focused-spam);
+
+    &:hover {
+      background-color: var(--card-view-background-selected-hover-spam);
+    }
+
+    & > td::before {
+      background-color: var(--selection-indicator-background-selected-focused-spam);
+      border-color: var(--selection-indicator-border-selected-focused-spam);
+    }
+  }
+  
+  /* Spam thread card right click styles */
+  & tr.context-menu-target:not(.selected) {
+    &[is="thread-card"][data-properties~="junk"] {
+      .thread-card-container {
+        outline-color: var(--card-view-offset-outline-color-spam);
+        background-color: var(--card-view-background-unselected-focused-spam);
+      }
+
+      & > td::before {
+        background-color: var(--selection-indicator-background-right-click-spam);
+        border-color: var(--selection-indicator-border-right-click-spam);
+      }
+    }
+  }
+}
+
+/* Spam thread card multi-selection styles */
+.multi-selected [is="tree-view-table-body"] {
+  & > [is="thread-card"][data-properties~="junk"].current,
+  &:focus > [is="thread-card"][data-properties~="junk"].current {
+    .thread-card-container.selected > .thread-card-container {
+      outline-color: var(--card-view-offset-outline-color-spam);
     }
   }
 }
