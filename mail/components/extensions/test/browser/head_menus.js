@@ -294,7 +294,7 @@ async function subtest_content(
 ) {
   await awaitBrowserLoaded(browser, url => url != "about:blank");
 
-  const menuId = browser.getAttribute("context");
+  const menuId = browser.getAttribute("context") || "mailContext";
   let ownerDocument;
   if (browser.ownerGlobal.parent.location.href == "about:3pane") {
     ownerDocument = browser.ownerGlobal.parent.document;

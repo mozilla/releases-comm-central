@@ -58,6 +58,10 @@ async function subtest_replyEditAsNewForward_charset(
 
   const file = new FileUtils.File(getTestFilePath(`data/${aFile}`));
   const msgc = await open_message_from_file(file);
+  // We need to be sure the ContextMenu actors are ready before trying to open a
+  // context menu from the message. I can't find a way to be sure, so let's wait.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
 
   // Copy the message to a folder. We run the message through a folder
   // since replying/editing as new/forwarding directly to the message
