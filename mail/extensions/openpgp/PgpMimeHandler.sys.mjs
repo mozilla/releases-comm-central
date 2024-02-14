@@ -60,8 +60,8 @@ function UnknownProtoHandler() {
 
 UnknownProtoHandler.prototype = {
   onStartRequest(request, ctxt) {
-    this.mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
-    this.bound = lazy.EnigmailMime.getBoundary(this.mimeSvc.contentType);
+    this.proxy = request.QueryInterface(Ci.nsIPgpMimeProxy);
+    this.bound = lazy.EnigmailMime.getBoundary(this.proxy.contentType);
     /*
       readMode:
         0: before message
@@ -102,7 +102,7 @@ UnknownProtoHandler.prototype = {
 
         if (this.readMode >= 1 && startIndex < l.length) {
           const out = l.slice(startIndex, endIndex).join("\n") + "\n";
-          this.mimeSvc.outputDecryptedData(out, out.length);
+          this.proxy.outputDecryptedData(out, out.length);
         }
       }
     }
@@ -122,9 +122,9 @@ PgpMimeHandler.prototype = {
   ),
 
   onStartRequest(request, ctxt) {
-    const mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
-    const ct = mimeSvc.contentType;
-    const uri = mimeSvc.messageURI;
+    const proxy = request.QueryInterface(Ci.nsIPgpMimeProxy);
+    const ct = proxy.contentType;
+    const uri = proxy.messageURI;
 
     lazy.EnigmailCore.init();
 
@@ -145,15 +145,10 @@ PgpMimeHandler.prototype = {
         // PGP/MIME signed message
         cth = lazy.EnigmailVerify.newVerifier();
       } else if (ct.search(/application\/(x-)?pkcs7-signature/i) > 0) {
-        let lastUriSpec = "";
-        if (uri) {
-          const u = uri.QueryInterface(Ci.nsIURI);
-          lastUriSpec = u.spec;
-        }
         // S/MIME signed message
-        if (lastUriSpec !== gLastEncryptedUri) {
+        if (uri.spec !== gLastEncryptedUri) {
           // if message is displayed then handle like S/MIME message
-          return this.handleSmime(mimeSvc, uri);
+          return this.handleSmime(proxy, uri);
         }
 
         // otherwise just make sure message body is returned
@@ -193,25 +188,12 @@ PgpMimeHandler.prototype = {
     delete this._onStopRequest;
   },
 
-  handleSmime(mimeSvc, uri) {
+  /**
+   * @param {sIPgpMimeProxy} proxy
+   * @param {nsIURI} uri
+   */
+  handleSmime(proxy, uri) {
     this.contentHandler = throwErrors;
-
-    if (uri) {
-      uri = uri.QueryInterface(Ci.nsIURI);
-    }
-
-    mimeSvc.mailChannel?.smimeHeaderSink?.handleSMimeMessage(uri);
-  },
-
-  getMessengerWindow() {
-    const windowManager = Services.wm;
-
-    for (const win of windowManager.getEnumerator(null)) {
-      if (win.location.href.search(/\/messenger.xhtml$/) > 0) {
-        return win;
-      }
-    }
-
-    return null;
+    proxy.mailChannel?.smimeHeaderSink?.handleSMimeMessage(uri.spec);
   },
 };

@@ -11,6 +11,8 @@
 // mailCommon.js
 /* globals gEncryptedURIService */
 
+/* eslint-enable valid-jsdoc */
+
 var gMyLastEncryptedURI = null;
 
 var gSMIMEBundle = null;
@@ -159,11 +161,12 @@ function refreshSmimeMessageEncryptionStatus(mimePartNumber = undefined) {
   setMessageCryptoBox("S/MIME", encrypted, signed, false, mimePartNumber);
 }
 
+/** @implements {nsIMsgSMIMEHeaderSink} */
 var smimeHeaderSink = {
   /**
-   * @returns the URI of the selected message, or null if the current
-   *         message displayed isn't in a folder, for example if the
-   *         message is displayed in a separate window.
+   * @returns {?string} the URI of the selected message, or null if the current
+   *   message displayed isn't in a folder, for example if the message is
+   *   displayed in a separate window.
    */
   getSelectedMessageURI() {
     if (!gMessage) {
@@ -183,6 +186,14 @@ var smimeHeaderSink = {
     return neckoURLForMessageURI(gMessageURI);
   },
 
+  /**
+   * @param {integer} aNestingLevel - Nesting level.
+   * @param {integer} aSignatureStatus - Signature status.
+   * @param {nsIX509Cert} aSignerCert - Certificate of signer.
+   * @param {string} aMsgNeckoURL - URL processed.
+   * @param {string} aOriginMimePartNumber - The MIME part that triggered this
+   *   status report.
+   */
   signedStatus(
     aNestingLevel,
     aSignatureStatus,
@@ -269,6 +280,14 @@ var smimeHeaderSink = {
     UpdateExpandedMessageHeaders();
   },
 
+  /**
+   * @param {integer} aNestingLevel - Nesting level.
+   * @param {integer} aEncryptionStatus - Encryption status.
+   * @param {nsIX509Cert} aRecipientCert - Certificate of recipient.
+   * @param {string} aMsgNeckoURL - URL processed.
+   * @param {string} aOriginMimePartNumber - The MIME part that triggered this
+   *   status report.
+   */
   encryptionStatus(
     aNestingLevel,
     aEncryptionStatus,
@@ -365,10 +384,20 @@ var smimeHeaderSink = {
 
   // Forward these calls to the header pane code.
 
+  /**
+   * @param {string} originMimePartNumber
+   */
   ignoreStatusFrom(originMimePartNumber) {
     return Enigmail.hdrView.headerPane.ignoreStatusFrom(originMimePartNumber);
   },
 
+  /**
+   * Modify message headers.
+   *
+   * @param {string} uri - URI spec for the message (part).
+   * @param {string} headerData - Header data, as JSON data.
+   * @param {string} mimePartNumber - MIME part number.
+   */
   modifyMessageHeaders(uri, headerData, mimePartNumber) {
     return Enigmail.hdrView.headerPane.modifyMessageHeaders(
       uri,
@@ -405,6 +434,9 @@ var smimeHeaderSink = {
     );
   },
 
+  /**
+   * @param {string} uri - URI to handle.
+   */
   handleSMimeMessage(uri) {
     return Enigmail.hdrView.headerPane.handleSMimeMessage(uri);
   },

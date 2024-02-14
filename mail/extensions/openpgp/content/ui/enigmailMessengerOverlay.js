@@ -796,7 +796,7 @@ Enigmail.msg = {
       "",
       "",
       "",
-      uri,
+      uri.spec,
       "",
       "1"
     );

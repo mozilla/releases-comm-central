@@ -648,7 +648,7 @@ MimeVerify.prototype = {
       if (headerSink) {
         if (this.protectedHeaders) {
           headerSink.modifyMessageHeaders(
-            this.uri,
+            this.uri.spec,
             JSON.stringify(
               Object.fromEntries(this.protectedHeaders._cachedHeaders)
             ),
@@ -665,7 +665,7 @@ MimeVerify.prototype = {
           this.returnStatus.sigDetails,
           this.returnStatus.errorMsg,
           this.returnStatus.blockSeparation,
-          this.uri,
+          this.uri.spec,
           JSON.stringify({
             encryptedTo: this.returnStatus.encToDetails,
             packetDump:

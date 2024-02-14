@@ -634,6 +634,10 @@ MimeDecryptHandler.prototype = {
     }
   },
 
+  /**
+   * Display decryption status.
+   * @param {nsIMsgSMIMEHeaderSink} headerSink - The sink to use.
+   */
   displayStatus(headerSink) {
     lazy.EnigmailLog.DEBUG("mimeDecrypt.jsm: displayStatus()\n");
 
@@ -653,7 +657,7 @@ MimeDecryptHandler.prototype = {
       if (headerSink && this.uri && !this.backgroundJob) {
         if (this.decryptedHeaders) {
           headerSink.modifyMessageHeaders(
-            this.uri,
+            this.uri.spec,
             JSON.stringify(
               Object.fromEntries(this.decryptedHeaders._cachedHeaders)
             ),
@@ -670,7 +674,7 @@ MimeDecryptHandler.prototype = {
           this.returnStatus.sigDetails,
           this.returnStatus.errorMsg,
           this.returnStatus.blockSeparation,
-          this.uri,
+          this.uri.spec,
           JSON.stringify({
             encryptedTo: this.returnStatus.encToDetails,
             packetDump:
@@ -852,7 +856,7 @@ MimeDecryptHandler.prototype = {
           "",
           lazy.l10n.formatValueSync("possibly-pgp-mime"),
           "",
-          this.uri,
+          this.uri.spec,
           null,
           ""
         );
