@@ -18,6 +18,9 @@ var { PromiseTestUtils } = ChromeUtils.import(
 var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
 
 /**
  * Keep it so that OVERALL_MESSAGES % CHUNKING_SIZE !== 0.
@@ -152,7 +155,7 @@ add_task(async function testMessageFetched() {
     }
     return false; // Rerun waitForCondition.
   }, 50);
-});
+}).skip(AppConstants.platform == "macosx"); // Not working on mac. Bug 1776115.
 
 add_task(async function testHdrsDownloaded() {
   await gListener.promise; // Now we wait for the finished update of the Folder.
