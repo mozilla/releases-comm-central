@@ -129,10 +129,12 @@ body {
     flex-wrap: wrap;
     align-items: center;
     gap: 3px 6px;
-  }
+    flex: 1 auto;
 
-  & .author {
-    text-align: end;
+    .author {
+      width: min-content;
+      flex-grow: 1;
+    }
   }
 
   & .link {
