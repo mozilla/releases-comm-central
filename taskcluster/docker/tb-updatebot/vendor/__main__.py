@@ -122,7 +122,7 @@ def run_vendor():
 def commit_changes():
     os.chdir(COMM_PATH)
     run_cmd([HG, "addremove", "third_party/rust/", "rust/"])
-    logmsg = f"""No bug - Synchronize vendored Rust libraries with mozilla-central. r={REVIEWERS}
+    logmsg = f"""Bug 1878375 - Synchronize vendored Rust libraries with mozilla-central. r={REVIEWERS}
 
 mozilla-central: {GECKO_HEAD_REV}
 comm-central: {COMM_HEAD_REV}
@@ -142,7 +142,7 @@ def submit_phabricator():
         return
 
     os.chdir(COMM_PATH)
-    result = run_cmd([MOZ_PHAB, "submit", "-s", "--no-bug", "--no-lint"])
+    result = run_cmd([MOZ_PHAB, "submit", "-s", "--no-lint"])
 
     # Look for the Phabricator revision URL on the last line of stdout
     if result.returncode == 0:
