@@ -43,7 +43,7 @@ function openContextMenu({ data, target }, browser) {
     return false;
   }
 
-  if (browser.getAttribute("context") != "mailContext") {
+  if (browser.id != "messagepane") {
     return false;
   }
 

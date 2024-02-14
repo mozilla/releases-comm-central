@@ -826,7 +826,7 @@ async function loadStartFolder(initialUri) {
 
 function OpenMessageInNewTab(msgHdr, tabParams = {}) {
   if (!msgHdr) {
-    return;
+    return null;
   }
 
   if (tabParams.background === undefined) {
@@ -839,7 +839,7 @@ function OpenMessageInNewTab(msgHdr, tabParams = {}) {
   }
 
   const tabmail = document.getElementById("tabmail");
-  tabmail.openTab("mailMessageTab", {
+  return tabmail.openTab("mailMessageTab", {
     ...tabParams,
     messageURI: msgHdr.folder.getUriForMsg(msgHdr),
   });

@@ -397,10 +397,11 @@ add_task(async function testKeys() {
 
 add_task(async function testMessageTab() {
   const tabPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
-  window.OpenMessageInNewTab(testFolder.messages.getNext(), {
+  const tab = window.OpenMessageInNewTab(testFolder.messages.getNext(), {
     background: false,
   });
   const { detail: message } = await tabPromise;
+  await messageLoadedIn(tab.chromeBrowser);
   await TestUtils.waitForTick();
   info("testing mail context from messagepane");
   await subtestSingleMessage(message, openMailContextFromMessagePane);
@@ -426,6 +427,7 @@ add_task(async function testMessageWindow() {
     "MsgLoaded"
   );
   const aboutMessage = win.messageBrowser.contentWindow;
+  await messageLoadedIn(win.messageBrowser);
   info("testing mail context from message pane");
   await subtestSingleMessage(
     message,
@@ -454,20 +456,7 @@ add_task(async function testMessageWindow() {
 async function selectMessageInAbout3Pane() {
   about3Pane.displayFolder(testFolder);
   about3Pane.threadTree.selectedIndex = 0;
-  const messagePaneBrowser =
-    about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
-  if (
-    messagePaneBrowser.webProgress?.isLoadingDocument ||
-    !messagePaneBrowser.currentURI ||
-    messagePaneBrowser.currentURI?.spec == "about:blank"
-  ) {
-    await BrowserTestUtils.browserLoaded(
-      messagePaneBrowser,
-      undefined,
-      url => url != "about:blank"
-    );
-  }
-
+  await messageLoadedIn(about3Pane.messageBrowser);
   return about3Pane.gDBView.hdrForFirstSelectedMessage;
 }
 

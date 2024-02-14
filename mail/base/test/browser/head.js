@@ -354,6 +354,9 @@ async function messageLoadedIn(aboutMessageBrowser) {
     () => aboutMessageBrowser.contentWindow.msgLoaded,
     "waiting for message to be loaded"
   );
+  // We need to be sure the ContextMenu actors are ready before trying to open a
+  // context menu from the message. I can't find a way to be sure, so let's wait.
+  await new Promise(resolve => setTimeout(resolve, 500));
 }
 
 /**

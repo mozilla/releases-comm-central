@@ -6,7 +6,7 @@
  * Tests that composition items on the mail context menu work.
  */
 
-requestLongerTimeout(2);
+requestLongerTimeout(3);
 
 const { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
@@ -107,7 +107,6 @@ add_task(async function testThreadPane() {
   const mailContext = about3Pane.document.getElementById("mailContext");
 
   async function openMenu() {
-    console.log(threadTree.currentIndex);
     EventUtils.synthesizeMouseAtCenter(
       threadTree.getRowAtIndex(threadTree.currentIndex),
       { type: "contextmenu" },
@@ -226,7 +225,6 @@ add_task(async function testMessageWindow() {
       const aboutMessage = this.win.messageBrowser.contentWindow;
       const mailContext = aboutMessage.document.getElementById("mailContext");
 
-      await SimpleTest.promiseFocus(this.win);
       BrowserTestUtils.synthesizeMouseAtCenter(
         "body",
         { type: "contextmenu" },
@@ -301,7 +299,7 @@ async function promiseComposeWindow(
   }
 
   await BrowserTestUtils.closeWindow(composeWindow);
-  await SimpleTest.promiseFocus(composeWindow.opener);
+  await SimpleTest.promiseFocus(mailContext.ownerGlobal.top);
 }
 
 async function subtestSingleMessage(callbacks) {
