@@ -22,7 +22,11 @@ menupopup {
 
   & .menu-iconic-icon {
     width: 16px;
-    margin-inline-start: 0;
+    margin-inline: 0 5px;
+  }
+
+  & > menuseparator {
+    margin-inline: 0;
   }
 
   & > menuseparator#customizeMailToolbarMenuSeparator {
@@ -38,6 +42,14 @@ menupopup {
     &::before,
     &::after {
       content: none; /* Reset's macOS' checkmark spacing */
+    }
+  }
+
+  &[needsgutter] > :is(menu, menuitem, menucaption) {
+    padding-inline-start: 8px;
+
+    &::before {
+      display: none;
     }
   }
 

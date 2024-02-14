@@ -208,7 +208,7 @@ body {
   --panel-border-radius: 2px;
   --panel-background: var(--in-content-box-background);
   --panel-color: var(--in-content-text-color);
-  --panel-padding: 0;
+  --panel-padding: 3px 0;
 }
 
 #accountActionsDropdown > menuitem {
