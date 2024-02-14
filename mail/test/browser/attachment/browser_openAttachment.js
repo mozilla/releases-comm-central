@@ -185,8 +185,10 @@ async function singleClickAttachmentAndWaitForDialog(
     "chrome://mozapps/content/downloads/unknownContentType.xhtml",
     {
       async callback(dialogWindow) {
-        await new Promise(resolve => dialogWindow.setTimeout(resolve));
-        await new Promise(resolve => dialogWindow.setTimeout(resolve));
+        // Wait for the buttons to be enabled, which requires focus plus
+        // clearing the event queue.
+        await SimpleTest.promiseFocus(dialogWindow);
+        await TestUtils.waitForTick();
 
         const dialogDocument = dialogWindow.document;
         const rememberChoice = dialogDocument.getElementById("rememberChoice");
