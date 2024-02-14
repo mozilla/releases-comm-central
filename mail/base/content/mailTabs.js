@@ -91,11 +91,11 @@ var mailTabType = {
           "mail3PaneTabTemplate",
           tab,
           win => {
+            win.tabOrWindow = tab;
             // Send the state to the page so it can restore immediately.
             win.openingState = args;
           },
           async win => {
-            win.tabOrWindow = tab;
             // onLoad has happened. async activities of scripts running of
             // that may not have finished. Let's go back to the end of the
             // event queue giving win.messageBrowser time to get defined.

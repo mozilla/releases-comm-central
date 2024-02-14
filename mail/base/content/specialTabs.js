@@ -814,6 +814,7 @@ var specialTabs = {
       aTab.linkedBrowser = aTab.browser = document.createXULElement("browser");
       aTab.browser.setAttribute("id", "contentTabBrowser" + this.lastBrowserId);
       aTab.browser.setAttribute("type", "content");
+      aTab.browser.setAttribute("manualactiveness", "true");
       aTab.browser.setAttribute("flex", "1");
       aTab.browser.setAttribute("autocompletepopup", "PopupAutoComplete");
       aTab.browser.setAttribute("context", "browserContext");

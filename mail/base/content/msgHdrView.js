@@ -456,6 +456,7 @@ function OnUnloadMsgHeaderPane() {
   );
 
   clearFolderDBListener();
+  ClearPendingReadTimer();
 
   top.document.removeEventListener("keypress", msgSecurityKeypressHandler);
 
@@ -4243,10 +4244,11 @@ function autoMarkAsRead() {
     return;
   }
 
-  if (document.hidden) {
+  const browser = getMessagePaneBrowser();
+  if (!browser.docShellIsActive) {
     // We're in an inactive docShell (probably a background tab). Wait until
     // it becomes active before marking the message as read.
-    document.addEventListener("visibilitychange", () => autoMarkAsRead(), {
+    browser.addEventListener("visibilitychange", () => autoMarkAsRead(), {
       once: true,
     });
     return;

@@ -218,11 +218,20 @@ function displayMessage(uri, viewWrapper) {
     document.title = gMessage.mime2DecodedSubject;
   }
 
+  if (parent.tabOrWindow) {
+    // We could end up here before `tabOrWindow` has been set. If the parent
+    // window is about:3pane, get it from there.
+    window.tabOrWindow = parent.tabOrWindow;
+  }
+
   const browser = getMessagePaneBrowser();
   const browserChanged = MailE10SUtils.changeRemoteness(browser, null);
-  // The message pane browser should inherit `docShellIsActive` from the
-  // about:message browser, but changing remoteness causes that to not happen.
-  // browser.docShellIsActive = !document.hidden;
+  // If we're in a background tab, mark the docShell as inactive, so that the
+  // message doesn't get marked as read by `autoMarkAsRead` or
+  // `nsImapService::LoadMessage`.
+  browser.docShellIsActive =
+    Window.isInstance(window.tabOrWindow) ||
+    window.tabOrWindow?.panel.getAttribute("selected") === "true";
   browser.docShell.allowAuth = false;
   browser.docShell.allowDNSPrefetch = false;
 
