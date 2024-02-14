@@ -4,6 +4,8 @@
 /* eslint-env node */
 
 const path = require("path");
+const webpack = require("webpack");
+const rewriteChromeUri = require("./chrome-uri-utils.js");
 
 // ./mach environment --format json
 // topobjdir should be the build location
@@ -27,6 +29,14 @@ module.exports = {
     // Make whatever fine-grained changes you need
     const projectRoot = path.resolve(__dirname, "../../../../");
     config.resolve.alias.mail = `${projectRoot}/mail`;
+    config.resolve.alias.comm = projectRoot;
+
+    config.plugins.push(
+      // Rewrite chrome:// URI imports to file system paths.
+      new webpack.NormalModuleReplacementPlugin(/^chrome:\/\//, resource => {
+        resource.request = rewriteChromeUri(resource.request);
+      })
+    );
 
     config.module.rules.push({
       test: /\.ftl$/,
