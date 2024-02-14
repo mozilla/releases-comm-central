@@ -8,6 +8,13 @@ var { OAuth2Providers } = ChromeUtils.import(
 );
 
 /**
+ * A collection of `OAuth2` objects that have previously been created.
+ * Only weak references are stored here, so if all the owners of an `OAuth2`
+ * is cleaned up, so is the object itself.
+ */
+const oAuth2Objects = new Set();
+
+/**
  * OAuth2Module is the glue layer that gives XPCOM access to an OAuth2
  * bearer token it can use to authenticate in SASL steps.
  * It also takes care of persising the refreshToken for later usage.
@@ -79,24 +86,45 @@ OAuth2Module.prototype = {
     // We use the scope to indicate realm when storing in the password manager.
     this._scope = scope;
 
-    // Define the OAuth property and store it.
-    this._oauth = new OAuth2(scope, issuerDetails);
+    // Look for an existing `OAuth2` object with the same endpoint, username
+    // and scope.
+    for (const weakRef of oAuth2Objects) {
+      const oauth = weakRef.deref();
+      if (!oauth) {
+        oAuth2Objects.delete(weakRef);
+        continue;
+      }
+      if (
+        oauth.authorizationEndpoint == issuerDetails.authorizationEndpoint &&
+        oauth.username == aUsername &&
+        oauth.scope == scope
+      ) {
+        this._oauth = oauth;
+        break;
+      }
+    }
+    if (!this._oauth) {
+      // Define the OAuth property and store it.
+      this._oauth = new OAuth2(scope, issuerDetails);
+      this._oauth.username = aUsername;
+      oAuth2Objects.add(new WeakRef(this._oauth));
 
-    // Try hinting the username...
-    this._oauth.extraAuthParams = [["login_hint", aUsername]];
+      // Try hinting the username...
+      this._oauth.extraAuthParams = [["login_hint", aUsername]];
 
-    // Set the window title to something more useful than "Unnamed"
-    this._oauth.requestWindowTitle = Services.strings
-      .createBundle("chrome://messenger/locale/messenger.properties")
-      .formatStringFromName("oauth2WindowTitle", [aUsername, aHostname]);
+      // Set the window title to something more useful than "Unnamed"
+      this._oauth.requestWindowTitle = Services.strings
+        .createBundle("chrome://messenger/locale/messenger.properties")
+        .formatStringFromName("oauth2WindowTitle", [aUsername, aHostname]);
 
-    // This stores the refresh token in the login manager.
-    Object.defineProperty(this._oauth, "refreshToken", {
-      get: () => this.refreshToken,
-      set: token => {
-        this.refreshToken = token;
-      },
-    });
+      // This stores the refresh token in the login manager.
+      Object.defineProperty(this._oauth, "refreshToken", {
+        get: () => this.refreshToken,
+        set: token => {
+          this.refreshToken = token;
+        },
+      });
+    }
 
     return true;
   },
@@ -197,4 +225,12 @@ OAuth2Module.prototype = {
     const promptkey = this._loginOrigin + "/" + this._username;
     asyncprompter.queueAsyncAuthPrompt(promptkey, false, promptlistener);
   },
+};
+
+/**
+ * Forget any `OAuth2` objects we've stored, which is necessary in some
+ * testing scenarios.
+ */
+OAuth2Module._forgetObjects = function () {
+  oAuth2Objects.clear();
 };
