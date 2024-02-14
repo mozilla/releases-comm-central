@@ -15,14 +15,14 @@ const STANDARD_THEMES = new Map([
   [
     "thunderbird-compact-light@mozilla.org",
     {
-      version: "1.2",
+      version: "1.3",
       path: "light/",
     },
   ],
   [
     "thunderbird-compact-dark@mozilla.org",
     {
-      version: "1.2",
+      version: "1.3",
       path: "dark/",
     },
   ],
