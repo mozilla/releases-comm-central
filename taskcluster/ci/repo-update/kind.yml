@@ -39,8 +39,11 @@ jobs:
             by-level:
                 "3": project/comm/thunderbird/releng/build/level-3/tbirdtry
                 default: null
+        phab-token-secret:
+            by-level:
+                "3": project/comm/thunderbird/releng/build/level-3/arc-phabricator-token
+                default: null
         scopes:
-            - secrets:get:project/comm/thunderbird/releng/build/level-{level}/arc-phabricator-token
             - queue:route:notify.matrix-room:!TWztIhgqLawNpRBZTC:mozilla.org.*
         run:
             using: run-task
