@@ -392,7 +392,7 @@
       border-color: var(--selection-indicator-border-selected-focused-spam);
     }
   }
-  
+
   /* Spam thread card right click styles */
   & tr.context-menu-target:not(.selected) {
     &[is="thread-card"][data-properties~="junk"] {
