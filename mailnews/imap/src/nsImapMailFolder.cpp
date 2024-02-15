@@ -2773,7 +2773,7 @@ NS_IMETHODIMP nsImapMailFolder::ParseMsgHdrs(
     }
     nsresult rv = SetupHeaderParseStream(msgSize, EmptyCString(), nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
-    headerInfo->GetMsgHdrs(msgHdrs);
+    headerInfo->GetMsgHdrs(msgHdrs);  // The raw header block.
     rv = ParseAdoptedHeaderLine(msgHdrs.get(), msgKey);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = NormalEndHeaderParseStream(aProtocol, aImapUrl);
@@ -6475,27 +6475,6 @@ nsresult nsImapMailFolder::GetOriginalOp(
   return rv;
 }
 
-nsresult nsImapMailFolder::FindOpenRange(nsMsgKey& fakeBase,
-                                         uint32_t srcCount) {
-  nsresult rv = GetDatabase();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsMsgKey newBase = fakeBase - 1;
-  uint32_t freeCount = 0;
-  while (freeCount != srcCount && newBase > 0) {
-    bool containsKey;
-    if (NS_SUCCEEDED(mDatabase->ContainsKey(newBase, &containsKey)) &&
-        !containsKey)
-      freeCount++;
-    else
-      freeCount = 0;
-    newBase--;
-  }
-  if (!newBase) return NS_ERROR_FAILURE;
-  fakeBase = newBase;
-  return NS_OK;
-}
-
 // Helper to synchronously copy a message from one msgStore to another.
 static nsresult CopyStoreMessage(nsIMsgDBHdr* srcHdr, nsIMsgDBHdr* destHdr,
                                  uint64_t& bytesCopied) {
@@ -6569,27 +6548,12 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
     nsCOMPtr<nsITransactionManager> txnMgr;
     if (msgWindow) msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
     if (txnMgr) txnMgr->BeginBatch(nullptr);
-    nsCOMPtr<nsIMsgDatabase> database;
-    GetMsgDatabase(getter_AddRefs(database));
-    if (database) {
-      // get the highest key in the dest db, so we can make up our fake keys
-      nsMsgKey fakeBase = 1;
-      nsCOMPtr<nsIDBFolderInfo> folderInfo;
-      rv = database->GetDBFolderInfo(getter_AddRefs(folderInfo));
-      NS_ENSURE_SUCCESS(rv, rv);
-      nsMsgKey highWaterMark = nsMsgKey_None;
-      folderInfo->GetHighWater(&highWaterMark);
-      fakeBase += highWaterMark;
-      nsMsgKey fakeTop = fakeBase + srcCount;
-      // Check that we have enough room for the fake headers. If fakeTop
-      // is <= highWaterMark, we've overflowed.
-      if (fakeTop <= highWaterMark || fakeTop == nsMsgKey_None) {
-        rv = FindOpenRange(fakeBase, srcCount);
-        NS_ENSURE_SUCCESS(rv, rv);
-      }
+    nsCOMPtr<nsIMsgDatabase> destDB;
+    GetMsgDatabase(getter_AddRefs(destDB));
+    if (destDB) {
       // N.B. We must not return out of the for loop - we need the matching
       // end notifications to be sent.
-      // We don't need to acquire the semaphor since this is synchronous
+      // We don't need to acquire the semaphore since this is synchronous
       // on the UI thread but we should check if the offline store is locked.
       bool isLocked;
       GetLocked(&isLocked);
@@ -6623,6 +6587,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
           NS_ERROR("bad msg in src array");
           continue;
         }
+        // Set up an offline op for this message.
         nsCOMPtr<nsIMsgOfflineImapOperation> sourceOp;
         rv = opsDb->GetOfflineOpForKey(originalKey, true,
                                        getter_AddRefs(sourceOp));
@@ -6682,6 +6647,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
         } else {
           stopit = NS_ERROR_FAILURE;
         }
+        // End of block to set up offline op.
 
         nsCOMPtr<nsIMsgDBHdr> mailHdr;
         rv =
@@ -6693,10 +6659,16 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
           nsMsgKey srcDBhighWaterMark;
           srcDbFolderInfo->GetHighWater(&srcDBhighWaterMark);
 
+          // Generate a fake key which is very unlikely to clash with any
+          // UIDs that appear once this operation has been played out on the
+          // IMAP server (Because IMAP uses server-side UIDs as msgKeys -
+          // Bug 1806770).
+          nsMsgKey fakeKey;
+          destDB->GetNextFakeOfflineMsgKey(&fakeKey);
+
           nsCOMPtr<nsIMsgDBHdr> newMailHdr;
-          rv = database->CopyHdrFromExistingHdr(fakeBase + sourceKeyIndex,
-                                                mailHdr, true,
-                                                getter_AddRefs(newMailHdr));
+          rv = destDB->CopyHdrFromExistingHdr(fakeKey, mailHdr, true,
+                                              getter_AddRefs(newMailHdr));
           if (!newMailHdr || NS_FAILED(rv)) {
             NS_ASSERTION(false, "failed to copy hdr");
             stopit = rv;
@@ -6718,16 +6690,15 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
                 newMailHdr->SetOfflineMessageSize(bytesCopied);
               }
             } else {
-              database->MarkOffline(fakeBase + sourceKeyIndex, false, nullptr);
+              destDB->MarkOffline(fakeKey, false, nullptr);
             }
 
             nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
-                do_QueryInterface(database, &rv);
+                do_QueryInterface(destDB, &rv);
             NS_ENSURE_SUCCESS(rv, rv);
 
             nsCOMPtr<nsIMsgOfflineImapOperation> destOp;
-            opsDb->GetOfflineOpForKey(fakeBase + sourceKeyIndex, true,
-                                      getter_AddRefs(destOp));
+            opsDb->GetOfflineOpForKey(fakeKey, true, getter_AddRefs(destOp));
             if (destOp) {
               // check if this is a move back to the original mailbox, in which
               // case we just delete the offline operation.
@@ -6737,7 +6708,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
                 SetFlag(nsMsgFolderFlags::OfflineEvents);
                 destOp->SetSourceFolderURI(originalSrcFolderURI);
                 destOp->SetSrcMessageKey(originalKey);
-                addedKeys.AppendElement(fakeBase + sourceKeyIndex);
+                addedKeys.AppendElement(fakeKey);
                 addedHdrs.AppendObject(newMailHdr);
               }
             } else {
@@ -6804,7 +6775,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
       }
 
       if (isMove) sourceMailDB->Commit(nsMsgDBCommitType::kLargeCommit);
-      database->Commit(nsMsgDBCommitType::kLargeCommit);
+      destDB->Commit(nsMsgDBCommitType::kLargeCommit);
       SummaryChanged();
       srcFolder->SummaryChanged();
     }

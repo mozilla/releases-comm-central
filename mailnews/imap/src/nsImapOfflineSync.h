@@ -34,7 +34,6 @@ class nsImapOfflineSync : public nsIUrlListener,
     mCurrentUIDValidity = uidvalidity;
   }
 
-  void SetPseudoOffline(bool pseudoOffline) { m_pseudoOffline = pseudoOffline; }
   bool ProcessingStaleFolderUpdate() {
     return m_singleFolderToUpdate != nullptr;
   }

@@ -2491,8 +2491,8 @@ var GlodaMsgIndexer = {
               }
             }
 
-            // Nothing remains to be done.  The msgClassified event will take
-            //  care of making sure the message gets indexed.
+            // Nothing remains to be done. The msgsClassified event will take
+            // care of making sure the message gets indexed.
             return;
           }
 
@@ -2635,6 +2635,9 @@ var GlodaMsgIndexer = {
       try {
         let val = null;
         const newKey = aNewMsgHdr.messageKey;
+        this.indexer._log.debug(
+          `KeyChanged notification. old=${aOldMsgKey} new=${newKey}`
+        );
         const [glodaId, glodaDirty] =
           PendingCommitTracker.getGlodaState(aNewMsgHdr);
         // If we haven't indexed this message yet, take no action, and leave it

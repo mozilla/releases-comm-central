@@ -8,8 +8,14 @@ interface nsIMsgFolder;
 interface nsIMsgWindow;
 interface nsIUrlListener;
 
+// Interface to kick off various IMAP operations.
+// A little misnamed. nsImapOfflineDownloader also presents this interface.
 [scriptable, uuid(ffb683c5-f2c5-490a-b569-2f6b0de0a241)]
 interface nsIImapOfflineSync : nsISupports {
+  // isPseudoOffline is used only when performing message copies between IMAP
+  // folders on the same server. An "offline" copy is performed first to
+  // instantly copy the messages, then nsImapOfflineSync is used to perform the
+  // corresponding IMAP operations.
   void init(in nsIMsgWindow window,
             in nsIUrlListener listener,
             in nsIMsgFolder folder,

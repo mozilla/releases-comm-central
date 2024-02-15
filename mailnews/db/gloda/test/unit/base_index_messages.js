@@ -681,7 +681,9 @@ async function test_moved_message_attributes() {
           }
         }
       },
-      fullyIndexed: 0,
+      // IMAP offline-copy fastpath will trigger an indexing (via msgClassified),
+      // but local copy won't.
+      fullyIndexed: messageInjection.messageInjectionIsLocal() ? 0 : 1,
     })
   );
 }
@@ -1302,11 +1304,14 @@ async function test_message_moving() {
   await messageInjection.moveMessages(msgSet, destFolder, true);
 
   // - Make sure gloda sees it in the new folder.
-  // Since we are doing offline IMAP moves, the fast-path should be taken and
-  //  so we should receive an itemsModified notification without a call to
-  //  Gloda.grokNounItem.
+  // IMAP offline-copy fastpath will trigger an indexing (via msgClassified),
+  // but local copy won't.
   await waitForGlodaIndexer();
-  Assert.ok(...assertExpectedMessagesIndexed([msgSet], { fullyIndexed: 0 }));
+  Assert.ok(
+    ...assertExpectedMessagesIndexed([msgSet], {
+      fullyIndexed: messageInjection.messageInjectionIsLocal() ? 0 : 1,
+    })
+  );
 
   Assert.equal(
     gmsg.folderURI,

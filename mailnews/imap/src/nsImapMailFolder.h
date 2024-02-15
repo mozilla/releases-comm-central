@@ -371,9 +371,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   nsresult SetSupportedUserFlags(uint32_t userFlags);
   nsresult GetSupportedUserFlags(uint32_t* userFlags);
 
-  // Find the start of a range of msgKeys that can hold srcCount headers.
-  nsresult FindOpenRange(nsMsgKey& fakeBase, uint32_t srcCount);
-
  protected:
   virtual ~nsImapMailFolder();
   // Helper methods

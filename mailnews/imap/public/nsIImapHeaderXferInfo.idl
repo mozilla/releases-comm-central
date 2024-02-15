@@ -6,15 +6,22 @@
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
+// Information about a single message coming down from IMAP.
 [scriptable, uuid(38f8f784-b092-11d6-ba4b-00108335942a)]
 interface nsIImapHeaderInfo : nsISupports {
+    // The server-assigned UID for the message
     attribute nsMsgKey  msgUid;
+    // The expected size of the whole message, as supplied by the server.
     attribute long      msgSize;
+    // The raw message header block.
     readonly attribute ACString msgHdrs;
     void cacheLine(in string line, in unsigned long uid);
     void resetCache();
 };
 
+// A batch of messages, coming in via IMAP.
+// The IMAP protocol uses this structure to tell the nsImapMailFolder
+// about messages. See nsImapMailFolder::ParseMsgHdrs().
 [scriptable, uuid(f0842eda-af29-4ecd-82e1-fba91bd65d66)]
 interface nsIImapHeaderXferInfo : nsISupports {
   readonly attribute long numHeaders;
