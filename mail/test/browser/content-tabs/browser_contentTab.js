@@ -145,9 +145,31 @@ add_task(async function test_content_tab_onbeforeunload() {
   const interactionPref = "dom.require_user_interaction_for_beforeunload";
   Services.prefs.setBoolPref(interactionPref, false);
 
-  const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  // Deny closing the tab.
+  const denyTabCloseDialogPromise =
+    BrowserTestUtils.promiseAlertDialog("cancel");
   tabmail.closeTab(tab);
-  await dialogPromise;
+  await denyTabCloseDialogPromise;
+
+  // The tab should still be open.
+  Assert.equal(
+    count,
+    tabmail.tabContainer.allTabs.length,
+    "Number of open tabs should be correct"
+  );
+
+  // Accept closing the tab.
+  const acceptTabCloseDialogPromise =
+    BrowserTestUtils.promiseAlertDialog("accept");
+  tabmail.closeTab(tab);
+  await acceptTabCloseDialogPromise;
+
+  // The tab should have been closed.
+  Assert.equal(
+    count - 1,
+    tabmail.tabContainer.allTabs.length,
+    "Number of open tabs should be correct after tab was closed"
+  );
 
   Services.prefs.clearUserPref(interactionPref);
 });

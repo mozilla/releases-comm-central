@@ -951,7 +951,8 @@ var specialTabs = {
       this.lastBrowserId++;
     },
     tryCloseTab(aTab) {
-      return aTab.browser.permitUnload();
+      const { permitUnload } = aTab.browser.permitUnload();
+      return permitUnload;
     },
     persistTab(aTab) {
       if (aTab.browser.currentURI.spec == "about:blank") {
