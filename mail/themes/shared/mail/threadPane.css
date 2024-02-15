@@ -118,6 +118,11 @@
     }
   }
 
+  & [is="thread-row"].children.collapsed[data-properties~="hasUnread"][data-properties~="read"]
+   :where(td, .subject-line) {
+    text-decoration: underline;
+  }
+
   & [data-properties~="ignore"] .tree-view-row-thread img {
     content: var(--icon-thread-ignored);
   }
