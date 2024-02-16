@@ -367,7 +367,7 @@
         }
       },
       {
-        "id": "SingleMenuIconPath",
+        "id": "MenuIconPath",
         "choices": [
           {
             "type": "string",
@@ -375,27 +375,20 @@
           },
           {
             "type": "string",
-            "pattern": "^(moz-extension|blob):.*$"
+            "pattern": "^(moz-extension|blob|http|https):.*$"
           }
         ],
-        "description": "The provided path may be a relative path to an icon file, an image <value>data:</value> URL, a <value>blob:</value> URL or a <value>moz-extension:<value> URL. The <value>data:</value> or <value>blob:</value> URLs can be retrieved as follows: <literalinclude>includes/DataBlobUrls.js<lang>JavaScript</lang></literalinclude>,"
+        "description": "The path for a menu icon may be a relative path to an icon file, a <value>moz-extension:</value> URL, an image <value>data:</value> URL, a <value>blob:</value> URL, or a remote <value>http(s):</value> URL."
       },
       {
-        "id": "MenuIconPath",
-        "choices": [
-          {
-            "$ref": "SingleMenuIconPath"
-          },
-          {
-            "type": "object",
-            "patternProperties": {
-              "^[1-9]\\d*$": {
-                "$ref": "SingleMenuIconPath"
-              }
-            }
+        "id": "MenuIconDictionary",
+        "type": "object",
+        "patternProperties": {
+          "^[1-9]\\d*$": {
+            "$ref": "MenuIconPath"
           }
-        ],
-        "description": "Either a <em>string</em> to specify a single icon path to be used for all sizes, or a <em>dictionary object</em> to specify paths for multiple icons in different sizes, so the icon does not have to be scaled for a device with a different pixel density. Each entry is a <em>name-value</em> pair with <em>name</em> being a size and <em>value</em> being a path to the icon for the specified size. Example: <literalinclude>includes/IconPath.json<lang>JSON</lang></literalinclude>See the `MDN documentation about choosing icon sizes <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_action#choosing_icon_sizes>`__ for more information on this. "
+        },
+        "description": "A <em>dictionary object</em> to specify paths for multiple icons in different sizes, so the best matching icon can be used, instead of scaling a standard icon to fit the pixel density of the user's display. Each entry is a <em>name-value</em> pair, with <em>name</em> being a size and <em>value</em> being a :ref:`menus.MenuIconPath`. Example: <literalinclude>includes/IconPath.json<lang>JSON</lang></literalinclude>See the `MDN documentation about choosing icon sizes <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_action#choosing_icon_sizes>`__ for more information on this. "
       }
     ],
     "functions": [
@@ -430,7 +423,14 @@
                 "description": "The unique ID to assign to this item. Mandatory for event pages. Cannot be the same as another ID for this extension."
               },
               "icons": {
-                "$ref": "MenuIconPath",
+                "choices": [
+                  {
+                    "$ref": "MenuIconPath"
+                  },
+                  {
+                    "$ref": "MenuIconDictionary"
+                  }
+                ],
                 "optional": true,
                 "description": "Custom icons to display next to the menu item. Custom icons can only be set for items appearing in submenus."
               },
@@ -571,7 +571,14 @@
                 "optional": true
               },
               "icons": {
-                "$ref": "MenuIconPath",
+                "choices": [
+                  {
+                    "$ref": "MenuIconPath"
+                  },
+                  {
+                    "$ref": "MenuIconDictionary"
+                  }
+                ],
                 "optional": "omit-key-if-missing"
               },
               "title": {
