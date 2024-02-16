@@ -112,6 +112,7 @@ messenger.jar:
     content/messenger/orderable-tree-listbox.mjs    (content/widgets/listbox/orderable-tree-listbox.mjs)
     content/messenger/tree-listbox-mixin.mjs        (content/widgets/listbox/tree-listbox-mixin.mjs)
     content/messenger/tree-listbox.mjs              (content/widgets/listbox/tree-listbox.mjs)
+    content/messenger/thread-row.mjs                (content/widgets/treeview/thread-row.mjs)
     content/messenger/tree-selection.mjs            (content/widgets/tree-selection.mjs)
     content/messenger/tree-view.mjs                 (content/widgets/tree-view.mjs)
     content/messenger/thread-pane-columns.mjs       (content/modules/thread-pane-columns.mjs)

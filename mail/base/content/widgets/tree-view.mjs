@@ -2572,7 +2572,7 @@ customElements.define("tree-view-table-body", TreeViewTableBody, {
  * intended layout. The index getter/setter should be overridden to fill the
  * layout with values.
  */
-class TreeViewTableRow extends HTMLTableRowElement {
+export class TreeViewTableRow extends HTMLTableRowElement {
   /**
    * Fixed height of this row. Rows in the list will be spaced this far
    * apart. This value must not change at runtime.
