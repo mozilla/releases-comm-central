@@ -154,7 +154,7 @@ const accessHkpInternal = {
         if (exitCodeObj.value !== 0 || keyData.length === 0) {
           return null;
         }
-        return 'keytext="' + encodeURIComponent(keyData) + '"';
+        return `keytext=${encodeURIComponent(keyData)}`;
 
       case lazy.EnigmailConstants.DOWNLOAD_KEY:
       case lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
@@ -391,6 +391,10 @@ const accessHkpInternal = {
         `keyserver.jsm: accessHkpInternal.accessKeyServer: requesting ${url}\n`
       );
       xmlReq.open(method, url);
+      xmlReq.setRequestHeader(
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+      );
       xmlReq.send(payLoad);
     });
   },
@@ -489,7 +493,7 @@ const accessHkpInternal = {
           break;
         }
       } catch (ex) {
-        console.log(ex.errorDetails);
+        console.error(ex);
         rv = false;
         break;
       }
