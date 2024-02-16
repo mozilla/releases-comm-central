@@ -234,7 +234,7 @@ var EnigmailMsgRead = {
    * @param {string} keyId - Signing key ID
    * @param {string} fromAddr - Sender's email address.
    *
-   * @returns {?Promise<String>} the matching email address
+   * @returns {?Promise<string>} the matching email address
    */
   matchUidToSender(keyId, fromAddr) {
     if (!fromAddr || !keyId) {

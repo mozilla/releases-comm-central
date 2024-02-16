@@ -4,8 +4,6 @@
 
 "use strict";
 
-/* eslint-enable valid-jsdoc */
-
 const EXPORTED_SYMBOLS = ["EnigmailMimeDecrypt"];
 
 /**
@@ -304,12 +302,15 @@ MimeDecryptHandler.prototype = {
     return ret;
   },
 
-  // cache encrypted data
+  /**
+   * Cache encrypted data.
+   *
+   * @param {string} str - The data to cache.
+   */
   cacheData(str) {
     if (gDebugLogLevel > 4) {
       LOCAL_DEBUG("mimeDecrypt.jsm: cacheData: " + str.length + "\n");
     }
-
     this.outQueue += str;
   },
 
@@ -333,7 +334,7 @@ MimeDecryptHandler.prototype = {
   /**
    * Determine if we are reloading the same message as the previous one
    *
-   * @returns Boolean
+   * @returns {boolean} true if we're reloading the same message.
    */
   isReloadingLastMessage() {
     if (!this.uri) {
@@ -636,6 +637,7 @@ MimeDecryptHandler.prototype = {
 
   /**
    * Display decryption status.
+   *
    * @param {nsIMsgSMIMEHeaderSink} headerSink - The sink to use.
    */
   displayStatus(headerSink) {
