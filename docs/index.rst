@@ -22,6 +22,7 @@ Thunderbird Source Tree Documentation
 
    telemetry/index
 
+   architecture/index
 
 
 Indices and tables
