@@ -30,12 +30,12 @@ var gTxtConverter = null;
 
 var EnigmailFuncs = {
   /**
-   * get a list of plain email addresses without name or surrounding <>
+   * Get a list of plain email addresses without name or surrounding <>.
    *
-   * @param mailAddrs |string| - address-list encdoded in Unicode as specified in RFC 2822, 3.4
-   *                             separated by , or ;
+   * @param {string} mailAddresses - Address list encdoded as specified
+   *   in RFC 2822, 3.4 separated by , or ;
    *
-   * @returns |string|          - list of pure email addresses separated by ","
+   * @returns {string} a list of pure email addresses separated by ","
    */
   stripEmail(mailAddresses) {
     // EnigmailLog.DEBUG("funcs.jsm: stripEmail(): mailAddresses=" + mailAddresses + "\n");
@@ -105,12 +105,13 @@ var EnigmailFuncs = {
   },
 
   /**
-   * get an array of email object (email, name) from an address string
+   * Get an array of email object (email, name) from an address string.
    *
-   * @param mailAddrs |string| - address-list as specified in RFC 2822, 3.4
-   *                             separated by ","; encoded according to RFC 2047
+   * @param {string} mailAddrs - Address list encdoded as specified
+   *   in RFC 2822, 3.4 separated by , or ;
+   * @param {boolean} [encoded=true] - Whether encoded.
    *
-   * @returns |array| of msgIAddressObject
+   * @returns {msgIAddressObject[]}
    */
   parseEmails(mailAddrs, encoded = true) {
     try {
@@ -131,13 +132,10 @@ var EnigmailFuncs = {
    * advanced users. The XUL items must contain 'advanced="true"' or
    * 'advanced="reverse"'.
    *
-   * @obj:       |object| - XUL tree element
-   * @attribute: |string| - attribute to set or remove (i.e. "hidden" or "collapsed")
-   * @dummy:     |object| - anything
-   *
-   * no return value
+   * @param {Element} obj - XUL tree element.
+   * @param {string} attribute - Attribute to set or remove (i.e. "hidden" or "collapsed")
+   * @param {object} dummy - Anything.
    */
-
   collapseAdvanced(obj, attribute, dummy) {
     lazy.EnigmailLog.DEBUG("funcs.jsm: collapseAdvanced:\n");
 
@@ -168,11 +166,10 @@ var EnigmailFuncs = {
   /**
    * this function tries to mimic the Thunderbird plaintext viewer
    *
-   * @plainTxt - |string| containing the plain text data
+   * @param {string} plainTxt - Containing the plain text data.
    *
-   * @ return HTML markup to display mssage
+   * @returns {string} HTML markup to display mssage.
    */
-
   formatPlaintextMsg(plainTxt) {
     if (!gTxtConverter) {
       gTxtConverter = Cc["@mozilla.org/txttohtmlconv;1"].createInstance(
@@ -279,12 +276,12 @@ var EnigmailFuncs = {
   },
 
   /**
-   * extract the data fields following a header.
+   * Extract the data fields following a header.
    * e.g. ContentType: xyz; Aa=b; cc=d
    *
-   * @data: |string| containing a single header
+   * @param {string} data - Data containing a single header.
    *
-   * @returns |array| of |arrays| containing pairs of aa/b and cc/d
+   * @returns {object[][]} and array of arrays containing pairs of aa/b and cc/d
    */
   getHeaderData(data) {
     lazy.EnigmailLog.DEBUG(
@@ -323,7 +320,7 @@ var EnigmailFuncs = {
     return res;
   },
 
-  /***
+  /**
    * Get the text for the encrypted subject (either configured by user or default)
    */
   getProtectedSubjectText() {
@@ -368,16 +365,17 @@ var EnigmailFuncs = {
    * Compare two MIME part numbers to determine which of the two is earlier in the tree
    * MIME part numbers have the structure "x.y.z...", e.g 1, 1.2, 2.3.1.4.5.1.2
    *
-   * @param  mime1, mime2 - String the two mime part numbers to compare.
+   * @param {string} mime1 - First MIME part number to compare.
+   * @param {string} mime2 - Second MIME part number to compare.
    *
-   * @returns Number (one of -2, -1, 0, 1 , 2)
-   *        - Negative number if mime1 is before mime2
-   *        - Positive number if mime1 is after mime2
-   *        - 0 if mime1 and mime2 are equal
-   *        - if mime1 is a parent of mime2 the return value is -2
-   *        - if mime2 is a parent of mime1 the return value is 2
+   * @returns {integer} a number (one of -2, -1, 0, 1 , 2)
+   *   - Negative number if mime1 is before mime2
+   *   - Positive number if mime1 is after mime2
+   *   - 0 if mime1 and mime2 are equal
+   *   - if mime1 is a parent of mime2 the return value is -2
+   *   - if mime2 is a parent of mime1 the return value is 2
    *
-   *      Throws an error if mime1 or mime2 do not comply to the required format
+   * @throws an error if mime1 or mime2 do not comply to the required format
    */
   compareMimePartLevel(mime1, mime2) {
     const s = new RegExp("^[0-9]+(\\.[0-9]+)*$");
@@ -411,6 +409,9 @@ var EnigmailFuncs = {
 
   /**
    * Get the nsIMsgAccount associated with a given nsIMsgIdentity
+   *
+   * @param {?nsIMsgIdentity} identity
+   * @returns {?nsIMsgAccount}
    */
   getAccountForIdentity(identity) {
     for (const ac of MailServices.accounts.accounts) {
@@ -424,7 +425,9 @@ var EnigmailFuncs = {
   },
 
   /**
-   * Get the default identity of the default account
+   * Get the default identity of the default account.
+   *
+   * @returns {?nsIMsgIdentity}
    */
   getDefaultIdentity() {
     try {
@@ -454,6 +457,8 @@ var EnigmailFuncs = {
   /**
    * Get a list of all own email addresses, taken from all identities
    * and all reply-to addresses
+   *
+   * @returns {object}
    */
   getOwnEmailAddresses() {
     const ownEmails = {};
@@ -474,13 +479,14 @@ var EnigmailFuncs = {
         } catch (ex) {}
       }
     }
-
     return ownEmails;
   },
 
   /**
    * Determine the distinct number of non-self recipients of a message.
    * Only To: and Cc: fields are considered.
+   *
+   * @returns {integer} the number of recipient
    */
   getNumberOfRecipients(msgCompField) {
     const recipients = {},
@@ -529,8 +535,9 @@ var EnigmailFuncs = {
   },
 
   /**
-   * Test if the given string looks roughly like an email address,
-   * returns true or false.
+   * Test if the given string looks roughly like an email address.
+   *
+   * returns {boolean} true if it looks like an email
    */
   stringLooksLikeEmailAddress(str) {
     return /^[^ @]+@[^ @]+$/.test(str);
@@ -546,6 +553,8 @@ var EnigmailFuncs = {
    * If we fail to extract an email address from the given string,
    * because the given string doesn't conform to expectations,
    * an empty string is returned.
+   *
+   * @returns {string} the email, or ""
    */
   getEmailFromUserID(uid) {
     const addresses = MailServices.headerParser.makeFromDisplayAddress(uid);
@@ -556,7 +565,6 @@ var EnigmailFuncs = {
       console.debug("failed to extract email address from: " + uid);
       return "";
     }
-
     return addresses[0].email.trim();
   },
 };
