@@ -69,6 +69,8 @@ OAuth2.prototype = {
   refreshToken: null,
   tokenExpires: 0,
 
+  _isRetrying: false,
+
   /**
    * Obtain an access token for this endpoint. If an access token has already
    * been obtained, it will be reused unless `aRefresh` is true.
@@ -331,7 +333,7 @@ OAuth2.prototype = {
     })
       .then(response => response.json())
       .then(result => {
-        const resultStr = JSON.stringify(result, null, 2);
+        const resultStr = JSON.stringify(result);
         if ("error" in result) {
           // RFC 6749 section 5.2. Error Response
           let err = result.error;
@@ -348,9 +350,18 @@ OAuth2.prototype = {
           // That is, the token expired or was revoked (user changed password?).
           this.accessToken = null;
           this.refreshToken = null;
-          this._reject(err);
+          if (result.error == "invalid_grant" && !this._isRetrying) {
+            // Retry the auth flow once, otherwise give up.
+            this._isRetrying = true;
+            this.requestAuthorization();
+          } else {
+            this._isRetrying = false;
+            this._reject(err);
+          }
           return;
         }
+
+        this._isRetrying = false;
 
         // RFC 6749 section 5.1. Successful Response
         this.log.info(

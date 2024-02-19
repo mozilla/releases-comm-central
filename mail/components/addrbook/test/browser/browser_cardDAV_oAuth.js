@@ -101,7 +101,7 @@ add_task(function testAddressBookOAuth_uid_none() {
 });
 
 // Test making a request when there IS a matching token, but the server rejects
-// it. Currently a new token is not requested on failure.
+// it. A new token is requested on failure.
 
 /** Expired token stored with UID. */
 add_task(async function testAddressBookOAuth_uid_expired() {
@@ -109,7 +109,7 @@ add_task(async function testAddressBookOAuth_uid_expired() {
   const uid = "testAddressBookOAuth_uid_expired";
   await setLogins([ORIGIN, SCOPE, uid, "expired_token"]);
   await subtest(dirPrefId, uid, uid);
-}).skip(); // Broken.
+});
 
 // Test making a request with a valid token.
 
