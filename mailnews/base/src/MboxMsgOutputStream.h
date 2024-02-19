@@ -6,13 +6,20 @@
 #ifndef COMM_MAILNEWS_BASE_SRC_MBOXMSGOUTPUTSTREAM_H_
 #define COMM_MAILNEWS_BASE_SRC_MBOXMSGOUTPUTSTREAM_H_
 
-#include "nsIOutputStream.h"
 #include "nsCOMPtr.h"
+#include "nsIOutputStream.h"
+#include "nsISafeOutputStream.h"
+#include "nsISeekableStream.h"
 #include "nsString.h"
 
 /**
  * MboxMsgOutputStream writes a single message out to an underlying mbox
  * stream.
+ * It's a nsISafeOutputStream so callers need to "commit" the written data
+ * by calling nsISafeOutputStream::Finish() when done.
+ * Just calling Close(), or letting the stream go out of scope will
+ * cause a rollback, and the underlying mbox file will be truncated back
+ * to the size it was.
  *
  * Aims:
  * - Byte exact. What you write is exactly what should come back out when
@@ -29,16 +36,19 @@
  *   where "From " parts are split across Write() calls.
  * - Handle processing lines of any length, without extra memory usage.
  * - Leaves output buffering up to the target mbox stream.
+ * - Provide a reasonable rollback mechanism (as nsISafeOutputStream).
  *
  * mboxrd descriptions:
  * https://www.loc.gov/preservation/digital/formats/fdd/fdd000385.shtml
  * https://doc.dovecot.org/admin_manual/mailbox_formats/mbox/#mbox-variants
  */
-class MboxMsgOutputStream : public nsIOutputStream {
+class MboxMsgOutputStream : public nsIOutputStream, nsISafeOutputStream {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIOUTPUTSTREAM
+  NS_DECL_NSISAFEOUTPUTSTREAM
 
+  // The underlying mboxStream must be nsISeekable.
   explicit MboxMsgOutputStream(nsIOutputStream* mboxStream,
                                bool closeInnerWhenDone = false);
   MboxMsgOutputStream() = delete;
@@ -47,8 +57,15 @@ class MboxMsgOutputStream : public nsIOutputStream {
   virtual ~MboxMsgOutputStream();
 
   // The actual stream we're writing the mbox into.
-  nsCOMPtr<nsIOutputStream> mTarget;
-  // Should the underlying mTarget be closed when Close() is called?
+  nsCOMPtr<nsIOutputStream> mInner;
+
+  // QIed version of mInner.
+  nsCOMPtr<nsISeekableStream> mSeekable;
+
+  // Start offset, so we can roll back.
+  int64_t mStartPos{-1};
+
+  // Should the underlying mInner be closed when done?
   bool mCloseInnerWhenDone;
 
   enum {

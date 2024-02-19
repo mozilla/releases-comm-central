@@ -13,9 +13,10 @@
 #include "nsMsgLocalStoreUtils.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIFile.h"
-#include "nsInterfaceHashtable.h"
 #include "nsISeekableStream.h"
 #include "nsIOutputStream.h"
+#include "nsTStringHasher.h"  // mozilla::DefaultHasher<nsCString>
+#include "mozilla/HashTable.h"
 
 class nsMsgBrkMBoxStore final : public nsMsgLocalStoreUtils,
                                 nsIMsgPluggableStore {
@@ -41,9 +42,8 @@ class nsMsgBrkMBoxStore final : public nsMsgLocalStoreUtils,
                                uint32_t* aDate);
   void SetDBValid(nsIMsgDBHdr* aHdr);
 
-#ifdef _DEBUG
-  nsCOMPtr<nsIMsgFolder> m_streamOutstandingFolder;
-#endif
+  // A set containing the URI of every folder currently being written to.
+  mozilla::HashMap<nsCString, RefPtr<nsIOutputStream>> m_OutstandingStreams;
 };
 
 #endif

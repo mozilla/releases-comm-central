@@ -213,7 +213,7 @@ class MboxParser {
                                  "eEmitBodyLine",
                                  "eMessageComplete",
                                  "eEOF"};
-      MOZ_LOG(gMboxLog, LogLevel::Debug,
+      MOZ_LOG(gMboxLog, LogLevel::Verbose,
               ("MboxParser - handle %s (%zu bytes: '%s')", stateName[mState],
                data.Length(),
                CEscapeString(nsDependentCSubstring(data), 80).get()));

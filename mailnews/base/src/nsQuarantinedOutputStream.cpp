@@ -168,11 +168,19 @@ NS_IMETHODIMP nsQuarantinedOutputStream::Finish() {
   }
 
   // All done!
-  mTarget->Close();
+  {
+    nsCOMPtr<nsISafeOutputStream> safe = do_QueryInterface(mTarget);
+    if (safe) {
+      safe->Finish();
+    } else {
+      mTarget->Close();
+    }
+    mTarget = nullptr;
+  }
+
   mTempFile->Remove(false);
   mTempFile = nullptr;
   mState = eClosed;
-  mTarget = nullptr;
   return NS_OK;
 }
 

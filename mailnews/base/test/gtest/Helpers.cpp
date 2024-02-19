@@ -6,7 +6,6 @@
 #include "Helpers.h"
 #include "gtest/gtest.h"
 #include "nsStringStream.h"
-#include "nsISeekableStream.h"
 #include "nsString.h"
 #include "MboxMsgInputStream.h"
 #include "mozilla/Buffer.h"
@@ -60,7 +59,8 @@ nsresult Slurp(nsIInputStream* src, size_t readSize, nsACString& out) {
   return NS_OK;
 }
 
-NS_IMPL_ISUPPORTS(CaptureStream, nsIOutputStream);
+NS_IMPL_ISUPPORTS(CaptureStream, nsIOutputStream, nsITellableStream,
+                  nsISeekableStream)
 
 NS_IMETHODIMP CaptureStream::Close() { return NS_OK; }
 
@@ -70,8 +70,23 @@ NS_IMETHODIMP CaptureStream::StreamStatus() { return NS_OK; }
 
 NS_IMETHODIMP CaptureStream::Write(const char* buf, uint32_t count,
                                    uint32_t* bytesWritten) {
-  mData.Append(buf, count);
-  *bytesWritten = count;
+  *bytesWritten = 0;
+  if (mPos < (int64_t)mData.Length()) {
+    // overwrite existing data
+    size_t n =
+        std::min((size_t)count, (size_t)((int64_t)mData.Length() - mPos));
+    mData.Replace(mPos, n, buf, n);
+    buf += n;
+    count -= n;
+    *bytesWritten += n;
+  }
+
+  if (count > 0) {
+    mData.Append(buf, count);
+    *bytesWritten += count;
+  }
+  mPos += (int64_t)*bytesWritten;
+
   return NS_OK;
 }
 
@@ -88,6 +103,35 @@ NS_IMETHODIMP CaptureStream::WriteSegments(nsReadSegmentFun reader,
 
 NS_IMETHODIMP CaptureStream::IsNonBlocking(bool* nonBlocking) {
   *nonBlocking = false;
+  return NS_OK;
+}
+
+NS_IMETHODIMP CaptureStream::Tell(int64_t* result) {
+  *result = mPos;
+  return NS_OK;
+}
+
+NS_IMETHODIMP CaptureStream::Seek(int32_t whence, int64_t offset) {
+  switch (whence) {
+    case NS_SEEK_SET:
+      break;
+    case NS_SEEK_CUR:
+      offset += mPos;
+      break;
+    case NS_SEEK_END:
+      offset += (int64_t)mData.Length();
+      break;
+  }
+
+  // Should we add padding if seeking beyond the end? Unsure, but we don't need
+  // it for our test cases so far, so just assert for now!
+  MOZ_ASSERT(offset <= (int64_t)mData.Length());
+  mPos = offset;
+  return NS_OK;
+}
+
+NS_IMETHODIMP CaptureStream::SetEOF() {
+  mData.SetLength(mPos);  // truncate!
   return NS_OK;
 }
 

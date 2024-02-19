@@ -65,7 +65,6 @@
 #include "mozilla/Components.h"
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/Logging.h"
-#include "mozilla/SlicedInputStream.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/Utf8.h"
 #include "nsIPromptService.h"
@@ -1455,6 +1454,7 @@ NS_IMETHODIMP nsMsgDBFolder::IsCommandEnabled(const nsACString& command,
 }
 
 nsresult nsMsgDBFolder::StartNewOfflineMessage() {
+  MOZ_ASSERT(m_offlineHeader);  // Caller must have set m_offlineHeader.
   bool isLocked;
   GetLocked(&isLocked);
   bool hasSemaphore = false;

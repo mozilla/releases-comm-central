@@ -992,13 +992,18 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest* request,
     goto done;
   }
 
-  // Close/flush the current message
-  rv = m_msgOut->Close();
-  m_msgOut = nullptr;
+  // Wrap up the current message
   if (NS_FAILED(rv)) {
+    // Uh-oh... something went wrong. Close() will try and roll back
+    // the borked message.
+    m_msgOut->Close();
+    m_msgOut = nullptr;
     goto done;
   }
-  rv = status;
+
+  // All good - commit the message.
+  rv = m_msgOut->Finish();
+  m_msgOut = nullptr;
 
   // The NS_MSG_ERROR_MSG_NOT_OFFLINE error should allow us to continue, so we
   // check for it specifically and don't terminate the compaction.
@@ -1181,7 +1186,13 @@ nsFolderCompactState::EndCopy(nsIURI* uri, nsresult status) {
 
   // Close/flush the current message.
   NS_ENSURE_STATE(m_msgOut);
-  nsresult rv = m_msgOut->Close();
+
+  nsresult rv;
+  if (NS_SUCCEEDED(status)) {
+    rv = m_msgOut->Finish();  // Commit.
+  } else {
+    rv = m_msgOut->Close();  // Roll back.
+  }
   m_msgOut = nullptr;
   if (NS_FAILED(rv)) {
     return rv;

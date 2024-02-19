@@ -4,8 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "MboxMsgOutputStream.h"
-#include "nsString.h"
 #include "nsMsgUtils.h"  // For CEscapeString().
+#include "nsString.h"
 #include "mozilla/Logging.h"
 #include <algorithm>
 #include <functional>
@@ -14,11 +14,29 @@
 extern mozilla::LazyLogModule gMboxLog;
 using mozilla::LogLevel;
 
-NS_IMPL_ISUPPORTS(MboxMsgOutputStream, nsIOutputStream);
+NS_IMPL_ISUPPORTS(MboxMsgOutputStream, nsIOutputStream, nsISafeOutputStream);
 
 MboxMsgOutputStream::MboxMsgOutputStream(nsIOutputStream* mboxStream,
                                          bool closeInnerWhenDone)
-    : mTarget(mboxStream), mCloseInnerWhenDone(closeInnerWhenDone) {}
+    : mInner(mboxStream), mCloseInnerWhenDone(closeInnerWhenDone) {
+  nsresult rv;
+
+  // Record the starting position of the underlying mbox file.
+  // If this fails, the stream will be kept in error state.
+  mSeekable = do_QueryInterface(mInner, &rv);
+  if (NS_SUCCEEDED(rv)) {
+    rv = mSeekable->Tell(&mStartPos);
+  }
+
+  if (NS_FAILED(rv)) {
+    mState = eError;
+    mStatus = rv;
+    mStartPos = -1;
+  }
+
+  MOZ_LOG(gMboxLog, LogLevel::Debug,
+          ("MboxMsgOutputStream::ctor() StartPos=%" PRIi64 "", mStartPos));
+}
 
 MboxMsgOutputStream::~MboxMsgOutputStream() { Close(); }
 
@@ -41,7 +59,7 @@ nsresult MboxMsgOutputStream::Emit(const char* data, uint32_t numBytes) {
 
   while (numBytes > 0) {
     uint32_t count;
-    nsresult rv = mTarget->Write(data, numBytes, &count);
+    nsresult rv = mInner->Write(data, numBytes, &count);
     if (NS_FAILED(rv)) {
       mState = eError;
       mStatus = rv;
@@ -230,7 +248,7 @@ NS_IMETHODIMP MboxMsgOutputStream::Flush() {
     return mStatus;
   }
 
-  nsresult rv = mTarget->Flush();
+  nsresult rv = mInner->Flush();
   if (NS_FAILED(rv)) {
     mState = eError;
     mStatus = rv;
@@ -239,11 +257,65 @@ NS_IMETHODIMP MboxMsgOutputStream::Flush() {
 }
 
 // Implementation for nsIOutputStream.close().
+// If Finish() has not already been called, this will attempt to truncate
+// the mbox file back to where it started.
 NS_IMETHODIMP MboxMsgOutputStream::Close() {
   if (mState == eClosed) {
     return NS_OK;
   }
+
+  MOZ_LOG(
+      gMboxLog, LogLevel::Debug,
+      ("MboxMsgOutputStream::Close() rolling back to %" PRIi64 "", mStartPos));
+
+  nsresult rv = NS_OK;
+  if (mStartPos < 0 || !mSeekable) {
+    // For whatever reason, we weren't able to determine the start offset.
+    // No rollback possible.
+    rv = NS_ERROR_UNEXPECTED;
+  }
+
+  if (NS_SUCCEEDED(rv)) {
+    // Attempt to truncate the target file back to our start position.
+    nsresult rv;
+    rv = mSeekable->Seek(nsISeekableStream::NS_SEEK_SET, mStartPos);
+    if (NS_SUCCEEDED(rv)) {
+      rv = mSeekable->SetEOF();
+      if (NS_FAILED(rv)) {
+        NS_WARNING("SetEOF() failed");
+      }
+    }
+  }
+
+  if (mCloseInnerWhenDone) {
+    // Don't want to obscure a previous error
+    nsresult rv2 = mInner->Close();
+    if (NS_SUCCEEDED(rv)) {
+      rv = rv2;
+    }
+  }
+
+  // If we failed to roll back or close the underlying target file, there's
+  // not too much we can do to, other than complain loudly, close anyway
+  // and return the failure.
+  if (NS_FAILED(rv)) {
+    MOZ_LOG(gMboxLog, LogLevel::Error, ("MboxMsgOutputStream::Close() failed"));
+    NS_WARNING("Failed to roll back mbox file");
+  }
+
+  mState = eClosed;
+  return rv;
+}
+
+// Implementation for nsISafeOutputStream.finish().
+NS_IMETHODIMP MboxMsgOutputStream::Finish() {
+  MOZ_LOG(gMboxLog, LogLevel::Debug,
+          ("MboxMsgOutputStream::Finish() startPos=%" PRIi64 "", mStartPos));
+  if (mState == eClosed) {
+    return NS_OK;
+  }
   if (mState == eError) {
+    Close();  // Roll back
     return mStatus;
   }
 
@@ -256,27 +328,33 @@ NS_IMETHODIMP MboxMsgOutputStream::Close() {
   // get back the exact bytes of a message with no final EOL, but adding in
   // the missing EOL lets an mbox reader be a little more forgiving about
   // what it handles...
-  nsresult rv;
+  nsresult rv = NS_OK;
   if (mState == eMidLine) {
     rv = Emit("\r\n"_ns);
-    NS_ENSURE_SUCCESS(rv, rv);
   }
-  if (mState == eStartAwaitingData) {
+  if (NS_SUCCEEDED(rv) && mState == eStartAwaitingData) {
     rv = Emit(mStartFragment);
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (mStartFragment[mStartFragment.Length() - 1] != '\n') {
-      rv = Emit("\r\n"_ns);
-      NS_ENSURE_SUCCESS(rv, rv);
+    if (NS_SUCCEEDED(rv)) {
+      if (mStartFragment[mStartFragment.Length() - 1] != '\n') {
+        rv = Emit("\r\n"_ns);
+      }
     }
   }
 
-  // Now the end-of-message blank line (not part of the message).
-  rv = Emit("\r\n"_ns);
-  NS_ENSURE_SUCCESS(rv, rv);
-  mState = eClosed;
+  if (NS_SUCCEEDED(rv)) {
+    // Now the end-of-message blank line (not part of the message).
+    rv = Emit("\r\n"_ns);
+  }
+
+  if (NS_FAILED(rv)) {
+    // If any of the final writes failed, roll back!
+    Close();
+    return rv;
+  }
 
   if (mCloseInnerWhenDone) {
-    mTarget->Close();
+    rv = mInner->Close();
   }
-  return NS_OK;
+  mState = eClosed;
+  return rv;
 }

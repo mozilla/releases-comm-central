@@ -23,6 +23,7 @@
 // Feeds all the test messages into an mbox via MboxMsgOutputStream, then check
 // that mbox is what we expect to see.
 static void testOutputStreamCase(testing::MboxCase const& t, size_t writeSize) {
+  nsresult rv;
   RefPtr<testing::CaptureStream> mboxStream = new testing::CaptureStream();
   for (auto const& msg : t.expectedMsgs) {
     RefPtr<MboxMsgOutputStream> out = new MboxMsgOutputStream(mboxStream);
@@ -31,10 +32,14 @@ static void testOutputStreamCase(testing::MboxCase const& t, size_t writeSize) {
     while (total < msg.Length()) {
       size_t chunkSize = std::min(writeSize, msg.Length() - total);
       uint32_t n;
-      nsresult rv = out->Write(msg.Data() + total, (uint32_t)chunkSize, &n);
+      rv = out->Write(msg.Data() + total, (uint32_t)chunkSize, &n);
       ASSERT_TRUE(NS_SUCCEEDED(rv));
       total += (size_t)n;
     }
+
+    rv = out->Finish();
+    ASSERT_TRUE(NS_SUCCEEDED(rv));
+
     // Wrote it all?
     ASSERT_EQ(total, msg.Length());
   }

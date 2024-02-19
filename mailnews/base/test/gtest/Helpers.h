@@ -7,7 +7,9 @@
 #define COMM_MAILNEWS_BASE_TEST_GTEST_HELPERS_H_
 
 #include "nsIOutputStream.h"
+#include "nsISeekableStream.h"
 #include "nsString.h"
+#include <algorithm>
 
 class nsIInputStream;
 
@@ -38,10 +40,12 @@ nsresult Slurp(nsIInputStream* src, size_t readSize, nsACString& out);
  *
  * NOTE: for inputstream equivalent, see NS_NewCStringInputStream().
  */
-class CaptureStream : public nsIOutputStream {
+class CaptureStream : public nsIOutputStream, nsISeekableStream {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIOUTPUTSTREAM
+  NS_DECL_NSISEEKABLESTREAM
+  NS_DECL_NSITELLABLESTREAM
 
   // Access the captured data.
   nsCString const& Data() const { return mData; }
@@ -49,6 +53,7 @@ class CaptureStream : public nsIOutputStream {
  private:
   virtual ~CaptureStream() = default;
   nsCString mData;
+  int64_t mPos{0};
 };
 
 }  // namespace testing
