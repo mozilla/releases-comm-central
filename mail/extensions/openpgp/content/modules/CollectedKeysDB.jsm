@@ -32,7 +32,7 @@ var log = console.createInstance({
  */
 class CollectedKeysDB {
   /**
-   * @param {IDBDatabase} database
+   * @param {IDBDatabase} db
    */
   constructor(db) {
     this.db = db;
@@ -188,7 +188,7 @@ class CollectedKeysDB {
    * which causes old revoked entries to be removed.
    * We keep the list of previously seen source locations.
    *
-   * @param {EnigmailKeyOb} - key object
+   * @param {EnigmailKeyOb} keyobj - key object
    * @param {string} keyBlock - public key to merge
    * @param {object} source - source of the information
    * @param {string} source.type - source type
