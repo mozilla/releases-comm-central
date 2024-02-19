@@ -7411,9 +7411,22 @@ async function ComposeChangeLanguage(languages) {
     document.documentElement.setAttribute("lang", languageToSet);
   }
 
+  const checker = GetCurrentEditorSpellChecker();
+
+  // Spell checker needs to be ready before we can select new dictionaries.
+  if (gSpellCheckingEnabled && checker?.spellCheckPending) {
+    await new Promise(resolve => {
+      Services.obs.addObserver(function observe(subject, topic, data) {
+        if (subject == gMsgCompose.editor) {
+          Services.obs.removeObserver(observe, topic);
+          resolve();
+        }
+      }, "inlineSpellChecker-spellCheck-ended");
+    });
+  }
+
   await gSpellChecker?.selectDictionaries(languages);
 
-  const checker = GetCurrentEditorSpellChecker();
   if (checker?.spellChecker) {
     await checker.spellChecker.setCurrentDictionaries(languages);
   }
@@ -7502,12 +7515,6 @@ async function updateLanguageInStatusBar(dictionaries) {
   if (!dictionaries) {
     dictionaries = Array.from(gActiveDictionaries);
   }
-  const listFormat = new Intl.ListFormat(undefined, {
-    type: "conjunction",
-    style: "short",
-  });
-  const languages = [];
-  let item = languageMenuList.firstElementChild;
 
   // No status display, if there is only one or no spelling dictionary available.
   if (languageMenuList.childElementCount <= 3) {
@@ -7517,6 +7524,12 @@ async function updateLanguageInStatusBar(dictionaries) {
   }
 
   languageStatusButton.hidden = false;
+  const listFormat = new Intl.ListFormat(Services.locale.appLocalesAsBCP47, {
+    type: "conjunction",
+    style: "short",
+  });
+  const languages = [];
+  let item = languageMenuList.firstElementChild;
   while (item) {
     if (item.tagName.toLowerCase() === "menuseparator") {
       break;

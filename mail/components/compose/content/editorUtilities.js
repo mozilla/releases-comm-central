@@ -236,7 +236,7 @@ function GetCurrentEditorType() {
  * Gets the editor's spell checker. Could return null if there are no
  * dictionaries installed.
  *
- * @returns {nsIInlineSpellChecker?}
+ * @returns {?nsIInlineSpellChecker}
  */
 function GetCurrentEditorSpellChecker() {
   try {
