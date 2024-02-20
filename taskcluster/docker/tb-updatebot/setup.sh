@@ -27,3 +27,6 @@ exec python3 -m vendor
 _EOF_
 
 chmod +x "$HOME/bin/runme.sh"
+
+# Run vendor unit tests
+"${VENV_DIR}/bin/pytest" -v --full-trace --color=no

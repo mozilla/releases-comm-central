@@ -57,7 +57,7 @@ class TaskClusterSecrets:
     def __init__(self, base_path: str):
         self.base_path = base_path
 
-    def get_secret(self, name: str) -> dict | str:
+    def get_secret(self, name: str) -> Union[dict, str]:
         secret = None
         e_name = name.replace("-", "")
         if f"TASKCLUSTER_SECRET_{e_name}" in os.environ:
@@ -98,7 +98,7 @@ def write_arcrc(phabricator_url: str, phabricator_token: str):
     arc_filename = Path.home() / ".arcrc"
     arc_json = {"hosts": {phabricator_url: phabricator_token}}
     with open(arc_filename, "w") as arcrc:
-        json.dump(arc_json, arcrc)
+        arcrc.write(json.dumps(arc_json))
     os.chmod(arc_filename, stat.S_IRUSR | stat.S_IWUSR)
 
 
