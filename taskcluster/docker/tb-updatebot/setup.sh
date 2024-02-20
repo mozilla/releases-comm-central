@@ -11,22 +11,11 @@ set -vex
 # so mercurial can use it.
 hg clone https://repo.mercurial-scm.org/evolve/ "$HOME/.mozbuild/evolve"
 
-# Make venv
-export VENV_DIR="/builds/worker/venvs"
-./make_venv.sh "$(realpath ./requirements.txt)" rusty
-VENV_DIR="${VENV_DIR}/rusty"
+# Get pipx
+mkdir -p "${HOME}/bin"
+wget -O "${HOME}/bin/pipx" https://github.com/pypa/pipx/releases/download/1.4.3/pipx.pyz
+chmod +x "${HOME}/bin/pipx"
 
-# Symlink in moz-phab
-ln -s "$VENV_DIR/bin/moz-phab" "$HOME/bin/moz-phab"
-
-cat - > "$HOME/bin/runme.sh" << _EOF_
-#!/bin/bash
-cd "$HOME"
-source "$VENV_DIR/bin/activate"
-exec python3 -m vendor
-_EOF_
-
-chmod +x "$HOME/bin/runme.sh"
-
-# Run vendor unit tests
-"${VENV_DIR}/bin/pytest" -v --full-trace --color=no
+# Install moz-phab
+export PIPX_BIN_DIR=${HOME}/bin
+pipx install -v MozPhab==1.5.1

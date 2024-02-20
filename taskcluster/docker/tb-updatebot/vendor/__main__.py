@@ -3,6 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+
 import os
 import re
 import shutil
@@ -11,13 +12,16 @@ import sys
 import tempfile
 from pathlib import Path
 
+GECKO_PATH = os.environ.get("GECKO_PATH")
+sys.path.append(os.path.join(GECKO_PATH, "third_party/python/taskcluster"))
+sys.path.append(os.path.join(GECKO_PATH, "third_party/python/taskcluster_urls"))
+sys.path.append(os.path.join(GECKO_PATH, "third_party/python/slugid"))
+sys.path.append(os.path.join(GECKO_PATH, "third_party/python/mohawk"))
+
 sys.path.append(".")
 
 from .support import (  # noqa: I001
-    DevConduit,
-    ExtendedConduit,
     TaskClusterSecrets,
-    fetch_indexed_artifact,
     log,
     notify_sheriffs,
     run_cmd,
@@ -30,15 +34,13 @@ from .support import (  # noqa: I001
 # Bump this number when you need to cause a commit for the job to re-run: 0
 
 HOME_PATH = Path.home()
-GECKO_PATH = Path(os.environ.get("GECKO_PATH"))
-COMM_PATH = GECKO_PATH / "comm"
+COMM_PATH = os.path.join(GECKO_PATH, "comm")
 
 OPERATING_MODE = (
     "prod"
     if os.environ.get("COMM_HEAD_REPOSITORY", "") == "https://hg.mozilla.org/comm-central"
     else "dev"
 )
-PROJECT = os.environ.get("COMM_HEAD_REPOSITORY", "/comm-central").split("/")[-1]
 
 PROD_PHAB_URL = "https://phabricator.services.mozilla.com/api/"
 
@@ -52,6 +54,8 @@ SECRET_PATH = f"project/comm/thunderbird/releng/build/level-{LEVEL}"
 
 HG = shutil.which("hg")
 assert HG is not None
+MOZ_PHAB = shutil.which("moz-phab")
+assert MOZ_PHAB is not None
 
 REVIEWERS = os.environ.get("REVIEWERS")
 if REVIEWERS is None:
@@ -67,24 +71,22 @@ def prepare():
     """Retrieve secrets and write out config files."""
     # Get TC Secrets =======================================
     log("Operating mode is ", OPERATING_MODE)
+    log("Getting secrets...")
     if OPERATING_MODE == "prod":
-        log("Getting secrets from Taskcluster...")
         secret_mgr = TaskClusterSecrets(SECRET_PATH)
         phabricator_token = secret_mgr.get_secret("arc-phabricator-token")
         try_ssh = secret_mgr.get_secret("tbirdtry")
         try_ssh_user = try_ssh["user"]
         try_ssh_key = try_ssh["ssh_privkey"]
-    else:
-        log("Using fake secrets...")
-        phabricator_token = "null"
-        try_ssh_user = "nobody"
-        try_ssh_key = "nokey"
 
-    # Set Up Mercurial, SSH & Phabricator ==============================
-    log("Setting up Mercurial user, ssh key, and Phabricator token...")
-    ssh_key_file = write_ssh_key("ssh_id", try_ssh_key)
-    write_hgrc_userinfo(try_ssh_user, ssh_key_file)
-    write_arcrc(phabricator_url, phabricator_token)
+        # Set Up Mercurial, SSH & Phabricator ==============================
+        log("Setting up Mercurial user, ssh key, and Phabricator token...")
+        ssh_key_file = write_ssh_key("ssh_id", try_ssh_key)
+        write_hgrc_userinfo(try_ssh_user, ssh_key_file)
+        write_arcrc(phabricator_url, phabricator_token)
+    else:
+        write_hgrc_userinfo("no hg user config", Path("/dev/null"))
+        log(f"Skipping retrieving secrets in {OPERATING_MODE} mode.")
 
 
 def run_check_upstream() -> bool:
@@ -96,7 +98,7 @@ def run_check_upstream() -> bool:
     try:
         run_cmd(["./mach", "tb-rust", "check-upstream"])
         log("Rust code is in sync with upstream.")
-        notify(f"Sheriffs: No rust changes for Gecko head rev {GECKO_HEAD_REV[:12]}.")
+        notify_sheriffs(f"Sheriffs: No rust changes for Gecko head rev {GECKO_HEAD_REV[:12]}.")
         return True
     except subprocess.CalledProcessError as e:
         if e.returncode == 88:
@@ -113,17 +115,8 @@ def run_vendor():
     os.chdir(COMM_PATH)
     result = run_cmd([HG, "id", "-T", "{dirty}\n"])
     if result.stdout[0] != "+":
-        notify(f"Failed to complete Rust vendor automation for {GECKO_HEAD_REV[:12]}.")
+        notify_sheriffs(f"Failed to complete Rust vendor automation for {GECKO_HEAD_REV[:12]}.")
         raise Exception("Whoa there! No changes were found. ABORT ABORT ABORT ABORT ABORT!")
-
-
-def compare_checksums(old_checksums):
-    if old_checksums is None:
-        log("Old checksums invalid.")
-        return False
-    log("Comparing checksums with previously submitted review request")
-    new_checksums = open(COMM_PATH / "rust/checksums.json").read()
-    return old_checksums == new_checksums
 
 
 def commit_changes():
@@ -143,30 +136,13 @@ comm-central: {COMM_HEAD_REV}
     run_cmd([HG, "export", "-r", "tip", "-o", str(HOME_PATH / "hg_diff.patch")])
 
 
-def submit_phabricator(previous_data: dict) -> bool:
-    previous_phabrev = previous_data.get("phab_rev_id.txt")
-    conduit = get_conduit()
-
-    if previous_phabrev is None:
-        log("No previous Phabricator revision found.")
-    else:
-        if conduit.is_revision_open(previous_phabrev):
-            if compare_checksums(previous_data.get("checksums.json")):
-                # checksums.json from earlier submitted rev is the same as
-                # after running tb-rust vendor again. Do not submit a new
-                # revision, exit cleanly.
-                log(f"checksums.json from {previous_phabrev} is the same.")
-                log("Exiting without submitting a new revision.")
-                notify(f"Sheriffs: Please land {previous_phabrev} to fix Rust builds.")
-                return False
-            else:
-                log(
-                    f"Previous revision {previous_phabrev} is stale. Abandoning it and re-submitting."
-                )
-                conduit.abandon_revision(previous_phabrev)
+def submit_phabricator():
+    if OPERATING_MODE != "prod":
+        log(f"Skipping moz-phab submission in {OPERATING_MODE} mode.")
+        return
 
     os.chdir(COMM_PATH)
-    result = conduit.submit()
+    result = run_cmd([MOZ_PHAB, "submit", "-s", "--no-lint"])
 
     # Look for the Phabricator revision URL on the last line of stdout
     if result.returncode == 0:
@@ -174,63 +150,27 @@ def submit_phabricator(previous_data: dict) -> bool:
         match = re.search(r"/(D\d+)$", line)
         if match:
             phab_rev = match.group(1)
-            notify(
+            notify_sheriffs(
                 f"Sheriffs: Rust vendored libraries update for {GECKO_HEAD_REV[:12]} in {phab_rev}!"
             )
-            shutil.copy2(COMM_PATH / "rust/checksums.json", HOME_PATH / "checksums.json")
-            with open(HOME_PATH / "phab_rev_id.txt", "w") as fp:
-                fp.write(phab_rev)
-            return True
-        raise Exception("Failed to match a Phabricator review ID.")
 
 
 def run_try_cc():
     os.chdir(COMM_PATH)
     log("Submitting try-comm-central build.")
-    try_task_config = write_try_task_config(COMM_PATH)
+    try_task_config = write_try_task_config(Path(COMM_PATH))
     run_cmd([HG, "add", try_task_config.name])
-    if OPERATING_MODE == "prod":
-        run_cmd([HG, "push-to-try", "-s", "try-cc", "-m", "Automation: Rust build check"])
-    else:
-        log("Skipping submit to try-comm-central in dev mode...")
-
-
-def get_old_artifacts() -> dict:
-    rv = {}
-    if previous_task_id := os.environ.get("PREVIOUS_TASK_ID"):
-        for filename in ("phab_rev_id.txt", "checksums.json"):
-            previous_data = fetch_indexed_artifact(previous_task_id, f"public/{filename}")
-            if previous_data is not None:
-                rv[filename] = previous_data
-                with open(HOME_PATH / filename, "w") as fp:
-                    fp.write(previous_data)
-    return rv
-
-
-def get_conduit():
-    if OPERATING_MODE == "prod":
-        return ExtendedConduit(COMM_PATH)
-    return DevConduit(COMM_PATH)
-
-
-def notify(body: str):
-    if OPERATING_MODE != "prod":
-        log("Skipping Sheriff notification.")
-        return
-    notify_sheriffs(body)
+    run_cmd([HG, "push-to-try", "-s", "try-cc", "-m", "Automation: Rust build check"])
 
 
 def main():
     prepare()
-    previous_data = get_old_artifacts()
     result = run_check_upstream()
     if result:
         sys.exit(0)
     run_vendor()
     commit_changes()
-    do_run_try_cc = submit_phabricator(previous_data)
-    if not do_run_try_cc:
-        sys.exit(0)
+    submit_phabricator()
     run_try_cc()
 
 

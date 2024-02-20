@@ -1,7 +1,0 @@
-MozPhab==1.5.1
-pip-tools==7.3.0
-requests==2.31.0
-taskcluster==60.3.4
-taskcluster-urls==13.0.1
-pytest==8.0.0
-responses==0.24.1

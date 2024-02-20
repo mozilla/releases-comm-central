@@ -12,12 +12,17 @@ apt-get update -y
 
 # Install dependencies
 apt-get install -y --no-install-recommends \
+    arcanist \
     ca-certificates \
     curl \
     openssh-client \
     python3-aiohttp \
     python3-async-timeout \
     python3-full \
+    python3-pip \
+    python3-requests \
+    python3-six \
+    rsync \
     wget
 
 mkdir -p /builds/worker/.mozbuild
