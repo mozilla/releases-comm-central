@@ -96,7 +96,7 @@ def run_check_upstream() -> bool:
     try:
         run_cmd(["./mach", "tb-rust", "check-upstream"])
         log("Rust code is in sync with upstream.")
-        notify_sheriffs(f"Sheriffs: No rust changes for Gecko head rev {GECKO_HEAD_REV[:12]}.")
+        notify(f"Sheriffs: No rust changes for Gecko head rev {GECKO_HEAD_REV[:12]}.")
         return True
     except subprocess.CalledProcessError as e:
         if e.returncode == 88:
@@ -113,13 +113,15 @@ def run_vendor():
     os.chdir(COMM_PATH)
     result = run_cmd([HG, "id", "-T", "{dirty}\n"])
     if result.stdout[0] != "+":
-        notify_sheriffs(f"Failed to complete Rust vendor automation for {GECKO_HEAD_REV[:12]}.")
+        notify(f"Failed to complete Rust vendor automation for {GECKO_HEAD_REV[:12]}.")
         raise Exception("Whoa there! No changes were found. ABORT ABORT ABORT ABORT ABORT!")
 
 
-def compare_checksums():
+def compare_checksums(old_checksums):
+    if old_checksums is None:
+        log("Old checksums invalid.")
+        return False
     log("Comparing checksums with previously submitted review request")
-    old_checksums = open(HOME_PATH / "checksums.json").read()
     new_checksums = open(COMM_PATH / "rust/checksums.json").read()
     return old_checksums == new_checksums
 
@@ -141,20 +143,22 @@ comm-central: {COMM_HEAD_REV}
     run_cmd([HG, "export", "-r", "tip", "-o", str(HOME_PATH / "hg_diff.patch")])
 
 
-def submit_phabricator():
-    previous_phabrev = fetch_indexed_artifact(PROJECT, "public/phab_rev_id.txt")
+def submit_phabricator(previous_data: dict) -> bool:
+    previous_phabrev = previous_data.get("phab_rev_id.txt")
     conduit = get_conduit()
 
-    if previous_phabrev is not None:
+    if previous_phabrev is None:
+        log("No previous Phabricator revision found.")
+    else:
         if conduit.is_revision_open(previous_phabrev):
-            if compare_checksums():
+            if compare_checksums(previous_data.get("checksums.json")):
                 # checksums.json from earlier submitted rev is the same as
                 # after running tb-rust vendor again. Do not submit a new
                 # revision, exit cleanly.
                 log(f"checksums.json from {previous_phabrev} is the same.")
                 log("Exiting without submitting a new revision.")
-                notify_sheriffs(f"Sheriffs: Please land {previous_phabrev} to fix Rust builds.")
-                return
+                notify(f"Sheriffs: Please land {previous_phabrev} to fix Rust builds.")
+                return False
             else:
                 log(
                     f"Previous revision {previous_phabrev} is stale. Abandoning it and re-submitting."
@@ -170,13 +174,13 @@ def submit_phabricator():
         match = re.search(r"/(D\d+)$", line)
         if match:
             phab_rev = match.group(1)
-            notify_sheriffs(
+            notify(
                 f"Sheriffs: Rust vendored libraries update for {GECKO_HEAD_REV[:12]} in {phab_rev}!"
             )
             shutil.copy2(COMM_PATH / "rust/checksums.json", HOME_PATH / "checksums.json")
             with open(HOME_PATH / "phab_rev_id.txt", "w") as fp:
                 fp.write(phab_rev)
-            return
+            return True
         raise Exception("Failed to match a Phabricator review ID.")
 
 
@@ -188,7 +192,7 @@ def run_try_cc():
     if OPERATING_MODE == "prod":
         run_cmd([HG, "push-to-try", "-s", "try-cc", "-m", "Automation: Rust build check"])
     else:
-        log("Skipping submit to try-comm-central...")
+        log("Skipping submit to try-comm-central in dev mode...")
 
 
 def get_old_artifacts() -> dict:
@@ -209,6 +213,13 @@ def get_conduit():
     return DevConduit(COMM_PATH)
 
 
+def notify(body: str):
+    if OPERATING_MODE != "prod":
+        log("Skipping Sheriff notification.")
+        return
+    notify_sheriffs(body)
+
+
 def main():
     prepare()
     previous_data = get_old_artifacts()
@@ -217,7 +228,9 @@ def main():
         sys.exit(0)
     run_vendor()
     commit_changes()
-    submit_phabricator()
+    do_run_try_cc = submit_phabricator(previous_data)
+    if not do_run_try_cc:
+        sys.exit(0)
     run_try_cc()
 
 

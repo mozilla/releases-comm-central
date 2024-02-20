@@ -60,13 +60,6 @@ jobs:
             comm-checkout: true
             cwd: '/builds/worker'
             command: runme.sh
-        notifications:
-            subject: 'Thunderbird Rust updatebot failed'
-            message: 'Thunderbird Rust updatebot failed'
-            status-types:
-                - on-failed
-                - on-exception
-            emails: ["sheriffs@thunderbird.net"]
         fetches:
             toolchain:
                 - linux64-rust
