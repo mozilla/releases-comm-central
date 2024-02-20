@@ -743,12 +743,17 @@ async function getUtilsJS() {
 }
 
 async function checkContent(browser, expected) {
-  await SpecialPowers.spawn(browser, [expected], expected => {
+  await SpecialPowers.spawn(browser, [expected], async expected => {
     let body = content.document.body;
     Assert.ok(body, "body");
     const computedStyle = content.getComputedStyle(body);
 
     if ("backgroundColor" in expected) {
+      if (computedStyle.backgroundColor != expected.backgroundColor) {
+        // Give it a bit more time if things weren't settled.
+        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+        await new Promise(resolve => content.setTimeout(resolve, 500));
+      }
       Assert.equal(
         computedStyle.backgroundColor,
         expected.backgroundColor,
@@ -756,9 +761,19 @@ async function checkContent(browser, expected) {
       );
     }
     if ("color" in expected) {
+      if (computedStyle.color != expected.color) {
+        // Give it a bit more time if things weren't settled.
+        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+        await new Promise(resolve => content.setTimeout(resolve, 500));
+      }
       Assert.equal(computedStyle.color, expected.color, "color");
     }
     if ("foo" in expected) {
+      if (body.getAttribute("foo") != expected.foo) {
+        // Give it a bit more time if things weren't settled.
+        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+        await new Promise(resolve => content.setTimeout(resolve, 500));
+      }
       Assert.equal(body.getAttribute("foo"), expected.foo, "foo");
     }
     if ("textContent" in expected) {
@@ -767,6 +782,11 @@ async function checkContent(browser, expected) {
       // we can just select an descendant node, since what really matters is
       // whether (or not) a script ran, not the exact result.
       body = body.querySelector(".moz-text-flowed") ?? body;
+      if (body.textContent != expected.textContent) {
+        // Give it a bit more time if things weren't settled.
+        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+        await new Promise(resolve => content.setTimeout(resolve, 500));
+      }
       Assert.equal(body.textContent, expected.textContent, "textContent");
     }
   });
