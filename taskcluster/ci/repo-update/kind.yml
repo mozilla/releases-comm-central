@@ -39,6 +39,12 @@ jobs:
                 - type: file
                   name: public/hg_diff.patch
                   path: /builds/worker/hg_diff.patch
+                - type: file
+                  name: public/phab_rev_id.txt
+                  path: /builds/worker/phab_rev_id.txt
+                - type: file
+                  name: public/checksums.json
+                  path: /builds/worker/checksums.json
         ssh-key-secret:
             by-level:
                 "3": project/comm/thunderbird/releng/build/level-3/tbirdtry
