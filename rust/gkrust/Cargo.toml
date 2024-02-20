@@ -16,7 +16,7 @@ harness = false
 [dependencies]
 mozilla-central-workspace-hack = { version = "0.1", features = ['gkrust'], optional = true }
 gkrust-shared = { version = "0.1.0", path = "../../../toolkit/library/rust/shared" }
-aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "96e66f91bb8e8efb80ff144eabd668002aa89650" }
+aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "d94278ed9c7020f50232689a26d1277eb0eb74d2" }
 app_services_logger = { path = "../../../services/common/app_services_logger" }
 audio_thread_priority = { version = "0.31" }
 audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "596bdb7fbb5745ea415726e16bd497e6c850a540", optional = true }
