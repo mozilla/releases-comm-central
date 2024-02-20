@@ -38,7 +38,8 @@ jobs:
                     staging:
                         by-release-type:
                             beta: [43]
-                            release: [903]
+                            release: [912]
+                            esr115: [916]
                             default: []
             background-rate:
                 by-release-type:
