@@ -8,6 +8,8 @@
 /* import-globals-from ../../../../base/content/msgHdrView.js */
 /* import-globals-from ../../../../base/content/msgSecurityPane.js */
 
+/* global openpgpSink */ // enigmailMsgHdrViewOverlay.js
+
 // TODO: check if this is safe
 /* eslint-disable no-unsanitized/property */
 
@@ -787,7 +789,7 @@ Enigmail.msg = {
    */
   async buggyMailHeader() {
     const uri = this.getCurrentMsgUrl();
-    Enigmail.hdrView.headerPane.updateSecurityStatus(
+    openpgpSink.updateSecurityStatus(
       0,
       0,
       0,

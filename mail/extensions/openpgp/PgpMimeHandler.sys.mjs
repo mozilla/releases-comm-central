@@ -194,6 +194,6 @@ PgpMimeHandler.prototype = {
    */
   handleSmime(proxy, uri) {
     this.contentHandler = throwErrors;
-    proxy.mailChannel?.smimeHeaderSink?.handleSMimeMessage(uri.spec);
+    proxy.mailChannel?.openpgpSink?.handleSMimeMessage(uri.spec);
   },
 };

@@ -33,7 +33,7 @@ registerCleanupFunction(function () {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });
 
-function apply_mime_conversion(msgUri, smimeHeaderSink) {
+function apply_mime_conversion(msgUri, smimeSink, openpgpSink = null) {
   const service = MailServices.messageServiceFromURI(msgUri);
 
   // This is what we listen on in the end.
@@ -42,15 +42,18 @@ function apply_mime_conversion(msgUri, smimeHeaderSink) {
   // Make the underlying channel--we need this for the converter parameter.
   const url = service.getUrlForUri(msgUri);
 
-  const channel = Services.io.newChannelFromURI(
-    url,
-    null,
-    Services.scriptSecurityManager.getSystemPrincipal(),
-    null,
-    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-    Ci.nsIContentPolicy.TYPE_OTHER
-  );
-  channel.QueryInterface(Ci.nsIMailChannel).smimeHeaderSink = smimeHeaderSink;
+  const channel = Services.io
+    .newChannelFromURI(
+      url,
+      null,
+      Services.scriptSecurityManager.getSystemPrincipal(),
+      null,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      Ci.nsIContentPolicy.TYPE_OTHER
+    )
+    .QueryInterface(Ci.nsIMailChannel);
+  channel.openpgpSink = openpgpSink;
+  channel.smimeSink = smimeSink;
 
   // Make the MIME converter, using the listener we first set up.
   const converter = Cc["@mozilla.org/streamConverters;1"]

@@ -7,10 +7,8 @@
 const EXPORTED_SYMBOLS = ["EnigmailMimeDecrypt"];
 
 /**
- *  Module for handling PGP/MIME encrypted messages
- *  implemented as an XPCOM object
+ * Module for handling PGP/MIME encrypted messages.
  */
-
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -169,7 +167,8 @@ MimeDecryptHandler.prototype = {
       // an in addition, remember that future information for "1" should
       // be ignored.
 
-      mimeSvc.mailChannel?.smimeHeaderSink.ignoreStatusFrom("1");
+      mimeSvc.mailChannel?.smimeSink.ignoreStatusFrom("1");
+      mimeSvc.mailChannel?.openpgpSink.ignoreStatusFrom("1");
     }
 
     this.uri = mimeSvc.messageURI;
@@ -416,7 +415,7 @@ MimeDecryptHandler.prototype = {
           );
 
           if (!this.backgroundJob && currUrlSpec.indexOf(manUrlSpec) !== 0) {
-            this.handleManualDecrypt(mimeSvc.mailChannel?.smimeHeaderSink);
+            this.handleManualDecrypt(mimeSvc.mailChannel?.openpgpSink);
             return;
           }
         }
@@ -585,7 +584,7 @@ MimeDecryptHandler.prototype = {
         this.decryptedData = "";
       }
 
-      this.displayStatus(mimeSvc.mailChannel?.smimeHeaderSink);
+      this.displayStatus(mimeSvc.mailChannel?.openpgpSink);
 
       // HACK: remove filename from 1st HTML and plaintext parts to make TB display message without attachment
       this.decryptedData = this.decryptedData.replace(
@@ -630,7 +629,7 @@ MimeDecryptHandler.prototype = {
       this.decryptedHeaders = LAST_MSG.lastStatus.decryptedHeaders;
       this.mimePartNumber = LAST_MSG.mimePartNumber;
       this.exitCode = 0;
-      this.displayStatus(mimeSvc.mailChannel?.smimeHeaderSink);
+      this.displayStatus(mimeSvc.mailChannel?.openpgpSink);
       this.returnData(mimeSvc, LAST_MSG.lastMessageData);
     }
   },
@@ -638,9 +637,9 @@ MimeDecryptHandler.prototype = {
   /**
    * Display decryption status.
    *
-   * @param {nsIMsgSMIMEHeaderSink} headerSink - The sink to use.
+   * @param {nsIMsgOpenPGPSink} sink - The sink to use.
    */
-  displayStatus(headerSink) {
+  displayStatus(sink) {
     lazy.EnigmailLog.DEBUG("mimeDecrypt.jsm: displayStatus()\n");
 
     if (this.exitCode === null || this.statusDisplayed) {
@@ -654,9 +653,9 @@ MimeDecryptHandler.prototype = {
       lazy.EnigmailLog.DEBUG(
         "mimeDecrypt.jsm: displayStatus for uri " + this.uri?.spec + "\n"
       );
-      if (headerSink && this.uri && !this.backgroundJob) {
+      if (sink && this.uri && !this.backgroundJob) {
         if (this.decryptedHeaders) {
-          headerSink.modifyMessageHeaders(
+          sink.modifyMessageHeaders(
             this.uri.spec,
             JSON.stringify(
               Object.fromEntries(this.decryptedHeaders._cachedHeaders)
@@ -665,7 +664,7 @@ MimeDecryptHandler.prototype = {
           );
         }
 
-        headerSink.updateSecurityStatus(
+        sink.updateSecurityStatus(
           this.exitCode,
           this.returnStatus.statusFlags,
           this.returnStatus.extStatusFlags,
@@ -684,7 +683,7 @@ MimeDecryptHandler.prototype = {
           }),
           this.mimePartNumber
         );
-      } else if (headerSink) {
+      } else if (sink) {
         // not attachment...
         this.updateHeadersInMsgDb();
       }
@@ -844,27 +843,25 @@ MimeDecryptHandler.prototype = {
     }
   },
 
-  handleManualDecrypt(headerSink) {
-    try {
-      if (headerSink && this.uri && !this.backgroundJob) {
-        headerSink.updateSecurityStatus(
-          lazy.EnigmailConstants.POSSIBLE_PGPMIME,
-          0,
-          0,
-          "",
-          "",
-          "",
-          lazy.l10n.formatValueSync("possibly-pgp-mime"),
-          "",
-          this.uri.spec,
-          null,
-          ""
-        );
-      }
-    } catch (ex) {
-      console.debug(ex);
+  /**
+   * @param {nsIMsgOpenPGPSink} sink - The sink to use.
+   */
+  handleManualDecrypt(sink) {
+    if (sink && this.uri && !this.backgroundJob) {
+      sink.updateSecurityStatus(
+        lazy.EnigmailConstants.POSSIBLE_PGPMIME,
+        0,
+        0,
+        "",
+        "",
+        "",
+        lazy.l10n.formatValueSync("possibly-pgp-mime"),
+        "",
+        this.uri.spec,
+        null,
+        ""
+      );
     }
-
     return 0;
   },
 

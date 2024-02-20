@@ -12,7 +12,7 @@ XPIDL_SOURCES += [
     "nsICMSMessageErrors.idl",
     "nsICMSSecureMessage.idl",
     "nsIEncryptedSMIMEURIsSrvc.idl",
-    "nsIMsgSMIMEHeaderSink.idl",
+    "nsIMsgSMIMESink.idl",
     "nsIUserCertPicker.idl",
 ]
 

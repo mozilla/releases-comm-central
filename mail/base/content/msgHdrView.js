@@ -18,6 +18,7 @@
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from msgSecurityPane.js */
+/* global openpgpSink */ // From enigmailMsgHdrViewOverlay.js
 
 /* globals MozElements */
 
@@ -540,7 +541,8 @@ var messageProgressListener = {
     gMessageNotificationBar.clearMsgNotifications();
 
     request.listener = this;
-    request.smimeHeaderSink = smimeHeaderSink;
+    request.openpgpSink = openpgpSink;
+    request.smimeSink = smimeSink;
     this.onStartHeaders();
   },
 
@@ -614,7 +616,8 @@ var messageProgressListener = {
     const channel = docShell.currentDocumentChannel;
     channel.QueryInterface(Ci.nsIMailChannel);
     currentCharacterSet = channel.mailCharacterSet;
-    channel.smimeHeaderSink = null;
+    channel.openpgpSink = null;
+    channel.smimeSink = null;
     if (channel.imipItem) {
       calImipBar.showImipBar(channel.imipItem, channel.imipMethod);
     }

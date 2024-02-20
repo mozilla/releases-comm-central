@@ -23,7 +23,8 @@ class nsMailChannel : public nsIMailChannel {
   nsCString mMailCharacterSet;
   nsCString mImipMethod;
   nsCOMPtr<calIItipItem> mImipItem;
-  nsCOMPtr<nsIMsgSMIMEHeaderSink> mSmimeHeaderSink;
+  nsCOMPtr<nsIMsgOpenPGPSink> mOpenPGPSink;
+  nsCOMPtr<nsIMsgSMIMESink> mSmimeSink;
   nsWeakPtr mListener;
 };
 

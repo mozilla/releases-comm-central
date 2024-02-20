@@ -17,7 +17,7 @@
 #include "nsIURI.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIMsgSMIMEHeaderSink.h"
+#include "nsIMsgSMIMESink.h"
 #include "nsCOMPtr.h"
 #include "nsIX509Cert.h"
 #include "plstr.h"
@@ -76,7 +76,7 @@ typedef struct MimeMultCMSdata {
   unsigned char* item_data;
   uint32_t item_len;
   MimeObject* self;
-  nsCOMPtr<nsIMsgSMIMEHeaderSink> smimeHeaderSink;
+  nsCOMPtr<nsIMsgSMIMESink> smimeSink;
   nsCString url;
 
   MimeMultCMSdata()
@@ -109,7 +109,7 @@ extern void MimeCMSGetFromSender(MimeObject* obj, nsCString& from_addr,
 extern void MimeCMSRequestAsyncSignatureVerification(
     nsICMSMessage* aCMSMsg, const char* aFromAddr, const char* aFromName,
     const char* aSenderAddr, const char* aSenderName, const char* aMsgDate,
-    nsIMsgSMIMEHeaderSink* aHeaderSink, int32_t aMimeNestingLevel,
+    nsIMsgSMIMESink* aHeaderSink, int32_t aMimeNestingLevel,
     const nsCString& aMsgNeckoURL, const nsCString& aOriginMimePartNumber,
     const nsTArray<uint8_t>& aDigestData, int16_t aDigestType);
 extern char* MimeCMS_MakeSAURL(MimeObject* obj);
@@ -144,7 +144,7 @@ static void* MimeMultCMS_init(MimeObject* obj) {
         // we can learn that by looking at the additional header=filter
         // string contained in the URI.
         //
-        // If we find something, we do not set smimeHeaderSink,
+        // If we find something, we do not set smimeSink,
         // which will prevent us from giving UI feedback.
         //
         // If we do not find header=filter, we assume the result of the
@@ -156,8 +156,7 @@ static void* MimeMultCMS_init(MimeObject* obj) {
             !strstr(data->url.get(), "&header=attach")) {
           nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(channel);
           if (mailChannel) {
-            mailChannel->GetSmimeHeaderSink(
-                getter_AddRefs(data->smimeHeaderSink));
+            mailChannel->GetSmimeSink(getter_AddRefs(data->smimeSink));
           }
         }
       }
@@ -179,13 +178,13 @@ static void* MimeMultCMS_init(MimeObject* obj) {
     // otherwise the parent will attempt to re-init us.
 
     data->reject_signature = true;
-    if (data->smimeHeaderSink) {
+    if (data->smimeSink) {
       int aRelativeNestLevel = MIMEGetRelativeCryptoNestLevel(data->self);
       nsAutoCString partnum;
       partnum.Adopt(mime_part_address(data->self));
-      data->smimeHeaderSink->SignedStatus(aRelativeNestLevel,
-                                          nsICMSMessageErrors::GENERAL_ERROR,
-                                          nullptr, data->url, partnum);
+      data->smimeSink->SignedStatus(aRelativeNestLevel,
+                                    nsICMSMessageErrors::GENERAL_ERROR, nullptr,
+                                    data->url, partnum);
     }
     return data;
   }
@@ -226,13 +225,13 @@ static void* MimeMultCMS_init(MimeObject* obj) {
     hash_type = nsICryptoHash::SHA512;
   else {
     data->reject_signature = true;
-    if (data->smimeHeaderSink) {
+    if (data->smimeSink) {
       int aRelativeNestLevel = MIMEGetRelativeCryptoNestLevel(data->self);
       nsAutoCString partnum;
       partnum.Adopt(mime_part_address(data->self));
-      data->smimeHeaderSink->SignedStatus(aRelativeNestLevel,
-                                          nsICMSMessageErrors::GENERAL_ERROR,
-                                          nullptr, data->url, partnum);
+      data->smimeSink->SignedStatus(aRelativeNestLevel,
+                                    nsICMSMessageErrors::GENERAL_ERROR, nullptr,
+                                    data->url, partnum);
     }
     PR_Free(micalg);
     return data;
@@ -416,16 +415,16 @@ static void MimeMultCMS_suppressed_child(void* crypto_closure) {
   // I'm a multipart/signed. If one of my cryptographic child elements
   // was suppressed, then I want my signature to be shown as invalid.
   MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
-  if (data && data->smimeHeaderSink) {
+  if (data && data->smimeSink) {
     if (data->reject_signature) {
       return;
     }
 
     nsAutoCString partnum;
     partnum.Adopt(mime_part_address(data->self));
-    data->smimeHeaderSink->SignedStatus(
-        MIMEGetRelativeCryptoNestLevel(data->self),
-        nsICMSMessageErrors::GENERAL_ERROR, nullptr, data->url, partnum);
+    data->smimeSink->SignedStatus(MIMEGetRelativeCryptoNestLevel(data->self),
+                                  nsICMSMessageErrors::GENERAL_ERROR, nullptr,
+                                  data->url, partnum);
   }
 }
 
@@ -450,8 +449,8 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
     // We were not given all parts of the message.
     // We are therefore unable to verify correctness of the signature.
 
-    if (data->smimeHeaderSink) {
-      data->smimeHeaderSink->SignedStatus(
+    if (data->smimeSink) {
+      data->smimeSink->SignedStatus(
           aRelativeNestLevel, nsICMSMessageErrors::VERIFY_NOT_YET_ATTEMPTED,
           nullptr, data->url, partnum);
     }
@@ -479,11 +478,11 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
   nsTArray<uint8_t> digest;
   digest.AppendElements(data->item_data, data->item_len);
 
-  if (!data->reject_signature && data->smimeHeaderSink) {
+  if (!data->reject_signature && data->smimeSink) {
     MimeCMSRequestAsyncSignatureVerification(
         data->content_info, from_addr.get(), from_name.get(), sender_addr.get(),
-        sender_name.get(), msg_date.get(), data->smimeHeaderSink,
-        aRelativeNestLevel, data->url, partnum, digest, data->hash_type);
+        sender_name.get(), msg_date.get(), data->smimeSink, aRelativeNestLevel,
+        data->url, partnum, digest, data->hash_type);
   }
 
   if (data->content_info) {

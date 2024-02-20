@@ -36,11 +36,11 @@ const browserEMLDir = "../../../../mail/test/browser/openpgp/data/eml/";
 const contents = "Sundays are nothing without callaloo.";
 
 /**
- * This implements some of the methods of Enigmail.hdrView.headerPane so we can
+ * This implements some of the methods of openpgpSink so we can
  * intercept and record the calls to updateSecurityStatus().
- * @implements {nsIMsgSMIMEHeaderSink}
+ * @implements {nsIMsgOpenPGPSink}
  */
-const headerSink = {
+const openpgpSink = {
   expectResults(maxLen) {
     this._deferred = Promise.withResolvers();
     this.expectedCount = maxLen;
@@ -316,13 +316,13 @@ add_task(async function testMimeDecryptOpenPGPMessages() {
       test.resultCount || (test.enc && test.sig) ? 2 : 1;
     const hdr = mailTestUtils.getMsgHdrN(gInbox, hdrIndex);
     const uri = hdr.folder.getUriForMsg(hdr);
-    const sinkPromise = headerSink.expectResults(expectedResultCount);
+    const sinkPromise = openpgpSink.expectResults(expectedResultCount);
 
     // Stub this function so verifyDetached() can get the correct email.
     EnigmailDecryption.getFromAddr = () => test.from;
 
     // Trigger the actual mime work.
-    const conversion = apply_mime_conversion(uri, headerSink);
+    const conversion = apply_mime_conversion(uri, null, openpgpSink);
 
     await conversion.promise;
 
@@ -343,7 +343,7 @@ add_task(async function testMimeDecryptOpenPGPMessages() {
     await sinkPromise;
 
     let idx = 0;
-    const { results } = headerSink;
+    const { results } = openpgpSink;
 
     Assert.equal(
       results.length,

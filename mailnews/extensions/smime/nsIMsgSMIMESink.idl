@@ -1,0 +1,26 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface nsIX509Cert;
+
+/** @see nsIMsgOpenPGPSink */
+[scriptable, uuid(25380FA1-E70C-4e82-B0BC-F31C2F41C470)]
+interface nsIMsgSMIMESink : nsISupports {
+  void ignoreStatusFrom(in AUTF8String originMimePartNumber);
+
+  void signedStatus(in long nestingLevel,
+                    in long signatureStatus,
+                    in nsIX509Cert signerCert,
+                    in AUTF8String msgNeckoURL,
+                    in AUTF8String originMimePartNumber);
+
+  void encryptionStatus(in long nestingLevel,
+                        in long encryptionStatus,
+                        in nsIX509Cert receipientCert,
+                        in AUTF8String msgNeckoURL,
+                        in AUTF8String originMimePartNumber);
+
+};

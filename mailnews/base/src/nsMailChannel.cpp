@@ -108,14 +108,26 @@ nsMailChannel::SetImipItem(calIItipItem* aImipItem) {
 }
 
 NS_IMETHODIMP
-nsMailChannel::GetSmimeHeaderSink(nsIMsgSMIMEHeaderSink** aSmimeHeaderSink) {
-  NS_IF_ADDREF(*aSmimeHeaderSink = mSmimeHeaderSink);
+nsMailChannel::GetOpenpgpSink(nsIMsgOpenPGPSink** aOpenPGPSink) {
+  NS_IF_ADDREF(*aOpenPGPSink = mOpenPGPSink);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMailChannel::SetSmimeHeaderSink(nsIMsgSMIMEHeaderSink* aSmimeHeaderSink) {
-  mSmimeHeaderSink = aSmimeHeaderSink;
+nsMailChannel::SetOpenpgpSink(nsIMsgOpenPGPSink* aOpenPGPSink) {
+  mOpenPGPSink = aOpenPGPSink;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMailChannel::GetSmimeSink(nsIMsgSMIMESink** aSmimeSink) {
+  NS_IF_ADDREF(*aSmimeSink = mSmimeSink);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMailChannel::SetSmimeSink(nsIMsgSMIMESink* aSmimeSink) {
+  mSmimeSink = aSmimeSink;
   return NS_OK;
 }
 

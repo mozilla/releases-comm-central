@@ -161,8 +161,10 @@ function refreshSmimeMessageEncryptionStatus(mimePartNumber = undefined) {
   setMessageCryptoBox("S/MIME", encrypted, signed, false, mimePartNumber);
 }
 
-/** @implements {nsIMsgSMIMEHeaderSink} */
-var smimeHeaderSink = {
+/** @implements {nsIMsgSMIMESink} */
+var smimeSink = {
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMESink"]),
+
   /**
    * @returns {?string} the URI of the selected message, or null if the current
    *   message displayed isn't in a folder, for example if the message is
@@ -184,6 +186,17 @@ var smimeHeaderSink = {
     }
 
     return neckoURLForMessageURI(gMessageURI);
+  },
+
+  /**
+   * Request that security status from the given MIME part
+   * shall be ignored (not shown in the UI).
+   *
+   * @param {string} originMimePartNumber - Ignore security status
+   *   of this MIME part.
+   */
+  ignoreStatusFrom(originMimePartNumber) {
+    setIgnoreStatusFromMimePart(originMimePartNumber);
   },
 
   /**
@@ -381,67 +394,6 @@ var smimeHeaderSink = {
       })
     );
   },
-
-  // Forward these calls to the header pane code.
-
-  /**
-   * @param {string} originMimePartNumber
-   */
-  ignoreStatusFrom(originMimePartNumber) {
-    return Enigmail.hdrView.headerPane.ignoreStatusFrom(originMimePartNumber);
-  },
-
-  /**
-   * Modify message headers.
-   *
-   * @param {string} uri - URI spec for the message (part).
-   * @param {string} headerData - Header data, as JSON data.
-   * @param {string} mimePartNumber - MIME part number.
-   */
-  modifyMessageHeaders(uri, headerData, mimePartNumber) {
-    return Enigmail.hdrView.headerPane.modifyMessageHeaders(
-      uri,
-      headerData,
-      mimePartNumber
-    );
-  },
-
-  updateSecurityStatus(
-    exitCode,
-    statusFlags,
-    extStatusFlags,
-    keyId,
-    userId,
-    sigDetails,
-    errorMsg,
-    blockSeparation,
-    uri,
-    extraDetails,
-    mimePartNumber
-  ) {
-    return Enigmail.hdrView.headerPane.updateSecurityStatus(
-      exitCode,
-      statusFlags,
-      extStatusFlags,
-      keyId,
-      userId,
-      sigDetails,
-      errorMsg,
-      blockSeparation,
-      uri,
-      extraDetails,
-      mimePartNumber
-    );
-  },
-
-  /**
-   * @param {string} uri - URI to handle.
-   */
-  handleSMimeMessage(uri) {
-    return Enigmail.hdrView.headerPane.handleSMimeMessage(uri);
-  },
-
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMEHeaderSink"]),
 };
 
 function forgetEncryptedURI() {

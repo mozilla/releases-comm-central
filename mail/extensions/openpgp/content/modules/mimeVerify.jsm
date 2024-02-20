@@ -33,8 +33,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 
 const PGPMIME_PROTO = "application/pgp-signature";
 
-var gDebugLog = false;
-
 // MimeVerify Constructor
 function MimeVerify(protocol) {
   if (!protocol) {
@@ -62,18 +60,12 @@ var EnigmailVerify = {
       return;
     }
     this._initialized = true;
-    const nspr_log_modules = Services.env.get("NSPR_LOG_MODULES");
-    const matches = nspr_log_modules.match(/mimeVerify:(\d+)/);
-
-    if (matches && matches.length > 1) {
-      if (matches[1] > 2) {
-        gDebugLog = true;
-      }
-    }
   },
 
   setLastMsgUri(msgUriSpec) {
-    LOCAL_DEBUG("mimeVerify.jsm: setLastMsgUri: " + msgUriSpec + "\n");
+    lazy.EnigmailLog.DEBUG(
+      "mimeVerify.jsm: setLastMsgUri: " + msgUriSpec + "\n"
+    );
     this.lastMsgUri = msgUriSpec;
   },
 
@@ -87,7 +79,9 @@ var EnigmailVerify = {
   },
 
   setManualUri(msgUriSpec) {
-    LOCAL_DEBUG("mimeVerify.jsm: setManualUri: " + msgUriSpec + "\n");
+    lazy.EnigmailLog.DEBUG(
+      "mimeVerify.jsm: setManualUri: " + msgUriSpec + "\n"
+    );
     this.manualMsgUri = msgUriSpec;
   },
 
@@ -215,7 +209,7 @@ MimeVerify.prototype = {
   },
 
   onDataAvailable(req, stream, offset, count) {
-    LOCAL_DEBUG("mimeVerify.jsm: onDataAvailable: " + count + "\n");
+    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: onDataAvailable: " + count + "\n");
     if (count > 0) {
       this.inStream.init(stream);
       var data = this.inStream.read(count);
@@ -224,7 +218,7 @@ MimeVerify.prototype = {
   },
 
   onTextData(data) {
-    LOCAL_DEBUG("mimeVerify.jsm: onTextData\n");
+    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: onTextData\n");
 
     this.dataCount += data.length;
 
@@ -603,7 +597,7 @@ MimeVerify.prototype = {
         }
 
         const mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
-        this.displayStatus(mimeSvc.mailChannel?.smimeHeaderSink);
+        this.displayStatus(mimeSvc.mailChannel?.openpgpSink);
       }
     }
   },
@@ -637,57 +631,48 @@ MimeVerify.prototype = {
     this.mimeSvc.outputDecryptedData(data, data.length);
   },
 
-  displayStatus(headerSink) {
+  /**
+   * @param {nsIMsgOpenPGPSink} sink
+   */
+  displayStatus(sink) {
     lazy.EnigmailLog.DEBUG("mimeVerify.jsm: displayStatus\n");
     if (this.exitCode === null || this.statusDisplayed || this.backgroundJob) {
       return;
     }
 
-    try {
-      LOCAL_DEBUG("mimeVerify.jsm: displayStatus displaying result\n");
-      if (headerSink) {
-        if (this.protectedHeaders) {
-          headerSink.modifyMessageHeaders(
-            this.uri.spec,
-            JSON.stringify(
-              Object.fromEntries(this.protectedHeaders._cachedHeaders)
-            ),
-            this.mimePartNumber
-          );
-        }
-
-        headerSink.updateSecurityStatus(
-          this.exitCode,
-          this.returnStatus.statusFlags,
-          this.returnStatus.extStatusFlags,
-          this.returnStatus.keyId,
-          this.returnStatus.userId,
-          this.returnStatus.sigDetails,
-          this.returnStatus.errorMsg,
-          this.returnStatus.blockSeparation,
-          this.uri.spec,
-          JSON.stringify({
-            encryptedTo: this.returnStatus.encToDetails,
-            packetDump:
-              "packetDump" in this.returnStatus
-                ? this.returnStatus.packetDump
-                : "",
-          }),
-          this.mimePartNumber
-        );
-      }
-      this.statusDisplayed = true;
-    } catch (ex) {
-      lazy.EnigmailLog.writeException("mimeVerify.jsm", ex);
+    if (!sink) {
+      return;
     }
+
+    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: displayStatus displaying result\n");
+    if (this.protectedHeaders) {
+      sink.modifyMessageHeaders(
+        this.uri.spec,
+        JSON.stringify(
+          Object.fromEntries(this.protectedHeaders._cachedHeaders)
+        ),
+        this.mimePartNumber
+      );
+    }
+
+    sink.updateSecurityStatus(
+      this.exitCode,
+      this.returnStatus.statusFlags,
+      this.returnStatus.extStatusFlags,
+      this.returnStatus.keyId,
+      this.returnStatus.userId,
+      this.returnStatus.sigDetails,
+      this.returnStatus.errorMsg,
+      this.returnStatus.blockSeparation,
+      this.uri.spec,
+      JSON.stringify({
+        encryptedTo: this.returnStatus.encToDetails,
+        packetDump:
+          "packetDump" in this.returnStatus ? this.returnStatus.packetDump : "",
+      }),
+      this.mimePartNumber
+    );
+
+    this.statusDisplayed = true;
   },
 };
-
-////////////////////////////////////////////////////////////////////
-// General-purpose functions, not exported
-
-function LOCAL_DEBUG(str) {
-  if (gDebugLog) {
-    lazy.EnigmailLog.DEBUG(str);
-  }
-}

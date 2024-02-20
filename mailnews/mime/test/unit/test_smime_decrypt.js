@@ -75,7 +75,10 @@ var gInbox;
 
 var smimeDataDirectory = "../../../data/smime/";
 
-const smimeHeaderSink = {
+/**
+ * @implements {nsIMsgSMIMESink}
+ */
+const smimeSink = {
   expectResults(maxLen) {
     // dump("Restarting for next test\n");
     this._deferred = Promise.withResolvers();
@@ -149,7 +152,7 @@ const smimeHeaderSink = {
       this._deferred.resolve(this._results);
     }
   },
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMEHeaderSink"]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMESink"]),
 };
 
 /**
@@ -645,9 +648,9 @@ add_task(async function check_smime_message() {
 
     const hdr = mailTestUtils.getMsgHdrN(gInbox, hdrIndex);
     const uri = hdr.folder.getUriForMsg(hdr);
-    const sinkPromise = smimeHeaderSink.expectResults(eventsExpected);
+    const sinkPromise = smimeSink.expectResults(eventsExpected);
 
-    const conversion = apply_mime_conversion(uri, smimeHeaderSink);
+    const conversion = apply_mime_conversion(uri, smimeSink);
     await conversion.promise;
 
     const contents = conversion._data;
@@ -662,7 +665,7 @@ add_task(async function check_smime_message() {
 
     await sinkPromise;
 
-    const r = smimeHeaderSink._results;
+    const r = smimeSink._results;
     Assert.equal(r.length, numExpected);
 
     let sigIndex = 0;

@@ -1,0 +1,29 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+/** @see nsIMsgSMIMESink */
+[scriptable, uuid(0952ac9f-000d-456c-ba3a-c8134ad260cb)]
+interface nsIMsgOpenPGPSink : nsISupports {
+  void ignoreStatusFrom(in AUTF8String originMimePartNumber);
+
+  void handleSMimeMessage(in AUTF8String uri);
+
+  void modifyMessageHeaders(in AUTF8String uri,
+                            in AUTF8String headerData,
+                            in AUTF8String mimePartNumber);
+
+  void updateSecurityStatus(in AUTF8String exitCode,
+                            in AUTF8String statusFlags,
+                            in AUTF8String extStatusFlags,
+                            in AUTF8String keyId,
+                            in AUTF8String userId,
+                            in AUTF8String sigDetails,
+                            in AUTF8String errorMsg,
+                            in AUTF8String blockSeparation,
+                            in AUTF8String uri,
+                            in AUTF8String extraDetails,
+                            in AUTF8String mimePartNumber);
+};

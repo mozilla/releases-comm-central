@@ -82,7 +82,7 @@ var gInbox;
 
 var smimeDataDirectory = "../../../data/smime/";
 
-const smimeHeaderSink = {
+const smimeSink = {
   expectResults(maxLen) {
     // dump("Restarting for next test\n");
     this._deferred = Promise.withResolvers();
@@ -160,7 +160,7 @@ const smimeHeaderSink = {
       this._deferred.resolve(this._results);
     }
   },
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMEHeaderSink"]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMESink"]),
 };
 
 /**
@@ -214,9 +214,9 @@ add_task(async function check_smime_message() {
 
     let hdr = mailTestUtils.getMsgHdrN(gInbox, hdrIndex);
     let uri = hdr.folder.getUriForMsg(hdr);
-    let sinkPromise = smimeHeaderSink.expectResults(eventsExpected);
+    let sinkPromise = smimeSink.expectResults(eventsExpected);
 
-    let conversion = apply_mime_conversion(uri, smimeHeaderSink);
+    let conversion = apply_mime_conversion(uri, smimeSink);
     await conversion.promise;
 
     let contents = conversion._data;
@@ -227,7 +227,7 @@ add_task(async function check_smime_message() {
 
     await sinkPromise;
 
-    const r = smimeHeaderSink._results;
+    const r = smimeSink._results;
     Assert.equal(r.length, numExpected);
 
     if (msg.enc) {
@@ -247,9 +247,9 @@ add_task(async function check_smime_message() {
 
     hdr = mailTestUtils.getMsgHdrN(gDecFolder, hdrIndex);
     uri = hdr.folder.getUriForMsg(hdr);
-    sinkPromise = smimeHeaderSink.expectResults(eventsExpected);
+    sinkPromise = smimeSink.expectResults(eventsExpected);
 
-    conversion = apply_mime_conversion(uri, smimeHeaderSink);
+    conversion = apply_mime_conversion(uri, smimeSink);
     await conversion.promise;
 
     contents = conversion._data;
@@ -260,11 +260,11 @@ add_task(async function check_smime_message() {
 
     // A message without S/MIME content didn't produce any events,
     // so we must manually force this check.
-    smimeHeaderSink.checkFinished();
+    smimeSink.checkFinished();
     await sinkPromise;
 
     // If the result length is 0, it wasn't decrypted.
-    Assert.equal(smimeHeaderSink._results.length, 0);
+    Assert.equal(smimeSink._results.length, 0);
 
     hdrIndex++;
   }
