@@ -148,7 +148,7 @@ const filterActionEncrypt = {
  * Add a custom filter action. If the filter already exists, do nothing
  * (for example, if addon is disabled and re-enabled)
  *
- * @param filterObj - nsIMsgFilterCustomAction
+ * @param {nsIMsgFilterCustomAction} filterObj - Filter action.
  */
 function addFilterIfNotExists(filterObj) {
   const filterService = Cc[
