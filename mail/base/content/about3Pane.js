@@ -6425,7 +6425,11 @@ commandController.registerCallback(
   "cmd_killThread",
   () => {
     threadPane.hideIgnoredMessageNotification();
-    if (!gFolder.msgDatabase.isIgnored(gDBView.keyForFirstSelectedMessage)) {
+    const folder =
+      gViewWrapper.isVirtual && gViewWrapper.isSingleFolder
+        ? gViewWrapper._underlyingFolders[0]
+        : gFolder;
+    if (!folder.msgDatabase.isIgnored(gDBView.keyForFirstSelectedMessage)) {
       threadPane.showIgnoredMessageNotification(
         gDBView.getSelectedMsgHdrs(),
         false

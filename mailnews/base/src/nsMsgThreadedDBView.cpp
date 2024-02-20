@@ -746,16 +746,14 @@ void nsMsgThreadedDBView::MoveThreadAt(nsMsgViewIndex threadIndex) {
 nsresult nsMsgThreadedDBView::AddMsgToThreadNotInView(nsIMsgThread* threadHdr,
                                                       nsIMsgDBHdr* msgHdr,
                                                       bool ensureListed) {
-  nsresult rv = NS_OK;
-  uint32_t threadFlags;
-  threadHdr->GetFlags(&threadFlags);
-  if (!(threadFlags & nsMsgMessageFlags::Ignored)) {
-    bool msgKilled;
-    msgHdr->GetIsKilled(&msgKilled);
-    if (!msgKilled) rv = nsMsgDBView::AddHdr(msgHdr);
+  if (!(m_viewFlags & nsMsgViewFlagsType::kShowIgnored)) {
+    uint32_t threadFlags;
+    threadHdr->GetFlags(&threadFlags);
+    if (threadFlags & nsMsgMessageFlags::Ignored) {
+      return NS_OK;
+    }
   }
-
-  return rv;
+  return nsMsgDBView::AddHdr(msgHdr);
 }
 
 // This method just removes the specified line from the view. It does
