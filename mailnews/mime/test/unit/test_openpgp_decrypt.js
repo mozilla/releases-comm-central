@@ -38,6 +38,7 @@ const contents = "Sundays are nothing without callaloo.";
 /**
  * This implements some of the methods of Enigmail.hdrView.headerPane so we can
  * intercept and record the calls to updateSecurityStatus().
+ * @implements {nsIMsgSMIMEHeaderSink}
  */
 const headerSink = {
   expectResults(maxLen) {

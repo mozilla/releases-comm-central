@@ -650,11 +650,9 @@ MimeDecryptHandler.prototype = {
       return;
     }
 
-    const uriSpec = this.uri ? this.uri.spec : null;
-
     try {
       lazy.EnigmailLog.DEBUG(
-        "mimeDecrypt.jsm: displayStatus for uri " + uriSpec + "\n"
+        "mimeDecrypt.jsm: displayStatus for uri " + this.uri?.spec + "\n"
       );
       if (headerSink && this.uri && !this.backgroundJob) {
         if (this.decryptedHeaders) {

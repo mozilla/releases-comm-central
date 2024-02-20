@@ -1672,7 +1672,7 @@ Enigmail.msg = {
           node = node.nextSibling;
         }
 
-        Enigmail.hdrView.setSubject(m.subject);
+        Enigmail.hdrView.setSubject(m.subject, gMessage);
       }
     }
   },

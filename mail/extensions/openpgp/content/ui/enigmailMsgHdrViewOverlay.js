@@ -415,7 +415,7 @@ Enigmail.hdrView = {
    * message state became available, such as encryption or signature
    * status, or the availability of an attached key.
    *
-   * @param {string} triggeredByMimePartNumber - optional number of the
+   * @param {string} [triggeredByMimePartNumber] - Number of the
    *   MIME part that was processed and has triggered this status update
    *   request.
    */
@@ -677,7 +677,13 @@ Enigmail.hdrView = {
     return canDetach;
   },
 
-  setSubject(subject) {
+  /**
+   * Modify the subject (got from encrypted headers).
+   *
+   * @param {string} subject - Subject.
+   * @param {nsIMsgDBHdr} hdr - The message we're setting subject for.
+   */
+  setSubject(subject, hdr) {
     // Strip multiple localized Re: prefixes. This emulates NS_MsgStripRE().
     const prefixes = Services.prefs
       .getComplexValue("mailnews.localizedRe", Ci.nsIPrefLocalizedString)
@@ -694,22 +700,21 @@ Enigmail.hdrView = {
     const hadRe = newSubject != subject;
 
     // Update the message.
-    gMessage.subject = newSubject;
+    hdr.subject = newSubject;
     const oldFlags = gMessage.flags;
     if (hadRe) {
-      gMessage.flags |= Ci.nsMsgMessageFlags.HasRe;
+      hdr.flags |= Ci.nsMsgMessageFlags.HasRe;
       newSubject = "Re: " + newSubject;
     }
-    document.title = newSubject;
-    currentHeaderData.subject.headerValue = newSubject;
-    document.getElementById("expandedsubjectBox").headerValue = newSubject;
+
+    if (hdr == gMessage) {
+      document.title = newSubject;
+      currentHeaderData.subject.headerValue = newSubject;
+      document.getElementById("expandedsubjectBox").headerValue = newSubject;
+    }
+
     // This even works if the flags haven't changed. Causes repaint in all thread trees.
-    gMessage.folder?.msgDatabase.notifyHdrChangeAll(
-      gMessage,
-      oldFlags,
-      gMessage.flags,
-      {}
-    );
+    hdr.folder?.msgDatabase.notifyHdrChangeAll(hdr, oldFlags, hdr.flags, {});
   },
 
   updateHdrBox(header, value) {
@@ -720,23 +725,35 @@ Enigmail.hdrView = {
   },
 
   headerPane: {
-    isCurrentMessage(uri) {
-      const uriSpec = uri ? uri.spec : null;
+    /**
+     * Check if this is the current message.
+     *
+     * @param {string} spec - URI spec to check.
+     * @returns {boolean} true if the uri is for the current message.
+     */
+    isCurrentMessage(spec) {
+      // FIXME: it would be nicer to just be able to compare the URI specs.
+      // That does currently not work for all cases, e.g.
+      // mailbox:///...data/eml/signed-encrypted-autocrypt-gossip.eml?type=application/x-message-display&number=0 vs.
+      // file:///...data/eml/signed-encrypted-autocrypt-gossip.eml?type=application/x-message-display
 
-      EnigmailLog.DEBUG(
-        "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.isCurrentMessage: uri.spec=" +
-          uriSpec +
-          "\n"
-      );
+      const uri = Services.io.newURI(spec).QueryInterface(Ci.nsIMsgMessageUrl);
+      const uri2 = EnigmailFuncs.getUrlFromUriSpec(gMessageURI);
+      if (uri.host != uri2.host) {
+        return false;
+      }
 
-      return true;
+      const id = EnigmailURIs.msgIdentificationFromUrl(uri);
+      const id2 = EnigmailURIs.msgIdentificationFromUrl(uri2);
+      return id.folder === id2.folder && id.msgNum === id2.msgNum;
     },
 
     /**
      * Determine if a given MIME part number is a multipart/related message or a child thereof
      *
-     * @param mimePart:      Object - The MIME Part object to evaluate from the MIME tree
-     * @param searchPartNum: String - The part number to determine
+     * @param {MimeTreePart} mimePart - The MIME Part object to evaluate from
+     *   the MIME tree.
+     * @param {string} searchPartNum - The part number to determine.
      */
     isMultipartRelated(mimePart, searchPartNum) {
       if (
@@ -762,8 +779,9 @@ Enigmail.hdrView = {
      *  - this is the 1st displayed block of the message
      *  - the message part displayed corresponds to the decrypted part
      *
-     * @param mimePartNumber: String - the MIME part number that was decrypted/verified
-     * @param uriSpec:        String - the URI spec that is being displayed
+     * @param {string} mimePartNumber - The MIME part number that was
+     *   decrypted/verified
+     * @param {string} uriSpec - The URI spec that is being displayed.
      */
     displaySubPart(mimePartNumber, uriSpec) {
       if (!mimePartNumber || !uriSpec) {
@@ -800,9 +818,9 @@ Enigmail.hdrView = {
     /**
      * Determine if there are message parts that are not encrypted
      *
-     * @param mimePartNumber String - the MIME part number that was authenticated
+     * @param {string} mimePartNumber - The MIME part number that was authenticated.
      *
-     * @returns Boolean: true: there are siblings / false: no siblings
+     * @returns {boolean} true if there are siblings.
      */
     hasUnauthenticatedParts(mimePartNumber) {
       function hasUnauthenticatedSiblings(
@@ -899,77 +917,81 @@ Enigmail.hdrView = {
 
       Enigmail.hdrView.receivedStatusFromParts.add(mimePartNumber);
 
-      // uriSpec is not used for Enigmail anymore. It is here because other addons and pEp rely on it
-
       EnigmailLog.DEBUG(
         "enigmailMsgHdrViewOverlay.js: updateSecurityStatus: mimePart=" +
           mimePartNumber +
           "\n"
       );
 
-      const uriSpec = uri ? uri.spec : null;
-
-      if (this.isCurrentMessage(uri)) {
-        if (statusFlags & EnigmailConstants.DECRYPTION_OKAY) {
-          if (gEncryptedURIService) {
-            // remember encrypted message URI to enable TB prevention against EFAIL attack
-            Enigmail.hdrView.lastEncryptedUri = gMessageURI;
-            gEncryptedURIService.rememberEncrypted(
-              Enigmail.hdrView.lastEncryptedUri
-            );
-          }
-        }
-
-        if (!this.displaySubPart(mimePartNumber, uriSpec)) {
-          return;
-        }
-        if (this.hasUnauthenticatedParts(mimePartNumber)) {
-          EnigmailLog.DEBUG(
-            "enigmailMsgHdrViewOverlay.js: updateSecurityStatus: found unauthenticated part\n"
-          );
-          statusFlags |= EnigmailConstants.PARTIALLY_PGP;
-        }
-
-        Enigmail.hdrView.updatePgpStatus(
-          exitCode,
-          statusFlags,
-          extStatusFlags,
-          keyId,
-          userId,
-          sigDetails,
-          errorMsg,
-          blockSeparation,
-          extraDetails,
-          mimePartNumber
-        );
+      if (!this.isCurrentMessage(uri)) {
+        return;
       }
+      if (!this.displaySubPart(mimePartNumber, uri)) {
+        return;
+      }
+      if (this.hasUnauthenticatedParts(mimePartNumber)) {
+        EnigmailLog.DEBUG(
+          "enigmailMsgHdrViewOverlay.js: updateSecurityStatus: found unauthenticated part\n"
+        );
+        statusFlags |= EnigmailConstants.PARTIALLY_PGP;
+      }
+
+      Enigmail.hdrView.updatePgpStatus(
+        exitCode,
+        statusFlags,
+        extStatusFlags,
+        keyId,
+        userId,
+        sigDetails,
+        errorMsg,
+        blockSeparation,
+        extraDetails,
+        mimePartNumber
+      );
     },
 
+    /**
+     * Modify message headers.
+     *
+     * @param {string} uri - URI spec for the message (part).
+     * @param {string} headerData - Header data in JSON format.
+     * @param {string} mimePartNumber - MIME part number.
+     */
     modifyMessageHeaders(uri, headerData, mimePartNumber) {
       EnigmailLog.DEBUG(
         "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.modifyMessageHeaders:\n"
       );
-      if (!gMessage) {
+
+      const msgURI = Services.io
+        .newURI(uri)
+        .QueryInterface(Ci.nsIMsgMessageUrl);
+      if (!this.displaySubPart(mimePartNumber, msgURI.spec)) {
         return;
       }
-      if (!this.isCurrentMessage(uri)) {
-        return;
+
+      let msg = msgURI.messageHeader;
+      if (!msg && this.isCurrentMessage(uri)) {
+        // .eml messages opened from file://
+        msg = gMessage;
       }
-      if (!this.displaySubPart(mimePartNumber, uri.spec)) {
+      if (!msg) {
         return;
       }
 
       const hdr = JSON.parse(headerData);
       if ("subject" in hdr) {
-        Enigmail.hdrView.setSubject(hdr.subject);
+        Enigmail.hdrView.setSubject(hdr.subject, msg);
       }
 
       if ("date" in hdr) {
         // FIXME: more work needed to update the UI. See setSubject.
-        gMessage.date = Date.parse(hdr.date) * 1000;
+        msg.date = Date.parse(hdr.date) * 1000;
       }
     },
 
+    /**
+     * @param {string} uri - URI to handle.
+     */
     handleSMimeMessage(uri) {
       if (
         Enigmail.hdrView.msgSignedStateString != null ||
