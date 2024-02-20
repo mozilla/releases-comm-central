@@ -13,10 +13,7 @@ window.addEventListener("close", reportUserClosed);
 var PopupNotifications = {
   show(browser, id, message) {
     console.warn(
-      "Not showing popup notification",
-      id,
-      "with the message",
-      message
+      `Not showing popup notification ${id} with the message ${message}`
     );
   },
 };

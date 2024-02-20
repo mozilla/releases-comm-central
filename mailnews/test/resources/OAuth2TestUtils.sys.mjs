@@ -96,11 +96,13 @@ export const OAuth2TestUtils = {
       "request redirect_uri"
     );
     Assert.equal(searchParams.get("scope"), "test_scope", "request scope");
-    Assert.equal(
-      searchParams.get("login_hint"),
-      expectedHint,
-      "request login_hint"
-    );
+    if (expectedHint) {
+      Assert.equal(
+        searchParams.get("login_hint"),
+        expectedHint,
+        "request login_hint"
+      );
+    }
 
     EventUtils.synthesizeMouseAtCenter(
       content.document.querySelector(`input[name="username"]`),

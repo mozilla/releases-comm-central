@@ -7,6 +7,9 @@
 
 var { CalDavCalendar } = ChromeUtils.importESModule("resource:///modules/CalDavCalendar.sys.mjs");
 var { CalDavGenericRequest } = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
+var { OAuth2TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
+);
 
 var LoginInfo = Components.Constructor(
   "@mozilla.org/login-manager/loginInfo;1",
@@ -15,12 +18,26 @@ var LoginInfo = Components.Constructor(
 );
 
 // Ideal login info. This is what would be saved if you created a new calendar.
-const ORIGIN = "oauth://mochi.test";
+const ORIGIN = "oauth://test.test";
 const SCOPE = "test_scope";
-const USERNAME = "bob@test.invalid";
-const VALID_TOKEN = "bobs_refresh_token";
+const USERNAME = "user";
+const PASSWORD = "password";
+const VALID_TOKEN = "refresh_token";
+
+const defaultLogin = {
+  origin: ORIGIN,
+  scope: SCOPE,
+  username: USERNAME,
+  password: VALID_TOKEN,
+};
 
 const GOOGLE_SCOPE = "Google CalDAV v2";
+const googleLogin = { ...defaultLogin, scope: GOOGLE_SCOPE };
+
+add_setup(async function () {
+  Services.logins.removeAllLogins();
+  OAuth2TestUtils.startServer(this);
+});
 
 /**
  * Set a string pref for the given calendar.
@@ -34,17 +51,38 @@ function setPref(calendarId, key, value) {
 }
 
 /**
+ * @typedef {LoginData}
+ * @property {string} origin
+ * @property {string} scope
+ * @property {string} username
+ * @property {string} password
+ */
+
+/**
  * Clear any existing saved logins and add the given ones.
  *
- * @param {string[][]} - Zero or more arrays consisting of origin, realm, username, and password.
+ * @param {LoginData[]} logins - Zero or more login data objects.
  */
-async function setLogins(...logins) {
+async function setLogins(logins) {
   Services.logins.removeAllLogins();
-  for (const [origin, realm, username, password] of logins) {
+  for (const { origin, scope, username, password } of logins) {
     await Services.logins.addLoginAsync(
-      new LoginInfo(origin, null, realm, username, password, "", "")
+      new LoginInfo(origin, null, scope, username, password, "", "")
     );
   }
+}
+
+/**
+ * Wait for a login prompt window to appear, and submit it.
+ */
+async function handleOAuthDialog() {
+  const oAuthWindow = await OAuth2TestUtils.promiseOAuthWindow();
+  info("oauth2 window shown");
+  await SpecialPowers.spawn(
+    oAuthWindow.getBrowser(),
+    [{ username: USERNAME, password: PASSWORD }],
+    OAuth2TestUtils.submitOAuthLogin
+  );
 }
 
 /**
@@ -56,7 +94,7 @@ async function setLogins(...logins) {
  * @param {object} [newTokenDetails] - If given, re-authentication must happen.
  * @param {string} [newTokenDetails.username] - The new token must be stored with this user name.
  */
-async function subtest(calendarId, newTokenDetails) {
+async function subtest(calendarId, newTokenDetails = {}) {
   const calendar = new CalDavCalendar();
   calendar.id = calendarId;
 
@@ -68,44 +106,58 @@ async function subtest(calendarId, newTokenDetails) {
       "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/auth_headers.sjs"
     )
   );
+  const dialogPromise = newTokenDetails.username
+    ? handleOAuthDialog(newTokenDetails.username)
+    : Promise.resolve();
   const response = await request.commit();
+  await dialogPromise;
   const headers = JSON.parse(response.text);
 
-  if (newTokenDetails) {
-    Assert.equal(headers.authorization, "Bearer new_access_token");
-    const logins = Services.logins
-      .findLogins(newTokenDetails.origin ?? ORIGIN, null, newTokenDetails.scope ?? SCOPE)
-      .filter(l => l.username == newTokenDetails.username);
-    Assert.equal(logins.length, 1);
-    Assert.equal(logins[0].username, newTokenDetails.username);
-    Assert.equal(logins[0].password, "new_refresh_token");
-  } else {
-    Assert.equal(headers.authorization, "Bearer bobs_access_token");
+  Assert.equal(headers.authorization, "Bearer access_token");
+}
+
+/**
+ * Checks that the saved logins are as expected, and then clears all saved logins.
+ *
+ * @param {LoginData[]} expectedLogins - Zero or more login data objects.
+ */
+function checkAndClearLogins(expectedLogins) {
+  const logins = Services.logins.findLogins("", null, "");
+  Assert.equal(logins.length, expectedLogins.length);
+  for (let i = 0; i < logins.length; i++) {
+    Assert.equal(logins[i].origin, expectedLogins[i].origin);
+    Assert.equal(logins[i].httpRealm, expectedLogins[i].scope);
+    Assert.equal(logins[i].username, expectedLogins[i].username);
+    Assert.equal(logins[i].password, expectedLogins[i].password);
   }
 
   Services.logins.removeAllLogins();
+  OAuth2TestUtils.forgetObjects();
 }
 
 // Test making a request when there is no matching token stored.
 
 /** No token stored, no username or session ID set. */
-add_task(function testCalendarOAuth_id_none() {
+add_task(async function testCalendarOAuth_id_none() {
   const calendarId = "testCalendarOAuth_id_none";
-  return subtest(calendarId, { username: calendarId });
+  await subtest(calendarId, { username: calendarId });
+  checkAndClearLogins([{ ...defaultLogin, username: calendarId }]);
 });
 
 /** No token stored, session ID set. */
-add_task(function testCalendarOAuth_sessionId_none() {
+add_task(async function testCalendarOAuth_sessionId_none() {
   const calendarId = "testCalendarOAuth_sessionId_none";
   setPref(calendarId, "sessionId", "test_session");
-  return subtest(calendarId, { username: "test_session" });
+  await subtest(calendarId, { username: "test_session" });
+  checkAndClearLogins([{ ...defaultLogin, username: "test_session" }]);
 });
 
 /** No token stored, username set. */
-add_task(function testCalendarOAuth_username_none() {
+add_task(async function testCalendarOAuth_username_none() {
   const calendarId = "testCalendarOAuth_username_none";
   setPref(calendarId, "username", USERNAME);
-  return subtest(calendarId, { username: USERNAME });
+  await subtest(calendarId, { username: USERNAME });
+  checkAndClearLogins([defaultLogin]);
 });
 
 // Test making a request when there IS a matching token, but the server rejects it.
@@ -114,32 +166,53 @@ add_task(function testCalendarOAuth_username_none() {
 /** Expired token stored with calendar ID. */
 add_task(async function testCalendarOAuth_id_expired() {
   const calendarId = "testCalendarOAuth_id_expired";
-  await setLogins([`oauth:${calendarId}`, GOOGLE_SCOPE, calendarId, "expired_token"]);
-  await subtest(calendarId, {
-    origin: `oauth:${calendarId}`,
-    scope: GOOGLE_SCOPE,
-    username: calendarId,
-  });
+  const logins = [
+    {
+      ...googleLogin,
+      origin: `oauth:${calendarId}`,
+      username: calendarId,
+      password: "expired_token",
+    },
+  ];
+  await setLogins(logins);
+  await subtest(calendarId, { username: calendarId });
+  logins[0].password = VALID_TOKEN;
+  checkAndClearLogins(logins);
 });
 
 /** Expired token stored with session ID. */
 add_task(async function testCalendarOAuth_sessionId_expired() {
   const calendarId = "testCalendarOAuth_sessionId_expired";
+  const logins = [
+    {
+      ...googleLogin,
+      origin: "oauth:test_session",
+      username: "test_session",
+      password: "expired_token",
+    },
+  ];
   setPref(calendarId, "sessionId", "test_session");
-  await setLogins(["oauth:test_session", GOOGLE_SCOPE, "test_session", "expired_token"]);
-  await subtest(calendarId, {
-    origin: "oauth:test_session",
-    scope: GOOGLE_SCOPE,
-    username: "test_session",
-  });
+  await setLogins(logins);
+  await subtest(calendarId, { username: "test_session" });
+  logins[0].password = VALID_TOKEN;
+  checkAndClearLogins(logins);
 });
 
 /** Expired token stored with calendar ID, username set. */
 add_task(async function testCalendarOAuth_username_expired() {
   const calendarId = "testCalendarOAuth_username_expired";
+  const logins = [
+    {
+      ...googleLogin,
+      origin: `oauth:${calendarId}`,
+      username: calendarId,
+      password: "expired_token",
+    },
+  ];
   setPref(calendarId, "username", USERNAME);
-  await setLogins([`oauth:${calendarId}`, GOOGLE_SCOPE, calendarId, "expired_token"]);
+  await setLogins(logins);
   await subtest(calendarId, { username: USERNAME });
+  checkAndClearLogins([logins[0], defaultLogin]);
 });
 
 // Test making a request with a valid token, using Lightning's client ID and secret.
@@ -147,24 +220,30 @@ add_task(async function testCalendarOAuth_username_expired() {
 /** Valid token stored with calendar ID. */
 add_task(async function testCalendarOAuth_id_valid() {
   const calendarId = "testCalendarOAuth_id_valid";
-  await setLogins([`oauth:${calendarId}`, GOOGLE_SCOPE, calendarId, VALID_TOKEN]);
+  const logins = [{ ...googleLogin, origin: `oauth:${calendarId}`, username: calendarId }];
+  await setLogins(logins);
   await subtest(calendarId);
+  checkAndClearLogins(logins);
 });
 
 /** Valid token stored with session ID. */
 add_task(async function testCalendarOAuth_sessionId_valid() {
   const calendarId = "testCalendarOAuth_sessionId_valid";
+  const logins = [{ ...googleLogin, origin: "oauth:test_session", username: "test_session" }];
   setPref(calendarId, "sessionId", "test_session");
-  await setLogins(["oauth:test_session", GOOGLE_SCOPE, "test_session", VALID_TOKEN]);
+  await setLogins(logins);
   await subtest(calendarId);
+  checkAndClearLogins(logins);
 });
 
 /** Valid token stored with calendar ID, username set. */
 add_task(async function testCalendarOAuth_username_valid() {
   const calendarId = "testCalendarOAuth_username_valid";
+  const logins = [{ ...googleLogin, origin: `oauth:${calendarId}`, username: calendarId }];
   setPref(calendarId, "username", USERNAME);
-  await setLogins([`oauth:${calendarId}`, GOOGLE_SCOPE, calendarId, VALID_TOKEN]);
+  await setLogins(logins);
   await subtest(calendarId, { username: USERNAME });
+  checkAndClearLogins([logins[0], defaultLogin]);
 });
 
 // Test making a request with a valid token, using Thunderbird's client ID and secret.
@@ -172,41 +251,51 @@ add_task(async function testCalendarOAuth_username_valid() {
 /** Valid token stored with calendar ID. */
 add_task(async function testCalendarOAuthTB_id_valid() {
   const calendarId = "testCalendarOAuthTB_id_valid";
-  await setLogins([ORIGIN, SCOPE, calendarId, VALID_TOKEN]);
+  const logins = [{ ...defaultLogin, username: calendarId }];
+  await setLogins(logins);
   await subtest(calendarId);
+  checkAndClearLogins(logins);
 });
 
 /** Valid token stored with session ID. */
 add_task(async function testCalendarOAuthTB_sessionId_valid() {
   const calendarId = "testCalendarOAuthTB_sessionId_valid";
+  const logins = [{ ...defaultLogin, username: "test_session" }];
   setPref(calendarId, "sessionId", "test_session");
-  await setLogins([ORIGIN, SCOPE, "test_session", VALID_TOKEN]);
+  await setLogins(logins);
   await subtest(calendarId);
+  checkAndClearLogins(logins);
 });
 
 /** Valid token stored with calendar ID, username set. */
 add_task(async function testCalendarOAuthTB_username_valid() {
   const calendarId = "testCalendarOAuthTB_username_valid";
+  const logins = [{ ...defaultLogin, username: calendarId }];
   setPref(calendarId, "username", USERNAME);
-  await setLogins([ORIGIN, SCOPE, calendarId, VALID_TOKEN]);
+  await setLogins(logins);
   await subtest(calendarId, { username: USERNAME });
+  checkAndClearLogins([logins[0], defaultLogin]);
 });
 
 /** Valid token stored with username, exact scope. */
 add_task(async function testCalendarOAuthTB_username_validSingle() {
   const calendarId = "testCalendarOAuthTB_username_validSingle";
+  const logins = [
+    { ...defaultLogin },
+    { ...defaultLogin, scope: "other_scope", password: "other_refresh_token" },
+  ];
   setPref(calendarId, "username", USERNAME);
-  await setLogins(
-    [ORIGIN, SCOPE, USERNAME, VALID_TOKEN],
-    [ORIGIN, "other_scope", USERNAME, "other_refresh_token"]
-  );
+  await setLogins(logins);
   await subtest(calendarId);
+  checkAndClearLogins(logins);
 });
 
 /** Valid token stored with username, many scopes. */
 add_task(async function testCalendarOAuthTB_username_validMultiple() {
   const calendarId = "testCalendarOAuthTB_username_validMultiple";
+  const logins = [{ ...defaultLogin, scope: "scope test_scope other_scope" }];
   setPref(calendarId, "username", USERNAME);
-  await setLogins([ORIGIN, "scope test_scope other_scope", USERNAME, VALID_TOKEN]);
+  await setLogins(logins);
   await subtest(calendarId);
+  checkAndClearLogins(logins);
 });

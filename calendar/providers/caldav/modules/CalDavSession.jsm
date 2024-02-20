@@ -301,27 +301,21 @@ class CalDavTestOAuth extends CalDavGoogleOAuth {
     super(sessionId, name);
 
     // Override these values with test values.
-    this.authorizationEndpoint =
-      "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/redirect_auto.sjs";
-    this.tokenEndpoint =
-      "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/token.sjs";
+    this.authorizationEndpoint = "http://oauth.test.test/form";
+    this.tokenEndpoint = "http://oauth.test.test/token";
     this.scope = "test_scope";
     this.clientId = "test_client_id";
-    this.consumerSecret = "test_scope";
-
-    // I don't know why, but tests refuse to work with a plain HTTP endpoint
-    // (the request is redirected to HTTPS, which we're not listening to).
-    // Just use an HTTPS endpoint.
+    this.consumerSecret = "test_secret";
     this.redirectionEndpoint = "https://localhost";
   }
 
   _maybeUpgrade() {
     if (!this.refreshToken) {
-      const issuerDetails = lazy.OAuth2Providers.getIssuerDetails("mochi.test");
+      const issuerDetails = lazy.OAuth2Providers.getIssuerDetails("test.test");
       this.clientId = issuerDetails.clientId;
       this.consumerSecret = issuerDetails.clientSecret;
 
-      this.origin = "oauth://mochi.test";
+      this.origin = "oauth://test.test";
       this.pwMgrId = "test_scope";
     }
   }

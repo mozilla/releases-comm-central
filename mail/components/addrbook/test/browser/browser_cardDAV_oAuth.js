@@ -9,6 +9,9 @@
 var { CardDAVDirectory } = ChromeUtils.importESModule(
   "resource:///modules/CardDAVDirectory.sys.mjs"
 );
+var { OAuth2TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
+);
 
 var LoginInfo = Components.Constructor(
   "@mozilla.org/login-manager/loginInfo;1",
@@ -17,13 +20,25 @@ var LoginInfo = Components.Constructor(
 );
 
 // Ideal login info. This is what would be saved if you created a new calendar.
-const ORIGIN = "oauth://mochi.test";
+const ORIGIN = "oauth://test.test";
 const SCOPE = "test_scope";
-const USERNAME = "bob@test.invalid";
-const VALID_TOKEN = "bobs_refresh_token";
+const USERNAME = "user";
+const PASSWORD = "password";
+const VALID_TOKEN = "refresh_token";
+
+const defaultLogin = {
+  origin: ORIGIN,
+  scope: SCOPE,
+  username: USERNAME,
+  password: VALID_TOKEN,
+};
 
 const PATH = "comm/mail/components/addrbook/test/browser/data/";
 const URL = `http://mochi.test:8888/browser/${PATH}`;
+
+add_setup(async function () {
+  OAuth2TestUtils.startServer(this);
+});
 
 /**
  * Set a string pref for the given directory.
@@ -37,18 +52,40 @@ function setPref(dirPrefId, key, value) {
 }
 
 /**
+ * @typedef {LoginData}
+ * @property {string} origin
+ * @property {string} scope
+ * @property {string} username
+ * @property {string} password
+ */
+
+/**
  * Clear any existing saved logins and add the given ones.
  *
- * @param {string[][]} - Zero or more arrays consisting of origin, realm,
- *   username, and password.
+ * @param {LoginData[]} logins - Zero or more login data objects.
  */
-async function setLogins(...logins) {
+async function setLogins(logins) {
   Services.logins.removeAllLogins();
-  for (const [origin, realm, username, password] of logins) {
+  for (const { origin, scope, username, password } of logins) {
     await Services.logins.addLoginAsync(
-      new LoginInfo(origin, null, realm, username, password, "", "")
+      new LoginInfo(origin, null, scope, username, password, "", "")
     );
   }
+}
+
+/**
+ * Wait for a login prompt window to appear, and submit it.
+ *
+ * @param {string} expectedHint - Expected value of the login_hint URL param.
+ */
+async function handleOAuthDialog(expectedHint) {
+  const oAuthWindow = await OAuth2TestUtils.promiseOAuthWindow();
+  info("oauth2 window shown");
+  await SpecialPowers.spawn(
+    oAuthWindow.getBrowser(),
+    [{ expectedHint, username: USERNAME, password: PASSWORD }],
+    OAuth2TestUtils.submitOAuthLogin
+  );
 }
 
 /**
@@ -59,10 +96,11 @@ async function setLogins(...logins) {
  *
  * @param {string} dirPrefId - Pref ID of the new directory.
  * @param {string} uid - UID of the new directory.
- * @param {string} [newTokenUsername] - If given, re-authentication must happen
- *   and the new token stored with this user name.
+ * @param {object} [newTokenDetails] - If given, re-authentication must happen.
+ * @param {string} [newTokenDetails.username] - The new token must be stored
+ *   with this user name.
  */
-async function subtest(dirPrefId, uid, newTokenUsername) {
+async function subtest(dirPrefId, uid, newTokenDetails) {
   const directory = new CardDAVDirectory();
   directory._dirPrefId = dirPrefId;
   directory._uid = uid;
@@ -71,33 +109,44 @@ async function subtest(dirPrefId, uid, newTokenUsername) {
   );
   directory.__prefBranch.setStringPref("carddav.url", URL);
 
+  const dialogPromise = newTokenDetails
+    ? handleOAuthDialog(newTokenDetails.username)
+    : Promise.resolve();
   const response = await directory._makeRequest("auth_headers.sjs");
+  await dialogPromise;
   Assert.equal(response.status, 200);
   const headers = JSON.parse(response.text);
 
-  if (newTokenUsername) {
-    Assert.equal(headers.authorization, "Bearer new_access_token");
+  Assert.equal(headers.authorization, "Bearer access_token");
+}
 
-    const logins = Services.logins
-      .findLogins(ORIGIN, null, SCOPE)
-      .filter(l => l.username == newTokenUsername);
-    Assert.equal(logins.length, 1);
-    Assert.equal(logins[0].username, newTokenUsername);
-    Assert.equal(logins[0].password, "new_refresh_token");
-  } else {
-    Assert.equal(headers.authorization, "Bearer bobs_access_token");
+/**
+ * Checks that the saved logins are as expected, and then clears all saved logins.
+ *
+ * @param {LoginData[]} expectedLogins - Zero or more login data objects.
+ */
+function checkAndClearLogins(expectedLogins) {
+  const logins = Services.logins.findLogins("", null, "");
+  Assert.equal(logins.length, expectedLogins.length);
+  for (let i = 0; i < logins.length; i++) {
+    Assert.equal(logins[i].origin, expectedLogins[i].origin);
+    Assert.equal(logins[i].httpRealm, expectedLogins[i].scope);
+    Assert.equal(logins[i].username, expectedLogins[i].username);
+    Assert.equal(logins[i].password, expectedLogins[i].password);
   }
 
   Services.logins.removeAllLogins();
+  OAuth2TestUtils.forgetObjects();
 }
 
 // Test making a request when there is no matching token stored.
 
 /** No token stored, no username set. */
-add_task(function testAddressBookOAuth_uid_none() {
+add_task(async function testAddressBookOAuth_uid_none() {
   const dirPrefId = "uid_none";
   const uid = "testAddressBookOAuth_uid_none";
-  return subtest(dirPrefId, uid, uid);
+  await subtest(dirPrefId, uid, { username: uid });
+  checkAndClearLogins([{ ...defaultLogin, username: uid }]);
 });
 
 // Test making a request when there IS a matching token, but the server rejects
@@ -107,8 +156,13 @@ add_task(function testAddressBookOAuth_uid_none() {
 add_task(async function testAddressBookOAuth_uid_expired() {
   const dirPrefId = "uid_expired";
   const uid = "testAddressBookOAuth_uid_expired";
-  await setLogins([ORIGIN, SCOPE, uid, "expired_token"]);
-  await subtest(dirPrefId, uid, uid);
+  const logins = [
+    { ...defaultLogin, username: uid, password: "expired_token" },
+  ];
+  await setLogins(logins);
+  await subtest(dirPrefId, uid, { username: uid });
+  logins[0].password = VALID_TOKEN;
+  checkAndClearLogins(logins);
 });
 
 // Test making a request with a valid token.
@@ -117,32 +171,33 @@ add_task(async function testAddressBookOAuth_uid_expired() {
 add_task(async function testAddressBookOAuth_uid_valid() {
   const dirPrefId = "uid_valid";
   const uid = "testAddressBookOAuth_uid_valid";
-  await setLogins([ORIGIN, SCOPE, uid, VALID_TOKEN]);
+  const logins = [{ ...defaultLogin, username: uid }];
+  await setLogins(logins);
   await subtest(dirPrefId, uid);
+  checkAndClearLogins(logins);
 });
 
 /** Valid token stored with username, exact scope. */
 add_task(async function testAddressBookOAuth_username_validSingle() {
   const dirPrefId = "username_validSingle";
   const uid = "testAddressBookOAuth_username_validSingle";
+  const logins = [
+    { ...defaultLogin },
+    { ...defaultLogin, scope: "other_scope", password: "other_refresh_token" },
+  ];
   setPref(dirPrefId, "carddav.username", USERNAME);
-  await setLogins(
-    [ORIGIN, SCOPE, USERNAME, VALID_TOKEN],
-    [ORIGIN, "other_scope", USERNAME, "other_refresh_token"]
-  );
+  await setLogins(logins);
   await subtest(dirPrefId, uid);
+  checkAndClearLogins(logins);
 });
 
 /** Valid token stored with username, many scopes. */
 add_task(async function testAddressBookOAuth_username_validMultiple() {
   const dirPrefId = "username_validMultiple";
   const uid = "testAddressBookOAuth_username_validMultiple";
+  const logins = [{ ...defaultLogin, scope: "scope test_scope other_scope" }];
   setPref(dirPrefId, "carddav.username", USERNAME);
-  await setLogins([
-    ORIGIN,
-    "scope test_scope other_scope",
-    USERNAME,
-    VALID_TOKEN,
-  ]);
+  await setLogins(logins);
   await subtest(dirPrefId, uid);
+  checkAndClearLogins(logins);
 });

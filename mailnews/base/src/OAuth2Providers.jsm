@@ -77,7 +77,7 @@ var kHostnames = new Map([
   ["smtp.comcast.net", ["comcast.net", COMCAST_SCOPES]],
 
   // For testing purposes.
-  ["mochi.test", ["mochi.test", "test_scope"]],
+  ["mochi.test", ["test.test", "test_scope"]],
   ["test.test", ["test.test", "test_scope"]],
 ]);
 
@@ -178,21 +178,6 @@ var kIssuers = new Map([
   ],
 
   // For testing purposes.
-  [
-    "mochi.test",
-    {
-      clientId: "test_client_id",
-      clientSecret: "test_secret",
-      authorizationEndpoint:
-        "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/redirect_auto.sjs",
-      tokenEndpoint:
-        "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/token.sjs",
-      // I don't know why, but tests refuse to work with a plain HTTP endpoint
-      // (the request is redirected to HTTPS, which we're not listening to).
-      // Just use an HTTPS endpoint.
-      redirectionEndpoint: "https://localhost",
-    },
-  ],
   [
     "test.test",
     {
