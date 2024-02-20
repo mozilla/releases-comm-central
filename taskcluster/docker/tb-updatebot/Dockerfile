@@ -6,9 +6,13 @@ VOLUME /builds/worker/checkouts
 
 COPY    privileged-setup.sh     /setup/privileged-setup.sh
 COPY    setup.sh                /builds/worker/setup.sh
+COPY    requirements.txt        /builds/worker/requirements.txt
 COPY    hgrc                    /etc/mercurial/hgrc.d/updatebot.rc
 COPY    vendor/*                /builds/worker/vendor/
 COPY    moz-phab-config         /builds/worker/.moz-phab-config
+
+# %include comm/taskcluster/docker/recipes/make_venv.sh
+COPY topsrcdir/comm/taskcluster/docker/recipes/make_venv.sh /builds/worker/make_venv.sh
 
 RUN     cd /setup && ./privileged-setup.sh
 
