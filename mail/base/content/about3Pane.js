@@ -4581,8 +4581,8 @@ var threadPane = {
   /**
    * Update thread item size in DOM (thread cards and rows).
    */
-  updateThreadItemSize() {
-    this.densityChange();
+  async updateThreadItemSize() {
+    await this.densityChange();
     threadTree.reset();
   },
 
