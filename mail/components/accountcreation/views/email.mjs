@@ -212,6 +212,15 @@ class AccountHubEmail extends HTMLElement {
    */
   #currentConfig;
 
+  /**
+   * Store methods to interrupt abortable operations like testing
+   * a server configuration or installing an add-on.
+   *
+   * @type {Object}
+   */
+  // eslint-disable-next-line no-unused-private-class-members
+  #abortable;
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -262,7 +271,6 @@ class AccountHubEmail extends HTMLElement {
     this.#finishButton = this.querySelector("#emailFinishButton");
 
     this.#emailLoadingSubview = this.querySelector("#emailLoadingSubview");
-    this.#stopButton = this.querySelector("#emailStopButton");
     this.#backButton = this.querySelector("#emailGoBackButton");
     this.#cancelButton = this.querySelector("#emailCancelButton");
 
