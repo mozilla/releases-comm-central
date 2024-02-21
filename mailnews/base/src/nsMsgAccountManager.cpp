@@ -1855,9 +1855,10 @@ nsresult nsMsgAccountManager::findServerInternal(
 
   nsresult rv;
   nsCString hostname;
+  bool isAscii;
   nsCOMPtr<nsIIDNService> idnService =
       do_GetService("@mozilla.org/network/idn-service;1");
-  rv = idnService->Normalize(serverHostname, hostname);
+  rv = idnService->ConvertToDisplayIDN(serverHostname, &isAscii, hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
@@ -1870,7 +1871,7 @@ nsresult nsMsgAccountManager::findServerInternal(
     rv = server->GetHostName(thisHostname);
     if (NS_FAILED(rv)) continue;
 
-    rv = idnService->Normalize(thisHostname, thisHostname);
+    rv = idnService->ConvertToDisplayIDN(thisHostname, &isAscii, thisHostname);
     if (NS_FAILED(rv)) continue;
 
     // If the hostname was a IP with trailing dot, that dot gets removed
