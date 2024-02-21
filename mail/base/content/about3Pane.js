@@ -6440,7 +6440,7 @@ commandController.registerCallback(
     // properly and resists attempts to fix this.
     threadTree.reset();
   },
-  () => gDBView?.numSelected >= 1 && (gFolder || gViewWrapper.isSynthetic)
+  () => gDBView?.numSelected >= 1 && gFolder && !gViewWrapper.isMultiFolder
 );
 commandController.registerCallback(
   "cmd_killSubthread",
@@ -6457,7 +6457,7 @@ commandController.registerCallback(
     // properly and resists attempts to fix this.
     threadTree.reset();
   },
-  () => gDBView?.numSelected >= 1 && (gFolder || gViewWrapper.isSynthetic)
+  () => gDBView?.numSelected >= 1 && gFolder && !gViewWrapper.isMultiFolder
 );
 
 // Forward these commands directly to about:message.

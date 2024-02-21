@@ -85,6 +85,20 @@ const singleNotExternal = [
   ...singleSelectionThreadPane,
   ...onePane,
 ];
+const notSynthetic = [
+  "singleMessage",
+  "draftsFolder",
+  "templatesFolder",
+  "listFolder",
+  "singleMessageTree",
+  "draftsFolderTree",
+  "templatesFolderTree",
+  "listFolderTree",
+  "multipleMessagesTree",
+  "collapsedThreadTree",
+  "multipleDraftsFolderTree",
+  "multipleTemplatesFolderTree",
+];
 
 const mailContextData = {
   "mailContext-openInBrowser": [],
@@ -165,8 +179,8 @@ const mailContextData = {
   ],
   "mailContext-calendar-convert-menu": singleNotExternal,
   "mailContext-delete": notExternal,
-  "mailContext-ignoreThread": allThreePane,
-  "mailContext-ignoreSubthread": allThreePane,
+  "mailContext-ignoreThread": notSynthetic,
+  "mailContext-ignoreSubthread": notSynthetic,
   "mailContext-watchThread": notExternal,
   "mailContext-saveAs": true,
   "mailContext-print": true,
