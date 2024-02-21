@@ -159,6 +159,9 @@ function displayMessage(uri, viewWrapper) {
   if (!uri) {
     HideMessageHeaderPane();
     MailE10SUtils.loadAboutBlank(getMessagePaneBrowser());
+    // Deactivate the message pane browser. This might not be the same browser
+    // as the one in the previous line.
+    getMessagePaneBrowser().docShellIsActive = false;
     window.msgLoaded = true;
     window.dispatchEvent(
       new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
@@ -230,8 +233,7 @@ function displayMessage(uri, viewWrapper) {
   // message doesn't get marked as read by `autoMarkAsRead` or
   // `nsImapService::LoadMessage`.
   browser.docShellIsActive =
-    Window.isInstance(window.tabOrWindow) ||
-    window.tabOrWindow?.panel.getAttribute("selected") === "true";
+    Window.isInstance(window.tabOrWindow) || window.tabOrWindow?.selected;
   browser.docShell.allowAuth = false;
   browser.docShell.allowDNSPrefetch = false;
 

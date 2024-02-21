@@ -5476,6 +5476,7 @@ var messagePane = {
   clearWebPage() {
     if (!this._keepStartPageOpen) {
       webBrowser.hidden = true;
+      webBrowser.docShellIsActive = false;
       MailE10SUtils.loadAboutBlank(webBrowser);
     }
   },
@@ -5501,6 +5502,7 @@ var messagePane = {
     this.clearMessages();
 
     MailE10SUtils.loadURI(webBrowser, url, params);
+    webBrowser.docShellIsActive = window.tabOrWindow.selected;
     webBrowser.hidden = false;
   },
 

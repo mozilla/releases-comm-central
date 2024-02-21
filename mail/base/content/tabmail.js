@@ -800,6 +800,9 @@ ChromeUtils.defineESModuleGetters(this, {
           beforeTabOpen: true,
           favIconUrl: null,
           _ext: {},
+          get selected() {
+            return this.panel?.getAttribute("selected") === "true";
+          },
         };
 
         tab.tabId = this.tabId++;
