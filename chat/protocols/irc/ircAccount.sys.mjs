@@ -347,12 +347,18 @@ export var GenericIRCConversation = {
 
     this._pendingMessage = true;
   },
-  // IRC doesn't support typing notifications, but it does have a maximum
-  // message length.
-  sendTyping(aString) {
+
+  /**
+   * IRC doesn't support typing notifications, but it does have a maximum
+   * message length.
+   *
+   * @param {string} string - The currently typed message.
+   * @returns {number} The number of characters that can still be typed
+   */
+  getRemainingCharacters(string) {
     const longestLineLength = Math.max.apply(
       null,
-      aString.split("\n").map(this._account.countBytes, this._account)
+      string.split("\n").map(this._account.countBytes, this._account)
     );
     return this.getMaxMessageLength() - longestLineLength;
   },

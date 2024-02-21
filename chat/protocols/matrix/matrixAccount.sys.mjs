@@ -891,54 +891,19 @@ MatrixRoom.prototype = {
     this._mostRecentEventId = newestEventId;
   },
 
-  _typingTimer: null,
+  supportTypingNotifications: true,
   _typingDebounce: null,
-
-  /**
-   * Sets up the composing end timeout and sets the typing state based on the
-   * draft message if typing notifications should be sent.
-   *
-   * @param {string} string - Current draft message.
-   * @returns {number} Amount of remaining characters.
-   */
-  sendTyping(string) {
-    if (!this.shouldSendTypingNotifications) {
-      return Ci.prplIConversation.NO_TYPING_LIMIT;
-    }
-
-    const isTyping = string.length > 0;
-
-    this._cancelTypingTimer();
-    if (isTyping) {
-      this._typingTimer = setTimeout(this.finishedComposing.bind(this), 10000);
-    }
-
-    this._setTypingState(isTyping);
-
-    return Ci.prplIConversation.NO_TYPING_LIMIT;
-  },
-
-  /**
-   * Set the typing status to false if typing notifications are sent.
-   *
-   * @returns {undefined}
-   */
-  finishedComposing() {
-    if (!this.shouldSendTypingNotifications) {
-      return;
-    }
-
-    this._setTypingState(false);
-  },
 
   /**
    * Send the given typing state if it is not typing or alternatively not been
    * sent in the last second.
    *
-   * @param {boolean} isTyping - If the user is currently composing a message.
-   * @returns {undefined}
+   * @param {number} newState - The user's typing state.
    */
-  _setTypingState(isTyping) {
+  setTypingState(newState) {
+    // Matrix only has two states: typing or not typing. Treat NOT_TYPED and TYPED
+    // as the same.
+    const isTyping = newState == Ci.prplIConvIM.TYPING;
     if (isTyping) {
       if (this._typingDebounce) {
         return;
@@ -954,18 +919,8 @@ MatrixRoom.prototype = {
       .sendTyping(this._roomId, isTyping, 10000)
       .catch(error => this._account.ERROR(error));
   },
-  /**
-   * Cancel the typing end timer.
-   */
-  _cancelTypingTimer() {
-    if (this._typingTimer) {
-      clearTimeout(this._typingTimer);
-      delete this._typingTimer;
-    }
-  },
 
   _cleanUpTimers() {
-    this._cancelTypingTimer();
     if (this._typingDebounce) {
       clearTimeout(this._typingDebounce);
       delete this._typingDebounce;
@@ -1038,14 +993,6 @@ MatrixRoom.prototype = {
     return this.room
       ?.getLiveTimeline()
       .getState(lazy.MatrixSDK.EventTimeline.FORWARDS);
-  },
-  /**
-   * If we should send typing notifications to the remote server.
-   *
-   * @type {boolean}
-   */
-  get shouldSendTypingNotifications() {
-    return Services.prefs.getBoolPref("purple.conversations.im.send_typing");
   },
   /**
    * The ID of the room.

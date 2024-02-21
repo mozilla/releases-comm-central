@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
-
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import { Status } from "resource:///modules/imStatusUtils.sys.mjs";
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
@@ -762,8 +760,15 @@ XMPPMUCConversation.prototype = XMPPMUCConversationPrototype;
 export var XMPPConversationPrototype = {
   __proto__: GenericConvIMPrototype,
 
-  _typingTimer: null,
   supportChatStateNotifications: true,
+  get supportTypingNotifications() {
+    // Typing notifications are supported if XEP-0085 is supported.
+    return this.supportChatStateNotifications;
+  },
+
+  /**
+   * The chat state of the local user.
+   */
   _typingState: "active",
 
   // Indicates that current conversation is with a MUC participant and the
@@ -812,58 +817,33 @@ export var XMPPConversationPrototype = {
     return jid.node;
   },
 
-  get shouldSendTypingNotifications() {
-    return (
-      this.supportChatStateNotifications &&
-      Services.prefs.getBoolPref("purple.conversations.im.send_typing")
-    );
-  },
-
-  /* Called when the user is typing a message
-   * aString - the currently typed message
-   * Returns the number of characters that can still be typed */
-  sendTyping(aString) {
-    if (!this.shouldSendTypingNotifications) {
-      return Ci.prplIConversation.NO_TYPING_LIMIT;
+  /**
+   * Send the given typing state into the conversation.
+   *
+   * @param {int} newState
+   * @private
+   */
+  setTypingState(newState) {
+    // See XEP-0085: Chat State Notifications
+    let state = "active";
+    if (newState === Ci.prplIConvIM.TYPING) {
+      state = "composing";
+    } else if (newState === Ci.prplIConvIM.TYPED) {
+      state = "paused";
     }
 
-    this._cancelTypingTimer();
-    if (aString.length) {
-      this._typingTimer = setTimeout(this.finishedComposing.bind(this), 10000);
-    }
-
-    this._setTypingState(aString.length ? "composing" : "active");
-
-    return Ci.prplIConversation.NO_TYPING_LIMIT;
-  },
-
-  finishedComposing() {
-    if (!this.shouldSendTypingNotifications) {
+    if (this._typingState === state) {
       return;
     }
 
-    this._setTypingState("paused");
-  },
-
-  _setTypingState(aNewState) {
-    if (this._typingState == aNewState) {
-      return;
-    }
-
-    const s = Stanza.message(this.to, null, aNewState);
+    const s = Stanza.message(this.to, null, state);
 
     // We don't care about errors in response to typing notifications
     // (e.g. because the user has left the room when talking to a MUC
     // participant).
     this._account.sendStanza(s, () => true);
 
-    this._typingState = aNewState;
-  },
-  _cancelTypingTimer() {
-    if (this._typingTimer) {
-      clearTimeout(this._typingTimer);
-      delete this._typingTimer;
-    }
+    this._typingState = state;
   },
 
   // Holds the resource of user that you are currently talking to, but if the
@@ -886,7 +866,7 @@ export var XMPPConversationPrototype = {
       // body.
       aMsg = "/me" + aMsg;
     }
-    this._cancelTypingTimer();
+    // Reset the user's state to active, if supported.
     const cs = this.shouldSendTypingNotifications ? "active" : null;
     const s = Stanza.message(this.to, aMsg, cs);
     this._account.sendStanza(s);

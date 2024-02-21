@@ -374,20 +374,24 @@ add_task(function test_setTypingState() {
     },
   });
 
-  roomStub._setTypingState(true);
+  roomStub.setTypingState(Ci.prplIConvIM.TYPING);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(roomStub.typing);
 
-  roomStub._setTypingState(false);
+  roomStub.setTypingState(Ci.prplIConvIM.NOT_TYPING);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(!roomStub.typing);
 
-  roomStub._setTypingState(true);
+  roomStub.setTypingState(Ci.prplIConvIM.TYPING);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(roomStub.typing);
 
-  roomStub._cleanUpTimers();
+  roomStub.setTypingState(Ci.prplIConvIM.TYPED);
+  equal(roomStub.typingRoomId, roomStub._roomId);
+  ok(!roomStub.typing);
+
   roomStub.forget();
+  roomStub.unInit();
 });
 
 add_task(function test_setTypingStateDebounce() {
@@ -399,14 +403,14 @@ add_task(function test_setTypingStateDebounce() {
     },
   });
 
-  roomStub._setTypingState(true);
+  roomStub.setTypingState(Ci.prplIConvIM.TYPING);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(roomStub.typing);
   ok(roomStub._typingDebounce);
 
   roomStub.typing = false;
 
-  roomStub._setTypingState(true);
+  roomStub.setTypingState(Ci.prplIConvIM.TYPING);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(!roomStub.typing);
   ok(roomStub._typingDebounce);
@@ -414,28 +418,18 @@ add_task(function test_setTypingStateDebounce() {
   clearTimeout(roomStub._typingDebounce);
   roomStub._typingDebounce = null;
 
-  roomStub._setTypingState(true);
+  roomStub.setTypingState(Ci.prplIConvIM.TYPING);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(roomStub.typing);
 
-  roomStub._cleanUpTimers();
   roomStub.forget();
-});
-
-add_task(function test_cancelTypingTimer() {
-  const roomStub = {
-    _typingTimer: setTimeout(() => {}, 10000), // eslint-disable-line mozilla/no-arbitrary-setTimeout
-  };
-  MatrixRoom.prototype._cancelTypingTimer.call(roomStub);
-  ok(!roomStub._typingTimer);
+  roomStub.unInit();
 });
 
 add_task(function test_cleanUpTimers() {
   const roomStub = getRoom(true);
-  roomStub._typingTimer = setTimeout(() => {}, 10000); // eslint-disable-line mozilla/no-arbitrary-setTimeout
   roomStub._typingDebounce = setTimeout(() => {}, 1000); // eslint-disable-line mozilla/no-arbitrary-setTimeout
   roomStub._cleanUpTimers();
-  ok(!roomStub._typingTimer);
   ok(!roomStub._typingDebounce);
   roomStub.forget();
 });
@@ -444,7 +438,7 @@ add_task(function test_finishedComposing() {
   let typingState = true;
   const roomStub = {
     __proto__: MatrixRoom.prototype,
-    shouldSendTypingNotifications: false,
+    supportTypingNotifications: false,
     _roomId: "foo",
     _account: {
       _client: {
@@ -459,39 +453,9 @@ add_task(function test_finishedComposing() {
   MatrixRoom.prototype.finishedComposing.call(roomStub);
   ok(typingState);
 
-  roomStub.shouldSendTypingNotifications = true;
+  roomStub.supportTypingNotifications = true;
   MatrixRoom.prototype.finishedComposing.call(roomStub);
   ok(!typingState);
-});
-
-add_task(function test_sendTyping() {
-  let typingState = false;
-  const roomStub = getRoom(true, "foo", {
-    sendTyping(roomId, state) {
-      typingState = state;
-      return Promise.resolve();
-    },
-  });
-  Services.prefs.setBoolPref("purple.conversations.im.send_typing", false);
-
-  let result = roomStub.sendTyping("lorem ipsum");
-  ok(!roomStub._typingTimer);
-  equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
-  ok(!typingState);
-
-  Services.prefs.setBoolPref("purple.conversations.im.send_typing", true);
-  result = roomStub.sendTyping("lorem ipsum");
-  ok(roomStub._typingTimer);
-  equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
-  ok(typingState);
-
-  result = roomStub.sendTyping("");
-  ok(!roomStub._typingTimer);
-  equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
-  ok(!typingState);
-
-  roomStub._cleanUpTimers();
-  roomStub.forget();
 });
 
 add_task(function test_setInitialized() {

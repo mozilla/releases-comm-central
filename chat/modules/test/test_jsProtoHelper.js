@@ -1,6 +1,10 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
+const { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
+
 var { GenericConvIMPrototype } = ChromeUtils.importESModule(
   "resource:///modules/jsProtoHelper.sys.mjs"
 );
@@ -11,6 +15,7 @@ function Conversation(name) {
   this._observers = [];
   this._date = Date.now() * 1000;
   this.id = ++_id;
+  this.typingState = undefined;
 }
 Conversation.prototype = {
   __proto__: GenericConvIMPrototype,
@@ -24,6 +29,9 @@ Conversation.prototype = {
       throw e;
     },
     DEBUG() {},
+  },
+  setTypingState(newState) {
+    this.typingState = newState;
   },
 };
 
@@ -156,4 +164,80 @@ add_task(function test_removeMessage() {
 
   conv.removeMessage("foo");
   ok(didRemove);
+});
+
+add_task(function test_sendTyping() {
+  const roomStub = new Conversation();
+  Services.prefs.setBoolPref("purple.conversations.im.send_typing", false);
+
+  // Nothing happens until the conversation supports typing & the pref is enabled.
+  let result = roomStub.sendTyping("lorem ipsum");
+  ok(!roomStub._typingTimer, "Typing is disabled");
+  equal(
+    result,
+    Ci.prplIConversation.NO_TYPING_LIMIT,
+    "Default to no typing limit"
+  );
+  equal(roomStub.typingState, undefined, "Typing state is uninitialized");
+
+  roomStub.supportTypingNotifications = true;
+  result = roomStub.sendTyping("lorem ipsum");
+  ok(!roomStub._typingTimer, "Typing is disabled via pref");
+  equal(
+    result,
+    Ci.prplIConversation.NO_TYPING_LIMIT,
+    "Default to no typing limit 2"
+  );
+  equal(roomStub.typingState, undefined, "Typing state is unmodified");
+
+  Services.prefs.setBoolPref("purple.conversations.im.send_typing", true);
+
+  // A message changes the state to typing.
+  result = roomStub.sendTyping("lorem ipsum");
+  ok(roomStub._typingTimer, "Typing is enabled and a timer is configured");
+  equal(
+    result,
+    Ci.prplIConversation.NO_TYPING_LIMIT,
+    "Default to no typing limit 3"
+  );
+  equal(roomStub.typingState, Ci.prplIConvIM.TYPING, "The user is typing");
+
+  // Clearing the input resets to not typing.
+  result = roomStub.sendTyping("");
+  ok(!roomStub._typingTimer, "Typing timer is cancelled and reset");
+  equal(
+    result,
+    Ci.prplIConversation.NO_TYPING_LIMIT,
+    "Default to no typing limit 4"
+  );
+  equal(
+    roomStub.typingState,
+    Ci.prplIConvIM.NOT_TYPING,
+    "The user is no longer typing"
+  );
+
+  roomStub.unInit();
+});
+
+add_task(function test_cancelTypingTimer() {
+  const roomStub = {
+    _typingTimer: setTimeout(() => {}, 10000), // eslint-disable-line mozilla/no-arbitrary-setTimeout
+  };
+  Conversation.prototype._cancelTypingTimer.call(roomStub);
+  ok(!roomStub._typingTimer, "Typing timer is cancelled and reset");
+});
+
+add_task(function test_finishedComposing() {
+  const roomStub = new Conversation();
+
+  roomStub.finishedComposing();
+  equal(roomStub.typingState, undefined, "Typing is disabled");
+
+  roomStub.supportTypingNotifications = true;
+  roomStub.finishedComposing();
+  equal(
+    roomStub.typingState,
+    Ci.prplIConvIM.TYPED,
+    "The user has left a message in the window"
+  );
 });

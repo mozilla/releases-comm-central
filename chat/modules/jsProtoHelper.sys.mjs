@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   initLogModule,
   nsSimpleEnumerator,
@@ -22,6 +24,13 @@ ChromeUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
   );
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
+
+XPCOMUtils.defineLazyPreferenceGetter(
+  lazy,
+  "SHOULD_SEND_TYPING",
+  "purple.conversations.im.send_typing",
+  true
+);
 
 function OutgoingMessage(aMsg, aConversation) {
   this.message = aMsg;
@@ -952,6 +961,9 @@ export var GenericConversationPrototype = {
     }
   },
   sendMsg(aMsg, aAction = false, aNotification = false) {
+    // Clear any pending typing timers.
+    this._cancelTypingTimer();
+
     // Add-ons (eg. pastebin) have an opportunity to cancel the message at this
     // point, or change the text content of the message.
     // If an add-on wants to split a message, it should truncate the first
@@ -984,16 +996,109 @@ export var GenericConversationPrototype = {
       this.dispatchMessage(om.message, om.action, om.notification);
     }
   },
+  /**
+   * Send a message over the wire.
+   *
+   * Note that this does not clear typing notifications, but does clear any pending
+   * timers. Protocols may wish to internally call sendTyping(Ci.prplIConvIM.NOT_TYPING)
+   * if additional wire messages are needed to cancel typing.
+   *
+   * @param {string} message - The message typed by the user.
+   * @param {boolean} action - True if the message is an emote (i.e. /me).
+   * @param {boolean} notification - True if the message is a notification (i.e. /notice).
+   */
   dispatchMessage(message, action, notification) {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
-  sendTyping: aString => Ci.prplIConversation.NO_TYPING_LIMIT,
+
+  /**
+   * A timer for when to consider the user having stopped typing.
+   */
+  _typingTimer: null,
+  /**
+   * True if the conversation supports typing notifications. False otherwise.
+   */
+  supportTypingNotifications: false,
+
+  /**
+   * If we should send typing notifications to the remote server.
+   *
+   * @type {boolean}
+   */
+  get _shouldSendTypingNotifications() {
+    return this.supportTypingNotifications && lazy.SHOULD_SEND_TYPING;
+  },
+
+  /**
+   * Called when the user is typing a message.
+   *
+   * @param {string} string - The currently typed message.
+   * @returns {number} The number of characters that can still be typed
+   *    or NO_TYPING_LIMIT if there is no protocol defined limit.
+   */
+  sendTyping(string) {
+    // If the protocol does not support typing notifications or if the user has
+    // disabled them, there's nothing to do.
+    if (!this._shouldSendTypingNotifications) {
+      return this.getRemainingCharacters(string);
+    }
+
+    // If the message is empty then it was either sent or the input box was
+    // cleared. The user is no longer typing.
+    const isTyping =
+      string.length > 0 ? Ci.prplIConvIM.TYPING : Ci.prplIConvIM.NOT_TYPING;
+
+    this._cancelTypingTimer();
+    if (isTyping) {
+      this._typingTimer = setTimeout(this.finishedComposing.bind(this), 10000);
+    }
+
+    this.setTypingState(isTyping);
+
+    return this.getRemainingCharacters(string);
+  },
+
+  /**
+   * Called to send the protocol over thewire.
+   *
+   * @param {number} newState - The user's typing state, matching the constants
+   *    defined in Ci.prplIConvIM.
+   */
+  setTypingState: newState => {},
+
+  /**
+   * Called when the user is typing a message.
+   *
+   * @param {string} string - The currently typed message.
+   * @returns {number} The number of characters that can still be typed
+   *    or NO_TYPING_LIMIT if there is no protocol defined limit.
+   */
+  getRemainingCharacters: string => Ci.prplIConversation.NO_TYPING_LIMIT,
+
+  /**
+   * Called when the user has finished typing a message.
+   */
+  finishedComposing() {
+    if (!this._shouldSendTypingNotifications) {
+      return;
+    }
+
+    this.setTypingState(Ci.prplIConvIM.TYPED);
+  },
+
+  _cancelTypingTimer() {
+    if (this._typingTimer) {
+      clearTimeout(this._typingTimer);
+      delete this._typingTimer;
+    }
+  },
 
   close() {
     Services.obs.notifyObservers(this, "closing-conversation");
     IMServices.conversations.removeConversation(this);
   },
   unInit() {
+    this._cancelTypingTimer();
     delete this._account;
     delete this._observers;
   },
@@ -1092,6 +1197,7 @@ export var GenericConvIMPrototype = {
     return false;
   },
   buddy: null,
+  // The typing state of the remote buddy.
   typingState: Ci.prplIConvIM.NOT_TYPING,
   get convIconFilename() {
     // By default, pass through information from the buddy for IM conversations
