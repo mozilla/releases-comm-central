@@ -1333,7 +1333,8 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
                 break;
               default:
                 NS_WARNING(nsPrintfCString("Unexpected status for %s: %s",
-                                           rawMsgId.get(), statush->value));
+                                           rawMsgId.get(), statush->value)
+                               .get());
                 break;
             }
           }
