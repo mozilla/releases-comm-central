@@ -4806,10 +4806,8 @@ nsresult nsMsgDBView::ExpandByIndex(nsMsgViewIndex index,
     rv = ListIdsInThread(pThread, index, &numExpanded);
   }
 
-  if (numExpanded > 0) {
-    m_flags[index] = flags;
-    NoteChange(index, 1, nsMsgViewNotificationCode::changed);
-  }
+  m_flags[index] = flags;
+  NoteChange(index, 1, nsMsgViewNotificationCode::changed);
 
   NoteChange(index + 1, numExpanded, nsMsgViewNotificationCode::insertOrDelete);
 
