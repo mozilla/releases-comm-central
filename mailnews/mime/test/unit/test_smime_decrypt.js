@@ -85,6 +85,8 @@ const smimeSink = {
     this._expectedEvents = maxLen;
     this.countReceived = 0;
     this._results = [];
+    // Ensure checkFinished() only produces results once.
+    this._resultsProduced = false;
     this.haveSignedBad = false;
     this.haveEncryptionBad = false;
     this.resultSig = null;
@@ -137,7 +139,8 @@ const smimeSink = {
     this.checkFinished();
   },
   checkFinished() {
-    if (this.countReceived == this._expectedEvents) {
+    if (!this._resultsProduced && this.countReceived == this._expectedEvents) {
+      this._resultsProduced = true;
       if (this.resultSigFirst) {
         this._results.push(this.resultSig);
         if (this.resultEnc != null) {
