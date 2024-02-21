@@ -148,7 +148,9 @@ OAuth2.prototype = {
     }
 
     for (const [name, value] of this.extraAuthParams) {
-      params.append(name, value);
+      if (value) {
+        params.append(name, value);
+      }
     }
 
     const authEndpointURI =

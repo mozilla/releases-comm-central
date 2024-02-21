@@ -196,9 +196,9 @@ class CalDavGoogleOAuth extends CalDavOAuth {
    * Constructs a new Google OAuth authentication provider
    *
    * @param {string} sessionId - The session id, used in the password manager
-   * @param {string} name - The user-readable description of this session
+   * @param {string} username - The username associated with this session.
    */
-  constructor(sessionId, name) {
+  constructor(sessionId, username) {
     /* eslint-disable no-undef */
     super("https://www.googleapis.com/auth/calendar", {
       authorizationEndpoint: "https://accounts.google.com/o/oauth2/auth",
@@ -212,15 +212,15 @@ class CalDavGoogleOAuth extends CalDavOAuth {
     this.origin = "oauth:" + sessionId;
     this.pwMgrId = "Google CalDAV v2";
 
-    this._maybeUpgrade(name);
+    this._maybeUpgrade();
 
     this.requestWindowTitle = cal.l10n.getAnyString(
       "global",
       "commonDialogs",
       "EnterUserPasswordFor2",
-      [name]
+      [username]
     );
-    this.extraAuthParams = [["login_hint", name]];
+    this.extraAuthParams = [["login_hint", username]];
   }
 
   /**
@@ -248,9 +248,9 @@ class CalDavFastmailOAuth extends CalDavOAuth {
    * Constructs a new Fastmail OAuth authentication provider
    *
    * @param {string} sessionId - The session id, used in the password manager
-   * @param {string} name - The user-readable description of this session
+   * @param {string} username - The username associated with this session.
    */
-  constructor(sessionId, name) {
+  constructor(sessionId, username) {
     /* eslint-disable no-undef */
     super("https://www.fastmail.com/dev/protocol-caldav", {
       authorizationEndpoint: "https://api.fastmail.com/oauth/authorize",
@@ -265,15 +265,15 @@ class CalDavFastmailOAuth extends CalDavOAuth {
     this.origin = "oauth:" + sessionId;
     this.pwMgrId = "Fastmail CalDAV";
 
-    this._maybeUpgrade(name);
+    this._maybeUpgrade();
 
     this.requestWindowTitle = cal.l10n.getAnyString(
       "global",
       "commonDialogs",
       "EnterUserPasswordFor2",
-      [name]
+      [username]
     );
-    this.extraAuthParams = [["login_hint", name]];
+    this.extraAuthParams = [["login_hint", username]];
   }
 
   /**
@@ -297,8 +297,8 @@ class CalDavFastmailOAuth extends CalDavOAuth {
  * real class as closely as possible.
  */
 class CalDavTestOAuth extends CalDavGoogleOAuth {
-  constructor(sessionId, name) {
-    super(sessionId, name);
+  constructor(sessionId, username) {
+    super(sessionId, username);
 
     // Override these values with test values.
     this.authorizationEndpoint = "http://oauth.test.test/form";
@@ -347,27 +347,27 @@ class CalDavSession {
    * Creates a new caldav session
    *
    * @param {string} aSessionId - The session id, used in the password manager
-   * @param {string} aName - The user-readable description of this session
+   * @param {string} aUserName - The username associated with this session.
    */
-  constructor(aSessionId, aName) {
+  constructor(aSessionId, aUserName) {
     this.id = aSessionId;
-    this.name = aName;
+    this.username = aUserName;
 
     // Only create an auth adapter if we're going to use it.
     ChromeUtils.defineLazyGetter(
       this.authAdapters,
       "apidata.googleusercontent.com",
-      () => new CalDavGoogleOAuth(aSessionId, aName)
+      () => new CalDavGoogleOAuth(aSessionId, aUserName)
     );
     ChromeUtils.defineLazyGetter(
       this.authAdapters,
       "caldav.fastmail.com",
-      () => new CalDavFastmailOAuth(aSessionId, aName)
+      () => new CalDavFastmailOAuth(aSessionId, aUserName)
     );
     ChromeUtils.defineLazyGetter(
       this.authAdapters,
       "mochi.test",
-      () => new CalDavTestOAuth(aSessionId, aName)
+      () => new CalDavTestOAuth(aSessionId, aUserName)
     );
   }
 
@@ -477,7 +477,7 @@ class CalDavDetectionSession extends CalDavSession {
    * @returns {CalDavSession} A caldav session.
    */
   toBaseSession() {
-    return new CalDavSession(this.id, this.name);
+    return new CalDavSession(this.id, this.username);
   }
 
   /**
@@ -513,12 +513,12 @@ class CalDavDetectionSession extends CalDavSession {
     }
 
     if ((aAuthInfo.flags & aAuthInfo.PREVIOUS_FAILED) == 0) {
-      aAuthInfo.username = this.name;
+      aAuthInfo.username = this.username;
       aAuthInfo.password = this.password;
 
       if (this.savePassword) {
         cal.auth.passwordManagerSave(
-          this.name,
+          this.username,
           this.password,
           aChannel.URI.prePath,
           aAuthInfo.realm
@@ -530,7 +530,7 @@ class CalDavDetectionSession extends CalDavSession {
     aAuthInfo.username = null;
     aAuthInfo.password = null;
     if (this.savePassword) {
-      cal.auth.passwordManagerRemove(this.name, aChannel.URI.prePath, aAuthInfo.realm);
+      cal.auth.passwordManagerRemove(this.username, aChannel.URI.prePath, aAuthInfo.realm);
     }
     return false;
   }

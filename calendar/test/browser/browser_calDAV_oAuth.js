@@ -74,13 +74,15 @@ async function setLogins(logins) {
 
 /**
  * Wait for a login prompt window to appear, and submit it.
+ *
+ * @param {string} expectedHint - Expected value of the login_hint URL param.
  */
-async function handleOAuthDialog() {
+async function handleOAuthDialog(expectedHint) {
   const oAuthWindow = await OAuth2TestUtils.promiseOAuthWindow();
   info("oauth2 window shown");
   await SpecialPowers.spawn(
     oAuthWindow.getBrowser(),
-    [{ username: USERNAME, password: PASSWORD }],
+    [{ expectedHint, username: USERNAME, password: PASSWORD }],
     OAuth2TestUtils.submitOAuthLogin
   );
 }
@@ -94,7 +96,7 @@ async function handleOAuthDialog() {
  * @param {object} [newTokenDetails] - If given, re-authentication must happen.
  * @param {string} [newTokenDetails.username] - The new token must be stored with this user name.
  */
-async function subtest(calendarId, newTokenDetails = {}) {
+async function subtest(calendarId, newTokenDetails) {
   const calendar = new CalDavCalendar();
   calendar.id = calendarId;
 
@@ -106,7 +108,7 @@ async function subtest(calendarId, newTokenDetails = {}) {
       "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/auth_headers.sjs"
     )
   );
-  const dialogPromise = newTokenDetails.username
+  const dialogPromise = newTokenDetails
     ? handleOAuthDialog(newTokenDetails.username)
     : Promise.resolve();
   const response = await request.commit();
@@ -140,7 +142,7 @@ function checkAndClearLogins(expectedLogins) {
 /** No token stored, no username or session ID set. */
 add_task(async function testCalendarOAuth_id_none() {
   const calendarId = "testCalendarOAuth_id_none";
-  await subtest(calendarId, { username: calendarId });
+  await subtest(calendarId, {});
   checkAndClearLogins([{ ...defaultLogin, username: calendarId }]);
 });
 
@@ -148,7 +150,7 @@ add_task(async function testCalendarOAuth_id_none() {
 add_task(async function testCalendarOAuth_sessionId_none() {
   const calendarId = "testCalendarOAuth_sessionId_none";
   setPref(calendarId, "sessionId", "test_session");
-  await subtest(calendarId, { username: "test_session" });
+  await subtest(calendarId, {});
   checkAndClearLogins([{ ...defaultLogin, username: "test_session" }]);
 });
 
@@ -175,7 +177,7 @@ add_task(async function testCalendarOAuth_id_expired() {
     },
   ];
   await setLogins(logins);
-  await subtest(calendarId, { username: calendarId });
+  await subtest(calendarId, {});
   logins[0].password = VALID_TOKEN;
   checkAndClearLogins(logins);
 });
@@ -193,7 +195,7 @@ add_task(async function testCalendarOAuth_sessionId_expired() {
   ];
   setPref(calendarId, "sessionId", "test_session");
   await setLogins(logins);
-  await subtest(calendarId, { username: "test_session" });
+  await subtest(calendarId, {});
   logins[0].password = VALID_TOKEN;
   checkAndClearLogins(logins);
 });

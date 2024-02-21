@@ -129,7 +129,7 @@ CalDavCalendar.prototype = {
       // calendars, in all other cases the password is stored by username.
       this.session = new CalDavSession(
         this.getProperty("username") || this.getProperty("sessionId") || this.id,
-        this.name
+        this.getProperty("username")
       );
     }
   },
