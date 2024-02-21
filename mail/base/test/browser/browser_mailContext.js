@@ -181,7 +181,7 @@ const mailContextData = {
   "mailContext-delete": notExternal,
   "mailContext-ignoreThread": notSynthetic,
   "mailContext-ignoreSubthread": notSynthetic,
-  "mailContext-watchThread": notExternal,
+  "mailContext-watchThread": [...notSynthetic, ...onePane],
   "mailContext-saveAs": true,
   "mailContext-print": true,
   "mailContext-downloadSelected": [

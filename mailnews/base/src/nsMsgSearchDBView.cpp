@@ -737,7 +737,8 @@ NS_IMETHODIMP
 nsMsgSearchDBView::GetCommandStatus(
     nsMsgViewCommandTypeValue command, bool* selectable_p,
     nsMsgViewCommandCheckStateValue* selected_p) {
-  if (command != nsMsgViewCommandType::runJunkControls)
+  if (command != nsMsgViewCommandType::runJunkControls &&
+      command != nsMsgViewCommandType::toggleThreadWatched)
     return nsMsgDBView::GetCommandStatus(command, selectable_p, selected_p);
 
   *selectable_p = false;
