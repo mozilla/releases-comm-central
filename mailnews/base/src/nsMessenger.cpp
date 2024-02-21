@@ -30,7 +30,6 @@
 #include "nsIMIMEInfo.h"
 
 // gecko
-#include "nsLayoutCID.h"
 #include "nsIDocumentViewer.h"
 
 /* for access to docshell */

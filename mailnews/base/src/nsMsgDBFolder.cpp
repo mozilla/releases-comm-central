@@ -33,7 +33,6 @@
 #include "nsIMsgMailSession.h"
 #include "nsTextFormatter.h"
 #include "nsReadLine.h"
-#include "nsLayoutCID.h"
 #include "nsIParserUtils.h"
 #include "nsIDocumentEncoder.h"
 #include "nsMsgI18N.h"

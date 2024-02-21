@@ -39,7 +39,6 @@ using mozilla::intl::UnicodeProperties;
 #include "nsIMsgHdr.h"
 
 // needed to strip html out of the body
-#include "nsLayoutCID.h"
 #include "nsIParserUtils.h"
 #include "nsIDocumentEncoder.h"
 

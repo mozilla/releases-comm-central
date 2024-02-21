@@ -45,7 +45,6 @@
 #include "mimeeobj.h"
 // <for functions="HTML2Plaintext,HTMLSantinize">
 #include "nsXPCOM.h"
-#include "nsLayoutCID.h"
 #include "nsIParserUtils.h"
 // </for>
 #include "mozilla/Components.h"
