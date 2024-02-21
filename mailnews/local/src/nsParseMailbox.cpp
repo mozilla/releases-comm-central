@@ -1311,19 +1311,19 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
         m_mailDB->UpdatePendingAttributes(m_newMsgHdr);
 
         if (!mozstatus && statush) {
-          /* Parse a little bit of the Berkeley Mail status header. */
+          // Parse a little bit of the Berkeley Mail status header.
           for (const char* s = statush->value; *s; s++) {
             uint32_t msgFlags = 0;
             (void)m_newMsgHdr->GetFlags(&msgFlags);
             switch (*s) {
               case 'R':
+              case 'O':
               case 'r':
                 m_newMsgHdr->SetFlags(msgFlags | nsMsgMessageFlags::Read);
                 break;
               case 'D':
               case 'd':
-                /* msg->flags |= nsMsgMessageFlags::Expunged;  ### Is this
-                 * reasonable? */
+                // msg->flags |= nsMsgMessageFlags::Expunged; // Maybe?
                 break;
               case 'N':
               case 'n':
@@ -1331,8 +1331,9 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
               case 'u':
                 m_newMsgHdr->SetFlags(msgFlags & ~nsMsgMessageFlags::Read);
                 break;
-              default:  // Should check for corrupt file.
-                NS_ERROR("Corrupt file. Should not happen.");
+              default:
+                NS_WARNING(nsPrintfCString("Unexpected status for %s: %s",
+                                           rawMsgId.get(), statush->value));
                 break;
             }
           }
