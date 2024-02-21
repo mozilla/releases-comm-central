@@ -220,30 +220,6 @@ class AccountHubControllerClass {
   }
 
   /**
-   * Show the loading view.
-   */
-  async #viewLoading() {
-    await this.#loadScript("loading");
-    this.#loadView("account-hub-loading");
-  }
-
-  /**
-   * Show the manual email config view.
-   */
-  async #viewManualEmailConfig() {
-    await this.#loadScript("manual-email");
-    this.#loadView("account-hub-manual-email");
-  }
-
-  /**
-   * Show the email account added view.
-   */
-  async #viewEmailAdded() {
-    await this.#loadScript("email-added");
-    this.#loadView("account-hub-email-added");
-  }
-
-  /**
    * TODO: Show the calendar setup view.
    */
   #viewCalendarSetup() {

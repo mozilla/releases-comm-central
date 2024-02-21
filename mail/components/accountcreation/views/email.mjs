@@ -164,34 +164,6 @@ class AccountHubEmail extends HTMLElement {
   #emailLoadingSubview;
 
   /**
-   * Lookup Email title of Dialog.
-   *
-   * @type {HTMLElement}
-   */
-  #lookupEmailConfigurationTitle;
-
-  /**
-   * Lookup Email subheader of Dialog.
-   *
-   * @type {HTMLElement}
-   */
-  #lookupEmailConfigurationSubheader;
-
-  /**
-   * The Adding Account title of Dialog.
-   *
-   * @type {HTMLElement}
-   */
-  #addingAccountTitle;
-
-  /**
-   * The Adding Account subheader of Dialog.
-   *
-   * @type {HTMLElement}
-   */
-  #addingAccountSubheader;
-
-  /**
    * Email Added Subview
    *
    * @type {HTMLElement}
@@ -213,13 +185,6 @@ class AccountHubEmail extends HTMLElement {
   #retestButton;
 
   /**
-   * The stop button.
-   *
-   * @type {HTMLButtonElement}
-   */
-  #stopButton;
-
-  /**
    * The submit form button.
    *
    * @type {HTMLButtonElement}
@@ -239,14 +204,6 @@ class AccountHubEmail extends HTMLElement {
    * @type {HTMLButtonElement}
    */
   #cancelButton;
-
-  /**
-   * Store methods to interrupt abortable operations like testing
-   * a server configuration or installing an add-on.
-   *
-   * @type {Object}
-   */
-  #abortable;
 
   /**
    * The current Account Config object based on the users form element inputs.
