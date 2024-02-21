@@ -29,9 +29,8 @@ class nsStatusBarBiffManager : public nsIStatusBarBiffManager,
 
   bool mInitialized;
   int32_t mCurrentBiffState;
-  nsCString mServerType;
   nsCOMPtr<nsISound> mSound;
-  nsresult PlayBiffSound(const char* aPrefBranch);
+  nsresult PlayBiffSound(const char* aPref);
 };
 
 #endif  // nsStatusBarBiffManager_h__

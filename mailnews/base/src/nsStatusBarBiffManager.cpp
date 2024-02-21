@@ -21,7 +21,9 @@
 #include "nsIFileURL.h"
 #include "nsIFile.h"
 #include "nsMsgUtils.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/Services.h"
+#include "nsPrintfCString.h"
 
 // QueryInterface, AddRef, and Release
 //
@@ -34,12 +36,6 @@ nsStatusBarBiffManager::nsStatusBarBiffManager()
 
 nsStatusBarBiffManager::~nsStatusBarBiffManager() {}
 
-#define NEW_MAIL_PREF_BRANCH "mail.biff."
-#define CHAT_PREF_BRANCH "mail.chat."
-#define FEED_PREF_BRANCH "mail.feed."
-#define PREF_PLAY_SOUND "play_sound"
-#define PREF_SOUND_URL "play_sound.url"
-#define PREF_SOUND_TYPE "play_sound.type"
 #define SYSTEM_SOUND_TYPE 0
 #define CUSTOM_SOUND_TYPE 1
 #define PREF_CHAT_ENABLED "mail.chat.enabled"
@@ -71,42 +67,28 @@ nsresult nsStatusBarBiffManager::Init() {
   return NS_OK;
 }
 
-nsresult nsStatusBarBiffManager::PlayBiffSound(const char* aPrefBranch) {
-  nsresult rv;
-  nsCOMPtr<nsIPrefService> prefSvc =
-      (do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIPrefBranch> pref;
-  rv = prefSvc->GetBranch(aPrefBranch, getter_AddRefs(pref));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool playSound;
-  if (mServerType.EqualsLiteral("rss")) {
-    nsCOMPtr<nsIPrefBranch> prefFeed;
-    rv = prefSvc->GetBranch(FEED_PREF_BRANCH, getter_AddRefs(prefFeed));
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = prefFeed->GetBoolPref(PREF_PLAY_SOUND, &playSound);
-  } else {
-    rv = pref->GetBoolPref(PREF_PLAY_SOUND, &playSound);
-  }
-  NS_ENSURE_SUCCESS(rv, rv);
-
+// aPref is one of "mail.biff.play_sound", "mail.feed.play_sound" or
+// "mail.chat.play_sound". We derive names of related preferences by
+// appending ".type" (system/custom) and ".url" (custom sound file).
+nsresult nsStatusBarBiffManager::PlayBiffSound(const char* aPref) {
+  bool playSound = mozilla::Preferences::GetBool(aPref, false);
   if (!playSound) return NS_OK;
 
   // lazily create the sound instance
   if (!mSound) mSound = do_CreateInstance("@mozilla.org/sound;1");
 
-  int32_t soundType = SYSTEM_SOUND_TYPE;
-  rv = pref->GetIntPref(PREF_SOUND_TYPE, &soundType);
-  NS_ENSURE_SUCCESS(rv, rv);
+  int32_t soundType = mozilla::Preferences::GetInt(
+      nsPrintfCString("%s.type", aPref).get(), SYSTEM_SOUND_TYPE);
 
 #ifndef XP_MACOSX
   bool customSoundPlayed = false;
 #endif
 
+  nsresult rv = NS_OK;
   if (soundType == CUSTOM_SOUND_TYPE) {
     nsCString soundURLSpec;
-    rv = pref->GetCharPref(PREF_SOUND_URL, soundURLSpec);
+    rv = mozilla::Preferences::GetCString(
+        nsPrintfCString("%s.url", aPref).get(), soundURLSpec);
 
     if (NS_SUCCEEDED(rv) && !soundURLSpec.IsEmpty()) {
       if (!strncmp(soundURLSpec.get(), "file://", 7)) {
@@ -180,18 +162,21 @@ nsStatusBarBiffManager::OnFolderIntPropertyChanged(nsIMsgFolder* folder,
                                                    const nsACString& property,
                                                    int64_t oldValue,
                                                    int64_t newValue) {
+  // Get the folder's server type.
+  nsCString type;
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = folder->GetServer(getter_AddRefs(server));
+  if (NS_SUCCEEDED(rv) && server) server->GetType(type);
+  const char* pref = type.EqualsLiteral("rss") ? "mail.feed.play_sound"
+                                               : "mail.biff.play_sound";
+
   if (property.Equals(kBiffState) && mCurrentBiffState != newValue) {
     // if we got new mail, attempt to play a sound.
     // if we fail along the way, don't return.
     // we still need to update the UI.
     if (newValue == nsIMsgFolder::nsMsgBiffState_NewMail) {
-      // Get the folder's server type.
-      nsCOMPtr<nsIMsgIncomingServer> server;
-      nsresult rv = folder->GetServer(getter_AddRefs(server));
-      if (NS_SUCCEEDED(rv) && server) server->GetType(mServerType);
-
       // if we fail to play the biff sound, keep going.
-      (void)PlayBiffSound(NEW_MAIL_PREF_BRANCH);
+      (void)PlayBiffSound(pref);
     }
     mCurrentBiffState = newValue;
 
@@ -204,7 +189,7 @@ nsStatusBarBiffManager::OnFolderIntPropertyChanged(nsIMsgFolder* folder,
           static_cast<nsIStatusBarBiffManager*>(this),
           "mail:biff-state-changed", nullptr);
   } else if (property.Equals(kNewMailReceived)) {
-    (void)PlayBiffSound(NEW_MAIL_PREF_BRANCH);
+    (void)PlayBiffSound(pref);
   }
   return NS_OK;
 }
@@ -242,7 +227,7 @@ nsStatusBarBiffManager::OnFolderEvent(nsIMsgFolder* folder,
 NS_IMETHODIMP
 nsStatusBarBiffManager::Observe(nsISupports* aSubject, const char* aTopic,
                                 const char16_t* aData) {
-  return PlayBiffSound(CHAT_PREF_BRANCH);
+  return PlayBiffSound("mail.chat.play_sound");
 }
 
 // nsIStatusBarBiffManager method....

@@ -891,8 +891,11 @@ pref("mail.biff.use_new_count_in_badge", false);
 pref("mail.biff.use_new_count_in_badge", true);
 #endif
 
-// For feed account serverType=rss sound on biff; if true, mail.biff.play_sound.* settings are used.
+// For feed account serverType=rss sound on biff.
+// Allow for a different sound to be played for new feed articles.
 pref("mail.feed.play_sound", false);
+pref("mail.feed.play_sound.type", 0);
+pref("mail.feed.play_sound.url", "");
 
 // Content disposition for attachments (except binary files and vcards).
 //   0= Content-Disposition: inline
