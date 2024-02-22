@@ -8,8 +8,10 @@
 
 import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys.mjs";
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
+import { HttpsProxy } from "resource://testing-common/mailnews/HttpsProxy.sys.mjs";
 import { HttpServer, HTTP_405 } from "resource://testing-common/httpd.sys.mjs";
 import { NetworkTestUtils } from "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs";
+import { ServerTestUtils } from "resource://testing-common/mailnews/ServerTestUtils.sys.mjs";
 
 const { OAuth2Module } = ChromeUtils.import(
   "resource:///modules/OAuth2Module.jsm"
@@ -19,19 +21,19 @@ const validCodes = new Set();
 
 export const OAuth2TestUtils = {
   /**
-   * Start an OAuth2 server and add it to the proxy at oauth.test.test:80.
+   * Start an OAuth2 server and add it to the proxy at oauth.test.test:443.
    *
    * @param {object} testScope - The JS scope for the current test, so
    *   `registerCleanupFunction` can be used.
    */
-  startServer(testScope) {
+  async startServer(testScope) {
     const oAuth2Server = new OAuth2Server(testScope);
-    oAuth2Server.httpServer.identity.add("http", "oauth.test.test", 80);
-    NetworkTestUtils.configureProxy(
-      "oauth.test.test",
-      80,
-      oAuth2Server.httpServer.identity.primaryPort
+    const httpsProxy = new HttpsProxy(
+      testScope,
+      oAuth2Server.httpServer.identity.primaryPort,
+      await ServerTestUtils.getCertificate("oauth")
     );
+    NetworkTestUtils.configureProxy("oauth.test.test", 443, httpsProxy.port);
     testScope.registerCleanupFunction(() => {
       NetworkTestUtils.clearProxy();
     });

@@ -1,0 +1,3 @@
+subject:oauth.test.test
+extension:extKeyUsage:serverAuth
+extension:subjectAlternativeName:oauth.test.test

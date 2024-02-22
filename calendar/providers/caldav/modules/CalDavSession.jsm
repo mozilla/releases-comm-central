@@ -301,8 +301,8 @@ class CalDavTestOAuth extends CalDavGoogleOAuth {
     super(sessionId, username);
 
     // Override these values with test values.
-    this.authorizationEndpoint = "http://oauth.test.test/form";
-    this.tokenEndpoint = "http://oauth.test.test/token";
+    this.authorizationEndpoint = "https://oauth.test.test/form";
+    this.tokenEndpoint = "https://oauth.test.test/token";
     this.scope = "test_scope";
     this.clientId = "test_client_id";
     this.consumerSecret = "test_secret";

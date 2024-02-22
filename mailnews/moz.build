@@ -60,6 +60,7 @@ TESTING_JS_MODULES.mailnews += [
     "test/fakeserver/Pop3d.sys.mjs",
     "test/fakeserver/ServerTestUtils.sys.mjs",
     "test/fakeserver/Smtpd.sys.mjs",
+    "test/resources/HttpsProxy.sys.mjs",
     "test/resources/IMAPpump.sys.mjs",
     "test/resources/LocalAccountUtils.sys.mjs",
     "test/resources/MailTestUtils.sys.mjs",
@@ -73,6 +74,8 @@ TESTING_JS_MODULES.mailnews += [
 TESTING_JS_MODULES.mailnews.certs += [
     "test/fakeserver/certs/expired.cert",
     "test/fakeserver/certs/expired.key",
+    "test/fakeserver/certs/oauth.cert",
+    "test/fakeserver/certs/oauth.key",
     "test/fakeserver/certs/valid.cert",
     "test/fakeserver/certs/valid.key",
 ]

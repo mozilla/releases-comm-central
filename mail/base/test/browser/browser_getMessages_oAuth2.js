@@ -88,7 +88,7 @@ add_setup(async function () {
   pop3Inbox = pop3RootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   allInboxes.push(pop3Inbox);
 
-  OAuth2TestUtils.startServer(this);
+  await OAuth2TestUtils.startServer(this);
 
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(localAccount, false);

@@ -183,8 +183,8 @@ var kIssuers = new Map([
     {
       clientId: "test_client_id",
       clientSecret: "test_secret",
-      authorizationEndpoint: "http://oauth.test.test/form",
-      tokenEndpoint: "http://oauth.test.test/token",
+      authorizationEndpoint: "https://oauth.test.test/form",
+      tokenEndpoint: "https://oauth.test.test/token",
       redirectionEndpoint: "https://localhost",
     },
   ],
