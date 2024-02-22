@@ -53,7 +53,7 @@ jobs:
             using: run-task
             comm-checkout: true
             cwd: '/builds/worker'
-            command: python3 -m vendor
+            command: runme.sh
         notifications:
             subject: 'Thunderbird Rust updatebot failed'
             message: 'Thunderbird Rust updatebot failed'

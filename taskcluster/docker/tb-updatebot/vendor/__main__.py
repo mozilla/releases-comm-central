@@ -3,7 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
 import os
 import re
 import shutil
@@ -11,12 +10,6 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-
-GECKO_PATH = os.environ.get("GECKO_PATH")
-sys.path.append(os.path.join(GECKO_PATH, "third_party/python/taskcluster"))
-sys.path.append(os.path.join(GECKO_PATH, "third_party/python/taskcluster_urls"))
-sys.path.append(os.path.join(GECKO_PATH, "third_party/python/slugid"))
-sys.path.append(os.path.join(GECKO_PATH, "third_party/python/mohawk"))
 
 sys.path.append(".")
 
@@ -34,6 +27,7 @@ from .support import (  # noqa: I001
 # Bump this number when you need to cause a commit for the job to re-run: 0
 
 HOME_PATH = Path.home()
+GECKO_PATH = Path(os.environ.get("GECKO_PATH"))
 COMM_PATH = os.path.join(GECKO_PATH, "comm")
 
 OPERATING_MODE = (
