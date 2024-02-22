@@ -49,6 +49,8 @@ idna==3.6
     # via
     #   requests
     #   yarl
+iniconfig==2.0.0
+    # via pytest
 jinja2==3.1.3
     # via glean-parser
 jsonschema==4.21.1
@@ -71,14 +73,19 @@ packaging==23.2
     # via
     #   build
     #   mozphab
+    #   pytest
 pathspec==0.12.1
     # via yamllint
 pip-tools==7.3.0
     # via -r requirements.in
+pluggy==1.4.0
+    # via pytest
 pycparser==2.21
     # via cffi
 pyproject-hooks==1.0.0
     # via build
+pytest==8.0.0
+    # via -r requirements.in
 python-dateutil==2.8.2
     # via taskcluster
 python-hglib==2.6.2
@@ -86,6 +93,7 @@ python-hglib==2.6.2
 pyyaml==6.0.1
     # via
     #   glean-parser
+    #   responses
     #   yamllint
 referencing==0.33.0
     # via
@@ -94,7 +102,10 @@ referencing==0.33.0
 requests==2.31.0
     # via
     #   -r requirements.in
+    #   responses
     #   taskcluster
+responses==0.24.1
+    # via -r requirements.in
 rpds-py==0.17.1
     # via
     #   jsonschema
@@ -116,6 +127,7 @@ taskcluster-urls==13.0.1
 urllib3==2.2.0
     # via
     #   requests
+    #   responses
     #   sentry-sdk
 wheel==0.42.0
     # via pip-tools
