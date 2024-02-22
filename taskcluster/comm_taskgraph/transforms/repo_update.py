@@ -7,6 +7,7 @@ tb-rust vendor things.
 
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.schema import resolve_keyed_by
+from taskgraph.util.taskcluster import find_task_id
 
 transforms = TransformSequence()
 
@@ -26,4 +27,17 @@ def update_scopes(config, jobs):
             secret = job.pop(item)
             if secret:
                 job.setdefault("scopes", []).append(f"secrets:get:{secret}")
+        yield job
+
+
+@transforms.add
+def add_artifact_fetches(config, jobs):
+    project = config.params["project"]
+    for job in jobs:
+        try:
+            previous_task_id = find_task_id(f"comm.v2.{project}.latest.thunderbird.tb-rust-vendor")
+            job["dependencies"].append(previous_task_id)
+            job["worker"]["env"]["PREVIOUS_TASK_ID"] = previous_task_id
+        except KeyError:
+            pass
         yield job

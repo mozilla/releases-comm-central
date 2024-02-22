@@ -147,6 +147,11 @@ def submit_phabricator():
             notify_sheriffs(
                 f"Sheriffs: Rust vendored libraries update for {GECKO_HEAD_REV[:12]} in {phab_rev}!"
             )
+            shutil.copy2(COMM_PATH / "rust/checksums.json", HOME_PATH / "checksums.json")
+            with open(HOME_PATH / "phab_rev_id.txt", "w") as fp:
+                fp.write(phab_rev)
+            return
+        raise Exception("Failed to match a Phabricator review ID.")
 
 
 def run_try_cc():
@@ -157,8 +162,21 @@ def run_try_cc():
     run_cmd([HG, "push-to-try", "-s", "try-cc", "-m", "Automation: Rust build check"])
 
 
+def get_old_artifacts() -> dict:
+    rv = {}
+    if previous_task_id := os.environ.get("PREVIOUS_TASK_ID"):
+        for filename in ("phab_rev_id.txt", "checksums.json"):
+            previous_data = fetch_indexed_artifact(previous_task_id, f"public/{filename}")
+            if previous_data is not None:
+                rv[filename] = previous_data
+                with open(HOME_PATH / filename, "w") as fp:
+                    fp.write(previous_data)
+    return rv
+
+
 def main():
     prepare()
+    previous_data = get_old_artifacts()
     result = run_check_upstream()
     if result:
         sys.exit(0)

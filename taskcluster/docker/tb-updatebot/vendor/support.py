@@ -113,3 +113,21 @@ def notify_sheriffs(body: str):
         "body": body,
     }
     requests.post(NOTIFY_URL_BASE, data=data)
+
+
+def artifact_url(task_id: str, artifact_path: str) -> str:
+    return f"{ARTIFACT_URL_BASE}/{task_id}/artifacts/{artifact_path}"
+
+
+def fetch_indexed_artifact(previous_task_id: str, artifact_path: str) -> str or None:
+    url = artifact_url(previous_task_id, artifact_path)
+    log(f"Fetching artifact {url}")
+    response = requests.get(url)
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        log(f"Status code {response.status_code}.")
+        if response.status_code == 404:
+            return None
+        raise
+    return response.text
