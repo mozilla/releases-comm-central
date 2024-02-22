@@ -79,7 +79,7 @@
 #include "nsMsgLineBuffer.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Attributes.h"
-#include "mozilla/SlicedInputStream.h"
+#include "mozilla/ScopeExit.h"
 #include "nsStringStream.h"
 #include "nsIStreamListener.h"
 #include "nsITimer.h"
@@ -2725,6 +2725,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
   return NS_OK;
 }
 
+// nsIImapMailFolderSink.parseMsgHdrs()
 NS_IMETHODIMP nsImapMailFolder::ParseMsgHdrs(
     nsIImapProtocol* aProtocol, nsIImapHeaderXferInfo* aHdrXferInfo) {
   NS_ENSURE_ARG_POINTER(aHdrXferInfo);
@@ -2781,6 +2782,7 @@ NS_IMETHODIMP nsImapMailFolder::ParseMsgHdrs(
   return rv;
 }
 
+// Helper for ParseMsgHdrs().
 nsresult nsImapMailFolder::SetupHeaderParseStream(
     uint32_t aSize, const nsACString& content_type, nsIMailboxSpec* boxSpec) {
   if (!mDatabase) GetDatabase();
@@ -2797,6 +2799,7 @@ nsresult nsImapMailFolder::SetupHeaderParseStream(
   return m_msgParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
 }
 
+// Helper for ParseMsgHdrs().
 nsresult nsImapMailFolder::ParseAdoptedHeaderLine(const char* aMessageLine,
                                                   nsMsgKey aMsgKey) {
   // we can get blocks that contain more than one line,
@@ -2824,11 +2827,14 @@ nsresult nsImapMailFolder::ParseAdoptedHeaderLine(const char* aMessageLine,
   return NS_OK;
 }
 
+// Helper for ParseMsgHdrs().
 nsresult nsImapMailFolder::NormalEndHeaderParseStream(
     nsIImapProtocol* aProtocol, nsIImapUrl* imapUrl) {
   nsCOMPtr<nsIMsgDBHdr> newMsgHdr;
   nsresult rv;
   NS_ENSURE_TRUE(m_msgParser, NS_ERROR_NULL_POINTER);
+
+  auto uidClear = mozilla::MakeScopeExit([&] { m_curMsgUid = 0; });
 
   nsMailboxParseState parseState;
   m_msgParser->GetState(&parseState);
@@ -3034,10 +3040,11 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
   return NS_OK;
 }
 
+// From nsIImapMailFolderSink.
 NS_IMETHODIMP nsImapMailFolder::AbortHeaderParseStream(
     nsIImapProtocol* aProtocol) {
-  nsresult rv = NS_ERROR_FAILURE;
-  return rv;
+  m_curMsgUid = 0;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMailFolder::BeginCopy() {
@@ -4298,15 +4305,26 @@ nsImapMailFolder::ParseAdoptedMsgLine(const char* adoptedMessageLine,
   NS_ENSURE_ARG_POINTER(aImapUrl);
   uint32_t count = 0;
   nsresult rv;
-  // remember the uid of the message we're downloading.
-  m_curMsgUid = uidOfMessage;
   if (!m_offlineHeader) {
+    // Starting a new message.
+    if (m_curMsgUid) {
+      NS_WARNING("ParseAdoptedMsgLine: already processing a message");
+      return NS_ERROR_ABORT;
+    }
     rv = GetMessageHeader(uidOfMessage, getter_AddRefs(m_offlineHeader));
     if (NS_SUCCEEDED(rv) && !m_offlineHeader) rv = NS_ERROR_UNEXPECTED;
     NS_ENSURE_SUCCESS(rv, rv);
     rv = StartNewOfflineMessage();
     NS_ENSURE_SUCCESS(rv, rv);
+    m_curMsgUid = uidOfMessage;
+  } else {
+    // Continuing an existing message.
+    if (uidOfMessage != m_curMsgUid) {
+      NS_WARNING("ParseAdoptedMsgLine: preventing interleaved messages");
+      return NS_ERROR_ABORT;
+    }
   }
+
   // adoptedMessageLine is actually a string with a lot of message lines,
   // separated by native line terminators we need to count the number of
   // MSG_LINEBREAK's to determine how much to increment m_numOfflineMsgLines by.
@@ -4340,6 +4358,9 @@ NS_IMETHODIMP
 nsImapMailFolder::NormalEndMsgWriteStream(nsMsgKey uidOfMessage, bool markRead,
                                           nsIImapUrl* imapUrl,
                                           int32_t updatedMessageSize) {
+  NS_WARNING_ASSERTION((uidOfMessage == m_curMsgUid), "Interleaved messages?");
+  auto uidClear = mozilla::MakeScopeExit([&] { m_curMsgUid = 0; });
+
   if (updatedMessageSize != -1) {
     // retrieve the message header to update size, if we don't already have it
     nsCOMPtr<nsIMsgDBHdr> msgHeader = m_offlineHeader;
@@ -4416,8 +4437,12 @@ nsImapMailFolder::NormalEndMsgWriteStream(nsMsgKey uidOfMessage, bool markRead,
 
 NS_IMETHODIMP
 nsImapMailFolder::AbortMsgWriteStream() {
+  if (m_offlineHeader) {
+    EndNewOfflineMessage(NS_ERROR_ABORT);
+  }
   m_offlineHeader = nullptr;
-  return NS_ERROR_FAILURE;
+  m_curMsgUid = 0;
+  return NS_OK;
 }
 
 // message move/copy related methods
