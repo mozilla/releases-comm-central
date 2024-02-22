@@ -14,7 +14,10 @@ from pathlib import Path
 sys.path.append(".")
 
 from .support import (  # noqa: I001
+    DevConduit,
+    ExtendedConduit,
     TaskClusterSecrets,
+    fetch_indexed_artifact,
     log,
     notify_sheriffs,
     run_cmd,
@@ -28,13 +31,14 @@ from .support import (  # noqa: I001
 
 HOME_PATH = Path.home()
 GECKO_PATH = Path(os.environ.get("GECKO_PATH"))
-COMM_PATH = os.path.join(GECKO_PATH, "comm")
+COMM_PATH = GECKO_PATH / "comm"
 
 OPERATING_MODE = (
     "prod"
     if os.environ.get("COMM_HEAD_REPOSITORY", "") == "https://hg.mozilla.org/comm-central"
     else "dev"
 )
+PROJECT = os.environ.get("COMM_HEAD_REPOSITORY", "/comm-central").split("/")[-1]
 
 PROD_PHAB_URL = "https://phabricator.services.mozilla.com/api/"
 
@@ -48,8 +52,6 @@ SECRET_PATH = f"project/comm/thunderbird/releng/build/level-{LEVEL}"
 
 HG = shutil.which("hg")
 assert HG is not None
-MOZ_PHAB = shutil.which("moz-phab")
-assert MOZ_PHAB is not None
 
 REVIEWERS = os.environ.get("REVIEWERS")
 if REVIEWERS is None:
@@ -65,22 +67,24 @@ def prepare():
     """Retrieve secrets and write out config files."""
     # Get TC Secrets =======================================
     log("Operating mode is ", OPERATING_MODE)
-    log("Getting secrets...")
     if OPERATING_MODE == "prod":
+        log("Getting secrets from Taskcluster...")
         secret_mgr = TaskClusterSecrets(SECRET_PATH)
         phabricator_token = secret_mgr.get_secret("arc-phabricator-token")
         try_ssh = secret_mgr.get_secret("tbirdtry")
         try_ssh_user = try_ssh["user"]
         try_ssh_key = try_ssh["ssh_privkey"]
-
-        # Set Up Mercurial, SSH & Phabricator ==============================
-        log("Setting up Mercurial user, ssh key, and Phabricator token...")
-        ssh_key_file = write_ssh_key("ssh_id", try_ssh_key)
-        write_hgrc_userinfo(try_ssh_user, ssh_key_file)
-        write_arcrc(phabricator_url, phabricator_token)
     else:
-        write_hgrc_userinfo("no hg user config", Path("/dev/null"))
-        log(f"Skipping retrieving secrets in {OPERATING_MODE} mode.")
+        log("Using fake secrets...")
+        phabricator_token = "null"
+        try_ssh_user = "nobody"
+        try_ssh_key = "nokey"
+
+    # Set Up Mercurial, SSH & Phabricator ==============================
+    log("Setting up Mercurial user, ssh key, and Phabricator token...")
+    ssh_key_file = write_ssh_key("ssh_id", try_ssh_key)
+    write_hgrc_userinfo(try_ssh_user, ssh_key_file)
+    write_arcrc(phabricator_url, phabricator_token)
 
 
 def run_check_upstream() -> bool:
@@ -113,6 +117,13 @@ def run_vendor():
         raise Exception("Whoa there! No changes were found. ABORT ABORT ABORT ABORT ABORT!")
 
 
+def compare_checksums():
+    log("Comparing checksums with previously submitted review request")
+    old_checksums = open(HOME_PATH / "checksums.json").read()
+    new_checksums = open(COMM_PATH / "rust/checksums.json").read()
+    return old_checksums == new_checksums
+
+
 def commit_changes():
     os.chdir(COMM_PATH)
     run_cmd([HG, "addremove", "third_party/rust/", "rust/"])
@@ -131,12 +142,27 @@ comm-central: {COMM_HEAD_REV}
 
 
 def submit_phabricator():
-    if OPERATING_MODE != "prod":
-        log(f"Skipping moz-phab submission in {OPERATING_MODE} mode.")
-        return
+    previous_phabrev = fetch_indexed_artifact(PROJECT, "public/phab_rev_id.txt")
+    conduit = get_conduit()
+
+    if previous_phabrev is not None:
+        if conduit.is_revision_open(previous_phabrev):
+            if compare_checksums():
+                # checksums.json from earlier submitted rev is the same as
+                # after running tb-rust vendor again. Do not submit a new
+                # revision, exit cleanly.
+                log(f"checksums.json from {previous_phabrev} is the same.")
+                log("Exiting without submitting a new revision.")
+                notify_sheriffs(f"Sheriffs: Please land {previous_phabrev} to fix Rust builds.")
+                return
+            else:
+                log(
+                    f"Previous revision {previous_phabrev} is stale. Abandoning it and re-submitting."
+                )
+                conduit.abandon_revision(previous_phabrev)
 
     os.chdir(COMM_PATH)
-    result = run_cmd([MOZ_PHAB, "submit", "-s", "--no-lint"])
+    result = conduit.submit()
 
     # Look for the Phabricator revision URL on the last line of stdout
     if result.returncode == 0:
@@ -157,9 +183,12 @@ def submit_phabricator():
 def run_try_cc():
     os.chdir(COMM_PATH)
     log("Submitting try-comm-central build.")
-    try_task_config = write_try_task_config(Path(COMM_PATH))
+    try_task_config = write_try_task_config(COMM_PATH)
     run_cmd([HG, "add", try_task_config.name])
-    run_cmd([HG, "push-to-try", "-s", "try-cc", "-m", "Automation: Rust build check"])
+    if OPERATING_MODE == "prod":
+        run_cmd([HG, "push-to-try", "-s", "try-cc", "-m", "Automation: Rust build check"])
+    else:
+        log("Skipping submit to try-comm-central...")
 
 
 def get_old_artifacts() -> dict:
@@ -172,6 +201,12 @@ def get_old_artifacts() -> dict:
                 with open(HOME_PATH / filename, "w") as fp:
                     fp.write(previous_data)
     return rv
+
+
+def get_conduit():
+    if OPERATING_MODE == "prod":
+        return ExtendedConduit(COMM_PATH)
+    return DevConduit(COMM_PATH)
 
 
 def main():
