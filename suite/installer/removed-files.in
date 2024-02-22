@@ -288,3 +288,8 @@
 @DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/chrome.manifest
 @DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/install.js
 @DIR_MACOS@extensions/langpack-sv-SE@chatzilla.mozilla.org/install.rdf
+
+# update-settings.ini has been removed on macOS.
+#ifdef XP_MACOSX
+@DIR_RESOURCES@update-settings.ini
+#endif

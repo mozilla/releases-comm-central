@@ -120,7 +120,10 @@
 @RESPATH@/application.ini
 @RESPATH@/platform.ini
 #ifdef MOZ_UPDATER
+# update-settings.ini has been removed on macOS.
+#ifndef XP_MACOSX
 @RESPATH@/update-settings.ini
+#endif
 #endif
 #ifndef MOZ_FOLD_LIBS
 @BINPATH@/@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
