@@ -23,7 +23,7 @@ import taskcluster
 
 SECRET_URL_BASE = "http://taskcluster/secrets/v1/secret/"
 NOTIFY_URL_BASE = "http://taskcluster/api/notify/v1/matrix"
-INDEX_URL_BASE = "http://taskcluster/api/index/v1/task"
+ARTIFACT_URL_BASE = "http://taskcluster/api/queue/v1/task/"
 
 TB_SHERIFF_MATRIX_ID = "!TWztIhgqLawNpRBZTC:mozilla.org"
 
