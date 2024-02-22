@@ -34,7 +34,7 @@ let cleanupFunctionRegistered = false;
  *   predefined server.
  * @property {string} hostname - The main hostname for this server.
  * @property {integer} port - The main port for this server.
- * @property {array of [string, integer]} aliases - Extra hostnames and ports
+ * @property {[string[]|integer[]]} aliases - Extra hostnames and ports
  *   for this server. Each entry in this array is an array of [hostname, port].
  */
 
@@ -76,8 +76,8 @@ async function createServer(
  * Create and start multiple servers.
  *
  * @param {object} testScope - The environment in which the test is running.
- * @param {ServerDef[]} defs - The server definitions.
- * @returns {array of IMAPServer|POP3Server|SMTPServer} - The created servers,
+ * @param {ServerDef[]} serverDefs - The server definitions.
+ * @returns {IMAPServer[]|POP3Server[]|SMTPServer[]} - The created servers,
  *   in the same order as the definitions given.
  */
 async function createServers(testScope, serverDefs) {
