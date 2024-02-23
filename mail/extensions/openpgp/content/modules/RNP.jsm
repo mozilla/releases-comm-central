@@ -1759,19 +1759,23 @@ var RNP = {
         output_to_memory
       );
 
-      RNPLib.rnp_ffi_set_pass_provider(
-        RNPLib.ffi,
-        RNPLib.rnp_password_cb_t(
-          isFirstTry
-            ? collect_key_info_password_cb
-            : use_remembered_password_cb,
-          this, // this value used while executing callback
-          false // callback return value if exception is thrown
-        ),
-        null
+      // Use a local variable for the temporary wrapper object,
+      // to ensure the JS engine will keep the object alive during
+      // the call to rnp_op_verify_execute.
+      let callbackKeepAlive = RNPLib.rnp_password_cb_t(
+        isFirstTry ? collect_key_info_password_cb : use_remembered_password_cb,
+        this, // this value used while executing callback
+        false // callback return value if exception is thrown
       );
+
+      RNPLib.rnp_ffi_set_pass_provider(RNPLib.ffi, callbackKeepAlive, null);
       result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
+
+      // This call resets the callback reference kept by RNP, which
+      // means we can clean up callbackKeepAlive and allow the
+      // referenced object to be cleaned up.
       RNPLib.setDefaultPasswordCB();
+      callbackKeepAlive = null;
 
       if (isFirstTry && result.exitCode != 0 && collected_fingerprint) {
         const key_handle = this.getKeyHandleByKeyIdOrFingerprint(
