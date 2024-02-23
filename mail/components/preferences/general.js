@@ -2931,7 +2931,7 @@ function addTagCallback(aName, aColor) {
   // Add to style sheet.
   const key = MailServices.tags.getKeyForTag(aName);
   const tagListBox = document.getElementById("tagList");
-  const item = tagListBox.querySelector(`richlistitem[value=${key}]`);
+  const item = tagListBox.querySelector(`richlistitem[value="${key}"]`);
   tagListBox.ensureElementIsVisible(item);
   tagListBox.selectItem(item);
   tagListBox.focus();
