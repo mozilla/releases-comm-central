@@ -22,9 +22,9 @@ EXTRA_JS_MODULES.activity += [
 ]
 
 EXTRA_JS_MODULES += [
-    "Activity.jsm",
-    "ActivityManager.jsm",
-    "ActivityManagerUI.jsm",
+    "Activity.sys.mjs",
+    "ActivityManager.sys.mjs",
+    "ActivityManagerUI.sys.mjs",
 ]
 
 JAR_MANIFESTS += ["jar.mn"]

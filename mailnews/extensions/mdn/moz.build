@@ -16,7 +16,7 @@ SOURCES += [
 ]
 
 EXTRA_JS_MODULES += [
-    "MDNService.jsm",
+    "MDNService.sys.mjs",
 ]
 
 XPCOM_MANIFESTS += [

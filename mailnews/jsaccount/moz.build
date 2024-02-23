@@ -9,7 +9,7 @@ DIRS += ["public", "src"]
 EXTRA_JS_MODULES.jsaccount += [
     "modules/JaBaseUrl.jsm",
     "modules/JSAccountUtils.jsm",
-    "test/unit/resources/TestJaMsgProtocolInfoComponent.jsm",
+    "test/unit/resources/TestJaMsgProtocolInfoComponent.sys.mjs",
 ]
 
 XPCOM_MANIFESTS += [

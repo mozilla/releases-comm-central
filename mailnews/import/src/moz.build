@@ -28,8 +28,8 @@ SOURCES += [
 
 if not CONFIG["MOZ_SUITE"]:
     EXTRA_JS_MODULES += [
-        "SeamonkeyImport.jsm",
-        "ThunderbirdImport.jsm",
+        "SeamonkeyImport.sys.mjs",
+        "ThunderbirdImport.sys.mjs",
     ]
 
     XPCOM_MANIFESTS += [

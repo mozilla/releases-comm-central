@@ -43,7 +43,7 @@ EXTRA_JS_MODULES += [
     "ImapFolderContentHandler.sys.mjs",
     "ImapIncomingServer.jsm",
     "ImapMessageService.jsm",
-    "ImapModuleLoader.jsm",
+    "ImapModuleLoader.sys.mjs",
     "ImapProtocolHandler.jsm",
     "ImapProtocolInfo.jsm",
     "ImapResponse.jsm",

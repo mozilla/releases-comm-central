@@ -23,7 +23,7 @@ if CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
 FINAL_LIBRARY = "mailcomps"
 
 EXTRA_JS_MODULES += [
-    "ThunderbirdProfileMigrator.jsm",
+    "ThunderbirdProfileMigrator.sys.mjs",
 ]
 
 XPCOM_MANIFESTS += [

@@ -6,7 +6,7 @@
 DIRS += ["public"]
 
 EXTRA_JS_MODULES += [
-    "CalDavCalendar.jsm",
+    "CalDavCalendar.sys.mjs",
     "CalDavProvider.jsm",
 ]
 

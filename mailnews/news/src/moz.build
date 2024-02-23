@@ -12,16 +12,16 @@ SOURCES += [
 ]
 
 EXTRA_JS_MODULES += [
-    "NewsAutoCompleteSearch.jsm",
+    "NewsAutoCompleteSearch.sys.mjs",
     "NewsDownloader.sys.mjs",
     "NntpChannel.jsm",
     "NntpClient.jsm",
-    "NntpIncomingServer.jsm",
-    "NntpMessageService.jsm",
+    "NntpIncomingServer.sys.mjs",
+    "NntpMessageService.sys.mjs",
     "NntpNewsGroup.jsm",
-    "NntpProtocolHandler.jsm",
-    "NntpProtocolInfo.jsm",
-    "NntpService.jsm",
+    "NntpProtocolHandler.sys.mjs",
+    "NntpProtocolInfo.sys.mjs",
+    "NntpService.sys.mjs",
     "NntpUtils.jsm",
 ]
 

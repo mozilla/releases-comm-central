@@ -36,10 +36,10 @@ if CONFIG["OS_ARCH"] == "Darwin":
     ]
 
 EXTRA_JS_MODULES += [
-    "AbAutoCompleteMyDomain.jsm",
-    "AbAutoCompleteSearch.jsm",
-    "AbLDAPAttributeMap.jsm",
-    "AbLDAPAutoCompleteSearch.jsm",
+    "AbAutoCompleteMyDomain.sys.mjs",
+    "AbAutoCompleteSearch.sys.mjs",
+    "AbLDAPAttributeMap.sys.mjs",
+    "AbLDAPAutoCompleteSearch.sys.mjs",
 ]
 
 FINAL_LIBRARY = "mail"

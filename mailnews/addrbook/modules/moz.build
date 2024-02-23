@@ -3,31 +3,31 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    "AddrBookCard.jsm",
+    "AddrBookCard.sys.mjs",
     "AddrBookDirectory.jsm",
     "AddrBookMailingList.jsm",
-    "AddrBookManager.jsm",
+    "AddrBookManager.sys.mjs",
     "AddrBookUtils.jsm",
-    "CardDAVDirectory.jsm",
+    "CardDAVDirectory.sys.mjs",
     "CardDAVUtils.jsm",
     "LDAPClient.jsm",
-    "LDAPConnection.jsm",
-    "LDAPDirectory.jsm",
-    "LDAPDirectoryQuery.jsm",
+    "LDAPConnection.sys.mjs",
+    "LDAPDirectory.sys.mjs",
+    "LDAPDirectoryQuery.sys.mjs",
     "LDAPListenerBase.jsm",
     "LDAPMessage.jsm",
-    "LDAPOperation.jsm",
-    "LDAPProtocolHandler.jsm",
-    "LDAPReplicationService.jsm",
-    "LDAPService.jsm",
-    "LDAPURLParser.jsm",
+    "LDAPOperation.sys.mjs",
+    "LDAPProtocolHandler.sys.mjs",
+    "LDAPReplicationService.sys.mjs",
+    "LDAPService.sys.mjs",
+    "LDAPURLParser.sys.mjs",
     "QueryStringToExpression.jsm",
-    "SQLiteDirectory.jsm",
-    "VCardUtils.jsm",
+    "SQLiteDirectory.sys.mjs",
+    "VCardUtils.sys.mjs",
 ]
 
 if CONFIG["MOZ_PREF_EXTENSIONS"]:
-    EXTRA_JS_MODULES += ["LDAPSyncQuery.jsm"]
+    EXTRA_JS_MODULES += ["LDAPSyncQuery.sys.mjs"]
 
 XPCOM_MANIFESTS += [
     "components.conf",

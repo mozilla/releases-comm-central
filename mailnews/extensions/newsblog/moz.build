@@ -8,7 +8,7 @@ EXTRA_JS_MODULES += [
     "FeedItem.jsm",
     "FeedParser.jsm",
     "FeedUtils.jsm",
-    "NewsBlog.jsm",
+    "NewsBlog.sys.mjs",
 ]
 
 XPCOM_MANIFESTS += [

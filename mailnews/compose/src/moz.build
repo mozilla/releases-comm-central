@@ -43,16 +43,16 @@ if CONFIG["CC_TYPE"] == "clang-cl":
     CXXFLAGS += ["-Wno-switch"]
 
 EXTRA_JS_MODULES += [
-    "MailtoProtocolHandler.jsm",
-    "MessageSend.jsm",
+    "MailtoProtocolHandler.sys.mjs",
+    "MessageSend.sys.mjs",
     "MimeEncoder.jsm",
     "MimeMessage.jsm",
     "MimeMessageUtils.jsm",
     "MimePart.jsm",
     "SmtpClient.jsm",
-    "SMTPProtocolHandler.jsm",
-    "SmtpServer.jsm",
-    "SmtpService.jsm",
+    "SMTPProtocolHandler.sys.mjs",
+    "SmtpServer.sys.mjs",
+    "SmtpService.sys.mjs",
 ]
 
 XPCOM_MANIFESTS += [
