@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
+const { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
 const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 add_setup(async function () {

@@ -11,9 +11,11 @@ var { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
 
-var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
-var { AddrBookCard } = ChromeUtils.import(
-  "resource:///modules/AddrBookCard.jsm"
+var { VCardUtils } = ChromeUtils.importESModule(
+  "resource:///modules/VCardUtils.sys.mjs"
+);
+var { AddrBookCard } = ChromeUtils.importESModule(
+  "resource:///modules/AddrBookCard.sys.mjs"
 );
 
 /** @implements {nsIExternalProtocolService} */

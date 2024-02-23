@@ -6,8 +6,8 @@
  * Tests CardDAV properties dialog.
  */
 
-const { CardDAVDirectory } = ChromeUtils.import(
-  "resource:///modules/CardDAVDirectory.jsm"
+const { CardDAVDirectory } = ChromeUtils.importESModule(
+  "resource:///modules/CardDAVDirectory.sys.mjs"
 );
 const { CardDAVServer } = ChromeUtils.import(
   "resource://testing-common/CardDAVServer.jsm"

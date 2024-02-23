@@ -8,7 +8,9 @@
  * firstName/lastName getters.
  */
 
-var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
+var { VCardUtils } = ChromeUtils.importESModule(
+  "resource:///modules/VCardUtils.sys.mjs"
+);
 
 add_task(async function testMultiValueLast() {
   // Multiple last names.

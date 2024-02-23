@@ -8,8 +8,8 @@ var { splitRecurrenceRules } = ChromeUtils.import(
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
 });
 
 var gIsReadOnly = false;

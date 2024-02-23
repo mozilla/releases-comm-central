@@ -5,7 +5,9 @@
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(lazy, "CalEvent", "resource:///modules/CalEvent.jsm");
+ChromeUtils.defineESModuleGetters(lazy, {
+  CalEvent: "resource:///modules/CalEvent.sys.mjs",
+});
 
 function peekAlarmWindow() {
   return Services.wm.getMostRecentWindow("Calendar:AlarmWindow");

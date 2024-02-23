@@ -5,9 +5,9 @@
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalAttachment: "resource:///modules/CalAttachment.jsm",
-  CalEvent: "resource:///modules/CalEvent.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalAttachment: "resource:///modules/CalAttachment.sys.mjs",
+  CalEvent: "resource:///modules/CalEvent.sys.mjs",
 });
 
 function run_test() {

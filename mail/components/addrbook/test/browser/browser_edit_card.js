@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
-var { AddrBookCard } = ChromeUtils.import(
-  "resource:///modules/AddrBookCard.jsm"
+var { VCardUtils } = ChromeUtils.importESModule(
+  "resource:///modules/VCardUtils.sys.mjs"
+);
+var { AddrBookCard } = ChromeUtils.importESModule(
+  "resource:///modules/AddrBookCard.sys.mjs"
 );
 
 requestLongerTimeout(3);

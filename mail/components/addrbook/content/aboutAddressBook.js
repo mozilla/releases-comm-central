@@ -22,24 +22,24 @@ ChromeUtils.defineLazyGetter(this, "ABQueryUtils", function () {
 });
 
 ChromeUtils.defineESModuleGetters(this, {
+  AddrBookCard: "resource:///modules/AddrBookCard.sys.mjs",
+  CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
+  CardDAVDirectory: "resource:///modules/CardDAVDirectory.sys.mjs",
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
-  cal: "resource:///modules/calendar/calUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
+  VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
+  VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
-  CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalMetronome: "resource:///modules/CalMetronome.jsm",
-  CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
   GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.jsm",
   ICAL: "resource:///modules/calendar/Ical.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
-  VCardProperties: "resource:///modules/VCardUtils.jsm",
-  VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
 });
 ChromeUtils.defineLazyGetter(this, "SubDialog", function () {
   const { SubDialogManager } = ChromeUtils.importESModule(

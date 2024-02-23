@@ -9,8 +9,8 @@ var { cancelItemDialog, formatTime, saveAndCloseItemDialog, setData } = ChromeUt
 );
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalEvent: "resource:///modules/CalEvent.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.sys.mjs",
 });
 
 const EVENTTITLE = "Event";

@@ -8,12 +8,12 @@ var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalAlarm: "resource:///modules/CalAlarm.jsm",
-  CalAttachment: "resource:///modules/CalAttachment.jsm",
-  CalAttendee: "resource:///modules/CalAttendee.jsm",
-  CalEvent: "resource:///modules/CalEvent.jsm",
-  CalTodo: "resource:///modules/CalTodo.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
+  CalAttachment: "resource:///modules/CalAttachment.sys.mjs",
+  CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
+  CalEvent: "resource:///modules/CalEvent.sys.mjs",
+  CalTodo: "resource:///modules/CalTodo.sys.mjs",
 });
 
 function run_test() {

@@ -9,10 +9,10 @@ var { formatDate, formatTime } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalDateTime: "resource:///modules/CalDateTime.jsm",
-  CalEvent: "resource:///modules/CalEvent.jsm",
-  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
+  CalEvent: "resource:///modules/CalEvent.sys.mjs",
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
 });
 
 const calendar = CalendarTestUtils.createCalendar();

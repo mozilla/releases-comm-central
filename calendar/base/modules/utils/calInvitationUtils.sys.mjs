@@ -10,11 +10,9 @@ var { recurrenceRule2String } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "CalRecurrenceDate",
-  "resource:///modules/CalRecurrenceDate.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  CalRecurrenceDate: "resource:///modules/CalRecurrenceDate.sys.mjs",
+});
 ChromeUtils.defineModuleGetter(lazy, "MailStringUtils", "resource:///modules/MailStringUtils.jsm");
 
 export var invitation = {

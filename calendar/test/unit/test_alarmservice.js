@@ -5,10 +5,10 @@
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 var { TestUtils } = ChromeUtils.importESModule("resource://testing-common/TestUtils.sys.mjs");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalAlarm: "resource:///modules/CalAlarm.jsm",
-  CalEvent: "resource:///modules/CalEvent.jsm",
-  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
+  CalEvent: "resource:///modules/CalEvent.sys.mjs",
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
 });
 
 var EXPECT_NONE = 0;

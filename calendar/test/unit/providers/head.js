@@ -6,7 +6,7 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
-var { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
+var { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
 var { updateAppInfo } = ChromeUtils.importESModule("resource://testing-common/AppInfo.sys.mjs");
 updateAppInfo();
 

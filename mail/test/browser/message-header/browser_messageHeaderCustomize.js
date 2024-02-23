@@ -11,8 +11,8 @@ var { be_in_folder, get_about_message, select_click_row } = ChromeUtils.import(
 
 const aboutMessage = get_about_message();
 
-var { MailTelemetryForTests } = ChromeUtils.import(
-  "resource:///modules/MailGlue.jsm"
+var { MailTelemetryForTests } = ChromeUtils.importESModule(
+  "resource:///modules/MailGlue.sys.mjs"
 );
 var { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"

@@ -4,7 +4,7 @@
 
 /* globals openAttendeesWindow, closeAttendeesWindow, findAndEditMatchingRow */
 
-const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
+const { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
 
 add_setup(async function () {
   await CalendarTestUtils.setCalendarView(window, "day");

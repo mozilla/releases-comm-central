@@ -5,8 +5,8 @@
  * Test telemetry related to address book.
  */
 
-const { MailTelemetryForTests } = ChromeUtils.import(
-  "resource:///modules/MailGlue.jsm"
+const { MailTelemetryForTests } = ChromeUtils.importESModule(
+  "resource:///modules/MailGlue.sys.mjs"
 );
 const { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"

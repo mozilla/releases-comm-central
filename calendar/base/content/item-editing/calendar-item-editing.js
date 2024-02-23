@@ -11,12 +11,15 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 var { CalTransactionManager } = ChromeUtils.import("resource:///modules/CalTransactionManager.jsm");
 
+ChromeUtils.defineESModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.sys.mjs",
+  CalTodo: "resource:///modules/CalTodo.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAddTransaction: "resource:///modules/CalTransactionManager.jsm",
   CalDeleteTransaction: "resource:///modules/CalTransactionManager.jsm",
-  CalEvent: "resource:///modules/CalEvent.jsm",
   CalModifyTransaction: "resource:///modules/CalTransactionManager.jsm",
-  CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 /* exported modifyEventWithDialog, undo, redo, setContextPartstat */

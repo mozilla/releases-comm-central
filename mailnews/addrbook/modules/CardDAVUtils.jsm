@@ -15,13 +15,15 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  CardDAVDirectory: "resource:///modules/CardDAVDirectory.sys.mjs",
+
   ContextualIdentityService:
     "resource://gre/modules/ContextualIdentityService.sys.mjs",
+
+  MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
-  MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.jsm",
   OAuth2: "resource:///modules/OAuth2.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
 });

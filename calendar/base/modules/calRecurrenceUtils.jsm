@@ -7,13 +7,12 @@
  */
 
 var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 const lazy = {};
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CalRecurrenceDate: "resource:///modules/CalRecurrenceDate.jsm",
-  CalRecurrenceRule: "resource:///modules/CalRecurrenceRule.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  CalRecurrenceDate: "resource:///modules/CalRecurrenceDate.sys.mjs",
+  CalRecurrenceRule: "resource:///modules/CalRecurrenceRule.sys.mjs",
 });
 
 const EXPORTED_SYMBOLS = [

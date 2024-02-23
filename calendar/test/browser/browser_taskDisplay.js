@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
-  CalTodo: "resource:///modules/CalTodo.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
+  CalTodo: "resource:///modules/CalTodo.sys.mjs",
 });
 
 var calendar = CalendarTestUtils.createCalendar();

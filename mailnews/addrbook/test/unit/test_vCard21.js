@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
+const { VCardUtils } = ChromeUtils.importESModule(
+  "resource:///modules/VCardUtils.sys.mjs"
+);
 
 add_task(async () => {
   function check(vCardLines, expectedProps) {

@@ -7,8 +7,8 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 var { MailStringUtils } = ChromeUtils.import("resource:///modules/MailStringUtils.jsm");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalAttendee: "resource:///modules/CalAttendee.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
 });
 
 function run_test() {

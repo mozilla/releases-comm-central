@@ -9,14 +9,14 @@
 // Each type of card is saved and checked twice: once with its own UID and
 // again with a new UID. This ensures that UIDs are appropriately stored.
 
-var { AddrBookCard } = ChromeUtils.import(
-  "resource:///modules/AddrBookCard.jsm"
+var { AddrBookCard } = ChromeUtils.importESModule(
+  "resource:///modules/AddrBookCard.sys.mjs"
 );
-var { SQLiteDirectory } = ChromeUtils.import(
-  "resource:///modules/SQLiteDirectory.jsm"
+var { SQLiteDirectory } = ChromeUtils.importESModule(
+  "resource:///modules/SQLiteDirectory.sys.mjs"
 );
-var { VCardPropertyEntry } = ChromeUtils.import(
-  "resource:///modules/VCardUtils.jsm"
+var { VCardPropertyEntry } = ChromeUtils.importESModule(
+  "resource:///modules/VCardUtils.sys.mjs"
 );
 
 Services.prefs.setStringPref(

@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { CalItipEmailTransport } = ChromeUtils.import("resource:///modules/CalItipEmailTransport.jsm");
+var { CalItipEmailTransport } = ChromeUtils.importESModule(
+  "resource:///modules/CalItipEmailTransport.sys.mjs"
+);
 
 function itipItemForTest(title, seq) {
   const itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);

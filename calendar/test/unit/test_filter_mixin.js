@@ -7,9 +7,11 @@ const { CalendarTestUtils } = ChromeUtils.import(
 );
 const { TestUtils } = ChromeUtils.importESModule("resource://testing-common/TestUtils.sys.mjs");
 
-const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
-const { CalRecurrenceInfo } = ChromeUtils.import("resource:///modules/CalRecurrenceInfo.jsm");
-const { CalTodo } = ChromeUtils.import("resource:///modules/CalTodo.jsm");
+const { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
+const { CalRecurrenceInfo } = ChromeUtils.importESModule(
+  "resource:///modules/CalRecurrenceInfo.sys.mjs"
+);
+const { CalTodo } = ChromeUtils.importESModule("resource:///modules/CalTodo.sys.mjs");
 
 /* globals CalendarFilteredViewMixin, CalReadableStreamFactory */
 Services.scriptloader.loadSubScript("chrome://calendar/content/widgets/calendar-filter.js");

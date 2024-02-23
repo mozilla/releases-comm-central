@@ -10,9 +10,9 @@ const { mailTestUtils } = ChromeUtils.import(
 );
 const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
-  CalTodo: "resource:///modules/CalTodo.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
+  CalTodo: "resource:///modules/CalTodo.sys.mjs",
 });
 
 const calendar = CalendarTestUtils.createCalendar("Task Delete Test", "memory");

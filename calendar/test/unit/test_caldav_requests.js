@@ -28,8 +28,8 @@ var { CalDavXmlns } = ChromeUtils.import("resource:///modules/caldav/CalDavUtils
 var { Preferences } = ChromeUtils.importESModule("resource://gre/modules/Preferences.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalEvent: "resource:///modules/CalEvent.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.sys.mjs",
 });
 
 class LowerMap extends Map {

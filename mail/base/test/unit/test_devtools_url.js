@@ -4,7 +4,9 @@
  * MailGlue that observes command-line-startup will not be working properly.
  */
 
-var { MailGlue } = ChromeUtils.import("resource:///modules/MailGlue.jsm");
+var { MailGlue } = ChromeUtils.importESModule(
+  "resource:///modules/MailGlue.sys.mjs"
+);
 
 add_task(async () => {
   const expectedURL = `"${MailGlue.BROWSER_TOOLBOX_WINDOW_URL}"`;

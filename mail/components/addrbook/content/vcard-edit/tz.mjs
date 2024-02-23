@@ -4,13 +4,9 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "VCardPropertyEntry",
-  "resource:///modules/VCardUtils.jsm"
-);
 
 /**
  * @implements {VCardPropertyEntryView}

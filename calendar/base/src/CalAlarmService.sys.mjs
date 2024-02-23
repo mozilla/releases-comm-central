@@ -6,7 +6,9 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(lazy, "CalDateTime", "resource:///modules/CalDateTime.jsm");
+ChromeUtils.defineESModuleGetters(lazy, {
+  CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
+});
 
 var kHoursBetweenUpdates = 6;
 

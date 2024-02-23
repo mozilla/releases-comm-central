@@ -12,8 +12,8 @@
 "use strict";
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { CalItipDefaultEmailTransport } = ChromeUtils.import(
-  "resource:///modules/CalItipEmailTransport.jsm"
+var { CalItipDefaultEmailTransport } = ChromeUtils.importESModule(
+  "resource:///modules/CalItipEmailTransport.sys.mjs"
 );
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 

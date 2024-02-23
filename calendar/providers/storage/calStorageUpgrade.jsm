@@ -79,15 +79,14 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 var { CAL_ITEM_FLAG, textToDate, getTimezone, newDateTime } = ChromeUtils.import(
   "resource:///modules/calendar/calStorageHelpers.jsm"
 );
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 const lazy = {};
 
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CalAlarm: "resource:///modules/CalAlarm.jsm",
-  CalAttachment: "resource:///modules/CalAttachment.jsm",
-  CalAttendee: "resource:///modules/CalAttendee.jsm",
-  CalRelation: "resource:///modules/CalRelation.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
+  CalAttachment: "resource:///modules/CalAttachment.sys.mjs",
+  CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
+  CalRelation: "resource:///modules/CalRelation.sys.mjs",
 });
 
 // The current database version. Be sure to increment this when you create a new

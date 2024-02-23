@@ -9,6 +9,9 @@ const lazy = {};
 import { SQLiteDirectory } from "resource:///modules/SQLiteDirectory.sys.mjs";
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
+  VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
+  VCardUtils: "resource:///modules/VCardUtils.sys.mjs",
   clearInterval: "resource://gre/modules/Timer.sys.mjs",
   setInterval: "resource://gre/modules/Timer.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
@@ -17,10 +20,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
   NotificationCallbacks: "resource:///modules/CardDAVUtils.jsm",
-  OAuth2Module: "resource:///modules/OAuth2Module.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
-  VCardProperties: "resource:///modules/VCardUtils.jsm",
-  VCardUtils: "resource:///modules/VCardUtils.jsm",
 });
 
 const PREFIX_BINDINGS = {

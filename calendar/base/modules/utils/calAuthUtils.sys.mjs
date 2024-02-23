@@ -7,19 +7,14 @@
  */
 
 // NOTE: This module should not be loaded directly, it is available when including
-// calUtils.jsm under the cal.auth namespace.
-
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+// calUtils.sys.mjs under the cal.auth namespace.
 
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.jsm",
 });
 
 /**

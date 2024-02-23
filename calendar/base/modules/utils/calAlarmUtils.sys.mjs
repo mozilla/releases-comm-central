@@ -9,15 +9,11 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.alarm namespace.
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
-});
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CalAlarm: "resource:///modules/CalAlarm.jsm",
 });
 
 export var alarms = {

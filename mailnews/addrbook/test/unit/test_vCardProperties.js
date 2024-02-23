@@ -4,11 +4,11 @@
 
 /* Tests of VCardProperties and VCardPropertyEntry. */
 
-var { AddrBookCard } = ChromeUtils.import(
-  "resource:///modules/AddrBookCard.jsm"
+var { AddrBookCard } = ChromeUtils.importESModule(
+  "resource:///modules/AddrBookCard.sys.mjs"
 );
-var { VCardProperties, VCardPropertyEntry } = ChromeUtils.import(
-  "resource:///modules/VCardUtils.jsm"
+var { VCardProperties, VCardPropertyEntry } = ChromeUtils.importESModule(
+  "resource:///modules/VCardUtils.sys.mjs"
 );
 
 function propertyEqual(actual, expected, message) {

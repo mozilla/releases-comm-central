@@ -8,13 +8,17 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 const lazy = {};
+
+ChromeUtils.defineESModuleGetters(lazy, {
+  AddrBookCard: "resource:///modules/AddrBookCard.sys.mjs",
+  BANISHED_PROPERTIES: "resource:///modules/VCardUtils.sys.mjs",
+  VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   AddrBookMailingList: "resource:///modules/AddrBookMailingList.jsm",
-  BANISHED_PROPERTIES: "resource:///modules/VCardUtils.jsm",
   compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
   newUID: "resource:///modules/AddrBookUtils.jsm",
-  VCardProperties: "resource:///modules/VCardUtils.jsm",
 });
 
 /**

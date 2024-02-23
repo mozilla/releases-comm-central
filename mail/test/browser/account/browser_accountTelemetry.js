@@ -13,8 +13,8 @@ const { IMServices } = ChromeUtils.importESModule(
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { MailTelemetryForTests } = ChromeUtils.import(
-  "resource:///modules/MailGlue.jsm"
+const { MailTelemetryForTests } = ChromeUtils.importESModule(
+  "resource:///modules/MailGlue.sys.mjs"
 );
 
 const { add_message_to_folder, msgGen, get_special_folder, create_folder } =

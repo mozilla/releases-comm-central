@@ -3,11 +3,9 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "VCardPropertyEntry",
-  "resource:///modules/VCardUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
+});
 
 /**
  * @implements {VCardPropertyEntryView}

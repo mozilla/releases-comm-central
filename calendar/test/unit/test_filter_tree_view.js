@@ -7,9 +7,13 @@ const { CalendarTestUtils } = ChromeUtils.import(
 );
 const { TestUtils } = ChromeUtils.importESModule("resource://testing-common/TestUtils.sys.mjs");
 
-const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
-const { CalRecurrenceInfo } = ChromeUtils.import("resource:///modules/CalRecurrenceInfo.jsm");
-const { CalRecurrenceRule } = ChromeUtils.import("resource:///modules/CalRecurrenceRule.jsm");
+const { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
+const { CalRecurrenceInfo } = ChromeUtils.importESModule(
+  "resource:///modules/CalRecurrenceInfo.sys.mjs"
+);
+const { CalRecurrenceRule } = ChromeUtils.importESModule(
+  "resource:///modules/CalRecurrenceRule.sys.mjs"
+);
 
 const { TreeSelection } = ChromeUtils.importESModule(
   "chrome://messenger/content/tree-selection.mjs"

@@ -11,8 +11,11 @@
 
 var { mailTestUtils } = ChromeUtils.import("resource://testing-common/mailnews/MailTestUtils.jsm");
 
+ChromeUtils.defineESModuleGetters(this, {
+  CalTodo: "resource:///modules/CalTodo.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
-  CalTodo: "resource:///modules/CalTodo.jsm",
   CalTransactionManager: "resource:///modules/CalTransactionManager.jsm",
 });
 

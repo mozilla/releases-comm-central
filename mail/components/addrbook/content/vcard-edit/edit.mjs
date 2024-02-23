@@ -22,16 +22,10 @@ import { VCardTZComponent } from "./tz.mjs";
 import { VCardURLComponent } from "./url.mjs";
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "VCardProperties",
-  "resource:///modules/VCardUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "VCardPropertyEntry",
-  "resource:///modules/VCardUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
+  VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
+});
 
 class VCardEdit extends HTMLElement {
   constructor() {

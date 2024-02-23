@@ -3,11 +3,11 @@
  * Test suite for basic nsIAbCard functions.
  */
 
-const { AddrBookCard } = ChromeUtils.import(
-  "resource:///modules/AddrBookCard.jsm"
+const { AddrBookCard } = ChromeUtils.importESModule(
+  "resource:///modules/AddrBookCard.sys.mjs"
 );
-const { VCardPropertyEntry } = ChromeUtils.import(
-  "resource:///modules/VCardUtils.jsm"
+const { VCardPropertyEntry } = ChromeUtils.importESModule(
+  "resource:///modules/VCardUtils.sys.mjs"
 );
 
 // Intersperse these with UTF-8 values to check we handle them correctly.

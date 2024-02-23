@@ -21,7 +21,7 @@ var { sendString, synthesizeKey, synthesizeMouseAtCenter } = ChromeUtils.import(
 );
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { CalDateTime } = ChromeUtils.import("resource:///modules/CalDateTime.jsm");
+var { CalDateTime } = ChromeUtils.importESModule("resource:///modules/CalDateTime.sys.mjs");
 var { setTimeout } = ChromeUtils.importESModule("resource://gre/modules/Timer.sys.mjs");
 
 function sleep(window, time = 0) {

@@ -5,7 +5,7 @@
 // Creates calendars in various configurations (current and legacy) and performs
 // requests in each of them to prove that OAuth2 authentication is working as expected.
 
-var { CalDavCalendar } = ChromeUtils.import("resource:///modules/CalDavCalendar.jsm");
+var { CalDavCalendar } = ChromeUtils.importESModule("resource:///modules/CalDavCalendar.sys.mjs");
 var { CalDavGenericRequest } = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
 
 var LoginInfo = Components.Constructor(

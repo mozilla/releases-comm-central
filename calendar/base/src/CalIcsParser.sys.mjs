@@ -4,17 +4,13 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { NetUtil } from "resource://gre/modules/NetUtil.sys.mjs";
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   CalEvent: "resource:///modules/CalEvent.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CalTodo: "resource:///modules/CalTodo.jsm",
-  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
+  CalTodo: "resource:///modules/CalTodo.sys.mjs",
 });
 
 export function CalIcsParser() {

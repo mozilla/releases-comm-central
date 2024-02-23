@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-const { CalAttendee } = ChromeUtils.import("resource:///modules/CalAttendee.jsm");
-var { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
+const { CalAttendee } = ChromeUtils.importESModule("resource:///modules/CalAttendee.sys.mjs");
+var { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
 var { CalItipMessageSender } = ChromeUtils.import("resource:///modules/CalItipMessageSender.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 

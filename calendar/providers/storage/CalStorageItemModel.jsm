@@ -15,18 +15,16 @@ const { CalStorageModelBase } = ChromeUtils.import(
   "resource:///modules/calendar/CalStorageModelBase.jsm"
 );
 
-const { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-
 const lazy = {};
 
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CalAlarm: "resource:///modules/CalAlarm.jsm",
-  CalAttachment: "resource:///modules/CalAttachment.jsm",
-  CalAttendee: "resource:///modules/CalAttendee.jsm",
-  CalEvent: "resource:///modules/CalEvent.jsm",
-  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
-  CalRelation: "resource:///modules/CalRelation.jsm",
-  CalTodo: "resource:///modules/CalTodo.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
+  CalAttachment: "resource:///modules/CalAttachment.sys.mjs",
+  CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
+  CalEvent: "resource:///modules/CalEvent.sys.mjs",
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
+  CalRelation: "resource:///modules/CalRelation.sys.mjs",
+  CalTodo: "resource:///modules/CalTodo.sys.mjs",
 });
 
 const cICL = Ci.calIChangeLog;
@@ -44,7 +42,7 @@ let startupPromise;
 if (Services.appinfo.name == "xpcshell") {
   startupPromise = Promise.resolve();
 } else {
-  const { MailGlue } = ChromeUtils.import("resource:///modules/MailGlue.jsm");
+  const { MailGlue } = ChromeUtils.importESModule("resource:///modules/MailGlue.sys.mjs");
   startupPromise = MailGlue.afterStartUp;
 }
 

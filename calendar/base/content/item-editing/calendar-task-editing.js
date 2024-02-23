@@ -10,8 +10,8 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalTodo: "resource:///modules/CalTodo.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalTodo: "resource:///modules/CalTodo.sys.mjs",
 });
 
 /**

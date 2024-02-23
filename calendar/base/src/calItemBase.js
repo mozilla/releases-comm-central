@@ -5,15 +5,15 @@
 /* exported makeMemberAttr, makeMemberAttrProperty */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { CalAttendee } = ChromeUtils.import("resource:///modules/CalAttendee.jsm");
-var { CalRelation } = ChromeUtils.import("resource:///modules/CalRelation.jsm");
-var { CalAttachment } = ChromeUtils.import("resource:///modules/CalAttachment.jsm");
+var { CalAttendee } = ChromeUtils.importESModule("resource:///modules/CalAttendee.sys.mjs");
+var { CalRelation } = ChromeUtils.importESModule("resource:///modules/CalRelation.sys.mjs");
+var { CalAttachment } = ChromeUtils.importESModule("resource:///modules/CalAttachment.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalAlarm: "resource:///modules/CalAlarm.jsm",
-  CalDateTime: "resource:///modules/CalDateTime.jsm",
-  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
+  CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
 });
 
 XPCOMUtils.defineLazyServiceGetter(

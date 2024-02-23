@@ -5,11 +5,9 @@
 import { vCardIdGen } from "./id-gen.mjs";
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "VCardPropertyEntry",
-  "resource:///modules/VCardUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
+});
 
 const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 

@@ -8,7 +8,9 @@ var { ExtensionParent } = ChromeUtils.importESModule(
 );
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
-ChromeUtils.defineModuleGetter(this, "MsgAuthPrompt", "resource:///modules/MsgAsyncPrompter.jsm");
+ChromeUtils.defineESModuleGetters(this, {
+  MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.sys.mjs",
+});
 
 /* exported checkRequired, fillLocationPlaceholder, selectProvider, updateNoCredentials, */
 

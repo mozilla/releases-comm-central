@@ -10,10 +10,10 @@ var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalAttendee: "resource:///modules/CalAttendee.jsm",
-  CalEvent: "resource:///modules/CalEvent.jsm",
-  CalItipEmailTransport: "resource:///modules/CalItipEmailTransport.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
+  CalEvent: "resource:///modules/CalEvent.sys.mjs",
+  CalItipEmailTransport: "resource:///modules/CalItipEmailTransport.sys.mjs",
 });
 
 // tests for calItipUtils.jsm

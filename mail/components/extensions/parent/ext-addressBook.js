@@ -15,13 +15,16 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 XPCOMUtils.defineLazyGlobalGetters(this, ["fetch", "File", "FileReader"]);
 
+ChromeUtils.defineESModuleGetters(this, {
+  AddrBookCard: "resource:///modules/AddrBookCard.sys.mjs",
+  BANISHED_PROPERTIES: "resource:///modules/VCardUtils.sys.mjs",
+  VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
+  VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
+  VCardUtils: "resource:///modules/VCardUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   newUID: "resource:///modules/AddrBookUtils.jsm",
-  AddrBookCard: "resource:///modules/AddrBookCard.jsm",
-  BANISHED_PROPERTIES: "resource:///modules/VCardUtils.jsm",
-  VCardProperties: "resource:///modules/VCardUtils.jsm",
-  VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
-  VCardUtils: "resource:///modules/VCardUtils.jsm",
 });
 
 // nsIAbCard.idl contains a list of properties that Thunderbird uses. Extensions are not

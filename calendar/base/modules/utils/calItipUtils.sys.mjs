@@ -17,14 +17,14 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CalAttendee: "resource:///modules/CalAttendee.jsm",
-  CalRelation: "resource:///modules/CalRelation.jsm",
-  CalItipDefaultEmailTransport: "resource:///modules/CalItipEmailTransport.jsm",
   CalItipMessageSender: "resource:///modules/CalItipMessageSender.jsm",
   CalItipOutgoingMessage: "resource:///modules/CalItipOutgoingMessage.jsm",
 });
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
+  CalItipDefaultEmailTransport: "resource:///modules/CalItipEmailTransport.sys.mjs",
+  CalRelation: "resource:///modules/CalRelation.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
 

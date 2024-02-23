@@ -6,11 +6,14 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  BANISHED_PROPERTIES: "resource:///modules/VCardUtils.sys.mjs",
+  VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
+  VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  BANISHED_PROPERTIES: "resource:///modules/VCardUtils.jsm",
   newUID: "resource:///modules/AddrBookUtils.jsm",
-  VCardProperties: "resource:///modules/VCardUtils.jsm",
-  VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
 });
 
 /**

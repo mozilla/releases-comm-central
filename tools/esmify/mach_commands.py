@@ -55,6 +55,7 @@ excluded_from_imports_prefix = list(
             "chat/chat-prefs.js",
             "mail/app/profile/all-thunderbird.js",
             "mail/branding/thunderbird/pref/thunderbird-branding.js",
+            "mail/branding/tb_beta/pref/thunderbird-branding.js",
             "mail/components/compose/composer.js",
             "mail/components/enterprisepolicies/schemas/schema.sys.mjs",
             "mail/locales/en-US/all-l10n.js",

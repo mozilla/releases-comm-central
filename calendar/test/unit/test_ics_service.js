@@ -4,10 +4,10 @@
 
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalAttachment: "resource:///modules/CalAttachment.jsm",
-  CalAttendee: "resource:///modules/CalAttendee.jsm",
-  CalRelation: "resource:///modules/CalRelation.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CalAttachment: "resource:///modules/CalAttachment.sys.mjs",
+  CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
+  CalRelation: "resource:///modules/CalRelation.sys.mjs",
 });
 
 function run_test() {

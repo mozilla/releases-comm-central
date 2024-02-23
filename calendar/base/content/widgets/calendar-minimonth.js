@@ -11,7 +11,9 @@
   const { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
   const lazy = {};
-  ChromeUtils.defineModuleGetter(lazy, "CalDateTime", "resource:///modules/CalDateTime.jsm");
+  ChromeUtils.defineESModuleGetters(lazy, {
+    CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
+  });
 
   const dayFormatter = new Services.intl.DateTimeFormat(undefined, { day: "numeric" });
   const dateFormatter = new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" });

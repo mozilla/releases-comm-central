@@ -15,11 +15,11 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  CalPeriod: "resource:///modules/CalPeriod.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CalPeriod: "resource:///modules/CalPeriod.jsm",
   CalReadableStreamFactory: "resource:///modules/CalReadableStreamFactory.jsm",
 });
 
@@ -894,8 +894,8 @@ ChromeUtils.defineLazyGetter(provider, "providers", () => {
 
 // This is the transport returned by getImipTransport().
 ChromeUtils.defineLazyGetter(provider, "defaultImipTransport", () => {
-  const { CalItipEmailTransport } = ChromeUtils.import(
-    "resource:///modules/CalItipEmailTransport.jsm"
+  const { CalItipEmailTransport } = ChromeUtils.importESModule(
+    "resource:///modules/CalItipEmailTransport.sys.mjs"
   );
   return CalItipEmailTransport.createInstance();
 });

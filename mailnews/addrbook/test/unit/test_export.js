@@ -4,8 +4,8 @@
 
 "use strict";
 
-var { AddrBookCard } = ChromeUtils.import(
-  "resource:///modules/AddrBookCard.jsm"
+var { AddrBookCard } = ChromeUtils.importESModule(
+  "resource:///modules/AddrBookCard.sys.mjs"
 );
 var { AddrBookUtils } = ChromeUtils.import(
   "resource:///modules/AddrBookUtils.jsm"
@@ -16,8 +16,8 @@ var { AppConstants } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { VCardPropertyEntry } = ChromeUtils.import(
-  "resource:///modules/VCardUtils.jsm"
+var { VCardPropertyEntry } = ChromeUtils.importESModule(
+  "resource:///modules/VCardUtils.sys.mjs"
 );
 
 async function subtest(cardConstructor) {

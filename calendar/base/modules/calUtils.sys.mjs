@@ -8,11 +8,11 @@ const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 ICAL.design.strict = false;
 
 const lazy = {};
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CalDateTime: "resource:///modules/CalDateTime.jsm",
-  CalDuration: "resource:///modules/CalDuration.jsm",
-  CalRecurrenceDate: "resource:///modules/CalRecurrenceDate.jsm",
-  CalRecurrenceRule: "resource:///modules/CalRecurrenceRule.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
+  CalDuration: "resource:///modules/CalDuration.sys.mjs",
+  CalRecurrenceDate: "resource:///modules/CalRecurrenceDate.sys.mjs",
+  CalRecurrenceRule: "resource:///modules/CalRecurrenceRule.sys.mjs",
 });
 
 // The calendar console instance

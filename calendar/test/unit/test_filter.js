@@ -8,8 +8,8 @@ const { CalendarTestUtils } = ChromeUtils.import(
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
-const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
-const { CalTodo } = ChromeUtils.import("resource:///modules/CalTodo.jsm");
+const { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
+const { CalTodo } = ChromeUtils.importESModule("resource:///modules/CalTodo.sys.mjs");
 
 /* globals calFilter, CalReadableStreamFactory */
 Services.scriptloader.loadSubScript("chrome://calendar/content/widgets/calendar-filter.js");

@@ -9,8 +9,11 @@
  * manipulating events.
  */
 
+ChromeUtils.defineESModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
-  CalEvent: "resource:///modules/CalEvent.jsm",
   CalTransactionManager: "resource:///modules/CalTransactionManager.jsm",
 });
 

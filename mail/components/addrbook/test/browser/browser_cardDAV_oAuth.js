@@ -6,8 +6,8 @@
 // performs requests in each of them to prove that OAuth2 authentication is
 // working as expected.
 
-var { CardDAVDirectory } = ChromeUtils.import(
-  "resource:///modules/CardDAVDirectory.jsm"
+var { CardDAVDirectory } = ChromeUtils.importESModule(
+  "resource:///modules/CardDAVDirectory.sys.mjs"
 );
 
 var LoginInfo = Components.Constructor(

@@ -4,15 +4,14 @@
 
 import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CalAttachment: "resource:///modules/CalAttachment.jsm",
-  CalAttendee: "resource:///modules/CalAttendee.jsm",
-  CalDateTime: "resource:///modules/CalDateTime.jsm",
-  CalDuration: "resource:///modules/CalDuration.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  CalAttachment: "resource:///modules/CalAttachment.sys.mjs",
+  CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
+  CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
+  CalDuration: "resource:///modules/CalDuration.sys.mjs",
 });
 
 const ALARM_RELATED_ABSOLUTE = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;

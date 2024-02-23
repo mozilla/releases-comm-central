@@ -12,8 +12,11 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  AddrBookCard: "resource:///modules/AddrBookCard.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
 });
 
