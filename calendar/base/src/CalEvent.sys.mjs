@@ -2,11 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from calItemBase.js */
-
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
-Services.scriptloader.loadSubScript("resource:///components/calItemBase.js");
+import { calItemBase } from "resource:///modules/CalItemBase.sys.mjs";
 
 /**
  * Constructor for `calIEvent` objects.

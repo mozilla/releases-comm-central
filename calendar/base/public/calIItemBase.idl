@@ -54,7 +54,7 @@ interface calIItemBase : nsISupports
    * a recomputation of hashId.
    *
    * @attention Individual implementors of calIItemBase must stick to the
-   *            same algorithm that base/src/calItemBase.js uses.
+   *            same algorithm that base/src/CalItemBase.sys.mjs uses.
    */
   readonly attribute AUTF8String hashId;
 

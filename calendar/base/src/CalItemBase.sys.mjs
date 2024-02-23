@@ -4,27 +4,29 @@
 
 /* exported makeMemberAttr, makeMemberAttrProperty */
 
-var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { CalAttendee } = ChromeUtils.importESModule("resource:///modules/CalAttendee.sys.mjs");
-var { CalRelation } = ChromeUtils.importESModule("resource:///modules/CalRelation.sys.mjs");
-var { CalAttachment } = ChromeUtils.importESModule("resource:///modules/CalAttachment.sys.mjs");
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
+import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
+import { CalRelation } from "resource:///modules/CalRelation.sys.mjs";
+import { CalAttachment } from "resource:///modules/CalAttachment.sys.mjs";
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
-ChromeUtils.defineESModuleGetters(this, {
+const lazy = {};
+
+ChromeUtils.defineESModuleGetters(lazy, {
+  CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
   CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
   CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
 });
 
 XPCOMUtils.defineLazyServiceGetter(
-  this,
+  lazy,
   "gParserUtils",
   "@mozilla.org/parserutils;1",
   "nsIParserUtils"
 );
 
 XPCOMUtils.defineLazyServiceGetter(
-  this,
+  lazy,
   "gTextToHtmlConverter",
   "@mozilla.org/txttohtmlconv;1",
   "mozITXTToHTMLConv"
@@ -36,7 +38,7 @@ XPCOMUtils.defineLazyServiceGetter(
  * @implements calIItemBase
  * @class
  */
-function calItemBase() {
+export function calItemBase() {
   cal.ASSERT(false, "Inheriting objects call initItemBase()!");
 }
 
@@ -316,7 +318,7 @@ calItemBase.prototype = {
 
     cloned.mProperties = new Map();
     for (let [name, value] of this.mProperties.entries()) {
-      if (value instanceof CalDateTime || value instanceof Ci.calIDateTime) {
+      if (value instanceof lazy.CalDateTime || value instanceof Ci.calIDateTime) {
         value = value.clone();
       }
 
@@ -414,7 +416,7 @@ calItemBase.prototype = {
       return null;
     }
     const mode = Ci.mozITXTToHTMLConv.kStructPhrase | Ci.mozITXTToHTMLConv.kURLs;
-    description = gTextToHtmlConverter.scanTXT(description, mode);
+    description = lazy.gTextToHtmlConverter.scanTXT(description, mode);
     return description.replace(/\r?\n/g, "<br>");
   },
 
@@ -427,7 +429,7 @@ calItemBase.prototype = {
         Ci.nsIDocumentEncoder.OutputDropInvisibleBreak |
         Ci.nsIDocumentEncoder.OutputLFLineBreak |
         Ci.nsIDocumentEncoder.OutputPreformatted;
-      const text = gParserUtils.convertToPlainText(html, mode, 0);
+      const text = lazy.gParserUtils.convertToPlainText(html, mode, 0);
 
       this.setProperty("DESCRIPTION", text);
 
@@ -892,7 +894,7 @@ calItemBase.prototype = {
 
     this.mAttendees = []; // don't inherit anything from parent
     for (const attprop of cal.iterate.icalProperty(icalcomp, "ATTENDEE")) {
-      const att = new CalAttendee();
+      const att = new lazy.CalAttendee();
       att.icalProperty = attprop;
       this.addAttendee(att);
     }
@@ -914,7 +916,7 @@ calItemBase.prototype = {
     let org = null;
     const orgprop = icalcomp.getFirstProperty("ORGANIZER");
     if (orgprop) {
-      org = new CalAttendee();
+      org = new lazy.CalAttendee();
       org.icalProperty = orgprop;
       org.isOrganizer = true;
     }
@@ -945,7 +947,7 @@ calItemBase.prototype = {
         ritem.icalProperty = recprop;
 
         if (!rec) {
-          rec = new CalRecurrenceInfo(this);
+          rec = new lazy.CalRecurrenceInfo(this);
         }
         rec.appendRecurrenceItem(ritem);
       }
@@ -954,7 +956,7 @@ calItemBase.prototype = {
 
     this.mAlarms = []; // don't inherit anything from parent
     for (const alarmComp of cal.iterate.icalSubcomponent(icalcomp, "VALARM")) {
-      const alarm = new CalAlarm();
+      const alarm = new lazy.CalAlarm();
       try {
         alarm.icalComponent = alarmComp;
         this.addAlarm(alarm, true);
@@ -1159,7 +1161,7 @@ makeMemberAttrProperty(calItemBase, "ALARMTIME", "alarmTime");
  * @param {string} attr - The attribute name to be used.
  * @param {*} dflt - The default value in case none is set.
  */
-function makeMemberAttr(ctor, varname, attr, dflt) {
+export function makeMemberAttr(ctor, varname, attr, dflt) {
   const getter = function () {
     return varname in this ? this[varname] : dflt;
   };
@@ -1185,7 +1187,7 @@ function makeMemberAttr(ctor, varname, attr, dflt) {
  * @param {string} name - The property name to get/set.
  * @param {string} attr - The attribute name to be used.
  */
-function makeMemberAttrProperty(ctor, name, attr) {
+export function makeMemberAttrProperty(ctor, name, attr) {
   const getter = function () {
     return this.getProperty(name);
   };

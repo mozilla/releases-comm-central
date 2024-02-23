@@ -25,6 +25,7 @@ EXTRA_JS_MODULES += [
     "CalIcsParser.sys.mjs",
     "CalIcsSerializer.sys.mjs",
     "CalICSService.sys.mjs",
+    "CalItemBase.sys.mjs",
     "CalItipItem.sys.mjs",
     "CalMetronome.jsm",
     "CalMimeConverter.sys.mjs",
@@ -59,7 +60,6 @@ XPCOM_MANIFESTS += [
 FINAL_TARGET_FILES.components += [
     "calCachedCalendar.js",
     "calICSService-worker.js",
-    "calItemBase.js",
 ]
 
 with Files("**"):

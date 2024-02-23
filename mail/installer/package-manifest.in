@@ -334,7 +334,6 @@
 # Files added to components directory via `FINAL_TARGET_FILES.components`.
 @RESPATH@/components/calCachedCalendar.js
 @RESPATH@/components/calICSService-worker.js
-@RESPATH@/components/calItemBase.js
 
 @RESPATH@/components/SyncComponents.manifest
 @RESPATH@/components/servicesComponents.manifest
