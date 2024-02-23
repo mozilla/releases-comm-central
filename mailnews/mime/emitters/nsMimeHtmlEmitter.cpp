@@ -163,7 +163,12 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
                  !PL_strcasecmp("x-mimeole", headerName) ||
                  !PL_strcasecmp("references", headerName) ||
                  !PL_strcasecmp("in-reply-to", headerName) ||
+                 !PL_strcasecmp("list-help", headerName) ||
+                 !PL_strcasecmp("list-unsubscribe", headerName) ||
+                 !PL_strcasecmp("list-subscribe", headerName) ||
                  !PL_strcasecmp("list-post", headerName) ||
+                 !PL_strcasecmp("list-owner", headerName) ||
+                 !PL_strcasecmp("list-archive", headerName) ||
                  !PL_strcasecmp("delivered-to", headerName)) {
         skip = false;
 

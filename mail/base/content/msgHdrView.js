@@ -137,6 +137,12 @@ const gExpandedHeaderList = [
   { name: "message-id", outputFunction: outputMessageIds, hidden: true },
   { name: "content-base" },
   { name: "tags", outputFunction: outputTags },
+  { name: "list-help", outputFunction: outputMultiURL, hidden: true },
+  { name: "list-unsubscribe", outputFunction: outputMultiURL, hidden: true },
+  { name: "list-subscribe", outputFunction: outputMultiURL, hidden: true },
+  { name: "list-post", outputFunction: outputMultiURL, hidden: true },
+  { name: "list-owner", outputFunction: outputMultiURL, hidden: true },
+  { name: "list-archive", outputFunction: outputMultiURL, hidden: true },
   { name: "user-agent", hidden: true },
   { name: "organization", hidden: true },
 ];
@@ -340,26 +346,27 @@ function initializeHeaderViewTables() {
     );
   }
 
-  if (Services.prefs.getBoolPref("mailnews.headers.showOrganization")) {
-    const entry = gExpandedHeaderList.find(h => h.name == "organization");
-    entry.hidden = false;
-    gExpandedHeaderView[entry.name] = new MsgHeaderEntry("expanded", entry);
-  }
+  // Showing headers, mapped to the pref controlling display.
+  const headerPref = new Map([
+    ["organization", "mailnews.headers.showOrganization"],
+    ["user-agent", "mailnews.headers.showUserAgent"],
+    ["message-id", "mailnews.headers.showMessageId"],
+    ["sender", "mailnews.headers.showSender"],
 
-  if (Services.prefs.getBoolPref("mailnews.headers.showUserAgent")) {
-    const entry = gExpandedHeaderList.find(h => h.name == "user-agent");
-    entry.hidden = false;
-    gExpandedHeaderView[entry.name] = new MsgHeaderEntry("expanded", entry);
-  }
+    // RFC 2369 headers.
+    ["list-help", "mailnews.headers.showListHelp"],
+    ["list-unsubscribe", "mailnews.headers.showListUnsubscribe"],
+    ["list-subscribe", "mailnews.headers.showListSubscribe"],
+    ["list-post", "mailnews.headers.showListPost"],
+    ["list-owner", "mailnews.headers.showListOwner"],
+    ["list-archive", "mailnews.headers.showListArchive"],
+  ]);
 
-  if (Services.prefs.getBoolPref("mailnews.headers.showMessageId")) {
-    const entry = gExpandedHeaderList.find(h => h.name == "message-id");
-    entry.hidden = false;
-    gExpandedHeaderView[entry.name] = new MsgHeaderEntry("expanded", entry);
-  }
-
-  if (Services.prefs.getBoolPref("mailnews.headers.showSender")) {
-    const entry = gExpandedHeaderList.find(h => h.name == "sender");
+  for (const [header, pref] of headerPref) {
+    if (!Services.prefs.getBoolPref(pref, false)) {
+      continue;
+    }
+    const entry = gExpandedHeaderList.find(h => h.name == header);
     entry.hidden = false;
     gExpandedHeaderView[entry.name] = new MsgHeaderEntry("expanded", entry);
   }
@@ -1198,10 +1205,7 @@ class HeaderView {
     let newRowNode = document.getElementById(rowId);
     if (!newRowNode) {
       // Create new collapsed row.
-      newRowNode = document.createElementNS(
-        "http://www.w3.org/1999/xhtml",
-        "div"
-      );
+      newRowNode = document.createElement("div");
       newRowNode.setAttribute("id", rowId);
       newRowNode.classList.add("message-header-row");
       newRowNode.hidden = true;
@@ -1305,6 +1309,10 @@ function UpdateExpandedMessageHeaders() {
     }
 
     if (headerEntry) {
+      if (gViewAllHeaders) {
+        headerEntry.hidden = false;
+      }
+
       if (
         headerName == "references" &&
         !(
@@ -1428,18 +1436,31 @@ function outputTags(headerEntry, headerValue) {
 
 /**
  * Take a string of message-ids separated by whitespace, split it and send them
- * to the corresponding header-message-ids-row element.
+ * to the corresponding multi-message-ids-row element.
  *
  * @param {MsgHeaderEntry} headerEntry - The data structure for this header.
  * @param {string} headerValue - The string of message IDs from the message.
  */
 function outputMessageIds(headerEntry, headerValue) {
   headerEntry.enclosingBox.clear();
-
   for (const id of headerValue.split(/\s+/)) {
     headerEntry.enclosingBox.addId(id);
   }
+  headerEntry.enclosingBox.buildView();
+}
 
+/**
+ * Take urls separated by comma, and add them to the corresponding
+ * multi-url-header-row element.
+ *
+ * @param {MsgHeaderEntry} headerEntry - The data structure for this header.
+ * @param {string} headerValue - The string of URLs from the message header.
+ */
+function outputMultiURL(headerEntry, headerValue) {
+  headerEntry.enclosingBox.clear();
+  for (const url of headerValue.split(",")) {
+    headerEntry.enclosingBox.addURL(url.trim());
+  }
   headerEntry.enclosingBox.buildView();
 }
 
@@ -2846,9 +2867,8 @@ const gMessageHeader = {
   openCopyPopup(event, element) {
     document.getElementById("copyCreateFilterFrom").disabled =
       !gFolder?.server.canHaveFilters;
-
     const popup = document.getElementById(
-      element.matches(`:scope[is="url-header-row"]`)
+      element.matches(`:scope[is="url-header-row"],a`)
         ? "copyUrlPopup"
         : "copyPopup"
     );
@@ -3172,8 +3192,9 @@ const gMessageHeader = {
   },
 
   copyWebsiteUrl(event) {
+    const element = event.currentTarget.parentNode.headerField;
     navigator.clipboard.writeText(
-      event.currentTarget.parentNode.headerField.value.textContent
+      element.matches("a") ? element.href : element.value.textContent
     );
   },
 };

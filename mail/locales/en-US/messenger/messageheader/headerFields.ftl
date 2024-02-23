@@ -22,6 +22,18 @@ message-header-followup-to-list-name = Followup to
 
 message-header-tags-list-name = Tags
 
+message-header-list-help = List-Help
+
+message-header-list-unsubscribe = List-Unsubscribe
+
+message-header-list-subscribe = List-Subscribe
+
+message-header-list-post = List-Post
+
+message-header-list-owner = List-Owner
+
+message-header-list-archive = List-Archive
+
 ## Other message headers.
 ## The field-separator is for screen readers to separate the field name from the field value.
 
@@ -42,6 +54,18 @@ message-header-message-id-field = Message ID<span data-l10n-name="field-separato
 message-header-in-reply-to-field = In reply to<span data-l10n-name="field-separator">:</span>
 
 message-header-website-field = Website<span data-l10n-name="field-separator">:</span>
+
+message-header-list-help-field = List-Help<span data-l10n-name="field-separator">:</span>
+
+message-header-list-unsubscribe-field = List-Unsubscribe<span data-l10n-name="field-separator">:</span>
+
+message-header-list-subscribe-field = List-Subscribe<span data-l10n-name="field-separator">:</span>
+
+message-header-list-post-field = List-Post<span data-l10n-name="field-separator">:</span>
+
+message-header-list-owner-field = List-Owner<span data-l10n-name="field-separator">:</span>
+
+message-header-list-archive-field = List-Archive<span data-l10n-name="field-separator">:</span>
 
 # An additional email header field that the user has chosen to display. Unlike
 # the other headers, the name of this header is not expected to be localised

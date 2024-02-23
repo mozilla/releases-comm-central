@@ -451,7 +451,7 @@
               data-header-name="date"></html:div>
   </html:div>
 
-  <!-- Message ID -->
+  <!-- Message-ID -->
   <html:div id="expandedmessage-idRow" class="message-header-row" hidden="hidden">
     <label id="expandedmessage-idLabel" class="message-header-label header-pill-label"
            value="&messageIdField4.label;"/>
@@ -459,7 +459,7 @@
               data-header-name="message-id"></html:div>
   </html:div>
 
-  <!-- In reply to -->
+  <!-- In-Reply-To -->
   <html:div id="expandedin-reply-toRow" class="message-header-row" hidden="hidden">
     <label id="expandedin-reply-toLabel" class="message-header-label header-pill-label"
            value="&inReplyToField4.label;"/>
@@ -467,7 +467,7 @@
               data-header-name="in-reply-to"></html:div>
   </html:div>
 
-  <!-- Reference -->
+  <!-- References -->
   <html:div id="expandedreferencesRow" class="message-header-row" hidden="hidden">
     <label id="expandedreferencesLabel" class="message-header-label header-pill-label"
            value="&referencesField4.label;"/>
@@ -475,7 +475,7 @@
               data-header-name="references"></html:div>
   </html:div>
 
-  <!-- Content base -->
+  <!-- Content-Base -->
   <html:div id="expandedcontent-baseRow" class="message-header-row" hidden="hidden">
     <label id="expandedcontent-baseLabel" class="message-header-label"
            value="&originalWebsite4.label;"/>
@@ -483,12 +483,56 @@
               data-header-name="content-base"></html:div>
   </html:div>
 
-  <!-- User agent -->
+  <!-- User-Agent -->
   <html:div id="expandeduser-agentRow" class="message-header-row" hidden="hidden">
     <label id="expandeduser-agentLabel" class="message-header-label"
            value="&userAgentField4.label;"/>
     <html:div id="expandeduser-agentBox" is="simple-header-row"
               data-header-name="user-agent"></html:div>
+  </html:div>
+
+  <!-- List management -->
+  <!-- List-Help -->
+  <html:div id="expandedlist-help" class="message-header-row" hidden="hidden">
+    <html:div id="expandedlist-helpLabel" data-l10n-id="message-header-list-help"
+              class="message-header-label"></html:div>
+    <html:div id="expandedlist-helpBox" is="multi-url-header-row"
+              data-header-name="list-help"></html:div>
+  </html:div>
+  <!-- List-Unsubscribe -->
+  <html:div id="expandedlist-unsubscribe" class="message-header-row" hidden="hidden">
+    <html:div id="expandedlist-unsubscribeLabel" data-l10n-id="message-header-list-unsubscribe"
+              class="message-header-label"></html:div>
+    <html:div id="expandedlist-unsubscribeBox" is="multi-url-header-row"
+              data-header-name="list-unsubscribe"></html:div>
+  </html:div>
+  <!-- List-Subscribe -->
+  <html:div id="expandedlist-subscribe" class="message-header-row" hidden="hidden">
+    <html:div id="expandedlist-subscribeLabel" data-l10n-id="message-header-list-subscribe"
+              class="message-header-label"></html:div>
+    <html:div id="expandedlist-subscribeBox" is="multi-url-header-row"
+              data-header-name="list-subscribe"></html:div>
+  </html:div>
+  <!-- List-Post -->
+  <html:div id="expandedlist-post" class="message-header-row" hidden="hidden">
+    <html:div id="expandedlist-postLabel" data-l10n-id="message-header-list-post"
+              class="message-header-label"></html:div>
+    <html:div id="expandedlist-postBox" is="multi-url-header-row"
+              data-header-name="list-post"></html:div>
+  </html:div>
+  <!-- List-Owner -->
+  <html:div id="expandedlist-owner" class="message-header-row" hidden="hidden">
+    <html:div id="expandedlist-ownerLabel" data-l10n-id="message-header-list-owner"
+              class="message-header-label"></html:div>
+    <html:div id="expandedlist-ownerBox" is="multi-url-header-row"
+              data-header-name="list-owner"></html:div>
+  </html:div>
+  <!-- List-Archive -->
+  <html:div id="expandedlist-archive" class="message-header-row" hidden="hidden">
+    <html:div id="expandedlist-archiveLabel" data-l10n-id="message-header-list-archive"
+              class="message-header-label"></html:div>
+    <html:div id="expandedlist-archiveBox" is="multi-url-header-row"
+              data-header-name="list-archive"></html:div>
   </html:div>
 
   <!-- All extra headers will be dynamically added here. -->

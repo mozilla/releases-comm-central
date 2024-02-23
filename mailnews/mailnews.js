@@ -66,6 +66,14 @@ pref("mailnews.headers.showReferences", false);
 // is displayed in the message pane or not...
 pref("mailnews.headers.showMessageId", false);
 
+// Show list management headers. RFC 2369.
+pref("mailnews.headers.showListHelp", false);
+pref("mailnews.headers.showListUnsubscribe", false);
+pref("mailnews.headers.showListSubscribe", false);
+pref("mailnews.headers.showListPost", false);
+pref("mailnews.headers.showListOwner", false);
+pref("mailnews.headers.showListArchive", false);
+
 // hidden pref for controlling if the message to a message-id
 // is opened in a new window or in the same window
 pref("mailnews.messageid.openInNewWindow", false);
@@ -73,7 +81,6 @@ pref("mailnews.messageid.openInNewWindow", false);
 // hidden pref for url which will be used to open  message-ids
 // in browser (%mid ist replaced with the message-id)
 pref("mailnews.messageid_browser.url", "chrome://messenger-region/locale/region.properties");
-
 
 // hidden pref for whether or not to warn when deleting filters. Default YES
 pref("mailnews.filters.confirm_delete", true);

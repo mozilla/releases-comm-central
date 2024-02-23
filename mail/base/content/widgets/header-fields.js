@@ -699,11 +699,133 @@
     extends: "div",
   });
 
+  /**
+   * Headers that can have one or many URLs, like for list management: RFC 2369.
+   */
+  class MultiURLHeaderRow extends HTMLDivElement {
+    /**
+     * The array of all the URLs that need to be shown in this row.
+     *
+     * @type {string[]}
+     */
+    #urls = [];
+
+    connectedCallback() {
+      if (this.hasConnected) {
+        return;
+      }
+      this.hasConnected = true;
+
+      this.setAttribute("is", "multi-url-header-row");
+      this.classList.add("multi-url-header-row");
+
+      this.heading = document.createElement("span");
+      this.heading.id = `${this.dataset.headerName}Heading`;
+      this.heading.classList.add("row-heading");
+      const sep = document.createElement("span");
+      sep.classList.add("screen-reader-only");
+      sep.dataset.l10nName = "field-separator";
+      this.heading.appendChild(sep);
+
+      if (
+        [
+          "list-help",
+          "list-unsubscribe",
+          "list-subscribe",
+          "list-post",
+          "list-owner",
+          "list-archive",
+        ].includes(this.dataset.headerName)
+      ) {
+        // message-header-list-help-field
+        // message-header-list-unsubscribe-field
+        // message-header-list-subscribe-field
+        // message-header-list-post-field
+        // message-header-list-owner-field
+        // message-header-list-archive-field
+        document.l10n.setAttributes(
+          this.heading,
+          `message-header-${this.dataset.headerName}-field`
+        );
+      } else {
+        // If this a row used by a header we don't map to a localization.
+        // Use directly that header value as label.
+        document.l10n.setAttributes(
+          this.heading,
+          "message-header-custom-field",
+          {
+            fieldName: this.dataset.prettyHeaderName,
+          }
+        );
+      }
+
+      this.classList.add("header-row");
+      this.tabIndex = 0;
+
+      this.idsList = document.createElement("ol");
+      this.idsList.classList.add("url-list");
+      this.append(this.heading, this.idsList);
+    }
+
+    addURL(url) {
+      this.#urls.push(url);
+    }
+
+    buildView() {
+      this.idsList.replaceChildren(
+        ...this.#urls.map(urlText => {
+          const li = document.createElement("li");
+          li.classList.add("header-message-url");
+
+          // URLs are usually surrounded by <>.
+          const url = urlText.replace(/\s*^<([^>]+)>\s*/, "$1");
+          if (!/^(https?|mailto):/.test(url)) {
+            li.textContent = urlText;
+          } else {
+            const a = document.createElement("a");
+            a.href = encodeURI(url);
+            a.textContent = urlText;
+            a.title = url;
+            a.onclick = this.handleLinkEvent;
+            a.onkeydown = this.handleLinkEvent;
+            a.oncontextmenu = this.handleLinkEvent;
+            li.appendChild(a);
+          }
+          return li;
+        })
+      );
+    }
+
+    /**
+     * @param {Event} event - Event to handle.
+     */
+    handleLinkEvent(event) {
+      if (
+        (event.type == "click" && event.button != 2) ||
+        (event.type == "keydown" && event.key == "Enter")
+      ) {
+        openUILink(event.target.href, event);
+        return;
+      }
+      if (event.type == "contextmenu") {
+        gMessageHeader.openCopyPopup(event, this);
+      }
+    }
+
+    clear() {
+      this.#urls = [];
+      this.idsList.replaceChildren();
+    }
+  }
+  customElements.define("multi-url-header-row", MultiURLHeaderRow, {
+    extends: "div",
+  });
+
   class HeaderNewsgroupsRow extends HTMLDivElement {
     /**
      * The array of all the newsgroups that need to be shown in this row.
      *
-     * @type {Array<object>}
+     * @type {string[]}
      */
     #newsgroups = [];
 
@@ -857,7 +979,7 @@
     /**
      * The array of all the IDs that need to be shown in this row.
      *
-     * @type {Array<object>}
+     * @type {string[]}
      */
     #ids = [];
 

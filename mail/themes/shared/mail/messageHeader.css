@@ -405,7 +405,6 @@ mail-tagfield[collapsed="true"] {
   padding: 0;
   margin-block: 0;
   margin-inline: 6px 8px;
-  text-align: end;
   flex-shrink: 0;
   align-self: baseline;
   opacity: var(--message-header-label-opacity);
@@ -737,6 +736,7 @@ button.email-action-flagged {
   }
 
   & :is(.multi-recipient-row:not(#expandedfromBox),
+        .multi-url-header-row,
         .multi-message-ids-row,
         .header-newsgroups-row) {
     display: flex;
@@ -757,6 +757,7 @@ button.email-action-flagged {
   }
 
   & .multi-recipient-row .row-heading:not(#fromHeading),
+  & .multi-url-header-row .row-heading,
   & .row-heading:is(#newsgroupsHeading, #followup-toHeading, #message-idHeading, #referencesHeading, #in-reply-toHeading) {
     padding-block: var(--message-header-field-offset);
   }
@@ -795,13 +796,18 @@ button.email-action-flagged {
   flex: 1 1 auto;
 }
 
+.list-header-row {
+  flex: 1 1 auto;
+}
+
 .row-heading {
   display: none;
 }
 
-.header-recipient:not(:last-child, .last-before-button):after,
-.header-message-id:not(:last-child, .last-before-button):after,
-.header-newsgroup:not(:last-child):after {
+.header-recipient:not(:last-child, .last-before-button)::after,
+.header-message-id:not(:last-child, .last-before-button)::after,
+.header-message-url:not(:last-child)::after,
+.header-newsgroup:not(:last-child)::after {
   content: ",";
 }
 
@@ -837,7 +843,8 @@ button.email-action-flagged {
 .recipients-list,
 .newsgroups-list,
 .tags-list,
-.ids-list {
+.ids-list,
+.url-list {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -847,6 +854,14 @@ button.email-action-flagged {
   list-style: none;
   margin-inline-start: calc(var(--message-header-field-offset) * -1);
   min-width: 100px;
+}
+
+.header-message-url a {
+  display: inline-block;
+  max-width: 80vw;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .tags-list {
