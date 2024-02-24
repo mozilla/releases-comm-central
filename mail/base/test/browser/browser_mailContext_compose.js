@@ -65,7 +65,7 @@ add_setup(async function () {
   templatesFolder.addMessage(generator.makeMessage().toMessageString());
   templateMessage = templatesFolder.messages.getNext();
 
-  const nntpServer = new NNTPServer(this);
+  const nntpServer = new NNTPServer();
   nntpServer.addGroup("mailContext.compose");
   nntpServer.addMessages("mailContext.compose", [generator.makeMessage()]);
   const nntpAccount = MailServices.accounts.createAccount();

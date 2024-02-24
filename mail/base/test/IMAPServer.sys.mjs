@@ -5,6 +5,7 @@
 import * as ImapD from "resource://testing-common/mailnews/Imapd.sys.mjs";
 import { mailTestUtils } from "resource://testing-common/mailnews/MailTestUtils.sys.mjs";
 import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
+import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 const { IMAP_RFC3501_handler, ImapDaemon, ImapMessage, mixinExtension } = ImapD;
 
@@ -12,8 +13,7 @@ const { IMAP_RFC3501_handler, ImapDaemon, ImapMessage, mixinExtension } = ImapD;
  * A simple IMAP server for testing purposes.
  */
 export class IMAPServer {
-  constructor(testScope, options = {}) {
-    this.testScope = testScope;
+  constructor(options = {}) {
     this.options = options;
     this.open(options.extensions);
   }
@@ -37,7 +37,7 @@ export class IMAPServer {
     this.server.start();
     dump(`IMAP server at localhost:${this.server.port} opened\n`);
 
-    this.testScope.registerCleanupFunction(() => {
+    TestUtils.promiseTestFinished?.then(() => {
       this.close();
       dump(`IMAP server at localhost:${this.server.port} closed\n`);
     });

@@ -12,6 +12,7 @@ import { HttpsProxy } from "resource://testing-common/mailnews/HttpsProxy.sys.mj
 import { HttpServer, HTTP_405 } from "resource://testing-common/httpd.sys.mjs";
 import { NetworkTestUtils } from "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs";
 import { ServerTestUtils } from "resource://testing-common/mailnews/ServerTestUtils.sys.mjs";
+import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 const { OAuth2Module } = ChromeUtils.import(
   "resource:///modules/OAuth2Module.jsm"
@@ -22,21 +23,14 @@ const validCodes = new Set();
 export const OAuth2TestUtils = {
   /**
    * Start an OAuth2 server and add it to the proxy at oauth.test.test:443.
-   *
-   * @param {object} testScope - The JS scope for the current test, so
-   *   `registerCleanupFunction` can be used.
    */
-  async startServer(testScope) {
-    const oAuth2Server = new OAuth2Server(testScope);
+  async startServer() {
+    const oAuth2Server = new OAuth2Server();
     const httpsProxy = new HttpsProxy(
-      testScope,
       oAuth2Server.httpServer.identity.primaryPort,
       await ServerTestUtils.getCertificate("oauth")
     );
     NetworkTestUtils.configureProxy("oauth.test.test", 443, httpsProxy.port);
-    testScope.registerCleanupFunction(() => {
-      NetworkTestUtils.clearProxy();
-    });
     return oAuth2Server;
   },
 
@@ -133,7 +127,7 @@ class OAuth2Server {
   refreshToken = "refresh_token";
   expiry = null;
 
-  constructor(testScope) {
+  constructor() {
     this.httpServer = new HttpServer();
     this.httpServer.registerPathHandler("/form", this.formHandler.bind(this));
     this.httpServer.registerPathHandler(
@@ -146,7 +140,7 @@ class OAuth2Server {
     const port = this.httpServer.identity.primaryPort;
     dump(`OAuth2 server at localhost:${port} opened\n`);
 
-    testScope.registerCleanupFunction(() => {
+    TestUtils.promiseTestFinished?.then(() => {
       this.httpServer.stop();
       dump(`OAuth2 server at localhost:${port} closed\n`);
     });

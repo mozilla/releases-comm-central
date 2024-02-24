@@ -36,17 +36,14 @@ add_setup(async function () {
   localAccount = MailServices.accounts.createLocalMailAccount();
   localRootFolder = localAccount.incomingServer.rootFolder;
 
-  [imapServer, pop3Server, nntpServer] = await ServerTestUtils.createServers(
-    this,
-    [
-      ServerTestUtils.serverDefs.imap.plain,
-      ServerTestUtils.serverDefs.pop3.plain,
-      {
-        ...ServerTestUtils.serverDefs.nntp.plain,
-        options: { username: "user", password: "password" },
-      },
-    ]
-  );
+  [imapServer, pop3Server, nntpServer] = await ServerTestUtils.createServers([
+    ServerTestUtils.serverDefs.imap.plain,
+    ServerTestUtils.serverDefs.pop3.plain,
+    {
+      ...ServerTestUtils.serverDefs.nntp.plain,
+      options: { username: "user", password: "password" },
+    },
+  ]);
   nntpServer.addGroup("getmessages.newsgroup");
 
   imapAccount = MailServices.accounts.createAccount();

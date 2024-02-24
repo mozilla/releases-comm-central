@@ -20,7 +20,7 @@ let nntpRootFolder;
 
 add_setup(async function () {
   const imapAccount = MailServices.accounts.createAccount();
-  imapServer = new IMAPServer(this, { username: `${imapAccount.key}user` });
+  imapServer = new IMAPServer({ username: `${imapAccount.key}user` });
   imapServer.daemon.createMailbox("Bar", { subscribed: false });
   imapServer.daemon.createMailbox("Baz", { subscribed: true });
   imapServer.daemon.createMailbox("Foo", { subscribed: false });
@@ -39,7 +39,7 @@ add_setup(async function () {
   imapAccount.incomingServer.deleteModel = Ci.nsMsgImapDeleteModels.IMAPDelete;
   imapRootFolder = imapAccount.incomingServer.rootFolder;
 
-  nntpServer = new NNTPServer(this);
+  nntpServer = new NNTPServer();
   nntpServer.addGroup("subscribe.bar");
   nntpServer.addGroup("subscribe.baz");
   nntpServer.addGroup("subscribe.baz.subbaz");

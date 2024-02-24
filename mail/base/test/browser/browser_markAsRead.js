@@ -35,7 +35,7 @@ add_setup(async function () {
     generator.makeMessages({}).map(message => message.toMessageString())
   );
 
-  const imapServer = new IMAPServer(this);
+  const imapServer = new IMAPServer();
   const imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(MailServices.accounts.createIdentity());
   imapAccount.incomingServer = MailServices.accounts.createIncomingServer(

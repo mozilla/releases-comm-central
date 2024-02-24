@@ -39,7 +39,7 @@ add_setup(async function () {
   localAccount = MailServices.accounts.createLocalMailAccount();
   localRootFolder = localAccount.incomingServer.rootFolder;
 
-  [imapServer, pop3Server] = await ServerTestUtils.createServers(this, [
+  [imapServer, pop3Server] = await ServerTestUtils.createServers([
     ServerTestUtils.serverDefs.imap.oAuth,
     ServerTestUtils.serverDefs.pop3.oAuth,
   ]);

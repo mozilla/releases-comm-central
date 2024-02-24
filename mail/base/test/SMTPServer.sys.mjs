@@ -7,13 +7,13 @@ import {
   SMTP_RFC2821_handler,
 } from "resource://testing-common/mailnews/Smtpd.sys.mjs";
 import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
+import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 /**
  * A simple SMTP server for testing purposes.
  */
 export class SMTPServer {
-  constructor(testScope, options = {}) {
-    this.testScope = testScope;
+  constructor(options = {}) {
     this.options = options;
     this.open();
   }
@@ -34,7 +34,7 @@ export class SMTPServer {
     this.server.start();
     dump(`SMTP server at localhost:${this.server.port} opened\n`);
 
-    this.testScope.registerCleanupFunction(() => {
+    TestUtils.promiseTestFinished?.then(() => {
       this.close();
       dump(`SMTP server at localhost:${this.server.port} closed\n`);
     });

@@ -39,7 +39,7 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
     .createLocalSubfolder("Inbox");
 
-  pop3Server = await createServer(this, serverDefs.pop3.plain);
+  pop3Server = await createServer(serverDefs.pop3.plain);
 
   pop3Account = MailServices.accounts.createAccount();
   pop3Account.addIdentity(MailServices.accounts.createIdentity());

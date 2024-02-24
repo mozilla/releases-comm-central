@@ -38,14 +38,11 @@ add_setup(async function () {
   localAccount = MailServices.accounts.createLocalMailAccount();
   localRootFolder = localAccount.incomingServer.rootFolder;
 
-  [imapServer, pop3Server, nntpServer] = await ServerTestUtils.createServers(
-    this,
-    [
-      ServerTestUtils.serverDefs.imap.plain,
-      ServerTestUtils.serverDefs.pop3.plain,
-      ServerTestUtils.serverDefs.nntp.plain,
-    ]
-  );
+  [imapServer, pop3Server, nntpServer] = await ServerTestUtils.createServers([
+    ServerTestUtils.serverDefs.imap.plain,
+    ServerTestUtils.serverDefs.pop3.plain,
+    ServerTestUtils.serverDefs.nntp.plain,
+  ]);
   nntpServer.addGroup("getmessages.offline");
 
   imapAccount = MailServices.accounts.createAccount();

@@ -39,7 +39,7 @@ add_setup(async function () {
   tlsCert = await getCertificate("valid");
   expiredCert = await getCertificate("expired");
 
-  await createServers(this, [
+  await createServers([
     { ...serverDefs.imap.plain, aliases: [["alt.test.test", 143]] },
     serverDefs.imap.startTLS,
     {
@@ -778,7 +778,7 @@ add_task(async function testGuessConfig() {
  * the base domain.
  */
 add_task(async function testGuessConfigKnownSubdomains() {
-  const [imapServer, pop3Server, smtpServer] = await createServers(this, [
+  const [imapServer, pop3Server, smtpServer] = await createServers([
     { ...serverDefs.imap.tls, hostname: "imap.test.test" },
     { ...serverDefs.pop3.tls, hostname: "pop3.test.test" },
     { ...serverDefs.smtp.tls, hostname: "smtp.test.test" },

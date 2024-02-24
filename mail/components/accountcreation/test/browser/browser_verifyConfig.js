@@ -35,7 +35,7 @@ add_setup(async function () {
   tlsCert = await getCertificate("valid");
   expiredCert = await getCertificate("expired");
 
-  await createServers(this, [
+  await createServers([
     serverDefs.imap.tls,
     serverDefs.imap.expiredTLS,
     serverDefs.pop3.tls,

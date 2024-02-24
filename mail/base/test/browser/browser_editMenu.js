@@ -79,7 +79,7 @@ add_setup(async function () {
   folderInfo.setCharProperty("searchStr", "ALL");
   folderInfo.setCharProperty("searchFolderUri", testFolder.URI);
 
-  nntpServer = new NNTPServer(this);
+  nntpServer = new NNTPServer();
   nntpServer.addGroup("edit.menu.newsgroup");
   const nntpAccount = MailServices.accounts.createAccount();
   nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
@@ -92,7 +92,7 @@ add_setup(async function () {
   nntpRootFolder.createSubfolder("edit.menu.newsgroup", null);
   nntpFolder = nntpRootFolder.getChildNamed("edit.menu.newsgroup");
 
-  imapServer = new IMAPServer(this);
+  imapServer = new IMAPServer();
   const imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(MailServices.accounts.createIdentity());
   imapAccount.incomingServer = MailServices.accounts.createIncomingServer(

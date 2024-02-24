@@ -23,8 +23,6 @@ const serverConstructors = {
 // Change this for more server debugging output. See Maild.sys.mjs for values.
 const serverDebugLevel = 0;
 
-let cleanupFunctionRegistered = false;
-
 /**
  * @typedef ServerDef
  * @property {"imap"|"pop3"|"smtp"} type - What type of server do we want?
@@ -41,32 +39,27 @@ let cleanupFunctionRegistered = false;
 /**
  * Create and start a single server.
  *
- * @param {object} testScope - The environment in which the test is running.
  * @param {ServerDef} def - The server definition.
  * @returns {IMAPServer|POP3Server|SMTPServer}
  */
-async function createServer(
-  testScope,
-  { type, baseOptions = {}, options = {}, hostname, port, aliases = [] }
-) {
+async function createServer({
+  type,
+  baseOptions = {},
+  options = {},
+  hostname,
+  port,
+  aliases = [],
+}) {
   options = { ...baseOptions, ...options };
   if (options.tlsCertFile && !options.tlsCert) {
     options.tlsCert = await getCertificate(options.tlsCertFile);
   }
 
-  const server = new serverConstructors[type](testScope, options);
+  const server = new serverConstructors[type](options);
   server.server.setDebugLevel(serverDebugLevel);
   NetworkTestUtils.configureProxy(hostname, port, server.port);
   for (const [aliasHostname, aliasPort] of aliases) {
     NetworkTestUtils.configureProxy(aliasHostname, aliasPort, server.port);
-  }
-
-  if (!cleanupFunctionRegistered) {
-    testScope.registerCleanupFunction(function () {
-      NetworkTestUtils.clearProxy();
-      cleanupFunctionRegistered = false;
-    });
-    cleanupFunctionRegistered = true;
   }
 
   return server;
@@ -75,15 +68,14 @@ async function createServer(
 /**
  * Create and start multiple servers.
  *
- * @param {object} testScope - The environment in which the test is running.
  * @param {ServerDef[]} serverDefs - The server definitions.
  * @returns {IMAPServer[]|POP3Server[]|SMTPServer[]} - The created servers,
  *   in the same order as the definitions given.
  */
-async function createServers(testScope, serverDefs) {
+async function createServers(serverDefs) {
   const servers = [];
   for (const serverDef of serverDefs) {
-    servers.push(await createServer(testScope, serverDef));
+    servers.push(await createServer(serverDef));
   }
   return servers;
 }

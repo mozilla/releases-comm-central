@@ -10,6 +10,7 @@
 var CC = Components.Constructor;
 
 import { NetUtil } from "resource://gre/modules/NetUtil.sys.mjs";
+import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 const ServerSocket = CC(
   "@mozilla.org/network/server-socket;1",
@@ -265,6 +266,10 @@ export var NetworkTestUtils = {
       }`;
       Services.prefs.setIntPref("network.proxy.type", 2);
       Services.prefs.setCharPref("network.proxy.autoconfig_url", pac);
+
+      TestUtils.promiseTestFinished?.then(() => {
+        this.clearProxy();
+      });
     }
 
     dump("Requesting to map " + hostname + ":" + port + "\n");

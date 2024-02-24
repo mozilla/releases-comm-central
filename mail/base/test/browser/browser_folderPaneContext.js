@@ -108,7 +108,7 @@ add_setup(async function () {
   folderInfo.setCharProperty("searchStr", "ALL");
   folderInfo.setCharProperty("searchFolderUri", plainFolder.URI);
 
-  nntpServer = new NNTPServer(this);
+  nntpServer = new NNTPServer();
   nntpServer.addGroup("folder.pane.context.newsgroup");
   nntpServer.addMessages(
     "folder.pane.context.newsgroup",

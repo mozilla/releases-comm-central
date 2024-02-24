@@ -8,6 +8,7 @@
 
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 import { NetUtil } from "resource://gre/modules/NetUtil.sys.mjs";
+import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 const socketTransportService = Cc[
   "@mozilla.org/network/socket-transport-service;1"
@@ -25,13 +26,11 @@ export class HttpsProxy {
   handlers = [];
 
   /**
-   * @param {object} testScope - The JS scope for the current test, so
-   *   `registerCleanupFunction` can be used.
    * @param {integer} serverPort - The port number of the HTTP server.
    * @param {nsIX509Cert} tlsCert - The certificate to use for HTTPS requests.
    *   See ServerTestUtils.getCertificate.
    */
-  constructor(testScope, serverPort, tlsCert) {
+  constructor(serverPort, tlsCert) {
     this.serverPort = serverPort;
 
     this.socket = Cc["@mozilla.org/network/tls-server-socket;1"].createInstance(
@@ -45,7 +44,7 @@ export class HttpsProxy {
       `Reverse proxy from localhost:${this.serverPort} to localhost:${this.socket.port} opened\n`
     );
 
-    testScope.registerCleanupFunction(() => {
+    TestUtils.promiseTestFinished?.then(() => {
       this.close();
       dump(
         `Reverse proxy from localhost:${this.serverPort} to localhost:${this.socket.port} closed\n`

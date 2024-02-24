@@ -36,7 +36,7 @@ const googleLogin = { ...defaultLogin, scope: GOOGLE_SCOPE };
 
 add_setup(async function () {
   Services.logins.removeAllLogins();
-  await OAuth2TestUtils.startServer(this);
+  await OAuth2TestUtils.startServer();
 });
 
 /**

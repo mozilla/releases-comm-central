@@ -4,13 +4,13 @@
 
 import * as Pop3D from "resource://testing-common/mailnews/Pop3d.sys.mjs";
 import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
+import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 /**
  * A simple POP3 server for testing purposes.
  */
 export class POP3Server {
-  constructor(testScope, options = {}) {
-    this.testScope = testScope;
+  constructor(options = {}) {
     this.options = options;
     this.open(options.handler);
   }
@@ -34,7 +34,7 @@ export class POP3Server {
     this.server.start();
     dump(`POP3 server at localhost:${this.server.port} opened\n`);
 
-    this.testScope.registerCleanupFunction(() => {
+    TestUtils.promiseTestFinished?.then(() => {
       this.close();
       dump(`POP3 server at localhost:${this.server.port} closed\n`);
     });

@@ -10,13 +10,13 @@ import {
   NNTP_RFC4643_extension,
   NntpDaemon,
 } from "resource://testing-common/mailnews/Nntpd.sys.mjs";
+import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 /**
  * A simple NNTP server for testing purposes.
  */
 export class NNTPServer {
-  constructor(testScope, options = {}) {
-    this.testScope = testScope;
+  constructor(options = {}) {
     this.options = options;
     this.open();
   }
@@ -33,7 +33,7 @@ export class NNTPServer {
     this.server.start();
     dump(`NNTP server at localhost:${this.server.port} opened\n`);
 
-    this.testScope.registerCleanupFunction(() => {
+    TestUtils.promiseTestFinished?.then(() => {
       this.close();
       dump(`NNTP server at localhost:${this.server.port} closed\n`);
     });
