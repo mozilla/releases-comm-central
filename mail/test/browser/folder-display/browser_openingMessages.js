@@ -34,6 +34,7 @@ var {
   reset_open_message_behavior,
   select_click_row,
   select_shift_click_row,
+  set_context_menu_background_tabs,
   set_open_message_behavior,
   switch_tab,
   wait_for_message_display_completion,
@@ -59,6 +60,7 @@ add_setup(async function () {
  * Test opening a single message in a new tab.
  */
 add_task(async function test_open_single_message_in_tab() {
+  set_context_menu_background_tabs(false);
   set_open_message_behavior("NEW_TAB");
   const folderTab = document.getElementById("tabmail").currentTabInfo;
   const preCount =

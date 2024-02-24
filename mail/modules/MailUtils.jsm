@@ -195,16 +195,15 @@ var MailUtils = {
    * @param {Boolean} [forceTab] - Boolean that let us know when the middle
    *   click button triggered the event. We then proceed to open the message in
    *   a new tab.
-   * @param {Boolean} [loadMsgInBackground] - When opening a message in a new
-   *   tab, we take into account if the message list remains as the active tab
-   *   or if the new tab becomes the active tab.
+   * @param {Boolean} [shiftPressed] - We take into account if the user pressed
+   *   the shift key to know how to open a message in a new tab.
    */
   displayMessages(
     aMsgHdrs,
     aViewWrapperToClone,
     aTabmail,
     forceTab = false,
-    loadMsgInBackground = false
+    shiftPressed
   ) {
     const openMessageBehavior = Services.prefs.getIntPref(
       "mail.openMessageBehavior"
@@ -215,7 +214,7 @@ var MailUtils = {
         aMsgHdrs,
         aViewWrapperToClone,
         aTabmail,
-        loadMsgInBackground
+        shiftPressed
       );
       return;
     }
@@ -240,7 +239,7 @@ var MailUtils = {
           aMsgHdrs,
           aViewWrapperToClone,
           aTabmail,
-          loadMsgInBackground
+          shiftPressed
         );
         break;
     }
@@ -260,16 +259,11 @@ var MailUtils = {
    *      is used, and the window is brought to the front
    *    - if no 3pane windows are open, a standalone window is opened instead
    *      of a tab
-   * @param {Boolean} [loadMsgInBackground] - When opening a message in a new
-   *   tab, we take into account if the message list remains as the active tab
-   *   or if the new tab becomes the active tab.
+   * @param {Boolean} [shiftPressed] - We take into account if the user pressed
+   *   the shift key to know how to open a message in a new tab. We only look at
+   *   the loadInBackground preferefence if this value is provided.
    */
-  openMessageInNewTab(
-    aMsgHdrs,
-    aViewWrapperToClone,
-    aTabmail,
-    loadMsgInBackground
-  ) {
+  openMessageInNewTab(aMsgHdrs, aViewWrapperToClone, aTabmail, shiftPressed) {
     let mail3PaneWindow = null;
     if (!aTabmail) {
       // Try opening new tabs in a 3pane window.
@@ -296,9 +290,14 @@ var MailUtils = {
       return;
     }
 
-    const loadInBackground = loadMsgInBackground
-      ? Services.prefs.getBoolPref("mail.tabs.loadInBackground")
-      : false;
+    const loadInBgPref = Services.prefs.getBoolPref(
+      "mail.tabs.loadInBackground"
+    );
+
+    // If shiftPressed is not specified the message should ignore the
+    // loadInBackground preference.
+    const loadInBackground =
+      shiftPressed !== undefined && loadInBgPref !== shiftPressed;
 
     // Open all the tabs in the background, except for the last one.
     for (const [i, msgHdr] of aMsgHdrs.entries()) {
@@ -421,6 +420,7 @@ var MailUtils = {
       }
 
       mail3PaneWindow.MsgDisplayMessageInFolderTab(msgHdr);
+
       if (Ci.nsIMessengerWindowsIntegration) {
         Cc["@mozilla.org/messenger/osintegration;1"]
           .getService(Ci.nsIMessengerWindowsIntegration)

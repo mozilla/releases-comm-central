@@ -223,6 +223,10 @@ async function middle_click_helper(selectedFolder, targetFolder, shiftPressed) {
 }
 
 add_task(async function middle_click_tests() {
+  // Set loadInBackground preference to true so that new tabs open without
+  // changing focus unless shift is pressed.
+  set_context_menu_background_tabs(true);
+
   select_click_folder(folderA);
   assert_folders_selected_and_displayed(folderA);
 

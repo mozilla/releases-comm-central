@@ -111,7 +111,7 @@ var commandController = {
         gViewWrapper,
         top.document.getElementById("tabmail"),
         forceTab,
-        forceTab && !event?.shiftKey
+        event?.shiftKey
       );
     },
     cmd_tag() {
