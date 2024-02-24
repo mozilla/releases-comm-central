@@ -493,6 +493,3 @@ man/*
 @RESPATH@/chrome/calendar.manifest
 
 @RESPATH@/@PREF_DIR@/calendar.js
-
-# Files added to components directory via `FINAL_TARGET_FILES.components`.
-@RESPATH@/components/calItemBase.js
