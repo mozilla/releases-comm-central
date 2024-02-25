@@ -671,8 +671,7 @@ nsMsgGroupView::OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,
 
   nsMsgGroupThread* groupThread =
       static_cast<nsMsgGroupThread*>((nsIMsgThread*)thread);
-
-  bool rootDeleted = viewIndexOfThread != nsMsgKey_None &&
+  bool rootDeleted = IsValidIndex(viewIndexOfThread) &&
                      m_keys[viewIndexOfThread] == keyDeleted;
   rv = nsMsgDBView::OnHdrDeleted(aHdrDeleted, aParentKey, aFlags, aInstigator);
   if (groupThread->m_dummy) {
