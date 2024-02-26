@@ -10,8 +10,8 @@
 var { glodaTestHelperInitialize } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaTestHelper.jsm"
 );
-var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 var { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"

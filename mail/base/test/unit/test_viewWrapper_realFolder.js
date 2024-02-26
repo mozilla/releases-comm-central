@@ -12,8 +12,8 @@
 load("resources/viewWrapperTestUtils.js");
 initViewWrapperTestUtils({ mode: "local" });
 
-var { SyntheticMessageSet } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+var { SyntheticMessageSet } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 var { setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"

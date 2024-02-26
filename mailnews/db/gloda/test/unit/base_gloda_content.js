@@ -26,8 +26,8 @@ var { GlodaFundAttr } = ChromeUtils.import(
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/MimeMessage.jsm"
 );
-var { SyntheticMessageSet } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+var { SyntheticMessageSet } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
 var msgGen;

@@ -35,8 +35,8 @@ var { GlodaFolder } = ChromeUtils.import(
 var { GlodaMsgSearcher } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaMsgSearcher.jsm"
 );
-var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 var { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"

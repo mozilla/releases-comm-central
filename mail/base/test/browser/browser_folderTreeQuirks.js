@@ -5,8 +5,8 @@
 const { GmailServer } = ChromeUtils.importESModule(
   "resource://testing-common/IMAPServer.sys.mjs"
 );
-const { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+const { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 const { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"

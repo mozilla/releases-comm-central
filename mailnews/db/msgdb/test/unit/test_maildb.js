@@ -3,8 +3,9 @@
  * Test suite for msg database functions.
  */
 
-/* import-globals-from ../../../../test/resources/MessageGenerator.jsm */
-load("../../../../resources/MessageGenerator.jsm");
+var { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
 
 var dbService;
 var gTestFolder;

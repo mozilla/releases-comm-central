@@ -35,8 +35,8 @@ Services.prefs.setCharPref(
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/POP3pump.js");
 
-var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"

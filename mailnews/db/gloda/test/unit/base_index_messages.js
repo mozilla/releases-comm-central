@@ -54,7 +54,9 @@ var { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
 var { SyntheticMessageSet, SyntheticPartMultiMixed, SyntheticPartLeaf } =
-  ChromeUtils.import("resource://testing-common/mailnews/MessageGenerator.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+  );
 var { TagNoun } = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
 
 // Whether we can expect fulltext results

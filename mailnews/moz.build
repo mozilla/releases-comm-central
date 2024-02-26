@@ -63,7 +63,7 @@ TESTING_JS_MODULES.mailnews += [
     "test/resources/IMAPpump.jsm",
     "test/resources/LocalAccountUtils.jsm",
     "test/resources/MailTestUtils.jsm",
-    "test/resources/MessageGenerator.jsm",
+    "test/resources/MessageGenerator.sys.mjs",
     "test/resources/MessageInjection.sys.mjs",
     "test/resources/NetworkTestUtils.sys.mjs",
     "test/resources/PromiseTestUtils.sys.mjs",

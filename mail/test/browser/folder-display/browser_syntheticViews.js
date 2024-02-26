@@ -14,8 +14,8 @@ const {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { SyntheticPartLeaf } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+const { SyntheticPartLeaf } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 const { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"

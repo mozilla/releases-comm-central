@@ -14,7 +14,9 @@
  */
 
 var { MessageGenerator, MessageScenarioFactory, SyntheticMessageSet } =
-  ChromeUtils.import("resource://testing-common/mailnews/MessageGenerator.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+  );
 const { TreeSelection } = ChromeUtils.importESModule(
   "chrome://messenger/content/tree-selection.mjs"
 );

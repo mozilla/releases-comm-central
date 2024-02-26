@@ -9,7 +9,9 @@ var { MockRegistrar } = ChromeUtils.importESModule(
 /* import-globals-from ../../../test/resources/logHelper.js */
 load("../../../resources/logHelper.js");
 var { addMessagesToFolder, MessageGenerator, MessageScenarioFactory } =
-  ChromeUtils.import("resource://testing-common/mailnews/MessageGenerator.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+  );
 var { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );

@@ -10,8 +10,8 @@
 const { IMAPServer } = ChromeUtils.importESModule(
   "resource://testing-common/IMAPServer.sys.mjs"
 );
-const { MessageGenerator } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+const { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
 let localTestFolder, imapTestFolder;

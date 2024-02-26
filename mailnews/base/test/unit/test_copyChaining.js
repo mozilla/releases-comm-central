@@ -4,8 +4,10 @@
 
 // Test of chaining copies between the same folders
 
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-load("../../../resources/MessageGenerator.jsm");
+var { addMessagesToFolder, MessageGenerator, MessageScenarioFactory } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+  );
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

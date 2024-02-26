@@ -4,8 +4,8 @@
 
 const { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 
-const { MessageGenerator } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+const { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 const { NNTPServer } = ChromeUtils.importESModule(
   "resource://testing-common/NNTPServer.sys.mjs"

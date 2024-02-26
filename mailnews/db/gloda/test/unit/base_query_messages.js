@@ -29,8 +29,8 @@ var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 var { GlodaConstants } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaConstants.jsm"
 );
-var { SyntheticMessageSet } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+var { SyntheticMessageSet } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
 var msgGen;

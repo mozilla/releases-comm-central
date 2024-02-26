@@ -9,9 +9,10 @@ var { MailServices } = ChromeUtils.import(
 );
 
 /* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
 load("../../../resources/logHelper.js");
-load("../../../resources/MessageGenerator.jsm");
+var { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
 
 var gFolder1;
 

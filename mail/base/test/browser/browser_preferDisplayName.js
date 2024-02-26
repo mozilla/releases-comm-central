@@ -5,8 +5,8 @@
 const { AddrBookCard } = ChromeUtils.importESModule(
   "resource:///modules/AddrBookCard.sys.mjs"
 );
-const { MessageGenerator } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+const { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
 let book, emily, felix, testFolder;

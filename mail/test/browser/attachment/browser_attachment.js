@@ -29,8 +29,8 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { SyntheticPartLeaf, SyntheticPartMultiMixed } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+var { SyntheticPartLeaf, SyntheticPartMultiMixed } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
 var { promise_modal_dialog, promise_new_window } = ChromeUtils.import(

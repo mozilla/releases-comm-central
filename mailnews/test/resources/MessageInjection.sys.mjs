@@ -9,10 +9,8 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { SyntheticMessageSet } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
-);
 import { PromiseTestUtils } from "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs";
+import { SyntheticMessageSet } from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
 
 var { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"

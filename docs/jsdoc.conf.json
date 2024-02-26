@@ -147,7 +147,7 @@
       "../mailnews/news/src/NntpNewsGroup.jsm",
       "../mailnews/test/fakeserver/Auth.sys.mjs",
       "../mailnews/test/resources/MailTestUtils.jsm",
-      "../mailnews/test/resources/MessageGenerator.jsm",
+      "../mailnews/test/resources/MessageGenerator.sys.mjs",
 
       "../suite"
     ],

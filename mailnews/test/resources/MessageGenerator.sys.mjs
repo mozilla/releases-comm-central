@@ -2,24 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = [
-  "MessageGenerator",
-  "addMessagesToFolder",
-  "MessageScenarioFactory",
-  "SyntheticPartLeaf",
-  "SyntheticDegeneratePartEmpty",
-  "SyntheticPartMulti",
-  "SyntheticPartMultiMixed",
-  "SyntheticPartMultiParallel",
-  "SyntheticPartMultiDigest",
-  "SyntheticPartMultiAlternative",
-  "SyntheticPartMultiRelated",
-  "SyntheticPartMultiSignedSMIME",
-  "SyntheticPartMultiSignedPGP",
-  "SyntheticMessage",
-  "SyntheticMessageSet",
-];
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -256,10 +238,11 @@ SyntheticPart.prototype = {
 /**
  * Leaf MIME part, defaulting to text/plain.
  */
-function SyntheticPartLeaf(aBody, aProperties) {
+export function SyntheticPartLeaf(aBody, aProperties) {
   SyntheticPart.call(this, aProperties);
   this.body = aBody;
 }
+
 SyntheticPartLeaf.prototype = {
   __proto__: SyntheticPart.prototype,
   _contentType: "text/plain",
@@ -281,7 +264,8 @@ SyntheticPartLeaf.prototype = {
  * This is not a good idea and probably not legal either, but it happens and
  *  we need to test for it.
  */
-function SyntheticDegeneratePartEmpty() {}
+export function SyntheticDegeneratePartEmpty() {}
+
 SyntheticDegeneratePartEmpty.prototype = {
   prettyString(aIndent) {
     return "Degenerate Empty Part";
@@ -291,13 +275,14 @@ SyntheticDegeneratePartEmpty.prototype = {
 /**
  * Multipart (multipart/*) MIME part base class.
  */
-function SyntheticPartMulti(aParts, aProperties) {
+export function SyntheticPartMulti(aParts, aProperties) {
   SyntheticPart.call(this, aProperties);
 
   this._boundary = "--------------CHOPCHOP" + this.BOUNDARY_COUNTER;
   this.BOUNDARY_COUNTER_HOME.BOUNDARY_COUNTER += 1;
   this.parts = aParts != null ? aParts : [];
 }
+
 SyntheticPartMulti.prototype = {
   __proto__: SyntheticPart.prototype,
   BOUNDARY_COUNTER: 0,
@@ -354,9 +339,10 @@ SyntheticPartMulti.prototype.BOUNDARY_COUNTER_HOME =
 /**
  * Multipart mixed (multipart/mixed) MIME part.
  */
-function SyntheticPartMultiMixed(...aArgs) {
+export function SyntheticPartMultiMixed(...aArgs) {
   SyntheticPartMulti.apply(this, aArgs);
 }
+
 SyntheticPartMultiMixed.prototype = {
   __proto__: SyntheticPartMulti.prototype,
   _contentType: "multipart/mixed",
@@ -365,9 +351,10 @@ SyntheticPartMultiMixed.prototype = {
 /**
  * Multipart mixed (multipart/mixed) MIME part.
  */
-function SyntheticPartMultiParallel(...aArgs) {
+export function SyntheticPartMultiParallel(...aArgs) {
   SyntheticPartMulti.apply(this, aArgs);
 }
+
 SyntheticPartMultiParallel.prototype = {
   __proto__: SyntheticPartMulti.prototype,
   _contentType: "multipart/parallel",
@@ -376,9 +363,10 @@ SyntheticPartMultiParallel.prototype = {
 /**
  * Multipart digest (multipart/digest) MIME part.
  */
-function SyntheticPartMultiDigest(...aArgs) {
+export function SyntheticPartMultiDigest(...aArgs) {
   SyntheticPartMulti.apply(this, aArgs);
 }
+
 SyntheticPartMultiDigest.prototype = {
   __proto__: SyntheticPartMulti.prototype,
   _contentType: "multipart/digest",
@@ -387,9 +375,10 @@ SyntheticPartMultiDigest.prototype = {
 /**
  * Multipart alternative (multipart/alternative) MIME part.
  */
-function SyntheticPartMultiAlternative(...aArgs) {
+export function SyntheticPartMultiAlternative(...aArgs) {
   SyntheticPartMulti.apply(this, aArgs);
 }
+
 SyntheticPartMultiAlternative.prototype = {
   __proto__: SyntheticPartMulti.prototype,
   _contentType: "multipart/alternative",
@@ -398,15 +387,17 @@ SyntheticPartMultiAlternative.prototype = {
 /**
  * Multipart related (multipart/related) MIME part.
  */
-function SyntheticPartMultiRelated(...aArgs) {
+export function SyntheticPartMultiRelated(...aArgs) {
   SyntheticPartMulti.apply(this, aArgs);
 }
+
 SyntheticPartMultiRelated.prototype = {
   __proto__: SyntheticPartMulti.prototype,
   _contentType: "multipart/related",
 };
 
 var PKCS_SIGNATURE_MIME_TYPE = "application/x-pkcs7-signature";
+
 /**
  * Multipart signed (multipart/signed) SMIME part.  This is helperish and makes
  *  up a gibberish signature.  We wrap the provided parts in the standard
@@ -416,7 +407,7 @@ var PKCS_SIGNATURE_MIME_TYPE = "application/x-pkcs7-signature";
  *    Use a multipart if you need to cram extra stuff in there.
  * @param {object} aProperties - Properties, propagated to SyntheticPart, see that.
  */
-function SyntheticPartMultiSignedSMIME(aPart, aProperties) {
+export function SyntheticPartMultiSignedSMIME(aPart, aProperties) {
   SyntheticPartMulti.call(this, [aPart], aProperties);
   this.parts.push(
     new SyntheticPartLeaf(
@@ -428,6 +419,7 @@ function SyntheticPartMultiSignedSMIME(aPart, aProperties) {
     )
   );
 }
+
 SyntheticPartMultiSignedSMIME.prototype = {
   __proto__: SyntheticPartMulti.prototype,
   _contentType: "multipart/signed",
@@ -438,6 +430,7 @@ SyntheticPartMultiSignedSMIME.prototype = {
 };
 
 var PGP_SIGNATURE_MIME_TYPE = "application/pgp-signature";
+
 /**
  * Multipart signed (multipart/signed) PGP part.  This is helperish and makes
  *  up a gibberish signature.  We wrap the provided parts in the standard
@@ -447,7 +440,7 @@ var PGP_SIGNATURE_MIME_TYPE = "application/pgp-signature";
  *    Use a multipart if you need to cram extra stuff in there.
  * @param {object} aProperties - Properties, propagated to SyntheticPart, see that.
  */
-function SyntheticPartMultiSignedPGP(aPart, aProperties) {
+export function SyntheticPartMultiSignedPGP(aPart, aProperties) {
   SyntheticPartMulti.call(this, [aPart], aProperties);
   this.parts.push(
     new SyntheticPartLeaf(
@@ -458,6 +451,7 @@ function SyntheticPartMultiSignedPGP(aPart, aProperties) {
     )
   );
 }
+
 SyntheticPartMultiSignedPGP.prototype = {
   __proto__: SyntheticPartMulti.prototype,
   _contentType: "multipart/signed",
@@ -488,7 +482,7 @@ var _DEFAULT_META_STATES = {
  *   testing logic.
  * @param {boolean} [aMetaState.junk=false] Is the method junk?
  */
-function SyntheticMessage(aHeaders, aBodyPart, aMetaState) {
+export function SyntheticMessage(aHeaders, aBodyPart, aMetaState) {
   // we currently do not need to call SyntheticPart's constructor...
   this.headers = aHeaders || {};
   this.bodyPart = aBodyPart || new SyntheticPartLeaf("");
@@ -809,7 +803,7 @@ SyntheticMessage.prototype = {
  * @param {SyntheticMessage[]} messages - The list of SyntheticMessages instances to write.
  * @param {nsIMsgFolder} folder - The folder to write to.
  */
-function addMessagesToFolder(messages, folder) {
+export function addMessagesToFolder(messages, folder) {
   const localFolder = folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   localFolder.addMessageBatch(messages.map(m => m.toMessageString()));
 }
@@ -832,7 +826,7 @@ function addMessagesToFolder(messages, folder) {
  *     in.  The value may also be null if the message has not yet been
  *     inserted into a folder.
  */
-function SyntheticMessageSet(aSynMessages, aMsgFolders, aFolderIndices) {
+export function SyntheticMessageSet(aSynMessages, aMsgFolders, aFolderIndices) {
   this.synMessages = aSynMessages;
 
   if (Array.isArray(aMsgFolders)) {
@@ -848,6 +842,7 @@ function SyntheticMessageSet(aSynMessages, aMsgFolders, aFolderIndices) {
     this.folderIndices = aFolderIndices;
   }
 }
+
 SyntheticMessageSet.prototype = {
   /**
    * Helper method for messageInjection to use to tell us it is injecting a
@@ -1056,7 +1051,7 @@ SyntheticMessageSet.prototype = {
  * Provides mechanisms for creating vaguely interesting, but at least valid,
  *  SyntheticMessage instances.
  */
-function MessageGenerator() {
+export function MessageGenerator() {
   this._clock = new Date(2000, 1, 1);
   this._nextNameNumber = 0;
   this._nextSubjectNumber = 0;
@@ -1547,7 +1542,7 @@ MessageGenerator.prototype = {
  *     generator then the two sources can avoid duplicate use of the same
  *     names/addresses/subjects/message-ids.
  */
-function MessageScenarioFactory(aMessageGenerator) {
+export function MessageScenarioFactory(aMessageGenerator) {
   if (!aMessageGenerator) {
     aMessageGenerator = new MessageGenerator();
   }

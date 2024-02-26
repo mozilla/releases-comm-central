@@ -12,8 +12,8 @@ var {
   SyntheticPartLeaf,
   SyntheticPartMultiMixed,
   SyntheticMessageSet,
-} = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 var { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"
