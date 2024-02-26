@@ -1,7 +1,7 @@
 // Bug 170727 - Remove the escaped dot from body lines before saving in the offline store.
 
-const { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 // Strip the extra X-Mozilla- headers which are slipped in to messages

@@ -2,8 +2,8 @@
  * Test bug 460636 - nsMsgSaveAsListener sometimes inserts extra LF characters
  */
 
-var { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 var gSavedMsgFile;

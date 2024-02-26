@@ -12,8 +12,8 @@
  * http://bugzilla.zimbra.com/show_bug.cgi?id=78794
  */
 
-var { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 add_setup(async function () {

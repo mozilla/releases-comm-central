@@ -9,8 +9,8 @@
 
 // make SOLO_FILE="test_folderOfflineFlags.js" -C mailnews/imap/test check-one
 
-var { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 /**

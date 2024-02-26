@@ -14,8 +14,8 @@
  * Original Author: Atul Jangra<atuljangra66@gmail.com>
  */
 
-var { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 // Messages to load must have CRLF line endings, that is Windows style

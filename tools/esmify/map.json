@@ -382,7 +382,6 @@
   "resource:///modules/yahoo.jsm": "comm/chat/protocols/yahoo/yahoo.jsm",
   "resource://testing-common/CardDAVServer.jsm": "comm/mailnews/addrbook/test/CardDAVServer.jsm",
   "resource://testing-common/LDAPServer.jsm": "comm/mailnews/addrbook/test/LDAPServer.jsm",
-  "resource://testing-common/PromiseTestUtils.jsm": "comm/mailnews/test/resources/PromiseTestUtils.jsm",
   "resource://testing-common/TestProtocol.jsm": "comm/mail/components/im/test/TestProtocol.jsm",
   "resource://testing-common/calendar/CalDAVServer.jsm": "comm/calendar/test/CalDAVServer.jsm",
   "resource://testing-common/calendar/CalendarTestUtils.jsm": "comm/calendar/test/CalendarTestUtils.jsm",

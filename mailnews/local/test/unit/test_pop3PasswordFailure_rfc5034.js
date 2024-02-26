@@ -22,8 +22,8 @@
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/passwordStorage.js");
 
-var { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 var server;

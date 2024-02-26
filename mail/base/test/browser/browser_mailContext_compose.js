@@ -14,8 +14,8 @@ const { MessageGenerator } = ChromeUtils.import(
 const { NNTPServer } = ChromeUtils.importESModule(
   "resource://testing-common/NNTPServer.sys.mjs"
 );
-const { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 const tabmail = document.getElementById("tabmail");

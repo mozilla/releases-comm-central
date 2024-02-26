@@ -5,8 +5,8 @@
 const { NetworkTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/NetworkTestUtils.jsm"
 );
-const { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 const PORT = 25;

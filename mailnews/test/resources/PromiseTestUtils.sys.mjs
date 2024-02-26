@@ -7,8 +7,6 @@
  * with mailnews tests.
  */
 
-const EXPORTED_SYMBOLS = ["PromiseTestUtils"];
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -20,7 +18,7 @@ var { MailServices } = ChromeUtils.import(
  *     This gets called prior to the callback (or async resumption).
  */
 
-var PromiseTestUtils = {};
+export var PromiseTestUtils = {};
 
 PromiseTestUtils.PromiseUrlListener = function (aWrapped) {
   this.wrapped = aWrapped;

@@ -11,8 +11,8 @@ var { MailServices } = ChromeUtils.import(
 var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-var { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 var gIMAPDaemon, gServer, gIMAPIncomingServer;

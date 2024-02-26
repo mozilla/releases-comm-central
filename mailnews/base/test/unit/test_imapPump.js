@@ -9,8 +9,8 @@
 // async support
 /* import-globals-from ../../../test/resources/logHelper.js */
 load("../../../resources/logHelper.js");
-const { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 // IMAP pump

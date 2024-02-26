@@ -2,8 +2,8 @@
 
 /* Test of accessing over 2 GiB local folder. */
 
-const { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 // Find hdr for message whose offset is over 2 GiB.

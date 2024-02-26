@@ -7,8 +7,8 @@
 // see: bug 495318
 // see: RFC 5258 - http://tools.ietf.org/html/rfc5258
 
-var { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 add_setup(function () {

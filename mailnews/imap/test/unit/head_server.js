@@ -19,8 +19,8 @@ var { localAccountUtils } = ChromeUtils.import(
 var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
   "resource://testing-common/mailnews/IMAPpump.jsm"
 );
-var { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 var CC = Components.Constructor;

@@ -5,8 +5,8 @@
 // This file tests that checking folders for new mail with STATUS
 // doesn't leave db's open.
 
-var { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 var gFolder1, gFolder2;

@@ -17,8 +17,8 @@ var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
 var { ImapMessage } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Imapd.sys.mjs"
 );
-const { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 async function setupFolder() {
