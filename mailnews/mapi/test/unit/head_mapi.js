@@ -8,8 +8,8 @@ var { MailServices } = ChromeUtils.import(
 var { ctypes } = ChromeUtils.importESModule(
   "resource://gre/modules/ctypes.sys.mjs"
 );
-var { localAccountUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/LocalAccountUtils.jsm"
+var { localAccountUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
 
 // Ensure the profile directory is set up.

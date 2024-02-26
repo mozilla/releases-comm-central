@@ -4,8 +4,8 @@ var { MailServices } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-var { localAccountUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/LocalAccountUtils.jsm"
+var { localAccountUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
 
 var test = null;

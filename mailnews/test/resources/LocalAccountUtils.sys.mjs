@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["localAccountUtils"];
-
 // MailServices
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -11,7 +9,7 @@ const { MailServices } = ChromeUtils.import(
 
 // Local Mail Folders. Requires prior setup of profile directory
 
-var localAccountUtils = {
+export var localAccountUtils = {
   inboxFolder: undefined,
   incomingServer: undefined,
   rootFolder: undefined,

@@ -5,8 +5,8 @@
 // mail/components/about-support/content/accounts.js
 /* globals AboutSupport, AboutSupportPlatform */
 
-var { localAccountUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/LocalAccountUtils.jsm"
+var { localAccountUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
 
 /*

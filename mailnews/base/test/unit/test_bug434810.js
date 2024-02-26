@@ -13,7 +13,7 @@ function run_test() {
     "chrome://messenger/locale/messenger.properties"
   );
 
-  var expectedFolders = ["Inbox"]; // Inbox hard-coded in LocalAccountUtils.jsm
+  var expectedFolders = ["Inbox"]; // Inbox hard-coded in LocalAccountUtils.sys.mjs
 
   // These two MailNews adds by default
   expectedFolders.push(msgProps.GetStringFromName("outboxFolderName"));
