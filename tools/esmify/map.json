@@ -395,7 +395,6 @@
   "resource://testing-common/mailnews/LocalAccountUtils.jsm": "comm/mailnews/test/resources/LocalAccountUtils.jsm",
   "resource://testing-common/mailnews/MailTestUtils.jsm": "comm/mailnews/test/resources/MailTestUtils.jsm",
   "resource://testing-common/mailnews/MessageGenerator.jsm": "comm/mailnews/test/resources/MessageGenerator.jsm",
-  "resource://testing-common/mailnews/MessageInjection.jsm": "comm/mailnews/test/resources/MessageInjection.jsm",
   "resource://testing-common/mailnews/testJaBaseIncomingServer.jsm": "comm/mailnews/jsaccount/test/unit/resources/testJaBaseIncomingServer.jsm",
   "resource://testing-common/mailnews/testJaBaseMsgFolder.jsm": "comm/mailnews/jsaccount/test/unit/resources/testJaBaseMsgFolder.jsm",
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm": "comm/mail/test/browser/shared-modules/AccountManagerHelpers.jsm",

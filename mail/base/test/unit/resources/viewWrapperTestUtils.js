@@ -14,8 +14,8 @@ var { VirtualFolderHelper } = ChromeUtils.import(
 var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-var { MessageInjection } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageInjection.jsm"
+var { MessageInjection } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
 var { dump_view_state } = ChromeUtils.import(
   "resource://testing-common/mozmill/ViewHelpers.jsm"

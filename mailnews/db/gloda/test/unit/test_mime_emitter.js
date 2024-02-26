@@ -39,8 +39,8 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-var { MessageInjection } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageInjection.jsm"
+var { MessageInjection } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
 
 // While we're at it, we'll also test the correctness of the GlodaAttachment

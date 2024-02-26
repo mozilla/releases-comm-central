@@ -58,6 +58,6 @@ TEST_HARNESS_FILES.testing.mochitest.fakeserver += [
 TEST_HARNESS_FILES.testing.mochitest.resources += [
     "../../../mailnews/test/resources/logHelper.js",
     "../../../mailnews/test/resources/MessageGenerator.jsm",
-    "../../../mailnews/test/resources/MessageInjection.jsm",
+    "../../../mailnews/test/resources/MessageInjection.sys.mjs",
     "../../../mailnews/test/resources/SmimeUtils.sys.mjs",
 ]

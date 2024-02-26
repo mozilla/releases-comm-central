@@ -174,8 +174,8 @@ var { MailServices } = ChromeUtils.import(
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { MessageGenerator, MessageScenarioFactory, SyntheticMessageSet } =
   ChromeUtils.import("resource://testing-common/mailnews/MessageGenerator.jsm");
-var { MessageInjection } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageInjection.jsm"
+var { MessageInjection } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
 var { SmimeUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/SmimeUtils.sys.mjs"

@@ -38,8 +38,8 @@ var { GlodaMsgSearcher } = ChromeUtils.import(
 var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-var { MessageInjection } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageInjection.jsm"
+var { MessageInjection } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
 
 /* ===== Tests ===== */

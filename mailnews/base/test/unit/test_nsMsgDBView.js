@@ -18,8 +18,8 @@ var { MessageGenerator, MessageScenarioFactory, SyntheticMessageSet } =
 const { TreeSelection } = ChromeUtils.importESModule(
   "chrome://messenger/content/tree-selection.mjs"
 );
-var { MessageInjection } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageInjection.jsm"
+var { MessageInjection } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
 var { dump_view_contents } = ChromeUtils.import(
   "resource://testing-common/mozmill/ViewHelpers.jsm"

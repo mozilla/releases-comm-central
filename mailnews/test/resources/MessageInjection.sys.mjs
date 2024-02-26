@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["MessageInjection"];
-
 var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
@@ -14,15 +12,13 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { SyntheticMessageSet } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-var { PromiseTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
-);
+import { PromiseTestUtils } from "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs";
+
 var { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"
 );
-var { ImapMessage } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/Imapd.sys.mjs"
-);
+import { ImapMessage } from "resource://testing-common/mailnews/Imapd.sys.mjs";
+
 var { IMAPPump, setupIMAPPump } = ChromeUtils.import(
   "resource://testing-common/mailnews/IMAPpump.jsm"
 );
@@ -49,7 +45,7 @@ const SEARCH_TERM_MAP_HELPER = {
  * Currently only one active instance of MessageInjection is supported due
  * to a dependency on retrieving an account in the constructor.
  */
-class MessageInjection {
+export class MessageInjection {
   /**
    * MessageInjectionSetup
    */

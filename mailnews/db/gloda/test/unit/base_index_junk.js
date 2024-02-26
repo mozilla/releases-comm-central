@@ -26,8 +26,8 @@ var { queryExpect } = ChromeUtils.import(
 var { assertExpectedMessagesIndexed, waitForGlodaIndexer } = ChromeUtils.import(
   "resource://testing-common/gloda/GlodaTestHelper.jsm"
 );
-var { MessageInjection } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageInjection.jsm"
+var { MessageInjection } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
 
 var messageInjection;
