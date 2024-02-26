@@ -85,7 +85,8 @@ export function appendToFile(aPath, aString, aCreate) {
       if (
         aCreate &&
         error.name == "NoModificationAllowedError" &&
-        error.message.startsWith("Refusing to overwrite the file")
+        error.message.startsWith("Could not write to") &&
+        error.message.includes("refusing to overwrite file")
       ) {
         return;
       }
