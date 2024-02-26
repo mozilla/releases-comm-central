@@ -16,8 +16,8 @@ const {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { SmimeUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/smimeUtils.jsm"
+const { SmimeUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/SmimeUtils.sys.mjs"
 );
 const { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"

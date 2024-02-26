@@ -14,8 +14,8 @@ var { MessageInjection } = ChromeUtils.import(
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
-var { SmimeUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/smimeUtils.jsm"
+var { SmimeUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/SmimeUtils.sys.mjs"
 );
 
 add_setup(function () {

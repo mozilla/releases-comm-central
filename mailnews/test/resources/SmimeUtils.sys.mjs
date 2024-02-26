@@ -6,11 +6,7 @@
  * This file provides some utilities for helping run S/MIME tests.
  */
 
-var EXPORTED_SYMBOLS = ["SmimeUtils"];
-
-var { MockRegistrar } = ChromeUtils.importESModule(
-  "resource://testing-common/MockRegistrar.sys.mjs"
-);
+import { MockRegistrar } from "resource://testing-common/MockRegistrar.sys.mjs";
 
 const gCertDialogs = {
   confirmDownloadCACert: (ctx, cert, trust) => {
@@ -31,7 +27,7 @@ const gCertDialogs = {
   QueryInterface: ChromeUtils.generateQI(["nsICertificateDialogs"]),
 };
 
-var SmimeUtils = {
+export const SmimeUtils = {
   ensureNSS() {
     // Ensure NSS is initialized.
     Cc["@mozilla.org/psm;1"].getService(Ci.nsISupports);

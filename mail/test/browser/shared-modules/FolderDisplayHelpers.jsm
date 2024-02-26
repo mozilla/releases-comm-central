@@ -177,8 +177,8 @@ var { MessageGenerator, MessageScenarioFactory, SyntheticMessageSet } =
 var { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
 );
-var { SmimeUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/smimeUtils.jsm"
+var { SmimeUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/SmimeUtils.sys.mjs"
 );
 var { dump_view_state } = ChromeUtils.import(
   "resource://testing-common/mozmill/ViewHelpers.jsm"

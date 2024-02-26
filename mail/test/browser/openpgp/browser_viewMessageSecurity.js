@@ -33,8 +33,8 @@ const { OpenPGPTestUtils } = ChromeUtils.import(
 const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
-const { SmimeUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/smimeUtils.jsm"
+const { SmimeUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/SmimeUtils.sys.mjs"
 );
 
 const { MailServices } = ChromeUtils.import(

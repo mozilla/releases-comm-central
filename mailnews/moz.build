@@ -67,7 +67,7 @@ TESTING_JS_MODULES.mailnews += [
     "test/resources/MessageInjection.jsm",
     "test/resources/NetworkTestUtils.jsm",
     "test/resources/PromiseTestUtils.jsm",
-    "test/resources/smimeUtils.jsm",
+    "test/resources/SmimeUtils.sys.mjs",
 ]
 TESTING_JS_MODULES.mailnews.certs += [
     "test/fakeserver/certs/expired.cert",
