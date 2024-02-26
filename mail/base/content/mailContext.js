@@ -87,7 +87,6 @@ var mailContextMenu = {
     "mailContext-archive": "cmd_archive",
     "mailContext-moveToFolderAgain": "cmd_moveToFolderAgain",
     "mailContext-decryptToFolder": "cmd_copyDecryptedTo",
-    "mailContext-delete": "cmd_deleteMessage",
     "mailContext-ignoreThread": "cmd_killThread",
     "mailContext-ignoreSubthread": "cmd_killSubthread",
     "mailContext-watchThread": "cmd_watchThread",
@@ -337,6 +336,11 @@ var mailContextMenu = {
       enableItem(id, commandController.isCommandEnabled(command));
     }
 
+    showItem(
+      "mailContext-delete",
+      commandController.isCommandEnabled("cmd_deleteMessage")
+    );
+
     const inAbout3Pane = !!window.threadTree;
     const inThreadTree = !!this.inThreadTree;
 
@@ -492,6 +496,11 @@ var mailContextMenu = {
     }
 
     switch (event.target.id) {
+      case "mailContext-delete":
+        commandController.doCommand(
+          event.shiftKey ? "cmd_shiftDeleteMessage" : "cmd_deleteMessage"
+        );
+        break;
       // Links
       // case "mailContext-openInBrowser":
       //   this._openInBrowser();
