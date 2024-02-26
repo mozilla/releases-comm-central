@@ -10,8 +10,8 @@ const { ExtensionPermissions } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionPermissions.sys.mjs"
 );
 
-const { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
+const { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
 
 const treeClick = mailTestUtils.treeClick.bind(null, EventUtils, window);

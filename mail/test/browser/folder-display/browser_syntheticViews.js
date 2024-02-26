@@ -17,8 +17,8 @@ const {
 const { SyntheticPartLeaf } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
-const { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
+const { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
 
 const { GlodaMsgIndexer } = ChromeUtils.import(

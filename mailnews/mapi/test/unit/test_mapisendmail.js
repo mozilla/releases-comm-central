@@ -6,8 +6,8 @@ var { ctypes } = ChromeUtils.importESModule(
   "resource://gre/modules/ctypes.sys.mjs"
 );
 var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
+var { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
 
 // Set up an SMTP server and the MAPI daemon.

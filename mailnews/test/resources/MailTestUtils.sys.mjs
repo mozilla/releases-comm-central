@@ -2,11 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["mailTestUtils"];
+import { ctypes } from "resource://gre/modules/ctypes.sys.mjs";
 
-var { ctypes } = ChromeUtils.importESModule(
-  "resource://gre/modules/ctypes.sys.mjs"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -28,7 +25,7 @@ function avoidUncaughtExceptionInExternalProtocolService() {
 }
 avoidUncaughtExceptionInExternalProtocolService();
 
-var mailTestUtils = {
+export var mailTestUtils = {
   // Loads a file to a string
   // If aCharset is specified, treats the file as being of that charset
   loadFileToString(aFile, aCharset) {

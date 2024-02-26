@@ -5,8 +5,8 @@
 /**
  * Tests for deleting tasks in the task view.
  */
-const { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
+const { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
 const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 

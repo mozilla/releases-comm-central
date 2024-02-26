@@ -5,8 +5,8 @@
 var { GlodaConstants } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaConstants.jsm"
 );
-var { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
+var { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
 
 // Ensure the profile directory is set up

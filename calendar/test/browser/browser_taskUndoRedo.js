@@ -9,7 +9,9 @@
  * manipulating tasks.
  */
 
-var { mailTestUtils } = ChromeUtils.import("resource://testing-common/mailnews/MailTestUtils.jsm");
+var { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.sys.mjs",

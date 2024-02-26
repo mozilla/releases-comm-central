@@ -3,13 +3,10 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ImapD from "resource://testing-common/mailnews/Imapd.sys.mjs";
-
-const { IMAP_RFC3501_handler, ImapDaemon, ImapMessage, mixinExtension } = ImapD;
+import { mailTestUtils } from "resource://testing-common/mailnews/MailTestUtils.sys.mjs";
 import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
 
-const { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
-);
+const { IMAP_RFC3501_handler, ImapDaemon, ImapMessage, mixinExtension } = ImapD;
 
 /**
  * A simple IMAP server for testing purposes.

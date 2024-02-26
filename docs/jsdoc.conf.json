@@ -146,7 +146,7 @@
       "../mailnews/news/src/NntpMessageService.jsm",
       "../mailnews/news/src/NntpNewsGroup.jsm",
       "../mailnews/test/fakeserver/Auth.sys.mjs",
-      "../mailnews/test/resources/MailTestUtils.jsm",
+      "../mailnews/test/resources/MailTestUtils.sys.mjs",
       "../mailnews/test/resources/MessageGenerator.sys.mjs",
 
       "../suite"

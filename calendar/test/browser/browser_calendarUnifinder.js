@@ -4,8 +4,8 @@
 
 const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
-const { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
+const { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
 
 ChromeUtils.defineESModuleGetters(this, {

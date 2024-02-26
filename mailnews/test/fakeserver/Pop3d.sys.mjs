@@ -11,10 +11,7 @@ import {
   AuthLOGIN,
   AuthCRAM,
 } from "resource://testing-common/mailnews/Auth.sys.mjs";
-
-var { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
-);
+import { mailTestUtils } from "resource://testing-common/mailnews/MailTestUtils.sys.mjs";
 
 // Since we don't really need to worry about peristence, we can just
 // use a UIDL counter.

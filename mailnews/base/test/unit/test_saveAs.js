@@ -15,8 +15,8 @@ var { MessageGenerator } = ChromeUtils.importESModule(
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
-var { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
+var { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
 var { ImapMessage } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Imapd.sys.mjs"

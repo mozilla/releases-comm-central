@@ -4,8 +4,8 @@
 
 let gAccount, gFolders, gMessage, gExpectedAttachments;
 
-const { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
+const { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
 
 const URL_BASE =
