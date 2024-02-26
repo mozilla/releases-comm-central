@@ -26,7 +26,7 @@ interface nsIPop3Sink : nsISupports {
   void incorporateBegin(in string uidlString, in unsigned long flags);
   void incorporateWrite(in string block, in long length);
   void incorporateComplete(in nsIMsgWindow aMsgWindow, in int32_t aSize);
-  void incorporateAbort(in boolean uidlDownload);
+  void incorporateAbort();
 
   /**
    * Tell the pop3sink how many messages we're going to download.
