@@ -21,8 +21,8 @@ var { mailTestUtils } = ChromeUtils.importESModule(
 var { ImapMessage } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Imapd.sys.mjs"
 );
-var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
-  "resource://testing-common/mailnews/IMAPpump.jsm"
+var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/IMAPpump.sys.mjs"
 );
 var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"

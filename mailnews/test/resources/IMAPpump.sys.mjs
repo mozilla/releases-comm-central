@@ -11,26 +11,16 @@
  *  then.
  */
 
-var EXPORTED_SYMBOLS = ["IMAPPump", "setupIMAPPump", "teardownIMAPPump"];
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { localAccountUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
-);
-var { nsMailServer } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/Maild.sys.mjs"
-);
-var Imapd = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/Imapd.sys.mjs"
-);
-var { updateAppInfo } = ChromeUtils.importESModule(
-  "resource://testing-common/AppInfo.sys.mjs"
-);
+import { localAccountUtils } from "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs";
+import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
+import * as Imapd from "resource://testing-common/mailnews/Imapd.sys.mjs";
+import { updateAppInfo } from "resource://testing-common/AppInfo.sys.mjs";
 
 // define globals
-var IMAPPump = {
+export var IMAPPump = {
   daemon: null, // the imap fake server daemon
   server: null, // the imap fake server
   incomingServer: null, // nsIMsgIncomingServer for the imap server
@@ -38,7 +28,7 @@ var IMAPPump = {
   mailbox: null, // imap fake server mailbox
 };
 
-function setupIMAPPump(extensions) {
+export function setupIMAPPump(extensions) {
   // Create Application info if we need it.
   updateAppInfo();
 
@@ -120,7 +110,7 @@ function setupIMAPPump(extensions) {
 }
 
 // This will clear not only the imap accounts but also local accounts.
-function teardownIMAPPump() {
+export function teardownIMAPPump() {
   // try to finish any pending operations
   const thread = Services.tm.currentThread;
   while (thread.hasPendingEvents()) {

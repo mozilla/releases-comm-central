@@ -16,9 +16,10 @@ var { VirtualFolderHelper } = ChromeUtils.import(
 );
 import { ImapMessage } from "resource://testing-common/mailnews/Imapd.sys.mjs";
 
-var { IMAPPump, setupIMAPPump } = ChromeUtils.import(
-  "resource://testing-common/mailnews/IMAPpump.jsm"
-);
+import {
+  IMAPPump,
+  setupIMAPPump,
+} from "resource://testing-common/mailnews/IMAPpump.sys.mjs";
 
 const SEARCH_TERM_MAP_HELPER = {
   subject: Ci.nsMsgSearchAttrib.Subject,
