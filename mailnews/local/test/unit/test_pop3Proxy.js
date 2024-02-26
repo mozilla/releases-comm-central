@@ -2,8 +2,8 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 // Test that POP3 over a proxy works.
 
-const { NetworkTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/NetworkTestUtils.jsm"
+const { NetworkTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs"
 );
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"

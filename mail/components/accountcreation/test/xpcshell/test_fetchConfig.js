@@ -12,8 +12,8 @@
 const { HttpServer } = ChromeUtils.importESModule(
   "resource://testing-common/httpd.sys.mjs"
 );
-const { NetworkTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/NetworkTestUtils.jsm"
+const { NetworkTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs"
 );
 
 const { AccountConfig } = ChromeUtils.importESModule(

@@ -2,8 +2,8 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 // Test that IMAP over a SOCKS proxy works.
 
-var { NetworkTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/NetworkTestUtils.jsm"
+var { NetworkTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs"
 );
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"

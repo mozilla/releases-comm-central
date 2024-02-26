@@ -12,8 +12,8 @@
  * connections using a test certificate.
  */
 
-const { NetworkTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/NetworkTestUtils.jsm"
+const { NetworkTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs"
 );
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"

@@ -8,13 +8,10 @@
  */
 
 import { IMAPServer } from "resource://testing-common/IMAPServer.sys.mjs";
+import { NetworkTestUtils } from "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs";
 import { NNTPServer } from "resource://testing-common/NNTPServer.sys.mjs";
 import { POP3Server } from "resource://testing-common/POP3Server.sys.mjs";
 import { SMTPServer } from "resource://testing-common/SMTPServer.sys.mjs";
-
-const { NetworkTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/NetworkTestUtils.jsm"
-);
 
 const serverConstructors = {
   imap: IMAPServer,

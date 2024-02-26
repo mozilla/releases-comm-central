@@ -7,13 +7,9 @@
  * scenarios, such as proxies and SSL connections.
  */
 
-const EXPORTED_SYMBOLS = ["NetworkTestUtils"];
-
 var CC = Components.Constructor;
 
-const { NetUtil } = ChromeUtils.importESModule(
-  "resource://gre/modules/NetUtil.sys.mjs"
-);
+import { NetUtil } from "resource://gre/modules/NetUtil.sys.mjs";
 
 const ServerSocket = CC(
   "@mozilla.org/network/server-socket;1",
@@ -230,7 +226,7 @@ var gSocksServer = null;
 // hostname:port -> the port on localhost that the server really runs on.
 var gPortMap = new Map();
 
-var NetworkTestUtils = {
+export var NetworkTestUtils = {
   /**
    * Set up a proxy entry such that requesting a connection to hostname:port
    * will instead cause a connection to localRemappedPort. This will use a SOCKS
