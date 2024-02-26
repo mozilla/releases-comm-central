@@ -1127,7 +1127,8 @@ findbar {
 /* Panel toolbarbuttons */
 
 .panelTitle {
-  margin-block: 8px 6px;
+  font-weight: bold;
+  margin-block: 6px;
   margin-inline-start: 7px;
 }
 
