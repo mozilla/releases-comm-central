@@ -745,7 +745,6 @@ pref("browser.link.open_newwindow.restriction", 0);
 pref("browser.tabs.loadDivertedInBackground", false);
 
 pref("extensions.webextensions.remote", true);
-pref("extensions.webextensions.background-delayed-startup", true);
 
 // Browser icon prefs
 pref("browser.chrome.site_icons", true);
