@@ -733,6 +733,8 @@ function MoveSelection(forward) {
       // Cell spans from a Col above, look for the next cell in column
       newColIndex += gCellData.actualColSpan;
     }
+    // @see https://github.com/eslint/eslint/issues/17807
+    // eslint-disable-next-line no-constant-condition
   } while (true);
 
   // Save data for current selection before changing

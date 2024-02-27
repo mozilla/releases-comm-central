@@ -363,7 +363,7 @@ MailGlue.prototype = {
           "0"
         );
         break;
-      case "command-line-startup":
+      case "command-line-startup": {
         // Check if this process is the developer toolbox process, and if it
         // is, stop MailGlue from doing anything more. Also sets a flag that
         // can be checked to see if this is the toolbox process.
@@ -386,6 +386,7 @@ MailGlue.prototype = {
           this._dispose();
         }
         break;
+      }
       case "final-ui-startup":
         // Initialise the permission manager. If this happens before telling
         // the folder service that strings are available, it's a *much* less
@@ -415,7 +416,7 @@ MailGlue.prototype = {
       case "xpcom-shutdown":
         this._dispose();
         break;
-      case "intl:app-locales-changed":
+      case "intl:app-locales-changed": {
         Cc["@mozilla.org/msgFolder/msgFolderService;1"]
           .getService(Ci.nsIMsgFolderService)
           .initializeFolderStrings();
@@ -439,10 +440,11 @@ MailGlue.prototype = {
         );
         fls.setPrettyNameFromOriginalAllFolders();
         break;
+      }
       case "handle-xul-text-link":
         this._handleLink(aSubject, aData);
         break;
-      case "chrome-document-global-created":
+      case "chrome-document-global-created": {
         // Set up lwt, but only if the "lightweightthemes" attr is set on the root
         // (i.e. in messenger.xhtml).
         aSubject.addEventListener(
@@ -459,7 +461,8 @@ MailGlue.prototype = {
           { once: true }
         );
         break;
-      case "document-element-inserted":
+      }
+      case "document-element-inserted": {
         const doc = aSubject;
         if (
           doc.nodePrincipal.isSystemPrincipal &&
@@ -476,6 +479,7 @@ MailGlue.prototype = {
           );
         }
         break;
+      }
       case "handlersvc-store-initialized": {
         // Initialize PdfJs when running in-process and remote. This only
         // happens once since PdfJs registers global hooks. If the PdfJs

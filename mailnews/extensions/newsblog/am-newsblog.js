@@ -100,7 +100,7 @@ function setPrefs(aNode) {
       break;
     case "updateEnabled":
     case "updateValue":
-    case "biffUnits":
+    case "biffUnits": {
       optionsAcct.updates.enabled = gUpdateEnabled.checked;
       onCheckItem("updateValue", ["updateEnabled"]);
       onCheckItem("biffMinutes", ["updateEnabled"]);
@@ -112,6 +112,7 @@ function setPrefs(aNode) {
       optionsAcct.updates.updateMinutes = Number(minutes);
       optionsAcct.updates.updateUnits = gBiffUnits.value;
       break;
+    }
     case "autotagEnable":
       optionsAcct.category.enabled = aNode.checked;
       gAutotagUsePrefix.disabled = !aNode.checked;

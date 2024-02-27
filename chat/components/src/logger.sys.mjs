@@ -1098,7 +1098,7 @@ export class Logger {
 
   observe(aSubject, aTopic, aData) {
     switch (aTopic) {
-      case "new-text":
+      case "new-text": {
         let excludeBecauseEncrypted = false;
         if (aSubject.isEncrypted) {
           excludeBecauseEncrypted = !Services.prefs.getBoolPref(
@@ -1113,6 +1113,7 @@ export class Logger {
           log.logMessage(aSubject);
         }
         break;
+      }
       case "conversation-closed":
       case "conversation-left-chat":
         closeLogWriter(aSubject);

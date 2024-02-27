@@ -1147,6 +1147,8 @@ class FormatHelper {
    * @returns {Leaf} - The first leaf below the node.
    */
   static firstLeaf(node) {
+    // @see https://github.com/eslint/eslint/issues/17807
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       // Starting the block scope.
       if (this.isBlock(node)) {
@@ -1188,6 +1190,8 @@ class FormatHelper {
     // Find the next branch of the tree.
     let node = leaf.node;
     let sibling;
+    // @see https://github.com/eslint/eslint/issues/17807
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       if (node === root) {
         return null;
@@ -1255,7 +1259,7 @@ class FormatHelper {
       // Look ahead at the next leaf.
       const nextLeaf = cls.nextLeaf(root, leaf);
       switch (leaf.type) {
-        case "text":
+        case "text": {
           // Each character in the text content counts towards the total.
           const textLength = leaf.node.textContent.length;
           total += textLength;
@@ -1284,7 +1288,8 @@ class FormatHelper {
             }
           }
           break;
-        case "block-start":
+        }
+        case "block-start": {
           // Block start is a newline if the previous leaf was a text node in
           // the body scope.
           // Note that it is sufficient to test if the previous leaf was a text
@@ -1302,7 +1307,8 @@ class FormatHelper {
             total += 1;
           }
           break;
-        case "block-end":
+        }
+        case "block-end": {
           // Only create a newline if non-empty.
           if (prevLeaf?.type !== "block-start") {
             for (const target of selectionTargets) {
@@ -1317,7 +1323,8 @@ class FormatHelper {
             total += 1;
           }
           break;
-        case "break":
+        }
+        case "break": {
           // Only counts as a newline if it is not trailing in the body or block
           // scope.
           if (nextLeaf && nextLeaf.type !== "block-end") {
@@ -1339,6 +1346,7 @@ class FormatHelper {
             total += 1;
           }
           break;
+        }
         // Ignore type === "empty"
       }
       prevLeaf = leaf;

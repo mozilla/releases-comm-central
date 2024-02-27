@@ -69,7 +69,7 @@ export var Notifications = {
     // 1 - show only the sender not the message,
     // 2 - show no details about the message being notified.
     switch (notificationContent) {
-      case 0:
+      case 0: {
         const parser = new DOMParser();
         const doc = parser.parseFromString(
           aMessage.displayMessage,
@@ -101,8 +101,9 @@ export var Notifications = {
             aCounter
           );
         }
+      }
       // Falls through
-      case 1:
+      case 1: {
         // Use the buddy icon if available for the icon of the notification.
         const conv = aMessage.conversation;
         icon = conv.convIconFilename;
@@ -115,8 +116,9 @@ export var Notifications = {
         if (messageText && aMessage.action) {
           messageText = name + " " + messageText;
         }
+      }
       // Falls through
-      case 2:
+      case 2: {
         if (!icon) {
           icon = ChatIcons.fallbackUserIconURI;
         }
@@ -127,6 +129,7 @@ export var Notifications = {
           );
           messageText = bundle.GetStringFromName("messagePreview");
         }
+      }
     }
 
     const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
@@ -198,7 +201,7 @@ export var Notifications = {
     }
 
     switch (aTopic) {
-      case "new-directed-incoming-message":
+      case "new-directed-incoming-message": {
         // If this is the first message, we show the notification and
         // store the sender's name.
         const sender = aSubject.who || aSubject.alias;
@@ -243,8 +246,8 @@ export var Notifications = {
           }, kTimeToWaitForMoreMsgs * 1000);
         }
         break;
-
-      case "new-otr-verification-request":
+      }
+      case "new-otr-verification-request": {
         // If the Chat tab is not focused, play the sounds and update the icon
         // counter, and show the counter in the buddy richlistitem.
         const win = Services.wm.getMostRecentWindow("mail:3pane");
@@ -258,8 +261,8 @@ export var Notifications = {
             "play-chat-notification-sound"
           );
         }
-
         break;
+      }
     }
   },
 };

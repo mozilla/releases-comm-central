@@ -124,7 +124,7 @@ var gEditorDocumentObserver = {
 
     var editor = GetCurrentEditor();
     switch (aTopic) {
-      case "obs_documentCreated":
+      case "obs_documentCreated": {
         // Just for convenience
         gContentWindow = window.content;
 
@@ -197,6 +197,7 @@ var gEditorDocumentObserver = {
           onBackgroundColorChange();
         }
         break;
+      }
 
       case "cmd_setDocumentModified":
         window.updateCommands("save");

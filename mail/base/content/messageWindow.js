@@ -586,7 +586,7 @@ var MessageWindowController = {
       case "cmd_stop":
         msgWindow.StopUrls();
         break;
-      case "cmd_chat":
+      case "cmd_chat": {
         const win = Services.wm.getMostRecentWindow("mail:3pane");
         if (win) {
           win.focus();
@@ -601,6 +601,7 @@ var MessageWindowController = {
           );
         }
         break;
+      }
       case "cmd_newCard":
         openNewCardDialog();
         break;

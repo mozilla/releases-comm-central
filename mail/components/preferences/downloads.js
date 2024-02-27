@@ -79,9 +79,10 @@ var gDownloadDirSection = {
     switch (aFolder) {
       case "Desktop":
         return Services.dirsvc.get("Desk", Ci.nsIFile);
-      case "Downloads":
+      case "Downloads": {
         const downloadsDir = await Downloads.getSystemDownloadsDirectory();
         return new FileUtils.File(downloadsDir);
+      }
     }
     throw new Error(
       "ASSERTION FAILED: folder type should be 'Desktop' or 'Downloads'"

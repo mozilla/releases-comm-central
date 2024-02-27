@@ -236,6 +236,8 @@ function parseManifest(manifestUri) {
 function convertToCodeURI(fileUri) {
   let baseUri = fileUri;
   let path = "";
+  // @see https://github.com/eslint/eslint/issues/17807
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const slashPos = baseUri.lastIndexOf("/", baseUri.length - 2);
     if (slashPos <= 0) {

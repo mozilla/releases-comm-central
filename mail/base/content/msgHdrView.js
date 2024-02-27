@@ -2288,7 +2288,7 @@ function HandleMultipleAttachments(attachments, action) {
         false // don't save
       );
       return;
-    case "open":
+    case "open": {
       // XXX hack alert. If we sit in tight loop and open multiple
       // attachments, we get chrome errors in layout as we start loading the
       // first helper app dialog then before it loads, we kick off the next
@@ -2309,7 +2309,8 @@ function HandleMultipleAttachments(attachments, action) {
         }
       }
       return;
-    case "saveAs":
+    }
+    case "saveAs": {
       // Show one save dialog at a time, which allows to adjust the file name
       // and folder path for each attachment. For added convenience, we remember
       // the folder path of each file for the save dialog of the next one.
@@ -2320,9 +2321,9 @@ function HandleMultipleAttachments(attachments, action) {
           });
         }
       };
-
       saveAttachments(attachments);
       return;
+    }
     case "copyUrl":
       // Copy external http url(s) to clipboard. The menuitem is hidden unless
       // all selected attachment urls are http.

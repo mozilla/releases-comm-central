@@ -85,6 +85,8 @@ add_task(async () => {
             return actualArgs;
           },
           async pageLoad(tab, active = true) {
+            // @see https://github.com/eslint/eslint/issues/17807
+            // eslint-disable-next-line no-constant-condition
             while (true) {
               // Read the first event without consuming it.
               const [actualEvent, actualTabId, actualInfo, actualTab] =

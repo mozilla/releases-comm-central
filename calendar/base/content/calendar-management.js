@@ -318,7 +318,7 @@ async function loadCalendarManager() {
       }
 
       switch (name) {
-        case "disabled":
+        case "disabled": {
           item.toggleAttribute("calendar-disabled", value);
           item.querySelector(".calendar-displayed").hidden = value;
           // Update the "ENABLE" button.
@@ -334,6 +334,7 @@ async function loadCalendarManager() {
             ? `2px solid var(--calendar-${cssSafeId}-backcolor)`
             : "none";
           break;
+        }
         case "calendar-main-default":
           if (value) {
             calendarList.selectedIndex = calendarList.rows.indexOf(item);

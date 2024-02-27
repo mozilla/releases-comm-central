@@ -155,7 +155,7 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
         // Add the toolbar button to any about:message that comes along.
         super.paint(event.target);
         break;
-      case "popupshowing":
+      case "popupshowing": {
         const menu = event.target;
         // Exit early, if this is not a menupopup (for example a tooltip).
         if (menu.tagName != "menupopup") {
@@ -188,6 +188,7 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
           });
         }
         break;
+      }
     }
   }
 

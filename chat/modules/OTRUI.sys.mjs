@@ -877,7 +877,7 @@ export var OTRUI = {
     switch (aTopic) {
       case "nsPref:changed":
         break;
-      case "conversation-loaded":
+      case "conversation-loaded": {
         doc = aObject.ownerDocument;
         const windowtype = doc.documentElement.getAttribute("windowtype");
         if (windowtype !== "mail:3pane") {
@@ -885,6 +885,7 @@ export var OTRUI = {
         }
         OTRUI.addButton(aObject);
         break;
+      }
       case "conversation-closed":
         if (aObject.isChat) {
           return;

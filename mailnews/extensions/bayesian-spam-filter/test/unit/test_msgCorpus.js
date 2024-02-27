@@ -130,6 +130,8 @@ var gTests = [
 // main test
 function run_test() {
   do_test_pending();
+  // @see https://github.com/eslint/eslint/issues/17807
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     if (!gTests.length) {
       // Do we have more commands?

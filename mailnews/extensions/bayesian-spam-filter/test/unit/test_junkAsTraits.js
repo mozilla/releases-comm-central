@@ -551,7 +551,7 @@ function startCommand() {
       ); // in nsIJunkMailClassificationListener aJunkListener
       break;
 
-    case kCounts:
+    case kCounts: {
       // test counts
       const msgCount = {};
       const nsIMsgCorpus = MailServices.junk.QueryInterface(Ci.nsIMsgCorpus);
@@ -570,5 +570,6 @@ function startCommand() {
       Assert.equal(goodCount, gTest.goodCount);
       do_timeout(0, startCommand);
       break;
+    }
   }
 }

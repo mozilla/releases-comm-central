@@ -157,10 +157,9 @@ function plistToJSON(aElt) {
       return parseFloat(aElt.textContent);
     case "integer":
       return parseInt(aElt.textContent, 10);
-
-    case "dict":
+    case "dict": {
       const res = {};
-      let nodes = aElt.children;
+      const nodes = aElt.children;
       for (let i = 0; i < nodes.length; ++i) {
         if (nodes[i].nodeName == "key") {
           const key = nodes[i].textContent;
@@ -172,17 +171,17 @@ function plistToJSON(aElt) {
         }
       }
       return res;
-
-    case "array":
+    }
+    case "array": {
       const array = [];
-      nodes = aElt.children;
+      const nodes = aElt.children;
       for (let i = 0; i < nodes.length; ++i) {
         if (Element.isInstance(nodes[i])) {
           array.push(plistToJSON(nodes[i]));
         }
       }
       return array;
-
+    }
     default:
       throw new Error("Unknown tag in plist file");
   }

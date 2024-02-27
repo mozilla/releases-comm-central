@@ -242,7 +242,7 @@ function SortTree(column, ascending) {
   function compareFunc(a, b) {
     let valA, valB;
     switch (column) {
-      case "origin":
+      case "origin": {
         let realmA = a.httpRealm;
         let realmB = b.httpRealm;
         realmA = realmA == null ? "" : realmA.toLowerCase();
@@ -251,12 +251,13 @@ function SortTree(column, ascending) {
         valA = a[column].toLowerCase() + realmA;
         valB = b[column].toLowerCase() + realmB;
         break;
+      }
       case "username":
-      case "password":
+      case "password": {
         valA = a[column].toLowerCase();
         valB = b[column].toLowerCase();
         break;
-
+      }
       default:
         valA = a[column];
         valB = b[column];
@@ -279,6 +280,8 @@ function SortTree(column, ascending) {
 
   // restore the selection
   let selectedRow = -1;
+  // FIXME: dead code ahead; fix or remove
+  // eslint-disable-next-line no-constant-condition
   if (selectedNumber >= 0 && false) {
     for (let s = 0; s < table.length; s++) {
       if (table[s].number == selectedNumber) {

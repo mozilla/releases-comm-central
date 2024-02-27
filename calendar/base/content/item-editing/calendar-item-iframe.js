@@ -510,13 +510,15 @@ function onCommandCancel() {
     {}
   );
   switch (choice) {
-    case 0: // Save
+    case 0: {
+      // Save
       const itemTitle = document.getElementById("item-title");
       if (!itemTitle.value) {
         itemTitle.value = cal.l10n.getCalString("eventUntitled");
       }
       onCommandSave(true);
       return true;
+    }
     case 2: // Don't save
       // Don't show any warning dialog when closing without saving.
       gWarning = false;

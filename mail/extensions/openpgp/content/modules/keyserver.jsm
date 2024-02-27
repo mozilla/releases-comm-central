@@ -141,7 +141,7 @@ const accessHkpInternal = {
    */
   async buildHkpPayload(actionFlag, searchTerms) {
     switch (actionFlag) {
-      case lazy.EnigmailConstants.UPLOAD_KEY:
+      case lazy.EnigmailConstants.UPLOAD_KEY: {
         const exitCodeObj = {};
         const keyData = await lazy.EnigmailKeyRing.extractPublicKeys(
           ["0x" + searchTerms], // TODO: confirm input is ID or fingerprint
@@ -155,7 +155,7 @@ const accessHkpInternal = {
           return null;
         }
         return `keytext=${encodeURIComponent(keyData)}`;
-
+      }
       case lazy.EnigmailConstants.DOWNLOAD_KEY:
       case lazy.EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
       case lazy.EnigmailConstants.SEARCH_KEY:
@@ -938,7 +938,7 @@ function getAccessType(keyserver) {
 }
 
 /**
- Object to handle VKS requests (for example keys.openpgp.org)
+ * Object to handle VKS requests (for example keys.openpgp.org)
  */
 const accessVksServer = {
   /**
@@ -947,7 +947,7 @@ const accessVksServer = {
    */
   async buildJsonPayload(actionFlag, searchTerms, locale) {
     switch (actionFlag) {
-      case lazy.EnigmailConstants.UPLOAD_KEY:
+      case lazy.EnigmailConstants.UPLOAD_KEY: {
         const exitCodeObj = {};
         const keyData = await lazy.EnigmailKeyRing.extractPublicKeys(
           ["0x" + searchTerms], // must be id or fingerprint
@@ -964,7 +964,7 @@ const accessVksServer = {
         return JSON.stringify({
           keytext: keyData,
         });
-
+      }
       case lazy.EnigmailConstants.GET_CONFIRMATION_LINK:
         return JSON.stringify({
           token: searchTerms.token,

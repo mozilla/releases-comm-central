@@ -123,7 +123,7 @@ var FeedMessageHandler = {
       case this.kSelectOverrideSummary:
         showSummary = true;
         break;
-      case this.kSelectFeedDefault:
+      case this.kSelectFeedDefault: {
         // Get quickmode per feed folder pref from feed subscriptions. If the feed
         // message is not in a feed account folder (hence the folder is not in
         // the feeds database), err on the side of showing the summary.
@@ -140,6 +140,7 @@ var FeedMessageHandler = {
           }
         }
         break;
+      }
     }
 
     gShowFeedSummary = this.gShowSummary = showSummary;

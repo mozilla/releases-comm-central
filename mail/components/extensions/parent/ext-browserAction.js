@@ -267,7 +267,7 @@ this.browserAction = class extends ToolbarButtonAPI {
     const window = event.target.ownerGlobal;
 
     switch (event.type) {
-      case "popupshowing":
+      case "popupshowing": {
         const menu = event.target;
         // Exit early, if this is not a menupopup (for example a tooltip).
         if (menu.tagName != "menupopup") {
@@ -319,6 +319,7 @@ this.browserAction = class extends ToolbarButtonAPI {
           });
         }
         break;
+      }
     }
   }
 };

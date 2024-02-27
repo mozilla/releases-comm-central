@@ -319,7 +319,7 @@ ABView.prototype = {
       }
       // Falls through.
       case "addrbook-list-member-added":
-      case "addrbook-contact-created":
+      case "addrbook-contact-created": {
         if (topic == "addrbook-list-member-added" && !this.directory) {
           break;
         }
@@ -348,7 +348,7 @@ ABView.prototype = {
           this._tree.rowCountChanged(addIndex, 1);
         }
         break;
-
+      }
       case "addrbook-list-updated": {
         let parentDir = this.directory;
         if (!parentDir) {

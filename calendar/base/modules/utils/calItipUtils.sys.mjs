@@ -292,10 +292,11 @@ export var itip = {
         return lazy.cal.l10n.getLtnString("imipBarCounterText");
       case "DECLINECOUNTER":
         return lazy.cal.l10n.getLtnString("imipBarDeclineCounterText");
-      default:
+      default: {
         lazy.cal.ERROR("Unknown iTIP method: " + method);
         const appName = lazy.cal.l10n.getAnyString("branding", "brand", "brandShortName");
         return lazy.cal.l10n.getLtnString("imipBarUnsupportedText2", [appName]);
+      }
     }
   },
 
@@ -492,10 +493,11 @@ export var itip = {
           data.showItems.push("imipRescheduleButton");
           break;
         }
-        default:
+        default: {
           const appName = lazy.cal.l10n.getAnyString("branding", "brand", "brandShortName");
           data.label = lazy.cal.l10n.getLtnString("imipBarUnsupportedText2", [appName]);
           break;
+        }
       }
     } else {
       const appName = lazy.cal.l10n.getAnyString("branding", "brand", "brandShortName");

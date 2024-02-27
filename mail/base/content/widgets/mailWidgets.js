@@ -1758,7 +1758,7 @@
     handleKeyDown(pill, event) {
       switch (event.key) {
         case " ":
-        case ",":
+        case ",": {
           // Behaviour consistent with row input:
           // If keydown would normally replace all of the current trimmed input,
           // including if the current input is empty, then suppress the key and
@@ -1773,6 +1773,7 @@
             input.value = "";
           }
           break;
+        }
       }
     }
 
@@ -1794,7 +1795,7 @@
           break;
 
         case "Delete":
-        case "Backspace":
+        case "Backspace": {
           // We must never delete a focused pill which is not selected.
           // If no pills selected, just select the focused pill.
           // For rapid repeated deletions (esp. from holding BACKSPACE),
@@ -1808,6 +1809,7 @@
           const focusType = event.key == "Delete" ? "next" : "previous";
           this.removeSelectedPills(focusType, true);
           break;
+        }
 
         case "ArrowLeft":
           if (pill.previousElementSibling) {
@@ -1823,7 +1825,7 @@
           this.checkSelected(pill, event);
           break;
 
-        case "Home":
+        case "Home": {
           const firstPill = pill
             .closest(".address-container")
             .querySelector("mail-address-pill");
@@ -1835,8 +1837,8 @@
           }
           firstPill.focus();
           break;
-
-        case "End":
+        }
+        case "End": {
           if (!event.ctrlKey) {
             // Unmodified navigation: focus row input.
             // ### Todo: We can't handle Shift+End yet, so it ends up here.
@@ -1849,8 +1851,8 @@
             .querySelector("mail-address-pill:last-of-type")
             .focus();
           break;
-
-        case "Tab":
+        }
+        case "Tab": {
           for (const item of this.getSiblingPills(pill)) {
             item.removeAttribute("selected");
           }
@@ -1865,8 +1867,8 @@
           }
           pill.rowInput.focus();
           break;
-
-        case "a":
+        }
+        case "a": {
           if (
             !(event.ctrlKey || event.metaKey) ||
             event.repeat ||
@@ -1890,18 +1892,19 @@
           // selected, select all pills of the entire <mail-recipients-area>.
           this.selectAllPills();
           break;
-
-        case "c":
+        }
+        case "c": {
           if (event.ctrlKey || event.metaKey) {
             this.copySelectedPills();
           }
           break;
-
-        case "x":
+        }
+        case "x": {
           if (event.ctrlKey || event.metaKey) {
             this.cutSelectedPills();
           }
           break;
+        }
       }
     }
 

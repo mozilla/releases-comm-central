@@ -8596,7 +8596,7 @@ function moveSelectedAttachments(aDirection) {
 
   switch (aDirection) {
     case "left":
-    case "right":
+    case "right": {
       // Move selected attachments upwards/downwards.
       upwards = aDirection == "left";
       const blockItems = [];
@@ -8659,11 +8659,11 @@ function moveSelectedAttachments(aDirection) {
         );
       }
       break;
-
+    }
     case "top":
     case "bottom":
     case "bundleUp":
-    case "bundleDown":
+    case "bundleDown": {
       // Bundle selected attachments to top/bottom of the list or upwards/downwards.
 
       upwards = ["top", "bundleUp"].includes(aDirection);
@@ -8729,8 +8729,8 @@ function moveSelectedAttachments(aDirection) {
       // Ensure visibility of first/last selected item after the move.
       visibleIndex = gAttachmentBucket.getIndexOfItem(selItems[0]);
       break;
-
-    case "toggleSort":
+    }
+    case "toggleSort": {
       // Sort the selected attachments alphabetically after moving them together.
       // The command updater of cmd_sortAttachmentsToggle toggles the sorting
       // direction based on the current sorting and block status of the selection.
@@ -8795,6 +8795,7 @@ function moveSelectedAttachments(aDirection) {
           selItems.length == 1 ? gAttachmentBucket.selectedIndex : 0;
       }
       break;
+    }
   } // end switch (aDirection)
 
   // Restore original focus.
@@ -9061,7 +9062,7 @@ function attachmentBucketOnKeyPress(event) {
   }
 
   switch (event.key) {
-    case "Escape":
+    case "Escape": {
       const reorderAttachmentsPanel = document.getElementById(
         "reorderAttachmentsPanel"
       );
@@ -9087,26 +9088,26 @@ function attachmentBucketOnKeyPress(event) {
       // Close an empty bucket.
       toggleAttachmentPane("hide");
       break;
-
-    case "Enter":
+    }
+    case "Enter": {
       // Enter on empty bucket to add file attachments, convenience
       // keyboard equivalent of single-click on bucket whitespace.
       if (!gAttachmentBucket.itemCount) {
         goDoCommand("cmd_attachFile");
       }
       break;
-
-    case "ArrowLeft":
+    }
+    case "ArrowLeft": {
       gAttachmentBucket.moveByOffset(-1, !event.ctrlKey, event.shiftKey);
       event.preventDefault();
       break;
-
-    case "ArrowRight":
+    }
+    case "ArrowRight": {
       gAttachmentBucket.moveByOffset(1, !event.ctrlKey, event.shiftKey);
       event.preventDefault();
       break;
-
-    case "ArrowDown":
+    }
+    case "ArrowDown": {
       gAttachmentBucket.moveByOffset(
         gAttachmentBucket._itemsPerRow(),
         !event.ctrlKey,
@@ -9114,8 +9115,8 @@ function attachmentBucketOnKeyPress(event) {
       );
       event.preventDefault();
       break;
-
-    case "ArrowUp":
+    }
+    case "ArrowUp": {
       gAttachmentBucket.moveByOffset(
         -gAttachmentBucket._itemsPerRow(),
         !event.ctrlKey,
@@ -9124,6 +9125,7 @@ function attachmentBucketOnKeyPress(event) {
 
       event.preventDefault();
       break;
+    }
   }
 }
 
@@ -9868,7 +9870,7 @@ var envelopeDragObserver = {
       // check and do the right thing.
       switch (flavor) {
         // Process attachments.
-        case "application/x-moz-file":
+        case "application/x-moz-file": {
           if (data instanceof Ci.nsIFile) {
             size = data.fileSize;
           }
@@ -9884,8 +9886,8 @@ var envelopeDragObserver = {
             );
           }
           break;
-
-        case "text/x-moz-message":
+        }
+        case "text/x-moz-message": {
           isValidAttachment = true;
           const msgHdr =
             MailServices.messageServiceFromURI(data).messageURIToMsgHdr(data);
@@ -9897,14 +9899,14 @@ var envelopeDragObserver = {
           size = msgHdr.messageSize;
           contentType = "message/rfc822";
           break;
-
+        }
         // Data type representing:
         //  - URL strings dragged from a URL bar (Allow both attach and append).
         //    NOTE: This only works for macOS and Windows.
         //  - Attachments dragged from another message (Only attach).
         //  - Images dragged from the body of another message (Only append).
         case "text/uri-list":
-        case "text/x-moz-url":
+        case "text/x-moz-url": {
           const pieces = data.split("\n");
           data = pieces[0];
           if (pieces.length > 1) {
@@ -9939,9 +9941,9 @@ var envelopeDragObserver = {
             "application/x-moz-file-promise"
           );
           break;
-
+        }
         // Process address: Drop it into recipient field.
-        case "text/x-moz-address":
+        case "text/x-moz-address": {
           // Process the drop only if the message body wasn't the target and we
           // called this method from the onDrop() method.
           if (event.target.baseURI != "about:blank?compose" && isDropping) {
@@ -9951,6 +9953,7 @@ var envelopeDragObserver = {
             event.preventDefault();
           }
           break;
+        }
       }
 
       // Create the attachment and add it to attachments array.
@@ -10586,6 +10589,8 @@ function moveFocusToNeighbouringArea(event) {
     }
     // Focus is within, so we find the neighbouring area to move focus to.
     const end = i;
+    // @see https://github.com/eslint/eslint/issues/17807
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       // Get the next neighbour.
       // NOTE: The focus will loop around.

@@ -425,7 +425,7 @@ class VCardEdit extends HTMLElement {
     let fieldset;
     let addButton;
     switch (entry.name) {
-      case "n":
+      case "n": {
         const n = new VCardNComponent();
         n.vCardPropertyEntry = entry;
         fieldset = document.getElementById("addr-book-edit-n");
@@ -434,7 +434,8 @@ class VCardEdit extends HTMLElement {
         );
         fieldset.insertBefore(n, displayNicknameContainer);
         return n;
-      case "fn":
+      }
+      case "fn": {
         const fn = new VCardFNComponent();
         fn.vCardPropertyEntry = entry;
         fieldset = this.querySelector(
@@ -442,7 +443,8 @@ class VCardEdit extends HTMLElement {
         );
         fieldset.insertBefore(fn, fieldset.firstElementChild);
         return fn;
-      case "nickname":
+      }
+      case "nickname": {
         const nickname = new VCardNickNameComponent();
         nickname.vCardPropertyEntry = entry;
         fieldset = this.querySelector(
@@ -453,26 +455,30 @@ class VCardEdit extends HTMLElement {
           fieldset.firstElementChild?.nextElementSibling
         );
         return nickname;
-      case "email":
+      }
+      case "email": {
         const email = document.createElement("tr", { is: "vcard-email" });
         email.vCardPropertyEntry = entry;
         document.getElementById("vcard-email").appendChild(email);
         return email;
-      case "url":
+      }
+      case "url": {
         const url = new VCardURLComponent();
         url.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-url");
         addButton = document.getElementById("vcard-add-url");
         fieldset.insertBefore(url, addButton);
         return url;
-      case "tel":
+      }
+      case "tel": {
         const tel = new VCardTelComponent();
         tel.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-tel");
         addButton = document.getElementById("vcard-add-tel");
         fieldset.insertBefore(tel, addButton);
         return tel;
-      case "tz":
+      }
+      case "tz": {
         const tz = new VCardTZComponent();
         tz.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-tz");
@@ -480,35 +486,40 @@ class VCardEdit extends HTMLElement {
         fieldset.insertBefore(tz, addButton);
         addButton.hidden = true;
         return tz;
-      case "impp":
+      }
+      case "impp": {
         const impp = new VCardIMPPComponent();
         impp.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-impp");
         addButton = document.getElementById("vcard-add-impp");
         fieldset.insertBefore(impp, addButton);
         return impp;
-      case "anniversary":
+      }
+      case "anniversary": {
         const anniversary = new VCardSpecialDateComponent();
         anniversary.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-bday-anniversary");
         addButton = document.getElementById("vcard-add-bday-anniversary");
         fieldset.insertBefore(anniversary, addButton);
         return anniversary;
-      case "bday":
+      }
+      case "bday": {
         const bday = new VCardSpecialDateComponent();
         bday.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-bday-anniversary");
         addButton = document.getElementById("vcard-add-bday-anniversary");
         fieldset.insertBefore(bday, addButton);
         return bday;
-      case "adr":
+      }
+      case "adr": {
         const address = new VCardAdrComponent();
         address.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-address");
         addButton = document.getElementById("vcard-add-adr");
         fieldset.insertBefore(address, addButton);
         return address;
-      case "note":
+      }
+      case "note": {
         const note = new VCardNoteComponent();
         note.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-note");
@@ -517,7 +528,8 @@ class VCardEdit extends HTMLElement {
         // Only one note is allowed via UI.
         addButton.hidden = true;
         return note;
-      case "title":
+      }
+      case "title": {
         const title = new VCardTitleComponent();
         title.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-org");
@@ -532,7 +544,8 @@ class VCardEdit extends HTMLElement {
         // Only one title is allowed via UI.
         addButton.hidden = true;
         return title;
-      case "role":
+      }
+      case "role": {
         const role = new VCardRoleComponent();
         role.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-org");
@@ -547,7 +560,8 @@ class VCardEdit extends HTMLElement {
         // Only one role is allowed via UI.
         addButton.hidden = true;
         return role;
-      case "org":
+      }
+      case "org": {
         const org = new VCardOrgComponent();
         org.vCardPropertyEntry = entry;
         fieldset = this.querySelector("#addr-book-edit-org");
@@ -559,8 +573,10 @@ class VCardEdit extends HTMLElement {
         // Only one org is allowed via UI.
         addButton.hidden = true;
         return org;
-      default:
+      }
+      default: {
         return undefined;
+      }
     }
   }
 

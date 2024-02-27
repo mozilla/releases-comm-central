@@ -550,7 +550,7 @@ PopupNotifications.prototype = {
           break;
         }
       // Falls through
-      case "TabSelect":
+      case "TabSelect": {
         const self = this;
         // This is where we could detect if the panel is dismissed if the page
         // was switched. Unfortunately, the user usually has clicked elsewhere
@@ -564,6 +564,7 @@ PopupNotifications.prototype = {
           self._update();
         }, 0);
         break;
+      }
       case "click":
       case "keypress":
         this._onIconBoxCommand(aEvent);

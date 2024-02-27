@@ -748,13 +748,14 @@ class SmtpClient {
         this._currentAction = this._actionAUTH_CRAM;
         this._sendCommand("AUTH CRAM-MD5");
         return;
-      case "XOAUTH2":
+      case "XOAUTH2": {
         // See https://developers.google.com/gmail/xoauth2_protocol#smtp_protocol_exchange
         this.logger.debug("Authentication via AUTH XOAUTH2");
         this._currentAction = this._actionAUTH_XOAUTH2;
         const oauthToken = await this._authenticator.getOAuthToken();
         this._sendCommand("AUTH XOAUTH2 " + oauthToken, true);
         return;
+      }
       case "GSSAPI": {
         this.logger.debug("Authentication via AUTH GSSAPI");
         this._currentAction = this._actionAUTH_GSSAPI;

@@ -68,7 +68,7 @@ function getInput(entryName, addIfNeeded = false) {
       return abDocument.querySelector("vcard-fn #vCardPreferDisplayName");
     case "NickName":
       return abDocument.querySelector("vcard-nickname #vCardNickName");
-    case "Prefix":
+    case "Prefix": {
       const prefixInput = abDocument.querySelector("vcard-n #vcard-n-prefix");
       if (addIfNeeded && BrowserTestUtils.isHidden(prefixInput)) {
         EventUtils.synthesizeMouseAtCenter(
@@ -78,9 +78,10 @@ function getInput(entryName, addIfNeeded = false) {
         );
       }
       return prefixInput;
+    }
     case "FirstName":
       return abDocument.querySelector("vcard-n #vcard-n-firstname");
-    case "MiddleName":
+    case "MiddleName": {
       const middleNameInput = abDocument.querySelector(
         "vcard-n #vcard-n-middlename"
       );
@@ -94,9 +95,10 @@ function getInput(entryName, addIfNeeded = false) {
         );
       }
       return middleNameInput;
+    }
     case "LastName":
       return abDocument.querySelector("vcard-n #vcard-n-lastname");
-    case "Suffix":
+    case "Suffix": {
       const suffixInput = abDocument.querySelector("vcard-n #vcard-n-suffix");
       if (addIfNeeded && BrowserTestUtils.isHidden(suffixInput)) {
         EventUtils.synthesizeMouseAtCenter(
@@ -106,7 +108,8 @@ function getInput(entryName, addIfNeeded = false) {
         );
       }
       return suffixInput;
-    case "PrimaryEmail":
+    }
+    case "PrimaryEmail": {
       if (
         addIfNeeded &&
         abDocument.getElementById("vcard-email").children.length < 1
@@ -118,11 +121,12 @@ function getInput(entryName, addIfNeeded = false) {
       return abDocument.querySelector(
         `#vcard-email tr:nth-child(1) input[type="email"]`
       );
+    }
     case "PrimaryEmailCheckbox":
       return getInput("PrimaryEmail")
         .closest(`tr`)
         .querySelector(`input[type="checkbox"]`);
-    case "SecondEmail":
+    case "SecondEmail": {
       if (
         addIfNeeded &&
         abDocument.getElementById("vcard-email").children.length < 2
@@ -134,12 +138,12 @@ function getInput(entryName, addIfNeeded = false) {
       return abDocument.querySelector(
         `#vcard-email tr:nth-child(2) input[type="email"]`
       );
+    }
     case "SecondEmailCheckbox":
       return getInput("SecondEmail")
         .closest(`tr`)
         .querySelector(`input[type="checkbox"]`);
   }
-
   return null;
 }
 
@@ -324,7 +328,7 @@ function checkVCardInputValues(expected) {
         case "title":
           valueField = field.titleEl;
           break;
-        case "specialDate":
+        case "specialDate": {
           Assert.equal(
             expectedEntry.value[0],
             field.year.value,
@@ -341,7 +345,8 @@ function checkVCardInputValues(expected) {
             `Day value of ${key} at position ${index}`
           );
           break;
-        case "adr":
+        }
+        case "adr": {
           typeField = field.vCardType.selectEl;
           const addressValue = [
             field.streetEl.value,
@@ -357,10 +362,11 @@ function checkVCardInputValues(expected) {
             `Value of ${key} at position ${index}`
           );
           break;
+        }
         case "tz":
           valueField = field.selectEl;
           break;
-        case "org":
+        case "org": {
           const orgValue = [field.orgEl.value];
           if (field.unitEl.value) {
             orgValue.push(field.unitEl.value);
@@ -371,6 +377,7 @@ function checkVCardInputValues(expected) {
             `Value of ${key} at position ${index}`
           );
           break;
+        }
         case "role":
           valueField = field.roleEl;
           break;

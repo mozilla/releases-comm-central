@@ -889,12 +889,13 @@
         case "tags":
         case "junk-status":
         case "attachment-status":
-        case "junk-origin":
+        case "junk-origin": {
           const item = this.input.querySelector(`menuitem[value="${value}"]`);
           if (item) {
             this.input.selectedItem = item;
           }
           break;
+        }
         case "none":
           // Silently ignore the value.
           break;
@@ -1565,7 +1566,7 @@
       const actionItem = actionTarget.ruleactiontargetElement;
       const nsMsgFilterAction = Ci.nsMsgFilterAction;
       switch (aFilterAction.type) {
-        case nsMsgFilterAction.Custom:
+        case nsMsgFilterAction.Custom: {
           filterActionStr = aFilterAction.customId;
           if (actionItem) {
             actionItem.children[0].value = aFilterAction.strValue;
@@ -1605,6 +1606,7 @@
             Services.console.logMessage(scriptError);
           }
           break;
+        }
         case nsMsgFilterAction.MoveToFolder:
         case nsMsgFilterAction.CopyToFolder:
           actionItem.children[0].value = aFilterAction.targetFolderUri;
@@ -1650,7 +1652,7 @@
 
       switch (filterActionString) {
         case "movemessage":
-        case "copymessage":
+        case "copymessage": {
           const msgFolder = actionTargetLabel
             ? MailUtils.getOrCreateFolder(actionTargetLabel)
             : null;
@@ -1658,6 +1660,7 @@
             errorString = "mustSelectFolder";
           }
           break;
+        }
         case "forwardmessage":
           if (
             actionTargetLabel.length < 3 ||

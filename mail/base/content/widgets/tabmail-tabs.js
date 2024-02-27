@@ -579,7 +579,7 @@
           this.arrowScrollbox.removeAttribute("overflow");
           alltabsButton.setAttribute("hidden", "true");
           break;
-        case "resize":
+        case "resize": {
           const width = this.arrowScrollbox.getBoundingClientRect().width;
           if (width != this.arrowScrollboxWidth) {
             this._updateCloseButtons();
@@ -589,6 +589,7 @@
             this.arrowScrollboxWidth = width;
           }
           break;
+        }
       }
     }
 

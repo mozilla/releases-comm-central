@@ -112,7 +112,7 @@ AddrBookCard.prototype = {
         }
         break;
 
-      default:
+      default: {
         const startNames = [this.prefixName, this.firstName, this.middleName]
           .filter(Boolean)
           .join(" ");
@@ -125,6 +125,7 @@ AddrBookCard.prototype = {
             endNames,
           ]) ?? `${startNames} ${endNames}`;
         break;
+      }
     }
 
     // Remove any leftover blank spaces.

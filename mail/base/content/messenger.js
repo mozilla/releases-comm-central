@@ -968,7 +968,7 @@ var TabsInTitlebar = {
           this.update();
         }
         break;
-      case "resize":
+      case "resize": {
         // The spaces toolbar needs special styling for the fullscreen mode.
         gSpacesToolbar.onWindowResize();
         if (window.fullScreen || aEvent.target != window) {
@@ -993,6 +993,7 @@ var TabsInTitlebar = {
         }
         this.update();
         break;
+      }
     }
   },
 

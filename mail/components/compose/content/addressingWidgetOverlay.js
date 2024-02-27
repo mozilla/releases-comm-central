@@ -504,7 +504,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
   const input = event.target;
 
   switch (event.key) {
-    case "a":
+    case "a": {
       // Break if there's text in the input, if not Ctrl/Cmd+A, or for other
       // modifiers, to not hijack our own (Ctrl/Cmd+Shift+A) or OS shortcuts.
       if (
@@ -539,9 +539,9 @@ function addressInputOnBeforeHandleKeyDown(event) {
         lastPillGlobal.focus();
       }
       break;
-
+    }
     case " ":
-    case ",":
+    case ",": {
       const selection = input.value.substring(
         input.selectionStart,
         input.selectionEnd
@@ -609,10 +609,10 @@ function addressInputOnBeforeHandleKeyDown(event) {
       input.selectionStart = 0;
       input.selectionEnd = 0;
       break;
-
+    }
     case "Home":
     case "ArrowLeft":
-    case "Backspace":
+    case "Backspace": {
       if (
         event.key == "Backspace" &&
         event.repeat &&
@@ -684,8 +684,8 @@ function addressInputOnBeforeHandleKeyDown(event) {
       // Backspace keydown event occurred, and it has an [x] button for removal.
       hideAddressRowFromWithin(input, "previous");
       break;
-
-    case "Delete":
+    }
+    case "Delete": {
       if (event.repeat && gPreventRowDeletionKeysRepeat) {
         // Prevent repeated Delete keydown event if the flag is set.
         event.preventDefault();
@@ -721,8 +721,8 @@ function addressInputOnBeforeHandleKeyDown(event) {
       // [x] button for removal.
       hideAddressRowFromWithin(input, "next");
       break;
-
-    case "Enter":
+    }
+    case "Enter": {
       // Break if unrelated modifier keys are used. The toolkit hack for Mac
       // will consume metaKey, and we'll exclude shiftKey after that.
       if (event.ctrlKey || event.altKey) {
@@ -749,8 +749,8 @@ function addressInputOnBeforeHandleKeyDown(event) {
       event.preventDefault();
       focusNextAddressRow(input);
       break;
-
-    case "Tab":
+    }
+    case "Tab": {
       // Return if the Alt or Cmd modifiers were pressed, meaning the user is
       // switching between windows and not tabbing out of the address input.
       if (event.altKey || event.metaKey) {
@@ -783,6 +783,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
         input.closest("mail-recipients-area").moveFocusToPreviousElement(input);
       }
       break;
+    }
   }
 }
 

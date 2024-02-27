@@ -1037,7 +1037,7 @@ class SelectionWidgetController {
         case "toggle":
           this.#toggleSelection(this.#focusIndex);
           break;
-        case "range":
+        case "range": {
           // We want to select all items between a "pivot" point and the focused
           // index. If we do not have a "pivot" point, we use the previously
           // focused index.
@@ -1091,6 +1091,7 @@ class SelectionWidgetController {
           }
           this.#selectRange(start, number);
           break;
+        }
       }
     }
 
@@ -1225,7 +1226,7 @@ class SelectionWidgetController {
         focusIndex = this.#numItems - 1;
         break;
       case "PageUp":
-      case "PageDown":
+      case "PageDown": {
         const sizeDetails = this.#methods.getPageSizeDetails();
         if (!sizeDetails) {
           // Do not handle and allow PageUp or PageDown to propagate.
@@ -1300,6 +1301,7 @@ class SelectionWidgetController {
           }
         }
         break;
+      }
       case forwardKey:
         if (this.#focusIndex == null) {
           // Move to first item.

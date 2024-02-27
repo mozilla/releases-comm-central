@@ -274,12 +274,13 @@ InvitationsManager.prototype = {
       const oldItem = job.oldItem;
       const newItem = job.newItem;
       switch (job.action) {
-        case "modify":
+        case "modify": {
           const item = await newItem.calendar.modifyItem(newItem, oldItem);
           cal.itip.checkAndSend(Ci.calIOperationListener.MODIFY, item, oldItem);
           this.deleteItem(item);
           this.addItem(item);
           break;
+        }
         default:
           break;
       }

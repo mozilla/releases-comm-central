@@ -875,7 +875,7 @@ class NntpClient {
       case AUTH_PASSWORD_REQUIRED:
         this._actionAuthPassword();
         return;
-      case AUTH_FAILED:
+      case AUTH_FAILED: {
         const action = this._authenticator.promptAuthFailed(this._msgWindow);
         if (action == 1) {
           // Cancel button pressed.
@@ -888,6 +888,7 @@ class NntpClient {
         }
         // Retry.
         this._actionAuthUser();
+      }
     }
   }
 

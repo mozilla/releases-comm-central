@@ -333,6 +333,8 @@ class MimeEncoder {
     const length = encoded.length;
     let i = 0;
     const limit = 72;
+    // @see https://github.com/eslint/eslint/issues/17807
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       if (i * limit > length) {
         break;

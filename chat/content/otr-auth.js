@@ -107,7 +107,7 @@ var otrAuth = {
         showSection("manualVerification", true);
         this.oninput({ value: true });
         break;
-      case "ask":
+      case "ask": {
         const receivedQuestionLabel = document.getElementById(
           "receivedQuestionLabel"
         );
@@ -126,6 +126,7 @@ var otrAuth = {
         }
         showSection("ask", true);
         break;
+      }
     }
   },
 
@@ -137,15 +138,17 @@ var otrAuth = {
     } else if (mode === "start") {
       const how = document.getElementById("howOption");
       switch (how.selectedItem.value) {
-        case "questionAndAnswer":
+        case "questionAndAnswer": {
           const question = document.getElementById("question").value;
           const answer = document.getElementById("answer").value;
           startSMP(context, answer, question);
           break;
-        case "sharedSecret":
+        }
+        case "sharedSecret": {
           const secret = document.getElementById("secret").value;
           startSMP(context, secret);
           break;
+        }
         case "manualVerification":
           manualVerification(context.fingerprint, context);
           break;

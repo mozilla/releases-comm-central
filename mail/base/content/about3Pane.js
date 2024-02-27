@@ -4275,6 +4275,8 @@ var threadPane = {
       let msgFileName = validateFileName(uniqueFileName);
       let msgFileNameLowerCase = msgFileName.toLocaleLowerCase();
 
+      // @see https://github.com/eslint/eslint/issues/17807
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         if (!messages.has(msgFileNameLowerCase)) {
           messages.set(msgFileNameLowerCase, 1);

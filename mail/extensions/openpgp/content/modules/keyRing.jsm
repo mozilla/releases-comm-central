@@ -1844,7 +1844,7 @@ var EnigmailKeyRing = {
             keyMeta.readiness = isExpired ? "expiredRejected" : "rejected";
             break;
           case 0:
-          default:
+          default: {
             const other = await lazy.PgpSqliteDb2.getFingerprintAcceptance(
               null,
               keyObj.fpr
@@ -1860,6 +1860,7 @@ var EnigmailKeyRing = {
               keyMeta.readiness = isExpired ? "expiredUndecided" : "undecided";
             }
             break;
+          }
         }
       }
       result.push(keyMeta);

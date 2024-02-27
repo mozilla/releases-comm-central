@@ -2011,13 +2011,14 @@ var FeedUtils = {
             "subscribe-errorOpeningFile"
           );
           break;
-        case FeedUtils.kNewsBlogBadCertError:
+        case FeedUtils.kNewsBlogBadCertError: {
           const host = Services.io.newURI(feed.url).host;
           message = FeedUtils.strings.formatStringFromName(
             "newsblog-badCertError",
             [host]
           );
           break;
+        }
         case FeedUtils.kNewsBlogNoAuthError:
           message = FeedUtils.strings.formatStringFromName(
             "newsblog-noAuthError",

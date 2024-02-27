@@ -584,7 +584,7 @@ add_task(async function test_onComposeStateChanged() {
             browser.test.assertEq(false, state.canSendLater);
             break;
 
-          case 4:
+          case 4: {
             // The recipient has been reverted, send is enabled.
             browser.test.assertEq(true, state.canSendNow);
             browser.test.assertEq(true, state.canSendLater);
@@ -598,6 +598,7 @@ add_task(async function test_onComposeStateChanged() {
 
             browser.test.notifyPass("finished");
             break;
+          }
         }
       });
 

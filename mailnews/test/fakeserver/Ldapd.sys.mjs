@@ -534,10 +534,11 @@ class LDAPHandler {
   async run() {
     const parser = new BERParser(this._conn);
 
-    while (1) {
+    // @see https://github.com/eslint/eslint/issues/17807
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
       const [msg] = await parser.decodeBERValue();
       if (this._daemon.debug) {
-        dump("=== received ===\n");
         msg.dbug("C: ");
       }
 

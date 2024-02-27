@@ -1125,7 +1125,7 @@ class ImapClient {
       ];
 
     switch (this._currentAuthMethod) {
-      case "OLDLOGIN":
+      case "OLDLOGIN": {
         this._nextAction = this._actionAuthResponse;
         const password = await this._getPassword();
         this._sendTagged(
@@ -1133,6 +1133,7 @@ class ImapClient {
           true
         );
         break;
+      }
       case "PLAIN":
         this._nextAction = this._actionAuthPlain;
         this._sendTagged("AUTHENTICATE PLAIN");
@@ -1173,11 +1174,12 @@ class ImapClient {
         this._sendTagged(`AUTHENTICATE NTLM ${token}`, true);
         break;
       }
-      case "XOAUTH2":
+      case "XOAUTH2": {
         this._nextAction = this._actionAuthResponse;
         const token = await this._authenticator.getOAuthToken();
         this._sendTagged(`AUTHENTICATE XOAUTH2 ${token}`, true);
         break;
+      }
       case "EXTERNAL":
         this._nextAction = this._actionAuthResponse;
         this._sendTagged(

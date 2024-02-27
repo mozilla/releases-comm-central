@@ -828,6 +828,8 @@ class ThunderbirdProfileImporter extends BaseProfileImporter {
         // For every address book, create a new one to avoid conflicts.
         let uniqueCount = 0;
         newKey = key;
+        // @see https://github.com/eslint/eslint/issues/17807
+        // eslint-disable-next-line no-constant-condition
         while (true) {
           if (!branch.getCharPref(`${newKey}.filename`, "")) {
             break;

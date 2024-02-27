@@ -483,11 +483,12 @@
           case Ci.prplITooltipInfo.sectionBreak:
             this.addSeparator();
             break;
-          case Ci.prplITooltipInfo.status:
+          case Ci.prplITooltipInfo.status: {
             const statusType = parseInt(elt.label);
             this.setStatusIcon(LazyModules.Status.toAttribute(statusType));
             this.setMessage(LazyModules.Status.toLabel(statusType, elt.value));
             break;
+          }
           case Ci.prplITooltipInfo.icon:
             if (!this.hasBestAvatar) {
               this.setUserIcon(elt.value);

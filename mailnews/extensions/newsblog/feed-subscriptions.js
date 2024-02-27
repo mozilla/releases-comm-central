@@ -1278,7 +1278,7 @@ var FeedSubscriptions = {
     }
 
     switch (aNode.id) {
-      case "nameValue":
+      case "nameValue": {
         // Check to see if the title value changed, no blank title allowed.
         if (!aNode.value) {
           aNode.value = item.name;
@@ -1289,7 +1289,8 @@ var FeedSubscriptions = {
         const seln = this.mView.selection;
         seln.tree.invalidateRow(seln.currentIndex);
         break;
-      case "locationValue":
+      }
+      case "locationValue": {
         const updateFeedButton = document.getElementById("updateFeed");
         // Change label based on whether feed url has beed edited.
         updateFeedButton.label =
@@ -1305,9 +1306,10 @@ var FeedSubscriptions = {
         // Disable the Update button if no feed url value is entered.
         updateFeedButton.disabled = !aNode.value;
         return;
+      }
       case "updateEnabled":
       case "updateValue":
-      case "biffUnits":
+      case "biffUnits": {
         item.options.updates.enabled = updateEnabled.checked;
         const minutes =
           biffUnits.value == FeedUtils.kBiffUnitsMinutes
@@ -1316,6 +1318,7 @@ var FeedSubscriptions = {
         item.options.updates.updateMinutes = Number(minutes);
         item.options.updates.updateUnits = biffUnits.value;
         break;
+      }
       case "autotagEnable":
         item.options.category.enabled = aNode.checked;
         break;
@@ -2896,6 +2899,8 @@ var FeedSubscriptions = {
           ":" +
           aParentNode.childElementCount
       );
+      // @see https://github.com/eslint/eslint/issues/17807
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         if (aParentNode.tagName == "body" && !aParentNode.childElementCount) {
           // Finished.

@@ -306,6 +306,8 @@ function enableGPGMELibJS() {
           }
         }
         this.gpgme_key_release(key);
+        // @see https://github.com/eslint/eslint/issues/17807
+        // eslint-disable-next-line no-constant-condition
       } while (true);
 
       if (this.gpgme_op_keylist_end(c1)) {

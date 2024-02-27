@@ -96,7 +96,7 @@ class ImapResponse {
     if (this.tag == "*") {
       parsed = true;
       switch (tokens[1].toUpperCase()) {
-        case "CAPABILITY":
+        case "CAPABILITY": {
           // * CAPABILITY IMAP4rev1 IDLE STARTTLS AUTH=LOGIN AUTH=PLAIN
           const { capabilities, authMethods } = new CapabilityData(
             tokens.slice(2)
@@ -104,6 +104,7 @@ class ImapResponse {
           this.capabilities = capabilities;
           this.authMethods = authMethods;
           break;
+        }
         case "FLAGS":
           // * FLAGS (\Seen \Draft $Forwarded)
           this.flags = ImapUtils.stringsToFlags(tokens[2]);
@@ -156,13 +157,14 @@ class ImapResponse {
       const type = tokens[2][0].toUpperCase();
       const data = tokens[2].slice(1);
       switch (type) {
-        case "CAPABILITY":
+        case "CAPABILITY": {
           // 32 OK [CAPABILITY IMAP4rev1 IDLE STARTTLS AUTH=LOGIN AUTH=PLAIN]
           const { capabilities, authMethods } = new CapabilityData(data);
           this.capabilities = capabilities;
           this.authMethods = authMethods;
           break;
-        case "PERMANENTFLAGS":
+        }
+        case "PERMANENTFLAGS": {
           // * OK [PERMANENTFLAGS (\\Seen \\Draft $Forwarded \\*)]
           this.permanentflags = ImapUtils.stringsToFlags(tokens[2][1]);
           if (tokens[2][1].includes("\\*")) {
@@ -173,7 +175,8 @@ class ImapResponse {
               ImapUtils.FLAG_SUPPORT_USER_FLAG;
           }
           break;
-        default:
+        }
+        default: {
           const field = type.toLowerCase();
           if (tokens[2].length == 1) {
             // A boolean attribute, e.g. 12 OK [READ-WRITE]
@@ -185,6 +188,7 @@ class ImapResponse {
             // Hold other attributes.
             this.attributes[field] = data;
           }
+        }
       }
     }
     this._parse();
@@ -199,7 +203,7 @@ class ImapResponse {
     const intValue = +tokens[1];
     const type = tokens[2].toUpperCase();
     switch (type) {
-      case "FETCH":
+      case "FETCH": {
         // * 1 FETCH (UID 5 FLAGS (\SEEN) BODY[HEADER.FIELDS (FROM TO)] {12}
         const message = new MessageData(intValue, tokens[3]);
         this.messages.push(message);
@@ -218,6 +222,7 @@ class ImapResponse {
           this.onMessage(message);
         }
         break;
+      }
       case "EXISTS":
         // * 6 EXISTS
         this.exists = intValue;
@@ -264,6 +269,8 @@ class ImapResponse {
         // Parse the whole string as a token.
         line = line.slice(index + 1);
         let str = sep;
+        // @see https://github.com/eslint/eslint/issues/17807
+        // eslint-disable-next-line no-constant-condition
         while (true) {
           index = line.indexOf('"');
           if (line[index - 1] == "\\") {

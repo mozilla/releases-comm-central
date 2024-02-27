@@ -385,7 +385,7 @@ var ResultsPaneController = {
         }
         return enabled;
       }
-      case "cmd_print":
+      case "cmd_print": {
         // cmd_print is currently only used in SeaMonkey.
         // Prevent printing when we don't have an opener (browserDOMWindow is
         // null).
@@ -394,6 +394,7 @@ var ResultsPaneController = {
           e.disabled = !enabled;
         });
         return enabled;
+      }
       case "cmd_printcard":
         // Prevent printing when we don't have an opener (browserDOMWindow is
         // null).

@@ -491,7 +491,7 @@ function GetScopeForFolder(folder) {
   let hasBody = folder.getFlag(Ci.nsMsgFolderFlags.Offline);
   const nsMsgSearchScope = Ci.nsMsgSearchScope;
   switch (localType) {
-    case "news":
+    case "news": {
       // News has four offline scopes, depending on whether junk and body
       // are available.
       const hasJunk =
@@ -511,8 +511,8 @@ function GetScopeForFolder(folder) {
       }
       // We don't have offline message bodies or junk processing.
       return nsMsgSearchScope.localNews;
-
-    case "imap":
+    }
+    case "imap": {
       // Junk is always enabled for imap, so the offline scope only depends on
       // whether the body is available.
 
@@ -530,6 +530,7 @@ function GetScopeForFolder(folder) {
       if (!hasBody) {
         return nsMsgSearchScope.onlineManual;
       }
+    }
     // fall through to default
     default:
       return nsMsgSearchScope.offlineMail;

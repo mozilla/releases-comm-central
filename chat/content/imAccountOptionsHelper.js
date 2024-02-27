@@ -84,7 +84,7 @@ var accountOptionsHelper = {
       const text = opt.label;
       const name = aIdPrefix + opt.name;
       switch (opt.type) {
-        case Ci.prplIPref.typeBool:
+        case Ci.prplIPref.typeBool: {
           const chk = document.createXULElement("checkbox");
           chk.setAttribute("label", text);
           chk.setAttribute("id", name);
@@ -95,6 +95,7 @@ var accountOptionsHelper = {
           chk.classList.add("grid-item-span-row");
           grid.appendChild(chk);
           break;
+        }
         case Ci.prplIPref.typeInt:
           this.createTextbox("number", opt.getInt(), text, name, grid);
           break;

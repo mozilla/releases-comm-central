@@ -159,6 +159,8 @@ async function tempDir(prefix) {
     prefix = "";
   }
   const tmpDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
+  // @see https://github.com/eslint/eslint/issues/17807
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const name = prefix + Math.floor(Math.random() * 0xffffffff).toString(16);
     const fullPath = PathUtils.join(tmpDir, name);

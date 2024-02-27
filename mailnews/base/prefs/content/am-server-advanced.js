@@ -121,11 +121,12 @@ function onOk(event) {
       case "currentAccount":
         gServerSettings.deferredToAccount = "";
         break;
-      case "otherAccount":
+      case "otherAccount": {
         const server = picker.selectedItem._folder.server;
         const account = MailServices.accounts.findAccountForServer(server);
         gServerSettings.deferredToAccount = account.key;
         break;
+      }
     }
   }
 

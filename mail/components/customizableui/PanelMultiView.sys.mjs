@@ -1149,13 +1149,14 @@ export class PanelMultiView extends AssociatedToNode {
       return;
     }
     switch (aEvent.type) {
-      case "keydown":
+      case "keydown": {
         // Since we start listening for the "keydown" event when the popup is
         // already showing and stop listening when the panel is hidden, we
         // always have at least one view open.
         const currentView = this.openViews[this.openViews.length - 1];
         currentView.keyNavigation(aEvent);
         break;
+      }
       case "mousemove":
         this.openViews.forEach(panelView => panelView.clearNavigation());
         break;
@@ -1182,7 +1183,7 @@ export class PanelMultiView extends AssociatedToNode {
         }
         break;
       }
-      case "popupshown":
+      case "popupshown": {
         // The main view is always open and visible when the panel is first
         // shown, so we can check the height of the description elements it
         // contains and notify consumers using the ViewShown event. In order to
@@ -1191,6 +1192,7 @@ export class PanelMultiView extends AssociatedToNode {
         const mainPanelView = this.openViews[0];
         this._activateView(mainPanelView);
         break;
+      }
       case "popuphidden": {
         // WebExtensions consumers can hide the popup from viewshowing, or
         // mid-transition, which disrupts our state:

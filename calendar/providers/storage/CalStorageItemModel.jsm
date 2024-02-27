@@ -566,10 +566,11 @@ class CalStorageItemModel extends CalStorageModelBase {
           item.setCategories(cats);
           break;
         }
-        default:
+        default: {
           const value = row.getResultByName("value");
           item.setProperty(name, value);
           break;
+        }
       }
     });
 
@@ -829,10 +830,11 @@ class CalStorageItemModel extends CalStorageModelBase {
               item.setCategories(cats);
               break;
             }
-            default:
+            default: {
               const value = row.getResultByName("value");
               item.setProperty(name, value);
               break;
+            }
           }
         });
 

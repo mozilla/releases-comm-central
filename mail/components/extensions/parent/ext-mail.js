@@ -462,12 +462,13 @@ class SpaceTracker {
             case "preferencesTab":
               // A primary tab that the open method creates.
               return 1;
-            case "contentTab":
+            case "contentTab": {
               const url = tabInfo.urlbar?.value;
               if (url == "about:accountsettings" || url == "about:addons") {
                 // A secondary tab, that is related to this space.
                 return 2;
               }
+            }
           }
           return 0;
         },

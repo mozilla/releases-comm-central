@@ -2697,14 +2697,15 @@ class HandlerInfoWrapper {
       case Ci.nsIHandlerInfo.useSystemDefault:
         return this.iconURLForSystemDefault;
 
-      case Ci.nsIHandlerInfo.useHelperApp:
+      case Ci.nsIHandlerInfo.useHelperApp: {
         const preferredApp = this.preferredApplicationHandler;
         if (gGeneralPane.isValidHandlerApp(preferredApp)) {
           return gGeneralPane._getIconURLForHandlerApp(preferredApp);
         }
+      }
+
       // This should never happen, but if preferredAction is set to some weird
       // value, then fall back to the generic application icon.
-
       // Explicit fall-through
       default:
         return ICON_URL_APP;

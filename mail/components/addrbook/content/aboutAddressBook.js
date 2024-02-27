@@ -2792,7 +2792,7 @@ var detailsPane = {
         }
         break;
       case "addrbook-contact-deleted":
-      case "addrbook-list-member-removed":
+      case "addrbook-list-member-removed": {
         subject.QueryInterface(Ci.nsIAbCard);
         updateAddressBookCount();
 
@@ -2825,6 +2825,7 @@ var detailsPane = {
           }
         }
         break;
+      }
       case "addrbook-list-updated":
         subject.QueryInterface(Ci.nsIAbDirectory);
         if (this.currentList && this.currentList.mailListURI == subject.URI) {
@@ -3460,7 +3461,7 @@ var detailsPane = {
         case "_JabberId":
           value = `xmpp:${value}`;
           break;
-        case "_IRC":
+        case "_IRC": {
           // Guess host, in case we have an irc account configured.
           const host =
             IMServices.accounts
@@ -3469,6 +3470,7 @@ var detailsPane = {
               ?.name.split("@", 2)[1] || "irc.example.org";
           value = `ircs://${host}/${value},isuser`;
           break;
+        }
       }
       if (!existingIMPPValues.includes(value)) {
         card.vCardProperties.addEntry(

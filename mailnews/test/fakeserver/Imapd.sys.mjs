@@ -1548,6 +1548,8 @@ export class IMAP_RFC3501_handler {
       const now = new Date();
       let alarm;
       const startingMSeconds = now.getTime();
+      // @see https://github.com/eslint/eslint/issues/17807
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         alarm = new Date();
         if (alarm.getTime() - startingMSeconds > this._daemon.copySleep) {
