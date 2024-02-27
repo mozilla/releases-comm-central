@@ -744,11 +744,7 @@ pref("browser.link.open_newwindow.restriction", 0);
 
 pref("browser.tabs.loadDivertedInBackground", false);
 
-// Enable multi-process.
-pref("browser.tabs.remote.autostart", true);
-pref("browser.tabs.remote.desktopbehavior", true);
 pref("extensions.webextensions.remote", true);
-
 pref("extensions.webextensions.background-delayed-startup", true);
 
 // Browser icon prefs
