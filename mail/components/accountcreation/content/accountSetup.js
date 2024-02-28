@@ -648,7 +648,7 @@ var gAccountSetup = {
       function (config, call) {
         // success
         self._abortable = null;
-        self.stopLoadingState(call.foundMsg);
+        self.stopLoadingState(self._getConfigSourceStringName(config));
         self.foundConfig(config);
       },
       function (e, allErrors) {
@@ -670,7 +670,6 @@ var gAccountSetup = {
       gAccountSetupLogger.debug(
         "Looking up configuration: Thunderbird installation…"
       );
-      call.foundMsg = "account-setup-success-settings-disk";
       fetch = FetchConfig.fromDisk(
         domain,
         call.successCallback(),
@@ -680,7 +679,6 @@ var gAccountSetup = {
 
       call = priority.addCall();
       gAccountSetupLogger.debug("Looking up configuration: Email provider…");
-      call.foundMsg = "account-setup-success-settings-isp";
       fetch = FetchConfig.fromISP(
         domain,
         emailAddress,
@@ -693,7 +691,6 @@ var gAccountSetup = {
       gAccountSetupLogger.debug(
         "Looking up configuration: Thunderbird installation…"
       );
-      call.foundMsg = "account-setup-success-settings-db";
       fetch = FetchConfig.fromDB(
         domain,
         call.successCallback(),
@@ -705,11 +702,9 @@ var gAccountSetup = {
       gAccountSetupLogger.debug(
         "Looking up configuration: Incoming mail domain…"
       );
-      // "account-setup-success-settings-db" is correct.
-      // We display the same message for both db and mx cases.
-      call.foundMsg = "account-setup-success-settings-db";
       fetch = FetchConfig.forMX(
         domain,
+        emailAddress,
         call.successCallback(),
         call.errorCallback()
       );
@@ -717,7 +712,6 @@ var gAccountSetup = {
 
       call = priority.addCall();
       gAccountSetupLogger.debug("Looking up configuration: Exchange server…");
-      call.foundMsg = "account-setup-success-settings-exchange";
       fetch = fetchConfigFromExchange(
         domain,
         emailAddress,
@@ -754,6 +748,37 @@ var gAccountSetup = {
       this.onStop();
       // e.g. when entering an invalid domain like "c@c.-com"
       this.showErrorNotification(e, true);
+    }
+  },
+
+  /**
+   * Get success message depending on the source of the config.
+   */
+  _getConfigSourceStringName(config) {
+    switch (config.source) {
+      case AccountConfig.kSourceXML: {
+        switch (config.subSource) {
+          case "xml-from-disk": {
+            return "account-setup-success-settings-disk";
+          }
+          case "xml-from-isp-https":
+          case "xml-from-isp-http": {
+            return "account-setup-success-settings-isp";
+          }
+          case "xml-from-db": {
+            return "account-setup-success-settings-db";
+          }
+          default: {
+            throw new Error(`Unexpected xml subSource: ${config.subSource}`);
+          }
+        }
+      }
+      case AccountConfig.kSourceExchange: {
+        return "account-setup-success-settings-exchange";
+      }
+      default: {
+        throw new Error(`Unexpected source: ${config.source}`);
+      }
     }
   },
 

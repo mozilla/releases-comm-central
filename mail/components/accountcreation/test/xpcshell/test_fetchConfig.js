@@ -27,8 +27,20 @@ const { FetchConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/FetchConfig.sys.mjs"
 );
 
-// Original `mx` method so it can be replaced at the end of the test.
+const { AccountCreationUtils } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
+);
+const { FetchHTTP } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/FetchHTTP.sys.mjs"
+);
+const { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
+
+const { Abortable, runAsync } = AccountCreationUtils;
+
+// Save original references so we can restore them at the end of the test
 const _mx = DNS.mx;
+const _fetchHttpCreate = FetchHTTP.create;
+
 let server;
 
 add_setup(function () {
@@ -41,6 +53,7 @@ registerCleanupFunction(function () {
   NetworkTestUtils.clearProxy();
   Services.prefs.clearUserPref("mailnews.auto_config_url");
   DNS.mx = _mx;
+  FetchHTTP.create = _fetchHttpCreate;
 });
 
 /**
@@ -326,7 +339,12 @@ add_task(async function testFetchConfigForMX() {
   // Fetch the configuration file.
 
   let { promise, resolve, reject } = Promise.withResolvers();
-  FetchConfig.forMX("example.com", resolve, reject);
+  FetchConfig.forMX(
+    "example.com",
+    "yamato.nadeshiko@example.com",
+    resolve,
+    reject
+  );
   let config = await promise;
   AccountConfig.replaceVariables(
     config,
@@ -363,7 +381,12 @@ add_task(async function testFetchConfigForMX() {
   // Fetch the configuration file.
 
   ({ promise, resolve, reject } = Promise.withResolvers());
-  FetchConfig.forMX("example.com", resolve, reject);
+  FetchConfig.forMX(
+    "example.com",
+    "yamato.nadeshiko@example.com",
+    resolve,
+    reject
+  );
   config = await promise;
 
   AccountConfig.replaceVariables(
@@ -390,3 +413,115 @@ add_task(async function testFetchConfigForMX() {
   server.registerFile("/autoconfig/2/test.test.xml", null);
   Services.cache2.clear();
 });
+
+/**
+ * Tests doing a DNS MX lookup, then fetching the configuration from the
+ * provider's autoconfig service.
+ */
+add_task(async function testFetchConfigFromProviderViaMX() {
+  // Set fallback database URL
+  Services.prefs.setCharPref(
+    "mailnews.auto_config_url",
+    "https://autoconfig.thunderbird.test/{{domain}}"
+  );
+
+  // Mock DNS
+  DNS.mx = function (name) {
+    Assert.equal(name, "domain.test");
+    return Promise.resolve([{ prio: 0, host: "mx.provider.test" }]);
+  };
+
+  // Mock HTTP
+  const mockManager = new MockFetchHttpManager();
+  mockManager.addResponse(
+    "https://autoconfig.provider.test/mail/config-v1.1.xml",
+    await readFileToJxon("data/example.com.xml")
+  );
+  FetchHTTP.create = (url, args, successCallback, errorCallback) =>
+    mockManager.createMock(url, successCallback, errorCallback);
+
+  // Fetch the configuration file
+  const { promise, resolve, reject } = Promise.withResolvers();
+  FetchConfig.forMX("domain.test", "user@domain.test", resolve, reject);
+  const config = await promise;
+
+  AccountConfig.replaceVariables(
+    config,
+    "Full Name",
+    "user@domain.test",
+    "password"
+  );
+
+  // Check that we got the expected config
+  Assert.equal(config.incoming.username, "user");
+  Assert.equal(config.incoming.hostname, "pop.example.com");
+  Assert.equal(config.outgoing.username, "user@domain.test");
+  Assert.equal(config.outgoing.hostname, "smtp.example.com");
+  Assert.equal(config.identity.realname, "Full Name");
+  Assert.equal(config.identity.emailAddress, "user@domain.test");
+  Assert.equal(config.subSource, "xml-from-isp-https");
+
+  // Check the issued HTTP requests
+  Assert.deepEqual(mockManager.requests, [
+    "https://autoconfig.provider.test/mail/config-v1.1.xml",
+    "https://autoconfig.thunderbird.test/provider.test",
+  ]);
+});
+
+async function readFileToJxon(filename) {
+  const fileContents = await IOUtils.readUTF8(do_get_file(filename).path);
+  const domParser = new DOMParser();
+  return JXON.build(domParser.parseFromString(fileContents, "text/xml"));
+}
+
+/**
+ * Can create `FetchHTTP`-like instances and records all HTTP requests made using them.
+ */
+class MockFetchHttpManager {
+  responses = new Map();
+  requests = [];
+
+  addResponse(url, response) {
+    this.responses.set(url, response);
+  }
+
+  recordRequest(url) {
+    this.requests.push(url);
+  }
+
+  createMock(url, successCallback, errorCallback) {
+    const response = this.responses.get(url);
+    if (!response) {
+      return new MockFetchHttp(
+        this,
+        url,
+        new Error("No response configured"),
+        errorCallback
+      );
+    }
+
+    return new MockFetchHttp(this, url, response, successCallback);
+  }
+}
+
+/**
+ * "Implementation" of `FetchHTTP` that returns a canned response.
+ *
+ * Use via `MockFetchHttpManager`.
+ */
+class MockFetchHttp extends Abortable {
+  constructor(manager, url, response, callback) {
+    super();
+    this.manager = manager;
+    this.url = url;
+    this.response = response;
+    this.callback = callback;
+  }
+
+  start() {
+    this.manager.recordRequest(this.url);
+    runAsync(() => {
+      this.callback(this.response);
+    });
+  }
+}

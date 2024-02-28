@@ -395,3 +395,15 @@ function ServerException(msg, code, uri) {
 }
 ServerException.prototype = Object.create(Exception.prototype);
 ServerException.prototype.constructor = ServerException;
+
+/**
+ * Creates a FetchHTTP instance.
+ *
+ * Use this instead of the constructor if you want to replace FetchHTTP during
+ * testing, e.g. because HttpServer can't or shouldn't be used.
+ *
+ * @see {@link FetchHTTP}
+ */
+FetchHTTP.create = (url, args, successCallback, errorCallback) => {
+  return new FetchHTTP(url, args, successCallback, errorCallback);
+};

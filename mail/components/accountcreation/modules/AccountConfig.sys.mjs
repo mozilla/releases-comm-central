@@ -61,7 +61,7 @@ AccountConfig.prototype = {
   // { one of kSource* }
   source: null,
   /**
-   * Used for telemetry purposes.
+   * Used for displaying a success message to the user and telemetry purposes.
    * - for kSourceXML, subSource is one of xml-from-{disk, db, isp-https, isp-http}.
    * - for kSourceExchange, subSource is one of exchange-from-urlN[-guess].
    */

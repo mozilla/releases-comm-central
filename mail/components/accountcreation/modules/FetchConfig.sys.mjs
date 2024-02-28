@@ -28,6 +28,25 @@ const {
 } = AccountCreationUtils;
 
 /**
+ * A callback that will be called when a configuration was retrieved and
+ * parsed successfully.
+ *
+ * @callback SuccessCallback
+ * @param {AccountConfig} config - The AccountConfig object.
+ */
+
+/**
+ * A callback that will be called when there was an error while retrieving
+ * or parsing the configuration.
+ *
+ * This is expected (e.g. when there's no config for a domain at the checked
+ * location). So do not unconditionally show this to the user.
+ *
+ * @callback ErrorCallback
+ * @param {Error|string} error - An Error instance or error string.
+ */
+
+/**
  * Tries to find a configuration for this ISP on the local harddisk, in the
  * application install directory's "isp" subdirectory.
  * Params @see fetchConfigFromISP()
@@ -82,6 +101,43 @@ function fetchConfigFromISP(
   successCallback,
   errorCallback
 ) {
+  const httpsOnly = Services.prefs.getBoolPref(
+    "mailnews.auto_config.fetchFromISP.sslOnly"
+  );
+  return _fetchConfigFromIsp(
+    domain,
+    emailAddress,
+    httpsOnly,
+    true, // useOptionalUrl
+    successCallback,
+    errorCallback
+  );
+}
+
+/**
+ * Tries to get a configuration from the ISP / mail provider directly.
+ *
+ * @param {string} domain - The domain part of the user's email address.
+ * @param {string} emailAddress - The user's email address.
+ * @param {boolean} httpsOnly - If true, only uses https-variants of the
+ *   autoconfig URLs.
+ * @param {boolean} useOptionalUrl - If false, the /.well-known URLs will be
+ *   skipped when checking for a configuration.
+ * @param {SuccessCallback} successCallback - Will be called when a valid
+ *   config was successfully retrieved.
+ * @param {ErrorCallback} errorCallback - Will be called when no valid config
+ *   could be retrieved.
+ *
+ * @returns {Abortable} - A handle for this async operation which you can cancel.
+ */
+function _fetchConfigFromIsp(
+  domain,
+  emailAddress,
+  httpsOnly,
+  useOptionalUrl,
+  successCallback,
+  errorCallback
+) {
   if (
     !Services.prefs.getBoolPref("mailnews.auto_config.fetchFromISP.enabled")
   ) {
@@ -89,18 +145,24 @@ function fetchConfigFromISP(
     return new Abortable();
   }
 
-  const conf1 =
-    "autoconfig." + lazy.Sanitizer.hostname(domain) + "/mail/config-v1.1.xml";
+  const sanitizedDomain = lazy.Sanitizer.hostname(domain);
+  const conf1 = `autoconfig.${sanitizedDomain}/mail/config-v1.1.xml`;
+
   // .well-known/ <http://tools.ietf.org/html/draft-nottingham-site-meta-04>
-  const conf2 =
-    lazy.Sanitizer.hostname(domain) +
-    "/.well-known/autoconfig/mail/config-v1.1.xml";
+  const conf2 = `${sanitizedDomain}/.well-known/autoconfig/mail/config-v1.1.xml`;
+
   // This list is sorted by decreasing priority
-  var urls = ["https://" + conf1, "https://" + conf2];
-  if (
-    !Services.prefs.getBoolPref("mailnews.auto_config.fetchFromISP.sslOnly")
-  ) {
-    urls.push("http://" + conf1, "http://" + conf2);
+  var urls = ["https://" + conf1];
+  if (useOptionalUrl) {
+    urls.push("https://" + conf2);
+  }
+
+  if (!httpsOnly) {
+    urls.push("http://" + conf1);
+
+    if (useOptionalUrl) {
+      urls.push("http://" + conf2);
+    }
   }
   const callArgs = {
     urlArgs: {
@@ -125,7 +187,7 @@ function fetchConfigFromISP(
   for (const url of urls) {
     call = priority.addCall();
     call.foundMsg = url.startsWith("https") ? "https" : "http";
-    fetch = new lazy.FetchHTTP(
+    fetch = lazy.FetchHTTP.create(
       url,
       callArgs,
       call.successCallback(),
@@ -158,7 +220,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
     url = url.replace("{{domain}}", domain);
   }
 
-  const fetch = new lazy.FetchHTTP(
+  const fetch = lazy.FetchHTTP.create(
     url,
     { timeout: 10000 }, // 10 seconds
     function (result) {
@@ -173,7 +235,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
 /**
  * Does a lookup of DNS MX, to get the server that is responsible for
  * receiving mail for this domain. Then it takes the domain of that
- * server, and does another lookup (in ISPDB and possibly at ISP autoconfig
+ * server, and does another lookup (in ISPDB and at ISP autoconfig
  * server) and if such a config is found, returns that.
  *
  * Disclaimers:
@@ -191,7 +253,33 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
  *
  * Params @see fetchConfigFromISP()
  */
-function fetchConfigForMX(domain, successCallback, errorCallback) {
+function fetchConfigForMX(
+  domain,
+  emailAddress,
+  successCallback,
+  errorCallback
+) {
+  function fetchConfig(runner, lookupDomain) {
+    const ispCall = runner.addCall();
+    const ispFetch = _fetchConfigFromIsp(
+      lookupDomain,
+      emailAddress,
+      true, // httpsOnly
+      false, // useOptionalUrl
+      ispCall.successCallback(),
+      ispCall.errorCallback()
+    );
+    ispCall.setAbortable(ispFetch);
+
+    const dbCall = runner.addCall();
+    const dbFetch = fetchConfigFromDB(
+      lookupDomain,
+      dbCall.successCallback(),
+      dbCall.errorCallback()
+    );
+    dbCall.setAbortable(dbFetch);
+  }
+
   const sanitizedDomain = lazy.Sanitizer.hostname(domain);
   const sucAbortable = new SuccessiveAbortable();
   const time = Date.now();
@@ -223,22 +311,12 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
         successCallback,
         errorCallback
       );
+
       if (mxDomain && sld != mxDomain) {
-        const call = priority.addCall();
-        const fetch = fetchConfigFromDB(
-          mxDomain,
-          call.successCallback(),
-          call.errorCallback()
-        );
-        call.setAbortable(fetch);
+        fetchConfig(priority, mxDomain);
       }
-      const call = priority.addCall();
-      const fetch = fetchConfigFromDB(
-        sld,
-        call.successCallback(),
-        call.errorCallback()
-      );
-      call.setAbortable(fetch);
+      fetchConfig(priority, sld);
+
       sucAbortable.current = priority;
     },
     errorCallback
